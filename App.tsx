@@ -4,13 +4,17 @@ import { StyleSheet, Text, View } from "react-native"
 import Amplify from "aws-amplify"
 import config from "./src/aws-exports"
 
+import { withAuthenticator, AmplifySignOut } from 'aws-amplify-react-native';
+Amplify.configure(config)
+
+
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 
-export default function App() {
+ function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
 
@@ -21,7 +25,10 @@ export default function App() {
       <SafeAreaProvider>
         <Navigation colorScheme={colorScheme} />
         <StatusBar />
+        <AmplifySignOut />
       </SafeAreaProvider>
     );
   }
 }
+
+export default withAuthenticator(App)
