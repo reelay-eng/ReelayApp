@@ -1,11 +1,18 @@
 import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { StyleSheet, Text, View } from "react-native"
-import Amplify from "aws-amplify"
+import { Amplify, Auth } from "aws-amplify"
 import config from "./src/aws-exports"
 
 import { withAuthenticator, AmplifySignOut } from 'aws-amplify-react-native';
-Amplify.configure(config)
+Amplify.configure({
+  ...config,
+  Analytics: {
+    disabled: true,
+  },
+});
+
+Auth.configure({ mandatorySignIn: false});
 
 
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -14,7 +21,7 @@ import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 
- function App() {
+function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
 
@@ -25,10 +32,9 @@ import Navigation from './navigation';
       <SafeAreaProvider>
         <Navigation colorScheme={colorScheme} />
         <StatusBar />
-        <AmplifySignOut />
       </SafeAreaProvider>
     );
   }
 }
 
-export default withAuthenticator(App)
+export default withAuthenticator(App, true);
