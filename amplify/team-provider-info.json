@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-reelayapp-dev-211002-authRole",
+      "UnauthRoleArn": "arn:aws:iam::967954029365:role/amplify-reelayapp-dev-211002-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::967954029365:role/amplify-reelayapp-dev-211002-authRole",
+      "Region": "us-west-2",
+      "DeploymentBucketName": "amplify-reelayapp-dev-211002-deployment",
+      "UnauthRoleName": "amplify-reelayapp-dev-211002-unauthRole",
+      "StackName": "amplify-reelayapp-dev-211002",
+      "StackId": "arn:aws:cloudformation:us-west-2:967954029365:stack/amplify-reelayapp-dev-211002/456efb00-afb3-11eb-942f-0a5bd2ae956f",
+      "AmplifyAppId": "dkrf3u45k5fx4"
+    },
+    "categories": {
+      "auth": {
+        "reelayappdb20330d": {}
+      }
+    }
+  }
+}

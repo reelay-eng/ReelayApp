@@ -1,0 +1,10 @@
+{
+  "auth": {
+    "reelayappdb20330d": {
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false
+    }
+  }
+}
