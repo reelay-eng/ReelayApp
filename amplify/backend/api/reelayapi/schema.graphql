@@ -1,0 +1,37 @@
+type Artist @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  displayName: String
+  descript: String
+}
+
+type Movie @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  title: String
+  description: String
+  runningTime: Int
+  posterURI: String
+  trailerURI: String
+  releaseDate: AWSDate
+}
+
+type Reelay @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  movieID: ID
+  creatorID: String
+  videoURI: String
+}
+
+type User @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  username: String
+  email: AWSEmail
+  phoneNumber: String
+  bio: String
+}
+
+type Todo @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  name: String!
+  description: String
+}
+ 
