@@ -12,14 +12,14 @@ export default {
     screens: {
       Root: {
         screens: {
-          TabOne: {
+          Home: {
             screens: {
-              TabOneScreen: 'one',
+              HomeFeedScreen: 'one',
             },
           },
-          TabTwo: {
+          Reelay: {
             screens: {
-              TabTwoScreen: 'two',
+              RecordReelayScreen: 'two',
             },
           },
         },
