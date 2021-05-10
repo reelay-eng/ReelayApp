@@ -4,6 +4,7 @@
  */
 
 import { Ionicons } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons'; 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as React from 'react';
@@ -27,14 +28,14 @@ export default function BottomTabNavigator() {
         name="Home"
         component={HomeTabNavigator}
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="ios-code" color={color} />,
+          tabBarIcon: ({ color }) => <AntDesign name="find" size={24} color={color} />
         }}
       />
       <BottomTab.Screen
         name="Reelay"
         component={ReelayTabNavigator}
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="ios-code" color={color} />,
+          tabBarIcon: ({ color }) => <AntDesign name="videocamera" size={24} color={color} />,
         }}
       />
     </BottomTab.Navigator>
@@ -57,7 +58,7 @@ function HomeTabNavigator() {
       <HomeTabStack.Screen
         name="HomeFeedScreen"
         component={HomeFeedScreen}
-        options={{ headerTitle: 'Home' }}
+        options={{ headerTitle: 'Find a Movie' }}
       />
     </HomeTabStack.Navigator>
   );

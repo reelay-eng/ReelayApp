@@ -28,5 +28,11 @@
         }
       }
     }
+  },
+  "storage": {
+    "ReelayContent": {
+      "service": "S3",
+      "providerPlugin": "awscloudformation"
+    }
   }
 }

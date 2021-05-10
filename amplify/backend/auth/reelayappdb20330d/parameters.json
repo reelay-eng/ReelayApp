@@ -1,6 +1,6 @@
 {
     "identityPoolName": "reelayappdb20330d_identitypool_db20330d",
-    "allowUnauthenticatedIdentities": false,
+    "allowUnauthenticatedIdentities": true,
     "resourceNameTruncated": "reelaydb20330d",
     "userPoolName": "reelayappdb20330d_userpool_db20330d",
     "autoVerifiedAttributes": [
