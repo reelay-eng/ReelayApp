@@ -1,126 +1,239 @@
-import React, { useState, useEffect } from 'react';
-import { AppRegistry, StyleSheet, Text, TouchableOpacity, Platform, View  } from 'react-native';
-import { Camera } from 'expo-camera';
-import { Ionicons } from 'ionicons';
+// placeholder code from: 
+// https://www.instamobile.io/react-native-tutorials/capturing-photos-and-videos-with-the-camera-in-react-native/
 
-import EditScreenInfo from '../components/EditScreenInfo';
+import React, { useState, useRef, useEffect } from "react";
+import {
+  StyleSheet,
+  Dimensions,
+  View,
+  Text,
+  TouchableOpacity,
+  SafeAreaView,
+} from "react-native";
 
-function moveToBottom(component) {
-  return (
-    <View style={styles.bottomRow}>
-      {component}
-    </View>
-  )
-}
+import { Camera } from "expo-camera";
+import { Video } from "expo-av";
+const WINDOW_HEIGHT = Dimensions.get("window").height;
+const closeButtonSize = Math.floor(WINDOW_HEIGHT * 0.032);
+const captureSize = Math.floor(WINDOW_HEIGHT * 0.09);
 
-export default function RecordReelayScreen() {
+export default function RecordReelayScreen({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
-  const [cameraRef, setCameraRef] = useState(null);
-  const [recording, setRecording] = useState(null);
-  const [type, setType] = useState(Camera.Constants.Type.front);
+  const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
+  const [isPreview, setIsPreview] = useState(false);
+  const [isCameraReady, setIsCameraReady] = useState(false);
+  const [isVideoRecording, setIsVideoRecording] = useState(false);
+  const [videoSource, setVideoSource] = useState(null);
+  const cameraRef = useRef();
+  const videoRef = useRef();
 
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestPermissionsAsync();
-      setHasPermission(status === 'granted');
+      setHasPermission(status === "granted");
     })();
   }, []);
+
+  const onCameraReady = () => {
+    setIsCameraReady(true);
+  };
+
+  const takePicture = async () => {
+    if (cameraRef.current) {
+      const options = { quality: 0.5, base64: true, skipProcessing: true };
+      const data = await cameraRef.current.takePictureAsync(options);
+      const source = data.uri;
+      if (source) {
+        await cameraRef.current.pausePreview();
+        setIsPreview(true);
+        console.log("picture source", source);
+      }
+    }
+  };
+
+  const recordVideo = async () => {
+    if (cameraRef.current) {
+      try {
+        const videoRecordPromise = cameraRef.current.recordAsync();
+        if (videoRecordPromise) {
+          setIsVideoRecording(true);
+          const data = await videoRecordPromise;
+          const source = data.uri;
+          if (source) {
+            setIsPreview(true);
+            console.log("video source", source);
+            setVideoSource(source);
+          }
+        }
+      } catch (error) {
+        console.warn(error);
+      }
+    }
+  };
+
+  const stopVideoRecording = () => {
+    if (cameraRef.current) {
+      setIsPreview(false);
+      setIsVideoRecording(false);
+      cameraRef.current.stopRecording();
+    }
+  };
+
+  const switchCamera = () => {
+    if (isPreview) {
+      return;
+    }
+
+    setCameraType((prevCameraType) =>
+      prevCameraType === Camera.Constants.Type.back
+        ? Camera.Constants.Type.front
+        : Camera.Constants.Type.back
+    );
+  };
+
+  const cancelPreview = async () => {
+    await cameraRef.current.resumePreview();
+    setIsPreview(false);
+    setVideoSource(null);
+  };
+
+  const renderCancelPreviewButton = () => (
+    <TouchableOpacity onPress={cancelPreview} style={styles.closeButton}>
+      <View style={[styles.closeCross, { transform: [{ rotate: "45deg" }] }]} />
+      <View
+        style={[styles.closeCross, { transform: [{ rotate: "-45deg" }] }]}
+      />
+    </TouchableOpacity>
+  );
+
+  const renderVideoPlayer = () => (
+      <Video
+        ref={videoRef}
+        source={{ uri: videoSource }}
+        shouldPlay={true}
+        style={styles.media}
+        onPress={() =>
+          status.isPlaying ? videoRef.current.pauseAsync() : videoRef.current.playAsync()
+        }
+      />
+  );
+
+  const renderVideoRecordIndicator = () => (
+    <View style={styles.recordIndicatorContainer}>
+      <View style={styles.recordDot} />
+      <Text style={styles.recordTitle}>{"Recording..."}</Text>
+    </View>
+  );
+
+  const renderCaptureControl = () => (
+    <View style={styles.control}>
+      <TouchableOpacity disabled={!isCameraReady} onPress={switchCamera}>
+        <Text style={styles.text}>{"Flip"}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        disabled={!isCameraReady}
+        onLongPress={recordVideo}
+        onPressOut={stopVideoRecording}
+        onPress={!isVideoRecording ? recordVideo : stopVideoRecording}
+        style={styles.capture}
+      />
+    </View>
+  );
 
   if (hasPermission === null) {
     return <View />;
   }
   if (hasPermission === false) {
-    return <Text>No access to camera</Text>;
+    return <Text style={styles.text}>No access to camera</Text>;
   }
 
   return (
-    <View style={styles.container}>
-      <Camera style={styles.camera} 
-              type={type} 
-              ref={ref => {setCameraRef(ref);}}>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.flipButton}
-            onPress={() => {
-              setType(
-                type === Camera.Constants.Type.back
-                  ? Camera.Constants.Type.front
-                  : Camera.Constants.Type.back
-              );
-            }}>
-            <Text style={styles.text}> Flip </Text>
-            {/* <Ionicons name={ Platform.OS === 'ios' ? "ios-reverse-camera" : 'md-reverse-camera'} size={40} color="white" /> */}
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.buttonContainer} onPress={ async() => {
-              if(!recording){
-                setRecording(true);
-              let video = await cameraRef.recordAsync({
-                maxDuration: 15
-              });
-              console.log('video', video);
-            } else {
-                setRecording(false);
-                cameraRef.stopRecording();
-                console.log('recording stopped');
-            }
-          }}>
-            <View style={styles.recordButtonOuterRing} >
-              <View style={styles.recordButtonInnerRing} />
-            </View>
-          </TouchableOpacity>
-        </View>
-      </Camera>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <Camera
+        ref={cameraRef}
+        style={styles.container}
+        type={cameraType}
+        flashMode={Camera.Constants.FlashMode.on}
+        onCameraReady={onCameraReady}
+        onMountError={(error) => {
+          console.log("cammera error", error);
+        }}
+      />
+      <View style={styles.container}>
+        {isVideoRecording && renderVideoRecordIndicator()}
+        {videoSource && renderVideoPlayer()}
+        {isPreview && renderCancelPreviewButton()}
+        {!videoSource && !isPreview && renderCaptureControl()}
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    ...StyleSheet.absoluteFillObject,
   },
-  camera: {
-    flex: 1,
+  closeButton: {
+    position: "absolute",
+    top: 35,
+    left: 15,
+    height: closeButtonSize,
+    width: closeButtonSize,
+    borderRadius: Math.floor(closeButtonSize / 2),
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#c4c5c4",
+    opacity: 0.7,
+    zIndex: 2,
   },
-  bottomRow: {
-    flex: 1,
-    justifyContent: 'space-between',
-    marginBottom: 24
+  media: {
+    ...StyleSheet.absoluteFillObject,
   },
-  buttonContainer: {
-    flex: 1,
-    backgroundColor: 'transparent',
-    justifyContent: 'flex-end',
-    marginBottom: 24,
-    alignItems: 'center'
+  closeCross: {
+    width: "68%",
+    height: 1,
+    backgroundColor: "black",
   },
-  flipButton: {
-    flex: 0.1,
-    justifyContent: 'flex-end',
-    alignItems: 'flex-start',
-    marginBottom: 24,
+  control: {
+    position: "absolute",
+    flexDirection: "row",
+    bottom: 38,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  capture: {
+    backgroundColor: "#f5f6f5",
+    borderRadius: 5,
+    height: captureSize,
+    width: captureSize,
+    borderRadius: Math.floor(captureSize / 2),
+    marginHorizontal: 31,
+  },
+  recordIndicatorContainer: {
+    flexDirection: "row",
+    position: "absolute",
+    top: 25,
+    alignSelf: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "transparent",
+    opacity: 0.7,
+  },
+  recordTitle: {
+    fontSize: 14,
+    color: "#ffffff",
+    textAlign: "center",
+  },
+  recordDot: {
+    borderRadius: 3,
+    height: 6,
+    width: 6,
+    backgroundColor: "#ff0000",
+    marginHorizontal: 5,
   },
   text: {
-    flex: 1,
-    fontSize: 18,
-    color: 'white',
-    marginBottom: 24
+    color: "#fff",
   },
-  recordButtonInnerRing: {
-    borderWidth: 2,
-    borderRadius:25,
-    borderColor: 'red',
-    height: 40,
-    width:40,
-    backgroundColor: 'red'
-  },
-  recordButtonOuterRing: {
-    borderWidth: 2,
-    borderRadius:25,
-    borderColor: 'red',
-    height: 50,
-    width:50,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center'
-  }
 });
