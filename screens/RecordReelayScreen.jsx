@@ -193,6 +193,7 @@ export default function RecordReelayScreen({ navigation }) {
         movieID: 'Good Will Hunting',
         creatorID: creator.attributes.sub,
         videoS3Key: videoS3Key,
+        owner: creator.attributes.sub,
       });
 
       // Upload Reelay object to DynamoDB, get ID

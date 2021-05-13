@@ -16,6 +16,7 @@ export const getUser = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
+      owner
     }
   }
 `;
@@ -38,6 +39,7 @@ export const listUsers = /* GraphQL */ `
         _lastChangedAt
         createdAt
         updatedAt
+        owner
       }
       nextToken
       startedAt
@@ -69,6 +71,7 @@ export const syncUsers = /* GraphQL */ `
         _lastChangedAt
         createdAt
         updatedAt
+        owner
       }
       nextToken
       startedAt
@@ -87,6 +90,7 @@ export const getReelay = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
+      owner
     }
   }
 `;
@@ -107,6 +111,7 @@ export const listReelays = /* GraphQL */ `
         _lastChangedAt
         createdAt
         updatedAt
+        owner
       }
       nextToken
       startedAt
@@ -136,6 +141,7 @@ export const syncReelays = /* GraphQL */ `
         _lastChangedAt
         createdAt
         updatedAt
+        owner
       }
       nextToken
       startedAt

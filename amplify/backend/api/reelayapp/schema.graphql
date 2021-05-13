@@ -1,4 +1,6 @@
-type User @model @auth(rules: [{allow: owner, ownerField: "id", operations: [read, update, delete, create]}, {allow: private, operations: [read]}]) {
+type User @model 
+@aws_cognito_user_pools
+@auth(rules: [{allow: owner, operations: [update, delete, create, read]}]) {
   id: ID!
   username: String!
   email: String
@@ -7,7 +9,9 @@ type User @model @auth(rules: [{allow: owner, ownerField: "id", operations: [rea
   createdReelayIDs: [ID!]
 }
 
-type Reelay @model @auth(rules: [{allow: owner, ownerField: "creatorID", operations: [read, create, update, delete]}, {allow: private, operations: [read]}]) {
+type Reelay @model 
+@aws_cognito_user_pools
+@auth(rules: [{allow: owner, operations: [create, update, delete, read]}]) {
   id: ID!
   creatorID: ID!
   movieID: ID!
@@ -21,4 +25,3 @@ type Movie @model @auth(rules: [{allow: private, operations: [read]}]) {
   releaseDate: AWSDate
   runningTime: Int
 }
- 
