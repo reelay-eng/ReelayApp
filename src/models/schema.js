@@ -55,26 +55,24 @@ export const schema = {
                     "properties": {}
                 },
                 {
+                    "type": "aws_cognito_user_pools",
+                    "properties": {}
+                },
+                {
                     "type": "auth",
                     "properties": {
                         "rules": [
                             {
                                 "provider": "userPools",
-                                "ownerField": "id",
+                                "ownerField": "owner",
                                 "allow": "owner",
                                 "operations": [
-                                    "read",
                                     "update",
                                     "delete",
-                                    "create"
+                                    "create",
+                                    "read"
                                 ],
                                 "identityClaim": "cognito:username"
-                            },
-                            {
-                                "allow": "private",
-                                "operations": [
-                                    "read"
-                                ]
                             }
                         ]
                     }
@@ -121,26 +119,24 @@ export const schema = {
                     "properties": {}
                 },
                 {
+                    "type": "aws_cognito_user_pools",
+                    "properties": {}
+                },
+                {
                     "type": "auth",
                     "properties": {
                         "rules": [
                             {
                                 "provider": "userPools",
-                                "ownerField": "creatorID",
+                                "ownerField": "owner",
                                 "allow": "owner",
                                 "operations": [
-                                    "read",
                                     "create",
                                     "update",
-                                    "delete"
+                                    "delete",
+                                    "read"
                                 ],
                                 "identityClaim": "cognito:username"
-                            },
-                            {
-                                "allow": "private",
-                                "operations": [
-                                    "read"
-                                ]
                             }
                         ]
                     }

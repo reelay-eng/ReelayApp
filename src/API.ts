@@ -151,6 +151,7 @@ export type User = {
   _lastChangedAt?: number,
   createdAt?: string,
   updatedAt?: string,
+  owner?: string | null,
 };
 
 export type UpdateUserInput = {
@@ -177,6 +178,7 @@ export type CreateReelayInput = {
 };
 
 export type ModelReelayConditionInput = {
+  creatorID?: ModelIDInput | null,
   movieID?: ModelIDInput | null,
   videoS3Key?: ModelStringInput | null,
   and?: Array< ModelReelayConditionInput | null > | null,
@@ -195,6 +197,7 @@ export type Reelay = {
   _lastChangedAt?: number,
   createdAt?: string,
   updatedAt?: string,
+  owner?: string | null,
 };
 
 export type UpdateReelayInput = {
@@ -346,6 +349,7 @@ export type CreateUserMutation = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
+    owner?: string | null,
   } | null,
 };
 
@@ -368,6 +372,7 @@ export type UpdateUserMutation = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
+    owner?: string | null,
   } | null,
 };
 
@@ -390,6 +395,7 @@ export type DeleteUserMutation = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
+    owner?: string | null,
   } | null,
 };
 
@@ -410,6 +416,7 @@ export type CreateReelayMutation = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
+    owner?: string | null,
   } | null,
 };
 
@@ -430,6 +437,7 @@ export type UpdateReelayMutation = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
+    owner?: string | null,
   } | null,
 };
 
@@ -450,6 +458,7 @@ export type DeleteReelayMutation = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
+    owner?: string | null,
   } | null,
 };
 
@@ -471,6 +480,7 @@ export type GetUserQuery = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
+    owner?: string | null,
   } | null,
 };
 
@@ -496,6 +506,7 @@ export type ListUsersQuery = {
       _lastChangedAt: number,
       createdAt: string,
       updatedAt: string,
+      owner?: string | null,
     } | null > | null,
     nextToken?: string | null,
     startedAt?: number | null,
@@ -525,6 +536,7 @@ export type SyncUsersQuery = {
       _lastChangedAt: number,
       createdAt: string,
       updatedAt: string,
+      owner?: string | null,
     } | null > | null,
     nextToken?: string | null,
     startedAt?: number | null,
@@ -547,6 +559,7 @@ export type GetReelayQuery = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
+    owner?: string | null,
   } | null,
 };
 
@@ -570,6 +583,7 @@ export type ListReelaysQuery = {
       _lastChangedAt: number,
       createdAt: string,
       updatedAt: string,
+      owner?: string | null,
     } | null > | null,
     nextToken?: string | null,
     startedAt?: number | null,
@@ -597,6 +611,7 @@ export type SyncReelaysQuery = {
       _lastChangedAt: number,
       createdAt: string,
       updatedAt: string,
+      owner?: string | null,
     } | null > | null,
     nextToken?: string | null,
     startedAt?: number | null,
@@ -678,6 +693,10 @@ export type SyncMoviesQuery = {
   } | null,
 };
 
+export type OnCreateUserSubscriptionVariables = {
+  owner?: string | null,
+};
+
 export type OnCreateUserSubscription = {
   onCreateUser?:  {
     __typename: "User",
@@ -692,7 +711,12 @@ export type OnCreateUserSubscription = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
+    owner?: string | null,
   } | null,
+};
+
+export type OnUpdateUserSubscriptionVariables = {
+  owner?: string | null,
 };
 
 export type OnUpdateUserSubscription = {
@@ -709,7 +733,12 @@ export type OnUpdateUserSubscription = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
+    owner?: string | null,
   } | null,
+};
+
+export type OnDeleteUserSubscriptionVariables = {
+  owner?: string | null,
 };
 
 export type OnDeleteUserSubscription = {
@@ -726,7 +755,12 @@ export type OnDeleteUserSubscription = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
+    owner?: string | null,
   } | null,
+};
+
+export type OnCreateReelaySubscriptionVariables = {
+  owner?: string | null,
 };
 
 export type OnCreateReelaySubscription = {
@@ -741,7 +775,12 @@ export type OnCreateReelaySubscription = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
+    owner?: string | null,
   } | null,
+};
+
+export type OnUpdateReelaySubscriptionVariables = {
+  owner?: string | null,
 };
 
 export type OnUpdateReelaySubscription = {
@@ -756,7 +795,12 @@ export type OnUpdateReelaySubscription = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
+    owner?: string | null,
   } | null,
+};
+
+export type OnDeleteReelaySubscriptionVariables = {
+  owner?: string | null,
 };
 
 export type OnDeleteReelaySubscription = {
@@ -771,6 +815,7 @@ export type OnDeleteReelaySubscription = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
+    owner?: string | null,
   } | null,
 };
 

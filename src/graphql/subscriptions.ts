@@ -3,8 +3,8 @@
 // this is an auto generated file. This will be overwritten
 
 export const onCreateUser = /* GraphQL */ `
-  subscription OnCreateUser {
-    onCreateUser {
+  subscription OnCreateUser($owner: String) {
+    onCreateUser(owner: $owner) {
       id
       username
       email
@@ -16,12 +16,13 @@ export const onCreateUser = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
+      owner
     }
   }
 `;
 export const onUpdateUser = /* GraphQL */ `
-  subscription OnUpdateUser {
-    onUpdateUser {
+  subscription OnUpdateUser($owner: String) {
+    onUpdateUser(owner: $owner) {
       id
       username
       email
@@ -33,12 +34,13 @@ export const onUpdateUser = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
+      owner
     }
   }
 `;
 export const onDeleteUser = /* GraphQL */ `
-  subscription OnDeleteUser {
-    onDeleteUser {
+  subscription OnDeleteUser($owner: String) {
+    onDeleteUser(owner: $owner) {
       id
       username
       email
@@ -50,12 +52,13 @@ export const onDeleteUser = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
+      owner
     }
   }
 `;
 export const onCreateReelay = /* GraphQL */ `
-  subscription OnCreateReelay {
-    onCreateReelay {
+  subscription OnCreateReelay($owner: String) {
+    onCreateReelay(owner: $owner) {
       id
       creatorID
       movieID
@@ -65,12 +68,13 @@ export const onCreateReelay = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
+      owner
     }
   }
 `;
 export const onUpdateReelay = /* GraphQL */ `
-  subscription OnUpdateReelay {
-    onUpdateReelay {
+  subscription OnUpdateReelay($owner: String) {
+    onUpdateReelay(owner: $owner) {
       id
       creatorID
       movieID
@@ -80,12 +84,13 @@ export const onUpdateReelay = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
+      owner
     }
   }
 `;
 export const onDeleteReelay = /* GraphQL */ `
-  subscription OnDeleteReelay {
-    onDeleteReelay {
+  subscription OnDeleteReelay($owner: String) {
+    onDeleteReelay(owner: $owner) {
       id
       creatorID
       movieID
@@ -95,6 +100,7 @@ export const onDeleteReelay = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
+      owner
     }
   }
 `;
