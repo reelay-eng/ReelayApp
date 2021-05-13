@@ -1,0 +1,23 @@
+type User @model @auth(rules: [{allow: owner, operations: [read, update, delete, create]}, {allow: private, operations: [read]}]) {
+  id: ID!
+  username: String!
+  email: String
+  phoneNumber: String
+  dateOfBirth: AWSDate
+  createdReelayIDs: [ID!]
+}
+
+type Reelay @model @auth(rules: [{allow: owner, operations: [read, create, update, delete]}, {allow: private, operations: [read]}]) {
+  id: ID!
+  creatorID: ID!
+  movieID: ID!
+}
+
+type Movie @model @auth(rules: [{allow: private, operations: [read]}]) {
+  id: ID!
+  title: String!
+  description: String
+  releaseDate: AWSDate
+  runningTime: Int
+}
+ 

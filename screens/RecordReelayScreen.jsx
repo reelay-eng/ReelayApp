@@ -2,7 +2,16 @@
 // https://www.instamobile.io/react-native-tutorials/capturing-photos-and-videos-with-the-camera-in-react-native/
 
 import React, { useState, useRef, useEffect } from "react";
+import  { Storage, Auth, API, DataStore, progressCallback } from "aws-amplify";
+import { User, Artist, Movie, Reelay } from '../src/models';
+import * as mutations from '../src/graphql/mutations';
+
+import { Camera } from "expo-camera";
+import { Video, AVPlaybackStatus } from "expo-av";
+
+
 import {
+  Button,
   StyleSheet,
   Dimensions,
   View,
@@ -11,18 +20,18 @@ import {
   SafeAreaView,
 } from "react-native";
 
-import { Camera } from "expo-camera";
-import { Video } from "expo-av";
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 const closeButtonSize = Math.floor(WINDOW_HEIGHT * 0.032);
 const captureSize = Math.floor(WINDOW_HEIGHT * 0.09);
 
 export default function RecordReelayScreen({ navigation }) {
+  const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
+  const [creator, setCreator] = useState(null);
   const [hasPermission, setHasPermission] = useState(null);
-  const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
   const [isPreview, setIsPreview] = useState(false);
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [isVideoRecording, setIsVideoRecording] = useState(false);
+  const [playbackStatus, setPlaybackStatus] = useState({});
   const [videoSource, setVideoSource] = useState(null);
   const cameraRef = useRef();
   const videoRef = useRef();
@@ -107,15 +116,22 @@ export default function RecordReelayScreen({ navigation }) {
   );
 
   const renderVideoPlayer = () => (
-      <Video
-        ref={videoRef}
-        source={{ uri: videoSource }}
-        shouldPlay={true}
-        style={styles.media}
-        onPress={() =>
-          status.isPlaying ? videoRef.current.pauseAsync() : videoRef.current.playAsync()
-        }
-      />
+      <View style={styles.container}>
+        <Video
+          ref={videoRef}
+          source={{ uri: videoSource }}
+          shouldPlay={false}
+          style={styles.media}
+          useNativeControls
+          resizeMode="contain"
+          onPlaybackStatusUpdate={playbackStatus => setPlaybackStatus(() => playbackStatus)}
+        />
+        <View style={styles.upload}>
+          <TouchableOpacity disabled={!videoSource} onPress={uploadReelay}>
+            <Text style={styles.text}>Upload</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
   );
 
   const renderVideoRecordIndicator = () => (
@@ -141,6 +157,50 @@ export default function RecordReelayScreen({ navigation }) {
     </View>
   );
 
+  const renderUploadControl = () => (
+    <View style={styles.upload}>
+      <TouchableOpacity disabled={!videoSource} onPress={uploadReelay}>
+        <Text style={styles.text}>Upload</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const uploadReelay = async () => {
+    if (!videoSource) {
+      console.log("No video to upload.")
+    } else {
+      // Set current user as the creator
+      Auth.currentUserInfo().then((creator) => {
+        setCreator(creator);
+        console.log(creator.id);
+      });
+
+      // Create Reelay object
+      const reelay = new Reelay({
+        movieID: 'Good Will Hunting',
+        creatorID: creator.id,
+        description: ''
+      })
+
+      // Upload Reelay object to DynamoDB, get ID
+      const savedReelay = await DataStore.save(reelay);
+
+      // Upload video to S3
+      try {
+        const response = await fetch(videoSource);
+        const blob = await response.blob();
+        await Storage.put('reelayvid-' + savedReelay.id, blob, {
+          contentType: 'video/mp4',
+          progressCallback(progress) {
+            console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
+          }
+        });
+      } catch (error) {
+        console.log('Error uploading file: ', error);
+      }
+    }
+  }
+
   if (hasPermission === null) {
     return <View />;
   }
@@ -157,9 +217,10 @@ export default function RecordReelayScreen({ navigation }) {
         flashMode={Camera.Constants.FlashMode.on}
         onCameraReady={onCameraReady}
         onMountError={(error) => {
-          console.log("cammera error", error);
+          console.log("camera error", error);
         }}
       />
+
       <View style={styles.container}>
         {isVideoRecording && renderVideoRecordIndicator()}
         {videoSource && renderVideoPlayer()}
@@ -173,10 +234,13 @@ export default function RecordReelayScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
   },
   closeButton: {
     position: "absolute",
-    top: 35,
+    top: 45,
     left: 15,
     height: closeButtonSize,
     width: closeButtonSize,
@@ -236,4 +300,10 @@ const styles = StyleSheet.create({
   text: {
     color: "#fff",
   },
+  upload: {
+    position: "absolute",
+    flexDirection: "row",
+    top: 45,
+    right: 15
+  }
 });

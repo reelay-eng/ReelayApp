@@ -5,6 +5,7 @@ import { Amplify, Auth } from "aws-amplify";
 import config from "./src/aws-exports";
 
 import { withAuthenticator, AmplifySignOut } from 'aws-amplify-react-native';
+
 Amplify.configure({
   ...config,
   Analytics: {

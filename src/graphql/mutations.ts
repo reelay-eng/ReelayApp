@@ -2,45 +2,177 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const createTodo = /* GraphQL */ `
-  mutation CreateTodo(
-    $input: CreateTodoInput!
-    $condition: ModelTodoConditionInput
+export const createMovie = /* GraphQL */ `
+  mutation CreateMovie(
+    $input: CreateMovieInput!
+    $condition: ModelMovieConditionInput
   ) {
-    createTodo(input: $input, condition: $condition) {
+    createMovie(input: $input, condition: $condition) {
       id
-      name
+      title
       description
+      releaseDate
+      runningTime
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
   }
 `;
-export const updateTodo = /* GraphQL */ `
-  mutation UpdateTodo(
-    $input: UpdateTodoInput!
-    $condition: ModelTodoConditionInput
+export const updateMovie = /* GraphQL */ `
+  mutation UpdateMovie(
+    $input: UpdateMovieInput!
+    $condition: ModelMovieConditionInput
   ) {
-    updateTodo(input: $input, condition: $condition) {
+    updateMovie(input: $input, condition: $condition) {
       id
-      name
+      title
       description
+      releaseDate
+      runningTime
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
     }
   }
 `;
-export const deleteTodo = /* GraphQL */ `
-  mutation DeleteTodo(
-    $input: DeleteTodoInput!
-    $condition: ModelTodoConditionInput
+export const deleteMovie = /* GraphQL */ `
+  mutation DeleteMovie(
+    $input: DeleteMovieInput!
+    $condition: ModelMovieConditionInput
   ) {
-    deleteTodo(input: $input, condition: $condition) {
+    deleteMovie(input: $input, condition: $condition) {
       id
-      name
+      title
       description
+      releaseDate
+      runningTime
+      _version
+      _deleted
+      _lastChangedAt
       createdAt
       updatedAt
+    }
+  }
+`;
+export const createUser = /* GraphQL */ `
+  mutation CreateUser(
+    $input: CreateUserInput!
+    $condition: ModelUserConditionInput
+  ) {
+    createUser(input: $input, condition: $condition) {
+      id
+      username
+      email
+      phoneNumber
+      dateOfBirth
+      createdReelayIDs
+      _version
+      _deleted
+      _lastChangedAt
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const updateUser = /* GraphQL */ `
+  mutation UpdateUser(
+    $input: UpdateUserInput!
+    $condition: ModelUserConditionInput
+  ) {
+    updateUser(input: $input, condition: $condition) {
+      id
+      username
+      email
+      phoneNumber
+      dateOfBirth
+      createdReelayIDs
+      _version
+      _deleted
+      _lastChangedAt
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const deleteUser = /* GraphQL */ `
+  mutation DeleteUser(
+    $input: DeleteUserInput!
+    $condition: ModelUserConditionInput
+  ) {
+    deleteUser(input: $input, condition: $condition) {
+      id
+      username
+      email
+      phoneNumber
+      dateOfBirth
+      createdReelayIDs
+      _version
+      _deleted
+      _lastChangedAt
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const createReelay = /* GraphQL */ `
+  mutation CreateReelay(
+    $input: CreateReelayInput!
+    $condition: ModelReelayConditionInput
+  ) {
+    createReelay(input: $input, condition: $condition) {
+      id
+      creatorID
+      movieID
+      _version
+      _deleted
+      _lastChangedAt
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const updateReelay = /* GraphQL */ `
+  mutation UpdateReelay(
+    $input: UpdateReelayInput!
+    $condition: ModelReelayConditionInput
+  ) {
+    updateReelay(input: $input, condition: $condition) {
+      id
+      creatorID
+      movieID
+      _version
+      _deleted
+      _lastChangedAt
+      createdAt
+      updatedAt
+      owner
+    }
+  }
+`;
+export const deleteReelay = /* GraphQL */ `
+  mutation DeleteReelay(
+    $input: DeleteReelayInput!
+    $condition: ModelReelayConditionInput
+  ) {
+    deleteReelay(input: $input, condition: $condition) {
+      id
+      creatorID
+      movieID
+      _version
+      _deleted
+      _lastChangedAt
+      createdAt
+      updatedAt
+      owner
     }
   }
 `;

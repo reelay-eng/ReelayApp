@@ -1,0 +1,11 @@
+{
+  "AppSyncApiName": "reelayapp",
+  "DynamoDBBillingMode": "PAY_PER_REQUEST",
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authreelayappdb20330d",
+      "Outputs.UserPoolId"
+    ]
+  }
+}
