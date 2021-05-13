@@ -151,7 +151,6 @@ export type User = {
   _lastChangedAt?: number,
   createdAt?: string,
   updatedAt?: string,
-  owner?: string | null,
 };
 
 export type UpdateUserInput = {
@@ -173,12 +172,13 @@ export type CreateReelayInput = {
   id?: string | null,
   creatorID: string,
   movieID: string,
+  videoS3Key: string,
   _version?: number | null,
 };
 
 export type ModelReelayConditionInput = {
-  creatorID?: ModelIDInput | null,
   movieID?: ModelIDInput | null,
+  videoS3Key?: ModelStringInput | null,
   and?: Array< ModelReelayConditionInput | null > | null,
   or?: Array< ModelReelayConditionInput | null > | null,
   not?: ModelReelayConditionInput | null,
@@ -189,18 +189,19 @@ export type Reelay = {
   id?: string,
   creatorID?: string,
   movieID?: string,
+  videoS3Key?: string,
   _version?: number,
   _deleted?: boolean | null,
   _lastChangedAt?: number,
   createdAt?: string,
   updatedAt?: string,
-  owner?: string | null,
 };
 
 export type UpdateReelayInput = {
   id: string,
   creatorID?: string | null,
   movieID?: string | null,
+  videoS3Key?: string | null,
   _version?: number | null,
 };
 
@@ -232,6 +233,7 @@ export type ModelReelayFilterInput = {
   id?: ModelIDInput | null,
   creatorID?: ModelIDInput | null,
   movieID?: ModelIDInput | null,
+  videoS3Key?: ModelStringInput | null,
   and?: Array< ModelReelayFilterInput | null > | null,
   or?: Array< ModelReelayFilterInput | null > | null,
   not?: ModelReelayFilterInput | null,
@@ -344,7 +346,6 @@ export type CreateUserMutation = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
-    owner?: string | null,
   } | null,
 };
 
@@ -367,7 +368,6 @@ export type UpdateUserMutation = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
-    owner?: string | null,
   } | null,
 };
 
@@ -390,7 +390,6 @@ export type DeleteUserMutation = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
-    owner?: string | null,
   } | null,
 };
 
@@ -405,12 +404,12 @@ export type CreateReelayMutation = {
     id: string,
     creatorID: string,
     movieID: string,
+    videoS3Key: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
-    owner?: string | null,
   } | null,
 };
 
@@ -425,12 +424,12 @@ export type UpdateReelayMutation = {
     id: string,
     creatorID: string,
     movieID: string,
+    videoS3Key: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
-    owner?: string | null,
   } | null,
 };
 
@@ -445,12 +444,12 @@ export type DeleteReelayMutation = {
     id: string,
     creatorID: string,
     movieID: string,
+    videoS3Key: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
-    owner?: string | null,
   } | null,
 };
 
@@ -472,7 +471,6 @@ export type GetUserQuery = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
-    owner?: string | null,
   } | null,
 };
 
@@ -498,7 +496,6 @@ export type ListUsersQuery = {
       _lastChangedAt: number,
       createdAt: string,
       updatedAt: string,
-      owner?: string | null,
     } | null > | null,
     nextToken?: string | null,
     startedAt?: number | null,
@@ -528,7 +525,6 @@ export type SyncUsersQuery = {
       _lastChangedAt: number,
       createdAt: string,
       updatedAt: string,
-      owner?: string | null,
     } | null > | null,
     nextToken?: string | null,
     startedAt?: number | null,
@@ -545,12 +541,12 @@ export type GetReelayQuery = {
     id: string,
     creatorID: string,
     movieID: string,
+    videoS3Key: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
-    owner?: string | null,
   } | null,
 };
 
@@ -568,12 +564,12 @@ export type ListReelaysQuery = {
       id: string,
       creatorID: string,
       movieID: string,
+      videoS3Key: string,
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
       createdAt: string,
       updatedAt: string,
-      owner?: string | null,
     } | null > | null,
     nextToken?: string | null,
     startedAt?: number | null,
@@ -595,12 +591,12 @@ export type SyncReelaysQuery = {
       id: string,
       creatorID: string,
       movieID: string,
+      videoS3Key: string,
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
       createdAt: string,
       updatedAt: string,
-      owner?: string | null,
     } | null > | null,
     nextToken?: string | null,
     startedAt?: number | null,
@@ -696,7 +692,6 @@ export type OnCreateUserSubscription = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
-    owner?: string | null,
   } | null,
 };
 
@@ -714,7 +709,6 @@ export type OnUpdateUserSubscription = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
-    owner?: string | null,
   } | null,
 };
 
@@ -732,7 +726,6 @@ export type OnDeleteUserSubscription = {
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
-    owner?: string | null,
   } | null,
 };
 
@@ -742,12 +735,12 @@ export type OnCreateReelaySubscription = {
     id: string,
     creatorID: string,
     movieID: string,
+    videoS3Key: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
-    owner?: string | null,
   } | null,
 };
 
@@ -757,12 +750,12 @@ export type OnUpdateReelaySubscription = {
     id: string,
     creatorID: string,
     movieID: string,
+    videoS3Key: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
-    owner?: string | null,
   } | null,
 };
 
@@ -772,12 +765,12 @@ export type OnDeleteReelaySubscription = {
     id: string,
     creatorID: string,
     movieID: string,
+    videoS3Key: string,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
-    owner?: string | null,
   } | null,
 };
 

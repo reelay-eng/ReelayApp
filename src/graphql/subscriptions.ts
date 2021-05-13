@@ -16,7 +16,6 @@ export const onCreateUser = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
-      owner
     }
   }
 `;
@@ -34,7 +33,6 @@ export const onUpdateUser = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
-      owner
     }
   }
 `;
@@ -52,7 +50,6 @@ export const onDeleteUser = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
-      owner
     }
   }
 `;
@@ -62,12 +59,12 @@ export const onCreateReelay = /* GraphQL */ `
       id
       creatorID
       movieID
+      videoS3Key
       _version
       _deleted
       _lastChangedAt
       createdAt
       updatedAt
-      owner
     }
   }
 `;
@@ -77,12 +74,12 @@ export const onUpdateReelay = /* GraphQL */ `
       id
       creatorID
       movieID
+      videoS3Key
       _version
       _deleted
       _lastChangedAt
       createdAt
       updatedAt
-      owner
     }
   }
 `;
@@ -92,12 +89,12 @@ export const onDeleteReelay = /* GraphQL */ `
       id
       creatorID
       movieID
+      videoS3Key
       _version
       _deleted
       _lastChangedAt
       createdAt
       updatedAt
-      owner
     }
   }
 `;

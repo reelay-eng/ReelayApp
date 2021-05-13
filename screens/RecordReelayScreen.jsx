@@ -170,26 +170,15 @@ export default function RecordReelayScreen({ navigation }) {
       console.log("No video to upload.")
     } else {
       // Set current user as the creator
-      Auth.currentUserInfo().then((creator) => {
-        setCreator(creator);
-        console.log(creator.id);
-      });
-
-      // Create Reelay object
-      const reelay = new Reelay({
-        movieID: 'Good Will Hunting',
-        creatorID: creator.id,
-        description: ''
-      })
-
-      // Upload Reelay object to DynamoDB, get ID
-      const savedReelay = await DataStore.save(reelay);
+      const creator = await Auth.currentAuthenticatedUser();
+      console.log(creator.attributes.sub);
+      const videoS3Key = 'reelayvid-' + creator.attributes.sub + '-' + Date.now();
 
       // Upload video to S3
       try {
         const response = await fetch(videoSource);
         const blob = await response.blob();
-        await Storage.put('reelayvid-' + savedReelay.id, blob, {
+        await Storage.put(videoS3Key, blob, {
           contentType: 'video/mp4',
           progressCallback(progress) {
             console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
@@ -198,6 +187,18 @@ export default function RecordReelayScreen({ navigation }) {
       } catch (error) {
         console.log('Error uploading file: ', error);
       }
+
+      // Create Reelay object
+      const reelay = new Reelay({
+        movieID: 'Good Will Hunting',
+        creatorID: creator.attributes.sub,
+        videoS3Key: videoS3Key,
+      });
+
+      // Upload Reelay object to DynamoDB, get ID
+      const savedReelay = await DataStore.save(reelay);
+      console.log('Saved new Reelay')
+      console.log(savedReelay);
     }
   }
 

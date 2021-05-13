@@ -60,7 +60,7 @@ export const schema = {
                         "rules": [
                             {
                                 "provider": "userPools",
-                                "ownerField": "owner",
+                                "ownerField": "id",
                                 "allow": "owner",
                                 "operations": [
                                     "read",
@@ -104,6 +104,13 @@ export const schema = {
                     "type": "ID",
                     "isRequired": true,
                     "attributes": []
+                },
+                "videoS3Key": {
+                    "name": "videoS3Key",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": true,
+                    "attributes": []
                 }
             },
             "syncable": true,
@@ -119,7 +126,7 @@ export const schema = {
                         "rules": [
                             {
                                 "provider": "userPools",
-                                "ownerField": "owner",
+                                "ownerField": "creatorID",
                                 "allow": "owner",
                                 "operations": [
                                     "read",
@@ -204,5 +211,5 @@ export const schema = {
     },
     "enums": {},
     "nonModels": {},
-    "version": "509c3f31329f5b106deab83fa6835dcc"
+    "version": "56f19763938f11f4ff6e1cda6a560979"
 };

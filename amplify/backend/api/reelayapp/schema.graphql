@@ -1,4 +1,4 @@
-type User @model @auth(rules: [{allow: owner, operations: [read, update, delete, create]}, {allow: private, operations: [read]}]) {
+type User @model @auth(rules: [{allow: owner, ownerField: "id", operations: [read, update, delete, create]}, {allow: private, operations: [read]}]) {
   id: ID!
   username: String!
   email: String
@@ -7,10 +7,11 @@ type User @model @auth(rules: [{allow: owner, operations: [read, update, delete,
   createdReelayIDs: [ID!]
 }
 
-type Reelay @model @auth(rules: [{allow: owner, operations: [read, create, update, delete]}, {allow: private, operations: [read]}]) {
+type Reelay @model @auth(rules: [{allow: owner, ownerField: "creatorID", operations: [read, create, update, delete]}, {allow: private, operations: [read]}]) {
   id: ID!
   creatorID: ID!
   movieID: ID!
+  videoS3Key: String!
 }
 
 type Movie @model @auth(rules: [{allow: private, operations: [read]}]) {

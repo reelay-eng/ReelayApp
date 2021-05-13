@@ -19,6 +19,7 @@ export declare class Reelay {
   readonly id: string;
   readonly creatorID: string;
   readonly movieID: string;
+  readonly videoS3Key: string;
   constructor(init: ModelInit<Reelay>);
   static copyOf(source: Reelay, mutator: (draft: MutableModel<Reelay>) => MutableModel<Reelay> | void): Reelay;
 }
