@@ -173,7 +173,7 @@ export type CreateReelayInput = {
   id?: string | null,
   creatorID: string,
   movieID: string,
-  videoS3Key: string,
+  videoS3Key?: string | null,
   _version?: number | null,
 };
 
@@ -191,7 +191,7 @@ export type Reelay = {
   id?: string,
   creatorID?: string,
   movieID?: string,
-  videoS3Key?: string,
+  videoS3Key?: string | null,
   _version?: number,
   _deleted?: boolean | null,
   _lastChangedAt?: number,
@@ -410,7 +410,7 @@ export type CreateReelayMutation = {
     id: string,
     creatorID: string,
     movieID: string,
-    videoS3Key: string,
+    videoS3Key?: string | null,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -431,7 +431,7 @@ export type UpdateReelayMutation = {
     id: string,
     creatorID: string,
     movieID: string,
-    videoS3Key: string,
+    videoS3Key?: string | null,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -452,13 +452,43 @@ export type DeleteReelayMutation = {
     id: string,
     creatorID: string,
     movieID: string,
-    videoS3Key: string,
+    videoS3Key?: string | null,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
     createdAt: string,
     updatedAt: string,
     owner?: string | null,
+  } | null,
+};
+
+export type SyncUsersQueryVariables = {
+  filter?: ModelUserFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  lastSync?: number | null,
+};
+
+export type SyncUsersQuery = {
+  syncUsers?:  {
+    __typename: "ModelUserConnection",
+    items?:  Array< {
+      __typename: "User",
+      id: string,
+      username: string,
+      email?: string | null,
+      phoneNumber?: string | null,
+      dateOfBirth?: string | null,
+      createdReelayIDs?: Array< string > | null,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null > | null,
+    nextToken?: string | null,
+    startedAt?: number | null,
   } | null,
 };
 
@@ -513,24 +543,22 @@ export type ListUsersQuery = {
   } | null,
 };
 
-export type SyncUsersQueryVariables = {
-  filter?: ModelUserFilterInput | null,
+export type SyncReelaysQueryVariables = {
+  filter?: ModelReelayFilterInput | null,
   limit?: number | null,
   nextToken?: string | null,
   lastSync?: number | null,
 };
 
-export type SyncUsersQuery = {
-  syncUsers?:  {
-    __typename: "ModelUserConnection",
+export type SyncReelaysQuery = {
+  syncReelays?:  {
+    __typename: "ModelReelayConnection",
     items?:  Array< {
-      __typename: "User",
+      __typename: "Reelay",
       id: string,
-      username: string,
-      email?: string | null,
-      phoneNumber?: string | null,
-      dateOfBirth?: string | null,
-      createdReelayIDs?: Array< string > | null,
+      creatorID: string,
+      movieID: string,
+      videoS3Key?: string | null,
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
@@ -553,7 +581,7 @@ export type GetReelayQuery = {
     id: string,
     creatorID: string,
     movieID: string,
-    videoS3Key: string,
+    videoS3Key?: string | null,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -577,35 +605,7 @@ export type ListReelaysQuery = {
       id: string,
       creatorID: string,
       movieID: string,
-      videoS3Key: string,
-      _version: number,
-      _deleted?: boolean | null,
-      _lastChangedAt: number,
-      createdAt: string,
-      updatedAt: string,
-      owner?: string | null,
-    } | null > | null,
-    nextToken?: string | null,
-    startedAt?: number | null,
-  } | null,
-};
-
-export type SyncReelaysQueryVariables = {
-  filter?: ModelReelayFilterInput | null,
-  limit?: number | null,
-  nextToken?: string | null,
-  lastSync?: number | null,
-};
-
-export type SyncReelaysQuery = {
-  syncReelays?:  {
-    __typename: "ModelReelayConnection",
-    items?:  Array< {
-      __typename: "Reelay",
-      id: string,
-      creatorID: string,
-      movieID: string,
-      videoS3Key: string,
+      videoS3Key?: string | null,
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
@@ -693,10 +693,6 @@ export type SyncMoviesQuery = {
   } | null,
 };
 
-export type OnCreateUserSubscriptionVariables = {
-  owner?: string | null,
-};
-
 export type OnCreateUserSubscription = {
   onCreateUser?:  {
     __typename: "User",
@@ -713,10 +709,6 @@ export type OnCreateUserSubscription = {
     updatedAt: string,
     owner?: string | null,
   } | null,
-};
-
-export type OnUpdateUserSubscriptionVariables = {
-  owner?: string | null,
 };
 
 export type OnUpdateUserSubscription = {
@@ -737,10 +729,6 @@ export type OnUpdateUserSubscription = {
   } | null,
 };
 
-export type OnDeleteUserSubscriptionVariables = {
-  owner?: string | null,
-};
-
 export type OnDeleteUserSubscription = {
   onDeleteUser?:  {
     __typename: "User",
@@ -759,17 +747,13 @@ export type OnDeleteUserSubscription = {
   } | null,
 };
 
-export type OnCreateReelaySubscriptionVariables = {
-  owner?: string | null,
-};
-
 export type OnCreateReelaySubscription = {
   onCreateReelay?:  {
     __typename: "Reelay",
     id: string,
     creatorID: string,
     movieID: string,
-    videoS3Key: string,
+    videoS3Key?: string | null,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -777,10 +761,6 @@ export type OnCreateReelaySubscription = {
     updatedAt: string,
     owner?: string | null,
   } | null,
-};
-
-export type OnUpdateReelaySubscriptionVariables = {
-  owner?: string | null,
 };
 
 export type OnUpdateReelaySubscription = {
@@ -789,7 +769,7 @@ export type OnUpdateReelaySubscription = {
     id: string,
     creatorID: string,
     movieID: string,
-    videoS3Key: string,
+    videoS3Key?: string | null,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -799,17 +779,13 @@ export type OnUpdateReelaySubscription = {
   } | null,
 };
 
-export type OnDeleteReelaySubscriptionVariables = {
-  owner?: string | null,
-};
-
 export type OnDeleteReelaySubscription = {
   onDeleteReelay?:  {
     __typename: "Reelay",
     id: string,
     creatorID: string,
     movieID: string,
-    videoS3Key: string,
+    videoS3Key?: string | null,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,

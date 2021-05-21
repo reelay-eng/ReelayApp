@@ -2,6 +2,38 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
+export const syncUsers = /* GraphQL */ `
+  query SyncUsers(
+    $filter: ModelUserFilterInput
+    $limit: Int
+    $nextToken: String
+    $lastSync: AWSTimestamp
+  ) {
+    syncUsers(
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      lastSync: $lastSync
+    ) {
+      items {
+        id
+        username
+        email
+        phoneNumber
+        dateOfBirth
+        createdReelayIDs
+        _version
+        _deleted
+        _lastChangedAt
+        createdAt
+        updatedAt
+        owner
+      }
+      nextToken
+      startedAt
+    }
+  }
+`;
 export const getUser = /* GraphQL */ `
   query GetUser($id: ID!) {
     getUser(id: $id) {
@@ -46,14 +78,14 @@ export const listUsers = /* GraphQL */ `
     }
   }
 `;
-export const syncUsers = /* GraphQL */ `
-  query SyncUsers(
-    $filter: ModelUserFilterInput
+export const syncReelays = /* GraphQL */ `
+  query SyncReelays(
+    $filter: ModelReelayFilterInput
     $limit: Int
     $nextToken: String
     $lastSync: AWSTimestamp
   ) {
-    syncUsers(
+    syncReelays(
       filter: $filter
       limit: $limit
       nextToken: $nextToken
@@ -61,11 +93,9 @@ export const syncUsers = /* GraphQL */ `
     ) {
       items {
         id
-        username
-        email
-        phoneNumber
-        dateOfBirth
-        createdReelayIDs
+        creatorID
+        movieID
+        videoS3Key
         _version
         _deleted
         _lastChangedAt
@@ -101,36 +131,6 @@ export const listReelays = /* GraphQL */ `
     $nextToken: String
   ) {
     listReelays(filter: $filter, limit: $limit, nextToken: $nextToken) {
-      items {
-        id
-        creatorID
-        movieID
-        videoS3Key
-        _version
-        _deleted
-        _lastChangedAt
-        createdAt
-        updatedAt
-        owner
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
-export const syncReelays = /* GraphQL */ `
-  query SyncReelays(
-    $filter: ModelReelayFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncReelays(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
       items {
         id
         creatorID

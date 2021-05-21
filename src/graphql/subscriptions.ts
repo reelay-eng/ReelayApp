@@ -3,8 +3,8 @@
 // this is an auto generated file. This will be overwritten
 
 export const onCreateUser = /* GraphQL */ `
-  subscription OnCreateUser($owner: String) {
-    onCreateUser(owner: $owner) {
+  subscription OnCreateUser {
+    onCreateUser {
       id
       username
       email
@@ -21,8 +21,8 @@ export const onCreateUser = /* GraphQL */ `
   }
 `;
 export const onUpdateUser = /* GraphQL */ `
-  subscription OnUpdateUser($owner: String) {
-    onUpdateUser(owner: $owner) {
+  subscription OnUpdateUser {
+    onUpdateUser {
       id
       username
       email
@@ -39,8 +39,8 @@ export const onUpdateUser = /* GraphQL */ `
   }
 `;
 export const onDeleteUser = /* GraphQL */ `
-  subscription OnDeleteUser($owner: String) {
-    onDeleteUser(owner: $owner) {
+  subscription OnDeleteUser {
+    onDeleteUser {
       id
       username
       email
@@ -57,8 +57,8 @@ export const onDeleteUser = /* GraphQL */ `
   }
 `;
 export const onCreateReelay = /* GraphQL */ `
-  subscription OnCreateReelay($owner: String) {
-    onCreateReelay(owner: $owner) {
+  subscription OnCreateReelay {
+    onCreateReelay {
       id
       creatorID
       movieID
@@ -73,8 +73,8 @@ export const onCreateReelay = /* GraphQL */ `
   }
 `;
 export const onUpdateReelay = /* GraphQL */ `
-  subscription OnUpdateReelay($owner: String) {
-    onUpdateReelay(owner: $owner) {
+  subscription OnUpdateReelay {
+    onUpdateReelay {
       id
       creatorID
       movieID
@@ -89,8 +89,8 @@ export const onUpdateReelay = /* GraphQL */ `
   }
 `;
 export const onDeleteReelay = /* GraphQL */ `
-  subscription OnDeleteReelay($owner: String) {
-    onDeleteReelay(owner: $owner) {
+  subscription OnDeleteReelay {
+    onDeleteReelay {
       id
       creatorID
       movieID

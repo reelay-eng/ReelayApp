@@ -26,7 +26,6 @@ const captureSize = Math.floor(WINDOW_HEIGHT * 0.09);
 
 export default function RecordReelayScreen({ navigation }) {
   const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
-  const [creator, setCreator] = useState(null);
   const [hasPermission, setHasPermission] = useState(null);
   const [isPreview, setIsPreview] = useState(false);
   const [isCameraReady, setIsCameraReady] = useState(false);
@@ -41,23 +40,14 @@ export default function RecordReelayScreen({ navigation }) {
       const { status } = await Camera.requestPermissionsAsync();
       setHasPermission(status === "granted");
     })();
-  }, []);
+    const unsubscribe = navigation.addListener('focus', () => {
+      console.log("on record reelay screen");
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const onCameraReady = () => {
     setIsCameraReady(true);
-  };
-
-  const takePicture = async () => {
-    if (cameraRef.current) {
-      const options = { quality: 0.5, base64: true, skipProcessing: true };
-      const data = await cameraRef.current.takePictureAsync(options);
-      const source = data.uri;
-      if (source) {
-        await cameraRef.current.pausePreview();
-        setIsPreview(true);
-        console.log("picture source", source);
-      }
-    }
   };
 
   const recordVideo = async () => {
@@ -157,14 +147,6 @@ export default function RecordReelayScreen({ navigation }) {
     </View>
   );
 
-  const renderUploadControl = () => (
-    <View style={styles.upload}>
-      <TouchableOpacity disabled={!videoSource} onPress={uploadReelay}>
-        <Text style={styles.text}>Upload</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
   const uploadReelay = async () => {
     if (!videoSource) {
       console.log("No video to upload.")
@@ -183,6 +165,8 @@ export default function RecordReelayScreen({ navigation }) {
           progressCallback(progress) {
             console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
           }
+        }).then(() => {
+          console.log("Successfully saved file to S3: " + videoS3Key);
         });
       } catch (error) {
         console.log('Error uploading file: ', error);

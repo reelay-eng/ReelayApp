@@ -55,6 +55,10 @@ export const schema = {
                     "properties": {}
                 },
                 {
+                    "type": "aws_api_key",
+                    "properties": {}
+                },
+                {
                     "type": "aws_cognito_user_pools",
                     "properties": {}
                 },
@@ -67,10 +71,9 @@ export const schema = {
                                 "ownerField": "owner",
                                 "allow": "owner",
                                 "operations": [
-                                    "update",
-                                    "delete",
                                     "create",
-                                    "read"
+                                    "update",
+                                    "delete"
                                 ],
                                 "identityClaim": "cognito:username"
                             }
@@ -107,7 +110,7 @@ export const schema = {
                     "name": "videoS3Key",
                     "isArray": false,
                     "type": "String",
-                    "isRequired": true,
+                    "isRequired": false,
                     "attributes": []
                 }
             },
@@ -116,6 +119,10 @@ export const schema = {
             "attributes": [
                 {
                     "type": "model",
+                    "properties": {}
+                },
+                {
+                    "type": "aws_api_key",
                     "properties": {}
                 },
                 {
@@ -133,8 +140,7 @@ export const schema = {
                                 "operations": [
                                     "create",
                                     "update",
-                                    "delete",
-                                    "read"
+                                    "delete"
                                 ],
                                 "identityClaim": "cognito:username"
                             }
@@ -207,5 +213,5 @@ export const schema = {
     },
     "enums": {},
     "nonModels": {},
-    "version": "56f19763938f11f4ff6e1cda6a560979"
+    "version": "00339fd792eb86d3b227956fd5a3f2bb"
 };
