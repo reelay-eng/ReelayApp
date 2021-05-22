@@ -90,24 +90,16 @@ export default function HomeFeedScreen({ navigation }) {
     index,
     separators
   }) => (
-    <ReelayCard 
+    <View style={styles.container}>
+      <ReelayCard style={styles.reelayCard}
         username={item.creatorUsername} 
         movieTitle={item.movieTitle} 
-        videoURL={item.videoURL} />
+        videoURL={item.videoURL} 
+      />
+    </View>
   );
 
   return (
-    // <View style={styles.container}>
-    //   <Text style={styles.title}>Home</Text>
-    //   <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-    //   {/* <EditScreenInfo path="/screens/HomeFeedScreen.tsx" /> */}
-    //   <Text style={styles.getStartedText}           
-    //         lightColor="rgba(0,0,0,0.8)"
-    //         darkColor="rgba(255,255,255,0.8)">
-    //         This is where Reelays will appear
-    //   </Text>
-    // </View>
-
     <SafeAreaView style={styles.container}>
       {renderReelayFeed()}
     </SafeAreaView>
@@ -119,6 +111,13 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  reelayCard: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 300,
+    height: 300
   },
   title: {
     fontSize: 20,

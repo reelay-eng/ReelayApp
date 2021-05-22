@@ -69,5 +69,9 @@ const styles = StyleSheet.create({
       lineHeight: 24,
       textAlign: 'center',
     },
+    media: {
+        height: 300,
+        width: 300
+      },    
   });
   
