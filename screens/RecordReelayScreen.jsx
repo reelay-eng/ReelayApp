@@ -183,7 +183,9 @@ export default function RecordReelayScreen({ navigation }) {
       // Upload Reelay object to DynamoDB, get ID
       const savedReelay = await DataStore.save(reelay);
       console.log('Saved new Reelay')
-      console.log(savedReelay);
+      // console.log(savedReelay);
+      setVideoSource(false);
+      setIsPreview(false);
     }
   }
 

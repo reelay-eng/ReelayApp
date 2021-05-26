@@ -20,11 +20,6 @@ export default function ReelayCard({ username, movieTitle, videoURL }) {
     const [videoSource, setVideoSource] = useState(null);
     const videoRef = useRef();
 
-    console.log(username);
-    console.log(movieTitle);
-    console.log(videoURL);
-    console.log("done");
-
     useEffect(() => {
         (async () => {
             // todo
@@ -71,7 +66,8 @@ const styles = StyleSheet.create({
     },
     media: {
         height: 300,
-        width: 300
+        width: 300,
+        flex: 1
       },    
   });
   

@@ -30,49 +30,50 @@ export default function HomeFeedScreen({ navigation }) {
   const [hasPermission, setHasPermission] = useState(null);
 
   useEffect(() => {
+    // fetch reelays on page load or update
     (async () => {
-      console.log('Fetching Reelays for the Home Feed');
       await fetchReelays();
-      console.log(reelayList);
-      console.log('Finished fetching.');  
     })();
+
+    // fetch reelays every time the user navigates back to this tab
     const unsubscribe = navigation.addListener('focus', () => {
       console.log("on home screen");
-      fetchReelays();
+      if (reelayList.length == 0) {
+        fetchReelays();
+      }
     });
   }, [navigation]);
 
+  let fetchedReelayList = [];
   const fetchReelays = async () => {
+
+    // get a list of reelays from the datastore
     const queryResponse = await API.graphql({ query: queries.listReelays });
     if (!queryResponse) {
       setReelayList([]);
-      console.log("No query response");
       return;
-    } else {
-      console.log("Query response exists.")
     }
-
-    let fetchedReelayList = [];
 
     // for each reelay fetched
     await queryResponse.data.listReelays.items.map(async (reelayObject) => {
-      console.log(reelayObject);
 
       // get the video URL from S3
       const signedVideoURL = await Storage.get(reelayObject.videoS3Key, {
         contentType: "video/mp4"
       });
 
+      // create the reelay object
       fetchedReelayList.push({
         id: reelayObject.id,
         creatorUsername: String(reelayObject.owner),
         movieTitle: String(reelayObject.movieID),
         videoURL: signedVideoURL,
         postedDateTime: Date(reelayObject.createdAt),
-      })
+      });
     });
-    setReelayList(fetchedReelayList);
-    console.log(fetchedReelayList);
+
+    await setReelayList(fetchedReelayList);
+    console.log("Reelays in feed: " + reelayList.length);
   }
 
   const renderReelayFeed = () => (
