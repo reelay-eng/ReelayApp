@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 
 import { Video, AVPlaybackStatus } from "expo-av";
 import { Storage, Auth, API, DataStore } from 'aws-amplify';
@@ -73,17 +73,18 @@ export default function HomeFeedScreen({ navigation }) {
     });
 
     await setReelayList(fetchedReelayList);
+    console.log("Reelays found: " + fetchedReelayList.length);
     console.log("Reelays in feed: " + reelayList.length);
   }
 
   const renderReelayFeed = () => (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <FlatList 
         data={reelayList}
         renderItem={renderReelay}
         keyExtractor={reelay => reelay.id}
       />
-    </View>
+    </ScrollView>
   );
 
   const renderReelay = ({
@@ -110,28 +111,11 @@ export default function HomeFeedScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-  reelayCard: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 300,
-    height: 300
+  content: {
+    padding: 4,
   },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
-  },
-  getStartedText: {
-    fontSize: 17,
-    lineHeight: 24,
-    textAlign: 'center',
+  card: {
+    margin: 4,
   },
 });
