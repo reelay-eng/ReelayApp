@@ -64,6 +64,7 @@ export const onCreateReelay = /* GraphQL */ `
       movieID
       videoS3Key
       uploadedAt
+      visibility
       _version
       _deleted
       _lastChangedAt
@@ -81,6 +82,7 @@ export const onUpdateReelay = /* GraphQL */ `
       movieID
       videoS3Key
       uploadedAt
+      visibility
       _version
       _deleted
       _lastChangedAt
@@ -98,6 +100,7 @@ export const onDeleteReelay = /* GraphQL */ `
       movieID
       videoS3Key
       uploadedAt
+      visibility
       _version
       _deleted
       _lastChangedAt

@@ -11,13 +11,14 @@ type Reelay
     @model @aws_api_key 
     @aws_cognito_user_pools 
     @auth(rules: [{allow: owner, operations: [create, update, delete]}]) 
-    @key(name: "reelaysByUploadDate", fields: ["uploadedAt"], queryField: "reelaysByUploadDate")
+    @key(name: "reelaysByUploadDate", fields: ["visibility", "uploadedAt"], queryField: "reelaysByUploadDate")
 {
   id: ID!
   creatorID: ID!
   movieID: ID!
   videoS3Key: String
   uploadedAt: AWSDateTime
+  visibility: String
 }
 
 type Movie @model @auth(rules: [{allow: private, operations: [read]}]) {

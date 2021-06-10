@@ -44,8 +44,10 @@ export default function HomeFeedScreen({ navigation }) {
 
 		// get a list of reelays from the datastore
 		const queryResponse = await API.graphql({
-			query: queries.listReelays,
+			query: queries.reelaysByUploadDate,
 			variables: {
+				visibility: 'global',
+				sortDirection: 'DESC',
 				limit: 3
 			}
 		});
@@ -55,7 +57,7 @@ export default function HomeFeedScreen({ navigation }) {
 		console.log(queryResponse);
 
 		// for each reelay fetched
-		await queryResponse.data.listReelays.items.map(async (reelayObject) => {
+		await queryResponse.data.reelaysByUploadDate.items.map(async (reelayObject) => {
 	
 			// get the video URL from S3
 			const signedVideoURI = await Storage.get(reelayObject.videoS3Key, {

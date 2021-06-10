@@ -97,6 +97,7 @@ export const syncReelays = /* GraphQL */ `
         movieID
         videoS3Key
         uploadedAt
+        visibility
         _version
         _deleted
         _lastChangedAt
@@ -117,6 +118,7 @@ export const getReelay = /* GraphQL */ `
       movieID
       videoS3Key
       uploadedAt
+      visibility
       _version
       _deleted
       _lastChangedAt
@@ -139,6 +141,7 @@ export const listReelays = /* GraphQL */ `
         movieID
         videoS3Key
         uploadedAt
+        visibility
         _version
         _deleted
         _lastChangedAt
@@ -153,13 +156,15 @@ export const listReelays = /* GraphQL */ `
 `;
 export const reelaysByUploadDate = /* GraphQL */ `
   query ReelaysByUploadDate(
-    $uploadedAt: AWSDateTime
+    $visibility: String
+    $uploadedAt: ModelStringKeyConditionInput
     $sortDirection: ModelSortDirection
     $filter: ModelReelayFilterInput
     $limit: Int
     $nextToken: String
   ) {
     reelaysByUploadDate(
+      visibility: $visibility
       uploadedAt: $uploadedAt
       sortDirection: $sortDirection
       filter: $filter
@@ -172,6 +177,7 @@ export const reelaysByUploadDate = /* GraphQL */ `
         movieID
         videoS3Key
         uploadedAt
+        visibility
         _version
         _deleted
         _lastChangedAt

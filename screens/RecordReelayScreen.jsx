@@ -178,13 +178,13 @@ export default function RecordReelayScreen({ navigation }) {
         creatorID: creator.attributes.sub,
         videoS3Key: videoS3Key,
         owner: creator.attributes.sub,
-        uploadedAt: new Date().toISOString()
+        uploadedAt: new Date().toISOString(),
+        visibility: 'global'
       });
 
       // Upload Reelay object to DynamoDB, get ID
       const savedReelay = await DataStore.save(reelay);
       console.log('Saved new Reelay')
-      // console.log(savedReelay);
       setVideoSource(false);
       setIsPreview(false);
     }

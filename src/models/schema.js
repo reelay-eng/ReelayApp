@@ -119,6 +119,13 @@ export const schema = {
                     "type": "AWSDateTime",
                     "isRequired": false,
                     "attributes": []
+                },
+                "visibility": {
+                    "name": "visibility",
+                    "isArray": false,
+                    "type": "String",
+                    "isRequired": false,
+                    "attributes": []
                 }
             },
             "syncable": true,
@@ -141,6 +148,7 @@ export const schema = {
                     "properties": {
                         "name": "reelaysByUploadDate",
                         "fields": [
+                            "visibility",
                             "uploadedAt"
                         ],
                         "queryField": "reelaysByUploadDate"
@@ -230,5 +238,5 @@ export const schema = {
     },
     "enums": {},
     "nonModels": {},
-    "version": "73557a41d9e532d724f1c8c282842c6a"
+    "version": "fc07c2c20d33038f7fbb53c5130a427e"
 };

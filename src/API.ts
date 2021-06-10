@@ -175,6 +175,7 @@ export type CreateReelayInput = {
   movieID: string,
   videoS3Key?: string | null,
   uploadedAt?: string | null,
+  visibility?: string | null,
   _version?: number | null,
 };
 
@@ -183,6 +184,7 @@ export type ModelReelayConditionInput = {
   movieID?: ModelIDInput | null,
   videoS3Key?: ModelStringInput | null,
   uploadedAt?: ModelStringInput | null,
+  visibility?: ModelStringInput | null,
   and?: Array< ModelReelayConditionInput | null > | null,
   or?: Array< ModelReelayConditionInput | null > | null,
   not?: ModelReelayConditionInput | null,
@@ -195,6 +197,7 @@ export type Reelay = {
   movieID?: string,
   videoS3Key?: string | null,
   uploadedAt?: string | null,
+  visibility?: string | null,
   _version?: number,
   _deleted?: boolean | null,
   _lastChangedAt?: number,
@@ -209,6 +212,7 @@ export type UpdateReelayInput = {
   movieID?: string | null,
   videoS3Key?: string | null,
   uploadedAt?: string | null,
+  visibility?: string | null,
   _version?: number | null,
 };
 
@@ -242,6 +246,7 @@ export type ModelReelayFilterInput = {
   movieID?: ModelIDInput | null,
   videoS3Key?: ModelStringInput | null,
   uploadedAt?: ModelStringInput | null,
+  visibility?: ModelStringInput | null,
   and?: Array< ModelReelayFilterInput | null > | null,
   or?: Array< ModelReelayFilterInput | null > | null,
   not?: ModelReelayFilterInput | null,
@@ -252,6 +257,16 @@ export type ModelReelayConnection = {
   items?:  Array<Reelay | null > | null,
   nextToken?: string | null,
   startedAt?: number | null,
+};
+
+export type ModelStringKeyConditionInput = {
+  eq?: string | null,
+  le?: string | null,
+  lt?: string | null,
+  ge?: string | null,
+  gt?: string | null,
+  between?: Array< string | null > | null,
+  beginsWith?: string | null,
 };
 
 export enum ModelSortDirection {
@@ -423,6 +438,7 @@ export type CreateReelayMutation = {
     movieID: string,
     videoS3Key?: string | null,
     uploadedAt?: string | null,
+    visibility?: string | null,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -445,6 +461,7 @@ export type UpdateReelayMutation = {
     movieID: string,
     videoS3Key?: string | null,
     uploadedAt?: string | null,
+    visibility?: string | null,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -467,6 +484,7 @@ export type DeleteReelayMutation = {
     movieID: string,
     videoS3Key?: string | null,
     uploadedAt?: string | null,
+    visibility?: string | null,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -574,6 +592,7 @@ export type SyncReelaysQuery = {
       movieID: string,
       videoS3Key?: string | null,
       uploadedAt?: string | null,
+      visibility?: string | null,
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
@@ -598,6 +617,7 @@ export type GetReelayQuery = {
     movieID: string,
     videoS3Key?: string | null,
     uploadedAt?: string | null,
+    visibility?: string | null,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -623,6 +643,7 @@ export type ListReelaysQuery = {
       movieID: string,
       videoS3Key?: string | null,
       uploadedAt?: string | null,
+      visibility?: string | null,
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
@@ -636,7 +657,8 @@ export type ListReelaysQuery = {
 };
 
 export type ReelaysByUploadDateQueryVariables = {
-  uploadedAt?: string | null,
+  visibility?: string | null,
+  uploadedAt?: ModelStringKeyConditionInput | null,
   sortDirection?: ModelSortDirection | null,
   filter?: ModelReelayFilterInput | null,
   limit?: number | null,
@@ -653,6 +675,7 @@ export type ReelaysByUploadDateQuery = {
       movieID: string,
       videoS3Key?: string | null,
       uploadedAt?: string | null,
+      visibility?: string | null,
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
@@ -802,6 +825,7 @@ export type OnCreateReelaySubscription = {
     movieID: string,
     videoS3Key?: string | null,
     uploadedAt?: string | null,
+    visibility?: string | null,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -819,6 +843,7 @@ export type OnUpdateReelaySubscription = {
     movieID: string,
     videoS3Key?: string | null,
     uploadedAt?: string | null,
+    visibility?: string | null,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -836,6 +861,7 @@ export type OnDeleteReelaySubscription = {
     movieID: string,
     videoS3Key?: string | null,
     uploadedAt?: string | null,
+    visibility?: string | null,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
