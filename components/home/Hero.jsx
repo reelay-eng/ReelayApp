@@ -44,8 +44,8 @@ const Hero = ({ reelays }) => {
 				return (
 					<View key={index}>
 						<VideoPlayer
-							videoURI={reelay.videoURL}
-							poster={reelay.movie.poster}
+							videoURI={reelay.videoURI}
+							poster={require('../../assets/images/splash.png')}
 							isPlay={selected === index}
 						/>
 						<Gradient
@@ -58,7 +58,7 @@ const Hero = ({ reelays }) => {
 							]}>
 							<Center>
 								<Info user={reelay.creator} />
-								<Sidebar avatar={reelay.creator.avatar} count={reelay.stats} />
+								<Sidebar avatar={reelay.creator.avatar} stats={reelay.stats} />
 							</Center>
 						</Gradient>
 					</View>

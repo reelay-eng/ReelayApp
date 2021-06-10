@@ -32,18 +32,20 @@ const Count = styled.Text`
 	letter-spacing: -0.1px;
 `
 
-const Sidebar = ({ avatar, count }) => {
+const Sidebar = ({ avatar, stats }) => {
+	console.log("Rendering sidebar. Counts: ");
+	console.log(stats);
 	return (
 		<Container>
 			<Menu>
 				<User>
-					<Avatar resizeMode='cover' source={avatar} />
+					<Avatar resizeMode='cover' source={require('../../assets/images/icon.png')} />
 				</User>
 			</Menu>
 
 			<Menu>
 				<Icon resizeMode='contain' source={require('../../assets/icons/007-heart.png')} />
-				<Count>{count.likes}</Count>
+				<Count>{stats.likes}</Count>
 			</Menu>
 
 			<Menu>
@@ -51,15 +53,15 @@ const Sidebar = ({ avatar, count }) => {
 					resizeMode='contain'
 					source={require('../../assets/icons/047-chat-2.png')}
 				/>
-				<Count>{count.comments}</Count>
+				<Count>{stats.comments}</Count>
 			</Menu>
 
 			<Menu>
 				<Icon resizeMode='contain' source={require('../../assets/icons/036-network-2.png')} />
-				<Count>{count.shares}</Count>
+				<Count>{stats.shares}</Count>
 			</Menu>
 		</Container>
-	)
+	);
 }
 
 export default Sidebar;

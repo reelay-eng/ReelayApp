@@ -5,7 +5,6 @@ import styled from 'styled-components/native'
 import { Storage, Auth, API, DataStore, graphqlOperation } from 'aws-amplify';
 import * as queries from '../src/graphql/queries';
 
-
 import Header from '../components/home/Header'
 import Hero from '../components/home/Hero'
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,15 +18,10 @@ export default function HomeFeedScreen({ navigation }) {
 	const [reelayList, setReelayList] = useState([]);
 
 	useEffect(() => {
-		// // fetch reelays on page load or update
-		// (async () => {
-		// 	if (reelayList.length == 0) {
-		//   		fetchReelays();
-		// 	}
-		// })();
-
 		const navUnsubscribe = navigation.addListener('focus', () => {
 			console.log("on home screen");
+			console.log("Reelay list: ");
+			console.log(reelayList)
 			if (reelayList.length == 0) {
 				fetchReelays();
 			}
@@ -64,7 +58,7 @@ export default function HomeFeedScreen({ navigation }) {
 		await queryResponse.data.listReelays.items.map(async (reelayObject) => {
 	
 			// get the video URL from S3
-			const signedVideoURL = await Storage.get(reelayObject.videoS3Key, {
+			const signedVideoURI = await Storage.get(reelayObject.videoS3Key, {
 				contentType: "video/mp4"
 			});
 	
@@ -78,9 +72,9 @@ export default function HomeFeedScreen({ navigation }) {
 				},
 				movie: {
 					title: String(reelayObject.movieID),
-					poster: '../../assets/images/splash.png'
+					poster: require('../assets/images/splash.png')
 				},
-				videoURL: signedVideoURL,
+				videoURI: signedVideoURI,
 				postedDateTime: Date(reelayObject.createdAt),
 				stats: {
 					likes: 99,
@@ -88,16 +82,9 @@ export default function HomeFeedScreen({ navigation }) {
 					shares: 33
 				}
 			});
-
 			setReelayList(reelayList);
-			console.log("Added Reelay: " + reelayList.length);
 		});
-
-		console.log("Reelays found: " + reelayList.length);
 		reelayList.sort(compareReelayPostedDate);
-		// await setReelayList(fetchedReelayList);
-
-		console.log("Reelays in feed: " + reelayList.length);
 	}	
 	
 
