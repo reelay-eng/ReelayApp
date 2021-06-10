@@ -34,7 +34,7 @@ export default function ReelayCard({ username, movieTitle, videoURL }) {
                 shouldPlay={false}
                 style={styles.media}
                 useNativeControls
-                resizeMode="contain"
+                resizeMode={'contain'}
                 onPlaybackStatusUpdate={
                     playbackStatus => setPlaybackStatus(() => playbackStatus)
                 }

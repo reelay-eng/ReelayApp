@@ -178,6 +178,7 @@ export default function RecordReelayScreen({ navigation }) {
         creatorID: creator.attributes.sub,
         videoS3Key: videoS3Key,
         owner: creator.attributes.sub,
+        uploadedAt: new Date().toISOString()
       });
 
       // Upload Reelay object to DynamoDB, get ID

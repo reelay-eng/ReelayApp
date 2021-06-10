@@ -96,6 +96,7 @@ export const syncReelays = /* GraphQL */ `
         creatorID
         movieID
         videoS3Key
+        uploadedAt
         _version
         _deleted
         _lastChangedAt
@@ -115,6 +116,7 @@ export const getReelay = /* GraphQL */ `
       creatorID
       movieID
       videoS3Key
+      uploadedAt
       _version
       _deleted
       _lastChangedAt
@@ -136,6 +138,40 @@ export const listReelays = /* GraphQL */ `
         creatorID
         movieID
         videoS3Key
+        uploadedAt
+        _version
+        _deleted
+        _lastChangedAt
+        createdAt
+        updatedAt
+        owner
+      }
+      nextToken
+      startedAt
+    }
+  }
+`;
+export const reelaysByUploadDate = /* GraphQL */ `
+  query ReelaysByUploadDate(
+    $uploadedAt: AWSDateTime
+    $sortDirection: ModelSortDirection
+    $filter: ModelReelayFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    reelaysByUploadDate(
+      uploadedAt: $uploadedAt
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        creatorID
+        movieID
+        videoS3Key
+        uploadedAt
         _version
         _deleted
         _lastChangedAt

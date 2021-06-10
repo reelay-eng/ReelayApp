@@ -112,6 +112,13 @@ export const schema = {
                     "type": "String",
                     "isRequired": false,
                     "attributes": []
+                },
+                "uploadedAt": {
+                    "name": "uploadedAt",
+                    "isArray": false,
+                    "type": "AWSDateTime",
+                    "isRequired": false,
+                    "attributes": []
                 }
             },
             "syncable": true,
@@ -128,6 +135,16 @@ export const schema = {
                 {
                     "type": "aws_cognito_user_pools",
                     "properties": {}
+                },
+                {
+                    "type": "key",
+                    "properties": {
+                        "name": "reelaysByUploadDate",
+                        "fields": [
+                            "uploadedAt"
+                        ],
+                        "queryField": "reelaysByUploadDate"
+                    }
                 },
                 {
                     "type": "auth",
@@ -213,5 +230,5 @@ export const schema = {
     },
     "enums": {},
     "nonModels": {},
-    "version": "00339fd792eb86d3b227956fd5a3f2bb"
+    "version": "73557a41d9e532d724f1c8c282842c6a"
 };

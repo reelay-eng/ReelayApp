@@ -1,121 +1,117 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react'
+import { StatusBar } from 'react-native'
+import styled from 'styled-components/native'
 
-import { Video, AVPlaybackStatus } from "expo-av";
-import { Storage, Auth, API, DataStore } from 'aws-amplify';
+import { Storage, Auth, API, DataStore, graphqlOperation } from 'aws-amplify';
 import * as queries from '../src/graphql/queries';
-import * as mutations from '../src/graphql/mutations';
-import * as subscriptions from '../src/graphql/subscriptions';
 
-import EditScreenInfo from '../components/EditScreenInfo';
-import ReelayCard from '../components/discover/ReelayCard';
-import { Text, View } from '../components/Themed';
 
-// https://scotch.io/tutorials/implementing-an-infinite-scroll-list-in-react-native
+import Header from '../components/home/Header'
+import Hero from '../components/home/Hero'
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import {
-  Button,
-  // StyleSheet,
-  Dimensions,
-  // View,
-  // Text,
-  TouchableOpacity,
-  SafeAreaView,
-} from "react-native";
-import { FlatList } from 'react-native-gesture-handler';
+const Container = styled.View`
+	flex: 1;
+	background: transparent;
+`
 
 export default function HomeFeedScreen({ navigation }) {
-  const [reelayList, setReelayList] = useState([]);
-  const [videoSource, setVideoSource] = useState(null);
-  const [hasPermission, setHasPermission] = useState(null);
+	const [reelayList, setReelayList] = useState([]);
 
-  useEffect(() => {
-    // fetch reelays on page load or update
-    (async () => {
-      await fetchReelays();
-    })();
+	useEffect(() => {
+		// // fetch reelays on page load or update
+		// (async () => {
+		// 	if (reelayList.length == 0) {
+		//   		fetchReelays();
+		// 	}
+		// })();
 
-    // fetch reelays every time the user navigates back to this tab
-    const unsubscribe = navigation.addListener('focus', () => {
-      console.log("on home screen");
-      if (reelayList.length == 0) {
-        fetchReelays();
-      }
-    });
-  }, [navigation]);
+		const navUnsubscribe = navigation.addListener('focus', () => {
+			console.log("on home screen");
+			if (reelayList.length == 0) {
+				fetchReelays();
+			}
+		});
+		// return the cleanup function
+		return navUnsubscribe;
+		// subscribe to navigation:
+		// fetch reelays every time the user navigates back to this tab
+	}, [navigation]);
 
-  let fetchedReelayList = [];
-  const fetchReelays = async () => {
+	const compareReelayPostedDate = (reelayA, reelayB) => {
+		if (reelayA.postedDateTime < reelayB.postedDateTime) {
+			return -1;
+		} else {
+			return 1;
+		}
+	}
 
-    // get a list of reelays from the datastore
-    const queryResponse = await API.graphql({ query: queries.listReelays });
-    if (!queryResponse) {
-      setReelayList([]);
-      return;
-    }
+	const fetchReelays = async () => {
 
-    // for each reelay fetched
-    await queryResponse.data.listReelays.items.map(async (reelayObject) => {
+		// get a list of reelays from the datastore
+		const queryResponse = await API.graphql({
+			query: queries.listReelays,
+			variables: {
+				limit: 3
+			}
+		});
+		if (!queryResponse) {
+			return;
+		}
+		console.log(queryResponse);
 
-      // get the video URL from S3
-      const signedVideoURL = await Storage.get(reelayObject.videoS3Key, {
-        contentType: "video/mp4"
-      });
+		// for each reelay fetched
+		await queryResponse.data.listReelays.items.map(async (reelayObject) => {
+	
+			// get the video URL from S3
+			const signedVideoURL = await Storage.get(reelayObject.videoS3Key, {
+				contentType: "video/mp4"
+			});
+	
+		  	// create the reelay object
+			setReelayList([]);
+			reelayList.push({
+				id: reelayObject.id,
+				creator: {
+					username: String(reelayObject.owner),
+					avatar: '../../assets/images/icon.png'
+				},
+				movie: {
+					title: String(reelayObject.movieID),
+					poster: '../../assets/images/splash.png'
+				},
+				videoURL: signedVideoURL,
+				postedDateTime: Date(reelayObject.createdAt),
+				stats: {
+					likes: 99,
+					comments: 66,
+					shares: 33
+				}
+			});
 
-      // create the reelay object
-      fetchedReelayList.push({
-        id: reelayObject.id,
-        creatorUsername: String(reelayObject.owner),
-        movieTitle: String(reelayObject.movieID),
-        videoURL: signedVideoURL,
-        postedDateTime: Date(reelayObject.createdAt),
-      });
-    });
+			setReelayList(reelayList);
+			console.log("Added Reelay: " + reelayList.length);
+		});
 
-    await setReelayList(fetchedReelayList);
-    console.log("Reelays found: " + fetchedReelayList.length);
-    console.log("Reelays in feed: " + reelayList.length);
-  }
+		console.log("Reelays found: " + reelayList.length);
+		reelayList.sort(compareReelayPostedDate);
+		// await setReelayList(fetchedReelayList);
 
-  const renderReelayFeed = () => (
-    <ScrollView style={styles.container}>
-      <FlatList 
-        data={reelayList}
-        renderItem={renderReelay}
-        keyExtractor={reelay => reelay.id}
-      />
-    </ScrollView>
-  );
+		console.log("Reelays in feed: " + reelayList.length);
+	}	
+	
 
-  const renderReelay = ({
-    item,
-    index,
-    separators
-  }) => (
-    <View style={styles.container}>
-      <ReelayCard style={styles.reelayCard}
-        username={item.creatorUsername} 
-        movieTitle={item.movieTitle} 
-        videoURL={item.videoURL} 
-      />
-    </View>
-  );
-
-  return (
-    <SafeAreaView style={styles.container}>
-      {renderReelayFeed()}
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  content: {
-    padding: 4,
-  },
-  card: {
-    margin: 4,
-  },
-});
+	return (
+		<SafeAreaView>
+			<StatusBar
+				translucent
+				backgroundColor='transparent'
+				barStyle='light-content'
+			/>
+			<Container>
+				<Header />
+				<Hero reelays={reelayList} />
+			</Container>
+		</SafeAreaView>
+	)
+};

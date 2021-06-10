@@ -7,11 +7,17 @@ type User @model @aws_api_key @aws_cognito_user_pools @auth(rules: [{allow: owne
   createdReelayIDs: [ID!]
 }
 
-type Reelay @model @aws_api_key @aws_cognito_user_pools @auth(rules: [{allow: owner, operations: [create, update, delete]}]) {
+type Reelay 
+    @model @aws_api_key 
+    @aws_cognito_user_pools 
+    @auth(rules: [{allow: owner, operations: [create, update, delete]}]) 
+    @key(name: "reelaysByUploadDate", fields: ["uploadedAt"], queryField: "reelaysByUploadDate")
+{
   id: ID!
   creatorID: ID!
   movieID: ID!
   videoS3Key: String
+  uploadedAt: AWSDateTime
 }
 
 type Movie @model @auth(rules: [{allow: private, operations: [read]}]) {
@@ -21,4 +27,3 @@ type Movie @model @auth(rules: [{allow: private, operations: [read]}]) {
   releaseDate: AWSDate
   runningTime: Int
 }
- 
