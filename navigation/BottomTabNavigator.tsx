@@ -58,7 +58,10 @@ function HomeTabNavigator() {
       <HomeTabStack.Screen
         name="HomeFeedScreen"
         component={HomeFeedScreen}
-        options={{ headerTitle: 'Find a Movie' }}
+        options={{ 
+          headerTitle: 'Find a Movie',
+          headerShown: false
+      }}
       />
     </HomeTabStack.Navigator>
   );
@@ -72,7 +75,10 @@ function ReelayTabNavigator() {
       <ReelayTabStack.Screen
         name="RecordReelayScreen"
         component={RecordReelayScreen}
-        options={{ headerTitle: 'Record a Reelay' }}
+        options={{ 
+          headerTitle: 'Record a Reelay',
+          headerShown: false
+        }}
       />
     </ReelayTabStack.Navigator>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { StatusBar } from 'react-native'
+import { StatusBar, View } from 'react-native'
 import styled from 'styled-components/native'
 
 import { Storage, Auth, API, DataStore, graphqlOperation } from 'aws-amplify';
@@ -9,7 +9,7 @@ import Header from '../components/home/Header'
 import Hero from '../components/home/Hero'
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const Container = styled.View`
+const TransparentContainer = styled.View`
 	flex: 1;
 	background: transparent;
 `
@@ -96,10 +96,10 @@ export default function HomeFeedScreen({ navigation }) {
 				backgroundColor='transparent'
 				barStyle='light-content'
 			/>
-			<Container>
+			<TransparentContainer>
 				<Header />
 				<Hero reelays={reelayList} />
-			</Container>
+			</TransparentContainer>
 		</SafeAreaView>
 	)
 };

@@ -10,7 +10,7 @@ import Sidebar from '../home/Sidebar'
 
 const { height } = Dimensions.get('window');
 
-const Container = styled(PagerView)`
+const PagerViewContainer = styled(PagerView)`
 	height: ${height}px;
 `
 const Gradient = styled(LinearGradient)`
@@ -27,11 +27,13 @@ const Center = styled.View`
 	flex-direction: row;
 `
 
+const Words = styled.Text
+
 const Hero = ({ reelays }) => {
 	const [selected, setSelected] = useState(0);
 
 	return (
-		<Container 
+		<PagerViewContainer 
 			initialPage={0}
 			orientation='vertical'
 			onPageSelected={e => setSelected(e.nativeEvent.position)}
@@ -53,15 +55,15 @@ const Hero = ({ reelays }) => {
 								'rgba(26,26,26,0.6)'
 							]}>
 							<Center>
-								<Info user={reelay.creator} />
+								<Info user={reelay.creator} movie={reelay.movie} />
 								<Sidebar avatar={reelay.creator.avatar} stats={reelay.stats} />
 							</Center>
 						</Gradient>
 					</View>
 				);
 			})}
-		</Container>
+		</PagerViewContainer>
 	);
-}
+}  
 
 export default Hero;

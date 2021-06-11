@@ -4,7 +4,7 @@ import styled from 'styled-components/native'
 const Container = styled.View`
 	width: 60px;
 	height: 100%;
-	padding-bottom: 300px;
+	padding-bottom: 240px;
 	justify-content: flex-end;
 `
 const Menu = styled.View`
