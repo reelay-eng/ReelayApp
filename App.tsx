@@ -1,10 +1,22 @@
-import { StatusBar } from 'expo-status-bar';
+// react imports
 import React from 'react';
-import { StyleSheet, Text, View } from "react-native";
-import { Amplify, Auth } from "aws-amplify";
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+// aws imports
+import { Amplify, Auth } from 'aws-amplify';
+import { withAuthenticator, AmplifySignOut } from 'aws-amplify-react-native';
 import config from "./src/aws-exports";
 
-import { withAuthenticator, AmplifySignOut } from 'aws-amplify-react-native';
+// expo imports
+import { StatusBar } from 'expo-status-bar';
+import * as WebBrowswer from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+
+// local imports
+import useCachedResources from './hooks/useCachedResources';
+import useColorScheme from './hooks/useColorScheme';
+import Navigation from './navigation';
+
 
 Amplify.configure({
   ...config,
@@ -14,13 +26,6 @@ Amplify.configure({
 });
 
 Auth.configure({ mandatorySignIn: false});
-
-
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-
-import useCachedResources from './hooks/useCachedResources';
-import useColorScheme from './hooks/useColorScheme';
-import Navigation from './navigation';
 
 function App() {
   const isLoadingComplete = useCachedResources();

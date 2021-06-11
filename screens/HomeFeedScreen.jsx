@@ -27,9 +27,8 @@ export default function HomeFeedScreen({ navigation }) {
 			}
 		});
 		// return the cleanup function
-		return navUnsubscribe;
-		// subscribe to navigation:
 		// fetch reelays every time the user navigates back to this tab
+		return navUnsubscribe;
 	}, [navigation]);
 
 	const compareReelayPostedDate = (reelayA, reelayB) => {

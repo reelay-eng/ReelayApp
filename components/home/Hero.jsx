@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Dimensions, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import styled from 'styled-components/native';
-import ViewPager from '@react-native-community/viewpager'
+import PagerView from 'react-native-pager-view';
 
 import VideoPlayer from '../home/VideoPlayer'
 import Info from '../home/Info'
@@ -10,7 +10,7 @@ import Sidebar from '../home/Sidebar'
 
 const { height } = Dimensions.get('window');
 
-const Container = styled(ViewPager)`
+const Container = styled(PagerView)`
 	height: ${height}px;
 `
 const Gradient = styled(LinearGradient)`
@@ -29,18 +29,14 @@ const Center = styled.View`
 
 const Hero = ({ reelays }) => {
 	const [selected, setSelected] = useState(0);
-	console.log("Reelays in Hero: ");
-	console.log(reelays);
 
 	return (
-		<Container
+		<Container 
+			initialPage={0}
 			orientation='vertical'
 			onPageSelected={e => setSelected(e.nativeEvent.position)}
-			initialPage={0}>
+		>
 			{ reelays.map((reelay, index) => {
-
-				console.log("Poster URI: " + reelay.movie.poster);
-
 				return (
 					<View key={index}>
 						<VideoPlayer

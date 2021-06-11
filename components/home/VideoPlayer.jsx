@@ -1,5 +1,5 @@
-import React from 'react'
-import { Video } from 'expo-av'
+import React, { useRef, useState } from 'react'
+import { Video, Audio } from 'expo-av'
 import styled from 'styled-components/native';
 
 
@@ -10,28 +10,41 @@ const Poster = styled.ImageBackground`
 	height: 100%;
 `
 
-const VideoPlayer = ({ videoURI, poster, isPlay }) => {
-	if (videoURI) {
-		console.log("loading video player");
-		console.log(videoURI);
-		console.log(poster);	
-	} else {
-		console.log("bad source");
+export default function VideoPlayer({ videoURI, poster, isPlay }) {
+	const video = useRef(null);
+	const [playbackStatus, setPlaybackStatus] = useState({});
+
+	const onPlaybackStatusUpdate = (status) => {
+		setPlaybackStatus(status);
+
+		if (status.isPlaying) {
+			console.log("Video is playing");
+		}
+		if (status.didJustFinish) {
+			console.log("Playback finished");
+		}
 	}
+
 	return isPlay ? (
 		<Play
-			rate={1.0}
-			volume={1.0}
+			interruptionModeAndroid={Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX}
+			interruptionModeIOS={Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX}
+			isLooping
 			isMuted={false}
-			shouldPlay
-			useNativeControls={false}
+			onPlaybackStatusUpdate={onPlaybackStatusUpdate}
+			playsInSilentLockedModeIOS={true}
 			posterSource={poster}
-			source={{uri: videoURI}}
+			rate={1.0}
+			ref={video}
 			resizeMode='cover'
+			shouldDuckAndroid={true}
+			shouldPlay
+			source={{uri: videoURI}}
+			staysActiveInBackground={false}
+			useNativeControls={false}
+			volume={1.0}
 		/>
 	) : (
 		<Poster source={poster} />
 	)
 }
-
-export default VideoPlayer;
