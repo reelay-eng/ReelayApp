@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components/native';
 
-const Container = styled.View`
+const HeaderView = styled.View`
 	top: 22px;
 	width: 100%;
 	justify-content: center;
@@ -10,7 +10,7 @@ const Container = styled.View`
 	position: absolute;
 	z-index: 1;
 `
-const Menu = styled.Text`
+const HeaderText = styled.Text`
 	color: #fff;
 	letter-spacing: 0.8px;
 	margin: 11px 12px;
@@ -27,11 +27,11 @@ const Separator = styled.View`
 
 const Header = () => {
 	return (
-		<Container>
-			<Menu>Following</Menu>
+		<HeaderView>
+			<HeaderText>Following</HeaderText>
 			<Separator />
-			<Menu bold='true'>For You</Menu>
-		</Container>
+			<HeaderText bold='true'>For You</HeaderText>
+		</HeaderView>
 	)
 }
 

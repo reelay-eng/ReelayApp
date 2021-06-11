@@ -2,7 +2,7 @@ import React from 'react'
 import { Feather } from '@expo/vector-icons'
 import styled from 'styled-components/native'
 
-const Container = styled.View`
+const InfoView = styled.View`
 	flex: 1;
 	justify-content: flex-end;
 	margin: 0 0 240px 13px;
@@ -32,15 +32,15 @@ const MovieTitle = styled.Text`
 
 const Info = ({ user, movie }) => {
 	return (
-		<Container>
+		<InfoView>
 			<User>
 				<Username>@{user.username}</Username>
 			</User>
 			<Movie>
 				<MovieTitle>{movie.title}</MovieTitle>
 			</Movie>
-		</Container>
+		</InfoView>
 	)
 }
 
-export default Info
+export default Info;

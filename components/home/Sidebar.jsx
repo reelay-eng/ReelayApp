@@ -1,17 +1,17 @@
 import React from 'react'
 import styled from 'styled-components/native'
 
-const Container = styled.View`
+const SidebarView = styled.View`
 	width: 60px;
 	height: 100%;
 	padding-bottom: 240px;
 	justify-content: flex-end;
 `
-const Menu = styled.View`
+const SidebarButtonView = styled.View`
 	margin: 9px 0;
 	align-items: center;
 `
-const User = styled.View`
+const AvatarView = styled.View`
 	width: 48px;
 	height: 48px;
 	margin-bottom: 13px;
@@ -33,34 +33,32 @@ const Count = styled.Text`
 `
 
 const Sidebar = ({ avatar, stats }) => {
-	console.log("Rendering sidebar. Counts: ");
-	console.log(stats);
 	return (
-		<Container>
-			<Menu>
-				<User>
+		<SidebarView>
+			<SidebarButtonView>
+				<AvatarView>
 					<Avatar resizeMode='cover' source={require('../../assets/images/icon.png')} />
-				</User>
-			</Menu>
+				</AvatarView>
+			</SidebarButtonView>
 
-			<Menu>
+			<SidebarButtonView>
 				<Icon resizeMode='contain' source={require('../../assets/icons/007-heart.png')} />
 				<Count>{stats.likes}</Count>
-			</Menu>
+			</SidebarButtonView>
 
-			<Menu>
+			<SidebarButtonView>
 				<Icon
 					resizeMode='contain'
 					source={require('../../assets/icons/047-chat-2.png')}
 				/>
 				<Count>{stats.comments}</Count>
-			</Menu>
+			</SidebarButtonView>
 
-			<Menu>
+			<SidebarButtonView>
 				<Icon resizeMode='contain' source={require('../../assets/icons/036-network-2.png')} />
 				<Count>{stats.shares}</Count>
-			</Menu>
-		</Container>
+			</SidebarButtonView>
+		</SidebarView>
 	);
 }
 

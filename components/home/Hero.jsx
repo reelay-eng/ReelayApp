@@ -22,7 +22,7 @@ const Gradient = styled(LinearGradient)`
 	width: 100%;
 	z-index: 1;
 `
-const Center = styled.View`
+const Overlay = styled.View`
 	flex: 1;
 	flex-direction: row;
 `
@@ -54,10 +54,10 @@ const Hero = ({ reelays }) => {
 								'rgba(26,26,26,0)',
 								'rgba(26,26,26,0.6)'
 							]}>
-							<Center>
+							<Overlay>
 								<Info user={reelay.creator} movie={reelay.movie} />
 								<Sidebar avatar={reelay.creator.avatar} stats={reelay.stats} />
-							</Center>
+							</Overlay>
 						</Gradient>
 					</View>
 				);
