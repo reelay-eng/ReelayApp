@@ -27,16 +27,18 @@ const Overlay = styled.View`
 	flex-direction: row;
 `
 
-const Words = styled.Text
-
 const Hero = ({ reelays }) => {
 	const [selected, setSelected] = useState(0);
+
+	const onPageSelected = ((e) => {
+		setSelected(e.nativeEvent.position);
+	});
 
 	return (
 		<PagerViewContainer 
 			initialPage={0}
 			orientation='vertical'
-			onPageSelected={e => setSelected(e.nativeEvent.position)}
+			onPageSelected={onPageSelected}
 		>
 			{ reelays.map((reelay, index) => {
 				return (

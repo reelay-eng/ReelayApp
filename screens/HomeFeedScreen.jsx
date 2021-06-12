@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { StatusBar, View } from 'react-native'
+import { StatusBar, Text, View } from 'react-native'
 import styled from 'styled-components/native'
 
 import { Storage, Auth, API, DataStore, graphqlOperation } from 'aws-amplify';
@@ -98,7 +98,8 @@ export default function HomeFeedScreen({ navigation }) {
 			/>
 			<TransparentContainer>
 				<Header />
-				<Hero reelays={reelayList} />
+				{ reelayList.length < 1 && <View><Text>{'Loading...'}</Text></View>}
+				{ reelayList.length >= 1 && <Hero reelays={reelayList} /> }
 			</TransparentContainer>
 		</SafeAreaView>
 	)
