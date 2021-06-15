@@ -16,10 +16,7 @@ export default function VideoPlayer({ videoURI, poster, isPlay }) {
 
 	const onPlaybackStatusUpdate = (status) => {
 		setPlaybackStatus(status);
-
-		if (status.isPlaying) {
-			console.log("Video is playing");
-		}
+		
 		if (status.didJustFinish) {
 			console.log("Playback finished");
 		}

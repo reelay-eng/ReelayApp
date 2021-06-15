@@ -1,33 +1,20 @@
 import React, { useEffect, useState } from 'react'
 import { Dimensions, Text, View } from 'react-native'
-import { LinearGradient } from 'expo-linear-gradient'
 import styled from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
 
 import { API, Storage } from 'aws-amplify';
 import * as queries from '../../src/graphql/queries';
 
-import VideoPlayer from './VideoPlayer'
-import Info from './Info'
-import Sidebar from './Sidebar'
+import Info from './Info';
+import Hero from './Hero';
+import Sidebar from './Sidebar';
+import VideoPlayer from './VideoPlayer';
 
 const { height } = Dimensions.get('window');
 
 const PagerViewContainer = styled(PagerView)`
 	height: ${height}px;
-`
-const Gradient = styled(LinearGradient)`
-	height: 100%;
-	justify-content: space-between;
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	z-index: 1;
-`
-const Overlay = styled.View`
-	flex: 1;
-	flex-direction: row;
 `
 
 const ReelayFeed = () => {
@@ -39,7 +26,6 @@ const ReelayFeed = () => {
 	const [reelayListNextToken, setReelayListNextToken] = useState(null);
 
 	useEffect(() => {
-		console.log("Using hero effect");
 		fetchReelays();
 		setInitialFeedLoaded(true);
 	});
@@ -130,28 +116,7 @@ const ReelayFeed = () => {
 					onPageSelected={onPageSelected}
 				>
 					{ reelayList.map((reelay, index) => {
-						return (
-							<View key={index}>
-								<VideoPlayer
-									videoURI={reelay.videoURI}
-									poster={require('../../assets/images/splash.png')}
-									isPlay={curPosition === index}
-								/>
-								<Gradient
-									locations={[0, 0.26, 0.6, 1]}
-									colors={[
-										'rgba(26,26,26,0.6)',
-										'rgba(26,26,26,0)',
-										'rgba(26,26,26,0)',
-										'rgba(26,26,26,0.6)'
-									]}>
-									<Overlay>
-										<Info user={reelay.creator} movie={reelay.movie} />
-										<Sidebar avatar={reelay.creator.avatar} stats={reelay.stats} />
-									</Overlay>
-								</Gradient>
-							</View>
-						);
+						return <Hero reelay={reelay} index={index} curPosition={curPosition} />;
 					})}
 				</PagerViewContainer>
 			}
