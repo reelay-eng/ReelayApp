@@ -4,11 +4,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import  { Storage, Auth, API, DataStore, progressCallback } from "aws-amplify";
 import { User, Artist, Movie, Reelay } from '../src/models';
-import * as mutations from '../src/graphql/mutations';
 
 import { Camera } from "expo-camera";
 import { Video, AVPlaybackStatus } from "expo-av";
-
 
 import {
   Button,
@@ -19,6 +17,8 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from "react-native";
+
+import BottomDrawer from "../components/record/BottomDrawer";
 
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 const closeButtonSize = Math.floor(WINDOW_HEIGHT * 0.032);
@@ -209,12 +209,14 @@ export default function RecordReelayScreen({ navigation }) {
           console.log("camera error", error);
         }}
       />
-
       <View style={styles.container}>
         {isVideoRecording && renderVideoRecordIndicator()}
         {videoSource && renderVideoPlayer()}
         {isPreview && renderCancelPreviewButton()}
         {!videoSource && !isPreview && renderCaptureControl()}
+      </View>
+      <View style={styles.container}>
+        <BottomDrawer />
       </View>
     </SafeAreaView>
   );

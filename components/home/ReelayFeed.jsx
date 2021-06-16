@@ -116,7 +116,12 @@ const ReelayFeed = () => {
 					onPageSelected={onPageSelected}
 				>
 					{ reelayList.map((reelay, index) => {
-						return <Hero reelay={reelay} index={index} curPosition={curPosition} />;
+						return <Hero 
+							reelay={reelay} 
+							key={index} 
+							index={index}
+							curPosition={curPosition} 
+						/>;
 					})}
 				</PagerViewContainer>
 			}
