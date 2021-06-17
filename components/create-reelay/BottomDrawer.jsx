@@ -3,6 +3,7 @@ import { Animated, Dimensions, PanResponder, Text, View } from 'react-native';
 import styled from 'styled-components/native';
 
 import TMDBSearchField from './TMDBSearchField';
+import TMDBSearchResults from './TMDBSearchResults';
 
 export const HorizontalLine = styled(View)`
   margin: 25px 0px 15px 0px;
@@ -23,7 +24,7 @@ const BottomDrawer = () => {
     }
 
     const y = useRef(new Animated.Value(DrawerPosition.Closed)).current;
-    const drawerPos = useRef(new Animated.Value(DrawerPosition.Peek)).current;
+    const drawerPos = useRef(new Animated.Value(DrawerPosition.Closed)).current;
     const margin = 0.05 * height;
     const moveDist = (moveY) => height - moveY;
 
@@ -106,6 +107,7 @@ const BottomDrawer = () => {
           {...panResponder.panHandlers}>
               <HorizontalLine />
               <TMDBSearchField />
+              <TMDBSearchResults />
         </Animated.View>
       ); 
 }

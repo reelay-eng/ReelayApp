@@ -7,7 +7,6 @@ const TMDBSearchResults = () => {
     return (
         <FlatList />
     );
-
 }
 
 export default TMDBSearchResults;

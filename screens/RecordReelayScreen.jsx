@@ -18,7 +18,7 @@ import {
   SafeAreaView,
 } from "react-native";
 
-import BottomDrawer from "../components/record/BottomDrawer";
+import BottomDrawer from "../components/create-reelay/BottomDrawer";
 
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 const closeButtonSize = Math.floor(WINDOW_HEIGHT * 0.032);

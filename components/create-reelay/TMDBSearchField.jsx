@@ -1,19 +1,24 @@
 import React, { useState } from 'react';
+import { FlatList, Text, View } from 'react-native';
 import { SearchBar } from 'react-native-elements';
 import styled from 'styled-components/native';
 
-const SearchFieldContainer = styled.View`
-`
+import { useDispatch, useSelector } from 'react-redux';
+import { searchForTitles, tagTitle } from '../../redux/slices/CreateReelaySlice';
+
+const SearchFieldContainer = styled.View``
 
 const TMDBSearchField = () => {
     const [searchText, setSearchText] = useState('');
+    const dispatch = useDispatch();
+
+    const taggedTitle = useSelector((state) => state.createReelay.titleTMDbObject);
+    const searchResults = useSelector((state) => state.createReelay.searchResults);
 
     const updateSearch = (newSearchText) => {
         setSearchText(newSearchText);
-        console.log("New search text: " + newSearchText);
+        dispatch(searchForTitles(newSearchText));
     }
-
-    console.log('render search field');
 
     return (
         <SearchFieldContainer>
