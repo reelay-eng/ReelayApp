@@ -15,7 +15,8 @@ const FlatListContainer = styled.FlatList`
 
 const SearchResults = () => {
 
-    const searchResults = useSelector((state) => state.createReelay.searchResults);
+    const searchResultsWrapper = useSelector((state) => state.createReelay.searchResults);
+    const searchResults = searchResultsWrapper.results;
 
     return (
         <View>

@@ -3,19 +3,27 @@ import { SearchBar } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { searchForTitles, tagTitle } from '../../redux/slices/CreateReelaySlice';
+import { setSearchResults } from '../../redux/slices/CreateReelaySlice';
+import { useTitleSearchQuery } from '../../redux/services/TMDbApi';
 
 const SearchFieldContainer = styled.View``
 
 export default SearchField = () => {
+
     const [searchText, setSearchText] = useState('');
     const dispatch = useDispatch();
 
-    const taggedTitle = useSelector((state) => state.createReelay.titleTMDbObject);
+    const { data, error, isLoading } = useTitleSearchQuery(searchText);
 
     const updateSearch = (newSearchText) => {
         setSearchText(newSearchText);
-        dispatch(searchForTitles(newSearchText));
+
+        // update search results
+        if (!error && !isLoading) {
+            dispatch(setSearchResults(data));
+        } else if (error) {
+            console.log(error);
+        }
     }
 
     return (

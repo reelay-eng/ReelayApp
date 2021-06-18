@@ -15,15 +15,12 @@ export const createReelaySlice = createSlice({
         untagTitle: (state) => {
             state.titleObject = null;
         },
-        searchForTitles: (state, action) => {
-            const searchText = action.payload;
-
-            // TODO: search TMDb
-            const results = tmdbAPIStubSearch(searchText);
+        setSearchResults: (state, action) => {
+            const results = action.payload;
             state.searchResults = results;
         }
     }
 });
 
-export const { tagTitle, untagTitle, searchForTitles } = createReelaySlice.actions
+export const { tagTitle, untagTitle, setSearchResults } = createReelaySlice.actions
 export default createReelaySlice.reducer
