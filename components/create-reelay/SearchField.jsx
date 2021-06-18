@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { FlatList, Text, View } from 'react-native';
 import { SearchBar } from 'react-native-elements';
 import styled from 'styled-components/native';
 
@@ -8,12 +7,11 @@ import { searchForTitles, tagTitle } from '../../redux/slices/CreateReelaySlice'
 
 const SearchFieldContainer = styled.View``
 
-const TMDBSearchField = () => {
+export default SearchField = () => {
     const [searchText, setSearchText] = useState('');
     const dispatch = useDispatch();
 
     const taggedTitle = useSelector((state) => state.createReelay.titleTMDbObject);
-    const searchResults = useSelector((state) => state.createReelay.searchResults);
 
     const updateSearch = (newSearchText) => {
         setSearchText(newSearchText);
@@ -32,5 +30,3 @@ const TMDBSearchField = () => {
         </SearchFieldContainer>
     );
 };
-
-export default TMDBSearchField;

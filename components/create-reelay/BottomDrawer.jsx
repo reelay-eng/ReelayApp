@@ -2,8 +2,8 @@ import React, { useRef, useState } from 'react';
 import { Animated, Dimensions, PanResponder, Text, View } from 'react-native';
 import styled from 'styled-components/native';
 
-import TMDBSearchField from './TMDBSearchField';
-import TMDBSearchResults from './TMDBSearchResults';
+import SearchField from './SearchField';
+import SearchResults from './SearchResults';
 
 export const HorizontalLine = styled(View)`
   margin: 25px 0px 15px 0px;
@@ -106,8 +106,8 @@ const BottomDrawer = () => {
           ]} 
           {...panResponder.panHandlers}>
               <HorizontalLine />
-              <TMDBSearchField />
-              <TMDBSearchResults />
+              <SearchField />
+              <SearchResults />
         </Animated.View>
       ); 
 }
