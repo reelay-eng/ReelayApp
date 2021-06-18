@@ -4,13 +4,22 @@ import styled from 'styled-components/native';
 
 import SearchField from './SearchField';
 import SearchResults from './SearchResults';
+import { TagMovieDoneButton, TagMovieBackButton } from './TagMovieNavButtons';
 
-export const HorizontalLine = styled(View)`
-  margin: 25px 0px 15px 0px;
-  height: 1px;
-  width: 100%;
-  background-color: #D3D3D3
+const HorizontalLine = styled(View)`
+    margin: 0px 0px 15px 0px;
+    height: 1px;
+    width: 100%;
+    background-color: #D3D3D3
 `;
+
+const NavButtonContainer = styled(View)`
+    height: 30px;
+    width: 100%;
+    flex: 0.2;
+    flex-direction: row;
+    justify-content: space-between;
+`
 
 const BottomDrawer = () => {
     // code and comments from Johanna Wad, adapted from TS to JSX
@@ -105,9 +114,13 @@ const BottomDrawer = () => {
             },
           ]} 
           {...panResponder.panHandlers}>
-              <HorizontalLine />
-              <SearchField />
-              <SearchResults />
+                <NavButtonContainer>
+                    <TagMovieBackButton />
+                    <TagMovieDoneButton />
+                </NavButtonContainer>
+                <HorizontalLine />
+                <SearchField />
+                <SearchResults />
         </Animated.View>
       ); 
 }

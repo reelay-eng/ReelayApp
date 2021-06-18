@@ -4,16 +4,16 @@ import tmdbAPIStubSearch from '../../src/testdata/tmdb-api-stub';
 export const createReelaySlice = createSlice({
     name: 'createReelay',
     initialState: {
-        titleTMDbObject: null,
+        titleObject: null,
         searchResults: []
     },
     reducers: {
         tagTitle: (state, action) => {
             // action.payload contains a TMDbObject
-            state.titleTMDbObject = action.payload;
+            state.titleObject = action.payload;
         },
         untagTitle: (state) => {
-            state.titleTMDbObject = null;
+            state.titleObject = null;
         },
         searchForTitles: (state, action) => {
             const searchText = action.payload;
