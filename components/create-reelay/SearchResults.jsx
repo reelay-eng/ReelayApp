@@ -5,7 +5,9 @@ import styled from 'styled-components/native';
 
 import SearchResultItem from './SearchResultItem';
 
-const Message = styled.Text``
+const Message = styled.Text`
+    font-size: 18px;
+`
 const SearchResultsContainer = styled.SafeAreaView`
     flex: 1;
 `

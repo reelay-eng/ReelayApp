@@ -19,6 +19,7 @@ import {
 } from "react-native";
 
 import BottomDrawer from "../components/create-reelay/BottomDrawer";
+import TagMovieOverlay from "../components/create-reelay/TagMovieOverlay";
 
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 const closeButtonSize = Math.floor(WINDOW_HEIGHT * 0.032);
@@ -216,7 +217,7 @@ export default function RecordReelayScreen({ navigation }) {
         {!videoSource && !isPreview && renderCaptureControl()}
       </View>
       <View style={styles.container}>
-        <BottomDrawer />
+        <TagMovieOverlay />
       </View>
     </SafeAreaView>
   );

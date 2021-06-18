@@ -8,10 +8,10 @@ const PressableContainer = styled.Pressable`
     height: 30px;
 `
 const TitleText = styled.Text`
-    font-size: 20px;
+    font-size: 18px;
 `
 const TitleTextSelected = styled.Text`
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
 `
 const TitleLineContainer = styled.View`
@@ -20,10 +20,10 @@ const TitleLineContainer = styled.View`
     align-items: flex-start;
 `
 const YearText = styled.Text`
-    font-size: 20px;
+    font-size: 18px;
 `
 const YearTextSelected = styled.Text`
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
 `
 
@@ -33,7 +33,7 @@ export default SearchResultItem = ({result, resultType}) => {
 
     const title = titleObject.title ? titleObject.title + '\t' : 'Title not found.' + '\t';
     const releaseYear = (titleObject.release_date && titleObject.release_date.length >= 4) 
-        ? ('(' + titleObject.release_date.slice(0,4) + ')') : 'Release year not found.';
+        ? ('(' + titleObject.release_date.slice(0,4) + ')') : '';
 
     const isTagged = useSelector((state) => state.createReelay.titleObject) == titleObject;
 
