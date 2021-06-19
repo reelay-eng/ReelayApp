@@ -30,8 +30,7 @@ const OverlayContainer = styled(Overlay)`
 `
 
 export default TagMovieOverlay = () => {
-    const taggedMovie = useSelector((state) => state.createReelay.titleObject);
-    const [visible, setVisible] = useState(true);
+    const visible = useSelector((state) => state.createReelay.overlayVisible);
 
     return (
         <OverlayContainer isVisible={visible} fullScreen={true}>

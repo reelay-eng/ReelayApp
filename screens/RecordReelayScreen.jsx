@@ -2,6 +2,7 @@
 // https://www.instamobile.io/react-native-tutorials/capturing-photos-and-videos-with-the-camera-in-react-native/
 
 import React, { useState, useRef, useEffect } from "react";
+import { useSelector } from 'react-redux';
 import  { Storage, Auth, API, DataStore, progressCallback } from "aws-amplify";
 import { User, Artist, Movie, Reelay } from '../src/models';
 
@@ -18,8 +19,8 @@ import {
   SafeAreaView,
 } from "react-native";
 
-import BottomDrawer from "../components/create-reelay/BottomDrawer";
 import TagMovieOverlay from "../components/create-reelay/TagMovieOverlay";
+import styled from 'styled-components/native';
 
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 const closeButtonSize = Math.floor(WINDOW_HEIGHT * 0.032);
@@ -33,8 +34,19 @@ export default function RecordReelayScreen({ navigation }) {
   const [isVideoRecording, setIsVideoRecording] = useState(false);
   const [playbackStatus, setPlaybackStatus] = useState({});
   const [videoSource, setVideoSource] = useState(null);
+
   const cameraRef = useRef();
   const videoRef = useRef();
+
+  const taggedMovie = useSelector((state) => state.createReelay.titleObject);
+  const overlayVisible = useSelector((state) => state.createReelay.overlayVisible);
+
+  const BackButtonContainer = styled(View)`
+	  flex: 1;
+    flex-direction: row;
+	  justify-content: flex-end;
+	  margin: 0px 0px 240px 13px;    
+  `
 
   useEffect(() => {
     (async () => {
@@ -148,6 +160,14 @@ export default function RecordReelayScreen({ navigation }) {
     </View>
   );
 
+  const renderBackButton = () => (
+    <BackButtonContainer>
+      <Button type='clear' title='Back' onPress={
+        console.log('back button pressed')
+      }/>
+    </BackButtonContainer>
+  );
+
   const uploadReelay = async () => {
     if (!videoSource) {
       console.log("No video to upload.")
@@ -215,6 +235,9 @@ export default function RecordReelayScreen({ navigation }) {
         {videoSource && renderVideoPlayer()}
         {isPreview && renderCancelPreviewButton()}
         {!videoSource && !isPreview && renderCaptureControl()}
+      </View>
+      <View>
+        {!overlayVisible && renderBackButton()}
       </View>
       <View style={styles.container}>
         <TagMovieOverlay />
