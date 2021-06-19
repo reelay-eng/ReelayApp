@@ -17,7 +17,7 @@ export default store = configureStore({
     reducer: {
         createReelay: createReelaySlice.reducer,
         // Add the generated reducer as a specific top-level slice
-        [TMDbApi.reducerPath]: TMDbApi.reducer
+        [TMDbApi.reducerPath]: TMDbApi.reducer,
     },
     // Adding the api middleware enables caching, invalidation, polling,
     // and other useful features of `rtk-query`.

@@ -68,7 +68,6 @@ const ReelayFeed = () => {
 			console.log('No query response');
 			return;
 		}
-		console.log(queryResponse);
 
 		// should exist (or be set to null) whether the feed is loaded or not
 		const nextToken = queryResponse.data.reelaysByUploadDate.nextToken;
@@ -103,7 +102,6 @@ const ReelayFeed = () => {
 			});
 			setReelayList(reelayList);
 		});
-		console.log(reelayList);
 	}
 
 	return (

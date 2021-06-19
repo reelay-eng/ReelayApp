@@ -1,6 +1,9 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
+import { Image } from 'react-native-elements';
 import styled from 'styled-components/native';
+
+const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
 
 const InfoView = styled.View`
 	flex: 1;
@@ -10,7 +13,7 @@ const InfoView = styled.View`
 `
 const Movie = styled.View`
     flex: 0.9;
-	flex-direction: row;
+	flex-direction: column;
 	align-items: flex-end;
     justify-content: flex-end;
 `
@@ -37,11 +40,18 @@ export default TitleInfo = () => {
     const year = (titleObject.release_date && titleObject.release_date.length >= 4)
         ? ('(' + titleObject.release_date.slice(0,4) + ')'): '';
 
+	const posterImageUri = titleObject.poster_path 
+        ? `${TMDB_IMAGE_API_BASE_URL}${titleObject.poster_path}` : null;
+
 	return (
 		<InfoView>
 			<Movie>
 				<MovieTitle>{title}{year}</MovieTitle>
+				{posterImageUri && <Image 
+                    source={{ uri: posterImageUri }} 
+                    style={{ height: 150, width: 100 }}
+				/>}
 			</Movie>
 		</InfoView>
-	)
+	);
 }

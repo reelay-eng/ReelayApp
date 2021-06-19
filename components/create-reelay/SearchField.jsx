@@ -4,7 +4,7 @@ import styled from 'styled-components/native';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { setSearchResults } from './CreateReelaySlice';
-import { useTitleSearchQuery } from '../../redux/services/TMDbApi';
+import { useTitleSearchQuery, useCreditsFetchQuery } from '../../redux/services/TMDbApi';
 
 const SearchFieldContainer = styled.View``
 
@@ -13,7 +13,7 @@ export default SearchField = () => {
     const [lastUpdatedSearchText, setLastUpdatedSearchText] = useState('');
     const dispatch = useDispatch();
 
-    const { data, error, isLoading } = useTitleSearchQuery(searchText);
+    const searchResults = { data, error, isLoading } = useTitleSearchQuery(searchText);
 
     const levenshteinDistance = (s, t) => {
         if (!s.length) return t.length;
@@ -33,11 +33,11 @@ export default SearchField = () => {
         if (shouldInstantSearch) {
             // triggers update to useTitleSearchQuery
             // update search results
-            if (!error && !isLoading && shouldInstantSearch) {
+            if (!searchResults.error && !searchResults.isLoading && shouldInstantSearch) {
                 setLastUpdatedSearchText(newSearchText);
-                dispatch(setSearchResults(data));
-            } else if (error) {
-                console.log(error);
+                dispatch(setSearchResults(searchResults.data));
+            } else if (searchResults.error) {
+                console.log(searchResults.error);
             }
         }
     }
