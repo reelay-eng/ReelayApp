@@ -6,7 +6,7 @@ import  { Storage, Auth, API, DataStore, progressCallback } from "aws-amplify";
 import { User, Artist, Movie, Reelay } from '../src/models';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { untagTitle } from "../redux/slices/CreateReelaySlice";
+import { untagTitle } from "../components/create-reelay/CreateReelaySlice";
 
 import { Camera } from "expo-camera";
 import { Video, AVPlaybackStatus } from "expo-av";

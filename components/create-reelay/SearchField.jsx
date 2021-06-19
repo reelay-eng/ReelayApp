@@ -3,7 +3,7 @@ import { SearchBar } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { setSearchResults } from '../../redux/slices/CreateReelaySlice';
+import { setSearchResults } from './CreateReelaySlice';
 import { useTitleSearchQuery } from '../../redux/services/TMDbApi';
 
 const SearchFieldContainer = styled.View``

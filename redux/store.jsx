@@ -2,7 +2,7 @@
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query'
 import { applyMiddleware } from 'redux';
-import { createReelaySlice } from './slices/CreateReelaySlice';
+import { createReelaySlice } from '../components/create-reelay/CreateReelaySlice';
 import { TMDbApi } from './services/TMDbApi';
 
 // compose middleware

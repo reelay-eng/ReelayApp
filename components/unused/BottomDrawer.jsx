@@ -2,8 +2,8 @@ import React, { useRef, useState } from 'react';
 import { Animated, Dimensions, PanResponder, Text, View } from 'react-native';
 import styled from 'styled-components/native';
 
-import SearchField from './SearchField';
-import SearchResults from './SearchResults';
+import SearchField from '../create-reelay/SearchField';
+import SearchResults from '../create-reelay/SearchResults';
 import { TagMovieDoneButton, TagMovieBackButton } from './TagMovieNavButtons';
 
 const HorizontalLine = styled(View)`

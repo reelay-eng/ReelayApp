@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components/native';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { tagTitle } from '../../redux/slices/CreateReelaySlice';
+import { tagTitle } from './CreateReelaySlice';
 
 const PressableContainer = styled.Pressable`
     height: 30px;
