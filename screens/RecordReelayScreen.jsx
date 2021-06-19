@@ -2,15 +2,17 @@
 // https://www.instamobile.io/react-native-tutorials/capturing-photos-and-videos-with-the-camera-in-react-native/
 
 import React, { useState, useRef, useEffect } from "react";
-import { useSelector } from 'react-redux';
 import  { Storage, Auth, API, DataStore, progressCallback } from "aws-amplify";
 import { User, Artist, Movie, Reelay } from '../src/models';
 
+import { useDispatch, useSelector } from 'react-redux';
+import { untagTitle } from "../redux/slices/CreateReelaySlice";
+
 import { Camera } from "expo-camera";
 import { Video, AVPlaybackStatus } from "expo-av";
+import { Button } from 'react-native-elements';
 
 import {
-  Button,
   StyleSheet,
   Dimensions,
   View,
@@ -19,7 +21,9 @@ import {
   SafeAreaView,
 } from "react-native";
 
+import TitleInfo from "../components/create-reelay/TitleInfo";
 import TagMovieOverlay from "../components/create-reelay/TagMovieOverlay";
+
 import styled from 'styled-components/native';
 
 const WINDOW_HEIGHT = Dimensions.get("window").height;
@@ -38,14 +42,21 @@ export default function RecordReelayScreen({ navigation }) {
   const cameraRef = useRef();
   const videoRef = useRef();
 
-  const taggedMovie = useSelector((state) => state.createReelay.titleObject);
   const overlayVisible = useSelector((state) => state.createReelay.overlayVisible);
+
+  const dispatch = useDispatch();
 
   const BackButtonContainer = styled(View)`
 	  flex: 1;
-    flex-direction: row;
+    flex-direction: column;
 	  justify-content: flex-end;
-	  margin: 0px 0px 240px 13px;    
+    align-items: flex-start;
+  `
+  const TopContainer = styled(View)`
+    flex: 1;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
   `
 
   useEffect(() => {
@@ -160,10 +171,15 @@ export default function RecordReelayScreen({ navigation }) {
     </View>
   );
 
+  const resetCreateReelay = () => {
+    console.log('back button pressed');
+    dispatch(untagTitle());
+  }
+
   const renderBackButton = () => (
     <BackButtonContainer>
       <Button type='clear' title='Back' onPress={
-        console.log('back button pressed')
+        resetCreateReelay
       }/>
     </BackButtonContainer>
   );
@@ -236,12 +252,13 @@ export default function RecordReelayScreen({ navigation }) {
         {isPreview && renderCancelPreviewButton()}
         {!videoSource && !isPreview && renderCaptureControl()}
       </View>
-      <View>
-        {!overlayVisible && renderBackButton()}
-      </View>
       <View style={styles.container}>
-        <TagMovieOverlay />
+        {overlayVisible && <TagMovieOverlay />}
       </View>
+      <TopContainer>
+        {!overlayVisible && renderBackButton()}
+        {!overlayVisible && <TitleInfo />}
+      </TopContainer>
     </SafeAreaView>
   );
 }
