@@ -52,12 +52,30 @@ export default function RecordReelayScreen({ navigation }) {
 	  justify-content: flex-end;
     align-items: flex-start;
   `
-  const TopContainer = styled(View)`
+  const ControlsContainer = styled(View)`
     flex: 1;
     flex-direction: row;
     justify-content: space-between;
     align-items: flex-start;
   `
+  const InterfaceContainer = styled(View)`
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+  `
+  const PreviewContainer = styled(View)`
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+  `
+  const TopContainer = styled(View)`
+  flex: 1;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+`
 
   useEffect(() => {
     (async () => {
@@ -246,19 +264,21 @@ export default function RecordReelayScreen({ navigation }) {
           console.log("camera error", error);
         }}
       />
-      <View style={styles.container}>
-        {isVideoRecording && renderVideoRecordIndicator()}
-        {videoSource && renderVideoPlayer()}
-        {isPreview && renderCancelPreviewButton()}
-        {!videoSource && !isPreview && renderCaptureControl()}
-      </View>
-      <View style={styles.container}>
-        {overlayVisible && <TagMovieOverlay />}
-      </View>
-      <TopContainer>
-        {!overlayVisible && renderBackButton()}
-        {!overlayVisible && <TitleInfo />}
-      </TopContainer>
+      <InterfaceContainer>
+        {!overlayVisible &&
+          <TopContainer>
+            {!overlayVisible && renderBackButton()}
+            {!overlayVisible && <TitleInfo />}
+          </TopContainer>    
+        }
+        <ControlsContainer>
+          {isVideoRecording && renderVideoRecordIndicator()}
+          {videoSource && renderVideoPlayer()}
+          {isPreview && renderCancelPreviewButton()}
+          {!videoSource && !isPreview && renderCaptureControl()}
+        </ControlsContainer>
+      </InterfaceContainer>
+      {overlayVisible && <TagMovieOverlay />}
     </SafeAreaView>
   );
 }

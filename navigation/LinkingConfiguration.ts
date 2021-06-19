@@ -22,6 +22,11 @@ export default {
               RecordReelayScreen: 'two',
             },
           },
+          CreateReelay: {
+            screens: {
+              CreateReelayScreen: 'three',
+            },
+          },
         },
       },
       NotFound: '*',

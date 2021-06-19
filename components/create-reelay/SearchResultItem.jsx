@@ -3,7 +3,6 @@ import { Image } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 import { useDispatch, useSelector } from 'react-redux';
-// import { usePosterFetchQuery } from '../../redux/services/TMDbApi';
 import { tagTitle } from './CreateReelaySlice';
 
 const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
@@ -44,7 +43,6 @@ export default SearchResultItem = ({result, resultType}) => {
     const dispatch = useDispatch();
     const titleObject = result;
 
-    // const posterImageUri = titleObject.id ? usePosterFetchQuery(titleObject.id) : null;
     const posterImageUri = titleObject.poster_path 
         ? `${TMDB_IMAGE_API_BASE_URL}${titleObject.poster_path}` : null;
 

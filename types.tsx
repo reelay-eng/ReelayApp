@@ -20,3 +20,7 @@ export type HomeTabParamList = {
 export type ReelayTabParamList = {
   RecordReelayScreen: undefined;
 };
+
+export type CreateReelayTabParamList = {
+  CreateReelayScreen: undefined;
+}

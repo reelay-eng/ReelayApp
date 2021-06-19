@@ -15,7 +15,7 @@ const Movie = styled.View`
     flex: 0.9;
 	flex-direction: column;
 	align-items: flex-end;
-    justify-content: flex-end;
+    justify-content: flex-start;
 `
 const MovieTitle = styled.Text`
 	font-size: 17px;
@@ -49,7 +49,7 @@ export default TitleInfo = () => {
 				<MovieTitle>{title}{year}</MovieTitle>
 				{posterImageUri && <Image 
                     source={{ uri: posterImageUri }} 
-                    style={{ height: 150, width: 100 }}
+                    style={{ height: 180, width: 120 }}
 				/>}
 			</Movie>
 		</InfoView>
