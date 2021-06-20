@@ -16,7 +16,6 @@ export default function HomeFeedScreen({ navigation }) {
 	useEffect(() => {
 		const navUnsubscribe = navigation.addListener('focus', () => {
 			// TODO
-			dispatch()
 		});
 		// return the cleanup function
 		// fetch reelays every time the user navigates back to this tab

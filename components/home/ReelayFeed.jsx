@@ -40,7 +40,6 @@ const ReelayFeed = () => {
 	const fetchReelays = async () => {
 		if (initialFeedLoaded && !reelayListNextToken) {
 			// we've reached the end of the feed 
-			console.log('Reached end of feed');
 			return;
 		}
 

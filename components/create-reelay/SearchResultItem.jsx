@@ -39,7 +39,8 @@ const YearTextSelected = styled.Text`
     font-weight: bold;
 `
 
-export default SearchResultItem = ({result, resultType}) => {
+export default SearchResultItem = ({result, resultType, navigation}) => {
+    
     const dispatch = useDispatch();
     const titleObject = result;
 
@@ -55,6 +56,7 @@ export default SearchResultItem = ({result, resultType}) => {
     const selectResult = () => {
         dispatch(tagTitle(titleObject));
         console.log('selected ', title);
+        navigation.push('ReelayCameraScreen');
     }
 
     return (

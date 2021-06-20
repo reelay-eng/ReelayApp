@@ -3,6 +3,7 @@ import  { Storage, Auth, API, DataStore, progressCallback } from "aws-amplify";
 import { User, Artist, Movie, Reelay } from '../src/models';
 
 import { useDispatch, useSelector } from 'react-redux';
+import { setStage } from "../components/create-reelay/CreateReelaySlice";
 
 import { Camera } from "expo-camera";
 import { Video, AVPlaybackStatus } from "expo-av";
@@ -28,11 +29,15 @@ const closeButtonSize = Math.floor(WINDOW_HEIGHT * 0.032);
 const captureSize = Math.floor(WINDOW_HEIGHT * 0.09);
 
 export default function CreateReelayScreen({ navigation }) {
-
     useEffect(() => {
 		const navUnsubscribe = navigation.addListener('focus', () => {
 			// TODO
 		});
+
+        const cleanup = () => {
+            // 
+            navUnsubscribe(setStage('SELECT_TITLE'));
+        }
 		// return the cleanup function
 		return navUnsubscribe;
 	}, [navigation]);

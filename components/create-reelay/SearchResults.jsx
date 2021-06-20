@@ -15,7 +15,7 @@ const FlatListContainer = styled.FlatList`
     flex: 1;
 `
 
-const SearchResults = () => {
+const SearchResults = ({ navigation }) => {
 
     const searchResultsWrapper = useSelector((state) => state.createReelay.searchResults);
     const searchResults = searchResultsWrapper.results;
@@ -28,7 +28,7 @@ const SearchResults = () => {
                     initialNumToRender={searchResults.length}
                     data={searchResults} 
                     renderItem={({ item, index, separators }) => {
-                        return <SearchResultItem result={item} resultType={'movie'} />;
+                        return <SearchResultItem result={item} resultType={'movie'} navigation={navigation} />;
                     }}
                     keyExtractor={item => item.id.toString()}
 

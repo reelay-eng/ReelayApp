@@ -13,8 +13,11 @@ import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import HomeFeedScreen from '../screens/HomeFeedScreen';
 import RecordReelayScreen from '../screens/RecordReelayScreen';
-import CreateReelayScreen from '../screens/CreateReelayScreen';
 import { BottomTabParamList, HomeTabParamList, ReelayTabParamList, CreateReelayTabParamList } from '../types';
+
+import SelectTitleScreen from '../screens/SelectTitleScreen';
+import ReelayCameraScreen from '../screens/ReelayCameraScreen';
+import ReelayPreviewScreen from '../screens/ReelayPreviewScreen';
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -96,13 +99,29 @@ const CreateReelayTabStack = createStackNavigator<CreateReelayTabParamList>();
 
 function CreateReelayTabNavigator() {
   return (
-    <CreateReelayTabStack.Navigator>
+    <CreateReelayTabStack.Navigator
+      initialRouteName="SelectTitleScreen"
+      detachInactiveScreens={false}
+    >
       <CreateReelayTabStack.Screen
-        name="CreateReelayScreen"
-        component={CreateReelayScreen}
+        name="SelectTitleScreen"
+        component={SelectTitleScreen}
+        options={{
+          title: 'Select a Title to Reelay',
+        }}
+      />
+      <CreateReelayTabStack.Screen
+        name="ReelayCameraScreen"
+        component={ReelayCameraScreen}
         options={{ 
-          headerTitle: 'Record a Reelay',
-          headerShown: false
+          title: 'Record a Reelay',
+        }}
+      />
+      <CreateReelayTabStack.Screen
+        name="ReelayPreviewScreen"
+        component={ReelayPreviewScreen}
+        options={{
+          title: 'Preview Reelay',
         }}
       />
     </CreateReelayTabStack.Navigator>
