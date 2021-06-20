@@ -10,10 +10,6 @@ export const createReelaySlice = createSlice({
         videoSource: null,
     },
     reducers: {
-        reset: (state) => {
-            // todo
-            state.creationStage = 'SELECT_TITLE';
-        },
         setSearchResults: (state, action) => {
             // action.payload contains an array of TMDbObjects
             state.searchResults = action.payload;

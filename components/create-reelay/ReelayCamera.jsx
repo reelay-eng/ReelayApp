@@ -5,7 +5,6 @@ import { setStage, setVideoSource, untagTitle } from './CreateReelaySlice';
 import { Camera } from 'expo-camera';
 import { CameraStyles, ContainerStyles } from '../../styles';
 import TitleInfo from './TitleInfo';
-import { Overlay } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 import {
@@ -65,23 +64,23 @@ export default ReelayCamera = ({ navigation }) => {
         align-items: flex-start;
     `  
     const VideoRecordDot = styled(View)`
-        border-radius: 3;
+        border-radius: 3px;
         height: 6px;
         width: 6px;
         background-color: #ff0000;
         margin-horizontal: 5px;
     `
     const VideoRecordIndicator = styled(View)`
+        position: relative;
         flex-direction: row;
-        top-margin: 25px;
-        align-self: center;
+        top: 25px;
         justify-content: center;
         align-items: center;
         background-color: transparent;
         opacity: 0.7;
     `
-    const VideoRecordMessage = styled(View)`
-        fontSize: 14;
+    const VideoRecordMessage = styled(Text)`
+        fontSize: 14px;
         color: #ffffff;
         textAlign: center;
     `
@@ -105,6 +104,7 @@ export default ReelayCamera = ({ navigation }) => {
         })();
         const unsubscribe = navigation.addListener('focus', () => {
             console.log("on record reelay screen");
+
         });
         return unsubscribe;
     }, [navigation]);
@@ -187,7 +187,7 @@ export default ReelayCamera = ({ navigation }) => {
                             disabled={!isCameraReady}
                             onLongPress={recordVideo}
                             onPressOut={stopVideoRecording}
-                            onPress={creationStage == 'CAMERA PREVIEW' ? recordVideo : stopVideoRecording}
+                            onPress={creationStage == 'CAMERA_PREVIEW' ? recordVideo : stopVideoRecording}
                         />
                     </CaptureControlContainer>
                 </RecordingInterfaceContainer>
