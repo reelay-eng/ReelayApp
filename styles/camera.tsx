@@ -1,11 +1,13 @@
-import { StyleSheet } from 'react-native';
+import { Dimensions, StyleSheet } from 'react-native';
+
+const WINDOW_HEIGHT = Dimensions.get("window").height;
+const WINDOW_WIDTH = Dimensions.get("window").width;
 
 const CameraStyles = StyleSheet.create({
-    container: {
-      flex: 1,
-    },
     camera: {
       flex: 1,
+      height: WINDOW_HEIGHT,
+      width: WINDOW_WIDTH,
     },
     bottomRow: {
       flex: 1,
@@ -48,6 +50,9 @@ const CameraStyles = StyleSheet.create({
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center'
+    },
+    overlay: {
+      ...StyleSheet.absoluteFillObject
     }
   });
 

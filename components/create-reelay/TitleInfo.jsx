@@ -15,21 +15,14 @@ const Movie = styled.View`
     flex: 0.9;
 	flex-direction: column;
 	align-items: flex-end;
-    justify-content: flex-start;
 `
 const MovieTitle = styled.Text`
 	font-size: 17px;
 	color: rgba(255, 255, 255, 1.2);
 	letter-spacing: -0.2px;
 	margin-top: 10px;
-	width: 80%;
-`
-const MovieYear = styled.Text`
-    font-size: 17px;
-    color: rgba(255, 255, 255, 1.2);
-    letter-spacing: -0.2px;
-    margin-top: 6px;
-    width: 80%;
+	margin-bottom: 10px;
+	width: 120px;
 `
 
 export default TitleInfo = () => {
@@ -46,11 +39,14 @@ export default TitleInfo = () => {
 	return (
 		<InfoView>
 			<Movie>
-				<MovieTitle>{title}{year}</MovieTitle>
 				{posterImageUri && <Image 
                     source={{ uri: posterImageUri }} 
-                    style={{ height: 180, width: 120 }}
+                    style={{ height: 180, width: 120, 
+						marginTop: 10, marginBottom: 10,
+						marginLeft: 10, marginRight: 10,
+					}}
 				/>}
+				<MovieTitle>{title}{year}</MovieTitle>
 			</Movie>
 		</InfoView>
 	);

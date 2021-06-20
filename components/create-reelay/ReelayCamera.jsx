@@ -3,7 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setStage, setVideoSource, untagTitle } from './CreateReelaySlice';
 
 import { Camera } from 'expo-camera';
+import { CameraStyles, ContainerStyles } from '../../styles';
 import TitleInfo from './TitleInfo';
+import { Overlay } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 import {
@@ -32,7 +34,7 @@ export default ReelayCamera = ({ navigation }) => {
     const dispatch = useDispatch();
 
     const CaptureControlContainer = styled(View)`
-        flex: 1;
+        flex: 0.1;
         flex-direction: row;
         bottom: 38px;
         width: 100%;
@@ -40,8 +42,13 @@ export default ReelayCamera = ({ navigation }) => {
         justify-content: center;
     `
     const FlipText = styled(Text)`
+        color: white;
+    `
+    const FlipTextContainer = styled(TouchableOpacity)`
+        flex: 0.5;
     `
     const RecordButton = styled(TouchableOpacity)`
+        position: absolute;
         background-color: #f5f6f5;
         height: ${captureSize}px;
         width: ${captureSize}px;
@@ -149,40 +156,42 @@ export default ReelayCamera = ({ navigation }) => {
     };
 
     return(
-        <SafeAreaView>
+        <View style={ContainerStyles.fillContainer}>
             <Camera
                 ref={cameraRef}
-                style={styles.camera}
+                style={CameraStyles.camera}
                 type={cameraType}
                 flashMode={Camera.Constants.FlashMode.on}
                 onCameraReady={onCameraReady}
                 onMountError={(error) => {
                     console.log("camera error", error);
                 }}
-            />
-            <RecordingInterfaceContainer>
-                <TopContainer>
-                    <TitleInfo />
-                </TopContainer>
-                {creationStage == 'RECORDING' && 
-                    <VideoRecordIndicator>
-                        <VideoRecordDot />
-                        <VideoRecordMessage>{'Recording...'}</VideoRecordMessage>
-                    </VideoRecordIndicator>
-                }
-                <CaptureControlContainer>
-                    <TouchableOpacity disabled={!isCameraReady} onPress={switchCamera}>
-                        <FlipText>{'Flip'}</FlipText>
-                    </TouchableOpacity>
-                    <RecordButton
-                        activeOpacity={0.7}
-                        disabled={!isCameraReady}
-                        onLongPress={recordVideo}
-                        onPressOut={stopVideoRecording}
-                        onPress={creationStage == 'RECORDING' ? recordVideo : stopVideoRecording}
-                    />
-                </CaptureControlContainer>
-            </RecordingInterfaceContainer>
-        </SafeAreaView>
+            >
+                {/* Interface is on top of the camera*/}
+                <RecordingInterfaceContainer>
+                    <TopContainer>
+                        <TitleInfo />
+                    </TopContainer>
+                    {creationStage == 'RECORDING' && 
+                        <VideoRecordIndicator>
+                            <VideoRecordDot />
+                            <VideoRecordMessage>{'Recording...'}</VideoRecordMessage>
+                        </VideoRecordIndicator>
+                    }
+                    <CaptureControlContainer>
+                        <FlipTextContainer disabled={!isCameraReady} onPress={switchCamera}>
+                            <FlipText>{'Flip'}</FlipText>
+                        </FlipTextContainer>
+                        <RecordButton
+                            activeOpacity={0.7}
+                            disabled={!isCameraReady}
+                            onLongPress={recordVideo}
+                            onPressOut={stopVideoRecording}
+                            onPress={creationStage == 'CAMERA PREVIEW' ? recordVideo : stopVideoRecording}
+                        />
+                    </CaptureControlContainer>
+                </RecordingInterfaceContainer>
+            </Camera>
+        </View>
     );
 }

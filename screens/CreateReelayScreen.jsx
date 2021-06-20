@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Camera } from "expo-camera";
 import { Video, AVPlaybackStatus } from "expo-av";
 import { Button } from 'react-native-elements';
+import { ContainerStyles } from "../styles";
 
 import {
   StyleSheet,
@@ -22,8 +23,6 @@ import ReelayPreview from '../components/create-reelay/ReelayPreview';
 import TagMovieOverlay from '../components/create-reelay/TagMovieOverlay';
 import UploadPosterSplash from '../components/create-reelay/UploadPosterSplash';
 
-import styled from 'styled-components/native';
-
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 const closeButtonSize = Math.floor(WINDOW_HEIGHT * 0.032);
 const captureSize = Math.floor(WINDOW_HEIGHT * 0.09);
@@ -38,37 +37,6 @@ export default function CreateReelayScreen({ navigation }) {
 		return navUnsubscribe;
 	}, [navigation]);
 
-    const BackButtonContainer = styled(View)`
-        flex: 1;
-        flex-direction: column;
-        justify-content: flex-end;
-        align-items: flex-start;
-    `
-    const ControlsContainer = styled(View)`
-        flex: 1;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: flex-start;
-    `
-    const InterfaceContainer = styled(View)`
-        flex: 1;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: flex-start;
-    `
-    const PreviewContainer = styled(View)`
-        flex: 1;
-        flex-direction: column;
-        justify-content: space-between;
-        align-items: flex-start;
-    `
-    const TopContainer = styled(View)`
-        flex: 1;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: flex-start;
-    `
-
     const CreationStages = {
         SELECT_TITLE: 'SELECT_TITLE',
         CAMERA_PREVIEW: 'CAMERA_PREVIEW',
@@ -81,7 +49,8 @@ export default function CreateReelayScreen({ navigation }) {
     console.log(creationStage);
 
     return (
-        <SafeAreaView>
+        <SafeAreaView style={ContainerStyles.fillContainer}>
+            <Text>{'okay'}</Text>
             {(creationStage == 'SELECT_TITLE') && <TagMovieOverlay />}
             {(creationStage == 'CAMERA_PREVIEW' || creationStage == 'RECORDING') && 
                 <ReelayCamera navigation={navigation} />} 

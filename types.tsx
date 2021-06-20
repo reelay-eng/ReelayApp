@@ -11,6 +11,7 @@ export type RootStackParamList = {
 export type BottomTabParamList = {
   Home: undefined;
   Reelay: undefined;
+  Create: undefined;
 };
 
 export type HomeTabParamList = {
