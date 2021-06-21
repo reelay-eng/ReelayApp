@@ -27,18 +27,16 @@ export default SearchField = () => {
     }
 
     const updateSearch = (newSearchText) => {
-        const shouldInstantSearch = levenshteinDistance(lastUpdatedSearchText, newSearchText) >= 2;
-        setSearchText(newSearchText);
-
-        if (shouldInstantSearch) {
-            // triggers update to useTitleSearchQuery
-            // update search results
-            if (!searchResults.error && !searchResults.isLoading && shouldInstantSearch) {
+        if (newSearchText == '') {
+            dispatch(setSearchResults([]));
+        } else {
+            setSearchText(newSearchText);
+            if (!searchResults.error && !searchResults.isLoading) {
                 setLastUpdatedSearchText(newSearchText);
                 dispatch(setSearchResults(searchResults.data));
             } else if (searchResults.error) {
                 console.log(searchResults.error);
-            }
+            }    
         }
     }
 

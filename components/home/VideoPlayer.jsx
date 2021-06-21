@@ -26,7 +26,7 @@ export default function VideoPlayer({ videoURI, poster, isPlaying }) {
 		<Play
 			interruptionModeAndroid={Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX}
 			interruptionModeIOS={Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX}
-			isLooping={false}
+			isLooping
 			isMuted={false}
 			onPlaybackStatusUpdate={onPlaybackStatusUpdate}
 			playsInSilentLockedModeIOS={true}
