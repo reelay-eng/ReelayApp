@@ -1,32 +1,31 @@
 import React, { useState } from 'react';
-import { FlatList, View } from 'react-native';
+import { FlatList, Text, View } from 'react-native';
 import { useSelector } from 'react-redux';
+import { ContainerStyles, TextStyles } from '../../styles';
 import styled from 'styled-components/native';
 
 import SearchResultItem from './SearchResultItem';
-
-const Message = styled.Text`
-    font-size: 18px;
-`
-const SearchResultsContainer = styled.SafeAreaView`
-    flex: 1;
-`
-const FlatListContainer = styled.FlatList`
-    flex: 1;
-`
 
 const SearchResults = ({ navigation }) => {
 
     const searchResultsWrapper = useSelector((state) => state.createReelay.searchResults);
     const searchResults = searchResultsWrapper.results;
 
+const HorizontalLine = styled(View)`
+    margin: 0px 0px 0px 0px;
+    height: 1px;
+    width: 100%;
+    background-color: #D3D3D3
+`;
+
     return (
         <View>
-            { !searchResults && <Message>{'Awaiting search results...'}</Message> }
+            { !searchResults && <Text style={TextStyles.darkTextCentered}>{'Awaiting search results...'}</Text> }
             { searchResults &&
                 <FlatList 
-                    initialNumToRender={searchResults.length}
                     data={searchResults} 
+                    initialNumToRender={searchResults.length}
+                    ItemSeparatorComponent={HorizontalLine}
                     renderItem={({ item, index, separators }) => {
                         return <SearchResultItem result={item} resultType={'movie'} navigation={navigation} />;
                     }}

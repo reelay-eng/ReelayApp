@@ -10,6 +10,10 @@ const ContainerStyles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',    
     },
+    searchPageContainer: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'white',
+    },
 });
 
 export default ContainerStyles;

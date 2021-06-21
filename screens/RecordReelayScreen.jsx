@@ -21,8 +21,8 @@ import {
   SafeAreaView,
 } from "react-native";
 
-import TitleInfo from "../components/create-reelay/TitleInfo";
-import TagMovieOverlay from "../components/create-reelay/TagMovieOverlay";
+// import TitleInfo from "../components/create-reelay/TitleInfo";
+// import TagMovieOverlay from "../components/create-reelay/TagMovieOverlay";
 
 import styled from 'styled-components/native';
 
@@ -268,7 +268,7 @@ export default function RecordReelayScreen({ navigation }) {
         {!overlayVisible &&
           <TopContainer>
             {!overlayVisible && renderBackButton()}
-            {!overlayVisible && <TitleInfo />}
+            {/* {!overlayVisible && <TitleInfo />} */}
           </TopContainer>    
         }
         <ControlsContainer>
@@ -278,7 +278,7 @@ export default function RecordReelayScreen({ navigation }) {
           {!videoSource && !isPreview && renderCaptureControl()}
         </ControlsContainer>
       </InterfaceContainer>
-      {overlayVisible && <TagMovieOverlay />}
+      {/* {overlayVisible && <TagMovieOverlay />} */}
     </SafeAreaView>
   );
 }

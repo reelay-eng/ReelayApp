@@ -1,8 +1,7 @@
 import React, { useRef, useState } from 'react';
-import { SafeAreaView, View } from 'react-native';
+import { SafeAreaView, StyleSheet, View } from 'react-native';
+import { ContainerStyles } from '../styles';
 import styled from 'styled-components/native';
-
-import { useSelector } from 'react-redux';
 
 import SearchField from '../components/create-reelay/SearchField';
 import SearchResults from '../components/create-reelay/SearchResults';
@@ -18,10 +17,8 @@ const HorizontalLine = styled(View)`
 `;
 
 export default SelectTitleScreen = ({ navigation }) => {
-    const visible = useSelector((state) => state.createReelay.overlayVisible);
-
     return (
-        <SafeAreaView isVisible={visible} fullScreen={true}>
+        <SafeAreaView fullScreen={true} style={ContainerStyles.searchPageContainer}>
             <HorizontalLine />
             <SearchField />
             <MarginBelowLine />

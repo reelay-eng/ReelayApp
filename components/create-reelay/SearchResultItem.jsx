@@ -40,7 +40,7 @@ const YearTextSelected = styled.Text`
 `
 
 export default SearchResultItem = ({result, resultType, navigation}) => {
-    
+
     const dispatch = useDispatch();
     const titleObject = result;
 
@@ -66,7 +66,7 @@ export default SearchResultItem = ({result, resultType, navigation}) => {
                     source={{ uri: posterImageUri }} 
                     style={{ height: 150, width: 100 }}
                 />}
-                { !posterImageUri && <TitleText>{'No Image'}</TitleText>}
+                { !posterImageUri && <TitleText>{'No Poster Available'}</TitleText>}
             </ImageContainer>
             { isTagged && 
                 <TitleLineContainer>
