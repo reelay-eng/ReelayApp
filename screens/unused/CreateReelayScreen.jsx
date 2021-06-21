@@ -1,14 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import  { Storage, Auth, API, DataStore, progressCallback } from "aws-amplify";
-import { User, Artist, Movie, Reelay } from '../src/models';
+import { User, Artist, Movie, Reelay } from '../../src/models';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { setStage } from "../components/create-reelay/CreateReelaySlice";
+import { setStage } from "../../components/create-reelay/CreateReelaySlice";
 
 import { Camera } from "expo-camera";
 import { Video, AVPlaybackStatus } from "expo-av";
 import { Button } from 'react-native-elements';
-import { ContainerStyles } from "../styles";
+import { ContainerStyles } from "../../styles";
 
 import {
   StyleSheet,

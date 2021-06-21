@@ -12,8 +12,7 @@ import * as React from 'react';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 import HomeFeedScreen from '../screens/HomeFeedScreen';
-import RecordReelayScreen from '../screens/RecordReelayScreen';
-import { BottomTabParamList, HomeTabParamList, ReelayTabParamList, CreateReelayTabParamList } from '../types';
+import { BottomTabParamList, HomeTabParamList, CreateReelayTabParamList } from '../types';
 
 import SelectTitleScreen from '../screens/SelectTitleScreen';
 import ReelayCameraScreen from '../screens/ReelayCameraScreen';
@@ -34,13 +33,6 @@ export default function BottomTabNavigator() {
         component={HomeTabNavigator}
         options={{
           tabBarIcon: ({ color }) => <AntDesign name="find" size={24} color={color} />
-        }}
-      />
-      <BottomTab.Screen
-        name="Reelay"
-        component={ReelayTabNavigator}
-        options={{
-          tabBarIcon: ({ color }) => <AntDesign name="videocamera" size={24} color={color} />
         }}
       />
       <BottomTab.Screen
@@ -76,23 +68,6 @@ function HomeTabNavigator() {
       }}
       />
     </HomeTabStack.Navigator>
-  );
-}
-
-const ReelayTabStack = createStackNavigator<ReelayTabParamList>();
-
-function ReelayTabNavigator() {
-  return (
-    <ReelayTabStack.Navigator>
-      <ReelayTabStack.Screen
-        name="RecordReelayScreen"
-        component={RecordReelayScreen}
-        options={{ 
-          headerTitle: 'Record a Reelay',
-          headerShown: false
-        }}
-      />
-    </ReelayTabStack.Navigator>
   );
 }
 
