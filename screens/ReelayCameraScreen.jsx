@@ -26,6 +26,7 @@ export default ReelayCameraScreen = ({ navigation }) => {
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const [hasPermission, setHasPermission] = useState(null);
     const [isCameraReady, setIsCameraReady] = useState(false);
+    const [isRecording, setIsRecording] = useState(false);
 
     const cameraRef = useRef();
     const creationStage = useSelector((state) => state.createReelay.creationStage);
@@ -72,20 +73,20 @@ export default ReelayCameraScreen = ({ navigation }) => {
         margin-horizontal: 5px;
     `
     const VideoRecordIndicator = styled(View)`
-        position: relative;
         flex-direction: row;
-        top: 25px;
         justify-content: center;
         align-items: center;
         background-color: transparent;
         opacity: 0.7;
+        bottom: 15px;
     `
     const VideoRecordMessage = styled(Text)`
+        flex: 1;    
+        flex-wrap: wrap;
         fontSize: 14px;
         color: #ffffff;
         textAlign: center;
     `
-
 
     // todo: move to styled-components
     const styles = StyleSheet.create({
@@ -127,7 +128,7 @@ export default ReelayCameraScreen = ({ navigation }) => {
             try {
                 const videoRecordPromise = cameraRef.current.recordAsync();
                 if (videoRecordPromise) {
-                    dispatch(setStage('RECORDING'));
+                    setIsRecording(true);
                     const data = await videoRecordPromise;
                     const source = data.uri;
                     if (source) {
@@ -144,7 +145,8 @@ export default ReelayCameraScreen = ({ navigation }) => {
     const stopVideoRecording = () => {
         if (cameraRef.current) {
             cameraRef.current.stopRecording();
-            dispatch(setStage('REVIEWING'));
+            setIsRecording(false);
+            navigation.push('ReelayPreviewScreen')
         }
     };
     
@@ -173,12 +175,6 @@ export default ReelayCameraScreen = ({ navigation }) => {
                     <TopContainer>
                         <TitleInfo />
                     </TopContainer>
-                    {creationStage == 'RECORDING' && 
-                        <VideoRecordIndicator>
-                            <VideoRecordDot />
-                            <VideoRecordMessage>{'Recording...'}</VideoRecordMessage>
-                        </VideoRecordIndicator>
-                    }
                     <CaptureControlContainer>
                         <FlipTextContainer disabled={!isCameraReady} onPress={switchCamera}>
                             <FlipText>{'Flip'}</FlipText>
@@ -186,11 +182,15 @@ export default ReelayCameraScreen = ({ navigation }) => {
                         <RecordButton
                             activeOpacity={0.7}
                             disabled={!isCameraReady}
-                            onLongPress={recordVideo}
-                            onPressOut={stopVideoRecording}
-                            onPress={creationStage == 'CAMERA_PREVIEW' ? recordVideo : stopVideoRecording}
+                            onPress={isRecording ? stopVideoRecording : recordVideo}
                         />
                     </CaptureControlContainer>
+                    {isRecording && 
+                            <VideoRecordIndicator>
+                                <VideoRecordDot />
+                                <VideoRecordMessage>{'Recording...'}</VideoRecordMessage>
+                            </VideoRecordIndicator>
+                        }
                 </RecordingInterfaceContainer>
             </Camera>
         </SafeAreaView>

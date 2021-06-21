@@ -17,7 +17,7 @@ const PagerViewContainer = styled(PagerView)`
 	height: ${height}px;
 `
 
-const ReelayFeed = () => {
+const ReelayFeed = ({ isFocused }) => {
 	const REELAY_LOAD_BUFFER_SIZE = 3;
 	const [initialFeedLoaded, setInitialFeedLoaded] = useState(false);
 	const [curPosition, setCurPosition] = useState(0);
@@ -118,6 +118,7 @@ const ReelayFeed = () => {
 							key={index} 
 							index={index}
 							curPosition={curPosition} 
+							isFocused={isFocused}
 						/>;
 					})}
 				</PagerViewContainer>

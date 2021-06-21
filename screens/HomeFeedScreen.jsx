@@ -12,14 +12,18 @@ const TransparentContainer = styled.View`
 `
 
 export default function HomeFeedScreen({ navigation }) {
+	const [isFocused, setIsFocused] = useState(false);
 
 	useEffect(() => {
 		const navUnsubscribe = navigation.addListener('focus', () => {
-			// TODO
+			setIsFocused(true);
 		});
 		// return the cleanup function
 		// fetch reelays every time the user navigates back to this tab
-		return navUnsubscribe;
+		return () => {
+			setIsFocused(false);
+			navUnsubscribe();
+		}
 	}, [navigation]);
 
 	return (
@@ -31,7 +35,7 @@ export default function HomeFeedScreen({ navigation }) {
 			/>
 			<TransparentContainer>
 				<Header />
-				<ReelayFeed />
+				<ReelayFeed isFocused={isFocused} />
 			</TransparentContainer>
 		</SafeAreaView>
 	)

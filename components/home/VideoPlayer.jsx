@@ -10,7 +10,7 @@ const Poster = styled.ImageBackground`
 	height: 100%;
 `
 
-export default function VideoPlayer({ videoURI, poster, isPlay }) {
+export default function VideoPlayer({ videoURI, poster, isPlaying }) {
 	const video = useRef(null);
 	const [playbackStatus, setPlaybackStatus] = useState({});
 
@@ -22,7 +22,7 @@ export default function VideoPlayer({ videoURI, poster, isPlay }) {
 		}
 	}
 
-	return isPlay ? (
+	return (
 		<Play
 			interruptionModeAndroid={Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX}
 			interruptionModeIOS={Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX}
@@ -35,13 +35,11 @@ export default function VideoPlayer({ videoURI, poster, isPlay }) {
 			ref={video}
 			resizeMode='cover'
 			shouldDuckAndroid={true}
-			shouldPlay
+			shouldPlay={isPlaying}
 			source={{uri: videoURI}}
 			staysActiveInBackground={false}
 			useNativeControls={false}
 			volume={1.0}
 		/>
-	) : (
-		<Poster source={poster} />
-	)
+	);
 }
