@@ -19,8 +19,8 @@ export default SearchField = () => {
     const [searchText, setSearchText] = useState('');
     const dispatch = useDispatch();
 
-    const movieSearchResults = { data, error, isLoading } = (searchText == '') ? useMovieSearchQuery(searchText) : [];
-    const seriesSearchResults = { data, error, isLoading } = (searchText == '') ? useSeriesSearchQuery(searchText) : [];
+    const movieSearchResults = { data, error, isLoading } = useMovieSearchQuery(searchText);
+    // const seriesSearchResults = { data, error, isLoading } = (searchText == '') ? useSeriesSearchQuery(searchText) : [];
 
     const levenshteinDistance = (s, t) => {
         if (!s.length) return t.length;
