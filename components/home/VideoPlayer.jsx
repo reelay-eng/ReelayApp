@@ -1,14 +1,6 @@
-import React, { useRef, useState } from 'react'
-import { Video, Audio } from 'expo-av'
-import styled from 'styled-components/native';
-
-
-const Play = styled(Video)`
-	height: 100%;
-`
-const Poster = styled.ImageBackground`
-	height: 100%;
-`
+import React, { useRef, useState } from 'react';
+import { Video, Audio } from 'expo-av';
+import { VideoStyles } from '../../styles';
 
 export default function VideoPlayer({ videoURI, poster, isPlaying }) {
 	const video = useRef(null);
@@ -23,7 +15,7 @@ export default function VideoPlayer({ videoURI, poster, isPlaying }) {
 	}
 
 	return (
-		<Play
+		<Video
 			interruptionModeAndroid={Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX}
 			interruptionModeIOS={Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX}
 			isLooping
@@ -38,6 +30,7 @@ export default function VideoPlayer({ videoURI, poster, isPlaying }) {
 			shouldPlay={isPlaying}
 			source={{uri: videoURI}}
 			staysActiveInBackground={false}
+			style={VideoStyles.video}
 			useNativeControls={false}
 			volume={1.0}
 		/>

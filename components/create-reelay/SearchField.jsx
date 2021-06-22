@@ -4,16 +4,23 @@ import styled from 'styled-components/native';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { setSearchResults } from './CreateReelaySlice';
-import { useTitleSearchQuery, useCreditsFetchQuery } from '../../redux/services/TMDbApi';
+import { 
+    useMovieSearchQuery,
+    useMovieFetchQuery,
+    useMovieCreditsFetchQuery,
+    useSeriesSearchQuery,
+    useSeriesFetchQuery,
+    useSeriesFetchCreditsQuery,
+} from '../../redux/services/TMDbApi';
 
 const SearchFieldContainer = styled.View``
 
 export default SearchField = () => {
     const [searchText, setSearchText] = useState('');
-    const [lastUpdatedSearchText, setLastUpdatedSearchText] = useState('');
     const dispatch = useDispatch();
 
-    const searchResults = { data, error, isLoading } = useTitleSearchQuery(searchText);
+    const movieSearchResults = { data, error, isLoading } = (searchText == '') ? useMovieSearchQuery(searchText) : [];
+    const seriesSearchResults = { data, error, isLoading } = (searchText == '') ? useSeriesSearchQuery(searchText) : [];
 
     const levenshteinDistance = (s, t) => {
         if (!s.length) return t.length;
@@ -27,23 +34,18 @@ export default SearchField = () => {
     }
 
     const updateSearch = (newSearchText) => {
-        if (newSearchText == '') {
-            dispatch(setSearchResults([]));
-        } else {
-            setSearchText(newSearchText);
-            if (!searchResults.error && !searchResults.isLoading) {
-                setLastUpdatedSearchText(newSearchText);
-                dispatch(setSearchResults(searchResults.data));
-            } else if (searchResults.error) {
-                console.log(searchResults.error);
-            }    
+        setSearchText(newSearchText);
+        if (!movieSearchResults.error && !movieSearchResults.isLoading) {
+            dispatch(setSearchResults(movieSearchResults.data));
+        } else if (movieSearchResults.error) {
+            console.log(movieSearchResults.error);
         }
     }
 
     return (
         <SearchFieldContainer>
             <SearchBar
-                placeholder="Enter a movie title..."
+                placeholder="What did you see?"
                 onChangeText={updateSearch}
                 value={searchText}
                 platform={'default'}

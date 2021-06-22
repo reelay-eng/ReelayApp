@@ -6,10 +6,17 @@ import PagerView from 'react-native-pager-view';
 import { API, Storage } from 'aws-amplify';
 import * as queries from '../../src/graphql/queries';
 
-import Info from './Info';
+import { 
+	useMovieFetchQuery, 
+	useSeriesFetchQuery,
+	useSeasonFetchQuery,
+	useEpisodeFetchQuery,
+} from '../../redux/services/TMDbApi';
+
 import Hero from './Hero';
-import Sidebar from './Sidebar';
-import VideoPlayer from './VideoPlayer';
+
+const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3/';
+const TMDB_API_KEY = '033f105cd28f507f3dc6ae794d5e44f5';
 
 const { height } = Dimensions.get('window');
 
@@ -80,6 +87,14 @@ const ReelayFeed = ({ isFocused }) => {
 				contentType: "video/mp4"
 			});
 
+			if (reelayObject.tmdbTitleID && reelayObject.isMovie) {
+				const tmdbTitleQuery = `${TMDB_API_BASE_URL}\/movie/${reelayObject.tmdbTitleID}`;
+				reelayObject.tmdbTitleObject = await fetch(tmdbTitleQuery);
+			} else if (reelayObject.tmdbTitleID && reelayObject.isSeries) {
+				const tmdbTitleQuery = `${TMDB_API_BASE_URL}\/tv/${reelayObject.tmdbTitleID}`;
+				reelayObject.tmdbTitleObject = await fetch(tmdbTitleQuery);
+			}
+
 			setReelayList([]);
 			reelayList.push({
 				id: reelayObject.id,
@@ -88,8 +103,9 @@ const ReelayFeed = ({ isFocused }) => {
 					avatar: '../../assets/images/icon.png'
 				},
 				movie: {
-					title: String(reelayObject.movieID),
-					poster: require('../../assets/images/splash.png')
+					title: reelayObject.tmdbTitleObject 
+						? reelayObject.tmdbTitleObject.title 
+						: String(reelayObject.movieID),
 				},
 				videoURI: signedVideoURI,
 				postedDateTime: Date(reelayObject.createdAt),
