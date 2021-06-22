@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Auth, DataStore, Storage } from 'aws-amplify';
+import { Auth, DataStore, Storage, progressCallback } from 'aws-amplify';
 import { User, Artist, Movie, Reelay } from '../../src/models';
 
 import { useDispatch, useSelector } from 'react-redux';
@@ -43,11 +43,16 @@ const UploadReelayButton = () => {
     
           // Create Reelay object
           const reelay = new Reelay({
-            movieID: tmdbTitleObject.id.toString(),
-            creatorID: creator.attributes.sub,
-            videoS3Key: videoS3Key,
             owner: creator.attributes.sub,
+            creatorID: creator.attributes.sub,
+            isMovie: true,
+            isSeries: false,
+            movieID: tmdbTitleObject.id.toString(),
+            seriesSeason: -1,
+            seasonEpisode: -1,
             uploadedAt: new Date().toISOString(),
+            tmdbTitleID: tmdbTitleObject.id.toString(),
+            videoS3Key: videoS3Key,
             visibility: 'global',
           });
     
