@@ -18,9 +18,14 @@ export declare class User {
 export declare class Reelay {
   readonly id: string;
   readonly creatorID: string;
+  readonly isMovie?: boolean;
+  readonly isSeries?: boolean;
   readonly movieID: string;
-  readonly videoS3Key?: string;
+  readonly seriesSeason?: number;
+  readonly seasonEpisode?: number;
   readonly uploadedAt?: string;
+  readonly tmdbTitleID?: string;
+  readonly videoS3Key?: string;
   readonly visibility?: string;
   constructor(init: ModelInit<Reelay>);
   static copyOf(source: Reelay, mutator: (draft: MutableModel<Reelay>) => MutableModel<Reelay> | void): Reelay;

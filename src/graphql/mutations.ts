@@ -2,63 +2,6 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const createMovie = /* GraphQL */ `
-  mutation CreateMovie(
-    $input: CreateMovieInput!
-    $condition: ModelMovieConditionInput
-  ) {
-    createMovie(input: $input, condition: $condition) {
-      id
-      title
-      description
-      releaseDate
-      runningTime
-      _version
-      _deleted
-      _lastChangedAt
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const updateMovie = /* GraphQL */ `
-  mutation UpdateMovie(
-    $input: UpdateMovieInput!
-    $condition: ModelMovieConditionInput
-  ) {
-    updateMovie(input: $input, condition: $condition) {
-      id
-      title
-      description
-      releaseDate
-      runningTime
-      _version
-      _deleted
-      _lastChangedAt
-      createdAt
-      updatedAt
-    }
-  }
-`;
-export const deleteMovie = /* GraphQL */ `
-  mutation DeleteMovie(
-    $input: DeleteMovieInput!
-    $condition: ModelMovieConditionInput
-  ) {
-    deleteMovie(input: $input, condition: $condition) {
-      id
-      title
-      description
-      releaseDate
-      runningTime
-      _version
-      _deleted
-      _lastChangedAt
-      createdAt
-      updatedAt
-    }
-  }
-`;
 export const createUser = /* GraphQL */ `
   mutation CreateUser(
     $input: CreateUserInput!
@@ -130,9 +73,14 @@ export const createReelay = /* GraphQL */ `
     createReelay(input: $input, condition: $condition) {
       id
       creatorID
+      isMovie
+      isSeries
       movieID
-      videoS3Key
+      seriesSeason
+      seasonEpisode
       uploadedAt
+      tmdbTitleID
+      videoS3Key
       visibility
       _version
       _deleted
@@ -151,9 +99,14 @@ export const updateReelay = /* GraphQL */ `
     updateReelay(input: $input, condition: $condition) {
       id
       creatorID
+      isMovie
+      isSeries
       movieID
-      videoS3Key
+      seriesSeason
+      seasonEpisode
       uploadedAt
+      tmdbTitleID
+      videoS3Key
       visibility
       _version
       _deleted
@@ -172,9 +125,14 @@ export const deleteReelay = /* GraphQL */ `
     deleteReelay(input: $input, condition: $condition) {
       id
       creatorID
+      isMovie
+      isSeries
       movieID
-      videoS3Key
+      seriesSeason
+      seasonEpisode
       uploadedAt
+      tmdbTitleID
+      videoS3Key
       visibility
       _version
       _deleted
@@ -182,6 +140,63 @@ export const deleteReelay = /* GraphQL */ `
       createdAt
       updatedAt
       owner
+    }
+  }
+`;
+export const createMovie = /* GraphQL */ `
+  mutation CreateMovie(
+    $input: CreateMovieInput!
+    $condition: ModelMovieConditionInput
+  ) {
+    createMovie(input: $input, condition: $condition) {
+      id
+      title
+      description
+      releaseDate
+      runningTime
+      _version
+      _deleted
+      _lastChangedAt
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const updateMovie = /* GraphQL */ `
+  mutation UpdateMovie(
+    $input: UpdateMovieInput!
+    $condition: ModelMovieConditionInput
+  ) {
+    updateMovie(input: $input, condition: $condition) {
+      id
+      title
+      description
+      releaseDate
+      runningTime
+      _version
+      _deleted
+      _lastChangedAt
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const deleteMovie = /* GraphQL */ `
+  mutation DeleteMovie(
+    $input: DeleteMovieInput!
+    $condition: ModelMovieConditionInput
+  ) {
+    deleteMovie(input: $input, condition: $condition) {
+      id
+      title
+      description
+      releaseDate
+      runningTime
+      _version
+      _deleted
+      _lastChangedAt
+      createdAt
+      updatedAt
     }
   }
 `;

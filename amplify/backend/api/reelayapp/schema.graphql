@@ -15,9 +15,14 @@ type Reelay
 {
   id: ID!
   creatorID: ID!
+  isMovie: Boolean
+  isSeries: Boolean
   movieID: ID!
-  videoS3Key: String
+  seriesSeason: Int
+  seasonEpisode: Int
   uploadedAt: AWSDateTime
+  tmdbTitleID: ID
+  videoS3Key: String
   visibility: String
 }
 

@@ -99,6 +99,20 @@ export const schema = {
                     "isRequired": true,
                     "attributes": []
                 },
+                "isMovie": {
+                    "name": "isMovie",
+                    "isArray": false,
+                    "type": "Boolean",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "isSeries": {
+                    "name": "isSeries",
+                    "isArray": false,
+                    "type": "Boolean",
+                    "isRequired": false,
+                    "attributes": []
+                },
                 "movieID": {
                     "name": "movieID",
                     "isArray": false,
@@ -106,10 +120,17 @@ export const schema = {
                     "isRequired": true,
                     "attributes": []
                 },
-                "videoS3Key": {
-                    "name": "videoS3Key",
+                "seriesSeason": {
+                    "name": "seriesSeason",
                     "isArray": false,
-                    "type": "String",
+                    "type": "Int",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "seasonEpisode": {
+                    "name": "seasonEpisode",
+                    "isArray": false,
+                    "type": "Int",
                     "isRequired": false,
                     "attributes": []
                 },
@@ -117,6 +138,20 @@ export const schema = {
                     "name": "uploadedAt",
                     "isArray": false,
                     "type": "AWSDateTime",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "tmdbTitleID": {
+                    "name": "tmdbTitleID",
+                    "isArray": false,
+                    "type": "ID",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "videoS3Key": {
+                    "name": "videoS3Key",
+                    "isArray": false,
+                    "type": "String",
                     "isRequired": false,
                     "attributes": []
                 },
@@ -238,5 +273,5 @@ export const schema = {
     },
     "enums": {},
     "nonModels": {},
-    "version": "fc07c2c20d33038f7fbb53c5130a427e"
+    "version": "9916824f8197b47482f3f434b14d0f9a"
 };

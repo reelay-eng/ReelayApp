@@ -61,9 +61,14 @@ export const onCreateReelay = /* GraphQL */ `
     onCreateReelay {
       id
       creatorID
+      isMovie
+      isSeries
       movieID
-      videoS3Key
+      seriesSeason
+      seasonEpisode
       uploadedAt
+      tmdbTitleID
+      videoS3Key
       visibility
       _version
       _deleted
@@ -79,9 +84,14 @@ export const onUpdateReelay = /* GraphQL */ `
     onUpdateReelay {
       id
       creatorID
+      isMovie
+      isSeries
       movieID
-      videoS3Key
+      seriesSeason
+      seasonEpisode
       uploadedAt
+      tmdbTitleID
+      videoS3Key
       visibility
       _version
       _deleted
@@ -97,9 +107,14 @@ export const onDeleteReelay = /* GraphQL */ `
     onDeleteReelay {
       id
       creatorID
+      isMovie
+      isSeries
       movieID
-      videoS3Key
+      seriesSeason
+      seasonEpisode
       uploadedAt
+      tmdbTitleID
+      videoS3Key
       visibility
       _version
       _deleted

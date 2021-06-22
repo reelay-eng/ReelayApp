@@ -2,38 +2,6 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const syncUsers = /* GraphQL */ `
-  query SyncUsers(
-    $filter: ModelUserFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncUsers(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        id
-        username
-        email
-        phoneNumber
-        dateOfBirth
-        createdReelayIDs
-        _version
-        _deleted
-        _lastChangedAt
-        createdAt
-        updatedAt
-        owner
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
 export const getUser = /* GraphQL */ `
   query GetUser($id: ID!) {
     getUser(id: $id) {
@@ -78,14 +46,14 @@ export const listUsers = /* GraphQL */ `
     }
   }
 `;
-export const syncReelays = /* GraphQL */ `
-  query SyncReelays(
-    $filter: ModelReelayFilterInput
+export const syncUsers = /* GraphQL */ `
+  query SyncUsers(
+    $filter: ModelUserFilterInput
     $limit: Int
     $nextToken: String
     $lastSync: AWSTimestamp
   ) {
-    syncReelays(
+    syncUsers(
       filter: $filter
       limit: $limit
       nextToken: $nextToken
@@ -93,11 +61,11 @@ export const syncReelays = /* GraphQL */ `
     ) {
       items {
         id
-        creatorID
-        movieID
-        videoS3Key
-        uploadedAt
-        visibility
+        username
+        email
+        phoneNumber
+        dateOfBirth
+        createdReelayIDs
         _version
         _deleted
         _lastChangedAt
@@ -115,9 +83,14 @@ export const getReelay = /* GraphQL */ `
     getReelay(id: $id) {
       id
       creatorID
+      isMovie
+      isSeries
       movieID
-      videoS3Key
+      seriesSeason
+      seasonEpisode
       uploadedAt
+      tmdbTitleID
+      videoS3Key
       visibility
       _version
       _deleted
@@ -138,9 +111,14 @@ export const listReelays = /* GraphQL */ `
       items {
         id
         creatorID
+        isMovie
+        isSeries
         movieID
-        videoS3Key
+        seriesSeason
+        seasonEpisode
         uploadedAt
+        tmdbTitleID
+        videoS3Key
         visibility
         _version
         _deleted
@@ -174,9 +152,51 @@ export const reelaysByUploadDate = /* GraphQL */ `
       items {
         id
         creatorID
+        isMovie
+        isSeries
         movieID
-        videoS3Key
+        seriesSeason
+        seasonEpisode
         uploadedAt
+        tmdbTitleID
+        videoS3Key
+        visibility
+        _version
+        _deleted
+        _lastChangedAt
+        createdAt
+        updatedAt
+        owner
+      }
+      nextToken
+      startedAt
+    }
+  }
+`;
+export const syncReelays = /* GraphQL */ `
+  query SyncReelays(
+    $filter: ModelReelayFilterInput
+    $limit: Int
+    $nextToken: String
+    $lastSync: AWSTimestamp
+  ) {
+    syncReelays(
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      lastSync: $lastSync
+    ) {
+      items {
+        id
+        creatorID
+        isMovie
+        isSeries
+        movieID
+        seriesSeason
+        seasonEpisode
+        uploadedAt
+        tmdbTitleID
+        videoS3Key
         visibility
         _version
         _deleted

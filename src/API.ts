@@ -2,23 +2,25 @@
 /* eslint-disable */
 //  This file was automatically generated and should not be edited.
 
-export type CreateMovieInput = {
+export type CreateUserInput = {
   id?: string | null,
-  title: string,
-  description?: string | null,
-  releaseDate?: string | null,
-  runningTime?: number | null,
+  username: string,
+  email?: string | null,
+  phoneNumber?: string | null,
+  dateOfBirth?: string | null,
+  createdReelayIDs?: Array< string > | null,
   _version?: number | null,
 };
 
-export type ModelMovieConditionInput = {
-  title?: ModelStringInput | null,
-  description?: ModelStringInput | null,
-  releaseDate?: ModelStringInput | null,
-  runningTime?: ModelIntInput | null,
-  and?: Array< ModelMovieConditionInput | null > | null,
-  or?: Array< ModelMovieConditionInput | null > | null,
-  not?: ModelMovieConditionInput | null,
+export type ModelUserConditionInput = {
+  username?: ModelStringInput | null,
+  email?: ModelStringInput | null,
+  phoneNumber?: ModelStringInput | null,
+  dateOfBirth?: ModelStringInput | null,
+  createdReelayIDs?: ModelIDInput | null,
+  and?: Array< ModelUserConditionInput | null > | null,
+  or?: Array< ModelUserConditionInput | null > | null,
+  not?: ModelUserConditionInput | null,
 };
 
 export type ModelStringInput = {
@@ -61,67 +63,6 @@ export type ModelSizeInput = {
   between?: Array< number | null > | null,
 };
 
-export type ModelIntInput = {
-  ne?: number | null,
-  eq?: number | null,
-  le?: number | null,
-  lt?: number | null,
-  ge?: number | null,
-  gt?: number | null,
-  between?: Array< number | null > | null,
-  attributeExists?: boolean | null,
-  attributeType?: ModelAttributeTypes | null,
-};
-
-export type Movie = {
-  __typename: "Movie",
-  id?: string,
-  title?: string,
-  description?: string | null,
-  releaseDate?: string | null,
-  runningTime?: number | null,
-  _version?: number,
-  _deleted?: boolean | null,
-  _lastChangedAt?: number,
-  createdAt?: string,
-  updatedAt?: string,
-};
-
-export type UpdateMovieInput = {
-  id: string,
-  title?: string | null,
-  description?: string | null,
-  releaseDate?: string | null,
-  runningTime?: number | null,
-  _version?: number | null,
-};
-
-export type DeleteMovieInput = {
-  id?: string | null,
-  _version?: number | null,
-};
-
-export type CreateUserInput = {
-  id?: string | null,
-  username: string,
-  email?: string | null,
-  phoneNumber?: string | null,
-  dateOfBirth?: string | null,
-  createdReelayIDs?: Array< string > | null,
-  _version?: number | null,
-};
-
-export type ModelUserConditionInput = {
-  username?: ModelStringInput | null,
-  email?: ModelStringInput | null,
-  phoneNumber?: ModelStringInput | null,
-  dateOfBirth?: ModelStringInput | null,
-  createdReelayIDs?: ModelIDInput | null,
-  and?: Array< ModelUserConditionInput | null > | null,
-  or?: Array< ModelUserConditionInput | null > | null,
-  not?: ModelUserConditionInput | null,
-};
-
 export type ModelIDInput = {
   ne?: string | null,
   eq?: string | null,
@@ -140,17 +81,17 @@ export type ModelIDInput = {
 
 export type User = {
   __typename: "User",
-  id?: string,
-  username?: string,
+  id: string,
+  username: string,
   email?: string | null,
   phoneNumber?: string | null,
   dateOfBirth?: string | null,
   createdReelayIDs?: Array< string > | null,
-  _version?: number,
+  _version: number,
   _deleted?: boolean | null,
-  _lastChangedAt?: number,
-  createdAt?: string,
-  updatedAt?: string,
+  _lastChangedAt: number,
+  createdAt: string,
+  updatedAt: string,
   owner?: string | null,
 };
 
@@ -165,59 +106,145 @@ export type UpdateUserInput = {
 };
 
 export type DeleteUserInput = {
-  id?: string | null,
+  id: string,
   _version?: number | null,
 };
 
 export type CreateReelayInput = {
   id?: string | null,
   creatorID: string,
+  isMovie?: boolean | null,
+  isSeries?: boolean | null,
   movieID: string,
-  videoS3Key?: string | null,
+  seriesSeason?: number | null,
+  seasonEpisode?: number | null,
   uploadedAt?: string | null,
+  tmdbTitleID?: string | null,
+  videoS3Key?: string | null,
   visibility?: string | null,
   _version?: number | null,
 };
 
 export type ModelReelayConditionInput = {
   creatorID?: ModelIDInput | null,
+  isMovie?: ModelBooleanInput | null,
+  isSeries?: ModelBooleanInput | null,
   movieID?: ModelIDInput | null,
-  videoS3Key?: ModelStringInput | null,
+  seriesSeason?: ModelIntInput | null,
+  seasonEpisode?: ModelIntInput | null,
   uploadedAt?: ModelStringInput | null,
+  tmdbTitleID?: ModelIDInput | null,
+  videoS3Key?: ModelStringInput | null,
   visibility?: ModelStringInput | null,
   and?: Array< ModelReelayConditionInput | null > | null,
   or?: Array< ModelReelayConditionInput | null > | null,
   not?: ModelReelayConditionInput | null,
 };
 
+export type ModelBooleanInput = {
+  ne?: boolean | null,
+  eq?: boolean | null,
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
+};
+
+export type ModelIntInput = {
+  ne?: number | null,
+  eq?: number | null,
+  le?: number | null,
+  lt?: number | null,
+  ge?: number | null,
+  gt?: number | null,
+  between?: Array< number | null > | null,
+  attributeExists?: boolean | null,
+  attributeType?: ModelAttributeTypes | null,
+};
+
 export type Reelay = {
   __typename: "Reelay",
-  id?: string,
-  creatorID?: string,
-  movieID?: string,
-  videoS3Key?: string | null,
+  id: string,
+  creatorID: string,
+  isMovie?: boolean | null,
+  isSeries?: boolean | null,
+  movieID: string,
+  seriesSeason?: number | null,
+  seasonEpisode?: number | null,
   uploadedAt?: string | null,
+  tmdbTitleID?: string | null,
+  videoS3Key?: string | null,
   visibility?: string | null,
-  _version?: number,
+  _version: number,
   _deleted?: boolean | null,
-  _lastChangedAt?: number,
-  createdAt?: string,
-  updatedAt?: string,
+  _lastChangedAt: number,
+  createdAt: string,
+  updatedAt: string,
   owner?: string | null,
 };
 
 export type UpdateReelayInput = {
   id: string,
   creatorID?: string | null,
+  isMovie?: boolean | null,
+  isSeries?: boolean | null,
   movieID?: string | null,
-  videoS3Key?: string | null,
+  seriesSeason?: number | null,
+  seasonEpisode?: number | null,
   uploadedAt?: string | null,
+  tmdbTitleID?: string | null,
+  videoS3Key?: string | null,
   visibility?: string | null,
   _version?: number | null,
 };
 
 export type DeleteReelayInput = {
+  id: string,
+  _version?: number | null,
+};
+
+export type CreateMovieInput = {
   id?: string | null,
+  title: string,
+  description?: string | null,
+  releaseDate?: string | null,
+  runningTime?: number | null,
+  _version?: number | null,
+};
+
+export type ModelMovieConditionInput = {
+  title?: ModelStringInput | null,
+  description?: ModelStringInput | null,
+  releaseDate?: ModelStringInput | null,
+  runningTime?: ModelIntInput | null,
+  and?: Array< ModelMovieConditionInput | null > | null,
+  or?: Array< ModelMovieConditionInput | null > | null,
+  not?: ModelMovieConditionInput | null,
+};
+
+export type Movie = {
+  __typename: "Movie",
+  id: string,
+  title: string,
+  description?: string | null,
+  releaseDate?: string | null,
+  runningTime?: number | null,
+  _version: number,
+  _deleted?: boolean | null,
+  _lastChangedAt: number,
+  createdAt: string,
+  updatedAt: string,
+};
+
+export type UpdateMovieInput = {
+  id: string,
+  title?: string | null,
+  description?: string | null,
+  releaseDate?: string | null,
+  runningTime?: number | null,
+  _version?: number | null,
+};
+
+export type DeleteMovieInput = {
+  id: string,
   _version?: number | null,
 };
 
@@ -243,9 +270,14 @@ export type ModelUserConnection = {
 export type ModelReelayFilterInput = {
   id?: ModelIDInput | null,
   creatorID?: ModelIDInput | null,
+  isMovie?: ModelBooleanInput | null,
+  isSeries?: ModelBooleanInput | null,
   movieID?: ModelIDInput | null,
-  videoS3Key?: ModelStringInput | null,
+  seriesSeason?: ModelIntInput | null,
+  seasonEpisode?: ModelIntInput | null,
   uploadedAt?: ModelStringInput | null,
+  tmdbTitleID?: ModelIDInput | null,
+  videoS3Key?: ModelStringInput | null,
   visibility?: ModelStringInput | null,
   and?: Array< ModelReelayFilterInput | null > | null,
   or?: Array< ModelReelayFilterInput | null > | null,
@@ -293,71 +325,8 @@ export type ModelMovieConnection = {
   startedAt?: number | null,
 };
 
-export type CreateMovieMutationVariables = {
-  input?: CreateMovieInput,
-  condition?: ModelMovieConditionInput | null,
-};
-
-export type CreateMovieMutation = {
-  createMovie?:  {
-    __typename: "Movie",
-    id: string,
-    title: string,
-    description?: string | null,
-    releaseDate?: string | null,
-    runningTime?: number | null,
-    _version: number,
-    _deleted?: boolean | null,
-    _lastChangedAt: number,
-    createdAt: string,
-    updatedAt: string,
-  } | null,
-};
-
-export type UpdateMovieMutationVariables = {
-  input?: UpdateMovieInput,
-  condition?: ModelMovieConditionInput | null,
-};
-
-export type UpdateMovieMutation = {
-  updateMovie?:  {
-    __typename: "Movie",
-    id: string,
-    title: string,
-    description?: string | null,
-    releaseDate?: string | null,
-    runningTime?: number | null,
-    _version: number,
-    _deleted?: boolean | null,
-    _lastChangedAt: number,
-    createdAt: string,
-    updatedAt: string,
-  } | null,
-};
-
-export type DeleteMovieMutationVariables = {
-  input?: DeleteMovieInput,
-  condition?: ModelMovieConditionInput | null,
-};
-
-export type DeleteMovieMutation = {
-  deleteMovie?:  {
-    __typename: "Movie",
-    id: string,
-    title: string,
-    description?: string | null,
-    releaseDate?: string | null,
-    runningTime?: number | null,
-    _version: number,
-    _deleted?: boolean | null,
-    _lastChangedAt: number,
-    createdAt: string,
-    updatedAt: string,
-  } | null,
-};
-
 export type CreateUserMutationVariables = {
-  input?: CreateUserInput,
+  input: CreateUserInput,
   condition?: ModelUserConditionInput | null,
 };
 
@@ -380,7 +349,7 @@ export type CreateUserMutation = {
 };
 
 export type UpdateUserMutationVariables = {
-  input?: UpdateUserInput,
+  input: UpdateUserInput,
   condition?: ModelUserConditionInput | null,
 };
 
@@ -403,7 +372,7 @@ export type UpdateUserMutation = {
 };
 
 export type DeleteUserMutationVariables = {
-  input?: DeleteUserInput,
+  input: DeleteUserInput,
   condition?: ModelUserConditionInput | null,
 };
 
@@ -426,7 +395,7 @@ export type DeleteUserMutation = {
 };
 
 export type CreateReelayMutationVariables = {
-  input?: CreateReelayInput,
+  input: CreateReelayInput,
   condition?: ModelReelayConditionInput | null,
 };
 
@@ -435,9 +404,14 @@ export type CreateReelayMutation = {
     __typename: "Reelay",
     id: string,
     creatorID: string,
+    isMovie?: boolean | null,
+    isSeries?: boolean | null,
     movieID: string,
-    videoS3Key?: string | null,
+    seriesSeason?: number | null,
+    seasonEpisode?: number | null,
     uploadedAt?: string | null,
+    tmdbTitleID?: string | null,
+    videoS3Key?: string | null,
     visibility?: string | null,
     _version: number,
     _deleted?: boolean | null,
@@ -449,7 +423,7 @@ export type CreateReelayMutation = {
 };
 
 export type UpdateReelayMutationVariables = {
-  input?: UpdateReelayInput,
+  input: UpdateReelayInput,
   condition?: ModelReelayConditionInput | null,
 };
 
@@ -458,9 +432,14 @@ export type UpdateReelayMutation = {
     __typename: "Reelay",
     id: string,
     creatorID: string,
+    isMovie?: boolean | null,
+    isSeries?: boolean | null,
     movieID: string,
-    videoS3Key?: string | null,
+    seriesSeason?: number | null,
+    seasonEpisode?: number | null,
     uploadedAt?: string | null,
+    tmdbTitleID?: string | null,
+    videoS3Key?: string | null,
     visibility?: string | null,
     _version: number,
     _deleted?: boolean | null,
@@ -472,7 +451,7 @@ export type UpdateReelayMutation = {
 };
 
 export type DeleteReelayMutationVariables = {
-  input?: DeleteReelayInput,
+  input: DeleteReelayInput,
   condition?: ModelReelayConditionInput | null,
 };
 
@@ -481,9 +460,14 @@ export type DeleteReelayMutation = {
     __typename: "Reelay",
     id: string,
     creatorID: string,
+    isMovie?: boolean | null,
+    isSeries?: boolean | null,
     movieID: string,
-    videoS3Key?: string | null,
+    seriesSeason?: number | null,
+    seasonEpisode?: number | null,
     uploadedAt?: string | null,
+    tmdbTitleID?: string | null,
+    videoS3Key?: string | null,
     visibility?: string | null,
     _version: number,
     _deleted?: boolean | null,
@@ -494,38 +478,71 @@ export type DeleteReelayMutation = {
   } | null,
 };
 
-export type SyncUsersQueryVariables = {
-  filter?: ModelUserFilterInput | null,
-  limit?: number | null,
-  nextToken?: string | null,
-  lastSync?: number | null,
+export type CreateMovieMutationVariables = {
+  input: CreateMovieInput,
+  condition?: ModelMovieConditionInput | null,
 };
 
-export type SyncUsersQuery = {
-  syncUsers?:  {
-    __typename: "ModelUserConnection",
-    items?:  Array< {
-      __typename: "User",
-      id: string,
-      username: string,
-      email?: string | null,
-      phoneNumber?: string | null,
-      dateOfBirth?: string | null,
-      createdReelayIDs?: Array< string > | null,
-      _version: number,
-      _deleted?: boolean | null,
-      _lastChangedAt: number,
-      createdAt: string,
-      updatedAt: string,
-      owner?: string | null,
-    } | null > | null,
-    nextToken?: string | null,
-    startedAt?: number | null,
+export type CreateMovieMutation = {
+  createMovie?:  {
+    __typename: "Movie",
+    id: string,
+    title: string,
+    description?: string | null,
+    releaseDate?: string | null,
+    runningTime?: number | null,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateMovieMutationVariables = {
+  input: UpdateMovieInput,
+  condition?: ModelMovieConditionInput | null,
+};
+
+export type UpdateMovieMutation = {
+  updateMovie?:  {
+    __typename: "Movie",
+    id: string,
+    title: string,
+    description?: string | null,
+    releaseDate?: string | null,
+    runningTime?: number | null,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteMovieMutationVariables = {
+  input: DeleteMovieInput,
+  condition?: ModelMovieConditionInput | null,
+};
+
+export type DeleteMovieMutation = {
+  deleteMovie?:  {
+    __typename: "Movie",
+    id: string,
+    title: string,
+    description?: string | null,
+    releaseDate?: string | null,
+    runningTime?: number | null,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+    createdAt: string,
+    updatedAt: string,
   } | null,
 };
 
 export type GetUserQueryVariables = {
-  id?: string,
+  id: string,
 };
 
 export type GetUserQuery = {
@@ -575,24 +592,24 @@ export type ListUsersQuery = {
   } | null,
 };
 
-export type SyncReelaysQueryVariables = {
-  filter?: ModelReelayFilterInput | null,
+export type SyncUsersQueryVariables = {
+  filter?: ModelUserFilterInput | null,
   limit?: number | null,
   nextToken?: string | null,
   lastSync?: number | null,
 };
 
-export type SyncReelaysQuery = {
-  syncReelays?:  {
-    __typename: "ModelReelayConnection",
+export type SyncUsersQuery = {
+  syncUsers?:  {
+    __typename: "ModelUserConnection",
     items?:  Array< {
-      __typename: "Reelay",
+      __typename: "User",
       id: string,
-      creatorID: string,
-      movieID: string,
-      videoS3Key?: string | null,
-      uploadedAt?: string | null,
-      visibility?: string | null,
+      username: string,
+      email?: string | null,
+      phoneNumber?: string | null,
+      dateOfBirth?: string | null,
+      createdReelayIDs?: Array< string > | null,
       _version: number,
       _deleted?: boolean | null,
       _lastChangedAt: number,
@@ -606,7 +623,7 @@ export type SyncReelaysQuery = {
 };
 
 export type GetReelayQueryVariables = {
-  id?: string,
+  id: string,
 };
 
 export type GetReelayQuery = {
@@ -614,9 +631,14 @@ export type GetReelayQuery = {
     __typename: "Reelay",
     id: string,
     creatorID: string,
+    isMovie?: boolean | null,
+    isSeries?: boolean | null,
     movieID: string,
-    videoS3Key?: string | null,
+    seriesSeason?: number | null,
+    seasonEpisode?: number | null,
     uploadedAt?: string | null,
+    tmdbTitleID?: string | null,
+    videoS3Key?: string | null,
     visibility?: string | null,
     _version: number,
     _deleted?: boolean | null,
@@ -640,9 +662,14 @@ export type ListReelaysQuery = {
       __typename: "Reelay",
       id: string,
       creatorID: string,
+      isMovie?: boolean | null,
+      isSeries?: boolean | null,
       movieID: string,
-      videoS3Key?: string | null,
+      seriesSeason?: number | null,
+      seasonEpisode?: number | null,
       uploadedAt?: string | null,
+      tmdbTitleID?: string | null,
+      videoS3Key?: string | null,
       visibility?: string | null,
       _version: number,
       _deleted?: boolean | null,
@@ -672,9 +699,49 @@ export type ReelaysByUploadDateQuery = {
       __typename: "Reelay",
       id: string,
       creatorID: string,
+      isMovie?: boolean | null,
+      isSeries?: boolean | null,
       movieID: string,
-      videoS3Key?: string | null,
+      seriesSeason?: number | null,
+      seasonEpisode?: number | null,
       uploadedAt?: string | null,
+      tmdbTitleID?: string | null,
+      videoS3Key?: string | null,
+      visibility?: string | null,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+      createdAt: string,
+      updatedAt: string,
+      owner?: string | null,
+    } | null > | null,
+    nextToken?: string | null,
+    startedAt?: number | null,
+  } | null,
+};
+
+export type SyncReelaysQueryVariables = {
+  filter?: ModelReelayFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  lastSync?: number | null,
+};
+
+export type SyncReelaysQuery = {
+  syncReelays?:  {
+    __typename: "ModelReelayConnection",
+    items?:  Array< {
+      __typename: "Reelay",
+      id: string,
+      creatorID: string,
+      isMovie?: boolean | null,
+      isSeries?: boolean | null,
+      movieID: string,
+      seriesSeason?: number | null,
+      seasonEpisode?: number | null,
+      uploadedAt?: string | null,
+      tmdbTitleID?: string | null,
+      videoS3Key?: string | null,
       visibility?: string | null,
       _version: number,
       _deleted?: boolean | null,
@@ -689,7 +756,7 @@ export type ReelaysByUploadDateQuery = {
 };
 
 export type GetMovieQueryVariables = {
-  id?: string,
+  id: string,
 };
 
 export type GetMovieQuery = {
@@ -822,9 +889,14 @@ export type OnCreateReelaySubscription = {
     __typename: "Reelay",
     id: string,
     creatorID: string,
+    isMovie?: boolean | null,
+    isSeries?: boolean | null,
     movieID: string,
-    videoS3Key?: string | null,
+    seriesSeason?: number | null,
+    seasonEpisode?: number | null,
     uploadedAt?: string | null,
+    tmdbTitleID?: string | null,
+    videoS3Key?: string | null,
     visibility?: string | null,
     _version: number,
     _deleted?: boolean | null,
@@ -840,9 +912,14 @@ export type OnUpdateReelaySubscription = {
     __typename: "Reelay",
     id: string,
     creatorID: string,
+    isMovie?: boolean | null,
+    isSeries?: boolean | null,
     movieID: string,
-    videoS3Key?: string | null,
+    seriesSeason?: number | null,
+    seasonEpisode?: number | null,
     uploadedAt?: string | null,
+    tmdbTitleID?: string | null,
+    videoS3Key?: string | null,
     visibility?: string | null,
     _version: number,
     _deleted?: boolean | null,
@@ -858,9 +935,14 @@ export type OnDeleteReelaySubscription = {
     __typename: "Reelay",
     id: string,
     creatorID: string,
+    isMovie?: boolean | null,
+    isSeries?: boolean | null,
     movieID: string,
-    videoS3Key?: string | null,
+    seriesSeason?: number | null,
+    seasonEpisode?: number | null,
     uploadedAt?: string | null,
+    tmdbTitleID?: string | null,
+    videoS3Key?: string | null,
     visibility?: string | null,
     _version: number,
     _deleted?: boolean | null,
