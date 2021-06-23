@@ -9,6 +9,7 @@ export const reelayFeedSlice = createSlice({
         reelayListNextToken: null,
         selectedFeed: 'global',
         selectedFeedLoaded: false,
+        selectedFeedPosition: 0,
     },
     reducers: {
         appendReelayList: (state, action) => {
@@ -28,6 +29,10 @@ export const reelayFeedSlice = createSlice({
                 state.selectedFeedLoaded = false;
             }
         },
+        setFeedPosition: (state, action) => {
+            // action.payload contains integer position in feed
+            state.selectedFeedPosition = action.payload;
+        },
         setReelayList: (state, action) => {
             state.reelayList = action.payload.initialReelays;
             state.reelayListNextToken = action.payload.nextToken;
@@ -39,6 +44,7 @@ export const reelayFeedSlice = createSlice({
 export const { 
     appendReelayList, 
     resetFocus, 
-    setReelayList 
+    setReelayList,
+    setFeedPosition,
 } = reelayFeedSlice.actions;
 export default reelayFeedSlice.reducer;

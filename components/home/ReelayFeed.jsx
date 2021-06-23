@@ -1,22 +1,16 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import { Dimensions, Text, View } from 'react-native'
 import styled from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
 
 import { API, Storage } from 'aws-amplify';
+import { useDispatch, useSelector } from 'react-redux';
+import { appendReelayList, resetFocus, setFeedPosition, setReelayList } from './ReelayFeedSlice';
 import * as queries from '../../src/graphql/queries';
-
-import { 
-	useMovieFetchQuery, 
-	useSeriesFetchQuery,
-	useSeasonFetchQuery,
-	useEpisodeFetchQuery,
-} from '../../redux/services/TMDbApi';
 
 import Hero from './Hero';
 
 const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3/';
-const TMDB_API_KEY = '033f105cd28f507f3dc6ae794d5e44f5';
 
 const { height } = Dimensions.get('window');
 
@@ -24,100 +18,120 @@ const PagerViewContainer = styled(PagerView)`
 	height: ${height}px;
 `
 
-const ReelayFeed = () => {
-	const REELAY_LOAD_BUFFER_SIZE = 3;
-	const [initialFeedLoaded, setInitialFeedLoaded] = useState(false);
-	const [curPosition, setCurPosition] = useState(0);
+const ReelayFeed = ({ navigation }) => {
 
-	const [reelayList, setReelayList] = useState([]);
-	const [reelayListNextToken, setReelayListNextToken] = useState(null);
+    const REELAY_LOAD_BUFFER_SIZE = 3;
+    const reelayList = useSelector((state) => state.reelayFeed.reelayList);
+    const reelayListNextToken = useSelector((state) => state.reelayFeed.reelayListNextToken);
+    const selectedFeedLoaded = useSelector((state) => state.reelayFeed.selectedFeedLoaded);
+    const selectedFeedPosition = useSelector((state) => state.reelayFeed.selectedFeedPosition);
 
-	useEffect(() => {
-		fetchReelays();
-		setInitialFeedLoaded(true);
-	});
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (reelayList.length == 0) {
+            console.log('gotta load the feed');
+            fetchReelays();
+        } else {
+            console.log('feed already loaded');
+        }
+    }, [navigation]);
 
 	const onPageSelected = ((e) => {
-		setCurPosition(e.nativeEvent.position);
-		if (curPosition == reelayList.length - 1) {
+		dispatch(setFeedPosition(e.nativeEvent.position));
+        console.log('cur position: ', e.nativeEvent.position);
+        console.log('reelay list length', reelayList.length);
+		if (e.nativeEvent.position == reelayList.length - 1) {
+            console.log('fetching more reelays');
 			fetchReelays();
 		}
 	});
 
-	const fetchReelays = async () => {
-		if (initialFeedLoaded && !reelayListNextToken) {
-			// we've reached the end of the feed 
-			return;
-		}
+    const fetchReelays = async () => {
+        console.log('next token on load', reelayListNextToken);
+        console.log('feed loaded', selectedFeedLoaded);
 
-		// get a list of reelays from the datastore
-		const queryResponse = (initialFeedLoaded) ? 
-		await API.graphql({
-			query: queries.reelaysByUploadDate,
-			variables: {
-				visibility: 'global',
-				sortDirection: 'DESC',
-				limit: REELAY_LOAD_BUFFER_SIZE,
-				nextToken: reelayListNextToken
-			}
-		}) :
-		await API.graphql({
-			query: queries.reelaysByUploadDate,
-			variables: {
-				visibility: 'global',
-				sortDirection: 'DESC',
-				limit: REELAY_LOAD_BUFFER_SIZE
-			}
-		});
+        if (selectedFeedLoaded && !reelayListNextToken) {
+            // reached end of feed
+            console.log('reached end of feed');
+            return;
+        }
 
-		if (!queryResponse) {
-			console.log('No query response');
-			return;
-		}
+        const queryResponse = // (selectedFeedLoaded) ? 
+        await API.graphql({
+            query: queries.reelaysByUploadDate,
+            variables: {
+                visibility: 'global',
+                sortDirection: 'DESC',
+                limit: REELAY_LOAD_BUFFER_SIZE,
+                nextToken: reelayListNextToken
+            }
+        });
+    
+        if (!queryResponse) {
+            console.log('No query response');
+            return;
+        }
+    
+        // should exist (or be set to null) whether the feed is loaded or not
+        // setReelayListNextToken(nextToken);
+    
+        console.log(queryResponse.data.reelaysByUploadDate.items);
 
-		// should exist (or be set to null) whether the feed is loaded or not
-		const nextToken = queryResponse.data.reelaysByUploadDate.nextToken;
-		setReelayListNextToken(nextToken);
+        // for each reelay fetched
+        const fetchedReelays = await queryResponse.data.reelaysByUploadDate.items.map(async (reelayObject) => {
+    
+            // get the video URL from S3
+            const signedVideoURI = await Storage.get(reelayObject.videoS3Key, {
+                contentType: "video/mp4"
+            });
+    
+            if (reelayObject.tmdbTitleID && reelayObject.isMovie) {
+                const tmdbTitleQuery = `${TMDB_API_BASE_URL}\/movie/${reelayObject.tmdbTitleID}`;
+                reelayObject.tmdbTitleObject = await fetch(tmdbTitleQuery);
+            } else if (reelayObject.tmdbTitleID && reelayObject.isSeries) {
+                const tmdbTitleQuery = `${TMDB_API_BASE_URL}\/tv/${reelayObject.tmdbTitleID}`;
+                reelayObject.tmdbTitleObject = await fetch(tmdbTitleQuery);
+            }
 
-		// for each reelay fetched
-		await queryResponse.data.reelaysByUploadDate.items.map(async (reelayObject) => {
-	
-			// get the video URL from S3
-			const signedVideoURI = await Storage.get(reelayObject.videoS3Key, {
-				contentType: "video/mp4"
-			});
-
-			if (reelayObject.tmdbTitleID && reelayObject.isMovie) {
-				const tmdbTitleQuery = `${TMDB_API_BASE_URL}\/movie/${reelayObject.tmdbTitleID}`;
-				reelayObject.tmdbTitleObject = await fetch(tmdbTitleQuery);
-			} else if (reelayObject.tmdbTitleID && reelayObject.isSeries) {
-				const tmdbTitleQuery = `${TMDB_API_BASE_URL}\/tv/${reelayObject.tmdbTitleID}`;
-				reelayObject.tmdbTitleObject = await fetch(tmdbTitleQuery);
-			}
-
-			setReelayList([]);
-			reelayList.push({
-				id: reelayObject.id,
-				creator: {
-					username: String(reelayObject.owner),
-					avatar: '../../assets/images/icon.png'
-				},
-				movie: {
-					title: reelayObject.tmdbTitleObject 
-						? reelayObject.tmdbTitleObject.title 
-						: String(reelayObject.movieID),
-				},
-				videoURI: signedVideoURI,
-				postedDateTime: Date(reelayObject.createdAt),
-				stats: {
-					likes: 99,
-					comments: 66,
-					shares: 33
-				}
-			});
-			setReelayList(reelayList);
-		});
-	}
+            return {
+                id: reelayObject.id,
+                creator: {
+                    username: String(reelayObject.owner),
+                    avatar: '../../assets/images/icon.png'
+                },
+                movie: {
+                    title: reelayObject.tmdbTitleObject 
+                        ? reelayObject.tmdbTitleObject.title 
+                        : String(reelayObject.movieID),
+                },
+                videoURI: signedVideoURI,
+                postedDateTime: Date(reelayObject.createdAt),
+                stats: {
+                    likes: 99,
+                    comments: 66,
+                    shares: 33
+                }
+            };
+        });
+    
+        Promise.all(fetchedReelays).then((items) => {
+            const nextToken = queryResponse.data.reelaysByUploadDate.nextToken;
+            console.log('num fetched', fetchedReelays.length);
+            console.log('next token: ', nextToken);
+            if (!selectedFeedLoaded) {
+                dispatch(setReelayList({
+                    initialReelays: items,
+                    nextToken: nextToken,
+                }));
+            } else {
+                dispatch(appendReelayList({
+                    nextReelays: items,
+                    nextToken: nextToken,
+                }));
+            }
+        });
+    }
 
 	return (
 		<View>
@@ -130,10 +144,11 @@ const ReelayFeed = () => {
 				>
 					{ reelayList.map((reelay, index) => {
 						return <Hero 
+                            navigation={navigation}
 							reelay={reelay} 
 							key={index} 
 							index={index}
-							curPosition={curPosition} 
+							curPosition={selectedFeedPosition} 
 						/>;
 					})}
 				</PagerViewContainer>

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Video, Audio } from 'expo-av'
 import styled from 'styled-components/native';
 
@@ -10,9 +10,31 @@ const Poster = styled.ImageBackground`
 	height: 100%;
 `
 
-export default function VideoPlayer({ videoURI, poster, isPlay }) {
+export default function VideoPlayer({ navigation, videoURI, poster, isPlay }) {
 	const video = useRef(null);
 	const [playbackStatus, setPlaybackStatus] = useState({});
+
+	useEffect(() => {
+		const focusUnsubscribe = navigation.addListener('focus', () => {
+			if (video && video.current && isPlay && !playbackStatus.isPlaying) {
+				console.log('playing video');
+				video.current.playAsync();
+			}
+		});
+		const blurUnsubscribe = navigation.addListener('blur', () => {
+			console.log('moving to other tab');
+			if (video && video.current && isPlay && playbackStatus.isPlaying) {
+				console.log('pausing video');
+				video.current.pauseAsync();
+			}
+		});
+		// return the cleanup function
+		return () => {
+			focusUnsubscribe();
+			blurUnsubscribe();
+		}
+		// call useEffect only once
+	}, []);
 
 	const onPlaybackStatusUpdate = (status) => {
 		setPlaybackStatus(status);
