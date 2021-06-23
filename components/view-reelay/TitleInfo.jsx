@@ -25,9 +25,11 @@ const MovieTitle = styled.Text`
 	width: 120px;
 `
 
-export default TitleInfo = () => {
+export default TitleInfo = ({ titleObject }) => {
 
-    const titleObject = useSelector((state) => state.createReelay.titleObject);
+	if (!titleObject) {
+		return <InfoView />;
+	}
 
     const title = titleObject.title ? titleObject.title + ' ' : 'Title not found\ ';
     const year = (titleObject.release_date && titleObject.release_date.length >= 4)

@@ -3,9 +3,10 @@ import { View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import styled from 'styled-components/native';
 
-import VideoPlayer from './VideoPlayer'
-import Info from './Info'
+import VideoPlayer from '../view-reelay/VideoPlayer'
+import ReelayInfo from './ReelayInfo'
 import Sidebar from './Sidebar'
+import TitleInfo from '../view-reelay/TitleInfo';
 
 const Gradient = styled(LinearGradient)`
 	height: 100%;
@@ -21,15 +22,16 @@ const Overlay = styled.View`
 	flex-direction: row;
 `
 
-const Hero = ({ navigation, reelay, index, curPosition }) => {
+const Hero = ({ navigation, reelay, index, curPosition, titleObject }) => {
     return (
         <View key={index}>
             <VideoPlayer
-                navigation={navigation}
                 videoURI={reelay.videoURI}
                 poster={require('../../assets/images/splash.png')}
                 isPlay={curPosition === index}
-            />
+            >
+                <TitleInfo titleObject={titleObject} />
+            </VideoPlayer>
             <Gradient
                 locations={[0, 0.26, 0.6, 1]}
                 colors={[
@@ -39,7 +41,11 @@ const Hero = ({ navigation, reelay, index, curPosition }) => {
                     'rgba(26,26,26,0.6)'
                 ]}>
                 <Overlay>
-                    <Info user={reelay.creator} movie={reelay.movie} />
+                    <ReelayInfo 
+                        user={reelay.creator} 
+                        movie={reelay.movie} 
+                        titleObject={titleObject}
+                    />
                     <Sidebar avatar={reelay.creator.avatar} stats={reelay.stats} />
                 </Overlay>
             </Gradient>

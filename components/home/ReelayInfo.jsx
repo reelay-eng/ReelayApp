@@ -1,6 +1,7 @@
-import React from 'react'
-import { Feather } from '@expo/vector-icons'
-import styled from 'styled-components/native'
+import React from 'react';
+import { View } from 'react-native';
+import TitleInfo from '../view-reelay/TitleInfo';
+import styled from 'styled-components/native';
 
 const InfoView = styled.View`
 	flex: 1;
@@ -30,17 +31,23 @@ const MovieTitle = styled.Text`
 	width: 80%;
 `
 
-const Info = ({ user, movie }) => {
+const ReelayInfo = ({ user, movie, titleObject }) => {
+
 	return (
-		<InfoView>
-			<User>
-				<Username>@{user.username}</Username>
-			</User>
-			<Movie>
-				<MovieTitle>{movie.title}</MovieTitle>
-			</Movie>
-		</InfoView>
-	)
+		<View>
+			<InfoView>
+				<User>
+					<Username>@{user.username}</Username>
+				</User>
+				<Movie>
+					<MovieTitle>
+						{titleObject && (titleObject.title)}
+						{!titleObject && movie.title}
+					</MovieTitle>
+				</Movie>
+			</InfoView>
+		</View>
+	);
 }
 
-export default Info;
+export default ReelayInfo;

@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react'
 import { Video, Audio } from 'expo-av'
 import { VideoStyles } from '../../styles';
 
-export default function VideoPlayer({ videoURI, poster, isPlaying }) {
+export default function VideoPlayer({ videoURI, poster, isPlay }) {
 	const video = useRef(null);
 	const [playbackStatus, setPlaybackStatus] = useState({});
 
@@ -27,7 +27,7 @@ export default function VideoPlayer({ videoURI, poster, isPlaying }) {
 			ref={video}
 			resizeMode='cover'
 			shouldDuckAndroid={true}
-			shouldPlay={isPlaying}
+			shouldPlay={isPlay}
 			source={{ uri: videoURI }}
 			staysActiveInBackground={false}
             style={VideoStyles.video}

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { setVideoSource, untagTitle } from '../components/create-reelay/CreateReelaySlice';
-import TitleInfo from '../components/create-reelay/TitleInfo';
+import TitleInfo from '../components/view-reelay/TitleInfo';
 
 import { Camera } from 'expo-camera';
 import { CameraStyles, ContainerStyles } from '../styles'
@@ -27,6 +27,8 @@ export default ReelayCameraScreen = ({ navigation }) => {
     const [hasPermission, setHasPermission] = useState(null);
     const [isCameraReady, setIsCameraReady] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
+
+    const titleObject = useSelector((state) => state.createReelay.titleObject);
 
     const cameraRef = useRef();
     const dispatch = useDispatch();
@@ -169,7 +171,7 @@ export default ReelayCameraScreen = ({ navigation }) => {
                 {/* Interface is on top of the camera*/}
                 <RecordingInterfaceContainer>
                     <TopContainer>
-                        <TitleInfo />
+                        <TitleInfo titleObject={titleObject} />
                     </TopContainer>
                     <CaptureControlContainer>
                         <FlipTextContainer disabled={!isCameraReady} onPress={switchCamera}>

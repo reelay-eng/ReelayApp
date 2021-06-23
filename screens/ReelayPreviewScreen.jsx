@@ -27,16 +27,16 @@ export default ReelayPreviewScreen = ({ navigation }) => {
     const playPause = () => setIsPlaying(!isPlaying);
 
     const TopContainer = styled(View)`
-    flex: 1;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
-`  
+        flex: 1;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+    `  
 
     return (
         <SafeAreaView>
-            <VideoPlayer videoURI={videoSource} poster={titleObject.poster_source} isPlaying={isPlaying}>
-                <TitleInfo />
+            <VideoPlayer videoURI={videoSource} poster={titleObject.poster_source} isPlay={isPlaying}>
+                <TitleInfo titleObject={titleObject} />
             </VideoPlayer>
         </SafeAreaView>
     );

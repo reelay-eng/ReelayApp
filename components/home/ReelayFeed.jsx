@@ -49,9 +49,6 @@ const ReelayFeed = ({ navigation }) => {
 	});
 
     const fetchReelays = async () => {
-        console.log('next token on load', reelayListNextToken);
-        console.log('feed loaded', selectedFeedLoaded);
-
         if (selectedFeedLoaded && !reelayListNextToken) {
             // reached end of feed
             console.log('reached end of feed');
@@ -94,7 +91,7 @@ const ReelayFeed = ({ navigation }) => {
                     .then((tmdbTitleObject) => {        
                         return tmdbTitleObject;
                     });
-                    
+
             } else if (reelayObject.tmdbTitleID && reelayObject.isSeries) {
                 const tmdbTitleQuery = `${TMDB_API_BASE_URL}\/tv\/${reelayObject.tmdbTitleID}\?api_key\=${TMDB_API_KEY}`;
                 reelayObject.tmdbTitleObject = await fetch(tmdbTitleQuery)
@@ -116,7 +113,11 @@ const ReelayFeed = ({ navigation }) => {
                     title: reelayObject.tmdbTitleObject 
                         ? reelayObject.tmdbTitleObject.title 
                         : String(reelayObject.movieID),
+                    posterURI: reelayObject.tmdbTitleObject
+                        ? reelayObject.tmdbTitleObject.poster_path
+                        : null,
                 },
+                titleObject: reelayObject.tmdbTitleObject,
                 videoURI: signedVideoURI,
                 postedDateTime: Date(reelayObject.createdAt),
                 stats: {
@@ -129,8 +130,6 @@ const ReelayFeed = ({ navigation }) => {
     
         Promise.all(fetchedReelays).then((items) => {
             const nextToken = queryResponse.data.reelaysByUploadDate.nextToken;
-            console.log('num fetched', fetchedReelays.length);
-            console.log('next token: ', nextToken);
             if (!selectedFeedLoaded) {
                 dispatch(setReelayList({
                     initialReelays: items,
