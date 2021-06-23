@@ -11,6 +11,7 @@ import * as queries from '../../src/graphql/queries';
 import Hero from './Hero';
 
 const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3/';
+const TMDB_API_KEY = '033f105cd28f507f3dc6ae794d5e44f5';
 
 const { height } = Dimensions.get('window');
 
@@ -87,12 +88,23 @@ const ReelayFeed = ({ navigation }) => {
             });
     
             if (reelayObject.tmdbTitleID && reelayObject.isMovie) {
-                const tmdbTitleQuery = `${TMDB_API_BASE_URL}\/movie/${reelayObject.tmdbTitleID}`;
-                reelayObject.tmdbTitleObject = await fetch(tmdbTitleQuery);
+                const tmdbTitleQuery = `${TMDB_API_BASE_URL}\/movie\/${reelayObject.tmdbTitleID}\?api_key\=${TMDB_API_KEY}`;
+                reelayObject.tmdbTitleObject = await fetch(tmdbTitleQuery)
+                    .then((response) => response.json())
+                    .then((tmdbTitleObject) => {        
+                        return tmdbTitleObject;
+                    });
+                    
             } else if (reelayObject.tmdbTitleID && reelayObject.isSeries) {
-                const tmdbTitleQuery = `${TMDB_API_BASE_URL}\/tv/${reelayObject.tmdbTitleID}`;
-                reelayObject.tmdbTitleObject = await fetch(tmdbTitleQuery);
+                const tmdbTitleQuery = `${TMDB_API_BASE_URL}\/tv\/${reelayObject.tmdbTitleID}\?api_key\=${TMDB_API_KEY}`;
+                reelayObject.tmdbTitleObject = await fetch(tmdbTitleQuery)
+                    .then((response) => response.json())
+                    .then((tmdbTitleObject) => {
+                        return tmdbTitleObject;
+                    });
             }
+
+            console.log(reelayObject.tmdbTitleObject);
 
             return {
                 id: reelayObject.id,
