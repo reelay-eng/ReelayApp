@@ -155,7 +155,6 @@ const ReelayFeed = ({ navigation }) => {
 				>
 					{ reelayList.map((reelay, index) => {
 						return <Hero 
-                            navigation={navigation}
 							reelay={reelay} 
 							key={index} 
 							index={index}

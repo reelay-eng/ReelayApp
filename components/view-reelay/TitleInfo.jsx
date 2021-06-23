@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
+import { View } from 'react-native';
 import { Image } from 'react-native-elements';
 import styled from 'styled-components/native';
 

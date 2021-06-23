@@ -17,12 +17,23 @@ const Gradient = styled(LinearGradient)`
 	width: 100%;
 	z-index: 1;
 `
-const Overlay = styled.View`
+const InterfaceContainer = styled(View)`
+    flex: 1;
+`
+const Overlay = styled(View)`
 	flex: 1;
 	flex-direction: row;
 `
+const TopContainer = styled(View)`
+	flex: 1;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: flex-start;
+    align-self: flex-end;
+`  
 
-const Hero = ({ navigation, reelay, index, curPosition, titleObject }) => {
+const Hero = ({ reelay, index, curPosition }) => {
+
     return (
         <View key={index}>
             <VideoPlayer
@@ -30,7 +41,6 @@ const Hero = ({ navigation, reelay, index, curPosition, titleObject }) => {
                 poster={require('../../assets/images/splash.png')}
                 isPlay={curPosition === index}
             >
-                <TitleInfo titleObject={titleObject} />
             </VideoPlayer>
             <Gradient
                 locations={[0, 0.26, 0.6, 1]}
@@ -44,9 +54,14 @@ const Hero = ({ navigation, reelay, index, curPosition, titleObject }) => {
                     <ReelayInfo 
                         user={reelay.creator} 
                         movie={reelay.movie} 
-                        titleObject={titleObject}
+                        titleObject={reelay.titleObject}
                     />
                     <Sidebar avatar={reelay.creator.avatar} stats={reelay.stats} />
+                    <InterfaceContainer>
+                        <TopContainer>
+                            <TitleInfo titleObject={reelay.titleObject} />
+                        </TopContainer>
+                    </InterfaceContainer>
                 </Overlay>
             </Gradient>
         </View>
