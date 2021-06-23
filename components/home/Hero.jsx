@@ -21,13 +21,13 @@ const Overlay = styled.View`
 	flex-direction: row;
 `
 
-const Hero = ({ reelay, index, curPosition, isFocused }) => {
+const Hero = ({ navigation, reelay, index, curPosition }) => {
     return (
         <View key={index}>
             <VideoPlayer
                 videoURI={reelay.videoURI}
                 poster={require('../../assets/images/splash.png')}
-                isPlaying={curPosition === index && isFocused}
+                isPlay={curPosition === index}
             />
             <Gradient
                 locations={[0, 0.26, 0.6, 1]}

@@ -15,14 +15,19 @@ export default function HomeFeedScreen({ navigation }) {
 	const [isFocused, setIsFocused] = useState(false);
 
 	useEffect(() => {
-		const navUnsubscribe = navigation.addListener('focus', () => {
+		const focusUnsubscribe = navigation.addListener('focus', () => {
 			setIsFocused(true);
+			console.log('on home feed screen');
+		});
+		const blurUnsubscribe = navigation.addListener('blur', () => {
+			setIsFocused(false);
+			console.log('not focused on home feed screen');
 		});
 		// return the cleanup function
 		// fetch reelays every time the user navigates back to this tab
 		return () => {
-			setIsFocused(false);
-			navUnsubscribe();
+			focusUnsubscribe();
+			blurUnsubscribe();
 		}
 	}, [navigation]);
 
@@ -35,7 +40,7 @@ export default function HomeFeedScreen({ navigation }) {
 			/>
 			<TransparentContainer>
 				<Header />
-				<ReelayFeed isFocused={isFocused} />
+				<ReelayFeed navigation={navigation} isFocused={isFocused} />
 			</TransparentContainer>
 		</SafeAreaView>
 	)

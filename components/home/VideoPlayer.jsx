@@ -1,8 +1,16 @@
-import React, { useRef, useState } from 'react';
-import { Video, Audio } from 'expo-av';
-import { VideoStyles } from '../../styles';
+import React, { useRef, useState } from 'react'
+import { Video, Audio } from 'expo-av'
+import styled from 'styled-components/native';
 
-export default function VideoPlayer({ videoURI, poster, isPlaying }) {
+
+const Play = styled(Video)`
+	height: 100%;
+`
+const Poster = styled.ImageBackground`
+	height: 100%;
+`
+
+export default function VideoPlayer({ videoURI, poster, isPlay }) {
 	const video = useRef(null);
 	const [playbackStatus, setPlaybackStatus] = useState({});
 
@@ -14,11 +22,11 @@ export default function VideoPlayer({ videoURI, poster, isPlaying }) {
 		}
 	}
 
-	return (
-		<Video
+	return isPlay ? (
+		<Play
 			interruptionModeAndroid={Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX}
 			interruptionModeIOS={Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX}
-			isLooping
+			isLooping={false}
 			isMuted={false}
 			onPlaybackStatusUpdate={onPlaybackStatusUpdate}
 			playsInSilentLockedModeIOS={true}
@@ -27,12 +35,13 @@ export default function VideoPlayer({ videoURI, poster, isPlaying }) {
 			ref={video}
 			resizeMode='cover'
 			shouldDuckAndroid={true}
-			shouldPlay={isPlaying}
+			shouldPlay
 			source={{uri: videoURI}}
 			staysActiveInBackground={false}
-			style={VideoStyles.video}
 			useNativeControls={false}
 			volume={1.0}
 		/>
-	);
+	) : (
+		<Poster source={poster} />
+	)
 }

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { setStage, setVideoSource, untagTitle } from '../components/create-reelay/CreateReelaySlice';
+import { setVideoSource, untagTitle } from '../components/create-reelay/CreateReelaySlice';
 import TitleInfo from '../components/create-reelay/TitleInfo';
 
 import { Camera } from 'expo-camera';
@@ -29,9 +29,6 @@ export default ReelayCameraScreen = ({ navigation }) => {
     const [isRecording, setIsRecording] = useState(false);
 
     const cameraRef = useRef();
-    const creationStage = useSelector((state) => state.createReelay.creationStage);
-    const videoSource = useSelector((state) => state.createReelay.videoSource);
-
     const dispatch = useDispatch();
 
     const CaptureControlContainer = styled(View)`
@@ -105,8 +102,7 @@ export default ReelayCameraScreen = ({ navigation }) => {
             setHasPermission(status === "granted");
         })();
         const unsubscribe = navigation.addListener('focus', () => {
-            console.log("on record reelay screen");
-
+            console.log("on camera screen");
         });
         return unsubscribe;
     }, [navigation]);
