@@ -3,6 +3,7 @@ import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query'
 import { applyMiddleware } from 'redux';
 import { createReelaySlice } from '../components/create-reelay/CreateReelaySlice';
+import { reelayFeedSlice } from '../components/home/ReelayFeedSlice';
 import { TMDbApi } from './services/TMDbApi';
 
 // compose middleware
@@ -16,6 +17,7 @@ const composedEnhancer = composeWithDevTools(applyMiddleware(thunk));
 export default store = configureStore({
     reducer: {
         createReelay: createReelaySlice.reducer,
+        reelayFeed: reelayFeedSlice.reducer,
         // Add the generated reducer as a specific top-level slice
         [TMDbApi.reducerPath]: TMDbApi.reducer,
     },

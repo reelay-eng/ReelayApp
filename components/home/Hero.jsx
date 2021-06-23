@@ -21,7 +21,7 @@ const Overlay = styled.View`
 	flex-direction: row;
 `
 
-const Hero = ({ navigation, reelay, index, curPosition }) => {
+const Hero = ({ reelay, index, curPosition }) => {
     return (
         <View key={index}>
             <VideoPlayer

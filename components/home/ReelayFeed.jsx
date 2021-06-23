@@ -24,7 +24,7 @@ const PagerViewContainer = styled(PagerView)`
 	height: ${height}px;
 `
 
-const ReelayFeed = ({ navigation, isFocused }) => {
+const ReelayFeed = () => {
 	const REELAY_LOAD_BUFFER_SIZE = 3;
 	const [initialFeedLoaded, setInitialFeedLoaded] = useState(false);
 	const [curPosition, setCurPosition] = useState(0);
@@ -130,12 +130,10 @@ const ReelayFeed = ({ navigation, isFocused }) => {
 				>
 					{ reelayList.map((reelay, index) => {
 						return <Hero 
-							navigation={navigation}
 							reelay={reelay} 
 							key={index} 
 							index={index}
 							curPosition={curPosition} 
-							isFocused={isFocused}
 						/>;
 					})}
 				</PagerViewContainer>
