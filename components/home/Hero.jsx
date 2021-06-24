@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import styled from 'styled-components/native';
+import { useFocusEffect } from '@react-navigation/native';
 
 import VideoPlayer from '../view-reelay/VideoPlayer'
+import TitleInfo from '../view-reelay/TitleInfo';
 import ReelayInfo from './ReelayInfo'
 import Sidebar from './Sidebar'
-import TitleInfo from '../view-reelay/TitleInfo';
 
 const Gradient = styled(LinearGradient)`
 	height: 100%;
@@ -34,12 +35,19 @@ const TopContainer = styled(View)`
 
 const Hero = ({ reelay, index, curPosition }) => {
 
+    const [isFocused, setIsFocused] = useState(false);
+
+    useFocusEffect(React.useCallback(() => {
+        setIsFocused(true);
+        return () => setIsFocused(false);
+    }));
+
     return (
         <View key={index}>
             <VideoPlayer
                 videoURI={reelay.videoURI}
                 poster={require('../../assets/images/splash.png')}
-                isPlay={curPosition === index}
+                isPlay={curPosition === index && isFocused}
             >
             </VideoPlayer>
             <Gradient

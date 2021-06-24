@@ -71,11 +71,6 @@ const ReelayFeed = ({ navigation }) => {
             return;
         }
     
-        // should exist (or be set to null) whether the feed is loaded or not
-        // setReelayListNextToken(nextToken);
-    
-        console.log(queryResponse.data.reelaysByUploadDate.items);
-
         // for each reelay fetched
         const fetchedReelays = await queryResponse.data.reelaysByUploadDate.items.map(async (reelayObject) => {
     
