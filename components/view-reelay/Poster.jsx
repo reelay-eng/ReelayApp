@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { View } from 'react-native';
+import { Text, View } from 'react-native';
 import { Image } from 'react-native-elements';
 import styled from 'styled-components/native';
 
@@ -47,7 +47,7 @@ export default Poster = ({ titleObject, showTitle }) => {
 					borderRadius: 8,
 				}}
 			/>}
-			<MovieTitle>{title}{year}</MovieTitle>
+			{showTitle && <MovieTitle>{title}{year}</MovieTitle>}
 		</TitleContainer>
 	);
 }

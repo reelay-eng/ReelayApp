@@ -1,6 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, View } from 'react-native';
 import styled from 'styled-components/native';
 
 const InfoView = styled.View`
@@ -33,6 +32,14 @@ const MovieTitle = styled.Text`
 
 const ReelayInfo = ({ user, movie, titleObject }) => {
 
+	const title = (titleObject && titleObject.title) 
+		? titleObject.title + ' ' 
+		: 'Title not found\ ';
+
+	const year = (titleObject && titleObject.release_date && titleObject.release_date.length >= 4)
+		? ('(' + titleObject.release_date.slice(0,4) + ')')
+		: '';	
+
 	return (
 		<InfoView>
 			<User>
@@ -40,8 +47,8 @@ const ReelayInfo = ({ user, movie, titleObject }) => {
 			</User>
 			<Movie>
 				<MovieTitle>
-					{titleObject && (titleObject.title)}
-					{!titleObject && movie.title}
+					{titleObject && <Text>{title}{year} </Text>}
+					{!titleObject && <Text>{movie.title}</Text>}
 				</MovieTitle>
 			</Movie>
 		</InfoView>

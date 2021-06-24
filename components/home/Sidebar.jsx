@@ -1,6 +1,8 @@
 import React from 'react'
 import styled from 'styled-components/native'
 
+import { UserOutlined } from '@ant-design/icons';
+
 const SidebarView = styled.View`
 	width: 60px;
 	padding-bottom: 240px;
@@ -15,7 +17,7 @@ const AvatarView = styled.View`
 	height: 48px;
 	margin-bottom: 13px;
 `
-const Avatar = styled.Image`
+const AvatarImage = styled.Image`
 	width: 100%;
 	height: 100%;
 	border-radius: 48px;
@@ -36,7 +38,7 @@ const Sidebar = ({ avatar, stats }) => {
 		<SidebarView>
 			<SidebarButtonView>
 				<AvatarView>
-					<Avatar resizeMode='cover' source={require('../../assets/images/icon.png')} />
+					<AvatarImage resizeMode='cover' source={require('../../assets/images/icon.png')} />
 				</AvatarView>
 			</SidebarButtonView>
 
