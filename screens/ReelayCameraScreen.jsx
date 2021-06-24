@@ -103,10 +103,6 @@ export default ReelayCameraScreen = ({ navigation }) => {
             const { status } = await Camera.requestPermissionsAsync();
             setHasPermission(status === "granted");
         })();
-        const unsubscribe = navigation.addListener('focus', () => {
-            console.log("on camera screen");
-        });
-        return unsubscribe;
     }, [navigation]);
 
     // handle permission denied cases

@@ -1,7 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-// not in use yet
-
 export const reelayFeedSlice = createSlice({
     name: 'reelayFeed',
     initialState: {

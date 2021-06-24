@@ -45,7 +45,7 @@ export default SearchField = () => {
     return (
         <SearchFieldContainer>
             <SearchBar
-                placeholder="What did you see?"
+                placeholder="Enter a movie title..."
                 onChangeText={updateSearch}
                 value={searchText}
                 platform={'default'}

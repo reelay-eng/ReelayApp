@@ -40,8 +40,6 @@ const ReelayFeed = ({ navigation }) => {
 
 	const onPageSelected = ((e) => {
 		dispatch(setFeedPosition(e.nativeEvent.position));
-        console.log('cur position: ', e.nativeEvent.position);
-        console.log('reelay list length', reelayList.length);
 		if (e.nativeEvent.position == reelayList.length - 1) {
             console.log('fetching more reelays');
 			fetchReelays();

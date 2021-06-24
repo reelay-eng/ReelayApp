@@ -1,6 +1,5 @@
 import React from 'react';
 import { View } from 'react-native';
-import TitleInfo from '../view-reelay/TitleInfo';
 import styled from 'styled-components/native';
 
 const InfoView = styled.View`

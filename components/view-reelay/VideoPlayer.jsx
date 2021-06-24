@@ -1,10 +1,17 @@
 import React, { useRef, useState } from 'react'
 import { Video, Audio } from 'expo-av'
 import { VideoStyles } from '../../styles';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function VideoPlayer({ videoURI, poster, isPlay }) {
 	const video = useRef(null);
 	const [playbackStatus, setPlaybackStatus] = useState({});
+	const [isFocused, setIsFocused] = useState(false);
+
+    useFocusEffect(React.useCallback(() => {
+        setIsFocused(true);
+        return () => setIsFocused(false);
+    }));
 
 	const onPlaybackStatusUpdate = (status) => {
 		setPlaybackStatus(status);
@@ -27,7 +34,7 @@ export default function VideoPlayer({ videoURI, poster, isPlay }) {
 			ref={video}
 			resizeMode='cover'
 			shouldDuckAndroid={true}
-			shouldPlay={isPlay}
+			shouldPlay={isPlay && isFocused}
 			source={{ uri: videoURI }}
 			staysActiveInBackground={false}
             style={VideoStyles.video}

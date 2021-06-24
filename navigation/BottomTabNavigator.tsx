@@ -83,7 +83,7 @@ function CreateReelayTabNavigator() {
         name="SelectTitleScreen"
         component={SelectTitleScreen}
         options={{
-          title: 'Select a Title to Reelay',
+          title: 'What did you see?',
         }}
       />
       <CreateReelayTabStack.Screen

@@ -12,25 +12,6 @@ const TransparentContainer = styled.View`
 `
 
 export default function HomeFeedScreen({ navigation }) {
-	const [isFocused, setIsFocused] = useState(false);
-
-	useEffect(() => {
-		const focusUnsubscribe = navigation.addListener('focus', () => {
-			setIsFocused(true);
-			console.log('on home feed screen');
-		});
-		const blurUnsubscribe = navigation.addListener('blur', () => {
-			setIsFocused(false);
-			console.log('not focused on home feed screen');
-		});
-		// return the cleanup function
-		// fetch reelays every time the user navigates back to this tab
-		return () => {
-			focusUnsubscribe();
-			blurUnsubscribe();
-		}
-	}, [navigation]);
-
 	return (
 		<SafeAreaView>
 			<StatusBar
