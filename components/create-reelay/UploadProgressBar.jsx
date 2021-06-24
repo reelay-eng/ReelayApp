@@ -61,11 +61,11 @@ const UploadProgressBar = ({ navigation }) => {
                     creatorID: creator.attributes.sub,
                     isMovie: true,
                     isSeries: false,
-                    movieID: tmdbTitleObject.id.toString(),
+                    movieID: titleObject.id.toString(),
                     seriesSeason: -1,
                     seasonEpisode: -1,
                     uploadedAt: new Date().toISOString(),
-                    tmdbTitleID: tmdbTitleObject.id.toString(),
+                    tmdbTitleID: titleObject.id.toString(),
                     videoS3Key: videoS3Key,
                     visibility: 'global',
                 });

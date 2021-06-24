@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { setVideoSource, untagTitle } from '../components/create-reelay/CreateReelaySlice';
-import TitleInfo from '../components/view-reelay/TitleInfo';
+import Poster from '../components/view-reelay/Poster';
 
 import { Camera } from 'expo-camera';
 import { CameraStyles, ContainerStyles } from '../styles'
@@ -61,8 +61,9 @@ export default ReelayCameraScreen = ({ navigation }) => {
     const TopContainer = styled(View)`
         flex: 1;
         flex-direction: row;
-        justify-content: space-between;
+        justify-content: flex-end;
         align-items: flex-start;
+        margin-top: 30px;
     `  
     const VideoRecordDot = styled(View)`
         border-radius: 3px;
@@ -167,7 +168,7 @@ export default ReelayCameraScreen = ({ navigation }) => {
                 {/* Interface is on top of the camera*/}
                 <RecordingInterfaceContainer>
                     <TopContainer>
-                        <TitleInfo titleObject={titleObject} />
+                        <Poster titleObject={titleObject} showTitle={true} />
                     </TopContainer>
                     <CaptureControlContainer>
                         <FlipTextContainer disabled={!isCameraReady} onPress={switchCamera}>

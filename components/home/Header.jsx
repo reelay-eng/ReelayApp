@@ -36,6 +36,7 @@ const FeedView = styled.View`
 const Header = () => {
 
 	const uploadStatus = useSelector((state) => state.createReelay.upload.uploadStatus);
+	console.log(uploadStatus);
 
 	return (
 		<HeaderView>
@@ -44,7 +45,10 @@ const Header = () => {
 				<FeedSeparator />
 				<HeaderText bold='true'>For You</HeaderText>
 			</FeedView>
-			{ uploadStatus == ReelayUploadStatus.UPLOAD_IN_PROGRESS && <UploadProgressBar /> }
+			{ (uploadStatus == ReelayUploadStatus.UPLOAD_STAGED 
+				|| uploadStatus == ReelayUploadStatus.UPLOAD_IN_PROGRESS)				
+				&& <UploadProgressBar /> 
+			}
 		</HeaderView>
 	)
 }

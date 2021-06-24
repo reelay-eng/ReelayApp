@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient'
 import styled from 'styled-components/native';
 
 import VideoPlayer from '../view-reelay/VideoPlayer'
-import TitleInfo from '../view-reelay/TitleInfo';
+import Poster from '../view-reelay/Poster';
 import ReelayInfo from './ReelayInfo'
 import Sidebar from './Sidebar'
 
@@ -17,19 +17,15 @@ const Gradient = styled(LinearGradient)`
 	width: 100%;
 	z-index: 1;
 `
-const InterfaceContainer = styled(View)`
-    flex: 1;
-`
 const Overlay = styled(View)`
 	flex: 1;
 	flex-direction: row;
 `
-const TopContainer = styled(View)`
+const RightContainer = styled(View)`
 	flex: 1;
-	flex-direction: row;
-	justify-content: space-between;
-	align-items: flex-start;
-    align-self: flex-end;
+    flex-direction: column;
+	justify-content: flex-end;
+	align-items: flex-end;
 `  
 
 const Hero = ({ reelay, index, curPosition }) => {
@@ -56,12 +52,10 @@ const Hero = ({ reelay, index, curPosition }) => {
                         movie={reelay.movie} 
                         titleObject={reelay.titleObject}
                     />
-                    <Sidebar avatar={reelay.creator.avatar} stats={reelay.stats} />
-                    <InterfaceContainer>
-                        <TopContainer>
-                            <TitleInfo titleObject={reelay.titleObject} />
-                        </TopContainer>
-                    </InterfaceContainer>
+                    <RightContainer>
+                        <Poster titleObject={reelay.titleObject} showTitle={false} />
+                        <Sidebar avatar={reelay.creator.avatar} stats={reelay.stats} />
+                    </RightContainer>
                 </Overlay>
             </Gradient>
         </View>

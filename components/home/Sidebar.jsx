@@ -3,7 +3,6 @@ import styled from 'styled-components/native'
 
 const SidebarView = styled.View`
 	width: 60px;
-	height: 100%;
 	padding-bottom: 240px;
 	justify-content: flex-end;
 `

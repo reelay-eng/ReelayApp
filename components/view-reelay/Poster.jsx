@@ -6,16 +6,15 @@ import styled from 'styled-components/native';
 
 const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
 
-const InfoView = styled.View`
-	flex: 1;
-    flex-direction: row;
-	justify-content: flex-end;
-	margin: 0px 0px 240px 13px;
-`
-const Movie = styled.View`
+// todo: still not sure why margin-top needs to be -30px 
+// to get into the top-right corner
+const TitleContainer = styled.View`
     flex: 0.9;
 	flex-direction: column;
+	justify-content: flex-start;
 	align-items: flex-end;
+	margin-right: 10px;
+	margin-top: -30px;
 `
 const MovieTitle = styled.Text`
 	font-size: 17px;
@@ -26,10 +25,10 @@ const MovieTitle = styled.Text`
 	width: 120px;
 `
 
-export default TitleInfo = ({ titleObject }) => {
+export default Poster = ({ titleObject, showTitle }) => {
 
 	if (!titleObject) {
-		return <InfoView />;
+		return <View />;
 	}
 
     const title = titleObject.title ? titleObject.title + ' ' : 'Title not found\ ';
@@ -40,17 +39,15 @@ export default TitleInfo = ({ titleObject }) => {
         ? `${TMDB_IMAGE_API_BASE_URL}${titleObject.poster_path}` : null;
 
 	return (
-		<InfoView>
-			<Movie>
-				{posterImageUri && <Image 
-                    source={{ uri: posterImageUri }} 
-                    style={{ height: 180, width: 120, 
-						marginTop: 10, marginBottom: 10,
-						marginLeft: 10, marginRight: 10,
-					}}
-				/>}
-				<MovieTitle>{title}{year}</MovieTitle>
-			</Movie>
-		</InfoView>
+		<TitleContainer>
+			{posterImageUri && <Image 
+				source={{ uri: posterImageUri }} 
+				style={{ height: 180, width: 120, 
+					marginTop: 10, marginBottom: 10,
+					borderRadius: 8,
+				}}
+			/>}
+			<MovieTitle>{title}{year}</MovieTitle>
+		</TitleContainer>
 	);
 }
