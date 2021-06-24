@@ -96,10 +96,10 @@ function CreateReelayTabNavigator() {
       <CreateReelayTabStack.Screen
         name="ReelayPreviewScreen"
         component={ReelayPreviewScreen}
-        options={{
+        options={({navigation, route}) => ({
           title: 'Preview Reelay',
-          headerRight: UploadReelayButton,
-        }}
+          headerRight: props => (<UploadReelayButton navigation={navigation} />),
+        })}
       />
     </CreateReelayTabStack.Navigator>
   );

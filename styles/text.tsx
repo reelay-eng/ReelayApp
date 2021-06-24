@@ -3,23 +3,32 @@ import { StyleSheet } from "react-native";
 const TextStyles = StyleSheet.create({
     whiteText: {
         flex: 1,
-        fontSize: 18,
+        fontSize: 16,
         color: 'white',
-        marginBottom: 24
+        letterSpacing: 0.8,
+        opacity: 0.8,
+        marginTop: 8,
+        marginBottom: 8,
     },
     darkText: {
         flex: 1,
-        fontSize: 18,
+        fontSize: 16,
         color: 'black',
-        marginBottom: 24
+        letterSpacing: 0.8,
+        opacity: 0.8,
+        marginTop: 8,
+        marginBottom: 8,
     },
     darkTextCentered: {
-        flex: 1,
-        fontSize: 18,
         alignSelf: 'center',
+        flex: 1,
+        fontSize: 16,
         color: 'black',
-        marginBottom: 24
-    }
+        letterSpacing: 0.8,
+        opacity: 0.8,
+        marginTop: 8,
+        marginBottom: 8,
+    },
 });
 
 export default TextStyles;

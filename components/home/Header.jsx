@@ -1,12 +1,16 @@
-import React from 'react'
+import React from 'react';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components/native';
+
+import { ReelayUploadStatus } from '../create-reelay/CreateReelaySlice';
+import UploadProgressBar from '../create-reelay/UploadProgressBar';
 
 const HeaderView = styled.View`
 	top: 22px;
 	width: 100%;
 	justify-content: center;
 	align-items: center;
-	flex-direction: row;
+	flex-direction: column;
 	position: absolute;
 	z-index: 1;
 `
@@ -18,19 +22,29 @@ const HeaderText = styled.Text`
 	opacity: ${props => (props.bold ? 1 : 0.8)};
 	font-size: ${props => (props.bold ? '16px' : '15px')};
 `
-const Separator = styled.View`
+const FeedSeparator = styled.View`
 	width: 1px;
 	height: 13px;
 	background-color: #d8d8d8;
 	opacity: 0.6;
 `
+const FeedView = styled.View`
+	align-items: center;
+	flex-direction: row; 
+`
 
 const Header = () => {
+
+	const uploadStatus = useSelector((state) => state.createReelay.upload.uploadStatus);
+
 	return (
 		<HeaderView>
-			<HeaderText>Following</HeaderText>
-			<Separator />
-			<HeaderText bold='true'>For You</HeaderText>
+			<FeedView>
+				<HeaderText>Following</HeaderText>
+				<FeedSeparator />
+				<HeaderText bold='true'>For You</HeaderText>
+			</FeedView>
+			{ uploadStatus == ReelayUploadStatus.UPLOAD_IN_PROGRESS && <UploadProgressBar /> }
 		</HeaderView>
 	)
 }
