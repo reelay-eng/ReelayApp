@@ -1,8 +1,6 @@
 import React from 'react'
 import styled from 'styled-components/native'
 
-import { UserOutlined } from '@ant-design/icons';
-
 const SidebarView = styled.View`
 	width: 60px;
 	padding-bottom: 240px;

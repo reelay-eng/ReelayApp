@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Dimensions, Text, View } from 'react-native'
+import { Dimensions, TouchableOpacity, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons'; 
 import styled from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
 
@@ -18,6 +19,15 @@ const { height } = Dimensions.get('window');
 const PagerViewContainer = styled(PagerView)`
 	height: ${height}px;
 `
+const RefreshContainer = styled(View)`
+    margin-top: 28px;
+    margin-left: 28px;
+    justify-content: flex-start;
+    align-items: center;
+    flex-direction: column;
+    position: absolute;
+    z-index: 3;
+`
 
 const ReelayFeed = ({ navigation }) => {
 
@@ -32,7 +42,7 @@ const ReelayFeed = ({ navigation }) => {
     useEffect(() => {
         if (reelayList.length == 0) {
             console.log('gotta load the feed');
-            fetchReelays();
+            fetchReelays({ mostRecent: false });
         } else {
             console.log('feed already loaded');
         }
@@ -42,19 +52,27 @@ const ReelayFeed = ({ navigation }) => {
 		dispatch(setFeedPosition(e.nativeEvent.position));
 		if (e.nativeEvent.position == reelayList.length - 1) {
             console.log('fetching more reelays');
-			fetchReelays();
+			fetchReelays({ mostRecent: false });
 		}
 	});
 
-    const fetchReelays = async () => {
+    const fetchReelays = async ({ mostRecent }) => {
         if (selectedFeedLoaded && !reelayListNextToken) {
             // reached end of feed
             console.log('reached end of feed');
             return;
         }
 
-        const queryResponse = // (selectedFeedLoaded) ? 
-        await API.graphql({
+        // if we're calling the most recent reelays, get them from the top
+        const queryResponse = (mostRecent) 
+        ? await API.graphql({
+            query: queries.reelaysByUploadDate,
+            variables: {
+                visibility: 'global',
+                sortDirection: 'DESC',
+                limit: REELAY_LOAD_BUFFER_SIZE,
+            }
+        }) : await API.graphql({
             query: queries.reelaysByUploadDate,
             variables: {
                 visibility: 'global',
@@ -94,8 +112,6 @@ const ReelayFeed = ({ navigation }) => {
                     });
             }
 
-            console.log(reelayObject.tmdbTitleObject);
-
             return {
                 id: reelayObject.id,
                 creator: {
@@ -122,10 +138,18 @@ const ReelayFeed = ({ navigation }) => {
         });
     
         Promise.all(fetchedReelays).then((items) => {
+            // not sure if we should always call nextToken
             const nextToken = queryResponse.data.reelaysByUploadDate.nextToken;
             if (!selectedFeedLoaded) {
                 dispatch(setReelayList({
                     initialReelays: items,
+                    nextToken: nextToken,
+                }));
+            } else if (mostRecent) {
+                // set the reelayList to be the merger of the old and new
+                const mergedReelays = getMergedReelayList(items, reelayList);
+                dispatch(setReelayList({
+                    initialReelays: mergedReelays,
                     nextToken: nextToken,
                 }));
             } else {
@@ -135,6 +159,55 @@ const ReelayFeed = ({ navigation }) => {
                 }));
             }
         });
+    }
+
+    // this function should _only_ be called after calling fetchMostRecentReelays
+    const getMergedReelayList = (fetchedReelays, prevFetchedReelays) => {
+        console.log('merging lists');
+        if (prevFetchedReelays.length == 0) return fetchedReelays;
+        if (fetchedReelays.length == 0) return prevFetchedReelays;
+
+        let fetchedReelaysCursor = 0;
+        let prevFetchedReelaysCursor = 0;
+        const mergedReelays = [];
+
+        while (fetchedReelaysCursor < fetchedReelays.length 
+                && prevFetchedReelaysCursor < prevFetchedReelays.length) {
+            const fetchedReelay = fetchedReelays[fetchedReelaysCursor];
+            const prevFetchedReelay = prevFetchedReelays[prevFetchedReelaysCursor];
+
+            if (fetchedReelay.id == prevFetchedReelay.id) {
+                // skip duplicate, push only one
+                // todo: handle deleted posts
+                mergedReelays.push(prevFetchedReelay);
+                prevFetchedReelaysCursor += 1;
+                fetchedReelaysCursor += 1;
+            } else if (fetchedReelay.postedDateTime < prevFetchedReelay.postedDateTime) {
+                // fetchedReelay is older, so push prevFetchedReelay first
+                mergedReelays.push(prevFetchedReelay);
+                prevFetchedReelaysCursor += 1;
+            } else {
+                mergedReelays.push(fetchedReelay);
+                fetchedReelaysCursor += 1;
+            }
+        }
+        while (prevFetchedReelaysCursor < prevFetchedReelays.length) {
+            // push remaining prevFetchedReelays
+            const prevFetchedReelay = prevFetchedReelays[prevFetchedReelaysCursor];
+            mergedReelays.push(prevFetchedReelay);
+            prevFetchedReelaysCursor += 1;
+        }
+        while (fetchedReelaysCursor < fetchedReelays.length) {
+            // push remaining fetchedReelays
+            const fetchedReelay = fetchedReelays[fetchedReelaysCursor];
+            mergedReelays.push(fetchedReelay);
+            fetchedReelaysCursor += 1;
+        }
+        console.log('merging: ');
+        fetchedReelays.map((reelay, index) => {console.log('fetched: ', reelay.id)});
+        prevFetchedReelays.map((reelay, index) => {console.log('prev fetched: ', reelay.id)});
+        mergedReelays.map((reelay, index) => {console.log('merged: ', reelay.id)});
+        return mergedReelays;
     }
 
 	return (
@@ -156,6 +229,15 @@ const ReelayFeed = ({ navigation }) => {
 					})}
 				</PagerViewContainer>
 			}
+            <RefreshContainer>
+                <TouchableOpacity onPress={() => {
+                    console.log('pressing');
+                    fetchReelays({ mostRecent: true});
+
+                }} style={{zIndex: 3}}>
+                    <Ionicons name="refresh-sharp" size={24} color="white" />
+                </TouchableOpacity>
+            </RefreshContainer>
 		</View>
 	);
 }  

@@ -30,8 +30,6 @@ const RightContainer = styled(View)`
 
 const Hero = ({ reelay, index, curPosition }) => {
 
-    console.log(reelay);
-
     return (
         <View key={index}>
             <VideoPlayer

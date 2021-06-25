@@ -20,7 +20,7 @@ export default function HomeFeedScreen({ navigation }) {
 				barStyle='light-content'
 			/>
 			<TransparentContainer>
-				<Header />
+				{/* <Header /> */}
 				<ReelayFeed navigation={navigation} />
 			</TransparentContainer>
 		</SafeAreaView>
