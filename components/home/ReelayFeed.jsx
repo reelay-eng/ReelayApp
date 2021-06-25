@@ -10,6 +10,7 @@ import { appendReelayList, resetFocus, setFeedPosition, setReelayList } from './
 import * as queries from '../../src/graphql/queries';
 
 import Hero from './Hero';
+import Header from './Header';
 
 const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3/';
 const TMDB_API_KEY = '033f105cd28f507f3dc6ae794d5e44f5';
@@ -24,7 +25,7 @@ const RefreshContainer = styled(View)`
     margin-left: 28px;
     justify-content: flex-start;
     align-items: center;
-    flex-direction: column;
+    flex-direction: row;
     position: absolute;
     z-index: 3;
 `
@@ -229,6 +230,7 @@ const ReelayFeed = ({ navigation }) => {
 					})}
 				</PagerViewContainer>
 			}
+            <Header />
             <RefreshContainer>
                 <TouchableOpacity onPress={() => {
                     console.log('pressing');

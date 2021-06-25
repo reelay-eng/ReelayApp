@@ -6,15 +6,13 @@ import styled from 'styled-components/native';
 
 const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
 
-// todo: still not sure why margin-top needs to be -30px 
-// to get into the top-right corner
 const TitleContainer = styled.View`
     flex: 0.9;
 	flex-direction: column;
 	justify-content: flex-start;
 	align-items: flex-end;
 	margin-right: 10px;
-	margin-top: -30px;
+	margin-top: 30px;
 `
 const MovieTitle = styled.Text`
 	font-size: 17px;
