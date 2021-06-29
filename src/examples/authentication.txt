@@ -1,0 +1,38 @@
+Approaches to Authentication
+
+
+Backend 
+
+2. Hash + compare
+3. If matches return user info
+    we create a JWT token using JWT library 
+    {
+        name,
+        token: 
+    }
+4. Else return an error.
+5. On Auth, we want to verify
+
+
+Sessions-
+
+1. Session table
+    id
+    userId
+    active --> false
+    type -- mobile/web
+
+2. User authenticates -->
+    Basically compare the passwords
+    Create session
+    return {
+        sessionId, 
+        user: {}
+    }
+3. Logging in/authenticating requests -
+    Take the sessionId and check to see if there is an active session.
+4. On the frontend
+    Store into the Cookie
+    Set up httpOnly and Secure attribute on the Cookie, so inaccesible to the frontend. 
+
+    
