@@ -29,6 +29,14 @@ export default {
           },
         },
       },
+      Auth: {
+        screens: {
+          SplashScreen: 'SplashScreen',
+          SignUpScreen: 'SignUpScreen',
+          SignInScreen: 'SignInScreen',
+          ForgotPasswordScreen: 'ForgotPasswordScreen',
+        },
+      },
       NotFound: '*',
     },
   },

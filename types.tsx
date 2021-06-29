@@ -5,6 +5,7 @@
 
 export type RootStackParamList = {
   Root: undefined;
+  Auth: undefined;
   NotFound: undefined;
 };
 
@@ -22,4 +23,11 @@ export type CreateReelayTabParamList = {
   ReelayCameraScreen: undefined;
   ReelayPreviewScreen: undefined;
   ReelayUploadScreen: undefined;
+}
+
+export type AuthenticationStackParamList = {
+  SplashScreen: undefined;
+  SignUpScreen: undefined;
+  SignInScreen: undefined;
+  ForgotPasswordScreen: undefined;
 }

@@ -27,12 +27,16 @@ export default function BottomTabNavigator() {
   return (
     <BottomTab.Navigator
       initialRouteName="Home"
-      tabBarOptions={{ activeTintColor: Colors[colorScheme].tint }}>
+      tabBarOptions={{ 
+        activeTintColor: Colors[colorScheme].tint,
+        style: { backgroundColor: 'black'}
+      }}
+    >
       <BottomTab.Screen
         name="Home"
         component={HomeTabNavigator}
         options={{
-          tabBarIcon: ({ color }) => <AntDesign name="find" size={24} color={color} />
+          tabBarIcon: ({ color }) => <AntDesign name="find" size={24} color={color} />,
         }}
       />
       <BottomTab.Screen
