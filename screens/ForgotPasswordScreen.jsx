@@ -23,24 +23,16 @@ const ForgotPasswordScreen = ({ navigation }) => {
         return (
             <View>
                 <Input 
-                placeholder={'Username or email'} 
-                onChangeText={(text) => {
-                    setEmail(text);
-                    setUsername(text);
-                }}
-                rightIcon={{type: 'ionicon', name: 'mail-outline'}}
-                style={{
-                    flex: 1,
-                    color: 'white',
-                    fontFamily: 'System',
-                }}
-            />
-            <Button title='Send Confirmation Code' type='solid' onPress={() => setSubmitted(true)}
-                style={{
-                    alignSelf: 'center',
-                    marginTop: 10,
-                    width: '75%',
-                }} />
+                    placeholder={'Username or email'} 
+                    onChangeText={(text) => {
+                        setEmail(text);
+                        setUsername(text);
+                    }}
+                    rightIcon={{type: 'ionicon', name: 'mail-outline'}}
+                    style={AuthStyles.input}
+                />
+                <Button title='Send Confirmation Code' type='solid' onPress={() => setSubmitted(true)}
+                    style={AuthStyles.submitButton} />
             </View>
         );
     }
@@ -51,28 +43,16 @@ const ForgotPasswordScreen = ({ navigation }) => {
                 <Input 
                     placeholder={'Enter confirmation code'} 
                     onChangeText={(code) => setConfirmationCodeInput(code)}
-                    style={{
-                        flex: 1, 
-                        color: 'white',
-                        fontFamily: 'System',
-                    }}
+                    style={AuthStyles.input}
                 />
                 <Button title='Confirm' type='solid' onPress={() => { 
                     if (confirmationCodeInput == STUB_CONFIRMATION_CODE) {
                         setConfirmed(true);
                     }
                 }}
-                    style={{
-                        alignSelf: 'center',
-                        marginTop: 10,
-                        width: '75%',
-                    }} />
+                    style={AuthStyles.submitButton} />
                 <Button title="Didn't receive a code? Let's try again." type='clear' onPress={() => { navigation.pop() }}
-                    style={{
-                        alignSelf: 'center',
-                        marginTop: 10,
-                        width: '75%',
-                    }} />
+                    style={AuthStyles.submitButton} />
             </View>
         );
     }
@@ -85,22 +65,14 @@ const ForgotPasswordScreen = ({ navigation }) => {
                     onChangeText={(password) => setNewPassword(password)}
                     rightIcon={{type: 'ionicon', name: 'eye-outline'}}
                     secureTextEntry={true}
-                    style={{
-                        flex: 1, 
-                        color: 'white',
-                        fontFamily: 'System',
-                    }}
+                    style={AuthStyles.input}
                 />
                 <Input 
                     placeholder={'Confirm new password'} 
                     onChangeText={(password) => setConfirmNewPassword(password)}
                     rightIcon={{type: 'ionicon', name: 'eye-outline'}}
                     secureTextEntry={true}
-                    style={{
-                        flex: 1, 
-                        color: 'white',
-                        fontFamily: 'System',
-                    }}
+                    style={AuthStyles.input}
                 />
 
                 { !passwordsMatch() && <Text style={{
@@ -114,11 +86,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
                         navigation.popToTop(); 
                         navigation.push('SignInScreen'); 
                     }}
-                    style={{
-                        alignSelf: 'center',
-                        marginTop: 10,
-                        width: '75%',
-                    }} />
+                    style={AuthStyles.submitButton} />
             </View>
         );
     }
@@ -129,25 +97,12 @@ const ForgotPasswordScreen = ({ navigation }) => {
             height: '100%',
         }}>
             <View 
-                style={{
-                    flex: 0.4, 
-                    flexDirection: 'row', 
-                    justifyContent: 'center',
-                    marginTop: 20,
-                }}>
+                style={AuthStyles.headerView}>
                 <Icon type='ionicon' name='chevron-back-outline' color={'white'} size={30} 
                     onPress={() => { navigation.pop() }}
-                    style={{
-                        flex: 1,
-                        alignSelf: 'flex-start',
-                    }}/>
+                    style={AuthStyles.backButton}/>
                 <Text h3 
-                    style={{
-                        flex: 1,
-                        alignSelf: 'flex-start',
-                        color: 'white',
-                        fontFamily: 'System',
-                    }}>{'Forgot Password'}</Text>
+                    style={AuthStyles.headerText}>{'Forgot Password'}</Text>
             </View>
             { !submitted && renderSendConfirmationCode() }
             { submitted && !confirmed && renderEnterConfirmationCode() }

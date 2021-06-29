@@ -22,25 +22,12 @@ const SignInScreen = ({ navigation }) => {
             height: '100%',
         }}>
             <View 
-                style={{
-                    flex: 0.4, 
-                    flexDirection: 'row', 
-                    justifyContent: 'center',
-                    marginTop: 20,
-                }}>
+                style={AuthStyles.headerView}>
                 <Icon type='ionicon' name='chevron-back-outline' color={'white'} size={30} 
                     onPress={() => { navigation.pop() }}
-                    style={{
-                        flex: 1,
-                        alignSelf: 'flex-start',
-                    }}/>
+                    style={AuthStyles.backButton}/>
                 <Text h3 
-                    style={{
-                        flex: 1,
-                        alignSelf: 'flex-start',
-                        color: 'white',
-                        fontFamily: 'System',
-                    }}>{'Sign In to Reelay'}</Text>
+                    style={AuthStyles.headerText}>{'Sign In to Reelay'}</Text>
             </View>
             <Input 
                 placeholder={'Username or email'} 
@@ -49,31 +36,19 @@ const SignInScreen = ({ navigation }) => {
                     setUsername(text);
                 }}
                 rightIcon={{type: 'ionicon', name: 'mail-outline'}}
-                style={{
-                    flex: 1,
-                    color: 'white',
-                    fontFamily: 'System',
-                }}
+                style={AuthStyles.input}
             />
             <Input 
                 placeholder={'Enter password'} 
                 onChangeText={(password) => setPassword(password)}
                 rightIcon={{type: 'ionicon', name: 'eye-outline'}}
                 secureTextEntry={true}
-                style={{
-                    flex: 1, 
-                    color: 'white',
-                    fontFamily: 'System',
-                }}
+                style={AuthStyles.input}
             />
             <Button title='Continue' type='solid' onPress={signInUser}
-                style={{
-                    alignSelf: 'center',
-                    marginTop: 10,
-                    width: '75%',
-                }} />
+                style={AuthStyles.submitButton} />
             <Button title='Forgot password?' type='clear' onPress={() => { navigation.push('ForgotPasswordScreen') }}
-                style={{ marginTop: 10 }} />
+                style={AuthStyles.clearButton} />
         </SafeAreaView>
     );
 }
