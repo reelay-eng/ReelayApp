@@ -28,20 +28,3 @@ src/
         type-defs
         // do this later
 
-
-
-
-
-
-
-export function HomePage() {
-
-}
-
-function App() {
-    return (
-        <Context.Provider>
-            <HomePage />
-        </Context.Provider>
-    )
-}
