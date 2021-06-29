@@ -7,7 +7,6 @@ export const TMDbApi = createApi({
     reducerPath: 'TMDbApi',
     baseQuery: fetchBaseQuery({ baseUrl: TMDB_API_BASE_URL }),
     endpoints: (builder) => ({
-        // note: these queries ONLY work for movies
         movieSearch: builder.query({
             query: (searchText) => ({
                 url: `search/movie\?api_key\=${TMDB_API_KEY}&query\=${searchText}`,

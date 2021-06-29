@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { strike } from 'aws-amplify';
 
 // maps state to user messages in UploadProgressBar
 export const ReelayUploadStatus = {
@@ -14,7 +15,15 @@ export const createReelaySlice = createSlice({
     name: 'createReelay',
     initialState: {
         overlayVisible: true,
-        searchResults: [],
+        searchResults: {
+            movieSearchData: [],
+            movieSearchError: {},
+            movieSearchIsLoading: false,
+            seriesSearchData: [],
+            seriesSearchError: {},
+            seriesSearchIsLoading: false,
+        },
+        searchText: '',
         titleObject: null,
         upload: {
             chunksUploaded: 0,
@@ -25,8 +34,13 @@ export const createReelaySlice = createSlice({
     },
     reducers: {
         setSearchResults: (state, action) => {
-            // action.payload contains an array of TMDbObjects
-            state.searchResults = action.payload;
+            state.searchText = action.payload.searchText;
+            state.searchResults.movieSearchData = action.payload.movieSearchData;
+            state.searchResults.movieSearchError = action.payload.movieSearchError;
+            state.searchResults.movieSearchIsLoading = action.payload.movieSearchIsLoading;
+            state.searchResults.seriesSearchData = action.payload.seriesSearchData;
+            state.searchResults.seriesSearchError = action.payload.seriesSearchError;
+            state.searchResults.seriesSearchIsLoading = action.payload.seriesSearchIsLoading;
         },
         setVideoSource: (state, action) => {
             // action.payload contains videoSource string

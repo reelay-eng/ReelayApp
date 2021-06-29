@@ -59,8 +59,8 @@ const UploadProgressBar = ({ navigation }) => {
                 const reelay = new Reelay({
                     owner: creator.attributes.sub,
                     creatorID: creator.attributes.sub,
-                    isMovie: true,
-                    isSeries: false,
+                    isMovie: titleObject.is_movie,
+                    isSeries: titleObject.is_series,
                     movieID: titleObject.id.toString(),
                     seriesSeason: -1,
                     seasonEpisode: -1,

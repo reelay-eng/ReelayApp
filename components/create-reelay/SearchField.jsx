@@ -20,23 +20,21 @@ export default SearchField = () => {
     const dispatch = useDispatch();
 
     const movieSearchResults = { data, error, isLoading } = useMovieSearchQuery(searchText);
-    // const seriesSearchResults = { data, error, isLoading } = (searchText == '') ? useSeriesSearchQuery(searchText) : [];
+    const seriesSearchResults = { data, error, isLoading } = useSeriesSearchQuery(searchText);
 
-    const levenshteinDistance = (s, t) => {
-        if (!s.length) return t.length;
-        if (!t.length) return s.length;
-    
-        return Math.min(
-            levenshteinDistance(s.substr(1), t) + 1,
-            levenshteinDistance(t.substr(1), s) + 1,
-            levenshteinDistance(s.substr(1), t.substr(1)) + (s[0] !== t[0] ? 1 : 0)
-        ) + 1;
-    }
-
+    // these are sorted on the SearchResults component for now
     const updateSearch = (newSearchText) => {
         setSearchText(newSearchText);
-        if (!movieSearchResults.error && !movieSearchResults.isLoading) {
-            dispatch(setSearchResults(movieSearchResults.data));
+        if (!movieSearchResults.error && !seriesSearchResults.error) {
+            dispatch(setSearchResults({
+                searchText: newSearchText,
+                movieSearchData: movieSearchResults.data,
+                movieSearchError: movieSearchResults.error,
+                movieSearchIsLoading: movieSearchResults.isLoading,
+                seriesSearchData: seriesSearchResults.data,
+                seriesSearchError: seriesSearchResults.error,
+                seriesSearchIsLoading: seriesSearchResults.isLoading,
+            }));
         } else if (movieSearchResults.error) {
             console.log(movieSearchResults.error);
         }

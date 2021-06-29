@@ -36,8 +36,7 @@ const FeedView = styled.View`
 const Header = () => {
 
 	const uploadStatus = useSelector((state) => state.createReelay.upload.uploadStatus);
-	console.log(uploadStatus);
-
+	
 	return (
 		<HeaderView>
 			<FeedView>

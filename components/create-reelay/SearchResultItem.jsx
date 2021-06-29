@@ -47,6 +47,8 @@ export default SearchResultItem = ({result, resultType, navigation}) => {
     const posterImageUri = titleObject.poster_path 
         ? `${TMDB_IMAGE_API_BASE_URL}${titleObject.poster_path}` : null;
 
+    // for movies and series
+    // note that release_date for series has been overwritten with its first air date
     const title = titleObject.title ? titleObject.title + '\t' : 'Title not found.' + '\t';
     const releaseYear = (titleObject.release_date && titleObject.release_date.length >= 4) 
         ? ('(' + titleObject.release_date.slice(0,4) + ')') : '';

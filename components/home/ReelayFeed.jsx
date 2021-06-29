@@ -109,7 +109,12 @@ const ReelayFeed = ({ navigation }) => {
                 reelayObject.tmdbTitleObject = await fetch(tmdbTitleQuery)
                     .then((response) => response.json())
                     .then((tmdbTitleObject) => {
-                        return tmdbTitleObject;
+                        // TMDb labels titles and release dates differently between movies and series
+                        return {
+                            ...tmdbTitleObject,
+                            title: tmdbTitleObject.name,
+                            release_date: tmdbTitleObject.first_air_date,
+                        };
                     });
             }
 
