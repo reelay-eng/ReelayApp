@@ -1,8 +1,15 @@
 src/
     front-end/
         components/
-            search-field.jsx
-            header.jsx
+            search-field/
+                search-field.jsx
+                search-field.test.js
+                index.js
+            header/
+                header.jsx
+                header.test.js
+                index.js
+            // alternatively 
             feed.jsx
             loading.jsx
         pages/
@@ -13,6 +20,8 @@ src/
             home.js
         hooks/ (if need be that gets too big or is reusable, for example fetching a feed) 
             home.js
+        e2e-tests/
+            //
             
         utils/
     back-end/
