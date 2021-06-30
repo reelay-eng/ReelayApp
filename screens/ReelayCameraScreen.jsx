@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { setVideoSource, untagTitle } from '../components/create-reelay/CreateReelaySlice';
 import Poster from '../components/view-reelay/Poster';
+import RecordButton from '../components/create-reelay/RecordButton';
 
 import { Camera } from 'expo-camera';
 import { CameraStyles, ContainerStyles } from '../styles'
@@ -19,7 +20,7 @@ import {
 
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 const closeButtonSize = Math.floor(WINDOW_HEIGHT * 0.032);
-const captureSize = Math.floor(WINDOW_HEIGHT * 0.09);
+// const captureSize = Math.floor(WINDOW_HEIGHT * 0.09);
 
 export default ReelayCameraScreen = ({ navigation }) => {
 
@@ -47,14 +48,6 @@ export default ReelayCameraScreen = ({ navigation }) => {
     const FlipTextContainer = styled(TouchableOpacity)`
         flex: 0.5;
     `
-    const RecordButton = styled(TouchableOpacity)`
-        position: absolute;
-        background-color: #f5f6f5;
-        height: ${captureSize}px;
-        width: ${captureSize}px;
-        border-radius: ${Math.floor(captureSize / 2)}px;
-        margin-horizontal: 31px;
-    `
     const RecordingInterfaceContainer = styled(View)`
         flex: 1;
     `
@@ -65,28 +58,6 @@ export default ReelayCameraScreen = ({ navigation }) => {
         align-items: flex-start;
         margin-top: 30px;
     `  
-    const VideoRecordDot = styled(View)`
-        border-radius: 3px;
-        height: 6px;
-        width: 6px;
-        background-color: #ff0000;
-        margin-horizontal: 5px;
-    `
-    const VideoRecordIndicator = styled(View)`
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        background-color: transparent;
-        opacity: 0.7;
-        bottom: 15px;
-    `
-    const VideoRecordMessage = styled(Text)`
-        flex: 1;    
-        flex-wrap: wrap;
-        fontSize: 14px;
-        color: #ffffff;
-        textAlign: center;
-    `
 
     // todo: move to styled-components
     const styles = StyleSheet.create({
@@ -175,17 +146,12 @@ export default ReelayCameraScreen = ({ navigation }) => {
                             <FlipText>{'Flip'}</FlipText>
                         </FlipTextContainer>
                         <RecordButton
-                            activeOpacity={0.7}
                             disabled={!isCameraReady}
+                            recording={isRecording}
                             onPress={isRecording ? stopVideoRecording : recordVideo}
+                            onComplete={stopVideoRecording}
                         />
                     </CaptureControlContainer>
-                    {isRecording && 
-                            <VideoRecordIndicator>
-                                <VideoRecordDot />
-                                <VideoRecordMessage>{'Recording...'}</VideoRecordMessage>
-                            </VideoRecordIndicator>
-                        }
                 </RecordingInterfaceContainer>
             </Camera>
         </SafeAreaView>
