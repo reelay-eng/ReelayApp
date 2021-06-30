@@ -15,15 +15,6 @@ export const createReelaySlice = createSlice({
     name: 'createReelay',
     initialState: {
         overlayVisible: true,
-        searchResults: {
-            movieSearchData: [],
-            movieSearchError: {},
-            movieSearchIsLoading: false,
-            seriesSearchData: [],
-            seriesSearchError: {},
-            seriesSearchIsLoading: false,
-        },
-        searchText: '',
         titleObject: null,
         upload: {
             chunksUploaded: 0,
@@ -33,15 +24,6 @@ export const createReelaySlice = createSlice({
         videoSource: null,
     },
     reducers: {
-        setSearchResults: (state, action) => {
-            state.searchText = action.payload.searchText;
-            state.searchResults.movieSearchData = action.payload.movieSearchData;
-            state.searchResults.movieSearchError = action.payload.movieSearchError;
-            state.searchResults.movieSearchIsLoading = action.payload.movieSearchIsLoading;
-            state.searchResults.seriesSearchData = action.payload.seriesSearchData;
-            state.searchResults.seriesSearchError = action.payload.seriesSearchError;
-            state.searchResults.seriesSearchIsLoading = action.payload.seriesSearchIsLoading;
-        },
         setVideoSource: (state, action) => {
             // action.payload contains videoSource string
             state.videoSource = action.payload;
@@ -65,7 +47,6 @@ export const createReelaySlice = createSlice({
 });
 
 export const { 
-    setSearchResults,
     setUploadStatus,
     setVideoSource,
     tagTitle, 
