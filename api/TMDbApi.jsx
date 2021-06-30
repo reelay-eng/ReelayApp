@@ -6,11 +6,22 @@ const POPULARITY_WEIGHT = 1;
 const TITLE_MATCH_WEIGHT = 10;
 const TMDB_SEARCH_RANK_WEIGHT = 10;
 
-const fetchResults = async (query) => {
-    return fetch(query).then((response) => response.json())
+// https://dmitripavlutin.com/timeout-fetch-request/
+const fetchResults = async (query, options={ timeout: 500 }) => {
+    const { timeout = 8000 } = options;
+  
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+  
+    const response = await fetch(query, {
+        ...options,
+        signal: controller.signal  
+      }).then((response) => response.json())
         .catch((error) => {
             console.log(error);
         });
+    clearTimeout(id);
+    return response;
 }
 
 const compareSearchResults = (result1, result2) => {
@@ -50,18 +61,18 @@ export const searchMoviesAndSeries = async (searchText) => {
     const movieSearchResults = await searchMovies(searchText);
     const movieSearchResultsTagged = searchText.length > 0 ? movieSearchResults.results.map((result, index) => {
 
-        let titleMatchDeviation = MAX_TITLE_MATCH_DEVIATION;
-        if (result.title) {
-            const resultComparator = result.title.length > searchText.length 
-                ? result.title.slice(0, searchText.length) : result.title;
-            titleMatchDeviation = levenshteinDistance(resultComparator, searchText);
-        }
+        // let titleMatchDeviation = MAX_TITLE_MATCH_DEVIATION;
+        // if (result.title) {
+        //     const resultComparator = result.title.length > searchText.length 
+        //         ? result.title.slice(0, searchText.length) : result.title;
+        //     titleMatchDeviation = levenshteinDistance(resultComparator, searchText);
+        // }
 
         return {
             ...result,
             is_movie: true,
             is_series: false,
-            title_match_deviation: titleMatchDeviation,
+            // title_match_deviation: titleMatchDeviation,
             tmdb_search_rank: index,
         }
     }) : [];
@@ -69,18 +80,18 @@ export const searchMoviesAndSeries = async (searchText) => {
     const seriesSearchResults = await searchSeries(searchText);
     const seriesSearchResultsTagged = searchText.length > 0 ? seriesSearchResults.results.map((result, index) => {
 
-        let titleMatchDeviation = MAX_TITLE_MATCH_DEVIATION;
-        if (result.title) {
-            const resultComparator = result.title.length > searchText.length 
-                ? result.title.slice(0, searchText.length) : result.title;
-            titleMatchDeviation = levenshteinDistance(resultComparator, searchText);
-        }
+        // let titleMatchDeviation = MAX_TITLE_MATCH_DEVIATION;
+        // if (result.title) {
+        //     const resultComparator = result.title.length > searchText.length 
+        //         ? result.title.slice(0, searchText.length) : result.title;
+        //     titleMatchDeviation = levenshteinDistance(resultComparator, searchText);
+        // }
 
         return {
             ...result,
             is_movie: false,
             is_series: true,
-            title_match_deviation: titleMatchDeviation,
+            // title_match_deviation: titleMatchDeviation,
             tmdb_search_rank: index,
             title: result.name,
             release_date: result.first_air_date,
