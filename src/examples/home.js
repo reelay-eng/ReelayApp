@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import { getHomeFeed } from "api/home.js;
+import { getHomeFeed } from "api/home.js"; 
 import { Feed } from "components/Feed.jsx";
 import { Loading } from "components/loading.jsx";
+
+
 function fetchData() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState();
@@ -27,13 +29,20 @@ function fetchData() {
 
 export function home() {
     const [status, message, data] = fetchData();
+    const [searchResults, setSearchResults] = useState();
+    const [searchText, setSearchText] = useState();
+
     return (
         <Container>
             {
                 this.state.loading ? (
                     <Loading />
                 ) : (
+                    <View>
+                    <Search onSearch={setSearchResults} results={searchResults}/>
                     <Feed data={data} />
+
+                    </View>
                 )
             }
             {
@@ -45,3 +54,19 @@ export function home() {
         </Container>
     )
 }
+
+const Search = (results) => {
+    return (
+        <Container>
+            {
+                results.map(result => {
+                    return (
+                        <SearchResult result={result} />
+                    )
+                })
+            }
+        </Container>
+    )
+}
+
+// styled components

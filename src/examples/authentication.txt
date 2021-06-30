@@ -36,3 +36,9 @@ Sessions-
     Set up httpOnly and Secure attribute on the Cookie, so inaccesible to the frontend. 
 
     
+Context --> what replaces redux. 
+
+Context --> global state. 
+
+AuthContext
+ModalContext

@@ -1,4 +1,6 @@
-export function get(url, queryParams) {
+import {GetDataContext} from "@app/common/type-defs";
+
+export function get(url, queryParams: GetDataContext) {
     try {
         const result = await fetch(url, queryParams);
         return result; 
@@ -13,6 +15,8 @@ export function put(url, queryParams) {
         return result; 
     } catch (e) {
         throw e; 
+
+        // whatever function
     }
 
 
