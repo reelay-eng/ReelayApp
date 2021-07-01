@@ -248,6 +248,83 @@ export type DeleteMovieInput = {
   _version?: number | null,
 };
 
+export type CreateVodAssetInput = {
+  id?: string | null,
+  title: string,
+  description: string,
+  _version?: number | null,
+  vodAssetVideoId?: string | null,
+};
+
+export type ModelVodAssetConditionInput = {
+  title?: ModelStringInput | null,
+  description?: ModelStringInput | null,
+  and?: Array< ModelVodAssetConditionInput | null > | null,
+  or?: Array< ModelVodAssetConditionInput | null > | null,
+  not?: ModelVodAssetConditionInput | null,
+};
+
+export type VodAsset = {
+  __typename: "VodAsset",
+  id: string,
+  title: string,
+  description: string,
+  _version: number,
+  _deleted?: boolean | null,
+  _lastChangedAt: number,
+  createdAt: string,
+  updatedAt: string,
+  video?: VideoObject | null,
+};
+
+export type VideoObject = {
+  __typename: "VideoObject",
+  id: string,
+  token?: string | null,
+  _version: number,
+  _deleted?: boolean | null,
+  _lastChangedAt: number,
+  createdAt: string,
+  updatedAt: string,
+};
+
+export type UpdateVodAssetInput = {
+  id: string,
+  title?: string | null,
+  description?: string | null,
+  _version?: number | null,
+  vodAssetVideoId?: string | null,
+};
+
+export type DeleteVodAssetInput = {
+  id: string,
+  _version?: number | null,
+};
+
+export type CreateVideoObjectInput = {
+  id?: string | null,
+  token?: string | null,
+  _version?: number | null,
+};
+
+export type ModelVideoObjectConditionInput = {
+  token?: ModelStringInput | null,
+  and?: Array< ModelVideoObjectConditionInput | null > | null,
+  or?: Array< ModelVideoObjectConditionInput | null > | null,
+  not?: ModelVideoObjectConditionInput | null,
+};
+
+export type UpdateVideoObjectInput = {
+  id: string,
+  token?: string | null,
+  _version?: number | null,
+};
+
+export type DeleteVideoObjectInput = {
+  id: string,
+  _version?: number | null,
+};
+
 export type ModelUserFilterInput = {
   id?: ModelIDInput | null,
   username?: ModelStringInput | null,
@@ -321,6 +398,37 @@ export type ModelMovieFilterInput = {
 export type ModelMovieConnection = {
   __typename: "ModelMovieConnection",
   items?:  Array<Movie | null > | null,
+  nextToken?: string | null,
+  startedAt?: number | null,
+};
+
+export type ModelVodAssetFilterInput = {
+  id?: ModelIDInput | null,
+  title?: ModelStringInput | null,
+  description?: ModelStringInput | null,
+  and?: Array< ModelVodAssetFilterInput | null > | null,
+  or?: Array< ModelVodAssetFilterInput | null > | null,
+  not?: ModelVodAssetFilterInput | null,
+};
+
+export type ModelVodAssetConnection = {
+  __typename: "ModelVodAssetConnection",
+  items?:  Array<VodAsset | null > | null,
+  nextToken?: string | null,
+  startedAt?: number | null,
+};
+
+export type ModelVideoObjectFilterInput = {
+  id?: ModelIDInput | null,
+  token?: ModelStringInput | null,
+  and?: Array< ModelVideoObjectFilterInput | null > | null,
+  or?: Array< ModelVideoObjectFilterInput | null > | null,
+  not?: ModelVideoObjectFilterInput | null,
+};
+
+export type ModelVideoObjectConnection = {
+  __typename: "ModelVideoObjectConnection",
+  items?:  Array<VideoObject | null > | null,
   nextToken?: string | null,
   startedAt?: number | null,
 };
@@ -533,6 +641,147 @@ export type DeleteMovieMutation = {
     description?: string | null,
     releaseDate?: string | null,
     runningTime?: number | null,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type CreateVodAssetMutationVariables = {
+  input: CreateVodAssetInput,
+  condition?: ModelVodAssetConditionInput | null,
+};
+
+export type CreateVodAssetMutation = {
+  createVodAsset?:  {
+    __typename: "VodAsset",
+    id: string,
+    title: string,
+    description: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+    createdAt: string,
+    updatedAt: string,
+    video?:  {
+      __typename: "VideoObject",
+      id: string,
+      token?: string | null,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+  } | null,
+};
+
+export type UpdateVodAssetMutationVariables = {
+  input: UpdateVodAssetInput,
+  condition?: ModelVodAssetConditionInput | null,
+};
+
+export type UpdateVodAssetMutation = {
+  updateVodAsset?:  {
+    __typename: "VodAsset",
+    id: string,
+    title: string,
+    description: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+    createdAt: string,
+    updatedAt: string,
+    video?:  {
+      __typename: "VideoObject",
+      id: string,
+      token?: string | null,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+  } | null,
+};
+
+export type DeleteVodAssetMutationVariables = {
+  input: DeleteVodAssetInput,
+  condition?: ModelVodAssetConditionInput | null,
+};
+
+export type DeleteVodAssetMutation = {
+  deleteVodAsset?:  {
+    __typename: "VodAsset",
+    id: string,
+    title: string,
+    description: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+    createdAt: string,
+    updatedAt: string,
+    video?:  {
+      __typename: "VideoObject",
+      id: string,
+      token?: string | null,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+  } | null,
+};
+
+export type CreateVideoObjectMutationVariables = {
+  input: CreateVideoObjectInput,
+  condition?: ModelVideoObjectConditionInput | null,
+};
+
+export type CreateVideoObjectMutation = {
+  createVideoObject?:  {
+    __typename: "VideoObject",
+    id: string,
+    token?: string | null,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type UpdateVideoObjectMutationVariables = {
+  input: UpdateVideoObjectInput,
+  condition?: ModelVideoObjectConditionInput | null,
+};
+
+export type UpdateVideoObjectMutation = {
+  updateVideoObject?:  {
+    __typename: "VideoObject",
+    id: string,
+    token?: string | null,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type DeleteVideoObjectMutationVariables = {
+  input: DeleteVideoObjectInput,
+  condition?: ModelVideoObjectConditionInput | null,
+};
+
+export type DeleteVideoObjectMutation = {
+  deleteVideoObject?:  {
+    __typename: "VideoObject",
+    id: string,
+    token?: string | null,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
@@ -830,6 +1079,223 @@ export type SyncMoviesQuery = {
   } | null,
 };
 
+export type GetVodAssetQueryVariables = {
+  id: string,
+};
+
+export type GetVodAssetQuery = {
+  getVodAsset?:  {
+    __typename: "VodAsset",
+    id: string,
+    title: string,
+    description: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+    createdAt: string,
+    updatedAt: string,
+    video?:  {
+      __typename: "VideoObject",
+      id: string,
+      token?: string | null,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+  } | null,
+};
+
+export type ListVodAssetsQueryVariables = {
+  filter?: ModelVodAssetFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListVodAssetsQuery = {
+  listVodAssets?:  {
+    __typename: "ModelVodAssetConnection",
+    items?:  Array< {
+      __typename: "VodAsset",
+      id: string,
+      title: string,
+      description: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+      createdAt: string,
+      updatedAt: string,
+    } | null > | null,
+    nextToken?: string | null,
+    startedAt?: number | null,
+  } | null,
+};
+
+export type SyncVodAssetsQueryVariables = {
+  filter?: ModelVodAssetFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  lastSync?: number | null,
+};
+
+export type SyncVodAssetsQuery = {
+  syncVodAssets?:  {
+    __typename: "ModelVodAssetConnection",
+    items?:  Array< {
+      __typename: "VodAsset",
+      id: string,
+      title: string,
+      description: string,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+      createdAt: string,
+      updatedAt: string,
+    } | null > | null,
+    nextToken?: string | null,
+    startedAt?: number | null,
+  } | null,
+};
+
+export type GetVideoObjectQueryVariables = {
+  id: string,
+};
+
+export type GetVideoObjectQuery = {
+  getVideoObject?:  {
+    __typename: "VideoObject",
+    id: string,
+    token?: string | null,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type ListVideoObjectsQueryVariables = {
+  filter?: ModelVideoObjectFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+};
+
+export type ListVideoObjectsQuery = {
+  listVideoObjects?:  {
+    __typename: "ModelVideoObjectConnection",
+    items?:  Array< {
+      __typename: "VideoObject",
+      id: string,
+      token?: string | null,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+      createdAt: string,
+      updatedAt: string,
+    } | null > | null,
+    nextToken?: string | null,
+    startedAt?: number | null,
+  } | null,
+};
+
+export type SyncVideoObjectsQueryVariables = {
+  filter?: ModelVideoObjectFilterInput | null,
+  limit?: number | null,
+  nextToken?: string | null,
+  lastSync?: number | null,
+};
+
+export type SyncVideoObjectsQuery = {
+  syncVideoObjects?:  {
+    __typename: "ModelVideoObjectConnection",
+    items?:  Array< {
+      __typename: "VideoObject",
+      id: string,
+      token?: string | null,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+      createdAt: string,
+      updatedAt: string,
+    } | null > | null,
+    nextToken?: string | null,
+    startedAt?: number | null,
+  } | null,
+};
+
+export type OnCreateVodAssetSubscription = {
+  onCreateVodAsset?:  {
+    __typename: "VodAsset",
+    id: string,
+    title: string,
+    description: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+    createdAt: string,
+    updatedAt: string,
+    video?:  {
+      __typename: "VideoObject",
+      id: string,
+      token?: string | null,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+  } | null,
+};
+
+export type OnUpdateVodAssetSubscription = {
+  onUpdateVodAsset?:  {
+    __typename: "VodAsset",
+    id: string,
+    title: string,
+    description: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+    createdAt: string,
+    updatedAt: string,
+    video?:  {
+      __typename: "VideoObject",
+      id: string,
+      token?: string | null,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+  } | null,
+};
+
+export type OnDeleteVodAssetSubscription = {
+  onDeleteVodAsset?:  {
+    __typename: "VodAsset",
+    id: string,
+    title: string,
+    description: string,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+    createdAt: string,
+    updatedAt: string,
+    video?:  {
+      __typename: "VideoObject",
+      id: string,
+      token?: string | null,
+      _version: number,
+      _deleted?: boolean | null,
+      _lastChangedAt: number,
+      createdAt: string,
+      updatedAt: string,
+    } | null,
+  } | null,
+};
+
 export type OnCreateUserSubscription = {
   onCreateUser?:  {
     __typename: "User",
@@ -993,6 +1459,45 @@ export type OnDeleteMovieSubscription = {
     description?: string | null,
     releaseDate?: string | null,
     runningTime?: number | null,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnCreateVideoObjectSubscription = {
+  onCreateVideoObject?:  {
+    __typename: "VideoObject",
+    id: string,
+    token?: string | null,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnUpdateVideoObjectSubscription = {
+  onUpdateVideoObject?:  {
+    __typename: "VideoObject",
+    id: string,
+    token?: string | null,
+    _version: number,
+    _deleted?: boolean | null,
+    _lastChangedAt: number,
+    createdAt: string,
+    updatedAt: string,
+  } | null,
+};
+
+export type OnDeleteVideoObjectSubscription = {
+  onDeleteVideoObject?:  {
+    __typename: "VideoObject",
+    id: string,
+    token?: string | null,
     _version: number,
     _deleted?: boolean | null,
     _lastChangedAt: number,
