@@ -21,6 +21,16 @@
           "deploymentBucketName": "amplify-reelayapp-dev-211002-deployment",
           "s3Key": "amplify-builds/graphQLCognitoSyncUsers-47636c42716c5355784d-build.zip"
         }
+      },
+      "video": {
+        "reelayvod": {
+          "publicKey": "-----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtpW0FNPytjQ7SwJ2c/rn\\n48SvE56yIaNB1rQU1TK63OveRi77L2TB7PGmeVwMptI60Zue6sgXh1EP0HVutr3g\\nOSw7ivk/adtDgIrtTde7uSgGVaFHkjkYtUJKLDJhx2Cs4/hl987XjKeG6F1tFuDx\\nFR/i8AjOWIHiBfviFBdHl5BMdUo+xtQmSgYvsgSgIpckIyXbbM/70Hzm37uDxkgs\\ng8jfHCy5K691oI5XrdYD5Dpe5QgGpUxfhj4SyZEduoUu0X2idOz+Em6cRrfaeJIr\\noA3gWF0gRBsBnqNpO93D7KdMeJO+2n/Pl4lfGZSPQSkgIqP3eiXa2QZtyF7XsiUd\\niwIDAQAB\\n-----END PUBLIC KEY-----\\n",
+          "rPublicName": "rCloudFrontPublicKeydevr3fwxxdx",
+          "publicKeyName": "reelayvod-dev-publickey-r3fwxxdx",
+          "secretPem": "reelayvod-dev-pem-r3fwxxdx",
+          "secretPemArn": "arn:aws:secretsmanager:us-west-2:967954029365:secret:reelayvod-dev-pem-r3fwxxdx-SMXtJe",
+          "s3UUID": "cqtl7xzl"
+        }
       }
     }
   }

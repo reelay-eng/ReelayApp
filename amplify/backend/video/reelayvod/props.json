@@ -1,0 +1,47 @@
+{
+    "shared": {
+        "resourceName": "reelayvod"
+    },
+    "template": {
+        "type": [
+            "DASH",
+            "HLS"
+        ],
+        "name": "Amplify_Video_HLS_DASH.json"
+    },
+    "sns": {
+        "createTopic": true,
+        "snsFunction": true
+    },
+    "contentDeliveryNetwork": {
+        "signedKey": true,
+        "functionNameSchema": "reelayvod-${env}-tokenGen",
+        "enableDistribution": true
+    },
+    "parameters": {
+        "authRoleName": {
+            "Ref": "AuthRoleName"
+        },
+        "GraphQLAPIId": {
+            "Fn::GetAtt": [
+                "apireelayapp",
+                "Outputs.GraphQLAPIIdOutput"
+            ]
+        },
+        "GraphQLEndpoint": {
+            "Fn::GetAtt": [
+                "apireelayapp",
+                "Outputs.GraphQLAPIEndpointOutput"
+            ]
+        }
+    },
+    "permissions": {
+        "permissionSchema": [
+            "admin"
+        ]
+    },
+    "cms": {
+        "overrideSchema": true,
+        "editAPI": true
+    }
+}
