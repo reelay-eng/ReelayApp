@@ -3,6 +3,28 @@ Approaches to Authentication
 
 Backend 
 
+
+
+
+1. User signs up -->
+    Create a record in the user table
+    hash and salt the PW and store it.
+2. Login -->
+    User passes back the raw text password + username
+    POST /session (client side)
+    POST /login
+
+
+    //server --> 
+        if (bcrypt.compare(textPassword, hashedSaltedPassword)) {
+            // create a jwt token using a library
+            // send back a response 
+
+            {
+                ...user,
+                token
+            }
+        }
 2. Hash + compare
 3. If matches return user info
     we create a JWT token using JWT library 
@@ -11,9 +33,11 @@ Backend
         token: 
     }
 4. Else return an error.
-5. On Auth, we want to verify
-
-
+5. On client side --> we store the token
+    Cookies --> put token here.
+    localStorage --> don't do this 
+    sessionStorage  --> don't do this. 
+6. 
 Sessions-
 
 1. Session table
