@@ -22,12 +22,12 @@ import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 
 
-// Amplify.configure({
-//   ...config,
-//   Analytics: {
-//     disabled: true,
-//   },
-// });
+Amplify.configure({
+  ...config,
+  Analytics: {
+    disabled: true,
+  },
+});
 
 Auth.configure({ mandatorySignIn: false});
 
