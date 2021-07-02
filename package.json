@@ -1,9 +1,8 @@
 {
-  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "start": "react-native start",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
     "web": "expo start --web",
     "eject": "expo eject",
     "test": "jest --watchAll"
@@ -44,7 +43,7 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-is": "^17.0.2",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-41.0.0.tar.gz",
+    "react-native": "~0.63.4",
     "react-native-camera": "^3.43.6",
     "react-native-countdown-circle-timer": "^2.5.3",
     "react-native-elements": "^3.4.2",
@@ -62,7 +61,10 @@
     "redux-devtools-extension": "^2.13.9",
     "redux-thunk": "^2.3.0",
     "rn-bottom-drawer": "^1.4.3",
-    "styled-components": "^5.3.0"
+    "styled-components": "^5.3.0",
+    "expo-splash-screen": "~0.10.2",
+    "expo-updates": "~0.5.4",
+    "react-native-unimodules": "~0.13.3"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0",
@@ -71,5 +73,7 @@
     "jest-expo": "^41.0.0",
     "typescript": "~4.0.0"
   },
-  "private": true
+  "private": true,
+  "name": "ReelayApp",
+  "version": "1.0.0"
 }
