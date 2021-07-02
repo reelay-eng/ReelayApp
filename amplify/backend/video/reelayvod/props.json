@@ -14,8 +14,7 @@
         "snsFunction": true
     },
     "contentDeliveryNetwork": {
-        "signedKey": true,
-        "functionNameSchema": "reelayvod-${env}-tokenGen",
+        "signedKey": false,
         "enableDistribution": true
     },
     "parameters": {
@@ -37,7 +36,7 @@
     },
     "permissions": {
         "permissionSchema": [
-            "admin"
+            "any"
         ]
     },
     "cms": {

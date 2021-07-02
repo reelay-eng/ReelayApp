@@ -14,6 +14,7 @@ import Header from './Header';
 
 const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3/';
 const TMDB_API_KEY = '033f105cd28f507f3dc6ae794d5e44f5';
+const CLOUDFRONT_BASE_URL = 'https://d1gc0amdqmb8na.cloudfront.net/';
 
 const { height } = Dimensions.get('window');
 
@@ -100,6 +101,10 @@ const ReelayFeed = ({ navigation }) => {
             const signedVideoURI = await Storage.get(videoS3Key, {
                 contentType: "video/mp4"
             });
+
+            const cloudfrontVideoURI = CLOUDFRONT_BASE_URL 
+                + videoS3Key.slice(0, videoS3Key.length - ('.mp4'.length)) 
+                + '_1500.mp4';
     
             if (reelayObject.tmdbTitleID && reelayObject.isMovie) {
                 const tmdbTitleQuery = `${TMDB_API_BASE_URL}\/movie\/${reelayObject.tmdbTitleID}\?api_key\=${TMDB_API_KEY}`;

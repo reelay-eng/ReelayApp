@@ -37,7 +37,7 @@ type Movie @model @auth(rules: [{allow: private, operations: [read]}]) {
 type VodAsset @model (subscriptions: {level: public})
 @auth(
   rules: [
-    {allow: groups, groups:["Admin"], operations: [create, update, delete, read]},
+    {allow: owner, ownerField: "owner", operations: [create, update, delete, read] },
     {allow: private, operations: [read]}
   ]
 )
@@ -54,11 +54,10 @@ type VodAsset @model (subscriptions: {level: public})
 type VideoObject @model
 @auth(
   rules: [
-    {allow: groups, groups:["Admin"], operations: [create, update, delete, read]},
+    {allow: owner, ownerField: "owner", operations: [create, update, delete, read] },
     {allow: private, operations: [read]}
   ]
 )
 {
   id:ID!
-  token: String @function(name: "reelayvod-${env}-tokenGen")
 }
