@@ -35,14 +35,18 @@ const UploadProgressBar = ({ navigation }) => {
             // Set current user as the creator
             const creator = await Auth.currentAuthenticatedUser();
             console.log(creator.attributes.sub);
-            const videoS3Key = 'reelayvid-' + creator.attributes.sub + '-' + Date.now();
+
+            // Adding the file extension directly to the key seems to trigger S3 getting the right content type,
+            // not setting contentType as a parameter in the Storage.put call.
+            // If S3 doesn't know it's an mp4, the Elemental MediaConvert workflow doesn't trigger on Put
+            const videoS3Key = 'reelayvid-' + creator.attributes.sub + '-' + Date.now() + '.mp4';
 
             try {
                 // Upload video to S3
                 const response = await fetch(videoSource);
                 const blob = await response.blob();
                 await Storage.put(videoS3Key, blob, {
-                    contentType: 'video/mp4',
+                    // contentType: 'video/mp4',
                     progressCallback(progress) {
                         console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
                         dispatch(setUploadStatus({

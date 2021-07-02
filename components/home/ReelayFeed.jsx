@@ -92,7 +92,12 @@ const ReelayFeed = ({ navigation }) => {
         const fetchedReelays = await queryResponse.data.reelaysByUploadDate.items.map(async (reelayObject) => {
     
             // get the video URL from S3
-            const signedVideoURI = await Storage.get(reelayObject.videoS3Key, {
+            // endsWith condition keeps us backwards compatible with first Reelays, whose keys
+            // were not stored in Dynamo with the .mp4 extension. The keys in S3 have that extension though
+            const videoS3Key = (reelayObject.videoS3Key.endsWith('.mp4')) 
+                ? reelayObject.videoS3Key : (reelayObject.videoS3Key + '.mp4');
+                
+            const signedVideoURI = await Storage.get(videoS3Key, {
                 contentType: "video/mp4"
             });
     
