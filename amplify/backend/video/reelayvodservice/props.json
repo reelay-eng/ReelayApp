@@ -1,6 +1,6 @@
 {
     "shared": {
-        "resourceName": "reelayvod"
+        "resourceName": "reelayvodservice"
     },
     "template": {
         "type": [

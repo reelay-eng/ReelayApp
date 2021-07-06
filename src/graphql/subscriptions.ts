@@ -13,14 +13,15 @@ export const onCreateVodAsset = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
+      owner
       video {
         id
-        token
         _version
         _deleted
         _lastChangedAt
         createdAt
         updatedAt
+        owner
       }
     }
   }
@@ -36,14 +37,15 @@ export const onUpdateVodAsset = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
+      owner
       video {
         id
-        token
         _version
         _deleted
         _lastChangedAt
         createdAt
         updatedAt
+        owner
       }
     }
   }
@@ -59,14 +61,15 @@ export const onDeleteVodAsset = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
+      owner
       video {
         id
-        token
         _version
         _deleted
         _lastChangedAt
         createdAt
         updatedAt
+        owner
       }
     }
   }
@@ -246,12 +249,12 @@ export const onCreateVideoObject = /* GraphQL */ `
   subscription OnCreateVideoObject {
     onCreateVideoObject {
       id
-      token
       _version
       _deleted
       _lastChangedAt
       createdAt
       updatedAt
+      owner
     }
   }
 `;
@@ -259,12 +262,12 @@ export const onUpdateVideoObject = /* GraphQL */ `
   subscription OnUpdateVideoObject {
     onUpdateVideoObject {
       id
-      token
       _version
       _deleted
       _lastChangedAt
       createdAt
       updatedAt
+      owner
     }
   }
 `;
@@ -272,12 +275,12 @@ export const onDeleteVideoObject = /* GraphQL */ `
   subscription OnDeleteVideoObject {
     onDeleteVideoObject {
       id
-      token
       _version
       _deleted
       _lastChangedAt
       createdAt
       updatedAt
+      owner
     }
   }
 `;

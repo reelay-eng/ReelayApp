@@ -52,7 +52,6 @@ export declare class VodAsset {
 
 export declare class VideoObject {
   readonly id: string;
-  readonly token?: string;
   constructor(init: ModelInit<VideoObject>);
   static copyOf(source: VideoObject, mutator: (draft: MutableModel<VideoObject>) => MutableModel<VideoObject> | void): VideoObject;
 }

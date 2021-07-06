@@ -214,14 +214,15 @@ export const createVodAsset = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
+      owner
       video {
         id
-        token
         _version
         _deleted
         _lastChangedAt
         createdAt
         updatedAt
+        owner
       }
     }
   }
@@ -240,14 +241,15 @@ export const updateVodAsset = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
+      owner
       video {
         id
-        token
         _version
         _deleted
         _lastChangedAt
         createdAt
         updatedAt
+        owner
       }
     }
   }
@@ -266,14 +268,15 @@ export const deleteVodAsset = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
+      owner
       video {
         id
-        token
         _version
         _deleted
         _lastChangedAt
         createdAt
         updatedAt
+        owner
       }
     }
   }
@@ -285,12 +288,12 @@ export const createVideoObject = /* GraphQL */ `
   ) {
     createVideoObject(input: $input, condition: $condition) {
       id
-      token
       _version
       _deleted
       _lastChangedAt
       createdAt
       updatedAt
+      owner
     }
   }
 `;
@@ -301,12 +304,12 @@ export const updateVideoObject = /* GraphQL */ `
   ) {
     updateVideoObject(input: $input, condition: $condition) {
       id
-      token
       _version
       _deleted
       _lastChangedAt
       createdAt
       updatedAt
+      owner
     }
   }
 `;
@@ -317,12 +320,12 @@ export const deleteVideoObject = /* GraphQL */ `
   ) {
     deleteVideoObject(input: $input, condition: $condition) {
       id
-      token
       _version
       _deleted
       _lastChangedAt
       createdAt
       updatedAt
+      owner
     }
   }
 `;

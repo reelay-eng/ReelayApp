@@ -291,14 +291,15 @@ export const getVodAsset = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
+      owner
       video {
         id
-        token
         _version
         _deleted
         _lastChangedAt
         createdAt
         updatedAt
+        owner
       }
     }
   }
@@ -319,6 +320,7 @@ export const listVodAssets = /* GraphQL */ `
         _lastChangedAt
         createdAt
         updatedAt
+        owner
       }
       nextToken
       startedAt
@@ -347,6 +349,7 @@ export const syncVodAssets = /* GraphQL */ `
         _lastChangedAt
         createdAt
         updatedAt
+        owner
       }
       nextToken
       startedAt
@@ -357,12 +360,12 @@ export const getVideoObject = /* GraphQL */ `
   query GetVideoObject($id: ID!) {
     getVideoObject(id: $id) {
       id
-      token
       _version
       _deleted
       _lastChangedAt
       createdAt
       updatedAt
+      owner
     }
   }
 `;
@@ -375,12 +378,12 @@ export const listVideoObjects = /* GraphQL */ `
     listVideoObjects(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        token
         _version
         _deleted
         _lastChangedAt
         createdAt
         updatedAt
+        owner
       }
       nextToken
       startedAt
@@ -402,12 +405,12 @@ export const syncVideoObjects = /* GraphQL */ `
     ) {
       items {
         id
-        token
         _version
         _deleted
         _lastChangedAt
         createdAt
         updatedAt
+        owner
       }
       nextToken
       startedAt
