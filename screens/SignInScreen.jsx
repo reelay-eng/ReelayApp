@@ -1,19 +1,34 @@
-import React, { useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useContext, useState } from 'react';
 import { View, SafeAreaView } from 'react-native';
 import { Button, Input, Icon, Text } from 'react-native-elements';
-import { Ionicons } from '@expo/vector-icons';
 import { AuthStyles } from '../styles';
 
+import { AuthContext } from '../context/AuthContext';
+import { reelaySignIn } from '../api/ReelayAuthApi';
+
 const SignInScreen = ({ navigation }) => {
-    const [isSignup, setIsSignup] = useState(true);
+
+    const authContext = useContext(AuthContext);
+
     const [username, setUsername] = useState(true);
     const [email, setEmail] = useState(true);
-    const [phoneNumber, setPhoneNumber] = useState(true);
     const [password, setPassword] = useState(true);
 
-    const signInUser = () => {
+    const signInUser = async () => {
         console.log('Attempting user sign in');
+        const user = await reelaySignIn({
+            username: username,
+            password: password,
+            attributes: {
+                email: email,
+            },
+        });
+
+        // set state with returned user info
+        if (user) {
+            authContext.setUser(user);
+            authContext.setSignedIn(true);    
+        }
     }
 
     return (
@@ -30,6 +45,7 @@ const SignInScreen = ({ navigation }) => {
                     style={AuthStyles.headerText}>{'Sign In to Reelay'}</Text>
             </View>
             <Input 
+                autoCapitalize='none'
                 placeholder={'Username or email'} 
                 onChangeText={(text) => {
                     setEmail(text);

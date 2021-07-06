@@ -22,6 +22,11 @@ const AuthStyles = StyleSheet.create({
         color: 'white',
         fontFamily: 'System',
     },
+    systemText16: {
+        color: 'white',
+        fontFamily: 'System',
+        fontSize: 16,
+    },
     systemTextForm: {
         width: '75%',
         marginLeft: 10,

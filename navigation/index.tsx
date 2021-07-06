@@ -3,7 +3,7 @@
  * https://reactnavigation.org/docs/getting-started
  *
  */
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { ColorSchemeName } from 'react-native';
@@ -17,7 +17,7 @@ import AuthNavigator from './AuthNavigator';
 import BottomTabNavigator from './BottomTabNavigator';
 import LinkingConfiguration from './LinkingConfiguration';
 
-import { useDispatch, useSelector } from 'react-redux';
+import { AuthContext } from '../context/AuthContext';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
@@ -34,12 +34,12 @@ export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeNa
 const Stack = createStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
-  const [signedIn, setSignedIn] = useState(false);
+  const authContext = useContext(AuthContext);
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      { signedIn && <Stack.Screen name="Root" component={BottomTabNavigator} /> }
-      { !signedIn && <Stack.Screen name="Auth" component={AuthNavigator} /> }
+      { authContext.signedIn && <Stack.Screen name="Root" component={BottomTabNavigator} /> }
+      { !authContext.signedIn && <Stack.Screen name="Auth" component={AuthNavigator} /> }
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
     </Stack.Navigator>
   );

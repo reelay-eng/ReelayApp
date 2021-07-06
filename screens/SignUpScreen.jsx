@@ -1,18 +1,46 @@
-import React, { useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useContext, useState } from 'react';
 import { View, SafeAreaView } from 'react-native';
 import { Button, Input, Icon, Text } from 'react-native-elements';
-import { Ionicons } from '@expo/vector-icons';
 import { AuthStyles, TextStyles } from '../styles';
 
+import { AuthContext } from '../context/AuthContext';
+import { reelaySignUp } from '../api/ReelayAuthApi';
+
 const SignUpScreen = ({ navigation }) => {
-    const [username, setUsername] = useState(true);
-    const [email, setEmail] = useState(true);
+
+    const authContext = useContext(AuthContext);
+
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [password, setPassword] = useState(true);
     const [confirmPassword, setConfirmPassword] = useState(true);
 
-    const createAccount = () => {
+    const createAccount = async () => {
         console.log('Attempting account creation');
+        const signUpResult = await reelaySignUp({
+            username: username,
+            password: password,
+            attributes: {
+                email: email,
+            },
+        });
+
+        if (signUpResult && signUpResult.user) {
+            console.log('user created');
+            console.log(user);
+            authContext.setUsername(username);
+            navigation.push('ConfirmEmailScreen');
+        } else {
+            // this code isn't catching this exception yet
+            // also, this fails silently
+            if (signUpResult.code == "UsernameExistsException") {
+                console.log('username taken');
+            } else {
+                console.log('could not sign up user');
+                console.log(signUpResult);    
+            }
+        }
     }
 
     const passwordsMatch = () => (password == confirmPassword);
@@ -25,10 +53,21 @@ const SignUpScreen = ({ navigation }) => {
         }}>
             <Text h3 style={AuthStyles.headerTextCentered}>{'Create an Account'}</Text>
             <Input 
-                placeholder={'Username or email'} 
+                autoCapitalize='none'
+                placeholder={'Username'} 
+                onChangeText={(text) => {
+                    setUsername(text);
+                }}
+                rightIcon={{type: 'ionicon', name: 'person-outline'}}
+                style={{
+                    ...AuthStyles.input,
+                }}
+            />
+            <Input 
+                autoCapitalize='none'
+                placeholder={'Email'} 
                 onChangeText={(text) => {
                     setEmail(text);
-                    setUsername(text);
                 }}
                 rightIcon={{type: 'ionicon', name: 'mail-outline'}}
                 style={{

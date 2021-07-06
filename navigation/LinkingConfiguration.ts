@@ -34,6 +34,7 @@ export default {
           SplashScreen: 'SplashScreen',
           SignUpScreen: 'SignUpScreen',
           SignInScreen: 'SignInScreen',
+          ConfirmEmailScreen: 'ConfirmEmailScreen',
           ForgotPasswordScreen: 'ForgotPasswordScreen',
         },
       },

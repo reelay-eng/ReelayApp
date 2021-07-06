@@ -9,26 +9,27 @@ import { useDispatch, useSelector } from 'react-redux';
 import { appendReelayList, resetFocus, setFeedPosition, setReelayList } from './ReelayFeedSlice';
 import * as queries from '../../src/graphql/queries';
 
+import ProfileButton from '../profile/ProfileButton';
 import Hero from './Hero';
 import Header from './Header';
+import ProfileOverlay from '../profile/ProfileOverlay';
 
 const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3/';
 const TMDB_API_KEY = '033f105cd28f507f3dc6ae794d5e44f5';
 const CLOUDFRONT_BASE_URL = 'https://d18kzs7g2lzt5h.cloudfront.net';
 
-const { height } = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
 const PagerViewContainer = styled(PagerView)`
 	height: ${height}px;
 `
 const RefreshContainer = styled(View)`
-    margin-top: 28px;
-    margin-left: 28px;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     flex-direction: row;
     position: absolute;
-    z-index: 3;
+    z-index: 2;
+    width: ${width}px;
 `
 
 const ReelayFeed = ({ navigation }) => {
@@ -38,6 +39,8 @@ const ReelayFeed = ({ navigation }) => {
     const reelayListNextToken = useSelector((state) => state.reelayFeed.reelayListNextToken);
     const selectedFeedLoaded = useSelector((state) => state.reelayFeed.selectedFeedLoaded);
     const selectedFeedPosition = useSelector((state) => state.reelayFeed.selectedFeedPosition);
+
+    const [overlayVisible, setOverlayVisible] = useState(false);
 
     const dispatch = useDispatch();
 
@@ -246,15 +249,26 @@ const ReelayFeed = ({ navigation }) => {
 					})}
 				</PagerViewContainer>
 			}
-            <Header />
+            {/* <Header /> */}
             <RefreshContainer>
-                <TouchableOpacity onPress={() => {
-                    console.log('pressing');
-                    fetchReelays({ mostRecent: true});
-
-                }} style={{zIndex: 3}}>
+                <TouchableOpacity
+                    style={{ margin: 10 }}
+                    onPress={() => {
+                        console.log('pressing');
+                        fetchReelays({ mostRecent: true});
+                    }}>
                     <Ionicons name="refresh-sharp" size={24} color="white" />
                 </TouchableOpacity>
+                <ProfileButton 
+                    navigation={navigation} 
+                    onPress={() => {
+                        setOverlayVisible(true);
+                        console.log('overlay visible');
+                    }}/>
+                {overlayVisible && <ProfileOverlay onClose={() => {
+                        setOverlayVisible(false);
+                    }}/>
+                }
             </RefreshContainer>
 		</View>
 	);

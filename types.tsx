@@ -28,6 +28,7 @@ export type CreateReelayTabParamList = {
 export type AuthenticationStackParamList = {
   SplashScreen: undefined;
   SignUpScreen: undefined;
+  ConfirmEmailScreen: undefined;
   SignInScreen: undefined;
   ForgotPasswordScreen: undefined;
 }

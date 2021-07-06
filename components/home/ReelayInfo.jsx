@@ -5,7 +5,7 @@ import styled from 'styled-components/native';
 const InfoView = styled.View`
 	flex: 1;
 	justify-content: flex-end;
-	margin: 0 0 240px 13px;
+	margin: 0 0 150px 13px;
 `
 const User = styled.View`
 	flex-direction: row;

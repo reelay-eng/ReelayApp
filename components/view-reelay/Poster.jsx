@@ -12,7 +12,6 @@ const TitleContainer = styled.View`
 	justify-content: flex-start;
 	align-items: flex-end;
 	margin-right: 10px;
-	margin-top: 30px;
 `
 const MovieTitle = styled.Text`
 	font-size: 17px;

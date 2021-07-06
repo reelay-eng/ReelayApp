@@ -5,8 +5,8 @@ import styled from 'styled-components/native';
 
 import VideoPlayer from '../view-reelay/VideoPlayer'
 import Poster from '../view-reelay/Poster';
-import ReelayInfo from './ReelayInfo'
-import Sidebar from './Sidebar'
+import ReelayInfo from './ReelayInfo';
+import Sidebar from './Sidebar';
 
 const Gradient = styled(LinearGradient)`
 	height: 100%;
@@ -54,7 +54,7 @@ const Hero = ({ reelay, index, curPosition }) => {
                     />
                     <RightContainer>
                         <Poster titleObject={reelay.titleObject} showTitle={false} />
-                        <Sidebar avatar={reelay.creator.avatar} stats={reelay.stats} />
+                        {/* <Sidebar avatar={reelay.creator.avatar} stats={reelay.stats} /> */}
                     </RightContainer>
                 </Overlay>
             </Gradient>
