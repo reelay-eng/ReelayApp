@@ -12,9 +12,17 @@ export default ProfileOverlay = ({ navigation, onClose }) => {
 
     const signOut = async () => {
         // todo: confirm sign out
-        const signOutResult = await reelaySignOut();
-        console.log(signOutResult);
-        authContext.setSignedIn(false);
+        const signOutResult = await reelaySignOut()
+            .then((result) => {
+                console.log(result);
+                authContext.setSignedIn(false);
+                authContext.setUser({});
+                authContext.setSession({});
+                authContext.setCredentials({});
+            }).catch((result) => {
+                console.log('Could not sign out user');
+                console.log(result);
+            });
     }
 
     return (
@@ -72,10 +80,7 @@ export default ProfileOverlay = ({ navigation, onClose }) => {
                 }}>
                     <Text style={AuthStyles.systemText16}>{'Report a problem'}</Text>
                 </Pressable>
-                <Pressable onPress={() => { 
-                    console.log('Pressed sign out');
-                    signOut();
-                }} style={{ 
+                <Pressable onPress={signOut} style={{ 
                     marginBottom: 40,
                     alignSelf: 'flex-end',
                 }}>

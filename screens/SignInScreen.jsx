@@ -22,13 +22,15 @@ const SignInScreen = ({ navigation }) => {
             attributes: {
                 email: email,
             },
-        });
-
-        // set state with returned user info
-        if (user) {
+        }).then((user) => {
             authContext.setUser(user);
-            authContext.setSignedIn(true);    
-        }
+            authContext.setUsername(user.username);
+            authContext.setSignedIn(true);
+            console.log('Signed in user successfully');
+        }).catch((error) => {
+            console.log('Couldn\'t sign in user');
+            console.log(error);
+        });
     }
 
     return (

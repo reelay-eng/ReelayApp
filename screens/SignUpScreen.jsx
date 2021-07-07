@@ -24,23 +24,15 @@ const SignUpScreen = ({ navigation }) => {
             attributes: {
                 email: email,
             },
-        });
-
-        if (signUpResult && signUpResult.user) {
+        }).then((result) => {
             console.log('user created');
-            console.log(user);
+            console.log(result.user);
             authContext.setUsername(username);
             navigation.push('ConfirmEmailScreen');
-        } else {
-            // this code isn't catching this exception yet
-            // also, this fails silently
-            if (signUpResult.code == "UsernameExistsException") {
-                console.log('username taken');
-            } else {
-                console.log('could not sign up user');
-                console.log(signUpResult);    
-            }
-        }
+        }).catch((error) => {
+            console.log('Couldn\'t sign up user');
+            console.log(error);
+        });
     }
 
     const passwordsMatch = () => (password == confirmPassword);

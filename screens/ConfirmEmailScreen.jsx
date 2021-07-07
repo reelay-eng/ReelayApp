@@ -17,6 +17,9 @@ const ConfirmEmailScreen = ({ navigation, username }) => {
         const confirmEmailResult = reelayConfirmEmail({
             username: authContext.username,
             confirmationCode: confirmationCode,
+        }).catch((error) => {
+            console.log('Could not confirm email address');
+            console.log(error);
         });
 
         // todo: make a toast message
@@ -24,27 +27,21 @@ const ConfirmEmailScreen = ({ navigation, username }) => {
             console.log('Email confirmed');
             navigation.pop();
             navigation.push('SignInScreen');    
-        } else {
-            // todo: this is going to fail silently without a user-facing message
-            console.log('Confirmation code incorrect');
         }
     }
 
     const resendConfirmationCode = async () => {
         console.log('Attempting to resend confirmation code');
-        const resendConfirmationResult = reelayResendConfirmationCode({
+        const resendConfirmationResult = await reelayResendConfirmationCode({
             username: username,
-        });
-
-        if (resendConfirmationResult) {
-            // todo: make a toast message
+        }).then((result) => {
             console.log('Confirmation code resent');
             navigation.pop();
             navigation.push('SignInScreen');
-        } else {
-            // todo: this is going to fail silently without a user-facing message
-            console.log('Confirmation code not sent');
-        }
+        }).catch((error) => {
+            console.log('Could not resend confirmation code');
+            console.log(error);
+        });
     }
 
     return (
