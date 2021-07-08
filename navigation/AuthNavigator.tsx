@@ -5,6 +5,8 @@ import { AuthenticationStackParamList } from '../types';
 import SignInScreen from '../screens/SignInScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
+import ForgotPasswordSubmitScreen from '../screens/ForgotPasswordSubmitScreen';
+import ForgotPasswordAffirmScreen from '../screens/ForgotPasswordAffirmScreen';
 import ConfirmEmailScreen from '../screens/ConfirmEmailScreen';
 
 const AuthenticationStack = createStackNavigator<AuthenticationStackParamList>();
@@ -36,6 +38,20 @@ export default function AuthNavigator() {
       <AuthenticationStack.Screen
         name="ForgotPasswordScreen"
         component={ForgotPasswordScreen}
+        options={{
+            headerShown: false,
+        }}
+      />
+      <AuthenticationStack.Screen
+        name="ForgotPasswordSubmitScreen"
+        component={ForgotPasswordSubmitScreen}
+        options={{
+            headerShown: false,
+        }}
+      />
+      <AuthenticationStack.Screen
+        name="ForgotPasswordAffirmScreen"
+        component={ForgotPasswordAffirmScreen}
         options={{
             headerShown: false,
         }}

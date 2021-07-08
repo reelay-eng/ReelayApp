@@ -36,6 +36,8 @@ export default {
           SignInScreen: 'SignInScreen',
           ConfirmEmailScreen: 'ConfirmEmailScreen',
           ForgotPasswordScreen: 'ForgotPasswordScreen',
+          ForgotPasswordSubmitScreen: 'ForgotPasswordSubmitScreen',
+          ForgotPasswordAffirmScreen: 'ForgotPasswordAffirmScreen',
         },
       },
       NotFound: '*',

@@ -3,26 +3,25 @@ import { View, SafeAreaView } from 'react-native';
 import { Button, Input, Icon, Text } from 'react-native-elements';
 import { AuthStyles } from '../styles';
 
+import { Auth } from 'aws-amplify';
 import { AuthContext } from '../context/AuthContext';
-import { reelaySignIn } from '../api/ReelayAuthApi';
+import { showErrorToast } from '../components/utils/toasts';
 
-const SignInScreen = ({ navigation }) => {
+export default SignInScreen = ({ navigation }) => {
 
     const authContext = useContext(AuthContext);
 
     const [username, setUsername] = useState(true);
-    const [email, setEmail] = useState(true);
     const [password, setPassword] = useState(true);
+
+    const SIGN_IN_ERROR_MESSAGE = 'Couldn\'t sign in. Your username or password may be incorrect';
 
     const signInUser = async () => {
         console.log('Attempting user sign in');
-        const user = await reelaySignIn({
-            username: username,
-            password: password,
-            attributes: {
-                email: email,
-            },
-        }).then((user) => {
+        await Auth.signIn(
+            username,
+            password
+        ).then((user) => {
             authContext.setUser(user);
             authContext.setUsername(user.username);
             authContext.setSignedIn(true);
@@ -30,6 +29,7 @@ const SignInScreen = ({ navigation }) => {
         }).catch((error) => {
             console.log('Couldn\'t sign in user');
             console.log(error);
+            showErrorToast(SIGN_IN_ERROR_MESSAGE);
         });
     }
 
@@ -48,9 +48,8 @@ const SignInScreen = ({ navigation }) => {
             </View>
             <Input 
                 autoCapitalize='none'
-                placeholder={'Username or email'} 
+                placeholder={'Enter username'} 
                 onChangeText={(text) => {
-                    setEmail(text);
                     setUsername(text);
                 }}
                 rightIcon={{type: 'ionicon', name: 'mail-outline'}}
@@ -70,5 +69,3 @@ const SignInScreen = ({ navigation }) => {
         </SafeAreaView>
     );
 }
-
-export default SignInScreen;

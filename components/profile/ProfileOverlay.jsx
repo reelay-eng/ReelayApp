@@ -3,8 +3,8 @@ import { Dimensions, Pressable, View } from 'react-native';
 import { Overlay, Text } from 'react-native-elements';
 import { AuthStyles, TextStyles } from '../../styles';
 
+import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
-import { reelaySignOut } from '../../api/ReelayAuthApi';
 
 export default ProfileOverlay = ({ navigation, onClose }) => {
 
@@ -12,7 +12,7 @@ export default ProfileOverlay = ({ navigation, onClose }) => {
 
     const signOut = async () => {
         // todo: confirm sign out
-        const signOutResult = await reelaySignOut()
+        const signOutResult = await Auth.signOut()
             .then((result) => {
                 console.log(result);
                 authContext.setSignedIn(false);

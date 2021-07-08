@@ -3,10 +3,11 @@ import { View, SafeAreaView } from 'react-native';
 import { Button, Input, Icon, Text } from 'react-native-elements';
 import { AuthStyles, TextStyles } from '../styles';
 
+import { Auth } from 'aws-amplify';
 import { AuthContext } from '../context/AuthContext';
-import { reelaySignUp } from '../api/ReelayAuthApi';
+import { showErrorToast } from '../components/utils/toasts';
 
-const SignUpScreen = ({ navigation }) => {
+export default SignUpScreen = ({ navigation }) => {
 
     const authContext = useContext(AuthContext);
 
@@ -16,9 +17,11 @@ const SignUpScreen = ({ navigation }) => {
     const [password, setPassword] = useState(true);
     const [confirmPassword, setConfirmPassword] = useState(true);
 
+    const SIGN_UP_ERROR_MESSAGE = 'Couldn\'t create an account. Try a different username?';
+
     const createAccount = async () => {
         console.log('Attempting account creation');
-        const signUpResult = await reelaySignUp({
+        await Auth.signUp({
             username: username,
             password: password,
             attributes: {
@@ -28,10 +31,11 @@ const SignUpScreen = ({ navigation }) => {
             console.log('user created');
             console.log(result.user);
             authContext.setUsername(username);
-            navigation.push('ConfirmEmailScreen');
+            navigation.push('ConfirmEmailScreen');    
         }).catch((error) => {
             console.log('Couldn\'t sign up user');
             console.log(error);
+            showErrorToast(SIGN_UP_ERROR_MESSAGE);
         });
     }
 
@@ -103,5 +107,3 @@ const SignUpScreen = ({ navigation }) => {
         </SafeAreaView>
     );
 }
-
-export default SignUpScreen;

@@ -31,4 +31,6 @@ export type AuthenticationStackParamList = {
   ConfirmEmailScreen: undefined;
   SignInScreen: undefined;
   ForgotPasswordScreen: undefined;
+  ForgotPasswordSubmitScreen: undefined;
+  ForgotPasswordAffirmScreen: undefined;
 }

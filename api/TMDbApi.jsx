@@ -61,13 +61,6 @@ export const searchMoviesAndSeries = async (searchText) => {
     const movieSearchResults = await searchMovies(searchText);
     const movieSearchResultsTagged = searchText.length > 0 ? movieSearchResults.results.map((result, index) => {
 
-        // let titleMatchDeviation = MAX_TITLE_MATCH_DEVIATION;
-        // if (result.title) {
-        //     const resultComparator = result.title.length > searchText.length 
-        //         ? result.title.slice(0, searchText.length) : result.title;
-        //     titleMatchDeviation = levenshteinDistance(resultComparator, searchText);
-        // }
-
         return {
             ...result,
             is_movie: true,
@@ -79,13 +72,6 @@ export const searchMoviesAndSeries = async (searchText) => {
 
     const seriesSearchResults = await searchSeries(searchText);
     const seriesSearchResultsTagged = searchText.length > 0 ? seriesSearchResults.results.map((result, index) => {
-
-        // let titleMatchDeviation = MAX_TITLE_MATCH_DEVIATION;
-        // if (result.title) {
-        //     const resultComparator = result.title.length > searchText.length 
-        //         ? result.title.slice(0, searchText.length) : result.title;
-        //     titleMatchDeviation = levenshteinDistance(resultComparator, searchText);
-        // }
 
         return {
             ...result,

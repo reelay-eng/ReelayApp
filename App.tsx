@@ -8,8 +8,6 @@ import config from "./src/aws-exports";
 
 // auth imports
 import { AuthContext } from './context/AuthContext';
-import { reelaySignUp, reelaySignIn, reelaySignOut, 
-  reelayResendConfirmationCode } from './api/ReelayAuthApi';
 
 // expo imports
 import { StatusBar } from 'expo-status-bar';
@@ -46,7 +44,6 @@ function App() {
   const [session, setSession] = useState({});
   const [user, setUser] = useState({});
   const [username, setUsername] = useState('');
-  const [userToken, setUserToken] = useState('');
 
   useEffect(() => {
     console.log('Setting up authentication');

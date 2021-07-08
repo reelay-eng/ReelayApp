@@ -3,44 +3,47 @@ import { View, SafeAreaView } from 'react-native';
 import { Button, Input, Icon, Text } from 'react-native-elements';
 import { AuthStyles, TextStyles } from '../styles';
 
+import { Auth } from 'aws-amplify';
 import { AuthContext } from '../context/AuthContext';
+import { showErrorToast } from '../components/utils/toasts';
 
-import { reelayConfirmEmail, reelayResendConfirmationCode } from '../api/ReelayAuthApi';
-
-const ConfirmEmailScreen = ({ navigation, username }) => {
+export default ConfirmEmailScreen = ({ navigation }) => {
 
     const authContext = useContext(AuthContext);
     const [confirmationCode, setConfirmationCode] = useState('');
 
+    const CONFIRM_ERROR_MESSAGE = 'Could not confirm email address';
+    const RESEND_ERROR_MESSAGE = 'Could not resend confirmation code';
+
     const confirmEmail = async () => {
         console.log('Attempting email confirmation');
-        const confirmEmailResult = reelayConfirmEmail({
-            username: authContext.username,
-            confirmationCode: confirmationCode,
-        }).catch((error) => {
-            console.log('Could not confirm email address');
-            console.log(error);
-        });
-
-        // todo: make a toast message
-        if (confirmEmailResult) {
+        await Auth.confirmSignUp(
+            authContext.username, 
+            confirmationCode
+        ).then((result) => {
             console.log('Email confirmed');
+            console.log(result);
             navigation.pop();
-            navigation.push('SignInScreen');    
-        }
+            navigation.push('SignInScreen');
+        }).catch((error) => {
+            console.log(CONFIRM_ERROR_MESSAGE);
+            console.log(error);
+            showErrorToast(CONFIRM_ERROR_MESSAGE);
+        });
     }
 
     const resendConfirmationCode = async () => {
         console.log('Attempting to resend confirmation code');
-        const resendConfirmationResult = await reelayResendConfirmationCode({
-            username: username,
-        }).then((result) => {
+        await Auth.resendConfirmationCode(
+            authContext.username
+        ).then((result) => {
             console.log('Confirmation code resent');
             navigation.pop();
             navigation.push('SignInScreen');
         }).catch((error) => {
-            console.log('Could not resend confirmation code');
+            console.log(RESEND_ERROR_MESSAGE);
             console.log(error);
+            showErrorToast(RESEND_ERROR_MESSAGE);
         });
     }
 
@@ -72,10 +75,8 @@ const ConfirmEmailScreen = ({ navigation, username }) => {
             />
             <Button title='Continue' type='solid' onPress={confirmEmail}
                 style={AuthStyles.submitButton} />
-            <Button title='Resend confirmation code' type='clear' onPress={() => { resendConfirmationCode }}
+            <Button title='Resend confirmation code' type='clear' onPress={resendConfirmationCode}
                 style={AuthStyles.clearButton} />
         </SafeAreaView>
     );
 }
-
-export default ConfirmEmailScreen;
