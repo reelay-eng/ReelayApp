@@ -4,7 +4,6 @@ import { setupListeners } from '@reduxjs/toolkit/query'
 import { applyMiddleware } from 'redux';
 import { createReelaySlice } from '../components/create-reelay/CreateReelaySlice';
 import { reelayFeedSlice } from '../components/home/ReelayFeedSlice';
-import { TMDbApi } from './services/TMDbApi';
 
 // compose middleware
 import thunk from 'redux-thunk';
@@ -19,12 +18,10 @@ export default store = configureStore({
         createReelay: createReelaySlice.reducer,
         reelayFeed: reelayFeedSlice.reducer,
         // Add the generated reducer as a specific top-level slice
-        [TMDbApi.reducerPath]: TMDbApi.reducer,
     },
     // Adding the api middleware enables caching, invalidation, polling,
     // and other useful features of `rtk-query`.
-    middleware: (getDefaultMiddleware) => 
-        getDefaultMiddleware().concat(TMDbApi.middleware),
+    middleware: getDefaultMiddleware(),
     enhancers: [composedEnhancer],
     devTools: true
 });

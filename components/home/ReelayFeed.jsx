@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
 
-import { API, Storage } from 'aws-amplify';
+import { API, Auth, Storage } from 'aws-amplify';
 import { useDispatch, useSelector } from 'react-redux';
 import { appendReelayList, resetFocus, setFeedPosition, setReelayList } from './ReelayFeedSlice';
 import * as queries from '../../src/graphql/queries';
@@ -250,7 +250,7 @@ const ReelayFeed = ({ navigation }) => {
 					})}
 				</PagerViewContainer>
 			}
-            {/* <Header /> */}
+            <Header />
             <RefreshContainer>
                 <TouchableOpacity
                     style={{ margin: 10 }}

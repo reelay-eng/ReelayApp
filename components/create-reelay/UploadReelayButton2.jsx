@@ -1,13 +1,20 @@
-import React, { useContext } from 'react';
-import { Auth } from 'aws-amplify';
+import React from 'react';
+import { Auth, Storage, DataStore } from 'aws-amplify';
+import { Reelay } from '../../src/models';
 import { Button } from 'react-native-elements';
 
-import { AppContext } from '../../context/AppContext';
+import {    
+    ReelayUploadStatus,
+    setUploadStatus,
+} from './CreateReelaySlice';
 
-export default UploadReelayButton2 = ({ navigation, route }) => {
+import { useDispatch, useSelector } from 'react-redux';
 
-    const appContext = useContext(AppContext);
-    const { titleObject, videoSource } = route.params;
+export default UploadReelayButton2 = ({ navigation }) => {
+
+    const titleObject = useSelector((state) => state.createReelay.titleObject);
+    const videoSource = useSelector((state) => state.createReelay.videoSource);
+    const dispatch = useDispatch();
 
     const uploadReelayAction = async () => {
         uploadReelay().then(() => {
@@ -35,11 +42,19 @@ export default UploadReelayButton2 = ({ navigation, route }) => {
                     Storage.put(videoS3Key, blob, {
                         progressCallback(progress) {
                             console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
-                            appContext.setUploadStatus({
-                                chunksUploaded: progress.loaded,
-                                chunksTotal: progress.total,
-                                status: 'UPLOADING',                          
-                            });
+                            if (progress.loaded < progress.total) {
+                                dispatch(setUploadStatus({
+                                    chunksUploaded: progress.loaded,
+                                    chunksTotal: progress.total,
+                                    uploadStatus: ReelayUploadStatus.UPLOAD_IN_PROGRESS,
+                                }));    
+                            } else if (progress.loaded > 1 && progress.loaded == progress.total) {
+                                dispatch(setUploadStatus({
+                                    chunksUploaded: 0,
+                                    chunksTotal: 0,
+                                    uploadStatus: ReelayUploadStatus.UPLOAD_COMPLETE,
+                                }));    
+                            }
                         } 
                     }).then(() => 
                         console.log("Successfully saved file to S3: " + videoS3Key)
@@ -64,22 +79,17 @@ export default UploadReelayButton2 = ({ navigation, route }) => {
                 // Upload Reelay object to DynamoDB, get ID
                 DataStore.save(reelay).then((savedReelay) => {
                     console.log('saved new Reelay');
-                    appContext.setUploadStatus({
-                        chunksUploaded: 0,
-                        chunksTotal: 0,
-                        status: 'NO_UPLOAD',                          
-                    });
                     console.log(savedReelay);
                     console.log('Upload dialog complete.');
                 });
             } catch (error) {
                 // todo: better error catching
                 console.log('Error uploading file: ', error);
-                appContext.setUploadStatus({
+                dispatch(setUploadStatus({
                     chunksUploaded: 0,
                     chunksTotal: 0,
-                    status: 'UPLOAD_FAILED',                          
-                });
+                    uploadStatus: ReelayUploadStatus.UPLOAD_FAILED,
+                }));
             }
         }
     }

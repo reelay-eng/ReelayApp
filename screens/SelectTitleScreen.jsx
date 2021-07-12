@@ -16,8 +16,13 @@ export default SelectTitleScreen = ({ navigation }) => {
     const updateSearch = async (newSearchText) => {
         setSearchText(newSearchText);
         console.log('new search text', newSearchText);
-        const newSearchResults = await searchMoviesAndSeries(newSearchText);
-        setSearchResults(newSearchResults);;
+        // const newSearchResults = await searchMoviesAndSeries(newSearchText);
+        // setSearchResults(newSearchResults);;
+        searchMoviesAndSeries(newSearchText).then((results) => {
+            setSearchResults(results);
+        }).catch((error) => {
+            console.log(error);
+        });
     }
 
     const MarginBelowLine = styled(View)`

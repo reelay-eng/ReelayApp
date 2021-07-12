@@ -59,30 +59,28 @@ export const searchSeries = async (searchText) => {
 
 export const searchMoviesAndSeries = async (searchText) => {
     const movieSearchResults = await searchMovies(searchText);
-    const movieSearchResultsTagged = searchText.length > 0 ? movieSearchResults.results.map((result, index) => {
-
-        return {
-            ...result,
-            is_movie: true,
-            is_series: false,
-            // title_match_deviation: titleMatchDeviation,
-            tmdb_search_rank: index,
-        }
-    }) : [];
+    const movieSearchResultsTagged = (searchText.length > 0 && movieSearchResults.results) 
+        ? movieSearchResults.results.map((result, index) => {
+            return {
+                ...result,
+                is_movie: true,
+                is_series: false,
+                tmdb_search_rank: index,
+            }}) 
+        : [];
 
     const seriesSearchResults = await searchSeries(searchText);
-    const seriesSearchResultsTagged = searchText.length > 0 ? seriesSearchResults.results.map((result, index) => {
-
-        return {
-            ...result,
-            is_movie: false,
-            is_series: true,
-            // title_match_deviation: titleMatchDeviation,
-            tmdb_search_rank: index,
-            title: result.name,
-            release_date: result.first_air_date,
-        }
-    }) : [];
+    const seriesSearchResultsTagged = (searchText.length > 0 && seriesSearchResults.results) 
+        ? seriesSearchResults.results.map((result, index) => {
+            return {
+                ...result,
+                is_movie: false,
+                is_series: true,
+                tmdb_search_rank: index,
+                title: result.name,
+                release_date: result.first_air_date,
+            }}) 
+        : [];
 
     const searchResultsCombined = [...movieSearchResultsTagged, ...seriesSearchResultsTagged];
     const searchResultsCombinedSorted = searchResultsCombined.sort(compareSearchResults);

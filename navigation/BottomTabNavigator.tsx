@@ -17,7 +17,7 @@ import { BottomTabParamList, HomeTabParamList, CreateReelayTabParamList } from '
 import SelectTitleScreen from '../screens/SelectTitleScreen';
 import ReelayCameraScreen from '../screens/ReelayCameraScreen';
 import ReelayPreviewScreen from '../screens/ReelayPreviewScreen';
-import UploadReelayButton from '../components/create-reelay/UploadReelayButton';
+import UploadReelayButton2 from '../components/create-reelay/UploadReelayButton2';
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -104,7 +104,7 @@ function CreateReelayTabNavigator() {
         component={ReelayPreviewScreen}
         options={({navigation, route}) => ({
           title: 'Preview Reelay',
-          headerRight: props => (<UploadReelayButton navigation={navigation} />),
+          headerRight: props => (<UploadReelayButton2 navigation={navigation} />),
         })}
       />
     </CreateReelayTabStack.Navigator>

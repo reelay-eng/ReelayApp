@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { FlatList, Text, View } from 'react-native';
-import { ContainerStyles, TextStyles } from '../../styles';
+import React from 'react';
+import { Text, ScrollView, View } from 'react-native';
+import { TextStyles } from '../../styles';
 import styled from 'styled-components/native';
 
 import SearchResultItem from './SearchResultItem';
@@ -17,24 +17,16 @@ const SearchResults = ({ navigation, searchResults }) => {
     return (
         <View>
             { searchResults.length < 1 && <Text style={TextStyles.darkTextCentered}>{'Awaiting search results...'}</Text> }
-            { searchResults.length >= 1 && searchResults.map((result, index) => {
-                return (
-                    <View style={{height: 160 }}>
-                        <SearchResultItem key={index} result={result} navigation={navigation} />
-                    </View>
-                );
-            })
-                // <FlatList 
-                //     data={searchResults} 
-                //     initialNumToRender={searchResults.length}
-                //     renderItem={({ item, index, separators }) => {
-                //         return <SearchResultItem 
-                //             result={item} 
-                //             navigation={navigation}
-                //         />;
-                //     }}
-                //     keyExtractor={item => item.id.toString()}
-                // />
+            { searchResults.length >= 1 &&
+                <ScrollView>
+                    { searchResults.map((result, index) => {
+                        return (
+                            <View key={index} style={{height: 160 }}>
+                                <SearchResultItem result={result} navigation={navigation} />
+                            </View>
+                        );
+                    })}
+                </ScrollView>
             }
         </View>
     );
