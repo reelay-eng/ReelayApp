@@ -87,14 +87,14 @@ function CreateReelayTabNavigator() {
         name="SelectTitleScreen"
         component={SelectTitleScreen}
         options={{
-          title: 'What did you see?',
+          headerShown: false,
         }}
       />
       <CreateReelayTabStack.Screen
         name="ReelayCameraScreen"
         component={ReelayCameraScreen}
         options={{ 
-          title: 'Record a Reelay',
+          headerShown: false,
         }}
       />
       <CreateReelayTabStack.Screen

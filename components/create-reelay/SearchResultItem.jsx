@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { Image } from 'react-native-elements';
 import styled from 'styled-components/native';
 
@@ -19,10 +20,12 @@ const PressableContainer = styled.Pressable`
     margin: 10px 10px 10px 10px;
 `
 const TitleText = styled.Text`
+    color: white
     font-size: 18px;
     flex: 1;
 `
 const TitleTextSelected = styled.Text`
+    color: white
     font-size: 18px;
     font-weight: bold;
 `
@@ -32,14 +35,18 @@ const TitleLineContainer = styled.View`
     align-items: flex-start;
 `
 const YearText = styled.Text`
+    color: white
     font-size: 18px;
 `
 const YearTextSelected = styled.Text`
+    color: white
     font-size: 18px;
     font-weight: bold;
 `
 
-export default SearchResultItem = ({result, resultType, navigation}) => {
+export default SearchResultItem = ({result, navigation}) => {
+
+    const [posterLoaded, setPosterLoaded] = useState(false);
 
     const dispatch = useDispatch();
     const titleObject = result;
@@ -67,8 +74,11 @@ export default SearchResultItem = ({result, resultType, navigation}) => {
                 { posterImageUri && <Image 
                     source={{ uri: posterImageUri }} 
                     style={{ height: 150, width: 100 }}
+                    PlaceholderContent={<ActivityIndicator />}
+                    onLoadEnd={() => setPosterLoaded(true)}
                 />}
                 { !posterImageUri && <TitleText>{'No Poster Available'}</TitleText>}
+                { !posterLoaded && <View style={{ height: 150 }} />}
             </ImageContainer>
             { isTagged && 
                 <TitleLineContainer>

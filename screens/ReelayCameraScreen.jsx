@@ -20,7 +20,6 @@ import {
 
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 const closeButtonSize = Math.floor(WINDOW_HEIGHT * 0.032);
-// const captureSize = Math.floor(WINDOW_HEIGHT * 0.09);
 
 export default ReelayCameraScreen = ({ navigation }) => {
 
@@ -125,7 +124,7 @@ export default ReelayCameraScreen = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaView style={ContainerStyles.fillContainer}>
+        <View style={ContainerStyles.fillContainer}>
             <Camera
                 ref={cameraRef}
                 style={CameraStyles.camera}
@@ -154,6 +153,6 @@ export default ReelayCameraScreen = ({ navigation }) => {
                     </CaptureControlContainer>
                 </RecordingInterfaceContainer>
             </Camera>
-        </SafeAreaView>
+        </View>
     );
 }

@@ -32,7 +32,6 @@ export default SelectTitleScreen = ({ navigation }) => {
 
     return (
         <SafeAreaView fullScreen={true} style={ContainerStyles.searchPageContainer}>
-            <HorizontalLine />
             <SearchField searchText={searchText} updateSearch={updateSearch} />
             <MarginBelowLine />
             <SearchResults navigation={navigation} searchResults={searchResults} />

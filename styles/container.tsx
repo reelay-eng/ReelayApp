@@ -12,7 +12,7 @@ const ContainerStyles = StyleSheet.create({
     },
     searchPageContainer: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'white',
+        backgroundColor: 'black',
     },
 });
 

@@ -14,9 +14,11 @@ const PosterContainer = styled.View`
     flex: 1;
     position: absolute;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: flex-end;
+    align-items: flex-end;
     margin-right: 200px;
 `
+
 
 export default ReelayPreviewScreen = ({ navigation }) => {
 

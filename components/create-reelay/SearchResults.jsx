@@ -21,9 +21,11 @@ const SearchResults = ({ navigation, searchResults }) => {
                 <FlatList 
                     data={searchResults} 
                     initialNumToRender={searchResults.length}
-                    ItemSeparatorComponent={HorizontalLine}
                     renderItem={({ item, index, separators }) => {
-                        return <SearchResultItem result={item} resultType={'movie'} navigation={navigation} />;
+                        return <SearchResultItem 
+                            result={item} 
+                            navigation={navigation}
+                        />;
                     }}
                     keyExtractor={item => item.id.toString()}
                 />

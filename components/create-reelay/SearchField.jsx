@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SearchBar } from 'react-native-elements';
+import { Input, SearchBar } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 const SearchFieldContainer = styled.View``
@@ -8,13 +8,17 @@ export default SearchField = ({ searchText, updateSearch }) => {
 
     return (
         <SearchFieldContainer>
-            <SearchBar
-                placeholder="Enter a movie title..."
+            <Input 
                 onChangeText={(newSearchText) => updateSearch(newSearchText)}
+                placeholder="What did you see?"
                 value={searchText}
-                platform={'default'}
-                lightTheme
+                style={{
+                    marginTop: 20,
+                    textDecorationColor: 'white',
+                    color: 'white',
+                }}
             />
+
         </SearchFieldContainer>
     );
 };

@@ -12,14 +12,8 @@ const TransparentContainer = styled.View`
 
 export default function HomeFeedScreen({ navigation }) {
 	return (
-		<SafeAreaView>
-			<StatusBar
-				translucent
-				backgroundColor='black'
-			/>
 			<TransparentContainer>
 				<ReelayFeed navigation={navigation} />
 			</TransparentContainer>
-		</SafeAreaView>
 	)
 };

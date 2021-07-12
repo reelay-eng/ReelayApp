@@ -104,8 +104,8 @@ function App() {
       <SafeAreaProvider>
         <AuthContext.Provider value={authState}>
           <Provider store={store}>
+            <StatusBar hidden={true} />
             <Navigation colorScheme={colorScheme} />
-            <StatusBar />
           </Provider>
         </AuthContext.Provider>
       </SafeAreaProvider>
@@ -113,5 +113,4 @@ function App() {
   }
 }
 
-// export default withAuthenticator(App, true);
 export default App;
