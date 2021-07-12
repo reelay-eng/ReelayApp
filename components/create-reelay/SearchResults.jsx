@@ -17,18 +17,24 @@ const SearchResults = ({ navigation, searchResults }) => {
     return (
         <View>
             { searchResults.length < 1 && <Text style={TextStyles.darkTextCentered}>{'Awaiting search results...'}</Text> }
-            { searchResults.length >= 1 &&
-                <FlatList 
-                    data={searchResults} 
-                    initialNumToRender={searchResults.length}
-                    renderItem={({ item, index, separators }) => {
-                        return <SearchResultItem 
-                            result={item} 
-                            navigation={navigation}
-                        />;
-                    }}
-                    keyExtractor={item => item.id.toString()}
-                />
+            { searchResults.length >= 1 && searchResults.map((result, index) => {
+                return (
+                    <View style={{height: 160 }}>
+                        <SearchResultItem key={index} result={result} navigation={navigation} />
+                    </View>
+                );
+            })
+                // <FlatList 
+                //     data={searchResults} 
+                //     initialNumToRender={searchResults.length}
+                //     renderItem={({ item, index, separators }) => {
+                //         return <SearchResultItem 
+                //             result={item} 
+                //             navigation={navigation}
+                //         />;
+                //     }}
+                //     keyExtractor={item => item.id.toString()}
+                // />
             }
         </View>
     );

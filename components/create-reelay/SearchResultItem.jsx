@@ -18,6 +18,7 @@ const PressableContainer = styled.Pressable`
     flex: 1;
     flex-direction: row;
     margin: 10px 10px 10px 10px;
+    height: 160px;
 `
 const TitleText = styled.Text`
     color: white

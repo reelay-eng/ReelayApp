@@ -13,6 +13,7 @@ import ProfileButton from '../profile/ProfileButton';
 import Hero from './Hero';
 import Header from './Header';
 import ProfileOverlay from '../profile/ProfileOverlay';
+import { ActivityIndicator } from 'react-native-paper';
 
 const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3/';
 const TMDB_API_KEY = '033f105cd28f507f3dc6ae794d5e44f5';
@@ -232,7 +233,7 @@ const ReelayFeed = ({ navigation }) => {
 
 	return (
 		<View>
-			{ reelayList.length <1 && <Text>Loading...</Text> }
+			{ reelayList.length <1 && <ActivityIndicator /> }
 			{ reelayList.length >= 1 && 
 				<PagerViewContainer 
 					initialPage={0}

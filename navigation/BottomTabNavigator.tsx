@@ -94,7 +94,9 @@ function CreateReelayTabNavigator() {
         name="ReelayCameraScreen"
         component={ReelayCameraScreen}
         options={{ 
-          headerShown: false,
+          title: '',
+          headerBackTitle: 'Back',
+          headerStyle: { backgroundColor: 'black' }
         }}
       />
       <CreateReelayTabStack.Screen
