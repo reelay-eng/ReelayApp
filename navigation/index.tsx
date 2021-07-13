@@ -9,9 +9,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { ColorSchemeName } from 'react-native';
 
 import NotFoundScreen from '../screens/NotFoundScreen';
-import SignInScreen from '../screens/SignInScreen';
 
-import { RootStackParamList, AuthenticationStackParamList } from '../types';
+import { RootStackParamList } from '../types';
 
 import AuthNavigator from './AuthNavigator';
 import BottomTabNavigator from './BottomTabNavigator';

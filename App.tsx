@@ -1,18 +1,17 @@
 // react imports
 import React, { useEffect, useState } from 'react';
+import { ActivityIndicator } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // aws imports
 import { Amplify, Auth } from 'aws-amplify';
-import config from "./src/aws-video-exports";
+import config from "./src/aws-exports";
 
 // auth imports
 import { AuthContext } from './context/AuthContext';
 
 // expo imports
 import { StatusBar } from 'expo-status-bar';
-import * as WebBrowswer from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
 
 // redux imports
 import store from './redux/store';
@@ -22,7 +21,6 @@ import { Provider } from 'react-redux';
 import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
-import { TabRouter } from '@react-navigation/native';
 
 console.log("AMPLIFY CONFIG OBJECT");
 console.log(config);
@@ -41,7 +39,7 @@ function App() {
   const colorScheme = useColorScheme();
 
   const [credentials, setCredentials] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [signedIn, setSignedIn] = useState(false);
   const [session, setSession] = useState({});
   const [user, setUser] = useState({});
@@ -81,6 +79,9 @@ function App() {
         console.log(error);
         setSignedIn(true);
       });
+    
+    console.log('authentication complete');
+    setIsLoading(false);
   }, []);
 
   const authState = {
@@ -118,8 +119,8 @@ function App() {
 
   */
 
-  if (!isLoadingComplete) {
-    return null;
+  if (isLoading) {
+    return <ActivityIndicator />;
   } else {
     return (
       <SafeAreaProvider>

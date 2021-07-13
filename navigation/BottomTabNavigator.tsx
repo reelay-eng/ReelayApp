@@ -17,7 +17,7 @@ import { BottomTabParamList, HomeTabParamList, CreateReelayTabParamList } from '
 import SelectTitleScreen from '../screens/SelectTitleScreen';
 import ReelayCameraScreen from '../screens/ReelayCameraScreen';
 import ReelayPreviewScreen from '../screens/ReelayPreviewScreen';
-import UploadReelayButton2 from '../components/create-reelay/UploadReelayButton2';
+import UploadReelayButton from '../components/create-reelay/UploadReelayButton';
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -48,12 +48,6 @@ export default function BottomTabNavigator() {
       />
     </BottomTab.Navigator>
   );
-}
-
-// You can explore the built-in icon families and icons on the web at:
-// https://icons.expo.fyi/
-function TabBarIcon(props: { name: React.ComponentProps<typeof Ionicons>['name']; color: string }) {
-  return <Ionicons size={30} style={{ marginBottom: -3 }} {...props} />;
 }
 
 // Each tab has its own navigation stack, you can read more about this pattern here:
@@ -106,7 +100,7 @@ function CreateReelayTabNavigator() {
         component={ReelayPreviewScreen}
         options={({navigation, route}) => ({
           title: 'Preview Reelay',
-          headerRight: props => (<UploadReelayButton2 navigation={navigation} />),
+          headerRight: props => (<UploadReelayButton navigation={navigation} />),
         })}
       />
     </CreateReelayTabStack.Navigator>

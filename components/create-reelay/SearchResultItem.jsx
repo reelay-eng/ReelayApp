@@ -25,11 +25,6 @@ const TitleText = styled.Text`
     font-size: 18px;
     flex: 1;
 `
-const TitleTextSelected = styled.Text`
-    color: white
-    font-size: 18px;
-    font-weight: bold;
-`
 const TitleLineContainer = styled.View`
     flex: 1
     flex-direction: row;
@@ -38,11 +33,6 @@ const TitleLineContainer = styled.View`
 const YearText = styled.Text`
     color: white
     font-size: 18px;
-`
-const YearTextSelected = styled.Text`
-    color: white
-    font-size: 18px;
-    font-weight: bold;
 `
 
 export default SearchResultItem = ({result, navigation}) => {
@@ -60,8 +50,6 @@ export default SearchResultItem = ({result, navigation}) => {
     const title = titleObject.title ? titleObject.title + '\t' : 'Title not found.' + '\t';
     const releaseYear = (titleObject.release_date && titleObject.release_date.length >= 4) 
         ? ('(' + titleObject.release_date.slice(0,4) + ')') : '';
-
-    const isTagged = useSelector((state) => state.createReelay.titleObject) == titleObject;
 
     const selectResult = () => {
         dispatch(tagTitle(titleObject));
@@ -81,18 +69,10 @@ export default SearchResultItem = ({result, navigation}) => {
                 { !posterImageUri && <TitleText>{'No Poster Available'}</TitleText>}
                 { !posterLoaded && <View style={{ height: 150 }} />}
             </ImageContainer>
-            { isTagged && 
-                <TitleLineContainer>
-                    <TitleTextSelected>{title}</TitleTextSelected>
-                    <YearTextSelected>{releaseYear}</YearTextSelected>
-                </TitleLineContainer>
-            }
-            { !isTagged && 
-                <TitleLineContainer>
-                    <TitleText>{title}</TitleText>
-                    <YearText>{releaseYear}</YearText>
-                </TitleLineContainer>
-            }
+            <TitleLineContainer>
+                <TitleText>{title}</TitleText>
+                <YearText>{releaseYear}</YearText>
+            </TitleLineContainer>
         </PressableContainer>
     );
 };
