@@ -37,7 +37,8 @@ Backend
     Cookies --> put token here.
     localStorage --> don't do this 
     sessionStorage  --> don't do this. 
-6. 
+
+
 Sessions-
 
 1. Session table
@@ -46,8 +47,31 @@ Sessions-
     active --> false
     type -- mobile/web
 
+
+
+    User table -
+
+    id
+    firstName
+    lastName
+    password (salted and hashed pw)
+
 2. User authenticates -->
     Basically compare the passwords
+        if (bcrypt.compare(hashedPassword, rawPasswordUserSendsBack)) {
+            // create a record in the session table
+            return {
+                sessionId,
+                user: {
+                    firstName,
+                    lastName,
+                    ...otherUserStuff
+                }
+            }
+        } else {
+            return error
+        }
+    
     Create session
     return {
         sessionId, 
@@ -55,9 +79,31 @@ Sessions-
     }
 3. Logging in/authenticating requests -
     Take the sessionId and check to see if there is an active session.
+    if (userAgent === isBrowser) {
+        SELECT * from "sessions" WHERE "userId" = userId AND "active" = true;
+    }
+
 4. On the frontend
     Store into the Cookie
     Set up httpOnly and Secure attribute on the Cookie, so inaccesible to the frontend. 
+        // automatically - the cookie will get passed back to the server
+        // on the frontend javascript CANNOT ACCESS THE COOKIE. 
+        // CSRF --> express middleware. 
+        
+        try {
+        let user = await auth.currentAuthenticatedUser();
+        } catch (e) {
+            // user not logged in
+            const currentSession = auth.currentSession();
+            user = await auth.currentAuthenticatedUser();
+        }
+
+        setState({...user});
+
+        // to sign out
+
+        auth.signOut();
+
 
     
 Context --> what replaces redux. 

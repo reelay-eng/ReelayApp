@@ -77,6 +77,8 @@ function HomeTabNavigator() {
 
 const CreateReelayTabStack = createStackNavigator<CreateReelayTabParamList>();
 
+// Can you make the route names into constants so that it's easier to use everywhere?
+
 function CreateReelayTabNavigator() {
   return (
     <CreateReelayTabStack.Navigator

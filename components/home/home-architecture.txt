@@ -1,0 +1,15 @@
+I think that you could structure the "scaffolding" of your app differently
+
+
+function AuthenticatedApp() {
+    return (
+        <View>
+            {/* here you want things that are going to exist regardless of the screen */ }
+            { /* As you have an AuthenticatedContext, you can then pass back }
+            <ProfileButton/>
+            <Header />
+            <AuthenticatedNavigator />
+        </View>
+    )
+}
+

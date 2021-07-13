@@ -15,6 +15,7 @@ import Header from './Header';
 import ProfileOverlay from '../profile/ProfileOverlay';
 import { ActivityIndicator } from 'react-native-paper';
 
+// Please move these into an environment variable (preferably injected via your build step)
 const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3/';
 const TMDB_API_KEY = '033f105cd28f507f3dc6ae794d5e44f5';
 const CLOUDFRONT_BASE_URL = 'https://d18kzs7g2lzt5h.cloudfront.net';
@@ -34,7 +35,8 @@ const RefreshContainer = styled(View)`
 `
 
 const ReelayFeed = ({ navigation }) => {
-
+    // Can you place this constant at the top of the file? 
+    // also add a lint rule thta will yell at you for doing this. 
     const REELAY_LOAD_BUFFER_SIZE = 3;
     const reelayList = useSelector((state) => state.reelayFeed.reelayList);
     const reelayListNextToken = useSelector((state) => state.reelayFeed.reelayListNextToken);
@@ -111,13 +113,29 @@ const ReelayFeed = ({ navigation }) => {
             
             console.log(cloudfrontVideoURI);
     
+
+            // @anthony can you break these branches out into functions? It makes it easier to read. 
             if (reelayObject.tmdbTitleID && reelayObject.isMovie) {
                 const tmdbTitleQuery = `${TMDB_API_BASE_URL}\/movie\/${reelayObject.tmdbTitleID}\?api_key\=${TMDB_API_KEY}`;
+                            // Don't mix async/await syntax and conventional promise syntax.
+            /*
+                    const tmdbTitleObjectResponse = await fetch(tmbdTitleQuery);
+                    const tmdbTitleObject = await tmdbTitleObjectResponse.json();
+
+                in this case though as you are in a .map - the async await won't work as expected. If you want to use async/await inside of a .map or a .each you need to use the async versions of these https://caolan.github.io/async/v3/
+
+                So
+
+                1. You don't need the awaits in this code block or within this .map
+                2. I can't look right now (no credentials), but I think that your Promise.all() is broken - you aren't returning promises, you're returning objects, so it will always be true.  Promise.all() expects an array of promises, I think you are passing an array of objects to it. 
+            */
                 reelayObject.tmdbTitleObject = await fetch(tmdbTitleQuery)
                     .then((response) => response.json())
                     .then((tmdbTitleObject) => {        
                         return tmdbTitleObject;
                     });
+
+
 
             } else if (reelayObject.tmdbTitleID && reelayObject.isSeries) {
                 const tmdbTitleQuery = `${TMDB_API_BASE_URL}\/tv\/${reelayObject.tmdbTitleID}\?api_key\=${TMDB_API_KEY}`;
@@ -183,6 +201,21 @@ const ReelayFeed = ({ navigation }) => {
     }
 
     // this function should _only_ be called after calling fetchMostRecentReelays
+
+    /*
+    I *think* the following is 
+
+    1. Looking at the two lists of reelays and deduping them.
+    2. Then putting them into one list sorted by timestamp.
+
+    Don't reinvent the wheel
+
+    1. use lodash to (https://lodash.com/docs) do all of this stuff. First https://lodash.com/docs/#differenceWith for the deduping (or the other functions available there)
+    2. Then you can just use a normal sort function to order by time stamp.
+
+    This code is super confusing and you're reinventing the wheel needlessly. 
+
+    */ 
     const getMergedReelayList = (fetchedReelays, prevFetchedReelays) => {
         console.log('merging lists');
         if (prevFetchedReelays.length == 0) return fetchedReelays;
@@ -240,6 +273,10 @@ const ReelayFeed = ({ navigation }) => {
 					orientation='vertical'
 					onPageSelected={onPageSelected}
 				>
+                    {/* You probably want to have another component here - <ReelayFeedComponent /> */}
+                    {/*  In fact, I would just have the entire render step take place in another function and have this component be responsible for the loading state and the data fetching */}
+
+                    {/* <ReelayFeed data={reelayList}/> */}
 					{ reelayList.map((reelay, index) => {
 						return <Hero 
 							reelay={reelay} 

@@ -36,6 +36,17 @@ const Stack = createStackNavigator<RootStackParamList>();
 function RootNavigator() {
   const authContext = useContext(AuthContext);
 
+
+  /*
+    Maybe don't do this here- do it in the App.tsx file.
+
+    Render two different applications based on whether you are authenticated or not. 
+
+    Totall separate the applications. 
+
+  */
+ console.log("AUTH CONTEXT");
+ console.log(authContext);
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       { authContext.signedIn && <Stack.Screen name="Root" component={BottomTabNavigator} /> }

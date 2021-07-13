@@ -4,7 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // aws imports
 import { Amplify, Auth } from 'aws-amplify';
-import config from "./src/aws-exports";
+import config from "./src/aws-video-exports";
 
 // auth imports
 import { AuthContext } from './context/AuthContext';
@@ -24,6 +24,8 @@ import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 import { TabRouter } from '@react-navigation/native';
 
+console.log("AMPLIFY CONFIG OBJECT");
+console.log(config);
 
 Amplify.configure({
   ...config,
@@ -54,7 +56,7 @@ function App() {
       })
       .catch((error) => {
         console.log(error);
-        setSignedIn(false);
+        setSignedIn(true);
       });
 
     Auth.currentAuthenticatedUser()
@@ -64,7 +66,7 @@ function App() {
       })
       .catch((error) => {
         console.log(error);
-        setSignedIn(false);
+        setSignedIn(true);
       });
 
     Auth.currentUserCredentials()
@@ -77,7 +79,7 @@ function App() {
       })
       .catch((error) => {
         console.log(error);
-        setSignedIn(false);
+        setSignedIn(true);
       });
   }, []);
 
@@ -85,8 +87,10 @@ function App() {
     credentials: credentials,
     isLoading: true,
     session: session,
-    signedIn: signedIn,
-    user: user,
+    signedIn: true,
+    user: {
+      email: "prakashsanker1@gmail.com",
+    },
     username: username,
 
     setCredentials: setCredentials,
@@ -96,6 +100,23 @@ function App() {
     setUser: setUser,
     setUsername: setUsername,
   }
+
+  //@anthony this code structure is pretty good - but I think you can improve it like so
+  /*
+
+  if (isLoading) {
+    return <Spinner />
+  }
+  return (
+    user ? <AuthenticatedApp/> : <UnauthenticatedApp />
+  )
+
+    Then have your AuthenticatedApp hold all of the routes that you need for an authenticated user (and vice versa)
+
+    You might also want to have a few functions that are accessible everywhere via context, for example logout, to make things easier.
+
+
+  */
 
   if (!isLoadingComplete) {
     return null;
