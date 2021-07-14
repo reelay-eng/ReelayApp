@@ -3,6 +3,7 @@ import { StatusBar } from 'react-native';
 import styled from 'styled-components/native';
 
 import ReelayFeed from '../components/home/ReelayFeed';
+import ReelayFeed2 from '../components/home/ReelayFeed2';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const TransparentContainer = styled.View`
@@ -13,7 +14,7 @@ const TransparentContainer = styled.View`
 export default function HomeFeedScreen({ navigation }) {
 	return (
 			<TransparentContainer>
-				<ReelayFeed navigation={navigation} />
+				<ReelayFeed2 navigation={navigation} />
 			</TransparentContainer>
 	)
 };

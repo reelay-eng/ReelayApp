@@ -6,7 +6,6 @@ const SearchResults = ({ navigation, searchResults }) => {
 
     return (
         <View>
-            { searchResults.length < 1 && <ActivityIndicator /> }
             { searchResults.length >= 1 &&
                 <ScrollView>
                     { searchResults.map((result, index) => {
