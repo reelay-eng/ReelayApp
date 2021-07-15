@@ -171,9 +171,7 @@ export default ReelayFeed2 = ({ navigation }) => {
                 <TouchableOpacity
                     style={{ margin: 10 }}
                     onPress={() => {
-                        console.log('pressing');
                         fetchNextReelay({ mostRecent: true});
-
                     }}>
                     <Ionicons name="refresh-sharp" size={24} color="white" />
                 </TouchableOpacity>
@@ -182,12 +180,15 @@ export default ReelayFeed2 = ({ navigation }) => {
                     onPress={() => {
                         setOverlayVisible(true);
                         console.log('overlay visible');
-                    }}/>
-                {overlayVisible && <ProfileOverlay onClose={() => {
-                        setOverlayVisible(false);
-                    }}/>
+                    }}
+                />
+                {overlayVisible && 
+                    <ProfileOverlay 
+                        navigation={navigation}
+                        setOverlayVisible={setOverlayVisible}
+                    />
                 }
             </RefreshContainer>
 		</View>
 	);
-} 
+}

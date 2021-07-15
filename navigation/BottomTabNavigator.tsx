@@ -18,6 +18,7 @@ import SelectTitleScreen from '../screens/SelectTitleScreen';
 import ReelayCameraScreen from '../screens/ReelayCameraScreen';
 import ReelayPreviewScreen from '../screens/ReelayPreviewScreen';
 import UploadReelayButton from '../components/create-reelay/UploadReelayButton';
+import AccountScreen from '../screens/AccountScreen';
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
@@ -63,7 +64,13 @@ function HomeTabNavigator() {
         options={{ 
           headerTitle: 'Find a Movie',
           headerShown: false
-      }}
+      }} />
+      <HomeTabStack.Screen
+        name="AccountScreen"
+        component={AccountScreen}
+        options={{
+          headerShown: false
+        }}
       />
     </HomeTabStack.Navigator>
   );

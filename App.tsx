@@ -89,9 +89,7 @@ function App() {
     isLoading: true,
     session: session,
     signedIn: true,
-    user: {
-      email: "prakashsanker1@gmail.com",
-    },
+    user: user,
     username: username,
 
     setCredentials: setCredentials,

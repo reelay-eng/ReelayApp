@@ -12,21 +12,11 @@ export default {
     screens: {
       Root: {
         screens: {
-          Home: {
-            screens: {
-              HomeFeedScreen: 'one',
-            },
-          },
-          Reelay: {
-            screens: {
-              RecordReelayScreen: 'two',
-            },
-          },
-          CreateReelay: {
-            screens: {
-              CreateReelayScreen: 'three',
-            },
-          },
+          HomeFeedScreen: 'HomeFeedScreen',
+          SelectTitleScreen: 'SelectTitleScreen',
+          ReelayCameraScreen: 'ReelayCameraScreen',
+          ReelayPreviewScreen: 'ReelayPreviewScreen',
+          AccountScreen: 'AccountScreen',
         },
       },
       Auth: {

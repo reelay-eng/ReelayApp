@@ -6,7 +6,7 @@ import { AuthStyles, TextStyles } from '../../styles';
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
 
-export default ProfileOverlay = ({ navigation, onClose }) => {
+export default ProfileOverlay = ({ navigation, setOverlayVisible }) => {
 
     const authContext = useContext(AuthContext);
 
@@ -34,7 +34,9 @@ export default ProfileOverlay = ({ navigation, onClose }) => {
                 opacity: 0.8,
             }}>
             <View style={{ marginTop: 100 }}>
-                <Pressable onPress={onClose} style={{ 
+                <Pressable onPress={() => {
+                    setOverlayVisible(false);
+                }} style={{ 
                     marginBottom: 40,
                     alignSelf: 'flex-end',
                 }}>
@@ -57,7 +59,11 @@ export default ProfileOverlay = ({ navigation, onClose }) => {
                     <Text style={AuthStyles.systemText16}>{'About'}</Text>
                 </Pressable>
                 <Pressable onPress={() => { 
-                    console.log('Pressed settings')
+                    console.log('Pressed settings');
+                    setOverlayVisible(false);
+                    navigation.push('AccountScreen', {
+                        setOverlayVisible,
+                    });
                 }} style={{ 
                     marginBottom: 40,
                     alignSelf: 'flex-end',

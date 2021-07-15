@@ -16,6 +16,7 @@ export type BottomTabParamList = {
 
 export type HomeTabParamList = {
   HomeFeedScreen: undefined;
+  AccountScreen: undefined;
 };
 
 export type CreateReelayTabParamList = {
