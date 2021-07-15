@@ -161,7 +161,8 @@ export default ReelayFeed2 = ({ navigation }) => {
 							reelay={reelay} 
 							key={index} 
 							index={index}
-							curPosition={feedPosition} 
+							curPosition={feedPosition}
+                            overlayVisible={overlayVisible}
 						/>;
 					})}
 				</PagerViewContainer>

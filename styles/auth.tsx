@@ -1,8 +1,5 @@
 import { Dimensions, StyleSheet } from 'react-native';
 
-const WINDOW_HEIGHT = Dimensions.get("window").height;
-const WINDOW_WIDTH = Dimensions.get("window").width;
-
 const AuthStyles = StyleSheet.create({
     backButton: {
         flex: 1,

@@ -42,8 +42,8 @@ export default AccountScreen = ({ navigation, route }) => {
                     borderWidth: 1,
                     alignSelf: 'center',
                 }}>
-                    <Image source={{ uri: '../assets/images/icon.png' }} 
-                        style={{ height: 150, width: 150 }} />
+                    <Image source={require('../assets/images/icon.png')} 
+                        style={{ height: 150, width: 150, borderRadius: 75, }} />
                 </TouchableHighlight>
                 <Text h4 style={{
                     ...AuthStyles.headerText,

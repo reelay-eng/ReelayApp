@@ -28,14 +28,14 @@ const RightContainer = styled(View)`
 	align-items: flex-end;
 `  
 
-const Hero = ({ reelay, index, curPosition }) => {
+const Hero = ({ reelay, index, curPosition, overlayVisible }) => {
 
     return (
         <View key={index}>
             <VideoPlayer
                 videoURI={reelay.videoURI}
                 poster={require('../../assets/images/splash.png')}
-                isPlay={curPosition === index}
+                isPlay={curPosition === index && !overlayVisible}
             >
             </VideoPlayer>
             <Gradient
