@@ -10,7 +10,7 @@ export default {
   prefixes: [Linking.makeUrl('/')],
   config: {
     screens: {
-      Root: {
+      Authenticated: {
         screens: {
           HomeFeedScreen: 'HomeFeedScreen',
           SelectTitleScreen: 'SelectTitleScreen',
@@ -19,7 +19,7 @@ export default {
           AccountScreen: 'AccountScreen',
         },
       },
-      Auth: {
+      Unauthenticated: {
         screens: {
           SplashScreen: 'SplashScreen',
           SignUpScreen: 'SignUpScreen',

@@ -23,9 +23,6 @@ import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 
-console.log("AMPLIFY CONFIG OBJECT");
-console.log(config);
-
 Amplify.configure({
   ...config,
   Analytics: {

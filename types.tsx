@@ -4,8 +4,8 @@
  */
 
 export type RootStackParamList = {
-  Root: undefined;
-  Auth: undefined;
+  Authenticated: undefined;
+  Unauthenticated: undefined;
   NotFound: undefined;
 };
 
