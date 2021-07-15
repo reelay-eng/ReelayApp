@@ -103,23 +103,6 @@ function App() {
       setOverlayVisible: setOverlayVisible,
   }
 
-  //@anthony this code structure is pretty good - but I think you can improve it like so
-  /*
-
-  if (isLoading) {
-    return <Spinner />
-  }
-  return (
-    user ? <AuthenticatedApp/> : <UnauthenticatedApp />
-  )
-
-    Then have your AuthenticatedApp hold all of the routes that you need for an authenticated user (and vice versa)
-
-    You might also want to have a few functions that are accessible everywhere via context, for example logout, to make things easier.
-
-
-  */
-
   if (isLoading) {
     return <ActivityIndicator />;
   } else {

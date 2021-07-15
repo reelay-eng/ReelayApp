@@ -144,8 +144,6 @@ export default ReelayFeed2 = ({ navigation }) => {
         setReelayListNextToken(nextToken);
     }
 
-    console.log(visibilityContext.overlayVisible);
-
 	return (
 		<View>
 			{ reelayList.length <1 && <ActivityIndicator /> }
