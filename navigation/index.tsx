@@ -8,17 +8,14 @@ import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/
 import { createStackNavigator } from '@react-navigation/stack';
 import { ColorSchemeName } from 'react-native';
 
+import { AuthContext } from '../context/AuthContext';
 import NotFoundScreen from '../screens/NotFoundScreen';
 
+import AuthenticatedNavigator from './AuthenticatedNavigator';
+import UnauthenticatedNavigator from './UnauthenticatedNavigator';
+import LinkingConfiguration from './LinkingConfiguration';
 import { RootStackParamList } from '../types';
 
-import UnauthenticatedNavigator from './UnauthenticatedNavigator';
-import AuthenticatedNavigator from './AuthenticatedNavigator';
-import LinkingConfiguration from './LinkingConfiguration';
-
-import { AuthContext } from '../context/AuthContext';
-import BottomTabNavigator from './BottomTabNavigator';
-import AuthNavigator from './AuthNavigator';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
@@ -37,11 +34,10 @@ const Stack = createStackNavigator<RootStackParamList>();
 function RootNavigator() {
   const authContext = useContext(AuthContext);
   
-  console.log("signed in?", authContext.signedIn);
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      { authContext.signedIn && <Stack.Screen name="Root" component={BottomTabNavigator} /> }
-      { !authContext.signedIn && <Stack.Screen name="Auth" component={AuthNavigator} /> }
+      { authContext.signedIn && <Stack.Screen name="Authenticated" component={AuthenticatedNavigator} /> }
+      { !authContext.signedIn && <Stack.Screen name="Unauthenticated" component={UnauthenticatedNavigator} /> }
       <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
     </Stack.Navigator>
   );

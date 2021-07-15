@@ -21,6 +21,7 @@ export default ProfileOverlay = ({ navigation }) => {
             authContext.setUser({});
             authContext.setSession({});
             authContext.setCredentials({});
+            visibilityContext.setOverlayVisible(false);
         } catch (error) {
             console.log(error);
         }
