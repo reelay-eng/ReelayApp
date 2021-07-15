@@ -14,17 +14,16 @@ export default ProfileOverlay = ({ navigation }) => {
 
     const signOut = async () => {
         // todo: confirm sign out
-        const signOutResult = await Auth.signOut()
-            .then((result) => {
-                console.log(result);
-                authContext.setSignedIn(false);
-                authContext.setUser({});
-                authContext.setSession({});
-                authContext.setCredentials({});
-            }).catch((result) => {
-                console.log('Could not sign out user');
-                console.log(result);
-            });
+        
+        try {
+            const signOutResult = await Auth.signOut();
+            authContext.setSignedIn(false);
+            authContext.setUser({});
+            authContext.setSession({});
+            authContext.setCredentials({});
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     return (

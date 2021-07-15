@@ -12,11 +12,13 @@ import NotFoundScreen from '../screens/NotFoundScreen';
 
 import { RootStackParamList } from '../types';
 
-import AuthNavigator from './AuthNavigator';
-import BottomTabNavigator from './BottomTabNavigator';
+import UnauthenticatedNavigator from './UnauthenticatedNavigator';
+import AuthenticatedNavigator from './AuthenticatedNavigator';
 import LinkingConfiguration from './LinkingConfiguration';
 
 import { AuthContext } from '../context/AuthContext';
+import BottomTabNavigator from './BottomTabNavigator';
+import AuthNavigator from './AuthNavigator';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
@@ -34,16 +36,8 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
   const authContext = useContext(AuthContext);
-
-
-  /*
-    Maybe don't do this here- do it in the App.tsx file.
-
-    Render two different applications based on whether you are authenticated or not. 
-
-    Totall separate the applications. 
-
-  */
+  
+  console.log("signed in?", authContext.signedIn);
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       { authContext.signedIn && <Stack.Screen name="Root" component={BottomTabNavigator} /> }

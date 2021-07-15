@@ -57,17 +57,16 @@ function App() {
       })
       .catch((error) => {
         console.log(error);
-        setSignedIn(true);
       });
 
     Auth.currentAuthenticatedUser()
       .then((user) => {
         console.log(user);
         setUser(user);
+        setSignedIn(true);
       })
       .catch((error) => {
         console.log(error);
-        setSignedIn(true);
       });
 
     Auth.currentUserCredentials()
@@ -80,7 +79,6 @@ function App() {
       })
       .catch((error) => {
         console.log(error);
-        setSignedIn(true);
       });
     
     console.log('authentication complete');
@@ -91,7 +89,7 @@ function App() {
     credentials: credentials,
     isLoading: true,
     session: session,
-    signedIn: true,
+    signedIn: signedIn,
     user: user,
     username: username,
 
