@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Dimensions, TouchableOpacity, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; 
 import styled from 'styled-components/native';
@@ -6,6 +6,7 @@ import PagerView from 'react-native-pager-view';
 
 import { API, Auth, Storage } from 'aws-amplify';
 import * as queries from '../../src/graphql/queries';
+import { VisibilityContext } from '../../context/VisibilityContext';
 
 import ProfileButton from '../profile/ProfileButton';
 import Hero from './Hero';
@@ -36,8 +37,9 @@ export default ReelayFeed2 = ({ navigation }) => {
 
     const [reelayList, setReelayList] = useState([]);
     const [reelayListNextToken, setReelayListNextToken] = useState(null);
-    const [overlayVisible, setOverlayVisible] = useState(false);
     const [feedPosition, setFeedPosition] = useState(0);
+
+    const visibilityContext = useContext(VisibilityContext);
 
     useEffect(() => {
         if (reelayList.length == 0) {
@@ -142,6 +144,7 @@ export default ReelayFeed2 = ({ navigation }) => {
         setReelayListNextToken(nextToken);
     }
 
+    console.log(visibilityContext.overlayVisible);
 
 	return (
 		<View>
@@ -162,7 +165,6 @@ export default ReelayFeed2 = ({ navigation }) => {
 							key={index} 
 							index={index}
 							curPosition={feedPosition}
-                            overlayVisible={overlayVisible}
 						/>;
 					})}
 				</PagerViewContainer>
@@ -179,14 +181,13 @@ export default ReelayFeed2 = ({ navigation }) => {
                 <ProfileButton 
                     navigation={navigation} 
                     onPress={() => {
-                        setOverlayVisible(true);
+                        visibilityContext.setOverlayVisible(true);
                         console.log('overlay visible');
                     }}
                 />
-                {overlayVisible && 
+                {visibilityContext.overlayVisible && 
                     <ProfileOverlay 
                         navigation={navigation}
-                        setOverlayVisible={setOverlayVisible}
                     />
                 }
             </RefreshContainer>

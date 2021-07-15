@@ -44,8 +44,6 @@ function RootNavigator() {
     Totall separate the applications. 
 
   */
- console.log("AUTH CONTEXT");
- console.log(authContext);
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       { authContext.signedIn && <Stack.Screen name="Root" component={BottomTabNavigator} /> }

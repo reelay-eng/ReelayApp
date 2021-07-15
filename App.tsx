@@ -7,8 +7,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Amplify, Auth } from 'aws-amplify';
 import config from "./src/aws-exports";
 
-// auth imports
+// context imports
 import { AuthContext } from './context/AuthContext';
+import { VisibilityContext } from './context/VisibilityContext';
 
 // expo imports
 import { StatusBar } from 'expo-status-bar';
@@ -44,6 +45,8 @@ function App() {
   const [session, setSession] = useState({});
   const [user, setUser] = useState({});
   const [username, setUsername] = useState('');
+
+  const [overlayVisible, setOverlayVisible] = useState(false);
 
   useEffect(() => {
     console.log('Setting up authentication');
@@ -100,6 +103,11 @@ function App() {
     setUsername: setUsername,
   }
 
+  const visibilityState = {
+      overlayVisible: overlayVisible,
+      setOverlayVisible: setOverlayVisible,
+  }
+
   //@anthony this code structure is pretty good - but I think you can improve it like so
   /*
 
@@ -123,10 +131,12 @@ function App() {
     return (
       <SafeAreaProvider>
         <AuthContext.Provider value={authState}>
-          <Provider store={store}>
-            <StatusBar hidden={true} />
-            <Navigation colorScheme={colorScheme} />
-          </Provider>
+          <VisibilityContext.Provider value={visibilityState}>
+            <Provider store={store}>
+              <StatusBar hidden={true} />
+              <Navigation colorScheme={colorScheme} />
+            </Provider>
+          </VisibilityContext.Provider>
         </AuthContext.Provider>
       </SafeAreaProvider>
     );

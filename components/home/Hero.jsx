@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import styled from 'styled-components/native';
@@ -7,6 +7,8 @@ import VideoPlayer from '../view-reelay/VideoPlayer'
 import Poster from '../view-reelay/Poster';
 import ReelayInfo from './ReelayInfo';
 import Sidebar from './Sidebar';
+
+import { VisibilityContext } from '../../context/VisibilityContext';
 
 const Gradient = styled(LinearGradient)`
 	height: 100%;
@@ -28,14 +30,16 @@ const RightContainer = styled(View)`
 	align-items: flex-end;
 `  
 
-const Hero = ({ reelay, index, curPosition, overlayVisible }) => {
+const Hero = ({ reelay, index, curPosition }) => {
+
+    const visibilityContext = useContext(VisibilityContext);
 
     return (
         <View key={index}>
             <VideoPlayer
                 videoURI={reelay.videoURI}
                 poster={require('../../assets/images/splash.png')}
-                isPlay={curPosition === index && !overlayVisible}
+                isPlay={curPosition === index && !visibilityContext.overlayVisible}
             >
             </VideoPlayer>
             <Gradient

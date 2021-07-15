@@ -5,10 +5,12 @@ import { AuthStyles, TextStyles } from '../../styles';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
+import { VisibilityContext } from '../../context/VisibilityContext';
 
-export default ProfileOverlay = ({ navigation, setOverlayVisible }) => {
+export default ProfileOverlay = ({ navigation }) => {
 
     const authContext = useContext(AuthContext);
+    const visibilityContext = useContext(VisibilityContext);
 
     const signOut = async () => {
         // todo: confirm sign out
@@ -35,7 +37,7 @@ export default ProfileOverlay = ({ navigation, setOverlayVisible }) => {
             }}>
             <View style={{ marginTop: 100 }}>
                 <Pressable onPress={() => {
-                    setOverlayVisible(false);
+                    visibilityContext.setOverlayVisible(false);
                 }} style={{ 
                     marginBottom: 40,
                     alignSelf: 'flex-end',
@@ -60,10 +62,8 @@ export default ProfileOverlay = ({ navigation, setOverlayVisible }) => {
                 </Pressable>
                 <Pressable onPress={() => { 
                     console.log('Pressed settings');
-                    setOverlayVisible(false);
-                    navigation.push('AccountScreen', {
-                        setOverlayVisible,
-                    });
+                    visibilityContext.setOverlayVisible(false);
+                    navigation.push('AccountScreen');
                 }} style={{ 
                     marginBottom: 40,
                     alignSelf: 'flex-end',
