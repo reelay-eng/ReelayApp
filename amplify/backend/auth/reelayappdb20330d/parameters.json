@@ -1,6 +1,6 @@
 {
     "identityPoolName": "reelayappdb20330d_identitypool_db20330d",
-    "allowUnauthenticatedIdentities": true,
+    "allowUnauthenticatedIdentities": false,
     "resourceNameTruncated": "reelaydb20330d",
     "userPoolName": "reelayappdb20330d_userpool_db20330d",
     "autoVerifiedAttributes": [
@@ -45,9 +45,17 @@
             "Arn"
         ]
     },
-    "useDefault": "default",
-    "userPoolGroupList": [],
+    "useDefault": "defaultSocial",
+    "userPoolGroupList": [
+        "Admin"
+    ],
     "serviceName": "Cognito",
     "usernameCaseSensitive": false,
-    "dependsOn": []
+    "dependsOn": [],
+    "hostedUI": true,
+    "hostedUIDomainName": "reelayapp-socialauth",
+    "authProvidersUserPool": [],
+    "hostedUIProviderMeta": "[]",
+    "oAuthMetadata": "{\"AllowedOAuthFlows\":[\"code\"],\"AllowedOAuthScopes\":[\"phone\",\"email\",\"openid\",\"profile\",\"aws.cognito.signin.user.admin\"],\"CallbackURLs\":[\"https://www.reelay.app/\"],\"LogoutURLs\":[\"https://www.reelay.app/\"]}",
+    "authProviders": []
 }
