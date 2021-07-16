@@ -30,15 +30,3 @@ type Movie @model @auth(rules: [{allow: private, operations: [read]}]) {
   releaseDate: AWSDate
   runningTime: Int
 }
-
-type VodAsset @model(subscriptions: {level: public}) @auth(rules: [{allow: owner, ownerField: "owner", operations: [create, update, delete, read]}, {allow: private, operations: [read]}]) {
-  id: ID!
-  title: String!
-  description: String!
-  video: VideoObject @connection
-}
-
-type VideoObject @model @auth(rules: [{allow: owner, ownerField: "owner", operations: [create, update, delete, read]}, {allow: private, operations: [read]}]) {
-  id: ID!
-}
- 
