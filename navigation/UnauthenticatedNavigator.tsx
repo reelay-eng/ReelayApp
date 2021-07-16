@@ -2,7 +2,6 @@ import * as React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AuthenticationStackParamList } from '../types';
 
-import PreSignUpSSOScreen from '../screens/PreSignUpSSOScreen';
 import SignUpEmailScreen from '../screens/SignUpEmailScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import SignInScreen from '../screens/SignInScreen';
@@ -16,30 +15,19 @@ const AuthenticationStack = createStackNavigator<AuthenticationStackParamList>()
 export default function UnauthenticatedNavigator() {
   return (
     <AuthenticationStack.Navigator
-      initialRouteName="PreSignUpSSOScreen"
+      initialRouteName="SignUpEmailScreen"
       detachInactiveScreens={false}
     >
-      {/* <AuthenticationStack.Screen
-        name="SplashScreen"
-        component={SplashScreen}
-      /> */}
       <AuthenticationStack.Screen
-        name="PreSignUpSSOScreen"
-        component={PreSignUpSSOScreen}
-        options={{
-          headerShown: false
-        }}
-      />
-      <AuthenticationStack.Screen
-        name="SignUpScreen"
-        component={SignUpScreen}
+        name="SignUpEmailScreen"
+        component={SignUpEmailScreen}
         options={{
             headerShown: false,
         }}
       />
       <AuthenticationStack.Screen
-        name="SignUpEmailScreen"
-        component={SignUpEmailScreen}
+        name="SignUpScreen"
+        component={SignUpScreen}
         options={{
             headerShown: false,
         }}

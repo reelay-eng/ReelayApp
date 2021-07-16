@@ -22,13 +22,8 @@ export default SignUpEmailScreen = ({ navigation }) => {
             backgroundColor: 'black',
             height: '100%',
         }}>
-            <View style={AuthStyles.headerView}>
-                <Icon type='ionicon' name='chevron-back-outline' color={'white'} size={30} 
-                    onPress={() => { navigation.pop() }}
-                    style={AuthStyles.backButton}/>
-                <Text h3 style={AuthStyles.headerText}>{'Enter your email address'}</Text>
-            </View>
-
+            <Text h3 style={AuthStyles.headerTextCentered}>{'Join Reelay'}</Text>
+            <View style={{ height: '50%' }} />
             <Input
                 ref={emailInput}
                 autoCapitalize='none'

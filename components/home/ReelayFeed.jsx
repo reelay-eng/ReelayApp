@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Dimensions, TouchableOpacity, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; 
 import styled from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
 
 import { API, Auth, Storage } from 'aws-amplify';
-import { useDispatch, useSelector } from 'react-redux';
-import { appendReelayList, resetFocus, setFeedPosition, setReelayList } from './ReelayFeedSlice';
 import * as queries from '../../src/graphql/queries';
+import { VisibilityContext } from '../../context/VisibilityContext';
 
 import ProfileButton from '../profile/ProfileButton';
 import Hero from './Hero';
@@ -18,7 +17,7 @@ import { ActivityIndicator } from 'react-native-paper';
 // Please move these into an environment variable (preferably injected via your build step)
 const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3/';
 const TMDB_API_KEY = '033f105cd28f507f3dc6ae794d5e44f5';
-const CLOUDFRONT_BASE_URL = 'https://d18kzs7g2lzt5h.cloudfront.net';
+const CLOUDFRONT_BASE_URL = 'https://di92fpd9s7eko.cloudfront.net';
 
 const { height, width } = Dimensions.get('window');
 
@@ -34,238 +33,120 @@ const RefreshContainer = styled(View)`
     width: ${width}px;
 `
 
-const ReelayFeed = ({ navigation }) => {
-    // Can you place this constant at the top of the file? 
-    // also add a lint rule thta will yell at you for doing this. 
-    const REELAY_LOAD_BUFFER_SIZE = 3;
-    const reelayList = useSelector((state) => state.reelayFeed.reelayList);
-    const reelayListNextToken = useSelector((state) => state.reelayFeed.reelayListNextToken);
-    const selectedFeedLoaded = useSelector((state) => state.reelayFeed.selectedFeedLoaded);
-    const selectedFeedPosition = useSelector((state) => state.reelayFeed.selectedFeedPosition);
+export default ReelayFeed = ({ navigation }) => {
 
-    const [overlayVisible, setOverlayVisible] = useState(false);
+    const [reelayList, setReelayList] = useState([]);
+    const [reelayListNextToken, setReelayListNextToken] = useState(null);
+    const [feedPosition, setFeedPosition] = useState(0);
 
-    const dispatch = useDispatch();
+    const visibilityContext = useContext(VisibilityContext);
 
     useEffect(() => {
         if (reelayList.length == 0) {
             console.log('gotta load the feed');
-            fetchReelays({ mostRecent: false });
+            fetchNextReelay({ mostRecent: false });
         } else {
             console.log('feed already loaded');
         }
     }, [navigation]);
 
 	const onPageSelected = ((e) => {
-		dispatch(setFeedPosition(e.nativeEvent.position));
+		setFeedPosition(e.nativeEvent.position);
 		if (e.nativeEvent.position == reelayList.length - 1) {
             console.log('fetching more reelays');
-			fetchReelays({ mostRecent: false });
+			fetchNextReelay({ mostRecent: false });
 		}
 	});
 
-    const fetchReelays = async ({ mostRecent }) => {
-        if (selectedFeedLoaded && !reelayListNextToken) {
-            // reached end of feed
-            console.log('reached end of feed');
-            return;
-        }
+    const getVideoURI = async (reelayObject) => {
+        const videoS3Key = (reelayObject.videoS3Key.endsWith('.mp4')) 
+                ? reelayObject.videoS3Key : (reelayObject.videoS3Key + '.mp4');
+        // const signedVideoURI = await Storage.get(videoS3Key, {
+        //     contentType: "video/mp4"
+        // });
+        const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${videoS3Key}`;
+        return cloudfrontVideoURI;
+    }
 
-        // if we're calling the most recent reelays, get them from the top
-        const queryResponse = (mostRecent) 
-        ? await API.graphql({
-            query: queries.reelaysByUploadDate,
-            variables: {
-                visibility: 'global',
-                sortDirection: 'DESC',
-                limit: REELAY_LOAD_BUFFER_SIZE,
+    const getTitleObject = async (reelayObject) => {
+        if (!reelayObject.tmdbTitleID) return null;
+
+        const tmdbTitleQuery = (reelayObject.isSeries)
+            ? `${TMDB_API_BASE_URL}\/tv\/${reelayObject.tmdbTitleID}\?api_key\=${TMDB_API_KEY}`
+            : `${TMDB_API_BASE_URL}\/movie\/${reelayObject.tmdbTitleID}\?api_key\=${TMDB_API_KEY}`;
+
+        const titleObjectResponse = await fetch(tmdbTitleQuery);
+        const titleObject = await titleObjectResponse.json();
+
+        if (reelayObject.isSeries) {
+            return {
+                ...titleObject,
+                title: titleObject.name,
+                release_date: titleObject.first_air_date
             }
-        }) : await API.graphql({
+        } else {
+            return titleObject;
+        }
+    }
+
+    const compareReelaysByPostedDate = (reelay1, reelay2) => {
+        return (reelay1.postedDateTime < reelay2.postedDateTime) ? -1 : 1;
+    }
+
+    const fetchNextReelay = async ({ mostRecent }) => {
+        const queryResponse = await API.graphql({
             query: queries.reelaysByUploadDate,
             variables: {
                 visibility: 'global',
                 sortDirection: 'DESC',
-                limit: REELAY_LOAD_BUFFER_SIZE,
-                nextToken: reelayListNextToken
+                limit: 1,
+                nextToken: (mostRecent) ? null : reelayListNextToken,
             }
         });
-    
+
         if (!queryResponse) {
             console.log('No query response');
             return;
         }
-    
-        // for each reelay fetched
-        const fetchedReelays = await queryResponse.data.reelaysByUploadDate.items.map(async (reelayObject) => {
-    
-            // get the video URL from S3
-            // endsWith condition keeps us backwards compatible with first Reelays, whose keys
-            // were not stored in Dynamo with the .mp4 extension. The keys in S3 have that extension though
-            const videoS3Key = (reelayObject.videoS3Key.endsWith('.mp4')) 
-                ? reelayObject.videoS3Key : (reelayObject.videoS3Key + '.mp4');
-                
-            const signedVideoURI = await Storage.get(videoS3Key, {
-                contentType: "video/mp4"
-            });
 
-            const videoS3KeyBase = videoS3Key.slice(0, videoS3Key.length - ('.mp4'.length));
-            const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${videoS3KeyBase}/dash/${videoS3KeyBase}_1500.mp4`;
-            
-            console.log(cloudfrontVideoURI);
-    
+        const reelayObject = queryResponse.data.reelaysByUploadDate.items[0];
+        const nextToken = queryResponse.data.reelaysByUploadDate.nextToken;
 
-            // @anthony can you break these branches out into functions? It makes it easier to read. 
-            if (reelayObject.tmdbTitleID && reelayObject.isMovie) {
-                const tmdbTitleQuery = `${TMDB_API_BASE_URL}\/movie\/${reelayObject.tmdbTitleID}\?api_key\=${TMDB_API_KEY}`;
-                            // Don't mix async/await syntax and conventional promise syntax.
-            /*
-                    const tmdbTitleObjectResponse = await fetch(tmbdTitleQuery);
-                    const tmdbTitleObject = await tmdbTitleObjectResponse.json();
+        const videoURIPromise = getVideoURI(reelayObject);
+        const titleObjectPromise = getTitleObject(reelayObject);
 
-                in this case though as you are in a .map - the async await won't work as expected. If you want to use async/await inside of a .map or a .each you need to use the async versions of these https://caolan.github.io/async/v3/
-
-                So
-
-                1. You don't need the awaits in this code block or within this .map
-                2. I can't look right now (no credentials), but I think that your Promise.all() is broken - you aren't returning promises, you're returning objects, so it will always be true.  Promise.all() expects an array of promises, I think you are passing an array of objects to it. 
-            */
-                reelayObject.tmdbTitleObject = await fetch(tmdbTitleQuery)
-                    .then((response) => response.json())
-                    .then((tmdbTitleObject) => {        
-                        return tmdbTitleObject;
-                    });
-
-
-
-            } else if (reelayObject.tmdbTitleID && reelayObject.isSeries) {
-                const tmdbTitleQuery = `${TMDB_API_BASE_URL}\/tv\/${reelayObject.tmdbTitleID}\?api_key\=${TMDB_API_KEY}`;
-                reelayObject.tmdbTitleObject = await fetch(tmdbTitleQuery)
-                    .then((response) => response.json())
-                    .then((tmdbTitleObject) => {
-                        // TMDb labels titles and release dates differently between movies and series
-                        return {
-                            ...tmdbTitleObject,
-                            title: tmdbTitleObject.name,
-                            release_date: tmdbTitleObject.first_air_date,
-                        };
-                    });
+        const preparedReelay = {
+            id: reelayObject.id,
+            creator: {
+                username: String(reelayObject.owner),
+                avatar: '../../assets/images/icon.png'
+            },
+            movie: {
+                title: reelayObject.tmdbTitleObject 
+                    ? reelayObject.tmdbTitleObject.title 
+                    : String(reelayObject.movieID),
+                posterURI: reelayObject.tmdbTitleObject
+                    ? reelayObject.tmdbTitleObject.poster_path
+                    : null,
+            },
+            titleObject: await titleObjectPromise,
+            videoURI: await videoURIPromise,
+            postedDateTime: Date(reelayObject.createdAt),
+            stats: {
+                likes: 99,
+                comments: 66,
+                shares: 33
             }
+        };
 
-            return {
-                id: reelayObject.id,
-                creator: {
-                    username: String(reelayObject.owner),
-                    avatar: '../../assets/images/icon.png'
-                },
-                movie: {
-                    title: reelayObject.tmdbTitleObject 
-                        ? reelayObject.tmdbTitleObject.title 
-                        : String(reelayObject.movieID),
-                    posterURI: reelayObject.tmdbTitleObject
-                        ? reelayObject.tmdbTitleObject.poster_path
-                        : null,
-                },
-                titleObject: reelayObject.tmdbTitleObject,
-                videoURI: signedVideoURI,
-                postedDateTime: Date(reelayObject.createdAt),
-                stats: {
-                    likes: 99,
-                    comments: 66,
-                    shares: 33
-                }
-            };
-        });
-    
-        Promise.all(fetchedReelays).then((items) => {
-            // not sure if we should always call nextToken
-            const nextToken = queryResponse.data.reelaysByUploadDate.nextToken;
-            if (!selectedFeedLoaded) {
-                dispatch(setReelayList({
-                    initialReelays: items,
-                    nextToken: nextToken,
-                }));
-            } else if (mostRecent) {
-                // set the reelayList to be the merger of the old and new
-                const mergedReelays = getMergedReelayList(items, reelayList);
-                dispatch(setReelayList({
-                    initialReelays: mergedReelays,
-                    nextToken: nextToken,
-                }));
-            } else {
-                dispatch(appendReelayList({
-                    nextReelays: items,
-                    nextToken: nextToken,
-                }));
-            }
-        });
-    }
-
-    // this function should _only_ be called after calling fetchMostRecentReelays
-
-    /*
-    I *think* the following is 
-
-    1. Looking at the two lists of reelays and deduping them.
-    2. Then putting them into one list sorted by timestamp.
-
-    Don't reinvent the wheel
-
-    1. use lodash to (https://lodash.com/docs) do all of this stuff. First https://lodash.com/docs/#differenceWith for the deduping (or the other functions available there)
-    2. Then you can just use a normal sort function to order by time stamp.
-
-    This code is super confusing and you're reinventing the wheel needlessly. 
-
-    */ 
-    const getMergedReelayList = (fetchedReelays, prevFetchedReelays) => {
-        console.log('merging lists');
-        if (prevFetchedReelays.length == 0) return fetchedReelays;
-        if (fetchedReelays.length == 0) return prevFetchedReelays;
-
-        let fetchedReelaysCursor = 0;
-        let prevFetchedReelaysCursor = 0;
-        const mergedReelays = [];
-
-        while (fetchedReelaysCursor < fetchedReelays.length 
-                && prevFetchedReelaysCursor < prevFetchedReelays.length) {
-            const fetchedReelay = fetchedReelays[fetchedReelaysCursor];
-            const prevFetchedReelay = prevFetchedReelays[prevFetchedReelaysCursor];
-
-            if (fetchedReelay.id == prevFetchedReelay.id) {
-                // skip duplicate, push only one
-                // todo: handle deleted posts
-                mergedReelays.push(prevFetchedReelay);
-                prevFetchedReelaysCursor += 1;
-                fetchedReelaysCursor += 1;
-            } else if (fetchedReelay.postedDateTime < prevFetchedReelay.postedDateTime) {
-                // fetchedReelay is older, so push prevFetchedReelay first
-                mergedReelays.push(prevFetchedReelay);
-                prevFetchedReelaysCursor += 1;
-            } else {
-                mergedReelays.push(fetchedReelay);
-                fetchedReelaysCursor += 1;
-            }
-        }
-        while (prevFetchedReelaysCursor < prevFetchedReelays.length) {
-            // push remaining prevFetchedReelays
-            const prevFetchedReelay = prevFetchedReelays[prevFetchedReelaysCursor];
-            mergedReelays.push(prevFetchedReelay);
-            prevFetchedReelaysCursor += 1;
-        }
-        while (fetchedReelaysCursor < fetchedReelays.length) {
-            // push remaining fetchedReelays
-            const fetchedReelay = fetchedReelays[fetchedReelaysCursor];
-            mergedReelays.push(fetchedReelay);
-            fetchedReelaysCursor += 1;
-        }
-        console.log('merging: ');
-        fetchedReelays.map((reelay, index) => {console.log('fetched: ', reelay.id)});
-        prevFetchedReelays.map((reelay, index) => {console.log('prev fetched: ', reelay.id)});
-        mergedReelays.map((reelay, index) => {console.log('merged: ', reelay.id)});
-        return mergedReelays;
+        const newReelayList = [...reelayList, preparedReelay];
+        setReelayList(newReelayList.sort(compareReelaysByPostedDate));
+        setReelayListNextToken(nextToken);
     }
 
 	return (
-		<View>
+        // todo: make a background image of REELAY that appears behind the feed when videos are loading
+		<View style={{ backgroundColor: 'black'}}>
 			{ reelayList.length <1 && <ActivityIndicator /> }
 			{ reelayList.length >= 1 && 
 				<PagerViewContainer 
@@ -282,7 +163,7 @@ const ReelayFeed = ({ navigation }) => {
 							reelay={reelay} 
 							key={index} 
 							index={index}
-							curPosition={selectedFeedPosition} 
+							curPosition={feedPosition}
 						/>;
 					})}
 				</PagerViewContainer>
@@ -292,24 +173,23 @@ const ReelayFeed = ({ navigation }) => {
                 <TouchableOpacity
                     style={{ margin: 10 }}
                     onPress={() => {
-                        console.log('pressing');
-                        fetchReelays({ mostRecent: true});
+                        fetchNextReelay({ mostRecent: true});
                     }}>
                     <Ionicons name="refresh-sharp" size={24} color="white" />
                 </TouchableOpacity>
                 <ProfileButton 
                     navigation={navigation} 
                     onPress={() => {
-                        setOverlayVisible(true);
+                        visibilityContext.setOverlayVisible(true);
                         console.log('overlay visible');
-                    }}/>
-                {overlayVisible && <ProfileOverlay onClose={() => {
-                        setOverlayVisible(false);
-                    }}/>
+                    }}
+                />
+                {visibilityContext.overlayVisible && 
+                    <ProfileOverlay 
+                        navigation={navigation}
+                    />
                 }
             </RefreshContainer>
 		</View>
 	);
-}  
-
-export default ReelayFeed;
+}
