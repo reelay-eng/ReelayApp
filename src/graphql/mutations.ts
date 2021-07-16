@@ -12,8 +12,10 @@ export const createUser = /* GraphQL */ `
       username
       email
       phoneNumber
-      dateOfBirth
+      birthdate
       createdReelayIDs
+      userFollowers
+      usersFollowing
       _version
       _deleted
       _lastChangedAt
@@ -33,8 +35,10 @@ export const updateUser = /* GraphQL */ `
       username
       email
       phoneNumber
-      dateOfBirth
+      birthdate
       createdReelayIDs
+      userFollowers
+      usersFollowing
       _version
       _deleted
       _lastChangedAt
@@ -54,8 +58,10 @@ export const deleteUser = /* GraphQL */ `
       username
       email
       phoneNumber
-      dateOfBirth
+      birthdate
       createdReelayIDs
+      userFollowers
+      usersFollowing
       _version
       _deleted
       _lastChangedAt

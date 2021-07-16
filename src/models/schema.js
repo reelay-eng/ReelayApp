@@ -31,8 +31,8 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
-                "dateOfBirth": {
-                    "name": "dateOfBirth",
+                "birthdate": {
+                    "name": "birthdate",
                     "isArray": false,
                     "type": "AWSDate",
                     "isRequired": false,
@@ -43,6 +43,22 @@ export const schema = {
                     "isArray": true,
                     "type": "ID",
                     "isRequired": true,
+                    "attributes": [],
+                    "isArrayNullable": true
+                },
+                "userFollowers": {
+                    "name": "userFollowers",
+                    "isArray": true,
+                    "type": "ID",
+                    "isRequired": false,
+                    "attributes": [],
+                    "isArrayNullable": true
+                },
+                "usersFollowing": {
+                    "name": "usersFollowing",
+                    "isArray": true,
+                    "type": "ID",
+                    "isRequired": false,
                     "attributes": [],
                     "isArrayNullable": true
                 }
@@ -394,5 +410,5 @@ export const schema = {
     },
     "enums": {},
     "nonModels": {},
-    "version": "66ec83b1c5bc32947c46cf5ade075fb9"
+    "version": "caea066e79804716312d842990607c0e"
 };

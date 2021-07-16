@@ -9,8 +9,10 @@ export const getUser = /* GraphQL */ `
       username
       email
       phoneNumber
-      dateOfBirth
+      birthdate
       createdReelayIDs
+      userFollowers
+      usersFollowing
       _version
       _deleted
       _lastChangedAt
@@ -32,8 +34,10 @@ export const listUsers = /* GraphQL */ `
         username
         email
         phoneNumber
-        dateOfBirth
+        birthdate
         createdReelayIDs
+        userFollowers
+        usersFollowing
         _version
         _deleted
         _lastChangedAt
@@ -64,8 +68,10 @@ export const syncUsers = /* GraphQL */ `
         username
         email
         phoneNumber
-        dateOfBirth
+        birthdate
         createdReelayIDs
+        userFollowers
+        usersFollowing
         _version
         _deleted
         _lastChangedAt

@@ -9,8 +9,10 @@ export declare class User {
   readonly username: string;
   readonly email?: string;
   readonly phoneNumber?: string;
-  readonly dateOfBirth?: string;
+  readonly birthdate?: string;
   readonly createdReelayIDs?: string[];
+  readonly userFollowers?: (string | null)[];
+  readonly usersFollowing?: (string | null)[];
   constructor(init: ModelInit<User>);
   static copyOf(source: User, mutator: (draft: MutableModel<User>) => MutableModel<User> | void): User;
 }
