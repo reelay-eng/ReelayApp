@@ -74,11 +74,5 @@
       ]
     }
   },
-  "video": {
-    "reelayvodservice": {
-      "service": "video",
-      "serviceType": "video-on-demand",
-      "providerPlugin": "awscloudformation"
-    }
-  }
+  "video": {}
 }

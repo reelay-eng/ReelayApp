@@ -22,11 +22,6 @@
           "deploymentBucketName": "amplify-reelayapp-dev-211002-deployment",
           "s3Key": "amplify-builds/graphQLCognitoSyncUsers-47636c42716c5355784d-build.zip"
         }
-      },
-      "video": {
-        "reelayvodservice": {
-          "s3UUID": "2a1gfy6v"
-        }
       }
     }
   }
