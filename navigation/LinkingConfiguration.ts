@@ -22,6 +22,8 @@ export default {
       Unauthenticated: {
         screens: {
           SplashScreen: 'SplashScreen',
+          PreSignUpSSOScreen: 'PreSignUpSSOScreen',
+          SignUpEmailScreen: 'SignUpEmailScreen',
           SignUpScreen: 'SignUpScreen',
           SignInScreen: 'SignInScreen',
           ConfirmEmailScreen: 'ConfirmEmailScreen',

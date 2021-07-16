@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { createRef, useContext, useState } from 'react';
 import { View, SafeAreaView } from 'react-native';
 import { Button, Input, Icon, Text } from 'react-native-elements';
 import { AuthStyles, TextStyles } from '../styles';
@@ -7,17 +7,22 @@ import { Auth } from 'aws-amplify';
 import { AuthContext } from '../context/AuthContext';
 import { showErrorToast } from '../components/utils/toasts';
 
-export default SignUpScreen = ({ navigation }) => {
-
-    const authContext = useContext(AuthContext);
-
-    const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
-    const [password, setPassword] = useState(true);
-    const [confirmPassword, setConfirmPassword] = useState(true);
+export default SignUpScreen = ({ navigation, route }) => {
 
     const SIGN_UP_ERROR_MESSAGE = 'Couldn\'t create an account. Try a different username?';
+
+    const { email } = route.params;
+
+    const authContext = useContext(AuthContext);
+    const usernameRef = createRef();
+    
+    usernameRef.current?.setNativeProps({
+        autoCorrect: false,
+    });
+
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState(true);
+    const [confirmPassword, setConfirmPassword] = useState(true);
 
     const createAccount = async () => {
         console.log('Attempting account creation');
@@ -47,25 +52,20 @@ export default SignUpScreen = ({ navigation }) => {
             backgroundColor: 'black',
             height: '100%',
         }}>
-            <Text h3 style={AuthStyles.headerTextCentered}>{'Create an Account'}</Text>
+            <View style={AuthStyles.headerView}>
+                <Icon type='ionicon' name='chevron-back-outline' color={'white'} size={30} 
+                    onPress={() => { navigation.pop() }}
+                    style={AuthStyles.backButton}/>
+                <Text h3 style={AuthStyles.headerText}>{'Create an Account'}</Text>
+            </View>
             <Input 
+                ref={usernameRef}
                 autoCapitalize='none'
                 placeholder={'Username'} 
                 onChangeText={(text) => {
                     setUsername(text);
                 }}
                 rightIcon={{type: 'ionicon', name: 'person-outline'}}
-                style={{
-                    ...AuthStyles.input,
-                }}
-            />
-            <Input 
-                autoCapitalize='none'
-                placeholder={'Email'} 
-                onChangeText={(text) => {
-                    setEmail(text);
-                }}
-                rightIcon={{type: 'ionicon', name: 'mail-outline'}}
                 style={{
                     ...AuthStyles.input,
                 }}
