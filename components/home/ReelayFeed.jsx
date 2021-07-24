@@ -10,7 +10,6 @@ import PagerView from 'react-native-pager-view';
 import { ActivityIndicator } from 'react-native-paper';
 
 import { Auth, DataStore, Predicates, SortDirection, Storage } from 'aws-amplify';
-import * as queries from '../../src/graphql/queries';
 
 import SettingsButton from '../overlay/SettingsButton';
 import ReelayOverlay from '../overlay/ReelayOverlay';
@@ -50,7 +49,6 @@ export default ReelayFeed = ({ navigation }) => {
     useEffect(() => {
         if (reelayList.length == 0) {
             console.log('gotta load the feed');
-            deleteReelay('c07e6e01-bb9f-404b-a4c0-7f6aa199715a');
             fetchNextReelay({ mostRecent: false });
         } else {
             console.log('feed already loaded');
@@ -72,7 +70,7 @@ export default ReelayFeed = ({ navigation }) => {
             contentType: "video/mp4"
         });
         const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${videoS3Key}`;
-        return cloudfrontVideoURI;
+        return signedVideoURI;
     }
 
     const getTitleObject = async (reelayObject) => {
@@ -98,15 +96,6 @@ export default ReelayFeed = ({ navigation }) => {
 
     const compareReelaysByPostedDate = (reelay1, reelay2) => {
         return (reelay1.postedDateTime < reelay2.postedDateTime) ? -1 : 1;
-    }
-
-    const deleteReelay = async (id) => {
-        const reelay = await DataStore.query(Reelay, id);
-        if (reelay) {
-            console.log(reelay);
-            const status = await DataStore.delete(reelay);
-            console.log(status);
-        }
     }
 
     const fetchNextReelay = async ({ mostRecent }) => {
