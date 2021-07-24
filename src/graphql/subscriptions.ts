@@ -2,78 +2,6 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const onCreateVodAsset = /* GraphQL */ `
-  subscription OnCreateVodAsset {
-    onCreateVodAsset {
-      id
-      title
-      description
-      _version
-      _deleted
-      _lastChangedAt
-      createdAt
-      updatedAt
-      owner
-      video {
-        id
-        _version
-        _deleted
-        _lastChangedAt
-        createdAt
-        updatedAt
-        owner
-      }
-    }
-  }
-`;
-export const onUpdateVodAsset = /* GraphQL */ `
-  subscription OnUpdateVodAsset {
-    onUpdateVodAsset {
-      id
-      title
-      description
-      _version
-      _deleted
-      _lastChangedAt
-      createdAt
-      updatedAt
-      owner
-      video {
-        id
-        _version
-        _deleted
-        _lastChangedAt
-        createdAt
-        updatedAt
-        owner
-      }
-    }
-  }
-`;
-export const onDeleteVodAsset = /* GraphQL */ `
-  subscription OnDeleteVodAsset {
-    onDeleteVodAsset {
-      id
-      title
-      description
-      _version
-      _deleted
-      _lastChangedAt
-      createdAt
-      updatedAt
-      owner
-      video {
-        id
-        _version
-        _deleted
-        _lastChangedAt
-        createdAt
-        updatedAt
-        owner
-      }
-    }
-  }
-`;
 export const onCreateUser = /* GraphQL */ `
   subscription OnCreateUser {
     onCreateUser {
@@ -248,45 +176,6 @@ export const onDeleteMovie = /* GraphQL */ `
       _lastChangedAt
       createdAt
       updatedAt
-    }
-  }
-`;
-export const onCreateVideoObject = /* GraphQL */ `
-  subscription OnCreateVideoObject {
-    onCreateVideoObject {
-      id
-      _version
-      _deleted
-      _lastChangedAt
-      createdAt
-      updatedAt
-      owner
-    }
-  }
-`;
-export const onUpdateVideoObject = /* GraphQL */ `
-  subscription OnUpdateVideoObject {
-    onUpdateVideoObject {
-      id
-      _version
-      _deleted
-      _lastChangedAt
-      createdAt
-      updatedAt
-      owner
-    }
-  }
-`;
-export const onDeleteVideoObject = /* GraphQL */ `
-  subscription OnDeleteVideoObject {
-    onDeleteVideoObject {
-      id
-      _version
-      _deleted
-      _lastChangedAt
-      createdAt
-      updatedAt
-      owner
     }
   }
 `;

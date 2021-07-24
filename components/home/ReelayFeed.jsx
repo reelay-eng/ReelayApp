@@ -4,9 +4,11 @@ import { Ionicons } from '@expo/vector-icons';
 import styled from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
 
-import { API, Auth, Storage } from 'aws-amplify';
+import { API, Auth, DataStore, Storage } from 'aws-amplify';
 import * as queries from '../../src/graphql/queries';
 import { VisibilityContext } from '../../context/VisibilityContext';
+
+import { Reelay } from '../../src/models';
 
 import ProfileButton from '../profile/ProfileButton';
 import Hero from './Hero';
@@ -44,6 +46,7 @@ export default ReelayFeed = ({ navigation }) => {
     useEffect(() => {
         if (reelayList.length == 0) {
             console.log('gotta load the feed');
+            deleteReelay('c07e6e01-bb9f-404b-a4c0-7f6aa199715a');
             fetchNextReelay({ mostRecent: false });
         } else {
             console.log('feed already loaded');
@@ -93,6 +96,15 @@ export default ReelayFeed = ({ navigation }) => {
         return (reelay1.postedDateTime < reelay2.postedDateTime) ? -1 : 1;
     }
 
+    const deleteReelay = async (id) => {
+        const reelay = await DataStore.query(Reelay, id);
+        if (reelay) {
+            console.log(reelay);
+            const status = await DataStore.delete(reelay);
+            console.log(status);
+        }
+    }
+
     const fetchNextReelay = async ({ mostRecent }) => {
         const queryResponse = await API.graphql({
             query: queries.reelaysByUploadDate,
@@ -138,7 +150,7 @@ export default ReelayFeed = ({ navigation }) => {
                 shares: 33
             }
         };
-
+        
         const newReelayList = [...reelayList, preparedReelay];
         setReelayList(newReelayList.sort(compareReelaysByPostedDate));
         setReelayListNextToken(nextToken);
