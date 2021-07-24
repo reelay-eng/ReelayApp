@@ -1,0 +1,13 @@
+{
+  "builds": {
+    "ios": {
+      "release": {
+        "schemeBuildConfiguration": "Release"
+      },
+      "development": {
+        "schemeBuildConfiguration": "Debug",
+        "distribution": "internal"
+      }
+    }
+  }
+}
