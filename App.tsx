@@ -44,12 +44,12 @@ function App() {
   const [username, setUsername] = useState('');
 
   const [overlayVisible, setOverlayVisible] = useState(false);
+  const [overlayData, setOverlayData] = useState({});
 
   useEffect(() => {
     console.log('Setting up authentication');
     Auth.currentSession()
       .then((session) => {
-        console.log(session);
         setSession(session);
       })
       .catch((error) => {
@@ -58,7 +58,6 @@ function App() {
 
     Auth.currentAuthenticatedUser()
       .then((user) => {
-        console.log(user);
         setUser(user);
         setSignedIn(true);
       })
@@ -68,11 +67,8 @@ function App() {
 
     Auth.currentUserCredentials()
       .then((credentials) => {
-        console.log(credentials);
         setCredentials(credentials);
         setSignedIn(credentials.authenticated);
-        console.log("Signed in? ", credentials.authenticated);
-        console.log(authState);
       })
       .catch((error) => {
         console.log(error);
@@ -100,7 +96,9 @@ function App() {
 
   const visibilityState = {
       overlayVisible: overlayVisible,
+      overlayData: overlayData,
       setOverlayVisible: setOverlayVisible,
+      setOverlayData: setOverlayData,
   }
 
   if (isLoading) {

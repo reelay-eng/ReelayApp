@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Pressable } from 'react-native';
 import styled from 'styled-components/native';
 
-export default ProfileButton = ({ onPress }) => {
+import { VisibilityContext } from '../../context/VisibilityContext';
+
+export default SettingsButton = () => {
+
+    const visibilityContext = useContext(VisibilityContext);
 
     const AvatarView = styled.View`
         width: 48px;
@@ -15,6 +19,14 @@ export default ProfileButton = ({ onPress }) => {
         border-width: 2px;
         border-color: #ffffff;
     `
+
+    const onPress = () => {
+        visibilityContext.setOverlayData({
+            type: 'SETTINGS',
+        });
+        visibilityContext.setOverlayVisible(true);
+        console.log('pressed');
+    }
 
     return (
         <AvatarView style={{ margin: 20 }}>

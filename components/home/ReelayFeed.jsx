@@ -1,20 +1,23 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Dimensions, TouchableOpacity, Text, View } from 'react-native';
+import { VisibilityContext } from '../../context/VisibilityContext';
+
+import { find } from 'lodash';
+
 import { Ionicons } from '@expo/vector-icons'; 
 import styled from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
+import { ActivityIndicator } from 'react-native-paper';
 
-import { API, Auth, DataStore, Storage } from 'aws-amplify';
+import { Auth, DataStore, Predicates, SortDirection, Storage } from 'aws-amplify';
 import * as queries from '../../src/graphql/queries';
-import { VisibilityContext } from '../../context/VisibilityContext';
 
-import { Reelay } from '../../src/models';
-
-import ProfileButton from '../profile/ProfileButton';
+import SettingsButton from '../overlay/SettingsButton';
+import ReelayOverlay from '../overlay/ReelayOverlay';
 import Hero from './Hero';
 import Header from './Header';
-import ProfileOverlay from '../profile/ProfileOverlay';
-import { ActivityIndicator } from 'react-native-paper';
+
+import { Reelay } from '../../src/models';
 
 // Please move these into an environment variable (preferably injected via your build step)
 const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3/';
@@ -39,6 +42,7 @@ export default ReelayFeed = ({ navigation }) => {
 
     const [reelayList, setReelayList] = useState([]);
     const [reelayListNextToken, setReelayListNextToken] = useState(null);
+    const [nextPage, setNextPage] = useState(0);
     const [feedPosition, setFeedPosition] = useState(0);
 
     const visibilityContext = useContext(VisibilityContext);
@@ -64,9 +68,9 @@ export default ReelayFeed = ({ navigation }) => {
     const getVideoURI = async (reelayObject) => {
         const videoS3Key = (reelayObject.videoS3Key.endsWith('.mp4')) 
                 ? reelayObject.videoS3Key : (reelayObject.videoS3Key + '.mp4');
-        // const signedVideoURI = await Storage.get(videoS3Key, {
-        //     contentType: "video/mp4"
-        // });
+        const signedVideoURI = await Storage.get(videoS3Key, {
+            contentType: "video/mp4"
+        });
         const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${videoS3Key}`;
         return cloudfrontVideoURI;
     }
@@ -106,26 +110,30 @@ export default ReelayFeed = ({ navigation }) => {
     }
 
     const fetchNextReelay = async ({ mostRecent }) => {
-        const queryResponse = await API.graphql({
-            query: queries.reelaysByUploadDate,
-            variables: {
-                visibility: 'global',
-                sortDirection: 'DESC',
-                limit: 1,
-                nextToken: (mostRecent) ? null : reelayListNextToken,
-            }
+
+        const queryResponse = await DataStore.query(Reelay, r => r.visibility('eq', 'global'), {
+            sort: r => r.uploadedAt(SortDirection.DESCENDING),
+            page: nextPage,
+            limit: 1,
         });
+
+        console.log(queryResponse);
 
         if (!queryResponse) {
             console.log('No query response');
             return;
         }
 
-        const reelayObject = queryResponse.data.reelaysByUploadDate.items[0];
-        const nextToken = queryResponse.data.reelaysByUploadDate.nextToken;
+        const reelayObject = queryResponse[0];
 
         const videoURIPromise = getVideoURI(reelayObject);
         const titleObjectPromise = getTitleObject(reelayObject);
+
+
+        if (mostRecent && find(reelayList, (nextReelay) => { return nextReelay.id == reelayObject.id})) {
+            // most recent object already in list
+            return;
+        } 
 
         const preparedReelay = {
             id: reelayObject.id,
@@ -153,7 +161,7 @@ export default ReelayFeed = ({ navigation }) => {
         
         const newReelayList = [...reelayList, preparedReelay];
         setReelayList(newReelayList.sort(compareReelaysByPostedDate));
-        setReelayListNextToken(nextToken);
+        setNextPage(nextPage + 1);
     }
 
 	return (
@@ -189,18 +197,8 @@ export default ReelayFeed = ({ navigation }) => {
                     }}>
                     <Ionicons name="refresh-sharp" size={24} color="white" />
                 </TouchableOpacity>
-                <ProfileButton 
-                    navigation={navigation} 
-                    onPress={() => {
-                        visibilityContext.setOverlayVisible(true);
-                        console.log('overlay visible');
-                    }}
-                />
-                {visibilityContext.overlayVisible && 
-                    <ProfileOverlay 
-                        navigation={navigation}
-                    />
-                }
+                <SettingsButton navigation={navigation} />
+                {visibilityContext.overlayVisible && <ReelayOverlay navigation={navigation} />}
             </RefreshContainer>
 		</View>
 	);

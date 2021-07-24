@@ -1,7 +1,9 @@
-import React from 'react';
-import { View } from 'react-native';
+import React, { useContext } from 'react';
+import { Pressable, View } from 'react-native';
 import { Image } from 'react-native-elements';
 import styled from 'styled-components/native';
+
+import { VisibilityContext } from '../../context/VisibilityContext';
 
 const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
 
@@ -23,6 +25,8 @@ const MovieTitle = styled.Text`
 
 export default Poster = ({ titleObject, showTitle }) => {
 
+	const visibilityContext = useContext(VisibilityContext);
+
 	if (!titleObject) {
 		return <View />;
 	}
@@ -34,16 +38,32 @@ export default Poster = ({ titleObject, showTitle }) => {
 	const posterImageUri = titleObject.poster_path 
         ? `${TMDB_IMAGE_API_BASE_URL}${titleObject.poster_path}` : null;
 
+	const onPosterPress = () => {
+		console.log('poster pressed');
+		if (visibilityContext.overlayVisible) {
+			visibilityContext.setOverlayVisible(false);
+		} else {
+			visibilityContext.setOverlayData({
+				type: 'TITLE',
+				titleObject: titleObject,
+			});
+			visibilityContext.setOverlayVisible(true);	
+			console.log(visibilityContext);
+		}
+	}
+
 	return (
-		<TitleContainer>
-			{posterImageUri && <Image 
-				source={{ uri: posterImageUri }} 
-				style={{ height: 180, width: 120, 
-					marginTop: 10, marginBottom: 10,
-					borderRadius: 8,
-				}}
-			/>}
-			{showTitle && <MovieTitle>{title}{year}</MovieTitle>}
-		</TitleContainer>
+			<TitleContainer>
+				<Pressable>
+					{posterImageUri && <Image 
+						source={{ uri: posterImageUri }} 
+						style={{ height: 180, width: 120, 
+							marginTop: 10, marginBottom: 10,
+							borderRadius: 8,
+						}}
+					/>}
+					{showTitle && <MovieTitle>{title}{year}</MovieTitle>}
+				</Pressable>
+			</TitleContainer>
 	);
 }
