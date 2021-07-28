@@ -33,31 +33,12 @@ export default function VideoPlayer({ videoURI, poster, isPlay }) {
 		setPlaybackObject(component);
 	}
 
-	const onPlaybackStatusUpdate = (status) => {
-		try {
-			setPlaybackStatus(status);
-		} catch (error) {
-			console.log(error);
-		}
-
-		if (status.isBuffering && isLoaded) {
-			setIsLoaded(false); 
-		} else if (!isLoaded) {
-			setIsLoaded(true);
-		}
-
-		if (status.didJustFinish) {
-			console.log("Playback finished");
-		}
-	}
-
 	return (
 			<Video
 			interruptionModeAndroid={Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX}
 			interruptionModeIOS={Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX}
 			isLooping
 			isMuted={false}
-			onPlaybackStatusUpdate={onPlaybackStatusUpdate}
 			playsInSilentLockedModeIOS={true}
 			posterSource={poster}
 			progressUpdateIntervalMillis={50}

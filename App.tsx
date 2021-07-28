@@ -4,7 +4,7 @@ import { ActivityIndicator } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // aws imports
-import { Amplify, Auth } from 'aws-amplify';
+import { Amplify, Auth, Storage } from 'aws-amplify';
 import config from "./src/aws-exports";
 
 // context imports
@@ -29,8 +29,8 @@ Amplify.configure({
     disabled: true,
   },
 });
-
 Auth.configure({ mandatorySignIn: false});
+Storage.configure({ level: 'public' });
 
 function App() {
   const isLoadingComplete = useCachedResources();

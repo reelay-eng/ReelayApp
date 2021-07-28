@@ -40,7 +40,7 @@ const RefreshContainer = styled(View)`
 export default ReelayFeed = ({ navigation }) => {
 
     const [reelayList, setReelayList] = useState([]);
-    const [reelayListNextToken, setReelayListNextToken] = useState(null);
+    // const [reelayListNextToken, setReelayListNextToken] = useState(null);
     const [nextPage, setNextPage] = useState(0);
     const [feedPosition, setFeedPosition] = useState(0);
 
@@ -70,10 +70,11 @@ export default ReelayFeed = ({ navigation }) => {
             contentType: "video/mp4"
         });
         const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${videoS3Key}`;
-        return signedVideoURI;
+        return cloudfrontVideoURI;
     }
 
     const getTitleObject = async (reelayObject) => {
+        console.log(reelayObject);
         if (!reelayObject.tmdbTitleID) return null;
 
         const tmdbTitleQuery = (reelayObject.isSeries)
