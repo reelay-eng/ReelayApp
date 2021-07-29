@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Image } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { tagTitle } from './CreateReelaySlice';
+import { UploadContext } from '../../context/UploadContext';
 
 const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
 
@@ -37,9 +38,10 @@ const YearText = styled.Text`
 
 export default SearchResultItem = ({result, navigation}) => {
 
+    const uploadContext = useContext(UploadContext);
     const [posterLoaded, setPosterLoaded] = useState(false);
 
-    const dispatch = useDispatch();
+    // const dispatch = useDispatch();
     const titleObject = result;
 
     const posterImageUri = titleObject.poster_path 
@@ -52,7 +54,8 @@ export default SearchResultItem = ({result, navigation}) => {
         ? ('(' + titleObject.release_date.slice(0,4) + ')') : '';
 
     const selectResult = () => {
-        dispatch(tagTitle(titleObject));
+        // dispatch(tagTitle(titleObject));
+        uploadContext.setUploadTitleObject(titleObject);
         console.log('selected ', title);
         navigation.push('ReelayCameraScreen');
     }

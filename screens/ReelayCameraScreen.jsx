@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { UploadContext } from '../context/UploadContext';
 
 import { setVideoSource, untagTitle } from '../components/create-reelay/CreateReelaySlice';
 import Poster from '../components/view-reelay/Poster';
@@ -22,6 +23,8 @@ const WINDOW_HEIGHT = Dimensions.get("window").height;
 const closeButtonSize = Math.floor(WINDOW_HEIGHT * 0.032);
 
 export default ReelayCameraScreen = ({ navigation }) => {
+
+    const uploadContext = useContext(UploadContext);
 
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const [hasPermission, setHasPermission] = useState(null);
@@ -98,7 +101,8 @@ export default ReelayCameraScreen = ({ navigation }) => {
                     const source = data.uri;
                     if (source) {
                         console.log("video source", source);
-                        dispatch(setVideoSource(source));
+                        // dispatch(setVideoSource(source));
+                        uploadContext.setUploadVideoSource(source);
                     }
                 }
             } catch (error) {
@@ -111,7 +115,7 @@ export default ReelayCameraScreen = ({ navigation }) => {
         if (cameraRef.current) {
             cameraRef.current.stopRecording();
             setIsRecording(false);
-            navigation.push('ReelayPreviewScreen')
+            navigation.push('ReelayUploadScreen');
         }
     };
     

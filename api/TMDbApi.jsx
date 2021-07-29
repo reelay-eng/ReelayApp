@@ -1,5 +1,6 @@
 const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3';
 const TMDB_API_KEY = '033f105cd28f507f3dc6ae794d5e44f5';
+const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
 
 const MAX_TITLE_MATCH_DEVIATION = 100;
 const POPULARITY_WEIGHT = 1;
@@ -95,4 +96,8 @@ export const fetchSeries = async (titleID) => {
 export const fetchMovie = async (titleID) => {
     const query = `${TMDB_API_BASE_URL}/movie\/${titleID}\?api_key\=${TMDB_API_KEY}`;
     return await fetchResults(query);
+}
+
+export const getPosterURI = (posterPath) => {
+    return posterPath ? `${TMDB_IMAGE_API_BASE_URL}${posterPath}` : null;
 }

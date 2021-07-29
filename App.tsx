@@ -10,6 +10,7 @@ import config from "./src/aws-exports";
 // context imports
 import { AuthContext } from './context/AuthContext';
 import { VisibilityContext } from './context/VisibilityContext';
+import { UploadContext } from './context/UploadContext';
 
 // expo imports
 import { StatusBar } from 'expo-status-bar';
@@ -25,6 +26,12 @@ import Navigation from './navigation';
 
 Amplify.configure({
   ...config,
+  Auth: {
+    identityPoolId: 'us-west-2:61470270-38e1-452f-a8ee-dd37dd80e5a4',
+    region: 'us-west-2',
+    userPoolId: 'us-west-2_RMWuJQRNL',
+    userPoolWebClientId: '6rp2id41nvvm1sb8nav9jsrchi',
+  },
   Analytics: {
     disabled: true,
   },
@@ -45,6 +52,15 @@ function App() {
 
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [overlayData, setOverlayData] = useState({});
+
+  const [uploading, setUploading] = useState(false);
+  const [uploadComplete, setUploadComplete] = useState(false);
+  const [chunksUploaded, setChunksUploaded] = useState(0);
+  const [chunksTotal, setChunksTotal] = useState(0);
+  const [uploadTitleObject, setUploadTitleObject] = useState({});
+  const [uploadOptions, setUploadOptions] = useState({});
+  const [uploadErrorStatus, setUploadErrorStatus] = useState(false);
+  const [uploadVideoSource, setUploadVideoSource] = useState('');
 
   useEffect(() => {
     console.log('Setting up authentication');
@@ -101,6 +117,26 @@ function App() {
       setOverlayData: setOverlayData,
   }
 
+  const uploadState = {
+    uploading: uploading,
+    uploadComplete: uploadComplete,
+    chunksUploaded: chunksUploaded,
+    chunksTotal: chunksTotal,
+    uploadTitleObject: uploadTitleObject,
+    uploadOptions: uploadOptions,
+    uploadErrorStatus: uploadErrorStatus,
+    uploadVideoSource: uploadVideoSource,
+
+    setUploading: setUploading,
+    setUploadComplete: setUploadComplete,
+    setChunksUploaded: setChunksUploaded,
+    setChunksTotal: setChunksTotal,
+    setUploadTitleObject: setUploadTitleObject,
+    setUploadOptions: setUploadOptions,
+    setUploadErrorStatus: setUploadErrorStatus,
+    setUploadVideoSource: setUploadVideoSource,
+  }
+
   if (isLoading) {
     return <ActivityIndicator />;
   } else {
@@ -108,10 +144,12 @@ function App() {
       <SafeAreaProvider>
         <AuthContext.Provider value={authState}>
           <VisibilityContext.Provider value={visibilityState}>
-            <Provider store={store}>
-              <StatusBar hidden={true} />
-              <Navigation colorScheme={colorScheme} />
-            </Provider>
+            <UploadContext.Provider value={uploadState}>
+              <Provider store={store}>
+                <StatusBar hidden={true} />
+                <Navigation colorScheme={colorScheme} />
+              </Provider>
+            </UploadContext.Provider>
           </VisibilityContext.Provider>
         </AuthContext.Provider>
       </SafeAreaProvider>

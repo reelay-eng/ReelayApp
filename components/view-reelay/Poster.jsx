@@ -3,9 +3,8 @@ import { Pressable, View } from 'react-native';
 import { Image } from 'react-native-elements';
 import styled from 'styled-components/native';
 
+import { getPosterURI } from '../../api/TMDbApi';
 import { VisibilityContext } from '../../context/VisibilityContext';
-
-const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
 
 const TitleContainer = styled.View`
     flex: 0.9;
@@ -35,8 +34,7 @@ export default Poster = ({ titleObject, showTitle }) => {
     const year = (titleObject.release_date && titleObject.release_date.length >= 4)
         ? ('(' + titleObject.release_date.slice(0,4) + ')'): '';
 
-	const posterImageUri = titleObject.poster_path 
-        ? `${TMDB_IMAGE_API_BASE_URL}${titleObject.poster_path}` : null;
+	const posterImageUri = getPosterURI(titleObject.poster_path);
 
 	const onPosterPress = () => {
 		console.log('poster pressed');
