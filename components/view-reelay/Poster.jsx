@@ -51,17 +51,15 @@ export default Poster = ({ titleObject, showTitle }) => {
 	}
 
 	return (
-			// <TitleContainer>
-				<Pressable>
-					{posterImageUri && <Image 
-						source={{ uri: posterImageUri }} 
-						style={{ height: 180, width: 120, 
-							marginTop: 10, marginBottom: 10,
-							borderRadius: 8,
-						}}
-					/>}
-					{showTitle && <MovieTitle>{title}{year}</MovieTitle>}
-				</Pressable>
-			// </TitleContainer>
+		<Pressable onPress={onPosterPress}>
+			{posterImageUri && <Image 
+				source={{ uri: posterImageUri }} 
+				style={{ height: 180, width: 120, 
+					marginTop: 10, marginBottom: 10,
+					borderRadius: 8,
+				}}
+			/>}
+			{showTitle && <MovieTitle>{title}{year}</MovieTitle>}
+		</Pressable>
 	);
 }

@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
 import { Dimensions, Pressable, View } from 'react-native';
 import { Overlay, Text } from 'react-native-elements';
-import { AuthStyles, TextStyles } from '../../styles';
+import ReelayAvatar from '../utils/ReelayAvatar';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
 import { VisibilityContext } from '../../context/VisibilityContext';
+
 
 import styled from 'styled-components/native';
 
@@ -13,6 +14,23 @@ export default SettingsOverlay = ({ navigation }) => {
 
     const authContext = useContext(AuthContext);
     const visibilityContext = useContext(VisibilityContext);
+
+    const SettingsHeader = styled(View)`
+        justify-content: flex-start;
+        flex-direction: row;
+        z-index: 2;
+        width: 100%;
+        margin-bottom: 40px;
+    `
+
+    const SettingsContainer = styled(View)`
+        height: 100%;
+        width: 100%;
+    `
+    const SettingsPressable = styled(Pressable)`
+        margin-bottom: 40px;
+        align-self: flex-start;
+    `
 
     const SettingsText = styled(Text)`
         font-size: 18px;
@@ -36,21 +54,21 @@ export default SettingsOverlay = ({ navigation }) => {
     }
 
     return (
-        <View style={{ marginTop: 100 }}>
-            <Pressable onPress={() => {
+        <SettingsContainer>
+            <SettingsHeader>
+                <ReelayAvatar onPress={() => {
+                    console.log('pushed this one');
+                    visibilityContext.setOverlayVisible(false);
+                }} />
+            </SettingsHeader>
+            <SettingsPressable onPress={() => {
                 visibilityContext.setOverlayVisible(false);
-            }} style={{ 
-                marginBottom: 40,
-                alignSelf: 'flex-start',
             }}>
                 <SettingsText>{'Close'}</SettingsText>
-            </Pressable>
-            <Pressable onPress={signOut} style={{ 
-                marginBottom: 40,
-                alignSelf: 'flex-start',
-            }}>
+            </SettingsPressable>
+            <SettingsPressable onPress={signOut}>
                 <SettingsText>{'Sign out'}</SettingsText>
-            </Pressable>
-        </View>
+            </SettingsPressable>
+        </SettingsContainer>
     );
 }

@@ -12,41 +12,48 @@ export default TitleOverlay = ({ navigation }) => {
     const { height, width } = Dimensions.get('window');
 
     const HeaderRowContainer = styled(View)`
-        position: absolute;
-        left: 30px;
-        top: 80px;
+        width: 70%;
+        padding: 20px;
     `
 
     const TitleOverlayContainer = styled(View)`
         position: absolute;
+        flex-direction: row;
         width: 100%;
         height: 100%;
     `
 
     const PosterContainer = styled(View)`
         position: absolute;
-        left: ${width - 130}px;
-        top: 80px;
-    `  
+        left: ${width * 0.7}px;
+        margin-top: 15px;
+        width: 30%;
+        align-items: flex-end;
+    ` 
+    const TitleText = styled(Text)`
+        font-size: 24px;
+        font-family: System;
+        color: white;
+    `
+    const TaglineText = styled(Text)`
+        font-size: 15px;
+        font-family: System;
+        font-weight: 300;
+        color: white;
+    `
 
     const visibilityContext = useContext(VisibilityContext);
     const titleObject = visibilityContext.overlayData?.titleObject;
 
     return (
-        // <View style={{
-        //     width: width,
-        //     height: height,
-        //     position: 'absolute',
-        //     justifyContent: 'space-between',
-        // }}>
         <TitleOverlayContainer>
             <HeaderRowContainer>
-                <Text h3 style={AuthStyles.headerText}>{titleObject.title}{titleObject.year}</Text>
+                <TitleText>{titleObject.title}{titleObject.year}</TitleText>
+                <TaglineText>{titleObject.tagline}</TaglineText>
             </HeaderRowContainer>
             <PosterContainer>
                 <Poster titleObject={titleObject} showTitle={false} />
             </PosterContainer>
         </TitleOverlayContainer>
-        // </View>
     )
 };
