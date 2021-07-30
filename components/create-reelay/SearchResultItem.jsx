@@ -41,7 +41,6 @@ export default SearchResultItem = ({result, navigation}) => {
     const uploadContext = useContext(UploadContext);
     const [posterLoaded, setPosterLoaded] = useState(false);
 
-    // const dispatch = useDispatch();
     const titleObject = result;
 
     const posterImageUri = titleObject.poster_path 
@@ -54,7 +53,6 @@ export default SearchResultItem = ({result, navigation}) => {
         ? ('(' + titleObject.release_date.slice(0,4) + ')') : '';
 
     const selectResult = () => {
-        // dispatch(tagTitle(titleObject));
         uploadContext.setUploadTitleObject(titleObject);
         console.log('selected ', title);
         navigation.push('ReelayCameraScreen');

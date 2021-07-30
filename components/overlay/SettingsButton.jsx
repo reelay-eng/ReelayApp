@@ -29,7 +29,7 @@ export default SettingsButton = () => {
     }
 
     return (
-        <AvatarView style={{ margin: 20 }}>
+        <AvatarView style={{ margin: 10 }}>
             <Pressable onPress={onPress}>
                 <AvatarImage resizeMode='cover' source={require('../../assets/images/icon.png')} />
             </Pressable>

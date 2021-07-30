@@ -7,8 +7,6 @@ export default function VideoPlayer({ videoURI, playing }) {
 	const [playbackObject, setPlaybackObject] = useState(null);
 	const [isFocused, setIsFocused] = useState(false);
 
-	console.log('render video player');
-
     useFocusEffect(React.useCallback(() => {
 
 		setIsFocused(true);
@@ -45,7 +43,7 @@ export default function VideoPlayer({ videoURI, playing }) {
 				ref={(component) => _handleVideoRef(component)}
 				resizeMode='cover'
 				shouldDuckAndroid={true}
-				shouldPlay={isFocused && playing}
+				shouldPlay={playing && isFocused}
 				source={{ uri: videoURI }}
 				staysActiveInBackground={false}
 				style={VideoStyles.video}

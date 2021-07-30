@@ -22,7 +22,6 @@ export type HomeTabParamList = {
 export type CreateReelayTabParamList = {
   SelectTitleScreen: undefined;
   ReelayCameraScreen: undefined;
-  ReelayPreviewScreen: undefined;
   ReelayUploadScreen: undefined;
 }
 

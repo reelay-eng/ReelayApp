@@ -48,13 +48,13 @@ export default ReelayCameraScreen = ({ navigation }) => {
                 console.log('start record async');
                 const videoRecordPromise = cameraRef.current.recordAsync();
                 if (videoRecordPromise) {
-                    console.log('awaiting data');
                     const data = await videoRecordPromise;
-                    console.log('finished awaiting data')
                     const source = data.uri;
                     if (source) {
                         uploadContext.setUploadVideoSource(source);
+                        uploadContext.setUploadErrorStatus(false);
                         console.log('video source', source);    
+                        navigation.push('ReelayUploadScreen');    
                     }
                 }
             } catch (error) {
@@ -67,7 +67,6 @@ export default ReelayCameraScreen = ({ navigation }) => {
         if (cameraRef.current) {
             await cameraRef.current.stopRecording();
             console.log('stop recording complete');            
-            navigation.push('ReelayUploadScreen');    
         }
     };
     

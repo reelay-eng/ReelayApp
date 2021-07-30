@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Dimensions, TouchableOpacity, Text, View } from 'react-native';
+import { Dimensions, TouchableOpacity, Text, SafeAreaView, View } from 'react-native';
 import { VisibilityContext } from '../../context/VisibilityContext';
 
 import { find } from 'lodash';
@@ -28,8 +28,8 @@ const { height, width } = Dimensions.get('window');
 const PagerViewContainer = styled(PagerView)`
 	height: ${height}px;
 `
-const RefreshContainer = styled(View)`
-    justify-content: space-between;
+const RefreshContainer = styled(SafeAreaView)`
+    justify-content: flex-start;
     align-items: center;
     flex-direction: row;
     position: absolute;
@@ -178,8 +178,8 @@ export default ReelayFeed = ({ navigation }) => {
 					})}
 				</PagerViewContainer>
 			}
-            <Header />
             <RefreshContainer>
+                <SettingsButton navigation={navigation} />
                 <TouchableOpacity
                     style={{ margin: 10 }}
                     onPress={() => {
@@ -187,7 +187,6 @@ export default ReelayFeed = ({ navigation }) => {
                     }}>
                     <Ionicons name="refresh-sharp" size={24} color="white" />
                 </TouchableOpacity>
-                <SettingsButton navigation={navigation} />
                 {visibilityContext.overlayVisible && <ReelayOverlay navigation={navigation} />}
             </RefreshContainer>
 		</View>

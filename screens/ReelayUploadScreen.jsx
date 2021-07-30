@@ -42,11 +42,13 @@ const UploadVideoContainer = styled(View)`
 export default ReelayUploadScreen = ({ navigation }) => {
 
     const uploadContext = useContext(UploadContext);
-    const titleObject = uploadContext.titleObject;
+    const titleObject = uploadContext.uploadTitleObject;
     const videoSource = uploadContext.uploadVideoSource;
 
+    console.log('titleobject', titleObject);
+
     const publishReelay = async () => {
-        if (!uploadContext.videoSource) {
+        if (!videoSource) {
             console.log('No video to upload.');
             return;
         }
@@ -68,8 +70,8 @@ export default ReelayUploadScreen = ({ navigation }) => {
             const uploadStatusS3 = await Storage.put(videoS3Key, videoData, {
                 progressCallback(progress) {
                     console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
-                    uploadContext.setUploadedChunks(progress.loaded);
-                    uploadContext.setTotalChunks(progress.total);
+                    uploadContext.setChunksUploaded(progress.loaded);
+                    uploadContext.setChunksTotal(progress.total);
                 }
             });
 
@@ -138,6 +140,12 @@ export default ReelayUploadScreen = ({ navigation }) => {
             font-family: System;
             color: white;
         `
+        const StatusTextContainer = styled(View)`
+            height: 30px;
+            margin: 10px;
+            align-self: flex-end;
+            right: 10px;
+        `
         const PublishButton = styled(Pressable)`
             height: 30px;
             margin: 10px;
@@ -152,9 +160,21 @@ export default ReelayUploadScreen = ({ navigation }) => {
 
         return (
             <UploadStatusContainer>
-                { uploadContext.uploading && <UploadStatusText>{'Uploading...'}</UploadStatusText>}
-                { uploadContext.uploadComplete && <UploadStatusText>{'Uploaded'}</UploadStatusText>}
-                { uploadContext.uploadErrorStatus && <UploadStatusText>{'Upload Error'}</UploadStatusText>}
+                { uploadContext.uploading && 
+                    <StatusTextContainer>
+                        <UploadStatusText>{'Uploading...'}</UploadStatusText>
+                    </StatusTextContainer>
+                }
+                { uploadContext.uploadComplete && 
+                    <StatusTextContainer>
+                        <UploadStatusText>{'Uploaded'}</UploadStatusText>
+                    </StatusTextContainer>
+                }
+                { uploadContext.uploadErrorStatus && 
+                    <StatusTextContainer>
+                        <UploadStatusText>{'Upload Error'}</UploadStatusText>
+                    </StatusTextContainer>
+                }
                 { readyToPublish && <PublishButton onPress={publishReelay}>
                     <UploadStatusText>{'Publish'}</UploadStatusText>
                 </PublishButton>}
@@ -228,10 +248,13 @@ export default ReelayUploadScreen = ({ navigation }) => {
             height: 30px;
             width: 75%;
             margin: 10px;
+            align-self: center;
         `
         const DoneText = styled(Text)`
             font-size: 18px;
             font-family: System;
+            align-self: center;
+            color: white;
         `
         const DoneButtonContainer = styled(Pressable)``
 
@@ -240,8 +263,8 @@ export default ReelayUploadScreen = ({ navigation }) => {
             uploadContext.setUploadComplete(false);
             uploadContext.setUploadErrorStatus(false);
 
-            uploadContext.setUploadedChunks(0);
-            uploadContext.setTotalChunks(0);
+            uploadContext.setChunksUploaded(0);
+            uploadContext.setChunksTotal(0);
             uploadContext.setUploadVideoSource('');
             uploadContext.setTitleObject({});
 
@@ -253,7 +276,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             <DoneButtonMargin>
                 <DoneButtonContainer 
                     onPress={() => exitCreate({ navigation })}>
-                    <DoneText>{'Done'}/</DoneText>
+                    <DoneText>{'Done'}</DoneText>
                 </DoneButtonContainer>
             </DoneButtonMargin>
         );

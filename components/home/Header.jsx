@@ -1,8 +1,6 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import styled from 'styled-components/native';
 
-import { ReelayUploadStatus } from '../create-reelay/CreateReelaySlice';
 import UploadProgressBar from '../create-reelay/UploadProgressBar';
 
 const HeaderView = styled.View`
@@ -16,16 +14,9 @@ const HeaderView = styled.View`
 `
 
 const Header = () => {
-
-	const uploadStatus = useSelector((state) => state.createReelay.upload.uploadStatus);
 	
 	return (
-		<HeaderView>
-			{ (uploadStatus == ReelayUploadStatus.UPLOAD_STAGED 
-				|| uploadStatus == ReelayUploadStatus.UPLOAD_IN_PROGRESS)				
-				&& <UploadProgressBar /> 
-			}
-		</HeaderView>
+		<HeaderView />
 	)
 }
 

@@ -1,5 +1,5 @@
 import React, { useContext } from 'react'
-import { View } from 'react-native'
+import { Dimensions, SafeAreaView, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import styled from 'styled-components/native';
 
@@ -9,6 +9,8 @@ import ReelayInfo from './ReelayInfo';
 import Sidebar from './Sidebar';
 
 import { VisibilityContext } from '../../context/VisibilityContext';
+
+const { height, width } = Dimensions.get('window');
 
 const Gradient = styled(LinearGradient)`
 	height: 100%;
@@ -22,12 +24,13 @@ const Gradient = styled(LinearGradient)`
 const Overlay = styled(View)`
 	flex: 1;
 	flex-direction: row;
+    width: 100%;
+    height: 100%;
 `
-const RightContainer = styled(View)`
-	flex: 1;
-    flex-direction: column;
-	justify-content: flex-end;
-	align-items: flex-end;
+const RightContainer = styled(SafeAreaView)`
+    position: absolute;
+    left: ${width - 140}px;
+    margin: 10px;    
 `  
 
 const Hero = ({ reelay, index, curPosition }) => {

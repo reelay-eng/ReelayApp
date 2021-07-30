@@ -35,7 +35,6 @@ export default Poster = ({ titleObject, showTitle }) => {
         ? ('(' + titleObject.release_date.slice(0,4) + ')'): '';
 
 	const posterImageUri = getPosterURI(titleObject.poster_path);
-	console.log(posterImageUri);
 
 	const onPosterPress = () => {
 		console.log('poster pressed');
@@ -52,7 +51,7 @@ export default Poster = ({ titleObject, showTitle }) => {
 	}
 
 	return (
-			<TitleContainer>
+			// <TitleContainer>
 				<Pressable>
 					{posterImageUri && <Image 
 						source={{ uri: posterImageUri }} 
@@ -63,6 +62,6 @@ export default Poster = ({ titleObject, showTitle }) => {
 					/>}
 					{showTitle && <MovieTitle>{title}{year}</MovieTitle>}
 				</Pressable>
-			</TitleContainer>
+			// </TitleContainer>
 	);
 }

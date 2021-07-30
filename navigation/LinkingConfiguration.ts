@@ -15,7 +15,6 @@ export default {
           HomeFeedScreen: 'HomeFeedScreen',
           SelectTitleScreen: 'SelectTitleScreen',
           ReelayCameraScreen: 'ReelayCameraScreen',
-          ReelayPreviewScreen: 'ReelayPreviewScreen',
           ReelayUploadScreen: 'ReelayUploadScreen',
           AccountScreen: 'AccountScreen',
         },
