@@ -40,7 +40,6 @@ const RefreshContainer = styled(SafeAreaView)`
 export default ReelayFeed = ({ navigation }) => {
 
     const [reelayList, setReelayList] = useState([]);
-    // const [reelayListNextToken, setReelayListNextToken] = useState(null);
     const [nextPage, setNextPage] = useState(0);
     const [feedPosition, setFeedPosition] = useState(0);
 
@@ -70,11 +69,10 @@ export default ReelayFeed = ({ navigation }) => {
             contentType: "video/mp4"
         });
         const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${videoS3Key}`;
-        return cloudfrontVideoURI;
+        return signedVideoURI;
     }
 
     const getTitleObject = async (reelayObject) => {
-        console.log(reelayObject);
         if (!reelayObject.tmdbTitleID) return null;
 
         const tmdbTitleQuery = (reelayObject.isSeries)
@@ -100,14 +98,12 @@ export default ReelayFeed = ({ navigation }) => {
     }
 
     const fetchNextReelay = async ({ mostRecent }) => {
-
+        const nextPageToFetch = mostRecent ? 0 : nextPage;
         const queryResponse = await DataStore.query(Reelay, r => r.visibility('eq', 'global'), {
             sort: r => r.uploadedAt(SortDirection.DESCENDING),
-            page: nextPage,
+            page: nextPageToFetch,
             limit: 1,
         });
-
-        console.log(queryResponse);
 
         if (!queryResponse) {
             console.log('No query response');
@@ -115,13 +111,12 @@ export default ReelayFeed = ({ navigation }) => {
         }
 
         const reelayObject = queryResponse[0];
-
         const videoURIPromise = getVideoURI(reelayObject);
         const titleObjectPromise = getTitleObject(reelayObject);
 
-
         if (mostRecent && find(reelayList, (nextReelay) => { return nextReelay.id == reelayObject.id})) {
             // most recent object already in list
+            console.log('already in list');
             return;
         } 
 
@@ -149,8 +144,10 @@ export default ReelayFeed = ({ navigation }) => {
             }
         };
         
-        const newReelayList = [...reelayList, preparedReelay];
-        setReelayList(newReelayList.sort(compareReelaysByPostedDate));
+        const newReelayList = mostRecent ? [preparedReelay, ...reelayList]: [...reelayList, preparedReelay];
+        console.log(newReelayList.map(reelay => reelay.titleObject.title));
+
+        setReelayList(newReelayList);
         setNextPage(nextPage + 1);
     }
 
@@ -183,6 +180,7 @@ export default ReelayFeed = ({ navigation }) => {
                 <TouchableOpacity
                     style={{ margin: 10 }}
                     onPress={() => {
+                        console.log('fetching most recent');
                         fetchNextReelay({ mostRecent: true});
                     }}>
                     <Ionicons name="refresh-sharp" size={24} color="white" />

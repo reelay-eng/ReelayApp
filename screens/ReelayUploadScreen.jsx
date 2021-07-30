@@ -45,8 +45,6 @@ export default ReelayUploadScreen = ({ navigation }) => {
     const titleObject = uploadContext.uploadTitleObject;
     const videoSource = uploadContext.uploadVideoSource;
 
-    console.log('titleobject', titleObject);
-
     const publishReelay = async () => {
         if (!videoSource) {
             console.log('No video to upload.');
@@ -192,16 +190,17 @@ export default ReelayUploadScreen = ({ navigation }) => {
 
         const chunksUploaded = uploadContext.chunksUploaded;
         const chunksTotal = uploadContext.chunksTotal;    
+        const indeterminate = chunksUploaded == 0 && uploadContext.uploading;
 
         // +1 prevents NaN error. hacky.
         let progress = chunksUploaded / (chunksTotal + 1);
-        if (chunksUploaded != 0 && chunksUploaded == chunksTotal) {
+        if (!chunksUploaded == 0 && chunksUploaded == chunksTotal) {
             progress = 1;
         }
     
         return (
             <UploadProgressBarContainer>
-                <ProgressBar progress={progress} color={'white'} />
+                <ProgressBar indeterminate={indeterminate} progress={progress} color={'white'} />
             </UploadProgressBarContainer>
         );
     }
@@ -266,7 +265,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             uploadContext.setChunksUploaded(0);
             uploadContext.setChunksTotal(0);
             uploadContext.setUploadVideoSource('');
-            uploadContext.setTitleObject({});
+            uploadContext.setUploadTitleObject({});
 
             navigation.popToTop();
             navigation.navigate('HomeFeedScreen');
