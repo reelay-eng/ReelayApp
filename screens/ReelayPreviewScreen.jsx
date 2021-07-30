@@ -27,7 +27,7 @@ export default ReelayPreviewScreen = ({ navigation }) => {
 
     return (
         <TitleContainer>
-            <VideoPlayer videoURI={videoSource} poster={titleObject.poster_source} isPlay={true} />
+            <VideoPlayer videoURI={videoSource} playing={true} />
             <PosterContainer>
                 <Poster titleObject={titleObject} showTitle={true} />
             </PosterContainer>

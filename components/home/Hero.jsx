@@ -38,8 +38,7 @@ const Hero = ({ reelay, index, curPosition }) => {
         <View key={index}>
             <VideoPlayer
                 videoURI={reelay.videoURI}
-                poster={require('../../assets/images/splash.png')}
-                isPlay={curPosition === index && !visibilityContext.overlayVisible}
+                playing={curPosition === index && !visibilityContext.overlayVisible}
             >
             </VideoPlayer>
             <Gradient

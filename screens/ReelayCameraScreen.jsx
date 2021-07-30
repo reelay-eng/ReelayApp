@@ -117,9 +117,13 @@ export default ReelayCameraScreen = ({ navigation }) => {
                     colors={[[RECORD_COLOR]]}
                     duration={REELAY_DURATION_SECONDS} 
                     isPlaying={isRecording} 
-                    onComplete={stopVideoRecording}
+                    onComplete={() => {
+                        stopVideoRecording();
+                        setIsRecording(true);
+                    }}
                     size={ringSize} 
                     strokeWidth={5} 
+                    trailColor='transparent'
                     strokeLinecap={'round'}>
                     <RecordButtonCenter activeOpacity={0.7} 
                         // disabled={!isCameraReady} 

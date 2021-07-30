@@ -35,6 +35,8 @@ const UploadVideoContainer = styled(View)`
     width: 75%;
     margin: 10px;
     align-self: center;
+    border-radius: 10px;
+    overflow: hidden;
 `
 
 export default ReelayUploadScreen = ({ navigation }) => {
@@ -109,9 +111,8 @@ export default ReelayUploadScreen = ({ navigation }) => {
     }
 
     const PageTitle = () => {
-        const PageTitleContainer = styled(View)`
+        const PageTitleContainer = styled(Pressable)`
             height: 30px;
-            margin: 10px;
             margin-top: 12px;
             margin-left: 0px;
         `
@@ -121,7 +122,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             color: white;
         `
         return (
-            <PageTitleContainer>
+            <PageTitleContainer onPress={() => { navigation.pop() }}>
                 <PageTitleText>{'Preview'}</PageTitleText>
             </PageTitleContainer>
         );
@@ -269,12 +270,8 @@ export default ReelayUploadScreen = ({ navigation }) => {
             </UploadTop>
             <UploadProgressBar />
             <UploadVideoContainer>
-                <VideoPlayer 
-                    videoURI={videoSource} 
-                    poster={null} 
-                    isPlay={true}>
-                    <ReelayPreviewOverlay />
-                </VideoPlayer>
+                <VideoPlayer videoURI={videoSource} playing={true} />
+                <ReelayPreviewOverlay />
             </UploadVideoContainer>
             { !uploadContext.uploadComplete && <UploadOptions />}
             { uploadContext.uploadComplete && <DoneButton />}

@@ -3,24 +3,23 @@ import { Video, Audio } from 'expo-av'
 import { VideoStyles } from '../../styles';
 import { useFocusEffect } from '@react-navigation/native';
 
-export default function VideoPlayer({ videoURI, poster, isPlay }) {
-	const [playbackStatus, setPlaybackStatus] = useState({});
+export default function VideoPlayer({ videoURI, playing }) {
 	const [playbackObject, setPlaybackObject] = useState(null);
-
 	const [isFocused, setIsFocused] = useState(false);
-	const [isLoaded, setIsLoaded] = useState(false);
+
+	console.log('render video player');
 
     useFocusEffect(React.useCallback(() => {
-        setIsFocused(true);
 
+		setIsFocused(true);
         return () => {
 			try {
-				if (playbackObject && !isPlay) {
+				if (playbackObject && !playing) {
 					const prom = playbackObject.setPositionAsync(0)
 						.catch((error) => {
 						// todo: this throws a seeking interrupted error
 						// seems harmless, but I'm not sure
-				});
+					});
 				}
 			} catch (error) {
 				console.log(error);
@@ -29,29 +28,29 @@ export default function VideoPlayer({ videoURI, poster, isPlay }) {
 		}
     }));
 
-	const _handleVideoRef = (component) => {
-		setPlaybackObject(component);
+	const _handleVideoRef = async (component) => {
+		const playbackObject = component;
+		setPlaybackObject(playbackObject);
 	}
 
 	return (
 			<Video
-			interruptionModeAndroid={Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX}
-			interruptionModeIOS={Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX}
-			isLooping
-			isMuted={false}
-			playsInSilentLockedModeIOS={true}
-			posterSource={poster}
-			progressUpdateIntervalMillis={50}
-			rate={1.0}
-			ref={(component) => _handleVideoRef(component)}
-			resizeMode='cover'
-			shouldDuckAndroid={true}
-			shouldPlay={isPlay && isFocused}
-			source={{ uri: videoURI }}
-			staysActiveInBackground={false}
-            style={VideoStyles.video}
-			useNativeControls={false}
-			volume={1.0}
-		/>
+				interruptionModeAndroid={Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX}
+				interruptionModeIOS={Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX}
+				isLooping
+				isMuted={false}
+				playsInSilentLockedModeIOS={true}
+				progressUpdateIntervalMillis={50}
+				rate={1.0}
+				ref={(component) => _handleVideoRef(component)}
+				resizeMode='cover'
+				shouldDuckAndroid={true}
+				shouldPlay={isFocused && playing}
+				source={{ uri: videoURI }}
+				staysActiveInBackground={false}
+				style={VideoStyles.video}
+				useNativeControls={false}
+				volume={1.0}
+			/>
 	);
 }
