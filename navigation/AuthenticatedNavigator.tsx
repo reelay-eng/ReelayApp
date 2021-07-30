@@ -3,10 +3,12 @@
  * https://reactnavigation.org/docs/bottom-tab-navigator
  */
 
-import { AntDesign } from '@expo/vector-icons'; 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
+import { VisibilityContext } from '../context/VisibilityContext';
+
 import * as React from 'react';
+import { Icon } from 'react-native-elements';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
@@ -25,26 +27,38 @@ const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 export default function AuthenticatedNavigator() {
   const colorScheme = useColorScheme();
 
+  const visibilityContext = React.useContext(VisibilityContext);
+
+
   return (
     <BottomTab.Navigator
       initialRouteName="Home"
       tabBarOptions={{ 
         activeTintColor: Colors[colorScheme].tint,
-        style: { backgroundColor: 'black'}
+        showLabel: false,
+        style: { 
+          backgroundColor: 'transparent',
+          borderTopWidth: 0,
+          position: 'absolute',
+          left: 50,
+          right: 50,
+          height: 80      
+        }
       }}
     >
       <BottomTab.Screen
         name="Home"
         component={HomeTabNavigator}
         options={{
-          tabBarIcon: ({ color }) => <AntDesign name="find" size={24} color={color} />,
+          tabBarIcon: () => <Icon type='ionicon' name='film-outline' color={'white'} size={50} />,
         }}
       />
       <BottomTab.Screen
         name="Create" 
         component={CreateReelayTabNavigator} 
         options={{
-          tabBarIcon: ({ color }) => <AntDesign name="videocamera" size={24} color={color} />
+          tabBarIcon: () => <Icon type='ionicon' name='add-circle-outline' color={'white'} size={50} />,
+          tabBarVisible: false,
         }}
       />
     </BottomTab.Navigator>
@@ -97,9 +111,7 @@ function CreateReelayTabNavigator() {
         name="ReelayCameraScreen"
         component={ReelayCameraScreen}
         options={{ 
-          title: '',
-          headerBackTitle: 'Back',
-          headerStyle: { backgroundColor: 'black' }
+          headerShown: false,
         }}
       />
       <CreateReelayTabStack.Screen

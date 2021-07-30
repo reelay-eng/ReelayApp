@@ -1,76 +1,28 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useContext, useEffect, useRef, createRef, useState } from 'react';
 import { UploadContext } from '../context/UploadContext';
-
-import { setVideoSource, untagTitle } from '../components/create-reelay/CreateReelaySlice';
-import Poster from '../components/view-reelay/Poster';
-import RecordButton from '../components/create-reelay/RecordButton';
+import { getPosterURI } from '../api/TMDbApi';
 
 import { Camera } from 'expo-camera';
-import { CameraStyles, ContainerStyles } from '../styles'
+import { Dimensions, View, Text, SafeAreaView, Pressable} from 'react-native';
+import { Image } from 'react-native-elements';
+import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
+import BackButton from '../components/utils/BackButton';
 import styled from 'styled-components/native';
 
-import {
-    StyleSheet,
-    Dimensions,
-    View,
-    Text,
-    TouchableOpacity,
-    SafeAreaView,
-} from 'react-native';
 
-const WINDOW_HEIGHT = Dimensions.get("window").height;
-const closeButtonSize = Math.floor(WINDOW_HEIGHT * 0.032);
+const { height, width } = Dimensions.get('window');
 
 export default ReelayCameraScreen = ({ navigation }) => {
 
     const uploadContext = useContext(UploadContext);
+    const titleObject = uploadContext.uploadTitleObject;
 
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const [hasPermission, setHasPermission] = useState(null);
     const [isCameraReady, setIsCameraReady] = useState(false);
     const [isRecording, setIsRecording] = useState(false);
 
-    const titleObject = useSelector((state) => state.createReelay.titleObject);
-
-    const cameraRef = useRef();
-    const dispatch = useDispatch();
-
-    const CaptureControlContainer = styled(View)`
-        flex: 0.1;
-        flex-direction: row;
-        bottom: 38px;
-        width: 100%;
-        align-items: center;
-        justify-content: center;
-    `
-    const FlipText = styled(Text)`
-        color: white;
-    `
-    const FlipTextContainer = styled(TouchableOpacity)`
-        flex: 0.5;
-    `
-    const RecordingInterfaceContainer = styled(View)`
-        flex: 1;
-    `
-    const TopContainer = styled(View)`
-        flex: 1;
-        flex-direction: row;
-        justify-content: flex-end;
-        align-items: flex-start;
-        margin-top: 30px;
-    `  
-
-    // todo: move to styled-components
-    const styles = StyleSheet.create({
-        camera: {
-            ...StyleSheet.absoluteFillObject,
-            flex: 1,
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-        },
-    });
+    const cameraRef = useRef(null);
 
     useEffect(() => {
         (async () => {
@@ -94,16 +46,20 @@ export default ReelayCameraScreen = ({ navigation }) => {
     const recordVideo = async () => {
         if (cameraRef.current) {
             try {
+                console.log('start record async');
+                setIsRecording(true);
                 const videoRecordPromise = cameraRef.current.recordAsync();
                 if (videoRecordPromise) {
-                    setIsRecording(true);
+                    console.log('awaiting data');
                     const data = await videoRecordPromise;
+                    console.log('finished awaiting data')
                     const source = data.uri;
                     if (source) {
-                        console.log("video source", source);
-                        // dispatch(setVideoSource(source));
                         uploadContext.setUploadVideoSource(source);
+                        console.log('video source', source);    
                     }
+                } else {
+                    setIsRecording(false);
                 }
             } catch (error) {
                 console.warn(error);
@@ -111,11 +67,12 @@ export default ReelayCameraScreen = ({ navigation }) => {
         }
     };
     
-    const stopVideoRecording = () => {
+    const stopVideoRecording = async () => {
         if (cameraRef.current) {
-            cameraRef.current.stopRecording();
+            await cameraRef.current.stopRecording();
             setIsRecording(false);
-            navigation.push('ReelayUploadScreen');
+            console.log('stop recording complete');            
+            navigation.push('ReelayUploadScreen');    
         }
     };
     
@@ -127,36 +84,102 @@ export default ReelayCameraScreen = ({ navigation }) => {
         );
     };
 
+    const RecordInterface = () => {
+
+        const REELAY_DURATION_SECONDS = 15;
+        const RECORD_COLOR = '#cb2d26';
+        const captureSize = Math.floor(height * 0.07);
+        const ringSize = captureSize + 20;    
+
+        const RecordButtonCenter = styled(Pressable)`
+            background-color: ${RECORD_COLOR};
+            height: ${captureSize}px;
+            width: ${captureSize}px;
+            border-radius: ${Math.floor(captureSize / 2)}px;
+        `
+        const RecordContainer = styled(View)`
+            position: absolute;
+            left: ${(width - ringSize) / 2}px;
+            bottom: 80px;
+            align-self: center;
+        `
+
+        return (
+            <RecordContainer>
+                <CountdownCircleTimer 
+                    colors={[[RECORD_COLOR]]}
+                    duration={REELAY_DURATION_SECONDS} 
+                    isPlaying={isRecording} 
+                    onComplete={stopVideoRecording}
+                    size={ringSize} 
+                    strokeWidth={5} 
+                    strokeLinecap={'round'}>
+                    <RecordButtonCenter activeOpacity={0.7} 
+                        disabled={!isCameraReady} 
+                        onPress={isRecording ? stopVideoRecording : recordVideo} />
+                </CountdownCircleTimer>
+            </RecordContainer>
+        );
+    }
+
+    const RecordOverlay = () => {
+
+        const OverlayContainer = styled(View)`
+            position: absolute;
+            zIndex: 2;
+            height: 100%;
+            width: 100%;
+        `
+        const TopLeftContainer = styled(SafeAreaView)`
+            position: absolute;
+            left: 10px;
+            top: 10px;
+        `
+        const TopRightContainer = styled(SafeAreaView)`
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        `
+        const posterURI = getPosterURI(titleObject.poster_path);
+
+        return (
+            <OverlayContainer>
+                <TopLeftContainer>
+                    <BackButton navigation={navigation}/>
+                </TopLeftContainer>
+                <TopRightContainer>
+                    <Image source={{uri: posterURI}} 
+						style={{ height: 180, width: 120, borderRadius: 8, }} />
+                </TopRightContainer>
+                <RecordInterface />
+            </OverlayContainer>
+        );
+    }
+
+    const ReelayCamera = () => {
+        const CameraContainer = styled(View)`
+            position: absolute;
+            height: 100%;
+            width: 100%;
+        `
+        console.log('rendering the camera', cameraRef.current && cameraRef.current._cameraHandle, isRecording);
+        return (
+            <CameraContainer>
+                <Camera
+                    ref={cameraRef}
+                    type={cameraType} 
+                    style={{ height: '100%', width: '100%', position: 'absolute'}}
+                    flashMode={Camera.Constants.FlashMode.on}
+                    onCameraReady={onCameraReady}
+                    onMountError={(error) => {
+                        console.log("camera error", error);
+                }} />
+                <RecordOverlay />
+            </CameraContainer>
+        );
+    }
+
     return (
-        <View style={ContainerStyles.fillContainer}>
-            <Camera
-                ref={cameraRef}
-                style={CameraStyles.camera}
-                type={cameraType}
-                flashMode={Camera.Constants.FlashMode.on}
-                onCameraReady={onCameraReady}
-                onMountError={(error) => {
-                    console.log("camera error", error);
-                }}
-            >
-                {/* Interface is on top of the camera*/}
-                <RecordingInterfaceContainer>
-                    <TopContainer>
-                        <Poster titleObject={titleObject} showTitle={true} />
-                    </TopContainer>
-                    <CaptureControlContainer>
-                        <FlipTextContainer disabled={!isCameraReady} onPress={switchCamera}>
-                            <FlipText>{'Flip'}</FlipText>
-                        </FlipTextContainer>
-                        <RecordButton
-                            disabled={!isCameraReady}
-                            recording={isRecording}
-                            onPress={isRecording ? stopVideoRecording : recordVideo}
-                            onComplete={stopVideoRecording}
-                        />
-                    </CaptureControlContainer>
-                </RecordingInterfaceContainer>
-            </Camera>
-        </View>
+        <ReelayCamera />
     );
 }

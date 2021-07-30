@@ -5,9 +5,9 @@ import { Reelay } from '../src/models';
 
 import VideoPlayer from '../components/view-reelay/VideoPlayer';
 import ReelayPreviewOverlay from '../components/overlay/ReelayPreviewOverlay';
+import BackButton from '../components/utils/BackButton';
 
 import { Dimensions, Text, View, SafeAreaView, Pressable } from 'react-native';
-import { Button, Icon } from 'react-native-elements';
 import { ProgressBar } from 'react-native-paper';
 
 import styled from 'styled-components/native';
@@ -30,12 +30,6 @@ const UploadTopLeft = styled(View)`
     width: ${width / 2}px;
     margin: 10px;
 `
-
-// const UploadTopRight = styled(View)`
-//     width: ${width / 2}px;
-//     margin: 10px;
-// `
-
 const UploadVideoContainer = styled(View)`
     height: 75%;
     width: 75%;
@@ -114,19 +108,6 @@ export default ReelayUploadScreen = ({ navigation }) => {
 
     }
 
-    const BackButton = () => {
-        const BackButtonContainer = styled(Pressable)`
-            height: 30px;
-            width: 30px;
-            margin: 10px;
-        `
-        return (
-            <BackButtonContainer onPress={() => { navigation.pop() }}>
-                <Icon type='ionicon' name='chevron-back-outline' color={'white'} size={30} />
-            </BackButtonContainer>
-        );
-    }
-
     const PageTitle = () => {
         const PageTitleContainer = styled(View)`
             height: 30px;
@@ -135,7 +116,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             margin-left: 0px;
         `
         const PageTitleText = styled(Text)`
-            font-size: 20;
+            font-size: 20px;
             font-family: System;
             color: white;
         `
@@ -152,7 +133,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             margin: 10px;
         `
         const UploadStatusText = styled(Text)`
-            font-size: 20;
+            font-size: 20px;
             font-family: System;
             color: white;
         `
@@ -281,7 +262,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
         <UploadScreenContainer>
             <UploadTop>
                 <UploadTopLeft>
-                    <BackButton />
+                    <BackButton navigation={navigation} />
                     <PageTitle />
                 </UploadTopLeft>
                 <UploadStatus />

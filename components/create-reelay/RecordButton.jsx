@@ -17,7 +17,6 @@ export default RecordButton = ({ disabled, recording, onPress, onComplete }) => 
         height: ${captureSize}px;
         width: ${captureSize}px;
         border-radius: ${Math.floor(captureSize / 2)}px;
-        margin-horizontal: 31px;
     `
 
     return (
@@ -29,7 +28,7 @@ export default RecordButton = ({ disabled, recording, onPress, onComplete }) => 
                     onComplete={onComplete}
                     size={ringSize} 
                     strokeWidth={5} 
-                    strokeLinecap={'square'}>
+                    strokeLinecap={'round'}>
                 <RecordButtonCenter activeOpacity={0.7} disabled={disabled} onPress={onPress} />
             </CountdownCircleTimer>
         </View>

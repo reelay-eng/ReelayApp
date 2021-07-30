@@ -52,6 +52,7 @@ function App() {
 
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [overlayData, setOverlayData] = useState({});
+  const [tabBarVisible, setTabBarVisible] = useState(true);
 
   const [uploading, setUploading] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
@@ -113,8 +114,10 @@ function App() {
   const visibilityState = {
       overlayVisible: overlayVisible,
       overlayData: overlayData,
+      tabBarVisible: tabBarVisible,
       setOverlayVisible: setOverlayVisible,
       setOverlayData: setOverlayData,
+      setTabBarVisible: setTabBarVisible,
   }
 
   const uploadState = {
