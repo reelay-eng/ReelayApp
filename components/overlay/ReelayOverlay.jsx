@@ -4,9 +4,13 @@ import { VisibilityContext } from '../../context/VisibilityContext';
 import SettingsOverlay from './SettingsOverlay';
 import TitleOverlay from './TitleOverlay';
 
+import styled from 'styled-components/native';
+
 export default ReelayOverlay = ({ navigation }) => {
 
     const visibilityContext = useContext(VisibilityContext);
+
+
 
     return (
         <Overlay fullScreen={true} overlayStyle={{ 

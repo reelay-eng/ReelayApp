@@ -28,7 +28,7 @@ export default SelectTitleScreen = ({ navigation }) => {
     `
 
     return (
-        <SafeAreaView fullScreen={true}>
+        <SafeAreaView style={{ backgroundColor: 'black', height: '100%', width: '100%'}}>
             <BackButton navigation={navigation} />
             <SearchField searchText={searchText} updateSearch={updateSearch} />
             <MarginBelowLine />

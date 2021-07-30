@@ -7,14 +7,22 @@ import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
 import { VisibilityContext } from '../../context/VisibilityContext';
 
+import styled from 'styled-components/native';
+
 export default SettingsOverlay = ({ navigation }) => {
 
     const authContext = useContext(AuthContext);
     const visibilityContext = useContext(VisibilityContext);
 
+    const SettingsText = styled(Text)`
+        font-size: 18px;
+        font-family: System;
+        color: white;
+    `
+
     const signOut = async () => {
         // todo: confirm sign out
-        
+
         try {
             const signOutResult = await Auth.signOut();
             authContext.setSignedIn(false);
@@ -33,57 +41,15 @@ export default SettingsOverlay = ({ navigation }) => {
                 visibilityContext.setOverlayVisible(false);
             }} style={{ 
                 marginBottom: 40,
-                alignSelf: 'flex-end',
+                alignSelf: 'flex-start',
             }}>
-                <Text style={AuthStyles.systemText16}>{'Close'}</Text>
-            </Pressable>
-            <Pressable onPress={() => { 
-                console.log('Pressed invite');
-            }} style={{ 
-                marginBottom: 40, 
-                alignSelf: 'flex-end',            
-            }}>
-                <Text style={AuthStyles.systemText16}>{'Invite'}</Text>
-            </Pressable>
-            <Pressable onPress={() => { 
-                console.log('Pressed about')
-            }} style={{ 
-                marginBottom: 40,
-                alignSelf: 'flex-end',
-            }}>
-                <Text style={AuthStyles.systemText16}>{'About'}</Text>
-            </Pressable>
-            <Pressable onPress={() => { 
-                console.log('Pressed settings');
-                visibilityContext.setOverlayVisible(false);
-                navigation.push('AccountScreen');
-            }} style={{ 
-                marginBottom: 40,
-                alignSelf: 'flex-end',
-            }}>
-                <Text style={AuthStyles.systemText16}>{'Settings'}</Text>
-            </Pressable>
-            <Pressable onPress={() => { 
-                console.log('Pressed TMDB credit')
-            }} style={{ 
-                marginBottom: 40,
-                alignSelf: 'flex-end',
-            }}>
-                <Text style={AuthStyles.systemText16}>{'TMDB Credit'}</Text>
-            </Pressable>
-            <Pressable onPress={() => { 
-                console.log('Pressed report a problem')
-            }} style={{ 
-                marginBottom: 40,
-                alignSelf: 'flex-end',
-            }}>
-                <Text style={AuthStyles.systemText16}>{'Report a problem'}</Text>
+                <SettingsText>{'Close'}</SettingsText>
             </Pressable>
             <Pressable onPress={signOut} style={{ 
                 marginBottom: 40,
-                alignSelf: 'flex-end',
+                alignSelf: 'flex-start',
             }}>
-                <Text style={AuthStyles.systemText16}>{'Sign out'}</Text>
+                <SettingsText>{'Sign out'}</SettingsText>
             </Pressable>
         </View>
     );

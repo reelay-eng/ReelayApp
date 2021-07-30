@@ -63,7 +63,7 @@ export default SearchResultItem = ({result, navigation}) => {
             <ImageContainer>
                 { posterImageUri && <Image 
                     source={{ uri: posterImageUri }} 
-                    style={{ height: 150, width: 100 }}
+                    style={{ height: 150, width: 100, borderRadius: 6 }}
                     PlaceholderContent={<ActivityIndicator />}
                     onLoadEnd={() => setPosterLoaded(true)}
                 />}
@@ -71,8 +71,8 @@ export default SearchResultItem = ({result, navigation}) => {
                 { !posterLoaded && <View style={{ height: 150 }} />}
             </ImageContainer>
             <TitleLineContainer>
-                <TitleText>{title}</TitleText>
-                <YearText>{releaseYear}</YearText>
+                <TitleText>{posterLoaded ? title : ''}</TitleText>
+                <YearText>{posterLoaded ? releaseYear: ''}</YearText>
             </TitleLineContainer>
         </PressableContainer>
     );
