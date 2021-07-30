@@ -105,6 +105,7 @@ function CreateReelayTabNavigator() {
         component={SelectTitleScreen}
         options={{
           headerShown: false,
+          animationEnabled: false,
         }}
       />
       <CreateReelayTabStack.Screen
@@ -112,6 +113,7 @@ function CreateReelayTabNavigator() {
         component={ReelayCameraScreen}
         options={{ 
           headerShown: false,
+          animationEnabled: false,
         }}
       />
       <CreateReelayTabStack.Screen
@@ -120,6 +122,7 @@ function CreateReelayTabNavigator() {
         options={({navigation, route}) => ({
           title: 'Preview Reelay',
           headerRight: props => (<UploadReelayButton navigation={navigation} />),
+          animationEnabled: false,
         })}
       />
       <CreateReelayTabStack.Screen
@@ -127,6 +130,7 @@ function CreateReelayTabNavigator() {
         component={ReelayUploadScreen}
         options={{
           headerShown: false,
+          animationEnabled: false,
         }}
       />
     </CreateReelayTabStack.Navigator>
