@@ -27,7 +27,9 @@ export default function YoutubeVideoEmbed({ youtubeVideoID, height }) {
   return (
     <View>
       <YoutubePlayer
-        controls={false}
+        initialPlayerParams={{
+          controls: false,
+        }}
         height={height}
         play={playing}
         videoId={youtubeVideoID}

@@ -173,4 +173,14 @@ export const getDirector = (titleObjectWithCredits) => {
         const director = crew.find((crewMember) => { return crewMember.job && crewMember.job == 'Director' });
         return director;
     }
+    return null;
+}
+
+export const getDisplayActors = (titleObjectWithCredits, max = 2) => {
+    if (titleObjectWithCredits.credits && titleObjectWithCredits.credits.crew) {
+        const cast = titleObjectWithCredits.credits.cast;
+        const actors = cast.length < max ? cast : cast.slice(0,2);
+        return actors;
+    }
+    return null;
 }
