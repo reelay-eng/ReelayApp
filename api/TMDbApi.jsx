@@ -2,6 +2,8 @@ const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3';
 const TMDB_API_KEY = '033f105cd28f507f3dc6ae794d5e44f5';
 const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
 
+const YOUTUBE_BASE_URL = 'https://www.youtube.com/watch?v=';
+
 const MAX_TITLE_MATCH_DEVIATION = 100;
 const POPULARITY_WEIGHT = 1;
 const TITLE_MATCH_WEIGHT = 10;
@@ -93,11 +95,82 @@ export const fetchSeries = async (titleID) => {
     return await fetchResults(query);
 }
 
+export const fetchSeriesCredits = async (titleID) => {
+    const query = `${TMDB_API_BASE_URL}/tv\/${titleID}/credits\?api_key\=${TMDB_API_KEY}`;
+    return await fetchResults(query);
+}
+
 export const fetchMovie = async (titleID) => {
     const query = `${TMDB_API_BASE_URL}/movie\/${titleID}\?api_key\=${TMDB_API_KEY}`;
     return await fetchResults(query);
 }
 
+export const fetchMovieCredits = async(titleID) => {
+    const query = `${TMDB_API_BASE_URL}/movie\/${titleID}/credits\?api_key\=${TMDB_API_KEY}`;
+    return await fetchResults(query);
+}
+
+export const fetchMovieTrailerURI = async(titleID) => {
+    const query = `${TMDB_API_BASE_URL}/movie\/${titleID}/videos\?api_key\=${TMDB_API_KEY}`;
+    const videoResults = await fetchResults(query);
+
+    const youtubeTrailer = videoResults.results.find((video) => { 
+        return video.site && video.site == 'YouTube' && video.type && video.type == 'Trailer' && video.key;
+    });
+    const trailerURI = `${YOUTUBE_BASE_URL}${youtubeTrailer.key}`;
+    return trailerURI;
+}
+
+export const fetchSeriesTrailerURI = async(titleID) => {
+    const query = `${TMDB_API_BASE_URL}/tv\/${titleID}/videos\?api_key\=${TMDB_API_KEY}`;
+    const videoResults = await fetchResults(query);
+
+    const youtubeTrailer = videoResults.results.find((video) => { 
+        return video.site && video.site == 'YouTube' && video.type && video.type == 'Trailer' && video.key;
+    });
+    const trailerURI = `${YOUTUBE_BASE_URL}${youtubeTrailer.key}`;
+    return trailerURI;
+}
+
+export const fetchTitleWithCredits = async(titleID, isSeries) => {
+    if (!titleID) return null;
+    const titleObject = isSeries 
+        ? await fetchSeries(titleID)
+        : await fetchMovie(titleID);
+
+    const titleCredits = isSeries
+        ? await fetchSeriesCredits(titleID)
+        : await fetchMovieCredits(titleID);
+
+    const trailerURI = isSeries
+        ? await fetchSeriesTrailerURI(titleID)
+        : await fetchMovieTrailerURI(titleID);
+
+    const titleObjectWithCredits = {
+        ...titleObject,
+        credits: titleCredits,
+        trailerURI: trailerURI,
+    }
+
+    if (isSeries) {
+        return {
+            ...titleObjectWithCredits,
+            title: titleObject.name,
+            release_date: titleObject.first_air_date
+        };
+    } else {
+        return titleObjectWithCredits;
+    }
+}
+
 export const getPosterURI = (posterPath) => {
     return posterPath ? `${TMDB_IMAGE_API_BASE_URL}${posterPath}` : null;
+}
+
+export const getDirector = (titleObjectWithCredits) => {
+    if (titleObjectWithCredits.credits && titleObjectWithCredits.credits.crew) {
+        const crew = titleObjectWithCredits.credits.crew;
+        const director = crew.find((crewMember) => { return crewMember.job && crewMember.job == 'Director' });
+        return director;
+    }
 }

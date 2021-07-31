@@ -17,6 +17,7 @@ import Hero from './Hero';
 import Header from './Header';
 
 import { Reelay } from '../../src/models';
+import { fetchMovie, fetchMovieCredits, fetchSeriesCredits, fetchTitleWithCredits, getDirector } from '../../api/TMDbApi';
 
 // Please move these into an environment variable (preferably injected via your build step)
 const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3/';
@@ -72,27 +73,6 @@ export default ReelayFeed = ({ navigation }) => {
         return signedVideoURI;
     }
 
-    const getTitleObject = async (reelayObject) => {
-        if (!reelayObject.tmdbTitleID) return null;
-
-        const tmdbTitleQuery = (reelayObject.isSeries)
-            ? `${TMDB_API_BASE_URL}\/tv\/${reelayObject.tmdbTitleID}\?api_key\=${TMDB_API_KEY}`
-            : `${TMDB_API_BASE_URL}\/movie\/${reelayObject.tmdbTitleID}\?api_key\=${TMDB_API_KEY}`;
-
-        const titleObjectResponse = await fetch(tmdbTitleQuery);
-        const titleObject = await titleObjectResponse.json();
-
-        if (reelayObject.isSeries) {
-            return {
-                ...titleObject,
-                title: titleObject.name,
-                release_date: titleObject.first_air_date
-            }
-        } else {
-            return titleObject;
-        }
-    }
-
     const compareReelaysByPostedDate = (reelay1, reelay2) => {
         return (reelay1.postedDateTime < reelay2.postedDateTime) ? -1 : 1;
     }
@@ -112,7 +92,7 @@ export default ReelayFeed = ({ navigation }) => {
 
         const reelayObject = queryResponse[0];
         const videoURIPromise = getVideoURI(reelayObject);
-        const titleObjectPromise = getTitleObject(reelayObject);
+        const titleObjectPromise = await fetchTitleWithCredits(reelayObject.tmdbTitleID, reelayObject.isSeries);
 
         if (mostRecent && find(reelayList, (nextReelay) => { return nextReelay.id == reelayObject.id})) {
             // most recent object already in list
