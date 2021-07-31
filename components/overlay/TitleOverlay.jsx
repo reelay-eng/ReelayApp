@@ -6,10 +6,12 @@ import Poster from '../view-reelay/Poster';
 import { fetchMovieTrailer, getDirector } from '../../api/TMDbApi';
 import { VisibilityContext} from '../../context/VisibilityContext';
 import styled from 'styled-components/native';
+import YoutubeVideoEmbed from '../utils/YouTubeVideoEmbed';
 
 export default TitleOverlay = ({ navigation }) => {
 
     const { height, width } = Dimensions.get('window');
+    const TRAILER_HEIGHT = height * 0.3;
 
     const HeaderRowContainer = styled(View)`
         width: 70%;
@@ -17,9 +19,17 @@ export default TitleOverlay = ({ navigation }) => {
     `
     const TitleOverlayContainer = styled(View)`
         position: absolute;
-        flex-direction: row;
         width: 100%;
         height: 100%;
+    `
+    const TitleOverlayHeader = styled(View)`
+        flex-direction: row;
+        width: 100%;
+        height: 30%;
+    `
+    const TitleOverlayTrailerContainer = styled(View)`
+        width: 100%;
+        height: ${TRAILER_HEIGHT}px;
     `
     const PosterContainer = styled(View)`
         position: absolute;
@@ -52,20 +62,24 @@ export default TitleOverlay = ({ navigation }) => {
     const director = getDirector(titleObject);
     const directorName = (director && director.name) ? 'Dir. ' + director.name : '';
 
-    const trailer = titleObject.trailerURI;
-    console.log(trailer);
-
     return (
         <TitleOverlayContainer>
-            <HeaderRowContainer>
-                <TitleText>{titleObject.title}{titleObject.year}</TitleText>
-                <TaglineText>{titleObject.tagline}</TaglineText>
-                <DirectorText>{directorName}</DirectorText>
+            <TitleOverlayHeader>
+                <HeaderRowContainer>
+                    <TitleText>{titleObject.title}{titleObject.year}</TitleText>
+                    <TaglineText>{titleObject.tagline}</TaglineText>
+                    <DirectorText>{directorName}</DirectorText>
 
-            </HeaderRowContainer>
-            <PosterContainer>
-                <Poster titleObject={titleObject} showTitle={false} />
-            </PosterContainer>
+                </HeaderRowContainer>
+                <PosterContainer>
+                    <Poster titleObject={titleObject} showTitle={false} />
+                </PosterContainer>
+            </TitleOverlayHeader>
+            {titleObject.trailerURI && 
+                <TitleOverlayTrailerContainer>
+                    <YoutubeVideoEmbed youtubeVideoID={titleObject.trailerURI} height={TRAILER_HEIGHT} />
+                </TitleOverlayTrailerContainer>
+            }
         </TitleOverlayContainer>
     )
 };

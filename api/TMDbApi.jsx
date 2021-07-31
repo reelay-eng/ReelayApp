@@ -118,7 +118,7 @@ export const fetchMovieTrailerURI = async(titleID) => {
         return video.site && video.site == 'YouTube' && video.type && video.type == 'Trailer' && video.key;
     });
     const trailerURI = `${YOUTUBE_BASE_URL}${youtubeTrailer.key}`;
-    return trailerURI;
+    return youtubeTrailer.key;
 }
 
 export const fetchSeriesTrailerURI = async(titleID) => {
@@ -129,7 +129,7 @@ export const fetchSeriesTrailerURI = async(titleID) => {
         return video.site && video.site == 'YouTube' && video.type && video.type == 'Trailer' && video.key;
     });
     const trailerURI = `${YOUTUBE_BASE_URL}${youtubeTrailer.key}`;
-    return trailerURI;
+    return youtubeTrailer.key;
 }
 
 export const fetchTitleWithCredits = async(titleID, isSeries) => {
