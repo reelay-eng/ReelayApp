@@ -8,6 +8,10 @@ publish: &publish
     - checkout
 
     - run:
+        name: Creating package lock
+        command: yarn install --frozen-lockfile
+
+    - run:
         name: Installing dependencies
         command: npm ci
 
