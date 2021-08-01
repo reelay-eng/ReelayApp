@@ -41,4 +41,4 @@ workflows:
       - publish_to_expo_prod:
           filters:
             branches:
-              only: master
+              only: main
