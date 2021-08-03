@@ -1,11 +1,14 @@
 import React, { useContext, useState } from 'react';
 import { View, SafeAreaView } from 'react-native';
-import { Button, Input, Icon, Text } from 'react-native-elements';
-import { AuthStyles } from '../styles';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../context/AuthContext';
 import { showErrorToast } from '../components/utils/toasts';
+
+import { AuthButton, AuthHeaderLeft, AuthHeaderView, AuthInput } from '../components/utils/AuthComponents';
+import BackButton from '../components/utils/BackButton';
+
+import styled from 'styled-components/native';
 
 export default SignInScreen = ({ navigation }) => {
 
@@ -38,34 +41,28 @@ export default SignInScreen = ({ navigation }) => {
             backgroundColor: 'black',
             height: '100%',
         }}>
-            <View 
-                style={AuthStyles.headerView}>
-                <Icon type='ionicon' name='chevron-back-outline' color={'white'} size={30} 
-                    onPress={() => { navigation.pop() }}
-                    style={AuthStyles.backButton}/>
-                <Text h3 
-                    style={AuthStyles.headerText}>{'Sign In to Reelay'}</Text>
-            </View>
-            <Input 
+            <AuthHeaderView>
+                <BackButton navigation={navigation} />
+                <AuthHeaderLeft>{'Sign In to Reelay'}</AuthHeaderLeft>
+            </AuthHeaderView>
+            <AuthInput 
                 autoCapitalize='none'
                 placeholder={'Enter username'} 
                 onChangeText={(text) => {
                     setUsername(text);
                 }}
                 rightIcon={{type: 'ionicon', name: 'mail-outline'}}
-                style={AuthStyles.input}
             />
-            <Input 
+            <AuthInput 
                 placeholder={'Enter password'} 
                 onChangeText={(password) => setPassword(password)}
                 rightIcon={{type: 'ionicon', name: 'eye-outline'}}
                 secureTextEntry={true}
-                style={AuthStyles.input}
             />
-            <Button title='Continue' type='solid' onPress={signInUser}
-                style={AuthStyles.submitButton} />
-            <Button title='Forgot password?' type='clear' onPress={() => { navigation.push('ForgotPasswordScreen') }}
-                style={AuthStyles.clearButton} />
+            <AuthButton title='Continue' type='solid' onPress={signInUser}
+                buttonStyle={{backgroundColor: '#b83636'}} />
+            <AuthButton title='Forgot password?' type='clear' onPress={() => { navigation.push('ForgotPasswordScreen') }}
+                titleStyle={{color: '#b83636'}} />
         </SafeAreaView>
     );
 }

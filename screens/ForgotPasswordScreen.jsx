@@ -1,11 +1,12 @@
 import React, { useContext, useState } from 'react';
 import { View, SafeAreaView } from 'react-native';
-import { Button, Input, Icon, Text } from 'react-native-elements';
 
 import { Auth } from 'aws-amplify';
-import { AuthStyles } from '../styles';
 import { showErrorToast } from '../components/utils/toasts';
 import { AuthContext } from '../context/AuthContext';
+
+import { AuthButton, AuthInput, AuthHeaderLeft, AuthHeaderView } from '../components/utils/AuthComponents';
+import BackButton from '../components/utils/BackButton';
 
 export default ForgotPasswordScreen = ({ navigation }) => {
 
@@ -35,26 +36,21 @@ export default ForgotPasswordScreen = ({ navigation }) => {
             backgroundColor: 'black',
             height: '100%',
         }}>
-            <View 
-                style={AuthStyles.headerView}>
-                <Icon type='ionicon' name='chevron-back-outline' color={'white'} size={30} 
-                    onPress={() => { navigation.pop() }}
-                    style={AuthStyles.backButton}/>
-                <Text h3 
-                    style={AuthStyles.headerText}>{'Forgot Password'}</Text>
-            </View>
+            <AuthHeaderView>
+                <BackButton navigation={navigation} />
+                <AuthHeaderLeft>{'Forgot Password'}</AuthHeaderLeft>
+            </AuthHeaderView>
             <View>
-                <Input 
+                <AuthInput 
                     autoCapitalize='none'
                     placeholder={'Enter username'} 
                     onChangeText={(text) => {
                         setUsername(text);
                     }}
                     rightIcon={{type: 'ionicon', name: 'mail-outline'}}
-                    style={AuthStyles.input}
                 />
-                <Button title='Send me a reset link' type='solid' onPress={sendForgotPasswordEmail}
-                    style={AuthStyles.submitButton} />
+                <AuthButton title='Send me a reset link' type='solid' onPress={sendForgotPasswordEmail}
+                    buttonStyle={{backgroundColor: '#b83636'}} />
             </View>
         </SafeAreaView>
     );

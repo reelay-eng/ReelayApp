@@ -10,19 +10,17 @@ export default ReelayOverlay = ({ navigation }) => {
 
     const visibilityContext = useContext(VisibilityContext);
 
-
-
     return (
         <Overlay fullScreen={true} overlayStyle={{ 
             backgroundColor: 'black',
-            opacity: 0.8,
+            opacity: 1,
         }}>
             {/* If we never set a visibility type, we shouldn't create an empty overlay */}
             { visibilityContext.overlayData?.type == 'SETTINGS' && 
                 <SettingsOverlay navigation={navigation} />
             }
             { visibilityContext.overlayData?.type == 'TITLE' &&
-                <TitleOverlay navigation={navigation} />
+                <TitleOverlay navigation={navigation} style={{backgroundColor: 'rgba(0,0,0,1.0)'}} />
             }
         </Overlay>
     );

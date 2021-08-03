@@ -1,8 +1,7 @@
 import React from 'react';
 import { SafeAreaView } from 'react-native';
-import { Button, Text } from 'react-native-elements';
 
-import { AuthStyles } from '../styles';
+import { AuthButton, AuthHeaderCenter } from '../components/utils/AuthComponents';
 
 export default ForgotPasswordAffirmScreen = ({ navigation }) => {
     
@@ -11,13 +10,13 @@ export default ForgotPasswordAffirmScreen = ({ navigation }) => {
             backgroundColor: 'black',
             height: '100%',
         }}>
-            <Text h3 style={AuthStyles.headerTextCentered}>{'Password successfully reset!'}</Text>
-            <Button title="Return to Sign In" type='solid' 
+            <AuthHeaderCenter>{'Password successfully reset!'}</AuthHeaderCenter>
+            <AuthButton title="Return to Sign In" type='solid' 
                 onPress={() => {
                     navigation.popToTop();
                     navigation.push('SignInScreen');
                 }}
-                style={AuthStyles.submitButton} />
+                buttonStyle={{backgroundColor: '#b83636'}} />
         </SafeAreaView>
     );
 }

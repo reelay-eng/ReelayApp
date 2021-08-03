@@ -1,10 +1,7 @@
-import React, { createRef, useContext, useState, useRef } from 'react';
-import { View, SafeAreaView } from 'react-native';
-import { Button, Input, Icon, Text } from 'react-native-elements';
-import { AuthStyles, TextStyles } from '../styles';
+import React, { createRef, useState } from 'react';
+import { SafeAreaView } from 'react-native';
 
-import { Auth } from 'aws-amplify';
-import { AuthContext } from '../context/AuthContext';
+import { AuthButton, AuthHeaderCenter, AuthInput } from '../components/utils/AuthComponents';
 
 export default SignUpEmailScreen = ({ navigation }) => {
 
@@ -15,16 +12,15 @@ export default SignUpEmailScreen = ({ navigation }) => {
         autoCorrect: false,
     });
 
-    const authContext = useContext(AuthContext);
+    // todo: there's no checking for valid email on this page
 
     return (
         <SafeAreaView style={{
             backgroundColor: 'black',
             height: '100%',
         }}>
-            <Text h3 style={AuthStyles.headerTextCentered}>{'Join Reelay'}</Text>
-            <View style={{ height: '50%' }} />
-            <Input
+            <AuthHeaderCenter>{'Join Reelay'}</AuthHeaderCenter>
+            <AuthInput
                 ref={emailInput}
                 autoCapitalize='none'
                 placeholder={'Email'} 
@@ -32,20 +28,19 @@ export default SignUpEmailScreen = ({ navigation }) => {
                     setEmail(text);
                 }}
                 rightIcon={{type: 'ionicon', name: 'mail-outline'}}
-                style={{
-                    ...AuthStyles.input,
-                }}
             />
-
-            <Button title='Continue' type='solid' onPress={() => { 
-                navigation.push('SignUpScreen', { email });
-            }} style={AuthStyles.submitButton} />
-
-            <Button title='Login' type='clear' onPress={() => { 
-                navigation.push('SignInScreen');
-            }} style={AuthStyles.clearButton} />
-
-
+            <AuthButton title='Continue' type='solid' 
+                onPress={() => { 
+                    navigation.push('SignUpScreen', { email });
+                }} 
+                buttonStyle={{backgroundColor: '#b83636'}} 
+            />
+            <AuthButton title='Login' type='clear' 
+                onPress={() => { 
+                    navigation.push('SignInScreen');
+                }}
+                titleStyle={{color: '#b83636'}}
+            />
         </SafeAreaView>
     );
 }

@@ -1,11 +1,14 @@
 import React, { useContext, useState } from 'react';
 import { View, SafeAreaView } from 'react-native';
-import { Button, Input, Icon, Text } from 'react-native-elements';
+import { Icon, Text } from 'react-native-elements';
 
 import { Auth } from 'aws-amplify';
 import { AuthStyles } from '../styles';
 import { AuthContext } from '../context/AuthContext';
 import { showMessageToast, showErrorToast } from '../components/utils/toasts';
+
+import { AuthButton, AuthInput, AuthHeaderView, AuthHeaderLeft, SystemText } from '../components/utils/AuthComponents';
+import BackButton from '../components/utils/BackButton';
 
 export default ForgotPasswordSubmitScreen = ({ navigation }) => {
 
@@ -58,48 +61,37 @@ export default ForgotPasswordSubmitScreen = ({ navigation }) => {
             backgroundColor: 'black',
             height: '100%',
         }}>
-            <View 
-                style={AuthStyles.headerView}>
-                <Icon type='ionicon' name='chevron-back-outline' color={'white'} size={30} 
-                    onPress={() => { navigation.pop() }}
-                    style={AuthStyles.backButton}/>
-                <Text h3 
-                    style={AuthStyles.headerText}>{'Reset your password'}</Text>
-            </View>
+            <AuthHeaderView>
+                <BackButton navigation={navigation} />
+                <AuthHeaderLeft>{'Reset your password'}</AuthHeaderLeft>
+            </AuthHeaderView>
             <View>
-                <Input 
+                <AuthInput 
                     placeholder={'Enter confirmation code'} 
                     onChangeText={(code) => setConfirmationCode(code)}
-                    style={AuthStyles.input}
                 />
-                <Input 
+                <AuthInput 
                     placeholder={'Enter new password'} 
                     onChangeText={(password) => setNewPassword(password)}
                     rightIcon={{type: 'ionicon', name: 'eye-outline'}}
                     secureTextEntry={true}
-                    style={AuthStyles.input}
                 />
-                <Input 
+                <AuthInput 
                     placeholder={'Confirm new password'} 
                     onChangeText={(password) => setConfirmNewPassword(password)}
                     rightIcon={{type: 'ionicon', name: 'eye-outline'}}
                     secureTextEntry={true}
-                    style={AuthStyles.input}
                 />
 
-                { !passwordsMatch() && <Text style={{
-                        alignSelf: 'center',
-                        color: 'white',
-                        fontFamily: 'System',
-                    }}>{"Passwords don't match!"}</Text> }
+                { !passwordsMatch() && <SystemText>{"Passwords don't match!"}</SystemText> }
                 
-                <Button title='Reset password' type='solid' disabled={!passwordsMatch()}
+                <AuthButton title='Reset password' type='solid' disabled={!passwordsMatch()}
                     onPress={forgotPasswordSubmit}
-                    style={AuthStyles.submitButton} />
+                    buttonStyle={{backgroundColor: '#b83636'}} />
 
-                <Button title="Didn't receive a code? Let's try again." type='clear' 
+                <AuthButton title="Didn't receive a code? Let's try again." type='clear' 
                     onPress={resendForgotPasswordEmail}
-                    style={AuthStyles.submitButton} />
+                    titleStyle={{color: '#b83636'}} />
             </View>
         </SafeAreaView>
     );

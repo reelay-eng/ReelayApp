@@ -1,18 +1,18 @@
 import React, { createRef, useContext, useState } from 'react';
-import { View, SafeAreaView } from 'react-native';
-import { Button, Input, Icon, Text } from 'react-native-elements';
-import { AuthStyles, TextStyles } from '../styles';
+import { SafeAreaView } from 'react-native';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../context/AuthContext';
 import { showErrorToast } from '../components/utils/toasts';
+
+import { AuthButton, AuthHeaderLeft, AuthHeaderView, AuthInput, SystemText } from '../components/utils/AuthComponents';
+import BackButton from '../components/utils/BackButton';
 
 export default SignUpScreen = ({ navigation, route }) => {
 
     const SIGN_UP_ERROR_MESSAGE = 'Couldn\'t create an account. Try a different username?';
 
     const { email } = route.params;
-
     const authContext = useContext(AuthContext);
     const usernameRef = createRef();
     
@@ -52,13 +52,11 @@ export default SignUpScreen = ({ navigation, route }) => {
             backgroundColor: 'black',
             height: '100%',
         }}>
-            <View style={AuthStyles.headerView}>
-                <Icon type='ionicon' name='chevron-back-outline' color={'white'} size={30} 
-                    onPress={() => { navigation.pop() }}
-                    style={AuthStyles.backButton}/>
-                <Text h3 style={AuthStyles.headerText}>{'Create an Account'}</Text>
-            </View>
-            <Input 
+            <AuthHeaderView>
+                <BackButton navigation={navigation} />
+                <AuthHeaderLeft>{'Create an Account'}</AuthHeaderLeft>
+            </AuthHeaderView>
+            <AuthInput 
                 ref={usernameRef}
                 autoCapitalize='none'
                 placeholder={'Username'} 
@@ -66,43 +64,27 @@ export default SignUpScreen = ({ navigation, route }) => {
                     setUsername(text);
                 }}
                 rightIcon={{type: 'ionicon', name: 'person-outline'}}
-                style={{
-                    ...AuthStyles.input,
-                }}
             />
-            <Input 
+            <AuthInput 
                 placeholder={'Enter password'} 
                 onChangeText={(password) => setPassword(password)}
                 rightIcon={{type: 'ionicon', name: 'eye-outline'}}
                 secureTextEntry={true}
-                style={{
-                    ...AuthStyles.input,
-                }}
             />
-            <Input 
+            <AuthInput 
                 placeholder={'Re-enter password'} 
                 onChangeText={(password) => setConfirmPassword(password)}
                 rightIcon={{type: 'ionicon', name: 'eye-outline'}}
                 secureTextEntry={true}
-                style={{
-                    ...AuthStyles.input,
-                }}
             />
 
-            { !passwordLongEnough() && <Text style={{
-                ...AuthStyles.systemText,
-                ...AuthStyles.systemTextForm
-            }}>{'Passwords must be at least 8 characters.'}</Text> }
+            { !passwordLongEnough() && <SystemText>{'Passwords must be at least 8 characters.'}</SystemText> }
+            { !passwordsMatch() && <SystemText>{"Passwords don't match!"}</SystemText> }
 
-            { !passwordsMatch() && <Text style={{
-                ...AuthStyles.systemText,
-                ...AuthStyles.systemTextForm
-            }}>{"Passwords don't match!"}</Text> }
-
-            <Button title='Continue' type='solid' onPress={createAccount} disabled={!(passwordsMatch() && passwordLongEnough())}
-                style={AuthStyles.submitButton} />
-            <Button title='Login' type='clear' onPress={() => { navigation.push('SignInScreen') }} 
-                style={AuthStyles.clearButton}
+            <AuthButton title='Continue' type='solid' onPress={createAccount} disabled={!(passwordsMatch() && passwordLongEnough())}
+                buttonStyle={{backgroundColor: '#b83636'}}  />
+            <AuthButton title='Login' type='clear' onPress={() => { navigation.push('SignInScreen') }} 
+                titleStyle={{color: '#b83636'}}
             />
         </SafeAreaView>
     );

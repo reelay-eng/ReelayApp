@@ -1,11 +1,14 @@
 import React, { useContext, useState } from 'react';
-import { View, SafeAreaView } from 'react-native';
-import { Button, Input, Icon, Text } from 'react-native-elements';
-import { AuthStyles, TextStyles } from '../styles';
+import { SafeAreaView } from 'react-native';
+import { Text } from 'react-native-elements';
+import { AuthStyles } from '../styles';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../context/AuthContext';
 import { showErrorToast } from '../components/utils/toasts';
+
+import { AuthButton, AuthInput, AuthHeaderView, AuthHeaderLeft } from '../components/utils/AuthComponents';
+import BackButton from '../components/utils/BackButton';
 
 export default ConfirmEmailScreen = ({ navigation }) => {
 
@@ -52,31 +55,28 @@ export default ConfirmEmailScreen = ({ navigation }) => {
             backgroundColor: 'black',
             height: '100%',
         }}>
-            <View 
-                style={AuthStyles.headerView}>
-                <Icon type='ionicon' name='chevron-back-outline' color={'white'} size={30} 
-                    onPress={() => { navigation.pop() }}
-                    style={AuthStyles.backButton}/>
-                <Text h3 style={AuthStyles.headerText}>{'Check your email'}</Text>
-            </View>
+            <AuthHeaderView>
+                <BackButton navigation={navigation} />
+                <AuthHeaderLeft>{'Check your email'}</AuthHeaderLeft>
+            </AuthHeaderView>
             <Text h4 style={{
-                ...AuthStyles.headerText, 
+                color: 'white',
+                fontFamily: 'System',
                 flex: 0.1, 
                 justifyContent: 'flex-start'
                 }}>{'We\'ve sent you a confirmation code'}</Text>
-            <Input 
+            <AuthInput 
                 autoCapitalize='none'
                 placeholder={'Enter confirmation code'} 
                 onChangeText={(text) => {
                     setConfirmationCode(text);
                 }}
                 rightIcon={{type: 'ionicon', name: 'mail-outline'}}
-                style={AuthStyles.input}
             />
-            <Button title='Continue' type='solid' onPress={confirmEmail}
-                style={AuthStyles.submitButton} />
-            <Button title='Resend confirmation code' type='clear' onPress={resendConfirmationCode}
-                style={AuthStyles.clearButton} />
+            <AuthButton title='Continue' type='solid' onPress={confirmEmail}
+                buttonStyle={{backgroundColor: '#b83636'}} />
+            <AuthButton title='Resend confirmation code' type='clear' onPress={resendConfirmationCode}
+                titleStyle={{color: '#b83636'}} />
         </SafeAreaView>
     );
 }
