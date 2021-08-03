@@ -102,7 +102,9 @@ export const fetchSeriesCredits = async (titleID) => {
 
 export const fetchMovie = async (titleID) => {
     const query = `${TMDB_API_BASE_URL}/movie\/${titleID}\?api_key\=${TMDB_API_KEY}`;
-    return await fetchResults(query);
+    const result = await fetchResults(query);
+    console.log(result);
+    return result;
 }
 
 export const fetchMovieCredits = async(titleID) => {
@@ -111,25 +113,33 @@ export const fetchMovieCredits = async(titleID) => {
 }
 
 export const fetchMovieTrailerURI = async(titleID) => {
-    const query = `${TMDB_API_BASE_URL}/movie\/${titleID}/videos\?api_key\=${TMDB_API_KEY}`;
-    const videoResults = await fetchResults(query);
-
-    const youtubeTrailer = videoResults.results.find((video) => { 
-        return video.site && video.site == 'YouTube' && video.type && video.type == 'Trailer' && video.key;
-    });
-    const trailerURI = `${YOUTUBE_BASE_URL}${youtubeTrailer.key}`;
-    return youtubeTrailer.key;
+    try {
+        const query = `${TMDB_API_BASE_URL}/movie\/${titleID}/videos\?api_key\=${TMDB_API_KEY}`;
+        const videoResults = (await fetchResults(query)).results;
+        if (videoResults.length == 0) return null;
+        const youtubeTrailer = videoResults.find((video) => { 
+            return video.site && video.site == 'YouTube' && video.type && video.type == 'Trailer' && video.key;
+        });
+        return youtubeTrailer.key;    
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
 }
 
 export const fetchSeriesTrailerURI = async(titleID) => {
-    const query = `${TMDB_API_BASE_URL}/tv\/${titleID}/videos\?api_key\=${TMDB_API_KEY}`;
-    const videoResults = await fetchResults(query);
-
-    const youtubeTrailer = videoResults.results.find((video) => { 
-        return video.site && video.site == 'YouTube' && video.type && video.type == 'Trailer' && video.key;
-    });
-    const trailerURI = `${YOUTUBE_BASE_URL}${youtubeTrailer.key}`;
-    return youtubeTrailer.key;
+    try {
+        const query = `${TMDB_API_BASE_URL}/tv\/${titleID}/videos\?api_key\=${TMDB_API_KEY}`;
+        const videoResults = (await fetchResults(query)).results;
+        if (videoResults.length == 0) return null;
+        const youtubeTrailer = videoResults.find((video) => { 
+            return video.site && video.site == 'YouTube' && video.type && video.type == 'Trailer' && video.key;
+        });
+        return youtubeTrailer.key;    
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
 }
 
 export const fetchTitleWithCredits = async(titleID, isSeries) => {

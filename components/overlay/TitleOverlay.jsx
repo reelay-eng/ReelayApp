@@ -92,6 +92,8 @@ export default TitleOverlay = ({ navigation }) => {
     const directorName = (director && director.name) ? 'Dir. ' + director.name : '';
     const actors = getDisplayActors(titleObject);
 
+    console.log(titleObject.title);
+
     return (
         <TitleOverlayContainer>
             <TitleOverlayHeader>

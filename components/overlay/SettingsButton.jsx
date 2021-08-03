@@ -19,6 +19,10 @@ export default SettingsButton = () => {
         border-width: 2px;
         border-color: #ffffff;
     `
+    const AvatarPressable = styled.Pressable`
+        width: 100%;
+        height: 100%;
+    `
 
     const onPress = () => {
         visibilityContext.setOverlayData({
@@ -30,9 +34,9 @@ export default SettingsButton = () => {
 
     return (
         <AvatarView style={{ margin: 10 }}>
-            <Pressable onPress={onPress}>
+            <AvatarPressable onPress={onPress}>
                 <AvatarImage resizeMode='cover' source={require('../../assets/images/icon.png')} />
-            </Pressable>
+            </AvatarPressable>
         </AvatarView>
     );
 

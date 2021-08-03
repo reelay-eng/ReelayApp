@@ -123,6 +123,8 @@ export default ReelayFeed = ({ navigation }) => {
                 shares: 33
             }
         };
+
+        console.log(preparedReelay.titleObject.title);
         
         const newReelayList = mostRecent ? [preparedReelay, ...reelayList]: [...reelayList, preparedReelay];
         console.log(newReelayList.map(reelay => reelay.titleObject.title));
