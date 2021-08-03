@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Dimensions, Pressable, View } from 'react-native';
+import { Dimensions, Pressable, View, SafeAreaView } from 'react-native';
 import { Overlay, Text } from 'react-native-elements';
 import ReelayAvatar from '../utils/ReelayAvatar';
 
@@ -23,7 +23,7 @@ export default SettingsOverlay = ({ navigation }) => {
         margin-bottom: 40px;
     `
 
-    const SettingsContainer = styled(View)`
+    const SettingsContainer = styled(SafeAreaView)`
         height: 100%;
         width: 100%;
     `
@@ -57,7 +57,6 @@ export default SettingsOverlay = ({ navigation }) => {
         <SettingsContainer>
             <SettingsHeader>
                 <ReelayAvatar onPress={() => {
-                    console.log('pushed this one');
                     visibilityContext.setOverlayVisible(false);
                 }} />
             </SettingsHeader>

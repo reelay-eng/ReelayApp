@@ -24,12 +24,15 @@ const PressableContainer = styled.Pressable`
 const TitleText = styled.Text`
     color: white
     font-size: 18px;
-    flex: 1;
 `
 const TitleLineContainer = styled.View`
-    flex: 1
-    flex-direction: row;
-    align-items: flex-start;
+    flex: 1;
+    justify-content: flex-start;
+    align-items: flex-end;
+`
+const DirectorText = styled.Text`
+    color: white
+    font-size: 18px;
 `
 const YearText = styled.Text`
     color: white
@@ -48,7 +51,7 @@ export default SearchResultItem = ({result, navigation}) => {
 
     // for movies and series
     // note that release_date for series has been overwritten with its first air date
-    const title = titleObject.title ? titleObject.title + '\t' : 'Title not found.' + '\t';
+    const title = titleObject.title ? titleObject.title : 'Title not found.';
     const releaseYear = (titleObject.release_date && titleObject.release_date.length >= 4) 
         ? ('(' + titleObject.release_date.slice(0,4) + ')') : '';
 
@@ -72,6 +75,7 @@ export default SearchResultItem = ({result, navigation}) => {
             </ImageContainer>
             <TitleLineContainer>
                 <TitleText>{posterLoaded ? title : ''}</TitleText>
+                <DirectorText></DirectorText>
                 <YearText>{posterLoaded ? releaseYear: ''}</YearText>
             </TitleLineContainer>
         </PressableContainer>

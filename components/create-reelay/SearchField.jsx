@@ -16,6 +16,7 @@ export default SearchField = ({ searchText, updateSearch }) => {
                     marginTop: 20,
                     textDecorationColor: 'white',
                     color: 'white',
+                    fontFamily: 'System',
                 }}
             />
 

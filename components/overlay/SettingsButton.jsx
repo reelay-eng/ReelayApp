@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { Pressable } from 'react-native';
 import styled from 'styled-components/native';
 
 import { VisibilityContext } from '../../context/VisibilityContext';
