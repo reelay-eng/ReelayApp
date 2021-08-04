@@ -5,7 +5,8 @@
     "ios": "react-native run-ios",
     "web": "expo start --web",
     "eject": "expo eject",
-    "test": "jest --watchAll"
+    "test": "jest --watchAll",
+    "setup": "yarn install && cd ios && pod install && cd .. && amplify pull"
   },
   "jest": {
     "preset": "jest-expo"

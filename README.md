@@ -1,8 +1,6 @@
 # Reelay
 
-To build Reelay, clone the repo onto your machine, cd into the directory, and run `yarn install`.
-
-Once yarn has finished installing packages, run `amplify pull` to get the latest configuration from amplify.
+To build Reelay, clone the repo onto your machine, cd into the directory, and run `yarn setup`. This takes care of installing packages and pods, and setting up the Amplify connection.
 
 Run the app for development using `yarn start`.
 
