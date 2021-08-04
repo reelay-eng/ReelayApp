@@ -21,12 +21,12 @@ publish: &publish
 
 jobs:
   publish_to_expo_dev:
-    resource_class: large+
     environment:
       EXPO_RELEASE_CHANNEL: dev
     <<: *publish
 
   publish_to_expo_prod:
+    resource_class: large+
     environment:
       EXPO_RELEASE_CHANNEL: default
     <<: *publish
