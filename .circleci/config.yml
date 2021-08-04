@@ -19,7 +19,9 @@ publish: &publish
     - run:
         name: Publish to Expo
         command: npx expo-cli publish --non-interactive --max-workers 1 --release-channel $EXPO_RELEASE_CHANNEL
-
+    - run:
+        command: cat /sys/fs/cgroup/memory/memory.max_usage_in_bytes
+        when: always
 jobs:
   publish_to_expo_dev:
     environment:
