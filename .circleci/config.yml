@@ -26,7 +26,7 @@ jobs:
     <<: *publish
 
   publish_to_expo_prod:
-    resource_class: large
+    resource_class: medium+
     environment:
       EXPO_RELEASE_CHANNEL: default
     <<: *publish
