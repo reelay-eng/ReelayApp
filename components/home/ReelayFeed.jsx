@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Dimensions, TouchableOpacity, Text, SafeAreaView, View } from 'react-native';
 import { VisibilityContext } from '../../context/VisibilityContext';
+import Constants from 'expo-constants';
 
 import { find } from 'lodash';
 
@@ -9,20 +10,18 @@ import styled from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
 import { ActivityIndicator } from 'react-native-paper';
 
-import { Auth, DataStore, Predicates, SortDirection, Storage } from 'aws-amplify';
+import { DataStore, SortDirection, Storage } from 'aws-amplify';
 
 import SettingsButton from '../overlay/SettingsButton';
 import ReelayOverlay from '../overlay/ReelayOverlay';
 import Hero from './Hero';
-import Header from './Header';
 
 import { Reelay } from '../../src/models';
-import { fetchMovie, fetchMovieCredits, fetchSeriesCredits, fetchTitleWithCredits, getDirector } from '../../api/TMDbApi';
+import { fetchTitleWithCredits } from '../../api/TMDbApi';
 
 // Please move these into an environment variable (preferably injected via your build step)
-const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3/';
-const TMDB_API_KEY = '033f105cd28f507f3dc6ae794d5e44f5';
 const CLOUDFRONT_BASE_URL = 'https://di92fpd9s7eko.cloudfront.net';
+const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 const { height, width } = Dimensions.get('window');
 
@@ -79,7 +78,8 @@ export default ReelayFeed = ({ navigation }) => {
 
     const fetchNextReelay = async ({ mostRecent }) => {
         const nextPageToFetch = mostRecent ? 0 : nextPage;
-        const queryResponse = await DataStore.query(Reelay, r => r.visibility('eq', 'global'), {
+        
+        const queryResponse = await DataStore.query(Reelay, r => r.visibility('eq', FEED_VISIBILITY), {
             sort: r => r.uploadedAt(SortDirection.DESCENDING),
             page: nextPageToFetch,
             limit: 1,

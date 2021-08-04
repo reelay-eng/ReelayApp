@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { UploadContext } from '../context/UploadContext';
 import { Auth, DataStore, Storage } from 'aws-amplify';
 import { Reelay } from '../src/models';
+import Constants from 'expo-constants';
 
 import VideoPlayer from '../components/view-reelay/VideoPlayer';
 import ReelayPreviewOverlay from '../components/overlay/ReelayPreviewOverlay';
@@ -13,6 +14,7 @@ import { ProgressBar } from 'react-native-paper';
 import styled from 'styled-components/native';
 
 const { height, width } = Dimensions.get('window');
+const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
 
 const UploadScreenContainer = styled(SafeAreaView)`
     height: 100%;
@@ -90,7 +92,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
                 uploadedAt: new Date().toISOString(),
                 tmdbTitleID: titleObject.id.toString(),
                 videoS3Key: videoS3Key,
-                visibility: 'global',
+                visibility: UPLOAD_VISIBILITY,
             });
 
             // Upload Reelay object to DynamoDB, get ID
