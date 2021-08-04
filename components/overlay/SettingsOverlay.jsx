@@ -7,6 +7,7 @@ import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
 import { VisibilityContext } from '../../context/VisibilityContext';
 
+import * as Sentry from '@sentry/react-native';
 
 import styled from 'styled-components/native';
 
@@ -47,6 +48,7 @@ export default SettingsOverlay = ({ navigation }) => {
             authContext.setUser({});
             authContext.setSession({});
             authContext.setCredentials({});
+            Sentry.configureScope(scope => scope.setUser(null));
             visibilityContext.setOverlayVisible(false);
         } catch (error) {
             console.log(error);

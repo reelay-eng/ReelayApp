@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Dimensions, TouchableOpacity, Text, SafeAreaView, View } from 'react-native';
 import { VisibilityContext } from '../../context/VisibilityContext';
 import Constants from 'expo-constants';
+import * as Sentry from '@sentry/react-native';
 
 import { find } from 'lodash';
 
@@ -48,7 +49,11 @@ export default ReelayFeed = ({ navigation }) => {
     useEffect(() => {
         if (reelayList.length == 0) {
             console.log('gotta load the feed');
-            fetchNextReelay({ mostRecent: false });
+            try {
+                fetchNextReelay({ mostRecent: false });
+            } catch (error) {
+                Sentry.captureException(error);
+            }
         } else {
             console.log('feed already loaded');
         }
@@ -78,7 +83,6 @@ export default ReelayFeed = ({ navigation }) => {
 
     const fetchNextReelay = async ({ mostRecent }) => {
         const nextPageToFetch = mostRecent ? 0 : nextPage;
-        
         const queryResponse = await DataStore.query(Reelay, r => r.visibility('eq', FEED_VISIBILITY), {
             sort: r => r.uploadedAt(SortDirection.DESCENDING),
             page: nextPageToFetch,
@@ -94,11 +98,11 @@ export default ReelayFeed = ({ navigation }) => {
         const videoURIPromise = getVideoURI(reelayObject);
         const titleObjectPromise = await fetchTitleWithCredits(reelayObject.tmdbTitleID, reelayObject.isSeries);
 
-        if (mostRecent && find(reelayList, (nextReelay) => { return nextReelay.id == reelayObject.id})) {
+        if (mostRecent && find(reelayList, (nextReelay) => { return nextReelay.id == reelayObject.id })) {
             // most recent object already in list
             console.log('already in list');
             return;
-        } 
+        }
 
         const preparedReelay = {
             id: reelayObject.id,

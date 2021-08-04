@@ -34,7 +34,8 @@
     },
     "extra": {
       "feedVisibility": "global",
-      "uploadVisibility": "global"
+      "uploadVisibility": "test",
+      "sentryEnvironment": "development"
     }
   }
 }

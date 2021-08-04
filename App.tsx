@@ -2,6 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import Constants from 'expo-constants';
+
+// monitoring imports
+import * as Sentry from "@sentry/react-native";
 
 // aws imports
 import { Amplify, Auth, Storage } from 'aws-amplify';
@@ -23,6 +27,12 @@ import { Provider } from 'react-redux';
 import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
+
+Sentry.init({
+  dsn: "https://6eca784356434bc487b3a34f54011754@o943219.ingest.sentry.io/5892020",
+  environment: Constants.manifest?.extra?.sentryEnvironment,
+  enableNative: false,
+});
 
 Amplify.configure({
   ...config,
@@ -64,6 +74,7 @@ function App() {
   const [uploadVideoSource, setUploadVideoSource] = useState('');
 
   useEffect(() => {
+
     console.log('Setting up authentication');
     Auth.currentSession()
       .then((session) => {
@@ -77,6 +88,11 @@ function App() {
       .then((user) => {
         setUser(user);
         setSignedIn(true);
+        Sentry.setUser({
+          email: user.attributes.email,
+          username: user.username,
+          id: user.attributes.sub,
+        });
       })
       .catch((error) => {
         console.log(error);

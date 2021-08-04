@@ -2,6 +2,7 @@ import React from 'react';
 import { Auth, Storage, DataStore } from 'aws-amplify';
 import { Reelay } from '../../src/models';
 import { Button } from 'react-native-elements';
+import * as Sentry from '@sentry/react-native';
 
 import {    
     ReelayUploadStatus,
@@ -17,9 +18,13 @@ export default UploadReelayButton = ({ navigation }) => {
     const dispatch = useDispatch();
 
     const uploadReelayAction = async () => {
-        uploadReelayPromise = uploadReelay();
+        try {
+            uploadReelayPromise = uploadReelay();
+            await uploadReelayPromise;
+        } catch (error) {
+            Sentry.captureException(error);
+        }
         navigation.navigate('HomeFeedScreen');
-        await uploadReelayPromise;
     }
 
     const uploadReelay = async () => {
