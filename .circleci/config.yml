@@ -4,6 +4,7 @@ publish: &publish
   working_directory: ~/my-app
   docker:
     - image: circleci/node:12.14.0
+  resource_class: medium+
   steps:
     - checkout
 
@@ -26,7 +27,6 @@ jobs:
     <<: *publish
 
   publish_to_expo_prod:
-    resource_class: medium+
     environment:
       EXPO_RELEASE_CHANNEL: default
     <<: *publish
