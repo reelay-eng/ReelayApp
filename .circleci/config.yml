@@ -21,6 +21,7 @@ publish: &publish
 
 jobs:
   publish_to_expo_dev:
+    resource_class: medium+
     environment:
       EXPO_RELEASE_CHANNEL: dev
     <<: *publish
