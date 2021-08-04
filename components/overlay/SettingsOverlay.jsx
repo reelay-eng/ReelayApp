@@ -1,13 +1,12 @@
 import React, { useContext } from 'react';
-import { Dimensions, Pressable, View, SafeAreaView } from 'react-native';
-import { Overlay, Text } from 'react-native-elements';
+import { Pressable, View, SafeAreaView } from 'react-native';
+import { Text } from 'react-native-elements';
 import ReelayAvatar from '../utils/ReelayAvatar';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
 import { VisibilityContext } from '../../context/VisibilityContext';
-
-import * as Sentry from '@sentry/react-native';
+import Sentry from 'sentry-expo';
 
 import styled from 'styled-components/native';
 
@@ -48,7 +47,6 @@ export default SettingsOverlay = ({ navigation }) => {
             authContext.setUser({});
             authContext.setSession({});
             authContext.setCredentials({});
-            Sentry.configureScope(scope => scope.setUser(null));
             visibilityContext.setOverlayVisible(false);
         } catch (error) {
             console.log(error);

@@ -2,7 +2,7 @@ import React from 'react';
 import { Auth, Storage, DataStore } from 'aws-amplify';
 import { Reelay } from '../../src/models';
 import { Button } from 'react-native-elements';
-import * as Sentry from '@sentry/react-native';
+import Sentry from 'sentry-expo';
 
 import {    
     ReelayUploadStatus,
@@ -22,7 +22,7 @@ export default UploadReelayButton = ({ navigation }) => {
             uploadReelayPromise = uploadReelay();
             await uploadReelayPromise;
         } catch (error) {
-            Sentry.captureException(error);
+            Sentry.Native.captureException(error);
         }
         navigation.navigate('HomeFeedScreen');
     }

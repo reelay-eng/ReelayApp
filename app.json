@@ -12,6 +12,18 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "hooks": {
+      "postPublish": [
+        {
+          "file": "sentry-expo/upload-sourcemaps",
+          "config": {
+            "organization": "Reelay",
+            "project": "reelay-inc",
+            "authToken": "ee5540bac8794172bba8e8041cc31e06eba7cf549653470c96669188f8552005"
+          }
+        }
+      ]
+    },
     "updates": {
       "fallbackToCacheTimeout": 0
     },
@@ -36,6 +48,9 @@
       "feedVisibility": "global",
       "uploadVisibility": "test",
       "sentryEnvironment": "development"
-    }
+    },
+    "plugins": [
+      "sentry-expo"
+    ]
   }
 }

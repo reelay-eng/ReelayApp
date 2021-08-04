@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Dimensions, TouchableOpacity, Text, SafeAreaView, View } from 'react-native';
 import { VisibilityContext } from '../../context/VisibilityContext';
 import Constants from 'expo-constants';
-import * as Sentry from '@sentry/react-native';
+import Sentry from 'sentry-expo';
 
 import { find } from 'lodash';
 
@@ -129,7 +129,6 @@ export default ReelayFeed = ({ navigation }) => {
         };
         
         const newReelayList = mostRecent ? [preparedReelay, ...reelayList]: [...reelayList, preparedReelay];
-        console.log(newReelayList.map(reelay => reelay.titleObject.title));
 
         setReelayList(newReelayList);
         setNextPage(nextPage + 1);

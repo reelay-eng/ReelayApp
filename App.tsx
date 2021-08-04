@@ -1,11 +1,11 @@
 // react imports
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, AppRegistry } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 
 // monitoring imports
-import * as Sentry from "@sentry/react-native";
+import * as Sentry from 'sentry-expo';
 
 // aws imports
 import { Amplify, Auth, Storage } from 'aws-amplify';
@@ -31,7 +31,8 @@ import Navigation from './navigation';
 Sentry.init({
   dsn: "https://6eca784356434bc487b3a34f54011754@o943219.ingest.sentry.io/5892020",
   environment: Constants.manifest?.extra?.sentryEnvironment,
-  enableNative: false,
+  enableInExpoDevelopment: true,
+  debug: true,
 });
 
 Amplify.configure({
@@ -88,11 +89,11 @@ function App() {
       .then((user) => {
         setUser(user);
         setSignedIn(true);
-        Sentry.setUser({
-          email: user.attributes.email,
-          username: user.username,
-          id: user.attributes.sub,
-        });
+        // Sentry.setUser({
+        //   email: user.attributes.email,
+        //   username: user.username,
+        //   id: user.attributes.sub,
+        // });
       })
       .catch((error) => {
         console.log(error);
@@ -155,25 +156,28 @@ function App() {
     setUploadErrorStatus: setUploadErrorStatus,
     setUploadVideoSource: setUploadVideoSource,
   }
-
+  
   if (isLoading) {
     return <ActivityIndicator />;
   } else {
     return (
-      <SafeAreaProvider>
-        <AuthContext.Provider value={authState}>
-          <VisibilityContext.Provider value={visibilityState}>
-            <UploadContext.Provider value={uploadState}>
-              <Provider store={store}>
-                <StatusBar hidden={true} />
-                <Navigation colorScheme={colorScheme} />
-              </Provider>
-            </UploadContext.Provider>
-          </VisibilityContext.Provider>
-        </AuthContext.Provider>
-      </SafeAreaProvider>
+      <Sentry.Native.TouchEventBoundary>
+        <SafeAreaProvider>
+          <AuthContext.Provider value={authState}>
+            <VisibilityContext.Provider value={visibilityState}>
+              <UploadContext.Provider value={uploadState}>
+                <Provider store={store}>
+                  <StatusBar hidden={true} />
+                  <Navigation colorScheme={colorScheme} />
+                </Provider>
+              </UploadContext.Provider>
+            </VisibilityContext.Provider>
+          </AuthContext.Provider>
+        </SafeAreaProvider>
+      </Sentry.Native.TouchEventBoundary>
     );
   }
 }
 
 export default App;
+// export default AppRegistry.registerComponent("Reelay", () => App);
