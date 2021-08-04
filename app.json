@@ -45,9 +45,9 @@
       "favicon": "./assets/images/favicon.png"
     },
     "extra": {
-      "feedVisibility": "global",
-      "uploadVisibility": "global",
-      "sentryEnvironment": "production"
+      "feedVisibility": "test",
+      "uploadVisibility": "test",
+      "sentryEnvironment": "development"
     },
     "plugins": [
       "sentry-expo"

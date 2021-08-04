@@ -65,7 +65,7 @@ export default ReelayFeed = ({ navigation }) => {
 		setFeedPosition(e.nativeEvent.position);
 		if (e.nativeEvent.position == reelayList.length - 1) {
             console.log('fetching more reelays');
-			const nextReelay = await fetchNextReelay({ mostRecent: false });
+			fetchNextReelay({ mostRecent: false });
 		}
 	});
 
@@ -91,7 +91,7 @@ export default ReelayFeed = ({ navigation }) => {
             limit: 1,
         });
 
-        if (!queryResponse) {
+        if (!queryResponse || queryResponse.length == 0) {
             console.log('No query response');
             return;
         }
