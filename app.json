@@ -46,8 +46,8 @@
     },
     "extra": {
       "feedVisibility": "global",
-      "uploadVisibility": "test",
-      "sentryEnvironment": "development"
+      "uploadVisibility": "global",
+      "sentryEnvironment": "production"
     },
     "plugins": [
       "sentry-expo"
