@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Dimensions, TouchableOpacity, Text, SafeAreaView, View } from 'react-native';
 import { VisibilityContext } from '../../context/VisibilityContext';
 import Constants from 'expo-constants';
@@ -19,6 +19,7 @@ import Hero from './Hero';
 
 import { Reelay } from '../../src/models';
 import { fetchTitleWithCredits } from '../../api/TMDbApi';
+import { showMessageToast } from '../utils/toasts';
 
 // Please move these into an environment variable (preferably injected via your build step)
 const CLOUDFRONT_BASE_URL = 'https://di92fpd9s7eko.cloudfront.net';
@@ -43,6 +44,7 @@ export default ReelayFeed = ({ navigation }) => {
     const [reelayList, setReelayList] = useState([]);
     const [nextPage, setNextPage] = useState(0);
     const [feedPosition, setFeedPosition] = useState(0);
+    const pager = useRef();
 
     const visibilityContext = useContext(VisibilityContext);
 
@@ -52,18 +54,18 @@ export default ReelayFeed = ({ navigation }) => {
             try {
                 fetchNextReelay({ mostRecent: false });
             } catch (error) {
-                Sentry.captureException(error);
+                Sentry.Native.captureException(error);
             }
         } else {
             console.log('feed already loaded');
         }
     }, [navigation]);
 
-	const onPageSelected = ((e) => {
+	const onPageSelected = (async (e) => {
 		setFeedPosition(e.nativeEvent.position);
 		if (e.nativeEvent.position == reelayList.length - 1) {
             console.log('fetching more reelays');
-			fetchNextReelay({ mostRecent: false });
+			const nextReelay = await fetchNextReelay({ mostRecent: false });
 		}
 	});
 
@@ -101,6 +103,8 @@ export default ReelayFeed = ({ navigation }) => {
         if (mostRecent && find(reelayList, (nextReelay) => { return nextReelay.id == reelayObject.id })) {
             // most recent object already in list
             console.log('already in list');
+            showMessageToast('You\'re at the top');
+            pager.current.setPage(0);
             return;
         }
 
@@ -132,6 +136,7 @@ export default ReelayFeed = ({ navigation }) => {
 
         setReelayList(newReelayList);
         setNextPage(nextPage + 1);
+        return preparedReelay;
     }
 
 	return (
@@ -140,6 +145,7 @@ export default ReelayFeed = ({ navigation }) => {
 			{ reelayList.length <1 && <ActivityIndicator /> }
 			{ reelayList.length >= 1 && 
 				<PagerViewContainer 
+                    ref={pager}
 					initialPage={0}
 					orientation='vertical'
 					onPageSelected={onPageSelected}

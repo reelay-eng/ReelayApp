@@ -2,7 +2,7 @@
   "expo": {
     "name": "ReelayApp",
     "slug": "ReelayApp",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "myapp",
@@ -17,7 +17,7 @@
         {
           "file": "sentry-expo/upload-sourcemaps",
           "config": {
-            "organization": "Reelay",
+            "organization": "reelay-inc",
             "project": "reelay-inc",
             "authToken": "ee5540bac8794172bba8e8041cc31e06eba7cf549653470c96669188f8552005"
           }
