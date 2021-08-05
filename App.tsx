@@ -89,11 +89,11 @@ function App() {
       .then((user) => {
         setUser(user);
         setSignedIn(true);
-        // Sentry.setUser({
-        //   email: user.attributes.email,
-        //   username: user.username,
-        //   id: user.attributes.sub,
-        // });
+        Sentry.Native.setUser({
+          email: user.attributes.email,
+          username: user.username,
+          id: user.attributes.sub,
+        });
       })
       .catch((error) => {
         console.log(error);
@@ -156,7 +156,7 @@ function App() {
     setUploadErrorStatus: setUploadErrorStatus,
     setUploadVideoSource: setUploadVideoSource,
   }
-  
+
   if (isLoading) {
     return <ActivityIndicator />;
   } else {

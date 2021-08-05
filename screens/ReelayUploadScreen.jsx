@@ -19,11 +19,12 @@ const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
 const UploadScreenContainer = styled(SafeAreaView)`
     height: 100%;
     width: 100%;
+    background-color: black;
 `
 const UploadTop = styled(View)`
-    flex: 1;
+    flex: 0.7;
     flex-direction: row;
-    height: 30px;
+    height: 20px;
 `
 const UploadTopLeft = styled(View)`
     flex: 1;
@@ -114,7 +115,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
 
     const PageTitle = () => {
         const PageTitleContainer = styled(Pressable)`
-            height: 30px;
+            height: 20px;
             margin-top: 12px;
             margin-left: 0px;
         `
@@ -132,7 +133,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
 
     const UploadStatus = () => {
         const UploadStatusContainer = styled(View)`
-            height: 30px;
+            height: 40px;
             margin: 10px;
         `
         const UploadStatusText = styled(Text)`
@@ -202,7 +203,11 @@ export default ReelayUploadScreen = ({ navigation }) => {
     
         return (
             <UploadProgressBarContainer>
-                <ProgressBar indeterminate={indeterminate} progress={progress} color={'white'} />
+                {uploadContext.uploading && 
+                    <ProgressBar 
+                        indeterminate={indeterminate} 
+                        progress={progress} color={'white'} 
+                    />}
             </UploadProgressBarContainer>
         );
     }
@@ -214,15 +219,22 @@ export default ReelayUploadScreen = ({ navigation }) => {
         const UploadOptionItemContainer = styled(View)`
             height: 15px;
             width: 75%;
-            margin: 5px;
+            margin-bottom: 10px;
+            margin-left: 10px;
+            flex-direction: row;
         `
         const OptionText = styled(Text)`
-            font-size: 16px;
+            font-size: 17px;
             font-family: System;
+            color: white;
+            position: absolute;
+            left: 12.5%;
         `
         const OptionSetter = styled(Pressable)`
             height: 100%;
             width: 100%;
+            position: absolute;
+            left:83.5%;
         `
 
         return (
@@ -233,12 +245,12 @@ export default ReelayUploadScreen = ({ navigation }) => {
                         <OptionText>{'Public'}</OptionText>
                     </OptionSetter>
                 </UploadOptionItemContainer>
-                <UploadOptionItemContainer>
+                {/* <UploadOptionItemContainer>
                     <OptionText>{'Save to Device'}</OptionText>
                     <OptionSetter>
                         <OptionText>{'No'}</OptionText>
                     </OptionSetter>
-                </UploadOptionItemContainer>
+                </UploadOptionItemContainer> */}
             </UploadOptionsContainer>
         );
     }
@@ -246,7 +258,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
     const DoneButton = () => {
 
         const DoneButtonMargin = styled(View)`
-            height: 30px;
+            height: 20px;
             width: 75%;
             margin: 10px;
             align-self: center;
