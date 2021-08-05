@@ -103,7 +103,6 @@ export const fetchSeriesCredits = async (titleID) => {
 export const fetchMovie = async (titleID) => {
     const query = `${TMDB_API_BASE_URL}/movie\/${titleID}\?api_key\=${TMDB_API_KEY}`;
     const result = await fetchResults(query);
-    console.log(result);
     return result;
 }
 

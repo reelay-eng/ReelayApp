@@ -110,6 +110,7 @@ function App() {
     
     console.log('authentication complete');
     setIsLoading(false);
+
   }, []);
 
   const authState = {

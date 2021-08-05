@@ -1,7 +1,4 @@
 export default ({ config }) => {
-    console.log(config.name);
-    console.log(process.env.NODE_ENV);
-
     // maybe the single worst line of code in the whole project
     if (!process.env.NODE_ENV) process.env.NODE_ENV = 'production';
 
