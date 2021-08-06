@@ -23,6 +23,7 @@
     "@react-navigation/native": "~5.8.10",
     "@react-navigation/stack": "~5.12.8",
     "@reduxjs/toolkit": "^1.6.0",
+    "add": "^2.0.6",
     "amazon-cognito-identity-js": "^4.6.1",
     "amplify-cli": "^1.0.0",
     "aws-amplify": "^3.4.0",
@@ -67,6 +68,7 @@
     "react-native-unimodules": "~0.14.5",
     "react-native-vector-icons": "^8.1.0",
     "react-native-web": "~0.13.12",
+    "react-native-web-webview": "^1.0.2",
     "react-native-webview": "11.6.2",
     "react-native-youtube-iframe": "^2.1.1",
     "react-redux": "^7.2.4",
@@ -75,7 +77,8 @@
     "redux-thunk": "^2.3.0",
     "rn-bottom-drawer": "^1.4.3",
     "sentry-expo": "^4.0.0",
-    "styled-components": "^5.3.0"
+    "styled-components": "^5.3.0",
+    "yarn": "^1.22.11"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0",
