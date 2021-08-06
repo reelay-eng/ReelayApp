@@ -1,15 +1,17 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { UploadContext } from '../context/UploadContext';
 import { Auth, DataStore, Storage } from 'aws-amplify';
 import { Reelay } from '../src/models';
+
 import Constants from 'expo-constants';
+import * as MediaLibrary from 'expo-media-library';
 
 import VideoPlayer from '../components/view-reelay/VideoPlayer';
 import ReelayPreviewOverlay from '../components/overlay/ReelayPreviewOverlay';
 import BackButton from '../components/utils/BackButton';
 
 import { Dimensions, Text, View, SafeAreaView, Pressable } from 'react-native';
-import { ProgressBar } from 'react-native-paper';
+import { ProgressBar, Switch } from 'react-native-paper';
 
 import styled from 'styled-components/native';
 
@@ -44,15 +46,37 @@ const UploadVideoContainer = styled(View)`
 
 export default ReelayUploadScreen = ({ navigation }) => {
 
+    const [hasSavePermission, setHasSavePermission] = useState(null);
+    const [saveToDevice, setSaveToDevice] = useState(false);
+
     const uploadContext = useContext(UploadContext);
     const titleObject = uploadContext.uploadTitleObject;
-    const videoSource = uploadContext.uploadVideoSource;
+    const videoURI = uploadContext.uploadVideoSource;
+
+    useEffect(() => {
+        (async () => {
+            if (saveToDevice && !hasSavePermission) {
+                const { status } = await MediaLibrary.requestPermissionsAsync();
+                setHasSavePermission(status === "granted");
+            }
+        })();
+    }, [saveToDevice]);
 
     const publishReelay = async () => {
-        if (!videoSource) {
+        if (!videoURI) {
             console.log('No video to upload.');
             return;
         }
+        if (saveToDevice && !hasSavePermission) {
+            try {
+                const { status } = await MediaLibrary.requestPermissionsAsync();
+                setHasSavePermission(status === "granted");
+                MediaLibrary.saveToLibraryAsync(videoURI);
+            } catch (error) {
+                console.log('Could not save to local device...');
+            }    
+        }
+
         try {
             console.log('Upload dialog initiated.');
             // Set current user as the creator
@@ -64,7 +88,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             const videoS3Key = 'reelayvid-' + creator.attributes.sub + '-' + Date.now() + '.mp4';
     
             // Upload video to S3
-            const videoResponse = await fetch(videoSource);
+            const videoResponse = await fetch(videoURI);
             const videoData = await videoResponse.blob();
 
             uploadContext.setUploading(true);
@@ -222,6 +246,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             margin-bottom: 10px;
             margin-left: 10px;
             flex-direction: row;
+            justify-content: space-between;
         `
         const OptionText = styled(Text)`
             font-size: 17px;
@@ -236,6 +261,16 @@ export default ReelayUploadScreen = ({ navigation }) => {
             position: absolute;
             left:83.5%;
         `
+        const SwitchContainer = styled(View)`
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            left: 96%;
+        `
+
+        const toggleSaveToDevice = () => {
+            setSaveToDevice(!saveToDevice);
+        }
 
         return (
             <UploadOptionsContainer>
@@ -245,12 +280,15 @@ export default ReelayUploadScreen = ({ navigation }) => {
                         <OptionText>{'Public'}</OptionText>
                     </OptionSetter>
                 </UploadOptionItemContainer>
-                {/* <UploadOptionItemContainer>
+                <UploadOptionItemContainer>
                     <OptionText>{'Save to Device'}</OptionText>
-                    <OptionSetter>
-                        <OptionText>{'No'}</OptionText>
-                    </OptionSetter>
-                </UploadOptionItemContainer> */}
+                    {/* <OptionSetter> */}
+                        {/* <OptionText>{'No'}</OptionText> */}
+                        <SwitchContainer>
+                            <Switch value={saveToDevice} onValueChange={toggleSaveToDevice} color={'#b83636'} />
+                        </SwitchContainer>
+                    {/* </OptionSetter> */}
+                </UploadOptionItemContainer>
             </UploadOptionsContainer>
         );
     }
@@ -306,7 +344,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             </UploadTop>
             <UploadProgressBar />
             <UploadVideoContainer>
-                <VideoPlayer videoURI={videoSource} playing={true} />
+                <VideoPlayer videoURI={videoURI} playing={true} />
                 <ReelayPreviewOverlay />
             </UploadVideoContainer>
             { !uploadContext.uploadComplete && <UploadOptions />}

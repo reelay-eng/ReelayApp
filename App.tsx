@@ -181,4 +181,3 @@ function App() {
 }
 
 export default App;
-// export default AppRegistry.registerComponent("Reelay", () => App);

@@ -26,8 +26,6 @@ export default ReelayPreviewOverlay = () => {
     const titleObject = uploadContext.uploadTitleObject;
     const posterURI = getPosterURI(titleObject.poster_path);
 
-    console.log(posterURI);
-
     return (
         <OverlayContainer>
             <PreviewPosterContainer>
