@@ -4,10 +4,13 @@ import { getPosterURI } from '../api/TMDbApi';
 
 import { Camera } from 'expo-camera';
 import { Dimensions, View, Text, SafeAreaView, Pressable} from 'react-native';
-import { Image } from 'react-native-elements';
+import { Image, Icon } from 'react-native-elements';
+import * as ImagePicker from 'expo-image-picker';
+
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import BackButton from '../components/utils/BackButton';
 import styled from 'styled-components/native';
+import { showErrorToast, showMessageToast } from '../components/utils/toasts';
 
 
 const { height, width } = Dimensions.get('window');
@@ -19,7 +22,6 @@ export default ReelayCameraScreen = ({ navigation }) => {
 
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const [hasPermission, setHasPermission] = useState(null);
-    const [isCameraReady, setIsCameraReady] = useState(true);
 
     const cameraRef = useRef(null);
 
@@ -37,10 +39,6 @@ export default ReelayCameraScreen = ({ navigation }) => {
     if (hasPermission === false) {
         return <Text style={styles.text}>No access to camera</Text>;
     }
-    
-    // const onCameraReady = () => {
-    //     setIsCameraReady(true);
-    // };
     
     const recordVideo = async () => {
         if (cameraRef.current) {
@@ -78,6 +76,49 @@ export default ReelayCameraScreen = ({ navigation }) => {
         );
     };
 
+    const MediaLibraryPicker = () => {
+
+        const IconContainer = styled(Pressable)`
+            height: 36px;
+            width: 36px;
+        `
+
+        const onPress = async () => {
+            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== 'granted') {
+                const selectedVideo = await ImagePicker.launchImageLibraryAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+                    allowsEditing: true,
+                    quality: 1,
+                });
+                if (!selectedVideo || !selectedVideo.uri || selectedVideo.cancelled) return;
+                if (selectedVideo.duration > 15000) { // in milliseconds
+                    showErrorToast('You can only upload 15 second videos or shorter');
+                    return;
+                }
+
+                const source = selectedVideo.uri; // note: on android, this uri is read-only    
+                console.log('source: ', source);
+                console.log('duration :', selectedVideo.duration);
+    
+                uploadContext.setUploadVideoSource(source);
+                uploadContext.setUploadErrorStatus(false);
+                console.log('video source', source);    
+                navigation.push('ReelayUploadScreen');      
+
+            } else {
+                showErrorToast('Sorry, we need camera roll permissions to make this work');
+            }
+        }
+
+        return (
+            <IconContainer onPress={onPress}>
+                <Icon type='ionicon' name='images' color={'white'} size={36} />
+            </IconContainer>
+        );
+
+    }
+
     const RecordInterface = () => {
 
         const REELAY_DURATION_SECONDS = 15;
@@ -103,12 +144,19 @@ export default ReelayCameraScreen = ({ navigation }) => {
         const onRecordButtonPress = () => {
             if (isRecording) {
                 stopVideoRecording();
-                setIsRecording(false);
+                // setIsRecording(false);
             } else {
                 recordVideo();
                 setIsRecording(true);
             }
         }
+
+        // these positions are eyeballed
+        const MediaLibraryContainer = styled(SafeAreaView)`
+            position: absolute;
+            left: ${-1 * ringSize}px;
+            bottom: ${0.25 * ringSize}px;
+        `
 
         return (
             <RecordContainer>
@@ -116,18 +164,21 @@ export default ReelayCameraScreen = ({ navigation }) => {
                     colors={[[RECORD_COLOR]]}
                     duration={REELAY_DURATION_SECONDS} 
                     isPlaying={isRecording} 
-                    onComplete={() => {
-                        stopVideoRecording();
-                        setIsRecording(true);
-                    }}
                     size={ringSize} 
                     strokeWidth={5} 
                     trailColor='transparent'
-                    strokeLinecap={'round'}>
-                    <RecordButtonCenter activeOpacity={0.7} 
-                        // disabled={!isCameraReady} 
-                        onPress={onRecordButtonPress} />
+                    strokeLinecap={'round'}
+                    onComplete={() => {
+                        stopVideoRecording();
+                    }}>
+                    <RecordButtonCenter 
+                        activeOpacity={0.7} 
+                        onPress={onRecordButtonPress} 
+                    />
                 </CountdownCircleTimer>
+                <MediaLibraryContainer>
+                { !isRecording && <MediaLibraryPicker /> }
+                </MediaLibraryContainer>
             </RecordContainer>
         );
     }
@@ -150,6 +201,7 @@ export default ReelayCameraScreen = ({ navigation }) => {
             right: 10px;
             top: 10px;
         `
+
         const posterURI = getPosterURI(titleObject.poster_path);
 
         return (
