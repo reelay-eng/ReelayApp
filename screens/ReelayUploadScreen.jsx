@@ -94,9 +94,13 @@ export default ReelayUploadScreen = ({ navigation }) => {
             uploadContext.setUploading(true);
             const uploadStatusS3 = await Storage.put(videoS3Key, videoData, {
                 progressCallback(progress) {
-                    console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
-                    uploadContext.setChunksUploaded(progress.loaded);
-                    uploadContext.setChunksTotal(progress.total);
+                    if (progress && progress.loaded && progress.total) {
+                        console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
+                        uploadContext.setChunksUploaded(progress.loaded);
+                        uploadContext.setChunksTotal(progress.total);    
+                    } else {
+                        console.log('Progress callback missing values.');
+                    }
                 }
             });
 
@@ -133,6 +137,12 @@ export default ReelayUploadScreen = ({ navigation }) => {
             // todo: better error catching
             console.log('Error uploading file: ', error);
             uploadContext.setUploadErrorStatus(true);
+            uploadContext.setUploading(false);
+            uploadContext.setUploadComplete(false);
+            
+            uploadContext.setChunksUploaded(0);
+            uploadContext.setChunksTotal(0);
+
         }
 
     }
@@ -150,7 +160,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
         `
         return (
             <PageTitleContainer onPress={() => { navigation.pop() }}>
-                <PageTitleText>{'Preview'}</PageTitleText>
+                <PageTitleText>{'Retake'}</PageTitleText>
             </PageTitleContainer>
         );
     }

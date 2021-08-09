@@ -119,7 +119,7 @@ export const fetchMovieTrailerURI = async(titleID) => {
         const youtubeTrailer = videoResults.find((video) => { 
             return video.site && video.site == 'YouTube' && video.type && video.type == 'Trailer' && video.key;
         });
-        return youtubeTrailer.key;    
+        return youtubeTrailer?.key;    
     } catch (error) {
         console.log(error);
         return null;
@@ -134,7 +134,7 @@ export const fetchSeriesTrailerURI = async(titleID) => {
         const youtubeTrailer = videoResults.find((video) => { 
             return video.site && video.site == 'YouTube' && video.type && video.type == 'Trailer' && video.key;
         });
-        return youtubeTrailer.key;    
+        return youtubeTrailer?.key;    
     } catch (error) {
         console.log(error);
         return null;

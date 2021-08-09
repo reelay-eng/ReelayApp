@@ -10,7 +10,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import BackButton from '../components/utils/BackButton';
 import styled from 'styled-components/native';
-import { showErrorToast, showMessageToast } from '../components/utils/toasts';
+import { showErrorToast } from '../components/utils/toasts';
 
 
 const { height, width } = Dimensions.get('window');
@@ -24,6 +24,7 @@ export default ReelayCameraScreen = ({ navigation }) => {
     const [hasPermission, setHasPermission] = useState(null);
 
     const cameraRef = useRef(null);
+    console.log('Camera screen is rendering');
 
     useEffect(() => {
         (async () => {
@@ -84,8 +85,10 @@ export default ReelayCameraScreen = ({ navigation }) => {
         `
 
         const onPress = async () => {
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (status !== 'granted') {
+            let { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            console.log(status);
+
+            if (status === 'granted') {
                 const selectedVideo = await ImagePicker.launchImageLibraryAsync({
                     mediaTypes: ImagePicker.MediaTypeOptions.Videos,
                     allowsEditing: true,
@@ -241,7 +244,7 @@ export default ReelayCameraScreen = ({ navigation }) => {
 
     return (
         <CameraContainer>
-            <ReelayCamera />
+            {! uploadContext.uploading && <ReelayCamera /> }
             <RecordOverlay />
         </CameraContainer>
     );

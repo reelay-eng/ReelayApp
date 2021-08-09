@@ -14,7 +14,6 @@ const showMessageToast = async (message) => {
 }
 
 const showErrorToast = async (message) => {
-    console.log('showing');
     const errorToast = Toast.show(message, {
         duration: Toast.durations.LONG,
         position: Toast.positions.BOTTOM,
@@ -22,7 +21,6 @@ const showErrorToast = async (message) => {
         hideOnPress: true,
         delay: 0,
     });
-    console.log('shown');
     setTimeout(() => Toast.hide(errorToast), 5000);
 }
 
