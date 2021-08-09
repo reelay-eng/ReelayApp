@@ -4,7 +4,7 @@
     "slug": "Reelay",
     "version": "1.0.5",
     "orientation": "portrait",
-    "icon": "./assets/icons/reelay-icon.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
