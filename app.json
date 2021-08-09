@@ -2,13 +2,13 @@
   "expo": {
     "name": "ReelayApp",
     "slug": "Reelay",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/icons/reelay-icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/reelay-splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

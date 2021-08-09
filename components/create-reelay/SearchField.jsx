@@ -1,8 +1,9 @@
 import React from 'react';
+import { SafeAreaView } from 'react-native';
 import { Input } from 'react-native-elements';
 import styled from 'styled-components/native';
 
-const SearchFieldContainer = styled.View``
+const SearchFieldContainer = styled(SafeAreaView)``
 
 export default SearchField = ({ searchText, updateSearch }) => {
 

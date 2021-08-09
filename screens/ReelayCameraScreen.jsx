@@ -14,6 +14,8 @@ import { showErrorToast } from '../components/utils/toasts';
 
 
 const { height, width } = Dimensions.get('window');
+const captureSize = Math.floor(height * 0.07);
+const ringSize = captureSize + 20;    
 
 export default ReelayCameraScreen = ({ navigation }) => {
 
@@ -24,7 +26,6 @@ export default ReelayCameraScreen = ({ navigation }) => {
     const [hasPermission, setHasPermission] = useState(null);
 
     const cameraRef = useRef(null);
-    console.log('Camera screen is rendering');
 
     useEffect(() => {
         (async () => {
@@ -40,6 +41,18 @@ export default ReelayCameraScreen = ({ navigation }) => {
     if (hasPermission === false) {
         return <Text style={styles.text}>No access to camera</Text>;
     }
+
+    const pushToUploadScreen = async (videoURI) => {
+        if (!videoURI) {
+            showErrorToast('Oops! Source file for video not found.');
+            return;
+        }
+
+        uploadContext.setUploadVideoSource(videoURI);
+        uploadContext.setUploadErrorStatus(false);
+        console.log('video source', videoURI);    
+        navigation.push('ReelayUploadScreen');    
+    }
     
     const recordVideo = async () => {
         if (cameraRef.current) {
@@ -49,12 +62,7 @@ export default ReelayCameraScreen = ({ navigation }) => {
                 if (videoRecordPromise) {
                     const data = await videoRecordPromise;
                     const source = data.uri;
-                    if (source) {
-                        uploadContext.setUploadVideoSource(source);
-                        uploadContext.setUploadErrorStatus(false);
-                        console.log('video source', source);    
-                        navigation.push('ReelayUploadScreen');    
-                    }
+                    pushToUploadScreen(source);
                 }
             } catch (error) {
                 console.warn(error);
@@ -69,16 +77,15 @@ export default ReelayCameraScreen = ({ navigation }) => {
         }
     };
     
-    const switchCamera = () => {
-        setCameraType((prevCameraType) =>
-            prevCameraType === Camera.Constants.Type.back
-            ? Camera.Constants.Type.front
-            : Camera.Constants.Type.back
-        );
-    };
 
     const MediaLibraryPicker = () => {
 
+        // these positions are eyeballed
+        const MediaLibraryContainer = styled(View)`
+            position: absolute;
+            left: ${-1 * ringSize}px;
+            bottom: ${0.25 * ringSize}px;
+        ` 
         const IconContainer = styled(Pressable)`
             height: 36px;
             width: 36px;
@@ -100,34 +107,28 @@ export default ReelayCameraScreen = ({ navigation }) => {
                     return;
                 }
 
-                const source = selectedVideo.uri; // note: on android, this uri is read-only    
-                console.log('source: ', source);
-                console.log('duration :', selectedVideo.duration);
-    
-                uploadContext.setUploadVideoSource(source);
-                uploadContext.setUploadErrorStatus(false);
-                console.log('video source', source);    
-                navigation.push('ReelayUploadScreen');      
-
+                const source = selectedVideo.uri; // note: on android, this uri is read-only        
+                pushToUploadScreen(source);
             } else {
                 showErrorToast('Sorry, we need camera roll permissions to make this work');
             }
         }
 
         return (
-            <IconContainer onPress={onPress}>
-                <Icon type='ionicon' name='images' color={'white'} size={36} />
-            </IconContainer>
+            <MediaLibraryContainer>
+                <IconContainer onPress={onPress}>
+                    <Icon type='ionicon' name='images' color={'white'} size={36} />
+                </IconContainer>
+            </MediaLibraryContainer>
         );
-
     }
 
-    const RecordInterface = () => {
+    const RecordButton = () => {
 
-        const REELAY_DURATION_SECONDS = 15;
         const RECORD_COLOR = '#cb2d26';
-        const captureSize = Math.floor(height * 0.07);
-        const ringSize = captureSize + 20;    
+        const REELAY_DURATION_SECONDS = 15;
+
+        const [isRecording, setIsRecording] = useState(false);
 
         const RecordButtonCenter = styled(Pressable)`
             background-color: ${RECORD_COLOR};
@@ -135,14 +136,6 @@ export default ReelayCameraScreen = ({ navigation }) => {
             width: ${captureSize}px;
             border-radius: ${Math.floor(captureSize / 2)}px;
         `
-        const RecordContainer = styled(View)`
-            position: absolute;
-            left: ${(width - ringSize) / 2}px;
-            bottom: 80px;
-            align-self: center;
-        `
-
-        const [isRecording, setIsRecording] = useState(false);
 
         const onRecordButtonPress = () => {
             if (isRecording) {
@@ -153,35 +146,62 @@ export default ReelayCameraScreen = ({ navigation }) => {
                 setIsRecording(true);
             }
         }
+        
+        return (
+            <CountdownCircleTimer 
+                colors={[[RECORD_COLOR]]}
+                duration={REELAY_DURATION_SECONDS} 
+                isPlaying={isRecording} 
+                size={ringSize} 
+                strokeWidth={5} 
+                trailColor='transparent'
+                strokeLinecap={'round'}
+                onComplete={() => {
+                    stopVideoRecording();
+            }}>
+                <RecordButtonCenter activeOpacity={0.7} onPress={onRecordButtonPress} />
+            </CountdownCircleTimer>
+        )
 
-        // these positions are eyeballed
-        const MediaLibraryContainer = styled(SafeAreaView)`
+    }
+
+    const FlipCameraButton = () => {
+        const FlipCameraButtonContainer = styled(Pressable)`
             position: absolute;
-            left: ${-1 * ringSize}px;
+            left: ${width / 2 - ringSize}px;
             bottom: ${0.25 * ringSize}px;
+            align-self: center;
+        `
+
+        const flipCamera = () => {
+            setCameraType((prevCameraType) =>
+                prevCameraType === Camera.Constants.Type.back
+                ? Camera.Constants.Type.front
+                : Camera.Constants.Type.back
+            );
+        };
+
+        return (
+            <FlipCameraButtonContainer onPress={flipCamera}>
+                <Icon type='ionicon' name='sync-outline' color={'white'} size={36} />
+            </FlipCameraButtonContainer>
+        );
+    }
+
+    const RecordInterface = () => {
+
+        const RecordContainer = styled(View)`
+            position: absolute;
+            left: ${(width - ringSize) / 2}px;
+            bottom: 80px;
+            align-self: center;
         `
 
         return (
             <RecordContainer>
-                <CountdownCircleTimer 
-                    colors={[[RECORD_COLOR]]}
-                    duration={REELAY_DURATION_SECONDS} 
-                    isPlaying={isRecording} 
-                    size={ringSize} 
-                    strokeWidth={5} 
-                    trailColor='transparent'
-                    strokeLinecap={'round'}
-                    onComplete={() => {
-                        stopVideoRecording();
-                    }}>
-                    <RecordButtonCenter 
-                        activeOpacity={0.7} 
-                        onPress={onRecordButtonPress} 
-                    />
-                </CountdownCircleTimer>
-                <MediaLibraryContainer>
-                { !isRecording && <MediaLibraryPicker /> }
-                </MediaLibraryContainer>
+                <MediaLibraryPicker />
+                <RecordButton />
+                <FlipCameraButton />
             </RecordContainer>
         );
     }
@@ -221,8 +241,6 @@ export default ReelayCameraScreen = ({ navigation }) => {
         );
     }
 
-    
-
     const ReelayCamera = () => {
         return (
             <Camera
@@ -244,8 +262,8 @@ export default ReelayCameraScreen = ({ navigation }) => {
 
     return (
         <CameraContainer>
-            {! uploadContext.uploading && <ReelayCamera /> }
-            <RecordOverlay />
+            { !uploadContext.uploading && <ReelayCamera /> }
+            { !uploadContext.uploading && <RecordOverlay /> }
         </CameraContainer>
     );
 }

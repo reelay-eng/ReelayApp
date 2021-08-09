@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Pressable, View, SafeAreaView } from 'react-native';
-import { Text } from 'react-native-elements';
+import { Icon, Text } from 'react-native-elements';
 import ReelayAvatar from '../utils/ReelayAvatar';
 
 import { Auth } from 'aws-amplify';
@@ -15,6 +15,15 @@ export default SettingsOverlay = ({ navigation }) => {
     const authContext = useContext(AuthContext);
     const visibilityContext = useContext(VisibilityContext);
 
+    const AvatarView = styled(View)`
+        width: 30px;
+        height: 30px;
+        margin-top: 10px;
+    `
+    const AvatarPressable = styled(Pressable)`
+        width: 100%;
+        height: 100%;
+    `
     const SettingsHeader = styled(View)`
         justify-content: flex-start;
         flex-direction: row;
@@ -56,9 +65,13 @@ export default SettingsOverlay = ({ navigation }) => {
     return (
         <SettingsContainer>
             <SettingsHeader>
-                <ReelayAvatar onPress={() => {
-                    visibilityContext.setOverlayVisible(false);
-                }} />
+                <AvatarView>
+                    <AvatarPressable onPress={() => {
+                        visibilityContext.setOverlayVisible(false);
+                    }}>
+                        <Icon type='ionicons' name='settings' color={'white'} size={30} />
+                    </AvatarPressable>
+                </AvatarView>
             </SettingsHeader>
             <SettingsPressable onPress={() => {
                 visibilityContext.setOverlayVisible(false);

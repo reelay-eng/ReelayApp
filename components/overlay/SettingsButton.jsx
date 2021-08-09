@@ -1,4 +1,6 @@
 import React, { useContext } from 'react';
+import { Image, Pressable, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 import { VisibilityContext } from '../../context/VisibilityContext';
@@ -7,18 +9,12 @@ export default SettingsButton = () => {
 
     const visibilityContext = useContext(VisibilityContext);
 
-    const AvatarView = styled.View`
-        width: 48px;
-        height: 48px;
+    const AvatarView = styled(View)`
+        width: 30px;
+        height: 30px;
+        margin: 10px;
     `
-    const AvatarImage = styled.Image`
-        width: 100%;
-        height: 100%;
-        border-radius: 48px;
-        border-width: 2px;
-        border-color: #ffffff;
-    `
-    const AvatarPressable = styled.Pressable`
+    const AvatarPressable = styled(Pressable)`
         width: 100%;
         height: 100%;
     `
@@ -32,9 +28,9 @@ export default SettingsButton = () => {
     }
 
     return (
-        <AvatarView style={{ margin: 10 }}>
+        <AvatarView>
             <AvatarPressable onPress={onPress}>
-                <AvatarImage resizeMode='cover' source={require('../../assets/images/icon.png')} />
+                <Icon type='ionicons' name='settings' color={'white'} size={30} />
             </AvatarPressable>
         </AvatarView>
     );

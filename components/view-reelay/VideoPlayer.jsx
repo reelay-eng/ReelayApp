@@ -17,17 +17,17 @@ export default function VideoPlayer({ videoURI, playing }) {
 
 		setIsFocused(true);
         return () => {
-			try {
-				if (playbackObject && !playing) {
-					const prom = playbackObject.setPositionAsync(0)
-						.catch((error) => {
-						// todo: this throws a seeking interrupted error
-						// seems harmless, but I'm not sure
-					});
-				}
-			} catch (error) {
-				console.log(error);
-			}
+			// try {
+			// 	if (playbackObject && !playing) {
+			// 		const prom = playbackObject.setPositionAsync(0)
+			// 			.catch((error) => {
+			// 			// todo: this throws a seeking interrupted error
+			// 			// seems harmless, but I'm not sure
+			// 		});
+			// 	}
+			// } catch (error) {
+			// 	console.log(error);
+			// }
 			setIsFocused(false);
 		}
     }));
