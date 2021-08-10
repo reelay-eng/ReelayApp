@@ -142,7 +142,6 @@ export default ReelayUploadScreen = ({ navigation }) => {
             
             uploadContext.setChunksUploaded(0);
             uploadContext.setChunksTotal(0);
-
         }
 
     }

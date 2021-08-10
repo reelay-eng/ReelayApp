@@ -1,7 +1,10 @@
 import React, { createRef, useState } from 'react';
 import { SafeAreaView } from 'react-native';
+import { validate } from 'validate.js';
+import constraints from '../components/utils/EmailValidationConstraints';
 
 import { AuthButton, AuthHeaderCenter, AuthInput } from '../components/utils/AuthComponents';
+import { showErrorToast } from '../components/utils/toasts';
 
 export default SignUpEmailScreen = ({ navigation }) => {
 
@@ -11,6 +14,18 @@ export default SignUpEmailScreen = ({ navigation }) => {
     emailInput.current?.setNativeProps({
         autoCorrect: false,
     });
+
+    const continueToSignUp = async () => {
+        // validate result is undef if there are no errors
+        const errors = validate({ emailAddress: email }, constraints);
+        if (!errors) {
+            navigation.push('SignUpScreen', { email });
+        } else {
+            if (errors.emailAddress && errors.emailAddress[0]) {
+                showErrorToast(errors.emailAddress[0], false);
+            }
+        }
+    }
 
     // todo: there's no checking for valid email on this page
 
@@ -30,9 +45,7 @@ export default SignUpEmailScreen = ({ navigation }) => {
                 rightIcon={{type: 'ionicon', name: 'mail-outline'}}
             />
             <AuthButton title='Continue' type='solid' 
-                onPress={() => { 
-                    navigation.push('SignUpScreen', { email });
-                }} 
+                onPress={continueToSignUp} 
                 buttonStyle={{backgroundColor: '#b83636'}} 
             />
             <AuthButton title='Login' type='clear' 

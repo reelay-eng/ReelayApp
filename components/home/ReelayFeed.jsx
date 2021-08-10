@@ -27,8 +27,13 @@ const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 const { height, width } = Dimensions.get('window');
 
+const ReelayFeedContainer = styled(View)`
+    background-color: black;
+`
+
 const PagerViewContainer = styled(PagerView)`
 	height: ${height}px;
+    background-color: black;
 `
 const RefreshContainer = styled(SafeAreaView)`
     justify-content: flex-start;
@@ -140,8 +145,7 @@ export default ReelayFeed = ({ navigation }) => {
     }
 
 	return (
-        // todo: make a background image of REELAY that appears behind the feed when videos are loading
-		<View style={{ backgroundColor: 'black'}}>
+		<ReelayFeedContainer>
 			{ reelayList.length <1 && <ActivityIndicator /> }
 			{ reelayList.length >= 1 && 
 				<PagerViewContainer 
@@ -176,6 +180,6 @@ export default ReelayFeed = ({ navigation }) => {
                 </TouchableOpacity>
                 {visibilityContext.overlayVisible && <ReelayOverlay navigation={navigation} />}
             </RefreshContainer>
-		</View>
+		</ReelayFeedContainer>
 	);
 }

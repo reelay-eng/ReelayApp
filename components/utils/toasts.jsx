@@ -2,10 +2,11 @@ import Toast from 'react-native-root-toast';
 
 // todo: should these be _exactly_ the same?
 
-const showMessageToast = async (message) => {
+const showMessageToast = async (message, bottom=true) => {
+    const toastPosition = bottom ? Toast.positions.BOTTOM : Toast.positions.TOP;
     const errorToast = Toast.show(message, {
         duration: Toast.durations.LONG,
-        position: Toast.positions.BOTTOM,
+        position: toastPosition,
         animation: true,
         hideOnPress: true,
         delay: 0,
@@ -13,10 +14,11 @@ const showMessageToast = async (message) => {
     setTimeout(() => Toast.hide(errorToast), 5000);
 }
 
-const showErrorToast = async (message) => {
+const showErrorToast = async (message, bottom=true) => {
+    const toastPosition = bottom ? Toast.positions.BOTTOM : Toast.positions.TOP;
     const errorToast = Toast.show(message, {
         duration: Toast.durations.LONG,
-        position: Toast.positions.BOTTOM,
+        position: toastPosition,
         animation: true,
         hideOnPress: true,
         delay: 0,
