@@ -189,7 +189,7 @@ export default ReelayCameraScreen = ({ navigation }) => {
 
     const RecordInterface = () => {
 
-        const RecordContainer = styled(View)`
+        const RecordContainer = styled(SafeAreaView)`
             position: absolute;
             left: ${(width - ringSize) / 2}px;
             bottom: 80px;

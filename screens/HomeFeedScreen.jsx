@@ -6,7 +6,7 @@ export default function HomeFeedScreen({ navigation }) {
 
 	const TransparentContainer = styled.View`
 		flex: 1;
-		background: transparent;
+		background-color: black;
 	`
 
 	return (

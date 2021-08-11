@@ -1,6 +1,6 @@
 // react imports
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, AppRegistry } from 'react-native';
+import { ActivityIndicator, AppRegistry, SafeAreaView } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Constants from 'expo-constants';
 
@@ -47,7 +47,6 @@ Auth.configure({ mandatorySignIn: false});
 Storage.configure({ level: 'public' });
 
 function App() {
-  const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
 
   const [credentials, setCredentials] = useState({});
@@ -155,7 +154,11 @@ function App() {
   }
 
   if (isLoading) {
-    return <ActivityIndicator />;
+    return (
+      <SafeAreaView>
+        <ActivityIndicator />
+      </SafeAreaView>
+    );
   } else {
     return (
       <Sentry.Native.TouchEventBoundary>
