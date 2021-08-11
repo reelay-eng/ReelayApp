@@ -18,7 +18,6 @@ import { BottomTabParamList, HomeTabParamList, CreateReelayTabParamList } from '
 import SelectTitleScreen from '../screens/SelectTitleScreen';
 import ReelayCameraScreen from '../screens/ReelayCameraScreen';
 import ReelayUploadScreen from '../screens/ReelayUploadScreen';
-import UploadReelayButton from '../components/create-reelay/UploadReelayButton';
 import AccountScreen from '../screens/AccountScreen';
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();

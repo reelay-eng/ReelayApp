@@ -81,7 +81,7 @@ export default ReelayCameraScreen = ({ navigation }) => {
     const MediaLibraryPicker = () => {
 
         // these positions are eyeballed
-        const MediaLibraryContainer = styled(View)`
+        const MediaLibraryContainer = styled(SafeAreaView)`
             position: absolute;
             left: ${-1 * ringSize}px;
             bottom: ${0.25 * ringSize}px;
@@ -140,7 +140,6 @@ export default ReelayCameraScreen = ({ navigation }) => {
         const onRecordButtonPress = () => {
             if (isRecording) {
                 stopVideoRecording();
-                // setIsRecording(false);
             } else {
                 recordVideo();
                 setIsRecording(true);

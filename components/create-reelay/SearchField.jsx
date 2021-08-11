@@ -20,7 +20,6 @@ export default SearchField = ({ searchText, updateSearch }) => {
                     fontFamily: 'System',
                 }}
             />
-
         </SearchFieldContainer>
     );
 };

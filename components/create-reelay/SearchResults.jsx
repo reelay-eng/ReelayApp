@@ -1,10 +1,8 @@
 import React from 'react';
-import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import SearchResultItem from './SearchResultItem';
 
 const SearchResults = ({ navigation, searchResults }) => {
-
-    console.log('search results ', searchResults.length);
 
     return (
         <View>

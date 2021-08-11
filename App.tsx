@@ -19,10 +19,6 @@ import { UploadContext } from './context/UploadContext';
 // expo imports
 import { StatusBar } from 'expo-status-bar';
 
-// redux imports
-import store from './redux/store';
-import { Provider } from 'react-redux';
-
 // local imports
 import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
@@ -167,10 +163,10 @@ function App() {
           <AuthContext.Provider value={authState}>
             <VisibilityContext.Provider value={visibilityState}>
               <UploadContext.Provider value={uploadState}>
-                <Provider store={store}>
+                {/* <Provider store={store}> */}
                   <StatusBar hidden={true} />
                   <Navigation colorScheme={colorScheme} />
-                </Provider>
+                {/* </Provider> */}
               </UploadContext.Provider>
             </VisibilityContext.Provider>
           </AuthContext.Provider>

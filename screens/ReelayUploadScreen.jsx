@@ -107,7 +107,6 @@ export default ReelayUploadScreen = ({ navigation }) => {
             console.log(uploadStatusS3);
             console.log('Successfully saved video to S3: ', videoS3Key);
 
-            uploadContext.setUploading(false);
 
             // Create Reelay object
             const reelay = new Reelay({
@@ -126,6 +125,8 @@ export default ReelayUploadScreen = ({ navigation }) => {
 
             // Upload Reelay object to DynamoDB, get ID
             const uploadStatusDataStore = await DataStore.save(reelay);
+            
+            uploadContext.setUploading(false);
             uploadContext.setUploadComplete(true);
 
             console.log('saved new Reelay');
@@ -236,11 +237,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
     
         return (
             <UploadProgressBarContainer>
-                {uploadContext.uploading && 
-                    <ProgressBar 
-                        indeterminate={indeterminate} 
-                        progress={progress} color={'white'} 
-                    />}
+                <ProgressBar indeterminate={indeterminate} progress={progress} color={'white'} />
             </UploadProgressBarContainer>
         );
     }
@@ -252,7 +249,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
         const UploadOptionItemContainer = styled(View)`
             height: 15px;
             width: 75%;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             margin-left: 10px;
             flex-direction: row;
             justify-content: space-between;
@@ -348,13 +345,13 @@ export default ReelayUploadScreen = ({ navigation }) => {
                 </UploadTopLeft>
                 <UploadStatus />
             </UploadTop>
-            <UploadProgressBar />
+            { uploadContext.uploading && <UploadProgressBar /> }
             <UploadVideoContainer>
                 <VideoPlayer videoURI={videoURI} playing={true} />
                 <ReelayPreviewOverlay />
             </UploadVideoContainer>
-            { !uploadContext.uploadComplete && <UploadOptions />}
-            { uploadContext.uploadComplete && <DoneButton />}
+            { !uploadContext.uploadComplete && !uploadContext.uploading && <UploadOptions /> }
+            { uploadContext.uploadComplete && <DoneButton /> }
         </UploadScreenContainer>
     );
 };

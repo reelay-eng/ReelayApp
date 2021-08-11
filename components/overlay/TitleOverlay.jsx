@@ -22,6 +22,7 @@ export default TitleOverlay = ({ navigation }) => {
         width: 100%;
         height: 100%;
         justify-content: flex-start;
+        align-items: center;
     `
     const TitleOverlayHeader = styled(View)`
         flex: 1;
@@ -29,9 +30,9 @@ export default TitleOverlay = ({ navigation }) => {
         width: 100%;
     `
     const TitleOverlayTrailerContainer = styled(View)`
-        flex: 1;
         width: 100%;
         height: ${TRAILER_HEIGHT}px;
+        margin-left: 20px;
     `
     const TitleOverlayBottomContainer = styled(View)`
         flex: 1;

@@ -17,14 +17,12 @@ const fetchResults = async (query, options={ timeout: 500 }) => {
             signal: controller.signal  
           }).then((response) => response.json())
             .catch((error) => {
-                console.log('bad times');
                 console.log(error);
             });
         clearTimeout(id);
         return response;
     
     } catch (error) {
-        console.log('failed fetch results: ', query);
         console.log(error);
         return null;
     }
@@ -35,7 +33,6 @@ const matchScoreForTitleSearch = (result) => {
     const searchText = result.search_text.toLowerCase().replace(/:/g, '');
     const index = titleToSearch.indexOf(searchText);
 
-    console.log(`title: ${titleToSearch}, search: ${searchText}`)
     const startsWord = (index > 0) && (titleToSearch[index - 1] == ' ');
     const startsTitle = index == 0;
 
@@ -46,7 +43,6 @@ const compareSearchResults = (result1, result2) => {
     const result1MatchScore = matchScoreForTitleSearch(result1);
     const result2MatchScore = matchScoreForTitleSearch(result2);
 
-    console.log(`${result1.search_text}: { ${result1.title}=${result1MatchScore}, ${result2.title}=${result2MatchScore} }`);
     if (result2MatchScore > result1MatchScore) {
         return 1;
     }
@@ -61,8 +57,6 @@ const compareSearchResults = (result1, result2) => {
                             - (result1.tmdb_search_rank * TMDB_SEARCH_RANK_WEIGHT);
     const result2Rank = (result2.popularity * POPULARITY_WEIGHT) 
                             - (result2.tmdb_search_rank * TMDB_SEARCH_RANK_WEIGHT);
-
-    console.log(`rank: ${result1.title}: ${result1.popularity}; rank: ${result2.title}: ${result2.popularity}`);
 
     return (result2Rank - result1Rank);
 }
@@ -80,19 +74,10 @@ const levenshteinDistance = (s, t) => {
 
 export const searchMovies = async (searchText) => {
     const query = `${TMDB_API_BASE_URL}/search/movie\?api_key\=${TMDB_API_KEY}&query\=${searchText}`;
-    return await fetchResults(query);    
+    const results = await fetchResults(query);
 
-}
-
-export const searchSeries = async (searchText) => {
-    const query = `${TMDB_API_BASE_URL}/search/tv\?api_key\=${TMDB_API_KEY}&query\=${searchText}`;
-    return await fetchResults(query);
-}
-
-export const searchMoviesAndSeries = async (searchText) => {
-    const movieSearchResults = await searchMovies(searchText);
-    const movieSearchResultsTagged = (searchText.length > 0 && movieSearchResults.results) 
-        ? movieSearchResults.results.map((result, index) => {
+    const resultsTagged = (searchText.length > 0 && results.results) 
+        ? results.results.map((result, index) => {
             return {
                 ...result,
                 is_movie: true,
@@ -104,9 +89,16 @@ export const searchMoviesAndSeries = async (searchText) => {
             }}) 
         : [];
 
-    const seriesSearchResults = await searchSeries(searchText);
-    const seriesSearchResultsTagged = (searchText.length > 0 && seriesSearchResults.results) 
-        ? seriesSearchResults.results.map((result, index) => {
+    const resultsSorted = resultsTagged.sort(compareSearchResults);
+    return resultsSorted;
+}
+
+export const searchSeries = async (searchText) => {
+    const query = `${TMDB_API_BASE_URL}/search/tv\?api_key\=${TMDB_API_KEY}&query\=${searchText}`;
+    const results = await fetchResults(query);
+
+    const resultsTagged = (searchText.length > 0 && results.results) 
+        ? results.results.map((result, index) => {
             return {
                 ...result,
                 is_movie: false,
@@ -118,8 +110,7 @@ export const searchMoviesAndSeries = async (searchText) => {
             }}) 
         : [];
 
-    const resultsCombined = [...movieSearchResultsTagged, ...seriesSearchResultsTagged];
-    const resultsSorted = resultsCombined.sort(compareSearchResults);
+    const resultsSorted = resultsTagged.sort(compareSearchResults);
     return resultsSorted;
 }
 

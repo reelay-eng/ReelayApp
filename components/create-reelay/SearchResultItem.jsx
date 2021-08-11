@@ -3,8 +3,6 @@ import { ActivityIndicator, View } from 'react-native';
 import { Image } from 'react-native-elements';
 import styled from 'styled-components/native';
 
-import { useDispatch, useSelector } from 'react-redux';
-import { tagTitle } from './CreateReelaySlice';
 import { UploadContext } from '../../context/UploadContext';
 
 const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';

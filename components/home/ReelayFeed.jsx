@@ -103,7 +103,7 @@ export default ReelayFeed = ({ navigation }) => {
 
         const reelayObject = queryResponse[0];
         const videoURIPromise = getVideoURI(reelayObject);
-        const titleObjectPromise = await fetchTitleWithCredits(reelayObject.tmdbTitleID, reelayObject.isSeries);
+        const titleObjectPromise = fetchTitleWithCredits(reelayObject.tmdbTitleID, reelayObject.isSeries);
 
         if (mostRecent && find(reelayList, (nextReelay) => { return nextReelay.id == reelayObject.id })) {
             // most recent object already in list

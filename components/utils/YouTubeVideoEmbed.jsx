@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Button, View, Alert, Pressable } from 'react-native';
+import { View, Alert, Pressable } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
 
 import styled from 'styled-components/native';
