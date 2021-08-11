@@ -2,32 +2,58 @@ const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3';
 const TMDB_API_KEY = '033f105cd28f507f3dc6ae794d5e44f5';
 const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
 
-const YOUTUBE_BASE_URL = 'https://www.youtube.com/watch?v=';
-
-const MAX_TITLE_MATCH_DEVIATION = 100;
-const POPULARITY_WEIGHT = 1;
-const TITLE_MATCH_WEIGHT = 10;
+const POPULARITY_WEIGHT = 5;
 const TMDB_SEARCH_RANK_WEIGHT = 10;
 
 // https://dmitripavlutin.com/timeout-fetch-request/
 const fetchResults = async (query, options={ timeout: 500 }) => {
     const { timeout = 8000 } = options;
-  
-    const controller = new AbortController();
-    const id = setTimeout(() => controller.abort(), timeout);
-  
-    const response = await fetch(query, {
-        ...options,
-        signal: controller.signal  
-      }).then((response) => response.json())
-        .catch((error) => {
-            console.log(error);
-        });
-    clearTimeout(id);
-    return response;
+    try {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+      
+        const response = await fetch(query, {
+            ...options,
+            signal: controller.signal  
+          }).then((response) => response.json())
+            .catch((error) => {
+                console.log('bad times');
+                console.log(error);
+            });
+        clearTimeout(id);
+        return response;
+    
+    } catch (error) {
+        console.log('failed fetch results: ', query);
+        console.log(error);
+        return null;
+    }
+}
+
+const matchScoreForTitleSearch = (result) => {
+    const titleToSearch = result.title.toLowerCase().replace(/:/g, '');
+    const searchText = result.search_text.toLowerCase().replace(/:/g, '');
+    const index = titleToSearch.indexOf(searchText);
+
+    console.log(`title: ${titleToSearch}, search: ${searchText}`)
+    const startsWord = (index > 0) && (titleToSearch[index - 1] == ' ');
+    const startsTitle = index == 0;
+
+    return startsWord || startsTitle ? 1 : 0;
 }
 
 const compareSearchResults = (result1, result2) => {
+    const result1MatchScore = matchScoreForTitleSearch(result1);
+    const result2MatchScore = matchScoreForTitleSearch(result2);
+
+    console.log(`${result1.search_text}: { ${result1.title}=${result1MatchScore}, ${result2.title}=${result2MatchScore} }`);
+    if (result2MatchScore > result1MatchScore) {
+        return 1;
+    }
+    if (result1MatchScore > result2MatchScore) {
+        return -1;
+    }
+
     if (!result1.popularity) result1.popularity = 0;
     if (!result2.popularity) result2.popularity = 0;
 
@@ -35,6 +61,8 @@ const compareSearchResults = (result1, result2) => {
                             - (result1.tmdb_search_rank * TMDB_SEARCH_RANK_WEIGHT);
     const result2Rank = (result2.popularity * POPULARITY_WEIGHT) 
                             - (result2.tmdb_search_rank * TMDB_SEARCH_RANK_WEIGHT);
+
+    console.log(`rank: ${result1.title}: ${result1.popularity}; rank: ${result2.title}: ${result2.popularity}`);
 
     return (result2Rank - result1Rank);
 }
@@ -52,7 +80,8 @@ const levenshteinDistance = (s, t) => {
 
 export const searchMovies = async (searchText) => {
     const query = `${TMDB_API_BASE_URL}/search/movie\?api_key\=${TMDB_API_KEY}&query\=${searchText}`;
-    return await fetchResults(query);
+    return await fetchResults(query);    
+
 }
 
 export const searchSeries = async (searchText) => {
@@ -69,6 +98,9 @@ export const searchMoviesAndSeries = async (searchText) => {
                 is_movie: true,
                 is_series: false,
                 tmdb_search_rank: index,
+                // search text included here because we can't 
+                // pass it separately into the comparator function
+                search_text: searchText, 
             }}) 
         : [];
 
@@ -80,14 +112,15 @@ export const searchMoviesAndSeries = async (searchText) => {
                 is_movie: false,
                 is_series: true,
                 tmdb_search_rank: index,
+                search_text: searchText,
                 title: result.name,
                 release_date: result.first_air_date,
             }}) 
         : [];
 
-    const searchResultsCombined = [...movieSearchResultsTagged, ...seriesSearchResultsTagged];
-    const searchResultsCombinedSorted = searchResultsCombined.sort(compareSearchResults);
-    return searchResultsCombinedSorted;
+    const resultsCombined = [...movieSearchResultsTagged, ...seriesSearchResultsTagged];
+    const resultsSorted = resultsCombined.sort(compareSearchResults);
+    return resultsSorted;
 }
 
 export const fetchSeries = async (titleID) => {

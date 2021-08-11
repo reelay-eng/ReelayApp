@@ -4,6 +4,8 @@ import SearchResultItem from './SearchResultItem';
 
 const SearchResults = ({ navigation, searchResults }) => {
 
+    console.log('search results ', searchResults.length);
+
     return (
         <View>
             { searchResults.length >= 1 &&

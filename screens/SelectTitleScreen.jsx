@@ -17,9 +17,9 @@ export default SelectTitleScreen = ({ navigation }) => {
 
         try {
             const results = await searchMoviesAndSeries(newSearchText);
-            setSearchResults(results);    
+            setSearchResults(results);
         } catch (error) {
-            console.log(error);
+            console.log('its here');
         }
     }
 
