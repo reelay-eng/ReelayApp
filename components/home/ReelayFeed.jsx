@@ -4,8 +4,6 @@ import { VisibilityContext } from '../../context/VisibilityContext';
 import Constants from 'expo-constants';
 import Sentry from 'sentry-expo';
 
-import { find } from 'lodash';
-
 import { Ionicons } from '@expo/vector-icons'; 
 import styled from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
@@ -19,7 +17,6 @@ import Hero from './Hero';
 
 import { Reelay } from '../../src/models';
 import { fetchTitleWithCredits, getDirector, getDisplayActors } from '../../api/TMDbApi';
-import { showMessageToast } from '../utils/toasts';
 
 // Please move these into an environment variable (preferably injected via your build step)
 const CLOUDFRONT_BASE_URL = 'https://di92fpd9s7eko.cloudfront.net';
@@ -73,16 +70,6 @@ export default ReelayFeed = ({ navigation }) => {
 		}
 	});
 
-    // const getVideoURI = async (reelayObject) => {
-    //     const videoS3Key = (reelayObject.videoS3Key.endsWith('.mp4')) 
-    //             ? reelayObject.videoS3Key : (reelayObject.videoS3Key + '.mp4');
-    //     const signedVideoURI = await Storage.get(videoS3Key, {
-    //         contentType: "video/mp4"
-    //     });
-    //     const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${videoS3Key}`;
-    //     return signedVideoURI;
-    // }
-
     const getVideoURI = async (fetchedReelay) => {
         const videoS3Key = (fetchedReelay.videoS3Key.endsWith('.mp4')) 
                 ? fetchedReelay.videoS3Key : (fetchedReelay.videoS3Key + '.mp4');
@@ -93,20 +80,8 @@ export default ReelayFeed = ({ navigation }) => {
         return { id: fetchedReelay.tmdbTitleID, signedVideoURI };
     }    
     
-
-    // const compareReelaysByPostedDate = (reelay1, reelay2) => {
-    //     return (reelay1.postedDateTime < reelay2.postedDateTime) ? -1 : 1;
-    // }
-
     const fetchNextReelay = async ({ refresh, batchSize = 10 }) => {
         const nextPageToFetch = refresh ? 0 : nextPage;
-        // const queryResponse = await DataStore.query(Reelay, r => r.visibility('eq', FEED_VISIBILITY), {
-        //     sort: r => r.uploadedAt(SortDirection.DESCENDING),
-        //     page: nextPageToFetch,
-        //     limit: 1,
-        // });
-
-        console.log('NEXT PAGE TO FETCH: ', nextPageToFetch);
         const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY);
         const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
             sort: r => r.uploadedAt(SortDirection.DESCENDING),
@@ -120,9 +95,9 @@ export default ReelayFeed = ({ navigation }) => {
         }
 
         const preparedReelays = await loadReelays(fetchedReelays);
-        console.log('PREPARED REELAYS');
-        preparedReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
-        console.log('END PREPARED REELAYS');
+        // console.log('PREPARED REELAYS');
+        // preparedReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
+        // console.log('END PREPARED REELAYS');
         const notDuplicate = (element, index, array) => {
             const alreadyInFeed = reelayList.findIndex(reelay => reelay.titleID === element.titleID) >= 0;
             const alreadyInBatch = array.findIndex((batchEl, ii) => (batchEl.titleID === element.titleID && ii < index)) >= 0;
@@ -132,42 +107,6 @@ export default ReelayFeed = ({ navigation }) => {
         console.log('FILTERED REELAYS');
         preparedReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
         console.log('END FILTERED REELAYS');
-
-        // const reelayObject = fetchedReelays[0];
-        // const videoURIPromise = getVideoURI(reelayObject);
-        // const titleObjectPromise = fetchTitleWithCredits(reelayObject.tmdbTitleID, reelayObject.isSeries);
-
-        // if (mostRecent && find(reelayList, (nextReelay) => { return nextReelay.id == reelayObject.id })) {
-        //     // most recent object already in list
-        //     console.log('already in list');
-        //     showMessageToast('You\'re at the top');
-        //     pager.current.setPage(0);
-        //     return;
-        // }
-
-        // const preparedReelay = {
-        //     id: reelayObject.id,
-        //     creator: {
-        //         username: String(reelayObject.owner),
-        //         avatar: '../../assets/images/icon.png'
-        //     },
-        //     movie: {
-        //         title: reelayObject.tmdbTitleObject 
-        //             ? reelayObject.tmdbTitleObject.title 
-        //             : String(reelayObject.movieID),
-        //         posterURI: reelayObject.tmdbTitleObject
-        //             ? reelayObject.tmdbTitleObject.poster_path
-        //             : null,
-        //     },
-        //     titleObject: await titleObjectPromise,
-        //     videoURI: await videoURIPromise,
-        //     postedDateTime: Date(reelayObject.createdAt),
-        //     stats: {
-        //         likes: 99,
-        //         comments: 66,
-        //         shares: 33
-        //     }
-        // };
         
         const newReelayList = refresh ? [...filteredReelays, ...reelayList]: [...reelayList, ...filteredReelays];
 
@@ -186,8 +125,6 @@ export default ReelayFeed = ({ navigation }) => {
     
         const titles = await Promise.all(titleObjectPromises);
         const videoUris = await Promise.all(videoURIPromises);
-
-        // console.log(videoUris);
     
         const preparedReelays = fetchedReelays.map(reelay => {
             const titleIndex = titles.findIndex(title => {
@@ -275,28 +212,13 @@ export default ReelayFeed = ({ navigation }) => {
         return filteredReelays;
     }
     
-
 	return (
 		<ReelayFeedContainer>
 			{ reelayList.length <1 && <ActivityIndicator /> }
 			{ reelayList.length >= 1 && 
-				<PagerViewContainer 
-                    ref={pager}
-					initialPage={0}
-					orientation='vertical'
-					onPageSelected={onPageSelected}
-				>
-                    {/* You probably want to have another component here - <ReelayFeedComponent /> */}
-                    {/*  In fact, I would just have the entire render step take place in another function and have this component be responsible for the loading state and the data fetching */}
-
-                    {/* <ReelayFeed data={reelayList}/> */}
+				<PagerViewContainer ref={pager} initialPage={0} orientation='vertical' onPageSelected={onPageSelected}>
 					{ reelayList.map((reelay, index) => {
-						return <Hero 
-							reelay={reelay} 
-							key={index} 
-							index={index}
-							curPosition={feedPosition}
-						/>;
+						return <Hero reelay={reelay} key={index} index={index} curPosition={feedPosition} />;
 					})}
 				</PagerViewContainer>
 			}

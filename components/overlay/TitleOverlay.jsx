@@ -3,7 +3,6 @@ import { Dimensions, SafeAreaView, View } from 'react-native';
 import { Text } from 'react-native-elements';
 
 import Poster from '../view-reelay/Poster';
-import { getDirector, getDisplayActors } from '../../api/TMDbApi';
 import { VisibilityContext} from '../../context/VisibilityContext';
 import styled from 'styled-components/native';
 import YoutubeVideoEmbed from '../utils/YouTubeVideoEmbed';
@@ -38,7 +37,6 @@ export default TitleOverlay = ({ navigation }) => {
         flex: 1;
         width: 100%;
     `
-
     const PosterContainer = styled(View)`
         position: absolute;
         left: ${width * 0.7}px;
@@ -88,34 +86,37 @@ export default TitleOverlay = ({ navigation }) => {
     `
 
     const visibilityContext = useContext(VisibilityContext);
-    const titleObject = visibilityContext.overlayData?.titleObject;
-    const director = getDirector(titleObject);
+    const reelay = visibilityContext.overlayData?.reelay;
+
+    const title = reelay.title;
+    const releaseYear = ' (' + reelay.releaseYear + ')';
+    const director = reelay.overlayInfo?.director;
     const directorName = (director && director.name) ? 'Dir. ' + director.name : '';
-    const actors = getDisplayActors(titleObject);
+    const actors = reelay.overlayInfo?.displayActors;
 
     return (
         <TitleOverlayContainer>
             <TitleOverlayHeader>
                 <HeaderRowContainer>
-                    <TitleText>{titleObject.title}{titleObject.year}</TitleText>
-                    <TaglineText>{titleObject.tagline}</TaglineText>
+                    <TitleText>{title}{releaseYear}</TitleText>
+                    <TaglineText>{reelay.overlayInfo?.tagline}</TaglineText>
                     <DirectorText>{directorName}</DirectorText>
                     { actors.map((actor, index) => {
                         return <ActorText key={index}>{actor.name}</ActorText>
                     })}
                 </HeaderRowContainer>
                 <PosterContainer>
-                    <Poster titleObject={titleObject} showTitle={false} />
+                    <Poster reelay={reelay} showTitle={false} />
                 </PosterContainer>
             </TitleOverlayHeader>
-            {titleObject.trailerURI && 
+            {reelay.overlayInfo?.trailerURI && 
                 <TitleOverlayTrailerContainer>
-                    <YoutubeVideoEmbed youtubeVideoID={titleObject.trailerURI} height={TRAILER_HEIGHT} />
+                    <YoutubeVideoEmbed youtubeVideoID={reelay.overlayInfo.trailerURI} height={TRAILER_HEIGHT} />
                 </TitleOverlayTrailerContainer>
             }
             <TitleOverlayBottomContainer>
                 <OverviewTextContainer>
-                    <OverviewText>{titleObject.overview}</OverviewText>
+                    <OverviewText>{reelay.overlayInfo?.overview}</OverviewText>
                 </OverviewTextContainer>
             </TitleOverlayBottomContainer>
         </TitleOverlayContainer>

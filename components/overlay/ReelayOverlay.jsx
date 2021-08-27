@@ -3,7 +3,6 @@ import { Overlay } from 'react-native-elements';
 import { VisibilityContext } from '../../context/VisibilityContext';
 import SettingsOverlay from './SettingsOverlay';
 import TitleOverlay from './TitleOverlay';
-
 import styled from 'styled-components/native';
 
 export default ReelayOverlay = ({ navigation }) => {
