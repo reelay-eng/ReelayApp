@@ -46,6 +46,7 @@ export default ReelayFeed = ({ navigation }) => {
     const [stackList, setStackList] = useState([]);
     const [nextPage, setNextPage] = useState(0);
     const [feedPosition, setFeedPosition] = useState(0);
+    const [stackPositions, setStackPositions] = useState({});
     const pager = useRef();
 
     const visibilityContext = useContext(VisibilityContext);
@@ -107,16 +108,21 @@ export default ReelayFeed = ({ navigation }) => {
 
         const preparedReelays = await loadReelays(fetchedReelays);
         const filteredReelays = preparedReelays.filter(notDuplicateInFeed);
-        const newReelayList = refresh ? [...filteredReelays, ...reelayList]: [...reelayList, ...filteredReelays];
+        const newReelayList = refresh ? [...filteredReelays, ...reelayList] : [...reelayList, ...filteredReelays];
+
         const fetchedStacks = await fetchStacks({ nextReelayList: filteredReelays });
+        const newStackList = refresh ? [...fetchedStacks, ...stackList] : [...stackList, ...fetchedStacks];
+        
+        filteredReelays.forEach(reelay => stackPositions[reelay.titleID] = 0);
 
         fetchedStacks.forEach(stack => {
             console.log('STACK FETCHED for ', stack[0].title);
             stack.forEach(reelay => console.log('reelay ADDED for ', reelay.creator.username));
         });
+        
 
         setReelayList(newReelayList);
-        setStackList(fetchedStacks);
+        setStackList(newStackList);
         setNextPage(nextPage + batchSize);
         return filteredReelays;
     }
@@ -215,7 +221,8 @@ export default ReelayFeed = ({ navigation }) => {
 			{ reelayList.length >= 1 && 
 				<PagerViewContainer ref={pager} initialPage={0} orientation='vertical' onPageSelected={onPageSelected}>
 					{ stackList.map((stack, index) => {
-						return <Hero reelay={stack[0]} key={index} index={index} curPosition={feedPosition} />;
+                        const stackPosition = stackPositions[stack[0].titleID];
+						return <Hero reelay={stack[stackPosition]} key={index} index={index} curPosition={feedPosition} />;
 					})}
 				</PagerViewContainer>
 			}
