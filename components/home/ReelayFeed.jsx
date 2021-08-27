@@ -43,6 +43,7 @@ const RefreshContainer = styled(SafeAreaView)`
 export default ReelayFeed = ({ navigation }) => {
 
     const [reelayList, setReelayList] = useState([]);
+    const [stackList, setStackList] = useState([]);
     const [nextPage, setNextPage] = useState(0);
     const [feedPosition, setFeedPosition] = useState(0);
     const pager = useRef();
@@ -108,13 +109,14 @@ export default ReelayFeed = ({ navigation }) => {
         const filteredReelays = preparedReelays.filter(notDuplicateInFeed);
         const newReelayList = refresh ? [...filteredReelays, ...reelayList]: [...reelayList, ...filteredReelays];
         const fetchedStacks = await fetchStacks({ nextReelayList: filteredReelays });
-        
+
         fetchedStacks.forEach(stack => {
             console.log('STACK FETCHED for ', stack[0].title);
             stack.forEach(reelay => console.log('reelay ADDED for ', reelay.creator.username));
         });
 
         setReelayList(newReelayList);
+        setStackList(fetchedStacks);
         setNextPage(nextPage + batchSize);
         return filteredReelays;
     }
@@ -212,8 +214,8 @@ export default ReelayFeed = ({ navigation }) => {
 			{ reelayList.length <1 && <ActivityIndicator /> }
 			{ reelayList.length >= 1 && 
 				<PagerViewContainer ref={pager} initialPage={0} orientation='vertical' onPageSelected={onPageSelected}>
-					{ reelayList.map((reelay, index) => {
-						return <Hero reelay={reelay} key={index} index={index} curPosition={feedPosition} />;
+					{ stackList.map((stack, index) => {
+						return <Hero reelay={stack[0]} key={index} index={index} curPosition={feedPosition} />;
 					})}
 				</PagerViewContainer>
 			}
