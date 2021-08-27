@@ -53,7 +53,7 @@ export default ReelayFeed = ({ navigation }) => {
         if (reelayList.length == 0) {
             console.log('gotta load the feed');
             try {
-                fetchNextReelay({ refresh: false });
+                fetchFeed({ refresh: false });
             } catch (error) {
                 Sentry.Native.captureException(error);
             }
@@ -66,7 +66,7 @@ export default ReelayFeed = ({ navigation }) => {
 		setFeedPosition(e.nativeEvent.position);
 		if (e.nativeEvent.position == reelayList.length - 1) {
             console.log('fetching more reelays');
-			fetchNextReelay({ refresh: false });
+			fetchFeed({ refresh: false });
 		}
 	});
 
@@ -79,8 +79,18 @@ export default ReelayFeed = ({ navigation }) => {
         const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${videoS3Key}`;
         return { id: fetchedReelay.tmdbTitleID, signedVideoURI };
     }    
+
+    const notDuplicateInFeed = (preparedReelay, index, array) => {
+        const alreadyInFeed = (reelayList.findIndex(listReelay => {
+            return listReelay.titleID === preparedReelay.titleID;
+        }) >= 0);
+        const alreadyInBatch = (array.findIndex((batchEl, ii) => {
+            return (batchEl.titleID === preparedReelay.titleID) && (ii < index);
+        }) >= 0);
+        return !alreadyInFeed && !alreadyInBatch;
+    }
     
-    const fetchNextReelay = async ({ refresh, batchSize = 10 }) => {
+    const fetchFeed = async ({ refresh, batchSize = 10 }) => {
         const nextPageToFetch = refresh ? 0 : nextPage;
         const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY);
         const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
@@ -95,19 +105,13 @@ export default ReelayFeed = ({ navigation }) => {
         }
 
         const preparedReelays = await loadReelays(fetchedReelays);
-        // console.log('PREPARED REELAYS');
-        // preparedReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
-        // console.log('END PREPARED REELAYS');
         const notDuplicate = (element, index, array) => {
             const alreadyInFeed = reelayList.findIndex(reelay => reelay.titleID === element.titleID) >= 0;
             const alreadyInBatch = array.findIndex((batchEl, ii) => (batchEl.titleID === element.titleID && ii < index)) >= 0;
             return !alreadyInFeed && !alreadyInBatch;
         }
-        const filteredReelays = preparedReelays.filter(notDuplicate);
-        console.log('FILTERED REELAYS');
-        preparedReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
-        console.log('END FILTERED REELAYS');
-        
+        const filteredReelays = preparedReelays.filter(notDuplicateInFeed);
+        // preparedReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));        
         const newReelayList = refresh ? [...filteredReelays, ...reelayList]: [...reelayList, ...filteredReelays];
 
         setReelayList(newReelayList);
@@ -169,27 +173,27 @@ export default ReelayFeed = ({ navigation }) => {
         };
     }
 
-    const fetchReelaysForFeed = async ({ prevFetchedTitles, page, batchSize }) => {
-        const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY);    
-        const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
-            sort: r => r.uploadedAt(SortDirection.DESCENDING),
-            page: page,
-            limit: batchSize,
-        });
+    // const fetchReelaysForFeed = async ({ prevFetchedTitles, page, batchSize }) => {
+    //     const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY);    
+    //     const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
+    //         sort: r => r.uploadedAt(SortDirection.DESCENDING),
+    //         page: page,
+    //         limit: batchSize,
+    //     });
     
-        if (fetchFailed(fetchedReelays)) {
-            return [];
-        }
+    //     if (fetchFailed(fetchedReelays)) {
+    //         return [];
+    //     }
     
-        const preparedReelays = await loadReelays(fetchedReelays);
-        const notDuplicate = (element, index, array) => {
-            const alreadyInFeed = prevFetchedTitles.findIndex(titleID => titleID === element.titleID) >= 0;
-            const alreadyInBatch = array.findIndex((el, ii) => (el.titleID === element.titleID && ii < index)) >= 0;
-            return !alreadyInFeed && !alreadyInBatch;
-        }
-        const filteredReelays = preparedReelays.filter(notDuplicate);
-        return filteredReelays;
-    }
+    //     const preparedReelays = await loadReelays(fetchedReelays);
+    //     const notDuplicate = (element, index, array) => {
+    //         const alreadyInFeed = prevFetchedTitles.findIndex(titleID => titleID === element.titleID) >= 0;
+    //         const alreadyInBatch = array.findIndex((el, ii) => (el.titleID === element.titleID && ii < index)) >= 0;
+    //         return !alreadyInFeed && !alreadyInBatch;
+    //     }
+    //     const filteredReelays = preparedReelays.filter(notDuplicate);
+    //     return filteredReelays;
+    // }
 
     const fetchReelaysForStack = async ({ stack, page, batchSize }) => {
         const titleID = stack[0].titleID;
@@ -228,7 +232,7 @@ export default ReelayFeed = ({ navigation }) => {
                     style={{ margin: 10 }}
                     onPress={() => {
                         console.log('fetching most recent');
-                        fetchNextReelay({ refresh: true});
+                        fetchFeed({ refresh: true});
                     }}>
                     <Ionicons name="refresh-sharp" size={24} color="white" />
                 </TouchableOpacity>
