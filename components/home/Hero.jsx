@@ -53,13 +53,9 @@ const Hero = ({ reelay, index, curPosition }) => {
                     'rgba(26,26,26,0.6)'
                 ]}>
                 <Overlay>
-                    <ReelayInfo 
-                        user={reelay.creator} 
-                        movie={reelay.movie} 
-                        titleObject={reelay.titleObject}
-                    />
+                    <ReelayInfo reelay={reelay} />
                     <RightContainer>
-                        <Poster titleObject={reelay.titleObject} showTitle={false} />
+                        <Poster reelay={reelay} showTitle={false} />
                         {/* <Sidebar avatar={reelay.creator.avatar} stats={reelay.stats} /> */}
                     </RightContainer>
                 </Overlay>
