@@ -6,7 +6,6 @@ import styled from 'styled-components/native';
 import VideoPlayer from '../view-reelay/VideoPlayer'
 import Poster from '../view-reelay/Poster';
 import ReelayInfo from './ReelayInfo';
-import Sidebar from './Sidebar';
 
 import { VisibilityContext } from '../../context/VisibilityContext';
 
@@ -33,15 +32,17 @@ const RightContainer = styled(SafeAreaView)`
     margin: 10px;    
 `  
 
-const Hero = ({ reelay, index, curPosition }) => {
+const Hero = ({ reelay, index, feedPosition, onReelayFinish, stackPosition }) => {
 
     const visibilityContext = useContext(VisibilityContext);
 
     return (
         <View key={index}>
             <VideoPlayer
-                videoURI={reelay.videoURI}
-                playing={curPosition === index && !visibilityContext.overlayVisible}
+                reelay={reelay}
+                playing={feedPosition === index && !visibilityContext.overlayVisible}
+                position={stackPosition}
+                onReelayFinish={onReelayFinish}
             >
             </VideoPlayer>
             <Gradient

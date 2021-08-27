@@ -46,6 +46,7 @@ export default ReelayFeed = ({ navigation }) => {
     const [stackList, setStackList] = useState([]);
     const [nextPage, setNextPage] = useState(0);
     const [feedPosition, setFeedPosition] = useState(0);
+    const [stackCounter, setStackCounter] = useState(0);
     const [stackPositions, setStackPositions] = useState({});
     const pager = useRef();
 
@@ -79,7 +80,7 @@ export default ReelayFeed = ({ navigation }) => {
             contentType: "video/mp4"
         });
         const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${videoS3Key}`;
-        return { id: fetchedReelay.tmdbTitleID, signedVideoURI };
+        return { id: fetchedReelay.id, signedVideoURI };
     }    
 
     const notDuplicateInFeed = (preparedReelay, index, array) => {
@@ -112,7 +113,7 @@ export default ReelayFeed = ({ navigation }) => {
 
         const fetchedStacks = await fetchStacks({ nextReelayList: filteredReelays });
         const newStackList = refresh ? [...fetchedStacks, ...stackList] : [...stackList, ...fetchedStacks];
-        
+
         filteredReelays.forEach(reelay => stackPositions[reelay.titleID] = 0);
 
         fetchedStacks.forEach(stack => {
@@ -156,9 +157,24 @@ export default ReelayFeed = ({ navigation }) => {
         }
     
         const preparedReelays = await loadReelays(fetchedReelays);
+        preparedReelays.forEach(reelay => {
+            console.log(reelay.title, reelay.creator.username);
+            console.log(reelay.videoURI);
+        });
         const notDuplicate = (element) => stack.findIndex(el => el.id == element.id) == -1;
         const filteredReelays = preparedReelays.filter(notDuplicate);
         return filteredReelays;
+    }
+
+    const onReelayFinish = async (reelay, position) => {
+        const stack = stackList.find(listedStack => listedStack[0].titleID === reelay.titleID);
+        const endOfStack = position === stack.length - 1;
+        const shouldLoop = stack.length === 1;
+        const nextPosition = (shouldLoop || endOfStack) ? 0 : position + 1; 
+        stackPositions[stack[0].titleID] = nextPosition;
+        setStackCounter(stackCounter + 1);
+        console.log('next position on reelay finish: ', nextPosition);
+        return shouldLoop;
     }
 
     const loadReelays = async (fetchedReelays) => {
@@ -178,7 +194,7 @@ export default ReelayFeed = ({ navigation }) => {
             });
             const titleObject = titles[titleIndex];
             const uriObject = videoUris.find((obj) => {
-                return obj.id === reelay.tmdbTitleID;
+                return obj.id === reelay.id;
             });
             const preparedReelay = prepareReelay(reelay, titleObject, uriObject.signedVideoURI);
             return preparedReelay;
@@ -222,7 +238,13 @@ export default ReelayFeed = ({ navigation }) => {
 				<PagerViewContainer ref={pager} initialPage={0} orientation='vertical' onPageSelected={onPageSelected}>
 					{ stackList.map((stack, index) => {
                         const stackPosition = stackPositions[stack[0].titleID];
-						return <Hero reelay={stack[stackPosition]} key={index} index={index} curPosition={feedPosition} />;
+                        if (feedPosition === index) {
+                            console.log('in pager view, stack position: ', stackPosition);
+                        }
+						return <Hero reelay={stack[stackPosition]} key={index} 
+                                    index={index} feedPosition={feedPosition} 
+                                    onReelayFinish={onReelayFinish} 
+                                    stackPosition={stackPosition} />;
 					})}
 				</PagerViewContainer>
 			}

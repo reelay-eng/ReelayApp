@@ -3,7 +3,7 @@ import { Video, Audio } from 'expo-av'
 import { VideoStyles } from '../../styles';
 import { useFocusEffect } from '@react-navigation/native';
 
-export default function VideoPlayer({ videoURI, playing }) {
+export default function VideoPlayer({ reelay, playing, position, onReelayFinish }) {
 	const [playbackObject, setPlaybackObject] = useState(null);
 	const [isFocused, setIsFocused] = useState(false);
 
@@ -14,20 +14,8 @@ export default function VideoPlayer({ videoURI, playing }) {
 	})
 
     useFocusEffect(React.useCallback(() => {
-
 		setIsFocused(true);
         return () => {
-			// try {
-			// 	if (playbackObject && !playing) {
-			// 		const prom = playbackObject.setPositionAsync(0)
-			// 			.catch((error) => {
-			// 			// todo: this throws a seeking interrupted error
-			// 			// seems harmless, but I'm not sure
-			// 		});
-			// 	}
-			// } catch (error) {
-			// 	console.log(error);
-			// }
 			setIsFocused(false);
 		}
     }));
@@ -37,20 +25,24 @@ export default function VideoPlayer({ videoURI, playing }) {
 		setPlaybackObject(playbackObject);
 	}
 
+	const onPlaybackStatusUpdate = (playbackStatus) => {
+		if (playbackStatus?.didJustFinish) {
+			onReelayFinish(reelay, position);
+		}
+	}
+
 	return (
 			<Video
-				// interruptionModeAndroid={Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX}
-				// interruptionModeIOS={Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX}
 				isLooping
 				isMuted={false}
-				// playsInSilentModeIOS={true}
+				onPlaybackStatusUpdate={onPlaybackStatusUpdate}
 				progressUpdateIntervalMillis={50}
 				rate={1.0}
 				ref={(component) => _handleVideoRef(component)}
 				resizeMode='cover'
 				shouldDuckAndroid={true}
 				shouldPlay={playing && isFocused}
-				source={{ uri: videoURI }}
+				source={{ uri: reelay.videoURI }}
 				staysActiveInBackground={false}
 				style={VideoStyles.video}
 				useNativeControls={false}
