@@ -105,17 +105,51 @@ export default ReelayFeed = ({ navigation }) => {
         }
 
         const preparedReelays = await loadReelays(fetchedReelays);
-        const notDuplicate = (element, index, array) => {
-            const alreadyInFeed = reelayList.findIndex(reelay => reelay.titleID === element.titleID) >= 0;
-            const alreadyInBatch = array.findIndex((batchEl, ii) => (batchEl.titleID === element.titleID && ii < index)) >= 0;
-            return !alreadyInFeed && !alreadyInBatch;
-        }
         const filteredReelays = preparedReelays.filter(notDuplicateInFeed);
-        // preparedReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));        
         const newReelayList = refresh ? [...filteredReelays, ...reelayList]: [...reelayList, ...filteredReelays];
+        const fetchedStacks = await fetchStacks({ nextReelayList: filteredReelays });
+        
+        fetchedStacks.forEach(stack => {
+            console.log('STACK FETCHED for ', stack[0].title);
+            stack.forEach(reelay => console.log('reelay ADDED for ', reelay.creator.username));
+        });
 
         setReelayList(newReelayList);
         setNextPage(nextPage + batchSize);
+        return filteredReelays;
+    }
+
+    const fetchStacks = async ({ nextReelayList, batchSize = 10 }) => {
+        const nextStacks = await Promise.all(nextReelayList.map(async (nextReelay) => {
+            const filteredReelays = await fetchReelaysForStack({
+                stack: [nextReelay], 
+                page: 0, 
+                batchSize: batchSize,
+            });
+            return [nextReelay, ...filteredReelays];
+        }));
+        return nextStacks;
+    }
+
+    const fetchReelaysForStack = async ({ stack, page, batchSize }) => {
+        const titleID = stack[0].titleID;
+        console.log('AT FETCH REELAYS FOR STACK ', titleID);
+        const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY).tmdbTitleID('eq', String(titleID));
+    
+        const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
+            sort: r => r.uploadedAt(SortDirection.DESCENDING),
+            page: page,
+            limit: batchSize,
+        });
+    
+        if (!fetchedReelays || fetchedReelays.length == 0) {
+            console.log('No query response');
+            return;
+        }
+    
+        const preparedReelays = await loadReelays(fetchedReelays);
+        const notDuplicate = (element) => stack.findIndex(el => el.id == element.id) == -1;
+        const filteredReelays = preparedReelays.filter(notDuplicate);
         return filteredReelays;
     }
 
@@ -171,49 +205,6 @@ export default ReelayFeed = ({ navigation }) => {
             posterURI: titleObject ? titleObject.poster_path : null,
             postedDateTime: fetchedReelay.uploadedAt,
         };
-    }
-
-    // const fetchReelaysForFeed = async ({ prevFetchedTitles, page, batchSize }) => {
-    //     const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY);    
-    //     const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
-    //         sort: r => r.uploadedAt(SortDirection.DESCENDING),
-    //         page: page,
-    //         limit: batchSize,
-    //     });
-    
-    //     if (fetchFailed(fetchedReelays)) {
-    //         return [];
-    //     }
-    
-    //     const preparedReelays = await loadReelays(fetchedReelays);
-    //     const notDuplicate = (element, index, array) => {
-    //         const alreadyInFeed = prevFetchedTitles.findIndex(titleID => titleID === element.titleID) >= 0;
-    //         const alreadyInBatch = array.findIndex((el, ii) => (el.titleID === element.titleID && ii < index)) >= 0;
-    //         return !alreadyInFeed && !alreadyInBatch;
-    //     }
-    //     const filteredReelays = preparedReelays.filter(notDuplicate);
-    //     return filteredReelays;
-    // }
-
-    const fetchReelaysForStack = async ({ stack, page, batchSize }) => {
-        const titleID = stack[0].titleID;
-        console.log('AT FETCH REELAYS FOR STACK ', titleID);
-        const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY).tmdbTitleID('eq', String(titleID));
-    
-        const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
-            sort: r => r.uploadedAt(SortDirection.DESCENDING),
-            page: page,
-            limit: batchSize,
-        });
-    
-        if (fetchFailed(fetchedReelays)) {
-            return [];
-        }
-    
-        const preparedReelays = await loadReelays(fetchedReelays);
-        const notDuplicate = (element) => stack.findIndex(el => el.id == element.id) == -1;
-        const filteredReelays = preparedReelays.filter(notDuplicate);
-        return filteredReelays;
     }
     
 	return (
