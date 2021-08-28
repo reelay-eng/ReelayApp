@@ -3,7 +3,13 @@ import { Video, Audio } from 'expo-av'
 import { VideoStyles } from '../../styles';
 import { useFocusEffect } from '@react-navigation/native';
 
-export default function VideoPlayer({ reelay, playing, position, onReelayFinish }) {
+export default function VideoPlayer({ 
+	isLooping,
+	reelay, 
+	playing, 
+	position,
+	onReelayFinish,
+ }) {
 	const [playbackObject, setPlaybackObject] = useState(null);
 	const [isFocused, setIsFocused] = useState(false);
 
@@ -26,14 +32,14 @@ export default function VideoPlayer({ reelay, playing, position, onReelayFinish 
 	}
 
 	const onPlaybackStatusUpdate = (playbackStatus) => {
-		if (playbackStatus?.didJustFinish) {
+		if (playbackStatus?.didJustFinish && !isLooping) {
 			onReelayFinish(reelay, position);
 		}
 	}
 
 	return (
 			<Video
-				isLooping
+				isLooping={true}
 				isMuted={false}
 				onPlaybackStatusUpdate={onPlaybackStatusUpdate}
 				progressUpdateIntervalMillis={50}

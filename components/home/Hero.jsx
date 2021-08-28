@@ -1,5 +1,5 @@
-import React, { useContext } from 'react'
-import { Dimensions, SafeAreaView, View } from 'react-native'
+import React, { useCallback, useContext } from 'react'
+import { Dimensions, Pressable, SafeAreaView, Text, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import styled from 'styled-components/native';
 
@@ -30,19 +30,73 @@ const RightContainer = styled(SafeAreaView)`
     position: absolute;
     left: ${width - 140}px;
     margin: 10px;    
+    zIndex: 3;
 `  
 
-const Hero = ({ reelay, index, feedPosition, onReelayFinish, stackPosition }) => {
+const Hero = ({ 
+    stack, 
+    index, 
+    feedIndex,
+    feedPosition, 
+    onLeftTap,
+    onRightTap,
+    onReelayFinish, 
+    stackIndex,
+    stackPosition,
+}) => {
 
     const visibilityContext = useContext(VisibilityContext);
+    const reelay = stack[stackPosition];
+    const isPlaying = (feedIndex === feedPosition)
+                    && (stackIndex === stackPosition)
+                    && (!visibilityContext.overlayVisible);
+
+    const TapLayer = ({ onTap }) => {
+        const TapLayerPressable = styled(Pressable)`
+            height: 100%;
+            width: 50%;
+            position: absolute;
+            top: 0px;
+            left: ${(onTap === onRightTap ? width / 2 : 0)}px;
+            background: transparent;
+            zIndex: 2;
+        `
+        return <TapLayerPressable onPress={() => onTap(reelay, stackPosition)} />
+    }
+
+    const StackLocation = ({ position, length }) => {
+        const StackLocationOval = styled(View)`
+            align-items: flex-end;
+            align-self: flex-end;
+            background-color: white;
+            border-radius: 10px;
+            justify-content: center;
+            height: 20px;
+            width: 50px;
+            zIndex: 3;
+        `
+        const StackLocationText = styled(Text)`
+            align-self: center;
+            color: black;
+            font-size: 14px;
+            font-family: System;
+        `
+        const text = String(position + 1) + ' / ' + String(length);
+        return (
+            <StackLocationOval>
+                <StackLocationText>{ text }</StackLocationText>
+            </StackLocationOval>
+        );
+    }
 
     return (
         <View key={index}>
             <VideoPlayer
-                reelay={reelay}
-                playing={feedPosition === index && !visibilityContext.overlayVisible}
-                position={stackPosition}
+                isLooping={stack.length === 1}
                 onReelayFinish={onReelayFinish}
+                playing={isPlaying}
+                position={stackPosition}
+                reelay={reelay}
             >
             </VideoPlayer>
             <Gradient
@@ -54,11 +108,13 @@ const Hero = ({ reelay, index, feedPosition, onReelayFinish, stackPosition }) =>
                     'rgba(26,26,26,0.6)'
                 ]}>
                 <Overlay>
-                    <ReelayInfo reelay={reelay} />
                     <RightContainer>
                         <Poster reelay={reelay} showTitle={false} />
-                        {/* <Sidebar avatar={reelay.creator.avatar} stats={reelay.stats} /> */}
+                        <StackLocation position={stackPosition} length={stack.length} />
                     </RightContainer>
+                    <TapLayer onTap={onLeftTap} />
+                    <TapLayer onTap={onRightTap} />
+                    <ReelayInfo reelay={reelay} />
                 </Overlay>
             </Gradient>
         </View>

@@ -121,7 +121,6 @@ export default ReelayFeed = ({ navigation }) => {
             stack.forEach(reelay => console.log('reelay ADDED for ', reelay.creator.username));
         });
         
-
         setReelayList(newReelayList);
         setStackList(newStackList);
         setNextPage(nextPage + batchSize);
@@ -166,7 +165,18 @@ export default ReelayFeed = ({ navigation }) => {
         return filteredReelays;
     }
 
-    const onReelayFinish = async (reelay, position) => {
+    const onLeftTap = async (reelay, position) => {
+        const stack = stackList.find(listedStack => listedStack[0].titleID === reelay.titleID);
+        const startOfStack = position === 0;
+        const shouldLoop = stack.length === 1;
+        const nextPosition = (shouldLoop) ? 0 : (startOfStack) ? stack.length - 1: position - 1; 
+        stackPositions[stack[0].titleID] = nextPosition;
+        setStackCounter(stackCounter + 1);
+        console.log('next position on reelay finish: ', nextPosition);
+        return shouldLoop;
+    }
+
+    const onRightTap = async (reelay, position) => {
         const stack = stackList.find(listedStack => listedStack[0].titleID === reelay.titleID);
         const endOfStack = position === stack.length - 1;
         const shouldLoop = stack.length === 1;
@@ -176,6 +186,11 @@ export default ReelayFeed = ({ navigation }) => {
         console.log('next position on reelay finish: ', nextPosition);
         return shouldLoop;
     }
+
+    const onReelayFinish = async (reelay, position) => {
+        console.log('on reelay finish, position: ', position);
+        await onRightTap(reelay, position);
+    };
 
     const loadReelays = async (fetchedReelays) => {
         const titleObjectPromises = fetchedReelays.map(async reelay => {
@@ -236,15 +251,16 @@ export default ReelayFeed = ({ navigation }) => {
 			{ reelayList.length <1 && <ActivityIndicator /> }
 			{ reelayList.length >= 1 && 
 				<PagerViewContainer ref={pager} initialPage={0} orientation='vertical' onPageSelected={onPageSelected}>
-					{ stackList.map((stack, index) => {
+					{ stackList.map((stack, feedIndex) => {
                         const stackPosition = stackPositions[stack[0].titleID];
-                        if (feedPosition === index) {
+                        if (feedPosition === feedIndex) {
                             console.log('in pager view, stack position: ', stackPosition);
                         }
-						return <Hero reelay={stack[stackPosition]} key={index} 
-                                    index={index} feedPosition={feedPosition} 
-                                    onReelayFinish={onReelayFinish} 
-                                    stackPosition={stackPosition} />;
+						return <Hero stack={stack} key={stack[0].titleID} 
+                                    feedIndex={feedIndex} feedPosition={feedPosition}
+                                    onLeftTap={onLeftTap} onRightTap={onRightTap}
+                                    onReelayFinish={onReelayFinish}
+                                    stackIndex={stackPosition} stackPosition={stackPosition} />;
 					})}
 				</PagerViewContainer>
 			}
@@ -255,6 +271,7 @@ export default ReelayFeed = ({ navigation }) => {
                     onPress={() => {
                         console.log('fetching most recent');
                         fetchFeed({ refresh: true});
+                        pager.current.setPage(0);
                     }}>
                     <Ionicons name="refresh-sharp" size={24} color="white" />
                 </TouchableOpacity>
