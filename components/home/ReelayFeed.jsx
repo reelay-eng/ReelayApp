@@ -31,7 +31,7 @@ const PagerViewContainer = styled(PagerView)`
 	height: ${height}px;
     background-color: black;
 `
-const RefreshContainer = styled(SafeAreaView)`
+const ToolbarContainer = styled(SafeAreaView)`
     justify-content: flex-start;
     align-items: center;
     flex-direction: row;
@@ -39,6 +39,26 @@ const RefreshContainer = styled(SafeAreaView)`
     z-index: 2;
     width: ${width}px;
 `
+
+const Toolbar = ({ navigation }) => {
+    const visibilityContext = useContext(VisibilityContext);
+
+    return (
+        <ToolbarContainer>
+            <SettingsButton navigation={navigation} />
+            <TouchableOpacity
+                style={{ margin: 10 }}
+                onPress={() => {
+                    console.log('fetching most recent');
+                    fetchFeed({ refresh: true});
+                    if (pager && pager.current) pager.current.setPage(0);
+                }}>
+                <Ionicons name="refresh-sharp" size={24} color="white" />
+            </TouchableOpacity>
+            {visibilityContext.overlayVisible && <ReelayOverlay navigation={navigation} />}
+        </ToolbarContainer>
+    );
+}
 
 export default ReelayFeed = ({ navigation }) => {
 
@@ -49,8 +69,6 @@ export default ReelayFeed = ({ navigation }) => {
     const [stackCounter, setStackCounter] = useState(0);
     const [stackPositions, setStackPositions] = useState({});
     const pager = useRef();
-
-    const visibilityContext = useContext(VisibilityContext);
 
     useEffect(() => {
         if (reelayList.length == 0) {
@@ -147,15 +165,15 @@ export default ReelayFeed = ({ navigation }) => {
         return !alreadyInFeed && !alreadyInBatch;
     }
 
-    const onLeftTap = async (reelay, position) => {
-        const stack = stackList.find(listedStack => listedStack[0].titleID === reelay.titleID);
-        const startOfStack = position === 0;
-        const shouldLoop = stack.length === 1;
-        const nextPosition = (shouldLoop) ? 0 : (startOfStack) ? stack.length - 1: position - 1; 
-        stackPositions[stack[0].titleID] = nextPosition;
-        setStackCounter(stackCounter + 1);
-        return shouldLoop;
-    }
+    // const onLeftTap = async (reelay, position) => {
+    //     const stack = stackList.find(listedStack => listedStack[0].titleID === reelay.titleID);
+    //     const startOfStack = position === 0;
+    //     const shouldLoop = stack.length === 1;
+    //     const nextPosition = (shouldLoop) ? 0 : (startOfStack) ? stack.length - 1: position - 1; 
+    //     stackPositions[stack[0].titleID] = nextPosition;
+    //     setStackCounter(stackCounter + 1);
+    //     return shouldLoop;
+    // }
 
     const onFeedSwiped = (async (e) => {
 		setFeedPosition(e.nativeEvent.position);
@@ -166,30 +184,25 @@ export default ReelayFeed = ({ navigation }) => {
 	});
 
     const onStackSwiped = (async (e) => {
-		// setStackPosition(e.nativeEvent.position);
-		// if (e.nativeEvent.position == reelayList.length - 1) {
-        //     console.log('fetching more reelays');
-		// 	fetchFeed({ refresh: false });
-		// }
         const stackPosition = e.nativeEvent.position;
         const titleID = stackList[feedPosition][0].titleID;
         stackPositions[titleID] = stackPosition;
         setStackCounter(stackCounter + 1);
     });
 
-    const onReelayFinish = async (reelay, position) => {
-        await onRightTap(reelay, position);
-    };
+    // const onReelayFinish = async (reelay, position) => {
+    //     await onRightTap(reelay, position);
+    // };
 
-    const onRightTap = async (reelay, position) => {
-        const stack = stackList.find(listedStack => listedStack[0].titleID === reelay.titleID);
-        const endOfStack = position === stack.length - 1;
-        const shouldLoop = stack.length === 1;
-        const nextPosition = (shouldLoop || endOfStack) ? 0 : position + 1; 
-        stackPositions[stack[0].titleID] = nextPosition;
-        setStackCounter(stackCounter + 1);
-        return shouldLoop;
-    }
+    // const onRightTap = async (reelay, position) => {
+    //     const stack = stackList.find(listedStack => listedStack[0].titleID === reelay.titleID);
+    //     const endOfStack = position === stack.length - 1;
+    //     const shouldLoop = stack.length === 1;
+    //     const nextPosition = (shouldLoop || endOfStack) ? 0 : position + 1; 
+    //     stackPositions[stack[0].titleID] = nextPosition;
+    //     setStackCounter(stackCounter + 1);
+    //     return shouldLoop;
+    // }
 
     const prepareReelayBatch = async (fetchedReelays) => {
         const titleObjectPromises = fetchedReelays.map(async reelay => {
@@ -252,41 +265,21 @@ export default ReelayFeed = ({ navigation }) => {
 				<PagerViewContainer ref={pager} initialPage={0} orientation='vertical' onPageSelected={onFeedSwiped}>
 					{ stackList.map((stack, feedIndex) => {
                         const stackPosition = stackPositions[stack[0].titleID];
-
                         return (
                             <ReelayFeedContainer key={stack[0].titleID}>
                                 <PagerViewContainer initialPage={0} orientation='horizontal' onPageSelected={onStackSwiped}>
                                     { stack.map((reelay, stackIndex) => {
                                         return <Hero stack={stack} key={reelay.id} 
                                                     feedIndex={feedIndex} feedPosition={feedPosition}
-                                                    onLeftTap={onLeftTap} onRightTap={onRightTap}
-                                                    onReelayFinish={onReelayFinish}
                                                     stackIndex={stackIndex} stackPosition={stackPosition} />;
                                     })}
                                 </PagerViewContainer>
                             </ReelayFeedContainer>
                         );
-						// return <Hero stack={stack} key={stack[0].titleID} 
-                        //             feedIndex={feedIndex} feedPosition={feedPosition}
-                        //             onLeftTap={onLeftTap} onRightTap={onRightTap}
-                        //             onReelayFinish={onReelayFinish}
-                        //             stackIndex={stackPosition} stackPosition={stackPosition} />;
 					})}
 				</PagerViewContainer>
 			}
-            <RefreshContainer>
-                <SettingsButton navigation={navigation} />
-                <TouchableOpacity
-                    style={{ margin: 10 }}
-                    onPress={() => {
-                        console.log('fetching most recent');
-                        fetchFeed({ refresh: true});
-                        if (pager && pager.current) pager.current.setPage(0);
-                    }}>
-                    <Ionicons name="refresh-sharp" size={24} color="white" />
-                </TouchableOpacity>
-                {visibilityContext.overlayVisible && <ReelayOverlay navigation={navigation} />}
-            </RefreshContainer>
+            <Toolbar />
 		</ReelayFeedContainer>
 	);
 }

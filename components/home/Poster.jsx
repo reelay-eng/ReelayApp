@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Image, Pressable, View } from 'react-native';
+import { Image, Pressable, View, SafeAreaView } from 'react-native';
 import styled from 'styled-components/native';
 
 import { getPosterURI } from '../../api/TMDbApi';
@@ -50,11 +50,13 @@ export default Poster = ({ reelay, showTitle }) => {
 	}
 
 	return (
-		<PosterContainer onPress={onPosterPress}>
-			{posterImageUri && <PosterImage 
-				source={{ uri: posterImageUri }} 
-			/>}
-			{showTitle && <MovieTitle>{title}{year}</MovieTitle>}
-		</PosterContainer>
+		<SafeAreaView>
+			<PosterContainer onPress={onPosterPress}>
+				{posterImageUri && <PosterImage 
+					source={{ uri: posterImageUri }} 
+				/>}
+				{showTitle && <MovieTitle>{title}{year}</MovieTitle>}
+			</PosterContainer>
+		</SafeAreaView>
 	);
 }

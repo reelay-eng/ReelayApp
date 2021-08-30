@@ -26,10 +26,10 @@ const Overlay = styled(View)`
     width: 100%;
     height: 100%;
 `
-const RightContainer = styled(SafeAreaView)`
+const RightContainer = styled(View)`
     position: absolute;
-    left: ${width - 140}px;
-    margin: 10px;    
+    left: ${width - 130}px;
+    top: 40px;
     zIndex: 3;
 `  
 
@@ -38,9 +38,6 @@ const Hero = ({
     index, 
     feedIndex,
     feedPosition, 
-    // onLeftTap,
-    // onRightTap,
-    // onReelayFinish, 
     stackIndex,
     stackPosition,
 }) => {
@@ -93,7 +90,6 @@ const Hero = ({
         <View key={index}>
             <FeedVideoPlayer
                 isLooping={stack.length === 1}
-                // onReelayFinish={onReelayFinish}
                 playing={isPlaying}
                 position={stackPosition}
                 reelay={reelay}
@@ -112,8 +108,6 @@ const Hero = ({
                         <Poster reelay={reelay} showTitle={false} />
                         <StackLocation position={stackPosition} length={stack.length} />
                     </RightContainer>
-                    {/* <TapLayer onTap={onLeftTap} />
-                    <TapLayer onTap={onRightTap} /> */}
                     <ReelayInfo reelay={reelay} />
                 </Overlay>
             </Gradient>
