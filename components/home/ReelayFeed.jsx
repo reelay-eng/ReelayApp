@@ -115,11 +115,6 @@ export default ReelayFeed = ({ navigation }) => {
         const newStackList = refresh ? [...fetchedStacks, ...stackList] : [...stackList, ...fetchedStacks];
 
         filteredReelays.forEach(reelay => stackPositions[reelay.titleID] = 0);
-
-        fetchedStacks.forEach(stack => {
-            console.log('STACK FETCHED for ', stack[0].title);
-            stack.forEach(reelay => console.log('reelay ADDED for ', reelay.creator.username));
-        });
         
         setReelayList(newReelayList);
         setStackList(newStackList);
@@ -141,7 +136,6 @@ export default ReelayFeed = ({ navigation }) => {
 
     const fetchReelaysForStack = async ({ stack, page, batchSize }) => {
         const titleID = stack[0].titleID;
-        console.log('AT FETCH REELAYS FOR STACK ', titleID);
         const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY).tmdbTitleID('eq', String(titleID));
     
         const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
@@ -156,10 +150,6 @@ export default ReelayFeed = ({ navigation }) => {
         }
     
         const preparedReelays = await loadReelays(fetchedReelays);
-        preparedReelays.forEach(reelay => {
-            console.log(reelay.title, reelay.creator.username);
-            console.log(reelay.videoURI);
-        });
         const notDuplicate = (element) => stack.findIndex(el => el.id == element.id) == -1;
         const filteredReelays = preparedReelays.filter(notDuplicate);
         return filteredReelays;
@@ -172,7 +162,6 @@ export default ReelayFeed = ({ navigation }) => {
         const nextPosition = (shouldLoop) ? 0 : (startOfStack) ? stack.length - 1: position - 1; 
         stackPositions[stack[0].titleID] = nextPosition;
         setStackCounter(stackCounter + 1);
-        console.log('next position on reelay finish: ', nextPosition);
         return shouldLoop;
     }
 
@@ -183,12 +172,10 @@ export default ReelayFeed = ({ navigation }) => {
         const nextPosition = (shouldLoop || endOfStack) ? 0 : position + 1; 
         stackPositions[stack[0].titleID] = nextPosition;
         setStackCounter(stackCounter + 1);
-        console.log('next position on reelay finish: ', nextPosition);
         return shouldLoop;
     }
 
     const onReelayFinish = async (reelay, position) => {
-        console.log('on reelay finish, position: ', position);
         await onRightTap(reelay, position);
     };
 
@@ -253,9 +240,6 @@ export default ReelayFeed = ({ navigation }) => {
 				<PagerViewContainer ref={pager} initialPage={0} orientation='vertical' onPageSelected={onPageSelected}>
 					{ stackList.map((stack, feedIndex) => {
                         const stackPosition = stackPositions[stack[0].titleID];
-                        if (feedPosition === feedIndex) {
-                            console.log('in pager view, stack position: ', stackPosition);
-                        }
 						return <Hero stack={stack} key={stack[0].titleID} 
                                     feedIndex={feedIndex} feedPosition={feedPosition}
                                     onLeftTap={onLeftTap} onRightTap={onRightTap}
@@ -271,7 +255,7 @@ export default ReelayFeed = ({ navigation }) => {
                     onPress={() => {
                         console.log('fetching most recent');
                         fetchFeed({ refresh: true});
-                        pager.current.setPage(0);
+                        if (pager && pager.current) pager.current.setPage(0);
                     }}>
                     <Ionicons name="refresh-sharp" size={24} color="white" />
                 </TouchableOpacity>

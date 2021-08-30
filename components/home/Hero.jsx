@@ -3,8 +3,8 @@ import { Dimensions, Pressable, SafeAreaView, Text, View } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import styled from 'styled-components/native';
 
-import VideoPlayer from '../view-reelay/VideoPlayer'
-import Poster from '../view-reelay/Poster';
+import FeedVideoPlayer from './FeedVideoPlayer';
+import Poster from './Poster';
 import ReelayInfo from './ReelayInfo';
 
 import { VisibilityContext } from '../../context/VisibilityContext';
@@ -91,14 +91,14 @@ const Hero = ({
 
     return (
         <View key={index}>
-            <VideoPlayer
+            <FeedVideoPlayer
                 isLooping={stack.length === 1}
                 onReelayFinish={onReelayFinish}
                 playing={isPlaying}
                 position={stackPosition}
                 reelay={reelay}
             >
-            </VideoPlayer>
+            </FeedVideoPlayer>
             <Gradient
                 locations={[0, 0.26, 0.6, 1]}
                 colors={[

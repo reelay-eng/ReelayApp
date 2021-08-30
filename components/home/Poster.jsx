@@ -53,10 +53,6 @@ export default Poster = ({ reelay, showTitle }) => {
 		<PosterContainer onPress={onPosterPress}>
 			{posterImageUri && <PosterImage 
 				source={{ uri: posterImageUri }} 
-				// style={{ height: 180, width: 120, 
-				// 	marginTop: 10, marginBottom: 10,
-				// 	borderRadius: 8,
-				// }}
 			/>}
 			{showTitle && <MovieTitle>{title}{year}</MovieTitle>}
 		</PosterContainer>

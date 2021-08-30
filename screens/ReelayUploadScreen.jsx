@@ -6,9 +6,9 @@ import { Reelay } from '../src/models';
 import Constants from 'expo-constants';
 import * as MediaLibrary from 'expo-media-library';
 
-import VideoPlayer from '../components/view-reelay/VideoPlayer';
-import ReelayPreviewOverlay from '../components/overlay/ReelayPreviewOverlay';
 import BackButton from '../components/utils/BackButton';
+import PreviewVideoPlayer from '../components/create-reelay/PreviewVideoPlayer';
+import ReelayPreviewOverlay from '../components/overlay/ReelayPreviewOverlay';
 
 import { Dimensions, Text, View, SafeAreaView, Pressable } from 'react-native';
 import { ProgressBar, Switch } from 'react-native-paper';
@@ -144,7 +144,6 @@ export default ReelayUploadScreen = ({ navigation }) => {
             uploadContext.setChunksUploaded(0);
             uploadContext.setChunksTotal(0);
         }
-
     }
 
     const PageTitle = () => {
@@ -347,7 +346,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             </UploadTop>
             { uploadContext.uploading && <UploadProgressBar /> }
             <UploadVideoContainer>
-                <VideoPlayer videoURI={videoURI} playing={true} />
+                <PreviewVideoPlayer videoURI={videoURI} playing={true} />
                 <ReelayPreviewOverlay />
             </UploadVideoContainer>
             { !uploadContext.uploadComplete && !uploadContext.uploading && <UploadOptions /> }

@@ -3,7 +3,7 @@ import { Video, Audio } from 'expo-av'
 import { VideoStyles } from '../../styles';
 import { useFocusEffect } from '@react-navigation/native';
 
-export default function VideoPlayer({ 
+export default function FeedVideoPlayer({ 
 	isLooping,
 	reelay, 
 	playing, 

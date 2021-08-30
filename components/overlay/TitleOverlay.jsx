@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Dimensions, SafeAreaView, View } from 'react-native';
 import { Text } from 'react-native-elements';
 
-import Poster from '../view-reelay/Poster';
+import Poster from '../home/Poster';
 import { VisibilityContext} from '../../context/VisibilityContext';
 import styled from 'styled-components/native';
 import YoutubeVideoEmbed from '../utils/YouTubeVideoEmbed';
