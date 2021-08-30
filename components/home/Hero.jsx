@@ -11,17 +11,6 @@ import { VisibilityContext } from '../../context/VisibilityContext';
 
 const { height, width } = Dimensions.get('window');
 
-const TapLayer = ({ onTap }) => {
-    const TapLayerPressable = styled(Pressable)`
-        height: 100%;
-        width: 100%;
-        position: absolute;
-        background: transparent;
-        zIndex: 2;
-    `
-    return <TapLayerPressable onPress={onTap} />
-}
-
 const StackLocation = ({ position, length }) => {
     const StackLocationOval = styled(View)`
         align-items: flex-end;
@@ -50,8 +39,10 @@ const StackLocation = ({ position, length }) => {
 export default Hero = ({ 
     stack, 
     index, 
+    isPaused,
     feedIndex,
     feedPosition, 
+    setIsPaused,
     stackIndex,
     stackPosition,
 }) => {
@@ -65,7 +56,7 @@ export default Hero = ({
         width: 100%;
         z-index: 1;
     `
-    const Overlay = styled(View)`
+    const Overlay = styled(Pressable)`
         flex: 1;
         flex-direction: row;
         width: 100%;
@@ -77,8 +68,6 @@ export default Hero = ({
         top: 40px;
         zIndex: 3;
     `
-    const [isPaused, setIsPaused] = useState(false);
-
     const visibilityContext = useContext(VisibilityContext);
     const reelay = stack[stackIndex];
     const isPlaying = (!isPaused)
@@ -86,9 +75,12 @@ export default Hero = ({
                     && (stackIndex === stackPosition)
                     && (!visibilityContext.overlayVisible);
 
-    const playPause = () => {
-        console.log('play plause pressed');
-        isPaused ? setIsPaused(false) : setIsPaused(true);
+    const playPause = () => isPaused ? setIsPaused(false) : setIsPaused(true);
+
+    if (isPlaying) {
+        console.log(reelay.title, ' is playing');
+    } else if ((feedIndex === feedPosition) && (stackIndex === stackPosition)) {
+        console.log(reelay.title, ' is paused');
     }
 
     return (
@@ -108,12 +100,11 @@ export default Hero = ({
                     'rgba(26,26,26,0)',
                     'rgba(26,26,26,0.6)'
                 ]}>
-                <Overlay>
+                <Overlay onPress={playPause}>
                     <RightContainer>
                         <Poster reelay={reelay} showTitle={false} />
                         <StackLocation position={stackPosition} length={stack.length} />
                     </RightContainer>
-                    <TapLayer onTap={playPause} />
                     <ReelayInfo reelay={reelay} />
                 </Overlay>
             </Gradient>

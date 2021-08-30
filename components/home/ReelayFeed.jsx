@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { Dimensions, TouchableOpacity, Text, SafeAreaView, View } from 'react-native';
+import { Dimensions, Pressable, SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
 import { VisibilityContext } from '../../context/VisibilityContext';
 import Constants from 'expo-constants';
 import Sentry from 'sentry-expo';
@@ -31,16 +31,16 @@ const PagerViewContainer = styled(PagerView)`
 	height: ${height}px;
     background-color: black;
 `
-const ToolbarContainer = styled(SafeAreaView)`
-    justify-content: flex-start;
-    align-items: center;
-    flex-direction: row;
-    position: absolute;
-    z-index: 2;
-    width: ${width}px;
-`
 
-const Toolbar = ({ navigation }) => {
+const Toolbar = ({ navigation, fetchFeed, pager }) => {
+    const ToolbarContainer = styled(SafeAreaView)`
+        justify-content: flex-start;
+        align-items: center;
+        flex-direction: row;
+        position: absolute;
+        z-index: 2;
+        width: ${width}px;
+    `
     const visibilityContext = useContext(VisibilityContext);
 
     return (
@@ -62,12 +62,14 @@ const Toolbar = ({ navigation }) => {
 
 export default ReelayFeed = ({ navigation }) => {
 
+    const [feedPosition, setFeedPosition] = useState(0);
+    const [nextPage, setNextPage] = useState(0);
+    const [isPaused, setIsPaused] = useState(false);
     const [reelayList, setReelayList] = useState([]);
     const [stackList, setStackList] = useState([]);
-    const [nextPage, setNextPage] = useState(0);
-    const [feedPosition, setFeedPosition] = useState(0);
     const [stackCounter, setStackCounter] = useState(0);
     const [stackPositions, setStackPositions] = useState({});
+
     const pager = useRef();
 
     useEffect(() => {
@@ -165,16 +167,6 @@ export default ReelayFeed = ({ navigation }) => {
         return !alreadyInFeed && !alreadyInBatch;
     }
 
-    // const onLeftTap = async (reelay, position) => {
-    //     const stack = stackList.find(listedStack => listedStack[0].titleID === reelay.titleID);
-    //     const startOfStack = position === 0;
-    //     const shouldLoop = stack.length === 1;
-    //     const nextPosition = (shouldLoop) ? 0 : (startOfStack) ? stack.length - 1: position - 1; 
-    //     stackPositions[stack[0].titleID] = nextPosition;
-    //     setStackCounter(stackCounter + 1);
-    //     return shouldLoop;
-    // }
-
     const onFeedSwiped = (async (e) => {
 		setFeedPosition(e.nativeEvent.position);
 		if (e.nativeEvent.position == reelayList.length - 1) {
@@ -190,19 +182,10 @@ export default ReelayFeed = ({ navigation }) => {
         setStackCounter(stackCounter + 1);
     });
 
-    // const onReelayFinish = async (reelay, position) => {
-    //     await onRightTap(reelay, position);
-    // };
-
-    // const onRightTap = async (reelay, position) => {
-    //     const stack = stackList.find(listedStack => listedStack[0].titleID === reelay.titleID);
-    //     const endOfStack = position === stack.length - 1;
-    //     const shouldLoop = stack.length === 1;
-    //     const nextPosition = (shouldLoop || endOfStack) ? 0 : position + 1; 
-    //     stackPositions[stack[0].titleID] = nextPosition;
-    //     setStackCounter(stackCounter + 1);
-    //     return shouldLoop;
-    // }
+    const playPause = () => {
+        console.log('play plause pressed');
+        // isPaused ? setIsPaused(false) : setIsPaused(true);
+    }
 
     const prepareReelayBatch = async (fetchedReelays) => {
         const titleObjectPromises = fetchedReelays.map(async reelay => {
@@ -267,19 +250,21 @@ export default ReelayFeed = ({ navigation }) => {
                         const stackPosition = stackPositions[stack[0].titleID];
                         return (
                             <ReelayFeedContainer key={stack[0].titleID}>
-                                <PagerViewContainer initialPage={0} orientation='horizontal' onPageSelected={onStackSwiped}>
-                                    { stack.map((reelay, stackIndex) => {
-                                        return <Hero stack={stack} key={reelay.id} 
-                                                    feedIndex={feedIndex} feedPosition={feedPosition}
-                                                    stackIndex={stackIndex} stackPosition={stackPosition} />;
-                                    })}
-                                </PagerViewContainer>
+                                {/* <Pressable onPress={playPause}> */}
+                                    <PagerViewContainer initialPage={0} orientation='horizontal' onPageSelected={onStackSwiped}>
+                                        { stack.map((reelay, stackIndex) => {
+                                            return <Hero stack={stack} key={reelay.id} isPaused={isPaused} setIsPaused={setIsPaused}
+                                                        feedIndex={feedIndex} feedPosition={feedPosition}
+                                                        stackIndex={stackIndex} stackPosition={stackPosition} />;
+                                        })}
+                                    </PagerViewContainer>
+                                {/* </Pressable> */}
                             </ReelayFeedContainer>
                         );
 					})}
 				</PagerViewContainer>
 			}
-            <Toolbar />
+            <Toolbar navigation={navigation} fetchFeed={fetchFeed} pager={pager} />
 		</ReelayFeedContainer>
 	);
 }
