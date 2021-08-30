@@ -274,7 +274,6 @@ export default ReelayFeed = ({ navigation }) => {
 				<PagerViewContainer ref={pager} initialPage={0} orientation='vertical' onPageSelected={onFeedSwiped}>
 					{ stackList.map((stack, feedIndex) => {
                         const stackPosition = stackPositions[stack[0].titleID];
-
                         return (
                             <ReelayFeedContainer key={stack[0].titleID}>
                                 <PagerViewContainer initialPage={0} orientation='horizontal' onPageSelected={onStackSwiped}>

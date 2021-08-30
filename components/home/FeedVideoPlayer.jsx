@@ -43,7 +43,6 @@ export default function FeedVideoPlayer({
 		}
     }));
 
-
 	return (
 		<Video
 			isLooping={true}
