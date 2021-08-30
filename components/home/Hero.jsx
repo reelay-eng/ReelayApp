@@ -38,15 +38,15 @@ const Hero = ({
     index, 
     feedIndex,
     feedPosition, 
-    onLeftTap,
-    onRightTap,
-    onReelayFinish, 
+    // onLeftTap,
+    // onRightTap,
+    // onReelayFinish, 
     stackIndex,
     stackPosition,
 }) => {
 
     const visibilityContext = useContext(VisibilityContext);
-    const reelay = stack[stackPosition];
+    const reelay = stack[stackIndex];
     const isPlaying = (feedIndex === feedPosition)
                     && (stackIndex === stackPosition)
                     && (!visibilityContext.overlayVisible);
@@ -93,7 +93,7 @@ const Hero = ({
         <View key={index}>
             <FeedVideoPlayer
                 isLooping={stack.length === 1}
-                onReelayFinish={onReelayFinish}
+                // onReelayFinish={onReelayFinish}
                 playing={isPlaying}
                 position={stackPosition}
                 reelay={reelay}
@@ -112,8 +112,8 @@ const Hero = ({
                         <Poster reelay={reelay} showTitle={false} />
                         <StackLocation position={stackPosition} length={stack.length} />
                     </RightContainer>
-                    <TapLayer onTap={onLeftTap} />
-                    <TapLayer onTap={onRightTap} />
+                    {/* <TapLayer onTap={onLeftTap} />
+                    <TapLayer onTap={onRightTap} /> */}
                     <ReelayInfo reelay={reelay} />
                 </Overlay>
             </Gradient>

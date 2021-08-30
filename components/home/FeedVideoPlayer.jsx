@@ -8,7 +8,7 @@ export default function FeedVideoPlayer({
 	reelay, 
 	playing, 
 	position,
-	onReelayFinish,
+	// onReelayFinish,
  }) {
 	const [playbackObject, setPlaybackObject] = useState(null);
 	const [isFocused, setIsFocused] = useState(false);
@@ -33,7 +33,7 @@ export default function FeedVideoPlayer({
 
 	const onPlaybackStatusUpdate = (playbackStatus) => {
 		if (playbackStatus?.didJustFinish && !isLooping) {
-			onReelayFinish(reelay, position);
+			// onReelayFinish(reelay, position);
 		}
 	}
 

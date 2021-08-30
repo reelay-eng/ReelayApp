@@ -65,14 +65,6 @@ export default ReelayFeed = ({ navigation }) => {
         }
     }, [navigation]);
 
-	const onPageSelected = (async (e) => {
-		setFeedPosition(e.nativeEvent.position);
-		if (e.nativeEvent.position == reelayList.length - 1) {
-            console.log('fetching more reelays');
-			fetchFeed({ refresh: false });
-		}
-	});
-
     const getVideoURI = async (fetchedReelay) => {
         const videoS3Key = (fetchedReelay.videoS3Key.endsWith('.mp4')) 
                 ? fetchedReelay.videoS3Key : (fetchedReelay.videoS3Key + '.mp4');
@@ -82,16 +74,6 @@ export default ReelayFeed = ({ navigation }) => {
         const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${videoS3Key}`;
         return { id: fetchedReelay.id, signedVideoURI };
     }    
-
-    const notDuplicateInFeed = (preparedReelay, index, array) => {
-        const alreadyInFeed = (reelayList.findIndex(listReelay => {
-            return listReelay.titleID === preparedReelay.titleID;
-        }) >= 0);
-        const alreadyInBatch = (array.findIndex((batchEl, ii) => {
-            return (batchEl.titleID === preparedReelay.titleID) && (ii < index);
-        }) >= 0);
-        return !alreadyInFeed && !alreadyInBatch;
-    }
     
     const fetchFeed = async ({ refresh, batchSize = 10 }) => {
         const nextPageToFetch = refresh ? 0 : nextPage;
@@ -107,7 +89,7 @@ export default ReelayFeed = ({ navigation }) => {
             return;
         }
 
-        const preparedReelays = await loadReelays(fetchedReelays);
+        const preparedReelays = await prepareReelayBatch(fetchedReelays);
         const filteredReelays = preparedReelays.filter(notDuplicateInFeed);
         const newReelayList = refresh ? [...filteredReelays, ...reelayList] : [...reelayList, ...filteredReelays];
 
@@ -120,18 +102,6 @@ export default ReelayFeed = ({ navigation }) => {
         setStackList(newStackList);
         setNextPage(nextPage + batchSize);
         return filteredReelays;
-    }
-
-    const fetchStacks = async ({ nextReelayList, batchSize = 10 }) => {
-        const nextStacks = await Promise.all(nextReelayList.map(async (nextReelay) => {
-            const filteredReelays = await fetchReelaysForStack({
-                stack: [nextReelay], 
-                page: 0, 
-                batchSize: batchSize,
-            });
-            return [nextReelay, ...filteredReelays];
-        }));
-        return nextStacks;
     }
 
     const fetchReelaysForStack = async ({ stack, page, batchSize }) => {
@@ -149,10 +119,32 @@ export default ReelayFeed = ({ navigation }) => {
             return;
         }
     
-        const preparedReelays = await loadReelays(fetchedReelays);
+        const preparedReelays = await prepareReelayBatch(fetchedReelays);
         const notDuplicate = (element) => stack.findIndex(el => el.id == element.id) == -1;
         const filteredReelays = preparedReelays.filter(notDuplicate);
         return filteredReelays;
+    }
+
+    const fetchStacks = async ({ nextReelayList, batchSize = 10 }) => {
+        const nextStacks = await Promise.all(nextReelayList.map(async (nextReelay) => {
+            const filteredReelays = await fetchReelaysForStack({
+                stack: [nextReelay], 
+                page: 0, 
+                batchSize: batchSize,
+            });
+            return [nextReelay, ...filteredReelays];
+        }));
+        return nextStacks;
+    }
+
+    const notDuplicateInFeed = (preparedReelay, index, array) => {
+        const alreadyInFeed = (reelayList.findIndex(listReelay => {
+            return listReelay.titleID === preparedReelay.titleID;
+        }) >= 0);
+        const alreadyInBatch = (array.findIndex((batchEl, ii) => {
+            return (batchEl.titleID === preparedReelay.titleID) && (ii < index);
+        }) >= 0);
+        return !alreadyInFeed && !alreadyInBatch;
     }
 
     const onLeftTap = async (reelay, position) => {
@@ -165,6 +157,30 @@ export default ReelayFeed = ({ navigation }) => {
         return shouldLoop;
     }
 
+    const onFeedSwiped = (async (e) => {
+		setFeedPosition(e.nativeEvent.position);
+		if (e.nativeEvent.position == reelayList.length - 1) {
+            console.log('fetching more reelays');
+			fetchFeed({ refresh: false });
+		}
+	});
+
+    const onStackSwiped = (async (e) => {
+		// setStackPosition(e.nativeEvent.position);
+		// if (e.nativeEvent.position == reelayList.length - 1) {
+        //     console.log('fetching more reelays');
+		// 	fetchFeed({ refresh: false });
+		// }
+        const stackPosition = e.nativeEvent.position;
+        const titleID = stackList[feedPosition][0].titleID;
+        stackPositions[titleID] = stackPosition;
+        setStackCounter(stackCounter + 1);
+    });
+
+    const onReelayFinish = async (reelay, position) => {
+        await onRightTap(reelay, position);
+    };
+
     const onRightTap = async (reelay, position) => {
         const stack = stackList.find(listedStack => listedStack[0].titleID === reelay.titleID);
         const endOfStack = position === stack.length - 1;
@@ -175,11 +191,7 @@ export default ReelayFeed = ({ navigation }) => {
         return shouldLoop;
     }
 
-    const onReelayFinish = async (reelay, position) => {
-        await onRightTap(reelay, position);
-    };
-
-    const loadReelays = async (fetchedReelays) => {
+    const prepareReelayBatch = async (fetchedReelays) => {
         const titleObjectPromises = fetchedReelays.map(async reelay => {
             return await fetchTitleWithCredits(reelay.tmdbTitleID, reelay.isSeries);
         });
@@ -237,14 +249,28 @@ export default ReelayFeed = ({ navigation }) => {
 		<ReelayFeedContainer>
 			{ reelayList.length <1 && <ActivityIndicator /> }
 			{ reelayList.length >= 1 && 
-				<PagerViewContainer ref={pager} initialPage={0} orientation='vertical' onPageSelected={onPageSelected}>
+				<PagerViewContainer ref={pager} initialPage={0} orientation='vertical' onPageSelected={onFeedSwiped}>
 					{ stackList.map((stack, feedIndex) => {
                         const stackPosition = stackPositions[stack[0].titleID];
-						return <Hero stack={stack} key={stack[0].titleID} 
-                                    feedIndex={feedIndex} feedPosition={feedPosition}
-                                    onLeftTap={onLeftTap} onRightTap={onRightTap}
-                                    onReelayFinish={onReelayFinish}
-                                    stackIndex={stackPosition} stackPosition={stackPosition} />;
+
+                        return (
+                            <ReelayFeedContainer key={stack[0].titleID}>
+                                <PagerViewContainer initialPage={0} orientation='horizontal' onPageSelected={onStackSwiped}>
+                                    { stack.map((reelay, stackIndex) => {
+                                        return <Hero stack={stack} key={reelay.id} 
+                                                    feedIndex={feedIndex} feedPosition={feedPosition}
+                                                    onLeftTap={onLeftTap} onRightTap={onRightTap}
+                                                    onReelayFinish={onReelayFinish}
+                                                    stackIndex={stackIndex} stackPosition={stackPosition} />;
+                                    })}
+                                </PagerViewContainer>
+                            </ReelayFeedContainer>
+                        );
+						// return <Hero stack={stack} key={stack[0].titleID} 
+                        //             feedIndex={feedIndex} feedPosition={feedPosition}
+                        //             onLeftTap={onLeftTap} onRightTap={onRightTap}
+                        //             onReelayFinish={onReelayFinish}
+                        //             stackIndex={stackPosition} stackPosition={stackPosition} />;
 					})}
 				</PagerViewContainer>
 			}
