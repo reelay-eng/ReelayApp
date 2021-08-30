@@ -11,31 +11,6 @@ import { VisibilityContext } from '../../context/VisibilityContext';
 
 const { height, width } = Dimensions.get('window');
 
-const StackLocation = ({ position, length }) => {
-    const StackLocationOval = styled(View)`
-        align-items: flex-end;
-        align-self: flex-end;
-        background-color: white;
-        border-radius: 10px;
-        justify-content: center;
-        height: 20px;
-        width: 50px;
-        zIndex: 3;
-    `
-    const StackLocationText = styled(Text)`
-        align-self: center;
-        color: black;
-        font-size: 14px;
-        font-family: System;
-    `
-    const text = String(position + 1) + ' / ' + String(length);
-    return (
-        <StackLocationOval>
-            <StackLocationText>{ text }</StackLocationText>
-        </StackLocationOval>
-    );
-}
-
 export default Hero = ({ 
     stack, 
     index, 
@@ -61,12 +36,6 @@ export default Hero = ({
         flex-direction: row;
         width: 100%;
         height: 100%;
-    `
-    const RightContainer = styled(View)`
-        position: absolute;
-        left: ${width - 130}px;
-        top: 40px;
-        zIndex: 3;
     `
     const visibilityContext = useContext(VisibilityContext);
     const reelay = stack[stackIndex];
@@ -101,10 +70,6 @@ export default Hero = ({
                     'rgba(26,26,26,0.6)'
                 ]}>
                 <Overlay onPress={playPause}>
-                    <RightContainer>
-                        <Poster reelay={reelay} showTitle={false} />
-                        <StackLocation position={stackPosition} length={stack.length} />
-                    </RightContainer>
                     <ReelayInfo reelay={reelay} />
                 </Overlay>
             </Gradient>

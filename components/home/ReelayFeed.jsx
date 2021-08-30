@@ -31,6 +31,37 @@ const PagerViewContainer = styled(PagerView)`
 	height: ${height}px;
     background-color: black;
 `
+const TopRightContainer = styled(View)`
+    position: absolute;
+    left: ${width - 130}px;
+    top: 40px;
+    zIndex: 3;
+`
+
+const StackLocation = ({ position, length }) => {
+    const StackLocationOval = styled(View)`
+        align-items: flex-end;
+        align-self: flex-end;
+        background-color: white;
+        border-radius: 10px;
+        justify-content: center;
+        height: 20px;
+        width: 50px;
+        zIndex: 3;
+    `
+    const StackLocationText = styled(Text)`
+        align-self: center;
+        color: black;
+        font-size: 14px;
+        font-family: System;
+    `
+    const text = String(position + 1) + ' / ' + String(length);
+    return (
+        <StackLocationOval>
+            <StackLocationText>{ text }</StackLocationText>
+        </StackLocationOval>
+    );
+}
 
 const Toolbar = ({ navigation, fetchFeed, pager }) => {
     const ToolbarContainer = styled(SafeAreaView)`
@@ -182,11 +213,6 @@ export default ReelayFeed = ({ navigation }) => {
         setStackCounter(stackCounter + 1);
     });
 
-    const playPause = () => {
-        console.log('play plause pressed');
-        // isPaused ? setIsPaused(false) : setIsPaused(true);
-    }
-
     const prepareReelayBatch = async (fetchedReelays) => {
         const titleObjectPromises = fetchedReelays.map(async reelay => {
             return await fetchTitleWithCredits(reelay.tmdbTitleID, reelay.isSeries);
@@ -248,17 +274,20 @@ export default ReelayFeed = ({ navigation }) => {
 				<PagerViewContainer ref={pager} initialPage={0} orientation='vertical' onPageSelected={onFeedSwiped}>
 					{ stackList.map((stack, feedIndex) => {
                         const stackPosition = stackPositions[stack[0].titleID];
+
                         return (
                             <ReelayFeedContainer key={stack[0].titleID}>
-                                {/* <Pressable onPress={playPause}> */}
-                                    <PagerViewContainer initialPage={0} orientation='horizontal' onPageSelected={onStackSwiped}>
-                                        { stack.map((reelay, stackIndex) => {
-                                            return <Hero stack={stack} key={reelay.id} isPaused={isPaused} setIsPaused={setIsPaused}
-                                                        feedIndex={feedIndex} feedPosition={feedPosition}
-                                                        stackIndex={stackIndex} stackPosition={stackPosition} />;
-                                        })}
-                                    </PagerViewContainer>
-                                {/* </Pressable> */}
+                                <PagerViewContainer initialPage={0} orientation='horizontal' onPageSelected={onStackSwiped}>
+                                    { stack.map((reelay, stackIndex) => {
+                                        return <Hero stack={stack} key={reelay.id} isPaused={isPaused} setIsPaused={setIsPaused}
+                                                    feedIndex={feedIndex} feedPosition={feedPosition}
+                                                    stackIndex={stackIndex} stackPosition={stackPosition} />;
+                                    })}
+                                </PagerViewContainer>
+                                <TopRightContainer>
+                                    <Poster reelay={stack[stackPosition]} showTitle={false} />
+                                    <StackLocation position={stackPosition} length={stack.length} />
+                                </TopRightContainer>
                             </ReelayFeedContainer>
                         );
 					})}
