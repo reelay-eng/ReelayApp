@@ -4,11 +4,9 @@ import { VideoStyles } from '../../styles';
 import { useFocusEffect } from '@react-navigation/native';
 
 export default function FeedVideoPlayer({ 
-	isLooping,
-	reelay, 
 	playing, 
-	position,
-	// onReelayFinish,
+	reelay, 
+	shouldResetPlayhead,
  }) {
 	const [playbackObject, setPlaybackObject] = useState(null);
 	const [isFocused, setIsFocused] = useState(false);
@@ -17,42 +15,50 @@ export default function FeedVideoPlayer({
 		playsInSilentModeIOS: true,
 		interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
 		interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
-	})
+	});
+
+	const _handleVideoRef = async (component) => {
+		const playbackObject = component;
+		setPlaybackObject(playbackObject);
+		if (playbackObject && shouldResetPlayhead) {
+			try {
+				playbackObject.setPositionAsync(0);
+			} catch (e) {
+				console.log(e);
+			}
+		}
+	}
 
     useFocusEffect(React.useCallback(() => {
 		setIsFocused(true);
         return () => {
 			setIsFocused(false);
+			if (playbackObject && shouldResetPlayhead) {
+				try {
+					playbackObject.setPositionAsync(0);
+				} catch (e) {
+					console.log(e);
+				}
+			}
 		}
     }));
 
-	const _handleVideoRef = async (component) => {
-		const playbackObject = component;
-		setPlaybackObject(playbackObject);
-	}
-
-	const onPlaybackStatusUpdate = (playbackStatus) => {
-		if (playbackStatus?.didJustFinish && !isLooping) {
-			// onReelayFinish(reelay, position);
-		}
-	}
 
 	return (
-			<Video
-				isLooping={true}
-				isMuted={false}
-				onPlaybackStatusUpdate={onPlaybackStatusUpdate}
-				progressUpdateIntervalMillis={50}
-				rate={1.0}
-				ref={(component) => _handleVideoRef(component)}
-				resizeMode='cover'
-				shouldDuckAndroid={true}
-				shouldPlay={playing && isFocused}
-				source={{ uri: reelay.videoURI }}
-				staysActiveInBackground={false}
-				style={VideoStyles.video}
-				useNativeControls={false}
-				volume={1.0}
-			/>
+		<Video
+			isLooping={true}
+			isMuted={false}
+			progressUpdateIntervalMillis={50}
+			rate={1.0}
+			ref={(component) => _handleVideoRef(component)}
+			resizeMode='cover'
+			shouldDuckAndroid={true}
+			shouldPlay={playing && isFocused}
+			source={{ uri: reelay.videoURI }}
+			staysActiveInBackground={false}
+			style={VideoStyles.video}
+			useNativeControls={false}
+			volume={1.0}
+		/>
 	);
 }

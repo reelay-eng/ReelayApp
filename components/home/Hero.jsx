@@ -44,6 +44,9 @@ export default Hero = ({
                     && (stackIndex === stackPosition)
                     && (!visibilityContext.overlayVisible);
 
+    const shouldResetPlayhead = (feedIndex !== feedPosition) 
+                    || (stackIndex !== stackPosition);
+
     const playPause = () => isPaused ? setIsPaused(false) : setIsPaused(true);
 
     if (isPlaying) {
@@ -55,10 +58,9 @@ export default Hero = ({
     return (
         <View key={index}>
             <FeedVideoPlayer
-                isLooping={stack.length === 1}
                 playing={isPlaying}
-                position={stackPosition}
                 reelay={reelay}
+                shouldResetPlayhead={shouldResetPlayhead}
             >
             </FeedVideoPlayer>
             <Gradient
