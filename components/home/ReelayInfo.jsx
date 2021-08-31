@@ -2,6 +2,7 @@ import React from 'react';
 import { Text, View } from 'react-native';
 import styled from 'styled-components/native';
 
+import moment from 'moment';
 
 export default ReelayInfo = ({ reelay }) => {
 
@@ -10,43 +11,52 @@ export default ReelayInfo = ({ reelay }) => {
 		justify-content: flex-end;
 		margin: 0 0 120px 13px;
 	`
-	const User = styled(View)`
+	const PostInfo = styled(View)`
 		flex-direction: row;
 		align-items: center;
 	`
 	const Username = styled(Text)`
-		font-size: 17px;
+		align-self: flex-end;
+		font-size: 19px;
 		color: rgba(255, 255, 255, 1);
 		text-shadow: 3px 3px 3px rgba(0, 0, 0, 0.1);
 		font-weight: bold;
 		letter-spacing: -0.3px;
 	`
-	const Movie = styled(View)`
+	const Timestamp = styled(Text)`
+		align-self: flex-end;
+		color: rgba(255, 255, 255, 1.2);
+		font-size: 16px;
+		letter-spacing: -0.2px;
+		margin-left: 10px;
+		width: 80%;
+	`
+	const TitleInfo = styled(View)`
 		flex-direction: row;
 		align-items: center;
 	`
-	const MovieTitle = styled(Text)`
-		font-size: 17px;
+	const Title = styled(Text)`
+		font-size: 18px;
 		color: rgba(255, 255, 255, 1.2);
 		letter-spacing: -0.2px;
 		margin-top: 6px;
 		width: 80%;
 	`
 
-	const title = (reelay.title) ? reelay.title : 'Title not found\ ';
+	const displayTitle = (reelay.title) ? reelay.title : 'Title not found\ ';
 	const year = (reelay.releaseYear) ? reelay.releaseYear : '';
 	const creator = reelay.creator;
+	const timestamp = moment(reelay.postedDateTime).fromNow();
 
 	return (
 		<InfoView>
-			<User>
+			<PostInfo>
 				<Username>@{creator?.username}</Username>
-			</User>
-			<Movie>
-				<MovieTitle>
-					<Text>{title} ({year})</Text>
-				</MovieTitle>
-			</Movie>
+				<Timestamp>{timestamp}</Timestamp>
+			</PostInfo>
+			<TitleInfo>
+				<Title>{displayTitle} ({year})</Title>
+			</TitleInfo>
 		</InfoView>
 	);
 }

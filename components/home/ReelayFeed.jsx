@@ -43,16 +43,16 @@ const StackLocation = ({ position, length }) => {
         align-items: flex-end;
         align-self: flex-end;
         background-color: white;
-        border-radius: 10px;
+        border-radius: 12px;
         justify-content: center;
-        height: 20px;
-        width: 50px;
+        height: 22px;
+        width: 60px;
         zIndex: 3;
     `
     const StackLocationText = styled(Text)`
         align-self: center;
         color: black;
-        font-size: 14px;
+        font-size: 16px;
         font-family: System;
     `
     const text = String(position + 1) + ' / ' + String(length);
