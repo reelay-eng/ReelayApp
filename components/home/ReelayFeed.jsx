@@ -12,7 +12,7 @@ import { ActivityIndicator } from 'react-native-paper';
 import { DataStore, SortDirection, Storage } from 'aws-amplify';
 
 import SettingsButton from '../overlay/SettingsButton';
-import ReelayOverlay from '../overlay/ReelayOverlay';
+import FeedOverlay from '../overlay/FeedOverlay';
 import Hero from './Hero';
 
 import { Reelay } from '../../src/models';
@@ -64,25 +64,6 @@ const StackLocation = ({ position, length }) => {
     );
 }
 
-const Toolbar = ({ navigation, fetchFeed, pager }) => {
-    const ToolbarContainer = styled(SafeAreaView)`
-        justify-content: flex-start;
-        align-items: center;
-        flex-direction: row;
-        position: absolute;
-        z-index: 2;
-        width: ${width}px;
-    `
-    const visibilityContext = useContext(VisibilityContext);
-
-    return (
-        <ToolbarContainer>
-            <SettingsButton navigation={navigation} />
-            {visibilityContext.overlayVisible && <ReelayOverlay navigation={navigation} />}
-        </ToolbarContainer>
-    );
-}
-
 export default ReelayFeed = ({ navigation, refreshIndex }) => {
 
     const [feedPosition, setFeedPosition] = useState(0);
@@ -93,6 +74,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
     const [stackCounter, setStackCounter] = useState(0);
     const [stackPositions, setStackPositions] = useState({});
 
+    const visibilityContext = useContext(VisibilityContext);
     const pager = useRef();
 
     useEffect(() => {
@@ -301,7 +283,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
 					})}
 				</PagerViewContainer>
 			}
-            <Toolbar navigation={navigation} fetchFeed={fetchFeed} pager={pager} />
+            {visibilityContext.overlayVisible && <FeedOverlay navigation={navigation} />}
 		</ReelayFeedContainer>
 	);
 }

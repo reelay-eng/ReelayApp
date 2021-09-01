@@ -48,6 +48,16 @@ export default Hero = ({
                     || (stackIndex !== stackPosition);
 
     const playPause = () => isPaused ? setIsPaused(false) : setIsPaused(true);
+    const setReelayOverlay = (e) => {
+        console.log('setting reelay overlay');
+        if (!visibilityContext.overlayVisible) {
+            visibilityContext.setOverlayData({
+                type: 'REELAY',
+                reelay: reelay,
+            });
+            visibilityContext.setOverlayVisible(true);
+        }
+    }
 
     if (isPlaying) {
         console.log(reelay.title, ' is playing');
@@ -71,7 +81,7 @@ export default Hero = ({
                     'rgba(26,26,26,0)',
                     'rgba(26,26,26,0.6)'
                 ]}>
-                <Overlay onPress={playPause}>
+                <Overlay onPress={playPause} onLongPress={setReelayOverlay}>
                     <ReelayInfo reelay={reelay} />
                 </Overlay>
             </Gradient>
