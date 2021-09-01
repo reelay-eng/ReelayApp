@@ -17,6 +17,7 @@ import Hero from './Hero';
 
 import { Reelay } from '../../src/models';
 import { fetchTitleWithCredits, getDirector, getDisplayActors } from '../../api/TMDbApi';
+import { showMessageToast } from '../utils/toasts';
 
 // Please move these into an environment variable (preferably injected via your build step)
 const CLOUDFRONT_BASE_URL = 'https://di92fpd9s7eko.cloudfront.net';
@@ -77,21 +78,12 @@ const Toolbar = ({ navigation, fetchFeed, pager }) => {
     return (
         <ToolbarContainer>
             <SettingsButton navigation={navigation} />
-            <TouchableOpacity
-                style={{ margin: 10 }}
-                onPress={() => {
-                    console.log('fetching most recent');
-                    fetchFeed({ refresh: true});
-                    if (pager && pager.current) pager.current.setPage(0);
-                }}>
-                <Ionicons name="refresh-sharp" size={24} color="white" />
-            </TouchableOpacity>
             {visibilityContext.overlayVisible && <ReelayOverlay navigation={navigation} />}
         </ToolbarContainer>
     );
 }
 
-export default ReelayFeed = ({ navigation }) => {
+export default ReelayFeed = ({ navigation, refreshIndex }) => {
 
     const [feedPosition, setFeedPosition] = useState(0);
     const [nextPage, setNextPage] = useState(0);
@@ -115,6 +107,23 @@ export default ReelayFeed = ({ navigation }) => {
             console.log('feed already loaded');
         }
     }, [navigation]);
+
+    useEffect(() => {
+        const unsubscribe = navigation.dangerouslyGetParent().addListener('tabPress', e => {
+			e.preventDefault();
+            if (pager && pager.current) {
+                if (feedPosition === 0) {
+                    console.log('refreshing feed');
+                    fetchFeed({ refresh: true });
+                    showMessageToast('You\'re at the top');
+                } else {
+                    console.log('setting page 0');
+                    pager.current.setPage(0);
+                }
+            }
+        });
+        return unsubscribe;
+    }, [navigation, feedPosition]);
 
     const getVideoURI = async (fetchedReelay) => {
         const videoS3Key = (fetchedReelay.videoS3Key.endsWith('.mp4')) 
@@ -151,7 +160,7 @@ export default ReelayFeed = ({ navigation }) => {
         
         setReelayList(newReelayList);
         setStackList(newStackList);
-        setNextPage(nextPage + batchSize);
+        if (!refresh) setNextPage(nextPage + batchSize);
         return filteredReelays;
     }
 
@@ -198,20 +207,20 @@ export default ReelayFeed = ({ navigation }) => {
         return !alreadyInFeed && !alreadyInBatch;
     }
 
-    const onFeedSwiped = (async (e) => {
+    const onFeedSwiped = async (e) => {
 		setFeedPosition(e.nativeEvent.position);
 		if (e.nativeEvent.position == reelayList.length - 1) {
             console.log('fetching more reelays');
 			fetchFeed({ refresh: false });
 		}
-	});
+	};
 
-    const onStackSwiped = (async (e) => {
+    const onStackSwiped = async (e) => {
         const stackPosition = e.nativeEvent.position;
         const titleID = stackList[feedPosition][0].titleID;
         stackPositions[titleID] = stackPosition;
         setStackCounter(stackCounter + 1);
-    });
+    };
 
     const prepareReelayBatch = async (fetchedReelays) => {
         const titleObjectPromises = fetchedReelays.map(async reelay => {
