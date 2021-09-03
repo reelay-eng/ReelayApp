@@ -7,7 +7,7 @@ import TitleOverlay from './TitleOverlay';
 import ReelayOverlay from './ReelayOverlay';
 import styled from 'styled-components/native';
 
-export default FeedOverlay = ({ navigation }) => {
+export default FeedOverlay = ({ navigation, onDeleteReelay }) => {
 
     const OverlayPressable = styled(Pressable)`
         height: 100%;
@@ -31,7 +31,10 @@ export default FeedOverlay = ({ navigation }) => {
                     <TitleOverlay navigation={navigation} style={{backgroundColor: 'rgba(0,0,0,1.0)'}} />
                 }
                 { visibilityContext.overlayData?.type == 'REELAY' &&
-                    <ReelayOverlay navigation={navigation} reelay={visibilityContext.overlayData?.reelay} style={{backgroundColor: 'rgba(0,0,0,1.0)'}} />
+                    <ReelayOverlay navigation={navigation} 
+                                reelay={visibilityContext.overlayData?.reelay} 
+                                onDeleteReelay={onDeleteReelay}
+                                style={{backgroundColor: 'rgba(0,0,0,1.0)'}} />
                 }
             </OverlayPressable>
         </Overlay>

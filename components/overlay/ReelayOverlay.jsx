@@ -1,41 +1,30 @@
 import React, { useContext, useState } from 'react';
 import { Pressable, View, SafeAreaView } from 'react-native';
 import { Icon, Text } from 'react-native-elements';
-import ReelayAvatar from '../utils/ReelayAvatar';
+// import { DataStore } from 'aws-amplify';
+// import { Reelay } from '../../src/models';
+import Constants from 'expo-constants';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
 import { VisibilityContext } from '../../context/VisibilityContext';
-import Sentry from 'sentry-expo';
 
 import styled from 'styled-components/native';
+import { showMessageToast } from '../utils/toasts';
 
-export default ReelayOverlay = ({ navigation, reelay }) => {
+import * as Amplitude from 'expo-analytics-amplitude';
+
+export default ReelayOverlay = ({ navigation, reelay, onDeleteReelay }) => {
+
+    const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
     const [confirmHide, setConfirmHide] = useState(false);
 
     const authContext = useContext(AuthContext);
     const visibilityContext = useContext(VisibilityContext);
     const canHideReelay = (reelay.creator.username === authContext.user.username)
-                        || (reelay.creator.username === 'immigrantfilm');
+                        || (authContext.user.username === 'immigrantfilm');
 
-    const AvatarView = styled(View)`
-        height: 30px;
-        margin-top: 10px;
-        width: 30px;
-    `
-    const AvatarPressable = styled(Pressable)`
-        width: 100%;
-        height: 100%;
-    `
-    const SettingsHeader = styled(View)`
-        align-items: center;
-        flex-direction: row;
-        justify-content: center;
-        margin-bottom: 40px;
-        width: 100%;
-        z-index: 2;
-    `
     const SettingsContainer = styled(SafeAreaView)`
         height: 100%;
         width: 100%;
@@ -56,8 +45,10 @@ export default ReelayOverlay = ({ navigation, reelay }) => {
 
     const signOut = async () => {
         // todo: confirm sign out
-
         try {
+            Amplitude.logEventWithPropertiesAsync('signOut', {
+                username: authContext.user.username,
+            });
             const signOutResult = await Auth.signOut();
             authContext.setSignedIn(false);
             authContext.setUser({});
@@ -76,6 +67,21 @@ export default ReelayOverlay = ({ navigation, reelay }) => {
 
     const confirmHideReelay = async () => {
         console.log('confirming delete reelay');
+        Amplitude.logEventWithPropertiesAsync('deleteReelay', {
+            username: authContext.user.username,
+            reelayID: reelay.id,
+            title: reelay.title,
+        });
+        onDeleteReelay(reelay);
+        visibilityContext.setOverlayVisible(false);
+        if (authContext.user.username === 'immigrantfilm') {
+            if (reelay.titleID % 4 === 0) showMessageToast('Nice kill, Sergio');
+            if (reelay.titleID % 4 === 1) showMessageToast('HEADSHOT. Bloody, but good work');
+            if (reelay.titleID % 4 === 2) showMessageToast('Don\'t you just want to burn it all?');
+            if (reelay.titleID % 4 === 3) showMessageToast('This Reelay is no more');
+        } else {
+            showMessageToast('Your Reelay is no more');
+        }
     }
 
     const renderBaseOptions = () => {
@@ -88,7 +94,7 @@ export default ReelayOverlay = ({ navigation, reelay }) => {
                 </SettingsPressable>
                 { canHideReelay && 
                     <SettingsPressable onPress={hideReelay}>
-                        <SettingsText>{'Hide Reelay'}</SettingsText>
+                        <SettingsText>{'Delete Reelay'}</SettingsText>
                     </SettingsPressable>
                 }
                 <SettingsPressable onPress={signOut}>
@@ -101,12 +107,21 @@ export default ReelayOverlay = ({ navigation, reelay }) => {
     const renderConfirmHide = () => {
         return (
             <SettingsContainer>
-                <SettingsPressable onPress={() => {}}>
-                    <SettingsText>{'Confirm Delete'}</SettingsText>
+                <SettingsText>{'Are you sure you want to delete this reelay?'}</SettingsText>
+                <SettingsPressable onPress={confirmHideReelay}>
+                    <SettingsText>{'Confirm deletion'}</SettingsText>
                 </SettingsPressable>
                 <SettingsPressable onPress={() => { setConfirmHide(false) }}>
                     <SettingsText>{'Cancel'}</SettingsText>
                 </SettingsPressable>
+            </SettingsContainer>
+        );
+    }
+
+    const renderDeleted = () => {
+        return (
+            <SettingsContainer>
+                <SettingsText>{'Your Reelay has been deleted.'}</SettingsText>
             </SettingsContainer>
         );
     }

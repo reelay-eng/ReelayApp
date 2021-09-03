@@ -8,6 +8,8 @@ import { showErrorToast } from '../components/utils/toasts';
 import { AuthButton, AuthHeaderLeft, AuthHeaderView, AuthInput, SystemText } from '../components/utils/AuthComponents';
 import BackButton from '../components/utils/BackButton';
 
+import * as Amplitude from 'expo-analytics-amplitude';
+
 export default SignUpScreen = ({ navigation, route }) => {
 
     const SIGN_UP_ERROR_MESSAGE = 'Couldn\'t create an account. Try a different username?';
@@ -36,7 +38,10 @@ export default SignUpScreen = ({ navigation, route }) => {
             console.log('user created');
             console.log(result.user);
             authContext.setUsername(username);
-            navigation.push('ConfirmEmailScreen');    
+            navigation.push('ConfirmEmailScreen');
+            Amplitude.logEventWithPropertiesAsync('signUp', {
+                username: authContext.user.username,
+            });
         }).catch((error) => {
             console.log('Couldn\'t sign up user');
             console.log(error);

@@ -47,15 +47,6 @@ export default function AuthenticatedNavigator() {
       <BottomTab.Screen
         name="Home"
         component={HomeTabNavigator}
-        // listeners={({ navigation, route }) => ({
-        //   tabPress: (e) => {
-        //     // Prevent default action
-        //     e.preventDefault();
-        //     console.log('tab pressed');
-        //     console.log(e);
-        //     navigation.navigate('HomeFeedScreen', { refreshCount: 1 });
-        //   },
-        // })}
         options={{
           tabBarIcon: () => <Icon type='ionicon' name='film-outline' color={'white'} size={50} />,
         }}

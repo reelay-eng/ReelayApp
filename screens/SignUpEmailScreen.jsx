@@ -20,6 +20,9 @@ export default SignUpEmailScreen = ({ navigation }) => {
         const errors = validate({ emailAddress: email }, constraints);
         if (!errors) {
             navigation.push('SignUpScreen', { email });
+            Amplitude.logEventWithPropertiesAsync('signUpStarted', {
+                email: email,
+            });
         } else {
             if (errors.emailAddress && errors.emailAddress[0]) {
                 showErrorToast(errors.emailAddress[0], false);

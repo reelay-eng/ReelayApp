@@ -40,12 +40,24 @@ export default Poster = ({ reelay, showTitle }) => {
 	const onPosterPress = () => {
 		if (visibilityContext.overlayVisible) {
 			visibilityContext.setOverlayVisible(false);
+			Amplitude.logEventWithPropertiesAsync('closedOverlay', {
+                username: authContext.user.username,
+				reelayID: reelay.id,
+				reelayCreator: reelay.creator.username,
+                title: reelay.title,
+            });
 		} else {
 			visibilityContext.setOverlayData({
 				type: 'TITLE',
 				reelay: reelay,
 			});
 			visibilityContext.setOverlayVisible(true);	
+			Amplitude.logEventWithPropertiesAsync('openedOverlay', {
+                username: authContext.user.username,
+				reelayID: reelay.id,
+				reelayCreator: reelay.creator.username,
+                title: reelay.title,
+            });
 		}
 	}
 

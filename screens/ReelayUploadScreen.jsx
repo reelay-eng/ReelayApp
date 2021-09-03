@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { AuthContext } from '../context/AuthContext';
 import { UploadContext } from '../context/UploadContext';
 import { Auth, DataStore, Storage } from 'aws-amplify';
 import { Reelay } from '../src/models';
@@ -14,6 +15,8 @@ import { Dimensions, Text, View, SafeAreaView, Pressable } from 'react-native';
 import { ProgressBar, Switch } from 'react-native-paper';
 
 import styled from 'styled-components/native';
+
+import * as Amplitude from 'expo-analytics-amplitude';
 
 const { height, width } = Dimensions.get('window');
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
@@ -49,6 +52,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
     const [hasSavePermission, setHasSavePermission] = useState(null);
     const [saveToDevice, setSaveToDevice] = useState(false);
 
+    const authContext = useContext(AuthContext);
     const uploadContext = useContext(UploadContext);
     const titleObject = uploadContext.uploadTitleObject;
     const videoURI = uploadContext.uploadVideoSource;
@@ -67,6 +71,12 @@ export default ReelayUploadScreen = ({ navigation }) => {
             console.log('No video to upload.');
             return;
         }
+
+        Amplitude.logEventWithPropertiesAsync('publishReelayStarted', {
+            username: authContext.user.username,
+            title: titleObject.title ? titleObject.title : titleObject.name,
+        });
+
         if (saveToDevice && !hasSavePermission) {
             try {
                 const { status } = await MediaLibrary.requestPermissionsAsync();
@@ -74,6 +84,10 @@ export default ReelayUploadScreen = ({ navigation }) => {
                 MediaLibrary.saveToLibraryAsync(videoURI);
             } catch (error) {
                 console.log('Could not save to local device...');
+                Amplitude.logEventWithPropertiesAsync('saveToDeviceFailed', {
+                    username: authContext.user.username,
+                    title: titleObject.title ? titleObject.title : titleObject.name,
+                });
             }    
         }
 
@@ -133,6 +147,11 @@ export default ReelayUploadScreen = ({ navigation }) => {
             console.log(uploadStatusDataStore);
             console.log('Upload dialog complete.');
 
+            Amplitude.logEventWithPropertiesAsync('publishReelayComplete', {
+                username: authContext.user.username,
+                title: titleObject.title ? titleObject.title : titleObject.name,
+            });
+
 
         } catch (error) {
             // todo: better error catching
@@ -143,6 +162,11 @@ export default ReelayUploadScreen = ({ navigation }) => {
             
             uploadContext.setChunksUploaded(0);
             uploadContext.setChunksTotal(0);
+
+            Amplitude.logEventWithPropertiesAsync('uploadFailed', {
+                username: authContext.user.username,
+                title: titleObject.title ? titleObject.title : titleObject.name,
+            });
         }
     }
 
@@ -158,7 +182,13 @@ export default ReelayUploadScreen = ({ navigation }) => {
             color: white;
         `
         return (
-            <PageTitleContainer onPress={() => { navigation.pop() }}>
+            <PageTitleContainer onPress={() => { 
+                Amplitude.logEventWithPropertiesAsync('retake', {
+                    username: authContext.user.username,
+                    title: titleObject.title ? titleObject.title : titleObject.name,
+                });
+                navigation.pop();
+            }}>
                 <PageTitleText>{'Retake'}</PageTitleText>
             </PageTitleContainer>
         );

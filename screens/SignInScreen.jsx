@@ -29,10 +29,16 @@ export default SignInScreen = ({ navigation }) => {
             authContext.setUsername(user.username);
             authContext.setSignedIn(true);
             console.log('Signed in user successfully');
+            Amplitude.logEventWithPropertiesAsync('signInSuccessful', {
+                username: user.username,
+            });
         }).catch((error) => {
             console.log('Couldn\'t sign in user');
             console.log(error);
             showErrorToast(SIGN_IN_ERROR_MESSAGE);
+            Amplitude.logEventWithPropertiesAsync('signInFailed', {
+                username: username,
+            });
         });
     }
 

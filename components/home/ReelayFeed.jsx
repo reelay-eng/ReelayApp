@@ -1,8 +1,7 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { Dimensions, Text, View } from 'react-native';
 import { VisibilityContext } from '../../context/VisibilityContext';
 import Constants from 'expo-constants';
-import Sentry from 'sentry-expo';
 
 import * as Amplitude from 'expo-analytics-amplitude';
 import { AuthContext } from '../../context/AuthContext';
@@ -85,7 +84,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
             try {
                 fetchFeed({ refresh: false });
             } catch (error) {
-                Sentry.Native.captureException(error);
+                console.log(error);
             }
         } else {
             console.log('feed already loaded');
@@ -196,6 +195,33 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
         }) >= 0);
         return !alreadyInFeed && !alreadyInBatch;
     }
+
+    const onDeleteReelay = async (reelay) => {
+        const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY).id('eq', String(reelay.id));
+        const queryResponse = await DataStore.query(Reelay, queryConstraints);
+
+        if (!queryResponse || queryResponse.length === 0) {
+            console.log('No query response');
+            showErrorToast('Could not find your Reelay in the database. Strange...');
+            return;
+        }
+
+        const fetchedReelay = queryResponse[0];
+        await DataStore.save(Reelay.copyOf(fetchedReelay, updated => {
+            updated.visibility = 'hidden';
+        }));
+
+        const feedDeletePosition = stackList.findIndex(stack => stack[0].titleID === reelay.titleID);
+        const stack = stackList[feedDeletePosition];
+
+        if (stack.length === 1) {
+            setStackList(stackList.filter(stack => stack[0].id !== reelay.id));
+        } else {
+            const nextStack = stack.filter(nextReelay => nextReelay.id !== reelay.id);
+            stackList[feedDeletePosition] = nextStack;
+            setStackCounter(stackCounter + 1);
+        }
+    };
 
     const onFeedSwiped = async (e) => {
         const prevReelay = getReelayInFeed(feedPosition);
@@ -321,7 +347,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
 					})}
 				</PagerViewContainer>
 			}
-            {visibilityContext.overlayVisible && <FeedOverlay navigation={navigation} />}
+            {visibilityContext.overlayVisible && <FeedOverlay navigation={navigation} onDeleteReelay={onDeleteReelay} />}
 		</ReelayFeedContainer>
 	);
 }

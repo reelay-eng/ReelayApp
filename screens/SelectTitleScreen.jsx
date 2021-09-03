@@ -24,9 +24,9 @@ export default SelectTitleScreen = ({ navigation }) => {
     `
     const [searchText, setSearchText] = useState('');
     const [searchResults, setSearchResults] = useState([]);
-    const [searchType, setSearchType] = useState('Movie');
+    const [searchType, setSearchType] = useState('Film');
 
-    const MovieSeriesSelector = ({ type }) => {
+    const FilmTVSelector = ({ type }) => {
 
         const textDecorationLine = (searchType === type) ? 'underline' : 'none';
 
@@ -55,7 +55,7 @@ export default SelectTitleScreen = ({ navigation }) => {
     const updateSearch = async (newSearchText, type=searchType) => {
         setSearchText(newSearchText);
         try {
-            if (type == 'Movie') {
+            if (type == 'Film') {
                 setSearchResults(await searchMovies(newSearchText)); 
             } else {
                 setSearchResults(await searchSeries(newSearchText)); 
@@ -69,8 +69,8 @@ export default SelectTitleScreen = ({ navigation }) => {
         <SafeAreaView style={{ backgroundColor: 'black', height: '100%', width: '100%'}}>
             <TopBarContainer>
                 <SelectorBarContainer>
-                    <MovieSeriesSelector type='Series' />
-                    <MovieSeriesSelector type='Movie' />
+                    <FilmTVSelector type='Film' />
+                    <FilmTVSelector type='TV' />
                 </SelectorBarContainer>
                 <BackButton navigation={navigation} />
 

@@ -165,7 +165,7 @@ export const fetchSeriesTrailerURI = async(titleID) => {
     }
 }
 
-export const fetchTitleWithCredits = async(titleID, isSeries) => {
+export const fetchTitleWithCredits = async (titleID, isSeries) => {
     if (!titleID) return null;
     const titleObject = isSeries 
         ? await fetchSeries(titleID)

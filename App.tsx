@@ -76,7 +76,7 @@ function App() {
       .then((user) => {
         setUser(user);
         setSignedIn(true);
-        
+
         Amplitude.logEventWithPropertiesAsync('login', {
           username: user.username,
         });    
@@ -96,9 +96,6 @@ function App() {
     
     console.log('authentication complete');
     setIsLoading(false);
-
-    // const mixpanel = new Mixpanel("67fe41ffea33a824eb7e50269c388869");
-    // mixpanel.init();
 
   }, []);
 
@@ -155,20 +152,16 @@ function App() {
     );
   } else {
     return (
-      // <Sentry.Native.TouchEventBoundary>
         <SafeAreaProvider>
           <AuthContext.Provider value={authState}>
             <VisibilityContext.Provider value={visibilityState}>
               <UploadContext.Provider value={uploadState}>
-                {/* <Provider store={store}> */}
                   <StatusBar hidden={true} />
                   <Navigation colorScheme={colorScheme} />
-                {/* </Provider> */}
               </UploadContext.Provider>
             </VisibilityContext.Provider>
           </AuthContext.Provider>
         </SafeAreaProvider>
-      // </Sentry.Native.TouchEventBoundary>
     );
   }
 }
