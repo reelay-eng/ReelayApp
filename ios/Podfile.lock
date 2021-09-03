@@ -1,6 +1,6 @@
 PODS:
   - Amplitude (8.2.0)
-  - amplitude-react-native (2.3.2):
+  - amplitude-react-native (2.4.0):
     - Amplitude (= 8.2.0)
     - React-Core
   - boost-for-react-native (1.63.0)
@@ -32,6 +32,9 @@ PODS:
     - ExpoModulesCore
     - React-Core
     - UMCore
+  - EXImagePicker (10.2.2):
+    - ExpoModulesCore
+    - UMCore
   - EXKeepAwake (9.2.0):
     - UMCore
   - EXLinearGradient (9.2.0):
@@ -39,6 +42,9 @@ PODS:
   - EXMediaLibrary (12.1.2):
     - ExpoModulesCore
     - React-Core
+    - UMCore
+  - EXPermissions (12.1.1):
+    - ExpoModulesCore
     - UMCore
   - ExpoModulesCore (0.2.0):
     - ExpoModulesCore/Core (= 0.2.0)
@@ -85,7 +91,7 @@ PODS:
   - Mixpanel-swift (2.9.3):
     - Mixpanel-swift/Complete (= 2.9.3)
   - Mixpanel-swift/Complete (2.9.3)
-  - MixpanelReactNative (1.3.1):
+  - MixpanelReactNative (1.3.2):
     - Mixpanel-swift (= 2.9.3)
     - React
   - RCTRequired (0.63.4)
@@ -397,9 +403,11 @@ DEPENDENCIES:
   - EXFileSystem (from `../node_modules/expo-file-system/ios`)
   - EXFont (from `../node_modules/expo-font/ios`)
   - EXImageLoader (from `../node_modules/expo-image-loader/ios`)
+  - EXImagePicker (from `../node_modules/expo-image-picker/ios`)
   - EXKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - EXLinearGradient (from `../node_modules/expo-linear-gradient/ios`)
   - EXMediaLibrary (from `../node_modules/expo-media-library/ios`)
+  - EXPermissions (from `../node_modules/expo-permissions/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core/ios`)
   - EXRandom (from `../node_modules/expo-random/ios`)
   - EXSplashScreen (from `../node_modules/expo-splash-screen/ios`)
@@ -484,12 +492,16 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-font/ios"
   EXImageLoader:
     :path: "../node_modules/expo-image-loader/ios"
+  EXImagePicker:
+    :path: "../node_modules/expo-image-picker/ios"
   EXKeepAwake:
     :path: "../node_modules/expo-keep-awake/ios"
   EXLinearGradient:
     :path: "../node_modules/expo-linear-gradient/ios"
   EXMediaLibrary:
     :path: "../node_modules/expo-media-library/ios"
+  EXPermissions:
+    :path: "../node_modules/expo-permissions/ios"
   ExpoModulesCore:
     :path: "../node_modules/expo-modules-core/ios"
   EXRandom:
@@ -593,7 +605,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Amplitude: 263118b9e691e73a1c864b05bb08a3aff3636d16
-  amplitude-react-native: c53cf1d7daa5f27b88678e0889e3792583fbd321
+  amplitude-react-native: ab47821981de1d0fcee70ee96213108d098f74ce
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   DoubleConversion: cde416483dac037923206447da6e1454df403714
   EXApplication: 9ff2a206009d6e55bca6c20b3f33d07986b51ef3
@@ -606,9 +618,11 @@ SPEC CHECKSUMS:
   EXFileSystem: 0a04aba8da751b9ac954065911bcf166503f8267
   EXFont: 9846ba1bb6f5f5aed44e20eea3ac70693323832d
   EXImageLoader: d3531a3fe530b22925c19977cb53bb43e3821fe6
+  EXImagePicker: ce9648d2505fff28bde0d7a0a3b0aee5fd038989
   EXKeepAwake: f4105ef469be7b283f66ce2d7234bb71ac80cd26
   EXLinearGradient: f9ea3259f096b27008860ca50764184225dc71c9
   EXMediaLibrary: c87254f83db976563e4ee54ee67eeb065570e92b
+  EXPermissions: 916efb5b817cb0a40160c0cd2f369af3c23a78be
   ExpoModulesCore: 2734852616127a6c1fc23012197890a6f3763dc7
   EXRandom: ecb71f5d01991f29bb0277f8a2c35d168f85d637
   EXSplashScreen: 6208ca88470ff5979fd49a08ef3feb01143a2b79
@@ -621,7 +635,7 @@ SPEC CHECKSUMS:
   Folly: b73c3869541e86821df3c387eb0af5f65addfab4
   glog: 40a13f7840415b9a77023fbcae0f1e6f43192af3
   Mixpanel-swift: 05ab116526c72e0e66a6a2feb9005e933c414347
-  MixpanelReactNative: e1f94cea875b9ad58517cd9798155de33fdcab7d
+  MixpanelReactNative: 6385eecaee40c6e9ec3b82760dcc0aa48b3f6b4a
   RCTRequired: 082f10cd3f905d6c124597fd1c14f6f2655ff65e
   RCTTypeSafety: 8c9c544ecbf20337d069e4ae7fd9a377aadf504b
   React: b0a957a2c44da4113b0c4c9853d8387f8e64e615

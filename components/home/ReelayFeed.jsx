@@ -1,17 +1,18 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { Dimensions, Pressable, SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Text, View } from 'react-native';
 import { VisibilityContext } from '../../context/VisibilityContext';
 import Constants from 'expo-constants';
 import Sentry from 'sentry-expo';
 
-import { Ionicons } from '@expo/vector-icons'; 
+import * as Amplitude from 'expo-analytics-amplitude';
+import { AuthContext } from '../../context/AuthContext';
+
 import styled from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
 import { ActivityIndicator } from 'react-native-paper';
 
 import { DataStore, SortDirection, Storage } from 'aws-amplify';
 
-import SettingsButton from '../overlay/SettingsButton';
 import FeedOverlay from '../overlay/FeedOverlay';
 import Hero from './Hero';
 
@@ -74,6 +75,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
     const [stackCounter, setStackCounter] = useState(0);
     const [stackPositions, setStackPositions] = useState({});
 
+    const authContext = useContext(AuthContext);
     const visibilityContext = useContext(VisibilityContext);
     const pager = useRef();
 
@@ -179,6 +181,12 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
         return nextStacks;
     }
 
+    const getReelayInFeed = (feedPosition) => {
+        const currentStack = stackList[feedPosition];
+        const currentStackPosition = stackPositions[currentStack[0].titleID];
+        return currentStack[currentStackPosition];
+    }
+
     const notDuplicateInFeed = (preparedReelay, index, array) => {
         const alreadyInFeed = (reelayList.findIndex(listReelay => {
             return listReelay.titleID === preparedReelay.titleID;
@@ -190,18 +198,48 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
     }
 
     const onFeedSwiped = async (e) => {
+        const prevReelay = getReelayInFeed(feedPosition);
+        const nextReelay = getReelayInFeed(e.nativeEvent.position);
+        const swipeDirection = e.nativeEvent.position < feedPosition ? 'up' : 'down';
+
 		setFeedPosition(e.nativeEvent.position);
 		if (e.nativeEvent.position == reelayList.length - 1) {
             console.log('fetching more reelays');
 			fetchFeed({ refresh: false });
 		}
+
+        Amplitude.logEventWithPropertiesAsync('swipedFeed', {
+            nextReelayID: nextReelay.id,
+            nextReelayCreator: nextReelay.creator.username,
+            nextReelayTitle: nextReelay.title,
+            prevReelayID: prevReelay.id,
+            prevReelayCreator: prevReelay.creator.username,
+            prevReelayTitle: prevReelay.title,
+            swipeDirection: swipeDirection,
+            username: authContext.user.username,
+        })
 	};
 
     const onStackSwiped = async (e) => {
+        const prevReelay = getReelayInFeed(feedPosition);
+        const nextReelay = stackList[feedPosition][e.nativeEvent.position];
+        const swipeDirection = e.nativeEvent.position < feedPosition ? 'left' : 'right';
+
         const stackPosition = e.nativeEvent.position;
         const titleID = stackList[feedPosition][0].titleID;
         stackPositions[titleID] = stackPosition;
         setStackCounter(stackCounter + 1);
+
+        Amplitude.logEventWithPropertiesAsync('swipedFeed', {
+            nextReelayID: nextReelay.id,
+            nextReelayCreator: nextReelay.creator.username,
+            nextReelayTitle: nextReelay.title,
+            prevReelayID: prevReelay.id,
+            prevReelayCreator: prevReelay.creator.username,
+            prevReelayTitle: prevReelay.title,
+            swipeDirection: swipeDirection,
+            username: authContext.user.username,
+        })
     };
 
     const prepareReelayBatch = async (fetchedReelays) => {

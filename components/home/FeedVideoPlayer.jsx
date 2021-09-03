@@ -1,7 +1,10 @@
-import React, { useRef, useState } from 'react'
+import React, { useContext, useRef, useState } from 'react'
+import { AuthContext } from '../../context/AuthContext';
 import { Video, Audio } from 'expo-av'
 import { VideoStyles } from '../../styles';
 import { useFocusEffect } from '@react-navigation/native';
+
+import * as Amplitude from 'expo-analytics-amplitude';
 
 export default function FeedVideoPlayer({ 
 	playing, 
@@ -10,6 +13,7 @@ export default function FeedVideoPlayer({
  }) {
 	const [playbackObject, setPlaybackObject] = useState(null);
 	const [isFocused, setIsFocused] = useState(false);
+	const authContext = useContext(AuthContext);
 
 	Audio.setAudioModeAsync({
 		playsInSilentModeIOS: true,
@@ -43,10 +47,22 @@ export default function FeedVideoPlayer({
 		}
     }));
 
+	const onPlaybackStatusUpdate = (playbackStatus) => {
+		if (playbackStatus?.didJustFinish && playing) {
+			Amplitude.logEventWithPropertiesAsync('watchedFullReelay', {
+				reelayID: reelay.id,
+				reelayCreator: reelay.creator.username,
+				title: reelay.title,
+				username: authContext.user.username,
+			})
+		}
+	}
+
 	return (
 		<Video
 			isLooping={true}
 			isMuted={false}
+			onPlaybackStatusUpdate={onPlaybackStatusUpdate}
 			progressUpdateIntervalMillis={50}
 			rate={1.0}
 			ref={(component) => _handleVideoRef(component)}

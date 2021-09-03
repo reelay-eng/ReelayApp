@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useRef, createRef, useState } from 'react';
+import { AuthContext } from '../context/AuthContext';
 import { UploadContext } from '../context/UploadContext';
 import { getPosterURI } from '../api/TMDbApi';
 
@@ -12,6 +13,7 @@ import BackButton from '../components/utils/BackButton';
 import styled from 'styled-components/native';
 import { showErrorToast } from '../components/utils/toasts';
 
+import * as Amplitude from 'expo-analytics-amplitude';
 
 const { height, width } = Dimensions.get('window');
 const captureSize = Math.floor(height * 0.07);
@@ -19,6 +21,7 @@ const ringSize = captureSize + 20;
 
 export default ReelayCameraScreen = ({ navigation }) => {
 
+    const authContext = useContext(AuthContext);
     const uploadContext = useContext(UploadContext);
     const titleObject = uploadContext.uploadTitleObject;
 
@@ -63,6 +66,12 @@ export default ReelayCameraScreen = ({ navigation }) => {
                     const data = await videoRecordPromise;
                     const source = data.uri;
                     pushToUploadScreen(source);
+
+                    const titleObject = uploadContext.uploadTitleObject;
+                    Amplitude.logEventWithPropertiesAsync('videoRecorded', {
+                        username: authContext.user.username,
+                        title: titleObject.title ? titleObject.title : titleObject.name,
+                    })
                 }
             } catch (error) {
                 console.warn(error);

@@ -2,13 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, AppRegistry, SafeAreaView } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Constants from 'expo-constants';
-
-// monitoring imports
-import * as Sentry from 'sentry-expo';
 
 // aws imports
 import { Amplify, Auth, Storage } from 'aws-amplify';
+import * as Amplitude from 'expo-analytics-amplitude';
 import config from "./src/aws-exports";
 
 // context imports
@@ -23,13 +20,6 @@ import { StatusBar } from 'expo-status-bar';
 import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
-
-Sentry.init({
-  dsn: "https://6eca784356434bc487b3a34f54011754@o943219.ingest.sentry.io/5892020",
-  environment: Constants.manifest?.extra?.sentryEnvironment,
-  enableInExpoDevelopment: true,
-  debug: true,
-});
 
 Amplify.configure({
   ...config,
@@ -69,6 +59,8 @@ function App() {
   const [uploadErrorStatus, setUploadErrorStatus] = useState(false);
   const [uploadVideoSource, setUploadVideoSource] = useState('');
 
+  Amplitude.initializeAsync('41cdcb8df4bfc40ab39155a7e3401d22');
+
   useEffect(() => {
 
     console.log('Setting up authentication');
@@ -84,11 +76,10 @@ function App() {
       .then((user) => {
         setUser(user);
         setSignedIn(true);
-        Sentry.Native.setUser({
-          email: user.attributes.email,
+        
+        Amplitude.logEventWithPropertiesAsync('login', {
           username: user.username,
-          id: user.attributes.sub,
-        });
+        });    
       })
       .catch((error) => {
         console.log(error);
@@ -105,6 +96,9 @@ function App() {
     
     console.log('authentication complete');
     setIsLoading(false);
+
+    // const mixpanel = new Mixpanel("67fe41ffea33a824eb7e50269c388869");
+    // mixpanel.init();
 
   }, []);
 
@@ -161,7 +155,7 @@ function App() {
     );
   } else {
     return (
-      <Sentry.Native.TouchEventBoundary>
+      // <Sentry.Native.TouchEventBoundary>
         <SafeAreaProvider>
           <AuthContext.Provider value={authState}>
             <VisibilityContext.Provider value={visibilityState}>
@@ -174,7 +168,7 @@ function App() {
             </VisibilityContext.Provider>
           </AuthContext.Provider>
         </SafeAreaProvider>
-      </Sentry.Native.TouchEventBoundary>
+      // </Sentry.Native.TouchEventBoundary>
     );
   }
 }
