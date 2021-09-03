@@ -1,9 +1,12 @@
 import React, { useContext } from 'react';
 import { Image, Pressable, View, SafeAreaView } from 'react-native';
-import styled from 'styled-components/native';
-
 import { getPosterURI } from '../../api/TMDbApi';
+
+import { AuthContext } from '../../context/AuthContext';
 import { VisibilityContext } from '../../context/VisibilityContext';
+
+import styled from 'styled-components/native';
+import * as Amplitude from 'expo-analytics-amplitude';
 
 const MovieTitle = styled.Text`
 	font-size: 17px;
@@ -26,6 +29,7 @@ const PosterContainer = styled(Pressable)`
 
 export default Poster = ({ reelay, showTitle }) => {
 
+	const authContext = useContext(AuthContext);
 	const visibilityContext = useContext(VisibilityContext);
 
 	if (!reelay) {

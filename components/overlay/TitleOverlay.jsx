@@ -13,7 +13,7 @@ export default TitleOverlay = ({ navigation }) => {
     const TRAILER_HEIGHT = height * 0.3;
 
     const HeaderRowContainer = styled(View)`
-        width: 70%;
+        width: 65%;
         padding: 20px;
     `
     const TitleOverlayContainer = styled(SafeAreaView)`
@@ -39,7 +39,7 @@ export default TitleOverlay = ({ navigation }) => {
     `
     const PosterContainer = styled(View)`
         position: absolute;
-        left: ${width * 0.7}px;
+        left: ${width * 0.65}px;
         margin-top: 15px;
         width: 30%;
         align-items: flex-end;
