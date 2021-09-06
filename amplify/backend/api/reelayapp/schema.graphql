@@ -1,3 +1,20 @@
+type Comment @model @auth(rules: [{allow: private}]) {
+  id: ID!
+  userID: String
+  reelayID: String
+  creatorI: String
+  content: String
+  postedAt: AWSDateTime
+}
+
+type Like @model @auth(rules: [{allow: private}]) {
+  id: ID!
+  reelayID: String
+  creatorID: String
+  userID: String
+  postedAt: AWSDateTime
+}
+
 type User @model @aws_api_key @aws_cognito_user_pools @auth(rules: [{allow: owner, operations: [create, update, delete]}]) {
   id: ID!
   username: String!
@@ -19,14 +36,8 @@ type Reelay @model @aws_api_key @aws_cognito_user_pools @auth(rules: [{allow: ow
   seasonEpisode: Int
   uploadedAt: AWSDateTime
   tmdbTitleID: ID
-  videoS3Key: String
+  venue: String
   visibility: String
+  videoS3Key: String
 }
-
-type Movie @model @auth(rules: [{allow: private, operations: [read]}]) {
-  id: ID!
-  title: String!
-  description: String
-  releaseDate: AWSDate
-  runningTime: Int
-}
+ 

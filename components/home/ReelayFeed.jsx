@@ -115,7 +115,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
             contentType: "video/mp4"
         });
         const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${videoS3Key}`;
-        return { id: fetchedReelay.id, signedVideoURI };
+        return { id: fetchedReelay.id, cloudfrontVideoURI };
     }    
     
     const fetchFeed = async ({ refresh, batchSize = 10 }) => {
