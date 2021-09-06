@@ -11,7 +11,7 @@ export default function FeedVideoPlayer({
 	reelay, 
 	shouldResetPlayhead,
  }) {
-	 
+
 	const [playbackObject, setPlaybackObject] = useState(null);
 	const [isFocused, setIsFocused] = useState(false);
 	const authContext = useContext(AuthContext);
@@ -48,6 +48,18 @@ export default function FeedVideoPlayer({
 		}
     }));
 
+	const onLoad = () => {
+		if (playing) {
+			console.log(reelay.title, ' just finished loading');
+			Amplitude.logEventWithPropertiesAsync('reelayFinishedLoading', {
+				username: authContext.user.username,
+				reelayID: reelay.id,
+				reelayCreator: reelay.creator.username,
+				title: reelay.title,
+			})
+		}
+	}
+
 	const onPlaybackStatusUpdate = (playbackStatus) => {
 		if (playbackStatus?.didJustFinish && playing) {
 			Amplitude.logEventWithPropertiesAsync('watchedFullReelay', {
@@ -57,12 +69,25 @@ export default function FeedVideoPlayer({
 				username: authContext.user.username,
 			})
 		}
+
+		if (playing) {
+			if (!playbackStatus.isLoaded) {
+				console.log(reelay.title, ' is NOT loaded');
+				Amplitude.logEventWithPropertiesAsync('reelayStartedLoading', {
+					username: authContext.user.username,
+					reelayID: reelay.id,
+					reelayCreator: reelay.creator.username,
+					title: reelay.title,
+				})
+			}
+		}
 	}
 
 	return (
 		<Video
 			isLooping={true}
 			isMuted={false}
+			onLoad={onLoad}
 			onPlaybackStatusUpdate={onPlaybackStatusUpdate}
 			progressUpdateIntervalMillis={50}
 			rate={1.0}

@@ -186,6 +186,10 @@ export const fetchTitleWithCredits = async (titleID, isSeries) => {
     }
 
     if (isSeries) {
+        if (!titleObject.name) {
+            console.log('Series title object does not have name');
+            console.log(titleObject);
+        }
         return {
             ...titleObjectWithCredits,
             title: titleObject.name,
