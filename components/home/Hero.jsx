@@ -68,6 +68,7 @@ export default Hero = ({
     return (
         <View key={index}>
             <FeedVideoPlayer
+                paused={isPaused}
                 playing={isPlaying}
                 reelay={reelay}
                 shouldResetPlayhead={shouldResetPlayhead}

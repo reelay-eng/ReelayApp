@@ -138,8 +138,12 @@ export const fetchMovieCredits = async(titleID) => {
 export const fetchMovieTrailerURI = async(titleID) => {
     try {
         const query = `${TMDB_API_BASE_URL}/movie\/${titleID}/videos\?api_key\=${TMDB_API_KEY}`;
-        const videoResults = (await fetchResults(query)).results;
-        if (videoResults.length == 0) return null;
+        const queryResponse = await fetchResults(query);
+        if (!queryResponse || !queryResponse.results || queryResponse.results.length === 0) {
+            return null;
+        }
+
+        const videoResults = queryResponse.results;
         const youtubeTrailer = videoResults.find((video) => { 
             return video.site && video.site == 'YouTube' && video.type && video.type == 'Trailer' && video.key;
         });

@@ -118,14 +118,16 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
         return { id: fetchedReelay.id, videoURI: cloudfrontVideoURI };
     }    
     
-    const fetchFeed = async ({ refresh, batchSize = 10 }) => {
+    const fetchFeed = async ({ refresh, batchSize = 3 }) => {
         const nextPageToFetch = refresh ? 0 : nextPage;
         const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY);
+        console.log('query initiated');
         const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
             sort: r => r.uploadedAt(SortDirection.DESCENDING),
             page: nextPageToFetch / batchSize,
             limit: batchSize,
         });
+        console.log('query finished');
 
         if (!fetchedReelays || fetchedReelays.length == 0) {
             console.log('No query response');
