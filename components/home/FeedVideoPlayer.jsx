@@ -11,6 +11,7 @@ export default function FeedVideoPlayer({
 	reelay, 
 	shouldResetPlayhead,
  }) {
+	 
 	const [playbackObject, setPlaybackObject] = useState(null);
 	const [isFocused, setIsFocused] = useState(false);
 	const authContext = useContext(AuthContext);

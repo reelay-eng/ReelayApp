@@ -111,11 +111,11 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
     const getVideoURI = async (fetchedReelay) => {
         const videoS3Key = (fetchedReelay.videoS3Key.endsWith('.mp4')) 
                 ? fetchedReelay.videoS3Key : (fetchedReelay.videoS3Key + '.mp4');
-        const signedVideoURI = await Storage.get(videoS3Key, {
+        const s3VideoURI = await Storage.get(videoS3Key, {
             contentType: "video/mp4"
         });
         const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${videoS3Key}`;
-        return { id: fetchedReelay.id, cloudfrontVideoURI };
+        return { id: fetchedReelay.id, videoURI: cloudfrontVideoURI };
     }    
     
     const fetchFeed = async ({ refresh, batchSize = 10 }) => {
@@ -287,7 +287,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
             const uriObject = videoUris.find((obj) => {
                 return obj.id === reelay.id;
             });
-            const preparedReelay = prepareReelay(reelay, titleObject, uriObject.signedVideoURI);
+            const preparedReelay = prepareReelay(reelay, titleObject, uriObject.videoURI);
             return preparedReelay;
         });
         return preparedReelays;
