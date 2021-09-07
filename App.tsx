@@ -58,6 +58,7 @@ function App() {
   const [uploadOptions, setUploadOptions] = useState({});
   const [uploadErrorStatus, setUploadErrorStatus] = useState(false);
   const [uploadVideoSource, setUploadVideoSource] = useState('');
+  const [venueSelected, setVenueSelected] = useState('');
 
   Amplitude.initializeAsync('41cdcb8df4bfc40ab39155a7e3401d22');
 
@@ -133,6 +134,7 @@ function App() {
     uploadOptions: uploadOptions,
     uploadErrorStatus: uploadErrorStatus,
     uploadVideoSource: uploadVideoSource,
+    venueSelected: venueSelected,
 
     setUploading: setUploading,
     setUploadComplete: setUploadComplete,
@@ -142,6 +144,7 @@ function App() {
     setUploadOptions: setUploadOptions,
     setUploadErrorStatus: setUploadErrorStatus,
     setUploadVideoSource: setUploadVideoSource,
+    setVenueSelected: setVenueSelected,
   }
 
   if (isLoading) {

@@ -9,4 +9,5 @@ export const UploadContext = createContext({
     uploadOptions: {},
     uploadErrorStatus: false,
     uploadVideoSource: '',
+    venueSelected: '',
 });

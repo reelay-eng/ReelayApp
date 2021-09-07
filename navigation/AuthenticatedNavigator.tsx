@@ -18,6 +18,7 @@ import { BottomTabParamList, HomeTabParamList, CreateReelayTabParamList } from '
 import SelectTitleScreen from '../screens/SelectTitleScreen';
 import ReelayCameraScreen from '../screens/ReelayCameraScreen';
 import ReelayUploadScreen from '../screens/ReelayUploadScreen';
+import VenueSelectScreen from '../screens/VenueSelectScreen';
 import AccountScreen from '../screens/AccountScreen';
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
@@ -101,6 +102,14 @@ function CreateReelayTabNavigator() {
       <CreateReelayTabStack.Screen
         name="SelectTitleScreen"
         component={SelectTitleScreen}
+        options={{
+          headerShown: false,
+          animationEnabled: false,
+        }}
+      />
+      <CreateReelayTabStack.Screen
+        name="VenueSelectScreen"
+        component={VenueSelectScreen}
         options={{
           headerShown: false,
           animationEnabled: false,

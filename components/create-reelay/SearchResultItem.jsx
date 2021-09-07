@@ -56,7 +56,7 @@ export default SearchResultItem = ({result, navigation}) => {
     const selectResult = () => {
         uploadContext.setUploadTitleObject(titleObject);
         console.log('selected this item', title);
-        navigation.push('ReelayCameraScreen');
+        navigation.push('VenueSelectScreen', { title: title });
     }
 
     return (

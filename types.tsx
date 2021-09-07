@@ -23,6 +23,7 @@ export type CreateReelayTabParamList = {
   SelectTitleScreen: undefined;
   ReelayCameraScreen: undefined;
   ReelayUploadScreen: undefined;
+  VenueSelectScreen: undefined;
 }
 
 export type AuthenticationStackParamList = {

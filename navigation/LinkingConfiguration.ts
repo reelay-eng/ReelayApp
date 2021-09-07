@@ -16,6 +16,7 @@ export default {
           SelectTitleScreen: 'SelectTitleScreen',
           ReelayCameraScreen: 'ReelayCameraScreen',
           ReelayUploadScreen: 'ReelayUploadScreen',
+          VenueSelectScreen: 'VenueSelectScreen',
           AccountScreen: 'AccountScreen',
         },
       },
