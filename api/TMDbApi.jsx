@@ -6,7 +6,7 @@ const POPULARITY_WEIGHT = 5;
 const TMDB_SEARCH_RANK_WEIGHT = 10;
 
 // https://dmitripavlutin.com/timeout-fetch-request/
-const fetchResults = async (query, options={ timeout: 500 }) => {
+const fetchResults = async (query, options={ timeout: 8000 }) => {
     const { timeout = 8000 } = options;
     try {
         const controller = new AbortController();
@@ -17,6 +17,7 @@ const fetchResults = async (query, options={ timeout: 500 }) => {
             signal: controller.signal  
           }).then((response) => response.json())
             .catch((error) => {
+                console.log('ERROR IN FETCH RESULTS');
                 console.log(error);
             });
         clearTimeout(id);
@@ -130,12 +131,28 @@ export const fetchMovie = async (titleID) => {
     return result;
 }
 
-export const fetchMovieCredits = async(titleID) => {
+export const fetchMovieCredits = async (titleID) => {
     const query = `${TMDB_API_BASE_URL}/movie\/${titleID}/credits\?api_key\=${TMDB_API_KEY}`;
     return await fetchResults(query);
 }
 
-export const fetchMovieTrailerURI = async(titleID) => {
+export const fetchMovieProviders = async (titleID) => {
+    try {
+        const query = `${TMDB_API_BASE_URL}/movie\/${titleID}/watch/providers\?api_key\=${TMDB_API_KEY}`;
+        const queryResponse = await fetchResults(query);
+        if (!queryResponse || !queryResponse.results || queryResponse.results.length === 0) {
+            return null;
+        }
+
+        const providers = queryResponse.results;
+        console.log(providers);
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
+
+export const fetchMovieTrailerURI = async (titleID) => {
     try {
         const query = `${TMDB_API_BASE_URL}/movie\/${titleID}/videos\?api_key\=${TMDB_API_KEY}`;
         const queryResponse = await fetchResults(query);
@@ -169,8 +186,9 @@ export const fetchSeriesTrailerURI = async(titleID) => {
     }
 }
 
-export const fetchTitleWithCredits = async (titleID, isSeries) => {
+export const fetchAnnotatedTitle = async (titleID, isSeries) => {
     if (!titleID) return null;
+
     const titleObject = isSeries 
         ? await fetchSeries(titleID)
         : await fetchMovie(titleID);
@@ -183,10 +201,14 @@ export const fetchTitleWithCredits = async (titleID, isSeries) => {
         ? await fetchSeriesTrailerURI(titleID)
         : await fetchMovieTrailerURI(titleID);
 
-    const titleObjectWithCredits = {
+    // const providers = await fetchMovieProviders(titleID);
+
+    const annotatedTitle = {
         ...titleObject,
-        credits: titleCredits,
+        director: getDirector(titleCredits),
+        displayActors: getDisplayActors(titleCredits),
         trailerURI: trailerURI,
+        // providers: providers,
     }
 
     if (isSeries) {
@@ -195,33 +217,33 @@ export const fetchTitleWithCredits = async (titleID, isSeries) => {
             console.log(titleObject);
         }
         return {
-            ...titleObjectWithCredits,
+            ...annotatedTitle,
             title: titleObject.name,
             release_date: titleObject.first_air_date
         };
     } else {
-        return titleObjectWithCredits;
+        return annotatedTitle;
     }
 }
 
-export const getPosterURI = (posterPath) => {
-    return posterPath ? `${TMDB_IMAGE_API_BASE_URL}${posterPath}` : null;
-}
-
-export const getDirector = (titleObjectWithCredits) => {
-    if (titleObjectWithCredits.credits && titleObjectWithCredits.credits.crew) {
-        const crew = titleObjectWithCredits.credits.crew;
+export const getDirector = (titleCredits) => {
+    if (titleCredits && titleCredits.crew) {
+        const crew = titleCredits.crew;
         const director = crew.find((crewMember) => { return crewMember.job && crewMember.job == 'Director' });
         return director;
     }
     return null;
 }
 
-export const getDisplayActors = (titleObjectWithCredits, max = 2) => {
-    if (titleObjectWithCredits.credits && titleObjectWithCredits.credits.crew) {
-        const cast = titleObjectWithCredits.credits.cast;
+export const getDisplayActors = (titleCredits, max = 2) => {
+    if (titleCredits && titleCredits.cast) {
+        const cast = titleCredits.cast;
         const actors = cast.length < max ? cast : cast.slice(0,2);
         return actors;
     }
     return null;
+}
+
+export const getPosterURI = (posterPath) => {
+    return posterPath ? `${TMDB_IMAGE_API_BASE_URL}${posterPath}` : null;
 }

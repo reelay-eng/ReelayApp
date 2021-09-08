@@ -74,14 +74,14 @@ export default VenueSelectScreen = ({ navigation, route }) => {
             height: 10%;
         `
         return (
-                <OptionScroll>
-                    <Padding />
-                    <OptionsContainer>
-                        { icons.map(({ icon, venue }) => {
-                            return <VenueSelector key={venue} venue={venue} source={icon} />;
-                        })}
-                    </OptionsContainer>
-                </OptionScroll>
+            <OptionScroll>
+                <Padding />
+                <OptionsContainer>
+                    { icons.map(({ icon, venue }) => {
+                        return <VenueSelector key={venue} venue={venue} source={icon} />;
+                    })}
+                </OptionsContainer>
+            </OptionScroll>
         );
     }
 
@@ -131,7 +131,9 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         const onPress = () => {
             // prepare empty venue data for upload
             // advance to camera screen
-            navigation.push('ReelayCameraScreen');
+            navigation.push('ReelayCameraScreen', {
+                venue: '',
+            });
         }
         return (
             <SkipContainer>
@@ -150,7 +152,9 @@ export default VenueSelectScreen = ({ navigation, route }) => {
             // prepare venue data for upload
             // advance to camera screen
             uploadContext.setVenueSelected(venue);
-            navigation.push('ReelayCameraScreen');
+            navigation.push('ReelayCameraScreen', {
+                venue: venue,
+            });
         };
 
         return (

@@ -46,16 +46,7 @@ export default function FeedVideoPlayer({
 
     useFocusEffect(React.useCallback(() => {
 		setIsFocused(true);
-        return () => {
-			setIsFocused(false);
-			if (playbackObject && shouldResetPlayhead) {
-				try {
-					playbackObject.setPositionAsync(0);
-				} catch (e) {
-					console.log(e);
-				}
-			}
-		}
+        return () => setIsFocused(false);
     }));
 
 	const onLoad = async () => {

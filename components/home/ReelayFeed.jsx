@@ -11,12 +11,12 @@ import PagerView from 'react-native-pager-view';
 import { ActivityIndicator } from 'react-native-paper';
 
 import { DataStore, SortDirection, Storage } from 'aws-amplify';
+import { Reelay } from '../../src/models';
+import { fetchAnnotatedTitle } from '../../api/TMDbApi';
 
 import FeedOverlay from '../overlay/FeedOverlay';
 import Hero from './Hero';
-
-import { Reelay } from '../../src/models';
-import { fetchTitleWithCredits, getDirector, getDisplayActors } from '../../api/TMDbApi';
+// import VenueIcon from '../utils/VenueIcon';
 import { showMessageToast } from '../utils/toasts';
 
 // Please move these into an environment variable (preferably injected via your build step)
@@ -63,6 +63,29 @@ const StackLocation = ({ position, length }) => {
         </StackLocationOval>
     );
 }
+
+// const VenueLabel = ({ venue }) => {
+//     const VenueContainer = styled(View)`
+//         align-items: center;
+//         flex-direction: row;
+//         justify-content: center;
+//         margin-top: 10px;
+//         width: 120px;
+//     `
+//     const VenueText = styled(Text)`
+//         font-size: 14px;
+//         font-family: System;
+//         font-weight: 600;
+//         color: white;
+//     `
+//     const textToDisplay = 'Seen on ';
+//     return (
+//         <VenueContainer>
+//             <VenueText>{textToDisplay}</VenueText>
+//             <VenueIcon venue={venue} size={24} />
+//         </VenueContainer>
+//     );
+// }
 
 export default ReelayFeed = ({ navigation, refreshIndex }) => {
 
@@ -272,7 +295,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
 
     const prepareReelayBatch = async (fetchedReelays) => {
         const titleObjectPromises = fetchedReelays.map(async reelay => {
-            return await fetchTitleWithCredits(reelay.tmdbTitleID, reelay.isSeries);
+            return await fetchAnnotatedTitle(reelay.tmdbTitleID, reelay.isSeries);
         });
         const videoURIPromises = fetchedReelays.map(async reelay => {
             return await getVideoURI(reelay);
@@ -286,6 +309,12 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
                 return Number(title.id) === Number(reelay.tmdbTitleID);
             });
             const titleObject = titles[titleIndex];
+            if (!titleObject) {
+                console.log('IN PREPARE REELAY, TITLE OBJECT IS NULL');
+                console.log('reelay: ', reelay);
+                console.log('titleIndex: ', titleIndex);
+                console.log('titles: ', titles);
+            }
             const uriObject = videoUris.find((obj) => {
                 return obj.id === reelay.id;
             });
@@ -296,8 +325,6 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
     }
 
     const prepareReelay =  (fetchedReelay, titleObject, videoURI) => {
-        const director = getDirector(titleObject);
-        const displayActors = getDisplayActors(titleObject);
         const releaseYear = (titleObject && titleObject.release_date && titleObject.release_date.length >= 4)
             ? (titleObject.release_date.slice(0,4)) : '';	
     
@@ -312,12 +339,13 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
                 avatar: '../../assets/images/icon.png'
             },
             overlayInfo: {
-                director: director,
-                displayActors: displayActors,
+                director: titleObject.director,
+                displayActors: titleObject.displayActors,
                 overview: titleObject.overview,
                 tagline: titleObject.tagline,
                 trailerURI: titleObject.trailerURI,
             },
+            venue: fetchedReelay.venue ? fetchedReelay.venue : null,
             videoURI: videoURI,
             posterURI: titleObject ? titleObject.poster_path : null,
             postedDateTime: fetchedReelay.uploadedAt,
@@ -343,6 +371,9 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
                                 <TopRightContainer>
                                     <Poster reelay={stack[stackPosition]} showTitle={false} />
                                     <StackLocation position={stackPosition} length={stack.length} />
+                                    {/* { stack[stackPosition].venue && stack[stackPosition].venue !== '' && 
+                                        <VenueLabel venue={stack[stackPosition].venue} size={20} />
+                                    } */}
                                 </TopRightContainer>
                             </ReelayFeedContainer>
                         );

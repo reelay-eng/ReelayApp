@@ -10,6 +10,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import BackButton from '../components/utils/BackButton';
+// import VenueIcon from '../components/utils/VenueIcon';
 import styled from 'styled-components/native';
 import { showErrorToast } from '../components/utils/toasts';
 
@@ -19,11 +20,12 @@ const { height, width } = Dimensions.get('window');
 const captureSize = Math.floor(height * 0.07);
 const ringSize = captureSize + 20;    
 
-export default ReelayCameraScreen = ({ navigation }) => {
+export default ReelayCameraScreen = ({ navigation, route }) => {
 
     const authContext = useContext(AuthContext);
     const uploadContext = useContext(UploadContext);
     const titleObject = uploadContext.uploadTitleObject;
+    const { venue } = route.params;
 
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const [hasPermission, setHasPermission] = useState(null);
@@ -243,6 +245,7 @@ export default ReelayCameraScreen = ({ navigation }) => {
                 <TopRightContainer>
                     <Image source={{uri: posterURI}} 
 						style={{ height: 180, width: 120, borderRadius: 8, }} />
+                    {/* <VenueLabel venue={venue} /> */}
                 </TopRightContainer>
                 <RecordInterface />
             </OverlayContainer>
@@ -261,6 +264,29 @@ export default ReelayCameraScreen = ({ navigation }) => {
                 }} />
         );
     }
+
+    // const VenueLabel = ({ venue }) => {
+    //     const VenueContainer = styled(View)`
+    //         align-items: center;
+    //         flex-direction: row;
+    //         justify-content: center;
+    //         margin-top: 10px;
+    //         width: 120px;
+    //     `
+    //     const VenueText = styled(Text)`
+    //         font-size: 14px;
+    //         font-family: System;
+    //         font-weight: 600;
+    //         color: white;
+    //     `
+    //     const textToDisplay = 'Seen on ';
+    //     return (
+    //         <VenueContainer>
+    //             <VenueText>{textToDisplay}</VenueText>
+    //             <VenueIcon venue={venue} size={24} />
+    //         </VenueContainer>
+    //     );
+    // }
 
     const CameraContainer = styled(View)`
         position: absolute;

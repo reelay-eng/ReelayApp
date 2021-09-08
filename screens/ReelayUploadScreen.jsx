@@ -38,7 +38,7 @@ const UploadTopLeft = styled(View)`
     width: ${width / 2}px;
     margin: 10px;
 `
-const UploadVideoContainer = styled(View)`
+const UploadVideoContainer = styled(Pressable)`
     height: 75%;
     width: 75%;
     margin: 10px;
@@ -50,11 +50,13 @@ const UploadVideoContainer = styled(View)`
 export default ReelayUploadScreen = ({ navigation }) => {
 
     const [hasSavePermission, setHasSavePermission] = useState(null);
+    const [playing, setPlaying] = useState(true);
     const [saveToDevice, setSaveToDevice] = useState(false);
 
     const authContext = useContext(AuthContext);
     const uploadContext = useContext(UploadContext);
     const titleObject = uploadContext.uploadTitleObject;
+    const venue = uploadContext.venueSelected;
     const videoURI = uploadContext.uploadVideoSource;
 
     useEffect(() => {
@@ -133,6 +135,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
                 seasonEpisode: -1,
                 uploadedAt: new Date().toISOString(),
                 tmdbTitleID: titleObject.id.toString(),
+                venue: venue,
                 videoS3Key: videoS3Key,
                 visibility: UPLOAD_VISIBILITY,
             });
@@ -365,6 +368,8 @@ export default ReelayUploadScreen = ({ navigation }) => {
         );
     }
 
+    const playPause = () => playing ? setPlaying(false) : setPlaying(true);
+
     return (
         <UploadScreenContainer>
             <UploadTop>
@@ -375,8 +380,8 @@ export default ReelayUploadScreen = ({ navigation }) => {
                 <UploadStatus />
             </UploadTop>
             { uploadContext.uploading && <UploadProgressBar /> }
-            <UploadVideoContainer>
-                <PreviewVideoPlayer videoURI={videoURI} playing={true} />
+            <UploadVideoContainer onPress={playPause}>
+                <PreviewVideoPlayer videoURI={videoURI} playing={playing} />
                 <ReelayPreviewOverlay />
             </UploadVideoContainer>
             { !uploadContext.uploadComplete && !uploadContext.uploading && <UploadOptions /> }

@@ -1,20 +1,87 @@
 import React, { useContext } from 'react';
-import { Dimensions, SafeAreaView, View } from 'react-native';
-import { Text } from 'react-native-elements';
+import { Dimensions, SafeAreaView, View, Text } from 'react-native';
 
 import Poster from '../home/Poster';
 import { VisibilityContext} from '../../context/VisibilityContext';
-import styled from 'styled-components/native';
+
+import VenueIcon from '../utils/VenueIcon';
 import YoutubeVideoEmbed from '../utils/YouTubeVideoEmbed';
+import styled from 'styled-components/native';
+
+const VenueLabel = ({ venue }) => {
+    const VenueContainer = styled(View)`
+        align-items: center;
+        flex-direction: row;
+        justify-content: center;
+        margin-top: 10px;
+        width: 120px;
+    `
+    const VenueText = styled(Text)`
+        font-size: 14px;
+        font-family: System;
+        font-weight: 600;
+        color: white;
+    `
+    const textToDisplay = 'Seen on ';
+    return (
+        <VenueContainer>
+            <VenueText>{textToDisplay}</VenueText>
+            <VenueIcon venue={venue} size={24} />
+        </VenueContainer>
+    );
+}
+
 
 export default TitleOverlay = ({ navigation }) => {
 
     const { height, width } = Dimensions.get('window');
     const TRAILER_HEIGHT = height * 0.3;
 
+    const ActorText = styled(Text)`
+        font-size: 15px;
+        font-family: System;
+        font-weight: 300;
+        color: white;
+        margin-top: 10px;
+    `
+    const DirectorText = styled(Text)`
+        font-size: 15px;
+        font-family: System;
+        font-weight: 300;
+        color: white;
+        margin-top: 10px;
+    `
     const HeaderRowContainer = styled(View)`
         width: 65%;
         padding: 20px;
+    `
+    const OverviewText = styled(Text)`
+        font-size: 14px;
+        font-family: System;
+        font-weight: 400;
+        color: white;
+        margin-bottom: 10px;
+        margin-top: 10px;
+    `
+    const OverviewTextContainer = styled(Text)`
+        height: 100%;
+        width: 100%;
+        margin: 10px;
+    `
+    const PosterContainer = styled(View)`
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 30%;
+        align-items: flex-end;
+    ` 
+    const TaglineText = styled(Text)`
+        font-size: 15px;
+        font-family: System;
+        font-weight: 300;
+        color: white;
+        margin-bottom: 10px;
+        margin-top: 10px;
     `
     const TitleOverlayContainer = styled(SafeAreaView)`
         position: absolute;
@@ -26,73 +93,35 @@ export default TitleOverlay = ({ navigation }) => {
     const TitleOverlayHeader = styled(View)`
         flex: 1;
         flex-direction: row;
+        justify-content: space-between;
         width: 100%;
     `
     const TitleOverlayTrailerContainer = styled(View)`
         width: 100%;
         height: ${TRAILER_HEIGHT}px;
-        margin-left: 20px;
+        margin-left: 10px;
     `
     const TitleOverlayBottomContainer = styled(View)`
         flex: 1;
         width: 100%;
     `
-    const PosterContainer = styled(View)`
-        position: absolute;
-        left: ${width * 0.65}px;
-        margin-top: 15px;
-        width: 30%;
-        align-items: flex-end;
-    ` 
     const TitleText = styled(Text)`
         font-size: 24px;
         font-family: System;
         color: white;
     `
-    const TaglineText = styled(Text)`
-        font-size: 15px;
-        font-family: System;
-        font-weight: 300;
-        color: white;
-        margin-bottom: 10px;
-        margin-top: 10px;
-    `
-    const DirectorText = styled(Text)`
-        font-size: 15px;
-        font-family: System;
-        font-weight: 300;
-        color: white;
-        margin-top: 10px;
-    `
-    const ActorText = styled(Text)`
-        font-size: 15px;
-        font-family: System;
-        font-weight: 300;
-        color: white;
-        margin-top: 10px;
-    `
-    const OverviewTextContainer = styled(Text)`
-        height: 100%;
-        width: 100%;
-        margin: 10px;
-    `
-    const OverviewText = styled(Text)`
-        font-size: 14px;
-        font-family: System;
-        font-weight: 400;
-        color: white;
-        margin-bottom: 10px;
-        margin-top: 10px;
-    `
 
     const visibilityContext = useContext(VisibilityContext);
     const reelay = visibilityContext.overlayData?.reelay;
 
-    const title = reelay.title;
-    const releaseYear = ' (' + reelay.releaseYear + ')';
+    const actors = reelay.overlayInfo?.displayActors;
     const director = reelay.overlayInfo?.director;
     const directorName = (director && director.name) ? 'Dir. ' + director.name : '';
-    const actors = reelay.overlayInfo?.displayActors;
+    const releaseYear = ' (' + reelay.releaseYear + ')';
+    const title = reelay.title;
+    const venueMarked = (reelay.venue && reelay.venue.length);
+
+    console.log('venue marked: ', venueMarked, reelay.venue);
 
     return (
         <TitleOverlayContainer>
@@ -107,6 +136,7 @@ export default TitleOverlay = ({ navigation }) => {
                 </HeaderRowContainer>
                 <PosterContainer>
                     <Poster reelay={reelay} showTitle={false} />
+                    { venueMarked && <VenueLabel venue={reelay.venue} size={20} /> }
                 </PosterContainer>
             </TitleOverlayHeader>
             {reelay.overlayInfo?.trailerURI && 
