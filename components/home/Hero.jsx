@@ -39,13 +39,9 @@ export default Hero = ({
     `
     const visibilityContext = useContext(VisibilityContext);
     const reelay = stack[stackIndex];
-    const isPlaying = (!isPaused)
-                    && (feedIndex === feedPosition)
+    const isPlaying = (feedIndex === feedPosition)
                     && (stackIndex === stackPosition)
                     && (!visibilityContext.overlayVisible);
-
-    const shouldResetPlayhead = (feedIndex !== feedPosition) 
-                    || (stackIndex !== stackPosition);
 
     const playPause = () => isPaused ? setIsPaused(false) : setIsPaused(true);
     const setReelayOverlay = (e) => {
@@ -68,10 +64,10 @@ export default Hero = ({
     return (
         <View key={index}>
             <FeedVideoPlayer
-                paused={isPaused}
+                // paused={isPaused}
                 playing={isPlaying}
+                playingButPaused={isPlaying && isPaused}
                 reelay={reelay}
-                shouldResetPlayhead={shouldResetPlayhead}
             >
             </FeedVideoPlayer>
             <Gradient

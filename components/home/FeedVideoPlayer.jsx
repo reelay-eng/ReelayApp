@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react'
+import React, { memo, useContext, useRef, useState } from 'react'
 import { AuthContext } from '../../context/AuthContext';
 import { Video, Audio } from 'expo-av'
 import { VideoStyles } from '../../styles';
@@ -6,11 +6,11 @@ import { useFocusEffect } from '@react-navigation/native';
 
 import * as Amplitude from 'expo-analytics-amplitude';
 
-export default function FeedVideoPlayer({ 
-	paused,
+export default memo(function FeedVideoPlayer({ 
+	// paused,
 	playing, 
+	playingButPaused,
 	reelay, 
-	shouldResetPlayhead,
  }) {
 	const [isFocused, setIsFocused] = useState(false);
 	const [playbackObject, setPlaybackObject] = useState(null);
@@ -29,7 +29,7 @@ export default function FeedVideoPlayer({
 		const wasPlayingOnLastRender = playheadCounter.current % 2 === 1;
 
 		setPlaybackObject(playbackObject);
-		if (!paused && !playing && wasPlayingOnLastRender) {
+		if (!playing && wasPlayingOnLastRender) {
 			// results in even-numbered playback counter
 			playheadCounter.current += 1;
 			try {
@@ -38,16 +38,18 @@ export default function FeedVideoPlayer({
 			} catch (e) {
 				console.log(e);
 			}
-		} else if (!paused && playing && !wasPlayingOnLastRender) {
+		} else if (playing && !wasPlayingOnLastRender) {
 			// results in odd-numbered playhead counter
-			console.log(playheadCounter.current, 'Playing video uri: ', reelay.videoURI);
+			// console.log(playheadCounter.current, 'Playing video uri: ', reelay.videoURI);
 			playheadCounter.current += 1;
 		}
 	}
 
     useFocusEffect(React.useCallback(() => {
-		setIsFocused(true);
-        return () => setIsFocused(false);
+		if (playing) setIsFocused(true);
+        return () => {
+				if (playing) setIsFocused(false);
+			}
     }));
 
 	const onLoad = async () => {
@@ -86,6 +88,11 @@ export default function FeedVideoPlayer({
 	}
 
 	console.log('Video for ', reelay.title, reelay.creator.username, ' is rendering');
+	if (playing) {
+		console.log('video URI: ', reelay.videoURI);
+		console.log('focused: ', isFocused);
+		console.log('should play? ', playing, isFocused, !playingButPaused);
+	}
 
 	return (
 		<Video
@@ -99,7 +106,7 @@ export default function FeedVideoPlayer({
 			ref={(component) => _handleVideoRef(component)}
 			resizeMode='cover'
 			shouldDuckAndroid={true}
-			shouldPlay={playing && isFocused}
+			shouldPlay={playing && isFocused && !playingButPaused}
 			source={{ uri: reelay.videoURI }}
 			staysActiveInBackground={false}
 			style={VideoStyles.video}
@@ -107,4 +114,4 @@ export default function FeedVideoPlayer({
 			volume={1.0}
 		/>
 	);
-}
+});
