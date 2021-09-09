@@ -64,29 +64,6 @@ const StackLocation = ({ position, length }) => {
     );
 }
 
-// const VenueLabel = ({ venue }) => {
-//     const VenueContainer = styled(View)`
-//         align-items: center;
-//         flex-direction: row;
-//         justify-content: center;
-//         margin-top: 10px;
-//         width: 120px;
-//     `
-//     const VenueText = styled(Text)`
-//         font-size: 14px;
-//         font-family: System;
-//         font-weight: 600;
-//         color: white;
-//     `
-//     const textToDisplay = 'Seen on ';
-//     return (
-//         <VenueContainer>
-//             <VenueText>{textToDisplay}</VenueText>
-//             <VenueIcon venue={venue} size={24} />
-//         </VenueContainer>
-//     );
-// }
-
 export default ReelayFeed = ({ navigation, refreshIndex }) => {
 
     const [feedPosition, setFeedPosition] = useState(0);
@@ -102,7 +79,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
     const pager = useRef();
 
     useEffect(() => {
-        if (reelayList.length == 0) {
+        if (!reelayList.length) {
             console.log('gotta load the feed');
             try {
                 fetchFeed({ refresh: false });
@@ -115,6 +92,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
     }, [navigation]);
 
     useEffect(() => {
+        // this is DANGEROUS and should be in a try/catch
         const unsubscribe = navigation.dangerouslyGetParent().addListener('tabPress', e => {
 			e.preventDefault();
             if (pager && pager.current) {
@@ -141,34 +119,53 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
         return { id: fetchedReelay.id, videoURI: cloudfrontVideoURI };
     }    
     
-    const fetchFeed = async ({ refresh, batchSize = 3 }) => {
-        const nextPageToFetch = refresh ? 0 : nextPage;
-        const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY);
-        console.log('query initiated');
-        const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
-            sort: r => r.uploadedAt(SortDirection.DESCENDING),
-            page: nextPageToFetch / batchSize,
-            limit: batchSize,
-        });
-        console.log('query finished');
+    const fetchFeed = async ({ refresh, batchSize = 10 }) => {
+        let page = refresh ? 0 : nextPage;
+        let filteredReelays = [];
 
-        if (!fetchedReelays || fetchedReelays.length == 0) {
-            console.log('No query response');
-            return;
+        while (!filteredReelays.length) {
+            const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY);
+            console.log('query initiated, page: ', page / batchSize, ', limit: ', batchSize);
+            const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
+                sort: r => r.uploadedAt(SortDirection.DESCENDING),
+                page: page / batchSize,
+                limit: batchSize,
+            });
+            console.log('query finished');
+    
+            if (!fetchedReelays || !fetchedReelays.length) {
+                console.log('No query response');
+                return;    
+            }
+
+            const preparedReelays = await prepareReelayBatch(fetchedReelays);
+            filteredReelays = preparedReelays.filter(notDuplicateInFeed);
+            
+            console.log('prepared reelays');
+            preparedReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
+            console.log('filtered reelays');
+            filteredReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
+    
+            page += batchSize;
         }
 
-        const preparedReelays = await prepareReelayBatch(fetchedReelays);
-        const filteredReelays = preparedReelays.filter(notDuplicateInFeed);
+        console.log(filteredReelays.length);
+        console.log('filtered reelays that made it through');
+        filteredReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
         const newReelayList = refresh ? [...filteredReelays, ...reelayList] : [...reelayList, ...filteredReelays];
-
+        
         const fetchedStacks = await fetchStacks({ nextReelayList: filteredReelays });
         const newStackList = refresh ? [...fetchedStacks, ...stackList] : [...stackList, ...fetchedStacks];
-
         filteredReelays.forEach(reelay => stackPositions[reelay.titleID] = 0);
-        
+
+        if (refresh) {
+            setNextPage(batchSize);
+        } else {
+            setNextPage(nextPage + batchSize);
+        }
         setReelayList(newReelayList);
         setStackList(newStackList);
-        if (!refresh) setNextPage(nextPage + batchSize);
+
         return filteredReelays;
     }
 
@@ -182,7 +179,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
             limit: batchSize,
         });
     
-        if (!fetchedReelays || fetchedReelays.length == 0) {
+        if (!fetchedReelays || !fetchedReelays.length) {
             console.log('No query response');
             return;
         }
@@ -225,7 +222,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
         const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY).id('eq', String(reelay.id));
         const queryResponse = await DataStore.query(Reelay, queryConstraints);
 
-        if (!queryResponse || queryResponse.length === 0) {
+        if (!queryResponse || !queryResponse.length) {
             console.log('No query response');
             showErrorToast('Could not find your Reelay in the database. Strange...');
             return;
@@ -254,7 +251,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
         const swipeDirection = e.nativeEvent.position < feedPosition ? 'up' : 'down';
 
 		setFeedPosition(e.nativeEvent.position);
-		if (e.nativeEvent.position == reelayList.length - 1) {
+		if (e.nativeEvent.position === reelayList.length - 1) {
             console.log('fetching more reelays');
 			fetchFeed({ refresh: false });
 		}

@@ -40,6 +40,7 @@ export default function FeedVideoPlayer({
 			}
 		} else if (!paused && playing && !wasPlayingOnLastRender) {
 			// results in odd-numbered playhead counter
+			console.log(playheadCounter.current, 'Playing video uri: ', reelay.videoURI);
 			playheadCounter.current += 1;
 		}
 	}
@@ -83,6 +84,8 @@ export default function FeedVideoPlayer({
 			})
 		}
 	}
+
+	console.log('Video for ', reelay.title, reelay.creator.username, ' is rendering');
 
 	return (
 		<Video
