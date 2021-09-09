@@ -18,6 +18,11 @@ export default memo(function FeedVideoPlayer({
 	const authContext = useContext(AuthContext);
 	const playheadCounter = useRef(0);
 
+	const [loadCounter, setLoadCounter] = useState(0);
+	const loadStatus = useRef(0);
+
+	const shouldPlay = playing && isFocused && !playingButPaused;
+
 	Audio.setAudioModeAsync({
 		playsInSilentModeIOS: true,
 		interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
@@ -43,37 +48,46 @@ export default memo(function FeedVideoPlayer({
 			// console.log(playheadCounter.current, 'Playing video uri: ', reelay.videoURI);
 			playheadCounter.current += 1;
 		}
+
+		if (playheadCounter.current > 1 && loadStatus.current != 2) {
+			console.log('video isn\'t loaded yet', reelay.title, reelay.creator.username);
+		}
+	
 	}
 
     useFocusEffect(React.useCallback(() => {
 		if (playing) setIsFocused(true);
         return () => {
-				if (playing) setIsFocused(false);
-			}
+			if (playing) setIsFocused(false);
+		}
     }));
 
-	const onLoad = async () => {
-		if (playing) {
-			console.log(reelay.title, ' just finished loading');
-			Amplitude.logEventWithPropertiesAsync('reelayFinishedLoading', {
-				username: authContext.user.username,
-				reelayID: reelay.id,
-				reelayCreator: reelay.creator.username,
-				title: reelay.title,
-			})
-		}
+	const onLoad = async (playbackStatus) => {
+		// if (playing) {
+		// 	console.log(reelay.title, ' just finished loading');
+		// 	Amplitude.logEventWithPropertiesAsync('reelayFinishedLoading', {
+		// 		username: authContext.user.username,
+		// 		reelayID: reelay.id,
+		// 		reelayCreator: reelay.creator.username,
+		// 		title: reelay.title,
+		// 	})
+		// }
+		loadStatus.current = 2;
+		console.log('on load FINISH for ', reelay.title, reelay.creator.username);
 	}
 
-	const onLoadStart = async () => {
-		if (playing) {
-			console.log(reelay.title, ' just started loading');
-			Amplitude.logEventWithPropertiesAsync('reelayStartedLoading', {
-				username: authContext.user.username,
-				reelayID: reelay.id,
-				reelayCreator: reelay.creator.username,
-				title: reelay.title,
-			})
-		}
+	const onLoadStart = async (playbackStatus) => {
+		// if (playing) {
+		// 	console.log(reelay.title, ' just started loading');
+		// 	Amplitude.logEventWithPropertiesAsync('reelayStartedLoading', {
+		// 		username: authContext.user.username,
+		// 		reelayID: reelay.id,
+		// 		reelayCreator: reelay.creator.username,
+		// 		title: reelay.title,
+		// 	})
+		// }
+		loadStatus.current = 1;
+		console.log('on load START for ', reelay.title, reelay.creator.username);
 	}
 
 	const onPlaybackStatusUpdate = (playbackStatus) => {
@@ -87,12 +101,12 @@ export default memo(function FeedVideoPlayer({
 		}
 	}
 
-	console.log('Video for ', reelay.title, reelay.creator.username, ' is rendering');
-	if (playing) {
-		console.log('video URI: ', reelay.videoURI);
-		console.log('focused: ', isFocused);
-		console.log('should play? ', playing, isFocused, !playingButPaused);
-	}
+	// console.log('Video for ', reelay.title, reelay.creator.username, ' is rendering');
+	// if (playing) {
+	// 	console.log('video URI: ', reelay.videoURI);
+	// 	console.log('focused: ', isFocused);
+	// 	console.log('should play? ', playing, isFocused, !playingButPaused);
+	// }
 
 	return (
 		<Video
@@ -106,7 +120,7 @@ export default memo(function FeedVideoPlayer({
 			ref={(component) => _handleVideoRef(component)}
 			resizeMode='cover'
 			shouldDuckAndroid={true}
-			shouldPlay={playing && isFocused && !playingButPaused}
+			shouldPlay={shouldPlay}
 			source={{ uri: reelay.videoURI }}
 			staysActiveInBackground={false}
 			style={VideoStyles.video}

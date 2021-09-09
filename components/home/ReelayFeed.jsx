@@ -119,7 +119,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
         return { id: fetchedReelay.id, videoURI: cloudfrontVideoURI };
     }    
     
-    const fetchFeed = async ({ refresh, batchSize = 10 }) => {
+    const fetchFeed = async ({ refresh, batchSize = 5 }) => {
         let page = refresh ? 0 : nextPage;
         let filteredReelays = [];
 
