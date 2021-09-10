@@ -8,6 +8,7 @@ import { showErrorToast } from '../components/utils/toasts';
 import { AuthButton, AuthHeaderLeft, AuthHeaderView, AuthInput } from '../components/utils/AuthComponents';
 import BackButton from '../components/utils/BackButton';
 
+import * as Amplitude from 'expo-analytics-amplitude';
 import styled from 'styled-components/native';
 
 export default SignInScreen = ({ navigation }) => {

@@ -4,7 +4,7 @@ import { Dimensions, SafeAreaView, View, Text } from 'react-native';
 import Poster from '../home/Poster';
 import { VisibilityContext} from '../../context/VisibilityContext';
 
-import VenueIcon from '../utils/VenueIcon';
+import { VenueIcon } from '../utils/VenueIcon';
 import YoutubeVideoEmbed from '../utils/YouTubeVideoEmbed';
 import styled from 'styled-components/native';
 

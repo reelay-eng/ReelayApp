@@ -66,6 +66,10 @@ const StackLocation = ({ position, length }) => {
 
 export default ReelayFeed = ({ navigation, refreshIndex }) => {
 
+    const authContext = useContext(AuthContext);
+    const pager = useRef();
+    const visibilityContext = useContext(VisibilityContext);
+
     const [feedPosition, setFeedPosition] = useState(0);
     const [nextPage, setNextPage] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
@@ -74,9 +78,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
     const [stackCounter, setStackCounter] = useState(0);
     const [stackPositions, setStackPositions] = useState({});
 
-    const authContext = useContext(AuthContext);
-    const visibilityContext = useContext(VisibilityContext);
-    const pager = useRef();
+    console.log('is paused: ', isPaused);
 
     useEffect(() => {
         if (!reelayList.length) {
@@ -98,12 +100,17 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
             if (pager && pager.current) {
                 if (feedPosition === 0) {
                     console.log('refreshing feed');
-                    fetchFeed({ refresh: true });
+                    fetchFeed({ refresh: true }).then((filteredReelays) => {
+                        console.log('refresh returns results');
+                        console.log(filteredReelays);
+                    });
                     showMessageToast('You\'re at the top');
-                } else {
-                    console.log('setting page 0');
-                    pager.current.setPage(0);
                 }
+                if (stackPositions[0] !== 0) {
+                    stackPositions[0] = 0;
+                    setStackCounter(stackCounter + 1);
+                }
+                pager.current.setPage(0);
             }
         });
         return unsubscribe;
@@ -118,51 +125,77 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
         const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${videoS3Key}`;
         return { id: fetchedReelay.id, videoURI: cloudfrontVideoURI };
     }    
+
+    const fetchFeedNextPage = async (page, batchSize) => {
+        const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY);
+        console.log('query initiated, page: ', page / batchSize, ', limit: ', batchSize);
+        const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
+            sort: r => r.uploadedAt(SortDirection.DESCENDING),
+            page: page / batchSize,
+            limit: batchSize,
+        });
+        console.log('query finished');
+
+        if (!fetchedReelays || !fetchedReelays.length) {
+            console.log('No query response');
+            return [];
+        }
+
+        const preparedReelays = await prepareReelayBatch(fetchedReelays);
+        filteredReelays = preparedReelays.filter(notDuplicateInFeed);
+        
+        console.log('prepared reelays');
+        preparedReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
+        console.log('filtered reelays');
+        filteredReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
+        return filteredReelays;
+    }
     
     const fetchFeed = async ({ refresh, batchSize = 5 }) => {
         let page = refresh ? 0 : nextPage;
         let filteredReelays = [];
 
-        while (!filteredReelays.length) {
-            const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY);
-            console.log('query initiated, page: ', page / batchSize, ', limit: ', batchSize);
-            const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
-                sort: r => r.uploadedAt(SortDirection.DESCENDING),
-                page: page / batchSize,
-                limit: batchSize,
-            });
-            console.log('query finished');
-    
-            if (!fetchedReelays || !fetchedReelays.length) {
-                console.log('No query response');
-                return;    
+        if (refresh) {
+            // exhaust the new reelays onto the feed
+            // empties when we've caught up with the loaded feed
+            while (filteredReelays.length) {
+                filteredReelays = await fetchFeedNextPage(page, batchSize);
+                page += batchSize; // starts at zero on refresh
             }
-
-            const preparedReelays = await prepareReelayBatch(fetchedReelays);
-            filteredReelays = preparedReelays.filter(notDuplicateInFeed);
-            
-            console.log('prepared reelays');
-            preparedReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
-            console.log('filtered reelays');
-            filteredReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
-    
-            page += batchSize;
+        } else {
+            // keep querying until we can extend
+            // can be empty if fetched reelays are for duplicate titles, so we keep going
+            while (!filteredReelays.length) {
+                filteredReelays = await fetchFeedNextPage(page, batchSize);
+                page += batchSize;
+            }
         }
 
         console.log(filteredReelays.length);
         console.log('filtered reelays that made it through');
         filteredReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
         const newReelayList = refresh ? [...filteredReelays, ...reelayList] : [...reelayList, ...filteredReelays];
+
+        if (refresh) newReelayList.sort((reelay1, reelay2) => {
+            return (reelay1.postedDateTime < reelay2.postedDateTime) ? -1 : 1;
+        });
         
         const fetchedStacks = await fetchStacks({ nextReelayList: filteredReelays });
         const newStackList = refresh ? [...fetchedStacks, ...stackList] : [...stackList, ...fetchedStacks];
         filteredReelays.forEach(reelay => stackPositions[reelay.titleID] = 0);
 
         if (refresh) {
-            setNextPage(batchSize);
+            // do nothing. page math is tricky, just let the feed extend as needed
         } else {
-            setNextPage(nextPage + batchSize);
+            setNextPage(page + batchSize);
         }
+
+        // if (refresh) {
+        //     setNextPage(batchSize);
+        // } else {
+        //     setNextPage(nextPage + batchSize);
+        // }
+
         setReelayList(newReelayList);
         setStackList(newStackList);
 
@@ -367,10 +400,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
                                 </PagerViewContainer>
                                 <TopRightContainer>
                                     <Poster reelay={stack[stackPosition]} showTitle={false} />
-                                    <StackLocation position={stackPosition} length={stack.length} />
-                                    {/* { stack[stackPosition].venue && stack[stackPosition].venue !== '' && 
-                                        <VenueLabel venue={stack[stackPosition].venue} size={20} />
-                                    } */}
+                                    { stack.length > 1 && <StackLocation position={stackPosition} length={stack.length} /> }
                                 </TopRightContainer>
                             </ReelayFeedContainer>
                         );

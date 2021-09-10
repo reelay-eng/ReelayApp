@@ -39,8 +39,17 @@ const venueIcons = [
     { source: iconYouTube, venue: 'youtube' },
 ];
 
-export default VenueIcon = ({ venue, size = 48, onPress }) => {
-    const IconPressable = styled(Pressable)``
+export const getVenues = () => {
+    return venueIcons.map(iconData => iconData.venue);
+}    
+
+export const VenueIcon = ({ venue, size = 48, onPress }) => {
+
+    const IconPressable = styled(Pressable)`
+        border-radius: ${size / 2}px;
+        border-width: 1px;
+        border-color: white;
+    `
     const source = venueIcons.find(vi => vi.venue === venue).source;
     
     return (
