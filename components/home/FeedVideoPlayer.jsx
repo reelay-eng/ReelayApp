@@ -63,29 +63,11 @@ export default memo(function FeedVideoPlayer({
     }));
 
 	const onLoad = async (playbackStatus) => {
-		// if (playing) {
-		// 	console.log(reelay.title, ' just finished loading');
-		// 	Amplitude.logEventWithPropertiesAsync('reelayFinishedLoading', {
-		// 		username: authContext.user.username,
-		// 		reelayID: reelay.id,
-		// 		reelayCreator: reelay.creator.username,
-		// 		title: reelay.title,
-		// 	})
-		// }
 		loadStatus.current = 2;
 		console.log('on load FINISH for ', reelay.title, reelay.creator.username);
 	}
 
 	const onLoadStart = async (playbackStatus) => {
-		// if (playing) {
-		// 	console.log(reelay.title, ' just started loading');
-		// 	Amplitude.logEventWithPropertiesAsync('reelayStartedLoading', {
-		// 		username: authContext.user.username,
-		// 		reelayID: reelay.id,
-		// 		reelayCreator: reelay.creator.username,
-		// 		title: reelay.title,
-		// 	})
-		// }
 		loadStatus.current = 1;
 		console.log('on load START for ', reelay.title, reelay.creator.username);
 	}
@@ -100,13 +82,6 @@ export default memo(function FeedVideoPlayer({
 			})
 		}
 	}
-
-	// console.log('Video for ', reelay.title, reelay.creator.username, ' is rendering');
-	// if (playing) {
-	// 	console.log('video URI: ', reelay.videoURI);
-	// 	console.log('focused: ', isFocused);
-	// 	console.log('should play? ', playing, isFocused, !playingButPaused);
-	// }
 
 	return (
 		<Video

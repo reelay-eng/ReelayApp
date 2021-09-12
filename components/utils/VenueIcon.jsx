@@ -22,7 +22,7 @@ const iconTheaters = require(ICON_PATH + 'cinemas.png');
 const iconYouTube = require(ICON_PATH + 'youtube.png');
 
 const venueIcons = [
-    { source: iconAmazon, venue: 'amazon' },
+    { source: iconAmazon, venue: 'amazon', },
     { source: iconAppleTV, venue: 'appletv' },
     { source: iconCrackle, venue: 'crackle' },
     { source: iconCriterion, venue: 'criterion' },
@@ -43,14 +43,16 @@ export const getVenues = () => {
     return venueIcons.map(iconData => iconData.venue);
 }    
 
-export const VenueIcon = ({ venue, size = 48, onPress }) => {
+export const VenueIcon = ({ border, onPress, size = 48, venue }) => {
 
     const IconPressable = styled(Pressable)`
-        border-radius: ${size / 2}px;
-        border-width: 1px;
+        border-radius: ${(size / 2) + (border ? 4 : 0)}px;
+        border-width: ${border ? 4 : 0}px;
         border-color: white;
     `
+    console.log('IN VENUE ICON');
     const source = venueIcons.find(vi => vi.venue === venue).source;
+    console.log('after code in question');
     
     return (
         <IconPressable onPress={onPress}>

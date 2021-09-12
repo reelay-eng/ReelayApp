@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { Pressable, SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { Image } from 'react-native-elements';
 import { UploadContext } from '../context/UploadContext';
@@ -43,7 +43,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         const Padding = styled(View)`
             height: 10%;
         `
-        const onPress = () => {
+        const onPress = (venue) => {
             // prepare venue data for upload
             // advance to camera screen
             uploadContext.setVenueSelected(venue);
@@ -59,7 +59,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
                     { venues.map(venue => {
                         return (
                             <IconContainer key={venue}>
-                                <VenueIcon onPress={onPress} size={84} venue={venue} />
+                                <VenueIcon border={true} onPress={() => onPress(venue)} size={84} venue={venue}  />
                             </IconContainer>
                         ); 
                     })}
