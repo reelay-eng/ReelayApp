@@ -355,7 +355,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             uploadContext.setUploadTitleObject({});
 
             navigation.popToTop();
-            navigation.navigate('HomeFeedScreen');
+            navigation.navigate('HomeFeedScreen', { forceRefresh: true });
         }
 
         return (

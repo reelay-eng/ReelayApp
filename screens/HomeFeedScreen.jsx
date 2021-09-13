@@ -8,23 +8,13 @@ export default function HomeFeedScreen({ navigation, route }) {
 		flex: 1;
 		background-color: black;
 	`
-	let refreshIndex = 0;
-	if (route && route.params) {
-		const { refreshCount } = route.params;
-		refreshIndex = refreshCount;
-	}
 
-	useEffect(() => {
-		// const unsubscribe = navigation.dangerouslyGetParent().addListener('tabPress', e => {
-		// 	e.preventDefault();
-        //     console.log('on tab press');
-        // });
-		// return unsubscribe;
-	}, [navigation]);
-
+	const forceRefresh = route?.params?.forceRefresh;
+	console.log('force refresh: ', forceRefresh);
+	
 	return (
 		<TransparentContainer>
-			<ReelayFeed navigation={navigation} refreshIndex={refreshIndex} />
+			<ReelayFeed forceRefresh={forceRefresh} navigation={navigation} />
 		</TransparentContainer>
 	)
 };

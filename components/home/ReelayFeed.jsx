@@ -65,7 +65,7 @@ const StackLocation = ({ position, length }) => {
     );
 }
 
-export default ReelayFeed = ({ navigation, refreshIndex }) => {
+export default ReelayFeed = ({ navigation, forceRefresh }) => {
 
     const feedPager = useRef();
     const nextPage = useRef(0);
@@ -75,7 +75,6 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
     const visibilityContext = useContext(VisibilityContext);
 
     const [feedPosition, setFeedPosition] = useState(0);
-    // const [nextPage, setNextPage] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
     const [stackList, setStackList] = useState([]);
     const [stackCounter, setStackCounter] = useState(0);
@@ -85,14 +84,14 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
     console.log('feed position: ', feedPosition);
     console.log('next page: ', nextPage.current);
     console.log('isPaused', isPaused);
-    // console.log('reelayList length: ', reelayList.length);
     console.log('stackList length: ', stackList.length);
     console.log('stackCounter: ', stackCounter);
     console.log('stackPositions: ', stackPositions);
     console.log('overlay visible: ', visibilityContext.overlayVisible);
 
     useEffect(() => {
-        if (!stackList.length) {
+        const stackEmpty = !stackList.length;
+        if (stackEmpty || forceRefresh) {
             console.log('gotta load the feed');
             try {
                 extendFeed();
