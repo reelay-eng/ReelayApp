@@ -20,6 +20,7 @@ import Hero from './Hero';
 import { showMessageToast } from '../utils/toasts';
 
 // Please move these into an environment variable (preferably injected via your build step)
+const FEED_BATCH_SIZE = 5;
 const CLOUDFRONT_BASE_URL = 'https://di92fpd9s7eko.cloudfront.net';
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
@@ -67,21 +68,22 @@ const StackLocation = ({ position, length }) => {
 export default ReelayFeed = ({ navigation, refreshIndex }) => {
 
     const feedPager = useRef();
+    const nextPage = useRef(0);
     const stackPager = useRef();
+
     const authContext = useContext(AuthContext);
     const visibilityContext = useContext(VisibilityContext);
 
     const [feedPosition, setFeedPosition] = useState(0);
-    const [nextPage, setNextPage] = useState(0);
+    // const [nextPage, setNextPage] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
-    // const [reelayList, setReelayList] = useState([]);
     const [stackList, setStackList] = useState([]);
     const [stackCounter, setStackCounter] = useState(0);
     const [stackPositions, setStackPositions] = useState({});
 
     console.log('FEED IS RENDERING');
     console.log('feed position: ', feedPosition);
-    console.log('next page: ', nextPage);
+    console.log('next page: ', nextPage.current);
     console.log('isPaused', isPaused);
     // console.log('reelayList length: ', reelayList.length);
     console.log('stackList length: ', stackList.length);
@@ -93,7 +95,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
         if (!stackList.length) {
             console.log('gotta load the feed');
             try {
-                refreshFeed();
+                extendFeed();
             } catch (error) {
                 console.log(error);
             }
@@ -105,82 +107,21 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
     useEffect(() => {
         // this is DANGEROUS and should be in a try/catch
         const unsubscribe = navigation.dangerouslyGetParent().addListener('tabPress', e => {
-			e.preventDefault();
-            if (feedPager && feedPager.current) {
-                if (feedPosition === 0) {
-                    console.log('refreshing feed');
-                    refreshFeed();
-                    showMessageToast('You\'re at the top');
-                }
-                if (stackPositions[0] !== 0) {
-                    stackPositions[0] = 0;
-                    setStackCounter(stackCounter + 1);
-                }
-                feedPager.current.setPage(0);
-                stackPager.current.setPage(0);
-            }
+            e.preventDefault();
+            onTabPress();
         });
         return unsubscribe;
     }, [navigation, feedPosition]);
 
-    const getVideoURI = async (fetchedReelay) => {
-        const videoS3Key = (fetchedReelay.videoS3Key.endsWith('.mp4')) 
-                ? fetchedReelay.videoS3Key : (fetchedReelay.videoS3Key + '.mp4');
-        const s3VideoURI = await Storage.get(videoS3Key, {
-            contentType: "video/mp4"
-        });
-        const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${videoS3Key}`;
-        return { id: fetchedReelay.id, videoURI: cloudfrontVideoURI };
-    }    
-
-    const fetchFeedNextPage = async (page, batchSize) => {
-        const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY);
-        console.log('query initiated, page: ', page / batchSize, ', limit: ', batchSize);
-        const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
-            sort: r => r.uploadedAt(SortDirection.DESCENDING),
-            page: page / batchSize,
-            limit: batchSize,
-        });
-        console.log('query finished');
-
-        if (!fetchedReelays || !fetchedReelays.length) {
-            console.log('No query response');
-            return [];
-        }
-
-        const preparedReelays = await prepareReelayBatch(fetchedReelays);
-        const filteredReelays = preparedReelays.filter(notDuplicateInFeed);
-        
-        console.log('prepared reelays');
-        preparedReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
-        console.log('filtered reelays');
-        filteredReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
-        return filteredReelays;
-    }
-
-    const refreshFeed = async (batchSize = 5) => {
-        const filteredReelays = await fetchFeedNextPage(0, batchSize);
-        console.log('IN REFRESH FEED, filtered reelay length: ', filteredReelays.length);
-        const fetchedStacks = await fetchStacks({ filteredReelays: filteredReelays });
-        console.log('fetched stacks length: ', fetchedStacks.length);
-        filteredReelays.forEach(reelay => stackPositions[reelay.titleID] = 0);
-
-        setNextPage(batchSize);
-        // setReelayList(filteredReelays);
-        setStackList(fetchedStacks);
-
-        return filteredReelays;
-    }
-    
-    const extendFeed = async (batchSize = 5) => {
-        let page = nextPage;
+    const extendFeed = async () => {
+        let page = nextPage.current;
         let filteredReelays = [];
 
         // keep querying until we can extend
         // can be empty if fetched reelays are for duplicate titles, so we keep going
         while (!filteredReelays.length) {
-            filteredReelays = await fetchFeedNextPage(page, batchSize);
-            page += batchSize;
+            filteredReelays = await fetchFeedNextPage({ page, refresh: false });
+            page += FEED_BATCH_SIZE;
         }
 
         console.log(filteredReelays.length);
@@ -192,13 +133,41 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
         const newStackList = [...stackList, ...fetchedStacks];
         filteredReelays.forEach(reelay => stackPositions[reelay.titleID] = 0);
 
-        setNextPage(page);
-        // setReelayList(newReelayList);
+        nextPage.current = page;
         setStackList(newStackList);
 
         return filteredReelays;
     }
 
+    const fetchFeedNextPage = async ({ page, refresh }) => {
+        const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY);
+        console.log('query initiated, page: ', page / FEED_BATCH_SIZE);
+        const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
+            sort: r => r.uploadedAt(SortDirection.DESCENDING),
+            page: page / FEED_BATCH_SIZE,
+            limit: FEED_BATCH_SIZE,
+        });
+        console.log('query finished');
+
+        if (!fetchedReelays || !fetchedReelays.length) {
+            console.log('No query response');
+            return [];
+        }
+
+        const preparedReelays = await prepareReelayBatch(fetchedReelays);
+        
+        let filteredReelays = preparedReelays.filter(notDuplicateInBatch);
+        if (!refresh) {
+            filteredReelays = filteredReelays.filter(notDuplicateInFeed);
+        }
+        
+        console.log('prepared reelays');
+        preparedReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
+        console.log('filtered reelays');
+        filteredReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
+        return filteredReelays;
+    }
+    
     const fetchReelaysForStack = async ({ stack, page, batchSize }) => {
         const titleID = stack[0].titleID;
         const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY).tmdbTitleID('eq', String(titleID));
@@ -238,16 +207,31 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
         return currentStack[currentStackPosition];
     }
 
-    const notDuplicateInFeed = (preparedReelay, index, array) => {
+    const getVideoURI = async (fetchedReelay) => {
+        const videoS3Key = (fetchedReelay.videoS3Key.endsWith('.mp4')) 
+                ? fetchedReelay.videoS3Key : (fetchedReelay.videoS3Key + '.mp4');
+        const s3VideoURI = await Storage.get(videoS3Key, {
+            contentType: "video/mp4"
+        });
+        const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${videoS3Key}`;
+        return { id: fetchedReelay.id, videoURI: cloudfrontVideoURI };
+    }    
+
+    const notDuplicateInBatch = (reelay, index, preparedReelays) => {
+        const alreadyInBatch = (preparedReelays.findIndex((batchEl, ii) => {
+            return (batchEl.titleID === reelay.titleID) && (ii < index);
+        }) >= 0);
+        return !alreadyInBatch;
+    }
+
+    const notDuplicateInFeed = (reelay, index, preparedReelays) => {
         const reelayList = stackList.map(stack => stack[0]);
         const alreadyInFeed = (reelayList.findIndex(listReelay => {
-            return listReelay.titleID === preparedReelay.titleID;
+            return listReelay.titleID === reelay.titleID;
         }) >= 0);
-        const alreadyInBatch = (array.findIndex((batchEl, ii) => {
-            return (batchEl.titleID === preparedReelay.titleID) && (ii < index);
-        }) >= 0);
-        return !alreadyInFeed && !alreadyInBatch;
+        return !alreadyInFeed;
     }
+
 
     const onDeleteReelay = async (reelay) => {
         const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY).id('eq', String(reelay.id));
@@ -278,6 +262,7 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
     };
 
     const onFeedSwiped = async (e) => {
+        console.log('ON FEED SWIPED: ', e.nativeEvent.position);
         const prevReelay = getReelayInFeed(feedPosition);
         const nextReelay = getReelayInFeed(e.nativeEvent.position);
         const swipeDirection = e.nativeEvent.position < feedPosition ? 'up' : 'down';
@@ -301,13 +286,23 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
 	};
 
     const onStackSwiped = async (e) => {
+        console.log('ON STACK SWIPED', e.nativeEvent.position);
         const prevReelay = getReelayInFeed(feedPosition);
         const nextReelay = stackList[feedPosition][e.nativeEvent.position];
         const swipeDirection = e.nativeEvent.position < feedPosition ? 'left' : 'right';
 
         const stackPosition = e.nativeEvent.position;
         const titleID = stackList[feedPosition][0].titleID;
+        const prevStackPosition = stackPositions[titleID];
+
+        if (Math.abs(prevStackPosition - stackPosition) > 1) {
+            console.log('NOT SETTING STACK POSITION');
+            console.log('prevStackPosition: ', prevStackPosition);
+            console.log('stackPosition: ', stackPosition)
+            return;
+        }
         stackPositions[titleID] = stackPosition;
+        
         setStackCounter(stackCounter + 1);
 
         Amplitude.logEventWithPropertiesAsync('swipedFeed', {
@@ -321,6 +316,52 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
             username: authContext.user.username,
         })
     };
+
+    const onTabPress = async () => {
+        if (!stackList.length) return;
+
+        const titleID = stackList[0][0].titleID;
+        if (feedPosition === 0) {
+            if (stackPositions[titleID] === 0) {
+                refreshFeed();
+            } else if (stackPager?.current) {
+                stackPositions[titleID] = 0; 
+                stackPager.current.setPage(0);    
+                setStackCounter(stackCounter + 1);
+            }
+        } else {
+            feedPager.current.setPage(0);
+            setFeedPosition(0);
+        }
+    }
+
+    const prepareReelay = (fetchedReelay, titleObject, videoURI) => {
+        const releaseYear = (titleObject?.release_date?.length >= 4)
+            ? (titleObject.release_date.slice(0,4)) : '';	
+    
+        return {
+            id: fetchedReelay.id,
+            titleID: titleObject.id,
+            title: titleObject.title,
+            releaseDate: titleObject.release_date,
+            releaseYear: releaseYear,
+            creator: {
+                username: String(fetchedReelay.owner),
+                avatar: '../../assets/images/icon.png'
+            },
+            overlayInfo: {
+                director: titleObject.director,
+                displayActors: titleObject.displayActors,
+                overview: titleObject.overview,
+                tagline: titleObject.tagline,
+                trailerURI: titleObject.trailerURI,
+            },
+            venue: fetchedReelay.venue ? fetchedReelay.venue : null,
+            videoURI: videoURI,
+            posterURI: titleObject ? titleObject.poster_path : null,
+            postedDateTime: fetchedReelay.uploadedAt,
+        };
+    }
 
     const prepareReelayBatch = async (fetchedReelays) => {
         const titleObjectPromises = fetchedReelays.map(async reelay => {
@@ -353,32 +394,21 @@ export default ReelayFeed = ({ navigation, refreshIndex }) => {
         return preparedReelays;
     }
 
-    const prepareReelay =  (fetchedReelay, titleObject, videoURI) => {
-        const releaseYear = (titleObject && titleObject.release_date && titleObject.release_date.length >= 4)
-            ? (titleObject.release_date.slice(0,4)) : '';	
-    
-        return {
-            id: fetchedReelay.id,
-            titleID: titleObject.id,
-            title: titleObject.title,
-            releaseDate: titleObject.release_date,
-            releaseYear: releaseYear,
-            creator: {
-                username: String(fetchedReelay.owner),
-                avatar: '../../assets/images/icon.png'
-            },
-            overlayInfo: {
-                director: titleObject.director,
-                displayActors: titleObject.displayActors,
-                overview: titleObject.overview,
-                tagline: titleObject.tagline,
-                trailerURI: titleObject.trailerURI,
-            },
-            venue: fetchedReelay.venue ? fetchedReelay.venue : null,
-            videoURI: videoURI,
-            posterURI: titleObject ? titleObject.poster_path : null,
-            postedDateTime: fetchedReelay.uploadedAt,
-        };
+    const refreshFeed = async () => {
+        console.log('REFRESHING FEED');        
+        const filteredReelays = await fetchFeedNextPage({ 
+            batchSize: FEED_BATCH_SIZE, 
+            page: 0, 
+            refresh: true 
+        });
+        const fetchedStacks = await fetchStacks({ 
+            filteredReelays: filteredReelays 
+        });
+          
+        filteredReelays.forEach(reelay => stackPositions[reelay.titleID] = 0);
+        nextPage.current = FEED_BATCH_SIZE;
+        setStackList(fetchedStacks);        
+        showMessageToast('You\'re at the top');
     }
     
 	return (
