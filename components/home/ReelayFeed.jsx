@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState, useRef, useCallback } from 'react';
-import { Dimensions, Text, View } from 'react-native';
+import { Dimensions, Pressable, Text, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 import { VisibilityContext } from '../../context/VisibilityContext';
 import Constants from 'expo-constants';
 
@@ -16,13 +17,13 @@ import { fetchAnnotatedTitle } from '../../api/TMDbApi';
 
 import FeedOverlay from '../overlay/FeedOverlay';
 import Hero from './Hero';
-// import VenueIcon from '../utils/VenueIcon';
 import { showMessageToast } from '../utils/toasts';
 
 // Please move these into an environment variable (preferably injected via your build step)
-const FEED_BATCH_SIZE = 5;
 const CLOUDFRONT_BASE_URL = 'https://di92fpd9s7eko.cloudfront.net';
+const FEED_BATCH_SIZE = 5;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
+const PLAY_PAUSE_ICON_TIMEOUT = 800;
 
 const { height, width } = Dimensions.get('window');
 
@@ -39,6 +40,23 @@ const TopRightContainer = styled(View)`
     top: 40px;
     zIndex: 3;
 `
+const PlayPauseIcon = ({ onPress, type = 'play' }) => {
+    const ICON_SIZE = 96;
+    const IconContainer = styled(Pressable)`
+        position: absolute;
+        left: ${(width - ICON_SIZE) / 2}px;
+        opacity: 50;
+        top: ${(height - ICON_SIZE) / 2}px;
+        height: ${ICON_SIZE}px;
+        width: ${ICON_SIZE}px;
+        zIndex: 3;
+    `
+    return (
+        <IconContainer onPress={onPress}>
+            <Icon type='ionicon' name={type} color={'white'} size={ICON_SIZE} />
+        </IconContainer>
+    );
+}
 
 const StackLocation = ({ position, length }) => {
     const StackLocationOval = styled(View)`
@@ -76,6 +94,7 @@ export default ReelayFeed = ({ navigation, forceRefresh }) => {
 
     const [feedPosition, setFeedPosition] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
+    const [iconVisible, setIconVisible] = useState('none');
     const [stackList, setStackList] = useState([]);
     const [stackCounter, setStackCounter] = useState(0);
     const [stackPositions, setStackPositions] = useState({});
@@ -294,6 +313,7 @@ export default ReelayFeed = ({ navigation, forceRefresh }) => {
         const titleID = stackList[feedPosition][0].titleID;
         const prevStackPosition = stackPositions[titleID];
 
+        if (prevStackPosition === stackPosition) return;
         if (Math.abs(prevStackPosition - stackPosition) > 1) {
             console.log('NOT SETTING STACK POSITION');
             console.log('prevStackPosition: ', prevStackPosition);
@@ -331,6 +351,28 @@ export default ReelayFeed = ({ navigation, forceRefresh }) => {
         } else {
             feedPager.current.setPage(0);
             setFeedPosition(0);
+        }
+    }
+
+    const playPause = () => {
+        if (isPaused) {
+            console.log('SET PLAYING STARTED');
+            setIsPaused(false);
+            setIconVisible('pause');
+            setTimeout(() => {
+                setIconVisible('none');
+            }, PLAY_PAUSE_ICON_TIMEOUT);    
+            console.log('SET PLAYING FINISHED');
+        } else {
+            console.log('SET PAUSED STARTED');
+            setIsPaused(true);
+            setIconVisible('play');
+            setTimeout(() => {
+                if (iconVisible === 'play') {
+                    setIconVisible('none');
+                }
+            }, PLAY_PAUSE_ICON_TIMEOUT);   
+            console.log('SET PAUSED FINISHED'); 
         }
     }
 
@@ -422,15 +464,18 @@ export default ReelayFeed = ({ navigation, forceRefresh }) => {
                             <ReelayFeedContainer key={stack[0].titleID}>
                                 <PagerViewContainer ref={firstStackOnlyRef} initialPage={0} orientation='horizontal' onPageSelected={onStackSwiped}>
                                     { stack.map((reelay, stackIndex) => {
-                                        return <Hero stack={stack} key={reelay.id} isPaused={isPaused} setIsPaused={setIsPaused}
+                                        return <Hero stack={stack} key={reelay.id} 
+                                                    isPaused={isPaused} setIsPaused={setIsPaused}
                                                     feedIndex={feedIndex} feedPosition={feedPosition}
-                                                    stackIndex={stackIndex} stackPosition={stackPosition} />;
+                                                    stackIndex={stackIndex} stackPosition={stackPosition} 
+                                                    playPause={playPause} />;
                                     })}
                                 </PagerViewContainer>
                                 <TopRightContainer>
                                     <Poster reelay={stack[stackPosition]} showTitle={false} />
                                     { stack.length > 1 && <StackLocation position={stackPosition} length={stack.length} /> }
                                 </TopRightContainer>
+                                { iconVisible !== 'none' && <PlayPauseIcon onPress={playPause} type={iconVisible} /> }
                             </ReelayFeedContainer>
                         );
 					})}

@@ -1,46 +1,25 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { Dimensions, Pressable, SafeAreaView, Text, View } from 'react-native';
-import { Icon } from 'react-native-elements';
 import { LinearGradient } from 'expo-linear-gradient';
 import styled from 'styled-components/native';
 
 import FeedVideoPlayer from './FeedVideoPlayer';
 import ReelayInfo from './ReelayInfo';
-
 import { VisibilityContext } from '../../context/VisibilityContext';
 
 const { height, width } = Dimensions.get('window');
 
-const PlayPauseIcon = ({ type = 'play' }) => {
-    const ICON_SIZE = 96;
-    const IconContainer = styled(View)`
-        position: absolute;
-        left: ${(width - ICON_SIZE) / 2}px;
-        opacity: 50;
-        top: ${(height - ICON_SIZE) / 2}px;
-        height: ${ICON_SIZE}px;
-        width: ${ICON_SIZE}px;
-    `
-    
-    return (
-        <IconContainer>
-            <Icon type='ionicon' name={type} color={'white'} size={ICON_SIZE} />
-        </IconContainer>
-    );
-}
-
 export default Hero = ({ 
-    stack, 
     index, 
     isPaused,
     feedIndex,
     feedPosition, 
+    playPause,
     setIsPaused,
+    stack,
     stackIndex,
     stackPosition,
 }) => {
-
-    const PLAY_PAUSE_ICON_TIMEOUT = 800;
     const Gradient = styled(LinearGradient)`
         height: 100%;
         justify-content: space-between;
@@ -56,34 +35,20 @@ export default Hero = ({
         width: 100%;
         height: 100%;
     `
-    const [iconVisible, setIconVisible] = useState('none');
-
     const visibilityContext = useContext(VisibilityContext);
     const reelay = stack[stackIndex];
     const isPlaying = (feedIndex === feedPosition)
                     && (stackIndex === stackPosition)
                     && (!visibilityContext.overlayVisible);
 
-    const playPause = () => {
-        if (isPaused) {
-            setIsPaused(false);
-            setIconVisible('pause');
-            setTimeout(() => {
-                setIconVisible('none');
-            }, PLAY_PAUSE_ICON_TIMEOUT);    
-        } else {
-            setIsPaused(true);
-            setIconVisible('play');
-            setTimeout(() => {
-                if (iconVisible === 'play') {
-                    setIconVisible('none');
-                }
-            }, PLAY_PAUSE_ICON_TIMEOUT);    
-        }
+    if (isPlaying) {
+        console.log('PLAYING HERO IS RENDERING: ', reelay.title, reelay.creator.username);
+        console.log('Feed position: ', feedPosition);
+        console.log('Video URI: ', reelay.videoURI);
+        console.log('Overlay visible? ', visibilityContext.overlayVisible);
     }
 
     const setReelayOverlay = (e) => {
-        console.log('setting reelay overlay');
         if (!visibilityContext.overlayVisible) {
             visibilityContext.setOverlayData({
                 type: 'REELAY',
@@ -96,6 +61,7 @@ export default Hero = ({
 
     if (isPlaying) {
         console.log(reelay.title, ' is playing');
+        console.log(reelay.videoURI);
     } else if ((feedIndex === feedPosition) && (stackIndex === stackPosition)) {
         console.log(reelay.title, ' is paused');
     }
@@ -118,7 +84,6 @@ export default Hero = ({
                 ]}>
                 <Overlay onPress={playPause} onLongPress={setReelayOverlay}>
                     <ReelayInfo reelay={reelay} />
-                    { iconVisible !== 'none' && <PlayPauseIcon type={iconVisible} /> }
                 </Overlay>
             </Gradient>
         </View>
