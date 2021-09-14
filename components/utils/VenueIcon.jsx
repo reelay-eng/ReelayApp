@@ -50,9 +50,7 @@ export const VenueIcon = ({ border, onPress, size = 48, venue }) => {
         border-width: ${border ? 4 : 0}px;
         border-color: white;
     `
-    console.log('IN VENUE ICON');
     const source = venueIcons.find(vi => vi.venue === venue).source;
-    console.log('after code in question');
     
     return (
         <IconPressable onPress={onPress}>

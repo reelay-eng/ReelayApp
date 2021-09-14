@@ -12,7 +12,9 @@ import PreviewVideoPlayer from '../components/create-reelay/PreviewVideoPlayer';
 import ReelayPreviewOverlay from '../components/overlay/ReelayPreviewOverlay';
 
 import { Dimensions, Text, View, SafeAreaView, Pressable } from 'react-native';
+import { Button } from 'react-native-elements';
 import { ProgressBar, Switch } from 'react-native-paper';
+import * as Progress from 'react-native-progress';
 
 import styled from 'styled-components/native';
 
@@ -22,29 +24,29 @@ const { height, width } = Dimensions.get('window');
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
 
 const UploadScreenContainer = styled(SafeAreaView)`
-    height: 100%;
-    width: 100%;
     background-color: black;
+    height: 100%;
+    justify-content: flex-start;
+    width: 100%;
 `
 const UploadTop = styled(View)`
-    flex: 0.7;
     flex-direction: row;
-    height: 20px;
+    height: 60px;
+    width: 100%;
 `
 const UploadTopLeft = styled(View)`
-    flex: 1;
     flex-direction: row;
-    justify-content: flex-start;
-    width: ${width / 2}px;
     margin: 10px;
+    justify-content: flex-start;
+    width: 50%;
 `
 const UploadVideoContainer = styled(Pressable)`
-    height: 75%;
-    width: 75%;
-    margin: 10px;
     align-self: center;
     border-radius: 10px;
+    height: 75%;
+    margin: 10px;
     overflow: hidden;
+    width: 75%;
 `
 
 export default ReelayUploadScreen = ({ navigation }) => {
@@ -173,34 +175,35 @@ export default ReelayUploadScreen = ({ navigation }) => {
         }
     }
 
-    const PageTitle = () => {
-        const PageTitleContainer = styled(Pressable)`
+    const Retake = () => {
+        const RetakeContainer = styled(Pressable)`
             height: 20px;
-            margin-top: 12px;
-            margin-left: 0px;
+            top: 12px;
         `
-        const PageTitleText = styled(Text)`
+        const RetakeText = styled(Text)`
             font-size: 20px;
             font-family: System;
             color: white;
         `
         return (
-            <PageTitleContainer onPress={() => { 
+            <RetakeContainer onPress={() => { 
                 Amplitude.logEventWithPropertiesAsync('retake', {
                     username: authContext.user.username,
                     title: titleObject.title ? titleObject.title : titleObject.name,
                 });
                 navigation.pop();
             }}>
-                <PageTitleText>{'Retake'}</PageTitleText>
-            </PageTitleContainer>
+                <RetakeText>{'Retake'}</RetakeText>
+            </RetakeContainer>
         );
     }
 
     const UploadStatus = () => {
         const UploadStatusContainer = styled(View)`
-            height: 40px;
-            margin: 10px;
+            height: 20px;
+            position: absolute;
+            right: ${width / 8}px;
+            top: 12px;
         `
         const UploadStatusText = styled(Text)`
             font-size: 20px;
@@ -209,15 +212,12 @@ export default ReelayUploadScreen = ({ navigation }) => {
         `
         const StatusTextContainer = styled(View)`
             height: 30px;
-            margin: 10px;
             align-self: flex-end;
-            right: 10px;
         `
         const PublishButton = styled(Pressable)`
+            align-self: flex-end;
             height: 30px;
             margin: 10px;
-            align-self: flex-end;
-            right: 10px;
         `
 
         const readyToPublish = 
@@ -251,12 +251,12 @@ export default ReelayUploadScreen = ({ navigation }) => {
 
     const UploadProgressBar = () => {
         const UploadProgressBarContainer = styled(View)`
-            height: 10px;
-            width: 75%;
-            margin: 10px;
             align-self: center;
+            height: 10px;
+            margin: 15px;
+            justify-content: center;
+            width: 75%;
         `
-
         const chunksUploaded = uploadContext.chunksUploaded;
         const chunksTotal = uploadContext.chunksTotal;    
         const indeterminate = chunksUploaded == 0 && uploadContext.uploading;
@@ -269,7 +269,10 @@ export default ReelayUploadScreen = ({ navigation }) => {
     
         return (
             <UploadProgressBarContainer>
-                <ProgressBar indeterminate={indeterminate} progress={progress} color={'white'} />
+                { (uploadContext.uploading || uploadContext.uploadComplete) && 
+                    // <ProgressBar indeterminate={indeterminate} progress={progress} color={'white'} /> 
+                    <Progress.Bar color={'white'} indeterminate={indeterminate} progress={progress} width={width * 0.75} />
+                }
             </UploadProgressBarContainer>
         );
     }
@@ -331,18 +334,17 @@ export default ReelayUploadScreen = ({ navigation }) => {
     const DoneButton = () => {
 
         const DoneButtonMargin = styled(View)`
-            height: 20px;
-            width: 75%;
-            margin: 10px;
             align-self: center;
+            height: 40px;
+            margin: 10px;
+            width: 60%;
         `
         const DoneText = styled(Text)`
+            align-self: center;
             font-size: 18px;
             font-family: System;
-            align-self: center;
             color: white;
         `
-        const DoneButtonContainer = styled(Pressable)``
 
         const exitCreate = ({ navigation }) => {
             uploadContext.setUploading(false);
@@ -360,10 +362,13 @@ export default ReelayUploadScreen = ({ navigation }) => {
 
         return (
             <DoneButtonMargin>
-                <DoneButtonContainer 
-                    onPress={() => exitCreate({ navigation })}>
-                    <DoneText>{'Done'}</DoneText>
-                </DoneButtonContainer>
+                { uploadContext.uploadComplete &&
+                    <Button 
+                        buttonStyle={{ borderColor: 'white' }}
+                        titleStyle={{ color: 'white' }}
+                        onPress={() => exitCreate({ navigation })}
+                        title='Done' type='outline' />
+                }
             </DoneButtonMargin>
         );
     }
@@ -373,13 +378,15 @@ export default ReelayUploadScreen = ({ navigation }) => {
     return (
         <UploadScreenContainer>
             <UploadTop>
-                <UploadTopLeft>
-                    <BackButton navigation={navigation} />
-                    <PageTitle />
-                </UploadTopLeft>
+                { !uploadContext.uploading && !uploadContext.uploadComplete &&
+                    <UploadTopLeft>
+                        <BackButton navigation={navigation} />
+                        <Retake />          
+                    </UploadTopLeft>          
+                }
                 <UploadStatus />
             </UploadTop>
-            { uploadContext.uploading && <UploadProgressBar /> }
+            <UploadProgressBar />
             <UploadVideoContainer onPress={playPause}>
                 <PreviewVideoPlayer videoURI={videoURI} playing={playing} />
                 <ReelayPreviewOverlay />

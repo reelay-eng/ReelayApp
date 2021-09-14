@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { memo, useContext } from 'react';
 import { UploadContext } from '../../context/UploadContext';
 import { getPosterURI } from '../../api/TMDbApi';
 
@@ -20,9 +20,8 @@ export default ReelayPreviewOverlay = () => {
     const uploadContext = useContext(UploadContext);
     const titleObject = uploadContext.uploadTitleObject;
     const posterURI = getPosterURI(titleObject.poster_path);
-    // const venue = uploadContext.venueSelected;
 
-    const PreviewPoster = () => {
+    const PreviewPoster = memo(({ uri }) => {
         const PreviewPosterContainer = styled(View)`
             position: absolute;    
             top: 10px;
@@ -30,42 +29,18 @@ export default ReelayPreviewOverlay = () => {
         `
         return (
             <PreviewPosterContainer>
-                <Image source={{uri: posterURI}} style={{
+                <Image source={{ uri: uri }} style={{
                     height: 135,
                     width: 90,
                     borderRadius: 6,
                 }} />
             </PreviewPosterContainer>
         );
-    }
-
-    // const VenueLabel = () => {
-    //     const VenueContainer = styled(View)`
-    //         flex-direction: row;
-    //         justify-content: center;
-    //         left: ${0.75 * width - 100}px;
-    //         position: absolute;    
-    //         top: 155px;
-    //         width: 90px;
-    //     `
-    //     const VenueText = styled(Text)`
-    //         font-size: 12px;
-    //         font-family: System;
-    //         color: white;
-    //     `
-    //     const textToDisplay = 'Seen on ';
-    //     return (
-    //         <VenueContainer>
-    //             <VenueText>{textToDisplay}</VenueText>
-    //             <VenueIcon venue={venue} size={16} />
-    //         </VenueContainer>
-    //     );
-    // }
+    });
 
     return (
         <OverlayContainer>
-            <PreviewPoster />
-            {/* <VenueLabel /> */}
+            <PreviewPoster uri={posterURI} />
         </OverlayContainer>
     );
 }

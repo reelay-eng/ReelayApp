@@ -114,9 +114,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         const onPress = () => {
             // prepare empty venue data for upload
             // advance to camera screen
-            navigation.push('ReelayCameraScreen', {
-                venue: '',
-            });
+            navigation.push('ReelayCameraScreen', { venue: '', });
         }
         return (
             <SkipContainer>
