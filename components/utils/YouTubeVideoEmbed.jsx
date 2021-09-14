@@ -27,15 +27,15 @@ export default function YoutubeVideoEmbed({ youtubeVideoID, height }) {
   return (
     <View>
       <YoutubePlayer
-        initialPlayerParams={{
-          controls: false,
-        }}
+        // initialPlayerParams={{
+        //   controls: false,
+        // }}
         height={height}
         play={playing}
         videoId={youtubeVideoID}
         onChangeState={onStateChange}
       />
-      <PlayPauseTouchable onPress={togglePlaying} />
+      {/* <PlayPauseTouchable onPress={togglePlaying} /> */}
     </View>
   );
 }

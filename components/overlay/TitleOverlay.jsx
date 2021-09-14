@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Dimensions, SafeAreaView, View, Text } from 'react-native';
+import { Dimensions, SafeAreaView, ScrollView, View, Text } from 'react-native';
 import { Button } from 'react-native-elements';
 
 import Poster from '../home/Poster';
@@ -31,7 +31,6 @@ const VenueLabel = ({ venue }) => {
         </VenueContainer>
     );
 }
-
 
 export default TitleOverlay = ({ navigation }) => {
 
@@ -76,6 +75,10 @@ export default TitleOverlay = ({ navigation }) => {
         width: 30%;
         align-items: flex-end;
     ` 
+    const ScrollableOverlay = styled(ScrollView)`
+        height: 100%;
+        width: 100%;
+    `
     const TaglineText = styled(Text)`
         font-size: 15px;
         font-family: System;
@@ -85,7 +88,6 @@ export default TitleOverlay = ({ navigation }) => {
         margin-top: 10px;
     `
     const TitleOverlayContainer = styled(SafeAreaView)`
-        position: absolute;
         width: 100%;
         height: 100%;
         justify-content: flex-start;
@@ -121,49 +123,51 @@ export default TitleOverlay = ({ navigation }) => {
     const title = reelay.title;
     const venueMarked = (reelay.venue && reelay.venue.length);
 
-    const DoneButton = () => {
-        const DoneButtonContainer = styled(View)`
+    const ReturnButton = () => {
+        const ReturnButtonContainer = styled(View)`
             height: 40px;
             margin: 10px;
             width: 50%;
         `
         return (
-            <DoneButtonContainer>
+            <ReturnButtonContainer>
                 <Button onPress={() => visibilityContext.setOverlayVisible(false)}
                     buttonStyle={{ borderColor: 'white'}}
                     titleStyle={{ color: 'white' }}
-                    title='Done' type='outline' />
-            </DoneButtonContainer>
+                    title='Return' type='outline' />
+            </ReturnButtonContainer>
         );
     }
 
     return (
-        <TitleOverlayContainer>
-            <TitleOverlayHeader>
-                <HeaderRowContainer>
-                    <TitleText>{title}{releaseYear}</TitleText>
-                    <TaglineText>{reelay.overlayInfo?.tagline}</TaglineText>
-                    <DirectorText>{directorName}</DirectorText>
-                    { actors.map((actor, index) => {
-                        return <ActorText key={index}>{actor.name}</ActorText>
-                    })}
-                </HeaderRowContainer>
-                <PosterContainer>
-                    <Poster reelay={reelay} showTitle={false} />
-                    { venueMarked && <VenueLabel venue={reelay.venue} size={20} /> }
-                </PosterContainer>
-            </TitleOverlayHeader>
-            {reelay.overlayInfo?.trailerURI && 
-                <TitleOverlayTrailerContainer>
-                    <YoutubeVideoEmbed youtubeVideoID={reelay.overlayInfo.trailerURI} height={TRAILER_HEIGHT} />
-                </TitleOverlayTrailerContainer>
-            }
-            <TitleOverlayBottomContainer>
-                <OverviewTextContainer>
-                    <OverviewText>{reelay.overlayInfo?.overview}</OverviewText>
-                </OverviewTextContainer>
-            </TitleOverlayBottomContainer>
-            <DoneButton />
-        </TitleOverlayContainer>
+        <ScrollableOverlay bounces={false}>
+            <TitleOverlayContainer>
+                <TitleOverlayHeader>
+                    <HeaderRowContainer>
+                        <TitleText>{title}{releaseYear}</TitleText>
+                        <TaglineText>{reelay.overlayInfo?.tagline}</TaglineText>
+                        <DirectorText>{directorName}</DirectorText>
+                        { actors.map((actor, index) => {
+                            return <ActorText key={index}>{actor.name}</ActorText>
+                        })}
+                    </HeaderRowContainer>
+                    <PosterContainer>
+                        <Poster reelay={reelay} showTitle={false} />
+                        { venueMarked && <VenueLabel venue={reelay.venue} size={20} /> }
+                    </PosterContainer>
+                </TitleOverlayHeader>
+                {reelay.overlayInfo?.trailerURI && 
+                    <TitleOverlayTrailerContainer>
+                        <YoutubeVideoEmbed youtubeVideoID={reelay.overlayInfo.trailerURI} height={TRAILER_HEIGHT} />
+                    </TitleOverlayTrailerContainer>
+                }
+                <TitleOverlayBottomContainer>
+                    <OverviewTextContainer>
+                        <OverviewText>{reelay.overlayInfo?.overview}</OverviewText>
+                    </OverviewTextContainer>
+                </TitleOverlayBottomContainer>
+                <ReturnButton />
+            </TitleOverlayContainer>
+        </ScrollableOverlay>
     )
 };

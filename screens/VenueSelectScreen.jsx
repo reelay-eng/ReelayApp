@@ -9,6 +9,8 @@ import styled from 'styled-components/native';
 
 export default VenueSelectScreen = ({ navigation, route }) => {
 
+    const ICON_SIZE = 64;
+
     const { title } = route.params;
     const uploadContext = useContext(UploadContext);
     const venues = getVenues();
@@ -16,12 +18,12 @@ export default VenueSelectScreen = ({ navigation, route }) => {
     const ScreenOuterContainer = styled(View)`
         height: 100%;
         width: 100%;
-        color: black;
+        background-color: black;
     `
     const ScreenInnerContainer = styled(SafeAreaView)`
         height: 100%;
         width: 100%;
-        color: black;
+        background-color: black;
     `
     const Options = () => {
         const IconContainer = styled(View)`
@@ -59,7 +61,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
                     { venues.map(venue => {
                         return (
                             <IconContainer key={venue}>
-                                <VenueIcon border={true} onPress={() => onPress(venue)} size={84} venue={venue}  />
+                                <VenueIcon border={true} onPress={() => onPress(venue)} size={ICON_SIZE} venue={venue}  />
                             </IconContainer>
                         ); 
                     })}

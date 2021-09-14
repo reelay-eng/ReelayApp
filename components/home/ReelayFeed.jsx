@@ -436,7 +436,9 @@ export default ReelayFeed = ({ navigation, forceRefresh }) => {
 					})}
 				</PagerViewContainer>
 			}
-            {visibilityContext.overlayVisible && <FeedOverlay navigation={navigation} onDeleteReelay={onDeleteReelay} />}
+            {visibilityContext.overlayVisible && 
+                <FeedOverlay navigation={navigation} setIsPaused={setIsPaused} onDeleteReelay={onDeleteReelay} />
+            }
 		</ReelayFeedContainer>
 	);
 }
