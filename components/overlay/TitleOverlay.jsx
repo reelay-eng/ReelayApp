@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { Dimensions, SafeAreaView, View, Text } from 'react-native';
+import { Button } from 'react-native-elements';
 
 import Poster from '../home/Poster';
 import { VisibilityContext} from '../../context/VisibilityContext';
@@ -38,22 +39,22 @@ export default TitleOverlay = ({ navigation }) => {
     const TRAILER_HEIGHT = height * 0.3;
 
     const ActorText = styled(Text)`
-        font-size: 15px;
+        font-size: 16px;
         font-family: System;
         font-weight: 300;
         color: white;
         margin-top: 10px;
     `
     const DirectorText = styled(Text)`
-        font-size: 15px;
+        font-size: 16px;
         font-family: System;
         font-weight: 300;
         color: white;
         margin-top: 10px;
     `
     const HeaderRowContainer = styled(View)`
-        width: 65%;
         padding: 20px;
+        width: 65%;
     `
     const OverviewText = styled(Text)`
         font-size: 14px;
@@ -64,9 +65,9 @@ export default TitleOverlay = ({ navigation }) => {
         margin-top: 10px;
     `
     const OverviewTextContainer = styled(Text)`
-        height: 100%;
         width: 100%;
         margin: 10px;
+        margin-bottom: 20px;
     `
     const PosterContainer = styled(View)`
         position: absolute;
@@ -91,7 +92,6 @@ export default TitleOverlay = ({ navigation }) => {
         align-items: center;
     `
     const TitleOverlayHeader = styled(View)`
-        flex: 1;
         flex-direction: row;
         justify-content: space-between;
         width: 100%;
@@ -100,9 +100,9 @@ export default TitleOverlay = ({ navigation }) => {
         width: 100%;
         height: ${TRAILER_HEIGHT}px;
         margin-left: 10px;
+        margin-top: 20px;
     `
     const TitleOverlayBottomContainer = styled(View)`
-        flex: 1;
         width: 100%;
     `
     const TitleText = styled(Text)`
@@ -121,7 +121,21 @@ export default TitleOverlay = ({ navigation }) => {
     const title = reelay.title;
     const venueMarked = (reelay.venue && reelay.venue.length);
 
-    console.log('venue marked: ', venueMarked, reelay.venue);
+    const DoneButton = () => {
+        const DoneButtonContainer = styled(View)`
+            height: 40px;
+            margin: 10px;
+            width: 50%;
+        `
+        return (
+            <DoneButtonContainer>
+                <Button onPress={() => visibilityContext.setOverlayVisible(false)}
+                    buttonStyle={{ borderColor: 'white'}}
+                    titleStyle={{ color: 'white' }}
+                    title='Done' type='outline' />
+            </DoneButtonContainer>
+        );
+    }
 
     return (
         <TitleOverlayContainer>
@@ -149,6 +163,7 @@ export default TitleOverlay = ({ navigation }) => {
                     <OverviewText>{reelay.overlayInfo?.overview}</OverviewText>
                 </OverviewTextContainer>
             </TitleOverlayBottomContainer>
+            <DoneButton />
         </TitleOverlayContainer>
     )
 };
