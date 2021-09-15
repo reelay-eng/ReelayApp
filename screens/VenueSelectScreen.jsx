@@ -1,10 +1,10 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useContext } from 'react';
 import { Pressable, SafeAreaView, ScrollView, Text, View } from 'react-native';
-import { Image } from 'react-native-elements';
+import { Button, Image } from 'react-native-elements';
 import { UploadContext } from '../context/UploadContext';
 
 import BackButton from '../components/utils/BackButton';
-import { getVenues, VenueIcon } from '../components/utils/VenueIcon';
+import { getIconVenues, getOtherVenues, VenueIcon } from '../components/utils/VenueIcon';
 import styled from 'styled-components/native';
 
 export default VenueSelectScreen = ({ navigation, route }) => {
@@ -13,7 +13,8 @@ export default VenueSelectScreen = ({ navigation, route }) => {
 
     const { title } = route.params;
     const uploadContext = useContext(UploadContext);
-    const venues = getVenues();
+    const iconVenues = getIconVenues();
+    const otherVenues = getOtherVenues();
     
     const ScreenOuterContainer = styled(View)`
         height: 100%;
@@ -25,25 +26,24 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         width: 100%;
         background-color: black;
     `
-    const Options = () => {
+    const ScrollBox = styled(ScrollView)`
+        flex: 1;
+        flex-wrap: wrap;
+        width: 100%;
+    `
+
+    const IconOptions = () => {
         const IconContainer = styled(View)`
             margin: 12px;
         `
-        const OptionsContainer = styled(View)`
+        const IconOptionsContainer = styled(View)`
             align-items: center;
             justify-content: center;
             flex: 1;
             flex-direction: row;
             flex-wrap: wrap;
+            margin-top: 20px;
             width: 100%;
-        `
-        const OptionScroll = styled(ScrollView)`
-            flex: 1;
-            flex-wrap: wrap;
-            width: 100%;
-        `
-        const Padding = styled(View)`
-            height: 10%;
         `
         const onPress = (venue) => {
             // prepare venue data for upload
@@ -55,18 +55,73 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         };
 
         return (
-            <OptionScroll>
-                <Padding />
-                <OptionsContainer>
-                    { venues.map(venue => {
+                <IconOptionsContainer>
+                    { iconVenues.map(venue => {
                         return (
                             <IconContainer key={venue}>
                                 <VenueIcon border={true} onPress={() => onPress(venue)} size={ICON_SIZE} venue={venue}  />
                             </IconContainer>
                         ); 
                     })}
-                </OptionsContainer>
-            </OptionScroll>
+                </IconOptionsContainer>
+        );
+    }
+
+    const OtherOptions = () => {
+        const IconContainer = styled(View)`
+        `
+        const OtherOptionsContainer = styled(View)`
+            align-items: flex-start;
+            margin-top: 10px;
+            width: 100%;
+        `
+        const OtherOptionsLine = styled(View)`
+            align-self: center;
+            align-items: center;
+            border-radius: ${ICON_SIZE * .75}px;
+            background-color: #f0f1f2;
+            flex-direction: row;
+            height: ${ICON_SIZE * 0.75}px;
+            margin: 25px;
+            width: 70%;
+        `
+        const OtherOptionText = styled(Text)`
+            align-self: center;
+            font-family: System;
+            font-size: 20px;
+            font-weight: 400;
+            left: 10px;
+            color: black;
+        `
+        const OtherOptionsTextButton = styled(Pressable)`
+            align-items: center;
+        `
+        const onPress = (venue) => {
+            // prepare venue data for upload
+            // advance to camera screen
+            uploadContext.setVenueSelected(venue);
+            navigation.push('ReelayCameraScreen', {
+                venue: venue,
+            });
+        };
+
+        return (
+            <OtherOptionsContainer>
+                { otherVenues.map(venueObj=> {
+                    const venue = venueObj.venue;
+                    return (
+                        <OtherOptionsLine key={venue}>
+                            <IconContainer>
+                                <VenueIcon border={true} onPress={() => onPress(venue)} 
+                                            size={ICON_SIZE} venue={venue}  />
+                            </IconContainer>
+                            <OtherOptionsTextButton onPress={() => onPress(venue)}>
+                                <OtherOptionText>{venueObj.text}</OtherOptionText>
+                            </OtherOptionsTextButton>
+                        </OtherOptionsLine>
+                    ); 
+                })}
+            </OtherOptionsContainer>
         );
     }
 
@@ -78,13 +133,14 @@ export default VenueSelectScreen = ({ navigation, route }) => {
             width: 80%;
         `
         const PromptText = styled(Text)`
+            text-align: center;
             font-size: 22px;
             font-family: System;
             color: white;
         `
         const TopContainer = styled(View)`
             flex-direction: row;
-            height: 60px;
+            height: 80px;
             width: 100%;
         `
         const promptA = 'Where did you see ';
@@ -102,16 +158,17 @@ export default VenueSelectScreen = ({ navigation, route }) => {
     }
 
     const SkipButton = () => {
-        const CloseButtonText = styled(Text)`
-            font-size: 16px;
-            font-family: System;
-            color: white;
-        `
         const SkipContainer = styled(View)`
             align-items: center;
             justify-content: center;
             height: 40px;
+            top: 20px;
             width: 100%;
+        `
+        const SkipText = styled(Text)`
+            font-size: 22px;
+            font-family: System;
+            color: white;
         `
         const onPress = () => {
             // prepare empty venue data for upload
@@ -121,7 +178,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         return (
             <SkipContainer>
                 <Pressable onPress={onPress}>
-                    <CloseButtonText>{'Skip'}</CloseButtonText>
+                    <SkipText>{'Skip'}</SkipText>
                 </Pressable>
             </SkipContainer>
         );
@@ -130,9 +187,12 @@ export default VenueSelectScreen = ({ navigation, route }) => {
     return (
         <ScreenOuterContainer>
             <ScreenInnerContainer>
-                <Prompt />
-                <Options />
-                <SkipButton />
+                <ScrollView>
+                    <Prompt />
+                    <IconOptions />
+                    <OtherOptions />
+                    <SkipButton />
+                </ScrollView>
             </ScreenInnerContainer>
         </ScreenOuterContainer>
     );

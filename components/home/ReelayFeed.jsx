@@ -339,16 +339,20 @@ export default ReelayFeed = ({ navigation, forceRefresh }) => {
     const onTabPress = async () => {
         if (!stackList.length) return;
 
+        console.log('IN ON TAB PRESS');
         const titleID = stackList[0][0].titleID;
         if (feedPosition === 0) {
             if (stackPositions[titleID] === 0) {
+                console.log('feed refreshing');
                 refreshFeed();
             } else if (stackPager?.current) {
+                console.log('feed NOT refreshing');
                 stackPositions[titleID] = 0; 
                 stackPager.current.setPage(0);    
                 setStackCounter(stackCounter + 1);
             }
         } else {
+            console.log('feed positioning to 0');
             feedPager.current.setPage(0);
             setFeedPosition(0);
         }

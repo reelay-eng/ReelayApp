@@ -37,55 +37,9 @@ export default TitleOverlay = ({ navigation }) => {
     const { height, width } = Dimensions.get('window');
     const TRAILER_HEIGHT = height * 0.3;
 
-    const ActorText = styled(Text)`
-        font-size: 16px;
-        font-family: System;
-        font-weight: 300;
-        color: white;
-        margin-top: 10px;
-    `
-    const DirectorText = styled(Text)`
-        font-size: 16px;
-        font-family: System;
-        font-weight: 300;
-        color: white;
-        margin-top: 10px;
-    `
-    const HeaderRowContainer = styled(View)`
-        padding: 20px;
-        width: 65%;
-    `
-    const OverviewText = styled(Text)`
-        font-size: 14px;
-        font-family: System;
-        font-weight: 400;
-        color: white;
-        margin-bottom: 10px;
-        margin-top: 10px;
-    `
-    const OverviewTextContainer = styled(Text)`
-        width: 100%;
-        margin: 10px;
-        margin-bottom: 20px;
-    `
-    const PosterContainer = styled(View)`
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        width: 30%;
-        align-items: flex-end;
-    ` 
-    const ScrollableOverlay = styled(ScrollView)`
+    const ScrollBox = styled(ScrollView)`
         height: 100%;
         width: 100%;
-    `
-    const TaglineText = styled(Text)`
-        font-size: 15px;
-        font-family: System;
-        font-weight: 300;
-        color: white;
-        margin-bottom: 10px;
-        margin-top: 10px;
     `
     const TitleOverlayContainer = styled(SafeAreaView)`
         width: 100%;
@@ -93,26 +47,12 @@ export default TitleOverlay = ({ navigation }) => {
         justify-content: flex-start;
         align-items: center;
     `
-    const TitleOverlayHeader = styled(View)`
-        flex-direction: row;
-        justify-content: space-between;
-        width: 100%;
-    `
     const TitleOverlayTrailerContainer = styled(View)`
         width: 100%;
         height: ${TRAILER_HEIGHT}px;
         margin-left: 10px;
         margin-top: 20px;
     `
-    const TitleOverlayBottomContainer = styled(View)`
-        width: 100%;
-    `
-    const TitleText = styled(Text)`
-        font-size: 24px;
-        font-family: System;
-        color: white;
-    `
-
     const visibilityContext = useContext(VisibilityContext);
     const reelay = visibilityContext.overlayData?.reelay;
 
@@ -122,6 +62,94 @@ export default TitleOverlay = ({ navigation }) => {
     const releaseYear = ' (' + reelay.releaseYear + ')';
     const title = reelay.title;
     const venueMarked = (reelay.venue && reelay.venue.length);
+
+    const Overview = () => {
+        const OverviewContainer = styled(View)`
+            width: 100%;
+        `
+        const OverviewText = styled(Text)`
+            font-size: 14px;
+            font-family: System;
+            font-weight: 400;
+            color: white;
+            margin-bottom: 10px;
+            margin-top: 10px;
+        `
+        const OverviewTextContainer = styled(Text)`
+            margin: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+        `
+        return (
+            <OverviewContainer>
+                <OverviewTextContainer>
+                    <OverviewText>{reelay.overlayInfo?.overview}</OverviewText>
+                </OverviewTextContainer>
+            </OverviewContainer>    
+        );
+    }
+
+    const Header = () => {
+        const ActorText = styled(Text)`
+            font-size: 16px;
+            font-family: System;
+            font-weight: 300;
+            color: white;
+            margin-top: 10px;
+        `
+        const DirectorText = styled(Text)`
+            font-size: 16px;
+            font-family: System;
+            font-weight: 300;
+            color: white;
+            margin-top: 10px;
+        `
+        const HeaderRowContainer = styled(View)`
+            padding: 20px;
+            width: 65%;
+        `
+        const PosterContainer = styled(View)`
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30%;
+            align-items: flex-end;
+        ` 
+        const TaglineText = styled(Text)`
+            font-size: 15px;
+            font-family: System;
+            font-weight: 300;
+            color: white;
+            margin-bottom: 10px;
+            margin-top: 10px;
+        `
+        const TitleOverlayHeader = styled(View)`
+            flex-direction: row;
+            justify-content: space-between;
+            width: 100%;
+        `
+        const TitleText = styled(Text)`
+            font-size: 24px;
+            font-family: System;
+            color: white;
+        `
+        return (
+            <TitleOverlayHeader>
+                <HeaderRowContainer>
+                    <TitleText>{title}{releaseYear}</TitleText>
+                    <TaglineText>{reelay.overlayInfo?.tagline}</TaglineText>
+                    <DirectorText>{directorName}</DirectorText>
+                    { actors.map((actor, index) => {
+                        return <ActorText key={index}>{actor.name}</ActorText>
+                    })}
+                </HeaderRowContainer>
+                <PosterContainer>
+                    <Poster reelay={reelay} showTitle={false} />
+                    { venueMarked && <VenueLabel venue={reelay.venue} size={20} /> }
+                </PosterContainer>
+            </TitleOverlayHeader>
+        );
+    }
 
     const ReturnButton = () => {
         const ReturnButtonContainer = styled(View)`
@@ -140,34 +168,17 @@ export default TitleOverlay = ({ navigation }) => {
     }
 
     return (
-        <ScrollableOverlay bounces={false}>
-            <TitleOverlayContainer>
-                <TitleOverlayHeader>
-                    <HeaderRowContainer>
-                        <TitleText>{title}{releaseYear}</TitleText>
-                        <TaglineText>{reelay.overlayInfo?.tagline}</TaglineText>
-                        <DirectorText>{directorName}</DirectorText>
-                        { actors.map((actor, index) => {
-                            return <ActorText key={index}>{actor.name}</ActorText>
-                        })}
-                    </HeaderRowContainer>
-                    <PosterContainer>
-                        <Poster reelay={reelay} showTitle={false} />
-                        { venueMarked && <VenueLabel venue={reelay.venue} size={20} /> }
-                    </PosterContainer>
-                </TitleOverlayHeader>
+        <TitleOverlayContainer>
+            <ScrollBox style={{ zIndex: 3 }}>
+                <Header />
                 {reelay.overlayInfo?.trailerURI && 
                     <TitleOverlayTrailerContainer>
                         <YoutubeVideoEmbed youtubeVideoID={reelay.overlayInfo.trailerURI} height={TRAILER_HEIGHT} />
                     </TitleOverlayTrailerContainer>
                 }
-                <TitleOverlayBottomContainer>
-                    <OverviewTextContainer>
-                        <OverviewText>{reelay.overlayInfo?.overview}</OverviewText>
-                    </OverviewTextContainer>
-                </TitleOverlayBottomContainer>
+                <Overview />
                 <ReturnButton />
-            </TitleOverlayContainer>
-        </ScrollableOverlay>
+            </ScrollBox>
+        </TitleOverlayContainer>
     )
 };

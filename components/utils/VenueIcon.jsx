@@ -21,37 +21,45 @@ const iconPeacock = require(ICON_PATH + 'peacock.png');
 const iconTheaters = require(ICON_PATH + 'cinemas.png');
 const iconYouTube = require(ICON_PATH + 'youtube.png');
 
-const venueIcons = [
+const iconVenues = [
     { source: iconAmazon, venue: 'amazon', },
     { source: iconAppleTV, venue: 'appletv' },
     { source: iconCrackle, venue: 'crackle' },
     { source: iconCriterion, venue: 'criterion' },
     { source: iconDisney, venue: 'disney' },
-    { source: iconFestivals, venue: 'festivals' },
     { source: iconHBO, venue: 'hbomax' },
     { source: iconHulu, venue: 'hulu' },
     { source: iconMubi, venue: 'mubi' },
     { source: iconNetfix, venue: 'netflix' },
-    { source: iconOther, venue: 'other' },
     { source: iconParamount, venue: 'paramount' },
     { source: iconPeacock, venue: 'peacock' },
-    { source: iconTheaters, venue: 'theaters' },
     { source: iconYouTube, venue: 'youtube' },
 ];
 
-export const getVenues = () => {
-    return venueIcons.map(iconData => iconData.venue);
+const otherVenues = [
+    { source: iconFestivals, text: 'At a film festival', venue: 'festivals' },
+    { source: iconTheaters, text: 'In theaters', venue: 'theaters' },
+    { source: iconOther, text: 'Other', venue: 'other' },
+]
+
+export const getIconVenues = () => {
+    return iconVenues.map(iconData => iconData.venue);
 }    
+
+export const getOtherVenues = () => {
+    return otherVenues;
+}
 
 export const VenueIcon = ({ border, onPress, size = 48, venue }) => {
 
+    const searchItems = [...iconVenues, ...otherVenues];
+    const source = searchItems.find(vi => vi.venue === venue).source;
+    
     const IconPressable = styled(Pressable)`
         border-radius: ${(size / 2) + (border ? 4 : 0)}px;
         border-width: ${border ? 4 : 0}px;
-        border-color: white;
+        border-color: ${venue === 'other' ? 'blue' : 'white'};
     `
-    const source = venueIcons.find(vi => vi.venue === venue).source;
-    
     return (
         <IconPressable onPress={onPress}>
             <Image source={source} style={{ 
