@@ -1,8 +1,6 @@
 import React, { useContext } from 'react';
 import { SafeAreaView, ScrollView } from 'react-native';
-import { Overlay } from 'react-native-elements';
 import { VisibilityContext } from '../../context/VisibilityContext';
-import SettingsOverlay from './SettingsOverlay';
 import TitleOverlay from './TitleOverlay';
 import ReelayOverlay from './ReelayOverlay';
 import styled from 'styled-components/native';
@@ -16,16 +14,17 @@ export default FeedOverlay = ({ navigation, onDeleteReelay, setIsPaused }) => {
         position: absolute;
         width: 100%;
     `
+    const ScrollBox = styled(ScrollView)`
+        height: 100%;
+        width: 100%;
+    `
 
     const visibilityContext = useContext(VisibilityContext);
     return (
         <OverlayContainer>
             <SafeAreaView>
-                <ScrollView>
+                <ScrollBox indicatorStyle={'white'} scrollOverflowEnabled={true}>
                 {/* If we never set a visibility type, we shouldn't create an empty overlay */}
-                { visibilityContext.overlayData?.type == 'SETTINGS' && 
-                    <SettingsOverlay navigation={navigation} />
-                }
                 { visibilityContext.overlayData?.type == 'TITLE' &&
                     <TitleOverlay navigation={navigation} setIsPaused={setIsPaused} 
                                 style={{backgroundColor: 'rgba(0,0,0,1.0)'}} />
@@ -36,7 +35,7 @@ export default FeedOverlay = ({ navigation, onDeleteReelay, setIsPaused }) => {
                                 onDeleteReelay={onDeleteReelay}
                                 style={{backgroundColor: 'rgba(0,0,0,1.0)'}} />
                 }
-                </ScrollView>
+                </ScrollBox>
             </SafeAreaView>
         </OverlayContainer>
     );

@@ -1,9 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Pressable, View, SafeAreaView } from 'react-native';
-import { Icon, Text } from 'react-native-elements';
-// import { DataStore } from 'aws-amplify';
-// import { Reelay } from '../../src/models';
-import Constants from 'expo-constants';
+import { Dimensions, Pressable, SafeAreaView, Text, View } from 'react-native';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
@@ -11,12 +7,11 @@ import { VisibilityContext } from '../../context/VisibilityContext';
 
 import styled from 'styled-components/native';
 import { showMessageToast } from '../utils/toasts';
-
 import * as Amplitude from 'expo-analytics-amplitude';
 
-export default ReelayOverlay = ({ navigation, reelay, onDeleteReelay }) => {
+const { height, width } = Dimensions.get('window');
 
-    const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
+export default ReelayOverlay = ({ navigation, reelay, onDeleteReelay }) => {
 
     const [confirmHide, setConfirmHide] = useState(false);
 
@@ -25,15 +20,14 @@ export default ReelayOverlay = ({ navigation, reelay, onDeleteReelay }) => {
     const canHideReelay = (reelay.creator.username === authContext.user.username)
                         || (authContext.user.username === 'immigrantfilm');
 
-    const SettingsContainer = styled(SafeAreaView)`
+    const SettingsContainer = styled(View)`
+        align-items: flex-start;
         height: 100%;
-        width: 100%;
         justify-content: center;
-        align-items: center;
+        width: 100%;
+        top: ${ height / 4}px;
     `
     const SettingsPressable = styled(Pressable)`
-        align-self: center;
-        justify-content: center;
         margin: 30px;
     `
 
@@ -74,14 +68,8 @@ export default ReelayOverlay = ({ navigation, reelay, onDeleteReelay }) => {
         });
         onDeleteReelay(reelay);
         visibilityContext.setOverlayVisible(false);
-        if (authContext.user.username === 'immigrantfilm') {
-            if (reelay.titleID % 4 === 0) showMessageToast('Nice kill, Sergio');
-            if (reelay.titleID % 4 === 1) showMessageToast('HEADSHOT. Bloody, but good work');
-            if (reelay.titleID % 4 === 2) showMessageToast('Don\'t you just want to burn it all?');
-            if (reelay.titleID % 4 === 3) showMessageToast('This Reelay is no more');
-        } else {
-            showMessageToast('Your Reelay is no more');
-        }
+        if (reelay.id % 2 === 0) showMessageToast('Your Reelay is no more');
+        if (reelay.id % 2 === 1) showMessageToast('Don\'t you just want to burn it all?');
     }
 
     const renderBaseOptions = () => {
@@ -118,18 +106,10 @@ export default ReelayOverlay = ({ navigation, reelay, onDeleteReelay }) => {
         );
     }
 
-    const renderDeleted = () => {
-        return (
-            <SettingsContainer>
-                <SettingsText>{'Your Reelay has been deleted.'}</SettingsText>
-            </SettingsContainer>
-        );
-    }
-
     return (
-        <SettingsContainer>
+        <SafeAreaView>
             { canHideReelay && confirmHide && renderConfirmHide() }
             { !confirmHide && renderBaseOptions() }
-        </SettingsContainer>
+        </SafeAreaView>
     );
 }

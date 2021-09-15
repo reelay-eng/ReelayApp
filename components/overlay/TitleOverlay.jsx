@@ -173,16 +173,14 @@ export default TitleOverlay = ({ navigation }) => {
 
     return (
         <TitleOverlayContainer>
-            <ScrollBox indicatorStyle={'white'} scrollOverflowEnabled={true}>
-                <Header />
-                {reelay.overlayInfo?.trailerURI && 
-                    <TitleOverlayTrailerContainer>
-                        <YoutubeVideoEmbed youtubeVideoID={reelay.overlayInfo.trailerURI} height={TRAILER_HEIGHT} />
-                    </TitleOverlayTrailerContainer>
-                }
-                <Overview />
-                <ReturnButton />
-            </ScrollBox>
+            <Header />
+            {reelay.overlayInfo?.trailerURI && 
+                <TitleOverlayTrailerContainer>
+                    <YoutubeVideoEmbed youtubeVideoID={reelay.overlayInfo.trailerURI} height={TRAILER_HEIGHT} />
+                </TitleOverlayTrailerContainer>
+            }
+            <Overview />
+            <ReturnButton />
         </TitleOverlayContainer>
     )
 };
