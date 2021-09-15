@@ -16,6 +16,7 @@ const VenueLabel = ({ venue }) => {
         justify-content: center;
         margin-top: 5px;
         margin-bottom: 5px;
+        right: 10px;
         width: 120px;
     `
     const VenueText = styled(Text)`
@@ -24,7 +25,11 @@ const VenueLabel = ({ venue }) => {
         font-weight: 600;
         color: white;
     `
-    const textToDisplay = 'Seen on ';
+    let textToDisplay = 'Seen on ';
+    if (venue === 'theaters') textToDisplay = 'Seen in theaters ';
+    if (venue === 'festivals') textToDisplay = 'Seen at a festival ';
+    if (venue === 'other') textToDisplay = 'Seen at another venue ';
+
     return (
         <VenueContainer>
             <VenueText>{textToDisplay}</VenueText>
@@ -38,11 +43,6 @@ export default TitleOverlay = ({ navigation }) => {
     const { height, width } = Dimensions.get('window');
     const TRAILER_HEIGHT = height * 0.3;
 
-    const ScrollBox = styled(ScrollView)`
-        height: 100%;
-        width: 100%;
-        z-index: 3;
-    `
     const TitleOverlayContainer = styled(SafeAreaView)`
         width: 100%;
         height: 100%;
@@ -112,8 +112,6 @@ export default TitleOverlay = ({ navigation }) => {
             width: 65%;
         `
         const PosterContainer = styled(View)`
-            position: absolute;
-            top: 10px;
             right: 10px;
             width: 30%;
             align-items: flex-end;
