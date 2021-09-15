@@ -14,7 +14,8 @@ const VenueLabel = ({ venue }) => {
         align-items: center;
         flex-direction: row;
         justify-content: center;
-        margin-top: 10px;
+        margin-top: 5px;
+        margin-bottom: 5px;
         width: 120px;
     `
     const VenueText = styled(Text)`
@@ -40,12 +41,14 @@ export default TitleOverlay = ({ navigation }) => {
     const ScrollBox = styled(ScrollView)`
         height: 100%;
         width: 100%;
+        z-index: 3;
     `
     const TitleOverlayContainer = styled(SafeAreaView)`
         width: 100%;
         height: 100%;
         justify-content: flex-start;
         align-items: center;
+        z-index: 3;
     `
     const TitleOverlayTrailerContainer = styled(View)`
         width: 100%;
@@ -153,14 +156,15 @@ export default TitleOverlay = ({ navigation }) => {
 
     const ReturnButton = () => {
         const ReturnButtonContainer = styled(View)`
+            align-items: center;
             height: 40px;
             margin: 10px;
-            width: 50%;
+            width: 100%;
         `
         return (
             <ReturnButtonContainer>
                 <Button onPress={() => visibilityContext.setOverlayVisible(false)}
-                    buttonStyle={{ borderColor: 'white'}}
+                    buttonStyle={{ borderColor: 'white', width: '100%' }}
                     titleStyle={{ color: 'white' }}
                     title='Return' type='outline' />
             </ReturnButtonContainer>
@@ -169,7 +173,7 @@ export default TitleOverlay = ({ navigation }) => {
 
     return (
         <TitleOverlayContainer>
-            <ScrollBox style={{ zIndex: 3 }}>
+            <ScrollBox indicatorStyle={'white'} scrollOverflowEnabled={true}>
                 <Header />
                 {reelay.overlayInfo?.trailerURI && 
                     <TitleOverlayTrailerContainer>
