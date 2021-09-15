@@ -389,7 +389,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             <UploadProgressBar />
             <UploadVideoContainer onPress={playPause}>
                 <PreviewVideoPlayer videoURI={videoURI} playing={playing} />
-                <ReelayPreviewOverlay />
+                <ReelayPreviewOverlay titleObject={titleObject} />
             </UploadVideoContainer>
             { !uploadContext.uploadComplete && !uploadContext.uploading && <UploadOptions /> }
             { uploadContext.uploadComplete && <DoneButton /> }
