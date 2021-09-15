@@ -124,12 +124,13 @@ export default ReelayFeed = ({ navigation, forceRefresh }) => {
 
     useEffect(() => {
         // this is DANGEROUS and should be in a try/catch
+        console.log('ON TAB PRESS IS SET');
         const unsubscribe = navigation.dangerouslyGetParent().addListener('tabPress', e => {
             e.preventDefault();
             onTabPress();
         });
         return unsubscribe;
-    }, [navigation, feedPosition]);
+    }, [stackList, feedPosition]);
 
     const extendFeed = async () => {
         let page = nextPage.current;
@@ -356,7 +357,7 @@ export default ReelayFeed = ({ navigation, forceRefresh }) => {
             feedPager.current.setPage(0);
             setFeedPosition(0);
         }
-    }
+    };
 
     const playPause = () => {
         if (isPaused) {
@@ -453,7 +454,9 @@ export default ReelayFeed = ({ navigation, forceRefresh }) => {
         filteredReelays.forEach(reelay => stackPositions[reelay.titleID] = 0);
         nextPage.current = FEED_BATCH_SIZE;
         setStackList(fetchedStacks);        
-        showMessageToast('You\'re at the top');
+        // the user is at the top of the feed
+        // but the message is at the bottom of the screen
+        showMessageToast('You\'re at the top', { position: 'bottom' });
     }
     
 	return (
