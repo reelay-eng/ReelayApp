@@ -11,9 +11,11 @@ import styled from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
 import { ActivityIndicator } from 'react-native-paper';
 
-import { DataStore } from 'aws-amplify';
-import { Reelay } from '../../src/models';
-import { deleteReelay, fetchFeedNextPage, fetchReelaysForStack } from '../../api/ReelayApi';
+import { 
+    deleteReelay, 
+    fetchFeedNextPage, 
+    fetchReelaysForStack,
+} from '../../api/ReelayApi';
 
 import FeedOverlay from '../overlay/FeedOverlay';
 import Hero from './Hero';

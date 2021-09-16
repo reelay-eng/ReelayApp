@@ -9,11 +9,59 @@ const COMMENT_VISIBILITY = Constants.manifest.extra.feedVisibility; // this shou
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 export const addComment = async (reelay, comment, user) => {
-    // todo
+    // todo: check on the ID relationships here
+    const commentObj = new Comment({
+        userID: user.attributes.sub,
+        reelayID: reelay.id,
+        creatorID: reelay.creator.id,
+        content: comment,
+        postedAt: new Date().toISOString(),
+        visibility: COMMENT_VISIBILITY,
+    });
+    const uploadStatusDataStore = await DataStore.save(commentObj);
 }
 
 export const addLike = async (reelay, user) => {
-    // todo
+    // todo: check on the ID relationships here
+    const likeObj = new Like({
+        userID: user.attributes.sub,
+        reelayID: reelay.id,
+        creatorID: reelay.creator.id,
+        postedAt: new Date().toISOString(),
+    });
+    const uploadStatusDataStore = await DataStore.save(likeObj);
+}
+
+export const deleteComment = async (reelay, commentID) => {
+    // todo: check on the ID relationships here
+    const queryConstraints = comment => comment.visibility('eq', FEED_VISIBILITY).id('eq', String(commentID));
+    const queryResponse = await DataStore.query(Comment, queryConstraints);
+
+    if (!queryResponse || !queryResponse.length) {
+        console.log('No query response');
+        return false; // failure
+    }
+
+    const fetchedComment = queryResponse[0];
+    await DataStore.save(Comment.copyOf(fetchedComment, updated => {
+        updated.visibility = 'hidden';
+    }));
+    return true; // success
+}
+
+export const deleteLike = async (reelay, user) => {
+    // todo: check on the ID relationships here
+    const queryConstraints = like => like.reelayID('eq', String(reelay.id)).userID('eq', String(user.attributes.sub));
+    const queryResponse = await DataStore.query(Comment, queryConstraints);
+
+    if (!queryResponse || !queryResponse.length) {
+        console.log('No query response');
+        return false; // failure
+    }
+
+    const fetchedLike = queryResponse[0];
+    await DataStore.delete(fetchedLike);
+    return true; // success
 }
 
 export const deleteReelay = async (reelay) => {
@@ -82,7 +130,7 @@ export const fetchReelaysForStack = async ({ stack, page, batchSize }) => {
 }
 
 export const getComments = async (fetchedReelay) => {
-    const queryConstraints = r => r.visibility('eq', COMMENT_VISIBILITY);
+    const queryConstraints = r => r.visibility('eq', COMMENT_VISIBILITY).reelayID('eq', String(fetchedReelay.id));
     const fetchedComments = await DataStore.query(Comment, queryConstraints, {
         sort: comment => comment.postedAt(SortDirection.DESCENDING),
     });
@@ -95,7 +143,7 @@ export const getComments = async (fetchedReelay) => {
 }
 
 export const getLikes = async (fetchedReelay) => {
-    const queryConstraints = r => r.visibility('eq', COMMENT_VISIBILITY);
+    const queryConstraints = r => r.visibility('eq', COMMENT_VISIBILITY).reelayID('eq', String(fetchedReelay.id));
     const fetchedComments = await DataStore.query(Comment, queryConstraints, {
         sort: comment => comment.postedAt(SortDirection.DESCENDING),
     });
@@ -139,8 +187,9 @@ const prepareReelay = (fetchedReelay, titleObject, videoURI) => {
         releaseDate: titleObject.release_date,
         releaseYear: releaseYear,
         creator: {
+            avatar: '../../assets/images/icon.png',
+            id: fetchedReelay.creatorID,
             username: String(fetchedReelay.owner),
-            avatar: '../../assets/images/icon.png'
         },
         overlayInfo: {
             director: titleObject.director,
