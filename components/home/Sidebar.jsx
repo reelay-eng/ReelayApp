@@ -31,7 +31,7 @@ const Count = styled.Text`
 	letter-spacing: -0.1px;
 `
 
-const Sidebar = ({ avatar, stats }) => {
+const Sidebar = ({ stats }) => {
 	return (
 		<SidebarView>
 			<SidebarButtonView>

@@ -1,8 +1,10 @@
-import React, { memo, useContext, useRef, useState } from 'react'
+import React, { memo, useContext, useEffect, useRef, useState } from 'react'
 import { AuthContext } from '../../context/AuthContext';
 import { Video, Audio } from 'expo-av'
 import { VideoStyles } from '../../styles';
 import { useFocusEffect } from '@react-navigation/native';
+
+import { VisibilityContext } from '../../context/VisibilityContext';
 
 import * as Amplitude from 'expo-analytics-amplitude';
 
@@ -15,13 +17,14 @@ export default memo(function FeedVideoPlayer({
 	const [isFocused, setIsFocused] = useState(false);
 	const [playbackObject, setPlaybackObject] = useState(null);
 
-	const authContext = useContext(AuthContext);
+	const loadStatus = useRef(0);
 	const playheadCounter = useRef(0);
 
-	const [loadCounter, setLoadCounter] = useState(0);
-	const loadStatus = useRef(0);
+	const authContext = useContext(AuthContext);
+	const visibilityContext = useContext(VisibilityContext);
+	const overlayVisible = visibilityContext.overlayVisible;
 
-	const shouldPlay = playing && isFocused && !playingButPaused;
+	const shouldPlay = playing && isFocused && !playingButPaused && !overlayVisible;
 
 	Audio.setAudioModeAsync({
 		playsInSilentModeIOS: true,
@@ -55,7 +58,12 @@ export default memo(function FeedVideoPlayer({
 	
 	}
 
+	useEffect(() => {
+		if (shouldPlay) playbackObject.playAsync();
+	}, [playing, playingButPaused, isFocused, overlayVisible]);
+
     useFocusEffect(React.useCallback(() => {
+		console.log('use focus effect');
 		if (playing) setIsFocused(true);
         return () => {
 			if (playing) setIsFocused(false);
