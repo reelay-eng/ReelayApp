@@ -85,7 +85,7 @@ const StackLocation = ({ position, length }) => {
     );
 }
 
-export default ReelayFeed = ({ navigation, forceRefresh }) => {
+export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
 
     const feedPager = useRef();
     const nextPage = useRef(0);

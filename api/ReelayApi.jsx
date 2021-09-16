@@ -81,6 +81,7 @@ export const deleteReelay = async (reelay) => {
 }
 
 export const fetchFeedNextPage = async ({ batchSize, page, reelayList, refresh }) => {
+    if (page > 20) return;
     const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY);
     console.log('query initiated, page: ', page / batchSize);
     const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {

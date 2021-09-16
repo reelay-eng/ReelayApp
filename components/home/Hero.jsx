@@ -5,6 +5,7 @@ import styled from 'styled-components/native';
 
 import FeedVideoPlayer from './FeedVideoPlayer';
 import ReelayInfo from './ReelayInfo';
+import Sidebar from './Sidebar';
 import { VisibilityContext } from '../../context/VisibilityContext';
 
 const { height, width } = Dimensions.get('window');
@@ -59,13 +60,6 @@ export default Hero = ({
         }
     }
 
-    if (isPlaying) {
-        console.log(reelay.title, ' is playing');
-        console.log(reelay.videoURI);
-    } else if ((feedIndex === feedPosition) && (stackIndex === stackPosition)) {
-        console.log(reelay.title, ' is paused');
-    }
-
     return (
         <View key={index}>
             <FeedVideoPlayer
@@ -84,6 +78,7 @@ export default Hero = ({
                 ]}>
                 <Overlay onPress={playPause} onLongPress={setReelayOverlay}>
                     <ReelayInfo reelay={reelay} />
+                    <Sidebar reelay={reelay} />
                 </Overlay>
             </Gradient>
         </View>
