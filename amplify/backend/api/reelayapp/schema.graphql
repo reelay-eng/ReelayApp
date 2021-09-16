@@ -2,9 +2,10 @@ type Comment @model @auth(rules: [{allow: private}]) {
   id: ID!
   userID: String
   reelayID: String
-  creatorI: String
+  creatorID: String
   content: String
   postedAt: AWSDateTime
+  visibility: String
 }
 
 type Like @model @auth(rules: [{allow: private}]) {

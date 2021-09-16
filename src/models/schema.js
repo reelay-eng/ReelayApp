@@ -24,8 +24,8 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
-                "creatorI": {
-                    "name": "creatorI",
+                "creatorID": {
+                    "name": "creatorID",
                     "isArray": false,
                     "type": "String",
                     "isRequired": false,
@@ -42,6 +42,13 @@ export const schema = {
                     "name": "postedAt",
                     "isArray": false,
                     "type": "AWSDateTime",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "visibility": {
+                    "name": "visibility",
+                    "isArray": false,
+                    "type": "String",
                     "isRequired": false,
                     "attributes": []
                 }
@@ -370,5 +377,5 @@ export const schema = {
     },
     "enums": {},
     "nonModels": {},
-    "version": "f9237739e07a8f0962ea3ab64e760fdf"
+    "version": "e973f03d8e44e0f95146b6716f388bb5"
 };

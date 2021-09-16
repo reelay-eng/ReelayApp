@@ -8,9 +8,10 @@ export declare class Comment {
   readonly id: string;
   readonly userID?: string;
   readonly reelayID?: string;
-  readonly creatorI?: string;
+  readonly creatorID?: string;
   readonly content?: string;
   readonly postedAt?: string;
+  readonly visibility?: string;
   constructor(init: ModelInit<Comment>);
   static copyOf(source: Comment, mutator: (draft: MutableModel<Comment>) => MutableModel<Comment> | void): Comment;
 }

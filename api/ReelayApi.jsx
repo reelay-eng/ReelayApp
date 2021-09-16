@@ -1,11 +1,20 @@
 import { DataStore, SortDirection } from 'aws-amplify';
-import { Reelay } from '../src/models';
+import { Reelay, Like, Comment } from '../src/models';
 import Constants from 'expo-constants';
 
 import { fetchAnnotatedTitle } from './TMDbApi';
 
 const CLOUDFRONT_BASE_URL = 'https://di92fpd9s7eko.cloudfront.net';
+const COMMENT_VISIBILITY = Constants.manifest.extra.feedVisibility; // this should be its own variable
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
+
+export const addComment = async (reelay, comment, user) => {
+    // todo
+}
+
+export const addLike = async (reelay, user) => {
+    // todo
+}
 
 export const deleteReelay = async (reelay) => {
     const queryConstraints = r => r.visibility('eq', FEED_VISIBILITY).id('eq', String(reelay.id));
@@ -13,7 +22,6 @@ export const deleteReelay = async (reelay) => {
 
     if (!queryResponse || !queryResponse.length) {
         console.log('No query response');
-        showErrorToast('Could not find your Reelay in the database. Strange...');
         return false; // failure
     }
 
@@ -71,6 +79,32 @@ export const fetchReelaysForStack = async ({ stack, page, batchSize }) => {
     const notDuplicate = (element) => stack.findIndex(el => el.id == element.id) == -1;
     const filteredReelays = preparedReelays.filter(notDuplicate);
     return filteredReelays;
+}
+
+export const getComments = async (fetchedReelay) => {
+    const queryConstraints = r => r.visibility('eq', COMMENT_VISIBILITY);
+    const fetchedComments = await DataStore.query(Comment, queryConstraints, {
+        sort: comment => comment.postedAt(SortDirection.DESCENDING),
+    });
+
+    if (!fetchedComments?.length) {
+        console.log('No comments for this reelay');
+        return;
+    }
+    console.log('fetched comments: ', fetchedComments);
+}
+
+export const getLikes = async (fetchedReelay) => {
+    const queryConstraints = r => r.visibility('eq', COMMENT_VISIBILITY);
+    const fetchedComments = await DataStore.query(Comment, queryConstraints, {
+        sort: comment => comment.postedAt(SortDirection.DESCENDING),
+    });
+
+    if (!fetchedComments?.length) {
+        console.log('No comments for this reelay');
+        return;
+    }
+    console.log('fetched comments: ', fetchedComments);
 }
 
 const getVideoURI = async (fetchedReelay) => {
