@@ -3,9 +3,8 @@ import { Dimensions, SafeAreaView, ScrollView, View, Text } from 'react-native';
 import { Button } from 'react-native-elements';
 
 import Poster from '../home/Poster';
-import { VisibilityContext} from '../../context/VisibilityContext';
-
 import { VenueIcon } from '../utils/VenueIcon';
+import { VisibilityContext} from '../../context/VisibilityContext';
 import YoutubeVideoEmbed from '../utils/YouTubeVideoEmbed';
 import styled from 'styled-components/native';
 
@@ -79,7 +78,7 @@ export default TitleOverlay = ({ navigation }) => {
             margin-top: 10px;
         `
         const OverviewTextContainer = styled(Text)`
-            margin: 10px;
+            padding: 10px;
             margin-bottom: 20px;
             width: 100%;
         `
@@ -157,6 +156,7 @@ export default TitleOverlay = ({ navigation }) => {
             align-items: center;
             height: 40px;
             margin: 10px;
+            margin-bottom: 80px;
             width: 100%;
         `
         return (

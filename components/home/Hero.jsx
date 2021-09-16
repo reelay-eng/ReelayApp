@@ -78,7 +78,7 @@ export default Hero = ({
                 ]}>
                 <Overlay onPress={playPause} onLongPress={setReelayOverlay}>
                     <ReelayInfo reelay={reelay} />
-                    <Sidebar reelay={reelay} />
+                    {/* <Sidebar reelay={reelay} /> */}
                 </Overlay>
             </Gradient>
         </View>

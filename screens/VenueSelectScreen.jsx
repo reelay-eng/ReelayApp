@@ -162,6 +162,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
             align-items: center;
             justify-content: center;
             height: 40px;
+            margin-bottom: 80px;
             top: 20px;
             width: 100%;
         `
