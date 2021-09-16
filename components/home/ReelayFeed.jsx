@@ -104,11 +104,11 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
     console.log('FEED IS RENDERING');
     console.log('feed position: ', feedPosition);
     console.log('next page: ', nextPage.current);
-    console.log('isPaused', isPaused);
-    console.log('stackList length: ', stackList.length);
-    console.log('stackCounter: ', stackCounter);
-    console.log('stackPositions: ', stackPositions);
-    console.log('overlay visible: ', visibilityContext.overlayVisible);
+    // console.log('isPaused', isPaused);
+    // console.log('stackList length: ', stackList.length);
+    // console.log('stackCounter: ', stackCounter);
+    // console.log('stackPositions: ', stackPositions);
+    // console.log('overlay visible: ', visibilityContext.overlayVisible);
 
     useEffect(() => {
         const stackEmpty = !stackList.length;

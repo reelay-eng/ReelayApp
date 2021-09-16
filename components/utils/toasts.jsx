@@ -2,11 +2,7 @@ import Toast from 'react-native-root-toast';
 
 // todo: should these be _exactly_ the same?
 
-const TOAST_DURATION = 5000; // milliseconds
-
 const showMessageToast = async (message, { 
-    // both optional
-    duration = TOAST_DURATION, 
     position = 'top' 
 }) => {
     const toastPosition = (position === 'top') ? Toast.positions.TOP : Toast.positions.BOTTOM;
@@ -17,11 +13,10 @@ const showMessageToast = async (message, {
         hideOnPress: true,
         delay: 0,
     });
-    setTimeout(() => Toast.hide(messageToast), duration);
+    setTimeout(() => Toast.hide(messageToast), 5000);
 }
 
 const showErrorToast = async (message, { 
-    duration = TOAST_DURATION, 
     position = 'top' 
 }) => {
     const toastPosition = (position === 'top') ? Toast.positions.TOP : Toast.positions.BOTTOM;
@@ -32,7 +27,7 @@ const showErrorToast = async (message, {
         hideOnPress: true,
         delay: 0,
     });
-    setTimeout(() => Toast.hide(errorToast), duration);
+    setTimeout(() => Toast.hide(errorToast), 5000);
 }
 
 export { showMessageToast, showErrorToast };

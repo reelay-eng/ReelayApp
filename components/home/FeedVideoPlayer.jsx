@@ -63,7 +63,6 @@ export default memo(function FeedVideoPlayer({
 	}, [playing, playingButPaused, isFocused, overlayVisible]);
 
     useFocusEffect(React.useCallback(() => {
-		console.log('use focus effect');
 		if (playing) setIsFocused(true);
         return () => {
 			if (playing) setIsFocused(false);
@@ -72,12 +71,12 @@ export default memo(function FeedVideoPlayer({
 
 	const onLoad = async (playbackStatus) => {
 		loadStatus.current = 2;
-		console.log('on load FINISH for ', reelay.title, reelay.creator.username);
+		// console.log('on load FINISH for ', reelay.title, reelay.creator.username);
 	}
 
 	const onLoadStart = async (playbackStatus) => {
 		loadStatus.current = 1;
-		console.log('on load START for ', reelay.title, reelay.creator.username);
+		// console.log('on load START for ', reelay.title, reelay.creator.username);
 	}
 
 	const onPlaybackStatusUpdate = (playbackStatus) => {
