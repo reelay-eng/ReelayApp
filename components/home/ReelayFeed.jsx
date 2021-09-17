@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { VisibilityContext } from '../../context/VisibilityContext';
-import Constants from 'expo-constants';
 
 import * as Amplitude from 'expo-analytics-amplitude';
 import { AuthContext } from '../../context/AuthContext';
@@ -23,7 +22,6 @@ import { showErrorToast, showMessageToast } from '../utils/toasts';
 
 // Please move these into an environment variable (preferably injected via your build step)
 const FEED_BATCH_SIZE = 5;
-const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 const PLAY_PAUSE_ICON_TIMEOUT = 800;
 
 const { height, width } = Dimensions.get('window');
@@ -343,7 +341,7 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
 					})}
 				</PagerViewContainer>
 			}
-            {visibilityContext.overlayVisible && 
+            { visibilityContext.overlayVisible && 
                 <FeedOverlay navigation={navigation} setIsPaused={setIsPaused} onDeleteReelay={onDeleteReelay} />
             }
 		</ReelayFeedContainer>

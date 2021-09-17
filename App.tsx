@@ -1,6 +1,6 @@
 // react imports
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, AppRegistry, SafeAreaView } from 'react-native';
+import { ActivityIndicator, SafeAreaView } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // aws imports
@@ -17,7 +17,6 @@ import { UploadContext } from './context/UploadContext';
 import { StatusBar } from 'expo-status-bar';
 
 // local imports
-import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 
@@ -39,6 +38,7 @@ Storage.configure({ level: 'public' });
 function App() {
   const colorScheme = useColorScheme();
 
+  // Auth context hooks
   const [credentials, setCredentials] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [signedIn, setSignedIn] = useState(false);
@@ -46,10 +46,15 @@ function App() {
   const [user, setUser] = useState({});
   const [username, setUsername] = useState('');
 
+  // Visibility context hooks
+  // TODO: this is really all about feed visibility...
+  const [commentsVisible, setCommentsVisible] = useState(false);
+  const [likesVisible, setLikesVisible] = useState(false);
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [overlayData, setOverlayData] = useState({});
   const [tabBarVisible, setTabBarVisible] = useState(true);
 
+  // Upload context hooks
   const [uploading, setUploading] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
   const [chunksUploaded, setChunksUploaded] = useState(0);
@@ -117,9 +122,14 @@ function App() {
   }
 
   const visibilityState = {
+      commentsVisible: commentsVisible,
+      likesVisible: likesVisible,
       overlayVisible: overlayVisible,
       overlayData: overlayData,
       tabBarVisible: tabBarVisible,
+
+      setCommentsVisible: setCommentsVisible,
+      setLikesVisible: setLikesVisible,
       setOverlayVisible: setOverlayVisible,
       setOverlayData: setOverlayData,
       setTabBarVisible: setTabBarVisible,

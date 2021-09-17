@@ -4,6 +4,7 @@ import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 import { AuthContext } from '../../context/AuthContext';
+import { VisibilityContext } from '../../context/VisibilityContext';
 
 import { 
 	addComment, deleteComment,
@@ -30,7 +31,10 @@ export default Sidebar = ({ reelay }) => {
 		margin: 10px;
 	`
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
+
 	const user = useContext(AuthContext).user;
+	const visibilityContext = useContext(VisibilityContext);
+
 	const likedByUser = reelay.likes.find(like => like.userID === user.username) || false;
 	
 	const onLikePress = async () => {
@@ -43,9 +47,14 @@ export default Sidebar = ({ reelay }) => {
 		}
 	}
 
+	const onLikeLongPress = async () => {
+		console.log('on like long press');
+		visibilityContext.setLikesVisible(true);
+	}
+
 	return (
 		<SidebarView>
-			<SidebarButton onPress={onLikePress}>
+			<SidebarButton onPress={onLikePress} onLongPress={onLikeLongPress}>
 				<Icon type='ionicon' name='heart' color={likedByUser ? '#b83636' : 'white'} size={ICON_SIZE} />
 				<Count>{reelay.likes.length}</Count>
 			</SidebarButton>
