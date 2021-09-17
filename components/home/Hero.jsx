@@ -4,6 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import styled from 'styled-components/native';
 
 import FeedVideoPlayer from './FeedVideoPlayer';
+import CommentsDrawer from './CommentsDrawer';
 import LikesDrawer from './LikesDrawer';
 import ReelayInfo from './ReelayInfo';
 import Sidebar from './Sidebar';
@@ -71,7 +72,8 @@ export default Hero = ({
                     <ReelayInfo reelay={reelay} />
                     <Sidebar reelay={reelay} />
                 </Overlay>
-                <LikesDrawer reelay={reelay} />
+                {/* <LikesDrawer reelay={reelay} /> */}
+                <CommentsDrawer reelay={reelay} />
             </Gradient>
         </View>
     );

@@ -7,7 +7,6 @@ import { AuthContext } from '../../context/AuthContext';
 import { VisibilityContext } from '../../context/VisibilityContext';
 
 import { 
-	addComment, deleteComment,
 	addLike, deleteLike,
 } from '../../api/ReelayApi';
 
@@ -33,10 +32,15 @@ export default Sidebar = ({ reelay }) => {
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 
 	const user = useContext(AuthContext).user;
-	const visibilityContext = useContext(VisibilityContext);
+	const { setCommentsVisible, setLikesVisible } = useContext(VisibilityContext);
 
-	const likedByUser = reelay.likes.find(like => like.userID === user.username) || false;
-	
+	const findFromUser = (list, userID) => list.find(item => item.userID === userID);
+	const commentedByUser = findFromUser(reelay.comments, user.username) || false;
+	const likedByUser = findFromUser(reelay.likes, user.username) || false;
+
+	const onCommentLongPress = async () => setCommentsVisible(true);
+	const onCommentPress = async () => setCommentsVisible(true);
+	const onLikeLongPress = async () => setLikesVisible(true);
 	const onLikePress = async () => {
 		if (likedByUser) {
 			await deleteLike(reelay, user);
@@ -47,19 +51,14 @@ export default Sidebar = ({ reelay }) => {
 		}
 	}
 
-	const onLikeLongPress = async () => {
-		console.log('on like long press');
-		visibilityContext.setLikesVisible(true);
-	}
-
 	return (
 		<SidebarView>
 			<SidebarButton onPress={onLikePress} onLongPress={onLikeLongPress}>
 				<Icon type='ionicon' name='heart' color={likedByUser ? '#b83636' : 'white'} size={ICON_SIZE} />
 				<Count>{reelay.likes.length}</Count>
 			</SidebarButton>
-			<SidebarButton>
-				<Icon type='ionicon' name='chatbubble-ellipses' color='white' size={ICON_SIZE} />
+			<SidebarButton onPress={onCommentPress} onLongPress={onCommentLongPress}>
+				<Icon type='ionicon' name='chatbubble-ellipses' color={ commentedByUser ? '#b83636' :'white' } size={ICON_SIZE} />
 				<Count>{reelay.comments.length}</Count>
 			</SidebarButton>
 		</SidebarView>
