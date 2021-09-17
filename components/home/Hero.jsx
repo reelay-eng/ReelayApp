@@ -1,5 +1,5 @@
-import React, { useCallback, useContext, useState } from 'react';
-import { Dimensions, Pressable, SafeAreaView, Text, View } from 'react-native';
+import React, { useContext } from 'react';
+import { Pressable, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import styled from 'styled-components/native';
 
@@ -8,8 +8,6 @@ import LikesDrawer from './LikesDrawer';
 import ReelayInfo from './ReelayInfo';
 import Sidebar from './Sidebar';
 import { VisibilityContext } from '../../context/VisibilityContext';
-
-const { height, width } = Dimensions.get('window');
 
 export default Hero = ({ 
     index, 
@@ -37,47 +35,39 @@ export default Hero = ({
         width: 100%;
         height: 100%;
     `
-    const visibilityContext = useContext(VisibilityContext);
-    const reelay = stack[stackIndex];
+    const { 
+        overlayVisible,
+        setOverlayData,
+        setOverlayVisible,
+    } = useContext(VisibilityContext);
+
     const isPlaying = (feedIndex === feedPosition)
                     && (stackIndex === stackPosition)
-                    && (!visibilityContext.overlayVisible);
-
-    if (isPlaying) {
-        console.log('PLAYING HERO IS RENDERING: ', reelay.title, reelay.creator.username);
-        console.log('Feed position: ', feedPosition);
-        console.log('Video URI: ', reelay.videoURI);
-        console.log('Overlay visible? ', visibilityContext.overlayVisible);
-    }
+                    && (!overlayVisible);
+    const reelay = stack[stackIndex];
 
     const setReelayOverlay = (e) => {
-        if (!visibilityContext.overlayVisible) {
-            visibilityContext.setOverlayData({
+        if (!overlayVisible) {
+            setOverlayData({
                 type: 'REELAY',
                 reelay: reelay,
             });
-            visibilityContext.setOverlayVisible(true);
+            setOverlayVisible(true);
             setIsPaused(true);
         }
     }
 
     return (
         <View key={index}>
-            <FeedVideoPlayer
-                playing={isPlaying}
-                playingButPaused={isPlaying && isPaused}
-                reelay={reelay}
-            >
-            </FeedVideoPlayer>
-            <Gradient
-                locations={[0, 0.26, 0.6, 1]}
-                colors={[
+            <FeedVideoPlayer playing={isPlaying} reelay={reelay} 
+                        playingButPaused={isPlaying && isPaused} />
+            <Gradient locations={[0, 0.26, 0.6, 1]} colors={[
                     'rgba(26,26,26,0.6)',
                     'rgba(26,26,26,0)',
                     'rgba(26,26,26,0)',
-                    'rgba(26,26,26,0.6)'
-                ]}>
-                <Overlay onPress={playPause} onLongPress={setReelayOverlay}>
+                    'rgba(26,26,26,0.6)',
+            ]}>
+                <Overlay onPress={ playPause } onLongPress={setReelayOverlay}>
                     <ReelayInfo reelay={reelay} />
                     <Sidebar reelay={reelay} />
                 </Overlay>

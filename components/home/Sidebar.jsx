@@ -12,7 +12,7 @@ import {
 } from '../../api/ReelayApi';
 
 export default Sidebar = ({ reelay }) => {
-	const ICON_SIZE = 56;
+	const ICON_SIZE = 54;
 	const Count = styled(Text)`
 		color: #fff;
 		font-size: 18px;
@@ -20,10 +20,10 @@ export default Sidebar = ({ reelay }) => {
 		letter-spacing: -0.1px;
 	`
 	const SidebarView = styled(View)`
-		align-items: flex-end;
-		justify-content: flex-end;
-		margin: 10px;
-		bottom: 25%;
+		align-items: flex-start;
+		height: 100%;
+		justify-content: center;
+		width: 20%;
 	`
 	const SidebarButton = styled(Pressable)`
 		align-items: center;
