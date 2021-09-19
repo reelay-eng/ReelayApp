@@ -16,8 +16,7 @@ export default Sidebar = ({ reelay }) => {
 		color: #fff;
 		font-size: 18px;
 		font-weight: bold;
-		letter-spacing: -0.1px;
-	`
+		`
 	const SidebarView = styled(View)`
 		align-items: flex-start;
 		height: 100%;

@@ -21,6 +21,7 @@ export default LikesDrawer = ({ reelay }) => {
         border-top-right-radius: 12px;
         height: auto;
         margin-top: auto;
+        max-height: 70%;
         padding-bottom: 80px;
         width: 100%;
     `
@@ -43,9 +44,10 @@ export default LikesDrawer = ({ reelay }) => {
             font-weight: 500;
             color: white;
         `
+        const headerText = reelay.likes.length ? `Likes (${reelay.likes.length})` : 'Likes';
         return (
             <HeaderContainer>
-                <HeaderText>{'Likes'}</HeaderText>
+                <HeaderText>{headerText}</HeaderText>
                 <Pressable onPress={closeDrawer}>
                     <Icon color={'white'} type='ionicon' name='close' size={CLOSE_BUTTON_SIZE} />
                 </Pressable>

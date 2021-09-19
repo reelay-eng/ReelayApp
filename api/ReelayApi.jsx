@@ -3,7 +3,7 @@ import { Reelay, Like, Comment } from '../src/models';
 import Constants from 'expo-constants';
 
 import { fetchAnnotatedTitle } from './TMDbApi';
-import { showErrorToast } from '../components/utils/toasts';
+import { showErrorToast, showMessageToast } from '../components/utils/toasts';
 
 const CLOUDFRONT_BASE_URL = 'https://di92fpd9s7eko.cloudfront.net';
 const COMMENT_VISIBILITY = Constants.manifest.extra.feedVisibility; // this should be its own variable
@@ -22,6 +22,7 @@ export const addComment = async (reelay, comment, user) => {
 
     try {
         await DataStore.save(new Comment(commentObj));
+        showMessageToast('Comment posted!');
         return commentObj;    
     } catch (e) {
         console.log(e);
@@ -176,7 +177,7 @@ export const getComments = async (fetchedReelay) => {
         return r.visibility('eq', COMMENT_VISIBILITY).reelayID('eq', String(fetchedReelay.id));
     }
     const fetchedComments = await DataStore.query(Comment, queryConstraints, {
-        sort: comment => comment.postedAt(SortDirection.DESCENDING),
+        sort: comment => comment.postedAt(SortDirection.ASCENDING),
     });
 
     if (!fetchedComments?.length) {
