@@ -15,10 +15,16 @@ export default ReelayOverlay = ({ navigation, reelay, onDeleteReelay }) => {
 
     const [confirmHide, setConfirmHide] = useState(false);
 
-    const authContext = useContext(AuthContext);
-    const visibilityContext = useContext(VisibilityContext);
-    const canHideReelay = (reelay.creator.username === authContext.user.username)
-                        || (authContext.user.username === 'immigrantfilm');
+    const {
+        user,
+        setCredentials,
+        setSession,
+        setSignedIn,
+        setUser,
+    } = useContext(AuthContext);
+    const { setOverlayVisible } = useContext(VisibilityContext);
+    const canHideReelay = (reelay.creator.username === user.username)
+                        || (user.username === 'immigrantfilm');
 
     const SettingsContainer = styled(View)`
         align-items: flex-start;
@@ -41,14 +47,14 @@ export default ReelayOverlay = ({ navigation, reelay, onDeleteReelay }) => {
         // todo: confirm sign out
         try {
             Amplitude.logEventWithPropertiesAsync('signOut', {
-                username: authContext.user.username,
+                username: user.username,
             });
             const signOutResult = await Auth.signOut();
-            authContext.setSignedIn(false);
-            authContext.setUser({});
-            authContext.setSession({});
-            authContext.setCredentials({});
-            visibilityContext.setOverlayVisible(false);
+            setSignedIn(false);
+            setUser({});
+            setSession({});
+            setCredentials({});
+            setOverlayVisible(false);
         } catch (error) {
             console.log(error);
         }
@@ -62,12 +68,12 @@ export default ReelayOverlay = ({ navigation, reelay, onDeleteReelay }) => {
     const confirmHideReelay = async () => {
         console.log('confirming delete reelay');
         Amplitude.logEventWithPropertiesAsync('deleteReelay', {
-            username: authContext.user.username,
+            username: user.username,
             reelayID: reelay.id,
             title: reelay.title,
         });
         onDeleteReelay(reelay);
-        visibilityContext.setOverlayVisible(false);
+        setOverlayVisible(false);
         if (reelay.id % 2 === 0) showMessageToast('Your Reelay is no more');
         if (reelay.id % 2 === 1) showMessageToast('Don\'t you just want to burn it all?');
     }
@@ -76,7 +82,7 @@ export default ReelayOverlay = ({ navigation, reelay, onDeleteReelay }) => {
         return (
             <SettingsContainer>
                 <SettingsPressable onPress={() => {
-                    visibilityContext.setOverlayVisible(false);
+                    setOverlayVisible(false);
                 }}>
                     <SettingsText>{'Close'}</SettingsText>
                 </SettingsPressable>

@@ -20,10 +20,9 @@ export default memo(function FeedVideoPlayer({
 	const loadStatus = useRef(0);
 	const playheadCounter = useRef(0);
 
-	const authContext = useContext(AuthContext);
-	const visibilityContext = useContext(VisibilityContext);
-	const overlayVisible = visibilityContext.overlayVisible;
-
+	const { user } = useContext(AuthContext);
+	const { overlayVisible } = useContext(VisibilityContext);
+	
 	const shouldPlay = playing && isFocused && !playingButPaused && !overlayVisible;
 
 	Audio.setAudioModeAsync({
@@ -85,7 +84,7 @@ export default memo(function FeedVideoPlayer({
 				reelayID: reelay.id,
 				reelayCreator: reelay.creator.username,
 				title: reelay.title,
-				username: authContext.user.username,
+				username: user.username,
 			})
 		}
 	}

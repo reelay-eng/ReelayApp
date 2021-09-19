@@ -39,7 +39,7 @@ const YearText = styled.Text`
 
 export default SearchResultItem = ({result, navigation}) => {
 
-    const uploadContext = useContext(UploadContext);
+    const { setUploadTitleObject } = useContext(UploadContext);
     const [posterLoaded, setPosterLoaded] = useState(false);
 
     const titleObject = result;
@@ -54,7 +54,7 @@ export default SearchResultItem = ({result, navigation}) => {
         ? ('(' + titleObject.release_date.slice(0,4) + ')') : '';
 
     const selectResult = () => {
-        uploadContext.setUploadTitleObject(titleObject);
+        setUploadTitleObject(titleObject);
         console.log('selected this item', title);
         navigation.push('VenueSelectScreen', { title: title });
     }

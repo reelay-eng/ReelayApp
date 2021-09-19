@@ -89,10 +89,8 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
     const nextPage = useRef(0);
     const stackPager = useRef();
 
-    const authContext = useContext(AuthContext);
-    const {
-        overlayVisible
-    } = useContext(VisibilityContext);
+    const { user } = useContext(AuthContext);
+    const { overlayVisible } = useContext(VisibilityContext);
 
     const [feedPosition, setFeedPosition] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
@@ -218,7 +216,7 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
             prevReelayCreator: prevReelay.creator.username,
             prevReelayTitle: prevReelay.title,
             swipeDirection: swipeDirection,
-            username: authContext.user.username,
+            username: user.username,
         })
 	};
 
@@ -246,7 +244,7 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
             prevReelayCreator: prevReelay.creator.username,
             prevReelayTitle: prevReelay.title,
             swipeDirection: swipeDirection,
-            username: authContext.user.username,
+            username: user.username,
         })
     };
 

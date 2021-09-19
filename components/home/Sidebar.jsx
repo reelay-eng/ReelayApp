@@ -31,7 +31,7 @@ export default Sidebar = ({ reelay }) => {
 	`
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 
-	const user = useContext(AuthContext).user;
+	const { user } = useContext(AuthContext);
 	const { setCommentsVisible, setLikesVisible } = useContext(VisibilityContext);
 
 	const findFromUser = (list, userID) => list.find(item => item.userID === userID);

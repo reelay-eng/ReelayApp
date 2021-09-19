@@ -72,7 +72,7 @@ export default Hero = ({
                     'rgba(26,26,26,0)',
                     'rgba(26,26,26,0.6)',
             ]}>
-                <Overlay onPress={ playPause } onLongPress={setReelayOverlay}>
+                <Overlay onPress={playPause} onLongPress={setReelayOverlay}>
                     <ReelayInfo reelay={reelay} />
                     <Sidebar reelay={reelay} />
                 </Overlay>

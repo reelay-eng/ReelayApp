@@ -1,10 +1,8 @@
 import React, { useContext, useState } from 'react';
-import { Dimensions, Keyboard, KeyboardAvoidingView, Modal, View, Text, TextInput, Pressable } from 'react-native';
-import { Button, Icon, Input } from 'react-native-elements';
+import { Keyboard, KeyboardAvoidingView, Modal, View, Text, TextInput, Pressable } from 'react-native';
+import { Button, Icon } from 'react-native-elements';
 import { VisibilityContext } from '../../context/VisibilityContext';
 import styled from 'styled-components/native';
-
-const { height, width} = Dimensions.get('window');
 
 export default CommentsDrawer = ({ reelay }) => {
 

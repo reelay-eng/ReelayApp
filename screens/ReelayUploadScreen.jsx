@@ -13,7 +13,7 @@ import ReelayPreviewOverlay from '../components/overlay/ReelayPreviewOverlay';
 
 import { Dimensions, Text, View, SafeAreaView, Pressable } from 'react-native';
 import { Button } from 'react-native-elements';
-import { ProgressBar, Switch } from 'react-native-paper';
+import { Switch } from 'react-native-paper';
 import * as Progress from 'react-native-progress';
 
 import styled from 'styled-components/native';

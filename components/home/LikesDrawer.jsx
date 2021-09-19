@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Dimensions, Modal, View, Text, Pressable } from 'react-native';
+import { Modal, View, Text, Pressable } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { VisibilityContext } from '../../context/VisibilityContext';
 import styled from 'styled-components/native';

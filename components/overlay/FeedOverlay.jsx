@@ -18,20 +18,20 @@ export default FeedOverlay = ({ navigation, onDeleteReelay, setIsPaused }) => {
         height: 100%;
         width: 100%;
     `
-
-    const visibilityContext = useContext(VisibilityContext);
+    const { overlayData } = useContext(VisibilityContext);
+    
     return (
         <OverlayContainer>
             <SafeAreaView>
                 <ScrollBox indicatorStyle={'white'} scrollOverflowEnabled={true}>
                 {/* If we never set a visibility type, we shouldn't create an empty overlay */}
-                { visibilityContext.overlayData?.type == 'TITLE' &&
+                { overlayData?.type == 'TITLE' &&
                     <TitleOverlay navigation={navigation} setIsPaused={setIsPaused} 
                                 style={{backgroundColor: 'rgba(0,0,0,1.0)'}} />
                 }
-                { visibilityContext.overlayData?.type == 'REELAY' &&
+                { overlayData?.type == 'REELAY' &&
                     <ReelayOverlay navigation={navigation} 
-                                reelay={visibilityContext.overlayData?.reelay} 
+                                reelay={overlayData?.reelay} 
                                 onDeleteReelay={onDeleteReelay}
                                 style={{backgroundColor: 'rgba(0,0,0,1.0)'}} />
                 }

@@ -55,8 +55,8 @@ export default TitleOverlay = ({ navigation }) => {
         margin-left: 10px;
         margin-top: 20px;
     `
-    const visibilityContext = useContext(VisibilityContext);
-    const reelay = visibilityContext.overlayData?.reelay;
+    const { overlayData, setOverlayVisible } = useContext(VisibilityContext);
+    const reelay = overlayData?.reelay;
 
     const actors = reelay.overlayInfo?.displayActors;
     const director = reelay.overlayInfo?.director;
@@ -161,7 +161,7 @@ export default TitleOverlay = ({ navigation }) => {
         `
         return (
             <ReturnButtonContainer>
-                <Button onPress={() => visibilityContext.setOverlayVisible(false)}
+                <Button onPress={() => setOverlayVisible(false)}
                     buttonStyle={{ borderColor: 'white', width: '100%' }}
                     titleStyle={{ color: 'white' }}
                     title='Return' type='outline' />
