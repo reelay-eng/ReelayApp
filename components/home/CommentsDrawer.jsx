@@ -1,5 +1,15 @@
-import React, { useContext, useState } from 'react';
-import { Keyboard, KeyboardAvoidingView, Modal, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import React, { useContext, useRef, useState } from 'react';
+import { 
+    Dimensions, 
+    Keyboard, 
+    KeyboardAvoidingView, 
+    Modal, 
+    Pressable, 
+    ScrollView, 
+    Text, 
+    TextInput, 
+    View 
+} from 'react-native';
 import { Button, Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { VisibilityContext } from '../../context/VisibilityContext';
@@ -7,6 +17,8 @@ import styled from 'styled-components/native';
 import moment from 'moment';
 
 import { addComment, deleteComment, getComments } from '../../api/ReelayApi';
+
+const { height, width } = Dimensions.get('window');
 
 export default CommentsDrawer = ({ reelay }) => {
 
@@ -18,14 +30,13 @@ export default CommentsDrawer = ({ reelay }) => {
         position: absolute;
         width: 100%;
     `
-    const DrawerContainer = styled(View)`
+    const DrawerContainer = styled(Pressable)`
         background-color: black;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
         height: auto;
         margin-top: auto;
-        max-height: 70%;
-        padding-bottom: 80px;
+        padding-bottom: 40px;
         width: 100%;
     `
     const ModalContainer = styled(View)`
@@ -83,6 +94,7 @@ export default CommentsDrawer = ({ reelay }) => {
 
     const Comments = () => {
         const CommentsContainer = styled(View)`
+            padding-bottom: 60px;
             width: 100%;
         `
         const CommentItemContainer = styled(View)`
@@ -136,28 +148,46 @@ export default CommentsDrawer = ({ reelay }) => {
 
     const CommentBox = () => {
         const [commentText, setCommentText] = useState('');
+        const scrollViewRef = useRef();
+
+        const CommentBoxLip = styled(View)`
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            height: 12px;
+        `
         const CommentButtonContainer = styled(Pressable)`
             background-color: black;
+            margin-top: 20px;
             width: 100%;
         `    
         return (
-            <ScrollView>
-                <Comments />
-                <TextInput 
+            <View>
+                <ScrollView ref={scrollViewRef} style={{ 
+                        maxHeight: height / 3,
+                    }}>
+                    <Comments />
+                </ScrollView>
+                <CommentBoxLip />
+                <TextInput
+                    multiline
+                    numberOfLines={4}
                     onChangeText={text => setCommentText(text)}
                     placeholder={'Start a flame war...'}
                     placeholderTextColor={'gray'}
                     style={{ 
+                        borderColor: 'white',
+                        borderRadius: 10,
+                        borderWidth: 1,
                         color: 'white',
                         fontSize: 20,
-                        padding: 10, 
+                        padding: 16, 
+                        paddingTop: 16,
                         fontFamily: 'System',
                     }}
                     defaultValue={commentText}
                 />
                 <CommentButtonContainer onPress={Keyboard.dismiss}>
-                    <Button 
-                        buttonStyle={{ 
+                    <Button buttonStyle={{ 
                             alignSelf: 'center',
                             backgroundColor: 'white',
                             margin: 10,
@@ -167,13 +197,14 @@ export default CommentsDrawer = ({ reelay }) => {
                         onPress={async () => {
                             await addComment(reelay, commentText, user);
                             setCommentText('');
+                            scrollViewRef.current.scrollToEnd({ animated: true });
                         }}
                         title='Post'
                         titleStyle={{ color: 'black'}} 
                         type='solid' 
                     />
                 </CommentButtonContainer>
-            </ScrollView>
+            </View>
         );
     };
 
