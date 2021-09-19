@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Dimensions, Modal, View, Text, TextInput, Pressable } from 'react-native';
-import { Button, Icon } from 'react-native-elements';
+import React, { useContext, useState } from 'react';
+import { Dimensions, Keyboard, KeyboardAvoidingView, Modal, View, Text, TextInput, Pressable } from 'react-native';
+import { Button, Icon, Input } from 'react-native-elements';
 import { VisibilityContext } from '../../context/VisibilityContext';
 import styled from 'styled-components/native';
 
@@ -8,16 +8,20 @@ const { height, width} = Dimensions.get('window');
 
 export default CommentsDrawer = ({ reelay }) => {
 
-    // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
+    console.log('comments drawer is rendering');
 
+    // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
+    const CLOSE_BUTTON_SIZE = 36;
     const Backdrop = styled(Pressable)`
         background-color: transparent;
         height: 100%;
         position: absolute;
         width: 100%;
     `
-    const CLOSE_BUTTON_SIZE = 36;
-
+    const CommentItemContainer = styled(View)`
+        margin: 10px;
+        width: 100%;
+    `
     const DrawerContainer = styled(View)`
         background-color: black;
         border-top-left-radius: 12px;
@@ -27,12 +31,8 @@ export default CommentsDrawer = ({ reelay }) => {
         padding-bottom: 80px;
         width: 100%;
     `
-    const CommentsDrawerContainer = styled(View)`
+    const ModalContainer = styled(View)`
         position: absolute;
-    `
-    const CommentItemContainer = styled(View)`
-        margin: 10px;
-        width: 100%;
     `
     const UsernameText = styled(Text)`
         font-family: System;
@@ -40,7 +40,10 @@ export default CommentsDrawer = ({ reelay }) => {
         color: white;
     `
     const { commentsVisible, setCommentsVisible } = useContext(VisibilityContext);
-    const closeDrawer = () => setCommentsVisible(false);
+    const closeDrawer = () => {
+        Keyboard.dismiss();
+        setCommentsVisible(false);
+    }
 
     const Header = () => {
         const HeaderContainer = styled(View)`
@@ -69,6 +72,7 @@ export default CommentsDrawer = ({ reelay }) => {
         const CommentsContainer = styled(View)`
             width: 100%;
         `
+        console.log('comments keep rendering');
         return (
             <CommentsContainer>
                 { reelay.comments.map(comment => {
@@ -85,35 +89,53 @@ export default CommentsDrawer = ({ reelay }) => {
         );
     }
 
-    const AddComment = () => {
-        const AddCommentContainer = styled(View)`
-            width: 100%;
-        `
+
+    const CommentBox = () => {
         const [commentText, setCommentText] = useState('');
+        const CommentButtonContainer = styled(View)`
+            background-color: black;
+            width: 100%;
+        `    
         return (
-            <AddCommentContainer>
+            <View>
                 <TextInput 
-                    multiline
-                    numberOfLines={4}
-                    onChangeText={setCommentText}
+                    onChangeText={text => setCommentText(text)}
                     placeholder={'Start a flame war...'}
-                    placeholderTextColor={'white'}
-                    style={{ padding: 10 }}
-                    value={commentText}
+                    placeholderTextColor={'gray'}
+                    style={{ 
+                        color: 'white',
+                        fontSize: 20,
+                        padding: 10, 
+                        fontFamily: 'System',
+                    }}
+                    defaultValue={commentText}
                 />
-            </AddCommentContainer>
+                <CommentButtonContainer>
+                    <Button title='Post' type='solid' buttonStyle={{ 
+                        alignSelf: 'center',
+                        backgroundColor: 'white',
+                        margin: 10,
+                        width: '50%',
+                    }} titleStyle={{ color: 'black'}} />
+                </CommentButtonContainer>
+            </View>
         );
-    }
+    };
 
     return (
-        <CommentsDrawerContainer>
+        <ModalContainer>
             <Modal animationType='slide' transparent={true} visible={commentsVisible} >
                 <Backdrop onPress={closeDrawer} />
-                <DrawerContainer>
-                    <Header />
-                    <Comments />
-                </DrawerContainer>
+                <KeyboardAvoidingView behavior='padding' style={{flex: 1}} >
+                    <DrawerContainer>
+                        <Pressable onPress={Keyboard.dismiss}>
+                            <Header />
+                            <Comments />
+                        </Pressable>
+                        <CommentBox />
+                    </DrawerContainer>
+                </KeyboardAvoidingView>
             </Modal>
-        </CommentsDrawerContainer>
+        </ModalContainer>
     );
-}
+};

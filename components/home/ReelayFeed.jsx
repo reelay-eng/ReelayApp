@@ -90,7 +90,9 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
     const stackPager = useRef();
 
     const authContext = useContext(AuthContext);
-    const visibilityContext = useContext(VisibilityContext);
+    const {
+        overlayVisible
+    } = useContext(VisibilityContext);
 
     const [feedPosition, setFeedPosition] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
@@ -341,7 +343,7 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
 					})}
 				</PagerViewContainer>
 			}
-            { visibilityContext.overlayVisible && 
+            { overlayVisible && 
                 <FeedOverlay navigation={navigation} setIsPaused={setIsPaused} onDeleteReelay={onDeleteReelay} />
             }
 		</ReelayFeedContainer>

@@ -58,6 +58,10 @@ export default Hero = ({
         }
     }
 
+    if (isPlaying) {
+        console.log('hero is rendering');
+    }
+
     return (
         <View key={index}>
             <FeedVideoPlayer playing={isPlaying} reelay={reelay} 
@@ -72,7 +76,7 @@ export default Hero = ({
                     <ReelayInfo reelay={reelay} />
                     <Sidebar reelay={reelay} />
                 </Overlay>
-                {/* <LikesDrawer reelay={reelay} /> */}
+                <LikesDrawer reelay={reelay} />
                 <CommentsDrawer reelay={reelay} />
             </Gradient>
         </View>

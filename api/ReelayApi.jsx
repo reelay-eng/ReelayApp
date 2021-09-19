@@ -141,7 +141,7 @@ export const fetchFeedNextPage = async ({ batchSize, page, reelayList, refresh }
     }
     
     console.log('prepared reelays');
-    preparedReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
+    preparedReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username, reelay.id));
     console.log('filtered reelays');
     filteredReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
     return filteredReelays;
@@ -167,6 +167,7 @@ export const fetchReelaysForStack = async ({ stack, page, batchSize }) => {
     const preparedReelays = await Promise.all(fetchedReelays.map(prepareReelay));
     const notDuplicate = (element) => stack.findIndex(el => el.id == element.id) == -1;
     const filteredReelays = preparedReelays.filter(notDuplicate);
+    filteredReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username, reelay.titleID));
     return filteredReelays;
 }
 

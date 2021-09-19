@@ -49,6 +49,7 @@ function App() {
   // Visibility context hooks
   // TODO: this is really all about feed visibility...
   const [commentsVisible, setCommentsVisible] = useState(false);
+  const [currentComment, setCurrentComment] = useState('');
   const [likesVisible, setLikesVisible] = useState(false);
   const [overlayVisible, setOverlayVisible] = useState(false);
   const [overlayData, setOverlayData] = useState({});
@@ -106,55 +107,33 @@ function App() {
   }, []);
 
   const authState = {
-    credentials: credentials,
-    isLoading: true,
-    session: session,
-    signedIn: signedIn,
-    user: user,
-    username: username,
-
-    setCredentials: setCredentials,
-    setIsLoading: setIsLoading,
-    setSession: setSession,
-    setSignedIn: setSignedIn,
-    setUser: setUser,
-    setUsername: setUsername,
+    credentials, setCredentials,
+    isLoading, setIsLoading,
+    session, setSession,
+    signedIn, setSignedIn,
+    user, setUser,
+    username, setUsername,
   }
 
-  const visibilityState = {
-      commentsVisible: commentsVisible,
-      likesVisible: likesVisible,
-      overlayVisible: overlayVisible,
-      overlayData: overlayData,
-      tabBarVisible: tabBarVisible,
-
-      setCommentsVisible: setCommentsVisible,
-      setLikesVisible: setLikesVisible,
-      setOverlayVisible: setOverlayVisible,
-      setOverlayData: setOverlayData,
-      setTabBarVisible: setTabBarVisible,
+  const vizState = {
+    commentsVisible, setCommentsVisible,
+    currentComment, setCurrentComment,
+    likesVisible, setLikesVisible,
+    overlayData, setOverlayData,
+    overlayVisible, setOverlayVisible,
+    tabBarVisible, setTabBarVisible,
   }
 
   const uploadState = {
-    uploading: uploading,
-    uploadComplete: uploadComplete,
-    chunksUploaded: chunksUploaded,
-    chunksTotal: chunksTotal,
-    uploadTitleObject: uploadTitleObject,
-    uploadOptions: uploadOptions,
-    uploadErrorStatus: uploadErrorStatus,
-    uploadVideoSource: uploadVideoSource,
-    venueSelected: venueSelected,
-
-    setUploading: setUploading,
-    setUploadComplete: setUploadComplete,
-    setChunksUploaded: setChunksUploaded,
-    setChunksTotal: setChunksTotal,
-    setUploadTitleObject: setUploadTitleObject,
-    setUploadOptions: setUploadOptions,
-    setUploadErrorStatus: setUploadErrorStatus,
-    setUploadVideoSource: setUploadVideoSource,
-    setVenueSelected: setVenueSelected,
+    uploading, setUploading,
+    uploadComplete, setUploadComplete,
+    chunksUploaded, setChunksUploaded,
+    chunksTotal, setChunksTotal,
+    uploadTitleObject, setUploadTitleObject,
+    uploadOptions, setUploadOptions,
+    uploadErrorStatus, setUploadErrorStatus,
+    uploadVideoSource, setUploadVideoSource,
+    venueSelected, setVenueSelected,
   }
 
   if (isLoading) {
@@ -167,7 +146,7 @@ function App() {
     return (
         <SafeAreaProvider>
           <AuthContext.Provider value={authState}>
-            <VisibilityContext.Provider value={visibilityState}>
+            <VisibilityContext.Provider value={vizState}>
               <UploadContext.Provider value={uploadState}>
                   <StatusBar hidden={true} />
                   <Navigation colorScheme={colorScheme} />
