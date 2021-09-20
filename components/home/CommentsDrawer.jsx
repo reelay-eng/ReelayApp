@@ -22,6 +22,8 @@ const { height, width } = Dimensions.get('window');
 
 export default CommentsDrawer = ({ reelay }) => {
 
+    console.log('Rendering the comments drawer for: ', reelay.title, reelay.comments.length);
+
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
     const CLOSE_BUTTON_SIZE = 36;
     const Backdrop = styled(Pressable)`
@@ -30,7 +32,7 @@ export default CommentsDrawer = ({ reelay }) => {
         position: absolute;
         width: 100%;
     `
-    const DrawerContainer = styled(Pressable)`
+    const DrawerContainer = styled(View)`
         background-color: black;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
@@ -64,7 +66,7 @@ export default CommentsDrawer = ({ reelay }) => {
         `
         return (
             <HeaderContainer>
-                <HeaderText>{`Comments (${reelay.comments.length})`}</HeaderText>
+                <HeaderText>{`Comments for ${reelay.creator.username}'s post (${reelay.comments.length})`}</HeaderText>
                 <Pressable onPress={closeDrawer}>
                     <Icon color={'white'} type='ionicon' name='close' size={CLOSE_BUTTON_SIZE} />
                 </Pressable>

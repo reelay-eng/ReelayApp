@@ -18,6 +18,8 @@ import {
 
 import FeedOverlay from '../overlay/FeedOverlay';
 import Hero from './Hero';
+import LikesDrawer from './LikesDrawer';
+import CommentsDrawer from './CommentsDrawer';
 import { showErrorToast, showMessageToast } from '../utils/toasts';
 
 // Please move these into an environment variable (preferably injected via your build step)
@@ -326,6 +328,8 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
                                                     playPause={playPause} />;
                                     })}
                                 </PagerViewContainer>
+                                <LikesDrawer reelay={getReelayInFeed(feedPosition)} />
+                                <CommentsDrawer reelay={getReelayInFeed(feedPosition)} />
                                 <TopRightContainer>
                                     <Poster reelay={stack[stackPosition]} showTitle={false} />
                                     { stack.length > 1 && <StackLocation position={stackPosition} length={stack.length} /> }

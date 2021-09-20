@@ -4,8 +4,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import styled from 'styled-components/native';
 
 import FeedVideoPlayer from './FeedVideoPlayer';
-import CommentsDrawer from './CommentsDrawer';
-import LikesDrawer from './LikesDrawer';
 import ReelayInfo from './ReelayInfo';
 import Sidebar from './Sidebar';
 import { VisibilityContext } from '../../context/VisibilityContext';
@@ -37,6 +35,8 @@ export default Hero = ({
         height: 100%;
     `
     const { 
+        likesVisible,
+        commentsVisible,
         overlayVisible,
         setOverlayData,
         setOverlayVisible,
@@ -76,8 +76,6 @@ export default Hero = ({
                     <ReelayInfo reelay={reelay} />
                     <Sidebar reelay={reelay} />
                 </Overlay>
-                <LikesDrawer reelay={reelay} />
-                <CommentsDrawer reelay={reelay} />
             </Gradient>
         </View>
     );
