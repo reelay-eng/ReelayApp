@@ -96,15 +96,20 @@ function App() {
         authenticateUser();
 
         // notification setup
-        // registerForPushNotificationsAsync();
-        // Notifications.addNotificationReceivedListener(notification => {
-        //     setNotification(Boolean(notification));
-        // });
-        // Notifications.addNotificationResponseReceivedListener(response => {
-        //     console.log(response);
-        // });
-        // const subscription = Notifications.addPushTokenListener(registerForPushNotificationsAsync);
-        // return () => subscription.remove();
+        // https://docs.expo.dev/versions/latest/sdk/notifications/ 
+        registerForPushNotificationsAsync();
+        notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+            console.log('Notification received');
+            setNotification(Boolean(notification));
+        });
+        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+            console.log('Notification response received');
+            console.log(response);
+        });
+        return () => {
+            Notifications.removeNotificationSubscription(notificationListener.current);
+            Notifications.removeNotificationSubscription(responseListener.current);
+        }
     }, []);
 
     const authenticateUser = async () => {
@@ -136,7 +141,7 @@ function App() {
         setIsLoading(false);
     }
 
-  // https://docs.expo.dev/push-notifications/push-notifications-setup/
+    // https://docs.expo.dev/push-notifications/push-notifications-setup/
     const registerForPushNotificationsAsync = async () => {
         if (Constants.isDevice) {
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -164,29 +169,11 @@ function App() {
                 lightColor: '#FF231F7C',
             });
         }
-    };  
-
-    const sendPushNotification = async ({
-        body='Default notification body', 
-        data={},
-        title='Default notification title', 
-        token, 
-        sound='default'
-    }) => {
-        const message = { body, data, sound, title, to: token };
-        await fetch('https://exp.host/--/api/v2/push/send', {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Accept-encoding': 'gzip, deflate',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(message),
-        });
-    }
-  
+    }; 
+      
     const authState = {
         credentials, setCredentials,
+        expoPushToken, setExpoPushToken,
         isLoading, setIsLoading,
         session, setSession,
         signedIn, setSignedIn,
