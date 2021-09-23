@@ -64,9 +64,10 @@ export default CommentsDrawer = ({ reelay }) => {
             font-weight: 500;
             color: white;
         `
+        const headerText = reelay.comments.length ? `Comments (${reelay.comments.length})` : 'Comments';
         return (
             <HeaderContainer>
-                <HeaderText>{`Comments for ${reelay.creator.username}'s post (${reelay.comments.length})`}</HeaderText>
+                <HeaderText>{headerText}</HeaderText>
                 <Pressable onPress={closeDrawer}>
                     <Icon color={'white'} type='ionicon' name='close' size={CLOSE_BUTTON_SIZE} />
                 </Pressable>

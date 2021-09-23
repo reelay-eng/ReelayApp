@@ -49,7 +49,7 @@ export default Sidebar = ({ reelay }) => {
 		} else {
 			await addLike(reelay, user);
 			setLikeUpdateCounter(likeUpdateCounter + 1);
-			sendPushNotification({ token: expoPushToken });
+			// sendPushNotification({ token: expoPushToken });
 		}
 	}
 
