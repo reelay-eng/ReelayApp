@@ -135,7 +135,7 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
 
         // keep querying until we can extend
         // can be empty if fetched reelays are for duplicate titles, so we keep going
-        while (!filteredReelays.length) {
+        while (!filteredReelays.length && page < 20) {
             filteredReelays = await fetchFeedNextPage({ 
                 batchSize: FEED_BATCH_SIZE, 
                 page: page, 

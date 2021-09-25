@@ -1,6 +1,8 @@
-const TMDB_API_BASE_URL = 'https://api.themoviedb.org/3';
-const TMDB_API_KEY = '033f105cd28f507f3dc6ae794d5e44f5';
-const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
+import Constants from 'expo-constants';
+
+const TMDB_API_BASE_URL = Constants.manifest.extra.tmdbApiBaseUrl;
+const TMDB_API_KEY = Constants.manifest.extra.tmdbApiKey;
+const TMDB_IMAGE_API_BASE_URL = Constants.manifest.extra.tmdbImageApiBaseUrl;
 
 const POPULARITY_WEIGHT = 5;
 const TMDB_SEARCH_RANK_WEIGHT = 10;

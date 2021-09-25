@@ -22,8 +22,6 @@ const { height, width } = Dimensions.get('window');
 
 export default CommentsDrawer = ({ reelay }) => {
 
-    console.log('Rendering the comments drawer for: ', reelay.title, reelay.comments.length);
-
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
     const CLOSE_BUTTON_SIZE = 36;
     const Backdrop = styled(Pressable)`

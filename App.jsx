@@ -10,7 +10,7 @@ import * as Notifications from 'expo-notifications';
 // aws imports
 import { Amplify, Auth, Storage } from 'aws-amplify';
 import * as Amplitude from 'expo-analytics-amplitude';
-import config from "./src/aws-exports";
+import AWSConfig from "./src/aws-exports";
 
 // context imports
 import { AuthContext } from './context/AuthContext';
@@ -25,14 +25,14 @@ import useColorScheme from './hooks/useColorScheme';
 import Navigation from './navigation';
 
 Amplify.configure({
-    ...config,
+    ...AWSConfig,
     Auth: {
         identityPoolId: 'us-west-2:61470270-38e1-452f-a8ee-dd37dd80e5a4',
         region: 'us-west-2',
         userPoolId: 'us-west-2_RMWuJQRNL',
         userPoolWebClientId: '6rp2id41nvvm1sb8nav9jsrchi',
     },
-        Analytics: {
+    Analytics: {
         disabled: true,
     },
 });
@@ -90,7 +90,7 @@ function App() {
     const [uploadVideoSource, setUploadVideoSource] = useState('');
     const [venueSelected, setVenueSelected] = useState('');
 
-    Amplitude.initializeAsync('41cdcb8df4bfc40ab39155a7e3401d22');
+    Amplitude.initializeAsync(Constants.manifest.extra.amplitudeApiKey);
 
     useEffect(() => {
         authenticateUser();

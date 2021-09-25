@@ -5,7 +5,7 @@ import Constants from 'expo-constants';
 import { fetchAnnotatedTitle } from './TMDbApi';
 import { showErrorToast, showMessageToast } from '../components/utils/toasts';
 
-const CLOUDFRONT_BASE_URL = 'https://di92fpd9s7eko.cloudfront.net';
+const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const COMMENT_VISIBILITY = Constants.manifest.extra.feedVisibility; // this should be its own variable
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
