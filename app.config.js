@@ -9,8 +9,8 @@ export default ({ config }) => {
     const extra = {
         amplitudeApiKey: '41cdcb8df4bfc40ab39155a7e3401d22',
         cloudfrontBaseUrl: 'https://di92fpd9s7eko.cloudfront.net',
-        expoNotificationsUrl: 'https://exp.host/--/api/v2/push/send',
-        reelayApiBaseUrl: 'http://data.reelay.app/',
+        expoNotificationUrl: 'https://exp.host/--/api/v2/push/send',
+        reelayApiBaseUrl: 'https://data.reelay.app',
 
         tmdbApiKey: '033f105cd28f507f3dc6ae794d5e44f5',
         tmdbApiBaseUrl: 'https://api.themoviedb.org/3',

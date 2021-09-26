@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import { fetchResults } from './fetchResults';
 
 const TMDB_API_BASE_URL = Constants.manifest.extra.tmdbApiBaseUrl;
 const TMDB_API_KEY = Constants.manifest.extra.tmdbApiKey;
@@ -6,30 +7,6 @@ const TMDB_IMAGE_API_BASE_URL = Constants.manifest.extra.tmdbImageApiBaseUrl;
 
 const POPULARITY_WEIGHT = 5;
 const TMDB_SEARCH_RANK_WEIGHT = 10;
-
-// https://dmitripavlutin.com/timeout-fetch-request/
-const fetchResults = async (query, options={ timeout: 8000 }) => {
-    const { timeout = 8000 } = options;
-    try {
-        const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), timeout);
-      
-        const response = await fetch(query, {
-            ...options,
-            signal: controller.signal  
-          }).then((response) => response.json())
-            .catch((error) => {
-                console.log('ERROR IN FETCH RESULTS');
-                console.log(error);
-            });
-        clearTimeout(id);
-        return response;
-    
-    } catch (error) {
-        console.log(error);
-        return null;
-    }
-}
 
 const matchScoreForTitleSearch = (result) => {
     const titleToSearch = result.title.toLowerCase().replace(/:/g, '');

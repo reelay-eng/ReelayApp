@@ -1,3 +1,6 @@
+import Constants from 'expo-constants';
+
+const EXPO_NOTIFICATION_URL = Constants.manifest.extra.expoNotificationUrl;
 
 export const sendPushNotification = async ({
     body='Default notification body', 
@@ -9,7 +12,7 @@ export const sendPushNotification = async ({
     const message = { body, data, sound, title, to: token };
     console.log('push notification message: ');
     console.log(message);
-    await fetch('https://exp.host/--/api/v2/push/send', {
+    await fetch(EXPO_NOTIFICATION_URL, {
         method: 'POST',
         headers: {
             Accept: 'application/json',

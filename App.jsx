@@ -1,28 +1,28 @@
 // react imports
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, Platform } from 'react-native';
+import { Image, Platform, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-
-// notifications
-import Constants from 'expo-constants';
-import * as Notifications from 'expo-notifications';
+import Navigation from './navigation';
+import styled from 'styled-components/native';
 
 // aws imports
 import { Amplify, Auth, Storage } from 'aws-amplify';
-import * as Amplitude from 'expo-analytics-amplitude';
 import AWSConfig from "./src/aws-exports";
+
+// expo and amplitude imports
+import Constants from 'expo-constants';
+import * as Notifications from 'expo-notifications';
+import * as Amplitude from 'expo-analytics-amplitude';
+import { StatusBar } from 'expo-status-bar';
+import useColorScheme from './hooks/useColorScheme';
 
 // context imports
 import { AuthContext } from './context/AuthContext';
 import { VisibilityContext } from './context/VisibilityContext';
 import { UploadContext } from './context/UploadContext';
+import { getRegisteredUser, registerUser } from './api/ReelayDBApi';
 
-// expo imports
-import { StatusBar } from 'expo-status-bar';
-
-// local imports
-import useColorScheme from './hooks/useColorScheme';
-import Navigation from './navigation';
+const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash.png');
 
 Amplify.configure({
     ...AWSConfig,
@@ -37,9 +37,7 @@ Amplify.configure({
     },
 });
 
-Auth.configure({ 
-    mandatorySignIn: false,
-});
+Auth.configure({ mandatorySignIn: false });
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
@@ -49,9 +47,7 @@ Notifications.setNotificationHandler({
     }),
 });
 
-Storage.configure({ 
-    level: 'public',
-});
+Storage.configure({ level: 'public' });
 
 function App() {
     const colorScheme = useColorScheme();
@@ -93,11 +89,9 @@ function App() {
     Amplitude.initializeAsync(Constants.manifest.extra.amplitudeApiKey);
 
     useEffect(() => {
-        authenticateUser();
-
-        // notification setup
-        // https://docs.expo.dev/versions/latest/sdk/notifications/ 
-        registerForPushNotificationsAsync();
+        authenticateUserAndRegisterPushTokens();
+        // // notification setup
+        // // https://docs.expo.dev/versions/latest/sdk/notifications/ 
         notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
             console.log('Notification received');
             setNotification(Boolean(notification));
@@ -112,55 +106,55 @@ function App() {
         }
     }, []);
 
-    const authenticateUser = async () => {
+    const authenticateUserAndRegisterPushTokens = async () => {
         console.log('Setting up authentication');
+        try {
+            const session = await Auth.currentSession();
+            const user = await Auth.currentAuthenticatedUser();
+            const credentials = await Auth.currentUserCredentials();
+            const pushToken = await registerForPushNotificationsAsync();
 
-        Auth.currentSession().then((session) => {
+            if (credentials.authenticated) {
                 setSession(session);
-        }).catch((error) => {
-            console.log(error);
-        });
+                setUser(user);
+                setCredentials(credentials);
+                setSignedIn(true);
 
-        Auth.currentAuthenticatedUser().then((user) => {
-            setUser(user);
-            setSignedIn(true);
-            Amplitude.logEventWithPropertiesAsync('login', {
-                username: user.username,
-            });    
-        }).catch((error) => {
+                if (user && pushToken) {
+                    const registeredUser = await getRegisteredUser(user.attributes.sub);
+                    if (registeredUser.error) {
+                        await registerUser(user, pushToken);
+                    } else if (registeredUser.pushToken != pushToken) {
+                        console.log('push tokens don\'t match!');
+                    }   
+                    updatePushTokens(user, pushToken);
+                }    
+            }
+        } catch (error) {
             console.log(error);
-        });
-
-        Auth.currentUserCredentials().then((credentials) => {
-            setCredentials(credentials);
-            setSignedIn(credentials.authenticated);
-        }).catch((error) => {
-            console.log(error);
-        });
+            return;
+        }
         console.log('authentication complete');
         setIsLoading(false);
     }
 
+    const getDevicePushToken = async () => {
+        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        let finalStatus = existingStatus;
+        if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+        }
+        if (finalStatus !== 'granted') {
+            alert('Failed to get push token for push notification!');
+            return null;
+        }
+        const token = (await Notifications.getExpoPushTokenAsync()).data;
+        return token;
+    }
+
     // https://docs.expo.dev/push-notifications/push-notifications-setup/
     const registerForPushNotificationsAsync = async () => {
-        if (Constants.isDevice) {
-            const { status: existingStatus } = await Notifications.getPermissionsAsync();
-            let finalStatus = existingStatus;
-            if (existingStatus !== 'granted') {
-                const { status } = await Notifications.requestPermissionsAsync();
-                finalStatus = status;
-            }
-            if (finalStatus !== 'granted') {
-                alert('Failed to get push token for push notification!');
-                return;
-            }
-            const token = (await Notifications.getExpoPushTokenAsync()).data;
-            console.log(token);
-            setExpoPushToken(token);
-        } else {
-            alert('Must use physical device for Push Notifications');
-        }
-        
         if (Platform.OS === 'android') {
             Notifications.setNotificationChannelAsync('default', {
                 name: 'default',
@@ -169,54 +163,77 @@ function App() {
                 lightColor: '#FF231F7C',
             });
         }
+
+        if (Constants.isDevice) {
+            return await getDevicePushToken();
+        } else {
+            alert('Must use physical device for Push Notifications');
+            return null;
+        }
     }; 
+
+    const updatePushTokens = async (user, pushToken) => {
+        setExpoPushToken(pushToken);
+        console.log('push token set');
+    }
       
     const authState = {
-        credentials, setCredentials,
-        expoPushToken, setExpoPushToken,
-        isLoading, setIsLoading,
-        session, setSession,
-        signedIn, setSignedIn,
-        user, setUser,
-        username, setUsername,
-    }
-
-    const vizState = {
-        commentsVisible, setCommentsVisible,
-        currentComment, setCurrentComment,
-        likesVisible, setLikesVisible,
-        overlayData, setOverlayData,
-        overlayVisible, setOverlayVisible,
-        tabBarVisible, setTabBarVisible,
+        credentials,        setCredentials,
+        expoPushToken,      setExpoPushToken,
+        isLoading,          setIsLoading,
+        session,            setSession,
+        signedIn,           setSignedIn,
+        user,               setUser,
+        username,           setUsername,
     }
 
     const uploadState = {
-        uploading, setUploading,
-        uploadComplete, setUploadComplete,
-        chunksUploaded, setChunksUploaded,
-        chunksTotal, setChunksTotal,
-        uploadTitleObject, setUploadTitleObject,
-        uploadOptions, setUploadOptions,
-        uploadErrorStatus, setUploadErrorStatus,
-        uploadVideoSource, setUploadVideoSource,
-        venueSelected, setVenueSelected,
+        uploading,          setUploading,
+        uploadComplete,     setUploadComplete,
+        chunksUploaded,     setChunksUploaded,
+        chunksTotal,        setChunksTotal,
+        uploadTitleObject,  setUploadTitleObject,
+        uploadOptions,      setUploadOptions,
+        uploadErrorStatus,  setUploadErrorStatus,
+        uploadVideoSource,  setUploadVideoSource,
+        venueSelected,      setVenueSelected,
+    }
+
+    const vizState = {
+        commentsVisible,    setCommentsVisible,
+        currentComment,     setCurrentComment,
+        likesVisible,       setLikesVisible,
+        overlayData,        setOverlayData,
+        overlayVisible,     setOverlayVisible,
+        tabBarVisible,      setTabBarVisible,
     }
 
     if (isLoading) {
+        const SplashContainer = styled(View)`
+            height: 100%;
+            width: 100%;
+            position: absolute;
+        `
+        const SplashImage = styled(Image)`
+            height: 100%;
+            width: 100%;
+            position: absolute;
+        `
         return (
-            <SafeAreaView>
-                <ActivityIndicator />
-            </SafeAreaView>
+            <SplashContainer>
+                <SplashImage source={SPLASH_IMAGE_SOURCE} />
+            </SplashContainer>
         );
+
     } else {
         return (
             <SafeAreaProvider>
                 <AuthContext.Provider value={authState}>
                     <VisibilityContext.Provider value={vizState}>
-                    <UploadContext.Provider value={uploadState}>
-                        <StatusBar hidden={true} />
-                        <Navigation colorScheme={colorScheme} />
-                    </UploadContext.Provider>
+                        <UploadContext.Provider value={uploadState}>
+                            <StatusBar hidden={true} />
+                            <Navigation colorScheme={colorScheme} />
+                        </UploadContext.Provider>
                     </VisibilityContext.Provider>
                 </AuthContext.Provider>
             </SafeAreaProvider>
