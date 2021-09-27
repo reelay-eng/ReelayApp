@@ -3,6 +3,17 @@ import { fetchResults } from './fetchResults';
 
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 
+export const getRegisteredLikes = async ({ reelay }) => {
+    // todo
+    const routeGet = `${REELAY_API_BASE_URL}/reelays/${reelay.id}/likes`;
+    const resultGet = await fetchResults(routeGet, { method: 'GET' });
+    if (!resultGet) {
+        console.log('Could not get likes for this reelay');
+        return null;
+    }
+    return resultGet;
+}
+
 export const getRegisteredUser = async (userID) => {
     console.log('Fetching registered user...');
     const routeGet = REELAY_API_BASE_URL + '/users/' + userID;
@@ -14,6 +25,13 @@ export const getRegisteredUser = async (userID) => {
         return null;
     }
     return resultGet;
+}
+
+export const registerLike = async ({ creatorSub, userSub, reelay }) => {
+    // todo
+    const routePost = `${REELAY_API_BASE_URL}/likes?creatorSub=${creatorSub}&userSub=${userSub}&reelaySub=${reelay.id}`;
+    const resultPost = await fetchResults(routePost, { method: 'POST' });
+    console.log('Like registered: ', resultPost);
 }
 
 export const registerUser = async (user, pushToken) => {
@@ -35,4 +53,12 @@ export const registerUser = async (user, pushToken) => {
         const resultPost = await fetchResults(routePost, { method: 'POST' });
         console.log('User registry entry created: ', resultPost);
     };
+}
+
+export const unregisterLike = async ({ creatorSub, userSub, reelay }) => {
+    const routePost = `${REELAY_API_BASE_URL}/likes/delete?creatorSub=${creatorSub}&userSub=${userSub}&reelaySub=${reelay.id}`;
+}
+
+export const unregisterUser = async ({ user }) => {
+    // todo
 }

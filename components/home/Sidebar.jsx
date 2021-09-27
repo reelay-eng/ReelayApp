@@ -6,7 +6,7 @@ import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
 import { VisibilityContext } from '../../context/VisibilityContext';
 
-import { sendPushNotification } from '../../api/NotificationsApi';
+import { sendLikeNotification } from '../../api/NotificationsApi';
 
 import { 
 	addLike, deleteLike,
@@ -32,7 +32,7 @@ export default Sidebar = ({ reelay }) => {
 	`
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 
-	const { expoPushToken, user } = useContext(AuthContext);
+	const { user } = useContext(AuthContext);
 	const { setCommentsVisible, setLikesVisible } = useContext(VisibilityContext);
 
 	const findFromUser = (list, userID) => list.find(item => item.userID === userID);
@@ -42,6 +42,7 @@ export default Sidebar = ({ reelay }) => {
 	const onCommentLongPress = async () => setCommentsVisible(true);
 	const onCommentPress = async () => setCommentsVisible(true);
 	const onLikeLongPress = async () => setLikesVisible(true);
+
 	const onLikePress = async () => {
 		if (likedByUser) {
 			await deleteLike(reelay, user);
@@ -49,7 +50,11 @@ export default Sidebar = ({ reelay }) => {
 		} else {
 			await addLike(reelay, user);
 			setLikeUpdateCounter(likeUpdateCounter + 1);
-			// sendPushNotification({ token: expoPushToken });
+			sendLikeNotification({ 
+				creatorSub: reelay.creator.id,
+				userSub: user.attributes.sub,
+				reelay: reelay,
+			});
 		}
 	}
 

@@ -9,6 +9,8 @@ const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const COMMENT_VISIBILITY = Constants.manifest.extra.feedVisibility; // this should be its own variable
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
+// note that we're storing the username in the user ID field
+// in ReelayDB, we want to store the user's sub until migration is complete
 export const addComment = async (reelay, comment, user) => {
     const commentObj = {
         userID: user.username,

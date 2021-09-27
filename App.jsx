@@ -20,7 +20,10 @@ import useColorScheme from './hooks/useColorScheme';
 import { AuthContext } from './context/AuthContext';
 import { VisibilityContext } from './context/VisibilityContext';
 import { UploadContext } from './context/UploadContext';
+
+// api imports
 import { getRegisteredUser, registerUser } from './api/ReelayDBApi';
+import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash.png');
 
@@ -138,45 +141,11 @@ function App() {
         setIsLoading(false);
     }
 
-    const getDevicePushToken = async () => {
-        const { status: existingStatus } = await Notifications.getPermissionsAsync();
-        let finalStatus = existingStatus;
-        if (existingStatus !== 'granted') {
-            const { status } = await Notifications.requestPermissionsAsync();
-            finalStatus = status;
-        }
-        if (finalStatus !== 'granted') {
-            alert('Failed to get push token for push notification!');
-            return null;
-        }
-        const token = (await Notifications.getExpoPushTokenAsync()).data;
-        return token;
-    }
-
-    // https://docs.expo.dev/push-notifications/push-notifications-setup/
-    const registerForPushNotificationsAsync = async () => {
-        if (Platform.OS === 'android') {
-            Notifications.setNotificationChannelAsync('default', {
-                name: 'default',
-                importance: Notifications.AndroidImportance.MAX,
-                vibrationPattern: [0, 250, 250, 250],
-                lightColor: '#FF231F7C',
-            });
-        }
-
-        if (Constants.isDevice) {
-            return await getDevicePushToken();
-        } else {
-            alert('Must use physical device for Push Notifications');
-            return null;
-        }
-    }; 
-
     const updatePushTokens = async (user, pushToken) => {
         setExpoPushToken(pushToken);
         console.log('push token set');
-    }
-      
+    }    
+
     const authState = {
         credentials,        setCredentials,
         expoPushToken,      setExpoPushToken,
