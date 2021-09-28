@@ -17,6 +17,7 @@ import styled from 'styled-components/native';
 import moment from 'moment';
 
 import { addComment, deleteComment, getComments } from '../../api/ReelayApi';
+import { sendCommentNotificationToCreator, sendCommentNotificationToThread } from '../../api/NotificationsApi';
 
 const { height, width } = Dimensions.get('window');
 
@@ -161,6 +162,43 @@ export default CommentsDrawer = ({ reelay }) => {
             margin-top: 20px;
             width: 100%;
         `    
+        const CommentButtonStyle = {
+            alignSelf: 'center',
+            backgroundColor: 'white',
+            margin: 10,
+            width: '50%',
+        }
+
+        const TextInputStyle = {
+            borderColor: 'white',
+            borderRadius: 10,
+            borderWidth: 1,
+            color: 'white',
+            fontSize: 20,
+            
+            padding: 16, 
+            paddingTop: 16,
+            fontFamily: 'System',
+        }
+
+        const onCommentPostNotify = async () => {
+            addComment(reelay, commentText, user);
+            await sendCommentNotificationToCreator({
+                creatorSub: reelay.creator.id,
+                author: user,
+                reelay: reelay,
+                commentText: commentText,
+            });
+            await sendCommentNotificationToThread({
+                creator: reelay.creator,
+                author: user,
+                reelay: reelay,
+                commentText: commentText,
+            });
+            setCommentText('');
+            scrollViewRef.current.scrollToEnd({ animated: true });
+        }
+
         return (
             <View>
                 <ScrollView ref={scrollViewRef} style={{ 
@@ -169,37 +207,22 @@ export default CommentsDrawer = ({ reelay }) => {
                     <Comments />
                 </ScrollView>
                 <CommentBoxLip />
+
+                {/* Setting up TextInput as a styled component forces the keyboard to disappear... */}
                 <TextInput
+                    maxLength={200}
                     multiline
                     numberOfLines={4}
                     onChangeText={text => setCommentText(text)}
                     placeholder={'Start a flame war...'}
                     placeholderTextColor={'gray'}
-                    style={{ 
-                        borderColor: 'white',
-                        borderRadius: 10,
-                        borderWidth: 1,
-                        color: 'white',
-                        fontSize: 20,
-                        padding: 16, 
-                        paddingTop: 16,
-                        fontFamily: 'System',
-                    }}
+                    style={TextInputStyle}
                     defaultValue={commentText}
                 />
                 <CommentButtonContainer onPress={Keyboard.dismiss}>
-                    <Button buttonStyle={{ 
-                            alignSelf: 'center',
-                            backgroundColor: 'white',
-                            margin: 10,
-                            width: '50%',
-                        }} 
+                    <Button buttonStyle={CommentButtonStyle} 
                         disabled={!commentText.length}
-                        onPress={async () => {
-                            await addComment(reelay, commentText, user);
-                            setCommentText('');
-                            scrollViewRef.current.scrollToEnd({ animated: true });
-                        }}
+                        onPress={onCommentPostNotify}
                         title='Post'
                         titleStyle={{ color: 'black'}} 
                         type='solid' 

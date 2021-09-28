@@ -52,7 +52,7 @@ export default Sidebar = ({ reelay }) => {
 			setLikeUpdateCounter(likeUpdateCounter + 1);
 			sendLikeNotification({ 
 				creatorSub: reelay.creator.id,
-				userSub: user.attributes.sub,
+				user: user,
 				reelay: reelay,
 			});
 		}
