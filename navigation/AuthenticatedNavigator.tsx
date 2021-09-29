@@ -26,7 +26,7 @@ const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 export default function AuthenticatedNavigator() {
   const colorScheme = useColorScheme();
 
-  const visibilityContext = React.useContext(VisibilityContext);
+  const { overlayVisible } = React.useContext(VisibilityContext);
 
 
   return (
@@ -50,6 +50,7 @@ export default function AuthenticatedNavigator() {
         component={HomeTabNavigator}
         options={{
           tabBarIcon: () => <Icon type='ionicon' name='film-outline' color={'white'} size={50} />,
+          tabBarVisible: !overlayVisible,
         }}
       />
       <BottomTab.Screen

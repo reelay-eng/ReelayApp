@@ -8,19 +8,17 @@ import { VisibilityContext } from '../../context/VisibilityContext';
 
 import { sendLikeNotification } from '../../api/NotificationsApi';
 
-import { 
-	addLike, deleteLike,
-} from '../../api/ReelayApi';
+import { addLike, deleteLike } from '../../api/ReelayApi';
 
 export default Sidebar = ({ reelay }) => {
-	const ICON_SIZE = 54;
+	const ICON_SIZE = 40;
 	const Count = styled(Text)`
 		color: #fff;
 		font-size: 18px;
 		font-weight: bold;
 		`
 	const SidebarView = styled(View)`
-		align-items: flex-start;
+		align-items: flex-end;
 		height: 100%;
 		justify-content: center;
 		width: 20%;

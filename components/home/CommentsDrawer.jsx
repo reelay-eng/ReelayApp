@@ -10,6 +10,7 @@ import {
     TextInput, 
     View 
 } from 'react-native';
+
 import { Button, Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { VisibilityContext } from '../../context/VisibilityContext';
@@ -25,6 +26,8 @@ export default CommentsDrawer = ({ reelay }) => {
 
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
     const CLOSE_BUTTON_SIZE = 36;
+    const MAX_COMMENT_LENGTH = 200;
+
     const Backdrop = styled(Pressable)`
         background-color: transparent;
         height: 100%;
@@ -48,6 +51,26 @@ export default CommentsDrawer = ({ reelay }) => {
     const closeDrawer = () => {
         Keyboard.dismiss();
         setCommentsVisible(false);
+    }
+
+    const CharacterCounter = ({ commentTextLength }) => {
+        const CounterContainer = styled(View)`
+            flex-direction: row;
+            justify-content: flex-end;
+            margin-top: 10px;
+            right: 10px;
+            width: 100%;
+        `
+        const CounterText = styled(Text)`
+            font-family: System;
+            font-size: 16px;
+            color: white;
+        `
+        return (
+            <CounterContainer>
+                <CounterText>{`${commentTextLength} / ${MAX_COMMENT_LENGTH}`}</CounterText>
+            </CounterContainer>
+        );
     }
 
     const Header = () => {
@@ -210,7 +233,7 @@ export default CommentsDrawer = ({ reelay }) => {
 
                 {/* Setting up TextInput as a styled component forces the keyboard to disappear... */}
                 <TextInput
-                    maxLength={200}
+                    maxLength={MAX_COMMENT_LENGTH}
                     multiline
                     numberOfLines={4}
                     onChangeText={text => setCommentText(text)}
@@ -219,6 +242,7 @@ export default CommentsDrawer = ({ reelay }) => {
                     style={TextInputStyle}
                     defaultValue={commentText}
                 />
+                <CharacterCounter commentTextLength={commentText.length} />
                 <CommentButtonContainer onPress={Keyboard.dismiss}>
                     <Button buttonStyle={CommentButtonStyle} 
                         disabled={!commentText.length}
