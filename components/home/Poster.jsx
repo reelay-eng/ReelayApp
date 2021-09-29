@@ -19,7 +19,7 @@ export default Poster = memo(({ reelay }) => {
 		margin-top: 10px;
 		margin-bottom: 10px;
 		border-radius: 8px;
-	`
+	`;
 	const authContext = useContext(AuthContext);
 	const {
 		overlayVisible,

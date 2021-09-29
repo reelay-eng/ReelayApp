@@ -349,7 +349,7 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
                                     <Poster reelay={currentReelay} />
                                     <UnderPosterContainer>
                                         { stack.length > 1 && <StackLocation position={stackPosition} length={stack.length} /> }
-                                        { currentReelay?.venue && <VenueIcon venue={currentReelay.venue} size={20} border={1} /> }
+                                        { currentReelay?.venue && <VenueIcon venue={currentReelay.venue} size={20} border={2} /> }
                                     </UnderPosterContainer>
                                 </TopRightContainer>
                                 { iconVisible !== 'none' && <PlayPauseIcon onPress={playPause} type={iconVisible} /> }
