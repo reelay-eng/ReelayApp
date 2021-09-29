@@ -16,9 +16,10 @@ import { Button } from 'react-native-elements';
 import { Switch } from 'react-native-paper';
 import * as Progress from 'react-native-progress';
 
-import styled from 'styled-components/native';
-
 import * as Amplitude from 'expo-analytics-amplitude';
+import { sendStackPushNotificationToOtherCreators } from '../api/NotificationsApi';
+
+import styled from 'styled-components/native';
 
 const { height, width } = Dimensions.get('window');
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
@@ -157,6 +158,12 @@ export default ReelayUploadScreen = ({ navigation }) => {
                 title: titleObject.title ? titleObject.title : titleObject.name,
             });
 
+            // todo: notification
+            sendStackPushNotificationToOtherCreators({
+                creator: authContext.user,
+                reelay: reelay,
+            });
+
 
         } catch (error) {
             // todo: better error catching
@@ -270,7 +277,6 @@ export default ReelayUploadScreen = ({ navigation }) => {
         return (
             <UploadProgressBarContainer>
                 { (uploadContext.uploading || uploadContext.uploadComplete) && 
-                    // <ProgressBar indeterminate={indeterminate} progress={progress} color={'white'} /> 
                     <Progress.Bar color={'white'} indeterminate={indeterminate} progress={progress} width={width * 0.75} />
                 }
             </UploadProgressBarContainer>

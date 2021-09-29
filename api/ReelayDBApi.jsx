@@ -27,6 +27,19 @@ export const getRegisteredUser = async (userID) => {
     return resultGet;
 }
 
+export const getUserByUsername = async (username) => {
+    console.log('Fetching registered user...');
+    const routeGet = REELAY_API_BASE_URL + '/users/byusername/' + username;
+    const resultGet = await fetchResults(routeGet, { method: 'GET' });
+    console.log('Registered user result: ', resultGet);
+
+    if (!resultGet) {
+        console.log('User not registered');
+        return null;
+    }
+    return resultGet;
+}
+
 export const registerLike = async ({ creatorSub, userSub, reelay }) => {
     // todo
     const routePost = `${REELAY_API_BASE_URL}/likes?creatorSub=${creatorSub}&userSub=${userSub}&reelaySub=${reelay.id}`;

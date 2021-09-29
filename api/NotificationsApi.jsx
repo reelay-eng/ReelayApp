@@ -1,8 +1,9 @@
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
-import { getRegisteredUser } from './ReelayDBApi';
+import { getRegisteredUser, getUserByUsername } from './ReelayDBApi';
 
 const EXPO_NOTIFICATION_URL = Constants.manifest.extra.expoNotificationUrl;
+const STACK_NOTIFICATION_LIMIT = 10;
 
 const getDevicePushToken = async () => {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -69,7 +70,7 @@ export const sendCommentNotificationToCreator = async ({ creatorSub, author, ree
         console.log('No need to send notification to creator');
         return;
     }
-    
+
     const creator = await getRegisteredUser(creatorSub);
     const token = creator?.pushToken;
 
@@ -85,26 +86,26 @@ export const sendCommentNotificationToCreator = async ({ creatorSub, author, ree
 }
 
 export const sendCommentNotificationToThread = async ({ creator, author, reelay, commentText }) => {
-    // todo
     reelay.comments.map(async (comment, index) => {
-        const notifyAuthorSub = comment.userID;
-        const recipientIsAuthor = (notifyAuthorSub === author.attributes.sub);
+        const notifyUsername = comment.userID;
+        const notifyUser = await getUserByUsername(notifyUsername);
+
+        const token = notifyUser?.token;
+        if (!token) {
+            console.log('Comment author not registered for notifications');
+            return;
+        }
+
+        const recipientIsAuthor = (notifyUser.sub === author.attributes.sub);
         if (recipientIsAuthor) {
             console.log('No need to send notification to comment author');
             return;
         }
-        const recipientAlreadyNotified = (comment) => comment.userID === notifyAuthorSub;
-        if (reelay.comments.findIndex(recipientAlreadyNotified) < index) {
-            console.log('User already notified');
-            return;
-        }
 
-        console.log('notify author sub: ', notifyAuthorSub);
-        console.log(comment);
-        const notifyAuthor = await getRegisteredUser(notifyAuthorSub);
-        const token = notifyAuthor?.token;
-        if (!token) {
-            console.log('Comment author not registered for notifications');
+        const recipientAlreadyNotified = (comment) => comment.userID === notifyUsername;
+        const recipientIndex = reelay.comments.findIndex(recipientAlreadyNotified);
+        if (recipientIndex < index) {
+            console.log('User already notified');
             return;
         }
 
@@ -137,19 +138,31 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
     await sendPushNotification({ title, body, token });
 }
 
-export const sendStackPushNotificationToOtherCreators = async ({ creator, reelayStack }) => {
-    // todo
+export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay }) => {
+    const reelayStack = await fetchReelaysForStack({ 
+        stack: [reelay], 
+        page: 0, 
+        batchSize: STACK_NOTIFICATION_LIMIT 
+    }); 
+    
     reelayStack.map(async (reelay, index) => {
         const notifyCreatorSub = await getRegisteredUser(reelay.creator.id);
         const token = notifyCreatorSub?.pushToken;
-
-        const alreadyNotified = (reelay) => reelay.creator.id === notifyCreatorSub;
-        if (reelayStack.findIndex(alreadyNotified) < index) return;
 
         if (!token) {
             console.log('Creator not registered for like notifications');
             return;
         }
+
+        const recipientIsCreator = (notifyCreatorSub === creator.attributes.sub);
+        if (recipientIsCreator) {
+            console.log('No need to send notification to creator');
+            return;
+        }    
+
+        const alreadyNotified = (reelay) => notifyCreatorSub === reelay.creator.id;
+        const recipientIndex = reelayStack.findIndex(alreadyNotified);
+        if (recipientIndex < index) return;
 
         const title = `${creator.username} followed up your reelay`;
         const body = (reelay.releaseYear) ? `${reelay.title} (${reelay.releaseYear})` : `${reelay.title}`;

@@ -1,5 +1,5 @@
 import { DataStore, SortDirection } from 'aws-amplify';
-import { Reelay, Like, Comment } from '../src/models';
+import { Reelay, Like, Comment, User } from '../src/models';
 import Constants from 'expo-constants';
 
 import { fetchAnnotatedTitle } from './TMDbApi';
