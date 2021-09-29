@@ -1,9 +1,10 @@
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
+import { fetchReelaysForStack } from '../api/ReelayApi';
 import { getRegisteredUser, getUserByUsername } from './ReelayDBApi';
 
 const EXPO_NOTIFICATION_URL = Constants.manifest.extra.expoNotificationUrl;
-const STACK_NOTIFICATION_LIMIT = 10;
+const STACK_NOTIFICATION_LIMIT = 4;
 
 const getDevicePushToken = async () => {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -139,6 +140,9 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
 }
 
 export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay }) => {
+
+    console.log('Sending stack push notification to other creators');
+    console.log(reelay);
     const reelayStack = await fetchReelaysForStack({ 
         stack: [reelay], 
         page: 0, 
@@ -146,6 +150,7 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
     }); 
     
     reelayStack.map(async (reelay, index) => {
+        console.log('For other reelay in stack: ', reelay.title, reelay.creator.username);
         const notifyCreatorSub = await getRegisteredUser(reelay.creator.id);
         const token = notifyCreatorSub?.pushToken;
 
@@ -162,7 +167,10 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
 
         const alreadyNotified = (reelay) => notifyCreatorSub === reelay.creator.id;
         const recipientIndex = reelayStack.findIndex(alreadyNotified);
-        if (recipientIndex < index) return;
+        if (recipientIndex < index) {
+            console.log('Recipient already notified');
+            return;
+        }
 
         const title = `${creator.username} followed up your reelay`;
         const body = (reelay.releaseYear) ? `${reelay.title} (${reelay.releaseYear})` : `${reelay.title}`;

@@ -158,10 +158,11 @@ export default ReelayUploadScreen = ({ navigation }) => {
                 title: titleObject.title ? titleObject.title : titleObject.name,
             });
 
-            // todo: notification
-            sendStackPushNotificationToOtherCreators({
+            // janky, but this gets the reelay into the format we need, so that
+            // we can reuse fetchReelaysForStack from ReelayApi
+            await sendStackPushNotificationToOtherCreators({
                 creator: authContext.user,
-                reelay: reelay,
+                reelay: { ...reelay, titleID: reelay.tmdbTitleID },
             });
 
 
