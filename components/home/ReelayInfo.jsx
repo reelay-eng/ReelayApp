@@ -43,8 +43,8 @@ export default ReelayInfo = ({ reelay }) => {
 		width: 80%;
 	`
 
-	const displayTitle = (reelay.title) ? reelay.title : 'Title not found\ ';
-	const year = (reelay.releaseYear) ? reelay.releaseYear : '';
+	const displayTitle = (reelay.title.display) ? reelay.title.display : 'Title not found\ ';
+	const year = (reelay.title.releaseYear) ? reelay.title.releaseYear : '';
 	const creator = reelay.creator;
 	const timestamp = moment(reelay.postedDateTime).fromNow();
 

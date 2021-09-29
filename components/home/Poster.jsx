@@ -8,7 +8,9 @@ import { VisibilityContext } from '../../context/VisibilityContext';
 import styled from 'styled-components/native';
 import * as Amplitude from 'expo-analytics-amplitude';
 
-export default Poster = memo(({ reelay }) => {
+const areEqual = (title1, title2) => title1.id === title2.id;
+
+export default Poster = memo(({ title }) => {
 
 	const PosterContainer = styled(Pressable)`
 		z-index: 3;
@@ -27,38 +29,38 @@ export default Poster = memo(({ reelay }) => {
 		setOverlayVisible,
 	} = useContext(VisibilityContext);
 
-	if (!reelay) return (<View />);
-	const posterImageUri = getPosterURI(reelay.posterURI);
+	if (!title) return (<View />);
+	const posterImageSource = getPosterURI(title.posterURI);
 
 	const onPosterPress = () => {
 		if (overlayVisible) {
 			setOverlayVisible(false);
-			Amplitude.logEventWithPropertiesAsync('closedOverlay', {
-                username: authContext.user.username,
-				reelayID: reelay.id,
-				reelayCreator: reelay.creator.username,
-                title: reelay.title,
-            });
+			// Amplitude.logEventWithPropertiesAsync('closedOverlay', {
+            //     username: authContext.user.username,
+			// 	reelayID: reelay.id,
+			// 	reelayCreator: reelay.creator.username,
+            //     title: reelay.title,
+            // });
 		} else {
 			setOverlayData({
 				type: 'TITLE',
-				reelay: reelay,
+				title: title,
 			});
 			setOverlayVisible(true);	
-			Amplitude.logEventWithPropertiesAsync('openedOverlay', {
-                username: authContext.user.username,
-				reelayID: reelay.id,
-				reelayCreator: reelay.creator.username,
-                title: reelay.title,
-            });
+			// Amplitude.logEventWithPropertiesAsync('openedOverlay', {
+            //     username: authContext.user.username,
+			// 	reelayID: reelay.id,
+			// 	reelayCreator: reelay.creator.username,
+            //     title: reelay.title,
+            // });
 		}
 	}
 
 	return (
 		<SafeAreaView>
 			<PosterContainer onPress={onPosterPress}>
-				{posterImageUri && <PosterImage source={{ uri: posterImageUri }} />}
+				{ posterImageSource && <PosterImage source={{ uri: posterImageSource }} />}
 			</PosterContainer>
 		</SafeAreaView>
 	);
-});
+}, areEqual);

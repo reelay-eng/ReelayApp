@@ -144,14 +144,14 @@ export const fetchFeedNextPage = async ({ batchSize, page, reelayList, refresh }
     }
     
     console.log('prepared reelays');
-    preparedReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username, reelay.id));
+    preparedReelays.forEach(reelay => console.log(reelay.title.display, reelay.creator.username, reelay.id));
     console.log('filtered reelays');
-    filteredReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username));
+    filteredReelays.forEach(reelay => console.log(reelay.title.display, reelay.creator.username));
     return filteredReelays;
 }
 
 export const fetchReelaysForStack = async ({ stack, page, batchSize }) => {
-    const titleID = stack[0].titleID;
+    const titleID = stack[0].title.id;
     const queryConstraints = r => {
         return r.visibility('eq', FEED_VISIBILITY).tmdbTitleID('eq', String(titleID));
     }
@@ -170,7 +170,7 @@ export const fetchReelaysForStack = async ({ stack, page, batchSize }) => {
     const preparedReelays = await Promise.all(fetchedReelays.map(prepareReelay));
     const notDuplicate = (element) => stack.findIndex(el => el.id == element.id) == -1;
     const filteredReelays = preparedReelays.filter(notDuplicate);
-    filteredReelays.forEach(reelay => console.log(reelay.title, reelay.creator.username, reelay.titleID));
+    filteredReelays.forEach(reelay => console.log(reelay.title.display, reelay.creator.username, reelay.title.id));
     return filteredReelays;
 }
 
@@ -211,14 +211,14 @@ const getVideoURIObject = async (fetchedReelay) => {
 
 const notDuplicateInBatch = (reelay, index, preparedReelays) => {
     const alreadyInBatch = (preparedReelays.findIndex((batchEl, ii) => {
-        return (batchEl.titleID === reelay.titleID) && (ii < index);
+        return (batchEl.title.id === reelay.title.id) && (ii < index);
     }) >= 0);
     return !alreadyInBatch;
 }
 
 const notDuplicateInFeed = (reelay, reelayList) => {
     const alreadyInFeed = (reelayList.findIndex(listReelay => {
-        return listReelay.titleID === reelay.titleID;
+        return listReelay.title.id === reelay.title.id;
     }) >= 0);
     return !alreadyInFeed;
 }
@@ -236,27 +236,31 @@ const prepareReelay = async (fetchedReelay) => {
 
     return {
         id: fetchedReelay.id,
-        comments: comments,
         creator: {
             avatar: '../../assets/images/icon.png',
             id: fetchedReelay.creatorID,
             username: String(fetchedReelay.owner),
         },
+        content: {
+            venue: fetchedReelay.venue ? fetchedReelay.venue : null,
+            videoURI: videoURIObject.videoURI,    
+        },
         likes: likes,
-        overlayInfo: {
+        comments: comments,
+        title: {
+            id: titleObject.id,
+            display: titleObject.title,
+
             director: titleObject.director,
             displayActors: titleObject.displayActors,
             overview: titleObject.overview,
+            posterURI: titleObject ? titleObject.poster_path : null,
             tagline: titleObject.tagline,
             trailerURI: titleObject.trailerURI,
+
+            releaseDate: titleObject.release_date,
+            releaseYear: releaseYear,
         },
         postedDateTime: fetchedReelay.uploadedAt,
-        posterURI: titleObject ? titleObject.poster_path : null,
-        releaseDate: titleObject.release_date,
-        releaseYear: releaseYear,
-        title: titleObject.title,
-        titleID: titleObject.id,
-        venue: fetchedReelay.venue ? fetchedReelay.venue : null,
-        videoURI: videoURIObject.videoURI,
     };
 }

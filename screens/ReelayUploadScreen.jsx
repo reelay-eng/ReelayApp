@@ -162,7 +162,12 @@ export default ReelayUploadScreen = ({ navigation }) => {
             // we can reuse fetchReelaysForStack from ReelayApi
             await sendStackPushNotificationToOtherCreators({
                 creator: authContext.user,
-                reelay: { ...reelay, titleID: reelay.tmdbTitleID },
+                reelay: { 
+                    ...reelay, 
+                    title: {
+                        id: reelay.tmdbTitleID 
+                    }
+                },
             });
 
 

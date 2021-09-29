@@ -10,6 +10,7 @@ import styled from 'styled-components/native';
 export default VenueSelectScreen = ({ navigation, route }) => {
 
     const ICON_SIZE = 64;
+    const BORDER_SIZE = 4;
 
     const { title } = route.params;
     const uploadContext = useContext(UploadContext);
@@ -59,7 +60,8 @@ export default VenueSelectScreen = ({ navigation, route }) => {
                     { iconVenues.map(venue => {
                         return (
                             <IconContainer key={venue}>
-                                <VenueIcon border={4} onPress={() => onPress(venue)} size={ICON_SIZE} venue={venue}  />
+                                <VenueIcon border={BORDER_SIZE} size={ICON_SIZE} venue={venue}
+                                    onPress={() => onPress(venue)}  />
                             </IconContainer>
                         ); 
                     })}
@@ -112,7 +114,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
                     return (
                         <OtherOptionsLine key={venue}>
                             <IconContainer>
-                                <VenueIcon border={4} onPress={() => onPress(venue)} 
+                                <VenueIcon border={BORDER_SIZE} onPress={() => onPress(venue)} 
                                             size={ICON_SIZE} venue={venue}  />
                             </IconContainer>
                             <OtherOptionsTextButton onPress={() => onPress(venue)}>
