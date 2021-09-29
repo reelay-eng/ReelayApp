@@ -144,7 +144,7 @@ export default TitleOverlay = ({ navigation }) => {
                     })}
                 </HeaderRowContainer>
                 <PosterContainer>
-                    <Poster reelay={reelay} showTitle={false} />
+                    <Poster reelay={reelay} />
                     { venueMarked && <VenueLabel venue={reelay.venue} size={20} /> }
                 </PosterContainer>
             </TitleOverlayHeader>

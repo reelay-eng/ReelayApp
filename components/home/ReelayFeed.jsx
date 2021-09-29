@@ -331,7 +331,7 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
                                 <LikesDrawer reelay={getReelayInFeed(feedPosition)} />
                                 <CommentsDrawer reelay={getReelayInFeed(feedPosition)} />
                                 <TopRightContainer>
-                                    <Poster reelay={stack[stackPosition]} showTitle={false} />
+                                    <Poster reelay={stack[stackPosition]} />
                                     { stack.length > 1 && <StackLocation position={stackPosition} length={stack.length} /> }
                                 </TopRightContainer>
                                 { iconVisible !== 'none' && <PlayPauseIcon onPress={playPause} type={iconVisible} /> }

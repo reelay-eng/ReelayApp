@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Pressable } from 'react-native';
 import { Image } from 'react-native-elements';
 import styled from 'styled-components/native';
@@ -50,13 +50,15 @@ export const getOtherVenues = () => {
     return otherVenues;
 }
 
-export const VenueIcon = ({ border, onPress, size = 48, venue }) => {
+export const VenueIcon = memo(({ border, borderRadius, onPress, size = 48, venue }) => {
 
     const searchItems = [...iconVenues, ...otherVenues];
     const source = searchItems.find(vi => vi.venue === venue).source;
+
+    const radius = borderRadius ? borderRadius : (size / 2) + (border ? 4 : 0);
     
     const IconPressable = styled(Pressable)`
-        border-radius: ${(size / 2) + (border ? 4 : 0)}px;
+        border-radius: ${radius}px;
         border-width: ${border ? 4 : 0}px;
         border-color: ${venue === 'other' ? 'blue' : 'white'};
     `
@@ -67,4 +69,4 @@ export const VenueIcon = ({ border, onPress, size = 48, venue }) => {
             }} />
         </IconPressable>
     );
-}
+});
