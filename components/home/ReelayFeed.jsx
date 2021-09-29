@@ -205,12 +205,22 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
     };
 
     const onFeedSwiped = async (e) => {
-        console.log('ON FEED SWIPED: ', e.nativeEvent.position);
         const prevReelay = getReelayInFeed(feedPosition);
         const nextReelay = getReelayInFeed(e.nativeEvent.position);
         const swipeDirection = e.nativeEvent.position < feedPosition ? 'up' : 'down';
 
         if (feedPosition !== e.nativeEvent.position) {
+            console.log('Setting new feed position: ', e.nativeEvent.position);
+            Amplitude.logEventWithPropertiesAsync('swipedFeed', {
+                nextReelayID: nextReelay.id,
+                nextReelayCreator: nextReelay.creator.username,
+                nextReelayTitle: nextReelay.title,
+                prevReelayID: prevReelay.id,
+                prevReelayCreator: prevReelay.creator.username,
+                prevReelayTitle: prevReelay.title,
+                swipeDirection: swipeDirection,
+                username: user.username,
+            });    
             setFeedPosition(e.nativeEvent.position);
         }
 
@@ -218,21 +228,9 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
             console.log('fetching more reelays');
 			extendFeed();
 		}
-
-        Amplitude.logEventWithPropertiesAsync('swipedFeed', {
-            nextReelayID: nextReelay.id,
-            nextReelayCreator: nextReelay.creator.username,
-            nextReelayTitle: nextReelay.title,
-            prevReelayID: prevReelay.id,
-            prevReelayCreator: prevReelay.creator.username,
-            prevReelayTitle: prevReelay.title,
-            swipeDirection: swipeDirection,
-            username: user.username,
-        })
 	};
 
     const onStackSwiped = async (e) => {
-        console.log('ON STACK SWIPED', e.nativeEvent.position);
         const prevReelay = getReelayInFeed(feedPosition);
         const nextReelay = stackList[feedPosition][e.nativeEvent.position];
         const swipeDirection = e.nativeEvent.position < feedPosition ? 'left' : 'right';
@@ -242,11 +240,10 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
         const prevStackPosition = stackPositions[titleID];
 
         if (prevStackPosition === stackPosition) return;
-        if (Math.abs(prevStackPosition - stackPosition) > 1) return;
-        stackPositions[titleID] = stackPosition;
-        
-        setStackCounter(stackCounter + 1);
 
+        console.log('Setting new stack position', e.nativeEvent.position);
+        if (Math.abs(prevStackPosition - stackPosition) > 1) return;
+        
         Amplitude.logEventWithPropertiesAsync('swipedFeed', {
             nextReelayID: nextReelay.id,
             nextReelayCreator: nextReelay.creator.username,
@@ -256,7 +253,10 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
             prevReelayTitle: prevReelay.title,
             swipeDirection: swipeDirection,
             username: user.username,
-        })
+        });
+
+        stackPositions[titleID] = stackPosition;
+        setStackCounter(stackCounter + 1);
     };
 
     const onTabPress = async () => {

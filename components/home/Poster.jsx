@@ -8,7 +8,7 @@ import { VisibilityContext } from '../../context/VisibilityContext';
 import styled from 'styled-components/native';
 import * as Amplitude from 'expo-analytics-amplitude';
 
-export default Poster = ({ reelay }) => {
+export default Poster = memo(({ reelay }) => {
 
 	const PosterContainer = styled(Pressable)`
 		z-index: 3;
@@ -61,4 +61,4 @@ export default Poster = ({ reelay }) => {
 			</PosterContainer>
 		</SafeAreaView>
 	);
-};
+});
