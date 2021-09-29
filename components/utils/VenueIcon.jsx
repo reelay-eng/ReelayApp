@@ -50,16 +50,16 @@ export const getOtherVenues = () => {
     return otherVenues;
 }
 
-export const VenueIcon = memo(({ border, borderRadius, onPress, size = 48, venue }) => {
+export const VenueIcon = memo(({ border = 0, onPress, size = 48, venue }) => {
 
     const searchItems = [...iconVenues, ...otherVenues];
     const source = searchItems.find(vi => vi.venue === venue).source;
 
-    const radius = borderRadius ? borderRadius : (size / 2) + (border ? 4 : 0);
+    const radius = (size / 2) + (border ? 4 : 0);
     
     const IconPressable = styled(Pressable)`
         border-radius: ${radius}px;
-        border-width: ${border ? 4 : 0}px;
+        border-width: ${border}px;
         border-color: ${venue === 'other' ? 'blue' : 'white'};
     `
     return (

@@ -70,7 +70,7 @@ function App() {
     const [username, setUsername] = useState('');
 
     // Visibility context hooks
-    // TODO: this is really all about feed visibility...
+    // TODO: this is really all about FEED visibility...
     const [commentsVisible, setCommentsVisible] = useState(false);
     const [currentComment, setCurrentComment] = useState('');
     const [likesVisible, setLikesVisible] = useState(false);

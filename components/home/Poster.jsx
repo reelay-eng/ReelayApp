@@ -5,8 +5,6 @@ import { getPosterURI } from '../../api/TMDbApi';
 import { AuthContext } from '../../context/AuthContext';
 import { VisibilityContext } from '../../context/VisibilityContext';
 
-import { VenueIcon } from '../utils/VenueIcon';
-
 import styled from 'styled-components/native';
 import * as Amplitude from 'expo-analytics-amplitude';
 
@@ -21,11 +19,6 @@ export default Poster = ({ reelay }) => {
 		margin-top: 10px;
 		margin-bottom: 10px;
 		border-radius: 8px;
-	`
-	const VenueIconContainer = styled(View)`
-		align-self: flex-end;
-		margin-top: 10px;
-		position: absolute;
 	`
 	const authContext = useContext(AuthContext);
 	const {
@@ -65,11 +58,6 @@ export default Poster = ({ reelay }) => {
 		<SafeAreaView>
 			<PosterContainer onPress={onPosterPress}>
 				{posterImageUri && <PosterImage source={{ uri: posterImageUri }} />}
-				{reelay.venue && (
-					<VenueIconContainer>
-						<VenueIcon size={24} venue={reelay.venue} borderRadius={8} />
-					</VenueIconContainer>
-				)}
 			</PosterContainer>
 		</SafeAreaView>
 	);

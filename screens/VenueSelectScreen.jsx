@@ -59,7 +59,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
                     { iconVenues.map(venue => {
                         return (
                             <IconContainer key={venue}>
-                                <VenueIcon border={true} onPress={() => onPress(venue)} size={ICON_SIZE} venue={venue}  />
+                                <VenueIcon border={4} onPress={() => onPress(venue)} size={ICON_SIZE} venue={venue}  />
                             </IconContainer>
                         ); 
                     })}
@@ -112,7 +112,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
                     return (
                         <OtherOptionsLine key={venue}>
                             <IconContainer>
-                                <VenueIcon border={true} onPress={() => onPress(venue)} 
+                                <VenueIcon border={4} onPress={() => onPress(venue)} 
                                             size={ICON_SIZE} venue={venue}  />
                             </IconContainer>
                             <OtherOptionsTextButton onPress={() => onPress(venue)}>
