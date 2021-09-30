@@ -6,15 +6,21 @@ import { AuthContext } from '../../context/AuthContext';
 import { VisibilityContext } from '../../context/VisibilityContext';
 
 import styled from 'styled-components/native';
-import { showMessageToast } from '../utils/toasts';
 import * as Amplitude from 'expo-analytics-amplitude';
-import Downloader from '../utils/Downloader';
+// import Downloader from '../utils/Downloader';
+
+import * as FileSystem from 'expo-file-system';
+import * as MediaLibrary from 'expo-media-library';
+import * as Progress from 'react-native-progress';
+import { showErrorToast, showMessageToast } from '../utils/toasts';
 
 const { height, width } = Dimensions.get('window');
 
 export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
 
     const [confirmHide, setConfirmHide] = useState(false);
+    const [downloadProgress, setDownloadProgress] = useState(0);
+    const [downloadStarted, setDownloadStarted] = useState(false);
 
     const {
         user,
@@ -27,13 +33,6 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
     const canHideReelay = (reelay.creator.username === user.username)
                         || (user.username === 'immigrantfilm');
 
-    const HorizontalLine = styled(View)`
-        height: 0px;
-        border: 1px;
-        border-color: white;
-        left: 30px;
-        width: 80%;
-    `
     const SettingsContainer = styled(View)`
         align-items: center;
         height: 100%;
@@ -42,10 +41,17 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
         top: ${ height / 4}px;
     `
     const SettingsPressable = styled(Pressable)`
+        align-items: center;
         border: 1px;
         border-color: white;
         border-radius: 12px;
         margin: 30px;
+        padding: 16px;
+        width: 70%;
+    `
+    const SettingsPressableDisabled = styled(Pressable)`
+        align-items: center;
+        margin-top: 30px;
         padding: 16px;
         width: 70%;
     `
@@ -90,6 +96,29 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
         if (reelay.id % 2 === 1) showMessageToast('Don\'t you just want to burn it all?');
     }
 
+    const downloadReelay = async () => {
+        setDownloadStarted(true);
+        const downloadResumable = FileSystem.createDownloadResumable(
+            reelay.content.videoURI,
+            `${FileSystem.documentDirectory}${reelay.id}.mp4`,
+            {}, onProgressUpdate
+        );
+          
+        try {
+            showMessageToast('Downloading...');
+            await MediaLibrary.requestPermissionsAsync();
+            const { uri } = await downloadResumable.downloadAsync();
+            console.log('Finished downloading to ', uri);
+
+            const download = await MediaLibrary.createAssetAsync(uri);
+            console.log(download);
+            showMessageToast('Download complete. Check your media library.');
+        } catch (e) {
+            console.error(e);
+            showErrorToast('Download failed...');
+        }
+    }
+
     const renderBaseOptions = () => {
         return (
             <SettingsContainer>
@@ -100,10 +129,21 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
                 </SettingsPressable>
                 { canHideReelay && 
                     <SettingsPressable onPress={hideReelay}>
-                        <SettingsText>{'Delete Reelay'}</SettingsText>
+                        <SettingsText>{'Delete this Reelay'}</SettingsText>
                     </SettingsPressable>
                 }
-                <Downloader reelay={reelay} />
+                { downloadStarted &&
+                    <SettingsPressableDisabled>
+                        <SettingsText>{'Download this Reelay'}</SettingsText>
+                            <Progress.Bar color={'white'} progress={downloadProgress} 
+                                style={{ margin: 20 }} width={width * 0.5} />
+                    </SettingsPressableDisabled>
+                }
+                { !downloadStarted &&
+                    <SettingsPressable onPress={downloadReelay}>
+                        <SettingsText>{'Download this Reelay'}</SettingsText>
+                    </SettingsPressable>
+                }
                 <SettingsPressable onPress={signOut}>
                     <SettingsText>{'Sign out'}</SettingsText>
                 </SettingsPressable>
@@ -124,6 +164,11 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
             </SettingsContainer>
         );
     }
+
+    const onProgressUpdate = (update) => {
+        const progress = update.totalBytesWritten / update.totalBytesExpectedToWrite;
+        setDownloadProgress(progress);
+    } 
 
     return (
         <SafeAreaView>
