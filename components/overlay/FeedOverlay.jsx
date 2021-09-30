@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { SafeAreaView, ScrollView } from 'react-native';
 import { VisibilityContext } from '../../context/VisibilityContext';
 import TitleOverlay from './TitleOverlay';
-import ReelayOverlay from './ReelayOverlay';
+import SettingsOverlay from './SettingsOverlay';
 import styled from 'styled-components/native';
 
 export default FeedOverlay = ({ navigation, onDeleteReelay, setIsPaused }) => {
@@ -30,7 +30,7 @@ export default FeedOverlay = ({ navigation, onDeleteReelay, setIsPaused }) => {
                                 style={{backgroundColor: 'rgba(0,0,0,1.0)'}} />
                 }
                 { overlayData?.type == 'REELAY' &&
-                    <ReelayOverlay navigation={navigation} 
+                    <SettingsOverlay navigation={navigation} 
                                 reelay={overlayData?.reelay} 
                                 onDeleteReelay={onDeleteReelay}
                                 style={{backgroundColor: 'rgba(0,0,0,1.0)'}} />

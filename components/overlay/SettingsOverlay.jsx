@@ -8,10 +8,11 @@ import { VisibilityContext } from '../../context/VisibilityContext';
 import styled from 'styled-components/native';
 import { showMessageToast } from '../utils/toasts';
 import * as Amplitude from 'expo-analytics-amplitude';
+import Downloader from '../utils/Downloader';
 
 const { height, width } = Dimensions.get('window');
 
-export default ReelayOverlay = ({ navigation, reelay, onDeleteReelay }) => {
+export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
 
     const [confirmHide, setConfirmHide] = useState(false);
 
@@ -36,7 +37,6 @@ export default ReelayOverlay = ({ navigation, reelay, onDeleteReelay }) => {
     const SettingsPressable = styled(Pressable)`
         margin: 30px;
     `
-
     const SettingsText = styled(Text)`
         font-size: 20px;
         font-family: System;
@@ -91,6 +91,7 @@ export default ReelayOverlay = ({ navigation, reelay, onDeleteReelay }) => {
                         <SettingsText>{'Delete Reelay'}</SettingsText>
                     </SettingsPressable>
                 }
+                <Downloader reelay={reelay} />
                 <SettingsPressable onPress={signOut}>
                     <SettingsText>{'Sign out'}</SettingsText>
                 </SettingsPressable>
