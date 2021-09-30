@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { SafeAreaView } from 'react-native';
 import { Text } from 'react-native-elements';
-import { AuthStyles } from '../styles';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../context/AuthContext';
@@ -63,7 +62,7 @@ export default ConfirmEmailScreen = ({ navigation }) => {
                 color: 'white',
                 fontFamily: 'System',
                 flex: 0.1, 
-                justifyContent: 'flex-start'
+                justifyContent: 'center'
                 }}>{'We\'ve sent you a confirmation code'}</Text>
             <AuthInput 
                 autoCapitalize='none'

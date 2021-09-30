@@ -29,12 +29,6 @@ const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash.png');
 
 Amplify.configure({
     ...AWSConfig,
-    Auth: {
-        identityPoolId: 'us-west-2:61470270-38e1-452f-a8ee-dd37dd80e5a4',
-        region: 'us-west-2',
-        userPoolId: 'us-west-2_RMWuJQRNL',
-        userPoolWebClientId: '6rp2id41nvvm1sb8nav9jsrchi',
-    },
     Analytics: {
         disabled: true,
     },
@@ -135,6 +129,9 @@ function App() {
             }
         } catch (error) {
             console.log(error);
+            Amplitude.logEventWithPropertiesAsync('authError', {
+                error: error,
+            });
             return;
         }
         console.log('authentication complete');
