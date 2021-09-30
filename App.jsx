@@ -132,7 +132,6 @@ function App() {
             Amplitude.logEventWithPropertiesAsync('authError', {
                 error: error,
             });
-            return;
         }
         console.log('authentication complete');
         setIsLoading(false);
