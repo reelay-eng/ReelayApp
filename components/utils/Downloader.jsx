@@ -60,14 +60,14 @@ export default Downloader = ({ reelay }) => {
         );
           
         try {
-            showMessageToast('Downloading...');
+            showErrorToast('Downloading...');
             await MediaLibrary.requestPermissionsAsync();
             const { uri } = await downloadResumable.downloadAsync();
             console.log('Finished downloading to ', uri);
 
             const download = await MediaLibrary.createAssetAsync(uri);
             console.log(download);
-            showMessageToast('Download complete');
+            showErrorToast('Download complete');
         } catch (e) {
             console.error(e);
             showErrorToast('Download failed...');
