@@ -19,6 +19,8 @@ import moment from 'moment';
 import { addComment, deleteComment, getComments } from '../../api/ReelayApi';
 import { sendCommentNotificationToCreator, sendCommentNotificationToThread } from '../../api/NotificationsApi';
 
+import * as Amplitude from 'expo-analytics-amplitude';
+
 const { height, width } = Dimensions.get('window');
 
 export default CommentsDrawer = ({ reelay }) => {
@@ -181,7 +183,7 @@ export default CommentsDrawer = ({ reelay }) => {
             fontFamily: 'System',
         }
 
-        const onCommentPostNotify = async () => {
+        const onCommentPost = async () => {
             addComment(reelay, commentText, user);
             await sendCommentNotificationToCreator({
                 creatorSub: reelay.creator.id,
@@ -197,6 +199,14 @@ export default CommentsDrawer = ({ reelay }) => {
             });
             setCommentText('');
             scrollViewRef.current.scrollToEnd({ animated: true });
+
+            Amplitude.logEventWithPropertiesAsync('commentedOnReelay', {
+				user: user.username,
+				creator: reelay.creator.username,
+				title: reelay.title.display,
+				reelayID: reelay.id,
+                commentText: commentText,
+			});
         }
 
         return (
@@ -222,7 +232,7 @@ export default CommentsDrawer = ({ reelay }) => {
                 <CommentButtonContainer onPress={Keyboard.dismiss}>
                     <Button buttonStyle={CommentButtonStyle} 
                         disabled={!commentText.length}
-                        onPress={onCommentPostNotify}
+                        onPress={onCommentPost}
                         title='Post'
                         titleStyle={{ color: 'black'}} 
                         type='solid' 

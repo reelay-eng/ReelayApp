@@ -7,6 +7,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { VisibilityContext } from '../../context/VisibilityContext';
 
 import { sendLikeNotification } from '../../api/NotificationsApi';
+import * as Amplitude from 'expo-analytics-amplitude';
 
 import { 
 	addLike, deleteLike,
@@ -47,6 +48,12 @@ export default Sidebar = ({ reelay }) => {
 		if (likedByUser) {
 			await deleteLike(reelay, user);
 			setLikeUpdateCounter(likeUpdateCounter + 1);
+			Amplitude.logEventWithPropertiesAsync('unlikedReelay', {
+				user: user.username,
+				creator: reelay.creator.username,
+				title: reelay.title.display,
+				reelayID: reelay.id,
+			});
 		} else {
 			await addLike(reelay, user);
 			setLikeUpdateCounter(likeUpdateCounter + 1);
@@ -54,6 +61,12 @@ export default Sidebar = ({ reelay }) => {
 				creatorSub: reelay.creator.id,
 				user: user,
 				reelay: reelay,
+			});
+			Amplitude.logEventWithPropertiesAsync('likedReelay', {
+				user: user.username,
+				creator: reelay.creator.username,
+				title: reelay.title.display,
+				reelayID: reelay.id,
 			});
 		}
 	}
