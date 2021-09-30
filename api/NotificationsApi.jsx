@@ -81,7 +81,7 @@ export const sendCommentNotificationToCreator = async ({ creatorSub, author, ree
     }
 
     const title = `${author.username} commented on your reelay!`;
-    const bodyTitle = (reelay.releaseYear) ? `${reelay.title} (${reelay.releaseYear})` : `${reelay.title}`;
+    const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
     const body = `${bodyTitle}: ${commentText}`;
     await sendPushNotification({ title, body, token });
 }
@@ -111,7 +111,7 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
         }
 
         const title = `${author.username} also commented on ${creator.username}'s reelay`;
-        const bodyTitle = (reelay.releaseYear) ? `${reelay.title} (${reelay.releaseYear})` : `${reelay.title}`;
+        const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
         const body = `${bodyTitle}: ${commentText}`;
         await sendPushNotification({ title, body, token });    
     });
@@ -121,7 +121,7 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
     const recipientIsAuthor = (creatorSub === user.attributes.sub);
     if (recipientIsAuthor) {
         const title = `Achievement earned: Love Yourself`;
-        const body = (reelay.releaseYear) ? `${reelay.title} (${reelay.releaseYear})` : `${reelay.title}`;    
+        const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;    
         await sendPushNotification({ title, body, token });
         return;
     }
@@ -135,7 +135,7 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
     }
 
     const title = `${user.username} liked your reelay!`;
-    const body = (reelay.releaseYear) ? `${reelay.title} (${reelay.releaseYear})` : `${reelay.title}`;
+    const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
     await sendPushNotification({ title, body, token });
 }
 
@@ -150,7 +150,7 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
     }); 
     
     reelayStack.map(async (reelay, index) => {
-        console.log('For other reelay in stack: ', reelay.title, reelay.creator.username);
+        console.log('For other reelay in stack: ', reelay.title.display, reelay.creator.username);
         const notifyCreatorSub = await getRegisteredUser(reelay.creator.id);
         const token = notifyCreatorSub?.pushToken;
 
@@ -173,7 +173,7 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
         }
 
         const title = `${creator.username} followed up your reelay`;
-        const body = (reelay.releaseYear) ? `${reelay.title} (${reelay.releaseYear})` : `${reelay.title}`;
+        const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
         await sendPushNotification({ title, body, token });    
     })
 }

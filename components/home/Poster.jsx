@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { memo, useContext } from 'react';
 import { Image, Pressable, View, SafeAreaView } from 'react-native';
 import { getPosterURI } from '../../api/TMDbApi';
 
@@ -8,75 +8,61 @@ import { VisibilityContext } from '../../context/VisibilityContext';
 import styled from 'styled-components/native';
 import * as Amplitude from 'expo-analytics-amplitude';
 
-const MovieTitle = styled.Text`
-	font-size: 17px;
-	color: rgba(255, 255, 255, 1.2);
-	letter-spacing: -0.2px;
-	margin-top: 10px;
-	margin-bottom: 10px;
-	width: 120px;
-`
-const PosterImage = styled(Image)`
-	height: 180px;
-	width: 120px;
-	margin-top: 10px;
-	margin-bottom: 10px;
-	border-radius: 8px;
-`
-const PosterContainer = styled(Pressable)`
-	z-index: 3;
-`
+const areEqual = (title1, title2) => title1.id === title2.id;
 
-export default Poster = ({ reelay, showTitle }) => {
+export default Poster = memo(({ title }) => {
 
-	const authContext = useContext(AuthContext);
+	const PosterContainer = styled(Pressable)`
+		z-index: 3;
+	`
+	const PosterImage = styled(Image)`
+		height: 150px;
+		width: 100px;
+		margin-top: 10px;
+		margin-bottom: 10px;
+		border-radius: 8px;
+	`;
+	const { user } = useContext(AuthContext);
 	const {
 		overlayVisible,
 		setOverlayData,
 		setOverlayVisible,
 	} = useContext(VisibilityContext);
 
-	if (!reelay) {
-		return <View />;
+	if (!title) {
+		return (<View />);
 	}
 
-    const title = reelay.title ? reelay.title : 'Title not found\ ';
-    const year = reelay.releaseYear ? reelay.releaseYear : '';
-
-	const posterImageUri = getPosterURI(reelay.posterURI);
+	const posterImageSource = getPosterURI(title.posterURI);
 
 	const onPosterPress = () => {
 		if (overlayVisible) {
 			setOverlayVisible(false);
 			Amplitude.logEventWithPropertiesAsync('closedOverlay', {
-                username: authContext.user.username,
-				reelayID: reelay.id,
-				reelayCreator: reelay.creator.username,
-                title: reelay.title,
+                username: user.username,
+				titleID: title.id,
+                title: title.display,
             });
 		} else {
 			setOverlayData({
 				type: 'TITLE',
-				reelay: reelay,
+				title: title,
 			});
 			setOverlayVisible(true);	
 			Amplitude.logEventWithPropertiesAsync('openedOverlay', {
-                username: authContext.user.username,
-				reelayID: reelay.id,
-				reelayCreator: reelay.creator.username,
-                title: reelay.title,
+                username: user.username,
+				titleID: title.id,
+                title: title.display,
             });
+
 		}
 	}
 
 	return (
 		<SafeAreaView>
 			<PosterContainer onPress={onPosterPress}>
-				{posterImageUri && <PosterImage 
-					source={{ uri: posterImageUri }} 
-				/>}
-				{showTitle && <MovieTitle>{title}{year}</MovieTitle>}
+				{ posterImageSource && <PosterImage source={{ uri: posterImageSource }} />}
 			</PosterContainer>
 		</SafeAreaView>
 	);
-}
+}, areEqual);

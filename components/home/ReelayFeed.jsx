@@ -21,9 +21,11 @@ import Hero from './Hero';
 import LikesDrawer from './LikesDrawer';
 import CommentsDrawer from './CommentsDrawer';
 import { showErrorToast, showMessageToast } from '../utils/toasts';
+import { VenueIcon } from '../utils/VenueIcon';
 
 // Please move these into an environment variable (preferably injected via your build step)
 const FEED_BATCH_SIZE = 5;
+const MAX_QUERIES_PER_FEED_EXTEND = 10;
 const PLAY_PAUSE_ICON_TIMEOUT = 800;
 
 const { height, width } = Dimensions.get('window');
@@ -37,9 +39,13 @@ const PagerViewContainer = styled(PagerView)`
 `
 const TopRightContainer = styled(View)`
     position: absolute;
-    left: ${width - 130}px;
-    top: 40px;
+    left: ${width - 110}px;
+    top: 20px;
     zIndex: 3;
+`
+const UnderPosterContainer = styled(View)`
+    flex-direction: row;
+    justify-content: flex-end;
 `
 
 const PlayPauseIcon = ({ onPress, type = 'play' }) => {
@@ -67,6 +73,7 @@ const StackLocation = ({ position, length }) => {
         background-color: white;
         border-radius: 12px;
         justify-content: center;
+        right: 10px;
         height: 22px;
         width: 60px;
         zIndex: 3;
@@ -122,6 +129,8 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
     useEffect(() => {
         // this is DANGEROUS and should be in a try/catch
         console.log('ON TAB PRESS IS SET');
+        console.log('Stack list length: ', stackList?.length);
+        console.log('Feed position: ', feedPosition);
         const unsubscribe = navigation.dangerouslyGetParent().addListener('tabPress', e => {
             e.preventDefault();
             onTabPress();
@@ -135,7 +144,8 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
 
         // keep querying until we can extend
         // can be empty if fetched reelays are for duplicate titles, so we keep going
-        while (!filteredReelays.length && page < 20) {
+        let queryCount = 0;
+        while (!filteredReelays.length && queryCount < MAX_QUERIES_PER_FEED_EXTEND) {
             filteredReelays = await fetchFeedNextPage({ 
                 batchSize: FEED_BATCH_SIZE, 
                 page: page, 
@@ -143,11 +153,12 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
                 refresh: false,
             });
             page += FEED_BATCH_SIZE;
+            queryCount += 1;
         }
 
         const fetchedStacks = await fetchStacks({ filteredReelays: filteredReelays });
         const newStackList = [...stackList, ...fetchedStacks];
-        filteredReelays.forEach(reelay => stackPositions[reelay.titleID] = 0);
+        filteredReelays.forEach(reelay => stackPositions[reelay.title.id] = 0);
 
         nextPage.current = page;
         setStackList(newStackList);
@@ -169,7 +180,7 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
 
     const getReelayInFeed = (feedPosition) => {
         const currentStack = stackList[feedPosition];
-        const currentStackPosition = stackPositions[currentStack[0].titleID];
+        const currentStackPosition = stackPositions[currentStack[0].title.id];
         return currentStack[currentStackPosition];
     }
 
@@ -181,7 +192,7 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
             return;
         }
 
-        const feedDeletePosition = stackList.findIndex(stack => stack[0].titleID === reelay.titleID);
+        const feedDeletePosition = stackList.findIndex(stack => stack[0].title.id === reelay.title.id);
         const stack = stackList[feedDeletePosition];
 
         if (stack.length === 1) {
@@ -194,62 +205,65 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
     };
 
     const onFeedSwiped = async (e) => {
-        console.log('ON FEED SWIPED: ', e.nativeEvent.position);
         const prevReelay = getReelayInFeed(feedPosition);
         const nextReelay = getReelayInFeed(e.nativeEvent.position);
         const swipeDirection = e.nativeEvent.position < feedPosition ? 'up' : 'down';
 
-		setFeedPosition(e.nativeEvent.position);
+        if (feedPosition !== e.nativeEvent.position) {
+            console.log('Setting new feed position: ', e.nativeEvent.position);
+            Amplitude.logEventWithPropertiesAsync('swipedFeed', {
+                nextReelayID: nextReelay.id,
+                nextReelayCreator: nextReelay.creator.username,
+                nextReelayTitle: nextReelay.title.display,
+                prevReelayID: prevReelay.id,
+                prevReelayCreator: prevReelay.creator.username,
+                prevReelayTitle: prevReelay.title.display,
+                swipeDirection: swipeDirection,
+                username: user.username,
+            });    
+            setFeedPosition(e.nativeEvent.position);
+        }
+
 		if (e.nativeEvent.position === stackList.length - 1) {
             console.log('fetching more reelays');
 			extendFeed();
 		}
-
-        Amplitude.logEventWithPropertiesAsync('swipedFeed', {
-            nextReelayID: nextReelay.id,
-            nextReelayCreator: nextReelay.creator.username,
-            nextReelayTitle: nextReelay.title,
-            prevReelayID: prevReelay.id,
-            prevReelayCreator: prevReelay.creator.username,
-            prevReelayTitle: prevReelay.title,
-            swipeDirection: swipeDirection,
-            username: user.username,
-        })
 	};
 
     const onStackSwiped = async (e) => {
-        console.log('ON STACK SWIPED', e.nativeEvent.position);
         const prevReelay = getReelayInFeed(feedPosition);
         const nextReelay = stackList[feedPosition][e.nativeEvent.position];
         const swipeDirection = e.nativeEvent.position < feedPosition ? 'left' : 'right';
 
         const stackPosition = e.nativeEvent.position;
-        const titleID = stackList[feedPosition][0].titleID;
+        const titleID = stackList[feedPosition][0].title.id;
         const prevStackPosition = stackPositions[titleID];
 
         if (prevStackPosition === stackPosition) return;
-        if (Math.abs(prevStackPosition - stackPosition) > 1) return;
-        stackPositions[titleID] = stackPosition;
-        
-        setStackCounter(stackCounter + 1);
 
+        console.log('Setting new stack position', e.nativeEvent.position);
+        if (Math.abs(prevStackPosition - stackPosition) > 1) return;
+        
         Amplitude.logEventWithPropertiesAsync('swipedFeed', {
             nextReelayID: nextReelay.id,
             nextReelayCreator: nextReelay.creator.username,
-            nextReelayTitle: nextReelay.title,
+            nextReelayTitle: nextReelay.title.display,
             prevReelayID: prevReelay.id,
             prevReelayCreator: prevReelay.creator.username,
-            prevReelayTitle: prevReelay.title,
+            prevReelayTitle: prevReelay.title.display,
             swipeDirection: swipeDirection,
             username: user.username,
-        })
+        });
+
+        stackPositions[titleID] = stackPosition;
+        setStackCounter(stackCounter + 1);
     };
 
     const onTabPress = async () => {
         if (!stackList.length) return;
 
         console.log('IN ON TAB PRESS');
-        const titleID = stackList[0][0].titleID;
+        const titleID = stackList[0][0].title.id;
         if (feedPosition === 0) {
             if (stackPositions[titleID] === 0) {
                 console.log('feed refreshing');
@@ -301,7 +315,7 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
             filteredReelays: filteredReelays 
         });
           
-        filteredReelays.forEach(reelay => stackPositions[reelay.titleID] = 0);
+        filteredReelays.forEach(reelay => stackPositions[reelay.title.id] = 0);
         nextPage.current = FEED_BATCH_SIZE;
         setStackList(fetchedStacks);        
         // the user is at the top of the feed
@@ -315,10 +329,12 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
 			{ stackList.length >= 1 && 
 				<PagerViewContainer ref={feedPager} initialPage={0} orientation='vertical' onPageSelected={onFeedSwiped}>
 					{ stackList.map((stack, feedIndex) => {
-                        const stackPosition = stackPositions[stack[0].titleID];
+                        const stackPosition = stackPositions[stack[0].title.id];
                         const firstStackOnlyRef = feedIndex === 0 ? stackPager : null;
+                        const currentReelay = stack[stackPosition];
+
                         return (
-                            <ReelayFeedContainer key={stack[0].titleID}>
+                            <ReelayFeedContainer key={stack[0].title.id}>
                                 <PagerViewContainer ref={firstStackOnlyRef} initialPage={0} orientation='horizontal' onPageSelected={onStackSwiped}>
                                     { stack.map((reelay, stackIndex) => {
                                         return <Hero stack={stack} key={reelay.id} 
@@ -331,8 +347,11 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
                                 <LikesDrawer reelay={getReelayInFeed(feedPosition)} />
                                 <CommentsDrawer reelay={getReelayInFeed(feedPosition)} />
                                 <TopRightContainer>
-                                    <Poster reelay={stack[stackPosition]} showTitle={false} />
-                                    { stack.length > 1 && <StackLocation position={stackPosition} length={stack.length} /> }
+                                    <Poster title={currentReelay.title} />
+                                    <UnderPosterContainer>
+                                        { stack.length > 1 && <StackLocation position={stackPosition} length={stack.length} /> }
+                                        { currentReelay?.content?.venue && <VenueIcon venue={currentReelay.content.venue} size={20} border={2} /> }
+                                    </UnderPosterContainer>
                                 </TopRightContainer>
                                 { iconVisible !== 'none' && <PlayPauseIcon onPress={playPause} type={iconVisible} /> }
                             </ReelayFeedContainer>

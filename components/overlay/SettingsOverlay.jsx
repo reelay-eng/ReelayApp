@@ -8,10 +8,11 @@ import { VisibilityContext } from '../../context/VisibilityContext';
 import styled from 'styled-components/native';
 import { showMessageToast } from '../utils/toasts';
 import * as Amplitude from 'expo-analytics-amplitude';
+import Downloader from '../utils/Downloader';
 
 const { height, width } = Dimensions.get('window');
 
-export default ReelayOverlay = ({ navigation, reelay, onDeleteReelay }) => {
+export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
 
     const [confirmHide, setConfirmHide] = useState(false);
 
@@ -26,23 +27,34 @@ export default ReelayOverlay = ({ navigation, reelay, onDeleteReelay }) => {
     const canHideReelay = (reelay.creator.username === user.username)
                         || (user.username === 'immigrantfilm');
 
+    const HorizontalLine = styled(View)`
+        height: 0px;
+        border: 1px;
+        border-color: white;
+        left: 30px;
+        width: 80%;
+    `
     const SettingsContainer = styled(View)`
-        align-items: flex-start;
+        align-items: center;
         height: 100%;
         justify-content: center;
         width: 100%;
         top: ${ height / 4}px;
     `
     const SettingsPressable = styled(Pressable)`
+        border: 1px;
+        border-color: white;
+        border-radius: 12px;
         margin: 30px;
+        padding: 16px;
+        width: 70%;
     `
-
     const SettingsText = styled(Text)`
+        align-self: center;
         font-size: 20px;
         font-family: System;
         color: white;
     `
-
     const signOut = async () => {
         // todo: confirm sign out
         try {
@@ -91,6 +103,7 @@ export default ReelayOverlay = ({ navigation, reelay, onDeleteReelay }) => {
                         <SettingsText>{'Delete Reelay'}</SettingsText>
                     </SettingsPressable>
                 }
+                <Downloader reelay={reelay} />
                 <SettingsPressable onPress={signOut}>
                     <SettingsText>{'Sign out'}</SettingsText>
                 </SettingsPressable>

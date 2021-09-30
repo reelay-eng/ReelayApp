@@ -37,22 +37,19 @@ export default memo(function FeedVideoPlayer({
 
 		setPlaybackObject(playbackObject);
 		if (!playing && wasPlayingOnLastRender) {
-			// results in even-numbered playback counter
 			playheadCounter.current += 1;
 			try {
-				// TODO: and not paused
 				playbackObject.setPositionAsync(0);
 			} catch (e) {
 				console.log(e);
 			}
 		} else if (playing && !wasPlayingOnLastRender) {
 			// results in odd-numbered playhead counter
-			// console.log(playheadCounter.current, 'Playing video uri: ', reelay.videoURI);
 			playheadCounter.current += 1;
 		}
 
 		if (playheadCounter.current > 1 && loadStatus.current != 2) {
-			console.log('video isn\'t loaded yet', reelay.title, reelay.creator.username);
+			console.log('video isn\'t loaded yet', reelay.title.display, reelay.creator.username);
 		}
 	
 	}
@@ -70,12 +67,10 @@ export default memo(function FeedVideoPlayer({
 
 	const onLoad = async (playbackStatus) => {
 		loadStatus.current = 2;
-		// console.log('on load FINISH for ', reelay.title, reelay.creator.username);
 	}
 
 	const onLoadStart = async (playbackStatus) => {
 		loadStatus.current = 1;
-		// console.log('on load START for ', reelay.title, reelay.creator.username);
 	}
 
 	const onPlaybackStatusUpdate = (playbackStatus) => {
@@ -83,7 +78,7 @@ export default memo(function FeedVideoPlayer({
 			Amplitude.logEventWithPropertiesAsync('watchedFullReelay', {
 				reelayID: reelay.id,
 				reelayCreator: reelay.creator.username,
-				title: reelay.title,
+				title: reelay.title.display,
 				username: user.username,
 			})
 		}
@@ -102,7 +97,7 @@ export default memo(function FeedVideoPlayer({
 			resizeMode='cover'
 			shouldDuckAndroid={true}
 			shouldPlay={shouldPlay}
-			source={{ uri: reelay.videoURI }}
+			source={{ uri: reelay.content.videoURI }}
 			staysActiveInBackground={false}
 			style={VideoStyles.video}
 			useNativeControls={false}

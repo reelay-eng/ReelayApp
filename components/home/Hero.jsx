@@ -35,8 +35,6 @@ export default Hero = ({
         height: 100%;
     `
     const { 
-        likesVisible,
-        commentsVisible,
         overlayVisible,
         setOverlayData,
         setOverlayVisible,

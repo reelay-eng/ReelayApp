@@ -8,34 +8,34 @@ import { VisibilityContext} from '../../context/VisibilityContext';
 import YoutubeVideoEmbed from '../utils/YouTubeVideoEmbed';
 import styled from 'styled-components/native';
 
-const VenueLabel = ({ venue }) => {
-    const VenueContainer = styled(View)`
-        align-items: center;
-        flex-direction: row;
-        justify-content: center;
-        margin-top: 5px;
-        margin-bottom: 5px;
-        right: 10px;
-        width: 120px;
-    `
-    const VenueText = styled(Text)`
-        font-size: 14px;
-        font-family: System;
-        font-weight: 600;
-        color: white;
-    `
-    let textToDisplay = 'Seen on ';
-    if (venue === 'theaters') textToDisplay = 'Seen in theaters ';
-    if (venue === 'festivals') textToDisplay = 'Seen at a festival ';
-    if (venue === 'other') textToDisplay = 'Seen at another venue ';
+// const VenueLabel = ({ venue }) => {
+//     const VenueContainer = styled(View)`
+//         align-items: center;
+//         flex-direction: row;
+//         justify-content: center;
+//         margin-top: 5px;
+//         margin-bottom: 5px;
+//         right: 10px;
+//         width: 120px;
+//     `
+//     const VenueText = styled(Text)`
+//         font-size: 14px;
+//         font-family: System;
+//         font-weight: 600;
+//         color: white;
+//     `
+//     let textToDisplay = 'Seen on ';
+//     if (venue === 'theaters') textToDisplay = 'Seen in theaters ';
+//     if (venue === 'festivals') textToDisplay = 'Seen at a festival ';
+//     if (venue === 'other') textToDisplay = 'Seen at another venue ';
 
-    return (
-        <VenueContainer>
-            <VenueText>{textToDisplay}</VenueText>
-            <VenueIcon venue={venue} size={24} />
-        </VenueContainer>
-    );
-}
+//     return (
+//         <VenueContainer>
+//             <VenueText>{textToDisplay}</VenueText>
+//             <VenueIcon venue={venue} size={24} />
+//         </VenueContainer>
+//     );
+// }
 
 export default TitleOverlay = ({ navigation }) => {
 
@@ -56,14 +56,14 @@ export default TitleOverlay = ({ navigation }) => {
         margin-top: 20px;
     `
     const { overlayData, setOverlayVisible } = useContext(VisibilityContext);
-    const reelay = overlayData?.reelay;
+    // const reelay = overlayData?.reelay;
+    const title = overlayData?.title;
 
-    const actors = reelay.overlayInfo?.displayActors;
-    const director = reelay.overlayInfo?.director;
+    const actors = title?.displayActors;
+    const director = title?.director;
     const directorName = (director && director.name) ? 'Dir. ' + director.name : '';
-    const releaseYear = ' (' + reelay.releaseYear + ')';
-    const title = reelay.title;
-    const venueMarked = (reelay.venue && reelay.venue.length);
+    const releaseYear = ' (' + title?.releaseYear + ')';
+    // const venueMarked = (reelay.venue && reelay.venue.length);
 
     const Overview = () => {
         const OverviewContainer = styled(View)`
@@ -85,7 +85,7 @@ export default TitleOverlay = ({ navigation }) => {
         return (
             <OverviewContainer>
                 <OverviewTextContainer>
-                    <OverviewText>{reelay.overlayInfo?.overview}</OverviewText>
+                    <OverviewText>{title.overview}</OverviewText>
                 </OverviewTextContainer>
             </OverviewContainer>    
         );
@@ -137,15 +137,15 @@ export default TitleOverlay = ({ navigation }) => {
             <TitleOverlayHeader>
                 <HeaderRowContainer>
                     <TitleText>{title}{releaseYear}</TitleText>
-                    <TaglineText>{reelay.overlayInfo?.tagline}</TaglineText>
+                    <TaglineText>{title.tagline}</TaglineText>
                     <DirectorText>{directorName}</DirectorText>
                     { actors.map((actor, index) => {
                         return <ActorText key={index}>{actor.name}</ActorText>
                     })}
                 </HeaderRowContainer>
                 <PosterContainer>
-                    <Poster reelay={reelay} showTitle={false} />
-                    { venueMarked && <VenueLabel venue={reelay.venue} size={20} /> }
+                    <Poster title={title} />
+                    {/* { venueMarked && <VenueLabel venue={reelay.venue} size={20} /> } */}
                 </PosterContainer>
             </TitleOverlayHeader>
         );
@@ -172,9 +172,9 @@ export default TitleOverlay = ({ navigation }) => {
     return (
         <TitleOverlayContainer>
             <Header />
-            {reelay.overlayInfo?.trailerURI && 
+            { title.trailerURI && 
                 <TitleOverlayTrailerContainer>
-                    <YoutubeVideoEmbed youtubeVideoID={reelay.overlayInfo.trailerURI} height={TRAILER_HEIGHT} />
+                    <YoutubeVideoEmbed youtubeVideoID={title.trailerURI} height={TRAILER_HEIGHT} />
                 </TitleOverlayTrailerContainer>
             }
             <Overview />

@@ -16,15 +16,16 @@ import UnauthenticatedNavigator from './UnauthenticatedNavigator';
 import LinkingConfiguration from './LinkingConfiguration';
 import { RootStackParamList } from '../types';
 
+// theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
-  return (
-    <NavigationContainer
-      linking={LinkingConfiguration}
-      theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <RootNavigator />
-    </NavigationContainer>
-  );
+    return (
+        <NavigationContainer
+            linking={LinkingConfiguration}
+            theme={DarkTheme}>
+            <RootNavigator />
+        </NavigationContainer>
+    );
 }
 
 // A root stack navigator is often used for displaying modals on top of all other content
@@ -32,13 +33,13 @@ export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeNa
 const Stack = createStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
-  const authContext = useContext(AuthContext);
-  
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      { authContext.signedIn && <Stack.Screen name="Authenticated" component={AuthenticatedNavigator} /> }
-      { !authContext.signedIn && <Stack.Screen name="Unauthenticated" component={UnauthenticatedNavigator} /> }
-      <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
-    </Stack.Navigator>
-  );
+    const authContext = useContext(AuthContext);
+
+    return (
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+            { authContext.signedIn && <Stack.Screen name="Authenticated" component={AuthenticatedNavigator} /> }
+            { !authContext.signedIn && <Stack.Screen name="Unauthenticated" component={UnauthenticatedNavigator} /> }
+            <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
+        </Stack.Navigator>
+    );
 }
