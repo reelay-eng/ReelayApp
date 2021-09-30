@@ -39,8 +39,8 @@ const PagerViewContainer = styled(PagerView)`
 `
 const TopRightContainer = styled(View)`
     position: absolute;
-    left: ${width - 130}px;
-    top: 40px;
+    left: ${width - 110}px;
+    top: 20px;
     zIndex: 3;
 `
 const UnderPosterContainer = styled(View)`
@@ -332,7 +332,7 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
                         const stackPosition = stackPositions[stack[0].title.id];
                         const firstStackOnlyRef = feedIndex === 0 ? stackPager : null;
                         const currentReelay = stack[stackPosition];
-                        
+
                         return (
                             <ReelayFeedContainer key={stack[0].title.id}>
                                 <PagerViewContainer ref={firstStackOnlyRef} initialPage={0} orientation='horizontal' onPageSelected={onStackSwiped}>

@@ -16,43 +16,45 @@ export default Poster = memo(({ title }) => {
 		z-index: 3;
 	`
 	const PosterImage = styled(Image)`
-		height: 180px;
-		width: 120px;
+		height: 150px;
+		width: 100px;
 		margin-top: 10px;
 		margin-bottom: 10px;
 		border-radius: 8px;
 	`;
-	const authContext = useContext(AuthContext);
+	const { user } = useContext(AuthContext);
 	const {
 		overlayVisible,
 		setOverlayData,
 		setOverlayVisible,
 	} = useContext(VisibilityContext);
 
-	if (!title) return (<View />);
+	if (!title) {
+		return (<View />);
+	}
+
 	const posterImageSource = getPosterURI(title.posterURI);
 
 	const onPosterPress = () => {
 		if (overlayVisible) {
 			setOverlayVisible(false);
-			// Amplitude.logEventWithPropertiesAsync('closedOverlay', {
-            //     username: authContext.user.username,
-			// 	reelayID: reelay.id,
-			// 	reelayCreator: reelay.creator.username,
-            //     title: reelay.title,
-            // });
+			Amplitude.logEventWithPropertiesAsync('closedOverlay', {
+                username: user.username,
+				titleID: title.id,
+                title: title.display,
+            });
 		} else {
 			setOverlayData({
 				type: 'TITLE',
 				title: title,
 			});
 			setOverlayVisible(true);	
-			// Amplitude.logEventWithPropertiesAsync('openedOverlay', {
-            //     username: authContext.user.username,
-			// 	reelayID: reelay.id,
-			// 	reelayCreator: reelay.creator.username,
-            //     title: reelay.title,
-            // });
+			Amplitude.logEventWithPropertiesAsync('openedOverlay', {
+                username: user.username,
+				titleID: title.id,
+                title: title.display,
+            });
+
 		}
 	}
 
