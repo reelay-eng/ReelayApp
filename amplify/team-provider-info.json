@@ -21,6 +21,10 @@
         "graphQLCognitoSyncUsers": {
           "deploymentBucketName": "amplify-reelayapp-dev-211002-deployment",
           "s3Key": "amplify-builds/graphQLCognitoSyncUsers-47636c42716c5355784d-build.zip"
+        },
+        "forwardAmplifyWritesToReelayDB": {
+          "deploymentBucketName": "amplify-reelayapp-dev-211002-deployment",
+          "s3Key": "amplify-builds/forwardAmplifyWritesToReelayDB-634347656b4d3937476b-build.zip"
         }
       }
     }
