@@ -1,6 +1,4 @@
-
-
-const AWS = require('aws-sdk');
+// const AWS = require('aws-sdk');
 const fetch = require('node-fetch');
 
 const REELAYDB_BASE_URL = 'https://data.reelay.app';
