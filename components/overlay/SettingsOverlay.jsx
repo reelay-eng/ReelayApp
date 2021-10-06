@@ -14,6 +14,10 @@ import * as MediaLibrary from 'expo-media-library';
 import * as Progress from 'react-native-progress';
 import { showErrorToast, showMessageToast } from '../utils/toasts';
 
+import { DataStore } from 'aws-amplify';
+import { Comment, Reelay, Like } from '../../src/models';
+import { fetchResults } from '../../api/fetchResults';
+
 const { height, width } = Dimensions.get('window');
 
 export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
@@ -119,6 +123,37 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
         }
     }
 
+    const migrateReelays = async () => {
+        const allReelays = await DataStore.query(Reelay);
+
+        allReelays.map(reelayObj => {
+            postReelayToDB(reelayObj);
+        });
+        console.log(allReelays.length);
+        console.log(allReelays);
+
+        const allComments = await DataStore.query(Comment);
+        console.log(allComments.length);
+
+        const allLikes = await DataStore.query(Like);
+        console.log(allLikes.length);
+
+    }
+
+    const postReelayToDB = async (reelayObj) => {
+
+        const body = {
+            ...reelayObj,
+            creatorSub: reelayObj.creatorID,
+            datastoreSub: reelayObj.id,
+            postedAt: reelayObj.uploadedAt,
+        }
+
+        const routePost = 'https://data.reelay.app/reelays/sub';
+        const resultPost = await fetchResults(routePost, { body, method: 'POST' });
+        console.log(resultPost);
+    }
+
     const renderBaseOptions = () => {
         return (
             <SettingsContainer>
@@ -144,6 +179,9 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
                         <SettingsText>{'Download this Reelay'}</SettingsText>
                     </SettingsPressable>
                 }
+                <SettingsPressable onPress={migrateReelays}>
+                    <SettingsText>{'Migrate Reelays'}</SettingsText>
+                </SettingsPressable>
                 <SettingsPressable onPress={signOut}>
                     <SettingsText>{'Sign out'}</SettingsText>
                 </SettingsPressable>
