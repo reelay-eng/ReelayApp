@@ -55,12 +55,12 @@
         "FunctionName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "forwardAmplifyWritesToReelayDB",
+            "PushAmplifyWritesToReelayDB",
             {
               "Fn::Join": [
                 "",
                 [
-                  "forwardAmplifyWritesToReelayDB",
+                  "PushAmplifyWritesToReelayDB",
                   "-",
                   {
                     "Ref": "env"
@@ -87,7 +87,9 @@
           ]
         },
         "Runtime": "nodejs14.x",
-        "Layers": [],
+        "Layers": [
+          "arn:aws:lambda:us-west-2:967954029365:layer:forwardAmplifyWritesToReelayDBLayer:1"
+        ],
         "Timeout": 25
       }
     },
@@ -97,12 +99,12 @@
         "RoleName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "reelayappLambdaRole8d3f91d8",
+            "reelayappLambdaRole1e515c46",
             {
               "Fn::Join": [
                 "",
                 [
-                  "reelayappLambdaRole8d3f91d8",
+                  "reelayappLambdaRole1e515c46",
                   "-",
                   {
                     "Ref": "env"
@@ -274,6 +276,62 @@
         "EventSourceArn": {
           "Fn::ImportValue": {
             "Fn::Sub": "${apireelayappGraphQLAPIIdOutput}:GetAtt:LikeTable:StreamArn"
+          }
+        },
+        "FunctionName": {
+          "Fn::GetAtt": [
+            "LambdaFunction",
+            "Arn"
+          ]
+        },
+        "StartingPosition": "LATEST"
+      }
+    },
+    "LambdaTriggerPolicyUser": {
+      "DependsOn": [
+        "LambdaExecutionRole"
+      ],
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "amplify-lambda-execution-policy-User",
+        "Roles": [
+          {
+            "Ref": "LambdaExecutionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "dynamodb:DescribeStream",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:ListStreams"
+              ],
+              "Resource": {
+                "Fn::ImportValue": {
+                  "Fn::Sub": "${apireelayappGraphQLAPIIdOutput}:GetAtt:UserTable:StreamArn"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LambdaEventSourceMappingUser": {
+      "Type": "AWS::Lambda::EventSourceMapping",
+      "DependsOn": [
+        "LambdaTriggerPolicyUser",
+        "LambdaExecutionRole"
+      ],
+      "Properties": {
+        "BatchSize": 100,
+        "Enabled": true,
+        "EventSourceArn": {
+          "Fn::ImportValue": {
+            "Fn::Sub": "${apireelayappGraphQLAPIIdOutput}:GetAtt:UserTable:StreamArn"
           }
         },
         "FunctionName": {

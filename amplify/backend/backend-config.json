@@ -73,7 +73,7 @@
         }
       ]
     },
-    "forwardAmplifyWritesToReelayDB": {
+    "PushAmplifyWritesToReelayDB": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda",
