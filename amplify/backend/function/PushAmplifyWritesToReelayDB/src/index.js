@@ -1,5 +1,5 @@
 // const AWS = require('aws-sdk');
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
 const REELAYDB_BASE_URL = 'https://data.reelay.app';
 
@@ -54,7 +54,7 @@ const migrateRecord = async (record) => {
     }
 }
 
-exports.handler = event => {
+export function handler(event) {
     //eslint-disable-line
     console.log(JSON.stringify(event, null, 2));
     event.Records.forEach(async record => {
@@ -62,4 +62,4 @@ exports.handler = event => {
         console.log(record.dynamodb);
     });
     return Promise.resolve('Successfully processed DynamoDB record');
-};
+}

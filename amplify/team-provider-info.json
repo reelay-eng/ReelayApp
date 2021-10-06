@@ -24,7 +24,7 @@
         },
         "PushAmplifyWritesToReelayDB": {
           "deploymentBucketName": "amplify-reelayapp-dev-211002-deployment",
-          "s3Key": "amplify-builds/PushAmplifyWritesToReelayDB-612f5a73466230323744-build.zip"
+          "s3Key": "amplify-builds/PushAmplifyWritesToReelayDB-626345362b34496d6764-build.zip"
         }
       }
     }
