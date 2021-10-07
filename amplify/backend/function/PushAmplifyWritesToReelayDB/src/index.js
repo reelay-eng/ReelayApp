@@ -1,5 +1,4 @@
-// const AWS = require('aws-sdk');
-import fetch from 'node-fetch';
+const axios = require('axios');
 
 const REELAYDB_BASE_URL = 'https://data.reelay.app';
 
@@ -7,10 +6,17 @@ const postObjectToReelayAPI = async (obj, endpoint) => {
     const params = {
         method: "POST",
         mode: "cors",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify(obj),
+        headers: {"Content-Type":"application/json"}, 
+        body: obj,
     };
-    return await fetch(REELAYDB_BASE_URL + endpoint, params);
+    const url = REELAYDB_BASE_URL + endpoint;
+    console.log('About to send post request');
+    console.log(url, params);
+    
+    const result = await axios.post(url, params);
+    
+    console.log('Post result: ', result);
+    return result;
 }
 
 // if reelay create: register it
@@ -23,43 +29,61 @@ const migrateRecord = async (record) => {
     console.log(record.eventName);
     console.log('DynamoDB Record: %j', record.dynamodb);
     
-    // console.log('Old record: ', AWS.DynamoDB.Converter.unmarshall(record.dynamodb.Old));
-    // console.log('New record: ', AWS.DynamoDB.Converter.unmarshall(record.dynamodb.New));
-    
     if (record.eventName === 'INSERT') { // INSERT
-        const dataType = record.dynamodb.__typename;
+        const newImage = record.dynamodb.NewImage;
+        const dataType = newImage?.__typename?.S;
+        
         if (dataType === 'Reelay') {
             await postObjectToReelayAPI({
-                ...record.dynamodb,
-                creatorSub: record.dynamodb.creatorID,
-                creatorName: record.dynamodb.owner,
-                postedAt: record.dynamodb.uploadedAt,
-            }, '/reelays');
+                // ...newImage,
+                creatorSub: newImage.creatorID.S,
+                creatorName: newImage.owner.S,
+                datastoreSub: newImage.id.S,
+                isMovie: newImage.isMovie.BOOL,
+                isSeries: newImage.isSeries.BOOL,
+                postedAt: newImage.uploadedAt.S,
+                tmdbTitleID: newImage.tmdbTitleID.S,
+                venue: newImage.venue.S,
+                videoS3Key: newImage.videoS3Key.S,
+                visibility: newImage.visibility.S,
+            }, '/reelays/sub');
         } else if (dataType === 'Like') {
             await postObjectToReelayAPI({
-                ...record.dynamodb,
-                creatorName: record.dynamodb.owner,
-                userSub: record.dynamodb.userID,
-            }, '/reelays/' + record.dynamodb.reelayID + '/likes');
+                // ...newImage,
+                creatorName: newImage.creatorID.S,
+                username: newImage.userID.S,
+                reelaySub: newImage.reelayID.S,
+                postedAt: newImage.postedAt.S,
+                datastoreSub: newImage.id.S,
+            }, '/reelays/sub/' + newImage.reelayID.S + '/likes');
         } else if (dataType === 'Comment') {
             await postObjectToReelayAPI({
-                ...record.dynamodb,
-                creatorName: record.dynamodb.owner,
-                userSub: record.dynamodb.userID,
-            }, '/reelays/' + record.dynamodb.reelayID + '/comments');
+                // ...newImage,
+                creatorName: newImage.creatorID.S,
+                content: newImage.content.S,
+                authorName: newImage.userID.S,
+                reelaySub: newImage.reelayID.S,
+                postedAt: newImage.postedAt.S,
+                datastoreSub: newImage.id.S,
+                visibility: newImage.visibility.S,
+            }, '/reelays/sub/' + newImage.reelayID.S + '/comments');
         } else {
             // do nothing
-            console.log('Did not recognize event type: ', dataType);
+            console.log('Did not recognize data type: ', dataType);
         }
+    } else {
+        console.log('Did not recognize event name: ', record.eventName);
     }
 }
 
-export function handler(event) {
+// export function handler(event) {
+exports.handler = event => {
+    console.log(event);
     //eslint-disable-line
     console.log(JSON.stringify(event, null, 2));
     event.Records.forEach(async record => {
-        // await migrateRecord(record);
-        console.log(record.dynamodb);
+        await migrateRecord(record);
+        console.log('DynamoDB record: ', record.dynamodb);
     });
     return Promise.resolve('Successfully processed DynamoDB record');
 }
