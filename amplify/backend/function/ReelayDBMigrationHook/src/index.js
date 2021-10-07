@@ -1,8 +1,9 @@
-const axios = require('axios');
+const https = require('https');
 
 const REELAYDB_BASE_URL = 'https://data.reelay.app';
 
 const postObjectToReelayAPI = async (obj, endpoint) => {
+    
     const params = {
         method: "POST",
         mode: "cors",
@@ -10,13 +11,16 @@ const postObjectToReelayAPI = async (obj, endpoint) => {
         body: obj,
     };
     const url = REELAYDB_BASE_URL + endpoint;
-    console.log('About to send post request');
     console.log(url, params);
-    
-    const result = await axios.post(url, params);
-    
-    console.log('Post result: ', result);
-    return result;
+
+    try {
+        const result = await doPostRequest(endpoint, obj);
+        console.log(`Status code: ${result}`);
+        return result;
+    } catch (error) {
+        console.error(`Error doing the request for the event: ${error}`);
+        return { error };
+    }
 }
 
 // if reelay create: register it
@@ -76,14 +80,62 @@ const migrateRecord = async (record) => {
     }
 }
 
-// export function handler(event) {
-exports.handler = event => {
-    console.log(event);
-    //eslint-disable-line
-    console.log(JSON.stringify(event, null, 2));
-    event.Records.forEach(async record => {
+const doPostRequest = (path, data) => {
+
+    return new Promise((resolve, reject) => {
+        console.log('Creating promise');
+        const options = {
+            host: 'data.reelay.app',
+            path: path,
+            port: 443,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+        
+        //create the request object with the callback with the result
+        console.log('Creating request');
+
+        const req = https.request(options, (res) => {
+            console.log('On response: ', res);
+            resolve(JSON.stringify(res.statusCode));
+        });
+        
+        console.log('Request created');
+        
+        req.on('data', d => {
+            console.log('on data');
+            console.log(d);
+        });
+        
+        // handle the possible errors
+        req.on('error', (e) => {
+            console.log('on error');
+            reject(e.message);
+        });
+        
+        console.log('About to write request ', JSON.stringify(data));
+        
+        //do the request
+        req.write(JSON.stringify(data));
+        console.log('Request written ', JSON.stringify(data));
+        
+        //finish the request
+        req.end();
+    });
+};
+
+const asyncForEach = async (array, callback) => {
+  for (let index = 0; index < array.length; index++) {
+    await callback(array[index], index, array);
+  }
+}
+
+exports.handler = async event => {
+    console.log(event);    
+    await asyncForEach(event.Records, async record => {
         await migrateRecord(record);
-        console.log('DynamoDB record: ', record.dynamodb);
     });
     return Promise.resolve('Successfully processed DynamoDB record');
 }

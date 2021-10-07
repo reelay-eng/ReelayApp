@@ -73,7 +73,7 @@
         }
       ]
     },
-    "PushAmplifyWritesToReelayDB": {
+    "ReelayDBMigrationHook": {
       "build": true,
       "providerPlugin": "awscloudformation",
       "service": "Lambda",

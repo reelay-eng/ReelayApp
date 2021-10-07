@@ -55,12 +55,12 @@
         "FunctionName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "PushAmplifyWritesToReelayDB",
+            "ReelayDBMigrationHook",
             {
               "Fn::Join": [
                 "",
                 [
-                  "PushAmplifyWritesToReelayDB",
+                  "ReelayDBMigrationHook",
                   "-",
                   {
                     "Ref": "env"
@@ -87,9 +87,7 @@
           ]
         },
         "Runtime": "nodejs14.x",
-        "Layers": [
-          "arn:aws:lambda:us-west-2:967954029365:layer:forwardAmplifyWritesToReelayDBLayer:1"
-        ],
+        "Layers": [],
         "Timeout": 25
       }
     },
@@ -99,12 +97,12 @@
         "RoleName": {
           "Fn::If": [
             "ShouldNotCreateEnvResources",
-            "reelayappLambdaRole1e515c46",
+            "reelayappLambdaRole459224cc",
             {
               "Fn::Join": [
                 "",
                 [
-                  "reelayappLambdaRole1e515c46",
+                  "reelayappLambdaRole459224cc",
                   "-",
                   {
                     "Ref": "env"

@@ -1,8 +1,0 @@
-{
-  "lambdaLayers": [
-    {
-      "type": "ExternalLayer",
-      "arn": "arn:aws:lambda:us-west-2:967954029365:layer:forwardAmplifyWritesToReelayDBLayer:1"
-    }
-  ]
-}
