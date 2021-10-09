@@ -3,6 +3,16 @@ import { fetchResults } from './fetchResults';
 
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 
+export const getReelaysByCreator = async (creatorSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/users/${creatorSub}/reelays`;
+    const resultGet = await fetchResults(routeGet, { method: 'GET' });
+    if (!resultGet) {
+        console.log('Could not get reelays for this creator');
+        return null;
+    }
+    return resultGet;
+}
+
 export const getRegisteredLikes = async ({ reelay }) => {
     // todo
     const routeGet = `${REELAY_API_BASE_URL}/reelays/${reelay.id}/likes`;
@@ -14,9 +24,9 @@ export const getRegisteredLikes = async ({ reelay }) => {
     return resultGet;
 }
 
-export const getRegisteredUser = async (userID) => {
+export const getRegisteredUser = async (userSub) => {
     console.log('Fetching registered user...');
-    const routeGet = REELAY_API_BASE_URL + '/users/' + userID;
+    const routeGet = REELAY_API_BASE_URL + '/users/' + userSub;
     const resultGet = await fetchResults(routeGet, { method: 'GET' });
     console.log('Registered user result: ', resultGet);
 
