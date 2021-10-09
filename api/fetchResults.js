@@ -1,6 +1,7 @@
 // https://dmitripavlutin.com/timeout-fetch-request/
 export const fetchResults = async (query, options={ timeout: 8000 }) => {
     const { timeout = 8000 } = options;
+
     try {
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), timeout);
@@ -10,7 +11,7 @@ export const fetchResults = async (query, options={ timeout: 8000 }) => {
             signal: controller.signal  
           }).then((response) => response.json())
             .catch((error) => {
-                console.log('ERROR IN FETCH RESULTS');
+                console.log('Error in fetch results: ');
                 console.log(error);
             });
         clearTimeout(id);
@@ -19,5 +20,16 @@ export const fetchResults = async (query, options={ timeout: 8000 }) => {
     } catch (error) {
         console.log(error);
         return null;
+    }
+}
+
+export const fetchResults2 = async (route, options) => {
+    try {
+        const response = await fetch(route, options).then(async res => await res.json());
+        console.log(response);
+        return response; 
+    } catch (error) {
+        console.log(error);
+        return { error };
     }
 }
