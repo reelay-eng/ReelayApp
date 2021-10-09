@@ -4,35 +4,40 @@
  */
 
 export type RootStackParamList = {
-  Authenticated: undefined;
-  Unauthenticated: undefined;
-  NotFound: undefined;
+    Authenticated: undefined;
+    Unauthenticated: undefined;
+    NotFound: undefined;
 };
 
 export type BottomTabParamList = {
-  Home: undefined;
-  Create: undefined;
+    Home: undefined;
+    Create: undefined;
+    Profile: undefined;
 };
 
 export type HomeTabParamList = {
-  HomeFeedScreen: undefined;
-  AccountScreen: undefined;
+    HomeFeedScreen: undefined;
+    AccountScreen: undefined;
 };
 
 export type CreateReelayTabParamList = {
-  SelectTitleScreen: undefined;
-  ReelayCameraScreen: undefined;
-  ReelayUploadScreen: undefined;
-  VenueSelectScreen: undefined;
+    SelectTitleScreen: undefined;
+    ReelayCameraScreen: undefined;
+    ReelayUploadScreen: undefined;
+    VenueSelectScreen: undefined;
+}
+
+export type ProfileTabParamList = {
+    ProfileScreen: undefined;
 }
 
 export type AuthenticationStackParamList = {
-  SplashScreen: undefined;
-  SignUpScreen: undefined;
-  SignUpEmailScreen: undefined;
-  ConfirmEmailScreen: undefined;
-  SignInScreen: undefined;
-  ForgotPasswordScreen: undefined;
-  ForgotPasswordSubmitScreen: undefined;
-  ForgotPasswordAffirmScreen: undefined;
+    SplashScreen: undefined;
+    SignUpScreen: undefined;
+    SignUpEmailScreen: undefined;
+    ConfirmEmailScreen: undefined;
+    SignInScreen: undefined;
+    ForgotPasswordScreen: undefined;
+    ForgotPasswordSubmitScreen: undefined;
+    ForgotPasswordAffirmScreen: undefined;
 }

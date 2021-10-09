@@ -73,10 +73,11 @@ function App() {
     const [tabBarVisible, setTabBarVisible] = useState(true);
 
     // Upload context hooks
-    const [uploading, setUploading] = useState(false);
-    const [uploadComplete, setUploadComplete] = useState(false);
     const [chunksUploaded, setChunksUploaded] = useState(0);
     const [chunksTotal, setChunksTotal] = useState(0);
+    const [hasSelectedTitle, setHasSelectedTitle] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [uploadComplete, setUploadComplete] = useState(false);
     const [uploadTitleObject, setUploadTitleObject] = useState({});
     const [uploadOptions, setUploadOptions] = useState({});
     const [uploadErrorStatus, setUploadErrorStatus] = useState(false);
@@ -153,10 +154,11 @@ function App() {
     }
 
     const uploadState = {
-        uploading,          setUploading,
-        uploadComplete,     setUploadComplete,
         chunksUploaded,     setChunksUploaded,
         chunksTotal,        setChunksTotal,
+        hasSelectedTitle,   setHasSelectedTitle,
+        uploading,          setUploading,
+        uploadComplete,     setUploadComplete,
         uploadTitleObject,  setUploadTitleObject,
         uploadOptions,      setUploadOptions,
         uploadErrorStatus,  setUploadErrorStatus,

@@ -261,6 +261,7 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
 
     const onTabPress = async () => {
         if (!stackList.length) return;
+        navigation.navigate('HomeFeedScreen');
 
         console.log('IN ON TAB PRESS');
         const titleID = stackList[0][0].title.id;

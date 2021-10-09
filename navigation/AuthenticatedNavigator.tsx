@@ -3,64 +3,101 @@
  * https://reactnavigation.org/docs/bottom-tab-navigator
  */
 
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
-import { VisibilityContext } from '../context/VisibilityContext';
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createStackNavigator } from "@react-navigation/stack";
+import { VisibilityContext } from "../context/VisibilityContext";
 
-import * as React from 'react';
-import { Icon } from 'react-native-elements';
+import * as React from "react";
+import { Icon } from "react-native-elements";
 
-import Colors from '../constants/Colors';
-import useColorScheme from '../hooks/useColorScheme';
-import HomeFeedScreen from '../screens/HomeFeedScreen';
-import { BottomTabParamList, HomeTabParamList, CreateReelayTabParamList } from '../types';
+import Colors from "../constants/Colors";
+import useColorScheme from "../hooks/useColorScheme";
+import HomeFeedScreen from "../screens/HomeFeedScreen";
+import {
+  BottomTabParamList,
+  HomeTabParamList,
+  CreateReelayTabParamList,
+  ProfileTabParamList,
+} from "../types";
 
-import SelectTitleScreen from '../screens/SelectTitleScreen';
-import ReelayCameraScreen from '../screens/ReelayCameraScreen';
-import ReelayUploadScreen from '../screens/ReelayUploadScreen';
-import VenueSelectScreen from '../screens/VenueSelectScreen';
-import AccountScreen from '../screens/AccountScreen';
+import SelectTitleScreen from "../screens/SelectTitleScreen";
+import ReelayCameraScreen from "../screens/ReelayCameraScreen";
+import ReelayUploadScreen from "../screens/ReelayUploadScreen";
+import VenueSelectScreen from "../screens/VenueSelectScreen";
+import AccountScreen from "../screens/AccountScreen";
+import ProfileScreen from "../screens/ProfileScreen";
+import { UploadContext } from "../context/UploadContext";
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
 export default function AuthenticatedNavigator() {
   const colorScheme = useColorScheme();
 
+  const { hasSelectedTitle, uploadTitleObject } = React.useContext(UploadContext);
   const { overlayVisible } = React.useContext(VisibilityContext);
 
 
   return (
     <BottomTab.Navigator
       initialRouteName="Home"
-      tabBarOptions={{ 
+      tabBarOptions={{
         activeTintColor: Colors[colorScheme].tint,
         showLabel: false,
-        style: { 
-          backgroundColor: 'transparent',
+        style: {
+          backgroundColor: "transparent",
           borderTopWidth: 0,
-          position: 'absolute',
+          position: "absolute",
           left: 50,
           right: 50,
-          height: 80      
-        }
+          height: 80,
+        },
       }}
     >
       <BottomTab.Screen
         name="Home"
         component={HomeTabNavigator}
         options={{
-          tabBarIcon: () => <Icon type='ionicon' name='film-outline' color={'white'} size={50} />,
+          tabBarIcon: () => (
+            <Icon
+              type="ionicon"
+              name="film-outline"
+              color={"white"}
+              size={50}
+            />
+          ),
           tabBarVisible: !overlayVisible,
         }}
       />
       <BottomTab.Screen
-        name="Create" 
-        component={CreateReelayTabNavigator} 
+        name="Create"
+        component={CreateReelayTabNavigator}
         options={{
-          tabBarIcon: () => <Icon type='ionicon' name='add-circle-outline' color={'white'} size={50} />,
-          tabBarVisible: false,
+          tabBarIcon: () => (
+            <Icon
+              type="ionicon"
+              name="add-circle-outline"
+              color={"white"}
+              size={50}
+            />
+          ),
+          tabBarVisible: !hasSelectedTitle,
         }}
       />
+      <BottomTab.Screen
+        name="Profile"
+        component={ProfileTabNavigator}
+        options={{
+            tabBarIcon: () => (
+                <Icon
+                type="ionicon"
+                name="person-circle"
+                color={"white"}
+                size={50}
+              />  
+            ),
+            tabBarVisible: !overlayVisible,
+        }}
+        />
     </BottomTab.Navigator>
   );
 }
@@ -75,15 +112,16 @@ function HomeTabNavigator() {
       <HomeTabStack.Screen
         name="HomeFeedScreen"
         component={HomeFeedScreen}
-        options={{ 
-          headerTitle: 'Find a Movie',
-          headerShown: false
-      }} />
+        options={{
+          headerTitle: "Find a Movie",
+          headerShown: false,
+        }}
+      />
       <HomeTabStack.Screen
         name="AccountScreen"
         component={AccountScreen}
         options={{
-          headerShown: false
+          headerShown: false,
         }}
       />
     </HomeTabStack.Navigator>
@@ -119,7 +157,7 @@ function CreateReelayTabNavigator() {
       <CreateReelayTabStack.Screen
         name="ReelayCameraScreen"
         component={ReelayCameraScreen}
-        options={{ 
+        options={{
           headerShown: false,
           animationEnabled: false,
         }}
@@ -133,5 +171,25 @@ function CreateReelayTabNavigator() {
         }}
       />
     </CreateReelayTabStack.Navigator>
+  );
+}
+
+const ProfileTabStack = createStackNavigator<ProfileTabParamList>();
+
+function ProfileTabNavigator() {
+  return (
+    <ProfileTabStack.Navigator
+      initialRouteName="ProfileScreen"
+      detachInactiveScreens={false}
+    >
+      <ProfileTabStack.Screen
+        name="ProfileScreen"
+        component={ProfileScreen}
+        options={{
+          headerShown: false,
+          animationEnabled: false,
+        }}
+      />
+    </ProfileTabStack.Navigator>
   );
 }

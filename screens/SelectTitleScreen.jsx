@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { SafeAreaView, View, Pressable, Text } from 'react-native';
-import styled from 'styled-components/native';
+import { UploadContext } from '../context/UploadContext';
 
 import BackButton from '../components/utils/BackButton';
 import SearchField from '../components/create-reelay/SearchField';
 import SearchResults from '../components/create-reelay/SearchResults';
 import { searchMovies, searchSeries } from '../api/TMDbApi';
+
+import styled from 'styled-components/native';
 
 export default SelectTitleScreen = ({ navigation }) => {
 
@@ -25,6 +27,8 @@ export default SelectTitleScreen = ({ navigation }) => {
     const [searchText, setSearchText] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchType, setSearchType] = useState('Film');
+
+    const { setHasSelectedTitle } = useContext(UploadContext);
 
     const FilmTVSelector = ({ type }) => {
 
@@ -51,7 +55,6 @@ export default SelectTitleScreen = ({ navigation }) => {
         );
     }
 
-
     const updateSearch = async (newSearchText, type=searchType) => {
         setSearchText(newSearchText);
         try {
@@ -64,6 +67,11 @@ export default SelectTitleScreen = ({ navigation }) => {
             console.log('its here');
         }
     }
+
+    // this makes the tab bar visible
+    useEffect(() => {
+        setHasSelectedTitle(false);
+    }, []);
 
     return (
         <SafeAreaView style={{ backgroundColor: 'black', height: '100%', width: '100%'}}>

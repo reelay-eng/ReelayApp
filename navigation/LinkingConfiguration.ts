@@ -18,6 +18,7 @@ export default {
           ReelayUploadScreen: 'ReelayUploadScreen',
           VenueSelectScreen: 'VenueSelectScreen',
           AccountScreen: 'AccountScreen',
+          ProfileScreen: 'ProfileScreen',
         },
       },
       Unauthenticated: {
