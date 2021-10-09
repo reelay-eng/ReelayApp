@@ -153,14 +153,52 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
 
     const postCommentToDB = async (commentObj) => {
         console.log('Comment: ', commentObj);
+        const data = {
+            authorName: commentObj.userID,
+            creatorName: commentObj.creatorID,
+            content: commentObj.content,
+            datastoreSub: commentObj.id,
+            reelaySub: commentObj.reelayID,
+            postedAt: commentObj.postedAt,
+            visibility: commentObj.visibility,
+        }
+
+        const routePost = `https://data.reelay.app/reelays/sub/${data.reelaySub}/comments`;
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data),
+        }
+        const response = await fetchResults2(routePost, options);
+        return response;
     }
 
     const postLikeToDB = async (likeObj) => {
         console.log('Like: ', likeObj);
+        const data = {
+            username: likeObj.userID,
+            creatorName: likeObj.creatorID,
+            datastoreSub: likeObj.id,
+            reelaySub: likeObj.reelayID,
+            postedAt: likeObj.postedAt,
+        }
+
+        const routePost = `https://data.reelay.app/reelays/sub/${data.reelaySub}/likes`;
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data),
+        }
+        const response = await fetchResults2(routePost, options);
+        return response;
+
     }
 
     const postReelayToDB = async (reelayObj) => {
-
         const data = {
             creatorSub: reelayObj.creatorID,
             creatorName: reelayObj.owner,
@@ -211,9 +249,9 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
                         <SettingsText>{'Download this Reelay'}</SettingsText>
                     </SettingsPressable>
                 }
-                <SettingsPressable onPress={migrateReelays}>
+                {/* <SettingsPressable onPress={migrateReelays}>
                     <SettingsText>{'Migrate Reelays'}</SettingsText>
-                </SettingsPressable>
+                </SettingsPressable> */}
                 <SettingsPressable onPress={signOut}>
                     <SettingsText>{'Sign out'}</SettingsText>
                 </SettingsPressable>
