@@ -223,7 +223,7 @@ const notDuplicateInFeed = (reelay, reelayList) => {
     return !alreadyInFeed;
 }
 
-const prepareReelay = async (fetchedReelay) => {
+export const prepareReelay = async (fetchedReelay) => {
     const comments = await getComments(fetchedReelay);
     const likes = await getLikes(fetchedReelay);
     const titleObject = await fetchAnnotatedTitle(

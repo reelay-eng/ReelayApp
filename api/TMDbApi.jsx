@@ -223,6 +223,6 @@ export const getDisplayActors = (titleCredits, max = 2) => {
     return null;
 }
 
-export const getPosterURI = (posterPath) => {
+export const getPosterURL = (posterPath) => {
     return posterPath ? `${TMDB_IMAGE_API_BASE_URL}${posterPath}` : null;
 }

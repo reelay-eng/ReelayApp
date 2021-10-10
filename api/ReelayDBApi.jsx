@@ -1,16 +1,49 @@
 import Constants from 'expo-constants';
-import { fetchResults } from './fetchResults';
+import { fetchResults, fetchResults2 } from './fetchResults';
+import { prepareReelay } from './ReelayApi';
 
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 
 export const getReelaysByCreator = async (creatorSub) => {
-    const routeGet = `${REELAY_API_BASE_URL}/users/${creatorSub}/reelays`;
-    const resultGet = await fetchResults(routeGet, { method: 'GET' });
+    const routeGet = `${REELAY_API_BASE_URL}/users/sub/${creatorSub}/reelays`;
+    console.log(routeGet);
+    const resultGet = await fetchResults2(routeGet, { method: 'GET' });
     if (!resultGet) {
         console.log('Could not get reelays for this creator');
         return null;
     }
     return resultGet;
+}
+
+export const getStacksByCreator = async (creatorSub) => {
+    console.log('Getting stacks by creator');
+    const creatorReelays = await getReelaysByCreator(creatorSub);
+    const  preparedReelays = await Promise.all(creatorReelays.map(prepareReelay));
+
+    const indexInStacks = (stacks, reelay) => {
+        console.log('IN INDEX IN STACKS: ', stacks.length);
+        if (stacks.length === 0) return -1;
+
+        const forSameTitle = (stack) => {
+            return stack[0].title.id === reelay.title.id;
+        }
+        return stacks.findIndex(forSameTitle);
+    }
+
+    let stacksByCreator = [];
+    preparedReelays.forEach(reelay => {
+        const index = indexInStacks(stacksByCreator, reelay);
+        if (index >= 0) {
+            console.log('adding to existing stack');
+            stacksByCreator[index].push(reelay);
+        } else {
+            console.log('creating new stack');
+            stacksByCreator.push([reelay]);
+        }
+    });
+
+    console.log('stacks by creator count: ', stacksByCreator.length);
+    return stacksByCreator;
 }
 
 export const getRegisteredLikes = async ({ reelay }) => {

@@ -1,32 +1,60 @@
-import React, { useContext, useState } from 'react';
-import { Image, View, SafeAreaView, TouchableHighlight, Pressable } from 'react-native';
-import { Icon, Text } from 'react-native-elements';
+import React, { useContext, useEffect, useState } from 'react';
+import { Image, SafeAreaView, ScrollView, Pressable, Text, View } from 'react-native';
+import { Icon } from 'react-native-elements';
+import { getStacksByCreator } from '../api/ReelayDBApi';
+import { getPosterURL } from '../api/TMDbApi';
 
-import { AuthStyles } from '../styles';
 import { AuthContext } from '../context/AuthContext';
-import { VisibilityContext } from '../context/VisibilityContext';
-
 import styled from 'styled-components/native';
 
-const defaultProfilePhoto = require('../assets/icons/reelay-icon.png');
-
 export default ProfileScreen = ({ navigation, route }) => {
+
+    const [creatorStacks, setCreatorStacks] = useState([]);
+    const { user } = useContext(AuthContext);
+
+    const username = user.username ?? 'User not found';
+    const userSub = user.attributes.sub ?? '';
+
+    console.log('PROFILE SCREEN is rendering');
 
     const ProfileScreenContainer = styled(SafeAreaView)`
         background-color: black;
         height: 100%;
         width: 100%;
     `
-    const { user } = useContext(AuthContext);
-    const { setOverlayVisible } = useContext(VisibilityContext);
+    const PosterGrid = ({ navigation }) => {
+        const PosterGridContainer = styled(View)`
+            flex: 1;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+        `
+        if (!creatorStacks.length) {
+            return <View />;
+        }
 
-    const username = user.username ?? 'User not found';
+        console.log('POSTER GRID is rendering');
+
+        return (
+            <ScrollView>
+                <PosterGridContainer>
+                    { creatorStacks.map(renderStack) }
+                </PosterGridContainer>
+            </ScrollView>
+        );
+    }
 
     const ProfileHeader = ({ navigation }) => {
         const ProfileHeaderContainer = styled(SafeAreaView)`
             align-items: center;
             margin-top: 16px;
             width: 100%;
+        `
+        const ProfilePicture = styled(Image)`
+            border-radius: 48px;
+            height: 96px;
+            width: 96px;
         `
         const ProfilePictureContainer = styled(Pressable)`
             border-color: white;
@@ -45,11 +73,7 @@ export default ProfileScreen = ({ navigation, route }) => {
         return (
             <ProfileHeaderContainer>
                 <ProfilePictureContainer>
-                    <Image style={{ 
-                        borderRadius: 48,
-                        height: 96, 
-                        width: 96 
-                    }} source={require('../assets/icons/reelay-icon.png')} />
+                    <ProfilePicture source={require('../assets/icons/reelay-icon.png')} />
                 </ProfilePictureContainer>
                 <UsernameText>{username}</UsernameText>
             </ProfileHeaderContainer>
@@ -59,9 +83,8 @@ export default ProfileScreen = ({ navigation, route }) => {
     const TopBar = ({ navigation }) => {
         const TopBarContainer = styled(SafeAreaView)`
             flex-direction: row
-            justify-content: center;
-            margin-top: 16px;
-            width: 100%;
+            justify-content: space-between;
+            margin: 16px;
         `
         const HeadingText = styled(Text)`
             align-self: center;
@@ -71,16 +94,27 @@ export default ProfileScreen = ({ navigation, route }) => {
             font-weight: 600;
             color: white;
         `
-        const SearchIconContainer = styled(View)`
+        const NotificationsIconContainer = styled(View)`
             align-self: center;
-            position: absolute;
             height: 30px;
             width: 30px;
-            right: 46px;
         `
+        const SearchIconContainer = styled(View)`
+            align-self: center;
+            height: 30px;
+            width: 30px;
+        `
+        const [notificationsOpen, setNotificationsOpen] = useState(false);
         const [searchBarOpen, setSearchBarOpen] = useState(false);
 
-
+        const openNotifications = () => {
+            console.log('open notifications');
+            setNotificationsOpen(true);
+        }
+        const closeNotifications = () => {
+            console.log('close notifications');
+            setNotificationsOpen(false);
+        }
         const openSearchBar = () => {
             console.log('open search bar');
             setSearchBarOpen(true);
@@ -98,7 +132,6 @@ export default ProfileScreen = ({ navigation, route }) => {
                         setOverlayVisible(true);
                     }}   />
                 </BackButtonContainer> */}
-                <HeadingText>{'Profile'}</HeadingText>
                 <SearchIconContainer>
                     <Icon type='ionicon' size={30} color={'white'} name='search' onPress={() => {
                         if (searchBarOpen) {
@@ -108,14 +141,54 @@ export default ProfileScreen = ({ navigation, route }) => {
                         }
                     }} />
                 </SearchIconContainer>
+                <NotificationsIconContainer>
+                    <Icon type='ionicon' size={30} color={'white'} name='notifications' onPress={() => {
+                        if (notificationsOpen) {
+                            closeNotifications();
+                        } else {
+                            openNotifications();
+                        }
+                    }} />
+                </NotificationsIconContainer>
             </TopBarContainer>
         );
     }
+
+    const loadCreatorStacks = async () => {
+        const nextCreatorStacks = await getStacksByCreator(userSub);
+        setCreatorStacks(nextCreatorStacks);
+    }
+
+    const renderStack = (stack) => {
+        const PosterContainer = styled(View)`
+            margin: 10px;
+        `
+        const PosterImage = styled(Image)`
+            border-color: white;
+            border-radius: 8px;
+            border-width: 1px;
+            height: 135px;
+            width: 90px;
+        `
+        const posterURI = stack[0].title.posterURI;
+        const posterURL = getPosterURL(posterURI);
+
+        return (
+            <PosterContainer key={posterURI}>
+                <PosterImage source={{ uri: posterURL }} />
+            </PosterContainer>
+        );
+    }
+
+    useEffect(() => {
+        if (userSub.length) loadCreatorStacks();
+    }, []);
 
     return (
         <ProfileScreenContainer>
             <TopBar navigation={navigation} />
             <ProfileHeader navigation={navigation} />
+            <PosterGrid navigation={navigation} />
         </ProfileScreenContainer>
     );
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { getPosterURI } from '../../api/TMDbApi';
+import { getPosterURL } from '../../api/TMDbApi';
 
 import { Dimensions, View } from 'react-native';
 import { Image } from 'react-native-elements';
@@ -8,7 +8,7 @@ import styled from 'styled-components/native';
 const { height, width } = Dimensions.get('window');
 
 export default ReelayPreviewOverlay = ({ titleObject }) => {
-    const posterURI = getPosterURI(titleObject.poster_path);
+    const posterURI = getPosterURL(titleObject.poster_path);
 
     const OverlayContainer = styled(View)`
         position: absolute;

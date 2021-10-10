@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, createRef, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { UploadContext } from '../context/UploadContext';
-import { getPosterURI } from '../api/TMDbApi';
+import { getPosterURL } from '../api/TMDbApi';
 
 import { Camera } from 'expo-camera';
 import { Dimensions, View, Text, SafeAreaView, Pressable} from 'react-native';
@@ -233,7 +233,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             top: 10px;
         `
 
-        const posterURI = getPosterURI(titleObject.poster_path);
+        const posterURI = getPosterURL(titleObject.poster_path);
 
         return (
             <OverlayContainer>

@@ -1,6 +1,6 @@
 import React, { memo, useContext } from 'react';
 import { Image, Pressable, View, SafeAreaView } from 'react-native';
-import { getPosterURI } from '../../api/TMDbApi';
+import { getPosterURL } from '../../api/TMDbApi';
 
 import { AuthContext } from '../../context/AuthContext';
 import { VisibilityContext } from '../../context/VisibilityContext';
@@ -33,7 +33,7 @@ export default Poster = memo(({ title }) => {
 		return (<View />);
 	}
 
-	const posterImageSource = getPosterURI(title.posterURI);
+	const posterImageSource = getPosterURL(title.posterURI);
 
 	const onPosterPress = () => {
 		if (overlayVisible) {

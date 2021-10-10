@@ -25,9 +25,7 @@ export const fetchResults = async (query, options={ timeout: 8000 }) => {
 
 export const fetchResults2 = async (route, options) => {
     try {
-        const response = await fetch(route, options).then(async res => await res.json());
-        console.log(response);
-        return response; 
+        return await fetch(route, options).then(async res => await res.json());
     } catch (error) {
         console.log(error);
         return { error };
