@@ -22,8 +22,21 @@ export default ProfileScreen = ({ navigation, route }) => {
         height: 100%;
         width: 100%;
     `
-    const PosterGrid = ({ navigation }) => {
+    const ProfileScrollView = styled(ScrollView)`
+
+    `
+
+    const EditProfileButton = () => {
+
+    }
+
+    const FollowButton = () => {
+
+    }
+
+    const PosterGrid = () => {
         const PosterGridContainer = styled(View)`
+            align-items: flex-start;
             flex: 1;
             flex-direction: row;
             flex-wrap: wrap;
@@ -37,18 +50,17 @@ export default ProfileScreen = ({ navigation, route }) => {
         console.log('POSTER GRID is rendering');
 
         return (
-            <ScrollView>
-                <PosterGridContainer>
-                    { creatorStacks.map(renderStack) }
-                </PosterGridContainer>
-            </ScrollView>
+            <PosterGridContainer>
+                { creatorStacks.map(renderStack) }
+            </PosterGridContainer>
         );
     }
 
-    const ProfileHeader = ({ navigation }) => {
+    const ProfileHeader = () => {
         const ProfileHeaderContainer = styled(SafeAreaView)`
             align-items: center;
             margin-top: 16px;
+            margin-bottom: 16px;
             width: 100%;
         `
         const ProfilePicture = styled(Image)`
@@ -75,12 +87,58 @@ export default ProfileScreen = ({ navigation, route }) => {
                 <ProfilePictureContainer>
                     <ProfilePicture source={require('../assets/icons/reelay-icon.png')} />
                 </ProfilePictureContainer>
-                <UsernameText>{username}</UsernameText>
+                {/* <UsernameText>{username}</UsernameText> */}
             </ProfileHeaderContainer>
         );
     }
 
-    const TopBar = ({ navigation }) => {
+    const StatsBar = () => {
+        const BarContainer = styled(View)`
+            align-self: center;
+            flex-direction: row;
+        `
+        const StatContainer = styled(View)`
+            align-items: center;
+            height: 90px;
+            width: 90px;
+            margin: 10px;
+        `
+        const DimensionText = styled(Text)`
+            font-family: System;
+            font-size: 16px;
+            font-weight: 400;
+            color: white;
+        `
+        const StatText = styled(Text)`
+            font-family: System;
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+        `
+
+        // sum the reelays across all the stacks
+        const reelayCounter = (sum, nextStack) => sum + nextStack.length;
+        const reelayCount = creatorStacks.reduce(reelayCounter, 0);
+
+        return (
+            <BarContainer>
+                <StatContainer>
+                    <StatText>{reelayCount}</StatText>
+                    <DimensionText>{'Reelays'}</DimensionText>
+                </StatContainer>
+                <StatContainer>
+                    <StatText>{'3.3K'}</StatText>
+                    <DimensionText>{'Followers'}</DimensionText>
+                </StatContainer>
+                <StatContainer>
+                    <StatText>{'123'}</StatText>
+                    <DimensionText>{'Following'}</DimensionText>
+                </StatContainer>
+            </BarContainer>
+        );
+    }
+
+    const TopBar = () => {
         const TopBarContainer = styled(SafeAreaView)`
             flex-direction: row
             justify-content: space-between;
@@ -88,7 +146,6 @@ export default ProfileScreen = ({ navigation, route }) => {
         `
         const HeadingText = styled(Text)`
             align-self: center;
-            position: absolute;
             font-family: System;
             font-size: 20px;
             font-weight: 600;
@@ -96,13 +153,9 @@ export default ProfileScreen = ({ navigation, route }) => {
         `
         const NotificationsIconContainer = styled(View)`
             align-self: center;
-            height: 30px;
-            width: 30px;
         `
         const SearchIconContainer = styled(View)`
             align-self: center;
-            height: 30px;
-            width: 30px;
         `
         const [notificationsOpen, setNotificationsOpen] = useState(false);
         const [searchBarOpen, setSearchBarOpen] = useState(false);
@@ -141,6 +194,7 @@ export default ProfileScreen = ({ navigation, route }) => {
                         }
                     }} />
                 </SearchIconContainer>
+                <HeadingText>{username}</HeadingText>
                 <NotificationsIconContainer>
                     <Icon type='ionicon' size={30} color={'white'} name='notifications' onPress={() => {
                         if (notificationsOpen) {
@@ -186,9 +240,12 @@ export default ProfileScreen = ({ navigation, route }) => {
 
     return (
         <ProfileScreenContainer>
-            <TopBar navigation={navigation} />
-            <ProfileHeader navigation={navigation} />
-            <PosterGrid navigation={navigation} />
+            <TopBar />
+            <ProfileScrollView>
+                <ProfileHeader />
+                <StatsBar />
+                <PosterGrid />
+            </ProfileScrollView>
         </ProfileScreenContainer>
     );
 }
