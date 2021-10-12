@@ -4,7 +4,7 @@ import { Button } from 'react-native-elements';
 
 import Poster from '../home/Poster';
 import { VenueIcon } from '../utils/VenueIcon';
-import { VisibilityContext} from '../../context/VisibilityContext';
+import { FeedContext} from '../../context/FeedContext';
 import YoutubeVideoEmbed from '../utils/YouTubeVideoEmbed';
 import styled from 'styled-components/native';
 
@@ -26,7 +26,7 @@ export default TitleOverlay = ({ navigation }) => {
         margin-left: 10px;
         margin-top: 20px;
     `
-    const { overlayData, setOverlayVisible } = useContext(VisibilityContext);
+    const { overlayData, setOverlayVisible } = useContext(FeedContext);
     const title = overlayData?.title;
 
     const actors = title?.displayActors;

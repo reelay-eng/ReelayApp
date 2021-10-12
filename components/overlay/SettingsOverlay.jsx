@@ -3,7 +3,7 @@ import { Dimensions, Pressable, SafeAreaView, Text, View } from 'react-native';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
-import { VisibilityContext } from '../../context/VisibilityContext';
+import { FeedContext } from '../../context/FeedContext';
 
 import styled from 'styled-components/native';
 import * as Amplitude from 'expo-analytics-amplitude';
@@ -34,7 +34,7 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
         setSignedIn,
         setUser,
     } = useContext(AuthContext);
-    const { setOverlayVisible } = useContext(VisibilityContext);
+    const { setOverlayVisible } = useContext(FeedContext);
     const canHideReelay = (reelay.creator.username === user.username)
                         || (user.username === 'immigrantfilm');
 

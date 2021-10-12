@@ -4,13 +4,12 @@ import { Icon, Text } from 'react-native-elements';
 
 import { AuthStyles } from '../styles';
 import { AuthContext } from '../context/AuthContext';
-import { VisibilityContext } from '../context/VisibilityContext';
+import { FeedContext } from '../context/FeedContext';
 
 export default AccountScreen = ({ navigation, route }) => {
 
-    const authContext = useContext(AuthContext);
-    const user = authContext.user;
-    const visibilityContext = useContext(VisibilityContext);
+    const { user } = useContext(AuthContext);
+    const { setOverlayVisible } = useContext(FeedContext);
 
     return (
         <SafeAreaView style={{
@@ -25,7 +24,7 @@ export default AccountScreen = ({ navigation, route }) => {
                 <Icon type='ionicon' name='chevron-back-outline' color={'white'} size={30} 
                     onPress={() => {
                         navigation.pop();
-                        visibilityContext.setOverlayVisible(true);
+                        setOverlayVisible(true);
                     }}
                     style={AuthStyles.backButton}/>
                 <Text h3 style={AuthStyles.headerText}>{'Account Settings'}</Text>

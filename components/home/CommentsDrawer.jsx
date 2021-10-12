@@ -13,7 +13,7 @@ import {
 
 import { Button, Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
-import { VisibilityContext } from '../../context/VisibilityContext';
+import { FeedContext } from '../../context/FeedContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
 
@@ -49,7 +49,7 @@ export default CommentsDrawer = ({ reelay }) => {
         position: absolute;
     `
     const { user } = useContext(AuthContext);
-    const { commentsVisible, setCommentsVisible } = useContext(VisibilityContext);
+    const { commentsVisible, setCommentsVisible } = useContext(FeedContext);
     const closeDrawer = () => {
         Keyboard.dismiss();
         setCommentsVisible(false);

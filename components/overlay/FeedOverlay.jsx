@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { SafeAreaView, ScrollView } from 'react-native';
-import { VisibilityContext } from '../../context/VisibilityContext';
+import { FeedContext } from '../../context/FeedContext';
 import TitleOverlay from './TitleOverlay';
 import SettingsOverlay from './SettingsOverlay';
 import styled from 'styled-components/native';
@@ -18,7 +18,7 @@ export default FeedOverlay = ({ navigation, onDeleteReelay, setIsPaused }) => {
         height: 100%;
         width: 100%;
     `
-    const { overlayData } = useContext(VisibilityContext);
+    const { overlayData } = useContext(FeedContext);
     
     return (
         <OverlayContainer>

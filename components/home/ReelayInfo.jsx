@@ -1,12 +1,19 @@
-import React from 'react';
-import { Text, View } from 'react-native';
+import React, { useContext } from 'react';
+import { Pressable, Text, View } from 'react-native';
+import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
-
 import moment from 'moment';
 
-export default ReelayInfo = ({ reelay }) => {
+export default ReelayInfo = ({ navigation, reelay }) => {
+
+	const { user } = useContext(AuthContext);
 
 	const InfoView = styled(View)`
+		flex: 1;
+		justify-content: flex-end;
+		margin: 0 0 120px 13px;
+	`
+	const InfoPressable = styled(Pressable)`
 		flex: 1;
 		justify-content: flex-end;
 		margin: 0 0 120px 13px;
@@ -48,8 +55,13 @@ export default ReelayInfo = ({ reelay }) => {
 	const creator = reelay.creator;
 	const timestamp = moment(reelay.postedDateTime).fromNow();
 
+	const goToProfile = () => {
+		navigation.push('UserProfileScreen', { creator });
+	}
+
 	return (
 		<InfoView>
+			<Pressable onPress={goToProfile}>
 			<PostInfo>
 				<Username>@{creator?.username}</Username>
 				<Timestamp>{timestamp}</Timestamp>
@@ -57,6 +69,7 @@ export default ReelayInfo = ({ reelay }) => {
 			<TitleInfo>
 				<Title>{displayTitle} ({year})</Title>
 			</TitleInfo>
+			</Pressable>
 		</InfoView>
 	);
 }

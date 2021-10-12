@@ -7,13 +7,13 @@ import { getPosterURL } from '../api/TMDbApi';
 import { AuthContext } from '../context/AuthContext';
 import styled from 'styled-components/native';
 
-export default ProfileScreen = ({ navigation, route }) => {
+export default OwnProfileScreen = ({ navigation, route }) => {
 
     const [creatorStacks, setCreatorStacks] = useState([]);
-    const { user } = useContext(AuthContext);
-
-    const username = user.username ?? 'User not found';
+    
+    let { user } = route.params ?? useContext(AuthContext);
     const userSub = user.attributes.sub ?? '';
+    const username = user.username ?? 'User not found';
 
     console.log('PROFILE SCREEN is rendering');
 
@@ -23,7 +23,7 @@ export default ProfileScreen = ({ navigation, route }) => {
         width: 100%;
     `
     const ProfileScrollView = styled(ScrollView)`
-
+        margin-bottom: 60px;
     `
 
     const EditProfileButton = () => {
@@ -37,7 +37,6 @@ export default ProfileScreen = ({ navigation, route }) => {
     const PosterGrid = () => {
         const PosterGridContainer = styled(View)`
             align-items: flex-start;
-            flex: 1;
             flex-direction: row;
             flex-wrap: wrap;
             justify-content: center;
@@ -143,6 +142,9 @@ export default ProfileScreen = ({ navigation, route }) => {
             flex-direction: row
             justify-content: space-between;
             margin: 16px;
+            shadow-color: white;
+            shadow-offset: 8px;
+            shadow-radius: 2px;            
         `
         const HeadingText = styled(Text)`
             align-self: center;

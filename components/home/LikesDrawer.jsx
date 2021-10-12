@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Modal, View, Text, Pressable } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { VisibilityContext } from '../../context/VisibilityContext';
+import { FeedContext } from '../../context/FeedContext';
 import styled from 'styled-components/native';
 
 export default LikesDrawer = ({ reelay }) => {
@@ -28,7 +28,7 @@ export default LikesDrawer = ({ reelay }) => {
     const ModalContainer = styled(View)`
         position: absolute;
     `
-    const { likesVisible, setLikesVisible } = useContext(VisibilityContext);
+    const { likesVisible, setLikesVisible } = useContext(FeedContext);
     const closeDrawer = () => setLikesVisible(false);
 
     const Header = () => {

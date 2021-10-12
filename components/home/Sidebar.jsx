@@ -4,7 +4,7 @@ import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 import { AuthContext } from '../../context/AuthContext';
-import { VisibilityContext } from '../../context/VisibilityContext';
+import { FeedContext } from '../../context/FeedContext';
 
 import { sendLikeNotification } from '../../api/NotificationsApi';
 import * as Amplitude from 'expo-analytics-amplitude';
@@ -32,7 +32,7 @@ export default Sidebar = ({ reelay }) => {
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 
 	const { user } = useContext(AuthContext);
-	const { setCommentsVisible, setLikesVisible } = useContext(VisibilityContext);
+	const { setCommentsVisible, setLikesVisible } = useContext(FeedContext);
 
 	const findFromUser = (list, userID) => list.find(item => item.userID === userID);
 	const commentedByUser = findFromUser(reelay.comments, user.username) || false;

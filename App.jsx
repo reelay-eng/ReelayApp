@@ -18,7 +18,7 @@ import useColorScheme from './hooks/useColorScheme';
 
 // context imports
 import { AuthContext } from './context/AuthContext';
-import { VisibilityContext } from './context/VisibilityContext';
+import { FeedContext } from './context/FeedContext';
 import { UploadContext } from './context/UploadContext';
 
 // api imports
@@ -196,12 +196,12 @@ function App() {
         return (
             <SafeAreaProvider>
                 <AuthContext.Provider value={authState}>
-                    <VisibilityContext.Provider value={vizState}>
+                    <FeedContext.Provider value={vizState}>
                         <UploadContext.Provider value={uploadState}>
                             <StatusBar hidden={true} />
                             <Navigation colorScheme={colorScheme} />
                         </UploadContext.Provider>
-                    </VisibilityContext.Provider>
+                    </FeedContext.Provider>
                 </AuthContext.Provider>
             </SafeAreaProvider>
         );

@@ -1,6 +1,6 @@
 import React, { createContext } from 'react';
 
-export const VisibilityContext = createContext({
+export const FeedContext = createContext({
     commentsVisible: false,
     currentComment: '',
     likesVisible: false,

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { Dimensions, Pressable, Text, View } from 'react-native';
+import { Dimensions, Pressable, SafeAreaView, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { VisibilityContext } from '../../context/VisibilityContext';
+import { FeedContext } from '../../context/FeedContext';
 
 import * as Amplitude from 'expo-analytics-amplitude';
 import { AuthContext } from '../../context/AuthContext';
@@ -30,6 +30,11 @@ const PLAY_PAUSE_ICON_TIMEOUT = 800;
 
 const { height, width } = Dimensions.get('window');
 
+const BackButtonContainer = styled(SafeAreaView)`
+    align-self: flex-start;
+    margin-left: 16px;
+    position: absolute;
+`
 const ReelayFeedContainer = styled(View)`
     background-color: black;
 `
@@ -92,14 +97,18 @@ const StackLocation = ({ position, length }) => {
     );
 }
 
-export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
+export default ReelayFeed = ({ navigation, 
+    initialFeedPos = 0,
+    fixedStackList = [],
+    forceRefresh = false, 
+}) => {
 
     const feedPager = useRef();
     const nextPage = useRef(0);
     const stackPager = useRef();
 
     const { user } = useContext(AuthContext);
-    const { overlayVisible } = useContext(VisibilityContext);
+    const { overlayVisible } = useContext(FeedContext);
 
     const [feedPosition, setFeedPosition] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
@@ -108,37 +117,43 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
     const [stackCounter, setStackCounter] = useState(0);
     const [stackPositions, setStackPositions] = useState({});
 
+    const isFixedStack = fixedStackList.length != 0;
+
     console.log('FEED IS RENDERING');
-    console.log('feed position: ', feedPosition);
-    console.log('next page: ', nextPage.current);
+    console.log('is fixed stack: ', isFixedStack);
 
     useEffect(() => {
         const stackEmpty = !stackList.length;
-        if (stackEmpty || forceRefresh) {
-            console.log('gotta load the feed');
-            try {
-                extendFeed();
-            } catch (error) {
-                console.log(error);
-            }
-        } else {
+        if (!stackEmpty && !forceRefresh) {
             console.log('feed already loaded');
+            return;
+        }
+
+        console.log('gotta load the feed');
+        if (isFixedStack) {
+            fixedStackList.forEach(stack => {
+                const titleID = stack[0].title.id;
+                stackPositions[titleID] = 0;
+            });            
+            setStackList(fixedStackList);
+        } else {
+            extendFeed();
         }
     }, [navigation]);
 
     useEffect(() => {
         // this is DANGEROUS and should be in a try/catch
-        console.log('ON TAB PRESS IS SET');
-        console.log('Stack list length: ', stackList?.length);
-        console.log('Feed position: ', feedPosition);
-        const unsubscribe = navigation.dangerouslyGetParent().addListener('tabPress', e => {
-            e.preventDefault();
-            onTabPress();
-        });
+        const unsubscribe = navigation.dangerouslyGetParent()
+            .addListener('tabPress', e => {
+                e.preventDefault();
+                onTabPress();
+            });
         return unsubscribe;
     }, [stackList, feedPosition]);
 
     const extendFeed = async () => {
+        if (isFixedStack) return;
+
         let page = nextPage.current;
         let filteredReelays = [];
 
@@ -284,15 +299,12 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
 
     const playPause = () => {
         if (isPaused) {
-            console.log('SET PLAYING STARTED');
             setIsPaused(false);
             setIconVisible('pause');
             setTimeout(() => {
                 setIconVisible('none');
             }, PLAY_PAUSE_ICON_TIMEOUT);    
-            console.log('SET PLAYING FINISHED');
         } else {
-            console.log('SET PAUSED STARTED');
             setIsPaused(true);
             setIconVisible('play');
             setTimeout(() => {
@@ -300,11 +312,11 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
                     setIconVisible('none');
                 }
             }, PLAY_PAUSE_ICON_TIMEOUT);   
-            console.log('SET PAUSED FINISHED'); 
         }
     }
 
     const refreshFeed = async () => {
+        if (isFixedStack) return;
         console.log('REFRESHING FEED');        
         const filteredReelays = await fetchFeedNextPage({ 
             batchSize: FEED_BATCH_SIZE, 
@@ -328,7 +340,7 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
 		<ReelayFeedContainer>
 			{ stackList.length <1 && <ActivityIndicator /> }
 			{ stackList.length >= 1 && 
-				<PagerViewContainer ref={feedPager} initialPage={0} orientation='vertical' onPageSelected={onFeedSwiped}>
+				<PagerViewContainer ref={feedPager} initialPage={initialFeedPos} orientation='vertical' onPageSelected={onFeedSwiped}>
 					{ stackList.map((stack, feedIndex) => {
                         const stackPosition = stackPositions[stack[0].title.id];
                         const firstStackOnlyRef = feedIndex === 0 ? stackPager : null;
@@ -341,10 +353,17 @@ export default ReelayFeed = ({ navigation, forceRefresh = false }) => {
                                         return <Hero stack={stack} key={reelay.id} 
                                                     isPaused={isPaused} setIsPaused={setIsPaused}
                                                     feedIndex={feedIndex} feedPosition={feedPosition}
+                                                    navigation={navigation} 
                                                     stackIndex={stackIndex} stackPosition={stackPosition} 
                                                     playPause={playPause} />;
                                     })}
                                 </PagerViewContainer>
+                                { isFixedStack && 
+                                    <BackButtonContainer>
+                                        <Icon type='ionicon' size={30} color={'white'} name='chevron-back-outline' 
+                                            onPress={() => navigation.pop()} />
+                                    </BackButtonContainer>
+                                }
                                 <LikesDrawer reelay={getReelayInFeed(feedPosition)} />
                                 <CommentsDrawer reelay={getReelayInFeed(feedPosition)} />
                                 <TopRightContainer>

@@ -6,13 +6,14 @@ import styled from 'styled-components/native';
 import FeedVideoPlayer from './FeedVideoPlayer';
 import ReelayInfo from './ReelayInfo';
 import Sidebar from './Sidebar';
-import { VisibilityContext } from '../../context/VisibilityContext';
+import { FeedContext } from '../../context/FeedContext';
 
 export default Hero = ({ 
     index, 
     isPaused,
     feedIndex,
     feedPosition, 
+    navigation,
     playPause,
     setIsPaused,
     stack,
@@ -38,7 +39,7 @@ export default Hero = ({
         overlayVisible,
         setOverlayData,
         setOverlayVisible,
-    } = useContext(VisibilityContext);
+    } = useContext(FeedContext);
 
     const isPlaying = (feedIndex === feedPosition)
                     && (stackIndex === stackPosition)
@@ -71,7 +72,7 @@ export default Hero = ({
                     'rgba(26,26,26,0.6)',
             ]}>
                 <Overlay onPress={playPause} onLongPress={setReelayOverlay}>
-                    <ReelayInfo reelay={reelay} />
+                    <ReelayInfo navigation={navigation} reelay={reelay} />
                     <Sidebar reelay={reelay} />
                 </Overlay>
             </Gradient>

@@ -3,7 +3,7 @@ import { Image, Pressable, View, SafeAreaView } from 'react-native';
 import { getPosterURL } from '../../api/TMDbApi';
 
 import { AuthContext } from '../../context/AuthContext';
-import { VisibilityContext } from '../../context/VisibilityContext';
+import { FeedContext } from '../../context/FeedContext';
 
 import styled from 'styled-components/native';
 import * as Amplitude from 'expo-analytics-amplitude';
@@ -27,7 +27,7 @@ export default Poster = memo(({ title }) => {
 		overlayVisible,
 		setOverlayData,
 		setOverlayVisible,
-	} = useContext(VisibilityContext);
+	} = useContext(FeedContext);
 
 	if (!title) {
 		return (<View />);

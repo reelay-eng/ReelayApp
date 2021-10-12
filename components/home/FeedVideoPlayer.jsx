@@ -4,7 +4,7 @@ import { Video, Audio } from 'expo-av'
 import { VideoStyles } from '../../styles';
 import { useFocusEffect } from '@react-navigation/native';
 
-import { VisibilityContext } from '../../context/VisibilityContext';
+import { FeedContext } from '../../context/FeedContext';
 
 import * as Amplitude from 'expo-analytics-amplitude';
 
@@ -21,7 +21,7 @@ export default memo(function FeedVideoPlayer({
 	const playheadCounter = useRef(0);
 
 	const { user } = useContext(AuthContext);
-	const { overlayVisible } = useContext(VisibilityContext);
+	const { overlayVisible } = useContext(FeedContext);
 	
 	const shouldPlay = playing && isFocused && !playingButPaused && !overlayVisible;
 

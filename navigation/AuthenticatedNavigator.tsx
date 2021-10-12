@@ -5,7 +5,7 @@
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
-import { VisibilityContext } from "../context/VisibilityContext";
+import { FeedContext } from "../context/FeedContext";
 
 import * as React from "react";
 import { Icon } from "react-native-elements";
@@ -20,12 +20,14 @@ import {
   ProfileTabParamList,
 } from "../types";
 
-import SelectTitleScreen from "../screens/SelectTitleScreen";
+import OwnProfileScreen from "../screens/OwnProfileScreen";
+import ProfileFeedScreen from "../screens/ProfileFeedScreen";
 import ReelayCameraScreen from "../screens/ReelayCameraScreen";
 import ReelayUploadScreen from "../screens/ReelayUploadScreen";
+import SelectTitleScreen from "../screens/SelectTitleScreen";
+import UserProfileScreen from "../screens/UserProfileScreen";
 import VenueSelectScreen from "../screens/VenueSelectScreen";
-import AccountScreen from "../screens/AccountScreen";
-import ProfileScreen from "../screens/ProfileScreen";
+
 import { UploadContext } from "../context/UploadContext";
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
@@ -34,8 +36,7 @@ export default function AuthenticatedNavigator() {
   const colorScheme = useColorScheme();
 
   const { hasSelectedTitle, uploadTitleObject } = React.useContext(UploadContext);
-  const { overlayVisible } = React.useContext(VisibilityContext);
-
+  const { overlayVisible } = React.useContext(FeedContext);
 
   return (
     <BottomTab.Navigator
@@ -118,8 +119,15 @@ function HomeTabNavigator() {
         }}
       />
       <HomeTabStack.Screen
-        name="AccountScreen"
-        component={AccountScreen}
+        name="UserProfileScreen"
+        component={UserProfileScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <HomeTabStack.Screen
+        name="ProfileFeedScreen"
+        component={ProfileFeedScreen}
         options={{
           headerShown: false,
         }}
@@ -179,15 +187,28 @@ const ProfileTabStack = createStackNavigator<ProfileTabParamList>();
 function ProfileTabNavigator() {
   return (
     <ProfileTabStack.Navigator
-      initialRouteName="ProfileScreen"
+      initialRouteName="OwnProfileScreen"
       detachInactiveScreens={false}
     >
       <ProfileTabStack.Screen
-        name="ProfileScreen"
-        component={ProfileScreen}
+        name="OwnProfileScreen"
+        component={OwnProfileScreen}
         options={{
           headerShown: false,
-          animationEnabled: false,
+        }}
+      />
+      <ProfileTabStack.Screen
+        name="UserProfileScreen"
+        component={UserProfileScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <ProfileTabStack.Screen
+        name="ProfileFeedScreen"
+        component={ProfileFeedScreen}
+        options={{
+          headerShown: false,
         }}
       />
     </ProfileTabStack.Navigator>
