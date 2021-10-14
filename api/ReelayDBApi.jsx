@@ -4,7 +4,6 @@ import { fetchAnnotatedTitle } from './TMDbApi';
 
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
-const COMMENT_VISIBILITY = Constants.manifest.extra.feedVisibility; // this should be its own variable
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 export const getReelaysByCreator = async (creatorSub) => {
@@ -20,6 +19,8 @@ export const getReelaysByCreator = async (creatorSub) => {
 export const getStacksByCreator = async (creatorSub) => {
     console.log('Getting stacks by creator');
     const creatorReelays = await getReelaysByCreator(creatorSub);
+    if (!creatorReelays) return [];
+
     console.log(creatorReelays[0]);
     const  preparedReelays = await Promise.all(creatorReelays.map(prepareReelay));
 
@@ -126,11 +127,10 @@ export const registerLike = async ({ creatorSub, userSub, reelay }) => {
     console.log('Like registered: ', resultPost);
 }
 
-export const registerUser = async (user, pushToken) => {
+export const registerUser = async (user) => {
     const { attributes, username } = user;
     const { email, sub } = attributes;
-
-    const routeGet = REELAY_API_BASE_URL + '/users/' + sub;
+    const routeGet = REELAY_API_BASE_URL + '/users/sub/' + sub;
     const resultGet = await fetchResults(routeGet, { method: 'GET' });
 
     const encEmail = encodeURIComponent(email);
@@ -138,12 +138,24 @@ export const registerUser = async (user, pushToken) => {
 
     if (resultGet.error) {
         // user is not registered
-        console.log('Registering user...');
+        console.log('Registering user (method 2)...');
         // todo: sanity check emails and usernames
-        const routePost = `${REELAY_API_BASE_URL}/users?email=${encEmail}&username=${encUsername}&sub=${sub}&pushToken=${pushToken}`
+        const routePost = `${REELAY_API_BASE_URL}/users?email=${encEmail}&username=${encUsername}&sub=${sub}`;
         const resultPost = await fetchResults(routePost, { method: 'POST' });
         console.log('User registry entry created: ', resultPost);
-    };
+        return resultPost;
+    } else {
+        return resultGet;
+    }
+}
+
+export const registerPushTokenForUser = async (user, pushToken) => {
+    console.log(user);
+    const routePatch = `${REELAY_API_BASE_URL}/users/sub/${user.sub}?pushToken=${pushToken}`;
+    const resultPatch = await fetchResults(routePatch, { method: 'PATCH' });
+    console.log('Patch route: ', routePatch);
+    console.log('Patched user registry entry: ', resultPatch);
+    return resultPatch;
 }
 
 export const unregisterLike = async ({ creatorSub, userSub, reelay }) => {
