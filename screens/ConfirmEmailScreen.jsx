@@ -73,9 +73,9 @@ export default ConfirmEmailScreen = ({ navigation }) => {
                 rightIcon={{type: 'ionicon', name: 'mail-outline'}}
             />
             <AuthButton title='Continue' type='solid' onPress={confirmEmail}
-                buttonStyle={{backgroundColor: '#b83636'}} />
+                buttonStyle={{backgroundColor: '#db1f2e'}} />
             <AuthButton title='Resend confirmation code' type='clear' onPress={resendConfirmationCode}
-                titleStyle={{color: '#b83636'}} />
+                titleStyle={{color: '#db1f2e'}} />
         </SafeAreaView>
     );
 }

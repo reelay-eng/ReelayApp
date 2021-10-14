@@ -16,7 +16,7 @@ export default ForgotPasswordAffirmScreen = ({ navigation }) => {
                     navigation.popToTop();
                     navigation.push('SignInScreen');
                 }}
-                buttonStyle={{backgroundColor: '#b83636'}} />
+                buttonStyle={{backgroundColor: '#db1f2e'}} />
         </SafeAreaView>
     );
 }

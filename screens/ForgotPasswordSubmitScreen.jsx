@@ -87,11 +87,11 @@ export default ForgotPasswordSubmitScreen = ({ navigation }) => {
                 
                 <AuthButton title='Reset password' type='solid' disabled={!passwordsMatch()}
                     onPress={forgotPasswordSubmit}
-                    buttonStyle={{backgroundColor: '#b83636'}} />
+                    buttonStyle={{backgroundColor: '#db1f2e'}} />
 
                 <AuthButton title="Didn't receive a code? Let's try again." type='clear' 
                     onPress={resendForgotPasswordEmail}
-                    titleStyle={{color: '#b83636'}} />
+                    titleStyle={{color: '#db1f2e'}} />
             </View>
         </SafeAreaView>
     );

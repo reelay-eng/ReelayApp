@@ -50,7 +50,7 @@ export default ForgotPasswordScreen = ({ navigation }) => {
                     rightIcon={{type: 'ionicon', name: 'mail-outline'}}
                 />
                 <AuthButton title='Send me a reset link' type='solid' onPress={sendForgotPasswordEmail}
-                    buttonStyle={{backgroundColor: '#b83636'}} />
+                    buttonStyle={{backgroundColor: '#db1f2e'}} />
             </View>
         </SafeAreaView>
     );

@@ -72,11 +72,11 @@ export default Sidebar = ({ reelay }) => {
 	return (
 		<SidebarView>
 			<SidebarButton onPress={onLikePress} onLongPress={onLikeLongPress}>
-				<Icon type='ionicon' name='heart' color={likedByUser ? '#b83636' : 'white'} size={ICON_SIZE} />
+				<Icon type='ionicon' name='heart' color={likedByUser ? '#db1f2e' : 'white'} size={ICON_SIZE} />
 				<Count>{reelay.likes.length}</Count>
 			</SidebarButton>
 			<SidebarButton onPress={onCommentPress} onLongPress={onCommentLongPress}>
-				<Icon type='ionicon' name='chatbubble-ellipses' color={ commentedByUser ? '#b83636' :'white' } size={ICON_SIZE} />
+				<Icon type='ionicon' name='chatbubble-ellipses' color={ commentedByUser ? '#db1f2e' :'white' } size={ICON_SIZE} />
 				<Count>{reelay.comments.length}</Count>
 			</SidebarButton>
 		</SidebarView>

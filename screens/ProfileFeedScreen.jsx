@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { View } from 'react-native';
-import { ProfileContext } from './UserProfileScreen';
 
 import ReelayFeed from '../components/home/ReelayFeed';
 import styled from 'styled-components/native';
@@ -14,6 +13,8 @@ export default ProfileFeedScreen = ({ navigation, route }) => {
     `
     console.log('Rendering profile feed screen');
     console.log(stackList.length);
+
+    console.log(stackList[0]);
 
     return (
         <ProfileFeedContainer>

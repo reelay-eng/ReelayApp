@@ -17,8 +17,9 @@ export default {
           ReelayCameraScreen: 'ReelayCameraScreen',
           ReelayUploadScreen: 'ReelayUploadScreen',
           VenueSelectScreen: 'VenueSelectScreen',
-          AccountScreen: 'AccountScreen',
-          ProfileScreen: 'ProfileScreen',
+          MyProfileScreen: 'MyProfileScreen',
+          UserProfileScreen: 'UserProfileScreen',
+          ProfileFeedScreen: 'ProfileFeedScreen',
         },
       },
       Unauthenticated: {

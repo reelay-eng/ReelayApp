@@ -87,9 +87,9 @@ export default SignUpScreen = ({ navigation, route }) => {
             { !passwordsMatch() && <SystemText>{"Passwords don't match!"}</SystemText> }
 
             <AuthButton title='Continue' type='solid' onPress={createAccount} disabled={!(passwordsMatch() && passwordLongEnough())}
-                buttonStyle={{backgroundColor: '#b83636'}}  />
+                buttonStyle={{backgroundColor: '#db1f2e'}}  />
             <AuthButton title='Login' type='clear' onPress={() => { navigation.push('SignInScreen') }} 
-                titleStyle={{color: '#b83636'}}
+                titleStyle={{color: '#db1f2e'}}
             />
         </SafeAreaView>
     );

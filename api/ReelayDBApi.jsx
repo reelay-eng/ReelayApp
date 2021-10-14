@@ -1,32 +1,31 @@
 import Constants from 'expo-constants';
 import { fetchResults, fetchResults2 } from './fetchResults';
-import { prepareReelay } from './ReelayApi';
+import { fetchAnnotatedTitle } from './TMDbApi';
 
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
+const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
+const COMMENT_VISIBILITY = Constants.manifest.extra.feedVisibility; // this should be its own variable
+const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 export const getReelaysByCreator = async (creatorSub) => {
-    const routeGet = `${REELAY_API_BASE_URL}/users/sub/${creatorSub}/reelays`;
-    console.log(routeGet);
-    const resultGet = await fetchResults2(routeGet, { method: 'GET' });
-    if (!resultGet) {
+    const routeGet = `${REELAY_API_BASE_URL}/users/sub/${creatorSub}/reelays?visibility=${FEED_VISIBILITY}`;
+    const fetchedReelays = await fetchResults2(routeGet, { method: 'GET' });
+    if (!fetchedReelays) {
         console.log('Could not get reelays for this creator');
         return null;
     }
-    return resultGet;
+    return fetchedReelays;
 }
 
 export const getStacksByCreator = async (creatorSub) => {
     console.log('Getting stacks by creator');
     const creatorReelays = await getReelaysByCreator(creatorSub);
+    console.log(creatorReelays[0]);
     const  preparedReelays = await Promise.all(creatorReelays.map(prepareReelay));
 
     const indexInStacks = (stacks, reelay) => {
-        console.log('IN INDEX IN STACKS: ', stacks.length);
         if (stacks.length === 0) return -1;
-
-        const forSameTitle = (stack) => {
-            return stack[0].title.id === reelay.title.id;
-        }
+        const forSameTitle = (stack) => (stack[0].title.id === reelay.title.id);
         return stacks.findIndex(forSameTitle);
     }
 
@@ -44,17 +43,6 @@ export const getStacksByCreator = async (creatorSub) => {
 
     console.log('stacks by creator count: ', stacksByCreator.length);
     return stacksByCreator;
-}
-
-export const getRegisteredLikes = async ({ reelay }) => {
-    // todo
-    const routeGet = `${REELAY_API_BASE_URL}/reelays/${reelay.id}/likes`;
-    const resultGet = await fetchResults(routeGet, { method: 'GET' });
-    if (!resultGet) {
-        console.log('Could not get likes for this reelay');
-        return null;
-    }
-    return resultGet;
 }
 
 export const getRegisteredUser = async (userSub) => {
@@ -81,6 +69,54 @@ export const getUserByUsername = async (username) => {
         return null;
     }
     return resultGet;
+}
+
+export const getVideoURIObject = async (fetchedReelay) => {    
+    const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${fetchedReelay.videoS3Key}`;
+    return { 
+        id: fetchedReelay.id, 
+        videoURI: cloudfrontVideoURI,
+    };
+}
+
+export const prepareReelay = async (fetchedReelay) => {
+    const titleObject = await fetchAnnotatedTitle(
+        fetchedReelay.tmdbTitleID, 
+        fetchedReelay.isSeries
+    );
+    const videoURIObject = await getVideoURIObject(fetchedReelay);
+    const releaseYear = (titleObject?.release_date?.length >= 4)
+        ? (titleObject.release_date.slice(0,4)) : '';	
+
+    return {
+        id: fetchedReelay.id,
+        creator: {
+            avatar: '../../assets/images/icon.png',
+            id: fetchedReelay.creatorSub,
+            username: fetchedReelay.creatorName,
+        },
+        content: {
+            venue: fetchedReelay.venue ? fetchedReelay.venue : null,
+            videoURI: videoURIObject.videoURI,    
+        },
+        likes: fetchedReelay.likes,
+        comments: fetchedReelay.comments,
+        title: {
+            id: titleObject.id,
+            display: titleObject.title,
+
+            director: titleObject.director,
+            displayActors: titleObject.displayActors,
+            overview: titleObject.overview,
+            posterURI: titleObject ? titleObject.poster_path : null,
+            tagline: titleObject.tagline,
+            trailerURI: titleObject.trailerURI,
+
+            releaseDate: titleObject.release_date,
+            releaseYear: releaseYear,
+        },
+        postedDateTime: fetchedReelay.postedAt,
+    };
 }
 
 export const registerLike = async ({ creatorSub, userSub, reelay }) => {

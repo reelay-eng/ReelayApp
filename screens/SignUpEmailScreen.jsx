@@ -51,13 +51,13 @@ export default SignUpEmailScreen = ({ navigation }) => {
             />
             <AuthButton title='Continue' type='solid' 
                 onPress={continueToSignUp} 
-                buttonStyle={{backgroundColor: '#b83636'}} 
+                buttonStyle={{backgroundColor: '#db1f2e'}} 
             />
             <AuthButton title='Login' type='clear' 
                 onPress={() => { 
                     navigation.push('SignInScreen');
                 }}
-                titleStyle={{color: '#b83636'}}
+                titleStyle={{color: '#db1f2e'}}
             />
         </SafeAreaView>
     );

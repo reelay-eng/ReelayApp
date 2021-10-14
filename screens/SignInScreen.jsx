@@ -67,9 +67,9 @@ export default SignInScreen = ({ navigation }) => {
                 secureTextEntry={true}
             />
             <AuthButton title='Continue' type='solid' onPress={signInUser}
-                buttonStyle={{backgroundColor: '#b83636'}} />
+                buttonStyle={{backgroundColor: '#db1f2e'}} />
             <AuthButton title='Forgot password?' type='clear' onPress={() => { navigation.push('ForgotPasswordScreen') }}
-                titleStyle={{color: '#b83636'}} />
+                titleStyle={{color: '#db1f2e'}} />
         </SafeAreaView>
     );
 }

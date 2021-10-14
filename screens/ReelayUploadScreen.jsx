@@ -336,7 +336,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
                 <UploadOptionItemContainer>
                     <OptionText>{'Save to Device'}</OptionText>
                     <SwitchContainer>
-                        <Switch value={saveToDevice} onValueChange={toggleSaveToDevice} color={'#b83636'} />
+                        <Switch value={saveToDevice} onValueChange={toggleSaveToDevice} color={'#db1f2e'} />
                     </SwitchContainer>
                 </UploadOptionItemContainer>
             </UploadOptionsContainer>

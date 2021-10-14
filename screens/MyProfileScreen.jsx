@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, Text, View } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { Dimensions, SafeAreaView, ScrollView, View } from 'react-native';
+import { Button } from 'react-native-elements';
 import { getStacksByCreator } from '../api/ReelayDBApi';
 
 import ProfileHeader from '../components/profile/ProfileHeader';
@@ -7,36 +8,17 @@ import ProfilePosterGrid from '../components/profile/ProfilePosterGrid';
 import ProfileStatsBar from '../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../components/profile/ProfileTopBar';
 
+import { AuthContext } from '../context/AuthContext';
 import styled from 'styled-components/native';
 
-const Tombstone = () => {
-    const TombstoneContainer = styled(View)`
-        align-self: center;
-        margin: 20px;
-        width: 60%;
-    `
-    const TombstoneText = styled(Text)`
-        align-self: center;
-        font-family: System;
-        font-size: 16px;
-        font-weight: 400;
-        color: white;
-    `
-    return (
-        <TombstoneContainer>
-            <TombstoneText>
-                {'You can follow your friends soon, but we all die alone.'}
-            </TombstoneText>
-        </TombstoneContainer>
-    );
-}
+const { width } = Dimensions.get('window');
 
-export default UserProfileScreen = ({ navigation, route }) => {
+export default MyProfileScreen = ({ navigation, route }) => {
 
     const [creatorStacks, setCreatorStacks] = useState([]);
-
-    const { creator } = route.params;
-    const creatorSub = creator.id ?? '';
+    
+    let { user } = route.params ?? useContext(AuthContext);
+    const userSub = user.attributes.sub ?? '';
 
     const ProfileScreenContainer = styled(SafeAreaView)`
         background-color: black;
@@ -47,8 +29,24 @@ export default UserProfileScreen = ({ navigation, route }) => {
         margin-bottom: 60px;
     `
 
+    const EditProfileButton = () => {
+        const ButtonContainer = styled(View)`
+            align-self: center;
+            margin: 20px;
+            width: ${width - 40}px;
+        `
+        return (
+            <ButtonContainer>
+                <Button title='Edit Profile' type='outline' buttonStyle={{ 
+                    borderColor: 'white',
+                    borderWidth: 2,
+                }} titleStyle={{ color: 'white' }}/>
+            </ButtonContainer>
+        );
+    }
+
     const loadCreatorStacks = async () => {
-        const nextCreatorStacks = await getStacksByCreator(creatorSub);
+        const nextCreatorStacks = await getStacksByCreator(userSub);
         nextCreatorStacks.forEach(stack => stack.sort(sortReelays));
         nextCreatorStacks.sort(sortStacks);
         setCreatorStacks(nextCreatorStacks);
@@ -59,17 +57,18 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const reelayCounter = (sum, nextStack) => sum + nextStack.length;
     const reelayCount = creatorStacks.reduce(reelayCounter, 0);
 
+
     useEffect(() => {
-        if (creatorSub.length) loadCreatorStacks();
+        if (userSub.length) loadCreatorStacks();
     }, []);
 
     return (
         <ProfileScreenContainer>
-            <ProfileTopBar creator={creator} navigation={navigation} />
+            <ProfileTopBar creator={user} navigation={navigation} atProfileBase={true} />
             <ProfileScrollView>
                 <ProfileHeader />
                 <ProfileStatsBar reelayCount={reelayCount} />
-                <Tombstone />
+                <EditProfileButton />
                 <ProfilePosterGrid creatorStacks={creatorStacks} navigation={navigation} />
             </ProfileScrollView>
         </ProfileScreenContainer>

@@ -20,7 +20,7 @@ import {
   ProfileTabParamList,
 } from "../types";
 
-import OwnProfileScreen from "../screens/OwnProfileScreen";
+import MyProfileScreen from "../screens/MyProfileScreen";
 import ProfileFeedScreen from "../screens/ProfileFeedScreen";
 import ReelayCameraScreen from "../screens/ReelayCameraScreen";
 import ReelayUploadScreen from "../screens/ReelayUploadScreen";
@@ -187,12 +187,12 @@ const ProfileTabStack = createStackNavigator<ProfileTabParamList>();
 function ProfileTabNavigator() {
   return (
     <ProfileTabStack.Navigator
-      initialRouteName="OwnProfileScreen"
+      initialRouteName="MyProfileScreen"
       detachInactiveScreens={false}
     >
       <ProfileTabStack.Screen
-        name="OwnProfileScreen"
-        component={OwnProfileScreen}
+        name="MyProfileScreen"
+        component={MyProfileScreen}
         options={{
           headerShown: false,
         }}

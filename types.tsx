@@ -29,7 +29,7 @@ export type CreateReelayTabParamList = {
 }
 
 export type ProfileTabParamList = {
-    OwnProfileScreen: undefined;
+    MyProfileScreen: undefined;
     UserProfileScreen: undefined;
     ProfileFeedScreen: undefined;
 }
