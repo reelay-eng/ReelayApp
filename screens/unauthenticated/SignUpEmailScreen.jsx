@@ -1,10 +1,10 @@
 import React, { createRef, useState } from 'react';
 import { SafeAreaView } from 'react-native';
 import { validate } from 'validate.js';
-import constraints from '../components/utils/EmailValidationConstraints';
+import constraints from '../../components/utils/EmailValidationConstraints';
 
-import { AuthButton, AuthHeaderCenter, AuthInput } from '../components/utils/AuthComponents';
-import { showErrorToast } from '../components/utils/toasts';
+import { AuthButton, AuthHeaderCenter, AuthInput } from '../../components/utils/AuthComponents';
+import { showErrorToast } from '../../components/utils/toasts';
 
 import * as Amplitude from 'expo-analytics-amplitude';
 

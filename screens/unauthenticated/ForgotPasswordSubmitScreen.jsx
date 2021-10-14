@@ -1,14 +1,12 @@
 import React, { useContext, useState } from 'react';
 import { View, SafeAreaView } from 'react-native';
-import { Icon, Text } from 'react-native-elements';
 
 import { Auth } from 'aws-amplify';
-import { AuthStyles } from '../styles';
-import { AuthContext } from '../context/AuthContext';
-import { showMessageToast, showErrorToast } from '../components/utils/toasts';
+import { AuthContext } from '../../context/AuthContext';
+import { showMessageToast, showErrorToast } from '../../components/utils/toasts';
 
-import { AuthButton, AuthInput, AuthHeaderView, AuthHeaderLeft, SystemText } from '../components/utils/AuthComponents';
-import BackButton from '../components/utils/BackButton';
+import { AuthButton, AuthInput, AuthHeaderView, AuthHeaderLeft, SystemText } from '../../components/utils/AuthComponents';
+import BackButton from '../../components/utils/BackButton';
 
 export default ForgotPasswordSubmitScreen = ({ navigation }) => {
 

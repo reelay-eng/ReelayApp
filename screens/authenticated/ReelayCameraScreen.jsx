@@ -1,7 +1,7 @@
-import React, { useContext, useEffect, useRef, createRef, useState } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import { UploadContext } from '../context/UploadContext';
-import { getPosterURL } from '../api/TMDbApi';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { AuthContext } from '../../context/AuthContext';
+import { UploadContext } from '../../context/UploadContext';
+import { getPosterURL } from '../../api/TMDbApi';
 
 import { Camera } from 'expo-camera';
 import { Dimensions, View, Text, SafeAreaView, Pressable} from 'react-native';
@@ -9,9 +9,9 @@ import { Image, Icon } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
 
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
-import BackButton from '../components/utils/BackButton';
+import BackButton from '../../components/utils/BackButton';
 import styled from 'styled-components/native';
-import { showErrorToast } from '../components/utils/toasts';
+import { showErrorToast } from '../../components/utils/toasts';
 
 import * as Amplitude from 'expo-analytics-amplitude';
 

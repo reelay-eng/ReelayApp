@@ -1,10 +1,9 @@
 import React, { useContext } from 'react';
 import { Pressable, SafeAreaView, ScrollView, Text, View } from 'react-native';
-import { Button, Image } from 'react-native-elements';
-import { UploadContext } from '../context/UploadContext';
+import { UploadContext } from '../../context/UploadContext';
 
-import BackButton from '../components/utils/BackButton';
-import { getIconVenues, getOtherVenues, VenueIcon } from '../components/utils/VenueIcon';
+import BackButton from '../../components/utils/BackButton';
+import { getIconVenues, getOtherVenues, VenueIcon } from '../../components/utils/VenueIcon';
 import styled from 'styled-components/native';
 
 export default VenueSelectScreen = ({ navigation, route }) => {

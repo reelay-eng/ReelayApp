@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, Text, View } from 'react-native';
-import { getStacksByCreator } from '../api/ReelayDBApi';
+import { getStacksByCreator } from '../../api/ReelayDBApi';
 
-import ProfileHeader from '../components/profile/ProfileHeader';
-import ProfilePosterGrid from '../components/profile/ProfilePosterGrid';
-import ProfileStatsBar from '../components/profile/ProfileStatsBar';
-import ProfileTopBar from '../components/profile/ProfileTopBar';
+import ProfileHeader from '../../components/profile/ProfileHeader';
+import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
+import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
+import ProfileTopBar from '../../components/profile/ProfileTopBar';
 
 import styled from 'styled-components/native';
 

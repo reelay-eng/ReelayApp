@@ -2,11 +2,11 @@ import React, { useContext, useState } from 'react';
 import { View, SafeAreaView } from 'react-native';
 
 import { Auth } from 'aws-amplify';
-import { AuthContext } from '../context/AuthContext';
-import { showErrorToast } from '../components/utils/toasts';
+import { AuthContext } from '../../context/AuthContext';
+import { showErrorToast } from '../../components/utils/toasts';
 
-import { AuthButton, AuthHeaderLeft, AuthHeaderView, AuthInput } from '../components/utils/AuthComponents';
-import BackButton from '../components/utils/BackButton';
+import { AuthButton, AuthHeaderLeft, AuthHeaderView, AuthInput } from '../../components/utils/AuthComponents';
+import BackButton from '../../components/utils/BackButton';
 
 import * as Amplitude from 'expo-analytics-amplitude';
 import styled from 'styled-components/native';

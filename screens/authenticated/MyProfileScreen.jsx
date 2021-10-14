@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Dimensions, SafeAreaView, ScrollView, View } from 'react-native';
 import { Button } from 'react-native-elements';
-import { getStacksByCreator } from '../api/ReelayDBApi';
+import { getStacksByCreator } from '../../api/ReelayDBApi';
 
-import ProfileHeader from '../components/profile/ProfileHeader';
-import ProfilePosterGrid from '../components/profile/ProfilePosterGrid';
-import ProfileStatsBar from '../components/profile/ProfileStatsBar';
-import ProfileTopBar from '../components/profile/ProfileTopBar';
+import ProfileHeader from '../../components/profile/ProfileHeader';
+import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
+import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
+import ProfileTopBar from '../../components/profile/ProfileTopBar';
 
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 
 const { width } = Dimensions.get('window');

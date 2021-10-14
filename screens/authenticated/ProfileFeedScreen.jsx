@@ -1,7 +1,7 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { View } from 'react-native';
 
-import ReelayFeed from '../components/home/ReelayFeed';
+import ReelayFeed from '../../components/home/ReelayFeed';
 import styled from 'styled-components/native';
 
 export default ProfileFeedScreen = ({ navigation, route }) => {

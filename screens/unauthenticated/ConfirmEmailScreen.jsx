@@ -3,11 +3,11 @@ import { SafeAreaView } from 'react-native';
 import { Text } from 'react-native-elements';
 
 import { Auth } from 'aws-amplify';
-import { AuthContext } from '../context/AuthContext';
-import { showErrorToast } from '../components/utils/toasts';
+import { AuthContext } from '../../context/AuthContext';
+import { showErrorToast } from '../../components/utils/toasts';
 
-import { AuthButton, AuthInput, AuthHeaderView, AuthHeaderLeft } from '../components/utils/AuthComponents';
-import BackButton from '../components/utils/BackButton';
+import { AuthButton, AuthInput, AuthHeaderView, AuthHeaderLeft } from '../../components/utils/AuthComponents';
+import BackButton from '../../components/utils/BackButton';
 
 export default ConfirmEmailScreen = ({ navigation }) => {
 

@@ -1,15 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import { UploadContext } from '../context/UploadContext';
+import { AuthContext } from '../../context/AuthContext';
+import { UploadContext } from '../../context/UploadContext';
 import { Auth, DataStore, Storage } from 'aws-amplify';
-import { Reelay } from '../src/models';
+import { Reelay } from '../../src/models';
 
 import Constants from 'expo-constants';
 import * as MediaLibrary from 'expo-media-library';
 
-import BackButton from '../components/utils/BackButton';
-import PreviewVideoPlayer from '../components/create-reelay/PreviewVideoPlayer';
-import ReelayPreviewOverlay from '../components/overlay/ReelayPreviewOverlay';
+import BackButton from '../../components/utils/BackButton';
+import PreviewVideoPlayer from '../../components/create-reelay/PreviewVideoPlayer';
+import ReelayPreviewOverlay from '../../components/overlay/ReelayPreviewOverlay';
 
 import { Dimensions, Text, View, SafeAreaView, Pressable } from 'react-native';
 import { Button } from 'react-native-elements';
@@ -17,7 +17,7 @@ import { Switch } from 'react-native-paper';
 import * as Progress from 'react-native-progress';
 
 import * as Amplitude from 'expo-analytics-amplitude';
-import { sendStackPushNotificationToOtherCreators } from '../api/NotificationsApi';
+import { sendStackPushNotificationToOtherCreators } from '../../api/NotificationsApi';
 
 import styled from 'styled-components/native';
 

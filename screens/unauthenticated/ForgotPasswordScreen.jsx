@@ -2,11 +2,11 @@ import React, { useContext, useState } from 'react';
 import { View, SafeAreaView } from 'react-native';
 
 import { Auth } from 'aws-amplify';
-import { showErrorToast } from '../components/utils/toasts';
-import { AuthContext } from '../context/AuthContext';
+import { showErrorToast } from '../../components/utils/toasts';
+import { AuthContext } from '../../context/AuthContext';
 
-import { AuthButton, AuthInput, AuthHeaderLeft, AuthHeaderView } from '../components/utils/AuthComponents';
-import BackButton from '../components/utils/BackButton';
+import { AuthButton, AuthInput, AuthHeaderLeft, AuthHeaderView } from '../../components/utils/AuthComponents';
+import BackButton from '../../components/utils/BackButton';
 
 export default ForgotPasswordScreen = ({ navigation }) => {
 

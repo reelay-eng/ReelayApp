@@ -12,7 +12,7 @@ import { Icon } from "react-native-elements";
 
 import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
-import HomeFeedScreen from "../screens/HomeFeedScreen";
+import HomeFeedScreen from "../screens/authenticated/HomeFeedScreen";
 import {
   BottomTabParamList,
   HomeTabParamList,
@@ -20,13 +20,13 @@ import {
   ProfileTabParamList,
 } from "../types";
 
-import MyProfileScreen from "../screens/MyProfileScreen";
-import ProfileFeedScreen from "../screens/ProfileFeedScreen";
-import ReelayCameraScreen from "../screens/ReelayCameraScreen";
-import ReelayUploadScreen from "../screens/ReelayUploadScreen";
-import SelectTitleScreen from "../screens/SelectTitleScreen";
-import UserProfileScreen from "../screens/UserProfileScreen";
-import VenueSelectScreen from "../screens/VenueSelectScreen";
+import MyProfileScreen from "../screens/authenticated/MyProfileScreen";
+import ProfileFeedScreen from "../screens/authenticated/ProfileFeedScreen";
+import ReelayCameraScreen from "../screens/authenticated/ReelayCameraScreen";
+import ReelayUploadScreen from "../screens/authenticated/ReelayUploadScreen";
+import SelectTitleScreen from "../screens/authenticated/SelectTitleScreen";
+import UserProfileScreen from "../screens/authenticated/UserProfileScreen";
+import VenueSelectScreen from "../screens/authenticated/VenueSelectScreen";
 
 import { UploadContext } from "../context/UploadContext";
 

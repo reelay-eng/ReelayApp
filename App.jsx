@@ -86,25 +86,6 @@ function App() {
 
     Amplitude.initializeAsync(Constants.manifest.extra.amplitudeApiKey);
 
-    // replace
-    // useEffect(() => {
-    //     authenticateUserAndRegisterPushTokens();
-    //     // // notification setup
-    //     // // https://docs.expo.dev/versions/latest/sdk/notifications/ 
-    //     notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-    //         console.log('Notification received');
-    //         setNotification(Boolean(notification));
-    //     });
-    //     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-    //         console.log('Notification response received');
-    //         console.log(response);
-    //     });
-    //     return () => {
-    //         Notifications.removeNotificationSubscription(notificationListener.current);
-    //         Notifications.removeNotificationSubscription(responseListener.current);
-    //     }
-    // }, []);
-
     useEffect(() => {
         authenticateUser();
     }, []);
@@ -112,76 +93,6 @@ function App() {
     useEffect(() => {
         registerUserAndPushTokens();
     }, [user]);
-
-    const registerUserAndPushTokens = async () => {
-        const validUser = user?.username;
-        if (!validUser) return;
-
-        try {
-            const registeredUser = await registerUser(user);
-            const pushToken = await registerForPushNotificationsAsync();
-            await registerPushTokenForUser(registeredUser, pushToken);
-
-            notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-                console.log('Notification received');
-                setNotification(Boolean(notification));
-            });
-            responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-                console.log('Notification response received');
-                console.log(response);
-            }); 
-            return () => {
-                Notifications.removeNotificationSubscription(notificationListener.current);
-                Notifications.removeNotificationSubscription(responseListener.current);
-            }   
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    // const authenticateUserAndRegisterPushTokens = async () => {
-    //     console.log('Setting up authentication');
-    //     try {
-    //         const session = await Auth.currentSession();
-    //         const user = await Auth.currentAuthenticatedUser();
-    //         const credentials = await Auth.currentUserCredentials();
-    //         const pushToken = await registerForPushNotificationsAsync();
-
-    //         if (credentials.authenticated) {
-    //             setSession(session);
-    //             setUser(user);
-    //             setCredentials(credentials);
-    //             setSignedIn(true);
-
-    //             if (user && pushToken) {
-    //                 const registeredUser = await getRegisteredUser(user.attributes.sub);
-    //                 if (registeredUser.error) {
-    //                     await registerUser(user, pushToken);
-    //                 } else if (registeredUser.pushToken != pushToken) {
-    //                     console.log('push tokens don\'t match!');
-    //                 }   
-    //                 updatePushTokens(user, pushToken);
-    //             }    
-    //         }
-    //     } catch (error) {
-    //         console.log(error);
-    //         Amplitude.logEventWithPropertiesAsync('authError', {
-    //             error: error,
-    //         });
-    //     }
-    //     console.log('authentication complete');
-    //     setIsLoading(false);
-    // }
-
-    // step 1: authenticate user
-    // step 1.5: loading is done
-    // step 2: check if user is registered
-    // step 3: attempt to get push token
-    // step 4: if user is not registered
-    //          register user
-    //          include push token if present
-    // step 5: else if registered push token is null or doesn't match
-    //          register new push token for user
 
     const authenticateUser = async () => {
         console.log('Setting up authentication');
@@ -206,10 +117,33 @@ function App() {
         setIsLoading(false);
     }
 
-    const updatePushTokens = async (user, pushToken) => {
-        setExpoPushToken(pushToken);
-        console.log('push token set');
-    }    
+    const registerUserAndPushTokens = async () => {
+        const validUser = user?.username;
+        if (!validUser) return;
+
+        try {
+            const registeredUser = await registerUser(user);
+            const pushToken = await registerForPushNotificationsAsync();
+            await registerPushTokenForUser(registeredUser, pushToken);
+
+            notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+                console.log('Notification received');
+                setNotification(Boolean(notification));
+            });
+            responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+                console.log('Notification response received');
+                console.log(response);
+            }); 
+            setExpoPushToken(pushToken);
+
+            return () => {
+                Notifications.removeNotificationSubscription(notificationListener.current);
+                Notifications.removeNotificationSubscription(responseListener.current);
+            }   
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     const authState = {
         credentials,        setCredentials,
@@ -234,7 +168,7 @@ function App() {
         venueSelected,      setVenueSelected,
     }
 
-    const vizState = {
+    const feedState = {
         commentsVisible,    setCommentsVisible,
         currentComment,     setCurrentComment,
         likesVisible,       setLikesVisible,
@@ -264,7 +198,7 @@ function App() {
         return (
             <SafeAreaProvider>
                 <AuthContext.Provider value={authState}>
-                    <FeedContext.Provider value={vizState}>
+                    <FeedContext.Provider value={feedState}>
                         <UploadContext.Provider value={uploadState}>
                             <StatusBar hidden={true} />
                             <Navigation colorScheme={colorScheme} />

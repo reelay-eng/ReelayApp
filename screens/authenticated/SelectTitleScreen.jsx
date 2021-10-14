@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { SafeAreaView, View, Pressable, Text } from 'react-native';
-import { UploadContext } from '../context/UploadContext';
+import { UploadContext } from '../../context/UploadContext';
 
-import BackButton from '../components/utils/BackButton';
-import SearchField from '../components/create-reelay/SearchField';
-import SearchResults from '../components/create-reelay/SearchResults';
-import { searchMovies, searchSeries } from '../api/TMDbApi';
+import BackButton from '../../components/utils/BackButton';
+import SearchField from '../../components/create-reelay/SearchField';
+import SearchResults from '../../components/create-reelay/SearchResults';
+import { searchMovies, searchSeries } from '../../api/TMDbApi';
 
 import styled from 'styled-components/native';
 

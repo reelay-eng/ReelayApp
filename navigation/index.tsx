@@ -9,7 +9,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { ColorSchemeName } from 'react-native';
 
 import { AuthContext } from '../context/AuthContext';
-import NotFoundScreen from '../screens/NotFoundScreen';
+import NotFoundScreen from '../screens/unauthenticated/NotFoundScreen';
 
 import AuthenticatedNavigator from './AuthenticatedNavigator';
 import UnauthenticatedNavigator from './UnauthenticatedNavigator';

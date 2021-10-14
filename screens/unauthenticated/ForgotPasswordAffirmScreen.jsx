@@ -1,7 +1,7 @@
 import React from 'react';
 import { SafeAreaView } from 'react-native';
 
-import { AuthButton, AuthHeaderCenter } from '../components/utils/AuthComponents';
+import { AuthButton, AuthHeaderCenter } from '../../components/utils/AuthComponents';
 
 export default ForgotPasswordAffirmScreen = ({ navigation }) => {
     

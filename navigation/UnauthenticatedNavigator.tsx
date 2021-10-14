@@ -2,13 +2,13 @@ import * as React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AuthenticationStackParamList } from '../types';
 
-import SignUpEmailScreen from '../screens/SignUpEmailScreen';
-import SignUpScreen from '../screens/SignUpScreen';
-import SignInScreen from '../screens/SignInScreen';
-import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
-import ForgotPasswordSubmitScreen from '../screens/ForgotPasswordSubmitScreen';
-import ForgotPasswordAffirmScreen from '../screens/ForgotPasswordAffirmScreen';
-import ConfirmEmailScreen from '../screens/ConfirmEmailScreen';
+import SignUpEmailScreen from '../screens/unauthenticated/SignUpEmailScreen';
+import SignUpScreen from '../screens/unauthenticated/SignUpScreen';
+import SignInScreen from '../screens/unauthenticated/SignInScreen';
+import ForgotPasswordScreen from '../screens/unauthenticated/ForgotPasswordScreen';
+import ForgotPasswordSubmitScreen from '../screens/unauthenticated/ForgotPasswordSubmitScreen';
+import ForgotPasswordAffirmScreen from '../screens/unauthenticated/ForgotPasswordAffirmScreen';
+import ConfirmEmailScreen from '../screens/unauthenticated/ConfirmEmailScreen';
 
 const AuthenticationStack = createStackNavigator<AuthenticationStackParamList>();
 
