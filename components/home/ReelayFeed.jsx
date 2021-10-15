@@ -77,7 +77,7 @@ const StackLocation = ({ position, length }) => {
         align-self: flex-end;
         background-color: white;
         border-radius: 12px;
-        justify-content: flex-start;
+        justify-content: center;
         right: 10px;
         height: 22px;
         width: 60px;

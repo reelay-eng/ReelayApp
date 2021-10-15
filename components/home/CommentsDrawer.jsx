@@ -37,7 +37,7 @@ export default CommentsDrawer = ({ reelay }) => {
         width: 100%;
     `
     const DrawerContainer = styled(View)`
-        background-color: black;
+        background-color: #1e1e1e;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
         margin-top: auto;
@@ -58,7 +58,7 @@ export default CommentsDrawer = ({ reelay }) => {
             flex-direction: row;
             justify-content: flex-end;
             margin-top: 10px;
-            right: 10px;
+            right: 24px;
             width: 100%;
         `
         const CounterText = styled(Text)`
@@ -100,29 +100,11 @@ export default CommentsDrawer = ({ reelay }) => {
         );
     }
 
-    const CloseButton = () => {
-        const ButtonContainer = styled(Pressable)`
-            align-self: center;
-            margin: 20px;
-            width: 100%;
-        `
-        const CloseText = styled(Text)`
-            align-self: center;
-            font-family: System;
-            font-size: 20px;
-            font-weight: 400;
-            color: white;
-        `
-        return (
-            <ButtonContainer onPress={closeDrawer}>
-                <CloseText>{'Close'}</CloseText>
-            </ButtonContainer>
-        );
-    }
-
     const Comments = () => {
         const CommentsContainer = styled(View)`
             width: 100%;
+            padding-left: 16px;
+            padding-right: 16px;
         `
         const CommentItemContainer = styled(View)`
             margin-left: 10px;
@@ -156,12 +138,16 @@ export default CommentsDrawer = ({ reelay }) => {
         return (
             <CommentsContainer>
                 { reelay.comments.map(comment => {
-                    const key = comment.userID + comment.postedAt;
+                    // main feed currently returns from DataStore, using userID
+                    // profile feeds return from ReelayDB, using authorName
+                    const username = comment.userID ?? comment.authorName;
+
+                    const key = username + comment.postedAt;
                     const timestamp = moment(comment.postedAt).fromNow();
                     return (
                         <CommentItemContainer key={key}>
                             <CommentHeaderContainer>
-                                <UsernameText>{`@${comment.userID}`}</UsernameText>
+                                <UsernameText>{`@${username}`}</UsernameText>
                                 <TimestampText>{timestamp}</TimestampText>
                             </CommentHeaderContainer>
                             <CommentText>{comment.content}</CommentText>
@@ -180,7 +166,6 @@ export default CommentsDrawer = ({ reelay }) => {
             height: 12px;
         `
         const CommentButtonContainer = styled(Pressable)`
-            background-color: black;
             margin-top: 16px;
             margin-bottom: 32px;
             width: 100%;
@@ -194,15 +179,20 @@ export default CommentsDrawer = ({ reelay }) => {
         }
 
         const TextInputStyle = {
+            alignSelf: 'center',
             borderColor: 'white',
             borderRadius: 10,
             borderWidth: 1,
             color: 'white',
+
+            fontFamily: 'System',
             fontSize: 16,
             
             padding: 16, 
             paddingTop: 16,
-            fontFamily: 'System',
+            paddingLeft: 16,
+            paddingRight: 16,
+            width: width - 48,
         }
 
         const [commentText, setCommentText] = useState('');
@@ -265,6 +255,7 @@ export default CommentsDrawer = ({ reelay }) => {
                     onChangeText={text => setCommentText(text)}
                     placeholder={'Start a flame war...'}
                     placeholderTextColor={'gray'}
+                    returnKeyType='done'
                     style={TextInputStyle}
                     defaultValue={commentText}
                 />
