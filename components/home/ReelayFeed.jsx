@@ -77,7 +77,7 @@ const StackLocation = ({ position, length }) => {
         align-self: flex-end;
         background-color: white;
         border-radius: 12px;
-        justify-content: center;
+        justify-content: flex-start;
         right: 10px;
         height: 22px;
         width: 60px;
@@ -370,7 +370,7 @@ export default ReelayFeed = ({ navigation,
                                     <Poster title={currentReelay.title} />
                                     <UnderPosterContainer>
                                         { stack.length > 1 && <StackLocation position={stackPosition} length={stack.length} /> }
-                                        { currentReelay?.content?.venue && <VenueIcon venue={currentReelay.content.venue} size={20} border={2} /> }
+                                        { currentReelay?.content?.venue && <VenueIcon venue={currentReelay.content.venue} size={24} border={2} /> }
                                     </UnderPosterContainer>
                                 </TopRightContainer>
                                 { iconVisible !== 'none' && <PlayPauseIcon onPress={playPause} type={iconVisible} /> }

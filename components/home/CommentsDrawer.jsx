@@ -40,9 +40,7 @@ export default CommentsDrawer = ({ reelay }) => {
         background-color: black;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
-        height: auto;
         margin-top: auto;
-        padding-bottom: 40px;
         width: 100%;
     `
     const ModalContainer = styled(View)`
@@ -65,7 +63,7 @@ export default CommentsDrawer = ({ reelay }) => {
         `
         const CounterText = styled(Text)`
             font-family: System;
-            font-size: 16px;
+            font-size: 14px;
             color: white;
         `
         return (
@@ -77,24 +75,27 @@ export default CommentsDrawer = ({ reelay }) => {
 
     const Header = () => {
         const HeaderContainer = styled(View)`
-            align-items: center;
-            flex-direction: row;
-            justify-content: space-between;
+            justify-content: center;
             margin: 12px;
         `
         const HeaderText = styled(Text)`
             font-family: System;
             font-size: 20px;
             font-weight: 500;
+            position: absolute;
+            align-self: center;
             color: white;
+        `
+        const CloseButtonContainer = styled(Pressable)`
+            align-self: flex-end;
         `
         const headerText = reelay.comments.length ? `Comments (${reelay.comments.length})` : 'Comments';
         return (
             <HeaderContainer>
                 <HeaderText>{headerText}</HeaderText>
-                <Pressable onPress={closeDrawer}>
+                <CloseButtonContainer onPress={closeDrawer}>
                     <Icon color={'white'} type='ionicon' name='close' size={CLOSE_BUTTON_SIZE} />
-                </Pressable>
+                </CloseButtonContainer>
             </HeaderContainer>
         );
     }
@@ -121,7 +122,6 @@ export default CommentsDrawer = ({ reelay }) => {
 
     const Comments = () => {
         const CommentsContainer = styled(View)`
-            padding-bottom: 60px;
             width: 100%;
         `
         const CommentItemContainer = styled(View)`
@@ -136,7 +136,7 @@ export default CommentsDrawer = ({ reelay }) => {
         `
         const CommentText = styled(Text)`
             font-family: System;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 400;
             color: white;
             margin-top: 10px;
@@ -144,13 +144,13 @@ export default CommentsDrawer = ({ reelay }) => {
         const TimestampText = styled(Text)`
             font-family: System;
             font-size: 16px;
-            font-weight: 400;
+            font-weight: 300;
             color: white;
         `
         const UsernameText = styled(Text)`
             font-family: System;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 700;
             color: white;
         `
         return (
@@ -174,9 +174,6 @@ export default CommentsDrawer = ({ reelay }) => {
 
 
     const CommentBox = () => {
-        const [commentText, setCommentText] = useState('');
-        const scrollViewRef = useRef();
-
         const CommentBoxLip = styled(View)`
             border-top-left-radius: 12px;
             border-top-right-radius: 12px;
@@ -184,14 +181,16 @@ export default CommentsDrawer = ({ reelay }) => {
         `
         const CommentButtonContainer = styled(Pressable)`
             background-color: black;
-            margin-top: 20px;
+            margin-top: 16px;
+            margin-bottom: 32px;
             width: 100%;
         `    
         const CommentButtonStyle = {
             alignSelf: 'center',
-            backgroundColor: 'white',
-            margin: 10,
-            width: '50%',
+            borderRadius: 48,
+            backgroundColor: '#db1f2e',
+            height: 48,
+            width: '80%',
         }
 
         const TextInputStyle = {
@@ -199,12 +198,29 @@ export default CommentsDrawer = ({ reelay }) => {
             borderRadius: 10,
             borderWidth: 1,
             color: 'white',
-            fontSize: 20,
+            fontSize: 16,
             
             padding: 16, 
             paddingTop: 16,
             fontFamily: 'System',
         }
+
+        const [commentText, setCommentText] = useState('');
+        const [maxDrawerHeight, setMaxDrawerHeight] = useState(height);
+        const scrollViewRef = useRef();
+
+        const keyboardWillShow = async (e) => {
+            const keyboardHeight = e.endCoordinates.height;
+            const shortHeight = height - keyboardHeight;
+            setMaxDrawerHeight(shortHeight);
+        }
+    
+        const keyboardWillHide = async (e) => {
+            setMaxDrawerHeight(height);
+        }
+    
+        Keyboard.addListener('keyboardWillShow', keyboardWillShow);
+        Keyboard.addListener('keyboardWillHide', keyboardWillHide);
 
         const onCommentPost = async () => {
             addComment(reelay, commentText, user);
@@ -235,8 +251,8 @@ export default CommentsDrawer = ({ reelay }) => {
         return (
             <View>
                 <ScrollView ref={scrollViewRef} style={{ 
-                        maxHeight: height / 3,
-                    }}>
+                    maxHeight: maxDrawerHeight / 3 
+                }}>
                     <Comments />
                 </ScrollView>
                 <CommentBoxLip />
@@ -258,7 +274,7 @@ export default CommentsDrawer = ({ reelay }) => {
                         disabled={!commentText.length}
                         onPress={onCommentPost}
                         title='Post'
-                        titleStyle={{ color: 'black'}} 
+                        titleStyle={{ color: 'white', fontSize: 18 }} 
                         type='solid' 
                     />
                 </CommentButtonContainer>
@@ -270,11 +286,11 @@ export default CommentsDrawer = ({ reelay }) => {
         <ModalContainer>
             <Modal animationType='slide' transparent={true} visible={commentsVisible} >
                 <Backdrop onPress={closeDrawer} />
-                <KeyboardAvoidingView behavior='padding' style={{flex: 1}} >
+                <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
                     <DrawerContainer>
                         <Header />
                         <CommentBox />
-                        <CloseButton />
+                        {/* <CloseButton /> */}
                     </DrawerContainer>
                 </KeyboardAvoidingView>
             </Modal>
