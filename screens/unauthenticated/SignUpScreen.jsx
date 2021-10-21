@@ -30,14 +30,13 @@ export default SignUpScreen = ({ navigation, route }) => {
     ` 
     const AuthInputContainerStyle = {
         alignSelf: 'center',
-        marginBottom: 16,
+        marginBottom: 10,
         width: '80%',
-        paddingLeft: 32,
     }
 
     const CTAButton = styled(Button)`
         align-self: center;
-        margin-top: 10px;
+        margin-bottom: 40px;
         width: 75%;
     `
     const ErrorMessageStyle = {
@@ -53,15 +52,6 @@ export default SignUpScreen = ({ navigation, route }) => {
     const InputContainer = styled(View)`
         margin-bottom: 60px;
     `
-    const IconPressable = styled(Pressable)`
-        align-self: flex-start;
-        justify-content: center;
-        margin: 10px;
-    `
-    const PasswordInputRow = styled(View)`
-        flex-direction: row;
-        justify-content: center;
-    `
     const ReelayPicture = styled(Image)`
         align-self: center;
         justify-content: center;
@@ -75,7 +65,6 @@ export default SignUpScreen = ({ navigation, route }) => {
         height: 100%;
         width: 100%;
     `
-
 
     const PasswordInput = () => {
 
@@ -91,9 +80,13 @@ export default SignUpScreen = ({ navigation, route }) => {
         const showPasswordError = passwordsMatch() && !passwordLongEnough() && password.length > 0;
         const showConfirmPasswordError = !passwordsMatch() && confirmPassword.length >= password.length;
         const createAccountDisabled = !(passwordsMatch() && passwordLongEnough());
+
+        const hideShowPassword = async () => {
+            setHidePassword(!hidePassword);
+            setHideConfirmPassword(!hideConfirmPassword);
+        }
     
         const createAccount = async () => {
-
             console.log('Attempting account creation');
             try {
                 const signUpResult = await Auth.signUp({
@@ -116,42 +109,35 @@ export default SignUpScreen = ({ navigation, route }) => {
             }
         }
 
-        const hideShowPassword = async () => setHidePassword(!hidePassword);
-        const hideShowConfirmPassword = async () => setHideConfirmPassword(!hideConfirmPassword)
-
-        const hideShowPasswordIconType = hidePassword ? 'eye-outline' : 'eye-off';
-        const hideShowConfirmPasswordIconType = hideConfirmPassword ? 'eye-outline' : 'eye-off';
-
         return (
             <InputContainer>
-                <PasswordInputRow>
-                    <AuthInput 
-                        containerStyle={AuthInputContainerStyle}
-                        errorMessage={showPasswordError && "Passwords must be at least 8 characters."}
-                        errorProps={ErrorMessageStyle}
-                        placeholder={'Enter password'} 
-                        onChangeText={setPassword}
-                        secureTextEntry={hidePassword}
-                        value={password}
-                    />
-                    <IconPressable onPress={hideShowPassword}>
-                        <Icon type='ionicon' name={hideShowPasswordIconType} color={'white'} size={24} />
-                    </IconPressable>
-                </PasswordInputRow>
-                <PasswordInputRow>
-                    <AuthInput 
-                        containerStyle={AuthInputContainerStyle}
-                        errorMessage={showConfirmPasswordError && "Passwords don't match!" }
-                        errorProps={ErrorMessageStyle}
-                        placeholder={'Re-enter password'} 
-                        onChangeText={setConfirmPassword}
-                        secureTextEntry={hideConfirmPassword}
-                        value={confirmPassword}
-                    />
-                    <IconPressable onPress={hideShowConfirmPassword}>
-                        <Icon type='ionicon' name={hideShowConfirmPasswordIconType} color={'white'} size={24} />
-                    </IconPressable>
-                </PasswordInputRow>
+                <AuthInput 
+                    containerStyle={AuthInputContainerStyle}
+                    errorMessage={showPasswordError && 
+                        "Passwords must be at least 8 characters."
+                    }
+                    errorProps={ErrorMessageStyle}
+                    placeholder={'Enter password'} 
+                    onChangeText={setPassword}
+                    secureTextEntry={hidePassword}
+                    value={password}
+                />
+                <AuthInput 
+                    containerStyle={AuthInputContainerStyle}
+                    errorMessage={showConfirmPasswordError && 
+                        "Passwords don't match!" 
+                    }
+                    errorProps={ErrorMessageStyle}
+
+                    placeholder={'Re-enter password'} 
+                    onChangeText={setConfirmPassword}
+                    secureTextEntry={hideConfirmPassword}
+                    value={confirmPassword}
+                />
+                <CTAButton title='Show Password' type='clear' 
+                    onPress={hideShowPassword}
+                    titleStyle={{ color: ReelayColors.reelayRed }}
+                />
                 <CTAButton title='Create Account' type='solid' 
                     disabled={createAccountDisabled}
                     onPress={createAccount} 
@@ -159,10 +145,6 @@ export default SignUpScreen = ({ navigation, route }) => {
                         backgroundColor: ReelayColors.reelayRed,
                         borderRadius: 36,
                     }} 
-                />
-                <CTAButton title='Login' type='clear' 
-                    onPress={() => navigation.push('SignInScreen')}
-                    titleStyle={{ color: ReelayColors.reelayRed }}
                 />
             </InputContainer>
         );
