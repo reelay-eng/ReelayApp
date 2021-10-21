@@ -126,32 +126,32 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
 
     const migrateReelays = async () => {
 
-        // const allReelays = await DataStore.query(Reelay);
-        // console.log(allReelays[0]);
+        const allReelays = await DataStore.query(Reelay);
+        console.log(allReelays[0]);
         
-        // for (let ii = 0; ii < allReelays.length; ii += 1) {
-        //     const reelayObj = allReelays[ii];
-        //     const result = await postReelayToDB(reelayObj);
-        //     console.log(`Reelay ${ii} posted: `, reelayObj.owner, reelayObj.tmdbTitleID);
-        //     console.log(result);
-        // }
+        for (let ii = 0; ii < allReelays.length; ii += 1) {
+            const reelayObj = allReelays[ii];
+            const result = await postReelayToDB(reelayObj);
+            console.log(`Reelay ${ii} posted: `, reelayObj.owner, reelayObj.tmdbTitleID);
+            console.log(result);
+        }
 
-        // const allComments = await DataStore.query(Comment);
-        // for (let ii = 0; ii < allComments.length; ii += 1) {
-        //     const commentObj = allComments[ii];
-        //     console.log(commentObj);
-        //     const result = await postCommentToDB(commentObj);
-        //     console.log(`Comment ${ii} posted: `, commentObj.owner);
-        //     console.log(result);
-        // }
+        const allComments = await DataStore.query(Comment);
+        for (let ii = 0; ii < allComments.length; ii += 1) {
+            const commentObj = allComments[ii];
+            console.log(commentObj);
+            const result = await postCommentToDB(commentObj);
+            console.log(`Comment ${ii} posted: `, commentObj.owner);
+            console.log(result);
+        }
 
-        // const allLikes = await DataStore.query(Like);
-        // for (let ii = 0; ii < allLikes.length; ii += 1) {
-        //     const likeObj = allLikes[ii];
-        //     const result = await postLikeToDB(likeObj);
-        //     console.log(`Like ${ii} posted: `, likeObj.owner);
-        //     console.log(result);
-        // }
+        const allLikes = await DataStore.query(Like);
+        for (let ii = 0; ii < allLikes.length; ii += 1) {
+            const likeObj = allLikes[ii];
+            const result = await postLikeToDB(likeObj);
+            console.log(`Like ${ii} posted: `, likeObj.owner);
+            console.log(result);
+        }
     }
 
     const postCommentToDB = async (commentObj) => {
@@ -252,9 +252,9 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
                         <SettingsText>{'Download this Reelay'}</SettingsText>
                     </SettingsPressable>
                 }
-                <SettingsPressable onPress={migrateReelays}>
+                {/* <SettingsPressable onPress={migrateReelays}>
                     <SettingsText>{'Migrate Reelays'}</SettingsText>
-                </SettingsPressable>
+                </SettingsPressable> */}
                 <SettingsPressable onPress={signOut}>
                     <SettingsText>{'Sign out'}</SettingsText>
                 </SettingsPressable>

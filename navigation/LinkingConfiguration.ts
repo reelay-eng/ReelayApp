@@ -7,34 +7,35 @@
 import * as Linking from 'expo-linking';
 
 export default {
-  prefixes: [Linking.makeUrl('/')],
-  config: {
-    screens: {
-      Authenticated: {
+    prefixes: [Linking.makeUrl('/')],
+    config: {
         screens: {
-          HomeFeedScreen: 'HomeFeedScreen',
-          SelectTitleScreen: 'SelectTitleScreen',
-          ReelayCameraScreen: 'ReelayCameraScreen',
-          ReelayUploadScreen: 'ReelayUploadScreen',
-          VenueSelectScreen: 'VenueSelectScreen',
-          MyProfileScreen: 'MyProfileScreen',
-          UserProfileScreen: 'UserProfileScreen',
-          ProfileFeedScreen: 'ProfileFeedScreen',
+            Authenticated: {
+                screens: {
+                    HomeFeedScreen: 'HomeFeedScreen',
+                    SelectTitleScreen: 'SelectTitleScreen',
+                    ReelayCameraScreen: 'ReelayCameraScreen',
+                    ReelayUploadScreen: 'ReelayUploadScreen',
+                    VenueSelectScreen: 'VenueSelectScreen',
+                    MyProfileScreen: 'MyProfileScreen',
+                    UserProfileScreen: 'UserProfileScreen',
+                    ProfileFeedScreen: 'ProfileFeedScreen',
+                },
+            },
+            Unauthenticated: {
+                screens: {
+                    ConfirmEmailScreen: 'ConfirmEmailScreen',
+                    ForgotPasswordAffirmScreen: 'ForgotPasswordAffirmScreen',
+                    ForgotPasswordScreen: 'ForgotPasswordScreen',
+                    ForgotPasswordSubmitScreen: 'ForgotPasswordSubmitScreen',
+                    SignInScreen: 'SignInScreen',
+                    SignUpEmailScreen: 'SignUpEmailScreen',
+                    SignUpScreen: 'SignUpScreen',
+                    SignUpUsernameScreen: 'SignUpUsernameScreen',
+                    SplashScreen: 'SplashScreen',
+                },
+            },
+            NotFound: '*',
         },
-      },
-      Unauthenticated: {
-        screens: {
-          SplashScreen: 'SplashScreen',
-          SignUpEmailScreen: 'SignUpEmailScreen',
-          SignUpScreen: 'SignUpScreen',
-          SignInScreen: 'SignInScreen',
-          ConfirmEmailScreen: 'ConfirmEmailScreen',
-          ForgotPasswordScreen: 'ForgotPasswordScreen',
-          ForgotPasswordSubmitScreen: 'ForgotPasswordSubmitScreen',
-          ForgotPasswordAffirmScreen: 'ForgotPasswordAffirmScreen',
-        },
-      },
-      NotFound: '*',
     },
-  },
 };

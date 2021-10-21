@@ -8,7 +8,7 @@ import { FeedContext } from '../../context/FeedContext';
 
 import * as Amplitude from 'expo-analytics-amplitude';
 
-export default memo(function FeedVideoPlayer({ 
+export default function FeedVideoPlayer({ 
 	// paused,
 	playing, 
 	playingButPaused,
@@ -104,4 +104,4 @@ export default memo(function FeedVideoPlayer({
 			volume={1.0}
 		/>
 	);
-});
+};

@@ -38,6 +38,7 @@ export type AuthenticationStackParamList = {
     SplashScreen: undefined;
     SignUpScreen: undefined;
     SignUpEmailScreen: undefined;
+    SignUpUsernameScreen: undefined;
     ConfirmEmailScreen: undefined;
     SignInScreen: undefined;
     ForgotPasswordScreen: undefined;

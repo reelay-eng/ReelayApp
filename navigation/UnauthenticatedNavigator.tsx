@@ -2,13 +2,14 @@ import * as React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { AuthenticationStackParamList } from '../types';
 
-import SignUpEmailScreen from '../screens/unauthenticated/SignUpEmailScreen';
-import SignUpScreen from '../screens/unauthenticated/SignUpScreen';
-import SignInScreen from '../screens/unauthenticated/SignInScreen';
+import ConfirmEmailScreen from '../screens/unauthenticated/ConfirmEmailScreen';
 import ForgotPasswordScreen from '../screens/unauthenticated/ForgotPasswordScreen';
 import ForgotPasswordSubmitScreen from '../screens/unauthenticated/ForgotPasswordSubmitScreen';
 import ForgotPasswordAffirmScreen from '../screens/unauthenticated/ForgotPasswordAffirmScreen';
-import ConfirmEmailScreen from '../screens/unauthenticated/ConfirmEmailScreen';
+import SignInScreen from '../screens/unauthenticated/SignInScreen';
+import SignUpScreen from '../screens/unauthenticated/SignUpScreen';
+import SignUpEmailScreen from '../screens/unauthenticated/SignUpEmailScreen';
+import SignUpUsernameScreen from '../screens/unauthenticated/SignUpUsernameScreen';
 
 const AuthenticationStack = createStackNavigator<AuthenticationStackParamList>();
 
@@ -21,6 +22,13 @@ export default function UnauthenticatedNavigator() {
       <AuthenticationStack.Screen
         name="SignUpEmailScreen"
         component={SignUpEmailScreen}
+        options={{
+            headerShown: false,
+        }}
+      />
+      <AuthenticationStack.Screen
+        name="SignUpUsernameScreen"
+        component={SignUpUsernameScreen}
         options={{
             headerShown: false,
         }}
