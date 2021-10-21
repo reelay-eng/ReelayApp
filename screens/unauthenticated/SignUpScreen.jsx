@@ -17,10 +17,6 @@ const SIGN_UP_ERROR_MESSAGE = "Couldn't create an account. Try a different usern
 export default SignUpScreen = ({ navigation, route }) => {
 
     const { email, username } = route.params;
-    const authContext = useContext(AuthContext);
-    // normally we should write this as:
-    // const { setUsername } = useContext(AuthContext);
-    // but that adds confusion, since input username != authcontext username
 
     const AuthInput = styled(Input)`
         color: white;
@@ -96,8 +92,7 @@ export default SignUpScreen = ({ navigation, route }) => {
                         email: email,
                     },
                 }); 
-                authContext.setUsername(username);
-                navigation.push('ConfirmEmailScreen');
+                navigation.push('ConfirmEmailScreen', { username });
                 Amplitude.logEventWithPropertiesAsync('signUp', {
                     email: username,
                     username: username,

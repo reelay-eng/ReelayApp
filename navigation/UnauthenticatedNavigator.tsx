@@ -23,6 +23,7 @@ export default function UnauthenticatedNavigator() {
         name="SignUpEmailScreen"
         component={SignUpEmailScreen}
         options={{
+            animationEnabled: false,
             headerShown: false,
         }}
       />
