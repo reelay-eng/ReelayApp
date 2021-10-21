@@ -12,12 +12,14 @@ import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
 
 const REELAY_ICON_SOURCE = require('../../assets/icons/reelay-icon.png');
-const SIGN_UP_ERROR_MESSAGE = "Couldn't create an account. Try a different username?";
 
 export default SignInScreen = ({ navigation, route }) => {
-
-    const { setUser, setUsername, setSignedIn } = useContext(AuthContext);
-
+    const AltOptionsRowContainer = styled(View)`
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    `
     const AuthInput = styled(Input)`
         color: white;
         font-family: System;
@@ -52,13 +54,43 @@ export default SignInScreen = ({ navigation, route }) => {
         width: 100%;
     `
 
+    const { setUser, setUsername, setSignedIn } = useContext(AuthContext);
+
+    const AltOptions = ({ hidePassword, setHidePassword }) => {
+        const handleForgotPassword = async () => {
+            navigation.push('ForgotPasswordScreen');
+        }
+
+        const hideShowPassword = async () => setHidePassword(!hidePassword);
+        const hideShowPasswordPrompt = hidePassword ? 'Show Password' : 'Hide Password';
+
+        return (
+            <AltOptionsRowContainer>
+                <CTAButton title='Forgot Password?' type='clear' 
+                    onPress={handleForgotPassword}
+                    titleStyle={{ 
+                        color: ReelayColors.reelayRed,
+                        fontWeight: 'bold',
+                    }}
+                />
+                <CTAButton title={hideShowPasswordPrompt} type='clear' 
+                    onPress={hideShowPassword}
+                    titleStyle={{ 
+                        color: ReelayColors.reelayRed,
+                        fontWeight: 'bold',
+                    }}
+                />
+            </AltOptionsRowContainer>
+        );
+    }
+
     const UsernameAndPassword = () => {
 
         const [inputUsername, setInputUsername] = useState('');
         const [password, setPassword] = useState('');
         const [hidePassword, setHidePassword] = useState(true);
-
-        const signInDisabled = false;
+    
+        const signInDisabled = false;    
 
         const handleBadPassword = async () => {
             showErrorToast(
@@ -84,8 +116,6 @@ export default SignInScreen = ({ navigation, route }) => {
                 username: inputUsername,
             });
         }
-
-        const hideShowPassword = async () => setHidePassword(!hidePassword);
 
         const signInUser = async () => {
             console.log('Attempting user sign in');
@@ -128,18 +158,19 @@ export default SignInScreen = ({ navigation, route }) => {
                     secureTextEntry={hidePassword}
                     value={password}
                 />
-                <CTAButton title='Show Password' type='clear' 
-                    onPress={hideShowPassword}
-                    titleStyle={{ color: ReelayColors.reelayRed }}
-                />
                 <CTAButton title='Login to Reelay' type='solid' 
                     disabled={signInDisabled}
                     onPress={signInUser} 
+                    titleStyle={{
+                        fontWeight: 'bold',
+                    }}
                     buttonStyle={{ 
                         backgroundColor: ReelayColors.reelayRed,
                         borderRadius: 36,
+                        height: 56,
                     }} 
                 />
+                <AltOptions hidePassword={hidePassword} setHidePassword={setHidePassword} />
             </InputContainer>
         );
     }

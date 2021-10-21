@@ -88,11 +88,18 @@ export default SignUpEmailScreen = ({ navigation }) => {
                     buttonStyle={{ 
                         backgroundColor: ReelayColors.reelayRed,
                         borderRadius: 36,
+                        height: 56,
                     }} 
+                    titleStyle={{
+                        fontWeight: 'bold',
+                    }}
                 />
                 <CTAButton title='Login' type='clear' 
-                    onPress={() => navigation.push('SignInScreen')}
-                    titleStyle={{ color: ReelayColors.reelayRed }}
+                    onPress={() => navigation.push('SignInScreen', { username: '' })}
+                    titleStyle={{ 
+                        color: ReelayColors.reelayRed,
+                        fontWeight: 'bold',
+                    }}
                 />
             </InputContainer>
         );
