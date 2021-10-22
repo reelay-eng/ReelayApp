@@ -22,6 +22,7 @@ import LikesDrawer from './LikesDrawer';
 import CommentsDrawer from './CommentsDrawer';
 import { showErrorToast, showMessageToast } from '../utils/toasts';
 import { VenueIcon } from '../utils/VenueIcon';
+import Poster from './Poster';
 
 // Please move these into an environment variable (preferably injected via your build step)
 const FEED_BATCH_SIZE = 5;

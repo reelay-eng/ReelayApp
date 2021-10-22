@@ -10,6 +10,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import BackButton from '../../components/utils/BackButton';
+import { VenueIcon } from '../../components/utils/VenueIcon';
 import styled from 'styled-components/native';
 import { showErrorToast } from '../../components/utils/toasts';
 
@@ -21,9 +22,14 @@ const ringSize = captureSize + 20;
 
 export default ReelayCameraScreen = ({ navigation, route }) => {
 
-    const authContext = useContext(AuthContext);
-    const uploadContext = useContext(UploadContext);
-    const titleObject = uploadContext.uploadTitleObject;
+    const { user } = useContext(AuthContext);
+    const { 
+        setUploadErrorStatus,
+        setUploadVideoSource,
+        uploading,
+        uploadTitleObject,
+        venueSelected,
+    } = useContext(UploadContext);
 
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const [hasPermission, setHasPermission] = useState(null);
@@ -51,8 +57,8 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             return;
         }
 
-        uploadContext.setUploadVideoSource(videoURI);
-        uploadContext.setUploadErrorStatus(false);
+        setUploadVideoSource(videoURI);
+        setUploadErrorStatus(false);
         console.log('video source', videoURI);    
         navigation.push('ReelayUploadScreen');    
     }
@@ -67,10 +73,10 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                     const source = data.uri;
                     pushToUploadScreen(source);
 
-                    const titleObject = uploadContext.uploadTitleObject;
+                    // const titleObject = uploadContext.uploadTitleObject;
                     Amplitude.logEventWithPropertiesAsync('videoRecorded', {
-                        username: authContext.user.username,
-                        title: titleObject.title ? titleObject.title : titleObject.name,
+                        username: user.username,
+                        title: uploadTitleObject.title ? uploadTitleObject.title : uploadTitleObject.name,
                     })
                 }
             } catch (error) {
@@ -233,7 +239,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             top: 10px;
         `
 
-        const posterURI = getPosterURL(titleObject.poster_path);
+        const posterURI = getPosterURL(uploadTitleObject.poster_path);
 
         return (
             <OverlayContainer>
@@ -243,6 +249,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 <TopRightContainer>
                     <Image source={{uri: posterURI}} 
 						style={{ height: 180, width: 120, borderRadius: 8, }} />
+                    <VenueIndicator />
                 </TopRightContainer>
                 <RecordInterface />
             </OverlayContainer>
@@ -262,6 +269,19 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         );
     }
 
+    const VenueIndicator = () => {
+        const UnderPosterContainer = styled(View)`
+            flex-direction: row;
+            justify-content: flex-end;
+            margin-top: 10px;
+        `
+        return (
+            <UnderPosterContainer>
+                <VenueIcon venue={venueSelected} size={24} border={2} />
+            </UnderPosterContainer>
+        );
+    }
+
     const CameraContainer = styled(View)`
         position: absolute;
         height: 100%;
@@ -270,8 +290,8 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
 
     return (
         <CameraContainer>
-            { !uploadContext.uploading && <ReelayCamera /> }
-            { !uploadContext.uploading && <RecordOverlay /> }
+            { !uploading && <ReelayCamera /> }
+            { !uploading && <RecordOverlay /> }
         </CameraContainer>
     );
 }

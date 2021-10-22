@@ -58,6 +58,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
 
     const authContext = useContext(AuthContext);
     const uploadContext = useContext(UploadContext);
+
     const titleObject = uploadContext.uploadTitleObject;
     const venue = uploadContext.venueSelected;
     const videoURI = uploadContext.uploadVideoSource;
@@ -262,33 +263,6 @@ export default ReelayUploadScreen = ({ navigation }) => {
         );
     }
 
-    const UploadProgressBar = () => {
-        const UploadProgressBarContainer = styled(View)`
-            align-self: center;
-            height: 10px;
-            margin: 15px;
-            justify-content: center;
-            width: 75%;
-        `
-        const chunksUploaded = uploadContext.chunksUploaded;
-        const chunksTotal = uploadContext.chunksTotal;    
-        const indeterminate = chunksUploaded == 0 && uploadContext.uploading;
-
-        // +1 prevents NaN error. hacky.
-        let progress = chunksUploaded / (chunksTotal + 1);
-        if (!chunksUploaded == 0 && chunksUploaded == chunksTotal) {
-            progress = 1;
-        }
-    
-        return (
-            <UploadProgressBarContainer>
-                { (uploadContext.uploading || uploadContext.uploadComplete) && 
-                    <Progress.Bar color={'white'} indeterminate={indeterminate} progress={progress} width={width * 0.75} />
-                }
-            </UploadProgressBarContainer>
-        );
-    }
-
     const UploadOptions = () => {
         const UploadOptionsContainer = styled(View)`
             margin: 5px;
@@ -343,6 +317,33 @@ export default ReelayUploadScreen = ({ navigation }) => {
         );
     }
 
+    const UploadProgressBar = () => {
+        const UploadProgressBarContainer = styled(View)`
+            align-self: center;
+            height: 10px;
+            margin: 15px;
+            justify-content: center;
+            width: 75%;
+        `
+        const chunksUploaded = uploadContext.chunksUploaded;
+        const chunksTotal = uploadContext.chunksTotal;    
+        const indeterminate = chunksUploaded == 0 && uploadContext.uploading;
+
+        // +1 prevents NaN error. hacky.
+        let progress = chunksUploaded / (chunksTotal + 1);
+        if (!chunksUploaded == 0 && chunksUploaded == chunksTotal) {
+            progress = 1;
+        }
+    
+        return (
+            <UploadProgressBarContainer>
+                { (uploadContext.uploading || uploadContext.uploadComplete) && 
+                    <Progress.Bar color={'white'} indeterminate={indeterminate} progress={progress} width={width * 0.75} />
+                }
+            </UploadProgressBarContainer>
+        );
+    }
+
     const DoneButton = () => {
 
         const DoneButtonMargin = styled(View)`
@@ -351,13 +352,6 @@ export default ReelayUploadScreen = ({ navigation }) => {
             margin: 10px;
             width: 60%;
         `
-        const DoneText = styled(Text)`
-            align-self: center;
-            font-size: 18px;
-            font-family: System;
-            color: white;
-        `
-
         const exitCreate = ({ navigation }) => {
             uploadContext.setUploading(false);
             uploadContext.setUploadComplete(false);
@@ -401,7 +395,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             <UploadProgressBar />
             <UploadVideoContainer onPress={playPause}>
                 <PreviewVideoPlayer videoURI={videoURI} playing={playing} />
-                <ReelayPreviewOverlay titleObject={titleObject} />
+                <ReelayPreviewOverlay titleObject={titleObject} venue={venue} />
             </UploadVideoContainer>
             { !uploadContext.uploadComplete && !uploadContext.uploading && <UploadOptions /> }
             { uploadContext.uploadComplete && <DoneButton /> }
