@@ -17,8 +17,15 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     const [creatorStacks, setCreatorStacks] = useState([]);
     
-    let { user } = route.params ?? useContext(AuthContext);    
-    const userSub = user.attributes.sub ?? '';
+    let { user } = useContext(AuthContext);    
+
+    if (!user) {
+        return (
+            <ProfileTopBar atProfileBase={true} creator={{ username: 'User not found' }} 
+                navigation={navigation} />
+        );
+    }
+    const userSub = user.attributes?.sub;
 
     const ProfileScreenContainer = styled(SafeAreaView)`
         background-color: black;

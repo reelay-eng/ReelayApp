@@ -128,15 +128,22 @@ function App() {
             const registeredUser = await registerUser(user);
             if (registeredUser.error) {
                 showErrorToast(
-                    "We couldn't your device for push notifications. Please contact the Reelay team"
+                    "We couldn't register your device for push notifications. Please contact the Reelay team."
                 );
                 Amplitude.logEventWithPropertiesAsync('registerUserError', {
                     username: user.username
                 });
                 return;
             }
-            const pushToken = await registerForPushNotificationsAsync();
-            await registerPushTokenForUser(registeredUser, pushToken);
+
+            const devicePushToken = await registerForPushNotificationsAsync();
+            console.log(registeredUser);
+            if (!registeredUser.pushToken || registeredUser.pushToken !== devicePushToken) {
+                console.log('Registering new push token');
+                await registerPushTokenForUser(registeredUser, devicePushToken);
+            } else {
+                console.log('Push token already registered');
+            }
 
             notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
                 console.log('Notification received');
@@ -157,7 +164,7 @@ function App() {
                 });
 
             }); 
-            setExpoPushToken(pushToken);
+            setExpoPushToken(devicePushToken);
 
             return () => {
                 Notifications.removeNotificationSubscription(notificationListener.current);

@@ -34,10 +34,8 @@ export const getStacksByCreator = async (creatorSub) => {
     preparedReelays.forEach(reelay => {
         const index = indexInStacks(stacksByCreator, reelay);
         if (index >= 0) {
-            console.log('adding to existing stack');
             stacksByCreator[index].push(reelay);
         } else {
-            console.log('creating new stack');
             stacksByCreator.push([reelay]);
         }
     });

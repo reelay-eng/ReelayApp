@@ -48,15 +48,11 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         setSearchBarOpen(false);
     }
 
-    return (
-        <TopBarContainer>
-            { !atProfileBase &&
-                <BackButtonContainer>
-                    <Icon type='ionicon' size={30} color={'white'} name='chevron-back-outline' 
-                        onPress={() => navigation.pop()} />
-                </BackButtonContainer>        
-            }
-            <HeadingText>{creatorName}</HeadingText>
+    // we're leaving the search button out of the UI
+    // until we actually implement it
+
+    const SearchButton = () => {
+        return (
             <RightCornerContainer>
                 <SearchIconContainer>
                     <Icon type='ionicon' size={30} color={'white'} name='search' onPress={() => {
@@ -68,6 +64,18 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
                     }} />
                 </SearchIconContainer>
             </RightCornerContainer>
+        );
+    }
+
+    return (
+        <TopBarContainer>
+            { !atProfileBase &&
+                <BackButtonContainer>
+                    <Icon type='ionicon' size={30} color={'white'} name='chevron-back-outline' 
+                        onPress={() => navigation.pop()} />
+                </BackButtonContainer>        
+            }
+            <HeadingText>{creatorName}</HeadingText>
         </TopBarContainer>
     );
 }
