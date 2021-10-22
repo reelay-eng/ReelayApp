@@ -7,6 +7,7 @@ import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
 import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
+import Tombstone from '../../components/profile/Tombstone';
 
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
@@ -75,7 +76,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
             <ProfileScrollView>
                 <ProfileHeader />
                 <ProfileStatsBar reelayCount={reelayCount} />
-                <EditProfileButton />
+                {/* <EditProfileButton /> */}
+                <Tombstone />
                 <ProfilePosterGrid creatorStacks={creatorStacks} navigation={navigation} />
             </ProfileScrollView>
         </ProfileScreenContainer>
