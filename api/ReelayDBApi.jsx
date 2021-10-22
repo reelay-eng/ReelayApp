@@ -140,8 +140,10 @@ export const registerUser = async (user) => {
         // user is not registered
         console.log('Registering user (method 2)...');
         // todo: sanity check emails and usernames
-        const routePost = `${REELAY_API_BASE_URL}/users?email=${encEmail}&username=${encUsername}&sub=${sub}`;
+        const routePost = `${REELAY_API_BASE_URL}/users/sub?email=${encEmail}&username=${encUsername}&sub=${sub}`;
         const resultPost = await fetchResults(routePost, { method: 'POST' });
+
+        console.log(routePost);
         console.log('User registry entry created: ', resultPost);
         return resultPost;
     } else {

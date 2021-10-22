@@ -17,7 +17,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     const [creatorStacks, setCreatorStacks] = useState([]);
     
-    let { user } = route.params ?? useContext(AuthContext);
+    let { user } = route.params ?? useContext(AuthContext);    
     const userSub = user.attributes.sub ?? '';
 
     const ProfileScreenContainer = styled(SafeAreaView)`

@@ -24,6 +24,7 @@ import { UploadContext } from './context/UploadContext';
 // api imports
 import { registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
+import { showErrorToast } from './components/utils/toasts';
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash.png');
 
@@ -91,6 +92,8 @@ function App() {
     }, []);
 
     useEffect(() => {
+        console.log('IN USE EFFECT');
+        console.log(user);
         registerUserAndPushTokens();
     }, [user]);
 
@@ -123,16 +126,36 @@ function App() {
 
         try {
             const registeredUser = await registerUser(user);
+            if (registeredUser.error) {
+                showErrorToast(
+                    "We couldn't your device for push notifications. Please contact the Reelay team"
+                );
+                Amplitude.logEventWithPropertiesAsync('registerUserError', {
+                    username: user.username
+                });
+                return;
+            }
             const pushToken = await registerForPushNotificationsAsync();
             await registerPushTokenForUser(registeredUser, pushToken);
 
             notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
                 console.log('Notification received');
                 setNotification(Boolean(notification));
+                console.log(notification);
+                Amplitude.logEventWithPropertiesAsync('notificationRecieved', {
+                    username: user.username,
+                    notification: notification,
+                });
+
             });
             responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
                 console.log('Notification response received');
                 console.log(response);
+                Amplitude.logEventWithPropertiesAsync('notificationResponseRecieved', {
+                    username: user.username,
+                    response: response,
+                });
+
             }); 
             setExpoPushToken(pushToken);
 
