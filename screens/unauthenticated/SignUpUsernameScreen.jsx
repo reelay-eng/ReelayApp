@@ -7,8 +7,15 @@ import * as Amplitude from 'expo-analytics-amplitude';
 
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
+import { showErrorToast } from '../../components/utils/toasts';
 
 const REELAY_ICON_SOURCE = require('../../assets/icons/reelay-icon.png');
+
+// test it here: https://regex101.com/
+const VALID_USERNAME_REGEX = /^([a-zA-z0-9]+(?:[.-_+][a-zA-Z0-9]+)*)$/g; 
+// const VALID_USERNAME_REGEX = /^([a-zA-Z0-9.-_+]{3,})$/g;
+// general idea is that a username consists of one or more alphanumeric phrases
+// optionally separated by . - _ or +
 
 export default SignUpUsernameScreen = ({ navigation, route }) => {
 
@@ -43,31 +50,31 @@ export default SignUpUsernameScreen = ({ navigation, route }) => {
     ` 
     const AuthInputContainerStyle = {
         alignSelf: 'center',
-        margin: 16,
+        margin: 10,
         paddingLeft: 32,
         paddingRight: 32,
     }
     const AuthInputRightIconStyle = {
         color: 'white',
-        name: 'mail-outline',
+        name: 'person',
         type: 'ionicon', 
+        size: 24,
     }
 
     const EmailInput = () => {
         
-        const ErrorMessageStyle = {
-            fontFamily: 'System',
-            fontSize: 16,
-            fontWeight: 400,
-            color: ReelayColors.reelayBlue,
-            paddingLeft: 32,
-            paddingRight: 32,
-            paddingBottom: 10,
-        }
-
         const [inputUsername, setInputUsername] = useState('');
 
+        const validUsernameLength = inputUsername.length > 2 && inputUsername.length < 26;
+        const validUsernameRegex = VALID_USERNAME_REGEX.test(inputUsername);
+        const validUsername = validUsernameLength && validUsernameRegex;
+
         const continueToCreateAccount = async () => {
+            if (!validUsername) {
+                handleInvalidUsername();
+                return;
+            }
+
             navigation.push('SignUpScreen', { 
                 email: email,
                 username: inputUsername,
@@ -78,38 +85,42 @@ export default SignUpUsernameScreen = ({ navigation, route }) => {
             })
         }
 
-        const validateUsername = () => {
-            const validUsernameRegex = /([a-zA-z0-9])+([.-_+][a-zA-Z0-9])*/;
-            const validUsernameLength = inputUsername.length > 2 && inputUsername.length < 26;
-            return validUsernameLength && validUsernameRegex.test(inputUsername);
+        const handleInvalidUsername = () => {
+            console.log('Username invalid');
+            if (!validUsernameLength) {
+                showErrorToast('Usernames must be between 3 and 25 characters');
+            } else {
+                showErrorToast('Usernames should be alphanumeric. Separators .+_- are okay');
+            }
         }
-
-        // shouldn't show errors immediately. I want a more elegant way to do this
-        const showUsernameError = !validateUsername() && inputUsername.length > 2;
 
         return (
             <InputContainer>
                 <AuthInput
                     autoCapitalize='none'
                     containerStyle={AuthInputContainerStyle}
-                    errorMessage={showUsernameError && "Username may be 3-25 characters: letters, numbers, and symbols +._-"}
-                    errorProps={ErrorMessageStyle}
                     placeholder={'Pick a username'} 
                     onChangeText={setInputUsername}
                     rightIcon={AuthInputRightIconStyle}
                     value={inputUsername}
                 />
                 <CTAButton title='Continue' type='solid' 
-                    disabled={!validateUsername()}
                     onPress={continueToCreateAccount} 
                     buttonStyle={{ 
                         backgroundColor: ReelayColors.reelayRed,
                         borderRadius: 36,
+                        height: 56,
                     }} 
+                    titleStyle={{
+                        fontWeight: 'bold',
+                    }}
                 />
                 <CTAButton title='Login' type='clear' 
                     onPress={() => navigation.push('SignInScreen')}
-                    titleStyle={{ color: ReelayColors.reelayRed }}
+                    titleStyle={{ 
+                        color: ReelayColors.reelayRed,
+                        fontWeight: 'bold',
+                    }}
                 />
             </InputContainer>
         );

@@ -14,7 +14,6 @@ const REELAY_ICON_SOURCE = require('../../assets/icons/reelay-icon.png');
 export default ConfirmEmailScreen = ({ navigation, route }) => {
 
     const { username } = route.params;
-    console.log(username);
 
     const InputContainer = styled(View)`
         margin-bottom: 60px;
@@ -102,17 +101,22 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
                     rightIcon={AuthInputRightIconStyle}
                     value={confirmationCode}
                 />
-                <CTAButton title='Confirm' type='solid' 
+                <CTAButton title='Confirm your email' type='solid' 
                     onPress={confirmEmail} 
                     buttonStyle={{ 
                         backgroundColor: ReelayColors.reelayRed,
                         borderRadius: 36,
+                        height: 56,
                     }} 
+                    titleStyle={{ fontWeight: 'bold' }}
                 />
                 <CTAButton title='Resend confirmation code' type='clear' 
                     onPress={resendConfirmationCode} 
                     buttonStyle={{ borderRadius: 36 }} 
-                    titleStyle={{ color: ReelayColors.reelayRed }}
+                    titleStyle={{ 
+                        color: ReelayColors.reelayRed,
+                        fontWeight: 'bold',
+                    }}
                 />
             </InputContainer>
         );

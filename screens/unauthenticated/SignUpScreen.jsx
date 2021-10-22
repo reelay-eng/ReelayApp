@@ -32,7 +32,8 @@ export default SignUpScreen = ({ navigation, route }) => {
 
     const CTAButton = styled(Button)`
         align-self: center;
-        margin-bottom: 40px;
+        margin-top: 20px;
+        margin-bottom: 20px;
         width: 75%;
     `
     const ErrorMessageStyle = {
@@ -52,7 +53,6 @@ export default SignUpScreen = ({ navigation, route }) => {
         align-self: center;
         justify-content: center;
         margin-top: 20px;
-        margin-bottom: 20px;
         height: 192px;
         width: 192px;
     ` 
@@ -69,13 +69,23 @@ export default SignUpScreen = ({ navigation, route }) => {
 
         const [hidePassword, setHidePassword] = useState(true);
         const [hideConfirmPassword, setHideConfirmPassword] = useState(true);
+
+        const hideShowPasswordPrompt = hidePassword ? 'Show Password' : 'Hide Password';
     
-        const passwordsMatch = () => (password == confirmPassword);
-        const passwordLongEnough = () => (password.length >= 8);
+        const passwordsMatch = (password === confirmPassword);
+        const passwordLongEnough = (password.length >= 8);
+        const createAccountDisabled = !(passwordsMatch && passwordLongEnough);
     
-        const showPasswordError = passwordsMatch() && !passwordLongEnough() && password.length > 0;
-        const showConfirmPasswordError = !passwordsMatch() && confirmPassword.length >= password.length;
-        const createAccountDisabled = !(passwordsMatch() && passwordLongEnough());
+        const showPasswordError = (passwordsMatch && !passwordLongEnough && password.length > 0);
+        const showConfirmPasswordError = !passwordsMatch && confirmPassword.length >= password.length;
+
+        const handleFailedAccountCreation = async () => {
+            if (!passwordsMatch) {
+                showErrorToast('Passwords do not match');
+            } else if (!passwordLongEnough) {
+                showErrorToast('Password not long enough');
+            }
+        }
 
         const hideShowPassword = async () => {
             setHidePassword(!hidePassword);
@@ -83,6 +93,12 @@ export default SignUpScreen = ({ navigation, route }) => {
         }
     
         const createAccount = async () => {
+            if (createAccountDisabled) {
+                console.log('create account disabled');
+                handleFailedAccountCreation();
+                return;
+            }
+
             console.log('Attempting account creation');
             try {
                 const signUpResult = await Auth.signUp({
@@ -106,6 +122,13 @@ export default SignUpScreen = ({ navigation, route }) => {
 
         return (
             <InputContainer>
+                <CTAButton title={hideShowPasswordPrompt} type='clear' 
+                    onPress={hideShowPassword}
+                    titleStyle={{ 
+                        color: ReelayColors.reelayRed,
+                        fontWeight: 'bold',
+                    }}
+                />
                 <AuthInput 
                     containerStyle={AuthInputContainerStyle}
                     errorMessage={showPasswordError && 
@@ -129,17 +152,15 @@ export default SignUpScreen = ({ navigation, route }) => {
                     secureTextEntry={hideConfirmPassword}
                     value={confirmPassword}
                 />
-                <CTAButton title='Show Password' type='clear' 
-                    onPress={hideShowPassword}
-                    titleStyle={{ color: ReelayColors.reelayRed }}
-                />
                 <CTAButton title='Create Account' type='solid' 
-                    disabled={createAccountDisabled}
+                    // disabled={createAccountDisabled}
                     onPress={createAccount} 
                     buttonStyle={{ 
                         backgroundColor: ReelayColors.reelayRed,
                         borderRadius: 36,
+                        height: 56,
                     }} 
+                    titleStyle={{ fontWeight: 'bold' }}
                 />
             </InputContainer>
         );
