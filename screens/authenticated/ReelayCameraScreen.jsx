@@ -248,7 +248,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 </TopLeftContainer>
                 <TopRightContainer>
                     <Image source={{uri: posterURI}} 
-						style={{ height: 180, width: 120, borderRadius: 8, }} />
+						style={{ height: 150, width: 100, borderRadius: 8, }} />
                     <VenueIndicator />
                 </TopRightContainer>
                 <RecordInterface />

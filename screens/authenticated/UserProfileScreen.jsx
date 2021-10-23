@@ -29,6 +29,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const loadCreatorStacks = async () => {
         const nextCreatorStacks = await getStacksByCreator(creatorSub);
         nextCreatorStacks.forEach(stack => stack.sort(sortReelays));
+
         nextCreatorStacks.sort(sortStacks);
         setCreatorStacks(nextCreatorStacks);
     }
