@@ -16,6 +16,10 @@ import {
     fetchReelaysForStack,
 } from '../../api/ReelayApi';
 
+import {
+    getMostRecentReelays
+} from '../../api/ReelayDBApi';
+
 import FeedOverlay from '../overlay/FeedOverlay';
 import Hero from './Hero';
 import LikesDrawer from './LikesDrawer';
@@ -168,6 +172,7 @@ export default ReelayFeed = ({ navigation,
                 reelayList: stackList.map(stack => stack[0]),
                 refresh: false,
             });
+            // filteredReelays2 = await getMostRecentReelays()
             page += FEED_BATCH_SIZE;
             queryCount += 1;
         }

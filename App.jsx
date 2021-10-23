@@ -35,6 +35,9 @@ Amplify.configure({
     },
 });
 
+console.log('AWS config: ');
+console.log(AWSConfig);
+
 Auth.configure({ mandatorySignIn: false });
 
 Notifications.setNotificationHandler({
@@ -92,8 +95,6 @@ function App() {
     }, []);
 
     useEffect(() => {
-        console.log('IN USE EFFECT');
-        console.log(user);
         registerUserAndPushTokens();
     }, [user]);
 
@@ -137,7 +138,6 @@ function App() {
             }
 
             const devicePushToken = await registerForPushNotificationsAsync();
-            console.log(registeredUser);
             if (!registeredUser.pushToken || registeredUser.pushToken !== devicePushToken) {
                 console.log('Registering new push token');
                 await registerPushTokenForUser(registeredUser, devicePushToken);

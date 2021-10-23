@@ -44,6 +44,19 @@ export const getStacksByCreator = async (creatorSub) => {
     return stacksByCreator;
 }
 
+export const getMostRecentReelays = async (page = 0) => {
+    console.log('Getting most recent reelays...');
+    const routeGet = REELAY_API_BASE_URL + `/reelays/global?page=${page}`;
+    const resultGet = await fetchResults(routeGet, { method: 'GET' });
+    console.log('Most recent reelays result: ', resultGet);
+
+    if (!resultGet) {
+        console.log('Found no reelays in feed');
+        return null;
+    }
+    return resultGet;
+}
+
 export const getRegisteredUser = async (userSub) => {
     console.log('Fetching registered user...');
     const routeGet = REELAY_API_BASE_URL + '/users/' + userSub;

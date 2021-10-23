@@ -124,30 +124,39 @@ export const fetchFeedNextPage = async ({ batchSize, page, reelayList, refresh }
     const queryConstraints = r => {
         return r.visibility('eq', FEED_VISIBILITY);
     }
+    console.log('FEED VISIBILITY: ', FEED_VISIBILITY);
+    console.log('variables: ', batchSize, page, reelayList.length, refresh), 
     console.log('query initiated, page: ', page / batchSize);
-    const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
-        sort: r => r.uploadedAt(SortDirection.DESCENDING),
-        page: page / batchSize,
-        limit: batchSize,
-    });
-    console.log('query finished');
 
-    if (!fetchedReelays || !fetchedReelays.length) {
-        console.log('No query response');
+    try {
+        const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
+            sort: r => r.uploadedAt(SortDirection.DESCENDING),
+            page: page / batchSize,
+            limit: batchSize,
+        });
+        if (!fetchedReelays || !fetchedReelays.length) {
+            console.log(fetchedReelays);
+            console.log('No query response');
+            return [];
+        }
+    
+        const preparedReelays = await Promise.all(fetchedReelays.map(prepareReelay));
+        let filteredReelays = preparedReelays.filter(notDuplicateInBatch);
+        if (!refresh) {
+            filteredReelays = filteredReelays.filter(reelay => notDuplicateInFeed(reelay, reelayList));
+        }
+        
+        console.log('prepared reelays');
+        preparedReelays.forEach(reelay => console.log(reelay.title.display, reelay.creator.username, reelay.id));
+        console.log('filtered reelays');
+        filteredReelays.forEach(reelay => console.log(reelay.title.display, reelay.creator.username));
+        console.log('query finished');
+        return filteredReelays;    
+    } catch (error) {
+        console.log('ERROR IN FETCH FEED NEXT PAGE');
         return [];
     }
 
-    const preparedReelays = await Promise.all(fetchedReelays.map(prepareReelay));
-    let filteredReelays = preparedReelays.filter(notDuplicateInBatch);
-    if (!refresh) {
-        filteredReelays = filteredReelays.filter(reelay => notDuplicateInFeed(reelay, reelayList));
-    }
-    
-    console.log('prepared reelays');
-    preparedReelays.forEach(reelay => console.log(reelay.title.display, reelay.creator.username, reelay.id));
-    console.log('filtered reelays');
-    filteredReelays.forEach(reelay => console.log(reelay.title.display, reelay.creator.username));
-    return filteredReelays;
 }
 
 export const fetchReelaysForStack = async ({ stack, page, batchSize }) => {
