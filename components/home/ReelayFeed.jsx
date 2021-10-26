@@ -292,7 +292,7 @@ export default ReelayFeed = ({ navigation,
         console.log('REFRESHING FEED');        
         const fetchedStacks = await getMostRecentStacks();        
         fetchedStacks.forEach(stack => {
-            const stackTitleID = stack.title.id;
+            const stackTitleID = stack[0].title.id;
             stackPositions[stackTitleID] = 0
         });
         nextPage.current = 1;
