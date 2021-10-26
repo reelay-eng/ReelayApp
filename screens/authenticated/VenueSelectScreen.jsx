@@ -74,7 +74,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
             margin-top: 10px;
             width: 100%;
         `
-        const OtherOptionsLine = styled(View)`
+        const OtherOptionsLine = styled(Pressable)`
             align-self: center;
             align-items: center;
             border-radius: ${ICON_SIZE * .75}px;
@@ -107,10 +107,10 @@ export default VenueSelectScreen = ({ navigation, route }) => {
                 { otherVenues.map(venueObj=> {
                     const venue = venueObj.venue;
                     return (
-                        <OtherOptionsLine key={venue}>
+                        <OtherOptionsLine key={venue} onPress={() => onPress(venue)}>
                             <IconContainer>
-                                <VenueIcon border={BORDER_SIZE} onPress={() => onPress(venue)} 
-                                            size={ICON_SIZE} venue={venue}  />
+                                <VenueIcon border={BORDER_SIZE} 
+                                            size={ICON_SIZE} venue={venue} onPress={() => onPress(venue)}/>
                             </IconContainer>
                             <OtherOptionsTextButton onPress={() => onPress(venue)}>
                                 <OtherOptionText>{venueObj.text}</OtherOptionText>
