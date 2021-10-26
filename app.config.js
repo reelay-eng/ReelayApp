@@ -16,6 +16,7 @@ export default ({ config }) => {
         tmdbApiBaseUrl: 'https://api.themoviedb.org/3',
         tmdbImageApiBaseUrl: 'http://image.tmdb.org/t/p/w500/',
 
+        // change 'dev' to any other string of your choice so you too can test uploads embarassingly
         feedVisibility: process.env.NODE_ENV == 'production' ? 'global' : 'dev',
         uploadVisibility: process.env.NODE_ENV == 'production' ? 'global' : 'dev',
     };

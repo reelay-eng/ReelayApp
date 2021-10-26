@@ -57,10 +57,6 @@ export default Hero = ({
         }
     }
 
-    if (isPlaying) {
-        console.log('hero is rendering');
-    }
-
     return (
         <View key={index}>
             <FeedVideoPlayer playing={isPlaying} reelay={reelay} 

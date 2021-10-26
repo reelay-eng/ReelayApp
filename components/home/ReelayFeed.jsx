@@ -10,15 +10,8 @@ import styled from 'styled-components/native';
 import PagerView from 'react-native-pager-view';
 import { ActivityIndicator } from 'react-native-paper';
 
-import { 
-    deleteReelay, 
-    fetchFeedNextPage, 
-    fetchReelaysForStack,
-} from '../../api/ReelayApi';
-
-import {
-    getMostRecentReelays
-} from '../../api/ReelayDBApi';
+import { deleteReelay } from '../../api/ReelayApi';
+import { getMostRecentStacks } from '../../api/ReelayDBApi';
 
 import FeedOverlay from '../overlay/FeedOverlay';
 import Hero from './Hero';
@@ -28,9 +21,8 @@ import { showErrorToast, showMessageToast } from '../utils/toasts';
 import { VenueIcon } from '../utils/VenueIcon';
 import Poster from './Poster';
 
-// Please move these into an environment variable (preferably injected via your build step)
-const FEED_BATCH_SIZE = 5;
-const MAX_QUERIES_PER_FEED_EXTEND = 10;
+// const FEED_BATCH_SIZE = 5;
+// const MAX_QUERIES_PER_FEED_EXTEND = 10;
 const PLAY_PAUSE_ICON_TIMEOUT = 800;
 
 const { height, width } = Dimensions.get('window');
@@ -125,7 +117,6 @@ export default ReelayFeed = ({ navigation,
     const isFixedStack = fixedStackList.length != 0;
 
     console.log('FEED IS RENDERING');
-    console.log('is fixed stack: ', isFixedStack);
 
     useEffect(() => {
         const stackEmpty = !stackList.length;
@@ -159,44 +150,19 @@ export default ReelayFeed = ({ navigation,
     const extendFeed = async () => {
         if (isFixedStack) return;
 
-        let page = nextPage.current;
-        let filteredReelays = [];
+        const page = nextPage.current;
+        const fetchedStacks = await getMostRecentStacks(page);
 
-        // keep querying until we can extend
-        // can be empty if fetched reelays are for duplicate titles, so we keep going
-        let queryCount = 0;
-        while (!filteredReelays.length && queryCount < MAX_QUERIES_PER_FEED_EXTEND) {
-            filteredReelays = await fetchFeedNextPage({ 
-                batchSize: FEED_BATCH_SIZE, 
-                page: page, 
-                reelayList: stackList.map(stack => stack[0]),
-                refresh: false,
-            });
-            // filteredReelays2 = await getMostRecentReelays()
-            page += FEED_BATCH_SIZE;
-            queryCount += 1;
-        }
-
-        const fetchedStacks = await fetchStacks({ filteredReelays: filteredReelays });
         const newStackList = [...stackList, ...fetchedStacks];
-        filteredReelays.forEach(reelay => stackPositions[reelay.title.id] = 0);
+        fetchedStacks.forEach(stack => {
+            const stackTitleID = stack[0].title.id;
+            stackPositions[stackTitleID] = 0
+        });
 
-        nextPage.current = page;
+        nextPage.current = page + 1;
         setStackList(newStackList);
 
-        return filteredReelays;
-    }
-
-    const fetchStacks = async ({ filteredReelays, batchSize = 10 }) => {
-        const nextStacks = await Promise.all(filteredReelays.map(async (nextReelay) => {
-            const filteredStackReelays = await fetchReelaysForStack({
-                stack: [nextReelay], 
-                page: 0, 
-                batchSize: batchSize,
-            });
-            return [nextReelay, ...filteredStackReelays];
-        }));
-        return nextStacks;
+        return fetchedStacks;
     }
 
     const getReelayInFeed = (feedPosition) => {
@@ -324,18 +290,12 @@ export default ReelayFeed = ({ navigation,
     const refreshFeed = async () => {
         if (isFixedStack) return;
         console.log('REFRESHING FEED');        
-        const filteredReelays = await fetchFeedNextPage({ 
-            batchSize: FEED_BATCH_SIZE, 
-            page: 0, 
-            reelayList: stackList.map(stack => stack[0]),
-            refresh: true 
+        const fetchedStacks = await getMostRecentStacks();        
+        fetchedStacks.forEach(stack => {
+            const stackTitleID = stack.title.id;
+            stackPositions[stackTitleID] = 0
         });
-        const fetchedStacks = await fetchStacks({ 
-            filteredReelays: filteredReelays 
-        });
-          
-        filteredReelays.forEach(reelay => stackPositions[reelay.title.id] = 0);
-        nextPage.current = FEED_BATCH_SIZE;
+        nextPage.current = 1;
         setStackList(fetchedStacks);        
         // the user is at the top of the feed
         // but the message is at the bottom of the screen

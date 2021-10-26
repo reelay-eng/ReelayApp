@@ -6,8 +6,18 @@ const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
+// const filterReelaysByTitle = (fetchedReelays) => {
+//     const sameTitleFilter = ((reelay, index) => {
+//         const titlesMatch = (otherReelay) => reelay.tmdbTitleID === otherReelay.tmdbTitleID;
+//         const firstIndex = fetchedReelays.findIndex(titlesMatch);
+//         return firstIndex === index;
+//     });
+//     return fetchedReelays.filter(sameTitleFilter);
+// }
+
 export const getReelaysByCreator = async (creatorSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/users/sub/${creatorSub}/reelays?visibility=${FEED_VISIBILITY}`;
+    console.log(routeGet);
     const fetchedReelays = await fetchResults2(routeGet, { method: 'GET' });
     if (!fetchedReelays) {
         console.log('Could not get reelays for this creator');
@@ -44,17 +54,36 @@ export const getStacksByCreator = async (creatorSub) => {
     return stacksByCreator;
 }
 
-export const getMostRecentReelays = async (page = 0) => {
+export const getMostRecentStacks = async (page = 0) => {
     console.log('Getting most recent reelays...');
-    const routeGet = REELAY_API_BASE_URL + `/reelays/global?page=${page}`;
-    const resultGet = await fetchResults(routeGet, { method: 'GET' });
-    console.log('Most recent reelays result: ', resultGet);
-
-    if (!resultGet) {
+    const routeGet = REELAY_API_BASE_URL + `/reelays?page=${page}&visibility=${FEED_VISIBILITY}`;
+    console.log(routeGet);
+    const fetchedStacks = await fetchResults(routeGet, { method: 'GET' });
+    if (!fetchedStacks) {
         console.log('Found no reelays in feed');
         return null;
     }
-    return resultGet;
+
+    // call prepareReelay on every reelay in every stack
+    const preparedStacks = await Promise.all(fetchedStacks.map(async fetchedReelaysForStack => {
+        console.log('fetched reelays for stack');
+        console.log(fetchedReelaysForStack);
+        const preparedStack = await Promise.all(fetchedReelaysForStack.map(prepareReelay));
+        return preparedStack;
+    }));
+    return preparedStacks;
+}
+
+export const getMostRecentReelaysByTitle = async (tmdbTitleID, page = 0) => {
+    const routeGet = REELAY_API_BASE_URL + `/reelays/${tmdbTitleID}?page=${page}&visibility=${FEED_VISIBILITY}`;
+    const fetchedReelays = await fetchResults(routeGet, { method: 'GET' });
+    if (!fetchedReelays) {
+        console.log('Found no reelays in feed');
+        return null;
+    }
+    const preparedReelays = await Promise.all(fetchedReelays.map(prepareReelay));
+    return preparedReelays;
+
 }
 
 export const getRegisteredUser = async (userSub) => {
@@ -127,7 +156,7 @@ export const prepareReelay = async (fetchedReelay) => {
             releaseDate: titleObject.release_date,
             releaseYear: releaseYear,
         },
-        postedDateTime: fetchedReelay.postedAt,
+        postedDateTime: fetchedReelay.postedAt ?? fetchedReelay.maxPostedAt,
     };
 }
 
