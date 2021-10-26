@@ -53,7 +53,7 @@ export const getOtherVenues = () => {
 export const VenueIcon = memo(({ border = 0, onPress, size = 48, venue }) => {
 
     const searchItems = [...iconVenues, ...otherVenues];
-    const source = searchItems.find(vi => vi.venue === venue).source;
+    const source = venue.length ? searchItems.find(vi => vi.venue === venue).source : null;
 
     const radius = (size / 2) + (border ? 4 : 0);
     
@@ -63,10 +63,17 @@ export const VenueIcon = memo(({ border = 0, onPress, size = 48, venue }) => {
         border-color: ${venue === 'other' ? 'blue' : 'white'};
     `
     return (
-        <IconPressable onPress={onPress}>
-            <Image source={source} style={{ 
-                height: size, width: size, borderRadius: size / 2
-            }} />
-        </IconPressable>
+        <>
+        {
+            source && 
+            (
+                <IconPressable onPress={onPress}>
+                <Image source={source} style={{ 
+                    height: size, width: size, borderRadius: size / 2
+                }} />
+                </IconPressable>
+            )
+        }
+        </>
     );
 });

@@ -12,7 +12,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
     const BORDER_SIZE = 4;
 
     const { title } = route.params;
-    const uploadContext = useContext(UploadContext);
+    const {setVenueSelected} = useContext(UploadContext);
     const iconVenues = getIconVenues();
     const otherVenues = getOtherVenues();
     
@@ -48,10 +48,8 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         const onPress = (venue) => {
             // prepare venue data for upload
             // advance to camera screen
-            uploadContext.setVenueSelected(venue);
-            navigation.push('ReelayCameraScreen', {
-                venue: venue,
-            });
+            setVenueSelected(venue);
+            navigation.push('ReelayCameraScreen');
         };
 
         return (
@@ -100,10 +98,8 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         const onPress = (venue) => {
             // prepare venue data for upload
             // advance to camera screen
-            uploadContext.setVenueSelected(venue);
-            navigation.push('ReelayCameraScreen', {
-                venue: venue,
-            });
+            setVenueSelected(venue);
+            navigation.push('ReelayCameraScreen');
         };
 
         return (
@@ -175,7 +171,8 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         const onPress = () => {
             // prepare empty venue data for upload
             // advance to camera screen
-            navigation.push('ReelayCameraScreen', { venue: '', });
+            setVenueSelected('');
+            navigation.push('ReelayCameraScreen');
         }
         return (
             <SkipContainer>
