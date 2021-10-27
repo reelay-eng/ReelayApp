@@ -12,7 +12,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
     const BORDER_SIZE = 4;
 
     const { title } = route.params;
-    const uploadContext = useContext(UploadContext);
+    const {setVenueSelected} = useContext(UploadContext);
     const iconVenues = getIconVenues();
     const otherVenues = getOtherVenues();
     
@@ -48,10 +48,8 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         const onPress = (venue) => {
             // prepare venue data for upload
             // advance to camera screen
-            uploadContext.setVenueSelected(venue);
-            navigation.push('ReelayCameraScreen', {
-                venue: venue,
-            });
+            setVenueSelected(venue);
+            navigation.push('ReelayCameraScreen');
         };
 
         return (
@@ -76,7 +74,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
             margin-top: 10px;
             width: 100%;
         `
-        const OtherOptionsLine = styled(View)`
+        const OtherOptionsLine = styled(Pressable)`
             align-self: center;
             align-items: center;
             border-radius: ${ICON_SIZE * .75}px;
@@ -100,10 +98,8 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         const onPress = (venue) => {
             // prepare venue data for upload
             // advance to camera screen
-            uploadContext.setVenueSelected(venue);
-            navigation.push('ReelayCameraScreen', {
-                venue: venue,
-            });
+            setVenueSelected(venue);
+            navigation.push('ReelayCameraScreen');
         };
 
         return (
@@ -111,10 +107,10 @@ export default VenueSelectScreen = ({ navigation, route }) => {
                 { otherVenues.map(venueObj=> {
                     const venue = venueObj.venue;
                     return (
-                        <OtherOptionsLine key={venue}>
+                        <OtherOptionsLine key={venue} onPress={() => onPress(venue)}>
                             <IconContainer>
-                                <VenueIcon border={BORDER_SIZE} onPress={() => onPress(venue)} 
-                                            size={ICON_SIZE} venue={venue}  />
+                                <VenueIcon border={BORDER_SIZE} 
+                                            size={ICON_SIZE} venue={venue} onPress={() => onPress(venue)}/>
                             </IconContainer>
                             <OtherOptionsTextButton onPress={() => onPress(venue)}>
                                 <OtherOptionText>{venueObj.text}</OtherOptionText>
@@ -175,7 +171,8 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         const onPress = () => {
             // prepare empty venue data for upload
             // advance to camera screen
-            navigation.push('ReelayCameraScreen', { venue: '', });
+            setVenueSelected('');
+            navigation.push('ReelayCameraScreen');
         }
         return (
             <SkipContainer>
