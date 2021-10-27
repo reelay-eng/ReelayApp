@@ -15,7 +15,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const [creatorStacks, setCreatorStacks] = useState([]);
 
     const { creator } = route.params;
-    const creatorSub = creator.id ?? '';
+    const creatorSub = creator.sub ?? '';
 
     const ProfileScreenContainer = styled(SafeAreaView)`
         background-color: black;

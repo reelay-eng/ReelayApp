@@ -6,15 +6,6 @@ const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
-// const filterReelaysByTitle = (fetchedReelays) => {
-//     const sameTitleFilter = ((reelay, index) => {
-//         const titlesMatch = (otherReelay) => reelay.tmdbTitleID === otherReelay.tmdbTitleID;
-//         const firstIndex = fetchedReelays.findIndex(titlesMatch);
-//         return firstIndex === index;
-//     });
-//     return fetchedReelays.filter(sameTitleFilter);
-// }
-
 export const getReelaysByCreator = async (creatorSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/users/sub/${creatorSub}/reelays?visibility=${FEED_VISIBILITY}`;
     console.log(routeGet);
@@ -133,15 +124,16 @@ export const prepareReelay = async (fetchedReelay) => {
         id: fetchedReelay.id,
         creator: {
             avatar: '../../assets/images/icon.png',
-            id: fetchedReelay.creatorSub,
+            sub: fetchedReelay.creatorSub,
             username: fetchedReelay.creatorName,
         },
         content: {
             venue: fetchedReelay.venue ? fetchedReelay.venue : null,
             videoURI: videoURIObject.videoURI,    
         },
-        likes: fetchedReelay.likes,
         comments: fetchedReelay.comments,
+        likes: fetchedReelay.likes,
+        sub: fetchedReelay.datastoreSub,
         title: {
             id: titleObject.id,
             display: titleObject.title,

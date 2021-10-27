@@ -56,7 +56,7 @@ export default Sidebar = ({ reelay }) => {
 			await addLike(reelay, user);
 			setLikeUpdateCounter(likeUpdateCounter + 1);
 			sendLikeNotification({ 
-				creatorSub: reelay.creator.id,
+				creatorSub: reelay.creator.sub,
 				user: user,
 				reelay: reelay,
 			});

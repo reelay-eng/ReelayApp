@@ -1,20 +1,16 @@
-import { DataStore, SortDirection } from 'aws-amplify';
-import { Reelay, Like, Comment, User } from '../src/models';
+import { DataStore } from 'aws-amplify';
+import { Reelay, Like, Comment } from '../src/models';
 import Constants from 'expo-constants';
 
-import { fetchAnnotatedTitle } from './TMDbApi';
 import { showErrorToast, showMessageToast } from '../components/utils/toasts';
 
-const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const COMMENT_VISIBILITY = Constants.manifest.extra.feedVisibility; // this should be its own variable
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
-// note that we're storing the username in the user ID field
-// in ReelayDB, we want to store the user's sub until migration is complete
 export const addComment = async (reelay, comment, user) => {
     const commentObj = {
         userID: user.username,
-        reelayID: reelay.id,
+        reelayID: reelay.sub,
         creatorID: reelay.creator.username,
         content: comment,
         postedAt: new Date().toISOString(),
@@ -35,7 +31,7 @@ export const addComment = async (reelay, comment, user) => {
 export const addLike = async (reelay, user) => {
     const likeObj = {
         userID: user.username,
-        reelayID: reelay.id,
+        reelayID: reelay.sub,
         creatorID: reelay.creator.username,
         postedAt: new Date().toISOString(),
     };
@@ -50,40 +46,14 @@ export const addLike = async (reelay, user) => {
     }
 }
 
-export const deleteComment = async (reelay, commentID) => {
-    reelay.comments = reelay.comments.filter(
-        comment => comment.id !== commentID
-    );
-
-    try {
-        const queryConstraints = comment => {
-            return comment.visibility('eq', FEED_VISIBILITY).id('eq', String(commentID));
-        }    
-        const queryResponse = await DataStore.query(Comment, queryConstraints);
-        if (!queryResponse || !queryResponse.length) {
-            console.log('No query response');
-            return false; // failure
-        }
-        const fetchedComment = queryResponse[0];
-        await DataStore.save(Comment.copyOf(fetchedComment, updated => {
-            updated.visibility = 'hidden';
-        }));
-        return true; // success
-    } catch (e) {
-        console.log(e);
-        showErrorToast('Something went wrong');
-        return false;
-    }
-}
-
 export const deleteLike = async (reelay, user) => {
     reelay.likes = reelay.likes.filter(
-        likes => likes.userID !== user.username
+        likes => likes.username !== user.username
     );
 
     try {
         const queryConstraints = like => {
-            return like.reelayID('eq', String(reelay.id)).userID('eq', String(user.username));
+            return like.reelaySub('eq', String(reelay.sub)).username('eq', String(user.username));
         }
         const queryResponse = await DataStore.query(Like, queryConstraints);
         queryResponse.forEach(async fetchedLike => await DataStore.delete(fetchedLike));
@@ -98,7 +68,7 @@ export const deleteLike = async (reelay, user) => {
 export const deleteReelay = async (reelay) => {
     try {
         const queryConstraints = r => {
-            return r.visibility('eq', FEED_VISIBILITY).id('eq', String(reelay.id));
+            return r.visibility('eq', FEED_VISIBILITY).id('eq', String(reelay.sub));
         }
         const queryResponse = await DataStore.query(Reelay, queryConstraints);
     
@@ -118,158 +88,4 @@ export const deleteReelay = async (reelay) => {
         showErrorToast('Something went wrong');
         return false;
     }
-}
-
-export const fetchFeedNextPage = async ({ batchSize, page, reelayList, refresh }) => {
-    const queryConstraints = r => {
-        return r.visibility('eq', FEED_VISIBILITY);
-    }
-    console.log('FEED VISIBILITY: ', FEED_VISIBILITY);
-    console.log('variables: ', batchSize, page, reelayList.length, refresh), 
-    console.log('query initiated, page: ', page / batchSize);
-
-    try {
-        const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
-            sort: r => r.uploadedAt(SortDirection.DESCENDING),
-            page: page / batchSize,
-            limit: batchSize,
-        });
-        if (!fetchedReelays || !fetchedReelays.length) {
-            console.log(fetchedReelays);
-            console.log('No query response');
-            return [];
-        }
-    
-        const preparedReelays = await Promise.all(fetchedReelays.map(prepareReelay));
-        let filteredReelays = preparedReelays.filter(notDuplicateInBatch);
-        if (!refresh) {
-            filteredReelays = filteredReelays.filter(reelay => notDuplicateInFeed(reelay, reelayList));
-        }
-        
-        console.log('prepared reelays');
-        preparedReelays.forEach(reelay => console.log(reelay.title.display, reelay.creator.username, reelay.id));
-        console.log('filtered reelays');
-        filteredReelays.forEach(reelay => console.log(reelay.title.display, reelay.creator.username));
-        console.log('query finished');
-        return filteredReelays;    
-    } catch (error) {
-        console.log('ERROR IN FETCH FEED NEXT PAGE');
-        return [];
-    }
-
-}
-
-export const fetchReelaysForStack = async ({ stack, page, batchSize }) => {
-    const titleID = stack[0].title.id;
-    const queryConstraints = r => {
-        return r.visibility('eq', FEED_VISIBILITY).tmdbTitleID('eq', String(titleID));
-    }
-
-    const fetchedReelays = await DataStore.query(Reelay, queryConstraints, {
-        sort: r => r.uploadedAt(SortDirection.DESCENDING),
-        page: page,
-        limit: batchSize,
-    });
-
-    if (!fetchedReelays || !fetchedReelays.length) {
-        console.log('No query response');
-        return [];
-    }
-
-    const preparedReelays = await Promise.all(fetchedReelays.map(prepareReelay));
-    const notDuplicate = (element) => stack.findIndex(el => el.id == element.id) == -1;
-    const filteredReelays = preparedReelays.filter(notDuplicate);
-    filteredReelays.forEach(reelay => console.log(reelay.title.display, reelay.creator.username, reelay.title.id));
-    return filteredReelays;
-}
-
-export const getComments = async (fetchedReelay) => {
-    const queryConstraints = r => {
-        return r.visibility('eq', COMMENT_VISIBILITY).reelayID('eq', String(fetchedReelay.id));
-    }
-    const fetchedComments = await DataStore.query(Comment, queryConstraints, {
-        sort: comment => comment.postedAt(SortDirection.ASCENDING),
-    });
-
-    if (!fetchedComments?.length) {
-        // console.log('No comments for this reelay');
-        return [];
-    }
-    return fetchedComments;
-}
-
-export const getLikes = async (fetchedReelay) => {
-    const queryConstraints = r => r.reelayID('eq', String(fetchedReelay.id));
-    const fetchedLikes = await DataStore.query(Like, queryConstraints, {
-        sort: like => like.postedAt(SortDirection.DESCENDING),
-    });
-
-    if (!fetchedLikes?.length) {
-        // console.log('No likes for this reelay');
-        return [];
-    }
-    return fetchedLikes;
-}
-
-const getVideoURIObject = async (fetchedReelay) => {
-    const videoS3Key = (fetchedReelay.videoS3Key.endsWith('.mp4')) 
-            ? fetchedReelay.videoS3Key : (fetchedReelay.videoS3Key + '.mp4');
-    const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${videoS3Key}`;
-    return { id: fetchedReelay.id, videoURI: cloudfrontVideoURI };
-}
-
-const notDuplicateInBatch = (reelay, index, preparedReelays) => {
-    const alreadyInBatch = (preparedReelays.findIndex((batchEl, ii) => {
-        return (batchEl.title.id === reelay.title.id) && (ii < index);
-    }) >= 0);
-    return !alreadyInBatch;
-}
-
-const notDuplicateInFeed = (reelay, reelayList) => {
-    const alreadyInFeed = (reelayList.findIndex(listReelay => {
-        return listReelay.title.id === reelay.title.id;
-    }) >= 0);
-    return !alreadyInFeed;
-}
-
-export const prepareReelay = async (fetchedReelay) => {
-    const comments = await getComments(fetchedReelay);
-    const likes = await getLikes(fetchedReelay);
-    const titleObject = await fetchAnnotatedTitle(
-        fetchedReelay.tmdbTitleID, 
-        fetchedReelay.isSeries
-    );
-    const videoURIObject = await getVideoURIObject(fetchedReelay);
-    const releaseYear = (titleObject?.release_date?.length >= 4)
-        ? (titleObject.release_date.slice(0,4)) : '';	
-
-    return {
-        id: fetchedReelay.id,
-        creator: {
-            avatar: '../../assets/images/icon.png',
-            id: fetchedReelay.creatorID,
-            username: String(fetchedReelay.owner),
-        },
-        content: {
-            venue: fetchedReelay.venue ? fetchedReelay.venue : null,
-            videoURI: videoURIObject.videoURI,    
-        },
-        likes: likes,
-        comments: comments,
-        title: {
-            id: titleObject.id,
-            display: titleObject.title,
-
-            director: titleObject.director,
-            displayActors: titleObject.displayActors,
-            overview: titleObject.overview,
-            posterURI: titleObject ? titleObject.poster_path : null,
-            tagline: titleObject.tagline,
-            trailerURI: titleObject.trailerURI,
-
-            releaseDate: titleObject.release_date,
-            releaseYear: releaseYear,
-        },
-        postedDateTime: fetchedReelay.uploadedAt,
-    };
 }
