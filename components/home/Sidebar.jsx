@@ -34,9 +34,8 @@ export default Sidebar = ({ reelay }) => {
 	const { user } = useContext(AuthContext);
 	const { setCommentsVisible, setLikesVisible } = useContext(FeedContext);
 
-	const findFromUser = (list, userID) => list.find(item => item.userID === userID);
-	const commentedByUser = findFromUser(reelay.comments, user.username) || false;
-	const likedByUser = findFromUser(reelay.likes, user.username) || false;
+	const commentedByUser = reelay.comments.find(comment => comment.authorName === user.username);
+	const likedByUser = reelay.likes.find(like => like.username === user.username);
 
 	const onCommentLongPress = async () => setCommentsVisible(true);
 	const onCommentPress = async () => setCommentsVisible(true);

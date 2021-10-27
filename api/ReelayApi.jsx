@@ -8,7 +8,7 @@ const COMMENT_VISIBILITY = Constants.manifest.extra.feedVisibility; // this shou
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 export const addComment = async (reelay, comment, user) => {
-    const commentObj = {
+    const commentObjAmplify = {
         userID: user.username,
         reelayID: reelay.sub,
         creatorID: reelay.creator.username,
@@ -16,12 +16,22 @@ export const addComment = async (reelay, comment, user) => {
         postedAt: new Date().toISOString(),
         visibility: COMMENT_VISIBILITY,
     };
-    reelay.comments.push(commentObj);
+
+    // commentObjDisplay follows the ReelayDB format, not the Amplify format
+    const commentObjDisplay = {
+        authorName: user.username,
+        reelaySub: reelay.sub,
+        creatorName: reelay.creator.username,
+        content: comment,
+        postedAt: new Date().toISOString(),
+        visibility: COMMENT_VISIBILITY,
+    };
+    reelay.comments.push(commentObjDisplay);
 
     try {
-        await DataStore.save(new Comment(commentObj));
+        await DataStore.save(new Comment(commentObjAmplify));
         showMessageToast('Comment posted!');
-        return commentObj;    
+        return commentObjDisplay;    
     } catch (e) {
         console.log(e);
         showErrorToast('Something went wrong');   
@@ -29,17 +39,25 @@ export const addComment = async (reelay, comment, user) => {
 }
 
 export const addLike = async (reelay, user) => {
-    const likeObj = {
+    const likeObjAmplify = {
         userID: user.username,
         reelayID: reelay.sub,
         creatorID: reelay.creator.username,
         postedAt: new Date().toISOString(),
     };
-    reelay.likes.push(likeObj);
+
+    // likeObjDisplay follows the ReelayDB format, not the Amplify format
+    const likeObjDisplay = {
+        username: user.username,
+        creatorName: reelay.creator.username,
+        reelaySub: reelay.sub,
+        postedAt: new Date().toISOString(),
+    }
+    reelay.likes.push(likeObjDisplay);
 
     try {
-        await DataStore.save(new Like(likeObj));
-        return likeObj;    
+        await DataStore.save(new Like(likeObjAmplify));
+        return likeObjDisplay;    
     } catch (e) {
         console.log(e);
         showErrorToast('Something went wrong');
@@ -53,7 +71,7 @@ export const deleteLike = async (reelay, user) => {
 
     try {
         const queryConstraints = like => {
-            return like.reelaySub('eq', String(reelay.sub)).username('eq', String(user.username));
+            return like.reelayID('eq', String(reelay.sub)).userID('eq', String(user.username));
         }
         const queryResponse = await DataStore.query(Like, queryConstraints);
         queryResponse.forEach(async fetchedLike => await DataStore.delete(fetchedLike));

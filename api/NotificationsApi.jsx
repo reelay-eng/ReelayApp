@@ -98,7 +98,7 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
         const notifyAuthorName = comment.authorName;
         const notifyUser = await getUserByUsername(notifyAuthorName);
 
-        const token = notifyUser?.token;
+        const token = notifyUser?.pushToken;
         if (!token) {
             console.log('Comment author not registered for notifications');
             return;
