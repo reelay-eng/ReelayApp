@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import { fetchReelaysForStack } from '../api/ReelayApi';
-import { getRegisteredUser, getUserByUsername } from './ReelayDBApi';
+import { getRegisteredUser, getUserByUsername, getMostRecentReelaysByTitle } from './ReelayDBApi';
 
 const EXPO_NOTIFICATION_URL = Constants.manifest.extra.expoNotificationUrl;
 const STACK_NOTIFICATION_LIMIT = 4;
@@ -21,6 +21,7 @@ const getDevicePushToken = async () => {
     return token;
 }
 
+// We probably shouldn't let these have default values...
 const sendPushNotification = async ({
     body='Default notification body', 
     data={},
@@ -87,11 +88,17 @@ export const sendCommentNotificationToCreator = async ({ creatorSub, author, ree
 }
 
 export const sendCommentNotificationToThread = async ({ creator, author, reelay, commentText }) => {
-    reelay.comments.map(async (comment, index) => {
-        const notifyUsername = comment.userID;
-        const notifyUser = await getUserByUsername(notifyUsername);
 
-        const token = notifyUser?.token;
+    console.log('IN SEND COMMENT NOTIFICATION TO THREAD');
+    console.log(creator);
+    console.log(author);
+    console.log(reelay.title);
+
+    reelay.comments.map(async (comment, index) => {
+        const notifyAuthorName = comment.authorName;
+        const notifyUser = await getUserByUsername(notifyAuthorName);
+
+        const token = notifyUser?.pushToken;
         if (!token) {
             console.log('Comment author not registered for notifications');
             return;
@@ -103,7 +110,7 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
             return;
         }
 
-        const recipientAlreadyNotified = (comment) => comment.userID === notifyUsername;
+        const recipientAlreadyNotified = (comment) => comment.authorName === notifyAuthorName;
         const recipientIndex = reelay.comments.findIndex(recipientAlreadyNotified);
         if (recipientIndex < index) {
             console.log('User already notified');
@@ -118,6 +125,9 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
 }
 
 export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
+    const creator = await getRegisteredUser(creatorSub);
+    const token = creator?.pushToken;
+
     const recipientIsAuthor = (creatorSub === user.attributes.sub);
     if (recipientIsAuthor) {
         const title = `Achievement earned: Love Yourself`;
@@ -125,9 +135,6 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
         await sendPushNotification({ title, body, token });
         return;
     }
-
-    const creator = await getRegisteredUser(creatorSub);
-    const token = creator?.pushToken;
 
     if (!token) {
         console.log('Creator not registered for like notifications');
@@ -140,18 +147,13 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
 }
 
 export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay }) => {
-
     console.log('Sending stack push notification to other creators');
     console.log(reelay);
-    const reelayStack = await fetchReelaysForStack({ 
-        stack: [reelay], 
-        page: 0, 
-        batchSize: STACK_NOTIFICATION_LIMIT 
-    }); 
+    const reelayStack = await getMostRecentReelaysByTitle(reelay.title.id);
     
     reelayStack.map(async (reelay, index) => {
         console.log('For other reelay in stack: ', reelay.title.display, reelay.creator.username);
-        const notifyCreatorSub = await getRegisteredUser(reelay.creator.id);
+        const notifyCreatorSub = await getRegisteredUser(reelay.creator.sub);
         const token = notifyCreatorSub?.pushToken;
 
         if (!token) {
@@ -165,14 +167,14 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
             return;
         }    
 
-        const alreadyNotified = (reelay) => notifyCreatorSub === reelay.creator.id;
+        const alreadyNotified = (reelay) => (notifyCreatorSub === reelay.creator.sub);
         const recipientIndex = reelayStack.findIndex(alreadyNotified);
         if (recipientIndex < index) {
             console.log('Recipient already notified');
             return;
         }
 
-        const title = `${creator.username} followed up your reelay`;
+        const title = `${creator.username} also posted a reelay!`;
         const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
         await sendPushNotification({ title, body, token });    
     })

@@ -17,7 +17,7 @@ import { FeedContext } from '../../context/FeedContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
 
-import { addComment, deleteComment, getComments } from '../../api/ReelayApi';
+import { addComment } from '../../api/ReelayApi';
 import { sendCommentNotificationToCreator, sendCommentNotificationToThread } from '../../api/NotificationsApi';
 
 import * as Amplitude from 'expo-analytics-amplitude';
@@ -215,7 +215,7 @@ export default CommentsDrawer = ({ reelay }) => {
         const onCommentPost = async () => {
             addComment(reelay, commentText, user);
             await sendCommentNotificationToCreator({
-                creatorSub: reelay.creator.id,
+                creatorSub: reelay.creator.sub,
                 author: user,
                 reelay: reelay,
                 commentText: commentText,

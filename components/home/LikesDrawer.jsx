@@ -73,8 +73,8 @@ export default LikesDrawer = ({ reelay }) => {
                 <Header />
                 { reelay.likes.map(like => {
                     return (
-                        <LikeItemContainer key={like.userID}>
-                            <UsernameText>{like.userID}</UsernameText>
+                        <LikeItemContainer key={like.username}>
+                            <UsernameText>{like.username}</UsernameText>
                         </LikeItemContainer>
                     );
                 })}
