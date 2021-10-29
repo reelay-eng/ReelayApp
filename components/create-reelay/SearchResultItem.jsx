@@ -10,13 +10,13 @@ const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
 const ImageContainer = styled.View`
     flex: 0.5;
     flex-direction: row;
-    align-items: flex-start;
+    align-items: flex-end;
     width: 500px;
 `
 const PressableContainer = styled.Pressable`
     flex: 1;
     flex-direction: row;
-    margin: 10px 10px 10px 10px;
+    margin: 10px 10px 10px 20px;
     height: 160px;
 `
 const TitleText = styled.Text`
@@ -25,8 +25,8 @@ const TitleText = styled.Text`
 `
 const TitleLineContainer = styled.View`
     flex: 1;
-    justify-content: flex-start;
-    align-items: flex-end;
+    justify-content: center;
+    align-items: flex-start;
 `
 const DirectorText = styled.Text`
     color: white
@@ -61,22 +61,24 @@ export default SearchResultItem = ({result, navigation}) => {
     }
 
     return (
-        <PressableContainer onPress={selectResult}>
-            <ImageContainer>
-                { posterImageUri && <Image 
-                    source={{ uri: posterImageUri }} 
-                    style={{ height: 150, width: 100, borderRadius: 6 }}
-                    PlaceholderContent={<ActivityIndicator />}
-                    onLoadEnd={() => setPosterLoaded(true)}
-                />}
-                { !posterImageUri && <TitleText>{'No Poster Available'}</TitleText>}
-                { !posterLoaded && <View style={{ height: 150 }} />}
-            </ImageContainer>
-            <TitleLineContainer>
-                <TitleText>{posterLoaded ? title : ''}</TitleText>
-                <DirectorText></DirectorText>
-                <YearText>{posterLoaded ? releaseYear: ''}</YearText>
-            </TitleLineContainer>
-        </PressableContainer>
+      <PressableContainer onPress={selectResult}>
+        <TitleLineContainer>
+          <TitleText>{posterLoaded ? title : ""}</TitleText>
+          <DirectorText></DirectorText>
+          <YearText>{posterLoaded ? releaseYear : ""}</YearText>
+        </TitleLineContainer>
+        <ImageContainer>
+          {posterImageUri && (
+            <Image
+              source={{ uri: posterImageUri }}
+              style={{ height: 150, width: 100, borderRadius: 6 }}
+              PlaceholderContent={<ActivityIndicator />}
+              onLoadEnd={() => setPosterLoaded(true)}
+            />
+          )}
+          {!posterImageUri && <TitleText>{"No Poster Available"}</TitleText>}
+          {!posterLoaded && <View style={{ height: 150 }} />}
+        </ImageContainer>
+      </PressableContainer>
     );
 };
