@@ -5,7 +5,7 @@ import { UploadContext } from '../../context/UploadContext';
 import BackButton from '../../components/utils/BackButton';
 import SearchField from '../../components/create-reelay/SearchField';
 import SearchResults from '../../components/create-reelay/SearchResults';
-import { searchMovies, searchSeries } from '../../api/TMDbApi';
+import { fetchAnnotatedTitle, searchMovies, searchSeries } from '../../api/TMDbApi';
 
 import styled from 'styled-components/native';
 
@@ -59,9 +59,19 @@ export default SelectTitleScreen = ({ navigation }) => {
         setSearchText(newSearchText);
         try {
             if (type == 'Film') {
-                setSearchResults(await searchMovies(newSearchText)); 
+                const searchResults = await searchMovies(newSearchText); 
+                const annotatedResults = await Promise.all(searchResults.map(async (result) => {
+                    return await fetchAnnotatedTitle(result.id, false);
+                }));
+                setSearchResults(annotatedResults);
             } else {
-                setSearchResults(await searchSeries(newSearchText)); 
+                const searchResults = await searchSeries(newSearchText);
+                const annotatedResults = await Promise.all(
+                  searchResults.map(async (result) => {
+                    return await fetchAnnotatedTitle(result.id, true);
+                  })
+                );
+                setSearchResults(annotatedResults);
             }
         } catch (error) {
             console.log('its here');
