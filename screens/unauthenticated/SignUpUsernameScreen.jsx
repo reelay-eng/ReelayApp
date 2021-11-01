@@ -8,11 +8,11 @@ import * as Amplitude from 'expo-analytics-amplitude';
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
 import { showErrorToast } from '../../components/utils/toasts';
+import { input } from '@aws-amplify/ui';
 
 const REELAY_ICON_SOURCE = require('../../assets/icons/reelay-icon.png');
 
 // test it here: https://regex101.com/
-const VALID_USERNAME_REGEX = /^([a-zA-z0-9]+(?:[.-_+][a-zA-Z0-9]+)*)$/g; 
 // const VALID_USERNAME_REGEX = /^([a-zA-Z0-9.-_+]{3,})$/g;
 // general idea is that a username consists of one or more alphanumeric phrases
 // optionally separated by . - _ or +
@@ -65,9 +65,14 @@ export default SignUpUsernameScreen = ({ navigation, route }) => {
         
         const [inputUsername, setInputUsername] = useState('');
 
+        // this regex object needs to be REDECLARED EVERY TIME we run .test()
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex
+        const newValidUsernameRegex = /^([a-zA-z0-9]+(?:[.-_+][a-zA-Z0-9]+)*)$/g;
         const validUsernameLength = inputUsername.length > 2 && inputUsername.length < 26;
-        const validUsernameRegex = VALID_USERNAME_REGEX.test(inputUsername);
-        const validUsername = validUsernameLength && validUsernameRegex;
+        const validUsername = validUsernameLength && newValidUsernameRegex.test(inputUsername);
+
+        console.log('IN EMAIL INPUT: ');
+        console.log(`valid username? ${inputUsername}: `, validUsername);
 
         const continueToCreateAccount = async () => {
             if (!validUsername) {
