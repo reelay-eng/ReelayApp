@@ -10,9 +10,19 @@ const SearchResults = ({ navigation, searchResults }) => {
                 <ScrollView>
                     { searchResults.map((result, index) => {
                         return (
-                            <View key={index} style={{height: 160 }}>
-                                <SearchResultItem result={result} navigation={navigation} />
-                            </View>
+                          <View
+                            key={index}
+                            style={{
+                              height: 165,
+                              borderBottomColor: "#505050",
+                              borderBottomWidth: 0.3,
+                            }}
+                          >
+                            <SearchResultItem
+                              result={result}
+                              navigation={navigation}
+                            />
+                          </View>
                         );
                     })}
                 </ScrollView>
