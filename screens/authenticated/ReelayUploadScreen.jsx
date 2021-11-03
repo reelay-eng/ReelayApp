@@ -20,6 +20,7 @@ import * as Amplitude from 'expo-analytics-amplitude';
 import { sendStackPushNotificationToOtherCreators } from '../../api/NotificationsApi';
 
 import styled from 'styled-components/native';
+import { postReelayToDB } from '../../api/ReelayDBApi';
 
 const { height, width } = Dimensions.get('window');
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
@@ -127,8 +128,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             console.log(uploadStatusS3);
             console.log('Successfully saved video to S3: ', videoS3Key);
 
-
-            // Create Reelay object
+            // Create Reelay object for Amplify --> we're getting rid of this
             const reelay = new Reelay({
                 owner: creator.attributes.sub,
                 creatorID: creator.attributes.sub,
@@ -144,14 +144,31 @@ export default ReelayUploadScreen = ({ navigation }) => {
                 visibility: UPLOAD_VISIBILITY,
             });
 
-            // Upload Reelay object to DynamoDB, get ID
-            const uploadStatusDataStore = await DataStore.save(reelay);
+            // Upload Reelay object to Amplfiy, get ID
+            const datastoreReelay = await DataStore.save(reelay);
+            console.log('Saved Reelay to datastore: ', datastoreReelay);
+
+            // Post Reelay object to ReelayDB --> we're moving to this
+            const reelayDBBody = {
+                creatorSub: datastoreReelay.creatorID,
+                creatorName: authContext.user.username,
+                datastoreSub: datastoreReelay.id,
+                isMovie: datastoreReelay.isMovie,
+                isSeries: datastoreReelay.isSeries,
+                postedAt: datastoreReelay.uploadedAt,
+                tmdbTitleID: datastoreReelay.tmdbTitleID,
+                venue: venue,
+                videoS3Key: videoS3Key,
+                visibility: UPLOAD_VISIBILITY,
+            }
+
+            const postResult = await postReelayToDB(reelayDBBody);
+            console.log('Saved Reelay to DB: ', postResult);
             
             uploadContext.setUploading(false);
             uploadContext.setUploadComplete(true);
 
             console.log('saved new Reelay');
-            console.log(uploadStatusDataStore);
             console.log('Upload dialog complete.');
 
             Amplitude.logEventWithPropertiesAsync('publishReelayComplete', {

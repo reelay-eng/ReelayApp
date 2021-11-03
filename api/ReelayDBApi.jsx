@@ -2,14 +2,21 @@ import Constants from 'expo-constants';
 import { fetchResults, fetchResults2 } from './fetchResults';
 import { fetchAnnotatedTitle } from './TMDbApi';
 
-const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
+const DEFAULT_POST_HEADERS = {
+    Accept: 'application/json',
+    'Accept-encoding': 'gzip, deflate',
+    'Content-Type': 'application/json',
+};
+
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
+const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
+
 
 export const getReelaysByCreator = async (creatorSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/users/sub/${creatorSub}/reelays?visibility=${FEED_VISIBILITY}`;
     console.log(routeGet);
-    const fetchedReelays = await fetchResults2(routeGet, { method: 'GET' });
+    const fetchedReelays = await fetchResults(routeGet, { method: 'GET' });
     if (!fetchedReelays) {
         console.log('Could not get reelays for this creator');
         return null;
@@ -41,7 +48,6 @@ export const getStacksByCreator = async (creatorSub) => {
         }
     });
 
-    console.log('stacks by creator count: ', stacksByCreator.length);
     return stacksByCreator;
 }
 
@@ -58,7 +64,6 @@ export const getMostRecentStacks = async (page = 0) => {
     // call prepareReelay on every reelay in every stack
     const preparedStacks = await Promise.all(fetchedStacks.map(async fetchedReelaysForStack => {
         console.log('fetched reelays for stack');
-        console.log(fetchedReelaysForStack);
         const preparedStack = await Promise.all(fetchedReelaysForStack.map(prepareReelay));
         return preparedStack;
     }));
@@ -109,6 +114,37 @@ export const getVideoURIObject = async (fetchedReelay) => {
         id: fetchedReelay.id, 
         videoURI: cloudfrontVideoURI,
     };
+}
+
+export const postReelayToDB = async (reelayBody) => {
+    const routePost = `${REELAY_API_BASE_URL}/reelays/sub`;
+    console.log('reelay body: ', reelayBody);
+    const resultPost = await fetchResults(routePost, {
+        method: 'POST',
+        body: JSON.stringify(reelayBody),
+        headers: DEFAULT_POST_HEADERS,
+    });
+    return resultPost;
+}
+
+export const postCommentToDB = async (commentBody, reelaySub) => {
+    const routePost = `${REELAY_API_BASE_URL}/reelays/sub/${reelaySub}/comments`;
+    const resultPost = await fetchResults(routePost, {
+        method: 'POST',
+        body: JSON.stringify(commentBody),
+        headers: DEFAULT_POST_HEADERS,
+    });
+    return resultPost;
+}
+
+export const postLikeToDB = async (likeBody, reelaySub) => {
+    const routePost = `${REELAY_API_BASE_URL}/reelays/sub/${reelaySub}/likes`;
+    const resultPost = await fetchResults(routePost, {
+        method: 'POST',
+        body: JSON.stringify(likeBody),
+        headers: DEFAULT_POST_HEADERS,
+    });
+    return resultPost;
 }
 
 export const prepareReelay = async (fetchedReelay) => {
@@ -170,7 +206,7 @@ export const registerUser = async (user) => {
 
     if (resultGet.error) {
         // user is not registered
-        console.log('Registering user (method 2)...');
+        console.log('Registering user...');
         // todo: sanity check emails and usernames
         const routePost = `${REELAY_API_BASE_URL}/users/sub?email=${encEmail}&username=${encUsername}&sub=${sub}`;
         const resultPost = await fetchResults(routePost, { method: 'POST' });
@@ -184,7 +220,6 @@ export const registerUser = async (user) => {
 }
 
 export const registerPushTokenForUser = async (user, pushToken) => {
-    console.log(user);
     const routePatch = `${REELAY_API_BASE_URL}/users/sub/${user.sub}?pushToken=${pushToken}`;
     const resultPatch = await fetchResults(routePatch, { method: 'PATCH' });
     console.log('Patch route: ', routePatch);

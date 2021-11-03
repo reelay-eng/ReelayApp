@@ -1,6 +1,25 @@
 export default ({ config }) => {
     if (!process.env.NODE_ENV) {
         process.env.NODE_ENV = 'production';
+        // note: this is what happens in production
+    }
+
+    const getReelayAPIBaseURL = () => {
+        if (process.env.NODE_ENV === 'production') return 'https://api-prod.reelay.app';
+        if (process.env.NODE_ENV === 'staging') return 'https://api-staging.reelay.app';
+        if (process.env.NODE_ENV === 'development') return 'https://api-dev.reelay.app';
+
+        // should be unreachable but just in case
+        return 'https://api-prod.reelay.app';
+    }
+
+    const getVisibility = () => {
+        if (process.env.NODE_ENV === 'production') return 'global';
+        if (process.env.NODE_ENV === 'staging') return 'staging';
+        if (process.env.NODE_ENV === 'development') return 'dev';
+
+        // should be unreachable but just in case
+        return 'global';
     }
 
     // setting up any constants we need throughout the app
@@ -10,16 +29,18 @@ export default ({ config }) => {
         amplitudeApiKey: '41cdcb8df4bfc40ab39155a7e3401d22',
         cloudfrontBaseUrl: 'https://di92fpd9s7eko.cloudfront.net',
         expoNotificationUrl: 'https://exp.host/--/api/v2/push/send',
-        reelayApiBaseUrl: 'https://data.reelay.app',
+        reelayApiBaseUrl: getReelayAPIBaseURL(),
 
         tmdbApiKey: '033f105cd28f507f3dc6ae794d5e44f5',
         tmdbApiBaseUrl: 'https://api.themoviedb.org/3',
         tmdbImageApiBaseUrl: 'http://image.tmdb.org/t/p/w500/',
 
         // change 'dev' to any other string of your choice so you too can test uploads embarassingly
-        feedVisibility: process.env.NODE_ENV == 'production' ? 'global' : 'dev',
-        uploadVisibility: process.env.NODE_ENV == 'production' ? 'global' : 'dev',
+        feedVisibility: getVisibility(),
+        uploadVisibility: getVisibility(),
     };
+
+    console.log('EXTRA: ', extra);
 
     return {
         ...config,
