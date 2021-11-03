@@ -186,8 +186,9 @@ export const fetchAnnotatedTitle = async (titleID, isSeries) => {
         ...titleObject,
         director: getDirector(titleCredits),
         displayActors: getDisplayActors(titleCredits),
+        is_movie: !isSeries,
+        is_series: isSeries,
         trailerURI: trailerURI,
-        // providers: providers,
     }
 
     if (isSeries) {

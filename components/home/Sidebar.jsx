@@ -10,6 +10,7 @@ import { sendLikeNotification } from '../../api/NotificationsApi';
 import * as Amplitude from 'expo-analytics-amplitude';
 
 import { addLike, deleteLike } from '../../api/ReelayApi';
+import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
 
 export default Sidebar = ({ reelay }) => {
 	const ICON_SIZE = 40;
@@ -43,7 +44,16 @@ export default Sidebar = ({ reelay }) => {
 
 	const onLikePress = async () => {
 		if (likedByUser) {
-			await deleteLike(reelay, user);
+			const unlikeBody = {
+				creatorName: reelay.creator.username,
+				username: user.username,
+				reelaySub: reelay.sub,
+			}
+			reelay.likes = reelay.likes.filter(likes => likes.username !== user.username);
+		
+			const postResult = await removeLike(unlikeBody, reelay.sub);
+			console.log(postResult);
+			
 			setLikeUpdateCounter(likeUpdateCounter + 1);
 			Amplitude.logEventWithPropertiesAsync('unlikedReelay', {
 				user: user.username,
@@ -52,7 +62,16 @@ export default Sidebar = ({ reelay }) => {
 				reelayID: reelay.id,
 			});
 		} else {
-			await addLike(reelay, user);
+			const likeBody = {
+				creatorName: reelay.creator.username,
+				username: user.username,
+				postedAt: new Date().toISOString(),
+			}
+			reelay.likes.push(likeBody);		
+
+			const postResult = await postLikeToDB(likeBody, reelay.sub);
+			console.log(postResult);
+
 			setLikeUpdateCounter(likeUpdateCounter + 1);
 			sendLikeNotification({ 
 				creatorSub: reelay.creator.sub,

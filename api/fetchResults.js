@@ -31,3 +31,4 @@ export const fetchResults2 = async (route, options) => {
         return { error };
     }
 }
+

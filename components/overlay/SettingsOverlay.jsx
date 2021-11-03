@@ -7,17 +7,13 @@ import { FeedContext } from '../../context/FeedContext';
 
 import styled from 'styled-components/native';
 import * as Amplitude from 'expo-analytics-amplitude';
-// import Downloader from '../utils/Downloader';
 
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
 import * as Progress from 'react-native-progress';
-import { showErrorToast, showMessageToast } from '../utils/toasts';
 
-// import { DataStore } from 'aws-amplify';
-// import { Comment, Reelay, Like } from '../../src/models';
-import { fetchResults, fetchResults2 } from '../../api/fetchResults';
-// import { result } from 'validate.js';
+import { removeReelay } from '../../api/ReelayDBApi';
+import { showErrorToast, showMessageToast } from '../utils/toasts';
 
 const { height, width } = Dimensions.get('window');
 
@@ -127,109 +123,6 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
         }
     }
 
-    // const migrateReelays = async () => {
-
-    //     const allReelays = await DataStore.query(Reelay);
-    //     console.log(allReelays[0]);
-        
-    //     for (let ii = 0; ii < allReelays.length; ii += 1) {
-    //         const reelayObj = allReelays[ii];
-    //         const result = await postReelayToDB(reelayObj);
-    //         console.log(`Reelay ${ii} posted: `, reelayObj.owner, reelayObj.tmdbTitleID);
-    //         console.log(result);
-    //     }
-
-    //     const allComments = await DataStore.query(Comment);
-    //     for (let ii = 0; ii < allComments.length; ii += 1) {
-    //         const commentObj = allComments[ii];
-    //         console.log(commentObj);
-    //         const result = await postCommentToDB(commentObj);
-    //         console.log(`Comment ${ii} posted: `, commentObj.owner);
-    //         console.log(result);
-    //     }
-
-    //     const allLikes = await DataStore.query(Like);
-    //     for (let ii = 0; ii < allLikes.length; ii += 1) {
-    //         const likeObj = allLikes[ii];
-    //         const result = await postLikeToDB(likeObj);
-    //         console.log(`Like ${ii} posted: `, likeObj.owner);
-    //         console.log(result);
-    //     }
-    // }
-
-    const postCommentToDB = async (commentObj) => {
-        console.log('Comment: ', commentObj);
-        const data = {
-            authorName: commentObj.userID,
-            creatorName: commentObj.creatorID,
-            content: commentObj.content,
-            datastoreSub: commentObj.id,
-            reelaySub: commentObj.reelayID,
-            postedAt: commentObj.postedAt,
-            visibility: commentObj.visibility,
-        }
-
-        const routePost = `https://data.reelay.app/reelays/sub/${data.reelaySub}/comments`;
-        const options = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data),
-        }
-        const response = await fetchResults2(routePost, options);
-        return response;
-    }
-
-    const postLikeToDB = async (likeObj) => {
-        console.log('Like: ', likeObj);
-        const data = {
-            username: likeObj.userID,
-            creatorName: likeObj.creatorID,
-            datastoreSub: likeObj.id,
-            reelaySub: likeObj.reelayID,
-            postedAt: likeObj.postedAt,
-        }
-
-        const routePost = `https://data.reelay.app/reelays/sub/${data.reelaySub}/likes`;
-        const options = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data),
-        }
-        const response = await fetchResults2(routePost, options);
-        return response;
-
-    }
-
-    const postReelayToDB = async (reelayObj) => {
-        const data = {
-            creatorSub: reelayObj.creatorID,
-            creatorName: reelayObj.owner,
-            datastoreSub: reelayObj.id,
-            isMovie: reelayObj.isMovie,
-            isSeries: reelayObj.isSeries,
-            postedAt: reelayObj.uploadedAt,
-            tmdbTitleID: reelayObj.tmdbTitleID,
-            venue: reelayObj.venue,
-            videoS3Key: reelayObj.videoS3Key,
-            visibility: reelayObj.visibility,
-        }
-
-        const routePost = 'https://data.reelay.app/reelays/sub';
-        const options = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data),
-        }
-        const response = await fetchResults2(routePost, options);
-        return response;
-    }
-
     const renderBaseOptions = () => {
         return (
             <SettingsContainer>
@@ -239,25 +132,30 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
                     <SettingsText>{'Close'}</SettingsText>
                 </SettingsPressable>
                 { canHideReelay && 
-                    <SettingsPressable onPress={hideReelay}>
-                        <SettingsText>{'Delete this Reelay'}</SettingsText>
+                    <SettingsPressable onPress={async () => {
+                        const resultRemove = await removeReelay(reelay);
+                        console.log(resultRemove);
+                        if (resultRemove.error) {
+                            showErrorToast('Could not delete. Please reach out to the Reelay team!')
+                        } else {
+                            showMessageToast('Your reelay is removed');
+                        }
+                    }}>
+                        <SettingsText>{'Remove this reelay'}</SettingsText>
                     </SettingsPressable>
                 }
                 { downloadStarted &&
                     <SettingsPressableDisabled>
-                        <SettingsText>{'Download this Reelay'}</SettingsText>
+                        <SettingsText>{'Download this reelay'}</SettingsText>
                             <Progress.Bar color={'white'} progress={downloadProgress} 
                                 style={{ margin: 20 }} width={width * 0.5} />
                     </SettingsPressableDisabled>
                 }
                 { !downloadStarted &&
                     <SettingsPressable onPress={downloadReelay}>
-                        <SettingsText>{'Download this Reelay'}</SettingsText>
+                        <SettingsText>{'Download this reelay'}</SettingsText>
                     </SettingsPressable>
                 }
-                {/* <SettingsPressable onPress={migrateReelays}>
-                    <SettingsText>{'Migrate Reelays'}</SettingsText>
-                </SettingsPressable> */}
                 <SettingsPressable onPress={signOut}>
                     <SettingsText>{'Sign out'}</SettingsText>
                 </SettingsPressable>

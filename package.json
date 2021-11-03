@@ -1,13 +1,14 @@
 {
   "scripts": {
+    "setup": "yarn install && cd ios && pod install && cd .. && amplify pull",
     "start": "export NODE_ENV='production' && expo start",
     "dev": "export NODE_ENV='development' && expo start",
+    "staging": "export NODE_ENV='staging' && expo start",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "web": "expo start --web",
     "eject": "expo eject",
-    "test": "jest --watchAll",
-    "setup": "yarn install && cd ios && pod install && cd .. && amplify pull"
+    "test": "jest --watchAll"
   },
   "jest": {
     "preset": "jest-expo"
