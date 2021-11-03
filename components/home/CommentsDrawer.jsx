@@ -16,11 +16,15 @@ import { AuthContext } from '../../context/AuthContext';
 import { FeedContext } from '../../context/FeedContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
+import Constants from 'expo-constants';
 
-import { addComment } from '../../api/ReelayApi';
-import { sendCommentNotificationToCreator, sendCommentNotificationToThread } from '../../api/NotificationsApi';
+import { 
+    sendCommentNotificationToCreator, 
+    sendCommentNotificationToThread 
+} from '../../api/NotificationsApi';
 
 import * as Amplitude from 'expo-analytics-amplitude';
+import { postCommentToDB } from '../../api/ReelayDBApi';
 
 const { height, width } = Dimensions.get('window');
 
@@ -29,6 +33,8 @@ export default CommentsDrawer = ({ reelay }) => {
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
     const CLOSE_BUTTON_SIZE = 36;
     const MAX_COMMENT_LENGTH = 200;
+
+    const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
     const Backdrop = styled(Pressable)`
         background-color: transparent;
@@ -213,7 +219,21 @@ export default CommentsDrawer = ({ reelay }) => {
         Keyboard.addListener('keyboardWillHide', keyboardWillHide);
 
         const onCommentPost = async () => {
-            addComment(reelay, commentText, user);
+            const commentBody = {
+                authorName: user.username,
+                authorSub: user.attributes.sub,        
+                content: commentText,        
+                creatorName: reelay.creator.username,
+                creatorSub: reelay.creator.sub,
+                postedAt: new Date().toISOString(),
+                reelaySub: reelay.sub,
+                visibility: FEED_VISIBILITY,
+            }
+            reelay.comments.push(commentBody);
+
+			const postResult = await postCommentToDB(commentBody, reelay.sub);
+			console.log('Comment posted: ', postResult);
+
             await sendCommentNotificationToCreator({
                 creatorSub: reelay.creator.sub,
                 author: user,
