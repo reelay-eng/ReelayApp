@@ -31,23 +31,24 @@ export default TitleOverlay = ({ navigation }) => {
 
     const actors = title?.displayActors;
     const director = title?.director;
-    const directorName = (director && director.name) ? 'Dir. ' + director.name : '';
+    const directorName = (director && director.name) ? 'Director: ' + director.name : '';
     const releaseYear = ' (' + title?.releaseYear + ')';
+    console.log(title);
 
     const Overview = () => {
         const OverviewContainer = styled(View)`
             width: 100%;
         `
         const OverviewText = styled(Text)`
-            font-size: 14px;
+            font-size: 18px;
             font-family: System;
             font-weight: 400;
-            color: white;
+            color: #eeeeee;
             margin-bottom: 10px;
             margin-top: 10px;
         `
         const OverviewTextContainer = styled(Text)`
-            padding: 10px;
+            padding: 10px 20px 10px 20px;
             margin-bottom: 20px;
             width: 100%;
         `
@@ -85,12 +86,19 @@ export default TitleOverlay = ({ navigation }) => {
             align-items: flex-end;
         ` 
         const TaglineText = styled(Text)`
-            font-size: 15px;
+            font-size: 18px;
             font-family: System;
             font-weight: 300;
             color: white;
             margin-bottom: 10px;
             margin-top: 10px;
+        `
+        const Divider = styled(View)`
+            border-bottom-color: #2e2e2e;
+            border-bottom-width: 1px;
+            width: 100%;
+            margin-top: 2px;
+            margin-bottom: 2px;
         `
         const TitleOverlayHeader = styled(View)`
             flex-direction: row;
@@ -98,7 +106,7 @@ export default TitleOverlay = ({ navigation }) => {
             width: 100%;
         `
         const TitleText = styled(Text)`
-            font-size: 24px;
+            font-size: 26px;
             font-family: System;
             color: white;
         `
@@ -107,10 +115,11 @@ export default TitleOverlay = ({ navigation }) => {
                 <HeaderRowContainer>
                     <TitleText>{title.display}{releaseYear}</TitleText>
                     <TaglineText>{title.tagline}</TaglineText>
+                    <Divider />
                     <DirectorText>{directorName}</DirectorText>
-                    { actors.map((actor, index) => {
-                        return <ActorText key={index}>{actor.name}</ActorText>
-                    })}
+                    <ActorText>
+                        Starring: {actors.map(actor => actor.name).join(", ")} 
+                    </ActorText>
                 </HeaderRowContainer>
                 <PosterContainer>
                     <Poster title={title} />
@@ -124,15 +133,16 @@ export default TitleOverlay = ({ navigation }) => {
             align-items: center;
             height: 40px;
             margin: 10px;
+            margin-top: 20px;
             margin-bottom: 80px;
             width: 100%;
         `
         return (
             <ReturnButtonContainer>
                 <Button onPress={() => setOverlayVisible(false)}
-                    buttonStyle={{ borderColor: 'white', width: '100%' }}
+                    buttonStyle={{ borderColor: 'white', width: '100%', borderRadius: '5px' }}
                     titleStyle={{ color: 'white' }}
-                    title='Return' type='outline' />
+                    title='Go Back' type='outline' />
             </ReturnButtonContainer>
         );
     }
