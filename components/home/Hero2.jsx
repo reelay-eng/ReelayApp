@@ -8,14 +8,17 @@ import ReelayInfo from './ReelayInfo';
 import Sidebar from './Sidebar';
 import { FeedContext } from '../../context/FeedContext';
 
-export default Hero = ({ 
+export default Hero2 = ({ 
     index, 
     isPaused,
+    feedIndex,
+    feedPosition, 
     navigation,
-    reelay,
     playPause,
     setIsPaused,
-    viewable,
+    stack,
+    stackIndex,
+    stackPosition,
 }) => {
     const Gradient = styled(LinearGradient)`
         height: 100%;
@@ -38,6 +41,11 @@ export default Hero = ({
         setOverlayVisible,
     } = useContext(FeedContext);
 
+    const isPlaying = (feedIndex === feedPosition)
+                    && (stackIndex === stackPosition)
+                    && (!overlayVisible);
+    const reelay = stack[stackIndex];
+
     const setReelayOverlay = (e) => {
         if (!overlayVisible) {
             setOverlayData({
@@ -51,8 +59,8 @@ export default Hero = ({
 
     return (
         <View key={index}>
-            <FeedVideoPlayer playing={viewable} reelay={reelay} 
-                        playingButPaused={viewable && isPaused} />
+            <FeedVideoPlayer playing={isPlaying} reelay={reelay} 
+                        playingButPaused={isPlaying && isPaused} />
             <Gradient locations={[0, 0.26, 0.6, 1]} colors={[
                     'rgba(26,26,26,0.6)',
                     'rgba(26,26,26,0)',
