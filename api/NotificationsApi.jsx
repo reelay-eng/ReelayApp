@@ -2,9 +2,21 @@ import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import { fetchReelaysForStack } from '../api/ReelayApi';
 import { getRegisteredUser, getUserByUsername, getMostRecentReelaysByTitle } from './ReelayDBApi';
+import { fetchResults } from './fetchResults';
+import * as Amplitude from 'expo-analytics-amplitude';
 
 const EXPO_NOTIFICATION_URL = Constants.manifest.extra.expoNotificationUrl;
 const STACK_NOTIFICATION_LIMIT = 4;
+
+const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
+const REELAY_API_KEY = Constants.manifest.extra.reelayApiKey;
+
+const REELAY_API_HEADERS = {
+    Accept: 'application/json',
+    'Accept-encoding': 'gzip, deflate',
+    'Content-Type': 'application/json',
+    'reelayapikey': REELAY_API_KEY,
+};
 
 const getDevicePushToken = async () => {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -14,7 +26,10 @@ const getDevicePushToken = async () => {
         finalStatus = status;
     }
     if (finalStatus !== 'granted') {
-        alert('Failed to get push token for push notification!');
+        // alert('Failed to get push token for push notification!');
+        Amplitude.logEventWithPropertiesAsync('pushTokenFetchFailed', {
+            status: existingStatus
+        });
         return null;
     }
     const token = (await Notifications.getExpoPushTokenAsync()).data;
@@ -179,3 +194,27 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
         await sendPushNotification({ title, body, token });    
     })
 }
+
+export const getNotificationSettings = async({user}) => {
+    const routeGet = REELAY_API_BASE_URL + `/users/sub/${user.attributes.sub}/settings`;
+    const resultGet = await fetchResults(routeGet, { 
+        method: 'GET',
+        headers: REELAY_API_HEADERS,
+    });
+    console.log("Fetch Notification Settings Results: ");
+    console.log(resultGet);
+    return resultGet;
+}
+
+export const setNotificationSettings = async({user, notifyPrompts, notifyReactions, notifyTrending }) => {
+    const routePost = REELAY_API_BASE_URL + 
+        `/users/sub/${user.attributes.sub}/settings?notifyPrompts=${notifyPrompts}&notifyReactions=${notifyReactions}&notifyTrending=${notifyTrending}`;
+    const resultPost = await fetchResults(routePost, { 
+        method: 'POST',
+        headers: REELAY_API_HEADERS,
+    });
+    console.log("Post Notification Settings Results: ");
+    console.log(resultPost);
+}
+
+

@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Text, View, Switch, Image, Pressable, SafeAreaView } from 'react-native';
 import BackButton from "../../components/utils/BackButton";
+import { Icon } from "react-native-elements";
 import styled from 'styled-components/native';
 
-export default ProfileSettings = ({navigation}) => {
+export const ProfileSettings = ({navigation}) => {
     const ViewContainer = styled(View)`
         width: 100%;
         height: 100%;
@@ -14,115 +15,64 @@ export default ProfileSettings = ({navigation}) => {
     const SettingsContainer = styled(View)`
         width: 100%;
         height: 100%;
+        display: flex;
+        align-items: center;
     `;
 
     return (
         <ViewContainer>
             <Header navigation={navigation}/>
-
-            <SettingsContainer>
-                {/* <ThemeSettings /> */}
-                <NotificationSettings />
+            <SettingsContainer> 
+                <SettingEntry navigation={navigation} text="Notifications" to="NotificationSettingsScreen" />
             </SettingsContainer>
         </ViewContainer>
     )
 }
 
-const NotificationSettings = () => {
-    const NotificationSettingsContainer = styled(View)`
+const SettingEntry = ({navigation, text, to}) => {
+    const Container = styled(Pressable)`
         width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    `;
-
-    /* 
-    Notification Types:
-    1. All Notifications
-    2. Environment Notifications (Reminder that a movie just came out, etc)
-    3. Interaction Notifications (Follow, like, comment, etc)
-    */
-
-    return (
-        <NotificationSettingsContainer>
-            <AllNotificationSetting />
-            <EnvironmentNotificationSetting />
-        </NotificationSettingsContainer>
-    )
-}
-
-const AllNotificationSetting = () => {
-    const [allNotificationsToggled, setAllNotificationsToggled] = useState(false);
-    function toggleAllNotifications() {
-        setAllNotificationsToggled(!allNotificationsToggled);
-        // if (allNotificationsToggled) {
-        //     //logic
-        // }
-    }
-
-    return (
-        <NotificationSetting
-                title="Allow All Notifications?" 
-                isToggled={allNotificationsToggled}
-                toggleFunction={toggleAllNotifications}
-        />
-    )
-}
-
-const EnvironmentNotificationSetting = () => {
-    const [environmentNotificationsToggled, setEnvironmentNotificationsToggled] = useState(false);
-    function toggleEnvironmentNotifications() {
-        setEnvironmentNotificationsToggled(!environmentNotificationsToggled);
-        // if (environmentNotificationsToggled) {
-        //     //logic
-        // }
-    }
-
-    return (
-        <NotificationSetting
-                title="Environment Notifications?" 
-                isToggled={environmentNotificationsToggled}
-                toggleFunction={toggleEnvironmentNotifications}
-        />
-    )
-}
-
-const NotificationSetting = ({title, isToggled, toggleFunction}) => {
-    const NotificationSettingContainer = styled(View)`
-        width: 100%;
-        height: 5%;
+        height: 60px;
+        border: solid 1px rgba(255, 255, 255, 0.1);
+        border-left-width: 0px;
+        border-right-width: 0px;
+        background-color: #0D0D0D;
         display: flex;
         flex-direction: row;
+        justify-content: center;
+    `
+    const SettingEntryWrapper = styled(View)`
+        display: flex;
+        width: 90%;
+        flex-direction: row;
+        align-items: center;
         justify-content: space-between;
-        margin-top: 15px;
-        padding: 5px;
     `;
-    const NotificationSettingText = styled(Text)`
-        text-align: center;
-        color: white;
-        font-size: 28px;
-        margin-left: 10px;
-        margin-right: 20px;
+    const SettingEntryIconTextContainer = styled(View)`
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
     `;
-    const NotificationSlider = styled(Switch)`
-        margin-right: 20px;
+    const SettingEntryText = styled(Text)`
+        font-size: 24px;
+        font-weight: 300;
+        color: #FFFFFF;
+        margin-left: 20px;
     `;
     return (
-        <NotificationSettingContainer>
-            <NotificationSettingText>{title}</NotificationSettingText>
-            <NotificationSlider
-                value={isToggled}
-                onValueChange={toggleFunction}
-                trackColor={{false: "#767577", true: "#81b0ff"}}
-                thumbColor={isToggled ? "#f5dd4b" : "#f4f3f4"}
-                ios_backgroundColor="#3e3e3e"
-            />
-        </NotificationSettingContainer>
+        <Container onPress={() => {navigation.push(to)}}>
+            <SettingEntryWrapper>
+                <SettingEntryIconTextContainer>
+                    <Icon type='ionicon' name='notifications' color={"#585858"} size={25}/>
+                    <SettingEntryText>{text}</SettingEntryText>
+                </SettingEntryIconTextContainer>
+                <Icon type='ionicon' name='chevron-forward-outline' color={"#585858"} size={25}/>
+            </SettingEntryWrapper>
+        </Container>
     )
 }
 
-const Header = ({navigation}) => {
+export const Header = ({navigation, text="Settings"}) => {
     const BackButtonContainer = styled(View)`
         align-self: flex-start;
         position: absolute;
@@ -150,7 +100,7 @@ const Header = ({navigation}) => {
             </BackButtonContainer>
 
             <HeaderContainer>
-                <HeaderText>Settings</HeaderText>
+                <HeaderText>{text}</HeaderText>
             </HeaderContainer>
         </>
     )
