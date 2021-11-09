@@ -72,6 +72,21 @@ export default function AuthenticatedNavigator() {
         }}
       />
       <BottomTab.Screen
+        name="Search"
+        component={CreateReelayTabNavigator}
+        options={{
+          tabBarIcon: () => (
+            <Icon
+              type="ionicon"
+              name="search"
+              color={"white"}
+              size={50}
+            />
+          ),
+          tabBarVisible: !overlayVisible,
+        }}
+      />
+      <BottomTab.Screen
         name="Create"
         component={CreateReelayTabNavigator}
         options={{
@@ -90,17 +105,17 @@ export default function AuthenticatedNavigator() {
         name="Profile"
         component={ProfileTabNavigator}
         options={{
-            tabBarIcon: () => (
-                <Icon
-                type="ionicon"
-                name="person-circle"
-                color={"white"}
-                size={50}
-              />  
-            ),
-            tabBarVisible: !overlayVisible,
+          tabBarIcon: () => (
+            <Icon
+              type="ionicon"
+              name="person-circle"
+              color={"white"}
+              size={50}
+            />
+          ),
+          tabBarVisible: !overlayVisible,
         }}
-        />
+      />
     </BottomTab.Navigator>
   );
 }
