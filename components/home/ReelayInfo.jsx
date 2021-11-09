@@ -9,12 +9,10 @@ export default ReelayInfo = ({ navigation, reelay }) => {
 	const { user } = useContext(AuthContext);
 
 	const InfoView = styled(View)`
-		flex: 1;
 		justify-content: flex-end;
-		margin: 0 0 120px 13px;
+		margin: 10px 10px 120px 13px;
 	`
 	const InfoPressable = styled(Pressable)`
-		flex: 1;
 		justify-content: flex-end;
 		margin: 0 0 120px 13px;
 	`
@@ -62,13 +60,13 @@ export default ReelayInfo = ({ navigation, reelay }) => {
 	return (
 		<InfoView>
 			<Pressable onPress={goToProfile}>
-			<PostInfo>
-				<Username>@{creator?.username}</Username>
-				<Timestamp>{timestamp}</Timestamp>
-			</PostInfo>
-			<TitleInfo>
-				<Title>{displayTitle} ({year})</Title>
-			</TitleInfo>
+				<PostInfo>
+					<Username>@{creator?.username}</Username>
+					<Timestamp>{timestamp}</Timestamp>
+				</PostInfo>
+				<TitleInfo>
+					<Title>{displayTitle} ({year})</Title>
+				</TitleInfo>
 			</Pressable>
 		</InfoView>
 	);

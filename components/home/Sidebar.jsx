@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Dimensions, Pressable, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 
@@ -9,7 +9,6 @@ import { FeedContext } from '../../context/FeedContext';
 import { sendLikeNotification } from '../../api/NotificationsApi';
 import * as Amplitude from 'expo-analytics-amplitude';
 
-import { addLike, deleteLike } from '../../api/ReelayApi';
 import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
 
 export default Sidebar = ({ reelay }) => {

@@ -31,6 +31,8 @@ const IconContainer = styled(Pressable)`
 `
 const ReelayFeedContainer = styled(View)`
     background-color: black;
+    height: ${height}px;
+    width: ${width}px;
 `
 const TopRightContainer = styled(View)`
     position: absolute;
@@ -90,18 +92,16 @@ export default ReelayStack = ({
     const [iconVisible, setIconVisible] = useState(false);
     const [stackPosition, setStackPosition] = useState(0);
 
-    const onStackSwipedRef = useRef(onStackViewableItemsChanged);
+    const onStackSwiped = (e) => {
+        const { x, y } = e.nativeEvent.contentOffset;
+        if (x % width === 0) {
+            const stackPosition = x / width;
+            console.log('stack position: ', stackPosition);
+            setStackPosition(stackPosition);
+        }
 
-    const onStackViewableItemsChanged = async ({ changed }) => {
-        console.log('IN STACK VIEWABLE ITEMS CHANGED');
-        console.log(`changing ${changed.length} items`);
-        changed.forEach(({ item, key, index, isViewable }) => {
-            if (isViewable) {
-                console.log('setting stack position: ', index);
-                setStackPosition(index);
-            }
-        })
     }
+    const onStackSwipedRef = useRef(onStackSwiped);
 
     const playPause = () => {
         if (isPaused) {
@@ -124,6 +124,9 @@ export default ReelayStack = ({
     const renderReelay = ({ item, index }) => {
         const reelay = item;
         const reelayViewable = (index === stackPosition);
+
+        console.log('rendering reelay: ', reelay.title.display, index);
+        console.log('reelay viewable?: ', reelayViewable);
         
         return (
             <ReelayFeedContainer>
@@ -161,15 +164,20 @@ export default ReelayStack = ({
             initialNumToRender={3}
             keyExtractor={reelay => String(reelay.id)}
             maxToRenderPerBatch={3}
-            onViewableItemsChanged={onStackSwipedRef.current}
+            onScroll={onStackSwipedRef.current}
             pagingEnabled={true}
             renderItem={renderReelay}
             style={{
-                backgroundColor: ReelayColors.reelayBlack,
-                height: '100%',
-                width: '100%',
+                backgroundColor: 'transparent',
+            }}
+            contentContainerStyle={{
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: height,
+                width: width,
             }}
             windowSize={3}
         />
+        // renderReelay({ item: stack[0], index: 0 })
     );
 }
