@@ -7,6 +7,7 @@ import styled from 'styled-components/native';
 
 // aws imports
 import { Amplify, Auth, Storage } from 'aws-amplify';
+import { Audio } from 'expo-av';
 import AWSConfig from "./src/aws-exports";
 
 // expo and amplitude imports
@@ -34,9 +35,6 @@ Amplify.configure({
         disabled: true,
     },
 });
-
-console.log('AWS config: ');
-console.log(AWSConfig);
 
 Auth.configure({ mandatorySignIn: false });
 
@@ -67,8 +65,7 @@ function App() {
     const [user, setUser] = useState({});
     const [username, setUsername] = useState('');
 
-    // Visibility context hooks
-    // TODO: this is really all about FEED visibility...
+    // Feed context hooks
     const [commentsVisible, setCommentsVisible] = useState(false);
     const [currentComment, setCurrentComment] = useState('');
     const [likesVisible, setLikesVisible] = useState(false);
@@ -96,6 +93,11 @@ function App() {
 
     useEffect(() => {
         registerUserAndPushTokens();
+        Audio.setAudioModeAsync({
+            playsInSilentModeIOS: true,
+            interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
+            interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+        });
     }, [user]);
 
     const authenticateUser = async () => {

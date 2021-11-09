@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Pressable, View } from 'react-native';
+import { Dimensions, Pressable, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import styled from 'styled-components/native';
 
@@ -7,6 +7,8 @@ import FeedVideoPlayer from './FeedVideoPlayer';
 import ReelayInfo from './ReelayInfo';
 import Sidebar from './Sidebar';
 import { FeedContext } from '../../context/FeedContext';
+
+const { height, width } = Dimensions.get('window');
 
 export default Hero = ({ 
     index, 
@@ -18,19 +20,18 @@ export default Hero = ({
     viewable,
 }) => {
     const Gradient = styled(LinearGradient)`
-        height: 100%;
+        height: ${height}px;
         justify-content: space-between;
         position: absolute;
         top: 0;
         left: 0;
-        width: 100%;
+        width: ${width}px;
         z-index: 1;
     `
     const Overlay = styled(Pressable)`
-        flex: 1;
         flex-direction: row;
-        width: 100%;
-        height: 100%;
+        width: ${width}px;
+        height: ${height}px;
     `
     const { 
         overlayVisible,
@@ -49,10 +50,12 @@ export default Hero = ({
         }
     }
 
+    console.log('Hero rendering: ', reelay.title.display);
+
     return (
         <View key={index}>
-            <FeedVideoPlayer playing={viewable} reelay={reelay} 
-                        playingButPaused={viewable && isPaused} />
+            <FeedVideoPlayer viewable={viewable} reelay={reelay} 
+                        isPaused={isPaused} />
             <Gradient locations={[0, 0.26, 0.6, 1]} colors={[
                     'rgba(26,26,26,0.6)',
                     'rgba(26,26,26,0)',

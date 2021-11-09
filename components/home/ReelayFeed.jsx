@@ -15,8 +15,13 @@ import { getMostRecentStacks } from '../../api/ReelayDBApi';
 import { showErrorToast, showMessageToast } from '../utils/toasts';
 import ReelayColors from '../../constants/ReelayColors';
 
+const { height, width } = Dimensions.get('window');
+
 const ReelayFeedContainer = styled(View)`
     background-color: black;
+    justify-content: center;
+    height: ${height}px;
+    width: ${width}px;
 `
 
 export default ReelayFeed = ({ navigation, 
@@ -34,6 +39,7 @@ export default ReelayFeed = ({ navigation,
 
     const [feedPosition, setFeedPosition] = useState(0);
     const [isPaused, setIsPaused] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
     const [stackList, setStackList] = useState([]);
     const [stackCounter, setStackCounter] = useState(0);
 
@@ -170,7 +176,8 @@ export default ReelayFeed = ({ navigation,
 
     const refreshFeed = async () => {
         if (isFixedStack) return;
-        console.log('REFRESHING FEED');        
+        console.log('REFRESHING FEED');     
+        setRefreshing(true);   
         const fetchedStacks = await getMostRecentStacks();        
         nextPage.current = 1;
         setStackList(fetchedStacks);        
@@ -182,7 +189,6 @@ export default ReelayFeed = ({ navigation,
     const renderStack = ({ item, index }) => {
         const stack = item;
         const stackViewable = (index === feedPosition);
-        console.log('RENDERING STACK: ', stack);
 
         return (
             <ReelayStack 
@@ -195,17 +201,15 @@ export default ReelayFeed = ({ navigation,
         );
     }
 
-    const onFeedViewableItemsChanged = async ({ changed }) => {
-        console.log('IN STACK VIEWABLE ITEMS CHANGED');
-        console.log(`changing items: `, changed);
-        changed.forEach(({ item, key, index, isViewable }) => {
-            if (isViewable) {
-                console.log('setting feed position: ', index);
-                setFeedPosition(index);
-            }
-        });
+    const onFeedSwiped = async (e) => {
+        const { x, y } = e.nativeEvent.contentOffset;
+        if (y % height === 0) {
+            const feedPosition = y / height;
+            console.log('feedPosition: ', feedPosition);
+            setFeedPosition(feedPosition);
+        }
     }
-    const onFeedSwipedRef = useRef(onFeedViewableItemsChanged);
+    const onFeedSwipedRef = useRef(onFeedSwiped);
 
     return (
         <ReelayFeedContainer>
@@ -217,16 +221,21 @@ export default ReelayFeed = ({ navigation,
                     initialNumToRender={3}
                     keyExtractor={stack => String(stack[0].title.id)}
                     maxToRenderPerBatch={3}
-                    onViewableItemsChanged={onFeedSwipedRef.current}
+                    onEndReached={extendFeed}
+                    onRefresh={refreshFeed}
+                    onScroll={onFeedSwipedRef.current}
                     pagingEnabled={true}
+                    refreshing={refreshing}
+                    ref={feedPager}
                     renderItem={renderStack}
+                    showsVerticalScrollIndicator={false}
                     style = {{
-                        backgroundColor: ReelayColors.reelayBlack,
-                        height: '100%',
-                        width: '100%',
+                        backgroundColor: 'transparent',
+                        height: height,
+                        width: width,
                     }}
                     windowSize={3}
-                />
+                />        
             }
         </ReelayFeedContainer>
     );

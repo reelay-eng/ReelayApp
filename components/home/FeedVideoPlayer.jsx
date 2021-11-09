@@ -9,11 +9,13 @@ import { FeedContext } from '../../context/FeedContext';
 import * as Amplitude from 'expo-analytics-amplitude';
 
 export default function FeedVideoPlayer({ 
-	// paused,
-	playing, 
-	playingButPaused,
+	viewable, 
+	isPaused,
 	reelay, 
  }) {
+
+	console.log('Video player rendering for ', reelay.title.display, viewable, isPaused, reelay.id);
+
 	const [isFocused, setIsFocused] = useState(false);
 	const [playbackObject, setPlaybackObject] = useState(null);
 
@@ -23,27 +25,22 @@ export default function FeedVideoPlayer({
 	const { user } = useContext(AuthContext);
 	const { overlayVisible } = useContext(FeedContext);
 	
-	const shouldPlay = playing && isFocused && !playingButPaused && !overlayVisible;
-
-	Audio.setAudioModeAsync({
-		playsInSilentModeIOS: true,
-		interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
-		interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
-	});
+	const shouldPlay = viewable && isFocused && !isPaused && !overlayVisible;
+	if (shouldPlay) console.log('This one ^^ should play');
 
 	const _handleVideoRef = (component) => {
 		const playbackObject = component;
 		const wasPlayingOnLastRender = playheadCounter.current % 2 === 1;
 
 		setPlaybackObject(playbackObject);
-		if (!playing && wasPlayingOnLastRender) {
+		if (!viewable && wasPlayingOnLastRender) {
 			playheadCounter.current += 1;
 			try {
 				playbackObject.setPositionAsync(0);
 			} catch (e) {
 				console.log(e);
 			}
-		} else if (playing && !wasPlayingOnLastRender) {
+		} else if (viewable && !wasPlayingOnLastRender) {
 			// results in odd-numbered playhead counter
 			playheadCounter.current += 1;
 		}
@@ -56,12 +53,12 @@ export default function FeedVideoPlayer({
 
 	useEffect(() => {
 		if (shouldPlay) playbackObject.playAsync();
-	}, [playing, playingButPaused, isFocused, overlayVisible]);
+	}, [viewable, isPaused, isFocused, overlayVisible]);
 
     useFocusEffect(React.useCallback(() => {
-		if (playing) setIsFocused(true);
+		if (viewable) setIsFocused(true);
         return () => {
-			if (playing) setIsFocused(false);
+			if (viewable) setIsFocused(false);
 		}
     }));
 
@@ -74,7 +71,7 @@ export default function FeedVideoPlayer({
 	}
 
 	const onPlaybackStatusUpdate = (playbackStatus) => {
-		if (playbackStatus?.didJustFinish && playing) {
+		if (playbackStatus?.didJustFinish && viewable) {
 			Amplitude.logEventWithPropertiesAsync('watchedFullReelay', {
 				reelayID: reelay.id,
 				reelayCreator: reelay.creator.username,
