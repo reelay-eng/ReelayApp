@@ -22,6 +22,7 @@ import {
 
 import MyProfileScreen from "../screens/authenticated/MyProfileScreen";
 import ProfileFeedScreen from "../screens/authenticated/ProfileFeedScreen";
+import ProfileSettingsScreen from "../screens/authenticated/ProfileSettingsScreen";
 import ReelayCameraScreen from "../screens/authenticated/ReelayCameraScreen";
 import ReelayUploadScreen from "../screens/authenticated/ReelayUploadScreen";
 import SelectTitleScreen from "../screens/authenticated/SelectTitleScreen";
@@ -207,6 +208,13 @@ function ProfileTabNavigator() {
       <ProfileTabStack.Screen
         name="ProfileFeedScreen"
         component={ProfileFeedScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <ProfileTabStack.Screen
+        name="ProfileSettingsScreen"
+        component={ProfileSettingsScreen}
         options={{
           headerShown: false,
         }}

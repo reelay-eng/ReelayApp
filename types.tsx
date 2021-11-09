@@ -32,6 +32,7 @@ export type ProfileTabParamList = {
     MyProfileScreen: undefined;
     UserProfileScreen: undefined;
     ProfileFeedScreen: undefined;
+    ProfileSettingsScreen: undefined;
 }
 
 export type AuthenticationStackParamList = {

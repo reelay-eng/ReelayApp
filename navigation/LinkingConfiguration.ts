@@ -19,6 +19,7 @@ export default {
                     VenueSelectScreen: 'VenueSelectScreen',
                     MyProfileScreen: 'MyProfileScreen',
                     UserProfileScreen: 'UserProfileScreen',
+                    ProfileSettingsScreen: 'ProfileSettingsScreen',
                     ProfileFeedScreen: 'ProfileFeedScreen',
                 },
             },

@@ -45,7 +45,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
 
     return (
         <ProfileScreenContainer>
-            <ProfileTopBar creator={creator} navigation={navigation} />
+            <ProfileTopBar creator={creator} navigation={navigation} route={route}/>
             <ProfileScrollView>
                 <ProfileHeader />
                 <ProfileStatsBar reelayCount={reelayCount} />

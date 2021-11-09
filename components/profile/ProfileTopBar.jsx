@@ -4,7 +4,7 @@ import { Icon } from 'react-native-elements';
 
 import styled from 'styled-components/native';
 
-export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) => {
+export default ProfileTopBar = ({ creator, navigation, route, atProfileBase = false }) => {
     const creatorName = creator.username ?? 'User not found';
 
     const BackButtonContainer = styled(SafeAreaView)`
@@ -13,6 +13,11 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
     `
     const RightCornerContainer = styled(SafeAreaView)`
         align-self: flex-end;
+        flex-direction: row;
+        position: absolute;
+    `
+    const LeftCornerContainer = styled(SafeAreaView)`
+        align-self: flex-start;
         flex-direction: row;
         position: absolute;
     `
@@ -36,6 +41,11 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
     `
     const SearchIconContainer = styled(View)`
         align-self: center;
+        margin-left: 10px;
+    `
+    const SettingsIconContainer = styled(View)`
+        align-self: center;
+        margin-right: 10px;
     `
     const [searchBarOpen, setSearchBarOpen] = useState(false);
 
@@ -53,7 +63,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
 
     const SearchButton = () => {
         return (
-            <RightCornerContainer>
+            <LeftCornerContainer>
                 <SearchIconContainer>
                     <Icon type='ionicon' size={30} color={'white'} name='search' onPress={() => {
                         if (searchBarOpen) {
@@ -63,6 +73,18 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
                         }
                     }} />
                 </SearchIconContainer>
+            </LeftCornerContainer>
+        );
+    }
+
+    const SettingsButton = () => {
+        return (
+            <RightCornerContainer>
+                <SettingsIconContainer>
+                    <Icon type='ionicon' size={30} color={'white'} name='settings-outline' onPress={() => {
+                        navigation.push('ProfileSettingsScreen', {initialFeedPos: 0});
+                    }} />
+                </SettingsIconContainer>
             </RightCornerContainer>
         );
     }
@@ -70,12 +92,16 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
     return (
         <TopBarContainer>
             { !atProfileBase &&
+            <>
                 <BackButtonContainer>
                     <Icon type='ionicon' size={30} color={'white'} name='chevron-back-outline' 
                         onPress={() => navigation.pop()} />
-                </BackButtonContainer>        
+                </BackButtonContainer>  
+            </>      
             }
             <HeadingText>{creatorName}</HeadingText>
+            {/* <SearchButton /> */}
+            <SettingsButton />
         </TopBarContainer>
     );
 }
