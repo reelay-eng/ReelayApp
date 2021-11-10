@@ -1,7 +1,9 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState } from 'react';
+import { Dimensions } from 'react-native';
 import { Video, Audio } from 'expo-av'
-import { VideoStyles } from '../../styles';
 import { useFocusEffect } from '@react-navigation/native';
+
+const { height, width } = Dimensions.get('window');
 
 export default function VideoPlayer({ videoURI, playing }) {
 	const [playbackObject, setPlaybackObject] = useState(null);
@@ -18,24 +20,22 @@ export default function VideoPlayer({ videoURI, playing }) {
 			setIsFocused(false);
 		}
     }));
-
-	// const _handleVideoRef = async (component) => {
-	// 	const playbackObject = component;
-	// 	setPlaybackObject(playbackObject);
-	// }
+	
 	return (
 			<Video
 				isLooping
 				isMuted={false}
 				progressUpdateIntervalMillis={50}
 				rate={1.0}
-				// ref={(component) => _handleVideoRef(component)}
 				resizeMode='cover'
 				shouldDuckAndroid={true}
 				shouldPlay={playing && isFocused}
 				source={{ uri: videoURI }}
 				staysActiveInBackground={false}
-				style={VideoStyles.video}
+				style={{
+					height: height,
+					width: width
+				}}
 				useNativeControls={false}
 				volume={1.0}
 			/>

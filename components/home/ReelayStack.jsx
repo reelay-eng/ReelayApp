@@ -4,6 +4,8 @@ import { Icon } from 'react-native-elements';
 import Hero from './Hero';
 import Poster from './Poster';
 
+import ViewPager from 'react-native-pager-view';
+
 import LikesDrawer from './LikesDrawer';
 import CommentsDrawer from './CommentsDrawer';
 
@@ -124,16 +126,19 @@ export default ReelayStack = ({
     }
 
     const renderReelay = ({ reelay, index }) => {
-        const reelayViewable = (index === stackPosition);
-        
+        const reelayViewable = (index === stackPosition);        
         return (
             <ReelayFeedContainer key={reelay.id}>
                 <Hero 
-                    navigation={navigation} reelay={reelay} 
+                    navigation={navigation} 
+                    reelay={reelay} 
                     viewable={stackViewable && reelayViewable}
-                    isPaused={isPaused} setIsPaused={setIsPaused}
+                    index={index} 
+                    isPaused={isPaused} 
                     playPause={playPause} 
-                    stackIndex={index} stackPosition={stackPosition}
+                    setIsPaused={setIsPaused}
+                    stackIndex={index} 
+                    stackPosition={stackPosition}
                 />
                 { isFixedStack && renderBackButton() }
                 <LikesDrawer reelay={reelay} />

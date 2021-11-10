@@ -1,20 +1,19 @@
-import React, { memo, useContext, useEffect, useRef, useState } from 'react'
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
+import { Dimensions } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { Video, Audio } from 'expo-av'
-import { VideoStyles } from '../../styles';
 import { useFocusEffect } from '@react-navigation/native';
-
 import { FeedContext } from '../../context/FeedContext';
 
 import * as Amplitude from 'expo-analytics-amplitude';
+
+const { height, width } = Dimensions.get('window');
 
 export default function FeedVideoPlayer({ 
 	viewable, 
 	isPaused,
 	reelay, 
  }) {
-
-	// console.log('Video player rendering for ', reelay.title.display, viewable, isPaused, reelay.id);
 
 	const [isFocused, setIsFocused] = useState(false);
 	const [playbackObject, setPlaybackObject] = useState(null);
@@ -96,7 +95,10 @@ export default function FeedVideoPlayer({
 			shouldPlay={shouldPlay}
 			source={{ uri: reelay.content.videoURI }}
 			staysActiveInBackground={false}
-			style={VideoStyles.video}
+			style={{
+				height: height,
+				width: width,
+			}}
 			useNativeControls={false}
 			volume={1.0}
 		/>
