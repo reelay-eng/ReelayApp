@@ -34,7 +34,6 @@ export default ReelayInfo = ({ navigation, reelay }) => {
 		font-size: 16px;
 		letter-spacing: -0.2px;
 		margin-left: 10px;
-		width: 80%;
 	`
 	const TitleInfo = styled(View)`
 		flex-direction: row;
@@ -45,7 +44,6 @@ export default ReelayInfo = ({ navigation, reelay }) => {
 		color: rgba(255, 255, 255, 1.2);
 		letter-spacing: -0.2px;
 		margin-top: 6px;
-		width: 80%;
 	`
 
 	const displayTitle = (reelay.title.display) ? reelay.title.display : 'Title not found\ ';

@@ -85,6 +85,14 @@ export default ReelayFeed = ({ navigation,
         return fetchedStacks;
     }
 
+    const getItemLayout = (stack, index) => {
+        return {
+            length: height,
+            offset: index * height,
+            index: index, 
+        }
+    }
+
     const onDeleteReelay = async (reelay) => {
         // todo: this should probably be a try/catch
         const deleteSuccess = deleteReelay(reelay);
@@ -217,8 +225,10 @@ export default ReelayFeed = ({ navigation,
             { stackList.length >= 1 && 
                 <FlatList
                     data={stackList}
+                    getItemLayout={getItemLayout}
                     horizontal={false}
                     initialNumToRender={3}
+                    initialScrollIndex={initialFeedPos}
                     keyExtractor={stack => String(stack[0].title.id)}
                     maxToRenderPerBatch={3}
                     onEndReached={extendFeed}
