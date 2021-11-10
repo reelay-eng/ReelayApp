@@ -22,6 +22,8 @@ import {
 
 import MyProfileScreen from "../screens/authenticated/MyProfileScreen";
 import ProfileFeedScreen from "../screens/authenticated/ProfileFeedScreen";
+import ProfileSettingsScreen from "../screens/authenticated/ProfileSettingsScreen";
+import NotificationSettingsScreen from "../screens/authenticated/NotificationSettingsScreen";
 import ReelayCameraScreen from "../screens/authenticated/ReelayCameraScreen";
 import ReelayUploadScreen from "../screens/authenticated/ReelayUploadScreen";
 import SelectTitleScreen from "../screens/authenticated/SelectTitleScreen";
@@ -211,6 +213,24 @@ function ProfileTabNavigator() {
           headerShown: false,
         }}
       />
+
+      
+      {/* Settings */}
+      <ProfileTabStack.Screen
+        name="ProfileSettingsScreen"
+        component={ProfileSettingsScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <ProfileTabStack.Screen
+        name="NotificationSettingsScreen"
+        component={NotificationSettingsScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
     </ProfileTabStack.Navigator>
+    
   );
 }
