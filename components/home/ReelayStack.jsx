@@ -10,6 +10,7 @@ import CommentsDrawer from './CommentsDrawer';
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 import { VenueIcon } from '../utils/VenueIcon';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const { height, width } = Dimensions.get('window');
 const ICON_SIZE = 96;
@@ -121,15 +122,11 @@ export default ReelayStack = ({
         }
     }
 
-    const renderReelay = ({ item, index }) => {
-        const reelay = item;
+    const renderReelay = ({ reelay, index }) => {
         const reelayViewable = (index === stackPosition);
-
-        console.log('rendering reelay: ', reelay.title.display, index);
-        console.log('reelay viewable?: ', reelayViewable);
         
         return (
-            <ReelayFeedContainer>
+            <ReelayFeedContainer key={reelay.id}>
                 <Hero 
                     navigation={navigation} reelay={reelay} 
                     viewable={stackViewable && reelayViewable}
@@ -157,27 +154,42 @@ export default ReelayStack = ({
         );
     }
 
+    const testItem = ({ reelay, index }) => {
+        return (
+            <ReelayFeedContainer key={reelay.id} style={{ alignItems: 'center', justifyContent: 'center' }}>
+                <Text style={{ color: 'white' }}>{`${stack[0].title.display}`}</Text>
+            </ReelayFeedContainer>
+        );
+    }
+
     return (
-        <FlatList
-            data={stack}
-            horizontal={true}
-            initialNumToRender={3}
-            keyExtractor={reelay => String(reelay.id)}
-            maxToRenderPerBatch={3}
-            onScroll={onStackSwipedRef.current}
-            pagingEnabled={true}
-            renderItem={renderReelay}
-            style={{
-                backgroundColor: 'transparent',
-            }}
-            contentContainerStyle={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                height: height,
-                width: width,
-            }}
-            windowSize={3}
-        />
-        // renderReelay({ item: stack[0], index: 0 })
+        // <FlatList
+        //     data={stack}
+        //     horizontal={true}
+        //     initialNumToRender={3}
+        //     keyExtractor={reelay => String(reelay.id)}
+        //     maxToRenderPerBatch={3}
+        //     // onScroll={onStackSwipedRef.current}
+        //     pagingEnabled={true}
+        //     renderItem={testItem}
+        //     style={{
+        //         backgroundColor: 'black',
+        //         height: height,
+        //         width: width,
+        //     }}
+        //     contentContainerStyle={{
+        //         alignItems: 'center',
+        //         justifyContent: 'center',
+        //         height: height,
+        //         width: width,
+        //     }}
+        //     windowSize={3}
+        // />
+        <ScrollView horizontal={true} pagingEnabled={true}>
+            { stack.map((reelay, index) => {
+                console.log('mapping reelay: ', reelay.id);
+                return renderReelay({ reelay, index });
+            })}
+        </ScrollView>
     );
 }
