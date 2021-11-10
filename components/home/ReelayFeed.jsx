@@ -177,8 +177,11 @@ export default ReelayFeed = ({ navigation,
             refreshFeed();
         } else {
             console.log('feed positioning to 0');
-            feedPager.current.setPage(0);
+            // feedPager.current.setPage(0);
             setFeedPosition(0);
+            feedPager.current.scrollToOffset({
+                offset: 0, animated: true,
+            });
         }
     };
 
@@ -187,6 +190,7 @@ export default ReelayFeed = ({ navigation,
         console.log('REFRESHING FEED');     
         setRefreshing(true);   
         const fetchedStacks = await getMostRecentStacks();        
+        setRefreshing(false);
         nextPage.current = 1;
         setStackList(fetchedStacks);        
         // the user is at the top of the feed
@@ -197,6 +201,9 @@ export default ReelayFeed = ({ navigation,
     const renderStack = ({ item, index }) => {
         const stack = item;
         const stackViewable = (index === feedPosition);
+
+        console.log(`Rendering stack for ${stack[0].title.display}`);
+        console.log(`index: ${index} feed position: ${feedPosition}, viewable? ${stackViewable}`);
 
         return (
             <ReelayStack 

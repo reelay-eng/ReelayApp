@@ -51,7 +51,7 @@ export default Hero = ({
         }
     }
 
-    console.log('Hero rendering: ', reelay.title.display);
+    console.log(`Rendering hero ${reelay.title.display} at position ${index}, paused? ${isPaused}, viewable? ${viewable}`);
 
     return (
         <View key={index}>
