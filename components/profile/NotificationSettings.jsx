@@ -178,7 +178,7 @@ const NotificationSetting = ({title, subtext, isToggled, toggleFunction}) => {
     const NotificationSettingText = styled(Text)`
         text-align: center;
         color: white;
-        font-size: 26px;
+        font-size: 20px;
         font-weight: 500;
         margin-left: 10px;
         margin-right: 20px;
