@@ -30,6 +30,7 @@ export default Hero = ({
     `
     const Overlay = styled(Pressable)`
         flex-direction: row;
+        justify-content: space-between;
         width: ${width}px;
         height: ${height}px;
     `
@@ -54,8 +55,7 @@ export default Hero = ({
 
     return (
         <View key={index}>
-            <FeedVideoPlayer viewable={viewable} reelay={reelay} 
-                        isPaused={isPaused} />
+            <FeedVideoPlayer viewable={viewable} reelay={reelay} isPaused={isPaused} />
             <Gradient locations={[0, 0.26, 0.6, 1]} colors={[
                     'rgba(26,26,26,0.6)',
                     'rgba(26,26,26,0)',

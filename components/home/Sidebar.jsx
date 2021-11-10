@@ -20,9 +20,7 @@ export default Sidebar = ({ reelay }) => {
 		`
 	const SidebarView = styled(View)`
 		align-items: flex-end;
-		height: 100%;
 		justify-content: center;
-		width: 20%;
 	`
 	const SidebarButton = styled(Pressable)`
 		align-items: center;

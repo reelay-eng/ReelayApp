@@ -20,6 +20,7 @@ const BackButtonContainer = styled(SafeAreaView)`
     align-self: flex-start;
     margin-left: 16px;
     position: absolute;
+    top: 40px;
 `
 const IconContainer = styled(Pressable)`
     position: absolute;
@@ -38,7 +39,7 @@ const ReelayFeedContainer = styled(View)`
 const TopRightContainer = styled(View)`
     position: absolute;
     left: ${width - 110}px;
-    top: 20px;
+    top: 40px;
     zIndex: 3;
 `
 const UnderPosterContainer = styled(View)`
@@ -93,16 +94,7 @@ export default ReelayStack = ({
     const [iconVisible, setIconVisible] = useState(false);
     const [stackPosition, setStackPosition] = useState(0);
 
-    const onStackSwiped = (e) => {
-        const { x, y } = e.nativeEvent.contentOffset;
-        if (x % width === 0) {
-            const stackPosition = x / width;
-            console.log('stack position: ', stackPosition);
-            setStackPosition(stackPosition);
-        }
-
-    }
-    const onStackSwipedRef = useRef(onStackSwiped);
+    const viewableReelay = stack[stackPosition];
 
     const playPause = () => {
         if (isPaused) {
@@ -122,6 +114,15 @@ export default ReelayStack = ({
         }
     }
 
+    const renderBackButton = () => {
+        return (
+            <BackButtonContainer>
+            <Icon type='ionicon' size={30} color={'white'} name='chevron-back-outline' 
+                onPress={() => navigation.pop()} />
+            </BackButtonContainer>
+        );
+    }
+
     const renderReelay = ({ reelay, index }) => {
         const reelayViewable = (index === stackPosition);
         
@@ -134,32 +135,30 @@ export default ReelayStack = ({
                     playPause={playPause} 
                     stackIndex={index} stackPosition={stackPosition}
                 />
-                { isFixedStack && 
-                    <BackButtonContainer>
-                        <Icon type='ionicon' size={30} color={'white'} name='chevron-back-outline' 
-                            onPress={() => navigation.pop()} />
-                    </BackButtonContainer>
-                }
+                { isFixedStack && renderBackButton() }
                 <LikesDrawer reelay={reelay} />
                 <CommentsDrawer reelay={reelay} />
-                <TopRightContainer>
-                    <Poster title={reelay.title} />
-                    <UnderPosterContainer>
-                        { stack.length > 1 && <StackLocation position={stackPosition} length={stack.length} /> }
-                        { reelay?.content?.venue && <VenueIcon venue={reelay.content.venue} size={24} border={2} /> }
-                    </UnderPosterContainer>
-                </TopRightContainer>
                 { iconVisible !== 'none' && <PlayPauseIcon onPress={playPause} type={iconVisible} /> }
             </ReelayFeedContainer>
         );
     }
 
-    const testItem = ({ reelay, index }) => {
-        return (
-            <ReelayFeedContainer key={reelay.id} style={{ alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: 'white' }}>{`${stack[0].title.display}`}</Text>
-            </ReelayFeedContainer>
-        );
+    // const testItem = ({ reelay, index }) => {
+    //     return (
+    //         <ReelayFeedContainer key={reelay.id} style={{ alignItems: 'center', justifyContent: 'center' }}>
+    //             <Text style={{ color: 'white' }}>{`${stack[0].title.display}`}</Text>
+    //         </ReelayFeedContainer>
+    //     );
+    // }
+
+    const onStackSwiped = (e) => {
+        const { x, y } = e.nativeEvent.targetContentOffset;
+        if (x % width === 0) {
+            const stackPosition = x / width;
+            console.log('stackPosition: ', stackPosition);
+            setStackPosition(stackPosition);
+        }
+
     }
 
     return (
@@ -185,11 +184,19 @@ export default ReelayStack = ({
         //     }}
         //     windowSize={3}
         // />
-        <ScrollView horizontal={true} pagingEnabled={true}>
-            { stack.map((reelay, index) => {
-                console.log('mapping reelay: ', reelay.id);
-                return renderReelay({ reelay, index });
-            })}
-        </ScrollView>
+        <ReelayFeedContainer>
+            <ScrollView horizontal={true} pagingEnabled={true} onScrollEndDrag={onStackSwiped}>
+                { stack.map((reelay, index) => {
+                    return renderReelay({ reelay, index });
+                })}
+            </ScrollView>
+            <TopRightContainer>
+                <Poster title={viewableReelay.title} />
+                <UnderPosterContainer>
+                    { stack.length > 1 && <StackLocation position={stackPosition} length={stack.length} /> }
+                    { viewableReelay?.content?.venue && <VenueIcon venue={viewableReelay.content.venue} size={24} border={2} /> }
+                </UnderPosterContainer>
+            </TopRightContainer>
+        </ReelayFeedContainer>
     );
 }
