@@ -14,7 +14,7 @@ export default function FeedVideoPlayer({
 	reelay, 
  }) {
 
-	console.log('Video player rendering for ', reelay.title.display, viewable, isPaused, reelay.id);
+	// console.log('Video player rendering for ', reelay.title.display, viewable, isPaused, reelay.id);
 
 	const [isFocused, setIsFocused] = useState(false);
 	const [playbackObject, setPlaybackObject] = useState(null);
