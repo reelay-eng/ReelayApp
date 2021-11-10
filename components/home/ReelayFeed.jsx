@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
 import { FeedContext } from '../../context/FeedContext';
 import ReelayStack from './ReelayStack';
+import FeedOverlay from '../overlay/FeedOverlay';
 
 import * as Amplitude from 'expo-analytics-amplitude';
 import { AuthContext } from '../../context/AuthContext';
@@ -13,8 +14,6 @@ import { deleteReelay } from '../../api/ReelayApi';
 import { getMostRecentStacks } from '../../api/ReelayDBApi';
 
 import { showErrorToast, showMessageToast } from '../utils/toasts';
-import ReelayColors from '../../constants/ReelayColors';
-
 const { height, width } = Dimensions.get('window');
 
 const ReelayFeedContainer = styled(View)`
@@ -253,6 +252,9 @@ export default ReelayFeed = ({ navigation,
                     }}
                     windowSize={3}
                 />        
+            }
+            { overlayVisible && 
+                <FeedOverlay navigation={navigation} setIsPaused={setIsPaused} onDeleteReelay={onDeleteReelay} />
             }
         </ReelayFeedContainer>
     );

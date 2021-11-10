@@ -148,14 +148,6 @@ export default ReelayStack = ({
         );
     }
 
-    // const testItem = ({ reelay, index }) => {
-    //     return (
-    //         <ReelayFeedContainer key={reelay.id} style={{ alignItems: 'center', justifyContent: 'center' }}>
-    //             <Text style={{ color: 'white' }}>{`${stack[0].title.display}`}</Text>
-    //         </ReelayFeedContainer>
-    //     );
-    // }
-
     const onStackSwiped = (e) => {
         const { x, y } = e.nativeEvent.targetContentOffset;
         if (x % width === 0) {
@@ -167,28 +159,6 @@ export default ReelayStack = ({
     }
 
     return (
-        // <FlatList
-        //     data={stack}
-        //     horizontal={true}
-        //     initialNumToRender={3}
-        //     keyExtractor={reelay => String(reelay.id)}
-        //     maxToRenderPerBatch={3}
-        //     // onScroll={onStackSwipedRef.current}
-        //     pagingEnabled={true}
-        //     renderItem={testItem}
-        //     style={{
-        //         backgroundColor: 'black',
-        //         height: height,
-        //         width: width,
-        //     }}
-        //     contentContainerStyle={{
-        //         alignItems: 'center',
-        //         justifyContent: 'center',
-        //         height: height,
-        //         width: width,
-        //     }}
-        //     windowSize={3}
-        // />
         <ReelayFeedContainer>
             <ScrollView horizontal={true} pagingEnabled={true} onScrollEndDrag={onStackSwiped}>
                 { stack.map((reelay, index) => {

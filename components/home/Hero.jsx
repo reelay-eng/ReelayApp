@@ -20,19 +20,19 @@ export default Hero = ({
     viewable,
 }) => {
     const Gradient = styled(LinearGradient)`
-        height: ${height}px;
+        height: 100%;
         justify-content: space-between;
         position: absolute;
         top: 0;
         left: 0;
-        width: ${width}px;
+        width: 100%;
         z-index: 1;
     `
     const Overlay = styled(Pressable)`
         flex-direction: row;
         justify-content: space-between;
-        width: ${width}px;
-        height: ${height}px;
+        width: 100%;
+        height: 100%;
     `
     const { 
         overlayVisible,
