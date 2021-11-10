@@ -207,8 +207,8 @@ export const getNotificationSettings = async({user}) => {
 }
 
 export const setNotificationSettings = async({user, notifyPrompts, notifyReactions, notifyTrending }) => {
-    const routePost = REELAY_API_BASE_URL + 
-        `/users/sub/${user.attributes.sub}/settings?notifyPrompts=${notifyPrompts}&notifyReactions=${notifyReactions}&notifyTrending=${notifyTrending}`;
+    const routePost =  
+        `${REELAY_API_BASE_URL}/users/sub/${user.attributes.sub}/settings?notifyPrompts=${notifyPrompts}&notifyReactions=${notifyReactions}&notifyTrending=${notifyTrending}`;
     const resultPost = await fetchResults(routePost, { 
         method: 'POST',
         headers: REELAY_API_HEADERS,

@@ -65,6 +65,9 @@ const NotificationsSettingsWrapper = ({user}) => {
     3. Notify Reactions: likes and comments on my posts, responses in comment threads
     4. Notify Trending: posts by people I follow or engage with, new reelays for movies I've reelayed
     */
+    const allTrue = (p1, p2, p3) => {
+        return (p1 == true && p1 == p2 && p2 == p3);
+    }
     const toggleNotifyAll = () => {
         setNotifyAll(!notifyAll);
         let value = (!notifyAll ? true : false);
@@ -77,7 +80,7 @@ const NotificationsSettingsWrapper = ({user}) => {
     }
     const toggleNotifyPrompts = () => {
         setNotifyPrompts(!notifyPrompts);
-        if ((!notifyPrompts == notifyReactions) && (notifyReactions == notifyTrending)) setNotifyAll(!notifyPrompts);
+        setNotifyAll(allTrue(!notifyPrompts, notifyReactions, notifyTrending));
 
         // logic for DB updates
         setNotificationSettings({user, notifyPrompts: !notifyPrompts, notifyReactions, notifyTrending});
@@ -85,15 +88,13 @@ const NotificationsSettingsWrapper = ({user}) => {
     }
     const toggleNotifyReactions = () => {
         setNotifyReactions(!notifyReactions);
-        if ((notifyPrompts == !notifyReactions) && (!notifyReactions == notifyTrending)) setNotifyAll(!notifyReactions);
-
-        // logic for DB updates
+        setNotifyAll(allTrue(notifyPrompts, !notifyReactions, notifyTrending));
+            // logic for DB updates
         setNotificationSettings({user, notifyPrompts, notifyReactions: !notifyReactions, notifyTrending});
     }
     const toggleNotifyTrending = () => {
         setNotifyTrending(!notifyTrending);
-        if ((notifyPrompts == notifyReactions) && (notifyReactions == !notifyTrending)) setNotifyAll(!notifyTrending);
-
+        setNotifyAll(allTrue(notifyPrompts, notifyReactions, !notifyTrending));
         // logic for DB updates
         setNotificationSettings({user, notifyPrompts, notifyReactions, notifyTrending: !notifyTrending});
     }
