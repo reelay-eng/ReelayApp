@@ -52,7 +52,6 @@ const NotificationsSettingsWrapper = ({user}) => {
             setNotifyPrompts(settingsNotifyPrompts);
             setNotifyReactions(settingsNotifyReactions);
             setNotifyTrending(settingsNotifyTrending);
-            console.log(settingsNotifyPrompts, settingsNotifyReactions, settingsNotifyTrending);
             const shouldSetNotifyAll = (settingsNotifyPrompts && settingsNotifyReactions && settingsNotifyTrending);
             setNotifyAll(shouldSetNotifyAll);
        }
