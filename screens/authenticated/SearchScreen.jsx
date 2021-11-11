@@ -53,6 +53,7 @@ export default SearchScreen = ({ navigation }) => {
     return (
       <SelectorContainer
         onPress={() => {
+          setLoading(true);
           setSearchType(type);
         }}
       >
@@ -68,7 +69,6 @@ export default SearchScreen = ({ navigation }) => {
   const updateSearch = async (newSearchText, type = searchType) => {
     console.log(newSearchText);
     console.log(type);
-    setLoading(true);
     setSearchText(newSearchText);
     try {
       if (type == "Film") {
