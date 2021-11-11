@@ -32,6 +32,7 @@ export default SearchScreen = ({ navigation }) => {
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searchType, setSearchType] = useState("Film");
+  const [loading, setLoading] = useState(false);
 
   const { setHasSelectedTitle } = useContext(UploadContext);
 
@@ -53,7 +54,6 @@ export default SearchScreen = ({ navigation }) => {
       <SelectorContainer
         onPress={() => {
           setSearchType(type);
-          updateSearch(searchText, type);
         }}
       >
         <SelectorText>{type}</SelectorText>
@@ -61,7 +61,14 @@ export default SearchScreen = ({ navigation }) => {
     );
   };
 
+  useEffect(() => {
+    updateSearch(searchText, searchType);
+  }, [searchText, searchType])
+
   const updateSearch = async (newSearchText, type = searchType) => {
+    console.log(newSearchText);
+    console.log(type);
+    setLoading(true);
     setSearchText(newSearchText);
     try {
       if (type == "Film") {
@@ -89,12 +96,16 @@ export default SearchScreen = ({ navigation }) => {
     } catch (error) {
       console.log("its here");
     }
+    setLoading(false);
   };
 
   // this makes the tab bar visible
   useEffect(() => {
     setHasSelectedTitle(false);
   }, []);
+
+  console.log("SEARCH TYPE: ")
+  console.log(searchType)
 
   return (
     <SafeAreaView
@@ -114,10 +125,10 @@ export default SearchScreen = ({ navigation }) => {
         placeholderText="Search for movies, TV shows, and users"
       />
       <MarginBelowLine />
-      {searchType !== "Users" && (
+      {searchType !== "Users" && !loading && (
         <SearchResults navigation={navigation} searchResults={searchResults} />
       )}
-      {searchType === "Users" &&
+      {searchType === "Users" && !loading &&
         (console.log("sad"),
         <UserSearchResults navigation={navigation} searchResults={searchResults} />)}
     </SafeAreaView>
