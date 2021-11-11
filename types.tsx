@@ -25,6 +25,7 @@ export type HomeTabParamList = {
 export type SearchTabParamList = {
     SearchScreen: undefined;
     UserProfileScreen: undefined;
+    ProfileFeedScreen: undefined;
 };
 
 

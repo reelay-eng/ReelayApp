@@ -180,6 +180,13 @@ function SearchTabNavigator() {
           headerShown: false,
         }}
       />
+      <SearchTabStack.Screen
+        name="ProfileFeedScreen"
+        component={ProfileFeedScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
     </SearchTabStack.Navigator>
   );
 }
