@@ -64,16 +64,6 @@ export default ReelayFeed = ({ navigation,
         }
     }, [navigation]);
 
-    useEffect(() => {
-        // this is DANGEROUS and should be in a try/catch
-        // const unsubscribe = navigation.dangerouslyGetParent()
-        //     .addListener('tabPress', e => {
-        //         e.preventDefault();
-        //         onTabPress();
-        //     });
-        // return unsubscribe;
-    }, [stackList, feedPosition]);
-
     useFocusEffect(() => {
         const unsubscribe = navigation.dangerouslyGetParent()
             .addListener('tabPress', e => {
@@ -164,16 +154,16 @@ export default ReelayFeed = ({ navigation,
     //     console.log('Setting new stack position', e.nativeEvent.position);
     //     if (Math.abs(prevStackPosition - stackPosition) > 1) return;
         
-    //     Amplitude.logEventWithPropertiesAsync('swipedFeed', {
-    //         nextReelayID: nextReelay.id,
-    //         nextReelayCreator: nextReelay.creator.username,
-    //         nextReelayTitle: nextReelay.title.display,
-    //         prevReelayID: prevReelay.id,
-    //         prevReelayCreator: prevReelay.creator.username,
-    //         prevReelayTitle: prevReelay.title.display,
-    //         swipeDirection: swipeDirection,
-    //         username: user.username,
-    //     });
+        // Amplitude.logEventWithPropertiesAsync('swipedFeed', {
+        //     nextReelayID: nextReelay.id,
+        //     nextReelayCreator: nextReelay.creator.username,
+        //     nextReelayTitle: nextReelay.title.display,
+        //     prevReelayID: prevReelay.id,
+        //     prevReelayCreator: prevReelay.creator.username,
+        //     prevReelayTitle: prevReelay.title.display,
+        //     swipeDirection: swipeDirection,
+        //     username: user.username,
+        // });
 
     //     stackPositions[titleID] = stackPosition;
     //     setStackCounter(stackCounter + 1);
@@ -229,10 +219,25 @@ export default ReelayFeed = ({ navigation,
 
     const onFeedSwiped = async (e) => {
         const { x, y } = e.nativeEvent.contentOffset;
+
         if (y % height === 0) {
-            const feedPosition = y / height;
-            console.log('feedPosition: ', feedPosition);
-            setFeedPosition(feedPosition);
+            const nextFeedPosition = y / height;
+            const swipeDirection = nextFeedPosition < feedPosition ? 'up' : 'down';
+            
+            const nextStack = stackList[nextFeedPosition];
+            const prevStack = stackList[feedPosition];
+
+            console.log('next next feedposition: ', stackList);
+
+            const logProperties = {
+                nextReelayTitle: nextStack[0].title.display,
+                prevReelayTitle: prevStack[0].title.display,
+                swipeDirection: swipeDirection,
+                username: user.username,
+            }
+            console.log('LOG PROPERTIES: ', logProperties);
+            // Amplitude.logEventWithPropertiesAsync('swipedFeed', logProperties);
+            setFeedPosition(nextFeedPosition);
         }
     }
     const onFeedSwipedRef = useRef(onFeedSwiped);
@@ -251,7 +256,7 @@ export default ReelayFeed = ({ navigation,
                     maxToRenderPerBatch={3}
                     onEndReached={extendFeed}
                     onRefresh={refreshFeed}
-                    onScroll={onFeedSwipedRef.current}
+                    onScroll={onFeedSwiped}
                     pagingEnabled={true}
                     refreshing={refreshing}
                     ref={feedPager}

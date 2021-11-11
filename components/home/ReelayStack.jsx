@@ -1,18 +1,18 @@
-import React, { useRef, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Hero from './Hero';
 import Poster from './Poster';
 
-import ViewPager from 'react-native-pager-view';
-
 import LikesDrawer from './LikesDrawer';
 import CommentsDrawer from './CommentsDrawer';
 
 import styled from 'styled-components/native';
-import ReelayColors from '../../constants/ReelayColors';
 import { VenueIcon } from '../utils/VenueIcon';
 import { ScrollView } from 'react-native-gesture-handler';
+
+import * as Amplitude from 'expo-analytics-amplitude';
+import { AuthContext } from '../../context/AuthContext';
 
 const { height, width } = Dimensions.get('window');
 const ICON_SIZE = 96;
@@ -96,6 +96,8 @@ export default ReelayStack = ({
     const [iconVisible, setIconVisible] = useState(false);
     const [stackPosition, setStackPosition] = useState(0);
 
+    const { user } = useContext(AuthContext);
+
     const viewableReelay = stack[stackPosition];
 
     const playPause = () => {
@@ -150,12 +152,25 @@ export default ReelayStack = ({
 
     const onStackSwiped = (e) => {
         const { x, y } = e.nativeEvent.targetContentOffset;
-        if (x % width === 0) {
-            const stackPosition = x / width;
-            console.log('stackPosition: ', stackPosition);
-            setStackPosition(stackPosition);
-        }
 
+        if (x % width === 0) {
+            const nextStackPosition = x / width;
+            const swipeDirection = nextStackPosition < stackPosition ? 'up' : 'down';
+            const nextReelay = stack[nextStackPosition];
+            const prevReelay = stack[stackPosition];
+            const logProperties = {
+                nextReelayID: nextReelay.id,
+                nextReelayCreator: nextReelay.creator.username,
+                nextReelayTitle: nextReelay.title.display,
+                prevReelayID: prevReelay.id,
+                prevReelayCreator: prevReelay.creator.username,
+                prevReelayTitle: prevReelay.title.display,
+                swipeDirection: swipeDirection,
+                username: user.username,
+            }
+            Amplitude.logEventWithPropertiesAsync('swipedFeed', logProperties);
+            setStackPosition(nextStackPosition);
+        }
     }
 
     return (
