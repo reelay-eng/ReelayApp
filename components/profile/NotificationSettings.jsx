@@ -52,6 +52,7 @@ const NotificationsSettingsWrapper = ({user}) => {
             setNotifyPrompts(settingsNotifyPrompts);
             setNotifyReactions(settingsNotifyReactions);
             setNotifyTrending(settingsNotifyTrending);
+            console.log(settingsNotifyPrompts, settingsNotifyReactions, settingsNotifyTrending);
             const shouldSetNotifyAll = (settingsNotifyPrompts && settingsNotifyReactions && settingsNotifyTrending);
             setNotifyAll(shouldSetNotifyAll);
        }
@@ -71,12 +72,14 @@ const NotificationsSettingsWrapper = ({user}) => {
     const toggleNotifyAll = () => {
         setNotifyAll(!notifyAll);
         let value = (!notifyAll ? true : false);
-        setNotifyPrompts(value);
+        //setNotifyPrompts(value);
         setNotifyReactions(value);
-        setNotifyTrending(value);
+        //setNotifyTrending(value);
 
         // logic for DB updates
-        setMyNotificationSettings({user, notifyPrompts: value, notifyReactions: value, notifyTrending: value});
+        // setMyNotificationSettings({user, notifyPrompts: value, notifyReactions: value, notifyTrending: value});
+        setMyNotificationSettings({user, notifyPrompts: true, notifyReactions: value, notifyTrending: true});
+
     }
     const toggleNotifyPrompts = () => {
         setNotifyPrompts(!notifyPrompts);
@@ -88,13 +91,7 @@ const NotificationsSettingsWrapper = ({user}) => {
     }
     const toggleNotifyReactions = () => {
         setNotifyReactions(!notifyReactions);
-        //setNotifyAll(allTrue(notifyPrompts, !notifyReactions, notifyTrending)); // for all implemented
-
-
-        //TEMPORARY
-        setNotifyAll(!notifyReactions); // for only one notif setting implemented 
-        // END TEMPORARY
-
+        setNotifyAll(allTrue(notifyPrompts, !notifyReactions, notifyTrending)); // for all implemented
 
         // logic for DB updates
         setMyNotificationSettings({user, notifyPrompts, notifyReactions: !notifyReactions, notifyTrending});
