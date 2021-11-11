@@ -139,7 +139,8 @@ export default ReelayStack = ({
         );
     }
 
-    const renderReelay = ({ reelay, index }) => {
+    const renderReelay = ({ item, index }) => {
+        const reelay = item;
         const reelayViewable = (index === stackPosition);        
         return (
             <ReelayFeedContainer key={reelay.id}>
@@ -156,15 +157,15 @@ export default ReelayStack = ({
                     stackPosition={stackPosition}
                 />
                 { isFixedStack && renderBackButton() }
-                <LikesDrawer reelay={reelay} />
-                <CommentsDrawer reelay={reelay} />
+                { reelayViewable && stackViewable && <LikesDrawer reelay={reelay} /> }
+                { reelayViewable && stackViewable && <CommentsDrawer reelay={reelay} /> }
                 { iconVisible !== 'none' && <PlayPauseIcon onPress={playPause} type={iconVisible} /> }
             </ReelayFeedContainer>
         );
     }
 
     const onStackSwiped = (e) => {
-        const { x, y } = e.nativeEvent.targetContentOffset;
+        const { x, y } = e.nativeEvent.contentOffset;
 
         if (x % width === 0) {
             const nextStackPosition = x / width;
@@ -192,11 +193,7 @@ export default ReelayStack = ({
 
     return (
         <ReelayFeedContainer>
-            <ScrollView horizontal={true} pagingEnabled={true} onScrollEndDrag={onStackSwiped}>
-                { stack.map((reelay, index) => {
-                    return renderReelay({ reelay, index });
-                })}
-            </ScrollView>
+            <FlatList data={stack} renderItem={renderReelay} onScroll={onStackSwiped} horizontal={true} pagingEnabled={true} />
             <TopRightContainer style={{ top: insets.top }}>
                 <Poster title={viewableReelay.title} />
                 <UnderPosterContainer>
