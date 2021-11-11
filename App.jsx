@@ -77,9 +77,11 @@ function App() {
     const [chunksUploaded, setChunksUploaded] = useState(0);
     const [chunksTotal, setChunksTotal] = useState(0);
     const [hasSelectedTitle, setHasSelectedTitle] = useState(false);
+    const [hasSelectedUser, setHasSelectedUser] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [uploadComplete, setUploadComplete] = useState(false);
     const [uploadTitleObject, setUploadTitleObject] = useState({});
+    const [uploadUserObject, setUploadUserObject] = useState({});
     const [uploadOptions, setUploadOptions] = useState({});
     const [uploadErrorStatus, setUploadErrorStatus] = useState(false);
     const [uploadVideoSource, setUploadVideoSource] = useState('');
@@ -191,9 +193,11 @@ function App() {
         chunksUploaded,     setChunksUploaded,
         chunksTotal,        setChunksTotal,
         hasSelectedTitle,   setHasSelectedTitle,
+        hasSelectedUser,    setHasSelectedUser,
         uploading,          setUploading,
         uploadComplete,     setUploadComplete,
         uploadTitleObject,  setUploadTitleObject,
+        uploadUserObject,   setUploadUserObject,
         uploadOptions,      setUploadOptions,
         uploadErrorStatus,  setUploadErrorStatus,
         uploadVideoSource,  setUploadVideoSource,

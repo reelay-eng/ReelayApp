@@ -22,6 +22,12 @@ export type HomeTabParamList = {
     ProfileFeedScreen: undefined;
 };
 
+export type SearchTabParamList = {
+    SearchScreen: undefined;
+    UserProfileScreen: undefined;
+};
+
+
 export type CreateReelayTabParamList = {
     SelectTitleScreen: undefined;
     ReelayCameraScreen: undefined;

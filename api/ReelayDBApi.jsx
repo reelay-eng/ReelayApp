@@ -124,6 +124,23 @@ export const getUserByUsername = async (username) => {
     return resultGet;
 }
 
+export const searchUsers = async (searchText) => {
+    console.log("Fetching registered user...");
+    const routeGet = `${REELAY_API_BASE_URL}/search/users?searchText=${searchText}`;
+    console.log(routeGet);
+    const resultGet = await fetchResults(routeGet, {
+        method: "GET",
+        headers: REELAY_API_HEADERS,
+    });
+    console.log("Registered user result: ", resultGet);
+
+    if (!resultGet) {
+        console.log("User not registered");
+        return null;
+    }
+    return resultGet;
+};
+
 export const getVideoURIObject = async (fetchedReelay) => {    
     const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${fetchedReelay.videoS3Key}`;
     return { 
