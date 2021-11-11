@@ -240,6 +240,13 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         `
 
         const posterURI = getPosterURL(uploadTitleObject.poster_path);
+        const posterStyle = {
+            borderColor: 'white',
+            borderRadius: 8, 
+            borderWidth: 1, 
+            height: 150, 
+            width: 100, 
+        }
 
         return (
             <OverlayContainer>
@@ -247,8 +254,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                     <BackButton navigation={navigation}/>
                 </TopLeftContainer>
                 <TopRightContainer>
-                    <Image source={{uri: posterURI}} 
-						style={{ height: 150, width: 100, borderRadius: 8, }} />
+                    <Image source={{uri: posterURI}} style={posterStyle} />
                     <VenueIndicator />
                 </TopRightContainer>
                 <RecordInterface />

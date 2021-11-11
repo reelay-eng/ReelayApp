@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from 'react-native-elements';
 import Hero from './Hero';
 import Poster from './Poster';
@@ -42,7 +43,6 @@ const ReelayFeedContainer = styled(View)`
 const TopRightContainer = styled(View)`
     position: absolute;
     left: ${width - 110}px;
-    top: 40px;
     zIndex: 3;
 `
 const UnderPosterContainer = styled(View)`
@@ -186,6 +186,10 @@ export default ReelayStack = ({
         }
     }
 
+    // For some reason, useSafeAreaInsets works, but SafeAreaView doesn't
+    // https://docs.expo.dev/versions/latest/sdk/safe-area-context/ 
+    const insets = useSafeAreaInsets();
+
     return (
         <ReelayFeedContainer>
             <ScrollView horizontal={true} pagingEnabled={true} onScrollEndDrag={onStackSwiped}>
@@ -193,7 +197,7 @@ export default ReelayStack = ({
                     return renderReelay({ reelay, index });
                 })}
             </ScrollView>
-            <TopRightContainer>
+            <TopRightContainer style={{ top: insets.top }}>
                 <Poster title={viewableReelay.title} />
                 <UnderPosterContainer>
                     { stack.length > 1 && <StackLocation position={stackPosition} length={stack.length} /> }

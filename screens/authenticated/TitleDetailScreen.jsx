@@ -3,12 +3,12 @@ import { Dimensions, SafeAreaView, ScrollView, View, Text } from 'react-native';
 import { Button } from 'react-native-elements';
 
 import Poster from '../home/Poster';
-import { VenueIcon } from '../utils/VenueIcon';
+import { VenueIcon } from '../../components/utils/VenueIcon';
 import { FeedContext} from '../../context/FeedContext';
-import YoutubeVideoEmbed from '../utils/YouTubeVideoEmbed';
+import YoutubeVideoEmbed from '../../components/utils/YouTubeVideoEmbed';
 import styled from 'styled-components/native';
 
-export default TitleOverlay = ({ navigation }) => {
+export default TitleDetailScreen = ({ navigation, route }) => {
 
     const { height, width } = Dimensions.get('window');
     const TRAILER_HEIGHT = height * 0.3;
@@ -26,8 +26,10 @@ export default TitleOverlay = ({ navigation }) => {
         margin-left: 10px;
         margin-top: 20px;
     `
-    const { overlayData, setOverlayVisible } = useContext(FeedContext);
-    const title = overlayData?.title;
+    // const { overlayData, setOverlayVisible } = useContext(FeedContext);
+    // const title = overlayData?.title;
+
+    const { title } = route.params;
 
     const actors = title?.displayActors;
     const director = title?.director;
@@ -40,7 +42,7 @@ export default TitleOverlay = ({ navigation }) => {
             width: 100%;
         `
         const OverviewText = styled(Text)`
-            font-size: 16px;
+            font-size: 18px;
             font-family: System;
             font-weight: 400;
             color: #eeeeee;
@@ -139,7 +141,7 @@ export default TitleOverlay = ({ navigation }) => {
         `
         return (
             <ReturnButtonContainer>
-                <Button onPress={() => setOverlayVisible(false)}
+                <Button onPress={() => navigation.pop()}
                     buttonStyle={{ borderColor: 'white', width: '100%', borderRadius: '5px' }}
                     titleStyle={{ color: 'white' }}
                     title='Go Back' type='outline' />

@@ -41,7 +41,9 @@ export default ReelayPreviewOverlay = ({ venue, titleObject }) => {
                 <Image source={{ uri: posterURI }} style={{
                     height: 135,
                     width: 90,
+                    borderColor: 'white',
                     borderRadius: 6,
+                    borderWidth: 1,
                 }} />
                 <VenueIndicator venue={venue} />
             </PreviewPosterContainer>
