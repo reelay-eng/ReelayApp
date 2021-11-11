@@ -24,11 +24,7 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
     const [downloadStarted, setDownloadStarted] = useState(false);
 
     const {
-        user,
-        setCredentials,
-        setSession,
-        setSignedIn,
-        setUser,
+        user
     } = useContext(AuthContext);
     const { setOverlayVisible } = useContext(FeedContext);
     const canHideReelay = (reelay.creator.username === user.username)
@@ -62,25 +58,6 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
         font-family: System;
         color: white;
     `
-    const signOut = async () => {
-        // todo: confirm sign out
-        try {
-            Amplitude.logEventWithPropertiesAsync('signOut', {
-                username: user.username,
-            });
-
-            const signOutResult = await Auth.signOut();
-            setOverlayVisible(false);
-            setSignedIn(false);
-            console.log(signOutResult);
-
-            setUser({});
-            setSession({});
-            setCredentials({});
-        } catch (error) {
-            console.log(error);
-        }
-    }
 
     const hideReelay = async () => {
         console.log('preparing to delete reelay');
@@ -156,9 +133,6 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
                         <SettingsText>{'Download this reelay'}</SettingsText>
                     </SettingsPressable>
                 }
-                <SettingsPressable onPress={signOut}>
-                    <SettingsText>{'Sign out'}</SettingsText>
-                </SettingsPressable>
             </SettingsContainer>
         );
     }
