@@ -93,7 +93,7 @@ export default SelectTitleScreen = ({ navigation }) => {
                 <BackButton navigation={navigation} />
 
             </TopBarContainer>
-            <SearchField searchText={searchText} updateSearch={updateSearch} />
+            <SearchField searchText={searchText} updateSearch={updateSearch} placeholderText="What did you see?"/>
             <MarginBelowLine />
             <SearchResults navigation={navigation} searchResults={searchResults} />
         </SafeAreaView>
