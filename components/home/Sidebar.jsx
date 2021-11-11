@@ -11,16 +11,21 @@ import * as Amplitude from 'expo-analytics-amplitude';
 
 import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
 
+const { height, width } = Dimensions.get('window');
+
 export default Sidebar = ({ reelay }) => {
 	const ICON_SIZE = 40;
 	const Count = styled(Text)`
 		color: #fff;
 		font-size: 18px;
 		font-weight: bold;
-		`
+	`
 	const SidebarView = styled(View)`
 		align-items: flex-end;
+		align-self: flex-end;
 		justify-content: center;
+		position: absolute;
+		bottom: ${height / 3}px;
 	`
 	const SidebarButton = styled(Pressable)`
 		align-items: center;

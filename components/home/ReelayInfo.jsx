@@ -1,8 +1,10 @@
 import React, { useContext } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Dimensions, Pressable, Text, SafeAreaView, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
+
+const { height, width } = Dimensions.get('window');
 
 export default ReelayInfo = ({ navigation, reelay }) => {
 
@@ -10,11 +12,9 @@ export default ReelayInfo = ({ navigation, reelay }) => {
 
 	const InfoView = styled(View)`
 		justify-content: flex-end;
-		margin: 10px 10px 120px 13px;
-	`
-	const InfoPressable = styled(Pressable)`
-		justify-content: flex-end;
-		margin: 0 0 120px 13px;
+		position: absolute;
+		bottom: 120px;
+		margin-left: 20px;
 	`
 	const PostInfo = styled(View)`
 		flex-direction: row;

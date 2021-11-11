@@ -19,21 +19,6 @@ export default Hero = ({
     setIsPaused,
     viewable,
 }) => {
-    const Gradient = styled(LinearGradient)`
-        height: 100%;
-        justify-content: space-between;
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 1;
-    `
-    const Overlay = styled(Pressable)`
-        flex-direction: row;
-        justify-content: space-between;
-        width: 100%;
-        height: 100%;
-    `
     const { 
         overlayVisible,
         setOverlayData,
@@ -51,22 +36,11 @@ export default Hero = ({
         }
     }
 
-    console.log(`Rendering hero ${reelay.title.display} at position ${index}, paused? ${isPaused}, viewable? ${viewable}`);
-
     return (
-        <View key={index}>
-            <FeedVideoPlayer viewable={viewable} reelay={reelay} isPaused={isPaused} />
-            <Gradient locations={[0, 0.26, 0.6, 1]} colors={[
-                    'rgba(26,26,26,0.6)',
-                    'rgba(26,26,26,0)',
-                    'rgba(26,26,26,0)',
-                    'rgba(26,26,26,0.6)',
-            ]}>
-                <Overlay onPress={playPause} onLongPress={setReelayOverlay}>
-                    <ReelayInfo navigation={navigation} reelay={reelay} />
-                    <Sidebar reelay={reelay} />
-                </Overlay>
-            </Gradient>
+        <View key={index} style={{ justifyContent: 'flex-end'}}>
+            <FeedVideoPlayer viewable={viewable} reelay={reelay} isPaused={isPaused} playPause={playPause} />
+            <ReelayInfo navigation={navigation} reelay={reelay} />
+            <Sidebar reelay={reelay} />
         </View>
     );
 }

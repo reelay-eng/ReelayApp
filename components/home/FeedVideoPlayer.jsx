@@ -1,18 +1,20 @@
 import React, { memo, useContext, useEffect, useRef, useState } from 'react';
-import { Dimensions } from 'react-native';
+import { Dimensions, Pressable } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { Video, Audio } from 'expo-av'
 import { useFocusEffect } from '@react-navigation/native';
 import { FeedContext } from '../../context/FeedContext';
 
 import * as Amplitude from 'expo-analytics-amplitude';
+import styled from 'styled-components/native';
 
 const { height, width } = Dimensions.get('window');
 
 export default function FeedVideoPlayer({ 
-	viewable, 
 	isPaused,
+	playPause,
 	reelay, 
+	viewable, 
  }) {
 
 	const [isFocused, setIsFocused] = useState(false);
@@ -81,26 +83,28 @@ export default function FeedVideoPlayer({
 	}
 
 	return (
-		<Video
-			isLooping={true}
-			isMuted={false}
-			onLoad={onLoad}
-			onLoadStart={onLoadStart}
-			onPlaybackStatusUpdate={onPlaybackStatusUpdate}
-			progressUpdateIntervalMillis={50}
-			rate={1.0}
-			ref={(component) => _handleVideoRef(component)}
-			resizeMode='cover'
-			shouldDuckAndroid={true}
-			shouldPlay={shouldPlay}
-			source={{ uri: reelay.content.videoURI }}
-			staysActiveInBackground={false}
-			style={{
-				height: height,
-				width: width,
-			}}
-			useNativeControls={false}
-			volume={1.0}
-		/>
+		<Pressable onPress={playPause}>
+			<Video
+				isLooping={true}
+				isMuted={false}
+				onLoad={onLoad}
+				onLoadStart={onLoadStart}
+				onPlaybackStatusUpdate={onPlaybackStatusUpdate}
+				progressUpdateIntervalMillis={50}
+				rate={1.0}
+				ref={(component) => _handleVideoRef(component)}
+				resizeMode='cover'
+				shouldDuckAndroid={true}
+				shouldPlay={shouldPlay}
+				source={{ uri: reelay.content.videoURI }}
+				staysActiveInBackground={false}
+				style={{
+					height: height,
+					width: width,
+				}}
+				useNativeControls={false}
+				volume={1.0}
+			/>
+		</Pressable>
 	);
 };

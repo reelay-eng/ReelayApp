@@ -42,6 +42,8 @@ export default ReelayFeed = ({ navigation,
     const [stackList, setStackList] = useState([]);
     const [stackCounter, setStackCounter] = useState(0);
 
+    const [tabPressCounter, setTabPressCounter] = useState(0);
+
     const isFixedStack = fixedStackList.length != 0;
 
     console.log('FEED IS RENDERING');
@@ -63,12 +65,12 @@ export default ReelayFeed = ({ navigation,
 
     useEffect(() => {
         // this is DANGEROUS and should be in a try/catch
-        const unsubscribe = navigation.dangerouslyGetParent()
-            .addListener('tabPress', e => {
-                e.preventDefault();
-                onTabPress();
-            });
-        return unsubscribe;
+        // const unsubscribe = navigation.dangerouslyGetParent()
+        //     .addListener('tabPress', e => {
+        //         e.preventDefault();
+        //         onTabPress();
+        //     });
+        // return unsubscribe;
     }, [stackList, feedPosition]);
 
     const extendFeed = async () => {
@@ -171,7 +173,7 @@ export default ReelayFeed = ({ navigation,
         if (!stackList.length) return;
         navigation.navigate('HomeFeedScreen');
 
-        console.log('IN ON TAB PRESS');
+        console.log('IN ON TAB PRESS, count: ', tabPressCounter);
         if (feedPosition === 0) {
             refreshFeed();
         } else {
