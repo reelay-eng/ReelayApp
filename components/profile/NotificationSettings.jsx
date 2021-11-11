@@ -3,7 +3,7 @@ import { Text, View, Switch, Image, Pressable, SafeAreaView } from 'react-native
 import styled from 'styled-components/native';
 
 import { AuthContext } from '../../context/AuthContext';
-import { getNotificationSettings, setNotificationSettings } from '../../api/NotificationsApi';
+import { getMyNotificationSettings, setMyNotificationSettings } from '../../api/NotificationsApi';
 import { Header } from './ProfileSettings';
 
 export default NotificationSettings = ({navigation}) => {
@@ -48,7 +48,7 @@ const NotificationsSettingsWrapper = ({user}) => {
 
     useEffect(() => {
        const asyncGetNotificationSettings = async () => {
-            const { settingsNotifyPrompts, settingsNotifyReactions, settingsNotifyTrending } = await getNotificationSettings({user});
+            const { settingsNotifyPrompts, settingsNotifyReactions, settingsNotifyTrending } = await getMyNotificationSettings(user);
             setNotifyPrompts(settingsNotifyPrompts);
             setNotifyReactions(settingsNotifyReactions);
             setNotifyTrending(settingsNotifyTrending);
@@ -76,27 +76,27 @@ const NotificationsSettingsWrapper = ({user}) => {
         setNotifyTrending(value);
 
         // logic for DB updates
-        setNotificationSettings({user, notifyPrompts: value, notifyReactions: value, notifyTrending: value});
+        setMyNotificationSettings({user, notifyPrompts: value, notifyReactions: value, notifyTrending: value});
     }
     const toggleNotifyPrompts = () => {
         setNotifyPrompts(!notifyPrompts);
         setNotifyAll(allTrue(!notifyPrompts, notifyReactions, notifyTrending));
 
         // logic for DB updates
-        setNotificationSettings({user, notifyPrompts: !notifyPrompts, notifyReactions, notifyTrending});
+        setMyNotificationSettings({user, notifyPrompts: !notifyPrompts, notifyReactions, notifyTrending});
 
     }
     const toggleNotifyReactions = () => {
         setNotifyReactions(!notifyReactions);
         setNotifyAll(allTrue(notifyPrompts, !notifyReactions, notifyTrending));
             // logic for DB updates
-        setNotificationSettings({user, notifyPrompts, notifyReactions: !notifyReactions, notifyTrending});
+            setMyNotificationSettings({user, notifyPrompts, notifyReactions: !notifyReactions, notifyTrending});
     }
     const toggleNotifyTrending = () => {
         setNotifyTrending(!notifyTrending);
         setNotifyAll(allTrue(notifyPrompts, notifyReactions, !notifyTrending));
         // logic for DB updates
-        setNotificationSettings({user, notifyPrompts, notifyReactions, notifyTrending: !notifyTrending});
+        setMyNotificationSettings({user, notifyPrompts, notifyReactions, notifyTrending: !notifyTrending});
     }
 
     return (
