@@ -14,6 +14,7 @@ import { deleteReelay } from '../../api/ReelayApi';
 import { getMostRecentStacks } from '../../api/ReelayDBApi';
 
 import { showErrorToast, showMessageToast } from '../utils/toasts';
+import { useFocusEffect } from '@react-navigation/core';
 const { height, width } = Dimensions.get('window');
 
 const ReelayFeedContainer = styled(View)`
@@ -72,6 +73,15 @@ export default ReelayFeed = ({ navigation,
         //     });
         // return unsubscribe;
     }, [stackList, feedPosition]);
+
+    useFocusEffect(() => {
+        const unsubscribe = navigation.dangerouslyGetParent()
+            .addListener('tabPress', e => {
+                e.preventDefault();
+                onTabPress();
+            });
+        return unsubscribe;
+    })
 
     const extendFeed = async () => {
         if (isFixedStack) return;
