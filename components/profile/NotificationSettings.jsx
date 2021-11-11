@@ -88,9 +88,16 @@ const NotificationsSettingsWrapper = ({user}) => {
     }
     const toggleNotifyReactions = () => {
         setNotifyReactions(!notifyReactions);
-        setNotifyAll(allTrue(notifyPrompts, !notifyReactions, notifyTrending));
-            // logic for DB updates
-            setMyNotificationSettings({user, notifyPrompts, notifyReactions: !notifyReactions, notifyTrending});
+        //setNotifyAll(allTrue(notifyPrompts, !notifyReactions, notifyTrending)); // for all implemented
+
+
+        //TEMPORARY
+        setNotifyAll(!notifyReactions); // for only one notif setting implemented 
+        // END TEMPORARY
+
+
+        // logic for DB updates
+        setMyNotificationSettings({user, notifyPrompts, notifyReactions: !notifyReactions, notifyTrending});
     }
     const toggleNotifyTrending = () => {
         setNotifyTrending(!notifyTrending);
@@ -103,9 +110,9 @@ const NotificationsSettingsWrapper = ({user}) => {
         <NotificationSettingsContainer>
             <AllNotificationSetting enabled={notifyAll} toggle={toggleNotifyAll}/>
             <Divider />
-            <PromptNotificationSetting enabled={notifyPrompts} toggle={toggleNotifyPrompts}/>
             <ReactionsNotificationSetting enabled={notifyReactions} toggle={toggleNotifyReactions}/>
-            <TrendingNotificationSetting enabled={notifyTrending} toggle={toggleNotifyTrending}/>
+            {/* <PromptNotificationSetting enabled={notifyPrompts} toggle={toggleNotifyPrompts}/> */}
+            {/* <TrendingNotificationSetting enabled={notifyTrending} toggle={toggleNotifyTrending}/> */}
         </NotificationSettingsContainer>
     )
 }
