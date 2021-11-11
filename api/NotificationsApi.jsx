@@ -1,6 +1,5 @@
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
-import { fetchReelaysForStack } from '../api/ReelayApi';
 import { getRegisteredUser, getUserByUsername, getMostRecentReelaysByTitle } from './ReelayDBApi';
 import { fetchResults } from './fetchResults';
 import * as Amplitude from 'expo-analytics-amplitude';
@@ -91,6 +90,12 @@ export const sendCommentNotificationToCreator = async ({ creatorSub, author, ree
     const creator = await getRegisteredUser(creatorSub);
     const token = creator?.pushToken;
 
+    const { settingsNotifyReactions } = await getUserNotificationSettings(creator);
+    if (!settingsNotifyReactions) {
+        console.log('Creator does not want to receive push notifications');
+        return;
+    }
+
     if (!token) {
         console.log('Creator not registered for notifications');
         return;
@@ -112,6 +117,12 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
     reelay.comments.map(async (comment, index) => {
         const notifyAuthorName = comment.authorName;
         const notifyUser = await getUserByUsername(notifyAuthorName);
+
+        const { settingsNotifyReactions } = await getUserNotificationSettings(notifyUser);
+        if (!settingsNotifyReactions) {
+            console.log('Author does not want to receive push notifications');
+            return;
+        }    
 
         const token = notifyUser?.pushToken;
         if (!token) {
@@ -143,6 +154,12 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
     const creator = await getRegisteredUser(creatorSub);
     const token = creator?.pushToken;
 
+    const { settingsNotifyReactions } = await getUserNotificationSettings(creator);
+    if (!settingsNotifyReactions) {
+        console.log('Creator does not want to receive push notifications');
+        return;
+    }
+
     const recipientIsAuthor = (creatorSub === user.attributes.sub);
     if (recipientIsAuthor) {
         const title = `Achievement earned: Love Yourself`;
@@ -162,27 +179,30 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
 }
 
 export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay }) => {
-    console.log('Sending stack push notification to other creators');
-    console.log(reelay);
     const reelayStack = await getMostRecentReelaysByTitle(reelay.title.id);
     
     reelayStack.map(async (reelay, index) => {
-        console.log('For other reelay in stack: ', reelay.title.display, reelay.creator.username);
-        const notifyCreatorSub = await getRegisteredUser(reelay.creator.sub);
-        const token = notifyCreatorSub?.pushToken;
+        const notifyCreator = await getRegisteredUser(reelay.creator.sub);
+
+        const { settingsNotifyReactions } = await getUserNotificationSettings(notifyCreator);
+        if (!settingsNotifyReactions) {
+            console.log('Creator does not want to receive push notifications');
+            return;
+        }
+        const token = notifyCreator?.pushToken;
 
         if (!token) {
             console.log('Creator not registered for like notifications');
             return;
         }
 
-        const recipientIsCreator = (notifyCreatorSub === creator.attributes.sub);
+        const recipientIsCreator = (notifyCreator.sub === creator.attributes.sub);
         if (recipientIsCreator) {
             console.log('No need to send notification to creator');
             return;
         }    
 
-        const alreadyNotified = (reelay) => (notifyCreatorSub === reelay.creator.sub);
+        const alreadyNotified = (reelay) => (notifyCreator.sub === reelay.creator.sub);
         const recipientIndex = reelayStack.findIndex(alreadyNotified);
         if (recipientIndex < index) {
             console.log('Recipient already notified');
@@ -195,26 +215,31 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
     })
 }
 
-export const getNotificationSettings = async({user}) => {
+export const getMyNotificationSettings = async(user) => {
     const routeGet = REELAY_API_BASE_URL + `/users/sub/${user.attributes.sub}/settings`;
     const resultGet = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS,
     });
-    console.log("Fetch Notification Settings Results: ");
-    console.log(resultGet);
     return resultGet;
 }
 
-export const setNotificationSettings = async({user, notifyPrompts, notifyReactions, notifyTrending }) => {
+export const getUserNotificationSettings = async (user) => {
+    console.log(user);
+    const routeGet = REELAY_API_BASE_URL + `/users/sub/${user.sub}/settings`;
+    const resultGet = await fetchResults(routeGet, { 
+        method: 'GET',
+        headers: REELAY_API_HEADERS,
+    });
+    return resultGet;
+}
+
+export const setMyNotificationSettings = async({user, notifyPrompts, notifyReactions, notifyTrending }) => {
     const routePost =  
         `${REELAY_API_BASE_URL}/users/sub/${user.attributes.sub}/settings?notifyPrompts=${notifyPrompts}&notifyReactions=${notifyReactions}&notifyTrending=${notifyTrending}`;
     const resultPost = await fetchResults(routePost, { 
         method: 'POST',
         headers: REELAY_API_HEADERS,
     });
-    console.log("Post Notification Settings Results: ");
-    console.log(resultPost);
+    return resultPost;
 }
-
-
