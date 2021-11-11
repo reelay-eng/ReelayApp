@@ -21,6 +21,8 @@ export default Poster = memo(({ title }) => {
 		margin-top: 10px;
 		margin-bottom: 10px;
 		border-radius: 8px;
+		border-width: 1px;
+		border-color: white;
 	`;
 	const { user } = useContext(AuthContext);
 	const {

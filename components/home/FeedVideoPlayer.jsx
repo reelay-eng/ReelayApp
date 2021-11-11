@@ -1,19 +1,23 @@
-import React, { memo, useContext, useEffect, useRef, useState } from 'react'
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
+import { Dimensions, Pressable } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { Video, Audio } from 'expo-av'
-import { VideoStyles } from '../../styles';
 import { useFocusEffect } from '@react-navigation/native';
-
 import { FeedContext } from '../../context/FeedContext';
 
 import * as Amplitude from 'expo-analytics-amplitude';
+import styled from 'styled-components/native';
+
+const { height, width } = Dimensions.get('window');
 
 export default function FeedVideoPlayer({ 
-	// paused,
-	playing, 
-	playingButPaused,
+	isPaused,
+	playPause,
 	reelay, 
+	setReelayOverlay,
+	viewable, 
  }) {
+
 	const [isFocused, setIsFocused] = useState(false);
 	const [playbackObject, setPlaybackObject] = useState(null);
 
@@ -23,27 +27,22 @@ export default function FeedVideoPlayer({
 	const { user } = useContext(AuthContext);
 	const { overlayVisible } = useContext(FeedContext);
 	
-	const shouldPlay = playing && isFocused && !playingButPaused && !overlayVisible;
-
-	Audio.setAudioModeAsync({
-		playsInSilentModeIOS: true,
-		interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
-		interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
-	});
+	const shouldPlay = viewable && isFocused && !isPaused && !overlayVisible;
+	if (shouldPlay) console.log('This one ^^ should play');
 
 	const _handleVideoRef = (component) => {
 		const playbackObject = component;
 		const wasPlayingOnLastRender = playheadCounter.current % 2 === 1;
 
 		setPlaybackObject(playbackObject);
-		if (!playing && wasPlayingOnLastRender) {
+		if (!viewable && wasPlayingOnLastRender) {
 			playheadCounter.current += 1;
 			try {
 				playbackObject.setPositionAsync(0);
 			} catch (e) {
 				console.log(e);
 			}
-		} else if (playing && !wasPlayingOnLastRender) {
+		} else if (viewable && !wasPlayingOnLastRender) {
 			// results in odd-numbered playhead counter
 			playheadCounter.current += 1;
 		}
@@ -56,12 +55,12 @@ export default function FeedVideoPlayer({
 
 	useEffect(() => {
 		if (shouldPlay) playbackObject.playAsync();
-	}, [playing, playingButPaused, isFocused, overlayVisible]);
+	}, [viewable, isPaused, isFocused, overlayVisible]);
 
     useFocusEffect(React.useCallback(() => {
-		if (playing) setIsFocused(true);
+		if (viewable) setIsFocused(true);
         return () => {
-			if (playing) setIsFocused(false);
+			if (viewable) setIsFocused(false);
 		}
     }));
 
@@ -74,7 +73,7 @@ export default function FeedVideoPlayer({
 	}
 
 	const onPlaybackStatusUpdate = (playbackStatus) => {
-		if (playbackStatus?.didJustFinish && playing) {
+		if (playbackStatus?.didJustFinish && viewable) {
 			Amplitude.logEventWithPropertiesAsync('watchedFullReelay', {
 				reelayID: reelay.id,
 				reelayCreator: reelay.creator.username,
@@ -85,23 +84,28 @@ export default function FeedVideoPlayer({
 	}
 
 	return (
-		<Video
-			isLooping={true}
-			isMuted={false}
-			onLoad={onLoad}
-			onLoadStart={onLoadStart}
-			onPlaybackStatusUpdate={onPlaybackStatusUpdate}
-			progressUpdateIntervalMillis={50}
-			rate={1.0}
-			ref={(component) => _handleVideoRef(component)}
-			resizeMode='cover'
-			shouldDuckAndroid={true}
-			shouldPlay={shouldPlay}
-			source={{ uri: reelay.content.videoURI }}
-			staysActiveInBackground={false}
-			style={VideoStyles.video}
-			useNativeControls={false}
-			volume={1.0}
-		/>
+		<Pressable onPress={playPause} onLongPress={setReelayOverlay}>
+			<Video
+				isLooping={true}
+				isMuted={false}
+				onLoad={onLoad}
+				onLoadStart={onLoadStart}
+				onPlaybackStatusUpdate={onPlaybackStatusUpdate}
+				progressUpdateIntervalMillis={50}
+				rate={1.0}
+				ref={(component) => _handleVideoRef(component)}
+				resizeMode='cover'
+				shouldDuckAndroid={true}
+				shouldPlay={shouldPlay}
+				source={{ uri: reelay.content.videoURI }}
+				staysActiveInBackground={false}
+				style={{
+					height: height,
+					width: width,
+				}}
+				useNativeControls={false}
+				volume={1.0}
+			/>
+		</Pressable>
 	);
 };

@@ -101,7 +101,7 @@ export default ProfileTopBar = ({ creator, navigation, route, atProfileBase = fa
             }
             <HeadingText>{creatorName}</HeadingText>
             {/* <SearchButton /> */}
-            <SettingsButton />
+            { atProfileBase && <SettingsButton /> }
         </TopBarContainer>
     );
 }

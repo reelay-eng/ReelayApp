@@ -1,22 +1,20 @@
 import React, { useContext } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Dimensions, Pressable, Text, SafeAreaView, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
+
+const { height, width } = Dimensions.get('window');
 
 export default ReelayInfo = ({ navigation, reelay }) => {
 
 	const { user } = useContext(AuthContext);
 
 	const InfoView = styled(View)`
-		flex: 1;
 		justify-content: flex-end;
-		margin: 0 0 120px 13px;
-	`
-	const InfoPressable = styled(Pressable)`
-		flex: 1;
-		justify-content: flex-end;
-		margin: 0 0 120px 13px;
+		position: absolute;
+		bottom: 120px;
+		margin-left: 20px;
 	`
 	const PostInfo = styled(View)`
 		flex-direction: row;
@@ -36,7 +34,6 @@ export default ReelayInfo = ({ navigation, reelay }) => {
 		font-size: 16px;
 		letter-spacing: -0.2px;
 		margin-left: 10px;
-		width: 80%;
 	`
 	const TitleInfo = styled(View)`
 		flex-direction: row;
@@ -47,7 +44,6 @@ export default ReelayInfo = ({ navigation, reelay }) => {
 		color: rgba(255, 255, 255, 1.2);
 		letter-spacing: -0.2px;
 		margin-top: 6px;
-		width: 80%;
 	`
 
 	const displayTitle = (reelay.title.display) ? reelay.title.display : 'Title not found\ ';
@@ -62,13 +58,13 @@ export default ReelayInfo = ({ navigation, reelay }) => {
 	return (
 		<InfoView>
 			<Pressable onPress={goToProfile}>
-			<PostInfo>
-				<Username>@{creator?.username}</Username>
-				<Timestamp>{timestamp}</Timestamp>
-			</PostInfo>
-			<TitleInfo>
-				<Title>{displayTitle} ({year})</Title>
-			</TitleInfo>
+				<PostInfo>
+					<Username>@{creator?.username}</Username>
+					<Timestamp>{timestamp}</Timestamp>
+				</PostInfo>
+				<TitleInfo>
+					<Title>{displayTitle} ({year})</Title>
+				</TitleInfo>
 			</Pressable>
 		</InfoView>
 	);

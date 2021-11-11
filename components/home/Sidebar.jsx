@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Dimensions, Pressable, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 
@@ -9,8 +9,9 @@ import { FeedContext } from '../../context/FeedContext';
 import { sendLikeNotification } from '../../api/NotificationsApi';
 import * as Amplitude from 'expo-analytics-amplitude';
 
-import { addLike, deleteLike } from '../../api/ReelayApi';
 import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
+
+const { height, width } = Dimensions.get('window');
 
 export default Sidebar = ({ reelay }) => {
 	const ICON_SIZE = 40;
@@ -18,12 +19,13 @@ export default Sidebar = ({ reelay }) => {
 		color: #fff;
 		font-size: 18px;
 		font-weight: bold;
-		`
+	`
 	const SidebarView = styled(View)`
 		align-items: flex-end;
-		height: 100%;
+		align-self: flex-end;
 		justify-content: center;
-		width: 20%;
+		position: absolute;
+		bottom: ${height / 3}px;
 	`
 	const SidebarButton = styled(Pressable)`
 		align-items: center;

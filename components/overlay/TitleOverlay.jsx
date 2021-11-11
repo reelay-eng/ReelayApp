@@ -40,7 +40,7 @@ export default TitleOverlay = ({ navigation }) => {
             width: 100%;
         `
         const OverviewText = styled(Text)`
-            font-size: 18px;
+            font-size: 16px;
             font-family: System;
             font-weight: 400;
             color: #eeeeee;
