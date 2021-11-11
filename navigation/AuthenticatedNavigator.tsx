@@ -16,6 +16,7 @@ import HomeFeedScreen from "../screens/authenticated/HomeFeedScreen";
 import {
   BottomTabParamList,
   HomeTabParamList,
+  SearchTabParamList,
   CreateReelayTabParamList,
   ProfileTabParamList,
 } from "../types";
@@ -26,6 +27,7 @@ import ProfileSettingsScreen from "../screens/authenticated/ProfileSettingsScree
 import NotificationSettingsScreen from "../screens/authenticated/NotificationSettingsScreen";
 import ReelayCameraScreen from "../screens/authenticated/ReelayCameraScreen";
 import ReelayUploadScreen from "../screens/authenticated/ReelayUploadScreen";
+import SearchScreen from "../screens/authenticated/SearchScreen";
 import SelectTitleScreen from "../screens/authenticated/SelectTitleScreen";
 import UserProfileScreen from "../screens/authenticated/UserProfileScreen";
 import VenueSelectScreen from "../screens/authenticated/VenueSelectScreen";
@@ -73,7 +75,7 @@ export default function AuthenticatedNavigator() {
       />
       <BottomTab.Screen
         name="Search"
-        component={CreateReelayTabNavigator}
+        component={SearchTabNavigator}
         options={{
           tabBarIcon: () => (
             <Icon
@@ -150,6 +152,35 @@ function HomeTabNavigator() {
         }}
       />
     </HomeTabStack.Navigator>
+  );
+}
+
+const SearchTabStack = createStackNavigator<SearchTabParamList>();
+
+// Can you make the route names into constants so that it's easier to use everywhere?
+
+function SearchTabNavigator() {
+  return (
+    <SearchTabStack.Navigator
+      initialRouteName="SearchScreen"
+      detachInactiveScreens={false}
+    >
+      <SearchTabStack.Screen
+        name="SearchScreen"
+        component={SearchScreen}
+        options={{
+          headerShown: false,
+          animationEnabled: false,
+        }}
+      />
+      <SearchTabStack.Screen
+        name="UserProfileScreen"
+        component={UserProfileScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+    </SearchTabStack.Navigator>
   );
 }
 
