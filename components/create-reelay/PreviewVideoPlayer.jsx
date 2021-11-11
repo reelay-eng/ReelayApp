@@ -6,7 +6,6 @@ import { useFocusEffect } from '@react-navigation/native';
 const { height, width } = Dimensions.get('window');
 
 export default function VideoPlayer({ videoURI, playing }) {
-	const [playbackObject, setPlaybackObject] = useState(null);
 	const [isFocused, setIsFocused] = useState(false);
 
 	Audio.setAudioModeAsync({

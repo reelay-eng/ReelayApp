@@ -114,61 +114,6 @@ export default ReelayFeed = ({ navigation,
         }
     };
 
-    // const onFeedSwiped = async (e) => {
-    //     const prevReelay = getReelayInFeed(feedPosition);
-    //     const nextReelay = getReelayInFeed(e.nativeEvent.position);
-    //     const swipeDirection = e.nativeEvent.position < feedPosition ? 'up' : 'down';
-
-    //     if (feedPosition !== e.nativeEvent.position) {
-    //         console.log('Setting new feed position: ', e.nativeEvent.position);
-            // Amplitude.logEventWithPropertiesAsync('swipedFeed', {
-            //     nextReelayID: nextReelay.id,
-            //     nextReelayCreator: nextReelay.creator.username,
-            //     nextReelayTitle: nextReelay.title.display,
-            //     prevReelayID: prevReelay.id,
-            //     prevReelayCreator: prevReelay.creator.username,
-            //     prevReelayTitle: prevReelay.title.display,
-            //     swipeDirection: swipeDirection,
-            //     username: user.username,
-            // });    
-    //         setFeedPosition(e.nativeEvent.position);
-    //     }
-
-	// 	if (e.nativeEvent.position === stackList.length - 1) {
-    //         console.log('fetching more reelays');
-	// 		extendFeed();
-	// 	}
-	// };
-
-    // const onStackSwiped = async (e) => {
-    //     const prevReelay = getReelayInFeed(feedPosition);
-    //     const nextReelay = stackList[feedPosition][e.nativeEvent.position];
-    //     const swipeDirection = e.nativeEvent.position < feedPosition ? 'left' : 'right';
-
-    //     const stackPosition = e.nativeEvent.position;
-    //     const titleID = stackList[feedPosition][0].title.id;
-    //     const prevStackPosition = stackPositions[titleID];
-
-    //     if (prevStackPosition === stackPosition) return;
-
-    //     console.log('Setting new stack position', e.nativeEvent.position);
-    //     if (Math.abs(prevStackPosition - stackPosition) > 1) return;
-        
-        // Amplitude.logEventWithPropertiesAsync('swipedFeed', {
-        //     nextReelayID: nextReelay.id,
-        //     nextReelayCreator: nextReelay.creator.username,
-        //     nextReelayTitle: nextReelay.title.display,
-        //     prevReelayID: prevReelay.id,
-        //     prevReelayCreator: prevReelay.creator.username,
-        //     prevReelayTitle: prevReelay.title.display,
-        //     swipeDirection: swipeDirection,
-        //     username: user.username,
-        // });
-
-    //     stackPositions[titleID] = stackPosition;
-    //     setStackCounter(stackCounter + 1);
-    // };
-
     const onTabPress = async () => {
         if (!stackList.length) return;
         navigation.navigate('HomeFeedScreen');
@@ -227,20 +172,16 @@ export default ReelayFeed = ({ navigation,
             const nextStack = stackList[nextFeedPosition];
             const prevStack = stackList[feedPosition];
 
-            console.log('next next feedposition: ', stackList);
-
             const logProperties = {
                 nextReelayTitle: nextStack[0].title.display,
                 prevReelayTitle: prevStack[0].title.display,
                 swipeDirection: swipeDirection,
                 username: user.username,
             }
-            console.log('LOG PROPERTIES: ', logProperties);
-            // Amplitude.logEventWithPropertiesAsync('swipedFeed', logProperties);
+            Amplitude.logEventWithPropertiesAsync('swipedFeed', logProperties);
             setFeedPosition(nextFeedPosition);
         }
     }
-    const onFeedSwipedRef = useRef(onFeedSwiped);
 
     return (
         <ReelayFeedContainer>
@@ -275,5 +216,4 @@ export default ReelayFeed = ({ navigation,
             }
         </ReelayFeedContainer>
     );
-
 }

@@ -13,6 +13,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import * as Amplitude from 'expo-analytics-amplitude';
 import { AuthContext } from '../../context/AuthContext';
+import { FeedContext } from '../../context/FeedContext';
 
 const { height, width } = Dimensions.get('window');
 const ICON_SIZE = 96;
@@ -97,7 +98,7 @@ export default ReelayStack = ({
     const [stackPosition, setStackPosition] = useState(0);
 
     const { user } = useContext(AuthContext);
-
+    const { overlayVisible, setOverlayData, setOverlayVisible } = useContext(FeedContext);
     const viewableReelay = stack[stackPosition];
 
     const playPause = () => {
@@ -115,6 +116,17 @@ export default ReelayStack = ({
                     setIconVisible('none');
                 }
             }, PLAY_PAUSE_ICON_TIMEOUT);   
+        }
+    }
+
+    const setReelayOverlay = (e) => {
+        if (!overlayVisible) {
+            setOverlayData({
+                type: 'REELAY',
+                reelay: viewableReelay,
+            });
+            setOverlayVisible(true);
+            setIsPaused(true);
         }
     }
 
@@ -138,6 +150,7 @@ export default ReelayStack = ({
                     index={index} 
                     isPaused={isPaused} 
                     playPause={playPause} 
+                    setReelayOverlay={setReelayOverlay}
                     setIsPaused={setIsPaused}
                     stackIndex={index} 
                     stackPosition={stackPosition}

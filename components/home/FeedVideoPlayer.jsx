@@ -14,6 +14,7 @@ export default function FeedVideoPlayer({
 	isPaused,
 	playPause,
 	reelay, 
+	setReelayOverlay,
 	viewable, 
  }) {
 
@@ -83,7 +84,7 @@ export default function FeedVideoPlayer({
 	}
 
 	return (
-		<Pressable onPress={playPause}>
+		<Pressable onPress={playPause} onLongPress={setReelayOverlay}>
 			<Video
 				isLooping={true}
 				isMuted={false}
