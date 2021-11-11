@@ -1,5 +1,9 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Text, View, Switch, Image, Pressable, SafeAreaView } from 'react-native';
+import { Text, View, Pressable } from 'react-native';
+import { AuthContext } from '../../context/AuthContext';
+import { Auth } from 'aws-amplify';
+import * as Amplitude from 'expo-analytics-amplitude';
+import colors from "../../constants/ReelayColors";
 import BackButton from "../../components/utils/BackButton";
 import { Icon } from "react-native-elements";
 import styled from 'styled-components/native';
@@ -14,7 +18,7 @@ export const ProfileSettings = ({navigation}) => {
     `
     const SettingsContainer = styled(View)`
         width: 100%;
-        height: 100%;
+        height: 80%;
         display: flex;
         align-items: center;
     `;
@@ -24,6 +28,7 @@ export const ProfileSettings = ({navigation}) => {
             <Header navigation={navigation}/>
             <SettingsContainer> 
                 <SettingEntry navigation={navigation} text="Notifications" to="NotificationSettingsScreen" />
+                <Logout />
             </SettingsContainer>
         </ViewContainer>
     )
@@ -69,6 +74,57 @@ const SettingEntry = ({navigation, text, to}) => {
                 <Icon type='ionicon' name='chevron-forward-outline' color={"#585858"} size={25}/>
             </SettingEntryWrapper>
         </Container>
+    )
+}
+
+const Logout = () => {
+    const {
+        user,
+        setCredentials,
+        setSession,
+        setSignedIn,
+        setUser,
+    } = useContext(AuthContext);
+
+    const signOut = async () => {
+        // todo: confirm sign out
+        try {
+            Amplitude.logEventWithPropertiesAsync('signOut', {
+                username: user.username,
+            });
+    
+            const signOutResult = await Auth.signOut();
+            setSignedIn(false);
+            console.log(signOutResult);
+            setUser({});
+            setSession({});
+            setCredentials({});
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const LogoutButton = styled(Pressable)`
+        margin-top: 20px;
+        border: ${colors.reelayRed};
+        border-radius: 10px;
+        background-color: ${colors.reelayBlack};
+        width: 200px;
+        height: 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    `;
+    const LogoutText = styled(Text)`
+        font-size: 24px;
+        color: ${colors.reelayRed};
+    `;
+
+    return (
+        <LogoutButton onPress={signOut}>
+            <LogoutText>Sign Out</LogoutText>
+        </LogoutButton>
     )
 }
 
