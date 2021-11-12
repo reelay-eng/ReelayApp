@@ -11,23 +11,21 @@ import styled from 'styled-components/native';
 const { height, width } = Dimensions.get('window');
 
 export default function FeedVideoPlayer({ 
-	isPaused,
 	playPause,
 	reelay, 
 	setReelayOverlay,
-	viewable, 
+	viewable,
  }) {
-
-	const [isFocused, setIsFocused] = useState(false);
+	const [focused, setFocused] = useState(false);
 	const [playbackObject, setPlaybackObject] = useState(null);
 
 	const loadStatus = useRef(0);
 	const playheadCounter = useRef(0);
 
 	const { user } = useContext(AuthContext);
-	const { overlayVisible } = useContext(FeedContext);
+	const { overlayVisible, paused } = useContext(FeedContext);
 	
-	const shouldPlay = viewable && isFocused && !isPaused && !overlayVisible;
+	const shouldPlay = viewable && focused && !paused && !overlayVisible;
 	if (shouldPlay) console.log('This one ^^ should play');
 
 	const _handleVideoRef = (component) => {
@@ -55,12 +53,12 @@ export default function FeedVideoPlayer({
 
 	useEffect(() => {
 		if (shouldPlay) playbackObject.playAsync();
-	}, [viewable, isPaused, isFocused, overlayVisible]);
+	}, [viewable, paused, focused, overlayVisible]);
 
     useFocusEffect(React.useCallback(() => {
-		if (viewable) setIsFocused(true);
+		if (viewable) setFocused(true);
         return () => {
-			if (viewable) setIsFocused(false);
+			if (viewable) setFocused(false);
 		}
     }));
 

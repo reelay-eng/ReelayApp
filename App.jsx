@@ -71,6 +71,7 @@ function App() {
     const [likesVisible, setLikesVisible] = useState(false);
     const [overlayVisible, setOverlayVisible] = useState(false);
     const [overlayData, setOverlayData] = useState({});
+    const [paused, setPaused] = useState(false);
     const [playPauseVisible, setPlayPauseVisible] = useState('none');
     const [tabBarVisible, setTabBarVisible] = useState(true);
 
@@ -207,6 +208,7 @@ function App() {
         likesVisible,       setLikesVisible,
         overlayData,        setOverlayData,
         overlayVisible,     setOverlayVisible,
+        paused,             setPaused,
         playPauseVisible,   setPlayPauseVisible,
         tabBarVisible,      setTabBarVisible,
     }

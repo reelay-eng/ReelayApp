@@ -4,7 +4,7 @@ import { Icon } from 'react-native-elements';
 import { FeedContext } from '../../context/FeedContext';
 import styled from 'styled-components/native';
 
-export default LikesDrawer = ({ reelay }) => {
+export default LikesDrawer = ({ reelay, navigation }) => {
 
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
 

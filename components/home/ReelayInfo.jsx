@@ -3,6 +3,7 @@ import { Dimensions, Pressable, Text, SafeAreaView, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
+import { FeedContext } from '../../context/FeedContext';
 
 const { height, width } = Dimensions.get('window');
 
@@ -50,6 +51,8 @@ export default ReelayInfo = ({ navigation, reelay }) => {
 	const year = (reelay.title.releaseYear) ? reelay.title.releaseYear : '';
 	const creator = reelay.creator;
 	const timestamp = moment(reelay.postedDateTime).fromNow();
+
+	const { setIsPaused } = useContext(FeedContext);
 
 	const goToProfile = () => {
 		navigation.push('UserProfileScreen', { creator });

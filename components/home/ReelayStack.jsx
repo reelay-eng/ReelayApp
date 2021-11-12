@@ -89,28 +89,27 @@ export default ReelayStack = ({
     stack,  
     stackViewable,
     isFixedStack,
-    isPaused,
     navigation,
-    setIsPaused,
 }) => {
     const [stackPosition, setStackPosition] = useState(0);
     const { user } = useContext(AuthContext);
     const { 
         overlayVisible, setOverlayVisible,
+        paused, setPaused,
         playPauseVisible, setPlayPauseVisible,
         setOverlayData,  
     } = useContext(FeedContext);
     const viewableReelay = stack[stackPosition];
 
     const playPause = () => {
-        if (isPaused) {
-            setIsPaused(false);
+        if (paused) {
+            setPaused(false);
             setPlayPauseVisible('pause');
             setTimeout(() => {
                 setPlayPauseVisible('none');
             }, PLAY_PAUSE_ICON_TIMEOUT);    
         } else {
-            setIsPaused(true);
+            setPaused(true);
             setPlayPauseVisible('play');
             setTimeout(() => {
                 if (playPauseVisible === 'play') {
@@ -127,7 +126,7 @@ export default ReelayStack = ({
                 reelay: viewableReelay,
             });
             setOverlayVisible(true);
-            setIsPaused(true);
+            setPaused(true);
         }
     }
 
@@ -150,10 +149,8 @@ export default ReelayStack = ({
                     reelay={reelay} 
                     viewable={stackViewable && reelayViewable}
                     index={index} 
-                    isPaused={isPaused} 
                     playPause={playPause} 
                     setReelayOverlay={setReelayOverlay}
-                    setIsPaused={setIsPaused}
                     stackIndex={index} 
                     stackPosition={stackPosition}
                 />
