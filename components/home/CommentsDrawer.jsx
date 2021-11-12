@@ -55,6 +55,7 @@ export default CommentsDrawer = ({ reelay }) => {
     const { user } = useContext(AuthContext);
     const { commentsVisible, setCommentsVisible } = useContext(FeedContext);
     const closeDrawer = () => {
+        console.log('Closing drawer');
         Keyboard.dismiss();
         setCommentsVisible(false);
     }

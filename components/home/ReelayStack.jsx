@@ -157,8 +157,6 @@ export default ReelayStack = ({
                     stackPosition={stackPosition}
                 />
                 { isFixedStack && renderBackButton() }
-                { reelayViewable && stackViewable && <LikesDrawer reelay={reelay} /> }
-                { reelayViewable && stackViewable && <CommentsDrawer reelay={reelay} /> }
                 { iconVisible !== 'none' && <PlayPauseIcon onPress={playPause} type={iconVisible} /> }
             </ReelayFeedContainer>
         );

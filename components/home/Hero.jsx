@@ -17,6 +17,8 @@ export default Hero = ({
     viewable,
 }) => {
 
+    const { likesVisible, commentsVisible } = useContext(FeedContext);
+
     return (
         <View key={index} style={{ justifyContent: 'flex-end'}}>
             <FeedVideoPlayer 
@@ -26,6 +28,8 @@ export default Hero = ({
             />
             <ReelayInfo navigation={navigation} reelay={reelay} />
             <Sidebar reelay={reelay} />
+            { viewable && likesVisible && <LikesDrawer reelay={reelay} /> }
+            { viewable && commentsVisible && <CommentsDrawer reelay={reelay} /> }
         </View>
     );
 }
