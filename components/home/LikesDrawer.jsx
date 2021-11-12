@@ -3,6 +3,7 @@ import { Modal, View, Text, Pressable } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { FeedContext } from '../../context/FeedContext';
 import styled from 'styled-components/native';
+import { getUserByUsername } from '../../api/ReelayDBApi';
 
 export default LikesDrawer = ({ reelay, navigation }) => {
 
@@ -43,7 +44,7 @@ export default LikesDrawer = ({ reelay, navigation }) => {
             font-size: 20px;
             font-weight: 500;
             color: white;
-        `
+        ` 
         const headerText = reelay.likes.length ? `Likes (${reelay.likes.length})` : 'Likes';
         return (
             <HeaderContainer>
@@ -59,7 +60,7 @@ export default LikesDrawer = ({ reelay, navigation }) => {
         const LikesContainer = styled(View)`
             width: 100%;
         `
-        const LikeItemContainer = styled(View)`
+        const LikeItemContainer = styled(Pressable)`
             margin: 10px;
             width: 100%;
         `
@@ -68,12 +69,20 @@ export default LikesDrawer = ({ reelay, navigation }) => {
             font-size: 20px;
             color: white;
         `
+        const goToProfile = async (username) => {
+            const creator = await getUserByUsername(username);
+            setLikesVisible(false);
+            navigation.push('UserProfileScreen', {
+                creator: creator
+            })
+        }
+
         return (
             <LikesContainer>
                 <Header />
                 { reelay.likes.map(like => {
                     return (
-                        <LikeItemContainer key={like.username}>
+                        <LikeItemContainer key={like.username} onPress={() => goToProfile(like.username)}>
                             <UsernameText>{like.username}</UsernameText>
                         </LikeItemContainer>
                     );
