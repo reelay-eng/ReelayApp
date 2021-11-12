@@ -6,5 +6,6 @@ export const FeedContext = createContext({
     likesVisible: false,
     overlayVisible: false,
     overlayData: {},
+    playPauseVisible: 'none',
     tabBarVisible: true,
 });

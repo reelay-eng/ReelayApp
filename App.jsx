@@ -71,6 +71,7 @@ function App() {
     const [likesVisible, setLikesVisible] = useState(false);
     const [overlayVisible, setOverlayVisible] = useState(false);
     const [overlayData, setOverlayData] = useState({});
+    const [playPauseVisible, setPlayPauseVisible] = useState('none');
     const [tabBarVisible, setTabBarVisible] = useState(true);
 
     // Upload context hooks
@@ -206,6 +207,7 @@ function App() {
         likesVisible,       setLikesVisible,
         overlayData,        setOverlayData,
         overlayVisible,     setOverlayVisible,
+        playPauseVisible,   setPlayPauseVisible,
         tabBarVisible,      setTabBarVisible,
     }
 
