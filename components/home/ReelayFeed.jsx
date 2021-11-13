@@ -65,13 +65,14 @@ export default ReelayFeed = ({ navigation,
     }, [navigation]);
 
     useFocusEffect(() => {
+        if (fixedStackList.length) return;
         const unsubscribe = navigation.dangerouslyGetParent()
             .addListener('tabPress', e => {
                 e.preventDefault();
                 onTabPress();
             });
         return unsubscribe;
-    })
+    });
 
     const extendFeed = async () => {
         if (isFixedStack) return;
