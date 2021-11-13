@@ -24,11 +24,11 @@ import {
 } from '../../api/NotificationsApi';
 
 import * as Amplitude from 'expo-analytics-amplitude';
-import { postCommentToDB } from '../../api/ReelayDBApi';
+import { getRegisteredUser, getUserByUsername, postCommentToDB } from '../../api/ReelayDBApi';
 
 const { height, width } = Dimensions.get('window');
 
-export default CommentsDrawer = ({ reelay }) => {
+export default CommentsDrawer = ({ reelay, navigation }) => {
 
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
     const CLOSE_BUTTON_SIZE = 36;
@@ -55,6 +55,7 @@ export default CommentsDrawer = ({ reelay }) => {
     const { user } = useContext(AuthContext);
     const { commentsVisible, setCommentsVisible } = useContext(FeedContext);
     const closeDrawer = () => {
+        console.log('Closing drawer');
         Keyboard.dismiss();
         setCommentsVisible(false);
     }
@@ -112,7 +113,7 @@ export default CommentsDrawer = ({ reelay }) => {
             padding-left: 16px;
             padding-right: 16px;
         `
-        const CommentItemContainer = styled(View)`
+        const CommentItemContainer = styled(Pressable)`
             margin-left: 10px;
             margin-right: 10px;
             margin-bottom: 30px;
@@ -150,8 +151,17 @@ export default CommentsDrawer = ({ reelay }) => {
 
                     const key = username + comment.postedAt;
                     const timestamp = moment(comment.postedAt).fromNow();
+
+                    const onPress = async () => {
+                        const creator = await getUserByUsername(username);
+                        setCommentsVisible(false);
+                        navigation.push('UserProfileScreen', {
+                            creator: creator,
+                        });
+                    }
+
                     return (
-                        <CommentItemContainer key={key}>
+                        <CommentItemContainer key={key} onPress={onPress}>
                             <CommentHeaderContainer>
                                 <UsernameText>{`@${username}`}</UsernameText>
                                 <TimestampText>{timestamp}</TimestampText>
@@ -182,6 +192,7 @@ export default CommentsDrawer = ({ reelay }) => {
             backgroundColor: '#db1f2e',
             height: 48,
             width: '80%',
+            zIndex: 4,
         }
 
         const TextInputStyle = {
@@ -273,17 +284,20 @@ export default CommentsDrawer = ({ reelay }) => {
                     multiline
                     numberOfLines={4}
                     onChangeText={text => setCommentText(text)}
-                    placeholder={'Start a flame war...'}
+                    placeholder={'Write something...'}
                     placeholderTextColor={'gray'}
                     returnKeyType='done'
                     style={TextInputStyle}
                     defaultValue={commentText}
                 />
                 <CharacterCounter commentTextLength={commentText.length} />
-                <CommentButtonContainer onPress={Keyboard.dismiss}>
+                <CommentButtonContainer>
                     <Button buttonStyle={CommentButtonStyle} 
                         disabled={!commentText.length}
-                        onPress={onCommentPost}
+                        onPress={commentText => {
+                            onCommentPost(commentText);
+                            Keyboard.dismiss();
+                        }}
                         title='Post'
                         titleStyle={{ color: 'white', fontSize: 18 }} 
                         type='solid' 
@@ -296,8 +310,8 @@ export default CommentsDrawer = ({ reelay }) => {
     return (
         <ModalContainer>
             <Modal animationType='slide' transparent={true} visible={commentsVisible} >
-                <Backdrop onPress={closeDrawer} />
                 <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
+                    <Backdrop onPress={closeDrawer} />
                     <DrawerContainer>
                         <Header />
                         <CommentBox />

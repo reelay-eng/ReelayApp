@@ -32,8 +32,8 @@ export default function VideoPlayer({ videoURI, playing }) {
 				source={{ uri: videoURI }}
 				staysActiveInBackground={false}
 				style={{
-					height: height,
-					width: width
+					height: '100%',
+					width: '100%',
 				}}
 				useNativeControls={false}
 				volume={1.0}

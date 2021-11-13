@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Dimensions, SafeAreaView, ScrollView, View } from 'react-native';
-import { Button } from 'react-native-elements';
 import { getStacksByCreator } from '../../api/ReelayDBApi';
 
 import ProfileHeader from '../../components/profile/ProfileHeader';
@@ -12,12 +11,9 @@ import Tombstone from '../../components/profile/Tombstone';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 
-const { width } = Dimensions.get('window');
-
 export default MyProfileScreen = ({ navigation, route }) => {
 
     const [creatorStacks, setCreatorStacks] = useState([]);
-    
     let { user } = useContext(AuthContext);    
 
     if (!user) {
@@ -37,22 +33,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
         margin-bottom: 60px;
     `
 
-    const EditProfileButton = () => {
-        const ButtonContainer = styled(View)`
-            align-self: center;
-            margin: 20px;
-            width: ${width - 40}px;
-        `
-        return (
-            <ButtonContainer>
-                <Button title='Edit Profile' type='outline' buttonStyle={{ 
-                    borderColor: 'white',
-                    borderWidth: 2,
-                }} titleStyle={{ color: 'white' }}/>
-            </ButtonContainer>
-        );
-    }
-
     const loadCreatorStacks = async () => {
         const nextCreatorStacks = await getStacksByCreator(userSub);
         nextCreatorStacks.forEach(stack => stack.sort(sortReelays));
@@ -65,7 +45,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const reelayCounter = (sum, nextStack) => sum + nextStack.length;
     const reelayCount = creatorStacks.reduce(reelayCounter, 0);
 
-
     useEffect(() => {
         if (userSub.length) loadCreatorStacks();
     }, []);
@@ -76,7 +55,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
             <ProfileScrollView>
                 <ProfileHeader />
                 <ProfileStatsBar reelayCount={reelayCount} />
-                {/* <EditProfileButton /> */}
                 <Tombstone />
                 <ProfilePosterGrid creatorStacks={creatorStacks} navigation={navigation} />
             </ProfileScrollView>

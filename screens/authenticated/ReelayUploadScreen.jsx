@@ -84,11 +84,16 @@ export default ReelayUploadScreen = ({ navigation }) => {
             title: titleObject.title ? titleObject.title : titleObject.name,
         });
 
-        if (saveToDevice && !hasSavePermission) {
-            try {
+        if (saveToDevice) {
+            if (!hasSavePermission) {
                 const { status } = await MediaLibrary.requestPermissionsAsync();
-                setHasSavePermission(status === "granted");
-                MediaLibrary.saveToLibraryAsync(videoURI);
+                const nextHasSavePermission = status === 'granted';
+                setHasSavePermission(nextHasSavePermission);
+                if (!nextHasSavePermission) return;
+            }
+
+            try {
+                await MediaLibrary.saveToLibraryAsync(videoURI);
             } catch (error) {
                 console.log('Could not save to local device...');
                 Amplitude.logEventWithPropertiesAsync('saveToDeviceFailed', {

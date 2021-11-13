@@ -38,7 +38,7 @@ export default ReelayFeed = ({ navigation,
     const { overlayVisible } = useContext(FeedContext);
 
     const [feedPosition, setFeedPosition] = useState(0);
-    const [isPaused, setIsPaused] = useState(false);
+    // const [isPaused, setIsPaused] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [stackList, setStackList] = useState([]);
     const [stackCounter, setStackCounter] = useState(0);
@@ -65,13 +65,14 @@ export default ReelayFeed = ({ navigation,
     }, [navigation]);
 
     useFocusEffect(() => {
+        if (fixedStackList.length) return;
         const unsubscribe = navigation.dangerouslyGetParent()
             .addListener('tabPress', e => {
                 e.preventDefault();
                 onTabPress();
             });
         return unsubscribe;
-    })
+    });
 
     const extendFeed = async () => {
         if (isFixedStack) return;
@@ -156,7 +157,7 @@ export default ReelayFeed = ({ navigation,
                 stack={stack} stackViewable={stackViewable}
                 feedIndex={index}
                 isFixedStack={isFixedStack}
-                isPaused={isPaused} setIsPaused={setIsPaused} 
+                // isPaused={isPaused} setIsPaused={setIsPaused} 
                 navigation={navigation}
             />
         );
@@ -212,7 +213,7 @@ export default ReelayFeed = ({ navigation,
                 />        
             }
             { overlayVisible && 
-                <FeedOverlay navigation={navigation} setIsPaused={setIsPaused} onDeleteReelay={onDeleteReelay} />
+                <FeedOverlay navigation={navigation} onDeleteReelay={onDeleteReelay} />
             }
         </ReelayFeedContainer>
     );
