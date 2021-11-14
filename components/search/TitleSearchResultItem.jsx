@@ -38,7 +38,6 @@ const YearText = styled.Text`
 export default TitleSearchResultItem = ({ result, navigation }) => {
 
     const [posterLoaded, setPosterLoaded] = useState(false); 
-
     const titleObject = result;
 
     const posterImageUri = titleObject.poster_path 
@@ -52,7 +51,7 @@ export default TitleSearchResultItem = ({ result, navigation }) => {
         ? ('(' + titleObject.release_date.slice(0,4) + ')') : '';
 
     const selectResult = () => {        
-        // navigation.push('VenueSelectScreen', { title: title });
+        navigation.push('TitleDetailScreen', { titleObj: titleObject });
     }
 
     return (

@@ -286,3 +286,12 @@ export const removeReelay = async (reelay) => {
     });
     return resultRemove;
 }
+
+export const searchTitles = async (isSeries, titleName) => {
+    const routeGet = `${REELAY_API_BASE_URL}/search/titles/${titleName}?isSeries=${isSeries}`;
+    const resultGet = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: REELAY_API_HEADERS,
+    });
+    return resultGet;
+}

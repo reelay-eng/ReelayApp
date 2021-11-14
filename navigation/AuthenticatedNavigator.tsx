@@ -29,6 +29,7 @@ import ReelayCameraScreen from "../screens/authenticated/ReelayCameraScreen";
 import ReelayUploadScreen from "../screens/authenticated/ReelayUploadScreen";
 import SearchScreen from "../screens/authenticated/SearchScreen";
 import SelectTitleScreen from "../screens/authenticated/SelectTitleScreen";
+import TitleDetailScreen from "../screens/authenticated/TitleDetailScreen";
 import UserProfileScreen from "../screens/authenticated/UserProfileScreen";
 import VenueSelectScreen from "../screens/authenticated/VenueSelectScreen";
 
@@ -151,6 +152,13 @@ function HomeTabNavigator() {
           headerShown: false,
         }}
       />
+      <SearchTabStack.Screen
+        name="TitleDetailScreen"
+        component={TitleDetailScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
     </HomeTabStack.Navigator>
   );
 }
@@ -183,6 +191,13 @@ function SearchTabNavigator() {
       <SearchTabStack.Screen
         name="ProfileFeedScreen"
         component={ProfileFeedScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <SearchTabStack.Screen
+        name="TitleDetailScreen"
+        component={TitleDetailScreen}
         options={{
           headerShown: false,
         }}
@@ -266,7 +281,13 @@ function ProfileTabNavigator() {
           headerShown: false,
         }}
       />
-
+      <SearchTabStack.Screen
+        name="TitleDetailScreen"
+        component={TitleDetailScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
       
       {/* Settings */}
       <ProfileTabStack.Screen
