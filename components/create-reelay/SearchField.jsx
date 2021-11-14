@@ -10,7 +10,7 @@ export default SearchField = ({ searchText, updateSearch, placeholderText="Searc
     return (
         <SearchFieldContainer>
             <Input 
-                onChangeText={(newSearchText) => updateSearch(newSearchText)}
+                onChangeText={updateSearch}
                 placeholder={placeholderText}
                 value={searchText}
                 style={{

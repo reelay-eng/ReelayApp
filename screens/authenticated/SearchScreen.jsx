@@ -3,7 +3,7 @@ import { SafeAreaView, View, Pressable, Text } from "react-native";
 
 import BackButton from "../../components/utils/BackButton";
 import SearchField from "../../components/create-reelay/SearchField";
-import SearchResults from "../../components/create-reelay/SearchResults";
+import TitleSearchResults from "../../components/search/TitleSearchResults";
 import UserSearchResults from "../../components/search/UserSearchResults";
 import {
     fetchAnnotatedTitle,
@@ -14,64 +14,42 @@ import {
 import { searchUsers } from "../../api/ReelayDBApi";
 import styled from "styled-components/native";
 
-const SearchTypeSelector = ({ type }) => {
-    const textDecorationLine = searchType === type ? "underline" : "none";
-
-    const SelectorContainer = styled(Pressable)`
-        height: 30px;
-        margin: 10px;
-    `;
-    const SelectorText = styled(Text)`
-        font-size: 22px;
-        font-family: System;
-        color: white;
-        text-decoration-line: ${textDecorationLine};
-    `;
-
-    return (
-        <SelectorContainer onPress={() => {
-            setLoading(true);
-            setSearchType(type);
-        }}>
-            <SelectorText>{type}</SelectorText>
-        </SelectorContainer>
-    );
-};
+const MarginBelowLine = styled(View)`
+    height: 30px;
+`
+const TopBarContainer = styled(View)`
+    flex-direction: row;
+`
+const SearchScreenContainer = styled(SafeAreaView)`
+    background-color: black;
+    height: 100%;
+    width: 100%;
+`
+const SelectorBarContainer = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: center;
+    position: absolute;
+    width: 100%;
+`
 
 export default SearchScreen = ({ navigation }) => {
-    const MarginBelowLine = styled(View)`
-        height: 30px;
-    `
-    const TopBarContainer = styled(View)`
-        flex-direction: row;
-    `
-    const SearchScreenContainer = styled(SafeAreaView)`
-        background-color: black;
-        height: 100%;
-        width: 100%;
-    `
-    const SelectorBarContainer = styled(View)`
-        align-items: center;
-        flex-direction: row;
-        justify-content: center;
-        position: absolute;
-        width: 100%;
-    `
+
+    const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState([]);
-    const [searchType, setSearchType] = useState("Film");
-    const [loading, setLoading] = useState(false);
+    const [selectedType, setSelectedType] = useState("Film");
 
     useEffect(() => {
-        updateSearch(searchText, searchType);
-    }, [searchText, searchType])
+        updateSearch(searchText, selectedType);
+    }, [searchText, selectedType])
 
-    const updateSearch = async (newSearchText, type = searchType) => {
-        console.log(newSearchText);
-        console.log(type);
-        setSearchText(newSearchText);
+    const updateSearch = async (newSearchText, type = selectedType) => {
+        if (searchText !== newSearchText) {
+            setSearchText(newSearchText);
+        }
         try {
-            if (type == "Film") {
+            if (type === "Film") {
                 const searchResults = await searchMovies(newSearchText);
                 const annotatedResults = await Promise.all(
                     searchResults.map(async (result) => {
@@ -79,7 +57,7 @@ export default SearchScreen = ({ navigation }) => {
                     })
                 );
                 setSearchResults(annotatedResults);
-            } else if (type=="TV") {
+            } else if (type === "TV") {
                 const searchResults = await searchSeries(newSearchText);
                 const annotatedResults = await Promise.all(
                     searchResults.map(async (result) => {
@@ -98,13 +76,42 @@ export default SearchScreen = ({ navigation }) => {
         setLoading(false);
     };
 
+    const SearchTypeSelector = ({ type }) => {
+        const selected = (selectedType === type);
+        const textDecorationLine = selected ? "underline" : "none";
+
+        const SelectorContainer = styled(Pressable)`
+            height: 50px;
+            margin-left: 10px;
+            margin-right: 10px;
+            padding: 10px;
+        `;
+        const SelectorText = styled(Text)`
+            font-size: 22px;
+            font-family: System;
+            color: white;
+            text-decoration-line: ${textDecorationLine};
+        `;
+    
+        return (
+            <SelectorContainer 
+                style={{ textDecorationLine: textDecorationLine }} 
+                onPress={() => {
+                    setLoading(true);
+                    setSelectedType(type);
+            }}>
+                <SelectorText>{type}</SelectorText>
+            </SelectorContainer>
+        );
+    };
+
     return (
         <SearchScreenContainer>
             <TopBarContainer>
                 <SelectorBarContainer>
-                <SearchTypeSelector type="Film" />
-                <SearchTypeSelector type="TV" />
-                <SearchTypeSelector type="Users" />
+                    <SearchTypeSelector type="Film" />
+                    <SearchTypeSelector type="TV" />
+                    <SearchTypeSelector type="Users" />
                 </SelectorBarContainer>
                 <BackButton navigation={navigation} />
             </TopBarContainer>
@@ -114,10 +121,10 @@ export default SearchScreen = ({ navigation }) => {
                 placeholderText="Search for movies, TV shows, and users"
             />
             <MarginBelowLine />
-            { searchType !== "Users" && !loading && 
-                <SearchResults navigation={navigation} searchResults={searchResults} />
+            { selectedType !== "Users" && !loading && 
+                <TitleSearchResults navigation={navigation} searchResults={searchResults} />
             }
-            { searchType === "Users" && !loading &&
+            { selectedType === "Users" && !loading &&
                 <UserSearchResults navigation={navigation} searchResults={searchResults} />
             }
         </SearchScreenContainer>
