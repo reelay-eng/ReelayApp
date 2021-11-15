@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, Pressable } from 'react-native';
 import styled from 'styled-components/native';
 
 export default ProfileStatsBar = ({ reelayCount }) => {
@@ -27,18 +27,18 @@ export default ProfileStatsBar = ({ reelayCount }) => {
 
     return (
         <BarContainer>
-            <StatContainer>
-                <StatText>{reelayCount}</StatText>
-                <DimensionText>{'Reelays'}</DimensionText>
-            </StatContainer>
-            <StatContainer>
-                <StatText>{'0'}</StatText>
-                <DimensionText>{'Followers'}</DimensionText>
-            </StatContainer>
-            <StatContainer>
-                <StatText>{'0'}</StatText>
-                <DimensionText>{'Following'}</DimensionText>
-            </StatContainer>
+          <StatContainer>
+            <StatText>{reelayCount}</StatText>
+            <DimensionText>{"Reelays"}</DimensionText>
+          </StatContainer>
+          <StatContainer>
+            <StatText>{"0"}</StatText>
+            <DimensionText>{"Followers"}</DimensionText>
+          </StatContainer>
+          <StatContainer>
+            <StatText>{"0"}</StatText>
+            <DimensionText>{"Following"}</DimensionText>
+          </StatContainer>
         </BarContainer>
     );
 }

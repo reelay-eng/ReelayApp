@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { getStacksByCreator } from '../../api/ReelayDBApi';
 
+import FollowButtonBar from "../../components/profile/FollowButtonBar";
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
 import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
@@ -45,11 +46,11 @@ export default UserProfileScreen = ({ navigation, route }) => {
 
     return (
         <ProfileScreenContainer>
-            <ProfileTopBar creator={creator} navigation={navigation} route={route}/>
+            <ProfileTopBar creator={creator} navigation={navigation} />
             <ProfileScrollView>
                 <ProfileHeader />
                 <ProfileStatsBar reelayCount={reelayCount} />
-                <Tombstone />
+                <FollowButtonBar />
                 <ProfilePosterGrid creatorStacks={creatorStacks} navigation={navigation} />
             </ProfileScrollView>
         </ProfileScreenContainer>

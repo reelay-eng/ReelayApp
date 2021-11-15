@@ -55,7 +55,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
             <ProfileScrollView>
                 <ProfileHeader />
                 <ProfileStatsBar reelayCount={reelayCount} />
-                <Tombstone />
                 <ProfilePosterGrid creatorStacks={creatorStacks} navigation={navigation} />
             </ProfileScrollView>
         </ProfileScreenContainer>
