@@ -35,7 +35,6 @@ export default Poster = memo(({ title }) => {
 		return (<View />);
 	}
 
-	console.log('TITLE: ', title);
 	const posterImageSource = getPosterURL(title.posterURI);
 
 	const onPosterPress = () => {

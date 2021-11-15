@@ -14,7 +14,7 @@ export default TitleSearchResults = ({ navigation, searchResults }) => {
 
     return (
         <View>
-            { searchResults.length >= 1 &&
+            { searchResults?.length >= 1 &&
                 <ScrollView>
                     { searchResults.map(result => {
                         return (

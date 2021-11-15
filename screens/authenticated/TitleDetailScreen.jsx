@@ -6,7 +6,6 @@ import Poster from '../../components/home/Poster';
 import YoutubeVideoEmbed from '../../components/utils/YouTubeVideoEmbed';
 import styled from 'styled-components/native';
 import { ScrollView } from 'react-native-gesture-handler';
-import BackButton from '../../components/utils/BackButton';
 
 export default TitleDetailScreen = ({ navigation, route }) => {
 
@@ -120,7 +119,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
                         justifyContent: 'space-between',
                     }}>
                         <TitleText>{`${titleObj.title} ${releaseYear}`}</TitleText>
-                        <BackButton navigation={navigation} iconType='close-circle-outline'/>
+                        {/* <BackButton navigation={navigation} iconType='close-circle-outline'/> */}
                     </View>
                     <TaglineText>{titleObj.tagline}</TaglineText>
                     <Divider />
@@ -136,15 +135,42 @@ export default TitleDetailScreen = ({ navigation, route }) => {
         );
     }
 
+    const ReturnButton = () => {
+        const ReturnButtonContainer = styled(View)`
+            align-items: center;
+            height: 40px;
+            margin: 10px;
+            margin-top: 20px;
+            margin-bottom: 80px;
+            width: 100%;
+        `
+        return (
+            <ReturnButtonContainer>
+                <Button onPress={() => navigation.pop()}
+                    buttonStyle={{ borderColor: 'white', width: '100%', borderRadius: '5px' }}
+                    titleStyle={{ color: 'white' }}
+                    title='Go Back' type='outline' />
+            </ReturnButtonContainer>
+        );
+    }
+
+    const ScrollBox = styled(ScrollView)`
+        height: 100%;
+        width: 100%;
+    `
+
     return (
-        <TitleOverlayContainer>
-            <Header />
-            { titleObj.trailerURI && 
-                <TitleOverlayTrailerContainer>
-                    <YoutubeVideoEmbed youtubeVideoID={titleObj.trailerURI} height={TRAILER_HEIGHT} />
-                </TitleOverlayTrailerContainer>
-            }
-            <Overview />
-        </TitleOverlayContainer>
+        <ScrollBox scrollOverflowEnabled={true}>
+            <TitleOverlayContainer>
+                <Header />
+                { titleObj.trailerURI && 
+                    <TitleOverlayTrailerContainer>
+                        <YoutubeVideoEmbed youtubeVideoID={titleObj.trailerURI} height={TRAILER_HEIGHT} />
+                    </TitleOverlayTrailerContainer>
+                }
+                <Overview />
+                <ReturnButton />
+            </TitleOverlayContainer>
+        </ScrollBox>
     )
 };

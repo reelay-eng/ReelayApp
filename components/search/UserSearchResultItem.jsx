@@ -5,79 +5,72 @@ import styled from "styled-components/native";
 
 import { UploadContext } from "../../context/UploadContext";
 
-const PressableContainer = styled.Pressable`
-  flex: 1;
-  flex-direction: row;
-  margin: 5px 10px 10px 20px;
-  height: 100px;
-`;
-const TitleText = styled.Text`
+const PressableContainer = styled(Pressable)`
+    align-items: center;    
+    flex-direction: row;
+    height: 100px;
+    margin-left: 10px;
+    width: 100%;
+`
+const UsernameText = styled.Text`
     color: white
-    font-size: 22px;
-`;
-const TitleLineContainer = styled.View`
-  flex: 1;
-  justify-content: center;
-  align-items: flex-start;
-`;
+    font-size: 18px;
+`
+const UsernameContainer = styled.View`
+    align-items: flex-start;
+    justify-content: center;
+`
 const ProfilePicture = styled(Image)`
-  border-radius: 50px;
-  height: 65px;
-  width: 65px;
-`;
-
-const ProfilePictureContainer = styled(Pressable)`
-  border-color: white;
-  border-radius: 50px;
-  border-width: 2px;
-  margin: 10px;
-  height: 70px;
-  width: 70px;
-`;
+    border-radius: 50px;
+    height: 45px;
+    width: 45px;
+`
+const ProfilePictureContainer = styled(View)`
+    border-color: white;
+    border-radius: 50px;
+    border-width: 2px;
+    margin: 10px;
+    height: 50px;
+    width: 50px;
+`
 
 export default UserSearchResultItem = ({ result, navigation }) => {
-  const { setHasSelectedUser, setUploadUserObject } = 
-    useContext(UploadContext);
-  // const [posterLoaded, setPosterLoaded] = useState(false);
+    const { setHasSelectedUser, setUploadUserObject } = useContext(UploadContext);
 
-  const userObject=result;
+    const userObject=result;
 
-  // username
-  const username = userObject.username;
-  const sub = userObject.sub;
-  console.log(username);
+    // username
+    const username = userObject.username;
+    const sub = userObject.sub;
+    console.log(username);
 
-  // pfp
-  const profilePictureURI = userObject.profilePictureURI
-    ? console.log("PFP URI stuff")
-    : null;
+    // pfp
+    const profilePictureURI = userObject.profilePictureURI;
 
-  const selectResult = () => {
-    setHasSelectedUser(true); // this makes the tab bar disappear
-    setUploadUserObject(userObject);
-    console.log("selected this item", username);
+    const selectResult = () => {
+        setHasSelectedUser(true); // this makes the tab bar disappear
+        setUploadUserObject(userObject);
+        navigation.push("UserProfileScreen", { creator: userObject });
+    };
 
-    navigation.push("UserProfileScreen", { creator: userObject });
-  };
-
-  return (
-    <PressableContainer onPress={selectResult}>
-      <ProfilePictureContainer>
-        {profilePictureURI && (
-          <ProfilePicture
-            source={{ uri: profilePictureURI }}
-            PlaceholderContent={<ActivityIndicator />}
-          />
-        )}
-        {!profilePictureURI && (
-          <ProfilePicture
-            source={require("../../assets/icons/reelay-icon.png")}
-          />
-        )}
-      </ProfilePictureContainer>
-      <TitleLineContainer>
-        <TitleText>{username}</TitleText>
-      </TitleLineContainer>
-    </PressableContainer>
-  );
+    return (
+        <PressableContainer onPress={selectResult}>
+            <ProfilePictureContainer>
+                { profilePictureURI && (
+                    <ProfilePicture
+                        source={{ uri: profilePictureURI }}
+                        PlaceholderContent={<ActivityIndicator />}
+                    />
+                )}
+                { !profilePictureURI && (
+                    <ProfilePicture
+                        source={require("../../assets/icons/reelay-icon.png")}
+                    />
+                )}
+            </ProfilePictureContainer>
+            <UsernameContainer>
+                <UsernameText>{username}</UsernameText>
+            </UsernameContainer>
+        </PressableContainer>
+    );
 };

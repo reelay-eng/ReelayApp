@@ -11,7 +11,7 @@ import {
     searchSeries,
 } from "../../api/TMDbApi";
 
-import { searchUsers } from "../../api/ReelayDBApi";
+import { searchTitles, searchUsers } from "../../api/ReelayDBApi";
 import styled from "styled-components/native";
 
 const MarginBelowLine = styled(View)`
@@ -42,28 +42,35 @@ export default SearchScreen = ({ navigation }) => {
 
     useEffect(() => {
         updateSearch(searchText, selectedType);
-    }, [searchText, selectedType])
+    }, [searchText, selectedType]);
+
+    useEffect(() => {
+        setLoading(false);
+    }, [searchResults]);
 
     const updateSearch = async (newSearchText, type = selectedType) => {
-        if (searchText !== newSearchText) {
-            setSearchText(newSearchText);
-        }
         try {
             if (type === "Film") {
-                const searchResults = await searchMovies(newSearchText);
-                const annotatedResults = await Promise.all(
-                    searchResults.map(async (result) => {
-                        return await fetchAnnotatedTitle(result.id, false);
-                    })
-                );
+                // const searchResults = await searchMovies(newSearchText);
+                // const annotatedResults = await Promise.all(
+                //     searchResults.map(async (result) => {
+                //         return await fetchAnnotatedTitle(result.id, false);
+                //         const tmdbTitleID = result.id;
+                //     })
+                // );
+                const annotatedResults = await searchTitles(newSearchText, false);
+                console.log('ANNOTATED: ', annotatedResults);
                 setSearchResults(annotatedResults);
             } else if (type === "TV") {
-                const searchResults = await searchSeries(newSearchText);
-                const annotatedResults = await Promise.all(
-                    searchResults.map(async (result) => {
-                        return await fetchAnnotatedTitle(result.id, true);
-                    })
-                );
+                // const searchResults = await searchSeries(newSearchText);
+                // const annotatedResults = await Promise.all(
+                //     searchResults.map(async (result) => {
+                //         // return await fetchAnnotatedTitle(result.id, true);
+                //         const tmdbTitleID = result.id;
+                //         return await searchTitles(tmdbTitleID, true);
+                //     })
+                // );
+                const annotatedResults = await searchTitles(newSearchText, true);
                 setSearchResults(annotatedResults);
             } else {
                 // fetch users info
@@ -73,8 +80,13 @@ export default SearchScreen = ({ navigation }) => {
         } catch (error) {
             console.log(error);
         }
-        setLoading(false);
     };
+
+    const updateSearchText = async (newSearchText) => {
+        if (newSearchText !== searchText) {
+            setSearchText(newSearchText);
+        }
+    }
 
     const SearchTypeSelector = ({ type }) => {
         const selected = (selectedType === type);
@@ -105,6 +117,7 @@ export default SearchScreen = ({ navigation }) => {
         );
     };
 
+
     return (
         <SearchScreenContainer>
             <TopBarContainer>
@@ -117,7 +130,7 @@ export default SearchScreen = ({ navigation }) => {
             </TopBarContainer>
             <SearchField
                 searchText={searchText}
-                updateSearch={updateSearch}
+                updateSearch={updateSearchText}
                 placeholderText="Search for movies, TV shows, and users"
             />
             <MarginBelowLine />

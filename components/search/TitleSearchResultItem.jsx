@@ -40,13 +40,18 @@ export default TitleSearchResultItem = ({ result, navigation }) => {
     const [posterLoaded, setPosterLoaded] = useState(false); 
     const titleObject = result;
 
+    console.log('TITLE OBJECT: ', titleObject);
+
     const posterImageUri = titleObject.poster_path 
         ? `${TMDB_IMAGE_API_BASE_URL}${titleObject.poster_path}` : null;
 
     // for movies and series
     // note that release_date for series has been overwritten with its first air date
     const title = titleObject.title ? titleObject.title : 'Title not found.';
-    const actors = titleObject.displayActors.map(actor => actor.name).filter((actor) => actor!==undefined).join(", ");
+    const actors = titleObject.displayActors?.map(actor => actor.name)
+            .filter((actor) => actor !== undefined)
+            .join(", ") 
+        ?? [];
     const releaseYear = (titleObject.release_date && titleObject.release_date.length >= 4) 
         ? ('(' + titleObject.release_date.slice(0,4) + ')') : '';
 
