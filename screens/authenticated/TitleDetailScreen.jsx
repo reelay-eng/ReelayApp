@@ -1,18 +1,32 @@
-import React, { useContext } from 'react';
-import { Dimensions, SafeAreaView, View, Text } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { 
+    ActivityIndicator, 
+    Dimensions, 
+    Image,
+    Pressable, 
+    SafeAreaView, 
+    ScrollView, 
+    Text, 
+    View,
+} from 'react-native';
 import { Button } from 'react-native-elements';
 
 import Poster from '../../components/home/Poster';
 import YoutubeVideoEmbed from '../../components/utils/YouTubeVideoEmbed';
 import styled from 'styled-components/native';
-import { ScrollView } from 'react-native-gesture-handler';
+import * as VideoThumbnails from 'expo-video-thumbnails';
+import { getVideoURIObject } from '../../api/ReelayDBApi';
 
 export default TitleDetailScreen = ({ navigation, route }) => {
 
     const { height, width } = Dimensions.get('window');
     const TRAILER_HEIGHT = height * 0.3;
 
-    const TitleOverlayContainer = styled(SafeAreaView)`
+    const ScrollBox = styled(ScrollView)`
+        top: 44px;
+        width: 100%;
+    `
+    const TitleOverlayContainer = styled(View)`
         width: 100%;
         height: 100%;
         justify-content: flex-start;
@@ -26,14 +40,15 @@ export default TitleDetailScreen = ({ navigation, route }) => {
         margin-top: 20px;
     `
     const { titleObj } = route.params;
-    console.log('TITLE DETAIL TITLE: ', titleObj);
 
     const actors = titleObj?.displayActors;
     const director = titleObj?.director;
     const directorName = (director && director.name) ? 'Director: ' + director.name : '';
 
     const releaseYear = (titleObj?.release_date?.length >= 4)
-    ? `(${titleObj.release_date.slice(0,4)})` : '';	
+    ? `(${titleObj.release_date.slice(0,4)})` : '';
+    
+    const topReelays = titleObj.top_reelays ?? [];
 
     const Overview = () => {
         const OverviewContainer = styled(View)`
@@ -47,7 +62,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
             margin-bottom: 10px;
             margin-top: 10px;
         `
-        const OverviewTextContainer = styled(Text)`
+        const OverviewTextContainer = styled(View)`
             padding: 10px 20px 10px 20px;
             margin-bottom: 20px;
             width: 100%;
@@ -139,9 +154,8 @@ export default TitleDetailScreen = ({ navigation, route }) => {
         const ReturnButtonContainer = styled(View)`
             align-items: center;
             height: 40px;
-            margin: 10px;
             margin-top: 20px;
-            margin-bottom: 80px;
+            margin-bottom: 200px;
             width: 100%;
         `
         return (
@@ -154,21 +168,110 @@ export default TitleDetailScreen = ({ navigation, route }) => {
         );
     }
 
-    const ScrollBox = styled(ScrollView)`
-        height: 100%;
-        width: 100%;
-    `
+    const ReelayThumbnail = ({ reelay, index }) => {
+        const ThumbnailContainer = styled(View)`
+            border-color: white;
+            border-width: 1px;
+            border-radius: 8px;
+            justify-content: center;
+            margin: 4px;
+            height: 122px;
+            width: 82px;
+        `
+        const ThumbnailImage = styled(Image)`
+            border-radius: 8px;
+            height: 120px;
+            width: 80px;
+        `
+        const CreatorName = styled(Text)`
+            font-family: System;
+            font-size: 16px;
+            color: white;
+        `
+        
+        const [loading, setLoading] = useState(true);
+        const [thumbnailURI, setThumbnailURI] = useState('');
+
+        const generateThumbnail = async () => {
+            try {
+                const { videoURI } = await getVideoURIObject(reelay);
+                const { uri } = await VideoThumbnails.getThumbnailAsync(videoURI);
+                setThumbnailURI(uri);
+                setLoading(false);
+            } catch (error) {
+                console.warn(error);
+            }
+        };
+
+        useEffect(() => {
+            generateThumbnail();
+        }, []);
+
+        const goToReelay = async () => {
+            navigation.push('TitleFeedScreen', {
+                initialFeedPos: 0,
+                // todo: this is probably empty...
+                fixedStackList: [topReelays],
+            });
+        }
+
+        return (
+            <Pressable key={reelay.id} onPress={goToReelay}>
+                <ThumbnailContainer>
+                    { loading && <ActivityIndicator /> }
+                    { !loading && 
+                        <ThumbnailImage source={{ uri: thumbnailURI }} />
+                    }
+                </ThumbnailContainer>
+            </Pressable>
+        );
+    }
+
+    const TopReelays = () => {
+        const TopReelaysContainer = styled(View)`
+            width: 100%;
+        `
+        const ThumbnailScrollContainer = styled(View)`
+            align-items: center;
+            flex-direction: row;
+            justify-content: center;
+            height: 140px;
+            width: 100%;
+        `
+        const TopReelaysHeader = styled(Text)`
+            margin: 10px;
+            font-family: System;
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+        `
+        return (
+            <TopReelaysContainer>
+                <TopReelaysHeader>{`Reelays (${topReelays.length})`}</TopReelaysHeader>
+                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+                    <ThumbnailScrollContainer>
+                        { topReelays.length && topReelays.map((reelay, index) => {
+                            return <ReelayThumbnail key={reelay.id} reelay={reelay} index={index} />;
+                        })}
+                    </ThumbnailScrollContainer>
+                </ScrollView>
+            </TopReelaysContainer>
+        );
+    }
 
     return (
-        <ScrollBox scrollOverflowEnabled={true}>
+        <ScrollBox showsVerticalScrollIndicator={false}>
             <TitleOverlayContainer>
                 <Header />
+                { (topReelays.length > 0) && 
+                    <TopReelays />
+                }
                 { titleObj.trailerURI && 
                     <TitleOverlayTrailerContainer>
                         <YoutubeVideoEmbed youtubeVideoID={titleObj.trailerURI} height={TRAILER_HEIGHT} />
                     </TitleOverlayTrailerContainer>
                 }
-                <Overview />
+                <Overview /> 
                 <ReturnButton />
             </TitleOverlayContainer>
         </ScrollBox>

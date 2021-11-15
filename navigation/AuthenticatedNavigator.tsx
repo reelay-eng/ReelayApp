@@ -30,6 +30,7 @@ import ReelayUploadScreen from "../screens/authenticated/ReelayUploadScreen";
 import SearchScreen from "../screens/authenticated/SearchScreen";
 import SelectTitleScreen from "../screens/authenticated/SelectTitleScreen";
 import TitleDetailScreen from "../screens/authenticated/TitleDetailScreen";
+import TitleFeedScreen from "../screens/authenticated/TitleFeedScreen";
 import UserProfileScreen from "../screens/authenticated/UserProfileScreen";
 import VenueSelectScreen from "../screens/authenticated/VenueSelectScreen";
 
@@ -134,7 +135,6 @@ function HomeTabNavigator() {
         name="HomeFeedScreen"
         component={HomeFeedScreen}
         options={{
-          headerTitle: "Find a Movie",
           headerShown: false,
         }}
       />
@@ -152,9 +152,16 @@ function HomeTabNavigator() {
           headerShown: false,
         }}
       />
-      <SearchTabStack.Screen
+      <HomeTabStack.Screen
         name="TitleDetailScreen"
         component={TitleDetailScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <HomeTabStack.Screen
+        name="TitleFeedScreen"
+        component={TitleFeedScreen}
         options={{
           headerShown: false,
         }}
@@ -198,6 +205,13 @@ function SearchTabNavigator() {
       <SearchTabStack.Screen
         name="TitleDetailScreen"
         component={TitleDetailScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <HomeTabStack.Screen
+        name="TitleFeedScreen"
+        component={TitleFeedScreen}
         options={{
           headerShown: false,
         }}
@@ -284,6 +298,13 @@ function ProfileTabNavigator() {
       <SearchTabStack.Screen
         name="TitleDetailScreen"
         component={TitleDetailScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <HomeTabStack.Screen
+        name="TitleFeedScreen"
+        component={TitleFeedScreen}
         options={{
           headerShown: false,
         }}

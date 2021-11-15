@@ -50,33 +50,15 @@ export default SearchScreen = ({ navigation }) => {
 
     const updateSearch = async (newSearchText, type = selectedType) => {
         try {
+            let annotatedResults;
             if (type === "Film") {
-                // const searchResults = await searchMovies(newSearchText);
-                // const annotatedResults = await Promise.all(
-                //     searchResults.map(async (result) => {
-                //         return await fetchAnnotatedTitle(result.id, false);
-                //         const tmdbTitleID = result.id;
-                //     })
-                // );
-                const annotatedResults = await searchTitles(newSearchText, false);
-                console.log('ANNOTATED: ', annotatedResults);
-                setSearchResults(annotatedResults);
+                annotatedResults = await searchTitles(newSearchText, false);
             } else if (type === "TV") {
-                // const searchResults = await searchSeries(newSearchText);
-                // const annotatedResults = await Promise.all(
-                //     searchResults.map(async (result) => {
-                //         // return await fetchAnnotatedTitle(result.id, true);
-                //         const tmdbTitleID = result.id;
-                //         return await searchTitles(tmdbTitleID, true);
-                //     })
-                // );
-                const annotatedResults = await searchTitles(newSearchText, true);
-                setSearchResults(annotatedResults);
+                annotatedResults = await searchTitles(newSearchText, true);
             } else {
-                // fetch users info
-                const searchResults = await searchUsers(newSearchText);
-                setSearchResults(searchResults);
+                annotatedResults = await searchUsers(newSearchText);
             }
+            setSearchResults(annotatedResults);
         } catch (error) {
             console.log(error);
         }

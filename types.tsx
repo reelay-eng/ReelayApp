@@ -20,12 +20,15 @@ export type HomeTabParamList = {
     HomeFeedScreen: undefined;
     ProfileFeedScreen: undefined;
     UserProfileScreen: undefined;
+    TitleDetailScreen: undefined;
+    TitleFeedScreen: undefined;
 };
 
 export type SearchTabParamList = {
     ProfileFeedScreen: undefined;
     SearchScreen: undefined;
     TitleDetailScreen: undefined;
+    TitleFeedScreen: undefined;
     UserProfileScreen: undefined;
 };
 
@@ -42,6 +45,7 @@ export type ProfileTabParamList = {
     ProfileFeedScreen: undefined;
     ProfileSettingsScreen: undefined;
     TitleDetailScreen: undefined;
+    TitleFeedScreen: undefined;
     UserProfileScreen: undefined;
 }
 

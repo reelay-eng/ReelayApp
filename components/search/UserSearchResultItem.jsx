@@ -36,15 +36,10 @@ const ProfilePictureContainer = styled(View)`
 
 export default UserSearchResultItem = ({ result, navigation }) => {
     const { setHasSelectedUser, setUploadUserObject } = useContext(UploadContext);
-
-    const userObject=result;
+    const userObject = result;
 
     // username
     const username = userObject.username;
-    const sub = userObject.sub;
-    console.log(username);
-
-    // pfp
     const profilePictureURI = userObject.profilePictureURI;
 
     const selectResult = () => {
@@ -63,9 +58,7 @@ export default UserSearchResultItem = ({ result, navigation }) => {
                     />
                 )}
                 { !profilePictureURI && (
-                    <ProfilePicture
-                        source={require("../../assets/icons/reelay-icon.png")}
-                    />
+                    <ProfilePicture source={require("../../assets/icons/reelay-icon.png")} />
                 )}
             </ProfilePictureContainer>
             <UsernameContainer>

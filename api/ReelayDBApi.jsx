@@ -277,7 +277,6 @@ export const searchTitles = async (searchText, isSeries) => {
         method: 'GET',
         headers: REELAY_API_HEADERS,
     });
-    console.log('result get: ', resultGet);
     return resultGet;
 }
 

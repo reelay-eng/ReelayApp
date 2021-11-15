@@ -40,8 +40,6 @@ export default TitleSearchResultItem = ({ result, navigation }) => {
     const [posterLoaded, setPosterLoaded] = useState(false); 
     const titleObject = result;
 
-    console.log('TITLE OBJECT: ', titleObject);
-
     const posterImageUri = titleObject.poster_path 
         ? `${TMDB_IMAGE_API_BASE_URL}${titleObject.poster_path}` : null;
 
@@ -60,24 +58,24 @@ export default TitleSearchResultItem = ({ result, navigation }) => {
     }
 
     return (
-      <PressableContainer key={titleObject.id} onPress={selectResult}>
-        <TitleLineContainer>
-          <TitleText>{posterLoaded ? title : ""}</TitleText>
-          <YearText>{posterLoaded ? releaseYear : ""}</YearText>
-          <ActorText>{posterLoaded ? actors : ""}</ActorText>
-        </TitleLineContainer>
-        <ImageContainer>
-          {posterImageUri && (
-            <Image
-              source={{ uri: posterImageUri }}
-              style={{ height: 120, width: 80, borderRadius: 6 }}
-              PlaceholderContent={<ActivityIndicator />}
-              onLoadEnd={() => setPosterLoaded(true)}
-            />
-          )}
-          {!posterImageUri && <TitleText>{"No Poster Available"}</TitleText>}
-          {!posterLoaded && <View style={{ height: 150 }} />}
-        </ImageContainer>
-      </PressableContainer>
+        <PressableContainer key={titleObject.id} onPress={selectResult}>
+            <TitleLineContainer>
+                <TitleText>{posterLoaded ? title : ""}</TitleText>
+                <YearText>{posterLoaded ? releaseYear : ""}</YearText>
+                <ActorText>{posterLoaded ? actors : ""}</ActorText>
+            </TitleLineContainer>
+            <ImageContainer>
+                { posterImageUri && (
+                    <Image
+                        source={{ uri: posterImageUri }}
+                        style={{ height: 120, width: 80, borderRadius: 6 }}
+                        PlaceholderContent={<ActivityIndicator />}
+                        onLoadEnd={() => setPosterLoaded(true)}
+                    />
+                )}
+                { !posterImageUri && <TitleText>{"No Poster Available"}</TitleText>}
+                { !posterLoaded && <View style={{ height: 150 }} />}
+            </ImageContainer>
+        </PressableContainer>
     );
 };
