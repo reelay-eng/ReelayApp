@@ -88,6 +88,7 @@ const StackLocation = ({ position, length }) => {
 export default ReelayStack = ({ 
     stack,  
     stackViewable,
+    initialStackPos = 0,
     isFixedStack,
     navigation,
 }) => {
@@ -189,7 +190,14 @@ export default ReelayStack = ({
 
     return (
         <ReelayFeedContainer>
-            <FlatList data={stack} renderItem={renderReelay} onScroll={onStackSwiped} horizontal={true} pagingEnabled={true} />
+            <FlatList 
+                data={stack} 
+                horizontal={true} 
+                initialScrollIndex={initialStackPos}
+                renderItem={renderReelay} 
+                onScroll={onStackSwiped} 
+                pagingEnabled={true} 
+            />
             <TopRightContainer style={{ top: insets.top }}>
                 <Poster title={viewableReelay.title} />
                 <UnderPosterContainer>

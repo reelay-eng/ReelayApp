@@ -207,7 +207,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 
         const goToReelay = async () => {
             navigation.push('TitleFeedScreen', {
-                initialFeedPos: index,
+                initialStackPos: index,
                 fixedStackList: [topReelays],
             });
         }

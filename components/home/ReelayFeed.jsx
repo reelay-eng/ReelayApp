@@ -26,6 +26,7 @@ const ReelayFeedContainer = styled(View)`
 
 export default ReelayFeed = ({ navigation, 
     initialFeedPos = 0,
+    initialStackPos = 0,
     fixedStackList = [],
     forceRefresh = false, 
 }) => {
@@ -158,8 +159,8 @@ export default ReelayFeed = ({ navigation,
             <ReelayStack 
                 stack={stack} stackViewable={stackViewable}
                 feedIndex={index}
+                initialStackPos={initialStackPos}
                 isFixedStack={isFixedStack}
-                // isPaused={isPaused} setIsPaused={setIsPaused} 
                 navigation={navigation}
             />
         );
