@@ -4,7 +4,7 @@ import { UploadContext } from '../../context/UploadContext';
 import { getPosterURL } from '../../api/TMDbApi';
 
 import { Camera } from 'expo-camera';
-import { Dimensions, View, Text, SafeAreaView, Pressable} from 'react-native';
+import { Dimensions, Linking, Alert, View, Text, SafeAreaView, Pressable} from 'react-native';
 import { Image, Icon } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -15,6 +15,7 @@ import styled from 'styled-components/native';
 import { showErrorToast } from '../../components/utils/toasts';
 
 import * as Amplitude from 'expo-analytics-amplitude';
+import ReelayColors from '../../constants/ReelayColors';
 
 const { height, width } = Dimensions.get('window');
 const captureSize = Math.floor(height * 0.07);
@@ -32,24 +33,34 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     } = useContext(UploadContext);
 
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
-    const [hasPermission, setHasPermission] = useState(null);
+    // const [hasPermission, setHasPermission] = useState(null);
 
     const cameraRef = useRef(null);
 
-    useEffect(() => {
-        (async () => {
-            const { status } = await Camera.requestPermissionsAsync();
-            setHasPermission(status === "granted");
-        })();
-    }, [navigation]);
+    // useEffect(() => {
+    //     (async () => {
+    //         const { status } = await Camera.requestPermissionsAsync();
+    //         setHasPermission(status === "granted");
+    //     })();
+    // }, [navigation]);
 
-    // handle permission denied cases
-    if (hasPermission === null) {
-        return <View />;
-    }
-    if (hasPermission === false) {
-        return <Text style={styles.text}>No access to camera</Text>;
-    }
+    // // handle permission denied cases
+    // // Fix done on 11/16 for alerting IOS users to allow camera access but not android.
+    // if (!hasPermission) {
+    //     navigation.pop();
+    //     Alert.alert(
+    //         "Please allow camera access",
+    //         "To make a reelay, please enable camera permissions in your phone settings",
+    //         [
+    //           {
+    //             text: "Cancel",
+    //             style: "cancel"
+    //           },
+    //           { text: "Update camera settings", onPress: () => Linking.openSettings() }
+    //         ]
+    //     );
+    //     return <View style={{ backgroundColor: ReelayColors.reelayBlack }} />;
+    // }
 
     const pushToUploadScreen = async (videoURI) => {
         if (!videoURI) {
