@@ -15,7 +15,7 @@ import Poster from '../../components/home/Poster';
 import YoutubeVideoEmbed from '../../components/utils/YouTubeVideoEmbed';
 import styled from 'styled-components/native';
 import * as VideoThumbnails from 'expo-video-thumbnails';
-import { getVideoURIObject } from '../../api/ReelayDBApi';
+import { getMostRecentReelaysByTitle, getVideoURIObject } from '../../api/ReelayDBApi';
 
 export default TitleDetailScreen = ({ navigation, route }) => {
 
@@ -39,6 +39,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
         margin-left: 10px;
         margin-top: 20px;
     `
+    const [topReelays, setTopReelays] = useState([]);
     const { titleObj } = route.params;
 
     const actors = titleObj?.displayActors;
@@ -47,9 +48,8 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 
     const releaseYear = (titleObj?.release_date?.length >= 4)
     ? `(${titleObj.release_date.slice(0,4)})` : '';
+    const tmdbTitleID = titleObj.id;
     
-    const topReelays = titleObj.top_reelays ?? [];
-
     const Overview = () => {
         const OverviewContainer = styled(View)`
             width: 100%;
@@ -134,7 +134,6 @@ export default TitleDetailScreen = ({ navigation, route }) => {
                         justifyContent: 'space-between',
                     }}>
                         <TitleText>{`${titleObj.title} ${releaseYear}`}</TitleText>
-                        {/* <BackButton navigation={navigation} iconType='close-circle-outline'/> */}
                     </View>
                     <TaglineText>{titleObj.tagline}</TaglineText>
                     <Divider />
@@ -194,8 +193,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 
         const generateThumbnail = async () => {
             try {
-                const { videoURI } = await getVideoURIObject(reelay);
-                const { uri } = await VideoThumbnails.getThumbnailAsync(videoURI);
+                const { uri } = await VideoThumbnails.getThumbnailAsync(reelay.content.videoURI);
                 setThumbnailURI(uri);
                 setLoading(false);
             } catch (error) {
@@ -209,8 +207,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 
         const goToReelay = async () => {
             navigation.push('TitleFeedScreen', {
-                initialFeedPos: 0,
-                // todo: this is probably empty...
+                initialFeedPos: index,
                 fixedStackList: [topReelays],
             });
         }
@@ -247,7 +244,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
         `
         return (
             <TopReelaysContainer>
-                <TopReelaysHeader>{`Reelays (${topReelays.length})`}</TopReelaysHeader>
+                <TopReelaysHeader>{`Popular Reelays (${topReelays.length})`}</TopReelaysHeader>
                 <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
                     <ThumbnailScrollContainer>
                         { topReelays.length && topReelays.map((reelay, index) => {
@@ -258,6 +255,17 @@ export default TitleDetailScreen = ({ navigation, route }) => {
             </TopReelaysContainer>
         );
     }
+
+    const fetchTopReelays = async () => {
+        const nextTopReelays = await getMostRecentReelaysByTitle(tmdbTitleID);
+        if (nextTopReelays?.length) {
+            setTopReelays(nextTopReelays);
+        }
+    }
+
+    useEffect(() => {
+        fetchTopReelays();
+    }, []);
 
     return (
         <ScrollBox showsVerticalScrollIndicator={false}>

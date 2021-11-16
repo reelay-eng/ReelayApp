@@ -30,6 +30,8 @@ export default ReelayFeed = ({ navigation,
     forceRefresh = false, 
 }) => {
 
+    console.log('FIXED STACK LIST: ', fixedStackList);
+
     const feedPager = useRef();
     const nextPage = useRef(0);
     const stackPager = useRef();
