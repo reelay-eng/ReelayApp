@@ -23,12 +23,10 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
     const [downloadProgress, setDownloadProgress] = useState(0);
     const [downloadStarted, setDownloadStarted] = useState(false);
 
-    const {
-        user
-    } = useContext(AuthContext);
+    const { user, reelayDBUser } = useContext(AuthContext);
     const { setOverlayVisible } = useContext(FeedContext);
-    const canHideReelay = (reelay.creator.username === user.username)
-                        || (user.username === 'immigrantfilm');
+    const canHideReelay = (reelay?.creator?.username === reelayDBUser?.username)
+                        || (reelayDBUser?.role === 'admin');
 
     const SettingsContainer = styled(View)`
         align-items: center;

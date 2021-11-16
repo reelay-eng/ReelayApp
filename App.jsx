@@ -23,7 +23,7 @@ import { FeedContext } from './context/FeedContext';
 import { UploadContext } from './context/UploadContext';
 
 // api imports
-import { registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
+import { registerUser, registerPushTokenForUser, getRegisteredUser } from './api/ReelayDBApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { showErrorToast } from './components/utils/toasts';
 
@@ -60,6 +60,7 @@ function App() {
     // Auth context hooks
     const [credentials, setCredentials] = useState({});
     const [isLoading, setIsLoading] = useState(true);
+    const [reelayDBUser, setReelayDBUser] = useState({});
     const [signedIn, setSignedIn] = useState(false);
     const [session, setSession] = useState({});
     const [user, setUser] = useState({});
@@ -114,6 +115,9 @@ function App() {
                 setUser(user);
                 setCredentials(credentials);
                 setSignedIn(true);
+
+                const myReelayDBUser = await getRegisteredUser(user.attributes.sub);
+                setReelayDBUser(myReelayDBUser);
             }
         } catch (error) {
             console.log(error);
@@ -183,6 +187,7 @@ function App() {
         credentials,        setCredentials,
         expoPushToken,      setExpoPushToken,
         isLoading,          setIsLoading,
+        reelayDBUser,       setReelayDBUser,
         session,            setSession,
         signedIn,           setSignedIn,
         user,               setUser,
