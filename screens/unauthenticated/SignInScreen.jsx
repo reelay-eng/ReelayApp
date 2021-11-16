@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Image, KeyboardAvoidingView, SafeAreaView, Pressable, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback, SafeAreaView, Pressable, View } from 'react-native';
 import { Button, Icon, Input } from 'react-native-elements';
 import BackButton from '../../components/utils/BackButton';
 import { showErrorToast } from '../../components/utils/toasts';
@@ -12,6 +12,22 @@ import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
 
 const REELAY_ICON_SOURCE = require('../../assets/icons/reelay-icon.png');
+
+export const KeyboardHidingBlackContainer = ({ children }) => {
+    const FullScreenBlackContainer = styled(SafeAreaView)`
+        background-color: ${ReelayColors.reelayBlack};
+        height: 100%;
+        width: 100%;
+    `;
+    return ( 
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+            <FullScreenBlackContainer>
+                {children}
+            </FullScreenBlackContainer>
+        </TouchableWithoutFeedback>
+    )
+};
+
 
 export default SignInScreen = ({ navigation, route }) => {
     const AltOptionsRowContainer = styled(View)`
@@ -48,11 +64,7 @@ export default SignInScreen = ({ navigation, route }) => {
         height: 192px;
         width: 192px;
     ` 
-    const SignUpContainer = styled(SafeAreaView)`
-        background-color: ${ReelayColors.reelayBlack};
-        height: 100%;
-        width: 100%;
-    `
+    
 
     const { setUser, setUsername, setSignedIn } = useContext(AuthContext);
 
@@ -144,33 +156,33 @@ export default SignInScreen = ({ navigation, route }) => {
 
         return (
             <InputContainer>
-                <AuthInput 
-                    autoCapitalize='none'
-                    containerStyle={AuthInputContainerStyle}
-                    placeholder={'Enter username'} 
-                    onChangeText={setInputUsername}
-                    value={inputUsername}
-                />
-                <AuthInput 
-                    containerStyle={AuthInputContainerStyle}
-                    placeholder={'Enter password'} 
-                    onChangeText={setPassword}
-                    secureTextEntry={hidePassword}
-                    value={password}
-                />
-                <CTAButton title='Login to Reelay' type='solid' 
-                    disabled={signInDisabled}
-                    onPress={signInUser} 
-                    titleStyle={{
-                        fontWeight: 'bold',
-                    }}
-                    buttonStyle={{ 
-                        backgroundColor: ReelayColors.reelayRed,
-                        borderRadius: 36,
-                        height: 56,
-                    }} 
-                />
-                <AltOptions hidePassword={hidePassword} setHidePassword={setHidePassword} />
+                    <AuthInput 
+                        autoCapitalize='none'
+                        containerStyle={AuthInputContainerStyle}
+                        placeholder={'Enter username'} 
+                        onChangeText={setInputUsername}
+                        value={inputUsername}
+                    />
+                    <AuthInput 
+                        containerStyle={AuthInputContainerStyle}
+                        placeholder={'Enter password'} 
+                        onChangeText={setPassword}
+                        secureTextEntry={hidePassword}
+                        value={password}
+                    />
+                    <CTAButton title='Login to Reelay' type='solid' 
+                        disabled={signInDisabled}
+                        onPress={signInUser} 
+                        titleStyle={{
+                            fontWeight: 'bold',
+                        }}
+                        buttonStyle={{ 
+                            backgroundColor: ReelayColors.reelayRed,
+                            borderRadius: 36,
+                            height: 56,
+                        }} 
+                    />
+                    <AltOptions hidePassword={hidePassword} setHidePassword={setHidePassword} />
             </InputContainer>
         );
     }
@@ -195,12 +207,12 @@ export default SignInScreen = ({ navigation, route }) => {
     }
 
     return (
-        <SignUpContainer>
+        <KeyboardHidingBlackContainer>
             <TopBar />
             <ReelayPicture source={REELAY_ICON_SOURCE} />
             <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
                 <UsernameAndPassword />
             </KeyboardAvoidingView>
-        </SignUpContainer>
+        </KeyboardHidingBlackContainer>
     );
 }

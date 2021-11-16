@@ -8,6 +8,7 @@ import * as Amplitude from 'expo-analytics-amplitude';
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
 import { showErrorToast } from '../../components/utils/toasts';
+import { KeyboardHidingBlackContainer } from "./SignInScreen";
 import { input } from '@aws-amplify/ui';
 
 const REELAY_ICON_SOURCE = require('../../assets/icons/reelay-icon.png');
@@ -23,11 +24,6 @@ export default SignUpUsernameScreen = ({ navigation, route }) => {
 
     const InputContainer = styled(View)`
         margin-bottom: 60px;
-    `
-    const SignUpContainer = styled(SafeAreaView)`
-        background-color: ${ReelayColors.reelayBlack};
-        height: 100%;
-        width: 100%;
     `
     const CTAButton = styled(Button)`
         align-self: center;
@@ -151,12 +147,12 @@ export default SignUpUsernameScreen = ({ navigation, route }) => {
     }
 
     return (
-        <SignUpContainer>
+        <KeyboardHidingBlackContainer>
             <TopBar />
             <ReelayPicture source={REELAY_ICON_SOURCE} />
             <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
                 <EmailInput />
             </KeyboardAvoidingView>
-        </SignUpContainer>
+        </KeyboardHidingBlackContainer>
     );
 }

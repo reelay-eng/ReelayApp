@@ -3,9 +3,10 @@ import { Button, Input } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 export const AuthButton = styled(Button)`
-align-self: center;
-margin-top: 10px;
-width: 75%;
+    align-self: center;
+    margin-top: 10px;
+    width: 75%;
+    padding: 20px;
 `
 export const AuthInput = styled(Input)`
     flex: 1; 

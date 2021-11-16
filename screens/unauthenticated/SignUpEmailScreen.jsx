@@ -1,8 +1,10 @@
 import React, { createRef, useState } from 'react';
-import { Image, KeyboardAvoidingView, SafeAreaView, Text, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback, SafeAreaView, Text, View } from 'react-native';
 import { Button, Input } from 'react-native-elements';
 import { validate } from 'validate.js';
 import constraints from '../../components/utils/EmailValidationConstraints';
+
+import { KeyboardHidingBlackContainer } from "./SignInScreen";
 
 import { showErrorToast } from '../../components/utils/toasts';
 import * as Amplitude from 'expo-analytics-amplitude';
@@ -16,11 +18,6 @@ export default SignUpEmailScreen = ({ navigation }) => {
 
     const InputContainer = styled(View)`
         margin-bottom: 60px;
-    `
-    const SignUpContainer = styled(SafeAreaView)`
-        background-color: ${ReelayColors.reelayBlack};
-        height: 100%;
-        justify-content: center;
     `
     const CTAButton = styled(Button)`
         align-self: center;
@@ -41,6 +38,7 @@ export default SignUpEmailScreen = ({ navigation }) => {
         height: 192px;
         width: 192px;
     ` 
+
     const AuthInputContainerStyle = {
         alignSelf: 'center',
         margin: 16,
@@ -106,11 +104,11 @@ export default SignUpEmailScreen = ({ navigation }) => {
     }
 
     return (
-        <SignUpContainer>
+        <KeyboardHidingBlackContainer>
             <ReelayPicture source={REELAY_ICON_SOURCE} />
             <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
                 <EmailInput />
             </KeyboardAvoidingView>
-        </SignUpContainer>
+        </KeyboardHidingBlackContainer>
     );
 }
