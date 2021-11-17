@@ -5,8 +5,12 @@ import { Icon } from 'react-native-elements';
 import Hero from './Hero';
 import Poster from './Poster';
 
+import LikesDrawer from './LikesDrawer';
+import CommentsDrawer from './CommentsDrawer';
+
 import styled from 'styled-components/native';
 import { VenueIcon } from '../utils/VenueIcon';
+import { ScrollView } from 'react-native-gesture-handler';
 
 import * as Amplitude from 'expo-analytics-amplitude';
 import { AuthContext } from '../../context/AuthContext';
@@ -84,7 +88,6 @@ const StackLocation = ({ position, length }) => {
 export default ReelayStack = ({ 
     stack,  
     stackViewable,
-    initialStackPos = 0,
     isFixedStack,
     navigation,
 }) => {
@@ -184,26 +187,11 @@ export default ReelayStack = ({
     // https://docs.expo.dev/versions/latest/sdk/safe-area-context/ 
     const insets = useSafeAreaInsets();
 
-    const openTitleDetail = async () => {
-        navigation.push('TitleDetailScreen', {
-            titleObj: viewableReelay.title,
-        });
-    }
-
     return (
         <ReelayFeedContainer>
-            <FlatList 
-                data={stack} 
-                horizontal={true} 
-                initialScrollIndex={initialStackPos}
-                renderItem={renderReelay} 
-                onScroll={onStackSwiped} 
-                pagingEnabled={true} 
-            />
+            <FlatList data={stack} renderItem={renderReelay} onScroll={onStackSwiped} horizontal={true} pagingEnabled={true} />
             <TopRightContainer style={{ top: insets.top }}>
-                <Pressable onPress={openTitleDetail}>
-                    <Poster title={viewableReelay.title} />
-                </Pressable>
+                <Poster title={viewableReelay.title} />
                 <UnderPosterContainer>
                     { stack.length > 1 && <StackLocation position={stackPosition} length={stack.length} /> }
                     { viewableReelay?.content?.venue && <VenueIcon venue={viewableReelay.content.venue} size={24} border={2} /> }

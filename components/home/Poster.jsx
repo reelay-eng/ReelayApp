@@ -12,7 +12,7 @@ const areEqual = (title1, title2) => title1.id === title2.id;
 
 export default Poster = memo(({ title }) => {
 
-	const PosterContainer = styled(View)`
+	const PosterContainer = styled(Pressable)`
 		z-index: 3;
 	`
 	const PosterImage = styled(Image)`
@@ -37,9 +37,32 @@ export default Poster = memo(({ title }) => {
 
 	const posterImageSource = getPosterURL(title.posterURI);
 
+	const onPosterPress = () => {
+		if (overlayVisible) {
+			setOverlayVisible(false);
+			Amplitude.logEventWithPropertiesAsync('closedOverlay', {
+                username: cognitoUser.username,
+				titleID: title.id,
+                title: title.display,
+            });
+		} else {
+			setOverlayData({
+				type: 'TITLE',
+				title: title,
+			});
+			setOverlayVisible(true);	
+			Amplitude.logEventWithPropertiesAsync('openedOverlay', {
+                username: cognitoUser.username,
+				titleID: title.id,
+                title: title.display,
+            });
+
+		}
+	}
+
 	return (
 		<SafeAreaView>
-			<PosterContainer>
+			<PosterContainer onPress={onPosterPress}>
 				{ posterImageSource && <PosterImage source={{ uri: posterImageSource }} />}
 			</PosterContainer>
 		</SafeAreaView>
