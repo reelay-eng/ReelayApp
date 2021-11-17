@@ -93,7 +93,7 @@ export default ReelayStack = ({
     navigation,
 }) => {
     const [stackPosition, setStackPosition] = useState(0);
-    const { user } = useContext(AuthContext);
+    const { cognitoUser } = useContext(AuthContext);
     const { 
         overlayVisible, setOverlayVisible,
         paused, setPaused,
@@ -177,7 +177,7 @@ export default ReelayStack = ({
                 prevReelayCreator: prevReelay.creator.username,
                 prevReelayTitle: prevReelay.title.display,
                 swipeDirection: swipeDirection,
-                username: user.username,
+                username: cognitoUser.username,
             }
             Amplitude.logEventWithPropertiesAsync('swipedFeed', logProperties);
             setStackPosition(nextStackPosition);

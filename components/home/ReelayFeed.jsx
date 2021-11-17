@@ -37,7 +37,7 @@ export default ReelayFeed = ({ navigation,
     const nextPage = useRef(0);
     const stackPager = useRef();
 
-    const { user } = useContext(AuthContext);
+    const { cognitoUser } = useContext(AuthContext);
     const { overlayVisible } = useContext(FeedContext);
 
     const [feedPosition, setFeedPosition] = useState(0);
@@ -180,7 +180,7 @@ export default ReelayFeed = ({ navigation,
                 nextReelayTitle: nextStack[0].title.display,
                 prevReelayTitle: prevStack[0].title.display,
                 swipeDirection: swipeDirection,
-                username: user.username,
+                username: cognitoUser.username,
             }
             Amplitude.logEventWithPropertiesAsync('swipedFeed', logProperties);
             setFeedPosition(nextFeedPosition);

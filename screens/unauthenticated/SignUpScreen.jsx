@@ -10,6 +10,7 @@ import * as Amplitude from 'expo-analytics-amplitude';
 
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
+import { KeyboardHidingBlackContainer } from "./SignInScreen";
 
 const REELAY_ICON_SOURCE = require('../../assets/icons/reelay-icon.png');
 const SIGN_UP_ERROR_MESSAGE = "Couldn't create an account. Try a different username?";
@@ -55,11 +56,6 @@ export default SignUpScreen = ({ navigation, route }) => {
         margin-top: 20px;
         height: 192px;
         width: 192px;
-    ` 
-    const SignUpContainer = styled(SafeAreaView)`
-        background-color: ${ReelayColors.reelayBlack};
-        height: 100%;
-        width: 100%;
     `
 
     const PasswordInput = () => {
@@ -186,12 +182,12 @@ export default SignUpScreen = ({ navigation, route }) => {
     }
 
     return (
-        <SignUpContainer>
+        <KeyboardHidingBlackContainer>
             <TopBar />
             <ReelayPicture source={REELAY_ICON_SOURCE} />
             <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
                 <PasswordInput />
             </KeyboardAvoidingView>
-        </SignUpContainer>
+        </KeyboardHidingBlackContainer>
     );
 }

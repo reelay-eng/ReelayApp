@@ -23,12 +23,10 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
     const [downloadProgress, setDownloadProgress] = useState(0);
     const [downloadStarted, setDownloadStarted] = useState(false);
 
-    const {
-        user
-    } = useContext(AuthContext);
+    const { cognitoUser, reelayDBUser } = useContext(AuthContext);
     const { setOverlayVisible } = useContext(FeedContext);
-    const canHideReelay = (reelay.creator.username === user.username)
-                        || (user.username === 'immigrantfilm');
+    const canHideReelay = (reelay?.creator?.username === reelayDBUser?.username)
+                        || (reelayDBUser?.role === 'admin');
 
     const SettingsContainer = styled(View)`
         align-items: center;
@@ -67,7 +65,7 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
     const confirmHideReelay = async () => {
         console.log('confirming delete reelay');
         Amplitude.logEventWithPropertiesAsync('deleteReelay', {
-            username: user.username,
+            username: cognitoUser.username,
             reelayID: reelay.id,
             title: reelay.title,
         });
