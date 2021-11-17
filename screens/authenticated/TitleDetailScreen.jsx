@@ -46,8 +46,6 @@ export default TitleDetailScreen = ({ navigation, route }) => {
     const director = titleObj?.director;
     const directorName = (director && director.name) ? 'Director: ' + director.name : '';
 
-    const releaseYear = (titleObj?.release_date?.length >= 4)
-    ? `(${titleObj.release_date.slice(0,4)})` : '';
     const tmdbTitleID = titleObj.id;
     
     const Overview = () => {
@@ -133,7 +131,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
                         alignItems: 'center', 
                         justifyContent: 'space-between',
                     }}>
-                        <TitleText>{`${titleObj.title} ${releaseYear}`}</TitleText>
+                        <TitleText>{`${titleObj.display} (${titleObj.releaseYear})`}</TitleText>
                     </View>
                     <TaglineText>{titleObj.tagline}</TaglineText>
                     <Divider />
@@ -143,7 +141,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
                     </ActorText>
                 </HeaderRowContainer>
                 <PosterContainer>
-                    <Poster title={{...titleObj, posterURI: titleObj.poster_path }} />
+                    <Poster title={{...titleObj, posterURI: titleObj.posterURI }} />
                 </PosterContainer>
             </TitleOverlayHeader>
         );

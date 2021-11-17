@@ -170,8 +170,6 @@ export const prepareReelay = async (fetchedReelay) => {
         fetchedReelay.isSeries
     );
     const videoURIObject = await getVideoURIObject(fetchedReelay);
-    const releaseYear = (titleObject?.release_date?.length >= 4)
-        ? (titleObject.release_date.slice(0,4)) : '';	
 
     return {
         id: fetchedReelay.id,
@@ -187,22 +185,29 @@ export const prepareReelay = async (fetchedReelay) => {
         comments: fetchedReelay.comments,
         likes: fetchedReelay.likes,
         sub: fetchedReelay.datastoreSub,
-        title: {
-            id: titleObject.id,
-            display: titleObject.title,
-
-            director: titleObject.director,
-            displayActors: titleObject.displayActors,
-            overview: titleObject.overview,
-            posterURI: titleObject ? titleObject.poster_path : null,
-            tagline: titleObject.tagline,
-            trailerURI: titleObject.trailerURI,
-
-            releaseDate: titleObject.release_date,
-            releaseYear: releaseYear,
-        },
+        title: prepareTitle(titleObject),
         postedDateTime: fetchedReelay.postedAt ?? fetchedReelay.maxPostedAt,
     };
+}
+
+export const prepareTitle = (tmdbTitleObject) => {
+    const releaseYear = (tmdbTitleObject?.release_date?.length >= 4)
+        ? (tmdbTitleObject.release_date.slice(0,4)) : '';	
+
+        return {
+            id: tmdbTitleObject.id,
+            display: tmdbTitleObject.title,
+
+            director: tmdbTitleObject.director,
+            displayActors: tmdbTitleObject.displayActors,
+            overview: tmdbTitleObject.overview,
+            posterURI: tmdbTitleObject ? tmdbTitleObject.poster_path : null,
+            tagline: tmdbTitleObject.tagline,
+            trailerURI: tmdbTitleObject.trailerURI,
+
+            releaseDate: tmdbTitleObject.release_date,
+            releaseYear: releaseYear,
+        }
 }
 
 export const registerUser = async (user) => {

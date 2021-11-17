@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Image } from 'react-native-elements';
 import styled from 'styled-components/native';
+import { prepareTitle } from '../../api/ReelayDBApi';
 
 const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
 
@@ -54,7 +55,7 @@ export default TitleSearchResultItem = ({ result, navigation }) => {
         ? ('(' + titleObject.release_date.slice(0,4) + ')') : '';
 
     const selectResult = () => {        
-        navigation.push('TitleDetailScreen', { titleObj: titleObject });
+        navigation.push('TitleDetailScreen', { titleObj: prepareTitle(titleObject) });
     }
 
     return (
