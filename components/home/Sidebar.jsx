@@ -34,11 +34,11 @@ export default Sidebar = ({ reelay }) => {
 	`
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 
-	const { user } = useContext(AuthContext);
+	const { cognitoUser } = useContext(AuthContext);
 	const { setCommentsVisible, setLikesVisible } = useContext(FeedContext);
 
-	const commentedByUser = reelay.comments.find(comment => comment.authorName === user.username);
-	const likedByUser = reelay.likes.find(like => like.username === user.username);
+	const commentedByUser = reelay.comments.find(comment => comment.authorName === cognitoUser.username);
+	const likedByUser = reelay.likes.find(like => like.username === cognitoUser.username);
 
 	const onCommentLongPress = async () => setCommentsVisible(true);
 	const onCommentPress = async () => setCommentsVisible(true);
@@ -48,17 +48,17 @@ export default Sidebar = ({ reelay }) => {
 		if (likedByUser) {
 			const unlikeBody = {
 				creatorName: reelay.creator.username,
-				username: user.username,
+				username: cognitoUser.username,
 				reelaySub: reelay.sub,
 			}
-			reelay.likes = reelay.likes.filter(likes => likes.username !== user.username);
+			reelay.likes = reelay.likes.filter(likes => likes.username !== cognitoUser.username);
 		
 			const postResult = await removeLike(unlikeBody, reelay.sub);
 			console.log(postResult);
 			
 			setLikeUpdateCounter(likeUpdateCounter + 1);
 			Amplitude.logEventWithPropertiesAsync('unlikedReelay', {
-				user: user.username,
+				user: cognitoUser.username,
 				creator: reelay.creator.username,
 				title: reelay.title.display,
 				reelayID: reelay.id,
@@ -66,7 +66,7 @@ export default Sidebar = ({ reelay }) => {
 		} else {
 			const likeBody = {
 				creatorName: reelay.creator.username,
-				username: user.username,
+				username: cognitoUser.username,
 				postedAt: new Date().toISOString(),
 			}
 			reelay.likes.push(likeBody);		
@@ -77,11 +77,11 @@ export default Sidebar = ({ reelay }) => {
 			setLikeUpdateCounter(likeUpdateCounter + 1);
 			sendLikeNotification({ 
 				creatorSub: reelay.creator.sub,
-				user: user,
+				user: cognitoUser,
 				reelay: reelay,
 			});
 			Amplitude.logEventWithPropertiesAsync('likedReelay', {
-				user: user.username,
+				user: cognitoUser.username,
 				creator: reelay.creator.username,
 				title: reelay.title.display,
 				reelayID: reelay.id,

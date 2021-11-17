@@ -14,15 +14,15 @@ import styled from 'styled-components/native';
 export default MyProfileScreen = ({ navigation, route }) => {
 
     const [creatorStacks, setCreatorStacks] = useState([]);
-    let { user } = useContext(AuthContext);    
+    let { cognitoUser } = useContext(AuthContext);    
 
-    if (!user) {
+    if (!cognitoUser) {
         return (
             <ProfileTopBar atProfileBase={true} creator={{ username: 'User not found' }} 
                 navigation={navigation} />
         );
     }
-    const userSub = user.attributes?.sub;
+    const userSub = cognitoUser.attributes?.sub;
 
     const ProfileScreenContainer = styled(SafeAreaView)`
         background-color: black;
@@ -51,7 +51,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     return (
         <ProfileScreenContainer>
-            <ProfileTopBar creator={user} navigation={navigation} atProfileBase={true} />
+            <ProfileTopBar creator={cognitoUser} navigation={navigation} atProfileBase={true} />
             <ProfileScrollView>
                 <ProfileHeader />
                 <ProfileStatsBar reelayCount={reelayCount} />

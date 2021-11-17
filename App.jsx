@@ -58,12 +58,12 @@ function App() {
     const responseListener = useRef();
 
     // Auth context hooks
+    const [cognitoUser, setCognitoUser] = useState({});
     const [credentials, setCredentials] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [signedIn, setSignedIn] = useState(false);
     const [session, setSession] = useState({});
-    const [user, setUser] = useState({});
     const [username, setUsername] = useState('');
 
     // Feed context hooks
@@ -101,22 +101,22 @@ function App() {
             interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
             interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
         });
-    }, [user]);
+    }, [cognitoUser]);
 
     const authenticateUser = async () => {
         console.log('Setting up authentication');
         try {
             const session = await Auth.currentSession();
-            const user = await Auth.currentAuthenticatedUser();
+            const cognitoUser = await Auth.currentAuthenticatedUser();
             const credentials = await Auth.currentUserCredentials();
 
             if (credentials.authenticated) {
                 setSession(session);
-                setUser(user);
+                setCognitoUser(cognitoUser);
                 setCredentials(credentials);
                 setSignedIn(true);
 
-                const myReelayDBUser = await getRegisteredUser(user.attributes.sub);
+                const myReelayDBUser = await getRegisteredUser(cognitoUser.attributes.sub);
                 setReelayDBUser(myReelayDBUser);
             }
         } catch (error) {
@@ -130,17 +130,17 @@ function App() {
     }
 
     const registerUserAndPushTokens = async () => {
-        const validUser = user?.username;
+        const validUser = cognitoUser?.username;
         if (!validUser) return;
 
         try {
-            const registeredUser = await registerUser(user);
+            const registeredUser = await registerUser(cognitoUser);
             if (registeredUser.error) {
                 showErrorToast(
                     "We couldn't register your device for push notifications. Please contact the Reelay team."
                 );
                 Amplitude.logEventWithPropertiesAsync('registerUserError', {
-                    username: user.username
+                    username: cognitoUser.username
                 });
                 return;
             }
@@ -158,7 +158,7 @@ function App() {
                 setNotification(Boolean(notification));
                 console.log(notification);
                 Amplitude.logEventWithPropertiesAsync('notificationRecieved', {
-                    username: user.username,
+                    username: cognitoUser.username,
                     notification: notification,
                 });
 
@@ -167,7 +167,7 @@ function App() {
                 console.log('Notification response received');
                 console.log(response);
                 Amplitude.logEventWithPropertiesAsync('notificationResponseRecieved', {
-                    username: user.username,
+                    username: cognitoUser.username,
                     response: response,
                 });
 
@@ -184,13 +184,13 @@ function App() {
     }
 
     const authState = {
+        cognitoUser,        setCognitoUser,
         credentials,        setCredentials,
         expoPushToken,      setExpoPushToken,
         isLoading,          setIsLoading,
         reelayDBUser,       setReelayDBUser,
         session,            setSession,
         signedIn,           setSignedIn,
-        user,               setUser,
         username,           setUsername,
     }
 
