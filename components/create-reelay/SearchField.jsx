@@ -5,13 +5,13 @@ import styled from 'styled-components/native';
 
 const SearchFieldContainer = styled(SafeAreaView)``
 
-export default SearchField = ({ searchText, updateSearch, placeholderText="Search" }) => {
+export default SearchField = ({ searchText, updateSearch }) => {
 
     return (
         <SearchFieldContainer>
             <Input 
-                onChangeText={updateSearch}
-                placeholder={placeholderText}
+                onChangeText={(newSearchText) => updateSearch(newSearchText)}
+                placeholder="What did you see?"
                 value={searchText}
                 style={{
                     marginTop: 20,

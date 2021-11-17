@@ -170,6 +170,8 @@ export const prepareReelay = async (fetchedReelay) => {
         fetchedReelay.isSeries
     );
     const videoURIObject = await getVideoURIObject(fetchedReelay);
+    const releaseYear = (titleObject?.release_date?.length >= 4)
+        ? (titleObject.release_date.slice(0,4)) : '';	
 
     return {
         id: fetchedReelay.id,
@@ -185,29 +187,22 @@ export const prepareReelay = async (fetchedReelay) => {
         comments: fetchedReelay.comments,
         likes: fetchedReelay.likes,
         sub: fetchedReelay.datastoreSub,
-        title: prepareTitle(titleObject),
+        title: {
+            id: titleObject.id,
+            display: titleObject.title,
+
+            director: titleObject.director,
+            displayActors: titleObject.displayActors,
+            overview: titleObject.overview,
+            posterURI: titleObject ? titleObject.poster_path : null,
+            tagline: titleObject.tagline,
+            trailerURI: titleObject.trailerURI,
+
+            releaseDate: titleObject.release_date,
+            releaseYear: releaseYear,
+        },
         postedDateTime: fetchedReelay.postedAt ?? fetchedReelay.maxPostedAt,
     };
-}
-
-export const prepareTitle = (tmdbTitleObject) => {
-    const releaseYear = (tmdbTitleObject?.release_date?.length >= 4)
-        ? (tmdbTitleObject.release_date.slice(0,4)) : '';	
-
-        return {
-            id: tmdbTitleObject.id,
-            display: tmdbTitleObject.title,
-
-            director: tmdbTitleObject.director,
-            displayActors: tmdbTitleObject.displayActors,
-            overview: tmdbTitleObject.overview,
-            posterURI: tmdbTitleObject ? tmdbTitleObject.poster_path : null,
-            tagline: tmdbTitleObject.tagline,
-            trailerURI: tmdbTitleObject.trailerURI,
-
-            releaseDate: tmdbTitleObject.release_date,
-            releaseYear: releaseYear,
-        }
 }
 
 export const registerUser = async (user) => {
@@ -274,30 +269,3 @@ export const removeReelay = async (reelay) => {
     });
     return resultRemove;
 }
-
-export const searchTitles = async (searchText, isSeries) => {
-    const routeGet = `${REELAY_API_BASE_URL}/search/titles?searchText=${searchText}&isSeries=${isSeries}`;
-    console.log('route get: ', routeGet);
-    const resultGet = await fetchResults(routeGet, {
-        method: 'GET',
-        headers: REELAY_API_HEADERS,
-    });
-    return resultGet;
-}
-
-export const searchUsers = async (searchText) => {
-    console.log("Fetching registered user...");
-    const routeGet = `${REELAY_API_BASE_URL}/search/users?searchText=${searchText}`;
-    console.log(routeGet);
-    const resultGet = await fetchResults(routeGet, {
-        method: "GET",
-        headers: REELAY_API_HEADERS,
-    });
-    console.log("Registered user result: ", resultGet);
-
-    if (!resultGet) {
-        console.log("User not registered");
-        return null;
-    }
-    return resultGet;
-};

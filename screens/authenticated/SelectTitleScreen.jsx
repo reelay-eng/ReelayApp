@@ -48,6 +48,7 @@ export default SelectTitleScreen = ({ navigation }) => {
         return (
             <SelectorContainer onPress={() => {
                 setSearchType(type);
+                updateSearch(searchText, type);
             }}>
                 <SelectorText>{type}</SelectorText>
             </SelectorContainer>
@@ -57,7 +58,7 @@ export default SelectTitleScreen = ({ navigation }) => {
     const updateSearch = async (newSearchText, type=searchType) => {
         setSearchText(newSearchText);
         try {
-            if (type === 'Film') {
+            if (type == 'Film') {
                 const searchResults = await searchMovies(newSearchText); 
                 const annotatedResults = await Promise.all(searchResults.map(async (result) => {
                     return await fetchAnnotatedTitle(result.id, false);
@@ -82,10 +83,6 @@ export default SelectTitleScreen = ({ navigation }) => {
         setHasSelectedTitle(false);
     }, []);
 
-    useEffect(() => {
-        updateSearch(searchText, searchType);
-    }, [searchText, searchType]);
-
     return (
         <SafeAreaView style={{ backgroundColor: 'black', height: '100%', width: '100%'}}>
             <TopBarContainer>
@@ -96,7 +93,7 @@ export default SelectTitleScreen = ({ navigation }) => {
                 <BackButton navigation={navigation} />
 
             </TopBarContainer>
-            <SearchField searchText={searchText} updateSearch={updateSearch} placeholderText="What did you see?"/>
+            <SearchField searchText={searchText} updateSearch={updateSearch} />
             <MarginBelowLine />
             <SearchResults navigation={navigation} searchResults={searchResults} />
         </SafeAreaView>
