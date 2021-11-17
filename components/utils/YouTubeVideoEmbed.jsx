@@ -16,7 +16,6 @@ export default function YoutubeVideoEmbed({ youtubeVideoID, height }) {
   const onStateChange = useCallback((state) => {
     if (state === "ended") {
       setPlaying(false);
-      Alert.alert("video has finished playing!");
     }
   }, []);
 

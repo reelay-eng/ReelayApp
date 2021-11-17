@@ -16,6 +16,7 @@ import HomeFeedScreen from "../screens/authenticated/HomeFeedScreen";
 import {
   BottomTabParamList,
   HomeTabParamList,
+  SearchTabParamList,
   CreateReelayTabParamList,
   ProfileTabParamList,
 } from "../types";
@@ -26,7 +27,10 @@ import ProfileSettingsScreen from "../screens/authenticated/ProfileSettingsScree
 import NotificationSettingsScreen from "../screens/authenticated/NotificationSettingsScreen";
 import ReelayCameraScreen from "../screens/authenticated/ReelayCameraScreen";
 import ReelayUploadScreen from "../screens/authenticated/ReelayUploadScreen";
+import SearchScreen from "../screens/authenticated/SearchScreen";
 import SelectTitleScreen from "../screens/authenticated/SelectTitleScreen";
+import TitleDetailScreen from "../screens/authenticated/TitleDetailScreen";
+import TitleFeedScreen from "../screens/authenticated/TitleFeedScreen";
 import UserProfileScreen from "../screens/authenticated/UserProfileScreen";
 import VenueSelectScreen from "../screens/authenticated/VenueSelectScreen";
 
@@ -72,6 +76,21 @@ export default function AuthenticatedNavigator() {
         }}
       />
       <BottomTab.Screen
+        name="Search"
+        component={SearchTabNavigator}
+        options={{
+          tabBarIcon: () => (
+            <Icon
+              type="ionicon"
+              name="search"
+              color={"white"}
+              size={50}
+            />
+          ),
+          tabBarVisible: !overlayVisible,
+        }}
+      />
+      <BottomTab.Screen
         name="Create"
         component={CreateReelayTabNavigator}
         options={{
@@ -90,17 +109,17 @@ export default function AuthenticatedNavigator() {
         name="Profile"
         component={ProfileTabNavigator}
         options={{
-            tabBarIcon: () => (
-                <Icon
-                type="ionicon"
-                name="person-circle"
-                color={"white"}
-                size={50}
-              />  
-            ),
-            tabBarVisible: !overlayVisible,
+          tabBarIcon: () => (
+            <Icon
+              type="ionicon"
+              name="person-circle"
+              color={"white"}
+              size={50}
+            />
+          ),
+          tabBarVisible: !overlayVisible,
         }}
-        />
+      />
     </BottomTab.Navigator>
   );
 }
@@ -116,7 +135,6 @@ function HomeTabNavigator() {
         name="HomeFeedScreen"
         component={HomeFeedScreen}
         options={{
-          headerTitle: "Find a Movie",
           headerShown: false,
         }}
       />
@@ -134,7 +152,71 @@ function HomeTabNavigator() {
           headerShown: false,
         }}
       />
+      <HomeTabStack.Screen
+        name="TitleDetailScreen"
+        component={TitleDetailScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <HomeTabStack.Screen
+        name="TitleFeedScreen"
+        component={TitleFeedScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
     </HomeTabStack.Navigator>
+  );
+}
+
+const SearchTabStack = createStackNavigator<SearchTabParamList>();
+
+// Can you make the route names into constants so that it's easier to use everywhere?
+
+function SearchTabNavigator() {
+  return (
+    <SearchTabStack.Navigator
+      initialRouteName="SearchScreen"
+      detachInactiveScreens={false}
+    >
+      <SearchTabStack.Screen
+        name="SearchScreen"
+        component={SearchScreen}
+        options={{
+          headerShown: false,
+          animationEnabled: false,
+        }}
+      />
+      <SearchTabStack.Screen
+        name="UserProfileScreen"
+        component={UserProfileScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <SearchTabStack.Screen
+        name="ProfileFeedScreen"
+        component={ProfileFeedScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <SearchTabStack.Screen
+        name="TitleDetailScreen"
+        component={TitleDetailScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <HomeTabStack.Screen
+        name="TitleFeedScreen"
+        component={TitleFeedScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+    </SearchTabStack.Navigator>
   );
 }
 
@@ -213,7 +295,20 @@ function ProfileTabNavigator() {
           headerShown: false,
         }}
       />
-
+      <SearchTabStack.Screen
+        name="TitleDetailScreen"
+        component={TitleDetailScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <HomeTabStack.Screen
+        name="TitleFeedScreen"
+        component={TitleFeedScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
       
       {/* Settings */}
       <ProfileTabStack.Screen
