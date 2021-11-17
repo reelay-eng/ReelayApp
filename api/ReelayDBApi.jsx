@@ -214,7 +214,10 @@ export const registerUser = async (user) => {
     const { attributes, username } = user;
     const { email, sub } = attributes;
     const routeGet = REELAY_API_BASE_URL + '/users/sub/' + sub;
-    const resultGet = await fetchResults(routeGet, { method: 'GET' });
+    const resultGet = await fetchResults(routeGet, { 
+        method: 'GET',
+        headers: REELAY_API_HEADERS,
+    });
 
     const encEmail = encodeURIComponent(email);
     const encUsername = encodeURI(username);
