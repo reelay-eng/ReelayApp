@@ -66,7 +66,7 @@ export default SignInScreen = ({ navigation, route }) => {
     ` 
     
 
-    const { setUser, setUsername, setSignedIn } = useContext(AuthContext);
+    const { setCognitoUser, setUsername, setSignedIn } = useContext(AuthContext);
 
     const AltOptions = ({ hidePassword, setHidePassword }) => {
         const handleForgotPassword = async () => {
@@ -132,12 +132,12 @@ export default SignInScreen = ({ navigation, route }) => {
         const signInUser = async () => {
             console.log('Attempting user sign in');
             try {
-                const user = await Auth.signIn(inputUsername, password);
+                const cognitoUser = await Auth.signIn(inputUsername, password);
                 console.log('Received sign in result');
-                console.log(user);    
+                console.log(cognitoUser);    
 
-                setUser(user);
-                setUsername(user.username);
+                setCognitoUser(cognitoUser);
+                setUsername(cognitoUser.username);
                 setSignedIn(true);
                 console.log('Signed in user successfully');
 

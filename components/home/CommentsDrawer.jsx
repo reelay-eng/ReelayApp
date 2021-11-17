@@ -52,7 +52,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
     const ModalContainer = styled(View)`
         position: absolute;
     `
-    const { user } = useContext(AuthContext);
+    const { cognitoUser } = useContext(AuthContext);
     const { commentsVisible, setCommentsVisible } = useContext(FeedContext);
     const closeDrawer = () => {
         console.log('Closing drawer');
@@ -231,8 +231,8 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 
         const onCommentPost = async () => {
             const commentBody = {
-                authorName: user.username,
-                authorSub: user.attributes.sub,        
+                authorName: cognitoUser.username,
+                authorSub: cognitoUser.attributes.sub,        
                 content: commentText,        
                 creatorName: reelay.creator.username,
                 creatorSub: reelay.creator.sub,
@@ -247,13 +247,13 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 
             await sendCommentNotificationToCreator({
                 creatorSub: reelay.creator.sub,
-                author: user,
+                author: cognitoUser,
                 reelay: reelay,
                 commentText: commentText,
             });
             await sendCommentNotificationToThread({
                 creator: reelay.creator,
-                author: user,
+                author: cognitoUser,
                 reelay: reelay,
                 commentText: commentText,
             });
@@ -261,7 +261,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
             scrollViewRef.current.scrollToEnd({ animated: true });
 
             Amplitude.logEventWithPropertiesAsync('commentedOnReelay', {
-				user: user.username,
+				user: cognitoUser.username,
 				creator: reelay.creator.username,
 				title: reelay.title.display,
 				reelayID: reelay.id,

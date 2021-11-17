@@ -22,7 +22,7 @@ const ringSize = captureSize + 20;
 
 export default ReelayCameraScreen = ({ navigation, route }) => {
 
-    const { user } = useContext(AuthContext);
+    const { cognitoUser } = useContext(AuthContext);
     const { 
         setUploadErrorStatus,
         setUploadVideoSource,
@@ -75,7 +75,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
 
                     // const titleObject = uploadContext.uploadTitleObject;
                     Amplitude.logEventWithPropertiesAsync('videoRecorded', {
-                        username: user.username,
+                        username: cognitoUser.username,
                         title: uploadTitleObject.title ? uploadTitleObject.title : uploadTitleObject.name,
                     })
                 }

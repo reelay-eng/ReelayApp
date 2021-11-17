@@ -22,7 +22,7 @@ export default function FeedVideoPlayer({
 	const loadStatus = useRef(0);
 	const playheadCounter = useRef(0);
 
-	const { user } = useContext(AuthContext);
+	const { cognitoUser } = useContext(AuthContext);
 	const { overlayVisible, paused } = useContext(FeedContext);
 	
 	const shouldPlay = viewable && focused && !paused && !overlayVisible;
@@ -76,7 +76,7 @@ export default function FeedVideoPlayer({
 				reelayID: reelay.id,
 				reelayCreator: reelay.creator.username,
 				title: reelay.title.display,
-				username: user.username,
+				username: cognitoUser.username,
 			})
 		}
 	}

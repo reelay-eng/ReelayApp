@@ -7,7 +7,7 @@ import { getMyNotificationSettings, setMyNotificationSettings } from '../../api/
 import { Header } from './ProfileSettings';
 
 export default NotificationSettings = ({navigation}) => {
-    const { user } = useContext(AuthContext);
+    const { cognitoUser } = useContext(AuthContext);
 
     const ViewContainer = styled(View)`
         width: 100%;
@@ -21,12 +21,12 @@ export default NotificationSettings = ({navigation}) => {
     return (
         <ViewContainer>
             <Header navigation={navigation} text="Notification Settings"/>
-            <NotificationsSettingsWrapper user={user}/>
+            <NotificationsSettingsWrapper cognitoUser={cognitoUser}/>
         </ViewContainer>
     )
 }
 
-const NotificationsSettingsWrapper = ({user}) => {
+const NotificationsSettingsWrapper = ({ cognitoUser }) => {
     
     const [notifyAll, setNotifyAll] = useState(true);
     const [notifyPrompts, setNotifyPrompts] = useState(true);
@@ -48,7 +48,12 @@ const NotificationsSettingsWrapper = ({user}) => {
 
     useEffect(() => {
        const asyncGetNotificationSettings = async () => {
-            const { settingsNotifyPrompts, settingsNotifyReactions, settingsNotifyTrending } = await getMyNotificationSettings(user);
+            const { 
+                settingsNotifyPrompts, 
+                settingsNotifyReactions, 
+                settingsNotifyTrending 
+            } = await getMyNotificationSettings(cognitoUser);
+            
             setNotifyPrompts(settingsNotifyPrompts);
             setNotifyReactions(settingsNotifyReactions);
             setNotifyTrending(settingsNotifyTrending);
@@ -77,7 +82,12 @@ const NotificationsSettingsWrapper = ({user}) => {
 
         // logic for DB updates
         // setMyNotificationSettings({user, notifyPrompts: value, notifyReactions: value, notifyTrending: value});
-        setMyNotificationSettings({user, notifyPrompts: true, notifyReactions: value, notifyTrending: true});
+        setMyNotificationSettings({ 
+            user: cognitoUser, 
+            notifyPrompts: true, 
+            notifyReactions: value, 
+            notifyTrending: true
+        });
 
     }
     const toggleNotifyPrompts = () => {
@@ -85,7 +95,12 @@ const NotificationsSettingsWrapper = ({user}) => {
         setNotifyAll(allTrue(!notifyPrompts, notifyReactions, notifyTrending));
 
         // logic for DB updates
-        setMyNotificationSettings({user, notifyPrompts: !notifyPrompts, notifyReactions, notifyTrending});
+        setMyNotificationSettings({ 
+            user: cognitoUser, 
+            notifyPrompts: !notifyPrompts, 
+            notifyReactions, 
+            notifyTrending
+        });
 
     }
     const toggleNotifyReactions = () => {
@@ -93,13 +108,23 @@ const NotificationsSettingsWrapper = ({user}) => {
         setNotifyAll(allTrue(notifyPrompts, !notifyReactions, notifyTrending)); // for all implemented
 
         // logic for DB updates
-        setMyNotificationSettings({user, notifyPrompts, notifyReactions: !notifyReactions, notifyTrending});
+        setMyNotificationSettings({ 
+            user: cognitoUser, 
+            notifyPrompts, 
+            notifyReactions: !notifyReactions, 
+            notifyTrending
+        });
     }
     const toggleNotifyTrending = () => {
         setNotifyTrending(!notifyTrending);
         setNotifyAll(allTrue(notifyPrompts, notifyReactions, !notifyTrending));
         // logic for DB updates
-        setMyNotificationSettings({user, notifyPrompts, notifyReactions, notifyTrending: !notifyTrending});
+        setMyNotificationSettings({ 
+            user: cognitoUser, 
+            notifyPrompts, 
+            notifyReactions, 
+            notifyTrending: !notifyTrending
+        });
     }
 
     return (

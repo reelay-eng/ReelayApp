@@ -33,12 +33,12 @@ export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeNa
 const Stack = createStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
-    const authContext = useContext(AuthContext);
+    const { signedIn } = useContext(AuthContext);
 
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-            { authContext.signedIn && <Stack.Screen name="Authenticated" component={AuthenticatedNavigator} /> }
-            { !authContext.signedIn && <Stack.Screen name="Unauthenticated" component={UnauthenticatedNavigator} /> }
+            { signedIn && <Stack.Screen name="Authenticated" component={AuthenticatedNavigator} /> }
+            { !signedIn && <Stack.Screen name="Unauthenticated" component={UnauthenticatedNavigator} /> }
             <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
         </Stack.Navigator>
     );
