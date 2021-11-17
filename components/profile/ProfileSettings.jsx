@@ -79,24 +79,24 @@ const SettingEntry = ({navigation, text, to}) => {
 
 const Logout = () => {
     const {
-        user,
+        cognitoUser,
         setCredentials,
         setSession,
         setSignedIn,
-        setUser,
+        setCognitoUser,
     } = useContext(AuthContext);
 
     const signOut = async () => {
         // todo: confirm sign out
         try {
             Amplitude.logEventWithPropertiesAsync('signOut', {
-                username: user.username,
+                username: cognitoUser.username,
             });
     
             const signOutResult = await Auth.signOut();
             setSignedIn(false);
             console.log(signOutResult);
-            setUser({});
+            setCognitoUser({});
             setSession({});
             setCredentials({});
         } catch (error) {

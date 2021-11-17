@@ -57,7 +57,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
     const [playing, setPlaying] = useState(true);
     const [saveToDevice, setSaveToDevice] = useState(false);
 
-    const authContext = useContext(AuthContext);
+    const { cognitoUser } = useContext(AuthContext);
     const uploadContext = useContext(UploadContext);
 
     const titleObject = uploadContext.uploadTitleObject;
@@ -80,7 +80,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
         }
 
         Amplitude.logEventWithPropertiesAsync('publishReelayStarted', {
-            username: authContext.user.username,
+            username: cognitoUser.username,
             title: titleObject.title ? titleObject.title : titleObject.name,
         });
 
@@ -97,7 +97,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             } catch (error) {
                 console.log('Could not save to local device...');
                 Amplitude.logEventWithPropertiesAsync('saveToDeviceFailed', {
-                    username: authContext.user.username,
+                    username: cognitoUser.username,
                     title: titleObject.title ? titleObject.title : titleObject.name,
                 });
             }    
@@ -156,7 +156,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             // Post Reelay object to ReelayDB --> we're moving to this
             const reelayDBBody = {
                 creatorSub: datastoreReelay.creatorID,
-                creatorName: authContext.user.username,
+                creatorName: cognitoUser.username,
                 datastoreSub: datastoreReelay.id,
                 isMovie: datastoreReelay.isMovie,
                 isSeries: datastoreReelay.isSeries,
@@ -177,14 +177,14 @@ export default ReelayUploadScreen = ({ navigation }) => {
             console.log('Upload dialog complete.');
 
             Amplitude.logEventWithPropertiesAsync('publishReelayComplete', {
-                username: authContext.user.username,
+                username: cognitoUser.username,
                 title: titleObject.title ? titleObject.title : titleObject.name,
             });
 
             // janky, but this gets the reelay into the format we need, so that
             // we can reuse fetchReelaysForStack from ReelayApi
             await sendStackPushNotificationToOtherCreators({
-                creator: authContext.user,
+                creator: cognitoUser,
                 reelay: { 
                     ...reelay, 
                     title: {
@@ -205,7 +205,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             uploadContext.setChunksTotal(0);
 
             Amplitude.logEventWithPropertiesAsync('uploadFailed', {
-                username: authContext.user.username,
+                username: cognitoUser.username,
                 title: titleObject.title ? titleObject.title : titleObject.name,
             });
         }
@@ -224,7 +224,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
         return (
             <RetakeContainer onPress={() => { 
                 Amplitude.logEventWithPropertiesAsync('retake', {
-                    username: authContext.user.username,
+                    username: cognitoUser.username,
                     title: titleObject.title ? titleObject.title : titleObject.name,
                 });
                 navigation.pop();

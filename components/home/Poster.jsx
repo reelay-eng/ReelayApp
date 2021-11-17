@@ -24,7 +24,7 @@ export default Poster = memo(({ title }) => {
 		border-width: 1px;
 		border-color: white;
 	`;
-	const { user } = useContext(AuthContext);
+	const { cognitoUser } = useContext(AuthContext);
 	const {
 		overlayVisible,
 		setOverlayData,
@@ -41,7 +41,7 @@ export default Poster = memo(({ title }) => {
 		if (overlayVisible) {
 			setOverlayVisible(false);
 			Amplitude.logEventWithPropertiesAsync('closedOverlay', {
-                username: user.username,
+                username: cognitoUser.username,
 				titleID: title.id,
                 title: title.display,
             });
@@ -52,7 +52,7 @@ export default Poster = memo(({ title }) => {
 			});
 			setOverlayVisible(true);	
 			Amplitude.logEventWithPropertiesAsync('openedOverlay', {
-                username: user.username,
+                username: cognitoUser.username,
 				titleID: title.id,
                 title: title.display,
             });

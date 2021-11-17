@@ -9,8 +9,6 @@ const { height, width } = Dimensions.get('window');
 
 export default ReelayInfo = ({ navigation, reelay }) => {
 
-	const { user } = useContext(AuthContext);
-
 	const InfoView = styled(View)`
 		justify-content: flex-end;
 		position: absolute;
