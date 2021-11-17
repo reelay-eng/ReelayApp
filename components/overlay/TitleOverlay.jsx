@@ -33,7 +33,6 @@ export default TitleOverlay = ({ navigation }) => {
     const director = title?.director;
     const directorName = (director && director.name) ? 'Director: ' + director.name : '';
     const releaseYear = ' (' + title?.releaseYear + ')';
-    console.log(title);
 
     const Overview = () => {
         const OverviewContainer = styled(View)`

@@ -38,7 +38,7 @@ const YearText = styled.Text`
     font-size: 16px;
 `
 
-export default SearchResultItem = ({result, navigation}) => {
+export default SearchResultItem = ({ result, navigation }) => {
 
     const { setHasSelectedTitle, setUploadTitleObject } = useContext(UploadContext);
     const [posterLoaded, setPosterLoaded] = useState(false); 

@@ -6,6 +6,9 @@ import ReelayInfo from './ReelayInfo';
 import Sidebar from './Sidebar';
 import { FeedContext } from '../../context/FeedContext';
 
+import LikesDrawer from './LikesDrawer';
+import CommentsDrawer from './CommentsDrawer';
+
 export default Hero = ({ 
     index, 
     isPaused,
