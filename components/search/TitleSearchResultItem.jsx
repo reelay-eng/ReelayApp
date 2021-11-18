@@ -37,9 +37,9 @@ const YearText = styled.Text`
 `
 
 export default TitleSearchResultItem = ({ result, navigation }) => {
-
-    const [posterLoaded, setPosterLoaded] = useState(false); 
     const titleObject = result;
+    const skipPosterLoad = (titleObject.poster_path === null);
+    const [posterLoaded, setPosterLoaded] = useState(skipPosterLoad);
 
     const posterImageUri = titleObject.poster_path 
         ? `${TMDB_IMAGE_API_BASE_URL}${titleObject.poster_path}` : null;
