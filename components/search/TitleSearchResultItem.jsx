@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Image } from 'react-native-elements';
 import styled from 'styled-components/native';
@@ -38,7 +38,8 @@ const YearText = styled.Text`
 
 export default TitleSearchResultItem = ({ result, navigation }) => {
     const titleObject = result;
-    const [posterLoaded, setPosterLoaded] = useState((titleObject.poster_path === null) ? true : false); 
+    const skipPosterLoad = (titleObject.poster_path === null);
+    const [posterLoaded, setPosterLoaded] = useState(skipPosterLoad);
 
     const posterImageUri = titleObject.poster_path 
         ? `${TMDB_IMAGE_API_BASE_URL}${titleObject.poster_path}` : null;
