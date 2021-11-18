@@ -50,6 +50,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
     }, []);
 
     return (
+<<<<<<< HEAD
         <ProfileScreenContainer>
             <ProfileTopBar creator={cognitoUser} navigation={navigation} atProfileBase={true} />
             <ProfileScrollView>
@@ -58,5 +59,22 @@ export default MyProfileScreen = ({ navigation, route }) => {
                 <ProfilePosterGrid creatorStacks={creatorStacks} navigation={navigation} />
             </ProfileScrollView>
         </ProfileScreenContainer>
+=======
+      <ProfileScreenContainer>
+        <ProfileTopBar
+          creator={user}
+          navigation={navigation}
+          atProfileBase={true}
+        />
+        <ProfileScrollView>
+          <ProfileHeader />
+          <ProfileStatsBar reelayCount={reelayCount} creator={user} />
+          <ProfilePosterGrid
+            creatorStacks={creatorStacks}
+            navigation={navigation}
+          />
+        </ProfileScrollView>
+      </ProfileScreenContainer>
+>>>>>>> d97e9ae5cd0fec6fb05a828fccc86e7e56eff80b
     );
 }
