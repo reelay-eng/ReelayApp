@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import { View, Pressable, Text } from "react-native";
 import styled from "styled-components/native";
 import ReelayColors from "../../constants/ReelayColors";
 import { Reelay } from "../../src/models";
+import { AuthContext } from "../../context/AuthContext";
+import { followCreator, getFollowers } from "../../api/ReelayDBApi";
 
-export default FollowButtonBar = ({ user }) => {
+export default FollowButtonBar = ({ creator }) => {
   const FollowContainer = styled(View)`
     align-self: center;
     flex-direction: row;
@@ -12,30 +14,37 @@ export default FollowButtonBar = ({ user }) => {
     margin-bottom: 20px;
   `;
   const FollowButton = styled(Pressable)`
-    align-self: center;
-    width: 75%;
-    borderRadius: 36px;
-    height: 50px;
     align-items: center;
+    align-self: center;
+    background-color: ${ReelayColors.reelayRed};
+    border-radius: 36px;
     justify-content: center;
+    height: 50px;
+    width: 75%;
   `;
   const FollowText = styled(Text)`
-    fontSize: 18;
-    lineHeight: 21px; 
-    font-weight: bold;
     color: white;
+    font-size: 18;
+    font-weight: bold;
+    line-height: 21px;
   `;
 
-  const followUser= () => {
-      console.log("follow user")
-  }
+    const { user } = useContext(AuthContext);
 
-  return (
-    <FollowContainer>
-      <FollowButton onPress={followUser} style={{
-            backgroundColor: ReelayColors.reelayRed}}>
-        <FollowText>{"Follow"}</FollowText>
-      </FollowButton>
-    </FollowContainer>
-  );
+    const creatorSub = creator.sub;
+    const followerSub = user.attributes.sub;
+
+    const followUser = async () => {
+        followCreator(creatorSub, followerSub);
+        console.log(user.username+" followed "+creator.username)
+    }
+
+    // if the person already follows, then it should say following
+    return (
+        <FollowContainer>
+        <FollowButton onPress={followUser}>
+            <FollowText>{"Follow"}</FollowText> 
+        </FollowButton>
+        </FollowContainer>
+    );
 };

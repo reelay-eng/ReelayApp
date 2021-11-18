@@ -54,7 +54,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
             <ProfileTopBar creator={cognitoUser} navigation={navigation} atProfileBase={true} />
             <ProfileScrollView>
                 <ProfileHeader />
-                <ProfileStatsBar reelayCount={reelayCount} />
+                <ProfileStatsBar reelayCount={reelayCount} creator={user} />
                 <ProfilePosterGrid creatorStacks={creatorStacks} navigation={navigation} />
             </ProfileScrollView>
         </ProfileScreenContainer>
