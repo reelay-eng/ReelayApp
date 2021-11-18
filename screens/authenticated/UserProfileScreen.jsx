@@ -45,14 +45,17 @@ export default UserProfileScreen = ({ navigation, route }) => {
     }, []);
 
     return (
-        <ProfileScreenContainer>
-            <ProfileTopBar creator={creator} navigation={navigation} />
-            <ProfileScrollView>
-                <ProfileHeader />
-                <ProfileStatsBar reelayCount={reelayCount} />
-                <FollowButtonBar />
-                <ProfilePosterGrid creatorStacks={creatorStacks} navigation={navigation} />
-            </ProfileScrollView>
-        </ProfileScreenContainer>
+      <ProfileScreenContainer>
+        <ProfileTopBar creator={creator} navigation={navigation} />
+        <ProfileScrollView>
+          <ProfileHeader />
+          <ProfileStatsBar reelayCount={reelayCount} creator ={creator}/>
+          <FollowButtonBar creator={creator}/>
+          <ProfilePosterGrid
+            creatorStacks={creatorStacks}
+            navigation={navigation}
+          />
+        </ProfileScrollView>
+      </ProfileScreenContainer>
     );
 }

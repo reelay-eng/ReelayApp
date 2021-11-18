@@ -50,13 +50,20 @@ export default MyProfileScreen = ({ navigation, route }) => {
     }, []);
 
     return (
-        <ProfileScreenContainer>
-            <ProfileTopBar creator={user} navigation={navigation} atProfileBase={true} />
-            <ProfileScrollView>
-                <ProfileHeader />
-                <ProfileStatsBar reelayCount={reelayCount} />
-                <ProfilePosterGrid creatorStacks={creatorStacks} navigation={navigation} />
-            </ProfileScrollView>
-        </ProfileScreenContainer>
+      <ProfileScreenContainer>
+        <ProfileTopBar
+          creator={user}
+          navigation={navigation}
+          atProfileBase={true}
+        />
+        <ProfileScrollView>
+          <ProfileHeader />
+          <ProfileStatsBar reelayCount={reelayCount} creator={user} />
+          <ProfilePosterGrid
+            creatorStacks={creatorStacks}
+            navigation={navigation}
+          />
+        </ProfileScrollView>
+      </ProfileScreenContainer>
     );
 }

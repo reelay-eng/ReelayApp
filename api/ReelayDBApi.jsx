@@ -14,6 +14,44 @@ const REELAY_API_HEADERS = {
     'reelayapikey': REELAY_API_KEY,
 };
 
+export const followCreator = async (creatorSub, followerSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/follow?creatorSub=${creatorSub}&followerSub=${followerSub}`;
+    console.log(routeGet);
+    const follow = await fetchResults(routeGet, {
+        method: "POST",
+        headers: REELAY_API_HEADERS,
+    });
+
+}
+
+export const getFollowing = async (creatorSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/follow/follower/sub/${creatorSub}`;
+    console.log(routeGet);
+    const following = await fetchResults(routeGet, {
+        method: "GET",
+        headers: REELAY_API_HEADERS,
+    });
+    if (!following) {
+        console.log("Could not get following for this creator");
+        return null;
+    }
+    return following;
+};
+
+export const getFollowers = async (creatorSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/follow/creator/sub/${creatorSub}`;
+    console.log(routeGet);
+    const followers = await fetchResults(routeGet, {
+        method: "GET",
+        headers: REELAY_API_HEADERS,
+    });
+    if (!followers) {
+        console.log("Could not get followers for this creator");
+        return null;
+    }
+    return followers;
+};
+
 export const getReelaysByCreator = async (creatorSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/users/sub/${creatorSub}/reelays?visibility=${FEED_VISIBILITY}`;
     console.log(routeGet);
