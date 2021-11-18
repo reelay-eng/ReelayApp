@@ -29,14 +29,14 @@ export default FollowButtonBar = ({ creator }) => {
     line-height: 21px;
   `;
 
-    const { user } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
 
     const creatorSub = creator.sub;
-    const followerSub = user.attributes.sub;
+    const followerSub = reelayDBUser.sub;
 
     const followUser = async () => {
         followCreator(creatorSub, followerSub);
-        console.log(user.username+" followed "+creator.username)
+        console.log(reelayDBUser.username + " followed " + creator.username);
     }
 
     // if the person already follows, then it should say following

@@ -31,9 +31,9 @@ export default ProfileStatsBar = ({ navigation, reelayCount, creator }) => {
     const [followers, setFollowers] = useState([]);
     const [following, setFollowing] = useState([]);
 
-    const { user } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
 
-    const isMyProfile = (creator.sub === user.attributes.sub);
+    const isMyProfile = (creator.sub === reelayDBUser.sub);
 
     useEffect(() => {
         loadFollows();
@@ -59,6 +59,7 @@ export default ProfileStatsBar = ({ navigation, reelayCount, creator }) => {
                 following, 
             });
         } else {
+            console.log(followers);
             navigation.push('UserFollowScreen', {
                 selectedTab: 'Followers',
                 creator,

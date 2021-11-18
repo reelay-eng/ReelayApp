@@ -21,6 +21,7 @@ import {
   ProfileTabParamList,
 } from "../types";
 
+import MyFollowScreen from "../screens/authenticated/MyFollowScreen";
 import MyProfileScreen from "../screens/authenticated/MyProfileScreen";
 import ProfileFeedScreen from "../screens/authenticated/ProfileFeedScreen";
 import ProfileSettingsScreen from "../screens/authenticated/ProfileSettingsScreen";
@@ -31,6 +32,7 @@ import SearchScreen from "../screens/authenticated/SearchScreen";
 import SelectTitleScreen from "../screens/authenticated/SelectTitleScreen";
 import TitleDetailScreen from "../screens/authenticated/TitleDetailScreen";
 import TitleFeedScreen from "../screens/authenticated/TitleFeedScreen";
+import UserFollowScreen from "../screens/authenticated/UserFollowScreen";
 import UserProfileScreen from "../screens/authenticated/UserProfileScreen";
 import VenueSelectScreen from "../screens/authenticated/VenueSelectScreen";
 
@@ -139,6 +141,13 @@ function HomeTabNavigator() {
         }}
       />
       <HomeTabStack.Screen
+        name="MyFollowScreen"
+        component={MyFollowScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <HomeTabStack.Screen
         name="UserProfileScreen"
         component={UserProfileScreen}
         options={{
@@ -166,6 +175,13 @@ function HomeTabNavigator() {
           headerShown: false,
         }}
       />
+      <HomeTabStack.Screen
+        name="UserFollowScreen"
+        component={UserFollowScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
     </HomeTabStack.Navigator>
   );
 }
@@ -180,6 +196,13 @@ function SearchTabNavigator() {
       initialRouteName="SearchScreen"
       detachInactiveScreens={false}
     >
+      <SearchTabStack.Screen
+        name="MyFollowScreen"
+        component={MyFollowScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
       <SearchTabStack.Screen
         name="SearchScreen"
         component={SearchScreen}
@@ -209,9 +232,16 @@ function SearchTabNavigator() {
           headerShown: false,
         }}
       />
-      <HomeTabStack.Screen
+      <SearchTabStack.Screen
         name="TitleFeedScreen"
         component={TitleFeedScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <SearchTabStack.Screen
+        name="UserFollowScreen"
+        component={UserFollowScreen}
         options={{
           headerShown: false,
         }}
@@ -275,8 +305,23 @@ function ProfileTabNavigator() {
       detachInactiveScreens={false}
     >
       <ProfileTabStack.Screen
+        name="UserFollowScreen"
+        component={UserFollowScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+
+      <ProfileTabStack.Screen
         name="MyProfileScreen"
         component={MyProfileScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <ProfileTabStack.Screen
+        name="MyFollowScreen"
+        component={MyFollowScreen}
         options={{
           headerShown: false,
         }}
@@ -295,21 +340,21 @@ function ProfileTabNavigator() {
           headerShown: false,
         }}
       />
-      <SearchTabStack.Screen
+      <ProfileTabStack.Screen
         name="TitleDetailScreen"
         component={TitleDetailScreen}
         options={{
           headerShown: false,
         }}
       />
-      <HomeTabStack.Screen
+      <ProfileTabStack.Screen
         name="TitleFeedScreen"
         component={TitleFeedScreen}
         options={{
           headerShown: false,
         }}
       />
-      
+
       {/* Settings */}
       <ProfileTabStack.Screen
         name="ProfileSettingsScreen"
@@ -326,6 +371,5 @@ function ProfileTabNavigator() {
         }}
       />
     </ProfileTabStack.Navigator>
-    
   );
 }

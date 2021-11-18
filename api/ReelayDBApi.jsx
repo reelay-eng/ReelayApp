@@ -15,17 +15,19 @@ const REELAY_API_HEADERS = {
 };
 
 export const followCreator = async (creatorSub, followerSub) => {
-    const routeGet = `${REELAY_API_BASE_URL}/follow?creatorSub=${creatorSub}&followerSub=${followerSub}`;
+    const routeGet = `${REELAY_API_BASE_URL}/follows?creatorSub=${creatorSub}&followerSub=${followerSub}`;
     console.log(routeGet);
     const follow = await fetchResults(routeGet, {
         method: "POST",
         headers: REELAY_API_HEADERS,
     });
-
+    if (!follow) {
+        console.log("Could not follow user")
+    }
 }
 
 export const getFollowing = async (creatorSub) => {
-    const routeGet = `${REELAY_API_BASE_URL}/follow/follower/sub/${creatorSub}`;
+    const routeGet = `${REELAY_API_BASE_URL}/follows/follower/sub/${creatorSub}`;
     console.log(routeGet);
     const following = await fetchResults(routeGet, {
         method: "GET",
@@ -39,7 +41,7 @@ export const getFollowing = async (creatorSub) => {
 };
 
 export const getFollowers = async (creatorSub) => {
-    const routeGet = `${REELAY_API_BASE_URL}/follow/creator/sub/${creatorSub}`;
+    const routeGet = `${REELAY_API_BASE_URL}/follows/creator/sub/${creatorSub}`;
     console.log(routeGet);
     const followers = await fetchResults(routeGet, {
         method: "GET",

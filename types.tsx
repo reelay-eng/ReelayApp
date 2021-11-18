@@ -17,18 +17,22 @@ export type BottomTabParamList = {
 };
 
 export type HomeTabParamList = {
+    MyFollowScreen: undefined;
     HomeFeedScreen: undefined;
     ProfileFeedScreen: undefined;
+    UserFollowScreen: undefined;
     UserProfileScreen: undefined;
     TitleDetailScreen: undefined;
     TitleFeedScreen: undefined;
 };
 
 export type SearchTabParamList = {
+    MyFollowScreen: undefined;
     ProfileFeedScreen: undefined;
     SearchScreen: undefined;
     TitleDetailScreen: undefined;
     TitleFeedScreen: undefined;
+    UserFollowScreen: undefined;
     UserProfileScreen: undefined;
 };
 
@@ -37,15 +41,17 @@ export type CreateReelayTabParamList = {
     ReelayUploadScreen: undefined;
     SelectTitleScreen: undefined;
     VenueSelectScreen: undefined;
-}
+};
 
 export type ProfileTabParamList = {
+    MyFollowScreen: undefined;
     MyProfileScreen: undefined;
     NotificationSettingsScreen: undefined;
     ProfileFeedScreen: undefined;
     ProfileSettingsScreen: undefined;
     TitleDetailScreen: undefined;
     TitleFeedScreen: undefined;
+    UserFollowScreen: undefined;
     UserProfileScreen: undefined;
 }
 

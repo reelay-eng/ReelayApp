@@ -49,7 +49,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
         <ProfileTopBar creator={creator} navigation={navigation} />
         <ProfileScrollView>
           <ProfileHeader />
-          <ProfileStatsBar reelayCount={reelayCount} creator ={creator}/>
+          <ProfileStatsBar reelayCount={reelayCount} creator={creator} />
           <FollowButtonBar creator={creator}/>
           <ProfilePosterGrid
             creatorStacks={creatorStacks}
