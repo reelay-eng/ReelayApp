@@ -24,12 +24,6 @@ export default Poster = memo(({ title }) => {
 		border-width: 1px;
 		border-color: white;
 	`;
-	const { cognitoUser } = useContext(AuthContext);
-	const {
-		overlayVisible,
-		setOverlayData,
-		setOverlayVisible,
-	} = useContext(FeedContext);
 
 	if (!title) {
 		return (<View />);

@@ -124,7 +124,7 @@ export const fetchMovieProviders = async (titleID) => {
         }
 
         const providers = queryResponse.results;
-        console.log(providers);
+        return providers;
     } catch (error) {
         console.log(error);
         return null;
@@ -226,4 +226,8 @@ export const getDisplayActors = (titleCredits, max = 2) => {
 
 export const getPosterURL = (posterPath) => {
     return posterPath ? `${TMDB_IMAGE_API_BASE_URL}${posterPath}` : null;
+}
+
+export const getLogoURL = (logoPath) => {
+    return logoPath ? `${TMDB_IMAGE_API_BASE_URL}${logoPath}` : null;
 }

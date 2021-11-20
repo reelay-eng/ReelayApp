@@ -31,6 +31,7 @@ import SearchScreen from "../screens/authenticated/SearchScreen";
 import SelectTitleScreen from "../screens/authenticated/SelectTitleScreen";
 import TitleDetailScreen from "../screens/authenticated/TitleDetailScreen";
 import TitleFeedScreen from "../screens/authenticated/TitleFeedScreen";
+import TitleTrailerScreen from "../screens/authenticated/TitleTrailerScreen";
 import UserProfileScreen from "../screens/authenticated/UserProfileScreen";
 import VenueSelectScreen from "../screens/authenticated/VenueSelectScreen";
 
@@ -40,9 +41,8 @@ const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
 export default function AuthenticatedNavigator() {
   const colorScheme = useColorScheme();
-
-  const { hasSelectedTitle, uploadTitleObject } = React.useContext(UploadContext);
-  const { overlayVisible } = React.useContext(FeedContext);
+  
+  const { tabBarVisible } = React.useContext(FeedContext);
 
   return (
     <BottomTab.Navigator
@@ -72,7 +72,7 @@ export default function AuthenticatedNavigator() {
               size={50}
             />
           ),
-          tabBarVisible: !overlayVisible,
+          tabBarVisible: tabBarVisible,
         }}
       />
       <BottomTab.Screen
@@ -87,7 +87,7 @@ export default function AuthenticatedNavigator() {
               size={50}
             />
           ),
-          tabBarVisible: !overlayVisible,
+          tabBarVisible: tabBarVisible,
         }}
       />
       <BottomTab.Screen
@@ -102,7 +102,7 @@ export default function AuthenticatedNavigator() {
               size={50}
             />
           ),
-          tabBarVisible: !hasSelectedTitle,
+          tabBarVisible: tabBarVisible,
         }}
       />
       <BottomTab.Screen
@@ -117,7 +117,7 @@ export default function AuthenticatedNavigator() {
               size={50}
             />
           ),
-          tabBarVisible: !overlayVisible,
+          tabBarVisible: tabBarVisible,
         }}
       />
     </BottomTab.Navigator>
@@ -162,6 +162,13 @@ function HomeTabNavigator() {
       <HomeTabStack.Screen
         name="TitleFeedScreen"
         component={TitleFeedScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <HomeTabStack.Screen
+        name="TitleTrailerScreen"
+        component={TitleTrailerScreen}
         options={{
           headerShown: false,
         }}
