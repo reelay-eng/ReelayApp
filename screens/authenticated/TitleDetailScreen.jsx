@@ -42,7 +42,6 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 
     // Parse Title Object
     const { titleObj } = route.params;
-    console.log('TITLE OBJECT: ' , titleObj);
     const actors = titleObj?.displayActors;
     const director = titleObj?.director?.name;
     const overview = titleObj?.overview;
