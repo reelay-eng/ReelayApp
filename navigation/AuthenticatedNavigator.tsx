@@ -223,6 +223,13 @@ function SearchTabNavigator() {
           headerShown: false,
         }}
       />
+      <SearchTabStack.Screen
+        name="TitleTrailerScreen"
+        component={TitleTrailerScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
     </SearchTabStack.Navigator>
   );
 }
