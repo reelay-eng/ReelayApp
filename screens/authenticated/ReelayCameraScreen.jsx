@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { UploadContext } from '../../context/UploadContext';
+import { FeedContext } from '../../context/FeedContext';
 import { getPosterURL } from '../../api/TMDbApi';
 
 import { Camera } from 'expo-camera';
@@ -33,34 +34,13 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     } = useContext(UploadContext);
 
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
-    // const [hasPermission, setHasPermission] = useState(null);
-
     const cameraRef = useRef(null);
 
-    // useEffect(() => {
-    //     (async () => {
-    //         const { status } = await Camera.requestPermissionsAsync();
-    //         setHasPermission(status === "granted");
-    //     })();
-    // }, [navigation]);
-
-    // // handle permission denied cases
-    // // Fix done on 11/16 for alerting IOS users to allow camera access but not android.
-    // if (!hasPermission) {
-    //     navigation.pop();
-    //     Alert.alert(
-    //         "Please allow camera access",
-    //         "To make a reelay, please enable camera permissions in your phone settings",
-    //         [
-    //           {
-    //             text: "Cancel",
-    //             style: "cancel"
-    //           },
-    //           { text: "Update camera settings", onPress: () => Linking.openSettings() }
-    //         ]
-    //     );
-    //     return <View style={{ backgroundColor: ReelayColors.reelayBlack }} />;
-    // }
+    const { setTabBarVisible } = useContext(FeedContext);
+    useEffect(() => {
+        setTabBarVisible(false);
+        return () => { setTabBarVisible(true) }
+    }, []);
 
     const pushToUploadScreen = async (videoURI) => {
         if (!videoURI) {

@@ -197,7 +197,7 @@ export const prepareTitle = (tmdbTitleObject) => {
         return {
             id: tmdbTitleObject.id,
             display: tmdbTitleObject.title,
-
+            genres: tmdbTitleObject.genres,
             director: tmdbTitleObject.director,
             displayActors: tmdbTitleObject.displayActors,
             overview: tmdbTitleObject.overview,

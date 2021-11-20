@@ -26,7 +26,7 @@ export default TitleOverlay = ({ navigation }) => {
         margin-left: 10px;
         margin-top: 20px;
     `
-    const { overlayData, setOverlayVisible } = useContext(FeedContext);
+    const { overlayData, setOverlayVisible, setTabBarVisible } = useContext(FeedContext);
     const title = overlayData?.title;
 
     const actors = title?.displayActors;
@@ -138,7 +138,12 @@ export default TitleOverlay = ({ navigation }) => {
         `
         return (
             <ReturnButtonContainer>
-                <Button onPress={() => setOverlayVisible(false)}
+                <Button onPress={
+                    () => {
+                        setOverlayVisible(false);
+                        setTabBarVisible(true);
+                    }
+                }
                     buttonStyle={{ borderColor: 'white', width: '100%', borderRadius: '5px' }}
                     titleStyle={{ color: 'white' }}
                     title='Go Back' type='outline' />

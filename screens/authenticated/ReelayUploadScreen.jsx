@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+import { FeedContext } from '../../context/FeedContext';
 import { UploadContext } from '../../context/UploadContext';
 import { Auth, DataStore, Storage } from 'aws-amplify';
 import { Reelay } from '../../src/models';
@@ -63,6 +64,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
     const titleObject = uploadContext.uploadTitleObject;
     const venue = uploadContext.venueSelected;
     const videoURI = uploadContext.uploadVideoSource;
+    const { setTabBarVisible } = useContext(FeedContext);
 
     useEffect(() => {
         (async () => {
@@ -71,6 +73,8 @@ export default ReelayUploadScreen = ({ navigation }) => {
                 setHasSavePermission(status === "granted");
             }
         })();
+        setTabBarVisible(false);
+        return () => { setTabBarVisible(true) }
     }, [saveToDevice]);
 
     const publishReelay = async () => {

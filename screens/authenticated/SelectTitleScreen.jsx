@@ -28,8 +28,6 @@ export default SelectTitleScreen = ({ navigation }) => {
     const [searchResults, setSearchResults] = useState([]);
     const [searchType, setSearchType] = useState('Film');
 
-    const { setHasSelectedTitle } = useContext(UploadContext);
-
     const FilmTVSelector = ({ type }) => {
 
         const textDecorationLine = (searchType === type) ? 'underline' : 'none';
@@ -76,11 +74,6 @@ export default SelectTitleScreen = ({ navigation }) => {
             console.log('its here');
         }
     }
-
-    // this makes the tab bar visible
-    useEffect(() => {
-        setHasSelectedTitle(false);
-    }, []);
 
     useEffect(() => {
         updateSearch(searchText, searchType);

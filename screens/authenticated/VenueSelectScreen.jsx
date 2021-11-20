@@ -1,13 +1,20 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Alert, Pressable, SafeAreaView, ScrollView, Text, View, Linking } from 'react-native';
 import { UploadContext } from '../../context/UploadContext';
 import { Camera } from 'expo-camera';
 import { Button, Icon } from 'react-native-elements';
 import BackButton from '../../components/utils/BackButton';
 import { getIconVenues, getOtherVenues, VenueIcon } from '../../components/utils/VenueIcon';
+import { FeedContext } from "../../context/FeedContext";
 import styled from 'styled-components/native';
 
 export default VenueSelectScreen = ({ navigation, route }) => {
+
+    const { setTabBarVisible } = useContext(FeedContext);
+    useEffect(() => {
+        setTabBarVisible(false);
+        return () => { setTabBarVisible(true) }
+    }, []);
 
     const ICON_SIZE = 64;
     const BORDER_SIZE = 4;
