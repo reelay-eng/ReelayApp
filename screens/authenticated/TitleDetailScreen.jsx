@@ -175,7 +175,7 @@ const PosterWithTrailer = ({navigation, height, posterURI, title, tmdbTitleID, t
                 { topProviderLogo.length > 0 && <ProviderImage source={{uri: getLogoURL(topProviderLogo)}}/> }
                 </ProviderImagesContainer>
                 <TaglineTextContainer>
-                    <TaglineText>{genres.map(e => e.name).join(', ')}</TaglineText>
+                    <TaglineText>{genres?.map(e => e.name).join(', ')}</TaglineText>
                 </TaglineTextContainer>
             </TaglineContainer>
         )
