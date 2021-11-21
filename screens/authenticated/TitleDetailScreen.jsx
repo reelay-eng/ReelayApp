@@ -4,14 +4,13 @@ import {
     Dimensions, 
     Image,
     Pressable, 
-    SafeAreaView, 
     ScrollView, 
     Text, 
     View,
     StyleSheet
 } from 'react-native';
-import { Button } from 'react-native-elements';
-import {FeedContext} from '../../context/FeedContext';
+import { FeedContext } from '../../context/FeedContext';
+import { UploadContext } from '../../context/UploadContext';
 import { getPosterURL, getLogoURL, fetchMovieProviders } from '../../api/TMDbApi';
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
@@ -31,8 +30,6 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 
     // Screen-wide dimension handling
     const { height, width } = Dimensions.get('window');
-    const TRAILER_HEIGHT = height * 0.3;
-
     // Tab bar visibility
     const { setTabBarVisible } = useContext(FeedContext);
     useEffect(() => {
@@ -48,6 +45,8 @@ export default TitleDetailScreen = ({ navigation, route }) => {
     const tmdbTitleID = titleObj?.id;
     const trailerURI = titleObj?.trailerURI
     const genres = titleObj?.genres;
+
+    console.log(titleObj);
 
     const ScrollBox = styled(ScrollView)`
         position: absolute;
@@ -65,9 +64,8 @@ export default TitleDetailScreen = ({ navigation, route }) => {
                 title={titleObj?.display}
                 tmdbTitleID={tmdbTitleID}
                 trailerURI={trailerURI}
-                TRAILER_HEIGHT={TRAILER_HEIGHT}
                 genres={genres}/>
-            <PopularReelaysRow navigation={navigation} titleID={tmdbTitleID} />
+            <PopularReelaysRow navigation={navigation} titleObj={titleObj} />
             <MovieInformation 
                 director={director}
                 actors={actors} 
@@ -78,7 +76,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
     )
 };
 
-const PosterWithTrailer = ({navigation, height, posterURI, title, tmdbTitleID, trailerURI, TRAILER_HEIGHT, genres}) => {
+const PosterWithTrailer = ({navigation, height, posterURI, title, tmdbTitleID, trailerURI, genres}) => {
     const PosterContainer = styled(View)`
         height: ${height}px;
         width: 100%;
@@ -112,7 +110,7 @@ const PosterWithTrailer = ({navigation, height, posterURI, title, tmdbTitleID, t
             <>
                 <PosterImage source={{uri: posterURL}} />
                 <PosterOverlay color={ReelayColors.reelayBlack} opacity={0.6}/>
-                <LinearGradient colors={["#0d0026", "#82036d"]} start={[0, 1]} end={[1, 0]} style={s.gradient}/>
+                {/* <LinearGradient colors={["#0d0026", "#82036d"]} start={[0, 1]} end={[1, 0]} style={s.gradient}/> */}
             </>
         )
     }
@@ -225,39 +223,17 @@ const PosterWithTrailer = ({navigation, height, posterURI, title, tmdbTitleID, t
                 <PosterTagline />
                 { trailerURI && 
                     <ButtonContainer>
-                        <ActionButton text={'Watch Trailer'} onPress={() => {navigation.push('TitleTrailerScreen', {TRAILER_HEIGHT: TRAILER_HEIGHT, trailerURI: trailerURI})}} fontSize={'24px'} />
+                        <ActionButton text={'Watch Trailer'} fontSize={'24px'} onPress={() => {
+                                navigation.push('TitleTrailerScreen', {
+                                    trailerURI: trailerURI
+                                })
+                        }} />
                     </ButtonContainer>
                 }
             </PosterInfoContainer>
         </PosterContainer>
     )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const ReturnButton = ({navigation}) => {
     const ReturnButtonContainer = styled(View)`
@@ -281,12 +257,12 @@ const ReturnButton = ({navigation}) => {
 }
 
 
-const PopularReelaysRow = ({navigation, titleID}) => {
+const PopularReelaysRow = ({ navigation, titleObj }) => {
     const [topReelays, setTopReelays] = useState([]);
     const componentMounted = useRef(true);
 
     const fetchTopReelays = async () => {
-        const nextTopReelays = await getMostRecentReelaysByTitle(titleID);
+        const nextTopReelays = await getMostRecentReelaysByTitle(titleObj.id);
         if (nextTopReelays?.length && componentMounted.current) {
             setTopReelays(nextTopReelays);
         }
@@ -319,13 +295,7 @@ const PopularReelaysRow = ({navigation, titleID}) => {
             border-radius: 8px;
             height: 120px;
             width: 80px;
-        `
-        const CreatorName = styled(Text)`
-            font-family: System;
-            font-size: 16px;
-            color: white;
-        `
-        
+        `        
         const [loading, setLoading] = useState(true);
         const [thumbnailURI, setThumbnailURI] = useState('');
 
@@ -336,6 +306,7 @@ const PopularReelaysRow = ({navigation, titleID}) => {
                 setLoading(false);
             } catch (error) {
                 console.warn(error);
+                setLoading(false);
             }
         };
 
@@ -344,7 +315,7 @@ const PopularReelaysRow = ({navigation, titleID}) => {
         }, []);
 
         return (
-            <Pressable key={reelay.id} onPress={() => {goToReelay(index)}}>
+            <Pressable key={reelay.id} onPress={() => { goToReelay(index) }}>
                 <ThumbnailContainer>
                     { loading && <ActivityIndicator /> }
                     { !loading && 
@@ -389,11 +360,20 @@ const PopularReelaysRow = ({navigation, titleID}) => {
                 width: 65px;
                 height: 65px;
             `
+            const { setUploadTitleObject } = useContext(UploadContext);
+
+            const advanceToCreateReelay = async () => {
+                setUploadTitleObject(titleObj);
+                navigation.navigate('Create', {
+                    screen: 'VenueSelectScreen',
+                    params: { title: titleObj?.display }
+                });
+            }
 
             return (
                 <Container>
                     <PlusIconContainer>
-                        <RedPlusButton onPress={() => console.log('Push a screen that takes user to CREATE A REELAY for that movie')} />
+                        <RedPlusButton onPress={advanceToCreateReelay} />
                     </PlusIconContainer>
                 </Container>
             )
@@ -519,7 +499,6 @@ const MovieInformation = ({description, director, actors}) => {
     return (
         <MIExternalContainer>
             <MIInternalContainer>
-
                 <HeadingText>Description</HeadingText>
                 <Spacer height={15} />
                 <DescriptionCollapsible description={description} />
@@ -534,7 +513,6 @@ const MovieInformation = ({description, director, actors}) => {
                     </>
                 }
                 <Spacer height={40} />
-
                 {
                     actors?.length > 0 && 
                     <>

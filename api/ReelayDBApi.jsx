@@ -285,7 +285,14 @@ export const searchTitles = async (searchText, isSeries) => {
         method: 'GET',
         headers: REELAY_API_HEADERS,
     });
-    return resultGet;
+    const taggedResults = resultGet.map(result => {
+        return {
+            ...result,
+            isMovie: !isSeries,
+            isSeries: isSeries,
+        }
+    })
+    return taggedResults;
 }
 
 export const searchUsers = async (searchText) => {

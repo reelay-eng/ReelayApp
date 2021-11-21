@@ -1,13 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { SafeAreaView, View, Pressable, Text } from 'react-native';
-import { UploadContext } from '../../context/UploadContext';
+import { FeedContext } from '../../context/FeedContext';
 
 import BackButton from '../../components/utils/BackButton';
 import SearchField from '../../components/create-reelay/SearchField';
 import SearchResults from '../../components/create-reelay/SearchResults';
-import { fetchAnnotatedTitle, searchMovies, searchSeries } from '../../api/TMDbApi';
+import TitleSearchResults from '../../components/search/TitleSearchResults';
 
 import styled from 'styled-components/native';
+import { searchTitles } from '../../api/ReelayDBApi';
 
 export default SelectTitleScreen = ({ navigation }) => {
 
@@ -27,6 +28,11 @@ export default SelectTitleScreen = ({ navigation }) => {
     const [searchText, setSearchText] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchType, setSearchType] = useState('Film');
+
+    const { setTabBarVisible } = useContext(FeedContext);
+    useEffect(() => {
+        setTabBarVisible(true);
+    }, []);
 
     const FilmTVSelector = ({ type }) => {
 
@@ -56,18 +62,10 @@ export default SelectTitleScreen = ({ navigation }) => {
         setSearchText(newSearchText);
         try {
             if (type === 'Film') {
-                const searchResults = await searchMovies(newSearchText); 
-                const annotatedResults = await Promise.all(searchResults.map(async (result) => {
-                    return await fetchAnnotatedTitle(result.id, false);
-                }));
+                annotatedResults = await searchTitles(newSearchText, false);
                 setSearchResults(annotatedResults);
             } else {
-                const searchResults = await searchSeries(newSearchText);
-                const annotatedResults = await Promise.all(
-                  searchResults.map(async (result) => {
-                    return await fetchAnnotatedTitle(result.id, true);
-                  })
-                );
+                annotatedResults = await searchTitles(newSearchText, true);
                 setSearchResults(annotatedResults);
             }
         } catch (error) {
@@ -91,7 +89,7 @@ export default SelectTitleScreen = ({ navigation }) => {
             </TopBarContainer>
             <SearchField searchText={searchText} updateSearch={updateSearch} placeholderText="What did you see?"/>
             <MarginBelowLine />
-            <SearchResults navigation={navigation} searchResults={searchResults} />
+            <TitleSearchResults navigation={navigation} searchResults={searchResults} source={'create'} />
         </SafeAreaView>
     );
 };

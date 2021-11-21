@@ -35,8 +35,6 @@ import TitleTrailerScreen from "../screens/authenticated/TitleTrailerScreen";
 import UserProfileScreen from "../screens/authenticated/UserProfileScreen";
 import VenueSelectScreen from "../screens/authenticated/VenueSelectScreen";
 
-import { UploadContext } from "../context/UploadContext";
-
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
 export default function AuthenticatedNavigator() {

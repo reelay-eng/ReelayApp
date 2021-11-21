@@ -10,7 +10,7 @@ const TMDB_SEARCH_RANK_WEIGHT = 10;
 
 const matchScoreForTitleSearch = (result) => {
     const titleToSearch = result.title.toLowerCase().replace(/:/g, '');
-    const searchText = result.search_text.toLowerCase().replace(/:/g, '');
+    const searchText = result.searchText.toLowerCase().replace(/:/g, '');
     const index = titleToSearch.indexOf(searchText);
 
     const startsWord = (index > 0) && (titleToSearch[index - 1] == ' ');
@@ -34,9 +34,9 @@ const compareSearchResults = (result1, result2) => {
     if (!result2.popularity) result2.popularity = 0;
 
     const result1Rank = (result1.popularity * POPULARITY_WEIGHT) 
-                            - (result1.tmdb_search_rank * TMDB_SEARCH_RANK_WEIGHT);
+                            - (result1.tmdbSearchRank * TMDB_SEARCH_RANK_WEIGHT);
     const result2Rank = (result2.popularity * POPULARITY_WEIGHT) 
-                            - (result2.tmdb_search_rank * TMDB_SEARCH_RANK_WEIGHT);
+                            - (result2.tmdbSearchRank * TMDB_SEARCH_RANK_WEIGHT);
 
     return (result2Rank - result1Rank);
 }
@@ -60,12 +60,12 @@ export const searchMovies = async (searchText) => {
         ? results.results.map((result, index) => {
             return {
                 ...result,
-                is_movie: true,
-                is_series: false,
-                tmdb_search_rank: index,
+                isMovie: true,
+                isSeries: false,
+                tmdbSearchRank: index,
                 // search text included here because we can't 
                 // pass it separately into the comparator function
-                search_text: searchText, 
+                searchText: searchText, 
             }}) 
         : [];
 
@@ -81,12 +81,12 @@ export const searchSeries = async (searchText) => {
         ? results.results.map((result, index) => {
             return {
                 ...result,
-                is_movie: false,
-                is_series: true,
-                tmdb_search_rank: index,
-                search_text: searchText,
+                isMovie: false,
+                isSeries: true,
+                tmdbSearchRank: index,
+                searchText: searchText,
                 title: result.name,
-                release_date: result.first_air_date,
+                releaseDate: result.first_air_date,
             }}) 
         : [];
 
@@ -186,8 +186,8 @@ export const fetchAnnotatedTitle = async (titleID, isSeries) => {
         ...titleObject,
         director: getDirector(titleCredits),
         displayActors: getDisplayActors(titleCredits),
-        is_movie: !isSeries,
-        is_series: isSeries,
+        isMovie: !isSeries,
+        isSeries: isSeries,
         trailerURI: trailerURI,
     }
 
@@ -199,7 +199,7 @@ export const fetchAnnotatedTitle = async (titleID, isSeries) => {
         return {
             ...annotatedTitle,
             title: titleObject.name,
-            release_date: titleObject.first_air_date
+            releaseDate: titleObject.first_air_date
         };
     } else {
         return annotatedTitle;

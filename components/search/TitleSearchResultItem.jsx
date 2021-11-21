@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Image } from 'react-native-elements';
 import styled from 'styled-components/native';
 import { prepareTitle } from '../../api/ReelayDBApi';
+import { UploadContext } from '../../context/UploadContext';
 
 const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
 
@@ -36,7 +37,7 @@ const YearText = styled.Text`
     font-size: 16px;
 `
 
-export default TitleSearchResultItem = ({ result, navigation }) => {
+export default TitleSearchResultItem = ({ navigation, result, source }) => {
     const titleObject = result;
     const skipPosterLoad = (titleObject.poster_path === null);
     const [posterLoaded, setPosterLoaded] = useState(skipPosterLoad);
@@ -54,8 +55,19 @@ export default TitleSearchResultItem = ({ result, navigation }) => {
     const releaseYear = (titleObject.release_date && titleObject.release_date.length >= 4) 
         ? ('(' + titleObject.release_date.slice(0,4) + ')') : '';
 
-    const selectResult = () => {        
-        navigation.push('TitleDetailScreen', { titleObj: prepareTitle(titleObject) });
+    const { setUploadTitleObject } = useContext(UploadContext);
+
+    const selectResult = () => {
+        if (source && source === 'create') {
+            setUploadTitleObject(titleObject);
+            navigation.navigate('VenueSelectScreen', {
+                title: titleObject.title
+            })
+        } else {
+            navigation.push('TitleDetailScreen', { 
+                titleObj: prepareTitle(titleObject) 
+            });    
+        }
     }
 
     return (

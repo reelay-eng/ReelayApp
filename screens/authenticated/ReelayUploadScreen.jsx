@@ -74,7 +74,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             }
         })();
         setTabBarVisible(false);
-        return () => { setTabBarVisible(true) }
+        // return () => { setTabBarVisible(true) }
     }, [saveToDevice]);
 
     const publishReelay = async () => {
@@ -141,8 +141,8 @@ export default ReelayUploadScreen = ({ navigation }) => {
             const reelay = new Reelay({
                 owner: creator.attributes.sub,
                 creatorID: creator.attributes.sub,
-                isMovie: titleObject.is_movie,
-                isSeries: titleObject.is_series,
+                isMovie: titleObject.isMovie,
+                isSeries: titleObject.isSeries,
                 movieID: titleObject.id.toString(),
                 seriesSeason: -1,
                 seasonEpisode: -1,

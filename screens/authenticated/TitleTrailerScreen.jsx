@@ -1,22 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React from 'react';
 import YoutubeVideoEmbed from '../../components/utils/YouTubeVideoEmbed';
-import { 
-    ActivityIndicator, 
-    Dimensions, 
-    Image,
-    Pressable, 
-    SafeAreaView, 
-    ScrollView, 
-    Text, 
-    View,
-    StyleSheet
-} from 'react-native';
+import { Dimensions, SafeAreaView, View } from 'react-native';
 import styled from 'styled-components/native';
+import { PassiveButton } from '../../components/global/Buttons';
 
-import {PassiveButton} from '../../components/global/Buttons';
+const { height } = Dimensions.get('window');
+const TRAILER_HEIGHT = height * 0.3;
 
-export default TitleTrailerScreen = ({navigation, route}) => {
-    const {TRAILER_HEIGHT, trailerURI} = route.params;
+export default TitleTrailerScreen = ({navigation, route }) => {
+    const { trailerURI} = route.params;
     const ViewContainer = styled(SafeAreaView)`
         width: 100%;
         height: 100%;
@@ -33,7 +25,6 @@ export default TitleTrailerScreen = ({navigation, route}) => {
         width: 70%;
         height: 60px;
     `
-
     return (
         <ViewContainer>
             <TitleOverlayTrailerContainer>

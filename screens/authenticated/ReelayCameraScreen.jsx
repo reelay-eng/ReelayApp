@@ -1,11 +1,11 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import { UploadContext } from '../../context/UploadContext';
 import { FeedContext } from '../../context/FeedContext';
+import { UploadContext } from '../../context/UploadContext';
 import { getPosterURL } from '../../api/TMDbApi';
 
 import { Camera } from 'expo-camera';
-import { Dimensions, Linking, Alert, View, Text, SafeAreaView, Pressable} from 'react-native';
+import { Dimensions, View, SafeAreaView, Pressable} from 'react-native';
 import { Image, Icon } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -36,10 +36,12 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const cameraRef = useRef(null);
 
+    console.log('ON CAMERA SCREEN TITLE OBJECT: ', uploadTitleObject);
+
     const { setTabBarVisible } = useContext(FeedContext);
     useEffect(() => {
         setTabBarVisible(false);
-        return () => { setTabBarVisible(true) }
+        // return () => { setTabBarVisible(true) }
     }, []);
 
     const pushToUploadScreen = async (videoURI) => {
@@ -57,18 +59,14 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const recordVideo = async () => {
         if (cameraRef.current) {
             try {
-                console.log('start record async');
-                const videoRecordPromise = cameraRef.current.recordAsync();
-                if (videoRecordPromise) {
-                    const data = await videoRecordPromise;
-                    const source = data.uri;
-                    pushToUploadScreen(source);
-
-                    // const titleObject = uploadContext.uploadTitleObject;
+                const videoRecording = await cameraRef.current.recordAsync();
+                if (videoRecording?.uri) {
+                    pushToUploadScreen(videoRecording.uri);
                     Amplitude.logEventWithPropertiesAsync('videoRecorded', {
                         username: cognitoUser.username,
                         title: uploadTitleObject.title ? uploadTitleObject.title : uploadTitleObject.name,
                     })
+                    
                 }
             } catch (error) {
                 console.warn(error);
@@ -132,6 +130,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const RecordButton = () => {
 
         const RECORD_COLOR = '#cb2d26';
+        const RECORD_WAIT_MS = 500;
         const REELAY_DURATION_SECONDS = 15;
 
         const [isRecording, setIsRecording] = useState(false);
@@ -143,11 +142,16 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             border-radius: ${Math.floor(captureSize / 2)}px;
         `
 
+        useEffect(() => {
+            if (isRecording) {
+                recordVideo();
+            }
+        }, [isRecording]);
+
         const onRecordButtonPress = () => {
             if (isRecording) {
                 stopVideoRecording();
             } else {
-                recordVideo();
                 setIsRecording(true);
             }
         }
@@ -229,7 +233,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             right: 10px;
             top: 10px;
         `
-
         const posterURI = getPosterURL(uploadTitleObject.poster_path);
         const posterStyle = {
             borderColor: 'white',
@@ -259,10 +262,12 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 ref={cameraRef}
                 type={cameraType} 
                 style={{ height: '100%', width: '100%', position: 'absolute'}}
-                flashMode={Camera.Constants.FlashMode.on}
+                flashMode={Camera.Constants.FlashMode.off}
                 onMountError={(error) => {
                     console.log("camera error", error);
-                }} />
+                }}
+                whiteBalance={Camera.Constants.WhiteBalance.auto} 
+            />
         );
     }
 
