@@ -11,6 +11,8 @@ import { VenueIcon } from '../utils/VenueIcon';
 import * as Amplitude from 'expo-analytics-amplitude';
 import { AuthContext } from '../../context/AuthContext';
 import { FeedContext } from '../../context/FeedContext';
+import { UploadContext } from '../../context/UploadContext';
+import { prepareTitle } from '../../api/ReelayDBApi';
 
 const { height, width } = Dimensions.get('window');
 const ICON_SIZE = 96;
@@ -185,10 +187,13 @@ export default ReelayStack = ({
     // For some reason, useSafeAreaInsets works, but SafeAreaView doesn't
     // https://docs.expo.dev/versions/latest/sdk/safe-area-context/ 
     const insets = useSafeAreaInsets();
+    const { setUploadTitleObject } = useContext(UploadContext);
 
     const openTitleDetail = async () => {
+        setUploadTitleObject(viewableReelay.title);
+        console.log('VIEWABLE REELAY: ', viewableReelay.title);
         navigation.push('TitleDetailScreen', {
-            titleObj: viewableReelay.title,
+            titleObj: prepareTitle(viewableReelay.title),
         });
     }
 

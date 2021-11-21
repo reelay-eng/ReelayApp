@@ -9,6 +9,14 @@ export type RootStackParamList = {
     NotFound: undefined;
 };
 
+export type AppStackParamList = {
+    BottomTab: undefined;
+    TitleDetailScreen: undefined;
+    VenueSelectScreen: undefined;
+    ReelayCameraScreen: undefined;
+    ReelayUploadScreen: undefined;
+};
+
 export type BottomTabParamList = {
     Home: undefined;
     Search: undefined;

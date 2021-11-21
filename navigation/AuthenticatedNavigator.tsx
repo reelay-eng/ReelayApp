@@ -14,6 +14,7 @@ import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
 import HomeFeedScreen from "../screens/authenticated/HomeFeedScreen";
 import {
+  AppStackParamList,
   BottomTabParamList,
   HomeTabParamList,
   SearchTabParamList,
@@ -35,12 +36,37 @@ import TitleTrailerScreen from "../screens/authenticated/TitleTrailerScreen";
 import UserProfileScreen from "../screens/authenticated/UserProfileScreen";
 import VenueSelectScreen from "../screens/authenticated/VenueSelectScreen";
 
+const AppStack = createStackNavigator<AppStackParamList>();
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
 export default function AuthenticatedNavigator() {
-  const colorScheme = useColorScheme();
-  
-  const { tabBarVisible } = React.useContext(FeedContext);
+  return <AppStack.Navigator initialRouteName="BottomTab">
+    <AppStack.Screen name="BottomTab" component={BottomTabNavigator} 
+        options={{
+          headerShown: false,
+        }}
+    />
+    <AppStack.Screen name="VenueSelectScreen" component={VenueSelectScreen}
+        options={{
+          animationEnabled: false,
+          headerShown: false,
+        }} />
+    <AppStack.Screen name="ReelayCameraScreen" component={ReelayCameraScreen}
+        options={{ 
+          animationEnabled: false,
+          headerShown: false,
+        }} />
+    <AppStack.Screen name="ReelayUploadScreen" component={ReelayUploadScreen}
+        options={{ 
+          animationEnabled: false,
+          headerShown: false,
+        }} /> 
+  </AppStack.Navigator>
+}
+
+function BottomTabNavigator() {
+  const colorScheme = useColorScheme();  
+  // const { tabBarVisible } = React.useContext(FeedContext);
 
   return (
     <BottomTab.Navigator
@@ -70,7 +96,6 @@ export default function AuthenticatedNavigator() {
               size={50}
             />
           ),
-          tabBarVisible: tabBarVisible,
         }}
       />
       <BottomTab.Screen
@@ -85,7 +110,6 @@ export default function AuthenticatedNavigator() {
               size={50}
             />
           ),
-          tabBarVisible: tabBarVisible,
         }}
       />
       <BottomTab.Screen
@@ -100,7 +124,6 @@ export default function AuthenticatedNavigator() {
               size={50}
             />
           ),
-          tabBarVisible: tabBarVisible,
         }}
       />
       <BottomTab.Screen
@@ -115,7 +138,6 @@ export default function AuthenticatedNavigator() {
               size={50}
             />
           ),
-          tabBarVisible: tabBarVisible,
         }}
       />
     </BottomTab.Navigator>
@@ -245,30 +267,6 @@ function CreateReelayTabNavigator() {
       <CreateReelayTabStack.Screen
         name="SelectTitleScreen"
         component={SelectTitleScreen}
-        options={{
-          headerShown: false,
-          animationEnabled: false,
-        }}
-      />
-      <CreateReelayTabStack.Screen
-        name="VenueSelectScreen"
-        component={VenueSelectScreen}
-        options={{
-          headerShown: false,
-          animationEnabled: false,
-        }}
-      />
-      <CreateReelayTabStack.Screen
-        name="ReelayCameraScreen"
-        component={ReelayCameraScreen}
-        options={{
-          headerShown: false,
-          animationEnabled: false,
-        }}
-      />
-      <CreateReelayTabStack.Screen
-        name="ReelayUploadScreen"
-        component={ReelayUploadScreen}
         options={{
           headerShown: false,
           animationEnabled: false,

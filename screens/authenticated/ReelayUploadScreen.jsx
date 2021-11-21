@@ -73,7 +73,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
                 setHasSavePermission(status === "granted");
             }
         })();
-        setTabBarVisible(false);
+        // setTabBarVisible(false);
         // return () => { setTabBarVisible(true) }
     }, [saveToDevice]);
 

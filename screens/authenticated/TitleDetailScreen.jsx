@@ -9,8 +9,6 @@ import {
     View,
     StyleSheet
 } from 'react-native';
-import { FeedContext } from '../../context/FeedContext';
-import { UploadContext } from '../../context/UploadContext';
 import { getPosterURL, getLogoURL, fetchMovieProviders } from '../../api/TMDbApi';
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
@@ -30,12 +28,6 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 
     // Screen-wide dimension handling
     const { height, width } = Dimensions.get('window');
-    // Tab bar visibility
-    const { setTabBarVisible } = useContext(FeedContext);
-    useEffect(() => {
-        setTabBarVisible(false);
-        return () => { setTabBarVisible(true) }
-    }, []);
 
     // Parse Title Object
     const { titleObj } = route.params;
@@ -120,10 +112,12 @@ const PosterWithTrailer = ({navigation, height, posterURI, title, tmdbTitleID, t
         const componentMounted = useRef(true);
         useEffect(() => {
             (async () => {
-                var p = await fetchMovieProviders(tmdbTitleID);
-                if (!p || !p.US) return;
-                p = p.US; // change this for when we want multi country support
-                if (p.rent?.length > 0 && componentMounted.current) setTopProviderLogo(p.rent[0].logo_path);
+                var providers = await fetchMovieProviders(tmdbTitleID);
+                if (!providers || !providers.US) return;
+                providers = providers.US; // change this for when we want multi country support
+                if (providers.rent?.length > 0 && componentMounted.current) {
+                    setTopProviderLogo(providers.rent[0].logo_path);
+                }
             })();
             return () => {
                 componentMounted.current = false;
@@ -360,13 +354,9 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
                 width: 65px;
                 height: 65px;
             `
-            const { setUploadTitleObject } = useContext(UploadContext);
-
             const advanceToCreateReelay = async () => {
-                setUploadTitleObject(titleObj);
-                navigation.navigate('Create', {
-                    screen: 'VenueSelectScreen',
-                    params: { title: titleObj?.display }
+                navigation.dangerouslyGetParent().push('VenueSelectScreen', {
+                    title: titleObj?.display
                 });
             }
 

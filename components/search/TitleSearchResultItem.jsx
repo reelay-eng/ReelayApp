@@ -58,8 +58,8 @@ export default TitleSearchResultItem = ({ navigation, result, source }) => {
     const { setUploadTitleObject } = useContext(UploadContext);
 
     const selectResult = () => {
+        setUploadTitleObject(titleObject);
         if (source && source === 'create') {
-            setUploadTitleObject(titleObject);
             navigation.navigate('VenueSelectScreen', {
                 title: titleObject.title
             })
