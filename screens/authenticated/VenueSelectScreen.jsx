@@ -27,11 +27,17 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         width: 100%;
         background-color: black;
     `
-    const ScrollBox = styled(ScrollView)`
-        flex: 1;
-        flex-wrap: wrap;
-        width: 100%;
-    `
+    const advancetoCameraScreen = async (venue) => {
+        const { status } = await Camera.requestPermissionsAsync();
+        const hasPermission = (status === "granted");
+
+        if (hasPermission) {
+            setVenueSelected(venue);
+            navigation.push('ReelayCameraScreen');    
+        } else {
+            alertCameraAccess();
+        }
+    }
 
     const IconOptions = () => {
         const IconContainer = styled(View)`
@@ -46,27 +52,13 @@ export default VenueSelectScreen = ({ navigation, route }) => {
             margin-top: 20px;
             width: 100%;
         `
-        const onPress = async (venue) => {
-            // prepare venue data for upload
-            // advance to camera screen
-            const { status } = await Camera.requestPermissionsAsync();
-            const hasPermission = (status === "granted");
-
-            if (hasPermission) {
-                setVenueSelected(venue);
-                navigation.push('ReelayCameraScreen');    
-            } else {
-                alertCameraAccess();
-            }
-        };
-
         return (
                 <IconOptionsContainer>
                     { iconVenues.map(venue => {
                         return (
                             <IconContainer key={venue}>
                                 <VenueIcon border={BORDER_SIZE} size={ICON_SIZE} venue={venue}
-                                    onPress={() => onPress(venue)}  />
+                                    onPress={() => advancetoCameraScreen(venue)}  />
                             </IconContainer>
                         ); 
                     })}
@@ -104,10 +96,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
             align-items: center;
         `
         const onPress = (venue) => {
-            // prepare venue data for upload
-            // advance to camera screen
-            setVenueSelected(venue);
-            navigation.push('ReelayCameraScreen');
+            advancetoCameraScreen(venue)
         };
 
         return (
@@ -115,10 +104,10 @@ export default VenueSelectScreen = ({ navigation, route }) => {
                 { otherVenues.map(venueObj=> {
                     const venue = venueObj.venue;
                     return (
-                        <OtherOptionsLine key={venue} onPress={() => onPress(venue)}>
+                        <OtherOptionsLine key={venue} onPress={() => advancetoCameraScreen(venue)}>
                             <IconContainer>
-                                <VenueIcon border={BORDER_SIZE} 
-                                            size={ICON_SIZE} venue={venue} onPress={() => onPress(venue)}/>
+                                <VenueIcon border={BORDER_SIZE} size={ICON_SIZE} venue={venue} 
+                                    onPress={() => advancetoCameraScreen(venue)}/>
                             </IconContainer>
                             <OtherOptionsTextButton onPress={() => onPress(venue)}>
                                 <OtherOptionText>{venueObj.text}</OtherOptionText>
@@ -176,15 +165,9 @@ export default VenueSelectScreen = ({ navigation, route }) => {
             font-family: System;
             color: white;
         `
-        const onPress = () => {
-            // prepare empty venue data for upload
-            // advance to camera screen
-            setVenueSelected('');
-            navigation.push('ReelayCameraScreen');
-        }
         return (
             <SkipContainer>
-                <Pressable onPress={onPress}>
+                <Pressable onPress={() => advancetoCameraScreen('')}>
                     <SkipText>{'Skip'}</SkipText>
                 </Pressable>
             </SkipContainer>

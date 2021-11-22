@@ -33,34 +33,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     } = useContext(UploadContext);
 
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
-    // const [hasPermission, setHasPermission] = useState(null);
-
     const cameraRef = useRef(null);
-
-    // useEffect(() => {
-    //     (async () => {
-    //         const { status } = await Camera.requestPermissionsAsync();
-    //         setHasPermission(status === "granted");
-    //     })();
-    // }, [navigation]);
-
-    // // handle permission denied cases
-    // // Fix done on 11/16 for alerting IOS users to allow camera access but not android.
-    // if (!hasPermission) {
-    //     navigation.pop();
-    //     Alert.alert(
-    //         "Please allow camera access",
-    //         "To make a reelay, please enable camera permissions in your phone settings",
-    //         [
-    //           {
-    //             text: "Cancel",
-    //             style: "cancel"
-    //           },
-    //           { text: "Update camera settings", onPress: () => Linking.openSettings() }
-    //         ]
-    //     );
-    //     return <View style={{ backgroundColor: ReelayColors.reelayBlack }} />;
-    // }
 
     const pushToUploadScreen = async (videoURI) => {
         if (!videoURI) {
@@ -78,17 +51,26 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         if (cameraRef.current) {
             try {
                 console.log('start record async');
-                const videoRecordPromise = cameraRef.current.recordAsync();
-                if (videoRecordPromise) {
-                    const data = await videoRecordPromise;
-                    const source = data.uri;
-                    pushToUploadScreen(source);
+                // const videoRecordPromise = cameraRef.current.recordAsync();
+                // if (videoRecordPromise) {
+                //     const data = await videoRecordPromise;
+                //     const source = data.uri;
+                //     pushToUploadScreen(source);
 
                     // const titleObject = uploadContext.uploadTitleObject;
+                    // Amplitude.logEventWithPropertiesAsync('videoRecorded', {
+                    //     username: cognitoUser.username,
+                    //     title: uploadTitleObject.title ? uploadTitleObject.title : uploadTitleObject.name,
+                    // })
+                // }
+                const videoRecording = await cameraRef.current.recordAsync();
+                if (videoRecording?.uri) {
+                    pushToUploadScreen(videoRecording.uri);
                     Amplitude.logEventWithPropertiesAsync('videoRecorded', {
                         username: cognitoUser.username,
                         title: uploadTitleObject.title ? uploadTitleObject.title : uploadTitleObject.name,
                     })
+                    
                 }
             } catch (error) {
                 console.warn(error);
@@ -152,6 +134,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const RecordButton = () => {
 
         const RECORD_COLOR = '#cb2d26';
+        const RECORD_WAIT_MS = 500;
         const REELAY_DURATION_SECONDS = 15;
 
         const [isRecording, setIsRecording] = useState(false);
@@ -163,11 +146,16 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             border-radius: ${Math.floor(captureSize / 2)}px;
         `
 
+        useEffect(() => {
+            if (isRecording) {
+                recordVideo();
+            }
+        }, [isRecording]);
+
         const onRecordButtonPress = () => {
             if (isRecording) {
                 stopVideoRecording();
             } else {
-                recordVideo();
                 setIsRecording(true);
             }
         }
@@ -279,10 +267,12 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 ref={cameraRef}
                 type={cameraType} 
                 style={{ height: '100%', width: '100%', position: 'absolute'}}
-                flashMode={Camera.Constants.FlashMode.on}
+                flashMode={Camera.Constants.FlashMode.off}
                 onMountError={(error) => {
                     console.log("camera error", error);
-                }} />
+                }}
+                whiteBalance={Camera.Constants.WhiteBalance.auto} 
+            />
         );
     }
 
