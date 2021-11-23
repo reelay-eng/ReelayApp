@@ -5,7 +5,6 @@
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
-import { FeedContext } from "../context/FeedContext";
 
 import * as React from "react";
 import { Icon } from "react-native-elements";
@@ -13,6 +12,7 @@ import { Icon } from "react-native-elements";
 import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
 import HomeFeedScreen from "../screens/authenticated/HomeFeedScreen";
+
 import {
   AppStackParamList,
   BottomTabParamList,
@@ -38,6 +38,8 @@ import VenueSelectScreen from "../screens/authenticated/VenueSelectScreen";
 
 const AppStack = createStackNavigator<AppStackParamList>();
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
+
+const BOTTOM_TAB_ICON_SIZE = 40;
 
 export default function AuthenticatedNavigator() {
   return <AppStack.Navigator initialRouteName="BottomTab">
@@ -66,7 +68,6 @@ export default function AuthenticatedNavigator() {
 
 function BottomTabNavigator() {
   const colorScheme = useColorScheme();  
-  // const { tabBarVisible } = React.useContext(FeedContext);
 
   return (
     <BottomTab.Navigator
@@ -81,7 +82,7 @@ function BottomTabNavigator() {
           left: 50,
           right: 50,
           height: 80,
-        },
+        }
       }}
     >
       <BottomTab.Screen
@@ -89,11 +90,10 @@ function BottomTabNavigator() {
         component={HomeTabNavigator}
         options={{
           tabBarIcon: () => (
-            <Icon
-              type="ionicon"
+            <Icon type="ionicon"
               name="film-outline"
               color={"white"}
-              size={50}
+              size={BOTTOM_TAB_ICON_SIZE}
             />
           ),
         }}
@@ -103,11 +103,10 @@ function BottomTabNavigator() {
         component={SearchTabNavigator}
         options={{
           tabBarIcon: () => (
-            <Icon
-              type="ionicon"
+            <Icon type="ionicon"
               name="search"
               color={"white"}
-              size={50}
+              size={BOTTOM_TAB_ICON_SIZE}
             />
           ),
         }}
@@ -117,11 +116,10 @@ function BottomTabNavigator() {
         component={CreateReelayTabNavigator}
         options={{
           tabBarIcon: () => (
-            <Icon
-              type="ionicon"
-              name="add-circle-outline"
-              color={"white"}
-              size={50}
+            <Icon type="ionicon"
+              name="add-circle"
+              color={'white'}
+              size={BOTTOM_TAB_ICON_SIZE}
             />
           ),
         }}
@@ -131,11 +129,10 @@ function BottomTabNavigator() {
         component={ProfileTabNavigator}
         options={{
           tabBarIcon: () => (
-            <Icon
-              type="ionicon"
+            <Icon type="ionicon"
               name="person-circle"
               color={"white"}
-              size={50}
+              size={BOTTOM_TAB_ICON_SIZE}
             />
           ),
         }}
