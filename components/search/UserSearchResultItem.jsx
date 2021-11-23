@@ -35,7 +35,6 @@ const ProfilePictureContainer = styled(View)`
 `
 
 export default UserSearchResultItem = ({ result, navigation }) => {
-    const { setHasSelectedUser, setUploadUserObject } = useContext(UploadContext);
     const userObject = result;
 
     // username
@@ -43,8 +42,6 @@ export default UserSearchResultItem = ({ result, navigation }) => {
     const profilePictureURI = userObject.profilePictureURI;
 
     const selectResult = () => {
-        setHasSelectedUser(true); // this makes the tab bar disappear
-        setUploadUserObject(userObject);
         navigation.push("UserProfileScreen", { creator: userObject });
     };
 

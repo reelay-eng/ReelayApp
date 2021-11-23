@@ -4,7 +4,6 @@ import { FeedContext } from '../../context/FeedContext';
 
 import BackButton from '../../components/utils/BackButton';
 import SearchField from '../../components/create-reelay/SearchField';
-import SearchResults from '../../components/create-reelay/SearchResults';
 import TitleSearchResults from '../../components/search/TitleSearchResults';
 
 import styled from 'styled-components/native';

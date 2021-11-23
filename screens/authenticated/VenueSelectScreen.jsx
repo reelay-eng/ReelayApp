@@ -1,24 +1,16 @@
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import { Alert, Pressable, SafeAreaView, ScrollView, Text, View, Linking } from 'react-native';
-import { UploadContext } from '../../context/UploadContext';
 import { Camera } from 'expo-camera';
 import BackButton from '../../components/utils/BackButton';
 import { getIconVenues, getOtherVenues, VenueIcon } from '../../components/utils/VenueIcon';
-import { FeedContext } from "../../context/FeedContext";
 import styled from 'styled-components/native';
 
 export default VenueSelectScreen = ({ navigation, route }) => {
 
-    const { setTabBarVisible } = useContext(FeedContext);
-    useEffect(() => {
-        setTabBarVisible(false);
-    }, []);
-
     const ICON_SIZE = 64;
     const BORDER_SIZE = 4;
 
-    const { title } = route.params;
-    const {setVenueSelected} = useContext(UploadContext);
+    const { titleObj } = route.params;
     const iconVenues = getIconVenues();
     const otherVenues = getOtherVenues();
     
@@ -37,8 +29,10 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         const hasPermission = (status === "granted");
 
         if (hasPermission) {
-            setVenueSelected(venue);
-            navigation.push('ReelayCameraScreen');    
+            navigation.push('ReelayCameraScreen', {
+                titleObj: titleObj,
+                venue: venue,
+            });    
         } else {
             alertCameraAccess();
         }
@@ -143,7 +137,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
             width: 100%;
         `
         const promptA = 'Where did you see ';
-        const promptB = title + '?';
+        const promptB = titleObj.display + '?';
 
         return (
             <TopContainer>

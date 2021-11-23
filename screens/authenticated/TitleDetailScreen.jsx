@@ -356,7 +356,7 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
             `
             const advanceToCreateReelay = async () => {
                 navigation.dangerouslyGetParent().push('VenueSelectScreen', {
-                    title: titleObj?.display
+                    titleObj: titleObj,
                 });
             }
 

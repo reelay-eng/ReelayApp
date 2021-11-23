@@ -168,7 +168,7 @@ export const fetchSeriesTrailerURI = async(titleID) => {
 export const fetchAnnotatedTitle = async (titleID, isSeries) => {
     if (!titleID) return null;
 
-    const titleObject = isSeries 
+    const tmdbTitleObject = isSeries 
         ? await fetchSeries(titleID)
         : await fetchMovie(titleID);
 
@@ -180,26 +180,34 @@ export const fetchAnnotatedTitle = async (titleID, isSeries) => {
         ? await fetchSeriesTrailerURI(titleID)
         : await fetchMovieTrailerURI(titleID);
 
-    // const providers = await fetchMovieProviders(titleID);
+    const releaseDate = isSeries ? tmdbTitleObject.first_air_date : tmdbTitleObject.release_date;
+    const releaseYear = (releaseDate?.length >= 4) ? (releaseDate.slice(0,4)) : '';	
 
     const annotatedTitle = {
-        ...titleObject,
+        id: tmdbTitleObject.id,
         director: getDirector(titleCredits),
+        display: isSeries ? tmdbTitleObject.name : tmdbTitleObject.title,
         displayActors: getDisplayActors(titleCredits),
         isMovie: !isSeries,
         isSeries: isSeries,
+        genres: tmdbTitleObject.genres,
+        overview: tmdbTitleObject.overview,
+        posterURI: tmdbTitleObject ? tmdbTitleObject.poster_path : null,
+        releaseDate: releaseDate,
+        releaseYear: releaseYear,
+        tagline: tmdbTitleObject.tagline,
         trailerURI: trailerURI,
     }
 
     if (isSeries) {
-        if (!titleObject.name) {
+        if (!tmdbTitleObject.name) {
             console.log('Series title object does not have name');
-            console.log(titleObject);
+            console.log(tmdbTitleObject);
         }
         return {
             ...annotatedTitle,
-            title: titleObject.name,
-            releaseDate: titleObject.first_air_date
+            title: tmdbTitleObject.name,
+            releaseDate: tmdbTitleObject.first_air_date
         };
     } else {
         return annotatedTitle;
@@ -224,8 +232,8 @@ export const getDisplayActors = (titleCredits, max = 2) => {
     return null;
 }
 
-export const getPosterURL = (posterPath) => {
-    return posterPath ? `${TMDB_IMAGE_API_BASE_URL}${posterPath}` : null;
+export const getPosterURL = (posterURI) => {
+    return posterURI ? `${TMDB_IMAGE_API_BASE_URL}${posterURI}` : null;
 }
 
 export const getLogoURL = (logoPath) => {

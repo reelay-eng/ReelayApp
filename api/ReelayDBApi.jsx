@@ -165,7 +165,7 @@ export const postLikeToDB = async (likeBody, reelaySub) => {
 }
 
 export const prepareReelay = async (fetchedReelay) => {
-    const titleObject = await fetchAnnotatedTitle(
+    const titleObj = await fetchAnnotatedTitle(
         fetchedReelay.tmdbTitleID, 
         fetchedReelay.isSeries
     );
@@ -185,29 +185,9 @@ export const prepareReelay = async (fetchedReelay) => {
         comments: fetchedReelay.comments,
         likes: fetchedReelay.likes,
         sub: fetchedReelay.datastoreSub,
-        title: prepareTitle(titleObject),
+        title: titleObj,
         postedDateTime: fetchedReelay.postedAt ?? fetchedReelay.maxPostedAt,
     };
-}
-
-export const prepareTitle = (tmdbTitleObject) => {
-    const releaseYear = (tmdbTitleObject?.release_date?.length >= 4)
-        ? (tmdbTitleObject.release_date.slice(0,4)) : '';	
-
-        return {
-            id: tmdbTitleObject.id,
-            display: tmdbTitleObject.title,
-            genres: tmdbTitleObject.genres,
-            director: tmdbTitleObject.director,
-            displayActors: tmdbTitleObject.displayActors,
-            overview: tmdbTitleObject.overview,
-            posterURI: tmdbTitleObject ? tmdbTitleObject.poster_path : null,
-            tagline: tmdbTitleObject.tagline,
-            trailerURI: tmdbTitleObject.trailerURI,
-
-            releaseDate: tmdbTitleObject.release_date,
-            releaseYear: releaseYear,
-        }
 }
 
 export const registerUser = async (user) => {

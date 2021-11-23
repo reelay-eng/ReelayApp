@@ -2,8 +2,6 @@ import React, { useContext, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Image } from 'react-native-elements';
 import styled from 'styled-components/native';
-import { prepareTitle } from '../../api/ReelayDBApi';
-import { UploadContext } from '../../context/UploadContext';
 
 const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
 
@@ -38,40 +36,37 @@ const YearText = styled.Text`
 `
 
 export default TitleSearchResultItem = ({ navigation, result, source }) => {
-    const titleObject = result;
-    const skipPosterLoad = (titleObject.poster_path === null);
+    const titleObj = result;
+    const skipPosterLoad = (titleObj.posterURI === null);
     const [posterLoaded, setPosterLoaded] = useState(skipPosterLoad);
 
-    const posterImageUri = titleObject.poster_path 
-        ? `${TMDB_IMAGE_API_BASE_URL}${titleObject.poster_path}` : null;
+    const posterImageUri = titleObj.posterURI 
+        ? `${TMDB_IMAGE_API_BASE_URL}${titleObj.posterURI}` : null;
 
     // for movies and series
     // note that release_date for series has been overwritten with its first air date
-    const title = titleObject.title ? titleObject.title : 'Title not found.';
-    const actors = titleObject.displayActors?.map(actor => actor.name)
+    const title = titleObj.title ? titleObj.title : 'Title not found.';
+    const actors = titleObj.displayActors?.map(actor => actor.name)
             .filter((actor) => actor !== undefined)
             .join(", ") 
         ?? [];
-    const releaseYear = (titleObject.release_date && titleObject.release_date.length >= 4) 
-        ? ('(' + titleObject.release_date.slice(0,4) + ')') : '';
-
-    const { setUploadTitleObject } = useContext(UploadContext);
+    const releaseYear = (titleObj.release_date && titleObj.release_date.length >= 4) 
+        ? ('(' + titleObj.release_date.slice(0,4) + ')') : '';
 
     const selectResult = () => {
-        setUploadTitleObject(titleObject);
         if (source && source === 'create') {
             navigation.navigate('VenueSelectScreen', {
-                title: titleObject.title
+                titleObj: titleObj
             })
         } else {
             navigation.push('TitleDetailScreen', { 
-                titleObj: prepareTitle(titleObject) 
+                titleObj: titleObj
             });    
         }
     }
 
     return (
-        <PressableContainer key={titleObject.id} onPress={selectResult}>
+        <PressableContainer key={titleObj.id} onPress={selectResult}>
             <TitleLineContainer>
                 <TitleText>{posterLoaded ? title : ""}</TitleText>
                 <YearText>{posterLoaded ? releaseYear : ""}</YearText>

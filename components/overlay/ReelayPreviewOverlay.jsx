@@ -21,8 +21,8 @@ const VenueIndicator = ({ venue }) => {
     );
 }
 
-export default ReelayPreviewOverlay = ({ venue, titleObject }) => {
-    const posterURI = getPosterURL(titleObject.poster_path);
+export default ReelayPreviewOverlay = ({ titleObj, venue }) => {
+    const posterURI = getPosterURL(titleObj.posterURI);
 
     const OverlayContainer = styled(View)`
         position: absolute;

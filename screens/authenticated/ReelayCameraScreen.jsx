@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 import { UploadContext } from '../../context/UploadContext';
 import { getPosterURL } from '../../api/TMDbApi';
 
@@ -28,10 +27,9 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const { 
         setUploadErrorStatus,
         setUploadVideoSource,
-        uploading,
-        uploadTitleObject,
-        venueSelected,
     } = useContext(UploadContext);
+
+    const { titleObj, venue } = route.params;
 
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const cameraRef = useRef(null);
@@ -42,10 +40,11 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             return;
         }
 
-        setUploadVideoSource(videoURI);
-        setUploadErrorStatus(false);
-        console.log('video source', videoURI);    
-        navigation.push('ReelayUploadScreen');    
+        navigation.push('ReelayUploadScreen', {
+            titleObj: titleObj,
+            videoURI: videoURI,
+            venue: venue,
+        });    
     }
     
     const recordVideo = async () => {
@@ -56,7 +55,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                     pushToUploadScreen(videoRecording.uri);
                     Amplitude.logEventWithPropertiesAsync('videoRecorded', {
                         username: cognitoUser.username,
-                        title: uploadTitleObject.title ? uploadTitleObject.title : uploadTitleObject.name,
+                        title: titleObj.display,
                     })
                     
                 }
@@ -72,7 +71,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             console.log('stop recording complete');            
         }
     };
-    
 
     const MediaLibraryPicker = () => {
 
@@ -225,7 +223,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             right: 10px;
             top: 10px;
         `
-        const posterURI = getPosterURL(uploadTitleObject.poster_path);
+        const posterURI = getPosterURL(titleObj.posterURI);
         const posterStyle = {
             borderColor: 'white',
             borderRadius: 8, 
@@ -271,7 +269,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         `
         return (
             <UnderPosterContainer>
-                <VenueIcon venue={venueSelected} size={24} border={2} />
+                <VenueIcon venue={venue} size={24} border={2} />
             </UnderPosterContainer>
         );
     }
@@ -284,8 +282,8 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
 
     return (
         <CameraContainer>
-            { !uploading && <ReelayCamera /> }
-            { !uploading && <RecordOverlay /> }
+            <ReelayCamera />
+            <RecordOverlay />
         </CameraContainer>
     );
 }
