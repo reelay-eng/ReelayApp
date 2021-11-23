@@ -295,7 +295,9 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
 
         const generateThumbnail = async () => {
             try {
-                const { uri } = await VideoThumbnails.getThumbnailAsync(reelay.content.videoURI);
+                const { uri } = await VideoThumbnails.getThumbnailAsync(reelay.content.videoURI, {
+                    time: 1000
+                });
                 setThumbnailURI(uri);
                 setLoading(false);
             } catch (error) {
