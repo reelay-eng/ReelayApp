@@ -36,14 +36,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const cameraRef = useRef(null);
 
-    console.log('ON CAMERA SCREEN TITLE OBJECT: ', uploadTitleObject);
-
-    const { setTabBarVisible } = useContext(FeedContext);
-    useEffect(() => {
-        setTabBarVisible(false);
-        // return () => { setTabBarVisible(true) }
-    }, []);
-
     const pushToUploadScreen = async (videoURI) => {
         if (!videoURI) {
             showErrorToast('Oops! Source file for video not found.');
