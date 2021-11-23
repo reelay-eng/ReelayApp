@@ -165,6 +165,15 @@ export const prepareReelay = async (fetchedReelay) => {
         fetchedReelay.isSeries
     );
     const videoURIObject = await getVideoURIObject(fetchedReelay);
+    const sortCommentsByPostedDate = (comment1, comment2) => {
+        try {
+            const diff = Date.parse(comment1.postedAt) - Date.parse(comment2.postedAt);
+            return diff;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    const sortedComments = fetchedReelay.comments.sort(sortCommentsByPostedDate);
 
     return {
         id: fetchedReelay.id,
@@ -177,7 +186,7 @@ export const prepareReelay = async (fetchedReelay) => {
             venue: fetchedReelay.venue ? fetchedReelay.venue : null,
             videoURI: videoURIObject.videoURI,    
         },
-        comments: fetchedReelay.comments,
+        comments: sortedComments,
         likes: fetchedReelay.likes,
         sub: fetchedReelay.datastoreSub,
         title: titleObj,
