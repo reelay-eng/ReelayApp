@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Image } from 'react-native-elements';
 import styled from 'styled-components/native';
+import { getPosterURL } from '../../api/TMDbApi';
 
 const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
 
@@ -40,12 +41,11 @@ export default TitleSearchResultItem = ({ navigation, result, source }) => {
     const skipPosterLoad = (titleObj.posterURI === null);
     const [posterLoaded, setPosterLoaded] = useState(skipPosterLoad);
 
-    const posterImageUri = titleObj.posterURI 
-        ? `${TMDB_IMAGE_API_BASE_URL}${titleObj.posterURI}` : null;
+    const posterImageUri = titleObj.posterURI ? getPosterURL(titleObj.posterURI) : null;
 
     // for movies and series
     // note that release_date for series has been overwritten with its first air date
-    const title = titleObj.title ? titleObj.title : 'Title not found.';
+    const title = titleObj.display;
     const actors = titleObj.displayActors?.map(actor => actor.name)
             .filter((actor) => actor !== undefined)
             .join(", ") 
