@@ -1,7 +1,6 @@
 import React, { useContext } from 'react';
 import { SafeAreaView, ScrollView } from 'react-native';
 import { FeedContext } from '../../context/FeedContext';
-import TitleOverlay from './TitleOverlay';
 import SettingsOverlay from './SettingsOverlay';
 import styled from 'styled-components/native';
 
@@ -25,10 +24,6 @@ export default FeedOverlay = ({ navigation, onDeleteReelay, setIsPaused }) => {
             <SafeAreaView>
                 <ScrollBox indicatorStyle={'white'} scrollOverflowEnabled={true}>
                 {/* If we never set a visibility type, we shouldn't create an empty overlay */}
-                { overlayData?.type == 'TITLE' &&
-                    <TitleOverlay navigation={navigation} setIsPaused={setIsPaused} 
-                                style={{backgroundColor: 'rgba(0,0,0,1.0)'}} />
-                }
                 { overlayData?.type == 'REELAY' &&
                     <SettingsOverlay navigation={navigation} 
                                 reelay={overlayData?.reelay} 

@@ -38,15 +38,12 @@ export default TitleDetailScreen = ({ navigation, route }) => {
     const trailerURI = titleObj?.trailerURI
     const genres = titleObj?.genres;
 
-    console.log(titleObj);
-
     const ScrollBox = styled(ScrollView)`
         position: absolute;
         width: 100%;
         height: 100%;
         background-color: #0d0d0d
     `
-
     return (
         <ScrollBox showsVerticalScrollIndicator={false}>
             <PosterWithTrailer 
@@ -187,7 +184,7 @@ const PosterWithTrailer = ({navigation, height, posterURI, title, tmdbTitleID, t
     `
     const PosterTitle = styled(Text)`
         position: relative;
-        font-size: 55px;
+        font-size: 38px;
         font-weight: bold;
         color: white;
         margin-bottom: 10px;
@@ -522,5 +519,4 @@ const MovieInformation = ({description, director, actors}) => {
             </MIInternalContainer>
         </MIExternalContainer>
     )
-
 }
