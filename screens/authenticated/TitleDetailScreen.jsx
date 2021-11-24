@@ -252,8 +252,15 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
     const [topReelays, setTopReelays] = useState([]);
     const componentMounted = useRef(true);
 
+    const byReelayPopularity = (reelay1, reelay2) => {
+        const reelay1Score = reelay1.likes.length + reelay1.comments.length;
+        const reelay2Score = reelay2.likes.length + reelay2.comments.length;
+        return reelay2Score - reelay1Score;
+    }
+
     const fetchTopReelays = async () => {
-        const nextTopReelays = await getMostRecentReelaysByTitle(titleObj.id);
+        const mostRecentReelays = await getMostRecentReelaysByTitle(titleObj.id);
+        const nextTopReelays = mostRecentReelays.sort(byReelayPopularity);
         if (nextTopReelays?.length && componentMounted.current) {
             setTopReelays(nextTopReelays);
         }
