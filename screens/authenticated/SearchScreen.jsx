@@ -56,6 +56,7 @@ export default SearchScreen = ({ navigation }) => {
     const updateSearch = async (newSearchText, type = selectedType) => {
         try {
             let annotatedResults;
+            if ( !newSearchText || newSearchText === undefined || newSearchText === "") return;
             if (type === "Film") {
                 annotatedResults = await searchTitles(newSearchText, false);
             } else if (type === "TV") {

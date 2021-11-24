@@ -11,10 +11,6 @@ import styled from 'styled-components/native';
 import { searchTitles } from '../../api/ReelayDBApi';
 
 export default SelectTitleScreen = ({ navigation }) => {
-
-    const MarginBelowLine = styled(View)`
-        height: 30px;
-    `
     const TopBarContainer = styled(View)`
         width: 100%;
         display: flex;
@@ -85,6 +81,7 @@ export default SelectTitleScreen = ({ navigation }) => {
     const updateSearch = async (newSearchText, type=searchType) => {
         setSearchText(newSearchText);
         try {
+            if ( !newSearchText || newSearchText === undefined || newSearchText === "") return;
             if (type === 'Film') {
                 annotatedResults = await searchTitles(newSearchText, false);
                 setSearchResults(annotatedResults);
