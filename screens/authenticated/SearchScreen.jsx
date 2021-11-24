@@ -1,15 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView, View, Pressable, Text } from "react-native";
 
 import BackButton from "../../components/utils/BackButton";
 import SearchField from "../../components/create-reelay/SearchField";
 import TitleSearchResults from "../../components/search/TitleSearchResults";
 import UserSearchResults from "../../components/search/UserSearchResults";
-import {
-    fetchAnnotatedTitle,
-    searchMovies,
-    searchSeries,
-} from "../../api/TMDbApi";
 
 import { searchTitles, searchUsers } from "../../api/ReelayDBApi";
 import styled from "styled-components/native";
@@ -117,10 +112,10 @@ export default SearchScreen = ({ navigation }) => {
             />
             <MarginBelowLine />
             { selectedType !== "Users" && !loading && 
-                <TitleSearchResults navigation={navigation} searchResults={searchResults} />
+                <TitleSearchResults navigation={navigation} searchResults={searchResults} source={'search'} />
             }
             { selectedType === "Users" && !loading &&
-                <UserSearchResults navigation={navigation} searchResults={searchResults} />
+                <UserSearchResults navigation={navigation} searchResults={searchResults} source={'search'} />
             }
         </SearchScreenContainer>
     );

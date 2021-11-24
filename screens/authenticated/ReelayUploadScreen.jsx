@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+import { FeedContext } from '../../context/FeedContext';
 import { UploadContext } from '../../context/UploadContext';
 import { Auth, DataStore, Storage } from 'aws-amplify';
 import { Reelay } from '../../src/models';
@@ -51,18 +52,20 @@ const UploadVideoContainer = styled(Pressable)`
     width: 75%;
 `
 
-export default ReelayUploadScreen = ({ navigation }) => {
+export default ReelayUploadScreen = ({ navigation, route }) => {
+
+    const { titleObj, videoURI, venue } = route.params;
 
     const [hasSavePermission, setHasSavePermission] = useState(null);
     const [playing, setPlaying] = useState(true);
     const [saveToDevice, setSaveToDevice] = useState(false);
 
+    const [uploadComplete, setUploadComplete] = useState(false);
+    const [uploadErrorStatus, setUploadErrorStatus] = useState(false);
+    const [uploading, setUploading] = useState(false);
+
     const { cognitoUser } = useContext(AuthContext);
     const uploadContext = useContext(UploadContext);
-
-    const titleObject = uploadContext.uploadTitleObject;
-    const venue = uploadContext.venueSelected;
-    const videoURI = uploadContext.uploadVideoSource;
 
     useEffect(() => {
         (async () => {
@@ -81,7 +84,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
 
         Amplitude.logEventWithPropertiesAsync('publishReelayStarted', {
             username: cognitoUser.username,
-            title: titleObject.title ? titleObject.title : titleObject.name,
+            title: titleObj.display,
         });
 
         if (saveToDevice) {
@@ -98,7 +101,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
                 console.log('Could not save to local device...');
                 Amplitude.logEventWithPropertiesAsync('saveToDeviceFailed', {
                     username: cognitoUser.username,
-                    title: titleObject.title ? titleObject.title : titleObject.name,
+                    title: titleObj.display,
                 });
             }    
         }
@@ -117,7 +120,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             const videoResponse = await fetch(videoURI);
             const videoData = await videoResponse.blob();
 
-            uploadContext.setUploading(true);
+            setUploading(true);
             const uploadStatusS3 = await Storage.put(videoS3Key, videoData, {
                 progressCallback(progress) {
                     if (progress && progress.loaded && progress.total) {
@@ -137,13 +140,13 @@ export default ReelayUploadScreen = ({ navigation }) => {
             const reelay = new Reelay({
                 owner: creator.attributes.sub,
                 creatorID: creator.attributes.sub,
-                isMovie: titleObject.is_movie,
-                isSeries: titleObject.is_series,
-                movieID: titleObject.id.toString(),
+                isMovie: titleObj.isMovie,
+                isSeries: titleObj.isSeries,
+                movieID: titleObj.id.toString(),
                 seriesSeason: -1,
                 seasonEpisode: -1,
                 uploadedAt: new Date().toISOString(),
-                tmdbTitleID: titleObject.id.toString(),
+                tmdbTitleID: titleObj.id.toString(),
                 venue: venue,
                 videoS3Key: videoS3Key,
                 visibility: UPLOAD_VISIBILITY,
@@ -170,15 +173,15 @@ export default ReelayUploadScreen = ({ navigation }) => {
             const postResult = await postReelayToDB(reelayDBBody);
             console.log('Saved Reelay to DB: ', postResult);
             
-            uploadContext.setUploading(false);
-            uploadContext.setUploadComplete(true);
+            setUploading(false);    
+            setUploadComplete(true);
 
             console.log('saved new Reelay');
             console.log('Upload dialog complete.');
 
             Amplitude.logEventWithPropertiesAsync('publishReelayComplete', {
                 username: cognitoUser.username,
-                title: titleObject.title ? titleObject.title : titleObject.name,
+                title: titleObj.display,
             });
 
             // janky, but this gets the reelay into the format we need, so that
@@ -197,16 +200,16 @@ export default ReelayUploadScreen = ({ navigation }) => {
         } catch (error) {
             // todo: better error catching
             console.log('Error uploading file: ', error);
-            uploadContext.setUploadErrorStatus(true);
-            uploadContext.setUploading(false);
-            uploadContext.setUploadComplete(false);
+            setUploadErrorStatus(true);
+            setUploading(false);
+            setUploadComplete(false);
             
             uploadContext.setChunksUploaded(0);
             uploadContext.setChunksTotal(0);
 
             Amplitude.logEventWithPropertiesAsync('uploadFailed', {
                 username: cognitoUser.username,
-                title: titleObject.title ? titleObject.title : titleObject.name,
+                title: titleObj.display,
             });
         }
     }
@@ -225,7 +228,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
             <RetakeContainer onPress={() => { 
                 Amplitude.logEventWithPropertiesAsync('retake', {
                     username: cognitoUser.username,
-                    title: titleObject.title ? titleObject.title : titleObject.name,
+                    title: titleObj.display,
                 });
                 navigation.pop();
             }}>
@@ -256,24 +259,21 @@ export default ReelayUploadScreen = ({ navigation }) => {
             margin: 10px;
         `
 
-        const readyToPublish = 
-            (!uploadContext.uploading) && 
-            (!uploadContext.uploadComplete) && 
-            (!uploadContext.uploadErrorStatus);
+        const readyToPublish = (!uploading && !uploadComplete && !uploadErrorStatus);
 
         return (
             <UploadStatusContainer>
-                { uploadContext.uploading && 
+                { uploading && 
                     <StatusTextContainer>
                         <UploadStatusText>{'Uploading...'}</UploadStatusText>
                     </StatusTextContainer>
                 }
-                { uploadContext.uploadComplete && 
+                { uploadComplete && 
                     <StatusTextContainer>
                         <UploadStatusText>{'Uploaded'}</UploadStatusText>
                     </StatusTextContainer>
                 }
-                { uploadContext.uploadErrorStatus && 
+                { uploadErrorStatus && 
                     <StatusTextContainer>
                         <UploadStatusText>{'Upload Error'}</UploadStatusText>
                     </StatusTextContainer>
@@ -349,7 +349,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
         `
         const chunksUploaded = uploadContext.chunksUploaded;
         const chunksTotal = uploadContext.chunksTotal;    
-        const indeterminate = chunksUploaded == 0 && uploadContext.uploading;
+        const indeterminate = chunksUploaded == 0 && uploading;
 
         // +1 prevents NaN error. hacky.
         let progress = chunksUploaded / (chunksTotal + 1);
@@ -359,7 +359,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
     
         return (
             <UploadProgressBarContainer>
-                { (uploadContext.uploading || uploadContext.uploadComplete) && 
+                { (uploading || uploadComplete) && 
                     <Progress.Bar color={'white'} indeterminate={indeterminate} progress={progress} width={width * 0.75} />
                 }
             </UploadProgressBarContainer>
@@ -375,14 +375,11 @@ export default ReelayUploadScreen = ({ navigation }) => {
             width: 60%;
         `
         const exitCreate = ({ navigation }) => {
-            uploadContext.setUploading(false);
-            uploadContext.setUploadComplete(false);
-            uploadContext.setUploadErrorStatus(false);
+            setUploading(false);
+            setUploadComplete(false);
 
             uploadContext.setChunksUploaded(0);
             uploadContext.setChunksTotal(0);
-            uploadContext.setUploadVideoSource('');
-            uploadContext.setUploadTitleObject({});
 
             navigation.popToTop();
             navigation.navigate('HomeFeedScreen', { forceRefresh: true });
@@ -390,7 +387,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
 
         return (
             <DoneButtonMargin>
-                { uploadContext.uploadComplete &&
+                { uploadComplete &&
                     <Button 
                         buttonStyle={{ borderColor: 'white' }}
                         titleStyle={{ color: 'white' }}
@@ -406,7 +403,7 @@ export default ReelayUploadScreen = ({ navigation }) => {
     return (
         <UploadScreenContainer>
             <UploadTop>
-                { !uploadContext.uploading && !uploadContext.uploadComplete &&
+                { !uploading && !uploadComplete &&
                     <UploadTopLeft>
                         <BackButton navigation={navigation} />
                         <Retake />          
@@ -417,10 +414,10 @@ export default ReelayUploadScreen = ({ navigation }) => {
             <UploadProgressBar />
             <UploadVideoContainer onPress={playPause}>
                 <PreviewVideoPlayer videoURI={videoURI} playing={playing} />
-                <ReelayPreviewOverlay titleObject={titleObject} venue={venue} />
+                <ReelayPreviewOverlay titleObj={titleObj} venue={venue} />
             </UploadVideoContainer>
-            { !uploadContext.uploadComplete && !uploadContext.uploading && <UploadOptions /> }
-            { uploadContext.uploadComplete && <DoneButton /> }
+            { !uploadComplete && !uploading && <UploadOptions /> }
+            { uploadComplete && <DoneButton /> }
         </UploadScreenContainer>
     );
 };

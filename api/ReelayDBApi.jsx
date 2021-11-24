@@ -16,7 +16,6 @@ const REELAY_API_HEADERS = {
 
 export const getReelaysByCreator = async (creatorSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/users/sub/${creatorSub}/reelays?visibility=${FEED_VISIBILITY}`;
-    console.log(routeGet);
     const fetchedReelays = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS,
@@ -33,7 +32,6 @@ export const getStacksByCreator = async (creatorSub) => {
     const creatorReelays = await getReelaysByCreator(creatorSub);
     if (!creatorReelays) return [];
 
-    console.log(creatorReelays[0]);
     const  preparedReelays = await Promise.all(creatorReelays.map(prepareReelay));
 
     const indexInStacks = (stacks, reelay) => {
@@ -58,7 +56,6 @@ export const getStacksByCreator = async (creatorSub) => {
 export const getMostRecentStacks = async (page = 0) => {
     console.log('Getting most recent reelays...');
     const routeGet = REELAY_API_BASE_URL + `/reelays?page=${page}&visibility=${FEED_VISIBILITY}`;
-    console.log(routeGet);
     const fetchedStacks = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS, 
@@ -70,7 +67,6 @@ export const getMostRecentStacks = async (page = 0) => {
 
     // call prepareReelay on every reelay in every stack
     const preparedStacks = await Promise.all(fetchedStacks.map(async fetchedReelaysForStack => {
-        console.log('fetched reelays for stack');
         const preparedStack = await Promise.all(fetchedReelaysForStack.map(prepareReelay));
         return preparedStack;
     }));
@@ -134,7 +130,6 @@ export const getVideoURIObject = async (fetchedReelay) => {
 
 export const postReelayToDB = async (reelayBody) => {
     const routePost = `${REELAY_API_BASE_URL}/reelays/sub`;
-    console.log('reelay body: ', reelayBody);
     const resultPost = await fetchResults(routePost, {
         method: 'POST',
         body: JSON.stringify(reelayBody),
@@ -165,11 +160,20 @@ export const postLikeToDB = async (likeBody, reelaySub) => {
 }
 
 export const prepareReelay = async (fetchedReelay) => {
-    const titleObject = await fetchAnnotatedTitle(
+    const titleObj = await fetchAnnotatedTitle(
         fetchedReelay.tmdbTitleID, 
         fetchedReelay.isSeries
     );
     const videoURIObject = await getVideoURIObject(fetchedReelay);
+    const sortCommentsByPostedDate = (comment1, comment2) => {
+        try {
+            const diff = Date.parse(comment1.postedAt) - Date.parse(comment2.postedAt);
+            return diff;
+        } catch (error) {
+            console.log(error);
+        }
+    }
+    const sortedComments = fetchedReelay.comments.sort(sortCommentsByPostedDate);
 
     return {
         id: fetchedReelay.id,
@@ -182,32 +186,12 @@ export const prepareReelay = async (fetchedReelay) => {
             venue: fetchedReelay.venue ? fetchedReelay.venue : null,
             videoURI: videoURIObject.videoURI,    
         },
-        comments: fetchedReelay.comments,
+        comments: sortedComments,
         likes: fetchedReelay.likes,
         sub: fetchedReelay.datastoreSub,
-        title: prepareTitle(titleObject),
+        title: titleObj,
         postedDateTime: fetchedReelay.postedAt ?? fetchedReelay.maxPostedAt,
     };
-}
-
-export const prepareTitle = (tmdbTitleObject) => {
-    const releaseYear = (tmdbTitleObject?.release_date?.length >= 4)
-        ? (tmdbTitleObject.release_date.slice(0,4)) : '';	
-
-        return {
-            id: tmdbTitleObject.id,
-            display: tmdbTitleObject.title,
-
-            director: tmdbTitleObject.director,
-            displayActors: tmdbTitleObject.displayActors,
-            overview: tmdbTitleObject.overview,
-            posterURI: tmdbTitleObject ? tmdbTitleObject.poster_path : null,
-            tagline: tmdbTitleObject.tagline,
-            trailerURI: tmdbTitleObject.trailerURI,
-
-            releaseDate: tmdbTitleObject.release_date,
-            releaseYear: releaseYear,
-        }
 }
 
 export const registerUser = async (user) => {
@@ -231,8 +215,6 @@ export const registerUser = async (user) => {
             method: 'POST',
             headers: REELAY_API_HEADERS,
         });
-
-        console.log(routePost);
         console.log('User registry entry created: ', resultPost);
         return resultPost;
     } else {
@@ -246,7 +228,6 @@ export const registerPushTokenForUser = async (user, pushToken) => {
         method: 'PATCH',
         headers: REELAY_API_HEADERS,
     });
-    console.log('Patch route: ', routePatch);
     console.log('Patched user registry entry: ', resultPatch);
     return resultPatch;
 }
@@ -280,18 +261,21 @@ export const removeReelay = async (reelay) => {
 
 export const searchTitles = async (searchText, isSeries) => {
     const routeGet = `${REELAY_API_BASE_URL}/search/titles?searchText=${searchText}&isSeries=${isSeries}`;
-    console.log('route get: ', routeGet);
     const resultGet = await fetchResults(routeGet, {
         method: 'GET',
         headers: REELAY_API_HEADERS,
     });
-    return resultGet;
+    const annotatedResults = await Promise.all(
+        resultGet.map(async (tmdbTitleObject) => {
+            return await fetchAnnotatedTitle(tmdbTitleObject.id, isSeries);
+        })
+    );
+    return annotatedResults;
 }
 
 export const searchUsers = async (searchText) => {
     console.log("Fetching registered user...");
     const routeGet = `${REELAY_API_BASE_URL}/search/users?searchText=${searchText}`;
-    console.log(routeGet);
     const resultGet = await fetchResults(routeGet, {
         method: "GET",
         headers: REELAY_API_HEADERS,

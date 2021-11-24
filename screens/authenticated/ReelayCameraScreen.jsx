@@ -4,7 +4,7 @@ import { UploadContext } from '../../context/UploadContext';
 import { getPosterURL } from '../../api/TMDbApi';
 
 import { Camera } from 'expo-camera';
-import { Dimensions, Linking, Alert, View, Text, SafeAreaView, Pressable} from 'react-native';
+import { Dimensions, View, SafeAreaView, Pressable} from 'react-native';
 import { Image, Icon } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -27,10 +27,9 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const { 
         setUploadErrorStatus,
         setUploadVideoSource,
-        uploading,
-        uploadTitleObject,
-        venueSelected,
     } = useContext(UploadContext);
+
+    const { titleObj, venue } = route.params;
 
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const cameraRef = useRef(null);
@@ -41,34 +40,22 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             return;
         }
 
-        setUploadVideoSource(videoURI);
-        setUploadErrorStatus(false);
-        console.log('video source', videoURI);    
-        navigation.push('ReelayUploadScreen');    
+        navigation.push('ReelayUploadScreen', {
+            titleObj: titleObj,
+            videoURI: videoURI,
+            venue: venue,
+        });    
     }
     
     const recordVideo = async () => {
         if (cameraRef.current) {
             try {
-                console.log('start record async');
-                // const videoRecordPromise = cameraRef.current.recordAsync();
-                // if (videoRecordPromise) {
-                //     const data = await videoRecordPromise;
-                //     const source = data.uri;
-                //     pushToUploadScreen(source);
-
-                    // const titleObject = uploadContext.uploadTitleObject;
-                    // Amplitude.logEventWithPropertiesAsync('videoRecorded', {
-                    //     username: cognitoUser.username,
-                    //     title: uploadTitleObject.title ? uploadTitleObject.title : uploadTitleObject.name,
-                    // })
-                // }
                 const videoRecording = await cameraRef.current.recordAsync();
                 if (videoRecording?.uri) {
                     pushToUploadScreen(videoRecording.uri);
                     Amplitude.logEventWithPropertiesAsync('videoRecorded', {
                         username: cognitoUser.username,
-                        title: uploadTitleObject.title ? uploadTitleObject.title : uploadTitleObject.name,
+                        title: titleObj.display,
                     })
                     
                 }
@@ -84,7 +71,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             console.log('stop recording complete');            
         }
     };
-    
 
     const MediaLibraryPicker = () => {
 
@@ -237,8 +223,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             right: 10px;
             top: 10px;
         `
-
-        const posterURI = getPosterURL(uploadTitleObject.poster_path);
+        const posterURI = getPosterURL(titleObj.posterURI);
         const posterStyle = {
             borderColor: 'white',
             borderRadius: 8, 
@@ -284,7 +269,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         `
         return (
             <UnderPosterContainer>
-                <VenueIcon venue={venueSelected} size={24} border={2} />
+                <VenueIcon venue={venue} size={24} border={2} />
             </UnderPosterContainer>
         );
     }
@@ -297,8 +282,8 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
 
     return (
         <CameraContainer>
-            { !uploading && <ReelayCamera /> }
-            { !uploading && <RecordOverlay /> }
+            <ReelayCamera />
+            <RecordOverlay />
         </CameraContainer>
     );
 }
