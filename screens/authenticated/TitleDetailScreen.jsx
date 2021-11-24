@@ -88,18 +88,14 @@ const PosterWithTrailer = ({navigation, height, posterURI, title, tmdbTitleID, t
         const s = StyleSheet.create({
             gradient: {
                 flex: 1,
-                opacity: 0.6,
+                opacity: 1,
             },
-            toblack: {
-                flex: 1,
-                opacity: 0.7
-            }
         })
         return (
             <>
                 <PosterImage source={{uri: posterURL}} />
-                <PosterOverlay color={ReelayColors.reelayBlack} opacity={0.6}/>
-                {/* <LinearGradient colors={["#0d0026", "#82036d"]} start={[0, 1]} end={[1, 0]} style={s.gradient}/> */}
+                <PosterOverlay color={ReelayColors.reelayBlack} opacity={0.2}/>
+                <LinearGradient colors={['transparent', ReelayColors.reelayBlack]} style={s.gradient}/>
             </>
         )
     }
@@ -197,8 +193,8 @@ const PosterWithTrailer = ({navigation, height, posterURI, title, tmdbTitleID, t
 
     const BackButtonContainer = styled(Pressable)`
         position: absolute;
-        margin-top: 60px;
-        margin-left: 30px;
+        margin-top: 50px;
+        margin-left: 10px;
     `
 
     return (

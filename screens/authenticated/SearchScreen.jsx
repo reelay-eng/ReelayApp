@@ -6,6 +6,8 @@ import SearchField from "../../components/create-reelay/SearchField";
 import TitleSearchResults from "../../components/search/TitleSearchResults";
 import UserSearchResults from "../../components/search/UserSearchResults";
 
+import { ActionButton, PassiveButton } from '../../components/global/Buttons';
+
 import { searchTitles, searchUsers } from "../../api/ReelayDBApi";
 import styled from "styled-components/native";
 
@@ -13,6 +15,8 @@ const MarginBelowLine = styled(View)`
     height: 30px;
 `
 const TopBarContainer = styled(View)`
+    width: 100%;
+    display: flex;
     flex-direction: row;
 `
 const SearchScreenContainer = styled(SafeAreaView)`
@@ -21,11 +25,17 @@ const SearchScreenContainer = styled(SafeAreaView)`
     width: 100%;
 `
 const SelectorBarContainer = styled(View)`
-    align-items: center;
+    width: 75%;
     flex-direction: row;
-    justify-content: center;
-    position: absolute;
-    width: 100%;
+    justify-content: space-evenly;
+    align-items: center;
+    position: relative;
+`
+const BackButtonContainer = styled(View)`
+    position: relative;
+    width: 20%;
+    min-width: 30px;
+    z-index: 3;
 `
 
 export default SearchScreen = ({ navigation }) => {
@@ -67,29 +77,41 @@ export default SearchScreen = ({ navigation }) => {
 
     const SearchTypeSelector = ({ type }) => {
         const selected = (selectedType === type);
-        const textDecorationLine = selected ? "underline" : "none";
 
-        const SelectorContainer = styled(Pressable)`
-            height: 50px;
-            margin-left: 10px;
-            margin-right: 10px;
-            padding: 10px;
-        `;
-        const SelectorText = styled(Text)`
-            font-size: 22px;
-            font-family: System;
-            color: white;
-            text-decoration-line: ${textDecorationLine};
+        const SelectorContainer = styled(View)`
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            height: 40px;
+            flex: 0.3;
         `;
     
         return (
-            <SelectorContainer 
-                style={{ textDecorationLine: textDecorationLine }} 
-                onPress={() => {
-                    setLoading(true);
-                    setSelectedType(type);
-            }}>
-                <SelectorText>{type}</SelectorText>
+            <SelectorContainer>
+                {selected && (
+                        <ActionButton
+                        onPress={() => {
+                            setLoading(true);
+                            setSelectedType(type);
+                        }}
+                        text={type}
+                        fontSize='22px'
+                        borderRadius='15px'
+                        />
+                )}
+
+                {!selected && (
+                        <PassiveButton 
+                        onPress={() => {
+                            setLoading(true);
+                            setSelectedType(type);
+                        }}
+                        text={type}
+                        fontSize='22px'
+                        borderRadius='15px'
+                        />
+                )}
             </SelectorContainer>
         );
     };
@@ -98,19 +120,20 @@ export default SearchScreen = ({ navigation }) => {
     return (
         <SearchScreenContainer>
             <TopBarContainer>
+                <BackButtonContainer>
+                    <BackButton navigation={navigation} />
+                </BackButtonContainer>
                 <SelectorBarContainer>
                     <SearchTypeSelector type="Film" />
                     <SearchTypeSelector type="TV" />
                     <SearchTypeSelector type="Users" />
                 </SelectorBarContainer>
-                <BackButton navigation={navigation} />
             </TopBarContainer>
             <SearchField
                 searchText={searchText}
                 updateSearch={updateSearchText}
-                placeholderText="Search for movies, TV shows, and users"
+                placeholderText={`Search for ${selectedType === "Film" ? "films" : (selectedType === "TV" ? "TV shows" : "users")}`}
             />
-            <MarginBelowLine />
             { selectedType !== "Users" && !loading && 
                 <TitleSearchResults navigation={navigation} searchResults={searchResults} source={'search'} />
             }
