@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { SafeAreaView, View, Pressable, Text } from "react-native";
 
 import BackButton from "../../components/utils/BackButton";
@@ -44,27 +44,35 @@ export default SearchScreen = ({ navigation }) => {
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [selectedType, setSelectedType] = useState("Film");
+    const updateCounter = useRef(0);
 
     useEffect(() => {
-        updateSearch(searchText, selectedType);
+        updateCounter.current += 1;
+        updateSearch(searchText, selectedType, updateCounter.current);
     }, [searchText, selectedType]);
 
     useEffect(() => {
         setLoading(false);
     }, [searchResults]);
 
-    const updateSearch = async (newSearchText, type = selectedType) => {
+    const updateSearch = async (newSearchText, searchType, counter) => {
+        if (!newSearchText || newSearchText === undefined || newSearchText === '') {            
+            setSearchResults([]);
+            return;
+        }
+
         try {
             let annotatedResults;
-            if ( !newSearchText || newSearchText === undefined || newSearchText === "") return;
-            if (type === "Film") {
+            if (searchType === "Film") {
                 annotatedResults = await searchTitles(newSearchText, false);
-            } else if (type === "TV") {
+            } else if (searchType === "TV") {
                 annotatedResults = await searchTitles(newSearchText, true);
             } else {
                 annotatedResults = await searchUsers(newSearchText);
             }
-            setSearchResults(annotatedResults);
+            if (updateCounter.current === counter) {
+                setSearchResults(annotatedResults);
+            }
         } catch (error) {
             console.log(error);
         }
@@ -132,7 +140,7 @@ export default SearchScreen = ({ navigation }) => {
             </TopBarContainer>
             <SearchField
                 searchText={searchText}
-                updateSearch={updateSearchText}
+                updateSearchText={updateSearchText}
                 placeholderText={`Search for ${selectedType === "Film" ? "films" : (selectedType === "TV" ? "TV shows" : "users")}`}
             />
             { selectedType !== "Users" && !loading && 

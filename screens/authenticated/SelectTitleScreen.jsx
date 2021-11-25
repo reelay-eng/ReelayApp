@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { SafeAreaView, View, Pressable, Text } from 'react-native';
 import { FeedContext } from '../../context/FeedContext';
 
@@ -32,8 +32,10 @@ export default SelectTitleScreen = ({ navigation }) => {
     const [searchText, setSearchText] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchType, setSearchType] = useState('Film');
+    const updateCounter = useRef(0);
 
     const { setTabBarVisible } = useContext(FeedContext);
+
     useEffect(() => {
         setTabBarVisible(true);
     }, []);
@@ -78,25 +80,36 @@ export default SelectTitleScreen = ({ navigation }) => {
         );
     }
 
-    const updateSearch = async (newSearchText, type=searchType) => {
-        setSearchText(newSearchText);
+    const updateSearch = async (newSearchText, searchType, counter) => {
+        if (!newSearchText || newSearchText === undefined || newSearchText === '') {
+            setSearchResults([]);
+            return;
+        }
+
         try {
-            if ( !newSearchText || newSearchText === undefined || newSearchText === "") return;
-            if (type === 'Film') {
+            if (searchType === 'Film') {
                 annotatedResults = await searchTitles(newSearchText, false);
-                setSearchResults(annotatedResults);
+                if (counter === updateCounter.current) {
+                    setSearchResults(annotatedResults);
+                }
             } else {
                 annotatedResults = await searchTitles(newSearchText, true);
-                setSearchResults(annotatedResults);
+                if (counter === updateCounter.current) {
+                    setSearchResults(annotatedResults);
+                }
             }
         } catch (error) {
-            console.log('its here');
+            console.log(error);
         }
     }
 
     useEffect(() => {
-        updateSearch(searchText, searchType);
+        updateCounter.current += 1;
+        updateSearch(searchText, searchType, updateCounter.current);
     }, [searchText, searchType]);
+
+    useEffect(() => {
+    }, [searchResults])
 
     return (
         <SafeAreaView style={{ backgroundColor: 'black', height: '100%', width: '100%'}}>
@@ -110,7 +123,7 @@ export default SelectTitleScreen = ({ navigation }) => {
                 </SelectorBarContainer>
                 
             </TopBarContainer>
-            <SearchField searchText={searchText} updateSearch={updateSearch} placeholderText="What did you see?"/>
+            <SearchField searchText={searchText} updateSearchText={setSearchText} placeholderText="What did you see?"/>
             <TitleSearchResults navigation={navigation} searchResults={searchResults} source={'create'} />
         </SafeAreaView>
     );
