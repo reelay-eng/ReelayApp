@@ -5,7 +5,7 @@ import styled from 'styled-components/native';
 
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 
-export default RecordButton = ({ disabled, recording, onPress, onComplete }) => {
+export default RecordButton = ({ disabled, isRecording, onPress, onComplete }) => {
 
     const REELAY_DURATION_SECONDS = 15;
     const RECORD_COLOR = '#cb2d26';
@@ -24,7 +24,7 @@ export default RecordButton = ({ disabled, recording, onPress, onComplete }) => 
             <CountdownCircleTimer 
                     colors={[[RECORD_COLOR]]}
                     duration={REELAY_DURATION_SECONDS} 
-                    isPlaying={recording} 
+                    isPlaying={isRecording} 
                     onComplete={onComplete}
                     size={ringSize} 
                     strokeWidth={5} 
