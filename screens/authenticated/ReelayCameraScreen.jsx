@@ -23,11 +23,6 @@ const ringSize = captureSize + 20;
 export default ReelayCameraScreen = ({ navigation, route }) => {
 
     const { cognitoUser } = useContext(AuthContext);
-    const { 
-        setUploadErrorStatus,
-        setUploadVideoSource,
-    } = useContext(UploadContext);
-
     const { titleObj, venue } = route.params;
 
     const cameraRef = useRef(null);
