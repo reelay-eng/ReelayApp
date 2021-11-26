@@ -15,7 +15,6 @@ import styled from 'styled-components/native';
 import { showErrorToast } from '../../components/utils/toasts';
 
 import * as Amplitude from 'expo-analytics-amplitude';
-import ReelayColors from '../../constants/ReelayColors';
 
 const { height, width } = Dimensions.get('window');
 const captureSize = Math.floor(height * 0.07);
@@ -24,15 +23,11 @@ const ringSize = captureSize + 20;
 export default ReelayCameraScreen = ({ navigation, route }) => {
 
     const { cognitoUser } = useContext(AuthContext);
-    const { 
-        setUploadErrorStatus,
-        setUploadVideoSource,
-    } = useContext(UploadContext);
-
     const { titleObj, venue } = route.params;
 
-    const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const cameraRef = useRef(null);
+    const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
+    const [retakeCounter, setRetakeCounter] = useState(0);
 
     const pushToUploadScreen = async (videoURI) => {
         if (!videoURI) {
@@ -44,7 +39,11 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             titleObj: titleObj,
             videoURI: videoURI,
             venue: venue,
-        });    
+        });
+
+        // setting this prematurely when we advance to the upload screen,
+        // not when we return from it via the Retake button
+        setRetakeCounter(retakeCounter + 1);
     }
     
     const recordVideo = async () => {
@@ -65,13 +64,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         }
     };
     
-    const stopVideoRecording = async () => {
-        if (cameraRef.current) {
-            await cameraRef.current.stopRecording();
-            console.log('stop recording complete');            
-        }
-    };
-
     const MediaLibraryPicker = () => {
 
         // these positions are eyeballed
@@ -120,7 +112,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const RecordButton = () => {
 
         const RECORD_COLOR = '#cb2d26';
-        const RECORD_WAIT_MS = 500;
         const REELAY_DURATION_SECONDS = 15;
 
         const [isRecording, setIsRecording] = useState(false);
@@ -145,12 +136,23 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 setIsRecording(true);
             }
         }
+
+        const stopVideoRecording = async () => {
+            setIsRecording(false);
+            if (cameraRef.current) {
+                await cameraRef.current.stopRecording();
+                console.log('stop recording complete');            
+            }
+        };    
+
+        // https://github.com/vydimitrov/react-countdown-circle-timer
         
         return (
             <CountdownCircleTimer 
                 colors={[[RECORD_COLOR]]}
                 duration={REELAY_DURATION_SECONDS} 
                 isPlaying={isRecording} 
+                key={retakeCounter} // this resets the timer on a retake
                 size={ringSize} 
                 strokeWidth={5} 
                 trailColor='transparent'
@@ -161,7 +163,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 <RecordButtonCenter activeOpacity={0.7} onPress={onRecordButtonPress} />
             </CountdownCircleTimer>
         )
-
     }
 
     const FlipCameraButton = () => {
