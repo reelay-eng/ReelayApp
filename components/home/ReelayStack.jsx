@@ -92,6 +92,7 @@ export default ReelayStack = ({
     const { cognitoUser } = useContext(AuthContext);
     const { 
         overlayVisible, setOverlayVisible,
+        setTabBarVisible,
         paused, setPaused,
         playPauseVisible, setPlayPauseVisible,
         setOverlayData,  
@@ -123,6 +124,7 @@ export default ReelayStack = ({
                 reelay: viewableReelay,
             });
             setOverlayVisible(true);
+            setTabBarVisible(false);
             setPaused(true);
         }
     }
@@ -185,6 +187,7 @@ export default ReelayStack = ({
     const insets = useSafeAreaInsets();
 
     const openTitleDetail = async () => {
+        console.log('VIEWABLE REELAY: ', viewableReelay.title);
         navigation.push('TitleDetailScreen', {
             titleObj: viewableReelay.title,
         });

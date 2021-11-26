@@ -24,7 +24,7 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
     const [downloadStarted, setDownloadStarted] = useState(false);
 
     const { cognitoUser, reelayDBUser } = useContext(AuthContext);
-    const { setOverlayVisible } = useContext(FeedContext);
+    const { setOverlayVisible, setTabBarVisible } = useContext(FeedContext);
     const canHideReelay = (reelay?.creator?.username === reelayDBUser?.username)
                         || (reelayDBUser?.role === 'admin');
 
@@ -71,6 +71,7 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
         });
         onDeleteReelay(reelay);
         setOverlayVisible(false);
+        setTabBarVisible(true);
         if (reelay.id % 2 === 0) showMessageToast('Your Reelay is no more');
         if (reelay.id % 2 === 1) showMessageToast('Don\'t you just want to burn it all?');
     }
@@ -103,6 +104,7 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
             <SettingsContainer>
                 <SettingsPressable onPress={() => {
                     setOverlayVisible(false);
+                    setTabBarVisible(true);
                 }}>
                     <SettingsText>{'Close'}</SettingsText>
                 </SettingsPressable>

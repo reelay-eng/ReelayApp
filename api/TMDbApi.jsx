@@ -10,7 +10,7 @@ const TMDB_SEARCH_RANK_WEIGHT = 10;
 
 const matchScoreForTitleSearch = (result) => {
     const titleToSearch = result.title.toLowerCase().replace(/:/g, '');
-    const searchText = result.search_text.toLowerCase().replace(/:/g, '');
+    const searchText = result.searchText.toLowerCase().replace(/:/g, '');
     const index = titleToSearch.indexOf(searchText);
 
     const startsWord = (index > 0) && (titleToSearch[index - 1] == ' ');
@@ -34,9 +34,9 @@ const compareSearchResults = (result1, result2) => {
     if (!result2.popularity) result2.popularity = 0;
 
     const result1Rank = (result1.popularity * POPULARITY_WEIGHT) 
-                            - (result1.tmdb_search_rank * TMDB_SEARCH_RANK_WEIGHT);
+                            - (result1.tmdbSearchRank * TMDB_SEARCH_RANK_WEIGHT);
     const result2Rank = (result2.popularity * POPULARITY_WEIGHT) 
-                            - (result2.tmdb_search_rank * TMDB_SEARCH_RANK_WEIGHT);
+                            - (result2.tmdbSearchRank * TMDB_SEARCH_RANK_WEIGHT);
 
     return (result2Rank - result1Rank);
 }
@@ -60,12 +60,12 @@ export const searchMovies = async (searchText) => {
         ? results.results.map((result, index) => {
             return {
                 ...result,
-                is_movie: true,
-                is_series: false,
-                tmdb_search_rank: index,
+                isMovie: true,
+                isSeries: false,
+                tmdbSearchRank: index,
                 // search text included here because we can't 
                 // pass it separately into the comparator function
-                search_text: searchText, 
+                searchText: searchText, 
             }}) 
         : [];
 
@@ -81,12 +81,12 @@ export const searchSeries = async (searchText) => {
         ? results.results.map((result, index) => {
             return {
                 ...result,
-                is_movie: false,
-                is_series: true,
-                tmdb_search_rank: index,
-                search_text: searchText,
+                isMovie: false,
+                isSeries: true,
+                tmdbSearchRank: index,
+                searchText: searchText,
                 title: result.name,
-                release_date: result.first_air_date,
+                releaseDate: result.first_air_date,
             }}) 
         : [];
 
@@ -124,7 +124,7 @@ export const fetchMovieProviders = async (titleID) => {
         }
 
         const providers = queryResponse.results;
-        console.log(providers);
+        return providers;
     } catch (error) {
         console.log(error);
         return null;
@@ -168,7 +168,7 @@ export const fetchSeriesTrailerURI = async(titleID) => {
 export const fetchAnnotatedTitle = async (titleID, isSeries) => {
     if (!titleID) return null;
 
-    const titleObject = isSeries 
+    const tmdbTitleObject = isSeries 
         ? await fetchSeries(titleID)
         : await fetchMovie(titleID);
 
@@ -180,26 +180,34 @@ export const fetchAnnotatedTitle = async (titleID, isSeries) => {
         ? await fetchSeriesTrailerURI(titleID)
         : await fetchMovieTrailerURI(titleID);
 
-    // const providers = await fetchMovieProviders(titleID);
+    const releaseDate = isSeries ? tmdbTitleObject.first_air_date : tmdbTitleObject.release_date;
+    const releaseYear = (releaseDate?.length >= 4) ? (releaseDate.slice(0,4)) : '';	
 
     const annotatedTitle = {
-        ...titleObject,
+        id: tmdbTitleObject.id,
         director: getDirector(titleCredits),
+        display: isSeries ? tmdbTitleObject.name : tmdbTitleObject.title,
         displayActors: getDisplayActors(titleCredits),
-        is_movie: !isSeries,
-        is_series: isSeries,
+        isMovie: !isSeries,
+        isSeries: isSeries,
+        genres: tmdbTitleObject.genres,
+        overview: tmdbTitleObject.overview,
+        posterURI: tmdbTitleObject ? tmdbTitleObject.poster_path : null,
+        releaseDate: releaseDate,
+        releaseYear: releaseYear,
+        tagline: tmdbTitleObject.tagline,
         trailerURI: trailerURI,
     }
 
     if (isSeries) {
-        if (!titleObject.name) {
+        if (!tmdbTitleObject.name) {
             console.log('Series title object does not have name');
-            console.log(titleObject);
+            console.log(tmdbTitleObject);
         }
         return {
             ...annotatedTitle,
-            title: titleObject.name,
-            release_date: titleObject.first_air_date
+            title: tmdbTitleObject.name,
+            releaseDate: tmdbTitleObject.first_air_date
         };
     } else {
         return annotatedTitle;
@@ -224,6 +232,10 @@ export const getDisplayActors = (titleCredits, max = 2) => {
     return null;
 }
 
-export const getPosterURL = (posterPath) => {
-    return posterPath ? `${TMDB_IMAGE_API_BASE_URL}${posterPath}` : null;
+export const getPosterURL = (posterURI) => {
+    return posterURI ? `${TMDB_IMAGE_API_BASE_URL}${posterURI}` : null;
+}
+
+export const getLogoURL = (logoPath) => {
+    return logoPath ? `${TMDB_IMAGE_API_BASE_URL}${logoPath}` : null;
 }

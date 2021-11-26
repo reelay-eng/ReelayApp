@@ -4,7 +4,7 @@ import { UploadContext } from '../../context/UploadContext';
 import { getPosterURL } from '../../api/TMDbApi';
 
 import { Camera } from 'expo-camera';
-import { Dimensions, Linking, Alert, View, Text, SafeAreaView, Pressable} from 'react-native';
+import { Dimensions, View, SafeAreaView, Pressable} from 'react-native';
 import { Image, Icon } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -15,7 +15,6 @@ import styled from 'styled-components/native';
 import { showErrorToast } from '../../components/utils/toasts';
 
 import * as Amplitude from 'expo-analytics-amplitude';
-import ReelayColors from '../../constants/ReelayColors';
 
 const { height, width } = Dimensions.get('window');
 const captureSize = Math.floor(height * 0.07);
@@ -24,16 +23,11 @@ const ringSize = captureSize + 20;
 export default ReelayCameraScreen = ({ navigation, route }) => {
 
     const { cognitoUser } = useContext(AuthContext);
-    const { 
-        setUploadErrorStatus,
-        setUploadVideoSource,
-        uploading,
-        uploadTitleObject,
-        venueSelected,
-    } = useContext(UploadContext);
+    const { titleObj, venue } = route.params;
 
-    const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const cameraRef = useRef(null);
+    const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
+    const [retakeCounter, setRetakeCounter] = useState(0);
 
     const pushToUploadScreen = async (videoURI) => {
         if (!videoURI) {
@@ -41,34 +35,26 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             return;
         }
 
-        setUploadVideoSource(videoURI);
-        setUploadErrorStatus(false);
-        console.log('video source', videoURI);    
-        navigation.push('ReelayUploadScreen');    
+        navigation.push('ReelayUploadScreen', {
+            titleObj: titleObj,
+            videoURI: videoURI,
+            venue: venue,
+        });
+
+        // setting this prematurely when we advance to the upload screen,
+        // not when we return from it via the Retake button
+        setRetakeCounter(retakeCounter + 1);
     }
     
     const recordVideo = async () => {
         if (cameraRef.current) {
             try {
-                console.log('start record async');
-                // const videoRecordPromise = cameraRef.current.recordAsync();
-                // if (videoRecordPromise) {
-                //     const data = await videoRecordPromise;
-                //     const source = data.uri;
-                //     pushToUploadScreen(source);
-
-                    // const titleObject = uploadContext.uploadTitleObject;
-                    // Amplitude.logEventWithPropertiesAsync('videoRecorded', {
-                    //     username: cognitoUser.username,
-                    //     title: uploadTitleObject.title ? uploadTitleObject.title : uploadTitleObject.name,
-                    // })
-                // }
                 const videoRecording = await cameraRef.current.recordAsync();
                 if (videoRecording?.uri) {
                     pushToUploadScreen(videoRecording.uri);
                     Amplitude.logEventWithPropertiesAsync('videoRecorded', {
                         username: cognitoUser.username,
-                        title: uploadTitleObject.title ? uploadTitleObject.title : uploadTitleObject.name,
+                        title: titleObj.display,
                     })
                     
                 }
@@ -78,14 +64,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         }
     };
     
-    const stopVideoRecording = async () => {
-        if (cameraRef.current) {
-            await cameraRef.current.stopRecording();
-            console.log('stop recording complete');            
-        }
-    };
-    
-
     const MediaLibraryPicker = () => {
 
         // these positions are eyeballed
@@ -134,7 +112,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const RecordButton = () => {
 
         const RECORD_COLOR = '#cb2d26';
-        const RECORD_WAIT_MS = 500;
         const REELAY_DURATION_SECONDS = 15;
 
         const [isRecording, setIsRecording] = useState(false);
@@ -159,12 +136,23 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 setIsRecording(true);
             }
         }
+
+        const stopVideoRecording = async () => {
+            setIsRecording(false);
+            if (cameraRef.current) {
+                await cameraRef.current.stopRecording();
+                console.log('stop recording complete');            
+            }
+        };    
+
+        // https://github.com/vydimitrov/react-countdown-circle-timer
         
         return (
             <CountdownCircleTimer 
                 colors={[[RECORD_COLOR]]}
                 duration={REELAY_DURATION_SECONDS} 
                 isPlaying={isRecording} 
+                key={retakeCounter} // this resets the timer on a retake
                 size={ringSize} 
                 strokeWidth={5} 
                 trailColor='transparent'
@@ -175,7 +163,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 <RecordButtonCenter activeOpacity={0.7} onPress={onRecordButtonPress} />
             </CountdownCircleTimer>
         )
-
     }
 
     const FlipCameraButton = () => {
@@ -237,8 +224,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             right: 10px;
             top: 10px;
         `
-
-        const posterURI = getPosterURL(uploadTitleObject.poster_path);
+        const posterURI = getPosterURL(titleObj.posterURI);
         const posterStyle = {
             borderColor: 'white',
             borderRadius: 8, 
@@ -284,7 +270,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         `
         return (
             <UnderPosterContainer>
-                <VenueIcon venue={venueSelected} size={24} border={2} />
+                <VenueIcon venue={venue} size={24} border={2} />
             </UnderPosterContainer>
         );
     }
@@ -297,8 +283,8 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
 
     return (
         <CameraContainer>
-            { !uploading && <ReelayCamera /> }
-            { !uploading && <RecordOverlay /> }
+            <ReelayCamera />
+            <RecordOverlay />
         </CameraContainer>
     );
 }

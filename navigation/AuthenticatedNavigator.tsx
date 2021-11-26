@@ -5,7 +5,6 @@
 
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
-import { FeedContext } from "../context/FeedContext";
 
 import * as React from "react";
 import { Icon } from "react-native-elements";
@@ -13,7 +12,9 @@ import { Icon } from "react-native-elements";
 import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
 import HomeFeedScreen from "../screens/authenticated/HomeFeedScreen";
+
 import {
+  AppStackParamList,
   BottomTabParamList,
   HomeTabParamList,
   SearchTabParamList,
@@ -36,15 +37,38 @@ import UserFollowScreen from "../screens/authenticated/UserFollowScreen";
 import UserProfileScreen from "../screens/authenticated/UserProfileScreen";
 import VenueSelectScreen from "../screens/authenticated/VenueSelectScreen";
 
-import { UploadContext } from "../context/UploadContext";
-
+const AppStack = createStackNavigator<AppStackParamList>();
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
 
-export default function AuthenticatedNavigator() {
-  const colorScheme = useColorScheme();
+const BOTTOM_TAB_ICON_SIZE = 40;
 
-  const { hasSelectedTitle, uploadTitleObject } = React.useContext(UploadContext);
-  const { overlayVisible } = React.useContext(FeedContext);
+export default function AuthenticatedNavigator() {
+  return <AppStack.Navigator initialRouteName="BottomTab">
+    <AppStack.Screen name="BottomTab" component={BottomTabNavigator} 
+        options={{
+          headerShown: false,
+        }}
+    />
+    <AppStack.Screen name="VenueSelectScreen" component={VenueSelectScreen}
+        options={{
+          animationEnabled: false,
+          headerShown: false,
+        }} />
+    <AppStack.Screen name="ReelayCameraScreen" component={ReelayCameraScreen}
+        options={{ 
+          animationEnabled: false,
+          headerShown: false,
+        }} />
+    <AppStack.Screen name="ReelayUploadScreen" component={ReelayUploadScreen}
+        options={{ 
+          animationEnabled: false,
+          headerShown: false,
+        }} /> 
+  </AppStack.Navigator>
+}
+
+function BottomTabNavigator() {
+  const colorScheme = useColorScheme();  
 
   return (
     <BottomTab.Navigator
@@ -59,7 +83,7 @@ export default function AuthenticatedNavigator() {
           left: 50,
           right: 50,
           height: 80,
-        },
+        }
       }}
     >
       <BottomTab.Screen
@@ -67,14 +91,12 @@ export default function AuthenticatedNavigator() {
         component={HomeTabNavigator}
         options={{
           tabBarIcon: () => (
-            <Icon
-              type="ionicon"
+            <Icon type="ionicon"
               name="film-outline"
               color={"white"}
-              size={50}
+              size={BOTTOM_TAB_ICON_SIZE}
             />
           ),
-          tabBarVisible: !overlayVisible,
         }}
       />
       <BottomTab.Screen
@@ -82,14 +104,12 @@ export default function AuthenticatedNavigator() {
         component={SearchTabNavigator}
         options={{
           tabBarIcon: () => (
-            <Icon
-              type="ionicon"
+            <Icon type="ionicon"
               name="search"
               color={"white"}
-              size={50}
+              size={BOTTOM_TAB_ICON_SIZE}
             />
           ),
-          tabBarVisible: !overlayVisible,
         }}
       />
       <BottomTab.Screen
@@ -97,14 +117,12 @@ export default function AuthenticatedNavigator() {
         component={CreateReelayTabNavigator}
         options={{
           tabBarIcon: () => (
-            <Icon
-              type="ionicon"
-              name="add-circle-outline"
-              color={"white"}
-              size={50}
+            <Icon type="ionicon"
+              name="add-circle"
+              color={'white'}
+              size={BOTTOM_TAB_ICON_SIZE}
             />
           ),
-          tabBarVisible: !hasSelectedTitle,
         }}
       />
       <BottomTab.Screen
@@ -112,14 +130,12 @@ export default function AuthenticatedNavigator() {
         component={ProfileTabNavigator}
         options={{
           tabBarIcon: () => (
-            <Icon
-              type="ionicon"
+            <Icon type="ionicon"
               name="person-circle"
               color={"white"}
-              size={50}
+              size={BOTTOM_TAB_ICON_SIZE}
             />
           ),
-          tabBarVisible: !overlayVisible,
         }}
       />
     </BottomTab.Navigator>
@@ -263,30 +279,6 @@ function CreateReelayTabNavigator() {
       <CreateReelayTabStack.Screen
         name="SelectTitleScreen"
         component={SelectTitleScreen}
-        options={{
-          headerShown: false,
-          animationEnabled: false,
-        }}
-      />
-      <CreateReelayTabStack.Screen
-        name="VenueSelectScreen"
-        component={VenueSelectScreen}
-        options={{
-          headerShown: false,
-          animationEnabled: false,
-        }}
-      />
-      <CreateReelayTabStack.Screen
-        name="ReelayCameraScreen"
-        component={ReelayCameraScreen}
-        options={{
-          headerShown: false,
-          animationEnabled: false,
-        }}
-      />
-      <CreateReelayTabStack.Screen
-        name="ReelayUploadScreen"
-        component={ReelayUploadScreen}
         options={{
           headerShown: false,
           animationEnabled: false,

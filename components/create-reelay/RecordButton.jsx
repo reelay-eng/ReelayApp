@@ -1,16 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Dimensions, View, TouchableOpacity } from 'react-native';
-import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import styled from 'styled-components/native';
 
 const WINDOW_HEIGHT = Dimensions.get("window").height;
 
-export default RecordButton = ({ disabled, recording, onPress, onComplete }) => {
+export default RecordButton = ({ disabled, onPress }) => {
 
-    const REELAY_DURATION_SECONDS = 15;
     const RECORD_COLOR = '#cb2d26';
     const captureSize = Math.floor(WINDOW_HEIGHT * 0.07);
-    const ringSize = captureSize + 20;
 
     const RecordButtonCenter = styled(TouchableOpacity)`
         background-color: ${RECORD_COLOR};
@@ -21,16 +18,7 @@ export default RecordButton = ({ disabled, recording, onPress, onComplete }) => 
 
     return (
         <View style={{ position: 'absolute' }}>
-            <CountdownCircleTimer 
-                    colors={[[RECORD_COLOR]]}
-                    duration={REELAY_DURATION_SECONDS} 
-                    isPlaying={recording} 
-                    onComplete={onComplete}
-                    size={ringSize} 
-                    strokeWidth={5} 
-                    strokeLinecap={'round'}>
-                <RecordButtonCenter activeOpacity={0.7} disabled={disabled} onPress={onPress} />
-            </CountdownCircleTimer>
+            <RecordButtonCenter activeOpacity={0.7} disabled={disabled} onPress={onPress} />
         </View>
     );
 }
