@@ -53,18 +53,18 @@ export default ProfileStatsBar = ({ navigation, reelayCount, creator }) => {
         // const followers = await getFollowers(creator.sub);
         // console.log(followers)
         if (isMyProfile) {
-            navigation.push('MyFollowScreen', {
-                selectedTab: 'Followers',
-                followers,
-                following, 
+            navigation.push("MyFollowScreen", {
+                type: "Followers",
+                followers: following,
+                following: followers,
             });
         } else {
             console.log(followers);
-            navigation.push('UserFollowScreen', {
-                selectedTab: 'Followers',
-                creator,
-                followers,
-                following, 
+            navigation.push("UserFollowScreen", {
+                type: "Followers",
+                creator: creator,
+                followers: followers,
+                following: following,
             });
         }
         Amplitude.logEventWithPropertiesAsync('viewFollowers', {
@@ -74,24 +74,24 @@ export default ProfileStatsBar = ({ navigation, reelayCount, creator }) => {
     }
 
     const viewFollowing = () => {
-        if (isMyProfile) {
-            navigation.push('MyFollowScreen', {
-                selectedTab: 'Following',
-                followers,
-                following, 
+      if (isMyProfile) {
+            navigation.push("MyFollowScreen", {
+                type: "Following",
+                followers: followers,
+                following: following,
             });
-        } else {
-            navigation.push('UserFollowScreen', {
-                selectedTab: 'Following',
-                creator,
-                followers,
-                following, 
+      } else {
+            navigation.push("UserFollowScreen", {
+                type: "Following",
+                creator: creator,
+                followers: followers,
+                following: following,
             });
-        }
-        Amplitude.logEventWithPropertiesAsync('viewFollowing', {
-            username: reelayDBUser.username,
-            creatorName: creator.username,
-        });
+      }
+      Amplitude.logEventWithPropertiesAsync('viewFollowing', {
+          username: reelayDBUser.username,
+          creatorName: creator.username,
+      });
     }
 
     return (

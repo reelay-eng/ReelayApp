@@ -26,6 +26,18 @@ export const followCreator = async (creatorSub, followerSub) => {
     }
 }
 
+export const unfollowCreator = async (creatorSub, followerSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/follows?creatorSub=${creatorSub}&followerSub=${followerSub}`;
+    console.log(routeGet);
+    const follow = await fetchResults(routeGet, {
+        method: "POST",
+        headers: REELAY_API_HEADERS,
+    });
+    if (!follow) {
+        console.log("Could not follow user");
+    }
+}
+
 export const getFollowing = async (creatorSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/follows/follower/sub/${creatorSub}`;
     console.log(routeGet);

@@ -4,12 +4,11 @@ import { UploadContext } from "../../context/UploadContext";
 
 import BackButton from "../../components/utils/BackButton";
 import SearchField from "../../components/create-reelay/SearchField"; // change it to stuff from search
-import SearchResults from "../../components/create-reelay/SearchResults"; // change to stuff from search
-import { getFollowers, getFollowing } from "../../api/ReelayDBApi";
+import UserSearchResults from "../../components/search/UserSearchResults"; // change to stuff from search
 
 import styled from "styled-components/native";
 
-export default SelectTitleScreen = ({ navigation, type }) => {
+export default UserFollowScreen = ({ navigation, type, creator, followers, following }) => {
   const MarginBelowLine = styled(View)`
     height: 30px;
   `;
@@ -61,11 +60,11 @@ export default SelectTitleScreen = ({ navigation, type }) => {
       if (type == "Followers") {
         // get followers and display
         // display current user on top
-        setSearchResults;
+        setSearchResults(followers);
       } else {
         // get following and display
         // display current user on top
-        setSearchResults;
+        setSearchResults(following);
       }
     } catch (error) {
       console.log("its here");
@@ -73,9 +72,9 @@ export default SelectTitleScreen = ({ navigation, type }) => {
   };
 
   // this makes the tab bar visible
-  useEffect(() => {
-    setHasSelectedTitle(false);
-  }, []);
+  // useEffect(() => {
+  //   setHasSelectedTitle(false);
+  // }, []);
 
   return (
     <SafeAreaView
@@ -90,7 +89,7 @@ export default SelectTitleScreen = ({ navigation, type }) => {
       </TopBarContainer>
       <SearchField searchText={searchText} updateSearch={updateSearch} />
       <MarginBelowLine />
-      <SearchResults navigation={navigation} searchResults={searchResults} />
+      <UserSearchResults navigation={navigation} searchResults={searchResults} />
     </SafeAreaView>
   );
 };

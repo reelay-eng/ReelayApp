@@ -22,7 +22,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
                 navigation={navigation} />
         );
     }
-    const userSub = cognitoUser.attributes?.sub;
+    const userSub = cognitoUser.attributes.sub;
 
     const ProfileScreenContainer = styled(SafeAreaView)`
         background-color: black;
@@ -50,31 +50,13 @@ export default MyProfileScreen = ({ navigation, route }) => {
     }, []);
 
     return (
-<<<<<<< HEAD
         <ProfileScreenContainer>
             <ProfileTopBar creator={cognitoUser} navigation={navigation} atProfileBase={true} />
             <ProfileScrollView>
                 <ProfileHeader />
-                <ProfileStatsBar reelayCount={reelayCount} creator={cognitoUser} />
+                <ProfileStatsBar navigation={navigation} reelayCount={reelayCount} creator={cognitoUser.attributes} />
                 <ProfilePosterGrid creatorStacks={creatorStacks} navigation={navigation} />
             </ProfileScrollView>
         </ProfileScreenContainer>
-=======
-      <ProfileScreenContainer>
-        <ProfileTopBar
-          creator={user}
-          navigation={navigation}
-          atProfileBase={true}
-        />
-        <ProfileScrollView>
-          <ProfileHeader />
-          <ProfileStatsBar reelayCount={reelayCount} creator={user} />
-          <ProfilePosterGrid
-            creatorStacks={creatorStacks}
-            navigation={navigation}
-          />
-        </ProfileScrollView>
-      </ProfileScreenContainer>
->>>>>>> d97e9ae5cd0fec6fb05a828fccc86e7e56eff80b
     );
 }

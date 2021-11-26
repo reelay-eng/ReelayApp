@@ -9,7 +9,7 @@ import { getFollowers, getFollowing } from "../../api/ReelayDBApi";
 
 import styled from "styled-components/native";
 
-export default SelectTitleScreen = ({ navigation, type }) => {
+export default MyFollowScreen = ({ navigation, type, followers, following }) => {
   const MarginBelowLine = styled(View)`
     height: 30px;
   `;
@@ -61,23 +61,24 @@ export default SelectTitleScreen = ({ navigation, type }) => {
       if (type == "Followers") {
         // get followers and display
         // display current user on top
-        setSearchResults;
+        setSearchResults(followers);
       } else if (type == "Following"){
         // get following and display
         // display current user on top
-        setSearchResults;
+        setSearchResults(following);
       } else {
           // get follow requests
       }
+      console.log(searchResults);
     } catch (error) {
       console.log("its here");
     }
   };
 
-  // this makes the tab bar visible
-  useEffect(() => {
-    setHasSelectedTitle(false);
-  }, []);
+  // // this makes the tab bar visible
+  // useEffect(() => {
+  //   setHasSelectedTitle(false);
+  // }, []);
 
   return (
     <SafeAreaView
