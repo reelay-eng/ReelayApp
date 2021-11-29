@@ -26,15 +26,41 @@ export const followCreator = async (creatorSub, followerSub) => {
     }
 }
 
-export const unfollowCreator = async (creatorSub, followerSub) => {
-    const routeGet = `${REELAY_API_BASE_URL}/follows?creatorSub=${creatorSub}&followerSub=${followerSub}`;
+
+export const acceptFollowRequest = async (creatorSub, followerSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/follows/accept?creatorSub=${creatorSub}&followerSub=${followerSub}`;
     console.log(routeGet);
     const follow = await fetchResults(routeGet, {
-        method: "POST",
+      method: "POST",
+      headers: REELAY_API_HEADERS,
+    });
+    if (!follow) {
+      console.log("Could not accept user follow request");
+    }
+}
+
+export const rejectFollowRequest = async (creatorSub, followerSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/follows/reject?creatorSub=${creatorSub}&followerSub=${followerSub}`;
+    console.log(routeGet);
+    const follow = await fetchResults(routeGet, {
+        method: "DELETE",
         headers: REELAY_API_HEADERS,
     });
     if (!follow) {
-        console.log("Could not follow user");
+        console.log("Could not reject user follow request");
+    }
+};
+
+export const unfollowCreator = async (creatorSub, followerSub) => {
+    const routeRemove = `${REELAY_API_BASE_URL}/follows?creatorSub=${creatorSub}&followerSub=${followerSub}`;
+    console.log(routeRemove);
+    const unfollow = await fetchResults(routeRemove, {
+        method: "DELETE",
+        headers: REELAY_API_HEADERS,
+    });
+    console.log(unfollow)
+    if (!unfollow) {
+        console.log("Could not unfollow user");
     }
 }
 
@@ -64,6 +90,20 @@ export const getFollowers = async (creatorSub) => {
         return null;
     }
     return followers;
+};
+
+export const getFollowRequests = async (creatorSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/follows/creator/sub/${creatorSub}/requests`;
+    console.log(routeGet);
+    const requests = await fetchResults(routeGet, {
+      method: "GET",
+      headers: REELAY_API_HEADERS,
+    });
+    if (!requests) {
+      console.log("Could not get follow requests for this creator");
+      return null;
+    }
+    return requests;
 };
 
 export const getReelaysByCreator = async (creatorSub) => {

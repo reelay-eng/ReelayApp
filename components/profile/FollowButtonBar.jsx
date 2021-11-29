@@ -3,7 +3,7 @@ import { View, Pressable, Text } from "react-native";
 import styled from "styled-components/native";
 import ReelayColors from "../../constants/ReelayColors";
 import { AuthContext } from "../../context/AuthContext";
-import { followCreator, getFollowers } from "../../api/ReelayDBApi";
+import { followCreator, unfollowCreator, getFollowers } from "../../api/ReelayDBApi";
 
 export default FollowButtonBar = ({ creator }) => {
   const FollowContainer = styled(View)`
@@ -29,6 +29,16 @@ export default FollowButtonBar = ({ creator }) => {
   `;
   
     const [followers, setFollowers] = useState([]);
+
+    useEffect(() => {
+        loadFollowers();
+    }, [alreadyFollow]);
+
+    const loadFollowers = async () => {
+        const nextFollowers = await getFollowers(creatorSub);
+        setFollowers(nextFollowers);
+    };
+    
     const [alreadyFollow, setAlreadyFollow] = useState(false);
 
     const { reelayDBUser } = useContext(AuthContext);
@@ -36,23 +46,20 @@ export default FollowButtonBar = ({ creator }) => {
     const creatorSub = creator.sub;
     const followerSub = reelayDBUser.sub;
 
-    useEffect(() => {
-        loadFollowers();
-    }, []);
-
-    const loadFollowers = async () => {
-        setFollowers(await getFollowers(creatorSub));
-    };
-
     // check if current user is already following creator
-    if(
-      followers.find((follower) => {
-        console.log(follower.followerSub === followerSub)
-      })
-    ) {
-        console.log("followed")
-    } else {
-        console.log("not follow");
+    useEffect(() => {
+        checkAlreadyFollow();
+    }, [followers]);
+
+    const checkAlreadyFollow = () => {
+        for (let i = 0; i < followers.length; i++) {
+            if (followers[i].followerSub === followerSub) {
+                setAlreadyFollow(true);
+                return true;
+            }
+        }
+        setAlreadyFollow(false);
+        console.log("hi");
     }
     
     // ON PRESS:
@@ -60,12 +67,15 @@ export default FollowButtonBar = ({ creator }) => {
     const followUser = async () => {
         followCreator(creatorSub, followerSub);
         console.log(reelayDBUser.username + " followed " + creator.username);
+        checkAlreadyFollow();
     };
 
     const unfollowUser = async () => {
-        // unfollowCreator(creatorSub, followerSub);
+        unfollowCreator(creatorSub, followerSub);
         console.log(reelayDBUser.username + " unfollowed " + creator.username);
+        checkAlreadyFollow();
     };
+
 
     // if the person already follows, then it should say following
     return (

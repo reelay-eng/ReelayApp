@@ -6,6 +6,9 @@ import BackButton from "../../components/utils/BackButton";
 import SearchField from "../../components/create-reelay/SearchField"; // change it to stuff from search
 import UserSearchResults from "../../components/search/UserSearchResults"; // change to stuff from search
 
+import { getFollowers, getFollowing } from "../../api/ReelayDBApi";
+import { AuthContext } from "../../context/AuthContext";
+
 import styled from "styled-components/native";
 
 export default UserFollowScreen = ({ navigation, type, creator, followers, following }) => {
@@ -25,8 +28,6 @@ export default UserFollowScreen = ({ navigation, type, creator, followers, follo
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [searchType, setSearchType] = useState(type);
-
-  // const { setHasSelectedTitle } = useContext(UploadContext);
 
   const FollowSelector = ({ type }) => {
     const textDecorationLine = searchType === type ? "underline" : "none";
@@ -60,11 +61,11 @@ export default UserFollowScreen = ({ navigation, type, creator, followers, follo
       if (type == "Followers") {
         // get followers and display
         // display current user on top
-        setSearchResults(followers);
+        setSearchResults(await getFollowers(creator.sub));
       } else {
         // get following and display
         // display current user on top
-        setSearchResults(following);
+        setSearchResults(await getFollowing(creator.sub));
       }
     } catch (error) {
       console.log("its here");
@@ -89,7 +90,7 @@ export default UserFollowScreen = ({ navigation, type, creator, followers, follo
       </TopBarContainer>
       <SearchField searchText={searchText} updateSearch={updateSearch} />
       <MarginBelowLine />
-      <UserSearchResults navigation={navigation} searchResults={searchResults} />
+      {(searchResults) && <UserSearchResults navigation={navigation} searchResults={searchResults} />}
     </SafeAreaView>
   );
 };

@@ -1,11 +1,12 @@
 import React, { useContext, useEffect, useState } from "react";
 import { SafeAreaView, View, Pressable, Text } from "react-native";
-import { UploadContext } from "../../context/UploadContext";
 
 import BackButton from "../../components/utils/BackButton";
 import SearchField from "../../components/create-reelay/SearchField"; // change it to stuff from search
-import SearchResults from "../../components/create-reelay/SearchResults"; // change to stuff from search
+import UserSearchResults from "../../components/search/UserSearchResults"; // change to stuff from search
+
 import { getFollowers, getFollowing } from "../../api/ReelayDBApi";
+import { AuthContext } from "../../context/AuthContext";
 
 import styled from "styled-components/native";
 
@@ -27,7 +28,7 @@ export default MyFollowScreen = ({ navigation, type, followers, following }) => 
   const [searchResults, setSearchResults] = useState([]);
   const [searchType, setSearchType] = useState(type);
 
-  // const { setHasSelectedTitle } = useContext(UploadContext);
+  const { reelayDBUser } = useContext(AuthContext);
 
   const FollowSelector = ({ type }) => {
     const textDecorationLine = searchType === type ? "underline" : "none";
@@ -61,11 +62,11 @@ export default MyFollowScreen = ({ navigation, type, followers, following }) => 
       if (type == "Followers") {
         // get followers and display
         // display current user on top
-        setSearchResults(followers);
+        setSearchResults(await getFollowers(reelayDBUser.sub));
       } else if (type == "Following"){
         // get following and display
         // display current user on top
-        setSearchResults(following);
+        setSearchResults(await getFollowing(reelayDBUser.sub));
       } else {
           // get follow requests
       }
@@ -74,11 +75,6 @@ export default MyFollowScreen = ({ navigation, type, followers, following }) => 
       console.log("its here");
     }
   };
-
-  // // this makes the tab bar visible
-  // useEffect(() => {
-  //   setHasSelectedTitle(false);
-  // }, []);
 
   return (
     <SafeAreaView
@@ -94,7 +90,13 @@ export default MyFollowScreen = ({ navigation, type, followers, following }) => 
       </TopBarContainer>
       <SearchField searchText={searchText} updateSearch={updateSearch} />
       <MarginBelowLine />
-      <SearchResults navigation={navigation} searchResults={searchResults} />
+
+      {type !== "Requests" && (     
+          (searchResults) && <UserSearchResults navigation={navigation} searchResults={searchResults} />
+      )}
+      {type === "Requests" && (
+        console.log("show requests")
+      )}
     </SafeAreaView>
   );
 };
