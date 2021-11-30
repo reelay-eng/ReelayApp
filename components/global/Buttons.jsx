@@ -64,38 +64,41 @@ export const Button = ({
     )
 }
 
-export const ActionButton = ({text, onPress, fontSize, color='blue', borderRadius='20px'}) => {
-    if (color === 'red') return (
-        <Button 
-            onPress={onPress}
-            text={text}
-            fontSize={fontSize}
-            borderRadius={borderRadius}
-            backgroundColor={'#e8362a'}
-            pressedColor={'#63100a'}
-        />
-    )
-    else return (
-        <Button 
-            onPress={onPress}
-            text={text}
-            fontSize={fontSize}
-            borderRadius={borderRadius}
-        />
-    )
-}
+export const ActionButton = ({
+	text,
+	onPress,
+	fontSize = "20px",
+	color = "blue",
+	borderRadius = "20px",
+}) => {
+	if (color === "red")
+		return (
+			<Button
+				onPress={onPress}
+				text={text}
+				fontSize={fontSize}
+				borderRadius={borderRadius}
+				backgroundColor={"#e8362a"}
+				pressedColor={"#63100a"}
+			/>
+		);
+	else
+		return (
+			<Button onPress={onPress} text={text} fontSize={fontSize} borderRadius={borderRadius} />
+		);
+};
 
-export const PassiveButton = ({text, onPress, fontSize, borderRadius='20px'}) => (
-    <Button 
-        onPress={onPress}
-        text={text}
-        fontSize={fontSize}
-        borderRadius={borderRadius}
-        backgroundColor={'#0B2046'}
-        fontColor={'#7EAEFF'}
-        pressedBorder={'solid 2px #2977EF'}
-    />
-)
+export const PassiveButton = ({ text, onPress, fontSize = "20px", borderRadius = "20px" }) => (
+	<Button
+		onPress={onPress}
+		text={text}
+		fontSize={fontSize}
+		borderRadius={borderRadius}
+		backgroundColor={"#0B2046"}
+		fontColor={"#7EAEFF"}
+		pressedBorder={"solid 2px #2977EF"}
+	/>
+);
 
 export const RedPlusButton = ({onPress}) => {
     const IconBox = styled(Pressable)`
