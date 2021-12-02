@@ -14,6 +14,19 @@ const REELAY_API_HEADERS = {
     'reelayapikey': REELAY_API_KEY,
 };
 
+export const getReelay = async (reelaySub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/reelays/sub/${reelaySub}`;
+    const fetchedReelay = await fetchResults(routeGet, { 
+        method: 'GET',
+        headers: REELAY_API_HEADERS,
+    });
+    if (!fetchedReelay) {
+        console.log('Could not get reelays for this creator');
+        return null;
+    }
+    return fetchedReelay;
+}
+
 export const getReelaysByCreator = async (creatorSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/users/sub/${creatorSub}/reelays?visibility=${FEED_VISIBILITY}`;
     const fetchedReelays = await fetchResults(routeGet, { 

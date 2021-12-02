@@ -14,11 +14,10 @@ import NotFoundScreen from '../screens/unauthenticated/NotFoundScreen';
 import AuthenticatedNavigator from './AuthenticatedNavigator';
 import UnauthenticatedNavigator from './UnauthenticatedNavigator';
 import LinkingConfiguration from './LinkingConfiguration';
-import { RootStackParamList } from '../types';
 
 // theme={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
 
-export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
+export default Navigation = () => {
     return (
         <NavigationContainer
             linking={LinkingConfiguration}
@@ -30,9 +29,9 @@ export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeNa
 
 // A root stack navigator is often used for displaying modals on top of all other content
 // Read more here: https://reactnavigation.org/docs/modal
-const Stack = createStackNavigator<RootStackParamList>();
+const Stack = createStackNavigator();
 
-function RootNavigator() {
+const RootNavigator = () => {
     const { signedIn } = useContext(AuthContext);
 
     return (

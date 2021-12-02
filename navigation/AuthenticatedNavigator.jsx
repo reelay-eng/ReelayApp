@@ -3,29 +3,30 @@
  * https://reactnavigation.org/docs/bottom-tab-navigator
  */
 
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createStackNavigator } from "@react-navigation/stack";
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
 
-import * as React from "react";
-import { Icon } from "react-native-elements";
+import React from 'react';
 
-import Colors from "../constants/Colors";
-import useColorScheme from "../hooks/useColorScheme";
-import HomeFeedScreen from "../screens/authenticated/HomeFeedScreen";
+import { Icon } from 'react-native-elements';
+import Colors from '../constants/Colors';
+import useColorScheme from '../hooks/useColorScheme';
 
-import MyProfileScreen from "../screens/authenticated/MyProfileScreen";
-import ProfileFeedScreen from "../screens/authenticated/ProfileFeedScreen";
-import ProfileSettingsScreen from "../screens/authenticated/ProfileSettingsScreen";
-import NotificationSettingsScreen from "../screens/authenticated/NotificationSettingsScreen";
-import ReelayCameraScreen from "../screens/authenticated/ReelayCameraScreen";
-import ReelayUploadScreen from "../screens/authenticated/ReelayUploadScreen";
-import SearchScreen from "../screens/authenticated/SearchScreen";
-import SelectTitleScreen from "../screens/authenticated/SelectTitleScreen";
-import TitleDetailScreen from "../screens/authenticated/TitleDetailScreen";
-import TitleFeedScreen from "../screens/authenticated/TitleFeedScreen";
-import TitleTrailerScreen from "../screens/authenticated/TitleTrailerScreen";
-import UserProfileScreen from "../screens/authenticated/UserProfileScreen";
-import VenueSelectScreen from "../screens/authenticated/VenueSelectScreen";
+import HomeFeedScreen from '../screens/authenticated/HomeFeedScreen';
+import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
+import ProfileFeedScreen from '../screens/authenticated/ProfileFeedScreen';
+import ProfileSettingsScreen from '../screens/authenticated/ProfileSettingsScreen';
+import NotificationSettingsScreen from '../screens/authenticated/NotificationSettingsScreen';
+import ReelayCameraScreen from '../screens/authenticated/ReelayCameraScreen';
+import ReelayUploadScreen from '../screens/authenticated/ReelayUploadScreen';
+import SearchScreen from '../screens/authenticated/SearchScreen';
+import SelectTitleScreen from '../screens/authenticated/SelectTitleScreen';
+import SingleReelayScreen from '../screens/authenticated/SingleReelayScreen';
+import TitleDetailScreen from '../screens/authenticated/TitleDetailScreen';
+import TitleFeedScreen from '../screens/authenticated/TitleFeedScreen';
+import TitleTrailerScreen from '../screens/authenticated/TitleTrailerScreen';
+import UserProfileScreen from '../screens/authenticated/UserProfileScreen';
+import VenueSelectScreen from '../screens/authenticated/VenueSelectScreen';
  
 const AppStack = createStackNavigator();
 const BottomTab = createBottomTabNavigator();
@@ -37,28 +38,76 @@ const ProfileTabStack = createStackNavigator();
 const BOTTOM_TAB_ICON_SIZE = 40;
 
 export default AuthenticatedNavigator = () => {
-    return <AppStack.Navigator initialRouteName="BottomTab">
-        <AppStack.Screen name="BottomTab" component={BottomTabNavigator} 
-            options={{
-            headerShown: false,
-            }}
-        />
-        <AppStack.Screen name="VenueSelectScreen" component={VenueSelectScreen}
-            options={{
-            animationEnabled: false,
-            headerShown: false,
-            }} />
-        <AppStack.Screen name="ReelayCameraScreen" component={ReelayCameraScreen}
-            options={{ 
-            animationEnabled: false,
-            headerShown: false,
-            }} />
-        <AppStack.Screen name="ReelayUploadScreen" component={ReelayUploadScreen}
-            options={{ 
-            animationEnabled: false,
-            headerShown: false,
-            }} /> 
-    </AppStack.Navigator>
+
+    /**
+     * https://docs.expo.dev/versions/latest/sdk/notifications/#notificationrequest
+     * https://docs.expo.dev/versions/latest/sdk/notifications/#notificationcontent
+     * https://docs.expo.dev/versions/latest/sdk/notifications/#notificationresponse
+     * https://docs.expo.dev/versions/latest/sdk/notifications/#handling-push-notifications-with-react-navigation
+     */
+
+    // const getInitialURL = async () => {
+    //     const url = await Linking.getInitialURL();
+    //     if (url) return url;
+
+    //     const response = await Notifications.getLastNotificationResponseAsync();
+    //     const url = response?.notification.request.content.data.url;
+    //     return url;
+    // }
+    
+    // const onNotificationReceived = (notification) => {
+    //     const { date, request } = notification;
+    //     const { identifier, content, trigger } = request;
+    //     const { 
+    //         title, 
+    //         subtitle, 
+    //         body, 
+    //         data, 
+    //         badge, 
+    //         sound, 
+    //         categoryIdentifier 
+    //     } = content;
+    // }
+
+    // const onNotificationResponseReceived = (notificationResponse) => {
+    //     const { notification, actionIdentifier, userText } = notificationResponse;
+    //     const { date, request } = notification;
+    //     const { identifier, content, trigger } = request;
+    //     const { 
+    //         title, 
+    //         subtitle, 
+    //         body, 
+    //         data, 
+    //         badge, 
+    //         sound, 
+    //         categoryIdentifier 
+    //     } = content;
+    // }
+
+    return (
+        <AppStack.Navigator initialRouteName='BottomTab'>
+            <AppStack.Screen name='BottomTab' component={BottomTabNavigator} 
+                options={{
+                headerShown: false,
+                }}
+            />
+            <AppStack.Screen name='VenueSelectScreen' component={VenueSelectScreen}
+                options={{
+                animationEnabled: false,
+                headerShown: false,
+                }} />
+            <AppStack.Screen name='ReelayCameraScreen' component={ReelayCameraScreen}
+                options={{ 
+                animationEnabled: false,
+                headerShown: false,
+                }} />
+            <AppStack.Screen name='ReelayUploadScreen' component={ReelayUploadScreen}
+                options={{ 
+                animationEnabled: false,
+                headerShown: false,
+                }} /> 
+        </AppStack.Navigator>
+    );
 }
 
 const BottomTabNavigator = () => {
@@ -66,53 +115,27 @@ const BottomTabNavigator = () => {
 
     return (
         <BottomTab.Navigator
-        initialRouteName="Home"
-        tabBarOptions={{
-            activeTintColor: Colors[colorScheme].tint,
-            showLabel: false,
-            style: {
-            backgroundColor: "transparent",
-            borderTopWidth: 0,
-            position: "absolute",
-            left: 50,
-            right: 50,
-            height: 80,
-            }
-        }}
+            initialRouteName='Home'
+            tabBarOptions={{
+                activeTintColor: Colors[colorScheme].tint,
+                showLabel: false,
+                style: {
+                backgroundColor: 'transparent',
+                borderTopWidth: 0,
+                position: 'absolute',
+                left: 50,
+                right: 50,
+                height: 80,
+                }
+            }}
         >
         <BottomTab.Screen
-            name="Home"
+            name='Home'
             component={HomeTabNavigator}
             options={{
             tabBarIcon: () => (
-                <Icon type="ionicon"
-                name="film-outline"
-                color={"white"}
-                size={BOTTOM_TAB_ICON_SIZE}
-                />
-            ),
-            }}
-        />
-        <BottomTab.Screen
-            name="Search"
-            component={SearchTabNavigator}
-            options={{
-            tabBarIcon: () => (
-                <Icon type="ionicon"
-                name="search"
-                color={"white"}
-                size={BOTTOM_TAB_ICON_SIZE}
-                />
-            ),
-            }}
-        />
-        <BottomTab.Screen
-            name="Create"
-            component={CreateReelayTabNavigator}
-            options={{
-            tabBarIcon: () => (
-                <Icon type="ionicon"
-                name="add-circle"
+                <Icon type='ionicon'
+                name='film-outline'
                 color={'white'}
                 size={BOTTOM_TAB_ICON_SIZE}
                 />
@@ -120,13 +143,39 @@ const BottomTabNavigator = () => {
             }}
         />
         <BottomTab.Screen
-            name="Profile"
+            name='Search'
+            component={SearchTabNavigator}
+            options={{
+            tabBarIcon: () => (
+                <Icon type='ionicon'
+                name='search'
+                color={'white'}
+                size={BOTTOM_TAB_ICON_SIZE}
+                />
+            ),
+            }}
+        />
+        <BottomTab.Screen
+            name='Create'
+            component={CreateReelayTabNavigator}
+            options={{
+            tabBarIcon: () => (
+                <Icon type='ionicon'
+                name='add-circle'
+                color={'white'}
+                size={BOTTOM_TAB_ICON_SIZE}
+                />
+            ),
+            }}
+        />
+        <BottomTab.Screen
+            name='Profile'
             component={ProfileTabNavigator}
             options={{
             tabBarIcon: () => (
-                <Icon type="ionicon"
-                name="person-circle"
-                color={"white"}
+                <Icon type='ionicon'
+                name='person-circle'
+                color={'white'}
                 size={BOTTOM_TAB_ICON_SIZE}
                 />
             ),
@@ -142,48 +191,55 @@ const BottomTabNavigator = () => {
 const HomeTabNavigator = () => {
     return (
         <HomeTabStack.Navigator>
-        <HomeTabStack.Screen
-            name="HomeFeedScreen"
-            component={HomeFeedScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
-        <HomeTabStack.Screen
-            name="UserProfileScreen"
-            component={UserProfileScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
-        <HomeTabStack.Screen
-            name="ProfileFeedScreen"
-            component={ProfileFeedScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
-        <HomeTabStack.Screen
-            name="TitleDetailScreen"
-            component={TitleDetailScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
-        <HomeTabStack.Screen
-            name="TitleFeedScreen"
-            component={TitleFeedScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
-        <HomeTabStack.Screen
-            name="TitleTrailerScreen"
-            component={TitleTrailerScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
+            <HomeTabStack.Screen
+                name='HomeFeedScreen'
+                component={HomeFeedScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <HomeTabStack.Screen
+                name='UserProfileScreen'
+                component={UserProfileScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <HomeTabStack.Screen
+                name='ProfileFeedScreen'
+                component={ProfileFeedScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <HomeTabStack.Screen
+                name='SingleReelayScreen'
+                component={SingleReelayScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <HomeTabStack.Screen
+                name='TitleDetailScreen'
+                component={TitleDetailScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <HomeTabStack.Screen
+                name='TitleFeedScreen'
+                component={TitleFeedScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <HomeTabStack.Screen
+                name='TitleTrailerScreen'
+                component={TitleTrailerScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
         </HomeTabStack.Navigator>
     );
 }
@@ -192,52 +248,59 @@ const HomeTabNavigator = () => {
 const SearchTabNavigator = () => {
     return (
         <SearchTabStack.Navigator
-        initialRouteName="SearchScreen"
-        detachInactiveScreens={false}
+            initialRouteName='SearchScreen'
+            detachInactiveScreens={false}
         >
-        <SearchTabStack.Screen
-            name="SearchScreen"
-            component={SearchScreen}
-            options={{
-            headerShown: false,
-            animationEnabled: false,
-            }}
-        />
-        <SearchTabStack.Screen
-            name="UserProfileScreen"
-            component={UserProfileScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
-        <SearchTabStack.Screen
-            name="ProfileFeedScreen"
-            component={ProfileFeedScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
-        <SearchTabStack.Screen
-            name="TitleDetailScreen"
-            component={TitleDetailScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
-        <HomeTabStack.Screen
-            name="TitleFeedScreen"
-            component={TitleFeedScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
-        <SearchTabStack.Screen
-            name="TitleTrailerScreen"
-            component={TitleTrailerScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
+            <SearchTabStack.Screen
+                name='SearchScreen'
+                component={SearchScreen}
+                options={{
+                    headerShown: false,
+                    animationEnabled: false,
+                }}
+            />
+            <SearchTabStack.Screen
+                name='UserProfileScreen'
+                component={UserProfileScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <SearchTabStack.Screen
+                name='ProfileFeedScreen'
+                component={ProfileFeedScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <SearchTabStack.Screen
+                name='SingleReelayScreen'
+                component={SingleReelayScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <SearchTabStack.Screen
+                name='TitleDetailScreen'
+                component={TitleDetailScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <SearchTabStack.Screen
+                name='TitleFeedScreen'
+                component={TitleFeedScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <SearchTabStack.Screen
+                name='TitleTrailerScreen'
+                component={TitleTrailerScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
         </SearchTabStack.Navigator>
     );
 }
@@ -247,17 +310,17 @@ const SearchTabNavigator = () => {
 const CreateReelayTabNavigator = () => {
     return (
         <CreateReelayTabStack.Navigator
-            initialRouteName="SelectTitleScreen"
+            initialRouteName='SelectTitleScreen'
             detachInactiveScreens={false}
         >
-        <CreateReelayTabStack.Screen
-            name="SelectTitleScreen"
-            component={SelectTitleScreen}
-            options={{
-            headerShown: false,
-            animationEnabled: false,
-            }}
-        />
+            <CreateReelayTabStack.Screen
+                name='SelectTitleScreen'
+                component={SelectTitleScreen}
+                options={{
+                    headerShown: false,
+                    animationEnabled: false,
+                }}
+            />
         </CreateReelayTabStack.Navigator>
     );
 }
@@ -265,60 +328,67 @@ const CreateReelayTabNavigator = () => {
 const ProfileTabNavigator = () => {
     return (
         <ProfileTabStack.Navigator
-        initialRouteName="MyProfileScreen"
-        detachInactiveScreens={false}
+            initialRouteName='MyProfileScreen'
+            detachInactiveScreens={false}
         >
-        <ProfileTabStack.Screen
-            name="MyProfileScreen"
-            component={MyProfileScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
-        <ProfileTabStack.Screen
-            name="UserProfileScreen"
-            component={UserProfileScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
-        <ProfileTabStack.Screen
-            name="ProfileFeedScreen"
-            component={ProfileFeedScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
-        <SearchTabStack.Screen
-            name="TitleDetailScreen"
-            component={TitleDetailScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
-        <HomeTabStack.Screen
-            name="TitleFeedScreen"
-            component={TitleFeedScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
-        
-        {/* Settings */}
-        <ProfileTabStack.Screen
-            name="ProfileSettingsScreen"
-            component={ProfileSettingsScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
-        <ProfileTabStack.Screen
-            name="NotificationSettingsScreen"
-            component={NotificationSettingsScreen}
-            options={{
-            headerShown: false,
-            }}
-        />
+            <ProfileTabStack.Screen
+                name='MyProfileScreen'
+                component={MyProfileScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <ProfileTabStack.Screen
+                name='UserProfileScreen'
+                component={UserProfileScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <ProfileTabStack.Screen
+                name='ProfileFeedScreen'
+                component={ProfileFeedScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <SearchTabStack.Screen
+                name='SingleReelayScreen'
+                component={SingleReelayScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <SearchTabStack.Screen
+                name='TitleDetailScreen'
+                component={TitleDetailScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <HomeTabStack.Screen
+                name='TitleFeedScreen'
+                component={TitleFeedScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            
+            {/* Settings */}
+            <ProfileTabStack.Screen
+                name='ProfileSettingsScreen'
+                component={ProfileSettingsScreen}
+                options={{
+                headerShown: false,
+                }}
+            />
+            <ProfileTabStack.Screen
+                name='NotificationSettingsScreen'
+                component={NotificationSettingsScreen}
+                options={{
+                headerShown: false,
+                }}
+            />
         </ProfileTabStack.Navigator>
     );
 }

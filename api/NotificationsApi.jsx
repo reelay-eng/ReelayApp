@@ -37,13 +37,17 @@ const getDevicePushToken = async () => {
 
 // We probably shouldn't let these have default values...
 const sendPushNotification = async ({
-    body='Default notification body', 
+    body='', 
     data={},
-    title='Default notification title', 
+    title='You have a notification from Reelay', 
     token, 
     sound='default'
 }) => {
-    const message = { body, data, sound, title, to: token };
+    const pushData = { 
+        ...data, 
+        'content-available': 1 
+    };
+    const message = { body, pushData, sound, title, to: token };
     console.log('push notification message: ');
     console.log(message);
     const response = await fetch(EXPO_NOTIFICATION_URL, {
@@ -108,11 +112,6 @@ export const sendCommentNotificationToCreator = async ({ creatorSub, author, ree
 }
 
 export const sendCommentNotificationToThread = async ({ creator, author, reelay, commentText }) => {
-
-    console.log('IN SEND COMMENT NOTIFICATION TO THREAD');
-    console.log(creator);
-    console.log(author);
-    console.log(reelay.title);
 
     reelay.comments.map(async (comment, index) => {
         const notifyAuthorName = comment.authorName;
