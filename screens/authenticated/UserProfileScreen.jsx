@@ -1,22 +1,40 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { SafeAreaView, ScrollView, Text, View } from 'react-native';
-import { getStacksByCreator } from '../../api/ReelayDBApi';
+import { getStacksByCreator, getFollowers, getFollowing } from '../../api/ReelayDBApi';
 
 import FollowButtonBar from "../../components/profile/FollowButtonBar";
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
 import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
-import Tombstone from '../../components/profile/Tombstone';
+import { AuthContext } from '../../context/AuthContext';
 
 import styled from 'styled-components/native';
 
 export default UserProfileScreen = ({ navigation, route }) => {
-
     const [creatorStacks, setCreatorStacks] = useState([]);
+    const [followers, setFollowers] = useState([]);
+    const [following, setFollowing] = useState([]);
 
+    useEffect(() => {
+        loadFollows();
+    }, []);
+
+    const loadFollows = async () => {
+        const nextFollowers = await getFollowers(creator.sub);
+        const nextFollowing = await getFollowing(creator.sub);
+
+        console.log("next Followers: ", nextFollowers);
+        console.log("next Following: ", nextFollowing);
+        setFollowers(nextFollowers);
+        setFollowing(nextFollowing);
+    };
+
+    const { cognitoUser } = useContext(AuthContext);
     const { creator } = route.params;
     const creatorSub = creator.sub ?? '';
+
+    const isMyProfile = creatorSub === cognitoUser.attributes.sub;
 
     const ProfileScreenContainer = styled(SafeAreaView)`
         background-color: black;
@@ -49,9 +67,18 @@ export default UserProfileScreen = ({ navigation, route }) => {
         <ProfileTopBar creator={creator} navigation={navigation} />
         <ProfileScrollView>
           <ProfileHeader />
-          <ProfileStatsBar navigation={navigation} reelayCount={reelayCount} creator={creator} />
-          <FollowButtonBar creator={creator}/>
-          <ProfilePosterGrid creatorStacks={creatorStacks} navigation={navigation} />
+          <ProfileStatsBar
+            navigation={navigation}
+            reelayCount={reelayCount}
+            creator={creator}
+            followers={followers}
+            following={following}
+          />
+          {!isMyProfile && <FollowButtonBar creator={creator} followers={followers} setFollowers={setFollowers}/>}
+          <ProfilePosterGrid
+            creatorStacks={creatorStacks}
+            navigation={navigation}
+          />
         </ProfileScrollView>
       </ProfileScreenContainer>
     );

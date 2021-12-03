@@ -21,11 +21,12 @@ export const followCreator = async (creatorSub, followerSub) => {
         method: "POST",
         headers: REELAY_API_HEADERS,
     });
+    console.log('FOLLOW RESULT: ', follow);
     if (!follow) {
         console.log("Could not follow user")
     }
+    return follow;
 }
-
 
 export const acceptFollowRequest = async (creatorSub, followerSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/follows/accept?creatorSub=${creatorSub}&followerSub=${followerSub}`;
@@ -96,12 +97,12 @@ export const getFollowRequests = async (creatorSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/follows/creator/sub/${creatorSub}/requests`;
     console.log(routeGet);
     const requests = await fetchResults(routeGet, {
-      method: "GET",
-      headers: REELAY_API_HEADERS,
+        method: "GET",
+        headers: REELAY_API_HEADERS,
     });
     if (!requests) {
-      console.log("Could not get follow requests for this creator");
-      return null;
+        console.log("Could not get follow requests for this creator");
+        return null;
     }
     return requests;
 };

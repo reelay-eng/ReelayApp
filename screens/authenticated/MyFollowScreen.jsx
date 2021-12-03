@@ -1,102 +1,166 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { SafeAreaView, View, Pressable, Text } from "react-native";
 
 import BackButton from "../../components/utils/BackButton";
-import SearchField from "../../components/create-reelay/SearchField"; // change it to stuff from search
-import UserSearchResults from "../../components/search/UserSearchResults"; // change to stuff from search
+import SearchField from "../../components/create-reelay/SearchField";
+import FollowReqResults from "../../components/profile/Follow/FollowReqResults";
+import FollowResults from "../../components/profile/Follow/FollowResults";
 
-import { getFollowers, getFollowing } from "../../api/ReelayDBApi";
-import { AuthContext } from "../../context/AuthContext";
+import { ActionButton, PassiveButton } from "../../components/global/Buttons";
+import { getFollowRequests } from "../../api/ReelayDBApi";
 
 import styled from "styled-components/native";
 
-export default MyFollowScreen = ({ navigation, type, followers, following }) => {
-  const MarginBelowLine = styled(View)`
-    height: 30px;
-  `;
-  const TopBarContainer = styled(View)`
-    flex-direction: row;
-  `;
-  const SelectorBarContainer = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    justify-content: center;
-    position: absolute;
-    width: 100%;
-  `;
+const MarginBelowLine = styled(View)`
+  height: 30px;
+`;
+const TopBarContainer = styled(View)`
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+`;
+const SearchScreenContainer = styled(SafeAreaView)`
+  background-color: black;
+  height: 100%;
+  width: 100%;
+`;
+const SelectorBarContainer = styled(View)`
+  width: 75%;
+  flex-direction: row;
+  justify-content: space-evenly;
+  align-items: center;
+  position: relative;
+`;
+const BackButtonContainer = styled(View)`
+  position: relative;
+  width: 15%;
+  min-width: 30px;
+  z-index: 3;
+`;
+
+export default MyFollowScreen = ({ navigation, route }) => {
+  const { type, followers, following, followRequests } = route.params;
+  console.log("FOLLOW REQ", followRequests)
+  const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [searchType, setSearchType] = useState(type);
+  const [selectedType, setSelectedType] = useState(type);
+  const updateCounter = useRef(0);
 
-  const { reelayDBUser } = useContext(AuthContext);
+  useEffect(() => {
+    updateCounter.current += 1;
+    updateSearch(searchText, selectedType, updateCounter.current);
+  }, [searchText, selectedType]);
 
-  const FollowSelector = ({ type }) => {
-    const textDecorationLine = searchType === type ? "underline" : "none";
+  useEffect(() => {
+    setLoading(false);
+  }, [searchResults]);
 
-    const SelectorContainer = styled(Pressable)`
-      height: 30px;
-      margin: 10px;
-    `;
-    const SelectorText = styled(Text)`
-      font-size: 22px;
-      font-family: System;
-      color: white;
-      text-decoration-line: ${textDecorationLine};
+  const updateSearch = async (newSearchText, searchType, counter) => {
+    if (!newSearchText || newSearchText === undefined || newSearchText === "") {
+      setSearchResults([]);
+    }
+
+    try {
+      let results;
+      if (searchType === "Followers") {
+        results = followers;
+      } else if (searchType === "Following") {
+        results = following;
+      } else {
+        results = followRequests;
+      }
+      console.log(results);
+      if (updateCounter.current === counter) {
+        setSearchResults(results);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const updateSearchText = async (newSearchText) => {
+    if (newSearchText !== searchText) {
+      setSearchText(newSearchText);
+    }
+  };
+
+  const SearchTypeSelector = ({ type }) => {
+    const selected = selectedType === type;
+
+    const SelectorContainer = styled(View)`
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      height: 36px;
+      flex: 0.3;
     `;
 
     return (
-      <SelectorContainer
-        onPress={() => {
-          setSearchType(type);
-          updateSearch(searchText, type);
-        }}
-      >
-        <SelectorText>{type}</SelectorText>
+      <SelectorContainer>
+        {selected && (
+          <ActionButton
+            onPress={() => {
+              setLoading(true);
+              setSelectedType(type);
+            }}
+            text={type}
+            fontSize="18px"
+            borderRadius="15px"
+          />
+        )}
+
+        {!selected && (
+          <PassiveButton
+            onPress={() => {
+              setLoading(true);
+              setSelectedType(type);
+            }}
+            text={type}
+            fontSize="18px"
+            borderRadius="15px"
+          />
+        )}
       </SelectorContainer>
     );
   };
 
-  const updateSearch = async (newSearchText, type = searchType) => {
-    setSearchText(newSearchText);
-    try {
-      if (type == "Followers") {
-        // get followers and display
-        // display current user on top
-        setSearchResults(await getFollowers(reelayDBUser.sub));
-      } else if (type == "Following"){
-        // get following and display
-        // display current user on top
-        setSearchResults(await getFollowing(reelayDBUser.sub));
-      } else {
-          // get follow requests
-      }
-      console.log(searchResults);
-    } catch (error) {
-      console.log("its here");
-    }
-  };
-
   return (
-    <SafeAreaView
-      style={{ backgroundColor: "black", height: "100%", width: "100%" }}
-    >
+    <SearchScreenContainer>
       <TopBarContainer>
+        <BackButtonContainer>
+          <BackButton navigation={navigation} />
+        </BackButtonContainer>
         <SelectorBarContainer>
-          <FollowSelector type="Followers" />
-          <FollowSelector type="Following" />
-          <FollowSelector type="Requests" />
+          <SearchTypeSelector type="Followers" />
+          <SearchTypeSelector type="Following" />
+          <SearchTypeSelector type="Requests" />
         </SelectorBarContainer>
-        <BackButton navigation={navigation} />
       </TopBarContainer>
-      <SearchField searchText={searchText} updateSearch={updateSearch} />
-      <MarginBelowLine />
+      <SearchField
+        searchText={searchText}
+        updateSearchText={updateSearchText}
+        placeholderText={`Search ${
+          selectedType === "Followers"
+            ? "followers"
+            : selectedType === "Following"
+            ? "following"
+            : "follow requests"
+        }`}
+      />
+      {selectedType === "Requests" && (
+        <FollowReqResults
+          navigation={navigation}
+          searchResults={searchResults}
+        />
+      )}
 
-      {type !== "Requests" && (     
-          (searchResults) && <UserSearchResults navigation={navigation} searchResults={searchResults} />
-      )}
-      {type === "Requests" && (
-        console.log("show requests")
-      )}
-    </SafeAreaView>
+      {selectedType !== " Requests" && <FollowResults
+        navigation={navigation}
+        searchResults={searchResults}
+        type={selectedType}
+      />}
+    </SearchScreenContainer>
   );
 };

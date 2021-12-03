@@ -23,7 +23,14 @@ import { FeedContext } from './context/FeedContext';
 import { UploadContext } from './context/UploadContext';
 
 // api imports
-import { registerUser, registerPushTokenForUser, getRegisteredUser } from './api/ReelayDBApi';
+import { 
+    getFollowers, 
+    getFollowing, 
+    getFollowRequests,
+    getRegisteredUser, 
+    registerUser, 
+    registerPushTokenForUser, 
+} from './api/ReelayDBApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { showErrorToast } from './components/utils/toasts';
 
@@ -61,6 +68,9 @@ function App() {
     const [cognitoUser, setCognitoUser] = useState({});
     const [credentials, setCredentials] = useState({});
     const [isLoading, setIsLoading] = useState(true);
+    const [followers, setFollowers] = useState([]);
+    const [following, setFollowing] = useState([]);
+    const [followRequests, setFollowRequests] = useState([]);
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [signedIn, setSignedIn] = useState(false);
     const [session, setSession] = useState({});
@@ -95,6 +105,12 @@ function App() {
     }, []);
 
     useEffect(() => {
+        if (reelayDBUser?.sub) {
+            loadUserFollows();
+        }
+    }, [reelayDBUser]);
+
+    useEffect(() => {
         registerUserAndPushTokens();
         Audio.setAudioModeAsync({
             playsInSilentModeIOS: true,
@@ -127,6 +143,18 @@ function App() {
         }
         console.log('authentication complete');
         setIsLoading(false);
+    }
+
+    const loadUserFollows = async () => {
+        if (signedIn && reelayDBUser && reelayDBUser.sub) {
+            const nextFollowers = await getFollowers(reelayDBUser.sub);
+            const nextFollowing = await getFollowing(reelayDBUser.sub);
+            const nextFollowReq = await getFollowRequests(reelayDBUser.sub);
+    
+            setFollowers(nextFollowers);
+            setFollowing(nextFollowing);
+            setFollowRequests(nextFollowReq);    
+        }
     }
 
     const registerUserAndPushTokens = async () => {
@@ -188,6 +216,9 @@ function App() {
         credentials,        setCredentials,
         expoPushToken,      setExpoPushToken,
         isLoading,          setIsLoading,
+        followers,          setFollowers,
+        following,          setFollowing,
+        followRequests,     setFollowRequests,
         reelayDBUser,       setReelayDBUser,
         session,            setSession,
         signedIn,           setSignedIn,

@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Dimensions, SafeAreaView, ScrollView, View } from 'react-native';
-import { getStacksByCreator } from '../../api/ReelayDBApi';
+import { getStacksByCreator, getFollowing, getFollowers, getFollowRequests } from '../../api/ReelayDBApi';
 
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
 import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
-import Tombstone from '../../components/profile/Tombstone';
 
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
@@ -14,7 +13,36 @@ import styled from 'styled-components/native';
 export default MyProfileScreen = ({ navigation, route }) => {
 
     const [creatorStacks, setCreatorStacks] = useState([]);
-    let { cognitoUser } = useContext(AuthContext);    
+    // const [followers, setFollowers] = useState([]);
+    // const [following, setFollowing] = useState([]);
+    // const [followReq, setFollowReq] = useState([]);
+
+	const { 
+    cognitoUser,
+    followers,
+    following,
+    followRequests,
+    setFollowers,
+    setFollowing,
+    setFollowRequests,
+  } = useContext(AuthContext); 
+
+    // useEffect(() => {
+    //   loadFollows();
+    // }, []);
+
+    // const loadFollows = async () => {
+    //   const nextFollowers = await getFollowers(cognitoUser.attributes.sub);
+    //   const nextFollowing = await getFollowing(cognitoUser.attributes.sub);
+    //   const nextFollowReq = await getFollowRequests(cognitoUser.attributes.sub);
+
+    //   console.log("next Followers: ", nextFollowers);
+    //   console.log("next Following: ", nextFollowing);
+    //   console.log("next FollowReq: ", nextFollowReq);
+    //   setFollowers(nextFollowers);
+    //   setFollowing(nextFollowing);
+    //   setFollowReq(nextFollowReq);
+    // };
 
     if (!cognitoUser) {
         return (
@@ -50,13 +78,27 @@ export default MyProfileScreen = ({ navigation, route }) => {
     }, []);
 
     return (
-        <ProfileScreenContainer>
-            <ProfileTopBar creator={cognitoUser} navigation={navigation} atProfileBase={true} />
-            <ProfileScrollView>
-                <ProfileHeader />
-                <ProfileStatsBar navigation={navigation} reelayCount={reelayCount} creator={cognitoUser.attributes} />
-                <ProfilePosterGrid creatorStacks={creatorStacks} navigation={navigation} />
-            </ProfileScrollView>
-        </ProfileScreenContainer>
+      <ProfileScreenContainer>
+        <ProfileTopBar
+          creator={cognitoUser}
+          navigation={navigation}
+          atProfileBase={true}
+        />
+        <ProfileScrollView>
+          <ProfileHeader />
+          <ProfileStatsBar
+            navigation={navigation}
+            reelayCount={reelayCount}
+            creator={cognitoUser.attributes}
+            followers={followers}
+            following={following}
+            followRequests={followRequests}
+          />
+          <ProfilePosterGrid
+            creatorStacks={creatorStacks}
+            navigation={navigation}
+          />
+        </ProfileScrollView>
+      </ProfileScreenContainer>
     );
 }

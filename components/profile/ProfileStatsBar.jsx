@@ -6,7 +6,7 @@ import { AuthContext } from '../../context/AuthContext';
 
 import * as Amplitude from 'expo-analytics-amplitude';
 
-export default ProfileStatsBar = ({ navigation, reelayCount, creator }) => {
+export default ProfileStatsBar = ({ navigation, reelayCount, creator, followers, following, followRequests }) => {
   const BarContainer = styled(View)`
     align-self: center;
     flex-direction: row;
@@ -28,24 +28,10 @@ export default ProfileStatsBar = ({ navigation, reelayCount, creator }) => {
     font-weight: 600;
     color: white;
   `;
-    const [followers, setFollowers] = useState([]);
-    const [following, setFollowing] = useState([]);
 
     const { reelayDBUser } = useContext(AuthContext);
 
     const isMyProfile = (creator.sub === reelayDBUser.sub);
-
-    useEffect(() => {
-        loadFollows();
-    }, []);
-
-    const loadFollows = async () => {
-        const nextFollowers = await getFollowers(creator.sub);
-        const nextFollowing = await getFollowing(creator.sub);
-
-        setFollowers(nextFollowers);
-        setFollowing(nextFollowing);
-    }
 
     const viewFollowers = () => {
         // go to followers tab in followers following screen
@@ -57,10 +43,11 @@ export default ProfileStatsBar = ({ navigation, reelayCount, creator }) => {
                 type: "Followers",
                 followers: following,
                 following: followers,
+                followRequests: followRequests,
             });
         } else {
             console.log(followers);
-            navigation.push("UserFollowScreen", {
+            navigation.push('UserFollowScreen', {
                 type: "Followers",
                 creator: creator,
                 followers: followers,
@@ -79,9 +66,10 @@ export default ProfileStatsBar = ({ navigation, reelayCount, creator }) => {
                 type: "Following",
                 followers: followers,
                 following: following,
+                followRequests: followRequests,
             });
       } else {
-            navigation.push("UserFollowScreen", {
+            navigation.push('UserFollowScreen', {
                 type: "Following",
                 creator: creator,
                 followers: followers,
@@ -97,16 +85,16 @@ export default ProfileStatsBar = ({ navigation, reelayCount, creator }) => {
     return (
       <BarContainer>
         <StatContainer>
-          <StatText>{reelayCount}</StatText>
-          <DimensionText>{"Reelays"}</DimensionText>
+            <StatText>{reelayCount}</StatText>
+            <DimensionText>{"Reelays"}</DimensionText>
         </StatContainer>
         <StatContainer onPress={viewFollowers}>
-          <StatText>{ followers ? followers.length : 0}</StatText>
-          <DimensionText>{"Followers"}</DimensionText>
+            <StatText>{ followers ? followers.length : 0}</StatText>
+            <DimensionText>{"Followers"}</DimensionText>
         </StatContainer>
         <StatContainer onPress={viewFollowing}>
-          <StatText>{ following ? following.length : 0}</StatText>
-          <DimensionText>{"Following"}</DimensionText>
+            <StatText>{ following ? following.length : 0}</StatText>
+            <DimensionText>{"Following"}</DimensionText>
         </StatContainer>
       </BarContainer>
     );

@@ -1,95 +1,119 @@
-import React, { useContext, useState, useEffect } from "react";
-import { View, Pressable, Text } from "react-native";
-import styled from "styled-components/native";
-import ReelayColors from "../../constants/ReelayColors";
-import { AuthContext } from "../../context/AuthContext";
-import { followCreator, unfollowCreator, getFollowers } from "../../api/ReelayDBApi";
+    import React, { useContext, useState, useEffect } from "react";
+    import { View, Pressable, Text } from "react-native";
+    import styled from "styled-components/native";
+    import ReelayColors from "../../constants/ReelayColors";
+    import { AuthContext } from "../../context/AuthContext";
+    import { followCreator, unfollowCreator } from "../../api/ReelayDBApi";
 
-export default FollowButtonBar = ({ creator }) => {
-  const FollowContainer = styled(View)`
-    align-self: center;
-    flex-direction: row;
-    margin-top: 10px;
-    margin-bottom: 20px;
-  `;
-  const FollowButton = styled(Pressable)`
-    align-items: center;
-    align-self: center;
-    background-color: ${ReelayColors.reelayRed};
-    border-radius: 36px;
-    justify-content: center;
-    height: 50px;
-    width: 75%;
-  `;
-  const FollowText = styled(Text)`
-    color: white;
-    font-size: 18;
-    font-weight: bold;
-    line-height: 21px;
-  `;
-  
-    const [followers, setFollowers] = useState([]);
+    export default FollowButtonBar = ({ creator, followers, setFollowers }) => {
+    const FollowContainer = styled(View)`
+        align-self: center;
+        flex-direction: row;
+        margin-top: 10px;
+        margin-bottom: 20px;
+    `;
+    const FollowButton = styled(Pressable)`
+        align-items: center;
+        align-self: center;
+        background-color: ${ReelayColors.reelayRed};
+        border-radius: 36px;
+        justify-content: center;
+        height: 50px;
+        width: 75%;
+    `;
+    const FollowText = styled(Text)`
+        color: white;
+        font-size: 18;
+        font-weight: bold;
+        line-height: 21px;
+    `;
 
-    useEffect(() => {
-        loadFollowers();
-    }, [alreadyFollow]);
+        console.log("followers", followers);
 
-    const loadFollowers = async () => {
-        const nextFollowers = await getFollowers(creatorSub);
-        setFollowers(nextFollowers);
-    };
-    
     const [alreadyFollow, setAlreadyFollow] = useState(false);
-
-    const { reelayDBUser } = useContext(AuthContext);
+    const { 
+        reelayDBUser,
+        following,
+        setFollowing,
+    } = useContext(AuthContext);
 
     const creatorSub = creator.sub;
-    const followerSub = reelayDBUser.sub;
-
+    const userSub = reelayDBUser.sub;
     // check if current user is already following creator
     useEffect(() => {
         checkAlreadyFollow();
-    }, [followers]);
+    }, []);
 
     const checkAlreadyFollow = () => {
+        try {
         for (let i = 0; i < followers.length; i++) {
-            if (followers[i].followerSub === followerSub) {
-                setAlreadyFollow(true);
-                return true;
+            const userInFollowList = followers[i].followerSub === userSub;
+            if (!alreadyFollow && userInFollowList) {
+            setAlreadyFollow(true);
+            return true;
             }
         }
-        setAlreadyFollow(false);
-        console.log("hi");
-    }
-    
+        } catch (error) {
+        console.log(error);
+        }
+        // if (alreadyFollow) {
+        //     setAlreadyFollow(false);
+        // }
+    };
+
     // ON PRESS:
 
     const followUser = async () => {
-        followCreator(creatorSub, followerSub);
+        const followResult = await followCreator(creatorSub, userSub);
+        // const { error, requestStatus } = followResult;
+        const isFollowing = !followResult?.error && !followResult?.requestStatus;
+        console.log('follow result: ', followResult);
+        
+        if (isFollowing) {
+            setFollowers([...followers, followResult]);
+            setFollowing([...following, followResult]);
+            setAlreadyFollow(true);
+        } else {
+        // handle error
+        }
+
         console.log(reelayDBUser.username + " followed " + creator.username);
-        checkAlreadyFollow();
     };
 
     const unfollowUser = async () => {
-        unfollowCreator(creatorSub, followerSub);
+        const unfollowResult = await unfollowCreator(creatorSub, userSub);
         console.log(reelayDBUser.username + " unfollowed " + creator.username);
-        checkAlreadyFollow();
+        // checkAlreadyFollow();
+        const unfollowSucceeded = !unfollowResult?.error;
+        if (unfollowSucceeded) {
+        const nextFollowers = followers.filter((followObj) => {
+            return followObj.followerSub !== userSub;
+        });
+        setFollowers(nextFollowers);
+        
+        const nextFollowing = following.filter((followObj) => {
+            return followObj.creatorSub !== creatorSub;
+        })
+        setFollowing(nextFollowing);
+        setAlreadyFollow(false);
+        } else {
+        // handle error
+        }
     };
-
 
     // if the person already follows, then it should say following
     return (
         <FollowContainer>
-            {!alreadyFollow && (
+        {!alreadyFollow && (
             <FollowButton onPress={followUser}>
-                <FollowText>{"Follow"}</FollowText>
+            <FollowText>{"Follow"}</FollowText>
             </FollowButton>
-            )}
-            {alreadyFollow && (
+        )}
+        {alreadyFollow && (
             <FollowButton onPress={unfollowUser}>
-                <FollowText>{"Following"}</FollowText>
+            <FollowText>{"Following"}</FollowText>
             </FollowButton>
-            )}
+        )}
         </FollowContainer>
     );
-};
+    };
