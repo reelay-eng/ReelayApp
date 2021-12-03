@@ -186,6 +186,8 @@ export const prepareReelay = async (fetchedReelay) => {
             console.log(error);
         }
     }
+    console.log('IN PREPARE REELAY');
+    console.log(fetchedReelay);
     const sortedComments = fetchedReelay.comments.sort(sortCommentsByPostedDate);
 
     return {

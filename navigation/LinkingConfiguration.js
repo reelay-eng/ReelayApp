@@ -5,7 +5,6 @@
  */
 
 export default {
-    // prefixes: [Linking.makeUrl('/')],
     prefixes: ['reelay://'],
     config: {
         screens: {
@@ -19,6 +18,12 @@ export default {
                     MyProfileScreen: 'MyProfileScreen',
                     ProfileSettingsScreen: 'ProfileSettingsScreen',
                     ProfileFeedScreen: 'ProfileFeedScreen',
+                    SingleReelayScreen: {
+                        path: '/reelay/:reelaySub',
+                        parse: {
+                            reelaySub: (reelaySub) => String(reelaySub)
+                        }
+                    }
                 },
             },
             Unauthenticated: {
@@ -36,5 +41,5 @@ export default {
             },
             NotFound: '*',
         },
-    },
+    }
 };

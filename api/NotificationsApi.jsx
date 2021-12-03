@@ -43,13 +43,11 @@ const sendPushNotification = async ({
     token, 
     sound='default'
 }) => {
-    const pushData = { 
+    const dataToPush = { 
         ...data, 
         'content-available': 1 
     };
-    const message = { body, pushData, sound, title, to: token };
-    console.log('push notification message: ');
-    console.log(message);
+    const message = { body, data: dataToPush, sound, title, to: token };
     const response = await fetch(EXPO_NOTIFICATION_URL, {
         method: 'POST',
         headers: {

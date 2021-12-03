@@ -5,8 +5,8 @@
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-
-import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import React, { useEffect, useRef } from 'react';
 
 import { Icon } from 'react-native-elements';
 import Colors from '../constants/Colors';
@@ -38,52 +38,6 @@ const ProfileTabStack = createStackNavigator();
 const BOTTOM_TAB_ICON_SIZE = 40;
 
 export default AuthenticatedNavigator = () => {
-
-    /**
-     * https://docs.expo.dev/versions/latest/sdk/notifications/#notificationrequest
-     * https://docs.expo.dev/versions/latest/sdk/notifications/#notificationcontent
-     * https://docs.expo.dev/versions/latest/sdk/notifications/#notificationresponse
-     * https://docs.expo.dev/versions/latest/sdk/notifications/#handling-push-notifications-with-react-navigation
-     */
-
-    // const getInitialURL = async () => {
-    //     const url = await Linking.getInitialURL();
-    //     if (url) return url;
-
-    //     const response = await Notifications.getLastNotificationResponseAsync();
-    //     const url = response?.notification.request.content.data.url;
-    //     return url;
-    // }
-    
-    // const onNotificationReceived = (notification) => {
-    //     const { date, request } = notification;
-    //     const { identifier, content, trigger } = request;
-    //     const { 
-    //         title, 
-    //         subtitle, 
-    //         body, 
-    //         data, 
-    //         badge, 
-    //         sound, 
-    //         categoryIdentifier 
-    //     } = content;
-    // }
-
-    // const onNotificationResponseReceived = (notificationResponse) => {
-    //     const { notification, actionIdentifier, userText } = notificationResponse;
-    //     const { date, request } = notification;
-    //     const { identifier, content, trigger } = request;
-    //     const { 
-    //         title, 
-    //         subtitle, 
-    //         body, 
-    //         data, 
-    //         badge, 
-    //         sound, 
-    //         categoryIdentifier 
-    //     } = content;
-    // }
-
     return (
         <AppStack.Navigator initialRouteName='BottomTab'>
             <AppStack.Screen name='BottomTab' component={BottomTabNavigator} 
@@ -120,12 +74,12 @@ const BottomTabNavigator = () => {
                 activeTintColor: Colors[colorScheme].tint,
                 showLabel: false,
                 style: {
-                backgroundColor: 'transparent',
-                borderTopWidth: 0,
-                position: 'absolute',
-                left: 50,
-                right: 50,
-                height: 80,
+                    backgroundColor: 'transparent',
+                    borderTopWidth: 0,
+                    position: 'absolute',
+                    left: 50,
+                    right: 50,
+                    height: 80,
                 }
             }}
         >
@@ -133,52 +87,52 @@ const BottomTabNavigator = () => {
             name='Home'
             component={HomeTabNavigator}
             options={{
-            tabBarIcon: () => (
-                <Icon type='ionicon'
-                name='film-outline'
-                color={'white'}
-                size={BOTTOM_TAB_ICON_SIZE}
-                />
-            ),
+                tabBarIcon: () => (
+                    <Icon type='ionicon'
+                        name='film-outline'
+                        color={'white'}
+                        size={BOTTOM_TAB_ICON_SIZE}
+                    />
+                ),
             }}
         />
         <BottomTab.Screen
             name='Search'
             component={SearchTabNavigator}
             options={{
-            tabBarIcon: () => (
-                <Icon type='ionicon'
-                name='search'
-                color={'white'}
-                size={BOTTOM_TAB_ICON_SIZE}
-                />
-            ),
+                tabBarIcon: () => (
+                    <Icon type='ionicon'
+                        name='search'
+                        color={'white'}
+                        size={BOTTOM_TAB_ICON_SIZE}
+                    />
+                ),
             }}
         />
         <BottomTab.Screen
             name='Create'
             component={CreateReelayTabNavigator}
             options={{
-            tabBarIcon: () => (
-                <Icon type='ionicon'
-                name='add-circle'
-                color={'white'}
-                size={BOTTOM_TAB_ICON_SIZE}
-                />
-            ),
+                tabBarIcon: () => (
+                    <Icon type='ionicon'
+                        name='add-circle'
+                        color={'white'}
+                        size={BOTTOM_TAB_ICON_SIZE}
+                    />
+                ),
             }}
         />
         <BottomTab.Screen
             name='Profile'
             component={ProfileTabNavigator}
             options={{
-            tabBarIcon: () => (
-                <Icon type='ionicon'
-                name='person-circle'
-                color={'white'}
-                size={BOTTOM_TAB_ICON_SIZE}
-                />
-            ),
+                tabBarIcon: () => (
+                    <Icon type='ionicon'
+                        name='person-circle'
+                        color={'white'}
+                        size={BOTTOM_TAB_ICON_SIZE}
+                    />
+                ),
             }}
         />
         </BottomTab.Navigator>
