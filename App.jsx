@@ -10,6 +10,14 @@ import { Amplify, Auth, Storage } from 'aws-amplify';
 import { Audio } from 'expo-av';
 import AWSConfig from "./src/aws-exports";
 
+import { S3Client } from '@aws-sdk/client-s3';
+import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
+import { fromCognitoIdentityPool } from "@aws-sdk/credential-provider-cognito-identity";
+
+// polyfill imports required for S3 connection
+import { setupURLPolyfill } from 'react-native-url-polyfill';
+import 'react-native-get-random-values';
+
 // expo and amplitude imports
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
