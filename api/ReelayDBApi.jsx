@@ -15,15 +15,20 @@ const REELAY_API_HEADERS = {
 };
 
 export const getReelay = async (reelaySub) => {
-    const routeGet = `${REELAY_API_BASE_URL}/reelays/sub/${reelaySub}`;
+    const routeGet = `${REELAY_API_BASE_URL}/reelays/sub/${reelaySub}?visibility=${FEED_VISIBILITY}`;
+    console.log('ROUTE GET: ', routeGet);
     const fetchedReelay = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS,
     });
+
     if (!fetchedReelay) {
         console.log('Could not get reelays for this creator');
         return null;
     }
+
+    console.log(fetchedReelay);
+
     return fetchedReelay;
 }
 
@@ -186,8 +191,6 @@ export const prepareReelay = async (fetchedReelay) => {
             console.log(error);
         }
     }
-    console.log('IN PREPARE REELAY');
-    console.log(fetchedReelay);
     const sortedComments = fetchedReelay.comments.sort(sortCommentsByPostedDate);
 
     return {

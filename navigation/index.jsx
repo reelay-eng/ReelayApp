@@ -20,6 +20,8 @@ import AuthenticatedNavigator from './AuthenticatedNavigator';
 import UnauthenticatedNavigator from './UnauthenticatedNavigator';
 import LinkingConfiguration from './LinkingConfiguration';
 
+import { getReelay, prepareReelay } from '../api/ReelayDBApi';
+
 export default Navigation = () => {
     /**
      * https://docs.expo.dev/versions/latest/sdk/notifications/#notificationrequest
@@ -27,62 +29,72 @@ export default Navigation = () => {
      * https://docs.expo.dev/versions/latest/sdk/notifications/#notificationresponse
      * https://docs.expo.dev/versions/latest/sdk/notifications/#handling-push-notifications-with-react-navigation
      */
-     const navigationRef = useRef();
-     const notificationListener = useRef();
-     const responseListener = useRef(); 
-     
-     const onNotificationReceived = (notification) => {
-         const { date, request } = notification;
-         const { identifier, content, trigger } = request;
-         const { 
-             title, 
-             subtitle, 
-             body, 
-             data, 
-             badge, 
-             sound, 
-             categoryIdentifier 
-         } = content;
-         console.log('NOTIFICATION RECEIVED', content);
-     }
+    const navigationRef = useRef();
+    const notificationListener = useRef();
+    const responseListener = useRef(); 
+    
+    const onNotificationReceived = (notification) => {
+        const content = parseNotificationContent(notification);
+        console.log('NOTIFICATION RECEIVED', content);
+    }
  
-     const onNotificationResponseReceived = (notificationResponse) => {
-         const { notification, actionIdentifier, userText } = notificationResponse;
-         const { date, request } = notification;
-         const { identifier, content, trigger } = request;
-         const { 
-             title, 
-             subtitle, 
-             body, 
-             data, 
-             badge, 
-             sound, 
-             categoryIdentifier 
-         } = content;
+     const onNotificationResponseReceived = async (notificationResponse) => {
+        const { notification, actionIdentifier, userText } = notificationResponse;
+        const { data } = parseNotificationContent(notification);
+
+        const action = data?.action;
+        if (!action) {
+            console.log('No action given');
+            return;
+        }
+
+        if (action === 'openSingleReelayScreen') {
+            if (!data.reelaySub) {
+                console.log('No reelay sub given');
+            }
+            openSingleReelayScreen(data.reelaySub);
+        }
+    }
+
+    const openSingleReelayScreen = async (reelaySub) => {
+        if (!navigationRef?.current) {
+            console.log('No navigation ref')
+            return;
+        }
+
+        const singleReelay = await getReelay(reelaySub);
+        const preparedReelay = await prepareReelay(singleReelay); 
+        navigationRef.current.navigate('SingleReelayScreen', { preparedReelay })
+    }
+
+    const parseNotificationContent = (notification) => {
+        const { date, request } = notification;
+        const { identifier, content, trigger } = request;
+
+        /** You can use the following from the content object:
+            const { 
+                title, 
+                subtitle, 
+                body, 
+                data, 
+                badge, 
+                sound, 
+                categoryIdentifier 
+            } = content;
+        */
+
+        return content;
+    }
  
-         console.log('NOTIFICATION RESPONSE RECEIVED', content);
- 
-         if (navigationRef?.current) {
-             console.log(navigationRef.current);
-             console.log(navigationRef.current.getCurrentOptions());
-             console.log(navigationRef.current.getCurrentRoute());
-             navigationRef.current.navigate('SingleReelayScreen', {
-                 reelaySub: '5044916d-92d0-49a1-8ffe-8c8f4d19e296',
-             })
-         } else {
-             console.log('No navigation ref');
-         }
-     }
- 
-     useEffect(() => {
-         notificationListener.current = addNotificationReceivedListener(onNotificationReceived);
-         responseListener.current = addNotificationResponseReceivedListener(onNotificationResponseReceived);
- 
-         return () => {
-             removeNotificationSubscription(notificationListener.current);
-             removeNotificationSubscription(responseListener.current);
-         }
-     }, []);
+    useEffect(() => {
+        notificationListener.current = addNotificationReceivedListener(onNotificationReceived);
+        responseListener.current = addNotificationResponseReceivedListener(onNotificationResponseReceived);
+
+        return () => {
+            removeNotificationSubscription(notificationListener.current);
+            removeNotificationSubscription(responseListener.current);
+        }
+    }, []);
     
     return (
         <NavigationContainer ref={navigationRef}
