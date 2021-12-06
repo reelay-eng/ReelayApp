@@ -153,25 +153,6 @@ function App() {
                 console.log('Push token already registered');
             }
 
-            notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-                console.log('Notification received');
-                setNotification(Boolean(notification));
-                console.log(notification);
-                Amplitude.logEventWithPropertiesAsync('notificationRecieved', {
-                    username: cognitoUser.username,
-                    notification: notification,
-                });
-
-            });
-            responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-                console.log('Notification response received');
-                console.log(response);
-                Amplitude.logEventWithPropertiesAsync('notificationResponseRecieved', {
-                    username: cognitoUser.username,
-                    response: response,
-                });
-
-            }); 
             setExpoPushToken(devicePushToken);
 
             return () => {

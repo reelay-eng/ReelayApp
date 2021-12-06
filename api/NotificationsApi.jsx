@@ -37,15 +37,18 @@ const getDevicePushToken = async () => {
 
 // We probably shouldn't let these have default values...
 const sendPushNotification = async ({
-    body='Default notification body', 
+    body='', 
     data={},
-    title='Default notification title', 
+    title='You have a notification from Reelay', 
     token, 
     sound='default'
 }) => {
-    const message = { body, data, sound, title, to: token };
-    console.log('push notification message: ');
-    console.log(message);
+    const dataToPush = { 
+        ...data, 
+        'content-available': 1 
+    };
+
+    const message = { body, data: dataToPush, sound, title, to: token };
     const response = await fetch(EXPO_NOTIFICATION_URL, {
         method: 'POST',
         headers: {
@@ -104,15 +107,15 @@ export const sendCommentNotificationToCreator = async ({ creatorSub, author, ree
     const title = `${author.username} commented on your reelay!`;
     const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
     const body = `${bodyTitle}: ${commentText}`;
-    await sendPushNotification({ title, body, token });
+    const data = { 
+        action: 'openSingleReelayScreen',
+        reelaySub: reelay.sub,
+    };
+
+    await sendPushNotification({ title, body, data, token });
 }
 
 export const sendCommentNotificationToThread = async ({ creator, author, reelay, commentText }) => {
-
-    console.log('IN SEND COMMENT NOTIFICATION TO THREAD');
-    console.log(creator);
-    console.log(author);
-    console.log(reelay.title);
 
     reelay.comments.map(async (comment, index) => {
         const notifyAuthorName = comment.authorName;
@@ -146,7 +149,12 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
         const title = `${author.username} also commented on ${creator.username}'s reelay`;
         const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
         const body = `${bodyTitle}: ${commentText}`;
-        await sendPushNotification({ title, body, token });    
+        const data = { 
+            action: 'openSingleReelayScreen',
+            reelaySub: reelay.sub,
+        };
+
+        await sendPushNotification({ title, body, data, token });    
     });
 }
 
@@ -163,8 +171,13 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
     const recipientIsAuthor = (creatorSub === user.attributes.sub);
     if (recipientIsAuthor) {
         const title = `Achievement earned: Love Yourself`;
-        const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;    
-        await sendPushNotification({ title, body, token });
+        const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
+        const data = { 
+            action: 'openSingleReelayScreen',
+            reelaySub: reelay.sub,
+        };
+    
+        await sendPushNotification({ title, body, data, token });
         return;
     }
 
@@ -175,7 +188,12 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
 
     const title = `${user.username} liked your reelay!`;
     const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
-    await sendPushNotification({ title, body, token });
+    const data = { 
+        action: 'openSingleReelayScreen',
+        reelaySub: reelay.sub,
+    };
+
+    await sendPushNotification({ title, body, data, token });
 }
 
 export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay }) => {
@@ -211,7 +229,12 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
 
         const title = `${creator.username} also posted a reelay!`;
         const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
-        await sendPushNotification({ title, body, token });    
+        const data = { 
+            action: 'openSingleReelayScreen',
+            reelaySub: reelay.sub,
+        };
+
+        await sendPushNotification({ title, body, data, token });    
     })
 }
 
