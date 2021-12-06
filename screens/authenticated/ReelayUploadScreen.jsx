@@ -1,9 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 import { UploadContext } from '../../context/UploadContext';
 import { Auth, DataStore, Storage } from 'aws-amplify';
 import { Reelay } from '../../src/models';
+
+import { EncodingType, readAsStringAsync } from 'expo-file-system';
+import { Buffer } from 'buffer';
+import { 
+    S3Client,
+    CreateMultipartUploadCommand,
+    UploadPartCommand,
+    ListMultipartUploadsCommand,
+    CompleteMultipartUploadCommand,
+    AbortMultipartUploadCommand,
+} from '@aws-sdk/client-s3';
 
 import Constants from 'expo-constants';
 import * as MediaLibrary from 'expo-media-library';
@@ -24,6 +34,8 @@ import styled from 'styled-components/native';
 import { postReelayToDB } from '../../api/ReelayDBApi';
 
 const { height, width } = Dimensions.get('window');
+const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
+const UPLOAD_CHUNK_SIZE = 5 * 1024 * 1024;
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
 
 const UploadScreenContainer = styled(SafeAreaView)`
@@ -65,7 +77,13 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const [uploading, setUploading] = useState(false);
 
     const { cognitoUser } = useContext(AuthContext);
-    const uploadContext = useContext(UploadContext);
+    const {
+        chunksTotal, 
+        chunksUploaded,
+        setChunksTotal,
+        setChunksUploaded,
+        s3Client,
+    } = useContext(UploadContext);
 
     useEffect(() => {
         (async () => {
@@ -115,26 +133,60 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // Adding the file extension directly to the key seems to trigger S3 getting the right content type,
             // not setting contentType as a parameter in the Storage.put call.
             const videoS3Key = 'reelayvid-' + creator.attributes.sub + '-' + Date.now() + '.mp4';
+            const videoStr = await readAsStringAsync(videoURI, { encoding: EncodingType.Base64 });
+            const videoBuffer = Buffer.from(videoStr, 'base64');
+            console.log('BYTE LENGTH: ', videoBuffer.byteLength);
     
-            // Upload video to S3
-            const videoResponse = await fetch(videoURI);
-            const videoData = await videoResponse.blob();
-
             setUploading(true);
-            const uploadStatusS3 = await Storage.put(videoS3Key, videoData, {
-                progressCallback(progress) {
-                    if (progress && progress.loaded && progress.total) {
-                        console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
-                        uploadContext.setChunksUploaded(progress.loaded);
-                        uploadContext.setChunksTotal(progress.total);    
-                    } else {
-                        console.log('Progress callback missing values.');
-                    }
-                }
-            });
+            // const uploadStatusS3 = await Storage.put(videoS3Key, videoData, {
+            //     progressCallback(progress) {
+            //         if (progress && progress.loaded && progress.total) {
+            //             console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
+            //             setChunksUploaded(progress.loaded);
+            //             setChunksTotal(progress.total);    
+            //         } else {
+            //             console.log('Progress callback missing values.');
+            //         }
+            //     }
+            // });
 
-            console.log(uploadStatusS3);
-            console.log('Successfully saved video to S3: ', videoS3Key);
+            const { UploadId } = await s3Client.send(new CreateMultipartUploadCommand({
+                Bucket: S3_UPLOAD_BUCKET,
+                Key: `public/${videoS3Key}`,
+            }));
+
+            const numParts = videoBuffer.byteLength / UPLOAD_CHUNK_SIZE + 1;
+
+            let partNumber;
+            for (partNumber = 1; partNumber <= numParts; partNumber += 1) {
+                const byteBegin = partNumber * UPLOAD_CHUNK_SIZE;
+                const byteEnd = (partNumber === numParts)
+                    ? videoBuffer.byteLength
+                    : byteBegin + UPLOAD_CHUNK_SIZE;
+
+                console.log('PART NUMBER: ', partNumber);
+
+
+                const uploadPartStatus = await s3Client.send(new UploadPartCommand({
+                    Body: videoBuffer.slice(byteBegin, byteEnd),
+                    Bucket: S3_UPLOAD_BUCKET,
+                    Key: `public/${videoS3Key}`,
+                    PartNumber: partNumber,
+                    UploadId: UploadId,
+                }));
+                console.log(uploadPartStatus);
+            }
+
+            const uploadCompleteStatus = await s3Client.send(new CompleteMultipartUploadCommand({
+                Bucket: S3_UPLOAD_BUCKET,
+                Key: `public/${videoS3Key}`,
+                UploadId: UploadId,
+            }));
+
+            console.log(uploadCompleteStatus);
+
+            setUploading(false);
+            return;
 
             // Create Reelay object for Amplify --> we're getting rid of this
             const reelay = new Reelay({
@@ -204,8 +256,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             setUploading(false);
             setUploadComplete(false);
             
-            uploadContext.setChunksUploaded(0);
-            uploadContext.setChunksTotal(0);
+            setChunksUploaded(0);
+            setChunksTotal(0);
 
             Amplitude.logEventWithPropertiesAsync('uploadFailed', {
                 username: cognitoUser.username,
@@ -347,8 +399,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             justify-content: center;
             width: 75%;
         `
-        const chunksUploaded = uploadContext.chunksUploaded;
-        const chunksTotal = uploadContext.chunksTotal;    
         const indeterminate = chunksUploaded == 0 && uploading;
 
         // +1 prevents NaN error. hacky.
@@ -378,8 +428,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             setUploading(false);
             setUploadComplete(false);
 
-            uploadContext.setChunksUploaded(0);
-            uploadContext.setChunksTotal(0);
+            setChunksUploaded(0);
+            setChunksTotal(0);
 
             navigation.popToTop();
             navigation.navigate('HomeFeedScreen', { forceRefresh: true });

@@ -8,7 +8,7 @@ import styled from 'styled-components/native';
 // aws imports
 import { Amplify, Auth, Storage } from 'aws-amplify';
 import { Audio } from 'expo-av';
-import AWSConfig from "./src/aws-exports";
+import AWSExports from "./src/aws-exports";
 
 import { S3Client } from '@aws-sdk/client-s3';
 import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
@@ -37,33 +37,11 @@ import { showErrorToast } from './components/utils/toasts';
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash.png');
 
-Amplify.configure({
-    ...AWSConfig,
-    Analytics: {
-        disabled: true,
-    },
-});
-
-Auth.configure({ mandatorySignIn: false });
-
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: false,
-        shouldSetBadge: false,
-    }),
-});
-
-Storage.configure({ level: 'public' });
-
 function App() {
     const colorScheme = useColorScheme();
 
     // push notifications
     const [expoPushToken, setExpoPushToken] = useState('');
-    const [notification, setNotification] = useState(false);
-    const notificationListener = useRef();
-    const responseListener = useRef();
 
     // Auth context hooks
     const [cognitoUser, setCognitoUser] = useState({});
@@ -87,18 +65,10 @@ function App() {
     // Upload context hooks
     const [chunksUploaded, setChunksUploaded] = useState(0);
     const [chunksTotal, setChunksTotal] = useState(0);
-    const [hasSelectedTitle, setHasSelectedTitle] = useState(false);
-    const [uploading, setUploading] = useState(false);
-    const [uploadComplete, setUploadComplete] = useState(false);
-    const [uploadTitleObject, setUploadTitleObject] = useState({});
-    const [uploadOptions, setUploadOptions] = useState({});
-    const [uploadErrorStatus, setUploadErrorStatus] = useState(false);
-    const [uploadVideoSource, setUploadVideoSource] = useState('');
-    const [venueSelected, setVenueSelected] = useState('');
-
-    Amplitude.initializeAsync(Constants.manifest.extra.amplitudeApiKey);
+    const [s3Client, setS3Client] = useState(null);
 
     useEffect(() => {
+        initServices();
         authenticateUser();
     }, []);
 
@@ -110,6 +80,49 @@ function App() {
             interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
         });
     }, [cognitoUser]);
+
+    const initServices = async () => {
+        Amplitude.initializeAsync(
+            Constants.manifest.extra.amplitudeApiKey
+        );
+
+        Amplify.configure({
+            ...AWSExports,
+            Analytics: {
+                disabled: true,
+            },
+        });
+        
+        Auth.configure({ mandatorySignIn: false });
+        Storage.configure({ level: 'public' });    
+        initS3Client();    
+        
+        Notifications.setNotificationHandler({
+            handleNotification: async () => ({
+                shouldShowAlert: true,
+                shouldPlaySound: false,
+                shouldSetBadge: false,
+            }),
+        });
+    }
+
+    const initS3Client = () => {
+        try {
+            setupURLPolyfill();
+            setS3Client(new S3Client({
+                region: AWSExports.aws_project_region,
+                credentials: fromCognitoIdentityPool({
+                    client: new CognitoIdentityClient({ 
+                        region: AWSExports.aws_cognito_region 
+                    }),
+                    identityPoolId: AWSExports.aws_cognito_identity_pool_id,
+                }),
+            }));    
+        } catch (error) {
+            console.log('Could not initialize S3 client');
+            console.log(error);
+        }
+    }
 
     const authenticateUser = async () => {
         console.log('Setting up authentication');
@@ -162,11 +175,6 @@ function App() {
             }
 
             setExpoPushToken(devicePushToken);
-
-            return () => {
-                Notifications.removeNotificationSubscription(notificationListener.current);
-                Notifications.removeNotificationSubscription(responseListener.current);
-            }   
         } catch (error) {
             console.log(error);
         }
@@ -186,14 +194,7 @@ function App() {
     const uploadState = {
         chunksUploaded,     setChunksUploaded,
         chunksTotal,        setChunksTotal,
-        hasSelectedTitle,   setHasSelectedTitle,
-        uploading,          setUploading,
-        uploadComplete,     setUploadComplete,
-        uploadTitleObject,  setUploadTitleObject,
-        uploadOptions,      setUploadOptions,
-        uploadErrorStatus,  setUploadErrorStatus,
-        uploadVideoSource,  setUploadVideoSource,
-        venueSelected,      setVenueSelected,
+        s3Client,           setS3Client,
     }
 
     const feedState = {
