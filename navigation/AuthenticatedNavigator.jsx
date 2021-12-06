@@ -5,7 +5,6 @@
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { NavigationContainer } from '@react-navigation/native';
 import React, { useEffect, useRef } from 'react';
 
 import { Icon } from 'react-native-elements';
