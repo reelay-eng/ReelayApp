@@ -35,7 +35,7 @@ import { postReelayToDB } from '../../api/ReelayDBApi';
 
 const { height, width } = Dimensions.get('window');
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
-const UPLOAD_CHUNK_SIZE = 6 * 1024 * 1024; // 6MB
+const UPLOAD_CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
 
 const UploadScreenContainer = styled(SafeAreaView)`
@@ -99,13 +99,12 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         const videoStr = await readAsStringAsync(videoURI, { encoding: EncodingType.Base64 });
         const videoBuffer = Buffer.from(videoStr, 'base64');
 
-        // let result;
-        // if (videoBuffer.byteLength < UPLOAD_CHUNK_SIZE) {
-        //     result = await uploadToS3SinglePart(videoBuffer, videoS3Key);
-        // } else {
-        //     result = await uploadToS3Multipart(videoBuffer, videoS3Key);
-        // }
-        const result = await uploadToS3SinglePart(videoBuffer, videoS3Key);
+        let result;
+        if (videoBuffer.byteLength < UPLOAD_CHUNK_SIZE) {
+            result = await uploadToS3SinglePart(videoBuffer, videoS3Key);
+        } else {
+            result = await uploadToS3Multipart(videoBuffer, videoS3Key);
+        }
 
         console.log('Upload complete');
         return result;
@@ -127,8 +126,13 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     }
 
     const uploadToS3Multipart = async (videoBuffer, videoS3Key) => {
+        /**
+         * AWS requires each part must be at least 5MB. In this method, each part
+         * is exactly 5MB except the last chunk, which can be up to 10MB
+         */
+
         const numParts = Math.floor(videoBuffer.byteLength / UPLOAD_CHUNK_SIZE);
-        const partNumberRange = Array.from(Array(numParts), (empty, index) => index + 1);
+        const partNumberRange = Array.from(Array(numParts), (empty, index) => index);
 
         setChunksUploaded(1);
         setChunksTotal(numParts + 1);
@@ -142,8 +146,9 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         const uploadPartResults = await Promise.all(partNumberRange.map(async (partNumber) => {
             console.log('PART NUMBER: ', partNumber);
 
+            // byteEnd rounds to the end of the file, so its buffer is normally > 5MB
             const byteBegin = partNumber * UPLOAD_CHUNK_SIZE;
-            const byteEnd = (partNumber === numParts)
+            const byteEnd = (partNumber === numParts - 1)
                 ? videoBuffer.byteLength
                 : byteBegin + UPLOAD_CHUNK_SIZE;
 
@@ -152,7 +157,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 Key: videoS3Key,
                 ContentType: 'video/mp4',
                 Body: videoBuffer.slice(byteBegin, byteEnd),
-                PartNumber: partNumber,
+                PartNumber: partNumber + 1, // part numbers must be between 1 and 10,000
                 UploadId: UploadId,
             }));
 
@@ -260,15 +265,15 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // janky, but this gets the reelay into the format we need, so that
             // we can reuse fetchReelaysForStack from ReelayApi
 
-            // await sendStackPushNotificationToOtherCreators({
-            //     creator: cognitoUser,
-            //     reelay: { 
-            //         ...reelay, 
-            //         title: {
-            //             id: reelay.tmdbTitleID 
-            //         }
-            //     },
-            // });
+            await sendStackPushNotificationToOtherCreators({
+                creator: cognitoUser,
+                reelay: { 
+                    ...reelayDBBody, 
+                    title: {
+                        id: reelayDBBody.tmdbTitleID 
+                    }
+                },
+            });
 
 
         } catch (error) {
