@@ -32,7 +32,14 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "ReelayiOS"
+      "bundleIdentifier": "ReelayiOS",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "location",
+          "fetch",
+          "remote-notification"
+        ]
+      }
     },
     "android": {
       "adaptiveIcon": {

@@ -4,10 +4,8 @@
  * https://reactnavigation.org/docs/configuring-links
  */
 
-import * as Linking from 'expo-linking';
-
 export default {
-    prefixes: [Linking.makeUrl('/')],
+    prefixes: ['reelay://'],
     config: {
         screens: {
             Authenticated: {
@@ -18,9 +16,14 @@ export default {
                     ReelayUploadScreen: 'ReelayUploadScreen',
                     VenueSelectScreen: 'VenueSelectScreen',
                     MyProfileScreen: 'MyProfileScreen',
-                    UserProfileScreen: 'UserProfileScreen',
                     ProfileSettingsScreen: 'ProfileSettingsScreen',
                     ProfileFeedScreen: 'ProfileFeedScreen',
+                    SingleReelayScreen: {
+                        path: '/reelay/:reelaySub',
+                        parse: {
+                            reelaySub: (reelaySub) => String(reelaySub)
+                        }
+                    }
                 },
             },
             Unauthenticated: {
@@ -38,5 +41,5 @@ export default {
             },
             NotFound: '*',
         },
-    },
+    }
 };

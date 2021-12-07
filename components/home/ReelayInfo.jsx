@@ -61,7 +61,7 @@ export default ReelayInfo = ({ navigation, reelay }) => {
 			<Pressable onPress={goToProfile}>
 				<PostInfo>
 					<Username>@{creator?.username}</Username>
-					<Timestamp>{timestamp}</Timestamp>
+					{/* <Timestamp>{timestamp}</Timestamp> */}
 				</PostInfo>
 				<TitleInfo>
 					<Title>{displayTitle} ({year})</Title>
