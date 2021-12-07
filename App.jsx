@@ -63,8 +63,6 @@ function App() {
     const [tabBarVisible, setTabBarVisible] = useState(true);
 
     // Upload context hooks
-    const [chunksUploaded, setChunksUploaded] = useState(0);
-    const [chunksTotal, setChunksTotal] = useState(0);
     const [s3Client, setS3Client] = useState(null);
 
     useEffect(() => {
@@ -193,8 +191,6 @@ function App() {
     }
 
     const uploadState = {
-        chunksUploaded,     setChunksUploaded,
-        chunksTotal,        setChunksTotal,
         s3Client,           setS3Client,
     }
 
