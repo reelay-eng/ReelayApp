@@ -9,9 +9,10 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { 
     CreateMultipartUploadCommand,
-    UploadPartCommand,
     CompleteMultipartUploadCommand,
     ListPartsCommand,
+    PutObjectCommand,
+    UploadPartCommand,
 } from '@aws-sdk/client-s3';
 
 import Constants from 'expo-constants';
@@ -34,7 +35,7 @@ import { postReelayToDB } from '../../api/ReelayDBApi';
 
 const { height, width } = Dimensions.get('window');
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
-const UPLOAD_CHUNK_SIZE = 5 * 1024 * 1024;
+const UPLOAD_CHUNK_SIZE = 6 * 1024 * 1024; // 6MB
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
 
 const UploadScreenContainer = styled(SafeAreaView)`
@@ -93,6 +94,94 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         })();
     }, [saveToDevice]);
 
+
+    const uploadReelayToS3 = async (videoURI, videoS3Key) => {
+        const videoStr = await readAsStringAsync(videoURI, { encoding: EncodingType.Base64 });
+        const videoBuffer = Buffer.from(videoStr, 'base64');
+
+        // let result;
+        // if (videoBuffer.byteLength < UPLOAD_CHUNK_SIZE) {
+        //     result = await uploadToS3SinglePart(videoBuffer, videoS3Key);
+        // } else {
+        //     result = await uploadToS3Multipart(videoBuffer, videoS3Key);
+        // }
+        const result = await uploadToS3SinglePart(videoBuffer, videoS3Key);
+
+        console.log('Upload complete');
+        return result;
+    }
+
+    const uploadToS3SinglePart = async (videoBuffer, videoS3Key) => {
+        setChunksTotal(3);
+        setChunksUploaded(1);
+
+        const uploadResult = await s3Client.send(new PutObjectCommand({
+            Bucket: S3_UPLOAD_BUCKET,
+            Key: videoS3Key,
+            ContentType: 'video/mp4',
+            Body: videoBuffer,
+        }));
+
+        setChunksUploaded(3);
+        return uploadResult;
+    }
+
+    const uploadToS3Multipart = async (videoBuffer, videoS3Key) => {
+        const numParts = Math.floor(videoBuffer.byteLength / UPLOAD_CHUNK_SIZE);
+        const partNumberRange = Array.from(Array(numParts), (empty, index) => index + 1);
+
+        setChunksUploaded(1);
+        setChunksTotal(numParts + 1);
+
+        const { UploadId } = await s3Client.send(new CreateMultipartUploadCommand({
+            Bucket: S3_UPLOAD_BUCKET,
+            Key: videoS3Key,
+            ContentType: 'video/mp4',
+        }));
+
+        const uploadPartResults = await Promise.all(partNumberRange.map(async (partNumber) => {
+            console.log('PART NUMBER: ', partNumber);
+
+            const byteBegin = partNumber * UPLOAD_CHUNK_SIZE;
+            const byteEnd = (partNumber === numParts)
+                ? videoBuffer.byteLength
+                : byteBegin + UPLOAD_CHUNK_SIZE;
+
+            const result = await s3Client.send(new UploadPartCommand({
+                Bucket: S3_UPLOAD_BUCKET,
+                Key: videoS3Key,
+                ContentType: 'video/mp4',
+                Body: videoBuffer.slice(byteBegin, byteEnd),
+                PartNumber: partNumber,
+                UploadId: UploadId,
+            }));
+
+            console.log('result completed');
+            setChunksUploaded(chunksUploaded + 1);
+            return result;
+        }));
+
+        console.log(uploadPartResults);
+
+        const uploadParts = await s3Client.send(new ListPartsCommand({
+            Bucket: S3_UPLOAD_BUCKET,
+            Key: videoS3Key,
+            UploadId: UploadId,
+        }))
+        
+        console.log('UPLOAD PARTS: ', uploadParts);
+        console.log('about to complete upload');
+
+        const uploadCompleteStatus = await s3Client.send(new CompleteMultipartUploadCommand({
+            Bucket: S3_UPLOAD_BUCKET,
+            Key: videoS3Key,
+            UploadId: UploadId,
+            MultipartUpload: uploadParts,
+        }));
+
+        return uploadCompleteStatus;
+    }
+
     const publishReelay = async () => {
         if (!videoURI) {
             console.log('No video to upload.');
@@ -126,113 +215,28 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         try {
             console.log('Upload dialog initiated.');
             // Set current user as the creator
-            const creator = await Auth.currentAuthenticatedUser();
-            console.log(creator.attributes.sub);
-    
-            // Adding the file extension directly to the key seems to trigger S3 getting the right content type,
-            // not setting contentType as a parameter in the Storage.put call.
-            const videoS3Key = 'reelayvid-' + creator.attributes.sub + '-' + Date.now() + '.mp4';
-            const videoStr = await readAsStringAsync(videoURI, { encoding: EncodingType.Base64 });
-            const videoBuffer = Buffer.from(videoStr, 'base64');
-            console.log('BYTE LENGTH: ', videoBuffer.byteLength);
     
             setUploading(true);
-            // const uploadStatusS3 = await Storage.put(videoS3Key, videoData, {
-            //     progressCallback(progress) {
-            //         if (progress && progress.loaded && progress.total) {
-            //             console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
-            //             setChunksUploaded(progress.loaded);
-            //             setChunksTotal(progress.total);    
-            //         } else {
-            //             console.log('Progress callback missing values.');
-            //         }
-            //     }
-            // });
 
-            const { UploadId } = await s3Client.send(new CreateMultipartUploadCommand({
-                Bucket: S3_UPLOAD_BUCKET,
-                Key: `public/${videoS3Key}`,
-            }));
+            // Adding the file extension directly to the key seems to trigger S3 getting the right content type,
+            // not setting contentType as a parameter in the Storage.put call.
+            const uploadTimestamp = Date.now();
+            const videoS3Key = `reelayvid-${reelayDBUser.sub}-${uploadTimestamp}.mp4`;
+            const s3UploadResult = await uploadReelayToS3(videoURI, `public/${videoS3Key}`);
+            console.log(s3UploadResult);
 
-            const numParts = Math.ceil(videoBuffer.byteLength / UPLOAD_CHUNK_SIZE);
-            console.log('NUM PARTS: ', numParts);
-            const partNumberRange = Array.from(Array(numParts), (empty, index) => index + 1);
+            // Post Reelay object to ReelayDB
+            // not checking for dupes on uuidv4(), 
+            // but a collision is less than a one in a quadrillion chance
 
-            setChunksUploaded(0);
-            setChunksTotal(0);
-
-            console.log('ARRAY SIZE: ', partNumberRange.length);
-
-            const uploadPartResults = await Promise.all(partNumberRange.map(async (partNumber) => {
-                console.log('PART NUMBER: ', partNumber);
-
-                const byteBegin = partNumber * UPLOAD_CHUNK_SIZE;
-                const byteEnd = (partNumber === numParts)
-                    ? videoBuffer.byteLength
-                    : byteBegin + UPLOAD_CHUNK_SIZE;
-
-                const result = await s3Client.send(new UploadPartCommand({
-                    Body: videoBuffer.slice(byteBegin, byteEnd),
-                    Bucket: S3_UPLOAD_BUCKET,
-                    Key: `public/${videoS3Key}`,
-                    PartNumber: partNumber,
-                    UploadId: UploadId,
-                }));
-
-                console.log('result completed');
-                setChunksUploaded(chunksUploaded + 1);
-                return result;
-            }));
-            
-            console.log(uploadPartResults);
-
-            const uploadParts = await s3Client.send(new ListPartsCommand({
-                Bucket: S3_UPLOAD_BUCKET,
-                Key: `public/${videoS3Key}`,
-                UploadId: UploadId,
-            }))
-            
-            console.log('UPLOAD PARTS: ', uploadParts);
-            console.log('about to complete upload');
-
-            const uploadCompleteStatus = await s3Client.send(new CompleteMultipartUploadCommand({
-                Bucket: S3_UPLOAD_BUCKET,
-                Key: `public/${videoS3Key}`,
-                UploadId: UploadId,
-                MultipartUpload: uploadParts,
-            }));
-
-            console.log(uploadCompleteStatus);
-
-            // // Create Reelay object for Amplify --> we're getting rid of this
-            // const reelay = new Reelay({
-            //     owner: creator.attributes.sub,
-            //     creatorID: creator.attributes.sub,
-            //     isMovie: titleObj.isMovie,
-            //     isSeries: titleObj.isSeries,
-            //     movieID: titleObj.id.toString(),
-            //     seriesSeason: -1,
-            //     seasonEpisode: -1,
-            //     uploadedAt: new Date().toISOString(),
-            //     tmdbTitleID: titleObj.id.toString(),
-            //     venue: venue,
-            //     videoS3Key: videoS3Key,
-            //     visibility: UPLOAD_VISIBILITY,
-            // });
-
-            // // Upload Reelay object to Amplfiy, get ID
-            // const datastoreReelay = await DataStore.save(reelay);
-            // console.log('Saved Reelay to datastore: ', datastoreReelay);
-
-            // Post Reelay object to ReelayDB --> we're moving to this
             const reelayDBBody = {
                 creatorSub: reelayDBUser.sub,
                 creatorName: reelayDBUser.username,
-                datastoreSub: uuidv4(),
+                datastoreSub: uuidv4(), 
                 isMovie: titleObj.isMovie,
                 isSeries: titleObj.isSeries,
-                postedAt: titleObj.uploadedAt,
-                tmdbTitleID: titleObj.tmdbTitleID,
+                postedAt: uploadTimestamp,
+                tmdbTitleID: titleObj.id,
                 venue: venue,
                 videoS3Key: videoS3Key,
                 visibility: UPLOAD_VISIBILITY,
@@ -255,16 +259,16 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
             // janky, but this gets the reelay into the format we need, so that
             // we can reuse fetchReelaysForStack from ReelayApi
-            await sendStackPushNotificationToOtherCreators({
-                creator: cognitoUser,
-                // TODO: make consistent
-                reelay: { 
-                    ...reelay, 
-                    title: {
-                        id: reelay.tmdbTitleID 
-                    }
-                },
-            });
+
+            // await sendStackPushNotificationToOtherCreators({
+            //     creator: cognitoUser,
+            //     reelay: { 
+            //         ...reelay, 
+            //         title: {
+            //             id: reelay.tmdbTitleID 
+            //         }
+            //     },
+            // });
 
 
         } catch (error) {
