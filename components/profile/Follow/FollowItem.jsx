@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Button, Pressable, View } from "react-native";
+import React, { useEffect, useState, useContext } from "react";
+import { ActivityIndicator, Text, Pressable, View } from "react-native";
 import { Image } from "react-native-elements";
+import { AuthContext } from "../../../context/AuthContext";
 import styled from "styled-components/native";
 import { getUserByUsername } from "../../../api/ReelayDBApi"
+import { followCreator, unfollowCreator, getFollowers } from "../../../api/ReelayDBApi";
 
 const PressableContainer = styled(Pressable)`
   align-items: center;
@@ -18,6 +20,7 @@ const UsernameText = styled.Text`
 const UsernameContainer = styled.View`
   align-items: flex-start;
   justify-content: center;
+  width: 50%;
 `;
 const ProfilePicture = styled(Image)`
   border-radius: 50px;
@@ -32,77 +35,143 @@ const ProfilePictureContainer = styled(View)`
   height: 50px;
   width: 50px;
 `;
-const ActionBar = styled(View)`
-  justify-content: flex-end;
-  flex-direction: row;
-  margin-left: 10px;
-  width: 100%;
-// `;
-// const AcceptButton = styled(Pressable)`
-//     align-items: center;
-//     align-self: flex-end
-//     background-color: ${ReelayColors.reelayBlue};
-//     border-radius: 20px;
-//     justify-content: center;
-//     height: 20px;
-//     width: 20%;
-// `;
-// const RejectButton = styled(Pressable)`
-//   align-items: center;
-//   align-self: center;
-//   background-color: ${ReelayColors.reelayRed};
-//   border-radius: 20px;
-//   justify-content: center;
-//   height: 20px;
-//   width: 20%;
-// `;
+const FollowContainer = styled(View)`
+    align-self: center;
+    flex-direction: row;
+    margin-top: 10px;
+    margin-bottom: 10px;
+`;
+const FollowButton = styled(Pressable)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayRed};
+    border-radius: 20px;
+    justify-content: center;
+    height: 45px;
+    width: 50%;
+`;
+const FollowText = styled(Text)`
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 18px;
+`;
 
+// What it should do:
+/*
+- check if the follower/following is the current user (if it is, it should not have a follow button)
+- working follow and unfollow button (need on-press for both)
+- click through to user profile [WORKS]
+
+Eventually...
+- should also display people the user follows above those that they do not follow
+ */
 export default FollowItem = ({ result, navigation, type }) => {
-  const followObject = result; // follow obj
-  const username =
-    type === "Following" ? followObject.creatorName : followObject.followerName;
-  const profilePictureURI = followObject.profilePictureURI;
+    const followObject = result; // follow obj
+    const username =
+      type === "Following" ? followObject.creatorName : followObject.followerName;
+    const profilePictureURI = followObject.profilePictureURI;
     const [creatorObj, setCreatorObj] = useState();
+    const [alreadyFollow, setAlreadyFollow] = useState(type === "Following"); // placeholder
+    // const [creatorFollowers, setCreatorFollowers] = useState([]);
 
-  useEffect(() => {
-      getCreator()
-  }, [])
+    const { reelayDBUser, following, setFollowing } = useContext(AuthContext);
+    const userSub = reelayDBUser.sub;
 
-  const getCreator = async() => {
-    const nextCreator = await getUserByUsername(username);
+    // doesn't work 
+    const isMyProfile = 
+      type === "Followers"
+        ? followObject.followerName === username
+        : followObject.creatorName === username; 
 
-    setCreatorObj(nextCreator);
-  }
+    useEffect(() => {
+        getCreator();
+    }, []);
+
+    const getCreator = async() => {
+      const nextCreator = await getUserByUsername(username);
+
+      setCreatorObj(nextCreator);
+    }
 
   // username
+    const followUser = async () => {
+        const followResult = await followCreator(followObject.creatorSub, userSub);
+        // const { error, requestStatus } = followResult;
+        const isFollowing = !followResult?.error && !followResult?.requestStatus;
+        console.log("follow result: ", followResult);
 
-  const selectResult = () => {
-    navigation.push("UserProfileScreen", { creator: creatorObj });
+        if (isFollowing) {
+            // setFollowers([...followers, followResult]);
+            setFollowing([...following, followResult]);
+            setAlreadyFollow(true);
+        } else {
+            // handle error
+        }
+
+        console.log(reelayDBUser.username + " followed " + followObject.username);
+    };
+
+    const unfollowUser = async () => {
+        const unfollowResult = await unfollowCreator(
+          followObject.creatorSub,
+          userSub
+        );
+        console.log(
+          reelayDBUser.username + " unfollowed " + followObject.username
+        );
+        // checkAlreadyFollow();
+        const unfollowSucceeded = !unfollowResult?.error;
+        if (unfollowSucceeded) {
+            // const nextFollowers = followers.filter((followObj) => {
+            // return followObj.followerSub !== userSub;
+            // });
+            //setFollowers(nextFollowers);
+
+            const nextFollowing = following.filter((followObj) => {
+            return followObj.creatorSub !== creatorSub;
+            });
+            setFollowing(nextFollowing);
+            setAlreadyFollow(false);
+        } else {
+            // handle error
+        }
+    };
+
+    const selectResult = () => {
+      navigation.push("UserProfileScreen", { creator: creatorObj });
+    };
+
+    return (
+      <PressableContainer onPress={selectResult}>
+        <ProfilePictureContainer>
+          {profilePictureURI && (
+            <ProfilePicture
+              source={{ uri: profilePictureURI }}
+              PlaceholderContent={<ActivityIndicator />}
+            />
+          )}
+          {!profilePictureURI && (
+            <ProfilePicture
+              source={require("../../../assets/icons/reelay-icon.png")}
+            />
+          )}
+        </ProfilePictureContainer>
+        <UsernameContainer>
+          <UsernameText>{username}</UsernameText>
+        </UsernameContainer>
+
+        <FollowContainer>
+          {!alreadyFollow && !isMyProfile && (
+            <FollowButton onPress={followUser}>
+              <FollowText>{"Follow"}</FollowText>
+            </FollowButton>
+          )}
+          {alreadyFollow && !isMyProfile && (
+            <FollowButton onPress={unfollowUser}>
+              <FollowText>{"Following"}</FollowText>
+            </FollowButton>
+          )}
+        </FollowContainer>
+      </PressableContainer>
+    );
   };
-
-  return (
-    <PressableContainer onPress={selectResult}>
-      <ProfilePictureContainer>
-        {profilePictureURI && (
-          <ProfilePicture
-            source={{ uri: profilePictureURI }}
-            PlaceholderContent={<ActivityIndicator />}
-          />
-        )}
-        {!profilePictureURI && (
-          <ProfilePicture
-            source={require("../../../assets/icons/reelay-icon.png")}
-          />
-        )}
-      </ProfilePictureContainer>
-      <UsernameContainer>
-        <UsernameText>{username}</UsernameText>
-      </UsernameContainer>
-
-      {/* <ActionBar>
-        <RejectButton>{"Reject"}</RejectButton>
-        <AcceptButton>{"Accept"}</AcceptButton>
-      </ActionBar> */}
-    </PressableContainer>
-  );
-};
