@@ -13,6 +13,7 @@ import {
     ListMultipartUploadsCommand,
     CompleteMultipartUploadCommand,
     AbortMultipartUploadCommand,
+    ListPartsCommand,
 } from '@aws-sdk/client-s3';
 
 import Constants from 'expo-constants';
@@ -155,32 +156,52 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 Key: `public/${videoS3Key}`,
             }));
 
-            const numParts = videoBuffer.byteLength / UPLOAD_CHUNK_SIZE + 1;
+            const numParts = Math.ceil(videoBuffer.byteLength / UPLOAD_CHUNK_SIZE);
+            console.log('NUM PARTS: ', numParts);
+            const partNumberRange = Array.from(Array(numParts), (empty, index) => index + 1);
 
-            let partNumber;
-            for (partNumber = 1; partNumber <= numParts; partNumber += 1) {
+            setChunksUploaded(0);
+            setChunksTotal(0);
+
+            console.log('ARRAY SIZE: ', partNumberRange.length);
+
+            const uploadPartResults = await Promise.all(partNumberRange.map(async (partNumber) => {
+                console.log('PART NUMBER: ', partNumber);
+
                 const byteBegin = partNumber * UPLOAD_CHUNK_SIZE;
                 const byteEnd = (partNumber === numParts)
                     ? videoBuffer.byteLength
                     : byteBegin + UPLOAD_CHUNK_SIZE;
 
-                console.log('PART NUMBER: ', partNumber);
-
-
-                const uploadPartStatus = await s3Client.send(new UploadPartCommand({
+                const result = await s3Client.send(new UploadPartCommand({
                     Body: videoBuffer.slice(byteBegin, byteEnd),
                     Bucket: S3_UPLOAD_BUCKET,
                     Key: `public/${videoS3Key}`,
                     PartNumber: partNumber,
                     UploadId: UploadId,
                 }));
-                console.log(uploadPartStatus);
-            }
+
+                console.log('result completed');
+                setChunksUploaded(chunksUploaded + 1);
+                return result;
+            }));
+            
+            console.log(uploadPartResults);
+
+            const uploadParts = await s3Client.send(new ListPartsCommand({
+                Bucket: S3_UPLOAD_BUCKET,
+                Key: `public/${videoS3Key}`,
+                UploadId: UploadId,
+            }))
+            
+            console.log('UPLOAD PARTS: ', uploadParts);
+            console.log('about to complete upload');
 
             const uploadCompleteStatus = await s3Client.send(new CompleteMultipartUploadCommand({
                 Bucket: S3_UPLOAD_BUCKET,
                 Key: `public/${videoS3Key}`,
                 UploadId: UploadId,
+                MultipartUpload: uploadParts,
             }));
 
             console.log(uploadCompleteStatus);
