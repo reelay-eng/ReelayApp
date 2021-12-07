@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { UploadContext } from '../../context/UploadContext';
-import { Auth, DataStore, Storage } from 'aws-amplify';
 
 import { EncodingType, readAsStringAsync } from 'expo-file-system';
 import { Buffer } from 'buffer';
@@ -75,15 +74,10 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const [uploadComplete, setUploadComplete] = useState(false);
     const [uploadErrorStatus, setUploadErrorStatus] = useState(false);
     const [uploading, setUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0.0);
 
     const { cognitoUser, reelayDBUser } = useContext(AuthContext);
-    const {
-        chunksTotal, 
-        chunksUploaded,
-        setChunksTotal,
-        setChunksUploaded,
-        s3Client,
-    } = useContext(UploadContext);
+    const { s3Client } = useContext(UploadContext);
 
     useEffect(() => {
         (async () => {
@@ -96,8 +90,10 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
 
     const uploadReelayToS3 = async (videoURI, videoS3Key) => {
+        setUploadProgress(0.2);
         const videoStr = await readAsStringAsync(videoURI, { encoding: EncodingType.Base64 });
         const videoBuffer = Buffer.from(videoStr, 'base64');
+        setUploadProgress(0.4);
 
         let result;
         if (videoBuffer.byteLength < UPLOAD_CHUNK_SIZE) {
@@ -106,14 +102,12 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             result = await uploadToS3Multipart(videoBuffer, videoS3Key);
         }
 
-        console.log('Upload complete');
+        setUploadProgress(0.8);
+        console.log('S3 upload complete');
         return result;
     }
 
     const uploadToS3SinglePart = async (videoBuffer, videoS3Key) => {
-        setChunksTotal(3);
-        setChunksUploaded(1);
-
         const uploadResult = await s3Client.send(new PutObjectCommand({
             Bucket: S3_UPLOAD_BUCKET,
             Key: videoS3Key,
@@ -121,7 +115,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             Body: videoBuffer,
         }));
 
-        setChunksUploaded(3);
         return uploadResult;
     }
 
@@ -134,14 +127,13 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         const numParts = Math.floor(videoBuffer.byteLength / UPLOAD_CHUNK_SIZE);
         const partNumberRange = Array.from(Array(numParts), (empty, index) => index);
 
-        setChunksUploaded(1);
-        setChunksTotal(numParts + 1);
-
         const { UploadId } = await s3Client.send(new CreateMultipartUploadCommand({
             Bucket: S3_UPLOAD_BUCKET,
             Key: videoS3Key,
             ContentType: 'video/mp4',
         }));
+
+        setUploadProgress(0.6);
 
         const uploadPartResults = await Promise.all(partNumberRange.map(async (partNumber) => {
             console.log('PART NUMBER: ', partNumber);
@@ -162,7 +154,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             }));
 
             console.log('result completed');
-            setChunksUploaded(chunksUploaded + 1);
             return result;
         }));
 
@@ -172,7 +163,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             Bucket: S3_UPLOAD_BUCKET,
             Key: videoS3Key,
             UploadId: UploadId,
-        }))
+        }));
         
         console.log('UPLOAD PARTS: ', uploadParts);
         console.log('about to complete upload');
@@ -250,6 +241,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             const postResult = await postReelayToDB(reelayDBBody);
             console.log('Saved Reelay to DB: ', postResult);
             
+            setUploadProgress(1.0);
             setUploading(false);    
             setUploadComplete(true);
 
@@ -263,7 +255,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             });
 
             // janky, but this gets the reelay into the format we need, so that
-            // we can reuse fetchReelaysForStack from ReelayApi
+            // we can reuse fetchReelaysForStack from ReelayDBApi
 
             await sendStackPushNotificationToOtherCreators({
                 creator: cognitoUser,
@@ -282,10 +274,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             setUploadErrorStatus(true);
             setUploading(false);
             setUploadComplete(false);
+            setUploadProgress(0.0);
             
-            setChunksUploaded(0);
-            setChunksTotal(0);
-
             Amplitude.logEventWithPropertiesAsync('uploadFailed', {
                 username: reelayDBUser.username,
                 title: titleObj.display,
@@ -426,18 +416,17 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             justify-content: center;
             width: 75%;
         `
-        const indeterminate = chunksUploaded == 0 && uploading;
-
-        // +1 prevents NaN error. hacky.
-        let progress = chunksUploaded / (chunksTotal + 1);
-        if (!chunksUploaded == 0 && chunksUploaded == chunksTotal) {
-            progress = 1;
-        }
+        const indeterminate = (uploadProgress < 0.1) && uploading;
     
         return (
             <UploadProgressBarContainer>
                 { (uploading || uploadComplete) && 
-                    <Progress.Bar color={'white'} indeterminate={indeterminate} progress={progress} width={width * 0.75} />
+                    <Progress.Bar 
+                        color={'white'} 
+                        indeterminate={indeterminate} 
+                        progress={uploadProgress} 
+                        width={width * 0.75} 
+                    />
                 }
             </UploadProgressBarContainer>
         );
@@ -452,12 +441,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             width: 60%;
         `
         const exitCreate = ({ navigation }) => {
-            setUploading(false);
-            setUploadComplete(false);
-
-            setChunksUploaded(0);
-            setChunksTotal(0);
-
             navigation.popToTop();
             navigation.navigate('HomeFeedScreen', { forceRefresh: true });
         }
