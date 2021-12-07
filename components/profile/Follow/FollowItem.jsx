@@ -7,33 +7,33 @@ import { getUserByUsername } from "../../../api/ReelayDBApi"
 import { followCreator, unfollowCreator, getFollowers } from "../../../api/ReelayDBApi";
 
 const PressableContainer = styled(Pressable)`
-  align-items: center;
-  flex-direction: row;
-  height: 100px;
-  margin-left: 10px;
-  width: 100%;
+    align-items: center;
+    flex-direction: row;
+    height: 100px;
+    margin-left: 10px;
+    width: 100%;
 `;
 const UsernameText = styled.Text`
     color: white
     font-size: 18px;
 `;
 const UsernameContainer = styled.View`
-  align-items: flex-start;
-  justify-content: center;
-  width: 50%;
+    align-items: flex-start;
+    justify-content: center;
+    width: 50%;
 `;
 const ProfilePicture = styled(Image)`
-  border-radius: 50px;
-  height: 45px;
-  width: 45px;
+    border-radius: 50px;
+    height: 45px;
+    width: 45px;
 `;
 const ProfilePictureContainer = styled(View)`
-  border-color: white;
-  border-radius: 50px;
-  border-width: 2px;
-  margin: 10px;
-  height: 50px;
-  width: 50px;
+    border-color: white;
+    border-radius: 50px;
+    border-width: 2px;
+    margin: 10px;
+    height: 50px;
+    width: 50px;
 `;
 const FollowContainer = styled(View)`
     align-self: center;
@@ -95,7 +95,10 @@ export default FollowItem = ({ result, navigation, type }) => {
 
   // username
     const followUser = async () => {
-        const followResult = await followCreator(followObject.creatorSub, userSub);
+        const followResult = await followCreator(
+            followObject.creatorSub,
+            userSub
+        );
         // const { error, requestStatus } = followResult;
         const isFollowing = !followResult?.error && !followResult?.requestStatus;
         console.log("follow result: ", followResult);
@@ -108,16 +111,18 @@ export default FollowItem = ({ result, navigation, type }) => {
             // handle error
         }
 
+        // add Amplitude logging
+
         console.log(reelayDBUser.username + " followed " + followObject.username);
     };
 
     const unfollowUser = async () => {
         const unfollowResult = await unfollowCreator(
-          followObject.creatorSub,
-          userSub
+        followObject.creatorSub,
+        userSub
         );
         console.log(
-          reelayDBUser.username + " unfollowed " + followObject.username
+        reelayDBUser.username + " unfollowed " + followObject.username
         );
         // checkAlreadyFollow();
         const unfollowSucceeded = !unfollowResult?.error;
@@ -135,43 +140,44 @@ export default FollowItem = ({ result, navigation, type }) => {
         } else {
             // handle error
         }
+        // add Amplitude logging
     };
 
     const selectResult = () => {
-      navigation.push("UserProfileScreen", { creator: creatorObj });
+        navigation.push("UserProfileScreen", { creator: creatorObj });
     };
 
     return (
-      <PressableContainer onPress={selectResult}>
-        <ProfilePictureContainer>
-          {profilePictureURI && (
-            <ProfilePicture
-              source={{ uri: profilePictureURI }}
-              PlaceholderContent={<ActivityIndicator />}
-            />
-          )}
-          {!profilePictureURI && (
-            <ProfilePicture
-              source={require("../../../assets/icons/reelay-icon.png")}
-            />
-          )}
-        </ProfilePictureContainer>
-        <UsernameContainer>
-          <UsernameText>{username}</UsernameText>
-        </UsernameContainer>
+        <PressableContainer onPress={selectResult}>
+            <ProfilePictureContainer>
+            {profilePictureURI && (
+                <ProfilePicture
+                source={{ uri: profilePictureURI }}
+                PlaceholderContent={<ActivityIndicator />}
+                />
+            )}
+            {!profilePictureURI && (
+                <ProfilePicture
+                source={require("../../../assets/icons/reelay-icon.png")}
+                />
+            )}
+            </ProfilePictureContainer>
+            <UsernameContainer>
+            <UsernameText>{username}</UsernameText>
+            </UsernameContainer>
 
-        <FollowContainer>
-          {!alreadyFollow && !isMyProfile && (
-            <FollowButton onPress={followUser}>
-              <FollowText>{"Follow"}</FollowText>
-            </FollowButton>
-          )}
-          {alreadyFollow && !isMyProfile && (
-            <FollowButton onPress={unfollowUser}>
-              <FollowText>{"Following"}</FollowText>
-            </FollowButton>
-          )}
-        </FollowContainer>
-      </PressableContainer>
+            <FollowContainer>
+            {!alreadyFollow && !isMyProfile && (
+                <FollowButton onPress={followUser}>
+                <FollowText>{"Follow"}</FollowText>
+                </FollowButton>
+            )}
+            {alreadyFollow && !isMyProfile && (
+                <FollowButton onPress={unfollowUser}>
+                <FollowText>{"Following"}</FollowText>
+                </FollowButton>
+            )}
+            </FollowContainer>
+        </PressableContainer>
     );
   };

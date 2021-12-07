@@ -23,7 +23,7 @@
     `;
     const FollowText = styled(Text)`
         color: white;
-        font-size: 18;
+        font-size: 18px;
         font-weight: bold;
         line-height: 21px;
     `;
@@ -77,6 +77,11 @@
         // handle error
         }
 
+        Amplitude.logEventWithPropertiesAsync("followedUser", {
+            username: reelayDBUser.username,
+            creatorName: creator.username,
+        });
+
         console.log(reelayDBUser.username + " followed " + creator.username);
     };
 
@@ -99,6 +104,12 @@
         } else {
         // handle error
         }
+
+        Amplitude.logEventWithPropertiesAsync("unfollowedUser", {
+            username: reelayDBUser.username,
+            creatorName: creator.username,
+        });
+
     };
 
     // if the person already follows, then it should say following

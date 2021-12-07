@@ -77,28 +77,32 @@ export default MyProfileScreen = ({ navigation, route }) => {
         if (userSub.length) loadCreatorStacks();
     }, []);
 
+    Amplitude.logEventWithPropertiesAsync("viewMyProfile", {
+        username: cognitoUser.attributes.username,
+    });
+
     return (
-      <ProfileScreenContainer>
-        <ProfileTopBar
-          creator={cognitoUser}
-          navigation={navigation}
-          atProfileBase={true}
-        />
-        <ProfileScrollView>
-          <ProfileHeader />
-          <ProfileStatsBar
+        <ProfileScreenContainer>
+            <ProfileTopBar
+            creator={cognitoUser}
             navigation={navigation}
-            reelayCount={reelayCount}
-            creator={cognitoUser.attributes}
-            followers={followers}
-            following={following}
-            followRequests={followRequests}
-          />
-          <ProfilePosterGrid
-            creatorStacks={creatorStacks}
-            navigation={navigation}
-          />
-        </ProfileScrollView>
-      </ProfileScreenContainer>
+            atProfileBase={true}
+            />
+            <ProfileScrollView>
+            <ProfileHeader />
+            <ProfileStatsBar
+                navigation={navigation}
+                reelayCount={reelayCount}
+                creator={cognitoUser.attributes}
+                followers={followers}
+                following={following}
+                followRequests={followRequests}
+            />
+            <ProfilePosterGrid
+                creatorStacks={creatorStacks}
+                navigation={navigation}
+            />
+            </ProfileScrollView>
+        </ProfileScreenContainer>
     );
 }
