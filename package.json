@@ -93,6 +93,7 @@
     "rn-bottom-drawer": "^1.4.3",
     "sentry-expo": "^4.0.0",
     "styled-components": "^5.3.0",
+    "uuid": "^8.3.2",
     "validate.js": "^0.13.1",
     "yarn": "^1.22.11"
   },

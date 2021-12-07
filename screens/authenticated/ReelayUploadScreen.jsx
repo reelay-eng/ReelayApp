@@ -2,17 +2,15 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { UploadContext } from '../../context/UploadContext';
 import { Auth, DataStore, Storage } from 'aws-amplify';
-import { Reelay } from '../../src/models';
 
 import { EncodingType, readAsStringAsync } from 'expo-file-system';
 import { Buffer } from 'buffer';
+import { v4 as uuidv4 } from 'uuid';
+
 import { 
-    S3Client,
     CreateMultipartUploadCommand,
     UploadPartCommand,
-    ListMultipartUploadsCommand,
     CompleteMultipartUploadCommand,
-    AbortMultipartUploadCommand,
     ListPartsCommand,
 } from '@aws-sdk/client-s3';
 
@@ -77,7 +75,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const [uploadErrorStatus, setUploadErrorStatus] = useState(false);
     const [uploading, setUploading] = useState(false);
 
-    const { cognitoUser } = useContext(AuthContext);
+    const { cognitoUser, reelayDBUser } = useContext(AuthContext);
     const {
         chunksTotal, 
         chunksUploaded,
@@ -102,7 +100,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         }
 
         Amplitude.logEventWithPropertiesAsync('publishReelayStarted', {
-            username: cognitoUser.username,
+            username: reelayDBUser.username,
             title: titleObj.display,
         });
 
@@ -119,7 +117,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             } catch (error) {
                 console.log('Could not save to local device...');
                 Amplitude.logEventWithPropertiesAsync('saveToDeviceFailed', {
-                    username: cognitoUser.username,
+                    username: reelayDBUser.username,
                     title: titleObj.display,
                 });
             }    
@@ -206,38 +204,35 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
             console.log(uploadCompleteStatus);
 
-            setUploading(false);
-            return;
+            // // Create Reelay object for Amplify --> we're getting rid of this
+            // const reelay = new Reelay({
+            //     owner: creator.attributes.sub,
+            //     creatorID: creator.attributes.sub,
+            //     isMovie: titleObj.isMovie,
+            //     isSeries: titleObj.isSeries,
+            //     movieID: titleObj.id.toString(),
+            //     seriesSeason: -1,
+            //     seasonEpisode: -1,
+            //     uploadedAt: new Date().toISOString(),
+            //     tmdbTitleID: titleObj.id.toString(),
+            //     venue: venue,
+            //     videoS3Key: videoS3Key,
+            //     visibility: UPLOAD_VISIBILITY,
+            // });
 
-            // Create Reelay object for Amplify --> we're getting rid of this
-            const reelay = new Reelay({
-                owner: creator.attributes.sub,
-                creatorID: creator.attributes.sub,
-                isMovie: titleObj.isMovie,
-                isSeries: titleObj.isSeries,
-                movieID: titleObj.id.toString(),
-                seriesSeason: -1,
-                seasonEpisode: -1,
-                uploadedAt: new Date().toISOString(),
-                tmdbTitleID: titleObj.id.toString(),
-                venue: venue,
-                videoS3Key: videoS3Key,
-                visibility: UPLOAD_VISIBILITY,
-            });
-
-            // Upload Reelay object to Amplfiy, get ID
-            const datastoreReelay = await DataStore.save(reelay);
-            console.log('Saved Reelay to datastore: ', datastoreReelay);
+            // // Upload Reelay object to Amplfiy, get ID
+            // const datastoreReelay = await DataStore.save(reelay);
+            // console.log('Saved Reelay to datastore: ', datastoreReelay);
 
             // Post Reelay object to ReelayDB --> we're moving to this
             const reelayDBBody = {
-                creatorSub: datastoreReelay.creatorID,
-                creatorName: cognitoUser.username,
-                datastoreSub: datastoreReelay.id,
-                isMovie: datastoreReelay.isMovie,
-                isSeries: datastoreReelay.isSeries,
-                postedAt: datastoreReelay.uploadedAt,
-                tmdbTitleID: datastoreReelay.tmdbTitleID,
+                creatorSub: reelayDBUser.sub,
+                creatorName: reelayDBUser.username,
+                datastoreSub: uuidv4(),
+                isMovie: titleObj.isMovie,
+                isSeries: titleObj.isSeries,
+                postedAt: titleObj.uploadedAt,
+                tmdbTitleID: titleObj.tmdbTitleID,
                 venue: venue,
                 videoS3Key: videoS3Key,
                 visibility: UPLOAD_VISIBILITY,
@@ -253,7 +248,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             console.log('Upload dialog complete.');
 
             Amplitude.logEventWithPropertiesAsync('publishReelayComplete', {
-                username: cognitoUser.username,
+                username: reelayDBUser.username,
+                userSub: reelayDBUser.sub,
                 title: titleObj.display,
             });
 
@@ -261,6 +257,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // we can reuse fetchReelaysForStack from ReelayApi
             await sendStackPushNotificationToOtherCreators({
                 creator: cognitoUser,
+                // TODO: make consistent
                 reelay: { 
                     ...reelay, 
                     title: {
@@ -281,7 +278,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             setChunksTotal(0);
 
             Amplitude.logEventWithPropertiesAsync('uploadFailed', {
-                username: cognitoUser.username,
+                username: reelayDBUser.username,
                 title: titleObj.display,
             });
         }
@@ -300,7 +297,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         return (
             <RetakeContainer onPress={() => { 
                 Amplitude.logEventWithPropertiesAsync('retake', {
-                    username: cognitoUser.username,
+                    username: reelayDBUser.username,
                     title: titleObj.display,
                 });
                 navigation.pop();
