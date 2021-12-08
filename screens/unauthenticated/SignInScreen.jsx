@@ -8,7 +8,7 @@ import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
 import * as Amplitude from 'expo-analytics-amplitude';
 
-import { getUserByEmail } from '../../api/ReelayDBApi';
+import { getInputUsername } from '../../components/utils/usernameOrEmail';
 
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
@@ -106,23 +106,6 @@ export default SignInScreen = ({ navigation, route }) => {
     
         const signInDisabled = false;    
 
-        const getInputUsername = async () => {
-            if (inputText.includes('@')) {
-                const cleanedInputEmail = inputText.trim().toLowerCase();
-                console.log(cleanedInputEmail);
-                const userResult = await getUserByEmail(cleanedInputEmail);
-
-                if (!userResult || userResult.error || !userResult?.username) {
-                    // handle error
-                    return '';
-                }
-                
-                return userResult?.username;
-            } else {
-                return inputText.trim();
-            }
-        }
-
         const handleBadEmail = async () => {
             showErrorToast('Incorrect account or password');
             Amplitude.logEventWithPropertiesAsync('signInFailedBadEmail', {
@@ -157,7 +140,7 @@ export default SignInScreen = ({ navigation, route }) => {
         const signInUser = async () => {
             console.log('Attempting user sign in');
             try {
-                const username = await getInputUsername();
+                const username = await getInputUsername(inputText);
                 console.log('username: ', username);
                 if (!username.length) {
                     // entered an invalid email
