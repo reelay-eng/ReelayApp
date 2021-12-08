@@ -112,7 +112,7 @@ export default SignInScreen = ({ navigation, route }) => {
                 console.log(cleanedInputEmail);
                 const userResult = await getUserByEmail(cleanedInputEmail);
 
-                if (!userResult || userResult.error) {
+                if (!userResult || userResult.error || !userResult?.username) {
                     // handle error
                     return '';
                 }
