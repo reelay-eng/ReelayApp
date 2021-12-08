@@ -216,7 +216,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         }
 
         Amplitude.logEventWithPropertiesAsync('publishReelayStarted', {
-            username: reelayDBUser.username,
+            username: cognitoUser.username,
             title: titleObj.display,
         });
 
@@ -227,7 +227,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // Adding the file extension directly to the key seems to trigger S3 getting the right content type,
             // not setting contentType as a parameter in the Storage.put call.
             const uploadTimestamp = Date.now();
-            const videoS3Key = `reelayvid-${reelayDBUser.sub}-${uploadTimestamp}.mp4`;
+            const videoS3Key = `reelayvid-${cognitoUser.attributes.sub}-${uploadTimestamp}.mp4`;
             const s3UploadResult = await uploadReelayToS3(videoURI, `public/${videoS3Key}`);
             console.log(s3UploadResult);
 
@@ -236,8 +236,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // but a collision is less than a one in a quadrillion chance
 
             const reelayDBBody = {
-                creatorSub: reelayDBUser.sub,
-                creatorName: reelayDBUser.username,
+                creatorSub: cognitoUser.attributes.sub,
+                creatorName: cognitoUser.username,
                 datastoreSub: uuidv4(), 
                 isMovie: titleObj.isMovie,
                 isSeries: titleObj.isSeries,
@@ -257,9 +257,11 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             console.log('saved new Reelay');
             console.log('Upload dialog complete.');
 
+            console.log('REELAYDB USER: ', reelayDBUser);
+
             Amplitude.logEventWithPropertiesAsync('publishReelayComplete', {
-                username: reelayDBUser.username,
-                userSub: reelayDBUser.sub,
+                username: cognitoUser.username,
+                userSub: cognitoUser.attributes.sub,
                 title: titleObj.display,
             });
 
@@ -284,7 +286,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             setUploadStage('upload-failed-retry');
             
             Amplitude.logEventWithPropertiesAsync('uploadFailed', {
-                username: reelayDBUser.username,
+                username: cognitoUser.username,
                 title: titleObj.display,
             });
         }
@@ -333,7 +335,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             } catch (error) {
                 console.log('Could not save to local device...');
                 Amplitude.logEventWithPropertiesAsync('saveToDeviceFailed', {
-                    username: reelayDBUser.username,
+                    username: cognitoUser.username,
                     title: titleObj.display,
                 });
                 setDownloadStage('download-failed-retry');
@@ -448,7 +450,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
     const retakeReelay = async () => {
         Amplitude.logEventWithPropertiesAsync('retake', {
-            username: reelayDBUser.username,
+            username: cognitoUser.username,
             title: titleObj.display,
         });
         navigation.pop();
