@@ -51,9 +51,7 @@ const PressableVideoContainer = styled(Pressable)`
 `
 const SaveButtonPressable = styled(Pressable)`
     background-color: ${props => props.color}
-    border-color: white;
     border-radius: 24px;
-    border-width: 1px;
     align-items: center;
     justify-content: center;
     height: 48px;
@@ -63,9 +61,7 @@ const SaveButtonPressable = styled(Pressable)`
 `
 const UploadButtonPressable = styled(Pressable)`
     background-color: ${props => props.color}
-    border-color: white;
     border-radius: 24px;
-    border-width: 1px;
     flex-direction: row;
     align-items: center;
     justify-content: center;
@@ -81,20 +77,23 @@ const UploadButtonText = styled(Text)`
     color: white;
     margin-left: 16px;
 `
+const UploadBottomArea = styled(SafeAreaView)`
+    justify-content: flex-end;
+`
 const UploadBottomBar = styled(SafeAreaView)`
     flex-direction: row;
     justify-content: space-between;
 `
-const UploadTopBar = styled(SafeAreaView)`
+const UploadTopArea = styled(SafeAreaView)`
     flex-direction: row;
     justify-content: space-between;
 `
 const UploadProgressBarContainer = styled(View)`
     align-self: center;
-    height: 10px;
-    margin: 15px;
     justify-content: center;
-    width: 75%;
+    height: 10px;
+    width: ${width - 20}px;
+    bottom: 30px;
 `
 const UploadScreenContainer = styled(View)`
     height: 100%;
@@ -356,7 +355,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             } else if (uploadStage === 'uploading') {
                 return ReelayColors.reelayBlue;
             } else if (uploadStage === 'upload-complete') {
-                return ReelayColors.reelayBlue;
+                return 'green';
             } else if (uploadStage === 'upload-failed-retry') {
                 return ReelayColors.reelayBlue;
             } else {
@@ -416,15 +415,20 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
     const UploadProgressBar = () => {
         const indeterminate = (uploadProgress < 0.1) && (uploadStage === 'uploading');
+        const progressBarColor = (uploadStage === 'upload-complete') 
+            ? 'green' 
+            : 'white';
     
         return (
             <UploadProgressBarContainer>
                 { ((uploadStage === 'uploading') || (uploadStage === 'upload-complete')) && 
                     <Progress.Bar 
-                        color={'white'} 
+                        color={progressBarColor} 
                         indeterminate={indeterminate} 
                         progress={uploadProgress} 
-                        width={width * 0.75} 
+                        width={width - 20} 
+                        height={8}
+                        borderRadius={8}
                     />
                 }
             </UploadProgressBarContainer>
@@ -455,19 +459,21 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             <PressableVideoContainer onPress={playPause}>
                 <PreviewVideoPlayer videoURI={videoURI} playing={playing} />
             </PressableVideoContainer>
-            {/* <UploadProgressBar /> */}
-            <UploadTopBar>
+            <UploadTopArea>
                 <BackButtonPressable onPress={retakeReelay}>
                     <Icon type='ionicon' name='chevron-back-outline' color={'white'} size={30} />
                 </BackButtonPressable>
                 <PosterContainer>
                     <Image source={{ uri: posterURL }} style={posterStyle} />
                 </PosterContainer>
-            </UploadTopBar>
-            <UploadBottomBar>
-                <SaveButton />
-                <UploadButton />
-            </UploadBottomBar>
+            </UploadTopArea>
+            <UploadBottomArea>
+                <UploadProgressBar />
+                <UploadBottomBar>
+                    <SaveButton />
+                    <UploadButton />
+                </UploadBottomBar>
+            </UploadBottomArea>
         </UploadScreenContainer>
     );
 };
