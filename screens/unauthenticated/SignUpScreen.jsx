@@ -101,7 +101,7 @@ export default SignUpScreen = ({ navigation, route }) => {
                     username: username,
                     password: password,
                     attributes: {
-                        email: email,
+                        email: email.toLowerCase(),
                     },
                 }); 
                 navigation.push('ConfirmEmailScreen', { username });

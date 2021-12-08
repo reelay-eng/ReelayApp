@@ -8,6 +8,8 @@ import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
 import * as Amplitude from 'expo-analytics-amplitude';
 
+import { getUserByEmail } from '../../api/ReelayDBApi';
+
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
 
@@ -98,41 +100,72 @@ export default SignInScreen = ({ navigation, route }) => {
 
     const UsernameAndPassword = () => {
 
-        const [inputUsername, setInputUsername] = useState('');
+        const [inputText, setInputText] = useState('');
         const [password, setPassword] = useState('');
         const [hidePassword, setHidePassword] = useState(true);
     
         const signInDisabled = false;    
 
+        const getInputUsername = async () => {
+            if (inputText.includes('@')) {
+                const cleanedInputEmail = inputText.trim().toLowerCase();
+                console.log(cleanedInputEmail);
+                const userResult = await getUserByEmail(cleanedInputEmail);
+
+                if (!userResult || userResult.error) {
+                    // handle error
+                    return '';
+                }
+                
+                return userResult?.username;
+            } else {
+                return inputText.trim();
+            }
+        }
+
+        const handleBadEmail = async () => {
+            showErrorToast('Incorrect account or password');
+            Amplitude.logEventWithPropertiesAsync('signInFailedBadEmail', {
+                email: inputText,
+            });
+        }
+
         const handleBadPassword = async () => {
-            showErrorToast(
-                'Couldn\'t sign in. Your username or password may be incorrect'
-            ); 
+            showErrorToast('Incorrect account or password'); 
             Amplitude.logEventWithPropertiesAsync('signInFailedBadPassword', {
-                username: inputUsername,
+                username: inputText,
             });
         }
 
         const handleUnconfirmedUser = async () => {
-            navigation.push('ConfirmEmailScreen', { username: inputUsername });
+            navigation.push('ConfirmEmailScreen', { username: inputText });
             Amplitude.logEventWithPropertiesAsync('signInFailedUnconfirmedEmail', {
-                username: inputUsername,
+                username: inputText,
             });
         }
 
-        const handleOtherErrors = async () => {
+        const handleOtherErrors = async (error) => {
             showErrorToast(
-                "Something went wrong. Please reach out to the Reelay team."
+                "Something went wrong. Please reach out to the Reelay team"
             ); 
             Amplitude.logEventWithPropertiesAsync('signInFailedOtherReason', {
-                username: inputUsername,
+                username: inputText,
+                error: error,
             });
         }
 
         const signInUser = async () => {
             console.log('Attempting user sign in');
             try {
-                const cognitoUser = await Auth.signIn(inputUsername, password);
+                const username = await getInputUsername();
+                console.log('username: ', username);
+                if (!username.length) {
+                    // entered an invalid email
+                    handleBadEmail();
+                    return;
+                }
+
+                const cognitoUser = await Auth.signIn(username, password);
                 console.log('Received sign in result');
                 console.log(cognitoUser);    
 
@@ -149,7 +182,7 @@ export default SignInScreen = ({ navigation, route }) => {
                 } else if (error.code === 'NotAuthorizedException') {
                     handleBadPassword();
                 } else {
-                    handleOtherErrors();
+                    handleOtherErrors(error);
                 }
             }
         }
@@ -159,9 +192,9 @@ export default SignInScreen = ({ navigation, route }) => {
                     <AuthInput 
                         autoCapitalize='none'
                         containerStyle={AuthInputContainerStyle}
-                        placeholder={'Enter username'} 
-                        onChangeText={setInputUsername}
-                        value={inputUsername}
+                        placeholder={'Enter username or email'} 
+                        onChangeText={setInputText}
+                        value={inputText}
                     />
                     <AuthInput 
                         containerStyle={AuthInputContainerStyle}
