@@ -4,13 +4,13 @@ import { Button, Input } from 'react-native-elements';
 
 import { Auth } from 'aws-amplify';
 import { showErrorToast } from '../../components/utils/toasts';
-import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 
-import { AuthButton, AuthInput, AuthHeaderLeft, AuthHeaderView } from '../../components/utils/AuthComponents';
 import BackButton from '../../components/utils/BackButton';
 import { KeyboardHidingBlackContainer } from './SignInScreen';
 import ReelayColors from '../../constants/ReelayColors';
+
+import { getInputUsername } from '../../components/utils/usernameOrEmail';
 
 export default ForgotPasswordScreen = ({ navigation }) => {
 
@@ -51,26 +51,31 @@ export default ForgotPasswordScreen = ({ navigation }) => {
     `
 
     const EmailInput = () => {
+        const [inputText, setInputText] = useState(true);
 
-        const authContext = useContext(AuthContext);
-
-        const [username, setUsername] = useState(true);
-        const FORGOT_PW_EMAIL_ERROR_MESSAGE = 'Couldn\'t send forgot password email';
+        const handleBadEmail = async () => {
+            showErrorToast('Could not find email address. Retry?');
+            Amplitude.logEventWithPropertiesAsync('signInFailedBadEmail', {
+                email: inputText,
+            });
+        }
 
         const sendForgotPasswordEmail = async () => {
-            console.log('Attempting to send forgot password email');
-            Auth.forgotPassword(
-                username
-            ).then((result) => {
-                console.log('Sent forgot password email');
-                console.log(result);
-                authContext.setUsername(username);
-                navigation.push('ForgotPasswordSubmitScreen');
-            }).catch((error) => {
-                console.log(FORGOT_PW_EMAIL_ERROR_MESSAGE);
-                console.log(error);
-                showErrorToast(FORGOT_PW_EMAIL_ERROR_MESSAGE);
-            });
+            const username = await getInputUsername(inputText);
+            if (!username.length) {
+                handleBadEmail();
+                return;
+            }
+
+            try {
+                const forgotPasswordResult = await Auth.forgotPassword(username);
+                navigation.push('ForgotPasswordSubmitScreen', {
+                    username: username
+                });
+                console.log(forgotPasswordResult);
+            } catch (error) {
+                showErrorToast('Could not send forgot password email. Retry?');
+            }
         }
         
         return (
@@ -78,8 +83,8 @@ export default ForgotPasswordScreen = ({ navigation }) => {
                 <AuthInput 
                     containerStyle={AuthInputContainerStyle}
                     autoCapitalize='none'
-                    placeholder={'Enter username'} 
-                    onChangeText={setUsername}
+                    placeholder={'Enter username or email'} 
+                    onChangeText={setInputText}
                     rightIcon={{type: 'ionicon', name: 'mail-outline', color: 'white'}}
                 />
                 <CTAButton title='Send me a reset link' type='solid' onPress={sendForgotPasswordEmail}

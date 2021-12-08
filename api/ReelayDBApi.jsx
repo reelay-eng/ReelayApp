@@ -73,7 +73,7 @@ export const getStacksByCreator = async (creatorSub) => {
 
 export const getMostRecentStacks = async (page = 0) => {
     console.log('Getting most recent reelays...');
-    const routeGet = REELAY_API_BASE_URL + `/reelays?page=${page}&visibility=${FEED_VISIBILITY}`;
+    const routeGet = `${REELAY_API_BASE_URL}/reelays?page=${page}&visibility=${FEED_VISIBILITY}`;
     const fetchedStacks = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS, 
@@ -92,7 +92,7 @@ export const getMostRecentStacks = async (page = 0) => {
 }
 
 export const getMostRecentReelaysByTitle = async (tmdbTitleID, page = 0) => {
-    const routeGet = REELAY_API_BASE_URL + `/reelays/${tmdbTitleID}?page=${page}&visibility=${FEED_VISIBILITY}`;
+    const routeGet = `${REELAY_API_BASE_URL}/reelays/${tmdbTitleID}?page=${page}&visibility=${FEED_VISIBILITY}`;
     const fetchedReelays = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS,
@@ -108,30 +108,41 @@ export const getMostRecentReelaysByTitle = async (tmdbTitleID, page = 0) => {
 
 export const getRegisteredUser = async (userSub) => {
     console.log('Fetching registered user...');
-    const routeGet = REELAY_API_BASE_URL + '/users/' + userSub;
+    const routeGet = `${REELAY_API_BASE_URL}/users/sub/${userSub}`;
     const resultGet = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS,
     });
     console.log('Registered user result: ', resultGet);
 
-    if (!resultGet) {
+    if (!resultGet || resultGet.error) {
         console.log('User not registered');
         return null;
     }
     return resultGet;
 }
 
+export const getUserByEmail = async (address) => {
+    const routeGet = `${REELAY_API_BASE_URL}/users/byemail/${address}`;
+    const userResult = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: REELAY_API_HEADERS,
+    });
+
+    console.log('Get user by email result: ', userResult);
+    return userResult;
+}
+
 export const getUserByUsername = async (username) => {
     console.log('Fetching registered user...');
-    const routeGet = REELAY_API_BASE_URL + '/users/byusername/' + username;
+    const routeGet = `${REELAY_API_BASE_URL}/users/byusername/${username}`;
     const resultGet = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS, 
     });
     console.log('Registered user result: ', resultGet);
 
-    if (!resultGet) {
+    if (!resultGet || resultGet.error) {
         console.log('User not registered');
         return null;
     }
