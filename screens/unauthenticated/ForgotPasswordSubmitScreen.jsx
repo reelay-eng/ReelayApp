@@ -3,7 +3,6 @@ import { View, SafeAreaView, KeyboardAvoidingView, Text} from 'react-native';
 import { Button, Input } from 'react-native-elements';
 
 import { Auth } from 'aws-amplify';
-import { AuthContext } from '../../context/AuthContext';
 import { showMessageToast, showErrorToast } from '../../components/utils/toasts';
 import BackButton from '../../components/utils/BackButton';
 
@@ -13,7 +12,7 @@ import styled from 'styled-components/native';
 
 import ReelayColors from '../../constants/ReelayColors';
 
-export default ForgotPasswordSubmitScreen = ({ navigation }) => {
+export default ForgotPasswordSubmitScreen = ({ navigation, route }) => {
 
     const InputContainer = styled(View)`
         margin-bottom: 60px;
@@ -57,11 +56,11 @@ export default ForgotPasswordSubmitScreen = ({ navigation }) => {
         color: white;
         font-size: 20px;
         margin-bottom: 10px;
-    `;
+    `
+    
+    const { username } = route.params;
 
     const PasswordInput = () => {
-        const authContext = useContext(AuthContext);
-
         const [confirmationCode, setConfirmationCode] = useState('');
         const [newPassword, setNewPassword] = useState('');
         const [confirmNewPassword, setConfirmNewPassword] = useState('');
@@ -74,34 +73,36 @@ export default ForgotPasswordSubmitScreen = ({ navigation }) => {
 
         const forgotPasswordSubmit = async () => {
             console.log('Attempting to reset password');
-            await Auth.forgotPasswordSubmit(
-                authContext.username,
-                confirmationCode,
-                newPassword
-            ).then((result) => {
+
+            try {
+                const forgotPasswordSubmitResult = await Auth.forgotPasswordSubmit(
+                    username,
+                    confirmationCode,
+                    newPassword
+                );    
+
                 console.log('Reset password successfully');
-                console.log(result);
+                console.log(forgotPasswordSubmitResult);
                 navigation.push('ForgotPasswordAffirmScreen');
-            }).catch((error) => {
+            } catch (error) {
                 console.log(FORGOT_PW_SUBMIT_ERROR_MESSAGE);
                 console.log(error);
                 showErrorToast(FORGOT_PW_SUBMIT_ERROR_MESSAGE);
-            });
+            }
         }
 
         const resendForgotPasswordEmail = async () => {
             console.log('Attempting to resend forgot password email');
-            Auth.forgotPassword(
-                authContext.username
-            ).then((result) => {
-                console.log('Resent forgot password email');
-                console.log(result);
-                showMessageToast(RESEND_FORGOT_PW_EMAIL_MESSAGE);
-            }).catch((error) => {
+
+            try {
+                const resendForgotPasswordResult = await Auth.forgotPassword(username);
+                console.log(resendForgotPasswordResult);
+                showMessageToast(RESEND_FORGOT_PW_EMAIL_MESSAGE);    
+            } catch (error) {
                 console.log(FORGOT_PW_EMAIL_ERROR_MESSAGE);
                 console.log(error);
                 showErrorToast(FORGOT_PW_EMAIL_ERROR_MESSAGE);
-            });
+            }
         }
 
 
@@ -109,7 +110,7 @@ export default ForgotPasswordSubmitScreen = ({ navigation }) => {
             <InputContainer>
                 <AuthInput 
                     containerStyle={AuthInputContainerStyle}
-                    placeholder={'Enter confirmation code'} 
+                    placeholder={'Enter verification code'} 
                     onChangeText={setConfirmationCode}
                 />
                 <AuthInput 
