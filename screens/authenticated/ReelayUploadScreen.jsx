@@ -1,20 +1,28 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 import { UploadContext } from '../../context/UploadContext';
-import { Auth, DataStore, Storage } from 'aws-amplify';
-import { Reelay } from '../../src/models';
+
+import { EncodingType, readAsStringAsync } from 'expo-file-system';
+import { Buffer } from 'buffer';
+import { v4 as uuidv4 } from 'uuid';
+
+import { 
+    CreateMultipartUploadCommand,
+    CompleteMultipartUploadCommand,
+    ListPartsCommand,
+    PutObjectCommand,
+    UploadPartCommand,
+} from '@aws-sdk/client-s3';
+
+import ConfirmRetakeDrawer from '../../components/create-reelay/ConfirmRetakeDrawer';  
 
 import Constants from 'expo-constants';
 import * as MediaLibrary from 'expo-media-library';
 
-import BackButton from '../../components/utils/BackButton';
 import PreviewVideoPlayer from '../../components/create-reelay/PreviewVideoPlayer';
-import ReelayPreviewOverlay from '../../components/overlay/ReelayPreviewOverlay';
 
-import { Dimensions, Text, View, SafeAreaView, Pressable } from 'react-native';
-import { Button } from 'react-native-elements';
-import { Switch } from 'react-native-paper';
+import { Dimensions, Image, SafeAreaView, Pressable, Text, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 import * as Progress from 'react-native-progress';
 
 import * as Amplitude from 'expo-analytics-amplitude';
@@ -22,59 +30,187 @@ import { sendStackPushNotificationToOtherCreators } from '../../api/Notification
 
 import styled from 'styled-components/native';
 import { postReelayToDB } from '../../api/ReelayDBApi';
+import { getPosterURL } from '../../api/TMDbApi';
+import ReelayColors from '../../constants/ReelayColors';
 
 const { height, width } = Dimensions.get('window');
+const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
+const UPLOAD_CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
 
-const UploadScreenContainer = styled(SafeAreaView)`
-    background-color: black;
+const BackButtonPressable = styled(Pressable)`
+    top: 10px;
+    left: 10px;
+`
+const PosterContainer = styled(SafeAreaView)`
+    top: 10px;
+    right: 10px;
+`
+const PressableVideoContainer = styled(Pressable)`
     height: 100%;
-    justify-content: flex-start;
     width: 100%;
+    position: absolute;
 `
-const UploadTop = styled(View)`
+const SaveButtonPressable = styled(Pressable)`
+    background-color: ${props => props.color}
+    border-radius: 24px;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    width: 80px;
+    bottom: 10px;
+    left: 10px;
+`
+const UploadButtonPressable = styled(Pressable)`
+    background-color: ${props => props.color}
+    border-radius: 24px;
     flex-direction: row;
-    height: 60px;
-    width: 100%;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    width: 240px;
+    bottom: 10px;
+    right: 10px;
 `
-const UploadTopLeft = styled(View)`
+const UploadButtonText = styled(Text)`
+    font-family: System;
+    font-size: 20px;
+    font-weight: 600;
+    color: white;
+    margin-left: 16px;
+`
+const UploadBottomArea = styled(SafeAreaView)`
+    justify-content: flex-end;
+`
+const UploadBottomBar = styled(SafeAreaView)`
     flex-direction: row;
-    margin: 10px;
-    justify-content: flex-start;
-    width: 50%;
+    justify-content: space-between;
 `
-const UploadVideoContainer = styled(Pressable)`
+const UploadTopArea = styled(SafeAreaView)`
+    flex-direction: row;
+    justify-content: space-between;
+`
+const UploadProgressBarContainer = styled(View)`
     align-self: center;
-    border-radius: 10px;
-    height: 75%;
-    margin: 10px;
-    overflow: hidden;
-    width: 75%;
+    justify-content: center;
+    height: 10px;
+    width: ${width - 20}px;
+    bottom: 30px;
+`
+const UploadScreenContainer = styled(View)`
+    height: 100%;
+    width: 100%;
+    background-color: black;
+    justify-content: space-between;
 `
 
 export default ReelayUploadScreen = ({ navigation, route }) => {
 
     const { titleObj, videoURI, venue } = route.params;
 
-    const [hasSavePermission, setHasSavePermission] = useState(null);
+    const uploadStages = [
+        'preview',
+        'uploading',
+        'upload-complete',
+        'upload-failed-retry',
+    ];
+
     const [playing, setPlaying] = useState(true);
-    const [saveToDevice, setSaveToDevice] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0.0);
+    const [uploadStage, setUploadStage] = useState(uploadStages[0]);
+    const [confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible] = useState(false);
 
-    const [uploadComplete, setUploadComplete] = useState(false);
-    const [uploadErrorStatus, setUploadErrorStatus] = useState(false);
-    const [uploading, setUploading] = useState(false);
+    const { cognitoUser, reelayDBUser } = useContext(AuthContext);
+    const { s3Client } = useContext(UploadContext);
 
-    const { cognitoUser } = useContext(AuthContext);
-    const uploadContext = useContext(UploadContext);
+    const uploadReelayToS3 = async (videoURI, videoS3Key) => {
+        setUploadProgress(0.2);
+        const videoStr = await readAsStringAsync(videoURI, { encoding: EncodingType.Base64 });
+        const videoBuffer = Buffer.from(videoStr, 'base64');
+        setUploadProgress(0.4);
 
-    useEffect(() => {
-        (async () => {
-            if (saveToDevice && !hasSavePermission) {
-                const { status } = await MediaLibrary.requestPermissionsAsync();
-                setHasSavePermission(status === "granted");
-            }
-        })();
-    }, [saveToDevice]);
+        let result;
+        if (videoBuffer.byteLength < UPLOAD_CHUNK_SIZE) {
+            result = await uploadToS3SinglePart(videoBuffer, videoS3Key);
+        } else {
+            result = await uploadToS3Multipart(videoBuffer, videoS3Key);
+        }
+
+        setUploadProgress(0.8);
+        console.log('S3 upload complete');
+        return result;
+    }
+
+    const uploadToS3SinglePart = async (videoBuffer, videoS3Key) => {
+        const uploadResult = await s3Client.send(new PutObjectCommand({
+            Bucket: S3_UPLOAD_BUCKET,
+            Key: videoS3Key,
+            ContentType: 'video/mp4',
+            Body: videoBuffer,
+        }));
+
+        return uploadResult;
+    }
+
+    const uploadToS3Multipart = async (videoBuffer, videoS3Key) => {
+        /**
+         * AWS requires each part must be at least 5MB. In this method, each part
+         * is exactly 5MB except the last chunk, which can be up to 10MB
+         */
+
+        const numParts = Math.floor(videoBuffer.byteLength / UPLOAD_CHUNK_SIZE);
+        const partNumberRange = Array.from(Array(numParts), (empty, index) => index);
+
+        const { UploadId } = await s3Client.send(new CreateMultipartUploadCommand({
+            Bucket: S3_UPLOAD_BUCKET,
+            Key: videoS3Key,
+            ContentType: 'video/mp4',
+        }));
+
+        setUploadProgress(0.6);
+
+        const uploadPartResults = await Promise.all(partNumberRange.map(async (partNumber) => {
+            console.log('PART NUMBER: ', partNumber);
+
+            // byteEnd rounds to the end of the file, so its buffer is normally > 5MB
+            const byteBegin = partNumber * UPLOAD_CHUNK_SIZE;
+            const byteEnd = (partNumber === numParts - 1)
+                ? videoBuffer.byteLength
+                : byteBegin + UPLOAD_CHUNK_SIZE;
+
+            const result = await s3Client.send(new UploadPartCommand({
+                Bucket: S3_UPLOAD_BUCKET,
+                Key: videoS3Key,
+                ContentType: 'video/mp4',
+                Body: videoBuffer.slice(byteBegin, byteEnd),
+                PartNumber: partNumber + 1, // part numbers must be between 1 and 10,000
+                UploadId: UploadId,
+            }));
+
+            console.log('result completed');
+            return result;
+        }));
+
+        console.log(uploadPartResults);
+
+        const uploadParts = await s3Client.send(new ListPartsCommand({
+            Bucket: S3_UPLOAD_BUCKET,
+            Key: videoS3Key,
+            UploadId: UploadId,
+        }));
+        
+        console.log('UPLOAD PARTS: ', uploadParts);
+        console.log('about to complete upload');
+
+        const uploadCompleteStatus = await s3Client.send(new CompleteMultipartUploadCommand({
+            Bucket: S3_UPLOAD_BUCKET,
+            Key: videoS3Key,
+            UploadId: UploadId,
+            MultipartUpload: uploadParts,
+        }));
+
+        return uploadCompleteStatus;
+    }
 
     const publishReelay = async () => {
         if (!videoURI) {
@@ -87,84 +223,29 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             title: titleObj.display,
         });
 
-        if (saveToDevice) {
-            if (!hasSavePermission) {
-                const { status } = await MediaLibrary.requestPermissionsAsync();
-                const nextHasSavePermission = status === 'granted';
-                setHasSavePermission(nextHasSavePermission);
-                if (!nextHasSavePermission) return;
-            }
-
-            try {
-                await MediaLibrary.saveToLibraryAsync(videoURI);
-            } catch (error) {
-                console.log('Could not save to local device...');
-                Amplitude.logEventWithPropertiesAsync('saveToDeviceFailed', {
-                    username: cognitoUser.username,
-                    title: titleObj.display,
-                });
-            }    
-        }
-
         try {
             console.log('Upload dialog initiated.');
-            // Set current user as the creator
-            const creator = await Auth.currentAuthenticatedUser();
-            console.log(creator.attributes.sub);
-    
+            setUploadStage('uploading');
+
             // Adding the file extension directly to the key seems to trigger S3 getting the right content type,
             // not setting contentType as a parameter in the Storage.put call.
-            const videoS3Key = 'reelayvid-' + creator.attributes.sub + '-' + Date.now() + '.mp4';
-    
-            // Upload video to S3
-            const videoResponse = await fetch(videoURI);
-            const videoData = await videoResponse.blob();
+            const uploadTimestamp = Date.now();
+            const videoS3Key = `reelayvid-${cognitoUser.attributes.sub}-${uploadTimestamp}.mp4`;
+            const s3UploadResult = await uploadReelayToS3(videoURI, `public/${videoS3Key}`);
+            console.log(s3UploadResult);
 
-            setUploading(true);
-            const uploadStatusS3 = await Storage.put(videoS3Key, videoData, {
-                progressCallback(progress) {
-                    if (progress && progress.loaded && progress.total) {
-                        console.log(`Uploaded: ${progress.loaded}/${progress.total}`);
-                        uploadContext.setChunksUploaded(progress.loaded);
-                        uploadContext.setChunksTotal(progress.total);    
-                    } else {
-                        console.log('Progress callback missing values.');
-                    }
-                }
-            });
+            // Post Reelay object to ReelayDB
+            // not checking for dupes on uuidv4(), 
+            // but a collision is less than a one in a quadrillion chance
 
-            console.log(uploadStatusS3);
-            console.log('Successfully saved video to S3: ', videoS3Key);
-
-            // Create Reelay object for Amplify --> we're getting rid of this
-            const reelay = new Reelay({
-                owner: creator.attributes.sub,
-                creatorID: creator.attributes.sub,
+            const reelayDBBody = {
+                creatorSub: cognitoUser.attributes.sub,
+                creatorName: cognitoUser.username,
+                datastoreSub: uuidv4(), 
                 isMovie: titleObj.isMovie,
                 isSeries: titleObj.isSeries,
-                movieID: titleObj.id.toString(),
-                seriesSeason: -1,
-                seasonEpisode: -1,
-                uploadedAt: new Date().toISOString(),
-                tmdbTitleID: titleObj.id.toString(),
-                venue: venue,
-                videoS3Key: videoS3Key,
-                visibility: UPLOAD_VISIBILITY,
-            });
-
-            // Upload Reelay object to Amplfiy, get ID
-            const datastoreReelay = await DataStore.save(reelay);
-            console.log('Saved Reelay to datastore: ', datastoreReelay);
-
-            // Post Reelay object to ReelayDB --> we're moving to this
-            const reelayDBBody = {
-                creatorSub: datastoreReelay.creatorID,
-                creatorName: cognitoUser.username,
-                datastoreSub: datastoreReelay.id,
-                isMovie: datastoreReelay.isMovie,
-                isSeries: datastoreReelay.isSeries,
-                postedAt: datastoreReelay.uploadedAt,
-                tmdbTitleID: datastoreReelay.tmdbTitleID,
+                postedAt: uploadTimestamp,
+                tmdbTitleID: titleObj.id,
                 venue: venue,
                 videoS3Key: videoS3Key,
                 visibility: UPLOAD_VISIBILITY,
@@ -173,25 +254,29 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             const postResult = await postReelayToDB(reelayDBBody);
             console.log('Saved Reelay to DB: ', postResult);
             
-            setUploading(false);    
-            setUploadComplete(true);
+            setUploadProgress(1.0);
+            setUploadStage('upload-complete');
 
             console.log('saved new Reelay');
             console.log('Upload dialog complete.');
 
+            console.log('REELAYDB USER: ', reelayDBUser);
+
             Amplitude.logEventWithPropertiesAsync('publishReelayComplete', {
                 username: cognitoUser.username,
+                userSub: cognitoUser.attributes.sub,
                 title: titleObj.display,
             });
 
             // janky, but this gets the reelay into the format we need, so that
-            // we can reuse fetchReelaysForStack from ReelayApi
+            // we can reuse fetchReelaysForStack from ReelayDBApi
+
             await sendStackPushNotificationToOtherCreators({
                 creator: cognitoUser,
                 reelay: { 
-                    ...reelay, 
+                    ...reelayDBBody, 
                     title: {
-                        id: reelay.tmdbTitleID 
+                        id: reelayDBBody.tmdbTitleID 
                     }
                 },
             });
@@ -200,13 +285,9 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         } catch (error) {
             // todo: better error catching
             console.log('Error uploading file: ', error);
-            setUploadErrorStatus(true);
-            setUploading(false);
-            setUploadComplete(false);
+            setUploadProgress(0.0);
+            setUploadStage('upload-failed-retry');
             
-            uploadContext.setChunksUploaded(0);
-            uploadContext.setChunksTotal(0);
-
             Amplitude.logEventWithPropertiesAsync('uploadFailed', {
                 username: cognitoUser.username,
                 title: titleObj.display,
@@ -214,210 +295,195 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         }
     }
 
-    const Retake = () => {
-        const RetakeContainer = styled(Pressable)`
-            height: 20px;
-            top: 12px;
-        `
-        const RetakeText = styled(Text)`
-            font-size: 20px;
-            font-family: System;
-            color: white;
-        `
-        return (
-            <RetakeContainer onPress={() => { 
-                Amplitude.logEventWithPropertiesAsync('retake', {
+    const SaveButton = () => {
+        const [hasSavePermission, setHasSavePermission] = useState(null);
+        const [downloadStage, setDownloadStage] = useState('preview');
+
+        const getBackgroundColor = () => {
+            if (downloadStage === 'preview') {
+                return ReelayColors.reelayBlue;
+            } else if (downloadStage === 'downloading') {
+                return ReelayColors.reelayBlack;
+            } else if (downloadStage === 'download-complete') {
+                return 'green';
+            } else {
+                return ReelayColors.reelayRed;
+            }
+        }
+
+        const getCurrentIconName = () => {
+            if (downloadStage === 'preview') {
+                return 'download';
+            } else if (downloadStage === 'downloading') {
+                return 'download';
+            } else if (downloadStage === 'download-complete') {
+                return 'checkmark-done';
+            } else {
+                return 'reload';
+            }
+        }
+
+        const saveReelay = async () => {
+            if (!hasSavePermission) {
+                const { status } = await MediaLibrary.requestPermissionsAsync();
+                const nextHasSavePermission = status === 'granted';
+                setHasSavePermission(nextHasSavePermission);
+                if (!nextHasSavePermission) return;
+            }
+    
+            try {
+                setDownloadStage('downloading');
+                await MediaLibrary.saveToLibraryAsync(videoURI);
+                setDownloadStage('download-complete');
+            } catch (error) {
+                console.log('Could not save to local device...');
+                Amplitude.logEventWithPropertiesAsync('saveToDeviceFailed', {
                     username: cognitoUser.username,
                     title: titleObj.display,
                 });
-                navigation.pop();
-            }}>
-                <RetakeText>{'Retake'}</RetakeText>
-            </RetakeContainer>
-        );
-    }
-
-    const UploadStatus = () => {
-        const UploadStatusContainer = styled(View)`
-            height: 20px;
-            position: absolute;
-            right: ${width / 8}px;
-            top: 12px;
-        `
-        const UploadStatusText = styled(Text)`
-            font-size: 20px;
-            font-family: System;
-            color: white;
-        `
-        const StatusTextContainer = styled(View)`
-            height: 30px;
-            align-self: flex-end;
-        `
-        const PublishButton = styled(Pressable)`
-            align-self: flex-end;
-            height: 30px;
-            margin: 10px;
-        `
-
-        const readyToPublish = (!uploading && !uploadComplete && !uploadErrorStatus);
-
+                setDownloadStage('download-failed-retry');
+            }
+        }
+    
         return (
-            <UploadStatusContainer>
-                { uploading && 
-                    <StatusTextContainer>
-                        <UploadStatusText>{'Uploading...'}</UploadStatusText>
-                    </StatusTextContainer>
-                }
-                { uploadComplete && 
-                    <StatusTextContainer>
-                        <UploadStatusText>{'Uploaded'}</UploadStatusText>
-                    </StatusTextContainer>
-                }
-                { uploadErrorStatus && 
-                    <StatusTextContainer>
-                        <UploadStatusText>{'Upload Error'}</UploadStatusText>
-                    </StatusTextContainer>
-                }
-                { readyToPublish && <PublishButton onPress={publishReelay}>
-                    <UploadStatusText>{'Publish'}</UploadStatusText>
-                </PublishButton>}
-            </UploadStatusContainer>
+            <SaveButtonPressable onPress={saveReelay} color={getBackgroundColor()}>
+                <Icon type='ionicon' name={getCurrentIconName()} color={'white'} size={30} />
+            </SaveButtonPressable>  
         );
     }
 
-    const UploadOptions = () => {
-        const UploadOptionsContainer = styled(View)`
-            margin: 5px;
-        `
-        const UploadOptionItemContainer = styled(View)`
-            height: 15px;
-            width: 75%;
-            margin-bottom: 20px;
-            margin-left: 10px;
-            flex-direction: row;
-            justify-content: space-between;
-        `
-        const OptionText = styled(Text)`
-            font-size: 17px;
-            font-family: System;
-            color: white;
-            position: absolute;
-            left: 12.5%;
-        `
-        const OptionSetter = styled(Pressable)`
-            height: 100%;
-            width: 100%;
-            position: absolute;
-            left:83.5%;
-        `
-        const SwitchContainer = styled(View)`
-            height: 100%;
-            width: 100%;
-            position: absolute;
-            left: 96%;
-        `
+    const UploadButton = () => {
+        
+        const getCurrentButtonColor = () => {
+            if (uploadStage === 'preview') {
+                return ReelayColors.reelayBlue;
+            } else if (uploadStage === 'uploading') {
+                return ReelayColors.reelayBlue;
+            } else if (uploadStage === 'upload-complete') {
+                return 'green';
+            } else if (uploadStage === 'upload-failed-retry') {
+                return ReelayColors.reelayBlue;
+            } else {
+                return ReelayColors.reelayRed;
+            }
+        }
 
-        const toggleSaveToDevice = () => {
-            setSaveToDevice(!saveToDevice);
+        // https://ionic.io/ionicons
+        const getCurrentIconName = () => {
+            if (uploadStage === 'preview') {
+                return 'paper-plane';
+            } else if (uploadStage === 'uploading') {
+                return 'ellipsis-horizontal';
+            } else if (uploadStage === 'upload-complete') {
+                return 'checkmark-done';
+            } else if (uploadStage === 'upload-failed-retry') {
+                return 'reload';
+            } else {
+                return 'help';
+            }
+        }
+
+        const getCurrentText = () => {
+            if (uploadStage === 'preview') {
+                return 'Publish Reelay';
+            } else if (uploadStage === 'uploading') {
+                return 'Uploading';
+            } else if (uploadStage === 'upload-complete') {
+                return 'Complete';
+            } else if (uploadStage === 'upload-failed-retry') {
+                return 'Upload Failed - Retry?';
+            } else {
+                return 'Something went wrong';
+            }
+        }
+
+        const onPress = () => {
+            if (uploadStage === 'preview') {
+                publishReelay();
+            } else if (uploadStage === 'uploading') {
+                // do nothing
+            } else if (uploadStage === 'upload-complete') {
+                navigation.popToTop();
+                navigation.navigate('HomeFeedScreen', { forceRefresh: true });    
+            } else if (uploadStage === 'upload-failed-retry') {
+                publishReelay();
+            }
         }
 
         return (
-            <UploadOptionsContainer>
-                <UploadOptionItemContainer>
-                    <OptionText>{'Who can see'}</OptionText>
-                    <OptionSetter>
-                        <OptionText>{'Public'}</OptionText>
-                    </OptionSetter>
-                </UploadOptionItemContainer>
-                <UploadOptionItemContainer>
-                    <OptionText>{'Save to Device'}</OptionText>
-                    <SwitchContainer>
-                        <Switch value={saveToDevice} onValueChange={toggleSaveToDevice} color={'#db1f2e'} />
-                    </SwitchContainer>
-                </UploadOptionItemContainer>
-            </UploadOptionsContainer>
+            <UploadButtonPressable onPress={onPress} color={getCurrentButtonColor()}>
+                <Icon type='ionicon' name={getCurrentIconName()} color={'white'} size={30} />
+                <UploadButtonText>{getCurrentText()}</UploadButtonText>
+            </UploadButtonPressable>
         );
     }
 
     const UploadProgressBar = () => {
-        const UploadProgressBarContainer = styled(View)`
-            align-self: center;
-            height: 10px;
-            margin: 15px;
-            justify-content: center;
-            width: 75%;
-        `
-        const chunksUploaded = uploadContext.chunksUploaded;
-        const chunksTotal = uploadContext.chunksTotal;    
-        const indeterminate = chunksUploaded == 0 && uploading;
-
-        // +1 prevents NaN error. hacky.
-        let progress = chunksUploaded / (chunksTotal + 1);
-        if (!chunksUploaded == 0 && chunksUploaded == chunksTotal) {
-            progress = 1;
-        }
+        const indeterminate = (uploadProgress < 0.1) && (uploadStage === 'uploading');
+        const progressBarColor = (uploadStage === 'upload-complete') 
+            ? 'green' 
+            : 'white';
     
         return (
             <UploadProgressBarContainer>
-                { (uploading || uploadComplete) && 
-                    <Progress.Bar color={'white'} indeterminate={indeterminate} progress={progress} width={width * 0.75} />
+                { ((uploadStage === 'uploading') || (uploadStage === 'upload-complete')) && 
+                    <Progress.Bar 
+                        color={progressBarColor} 
+                        indeterminate={indeterminate} 
+                        progress={uploadProgress} 
+                        width={width - 20} 
+                        height={8}
+                        borderRadius={8}
+                    />
                 }
             </UploadProgressBarContainer>
         );
     }
 
-    const DoneButton = () => {
+    const playPause = () => playing ? setPlaying(false) : setPlaying(true);
+    const posterURL = getPosterURL(titleObj?.posterURI);
 
-        const DoneButtonMargin = styled(View)`
-            align-self: center;
-            height: 40px;
-            margin: 10px;
-            width: 60%;
-        `
-        const exitCreate = ({ navigation }) => {
-            setUploading(false);
-            setUploadComplete(false);
-
-            uploadContext.setChunksUploaded(0);
-            uploadContext.setChunksTotal(0);
-
-            navigation.popToTop();
-            navigation.navigate('HomeFeedScreen', { forceRefresh: true });
-        }
-
-        return (
-            <DoneButtonMargin>
-                { uploadComplete &&
-                    <Button 
-                        buttonStyle={{ borderColor: 'white' }}
-                        titleStyle={{ color: 'white' }}
-                        onPress={() => exitCreate({ navigation })}
-                        title='Done' type='outline' />
-                }
-            </DoneButtonMargin>
-        );
+    const posterStyle = {
+        borderColor: 'white',
+        borderRadius: 8, 
+        borderWidth: 1, 
+        height: 150, 
+        width: 100, 
     }
 
-    const playPause = () => playing ? setPlaying(false) : setPlaying(true);
+    const openConfirmRetakeDrawer = async () => {
+        if (uploadStage !== 'uploading' || uploadStage !== 'upload-complete') {
+            setConfirmRetakeDrawerVisible(true);
+        }
+    }
 
     return (
         <UploadScreenContainer>
-            <UploadTop>
-                { !uploading && !uploadComplete &&
-                    <UploadTopLeft>
-                        <BackButton navigation={navigation} />
-                        <Retake />          
-                    </UploadTopLeft>          
-                }
-                <UploadStatus />
-            </UploadTop>
-            <UploadProgressBar />
-            <UploadVideoContainer onPress={playPause}>
+            <PressableVideoContainer onPress={playPause}>
                 <PreviewVideoPlayer videoURI={videoURI} playing={playing} />
-                <ReelayPreviewOverlay titleObj={titleObj} venue={venue} />
-            </UploadVideoContainer>
-            { !uploadComplete && !uploading && <UploadOptions /> }
-            { uploadComplete && <DoneButton /> }
+            </PressableVideoContainer>
+            <UploadTopArea>
+                <BackButtonPressable onPress={openConfirmRetakeDrawer}>
+                    { (uploadStage !== 'uploading' || uploadStage !== 'upload-complete') &&
+                        <Icon type='ionicon' name='chevron-back-outline' color={'white'} size={30} />
+                    }
+                </BackButtonPressable>
+                <PosterContainer>
+                    <Image source={{ uri: posterURL }} style={posterStyle} />
+                </PosterContainer>
+            </UploadTopArea>
+            <UploadBottomArea>
+                <UploadProgressBar />
+                <UploadBottomBar>
+                    <SaveButton />
+                    <UploadButton />
+                </UploadBottomBar>
+            </UploadBottomArea>
+            <ConfirmRetakeDrawer 
+                navigation={navigation} titleObj={titleObj} 
+                confirmRetakeDrawerVisible={confirmRetakeDrawerVisible}
+                setConfirmRetakeDrawerVisible={setConfirmRetakeDrawerVisible}
+            />
         </UploadScreenContainer>
     );
 };

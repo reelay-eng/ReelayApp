@@ -32,6 +32,7 @@ export default ({ config }) => {
 
         reelayApiBaseUrl: getReelayAPIBaseURL(),
         reelayApiKey: 'ac739ac2-5877-47de-a861-59bc776bdd27',
+        reelayS3UploadBucket: 'reelay-content211002-dev',
 
         tmdbApiKey: '033f105cd28f507f3dc6ae794d5e44f5',
         tmdbApiBaseUrl: 'https://api.themoviedb.org/3',
