@@ -12,6 +12,7 @@ import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 
 import HomeFeedScreen from '../screens/authenticated/HomeFeedScreen';
+import MyFollowScreen from '../screens/authenticated/MyFollowScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
 import ProfileFeedScreen from '../screens/authenticated/ProfileFeedScreen';
 import ProfileSettingsScreen from '../screens/authenticated/ProfileSettingsScreen';
@@ -24,6 +25,7 @@ import SingleReelayScreen from '../screens/authenticated/SingleReelayScreen';
 import TitleDetailScreen from '../screens/authenticated/TitleDetailScreen';
 import TitleFeedScreen from '../screens/authenticated/TitleFeedScreen';
 import TitleTrailerScreen from '../screens/authenticated/TitleTrailerScreen';
+import UserFollowScreen from '../screens/authenticated/UserFollowScreen';
 import UserProfileScreen from '../screens/authenticated/UserProfileScreen';
 import VenueSelectScreen from '../screens/authenticated/VenueSelectScreen';
  
@@ -152,6 +154,13 @@ const HomeTabNavigator = () => {
                 }}
             />
             <HomeTabStack.Screen
+                name='UserFollowScreen'
+                component={UserFollowScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <HomeTabStack.Screen
                 name='UserProfileScreen'
                 component={UserProfileScreen}
                 options={{
@@ -215,6 +224,13 @@ const SearchTabNavigator = () => {
             <SearchTabStack.Screen
                 name='UserProfileScreen'
                 component={UserProfileScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <SearchTabStack.Screen
+                name='UserFollowScreen'
+                component={UserFollowScreen}
                 options={{
                     headerShown: false,
                 }}
@@ -292,8 +308,22 @@ const ProfileTabNavigator = () => {
                 }}
             />
             <ProfileTabStack.Screen
+                name='MyFollowScreen'
+                component={MyFollowScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <ProfileTabStack.Screen
                 name='UserProfileScreen'
                 component={UserProfileScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <ProfileTabStack.Screen
+                name='UserFollowScreen'
+                component={UserFollowScreen}
                 options={{
                     headerShown: false,
                 }}

@@ -1,48 +1,26 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Dimensions, SafeAreaView, ScrollView, View } from 'react-native';
-import { getStacksByCreator, getFollowing, getFollowers, getFollowRequests } from '../../api/ReelayDBApi';
+import { SafeAreaView, ScrollView, View } from 'react-native';
+import { getStacksByCreator } from '../../api/ReelayDBApi';
 
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
 import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
 
+import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 
 export default MyProfileScreen = ({ navigation, route }) => {
 
     const [creatorStacks, setCreatorStacks] = useState([]);
-    // const [followers, setFollowers] = useState([]);
-    // const [following, setFollowing] = useState([]);
-    // const [followReq, setFollowReq] = useState([]);
 
 	const { 
-    cognitoUser,
-    followers,
-    following,
-    followRequests,
-    setFollowers,
-    setFollowing,
-    setFollowRequests,
-  } = useContext(AuthContext); 
-
-    // useEffect(() => {
-    //   loadFollows();
-    // }, []);
-
-    // const loadFollows = async () => {
-    //   const nextFollowers = await getFollowers(cognitoUser.attributes.sub);
-    //   const nextFollowing = await getFollowing(cognitoUser.attributes.sub);
-    //   const nextFollowReq = await getFollowRequests(cognitoUser.attributes.sub);
-
-    //   console.log("next Followers: ", nextFollowers);
-    //   console.log("next Following: ", nextFollowing);
-    //   console.log("next FollowReq: ", nextFollowReq);
-    //   setFollowers(nextFollowers);
-    //   setFollowing(nextFollowing);
-    //   setFollowReq(nextFollowReq);
-    // };
+        cognitoUser,
+        followers,
+        following,
+        followRequests,
+    } = useContext(AuthContext); 
 
     if (!cognitoUser) {
         return (
@@ -77,16 +55,16 @@ export default MyProfileScreen = ({ navigation, route }) => {
         if (userSub.length) loadCreatorStacks();
     }, []);
 
-    Amplitude.logEventWithPropertiesAsync("viewMyProfile", {
-        username: cognitoUser.attributes.username,
+    logEventWithPropertiesAsync("viewMyProfile", {
+        username: cognitoUser.username,
     });
 
     return (
         <ProfileScreenContainer>
             <ProfileTopBar
-            creator={cognitoUser}
-            navigation={navigation}
-            atProfileBase={true}
+                creator={cognitoUser}
+                navigation={navigation}
+                atProfileBase={true}
             />
             <ProfileScrollView>
             <ProfileHeader />
@@ -96,7 +74,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
                 creator={cognitoUser.attributes}
                 followers={followers}
                 following={following}
-                followRequests={followRequests}
+                prevScreen={'MyProfileScreen'}
             />
             <ProfilePosterGrid
                 creatorStacks={creatorStacks}

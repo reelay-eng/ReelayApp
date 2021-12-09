@@ -1,35 +1,38 @@
 import React from "react";
-import { ScrollView, View, Button } from "react-native";
+import { ScrollView, View } from "react-native";
 import FollowItem from "./FollowItem";
 
-const FollowResults = ({ navigation, searchResults, type }) => {
-return (
-    <View>
-    {searchResults.length >= 1 && (
-        <ScrollView>
-        {searchResults.map((result, index) => {
-            return (
-            <View
-                key={index}
-                style={{
-                height: 100,
-                borderBottomColor: "#505050",
-                borderBottomWidth: 0.3,
-                }}
-            >
-                {console.log(result)}
-                <FollowItem
-                result={result}
-                navigation={navigation}
-                type={type}
-                />
-            </View>
-            );
-        })}
-        </ScrollView>
-    )}
-    </View>
-);
+import styled from 'styled-components/native';
+
+const FollowItemContainer = styled(View)`
+    height: 100px;
+    border-bottom-color: #505050;
+    border-bottom-width: 0.3px;
+`
+
+const FollowResults = ({ navigation, searchResults, followType }) => {
+
+    console.log('SEARCH RESULTS: ', searchResults);
+    
+    return (
+        <View>
+            { searchResults.length >= 1 && (
+                <ScrollView>
+                    { searchResults.map((result, index) => {
+                        return (
+                            <FollowItemContainer key={index}>
+                                <FollowItem
+                                    followObj={result}
+                                    navigation={navigation}
+                                    followType={followType}
+                                />
+                            </FollowItemContainer>
+                        );
+                    })}
+                </ScrollView>
+            )}
+        </View>
+    );
 };
 
 export default FollowResults;

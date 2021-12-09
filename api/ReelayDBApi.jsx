@@ -199,13 +199,11 @@ export const getMostRecentReelaysByTitle = async (tmdbTitleID, page = 0) => {
 }
 
 export const getRegisteredUser = async (userSub) => {
-    console.log('Fetching registered user...');
     const routeGet = `${REELAY_API_BASE_URL}/users/sub/${userSub}`;
     const resultGet = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS,
     });
-    console.log('Registered user result: ', resultGet);
 
     if (!resultGet || resultGet.error) {
         console.log('User not registered');

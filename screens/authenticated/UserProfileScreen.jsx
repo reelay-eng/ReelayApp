@@ -9,12 +9,17 @@ import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
 import { AuthContext } from '../../context/AuthContext';
 
+import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
 import styled from 'styled-components/native';
 
 export default UserProfileScreen = ({ navigation, route }) => {
     const [creatorStacks, setCreatorStacks] = useState([]);
     const [followers, setFollowers] = useState([]);
     const [following, setFollowing] = useState([]);
+
+    const { cognitoUser } = useContext(AuthContext);
+    const { creator } = route.params;
+    const creatorSub = creator.sub ?? '';
 
     useEffect(() => {
         loadFollows();
@@ -24,17 +29,11 @@ export default UserProfileScreen = ({ navigation, route }) => {
         const nextFollowers = await getFollowers(creator.sub);
         const nextFollowing = await getFollowing(creator.sub);
 
-        console.log("next Followers: ", nextFollowers);
-        console.log("next Following: ", nextFollowing);
         setFollowers(nextFollowers);
         setFollowing(nextFollowing);
     };
 
-    const { cognitoUser } = useContext(AuthContext);
-    const { creator } = route.params;
-    const creatorSub = creator.sub ?? '';
-
-    const isMyProfile = creatorSub === cognitoUser.attributes.sub;
+    const isMyProfile = (creatorSub === cognitoUser.attributes.sub);
 
     const ProfileScreenContainer = styled(SafeAreaView)`
         background-color: black;
@@ -62,7 +61,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
         if (creatorSub.length) loadCreatorStacks();
     }, []);
 
-    Amplitude.logEventWithPropertiesAsync("viewProfile", {
+    logEventWithPropertiesAsync("viewProfile", {
         username: cognitoUser.attributes.username,
         creatorName: creator.username,
     });
@@ -78,8 +77,15 @@ export default UserProfileScreen = ({ navigation, route }) => {
                 creator={creator}
                 followers={followers}
                 following={following}
+                prevScreen={'UserProfileScreen'}
             />
-            {!isMyProfile && <FollowButtonBar creator={creator} followers={followers} setFollowers={setFollowers}/>}
+            { !isMyProfile && 
+                <FollowButtonBar 
+                    creator={creator} 
+                    followers={followers} 
+                    setFollowers={setFollowers}
+                />
+            }
             <ProfilePosterGrid
                 creatorStacks={creatorStacks}
                 navigation={navigation}

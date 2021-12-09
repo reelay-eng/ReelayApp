@@ -3,9 +3,6 @@ import { ActivityIndicator, Pressable, View } from "react-native";
 import { Image } from "react-native-elements";
 import styled from "styled-components/native";
 
-import { acceptFollowRequest, rejectFollowRequest } from "../../../api/ReelayDBApi";
-import { ReelayColors } from "../../../constants/ReelayColors";
-
 const PressableContainer = styled(Pressable)`
     align-items: center;
     flex-direction: row;

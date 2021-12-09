@@ -1,10 +1,15 @@
-import React, { useEffect, useState, useContext } from "react";
-import { ActivityIndicator, Text, Pressable, View } from "react-native";
-import { Image } from "react-native-elements";
-import { AuthContext } from "../../../context/AuthContext";
-import styled from "styled-components/native";
-import { getUserByUsername } from "../../../api/ReelayDBApi"
-import { followCreator, unfollowCreator, getFollowers } from "../../../api/ReelayDBApi";
+import React, { useEffect, useState, useContext } from 'react';
+import { ActivityIndicator, Text, Pressable, View } from 'react-native';
+import { Image } from 'react-native-elements';
+import { AuthContext } from '../../../context/AuthContext';
+
+import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
+import styled from 'styled-components/native';
+import ReelayColors from '../../../constants/ReelayColors';
+
+import { getUserByUsername } from '../../../api/ReelayDBApi'
+import { followCreator, unfollowCreator } from '../../../api/ReelayDBApi';
+import { showErrorToast } from '../../utils/toasts';
 
 const PressableContainer = styled(Pressable)`
     align-items: center;
@@ -65,118 +70,105 @@ const FollowText = styled(Text)`
 Eventually...
 - should also display people the user follows above those that they do not follow
  */
-export default FollowItem = ({ result, navigation, type }) => {
-    const followObject = result; // follow obj
-    const username =
-      type === "Following" ? followObject.creatorName : followObject.followerName;
-    const profilePictureURI = followObject.profilePictureURI;
-    const [creatorObj, setCreatorObj] = useState();
-    const [alreadyFollow, setAlreadyFollow] = useState(type === "Following"); // placeholder
-    // const [creatorFollowers, setCreatorFollowers] = useState([]);
+
+export default FollowItem = ({ followObj, navigation, followType }) => {
 
     const { reelayDBUser, following, setFollowing } = useContext(AuthContext);
-    const userSub = reelayDBUser.sub;
+    const [followUserObj, setFollowUserObj] = useState();
 
-    // doesn't work 
-    const isMyProfile = 
-      type === "Followers"
-        ? followObject.followerName === username
-        : followObject.creatorName === username; 
+
+    const followUsername = (followType === 'Following') ? followObj.creatorName : followObj.followerName;
+    const followUserSub = (followType === 'Following') ? followObj.creatorSub : followObj.followerSub;
+    const followProfilePictureURI = null;
+
+    console.log('FOLLOW OBJECT: ', followObj);
+    console.log('FOLLOW TYPE: ', followType);
+    console.log('FOLLOW USERNAME: ', followUsername);
+
+    const myUserSub = reelayDBUser.sub;
+    const isMyProfile = (myUserSub === followUserSub);
+
+    const findFollowUser = (userObj) => (userObj.creatorSub === followUserSub);
+    const initAlreadyFollow = following.find(findFollowUser);
+    const [alreadyFollow, setAlreadyFollow] = useState(initAlreadyFollow);
 
     useEffect(() => {
         getCreator();
     }, []);
 
     const getCreator = async() => {
-      const nextCreator = await getUserByUsername(username);
-
-      setCreatorObj(nextCreator);
+        const followUserObj = await getUserByUsername(followUsername);
+        setFollowUserObj(followUserObj);
     }
 
-  // username
     const followUser = async () => {
-        const followResult = await followCreator(
-            followObject.creatorSub,
-            userSub
-        );
-        // const { error, requestStatus } = followResult;
+        const followResult = await followCreator(followUserSub, myUserSub);
         const isFollowing = !followResult?.error && !followResult?.requestStatus;
-        console.log("follow result: ", followResult);
 
         if (isFollowing) {
-            // setFollowers([...followers, followResult]);
             setFollowing([...following, followResult]);
             setAlreadyFollow(true);
         } else {
             // handle error
         }
 
-        // add Amplitude logging
-
-        console.log(reelayDBUser.username + " followed " + followObject.username);
+        logEventWithPropertiesAsync('followedUser', {
+            followerName: reelayDBUser.username,
+            followSub: reelayDBUser.sub
+        })
     };
 
     const unfollowUser = async () => {
-        const unfollowResult = await unfollowCreator(
-        followObject.creatorSub,
-        userSub
-        );
-        console.log(
-        reelayDBUser.username + " unfollowed " + followObject.username
-        );
-        // checkAlreadyFollow();
+        const unfollowResult = await unfollowCreator(followUserSub, myUserSub);
         const unfollowSucceeded = !unfollowResult?.error;
-        if (unfollowSucceeded) {
-            // const nextFollowers = followers.filter((followObj) => {
-            // return followObj.followerSub !== userSub;
-            // });
-            //setFollowers(nextFollowers);
 
+        if (unfollowSucceeded) {
             const nextFollowing = following.filter((followObj) => {
-            return followObj.creatorSub !== creatorSub;
+                return followObj.creatorSub !== followUserSub;
             });
+
             setFollowing(nextFollowing);
             setAlreadyFollow(false);
         } else {
-            // handle error
+            showErrorToast('Something went wrong unfollowing this user. Try again?');
         }
         // add Amplitude logging
     };
 
     const selectResult = () => {
-        navigation.push("UserProfileScreen", { creator: creatorObj });
+        navigation.push('UserProfileScreen', { creator: followUserObj });
     };
 
     return (
         <PressableContainer onPress={selectResult}>
             <ProfilePictureContainer>
-            {profilePictureURI && (
-                <ProfilePicture
-                source={{ uri: profilePictureURI }}
-                PlaceholderContent={<ActivityIndicator />}
-                />
-            )}
-            {!profilePictureURI && (
-                <ProfilePicture
-                source={require("../../../assets/icons/reelay-icon.png")}
-                />
-            )}
+                {followProfilePictureURI && (
+                    <ProfilePicture
+                        source={{ uri: profilePictureURI }}
+                        PlaceholderContent={<ActivityIndicator />}
+                    />
+                )}
+                {!followProfilePictureURI && (
+                    <ProfilePicture
+                        source={require('../../../assets/icons/reelay-icon.png')}
+                    />
+                )}
             </ProfilePictureContainer>
             <UsernameContainer>
-            <UsernameText>{username}</UsernameText>
+                <UsernameText>{followUsername}</UsernameText>
             </UsernameContainer>
 
             <FollowContainer>
-            {!alreadyFollow && !isMyProfile && (
-                <FollowButton onPress={followUser}>
-                <FollowText>{"Follow"}</FollowText>
-                </FollowButton>
-            )}
-            {alreadyFollow && !isMyProfile && (
-                <FollowButton onPress={unfollowUser}>
-                <FollowText>{"Following"}</FollowText>
-                </FollowButton>
-            )}
+                {!alreadyFollow && !isMyProfile && (
+                    <FollowButton onPress={followUser}>
+                        <FollowText>{'Follow'}</FollowText>
+                    </FollowButton>
+                )}
+                {alreadyFollow && !isMyProfile && (
+                    <FollowButton onPress={unfollowUser}>
+                        <FollowText>{'Following'}</FollowText>
+                    </FollowButton>
+                )}
             </FollowContainer>
         </PressableContainer>
     );
