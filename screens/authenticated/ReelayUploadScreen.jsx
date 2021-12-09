@@ -14,6 +14,8 @@ import {
     UploadPartCommand,
 } from '@aws-sdk/client-s3';
 
+import ConfirmRetakeDrawer from '../../components/create-reelay/ConfirmRetakeDrawer';  
+
 import Constants from 'expo-constants';
 import * as MediaLibrary from 'expo-media-library';
 
@@ -40,7 +42,7 @@ const BackButtonPressable = styled(Pressable)`
     top: 10px;
     left: 10px;
 `
-const PosterContainer = styled(View)`
+const PosterContainer = styled(SafeAreaView)`
     top: 10px;
     right: 10px;
 `
@@ -116,6 +118,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const [playing, setPlaying] = useState(true);
     const [uploadProgress, setUploadProgress] = useState(0.0);
     const [uploadStage, setUploadStage] = useState(uploadStages[0]);
+    const [confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible] = useState(false);
 
     const { cognitoUser, reelayDBUser } = useContext(AuthContext);
     const { s3Client } = useContext(UploadContext);
@@ -448,12 +451,10 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         width: 100, 
     }
 
-    const retakeReelay = async () => {
-        Amplitude.logEventWithPropertiesAsync('retake', {
-            username: cognitoUser.username,
-            title: titleObj.display,
-        });
-        navigation.pop();
+    const openConfirmRetakeDrawer = async () => {
+        if (uploadStage !== 'uploading' || uploadStage !== 'upload-complete') {
+            setConfirmRetakeDrawerVisible(true);
+        }
     }
 
     return (
@@ -462,8 +463,10 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 <PreviewVideoPlayer videoURI={videoURI} playing={playing} />
             </PressableVideoContainer>
             <UploadTopArea>
-                <BackButtonPressable onPress={retakeReelay}>
-                    <Icon type='ionicon' name='chevron-back-outline' color={'white'} size={30} />
+                <BackButtonPressable onPress={openConfirmRetakeDrawer}>
+                    { (uploadStage !== 'uploading' || uploadStage !== 'upload-complete') &&
+                        <Icon type='ionicon' name='chevron-back-outline' color={'white'} size={30} />
+                    }
                 </BackButtonPressable>
                 <PosterContainer>
                     <Image source={{ uri: posterURL }} style={posterStyle} />
@@ -476,6 +479,11 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                     <UploadButton />
                 </UploadBottomBar>
             </UploadBottomArea>
+            <ConfirmRetakeDrawer 
+                navigation={navigation} titleObj={titleObj} 
+                confirmRetakeDrawerVisible={confirmRetakeDrawerVisible}
+                setConfirmRetakeDrawerVisible={setConfirmRetakeDrawerVisible}
+            />
         </UploadScreenContainer>
     );
 };
