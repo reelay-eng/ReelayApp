@@ -93,7 +93,10 @@ export default MyProfileScreen = ({ navigation, route }) => {
                 <ProfileStatsBar
                     navigation={navigation}
                     reelayCount={reelayCount}
-                    creator={cognitoUser.attributes}
+                    creator={{
+                        username: cognitoUser.username,
+                        sub: cognitoUser.attributes.sub,
+                    }}
                     followers={myFollowers}
                     following={myFollowing}
                     prevScreen={'MyProfileScreen'}

@@ -6,7 +6,12 @@ import styled from 'styled-components/native';
 const SearchFieldContainer = styled(SafeAreaView)`
 `
 
-export default SearchField = ({ searchText, updateSearchText, placeholderText="Search" }) => {
+export default SearchField = ({ 
+    searchText, 
+    updateSearchText, 
+    placeholderText = 'Search',
+    borderRadius = 18,
+}) => {
 
     return (
         <SearchFieldContainer>
@@ -23,7 +28,7 @@ export default SearchField = ({ searchText, updateSearchText, placeholderText="S
                     paddingBottom: 15,
                     paddingRight: 10,
                     backgroundColor: '#2C2C2C',
-                    borderRadius: 18,
+                    borderRadius: borderRadius,
                     color: 'white',
                     fontFamily: 'System',
                 }}

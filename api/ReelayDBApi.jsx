@@ -21,7 +21,7 @@ export const followCreator = async (creatorSub, followerSub) => {
         method: "POST",
         headers: REELAY_API_HEADERS,
     });
-    console.log('FOLLOW RESULT: ', follow);
+
     if (!follow) {
         console.log("Could not follow user")
     }
