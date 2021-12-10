@@ -84,15 +84,6 @@ export default FollowItem = ({ followObj, navigation, followType }) => {
     const findFollowUser = (userObj) => (userObj.creatorSub === followUserSub);
     const alreadyFollowing = myFollowing.find(findFollowUser);
 
-    // useEffect(() => {
-    //     getCreator();
-    // }, []);
-
-    // const getCreator = async() => {
-    //     const followUserObj = await getUserByUsername(followUsername);
-    //     setFollowUserObj(followUserObj);
-    // }
-
     const followUser = async () => {
         const followResult = await followCreator(followUserSub, myUserSub);
         const isFollowing = !followResult?.error && !followResult?.requestStatus;
@@ -114,10 +105,9 @@ export default FollowItem = ({ followObj, navigation, followType }) => {
         const unfollowSucceeded = !unfollowResult?.error;
 
         if (unfollowSucceeded) {
-            const nextMyFollowing = myFollowing.filter((followObj) => {
-                return followObj.creatorSub !== followUserSub;
+            const nextMyFollowing = myFollowing.filter((nextFollowObj) => {
+                return nextFollowObj.creatorSub !== followUserSub;
             });
-
             setMyFollowing(nextMyFollowing);
         } else {
             showErrorToast('Something went wrong unfollowing this user. Try again?');

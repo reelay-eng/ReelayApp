@@ -23,8 +23,8 @@ const ProfileScrollView = styled(ScrollView)`
 
 export default UserProfileScreen = ({ navigation, route }) => {
     const [creatorStacks, setCreatorStacks] = useState([]);
-    const [userFollowers, setUserFollowers] = useState([]);
-    const [userFollowing, setUserFollowing] = useState([]);
+    const [creatorFollowers, setCreatorFollowers] = useState([]);
+    const [creatorFollowing, setCreatorFollowing] = useState([]);
     const [refreshing, setRefreshing] = useState(true);
 
     const { cognitoUser } = useContext(AuthContext);
@@ -43,8 +43,8 @@ export default UserProfileScreen = ({ navigation, route }) => {
         const nextFollowers = await getFollowers(creator.sub);
         const nextFollowing = await getFollowing(creator.sub);
 
-        setUserFollowers(nextFollowers);
-        setUserFollowing(nextFollowing);
+        setCreatorFollowers(nextFollowers);
+        setCreatorFollowing(nextFollowing);
     };
 
     const onRefresh = async () => {
@@ -74,7 +74,6 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const reelayCounter = (sum, nextStack) => sum + nextStack.length;
     const reelayCount = creatorStacks.reduce(reelayCounter, 0);
 
-
     return (
         <ProfileScreenContainer>
             <ProfileTopBar creator={creator} navigation={navigation} />
@@ -86,15 +85,15 @@ export default UserProfileScreen = ({ navigation, route }) => {
                     navigation={navigation}
                     reelayCount={reelayCount}
                     creator={creator}
-                    followers={userFollowers}
-                    following={userFollowing}
+                    followers={creatorFollowers}
+                    following={creatorFollowing}
                     prevScreen={'UserProfileScreen'}
                 />
                 { !isMyProfile && 
                     <FollowButtonBar 
                         creator={creator} 
-                        userFollowers={userFollowers} 
-                        setUserFollowers={setUserFollowers}
+                        creatorFollowers={creatorFollowers} 
+                        setCreatorFollowers={setCreatorFollowers}
                     />
                 }
                 <ProfilePosterGrid

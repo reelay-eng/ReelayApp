@@ -53,8 +53,13 @@ export default UserFollowScreen = ({ navigation, route }) => {
 
     useEffect(() => {
         updateCounter.current += 1;
-        updateSearch(searchText, updateCounter.current);
-    }, [searchText, selectedFollowType]);
+        updateSearch(updateCounter.current);
+    }, [
+        searchText, 
+        selectedFollowType, 
+        userFollowers,
+        userFollowing, 
+    ]);
 
     useEffect(() => {
         // remember: these 
@@ -72,15 +77,25 @@ export default UserFollowScreen = ({ navigation, route }) => {
         setRefreshing(false);
     }
 
-    const updateSearch = async (newSearchText, counter) => {
-        if (!newSearchText || newSearchText === undefined || newSearchText === '') {
+    const updateSearch = async (counter) => {
+        if (!searchText || searchText === undefined || searchText === '') {
             setSearchResults(allSearchResults);
         }
 
         try {
-            const results = (selectedFollowType === 'Followers') ? userFollowers : userFollowing;
             if (updateCounter.current === counter) {
-                setSearchResults(results);
+                const allFollowResults = (selectedFollowType === 'Followers') 
+                    ? userFollowers 
+                    : userFollowing;
+                
+                const cleanedSearchText = searchText.toLowerCase();
+                const filteredFollowResults = allFollowResults.filter((nextFollowObj) => {
+                    const cleanedFollowName = (selectedFollowType === 'Followers') 
+                        ? nextFollowObj.followerName.toLowerCase()
+                        : nextFollowObj.creatorName.toLowerCase();
+                    return cleanedFollowName.indexOf(cleanedSearchText) != -1; 
+                });
+                setSearchResults(filteredFollowResults);
             }
         } catch (error) {
             console.log(error);

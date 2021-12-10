@@ -69,7 +69,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const sortReelays = (reelay1, reelay2) => reelay2.postedDateTime - reelay1.postedDateTime;
     const sortStacks = (stack1, stack2) => stack2[0].postedDateTime - stack1[0].postedDateTime;
     const reelayCounter = (sum, nextStack) => sum + nextStack.length;
-    const reelayCount = creatorStacks.reduce(reelayCounter, 0);
+    const reelayCount = myCreatorStacks.reduce(reelayCounter, 0);
 
     useEffect(() => {
         onRefresh();
