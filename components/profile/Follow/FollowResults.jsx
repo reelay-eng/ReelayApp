@@ -1,5 +1,5 @@
 import React from "react";
-import { ScrollView, View } from "react-native";
+import { RefreshControl, ScrollView, View } from "react-native";
 import FollowItem from "./FollowItem";
 
 import styled from 'styled-components/native';
@@ -10,14 +10,13 @@ const FollowItemContainer = styled(View)`
     border-bottom-width: 0.3px;
 `
 
-const FollowResults = ({ navigation, searchResults, followType }) => {
+const FollowResults = ({ navigation, searchResults, followType, refreshing, onRefresh }) => {
+    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
-    console.log('SEARCH RESULTS: ', searchResults);
-    
     return (
         <View>
             { searchResults.length >= 1 && (
-                <ScrollView>
+                <ScrollView refreshControl={refreshControl}>
                     { searchResults.map((result, index) => {
                         return (
                             <FollowItemContainer key={index}>

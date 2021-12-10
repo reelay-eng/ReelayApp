@@ -1,12 +1,15 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useContext } from 'react';
 import { SafeAreaView, View, Pressable, Text } from 'react-native';
 
 import BackButton from '../../components/utils/BackButton';
 import SearchField from '../../components/create-reelay/SearchField';
 import FollowResults from '../../components/profile/Follow/FollowResults';
 
+import { AuthContext } from '../../context/AuthContext';
+
 import { ActionButton, PassiveButton } from '../../components/global/Buttons';
 import styled from 'styled-components/native';
+import { getFollowers, getFollowing } from '../../api/ReelayDBApi';
 
 const TopBarContainer = styled(View)`
     width: 100%;
@@ -33,8 +36,13 @@ const BackButtonContainer = styled(View)`
 `;
 
 export default MyFollowScreen = ({ navigation, route }) => {
-    const { initFollowType, followers, following } = route.params;
+    const { cognitoUser, reelayDBUser } = useContext(AuthContext);
+
+    const { initFollowType, initFollowers, initFollowing } = route.params;
     const [searchText, setSearchText] = useState('');
+    const [followers, setFollowers] = useState(initFollowers);
+    const [following, setFollowing] = useState(initFollowing);
+    const [refreshing, setRefreshing] = useState(false);
 
     const allSearchResults = (initFollowType === 'Followers') ? followers : following;
     const [searchResults, setSearchResults] = useState(allSearchResults);
@@ -48,10 +56,21 @@ export default MyFollowScreen = ({ navigation, route }) => {
         updateSearch(searchText, updateCounter.current);
     }, [searchText, selectedFollowType]);
 
+    const onRefresh = async () => {
+        updateCounter.current += 1;
+        setRefreshing(true);
+
+        const followersRefresh = await getFollowers(cognitoUser.attributes.sub);
+        const followingRefresh = await getFollowing(cognitoUser.attributes.sub);
+
+        setFollowers(followersRefresh);
+        setFollowing(followingRefresh);
+        setRefreshing(false);
+    }
+
     const updateSearch = async (newSearchText, counter) => {
         if (!newSearchText || newSearchText === undefined || newSearchText === '') {
             setSearchResults(allSearchResults);
-            return;
         }
 
         try {
@@ -92,7 +111,8 @@ export default MyFollowScreen = ({ navigation, route }) => {
                     <ActionButton onPress={onPress}
                         text={followType}
                         fontSize='18px'
-                        borderRadius='15px' />
+                        borderRadius='15px' 
+                    />
                 )}
                 {!selected && (
                     <PassiveButton onPress={onPress}
@@ -125,6 +145,8 @@ export default MyFollowScreen = ({ navigation, route }) => {
                 navigation={navigation}
                 searchResults={searchResults}
                 followType={selectedFollowType}
+                refreshing={refreshing}
+                onRefresh={onRefresh}
             />
         </SearchScreenContainer>
     );

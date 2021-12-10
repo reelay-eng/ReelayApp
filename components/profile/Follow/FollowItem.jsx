@@ -72,42 +72,33 @@ Eventually...
  */
 
 export default FollowItem = ({ followObj, navigation, followType }) => {
-
-    const { reelayDBUser, following, setFollowing } = useContext(AuthContext);
-    const [followUserObj, setFollowUserObj] = useState();
-
+    const { reelayDBUser, myFollowing, setMyFollowing } = useContext(AuthContext);
 
     const followUsername = (followType === 'Following') ? followObj.creatorName : followObj.followerName;
     const followUserSub = (followType === 'Following') ? followObj.creatorSub : followObj.followerSub;
     const followProfilePictureURI = null;
 
-    console.log('FOLLOW OBJECT: ', followObj);
-    console.log('FOLLOW TYPE: ', followType);
-    console.log('FOLLOW USERNAME: ', followUsername);
-
     const myUserSub = reelayDBUser.sub;
     const isMyProfile = (myUserSub === followUserSub);
 
     const findFollowUser = (userObj) => (userObj.creatorSub === followUserSub);
-    const initAlreadyFollow = following.find(findFollowUser);
-    const [alreadyFollow, setAlreadyFollow] = useState(initAlreadyFollow);
+    const alreadyFollowing = myFollowing.find(findFollowUser);
 
-    useEffect(() => {
-        getCreator();
-    }, []);
+    // useEffect(() => {
+    //     getCreator();
+    // }, []);
 
-    const getCreator = async() => {
-        const followUserObj = await getUserByUsername(followUsername);
-        setFollowUserObj(followUserObj);
-    }
+    // const getCreator = async() => {
+    //     const followUserObj = await getUserByUsername(followUsername);
+    //     setFollowUserObj(followUserObj);
+    // }
 
     const followUser = async () => {
         const followResult = await followCreator(followUserSub, myUserSub);
         const isFollowing = !followResult?.error && !followResult?.requestStatus;
 
         if (isFollowing) {
-            setFollowing([...following, followResult]);
-            setAlreadyFollow(true);
+            setMyFollowing([...myFollowing, followResult]);
         } else {
             // handle error
         }
@@ -123,12 +114,11 @@ export default FollowItem = ({ followObj, navigation, followType }) => {
         const unfollowSucceeded = !unfollowResult?.error;
 
         if (unfollowSucceeded) {
-            const nextFollowing = following.filter((followObj) => {
+            const nextMyFollowing = myFollowing.filter((followObj) => {
                 return followObj.creatorSub !== followUserSub;
             });
 
-            setFollowing(nextFollowing);
-            setAlreadyFollow(false);
+            setMyFollowing(nextMyFollowing);
         } else {
             showErrorToast('Something went wrong unfollowing this user. Try again?');
         }
@@ -136,7 +126,12 @@ export default FollowItem = ({ followObj, navigation, followType }) => {
     };
 
     const selectResult = () => {
-        navigation.push('UserProfileScreen', { creator: followUserObj });
+        navigation.push('UserProfileScreen', { 
+            creator: {
+                sub: followUserSub,
+                username: followUsername,
+            }
+        });
     };
 
     return (
@@ -159,12 +154,12 @@ export default FollowItem = ({ followObj, navigation, followType }) => {
             </UsernameContainer>
 
             <FollowContainer>
-                {!alreadyFollow && !isMyProfile && (
+                { !alreadyFollowing && !isMyProfile && (
                     <FollowButton onPress={followUser}>
                         <FollowText>{'Follow'}</FollowText>
                     </FollowButton>
                 )}
-                {alreadyFollow && !isMyProfile && (
+                { alreadyFollowing && !isMyProfile && (
                     <FollowButton onPress={unfollowUser}>
                         <FollowText>{'Following'}</FollowText>
                     </FollowButton>
@@ -172,4 +167,4 @@ export default FollowItem = ({ followObj, navigation, followType }) => {
             </FollowContainer>
         </PressableContainer>
     );
-  };
+};

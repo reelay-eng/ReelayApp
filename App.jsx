@@ -34,10 +34,10 @@ import { UploadContext } from './context/UploadContext';
 import { 
     getFollowers, 
     getFollowing, 
-    getFollowRequests,
     getRegisteredUser, 
+    getStacksByCreator, 
     registerUser, 
-    registerPushTokenForUser, 
+    registerPushTokenForUser,
 } from './api/ReelayDBApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { showErrorToast } from './components/utils/toasts';
@@ -54,9 +54,9 @@ function App() {
     const [cognitoUser, setCognitoUser] = useState({});
     const [credentials, setCredentials] = useState({});
     const [isLoading, setIsLoading] = useState(true);
-    const [followers, setFollowers] = useState([]);
-    const [following, setFollowing] = useState([]);
-    const [followRequests, setFollowRequests] = useState([]);
+    const [myFollowers, setMyFollowers] = useState([]);
+    const [myFollowing, setMyFollowing] = useState([]);
+    const [myCreatorStacks, setMyCreatorStacks] = useState([]);
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [signedIn, setSignedIn] = useState(false);
     const [session, setSession] = useState({});
@@ -82,7 +82,7 @@ function App() {
 
     useEffect(() => {
         if (reelayDBUser?.sub) {
-            loadUserFollows();
+            loadMyProfile();
         }
     }, [reelayDBUser]);
 
@@ -165,15 +165,15 @@ function App() {
         setIsLoading(false);
     }
 
-    const loadUserFollows = async () => {
+    const loadMyProfile = async () => {
         if (signedIn && reelayDBUser && reelayDBUser.sub) {
-            const nextFollowers = await getFollowers(reelayDBUser.sub);
-            const nextFollowing = await getFollowing(reelayDBUser.sub);
-            const nextFollowReq = await getFollowRequests(reelayDBUser.sub);
+            const nextMyFollowers = await getFollowers(reelayDBUser.sub);
+            const nextMyFollowing = await getFollowing(reelayDBUser.sub);
+            const nextMyCreatorStacks = await getStacksByCreator(reelayDBUser.sub);
     
-            setFollowers(nextFollowers);
-            setFollowing(nextFollowing);
-            setFollowRequests(nextFollowReq);    
+            setMyFollowers(nextMyFollowers);
+            setMyFollowing(nextMyFollowing);
+            setMyCreatorStacks(nextMyCreatorStacks);
         }
     }
 
@@ -212,9 +212,9 @@ function App() {
         credentials,        setCredentials,
         expoPushToken,      setExpoPushToken,
         isLoading,          setIsLoading,
-        followers,          setFollowers,
-        following,          setFollowing,
-        followRequests,     setFollowRequests,
+        myFollowers,        setMyFollowers,
+        myFollowing,        setMyFollowing,
+        myCreatorStacks,    setMyCreatorStacks,
         reelayDBUser,       setReelayDBUser,
         session,            setSession,
         signedIn,           setSignedIn,

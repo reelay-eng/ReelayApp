@@ -33,26 +33,17 @@ export default ProfileStatsBar = ({
     creator, 
     followers, 
     following,
-    prevScreen,
 }) => {
 
     const { reelayDBUser } = useContext(AuthContext);
 
     const viewFollows = ({ followType }) => {
-        if (prevScreen === 'MyProfileScreen') {
-            navigation.push('MyFollowScreen', {
-                initFollowType: followType,
-                followers: followers,
-                following: following,
-            });    
-        } else {
-            navigation.push('UserFollowScreen', {
-                creator: creator,
-                initFollowType: followType,
-                followers: followers,
-                following: following,
-            });
-        }
+        navigation.push('UserFollowScreen', {
+            creator: creator,
+            initFollowType: followType,
+            initFollowers: followers,
+            initFollowing: following,
+        });
     }
 
     const viewFollowers = () => {

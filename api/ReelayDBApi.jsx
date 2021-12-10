@@ -224,13 +224,11 @@ export const getUserByEmail = async (address) => {
 }
 
 export const getUserByUsername = async (username) => {
-    console.log('Fetching registered user...');
     const routeGet = `${REELAY_API_BASE_URL}/users/byusername/${username}`;
     const resultGet = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS, 
     });
-    console.log('Registered user result: ', resultGet);
 
     if (!resultGet || resultGet.error) {
         console.log('User not registered');
@@ -393,13 +391,11 @@ export const searchTitles = async (searchText, isSeries) => {
 }
 
 export const searchUsers = async (searchText) => {
-    console.log("Fetching registered user...");
     const routeGet = `${REELAY_API_BASE_URL}/search/users?searchText=${searchText}`;
     const resultGet = await fetchResults(routeGet, {
         method: "GET",
         headers: REELAY_API_HEADERS,
     });
-    console.log("Registered user result: ", resultGet);
 
     if (!resultGet) {
         console.log("User not registered");
