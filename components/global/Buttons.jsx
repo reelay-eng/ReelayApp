@@ -115,7 +115,7 @@ export const RedPlusButton = ({onPress}) => {
             <IconImage source={RedAddIcon} />
         </IconBox>
     )
-\
+}
 
 export const ToggleSelector = ({ options, selectedOption, setSelectedOption }) => {
     const BackgroundBox = styled(View)`

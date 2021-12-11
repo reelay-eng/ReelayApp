@@ -73,6 +73,9 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     useEffect(() => {
         onRefresh();
+        logEventWithPropertiesAsync('viewMyProfile', {
+            username: cognitoUser.attributes.username,
+        });    
     }, []);
 
     logEventWithPropertiesAsync("viewMyProfile", {

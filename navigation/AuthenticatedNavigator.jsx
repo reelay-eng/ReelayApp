@@ -12,7 +12,6 @@ import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 
 import HomeFeedScreen from '../screens/authenticated/HomeFeedScreen';
-import MyFollowScreen from '../screens/authenticated/MyFollowScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
 import ProfileFeedScreen from '../screens/authenticated/ProfileFeedScreen';
 import ProfileSettingsScreen from '../screens/authenticated/ProfileSettingsScreen';
@@ -303,13 +302,6 @@ const ProfileTabNavigator = () => {
             <ProfileTabStack.Screen
                 name='MyProfileScreen'
                 component={MyProfileScreen}
-                options={{
-                    headerShown: false,
-                }}
-            />
-            <ProfileTabStack.Screen
-                name='MyFollowScreen'
-                component={MyFollowScreen}
                 options={{
                     headerShown: false,
                 }}

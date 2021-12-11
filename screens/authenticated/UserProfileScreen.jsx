@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { RefreshControl, SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { getStacksByCreator, getFollowers, getFollowing } from '../../api/ReelayDBApi';
 
-import FollowButtonBar from '../../components/profile/FollowButtonBar';
+import FollowButtonBar from '../../components/profile/Follow/FollowButtonBar';
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
 import ProfileStatsBar from '../../components/profile/ProfileStatsBar';

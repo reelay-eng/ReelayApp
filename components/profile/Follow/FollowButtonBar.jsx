@@ -1,9 +1,9 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Pressable, Text } from 'react-native';
 import styled from 'styled-components/native';
-import ReelayColors from '../../constants/ReelayColors';
-import { AuthContext } from '../../context/AuthContext';
-import { followCreator, unfollowCreator } from '../../api/ReelayDBApi';
+import ReelayColors from '../../../constants/ReelayColors';
+import { AuthContext } from '../../../context/AuthContext';
+import { followCreator, unfollowCreator } from '../../../api/ReelayDBApi';
 
 import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
 
@@ -34,7 +34,12 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
     const creatorSub = creator.sub;
     const userSub = reelayDBUser.sub;
 
-    const alreadyFollowingUser = myFollowing.find((creator) => creator.sub === userSub);
+    console.log('CREATOR: ', creator);
+    const creatorInList = (followObj) => followObj.creatorSub === creator.sub;
+    const alreadyFollowingCreator = myFollowing.find(creatorInList);
+
+    console.log('MY FOLLOWING: ', myFollowing);
+    console.log('ALREADY FOLLOWING? ', alreadyFollowingCreator);
 
     const followUser = async () => {
         const followResult = await followCreator(creatorSub, userSub);
@@ -47,7 +52,7 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
             // handle error
         }
 
-        logEventWithPropertiesAsync('followedUser', {
+        logEventWithPropertiesAsync('followedCreator', {
             username: reelayDBUser.username,
             creatorName: creator.username,
         });
@@ -72,7 +77,7 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
             // handle error
         }
 
-        logEventWithPropertiesAsync('unfollowedUser', {
+        logEventWithPropertiesAsync('unfollowedCreator', {
             username: reelayDBUser.username,
             creatorName: creator.username,
         });
@@ -81,12 +86,12 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
     // if the person already follows, then it should say following
     return (
         <FollowContainer>
-            { !alreadyFollowingUser && (
+            { !alreadyFollowingCreator && (
                 <FollowButton onPress={followUser}>
                     <FollowText>{'Follow'}</FollowText>
                 </FollowButton>
             )}
-            { alreadyFollowingUser && (
+            { alreadyFollowingCreator && (
                 <FollowButton onPress={unfollowUser}>
                     <FollowText>{'Following'}</FollowText>
                 </FollowButton>
