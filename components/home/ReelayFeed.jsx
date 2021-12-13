@@ -84,6 +84,10 @@ export default ReelayFeed = ({ navigation,
         }
     }, [navigation]);
 
+    useEffect(() => {
+        refreshFeed();
+    }, [feedSource])
+
     useFocusEffect(() => {
         if (fixedStackList.length) return;
         const unsubscribe = navigation.dangerouslyGetParent()

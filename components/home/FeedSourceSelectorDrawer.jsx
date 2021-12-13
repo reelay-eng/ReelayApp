@@ -50,11 +50,37 @@ export default FeedSourceSelectorDrawer = ({ feedSource, setFeedSource, drawerOp
         margin-left: 20px;
         color: white;
     `
-    const closeDrawer = () => setDrawerOpen(false);
+    const closeDrawer = () => {
+        setDrawerOpen(false)
+    };
+
+    const Header = () => {
+        const HeaderContainer = styled(View)`
+            align-items: center;
+            flex-direction: row;
+            justify-content: space-between;
+            margin: 12px;
+        `;
+        const HeaderText = styled(Text)`
+            font-family: System;
+            font-size: 20px;
+            font-weight: 500;
+            color: white;
+        `;
+        return (
+            <HeaderContainer>
+                <HeaderText>{"Feed Type"}</HeaderText>
+                <Pressable onPress={closeDrawer}>
+                    <Icon color={"white"} type="ionicon" name="close" size={30} />
+                </Pressable>
+            </HeaderContainer>
+        );
+    };
 
     const FollowingOption = () => {
         const onPress = () => {
             setFeedSource('following');
+            closeDrawer();
             logEventWithPropertiesAsync('setFeedFollowing', {
                 username: cognitoUser.username,
                 userSub: cognitoUser.attributes.sub,
@@ -71,6 +97,7 @@ export default FeedSourceSelectorDrawer = ({ feedSource, setFeedSource, drawerOp
     const GlobalOption = () => {
         const onPress = () => {
             setFeedSource('global');
+            closeDrawer();
             logEventWithPropertiesAsync('setFeedGlobal', {
                 username: cognitoUser.username,
                 userSub: cognitoUser.attributes.sub,
@@ -87,6 +114,7 @@ export default FeedSourceSelectorDrawer = ({ feedSource, setFeedSource, drawerOp
     const FeedSourceOptions = () => {
         return (
             <FeedSourceOptionsContainer>
+                <Header />
                 <GlobalOption />
                 <FollowingOption />
             </FeedSourceOptionsContainer>
