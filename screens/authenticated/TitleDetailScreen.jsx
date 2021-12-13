@@ -16,6 +16,7 @@ import * as VideoThumbnails from 'expo-video-thumbnails';
 import { getMostRecentReelaysByTitle } from '../../api/ReelayDBApi';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from 'react-native-elements';
+import SplashImage from "../../assets/images/reelay-splash.png";
 
 import { ActionButton, PassiveButton, RedPlusButton } from "../../components/global/Buttons";
 import { DirectorBadge, ActorBadge } from "../../components/global/Badges";
@@ -307,13 +308,14 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
 
 		useEffect(() => {
 			// Generate thumnbail async
-            let isMounted = true;
+			let isMounted = true;
 			(async () => {
 				try {
 					const { uri } = await VideoThumbnails.getThumbnailAsync(
 						reelay.content.videoURI,
 						{
 							time: 1000,
+							quality: 0.4,
 						}
 					);
 					if (isMounted) {
@@ -324,10 +326,11 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
 					console.warn(error);
 					if (isMounted) {
 						setLoading(false);
+						setThumbnailURI("");
 					}
 				}
 			})();
-            return () => (isMounted = false);
+			return () => (isMounted = false);
 		}, []);
 
 		return (
@@ -339,7 +342,11 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
 			>
 				<ThumbnailContainer>
 					{loading && <ActivityIndicator />}
-					{!loading && <ThumbnailImage source={{ uri: thumbnailURI }} />}
+					{!loading && (
+						<ThumbnailImage
+							source={thumbnailURI.length > 0 ? { uri: thumbnailURI } : SplashImage}
+						/>
+					)}
 				</ThumbnailContainer>
 			</Pressable>
 		);
