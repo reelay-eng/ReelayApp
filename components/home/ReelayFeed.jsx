@@ -1,8 +1,10 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 import { FeedContext } from '../../context/FeedContext';
 import ReelayStack from './ReelayStack';
 import FeedOverlay from '../overlay/FeedOverlay';
+import FeedSourceSelectorDrawer from './FeedSourceSelectorDrawer';
 
 import * as Amplitude from 'expo-analytics-amplitude';
 import { AuthContext } from '../../context/AuthContext';
@@ -11,18 +13,37 @@ import styled from 'styled-components/native';
 import { ActivityIndicator } from 'react-native-paper';
 
 import { deleteReelay } from '../../api/ReelayApi';
-import { getMostRecentStacks } from '../../api/ReelayDBApi';
+import { getFollowingFeed, getGlobalFeed } from '../../api/ReelayDBApi';
 
 import { showErrorToast, showMessageToast } from '../utils/toasts';
 import { useFocusEffect } from '@react-navigation/core';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const { height, width } = Dimensions.get('window');
 
 const ReelayFeedContainer = styled(View)`
     background-color: black;
-    justify-content: center;
+    justify-content: flex-start;
     height: ${height}px;
     width: ${width}px;
 `
+const FeedSourceSelectorButton = ({ feedSource, drawerOpen, setDrawerOpen }) => {
+    const insets = useSafeAreaInsets();
+    const SourceSelectorPressable = styled(Pressable)`
+        margin-top: ${insets.top}px;
+        margin-left: 20px;
+        position: absolute;
+    `
+    const iconName = (feedSource === 'global') ? 'earth' : 'people-circle';
+    const onPress = () => {
+        setDrawerOpen(true);
+    }
+
+    return (
+        <SourceSelectorPressable onPress={onPress}>
+            <Icon type='ionicon' name={iconName} color={'white'} size={30} />
+        </SourceSelectorPressable>
+    );
+}
 
 export default ReelayFeed = ({ navigation, 
     initialFeedPos = 0,
@@ -31,17 +52,15 @@ export default ReelayFeed = ({ navigation,
     forceRefresh = false, 
 }) => {
 
-    console.log('FIXED STACK LIST: ', fixedStackList);
-
     const feedPager = useRef();
     const nextPage = useRef(0);
-    const stackPager = useRef();
 
     const { cognitoUser } = useContext(AuthContext);
     const { overlayVisible } = useContext(FeedContext);
 
     const [feedPosition, setFeedPosition] = useState(0);
-    // const [isPaused, setIsPaused] = useState(false);
+    const [feedSource, setFeedSource] = useState('global');
+    const [drawerOpen, setDrawerOpen] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [stackList, setStackList] = useState([]);
     const [stackCounter, setStackCounter] = useState(0);
@@ -49,8 +68,6 @@ export default ReelayFeed = ({ navigation,
     const [tabPressCounter, setTabPressCounter] = useState(0);
 
     const isFixedStack = fixedStackList.length != 0;
-
-    console.log('FEED IS RENDERING');
 
     useEffect(() => {
         const stackEmpty = !stackList.length;
@@ -81,7 +98,9 @@ export default ReelayFeed = ({ navigation,
         if (isFixedStack) return;
 
         const page = nextPage.current;
-        const fetchedStacks = await getMostRecentStacks(page);
+        const fetchedStacks = (feedSource === 'global') 
+            ? await getGlobalFeed({ reqUserSub: cognitoUser.attributes.sub, page })
+            : await getFollowingFeed({ reqUserSub: cognitoUser.attributes.sub, page });
 
         const newStackList = [...stackList, ...fetchedStacks];
         nextPage.current = page + 1;
@@ -139,7 +158,10 @@ export default ReelayFeed = ({ navigation,
         if (isFixedStack) return;
         console.log('REFRESHING FEED');     
         setRefreshing(true);   
-        const fetchedStacks = await getMostRecentStacks();        
+        const fetchedStacks = (feedSource === 'global') 
+            ? await getGlobalFeed({ reqUserSub: cognitoUser.attributes.sub, page: 0 })
+            : await getFollowingFeed({ reqUserSub: cognitoUser.attributes.sub, page: 0 });
+
         setRefreshing(false);
         nextPage.current = 1;
         setStackList(fetchedStacks);        
@@ -217,6 +239,19 @@ export default ReelayFeed = ({ navigation,
             }
             { overlayVisible && 
                 <FeedOverlay navigation={navigation} onDeleteReelay={onDeleteReelay} />
+            }
+            <FeedSourceSelectorButton
+                feedSource={feedSource} 
+                drawerOpen={drawerOpen}
+                setDrawerOpen={setDrawerOpen}
+            />
+            { drawerOpen && 
+                <FeedSourceSelectorDrawer 
+                    feedSource={feedSource} 
+                    setFeedSource={setFeedSource}
+                    drawerOpen={drawerOpen}
+                    setDrawerOpen={setDrawerOpen}
+                />
             }
         </ReelayFeedContainer>
     );

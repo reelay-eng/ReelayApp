@@ -68,31 +68,6 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
         setDrawerOpen(true);
     }
 
-    // const unfollowUser = async () => {
-    //     const unfollowResult = await unfollowCreator(creatorSub, userSub);
-    //     const unfollowSucceeded = !unfollowResult?.error;
-
-    //     if (unfollowSucceeded) {
-    //         const nextCreatorFollowers = creatorFollowers.filter((followObj) => {
-    //             return followObj.followerSub !== userSub;
-    //         });
-            
-    //         const nextMyFollowing = myFollowing.filter((followObj) => {
-    //             return followObj.creatorSub !== creatorSub;
-    //         });
-            
-    //         setCreatorFollowers(nextCreatorFollowers);
-    //         setMyFollowing(nextMyFollowing);
-    //     } else {
-    //         // handle error
-    //     }
-
-    //     logEventWithPropertiesAsync('unfollowedCreator', {
-    //         username: reelayDBUser.username,
-    //         creatorName: creator.username,
-    //     });
-    // };
-
     // if the person already follows, then it should say following
     return (
         <FollowContainer>

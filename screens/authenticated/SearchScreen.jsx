@@ -6,7 +6,7 @@ import SearchField from "../../components/create-reelay/SearchField";
 import TitleSearchResults from "../../components/search/TitleSearchResults";
 import UserSearchResults from "../../components/search/UserSearchResults";
 
-import { ActionButton, PassiveButton } from '../../components/global/Buttons';
+import { ActionButton, PassiveButton, ToggleSelector } from '../../components/global/Buttons';
 
 import { searchTitles, searchUsers } from "../../api/ReelayDBApi";
 import styled from "styled-components/native";

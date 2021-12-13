@@ -163,24 +163,48 @@ export const getStacksByCreator = async (creatorSub) => {
     return stacksByCreator;
 }
 
-export const getMostRecentStacks = async (page = 0) => {
+// call prepareReelay on every reelay in every stack
+const prepareStacks = async (fetchedStacks) => {
+    const prepareReelaysForStack = async (fetchedReelaysForStack) => {
+        return await Promise.all(fetchedReelaysForStack.map(prepareReelay));
+    }
+    return await Promise.all(fetchedStacks.map(prepareReelaysForStack));
+}
+
+export const getFollowingFeed = async ({ reqUserSub, page = 0 }) => {
     console.log('Getting most recent reelays...');
-    const routeGet = `${REELAY_API_BASE_URL}/reelays?page=${page}&visibility=${FEED_VISIBILITY}`;
+    const routeGet = `${REELAY_API_BASE_URL}/feed/following?page=${page}&visibility=${FEED_VISIBILITY}`;
     const fetchedStacks = await fetchResults(routeGet, { 
         method: 'GET',
-        headers: REELAY_API_HEADERS, 
+        headers: {
+            ...REELAY_API_HEADERS,
+            requsersub: reqUserSub,
+        }, 
     });
+
     if (!fetchedStacks) {
         console.log('Found no reelays in feed');
         return null;
     }
+    return await prepareStacks(fetchedStacks);
+}
 
-    // call prepareReelay on every reelay in every stack
-    const preparedStacks = await Promise.all(fetchedStacks.map(async fetchedReelaysForStack => {
-        const preparedStack = await Promise.all(fetchedReelaysForStack.map(prepareReelay));
-        return preparedStack;
-    }));
-    return preparedStacks;
+export const getGlobalFeed = async ({ reqUserSub, page = 0 }) => {
+    console.log('Getting most recent reelays...');
+    const routeGet = `${REELAY_API_BASE_URL}/feed/global?page=${page}&visibility=${FEED_VISIBILITY}`;
+    const fetchedStacks = await fetchResults(routeGet, { 
+        method: 'GET',
+        headers: {
+            ...REELAY_API_HEADERS,
+            requsersub: reqUserSub,
+        }, 
+    });
+
+    if (!fetchedStacks) {
+        console.log('Found no reelays in feed');
+        return null;
+    }
+    return await prepareStacks(fetchedStacks);
 }
 
 export const getMostRecentReelaysByTitle = async (tmdbTitleID, page = 0) => {
