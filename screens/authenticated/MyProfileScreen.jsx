@@ -60,8 +60,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const onRefresh = async () => {
         if (userSub.length) {
             setRefreshing(false);
-            loadCreatorStacks();
-            loadFollows();
+            await loadCreatorStacks();
+            await loadFollows();
             setRefreshing(false);
         }
     }

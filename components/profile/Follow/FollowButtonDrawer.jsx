@@ -18,14 +18,10 @@ export default FollowButtonDrawer = ({
     sourceScreen = 'UserFollowScreen',
 }) => {
     const { cognitoUser, myFollowing, setMyFollowing } = useContext(AuthContext);
+    const { creatorName, creatorSub } = followObj;
 
     const myUsername = cognitoUser.username;
     const myUserSub = cognitoUser.attributes.sub;
-
-    const { creatorName, creatorSub, followerName, followerSub } = followObj;
-
-    const followName = (followType === 'Following') ? creatorName : followerName;
-    const followSub = (followType === 'Following') ? creatorSub : followerSub;
 
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
 

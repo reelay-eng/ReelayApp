@@ -24,7 +24,10 @@ const FollowResults = ({
     return (
         <View>
             { searchResults.length >= 1 && (
-                <ScrollView refreshControl={refreshControl}>
+                <ScrollView 
+                    contentContainerStyle={{ paddingBottom: 300 }}
+                    refreshControl={refreshControl}
+                >
                     { searchResults.map((followObj, index) => {
                         return (
                             <FollowItemContainer key={index}>
