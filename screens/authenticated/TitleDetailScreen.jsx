@@ -16,401 +16,443 @@ import * as VideoThumbnails from 'expo-video-thumbnails';
 import { getMostRecentReelaysByTitle } from '../../api/ReelayDBApi';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from 'react-native-elements';
+import SplashImage from "../../assets/images/reelay-splash.png";
 
-import { ActionButton, PassiveButton, RedPlusButton } from '../../components/global/Buttons';
-import { DirectorBadge, ActorBadge } from '../../components/global/Badges';
+import { ActionButton, PassiveButton, RedPlusButton } from "../../components/global/Buttons";
+import { DirectorBadge, ActorBadge } from "../../components/global/Badges";
 
 const Spacer = styled(View)`
-    height: ${props => props.height}px;
-`
+	height: ${(props) => props.height}px;
+`;
 
 export default TitleDetailScreen = ({ navigation, route }) => {
+	// Screen-wide dimension handling
+	const { height, width } = Dimensions.get("window");
 
-    // Screen-wide dimension handling
-    const { height, width } = Dimensions.get('window');
+	// Parse Title Object
+	const { titleObj } = route.params;
+	const actors = titleObj?.displayActors;
+	const director = titleObj?.director?.name;
+	const overview = titleObj?.overview;
+	const tmdbTitleID = titleObj?.id;
+	const trailerURI = titleObj?.trailerURI;
+	const genres = titleObj?.genres;
 
-    // Parse Title Object
-    const { titleObj } = route.params;
-    const actors = titleObj?.displayActors;
-    const director = titleObj?.director?.name;
-    const overview = titleObj?.overview;
-    const tmdbTitleID = titleObj?.id;
-    const trailerURI = titleObj?.trailerURI
-    const genres = titleObj?.genres;
-
-    const ScrollBox = styled(ScrollView)`
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        background-color: #0d0d0d
-    `
-    return (
-        <ScrollBox showsVerticalScrollIndicator={false}>
-            <PosterWithTrailer 
-                navigation={navigation}
-                height={height*0.7} 
-                posterURI={titleObj?.posterURI} 
-                title={titleObj?.display}
-                tmdbTitleID={tmdbTitleID}
-                trailerURI={trailerURI}
-                genres={genres}/>
-            <PopularReelaysRow navigation={navigation} titleObj={titleObj} />
-            <MovieInformation 
-                director={director}
-                actors={actors} 
-                description={overview}/>
-            <Spacer height={20} />
-            <ReturnButton navigation={navigation} />
-        </ScrollBox>
-    )
+	const ScrollBox = styled(ScrollView)`
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		background-color: #0d0d0d;
+	`;
+	return (
+		<ScrollBox showsVerticalScrollIndicator={false}>
+			<PosterWithTrailer
+				navigation={navigation}
+				height={height * 0.7}
+				posterURI={titleObj?.posterURI}
+				title={titleObj?.display}
+				tmdbTitleID={tmdbTitleID}
+				trailerURI={trailerURI}
+				genres={genres}
+			/>
+			<PopularReelaysRow navigation={navigation} titleObj={titleObj} />
+			<MovieInformation director={director} actors={actors} description={overview} />
+			<Spacer height={20} />
+			<ReturnButton navigation={navigation} />
+		</ScrollBox>
+	);
 };
 
-const PosterWithTrailer = ({navigation, height, posterURI, title, tmdbTitleID, trailerURI, genres}) => {
-    const PosterContainer = styled(View)`
-        height: ${height}px;
-        width: 100%;
-    `;
+const PosterWithTrailer = ({
+	navigation,
+	height,
+	posterURI,
+	title,
+	tmdbTitleID,
+	trailerURI,
+	genres,
+}) => {
+	const PosterContainer = styled(View)`
+		height: ${height}px;
+		width: 100%;
+	`;
 
-    const posterURL = getPosterURL(posterURI);
-    const PosterWithOverlay = ({posterURL}) => {
-        const PosterImage = styled(Image)`
-            height: 100%;
-            width: 100%;
-            position: absolute;
-        `
-        const PosterOverlay = styled(View)`
-            height: 100%;
-            width: 100%;
-            background-color: ${props => props.color};
-            opacity: ${props => props.opacity};
-            position: absolute;
-        `
-        const s = StyleSheet.create({
-            gradient: {
-                flex: 1,
-                opacity: 1,
-            },
-        })
-        return (
-            <>
-                <PosterImage source={{uri: posterURL}} />
-                <PosterOverlay color={ReelayColors.reelayBlack} opacity={0.2}/>
-                <LinearGradient colors={['transparent', ReelayColors.reelayBlack]} style={s.gradient}/>
-            </>
-        )
-    }
+	const posterURL = getPosterURL(posterURI);
+	const PosterWithOverlay = ({ posterURL }) => {
+		const PosterImage = styled(Image)`
+			height: 100%;
+			width: 100%;
+			position: absolute;
+		`;
+		const PosterOverlay = styled(View)`
+			height: 100%;
+			width: 100%;
+			background-color: ${(props) => props.color};
+			opacity: ${(props) => props.opacity};
+			position: absolute;
+		`;
+		const s = StyleSheet.create({
+			gradient: {
+				flex: 1,
+				opacity: 1,
+			},
+		});
+		return (
+			<>
+				<PosterImage source={{ uri: posterURL }} />
+				<PosterOverlay color={ReelayColors.reelayBlack} opacity={0.2} />
+				<LinearGradient
+					colors={["transparent", ReelayColors.reelayBlack]}
+					style={s.gradient}
+				/>
+			</>
+		);
+	};
 
-    const PosterTagline = () => {
-        const [topProviderLogo, setTopProviderLogo] = useState('');
-        const componentMounted = useRef(true);
-        useEffect(() => {
-            (async () => {
-                var providers = await fetchMovieProviders(tmdbTitleID);
-                if (!providers || !providers.US) return;
-                providers = providers.US; // change this for when we want multi country support
-                if (providers.rent?.length > 0 && componentMounted.current) {
-                    setTopProviderLogo(providers.rent[0].logo_path);
-                }
-            })();
-            return () => {
-                componentMounted.current = false;
-            };
-        }, [])
+	const PosterTagline = () => {
+		const [topProviderLogo, setTopProviderLogo] = useState("");
+		const componentMounted = useRef(true);
+		useEffect(() => {
+			(async () => {
+				var providers = await fetchMovieProviders(tmdbTitleID);
+				if (!providers || !providers.US) return;
+				providers = providers.US; // change this for when we want multi country support
+				if (providers.rent?.length > 0 && componentMounted.current) {
+					setTopProviderLogo(providers.rent[0].logo_path);
+				}
+			})();
+			return () => {
+				componentMounted.current = false;
+			};
+		}, []);
 
-        const TaglineContainer = styled(View)`
-            width: 90%;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: flex-start;
-            margin-bottom: 30px;
-        `
-        // in case we want to have multiple provider images
+		const TaglineContainer = styled(View)`
+			width: 90%;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: flex-start;
+			margin-bottom: 30px;
+		`;
+		// in case we want to have multiple provider images
 
-        const ProviderImagesContainer = styled(View)` 
-            display: flex;
-            flex-direction: row;
-            align-items: flex-start;
-            justify-content: space-between;
-        `
-        const ProviderImage = styled(Image)`
-            width: 30px;
-            height: 30px;
-            border-width: 1px;
-            border-color: #ffffff;
-            border-radius: 15px;
-            margin-left: 3px;
-        `
-        const TaglineTextContainer = styled(View)`
-            margin-left: 7px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        `
-        const TaglineText = styled(Text)`
-            color: #FFFFFF;
-            opacity: 0.6;
-            font-size: 24px;
-        `
+		const ProviderImagesContainer = styled(View)`
+			display: flex;
+			flex-direction: row;
+			align-items: flex-start;
+			justify-content: space-between;
+		`;
+		const ProviderImage = styled(Image)`
+			width: 30px;
+			height: 30px;
+			border-width: 1px;
+			border-color: #ffffff;
+			border-radius: 15px;
+			margin-left: 3px;
+		`;
+		const TaglineTextContainer = styled(View)`
+			margin-left: 7px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		`;
+		const TaglineText = styled(Text)`
+			color: #ffffff;
+			opacity: 0.6;
+			font-size: 24px;
+		`;
 
+		return (
+			<TaglineContainer>
+				<ProviderImagesContainer>
+					{topProviderLogo.length > 0 && (
+						<ProviderImage source={{ uri: getLogoURL(topProviderLogo) }} />
+					)}
+				</ProviderImagesContainer>
+				<TaglineTextContainer>
+					<TaglineText>{genres?.map((e) => e.name).join(", ")}</TaglineText>
+				</TaglineTextContainer>
+			</TaglineContainer>
+		);
+	};
 
-        return (
-            <TaglineContainer>
-                <ProviderImagesContainer>
-                { topProviderLogo.length > 0 && <ProviderImage source={{uri: getLogoURL(topProviderLogo)}}/> }
-                </ProviderImagesContainer>
-                <TaglineTextContainer>
-                    <TaglineText>{genres?.map(e => e.name).join(', ')}</TaglineText>
-                </TaglineTextContainer>
-            </TaglineContainer>
-        )
-    }
+	const PosterInfoContainer = styled(View)`
+		position: absolute;
+		left: 8%;
+		bottom: 5%;
+		width: 84%;
+		display: flex;
+		flex-direction: column;
+	`;
 
-    const PosterInfoContainer = styled(View)`
-        position: absolute;
-        left: 8%;
-        bottom: 5%;
-        width: 84%;
-        display: flex;
-        flex-direction: column;
-    `
+	const PosterTitleContainer = styled(View)`
+		width: 90%;
+	`;
+	const PosterTitle = styled(Text)`
+		position: relative;
+		font-size: 38px;
+		font-weight: bold;
+		color: white;
+		margin-bottom: 10px;
+	`;
 
-    const PosterTitleContainer = styled(View)`
-        width: 90%;
-    `
-    const PosterTitle = styled(Text)`
-        position: relative;
-        font-size: 38px;
-        font-weight: bold;
-        color: white;
-        margin-bottom: 10px;
-    `
+	const ButtonContainer = styled(View)`
+		width: 100%;
+		height: 60px;
+	`;
 
-    const ButtonContainer = styled(View)`
-        width: 100%;
-        height: 60px;
-    `
+	const BackButtonContainer = styled(Pressable)`
+		position: absolute;
+		margin-top: 50px;
+		margin-left: 10px;
+	`;
 
-    const BackButtonContainer = styled(Pressable)`
-        position: absolute;
-        margin-top: 50px;
-        margin-left: 10px;
-    `
+	return (
+		<PosterContainer>
+			<PosterWithOverlay posterURL={posterURL} />
+			<BackButtonContainer onPress={() => navigation.goBack()}>
+				<Icon type="ionicon" name={"chevron-back-outline"} color={"white"} size={30} />
+			</BackButtonContainer>
+			<PosterInfoContainer>
+				<PosterTitleContainer>
+					<PosterTitle>{title}</PosterTitle>
+				</PosterTitleContainer>
+				<PosterTagline />
+				{trailerURI && (
+					<ButtonContainer>
+						<ActionButton
+							text={"Watch Trailer"}
+							fontSize={"24px"}
+							onPress={() => {
+								navigation.push("TitleTrailerScreen", {
+									trailerURI: trailerURI,
+								});
+							}}
+						/>
+					</ButtonContainer>
+				)}
+			</PosterInfoContainer>
+		</PosterContainer>
+	);
+};
 
-    return (
-        <PosterContainer>
-            <PosterWithOverlay posterURL={posterURL} />
-            <BackButtonContainer onPress={() => navigation.goBack()}>
-                <Icon type='ionicon' name={'chevron-back-outline'} color={'white'} size={30} />
-            </BackButtonContainer>
-            <PosterInfoContainer>
-                <PosterTitleContainer>
-                    <PosterTitle>{title}</PosterTitle>
-                </PosterTitleContainer>
-                <PosterTagline />
-                { trailerURI && 
-                    <ButtonContainer>
-                        <ActionButton text={'Watch Trailer'} fontSize={'24px'} onPress={() => {
-                                navigation.push('TitleTrailerScreen', {
-                                    trailerURI: trailerURI
-                                })
-                        }} />
-                    </ButtonContainer>
-                }
-            </PosterInfoContainer>
-        </PosterContainer>
-    )
-}
-
-const ReturnButton = ({navigation}) => {
-    const ReturnButtonContainer = styled(View)`
-        display: flex;
-        align-self: center;
-        height: 60px;
-        margin-top: 20px;
-        margin-bottom: 100px;
-        width: 84%;
-    `
-    return (
-        <ReturnButtonContainer>
-            <ActionButton 
-                onPress={() => navigation.pop()} 
-                text="Back to Reelay" 
-                fontSize='24px'
-                color='red'
-            />
-        </ReturnButtonContainer>
-    );
-}
-
+const ReturnButton = ({ navigation }) => {
+	const ReturnButtonContainer = styled(View)`
+		display: flex;
+		align-self: center;
+		height: 60px;
+		margin-top: 20px;
+		margin-bottom: 100px;
+		width: 84%;
+	`;
+	return (
+		<ReturnButtonContainer>
+			<ActionButton
+				onPress={() => navigation.pop()}
+				text="Back to Reelay"
+				fontSize="24px"
+				color="red"
+			/>
+		</ReturnButtonContainer>
+	);
+};
 
 const PopularReelaysRow = ({ navigation, titleObj }) => {
-    const [topReelays, setTopReelays] = useState([]);
-    const componentMounted = useRef(true);
+	const [topReelays, setTopReelays] = useState([]);
+	const componentMounted = useRef(true);
 
-    const byReelayPopularity = (reelay1, reelay2) => {
-        const reelay1Score = reelay1.likes.length + reelay1.comments.length;
-        const reelay2Score = reelay2.likes.length + reelay2.comments.length;
-        return reelay2Score - reelay1Score;
-    }
+	const byReelayPopularity = (reelay1, reelay2) => {
+		const reelay1Score = reelay1.likes.length + reelay1.comments.length;
+		const reelay2Score = reelay2.likes.length + reelay2.comments.length;
+		return reelay2Score - reelay1Score;
+	};
 
-    const fetchTopReelays = async () => {
-        const mostRecentReelays = await getMostRecentReelaysByTitle(titleObj.id);
-        const nextTopReelays = mostRecentReelays.sort(byReelayPopularity);
-        if (nextTopReelays?.length && componentMounted.current) {
-            setTopReelays(nextTopReelays);
-        }
-    }
+	const fetchTopReelays = async () => {
+		const mostRecentReelays = await getMostRecentReelaysByTitle(titleObj.id);
+		const nextTopReelays = mostRecentReelays.sort(byReelayPopularity);
+		if (nextTopReelays?.length && componentMounted.current) {
+			setTopReelays(nextTopReelays);
+		}
+	};
 
-    useEffect(() => {
-        fetchTopReelays();
-        return () => componentMounted.current = false;
-    }, []);
+	useEffect(() => {
+		fetchTopReelays();
+		return () => (componentMounted.current = false);
+	}, []);
 
-    const goToReelay = (index) => {
-        if (topReelays.length === 0) return;
-        navigation.push('TitleFeedScreen', {
-            initialStackPos: index,
-            fixedStackList: [topReelays],
-        });
-    }
+	const goToReelay = (index) => {
+		if (topReelays.length === 0) return;
+		navigation.push("TitleFeedScreen", {
+			initialStackPos: index,
+			fixedStackList: [topReelays],
+		});
+	};
 
-    const ReelayThumbnail = ({ reelay, index }) => {
-        const ThumbnailContainer = styled(View)`
-            border-color: #7c7c7c;
-            border-width: 1px;
-            border-radius: 8px;
-            justify-content: center;
-            margin: 4px;
-            height: 122px;
-            width: 82px;
-        `
-        const ThumbnailImage = styled(Image)`
-            border-radius: 8px;
-            height: 120px;
-            width: 80px;
-        `        
-        const [loading, setLoading] = useState(true);
-        const [thumbnailURI, setThumbnailURI] = useState('');
+	const ReelayThumbnail = ({ reelay, index }) => {
+		const ThumbnailContainer = styled(View)`
+			border-color: #7c7c7c;
+			border-width: 1px;
+			border-radius: 8px;
+			justify-content: center;
+			margin: 4px;
+			height: 122px;
+			width: 82px;
+		`;
+		const ThumbnailImage = styled(Image)`
+			border-radius: 8px;
+			height: 120px;
+			width: 80px;
+		`;
+		const [loading, setLoading] = useState(true);
+		const [thumbnailURI, setThumbnailURI] = useState("");
 
-        const generateThumbnail = async () => {
-            try {
-                const { uri } = await VideoThumbnails.getThumbnailAsync(reelay.content.videoURI, {
-                    time: 1000
-                });
-                setThumbnailURI(uri);
-                setLoading(false);
-            } catch (error) {
-                console.warn(error);
-                setLoading(false);
-            }
-        };
+		useEffect(() => {
+			// Generate thumnbail async
+			let isMounted = true;
+			(async () => {
+				try {
+					const { uri } = await VideoThumbnails.getThumbnailAsync(
+						reelay.content.videoURI,
+						{
+							time: 1000,
+							quality: 0.4,
+						}
+					);
+					if (isMounted) {
+						setThumbnailURI(uri);
+						setLoading(false);
+					}
+				} catch (error) {
+					console.warn(error);
+					if (isMounted) {
+						setLoading(false);
+						setThumbnailURI("");
+					}
+				}
+			})();
+			return () => (isMounted = false);
+		}, []);
 
-        useEffect(() => {
-            generateThumbnail();
-        }, []);
+		return (
+			<Pressable
+				key={reelay.id}
+				onPress={() => {
+					goToReelay(index);
+				}}
+			>
+				<ThumbnailContainer>
+					{loading && <ActivityIndicator />}
+					{!loading && (
+						<ThumbnailImage
+							source={thumbnailURI.length > 0 ? { uri: thumbnailURI } : SplashImage}
+						/>
+					)}
+				</ThumbnailContainer>
+			</Pressable>
+		);
+	};
 
-        return (
-            <Pressable key={reelay.id} onPress={() => { goToReelay(index) }}>
-                <ThumbnailContainer>
-                    { loading && <ActivityIndicator /> }
-                    { !loading && 
-                        <ThumbnailImage source={{ uri: thumbnailURI }} />
-                    }
-                </ThumbnailContainer>
-            </Pressable>
-        );
-    }
+	const TopReelays = () => {
+		const TopReelaysContainer = styled(View)`
+			margin-top: 20px;
+			width: 95%;
+			left: 5%;
+		`;
+		const ThumbnailScrollContainer = styled(View)`
+			align-items: center;
+			flex-direction: row;
+			justify-content: flex-start;
+			height: 140px;
+			width: 100%;
+		`;
+		const TopReelaysHeader = styled(Text)`
+			margin: 10px;
+			font-family: System;
+			font-size: 28px;
+			font-weight: 600;
+			color: white;
+		`;
+		const PlusReelayThumbnail = () => {
+			const Container = styled(View)`
+				margin: 4px;
+				height: 122px;
+				width: 82px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+			`;
+			const PlusIconContainer = styled(View)`
+				width: 65px;
+				height: 65px;
+			`;
+			const advanceToCreateReelay = async () => {
+				navigation.dangerouslyGetParent().push("VenueSelectScreen", {
+					titleObj: titleObj,
+				});
+			};
 
-    const TopReelays = () => {
-        const TopReelaysContainer = styled(View)`
-            margin-top: 20px;
-            width: 95%;
-            left: 5%;
-        `
-        const ThumbnailScrollContainer = styled(View)`
-            align-items: center;
-            flex-direction: row;
-            justify-content: flex-start;
-            height: 140px;
-            width: 100%;
-        `
-        const TopReelaysHeader = styled(Text)`
-            margin: 10px;
-            font-family: System;
-            font-size: 28px;
-            font-weight: 600;
-            color: white;
-        `
-        const PlusReelayThumbnail = () => {
-            const Container = styled(View)`
-                margin: 4px;
-                height: 122px;
-                width: 82px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-            `
-            const PlusIconContainer = styled(View)`
-                width: 65px;
-                height: 65px;
-            `
-            const advanceToCreateReelay = async () => {
-                navigation.dangerouslyGetParent().push('VenueSelectScreen', {
-                    titleObj: titleObj,
-                });
-            }
+			return (
+				<Container>
+					<PlusIconContainer>
+						<RedPlusButton onPress={advanceToCreateReelay} />
+					</PlusIconContainer>
+				</Container>
+			);
+		};
 
-            return (
-                <Container>
-                    <PlusIconContainer>
-                        <RedPlusButton onPress={advanceToCreateReelay} />
-                    </PlusIconContainer>
-                </Container>
-            )
-        }
+		return (
+			<TopReelaysContainer>
+				<TopReelaysHeader>{`Top Reviews`}</TopReelaysHeader>
+				<ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+					<ThumbnailScrollContainer>
+						<PlusReelayThumbnail />
+						{topReelays.length > 0 &&
+							topReelays.map((reelay, index) => {
+								return (
+									<ReelayThumbnail
+										key={reelay.id}
+										reelay={reelay}
+										index={index}
+									/>
+								);
+							})}
+					</ThumbnailScrollContainer>
+				</ScrollView>
+			</TopReelaysContainer>
+		);
+	};
 
-
-        return (
-            <TopReelaysContainer>
-                <TopReelaysHeader>{`Top Reviews`}</TopReelaysHeader>
-                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-                    <ThumbnailScrollContainer>
-                        <PlusReelayThumbnail />
-                        { topReelays.length > 0 && topReelays.map((reelay, index) => {
-                            return <ReelayThumbnail key={reelay.id} reelay={reelay} index={index} />;
-                        })}
-                    </ThumbnailScrollContainer>
-                </ScrollView>
-            </TopReelaysContainer>
-        );
-    }
-
-    const Container = styled(View)`
-        width: 100%;
-    `
-    const ButtonContainer = styled(View)`
-        margin-top: 10px;
-        margin-bottom: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    `
-    const ButtonSizer = styled(View)`
-        width: 84%;
-        height: 60px;
-    `
-    return (
-        <Container>
-            <TopReelays />
-            <ButtonContainer>
-                <ButtonSizer>
-                    <PassiveButton text={"See all"} fontSize={'28px'} onPress={() => {goToReelay(0)}} />
-                </ButtonSizer>
-            </ButtonContainer>
-        </Container>
-    )
+	const Container = styled(View)`
+		width: 100%;
+	`;
+	const ButtonContainer = styled(View)`
+		margin-top: 10px;
+		margin-bottom: 20px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	`;
+	const ButtonSizer = styled(View)`
+		width: 84%;
+		height: 60px;
+	`;
+	return (
+		<Container>
+			<TopReelays />
+			<ButtonContainer>
+				<ButtonSizer>
+					<PassiveButton
+						text={"See all"}
+						fontSize={"28px"}
+						onPress={() => {
+							goToReelay(0);
+						}}
+					/>
+				</ButtonSizer>
+			</ButtonContainer>
+		</Container>
+	);
 };
 
 const MovieInformation = ({description, director, actors}) => {
