@@ -3,25 +3,29 @@ import { Modal, View, Text, Pressable } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { unfollowCreator } from '../../../api/ReelayDBApi';
 
-import { AuthContext } from '../../context/AuthContext';
+import { AuthContext } from '../../../context/AuthContext';
 import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
 import styled from 'styled-components/native';
+import ReelayColors from '../../../constants/ReelayColors';
 
 export default FollowButtonDrawer = ({ 
+    creatorFollowers,
+    setCreatorFollowers,
     drawerOpen,
     setDrawerOpen,
     followObj,
+    followType,
     sourceScreen = 'UserFollowScreen',
-    creatorFollowers,
-    setCreatorFollowers,
 }) => {
+    const { cognitoUser, myFollowing, setMyFollowing } = useContext(AuthContext);
 
-    const creatorName = followObj.creatorName;
-    const creatorSub = followObj.creatorSub;
     const myUsername = cognitoUser.username;
     const myUserSub = cognitoUser.attributes.sub;
 
-    const { cognitoUser, myFollowing, setMyFollowing } = useContext(AuthContext);
+    const { creatorName, creatorSub, followerName, followerSub } = followObj;
+
+    const followName = (followType === 'Following') ? creatorName : followerName;
+    const followSub = (followType === 'Following') ? creatorSub : followerSub;
 
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
 
@@ -36,9 +40,10 @@ export default FollowButtonDrawer = ({
         padding: 30px;
     `
     const DrawerContainer = styled(View)`
-        background-color: black;
+        background-color: ${ReelayColors.reelayBlack};
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
+        border-width: 1px;
         height: auto;
         margin-top: auto;
         max-height: 70%;
@@ -69,15 +74,12 @@ export default FollowButtonDrawer = ({
         const unfollowSucceeded = !unfollowResult?.error;
 
         if (unfollowSucceeded) {
-            const nextCreatorFollowers = creatorFollowers.filter((followObj) => {
-                return followObj.followerSub !== myUserSub;
-            });
-            
-            const nextMyFollowing = myFollowing.filter((followObj) => {
-                return followObj.creatorSub !== creatorSub;
-            });
-            
+            const removeFromCreatorFollows = (followObj) => followObj.followerSub !== myUserSub;
+            const nextCreatorFollowers = creatorFollowers.filter(removeFromCreatorFollows);
             setCreatorFollowers(nextCreatorFollowers);
+            
+            const removeFromMyFollows = (followObj) => followObj.creatorSub !== creatorSub;
+            const nextMyFollowing = myFollowing.filter(removeFromMyFollows);
             setMyFollowing(nextMyFollowing);
         } else {
             // handle error

@@ -10,20 +10,30 @@ const FollowItemContainer = styled(View)`
     border-bottom-width: 0.3px;
 `
 
-const FollowResults = ({ navigation, searchResults, followType, refreshing, onRefresh }) => {
+const FollowResults = ({ 
+    followType, 
+    navigation, 
+    onRefresh,
+    refreshing, 
+    searchResults, 
+    setDrawerFollowObj,
+    setDrawerOpen,
+}) => {
     const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
     return (
         <View>
             { searchResults.length >= 1 && (
                 <ScrollView refreshControl={refreshControl}>
-                    { searchResults.map((result, index) => {
+                    { searchResults.map((followObj, index) => {
                         return (
                             <FollowItemContainer key={index}>
                                 <FollowItem
-                                    followObj={result}
-                                    navigation={navigation}
+                                    followObj={followObj}
                                     followType={followType}
+                                    navigation={navigation}
+                                    setDrawerFollowObj={setDrawerFollowObj}
+                                    setDrawerOpen={setDrawerOpen}
                                 />
                             </FollowItemContainer>
                         );

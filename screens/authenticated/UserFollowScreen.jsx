@@ -4,6 +4,7 @@ import { SafeAreaView, View, Text } from 'react-native';
 import BackButton from '../../components/utils/BackButton';
 import SearchField from '../../components/create-reelay/SearchField';
 import FollowResults from '../../components/profile/Follow/FollowResults';
+import FollowButtonDrawer from '../../components/profile/Follow/FollowButtonDrawer';
 
 import { AuthContext } from '../../context/AuthContext';
 
@@ -44,13 +45,16 @@ export default UserFollowScreen = ({ navigation, route }) => {
 
     const { creator, initFollowType, initFollowers, initFollowing } = route.params;
     const [searchText, setSearchText] = useState('');
-    const [userFollowers, setUserFollowers] = useState(initFollowers);
-    const [userFollowing, setUserFollowing] = useState(initFollowing);
+    const [creatorFollowers, setCreatorFollowers] = useState(initFollowers);
+    const [creatorFollowing, setCreatorFollowing] = useState(initFollowing);
     const [refreshing, setRefreshing] = useState(false);
 
-    const allSearchResults = (initFollowType === 'Followers') ? userFollowers : userFollowing;
+    const allSearchResults = (initFollowType === 'Followers') ? creatorFollowers : creatorFollowing;
     const [searchResults, setSearchResults] = useState(allSearchResults);
     const [selectedFollowType, setSelectedFollowType] = useState(initFollowType);
+
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [drawerFollowObj, setDrawerFollowObj] = useState(null);
     const updateCounter = useRef(0);
 
     const headerText = `${creator.username}'s ${selectedFollowType.toLowerCase()}`
@@ -62,8 +66,8 @@ export default UserFollowScreen = ({ navigation, route }) => {
     }, [
         searchText, 
         selectedFollowType, 
-        userFollowers,
-        userFollowing, 
+        creatorFollowers,
+        creatorFollowing, 
     ]);
 
     useEffect(() => {
@@ -77,8 +81,8 @@ export default UserFollowScreen = ({ navigation, route }) => {
         const followersRefresh = await getFollowers(creator.sub);
         const followingRefresh = await getFollowing(creator.sub);
 
-        setUserFollowers(followersRefresh);
-        setUserFollowing(followingRefresh);
+        setCreatorFollowers(followersRefresh);
+        setCreatorFollowing(followingRefresh);
         setRefreshing(false);
     }
 
@@ -90,8 +94,8 @@ export default UserFollowScreen = ({ navigation, route }) => {
         try {
             if (updateCounter.current === counter) {
                 const allFollowResults = (selectedFollowType === 'Followers') 
-                    ? userFollowers 
-                    : userFollowing;
+                    ? creatorFollowers 
+                    : creatorFollowing;
                 
                 const cleanedSearchText = searchText.toLowerCase();
                 const filteredFollowResults = allFollowResults.filter((nextFollowObj) => {
@@ -135,12 +139,25 @@ export default UserFollowScreen = ({ navigation, route }) => {
                 updateSearchText={updateSearchText}
             />
             <FollowResults
-                navigation={navigation}
-                searchResults={searchResults}
                 followType={selectedFollowType}
-                refreshing={refreshing}
+                navigation={navigation}
                 onRefresh={onRefresh}
+                refreshing={refreshing}
+                searchResults={searchResults}
+                setDrawerFollowObj={setDrawerFollowObj}
+                setDrawerOpen={setDrawerOpen}
             />
+            { drawerOpen && 
+                <FollowButtonDrawer
+                    creatorFollowers={creatorFollowers}
+                    setCreatorFollowers={setCreatorFollowers}
+                    drawerOpen={drawerOpen}
+                    setDrawerOpen={setDrawerOpen}
+                    followObj={drawerFollowObj}
+                    followType={selectedFollowType}
+                    sourceScreen={'UserFollowScreen'}
+                />
+            }
         </SearchScreenContainer>
     );
 };

@@ -34,12 +34,8 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
     const creatorSub = creator.sub;
     const userSub = reelayDBUser.sub;
 
-    console.log('CREATOR: ', creator);
     const creatorInList = (followObj) => followObj.creatorSub === creator.sub;
     const alreadyFollowingCreator = myFollowing.find(creatorInList);
-
-    console.log('MY FOLLOWING: ', myFollowing);
-    console.log('ALREADY FOLLOWING? ', alreadyFollowingCreator);
 
     const followUser = async () => {
         const followResult = await followCreator(creatorSub, userSub);

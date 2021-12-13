@@ -7,9 +7,7 @@ import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
 import styled from 'styled-components/native';
 import ReelayColors from '../../../constants/ReelayColors';
 
-import { getUserByUsername } from '../../../api/ReelayDBApi'
-import { followCreator, unfollowCreator } from '../../../api/ReelayDBApi';
-import { showErrorToast } from '../../utils/toasts';
+import { followCreator } from '../../../api/ReelayDBApi';
 import { Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -78,7 +76,13 @@ Eventually...
 - should also display people the user follows above those that they do not follow
  */
 
-export default FollowItem = ({ followObj, navigation, followType }) => {
+export default FollowItem = ({ 
+    followObj, 
+    followType,
+    navigation, 
+    setDrawerFollowObj,
+    setDrawerOpen,
+}) => {
     const { reelayDBUser, myFollowing, setMyFollowing } = useContext(AuthContext);
 
     const followUsername = (followType === 'Following') ? followObj.creatorName : followObj.followerName;
@@ -107,20 +111,14 @@ export default FollowItem = ({ followObj, navigation, followType }) => {
         })
     };
 
-    const unfollowUser = async () => {
-        const unfollowResult = await unfollowCreator(followUserSub, myUserSub);
-        const unfollowSucceeded = !unfollowResult?.error;
-
-        if (unfollowSucceeded) {
-            const nextMyFollowing = myFollowing.filter((nextFollowObj) => {
-                return nextFollowObj.creatorSub !== followUserSub;
-            });
-            setMyFollowing(nextMyFollowing);
+    const initiateUnfollowUser = async () => {
+        if (followType === 'Following') {
+            setDrawerFollowObj(followObj);
         } else {
-            showErrorToast('Something went wrong unfollowing this user. Try again?');
+            setDrawerFollowObj(myFollowing.find(findFollowUser));
         }
-        // add Amplitude logging
-    };
+        setDrawerOpen(true);
+    }
 
     const selectResult = () => {
         navigation.push('UserProfileScreen', { 
@@ -163,7 +161,7 @@ export default FollowItem = ({ followObj, navigation, followType }) => {
                     <FollowButton 
                         backgroundColor={ReelayColors.reelayBlack}
                         borderColor={'white'}
-                        onPress={unfollowUser} 
+                        onPress={initiateUnfollowUser} 
                     >
                         <FollowText>{'Following'}</FollowText>
                         <Icon type='ionicon' name='caret-down' color={'white'} size={20} />
