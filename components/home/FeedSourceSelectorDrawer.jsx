@@ -48,6 +48,7 @@ export default FeedSourceSelectorDrawer = ({ feedSource, setFeedSource, drawerOp
         font-size: 20px;
         font-weight: ${props => props.selected ? 600: 400};
         margin-left: 20px;
+        margin-right: 20px;
         color: white;
     `
     const closeDrawer = () => {
@@ -59,20 +60,17 @@ export default FeedSourceSelectorDrawer = ({ feedSource, setFeedSource, drawerOp
             align-items: center;
             flex-direction: row;
             justify-content: space-between;
-            margin: 12px;
         `;
-        const HeaderText = styled(Text)`
-            font-family: System;
-            font-size: 20px;
-            font-weight: 500;
-            color: white;
-        `;
+        const CloseButtonContainer = styled(Pressable)`
+            align-items: flex-end;
+            justify-content: flex-end;
+            width: 100%;
+        `
         return (
             <HeaderContainer>
-                <HeaderText>{"Feed Type"}</HeaderText>
-                <Pressable onPress={closeDrawer}>
+                <CloseButtonContainer onPress={closeDrawer}>
                     <Icon color={"white"} type="ionicon" name="close" size={30} />
-                </Pressable>
+                </CloseButtonContainer>
             </HeaderContainer>
         );
     };
@@ -86,10 +84,13 @@ export default FeedSourceSelectorDrawer = ({ feedSource, setFeedSource, drawerOp
                 userSub: cognitoUser.attributes.sub,
             });    
         }
+
+        const selected = (feedSource === 'following');
         return (
             <OptionContainerPressable onPress={onPress}>
                 <Icon type='ionicon' name='people' size={30} color={'white'} />
-                <OptionText selected={feedSource === 'following'}>{`Following`}</OptionText>
+                <OptionText selected={selected}>{`Following`}</OptionText>
+                { selected && <Icon type='ionicon' name='checkmark' size={30} color={'white'} /> }
             </OptionContainerPressable>
         );
     }
@@ -103,10 +104,13 @@ export default FeedSourceSelectorDrawer = ({ feedSource, setFeedSource, drawerOp
                 userSub: cognitoUser.attributes.sub,
             });    
         }
+
+        const selected = (feedSource === 'global');
         return (
             <OptionContainerPressable onPress={onPress}>
                 <Icon type='ionicon' name='earth' size={30} color={'white'} />
                 <OptionText selected={feedSource === 'global'}>{`Global`}</OptionText>
+                { selected && <Icon type='ionicon' name='checkmark' size={30} color={'white'} /> }
             </OptionContainerPressable>
         );
     }

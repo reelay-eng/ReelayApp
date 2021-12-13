@@ -59,6 +59,7 @@ export default ReelayFeed = ({ navigation,
     const { overlayVisible } = useContext(FeedContext);
 
     const [feedPosition, setFeedPosition] = useState(0);
+    const [altFeedPosition, setAltFeedPosition] = useState(0);
     const [feedSource, setFeedSource] = useState('global');
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
@@ -85,8 +86,11 @@ export default ReelayFeed = ({ navigation,
     }, [navigation]);
 
     useEffect(() => {
+        const tmpFeedPosition = altFeedPosition;
+        setAltFeedPosition(feedPosition);
+        setFeedPosition(tmpFeedPosition);
         refreshFeed();
-    }, [feedSource])
+    }, [feedSource]);
 
     useFocusEffect(() => {
         if (fixedStackList.length) return;
@@ -244,12 +248,14 @@ export default ReelayFeed = ({ navigation,
             { overlayVisible && 
                 <FeedOverlay navigation={navigation} onDeleteReelay={onDeleteReelay} />
             }
-            <FeedSourceSelectorButton
-                feedSource={feedSource} 
-                drawerOpen={drawerOpen}
-                setDrawerOpen={setDrawerOpen}
-            />
-            { drawerOpen && 
+            { !isFixedStack && 
+                <FeedSourceSelectorButton
+                    feedSource={feedSource} 
+                    drawerOpen={drawerOpen}
+                    setDrawerOpen={setDrawerOpen}
+                />
+            }
+            { !isFixedStack && drawerOpen && 
                 <FeedSourceSelectorDrawer 
                     feedSource={feedSource} 
                     setFeedSource={setFeedSource}
