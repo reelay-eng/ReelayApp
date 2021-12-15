@@ -22,7 +22,6 @@ const getFontFamily = (fontWeight) => {
 
 //Header Fields
 
-// Light
 export const H1 = styled(Text)`
 	font-family: ${getFontFamily(300)};
 	font-size: 96px;
@@ -32,7 +31,6 @@ export const H1 = styled(Text)`
 	text-align: left;
 `;
 
-// Light
 export const H2 = styled(Text)`
 	font-family: ${getFontFamily(300)};
 	font-size: 60px;
@@ -53,6 +51,14 @@ export const H3 = styled(Text)`
 
 export const H4 = styled(Text)`
 	font-family: ${getFontFamily(400)};
+	font-size: 34px;
+	font-style: normal;
+	line-height: 36px;
+	letter-spacing: 0px;
+	text-align: left;
+`;
+export const H4Bold = styled(Text)`
+	font-family: ${getFontFamily(600)};
 	font-size: 34px;
 	font-style: normal;
 	line-height: 36px;

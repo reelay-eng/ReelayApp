@@ -211,14 +211,8 @@ const PosterWithTrailer = ({
 	const PosterTitleContainer = styled(View)`
 		width: 90%;
 	`;
-	const PosterTitle = styled(Text)`
-		font-family: Outfit-SemiBold;
-		font-style: normal;
+	const PosterTitle = styled(ReelayText.H4Bold)`
 		color: white;
-		font-size: 36px;
-		line-height: 38px;
-		letter-spacing: 0px;
-		text-align: left;
 	`;
 
 	const TrailerButtonContainer = styled(View)`
