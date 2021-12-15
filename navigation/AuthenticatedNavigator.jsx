@@ -295,24 +295,21 @@ const CreateReelayTabNavigator = () => {
 
 const ProfileTabNavigator = () => {
     return (
-        <ProfileTabStack.Navigator
-            initialRouteName='MyProfileScreen'
-            detachInactiveScreens={false}
-        >
-            <ProfileTabStack.Screen
-                name='MyProfileScreen'
-                component={MyProfileScreen}
-                options={{
-                    headerShown: false,
-                }}
-            />
-            <ProfileTabStack.Screen
-                name='UserProfileScreen'
-                component={UserProfileScreen}
-                options={{
-                    headerShown: false,
-                }}
-            />
+		<ProfileTabStack.Navigator initialRouteName="MyProfileScreen" detachInactiveScreens={false}>
+			<ProfileTabStack.Screen
+				name="MyProfileScreen"
+				component={MyProfileScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<ProfileTabStack.Screen
+				name="UserProfileScreen"
+				component={UserProfileScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
             <ProfileTabStack.Screen
                 name='UserFollowScreen'
                 component={UserFollowScreen}
@@ -320,50 +317,57 @@ const ProfileTabNavigator = () => {
                     headerShown: false,
                 }}
             />
-            <ProfileTabStack.Screen
-                name='ProfileFeedScreen'
-                component={ProfileFeedScreen}
-                options={{
-                    headerShown: false,
-                }}
-            />
-            <SearchTabStack.Screen
-                name='SingleReelayScreen'
-                component={SingleReelayScreen}
-                options={{
-                    headerShown: false,
-                }}
-            />
-            <SearchTabStack.Screen
-                name='TitleDetailScreen'
-                component={TitleDetailScreen}
-                options={{
-                    headerShown: false,
-                }}
-            />
-            <HomeTabStack.Screen
-                name='TitleFeedScreen'
-                component={TitleFeedScreen}
-                options={{
-                    headerShown: false,
-                }}
-            />
-            
-            {/* Settings */}
-            <ProfileTabStack.Screen
-                name='ProfileSettingsScreen'
-                component={ProfileSettingsScreen}
-                options={{
-                headerShown: false,
-                }}
-            />
-            <ProfileTabStack.Screen
-                name='NotificationSettingsScreen'
-                component={NotificationSettingsScreen}
-                options={{
-                headerShown: false,
-                }}
-            />
-        </ProfileTabStack.Navigator>
-    );
+			<ProfileTabStack.Screen
+				name="ProfileFeedScreen"
+				component={ProfileFeedScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<ProfileTabStack.Screen
+				name="SingleReelayScreen"
+				component={SingleReelayScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<ProfileTabStack.Screen
+				name="TitleDetailScreen"
+				component={TitleDetailScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<ProfileTabStack.Screen
+				name="TitleFeedScreen"
+				component={TitleFeedScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<ProfileTabStack.Screen
+				name="TitleTrailerScreen"
+				component={TitleTrailerScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+
+			{/* Settings */}
+			<ProfileTabStack.Screen
+				name="ProfileSettingsScreen"
+				component={ProfileSettingsScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<ProfileTabStack.Screen
+				name="NotificationSettingsScreen"
+				component={NotificationSettingsScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+		</ProfileTabStack.Navigator>
+	);
 }

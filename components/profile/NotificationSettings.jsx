@@ -4,7 +4,10 @@ import styled from 'styled-components/native';
 
 import { AuthContext } from '../../context/AuthContext';
 import { getMyNotificationSettings, setMyNotificationSettings } from '../../api/NotificationsApi';
-import { Header } from './ProfileSettings';
+import { Header } from '../../components/global/HeaderWithBackButton';
+
+import * as ReelayText from "../../components/global/Text";
+import ReelayColors from '../../constants/ReelayColors';
 
 export default NotificationSettings = ({navigation}) => {
     const { cognitoUser } = useContext(AuthContext);
@@ -184,11 +187,10 @@ const TrendingNotificationSetting = ({enabled, toggle}) => {
 const NotificationSetting = ({title, subtext, isToggled, toggleFunction}) => {
     const NotificationSettingContainer = styled(View)`
         width: 100%;
-        height: 10%;
+        height: 60px;
         display: flex;
         flex-direction: column;
         justify-content: space-around;
-        margin-top: 15px;
         padding: 5px;
     `;
     const FirstRow = styled(View)`
@@ -203,40 +205,40 @@ const NotificationSetting = ({title, subtext, isToggled, toggleFunction}) => {
         width: 100%;
         height: 30%;
     `;
-    const NotificationSettingText = styled(Text)`
+    const NotificationSettingText = styled(ReelayText.Body1)`
         text-align: center;
         color: white;
-        font-size: 20px;
-        font-weight: 500;
         margin-left: 10px;
         margin-right: 20px;
+        margin-top: ${subtext ? "0px" : "5px"};
     `;
-    const NotificationSettingSubtext = styled(Text)`
+    const NotificationSettingSubtext = styled(ReelayText.Caption)`
         text-align: left;
-        margin-top: -5px;
+        margin-top: -10px;
         margin-left: 15px;
-        color: #6E6E6E;
-        font-size: 16px;
+        color: #FFFFFF
+        opacity: 0.5;
     `;
     const NotificationSlider = styled(Switch)`
         margin-right: 20px;
-        transform: scale(1.2);
     `;
     return (
-        <NotificationSettingContainer>
-            <FirstRow>
-                <NotificationSettingText>{title}</NotificationSettingText>
-                <NotificationSlider
-                    value={isToggled}
-                    onValueChange={toggleFunction}
-                    trackColor={{false: "#3e3e3e", true: "#2977EF"}}
-                    thumbColor={"#FFFFFF"}
-                    ios_backgroundColor="#3e3e3e"
-                />
-            </FirstRow>
-            <SecondRow>
-                <NotificationSettingSubtext>{subtext}</NotificationSettingSubtext>
-            </SecondRow>
-        </NotificationSettingContainer>
-    )
+		<NotificationSettingContainer>
+			<FirstRow>
+				<NotificationSettingText>{title}</NotificationSettingText>
+				<NotificationSlider
+					value={isToggled}
+					onValueChange={toggleFunction}
+					trackColor={{ false: "#39393D", true: ReelayColors.reelayBlue }}
+					thumbColor={"#FFFFFF"}
+					ios_backgroundColor="#39393D"
+				/>
+			</FirstRow>
+			{subtext && (
+				<SecondRow>
+					<NotificationSettingSubtext>{subtext}</NotificationSettingSubtext>
+				</SecondRow>
+			)}
+		</NotificationSettingContainer>
+	);
 }
