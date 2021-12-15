@@ -17,6 +17,7 @@ export const Header = ({ navigation, text = "Settings" }) => {
 		text-align: left;
 		color: white;
 		margin-top: 4px;
+		width: 90%;
 	`;
 	const BackButton = styled(Pressable)`
 		margin-right: 20px;

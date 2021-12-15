@@ -21,7 +21,7 @@ const iconPeacock = require(ICON_PATH + 'peacock.png');
 const iconTheaters = require(ICON_PATH + 'cinemas.png');
 const iconYouTube = require(ICON_PATH + 'youtube.png');
 
-const iconVenues = [
+export const iconVenues = [
     { source: iconAmazon, venue: 'amazon', },
     { source: iconAppleTV, venue: 'appletv' },
     { source: iconCrackle, venue: 'crackle' },
@@ -36,14 +36,14 @@ const iconVenues = [
     { source: iconYouTube, venue: 'youtube' },
 ];
 
-const otherVenues = [
+export const otherVenues = [
     { source: iconFestivals, text: 'At a film festival', venue: 'festivals' },
     { source: iconTheaters, text: 'In theaters', venue: 'theaters' },
     { source: iconOther, text: 'Other', venue: 'other' },
 ]
 
 export const getIconVenues = () => {
-    return iconVenues.map(iconData => iconData.venue);
+    return iconVenues;
 }    
 
 export const getOtherVenues = () => {

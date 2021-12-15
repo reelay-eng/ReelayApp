@@ -1,9 +1,14 @@
 import React from 'react';
-import { Alert, Pressable, SafeAreaView, ScrollView, Text, View, Linking } from 'react-native';
+import { Alert, Pressable, SafeAreaView, ScrollView, Text, View, Linking, Image } from 'react-native';
 import { Camera } from 'expo-camera';
 import BackButton from '../../components/utils/BackButton';
-import { getIconVenues, getOtherVenues, VenueIcon } from '../../components/utils/VenueIcon';
+import { getIconVenues, getOtherVenues, iconVenues, otherVenues } from '../../components/utils/VenueIcon';
 import styled from 'styled-components/native';
+import { LinearGradient } from 'expo-linear-gradient';
+import ReelayColors from '../../constants/ReelayColors';
+import * as ReelayText from "../../components/global/Text";
+import { BWButton } from "../../components/global/Buttons";
+import { Header } from "../../components/global/HeaderWithBackButton";
 
 export default VenueSelectScreen = ({ navigation, route }) => {
 
@@ -13,6 +18,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
     const { titleObj } = route.params;
     const iconVenues = getIconVenues();
     const otherVenues = getOtherVenues();
+    const searchVenues = [...iconVenues, ...otherVenues];
     
     const ScreenOuterContainer = styled(View)`
         height: 100%;
@@ -40,7 +46,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
 
     const IconOptions = () => {
         const IconContainer = styled(View)`
-            margin: 12px;
+            margin: 4px;
         `
         const IconOptionsContainer = styled(View)`
             align-items: center;
@@ -52,125 +58,45 @@ export default VenueSelectScreen = ({ navigation, route }) => {
             width: 100%;
         `
         return (
-                <IconOptionsContainer>
-                    { iconVenues.map(venue => {
-                        return (
-                            <IconContainer key={venue}>
-                                <VenueIcon border={BORDER_SIZE} size={ICON_SIZE} venue={venue}
-                                    onPress={() => advancetoCameraScreen(venue)}  />
-                            </IconContainer>
-                        ); 
-                    })}
-                </IconOptionsContainer>
-        );
-    }
-
-    const OtherOptions = () => {
-        const IconContainer = styled(View)`
-        `
-        const OtherOptionsContainer = styled(View)`
-            align-items: flex-start;
-            margin-top: 10px;
-            width: 100%;
-        `
-        const OtherOptionsLine = styled(Pressable)`
-            align-self: center;
-            align-items: center;
-            border-radius: ${ICON_SIZE * .75}px;
-            background-color: #f0f1f2;
-            flex-direction: row;
-            height: ${ICON_SIZE * 0.75}px;
-            margin: 25px;
-            width: 70%;
-        `
-        const OtherOptionText = styled(Text)`
-            align-self: center;
-            font-family: System;
-            font-size: 20px;
-            font-weight: 400;
-            left: 10px;
-            color: black;
-        `
-        const OtherOptionsTextButton = styled(Pressable)`
-            align-items: center;
-        `
-        const onPress = (venue) => {
-            advancetoCameraScreen(venue)
-        };
-
-        return (
-            <OtherOptionsContainer>
-                { otherVenues.map(venueObj=> {
-                    const venue = venueObj.venue;
-                    return (
-                        <OtherOptionsLine key={venue} onPress={() => advancetoCameraScreen(venue)}>
-                            <IconContainer>
-                                <VenueIcon border={BORDER_SIZE} size={ICON_SIZE} venue={venue} 
-                                    onPress={() => advancetoCameraScreen(venue)}/>
-                            </IconContainer>
-                            <OtherOptionsTextButton onPress={() => onPress(venue)}>
-                                <OtherOptionText>{venueObj.text}</OtherOptionText>
-                            </OtherOptionsTextButton>
-                        </OtherOptionsLine>
-                    ); 
-                })}
-            </OtherOptionsContainer>
-        );
-    }
-
-    const Prompt = () => {
-        const PromptContainer = styled(View)`
-            align-self: flex-start;
-            align-items: center;
-            top: 10px;
-            width: 80%;
-        `
-        const PromptText = styled(Text)`
-            text-align: center;
-            font-size: 22px;
-            font-family: System;
-            color: white;
-        `
-        const TopContainer = styled(View)`
-            flex-direction: row;
-            height: 80px;
-            width: 100%;
-        `
-        const promptA = 'Where did you see ';
-        const promptB = titleObj.display + '?';
-
-        return (
-            <TopContainer>
-                <BackButton navigation={navigation} />
-                <PromptContainer>
-                    <PromptText>{promptA}</PromptText>
-                    <PromptText>{promptB}</PromptText>
-                </PromptContainer>
-            </TopContainer>
-        );
+			<IconOptionsContainer>
+				{iconVenues.map((venueObj) => {
+					const venue = venueObj.venue;
+					return (
+						<IconContainer key={venue}>
+							<VenueBadge venue={venue} />
+						</IconContainer>
+					);
+				})}
+				{otherVenues.map((venueObj) => {
+					const venue = venueObj.venue;
+					return (
+                        <IconContainer key={venue}>
+                            <VenueBadge venue={venue} subtext={venueObj.text} />
+						</IconContainer>
+					);
+				})}
+			</IconOptionsContainer>
+		);
     }
 
     const SkipButton = () => {
         const SkipContainer = styled(View)`
+            display: flex;
             align-items: center;
             justify-content: center;
             height: 40px;
-            margin-bottom: 80px;
-            top: 20px;
             width: 100%;
         `
-        const SkipText = styled(Text)`
-            font-size: 22px;
-            font-family: System;
-            color: white;
+        const SkipButtonContainer = styled(View)`
+            width: 90%;
         `
         return (
-            <SkipContainer>
-                <Pressable onPress={() => advancetoCameraScreen('')}>
-                    <SkipText>{'Skip'}</SkipText>
-                </Pressable>
-            </SkipContainer>
-        );
+			<SkipContainer>
+				<SkipButtonContainer>
+					<BWButton onPress={() => advancetoCameraScreen("")} text="Skip" />
+				</SkipButtonContainer>
+			</SkipContainer>
+		);
     }
 
     const alertCameraAccess = async () => {
@@ -187,16 +113,95 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         );        
     }
 
+    const VenueBadge = ({venue, subtext=""}) => {
+        const source = venue.length ? searchVenues.find((vi) => vi.venue === venue).source : null;
+		const PressableVenue = styled(Pressable)`
+			width: 80px;
+			height: 93px;
+			border-radius: 11px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: ${ReelayColors.reelayBlue};
+		`;
+
+		const PrimaryVenueImage = styled(Image)`
+			height: 42px;
+			width: 42px;
+			border-radius: 21px;
+			border-width: 3px;
+		`;
+        const OtherVenueImageContainer = styled(View)`
+            height: 30px;
+            width: 30px;
+            margin: 5px;
+        `
+        const OtherVenueImage = styled(Image)`
+            height: 100%;
+            width: 100%;
+            resizeMode: contain;
+        `
+        const OtherVenueSubtext = styled(ReelayText.CaptionEmphasized)`
+            color: white;
+            padding: 5px;
+            text-align: center;
+        `
+		return (
+			<>
+                {source && (
+					<PressableVenue onPress={() => advancetoCameraScreen(venue)}>
+						{({ pressed }) => (
+							<>
+								{!pressed && (
+									<LinearGradient
+										colors={["#272525", "#19242E"]}
+										style={{
+											flex: 1,
+											opacity: 1,
+											position: "absolute",
+											width: "100%",
+											height: "100%",
+											borderRadius: `11px`,
+										}}
+									/>
+								)}
+								{subtext.length > 0 && (
+									<>
+										<OtherVenueImageContainer>
+											<OtherVenueImage source={source} />
+										</OtherVenueImageContainer>
+										<OtherVenueSubtext>{subtext}</OtherVenueSubtext>
+									</>
+								)}
+								{!(subtext.length > 0) && <PrimaryVenueImage source={source} />}
+							</>
+						)}
+					</PressableVenue>
+				)}
+			</>
+		);
+    };
+    
+    const FlexContainer = styled(View)`
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+    `
+
     return (
-        <ScreenOuterContainer>
-            <ScreenInnerContainer>
-                <ScrollView>
-                    <Prompt />
-                    <IconOptions />
-                    <OtherOptions />
-                    <SkipButton />
-                </ScrollView>
-            </ScreenInnerContainer>
-        </ScreenOuterContainer>
-    );
+		<ScreenOuterContainer>
+			<ScreenInnerContainer>
+				<ScrollView>
+					<Header navigation={navigation} text={`Where did you see it?`} />
+					<FlexContainer>
+						<IconOptions />
+						<SkipButton />
+					</FlexContainer>
+				</ScrollView>
+			</ScreenInnerContainer>
+		</ScreenOuterContainer>
+	);
 }
