@@ -16,6 +16,9 @@ const iconHulu = require(ICON_PATH + 'hulu.png');
 const iconMubi = require(ICON_PATH + 'mubi.png');
 const iconNetfix = require(ICON_PATH + 'netflix.png');
 const iconOther = require(ICON_PATH + 'other.png');
+const iconOldTheaters = require(ICON_PATH + "oldCinemas.png");
+const iconOldFestivals = require(ICON_PATH + "oldFestivals.png");
+const iconOldOther = require(ICON_PATH + "oldOther.png");
 const iconParamount = require(ICON_PATH + 'paramount.png');
 const iconPeacock = require(ICON_PATH + 'peacock.png');
 const iconTheaters = require(ICON_PATH + 'cinemas.png');
@@ -37,10 +40,25 @@ export const iconVenues = [
 ];
 
 export const otherVenues = [
-    { source: iconFestivals, text: 'At a film festival', venue: 'festivals' },
-    { source: iconTheaters, text: 'In theaters', venue: 'theaters' },
-    { source: iconOther, text: 'Other', venue: 'other' },
-]
+	{
+		source: iconFestivals,
+		oldSource: iconOldFestivals,
+		text: "At a film festival",
+		venue: "festivals",
+	},
+    {
+        source: iconTheaters,
+        oldSource: iconOldTheaters,
+        text: "In theaters",
+        venue: "theaters"
+    },
+    {
+        source: iconOther,
+        oldSource: iconOldOther,
+        text: "Other",
+        venue: "other"
+    },
+];
 
 export const getIconVenues = () => {
     return iconVenues;
@@ -53,8 +71,9 @@ export const getOtherVenues = () => {
 export const VenueIcon = memo(({ border = 0, onPress, size = 48, venue }) => {
 
     const searchItems = [...iconVenues, ...otherVenues];
-    const source = venue.length ? searchItems.find(vi => vi.venue === venue).source : null;
-
+    const sourceVenueObject = venue.length ? searchItems.find(vi => vi.venue === venue) : null;
+    const isOther = venue.length ? otherVenues.map(e => e.venue)?.includes(venue) : null;
+    const source = isOther ? sourceVenueObject?.oldSource : sourceVenueObject?.source;
     const radius = (size / 2) + (border ? 4 : 0);
     
     const IconPressable = styled(Pressable)`

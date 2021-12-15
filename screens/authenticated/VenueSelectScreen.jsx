@@ -129,7 +129,8 @@ export default VenueSelectScreen = ({ navigation, route }) => {
 			height: 42px;
 			width: 42px;
 			border-radius: 21px;
-			border-width: 3px;
+			border-width: 1px;
+            border-color: white;
 		`;
         const OtherVenueImageContainer = styled(View)`
             height: 30px;
