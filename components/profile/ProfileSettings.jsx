@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Text, View, Pressable } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { Auth } from 'aws-amplify';
@@ -7,6 +7,9 @@ import colors from "../../constants/ReelayColors";
 import BackButton from "../../components/utils/BackButton";
 import { Icon } from "react-native-elements";
 import styled from 'styled-components/native';
+import * as ReelayText from "../../components/global/Text";
+import { BWButton } from "../../components/global/Buttons";
+import { Header } from "../../components/global/HeaderWithBackButton";
 
 export const ProfileSettings = ({navigation}) => {
     const ViewContainer = styled(View)`
@@ -20,28 +23,46 @@ export const ProfileSettings = ({navigation}) => {
         width: 100%;
         height: 80%;
         display: flex;
+        flex-direction: column;
         align-items: center;
+        justify-content: space-between;
     `;
+    const TopSettings = styled(View)`
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    `
+    const BottomSettings = styled(View)`
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	`;
 
     return (
-        <ViewContainer>
-            <Header navigation={navigation}/>
-            <SettingsContainer> 
-                <SettingEntry navigation={navigation} text="Notifications" to="NotificationSettingsScreen" />
-                <Logout />
-            </SettingsContainer>
-        </ViewContainer>
-    )
+		<ViewContainer>
+			<Header navigation={navigation} />
+			<SettingsContainer>
+				<TopSettings>
+					<SettingEntry
+						navigation={navigation}
+						text="Notifications"
+						to="NotificationSettingsScreen"
+					/>
+				</TopSettings>
+				<BottomSettings>
+					<Logout />
+				</BottomSettings>
+			</SettingsContainer>
+		</ViewContainer>
+	);
 }
 
 const SettingEntry = ({navigation, text, to}) => {
     const Container = styled(Pressable)`
         width: 100%;
         height: 60px;
-        border: solid 1px rgba(255, 255, 255, 0.1);
-        border-left-width: 0px;
-        border-right-width: 0px;
-        background-color: #0D0D0D;
         display: flex;
         flex-direction: row;
         justify-content: center;
@@ -58,20 +79,19 @@ const SettingEntry = ({navigation, text, to}) => {
         flex-direction: row;
         align-items: flex-start;
     `;
-    const SettingEntryText = styled(Text)`
-        font-size: 24px;
-        font-weight: 300;
+    const SettingEntryText = styled(ReelayText.Body1)`
         color: #FFFFFF;
-        margin-left: 20px;
+        margin-left: 12px;
+        margin-top: 3px;
     `;
     return (
         <Container onPress={() => {navigation.push(to)}}>
             <SettingEntryWrapper>
                 <SettingEntryIconTextContainer>
-                    <Icon type='ionicon' name='notifications' color={"#585858"} size={25}/>
+                    <Icon type='ionicon' name='notifications-outline' color={"#FFFFFF"} size={24}/>
                     <SettingEntryText>{text}</SettingEntryText>
                 </SettingEntryIconTextContainer>
-                <Icon type='ionicon' name='chevron-forward-outline' color={"#585858"} size={25}/>
+                <Icon type='ionicon' name='chevron-forward-outline' color={"#FFFFFF"} size={24}/>
             </SettingEntryWrapper>
         </Container>
     )
@@ -104,60 +124,23 @@ const Logout = () => {
         }
     }
 
-    const LogoutButton = styled(Pressable)`
-        margin-top: 20px;
-        border: ${colors.reelayRed};
-        border-radius: 10px;
-        background-color: ${colors.reelayBlack};
-        width: 200px;
-        height: 50px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    `;
-    const LogoutText = styled(Text)`
-        font-size: 24px;
-        color: ${colors.reelayRed};
+    const Container = styled(View)`
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	`;
+
+    const LogoutButtonContainer = styled(Pressable)`
+        width: 90%;
+        height: 40px;
     `;
 
     return (
-        <LogoutButton onPress={signOut}>
-            <LogoutText>Sign Out</LogoutText>
-        </LogoutButton>
-    )
-}
-
-export const Header = ({navigation, text="Settings"}) => {
-    const BackButtonContainer = styled(View)`
-        align-self: flex-start;
-        position: absolute;
-        margin-left: 10px;
-        z-index: 2;
-    `;
-    const HeaderContainer = styled(View)`
-        width: 100%;
-        height: 15%;
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-    `;
-    const HeaderText = styled(Text)`
-        text-align: center;
-        color: white;
-        font-size: 28px;
-        font-weight: bold;
-    `
-    return (
-        <>
-            <BackButtonContainer>
-                <BackButton navigation={navigation} />
-            </BackButtonContainer>
-
-            <HeaderContainer>
-                <HeaderText>{text}</HeaderText>
-            </HeaderContainer>
-        </>
-    )
+		<Container>
+			<LogoutButtonContainer>
+				<BWButton onPress={signOut} text={"Log Out"} />
+			</LogoutButtonContainer>
+		</Container>
+	);
 }
