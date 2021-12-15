@@ -91,15 +91,15 @@ export const PassiveButton = ({ text, onPress, borderRadius = "20px" }) => (
 		pressedBorder={"solid 2px #2977EF"}
 	/>
 );
-export const BWButton = ({ text, onPress, border="solid 1px white", borderRadius = "20px" }) => (
+export const BWButton = ({ text, onPress, borderRadius = "20px", white = false }) => (
 	<Button
 		onPress={onPress}
 		text={text}
 		borderRadius={borderRadius}
-		backgroundColor={"#0D0D0D"}
-        fontColor={"#FFFFFF"}
-        pressedColor={"#2E2E2E"}
-        border={border}
+		backgroundColor={white ? "#ffffff" : "#0D0D0D"}
+        fontColor={white ? "#000000" : "#FFFFFF"}
+        pressedColor={white ? "#8c8c8c" : "#2E2E2E"}
+        border={white ? "solid 1px #000000" : "solid 1px white"}
 	/>
 );
 

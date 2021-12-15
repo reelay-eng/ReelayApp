@@ -7,7 +7,8 @@ import {
     ScrollView, 
     Text, 
     View,
-    StyleSheet
+    StyleSheet,
+	Linking
 } from 'react-native';
 import { getPosterURL, getLogoURL, fetchMovieProviders } from '../../api/TMDbApi';
 import ReelayColors from '../../constants/ReelayColors';
@@ -17,6 +18,8 @@ import { getMostRecentReelaysByTitle } from '../../api/ReelayDBApi';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Icon } from 'react-native-elements';
 import SplashImage from "../../assets/images/reelay-splash.png";
+import AppleTVAdBackground from "../../assets/images/AppleTVAdBackground.png";
+import AppleTVIcon from "../../assets/icons/venues/appletv.png";
 import * as ReelayText from '../../components/global/Text';
 
 import { ActionButton, PassiveButton, BWButton } from "../../components/global/Buttons";
@@ -48,7 +51,6 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 		height: 100%;
 		background-color: #0d0d0d;
 	`;
-	console.log("TITLE OBJECT: ", titleObj);
 	return (
 		<ScrollBox showsVerticalScrollIndicator={false}>
 			<PosterWithTrailer
@@ -64,7 +66,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 			<PopularReelaysRow navigation={navigation} titleObj={titleObj} />
 			<MovieInformation director={director} actors={actors} description={overview} rating={rating} />
 			<Spacer height={20} />
-			<ReturnButton navigation={navigation} />
+			<AppleTVAd />
 		</ScrollBox>
 	);
 };
@@ -201,8 +203,8 @@ const PosterWithTrailer = ({
 		font-family: Outfit-SemiBold;
 		font-style: normal;
 		color: white;
-		font-size: 34px;
-		line-height: 36px;
+		font-size: 36px;
+		line-height: 38px;
 		letter-spacing: 0px;
 		text-align: left;
 	`;
@@ -492,7 +494,7 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
 			<ButtonContainer>
 				<ButtonSizer>
 					<BWButton
-						text={"See all"}
+						text={"See all reviews"}
 						fontSize={"28px"}
 						onPress={() => {
 							goToReelay(0);
@@ -566,7 +568,6 @@ const MovieInformation = ({description, director, actors, rating}) => {
 
     const BadgeWrapper = styled(View)`
         align-self: flex-start;
-        margin-top: 10px;
     `
 
     const ActorBadgesContainer = styled(View)`
@@ -580,8 +581,6 @@ const MovieInformation = ({description, director, actors, rating}) => {
 		align-items: flex-start;
 	`
 
-	console.log("DESCRIPTION: " , description);
-
 
     return (
 		<MIExternalContainer>
@@ -589,7 +588,7 @@ const MovieInformation = ({description, director, actors, rating}) => {
 				{description?.length > 0 && (
 					<>
 						<HeadingText>Description</HeadingText>
-						<Spacer height={15} />
+						<Spacer height={10} />
 						<DescriptionCollapsible description={description} />
 						<Spacer height={20} />
 					</>
@@ -597,6 +596,7 @@ const MovieInformation = ({description, director, actors, rating}) => {
 				{director && (
 					<>
 						<HeadingText>Director</HeadingText>
+						<Spacer height={10} />
 						<BadgeWrapper>
 							<DirectorBadge text={director} />
 						</BadgeWrapper>
@@ -606,6 +606,7 @@ const MovieInformation = ({description, director, actors, rating}) => {
 				{actors?.length > 0 && (
 					<>
 						<HeadingText>Cast</HeadingText>
+						<Spacer height={10} />
 						<ActorBadgesContainer>
 							{actors.map((e) => (
 								<BadgeWrapper key={e.name}>
@@ -637,6 +638,84 @@ const MovieInformation = ({description, director, actors, rating}) => {
 				)}
 			</MIInternalContainer>
 		</MIExternalContainer>
+	);
+}
+
+const AppleTVAd = () => {
+	const Container = styled(View)`
+		width: 100%;
+		height: 400px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 100px;
+	`
+	const AdContainer = styled(View)`
+		width: 350px;
+		height: 400px;
+	`
+	const AdBackground = styled(Image)`
+		width: 100%;
+		height: 100%;
+		border-radius: 8px;
+	`
+	const AdInfoContainer = styled(View)`
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-end;
+	`;
+	const AppleTVIconContainer = styled(Image)`
+		width: 64px;
+		height: 64px;
+		border-radius: 32px;
+		borderColor: white;
+		borderWidth: 2px;
+		margin-bottom: 20px;
+	`
+	const AppleTVText = styled(ReelayText.H5)`
+		width: 80%;
+		text-align: center;
+		color: white;
+		opacity: 0.9;
+		margin-bottom: 25px;
+		line-height: 30px;
+	`
+	const AppleTVHighlightSpan = styled(ReelayText.H5)`
+		color: #CF5CCB;
+	`
+	const AppleTVButtonContainer = styled(View)`
+		width: 90%;
+		height: 40px;
+		margin-bottom: 20px;
+	`
+
+	return (
+		<Container>
+			<AdContainer>
+				<AdBackground source={AppleTVAdBackground} />
+				<AdInfoContainer>
+					<AppleTVIconContainer source={AppleTVIcon} />
+					<AppleTVText>
+						Sign up for Apple TV. {"\n"}
+						Get 25,000 movies {"\n"}
+						and TV shows for <AppleTVHighlightSpan>free.</AppleTVHighlightSpan>
+					</AppleTVText>
+					<AppleTVButtonContainer>
+						<BWButton
+							white
+							text="More Details"
+							onPress={() => Linking.openURL("https://tv.apple.com/")}
+						/>
+					</AppleTVButtonContainer>
+				</AdInfoContainer>
+			</AdContainer>
+		</Container>
 	);
 }
 
