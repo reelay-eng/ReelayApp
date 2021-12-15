@@ -4,7 +4,7 @@ import styled from 'styled-components/native';
 
 import { AuthContext } from '../../context/AuthContext';
 import { getMyNotificationSettings, setMyNotificationSettings } from '../../api/NotificationsApi';
-import { Header } from './ProfileSettings';
+import { Header } from '../../components/global/HeaderWithBackButton';
 
 import * as ReelayText from "../../components/global/Text";
 import ReelayColors from '../../constants/ReelayColors';
