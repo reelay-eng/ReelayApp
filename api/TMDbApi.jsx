@@ -95,7 +95,7 @@ export const searchSeries = async (searchText) => {
 }
 
 export const fetchSeries = async (titleID) => {
-    const query = `${TMDB_API_BASE_URL}/tv\/${titleID}\?api_key\=${TMDB_API_KEY}`;
+    const query = `${TMDB_API_BASE_URL}/tv\/${titleID}\?api_key\=${TMDB_API_KEY}&language=en-US&append_to_response=release_dates`;
     return await fetchResults(query);
 }
 
@@ -105,7 +105,7 @@ export const fetchSeriesCredits = async (titleID) => {
 }
 
 export const fetchMovie = async (titleID) => {
-    const query = `${TMDB_API_BASE_URL}/movie\/${titleID}\?api_key\=${TMDB_API_KEY}`;
+    const query = `${TMDB_API_BASE_URL}/movie\/${titleID}\?api_key\=${TMDB_API_KEY}&language=en-US&append_to_response=release_dates`;
     const result = await fetchResults(query);
     return result;
 }
@@ -181,7 +181,17 @@ export const fetchAnnotatedTitle = async (titleID, isSeries) => {
         : await fetchMovieTrailerURI(titleID);
 
     const releaseDate = isSeries ? tmdbTitleObject.first_air_date : tmdbTitleObject.release_date;
-    const releaseYear = (releaseDate?.length >= 4) ? (releaseDate.slice(0,4)) : '';	
+    const releaseYear = (releaseDate?.length >= 4) ? (releaseDate.slice(0, 4)) : '';
+    
+    const rating_object_array = tmdbTitleObject?.release_dates?.results;
+    let rating = null;
+    if (rating_object_array && !isSeries) {
+		// base rating display off US categorization system, MPAA is not universal
+		let ratingObject = rating_object_array.find((e) => e["iso_3166_1"] === "US");
+        // filter out if the certification exists or not
+		rating = ratingObject?.release_dates?.find((e) => e.certification != "")?.certification;
+		if (rating === undefined) rating = null;
+	}
 
     const annotatedTitle = {
         id: tmdbTitleObject.id,
@@ -197,12 +207,12 @@ export const fetchAnnotatedTitle = async (titleID, isSeries) => {
         releaseYear: releaseYear,
         tagline: tmdbTitleObject.tagline,
         trailerURI: trailerURI,
+        rating: rating,
     }
 
     if (isSeries) {
         if (!tmdbTitleObject.name) {
             console.log('Series title object does not have name');
-            console.log(tmdbTitleObject);
         }
         return {
             ...annotatedTitle,

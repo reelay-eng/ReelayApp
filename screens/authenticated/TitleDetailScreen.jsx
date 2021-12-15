@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { 
     ActivityIndicator, 
     Dimensions, 
@@ -7,23 +7,41 @@ import {
     ScrollView, 
     Text, 
     View,
-    StyleSheet
+    StyleSheet,
+	Linking
 } from 'react-native';
-import { getPosterURL, getLogoURL, fetchMovieProviders } from '../../api/TMDbApi';
-import ReelayColors from '../../constants/ReelayColors';
-import styled from 'styled-components/native';
-import * as VideoThumbnails from 'expo-video-thumbnails';
-import { getMostRecentReelaysByTitle } from '../../api/ReelayDBApi';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Icon } from 'react-native-elements';
-import SplashImage from "../../assets/images/reelay-splash.png";
 
-import { ActionButton, PassiveButton, RedPlusButton } from "../../components/global/Buttons";
+// API
+import { getPosterURL, getLogoURL, fetchMovieProviders } from '../../api/TMDbApi';
+import { getMostRecentReelaysByTitle } from "../../api/ReelayDBApi";
+
+// Styling
+import ReelayColors from "../../constants/ReelayColors";
+import styled from 'styled-components/native';
+import { LinearGradient } from "expo-linear-gradient";
+
+// Components
+import * as ReelayText from "../../components/global/Text";
+import { ActionButton, BWButton } from "../../components/global/Buttons";
 import { DirectorBadge, ActorBadge } from "../../components/global/Badges";
+import * as VideoThumbnails from "expo-video-thumbnails";
+import { Icon } from "react-native-elements";
+
+// Media
+import SplashImage from "../../assets/images/reelay-splash.png";
+import AppleTVAdBackground from "../../assets/images/AppleTVAdBackground.png";
+import AppleTVIcon from "../../assets/icons/venues/appletv.png";
+import GRating from "../../assets/images/MPAA_Ratings/GRating.png";
+import PGRating from "../../assets/images/MPAA_Ratings/PGRating.png";
+import PG13Rating from "../../assets/images/MPAA_Ratings/PG13Rating.png";
+import NC17Rating from "../../assets/images/MPAA_Ratings/NC17Rating.png";
+import RRating from "../../assets/images/MPAA_Ratings/RRating.png";
 
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
 `;
+
+const tmdbImageApiBaseUrl = `http://image.tmdb.org/t/p/w500/`;
 
 export default TitleDetailScreen = ({ navigation, route }) => {
 	// Screen-wide dimension handling
@@ -37,6 +55,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const tmdbTitleID = titleObj?.id;
 	const trailerURI = titleObj?.trailerURI;
 	const genres = titleObj?.genres;
+	const rating = titleObj?.rating;
 
 	const ScrollBox = styled(ScrollView)`
 		position: absolute;
@@ -48,17 +67,18 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 		<ScrollBox showsVerticalScrollIndicator={false}>
 			<PosterWithTrailer
 				navigation={navigation}
-				height={height * 0.7}
+				height={height * 0.6}
 				posterURI={titleObj?.posterURI}
 				title={titleObj?.display}
+				titleObj={titleObj}
 				tmdbTitleID={tmdbTitleID}
 				trailerURI={trailerURI}
 				genres={genres}
 			/>
 			<PopularReelaysRow navigation={navigation} titleObj={titleObj} />
-			<MovieInformation director={director} actors={actors} description={overview} />
+			<MovieInformation director={director} actors={actors} description={overview} rating={rating} />
 			<Spacer height={20} />
-			<ReturnButton navigation={navigation} />
+			<AppleTVAd />
 		</ScrollBox>
 	);
 };
@@ -70,6 +90,7 @@ const PosterWithTrailer = ({
 	title,
 	tmdbTitleID,
 	trailerURI,
+	titleObj,
 	genres,
 }) => {
 	const PosterContainer = styled(View)`
@@ -132,7 +153,8 @@ const PosterWithTrailer = ({
 			flex-direction: row;
 			align-items: center;
 			justify-content: flex-start;
-			margin-bottom: 30px;
+			margin-bottom: 15px;
+			margin-top: 5px;
 		`;
 		// in case we want to have multiple provider images
 
@@ -148,39 +170,40 @@ const PosterWithTrailer = ({
 			border-width: 1px;
 			border-color: #ffffff;
 			border-radius: 15px;
-			margin-left: 3px;
+			margin-left: 0px;
 		`;
 		const TaglineTextContainer = styled(View)`
-			margin-left: 7px;
+			margin-left: ${topProviderLogo.length > 0 ? "7px" : "0px"};
 			display: flex;
 			align-items: center;
 			justify-content: center;
 		`;
-		const TaglineText = styled(Text)`
+		const TaglineText = styled(ReelayText.H6Emphasized)`
 			color: #ffffff;
 			opacity: 0.6;
-			font-size: 24px;
 		`;
 
 		return (
 			<TaglineContainer>
-				<ProviderImagesContainer>
-					{topProviderLogo.length > 0 && (
+				{topProviderLogo.length > 0 && (
+					<ProviderImagesContainer>
 						<ProviderImage source={{ uri: getLogoURL(topProviderLogo) }} />
-					)}
-				</ProviderImagesContainer>
-				<TaglineTextContainer>
-					<TaglineText>{genres?.map((e) => e.name).join(", ")}</TaglineText>
-				</TaglineTextContainer>
+					</ProviderImagesContainer>
+				)}
+				{genres?.length > 0 && (
+					<TaglineTextContainer>
+						<TaglineText>{genres?.map((e) => e.name).join(", ")}</TaglineText>
+					</TaglineTextContainer>
+				)}
 			</TaglineContainer>
 		);
 	};
 
 	const PosterInfoContainer = styled(View)`
 		position: absolute;
-		left: 8%;
+		left: 4%;
 		bottom: 5%;
-		width: 84%;
+		width: 92%;
 		display: flex;
 		flex-direction: column;
 	`;
@@ -188,30 +211,31 @@ const PosterWithTrailer = ({
 	const PosterTitleContainer = styled(View)`
 		width: 90%;
 	`;
-	const PosterTitle = styled(Text)`
-		position: relative;
-		font-size: 38px;
-		font-weight: bold;
+	const PosterTitle = styled(ReelayText.H4Bold)`
 		color: white;
-		margin-bottom: 10px;
 	`;
 
-	const ButtonContainer = styled(View)`
+	const TrailerButtonContainer = styled(View)`
 		width: 100%;
-		height: 60px;
+		height: 40px;
+	`;
+	const CreateReelayButtonContainer = styled(View)`
+		width: 100%;
+		height: 40px;
+		margin-top: 10px;
 	`;
 
 	const BackButtonContainer = styled(Pressable)`
 		position: absolute;
-		margin-top: 50px;
-		margin-left: 10px;
+		margin-top: 51px;
+		margin-left: 21px;
 	`;
 
 	return (
 		<PosterContainer>
 			<PosterWithOverlay posterURL={posterURL} />
 			<BackButtonContainer onPress={() => navigation.goBack()}>
-				<Icon type="ionicon" name={"chevron-back-outline"} color={"white"} size={30} />
+				<Icon type="ionicon" name={"arrow-back-outline"} color={"white"} size={25} />
 			</BackButtonContainer>
 			<PosterInfoContainer>
 				<PosterTitleContainer>
@@ -219,18 +243,46 @@ const PosterWithTrailer = ({
 				</PosterTitleContainer>
 				<PosterTagline />
 				{trailerURI && (
-					<ButtonContainer>
+					<TrailerButtonContainer>
 						<ActionButton
 							text={"Watch Trailer"}
-							fontSize={"24px"}
+							icon={
+								<Icon
+									color={"white"}
+									type="ionicon"
+									name="play-circle-outline"
+									size={20}
+								/>
+							}
 							onPress={() => {
 								navigation.push("TitleTrailerScreen", {
 									trailerURI: trailerURI,
 								});
 							}}
+							borderRadius={"20px"}
 						/>
-					</ButtonContainer>
+					</TrailerButtonContainer>
 				)}
+				<CreateReelayButtonContainer>
+					<ActionButton
+						color="red"
+						text={"Create a Reelay"}
+						icon={
+							<Icon
+								color={"white"}
+								type="ionicon"
+								name="add-circle-outline"
+								size={20}
+							/>
+						}
+						onPress={() => {
+							navigation.dangerouslyGetParent().push("VenueSelectScreen", {
+								titleObj: titleObj,
+							});
+						}}
+						borderRadius={"20px"}
+					/>
+				</CreateReelayButtonContainer>
 			</PosterInfoContainer>
 		</PosterContainer>
 	);
@@ -290,18 +342,15 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
 
 	const ReelayThumbnail = ({ reelay, index }) => {
 		const ThumbnailContainer = styled(View)`
-			border-color: #7c7c7c;
-			border-width: 1px;
-			border-radius: 8px;
 			justify-content: center;
-			margin: 4px;
-			height: 122px;
-			width: 82px;
+			margin: 6px;
+			height: 202px;
+			width: 107px;
 		`;
 		const ThumbnailImage = styled(Image)`
 			border-radius: 8px;
-			height: 120px;
-			width: 80px;
+			height: 200px;
+			width: 105px;
 		`;
 		const [loading, setLoading] = useState(true);
 		const [thumbnailURI, setThumbnailURI] = useState("");
@@ -333,6 +382,26 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
 			return () => (isMounted = false);
 		}, []);
 
+		const GradientContainer = styled(View)`
+			position: absolute;
+			width: 100%;
+			height: 65%;
+			top: 35%;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			justify-content: center;
+			align-items: center;
+			border-radius: 8px;
+		`;
+		const UsernameText = styled(ReelayText.Subtitle2)`
+			padding: 5px;
+			position: absolute;
+			bottom: 5%;
+			color: white;
+		`;
+
+
 		return (
 			<Pressable
 				key={reelay.id}
@@ -343,9 +412,32 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
 				<ThumbnailContainer>
 					{loading && <ActivityIndicator />}
 					{!loading && (
-						<ThumbnailImage
-							source={thumbnailURI.length > 0 ? { uri: thumbnailURI } : SplashImage}
-						/>
+						<>
+							<ThumbnailImage
+								source={
+									thumbnailURI.length > 0 ? { uri: thumbnailURI } : SplashImage
+								}
+							/>
+							<GradientContainer>
+								<LinearGradient
+									colors={["transparent", "#0B1424"]}
+									style={{
+										flex: 1,
+										opacity: 1,
+										width: "100%",
+										height: "100%",
+										borderRadius: "8px",
+									}}
+								/>
+								<UsernameText>
+									{`@${
+										reelay.creator.username.length > 13
+											? reelay.creator.username.substring(0, 10) + "..."
+											: reelay.creator.username
+									}`}
+								</UsernameText>
+							</GradientContainer>
+						</>
 					)}
 				</ThumbnailContainer>
 			</Pressable>
@@ -354,7 +446,6 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
 
 	const TopReelays = () => {
 		const TopReelaysContainer = styled(View)`
-			margin-top: 20px;
 			width: 95%;
 			left: 5%;
 		`;
@@ -362,17 +453,295 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
 			align-items: center;
 			flex-direction: row;
 			justify-content: flex-start;
-			height: 140px;
+			height: 220px;
 			width: 100%;
 		`;
-		const TopReelaysHeader = styled(Text)`
-			margin: 10px;
-			font-family: System;
-			font-size: 28px;
-			font-weight: 600;
+		const TopReelaysHeader = styled(ReelayText.H5Emphasized)`
+			padding: 10px;
 			color: white;
 		`;
-		const PlusReelayThumbnail = () => {
+
+		return (
+			<TopReelaysContainer>
+				<TopReelaysHeader>{`Top Reviews`}</TopReelaysHeader>
+				<ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+					<ThumbnailScrollContainer>
+						{
+							topReelays.map((reelay, index) => {
+								return (
+									<ReelayThumbnail
+										key={reelay.id}
+										reelay={reelay}
+										index={index}
+									/>
+								);
+							})
+						}
+					</ThumbnailScrollContainer>
+				</ScrollView>
+			</TopReelaysContainer>
+		);
+	};
+
+	const Container = styled(View)`
+		width: 100%;
+	`;
+	const ButtonContainer = styled(View)`
+		margin-top: 10px;
+		margin-bottom: 20px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	`;
+	const ButtonSizer = styled(View)`
+		width: 84%;
+		height: 40px;
+	`;
+	if (topReelays.length > 0) return (
+		<Container>
+			<TopReelays />
+			<ButtonContainer>
+				<ButtonSizer>
+					<BWButton
+						text={"See all reviews"}
+						fontSize={"28px"}
+						onPress={() => {
+							goToReelay(0);
+						}}
+					/>
+				</ButtonSizer>
+			</ButtonContainer>
+		</Container>
+	);
+	else return null;
+};
+
+const MovieInformation = ({description, director, actors, rating}) => {
+
+    const MIExternalContainer = styled(View)`
+		margin-right: 4%;
+		margin-left: 4%;
+		border-radius: 8px;
+		background-color: #191919;
+	`;
+
+    const MIInternalContainer = styled(View)`
+        display: flex;
+        flex-direction: column;
+        margin-left: 10px;
+		margin-right: 10px;
+		margin-bottom: 20px;
+		margin-top: 20px;
+    `
+
+    const HeadingText = styled(ReelayText.H5Emphasized)`
+        color: white;
+    `
+
+    const DescriptionCollapsible = ({description}) => {
+        const [descriptionIsCut, setDescriptionIsCut] = useState(true);
+		const [moreShouldBeVisible, setMoreShouldBeVisible] = useState(true);
+		const minCharsToDisplayMore = 215;
+        useEffect(() => {
+            if (description.length < minCharsToDisplayMore) setMoreShouldBeVisible(false);
+        }, [])
+
+        const DescriptionText = styled(ReelayText.Body1)`
+            color: white;
+			opacity: 1;
+        `
+        const MoreButton = styled(Pressable)`
+            margin-top: -3px;
+        `
+        const MoreText = styled(ReelayText.Subtitle1Emphasized)`
+            color: ${ReelayColors.reelayBlue};
+        `
+
+        return (
+			<Text>
+				<DescriptionText>
+					{descriptionIsCut
+						? description.length >= minCharsToDisplayMore
+							? description.substring(0, minCharsToDisplayMore) + "...  "
+							: description + "  "
+						: description + "  "}
+				</DescriptionText>
+				{moreShouldBeVisible && (
+					<MoreButton onPress={() => setDescriptionIsCut(!descriptionIsCut)}>
+						<MoreText>{descriptionIsCut ? "See More" : "See Less"}</MoreText>
+					</MoreButton>
+				)}
+			</Text>
+		);
+    }
+
+    const BadgeWrapper = styled(View)`
+        align-self: flex-start;
+    `
+
+    const ActorBadgesContainer = styled(View)`
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+    `
+	const RatingContainer = styled(View)`
+		display: flex;
+		flex-direction: row;
+		align-items: flex-start;
+	`
+
+	const RatingImage = styled(Image)`
+		width: 58px;
+		height: 36px;
+	`
+	let ratingSources = {
+		"PG-13": PG13Rating,
+		"G": GRating,
+		"PG": PGRating,
+		"R": RRating,
+		"NC-17": NC17Rating
+	}
+	
+
+
+
+    return (
+		<MIExternalContainer>
+			<MIInternalContainer>
+				{description?.length > 0 && (
+					<>
+						<HeadingText>Description</HeadingText>
+						<Spacer height={10} />
+						<DescriptionCollapsible description={description} />
+						<Spacer height={20} />
+					</>
+				)}
+				{director && (
+					<>
+						<HeadingText>Director</HeadingText>
+						<BadgeWrapper>
+							<DirectorBadge text={director} />
+						</BadgeWrapper>
+						<Spacer height={20} />
+					</>
+				)}
+				{actors?.length > 0 && (
+					<>
+						<HeadingText>Cast</HeadingText>
+						<ActorBadgesContainer>
+							{actors.map((e) => (
+								<BadgeWrapper key={e.name}>
+									<ActorBadge
+										text={e.name}
+										photoURL={
+											e.profile_path
+												? `${tmdbImageApiBaseUrl}${e.profile_path}`
+												: null
+										}
+									/>
+								</BadgeWrapper>
+							))}
+						</ActorBadgesContainer>
+						<Spacer height={20} />
+					</>
+				)}
+				{rating && Object.keys(ratingSources).includes(rating) && (
+					<>
+						<HeadingText>Rated</HeadingText>
+						<Spacer height={10} />
+						<RatingContainer>
+							<RatingImage source={ratingSources[rating]} />
+						</RatingContainer>
+					</>
+				)}
+				{!rating && !(Object.keys(ratingSources).includes(rating)) && !(actors?.length > 0) && !director && !(description?.length > 0) && (
+					<HeadingText>No Information Found</HeadingText>
+				)}
+			</MIInternalContainer>
+		</MIExternalContainer>
+	);
+}
+
+const AppleTVAd = () => {
+	const Container = styled(View)`
+		width: 100%;
+		height: 400px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: 100px;
+	`
+	const AdContainer = styled(View)`
+		width: 350px;
+		height: 400px;
+	`
+	const AdBackground = styled(Image)`
+		width: 100%;
+		height: 100%;
+		border-radius: 8px;
+	`
+	const AdInfoContainer = styled(View)`
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: flex-end;
+	`;
+	const AppleTVIconContainer = styled(Image)`
+		width: 64px;
+		height: 64px;
+		border-radius: 32px;
+		borderColor: white;
+		borderWidth: 2px;
+		margin-bottom: 20px;
+	`
+	const AppleTVText = styled(ReelayText.H5)`
+		width: 80%;
+		text-align: center;
+		color: white;
+		opacity: 0.9;
+		margin-bottom: 25px;
+		line-height: 30px;
+	`
+	const AppleTVHighlightSpan = styled(ReelayText.H5)`
+		color: #CF5CCB;
+	`
+	const AppleTVButtonContainer = styled(View)`
+		width: 90%;
+		height: 40px;
+		margin-bottom: 20px;
+	`
+
+	return (
+		<Container>
+			<AdContainer>
+				<AdBackground source={AppleTVAdBackground} />
+				<AdInfoContainer>
+					<AppleTVIconContainer source={AppleTVIcon} />
+					<AppleTVText>
+						Sign up for Apple TV. {"\n"}
+						Get 25,000 movies {"\n"}
+						and TV shows for <AppleTVHighlightSpan>free.</AppleTVHighlightSpan>
+					</AppleTVText>
+					<AppleTVButtonContainer>
+						<BWButton
+							white
+							text="More Details"
+							onPress={() => Linking.openURL("https://tv.apple.com/")}
+						/>
+					</AppleTVButtonContainer>
+				</AdInfoContainer>
+			</AdContainer>
+		</Container>
+	);
+}
+
+/** 
+ * const PlusReelayThumbnail = () => {
 			const Container = styled(View)`
 				margin: 4px;
 				height: 122px;
@@ -400,168 +769,4 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
 				</Container>
 			);
 		};
-
-		return (
-			<TopReelaysContainer>
-				<TopReelaysHeader>{`Top Reviews`}</TopReelaysHeader>
-				<ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-					<ThumbnailScrollContainer>
-						<PlusReelayThumbnail />
-						{topReelays.length > 0 &&
-							topReelays.map((reelay, index) => {
-								return (
-									<ReelayThumbnail
-										key={reelay.id}
-										reelay={reelay}
-										index={index}
-									/>
-								);
-							})}
-					</ThumbnailScrollContainer>
-				</ScrollView>
-			</TopReelaysContainer>
-		);
-	};
-
-	const Container = styled(View)`
-		width: 100%;
-	`;
-	const ButtonContainer = styled(View)`
-		margin-top: 10px;
-		margin-bottom: 20px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	`;
-	const ButtonSizer = styled(View)`
-		width: 84%;
-		height: 60px;
-	`;
-	return (
-		<Container>
-			<TopReelays />
-			<ButtonContainer>
-				<ButtonSizer>
-					<PassiveButton
-						text={"See all"}
-						fontSize={"28px"}
-						onPress={() => {
-							goToReelay(0);
-						}}
-					/>
-				</ButtonSizer>
-			</ButtonContainer>
-		</Container>
-	);
-};
-
-const MovieInformation = ({description, director, actors}) => {
-
-    const MIExternalContainer = styled(View)`
-        margin-right: 4%;
-        margin-left: 4%;
-        border-radius: 20px;
-        background-color: #2C2C2C;
-    `
-
-    const MIInternalContainer = styled(View)`
-        display: flex;
-        flex-direction: column;
-        margin: 20px;
-    `
-
-    const HeadingText = styled(Text)`
-        font-family: System;
-        font-size: 28px;
-        font-weight: 600;
-        color: white;
-    `
-
-    const DescriptionCollapsible = ({description}) => {
-        const [descriptionIsCut, setDescriptionIsCut] = useState(true);
-        const [moreShouldBeVisible, setMoreShouldBeVisible] = useState(true);
-        useEffect(() => {
-            if (description.length < 133) setMoreShouldBeVisible(false);
-        }, [])
-
-        const DescriptionText = styled(Text)`
-            font-family: System;
-            font-size: 24px;
-            color: white;
-            opacity: 0.7;
-            line-height: 31px;
-            letter-spacing: 0.38px;
-        `
-        const MoreButton = styled(Pressable)`
-            margin-top: -3px;
-        `
-        const MoreText = styled(Text)`
-            font-family: System;
-            font-size: 24px;
-            color: #ECBBDA;
-            opacity: 0.9;
-            line-height: 31px;
-        `
-
-        return (
-            <Text>
-                <DescriptionText>
-                    {descriptionIsCut?(description.length >= 133 ? description.substring(0, 133) + '...  ' : description + '  '):description + '  '}
-                </DescriptionText>
-                {
-                    moreShouldBeVisible && 
-                    <MoreButton onPress={() => setDescriptionIsCut(!descriptionIsCut)}>
-                        <MoreText>{descriptionIsCut?'More':'Less'}</MoreText>
-                    </MoreButton>
-                }
-            </Text>
-        )
-    }
-
-    const BadgeWrapper = styled(View)`
-        align-self: flex-start;
-        margin-top: 10px;
-    `
-
-    const ActorBadgesContainer = styled(View)`
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-    `
-
-
-    return (
-        <MIExternalContainer>
-            <MIInternalContainer>
-                <HeadingText>Description</HeadingText>
-                <Spacer height={15} />
-                <DescriptionCollapsible description={description} />
-                <Spacer height={40} />
-                {
-                    director && 
-                    <>
-                        <HeadingText>Director</HeadingText>
-                        <BadgeWrapper>
-                            <DirectorBadge text={director}/>
-                        </BadgeWrapper>
-                    </>
-                }
-                <Spacer height={40} />
-                {
-                    actors?.length > 0 && 
-                    <>
-                    <HeadingText>Cast</HeadingText>
-                    <ActorBadgesContainer>
-                        {actors.map(e => (
-                            <BadgeWrapper key={e.name}>
-                                <ActorBadge text={e.name} />
-                            </BadgeWrapper>
-                        ))}
-                    </ActorBadgesContainer>
-                    <Spacer height={20} />
-                    </>
-                }
-            </MIInternalContainer>
-        </MIExternalContainer>
-    )
-}
+*/
