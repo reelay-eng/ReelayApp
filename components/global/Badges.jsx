@@ -13,6 +13,7 @@ const NameBadge = ({ text, borderRadius = '11px', backgroundColor = "#7c7c7c", c
         padding-top: 4px;
         padding-bottom: 4px;
         margin-right: 10px;
+        margin-top: 12px;
         display: flex;
         flex-direction: row;
         justify-content: center;

@@ -106,6 +106,7 @@ function App() {
                 shouldSetBadge: false,
             }),
         });
+        await loadFonts();
     }
 
     const initS3Client = () => {
@@ -163,7 +164,6 @@ function App() {
             });
         }
         console.log('authentication complete');
-        await loadFonts();
         setIsLoading(false);
     }
 

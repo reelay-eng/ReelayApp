@@ -619,7 +619,6 @@ const MovieInformation = ({description, director, actors, rating}) => {
 				{director && (
 					<>
 						<HeadingText>Director</HeadingText>
-						<Spacer height={10} />
 						<BadgeWrapper>
 							<DirectorBadge text={director} />
 						</BadgeWrapper>
@@ -629,7 +628,6 @@ const MovieInformation = ({description, director, actors, rating}) => {
 				{actors?.length > 0 && (
 					<>
 						<HeadingText>Cast</HeadingText>
-						<Spacer height={10} />
 						<ActorBadgesContainer>
 							{actors.map((e) => (
 								<BadgeWrapper key={e.name}>
