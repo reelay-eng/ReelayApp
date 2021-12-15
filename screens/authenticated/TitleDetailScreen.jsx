@@ -31,9 +31,11 @@ import { Icon } from "react-native-elements";
 import SplashImage from "../../assets/images/reelay-splash.png";
 import AppleTVAdBackground from "../../assets/images/AppleTVAdBackground.png";
 import AppleTVIcon from "../../assets/icons/venues/appletv.png";
-
-
-
+import GRating from "../../assets/images/MPAA_Ratings/GRating.png";
+import PGRating from "../../assets/images/MPAA_Ratings/PGRating.png";
+import PG13Rating from "../../assets/images/MPAA_Ratings/PG13Rating.png";
+import NC17Rating from "../../assets/images/MPAA_Ratings/NC17Rating.png";
+import RRating from "../../assets/images/MPAA_Ratings/RRating.png";
 
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
@@ -424,7 +426,7 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
 							/>
 							<GradientContainer>
 								<LinearGradient
-									colors={["transparent", "#09101c"]}
+									colors={["transparent", "#0B1424"]}
 									style={{
 										flex: 1,
 										opacity: 1,
@@ -434,9 +436,12 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
 									}}
 								/>
 								<UsernameText>
-									{`@${reelay.creator.username.length > 13 ? reelay.creator.username.substring(0, 10) + "..." : reelay.creator.username}`}
+									{`@${
+										reelay.creator.username.length > 13
+											? reelay.creator.username.substring(0, 10) + "..."
+											: reelay.creator.username
+									}`}
 								</UsernameText>
-
 							</GradientContainer>
 						</>
 					)}
@@ -591,6 +596,20 @@ const MovieInformation = ({description, director, actors, rating}) => {
 		align-items: flex-start;
 	`
 
+	const RatingImage = styled(Image)`
+		width: 58px;
+		height: 36px;
+	`
+	let ratingSources = {
+		"PG-13": PG13Rating,
+		"G": GRating,
+		"PG": PGRating,
+		"R": RRating,
+		"NC-17": NC17Rating
+	}
+	
+
+
 
     return (
 		<MIExternalContainer>
@@ -634,16 +653,16 @@ const MovieInformation = ({description, director, actors, rating}) => {
 						<Spacer height={20} />
 					</>
 				)}
-				{rating && (
+				{rating && Object.keys(ratingSources).includes(rating) && (
 					<>
-						<HeadingText>Rating</HeadingText>
+						<HeadingText>Rated</HeadingText>
 						<Spacer height={10} />
 						<RatingContainer>
-							<Text style={{ color: 'white', fontSize: 20, fontFamily:'Outfit-Medium' }}>{ rating }</Text>
+							<RatingImage source={ratingSources[rating]} />
 						</RatingContainer>
 					</>
 				)}
-				{!rating && !(actors?.length > 0) && !director && !(description?.length > 0) && (
+				{!rating && !(Object.keys(ratingSources).includes(rating)) && !(actors?.length > 0) && !director && !(description?.length > 0) && (
 					<HeadingText>No Information Found</HeadingText>
 				)}
 			</MIInternalContainer>
