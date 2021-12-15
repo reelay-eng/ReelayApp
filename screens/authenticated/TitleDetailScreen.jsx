@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { 
     ActivityIndicator, 
     Dimensions, 
@@ -10,20 +10,30 @@ import {
     StyleSheet,
 	Linking
 } from 'react-native';
+
+// API
 import { getPosterURL, getLogoURL, fetchMovieProviders } from '../../api/TMDbApi';
-import ReelayColors from '../../constants/ReelayColors';
+import { getMostRecentReelaysByTitle } from "../../api/ReelayDBApi";
+
+// Styling
+import ReelayColors from "../../constants/ReelayColors";
 import styled from 'styled-components/native';
-import * as VideoThumbnails from 'expo-video-thumbnails';
-import { getMostRecentReelaysByTitle } from '../../api/ReelayDBApi';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Icon } from 'react-native-elements';
+import { LinearGradient } from "expo-linear-gradient";
+
+// Components
+import * as ReelayText from "../../components/global/Text";
+import { ActionButton, BWButton } from "../../components/global/Buttons";
+import { DirectorBadge, ActorBadge } from "../../components/global/Badges";
+import * as VideoThumbnails from "expo-video-thumbnails";
+import { Icon } from "react-native-elements";
+
+// Media
 import SplashImage from "../../assets/images/reelay-splash.png";
 import AppleTVAdBackground from "../../assets/images/AppleTVAdBackground.png";
 import AppleTVIcon from "../../assets/icons/venues/appletv.png";
-import * as ReelayText from '../../components/global/Text';
 
-import { ActionButton, PassiveButton, BWButton } from "../../components/global/Buttons";
-import { DirectorBadge, ActorBadge } from "../../components/global/Badges";
+
+
 
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;

@@ -4,7 +4,6 @@ import { Dimensions, SafeAreaView, View, Pressable } from 'react-native';
 import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 import * as ReelayText from "../../components/global/Text";
-import { PassiveButton } from '../../components/global/Buttons';
 
 const { height } = Dimensions.get('window');
 const TRAILER_HEIGHT = height * 0.3;

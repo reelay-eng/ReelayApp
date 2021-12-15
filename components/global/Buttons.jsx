@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import { Pressable, View, Text, Image } from 'react-native';
+import React from 'react';
+import { Pressable, View, Image } from 'react-native';
 import styled from 'styled-components/native';
 const RedAddIcon = require('../../assets/icons/red_add_icon.png');
 import * as ReelayText from './Text';
