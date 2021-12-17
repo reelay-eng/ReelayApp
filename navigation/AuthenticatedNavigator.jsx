@@ -310,6 +310,13 @@ const ProfileTabNavigator = () => {
 					headerShown: false,
 				}}
 			/>
+            <ProfileTabStack.Screen
+                name='UserFollowScreen'
+                component={UserFollowScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
 			<ProfileTabStack.Screen
 				name="ProfileFeedScreen"
 				component={ProfileFeedScreen}
