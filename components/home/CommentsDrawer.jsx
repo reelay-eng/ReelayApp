@@ -17,6 +17,7 @@ import { FeedContext } from '../../context/FeedContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
 import Constants from 'expo-constants';
+import * as ReelayText from '../../components/global/Text';
 
 import { 
     sendCommentNotificationToCreator, 
@@ -31,7 +32,7 @@ const { height, width } = Dimensions.get('window');
 export default CommentsDrawer = ({ reelay, navigation }) => {
 
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
-    const CLOSE_BUTTON_SIZE = 36;
+    const CLOSE_BUTTON_SIZE = 25;
     const MAX_COMMENT_LENGTH = 200;
 
     const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -43,9 +44,9 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         width: 100%;
     `
     const DrawerContainer = styled(View)`
-        background-color: #1e1e1e;
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
+        background-color: #1a1a1a;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
         margin-top: auto;
         width: 100%;
     `
@@ -84,24 +85,34 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         const HeaderContainer = styled(View)`
             justify-content: center;
             margin: 12px;
+            border-bottom-color: #2D2D2D;
+            border-bottom-width: 1px;
         `
-        const HeaderText = styled(Text)`
-            font-family: System;
-            font-size: 20px;
-            font-weight: 500;
+        const GrayBar = styled(View)`
+            border-radius: 10px;
+            opacity: 0.2;
+            border: solid 2px white;
+            width: 70px;
+            align-self: center;
+        `
+        const HeaderText = styled(ReelayText.CaptionEmphasized)`
             position: absolute;
             align-self: center;
             color: white;
         `
         const CloseButtonContainer = styled(Pressable)`
             align-self: flex-end;
+            margin-bottom: 5px;
         `
-        const headerText = reelay.comments.length ? `Comments (${reelay.comments.length})` : 'Comments';
+        const headerText = reelay.comments.length
+			? `${reelay.comments.length} comments `
+			: "Comments";
         return (
             <HeaderContainer>
+                <GrayBar />
                 <HeaderText>{headerText}</HeaderText>
                 <CloseButtonContainer onPress={closeDrawer}>
-                    <Icon color={'white'} type='ionicon' name='close' size={CLOSE_BUTTON_SIZE} />
+                    <Icon color={'white'} type='ionicon' name='close' size={CLOSE_BUTTON_SIZE}/>
                 </CloseButtonContainer>
             </HeaderContainer>
         );
@@ -308,17 +319,18 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
     };
 
     return (
-        <ModalContainer>
-            <Modal animationType='slide' transparent={true} visible={commentsVisible} >
-                <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
-                    <Backdrop onPress={closeDrawer} />
+		<ModalContainer>
+            <Modal animationType="slide" transparent={true} visible={commentsVisible}>
+				<KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+					<Backdrop onPress={closeDrawer} />
+					
                     <DrawerContainer>
-                        <Header />
-                        <CommentBox />
+							<Header />
+							<CommentBox />
                         {/* <CloseButton /> */}
-                    </DrawerContainer>
-                </KeyboardAvoidingView>
-            </Modal>
-        </ModalContainer>
-    );
+					</DrawerContainer>
+				</KeyboardAvoidingView>
+			</Modal>
+		</ModalContainer>
+	);
 };
