@@ -1,6 +1,7 @@
-import React from 'react';
-import { Pressable, View, Image } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, View, Text, Image } from 'react-native';
 import styled from 'styled-components/native';
+import ReelayColors from '../../constants/ReelayColors';
 const RedAddIcon = require('../../assets/icons/red_add_icon.png');
 import * as ReelayText from './Text';
 
@@ -118,4 +119,57 @@ export const RedPlusButton = ({onPress}) => {
             <IconImage source={RedAddIcon} />
         </IconBox>
     )
+}
+
+export const ToggleSelector = ({ options, selectedOption, setSelectedOption }) => {
+    const BackgroundBox = styled(View)`
+        align-items: center;
+        background-color: #393939;
+        border-radius: 6px;
+        justify-content: flex-start;
+        flex-direction: row;
+        height: 48px;
+        padding: 2px;
+        width: 100%;
+    `
+    const ButtonContainer = styled(Pressable)`
+        align-items: center;
+        justify-content: center;
+        height: 44px;
+        width: ${100 / options.length}%;
+    `
+    const ActiveButtonContainer = styled(ButtonContainer)`
+        background-color: ${ReelayColors.reelayBlue};
+        border-radius: 6px;
+    `
+    const OptionText = styled(Text)`
+        font-family: System;
+        font-size: 20px;
+        font-weight: 400;
+        color: white;
+    `
+    const PassiveButtonContainer = styled(ButtonContainer)`
+        background-color: transparent;
+    `
+
+    return (
+        <BackgroundBox>
+            { options.map((option) => {
+                if (option === selectedOption) {
+                    return (
+                        <ActiveButtonContainer key={option}>
+                            <OptionText>{option}</OptionText>
+                        </ActiveButtonContainer>
+                    );
+                } else {
+                    return (
+                        <PassiveButtonContainer key={option}
+                                onPress={() => setSelectedOption(option)}>
+                            <OptionText>{option}</OptionText>
+                        </PassiveButtonContainer>
+                    );
+                }
+            })}
+        </BackgroundBox>
+    );
 }

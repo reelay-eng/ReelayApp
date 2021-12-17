@@ -12,9 +12,9 @@ const UserSearchResults = ({ navigation, searchResults }) => {
               <View
                 key={index}
                 style={{
-                  height: 100,
-                  borderBottomColor: "#505050",
-                  borderBottomWidth: 0.3,
+                    height: 100,
+                    borderBottomColor: "#505050",
+                    borderBottomWidth: 0.3,
                 }}
               >
                 {console.log(result)}

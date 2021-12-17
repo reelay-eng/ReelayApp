@@ -1,20 +1,29 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Dimensions, SafeAreaView, ScrollView, View } from 'react-native';
+import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
 import { getStacksByCreator } from '../../api/ReelayDBApi';
 
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
 import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
-import Tombstone from '../../components/profile/Tombstone';
 
+import { getFollowers, getFollowing } from '../../api/ReelayDBApi';
+
+import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 
 export default MyProfileScreen = ({ navigation, route }) => {
-
-    const [creatorStacks, setCreatorStacks] = useState([]);
-    let { cognitoUser } = useContext(AuthContext);    
+    const [refreshing, setRefreshing] = useState(false);
+	const { 
+        cognitoUser, 
+        myFollowers, 
+        myFollowing,
+        myCreatorStacks,
+        setMyFollowers, 
+        setMyFollowing,
+        setMyCreatorStacks,
+    } = useContext(AuthContext); 
 
     if (!cognitoUser) {
         return (
@@ -22,7 +31,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
                 navigation={navigation} />
         );
     }
-    const userSub = cognitoUser.attributes?.sub;
+    const userSub = cognitoUser.attributes.sub;
 
     const ProfileScreenContainer = styled(SafeAreaView)`
         background-color: black;
@@ -34,29 +43,71 @@ export default MyProfileScreen = ({ navigation, route }) => {
     `
 
     const loadCreatorStacks = async () => {
-        const nextCreatorStacks = await getStacksByCreator(userSub);
-        nextCreatorStacks.forEach(stack => stack.sort(sortReelays));
-        nextCreatorStacks.sort(sortStacks);
-        setCreatorStacks(nextCreatorStacks);
+        const nextMyCreatorStacks = await getStacksByCreator(userSub);
+        nextMyCreatorStacks.forEach(stack => stack.sort(sortReelays));
+        nextMyCreatorStacks.sort(sortStacks);
+        setMyCreatorStacks(nextMyCreatorStacks);
+    }
+
+    const loadFollows = async () => {
+        const nextMyFollowers = await getFollowers(userSub);
+        const nextMyFollowing = await getFollowing(userSub);
+
+        setMyFollowers(nextMyFollowers);
+        setMyFollowing(nextMyFollowing);
+    }
+
+    const onRefresh = async () => {
+        if (userSub.length) {
+            setRefreshing(false);
+            await loadCreatorStacks();
+            await loadFollows();
+            setRefreshing(false);
+        }
     }
 
     const sortReelays = (reelay1, reelay2) => reelay2.postedDateTime - reelay1.postedDateTime;
     const sortStacks = (stack1, stack2) => stack2[0].postedDateTime - stack1[0].postedDateTime;
     const reelayCounter = (sum, nextStack) => sum + nextStack.length;
-    const reelayCount = creatorStacks.reduce(reelayCounter, 0);
+    const reelayCount = myCreatorStacks.reduce(reelayCounter, 0);
 
     useEffect(() => {
-        if (userSub.length) loadCreatorStacks();
+        onRefresh();
+        logEventWithPropertiesAsync('viewMyProfile', {
+            username: cognitoUser.attributes.username,
+        });    
     }, []);
+
+    logEventWithPropertiesAsync("viewMyProfile", {
+        username: cognitoUser.username,
+    });
 
     return (
         <ProfileScreenContainer>
-            <ProfileTopBar creator={cognitoUser} navigation={navigation} atProfileBase={true} />
-            <ProfileScrollView>
+            <ProfileTopBar
+                creator={cognitoUser}
+                navigation={navigation}
+                atProfileBase={true}
+            />
+            <ProfileScrollView refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }>
                 <ProfileHeader />
-                <ProfileStatsBar reelayCount={reelayCount} />
-                <Tombstone />
-                <ProfilePosterGrid creatorStacks={creatorStacks} navigation={navigation} />
+                <ProfileStatsBar
+                    navigation={navigation}
+                    reelayCount={reelayCount}
+                    creator={{
+                        username: cognitoUser.username,
+                        sub: cognitoUser.attributes.sub,
+                    }}
+                    followers={myFollowers}
+                    following={myFollowing}
+                    prevScreen={'MyProfileScreen'}
+                />
+                <ProfilePosterGrid
+                    creatorStacks={myCreatorStacks}
+                    navigation={navigation}
+                />
             </ProfileScrollView>
         </ProfileScreenContainer>
     );

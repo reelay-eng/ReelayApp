@@ -31,7 +31,14 @@ import { FeedContext } from './context/FeedContext';
 import { UploadContext } from './context/UploadContext';
 
 // api imports
-import { registerUser, registerPushTokenForUser, getRegisteredUser } from './api/ReelayDBApi';
+import { 
+    getFollowers, 
+    getFollowing, 
+    getRegisteredUser, 
+    getStacksByCreator, 
+    registerUser, 
+    registerPushTokenForUser,
+} from './api/ReelayDBApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { showErrorToast } from './components/utils/toasts';
 
@@ -50,6 +57,9 @@ function App() {
     const [cognitoUser, setCognitoUser] = useState({});
     const [credentials, setCredentials] = useState({});
     const [isLoading, setIsLoading] = useState(true);
+    const [myFollowers, setMyFollowers] = useState([]);
+    const [myFollowing, setMyFollowing] = useState([]);
+    const [myCreatorStacks, setMyCreatorStacks] = useState([]);
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [signedIn, setSignedIn] = useState(false);
     const [session, setSession] = useState({});
@@ -72,6 +82,12 @@ function App() {
         initServices();
         authenticateUser();
     }, []);
+
+    useEffect(() => {
+        if (reelayDBUser?.sub) {
+            loadMyProfile();
+        }
+    }, [reelayDBUser]);
 
     useEffect(() => {
         registerUserAndPushTokens();
@@ -167,6 +183,18 @@ function App() {
         setIsLoading(false);
     }
 
+    const loadMyProfile = async () => {
+        if (signedIn && reelayDBUser && reelayDBUser.sub) {
+            const nextMyFollowers = await getFollowers(reelayDBUser.sub);
+            const nextMyFollowing = await getFollowing(reelayDBUser.sub);
+            const nextMyCreatorStacks = await getStacksByCreator(reelayDBUser.sub);
+    
+            setMyFollowers(nextMyFollowers);
+            setMyFollowing(nextMyFollowing);
+            setMyCreatorStacks(nextMyCreatorStacks);
+        }
+    }
+
     const registerUserAndPushTokens = async () => {
         const validUser = cognitoUser?.username;
         if (!validUser) return;
@@ -202,6 +230,9 @@ function App() {
         credentials,        setCredentials,
         expoPushToken,      setExpoPushToken,
         isLoading,          setIsLoading,
+        myFollowers,        setMyFollowers,
+        myFollowing,        setMyFollowing,
+        myCreatorStacks,    setMyCreatorStacks,
         reelayDBUser,       setReelayDBUser,
         session,            setSession,
         signedIn,           setSignedIn,

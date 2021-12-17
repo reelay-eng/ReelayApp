@@ -14,6 +14,98 @@ const REELAY_API_HEADERS = {
     'reelayapikey': REELAY_API_KEY,
 };
 
+export const followCreator = async (creatorSub, followerSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/follows?creatorSub=${creatorSub}&followerSub=${followerSub}`;
+    console.log(routeGet);
+    const follow = await fetchResults(routeGet, {
+        method: "POST",
+        headers: REELAY_API_HEADERS,
+    });
+
+    if (!follow) {
+        console.log("Could not follow user")
+    }
+    return follow;
+}
+
+export const acceptFollowRequest = async (creatorSub, followerSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/follows/accept?creatorSub=${creatorSub}&followerSub=${followerSub}`;
+    console.log(routeGet);
+    const follow = await fetchResults(routeGet, {
+      method: "POST",
+      headers: REELAY_API_HEADERS,
+    });
+    if (!follow) {
+      console.log("Could not accept user follow request");
+    }
+}
+
+export const rejectFollowRequest = async (creatorSub, followerSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/follows/reject?creatorSub=${creatorSub}&followerSub=${followerSub}`;
+    console.log(routeGet);
+    const follow = await fetchResults(routeGet, {
+        method: "DELETE",
+        headers: REELAY_API_HEADERS,
+    });
+    if (!follow) {
+        console.log("Could not reject user follow request");
+    }
+};
+
+export const unfollowCreator = async (creatorSub, followerSub) => {
+    const routeRemove = `${REELAY_API_BASE_URL}/follows?creatorSub=${creatorSub}&followerSub=${followerSub}`;
+    console.log(routeRemove);
+    const unfollow = await fetchResults(routeRemove, {
+        method: "DELETE",
+        headers: REELAY_API_HEADERS,
+    });
+    console.log(unfollow)
+    if (!unfollow) {
+        console.log("Could not unfollow user");
+    }
+}
+
+export const getFollowing = async (creatorSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/follows/follower/sub/${creatorSub}`;
+    console.log(routeGet);
+    const following = await fetchResults(routeGet, {
+        method: "GET",
+        headers: REELAY_API_HEADERS,
+    });
+    if (!following) {
+        console.log("Could not get following for this creator");
+        return null;
+    }
+    return following;
+};
+
+export const getFollowers = async (creatorSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/follows/creator/sub/${creatorSub}`;
+    console.log(routeGet);
+    const followers = await fetchResults(routeGet, {
+        method: "GET",
+        headers: REELAY_API_HEADERS,
+    });
+    if (!followers) {
+        console.log("Could not get followers for this creator");
+        return null;
+    }
+    return followers;
+};
+
+export const getFollowRequests = async (creatorSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/follows/creator/sub/${creatorSub}/requests`;
+    console.log(routeGet);
+    const requests = await fetchResults(routeGet, {
+        method: "GET",
+        headers: REELAY_API_HEADERS,
+    });
+    if (!requests) {
+        console.log("Could not get follow requests for this creator");
+        return null;
+    }
+    return requests;
+};
 export const getReelay = async (reelaySub) => {
     const routeGet = `${REELAY_API_BASE_URL}/reelays/sub/${reelaySub}?visibility=${FEED_VISIBILITY}`;
     console.log('ROUTE GET: ', routeGet);
@@ -71,24 +163,48 @@ export const getStacksByCreator = async (creatorSub) => {
     return stacksByCreator;
 }
 
-export const getMostRecentStacks = async (page = 0) => {
-    console.log('Getting most recent reelays...');
-    const routeGet = `${REELAY_API_BASE_URL}/reelays?page=${page}&visibility=${FEED_VISIBILITY}`;
+// call prepareReelay on every reelay in every stack
+const prepareStacks = async (fetchedStacks) => {
+    const prepareReelaysForStack = async (fetchedReelaysForStack) => {
+        return await Promise.all(fetchedReelaysForStack.map(prepareReelay));
+    }
+    return await Promise.all(fetchedStacks.map(prepareReelaysForStack));
+}
+
+export const getFollowingFeed = async ({ reqUserSub, page = 0 }) => {
+    console.log('Getting most recent reelays for people I follow');
+    const routeGet = `${REELAY_API_BASE_URL}/feed/following?page=${page}&visibility=${FEED_VISIBILITY}`;
     const fetchedStacks = await fetchResults(routeGet, { 
         method: 'GET',
-        headers: REELAY_API_HEADERS, 
+        headers: {
+            ...REELAY_API_HEADERS,
+            requsersub: reqUserSub,
+        }, 
     });
+
     if (!fetchedStacks) {
         console.log('Found no reelays in feed');
         return null;
     }
+    return await prepareStacks(fetchedStacks);
+}
 
-    // call prepareReelay on every reelay in every stack
-    const preparedStacks = await Promise.all(fetchedStacks.map(async fetchedReelaysForStack => {
-        const preparedStack = await Promise.all(fetchedReelaysForStack.map(prepareReelay));
-        return preparedStack;
-    }));
-    return preparedStacks;
+export const getGlobalFeed = async ({ reqUserSub, page = 0 }) => {
+    console.log('Getting most recent reelays...');
+    const routeGet = `${REELAY_API_BASE_URL}/feed/global?page=${page}&visibility=${FEED_VISIBILITY}`;
+    const fetchedStacks = await fetchResults(routeGet, { 
+        method: 'GET',
+        headers: {
+            ...REELAY_API_HEADERS,
+            requsersub: reqUserSub,
+        }, 
+    });
+
+    if (!fetchedStacks) {
+        console.log('Found no reelays in feed');
+        return null;
+    }
+    return await prepareStacks(fetchedStacks);
 }
 
 export const getMostRecentReelaysByTitle = async (tmdbTitleID, page = 0) => {
@@ -107,13 +223,11 @@ export const getMostRecentReelaysByTitle = async (tmdbTitleID, page = 0) => {
 }
 
 export const getRegisteredUser = async (userSub) => {
-    console.log('Fetching registered user...');
     const routeGet = `${REELAY_API_BASE_URL}/users/sub/${userSub}`;
     const resultGet = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS,
     });
-    console.log('Registered user result: ', resultGet);
 
     if (!resultGet || resultGet.error) {
         console.log('User not registered');
@@ -134,13 +248,11 @@ export const getUserByEmail = async (address) => {
 }
 
 export const getUserByUsername = async (username) => {
-    console.log('Fetching registered user...');
     const routeGet = `${REELAY_API_BASE_URL}/users/byusername/${username}`;
     const resultGet = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS, 
     });
-    console.log('Registered user result: ', resultGet);
 
     if (!resultGet || resultGet.error) {
         console.log('User not registered');
@@ -303,13 +415,11 @@ export const searchTitles = async (searchText, isSeries) => {
 }
 
 export const searchUsers = async (searchText) => {
-    console.log("Fetching registered user...");
     const routeGet = `${REELAY_API_BASE_URL}/search/users?searchText=${searchText}`;
     const resultGet = await fetchResults(routeGet, {
         method: "GET",
         headers: REELAY_API_HEADERS,
     });
-    console.log("Registered user result: ", resultGet);
 
     if (!resultGet) {
         console.log("User not registered");
