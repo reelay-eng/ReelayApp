@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 
-import ReelayFeed from '../../components/home/ReelayFeed';
+import UserReelayFeed from '../../components/home/FixedReelayStack';
 import styled from 'styled-components/native';
 
 export default ProfileFeedScreen = ({ navigation, route }) => {
@@ -18,7 +18,7 @@ export default ProfileFeedScreen = ({ navigation, route }) => {
 
     return (
         <ProfileFeedContainer>
-            <ReelayFeed navigation={navigation} initialFeedPos={initialFeedPos} fixedStackList={stackList} />
+            <UserReelayFeed navigation={navigation} initialFeedPos={initialFeedPos} fixedStackList={stackList} />
         </ProfileFeedContainer>
     );
 }

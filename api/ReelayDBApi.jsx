@@ -172,7 +172,7 @@ const prepareStacks = async (fetchedStacks) => {
 }
 
 export const getFollowingFeed = async ({ reqUserSub, page = 0 }) => {
-    console.log('Getting most recent reelays...');
+    console.log('Getting most recent reelays for people I follow');
     const routeGet = `${REELAY_API_BASE_URL}/feed/following?page=${page}&visibility=${FEED_VISIBILITY}`;
     const fetchedStacks = await fetchResults(routeGet, { 
         method: 'GET',

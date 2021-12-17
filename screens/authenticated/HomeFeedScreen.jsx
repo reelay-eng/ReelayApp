@@ -9,10 +9,14 @@ export default function HomeFeedScreen({ navigation, route }) {
 		background-color: black;
 	`
 
+
 	const forceRefresh = route?.params?.forceRefresh;
 	return (
-		<TransparentContainer>
-			<ReelayFeed forceRefresh={forceRefresh} navigation={navigation} />
-		</TransparentContainer>
-	)
+    <TransparentContainer>
+      <ReelayFeed
+        forceRefresh={forceRefresh}
+        navigation={navigation}
+      />
+    </TransparentContainer>
+  );
 };
