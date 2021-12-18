@@ -8,7 +8,8 @@ import {
     ScrollView, 
     Text, 
     TextInput, 
-    View 
+    View,
+    Image
 } from 'react-native';
 
 import { Button, Icon } from 'react-native-elements';
@@ -18,6 +19,7 @@ import styled from 'styled-components/native';
 import moment from 'moment';
 import Constants from 'expo-constants';
 import * as ReelayText from '../../components/global/Text';
+import ReelayIcon from '../../assets/icons/reelay-icon.png';
 
 import { 
     sendCommentNotificationToCreator, 
@@ -69,11 +71,9 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
             right: 24px;
             width: 100%;
         `
-        const CounterText = styled(Text)`
-            font-family: System;
-            font-size: 14px;
-            color: white;
-        `
+        const CounterText = styled(ReelayText.CaptionEmphasized)`
+			color: #86878b;
+		`;
         return (
             <CounterContainer>
                 <CounterText>{`${commentTextLength} / ${MAX_COMMENT_LENGTH}`}</CounterText>
@@ -105,7 +105,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
             margin-bottom: 5px;
         `
         const headerText = reelay.comments.length
-			? `${reelay.comments.length} comments `
+			? `${reelay.comments.length} comments`
 			: "Comments";
         return (
             <HeaderContainer>
@@ -121,47 +121,83 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
     const Comments = () => {
         const CommentsContainer = styled(View)`
             width: 100%;
-            padding-left: 16px;
-            padding-right: 16px;
         `
         const CommentItemContainer = styled(Pressable)`
-            margin-left: 10px;
-            margin-right: 10px;
-            margin-bottom: 30px;
-        `
-        const CommentHeaderContainer = styled(View)`
+            padding-left: 16px;
+            padding-right: 16px;
+            padding-bottom: 13px;
+            display: flex;
             flex-direction: row;
-            justify-content: space-between;
-            width: 100%;
         `
-        const CommentText = styled(Text)`
-            font-family: System;
-            font-size: 16px;
-            font-weight: 400;
+        const LeftCommentIconContainer = styled(View)`
+            width: 10%;
+            align-items: center;
+            margin-right: 12px;
+        `
+        const RightCommentIconContainer = styled(Pressable)`
+			width: 10%;
+            flex-direction: column;
+			align-items: center;
+            justify-content: center;
+		`;
+        const CommentIconText = styled(ReelayText.Caption)`
+			color: #86878b;
+		`;
+        const CommentProfilePhoto = styled(Image)`
+            width: 32px;
+            height: 32px;
+            border-radius: 16px;
+        `
+        const CommentTextContainer = styled(View)`
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            width: 80%;
+        `
+        const CommentText = styled(ReelayText.Body2)`
             color: white;
-            margin-top: 10px;
         `
-        const TimestampText = styled(Text)`
-            font-family: System;
-            font-size: 16px;
-            font-weight: 300;
-            color: white;
-        `
-        const UsernameText = styled(Text)`
-            font-family: System;
-            font-size: 16px;
-            font-weight: 700;
-            color: white;
-        `
+        const CommentTimestampText = styled(ReelayText.Body2)`
+			color: #86878b;
+		`;
+        const UsernameText = styled(ReelayText.CaptionEmphasized)`
+			color: #86878b;
+            margin-bottom: 5px;
+		`;
         return (
             <CommentsContainer>
-                { reelay.comments.map(comment => {
+                {reelay.comments.map(comment => {
+                    const [commentLiked, setCommentLiked] = useState(false); // alter to make default state: 
+                                                                            // the database value for whether you've liked that comment yet or not.
+                    const [numCommentLikes, setNumCommentLikes] = useState(0); // similarly alter to make default state: 
+                                                                                // the database value for the number of comment likes currently
+
+                    const toggleCommentLike = () => {
+                        const commentIsNowLiked = !commentLiked;
+                        if (commentIsNowLiked) {
+                            setNumCommentLikes(numCommentLikes + 1);
+							/**
+							 * Here, put logic for liking comment in DB and incrementing number of comment likes. React state updates automatically.
+							 */
+                        }
+                        else {
+							setNumCommentLikes(numCommentLikes - 1);
+							/**
+							 * Here, put logic for liking comment in DB and incrementing number of comment likes. React state updates automatically.
+							 */
+                        }
+                        setCommentLiked(commentIsNowLiked);
+                    }
+
                     // main feed currently returns from DataStore, using userID
                     // profile feeds return from ReelayDB, using authorName
                     const username = comment.userID ?? comment.authorName;
-
                     const key = username + comment.postedAt;
-                    const timestamp = moment(comment.postedAt).fromNow();
+                    const timestamp = moment(comment.postedAt)
+						.fromNow()
+						.substr(0, 3)
+						.replace(/\s/g, "");
+
 
                     const onPress = async () => {
                         const creator = await getUserByUsername(username);
@@ -172,14 +208,30 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
                     }
 
                     return (
-                        <CommentItemContainer key={key} onPress={onPress}>
-                            <CommentHeaderContainer>
-                                <UsernameText>{`@${username}`}</UsernameText>
-                                <TimestampText>{timestamp}</TimestampText>
-                            </CommentHeaderContainer>
-                            <CommentText>{comment.content}</CommentText>
-                        </CommentItemContainer>
-                    );
+						<CommentItemContainer key={key} onPress={onPress}>
+							<LeftCommentIconContainer>
+								<CommentProfilePhoto source={ReelayIcon} />
+							</LeftCommentIconContainer>
+							<CommentTextContainer>
+								<UsernameText>{`@${username}`}</UsernameText>
+                                <CommentText>
+                                    {comment.content}{" "}
+                                    <CommentTimestampText>{timestamp}</CommentTimestampText>
+                                </CommentText>
+							</CommentTextContainer>
+							<RightCommentIconContainer onPress={toggleCommentLike}>
+								<Icon
+									type="ionicon"
+									name={commentLiked ? "heart" : "heart-outline"}
+									color={commentLiked ? "#FF4848" : "#FFFFFF"}
+									size={16}
+								/>
+								{numCommentLikes > 1 && (
+									<CommentIconText>{numCommentLikes}</CommentIconText>
+								)}
+							</RightCommentIconContainer>
+						</CommentItemContainer>
+					);
                 })}
             </CommentsContainer>
         );
@@ -208,19 +260,16 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 
         const TextInputStyle = {
             alignSelf: 'center',
-            borderColor: 'white',
-            borderRadius: 10,
-            borderWidth: 1,
             color: 'white',
-
-            fontFamily: 'System',
-            fontSize: 16,
-            
-            padding: 16, 
-            paddingTop: 16,
+            fontFamily: 'Outfit-Regular',
+            fontSize: 18,
+            fontStyle: 'normal',
+            lineHeight: 24,
+            letterSpacing: 0.5,
+            textAlign: 'left',
             paddingLeft: 16,
             paddingRight: 16,
-            width: width - 48,
+            width: '100%',
         }
 
         const [commentText, setCommentText] = useState('');
