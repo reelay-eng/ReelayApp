@@ -16,8 +16,9 @@ const ButtonBox = styled(View)`
     background-color: ${props => props.pressed ? props.pressedColor : props.backgroundColor};
     border-radius: ${props => props.borderRadius ? props.borderRadius : '10px'};
     border: ${props => {
+    if (props.disabled) return 'solid 1px #5e5e5e';
         if (props.pressedBorder && props.pressed) return props.pressedBorder;
-        if (props.border) return props.border;
+        else if (props.border) return props.border;
         else return 'none'; 
     }};
     display: flex;
@@ -26,7 +27,7 @@ const ButtonBox = styled(View)`
     align-items: center;
 `
 const ButtonText = styled(ReelayText.Subtitle2)`
-	color: ${(props) => props.fontColor};
+	color: ${(props) => props.disabled ? "#5e5e5e" : props.fontColor};
 	margin-left: ${(props) => (props.icon ? "3px" : "0px")};
 `;
 
@@ -39,30 +40,37 @@ export const Button = ({
 	borderRadius = "20px",
 	border = "",
     pressedBorder = "",
-    icon=false,
+    icon = false,
+    disabled=false,
 }) => {
 	return (
-		<ButtonPressable onPress={onPress}>
-			{({ pressed }) => (
-				<ButtonBox
-					pressed={pressed}
-					pressedColor={pressedColor}
-					backgroundColor={backgroundColor}
-					borderRadius={borderRadius}
-					border={border}
-					pressedBorder={pressedBorder}
-				>
-					{icon}
-                    <ButtonText icon={ icon ? true : false }fontColor={fontColor}>{text}</ButtonText>
-				</ButtonBox>
-			)}
+        <ButtonPressable onPress={disabled ? () => {} : onPress}>
+            {({ pressed }) => {
+                const isPressed = (!disabled && pressed);
+                return (
+                    <ButtonBox
+                        disabled={disabled}
+						pressed={isPressed}
+						pressedColor={pressedColor}
+						backgroundColor={backgroundColor}
+						borderRadius={borderRadius}
+						border={border}
+						pressedBorder={pressedBorder}
+					>
+						{icon}
+                        <ButtonText icon={icon ? true : false} fontColor={fontColor} disabled={disabled}>
+							{text}
+						</ButtonText>
+					</ButtonBox>
+				);}}
 		</ButtonPressable>
 	);
 };
 
 export const ActionButton = ({
 	text,
-	onPress,
+    onPress,
+    disabled=false,
 	color = "blue",
     borderRadius = "20px",
     icon=null,
@@ -71,8 +79,9 @@ export const ActionButton = ({
 		return (
 			<Button
 				onPress={onPress}
-                text={text}
-                icon={icon}
+				text={text}
+				disabled={disabled}
+				icon={icon}
 				borderRadius={borderRadius}
 				backgroundColor={"#e8362a"}
 				pressedColor={"#63100a"}
@@ -82,10 +91,11 @@ export const ActionButton = ({
 		return <Button onPress={onPress} icon={icon} text={text} borderRadius={borderRadius} />;
 };
 
-export const PassiveButton = ({ text, onPress, borderRadius = "20px" }) => (
+export const PassiveButton = ({ text, onPress, disabled = false, borderRadius = "20px" }) => (
 	<Button
 		onPress={onPress}
-		text={text}
+        text={text}
+        disabled={disabled}
 		borderRadius={borderRadius}
 		backgroundColor={"#0B2046"}
 		fontColor={"#7EAEFF"}
@@ -93,15 +103,16 @@ export const PassiveButton = ({ text, onPress, borderRadius = "20px" }) => (
 		pressedColor={"#2977EF"}
 	/>
 );
-export const BWButton = ({ text, onPress, borderRadius = "20px", white = false }) => (
+export const BWButton = ({ text, onPress, disabled = false, borderRadius = "20px", white = false }) => (
 	<Button
 		onPress={onPress}
 		text={text}
+		disabled={disabled}
 		borderRadius={borderRadius}
 		backgroundColor={white ? "#ffffff" : "#0D0D0D"}
-        fontColor={white ? "#000000" : "#FFFFFF"}
-        pressedColor={white ? "#8c8c8c" : "#2E2E2E"}
-        border={white ? "solid 1px #000000" : "solid 1px white"}
+		fontColor={white ? "#000000" : "#FFFFFF"}
+		pressedColor={white ? "#8c8c8c" : "#2E2E2E"}
+		border={white ? "solid 1px #000000" : "solid 1px white"}
 	/>
 );
 
