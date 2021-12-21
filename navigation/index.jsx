@@ -54,6 +54,13 @@ export default Navigation = () => {
             }
             openSingleReelayScreen(data.reelaySub);
         }
+
+        if (action === "openUserProfileScreen") {
+            if (!data.user) {
+              console.log("No reelay sub given");
+            }
+            openUserProfileScreen(data.user);
+        }
     }
 
     const openSingleReelayScreen = async (reelaySub) => {
@@ -66,6 +73,18 @@ export default Navigation = () => {
         const preparedReelay = await prepareReelay(singleReelay); 
         navigationRef.current.navigate('SingleReelayScreen', { preparedReelay })
     }
+
+    const openUserProfileScreen = async (user) => {
+        if (!navigationRef?.current) {
+            console.log("No navigation ref");
+            return;
+        }
+
+        // make it work for users
+        navigationRef.current.navigate("UserProfileScreen", {
+            creator: user
+        });
+    };
 
     const parseNotificationContent = (notification) => {
         const { date, request } = notification;

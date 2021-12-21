@@ -5,6 +5,7 @@ import styled from 'styled-components/native';
 import ReelayColors from '../../../constants/ReelayColors';
 import { AuthContext } from '../../../context/AuthContext';
 import { followCreator, unfollowCreator } from '../../../api/ReelayDBApi';
+import { sendFollowNotification } from "../../../api/NotificationsApi";
 
 import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
 import FollowButtonDrawer from './FollowButtonDrawer';
@@ -56,6 +57,11 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
             // handle error
         }
 
+        await sendFollowNotification({
+          creatorSub: creatorSub,
+          follower: reelayDBUser,
+        });
+        
         logEventWithPropertiesAsync('followedCreator', {
             username: reelayDBUser.username,
             creatorName: creator.username,

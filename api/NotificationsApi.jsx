@@ -158,6 +158,36 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
     });
 }
 
+export const sendFollowNotification = async ({ creatorSub, follower }) => {
+    const creator = await getRegisteredUser(creatorSub);
+    const token = creator?.pushToken;
+
+    const { settingsNotifyReactions } = await getUserNotificationSettings(
+        creator
+    );
+    if (!settingsNotifyReactions) {
+        console.log("Creator does not want to receive push notifications"); // is it this type of notif?
+        return;
+    }
+
+    if (!token) {
+        console.log("Creator not registered for follow notifications");
+        return;
+    }
+
+    const title = 'Reelay';
+    // const body = reelay.title.releaseYear
+    //     ? `${reelay.title.display} (${reelay.title.releaseYear})`
+    //     : `${reelay.title.display}`;
+    const body = `${follower.username} followed you!`;
+    const data = {
+        action: "openUserProfileScreen",
+        user: follower,
+    };
+    console.log("sending notification");
+    await sendPushNotification({ title, body, data, token });
+};
+
 export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
     const creator = await getRegisteredUser(creatorSub);
     const token = creator?.pushToken;

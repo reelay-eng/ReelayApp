@@ -8,6 +8,7 @@ import styled from 'styled-components/native';
 import ReelayColors from '../../../constants/ReelayColors';
 
 import { followCreator } from '../../../api/ReelayDBApi';
+import { sendFollowNotification } from "../../../api/NotificationsApi";
 import { Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
@@ -104,6 +105,8 @@ export default FollowItem = ({
         } else {
             // handle error
         }
+
+        await sendFollowNotification({creatorSub: creatorSub, follower :reelayDBUser});
 
         logEventWithPropertiesAsync('followedUser', {
             followerName: reelayDBUser.username,
