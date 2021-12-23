@@ -12,6 +12,7 @@ import { getFollowers, getFollowing } from '../../api/ReelayDBApi';
 import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
+import { BWButton } from '../../components/global/Buttons';
 
 export default MyProfileScreen = ({ navigation, route }) => {
     const [refreshing, setRefreshing] = useState(false);
@@ -82,6 +83,34 @@ export default MyProfileScreen = ({ navigation, route }) => {
         username: cognitoUser.username,
     });
 
+    const EditProfileButton = () => {
+        const Container = styled(View)`
+			width: 100%;
+			height: 40px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+            margin-bottom: 8px;
+		`;
+        const EditProfileButtonContainer = styled(View)`
+            width: 90%;
+            height: 40px;
+        `
+
+        return (
+			<Container>
+				<EditProfileButtonContainer>
+					<BWButton
+						text="Edit Profile"
+						onPress={() => {
+							navigation.push("EditProfileScreen");
+						}}
+					/>
+				</EditProfileButtonContainer>
+			</Container>
+		);
+    }
+
     return (
         <ProfileScreenContainer>
             <ProfileTopBar
@@ -93,6 +122,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
                 <ProfileHeader />
+                <EditProfileButton />
                 <ProfileStatsBar
                     navigation={navigation}
                     reelayCount={reelayCount}

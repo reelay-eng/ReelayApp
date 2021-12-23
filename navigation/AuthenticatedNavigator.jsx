@@ -13,6 +13,7 @@ import useColorScheme from '../hooks/useColorScheme';
 
 import HomeFeedScreen from '../screens/authenticated/HomeFeedScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
+import EditProfileScreen from "../screens/authenticated/EditProfileScreen";
 import ProfileFeedScreen from '../screens/authenticated/ProfileFeedScreen';
 import ProfileSettingsScreen from '../screens/authenticated/ProfileSettingsScreen';
 import NotificationSettingsScreen from '../screens/authenticated/NotificationSettingsScreen';
@@ -42,7 +43,7 @@ export default AuthenticatedNavigator = () => {
         <AppStack.Navigator initialRouteName='BottomTab'>
             <AppStack.Screen name='BottomTab' component={BottomTabNavigator} 
                 options={{
-                headerShown: false,
+                    headerShown: false,
                 }}
             />
             <AppStack.Screen name='VenueSelectScreen' component={VenueSelectScreen}
@@ -304,19 +305,26 @@ const ProfileTabNavigator = () => {
 				}}
 			/>
 			<ProfileTabStack.Screen
+				name="EditProfileScreen"
+				component={EditProfileScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<ProfileTabStack.Screen
 				name="UserProfileScreen"
 				component={UserProfileScreen}
 				options={{
 					headerShown: false,
 				}}
 			/>
-            <ProfileTabStack.Screen
-                name='UserFollowScreen'
-                component={UserFollowScreen}
-                options={{
-                    headerShown: false,
-                }}
-            />
+			<ProfileTabStack.Screen
+				name="UserFollowScreen"
+				component={UserFollowScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
 			<ProfileTabStack.Screen
 				name="ProfileFeedScreen"
 				component={ProfileFeedScreen}

@@ -4,11 +4,11 @@ import styled from 'styled-components/native';
 
 export default ProfileHeader = () => {
     const ProfileHeaderContainer = styled(SafeAreaView)`
-        align-items: center;
-        margin-top: 16px;
-        margin-bottom: 16px;
-        width: 100%;
-    `
+		align-items: center;
+		margin-top: 16px;
+		margin-bottom: 8px;
+		width: 100%;
+	`;
     const ProfilePicture = styled(Image)`
         border-radius: 48px;
         height: 96px;
