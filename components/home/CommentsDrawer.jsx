@@ -156,113 +156,111 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
             width: 100%;
             padding-top: 13px;
         `
-        const CommentItemContainer = styled(Pressable)`
-            padding-left: 16px;
-            padding-right: 16px;
-            padding-bottom: 13px;
-            display: flex;
-            flex-direction: row;
-        `
-        const LeftCommentIconContainer = styled(View)`
-            width: 10%;
-            align-items: center;
-            margin-right: 12px;
-        `
-        const RightCommentIconContainer = styled(Pressable)`
-			width: 10%;
-            flex-direction: column;
-			align-items: center;
-            justify-content: center;
-		`;
-        const CommentIconText = styled(ReelayText.Caption)`
-			color: #86878b;
-		`;
-        const CommentTextContainer = styled(View)`
-            display: flex;
-            flex-direction: column;
-            width: 80%;
-        `
-        const CommentText = styled(ReelayText.Body2)`
-            color: white;
-        `
-        const CommentTimestampText = styled(ReelayText.Body2)`
-			color: #86878b;
-		`;
-        const UsernameText = styled(ReelayText.CaptionEmphasized)`
-			color: #86878b;
-		`;
         return (
             <CommentsContainer>
-                {reelay.comments.map(comment => {
-                    const [commentLiked, setCommentLiked] = useState(false); // alter to make default state: 
-                                                                            // the database value for whether you've liked that comment yet or not.
-                    const [numCommentLikes, setNumCommentLikes] = useState(0); // similarly alter to make default state: 
-                                                                                // the database value for the number of comment likes currently
-
-                    const toggleCommentLike = () => {
-                        const commentIsNowLiked = !commentLiked;
-                        if (commentIsNowLiked) {
-                            setNumCommentLikes(numCommentLikes + 1);
-							/**
-							 * Here, put logic for liking comment in DB and incrementing number of comment likes. React state updates automatically.
-							 */
-                        }
-                        else {
-							setNumCommentLikes(numCommentLikes - 1);
-							/**
-							 * Here, put logic for liking comment in DB and incrementing number of comment likes. React state updates automatically.
-							 */
-                        }
-                        setCommentLiked(commentIsNowLiked);
-                    }
-
-                    // main feed currently returns from DataStore, using userID
-                    // profile feeds return from ReelayDB, using authorName
-                    const username = comment.userID ?? comment.authorName;
-                    const key = username + comment.postedAt;
-                    const timestamp = moment(comment.postedAt).fromNow();
-
-
-                    const onPress = async () => {
-                        const creator = await getUserByUsername(username);
-                        setCommentsVisible(false);
-                        navigation.push('UserProfileScreen', {
-                            creator: creator,
-                        });
-                    }
-
-                    return (
-						<CommentItemContainer key={key} onPress={onPress}>
-							<LeftCommentIconContainer>
-								<CommentProfilePhoto source={ReelayIcon} />
-							</LeftCommentIconContainer>
-							<CommentTextContainer>
-								<UsernameText>{`@${username}`}</UsernameText>
-								<CommentText>
-									{comment.content}{" "}
-									<CommentTimestampText>{timestamp}</CommentTimestampText>
-								</CommentText>
-							</CommentTextContainer>
-
-							{/* On implementing comment likes, remove the view below and uncomment the snippet below. */}
-							<View />
-							{/* <RightCommentIconContainer onPress={toggleCommentLike}>
-								<Icon
-									type="ionicon"
-									name={commentLiked ? "heart" : "heart-outline"}
-									color={commentLiked ? "#FF4848" : "#FFFFFF"}
-									size={16}
-								/>
-								{numCommentLikes > 1 && (
-									<CommentIconText>{numCommentLikes}</CommentIconText>
-								)}
-							</RightCommentIconContainer> */}
-						</CommentItemContainer>
-					);
-                })}
+                {reelay.comments.map((comment, i) => (
+                    <Comment comment={comment} key={(comment.userID ?? comment.authorName) + comment.postedAt} />
+                ))}
             </CommentsContainer>
         );
     }
+
+    const Comment = ({ comment }) => {
+        const [commentLiked, setCommentLiked] = useState(false); // alter to make default state the database value for whether you've liked that comment yet or not.
+		const [numCommentLikes, setNumCommentLikes] = useState(0); // similarly alter to make default state the database value for the number of comment likes currently
+		const CommentItemContainer = styled(Pressable)`
+			padding-left: 16px;
+			padding-right: 16px;
+			padding-bottom: 13px;
+			display: flex;
+			flex-direction: row;
+		`;
+		const LeftCommentIconContainer = styled(View)`
+			width: 10%;
+			align-items: center;
+			margin-right: 12px;
+		`;
+		const RightCommentIconContainer = styled(Pressable)`
+			width: 10%;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		`;
+		const CommentIconText = styled(ReelayText.Caption)`
+			color: #86878b;
+		`;
+		const CommentTextContainer = styled(View)`
+			display: flex;
+			flex-direction: column;
+			width: 80%;
+		`;
+		const CommentText = styled(ReelayText.Body2)`
+			color: white;
+		`;
+		const CommentTimestampText = styled(ReelayText.Body2)`
+			color: #86878b;
+		`;
+		const UsernameText = styled(ReelayText.CaptionEmphasized)`
+			color: #86878b;
+		`;
+
+		const toggleCommentLike = () => {
+			const commentIsNowLiked = !commentLiked;
+			if (commentIsNowLiked) {
+				setNumCommentLikes(numCommentLikes + 1);
+				/**
+				 * Here, put logic for liking comment in DB and incrementing number of comment likes. React state updates automatically.
+				 */
+			} else {
+				setNumCommentLikes(numCommentLikes - 1);
+				/**
+				 * Here, put logic for liking comment in DB and incrementing number of comment likes. React state updates automatically.
+				 */
+			}
+			setCommentLiked(commentIsNowLiked);
+		};
+
+		// main feed currently returns from DataStore, using userID
+		// profile feeds return from ReelayDB, using authorName
+		const username = comment.userID ?? comment.authorName;
+		const timestamp = moment(comment.postedAt).fromNow();
+
+		const onPress = async () => {
+			const creator = await getUserByUsername(username);
+			setCommentsVisible(false);
+			navigation.push("UserProfileScreen", {
+				creator: creator,
+			});
+		};
+
+		return (
+            <CommentItemContainer onPress={onPress}>
+				<LeftCommentIconContainer>
+					<CommentProfilePhoto source={ReelayIcon} />
+				</LeftCommentIconContainer>
+				<CommentTextContainer>
+					<UsernameText>{`@${username}`}</UsernameText>
+					<CommentText>
+						{comment.content} <CommentTimestampText>{timestamp}</CommentTimestampText>
+					</CommentText>
+				</CommentTextContainer>
+
+				{/* On implementing comment likes, remove the view below and uncomment the snippet below. */}
+				<View />
+				{/* <RightCommentIconContainer onPress={toggleCommentLike}>
+                            <Icon
+                                type="ionicon"
+                                name={commentLiked ? "heart" : "heart-outline"}
+                                color={commentLiked ? "#FF4848" : "#FFFFFF"}
+                                size={16}
+                            />
+                            {numCommentLikes > 1 && (
+                                <CommentIconText>{numCommentLikes}</CommentIconText>
+                            )}
+                        </RightCommentIconContainer> */}
+			</CommentItemContainer>
+		);
+	};;
 
 
     const CommentBox = () => {
