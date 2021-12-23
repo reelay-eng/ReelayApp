@@ -37,6 +37,7 @@ const FollowText = styled(Text)`
 
 export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowers }) => {
     const { reelayDBUser, myFollowing, setMyFollowing } = useContext(AuthContext);
+    
     const creatorSub = creator.sub;
     const userSub = reelayDBUser.sub;
 

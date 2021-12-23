@@ -12,6 +12,7 @@ import { getInputUsername } from '../../components/utils/usernameOrEmail';
 
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
+import { getRegisteredUser } from '../../api/ReelayDBApi';
 
 const REELAY_ICON_SOURCE = require('../../assets/icons/reelay-icon.png');
 
@@ -68,7 +69,12 @@ export default SignInScreen = ({ navigation, route }) => {
     ` 
     
 
-    const { setCognitoUser, setUsername, setSignedIn } = useContext(AuthContext);
+    const { 
+        setCognitoUser, 
+        setReelayDBUser, 
+        setUsername, 
+        setSignedIn,
+    } = useContext(AuthContext);
 
     const AltOptions = ({ hidePassword, setHidePassword }) => {
         const handleForgotPassword = async () => {
@@ -154,6 +160,8 @@ export default SignInScreen = ({ navigation, route }) => {
 
                 setCognitoUser(cognitoUser);
                 setUsername(cognitoUser.username);
+                const reelayDBUser = await getRegisteredUser(cognitoUser.attributes.sub);
+                setReelayDBUser(reelayDBUser);
                 setSignedIn(true);
                 console.log('Signed in user successfully');
 

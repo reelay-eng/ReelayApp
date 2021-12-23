@@ -130,7 +130,16 @@ export default Navigation = () => {
 const Stack = createStackNavigator();
 
 const RootNavigator = () => {
-    const { signedIn } = useContext(AuthContext);
+    const { signedIn, setCognitoUser, setReelayDBUser, setSession, setCredentials } = useContext(AuthContext);
+
+    useEffect(() => {
+        if (!signedIn) {
+            setCognitoUser({});
+            setReelayDBUser({});
+            setSession({});
+            setCredentials({});    
+        }
+    }, [signedIn]);
 
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
