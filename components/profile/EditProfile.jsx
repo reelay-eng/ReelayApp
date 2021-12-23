@@ -61,6 +61,7 @@ const EditProfileImage = () => {
 	const EditContainer = styled(Pressable)`
 		display: flex;
 		flex-direction: column;
+        align-items: center;
 	`;
 	const ProfileImage = styled(Image)`
 		border-radius: 48px;
@@ -70,8 +71,8 @@ const EditProfileImage = () => {
 		border-color: white;
 		margin-bottom: 10px;
 	`;
-	const ProfileText = styled(ReelayText.Body1)`
-		color: ${ReelayColors.reelayBlue};
+	const ProfileText = styled(ReelayText.Body2Bold)`
+		color: rgba(0, 165, 253, 1);
 		text-align: center;
 	`;
 
@@ -79,7 +80,7 @@ const EditProfileImage = () => {
 		<Container>
 			<EditContainer>
 				<ProfileImage source={ReelayIcon} />
-				<ProfileText>Edit Photo</ProfileText>
+				<ProfileText>Change Profile Photo</ProfileText>
 			</EditContainer>
 		</Container>
 	);

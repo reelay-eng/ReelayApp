@@ -39,7 +39,10 @@ export const HeaderWithBackButton = ({ navigation, text = "Settings" }) => {
 export const HeaderDoneCancel = ({ onDone, onCancel, text = "Settings", withBar=false}) => {
 	const HeaderContainer = styled(View)`
 		width: 100%;
-		padding: 20px;
+		padding-left: 15px;
+		padding-right: 15px;
+		padding-top: 10px;
+		padding-bottom: 10px;
 		display: flex;
 		flex-direction: row;
 		justify-content: space-between;
@@ -52,13 +55,14 @@ export const HeaderDoneCancel = ({ onDone, onCancel, text = "Settings", withBar=
 	const Divider = styled(View)`
 		border-bottom-width: 1px;
 		border-color: white;
-		opacity: 0.3;
+		opacity: 0.1;
 	`
-	const DoneText = styled(ReelayText.H6Emphasized)`
+	const DoneText = styled(ReelayText.H6)`
 		color: ${ReelayColors.reelayBlue};
 	`
-	const CancelText = styled(ReelayText.H6Emphasized)`
+	const CancelText = styled(ReelayText.H6)`
 		color: white;
+		opacity: 0.9;
 	`
 	return (
 		<>
