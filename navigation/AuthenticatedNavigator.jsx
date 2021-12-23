@@ -5,11 +5,13 @@
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import React, { useEffect, useRef } from 'react';
+import React, { useContext } from 'react';
 
 import { Icon } from 'react-native-elements';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
+
+import { FeedContext } from '../context/FeedContext';
 
 import HomeFeedScreen from '../screens/authenticated/HomeFeedScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
@@ -66,78 +68,87 @@ export default AuthenticatedNavigator = () => {
 }
 
 const BottomTabNavigator = () => {
-    const colorScheme = useColorScheme();  
-
+    const { tabBarVisible } = useContext(FeedContext);
+    const colorScheme = useColorScheme();
     return (
         <BottomTab.Navigator
-            initialRouteName='Home'
-            tabBarOptions={{
-                activeTintColor: Colors[colorScheme].tint,
-                showLabel: false,
-                style: {
-                    backgroundColor: 'transparent',
-                    borderTopWidth: 0,
-                    position: 'absolute',
-                    left: 50,
-                    right: 50,
-                    height: 80,
-                }
-            }}
-        >
-        <BottomTab.Screen
-            name='Home'
-            component={HomeTabNavigator}
-            options={{
-                tabBarIcon: () => (
-                    <Icon type='ionicon'
-                        name='film-outline'
-                        color={'white'}
-                        size={BOTTOM_TAB_ICON_SIZE}
-                    />
-                ),
-            }}
-        />
-        <BottomTab.Screen
-            name='Search'
-            component={SearchTabNavigator}
-            options={{
-                tabBarIcon: () => (
-                    <Icon type='ionicon'
-                        name='search'
-                        color={'white'}
-                        size={BOTTOM_TAB_ICON_SIZE}
-                    />
-                ),
-            }}
-        />
-        <BottomTab.Screen
-            name='Create'
-            component={CreateReelayTabNavigator}
-            options={{
-                tabBarIcon: () => (
-                    <Icon type='ionicon'
-                        name='add-circle'
-                        color={'white'}
-                        size={BOTTOM_TAB_ICON_SIZE}
-                    />
-                ),
-            }}
-        />
-        <BottomTab.Screen
-            name='Profile'
-            component={ProfileTabNavigator}
-            options={{
-                tabBarIcon: () => (
-                    <Icon type='ionicon'
-                        name='person-circle'
-                        color={'white'}
-                        size={BOTTOM_TAB_ICON_SIZE}
-                    />
-                ),
-            }}
-        />
-        </BottomTab.Navigator>
-    );
+			initialRouteName="Home"
+			tabBarOptions={{
+				activeTintColor: Colors[colorScheme].tint,
+				showLabel: false,
+				style: {
+					backgroundColor: "transparent",
+					borderTopWidth: 0,
+					position: "absolute",
+					left: 50,
+					right: 50,
+					height: 80,
+				},
+				tabBarVisible: tabBarVisible,
+			}}
+		>
+			<BottomTab.Screen
+				name="Home"
+				component={HomeTabNavigator}
+				options={{
+					tabBarIcon: () => (
+						<Icon
+							type="ionicon"
+							name="film-outline"
+							color={"white"}
+							size={BOTTOM_TAB_ICON_SIZE}
+						/>
+					),
+					tabBarVisible: tabBarVisible,
+				}}
+			/>
+			<BottomTab.Screen
+				name="Search"
+				component={SearchTabNavigator}
+				options={{
+					tabBarIcon: () => (
+						<Icon
+							type="ionicon"
+							name="search"
+							color={"white"}
+							size={BOTTOM_TAB_ICON_SIZE}
+						/>
+					),
+					tabBarVisible: tabBarVisible,
+				}}
+			/>
+			<BottomTab.Screen
+				name="Create"
+				component={CreateReelayTabNavigator}
+				options={{
+					tabBarIcon: () => (
+						<Icon
+							type="ionicon"
+							name="add-circle"
+							color={"white"}
+							size={BOTTOM_TAB_ICON_SIZE}
+						/>
+					),
+					tabBarVisible: tabBarVisible,
+				}}
+			/>
+			<BottomTab.Screen
+				name="Profile"
+				component={ProfileTabNavigator}
+				options={{
+					tabBarIcon: () => (
+						<Icon
+							type="ionicon"
+							name="person-circle"
+							color={"white"}
+							size={BOTTOM_TAB_ICON_SIZE}
+						/>
+					),
+					tabBarVisible: tabBarVisible,
+				}}
+			/>
+		</BottomTab.Navigator>
+	);
 }
 
 // Each tab has its own navigation stack, you can read more about this pattern here:
@@ -296,7 +307,10 @@ const CreateReelayTabNavigator = () => {
 
 const ProfileTabNavigator = () => {
     return (
-		<ProfileTabStack.Navigator initialRouteName="MyProfileScreen" detachInactiveScreens={false}>
+		<ProfileTabStack.Navigator
+			initialRouteName="MyProfileScreen"
+			detachInactiveScreens={false}
+		>
 			<ProfileTabStack.Screen
 				name="MyProfileScreen"
 				component={MyProfileScreen}
