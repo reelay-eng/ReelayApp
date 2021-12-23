@@ -106,7 +106,10 @@ export default FollowItem = ({
             // handle error
         }
 
-        await sendFollowNotification({creatorSub: creatorSub, follower :reelayDBUser});
+        await sendFollowNotification({
+          creatorSub: followUserSub,
+          follower: reelayDBUser,
+        });
 
         logEventWithPropertiesAsync('followedUser', {
             followerName: reelayDBUser.username,

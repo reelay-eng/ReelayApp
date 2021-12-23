@@ -75,6 +75,7 @@ export default Navigation = () => {
     }
 
     const openUserProfileScreen = async (user) => {
+        console.log('plz open')
         if (!navigationRef?.current) {
             console.log("No navigation ref");
             return;

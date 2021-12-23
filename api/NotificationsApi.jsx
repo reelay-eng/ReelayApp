@@ -4,6 +4,8 @@ import { getRegisteredUser, getUserByUsername, getMostRecentReelaysByTitle } fro
 import { fetchResults } from './fetchResults';
 import * as Amplitude from 'expo-analytics-amplitude';
 
+import { Navigation } from "../navigation/index";
+
 const EXPO_NOTIFICATION_URL = Constants.manifest.extra.expoNotificationUrl;
 const STACK_NOTIFICATION_LIMIT = 4;
 
@@ -159,17 +161,18 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
 }
 
 export const sendFollowNotification = async ({ creatorSub, follower }) => {
+    console.log('follower', follower)
     const creator = await getRegisteredUser(creatorSub);
+    // const token = creator?.pushToken;
     const token = creator?.pushToken;
 
     const { settingsNotifyReactions } = await getUserNotificationSettings(
         creator
-    );
+    ); 
     if (!settingsNotifyReactions) {
         console.log("Creator does not want to receive push notifications"); // is it this type of notif?
         return;
     }
-
     if (!token) {
         console.log("Creator not registered for follow notifications");
         return;

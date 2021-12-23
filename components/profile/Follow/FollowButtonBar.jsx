@@ -61,7 +61,7 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
           creatorSub: creatorSub,
           follower: reelayDBUser,
         });
-        
+
         logEventWithPropertiesAsync('followedCreator', {
             username: reelayDBUser.username,
             creatorName: creator.username,
