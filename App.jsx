@@ -170,7 +170,7 @@ function App() {
                 setCredentials(credentials);
                 setSignedIn(true);
 
-                const myReelayDBUser = await getRegisteredUser(cognitoUser.attributes.sub);
+                const myReelayDBUser = await getRegisteredUser(cognitoUser?.attributes?.sub);
                 setReelayDBUser(myReelayDBUser);
             }
         } catch (error) {

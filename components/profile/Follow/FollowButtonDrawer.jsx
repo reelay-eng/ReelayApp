@@ -21,7 +21,7 @@ export default FollowButtonDrawer = ({
     const { creatorName, creatorSub } = followObj;
 
     const myUsername = cognitoUser.username;
-    const myUserSub = cognitoUser.attributes.sub;
+    const myUserSub = cognitoUser?.attributes?.sub;
 
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
 

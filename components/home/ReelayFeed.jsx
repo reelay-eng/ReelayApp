@@ -123,8 +123,8 @@ export default ReelayFeed = ({ navigation,
     const extendFeed = async () => {
         const page = nextPage.current;
         const fetchedStacks = (feedSource === 'global') 
-            ? await getGlobalFeed({ reqUserSub: cognitoUser.attributes.sub, page })
-            : await getFollowingFeed({ reqUserSub: cognitoUser.attributes.sub, page });
+            ? await getGlobalFeed({ reqUserSub: cognitoUser?.attributes?.sub, page })
+            : await getFollowingFeed({ reqUserSub: cognitoUser?.attributes?.sub, page });
         
         console.log("extending", feedSource, "feed")
 
@@ -205,8 +205,8 @@ export default ReelayFeed = ({ navigation,
         console.log('REFRESHING FEED');     
         setRefreshing(true);   
         const fetchedStacks = (feedSource === 'global') 
-            ? await getGlobalFeed({ reqUserSub: cognitoUser.attributes.sub, page: 0 })
-            : await getFollowingFeed({ reqUserSub: cognitoUser.attributes.sub, page: 0 });
+            ? await getGlobalFeed({ reqUserSub: cognitoUser?.attributes?.sub, page: 0 })
+            : await getFollowingFeed({ reqUserSub: cognitoUser?.attributes?.sub, page: 0 });
 
         setRefreshing(false);
         nextPage.current = 1;

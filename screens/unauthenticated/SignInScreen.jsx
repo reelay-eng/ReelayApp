@@ -160,7 +160,7 @@ export default SignInScreen = ({ navigation, route }) => {
 
                 setCognitoUser(cognitoUser);
                 setUsername(cognitoUser.username);
-                const reelayDBUser = await getRegisteredUser(cognitoUser.attributes.sub);
+                const reelayDBUser = await getRegisteredUser(cognitoUser?.attributes?.sub);
                 setReelayDBUser(reelayDBUser);
                 setSignedIn(true);
                 console.log('Signed in user successfully');
