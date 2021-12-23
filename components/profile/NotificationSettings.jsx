@@ -1,16 +1,26 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Text, View, Switch, Image, Pressable, SafeAreaView } from 'react-native';
-import styled from 'styled-components/native';
+import { View, Switch } from 'react-native';
 
+// Context
+import { FeedContext } from "../../context/FeedContext";
 import { AuthContext } from '../../context/AuthContext';
-import { getMyNotificationSettings, setMyNotificationSettings } from '../../api/NotificationsApi';
-import { Header } from '../../components/global/HeaderWithBackButton';
 
+// API
+import { getMyNotificationSettings, setMyNotificationSettings } from '../../api/NotificationsApi';
+
+// Styling
+import styled from "styled-components/native";
 import * as ReelayText from "../../components/global/Text";
+import { HeaderWithBackButton } from "../global/Headers";
 import ReelayColors from '../../constants/ReelayColors';
 
-export default NotificationSettings = ({navigation}) => {
+export default NotificationSettings = ({ navigation }) => {
     const { cognitoUser } = useContext(AuthContext);
+    const { setTabBarVisible } = useContext(FeedContext);
+    useEffect(() => {
+        setTabBarVisible(false);
+        return () => {setTabBarVisible(true)}
+    })
 
     const ViewContainer = styled(View)`
         width: 100%;
@@ -23,7 +33,7 @@ export default NotificationSettings = ({navigation}) => {
 
     return (
         <ViewContainer>
-            <Header navigation={navigation} text="Notification Settings"/>
+            <HeaderWithBackButton navigation={navigation} text="Notification Settings"/>
             <NotificationsSettingsWrapper cognitoUser={cognitoUser}/>
         </ViewContainer>
     )

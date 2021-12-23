@@ -8,7 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from "../../components/global/Text";
 import { BWButton } from "../../components/global/Buttons";
-import { Header } from "../../components/global/HeaderWithBackButton";
+import { HeaderWithBackButton } from "../../components/global/Headers";
 
 export default VenueSelectScreen = ({ navigation, route }) => {
 
@@ -196,7 +196,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
 		<ScreenOuterContainer>
 			<ScreenInnerContainer>
 				<ScrollView>
-					<Header navigation={navigation} text={`Where did you see it?`} />
+					<HeaderWithBackButton navigation={navigation} text={`Where did you see it?`} />
 					<FlexContainer>
 						<IconOptions />
 						<SkipButton />

@@ -9,7 +9,7 @@ import { Icon } from "react-native-elements";
 import styled from 'styled-components/native';
 import * as ReelayText from "../../components/global/Text";
 import { BWButton } from "../../components/global/Buttons";
-import { Header } from "../../components/global/HeaderWithBackButton";
+import { HeaderWithBackButton } from "../global/Headers";
 
 export const ProfileSettings = ({navigation}) => {
     const ViewContainer = styled(View)`
@@ -42,7 +42,7 @@ export const ProfileSettings = ({navigation}) => {
 
     return (
 		<ViewContainer>
-			<Header navigation={navigation} />
+			<HeaderWithBackButton navigation={navigation} />
 			<SettingsContainer>
 				<TopSettings>
 					<SettingEntry

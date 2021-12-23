@@ -1,15 +1,17 @@
 import React, { useContext, useEffect } from "react";
-import { SafeAreaView } from "react-native";
+import { View, Text, Image, Pressable, SafeAreaView } from "react-native";
 import { FeedContext } from "../../context/FeedContext";
 import styled from "styled-components/native";
-import { Header } from '../../components/global/HeaderWithBackButton';
+import { HeaderWithBackButton } from '../../components/global/Headers';
+import ReelayIcon from '../../assets/icons/reelay-icon.png';
+import * as ReelayText from '../../components/global/Text';
+import ReelayColors from '../../constants/ReelayColors';
 
 export default EditProfileScreen = ({ navigation, route }) => {
     const { setTabBarVisible } = useContext(FeedContext);
     useEffect(() => {
-        console.log('this should do something...');
         setTabBarVisible(false);
-        return setTabBarVisible(true);
+        return () => { setTabBarVisible(true) };
     }, []);
     const EditProfileScreenContainer = styled(SafeAreaView)`
 		background-color: black;
@@ -18,7 +20,45 @@ export default EditProfileScreen = ({ navigation, route }) => {
 	`;
     return (
 		<EditProfileScreenContainer>
-			<Header text="Edit Profile" navigation={navigation} />
+            <HeaderWithBackButton text="Edit Profile" navigation={navigation} />
+            <EditProfileImage />
 		</EditProfileScreenContainer>
 	);
+}
+
+const EditProfileImage = () => {
+    const Container = styled(View)`
+        width: 100%;
+        padding-top: 20px;
+        padding-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `
+    const EditContainer = styled(Pressable)`
+        display: flex;
+        flex-direction: column;
+    `
+    const ProfileImage = styled(Image)`
+		border-radius: 48px;
+		height: 96px;
+		width: 96px;
+        border-width: 2px;
+        border-color: white;
+        margin-bottom: 10px;
+	`;
+    const ProfileText = styled(ReelayText.Body1)`
+        color: ${ReelayColors.reelayBlue};
+        text-align: center;
+    `
+
+    return (
+        <Container>
+            <EditContainer>
+                <ProfileImage source={ReelayIcon} />
+                <ProfileText>Edit Photo</ProfileText>
+            </EditContainer>
+        </Container>
+    )
+
 }

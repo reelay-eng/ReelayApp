@@ -2,9 +2,9 @@ import React from "react";
 import { View, Pressable } from "react-native";
 import { Icon } from "react-native-elements";
 import styled from "styled-components/native";
-import * as ReelayText from "../../components/global/Text";
+import * as ReelayText from "./Text";
 
-export const Header = ({ navigation, text = "Settings" }) => {
+export const HeaderWithBackButton = ({ navigation, text = "Settings" }) => {
 	const HeaderContainer = styled(View)`
 		width: 100%;
 		padding: 20px;
