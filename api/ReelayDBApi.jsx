@@ -427,3 +427,14 @@ export const searchUsers = async (searchText) => {
     }
     return resultGet;
 };
+
+export const updateProfilePic = async (user, profilePictureURI) => {
+	const routePatch = `${REELAY_API_BASE_URL}/users/sub/${user.sub}/profilepic`;
+	const resultPatch = await fetchResults(routePatch, {
+		method: "PATCH",
+        headers: REELAY_API_HEADERS,
+        body: {profilePictureURI}
+	});
+	console.log("Patched user profile picture to: ", profilePictureURI);
+	return resultPatch;
+};
