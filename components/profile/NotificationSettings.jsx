@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { View, Switch } from 'react-native';
 
 // Context
@@ -19,7 +19,9 @@ export default NotificationSettings = ({ navigation }) => {
     const { setTabBarVisible } = useContext(FeedContext);
     useEffect(() => {
         setTabBarVisible(false);
-        return () => {setTabBarVisible(true)}
+        return () => {
+            setTabBarVisible(true)
+        }
     })
 
     const ViewContainer = styled(View)`
@@ -45,6 +47,7 @@ const NotificationsSettingsWrapper = ({ cognitoUser }) => {
     const [notifyPrompts, setNotifyPrompts] = useState(true);
     const [notifyReactions, setNotifyReactions] = useState(true);
     const [notifyTrending, setNotifyTrending] = useState(true);
+    const componentMounted = useRef(true);
 
     const NotificationSettingsContainer = styled(View)`
         width: 90%;
@@ -67,13 +70,19 @@ const NotificationsSettingsWrapper = ({ cognitoUser }) => {
                 settingsNotifyTrending 
             } = await getMyNotificationSettings(cognitoUser);
             
-            setNotifyPrompts(settingsNotifyPrompts);
-            setNotifyReactions(settingsNotifyReactions);
-            setNotifyTrending(settingsNotifyTrending);
-            const shouldSetNotifyAll = (settingsNotifyPrompts && settingsNotifyReactions && settingsNotifyTrending);
-            setNotifyAll(shouldSetNotifyAll);
+           if (componentMounted.current) {  // no react state updates on unmounted components since this is async setter
+                setNotifyPrompts(settingsNotifyPrompts);
+				setNotifyReactions(settingsNotifyReactions);
+				setNotifyTrending(settingsNotifyTrending);
+				const shouldSetNotifyAll =
+					settingsNotifyPrompts && settingsNotifyReactions && settingsNotifyTrending;
+				setNotifyAll(shouldSetNotifyAll);
+            }
        }
-       asyncGetNotificationSettings();
+        asyncGetNotificationSettings();
+        return () => {
+           componentMounted.current = false;
+       }
     }, [])
 
     /* 
