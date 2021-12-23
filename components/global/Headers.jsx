@@ -3,6 +3,8 @@ import { View, Pressable } from "react-native";
 import { Icon } from "react-native-elements";
 import styled from "styled-components/native";
 import * as ReelayText from "./Text";
+import ReelayColors from "../../constants/ReelayColors";
+
 
 export const HeaderWithBackButton = ({ navigation, text = "Settings" }) => {
 	const HeaderContainer = styled(View)`
@@ -30,6 +32,46 @@ export const HeaderWithBackButton = ({ navigation, text = "Settings" }) => {
 				</BackButton>
 				<HeaderText>{text}</HeaderText>
 			</HeaderContainer>
+		</>
+	);
+};
+
+export const HeaderDoneCancel = ({ onDone, onCancel, text = "Settings", withBar=false}) => {
+	const HeaderContainer = styled(View)`
+		width: 100%;
+		padding: 20px;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+	`;
+	const HeaderText = styled(ReelayText.H5Emphasized)`
+		text-align: center;
+		color: white;
+	`;
+	const Divider = styled(View)`
+		border-bottom-width: 1px;
+		border-color: white;
+		opacity: 0.3;
+	`
+	const DoneText = styled(ReelayText.H6Emphasized)`
+		color: ${ReelayColors.reelayBlue};
+	`
+	const CancelText = styled(ReelayText.H6Emphasized)`
+		color: white;
+	`
+	return (
+		<>
+			<HeaderContainer>
+				<Pressable onPress={onCancel}>
+					<CancelText>Cancel</CancelText>
+				</Pressable>
+				<HeaderText>{text}</HeaderText>
+				<Pressable onPress={onDone}>
+					<DoneText>Done</DoneText>
+				</Pressable>
+			</HeaderContainer>
+			{withBar && <Divider />}
 		</>
 	);
 };

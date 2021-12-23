@@ -11,7 +11,6 @@ export default {
 			Authenticated: {
 				screens: {
 					HomeFeedScreen: "HomeFeedScreen",
-					EditProfileScreen: "EditProfileScreen",
 					SelectTitleScreen: "SelectTitleScreen",
 					ReelayCameraScreen: "ReelayCameraScreen",
 					ReelayUploadScreen: "ReelayUploadScreen",

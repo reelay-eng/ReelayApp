@@ -15,7 +15,6 @@ import { FeedContext } from '../context/FeedContext';
 
 import HomeFeedScreen from '../screens/authenticated/HomeFeedScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
-import EditProfileScreen from "../screens/authenticated/EditProfileScreen";
 import ProfileFeedScreen from '../screens/authenticated/ProfileFeedScreen';
 import ProfileSettingsScreen from '../screens/authenticated/ProfileSettingsScreen';
 import NotificationSettingsScreen from '../screens/authenticated/NotificationSettingsScreen';
@@ -314,13 +313,6 @@ const ProfileTabNavigator = () => {
 			<ProfileTabStack.Screen
 				name="MyProfileScreen"
 				component={MyProfileScreen}
-				options={{
-					headerShown: false,
-				}}
-			/>
-			<ProfileTabStack.Screen
-				name="EditProfileScreen"
-				component={EditProfileScreen}
 				options={{
 					headerShown: false,
 				}}

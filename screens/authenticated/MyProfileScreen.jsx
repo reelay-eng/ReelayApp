@@ -1,21 +1,32 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
-import { getStacksByCreator } from '../../api/ReelayDBApi';
 
+// Amplitude
+import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
+
+// API
+import { getStacksByCreator } from '../../api/ReelayDBApi';
+import { getFollowers, getFollowing } from "../../api/ReelayDBApi";
+
+// Components
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
 import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
+import EditProfile from "../../components/profile/EditProfile";
+import { BWButton } from "../../components/global/Buttons";
 
-import { getFollowers, getFollowing } from '../../api/ReelayDBApi';
 
-import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
-import { AuthContext } from '../../context/AuthContext';
+// Context
+import { AuthContext } from "../../context/AuthContext";
+
+// Styling
+
 import styled from 'styled-components/native';
-import { BWButton } from '../../components/global/Buttons';
 
 export default MyProfileScreen = ({ navigation, route }) => {
     const [refreshing, setRefreshing] = useState(false);
+    const [isEditingProfile, setIsEditingProfile] = useState(false);
 	const { 
         cognitoUser, 
         myFollowers, 
@@ -103,7 +114,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 					<BWButton
 						text="Edit Profile"
 						onPress={() => {
-							navigation.push("EditProfileScreen");
+                            setIsEditingProfile(true);
 						}}
 					/>
 				</EditProfileButtonContainer>
@@ -113,6 +124,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     return (
         <ProfileScreenContainer>
+            <EditProfile isEditingProfile={isEditingProfile} setIsEditingProfile={setIsEditingProfile}/>
             <ProfileTopBar
                 creator={cognitoUser}
                 navigation={navigation}
