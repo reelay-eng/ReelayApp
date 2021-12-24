@@ -74,7 +74,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
     const ModalContainer = styled(View)`
         position: absolute;
     `
-    const { cognitoUser } = useContext(AuthContext);
+    const { cognitoUser, reelayDBUser } = useContext(AuthContext);
     const { commentsVisible, setCommentsVisible } = useContext(FeedContext);
     const closeDrawer = () => {
         console.log('Closing drawer');
@@ -168,7 +168,13 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
     const Comment = ({ comment }) => {
         const [commentLiked, setCommentLiked] = useState(false); // alter to make default state the database value for whether you've liked that comment yet or not.
 		const [numCommentLikes, setNumCommentLikes] = useState(0); // similarly alter to make default state the database value for the number of comment likes currently
-		const CommentItemContainer = styled(Pressable)`
+        console.log("COMMENT: ", comment);  
+        const commentImageSource =
+			comment?.authorProfilePicURI !== undefined && comment?.authorProfilePicURI !== "none"
+				? { uri: comment.authorProfilePicURI }
+                : ReelayIcon;
+        
+        const CommentItemContainer = styled(Pressable)`
 			padding-left: 16px;
 			padding-right: 16px;
 			padding-bottom: 13px;
@@ -236,7 +242,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 		return (
             <CommentItemContainer onPress={onPress}>
 				<LeftCommentIconContainer>
-					<CommentProfilePhoto source={ReelayIcon} />
+					<CommentProfilePhoto source={commentImageSource} />
 				</LeftCommentIconContainer>
 				<CommentTextContainer>
 					<UsernameText>{`@${username}`}</UsernameText>
@@ -260,7 +266,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
                         </RightCommentIconContainer> */}
 			</CommentItemContainer>
 		);
-	};;
+	};
 
 
     const CommentBox = () => {
@@ -322,6 +328,10 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         const [commentText, setCommentText] = useState('');
         const [maxDrawerHeight, setMaxDrawerHeight] = useState(height);
         const scrollViewRef = useRef();
+        const authorImageSource =
+            (reelayDBUser?.profilePictureURI !== undefined && reelayDBUser?.profilePictureURI !== "none")
+                ? { uri: reelayDBUser.profilePictureURI }
+                : ReelayIcon;
 
         const keyboardWillShow = async (e) => {
             const keyboardHeight = e.endCoordinates.height;
@@ -339,7 +349,8 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         const onCommentPost = async () => {
             const commentBody = {
                 authorName: cognitoUser.username,
-                authorSub: cognitoUser.attributes.sub,        
+                authorSub: cognitoUser.attributes.sub,
+                authorProfilePicURI: reelayDBUser.profilePictureURI,
                 content: commentText,        
                 creatorName: reelay.creator.username,
                 creatorSub: reelay.creator.sub,
@@ -347,6 +358,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
                 reelaySub: reelay.sub,
                 visibility: FEED_VISIBILITY,
             }
+            console.log(commentBody);
             reelay.comments.push(commentBody);
 
 			const postResult = await postCommentToDB(commentBody, reelay.sub);
@@ -395,7 +407,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 				{/* Setting up TextInput as a styled component forces the keyboard to disappear... */}
 				<View style={BlackBoxContainerStyle}>
 					<CommentProfilePhotoContainer>
-						<CommentProfilePhoto source={ReelayIcon} />
+						<CommentProfilePhoto source={authorImageSource} />
 					</CommentProfilePhotoContainer>
 					<View style={TextBoxStyle}>
 						<TextInput
