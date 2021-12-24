@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, Alert } from "react-native";
 
 // Expo imports
@@ -82,9 +82,14 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
 
 const EditProfileImage = () => {
 	const [isEditingPhoto, setIsEditingPhoto] = useState(false);
-    
-    const startEditPhoto = () => {
-        setIsEditingPhoto(true);
+	const [isUploading, setIsUploading] = useState(false);
+	const { reelayDBUser } = useContext(AuthContext);
+
+	const profilePictureURI = reelayDBUser?.profilePictureURI;
+	
+	
+	const startEditPhoto = () => {
+        if (!isUploading) setIsEditingPhoto(true);
     }
 	const Container = styled(View)`
 		width: 100%;
@@ -108,24 +113,31 @@ const EditProfileImage = () => {
 		margin-bottom: 5px;
 	`;
 	const ProfileText = styled(ReelayText.Body2Bold)`
-		color: rgba(0, 165, 253, 1);
+		color: ${({isUploading}) => isUploading ? "#4D4D4D" : "rgba(0, 165, 253, 1)"};
 		text-align: center;
-        padding: 5px;
+		padding: 5px;
 	`;
-    
 
+	const profileImageSource =
+		profilePictureURI && profilePictureURI !== undefined && profilePictureURI !== "none"
+			? { uri: profilePictureURI }
+			: ReelayIcon;
+    
     return (
 		<Container>
 			<EditContainer>
 				<Pressable onPress={startEditPhoto}>
-					<ProfileImage source={ReelayIcon} />
+					<ProfileImage source={profileImageSource} />
 				</Pressable>
 				<Pressable onPress={startEditPhoto}>
-					<ProfileText>Change Profile Photo</ProfileText>
+					<ProfileText isUploading={isUploading}>
+						{isUploading ? "Uploading..." : "Change Profile Photo"}
+					</ProfileText>
 				</Pressable>
 			</EditContainer>
 			<EditingPhotoMenuModal
 				visible={isEditingPhoto}
+				setIsUploading={setIsUploading}
 				close={() => {
 					setIsEditingPhoto(false);
 				}}
@@ -146,14 +158,11 @@ const REELAY_API_HEADERS = {
 	reelayapikey: REELAY_API_KEY,
 };
 
-const EditingPhotoMenuModal = ({ visible, close }) => {
+const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 
-    const [image, setImage] = useState(null);
-	const [percentage, setPercentage] = useState(0);
 	const { cognitoUser } = useContext(AuthContext);
 	const { reelayDBUser, setReelayDBUser } = useContext(AuthContext);
 	const { s3Client } = useContext(UploadContext);
-	console.log(reelayDBUser);
 
 	const takePhoto = async () => {
 		const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
@@ -185,24 +194,22 @@ const EditingPhotoMenuModal = ({ visible, close }) => {
 
 	handleImagePicked = async (pickerResult) => {
         try {
-            console.log(pickerResult);
 			if (pickerResult.cancelled) {
 				return;
 			} else {
-				setPercentage(0);
+				setIsUploading(true);
+				close();
 				const { cloudfrontPhotoURI } = await uploadLocalImageToS3(pickerResult.uri);
-				setPercentage(0.5);
 				const patchResult = await updateProfilePic(cognitoUser.attributes.sub, cloudfrontPhotoURI);
 				console.log("Patched Profile Image: ", patchResult);
-				setPercentage(0.7);
 				let newReelayDBUser = reelayDBUser;
 				newReelayDBUser.profilePictureURI = cloudfrontPhotoURI;
 				setReelayDBUser(newReelayDBUser);
-				setPercentage(1.0);
+				setIsUploading(false);
 			}
 		} catch (e) {
-			console.log(e);
-			setPercentage(0);
+			console.log("Upload Profile Picture Error: ", e);
+			setIsUploading(false);
 			alert("Profile photo upload failed. \nPlease try again.");
 		}
 	};

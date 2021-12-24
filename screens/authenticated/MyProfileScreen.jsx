@@ -131,34 +131,30 @@ export default MyProfileScreen = ({ navigation, route }) => {
     }
 
     return (
-        <ProfileScreenContainer>
-            <EditProfile isEditingProfile={isEditingProfile} setIsEditingProfile={setIsEditingProfile}/>
-            <ProfileTopBar
-                creator={cognitoUser}
-                navigation={navigation}
-                atProfileBase={true}
-            />
-            <ProfileScrollView refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }>
-                <ProfileHeader profilePictureURI={reelayDBUser.profilePictureURI}/>
-                <EditProfileButton />
-                <ProfileStatsBar
-                    navigation={navigation}
-                    reelayCount={reelayCount}
-                    creator={{
-                        username: cognitoUser.username,
-                        sub: cognitoUser.attributes.sub,
-                    }}
-                    followers={myFollowers}
-                    following={myFollowing}
-                    prevScreen={'MyProfileScreen'}
-                />
-                <ProfilePosterGrid
-                    creatorStacks={myCreatorStacks}
-                    navigation={navigation}
-                />
-            </ProfileScrollView>
-        </ProfileScreenContainer>
-    );
+		<ProfileScreenContainer>
+			<EditProfile
+				isEditingProfile={isEditingProfile}
+				setIsEditingProfile={setIsEditingProfile}
+			/>
+			<ProfileTopBar creator={cognitoUser} navigation={navigation} atProfileBase={true} />
+			<ProfileScrollView
+				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+			>
+				<ProfileHeader profilePictureURI={reelayDBUser.profilePictureURI} />
+				<EditProfileButton />
+				<ProfileStatsBar
+					navigation={navigation}
+					reelayCount={reelayCount}
+					creator={{
+						username: cognitoUser.username,
+						sub: cognitoUser.attributes.sub,
+					}}
+					followers={myFollowers}
+					following={myFollowing}
+					prevScreen={"MyProfileScreen"}
+				/>
+				<ProfilePosterGrid creatorStacks={myCreatorStacks} navigation={navigation} />
+			</ProfileScrollView>
+		</ProfileScreenContainer>
+	);
 }
