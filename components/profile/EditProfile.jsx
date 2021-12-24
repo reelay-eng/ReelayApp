@@ -1,13 +1,36 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, Alert } from "react-native";
+
+// Expo imports
+import * as ImagePicker from "expo-image-picker";
+import { EncodingType, readAsStringAsync } from "expo-file-system";
+import Constants from 'expo-constants';
+
+// Upload imports
+import { Buffer } from "buffer";
+import {
+	PutObjectCommand,
+} from "@aws-sdk/client-s3";
+
+// DB
+import { updateProfilePic } from "../../api/ReelayDBApi";
+
+// Context
 import { FeedContext } from "../../context/FeedContext";
+import { AuthContext } from "../../context/AuthContext";
+import { UploadContext } from "../../context/UploadContext";
+
+// Styling
 import styled from "styled-components/native";
+import ReelayColors from "../../constants/ReelayColors";
+
 import ReelayIcon from "../../assets/icons/reelay-icon.png";
 import * as ReelayText from "../global/Text";
-import ReelayColors from "../../constants/ReelayColors";
 import { HeaderDoneCancel } from '../global/Headers';
-import Constants from "expo-constants";
-import * as ImagePicker from "expo-image-picker";
+
+
+
+
 
 const { height, width } = Dimensions.get("window");
 
@@ -58,7 +81,7 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
 };
 
 const EditProfileImage = () => {
-    const [isEditingPhoto, setIsEditingPhoto] = useState(false);
+	const [isEditingPhoto, setIsEditingPhoto] = useState(false);
     
     const startEditPhoto = () => {
         setIsEditingPhoto(true);
@@ -111,17 +134,33 @@ const EditProfileImage = () => {
 	);
 };
 
+const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
+const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
+const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
+const REELAY_API_KEY = Constants.manifest.extra.reelayApiKey;
+
+const REELAY_API_HEADERS = {
+	Accept: "application/json",
+	"Accept-encoding": "gzip, deflate",
+	"Content-Type": "application/json",
+	reelayapikey: REELAY_API_KEY,
+};
+
 const EditingPhotoMenuModal = ({ visible, close }) => {
 
     const [image, setImage] = useState(null);
 	const [percentage, setPercentage] = useState(0);
+	const { cognitoUser } = useContext(AuthContext);
+	const { reelayDBUser, setReelayDBUser } = useContext(AuthContext);
+	const { s3Client } = useContext(UploadContext);
+	console.log(reelayDBUser);
 
-    const takePhoto = async () => {
-        const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
-        if (cameraStatus.status !== "granted") {
-            alert("Please enable your camera permissions to take a photo.");
-            return;
-        }
+	const takePhoto = async () => {
+		const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();
+		if (cameraStatus.status !== "granted") {
+			alert("Please enable your camera permissions to take a photo.");
+			return;
+		}
 		let result = await ImagePicker.launchCameraAsync({
 			mediaTypes: "Images",
 			aspect: [4, 3],
@@ -129,12 +168,12 @@ const EditingPhotoMenuModal = ({ visible, close }) => {
 		handleImagePicked(result);
 	};
 
-    const choosePhoto = async () => {
+	const choosePhoto = async () => {
 		const cameraRollStatus = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (cameraRollStatus.status !== "granted") {
-            alert("Please enable your camera roll permissions to select a photo.");
-            return;
-        }
+		if (cameraRollStatus.status !== "granted") {
+			alert("Please enable your camera roll permissions to select a photo.");
+			return;
+		}
 		let result = await ImagePicker.launchImageLibraryAsync({
 			mediaTypes: "Images",
 			aspect: [4, 3],
@@ -142,29 +181,57 @@ const EditingPhotoMenuModal = ({ visible, close }) => {
 		});
 
 		handleImagePicked(result);
-	};;
+	};
 
 	handleImagePicked = async (pickerResult) => {
         try {
             console.log(pickerResult);
 			if (pickerResult.cancelled) {
-				alert("Upload cancelled");
 				return;
 			} else {
 				setPercentage(0);
-                const img = await fetchImageFromUri(pickerResult.uri);
+				const { cloudfrontPhotoURI } = await uploadLocalImageToS3(pickerResult.uri);
+				setPercentage(0.5);
+				const patchResult = await updateProfilePic(cognitoUser.attributes.sub, cloudfrontPhotoURI);
+				console.log("Patched Profile Image: ", patchResult);
+				setPercentage(0.7);
+				let newReelayDBUser = reelayDBUser;
+				newReelayDBUser.profilePictureURI = cloudfrontPhotoURI;
+				setReelayDBUser(newReelayDBUser);
+				setPercentage(1.0);
 			}
 		} catch (e) {
 			console.log(e);
-			alert("Upload failed");
+			setPercentage(0);
+			alert("Profile photo upload failed. \nPlease try again.");
 		}
 	};
 
-	const fetchImageFromUri = async (uri) => {
-		const response = await fetch(uri);
-		const blob = await response.blob();
-		return blob;
-    };
+	const uploadLocalImageToS3 = async (photoURI) => {
+		const uploadTimestamp = Date.now();
+		const photoS3Key = `profilepic-${cognitoUser.attributes.sub}-${uploadTimestamp}.jpg`;
+		const s3UploadResult = await uploadProfilePicToS3(photoURI, `public/${photoS3Key}`);
+		console.log("S3 Profile Picture Upload Result: ", s3UploadResult);
+		const cloudfrontPhotoURI = `${CLOUDFRONT_BASE_URL}/public/${photoS3Key}`;
+		return {
+			...s3UploadResult,
+			"cloudfrontPhotoURI": cloudfrontPhotoURI,
+		}
+	};
+
+	const uploadProfilePicToS3 = async (photoURI, photoS3Key) => {
+		const photoStr = await readAsStringAsync(photoURI, { encoding: EncodingType.Base64 });
+		const photoBuffer = Buffer.from(photoStr, "base64");
+		const uploadResult = await s3Client.send(
+			new PutObjectCommand({
+				Bucket: S3_UPLOAD_BUCKET,
+				Key: photoS3Key,
+				ContentType: "image/jpg",
+				Body: photoBuffer,
+			})
+		);
+		return uploadResult;
+	};
     
     const ModalContainer = styled(View)`
 		position: absolute;

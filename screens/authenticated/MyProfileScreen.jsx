@@ -19,6 +19,7 @@ import { BWButton } from "../../components/global/Buttons";
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
+import { FeedContext } from "../../context/FeedContext";
 
 // Styling
 
@@ -36,6 +37,12 @@ export default MyProfileScreen = ({ navigation, route }) => {
         setMyFollowing,
         setMyCreatorStacks,
     } = useContext(AuthContext); 
+
+    const { setTabBarVisible } = useContext(FeedContext);
+
+    useEffect(() => {
+        setTabBarVisible(true);
+    })
 
     if (!cognitoUser) {
         return (
