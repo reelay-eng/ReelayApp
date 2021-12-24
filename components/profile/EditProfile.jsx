@@ -269,7 +269,7 @@ const EditingPhotoMenuModal = ({ visible, close }) => {
         )
     }
     
-    const MenuOptionText = styled(ReelayText.Body1)`
+    const MenuOptionText = styled(ReelayText.H6)`
         color: ${ReelayColors.reelayBlue};
         text-align: center;
     `
