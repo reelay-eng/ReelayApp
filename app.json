@@ -52,7 +52,13 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "sentry-expo"
+      "sentry-expo",
+      [
+			"expo-image-picker",
+			{
+				"photosPermission": "Reelay accesses your photos to help you personalize your posts and profile."
+			}
+		]
     ]
   }
 }
