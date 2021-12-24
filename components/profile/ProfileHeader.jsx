@@ -1,8 +1,9 @@
 import React from 'react';
 import { Image, Pressable, SafeAreaView } from 'react-native';
 import styled from 'styled-components/native';
+import ReelayIcon from '../../assets/icons/reelay-icon.png';
 
-export default ProfileHeader = () => {
+export default ProfileHeader = ({profilePictureURI = null}) => {
     const ProfileHeaderContainer = styled(SafeAreaView)`
 		align-items: center;
 		margin-top: 16px;
@@ -22,10 +23,14 @@ export default ProfileHeader = () => {
         height: 100px;
         width: 100px;
     `
+    const profileImageSource =
+		profilePictureURI && profilePictureURI !== undefined && profilePictureURI !== "none"
+			? { uri: profilePictureURI }
+            : ReelayIcon;
     return (
         <ProfileHeaderContainer>
             <ProfilePictureContainer>
-                <ProfilePicture source={require('../../assets/icons/reelay-icon.png')} />
+                <ProfilePicture source={profileImageSource} />
             </ProfilePictureContainer>
         </ProfileHeaderContainer>
     );

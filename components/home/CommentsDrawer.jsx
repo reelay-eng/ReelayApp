@@ -168,11 +168,10 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
     const Comment = ({ comment }) => {
         const [commentLiked, setCommentLiked] = useState(false); // alter to make default state the database value for whether you've liked that comment yet or not.
 		const [numCommentLikes, setNumCommentLikes] = useState(0); // similarly alter to make default state the database value for the number of comment likes currently
-        console.log("COMMENT: ", comment);  
         const commentImageSource =
 			comment?.authorProfilePicURI !== undefined && comment?.authorProfilePicURI !== "none"
 				? { uri: comment.authorProfilePicURI }
-                : ReelayIcon;
+                : ReelayIcon; // this is a template for maybe how it should look, but currently the database doesn't store the authorProfilePicURIs on each comment. 
         
         const CommentItemContainer = styled(Pressable)`
 			padding-left: 16px;

@@ -33,6 +33,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
         myFollowers, 
         myFollowing,
         myCreatorStacks,
+        reelayDBUser,
         setMyFollowers, 
         setMyFollowing,
         setMyCreatorStacks,
@@ -140,7 +141,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
             <ProfileScrollView refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
-                <ProfileHeader />
+                <ProfileHeader profilePictureURI={reelayDBUser.profilePictureURI}/>
                 <EditProfileButton />
                 <ProfileStatsBar
                     navigation={navigation}
