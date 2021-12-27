@@ -81,7 +81,7 @@ export default FeedSourceSelectorDrawer = ({ feedSource, setFeedSource, drawerOp
             closeDrawer();
             logEventWithPropertiesAsync('setFeedFollowing', {
                 username: cognitoUser.username,
-                userSub: cognitoUser.attributes.sub,
+                userSub: cognitoUser?.attributes?.sub,
             });    
         }
 
@@ -101,7 +101,7 @@ export default FeedSourceSelectorDrawer = ({ feedSource, setFeedSource, drawerOp
             closeDrawer();
             logEventWithPropertiesAsync('setFeedGlobal', {
                 username: cognitoUser.username,
-                userSub: cognitoUser.attributes.sub,
+                userSub: cognitoUser?.attributes?.sub,
             });    
         }
 

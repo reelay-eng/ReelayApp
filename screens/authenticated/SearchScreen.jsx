@@ -11,6 +11,8 @@ import { ActionButton, PassiveButton, ToggleSelector } from '../../components/gl
 import { searchTitles, searchUsers } from "../../api/ReelayDBApi";
 import styled from "styled-components/native";
 
+import FollowButtonDrawer from "../../components/profile/Follow/FollowButtonDrawer";
+
 const MarginBelowLine = styled(View)`
     height: 30px;
 `
@@ -44,7 +46,11 @@ export default SearchScreen = ({ navigation }) => {
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [selectedType, setSelectedType] = useState("Film");
+    const [creatorFollowers, setCreatorFollowers] = useState([]);
     const updateCounter = useRef(0);
+
+    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [drawerFollowObj, setDrawerFollowObj] = useState(null);
 
     useEffect(() => {
         updateCounter.current += 1;
@@ -54,6 +60,14 @@ export default SearchScreen = ({ navigation }) => {
     useEffect(() => {
         setLoading(false);
     }, [searchResults]);
+
+    useEffect(() => {
+
+    }, [])
+
+    const setCreatorFollower = async () => {
+        
+    }
 
     const updateSearch = async (newSearchText, searchType, counter) => {
         if (!newSearchText || newSearchText === undefined || newSearchText === '') {            
@@ -127,28 +141,57 @@ export default SearchScreen = ({ navigation }) => {
 
 
     return (
-        <SearchScreenContainer>
-            <TopBarContainer>
-                <BackButtonContainer>
-                    <BackButton navigation={navigation} />
-                </BackButtonContainer>
-                <SelectorBarContainer>
-                    <SearchTypeSelector type="Film" />
-                    <SearchTypeSelector type="TV" />
-                    <SearchTypeSelector type="Users" />
-                </SelectorBarContainer>
-            </TopBarContainer>
-            <SearchField
-                searchText={searchText}
-                updateSearchText={updateSearchText}
-                placeholderText={`Search for ${selectedType === "Film" ? "films" : (selectedType === "TV" ? "TV shows" : "users")}`}
-            />
-            { selectedType !== "Users" && !loading && 
-                <TitleSearchResults navigation={navigation} searchResults={searchResults} source={'search'} />
-            }
-            { selectedType === "Users" && !loading &&
-                <UserSearchResults navigation={navigation} searchResults={searchResults} source={'search'} />
-            }
-        </SearchScreenContainer>
+      <SearchScreenContainer>
+        <TopBarContainer>
+          <BackButtonContainer>
+            <BackButton navigation={navigation} />
+          </BackButtonContainer>
+          <SelectorBarContainer>
+            <SearchTypeSelector type="Film" />
+            <SearchTypeSelector type="TV" />
+            <SearchTypeSelector type="Users" />
+          </SelectorBarContainer>
+        </TopBarContainer>
+        <SearchField
+          searchText={searchText}
+          updateSearchText={updateSearchText}
+          placeholderText={`Search for ${
+            selectedType === "Film"
+              ? "films"
+              : selectedType === "TV"
+              ? "TV shows"
+              : "users"
+          }`}
+        />
+        {selectedType !== "Users" && !loading && (
+          <TitleSearchResults
+            navigation={navigation}
+            searchResults={searchResults}
+            source={"search"}
+          />
+        )}
+        {selectedType === "Users" && !loading && (
+          <UserSearchResults
+            navigation={navigation}
+            searchResults={searchResults}
+            source={"search"}
+            setCreatorFollowers={setCreatorFollowers}
+            setDrawerFollowObj={setDrawerFollowObj}
+            setDrawerOpen={setDrawerOpen}
+          />
+        )}
+
+        {drawerOpen && (
+          <FollowButtonDrawer
+            creatorFollowers={creatorFollowers}
+            setCreatorFollowers={setCreatorFollowers}
+            drawerOpen={drawerOpen}
+            setDrawerOpen={setDrawerOpen}
+            followObj={drawerFollowObj}
+            followType={"waht to do"}
+            sourceScreen={"UserFollowScreen"}
+          />
+        )}
+      </SearchScreenContainer>
     );
 };

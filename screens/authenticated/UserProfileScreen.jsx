@@ -67,7 +67,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
         });    
     }, []);
 
-    const isMyProfile = (creatorSub === cognitoUser.attributes.sub);
+    const isMyProfile = (creatorSub === cognitoUser?.attributes?.sub);
 
     const sortReelays = (reelay1, reelay2) => reelay2.postedDateTime - reelay1.postedDateTime;
     const sortStacks = (stack1, stack2) => stack2[0].postedDateTime - stack1[0].postedDateTime;

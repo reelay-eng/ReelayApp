@@ -116,9 +116,9 @@ const Logout = () => {
             const signOutResult = await Auth.signOut();
             setSignedIn(false);
             console.log(signOutResult);
-            setCognitoUser({});
-            setSession({});
-            setCredentials({});
+            // setCognitoUser({});
+            // setSession({});
+            // setCredentials({});
         } catch (error) {
             console.log(error);
         }

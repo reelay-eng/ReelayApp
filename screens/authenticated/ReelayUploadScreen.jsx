@@ -239,7 +239,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // but a collision is less than a one in a quadrillion chance
 
             const reelayDBBody = {
-                creatorSub: cognitoUser.attributes.sub,
+                creatorSub: cognitoUser?.attributes?.sub,
                 creatorName: cognitoUser.username,
                 datastoreSub: uuidv4(), 
                 isMovie: titleObj.isMovie,
@@ -264,7 +264,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
             Amplitude.logEventWithPropertiesAsync('publishReelayComplete', {
                 username: cognitoUser.username,
-                userSub: cognitoUser.attributes.sub,
+                userSub: cognitoUser?.attributes?.sub,
                 title: titleObj.display,
             });
 

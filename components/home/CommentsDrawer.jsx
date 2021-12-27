@@ -339,7 +339,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         const onCommentPost = async () => {
             const commentBody = {
                 authorName: cognitoUser.username,
-                authorSub: cognitoUser.attributes.sub,        
+                authorSub: cognitoUser?.attributes?.sub,        
                 content: commentText,        
                 creatorName: reelay.creator.username,
                 creatorSub: reelay.creator.sub,

@@ -31,7 +31,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
                 navigation={navigation} />
         );
     }
-    const userSub = cognitoUser.attributes.sub;
+    const userSub = cognitoUser?.attributes?.sub;
 
     const ProfileScreenContainer = styled(SafeAreaView)`
         background-color: black;
@@ -98,7 +98,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
                     reelayCount={reelayCount}
                     creator={{
                         username: cognitoUser.username,
-                        sub: cognitoUser.attributes.sub,
+                        sub: cognitoUser?.attributes?.sub,
                     }}
                     followers={myFollowers}
                     following={myFollowing}

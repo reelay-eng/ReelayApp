@@ -26,7 +26,6 @@ export default function FeedVideoPlayer({
 	const { overlayVisible, paused } = useContext(FeedContext);
 	
 	const shouldPlay = viewable && focused && !paused && !overlayVisible;
-	if (shouldPlay) console.log('This one ^^ should play');
 
 	const _handleVideoRef = (component) => {
 		const playbackObject = component;

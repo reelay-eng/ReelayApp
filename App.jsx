@@ -170,7 +170,7 @@ function App() {
                 setCredentials(credentials);
                 setSignedIn(true);
 
-                const myReelayDBUser = await getRegisteredUser(cognitoUser.attributes.sub);
+                const myReelayDBUser = await getRegisteredUser(cognitoUser?.attributes?.sub);
                 setReelayDBUser(myReelayDBUser);
             }
         } catch (error) {
@@ -205,8 +205,10 @@ function App() {
                 showErrorToast(
                     "We couldn't register your device for push notifications. Please contact the Reelay team."
                 );
+                console.log('REGISTERED USER ERROR: ', registeredUser.error);
                 Amplitude.logEventWithPropertiesAsync('registerUserError', {
-                    username: cognitoUser.username
+                    username: cognitoUser.username,
+                    error: registeredUser.error,
                 });
                 return;
             }
