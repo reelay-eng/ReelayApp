@@ -2,8 +2,8 @@
   "scripts": {
     "setup": "yarn install && cd ios && pod install && cd .. && amplify pull",
     "start": "export NODE_ENV='production' && expo start",
-    "dev": "export NODE_ENV='development' && expo start",
-    "staging": "export NODE_ENV='staging' && expo start",
+    "local": "export NODE_ENV='development' && expo start",
+    "cloud": "export NODE_ENV='staging' && expo start",
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "web": "expo start --web",

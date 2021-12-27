@@ -64,22 +64,21 @@ export default ReelayFeed = ({ navigation,
     const [globalStackList, setGlobalStackList] = useState([]);
     const [followingStackList, setFollowingStackList] = useState([]);
     const [stackCounter, setStackCounter] = useState(0);
-
     const [tabPressCounter, setTabPressCounter] = useState(0);
 
-    var currStackList = (feedSource === 'global') ? globalStackList : followingStackList;
+    const currStackList = (feedSource === 'global') ? globalStackList : followingStackList;
+    const feedLoaded = (currStackList && currStackList.length > 0);
 
     useEffect(() => {
         loadFollowingFeed();
         setFeedSource('global');
-        console.log("what feed to load...", feedSource)
         loadGlobalFeed();
     }, [navigation]);
 
     const loadFollowingFeed = async () => {
         console.log("loading following feed....");
         const stackEmpty = !currStackList.length;
-        if (!stackEmpty && !forceRefresh) {
+        if (stackEmpty || forceRefresh) {
             console.log("following feed already loaded");
             return;
         }
@@ -91,7 +90,7 @@ export default ReelayFeed = ({ navigation,
     const loadGlobalFeed = async () => {
         console.log("loading", feedSource, " feed....");
         const stackEmpty = !currStackList.length;
-        if (!stackEmpty && !forceRefresh) {
+        if (stackEmpty || forceRefresh) {
           console.log("feed already loaded");
           return;
         }
@@ -100,15 +99,17 @@ export default ReelayFeed = ({ navigation,
 
     useEffect(() => {
         // show the other feed
-        currStackList =
-            feedSource === "global" ? globalStackList : followingStackList;
+        // currStackList = (feedSource === 'global') ? globalStackList : followingStackList;
+        // feedLoaded = currStackList?.length;
         // display currStackList
         const stackEmpty = !currStackList.length;
-        if (!stackEmpty && !forceRefresh) {
-          console.log("feed already loaded");
-          return;
+        // if (!stackEmpty && !forceRefresh) {
+        //   console.log("feed already loaded");
+        //   return;
+        // }
+        if (stackEmpty || forceRefresh) {
+            extendFeed();
         }
-        extendFeed();
     }, [feedSource]);
 
     useFocusEffect(() => {
@@ -126,15 +127,15 @@ export default ReelayFeed = ({ navigation,
             ? await getGlobalFeed({ reqUserSub: cognitoUser?.attributes?.sub, page })
             : await getFollowingFeed({ reqUserSub: cognitoUser?.attributes?.sub, page });
         
-        console.log("extending", feedSource, "feed")
+        if (!fetchedStacks?.length) {
+            return [];
+        }
 
         const newStackList = [...currStackList, ...fetchedStacks];
         nextPage.current = page + 1;
-        console.log(nextPage)
-        if (feedSource === "global") {
+        if (feedSource === 'global') {
             setGlobalStackList(newStackList)
-        }
-        else {
+        } else {
             setFollowingStackList(newStackList)
         }
 
@@ -149,7 +150,6 @@ export default ReelayFeed = ({ navigation,
         }
     }
 
-    // does this work ?
     const onDeleteReelay = async (reelay) => {
         // todo: this should probably be a try/catch
         const deleteSuccess = deleteReelay(reelay);
@@ -188,8 +188,6 @@ export default ReelayFeed = ({ navigation,
         if (feedPosition === 0) {
             refreshFeed();
         } else {
-            console.log('feed positioning to 0');
-            // feedPager.current.setPage(0);
             if (feedSource === "global") {
                 setGlobalFeedPosition(0);
             } else {
@@ -218,8 +216,6 @@ export default ReelayFeed = ({ navigation,
         // the user is at the top of the feed
         // but the message is at the bottom of the screen
         showMessageToast('You\'re at the top', { position: 'bottom' });
-        // console.log(feedSource, altFeedPosition);
-        // await scrollToIndex(altFeedPosition);
     }
     
 
@@ -230,10 +226,6 @@ export default ReelayFeed = ({ navigation,
 
         const stack = item;
         const stackViewable = (index === feedPosition);
-
-        // console.log(`Rendering stack for ${stack[0].title.display}`);
-        // console.log(`index: ${index} feed position: ${feedPosition}, viewable? ${stackViewable}`);
-        // console.log(feedSource, feedPosition, altFeedPosition)
 
         return (
             <ReelayStack 
@@ -268,15 +260,14 @@ export default ReelayFeed = ({ navigation,
                 setGlobalFeedPosition(nextFeedPosition);
             } else {
                 setFollowingFeedPosition(nextFeedPosition);
-                console.log("is this being hit")
             }
         }
     }
 
     return (
       <ReelayFeedContainer>
-        {currStackList.length < 1 && <ActivityIndicator />}
-        {currStackList.length >= 1 && feedSource === "global" && (
+        { !feedLoaded && <ActivityIndicator />}
+        { feedLoaded && feedSource === "global" && (
           <FlatList
             data={globalStackList}
             getItemLayout={getItemLayout}
@@ -301,7 +292,7 @@ export default ReelayFeed = ({ navigation,
             windowSize={3}
           />
         )}
-        {currStackList.length >= 1 && feedSource === "following" && (
+        { feedLoaded && feedSource === "following" && (
           <FlatList
             data={followingStackList}
             getItemLayout={getItemLayout}
@@ -326,7 +317,7 @@ export default ReelayFeed = ({ navigation,
             windowSize={3}
           />
         )}
-        {overlayVisible && (
+        { overlayVisible && (
           <FeedOverlay
             navigation={navigation}
             onDeleteReelay={onDeleteReelay}
@@ -338,7 +329,7 @@ export default ReelayFeed = ({ navigation,
           drawerOpen={drawerOpen}
           setDrawerOpen={setDrawerOpen}
         />
-        {drawerOpen && (
+        { drawerOpen && (
           <FeedSourceSelectorDrawer
             feedSource={feedSource}
             setFeedSource={setFeedSource}
