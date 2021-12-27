@@ -161,7 +161,6 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
 export const sendFollowNotification = async ({ creatorSub, follower }) => {
     console.log('follower', follower)
     const creator = await getRegisteredUser(creatorSub);
-    // const token = creator?.pushToken;
     const token = creator?.pushToken;
 
     const { settingsNotifyReactions } = await getUserNotificationSettings(
@@ -177,9 +176,6 @@ export const sendFollowNotification = async ({ creatorSub, follower }) => {
     }
 
     const title = 'Reelay';
-    // const body = reelay.title.releaseYear
-    //     ? `${reelay.title.display} (${reelay.title.releaseYear})`
-    //     : `${reelay.title.display}`;
     const body = `${follower.username} followed you!`;
     const data = {
         action: "openUserProfileScreen",

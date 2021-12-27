@@ -73,7 +73,6 @@ export default UserSearchResultItem = ({
 
     const { reelayDBUser, myFollowing, setMyFollowing } = useContext(AuthContext);
 
-    // username
     const username = userObject.username;
     const userSub = userObject.sub;
     const profilePictureURI = userObject.profilePictureURI;
@@ -86,11 +85,7 @@ export default UserSearchResultItem = ({
         return userObj.creatorSub === userSub;
     };
 
-    // check if already following, make it WORKKKK
     const alreadyFollowing = myFollowing.find(findFollowUser);
-
-    // myFollowing.find(findFollowUser);
-
     const myUserSub = reelayDBUser.sub;
     const isMyProfile = myUserSub === userSub;
 
