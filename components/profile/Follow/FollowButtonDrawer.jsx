@@ -19,8 +19,6 @@ export default FollowButtonDrawer = ({
 }) => {
     const { cognitoUser, myFollowing, setMyFollowing } = useContext(AuthContext);
     const { creatorName, creatorSub } = followObj;
-    
-    console.log('creator FOllowers ', creatorFollowers);
 
     const myUsername = cognitoUser.username;
     const myUserSub = cognitoUser?.attributes?.sub;

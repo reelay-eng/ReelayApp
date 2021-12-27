@@ -87,7 +87,6 @@ export default UserSearchResultItem = ({
     };
 
     // check if already following, make it WORKKKK
-    console.log(myFollowing.find(findFollowUser));
     const alreadyFollowing = myFollowing.find(findFollowUser);
 
     // myFollowing.find(findFollowUser);

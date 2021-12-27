@@ -4,8 +4,6 @@ import { getRegisteredUser, getUserByUsername, getMostRecentReelaysByTitle } fro
 import { fetchResults } from './fetchResults';
 import * as Amplitude from 'expo-analytics-amplitude';
 
-import { Navigation } from "../navigation/index";
-
 const EXPO_NOTIFICATION_URL = Constants.manifest.extra.expoNotificationUrl;
 const STACK_NOTIFICATION_LIMIT = 4;
 
