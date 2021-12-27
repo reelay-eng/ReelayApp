@@ -140,7 +140,7 @@ export default SignInScreen = ({ navigation, route }) => {
         const signInUser = async () => {
             console.log('Attempting user sign in');
             try {
-                const username = await getInputUsername(inputText);
+                const username = (await getInputUsername(inputText)).trim();
                 console.log('username: ', username);
                 if (!username.length) {
                     // entered an invalid email

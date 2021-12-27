@@ -14,7 +14,7 @@ export default TitleSearchResults = ({ navigation, searchResults, source }) => {
     `
 
     const SearchResultsScrollContainer = styled(ScrollView)`
-        margin-bottom: ${ROW_HEIGHT + 65}px;
+        margin-bottom: ${ROW_HEIGHT + 45}px;
     `;
 
     return (

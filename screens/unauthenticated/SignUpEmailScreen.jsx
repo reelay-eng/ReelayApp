@@ -56,11 +56,13 @@ export default SignUpEmailScreen = ({ navigation }) => {
         const [email, setEmail] = useState('');
         const continueToSignUp = async () => {
             // validate result is undef if there are no errors
-            const errors = validate({ emailAddress: email }, constraints);
+            const errors = validate({ emailAddress: email.trim() }, constraints);
             if (!errors) {
-                navigation.push('SignUpUsernameScreen', { email: email });
-                Amplitude.logEventWithPropertiesAsync('signUpStarted', {
-                    email: email,
+                navigation.push("SignUpUsernameScreen", {
+                    email: email.trim(),
+                });
+                Amplitude.logEventWithPropertiesAsync("signUpStarted", {
+                    email: email.trim(),
                 });
             } else {
                 if (errors.emailAddress && errors.emailAddress[0]) {
