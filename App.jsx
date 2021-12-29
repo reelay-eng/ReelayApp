@@ -22,6 +22,7 @@ import 'react-native-get-random-values';
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import * as Amplitude from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from './components/utils/EventLogger';
 import { StatusBar } from 'expo-status-bar';
 import useColorScheme from './hooks/useColorScheme';
 
@@ -140,6 +141,10 @@ function App() {
         } catch (error) {
             console.log('Could not initialize S3 client');
             console.log(error);
+            logAmplitudeEventProd('s3InitializeError', {
+                error: error.message,
+                credentials: credentials
+            });
         }
     }
 
@@ -175,8 +180,9 @@ function App() {
             }
         } catch (error) {
             console.log(error);
-            Amplitude.logEventWithPropertiesAsync('authError', {
+            logAmplitudeEventProd('authErrorForCredentials', {
                 error: error,
+                credentials: credentials,
             });
         }
         console.log('authentication complete');
@@ -205,11 +211,6 @@ function App() {
                 showErrorToast(
                     "We couldn't register your device for push notifications. Please contact the Reelay team."
                 );
-                console.log('REGISTERED USER ERROR: ', registeredUser.error);
-                Amplitude.logEventWithPropertiesAsync('registerUserError', {
-                    username: cognitoUser.username,
-                    error: registeredUser.error,
-                });
                 return;
             }
 

@@ -4,6 +4,10 @@ import { Image } from 'react-native-elements';
 import styled from 'styled-components/native';
 import { getPosterURL } from '../../api/TMDbApi';
 
+import { AuthContext } from '../../context/AuthContext';
+import { showErrorToast } from '../utils/toasts';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
+
 const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
 
 const ImageContainer = styled.View`
@@ -37,6 +41,7 @@ const YearText = styled.Text`
 `
 
 export default TitleSearchResultItem = ({ navigation, result, source }) => {
+    const { cognitoUser } = useContext(AuthContext);
     const titleObj = result;
     const skipPosterLoad = (titleObj.posterURI === null);
     const [posterLoaded, setPosterLoaded] = useState(skipPosterLoad);
@@ -57,11 +62,31 @@ export default TitleSearchResultItem = ({ navigation, result, source }) => {
         if (source && source === 'create') {
             navigation.navigate('VenueSelectScreen', {
                 titleObj: titleObj
-            })
-        } else {
+            });
+
+            logAmplitudeEventProd('advanceToCreateReelay', {
+                username: cognitoUser.username,
+                title: title,
+                source: 'create',
+            });
+        } else if (source && source === 'search') {
             navigation.push('TitleDetailScreen', { 
                 titleObj: titleObj
-            });    
+            }); 
+            
+            logAmplitudeEventProd('selectSearchResult', {
+                username: cognitoUser.username,
+                title: title,
+                source: 'search',
+            }); 
+        } else {
+            showErrorToast('Error selecting result. Please reach out to the Reelay team.');
+            logAmplitudeEventProd('selectSearchResultError', {
+                username: cognitoUser.username,
+                title: title,
+                source: source,
+            }); 
+
         }
     }
 

@@ -6,7 +6,7 @@ import ReelayStack from './ReelayStack';
 import FeedOverlay from '../overlay/FeedOverlay';
 import FeedSourceSelectorDrawer from './FeedSourceSelectorDrawer';
 
-import * as Amplitude from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 
 import styled from 'styled-components/native';
@@ -125,7 +125,7 @@ export default ReelayFeed = ({ navigation,
         const fetchedStacks = (feedSource === 'global') 
             ? await getGlobalFeed({ reqUserSub: cognitoUser?.attributes?.sub, page })
             : await getFollowingFeed({ reqUserSub: cognitoUser?.attributes?.sub, page });
-        
+
         console.log("extending", feedSource, "feed")
 
         const newStackList = [...currStackList, ...fetchedStacks];
@@ -260,10 +260,11 @@ export default ReelayFeed = ({ navigation,
             const logProperties = {
                 nextReelayTitle: nextStack[0].title.display,
                 prevReelayTitle: prevStack[0].title.display,
+                source: feedSource,
                 swipeDirection: swipeDirection,
                 username: cognitoUser.username,
             }
-            Amplitude.logEventWithPropertiesAsync('swipedFeed', logProperties);
+            logAmplitudeEventProd('swipedFeed', logProperties);
             if (feedSource === "global") {
                 setGlobalFeedPosition(nextFeedPosition);
             } else {

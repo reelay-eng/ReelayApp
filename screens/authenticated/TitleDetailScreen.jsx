@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { 
     ActivityIndicator, 
     Dimensions, 
@@ -10,6 +10,7 @@ import {
     StyleSheet,
 	Linking
 } from 'react-native';
+import { AuthContext } from '../../context/AuthContext';
 
 // API
 import { getPosterURL, getLogoURL, fetchMovieProviders } from '../../api/TMDbApi';
@@ -36,6 +37,9 @@ import PGRating from "../../assets/images/MPAA_Ratings/PGRating.png";
 import PG13Rating from "../../assets/images/MPAA_Ratings/PG13Rating.png";
 import NC17Rating from "../../assets/images/MPAA_Ratings/NC17Rating.png";
 import RRating from "../../assets/images/MPAA_Ratings/RRating.png";
+
+// Logging
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
@@ -98,6 +102,7 @@ const PosterWithTrailer = ({
 		width: 100%;
 	`;
 
+	const { cognitoUser } = useContext(AuthContext);
 	const posterURL = getPosterURL(posterURI);
 	const PosterWithOverlay = ({ posterURL }) => {
 		const PosterImage = styled(Image)`
@@ -278,6 +283,11 @@ const PosterWithTrailer = ({
 						onPress={() => {
 							navigation.dangerouslyGetParent().push("VenueSelectScreen", {
 								titleObj: titleObj,
+							});
+							logAmplitudeEventProd('advanceToCreateReelay', {
+								username: cognitoUser?.username,
+								title: titleObj?.title?.display,
+								source: 'titlePage',
 							});
 						}}
 						borderRadius={"20px"}

@@ -2,7 +2,7 @@ import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import { getRegisteredUser, getUserByUsername, getMostRecentReelaysByTitle } from './ReelayDBApi';
 import { fetchResults } from './fetchResults';
-import * as Amplitude from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 
 const EXPO_NOTIFICATION_URL = Constants.manifest.extra.expoNotificationUrl;
 const STACK_NOTIFICATION_LIMIT = 4;
@@ -25,8 +25,7 @@ const getDevicePushToken = async () => {
         finalStatus = status;
     }
     if (finalStatus !== 'granted') {
-        // alert('Failed to get push token for push notification!');
-        Amplitude.logEventWithPropertiesAsync('pushTokenFetchFailed', {
+        logAmplitudeEventProd('pushTokenFetchFailed', {
             status: existingStatus
         });
         return null;

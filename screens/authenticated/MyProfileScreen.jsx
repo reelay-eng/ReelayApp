@@ -9,7 +9,7 @@ import ProfileTopBar from '../../components/profile/ProfileTopBar';
 
 import { getFollowers, getFollowing } from '../../api/ReelayDBApi';
 
-import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 
@@ -73,12 +73,12 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     useEffect(() => {
         onRefresh();
-        logEventWithPropertiesAsync('viewMyProfile', {
+        logAmplitudeEventProd('viewMyProfile', {
             username: cognitoUser.attributes.username,
         });    
     }, []);
 
-    logEventWithPropertiesAsync("viewMyProfile", {
+    logAmplitudeEventProd("viewMyProfile", {
         username: cognitoUser.username,
     });
 

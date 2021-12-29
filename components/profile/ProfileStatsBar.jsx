@@ -2,8 +2,7 @@ import React, { useContext } from 'react';
 import { Text, View, Pressable } from 'react-native';
 import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
-
-import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 const BarContainer = styled(View)`
     align-self: center;
@@ -48,7 +47,7 @@ export default ProfileStatsBar = ({
 
     const viewFollowers = () => {
         viewFollows({ followType: 'Followers' });
-        logEventWithPropertiesAsync('viewFollowers', {
+        logAmplitudeEventProd('viewFollowers', {
             username: reelayDBUser.username,
             creatorName: creator.username,
         });
@@ -56,7 +55,7 @@ export default ProfileStatsBar = ({
 
     const viewFollowing = () => {
         viewFollows({ followType: 'Following' });
-        logEventWithPropertiesAsync('viewFollowing', {
+        logAmplitudeEventProd('viewFollowing', {
             username: reelayDBUser.username,
             creatorName: creator.username,
         });

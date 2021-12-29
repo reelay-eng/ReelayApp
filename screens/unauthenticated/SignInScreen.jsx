@@ -6,7 +6,7 @@ import { showErrorToast } from '../../components/utils/toasts';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
-import * as Amplitude from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 import { getInputUsername } from '../../components/utils/usernameOrEmail';
 
@@ -114,21 +114,21 @@ export default SignInScreen = ({ navigation, route }) => {
 
         const handleBadEmail = async () => {
             showErrorToast('Incorrect account or password');
-            Amplitude.logEventWithPropertiesAsync('signInFailedBadEmail', {
+            logAmplitudeEventProd('signInFailedBadEmail', {
                 email: inputText,
             });
         }
 
         const handleBadPassword = async () => {
             showErrorToast('Incorrect account or password'); 
-            Amplitude.logEventWithPropertiesAsync('signInFailedBadPassword', {
+            logAmplitudeEventProd('signInFailedBadPassword', {
                 username: inputText,
             });
         }
 
         const handleUnconfirmedUser = async () => {
             navigation.push('ConfirmEmailScreen', { username: inputText });
-            Amplitude.logEventWithPropertiesAsync('signInFailedUnconfirmedEmail', {
+            logAmplitudeEventProd('signInFailedUnconfirmedEmail', {
                 username: inputText,
             });
         }
@@ -137,7 +137,7 @@ export default SignInScreen = ({ navigation, route }) => {
             showErrorToast(
                 "Something went wrong. Please reach out to the Reelay team"
             ); 
-            Amplitude.logEventWithPropertiesAsync('signInFailedOtherReason', {
+            logAmplitudeEventProd('signInFailedOtherReason', {
                 username: inputText,
                 error: error,
             });

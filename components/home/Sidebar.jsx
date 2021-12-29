@@ -7,8 +7,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { FeedContext } from '../../context/FeedContext';
 
 import { sendLikeNotification } from '../../api/NotificationsApi';
-import * as Amplitude from 'expo-analytics-amplitude';
-
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
 
 const { height, width } = Dimensions.get('window');
@@ -57,7 +56,7 @@ export default Sidebar = ({ reelay }) => {
 			console.log(postResult);
 			
 			setLikeUpdateCounter(likeUpdateCounter + 1);
-			Amplitude.logEventWithPropertiesAsync('unlikedReelay', {
+			logAmplitudeEventProd('unlikedReelay', {
 				user: cognitoUser.username,
 				creator: reelay.creator.username,
 				title: reelay.title.display,
@@ -80,7 +79,7 @@ export default Sidebar = ({ reelay }) => {
 				user: cognitoUser,
 				reelay: reelay,
 			});
-			Amplitude.logEventWithPropertiesAsync('likedReelay', {
+			logAmplitudeEventProd('likedReelay', {
 				user: cognitoUser.username,
 				creator: reelay.creator.username,
 				title: reelay.title.display,
