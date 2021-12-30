@@ -79,9 +79,8 @@ export default UserSearchResultItem = ({
     const selectResult = () => {
         navigation.push("UserProfileScreen", { creator: searchedUser });
         logAmplitudeEventProd('selectSearchResult', {
-            username: cognitoUser.username,
+            username: reelayDBUser.username,
             selectedUsername: searchedUser.username,
-            titleObj: titleObj,
             source: 'search',
         }); 
 
