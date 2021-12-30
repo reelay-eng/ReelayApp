@@ -283,7 +283,7 @@ const PosterWithTrailer = ({
 					<TrailerButtonContainer>
 						<ActionButton
 							text={"Watch Trailer"}
-							icon={
+							leftIcon={
 								<Icon
 									color={"white"}
 									type="ionicon"
@@ -304,7 +304,7 @@ const PosterWithTrailer = ({
 					<ActionButton
 						color="red"
 						text={"Create a Reelay"}
-						icon={
+						leftIcon={
 							<Icon
 								color={"white"}
 								type="ionicon"

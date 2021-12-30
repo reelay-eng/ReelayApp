@@ -27,8 +27,9 @@ const ButtonBox = styled(View)`
     align-items: center;
 `
 const ButtonText = styled(ReelayText.Subtitle2)`
-	color: ${(props) => props.disabled ? "#5e5e5e" : props.fontColor};
-	margin-left: ${(props) => (props.icon ? "3px" : "0px")};
+	color: ${(props) => (props.disabled ? "#5e5e5e" : props.fontColor)};
+	margin-left: ${(props) => (props.leftMargin ? "3px" : "0px")};
+	margin-right: ${(props) => (props.rightMargin ? "3px" : "0px")};
 `;
 
 export const Button = ({
@@ -39,17 +40,18 @@ export const Button = ({
 	fontColor = "white",
 	borderRadius = "20px",
 	border = "",
-    pressedBorder = "",
-    icon = false,
-    disabled=false,
+	pressedBorder = "",
+	leftIcon = null,
+	rightIcon = null,
+	disabled = false,
 }) => {
 	return (
-        <ButtonPressable onPress={disabled ? () => {} : onPress}>
-            {({ pressed }) => {
-                const isPressed = (!disabled && pressed);
-                return (
-                    <ButtonBox
-                        disabled={disabled}
+		<ButtonPressable onPress={disabled ? () => {} : onPress}>
+			{({ pressed }) => {
+				const isPressed = !disabled && pressed;
+				return (
+					<ButtonBox
+						disabled={disabled}
 						pressed={isPressed}
 						pressedColor={pressedColor}
 						backgroundColor={backgroundColor}
@@ -57,12 +59,19 @@ export const Button = ({
 						border={border}
 						pressedBorder={pressedBorder}
 					>
-						{icon}
-                        <ButtonText icon={icon ? true : false} fontColor={fontColor} disabled={disabled}>
+						{leftIcon}
+						<ButtonText
+							leftMargin={leftIcon ? true : false}
+							rightMargin={rightIcon ? true : false}
+							fontColor={fontColor}
+							disabled={disabled}
+						>
 							{text}
 						</ButtonText>
+						{rightIcon}
 					</ButtonBox>
-				);}}
+				);
+			}}
 		</ButtonPressable>
 	);
 };
@@ -73,7 +82,8 @@ export const ActionButton = ({
     disabled=false,
 	color = "blue",
     borderRadius = "20px",
-    icon=null,
+    leftIcon = null,
+    rightIcon = null
 }) => {
 	if (color === "red")
 		return (
@@ -81,21 +91,39 @@ export const ActionButton = ({
 				onPress={onPress}
 				text={text}
 				disabled={disabled}
-				icon={icon}
+                leftIcon={leftIcon}
+                rightIcon={rightIcon}
 				borderRadius={borderRadius}
 				backgroundColor={"#e8362a"}
 				pressedColor={"#63100a"}
 			/>
 		);
 	else
-		return <Button onPress={onPress} icon={icon} text={text} borderRadius={borderRadius} />;
+		return (
+			<Button
+				onPress={onPress}
+				leftIcon={leftIcon}
+				rightIcon={rightIcon}
+				text={text}
+				borderRadius={borderRadius}
+			/>
+		);
 };
 
-export const PassiveButton = ({ text, onPress, disabled = false, borderRadius = "20px" }) => (
+export const PassiveButton = ({
+	text,
+	onPress,
+	disabled = false,
+	borderRadius = "20px",
+	leftIcon = null,
+	rightIcon = null,
+}) => (
 	<Button
 		onPress={onPress}
-        text={text}
-        disabled={disabled}
+		text={text}
+		leftIcon={leftIcon}
+		rightIcon={rightIcon}
+		disabled={disabled}
 		borderRadius={borderRadius}
 		backgroundColor={"#0B2046"}
 		fontColor={"#7EAEFF"}
@@ -103,10 +131,20 @@ export const PassiveButton = ({ text, onPress, disabled = false, borderRadius = 
 		pressedColor={"#2977EF"}
 	/>
 );
-export const BWButton = ({ text, onPress, disabled = false, borderRadius = "20px", white = false }) => (
+export const BWButton = ({
+	text,
+	onPress,
+	disabled = false,
+	borderRadius = "20px",
+	white = false,
+	leftIcon = null,
+	rightIcon = null,
+}) => (
 	<Button
 		onPress={onPress}
 		text={text}
+		leftIcon={leftIcon}
+		rightIcon={rightIcon}
 		disabled={disabled}
 		borderRadius={borderRadius}
 		backgroundColor={white ? "#ffffff" : "#0D0D0D"}
@@ -132,11 +170,11 @@ export const RedPlusButton = ({onPress}) => {
     )
 }
 
-export const ToggleSelector = ({ options, selectedOption, setSelectedOption }) => {
+export const ToggleSelector = ({ options, selectedOption, onSelect,  }) => {
     const BackgroundBox = styled(View)`
 		align-items: center;
 		background-color: #252527;
-		border-radius: 6px;
+		border-radius: 8px;
 		justify-content: flex-start;
 		flex-direction: row;
 		height: 48px;
@@ -172,7 +210,7 @@ export const ToggleSelector = ({ options, selectedOption, setSelectedOption }) =
                 } else {
                     return (
                         <PassiveButtonContainer key={option}
-                                onPress={() => setSelectedOption(option)}>
+                                onPress={() => onSelect(option)}>
                             <OptionText>{option}</OptionText>
                         </PassiveButtonContainer>
                     );

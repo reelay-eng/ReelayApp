@@ -129,7 +129,7 @@ export default UserFollowScreen = ({ navigation, route }) => {
                 <ToggleSelector 
                     options={[ 'Followers', 'Following' ]}
                     selectedOption={selectedFollowType}
-                    setSelectedOption={setSelectedFollowType}
+                    onSelect={setSelectedFollowType}
                 />
             </SelectorBarContainer>
             <SearchField

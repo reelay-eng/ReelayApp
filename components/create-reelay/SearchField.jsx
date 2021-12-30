@@ -1,6 +1,6 @@
 import React from 'react';
 import { SafeAreaView } from 'react-native';
-import { Input } from 'react-native-elements';
+import { Input, Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 const SearchFieldContainer = styled(SafeAreaView)`
@@ -11,36 +11,53 @@ export default SearchField = ({
     updateSearchText, 
     placeholderText = 'Search',
     borderRadius = 18,
+    clearIcon = true,
 }) => {
 
     return (
-        <SearchFieldContainer>
-            <Input 
-                onChangeText={updateSearchText}
-                placeholder={placeholderText}
-                value={searchText}
-                style={{
-                    marginTop: 20,
-                    marginRight: 5,
-                    marginLeft: 5,
-                    paddingLeft: 10,
-                    paddingTop: 15,
-                    paddingBottom: 15,
-                    paddingRight: 10,
-                    backgroundColor: '#2C2C2C',
-                    borderRadius: borderRadius,
-                    color: 'white',
-                    fontFamily: 'Outfit-Regular',
-                    fontSize: 20,
-                    fontStyle: "normal",
-                    lineHeight: 24,
-                    letterSpacing: 0.15,
-                    textAlign: "left",
-                }}
-                inputContainerStyle={{
-                    borderBottomWidth: 0
-                }}
-            />
-        </SearchFieldContainer>
-    );
+		<SearchFieldContainer>
+			<Input
+				onChangeText={updateSearchText}
+				placeholder={placeholderText}
+				value={searchText}
+				style={{
+					color: "white",
+					fontFamily: "Outfit-Regular",
+					fontSize: 20,
+					fontStyle: "normal",
+					lineHeight: 24,
+					letterSpacing: 0.15,
+					textAlign: "left",
+				}}
+				inputContainerStyle={{
+					borderBottomWidth: 0,
+					marginTop: 20,
+					marginRight: 5,
+					marginLeft: 5,
+					paddingLeft: 10,
+					paddingTop: clearIcon ? 2 : 6,
+					paddingBottom: clearIcon ? 2 : 6,
+					paddingRight: 10,
+					backgroundColor: "#393939",
+					borderRadius: borderRadius,
+				}}
+				rightIcon={
+                    clearIcon ?
+                        <Icon
+                            type="ionicon"
+                            name="close-circle-outline"
+                            size={24}
+                            color="#B0B0B0"
+                            disabled={searchText === ""}
+                            disabledStyle={{
+                                backgroundColor: "#393939",
+                                opacity: 0,
+                            }}
+                            onPress={() => updateSearchText("")}
+                        />
+                        : null
+				}
+			/>
+		</SearchFieldContainer>
+	);
 };
