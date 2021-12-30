@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import { 
     Dimensions, 
     Keyboard, 
@@ -30,6 +30,8 @@ import {
 import * as Amplitude from 'expo-analytics-amplitude';
 import { getRegisteredUser, getUserByUsername, postCommentToDB } from '../../api/ReelayDBApi';
 
+const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
+
 const { height, width } = Dimensions.get('window');
 moment.updateLocale("en", {
 	relativeTime: {
@@ -51,7 +53,6 @@ moment.updateLocale("en", {
 });
 
 export default CommentsDrawer = ({ reelay, navigation }) => {
-
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
     const CLOSE_BUTTON_SIZE = 25;
     const MAX_COMMENT_LENGTH = 200;
@@ -153,9 +154,9 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 
     const Comments = () => {
         const CommentsContainer = styled(View)`
-            width: 100%;
-            padding-top: 13px;
-        `
+			width: 100%;
+			padding-top: 13px;
+		`;
         return (
             <CommentsContainer>
                 {reelay.comments.map((comment, i) => (
@@ -163,15 +164,14 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
                 ))}
             </CommentsContainer>
         );
-    }
+    };
 
     const Comment = ({ comment }) => {
         const [commentLiked, setCommentLiked] = useState(false); // alter to make default state the database value for whether you've liked that comment yet or not.
 		const [numCommentLikes, setNumCommentLikes] = useState(0); // similarly alter to make default state the database value for the number of comment likes currently
-        const commentImageSource =
-			comment?.authorProfilePicURI !== undefined && comment?.authorProfilePicURI !== "none"
-				? { uri: comment.authorProfilePicURI }
-                : ReelayIcon; // this is a template for maybe how it should look, but currently the database doesn't store the authorProfilePicURIs on each comment. 
+        const commentImageSource = {
+			uri: `${CLOUDFRONT_BASE_URL}/public/profilepic-${comment.authorSub}-current.jpg`,
+		}
         
         const CommentItemContainer = styled(Pressable)`
 			padding-left: 16px;
@@ -241,7 +241,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 		return (
             <CommentItemContainer onPress={onPress}>
 				<LeftCommentIconContainer>
-					<CommentProfilePhoto source={commentImageSource} />
+					<CommentProfilePhoto source={commentImageSource} defaultSource={ReelayIcon} />
 				</LeftCommentIconContainer>
 				<CommentTextContainer>
 					<UsernameText>{`@${username}`}</UsernameText>
@@ -267,124 +267,42 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 		);
 	};
 
-
     const CommentBox = () => {
+        const [render, setRender] = useState(false);
+        const scrollViewRef = useRef();
+        const [maxDrawerHeight, setMaxDrawerHeight] = useState(height);
+
+        const rerender = () => {
+            setRender(!render);
+        }
+
         const Spacer = styled(View)`
             height: ${props => props.height ? props.height : '0px'};
         `
-        const CommentButtonContainer = styled(Pressable)`
-            margin-top: 16px;
-            margin-bottom: 32px;
-            width: 100%;
-        `    
-        const CommentButtonStyle = {
-            alignSelf: 'center',
-            borderRadius: 48,
-            backgroundColor: '#db1f2e',
-            height: 48,
-            width: '80%',
-            zIndex: 4,
-        }
-
-        const CommentProfilePhotoContainer = styled(View)`
-			width: 32px;
-		`;
-        const PostButtonContainer = styled(View)`
-            width: 70px;
-            height: 40px;
-        `
-
         const BlackBoxContainerStyle = {
 			backgroundColor: "#0d0d0d",
 			minHeight: 80,
 			paddingBottom: 24,
-            paddingTop: 12,
-            paddingLeft: 16,
-            paddingRight: 12,
-            display: 'flex',
-            flexDirection: 'row',
-            justifyContent: 'space-between',
+			paddingTop: 12,
+			paddingLeft: 16,
+			paddingRight: 12,
+			display: "flex",
+			flexDirection: "row",
+			justifyContent: "space-between",
 		};
+        const CommentProfilePhotoContainer = styled(View)`
+			width: 32px;
+		`;
 
-        const TextBoxStyle = {
-            width: width - 138,
-        }
-
-        const TextInputStyle = {
-            alignSelf: 'center',
-            color: 'white',
-            fontFamily: 'Outfit-Regular',
-            fontSize: 18,
-            fontStyle: 'normal',
-            lineHeight: 24,
-            letterSpacing: 0.25,
-            textAlign: 'left',
-            paddingLeft: 16,
-            paddingRight: 16,
-            width: '100%',
-        }
-
-        const [commentText, setCommentText] = useState('');
-        const [maxDrawerHeight, setMaxDrawerHeight] = useState(height);
-        const scrollViewRef = useRef();
-        const authorImageSource =
-            (reelayDBUser?.profilePictureURI !== undefined && reelayDBUser?.profilePictureURI !== "none")
-                ? { uri: reelayDBUser.profilePictureURI }
-                : ReelayIcon;
-
-        const keyboardWillShow = async (e) => {
-            const keyboardHeight = e.endCoordinates.height;
-            const shortHeight = height - keyboardHeight;
-            setMaxDrawerHeight(shortHeight);
-        }
-    
-        const keyboardWillHide = async (e) => {
-            setMaxDrawerHeight(height);
-        }
-    
-        Keyboard.addListener('keyboardWillShow', keyboardWillShow);
-        Keyboard.addListener('keyboardWillHide', keyboardWillHide);
-
-        const onCommentPost = async () => {
-            const commentBody = {
-                authorName: cognitoUser.username,
-                authorSub: cognitoUser.attributes.sub,
-                authorProfilePicURI: reelayDBUser.profilePictureURI,
-                content: commentText,        
-                creatorName: reelay.creator.username,
-                creatorSub: reelay.creator.sub,
-                postedAt: new Date().toISOString(),
-                reelaySub: reelay.sub,
-                visibility: FEED_VISIBILITY,
-            }
-            console.log(commentBody);
-            reelay.comments.push(commentBody);
-
-			const postResult = await postCommentToDB(commentBody, reelay.sub);
-			console.log('Comment posted: ', postResult);
-
-            await sendCommentNotificationToCreator({
-                creatorSub: reelay.creator.sub,
-                author: cognitoUser,
-                reelay: reelay,
-                commentText: commentText,
-            });
-            await sendCommentNotificationToThread({
-                creator: reelay.creator,
-                author: cognitoUser,
-                reelay: reelay,
-                commentText: commentText,
-            });
-            setCommentText('');
-            scrollViewRef.current.scrollToEnd({ animated: true });
-
-            Amplitude.logEventWithPropertiesAsync('commentedOnReelay', {
-				user: cognitoUser.username,
-				creator: reelay.creator.username,
-				title: reelay.title.display,
-				reelayID: reelay.id,
-                commentText: commentText,
-			});
+        const AuthorImage = () => {
+            const authorImageSource = {
+				uri: `${CLOUDFRONT_BASE_URL}/public/profilepic-${cognitoUser.attributes.sub}-current.jpg`,
+			};
+            return (
+				<CommentProfilePhotoContainer>
+					<CommentProfilePhoto source={authorImageSource} />
+				</CommentProfilePhotoContainer>
+			);
         }
 
         return (
@@ -403,46 +321,137 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 					</>
 				)}
 
-				{/* Setting up TextInput as a styled component forces the keyboard to disappear... */}
 				<View style={BlackBoxContainerStyle}>
-					<CommentProfilePhotoContainer>
-						<CommentProfilePhoto source={authorImageSource} />
-					</CommentProfilePhotoContainer>
-					<View style={TextBoxStyle}>
-						<TextInput
-							maxLength={MAX_COMMENT_LENGTH}
-							multiline
-                            numberOfLines={4}
-                            blurOnSubmit={true}
-							onChangeText={(text) => setCommentText(text)}
-							placeholder={"Add comment..."}
-							placeholderTextColor={"gray"}
-							returnKeyType="done"
-							style={TextInputStyle}
-							defaultValue={commentText}
-						/>
-						<CharacterCounter commentTextLength={commentText.length} />
-                    </View>
-                    <PostButtonContainer>
-                        <BWButton disabled={!commentText.length} text={"Post"} onPress={commentText => {
-                            onCommentPost(commentText);
-                            Keyboard.dismiss();
-                        }} />
-                    </PostButtonContainer>
-
-					{/* <CommentButtonContainer>
-                    <Button buttonStyle={CommentButtonStyle} 
-                        disabled={!commentText.length}
-                        
-                        title='Post'
-                        titleStyle={{ color: 'white', fontSize: 18 }} 
-                        type='solid' 
-                    />
-                </CommentButtonContainer> */}
+					<AuthorImage />
+					<CommentInput
+						setMaxDrawerHeight={setMaxDrawerHeight}
+                        scrollViewRef={scrollViewRef}
+                        rerender={rerender}
+					/>
 				</View>
 			</View>
 		);
     };
+
+    // CommentInput extracted to not rerender comments on every CommentBox state update. 
+    const CommentInput = ({ setMaxDrawerHeight, scrollViewRef, rerender }) => {
+		const PostButtonContainer = styled(View)`
+			width: 70px;
+			height: 40px;
+		`;
+
+		const TextBoxStyle = {
+			width: width - 138,
+		};
+
+		const TextInputStyle = {
+			alignSelf: "center",
+			color: "white",
+			fontFamily: "Outfit-Regular",
+			fontSize: 18,
+			fontStyle: "normal",
+			lineHeight: 24,
+			letterSpacing: 0.25,
+			textAlign: "left",
+			paddingLeft: 16,
+			paddingRight: 16,
+			width: "100%",
+		};
+
+		const [commentText, setCommentText] = useState("");
+		const [commentPosting, setCommentPosting] = useState(false);
+
+
+		const keyboardWillShow = async (e) => {
+			const keyboardHeight = e.endCoordinates.height;
+			const shortHeight = height - keyboardHeight;
+			setMaxDrawerHeight(shortHeight);
+		};
+
+		const keyboardWillHide = async (e) => {
+			setMaxDrawerHeight(height);
+		};
+
+		Keyboard.addListener("keyboardWillShow", keyboardWillShow);
+		Keyboard.addListener("keyboardWillHide", keyboardWillHide);
+
+		const onCommentPost = async () => {
+			setCommentPosting(true);
+			const commentBody = {
+				authorName: cognitoUser.username,
+				authorSub: cognitoUser.attributes.sub,
+				content: commentText,
+				creatorName: reelay.creator.username,
+				creatorSub: reelay.creator.sub,
+				postedAt: new Date().toISOString(),
+				reelaySub: reelay.sub,
+				visibility: FEED_VISIBILITY,
+			};
+			console.log(commentBody);
+
+			const postResult = await postCommentToDB(commentBody, reelay.sub);
+			console.log("Comment posted: ", postResult);
+
+			await sendCommentNotificationToCreator({
+				creatorSub: reelay.creator.sub,
+				author: cognitoUser,
+				reelay: reelay,
+				commentText: commentText,
+			});
+			await sendCommentNotificationToThread({
+				creator: reelay.creator,
+				author: cognitoUser,
+				reelay: reelay,
+				commentText: commentText,
+			});
+			setCommentText("");
+            setCommentPosting(false);
+            reelay.comments.push(commentBody);
+            rerender(); // for new comment to show up
+			scrollViewRef.current.scrollToEnd({ animated: true });
+
+			Amplitude.logEventWithPropertiesAsync("commentedOnReelay", {
+				user: cognitoUser.username,
+				creator: reelay.creator.username,
+				title: reelay.title.display,
+				reelayID: reelay.id,
+				commentText: commentText,
+			});
+		};
+        return (
+			<>
+				{/* Setting up TextInput as a styled component forces the keyboard to disappear... */}
+				<View style={TextBoxStyle}>
+					<TextInput
+						maxLength={MAX_COMMENT_LENGTH}
+						multiline
+						numberOfLines={4}
+						blurOnSubmit={true}
+						onChangeText={(text) => setCommentText(text)}
+						onFocus={() => {
+							scrollViewRef.current.scrollToEnd({ animated: false });
+						}}
+						placeholder={"Add comment..."}
+						placeholderTextColor={"gray"}
+						returnKeyType="done"
+						style={TextInputStyle}
+						defaultValue={commentText}
+					/>
+					<CharacterCounter commentTextLength={commentText.length} />
+				</View>
+				<PostButtonContainer>
+					<BWButton
+						disabled={!commentText.length || commentPosting}
+						text={"Post"}
+						onPress={(commentText) => {
+							onCommentPost(commentText);
+							Keyboard.dismiss();
+						}}
+					/>
+				</PostButtonContainer>
+			</>
+		);
+	};
 
     return (
 		<ModalContainer>

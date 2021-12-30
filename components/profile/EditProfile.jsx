@@ -199,12 +199,14 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 			} else {
 				setIsUploading(true);
 				close();
-				const { cloudfrontPhotoURI } = await uploadLocalImageToS3(pickerResult.uri);
-				const patchResult = await updateProfilePic(cognitoUser.attributes.sub, cloudfrontPhotoURI);
-				console.log("Patched Profile Image: ", patchResult);
-				let newReelayDBUser = reelayDBUser;
-				newReelayDBUser.profilePictureURI = cloudfrontPhotoURI;
-				setReelayDBUser(newReelayDBUser);
+				const { cloudfrontPhotoURI } = await uploadProfilePhotoToS3(pickerResult.uri);
+				if (!(reelayDBUser?.profilePictureURI === cloudfrontPhotoURI)) {
+					const patchResult = await updateProfilePic(cognitoUser.attributes.sub, cloudfrontPhotoURI);
+					console.log("Patched Profile Image: ", patchResult);
+					let newReelayDBUser = reelayDBUser;
+					newReelayDBUser.profilePictureURI = cloudfrontPhotoURI;
+					setReelayDBUser(newReelayDBUser);
+				}
 				setIsUploading(false);
 			}
 		} catch (e) {
@@ -214,30 +216,46 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 		}
 	};
 
-	const uploadLocalImageToS3 = async (photoURI) => {
+	const uploadProfilePhotoToS3 = async (photoURI) => {
 		const uploadTimestamp = Date.now();
-		const photoS3Key = `profilepic-${cognitoUser.attributes.sub}-${uploadTimestamp}.jpg`;
-		const s3UploadResult = await uploadProfilePicToS3(photoURI, `public/${photoS3Key}`);
-		console.log("S3 Profile Picture Upload Result: ", s3UploadResult);
-		const cloudfrontPhotoURI = `${CLOUDFRONT_BASE_URL}/public/${photoS3Key}`;
+		const photoTimestampedS3Key = `profilepic-${cognitoUser.attributes.sub}-${uploadTimestamp}.jpg`;
+		const photoCurrentS3Key = `profilepic-${cognitoUser.attributes.sub}-current.jpg`;
+		const {timestampedUploadResult, currentUploadResult} = await uploadProfilePicToS3(
+			photoURI,
+			`public/${photoTimestampedS3Key}`,
+			`public/${photoCurrentS3Key}`
+		);
+		console.log("S3 Timestamped Profile Picture Upload Result: ", timestampedUploadResult);
+		console.log("S3 Current Profile Picture Upload Result: ", currentUploadResult);
+
+		const cloudfrontPhotoURI = `${CLOUDFRONT_BASE_URL}/public/${photoCurrentS3Key}`;
 		return {
-			...s3UploadResult,
+			timestampedUploadResult,
+			currentUploadResult, 
 			"cloudfrontPhotoURI": cloudfrontPhotoURI,
 		}
 	};
 
-	const uploadProfilePicToS3 = async (photoURI, photoS3Key) => {
+	const uploadProfilePicToS3 = async (photoURI, timestampedS3Key, currentS3Key) => {
 		const photoStr = await readAsStringAsync(photoURI, { encoding: EncodingType.Base64 });
 		const photoBuffer = Buffer.from(photoStr, "base64");
-		const uploadResult = await s3Client.send(
+		const timestampedUploadResult = await s3Client.send(
 			new PutObjectCommand({
 				Bucket: S3_UPLOAD_BUCKET,
-				Key: photoS3Key,
+				Key: timestampedS3Key,
 				ContentType: "image/jpg",
 				Body: photoBuffer,
 			})
 		);
-		return uploadResult;
+		const currentUploadResult = await s3Client.send(
+			new PutObjectCommand({
+				Bucket: S3_UPLOAD_BUCKET,
+				Key: currentS3Key,
+				ContentType: "image/jpg",
+				Body: photoBuffer,
+			})
+		);
+		return {timestampedUploadResult, currentUploadResult};
 	};
     
     const ModalContainer = styled(View)`
