@@ -42,7 +42,7 @@ const FollowButtonFlexContainer = styled(View)`
     flex: 0.3;
 `
 const FollowButtonContainer = styled(View)`
-	height: 40px;
+	height: 30px;
     width: 90px;
 `;
 

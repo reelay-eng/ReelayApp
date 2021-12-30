@@ -30,7 +30,7 @@ export default ProfileHeader = ({profilePictureURI = null}) => {
     return (
         <ProfileHeaderContainer>
             <ProfilePictureContainer>
-                <ProfilePicture source={profileImageSource} />
+                <ProfilePicture source={profileImageSource} defaultSource={ReelayIcon}/>
             </ProfilePictureContainer>
         </ProfileHeaderContainer>
     );
