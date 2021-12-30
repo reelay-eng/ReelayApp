@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react';
 import { RefreshControl, SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { getStacksByCreator, getFollowers, getFollowing } from '../../api/ReelayDBApi';
 
+import Constants from 'expo-constants';
 import FollowButtonBar from '../../components/profile/Follow/FollowButtonBar';
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
@@ -21,6 +22,8 @@ const ProfileScrollView = styled(ScrollView)`
     margin-bottom: 60px;
 `
 
+const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
+
 export default UserProfileScreen = ({ navigation, route }) => {
     const [creatorStacks, setCreatorStacks] = useState([]);
     const [creatorFollowers, setCreatorFollowers] = useState([]);
@@ -30,6 +33,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const { cognitoUser } = useContext(AuthContext);
     const { creator } = route.params;
     const creatorSub = creator.sub ?? '';
+    const creatorProfilePictureURI = creatorSub.length > 0 ? `${CLOUDFRONT_BASE_URL}/public/profilepic-${creatorSub}-current.jpg` : null;
 
     const loadCreatorStacks = async () => {
         const nextCreatorStacks = await getStacksByCreator(creatorSub);
@@ -80,7 +84,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
             <ProfileScrollView refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
-                <ProfileHeader />
+                <ProfileHeader profilePictureURI={creatorProfilePictureURI}/>
                 <ProfileStatsBar
                     navigation={navigation}
                     reelayCount={reelayCount}

@@ -28,14 +28,13 @@ const UsernameContainer = styled.View`
     width: ${width / 2}px;
 `;
 const ProfilePicture = styled(Image)`
-    border-radius: 50px;
+    border-radius: 30px;
+    border-width: 1px;
+    border-color: white;
     height: 45px;
     width: 45px;
 `
 const ProfilePictureContainer = styled(View)`
-    border-color: white;
-    border-radius: 50px;
-    border-width: 2px;
     margin: 10px;
     height: 50px;
     width: 50px;

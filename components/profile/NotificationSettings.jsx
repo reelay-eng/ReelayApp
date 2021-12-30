@@ -1,16 +1,28 @@
-import React, { useState, useContext, useEffect } from 'react';
-import { Text, View, Switch, Image, Pressable, SafeAreaView } from 'react-native';
-import styled from 'styled-components/native';
+import React, { useState, useContext, useEffect, useRef } from 'react';
+import { View, Switch } from 'react-native';
 
+// Context
+import { FeedContext } from "../../context/FeedContext";
 import { AuthContext } from '../../context/AuthContext';
-import { getMyNotificationSettings, setMyNotificationSettings } from '../../api/NotificationsApi';
-import { Header } from '../../components/global/HeaderWithBackButton';
 
+// API
+import { getMyNotificationSettings, setMyNotificationSettings } from '../../api/NotificationsApi';
+
+// Styling
+import styled from "styled-components/native";
 import * as ReelayText from "../../components/global/Text";
+import { HeaderWithBackButton } from "../global/Headers";
 import ReelayColors from '../../constants/ReelayColors';
 
-export default NotificationSettings = ({navigation}) => {
+export default NotificationSettings = ({ navigation }) => {
     const { cognitoUser } = useContext(AuthContext);
+    const { setTabBarVisible } = useContext(FeedContext);
+    useEffect(() => {
+        setTabBarVisible(false);
+        return () => {
+            setTabBarVisible(true)
+        }
+    })
 
     const ViewContainer = styled(View)`
         width: 100%;
@@ -23,7 +35,7 @@ export default NotificationSettings = ({navigation}) => {
 
     return (
         <ViewContainer>
-            <Header navigation={navigation} text="Notification Settings"/>
+            <HeaderWithBackButton navigation={navigation} text="Notification Settings"/>
             <NotificationsSettingsWrapper cognitoUser={cognitoUser}/>
         </ViewContainer>
     )
@@ -35,6 +47,7 @@ const NotificationsSettingsWrapper = ({ cognitoUser }) => {
     const [notifyPrompts, setNotifyPrompts] = useState(true);
     const [notifyReactions, setNotifyReactions] = useState(true);
     const [notifyTrending, setNotifyTrending] = useState(true);
+    const componentMounted = useRef(true);
 
     const NotificationSettingsContainer = styled(View)`
         width: 90%;
@@ -57,13 +70,19 @@ const NotificationsSettingsWrapper = ({ cognitoUser }) => {
                 settingsNotifyTrending 
             } = await getMyNotificationSettings(cognitoUser);
             
-            setNotifyPrompts(settingsNotifyPrompts);
-            setNotifyReactions(settingsNotifyReactions);
-            setNotifyTrending(settingsNotifyTrending);
-            const shouldSetNotifyAll = (settingsNotifyPrompts && settingsNotifyReactions && settingsNotifyTrending);
-            setNotifyAll(shouldSetNotifyAll);
+           if (componentMounted.current) {  // no react state updates on unmounted components since this is async setter
+                setNotifyPrompts(settingsNotifyPrompts);
+				setNotifyReactions(settingsNotifyReactions);
+				setNotifyTrending(settingsNotifyTrending);
+				const shouldSetNotifyAll =
+					settingsNotifyPrompts && settingsNotifyReactions && settingsNotifyTrending;
+				setNotifyAll(shouldSetNotifyAll);
+            }
        }
-       asyncGetNotificationSettings();
+        asyncGetNotificationSettings();
+        return () => {
+           componentMounted.current = false;
+       }
     }, [])
 
     /* 
