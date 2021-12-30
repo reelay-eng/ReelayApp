@@ -3,7 +3,7 @@ import { Modal, View, Text, Pressable } from 'react-native';
 import { Icon } from 'react-native-elements';
 
 import { AuthContext } from '../../context/AuthContext';
-import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 import styled from 'styled-components/native';
 
 export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible }) => {
@@ -76,7 +76,7 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
         const onPress = () => {
             setConfirmRetakeDrawerVisible(false);
             navigation.pop();
-            logEventWithPropertiesAsync('retake', {
+            logAmplitudeEventProd('retake', {
                 username: cognitoUser.username,
                 title: titleObj.display,
             });    

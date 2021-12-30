@@ -27,7 +27,7 @@ import {
     sendCommentNotificationToThread 
 } from '../../api/NotificationsApi';
 
-import * as Amplitude from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { getRegisteredUser, getUserByUsername, postCommentToDB } from '../../api/ReelayDBApi';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;

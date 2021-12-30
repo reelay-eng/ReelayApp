@@ -14,7 +14,7 @@ import { ActivityIndicator } from 'react-native-paper';
 import { deleteReelay } from '../../api/ReelayApi';
 
 import { showErrorToast, showMessageToast } from '../utils/toasts';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 const { height, width } = Dimensions.get('window');
 
 const ReelayFeedContainer = styled(View)`
@@ -117,10 +117,11 @@ export default UserReelayFeed = ({ navigation,
             const logProperties = {
                 nextReelayTitle: nextStack[0].title.display,
                 prevReelayTitle: prevStack[0].title.display,
+                source: 'fixedStack',
                 swipeDirection: swipeDirection,
                 username: cognitoUser.username,
             }
-            Amplitude.logEventWithPropertiesAsync('swipedFeed', logProperties);
+            logAmplitudeEventProd('swipedFeed', logProperties);
             setFeedPosition(nextFeedPosition);
         }
     }

@@ -6,12 +6,13 @@ import { showErrorToast } from '../../components/utils/toasts';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
-import * as Amplitude from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 import { getInputUsername } from '../../components/utils/usernameOrEmail';
 
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
+import { getRegisteredUser } from '../../api/ReelayDBApi';
 
 const REELAY_ICON_SOURCE = require('../../assets/icons/reelay-icon.png');
 
@@ -68,7 +69,12 @@ export default SignInScreen = ({ navigation, route }) => {
     ` 
     
 
-    const { setCognitoUser, setUsername, setSignedIn } = useContext(AuthContext);
+    const { 
+        setCognitoUser, 
+        setReelayDBUser, 
+        setUsername, 
+        setSignedIn,
+    } = useContext(AuthContext);
 
     const AltOptions = ({ hidePassword, setHidePassword }) => {
         const handleForgotPassword = async () => {
@@ -108,21 +114,21 @@ export default SignInScreen = ({ navigation, route }) => {
 
         const handleBadEmail = async () => {
             showErrorToast('Incorrect account or password');
-            Amplitude.logEventWithPropertiesAsync('signInFailedBadEmail', {
+            logAmplitudeEventProd('signInFailedBadEmail', {
                 email: inputText,
             });
         }
 
         const handleBadPassword = async () => {
             showErrorToast('Incorrect account or password'); 
-            Amplitude.logEventWithPropertiesAsync('signInFailedBadPassword', {
+            logAmplitudeEventProd('signInFailedBadPassword', {
                 username: inputText,
             });
         }
 
         const handleUnconfirmedUser = async () => {
             navigation.push('ConfirmEmailScreen', { username: inputText });
-            Amplitude.logEventWithPropertiesAsync('signInFailedUnconfirmedEmail', {
+            logAmplitudeEventProd('signInFailedUnconfirmedEmail', {
                 username: inputText,
             });
         }
@@ -131,7 +137,7 @@ export default SignInScreen = ({ navigation, route }) => {
             showErrorToast(
                 "Something went wrong. Please reach out to the Reelay team"
             ); 
-            Amplitude.logEventWithPropertiesAsync('signInFailedOtherReason', {
+            logAmplitudeEventProd('signInFailedOtherReason', {
                 username: inputText,
                 error: error,
             });
@@ -154,6 +160,8 @@ export default SignInScreen = ({ navigation, route }) => {
 
                 setCognitoUser(cognitoUser);
                 setUsername(cognitoUser.username);
+                const reelayDBUser = await getRegisteredUser(cognitoUser?.attributes?.sub);
+                setReelayDBUser(reelayDBUser);
                 setSignedIn(true);
                 console.log('Signed in user successfully');
 

@@ -5,7 +5,7 @@ import { Video, Audio } from 'expo-av'
 import { useFocusEffect } from '@react-navigation/native';
 import { FeedContext } from '../../context/FeedContext';
 
-import * as Amplitude from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 import styled from 'styled-components/native';
 
 const { height, width } = Dimensions.get('window');
@@ -26,7 +26,6 @@ export default function FeedVideoPlayer({
 	const { overlayVisible, paused } = useContext(FeedContext);
 	
 	const shouldPlay = viewable && focused && !paused && !overlayVisible;
-	if (shouldPlay) console.log('This one ^^ should play');
 
 	const _handleVideoRef = (component) => {
 		const playbackObject = component;
@@ -72,7 +71,7 @@ export default function FeedVideoPlayer({
 
 	const onPlaybackStatusUpdate = (playbackStatus) => {
 		if (playbackStatus?.didJustFinish && viewable) {
-			Amplitude.logEventWithPropertiesAsync('watchedFullReelay', {
+			logAmplitudeEventProd('watchedFullReelay', {
 				reelayID: reelay.id,
 				reelayCreator: reelay.creator.username,
 				title: reelay.title.display,

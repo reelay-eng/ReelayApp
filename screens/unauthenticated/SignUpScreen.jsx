@@ -7,6 +7,7 @@ import { showErrorToast } from '../../components/utils/toasts';
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
 import * as Amplitude from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
@@ -105,7 +106,7 @@ export default SignUpScreen = ({ navigation, route }) => {
                     },
                 }); 
                 navigation.push('ConfirmEmailScreen', { username });
-                Amplitude.logEventWithPropertiesAsync('signUp', {
+                logAmplitudeEventProd('signUp', {
                     email: username,
                     username: username,
                 });
