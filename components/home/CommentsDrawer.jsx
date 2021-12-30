@@ -1,6 +1,6 @@
-import React, { useContext, useRef, useState, forwardRef, useImperativeHandle } from 'react';
+import React, { useContext, useRef, useState, memo} from 'react';
 import { 
-    Dimensions, 
+    Dimensions,
     Keyboard, 
     KeyboardAvoidingView, 
     Modal, 
@@ -9,7 +9,7 @@ import {
     Text, 
     TextInput, 
     View,
-    Image
+    Image,
 } from 'react-native';
 
 import { Button, Icon } from 'react-native-elements';
@@ -152,19 +152,34 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 		border-radius: 16px;
 	`;
 
-    const Comments = () => {
+    const Comments = memo(({comments}) => {
         const CommentsContainer = styled(View)`
 			width: 100%;
 			padding-top: 13px;
 		`;
         return (
             <CommentsContainer>
-                {reelay.comments.map((comment, i) => (
+                {comments.map((comment, i) => (
                     <Comment comment={comment} key={(comment.userID ?? comment.authorName) + comment.postedAt} />
                 ))}
             </CommentsContainer>
         );
-    };
+    });
+
+    const AsyncProfilePhoto = ({ source }) => {
+		return (
+			<>
+				<CommentProfilePhoto
+					style={{ zIndex: 2 }}
+					source={source}
+				/>
+				<CommentProfilePhoto
+					style={{ position: "absolute", zIndex: 1 }}
+					source={ReelayIcon}
+				/>
+			</>
+		);
+	};
 
     const Comment = ({ comment }) => {
         const [commentLiked, setCommentLiked] = useState(false); // alter to make default state the database value for whether you've liked that comment yet or not.
@@ -241,7 +256,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 		return (
             <CommentItemContainer onPress={onPress}>
 				<LeftCommentIconContainer>
-					<CommentProfilePhoto source={commentImageSource} defaultSource={ReelayIcon} />
+					<AsyncProfilePhoto source={commentImageSource} />
 				</LeftCommentIconContainer>
 				<CommentTextContainer>
 					<UsernameText>{`@${username}`}</UsernameText>
@@ -294,16 +309,16 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 			width: 32px;
 		`;
 
-        const AuthorImage = () => {
+        const AuthorImage = memo(({user}) => {
             const authorImageSource = {
-				uri: `${CLOUDFRONT_BASE_URL}/public/profilepic-${cognitoUser.attributes.sub}-current.jpg`,
+				uri: `${CLOUDFRONT_BASE_URL}/public/profilepic-${user.attributes.sub}-current.jpg`,
 			};
             return (
 				<CommentProfilePhotoContainer>
 					<CommentProfilePhoto source={authorImageSource} />
 				</CommentProfilePhotoContainer>
 			);
-        }
+        })
 
         return (
 			<View>
@@ -315,14 +330,14 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 								maxHeight: maxDrawerHeight / 3,
 							}}
 						>
-							<Comments />
+                            <Comments comments={reelay.comments}/>
 						</ScrollView>
 						<Spacer height="12px" />
 					</>
 				)}
 
 				<View style={BlackBoxContainerStyle}>
-					<AuthorImage />
+                    <AuthorImage user={cognitoUser}/>
 					<CommentInput
 						setMaxDrawerHeight={setMaxDrawerHeight}
                         scrollViewRef={scrollViewRef}
