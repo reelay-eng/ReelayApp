@@ -27,7 +27,7 @@ import {
     sendCommentNotificationToThread 
 } from '../../api/NotificationsApi';
 
-import * as Amplitude from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { getRegisteredUser, getUserByUsername, postCommentToDB } from '../../api/ReelayDBApi';
 
 const { height, width } = Dimensions.get('window');
@@ -339,7 +339,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         const onCommentPost = async () => {
             const commentBody = {
                 authorName: cognitoUser.username,
-                authorSub: cognitoUser.attributes.sub,        
+                authorSub: cognitoUser?.attributes?.sub,        
                 content: commentText,        
                 creatorName: reelay.creator.username,
                 creatorSub: reelay.creator.sub,
@@ -367,7 +367,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
             setCommentText('');
             scrollViewRef.current.scrollToEnd({ animated: true });
 
-            Amplitude.logEventWithPropertiesAsync('commentedOnReelay', {
+            logAmplitudeEventProd('commentedOnReelay', {
 				user: cognitoUser.username,
 				creator: reelay.creator.username,
 				title: reelay.title.display,

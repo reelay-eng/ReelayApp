@@ -3,7 +3,7 @@ import { Image, KeyboardAvoidingView, SafeAreaView, Text, View } from 'react-nat
 import { Button, Input } from 'react-native-elements';
 import BackButton from '../../components/utils/BackButton';
 
-import * as Amplitude from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
@@ -80,7 +80,7 @@ export default SignUpUsernameScreen = ({ navigation, route }) => {
                 email: email,
                 username: inputUsername,
             });
-            Amplitude.logEventWithPropertiesAsync('signUpSelectedUsername', {
+            logAmplitudeEventProd('signUpSelectedUsername', {
                 email: email,
                 username: inputUsername,
             })

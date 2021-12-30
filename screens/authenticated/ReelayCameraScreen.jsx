@@ -13,7 +13,7 @@ import { VenueIcon } from '../../components/utils/VenueIcon';
 import styled from 'styled-components/native';
 import { showErrorToast } from '../../components/utils/toasts';
 
-import * as Amplitude from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 const { height, width } = Dimensions.get('window');
 const captureSize = Math.floor(height * 0.07);
@@ -51,7 +51,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 const videoRecording = await cameraRef.current.recordAsync();
                 if (videoRecording?.uri) {
                     pushToUploadScreen(videoRecording.uri);
-                    Amplitude.logEventWithPropertiesAsync('videoRecorded', {
+                    logAmplitudeEventProd('videoRecorded', {
                         username: cognitoUser.username,
                         title: titleObj.display,
                     })

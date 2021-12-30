@@ -7,7 +7,7 @@ import constraints from '../../components/utils/EmailValidationConstraints';
 import { KeyboardHidingBlackContainer } from "./SignInScreen";
 
 import { showErrorToast } from '../../components/utils/toasts';
-import * as Amplitude from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';

@@ -6,7 +6,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { FeedContext } from '../../context/FeedContext';
 
 import styled from 'styled-components/native';
-import * as Amplitude from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 import * as FileSystem from 'expo-file-system';
 import * as MediaLibrary from 'expo-media-library';
@@ -64,7 +64,7 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
 
     const confirmHideReelay = async () => {
         console.log('confirming delete reelay');
-        Amplitude.logEventWithPropertiesAsync('deleteReelay', {
+        logAmplitudeEventProd('deleteReelay', {
             username: cognitoUser.username,
             reelayID: reelay.id,
             title: reelay.title,
@@ -93,8 +93,14 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
             const download = await MediaLibrary.createAssetAsync(uri);
             console.log(download);
             showMessageToast('Download complete. Check your media library.');
-        } catch (e) {
-            console.error(e);
+        } catch (error) {
+            console.error(error);
+            logAmplitudeEventProd('downloadReelayFailed', {
+                username: cognitoUser.username,
+                reelayID: reelay.id,
+                title: reelay.title,
+                error: error.message,
+            });
             showErrorToast('Download failed...');
         }
     }
@@ -113,7 +119,13 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
                         const resultRemove = await removeReelay(reelay);
                         console.log(resultRemove);
                         if (resultRemove.error) {
-                            showErrorToast('Could not delete. Please reach out to the Reelay team!')
+                            showErrorToast('Could not delete. Please reach out to the Reelay team!');
+                            logAmplitudeEventProd('deleteReelayError', {
+                                username: cognitoUser.username,
+                                reelayID: reelay.id,
+                                title: reelay.title,
+                                error: resultRemove.error,
+                            });
                         } else {
                             showMessageToast('Your reelay is removed');
                         }

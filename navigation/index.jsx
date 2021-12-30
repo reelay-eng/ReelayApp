@@ -54,6 +54,13 @@ export default Navigation = () => {
             }
             openSingleReelayScreen(data.reelaySub);
         }
+
+        if (action === "openUserProfileScreen") {
+            if (!data.user) {
+              console.log("No reelay sub given");
+            }
+            openUserProfileScreen(data.user);
+        }
     }
 
     const openSingleReelayScreen = async (reelaySub) => {
@@ -66,6 +73,19 @@ export default Navigation = () => {
         const preparedReelay = await prepareReelay(singleReelay); 
         navigationRef.current.navigate('SingleReelayScreen', { preparedReelay })
     }
+
+    const openUserProfileScreen = async (user) => {
+        console.log('plz open')
+        if (!navigationRef?.current) {
+            console.log("No navigation ref");
+            return;
+        }
+
+        // make it work for users
+        navigationRef.current.navigate("UserProfileScreen", {
+            creator: user
+        });
+    };
 
     const parseNotificationContent = (notification) => {
         const { date, request } = notification;
@@ -110,7 +130,16 @@ export default Navigation = () => {
 const Stack = createStackNavigator();
 
 const RootNavigator = () => {
-    const { signedIn } = useContext(AuthContext);
+    const { signedIn, setCognitoUser, setReelayDBUser, setSession, setCredentials } = useContext(AuthContext);
+
+    useEffect(() => {
+        if (!signedIn) {
+            setCognitoUser({});
+            setReelayDBUser({});
+            setSession({});
+            setCredentials({});    
+        }
+    }, [signedIn]);
 
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>

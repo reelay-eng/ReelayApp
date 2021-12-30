@@ -10,6 +10,7 @@ import BackButton from '../../components/utils/BackButton';
 import { KeyboardHidingBlackContainer } from './SignInScreen';
 import ReelayColors from '../../constants/ReelayColors';
 
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { getInputUsername } from '../../components/utils/usernameOrEmail';
 
 export default ForgotPasswordScreen = ({ navigation }) => {
@@ -55,7 +56,7 @@ export default ForgotPasswordScreen = ({ navigation }) => {
 
         const handleBadEmail = async () => {
             showErrorToast('Could not find email address. Retry?');
-            Amplitude.logEventWithPropertiesAsync('signInFailedBadEmail', {
+            logAmplitudeEventProd('signInFailedBadEmail', {
                 email: inputText,
             });
         }

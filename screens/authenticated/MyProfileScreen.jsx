@@ -9,7 +9,7 @@ import ProfileTopBar from '../../components/profile/ProfileTopBar';
 
 import { getFollowers, getFollowing } from '../../api/ReelayDBApi';
 
-import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 
@@ -31,7 +31,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
                 navigation={navigation} />
         );
     }
-    const userSub = cognitoUser.attributes.sub;
+    const userSub = cognitoUser?.attributes?.sub;
 
     const ProfileScreenContainer = styled(SafeAreaView)`
         background-color: black;
@@ -73,12 +73,12 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     useEffect(() => {
         onRefresh();
-        logEventWithPropertiesAsync('viewMyProfile', {
+        logAmplitudeEventProd('viewMyProfile', {
             username: cognitoUser.attributes.username,
         });    
     }, []);
 
-    logEventWithPropertiesAsync("viewMyProfile", {
+    logAmplitudeEventProd("viewMyProfile", {
         username: cognitoUser.username,
     });
 
@@ -98,7 +98,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
                     reelayCount={reelayCount}
                     creator={{
                         username: cognitoUser.username,
-                        sub: cognitoUser.attributes.sub,
+                        sub: cognitoUser?.attributes?.sub,
                     }}
                     followers={myFollowers}
                     following={myFollowing}
