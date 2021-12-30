@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
 
-// Amplitude
-import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
+// Logging
+import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
 
 // API
 import { getStacksByCreator } from '../../api/ReelayDBApi';
