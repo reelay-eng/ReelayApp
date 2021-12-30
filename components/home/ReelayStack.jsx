@@ -8,7 +8,7 @@ import Poster from './Poster';
 import styled from 'styled-components/native';
 import { VenueIcon } from '../utils/VenueIcon';
 
-import * as Amplitude from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import { FeedContext } from '../../context/FeedContext';
 
@@ -106,6 +106,13 @@ export default ReelayStack = ({
             setTimeout(() => {
                 setPlayPauseVisible('none');
             }, PLAY_PAUSE_ICON_TIMEOUT);    
+
+            logAmplitudeEventProd('playVideo', {
+                creatorName: viewableReelay.creator.username,
+                reelayID: viewableReelay.id,
+                reelayTitle: viewableReelay.title.display,
+                username: cognitoUser.username,
+            });
         } else {
             setPaused(true);
             setPlayPauseVisible('play');
@@ -114,6 +121,13 @@ export default ReelayStack = ({
                     setPlayPauseVisible('none');
                 }
             }, PLAY_PAUSE_ICON_TIMEOUT);   
+
+            logAmplitudeEventProd('pauseVideo', {
+                creatorName: viewableReelay.creator.username,
+                reelayID: viewableReelay.id,
+                reelayTitle: viewableReelay.title.display,
+                username: cognitoUser.username,
+            });
         }
     }
 
@@ -164,7 +178,7 @@ export default ReelayStack = ({
 
         if (x % width === 0) {
             const nextStackPosition = x / width;
-            const swipeDirection = nextStackPosition < stackPosition ? 'up' : 'down';
+            const swipeDirection = nextStackPosition < stackPosition ? 'left' : 'right';
             const nextReelay = stack[nextStackPosition];
             const prevReelay = stack[stackPosition];
             const logProperties = {
@@ -174,10 +188,11 @@ export default ReelayStack = ({
                 prevReelayID: prevReelay.id,
                 prevReelayCreator: prevReelay.creator.username,
                 prevReelayTitle: prevReelay.title.display,
+                source: 'stack',
                 swipeDirection: swipeDirection,
                 username: cognitoUser.username,
             }
-            Amplitude.logEventWithPropertiesAsync('swipedFeed', logProperties);
+            logAmplitudeEventProd('swipedFeed', logProperties);
             setStackPosition(nextStackPosition);
         }
     }

@@ -3,7 +3,7 @@ import { Modal, View, Text, Pressable } from 'react-native';
 import { Icon } from 'react-native-elements';
 
 import { AuthContext } from '../../context/AuthContext';
-import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 
@@ -79,7 +79,7 @@ export default FeedSourceSelectorDrawer = ({ feedSource, setFeedSource, drawerOp
         const onPress = () => {
             setFeedSource('following');
             closeDrawer();
-            logEventWithPropertiesAsync('setFeedFollowing', {
+            logAmplitudeEventProd('setFeedFollowing', {
                 username: cognitoUser.username,
                 userSub: cognitoUser?.attributes?.sub,
             });    
@@ -99,7 +99,7 @@ export default FeedSourceSelectorDrawer = ({ feedSource, setFeedSource, drawerOp
         const onPress = () => {
             setFeedSource('global');
             closeDrawer();
-            logEventWithPropertiesAsync('setFeedGlobal', {
+            logAmplitudeEventProd('setFeedGlobal', {
                 username: cognitoUser.username,
                 userSub: cognitoUser?.attributes?.sub,
             });    

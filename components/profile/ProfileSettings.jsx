@@ -2,7 +2,8 @@ import React, { useContext } from 'react';
 import { Text, View, Pressable } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { Auth } from 'aws-amplify';
-import * as Amplitude from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
+
 import colors from "../../constants/ReelayColors";
 import BackButton from "../../components/utils/BackButton";
 import { Icon } from "react-native-elements";
@@ -109,7 +110,7 @@ const Logout = () => {
     const signOut = async () => {
         // todo: confirm sign out
         try {
-            Amplitude.logEventWithPropertiesAsync('signOut', {
+            logAmplitudeEventProd('signOut', {
                 username: cognitoUser.username,
             });
     

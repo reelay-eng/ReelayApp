@@ -4,9 +4,10 @@ import { Icon } from 'react-native-elements';
 import { unfollowCreator } from '../../../api/ReelayDBApi';
 
 import { AuthContext } from '../../../context/AuthContext';
-import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../../utils/EventLogger';
 import styled from 'styled-components/native';
 import ReelayColors from '../../../constants/ReelayColors';
+import { showErrorToast } from '../../utils/toasts';
 
 export default FollowButtonDrawer = ({ 
     creatorFollowers,
@@ -78,10 +79,18 @@ export default FollowButtonDrawer = ({
             const nextMyFollowing = myFollowing.filter(removeFromMyFollows);
             setMyFollowing(nextMyFollowing);
         } else {
-            // handle error
+            logAmplitudeEventProd('unfollowedCreatorError', {
+                creatorName: creatorName,
+                creatorSub: creatorSub,
+                username: myUsername,
+                userSub: myUserSub,
+            });   
+             
+            showErrorToast('Cannot unfollow creator. Please reach out to the Reelay team');
+            return;
         }
 
-        logEventWithPropertiesAsync('unfollowedCreator', {
+        logAmplitudeEventProd('unfollowedCreator', {
             creatorName: creatorName,
             creatorSub: creatorSub,
             username: myUsername,
@@ -93,12 +102,6 @@ export default FollowButtonDrawer = ({
         const onPress = () => {
             setDrawerOpen(false);
             unfollowUser();
-            logEventWithPropertiesAsync('unfollowedCreator', {
-                creatorName: creatorName,
-                creatorSub: creatorSub,
-                username: myUsername,
-                userSub: myUserSub,
-            });    
         }
         return (
             <OptionContainerPressable onPress={onPress}>

@@ -3,13 +3,14 @@ import { ActivityIndicator, Text, Pressable, View } from 'react-native';
 import { Icon, Image } from 'react-native-elements';
 import { AuthContext } from '../../../context/AuthContext';
 
-import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../../utils/EventLogger';
 import styled from 'styled-components/native';
 import ReelayColors from '../../../constants/ReelayColors';
 
 import { followCreator } from '../../../api/ReelayDBApi';
 import { sendFollowNotification } from "../../../api/NotificationsApi";
 import { Dimensions } from 'react-native';
+import { showErrorToast } from '../../utils/toasts';
 
 const { width, height } = Dimensions.get('window');
 
@@ -103,18 +104,24 @@ export default FollowItem = ({
         if (isFollowing) {
             setMyFollowing([...myFollowing, followResult]);
         } else {
-            // handle error
+            logAmplitudeEventProd('followCreatorError', {
+                error: followResult?.error,
+                requestStatus: followResult?.requestStatus,
+            });
+
+            showErrorToast('Cannot follow creator. Please reach out to the Reelay team.');
+            return;
         }
+
+        logAmplitudeEventProd('followedUser', {
+            followerName: reelayDBUser.username,
+            followSub: reelayDBUser.sub
+        });
 
         await sendFollowNotification({
           creatorSub: followUserSub,
           follower: reelayDBUser,
         });
-
-        logEventWithPropertiesAsync('followedUser', {
-            followerName: reelayDBUser.username,
-            followSub: reelayDBUser.sub
-        })
     };
 
     const initiateUnfollowUser = async () => {

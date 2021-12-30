@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { SafeAreaView, View, Pressable, Text } from "react-native";
 
 import BackButton from "../../components/utils/BackButton";
@@ -7,11 +7,13 @@ import TitleSearchResults from "../../components/search/TitleSearchResults";
 import UserSearchResults from "../../components/search/UserSearchResults";
 
 import { ActionButton, PassiveButton, ToggleSelector } from '../../components/global/Buttons';
+import FollowButtonDrawer from "../../components/profile/Follow/FollowButtonDrawer";
+
+import { AuthContext } from "../../context/AuthContext";
+import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
 
 import { searchTitles, searchUsers } from "../../api/ReelayDBApi";
 import styled from "styled-components/native";
-
-import FollowButtonDrawer from "../../components/profile/Follow/FollowButtonDrawer";
 
 const MarginBelowLine = styled(View)`
     height: 30px;
@@ -41,6 +43,7 @@ const BackButtonContainer = styled(View)`
 `
 
 export default SearchScreen = ({ navigation }) => {
+    const { cognitoUser } = useContext(AuthContext);
 
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState("");
@@ -62,12 +65,11 @@ export default SearchScreen = ({ navigation }) => {
     }, [searchResults]);
 
     useEffect(() => {
-
-    }, [])
-
-    const setCreatorFollower = async () => {
-        
-    }
+        logAmplitudeEventProd('openSearchScreen', {
+            username: cognitoUser.username,
+            userSub: cognitoUser.attributes.sub,
+        });
+    }, [navigation]);
 
     const updateSearch = async (newSearchText, searchType, counter) => {
         if (!newSearchText || newSearchText === undefined || newSearchText === '') {            
@@ -113,7 +115,7 @@ export default SearchScreen = ({ navigation }) => {
         return (
             <SelectorContainer>
                 {selected && (
-                        <ActionButton
+                    <ActionButton
                         onPress={() => {
                             setLoading(true);
                             setSelectedType(type);
@@ -121,11 +123,11 @@ export default SearchScreen = ({ navigation }) => {
                         text={type}
                         fontSize='22px'
                         borderRadius='15px'
-                        />
+                    />
                 )}
 
                 {!selected && (
-                        <PassiveButton 
+                    <PassiveButton 
                         onPress={() => {
                             setLoading(true);
                             setSelectedType(type);
@@ -133,7 +135,7 @@ export default SearchScreen = ({ navigation }) => {
                         text={type}
                         fontSize='22px'
                         borderRadius='15px'
-                        />
+                    />
                 )}
             </SelectorContainer>
         );
@@ -141,57 +143,56 @@ export default SearchScreen = ({ navigation }) => {
 
 
     return (
-      <SearchScreenContainer>
-        <TopBarContainer>
-          <BackButtonContainer>
-            <BackButton navigation={navigation} />
-          </BackButtonContainer>
-          <SelectorBarContainer>
-            <SearchTypeSelector type="Film" />
-            <SearchTypeSelector type="TV" />
-            <SearchTypeSelector type="Users" />
-          </SelectorBarContainer>
-        </TopBarContainer>
-        <SearchField
-          searchText={searchText}
-          updateSearchText={updateSearchText}
-          placeholderText={`Search for ${
-            selectedType === "Film"
-              ? "films"
-              : selectedType === "TV"
-              ? "TV shows"
-              : "users"
-          }`}
-        />
-        {selectedType !== "Users" && !loading && (
-          <TitleSearchResults
-            navigation={navigation}
-            searchResults={searchResults}
-            source={"search"}
-          />
-        )}
-        {selectedType === "Users" && !loading && (
-          <UserSearchResults
-            navigation={navigation}
-            searchResults={searchResults}
-            source={"search"}
-            setCreatorFollowers={setCreatorFollowers}
-            setDrawerFollowObj={setDrawerFollowObj}
-            setDrawerOpen={setDrawerOpen}
-          />
-        )}
-
-        {drawerOpen && (
-          <FollowButtonDrawer
-            creatorFollowers={creatorFollowers}
-            setCreatorFollowers={setCreatorFollowers}
-            drawerOpen={drawerOpen}
-            setDrawerOpen={setDrawerOpen}
-            followObj={drawerFollowObj}
-            followType={"waht to do"}
-            sourceScreen={"UserFollowScreen"}
-          />
-        )}
-      </SearchScreenContainer>
+        <SearchScreenContainer>
+            <TopBarContainer>
+                <BackButtonContainer>
+                    <BackButton navigation={navigation} />
+                </BackButtonContainer>
+                <SelectorBarContainer>
+                    <SearchTypeSelector type="Film" />
+                    <SearchTypeSelector type="TV" />
+                    <SearchTypeSelector type="Users" />
+                </SelectorBarContainer>
+            </TopBarContainer>
+            <SearchField
+                searchText={searchText}
+                updateSearchText={updateSearchText}
+                placeholderText={`Search for ${
+                    selectedType === "Film"
+                    ? "films"
+                    : selectedType === "TV"
+                    ? "TV shows"
+                    : "users"
+                }`}
+            />
+            {selectedType !== "Users" && !loading && (
+                <TitleSearchResults
+                    navigation={navigation}
+                    searchResults={searchResults}
+                    source={"search"}
+                />
+            )}
+            {selectedType === "Users" && !loading && (
+                <UserSearchResults
+                    navigation={navigation}
+                    searchResults={searchResults}
+                    source={"search"}
+                    setCreatorFollowers={setCreatorFollowers}
+                    setDrawerFollowObj={setDrawerFollowObj}
+                    setDrawerOpen={setDrawerOpen}
+                />
+            )}
+            {drawerOpen && (
+                <FollowButtonDrawer
+                    creatorFollowers={creatorFollowers}
+                    setCreatorFollowers={setCreatorFollowers}
+                    drawerOpen={drawerOpen}
+                    setDrawerOpen={setDrawerOpen}
+                    followObj={drawerFollowObj}
+                    followType={"waht to do"}
+                    sourceScreen={"UserFollowScreen"}
+                />
+            )}
+        </SearchScreenContainer>
     );
 };

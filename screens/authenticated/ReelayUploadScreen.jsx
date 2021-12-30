@@ -25,7 +25,7 @@ import { Dimensions, Image, SafeAreaView, Pressable, Text, View } from 'react-na
 import { Icon } from 'react-native-elements';
 import * as Progress from 'react-native-progress';
 
-import * as Amplitude from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { sendStackPushNotificationToOtherCreators } from '../../api/NotificationsApi';
 
 import styled from 'styled-components/native';
@@ -218,7 +218,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             return;
         }
 
-        Amplitude.logEventWithPropertiesAsync('publishReelayStarted', {
+        logAmplitudeEventProd('publishReelayStarted', {
             username: cognitoUser.username,
             title: titleObj.display,
         });
@@ -262,7 +262,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
             console.log('REELAYDB USER: ', reelayDBUser);
 
-            Amplitude.logEventWithPropertiesAsync('publishReelayComplete', {
+            logAmplitudeEventProd('publishReelayComplete', {
                 username: cognitoUser.username,
                 userSub: cognitoUser?.attributes?.sub,
                 title: titleObj.display,
@@ -288,7 +288,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             setUploadProgress(0.0);
             setUploadStage('upload-failed-retry');
             
-            Amplitude.logEventWithPropertiesAsync('uploadFailed', {
+            logAmplitudeEventProd('uploadFailed', {
                 username: cognitoUser.username,
                 title: titleObj.display,
             });
@@ -337,7 +337,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 setDownloadStage('download-complete');
             } catch (error) {
                 console.log('Could not save to local device...');
-                Amplitude.logEventWithPropertiesAsync('saveToDeviceFailed', {
+                logAmplitudeEventProd('saveToDeviceFailed', {
                     username: cognitoUser.username,
                     title: titleObj.display,
                 });

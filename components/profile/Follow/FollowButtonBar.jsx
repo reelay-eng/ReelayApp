@@ -7,7 +7,7 @@ import { AuthContext } from '../../../context/AuthContext';
 import { followCreator, unfollowCreator } from '../../../api/ReelayDBApi';
 import { sendFollowNotification } from "../../../api/NotificationsApi";
 
-import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../../utils/EventLogger';
 import FollowButtonDrawer from './FollowButtonDrawer';
 
 const FollowContainer = styled(View)`
@@ -55,17 +55,21 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
             setCreatorFollowers([...creatorFollowers, followResult]);
             setMyFollowing([...myFollowing, followResult]);
         } else {
-            // handle error
+            logAmplitudeEventProd('followCreatorError', {
+                error: followResult?.error,
+                requestStatus: followResult?.requestStatus,
+            });
+            return;
         }
+
+        logAmplitudeEventProd('followedCreator', {
+            username: reelayDBUser.username,
+            creatorName: creator.username,
+        });
 
         await sendFollowNotification({
           creatorSub: creatorSub,
           follower: reelayDBUser,
-        });
-
-        logEventWithPropertiesAsync('followedCreator', {
-            username: reelayDBUser.username,
-            creatorName: creator.username,
         });
     };
 

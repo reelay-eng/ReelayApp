@@ -9,7 +9,7 @@ import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
 import { AuthContext } from '../../context/AuthContext';
 
-import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import styled from 'styled-components/native';
 
 const ProfileScreenContainer = styled(SafeAreaView)`
@@ -61,7 +61,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
 
     useEffect(() => {
         onRefresh();
-        logEventWithPropertiesAsync('viewProfile', {
+        logAmplitudeEventProd('viewProfile', {
             username: cognitoUser.attributes.username,
             creatorName: creator.username,
         });    

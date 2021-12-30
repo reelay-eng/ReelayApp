@@ -2,11 +2,12 @@ import React, { useContext, useState } from "react";
 import { ActivityIndicator, Pressable, View, Text } from "react-native";
 import { Icon, Image } from "react-native-elements";
 import styled from "styled-components/native";
-import { AuthContext } from "../../context/AuthContext";
 import { Dimensions } from "react-native";
 import { followCreator, getFollowers } from "../../api/ReelayDBApi";
 import { sendFollowNotification } from "../../api/NotificationsApi";
-import { logEventWithPropertiesAsync } from "expo-analytics-amplitude";
+
+import { AuthContext } from "../../context/AuthContext";
+import { logAmplitudeEventProd } from "../utils/EventLogger";
 
 const { width, height } = Dimensions.get("window");
 
@@ -69,16 +70,22 @@ export default UserSearchResultItem = ({
     setDrawerFollowObj,
     setDrawerOpen,
 }) => {
-    const userObject = result;
-
     const { reelayDBUser, myFollowing, setMyFollowing } = useContext(AuthContext);
+    const searchedUser = result;
+    const profilePictureURI = searchedUser.profilePictureURI;
 
-    const username = userObject.username;
-    const userSub = userObject.sub;
-    const profilePictureURI = userObject.profilePictureURI;
+    const username = searchedUser.username;
+    const userSub = searchedUser.sub;
 
     const selectResult = () => {
-        navigation.push("UserProfileScreen", { creator: userObject });
+        navigation.push("UserProfileScreen", { creator: searchedUser });
+        logAmplitudeEventProd('selectSearchResult', {
+            username: cognitoUser.username,
+            selectedUsername: searchedUser.username,
+            titleObj: titleObj,
+            source: 'search',
+        }); 
+
     };
 
     const findFollowUser = (userObj) => {
@@ -104,7 +111,7 @@ export default UserSearchResultItem = ({
             follower: reelayDBUser,
         });
 
-        logEventWithPropertiesAsync("followedUser", {
+        logAmplitudeEventProd("followedUser", {
             followerName: reelayDBUser.username,
             followSub: reelayDBUser.sub,
         });
@@ -122,44 +129,44 @@ export default UserSearchResultItem = ({
 
     return (
         <PressableContainer onPress={selectResult}>
-        <ProfilePictureContainer>
-            {profilePictureURI && (
-            <ProfilePicture
-                source={{ uri: profilePictureURI }}
-                PlaceholderContent={<ActivityIndicator />}
-            />
-            )}
-            {!profilePictureURI && (
-            <ProfilePicture
-                source={require("../../assets/icons/reelay-icon.png")}
-            />
-            )}
-        </ProfilePictureContainer>
-        <UsernameContainer>
-            <UsernameText>{username}</UsernameText>
-        </UsernameContainer>
+            <ProfilePictureContainer>
+                {profilePictureURI && (
+                    <ProfilePicture
+                        source={{ uri: profilePictureURI }}
+                        PlaceholderContent={<ActivityIndicator />}
+                    />
+                )}
+                {!profilePictureURI && (
+                    <ProfilePicture
+                        source={require("../../assets/icons/reelay-icon.png")}
+                    />
+                )}
+            </ProfilePictureContainer>
+            <UsernameContainer>
+                <UsernameText>{username}</UsernameText>
+            </UsernameContainer>
 
-        <FollowContainer>
-            {!alreadyFollowing && !isMyProfile && (
-            <FollowButton
-                backgroundColor={ReelayColors.reelayRed}
-                borderColor={ReelayColors.reelayBlack}
-                onPress={followUser}
-            >
-                <FollowText>{"Follow"}</FollowText>
-            </FollowButton>
-            )}
-            {alreadyFollowing && !isMyProfile && (
-            <FollowButton
-                backgroundColor={ReelayColors.reelayBlack}
-                borderColor={"white"}
-                onPress={initiateUnfollowUser}
-            >
-                <FollowText>{"Following"}</FollowText>
-                <Icon type="ionicon" name="caret-down" color={"white"} size={20} />
-            </FollowButton>
-            )}
-        </FollowContainer>
+            <FollowContainer>
+                {!alreadyFollowing && !isMyProfile && (
+                    <FollowButton
+                        backgroundColor={ReelayColors.reelayRed}
+                        borderColor={ReelayColors.reelayBlack}
+                        onPress={followUser}
+                    >
+                        <FollowText>{"Follow"}</FollowText>
+                    </FollowButton>
+                )}
+                {alreadyFollowing && !isMyProfile && (
+                    <FollowButton
+                        backgroundColor={ReelayColors.reelayBlack}
+                        borderColor={"white"}
+                        onPress={initiateUnfollowUser}
+                    >
+                        <FollowText>{"Following"}</FollowText>
+                        <Icon type="ionicon" name="caret-down" color={"white"} size={20} />
+                    </FollowButton>
+                )}
+            </FollowContainer>
         </PressableContainer>
     );
 };
