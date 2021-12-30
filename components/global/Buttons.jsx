@@ -134,15 +134,15 @@ export const RedPlusButton = ({onPress}) => {
 
 export const ToggleSelector = ({ options, selectedOption, setSelectedOption }) => {
     const BackgroundBox = styled(View)`
-        align-items: center;
-        background-color: #393939;
-        border-radius: 6px;
-        justify-content: flex-start;
-        flex-direction: row;
-        height: 48px;
-        padding: 2px;
-        width: 100%;
-    `
+		align-items: center;
+		background-color: #252527;
+		border-radius: 6px;
+		justify-content: flex-start;
+		flex-direction: row;
+		height: 48px;
+		padding: 2px;
+		width: 100%;
+	`;
     const ButtonContainer = styled(Pressable)`
         align-items: center;
         justify-content: center;
@@ -150,13 +150,10 @@ export const ToggleSelector = ({ options, selectedOption, setSelectedOption }) =
         width: ${100 / options.length}%;
     `
     const ActiveButtonContainer = styled(ButtonContainer)`
-        background-color: ${ReelayColors.reelayBlue};
-        border-radius: 6px;
-    `
-    const OptionText = styled(Text)`
-        font-family: System;
-        font-size: 20px;
-        font-weight: 400;
+		background-color: ${ReelayColors.reelayBlue};
+		border-radius: 6px;
+	`;
+    const OptionText = styled(ReelayText.Subtitle2)`
         color: white;
     `
     const PassiveButtonContainer = styled(ButtonContainer)`

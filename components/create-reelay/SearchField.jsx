@@ -30,7 +30,12 @@ export default SearchField = ({
                     backgroundColor: '#2C2C2C',
                     borderRadius: borderRadius,
                     color: 'white',
-                    fontFamily: 'System',
+                    fontFamily: 'Outfit-Regular',
+                    fontSize: 20,
+                    fontStyle: "normal",
+                    lineHeight: 24,
+                    letterSpacing: 0.15,
+                    textAlign: "left",
                 }}
                 inputContainerStyle={{
                     borderBottomWidth: 0
