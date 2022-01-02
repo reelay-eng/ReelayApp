@@ -243,6 +243,7 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 		console.log("S3 Current Profile Picture Upload Result: ", currentUploadResult);
 
 		const currentPhotoURI = `${CLOUDFRONT_BASE_URL}/public/${photoCurrentS3Key}`;
+		console.log("user current photo URI: ", currentPhotoURI);
 		const timestampedPhotoURI = `${CLOUDFRONT_BASE_URL}/public/${photoTimestampedS3Key}`;
 
 		return {
@@ -268,6 +269,7 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 				Bucket: S3_UPLOAD_BUCKET,
 				Key: currentS3Key,
 				ContentType: "image/jpg",
+				CacheControl: "no-cache",
 				Body: photoBuffer,
 			})
 		);
