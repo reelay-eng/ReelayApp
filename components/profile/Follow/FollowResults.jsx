@@ -5,7 +5,9 @@ import FollowItem from "./FollowItem";
 import styled from 'styled-components/native';
 
 const FollowItemContainer = styled(View)`
-    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-bottom-color: #505050;
     border-bottom-width: 0.3px;
 `
