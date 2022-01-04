@@ -401,7 +401,8 @@ export const removeReelay = async (reelay) => {
 }
 
 export const searchTitles = async (searchText, isSeries) => {
-    const routeGet = `${REELAY_API_BASE_URL}/search/titles?searchText=${searchText}&isSeries=${isSeries}`;
+    const cleanSearchText = searchText.toLowerCase().replace(/[\u2018\u2019\u201c\u201d/'/"]/g, "");
+    const routeGet = `${REELAY_API_BASE_URL}/search/titles?searchText=${cleanSearchText}&isSeries=${isSeries}`;
     const resultGet = await fetchResults(routeGet, {
         method: 'GET',
         headers: REELAY_API_HEADERS,
