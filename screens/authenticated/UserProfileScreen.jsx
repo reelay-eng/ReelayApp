@@ -66,7 +66,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
     useEffect(() => {
         onRefresh();
         logAmplitudeEventProd('viewProfile', {
-            username: cognitoUser.attributes.username,
+            username: cognitoUser?.attributes?.username,
             creatorName: creator.username,
         });    
     }, []);

@@ -94,7 +94,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
     useEffect(() => {
         onRefresh();
         logAmplitudeEventProd('viewMyProfile', {
-            username: cognitoUser.attributes.username,
+            username: cognitoUser?.attributes?.username,
         });    
     }, []);
 
@@ -147,7 +147,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 					reelayCount={reelayCount}
 					creator={{
 						username: cognitoUser.username,
-						sub: cognitoUser.attributes.sub,
+						sub: cognitoUser?.attributes?.sub,
 					}}
 					followers={myFollowers}
 					following={myFollowing}
