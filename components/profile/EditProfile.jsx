@@ -202,7 +202,7 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 				close();
 				const { cloudfrontPhotoURI } = await uploadProfilePhotoToS3(pickerResult.uri);
 				if (reelayDBUser?.profilePictureURI !== cloudfrontPhotoURI) {
-					const patchResult = await updateProfilePic(cognitoUser.attributes.sub, cloudfrontPhotoURI);
+					const patchResult = await updateProfilePic(cognitoUser?.attributes?.sub, cloudfrontPhotoURI);
 					console.log("Patched Profile Image: ", patchResult);
 					let newReelayDBUser = reelayDBUser;
 					newReelayDBUser.profilePictureURI = cloudfrontPhotoURI;
@@ -232,8 +232,8 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 		const uploadTimestamp = Date.now();
 		const resizedPhoto = await resizeImage(photoURI);
 		const resizedPhotoURI = resizedPhoto.base64;
-		const photoTimestampedS3Key = `profilepic-${cognitoUser.attributes.sub}-${uploadTimestamp}.jpg`;
-		const photoCurrentS3Key = `profilepic-${cognitoUser.attributes.sub}-current.jpg`;
+		const photoTimestampedS3Key = `profilepic-${cognitoUser?.attributes?.sub}-${uploadTimestamp}.jpg`;
+		const photoCurrentS3Key = `profilepic-${cognitoUser?.attributes?.sub}-current.jpg`;
 		const { timestampedUploadResult, currentUploadResult } = await uploadProfilePicToS3(
 			resizedPhotoURI,
 			`public/${photoTimestampedS3Key}`,
