@@ -1,45 +1,46 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { SafeAreaView, View, Pressable, Text } from "react-native";
 
-import BackButton from "../../components/utils/BackButton";
+//Components
+import { HeaderWithBackButton } from '../../components/global/Headers'
 import SearchField from "../../components/create-reelay/SearchField";
 import TitleSearchResults from "../../components/search/TitleSearchResults";
 import UserSearchResults from "../../components/search/UserSearchResults";
-
 import { ActionButton, PassiveButton, ToggleSelector } from '../../components/global/Buttons';
 import FollowButtonDrawer from "../../components/profile/Follow/FollowButtonDrawer";
 
+// Context
 import { AuthContext } from "../../context/AuthContext";
+
+// Logging
 import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
 
+// API
 import { searchTitles, searchUsers } from "../../api/ReelayDBApi";
+
+// Styling
 import styled from "styled-components/native";
 
 const MarginBelowLine = styled(View)`
     height: 30px;
 `
-const TopBarContainer = styled(View)`
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-`
+
 const SearchScreenContainer = styled(SafeAreaView)`
     background-color: black;
     height: 100%;
     width: 100%;
 `
-const SelectorBarContainer = styled(View)`
-    width: 75%;
-    flex-direction: row;
-    justify-content: space-evenly;
+
+const TopBarContainer = styled(View)`
+    display: flex;
     align-items: center;
-    position: relative;
+    width: 100%;
+    margin-bottom: 8px;
 `
-const BackButtonContainer = styled(View)`
-    position: relative;
-    width: 20%;
-    min-width: 30px;
-    z-index: 3;
+
+const SelectorBarContainer = styled(View)`
+    width: 90%;
+    height: 40px;
 `
 
 export default SearchScreen = ({ navigation }) => {
@@ -67,7 +68,7 @@ export default SearchScreen = ({ navigation }) => {
     useEffect(() => {
         logAmplitudeEventProd('openSearchScreen', {
             username: cognitoUser.username,
-            userSub: cognitoUser.attributes.sub,
+            userSub: cognitoUser?.attributes?.sub,
         });
     }, [navigation]);
 
@@ -144,7 +145,20 @@ export default SearchScreen = ({ navigation }) => {
 
     return (
         <SearchScreenContainer>
+            <HeaderWithBackButton navigation={navigation} text={"Search"} />
             <TopBarContainer>
+                <SelectorBarContainer>
+                    <ToggleSelector
+                        options={["Film", "TV", "Users"]}
+                        selectedOption={selectedType}
+                        onSelect={(type) => {
+                            setSelectedType(type);
+                            setLoading(true);
+                        }}
+                    />
+                </SelectorBarContainer>
+            </TopBarContainer>
+            {/* <TopBarContainer>
                 <BackButtonContainer>
                     <BackButton navigation={navigation} />
                 </BackButtonContainer>
@@ -153,10 +167,11 @@ export default SearchScreen = ({ navigation }) => {
                     <SearchTypeSelector type="TV" />
                     <SearchTypeSelector type="Users" />
                 </SelectorBarContainer>
-            </TopBarContainer>
+            </TopBarContainer> */}
             <SearchField
                 searchText={searchText}
                 updateSearchText={updateSearchText}
+                borderRadius={4}
                 placeholderText={`Search for ${
                     selectedType === "Film"
                     ? "films"

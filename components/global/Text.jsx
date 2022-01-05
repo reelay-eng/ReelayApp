@@ -142,13 +142,24 @@ export const Body1 = styled(Text)`
 	letter-spacing: 0.5px;
 	text-align: left;
 `;
-export const Body2 = styled(Text)`
+const Body2Style = `
 	font-family: ${getFontFamily(400)};
 	font-size: 14px;
 	font-style: normal;
 	line-height: 20px;
 	letter-spacing: 0.25px;
 	text-align: left;
+`;
+export const Body2 = styled(Text)`
+	${Body2Style}
+`;
+export const Body2Emphasized = styled(Body2)`
+	${Body2Style}
+	font-family: ${getFontFamily(500)};
+`;
+export const Body2Bold = styled(Body2)`
+	${Body2Style}
+	font-family: ${getFontFamily(600)};
 `;
 
 export const Button = styled(Text)`

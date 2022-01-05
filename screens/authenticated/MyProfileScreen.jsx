@@ -1,29 +1,49 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
-import { getStacksByCreator } from '../../api/ReelayDBApi';
 
+// Logging
+import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
+
+// API
+import { getStacksByCreator } from '../../api/ReelayDBApi';
+import { getFollowers, getFollowing } from "../../api/ReelayDBApi";
+
+// Components
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
 import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
+import EditProfile from "../../components/profile/EditProfile";
+import { BWButton } from "../../components/global/Buttons";
 
-import { getFollowers, getFollowing } from '../../api/ReelayDBApi';
 
-import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
-import { AuthContext } from '../../context/AuthContext';
+// Context
+import { AuthContext } from "../../context/AuthContext";
+import { FeedContext } from "../../context/FeedContext";
+
+// Styling
+
 import styled from 'styled-components/native';
 
 export default MyProfileScreen = ({ navigation, route }) => {
     const [refreshing, setRefreshing] = useState(false);
+    const [isEditingProfile, setIsEditingProfile] = useState(false);
 	const { 
         cognitoUser, 
         myFollowers, 
         myFollowing,
         myCreatorStacks,
+        reelayDBUser,
         setMyFollowers, 
         setMyFollowing,
         setMyCreatorStacks,
     } = useContext(AuthContext); 
+
+    const { setTabBarVisible } = useContext(FeedContext);
+
+    useEffect(() => {
+        setTabBarVisible(true);
+    })
 
     if (!cognitoUser) {
         return (
@@ -74,7 +94,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
     useEffect(() => {
         onRefresh();
         logAmplitudeEventProd('viewMyProfile', {
-            username: cognitoUser.attributes.username,
+            username: cognitoUser?.attributes?.username,
         });    
     }, []);
 
@@ -82,33 +102,59 @@ export default MyProfileScreen = ({ navigation, route }) => {
         username: cognitoUser.username,
     });
 
+    const EditProfileButton = () => {
+        const Container = styled(View)`
+			width: 100%;
+			height: 40px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+            margin-bottom: 8px;
+		`;
+        const EditProfileButtonContainer = styled(View)`
+            width: 90%;
+            height: 40px;
+        `
+
+        return (
+			<Container>
+				<EditProfileButtonContainer>
+					<BWButton
+						text="Edit Profile"
+						onPress={() => {
+                            setIsEditingProfile(true);
+						}}
+					/>
+				</EditProfileButtonContainer>
+			</Container>
+		);
+    }
+
     return (
-        <ProfileScreenContainer>
-            <ProfileTopBar
-                creator={cognitoUser}
-                navigation={navigation}
-                atProfileBase={true}
-            />
-            <ProfileScrollView refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }>
-                <ProfileHeader />
-                <ProfileStatsBar
-                    navigation={navigation}
-                    reelayCount={reelayCount}
-                    creator={{
-                        username: cognitoUser.username,
-                        sub: cognitoUser?.attributes?.sub,
-                    }}
-                    followers={myFollowers}
-                    following={myFollowing}
-                    prevScreen={'MyProfileScreen'}
-                />
-                <ProfilePosterGrid
-                    creatorStacks={myCreatorStacks}
-                    navigation={navigation}
-                />
-            </ProfileScrollView>
-        </ProfileScreenContainer>
-    );
+		<ProfileScreenContainer>
+			<EditProfile
+				isEditingProfile={isEditingProfile}
+				setIsEditingProfile={setIsEditingProfile}
+			/>
+			<ProfileTopBar creator={cognitoUser} navigation={navigation} atProfileBase={true} />
+			<ProfileScrollView
+				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+			>
+				<ProfileHeader profilePictureURI={reelayDBUser.profilePictureURI} />
+				<EditProfileButton />
+				<ProfileStatsBar
+					navigation={navigation}
+					reelayCount={reelayCount}
+					creator={{
+						username: cognitoUser.username,
+						sub: cognitoUser?.attributes?.sub,
+					}}
+					followers={myFollowers}
+					following={myFollowing}
+					prevScreen={"MyProfileScreen"}
+				/>
+				<ProfilePosterGrid creatorStacks={myCreatorStacks} navigation={navigation} />
+			</ProfileScrollView>
+		</ProfileScreenContainer>
+	);
 }

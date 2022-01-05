@@ -16,6 +16,9 @@ import { AuthContext } from '../../context/AuthContext';
 import { getPosterURL, getLogoURL, fetchMovieProviders } from '../../api/TMDbApi';
 import { getMostRecentReelaysByTitle } from "../../api/ReelayDBApi";
 
+// Context
+import { FeedContext } from '../../context/FeedContext';
+
 // Styling
 import ReelayColors from "../../constants/ReelayColors";
 import styled from 'styled-components/native';
@@ -61,6 +64,15 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const genres = titleObj?.genres;
 	const rating = titleObj?.rating;
 
+	// hide tab bar
+	const { setTabBarVisible } = useContext(FeedContext);
+	useEffect(() => {
+		setTabBarVisible(false);
+		return () => {
+			setTabBarVisible(true);
+		};
+	});
+
 	const ScrollBox = styled(ScrollView)`
 		position: absolute;
 		width: 100%;
@@ -83,9 +95,29 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 			<MovieInformation director={director} actors={actors} description={overview} rating={rating} />
 			<Spacer height={20} />
 			<AppleTVAd />
+			<BottomBackButton navigation={navigation} />
+			<Spacer height={100} />
 		</ScrollBox>
 	);
 };
+
+const BottomBackButton = ({ navigation }) => {
+	const BackButtonContainer = styled(View)`
+		width: 100%;
+		display: flex;
+		flex-direction: row;
+		align-items: flex-start;
+		margin-left: 21px;
+		margin-top: 20px;
+	`
+	return (
+		<BackButtonContainer>
+			<Pressable onPress={() => navigation.goBack()}>
+				<Icon type="ionicon" name={"arrow-back-outline"} color={"white"} size={25} />
+			</Pressable>
+		</BackButtonContainer>
+	);
+}
 
 const PosterWithTrailer = ({
 	navigation,
@@ -251,7 +283,7 @@ const PosterWithTrailer = ({
 					<TrailerButtonContainer>
 						<ActionButton
 							text={"Watch Trailer"}
-							icon={
+							leftIcon={
 								<Icon
 									color={"white"}
 									type="ionicon"
@@ -272,7 +304,7 @@ const PosterWithTrailer = ({
 					<ActionButton
 						color="red"
 						text={"Create a Reelay"}
-						icon={
+						leftIcon={
 							<Icon
 								color={"white"}
 								type="ionicon"
@@ -679,7 +711,6 @@ const AppleTVAd = () => {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		margin-bottom: 100px;
 	`
 	const AdContainer = styled(View)`
 		width: 350px;

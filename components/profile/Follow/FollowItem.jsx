@@ -2,70 +2,48 @@ import React, { useEffect, useState, useContext } from 'react';
 import { ActivityIndicator, Text, Pressable, View } from 'react-native';
 import { Icon, Image } from 'react-native-elements';
 import { AuthContext } from '../../../context/AuthContext';
-
 import { logAmplitudeEventProd } from '../../utils/EventLogger';
 import styled from 'styled-components/native';
 import ReelayColors from '../../../constants/ReelayColors';
-
 import { followCreator } from '../../../api/ReelayDBApi';
 import { sendFollowNotification } from "../../../api/NotificationsApi";
-import { Dimensions } from 'react-native';
 import { showErrorToast } from '../../utils/toasts';
-
-const { width, height } = Dimensions.get('window');
+import { ActionButton, BWButton } from "../../global/Buttons";
+import * as ReelayText from "../../global/Text";
 
 const PressableContainer = styled(Pressable)`
-    align-items: center;
-    flex-direction: row;
-    height: 100px;
-    margin-left: 10px;
-    width: 100%;
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	height: 60px;
+	width: 100%;
 `;
-const UsernameText = styled.Text`
-    color: white
-    font-size: 18px;
+const UsernameText = styled(ReelayText.Subtitle1Emphasized)`
+	color: white;
 `;
 const UsernameContainer = styled.View`
-    align-items: flex-start;
-    justify-content: center;
-    width: ${width / 2}px;
+	align-items: flex-start;
+	justify-content: center;
+	flex: 0.6;
 `;
 const ProfilePicture = styled(Image)`
-    border-radius: 50px;
-    height: 45px;
-    width: 45px;
+	border-radius: 16px;
+	border-width: 1px;
+	border-color: white;
+	height: 32px;
+	width: 32px;
 `;
 const ProfilePictureContainer = styled(View)`
-    border-color: white;
-    border-radius: 50px;
-    border-width: 2px;
-    margin: 10px;
-    height: 50px;
-    width: 50px;
+	margin: 10px;
+	flex: 0.1;
 `;
 
-// 70px prof pic
-// 15px right margin 
-const FollowContainer = styled(View)`
-    width: ${width / 2 - 75}px;
+const FollowButtonFlexContainer = styled(View)`
+	flex: 0.3;
 `;
-const FollowButton = styled(Pressable)`
-    align-items: center;
-    background-color: ${props => props.backgroundColor};
-    border-color: ${props => props.borderColor}};
-    border-radius: 12px;
-    border-width: 1px;
-    height: 45px;
-    flex-direction: row;
-    justify-content: space-around;
-    padding: 6px;
-    right: 20px;
-`;
-const FollowText = styled(Text)`
-    color: white;
-    font-size: 18px;
-    font-weight: 500;
-    line-height: 18px;
+const FollowButtonContainer = styled(View)`
+	height: 40px;
+	width: 90px;
 `;
 
 // What it should do:
@@ -143,44 +121,51 @@ export default FollowItem = ({
     };
 
     return (
-        <PressableContainer onPress={selectResult}>
-            <ProfilePictureContainer>
-                {followProfilePictureURI && (
-                    <ProfilePicture
-                        source={{ uri: profilePictureURI }}
-                        PlaceholderContent={<ActivityIndicator />}
-                    />
-                )}
-                {!followProfilePictureURI && (
-                    <ProfilePicture
-                        source={require('../../../assets/icons/reelay-icon.png')}
-                    />
-                )}
-            </ProfilePictureContainer>
-            <UsernameContainer>
-                <UsernameText>{followUsername}</UsernameText>
-            </UsernameContainer>
-            <FollowContainer>
-                { !alreadyFollowing && !isMyProfile && (
-                    <FollowButton 
-                        backgroundColor={ReelayColors.reelayRed}
-                        borderColor={ReelayColors.reelayBlack}
-                        onPress={followUser}
-                    >
-                        <FollowText>{'Follow'}</FollowText>
-                    </FollowButton>
-                )}
-                { alreadyFollowing && !isMyProfile && (
-                    <FollowButton 
-                        backgroundColor={ReelayColors.reelayBlack}
-                        borderColor={'white'}
-                        onPress={initiateUnfollowUser} 
-                    >
-                        <FollowText>{'Following'}</FollowText>
-                        <Icon type='ionicon' name='caret-down' color={'white'} size={20} />
-                    </FollowButton>
-                )}
-            </FollowContainer>
-        </PressableContainer>
-    );
+		<PressableContainer onPress={selectResult}>
+			<ProfilePictureContainer>
+				{followProfilePictureURI && (
+					<ProfilePicture
+						source={{ uri: followProfilePictureURI }}
+						PlaceholderContent={<ActivityIndicator />}
+					/>
+				)}
+				{!followProfilePictureURI && (
+					<ProfilePicture source={require("../../../assets/icons/reelay-icon.png")} />
+				)}
+			</ProfilePictureContainer>
+			<UsernameContainer>
+				<UsernameText>{followUsername}</UsernameText>
+			</UsernameContainer>
+
+			<FollowButtonFlexContainer>
+				<FollowButtonContainer>
+					{!alreadyFollowing && !isMyProfile && (
+						<ActionButton
+							text="Follow"
+							color="red"
+							borderRadius="8px"
+							backgroundColor={ReelayColors.reelayRed}
+							borderColor={ReelayColors.reelayBlack}
+							onPress={followUser}
+						/>
+					)}
+					{alreadyFollowing && !isMyProfile && (
+						<BWButton
+							text="Following"
+							borderRadius="8px"
+							onPress={initiateUnfollowUser}
+							rightIcon={
+								<Icon
+									type="ionicon"
+									name="chevron-down-outline"
+									color={"white"}
+									size={15}
+								/>
+							}
+						/>
+					)}
+				</FollowButtonContainer>
+			</FollowButtonFlexContainer>
+		</PressableContainer>
+	);
 };
