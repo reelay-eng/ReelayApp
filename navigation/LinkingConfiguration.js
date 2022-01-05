@@ -32,6 +32,7 @@ export default {
 					ForgotPasswordAffirmScreen: "ForgotPasswordAffirmScreen",
 					ForgotPasswordScreen: "ForgotPasswordScreen",
 					ForgotPasswordSubmitScreen: "ForgotPasswordSubmitScreen",
+					SignedOutScreen: "SignedOutScreen",
 					SignInScreen: "SignInScreen",
 					SignUpEmailScreen: "SignUpEmailScreen",
 					SignUpScreen: "SignUpScreen",
