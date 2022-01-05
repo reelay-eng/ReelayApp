@@ -80,8 +80,10 @@ function App() {
     const [s3Client, setS3Client] = useState(null);
 
     useEffect(() => {
-        initServices();
-        authenticateUser();
+        (async () => {
+            await initServices();
+            await authenticateUser();
+        })()
     }, []);
 
     useEffect(() => {

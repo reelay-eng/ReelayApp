@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { SafeAreaView, View, Pressable, Text } from 'react-native';
 import { FeedContext } from '../../context/FeedContext';
 
-import BackButton from '../../components/utils/BackButton';
+import {HeaderWithBackButton} from '../../components/global/Headers';
 import SearchField from '../../components/create-reelay/SearchField';
 import TitleSearchResults from '../../components/search/TitleSearchResults';
 import { ActionButton, PassiveButton } from '../../components/global/Buttons';
@@ -12,17 +12,15 @@ import { searchTitles } from '../../api/ReelayDBApi';
 
 export default SelectTitleScreen = ({ navigation }) => {
     const TopBarContainer = styled(View)`
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-    `
-    const SelectorBarContainer = styled(View)`
-        width: 75%;
-        flex-direction: row;
-        justify-content: space-evenly;
-        align-items: center;
-        position: relative;
-    `
+		display: flex;
+		align-items: center;
+		width: 100%;
+		margin-bottom: 8px;
+	`;
+	const SelectorBarContainer = styled(View)`
+		width: 90%;
+		height: 40px;
+	`;
     const BackButtonContainer = styled(View)`
         position: relative;
         width: 20%;
@@ -112,19 +110,29 @@ export default SelectTitleScreen = ({ navigation }) => {
     }, [searchResults])
 
     return (
-        <SafeAreaView style={{ backgroundColor: 'black', height: '100%', width: '100%'}}>
-            <TopBarContainer>
-                <BackButtonContainer>
-                    <BackButton navigation={navigation} />
-                </BackButtonContainer>
-                <SelectorBarContainer>
-                    <FilmTVSelector type='Film' />
-                    <FilmTVSelector type='TV' />
-                </SelectorBarContainer>
-                
-            </TopBarContainer>
-            <SearchField searchText={searchText} updateSearchText={setSearchText} placeholderText="What did you see?"/>
-            <TitleSearchResults navigation={navigation} searchResults={searchResults} source={'create'} />
-        </SafeAreaView>
-    );
+		<SafeAreaView style={{ backgroundColor: "black", height: "100%", width: "100%" }}>
+			<TopBarContainer>
+				<HeaderWithBackButton navigation={navigation} text={"Search"} />
+				<SelectorBarContainer>
+					<ToggleSelector
+						options={["Film", "TV", "Users"]}
+						selectedOption={searchType}
+						onSelect={(type) => {
+							setSearchType(type);
+						}}
+					/>
+				</SelectorBarContainer>
+			</TopBarContainer>
+			<SearchField
+				searchText={searchText}
+				updateSearchText={setSearchText}
+				placeholderText="What did you see?"
+			/>
+			<TitleSearchResults
+				navigation={navigation}
+				searchResults={searchResults}
+				source={"create"}
+			/>
+		</SafeAreaView>
+	);
 };

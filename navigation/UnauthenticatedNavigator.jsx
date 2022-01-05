@@ -4,7 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import ConfirmEmailScreen from '../screens/unauthenticated/ConfirmEmailScreen';
 import ForgotPasswordScreen from '../screens/unauthenticated/ForgotPasswordScreen';
 import ForgotPasswordSubmitScreen from '../screens/unauthenticated/ForgotPasswordSubmitScreen';
-import ForgotPasswordAffirmScreen from '../screens/unauthenticated/ForgotPasswordAffirmScreen';
+import SignedOutScreen from '../screens/unauthenticated/SignedOutScreen';
 import SignInScreen from '../screens/unauthenticated/SignInScreen';
 import SignUpScreen from '../screens/unauthenticated/SignUpScreen';
 import SignUpEmailScreen from '../screens/unauthenticated/SignUpEmailScreen';
@@ -15,9 +15,17 @@ const AuthenticationStack = createStackNavigator();
 export default UnauthenticatedNavigator = () => {
   return (
     <AuthenticationStack.Navigator
-        initialRouteName="SignUpEmailScreen"
+        initialRouteName="SignedOutScreen"
         detachInactiveScreens={false}
-    >
+      >
+        <AuthenticationStack.Screen
+            name="SignedOutScreen"
+            component={SignedOutScreen}
+            options={{
+                animationEnabled: false,
+                headerShown: false,
+            }}
+        />
         <AuthenticationStack.Screen
             name="SignUpEmailScreen"
             component={SignUpEmailScreen}
@@ -57,13 +65,6 @@ export default UnauthenticatedNavigator = () => {
         <AuthenticationStack.Screen
             name="ForgotPasswordSubmitScreen"
             component={ForgotPasswordSubmitScreen}
-            options={{
-                headerShown: false,
-            }}
-        />
-        <AuthenticationStack.Screen
-            name="ForgotPasswordAffirmScreen"
-            component={ForgotPasswordAffirmScreen}
             options={{
                 headerShown: false,
             }}

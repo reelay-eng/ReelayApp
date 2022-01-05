@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 
-export default BackButton = ({ navigation, iconType='chevron-back-outline' }) => {
+export default BackButton = ({ navigation, iconType='arrow-back-outline' }) => {
     const BackButtonContainer = styled(Pressable)`
         height: 30px;
         width: 30px;

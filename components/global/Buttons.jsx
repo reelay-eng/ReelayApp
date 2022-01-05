@@ -13,7 +13,12 @@ const ButtonPressable = styled(Pressable)`
 const ButtonBox = styled(View)`
     width: 100%;
     height: 100%;
-    background-color: ${props => props.pressed ? props.pressedColor : props.backgroundColor};
+    background-color: ${props => {
+	if (props.disabled) return "transparent";
+		else if (props.pressed) return props.pressedColor;
+		else return props.backgroundColor;
+	}
+	};
     border-radius: ${props => props.borderRadius ? props.borderRadius : '10px'};
     border: ${props => {
     if (props.disabled) return 'solid 1px #5e5e5e';
