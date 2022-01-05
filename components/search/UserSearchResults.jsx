@@ -4,30 +4,31 @@ import UserSearchResultItem from "./UserSearchResultItem";
 
 import styled from "styled-components/native";
 
-const UserSearchResults = ({ navigation, searchResults }) => {
-    const ROW_HEIGHT = 100;
-    const SearchResultContainer = styled(View)`
-        height: ${ROW_HEIGHT}px;
-        border-bottom-color: #505050;
-        border-bottom-width: 0.3px;
-    `;
+const FollowItemContainer = styled(View)`
+    border-bottom-color: #505050;
+    border-bottom-width: 0.3px;
+`;
 
-    const SearchResultsScrollContainer = styled(ScrollView)`
-        margin-bottom: ${ROW_HEIGHT + 110}px;
-    `;
-    
+const UserSearchResults = ({ navigation, searchResults, setCreatorFollowers, setDrawerFollowObj, setDrawerOpen }) => {
+    const ROW_HEIGHT = 165;
+	const SearchResultsScrollContainer = styled(ScrollView)`
+		margin-bottom: ${ROW_HEIGHT + 105}px;
+	`;
     return (
         <View>
             {searchResults.length >= 1 && (
                 <SearchResultsScrollContainer>
-                    {searchResults.map((result) => {
+                    {searchResults.map((result, index) => {
                         return (
-                            <SearchResultContainer key={result?.id}>
-                                <UserSearchResultItem
-                                    result={result}
-                                    navigation={navigation}
-                                />
-                            </SearchResultContainer>
+                          <FollowItemContainer key={index}>
+                            <UserSearchResultItem
+                              result={result}
+                              navigation={navigation}
+                              setCreatorFollowers={setCreatorFollowers}
+                              setDrawerFollowObj={setDrawerFollowObj}
+                              setDrawerOpen={setDrawerOpen}
+                            />
+                          </FollowItemContainer>
                         );
                     })}
                 </SearchResultsScrollContainer>

@@ -4,6 +4,14 @@ import FollowItem from "./FollowItem";
 
 import styled from 'styled-components/native';
 
+const FollowItemContainer = styled(View)`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom-color: #505050;
+    border-bottom-width: 0.3px;
+`
+
 const FollowResults = ({ 
     followType, 
     navigation, 
