@@ -68,7 +68,7 @@ export default SearchScreen = ({ navigation }) => {
     useEffect(() => {
         logAmplitudeEventProd('openSearchScreen', {
             username: cognitoUser.username,
-            userSub: cognitoUser.attributes.sub,
+            userSub: cognitoUser?.attributes?.sub,
         });
     }, [navigation]);
 
