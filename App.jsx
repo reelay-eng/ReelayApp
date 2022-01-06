@@ -4,6 +4,7 @@ import { Image, Platform, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './navigation';
 import styled from 'styled-components/native';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // aws imports
 import { Amplify, Auth, Storage } from 'aws-amplify';
@@ -65,6 +66,7 @@ function App() {
     const [signedIn, setSignedIn] = useState(false);
     const [session, setSession] = useState({});
     const [username, setUsername] = useState('');
+    const [isReturningUser, setIsReturningUser] = useState(false);
 
     // Feed context hooks
     const [commentsVisible, setCommentsVisible] = useState(false);
@@ -126,6 +128,21 @@ function App() {
             }),
         });
         await loadFonts();
+        await checkIsNewUser();
+    }
+
+    const checkIsNewUser = async () => {
+        try {
+			const value = await AsyncStorage.getItem("isReturningUser");
+			if (value !== null) {
+                setIsReturningUser(true);
+            }
+            else {
+                setIsReturningUser(false);
+            }
+		} catch (e) {
+			// error reading value
+		}
     }
 
     const initS3Client = () => {
@@ -242,6 +259,7 @@ function App() {
         session,            setSession,
         signedIn,           setSignedIn,
         username,           setUsername,
+        isReturningUser,    setIsReturningUser
     }
 
     const uploadState = {
