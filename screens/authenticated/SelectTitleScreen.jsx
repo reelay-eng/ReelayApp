@@ -5,7 +5,7 @@ import { FeedContext } from '../../context/FeedContext';
 import {HeaderWithBackButton} from '../../components/global/Headers';
 import SearchField from '../../components/create-reelay/SearchField';
 import TitleSearchResults from '../../components/search/TitleSearchResults';
-import { ActionButton, PassiveButton } from '../../components/global/Buttons';
+import { ActionButton, PassiveButton, ToggleSelector } from '../../components/global/Buttons';
 
 import styled from 'styled-components/native';
 import { searchTitles } from '../../api/ReelayDBApi';
