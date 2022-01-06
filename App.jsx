@@ -141,7 +141,7 @@ function App() {
                 setIsReturningUser(false);
             }
 		} catch (e) {
-			// error reading value
+			console.log(e)
 		}
     }
 
