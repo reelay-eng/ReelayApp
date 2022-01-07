@@ -282,10 +282,10 @@ export default ReelayFeed = ({ navigation,
             data={globalStackList}
             getItemLayout={getItemLayout}
             horizontal={false}
-            initialNumToRender={3}
+            initialNumToRender={2}
             initialScrollIndex={globalFeedPosition}
             keyExtractor={(stack) => String(stack[0].title.id)}
-            maxToRenderPerBatch={3}
+            maxToRenderPerBatch={2}
             onEndReached={extendFeed}
             onRefresh={refreshFeed}
             onScroll={onFeedSwiped}
@@ -307,10 +307,10 @@ export default ReelayFeed = ({ navigation,
             data={followingStackList}
             getItemLayout={getItemLayout}
             horizontal={false}
-            initialNumToRender={3}
+            initialNumToRender={2}
             initialScrollIndex={followingFeedPosition}
             keyExtractor={(stack) => String(stack[0].title.id)}
-            maxToRenderPerBatch={3}
+            maxToRenderPerBatch={2}
             onEndReached={extendFeed}
             onRefresh={refreshFeed}
             onScroll={onFeedSwiped}
