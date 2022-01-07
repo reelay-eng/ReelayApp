@@ -213,9 +213,9 @@ export default ReelayStack = ({
             <FlatList 
                 data={stack} 
                 horizontal={true} 
-                initialNumToRender={2}
+                initialNumToRender={1}
                 initialScrollIndex={initialStackPos}
-                maxToRenderPerBatch={2}
+                maxToRenderPerBatch={1}
                 renderItem={renderReelay} 
                 onScroll={onStackSwiped} 
                 pagingEnabled={true} 

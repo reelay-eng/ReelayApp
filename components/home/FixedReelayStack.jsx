@@ -134,9 +134,9 @@ export default UserReelayFeed = ({ navigation,
                     data={stackList}
                     getItemLayout={getItemLayout}
                     horizontal={false}
-                    initialNumToRender={2}
+                    initialNumToRender={1}
                     initialScrollIndex={initialFeedPos}
-                    maxToRenderPerBatch={2}
+                    maxToRenderPerBatch={1}
                     keyExtractor={stack => String(stack[0].title.id)}
                     onScroll={onFeedSwiped}
                     pagingEnabled={true}
