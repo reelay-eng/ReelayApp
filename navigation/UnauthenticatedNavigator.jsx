@@ -10,8 +10,6 @@ import NewUserScreen from '../screens/unauthenticated/NewUserScreen';
 import SignedOutScreen from '../screens/unauthenticated/SignedOutScreen';
 import SignInScreen from '../screens/unauthenticated/SignInScreen';
 import SignUpScreen from '../screens/unauthenticated/SignUpScreen';
-import SignUpEmailScreen from '../screens/unauthenticated/SignUpEmailScreen';
-import SignUpUsernameScreen from '../screens/unauthenticated/SignUpUsernameScreen';
 import SplashScreen from '../screens/unauthenticated/SplashScreen';
 
 const AuthenticationStack = createStackNavigator();
@@ -33,21 +31,6 @@ export default UnauthenticatedNavigator = () => {
         <AuthenticationStack.Screen
             name="SignedOutScreen"
             component={SignedOutScreen}
-            options={{
-                headerShown: false,
-            }}
-        />
-        <AuthenticationStack.Screen
-            name="SignUpEmailScreen"
-            component={SignUpEmailScreen}
-            options={{
-                animationEnabled: false,
-                headerShown: false,
-            }}
-        />
-        <AuthenticationStack.Screen
-            name="SignUpUsernameScreen"
-            component={SignUpUsernameScreen}
             options={{
                 headerShown: false,
             }}

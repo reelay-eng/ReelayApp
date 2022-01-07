@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Image, KeyboardAvoidingView, SafeAreaView, Pressable, View } from 'react-native';
+import { Image, KeyboardAvoidingView, SafeAreaView, Pressable, TouchableWithoutFeedback, View, Linking } from 'react-native';
 import { Icon, Input } from 'react-native-elements';
 import BackButton from '../../components/utils/BackButton';
 import { showErrorToast } from '../../components/utils/toasts';
@@ -90,9 +90,36 @@ export default SignUpScreen = ({ navigation, route }) => {
     `
 
     const CTAButtonContainer = styled(View)`
-        margin-bottom: 40px;
-        width: 95%;
+        margin-bottom: 16px;
+        width: 92%;
         height: 56px;
+    `
+    const SignUpDisclosure = styled(ReelayText.Caption)`
+		color: white;
+        text-align: center;
+        width: 80%;
+	`;
+    const SignUpDisclosureLink = ({url, children}) => {
+        const LinkText = styled(ReelayText.Caption)`
+            color: white;
+            text-decoration-line: underline;
+            text-decoration-style: solid;
+        `;
+        const LinkPressable = styled(TouchableWithoutFeedback)``
+        return (
+            <LinkPressable onPress={() => Linking.openURL(url)}>
+                <LinkText>{children}</LinkText>
+            </LinkPressable>
+        )
+
+
+    }
+
+    const SignUpButtonAndDisclosureContainer = styled(View)`
+        width: 100%;
+        margin-bottom: 24px;
+        flex-direction: column;
+        align-items: center;
     `
 
 
@@ -261,15 +288,27 @@ export default SignUpScreen = ({ navigation, route }) => {
 						value={confirmPassword}
 					/>
 				</InputContainer>
-				<CTAButtonContainer>
-					<Button
-						text="Sign Up"
-						onPress={createAccount}
-						backgroundColor={ReelayColors.reelayBlue}
-						fontColor="white"
-						borderRadius="26px"
-					/>
-				</CTAButtonContainer>
+				<SignUpButtonAndDisclosureContainer>
+					<CTAButtonContainer>
+						<Button
+							text="Sign Up"
+							onPress={createAccount}
+							backgroundColor={ReelayColors.reelayBlue}
+							fontColor="white"
+							borderRadius="26px"
+						/>
+					</CTAButtonContainer>
+					<SignUpDisclosure>
+						By clicking Sign Up, you agree to the{" "}
+						<SignUpDisclosureLink url="https://www.reelay.app/terms-of-service">
+							Terms of Service
+						</SignUpDisclosureLink>{" "}
+						and{" "}
+						<SignUpDisclosureLink url="https://www.reelay.app/privacy-policy">
+							Privacy Policy
+						</SignUpDisclosureLink>
+					</SignUpDisclosure>
+				</SignUpButtonAndDisclosureContainer>
 			</AlignmentContainer>
 		);
     }
