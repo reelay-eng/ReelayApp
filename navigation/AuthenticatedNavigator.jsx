@@ -7,6 +7,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import React, { useContext } from 'react';
 
+import { LinearGradient } from 'expo-linear-gradient';
+import { Image, StyleSheet } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
@@ -29,6 +31,11 @@ import TitleTrailerScreen from '../screens/authenticated/TitleTrailerScreen';
 import UserFollowScreen from '../screens/authenticated/UserFollowScreen';
 import UserProfileScreen from '../screens/authenticated/UserProfileScreen';
 import VenueSelectScreen from '../screens/authenticated/VenueSelectScreen';
+
+import HomeIcon from '../assets/icons/navbar/home-icon.png'
+import ProfileIcon from '../assets/icons/navbar/profile-icon.png'
+import SearchIcon from '../assets/icons/navbar/search-icon.png'
+import CreateIcon from '../assets/icons/navbar/create-icon.png'
  
 const AppStack = createStackNavigator();
 const BottomTab = createBottomTabNavigator();
@@ -37,7 +44,9 @@ const SearchTabStack = createStackNavigator();
 const CreateReelayTabStack = createStackNavigator();
 const ProfileTabStack = createStackNavigator();
 
-const BOTTOM_TAB_ICON_SIZE = 40;
+const BOTTOM_TAB_ICON_SIZE = 24;
+const TAB_BAR_ACTIVE_OPACITY = 1;
+const TAB_BAR_INACTIVE_OPACITY = 0.8;
 
 export default AuthenticatedNavigator = () => {
     return (
@@ -68,82 +77,128 @@ export default AuthenticatedNavigator = () => {
 
 const BottomTabNavigator = () => {
     const { tabBarVisible } = useContext(FeedContext);
-    const colorScheme = useColorScheme();
+	const colorScheme = useColorScheme();
+    const s = StyleSheet.create({
+		gradient: {
+			flex: 1,
+			height: "100%",
+			width: "100%",
+			borderWidth: 0,
+		},
+	});
     return (
-        <BottomTab.Navigator
+		<BottomTab.Navigator
 			initialRouteName="Home"
-			tabBarOptions={{
-				activeTintColor: Colors[colorScheme].tint,
-				showLabel: false,
-				style: {
-					backgroundColor: "transparent",
-					borderTopWidth: 0,
-					position: "absolute",
-					left: 50,
-					right: 50,
-					height: 80,
+			screenOptions={{
+				tabBarActiveTintColor: `#rgba(255, 255, 255, ${TAB_BAR_ACTIVE_OPACITY})`,
+				tabBarInactiveTintColor: `#rgba(255, 255, 255, ${TAB_BAR_INACTIVE_OPACITY})`,
+				tabBarShowLabel: true,
+				tabBarLabelStyle: {
+					fontFamily: "Outfit-Medium",
+					fontSize: 12,
+					fontStyle: "normal",
+					lineHeight: 16,
+					letterSpacing: 0.4,
+					textAlign: "left",
+					marginTop: -3,
 				},
-				tabBarVisible: tabBarVisible,
+				headerShown: false,
+				tabBarStyle: {
+					position: "absolute",
+					borderTopWidth: 0,
+					paddingTop: 20,
+					height: 100,
+					display: tabBarVisible ? "flex" : "none",
+					paddingLeft: 40,
+					paddingRight: 40,
+				},
+				tabBarBackground: () => (
+					<LinearGradient
+						colors={["transparent", ReelayColors.reelayBlack]}
+						locations={[0, 0.85]}
+						style={[StyleSheet.absoluteFill, s.gradient]}
+					/>
+				),
 			}}
 		>
 			<BottomTab.Screen
 				name="Home"
 				component={HomeTabNavigator}
 				options={{
-					tabBarIcon: () => (
-						<Icon
-							type="ionicon"
-							name="film-outline"
-							color={"white"}
-							size={BOTTOM_TAB_ICON_SIZE}
+					tabBarIcon: ({ focused }) => (
+						<Image
+							source={HomeIcon}
+							style={{
+								opacity: focused
+									? TAB_BAR_ACTIVE_OPACITY
+									: TAB_BAR_INACTIVE_OPACITY,
+								width: BOTTOM_TAB_ICON_SIZE,
+								height: BOTTOM_TAB_ICON_SIZE,
+								margin: 0,
+								padding: 0,
+							}}
 						/>
 					),
-					tabBarVisible: tabBarVisible,
 				}}
 			/>
 			<BottomTab.Screen
 				name="Search"
 				component={SearchTabNavigator}
 				options={{
-					tabBarIcon: () => (
-						<Icon
-							type="ionicon"
-							name="search"
-							color={"white"}
-							size={BOTTOM_TAB_ICON_SIZE}
+					tabBarIcon: ({ focused }) => (
+						<Image
+							source={SearchIcon}
+							style={{
+								opacity: focused
+									? TAB_BAR_ACTIVE_OPACITY
+									: TAB_BAR_INACTIVE_OPACITY,
+								width: BOTTOM_TAB_ICON_SIZE,
+								height: BOTTOM_TAB_ICON_SIZE,
+								margin: 0,
+								padding: 0,
+							}}
 						/>
 					),
-					tabBarVisible: tabBarVisible,
 				}}
 			/>
 			<BottomTab.Screen
 				name="Create"
 				component={CreateReelayTabNavigator}
 				options={{
-					tabBarIcon: () => (
-						<Icon
-							type="ionicon"
-							name="add-circle"
-							color={"white"}
-							size={BOTTOM_TAB_ICON_SIZE}
+					tabBarIcon: ({ focused }) => (
+						<Image
+							source={CreateIcon}
+							style={{
+								opacity: focused
+									? TAB_BAR_ACTIVE_OPACITY
+									: TAB_BAR_INACTIVE_OPACITY,
+								width: BOTTOM_TAB_ICON_SIZE,
+								height: BOTTOM_TAB_ICON_SIZE,
+								margin: 0,
+								padding: 0,
+							}}
 						/>
 					),
-					tabBarVisible: tabBarVisible,
 				}}
 			/>
 			<BottomTab.Screen
 				name="Profile"
 				component={ProfileTabNavigator}
 				options={{
-					tabBarIcon: () => (
-						<Icon
-							type="ionicon"
-							name="person-circle"
-							color={"white"}
-							size={BOTTOM_TAB_ICON_SIZE}
+					tabBarIcon: ({ focused }) => (
+						<Image
+							source={ProfileIcon}
+							style={{
+								opacity: focused
+									? TAB_BAR_ACTIVE_OPACITY
+									: TAB_BAR_INACTIVE_OPACITY,
+								width: BOTTOM_TAB_ICON_SIZE,
+								height: BOTTOM_TAB_ICON_SIZE,
+								margin: 0,
+								padding: 0,
+							}}
 						/>
 					),
-					tabBarVisible: tabBarVisible,
 				}}
 			/>
 		</BottomTab.Navigator>

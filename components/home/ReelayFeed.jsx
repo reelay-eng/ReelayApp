@@ -112,7 +112,7 @@ export default ReelayFeed = ({ navigation,
     }, [feedSource]);
 
     useFocusEffect(() => {
-        const unsubscribe = navigation.dangerouslyGetParent()
+        const unsubscribe = navigation.getParent()
             .addListener('tabPress', e => {
                 e.preventDefault();
                 onTabPress();
