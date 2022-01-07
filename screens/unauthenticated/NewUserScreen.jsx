@@ -22,6 +22,7 @@ import * as ReelayText from '../../components/global/Text';
 const Container = styled(View)`
 	width: 100%;
 	height: 100%;
+    flex-direction: row;
 `;
 const CenteredContainer = styled(View)`
 	width: 100%;
@@ -49,6 +50,12 @@ const CarouselContainer = styled(View)`
 	flex-direction: column;
 	align-items: center;
 `;
+const HalfCarouselContainer = styled(View)`
+	height: 25%;
+	width: 100%;
+	flex-direction: column;
+	align-items: center;
+`;
 const CarouselTextContainer = styled(View)`
 	height: 60%;
 	width: 75%;
@@ -65,8 +72,20 @@ const CarouselBody = styled(ReelayText.Body2)`
     color: white;
     text-align: center;
 `
+const SkipNextAbsoluteContainer = styled(View)`
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    z-index: 5;
+`
 const SkipNextContainer = styled(View)`
     width: 90%;
+    left: 5%;
+    bottom: 56px;
+    position: absolute;
     height: 68px;
     display: flex;
     flex-direction: row;
@@ -147,32 +166,12 @@ const CarouselComponent = ({navigation}) => {
 						/>
 					</CenteredContainer>
 				</CarouselContainer>
-				<CarouselContainer>
+				<HalfCarouselContainer>
 					<CarouselTextContainer>
 						<CarouselTitle>{item.title}</CarouselTitle>
 						<CarouselBody>{item.description}</CarouselBody>
 					</CarouselTextContainer>
-					<SkipNextContainer>
-						<ButtonContainer>
-							<Button
-								text={"SKIP"}
-								onPress={handleFinishedOnboarding}
-								borderRadius="50px"
-								border="none"
-								backgroundColor={"#000000"}
-								fontColor={"#FFFFFF"}
-								pressedColor={"#0D0D0D"}
-							/>
-						</ButtonContainer>
-						<ButtonContainer>
-							<Button
-								text={"NEXT"}
-								onPress={handleGoToNextItem}
-								borderRadius="50px"
-							/>
-						</ButtonContainer>
-					</SkipNextContainer>
-				</CarouselContainer>
+				</HalfCarouselContainer>
 			</>
 		);
     };
@@ -226,7 +225,23 @@ const CarouselComponent = ({navigation}) => {
 				onBeforeSnapToItem={(index) => {
 					setActiveDotIndex(index);
 				}}
-			/>
+            />
+            <SkipNextContainer>
+                <ButtonContainer>
+                    <Button
+                        text={"SKIP"}
+                        onPress={handleFinishedOnboarding}
+                        borderRadius="50px"
+                        border="none"
+                        backgroundColor={"#000000"}
+                        fontColor={"#FFFFFF"}
+                        pressedColor={"#0D0D0D"}
+                    />
+                </ButtonContainer>
+                <ButtonContainer>
+                    <Button text={"NEXT"} onPress={handleGoToNextItem} borderRadius="50px" />
+                </ButtonContainer>
+            </SkipNextContainer>
 		</Container>
 	);
 }
