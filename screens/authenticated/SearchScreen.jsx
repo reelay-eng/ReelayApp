@@ -101,47 +101,6 @@ export default SearchScreen = ({ navigation }) => {
         }
     }
 
-    const SearchTypeSelector = ({ type }) => {
-        const selected = (selectedType === type);
-
-        const SelectorContainer = styled(View)`
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: center;
-            height: 40px;
-            flex: 0.3;
-        `;
-    
-        return (
-            <SelectorContainer>
-                {selected && (
-                    <ActionButton
-                        onPress={() => {
-                            setLoading(true);
-                            setSelectedType(type);
-                        }}
-                        text={type}
-                        fontSize='22px'
-                        borderRadius='15px'
-                    />
-                )}
-
-                {!selected && (
-                    <PassiveButton 
-                        onPress={() => {
-                            setLoading(true);
-                            setSelectedType(type);
-                        }}
-                        text={type}
-                        fontSize='22px'
-                        borderRadius='15px'
-                    />
-                )}
-            </SelectorContainer>
-        );
-    };
-
 
     return (
         <SearchScreenContainer>

@@ -1,9 +1,11 @@
 import React, { useContext, useState } from 'react';
 import { View, SafeAreaView, KeyboardAvoidingView, Text } from 'react-native';
-import { Button, Input } from 'react-native-elements';
+import { Input } from 'react-native-elements';
 
 import { Auth } from 'aws-amplify';
 import { showErrorToast } from '../../components/utils/toasts';
+import { Button } from '../../components/global/Buttons';
+import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 
 import BackButton from '../../components/utils/BackButton';
@@ -15,47 +17,70 @@ import { getInputUsername } from '../../components/utils/usernameOrEmail';
 
 export default ForgotPasswordScreen = ({ navigation }) => {
 
-    const InputContainer = styled(View)`
-        margin-bottom: 60px;
-    `
-    const CTAButton = styled(Button)`
-        align-self: center;
-        margin-top: 10px;
-        width: 75%;
-    `
     const AuthInput = styled(Input)`
-        color: white;
-        font-family: System;
-        font-size: 16px;
-        font-weight: 600;
-    ` 
+		color: white;
+		font-family: Outfit-Regular;
+		font-size: 16px;
+		font-style: normal;
+		letter-spacing: 0.15px;
+		margin-left: 8px;
+	`;
+	const AuthInputContainerStyle = {
+		alignSelf: "left",
+		marginBottom: -5,
+		width: "100%",
+	};
+	const AuthInputUsernameIconStyle = {
+		color: "white",
+		name: "person-outline",
+		type: "ionicon",
+	};
+	const AuthInputWarningIconStyle = {
+		color: ReelayColors.reelayRed,
+		name: "warning",
+		type: "ionicon",
+	};
 
-    const AuthInputContainerStyle = {
-        alignSelf: 'center',
-        margin: 16,
-        paddingLeft: 32,
-        paddingRight: 32,
-    }
+	const CTAButton = styled(Button)`
+		align-self: center;
+		margin-bottom: 40px;
+		width: 75%;
+	`;
+	const InputContainer = styled(View)`
+		margin-bottom: 60px;
+		width: 90%;
+		height: 60%;
+		display: flex;
+		flex-direction: column;
+	`;
+	const AlignmentContainer = styled(View)`
+		width: 100%;
+		height: 100%;
+		flex-direction: column;
+		align-items: center;
+		justify-content: space-between;
+	`;
 
-    const TitleContainer = styled(View)`
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        margin-top: 60px;
-        margin-bottom: 75px;
-    `
-    const TitleText = styled(Text)`
-        font-size: 32px;
-        color: white;
-    `
+	const CTAButtonContainer = styled(View)`
+		margin-top: 10px;
+		width: 95%;
+		height: 56px;
+	`;
 
     const EmailInput = () => {
-        const [inputText, setInputText] = useState(true);
+        const [inputText, setInputText] = useState("");
+		const [error, setError] = useState("");
+		const [sending, setSending] = useState(false);
+
+        const changeInputText = (text) => {
+			setInputText(text);
+            if (!!error.length) {
+				setError("");
+			}
+		};
 
         const handleBadEmail = async () => {
-            showErrorToast('Could not find email address. Retry?');
+            setError("Invalid username or email.");
             logAmplitudeEventProd('signInFailedBadEmail', {
                 email: inputText,
             });
@@ -68,45 +93,97 @@ export default ForgotPasswordScreen = ({ navigation }) => {
                 return;
             }
 
-            try {
-                const forgotPasswordResult = await Auth.forgotPassword(username);
+			try {
+				setSending(true);
+				const forgotPasswordResult = await Auth.forgotPassword(username);
+				setSending(false);
                 navigation.push('ForgotPasswordSubmitScreen', {
                     username: username
                 });
-                console.log(forgotPasswordResult);
+				console.log("Forgot Password", forgotPasswordResult);
             } catch (error) {
-                showErrorToast('Could not send forgot password email. Retry?');
+				setError("Something went wrong. Double-check and try again.");
+				setSending(false);
+				
             }
         }
         
         return (
-            <InputContainer>
-                <AuthInput 
-                    containerStyle={AuthInputContainerStyle}
-                    autoCapitalize='none'
-                    placeholder={'Enter username or email'} 
-                    onChangeText={setInputText}
-                    rightIcon={{type: 'ionicon', name: 'mail-outline', color: 'white'}}
-                />
-                <CTAButton title='Send me a reset link' type='solid' onPress={sendForgotPasswordEmail}
-                    buttonStyle={{ 
-                        backgroundColor: ReelayColors.reelayRed,
-                        borderRadius: 36,
-                        height: 56,
-                    }} 
-                    titleStyle={{
-                        fontWeight: 'bold',
-                    }} />
-            </InputContainer>
-        )
+			<AlignmentContainer>
+				<InputContainer>
+					<AuthInput
+						autoCapitalize="none"
+						containerStyle={AuthInputContainerStyle}
+						leftIcon={AuthInputUsernameIconStyle}
+						placeholder={"Enter username or email"}
+						errorMessage={!!error.length && error}
+						onChangeText={changeInputText}
+						rightIcon={!!error.length ? AuthInputWarningIconStyle : null}
+						value={inputText}
+					/>
+					<CTAButtonContainer>
+						<Button
+							text={sending ? "Sending..." : "Send me a reset link"}
+							onPress={sendForgotPasswordEmail}
+							disabled={!!error.length || sending}
+							backgroundColor={ReelayColors.reelayBlue}
+							fontColor="white"
+							borderRadius="26px"
+						/>
+					</CTAButtonContainer>
+				</InputContainer>
+			</AlignmentContainer>
+		);
     }
+
+    const TopBar = () => {
+		const Container = styled(View)`
+			width: 100%;
+			height: 20%;
+			flex-direction: row;
+			justify-content: center;
+		`;
+		const TopBarContainer = styled(View)`
+			width: 85%;
+			display: flex;
+			flex-direction: column;
+			justify-content: flex-start;
+			margin-bottom: 10px;
+		`;
+		const BackButtonContainer = styled(View)`
+			margin-left: -10px;
+			margin-bottom: 50px;
+		`;
+
+		const TextContainer = styled(View)`
+			margin-bottom: 20px;
+		`;
+		const HeaderText = styled(ReelayText.H5Bold)`
+			color: white;
+			margin-bottom: 4px;
+		`;
+		const SublineText = styled(ReelayText.Caption)`
+			color: white;
+		`;
+
+		return (
+			<Container>
+				<TopBarContainer>
+					<BackButtonContainer>
+						<BackButton navigation={navigation} />
+					</BackButtonContainer>
+					<TextContainer>
+						<HeaderText>Forgot Password?</HeaderText>
+						<SublineText>Let's see what we can do.</SublineText>
+					</TextContainer>
+				</TopBarContainer>
+			</Container>
+		);
+	};
 
     return (
         <KeyboardHidingBlackContainer>
-            <BackButton navigation={navigation} />
-            <TitleContainer>
-                <TitleText>Forgot Password</TitleText>
-            </TitleContainer>
+            <TopBar />
             <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
                 <EmailInput />
             </KeyboardAvoidingView>

@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Image, KeyboardAvoidingView, SafeAreaView, Text, View } from 'react-native';
-import { Button, Input } from 'react-native-elements';
+import { Input } from 'react-native-elements';
+import { Button } from '../../components/global/Buttons';
 import BackButton from '../../components/utils/BackButton';
 
 import { Auth } from 'aws-amplify';
@@ -17,23 +18,27 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
 
     const InputContainer = styled(View)`
         margin-bottom: 60px;
+        flex-direction: column;
+        align-items: center;
     `
     const ScreenContainer = styled(SafeAreaView)`
         background-color: ${ReelayColors.reelayBlack};
         height: 100%;
         width: 100%;
     `
-    const CTAButton = styled(Button)`
-        align-self: center;
-        margin-bottom: 20px;
-        width: 75%;
-    `
+    const CTAButtonContainer = styled(View)`
+		margin-bottom: 40px;
+		width: 95%;
+		height: 56px;
+	`;
     const AuthInput = styled(Input)`
-        color: white;
-        font-family: System;
-        font-size: 16px;
-        font-weight: 600;
-    ` 
+		color: white;
+		font-family: Outfit-Regular;
+		font-size: 16px;
+		font-style: normal;
+		letter-spacing: 0.15px;
+		margin-left: 8px;
+	`; 
     const ReelayPicture = styled(Image)`
         align-self: center;
         justify-content: center;
@@ -91,46 +96,48 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
         }
 
         return (
-            <InputContainer>
-                <AuthInput
-                    autoCapitalize='none'
-                    containerStyle={AuthInputContainerStyle}
-                    keyboardType='number-pad'
-                    placeholder={'Enter your confirmation code'} 
-                    onChangeText={setConfirmationCode}
-                    rightIcon={AuthInputRightIconStyle}
-                    value={confirmationCode}
-                />
-                <CTAButton title='Confirm your email' type='solid' 
-                    onPress={confirmEmail} 
-                    buttonStyle={{ 
-                        backgroundColor: ReelayColors.reelayRed,
-                        borderRadius: 36,
-                        height: 56,
-                    }} 
-                    titleStyle={{ fontWeight: 'bold' }}
-                />
-                <CTAButton title='Resend confirmation code' type='clear' 
-                    onPress={resendConfirmationCode} 
-                    buttonStyle={{ borderRadius: 36 }} 
-                    titleStyle={{ 
-                        color: ReelayColors.reelayRed,
-                        fontWeight: 'bold',
-                    }}
-                />
-            </InputContainer>
-        );
+			<InputContainer>
+				<AuthInput
+					autoCapitalize="none"
+					containerStyle={AuthInputContainerStyle}
+					keyboardType="number-pad"
+					placeholder={"Enter your confirmation code"}
+					onChangeText={setConfirmationCode}
+					rightIcon={AuthInputRightIconStyle}
+					value={confirmationCode}
+				/>
+				<CTAButtonContainer>
+					<Button
+						text="Confirm your email"
+						onPress={confirmEmail}
+						backgroundColor={ReelayColors.reelayBlue}
+						fontColor="white"
+						borderRadius="26px"
+					/>
+				</CTAButtonContainer>
+				<CTAButtonContainer>
+					<Button
+						text="Resend confirmation code"
+						onPress={resendConfirmationCode}
+                        backgroundColor="transparent"
+                        border={`solid 1px ${ReelayColors.reelayBlue}`}
+                        pre
+                        fontColor={ReelayColors.reelayBlue}
+						borderRadius="26px"
+					/>
+				</CTAButtonContainer>
+			</InputContainer>
+		);
     }
 
     const TopBar = () => {
         const BackButtonContainer = styled(View)`
-            position: absolute;
-            left: 0px;
-            top: 0px;
+            margin-left: 20px;
+            margin-top: 20px;
         `
         const TopBarContainer = styled(View)`
             flex-direction: row;
-            justify-content: center;
+            justify-content: flex-start;
         `
         return (
             <TopBarContainer>
@@ -144,8 +151,7 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
     return (
         <ScreenContainer>
             <TopBar />
-            <ReelayPicture source={REELAY_ICON_SOURCE} />
-            <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
+            <KeyboardAvoidingView behavior='padding' style={{flex: 1, justifyContent: 'center'}}>
                 <ConfirmationCodeInput />
             </KeyboardAvoidingView>
         </ScreenContainer>

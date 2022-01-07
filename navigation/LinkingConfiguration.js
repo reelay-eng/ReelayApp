@@ -29,9 +29,10 @@ export default {
 			Unauthenticated: {
 				screens: {
 					ConfirmEmailScreen: "ConfirmEmailScreen",
-					ForgotPasswordAffirmScreen: "ForgotPasswordAffirmScreen",
 					ForgotPasswordScreen: "ForgotPasswordScreen",
 					ForgotPasswordSubmitScreen: "ForgotPasswordSubmitScreen",
+					NewUserScreen: "NewUserScreen",
+					SignedOutScreen: "SignedOutScreen",
 					SignInScreen: "SignInScreen",
 					SignUpEmailScreen: "SignUpEmailScreen",
 					SignUpScreen: "SignUpScreen",

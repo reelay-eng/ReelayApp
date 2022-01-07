@@ -140,7 +140,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 			<ProfileScrollView
 				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
 			>
-				<ProfileHeader profilePictureURI={reelayDBUser.profilePictureURI} />
+				<ProfileHeader profilePictureURI={reelayDBUser?.profilePictureURI} />
 				<EditProfileButton />
 				<ProfileStatsBar
 					navigation={navigation}

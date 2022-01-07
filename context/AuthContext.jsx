@@ -12,4 +12,5 @@ export const AuthContext = createContext({
     signedIn: false,
     session: {},
     username: '',
+    isReturningUser: false,
 });
