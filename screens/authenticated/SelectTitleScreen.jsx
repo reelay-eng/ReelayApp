@@ -112,10 +112,10 @@ export default SelectTitleScreen = ({ navigation }) => {
     return (
 		<SafeAreaView style={{ backgroundColor: "black", height: "100%", width: "100%" }}>
 			<TopBarContainer>
-				<HeaderWithBackButton navigation={navigation} text={"Search"} />
+				<HeaderWithBackButton navigation={navigation} text={"Create"} />
 				<SelectorBarContainer>
 					<ToggleSelector
-						options={["Film", "TV", "Users"]}
+						options={["Film", "TV"]}
 						selectedOption={searchType}
 						onSelect={(type) => {
 							setSearchType(type);
