@@ -444,7 +444,9 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 						blurOnSubmit={true}
 						onChangeText={(text) => setCommentText(text)}
 						onFocus={() => {
-							scrollViewRef.current.scrollToEnd({ animated: false });
+							if (scrollViewRef?.current) {
+								scrollViewRef.current.scrollToEnd({ animated: false });
+							}
 						}}
 						placeholder={"Add comment..."}
 						placeholderTextColor={"gray"}
