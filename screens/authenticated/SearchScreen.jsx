@@ -42,6 +42,12 @@ const SelectorBarContainer = styled(View)`
     width: 90%;
     height: 40px;
 `
+const SearchBarContainer = styled(View)`
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+`
 
 export default SearchScreen = ({ navigation }) => {
     const { cognitoUser } = useContext(AuthContext);
@@ -103,21 +109,35 @@ export default SearchScreen = ({ navigation }) => {
 
 
     return (
-        <SearchScreenContainer>
-            <HeaderWithBackButton navigation={navigation} text={"Search"} />
-            <TopBarContainer>
-                <SelectorBarContainer>
-                    <ToggleSelector
-                        options={["Film", "TV", "Users"]}
-                        selectedOption={selectedType}
-                        onSelect={(type) => {
-                            setSelectedType(type);
-                            setLoading(true);
-                        }}
-                    />
-                </SelectorBarContainer>
-            </TopBarContainer>
-            {/* <TopBarContainer>
+		<SearchScreenContainer>
+			<HeaderWithBackButton navigation={navigation} text={"Search"} />
+			<TopBarContainer>
+				<SelectorBarContainer>
+					<ToggleSelector
+						options={["Film", "TV", "Users"]}
+						selectedOption={selectedType}
+						onSelect={(type) => {
+							setSelectedType(type);
+							setLoading(true);
+						}}
+					/>
+				</SelectorBarContainer>
+			</TopBarContainer>
+			<SearchBarContainer>
+				<SearchField
+					searchText={searchText}
+					updateSearchText={updateSearchText}
+					borderRadius={4}
+					placeholderText={`Search for ${
+						selectedType === "Film"
+							? "films"
+							: selectedType === "TV"
+							? "TV shows"
+							: "users"
+					}`}
+				/>
+			</SearchBarContainer>
+			{/* <TopBarContainer>
                 <BackButtonContainer>
                     <BackButton navigation={navigation} />
                 </BackButtonContainer>
@@ -127,46 +147,34 @@ export default SearchScreen = ({ navigation }) => {
                     <SearchTypeSelector type="Users" />
                 </SelectorBarContainer>
             </TopBarContainer> */}
-            <SearchField
-                searchText={searchText}
-                updateSearchText={updateSearchText}
-                borderRadius={4}
-                placeholderText={`Search for ${
-                    selectedType === "Film"
-                    ? "films"
-                    : selectedType === "TV"
-                    ? "TV shows"
-                    : "users"
-                }`}
-            />
-            {selectedType !== "Users" && !loading && (
-                <TitleSearchResults
-                    navigation={navigation}
-                    searchResults={searchResults}
-                    source={"search"}
-                />
-            )}
-            {selectedType === "Users" && !loading && (
-                <UserSearchResults
-                    navigation={navigation}
-                    searchResults={searchResults}
-                    source={"search"}
-                    setCreatorFollowers={setCreatorFollowers}
-                    setDrawerFollowObj={setDrawerFollowObj}
-                    setDrawerOpen={setDrawerOpen}
-                />
-            )}
-            {drawerOpen && (
-                <FollowButtonDrawer
-                    creatorFollowers={creatorFollowers}
-                    setCreatorFollowers={setCreatorFollowers}
-                    drawerOpen={drawerOpen}
-                    setDrawerOpen={setDrawerOpen}
-                    followObj={drawerFollowObj}
-                    followType={"waht to do"}
-                    sourceScreen={"UserFollowScreen"}
-                />
-            )}
-        </SearchScreenContainer>
-    );
+			{selectedType !== "Users" && !loading && (
+				<TitleSearchResults
+					navigation={navigation}
+					searchResults={searchResults}
+					source={"search"}
+				/>
+			)}
+			{selectedType === "Users" && !loading && (
+				<UserSearchResults
+					navigation={navigation}
+					searchResults={searchResults}
+					source={"search"}
+					setCreatorFollowers={setCreatorFollowers}
+					setDrawerFollowObj={setDrawerFollowObj}
+					setDrawerOpen={setDrawerOpen}
+				/>
+			)}
+			{drawerOpen && (
+				<FollowButtonDrawer
+					creatorFollowers={creatorFollowers}
+					setCreatorFollowers={setCreatorFollowers}
+					drawerOpen={drawerOpen}
+					setDrawerOpen={setDrawerOpen}
+					followObj={drawerFollowObj}
+					followType={"waht to do"}
+					sourceScreen={"UserFollowScreen"}
+				/>
+			)}
+		</SearchScreenContainer>
+	);
 };
