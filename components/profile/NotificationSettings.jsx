@@ -57,9 +57,12 @@ const NotificationsSettingsWrapper = ({ cognitoUser }) => {
         align-items: center;
     `;
     const Divider = styled(View)`
-        border: solid 1px #2e2e2e;
+        border-bottom-width: 1px;
+        border-bottom-color: #2e2e2e;
+        border-style: solid;
         height: 1px;
-        width: 100%;
+        opacity: 0.7;
+        width: 98%;
     `;
 
     useEffect(() => {
@@ -208,43 +211,44 @@ const NotificationSetting = ({title, subtext, isToggled, toggleFunction}) => {
         width: 100%;
         height: 60px;
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         justify-content: space-around;
         padding: 5px;
     `;
-    const FirstRow = styled(View)`
-        width: 100%;
-        height: 70%;
+    const FirstColumn = styled(View)`
+        width: 80%;
         display: flex;
-        flex-direction: row;
-        justify-content: space-between;
+        flex-direction: column;
+        justify-content: space-evenly;
+        align-items: flex-start;
         padding: 5px;
     `;
-    const SecondRow = styled(View)`
-        width: 100%;
-        height: 30%;
+    const SecondColumn = styled(View)`
+        width: 20%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     `;
     const NotificationSettingText = styled(ReelayText.Body1)`
         text-align: center;
         color: white;
-        margin-left: 10px;
         margin-right: 20px;
-        margin-top: ${subtext ? "0px" : "5px"};
+        margin-top: 0px;
     `;
     const NotificationSettingSubtext = styled(ReelayText.Caption)`
         text-align: left;
-        margin-top: -10px;
-        margin-left: 15px;
+        margin-top: -2px;
         color: #FFFFFF
         opacity: 0.5;
     `;
-    const NotificationSlider = styled(Switch)`
-        margin-right: 20px;
-    `;
+    const NotificationSlider = styled(Switch)``;
     return (
 		<NotificationSettingContainer>
-			<FirstRow>
+			<FirstColumn>
 				<NotificationSettingText>{title}</NotificationSettingText>
+				{subtext && <NotificationSettingSubtext>{subtext}</NotificationSettingSubtext> }
+			</FirstColumn>
+			<SecondColumn>
 				<NotificationSlider
 					value={isToggled}
 					onValueChange={toggleFunction}
@@ -252,12 +256,7 @@ const NotificationSetting = ({title, subtext, isToggled, toggleFunction}) => {
 					thumbColor={"#FFFFFF"}
 					ios_backgroundColor="#39393D"
 				/>
-			</FirstRow>
-			{subtext && (
-				<SecondRow>
-					<NotificationSettingSubtext>{subtext}</NotificationSettingSubtext>
-				</SecondRow>
-			)}
+			</SecondColumn>
 		</NotificationSettingContainer>
 	);
 }
