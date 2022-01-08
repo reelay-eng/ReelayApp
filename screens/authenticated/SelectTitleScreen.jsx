@@ -21,6 +21,12 @@ export default SelectTitleScreen = ({ navigation }) => {
 		width: 90%;
 		height: 40px;
 	`;
+    const SearchBarContainer = styled(View)`
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	`;
     const BackButtonContainer = styled(View)`
         position: relative;
         width: 20%;
@@ -123,11 +129,14 @@ export default SelectTitleScreen = ({ navigation }) => {
 					/>
 				</SelectorBarContainer>
 			</TopBarContainer>
-			<SearchField
-				searchText={searchText}
-				updateSearchText={setSearchText}
-				placeholderText="What did you see?"
-			/>
+			<SearchBarContainer>
+				<SearchField
+					searchText={searchText}
+                    updateSearchText={setSearchText}
+                    borderRadius={4}
+					placeholderText="What did you see?"
+				/>
+			</SearchBarContainer>
 			<TitleSearchResults
 				navigation={navigation}
 				searchResults={searchResults}

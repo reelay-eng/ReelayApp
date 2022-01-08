@@ -12,7 +12,7 @@ const FollowReqResults = ({ navigation, searchResults }) => {
                 <View
                     key={index}
                     style={{
-                    height: 100,
+                    height: 60,
                     borderBottomColor: "#505050",
                     borderBottomWidth: 0.3,
                     }}
