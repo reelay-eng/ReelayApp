@@ -4,11 +4,19 @@ import { Image } from "react-native-elements";
 import styled from "styled-components/native";
 
 const PressableContainer = styled(Pressable)`
-    align-items: center;
-    flex-direction: row;
-    height: 100px;
-    margin-left: 10px;
-    width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: row;
+	height: 60px;
+	width: 100%;
+`;
+const RowContainer = styled(View)`
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	height: 100%;
+	width: 95%;
 `;
 const UsernameText = styled.Text`
     color: white
@@ -68,27 +76,27 @@ export default FollowReqItem = ({ result, navigation }) => {
     };
 
     return (
-        <PressableContainer onPress={selectResult}>
-        <ProfilePictureContainer>
-            {profilePictureURI && (
-            <ProfilePicture
-                source={{ uri: profilePictureURI }}
-                PlaceholderContent={<ActivityIndicator />}
-            />
-            )}
-            {!profilePictureURI && (
-            <ProfilePicture
-                source={require("../../../assets/icons/reelay-icon.png")}
-            />
-            )}
-        </ProfilePictureContainer>
-        <UsernameContainer>
-            <UsernameText>{username}</UsernameText>
-        </UsernameContainer>
-        {/* <ActionBar>
-            <RejectButton>{"Reject"}</RejectButton>
-            <AcceptButton>{"Accept"}</AcceptButton>
-        </ActionBar> */}
-        </PressableContainer>
-    );
+		<PressableContainer onPress={selectResult}>
+			<RowContainer>
+				<ProfilePictureContainer>
+					{profilePictureURI && (
+						<ProfilePicture
+							source={{ uri: profilePictureURI }}
+							PlaceholderContent={<ActivityIndicator />}
+						/>
+					)}
+					{!profilePictureURI && (
+						<ProfilePicture source={require("../../../assets/icons/reelay-icon.png")} />
+					)}
+				</ProfilePictureContainer>
+				<UsernameContainer>
+					<UsernameText>{username}</UsernameText>
+				</UsernameContainer>
+				{/* <ActionBar>
+                    <RejectButton>{"Reject"}</RejectButton>
+                    <AcceptButton>{"Accept"}</AcceptButton>
+                </ActionBar> */}
+			</RowContainer>
+		</PressableContainer>
+	);
 };
