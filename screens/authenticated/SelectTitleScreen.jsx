@@ -10,29 +10,31 @@ import { ActionButton, PassiveButton, ToggleSelector } from '../../components/gl
 import styled from 'styled-components/native';
 import { searchTitles } from '../../api/ReelayDBApi';
 
+const TopBarContainer = styled(View)`
+	display: flex;
+	align-items: center;
+	width: 100%;
+	margin-bottom: 8px;
+`;
+const SelectorBarContainer = styled(View)`
+	width: 90%;
+	height: 40px;
+`;
+const SearchBarContainer = styled(View)`
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+`;
+const BackButtonContainer = styled(View)`
+	position: relative;
+	width: 20%;
+	min-width: 30px;
+	z-index: 3;
+`;
+
 export default SelectTitleScreen = ({ navigation }) => {
-    const TopBarContainer = styled(View)`
-		display: flex;
-		align-items: center;
-		width: 100%;
-		margin-bottom: 8px;
-	`;
-	const SelectorBarContainer = styled(View)`
-		width: 90%;
-		height: 40px;
-	`;
-    const SearchBarContainer = styled(View)`
-		width: 100%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	`;
-    const BackButtonContainer = styled(View)`
-        position: relative;
-        width: 20%;
-        min-width: 30px;
-        z-index: 3;
-    `
+    
     const [searchText, setSearchText] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchType, setSearchType] = useState('Film');
