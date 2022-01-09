@@ -423,7 +423,9 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
             setCommentPosting(false);
             reelay.comments.push(commentBody);
             rerender(); // for new comment to show up
-			scrollViewRef.current.scrollToEnd({ animated: true });
+			if (scrollViewRef?.current) {
+				scrollViewRef.current.scrollToEnd({ animated: false });
+			}
 
 			Amplitude.logEventWithPropertiesAsync("commentedOnReelay", {
 				user: cognitoUser.username,
@@ -444,7 +446,9 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 						blurOnSubmit={true}
 						onChangeText={(text) => setCommentText(text)}
 						onFocus={() => {
-							scrollViewRef.current.scrollToEnd({ animated: false });
+							if (scrollViewRef?.current) {
+								scrollViewRef.current.scrollToEnd({ animated: false });
+							}
 						}}
 						placeholder={"Add comment..."}
 						placeholderTextColor={"gray"}
