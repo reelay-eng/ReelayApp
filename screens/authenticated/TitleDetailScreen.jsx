@@ -71,7 +71,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const { setTabBarVisible } = useContext(FeedContext);
 	useEffect(() => {
 		setTabBarVisible(false);
-		ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+		// ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
 		return () => {
 			setTabBarVisible(true);
 		};
