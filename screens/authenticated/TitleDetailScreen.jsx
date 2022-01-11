@@ -362,8 +362,8 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
 
 	const fetchTopReelays = async () => {
 		const mostRecentReelays = await getMostRecentReelaysByTitle(titleObj.id);
-		const nextTopReelays = mostRecentReelays.sort(byReelayPopularity);
-		if (nextTopReelays?.length && componentMounted.current) {
+		if (mostRecentReelays?.length && componentMounted.current) {
+			const nextTopReelays = mostRecentReelays.sort(byReelayPopularity);
 			setTopReelays(nextTopReelays);
 		}
 	};

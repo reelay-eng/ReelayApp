@@ -92,11 +92,6 @@ export default TitleSearchResultItem = ({ navigation, result, source }) => {
 
     return (
         <PressableContainer key={titleObj.id} onPress={selectResult}>
-            <TitleLineContainer>
-                <TitleText>{posterLoaded ? title : ""}</TitleText>
-                <YearText>{posterLoaded ? releaseYear : ""}</YearText>
-                <ActorText>{posterLoaded ? actors : ""}</ActorText>
-            </TitleLineContainer>
             <ImageContainer>
                 { posterImageUri && (
                     <Image
@@ -109,6 +104,11 @@ export default TitleSearchResultItem = ({ navigation, result, source }) => {
                 { !posterImageUri && <TitleText>{"No Poster Available"}</TitleText>}
                 { !posterLoaded && <View style={{ height: 150 }} />}
             </ImageContainer>
+            <TitleLineContainer>
+                <TitleText>{posterLoaded ? title : ""}</TitleText>
+                <YearText>{posterLoaded ? releaseYear : ""}</YearText>
+                <ActorText>{posterLoaded ? actors : ""}</ActorText>
+            </TitleLineContainer>
         </PressableContainer>
     );
 };
