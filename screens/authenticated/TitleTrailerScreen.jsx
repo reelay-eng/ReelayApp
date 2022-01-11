@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import YoutubeVideoEmbed from '../../components/utils/YouTubeVideoEmbed';
 import { Dimensions, SafeAreaView, View, Pressable } from 'react-native';
 import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 import * as ReelayText from "../../components/global/Text";
+
+import * as ScreenOrientation from 'expo-screen-orientation';
 
 const { height } = Dimensions.get('window');
 const TRAILER_HEIGHT = height * 0.3;
@@ -11,10 +13,7 @@ const TRAILER_HEIGHT = height * 0.3;
 export default TitleTrailerScreen = ({navigation, route }) => {
     const { trailerURI} = route.params;
     const ViewContainer = styled(SafeAreaView)`
-        width: 100%;
-        height: 100%;
         background-color: #0d0d0d;
-        display: flex;
         align-items: center;
     `
     const TitleOverlayTrailerContainer = styled(View)`
@@ -31,13 +30,13 @@ export default TitleTrailerScreen = ({navigation, route }) => {
         position: absolute;
         width: 100%;
         height: 100%;
-		display: flex;
 		justify-content: center;
 		align-items: center;
 	`;
     const LoadingText = styled(ReelayText.H6)`
         color: white;
     `
+
     return (
 		<ViewContainer>
 			<BackButtonContainer>

@@ -44,6 +44,9 @@ import RRating from "../../assets/images/MPAA_Ratings/RRating.png";
 // Logging
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
+// Screen Orientation
+import * as ScreenOrientation from 'expo-screen-orientation';
+
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
 `;
@@ -68,6 +71,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const { setTabBarVisible } = useContext(FeedContext);
 	useEffect(() => {
 		setTabBarVisible(false);
+		ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
 		return () => {
 			setTabBarVisible(true);
 		};
