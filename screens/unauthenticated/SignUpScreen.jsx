@@ -300,7 +300,7 @@ export default SignUpScreen = ({ navigation, route }) => {
 					</CTAButtonContainer>
 					<SignUpDisclosure>
 						By clicking Sign Up, you agree to the{" "}
-						<SignUpDisclosureLink url="https://www.reelay.app/terms-of-service">
+						<SignUpDisclosureLink url="https://www.reelay.app/terms-of-use">
 							Terms of Service
 						</SignUpDisclosureLink>{" "}
 						and{" "}

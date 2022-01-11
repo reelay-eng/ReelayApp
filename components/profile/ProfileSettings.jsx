@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Text, View, Pressable } from 'react-native';
+import { Text, View, Pressable, Linking } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { Auth } from 'aws-amplify';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -47,9 +47,25 @@ export const ProfileSettings = ({navigation}) => {
 			<SettingsContainer>
 				<TopSettings>
 					<SettingEntry
-						navigation={navigation}
 						text="Notifications"
-						to="NotificationSettingsScreen"
+						iconName="notifications-outline"
+						onPress={() => {
+							navigation.push("NotificationSettingsScreen");
+						}}
+					/>
+					<SettingEntry
+						text="Terms and Conditions"
+						iconName="document-text-outline"
+						onPress={() => {
+							Linking.openURL("https://www.reelay.app/terms-of-use");
+						}}
+					/>
+					<SettingEntry
+						text="Privacy Policy"
+						iconName="clipboard-outline"
+						onPress={() => {
+							Linking.openURL("https://www.reelay.app/privacy-policy");
+						}}
 					/>
 				</TopSettings>
 				<BottomSettings>
@@ -60,7 +76,7 @@ export const ProfileSettings = ({navigation}) => {
 	);
 }
 
-const SettingEntry = ({navigation, text, to}) => {
+const SettingEntry = ({text, iconName, onPress}) => {
     const Container = styled(Pressable)`
         width: 100%;
         height: 60px;
@@ -86,16 +102,16 @@ const SettingEntry = ({navigation, text, to}) => {
         margin-top: 3px;
     `;
     return (
-        <Container onPress={() => {navigation.push(to)}}>
-            <SettingEntryWrapper>
-                <SettingEntryIconTextContainer>
-                    <Icon type='ionicon' name='notifications-outline' color={"#FFFFFF"} size={24}/>
-                    <SettingEntryText>{text}</SettingEntryText>
-                </SettingEntryIconTextContainer>
-                <Icon type='ionicon' name='chevron-forward-outline' color={"#FFFFFF"} size={24}/>
-            </SettingEntryWrapper>
-        </Container>
-    )
+		<Container onPress={onPress}>
+			<SettingEntryWrapper>
+				<SettingEntryIconTextContainer>
+					<Icon type="ionicon" name={iconName} color={"#FFFFFF"} size={24} />
+					<SettingEntryText>{text}</SettingEntryText>
+				</SettingEntryIconTextContainer>
+				<Icon type="ionicon" name="chevron-forward-outline" color={"#FFFFFF"} size={24} />
+			</SettingEntryWrapper>
+		</Container>
+	);
 }
 
 const Logout = () => {
