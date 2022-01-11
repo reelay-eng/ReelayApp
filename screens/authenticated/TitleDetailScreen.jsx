@@ -138,6 +138,7 @@ const PosterWithTrailer = ({
 	genres,
 	releaseYear,
 	runtime,
+	isMovie,
 }) => {
 	const PosterContainer = styled(View)`
 		height: ${height}px;
@@ -237,7 +238,7 @@ const PosterWithTrailer = ({
 
 		const runtimeHours = Math.floor(runtime / 60);
 		const runtimeMinutes = runtime % 60;
-		const runtimeString = runtimeHours > 0 ? `${runtimeHours}h ${runtimeMinutes}m` : `${runtimeMinutes}m`;
+		const runtimeString = runtimeHours > 0 ?? runtimeHours !== undefined ? `${runtimeHours}h ${runtimeMinutes}m` : `${runtimeMinutes}m`;
 
 		return (
 			<TaglineContainer>
@@ -246,9 +247,14 @@ const PosterWithTrailer = ({
 						<ProviderImage source={{ uri: getLogoURL(topProviderLogo) }} />
 					</ProviderImagesContainer>
 				)}
-				{ReducedGenres?.length > 0 && (
+				{isMovie === true && (
 					<TaglineTextContainer>
 						<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}    {runtimeString}</TaglineText>
+					</TaglineTextContainer>
+				)} 
+				{isMovie === false && (
+					<TaglineTextContainer>
+						<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}</TaglineText>
 					</TaglineTextContainer>
 				)}
 			</TaglineContainer>
