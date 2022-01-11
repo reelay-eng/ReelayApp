@@ -30,11 +30,10 @@ import { ActionButton, BWButton } from "../../components/global/Buttons";
 import { DirectorBadge, ActorBadge } from "../../components/global/Badges";
 import * as VideoThumbnails from "expo-video-thumbnails";
 import { Icon } from "react-native-elements";
+import AppleTVAd from '../../components/titlePage/AppleTVAd';
 
 // Media
 import SplashImage from "../../assets/images/reelay-splash.png";
-import AppleTVAdBackground from "../../assets/images/AppleTVAdBackground.png";
-import AppleTVIcon from "../../assets/icons/venues/appletv.png";
 import GRating from "../../assets/images/MPAA_Ratings/GRating.png";
 import PGRating from "../../assets/images/MPAA_Ratings/PGRating.png";
 import PG13Rating from "../../assets/images/MPAA_Ratings/PG13Rating.png";
@@ -701,83 +700,6 @@ const MovieInformation = ({description, director, actors, rating}) => {
 				)}
 			</MIInternalContainer>
 		</MIExternalContainer>
-	);
-}
-
-const AppleTVAd = () => {
-	const Container = styled(View)`
-		width: 100%;
-		height: 400px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	`
-	const AdContainer = styled(View)`
-		width: 350px;
-		height: 400px;
-	`
-	const AdBackground = styled(Image)`
-		width: 100%;
-		height: 100%;
-		border-radius: 8px;
-	`
-	const AdInfoContainer = styled(View)`
-		position: absolute;
-		top: 0;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: flex-end;
-	`;
-	const AppleTVIconContainer = styled(Image)`
-		width: 64px;
-		height: 64px;
-		border-radius: 32px;
-		borderColor: white;
-		borderWidth: 2px;
-		margin-bottom: 20px;
-	`
-	const AppleTVText = styled(ReelayText.H5)`
-		width: 80%;
-		text-align: center;
-		color: white;
-		opacity: 0.9;
-		margin-bottom: 25px;
-		line-height: 30px;
-	`
-	const AppleTVHighlightSpan = styled(ReelayText.H5)`
-		color: #CF5CCB;
-	`
-	const AppleTVButtonContainer = styled(View)`
-		width: 90%;
-		height: 40px;
-		margin-bottom: 20px;
-	`
-
-	return (
-		<Container>
-			<AdContainer>
-				<AdBackground source={AppleTVAdBackground} />
-				<AdInfoContainer>
-					<AppleTVIconContainer source={AppleTVIcon} />
-					<AppleTVText>
-						Sign up for Apple TV. {"\n"}
-						Get 25,000 movies {"\n"}
-						and TV shows for <AppleTVHighlightSpan>free.</AppleTVHighlightSpan>
-					</AppleTVText>
-					<AppleTVButtonContainer>
-						<BWButton
-							white
-							text="More Details"
-							onPress={() => Linking.openURL("https://tv.apple.com/")}
-						/>
-					</AppleTVButtonContainer>
-				</AdInfoContainer>
-			</AdContainer>
-		</Container>
 	);
 }
 
