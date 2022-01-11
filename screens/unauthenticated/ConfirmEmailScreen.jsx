@@ -72,7 +72,7 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
             ).then((result) => {
                 console.log('Email confirmed');
                 console.log(result);
-                navigation.pop();
+                navigation.popToTop();
                 navigation.push('SignInScreen');
             }).catch((error) => {
                 console.log('Could not confirm email address');

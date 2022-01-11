@@ -112,7 +112,7 @@ export default ReelayFeed = ({ navigation,
     }, [feedSource]);
 
     useFocusEffect(() => {
-        const unsubscribe = navigation.dangerouslyGetParent()
+        const unsubscribe = navigation.getParent()
             .addListener('tabPress', e => {
                 e.preventDefault();
                 onTabPress();
@@ -282,10 +282,10 @@ export default ReelayFeed = ({ navigation,
             data={globalStackList}
             getItemLayout={getItemLayout}
             horizontal={false}
-            initialNumToRender={3}
+            initialNumToRender={1}
             initialScrollIndex={globalFeedPosition}
             keyExtractor={(stack) => String(stack[0].title.id)}
-            maxToRenderPerBatch={3}
+            maxToRenderPerBatch={1}
             onEndReached={extendFeed}
             onRefresh={refreshFeed}
             onScroll={onFeedSwiped}
@@ -307,10 +307,10 @@ export default ReelayFeed = ({ navigation,
             data={followingStackList}
             getItemLayout={getItemLayout}
             horizontal={false}
-            initialNumToRender={3}
+            initialNumToRender={1}
             initialScrollIndex={followingFeedPosition}
             keyExtractor={(stack) => String(stack[0].title.id)}
-            maxToRenderPerBatch={3}
+            maxToRenderPerBatch={1}
             onEndReached={extendFeed}
             onRefresh={refreshFeed}
             onScroll={onFeedSwiped}

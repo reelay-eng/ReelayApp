@@ -313,7 +313,7 @@ const PosterWithTrailer = ({
 							/>
 						}
 						onPress={() => {
-							navigation.dangerouslyGetParent().push("VenueSelectScreen", {
+							navigation.getParent().push("VenueSelectScreen", {
 								titleObj: titleObj,
 							});
 							logAmplitudeEventProd('advanceToCreateReelay', {
@@ -797,7 +797,7 @@ const AppleTVAd = () => {
 				height: 65px;
 			`;
 			const advanceToCreateReelay = async () => {
-				navigation.dangerouslyGetParent().push("VenueSelectScreen", {
+				navigation.getParent().push("VenueSelectScreen", {
 					titleObj: titleObj,
 				});
 			};

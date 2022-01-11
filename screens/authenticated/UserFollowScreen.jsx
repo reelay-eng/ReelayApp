@@ -39,6 +39,13 @@ const TopBarContainer = styled(View)`
     flex-direction: row;
     margin: 10px;
 `
+const SearchBarContainer = styled(View)`
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+`;
+
 
 export default UserFollowScreen = ({ navigation, route }) => {
     const { cognitoUser, myFollowers, myFollowing } = useContext(AuthContext);
@@ -118,46 +125,48 @@ export default UserFollowScreen = ({ navigation, route }) => {
     };
 
     return (
-        <SearchScreenContainer>
-            <TopBarContainer>
-                <BackButtonContainer>
-                    <BackButton navigation={navigation} />
-                </BackButtonContainer>
-                <HeaderText>{headerText}</HeaderText>
-            </TopBarContainer>
-            <SelectorBarContainer>
-                <ToggleSelector 
-                    options={[ 'Followers', 'Following' ]}
-                    selectedOption={selectedFollowType}
-                    onSelect={setSelectedFollowType}
-                />
-            </SelectorBarContainer>
-            <SearchField
-                borderRadius={6}
-                placeholderText={searchPlaceholderText}
-                searchText={searchText}
-                updateSearchText={updateSearchText}
-            />
-            <FollowResults
-                followType={selectedFollowType}
-                navigation={navigation}
-                onRefresh={onRefresh}
-                refreshing={refreshing}
-                searchResults={searchResults}
-                setDrawerFollowObj={setDrawerFollowObj}
-                setDrawerOpen={setDrawerOpen}
-            />
-            { drawerOpen && 
-                <FollowButtonDrawer
-                    creatorFollowers={creatorFollowers}
-                    setCreatorFollowers={setCreatorFollowers}
-                    drawerOpen={drawerOpen}
-                    setDrawerOpen={setDrawerOpen}
-                    followObj={drawerFollowObj}
-                    followType={selectedFollowType}
-                    sourceScreen={'UserFollowScreen'}
-                />
-            }
-        </SearchScreenContainer>
-    );
+		<SearchScreenContainer>
+			<TopBarContainer>
+				<BackButtonContainer>
+					<BackButton navigation={navigation} />
+				</BackButtonContainer>
+				<HeaderText>{headerText}</HeaderText>
+			</TopBarContainer>
+			<SelectorBarContainer>
+				<ToggleSelector
+					options={["Followers", "Following"]}
+					selectedOption={selectedFollowType}
+					onSelect={setSelectedFollowType}
+				/>
+			</SelectorBarContainer>
+			<SearchBarContainer>
+				<SearchField
+					borderRadius={4}
+					placeholderText={searchPlaceholderText}
+					searchText={searchText}
+					updateSearchText={updateSearchText}
+				/>
+			</SearchBarContainer>
+			<FollowResults
+				followType={selectedFollowType}
+				navigation={navigation}
+				onRefresh={onRefresh}
+				refreshing={refreshing}
+				searchResults={searchResults}
+				setDrawerFollowObj={setDrawerFollowObj}
+				setDrawerOpen={setDrawerOpen}
+			/>
+			{drawerOpen && (
+				<FollowButtonDrawer
+					creatorFollowers={creatorFollowers}
+					setCreatorFollowers={setCreatorFollowers}
+					drawerOpen={drawerOpen}
+					setDrawerOpen={setDrawerOpen}
+					followObj={drawerFollowObj}
+					followType={selectedFollowType}
+					sourceScreen={"UserFollowScreen"}
+				/>
+			)}
+		</SearchScreenContainer>
+	);
 };
