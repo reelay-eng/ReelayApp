@@ -223,10 +223,10 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
 }
 
 export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay }) => {
-    const reelayStack = await getMostRecentReelaysByTitle(reelay.title.id);
+    const notifyReelayStack = await getMostRecentReelaysByTitle(reelay.title.id);
     
-    reelayStack.map(async (reelay, index) => {
-        const notifyCreator = await getRegisteredUser(reelay.creator.sub);
+    notifyReelayStack.map(async (notifyReelay, index) => {
+        const notifyCreator = await getRegisteredUser(notifyReelay.creator.sub);
 
         const { settingsNotifyReactions } = await getUserNotificationSettings(notifyCreator);
         if (!settingsNotifyReactions) {
@@ -247,7 +247,7 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
         }    
 
         const alreadyNotified = (reelay) => (notifyCreator.sub === reelay.creator.sub);
-        const recipientIndex = reelayStack.findIndex(alreadyNotified);
+        const recipientIndex = notifyReelayStack.findIndex(alreadyNotified);
         if (recipientIndex < index) {
             console.log('Recipient already notified');
             return;
