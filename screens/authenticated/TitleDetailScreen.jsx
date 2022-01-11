@@ -63,6 +63,8 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const trailerURI = titleObj?.trailerURI;
 	const genres = titleObj?.genres;
 	const rating = titleObj?.rating;
+	const releaseYear = titleObj?.releaseYear;
+	const runtime = titleObj?.runtime;
 
 	// hide tab bar
 	const { setTabBarVisible } = useContext(FeedContext);
@@ -90,6 +92,8 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 				tmdbTitleID={tmdbTitleID}
 				trailerURI={trailerURI}
 				genres={genres}
+				releaseYear={releaseYear}
+				runtime={runtime}
 			/>
 			<PopularReelaysRow navigation={navigation} titleObj={titleObj} />
 			<MovieInformation director={director} actors={actors} description={overview} rating={rating} />
@@ -128,6 +132,8 @@ const PosterWithTrailer = ({
 	trailerURI,
 	titleObj,
 	genres,
+	releaseYear,
+	runtime,
 }) => {
 	const PosterContainer = styled(View)`
 		height: ${height}px;
@@ -215,10 +221,18 @@ const PosterWithTrailer = ({
 			align-items: center;
 			justify-content: center;
 		`;
-		const TaglineText = styled(ReelayText.H6Emphasized)`
+		const TaglineText = styled(ReelayText.Body1)`
 			color: #ffffff;
 			opacity: 0.6;
 		`;
+
+		// Quick fix in order to fix runtime and release year
+		const ReducedGenres = genres.slice(0, 2);
+
+		//Conversion from minutes to hours and minutes
+		const hours = Math.floor(runtime / 60);
+		const minutes = runtime % 60;
+		const runtimeString = `${hours}h ${minutes}m`;
 
 		return (
 			<TaglineContainer>
@@ -227,9 +241,9 @@ const PosterWithTrailer = ({
 						<ProviderImage source={{ uri: getLogoURL(topProviderLogo) }} />
 					</ProviderImagesContainer>
 				)}
-				{genres?.length > 0 && (
+				{ReducedGenres?.length > 0 && (
 					<TaglineTextContainer>
-						<TaglineText>{genres?.map((e) => e.name).join(", ")}</TaglineText>
+						<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}    {runtimeString}</TaglineText>
 					</TaglineTextContainer>
 				)}
 			</TaglineContainer>
