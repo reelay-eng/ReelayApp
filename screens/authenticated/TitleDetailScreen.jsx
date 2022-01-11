@@ -65,6 +65,9 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const rating = titleObj?.rating;
 	const releaseYear = titleObj?.releaseYear;
 	const runtime = titleObj?.runtime;
+	const isMovie = titleObj?.isMovie;
+
+	console.log(titleObj);
 
 	// hide tab bar
 	const { setTabBarVisible } = useContext(FeedContext);
@@ -94,6 +97,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 				genres={genres}
 				releaseYear={releaseYear}
 				runtime={runtime}
+				isMovie={isMovie}
 			/>
 			<PopularReelaysRow navigation={navigation} titleObj={titleObj} />
 			<MovieInformation director={director} actors={actors} description={overview} rating={rating} />
@@ -226,13 +230,14 @@ const PosterWithTrailer = ({
 			opacity: 0.6;
 		`;
 
-		// Quick fix in order to fix runtime and release year
+		// Quick fix in order to fit runtime and release year
 		const ReducedGenres = genres.slice(0, 2);
 
 		//Conversion from minutes to hours and minutes
-		const hours = Math.floor(runtime / 60);
-		const minutes = runtime % 60;
-		const runtimeString = `${hours}h ${minutes}m`;
+
+		const runtimeHours = Math.floor(runtime / 60);
+		const runtimeMinutes = runtime % 60;
+		const runtimeString = runtimeHours > 0 ? `${runtimeHours}h ${runtimeMinutes}m` : `${runtimeMinutes}m`;
 
 		return (
 			<TaglineContainer>
