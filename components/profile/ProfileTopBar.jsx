@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { SafeAreaView, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
+import * as ReelayText from '../../components/global/Text';
 
 import styled from 'styled-components/native';
 
@@ -31,11 +32,8 @@ export default ProfileTopBar = ({ creator, navigation, route, atProfileBase = fa
         shadow-offset: 8px;
         shadow-radius: 2px;            
     `
-    const HeadingText = styled(Text)`
+    const HeadingText = styled(ReelayText.H6Emphasized)`
         align-self: center;
-        font-family: System;
-        font-size: 20px;
-        font-weight: 600;
         color: white;
         position: absolute;
     `
@@ -99,7 +97,7 @@ export default ProfileTopBar = ({ creator, navigation, route, atProfileBase = fa
                 </BackButtonContainer>  
             </>      
             }
-            <HeadingText>{creatorName}</HeadingText>
+            <HeadingText>@{creatorName}</HeadingText>
             {/* <SearchButton /> */}
             { atProfileBase && <SettingsButton /> }
         </TopBarContainer>

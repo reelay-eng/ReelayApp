@@ -1,11 +1,7 @@
-import React, { useContext } from 'react';
-import { Dimensions, Pressable, Text, SafeAreaView, View } from 'react-native';
+import React from 'react';
+import { Pressable, View } from 'react-native';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
-import moment from 'moment';
-import { FeedContext } from '../../context/FeedContext';
-
-const { height, width } = Dimensions.get('window');
 
 export default ReelayInfo = ({ navigation, reelay }) => {
 
