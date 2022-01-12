@@ -7,6 +7,7 @@ import Poster from './Poster';
 
 import styled from 'styled-components/native';
 import { VenueIcon } from '../utils/VenueIcon';
+import * as ReelayText from '../../components/global/Text';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
@@ -56,11 +57,9 @@ const StackLocationOval = styled(View)`
     width: 60px;
     zIndex: 3;
 `
-const StackLocationText = styled(Text)`
+const StackLocationText = styled(ReelayText.Body2)`
     align-self: center;
     color: black;
-    font-size: 16px;
-    font-family: System;
 `
 
 const PlayPauseIcon = ({ onPress, type = 'play' }) => {
