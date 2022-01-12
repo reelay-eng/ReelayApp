@@ -79,7 +79,7 @@ export default ProfileTopBar = ({ creator, navigation, route, atProfileBase = fa
         return (
             <RightCornerContainer>
                 <SettingsIconContainer>
-                    <Icon type='ionicon' size={30} color={'white'} name='settings-outline' onPress={() => {
+                    <Icon type='ionicon' size={27} color={'white'} name='settings-outline' onPress={() => {
                         navigation.push('ProfileSettingsScreen', {initialFeedPos: 0});
                     }} />
                 </SettingsIconContainer>

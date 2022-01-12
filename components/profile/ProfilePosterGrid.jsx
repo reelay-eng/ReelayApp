@@ -7,12 +7,20 @@ const { width } = Dimensions.get('window');
 
 export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
 
+    const GRID_SIDE_MARGIN = 16;
+    const GRID_WIDTH = width - (2 * GRID_SIDE_MARGIN);
+
+    const POSTER_HALF_MARGIN = 8;
+    const POSTER_ROW_LENGTH = 4;
+    const POSTER_WIDTH = GRID_WIDTH / POSTER_ROW_LENGTH - 2 * POSTER_HALF_MARGIN;
+    const POSTER_HEIGHT = 1.5 * POSTER_WIDTH;
+
     const PosterGridContainer = styled(View)`
         align-self: center;
         flex-direction: row;
         flex-wrap: wrap;
         justify-content: center;
-        width: ${width - 32}px;
+        width: ${GRID_WIDTH}px;
     `
     const PosterGridOuterContainer = styled(View)`
         flex-direction: row;
@@ -25,9 +33,9 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
         // afterimages are invisible views that keep the grid aligned. 
         // it's a hacky solution for now
         const InvisiblePosterContainer = styled(View)`
-            height: 108px;
-            width: 72px;
-            margin: 8px;
+            height: ${POSTER_HEIGHT}px;
+            width: ${POSTER_WIDTH}px;
+            margin: ${POSTER_HALF_MARGIN}px;
         `
         return (
             <InvisiblePosterContainer />
@@ -36,12 +44,12 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
 
     const renderStack = (stack, index) => {
         const PosterContainer = styled(Pressable)`
-            margin: 8px;
+        margin: ${POSTER_HALF_MARGIN}px;
         `
         const PosterImage = styled(Image)`
-            border-radius: 8px;
-            height: 108px;
-            width: 72px;
+            border-radius: ${POSTER_HALF_MARGIN}px;
+            height: ${POSTER_HEIGHT}px;
+            width: ${POSTER_WIDTH}px;
         `
         const posterURI = stack[0].title.posterURI;
         const posterURL = getPosterURL(posterURI);
