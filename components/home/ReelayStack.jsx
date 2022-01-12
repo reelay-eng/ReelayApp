@@ -48,13 +48,13 @@ const UnderPosterContainer = styled(View)`
 `
 const StackLocationOval = styled(View)`
     align-items: flex-end;
-    align-self: flex-end;
+    align-self: center;
     background-color: white;
     border-radius: 12px;
     justify-content: center;
-    right: 10px;
+    right: 6px;
     height: 22px;
-    width: 60px;
+    width: 50px;
     zIndex: 3;
 `
 const StackLocationText = styled(ReelayText.Body2)`
@@ -225,7 +225,7 @@ export default ReelayStack = ({
                 </Pressable>
                 <UnderPosterContainer>
                     { stack.length > 1 && <StackLocation position={stackPosition} length={stack.length} /> }
-                    { viewableReelay?.content?.venue && <VenueIcon venue={viewableReelay.content.venue} size={24} border={2} /> }
+                    { viewableReelay?.content?.venue && <VenueIcon venue={viewableReelay.content.venue} size={25} border={2} /> }
                 </UnderPosterContainer>
             </TopRightContainer>
         </ReelayFeedContainer>

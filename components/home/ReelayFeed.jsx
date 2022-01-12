@@ -40,7 +40,7 @@ const FeedSourceSelectorButton = ({ feedSource, drawerOpen, setDrawerOpen }) => 
 
     return (
         <SourceSelectorPressable onPress={onPress}>
-            <Icon type='ionicon' name={iconName} color={'white'} size={30} />
+            <Icon type='ionicon' name={iconName} color={'white'} size={27} />
         </SourceSelectorPressable>
     );
 }
