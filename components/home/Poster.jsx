@@ -16,13 +16,11 @@ export default Poster = memo(({ title }) => {
 		z-index: 3;
 	`
 	const PosterImage = styled(Image)`
-		height: 150px;
-		width: 100px;
+		height: 120px;
+		width: 80px;
 		margin-top: 10px;
 		margin-bottom: 10px;
 		border-radius: 8px;
-		border-width: 1px;
-		border-color: white;
 	`;
 
 	if (!title) {

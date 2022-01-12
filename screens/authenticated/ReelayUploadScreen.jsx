@@ -444,11 +444,9 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const posterURL = getPosterURL(titleObj?.posterURI);
 
     const posterStyle = {
-        borderColor: 'white',
         borderRadius: 8, 
-        borderWidth: 1, 
-        height: 150, 
-        width: 100, 
+        height: 120, 
+        width: 80, 
     }
 
     const openConfirmRetakeDrawer = async () => {

@@ -291,6 +291,7 @@ export default SignInScreen = ({ navigation, route }) => {
 			height: 20%;
 			flex-direction: row;
 			justify-content: center;
+            margin-bottom: 10px;
 		`;
 		const TopBarContainer = styled(View)`
 			width: 85%;

@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Image } from 'react-native-elements';
+import * as ReelayText from "../../components/global/Text";
 import styled from 'styled-components/native';
 import { getPosterURL } from '../../api/TMDbApi';
 
@@ -22,22 +23,22 @@ const PressableContainer = styled.Pressable`
     margin: 10px 10px 10px 20px;
     height: 165px;
 `
-const TitleText = styled.Text`
+const TitleText = styled(ReelayText.H5Emphasized)`
     color: white
     font-size: 22px;
+    margin-bottom: 10px;
 `
 const TitleLineContainer = styled.View`
     flex: 1;
     justify-content: center;
     align-items: flex-start;
 `;
-const ActorText = styled.Text`
+const ActorText = styled(ReelayText.H6Emphasized)`
     color: gray
     font-size: 16px;
 `
-const YearText = styled.Text`
+const YearText = styled(ReelayText.H6Emphasized)`
     color: gray
-    font-size: 16px;
 `
 
 export default TitleSearchResultItem = ({ navigation, result, source }) => {
@@ -55,8 +56,11 @@ export default TitleSearchResultItem = ({ navigation, result, source }) => {
             .filter((actor) => actor !== undefined)
             .join(", ") 
         ?? [];
-    const releaseYear = (titleObj.release_date && titleObj.release_date.length >= 4) 
-        ? ('(' + titleObj.release_date.slice(0,4) + ')') : '';
+
+
+    console.log(titleObj);
+    const releaseYear = (titleObj.releaseDate && titleObj.releaseDate.length >= 4) 
+        ? titleObj.releaseDate.slice(0,4) : '';
 
     const selectResult = () => {
         if (source && source === 'create') {

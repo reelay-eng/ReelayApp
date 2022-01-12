@@ -39,9 +39,7 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
             margin: 8px;
         `
         const PosterImage = styled(Image)`
-            border-color: white;
             border-radius: 8px;
-            border-width: 1px;
             height: 108px;
             width: 72px;
         `

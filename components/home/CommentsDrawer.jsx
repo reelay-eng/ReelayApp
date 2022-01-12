@@ -427,7 +427,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 				scrollViewRef.current.scrollToEnd({ animated: false });
 			}
 
-			Amplitude.logEventWithPropertiesAsync("commentedOnReelay", {
+			logAmplitudeEventProd("commentedOnReelay", {
 				user: cognitoUser.username,
 				creator: reelay.creator.username,
 				title: reelay.title.display,
@@ -456,7 +456,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 						style={TextInputStyle}
 						defaultValue={commentText}
 					/>
-					<CharacterCounter commentTextLength={commentText.length} />
+					{/* <CharacterCounter commentTextLength={commentText.length} /> */}
 				</View>
 				<PostButtonContainer>
 					<BWButton

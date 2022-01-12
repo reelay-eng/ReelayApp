@@ -654,7 +654,7 @@ const MovieInformation = ({description, director, actors, rating}) => {
 						<HeadingText>Description</HeadingText>
 						<Spacer height={10} />
 						<DescriptionCollapsible description={description} />
-						<Spacer height={20} />
+						<Spacer height={30} />
 					</>
 				)}
 				{director && (
@@ -663,7 +663,7 @@ const MovieInformation = ({description, director, actors, rating}) => {
 						<BadgeWrapper>
 							<DirectorBadge text={director} />
 						</BadgeWrapper>
-						<Spacer height={20} />
+						<Spacer height={30} />
 					</>
 				)}
 				{actors?.length > 0 && (
@@ -683,7 +683,7 @@ const MovieInformation = ({description, director, actors, rating}) => {
 								</BadgeWrapper>
 							))}
 						</ActorBadgesContainer>
-						<Spacer height={20} />
+						<Spacer height={30} />
 					</>
 				)}
 				{rating && Object.keys(ratingSources).includes(rating) && (

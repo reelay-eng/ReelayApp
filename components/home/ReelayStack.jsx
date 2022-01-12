@@ -38,7 +38,7 @@ const ReelayFeedContainer = styled(View)`
 `
 const TopRightContainer = styled(View)`
     position: absolute;
-    left: ${width - 110}px;
+    left: ${width - 90}px;
     zIndex: 3;
 `
 const UnderPosterContainer = styled(View)`
