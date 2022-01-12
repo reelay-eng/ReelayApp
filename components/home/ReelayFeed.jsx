@@ -126,9 +126,20 @@ export default ReelayFeed = ({ navigation,
             ? await getGlobalFeed({ reqUserSub: cognitoUser?.attributes?.sub, page })
             : await getFollowingFeed({ reqUserSub: cognitoUser?.attributes?.sub, page });
 
-        console.log("extending", feedSource, "feed")
+        console.log("extending", feedSource, "feed");
 
-        const newStackList = [...currStackList, ...fetchedStacks];
+        // probably don't need to create this every time, but we want to avoid unnecessary state
+        const titleIDEntries = {};
+        currStackList.forEach((curStack) => titleIDEntries[curStack[0].title.id] = 1);
+
+        const notAlreadyInStack = (fetchedStack) => {
+            const alreadyInStack = titleIDEntries[fetchedStack[0].title.id];
+            if (alreadyInStack) console.log('Filtering stack ', fetchedStack[0].title.id);
+            return !alreadyInStack;
+        }
+
+        const filteredStacks = fetchedStacks.filter(notAlreadyInStack);
+        const newStackList = [...currStackList, ...filteredStacks];
         nextPage.current = page + 1;
         console.log(nextPage)
         if (feedSource === "global") {
