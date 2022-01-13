@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, memo } from 'react';
 import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from 'react-native-elements';
@@ -63,7 +63,7 @@ const StackLocationText = styled(ReelayText.Body2)`
 `
 
 const PlayPauseIcon = ({ onPress, type = 'play' }) => {
-    const ICON_SIZE = 96;
+    const ICON_SIZE = 48;
     return (
         <IconContainer onPress={onPress}>
             <Icon type='ionicon' name={type} color={'white'} size={ICON_SIZE} />
@@ -80,7 +80,7 @@ const StackLocation = ({ position, length }) => {
     );
 }
 
-export default ReelayStack = ({ 
+const ReelayStack = ({ 
     stack,  
     stackViewable,
     initialStackPos = 0,
@@ -97,6 +97,12 @@ export default ReelayStack = ({
         setOverlayData,  
     } = useContext(FeedContext);
     const viewableReelay = stack[stackPosition];
+
+    const getItemLayout = (data, index) => ({
+        length: height, 
+        offset: height * index, index,
+        index: index,
+    });
 
     const playPause = () => {
         if (paused) {
@@ -153,14 +159,16 @@ export default ReelayStack = ({
 
     const renderReelay = ({ item, index }) => {
         const reelay = item;
-        const reelayViewable = (index === stackPosition);        
+        const reelayViewable = stackViewable && (index === stackPosition);   
+        
         return (
             <ReelayFeedContainer key={reelay.id}>
                 <Hero 
                     navigation={navigation} 
                     reelay={reelay} 
-                    viewable={stackViewable && reelayViewable}
+                    viewable={reelayViewable}
                     index={index} 
+                    isPaused={paused}
                     playPause={playPause} 
                     setReelayOverlay={setReelayOverlay}
                     stackIndex={index} 
@@ -170,7 +178,7 @@ export default ReelayStack = ({
                 { playPauseVisible !== 'none' && <PlayPauseIcon onPress={playPause} type={playPauseVisible} /> }
             </ReelayFeedContainer>
         );
-    }
+    };
 
     const onStackSwiped = (e) => {
         const { x, y } = e.nativeEvent.contentOffset;
@@ -207,6 +215,8 @@ export default ReelayStack = ({
         });
     }
 
+    console.log('rendering STACK: ', stack[0].title.display, );
+
     return (
         <ReelayFeedContainer>
             <FlatList 
@@ -214,6 +224,7 @@ export default ReelayStack = ({
                 horizontal={true} 
                 initialNumToRender={1}
                 initialScrollIndex={initialStackPos}
+                getItemLayout={getItemLayout}
                 maxToRenderPerBatch={1}
                 renderItem={renderReelay} 
                 onScroll={onStackSwiped} 
@@ -231,3 +242,10 @@ export default ReelayStack = ({
         </ReelayFeedContainer>
     );
 }
+
+const areEqual = (prevProps, nextProps) => {
+    // console.log('are stacks equal? ', prevProps.stack[0].title.display, prevProps.stackViewable, nextProps.stackViewable);
+    return prevProps.stackViewable === nextProps.stackViewable;
+}
+
+export default memo(ReelayStack, areEqual);

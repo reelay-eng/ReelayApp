@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, memo } from 'react';
 import { View } from 'react-native';
 
 import FeedVideoPlayer from './FeedVideoPlayer';
@@ -9,7 +9,7 @@ import { FeedContext } from '../../context/FeedContext';
 import LikesDrawer from './LikesDrawer';
 import CommentsDrawer from './CommentsDrawer';
 
-export default Hero = ({ 
+const Hero = ({ 
     index, 
     isPaused,
     navigation,
@@ -36,3 +36,12 @@ export default Hero = ({
         </View>
     );
 }
+
+const areEqual = (prevProps, nextProps) => {
+    return (
+        prevProps.isPaused === nextProps.isPaused &&
+        prevProps.viewable === nextProps.viewable
+    );
+}
+
+export default memo(Hero, areEqual);
