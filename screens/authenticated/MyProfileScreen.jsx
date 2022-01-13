@@ -16,7 +16,6 @@ import ProfileTopBar from '../../components/profile/ProfileTopBar';
 import EditProfile from "../../components/profile/EditProfile";
 import { BWButton } from "../../components/global/Buttons";
 
-
 // Context
 import { AuthContext } from "../../context/AuthContext";
 import { FeedContext } from "../../context/FeedContext";
@@ -43,7 +42,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     useEffect(() => {
         setTabBarVisible(true);
-    })
+    });
 
     if (!cognitoUser) {
         return (
@@ -79,7 +78,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     const onRefresh = async () => {
         if (userSub.length) {
-            setRefreshing(false);
+            setRefreshing(true);
             await loadCreatorStacks();
             await loadFollows();
             setRefreshing(false);
@@ -92,15 +91,10 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const reelayCount = myCreatorStacks.reduce(reelayCounter, 0);
 
     useEffect(() => {
-        onRefresh();
         logAmplitudeEventProd('viewMyProfile', {
             username: cognitoUser?.attributes?.username,
         });    
     }, []);
-
-    logAmplitudeEventProd("viewMyProfile", {
-        username: cognitoUser.username,
-    });
 
     const EditProfileButton = () => {
         const Container = styled(View)`

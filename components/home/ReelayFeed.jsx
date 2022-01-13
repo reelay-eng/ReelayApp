@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useContext, useEffect, useState, useRef, memo } from 'react';
 import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { FeedContext } from '../../context/FeedContext';
@@ -40,7 +40,7 @@ const FeedSourceSelectorButton = ({ feedSource, drawerOpen, setDrawerOpen }) => 
 
     return (
         <SourceSelectorPressable onPress={onPress}>
-            <Icon type='ionicon' name={iconName} color={'white'} size={30} />
+            <Icon type='ionicon' name={iconName} color={'white'} size={27} />
         </SourceSelectorPressable>
     );
 }
@@ -58,7 +58,7 @@ export default ReelayFeed = ({ navigation,
 
     const [globalFeedPosition, setGlobalFeedPosition] = useState(0);
     const [followingFeedPosition, setFollowingFeedPosition] = useState(0);
-    const [feedSource, setFeedSource] = useState('following');
+    const [feedSource, setFeedSource] = useState('global');
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [globalStackList, setGlobalStackList] = useState([]);
@@ -71,9 +71,8 @@ export default ReelayFeed = ({ navigation,
 
     useEffect(() => {
         loadFollowingFeed();
-        setFeedSource('global');
-        console.log("what feed to load...", feedSource)
         loadGlobalFeed();
+        console.log("what feed to load...", feedSource)
     }, [navigation]);
 
     const loadFollowingFeed = async () => {
@@ -219,13 +218,13 @@ export default ReelayFeed = ({ navigation,
             ? await getGlobalFeed({ reqUserSub: cognitoUser?.attributes?.sub, page: 0 })
             : await getFollowingFeed({ reqUserSub: cognitoUser?.attributes?.sub, page: 0 });
 
-        setRefreshing(false);
         nextPage.current = 1;
         if (feedSource === "global") {
             setGlobalStackList(fetchedStacks);
         } else {
             setFollowingStackList(fetchedStacks);
         }     
+        setRefreshing(false);
         // the user is at the top of the feed
         // but the message is at the bottom of the screen
         showMessageToast('You\'re at the top', { position: 'bottom' });
@@ -235,7 +234,6 @@ export default ReelayFeed = ({ navigation,
     
 
     const renderStack = ({ item, index }) => {
-
         const feedPosition =
           feedSource === "global" ? globalFeedPosition : followingFeedPosition;
 
@@ -280,10 +278,11 @@ export default ReelayFeed = ({ navigation,
                 setGlobalFeedPosition(nextFeedPosition);
             } else {
                 setFollowingFeedPosition(nextFeedPosition);
-                console.log("is this being hit")
             }
         }
     }
+
+    console.log('feed is rendering');
 
     return (
       <ReelayFeedContainer>
@@ -293,10 +292,10 @@ export default ReelayFeed = ({ navigation,
             data={globalStackList}
             getItemLayout={getItemLayout}
             horizontal={false}
-            initialNumToRender={1}
+            initialNumToRender={0}
             initialScrollIndex={globalFeedPosition}
             keyExtractor={(stack) => String(stack[0].title.id)}
-            maxToRenderPerBatch={1}
+            maxToRenderPerBatch={0}
             onEndReached={extendFeed}
             onRefresh={refreshFeed}
             onScroll={onFeedSwiped}
@@ -318,10 +317,10 @@ export default ReelayFeed = ({ navigation,
             data={followingStackList}
             getItemLayout={getItemLayout}
             horizontal={false}
-            initialNumToRender={1}
+            initialNumToRender={0}
             initialScrollIndex={followingFeedPosition}
             keyExtractor={(stack) => String(stack[0].title.id)}
-            maxToRenderPerBatch={1}
+            maxToRenderPerBatch={0}
             onEndReached={extendFeed}
             onRefresh={refreshFeed}
             onScroll={onFeedSwiped}

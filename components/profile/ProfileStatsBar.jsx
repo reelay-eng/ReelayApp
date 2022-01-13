@@ -3,6 +3,7 @@ import { Text, View, Pressable } from 'react-native';
 import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import * as ReelayText from '../../components/global/Text';
 
 const BarContainer = styled(View)`
     align-self: center;
@@ -13,16 +14,10 @@ const StatContainer = styled(Pressable)`
     width: 90px;
     margin: 10px;
 `
-const DimensionText = styled(Text)`
-    font-family: System;
-    font-size: 16px;
-    font-weight: 400;
+const DimensionText = styled(ReelayText.Subtitle1)`
     color: white;
 `
-const StatText = styled(Text)`
-    font-family: System;
-    font-size: 20px;
-    font-weight: 600;
+const StatText = styled(ReelayText.H6Emphasized)`
     color: white;
 `
 

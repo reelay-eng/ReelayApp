@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
+import * as ReelayText from "../../components/global/Text";
 import styled from 'styled-components/native';
 
 import { AuthContext } from '../../context/AuthContext';
@@ -13,11 +14,9 @@ import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
 const { height, width } = Dimensions.get('window');
 
 export default Sidebar = ({ reelay }) => {
-	const ICON_SIZE = 40;
-	const Count = styled(Text)`
+	const ICON_SIZE = 36;
+	const Count = styled(ReelayText.Subtitle1)`
 		color: #fff;
-		font-size: 18px;
-		font-weight: bold;
 	`
 	const SidebarView = styled(View)`
 		align-items: flex-end;

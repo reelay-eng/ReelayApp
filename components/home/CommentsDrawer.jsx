@@ -83,24 +83,6 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         setCommentsVisible(false);
     }
 
-    const CharacterCounter = ({ commentTextLength }) => {
-        const CounterContainer = styled(View)`
-            flex-direction: row;
-            justify-content: flex-end;
-            margin-top: 10px;
-            right: 18px;
-            width: 100%;
-        `
-        const CounterText = styled(ReelayText.CaptionEmphasized)`
-			color: #86878b;
-		`;
-        return (
-            <CounterContainer>
-                <CounterText>{`${commentTextLength} / ${MAX_COMMENT_LENGTH}`}</CounterText>
-            </CounterContainer>
-        );
-    }
-
     const Header = () => {
 
         // comments are for Gray Bar indicating slide-to-close, if we ever put it in. 
@@ -199,6 +181,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 			width: 10%;
 			align-items: center;
 			margin-right: 12px;
+			margin-top: 4px;
 		`;
 		const RightCommentIconContainer = styled(Pressable)`
 			width: 10%;
@@ -427,7 +410,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 				scrollViewRef.current.scrollToEnd({ animated: false });
 			}
 
-			Amplitude.logEventWithPropertiesAsync("commentedOnReelay", {
+			logAmplitudeEventProd("commentedOnReelay", {
 				user: cognitoUser.username,
 				creator: reelay.creator.username,
 				title: reelay.title.display,
@@ -456,7 +439,6 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 						style={TextInputStyle}
 						defaultValue={commentText}
 					/>
-					<CharacterCounter commentTextLength={commentText.length} />
 				</View>
 				<PostButtonContainer>
 					<BWButton

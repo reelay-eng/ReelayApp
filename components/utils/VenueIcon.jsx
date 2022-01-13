@@ -78,7 +78,7 @@ export const VenueIcon = memo(({ border = 0, onPress, size = 48, venue }) => {
     
     const IconPressable = styled(Pressable)`
         border-radius: ${radius}px;
-        border-width: ${border}px;
+        border-width: 0px;
         border-color: ${venue === 'other' ? 'blue' : 'white'};
     `
     return (

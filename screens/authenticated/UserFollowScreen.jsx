@@ -9,17 +9,15 @@ import FollowButtonDrawer from '../../components/profile/Follow/FollowButtonDraw
 import { AuthContext } from '../../context/AuthContext';
 
 import { ToggleSelector } from '../../components/global/Buttons';
+import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import { getFollowers, getFollowing } from '../../api/ReelayDBApi';
 
 const BackButtonContainer = styled(View)`
     margin-right: 10px;
 `
-const HeaderText = styled(Text)`
+const HeaderText = styled(ReelayText.H6Emphasized)`
     align-self: center;
-    font-family: System;
-    font-size: 20px;
-    font-weight: 500;
     color: white;
     margin-left: 10px;
 `

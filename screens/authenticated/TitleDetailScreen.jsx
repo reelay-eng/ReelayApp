@@ -45,6 +45,7 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 // Screen Orientation
 import * as ScreenOrientation from 'expo-screen-orientation';
+import { getRuntimeString } from '../../components/utils/TitleRuntime';
 
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
@@ -238,10 +239,7 @@ const PosterWithTrailer = ({
 		const ReducedGenres = genres.slice(0, 2);
 
 		//Conversion from minutes to hours and minutes
-
-		const runtimeHours = Math.floor(runtime / 60);
-		const runtimeMinutes = runtime % 60;
-		const runtimeString = runtimeHours > 0 ?? runtimeHours !== undefined ? `${runtimeHours}h ${runtimeMinutes}m` : `${runtimeMinutes}m`;
+		const runtimeString = getRuntimeString(runtime);
 
 		return (
 			<TaglineContainer>
@@ -683,7 +681,7 @@ const MovieInformation = ({description, director, actors, rating}) => {
 						<HeadingText>Description</HeadingText>
 						<Spacer height={10} />
 						<DescriptionCollapsible description={description} />
-						<Spacer height={20} />
+						<Spacer height={30} />
 					</>
 				)}
 				{director && (
@@ -692,7 +690,7 @@ const MovieInformation = ({description, director, actors, rating}) => {
 						<BadgeWrapper>
 							<DirectorBadge text={director} />
 						</BadgeWrapper>
-						<Spacer height={20} />
+						<Spacer height={30} />
 					</>
 				)}
 				{actors?.length > 0 && (
@@ -712,7 +710,7 @@ const MovieInformation = ({description, director, actors, rating}) => {
 								</BadgeWrapper>
 							))}
 						</ActorBadgesContainer>
-						<Spacer height={20} />
+						<Spacer height={30} />
 					</>
 				)}
 				{rating && Object.keys(ratingSources).includes(rating) && (

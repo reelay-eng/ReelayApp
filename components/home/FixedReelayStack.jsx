@@ -1,11 +1,9 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
-import { Icon } from 'react-native-elements';
 import { FeedContext } from '../../context/FeedContext';
 import ReelayStack from './ReelayStack';
 import FeedOverlay from '../overlay/FeedOverlay';
 
-import * as Amplitude from 'expo-analytics-amplitude';
 import { AuthContext } from '../../context/AuthContext';
 
 import styled from 'styled-components/native';
@@ -34,7 +32,7 @@ export default UserReelayFeed = ({ navigation,
     const feedPager = useRef();
 
     const { cognitoUser } = useContext(AuthContext);
-    const { overlayVisible } = useContext(FeedContext);
+    const { overlayVisible, setTabBarVisible } = useContext(FeedContext);
 
     const [feedPosition, setFeedPosition] = useState(0);
     const [stackList, setStackList] = useState([]);

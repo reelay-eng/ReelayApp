@@ -109,8 +109,8 @@ const BottomTabNavigator = () => {
 					paddingTop: 20,
 					height: 100,
 					display: tabBarVisible ? "flex" : "none",
-					paddingLeft: 40,
-					paddingRight: 40,
+					paddingLeft: 10,
+					paddingRight: 10,
 				},
 				tabBarBackground: () => (
 					<LinearGradient
