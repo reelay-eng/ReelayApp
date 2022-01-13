@@ -43,6 +43,9 @@ import RRating from "../../assets/images/MPAA_Ratings/RRating.png";
 // Logging
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
+// Screen Orientation
+import * as ScreenOrientation from 'expo-screen-orientation';
+
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
 `;
@@ -62,11 +65,17 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const trailerURI = titleObj?.trailerURI;
 	const genres = titleObj?.genres;
 	const rating = titleObj?.rating;
+	const releaseYear = titleObj?.releaseYear;
+	const runtime = titleObj?.runtime;
+	const isMovie = titleObj?.isMovie;
+
+	console.log(titleObj);
 
 	// hide tab bar
 	const { setTabBarVisible } = useContext(FeedContext);
 	useEffect(() => {
 		setTabBarVisible(false);
+		// ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
 		return () => {
 			setTabBarVisible(true);
 		};
@@ -89,6 +98,9 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 				tmdbTitleID={tmdbTitleID}
 				trailerURI={trailerURI}
 				genres={genres}
+				releaseYear={releaseYear}
+				runtime={runtime}
+				isMovie={isMovie}
 			/>
 			<PopularReelaysRow navigation={navigation} titleObj={titleObj} />
 			<MovieInformation director={director} actors={actors} description={overview} rating={rating} />
@@ -127,6 +139,9 @@ const PosterWithTrailer = ({
 	trailerURI,
 	titleObj,
 	genres,
+	releaseYear,
+	runtime,
+	isMovie,
 }) => {
 	const PosterContainer = styled(View)`
 		height: ${height}px;
@@ -214,10 +229,19 @@ const PosterWithTrailer = ({
 			align-items: center;
 			justify-content: center;
 		`;
-		const TaglineText = styled(ReelayText.H6Emphasized)`
+		const TaglineText = styled(ReelayText.Body1)`
 			color: #ffffff;
 			opacity: 0.6;
 		`;
+
+		// Quick fix in order to fit runtime and release year
+		const ReducedGenres = genres.slice(0, 2);
+
+		//Conversion from minutes to hours and minutes
+
+		const runtimeHours = Math.floor(runtime / 60);
+		const runtimeMinutes = runtime % 60;
+		const runtimeString = runtimeHours > 0 ?? runtimeHours !== undefined ? `${runtimeHours}h ${runtimeMinutes}m` : `${runtimeMinutes}m`;
 
 		return (
 			<TaglineContainer>
@@ -226,9 +250,14 @@ const PosterWithTrailer = ({
 						<ProviderImage source={{ uri: getLogoURL(topProviderLogo) }} />
 					</ProviderImagesContainer>
 				)}
-				{genres?.length > 0 && (
+				{isMovie === true && (
 					<TaglineTextContainer>
-						<TaglineText>{genres?.map((e) => e.name).join(", ")}</TaglineText>
+						<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}    {runtimeString}</TaglineText>
+					</TaglineTextContainer>
+				)} 
+				{isMovie === false && (
+					<TaglineTextContainer>
+						<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}</TaglineText>
 					</TaglineTextContainer>
 				)}
 			</TaglineContainer>

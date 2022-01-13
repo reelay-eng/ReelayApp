@@ -208,6 +208,7 @@ export const fetchAnnotatedTitle = async (titleID, isSeries) => {
         tagline: tmdbTitleObject.tagline,
         trailerURI: trailerURI,
         rating: rating,
+        runtime: tmdbTitleObject.runtime,
     }
 
     if (isSeries) {
