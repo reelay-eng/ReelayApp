@@ -8,6 +8,7 @@ import { getPosterURL } from '../../api/TMDbApi';
 import { AuthContext } from '../../context/AuthContext';
 import { showErrorToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import { getRuntimeString } from '../utils/TitleRuntime';
 
 const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
 
@@ -58,9 +59,9 @@ export default TitleSearchResultItem = ({ navigation, result, source }) => {
         ?? [];
 
 
-    console.log(titleObj);
     const releaseYear = (titleObj.releaseDate && titleObj.releaseDate.length >= 4) 
         ? titleObj.releaseDate.slice(0,4) : '';
+    const runtimeString = getRuntimeString(titleObj.runtime);
 
     const selectResult = () => {
         if (source && source === 'create') {
@@ -110,7 +111,7 @@ export default TitleSearchResultItem = ({ navigation, result, source }) => {
             </ImageContainer>
             <TitleLineContainer>
                 <TitleText>{posterLoaded ? title : ""}</TitleText>
-                <YearText>{posterLoaded ? releaseYear : ""}</YearText>
+                <YearText>{posterLoaded ? `${releaseYear}    ${runtimeString}` : ""}</YearText>
                 <ActorText>{posterLoaded ? actors : ""}</ActorText>
             </TitleLineContainer>
         </PressableContainer>

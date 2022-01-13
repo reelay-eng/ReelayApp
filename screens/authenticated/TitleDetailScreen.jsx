@@ -45,6 +45,7 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 // Screen Orientation
 import * as ScreenOrientation from 'expo-screen-orientation';
+import { getRuntimeString } from '../../components/utils/TitleRuntime';
 
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
@@ -238,10 +239,7 @@ const PosterWithTrailer = ({
 		const ReducedGenres = genres.slice(0, 2);
 
 		//Conversion from minutes to hours and minutes
-
-		const runtimeHours = Math.floor(runtime / 60);
-		const runtimeMinutes = runtime % 60;
-		const runtimeString = runtimeHours > 0 ?? runtimeHours !== undefined ? `${runtimeHours}h ${runtimeMinutes}m` : `${runtimeMinutes}m`;
+		const runtimeString = getRuntimeString(runtime);
 
 		return (
 			<TaglineContainer>
