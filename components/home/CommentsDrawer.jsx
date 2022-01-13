@@ -90,12 +90,8 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
             justify-content: center;
             margin-left: 12px;
             margin-right: 12px;
-            padding-top: 6px;
-            padding-bottom: 6px;
-            ${
-            //margin - top: 12px;
-            ""
-            }
+            padding-top: 10px;
+            padding-bottom: 10px;
             border-bottom-color: #2D2D2D;
             border-bottom-width: 1px;
         `
@@ -309,9 +305,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 					<>
 						<ScrollView
 							ref={scrollViewRef}
-							style={{
-								maxHeight: maxDrawerHeight / 3,
-							}}
+							style={{ maxHeight: maxDrawerHeight / 2 }}
 						>
                             <Comments comments={reelay.comments}/>
 						</ScrollView>
@@ -346,13 +340,13 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 			alignSelf: "center",
 			color: "white",
 			fontFamily: "Outfit-Regular",
-			fontSize: 18,
+			fontSize: 16,
 			fontStyle: "normal",
 			lineHeight: 24,
 			letterSpacing: 0.25,
 			textAlign: "left",
-			paddingLeft: 16,
-			paddingRight: 16,
+			paddingLeft: 12,
+			paddingRight: 12,
 			width: "100%",
 		};
 
@@ -459,7 +453,6 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
             <Modal animationType="slide" transparent={true} visible={commentsVisible}>
 				<KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
 					<Backdrop onPress={closeDrawer} />
-					
                     <DrawerContainer>
 							<Header />
 							<CommentBox />

@@ -135,7 +135,7 @@ function App() {
         try {
 			const value = await AsyncStorage.getItem("isReturningUser");
 			if (value !== null) {
-                setIsReturningUser(true);
+                setIsReturningUser(false);
             }
             else {
                 setIsReturningUser(false);

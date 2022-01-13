@@ -24,7 +24,7 @@ export default SearchField = ({
 				style={{
 					color: "white",
 					fontFamily: "Outfit-Regular",
-					fontSize: 20,
+					fontSize: 16,
 					fontStyle: "normal",
 					lineHeight: 24,
 					letterSpacing: 0.15,
@@ -32,13 +32,14 @@ export default SearchField = ({
 				}}
 				inputContainerStyle={{
 					borderBottomWidth: 0,
-					marginTop: 20,
+					marginTop: 10,
 					paddingLeft: 10,
 					paddingTop: clearIcon ? 2 : 6,
 					paddingBottom: clearIcon ? 2 : 6,
 					paddingRight: 10,
 					backgroundColor: "#393939",
 					borderRadius: borderRadius,
+					justifyContent: 'center',
 				}}
 				rightIcon={
                     clearIcon ?

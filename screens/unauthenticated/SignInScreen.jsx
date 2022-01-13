@@ -291,7 +291,7 @@ export default SignInScreen = ({ navigation, route }) => {
 			height: 20%;
 			flex-direction: row;
 			justify-content: center;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
 		`;
 		const TopBarContainer = styled(View)`
 			width: 85%;
@@ -310,7 +310,7 @@ export default SignInScreen = ({ navigation, route }) => {
 		`;
 		const HeaderText = styled(ReelayText.H5Bold)`
 			color: white;
-			margin-bottom: 4px;
+			margin-bottom: 10px;
 		`;
 		const SublineText = styled(ReelayText.Caption)`
 			color: white;

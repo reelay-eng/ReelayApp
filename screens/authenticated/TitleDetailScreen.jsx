@@ -596,10 +596,10 @@ const MovieInformation = ({description, director, actors, rating}) => {
     const MIInternalContainer = styled(View)`
         display: flex;
         flex-direction: column;
-        margin-left: 10px;
-		margin-right: 10px;
-		margin-bottom: 20px;
-		margin-top: 20px;
+        margin-left: 20px;
+		margin-right: 20px;
+		margin-bottom: 30px;
+		margin-top: 30px;
     `
 
     const HeadingText = styled(ReelayText.H5Emphasized)`

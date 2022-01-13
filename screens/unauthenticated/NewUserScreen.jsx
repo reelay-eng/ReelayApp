@@ -58,7 +58,7 @@ const HalfCarouselContainer = styled(View)`
 `;
 const CarouselTextContainer = styled(View)`
 	height: 60%;
-	width: 75%;
+	width: 90%;
 	flex-direction: column;
 	align-items: center;
     margin-top: 54px;
@@ -71,6 +71,7 @@ const CarouselTitle = styled(ReelayText.H4)`
 const CarouselBody = styled(ReelayText.Body2)`
     color: white;
     text-align: center;
+	width: 75%;
 `
 const SkipNextAbsoluteContainer = styled(View)`
     width: 100%;
