@@ -7,6 +7,7 @@ import { AuthContext } from '../../../context/AuthContext';
 import { logAmplitudeEventProd } from '../../utils/EventLogger';
 import styled from 'styled-components/native';
 import ReelayColors from '../../../constants/ReelayColors';
+import * as ReelayText from '../../global/Text';
 import { showErrorToast } from '../../utils/toasts';
 
 export default FollowButtonDrawer = ({ 
@@ -57,10 +58,7 @@ export default FollowButtonDrawer = ({
         margin-top: 20px;
         color: #2977EF;
     `
-    const OptionText = styled(Text)`
-        font-family: System;
-        font-size: 20px;
-        font-weight: 500;
+    const OptionText = styled(ReelayText.Body1)`
         margin-left: 20px;
         color: white;
     `

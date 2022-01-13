@@ -16,7 +16,6 @@ import ProfileTopBar from '../../components/profile/ProfileTopBar';
 import EditProfile from "../../components/profile/EditProfile";
 import { BWButton } from "../../components/global/Buttons";
 
-
 // Context
 import { AuthContext } from "../../context/AuthContext";
 import { FeedContext } from "../../context/FeedContext";
@@ -40,8 +39,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
     } = useContext(AuthContext); 
 
     const { setTabBarVisible } = useContext(FeedContext);
-
-    console.log('rendering');
 
     useEffect(() => {
         setTabBarVisible(true);
