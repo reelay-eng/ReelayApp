@@ -88,7 +88,7 @@ export const blockCreator = async (creatorSub, blockingUserSub) => {
 }
 
 export const reportReelay = async (reportingUserSub, reportReq) => {
-    const routePost = `${REELAY_API_BASE_URL}/reportedContent/reelay`;
+    const routePost = `${REELAY_API_BASE_URL}/reported-content/reelay`;
     const reportReelayResult = await fetchResults(routePost, {
         body: JSON.stringify(reportReq),
         method: 'POST',
@@ -107,7 +107,7 @@ export const getReportedReelayStacks = async () => {
     });
 
     const preparedReportedStacks = await prepareStacks(fetchedReportedStacks);
-    console.log('REPORTED REELAYS: ', fetchedReportedStacks);
+    console.log('REPORTED REELAYS: ', preparedReportedStacks);
     return preparedReportedStacks;
 }
 

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, memo} from 'react';
 import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { blockCreator, removeReelay, reportReelay } from '../../api/ReelayDBApi';
@@ -262,6 +262,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         onPress = async () => {
             const reportReelayResult = await reportReelay(cognitoUser?.attributes?.sub, {
                 creatorSub: reelay.creator.sub, 
+                creatorName: reelay.creator.username,
                 policyViolationCode: selectedPolicy.id, 
                 reelaySub: reelay.sub,
             });
@@ -366,7 +367,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
     );
 }
 
-export default Reelay3DotDrawer = ({ reelay, navigation }) => {
+const Reelay3DotDrawer = ({ reelay, navigation }) => {
     const { dotMenuVisible, setDotMenuVisible } = useContext(FeedContext);
     const closeDrawer = () => setDotMenuVisible(false);
 
@@ -390,3 +391,9 @@ export default Reelay3DotDrawer = ({ reelay, navigation }) => {
     );
 
 }
+
+const areEqual = (prevDrawerProps, nextDrawerProps) => {
+    return true;
+}
+
+export default memo(Reelay3DotDrawer, (areEqual));
