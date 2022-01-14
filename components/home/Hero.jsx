@@ -1,4 +1,4 @@
-import React, { useContext, memo } from 'react';
+import React, { useContext, useState, memo } from 'react';
 import { View } from 'react-native';
 
 import FeedVideoPlayer from './FeedVideoPlayer';
@@ -22,6 +22,7 @@ const Hero = ({
 }) => {
 
     const { likesVisible, commentsVisible, dotMenuVisible } = useContext(FeedContext);
+    console.log('hero re-rendering: ', reelay.title.display);
 
     return (
         <View key={index} style={{ justifyContent: 'flex-end'}}>
@@ -34,7 +35,12 @@ const Hero = ({
             <Sidebar reelay={reelay} />
             { viewable && likesVisible && <LikesDrawer reelay={reelay} navigation={navigation} /> }
             { viewable && commentsVisible && <CommentsDrawer reelay={reelay} navigation={navigation} /> }
-            { viewable && dotMenuVisible && <Reelay3DotDrawer reelay={reelay} navigation={navigation} /> }
+            { viewable && dotMenuVisible && 
+                <Reelay3DotDrawer 
+                    reelay={reelay} 
+                    navigation={navigation}
+                /> 
+            }
         </View>
     );
 }
