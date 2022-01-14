@@ -19,7 +19,7 @@ export default Sidebar = ({ reelay }) => {
 		color: #fff;
 	`
 	const SidebarView = styled(View)`
-		align-items: flex-end;
+		align-items: center;
 		align-self: flex-end;
 		justify-content: center;
 		position: absolute;
@@ -99,7 +99,7 @@ export default Sidebar = ({ reelay }) => {
 				<Count>{reelay.comments.length}</Count>
 			</SidebarButton>
 			<SidebarButton onPress={onDotMenuPress}>
-				<Icon type='ionicon' name={'ellipsis-horizontal'} color={'white'} size={ICON_SIZE} />
+				<Icon type='ionicon' name={'ellipsis-horizontal'} color={'white'} size={24} />
 			</SidebarButton>
 		</SidebarView>
 	);

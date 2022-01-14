@@ -9,8 +9,8 @@ import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../global/Text';
 
-export default Reelay3DotDrawer = ({ reelay }) => {
-    const { cognitoUser } = useContext(AuthContext);
+export default Reelay3DotDrawer = ({ reelay, navigation }) => {
+    const { cognitoUser, reelayDBUser } = useContext(AuthContext);
     const { dotMenuVisible, setDotMenuVisible } = useContext(FeedContext);
 
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
@@ -138,6 +138,20 @@ export default Reelay3DotDrawer = ({ reelay }) => {
         );
     }
 
+    const ViewReportedContentFeedOption = () => {
+        const onPress = () => {
+            // todo
+        }
+
+        return (
+            <OptionContainerPressable onPress={onPress}>
+                <Icon type='ionicon' name='eye' size={27} color={'white'} />
+                <OptionText selected={false}>{`Review Reported Content (Admin Only)`}</OptionText>
+            </OptionContainerPressable>
+        );
+
+    }
+
     const CancelOption = () => {
         return (
             <OptionContainerPressable onPress={closeDrawer}>
@@ -154,6 +168,7 @@ export default Reelay3DotDrawer = ({ reelay }) => {
                 <ReportReelayOption />
                 <FilterReportedReelaysOption />
                 <BlockCreatorOption />
+                { (reelayDBUser?.role === 'admin') && <ViewReportedContentFeedOption /> }
                 <CancelOption />
             </DotMenuOptionsContainer>
         );

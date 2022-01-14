@@ -65,6 +65,53 @@ export const unfollowCreator = async (creatorSub, followerSub) => {
     }
 }
 
+export const unblockCreator = async (creatorSub, blockingUserSub) => {
+    const routePatch = `${REELAY_API_BASE_URL}/blockUsers/unblockUser?blockedUserSub=${creatorSub}&blockingUserSub=${blockingUserSub}`;
+    console.log(routePost);
+    const unblockCreatorResult = await fetchResults(routePatch, {
+        method: 'PATCH',
+        headers: REELAY_API_HEADERS,
+    });
+
+    console.log(unblockCreatorResult);
+    return unblockCreatorResult;
+}
+
+export const blockCreator = async (creatorSub, blockingUserSub) => {
+    const routePost = `${REELAY_API_BASE_URL}/blockUsers/blockUser?blockedUserSub=${creatorSub}&blockingUserSub=${blockingUserSub}`;
+    console.log(routePost);
+    const blockCreatorResult = await fetchResults(routePost, {
+        method: 'POST',
+        headers: REELAY_API_HEADERS,
+    });
+
+    console.log(blockCreatorResult);
+    return blockCreatorResult;
+}
+
+export const reportReelay = async (reportingUserSub, reportReq) => {
+    const routePost = `${REELAY_API_BASE_URL}/reportedContent/reelay`;
+    const reportReelayResult = await fetchResults(routePost, {
+        body: JSON.stringify(reportReq),
+        method: 'POST',
+        headers: { ...REELAY_API_HEADERS, requsersub: reportingUserSub },
+    });
+
+    console.log(reportReelayResult);
+    return reportReelayResult;
+}
+
+export const getReportedReelayStacks = async () => {
+    const routeGet = `${REELAY_API_BASE_URL}/reportedContent/feed?visibility=${FEED_VISIBILITY}`;
+    const reportReelayResult = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: { ...REELAY_API_HEADERS, requsersub: reportingUserSub },
+    });
+
+    console.log(reportReelayResult);
+    return reportReelayResult;
+}
+
 export const getFollowing = async (creatorSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/follows/follower/sub/${creatorSub}`;
     console.log(routeGet);
@@ -106,6 +153,7 @@ export const getFollowRequests = async (creatorSub) => {
     }
     return requests;
 };
+
 export const getReelay = async (reelaySub) => {
     const routeGet = `${REELAY_API_BASE_URL}/reelays/sub/${reelaySub}?visibility=${FEED_VISIBILITY}`;
     console.log('ROUTE GET: ', routeGet);
@@ -127,6 +175,7 @@ export const getReelay = async (reelaySub) => {
 export const getReelaysByCreator = async (creatorSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/users/sub/${creatorSub}/reelays?visibility=${FEED_VISIBILITY}`;
     const fetchedReelays = await fetchResults(routeGet, { 
+        body: { reviewStatuses: JSON.stringify([]) },
         method: 'GET',
         headers: REELAY_API_HEADERS,
     });
