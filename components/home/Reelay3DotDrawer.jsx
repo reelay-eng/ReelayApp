@@ -31,6 +31,8 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         'report-content-submit',
         'report-content-complete',
         'remove-reelay-confirm',
+        'suspend-account-confirm',
+        'suspend-account-complete',
     ];
 
     const ContentContainer = styled(View)`
@@ -309,6 +311,59 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         );
     }
 
+    const SuspendAccountOption = () => {
+        const onPress = () => {
+            setDrawerState('suspend-account-confirm');
+        }
+
+        return (
+            <OptionContainerPressable onPress={onPress}>
+                <Icon type='ionicon' name='hand-right' size={27} color={'white'} />
+                <OptionText selected={false}>{`Suspend Account (Admin)`}</OptionText>
+            </OptionContainerPressable>
+        );
+    }
+
+    const SuspendAccountConfirm = () => {
+        const onPress = async () => {
+            const suspendAccountResult = {} ; // todo
+            console.log(suspendAccountResult);
+            setDrawerState('suspend-account-complete');
+
+            logAmplitudeEventProd('suspendAccount', {
+                username: cognitoUser.username,
+                userSub: cognitoUser?.attributes?.sub,
+                creatorName: reelay.creator.username,
+                creatorSub: reelay.creator.sub,
+                reelaySub: reelay.sub,
+                title: reelay.title.display,
+            });
+        }
+
+        return (
+            <ContentContainer>
+                <Header />
+                <Prompt text={'Are you sure you want to suspend this account? They must be manually reinstated'} />
+                <OptionContainerPressable onPress={onPress}>
+                    <Icon type='ionicon' name='remove-circle' size={27} color={'white'} />
+                    <OptionText>{`Yes, suspend this account`}</OptionText>
+                </OptionContainerPressable>
+                <CancelOption />
+            </ContentContainer>
+        );
+    }
+
+    const SuspendAccountComplete = () => {
+        const suspendAccountMessage = 'You have suspended this account. It must be manually re-instated';
+        return (
+            <ContentContainer>
+                <Header />
+                <Prompt text={suspendAccountMessage} />
+                <CancelOption />
+            </ContentContainer>
+        );
+    }
+
     const ViewReportedContentFeedOption = () => {
         const onPress = () => {
             closeDrawer();
@@ -348,6 +403,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
                 { !isMyReelay && <BlockCreatorOption /> }
                 { (reelayDBUser?.role === 'admin' || isMyReelay) && <RemoveReelayOption /> }
                 { (reelayDBUser?.role === 'admin') && <ViewReportedContentFeedOption /> }
+                { (reelayDBUser?.role === 'admin') && !isMyReelay && <SuspendAccountOption /> }
                 <CancelOption />
             </ContentContainer>
         );
@@ -363,6 +419,8 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
             { drawerState === 'report-content-select-violation' && <ReportContentSelectViolation /> }
             { drawerState === 'report-content-submit' && <ReportContentSubmit /> }
             { drawerState === 'report-content-complete' && <ReportContentComplete /> }
+            { drawerState === 'suspend-account-confirm' && <SuspendAccountConfirm /> }
+            { drawerState === 'suspend-account-complete' && <SuspendAccountComplete /> }
         </DrawerContainer>
     );
 }
