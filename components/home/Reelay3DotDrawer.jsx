@@ -140,7 +140,8 @@ export default Reelay3DotDrawer = ({ reelay, navigation }) => {
 
     const ViewReportedContentFeedOption = () => {
         const onPress = () => {
-            // todo
+            closeDrawer();
+            navigation.push('ReportedContentFeedScreen');
         }
 
         return (

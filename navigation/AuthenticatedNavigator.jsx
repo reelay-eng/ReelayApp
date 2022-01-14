@@ -22,6 +22,7 @@ import ProfileSettingsScreen from '../screens/authenticated/ProfileSettingsScree
 import NotificationSettingsScreen from '../screens/authenticated/NotificationSettingsScreen';
 import ReelayCameraScreen from '../screens/authenticated/ReelayCameraScreen';
 import ReelayUploadScreen from '../screens/authenticated/ReelayUploadScreen';
+import ReportedContentFeedScreen from '../screens/authenticated/ReportedContentFeedScreen';
 import SearchScreen from '../screens/authenticated/SearchScreen';
 import SelectTitleScreen from '../screens/authenticated/SelectTitleScreen';
 import SingleReelayScreen from '../screens/authenticated/SingleReelayScreen';
@@ -239,9 +240,16 @@ const HomeTabNavigator = () => {
                     headerShown: false,
                 }}
             />
+			<HomeTabStack.Screen
+				name='SingleReelayScreen'
+				component={SingleReelayScreen}
+				options={{
+					headerShown: false,
+				}}	
+			/>
             <HomeTabStack.Screen
-                name='SingleReelayScreen'
-                component={SingleReelayScreen}
+                name='ReportedContentFeedScreen'
+                component={ReportedContentFeedScreen}
                 options={{
                     headerShown: false,
                 }}
@@ -310,6 +318,13 @@ const SearchTabNavigator = () => {
             <SearchTabStack.Screen
                 name='SingleReelayScreen'
                 component={SingleReelayScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+			<SearchTabStack.Screen
+                name='ReportedContentFeedScreen'
+                component={ReportedContentFeedScreen}
                 options={{
                     headerShown: false,
                 }}
@@ -393,6 +408,13 @@ const ProfileTabNavigator = () => {
 					headerShown: false,
 				}}
 			/>
+			<ProfileTabStack.Screen
+                name='ReportedContentFeedScreen'
+                component={ReportedContentFeedScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
 			<ProfileTabStack.Screen
 				name="SingleReelayScreen"
 				component={SingleReelayScreen}

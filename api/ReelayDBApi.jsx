@@ -102,14 +102,15 @@ export const reportReelay = async (reportingUserSub, reportReq) => {
 }
 
 export const getReportedReelayStacks = async () => {
-    const routeGet = `${REELAY_API_BASE_URL}/reportedContent/feed?visibility=${FEED_VISIBILITY}`;
-    const reportReelayResult = await fetchResults(routeGet, {
+    const routeGet = `${REELAY_API_BASE_URL}/reported-content/feed?visibility=${FEED_VISIBILITY}`;
+    const fetchedReportedStacks = await fetchResults(routeGet, {
         method: 'GET',
-        headers: { ...REELAY_API_HEADERS, requsersub: reportingUserSub },
+        headers: REELAY_API_HEADERS,
     });
 
-    console.log(reportReelayResult);
-    return reportReelayResult;
+    const preparedReportedStacks = await prepareStacks(fetchedReportedStacks);
+    console.log('REPORTED REELAYS: ', fetchedReportedStacks);
+    return preparedReportedStacks;
 }
 
 export const getFollowing = async (creatorSub) => {
@@ -175,7 +176,6 @@ export const getReelay = async (reelaySub) => {
 export const getReelaysByCreator = async (creatorSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/users/sub/${creatorSub}/reelays?visibility=${FEED_VISIBILITY}`;
     const fetchedReelays = await fetchResults(routeGet, { 
-        body: { reviewStatuses: JSON.stringify([]) },
         method: 'GET',
         headers: REELAY_API_HEADERS,
     });
@@ -365,6 +365,15 @@ export const prepareReelay = async (fetchedReelay) => {
     }
     const sortedComments = fetchedReelay.comments.sort(sortCommentsByPostedDate);
 
+    const reportedContent = (fetchedReelay.reviewStatus) ? {
+        firstReportedAt: fetchedReelay.firstReportedAt,
+        lastReportedAt: fetchedReelay.lastReportedAt,
+        reportCount: fetchedReelay.reportCount,
+        reviewStatus: fetchedReelay.reviewStatus,
+        reviewerSub: fetchedReelay.reviewerSub,
+        userReportsJSON: fetchedReelay.userReportsJSON,
+    } : {};
+
     return {
         id: fetchedReelay.id,
         creator: {
@@ -381,6 +390,7 @@ export const prepareReelay = async (fetchedReelay) => {
         sub: fetchedReelay.datastoreSub,
         title: titleObj,
         postedDateTime: fetchedReelay.postedAt ?? fetchedReelay.maxPostedAt,
+        reportedContent,
     };
 }
 
