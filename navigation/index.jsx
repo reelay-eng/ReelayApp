@@ -18,9 +18,11 @@ import NotFoundScreen from '../screens/unauthenticated/NotFoundScreen';
 
 import AuthenticatedNavigator from './AuthenticatedNavigator';
 import UnauthenticatedNavigator from './UnauthenticatedNavigator';
+import AccountSuspendedScreen from '../screens/suspended/AccountSuspendedScreen';
 import LinkingConfiguration from './LinkingConfiguration';
 
 import { getReelay, prepareReelay } from '../api/ReelayDBApi';
+import moment from 'moment';
 
 export default Navigation = () => {
     /**
@@ -130,7 +132,8 @@ export default Navigation = () => {
 const Stack = createStackNavigator();
 
 const RootNavigator = () => {
-    const { signedIn, setCognitoUser, setReelayDBUser, setSession, setCredentials } = useContext(AuthContext);
+    const { signedIn, setCognitoUser, reelayDBUser, setReelayDBUser, setSession, setCredentials } = useContext(AuthContext);
+    const isCurrentlyBanned = (reelayDBUser.isBanned) && (moment(reelayDBUser.banExpiryAt).diff(moment(), 'minutes') > 0);
 
     useEffect(() => {
         if (!signedIn) {
@@ -143,7 +146,8 @@ const RootNavigator = () => {
 
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
-            { signedIn && <Stack.Screen name="Authenticated" component={AuthenticatedNavigator} /> }
+            { signedIn && isCurrentlyBanned && <Stack.Screen name="Suspended" component={AccountSuspendedScreen} /> }
+            { signedIn && !isCurrentlyBanned && <Stack.Screen name="Authenticated" component={AuthenticatedNavigator} /> }
             { !signedIn && <Stack.Screen name="Unauthenticated" component={UnauthenticatedNavigator} /> }
             <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
         </Stack.Navigator>

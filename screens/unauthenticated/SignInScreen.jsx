@@ -208,7 +208,6 @@ export default SignInScreen = ({ navigation, route }) => {
                 setReelayDBUser(reelayDBUser);
                 setSignedIn(true);
                 console.log('Signed in user successfully');
-                setSigningIn(false);
 
             } catch (error) {
                 console.log('Received error');

@@ -24,7 +24,8 @@ export default LikesDrawer = ({ reelay, navigation }) => {
         height: auto;
         margin-top: auto;
         max-height: 70%;
-        padding-bottom: 80px;
+        padding: 20px;
+        padding-bottom: 30px;
         width: 100%;
     `
     const ModalContainer = styled(View)`
@@ -41,9 +42,6 @@ export default LikesDrawer = ({ reelay, navigation }) => {
             margin: 12px;
         `
         const HeaderText = styled(ReelayText.H6Emphasized)`
-            font-family: System;
-            font-size: 20px;
-            font-weight: 500;
             color: white;
         ` 
         const headerText = reelay.likes.length ? `Likes (${reelay.likes.length})` : 'Likes';
