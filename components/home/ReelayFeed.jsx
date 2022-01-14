@@ -26,7 +26,7 @@ const ReelayFeedContainer = styled(View)`
     height: ${height}px;
     width: ${width}px;
 `
-const FeedSourceSelectorButton = ({ feedSource, drawerOpen, setDrawerOpen }) => {
+const FeedSourceSelectorButton = ({ feedSource, setDrawerOpenFeedSource }) => {
     const insets = useSafeAreaInsets();
     const SourceSelectorPressable = styled(Pressable)`
         margin-top: ${insets.top}px;
@@ -35,7 +35,7 @@ const FeedSourceSelectorButton = ({ feedSource, drawerOpen, setDrawerOpen }) => 
     `
     const iconName = (feedSource === 'global') ? 'earth' : 'people-circle';
     const onPress = () => {
-        setDrawerOpen(true);
+        setDrawerOpenFeedSource(true);
     }
 
     return (
@@ -59,13 +59,11 @@ export default ReelayFeed = ({ navigation,
     const [globalFeedPosition, setGlobalFeedPosition] = useState(0);
     const [followingFeedPosition, setFollowingFeedPosition] = useState(0);
     const [feedSource, setFeedSource] = useState('global');
-    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [drawerOpenFeedSource, setDrawerOpenFeedSource] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [globalStackList, setGlobalStackList] = useState([]);
     const [followingStackList, setFollowingStackList] = useState([]);
     const [stackCounter, setStackCounter] = useState(0);
-
-    const [tabPressCounter, setTabPressCounter] = useState(0);
 
     var currStackList = (feedSource === 'global') ? globalStackList : followingStackList;
 
@@ -191,10 +189,8 @@ export default ReelayFeed = ({ navigation,
 
     const onTabPress = async () => {
         navigation.navigate('HomeFeedScreen');
-
         const feedPosition = (feedSource === 'global') ? globalFeedPosition : followingFeedPosition;
 
-        console.log('IN ON TAB PRESS, count: ', tabPressCounter);
         if (feedPosition === 0) {
             refreshFeed();
         } else {
@@ -228,8 +224,6 @@ export default ReelayFeed = ({ navigation,
         // the user is at the top of the feed
         // but the message is at the bottom of the screen
         showMessageToast('You\'re at the top', { position: 'bottom' });
-        // console.log(feedSource, altFeedPosition);
-        // await scrollToIndex(altFeedPosition);
     }
     
 
@@ -239,10 +233,6 @@ export default ReelayFeed = ({ navigation,
 
         const stack = item;
         const stackViewable = (index === feedPosition);
-
-        // console.log(`Rendering stack for ${stack[0].title.display}`);
-        // console.log(`index: ${index} feed position: ${feedPosition}, viewable? ${stackViewable}`);
-        // console.log(feedSource, feedPosition, altFeedPosition)
 
         return (
             <ReelayStack 
@@ -338,24 +328,20 @@ export default ReelayFeed = ({ navigation,
           />
         )}
         {overlayVisible && (
-          <FeedOverlay
-            navigation={navigation}
-            onDeleteReelay={onDeleteReelay}
-          />
+            <FeedOverlay navigation={navigation} onDeleteReelay={onDeleteReelay}/>
         )}
-
         <FeedSourceSelectorButton
-          feedSource={feedSource}
-          drawerOpen={drawerOpen}
-          setDrawerOpen={setDrawerOpen}
-        />
-        {drawerOpen && (
-          <FeedSourceSelectorDrawer
             feedSource={feedSource}
-            setFeedSource={setFeedSource}
-            drawerOpen={drawerOpen}
-            setDrawerOpen={setDrawerOpen}
-          />
+            drawerOpenFeedSource={drawerOpenFeedSource}
+            setDrawerOpenFeedSource={setDrawerOpenFeedSource}
+        />
+        {drawerOpenFeedSource && (
+            <FeedSourceSelectorDrawer
+                feedSource={feedSource}
+                setFeedSource={setFeedSource}
+                drawerOpen={drawerOpenFeedSource}
+                setDrawerOpen={setDrawerOpenFeedSource}
+            />
         )}
       </ReelayFeedContainer>
     );

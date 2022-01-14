@@ -33,13 +33,14 @@ export default Sidebar = ({ reelay }) => {
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 
 	const { cognitoUser } = useContext(AuthContext);
-	const { setCommentsVisible, setLikesVisible } = useContext(FeedContext);
+	const { setCommentsVisible, setLikesVisible, setDotMenuVisible } = useContext(FeedContext);
 
 	const commentedByUser = reelay.comments.find(comment => comment.authorName === cognitoUser.username);
 	const likedByUser = reelay.likes.find(like => like.username === cognitoUser.username);
 
 	const onCommentLongPress = async () => setCommentsVisible(true);
 	const onCommentPress = async () => setCommentsVisible(true);
+	const onDotMenuPress = async () => setDotMenuVisible(true);
 	const onLikeLongPress = async () => setLikesVisible(true);
 
 	const onLikePress = async () => {
@@ -96,6 +97,9 @@ export default Sidebar = ({ reelay }) => {
 			<SidebarButton onPress={onCommentPress} onLongPress={onCommentLongPress}>
 				<Icon type='ionicon' name='chatbubble-ellipses' color={ commentedByUser ? '#db1f2e' :'white' } size={ICON_SIZE} />
 				<Count>{reelay.comments.length}</Count>
+			</SidebarButton>
+			<SidebarButton onPress={onDotMenuPress}>
+				<Icon type='ionicon' name={'ellipsis-horizontal'} color={'white'} size={ICON_SIZE} />
 			</SidebarButton>
 		</SidebarView>
 	);
