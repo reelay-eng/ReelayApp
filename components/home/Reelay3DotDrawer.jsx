@@ -12,6 +12,7 @@ import * as ReelayText from '../global/Text';
 export default Reelay3DotDrawer = ({ reelay, navigation }) => {
     const { cognitoUser, reelayDBUser } = useContext(AuthContext);
     const { dotMenuVisible, setDotMenuVisible } = useContext(FeedContext);
+    const isMyReelay = (cognitoUser.attributes.sub === reelay.creator.sub); 
 
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
 
@@ -96,10 +97,10 @@ export default Reelay3DotDrawer = ({ reelay, navigation }) => {
         );
     }
 
-    const FilterReportedReelaysOption = () => {
+    const RemoveReelayOption = () => {
         const onPress = () => {
             // todo
-            logAmplitudeEventProd('filterReportedReelays', {
+            logAmplitudeEventProd('removeReelay', {
                 username: cognitoUser.username,
                 userSub: cognitoUser?.attributes?.sub,
                 creatorName: reelay.creator.username,
@@ -109,10 +110,12 @@ export default Reelay3DotDrawer = ({ reelay, navigation }) => {
             });    
         }
         
+        const optionText = (isMyReelay) ? 'Remove Reelay' : 'Remove Reelay (Admin)'
+
         return (
             <OptionContainerPressable onPress={onPress}>
-                <Icon type='ionicon' name='filter' size={27} color={'white'} />
-                <OptionText selected={false}>{`Filter Reported Reelays`}</OptionText>
+                <Icon type='ionicon' name='trash' size={27} color={'white'} />
+                <OptionText>{optionText}</OptionText>
             </OptionContainerPressable>
         );
     }
@@ -133,20 +136,21 @@ export default Reelay3DotDrawer = ({ reelay, navigation }) => {
         return (
             <OptionContainerPressable onPress={onPress}>
                 <Icon type='ionicon' name='remove-circle' size={27} color={'white'} />
-                <OptionText selected={false}>{`Block Creator`}</OptionText>
+                <OptionText>{`Block Creator`}</OptionText>
             </OptionContainerPressable>
         );
     }
 
     const ViewReportedContentFeedOption = () => {
         const onPress = () => {
-            // todo
+            closeDrawer();
+            navigation.push('ReportedContentFeedScreen');
         }
 
         return (
             <OptionContainerPressable onPress={onPress}>
                 <Icon type='ionicon' name='eye' size={27} color={'white'} />
-                <OptionText selected={false}>{`Review Reported Content (Admin Only)`}</OptionText>
+                <OptionText>{`View Reported Content (Admin)`}</OptionText>
             </OptionContainerPressable>
         );
 
@@ -156,7 +160,7 @@ export default Reelay3DotDrawer = ({ reelay, navigation }) => {
         return (
             <OptionContainerPressable onPress={closeDrawer}>
                 <Icon type='ionicon' name='arrow-back' size={27} color={'white'} />
-                <OptionText selected={false}>{`Back`}</OptionText>
+                <OptionText>{`Back`}</OptionText>
             </OptionContainerPressable>
         );
     }
@@ -166,8 +170,8 @@ export default Reelay3DotDrawer = ({ reelay, navigation }) => {
             <DotMenuOptionsContainer>
                 <Header />
                 <ReportReelayOption />
-                <FilterReportedReelaysOption />
                 <BlockCreatorOption />
+                { (reelayDBUser?.role === 'admin' || isMyReelay) && <RemoveReelayOption /> }
                 { (reelayDBUser?.role === 'admin') && <ViewReportedContentFeedOption /> }
                 <CancelOption />
             </DotMenuOptionsContainer>
