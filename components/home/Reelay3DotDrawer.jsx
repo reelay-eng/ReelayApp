@@ -1,13 +1,16 @@
 import React, { useContext, useState } from 'react';
 import { Modal, View, Text, Pressable } from 'react-native';
 import { Icon } from 'react-native-elements';
+import { removeReelay } from '../../api/ReelayDBApi';
 
 import { AuthContext } from '../../context/AuthContext';
 import { FeedContext } from '../../context/FeedContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import styled from 'styled-components/native';
+
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../global/Text';
+import { showMessageToast } from '../utils/toasts';
 
 export default Reelay3DotDrawer = ({ reelay, navigation }) => {
     const { cognitoUser, reelayDBUser } = useContext(AuthContext);
@@ -98,8 +101,11 @@ export default Reelay3DotDrawer = ({ reelay, navigation }) => {
     }
 
     const RemoveReelayOption = () => {
-        const onPress = () => {
-            // todo
+        const onPress = async () => {
+            const removeResult = await removeReelay(reelay);
+            console.log(removeResult);
+            showMessageToast('This reelay has been removed');
+
             logAmplitudeEventProd('removeReelay', {
                 username: cognitoUser.username,
                 userSub: cognitoUser?.attributes?.sub,
