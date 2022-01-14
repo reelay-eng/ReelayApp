@@ -3,9 +3,9 @@
     "policies": [
         {
             "id": "adult-content",
-            "display-name": "Adult and Sexual Content",
+            "displayName": "Adult and Sexual Content",
             "statement": "We do not allow nudity, sexual acts, or simulations of sexual acts on Reelay, whether recorded live or displayed in other media. We also do not allow descriptions of sexual acts regardless of intent, even if ostensibly in service of a movie review. This includes, but is not limited to:",
-            "example-list": [
+            "exampleList": [
                 "Content that explicitly or implicitly depicts sexual activities including penetrative and non-penetrative sex, oral sex, or erotic kissing",
                 "Content that depicts or implies sexual arousal or sexual stimulation",
                 "Content that depicts a sexual fetish",
@@ -15,9 +15,9 @@
         },
         {
             "id": "harassment",
-            "display-name": "Harassment and Personally Identifiable Information",
+            "displayName": "Harassment and Personally Identifiable Information",
             "statement": "Content on Reelay may not target an individual. This includes but is not limited to:",
-            "example-list": [
+            "exampleList": [
                 "Insulting or mocking individuals based on beliefs, physical characteristics, status in a protected group",
                 "Debasing, degrading, objectifying, or sexualizing individuals",
                 "Wishing for injury or death of individuals",
@@ -28,9 +28,9 @@
         },
         {
             "id": "hateful-activity",
-            "display-name": "Hateful Activity",
+            "displayName": "Hateful Activity",
             "statement": "Reelay is not a place for hateful content nor the people or groups who espouse hate. In particular, we do not allow:",
-            "example-list": [
+            "exampleList": [
                 "Any content glorifying or celebrating hate groups, actions taken by hate groups, or acts of hatred",
                 "Any displays associated with hate or extremist groups including but not limited to symbols, slogans, gestures and uniforms",
                 "Any slurs, stereotypes, caricatures, or otherwise negative content directed at a protected group",
@@ -41,45 +41,45 @@
         },
         {
             "id": "ineligible-title",
-            "display-name": "Propaganda, Extremist, and Ideological Titles",
+            "displayName": "Propaganda, Extremist, and Ideological Titles",
             "statement": "No movies reviewed may be propaganda for or promote ideologies consistent with terrorist, hate, or extremist content, organizations, or conspiracy theories. Certain films put in historical context may be allowed. Additionally, movies must be eligible to post on themoviedb.org.",
-            "example-list": []
+            "exampleList": []
         },
         {
             "id": "irrelevant-to-title",
-            "display-name": "Irrelevant Post",
+            "displayName": "Irrelevant Post",
             "statement": "Posts on Reelay must be clearly related to a tv show or film. Any content may be deemed irrelevant at the sole discretion of Reelay.",
-            "example-list": []
+            "exampleList": []
         },
         {
             "id": "spam",
-            "display-name": "Spam",
+            "displayName": "Spam",
             "statement": "We remove all Spam from Reelay. All content on Reelay must be created explicitly for Reelay. We define Spam as duplicative content, automatically generated content, and content that is primarily geared towards off-platform activity.",
-            "example-list": []
+            "exampleList": []
         },
         {
             "id": "solicitation",
-            "display-name": "Solicitation, Services, & Advertisements",
+            "displayName": "Solicitation, Services, & Advertisements",
             "statement": "No content on Reelay may solicit for services or advertise services available unless directly related to the film and television industry. No content may solicit for goods for purchase nor advertise goods for purchase. No content may promise reward or incentive for following accounts or views.",
-            "example-list": []
+            "exampleList": []
         },
         {
             "id": "spoilers",
-            "display-name": "Spoilers",
+            "displayName": "Spoilers",
             "statement": "NO SPOILERS!!! Seriously.",
-            "example-list": []
+            "exampleList": []
         },
         {
             "id": "underage-activity-or-abuse",
-            "display-name": "Underage Activity or Abuse",
+            "displayName": "Underage Activity or Abuse",
             "statement": "We do not allow minors to have accounts on our platform. Reelay also has zero tolerance for content which depicts, encourages, or facilitates harm to minors, whether through violence, abuse, exploitation, nudity, or other inappropriate content. This includes animated, digitally created, or digitally altered content. Any violative content we find will be immediately removed and reported to National Center for Missing and Exploited Children (NCMEC) and relevant authorities, as appropriate.",
-            "example-list": []
+            "exampleList": []
         },
         {
             "id": "violence-and-self-harm",
-            "display-name": "Violence and Self Harm",
+            "displayName": "Violence and Self Harm",
             "statement": "Reelay is a place for positive expression. As such, we do not allow content that contains violence. In particular, we do not allow:",
-            "example-list": [
+            "exampleList": [
                 "Any actual or simulated violence against humans or animals. This includes self harm and suicide. Some non-graphic simulations of violence against humans that are in service of movie reviews may be acceptable.",
                 "Any graphic displays showing gore, open wounds or dead bodies.",
                 "Explicit or implicit threats of real world harm, including self harm, against humans or animals.",

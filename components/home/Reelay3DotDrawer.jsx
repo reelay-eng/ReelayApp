@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
-import { Modal, View, Text, Pressable } from 'react-native';
+import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { blockCreator, removeReelay } from '../../api/ReelayDBApi';
+import { blockCreator, removeReelay, reportReelay } from '../../api/ReelayDBApi';
 
 import { AuthContext } from '../../context/AuthContext';
 import { FeedContext } from '../../context/FeedContext';
@@ -12,18 +12,24 @@ import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../global/Text';
 import { showMessageToast } from '../utils/toasts';
 
+const ContentPolicy  = require('../../constants/ContentPolicy.json');
+
 const ReelayDotMenuContents = ({ reelay, navigation }) => {
     const { cognitoUser, reelayDBUser } = useContext(AuthContext);
     const { setDotMenuVisible } = useContext(FeedContext);
-    const isMyReelay = (cognitoUser.attributes.sub === reelay.creator.sub); 
+    const isMyReelay = (cognitoUser?.attributes?.sub === reelay.creator.sub); 
 
     const [drawerState, setDrawerState] = useState('options');
+    const [selectedPolicy, setSelectedPolicy] = useState({});
+    
     console.log('3 dot drawer rendering: ', drawerState);
     const drawerStates = [
         'options',
         'block-creator-confirm',
         'block-creator-complete',
-        'report-content-confirm',
+        'report-content-select-violation',
+        'report-content-submit',
+        'report-content-complete',
         'remove-reelay-confirm',
     ];
 
@@ -58,118 +64,6 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         setDotMenuVisible(false)
     };
 
-    const Header = () => {
-        const HeaderContainer = styled(View)`
-            align-items: center;
-            flex-direction: row;
-            justify-content: space-between;
-        `;
-        const CloseButtonContainer = styled(Pressable)`
-            align-items: flex-end;
-            justify-content: flex-end;
-            width: 100%;
-        `
-        return (
-            <HeaderContainer>
-                <CloseButtonContainer onPress={closeDrawer}>
-                    <Icon color={"white"} type="ionicon" name="close" size={27} />
-                </CloseButtonContainer>
-            </HeaderContainer>
-        );
-    };
-
-    const Prompt = ({ text }) => {
-        const PromptContainer = styled(View)`
-            align-items: flex-start;
-            margin-left: 20px;
-        `
-        const PromptText = styled(ReelayText.Body1)`
-            color: white;
-        `
-        return (
-            <PromptContainer>
-                <PromptText>{text}</PromptText>
-            </PromptContainer>
-        );
-    }
-
-    const ReportReelayOption = () => {
-        const onPress = () => {
-            // todo
-        }
-
-        return (
-            <OptionContainerPressable onPress={onPress}>
-                <Icon type='ionicon' name='flag' size={27} color={'white'} />
-                <OptionText selected={false}>{`Report Reelay`}</OptionText>
-            </OptionContainerPressable>
-        );
-    }
-
-    const ReportReelayConfirm = () => {
-        onPress = () => {
-            // todo
-            logAmplitudeEventProd('reportReelay', {
-                username: cognitoUser.username,
-                userSub: cognitoUser?.attributes?.sub,
-                creatorName: reelay.creator.username,
-                creatorSub: reelay.creator.sub,
-                reelaySub: reelay.sub,
-                title: reelay.title.display,
-            });                
-        }
-        return (
-            <ContentContainer>
-                <Header />
-                <CancelOption />
-            </ContentContainer>
-        );
-    }
-
-    const RemoveReelayOption = () => {
-        const onPress = async () => {
-            setDrawerState('remove-reelay-confirm');
-        }
-        
-        const optionText = (isMyReelay) ? 'Remove Reelay' : 'Remove Reelay (Admin)'
-
-        return (
-            <OptionContainerPressable onPress={onPress}>
-                <Icon type='ionicon' name='trash' size={27} color={'white'} />
-                <OptionText>{optionText}</OptionText>
-            </OptionContainerPressable>
-        );
-    }
-
-    const RemoveReelayConfirm = () => {
-        const onPress = async () => {
-            const removeResult = await removeReelay(reelay);
-            console.log(removeResult);
-            showMessageToast('This reelay has been removed');
-
-            logAmplitudeEventProd('removeReelay', {
-                username: cognitoUser.username,
-                userSub: cognitoUser?.attributes?.sub,
-                creatorName: reelay.creator.username,
-                creatorSub: reelay.creator.sub,
-                reelaySub: reelay.sub,
-                title: reelay.title.display,
-            });
-        }
-
-        return (
-            <ContentContainer>
-                <Header />
-                <Prompt text={'Are you sure you want to remove this reelay?'} />
-                <OptionContainerPressable onPress={onPress}>
-                    <Icon type='ionicon' name='remove-circle' size={27} color={'white'} />
-                    <OptionText>{`Yes, remove`}</OptionText>
-                </OptionContainerPressable>
-                <CancelOption />
-            </ContentContainer>
-        );
-    }
-
     const BlockCreatorOption = () => {
         const onPress = async () => {
             setDrawerState('block-creator-confirm');
@@ -185,7 +79,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
     const BlockCreatorConfirm = () => {
         const onPress = async () => {
-            const blockCreatorResult = await blockCreator(reelay.creator.sub, cognitoUser.attributes.sub);
+            const blockCreatorResult = await blockCreator(reelay.creator.sub, cognitoUser?.attributes?.sub);
             console.log(blockCreatorResult);
             setDrawerState('block-creator-complete');
 
@@ -218,6 +112,197 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
             <ContentContainer>
                 <Header />
                 <Prompt text={blockCompleteMessage} />
+                <CancelOption />
+            </ContentContainer>
+        );
+    }
+
+    const Header = () => {
+        const HeaderContainer = styled(View)`
+            align-items: center;
+            flex-direction: row;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        `;
+        const CloseButtonContainer = styled(Pressable)`
+            align-items: flex-end;
+            justify-content: flex-end;
+            width: 100%;
+        `
+        return (
+            <HeaderContainer>
+                <CloseButtonContainer onPress={closeDrawer}>
+                    <Icon color={"white"} type="ionicon" name="close" size={27} />
+                </CloseButtonContainer>
+            </HeaderContainer>
+        );
+    };
+
+    const Prompt = ({ text }) => {
+        const PromptContainer = styled(View)`
+            align-items: flex-start;
+        `
+        const PromptText = styled(ReelayText.Body1)`
+            color: white;
+        `
+        return (
+            <PromptContainer>
+                <PromptText>{text}</PromptText>
+            </PromptContainer>
+        );
+    }
+
+    const RemoveReelayOption = () => {
+        const onPress = async () => {
+            setDrawerState('remove-reelay-confirm');
+        }
+        
+        const optionText = (isMyReelay) ? 'Remove Reelay' : 'Remove Reelay (Admin)'
+
+        return (
+            <OptionContainerPressable onPress={onPress}>
+                <Icon type='ionicon' name='trash' size={27} color={'white'} />
+                <OptionText>{optionText}</OptionText>
+            </OptionContainerPressable>
+        );
+    }
+
+    const RemoveReelayConfirm = () => {
+        const onPress = async () => {
+            const removeResult = await removeReelay(reelay);
+            console.log(removeResult);
+            showMessageToast('This reelay has been removed');
+            setDrawerState('remove-reelay-complete');
+
+            logAmplitudeEventProd('removeReelay', {
+                username: cognitoUser.username,
+                userSub: cognitoUser?.attributes?.sub,
+                creatorName: reelay.creator.username,
+                creatorSub: reelay.creator.sub,
+                reelaySub: reelay.sub,
+                title: reelay.title.display,
+            });
+        }
+
+        return (
+            <ContentContainer>
+                <Header />
+                <Prompt text={'Are you sure you want to remove this reelay?'} />
+                <OptionContainerPressable onPress={onPress}>
+                    <Icon type='ionicon' name='remove-circle' size={27} color={'white'} />
+                    <OptionText>{`Yes, remove`}</OptionText>
+                </OptionContainerPressable>
+                <CancelOption />
+            </ContentContainer>
+        );
+    }
+
+    const RemoveReelayComplete = () => {
+        const removeReelayMessage = 'You have removed this reelay for everyone';
+        
+        return (
+            <ContentContainer>
+                <Header />
+                <Prompt text={removeReelayMessage} />
+                <CancelOption />
+            </ContentContainer>
+        );
+    }
+
+    const ReportContentOption = () => {
+        const onPress = () => {
+            setDrawerState('report-content-select-violation');
+        }
+
+        return (
+            <OptionContainerPressable onPress={onPress}>
+                <Icon type='ionicon' name='flag' size={27} color={'white'} />
+                <OptionText selected={false}>{`Report Content`}</OptionText>
+            </OptionContainerPressable>
+        );
+    }
+
+    const ReportContentSelectViolation = () => {
+        return (
+            <ScrollView>
+                <ContentContainer>
+                    <Header />
+                    <Prompt text={'Thanks for flagging. What should we review?'} />
+                    { ContentPolicy.policies.map((policy) => {
+                        return <ContentPolicyOption key={policy.id} policy={policy} />;
+                    })}
+                </ContentContainer>
+            </ScrollView>
+        );
+    }
+
+    const ContentPolicyOption = ({ policy }) => {
+        const { id, displayName, statement, exampleList } = policy;
+
+        const onPress = () => {
+            // todo
+            setSelectedPolicy(policy);
+            setDrawerState('report-content-submit');
+        }
+
+        return (
+            <OptionContainerPressable onPress={onPress}>
+                <OptionText selected={false}>{displayName}</OptionText>
+                <Icon type='ionicon' name='chevron-forward' size={27} color={'white'} />
+            </OptionContainerPressable>
+        );
+    }
+
+    const ReportContentSubmit = () => {
+        const { statement, exampleList } = selectedPolicy;
+        if (!selectedPolicy.id) {
+            // todo
+        }
+
+        onPress = async () => {
+            const reportReelayResult = await reportReelay(cognitoUser?.attributes?.sub, {
+                creatorSub: reelay.creator.sub, 
+                policyViolationCode: selectedPolicy.id, 
+                reelaySub: reelay.sub,
+            });
+
+            console.log('report reelay result: ', reportReelayResult);
+            setDrawerState('report-content-complete');
+
+            logAmplitudeEventProd('reportReelay', {
+                username: cognitoUser.username,
+                userSub: cognitoUser?.attributes?.sub,
+                creatorName: reelay.creator.username,
+                creatorSub: reelay.creator.sub,
+                reelaySub: reelay.sub,
+                title: reelay.title.display,
+                violationCode: selectedPolicy.id,
+            });
+        }
+
+        return (
+            <ScrollView>
+                <ContentContainer>
+                    <Header />
+                    <Prompt text={statement} />
+                    { exampleList.map((example) => <Prompt text={`\t*\t${example}`} /> )}
+                    <OptionContainerPressable onPress={onPress}>
+                        <Icon type='ionicon' name='paper-plane' size={27} color={'white'} />
+                        <OptionText selected={false}>{'Submit Report'}</OptionText>
+                    </OptionContainerPressable>
+                    <CancelOption />
+                </ContentContainer>
+            </ScrollView>
+        );
+    }
+
+    const ReportContentComplete = () => {
+        const removeReelayMessage = 'You have reported this reelay. Reelay moderators are notified, and will review this content within 24 hours. Please reach out to support@reelay.app for more.';
+        
+        return (
+            <ContentContainer>
+                <Header />
+                <Prompt text={removeReelayMessage} />
                 <CancelOption />
             </ContentContainer>
         );
@@ -258,7 +343,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         return (
             <ContentContainer>
                 <Header />
-                { !isMyReelay && <ReportReelayOption /> }
+                { !isMyReelay && <ReportContentOption /> }
                 { !isMyReelay && <BlockCreatorOption /> }
                 { (reelayDBUser?.role === 'admin' || isMyReelay) && <RemoveReelayOption /> }
                 { (reelayDBUser?.role === 'admin') && <ViewReportedContentFeedOption /> }
@@ -272,8 +357,11 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
             { drawerState === 'options' && <DotMenuOptions /> }
             { drawerState === 'block-creator-confirm' && <BlockCreatorConfirm /> }
             { drawerState === 'block-creator-complete' && <BlockCreatorComplete /> }
-            { drawerState === 'report-content-confirm' && <ReportReelayConfirm /> }
             { drawerState === 'remove-reelay-confirm' && <RemoveReelayConfirm /> }
+            { drawerState === 'remove-reelay-complete' && <RemoveReelayComplete /> }
+            { drawerState === 'report-content-select-violation' && <ReportContentSelectViolation /> }
+            { drawerState === 'report-content-submit' && <ReportContentSubmit /> }
+            { drawerState === 'report-content-complete' && <ReportContentComplete /> }
         </DrawerContainer>
     );
 }
