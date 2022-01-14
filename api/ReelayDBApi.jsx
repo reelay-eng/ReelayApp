@@ -73,7 +73,6 @@ export const unblockCreator = async (creatorSub, blockingUserSub) => {
         headers: REELAY_API_HEADERS,
     });
 
-    console.log(unblockCreatorResult);
     return unblockCreatorResult;
 }
 
@@ -85,7 +84,6 @@ export const blockCreator = async (creatorSub, blockingUserSub) => {
         headers: REELAY_API_HEADERS,
     });
 
-    console.log(blockCreatorResult);
     return blockCreatorResult;
 }
 

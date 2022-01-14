@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Modal, View, Text, Pressable } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { removeReelay } from '../../api/ReelayDBApi';
+import { blockCreator, removeReelay } from '../../api/ReelayDBApi';
 
 import { AuthContext } from '../../context/AuthContext';
 import { FeedContext } from '../../context/FeedContext';
@@ -127,8 +127,12 @@ export default Reelay3DotDrawer = ({ reelay, navigation }) => {
     }
 
     const BlockCreatorOption = () => {
-        const onPress = () => {
+        const onPress = async () => {
             // todo
+            const blockCreatorResult = await blockCreator(reelay.creator.sub, cognitoUser.attributes.sub);
+            console.log(blockCreatorResult);
+            showMessageToast('You have blocked this user, and our support team will review their content. Please email support@reelay.app if there\'s more we can help with.');
+
             logAmplitudeEventProd('blockCreator', {
                 username: cognitoUser.username,
                 userSub: cognitoUser?.attributes?.sub,
@@ -175,8 +179,8 @@ export default Reelay3DotDrawer = ({ reelay, navigation }) => {
         return (
             <DotMenuOptionsContainer>
                 <Header />
-                <ReportReelayOption />
-                <BlockCreatorOption />
+                { !isMyReelay && <ReportReelayOption /> }
+                { !isMyReelay && <BlockCreatorOption /> }
                 { (reelayDBUser?.role === 'admin' || isMyReelay) && <RemoveReelayOption /> }
                 { (reelayDBUser?.role === 'admin') && <ViewReportedContentFeedOption /> }
                 <CancelOption />
