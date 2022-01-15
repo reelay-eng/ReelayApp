@@ -65,6 +65,7 @@ const CarouselTextContainer = styled(View)`
 const CarouselTitle = styled(ReelayText.H4)`
     color: white;
     text-align: center;
+	width: 90%;
     margin-bottom: 12px;
 `
 const CarouselBody = styled(ReelayText.Body2)`
