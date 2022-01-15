@@ -133,7 +133,10 @@ const Stack = createStackNavigator();
 
 const RootNavigator = () => {
     const { signedIn, setCognitoUser, reelayDBUser, setReelayDBUser, setSession, setCredentials } = useContext(AuthContext);
-    const isCurrentlyBanned = (reelayDBUser.isBanned) && (moment(reelayDBUser.banExpiryAt).diff(moment(), 'minutes') > 0);
+    let isCurrentlyBanned = false;
+    if (reelayDBUser?.isBanned) {
+        isCurrentlyBanned = (moment(reelayDBUser?.banExpiryAt).diff(moment(), 'minutes') > 0);
+    }
 
     useEffect(() => {
         if (!signedIn) {
