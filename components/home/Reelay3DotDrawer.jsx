@@ -1,7 +1,7 @@
 import React, { useContext, useState, memo} from 'react';
 import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { blockCreator, removeReelay, reportReelay } from '../../api/ReelayDBApi';
+import { blockCreator, removeReelay, reportReelay, suspendAccount } from '../../api/ReelayDBApi';
 
 import { AuthContext } from '../../context/AuthContext';
 import { FeedContext } from '../../context/FeedContext';
@@ -288,7 +288,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
                 <ContentContainer>
                     <Header />
                     <Prompt text={statement} />
-                    { exampleList.map((example) => <Prompt text={`\t*\t${example}`} /> )}
+                    { exampleList.map((example, index) => <Prompt key={index} text={`\t*\t${example}`} /> )}
                     <OptionContainerPressable onPress={onPress}>
                         <Icon type='ionicon' name='paper-plane' size={27} color={'white'} />
                         <OptionText selected={false}>{'Submit Report'}</OptionText>
@@ -326,7 +326,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
     const SuspendAccountConfirm = () => {
         const onPress = async () => {
-            const suspendAccountResult = {} ; // todo
+            const suspendAccountResult = await suspendAccount(reelay.creator.sub, cognitoUser?.attributes?.sub);
             console.log(suspendAccountResult);
             setDrawerState('suspend-account-complete');
 

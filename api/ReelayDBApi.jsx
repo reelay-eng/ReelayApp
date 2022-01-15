@@ -486,6 +486,34 @@ export const searchUsers = async (searchText) => {
     return resultGet;
 };
 
+export const suspendAccount = async (bannedUserSub, adminUserSub) => {
+    const routePost = `${REELAY_API_BASE_URL}/suspendUsers/ban?bannedUserSub=${bannedUserSub}`;
+    const resultPost = await fetchResults(routePost, {
+        method: 'POST',
+        headers: { ...REELAY_API_HEADERS, requsersub: adminUserSub },
+    });
+
+    if (!resultPost) {
+        console.log('Could not suspend account');
+        return null;
+    }
+    return resultPost;
+}
+
+export const unsuspendAccount = async (bannedUserSub, adminUserSub) => {
+    const routePost = `${REELAY_API_BASE_URL}/suspendUsers/unban?bannedUserSub=${bannedUserSub}`;
+    const resultPost = await fetchResults(routePost, {
+        method: 'PATCH',
+        headers: { ...REELAY_API_HEADERS, requsersub: adminUserSub },
+    });
+
+    if (!resultPost) {
+        console.log('Could not unsuspend account');
+        return null;
+    }
+    return resultPost;
+}
+
 export const updateProfilePic = async (sub, photoURI) => {
     const routePatch = `${REELAY_API_BASE_URL}/users/sub/${sub}/profilepic`;
     const updateBody = {
