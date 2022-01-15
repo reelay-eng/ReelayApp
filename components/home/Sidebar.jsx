@@ -17,6 +17,9 @@ export default Sidebar = ({ reelay }) => {
 	const ICON_SIZE = 36;
 	const Count = styled(ReelayText.Subtitle1)`
 		color: #fff;
+		text-shadow-color: rgba(0, 0, 0, 0.2);
+		text-shadow-offset: 1px 1px;
+		text-shadow-radius: 1px;
 	`
 	const SidebarView = styled(View)`
 		align-items: center;
@@ -91,11 +94,39 @@ export default Sidebar = ({ reelay }) => {
 	return (
 		<SidebarView>
 			<SidebarButton onPress={onLikePress} onLongPress={onLikeLongPress}>
-				<Icon type='ionicon' name='heart' color={likedByUser ? '#db1f2e' : 'white'} size={ICON_SIZE} />
+				<Icon
+					type="ionicon"
+					name="heart"
+					color={likedByUser ? "#db1f2e" : "white"}
+					iconStyle={{
+						shadowColor: "black",
+						shadowOpacity: 0.2,
+						shadowRadius: 2,
+						shadowOffset: {
+							width: 0, // These can't both be 0
+							height: 1, // i.e. the shadow has to be offset in some way
+						},
+					}}
+					size={ICON_SIZE}
+				/>
 				<Count>{reelay.likes.length}</Count>
 			</SidebarButton>
 			<SidebarButton onPress={onCommentPress} onLongPress={onCommentLongPress}>
-				<Icon type='ionicon' name='chatbubble-ellipses' color={ commentedByUser ? '#db1f2e' :'white' } size={ICON_SIZE} />
+				<Icon
+					type="ionicon"
+					name="chatbubble-ellipses"
+					color={commentedByUser ? "#db1f2e" : "white"}
+					iconStyle={{
+						shadowColor: "black",
+						shadowOpacity: 0.25,
+						shadowRadius: 2,
+						shadowOffset: {
+							width: 0, // These can't both be 0
+							height: 1, // i.e. the shadow has to be offset in some way
+						},
+					}}
+					size={ICON_SIZE}
+				/>
 				<Count>{reelay.comments.length}</Count>
 			</SidebarButton>
 			<SidebarButton onPress={onDotMenuPress}>
