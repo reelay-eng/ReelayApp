@@ -71,6 +71,7 @@ function App() {
     // Feed context hooks
     const [commentsVisible, setCommentsVisible] = useState(false);
     const [currentComment, setCurrentComment] = useState('');
+    const [dotMenuVisible, setDotMenuVisible] = useState(false);
     const [likesVisible, setLikesVisible] = useState(false);
     const [overlayVisible, setOverlayVisible] = useState(false);
     const [overlayData, setOverlayData] = useState({});
@@ -269,6 +270,7 @@ function App() {
     const feedState = {
         commentsVisible,    setCommentsVisible,
         currentComment,     setCurrentComment,
+        dotMenuVisible,     setDotMenuVisible,
         likesVisible,       setLikesVisible,
         overlayData,        setOverlayData,
         overlayVisible,     setOverlayVisible,

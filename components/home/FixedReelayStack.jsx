@@ -38,9 +38,6 @@ export default UserReelayFeed = ({ navigation,
     const [stackList, setStackList] = useState([]);
     const [stackCounter, setStackCounter] = useState(0);
 
-
-    const isFixedStack = fixedStackList.length != 0;
-
     useEffect(() => {
         const stackEmpty = !stackList.length;
         if (!stackEmpty && !forceRefresh) {
@@ -49,11 +46,7 @@ export default UserReelayFeed = ({ navigation,
         }
 
         console.log('gotta load the feed');
-        if (isFixedStack) {
-            setStackList(fixedStackList);
-        } else {
-            extendFeed();
-        }
+        setStackList(fixedStackList);
     }, [navigation]);
 
     const getItemLayout = (stack, index) => {
@@ -88,7 +81,7 @@ export default UserReelayFeed = ({ navigation,
         const stack = item;
         const stackViewable = (index === feedPosition);
 
-        console.log(`Rendering stack for ${stack[0].title.display}`);
+        console.log(`Rendering stack for ${stack[0].title.display ?? 'none'}`);
         console.log(`index: ${index} feed position: ${feedPosition}, viewable? ${stackViewable}`);
 
         return (
@@ -96,7 +89,7 @@ export default UserReelayFeed = ({ navigation,
                 stack={stack} stackViewable={stackViewable}
                 feedIndex={index}
                 initialStackPos={initialStackPos}
-                isFixedStack={isFixedStack}
+                isFixedStack={true}
                 navigation={navigation}
             />
         );
