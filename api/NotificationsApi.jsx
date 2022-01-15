@@ -257,7 +257,7 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
         const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
         const data = { 
             action: 'openSingleReelayScreen',
-            reelaySub: reelay.sub,
+            reelaySub: reelay.datastoreSub,
         };
 
         await sendPushNotification({ title, body, data, token });    

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { Dimensions, View, ImageBackground } from 'react-native';
 import * as ReelayText from '../../components/global/Text';
 import { AuthContext } from '../../context/AuthContext';
+import moment from 'moment';
 
 const { height } = Dimensions.get('window');
 
@@ -34,20 +35,13 @@ export default AccountSuspendedScreen = () => {
     const { reelayDBUser } = useContext(AuthContext);
     const { banExpiryAt } = reelayDBUser;
 
-    let banExpiryString;
-    try {
-        banExpiryString = ` until ${moment(banExpiryAt).toDate().toISOString()}.`;
-    } catch (error) {
-        banExpiryString = '';
-    }
-
     return (
 		<Container>
 			<ReelayBackground source={ReelaySplash} resizeMode="cover" />
             <Spacer />
             <SuspensionMessageContainer>
                 <SuspensionMessage>
-                    {`Your account has been suspended${banExpiryString}. Please reach out to support@reelay.app to inquire or appeal.`}
+                    {`Your account has been suspended. Please reach out to support@reelay.app to inquire or appeal.`}
                 </SuspensionMessage>
             </SuspensionMessageContainer>
 		</Container>
