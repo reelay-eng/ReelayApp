@@ -136,9 +136,9 @@ export const Subtitle2 = styled(Text)`
 // Body Fields
 export const Body1 = styled(Text)`
 	font-family: ${getFontFamily(400)};
-	font-size: 18px;
+	font-size: 16px;
 	font-style: normal;
-	line-height: 24px;
+	line-height: 22px;
 	letter-spacing: 0.5px;
 	text-align: left;
 `;
@@ -175,7 +175,7 @@ export const Button = styled(Text)`
 // Caption Fields
 export const Caption = styled(Text)`
 	font-family: ${getFontFamily(400)};
-	font-size: 12px;
+	font-size: 14px;
 	font-style: normal;
 	line-height: 16px;
 	letter-spacing: 0.4px;
@@ -183,7 +183,7 @@ export const Caption = styled(Text)`
 `;
 export const CaptionEmphasized = styled(Text)`
 	font-family: ${getFontFamily(500)};
-	font-size: 12px;
+	font-size: 14px;
 	font-style: normal;
 	line-height: 16px;
 	letter-spacing: 0.4px;

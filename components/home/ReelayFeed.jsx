@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useContext, useEffect, useState, useRef, memo } from 'react';
 import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { FeedContext } from '../../context/FeedContext';
@@ -26,7 +26,7 @@ const ReelayFeedContainer = styled(View)`
     height: ${height}px;
     width: ${width}px;
 `
-const FeedSourceSelectorButton = ({ feedSource, drawerOpen, setDrawerOpen }) => {
+const FeedSourceSelectorButton = ({ feedSource, setDrawerOpenFeedSource }) => {
     const insets = useSafeAreaInsets();
     const SourceSelectorPressable = styled(Pressable)`
         margin-top: ${insets.top}px;
@@ -35,12 +35,12 @@ const FeedSourceSelectorButton = ({ feedSource, drawerOpen, setDrawerOpen }) => 
     `
     const iconName = (feedSource === 'global') ? 'earth' : 'people-circle';
     const onPress = () => {
-        setDrawerOpen(true);
+        setDrawerOpenFeedSource(true);
     }
 
     return (
         <SourceSelectorPressable onPress={onPress}>
-            <Icon type='ionicon' name={iconName} color={'white'} size={30} />
+            <Icon type='ionicon' name={iconName} color={'white'} size={27} />
         </SourceSelectorPressable>
     );
 }
@@ -58,22 +58,19 @@ export default ReelayFeed = ({ navigation,
 
     const [globalFeedPosition, setGlobalFeedPosition] = useState(0);
     const [followingFeedPosition, setFollowingFeedPosition] = useState(0);
-    const [feedSource, setFeedSource] = useState('following');
-    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [feedSource, setFeedSource] = useState('global');
+    const [drawerOpenFeedSource, setDrawerOpenFeedSource] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [globalStackList, setGlobalStackList] = useState([]);
     const [followingStackList, setFollowingStackList] = useState([]);
     const [stackCounter, setStackCounter] = useState(0);
 
-    const [tabPressCounter, setTabPressCounter] = useState(0);
-
     var currStackList = (feedSource === 'global') ? globalStackList : followingStackList;
 
     useEffect(() => {
         loadFollowingFeed();
-        setFeedSource('global');
-        console.log("what feed to load...", feedSource)
         loadGlobalFeed();
+        console.log("what feed to load...", feedSource)
     }, [navigation]);
 
     const loadFollowingFeed = async () => {
@@ -126,9 +123,20 @@ export default ReelayFeed = ({ navigation,
             ? await getGlobalFeed({ reqUserSub: cognitoUser?.attributes?.sub, page })
             : await getFollowingFeed({ reqUserSub: cognitoUser?.attributes?.sub, page });
 
-        console.log("extending", feedSource, "feed")
+        console.log("extending", feedSource, "feed");
 
-        const newStackList = [...currStackList, ...fetchedStacks];
+        // probably don't need to create this every time, but we want to avoid unnecessary state
+        const titleIDEntries = {};
+        currStackList.forEach((curStack) => titleIDEntries[curStack[0].title.id] = 1);
+
+        const notAlreadyInStack = (fetchedStack) => {
+            const alreadyInStack = titleIDEntries[fetchedStack[0].title.id];
+            if (alreadyInStack) console.log('Filtering stack ', fetchedStack[0].title.id);
+            return !alreadyInStack;
+        }
+
+        const filteredStacks = fetchedStacks.filter(notAlreadyInStack);
+        const newStackList = [...currStackList, ...filteredStacks];
         nextPage.current = page + 1;
         console.log(nextPage)
         if (feedSource === "global") {
@@ -181,10 +189,8 @@ export default ReelayFeed = ({ navigation,
 
     const onTabPress = async () => {
         navigation.navigate('HomeFeedScreen');
-
         const feedPosition = (feedSource === 'global') ? globalFeedPosition : followingFeedPosition;
 
-        console.log('IN ON TAB PRESS, count: ', tabPressCounter);
         if (feedPosition === 0) {
             refreshFeed();
         } else {
@@ -208,32 +214,25 @@ export default ReelayFeed = ({ navigation,
             ? await getGlobalFeed({ reqUserSub: cognitoUser?.attributes?.sub, page: 0 })
             : await getFollowingFeed({ reqUserSub: cognitoUser?.attributes?.sub, page: 0 });
 
-        setRefreshing(false);
         nextPage.current = 1;
         if (feedSource === "global") {
             setGlobalStackList(fetchedStacks);
         } else {
             setFollowingStackList(fetchedStacks);
         }     
+        setRefreshing(false);
         // the user is at the top of the feed
         // but the message is at the bottom of the screen
         showMessageToast('You\'re at the top', { position: 'bottom' });
-        // console.log(feedSource, altFeedPosition);
-        // await scrollToIndex(altFeedPosition);
     }
     
 
     const renderStack = ({ item, index }) => {
-
         const feedPosition =
           feedSource === "global" ? globalFeedPosition : followingFeedPosition;
 
         const stack = item;
         const stackViewable = (index === feedPosition);
-
-        // console.log(`Rendering stack for ${stack[0].title.display}`);
-        // console.log(`index: ${index} feed position: ${feedPosition}, viewable? ${stackViewable}`);
-        // console.log(feedSource, feedPosition, altFeedPosition)
 
         return (
             <ReelayStack 
@@ -269,10 +268,11 @@ export default ReelayFeed = ({ navigation,
                 setGlobalFeedPosition(nextFeedPosition);
             } else {
                 setFollowingFeedPosition(nextFeedPosition);
-                console.log("is this being hit")
             }
         }
     }
+
+    console.log('feed is rendering');
 
     return (
       <ReelayFeedContainer>
@@ -328,24 +328,20 @@ export default ReelayFeed = ({ navigation,
           />
         )}
         {overlayVisible && (
-          <FeedOverlay
-            navigation={navigation}
-            onDeleteReelay={onDeleteReelay}
-          />
+            <FeedOverlay navigation={navigation} onDeleteReelay={onDeleteReelay}/>
         )}
-
         <FeedSourceSelectorButton
-          feedSource={feedSource}
-          drawerOpen={drawerOpen}
-          setDrawerOpen={setDrawerOpen}
-        />
-        {drawerOpen && (
-          <FeedSourceSelectorDrawer
             feedSource={feedSource}
-            setFeedSource={setFeedSource}
-            drawerOpen={drawerOpen}
-            setDrawerOpen={setDrawerOpen}
-          />
+            drawerOpenFeedSource={drawerOpenFeedSource}
+            setDrawerOpenFeedSource={setDrawerOpenFeedSource}
+        />
+        {drawerOpenFeedSource && (
+            <FeedSourceSelectorDrawer
+                feedSource={feedSource}
+                setFeedSource={setFeedSource}
+                drawerOpen={drawerOpenFeedSource}
+                setDrawerOpen={setDrawerOpenFeedSource}
+            />
         )}
       </ReelayFeedContainer>
     );

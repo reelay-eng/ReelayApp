@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { Modal, View, Text, Pressable } from 'react-native';
+import * as ReelayText from '../../components/global/Text';
 import { Icon } from 'react-native-elements';
 import { FeedContext } from '../../context/FeedContext';
 import styled from 'styled-components/native';
@@ -23,7 +24,8 @@ export default LikesDrawer = ({ reelay, navigation }) => {
         height: auto;
         margin-top: auto;
         max-height: 70%;
-        padding-bottom: 80px;
+        padding: 20px;
+        padding-bottom: 30px;
         width: 100%;
     `
     const ModalContainer = styled(View)`
@@ -39,10 +41,7 @@ export default LikesDrawer = ({ reelay, navigation }) => {
             justify-content: space-between;
             margin: 12px;
         `
-        const HeaderText = styled(Text)`
-            font-family: System;
-            font-size: 20px;
-            font-weight: 500;
+        const HeaderText = styled(ReelayText.H6Emphasized)`
             color: white;
         ` 
         const headerText = reelay.likes.length ? `Likes (${reelay.likes.length})` : 'Likes';
@@ -64,9 +63,7 @@ export default LikesDrawer = ({ reelay, navigation }) => {
             margin: 10px;
             width: 100%;
         `
-        const UsernameText = styled(Text)`
-            font-family: System;
-            font-size: 20px;
+        const UsernameText = styled(ReelayText.Body1)`
             color: white;
         `
         const goToProfile = async (username) => {

@@ -22,6 +22,7 @@ import * as MediaLibrary from 'expo-media-library';
 import PreviewVideoPlayer from '../../components/create-reelay/PreviewVideoPlayer';
 
 import { Dimensions, Image, SafeAreaView, Pressable, Text, View } from 'react-native';
+import * as ReelayText from '../../components/global/Text';
 import { Icon } from 'react-native-elements';
 import * as Progress from 'react-native-progress';
 
@@ -30,7 +31,7 @@ import { sendStackPushNotificationToOtherCreators } from '../../api/Notification
 
 import styled from 'styled-components/native';
 import { postReelayToDB } from '../../api/ReelayDBApi';
-import { getPosterURL } from '../../api/TMDbApi';
+import { fetchAnnotatedTitle, getPosterURL } from '../../api/TMDbApi';
 import ReelayColors from '../../constants/ReelayColors';
 
 const { height, width } = Dimensions.get('window');
@@ -72,10 +73,7 @@ const UploadButtonPressable = styled(Pressable)`
     bottom: 10px;
     right: 10px;
 `
-const UploadButtonText = styled(Text)`
-    font-family: System;
-    font-size: 20px;
-    font-weight: 600;
+const UploadButtonText = styled(ReelayText.H6Emphasized)`
     color: white;
     margin-left: 16px;
 `
@@ -271,17 +269,14 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // janky, but this gets the reelay into the format we need, so that
             // we can reuse fetchReelaysForStack from ReelayDBApi
 
+            const annotatedTitle = await fetchAnnotatedTitle(reelayDBBody.tmdbTitleID, reelayDBBody.isSeries);
             await sendStackPushNotificationToOtherCreators({
                 creator: cognitoUser,
                 reelay: { 
                     ...reelayDBBody, 
-                    title: {
-                        id: reelayDBBody.tmdbTitleID 
-                    }
+                    title: annotatedTitle,
                 },
             });
-
-
         } catch (error) {
             // todo: better error catching
             console.log('Error uploading file: ', error);
@@ -444,11 +439,9 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const posterURL = getPosterURL(titleObj?.posterURI);
 
     const posterStyle = {
-        borderColor: 'white',
         borderRadius: 8, 
-        borderWidth: 1, 
-        height: 150, 
-        width: 100, 
+        height: 120, 
+        width: 80, 
     }
 
     const openConfirmRetakeDrawer = async () => {

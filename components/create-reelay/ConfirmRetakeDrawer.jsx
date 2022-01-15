@@ -4,6 +4,7 @@ import { Icon } from 'react-native-elements';
 
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 
 export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible }) => {
@@ -47,17 +48,11 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
         justify-content: space-between;
         margin-bottom: 10px;
     `
-    const OptionText = styled(Text)`
-        font-family: System;
-        font-size: 20px;
-        font-weight: 500;
+    const OptionText = styled(ReelayText.Body1)`
         margin-left: 20px;
         color: white;
     ` 
-    const PromptText = styled(Text)`
-        font-family: System;
-        font-size: 20px;
-        font-weight: 500;
+    const PromptText = styled(ReelayText.Body1)`
         color: white;
     ` 
 
@@ -98,12 +93,30 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
         );
     }
 
+    const ExitOption = () => {
+        const onPress = () => {
+            setConfirmRetakeDrawerVisible(false);
+            navigation.navigate('HomeFeedScreen');
+            logAmplitudeEventProd('exitCreate', {
+                username: cognitoUser.username,
+                title: titleObj.display,
+            });    
+        }
+        return (
+            <OptionContainerPressable onPress={onPress}>
+                <Icon type='ionicon' name='exit-outline' size={30} color={'white'} />
+                <OptionText>{'Exit to Home'}</OptionText>
+            </OptionContainerPressable>
+        );
+    }
+
     const Confirmation = () => {
         return (
             <ConfirmationContainer>
                 <Prompt />
                 <ConfirmRetakeOption />
                 <CancelOption />
+                <ExitOption />
             </ConfirmationContainer>
         );
     }

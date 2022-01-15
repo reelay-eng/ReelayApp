@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, memo } from 'react';
 import { View } from 'react-native';
 
 import FeedVideoPlayer from './FeedVideoPlayer';
@@ -8,8 +8,9 @@ import { FeedContext } from '../../context/FeedContext';
 
 import LikesDrawer from './LikesDrawer';
 import CommentsDrawer from './CommentsDrawer';
+import Reelay3DotDrawer from './Reelay3DotDrawer';
 
-export default Hero = ({ 
+const Hero = ({ 
     index, 
     isPaused,
     navigation,
@@ -20,7 +21,8 @@ export default Hero = ({
     viewable,
 }) => {
 
-    const { likesVisible, commentsVisible } = useContext(FeedContext);
+    const { likesVisible, commentsVisible, dotMenuVisible } = useContext(FeedContext);
+    console.log('hero re-rendering: ', reelay.title.display);
 
     return (
         <View key={index} style={{ justifyContent: 'flex-end'}}>
@@ -33,6 +35,21 @@ export default Hero = ({
             <Sidebar reelay={reelay} />
             { viewable && likesVisible && <LikesDrawer reelay={reelay} navigation={navigation} /> }
             { viewable && commentsVisible && <CommentsDrawer reelay={reelay} navigation={navigation} /> }
+            { viewable && dotMenuVisible && 
+                <Reelay3DotDrawer 
+                    reelay={reelay} 
+                    navigation={navigation}
+                /> 
+            }
         </View>
     );
 }
+
+const areEqual = (prevProps, nextProps) => {
+    return (
+        prevProps.isPaused === nextProps.isPaused &&
+        prevProps.viewable === nextProps.viewable
+    );
+}
+
+export default memo(Hero, areEqual);

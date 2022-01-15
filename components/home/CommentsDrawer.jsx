@@ -83,24 +83,6 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         setCommentsVisible(false);
     }
 
-    const CharacterCounter = ({ commentTextLength }) => {
-        const CounterContainer = styled(View)`
-            flex-direction: row;
-            justify-content: flex-end;
-            margin-top: 10px;
-            right: 18px;
-            width: 100%;
-        `
-        const CounterText = styled(ReelayText.CaptionEmphasized)`
-			color: #86878b;
-		`;
-        return (
-            <CounterContainer>
-                <CounterText>{`${commentTextLength} / ${MAX_COMMENT_LENGTH}`}</CounterText>
-            </CounterContainer>
-        );
-    }
-
     const Header = () => {
 
         // comments are for Gray Bar indicating slide-to-close, if we ever put it in. 
@@ -108,12 +90,8 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
             justify-content: center;
             margin-left: 12px;
             margin-right: 12px;
-            padding-top: 6px;
-            padding-bottom: 6px;
-            ${
-            //margin - top: 12px;
-            ""
-            }
+            padding-top: 10px;
+            padding-bottom: 10px;
             border-bottom-color: #2D2D2D;
             border-bottom-width: 1px;
         `
@@ -199,6 +177,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 			width: 10%;
 			align-items: center;
 			margin-right: 12px;
+			margin-top: 4px;
 		`;
 		const RightCommentIconContainer = styled(Pressable)`
 			width: 10%;
@@ -326,9 +305,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 					<>
 						<ScrollView
 							ref={scrollViewRef}
-							style={{
-								maxHeight: maxDrawerHeight / 3,
-							}}
+							style={{ maxHeight: maxDrawerHeight / 2 }}
 						>
                             <Comments comments={reelay.comments}/>
 						</ScrollView>
@@ -363,13 +340,13 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 			alignSelf: "center",
 			color: "white",
 			fontFamily: "Outfit-Regular",
-			fontSize: 18,
+			fontSize: 16,
 			fontStyle: "normal",
 			lineHeight: 24,
 			letterSpacing: 0.25,
 			textAlign: "left",
-			paddingLeft: 16,
-			paddingRight: 16,
+			paddingLeft: 12,
+			paddingRight: 12,
 			width: "100%",
 		};
 
@@ -427,7 +404,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 				scrollViewRef.current.scrollToEnd({ animated: false });
 			}
 
-			Amplitude.logEventWithPropertiesAsync("commentedOnReelay", {
+			logAmplitudeEventProd("commentedOnReelay", {
 				user: cognitoUser.username,
 				creator: reelay.creator.username,
 				title: reelay.title.display,
@@ -456,7 +433,6 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 						style={TextInputStyle}
 						defaultValue={commentText}
 					/>
-					<CharacterCounter commentTextLength={commentText.length} />
 				</View>
 				<PostButtonContainer>
 					<BWButton
@@ -477,7 +453,6 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
             <Modal animationType="slide" transparent={true} visible={commentsVisible}>
 				<KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
 					<Backdrop onPress={closeDrawer} />
-					
                     <DrawerContainer>
 							<Header />
 							<CommentBox />

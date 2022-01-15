@@ -1,40 +1,37 @@
+import { useEffect } from "react";
 import React, { useState, useCallback, useRef } from 'react';
 import { View, Alert, Pressable } from 'react-native';
 import YoutubePlayer from 'react-native-youtube-iframe';
-
-import styled from 'styled-components/native';
+import * as ScreenOrientation from "expo-screen-orientation";
 
 export default function YoutubeVideoEmbed({ youtubeVideoID, height }) {
-  const [playing, setPlaying] = useState(true);
+    const [playing, setPlaying] = useState(true);
 
-  const PlayPauseTouchable = styled(Pressable)`
-    position: absolute;
-    height: 100%;
-    width: 100%;
-  `
+    useEffect(()=> {
+        if (playing) {
+            ScreenOrientation.unlockAsync();
+        } else {
+            ScreenOrientation.lockAsync(
+              ScreenOrientation.OrientationLock.PORTRAIT_UP
+            );
+        }
+    }, [playing]);
 
-  const onStateChange = useCallback((state) => {
-    if (state === "ended") {
-      setPlaying(false);
-    }
-  }, []);
+    const onStateChange = useCallback((state) => {
+        console.log(state);
+        if (state === "ended") {
+            setPlaying(false);
+        }
+    }, []);
 
-  const togglePlaying = useCallback(() => {
-    setPlaying((prev) => !prev);
-  }, []);
-
-  return (
-    <View>
-      <YoutubePlayer
-        // initialPlayerParams={{
-        //   controls: false,
-        // }}
-        height={height}
-        play={playing}
-        videoId={youtubeVideoID}
-        onChangeState={onStateChange}
-      />
-      {/* <PlayPauseTouchable onPress={togglePlaying} /> */}
-    </View>
-  );
+    return (
+        <View>
+        <YoutubePlayer
+            height={height}
+            play={playing}
+            videoId={youtubeVideoID}
+            onChangeState={onStateChange}
+        />
+        </View>
+    );
 }

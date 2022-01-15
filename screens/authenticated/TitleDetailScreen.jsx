@@ -30,11 +30,10 @@ import { ActionButton, BWButton } from "../../components/global/Buttons";
 import { DirectorBadge, ActorBadge } from "../../components/global/Badges";
 import * as VideoThumbnails from "expo-video-thumbnails";
 import { Icon } from "react-native-elements";
+import AppleTVAd from '../../components/titlePage/AppleTVAd';
 
 // Media
 import SplashImage from "../../assets/images/reelay-splash.png";
-import AppleTVAdBackground from "../../assets/images/AppleTVAdBackground.png";
-import AppleTVIcon from "../../assets/icons/venues/appletv.png";
 import GRating from "../../assets/images/MPAA_Ratings/GRating.png";
 import PGRating from "../../assets/images/MPAA_Ratings/PGRating.png";
 import PG13Rating from "../../assets/images/MPAA_Ratings/PG13Rating.png";
@@ -43,6 +42,10 @@ import RRating from "../../assets/images/MPAA_Ratings/RRating.png";
 
 // Logging
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+
+// Screen Orientation
+import * as ScreenOrientation from 'expo-screen-orientation';
+import { getRuntimeString } from '../../components/utils/TitleRuntime';
 
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
@@ -63,11 +66,17 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const trailerURI = titleObj?.trailerURI;
 	const genres = titleObj?.genres;
 	const rating = titleObj?.rating;
+	const releaseYear = titleObj?.releaseYear;
+	const runtime = titleObj?.runtime;
+	const isMovie = titleObj?.isMovie;
+
+	console.log(titleObj);
 
 	// hide tab bar
 	const { setTabBarVisible } = useContext(FeedContext);
 	useEffect(() => {
 		setTabBarVisible(false);
+		// ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
 		return () => {
 			setTabBarVisible(true);
 		};
@@ -90,6 +99,9 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 				tmdbTitleID={tmdbTitleID}
 				trailerURI={trailerURI}
 				genres={genres}
+				releaseYear={releaseYear}
+				runtime={runtime}
+				isMovie={isMovie}
 			/>
 			<PopularReelaysRow navigation={navigation} titleObj={titleObj} />
 			<MovieInformation director={director} actors={actors} description={overview} rating={rating} />
@@ -128,6 +140,9 @@ const PosterWithTrailer = ({
 	trailerURI,
 	titleObj,
 	genres,
+	releaseYear,
+	runtime,
+	isMovie,
 }) => {
 	const PosterContainer = styled(View)`
 		height: ${height}px;
@@ -215,10 +230,16 @@ const PosterWithTrailer = ({
 			align-items: center;
 			justify-content: center;
 		`;
-		const TaglineText = styled(ReelayText.H6Emphasized)`
+		const TaglineText = styled(ReelayText.Body1)`
 			color: #ffffff;
 			opacity: 0.6;
 		`;
+
+		// Quick fix in order to fit runtime and release year
+		const ReducedGenres = genres.slice(0, 2);
+
+		//Conversion from minutes to hours and minutes
+		const runtimeString = getRuntimeString(runtime);
 
 		return (
 			<TaglineContainer>
@@ -227,9 +248,14 @@ const PosterWithTrailer = ({
 						<ProviderImage source={{ uri: getLogoURL(topProviderLogo) }} />
 					</ProviderImagesContainer>
 				)}
-				{genres?.length > 0 && (
+				{isMovie === true && (
 					<TaglineTextContainer>
-						<TaglineText>{genres?.map((e) => e.name).join(", ")}</TaglineText>
+						<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}    {runtimeString}</TaglineText>
+					</TaglineTextContainer>
+				)} 
+				{isMovie === false && (
+					<TaglineTextContainer>
+						<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}</TaglineText>
 					</TaglineTextContainer>
 				)}
 			</TaglineContainer>
@@ -363,8 +389,8 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
 
 	const fetchTopReelays = async () => {
 		const mostRecentReelays = await getMostRecentReelaysByTitle(titleObj.id);
-		const nextTopReelays = mostRecentReelays.sort(byReelayPopularity);
-		if (nextTopReelays?.length && componentMounted.current) {
+		if (mostRecentReelays?.length && componentMounted.current) {
+			const nextTopReelays = mostRecentReelays.sort(byReelayPopularity);
 			setTopReelays(nextTopReelays);
 		}
 	};
@@ -570,10 +596,10 @@ const MovieInformation = ({description, director, actors, rating}) => {
     const MIInternalContainer = styled(View)`
         display: flex;
         flex-direction: column;
-        margin-left: 10px;
-		margin-right: 10px;
-		margin-bottom: 20px;
-		margin-top: 20px;
+        margin-left: 20px;
+		margin-right: 20px;
+		margin-bottom: 30px;
+		margin-top: 30px;
     `
 
     const HeadingText = styled(ReelayText.H5Emphasized)`
@@ -655,7 +681,7 @@ const MovieInformation = ({description, director, actors, rating}) => {
 						<HeadingText>Description</HeadingText>
 						<Spacer height={10} />
 						<DescriptionCollapsible description={description} />
-						<Spacer height={20} />
+						<Spacer height={30} />
 					</>
 				)}
 				{director && (
@@ -664,7 +690,7 @@ const MovieInformation = ({description, director, actors, rating}) => {
 						<BadgeWrapper>
 							<DirectorBadge text={director} />
 						</BadgeWrapper>
-						<Spacer height={20} />
+						<Spacer height={30} />
 					</>
 				)}
 				{actors?.length > 0 && (
@@ -684,7 +710,7 @@ const MovieInformation = ({description, director, actors, rating}) => {
 								</BadgeWrapper>
 							))}
 						</ActorBadgesContainer>
-						<Spacer height={20} />
+						<Spacer height={30} />
 					</>
 				)}
 				{rating && Object.keys(ratingSources).includes(rating) && (
@@ -701,83 +727,6 @@ const MovieInformation = ({description, director, actors, rating}) => {
 				)}
 			</MIInternalContainer>
 		</MIExternalContainer>
-	);
-}
-
-const AppleTVAd = () => {
-	const Container = styled(View)`
-		width: 100%;
-		height: 400px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	`
-	const AdContainer = styled(View)`
-		width: 350px;
-		height: 400px;
-	`
-	const AdBackground = styled(Image)`
-		width: 100%;
-		height: 100%;
-		border-radius: 8px;
-	`
-	const AdInfoContainer = styled(View)`
-		position: absolute;
-		top: 0;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: flex-end;
-	`;
-	const AppleTVIconContainer = styled(Image)`
-		width: 64px;
-		height: 64px;
-		border-radius: 32px;
-		borderColor: white;
-		borderWidth: 2px;
-		margin-bottom: 20px;
-	`
-	const AppleTVText = styled(ReelayText.H5)`
-		width: 80%;
-		text-align: center;
-		color: white;
-		opacity: 0.9;
-		margin-bottom: 25px;
-		line-height: 30px;
-	`
-	const AppleTVHighlightSpan = styled(ReelayText.H5)`
-		color: #CF5CCB;
-	`
-	const AppleTVButtonContainer = styled(View)`
-		width: 90%;
-		height: 40px;
-		margin-bottom: 20px;
-	`
-
-	return (
-		<Container>
-			<AdContainer>
-				<AdBackground source={AppleTVAdBackground} />
-				<AdInfoContainer>
-					<AppleTVIconContainer source={AppleTVIcon} />
-					<AppleTVText>
-						Sign up for Apple TV. {"\n"}
-						Get 25,000 movies {"\n"}
-						and TV shows for <AppleTVHighlightSpan>free.</AppleTVHighlightSpan>
-					</AppleTVText>
-					<AppleTVButtonContainer>
-						<BWButton
-							white
-							text="More Details"
-							onPress={() => Linking.openURL("https://tv.apple.com/")}
-						/>
-					</AppleTVButtonContainer>
-				</AdInfoContainer>
-			</AdContainer>
-		</Container>
 	);
 }
 

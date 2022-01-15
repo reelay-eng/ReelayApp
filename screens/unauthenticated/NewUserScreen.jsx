@@ -1,15 +1,14 @@
 import React, { useRef, useState, useContext } from "react";
 import {
 	Image,
-	Pressable,
 	View,
     ImageBackground,
     Dimensions
 } from "react-native";
-import { Button, BWButton } from "../../components/global/Buttons";
-import ReelayColors from "../../constants/ReelayColors";
+import { Button } from "../../components/global/Buttons";
 import styled from "styled-components/native";
 import Carousel, { Pagination } from "react-native-snap-carousel";
+import { Video } from "expo-av";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../../context/AuthContext';
 
@@ -58,7 +57,7 @@ const HalfCarouselContainer = styled(View)`
 `;
 const CarouselTextContainer = styled(View)`
 	height: 60%;
-	width: 75%;
+	width: 90%;
 	flex-direction: column;
 	align-items: center;
     margin-top: 54px;
@@ -71,6 +70,7 @@ const CarouselTitle = styled(ReelayText.H4)`
 const CarouselBody = styled(ReelayText.Body2)`
     color: white;
     text-align: center;
+	width: 75%;
 `
 const SkipNextAbsoluteContainer = styled(View)`
     width: 100%;
@@ -150,20 +150,35 @@ const CarouselComponent = ({navigation}) => {
     }
 
 	const renderCarouselItem = ({ item, index }) => {
+		// todo: clean this up. we just threw the video component in,
+		// without regards for the structure of the other carousel items
         return (
 			<>
 				<CarouselContainer>
 					<CenteredContainer>
-						<Image
-							source={DisplayItems[index].source}
-							style={{
-								width: DisplayItems[index].width,
-								height: "100%",
-								marginLeft: DisplayItems[index].marginLeft ?? 0,
-								marginTop: DisplayItems[index].marginTop ?? 0,
-							}}
-							resizeMode="contain"
-						/>
+						{ index !== 1 &&
+							<Image
+								source={DisplayItems[index].source}
+								style={{
+									width: DisplayItems[index].width,
+									height: "100%",
+									marginLeft: DisplayItems[index].marginLeft ?? 0,
+									marginTop: DisplayItems[index].marginTop ?? 0,
+								}}
+								resizeMode="contain"
+							/>
+						}
+						{ index === 1 &&
+							<Video 
+								shouldPlay={true}
+								isLooping={true}
+								source={require('../../assets/images/onboard-vid.mp4')}
+								style={{
+									width: '100%',
+									height: '100%',
+								}}
+							/>					
+						}
 					</CenteredContainer>
 				</CarouselContainer>
 				<HalfCarouselContainer>

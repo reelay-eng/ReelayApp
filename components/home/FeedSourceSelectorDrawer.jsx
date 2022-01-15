@@ -88,7 +88,7 @@ export default FeedSourceSelectorDrawer = ({ feedSource, setFeedSource, drawerOp
         const selected = (feedSource === 'following');
         return (
             <OptionContainerPressable onPress={onPress}>
-                <Icon type='ionicon' name='people' size={30} color={'white'} />
+                <Icon type='ionicon' name='people' size={27} color={'white'} />
                 <OptionText selected={selected}>{`Following`}</OptionText>
                 { selected && <Icon type='ionicon' name='checkmark' size={30} color={'white'} /> }
             </OptionContainerPressable>
@@ -108,7 +108,7 @@ export default FeedSourceSelectorDrawer = ({ feedSource, setFeedSource, drawerOp
         const selected = (feedSource === 'global');
         return (
             <OptionContainerPressable onPress={onPress}>
-                <Icon type='ionicon' name='earth' size={30} color={'white'} />
+                <Icon type='ionicon' name='earth' size={27} color={'white'} />
                 <OptionText selected={feedSource === 'global'}>{`Global`}</OptionText>
                 { selected && <Icon type='ionicon' name='checkmark' size={30} color={'white'} /> }
             </OptionContainerPressable>

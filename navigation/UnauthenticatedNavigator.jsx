@@ -74,7 +74,8 @@ export default UnauthenticatedNavigator = () => {
         <AuthenticationStack.Screen
             name="ConfirmEmailScreen"
             component={ConfirmEmailScreen}
-            options={{headerShown: false,
+            options={{
+                headerShown: false,
             }}
         />
     </AuthenticationStack.Navigator>
