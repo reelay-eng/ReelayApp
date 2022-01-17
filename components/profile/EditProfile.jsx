@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, Alert } from "react-native";
+import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, TextInput, Alert } from "react-native";
+import { Input } from "react-native-elements";
 
 // Expo imports
 import * as ImagePicker from "expo-image-picker";
@@ -29,10 +30,6 @@ import ReelayIcon from "../../assets/icons/reelay-icon.png";
 import * as ReelayText from "../global/Text";
 import { HeaderDoneCancel } from '../global/Headers';
 
-
-
-
-
 const { height, width } = Dimensions.get("window");
 
 const Spacer = styled(View)`
@@ -43,42 +40,91 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
     const ModalContainer = styled(View)`
 		position: absolute;
 	`;
-	const { setTabBarVisible } = useContext(FeedContext);
-	useEffect(() => {
-		setTabBarVisible(false);
-		return () => {
-			setTabBarVisible(true);
-		};
-	}, []);
 	const EditProfileContainer = styled(SafeAreaView)`
 		background-color: black;
 		height: 100%;
 		width: 100%;
 	`;
 
+
+	const { setTabBarVisible } = useContext(FeedContext);
+	const { reelayDBUser } = useContext(AuthContext);
+	const initBio = reelayDBUser.bio ? reelayDBUser.bio : "";
+  	const bioRef = useRef(initBio);
+
+	useEffect(() => {
+		setTabBarVisible(false);
+		return () => {
+			setTabBarVisible(true);
+		};
+	}, []);
+
     const doneFunc = () => {
+		// set bio and update it in reelayDBuser
+		reelayDBUser.bio =
+      bioRef.current.trim() === "" ? null : bioRef.current;
         setIsEditingProfile(false);
     }
 
     const cancelFunc = () => {
+		console.log("canelg");
         setIsEditingProfile(false);
     }
 
 	return (
-		<ModalContainer>
-			<Modal animationType="slide" transparent={true} visible={isEditingProfile}>
-				<EditProfileContainer>
-					<HeaderDoneCancel
-						withBar
-						onDone={doneFunc}
-						onCancel={cancelFunc}
-						text="Edit Profile"
-					/>
-					<EditProfileImage />
-				</EditProfileContainer>
-			</Modal>
-		</ModalContainer>
-	);
+    <ModalContainer>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isEditingProfile}
+      >
+        <EditProfileContainer>
+          <HeaderDoneCancel
+            withBar
+            onDone={doneFunc}
+            onCancel={cancelFunc}
+            text="Edit Profile"
+          />
+          <EditProfileImage />
+          <EditBio bioRef={bioRef} />
+        </EditProfileContainer>
+      </Modal>
+    </ModalContainer>
+  );
+};
+
+const EditBio = ({ bioRef }) => {
+  const BioInput = styled(Input)`
+    color: white;
+    font-family: Outfit-Regular;
+    font-size: 16px;
+    font-style: normal;
+    letter-spacing: 0.15px;
+    margin-left: 8px;
+  `;
+  const BioInputContainerStyle = {
+    alignSelf: "center",
+    marginBottom: -5,
+    width: "80%",
+  };
+
+  const changeInputText = (text) => {
+	bioRef.current=text;
+  };
+
+  return (
+    <BioInput
+      maxLength={250}
+      multiline
+      numberOfLines={4}
+	  defaultValue={bioRef.current}
+      placeholder={"Bio"}
+      placeholderTextColor={"gray"}
+      onChangeText={changeInputText}
+      returnKeyType="default"
+      containerStyle={BioInputContainerStyle}
+    />
+  );
 };
 
 const EditProfileImage = () => {

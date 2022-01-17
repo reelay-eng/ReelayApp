@@ -514,6 +514,28 @@ export const unsuspendAccount = async (bannedUserSub, adminUserSub) => {
     return resultPost;
 }
 
+// make prettier?
+export const updateUserInformation = async (userSub, bio, username, email, pushToken, role) => {
+    console.log(userSub)
+    const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}`;
+    // const { bio, username, email, pushToken, role } = information.params;
+    const updateBody = {
+        bio: bio,
+        username: username,
+        email: email,
+        pushToken: pushToken,
+        role: role
+    };
+    const resultPatch = await fetchResults(routePatch, {
+        method: "PATCH",
+        headers: REELAY_API_HEADERS,
+        body: JSON.stringify(updateBody),
+    });
+    console.log("Patched user bio to: ", bio);
+    console.log("patched ?? ", resultPatch);
+    return resultPatch;
+};
+
 export const updateProfilePic = async (sub, photoURI) => {
     const routePatch = `${REELAY_API_BASE_URL}/users/sub/${sub}/profilepic`;
     const updateBody = {
