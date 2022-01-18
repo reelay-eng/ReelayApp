@@ -6,6 +6,7 @@ import styled from 'styled-components/native';
 
 import AppleTVAdBackground from "../../assets/images/AppleTVAdBackground.png";
 import AppleTVIcon from "../../assets/icons/venues/appletv.png";
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 export default AppleTVAd = () => {
 	const Container = styled(View)`
@@ -60,6 +61,13 @@ export default AppleTVAd = () => {
 		margin-bottom: 20px;
 	`
 
+	const handleAppleTVAdPress = () => {
+		logAmplitudeEventProd('appleTVAdClicked', {
+			username: '',
+		});
+		Linking.openURL('https://www.apple.com/tv/');
+	}
+
 	return (
 		<Container>
 			<AdContainer>
@@ -75,7 +83,7 @@ export default AppleTVAd = () => {
 						<BWButton
 							white
 							text="More Details"
-							onPress={() => Linking.openURL("https://tv.apple.com/")}
+							onPress={(handleAppleTVAdPress)}
 						/>
 					</AppleTVButtonContainer>
 				</AdInfoContainer>

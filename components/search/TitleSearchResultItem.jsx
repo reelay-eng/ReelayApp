@@ -72,7 +72,7 @@ export default TitleSearchResultItem = ({ navigation, result, source }) => {
             logAmplitudeEventProd('advanceToCreateReelay', {
                 username: cognitoUser.username,
                 title: title,
-                source: 'create',
+                source: 'TitleSearchResult',
             });
         } else if (source && source === 'search') {
             navigation.push('TitleDetailScreen', { 

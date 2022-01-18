@@ -13,6 +13,7 @@ import styled from "styled-components/native";
 import * as ReelayText from "../../components/global/Text";
 import { HeaderWithBackButton } from "../global/Headers";
 import ReelayColors from '../../constants/ReelayColors';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 export default NotificationSettings = ({ navigation }) => {
     const { cognitoUser } = useContext(AuthContext);
@@ -113,6 +114,9 @@ const NotificationsSettingsWrapper = ({ cognitoUser }) => {
             notifyReactions: value, 
             notifyTrending: true
         });
+        logAmplitudeEventProd('notificationSettingsAll', {
+            notifyReactions: value,
+            });
 
     }
     const toggleNotifyPrompts = () => {

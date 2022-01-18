@@ -324,6 +324,7 @@ const PosterWithTrailer = ({
 								logAmplitudeEventProd("watchTrailer", {
 									title: title,
 									tmdbTitleID: tmdbTitleID,
+									source: "poster",
 								});
 							}}
 							borderRadius={"20px"}
