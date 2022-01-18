@@ -67,6 +67,13 @@ export const ProfileSettings = ({navigation}) => {
 							Linking.openURL("https://www.reelay.app/privacy-policy");
 						}}
 					/>
+					<SettingEntry
+						text="TMDB Credit"
+						iconName="server-outline"
+						onPress={() => {
+							navigation.push("TMDBCreditScreen");
+						}}
+					/>
 				</TopSettings>
 				<BottomSettings>
 					<Logout />
