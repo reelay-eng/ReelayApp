@@ -516,7 +516,6 @@ export const unsuspendAccount = async (bannedUserSub, adminUserSub) => {
 
 // make it work?
 export const updateUserBio = async (userSub, bio) => {
-    console.log(userSub)
     const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}`;
     const updateBody = {
         bio: bio
@@ -530,7 +529,6 @@ export const updateUserBio = async (userSub, bio) => {
         body: JSON.stringify(updateBody),
     });
     console.log("Patched user bio to: ", bio);
-    console.log("patched ?? ", resultPatch);
     return resultPatch;
 };
 
