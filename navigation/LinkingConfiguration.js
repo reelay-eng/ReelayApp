@@ -17,6 +17,8 @@ export default {
 					VenueSelectScreen: "VenueSelectScreen",
 					MyProfileScreen: "MyProfileScreen",
 					ProfileSettingsScreen: "ProfileSettingsScreen",
+					NotificationSettingsScreen: "NotificationSettingsScreen",
+					TMDBCreditScreen: "TMDBCreditScreen",
 					ProfileFeedScreen: "ProfileFeedScreen",
 					SingleReelayScreen: {
 						path: "/reelay/:reelaySub",

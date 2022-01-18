@@ -29,6 +29,7 @@ import SingleReelayScreen from '../screens/authenticated/SingleReelayScreen';
 import TitleDetailScreen from '../screens/authenticated/TitleDetailScreen';
 import TitleFeedScreen from '../screens/authenticated/TitleFeedScreen';
 import TitleTrailerScreen from '../screens/authenticated/TitleTrailerScreen';
+import TMDBCreditScreen from '../screens/authenticated/TMDBCreditScreen';
 import UserFollowScreen from '../screens/authenticated/UserFollowScreen';
 import UserProfileScreen from '../screens/authenticated/UserProfileScreen';
 import VenueSelectScreen from '../screens/authenticated/VenueSelectScreen';
@@ -376,10 +377,7 @@ const CreateReelayTabNavigator = () => {
 
 const ProfileTabNavigator = () => {
     return (
-		<ProfileTabStack.Navigator
-			initialRouteName="MyProfileScreen"
-			detachInactiveScreens={false}
-		>
+		<ProfileTabStack.Navigator initialRouteName="MyProfileScreen" detachInactiveScreens={false}>
 			<ProfileTabStack.Screen
 				name="MyProfileScreen"
 				component={MyProfileScreen}
@@ -409,12 +407,12 @@ const ProfileTabNavigator = () => {
 				}}
 			/>
 			<ProfileTabStack.Screen
-                name='ReportedContentFeedScreen'
-                component={ReportedContentFeedScreen}
-                options={{
-                    headerShown: false,
-                }}
-            />
+				name="ReportedContentFeedScreen"
+				component={ReportedContentFeedScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
 			<ProfileTabStack.Screen
 				name="SingleReelayScreen"
 				component={SingleReelayScreen}
@@ -448,6 +446,13 @@ const ProfileTabNavigator = () => {
 			<ProfileTabStack.Screen
 				name="ProfileSettingsScreen"
 				component={ProfileSettingsScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<ProfileTabStack.Screen
+				name="TMDBCreditScreen"
+				component={TMDBCreditScreen}
 				options={{
 					headerShown: false,
 				}}
