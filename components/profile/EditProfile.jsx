@@ -28,6 +28,7 @@ import ReelayColors from "../../constants/ReelayColors";
 import ReelayIcon from "../../assets/icons/reelay-icon.png";
 import * as ReelayText from "../global/Text";
 import { HeaderDoneCancel } from '../global/Headers';
+import { logAmplitudeEventProd } from "../utils/EventLogger";
 
 
 
@@ -176,6 +177,10 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 			aspect: [4, 3],
 		});
 		handleImagePicked(result);
+		logAmplitudeEventProd("profilePhotoUpdatedCamera", {
+			userId: cognitoUser.userId,
+			username: cognitoUser.username,
+		});
 	};
 
 	const choosePhoto = async () => {
@@ -204,6 +209,9 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 				if (reelayDBUser?.profilePictureURI !== cloudfrontPhotoURI) {
 					const patchResult = await updateProfilePic(cognitoUser?.attributes?.sub, cloudfrontPhotoURI);
 					console.log("Patched Profile Image: ", patchResult);
+					logAmplitudeEventProd("profilePhotoUpdatedCameraroll", {
+						"Profile Photo Updated": "Profile Photo Updated",
+					});
 					let newReelayDBUser = reelayDBUser;
 					newReelayDBUser.profilePictureURI = cloudfrontPhotoURI;
 					setReelayDBUser(newReelayDBUser);
@@ -212,6 +220,11 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 			}
 		} catch (e) {
 			console.log("Upload Profile Picture Error: ", e);
+			logAmplitudeEventProd	("uploadProfilePictureError", {
+				error: e,
+				cognitoUser: cognitoUser,
+				reelayDBUser: reelayDBUser,
+			});
 			setIsUploading(false);
 			alert("Profile photo upload failed. \nPlease try again.");
 		}

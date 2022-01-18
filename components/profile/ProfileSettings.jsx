@@ -128,6 +128,7 @@ const Logout = () => {
         try {
             logAmplitudeEventProd('signOut', {
                 username: cognitoUser.username,
+                email: cognitoUser.attributes.email,
             });
     
             const signOutResult = await Auth.signOut();

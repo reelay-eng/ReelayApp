@@ -321,6 +321,10 @@ const PosterWithTrailer = ({
 								navigation.push("TitleTrailerScreen", {
 									trailerURI: trailerURI,
 								});
+								logAmplitudeEventProd("watchTrailer", {
+									title: title,
+									tmdbTitleID: tmdbTitleID,
+								});
 							}}
 							borderRadius={"20px"}
 						/>

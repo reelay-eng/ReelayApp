@@ -75,6 +75,7 @@ export default SearchScreen = ({ navigation }) => {
         logAmplitudeEventProd('openSearchScreen', {
             username: cognitoUser.username,
             userSub: cognitoUser?.attributes?.sub,
+            source: 'search',
         });
     }, [navigation]);
 

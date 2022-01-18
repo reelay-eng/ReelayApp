@@ -187,6 +187,10 @@ export default SignInScreen = ({ navigation, route }) => {
                 if (otherError) setOtherError(false);
                 const username = await getInputUsername(inputText);
                 console.log('username: ', username);
+                logAmplitudeEventProd('signInSuccess', {
+                    username: username,
+                    email: inputText,
+                });
                 if (!username.length) {
                     // entered an invalid email
                     handleBadEmail();
