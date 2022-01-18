@@ -9,7 +9,6 @@ import { getStacksByCreator } from '../../api/ReelayDBApi';
 import {
   getFollowers,
   getFollowing,
-  updateUserInformation,
 } from "../../api/ReelayDBApi";
 
 // Components
@@ -31,6 +30,11 @@ import styled from 'styled-components/native';
 
 
 export default MyProfileScreen = ({ navigation, route }) => {
+
+    const BioTextContainer = styled(View)`
+        align-self: center;
+        width: 75%;
+    `;
     const BioText = styled(ReelayText.Subtitle1)`
         color: white;
         text-align: center;
@@ -54,7 +58,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     useEffect(() => {
         setTabBarVisible(true);
-        // updateUserInformation(cognitoUser.attributes.sub, "ucsb '25" );
     });
 
     if (!cognitoUser) {
@@ -119,7 +122,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
             margin-bottom: 8px;
 		`;
         const EditProfileButtonContainer = styled(View)`
-            width: 90%;
+            width: 75%;
             height: 40px;
         `
 
@@ -148,7 +151,11 @@ export default MyProfileScreen = ({ navigation, route }) => {
 				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
 			>
 				<ProfileHeader profilePictureURI={reelayDBUser?.profilePictureURI} />
-                {reelayDBUser?.bio && (<BioText> {reelayDBUser.bio.trim()} </BioText>)}
+                {reelayDBUser?.bio && (
+                    <BioTextContainer>
+                        <BioText> {reelayDBUser.bio.trim()} </BioText>
+                    </BioTextContainer>
+                )}
 				<EditProfileButton />
 				<ProfileStatsBar
 					navigation={navigation}

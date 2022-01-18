@@ -514,21 +514,19 @@ export const unsuspendAccount = async (bannedUserSub, adminUserSub) => {
     return resultPost;
 }
 
-// make prettier?
-export const updateUserInformation = async (userSub, bio, username, email, pushToken, role) => {
+// make it work?
+export const updateUserBio = async (userSub, bio) => {
     console.log(userSub)
     const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}`;
-    // const { bio, username, email, pushToken, role } = information.params;
     const updateBody = {
-        bio: bio,
-        username: username,
-        email: email,
-        pushToken: pushToken,
-        role: role
+        bio: bio
     };
     const resultPatch = await fetchResults(routePatch, {
         method: "PATCH",
-        headers: REELAY_API_HEADERS,
+        headers: {
+            ...REELAY_API_HEADERS,
+            requsersub: userSub,
+        },
         body: JSON.stringify(updateBody),
     });
     console.log("Patched user bio to: ", bio);

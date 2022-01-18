@@ -15,7 +15,7 @@ import {
 } from "@aws-sdk/client-s3";
 
 // DB
-import { updateProfilePic } from "../../api/ReelayDBApi";
+import { updateProfilePic, updateUserBio } from "../../api/ReelayDBApi";
 
 // Context
 import { FeedContext } from "../../context/FeedContext";
@@ -59,15 +59,14 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
 		};
 	}, []);
 
-    const doneFunc = () => {
+    const doneFunc = async () => {
 		// set bio and update it in reelayDBuser
-		reelayDBUser.bio =
-      bioRef.current.trim() === "" ? null : bioRef.current;
+		reelayDBUser.bio = bioRef.current.trim() === "" ? null : bioRef.current;
+        await updateUserBio(reelayDBUser.sub, reelayDBUser.bio);
         setIsEditingProfile(false);
     }
 
     const cancelFunc = () => {
-		console.log("canelg");
         setIsEditingProfile(false);
     }
 
@@ -94,37 +93,43 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
 };
 
 const EditBio = ({ bioRef }) => {
-  const BioInput = styled(Input)`
-    color: white;
-    font-family: Outfit-Regular;
-    font-size: 16px;
-    font-style: normal;
-    letter-spacing: 0.15px;
-    margin-left: 8px;
-  `;
-  const BioInputContainerStyle = {
-    alignSelf: "center",
-    marginBottom: -5,
-    width: "80%",
-  };
+	const BioInput = styled(TextInput)`
+		border-color: white;
+		border-radius: 3px;
+		border-width: 1px;
+		color: white;
+		font-family: Outfit-Regular;
+		font-size: 16px;
+		font-style: normal;
+		letter-spacing: 0.15px;
+		margin-left: 8px;
+		padding: 12px;
+  	`;
+	const BioInputContainer = styled(View)`
+		align-self: center;
+		margin-bottom: -5;
+		width: 80%;
+  	`;
 
-  const changeInputText = (text) => {
-	bioRef.current=text;
-  };
+	const changeInputText = (text) => {
+		bioRef.current=text;
+	};
 
-  return (
-    <BioInput
-      maxLength={250}
-      multiline
-      numberOfLines={4}
-	  defaultValue={bioRef.current}
-      placeholder={"Bio"}
-      placeholderTextColor={"gray"}
-      onChangeText={changeInputText}
-      returnKeyType="default"
-      containerStyle={BioInputContainerStyle}
-    />
-  );
+	return (
+		<BioInputContainer>
+			<BioInput
+				maxLength={250}
+				multiline
+				numberOfLines={4}
+				defaultValue={bioRef.current}
+				placeholder={"Bio"}
+				placeholderTextColor={"gray"}
+				onChangeText={changeInputText}
+				returnKeyLabel="return"
+				returnKeyType="default"
+			/>
+		</BioInputContainer>
+	);
 };
 
 const EditProfileImage = () => {
