@@ -1,10 +1,9 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, TextInput, Alert } from "react-native";
-import { Input } from "react-native-elements";
+import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, TextInput, Alert, Keyboard } from "react-native";
+import { Icon, Input } from "react-native-elements";
 
 // Expo imports
 import * as ImagePicker from "expo-image-picker";
-import { EncodingType, readAsStringAsync, writeAsStringAsync } from "expo-file-system";
 import Constants from 'expo-constants';
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 
@@ -29,6 +28,7 @@ import ReelayColors from "../../constants/ReelayColors";
 import ReelayIcon from "../../assets/icons/reelay-icon.png";
 import * as ReelayText from "../global/Text";
 import { HeaderDoneCancel } from '../global/Headers';
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 const { height, width } = Dimensions.get("window");
 
@@ -72,31 +72,30 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
 
 	return (
     <ModalContainer>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isEditingProfile}
-      >
-        <EditProfileContainer>
-          <HeaderDoneCancel
-            withBar
-            onDone={doneFunc}
-            onCancel={cancelFunc}
-            text="Edit Profile"
-          />
-          <EditProfileImage />
-          <EditBio bioRef={bioRef} />
-        </EditProfileContainer>
-      </Modal>
+		<Modal
+			animationType="slide"
+			transparent={true}
+			visible={isEditingProfile}
+		>
+				<EditProfileContainer>
+					<HeaderDoneCancel
+						withBar
+						onDone={doneFunc}
+						onCancel={cancelFunc}
+						text="Edit Profile"
+					/>
+					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+						<EditProfileImage />
+						<EditBio bioRef={bioRef} />
+					</TouchableWithoutFeedback>
+				</EditProfileContainer>
+		</Modal>
     </ModalContainer>
   );
 };
 
 const EditBio = ({ bioRef }) => {
 	const BioInput = styled(TextInput)`
-		border-color: white;
-		border-radius: 3px;
-		border-width: 1px;
 		color: white;
 		font-family: Outfit-Regular;
 		font-size: 16px;
@@ -107,28 +106,44 @@ const EditBio = ({ bioRef }) => {
   	`;
 	const BioInputContainer = styled(View)`
 		align-self: center;
-		margin-bottom: -5;
+		background-color: #1a1a1a;
+		border-radius: 16px;
+		flex-direction: row;
+		padding: 10px;
 		width: 80%;
   	`;
+	const EditBioContainer = styled(View)`
+		align-self: center;
+		justify-content: center;
+		padding: 10px;
+	`
+	const EditBioText = styled(ReelayText.Body2Bold)`
+		color: "rgba(0, 165, 253, 1)";
+	`
 
 	const changeInputText = (text) => {
 		bioRef.current=text;
 	};
 
 	return (
-		<BioInputContainer>
-			<BioInput
-				maxLength={250}
-				multiline
-				numberOfLines={4}
-				defaultValue={bioRef.current}
-				placeholder={"Bio"}
-				placeholderTextColor={"gray"}
-				onChangeText={changeInputText}
-				returnKeyLabel="return"
-				returnKeyType="default"
-			/>
-		</BioInputContainer>
+		<>
+			<BioInputContainer>
+				<BioInput
+					maxLength={250}
+					multiline
+					numberOfLines={4}
+					defaultValue={bioRef.current}
+					placeholder={"Who are you?"}
+					placeholderTextColor={"gray"}
+					onChangeText={changeInputText}
+					returnKeyLabel="return"
+					returnKeyType="default"
+				/>
+			</BioInputContainer>
+			<EditBioContainer>
+				<EditBioText>{'Edit Bio'}</EditBioText>
+			</EditBioContainer>
+		</>
 	);
 };
 
@@ -200,15 +215,6 @@ const EditProfileImage = () => {
 
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
-const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
-const REELAY_API_KEY = Constants.manifest.extra.reelayApiKey;
-
-const REELAY_API_HEADERS = {
-	Accept: "application/json",
-	"Accept-encoding": "gzip, deflate",
-	"Content-Type": "application/json",
-	reelayapikey: REELAY_API_KEY,
-};
 
 const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 
