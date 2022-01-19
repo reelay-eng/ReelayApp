@@ -39,17 +39,22 @@ const Spacer = styled(View)`
 export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
     const ModalContainer = styled(View)`
 		position: absolute;
-	`;
-	const EditProfileContainer = styled(SafeAreaView)`
-		background-color: black;
 		height: 100%;
-		width: 100%;
 	`;
 	const HeaderContainer = styled(SafeAreaView)`
 		background-color: black;
 		width: 100%;
 	`;
-
+	const EditProfilePicContainer = styled(Pressable)`
+		background-color: black;
+		height: 20%;
+		width: 100%;
+	`;
+	const EditInfoContainer = styled(SafeAreaView)`
+		background-color: black;
+		width: 100%;
+		height: 100%;
+  `;
 
 	const { setTabBarVisible } = useContext(FeedContext);
 	const { reelayDBUser } = useContext(AuthContext);
@@ -101,12 +106,14 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
 					text="Edit Profile"
 				/>
 				</HeaderContainer>
-				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-				<EditProfileContainer>
+				<EditProfilePicContainer onPress={Keyboard.dismiss}>
 					<EditProfileImage />
-					<EditBio bioRef={bioRef} bioInputRef={bioInputRef} currentFocus={currentFocus} />
-					<EditWebsite websiteRef={websiteRef} websiteInputRef={websiteInputRef} currentFocus={currentFocus}/>
-				</EditProfileContainer>
+				</EditProfilePicContainer>
+				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+					<EditInfoContainer>
+						<EditBio bioRef={bioRef} bioInputRef={bioInputRef} currentFocus={currentFocus} />
+						<EditWebsite websiteRef={websiteRef} websiteInputRef={websiteInputRef} currentFocus={currentFocus}/>
+					</EditInfoContainer>
 				</TouchableWithoutFeedback>
 			</Modal>
 		</ModalContainer>
