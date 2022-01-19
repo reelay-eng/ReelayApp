@@ -54,8 +54,11 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
 	const { setTabBarVisible } = useContext(FeedContext);
 	const { reelayDBUser } = useContext(AuthContext);
 	const initBio = reelayDBUser.bio ? reelayDBUser.bio : "";
+	const initWebsite = "";
   	const bioRef = useRef(initBio);
   	const bioInputRef = useRef(null);
+  	const websiteRef = useRef(initWebsite);
+    const websiteInputRef = useRef(null);
 
 	useEffect(() => {
 		setTabBarVisible(false);
@@ -76,86 +79,87 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
     }
 
 	return (
-    <ModalContainer>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={isEditingProfile}
-      >
-        <HeaderContainer>
-          <HeaderDoneCancel
-            withBar
-            onDone={doneFunc}
-            onCancel={cancelFunc}
-            text="Edit Profile"
-          />
-        </HeaderContainer>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <EditProfileContainer>
-            <EditProfileImage />
-            <EditBio bioRef={bioRef} bioInputRef={bioInputRef} />
-          </EditProfileContainer>
-        </TouchableWithoutFeedback>
-      </Modal>
-    </ModalContainer>
+		<ModalContainer>
+			<Modal
+				animationType="slide"
+				transparent={true}
+				visible={isEditingProfile}
+			>
+				<HeaderContainer>
+				<HeaderDoneCancel
+					withBar
+					onDone={doneFunc}
+					onCancel={cancelFunc}
+					text="Edit Profile"
+				/>
+				</HeaderContainer>
+				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+				<EditProfileContainer>
+					<EditProfileImage />
+					<EditBio bioRef={bioRef} bioInputRef={bioInputRef} />
+					<EditWebsite websiteRef={websiteRef} websiteInputRef={websiteInputRef} />
+				</EditProfileContainer>
+				</TouchableWithoutFeedback>
+			</Modal>
+		</ModalContainer>
   );
 };
 
 const EditBio = ({ bioRef, bioInputRef }) => {
-  const BioInput = styled(TextInput)`
-    color: white;
-    font-family: Outfit-Regular;
-    font-size: 16px;
-    font-style: normal;
-    letter-spacing: 0.15px;
-    margin-left: 8px;
-    padding: 10px;
+	const BioInput = styled(TextInput)`
+		color: white;
+		font-family: Outfit-Regular;
+		font-size: 16px;
+		font-style: normal;
+		letter-spacing: 0.15px;
+		margin-left: 8px;
+		padding: 10px;
+  	`;
+	const BioInputContainer = styled(View)`
+		align-self: center;
+		background-color: #1a1a1a;
+		border-radius: 16px;
+		flex-direction: row;
+		padding: 5px;
+		width: 80%;
+  	`;
+	const EditBioContainer = styled(View)`
+		align-self: center;
+		padding: 5px;
+		width: 72%;
   `;
-  const BioInputContainer = styled(View)`
-    align-self: center;
-    background-color: #1a1a1a;
-    border-radius: 16px;
-    flex-direction: row;
-    padding: 5px;
-    width: 80%;
-  `;
-  const EditBioContainer = styled(View)`
-    align-self: center;
-    padding: 5px;
-    width: 72%;
-  `;
-  const EditBioText = styled(ReelayText.Body2Bold)`
-    align-self: flex-start;
-    color: grey;
-  `;
+	const EditBioText = styled(ReelayText.Body2Bold)`
+		align-self: flex-start;
+		color: grey;
+	`;
 
-  const changeInputText = (text) => {
-    bioRef.current = text;
-  };
+	const changeInputText = (text) => {
+		bioRef.current=text;
+	};
 
-  return (
-    <>
-      <EditBioContainer>
-        <EditBioText>{"Bio"}</EditBioText>
-      </EditBioContainer>
-      <TouchableWithoutFeedback onPress={() => bioInputRef.current.focus()}>
-        <BioInputContainer>
-          <BioInput
-            ref={bioInputRef}
-            maxLength={250}
-            multiline
-            numberOfLines={4}
-            defaultValue={bioRef.current}
-            placeholder={"Who are you?"}
-            placeholderTextColor={"gray"}
-            onChangeText={changeInputText}
-            onPressOut={Keyboard.dismiss()}
-            returnKeyLabel="return"
-            returnKeyType="default"
-          />
-        </BioInputContainer>
-      </TouchableWithoutFeedback>
-    </>
+	return (
+		<>
+		<EditBioContainer>
+			<EditBioText>{"Bio"}</EditBioText>
+		</EditBioContainer>
+		<TouchableWithoutFeedback onPress={() => bioInputRef.current.focus()}>
+			<BioInputContainer>
+			<BioInput
+				ref={bioInputRef}
+				maxLength={250}
+				multiline
+				numberOfLines={4}
+				defaultValue={bioRef.current}
+				placeholder={"Who are you?"}
+				placeholderTextColor={"gray"}
+				onChangeText={changeInputText}
+				onPressOut={Keyboard.dismiss()}
+				returnKeyLabel="return"
+				returnKeyType="default"
+			/>
+			</BioInputContainer>
+		</TouchableWithoutFeedback>
+		</>
   );
 };
 
@@ -415,3 +419,61 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 		</ModalContainer>
 	);
 }
+
+const EditWebsite = ({ websiteRef, websiteInputRef }) => {
+	const WebsiteInput = styled(TextInput)`
+		color: white;
+		font-family: Outfit-Regular;
+		font-size: 16px;
+		font-style: normal;
+		letter-spacing: 0.15px;
+		margin-left: 8px;
+		padding: 10px;
+	`;
+	const WebsiteInputContainer = styled(View)`
+		align-self: center;
+		background-color: #1a1a1a;
+		border-radius: 16px;
+		flex-direction: row;
+		padding: 5px;
+		width: 80%;
+	`;
+	const EditWebsiteContainer = styled(View)`
+		align-self: center;
+		padding: 5px;
+		width: 72%;
+	`;
+	const EditWebsiteText = styled(ReelayText.Body2Bold)`
+		align-self: flex-start;
+		color: grey;
+	`;
+
+	const changeInputText = (text) => {
+		websiteRef.current = text;
+	};
+
+	return (
+		<>
+		<EditWebsiteContainer>
+			<EditWebsiteText>{"Website"}</EditWebsiteText>
+		</EditWebsiteContainer>
+		<TouchableWithoutFeedback onPress={() => websiteInputRef.current.focus()}>
+			<WebsiteInputContainer>
+			<WebsiteInput
+				ref={websiteInputRef}
+				maxLength={250}
+				multiline
+				numberOfLines={4}
+				defaultValue={websiteRef.current}
+				placeholder={"Any cool links?"}
+				placeholderTextColor={"gray"}
+				onChangeText={changeInputText}
+				onPressOut={Keyboard.dismiss()}
+				returnKeyLabel="return"
+				returnKeyType="default"
+			/>
+			</WebsiteInputContainer>
+		</TouchableWithoutFeedback>
+		</>
+	);
+};

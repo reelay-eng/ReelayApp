@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
+import { RefreshControl, SafeAreaView, ScrollView, View, Linking } from 'react-native';
+import { Autolink } from "react-native-autolink";
 
 // Logging
 import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
@@ -30,13 +31,36 @@ import styled from 'styled-components/native';
 
 
 export default MyProfileScreen = ({ navigation, route }) => {
-
+    const ProfileScreenContainer = styled(SafeAreaView)`
+        background-color: black;
+        height: 100%;
+        width: 100%;
+    `;
+    const ProfileScrollView = styled(ScrollView)`
+        margin-bottom: 60px;
+    `;
     const BioTextContainer = styled(View)`
         align-self: center;
         width: 75%;
     `;
-    const BioText = styled(ReelayText.Subtitle1)`
+
+    // should have same style as: ReelayText.Subtitle1
+    const BioText = styled(Autolink)` 
         color: white;
+        text-align: center;
+        padding-bottom: 5px;
+        font-family: Outfit-Regular;
+        font-size: 16px;
+        font-style: normal;
+        line-height: 24px;
+        letter-spacing: 0.15px;
+    `;
+    const WebsiteContainer = styled(View)`
+        align-self: center;
+        width: 75%;
+    `;
+    const WebsiteText = styled(ReelayText.Subtitle1)`
+        color: 'rgb(51,102,187)';
         text-align: center;
         padding-bottom: 15px;
     `;
@@ -67,15 +91,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
         );
     }
     const userSub = cognitoUser?.attributes?.sub;
-
-    const ProfileScreenContainer = styled(SafeAreaView)`
-        background-color: black;
-        height: 100%;
-        width: 100%;
-    `
-    const ProfileScrollView = styled(ScrollView)`
-        margin-bottom: 60px;
-    `
 
     const loadCreatorStacks = async () => {
         const nextMyCreatorStacks = await getStacksByCreator(userSub);
@@ -153,9 +168,16 @@ export default MyProfileScreen = ({ navigation, route }) => {
 				<ProfileHeader profilePictureURI={reelayDBUser?.profilePictureURI} />
                 {reelayDBUser?.bio && (
                     <BioTextContainer>
-                        <BioText> {reelayDBUser.bio.trim()} </BioText>
+                        <BioText 
+                            text={reelayDBUser.bio.trim()} 
+                            linkStyle={{ color: '#3366BB' }} 
+                            url
+                        /> 
                     </BioTextContainer>
                 )}
+                    <WebsiteContainer>
+                        <WebsiteText onPress={() => Linking.openURL('https://www.youtube.com/watch?v=dQw4w9WgXcQ')}> {"placeholder link"} </WebsiteText>
+                    </WebsiteContainer>
 				<EditProfileButton />
 				<ProfileStatsBar
 					navigation={navigation}
