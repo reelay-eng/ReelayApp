@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { RefreshControl, SafeAreaView, ScrollView, Text, View } from 'react-native';
-import { getStacksByCreator, getFollowers, getFollowing } from '../../api/ReelayDBApi';
+import { getStacksByCreator, getRegisteredUser, getFollowers, getFollowing } from '../../api/ReelayDBApi';
 
 import Constants from 'expo-constants';
 import FollowButtonBar from '../../components/profile/Follow/FollowButtonBar';
@@ -8,10 +8,18 @@ import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
 import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
+import * as ReelayText from "../../components/global/Text";
 import { AuthContext } from '../../context/AuthContext';
 
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import styled from 'styled-components/native';
+
+
+const BioText = styled(ReelayText.Subtitle1)`
+    color: white;
+    text-align: center;
+    padding-bottom: 15px;
+`;
 
 const ProfileScreenContainer = styled(SafeAreaView)`
     background-color: black;
@@ -28,6 +36,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const [creatorStacks, setCreatorStacks] = useState([]);
     const [creatorFollowers, setCreatorFollowers] = useState([]);
     const [creatorFollowing, setCreatorFollowing] = useState([]);
+    const [bioText, setBioText] = useState("");
     const [refreshing, setRefreshing] = useState(true);
 
     const { cognitoUser } = useContext(AuthContext);
@@ -51,6 +60,11 @@ export default UserProfileScreen = ({ navigation, route }) => {
         setCreatorFollowing(nextFollowing);
     };
 
+    const loadUserInformation = async () => {
+        const creatorInfo = await getRegisteredUser(creatorSub);
+        setBioText(creatorInfo.bio ? creatorInfo.bio : "");
+    }
+
     const onRefresh = async () => {
         if (!refreshing) {
             setRefreshing(true);
@@ -59,6 +73,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
         if (creatorSub.length) {
             await loadCreatorStacks();
             await loadFollows();
+            await loadUserInformation();
         }
         setRefreshing(false);
     }
@@ -85,6 +100,8 @@ export default UserProfileScreen = ({ navigation, route }) => {
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
                 <ProfileHeader profilePictureURI={creatorProfilePictureURI}/>
+                { bioText!=="" && (<BioText> { bioText } </BioText>)}
+
                 <ProfileStatsBar
                     navigation={navigation}
                     reelayCount={reelayCount}

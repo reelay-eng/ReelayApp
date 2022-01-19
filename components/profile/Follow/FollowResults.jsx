@@ -21,18 +21,27 @@ const FollowResults = ({
     setDrawerFollowObj,
     setDrawerOpen,
 }) => {
+
+    const ROW_HEIGHT = 100;
+    const FollowItemContainer = styled(View)`
+        height: 100px;
+        border-bottom-color: #505050;
+        border-bottom-width: 0.3px;
+    `;
+    const FollowScrollContainer = styled(ScrollView)`
+        margin-bottom: ${ROW_HEIGHT + 185}px;
+    `;
+
     const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+    
 
     return (
         <View>
-            { searchResults.length >= 1 && (
-                <ScrollView 
-                    contentContainerStyle={{ paddingBottom: 300 }}
-                    refreshControl={refreshControl}
-                >
-                    { searchResults.map((followObj, index) => {
+            {searchResults.length >= 1 && (
+                <FollowScrollContainer refreshControl={refreshControl}>
+                    {searchResults.map((followObj) => {
                         return (
-                            <FollowItemContainer key={index}>
+                            <FollowItemContainer key={followObj?.id}>
                                 <FollowItem
                                     followObj={followObj}
                                     followType={followType}
@@ -43,7 +52,7 @@ const FollowResults = ({
                             </FollowItemContainer>
                         );
                     })}
-                </ScrollView>
+                </FollowScrollContainer>
             )}
         </View>
     );

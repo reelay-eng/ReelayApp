@@ -6,7 +6,10 @@ import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
 
 // API
 import { getStacksByCreator } from '../../api/ReelayDBApi';
-import { getFollowers, getFollowing } from "../../api/ReelayDBApi";
+import {
+  getFollowers,
+  getFollowing,
+} from "../../api/ReelayDBApi";
 
 // Components
 import ProfileHeader from '../../components/profile/ProfileHeader';
@@ -15,6 +18,7 @@ import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
 import EditProfile from "../../components/profile/EditProfile";
 import { BWButton } from "../../components/global/Buttons";
+import * as ReelayText from "../../components/global/Text";
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
@@ -24,7 +28,19 @@ import { FeedContext } from "../../context/FeedContext";
 
 import styled from 'styled-components/native';
 
+
 export default MyProfileScreen = ({ navigation, route }) => {
+
+    const BioTextContainer = styled(View)`
+        align-self: center;
+        width: 75%;
+    `;
+    const BioText = styled(ReelayText.Subtitle1)`
+        color: white;
+        text-align: center;
+        padding-bottom: 15px;
+    `;
+
     const [refreshing, setRefreshing] = useState(false);
     const [isEditingProfile, setIsEditingProfile] = useState(false);
 	const { 
@@ -106,7 +122,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
             margin-bottom: 8px;
 		`;
         const EditProfileButtonContainer = styled(View)`
-            width: 90%;
+            width: 75%;
             height: 40px;
         `
 
@@ -135,6 +151,11 @@ export default MyProfileScreen = ({ navigation, route }) => {
 				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
 			>
 				<ProfileHeader profilePictureURI={reelayDBUser?.profilePictureURI} />
+                {reelayDBUser?.bio && (
+                    <BioTextContainer>
+                        <BioText> {reelayDBUser.bio.trim()} </BioText>
+                    </BioTextContainer>
+                )}
 				<EditProfileButton />
 				<ProfileStatsBar
 					navigation={navigation}
