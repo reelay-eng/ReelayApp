@@ -14,7 +14,7 @@ import {
 } from "@aws-sdk/client-s3";
 
 // DB
-import { updateProfilePic, updateUserBio } from "../../api/ReelayDBApi";
+import { updateProfilePic, updateUserBio, updateUserWebsite } from "../../api/ReelayDBApi";
 
 // Context
 import { FeedContext } from "../../context/FeedContext";
@@ -54,11 +54,12 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
 	const { setTabBarVisible } = useContext(FeedContext);
 	const { reelayDBUser } = useContext(AuthContext);
 	const initBio = reelayDBUser.bio ? reelayDBUser.bio : "";
-	const initWebsite = "";
+	const initWebsite = reelayDBUser.website ? reelayDBUser.website : "";
   	const bioRef = useRef(initBio);
   	const bioInputRef = useRef(null);
   	const websiteRef = useRef(initWebsite);
     const websiteInputRef = useRef(null);
+	const currentFocus = useRef("");
 
 	useEffect(() => {
 		setTabBarVisible(false);
@@ -68,15 +69,22 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
 	}, []);
 
     const doneFunc = async () => {
-		// set bio and update it in reelayDBuser
-		reelayDBUser.bio = (bioRef.current.trim() === "") ? null : bioRef.current;
-        await updateUserBio(reelayDBUser.sub, reelayDBUser.bio);
+		// save all information
+		await saveInfo();
         setIsEditingProfile(false);
     }
 
     const cancelFunc = () => {
         setIsEditingProfile(false);
     }
+
+	const saveInfo = async () => {
+		reelayDBUser.bio = bioRef.current.trim() === "" ? null : bioRef.current;
+		await updateUserBio(reelayDBUser.sub, reelayDBUser.bio);
+		reelayDBUser.website =
+			websiteRef.current.trim() === "" ? null : websiteRef.current;
+		await updateUserWebsite(reelayDBUser.sub, reelayDBUser.website);
+	}
 
 	return (
 		<ModalContainer>
@@ -96,8 +104,8 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
 				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 				<EditProfileContainer>
 					<EditProfileImage />
-					<EditBio bioRef={bioRef} bioInputRef={bioInputRef} />
-					<EditWebsite websiteRef={websiteRef} websiteInputRef={websiteInputRef} />
+					<EditBio bioRef={bioRef} bioInputRef={bioInputRef} currentFocus={currentFocus} />
+					<EditWebsite websiteRef={websiteRef} websiteInputRef={websiteInputRef} currentFocus={currentFocus}/>
 				</EditProfileContainer>
 				</TouchableWithoutFeedback>
 			</Modal>
@@ -105,7 +113,7 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
   );
 };
 
-const EditBio = ({ bioRef, bioInputRef }) => {
+const EditBio = ({ bioRef, bioInputRef, currentFocus }) => {
 	const BioInput = styled(TextInput)`
 		color: white;
 		font-family: Outfit-Regular;
@@ -114,6 +122,7 @@ const EditBio = ({ bioRef, bioInputRef }) => {
 		letter-spacing: 0.15px;
 		margin-left: 8px;
 		padding: 10px;
+		width: 87%;
   	`;
 	const BioInputContainer = styled(View)`
 		align-self: center;
@@ -142,7 +151,7 @@ const EditBio = ({ bioRef, bioInputRef }) => {
 		<EditBioContainer>
 			<EditBioText>{"Bio"}</EditBioText>
 		</EditBioContainer>
-		<TouchableWithoutFeedback onPress={() => bioInputRef.current.focus()}>
+		<TouchableWithoutFeedback onPress={() => {bioInputRef.current.focus(); currentFocus.current='bio'}}>
 			<BioInputContainer>
 			<BioInput
 				ref={bioInputRef}
@@ -157,6 +166,7 @@ const EditBio = ({ bioRef, bioInputRef }) => {
 				returnKeyLabel="return"
 				returnKeyType="default"
 			/>
+			
 			</BioInputContainer>
 		</TouchableWithoutFeedback>
 		</>
@@ -420,7 +430,7 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 	);
 }
 
-const EditWebsite = ({ websiteRef, websiteInputRef }) => {
+const EditWebsite = ({ websiteRef, websiteInputRef, currentFocus }) => {
 	const WebsiteInput = styled(TextInput)`
 		color: white;
 		font-family: Outfit-Regular;
@@ -429,6 +439,7 @@ const EditWebsite = ({ websiteRef, websiteInputRef }) => {
 		letter-spacing: 0.15px;
 		margin-left: 8px;
 		padding: 10px;
+		width: 87%;
 	`;
 	const WebsiteInputContainer = styled(View)`
 		align-self: center;
@@ -457,13 +468,10 @@ const EditWebsite = ({ websiteRef, websiteInputRef }) => {
 		<EditWebsiteContainer>
 			<EditWebsiteText>{"Website"}</EditWebsiteText>
 		</EditWebsiteContainer>
-		<TouchableWithoutFeedback onPress={() => websiteInputRef.current.focus()}>
+		<TouchableWithoutFeedback onPress={() => {websiteInputRef.current.focus(); currentFocus.current = "website";}}>
 			<WebsiteInputContainer>
 			<WebsiteInput
 				ref={websiteInputRef}
-				maxLength={250}
-				multiline
-				numberOfLines={4}
 				defaultValue={websiteRef.current}
 				placeholder={"Any cool links?"}
 				placeholderTextColor={"gray"}

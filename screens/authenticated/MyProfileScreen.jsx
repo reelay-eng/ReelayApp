@@ -26,7 +26,6 @@ import { AuthContext } from "../../context/AuthContext";
 import { FeedContext } from "../../context/FeedContext";
 
 // Styling
-
 import styled from 'styled-components/native';
 
 
@@ -39,11 +38,11 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const ProfileScrollView = styled(ScrollView)`
         margin-bottom: 60px;
     `;
-    const BioTextContainer = styled(View)`
+    const UserInfoContainer = styled(View)`
         align-self: center;
         width: 75%;
+        padding-bottom: 10px;
     `;
-
     // should have same style as: ReelayText.Subtitle1
     const BioText = styled(Autolink)` 
         color: white;
@@ -55,15 +54,12 @@ export default MyProfileScreen = ({ navigation, route }) => {
         line-height: 24px;
         letter-spacing: 0.15px;
     `;
-    const WebsiteContainer = styled(View)`
-        align-self: center;
-        width: 75%;
-    `;
     const WebsiteText = styled(ReelayText.Subtitle1)`
         color: 'rgb(51,102,187)';
         text-align: center;
-        padding-bottom: 15px;
+        padding-bottom: 5px;
     `;
+
 
     const [refreshing, setRefreshing] = useState(false);
     const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -166,18 +162,19 @@ export default MyProfileScreen = ({ navigation, route }) => {
 				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
 			>
 				<ProfileHeader profilePictureURI={reelayDBUser?.profilePictureURI} />
-                {reelayDBUser?.bio && (
-                    <BioTextContainer>
+
+                <UserInfoContainer>
+                    {reelayDBUser?.bio && (
                         <BioText 
                             text={reelayDBUser.bio.trim()} 
                             linkStyle={{ color: '#3366BB' }} 
                             url
                         /> 
-                    </BioTextContainer>
-                )}
-                    <WebsiteContainer>
-                        <WebsiteText onPress={() => Linking.openURL('https://www.youtube.com/watch?v=dQw4w9WgXcQ')}> {"placeholder link"} </WebsiteText>
-                    </WebsiteContainer>
+                    )}
+                    {reelayDBUser?.website && (
+                        <WebsiteText onPress={() => Linking.openURL(reelayDBUser.website)}> {reelayDBUser.website} </WebsiteText>
+                    )}
+                </UserInfoContainer>
 				<EditProfileButton />
 				<ProfileStatsBar
 					navigation={navigation}

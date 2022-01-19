@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { RefreshControl, SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { RefreshControl, SafeAreaView, ScrollView, Linking, View } from 'react-native';
+import { Autolink } from "react-native-autolink";
+
 import { getStacksByCreator, getRegisteredUser, getFollowers, getFollowing } from '../../api/ReelayDBApi';
 
 import Constants from 'expo-constants';
@@ -15,10 +17,26 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import styled from 'styled-components/native';
 
 
-const BioText = styled(ReelayText.Subtitle1)`
+
+const UserInfoContainer = styled(View)`
+    align-self: center;
+    width: 75%;
+    padding-bottom: 10px;
+`;
+const BioText = styled(Autolink)`
     color: white;
     text-align: center;
-    padding-bottom: 15px;
+    padding-bottom: 5px;
+    font-family: Outfit-Regular;
+    font-size: 16px;
+    font-style: normal;
+    line-height: 24px;
+    letter-spacing: 0.15px;
+`;
+const WebsiteText = styled(ReelayText.Subtitle1)`
+    color: "rgb(51,102,187)";
+    text-align: center;
+    padding-bottom: 5px;
 `;
 
 const ProfileScreenContainer = styled(SafeAreaView)`
@@ -37,6 +55,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const [creatorFollowers, setCreatorFollowers] = useState([]);
     const [creatorFollowing, setCreatorFollowing] = useState([]);
     const [bioText, setBioText] = useState("");
+    const [websiteText, setWebsiteText] = useState("")
     const [refreshing, setRefreshing] = useState(true);
 
     const { cognitoUser } = useContext(AuthContext);
@@ -63,6 +82,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const loadUserInformation = async () => {
         const creatorInfo = await getRegisteredUser(creatorSub);
         setBioText(creatorInfo.bio ? creatorInfo.bio : "");
+        setWebsiteText(creatorInfo.website ? creatorInfo.website : "")
     }
 
     const onRefresh = async () => {
@@ -96,11 +116,27 @@ export default UserProfileScreen = ({ navigation, route }) => {
     return (
         <ProfileScreenContainer>
             <ProfileTopBar creator={creator} navigation={navigation} />
-            <ProfileScrollView refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }>
-                <ProfileHeader profilePictureURI={creatorProfilePictureURI}/>
-                { bioText!=="" && (<BioText> { bioText } </BioText>)}
+            <ProfileScrollView
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
+                >
+                <ProfileHeader profilePictureURI={creatorProfilePictureURI} />
+                <UserInfoContainer>
+                    {bioText !== "" && (
+                        <BioText
+                        text={bioText.trim()}
+                        linkStyle={{ color: "#3366BB" }}
+                        url
+                        />
+                    )}
+                    {websiteText !== "" && (
+                        <WebsiteText onPress={() => Linking.openURL(websiteText)}>
+                        {" "}
+                        {websiteText}{" "}
+                        </WebsiteText>
+                    )}
+                </UserInfoContainer>
 
                 <ProfileStatsBar
                     navigation={navigation}
@@ -108,15 +144,15 @@ export default UserProfileScreen = ({ navigation, route }) => {
                     creator={creator}
                     followers={creatorFollowers}
                     following={creatorFollowing}
-                    prevScreen={'UserProfileScreen'}
+                    prevScreen={"UserProfileScreen"}
                 />
-                { !isMyProfile && 
-                    <FollowButtonBar 
-                        creator={creator} 
-                        creatorFollowers={creatorFollowers} 
-                        setCreatorFollowers={setCreatorFollowers}
+                {!isMyProfile && (
+                    <FollowButtonBar
+                    creator={creator}
+                    creatorFollowers={creatorFollowers}
+                    setCreatorFollowers={setCreatorFollowers}
                     />
-                }
+                )}
                 <ProfilePosterGrid
                     creatorStacks={creatorStacks}
                     navigation={navigation}
