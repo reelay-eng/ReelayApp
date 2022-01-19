@@ -45,12 +45,17 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
 		height: 100%;
 		width: 100%;
 	`;
+	const HeaderContainer = styled(SafeAreaView)`
+		background-color: black;
+		width: 100%;
+	`;
 
 
 	const { setTabBarVisible } = useContext(FeedContext);
 	const { reelayDBUser } = useContext(AuthContext);
 	const initBio = reelayDBUser.bio ? reelayDBUser.bio : "";
   	const bioRef = useRef(initBio);
+  	const bioInputRef = useRef(null);
 
 	useEffect(() => {
 		setTabBarVisible(false);
@@ -61,7 +66,7 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
 
     const doneFunc = async () => {
 		// set bio and update it in reelayDBuser
-		reelayDBUser.bio = bioRef.current.trim() === "" ? null : bioRef.current;
+		reelayDBUser.bio = (bioRef.current.trim() === "") ? null : bioRef.current;
         await updateUserBio(reelayDBUser.sub, reelayDBUser.bio);
         setIsEditingProfile(false);
     }
@@ -72,79 +77,86 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
 
 	return (
     <ModalContainer>
-		<Modal
-			animationType="slide"
-			transparent={true}
-			visible={isEditingProfile}
-		>
-				<EditProfileContainer>
-					<HeaderDoneCancel
-						withBar
-						onDone={doneFunc}
-						onCancel={cancelFunc}
-						text="Edit Profile"
-					/>
-					<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-						<EditProfileImage />
-						<EditBio bioRef={bioRef} />
-					</TouchableWithoutFeedback>
-				</EditProfileContainer>
-		</Modal>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isEditingProfile}
+      >
+        <HeaderContainer>
+          <HeaderDoneCancel
+            withBar
+            onDone={doneFunc}
+            onCancel={cancelFunc}
+            text="Edit Profile"
+          />
+        </HeaderContainer>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <EditProfileContainer>
+            <EditProfileImage />
+            <EditBio bioRef={bioRef} bioInputRef={bioInputRef} />
+          </EditProfileContainer>
+        </TouchableWithoutFeedback>
+      </Modal>
     </ModalContainer>
   );
 };
 
-const EditBio = ({ bioRef }) => {
-	const BioInput = styled(TextInput)`
-		color: white;
-		font-family: Outfit-Regular;
-		font-size: 16px;
-		font-style: normal;
-		letter-spacing: 0.15px;
-		margin-left: 8px;
-		padding: 12px;
-  	`;
-	const BioInputContainer = styled(View)`
-		align-self: center;
-		background-color: #1a1a1a;
-		border-radius: 16px;
-		flex-direction: row;
-		padding: 10px;
-		width: 80%;
-  	`;
-	const EditBioContainer = styled(View)`
-		align-self: center;
-		justify-content: center;
-		padding: 10px;
-	`
-	const EditBioText = styled(ReelayText.Body2Bold)`
-		color: "rgba(0, 165, 253, 1)";
-	`
+const EditBio = ({ bioRef, bioInputRef }) => {
+  const BioInput = styled(TextInput)`
+    color: white;
+    font-family: Outfit-Regular;
+    font-size: 16px;
+    font-style: normal;
+    letter-spacing: 0.15px;
+    margin-left: 8px;
+    padding: 10px;
+  `;
+  const BioInputContainer = styled(View)`
+    align-self: center;
+    background-color: #1a1a1a;
+    border-radius: 16px;
+    flex-direction: row;
+    padding: 5px;
+    width: 80%;
+  `;
+  const EditBioContainer = styled(View)`
+    align-self: center;
+    padding: 5px;
+    width: 72%;
+  `;
+  const EditBioText = styled(ReelayText.Body2Bold)`
+    align-self: flex-start;
+    color: grey;
+  `;
 
-	const changeInputText = (text) => {
-		bioRef.current=text;
-	};
+  const changeInputText = (text) => {
+    bioRef.current = text;
+  };
 
-	return (
-		<>
-			<BioInputContainer>
-				<BioInput
-					maxLength={250}
-					multiline
-					numberOfLines={4}
-					defaultValue={bioRef.current}
-					placeholder={"Who are you?"}
-					placeholderTextColor={"gray"}
-					onChangeText={changeInputText}
-					returnKeyLabel="return"
-					returnKeyType="default"
-				/>
-			</BioInputContainer>
-			<EditBioContainer>
-				<EditBioText>{'Edit Bio'}</EditBioText>
-			</EditBioContainer>
-		</>
-	);
+  return (
+    <>
+      <EditBioContainer>
+        <EditBioText>{"Bio"}</EditBioText>
+      </EditBioContainer>
+      <TouchableWithoutFeedback onPress={() => bioInputRef.current.focus()}>
+        <BioInputContainer>
+          <BioInput
+            ref={bioInputRef}
+            maxLength={250}
+            multiline
+            numberOfLines={4}
+            defaultValue={bioRef.current}
+            placeholder={"Who are you?"}
+            placeholderTextColor={"gray"}
+            onChangeText={changeInputText}
+            onPressOut={Keyboard.dismiss()}
+            returnKeyLabel="return"
+            returnKeyType="default"
+          />
+        </BioInputContainer>
+      </TouchableWithoutFeedback>
+    </>
+  );
 };
 
 const EditProfileImage = () => {
