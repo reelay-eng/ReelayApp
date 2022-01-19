@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
+import { RefreshControl, SafeAreaView, ScrollView, View, Linking } from 'react-native';
+import { Autolink } from "react-native-autolink";
 
 // Logging
 import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
@@ -25,21 +26,40 @@ import { AuthContext } from "../../context/AuthContext";
 import { FeedContext } from "../../context/FeedContext";
 
 // Styling
-
 import styled from 'styled-components/native';
 
 
 export default MyProfileScreen = ({ navigation, route }) => {
-
-    const BioTextContainer = styled(View)`
+    const ProfileScreenContainer = styled(SafeAreaView)`
+        background-color: black;
+        height: 100%;
+        width: 100%;
+    `;
+    const ProfileScrollView = styled(ScrollView)`
+        margin-bottom: 60px;
+    `;
+    const UserInfoContainer = styled(View)`
         align-self: center;
         width: 75%;
+        padding-bottom: 10px;
     `;
-    const BioText = styled(ReelayText.Subtitle1)`
+    // should have same style as: ReelayText.Subtitle1
+    const BioText = styled(Autolink)` 
         color: white;
         text-align: center;
-        padding-bottom: 15px;
+        padding-bottom: 5px;
+        font-family: Outfit-Regular;
+        font-size: 16px;
+        font-style: normal;
+        line-height: 24px;
+        letter-spacing: 0.15px;
     `;
+    const WebsiteText = styled(ReelayText.Subtitle1)`
+        color: 'rgb(51,102,187)';
+        text-align: center;
+        padding-bottom: 5px;
+    `;
+
 
     const [refreshing, setRefreshing] = useState(false);
     const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -67,15 +87,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
         );
     }
     const userSub = cognitoUser?.attributes?.sub;
-
-    const ProfileScreenContainer = styled(SafeAreaView)`
-        background-color: black;
-        height: 100%;
-        width: 100%;
-    `
-    const ProfileScrollView = styled(ScrollView)`
-        margin-bottom: 60px;
-    `
 
     const loadCreatorStacks = async () => {
         const nextMyCreatorStacks = await getStacksByCreator(userSub);
@@ -151,11 +162,19 @@ export default MyProfileScreen = ({ navigation, route }) => {
 				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
 			>
 				<ProfileHeader profilePictureURI={reelayDBUser?.profilePictureURI} />
-                {reelayDBUser?.bio && (
-                    <BioTextContainer>
-                        <BioText> {reelayDBUser.bio.trim()} </BioText>
-                    </BioTextContainer>
-                )}
+
+                <UserInfoContainer>
+                    {reelayDBUser?.bio && (
+                        <BioText 
+                            text={reelayDBUser.bio.trim()} 
+                            linkStyle={{ color: '#3366BB' }} 
+                            url
+                        /> 
+                    )}
+                    {reelayDBUser?.website && (
+                        <WebsiteText onPress={() => Linking.openURL(reelayDBUser.website)}> {reelayDBUser.website} </WebsiteText>
+                    )}
+                </UserInfoContainer>
 				<EditProfileButton />
 				<ProfileStatsBar
 					navigation={navigation}
