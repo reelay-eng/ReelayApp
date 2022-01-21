@@ -32,7 +32,6 @@ export default SignUpScreen = ({ navigation, route }) => {
 	`; 
     const AuthInputContainerStyle = (active) => {
         return {
-			alignSelf: "left",
 			marginBottom: -5,
             width: "100%",
             opacity: active ? 1 : 0.7,
