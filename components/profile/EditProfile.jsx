@@ -1,9 +1,9 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, Alert } from "react-native";
+import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, TextInput, Alert, Keyboard } from "react-native";
+import { Icon, Input } from "react-native-elements";
 
 // Expo imports
 import * as ImagePicker from "expo-image-picker";
-import { EncodingType, readAsStringAsync, writeAsStringAsync } from "expo-file-system";
 import Constants from 'expo-constants';
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 
@@ -14,7 +14,7 @@ import {
 } from "@aws-sdk/client-s3";
 
 // DB
-import { updateProfilePic } from "../../api/ReelayDBApi";
+import { updateProfilePic, updateUserBio, updateUserWebsite } from "../../api/ReelayDBApi";
 
 // Context
 import { FeedContext } from "../../context/FeedContext";
@@ -29,10 +29,7 @@ import ReelayIcon from "../../assets/icons/reelay-icon.png";
 import * as ReelayText from "../global/Text";
 import { HeaderDoneCancel } from '../global/Headers';
 import { logAmplitudeEventProd } from "../utils/EventLogger";
-
-
-
-
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 const { height, width } = Dimensions.get("window");
 
@@ -43,21 +40,43 @@ const Spacer = styled(View)`
 export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
     const ModalContainer = styled(View)`
 		position: absolute;
+		height: 100%;
 	`;
+	const HeaderContainer = styled(SafeAreaView)`
+		background-color: black;
+		width: 100%;
+	`;
+	const EditProfilePicContainer = styled(Pressable)`
+		background-color: black;
+		height: 20%;
+		width: 100%;
+	`;
+	const EditInfoContainer = styled(SafeAreaView)`
+		background-color: black;
+		width: 100%;
+		height: 100%;
+  `;
+
 	const { setTabBarVisible } = useContext(FeedContext);
+	const { reelayDBUser } = useContext(AuthContext);
+	const initBio = reelayDBUser.bio ? reelayDBUser.bio : "";
+	const initWebsite = reelayDBUser.website ? reelayDBUser.website : "";
+  	const bioRef = useRef(initBio);
+  	const bioInputRef = useRef(null);
+  	const websiteRef = useRef(initWebsite);
+    const websiteInputRef = useRef(null);
+	const currentFocus = useRef("");
+
 	useEffect(() => {
 		setTabBarVisible(false);
 		return () => {
 			setTabBarVisible(true);
 		};
 	}, []);
-	const EditProfileContainer = styled(SafeAreaView)`
-		background-color: black;
-		height: 100%;
-		width: 100%;
-	`;
 
-    const doneFunc = () => {
+    const doneFunc = async () => {
+		// save all information
+		await saveInfo();
         setIsEditingProfile(false);
     }
 
@@ -65,21 +84,101 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
         setIsEditingProfile(false);
     }
 
+	const saveInfo = async () => {
+		reelayDBUser.bio = bioRef.current.trim() === "" ? null : bioRef.current;
+		await updateUserBio(reelayDBUser.sub, reelayDBUser.bio);
+		reelayDBUser.website =
+			websiteRef.current.trim() === "" ? null : websiteRef.current;
+		await updateUserWebsite(reelayDBUser.sub, reelayDBUser.website);
+	}
+
 	return (
 		<ModalContainer>
-			<Modal animationType="slide" transparent={true} visible={isEditingProfile}>
-				<EditProfileContainer>
-					<HeaderDoneCancel
-						withBar
-						onDone={doneFunc}
-						onCancel={cancelFunc}
-						text="Edit Profile"
-					/>
+			<Modal
+				animationType="slide"
+				transparent={true}
+				visible={isEditingProfile}
+			>
+				<HeaderContainer>
+				<HeaderDoneCancel
+					withBar
+					onDone={doneFunc}
+					onCancel={cancelFunc}
+					text="Edit Profile"
+				/>
+				</HeaderContainer>
+				<EditProfilePicContainer onPress={Keyboard.dismiss}>
 					<EditProfileImage />
-				</EditProfileContainer>
+				</EditProfilePicContainer>
+				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+					<EditInfoContainer>
+						<EditBio bioRef={bioRef} bioInputRef={bioInputRef} currentFocus={currentFocus} />
+						<EditWebsite websiteRef={websiteRef} websiteInputRef={websiteInputRef} currentFocus={currentFocus}/>
+					</EditInfoContainer>
+				</TouchableWithoutFeedback>
 			</Modal>
 		</ModalContainer>
-	);
+  );
+};
+
+const EditBio = ({ bioRef, bioInputRef, currentFocus }) => {
+	const BioInput = styled(TextInput)`
+		color: white;
+		font-family: Outfit-Regular;
+		font-size: 16px;
+		font-style: normal;
+		letter-spacing: 0.15px;
+		margin-left: 8px;
+		padding: 10px;
+		width: 87%;
+  	`;
+	const BioInputContainer = styled(View)`
+		align-self: center;
+		background-color: #1a1a1a;
+		border-radius: 16px;
+		flex-direction: row;
+		padding: 5px;
+		width: 80%;
+  	`;
+	const EditBioContainer = styled(View)`
+		align-self: center;
+		padding: 5px;
+		width: 72%;
+  `;
+	const EditBioText = styled(ReelayText.Body2Bold)`
+		align-self: flex-start;
+		color: grey;
+	`;
+
+	const changeInputText = (text) => {
+		bioRef.current=text;
+	};
+
+	return (
+		<>
+		<EditBioContainer>
+			<EditBioText>{"Bio"}</EditBioText>
+		</EditBioContainer>
+		<TouchableWithoutFeedback onPress={() => {bioInputRef.current.focus(); currentFocus.current='bio'}}>
+			<BioInputContainer>
+			<BioInput
+				ref={bioInputRef}
+				maxLength={250}
+				multiline
+				numberOfLines={4}
+				defaultValue={bioRef.current}
+				placeholder={"Who are you?"}
+				placeholderTextColor={"gray"}
+				onChangeText={changeInputText}
+				onPressOut={Keyboard.dismiss()}
+				returnKeyLabel="return"
+				returnKeyType="default"
+			/>
+			
+			</BioInputContainer>
+		</TouchableWithoutFeedback>
+		</>
+  );
 };
 
 const EditProfileImage = () => {
@@ -150,15 +249,6 @@ const EditProfileImage = () => {
 
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
-const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
-const REELAY_API_KEY = Constants.manifest.extra.reelayApiKey;
-
-const REELAY_API_HEADERS = {
-	Accept: "application/json",
-	"Accept-encoding": "gzip, deflate",
-	"Content-Type": "application/json",
-	reelayapikey: REELAY_API_KEY,
-};
 
 const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 
@@ -358,3 +448,59 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 		</ModalContainer>
 	);
 }
+
+const EditWebsite = ({ websiteRef, websiteInputRef, currentFocus }) => {
+	const WebsiteInput = styled(TextInput)`
+		color: white;
+		font-family: Outfit-Regular;
+		font-size: 16px;
+		font-style: normal;
+		letter-spacing: 0.15px;
+		margin-left: 8px;
+		padding: 10px;
+		width: 87%;
+	`;
+	const WebsiteInputContainer = styled(View)`
+		align-self: center;
+		background-color: #1a1a1a;
+		border-radius: 16px;
+		flex-direction: row;
+		padding: 5px;
+		width: 80%;
+	`;
+	const EditWebsiteContainer = styled(View)`
+		align-self: center;
+		padding: 5px;
+		width: 72%;
+	`;
+	const EditWebsiteText = styled(ReelayText.Body2Bold)`
+		align-self: flex-start;
+		color: grey;
+	`;
+
+	const changeInputText = (text) => {
+		websiteRef.current = text;
+	};
+
+	return (
+		<>
+		<EditWebsiteContainer>
+			<EditWebsiteText>{"Website"}</EditWebsiteText>
+		</EditWebsiteContainer>
+		<TouchableWithoutFeedback onPress={() => {websiteInputRef.current.focus(); currentFocus.current = "website";}}>
+			<WebsiteInputContainer>
+			<WebsiteInput
+				ref={websiteInputRef}
+				defaultValue={websiteRef.current}
+				placeholder={"Any cool links?"}
+				placeholderTextColor={"gray"}
+				onChangeText={changeInputText}
+				onPressOut={Keyboard.dismiss()}
+				returnKeyLabel="return"
+				returnKeyType="default"
+			/>
+			</WebsiteInputContainer>
+		</TouchableWithoutFeedback>
+		</>
+	);
+};

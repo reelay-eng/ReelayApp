@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { View, Switch } from 'react-native';
+import { View, Switch, Linking, Pressable } from 'react-native';
 
 // Context
 import { FeedContext } from "../../context/FeedContext";
@@ -219,7 +219,7 @@ const NotificationSetting = ({title, subtext, isToggled, toggleFunction}) => {
         justify-content: space-around;
         padding: 5px;
     `;
-    const FirstColumn = styled(View)`
+    const FirstColumn = styled(Pressable)`
         width: 80%;
         display: flex;
         flex-direction: column;
@@ -248,9 +248,9 @@ const NotificationSetting = ({title, subtext, isToggled, toggleFunction}) => {
     const NotificationSlider = styled(Switch)``;
     return (
 		<NotificationSettingContainer>
-			<FirstColumn>
+            <FirstColumn onPress={() => Linking.openSettings()}>
 				<NotificationSettingText>{title}</NotificationSettingText>
-				{subtext && <NotificationSettingSubtext>{subtext}</NotificationSettingSubtext> }
+				{subtext && <NotificationSettingSubtext>{subtext}</NotificationSettingSubtext>}
 			</FirstColumn>
 			<SecondColumn>
 				<NotificationSlider

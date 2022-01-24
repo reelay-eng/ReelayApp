@@ -16,7 +16,7 @@ export default SingleReelayScreen = ({ navigation, route }) => {
         <TitleFeedContainer>
             <UserReelayFeed 
                 navigation={navigation} 
-                initialStackPos={1} 
+                initialStackPos={0} 
                 fixedStackList={[[preparedReelay]]} 
             />
         </TitleFeedContainer>

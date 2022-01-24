@@ -44,7 +44,6 @@ export default SignInScreen = ({ navigation, route }) => {
 		margin-left: 8px;
 	`;
 	const AuthInputContainerStyle = {
-        alignSelf: "left",
         marginBottom: -5,
         width: "100%",
     };

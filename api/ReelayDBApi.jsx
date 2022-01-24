@@ -514,6 +514,24 @@ export const unsuspendAccount = async (bannedUserSub, adminUserSub) => {
     return resultPost;
 }
 
+// make it work?
+export const updateUserBio = async (userSub, bio) => {
+    const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}`;
+    const updateBody = {
+        bio: bio
+    };
+    const resultPatch = await fetchResults(routePatch, {
+        method: "PATCH",
+        headers: {
+            ...REELAY_API_HEADERS,
+            requsersub: userSub,
+        },
+        body: JSON.stringify(updateBody),
+    });
+    console.log("Patched user bio to: ", bio);
+    return resultPatch;
+};
+
 export const updateProfilePic = async (sub, photoURI) => {
     const routePatch = `${REELAY_API_BASE_URL}/users/sub/${sub}/profilepic`;
     const updateBody = {
@@ -526,4 +544,21 @@ export const updateProfilePic = async (sub, photoURI) => {
 	});
     console.log("Patched user profile picture to: ", photoURI);
 	return resultPatch;
+};
+
+export const updateUserWebsite = async (userSub, website) => {
+    const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}`;
+    const updateBody = {
+        website: website,
+    };
+    const resultPatch = await fetchResults(routePatch, {
+        method: "PATCH",
+        headers: {
+        ...REELAY_API_HEADERS,
+        requsersub: userSub,
+        },
+        body: JSON.stringify(updateBody),
+    });
+    console.log("Patched user website to: ", website);
+    return resultPatch;
 };

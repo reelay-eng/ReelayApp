@@ -99,8 +99,8 @@ const ReelayStack = ({
     const viewableReelay = stack[stackPosition];
 
     const getItemLayout = (data, index) => ({
-        length: height, 
-        offset: height * index, index,
+        length: width, 
+        offset: width * index, index,
         index: index,
     });
 
@@ -158,8 +158,10 @@ const ReelayStack = ({
     }
 
     const renderReelay = ({ item, index }) => {
+        console.log('calling render reelay, index: ', index);
         const reelay = item;
         const reelayViewable = stackViewable && (index === stackPosition);   
+        if (reelayViewable) console.log('Reelay is viewable: ', index);
         
         return (
             <ReelayFeedContainer key={reelay.id}>
@@ -184,6 +186,7 @@ const ReelayStack = ({
         const { x, y } = e.nativeEvent.contentOffset;
 
         if (x % width === 0) {
+            console.log('SWIPED FEED position: ', x / width);
             const nextStackPosition = x / width;
             const swipeDirection = nextStackPosition < stackPosition ? 'left' : 'right';
             const nextReelay = stack[nextStackPosition];
@@ -221,8 +224,6 @@ const ReelayStack = ({
         });
     }
 
-    console.log('rendering STACK: ', stack[0].title.display, );
-
     return (
         <ReelayFeedContainer>
             <FlatList 
@@ -231,10 +232,11 @@ const ReelayStack = ({
                 initialNumToRender={1}
                 initialScrollIndex={initialStackPos}
                 getItemLayout={getItemLayout}
-                maxToRenderPerBatch={1}
+                maxToRenderPerBatch={2}
                 renderItem={renderReelay} 
                 onScroll={onStackSwiped} 
                 pagingEnabled={true} 
+                windowSize={3}
             />
             <TopRightContainer style={{ top: insets.top }}>
                 <Pressable onPress={openTitleDetail}>
