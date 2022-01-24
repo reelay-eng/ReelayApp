@@ -23,6 +23,7 @@ import LinkingConfiguration from './LinkingConfiguration';
 
 import { getReelay, prepareReelay } from '../api/ReelayDBApi';
 import moment from 'moment';
+import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 
 export default Navigation = () => {
     /**
@@ -34,6 +35,8 @@ export default Navigation = () => {
     const navigationRef = useRef();
     const notificationListener = useRef();
     const responseListener = useRef(); 
+
+    const { cognitoUser } = useContext(AuthContext);
     
     const onNotificationReceived = (notification) => {
         const content = parseNotificationContent(notification);
@@ -42,7 +45,7 @@ export default Navigation = () => {
  
      const onNotificationResponseReceived = async (notificationResponse) => {
         const { notification, actionIdentifier, userText } = notificationResponse;
-        const { data } = parseNotificationContent(notification);
+        const { title, body, data } = parseNotificationContent(notification);
 
         const action = data?.action;
         if (!action) {
@@ -50,19 +53,35 @@ export default Navigation = () => {
             return;
         }
 
+        logAmplitudeEventProd('openedNotification', {
+            username: cognitoUser?.username,
+            sub: cognitoUser?.attributes.sub,
+            action,
+            title, 
+            body,
+        });
+
         if (action === 'openSingleReelayScreen') {
             if (!data.reelaySub) {
                 console.log('No reelay sub given');
             }
             openSingleReelayScreen(data.reelaySub);
-        }
-
-        if (action === "openUserProfileScreen") {
+        } else if (action === 'openUserProfileScreen') {
             if (!data.user) {
               console.log("No reelay sub given");
             }
             openUserProfileScreen(data.user);
+        } else if (action === 'openCreateScreen') {
+            openCreateScreen();
         }
+    }
+
+    openCreateScreen = async () => {
+        if (!navigationRef?.current) {
+            console.log('No navigation ref');
+            return;
+        }
+        navigationRef.current.navigate('SelectTitleScreen');
     }
 
     const openSingleReelayScreen = async (reelaySub) => {
