@@ -189,7 +189,8 @@ export default SignInScreen = ({ navigation, route }) => {
                 console.log('username: ', username);
                 logAmplitudeEventProd('signInSuccess', {
                     username: username,
-                    email: inputText,
+                    inputText: inputText,
+                    note: 'Does not factor in user email if logged in via username',
                 });
                 if (!username.length) {
                     // entered an invalid email
@@ -216,6 +217,7 @@ export default SignInScreen = ({ navigation, route }) => {
             } catch (error) {
                 console.log('Received error');
                 console.log(error);
+ 
                 if (error.code === 'UserNotConfirmedException') {
                     handleUnconfirmedUser();
                 } else if (error.code === 'NotAuthorizedException') {

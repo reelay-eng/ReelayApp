@@ -199,7 +199,8 @@ export default ReelayFeed = ({ navigation,
             if (feedSource === "global") {
                 setGlobalFeedPosition(0);
                 logAmplitudeEventProd('openHomeFeed', {
-                    'Source': feedSource,
+                    'source': feedSource,
+                    username: cognitoUser?.attributes?.sub,
                     });
             } else {
                 setFollowingFeedPosition(0);
@@ -216,7 +217,7 @@ export default ReelayFeed = ({ navigation,
     const refreshFeed = async () => {
         console.log('REFRESHING FEED'); 
         logAmplitudeEventProd('refreshFeed', {
-            'Source': feedSource,
+            'source': feedSource,
         });    
         setRefreshing(true);   
         const fetchedStacks = (feedSource === 'global') 

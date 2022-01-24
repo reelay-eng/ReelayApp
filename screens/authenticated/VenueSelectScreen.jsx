@@ -9,6 +9,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from "../../components/global/Text";
 import { BWButton } from "../../components/global/Buttons";
 import { HeaderWithBackButton } from "../../components/global/Headers";
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 export default VenueSelectScreen = ({ navigation, route }) => {
 
@@ -39,6 +40,9 @@ export default VenueSelectScreen = ({ navigation, route }) => {
                 titleObj: titleObj,
                 venue: venue,
             });    
+            logAmplitudeEventProd('selectVenue', {
+                venue: venue,
+            });
         } else {
             alertCameraAccess();
         }

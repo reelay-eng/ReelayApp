@@ -178,7 +178,6 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 		});
 		handleImagePicked(result);
 		logAmplitudeEventProd("profilePhotoUpdatedCamera", {
-			userId: cognitoUser.userId,
 			username: cognitoUser.username,
 		});
 	};

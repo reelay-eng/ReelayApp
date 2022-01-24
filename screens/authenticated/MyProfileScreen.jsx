@@ -46,8 +46,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     useEffect(() => {
         logAmplitudeEventProd("openMyProfileScreen", {
-            "user_id": cognitoUser.username,
-            "user_email": cognitoUser.attributes.email,
+            username: cognitoUser?.attributes?.username,
+            email: cognitoUser.attributes.email,
         });
     }, []);
 

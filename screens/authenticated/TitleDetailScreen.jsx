@@ -411,6 +411,11 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
 			initialStackPos: index,
 			fixedStackList: [topReelays],
 		});
+		logAmplitudeEventProd('openTitleFeed', {
+			username: cognitoUser?.username,
+			title: titleObj?.title?.display,
+			source: 'titlePage',
+			});
 	};
 
 	const ReelayThumbnail = ({ reelay, index }) => {

@@ -213,6 +213,12 @@ const ReelayStack = ({
         navigation.push('TitleDetailScreen', {
             titleObj: viewableReelay.title,
         });
+        logAmplitudeEventProd('openTitleScreen', {
+            reelayID: viewableReelay.id,
+            reelayTitle: viewableReelay.title.display,
+            username: cognitoUser.username,
+            source: 'poster',
+        });
     }
 
     console.log('rendering STACK: ', stack[0].title.display, );

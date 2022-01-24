@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 export default ReelayInfo = ({ navigation, reelay }) => {
 
@@ -33,6 +34,11 @@ export default ReelayInfo = ({ navigation, reelay }) => {
 
 	const goToProfile = () => {
 		navigation.push('UserProfileScreen', { creator });
+		logAmplitudeEventProd('viewProfile', { 
+			creator: creator.username,
+			reelayId: reelay.id,
+			source: 'reelayInfo',
+		});
 	}
 
 	return (

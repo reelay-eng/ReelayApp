@@ -200,13 +200,22 @@ function App() {
             }
         } catch (error) {
             console.log(error);
-            logAmplitudeEventProd('authErrorForCredentials', {
+            logAmplitudeEventProd('authErrorForAuthenticateUser', {
                 error: error,
+                session: session,
+                username: cognitoUser?.attributes?.sub,
                 credentials: credentials,
+                signedIn: signedIn,
             });
         }
         console.log('authentication complete');
         setIsLoading(false);
+        logAmplitudeEventProd('authenticationComplete', {
+            session: session,
+            username: cognitoUser?.attributes?.sub,
+            credentials: credentials,
+            signedIn: signedIn,
+        });
     }
 
     const loadMyProfile = async () => {
@@ -238,6 +247,10 @@ function App() {
             if (!registeredUser.pushToken || registeredUser.pushToken !== devicePushToken) {
                 console.log('Registering new push token');
                 await registerPushTokenForUser(registeredUser, devicePushToken);
+                logAmplitudeEventProd('pushTokenRegistered', {
+                    registeredUser: registeredUser,
+                    devicePushToken: devicePushToken,
+                });
             } else {
                 console.log('Push token already registered');
             }

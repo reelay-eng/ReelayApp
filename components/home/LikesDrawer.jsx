@@ -5,6 +5,7 @@ import { Icon } from 'react-native-elements';
 import { FeedContext } from '../../context/FeedContext';
 import styled from 'styled-components/native';
 import { getUserByUsername } from '../../api/ReelayDBApi';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 export default LikesDrawer = ({ reelay, navigation }) => {
 
@@ -72,6 +73,11 @@ export default LikesDrawer = ({ reelay, navigation }) => {
             navigation.push('UserProfileScreen', {
                 creator: creator
             })
+            logAmplitudeEventProd('viewProfile', {
+                username: creator.username,
+                title: reelay.title,
+                source: 'likesDrawer',
+                });
         }
 
         return (

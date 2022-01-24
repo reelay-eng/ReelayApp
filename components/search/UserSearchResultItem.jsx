@@ -66,7 +66,7 @@ export default UserSearchResultItem = ({
     const profilePictureURI = searchedUser.profilePictureURI;
 
     const username = searchedUser.username;
-    const userSub = searchedUser.sub;
+    const userSub = searchedUser.sub; // sub is the user's unique id
 
     const selectResult = () => {
         navigation.push("UserProfileScreen", { creator: searchedUser });
@@ -115,6 +115,11 @@ export default UserSearchResultItem = ({
                 setDrawerFollowObj(myFollowing.find(findFollowUser));
             }
             setDrawerOpen(true);
+
+            logAmplitudeEventProd("unfollowedUser", {
+                followerName: reelayDBUser.username,
+                followSub: reelayDBUser.sub,
+            });
     };
 
     return (
