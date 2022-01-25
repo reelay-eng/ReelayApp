@@ -204,7 +204,7 @@ function App() {
         } catch (error) {
             logAmplitudeEventProd('authErrorForAuthenticateUser', {
                 error: error,
-                //hasValidCredentials: tryCredentials.authenticated,
+                hasValidCredentials: tryCredentials?.authenticated,
                 hasValidSession: trySession ? true : false,
                 reelayDBUserSub: tryReelayDBUser?.sub,
                 signedIn: trySignedIn,
@@ -214,7 +214,7 @@ function App() {
 
         setIsLoading(false);
         logAmplitudeEventProd('authenticationComplete', {
-            //hasValidCredentials: tryCredentials.authenticated,
+            hasValidCredentials: tryCredentials?.authenticated,
             hasValidSession: trySession ? true : false,
             reelayDBUserSub: tryReelayDBUser?.sub,
             signedIn: trySignedIn,
