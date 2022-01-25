@@ -64,24 +64,26 @@ export default Navigation = () => {
         if (action === 'openSingleReelayScreen') {
             if (!data.reelaySub) {
                 console.log('No reelay sub given');
+            } else {
+                openSingleReelayScreen(data.reelaySub);
             }
-            openSingleReelayScreen(data.reelaySub);
         } else if (action === 'openUserProfileScreen') {
             if (!data.user) {
-              console.log("No reelay sub given");
+              console.log("No user given");
+            } else {
+                openUserProfileScreen(data.user);
             }
-            openUserProfileScreen(data.user);
         } else if (action === 'openCreateScreen') {
             openCreateScreen();
         }
     }
 
-    openCreateScreen = async () => {
+    const openCreateScreen = async () => {
         if (!navigationRef?.current) {
             console.log('No navigation ref');
             return;
         }
-        navigationRef.current.navigate('SelectTitleScreen');
+        navigationRef.current.navigate('Create');
     }
 
     const openSingleReelayScreen = async (reelaySub) => {
@@ -96,16 +98,11 @@ export default Navigation = () => {
     }
 
     const openUserProfileScreen = async (user) => {
-        console.log('plz open')
         if (!navigationRef?.current) {
             console.log("No navigation ref");
             return;
         }
-
-        // make it work for users
-        navigationRef.current.navigate("UserProfileScreen", {
-            creator: user
-        });
+        navigationRef.current.navigate('UserProfileScreen', { creator: user });
     };
 
     const parseNotificationContent = (notification) => {
