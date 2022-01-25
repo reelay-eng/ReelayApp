@@ -8,6 +8,8 @@ const TMDB_IMAGE_API_BASE_URL = Constants.manifest.extra.tmdbImageApiBaseUrl;
 const POPULARITY_WEIGHT = 5;
 const TMDB_SEARCH_RANK_WEIGHT = 10;
 
+const PLACEHOLDER_POSTER_SOURCE = require('../assets/images/reelay-splash.png');
+
 const matchScoreForTitleSearch = (result) => {
     const titleToSearch = result.title.toLowerCase().replace(/:/g, '');
     const searchText = result.searchText.toLowerCase().replace(/:/g, '');
@@ -203,6 +205,9 @@ export const fetchAnnotatedTitle = async (titleID, isSeries) => {
         genres: tmdbTitleObject.genres,
         overview: tmdbTitleObject.overview,
         posterURI: tmdbTitleObject ? tmdbTitleObject.poster_path : null,
+        posterSource: tmdbTitleObject?.poster_path 
+            ? { uri: getPosterURL(tmdbTitleObject?.poster_path) }
+            : PLACEHOLDER_POSTER_SOURCE,
         releaseDate: releaseDate,
         releaseYear: releaseYear,
         tagline: tmdbTitleObject.tagline,

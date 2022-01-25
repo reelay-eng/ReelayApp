@@ -22,8 +22,6 @@ const VenueIndicator = ({ venue }) => {
 }
 
 export default ReelayPreviewOverlay = ({ titleObj, venue }) => {
-    const posterURI = getPosterURL(titleObj.posterURI);
-
     const OverlayContainer = styled(View)`
         position: absolute;
         height: 75%;
@@ -38,7 +36,7 @@ export default ReelayPreviewOverlay = ({ titleObj, venue }) => {
     return (
         <OverlayContainer>
             <PreviewPosterContainer>
-                <Image source={{ uri: posterURI }} style={{
+                <Image source={titleObj.posterSource} style={{
                     height: 135,
                     width: 90,
                     borderRadius: 6,

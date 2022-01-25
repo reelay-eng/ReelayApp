@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import { getPosterURL } from '../../api/TMDbApi';
 
 import { Camera } from 'expo-camera';
 import { Dimensions, View, SafeAreaView, Pressable} from 'react-native';
@@ -223,7 +222,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             right: 10px;
             top: 10px;
         `
-        const posterURI = getPosterURL(titleObj.posterURI);
         const posterStyle = {
             borderRadius: 8, 
             height: 120, 
@@ -236,7 +234,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                     <BackButton navigation={navigation}/>
                 </TopLeftContainer>
                 <TopRightContainer>
-                    <Image source={{uri: posterURI}} style={posterStyle} />
+                    <Image source={titleObj.posterSource} style={posterStyle} />
                     <VenueIndicator />
                 </TopRightContainer>
                 <RecordInterface />
