@@ -5,6 +5,7 @@ import { Icon } from 'react-native-elements';
 import { FeedContext } from '../../context/FeedContext';
 import styled from 'styled-components/native';
 import { getUserByUsername } from '../../api/ReelayDBApi';
+import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures';
 
 export default LikesDrawer = ({ reelay, navigation }) => {
 
@@ -33,6 +34,21 @@ export default LikesDrawer = ({ reelay, navigation }) => {
     `
     const { likesVisible, setLikesVisible } = useContext(FeedContext);
     const closeDrawer = () => setLikesVisible(false);
+
+
+    const DragToCloseIndicator = () => {
+        return (
+            <View style={{
+                alignSelf: 'center',
+                backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                borderRadius: 10,
+                height: 5,
+                marginTop: 10,
+                width: 120,
+            }}
+            />
+        );  
+    }
 
     const Header = () => {
         const HeaderContainer = styled(View)`
@@ -90,12 +106,17 @@ export default LikesDrawer = ({ reelay, navigation }) => {
 
     return (
         <ModalContainer>
-            <Modal animationType='slide' transparent={true} visible={likesVisible}>
-                { likesVisible && <Backdrop onPress={closeDrawer} /> }
-                <DrawerContainer>
-                    <Likes />
-                </DrawerContainer>
-            </Modal>
+            <GestureRecognizer
+                style={{ flex: 1 }}
+                onSwipeDown={() => setLikesVisible(false)}>
+                <Modal animationType='slide' transparent={true} visible={likesVisible}>
+                    { likesVisible && <Backdrop onPress={closeDrawer} /> }
+                    <DrawerContainer>
+                        <DragToCloseIndicator/>
+                        <Likes />
+                    </DrawerContainer>
+                </Modal>
+            </GestureRecognizer>
         </ModalContainer>
     );
 }

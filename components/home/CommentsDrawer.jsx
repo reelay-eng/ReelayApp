@@ -12,6 +12,8 @@ import {
     Image,
 } from 'react-native';
 
+import GestureRecognizer, { swipeDirections } from 'react-native-swipe-gestures';
+
 import { Button, Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { FeedContext } from '../../context/FeedContext';
@@ -158,6 +160,20 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 			</>
 		);
 	};
+
+	const DragToCloseIndicator = () => {
+        return (
+            <View style={{
+                alignSelf: 'center',
+                backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                borderRadius: 10,
+                height: 5,
+                marginTop: 10,
+                width: 120,
+            }}
+            />
+        );  
+    }
 
     const Comment = ({ comment }) => {
         const [commentLiked, setCommentLiked] = useState(false); // alter to make default state the database value for whether you've liked that comment yet or not.
@@ -450,16 +466,21 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 
     return (
 		<ModalContainer>
-            <Modal animationType="slide" transparent={true} visible={commentsVisible}>
-				<KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-					<Backdrop onPress={closeDrawer} />
-                    <DrawerContainer>
-							<Header />
-							<CommentBox />
-                        {/* <CloseButton /> */}
-					</DrawerContainer>
-				</KeyboardAvoidingView>
-			</Modal>
+            <GestureRecognizer
+                style={{ flex: 1 }}
+                onSwipeDown={() => setCommentsVisible(false)}>
+				<Modal animationType="slide" transparent={true} visible={commentsVisible}>
+					<KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+						<Backdrop onPress={closeDrawer} />
+						<DrawerContainer>
+								<DragToCloseIndicator/>
+								<Header />
+								<CommentBox />
+							{/* <CloseButton /> */}
+						</DrawerContainer>
+					</KeyboardAvoidingView>
+				</Modal>
+            </GestureRecognizer>
 		</ModalContainer>
 	);
 };
