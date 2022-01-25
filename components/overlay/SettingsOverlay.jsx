@@ -93,6 +93,11 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
             const download = await MediaLibrary.createAssetAsync(uri);
             console.log(download);
             showMessageToast('Download complete. Check your media library.');
+            logAmplitudeEventProd('downloadReelay', {
+                username: cognitoUser.username,
+                reelayID: reelay.id,
+                title: reelay.title.display,
+            });
         } catch (error) {
             console.error(error);
             logAmplitudeEventProd('downloadReelayFailed', {

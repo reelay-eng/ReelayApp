@@ -9,6 +9,7 @@ import { ActionButton, PassiveButton, ToggleSelector } from '../../components/gl
 
 import styled from 'styled-components/native';
 import { searchTitles } from '../../api/ReelayDBApi';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 const TopBarContainer = styled(View)`
 	display: flex;
@@ -45,6 +46,13 @@ export default SelectTitleScreen = ({ navigation }) => {
     useEffect(() => {
         setTabBarVisible(true);
     }, []);
+
+    useEffect(() => {
+        logAmplitudeEventProd('openSelectTitleScreen', {
+            searchText,
+            searchType,
+            });
+    }, [searchText, searchType]);
 
     const FilmTVSelector = ({ type }) => {
 

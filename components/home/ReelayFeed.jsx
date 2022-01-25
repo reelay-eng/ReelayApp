@@ -198,8 +198,15 @@ export default ReelayFeed = ({ navigation,
             // feedPager.current.setPage(0);
             if (feedSource === "global") {
                 setGlobalFeedPosition(0);
+                logAmplitudeEventProd('openHomeFeed', {
+                    'source': feedSource,
+                    username: cognitoUser?.attributes?.sub,
+                    });
             } else {
                 setFollowingFeedPosition(0);
+                logAmplitudeEventProd('openFollowingFeed', {
+                    'Source': feedSource,
+                    });
             }
             feedPager.current.scrollToOffset({
                 offset: 0, animated: true,
@@ -208,7 +215,10 @@ export default ReelayFeed = ({ navigation,
     };
 
     const refreshFeed = async () => {
-        console.log('REFRESHING FEED');     
+        console.log('REFRESHING FEED'); 
+        logAmplitudeEventProd('refreshFeed', {
+            'source': feedSource,
+        });    
         setRefreshing(true);   
         const fetchedStacks = (feedSource === 'global') 
             ? await getGlobalFeed({ reqUserSub: cognitoUser?.attributes?.sub, page: 0 })

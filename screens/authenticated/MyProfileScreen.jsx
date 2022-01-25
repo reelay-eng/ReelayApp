@@ -80,6 +80,14 @@ export default MyProfileScreen = ({ navigation, route }) => {
         setTabBarVisible(true);
     });
 
+    useEffect(() => {
+        logAmplitudeEventProd("openMyProfileScreen", {
+            username: cognitoUser?.attributes?.username,
+            email: cognitoUser.attributes.email,
+        });
+    }, []);
+
+
     if (!cognitoUser) {
         return (
             <ProfileTopBar atProfileBase={true} creator={{ username: 'User not found' }} 

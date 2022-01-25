@@ -101,6 +101,10 @@ export default ForgotPasswordScreen = ({ navigation }) => {
                     username: username
                 });
 				console.log("Forgot Password", forgotPasswordResult);
+				logAmplitudeEventProd('forgotPasswordEmailSent', {
+					username: username,
+					inputText: inputText,
+					});
             } catch (error) {
 				setError("Something went wrong. Double-check and try again.");
 				setSending(false);

@@ -75,6 +75,7 @@ export default SearchScreen = ({ navigation }) => {
         logAmplitudeEventProd('openSearchScreen', {
             username: cognitoUser.username,
             userSub: cognitoUser?.attributes?.sub,
+            source: 'search',
         });
     }, [navigation]);
 
@@ -83,7 +84,12 @@ export default SearchScreen = ({ navigation }) => {
             setSearchResults([]);
             return;
         }
-
+        logAmplitudeEventProd('search', {
+            username: cognitoUser?.attributes?.sub,
+            searchText: newSearchText,
+            searchType: searchType,
+            source: 'search',
+        });
         try {
             let annotatedResults;
             if (searchType === "Film") {
@@ -171,7 +177,7 @@ export default SearchScreen = ({ navigation }) => {
 					drawerOpen={drawerOpen}
 					setDrawerOpen={setDrawerOpen}
 					followObj={drawerFollowObj}
-					followType={"waht to do"}
+					followType={"what to do"}
 					sourceScreen={"UserFollowScreen"}
 				/>
 			)}

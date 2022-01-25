@@ -321,6 +321,11 @@ const PosterWithTrailer = ({
 								navigation.push("TitleTrailerScreen", {
 									trailerURI: trailerURI,
 								});
+								logAmplitudeEventProd("watchTrailer", {
+									title: title,
+									tmdbTitleID: tmdbTitleID,
+									source: "poster",
+								});
 							}}
 							borderRadius={"20px"}
 						/>
@@ -406,6 +411,11 @@ const PopularReelaysRow = ({ navigation, titleObj }) => {
 			initialStackPos: index,
 			fixedStackList: [topReelays],
 		});
+		logAmplitudeEventProd('openTitleFeed', {
+			username: cognitoUser?.username,
+			title: titleObj?.title?.display,
+			source: 'titlePage',
+			});
 	};
 
 	const ReelayThumbnail = ({ reelay, index }) => {

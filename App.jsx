@@ -184,29 +184,42 @@ function App() {
 
     const authenticateUser = async () => {
         console.log('Setting up authentication');
-        try {
-            const session = await Auth.currentSession();
-            const cognitoUser = await Auth.currentAuthenticatedUser();
-            const credentials = await Auth.currentUserCredentials();
 
-            if (credentials.authenticated) {
-                setSession(session);
-                setCognitoUser(cognitoUser);
-                setCredentials(credentials);
+        let trySession, tryCognitoUser, tryCredentials, trySignedIn, tryReelayDBUser;
+    
+        try {
+            trySession = await Auth.currentSession();
+            tryCognitoUser = await Auth.currentAuthenticatedUser();
+            tryCredentials = await Auth.currentUserCredentials();
+
+            if (tryCredentials.authenticated) {
+                setSession(trySession);
+                setCognitoUser(tryCognitoUser);
+                setCredentials(tryCredentials);
                 setSignedIn(true);
 
-                const myReelayDBUser = await getRegisteredUser(cognitoUser?.attributes?.sub);
-                setReelayDBUser(myReelayDBUser);
+                tryReelayDBUser = await getRegisteredUser(tryCognitoUser?.attributes?.sub);
+                setReelayDBUser(tryReelayDBUser);
             }
         } catch (error) {
-            console.log(error);
-            logAmplitudeEventProd('authErrorForCredentials', {
+            logAmplitudeEventProd('authErrorForAuthenticateUser', {
                 error: error,
-                credentials: credentials,
+                hasValidCredentials: tryCredentials.authenticated,
+                hasValidSession: trySession ? true : false,
+                reelayDBUserSub: tryReelayDBUser?.sub,
+                signedIn: trySignedIn,
+                username: tryCognitoUser?.username,
             });
         }
-        console.log('authentication complete');
+
         setIsLoading(false);
+        logAmplitudeEventProd('authenticationComplete', {
+            hasValidCredentials: tryCredentials.authenticated,
+            hasValidSession: trySession ? true : false,
+            reelayDBUserSub: tryReelayDBUser?.sub,
+            signedIn: trySignedIn,
+            username: tryCognitoUser?.attributes?.sub,
+        });    
     }
 
     const loadMyProfile = async () => {
@@ -238,6 +251,10 @@ function App() {
             if (!registeredUser.pushToken || registeredUser.pushToken !== devicePushToken) {
                 console.log('Registering new push token');
                 await registerPushTokenForUser(registeredUser, devicePushToken);
+                logAmplitudeEventProd('pushTokenRegistered', {
+                    registeredUser: registeredUser,
+                    devicePushToken: devicePushToken,
+                });
             } else {
                 console.log('Push token already registered');
             }

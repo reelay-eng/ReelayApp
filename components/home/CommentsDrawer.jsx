@@ -230,8 +230,12 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 			navigation.push("UserProfileScreen", {
 				creator: creator,
 			});
+			logAmplitudeEventProd('viewProfile', {
+				username: username,
+				source: 'commentDrawer',
+			});
 		};
-
+		
 		return (
             <CommentItemContainer onPress={onPress}>
 				<LeftCommentIconContainer>
