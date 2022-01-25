@@ -75,7 +75,7 @@ export default LikesDrawer = ({ reelay, navigation }) => {
             })
             logAmplitudeEventProd('viewProfile', {
                 username: creator.username,
-                title: reelay.title,
+                title: reelay.title.display,
                 source: 'likesDrawer',
                 });
         }

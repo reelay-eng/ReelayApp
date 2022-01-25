@@ -96,7 +96,7 @@ export default SettingsOverlay = ({ navigation, reelay, onDeleteReelay }) => {
             logAmplitudeEventProd('downloadReelay', {
                 username: cognitoUser.username,
                 reelayID: reelay.id,
-                title: reelay.title,
+                title: reelay.title.display,
             });
         } catch (error) {
             console.error(error);

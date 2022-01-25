@@ -181,6 +181,14 @@ function App() {
 			"Outfit-Black": require("./assets/fonts/Outfit-Black.ttf"),
 		});
     }
+    let authenticationObject = {
+        session: session,
+        username: cognitoUser?.attributes?.sub,
+        signedIn: signedIn,
+        credentials: credentials,
+        isLoading: isLoading,
+        isReturningUser: isReturningUser,
+    };
 
     const authenticateUser = async () => {
         console.log('Setting up authentication');
@@ -202,10 +210,7 @@ function App() {
             console.log(error);
             logAmplitudeEventProd('authErrorForAuthenticateUser', {
                 error: error,
-                session: session,
-                username: cognitoUser?.attributes?.sub,
-                credentials: credentials,
-                signedIn: signedIn,
+                authenticationObject: authenticationObject,
             });
         }
         console.log('authentication complete');

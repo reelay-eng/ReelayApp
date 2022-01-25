@@ -65,6 +65,12 @@ export default Sidebar = ({ reelay }) => {
 				title: reelay.title.display,
 				reelayID: reelay.id,
 			});
+			console.log('unlikedReelay', {
+				user: cognitoUser.username,
+				creator: reelay.creator.username,
+				title: reelay.title.display,
+				reelayID: reelay.id,
+			});
 		} else {
 			const likeBody = {
 				creatorName: reelay.creator.username,

@@ -63,7 +63,8 @@ export default AppleTVAd = () => {
 
 	const handleAppleTVAdPress = () => {
 		logAmplitudeEventProd('appleTVAdClicked', {
-			username: '',
+			'adType': 'appleTVAd',
+			'adId': 'appleTVAd'
 		});
 		Linking.openURL('https://www.apple.com/tv/');
 	}

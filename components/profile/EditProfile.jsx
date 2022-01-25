@@ -311,8 +311,7 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 			console.log("Upload Profile Picture Error: ", e);
 			logAmplitudeEventProd	("uploadProfilePictureError", {
 				error: e,
-				cognitoUser: cognitoUser,
-				reelayDBUser: reelayDBUser,
+				username: reelayDBUser?.username,
 			});
 			setIsUploading(false);
 			alert("Profile photo upload failed. \nPlease try again.");

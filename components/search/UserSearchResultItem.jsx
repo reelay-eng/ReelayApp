@@ -71,11 +71,10 @@ export default UserSearchResultItem = ({
     const selectResult = () => {
         navigation.push("UserProfileScreen", { creator: searchedUser });
         logAmplitudeEventProd('selectSearchResult', {
-            username: reelayDBUser.username,
+            username: reelayDBUser?.username,
             selectedUsername: searchedUser.username,
             source: 'search',
         }); 
-
     };
 
     const findFollowUser = (userObj) => {
