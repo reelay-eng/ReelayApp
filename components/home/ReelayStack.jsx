@@ -136,18 +136,6 @@ const ReelayStack = ({
         }
     }
 
-    const setReelayOverlay = (e) => {
-        if (!overlayVisible) {
-            setOverlayData({
-                type: 'REELAY',
-                reelay: viewableReelay,
-            });
-            setOverlayVisible(true);
-            setTabBarVisible(false);
-            setPaused(true);
-        }
-    }
-
     const renderBackButton = () => {
         return (
             <BackButtonContainer>
@@ -172,7 +160,6 @@ const ReelayStack = ({
                     index={index} 
                     isPaused={paused}
                     playPause={playPause} 
-                    setReelayOverlay={setReelayOverlay}
                     stackIndex={index} 
                     stackPosition={stackPosition}
                 />

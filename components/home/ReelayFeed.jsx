@@ -3,7 +3,6 @@ import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react
 import { Icon } from 'react-native-elements';
 import { FeedContext } from '../../context/FeedContext';
 import ReelayStack from './ReelayStack';
-import FeedOverlay from '../overlay/FeedOverlay';
 import FeedSourceSelectorDrawer from './FeedSourceSelectorDrawer';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -12,7 +11,6 @@ import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import { ActivityIndicator } from 'react-native-paper';
 
-import { deleteReelay } from '../../api/ReelayApi';
 import { getFollowingFeed, getGlobalFeed } from '../../api/ReelayDBApi';
 
 import { showErrorToast, showMessageToast } from '../utils/toasts';
@@ -54,7 +52,6 @@ export default ReelayFeed = ({ navigation,
     const nextPage = useRef(0);
 
     const { cognitoUser } = useContext(AuthContext);
-    const { overlayVisible } = useContext(FeedContext);
 
     const [globalFeedPosition, setGlobalFeedPosition] = useState(0);
     const [followingFeedPosition, setFollowingFeedPosition] = useState(0);
@@ -156,36 +153,6 @@ export default ReelayFeed = ({ navigation,
             index: index, 
         }
     }
-
-    // does this work ?
-    const onDeleteReelay = async (reelay) => {
-        // todo: this should probably be a try/catch
-        const deleteSuccess = deleteReelay(reelay);
-        if (!deleteSuccess) {
-            showErrorToast('Could not find your Reelay in the database. Strange...');
-            return;
-        }
-
-        const feedDeletePosition = currStackList.findIndex(stack => stack[0].title.id === reelay.title.id);
-        const stack = currStackList[feedDeletePosition];
-
-        if (stack.length === 1) {
-           if (feedSource === "global") {
-                setGlobalStackList(
-                    currStackList.filter((stack) => stack[0].id !== reelay.id)
-                )
-           }
-           else {
-                setFollowingStackList(
-                    currStackList.filter((stack) => stack[0].id !== reelay.id)
-                );
-           }
-        } else {
-            const nextStack = stack.filter(nextReelay => nextReelay.id !== reelay.id);
-            currStackList[feedDeletePosition] = nextStack;
-            setStackCounter(stackCounter + 1);
-        }
-    };
 
     const onTabPress = async () => {
         navigation.navigate('HomeFeedScreen');
@@ -336,9 +303,6 @@ export default ReelayFeed = ({ navigation,
             }}
             windowSize={3}
           />
-        )}
-        {overlayVisible && (
-            <FeedOverlay navigation={navigation} onDeleteReelay={onDeleteReelay}/>
         )}
         <FeedSourceSelectorButton
             feedSource={feedSource}

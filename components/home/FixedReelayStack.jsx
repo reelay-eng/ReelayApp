@@ -1,17 +1,12 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
+import { Dimensions, FlatList, View } from 'react-native';
 import { FeedContext } from '../../context/FeedContext';
 import ReelayStack from './ReelayStack';
-import FeedOverlay from '../overlay/FeedOverlay';
 
 import { AuthContext } from '../../context/AuthContext';
 
 import styled from 'styled-components/native';
 import { ActivityIndicator } from 'react-native-paper';
-
-import { deleteReelay } from '../../api/ReelayApi';
-
-import { showErrorToast, showMessageToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 const { height, width } = Dimensions.get('window');
 
@@ -32,11 +27,8 @@ export default UserReelayFeed = ({ navigation,
     const feedPager = useRef();
 
     const { cognitoUser } = useContext(AuthContext);
-    const { overlayVisible, setTabBarVisible } = useContext(FeedContext);
-
     const [feedPosition, setFeedPosition] = useState(0);
     const [stackList, setStackList] = useState([]);
-    const [stackCounter, setStackCounter] = useState(0);
 
     useEffect(() => {
         const stackEmpty = !stackList.length;
@@ -56,26 +48,6 @@ export default UserReelayFeed = ({ navigation,
             index: index, 
         }
     }
-
-    const onDeleteReelay = async (reelay) => {
-        // todo: this should probably be a try/catch
-        const deleteSuccess = deleteReelay(reelay);
-        if (!deleteSuccess) {
-            showErrorToast('Could not find your Reelay in the database. Strange...');
-            return;
-        }
-
-        const feedDeletePosition = stackList.findIndex(stack => stack[0].title.id === reelay.title.id);
-        const stack = stackList[feedDeletePosition];
-
-        if (stack.length === 1) {
-            setStackList(stackList.filter(stack => stack[0].id !== reelay.id));
-        } else {
-            const nextStack = stack.filter(nextReelay => nextReelay.id !== reelay.id);
-            stackList[feedDeletePosition] = nextStack;
-            setStackCounter(stackCounter + 1);
-        }
-    };
 
     const renderStack = ({ item, index }) => {
         const stack = item;
@@ -141,9 +113,6 @@ export default UserReelayFeed = ({ navigation,
                     }}
                     windowSize={3}
                 />        
-            }
-            { overlayVisible && 
-                <FeedOverlay navigation={navigation} onDeleteReelay={onDeleteReelay} />
             }
         </ReelayFeedContainer>
     );
