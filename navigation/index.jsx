@@ -14,7 +14,6 @@ import {
 } from 'expo-notifications';
 
 import { AuthContext } from '../context/AuthContext';
-import NotFoundScreen from '../screens/unauthenticated/NotFoundScreen';
 
 import AuthenticatedNavigator from './AuthenticatedNavigator';
 import UnauthenticatedNavigator from './UnauthenticatedNavigator';
@@ -152,7 +151,6 @@ const RootNavigator = () => {
             { signedIn && isCurrentlyBanned && <Stack.Screen name="Suspended" component={AccountSuspendedScreen} /> }
             { signedIn && !isCurrentlyBanned && <Stack.Screen name="Authenticated" component={AuthenticatedNavigator} /> }
             { !signedIn && <Stack.Screen name="Unauthenticated" component={UnauthenticatedNavigator} /> }
-            <Stack.Screen name="NotFound" component={NotFoundScreen} options={{ title: 'Oops!' }} />
         </Stack.Navigator>
     );
 }

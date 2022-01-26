@@ -17,7 +17,6 @@ const Hero = ({
     reelay,
     playPause,
     setIsPaused,
-    setReelayOverlay,
     viewable,
 }) => {
 
@@ -29,7 +28,6 @@ const Hero = ({
             <FeedVideoPlayer 
                 reelay={reelay} viewable={viewable} 
                 isPaused={isPaused} playPause={playPause} 
-                setReelayOverlay={setReelayOverlay}
             />
             <ReelayInfo navigation={navigation} reelay={reelay} />
             <Sidebar reelay={reelay} />

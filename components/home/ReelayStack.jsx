@@ -90,11 +90,8 @@ const ReelayStack = ({
     const [stackPosition, setStackPosition] = useState(0);
     const { cognitoUser } = useContext(AuthContext);
     const { 
-        overlayVisible, setOverlayVisible,
-        setTabBarVisible,
         paused, setPaused,
         playPauseVisible, setPlayPauseVisible,
-        setOverlayData,  
     } = useContext(FeedContext);
     const viewableReelay = stack[stackPosition];
 
@@ -136,18 +133,6 @@ const ReelayStack = ({
         }
     }
 
-    const setReelayOverlay = (e) => {
-        if (!overlayVisible) {
-            setOverlayData({
-                type: 'REELAY',
-                reelay: viewableReelay,
-            });
-            setOverlayVisible(true);
-            setTabBarVisible(false);
-            setPaused(true);
-        }
-    }
-
     const renderBackButton = () => {
         return (
             <BackButtonContainer>
@@ -172,7 +157,6 @@ const ReelayStack = ({
                     index={index} 
                     isPaused={paused}
                     playPause={playPause} 
-                    setReelayOverlay={setReelayOverlay}
                     stackIndex={index} 
                     stackPosition={stackPosition}
                 />

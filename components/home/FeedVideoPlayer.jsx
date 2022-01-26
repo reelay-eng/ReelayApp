@@ -23,9 +23,9 @@ export default function FeedVideoPlayer({
 	const playheadCounter = useRef(0);
 
 	const { cognitoUser } = useContext(AuthContext);
-	const { overlayVisible, paused } = useContext(FeedContext);
+	const { paused } = useContext(FeedContext);
 	
-	const shouldPlay = viewable && focused && !paused && !overlayVisible;
+	const shouldPlay = viewable && focused && !paused;
 
 	const _handleVideoRef = (component) => {
 		const playbackObject = component;
@@ -52,7 +52,7 @@ export default function FeedVideoPlayer({
 
 	useEffect(() => {
 		if (shouldPlay) playbackObject.playAsync();
-	}, [viewable, paused, focused, overlayVisible]);
+	}, [viewable, paused, focused]);
 
     useFocusEffect(React.useCallback(() => {
 		if (viewable) setFocused(true);
@@ -81,7 +81,7 @@ export default function FeedVideoPlayer({
 	}
 
 	return (
-		<Pressable onPress={playPause} onLongPress={setReelayOverlay}>
+		<Pressable onPress={playPause}>
 			<Video
 				isLooping={true}
 				isMuted={false}

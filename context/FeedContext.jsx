@@ -5,8 +5,6 @@ export const FeedContext = createContext({
     currentComment: '',
     dotMenueVisible: false,
     likesVisible: false,
-    overlayVisible: false,
-    overlayData: {},
     paused: false,
     playPauseVisible: 'none',
     tabBarVisible: true,
