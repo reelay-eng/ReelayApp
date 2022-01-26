@@ -1,12 +1,7 @@
-import React, { memo, useContext } from 'react';
-import { Image, Pressable, View, SafeAreaView } from 'react-native';
-import { getPosterURL } from '../../api/TMDbApi';
-
-import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
+import React, { memo } from 'react';
+import { Image, View, SafeAreaView } from 'react-native';
 
 import styled from 'styled-components/native';
-import * as Amplitude from 'expo-analytics-amplitude';
 
 const areEqual = (title1, title2) => title1.id === title2.id;
 
@@ -27,12 +22,10 @@ export default Poster = memo(({ title }) => {
 		return (<View />);
 	}
 
-	const posterImageSource = getPosterURL(title.posterURI);
-
 	return (
 		<SafeAreaView>
 			<PosterContainer>
-				{ posterImageSource && <PosterImage source={{ uri: posterImageSource }} />}
+				{ <PosterImage source={title.posterSource} /> }
 			</PosterContainer>
 		</SafeAreaView>
 	);

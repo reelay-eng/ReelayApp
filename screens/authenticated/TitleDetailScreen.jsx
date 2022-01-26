@@ -13,7 +13,7 @@ import {
 import { AuthContext } from '../../context/AuthContext';
 
 // API
-import { getPosterURL, getLogoURL, fetchMovieProviders } from '../../api/TMDbApi';
+import { getLogoURL, fetchMovieProviders } from '../../api/TMDbApi';
 import { getMostRecentReelaysByTitle } from "../../api/ReelayDBApi";
 
 // Context
@@ -93,7 +93,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 			<PosterWithTrailer
 				navigation={navigation}
 				height={height * 0.6}
-				posterURI={titleObj?.posterURI}
+				posterSource={titleObj?.posterSource}
 				title={titleObj?.display}
 				titleObj={titleObj}
 				tmdbTitleID={tmdbTitleID}
@@ -134,7 +134,7 @@ const BottomBackButton = ({ navigation }) => {
 const PosterWithTrailer = ({
 	navigation,
 	height,
-	posterURI,
+	posterSource,
 	title,
 	tmdbTitleID,
 	trailerURI,
@@ -150,8 +150,8 @@ const PosterWithTrailer = ({
 	`;
 
 	const { cognitoUser } = useContext(AuthContext);
-	const posterURL = getPosterURL(posterURI);
-	const PosterWithOverlay = ({ posterURL }) => {
+	
+	const PosterWithOverlay = () => {
 		const PosterImage = styled(Image)`
 			height: 100%;
 			width: 100%;
@@ -172,7 +172,7 @@ const PosterWithTrailer = ({
 		});
 		return (
 			<>
-				<PosterImage source={{ uri: posterURL }} />
+				<PosterImage source={posterSource} />
 				<PosterOverlay color={ReelayColors.reelayBlack} opacity={0.2} />
 				<LinearGradient
 					colors={["transparent", ReelayColors.reelayBlack]}
@@ -296,7 +296,7 @@ const PosterWithTrailer = ({
 
 	return (
 		<PosterContainer>
-			<PosterWithOverlay posterURL={posterURL} />
+			<PosterWithOverlay />
 			<BackButtonContainer onPress={() => navigation.goBack()}>
 				<Icon type="ionicon" name={"arrow-back-outline"} color={"white"} size={25} />
 			</BackButtonContainer>

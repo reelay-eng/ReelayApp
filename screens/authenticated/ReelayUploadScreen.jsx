@@ -31,7 +31,7 @@ import { sendStackPushNotificationToOtherCreators } from '../../api/Notification
 
 import styled from 'styled-components/native';
 import { postReelayToDB } from '../../api/ReelayDBApi';
-import { fetchAnnotatedTitle, getPosterURL } from '../../api/TMDbApi';
+import { fetchAnnotatedTitle } from '../../api/TMDbApi';
 import ReelayColors from '../../constants/ReelayColors';
 
 const { height, width } = Dimensions.get('window');
@@ -436,7 +436,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     }
 
     const playPause = () => playing ? setPlaying(false) : setPlaying(true);
-    const posterURL = getPosterURL(titleObj?.posterURI);
 
     const posterStyle = {
         borderRadius: 8, 
@@ -462,7 +461,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                     }
                 </BackButtonPressable>
                 <PosterContainer>
-                    <Image source={{ uri: posterURL }} style={posterStyle} />
+                    <Image source={titleObj.posterSource} style={posterStyle} />
                 </PosterContainer>
             </UploadTopArea>
             <UploadBottomArea>

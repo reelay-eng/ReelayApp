@@ -10,8 +10,6 @@ import { showErrorToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { getRuntimeString } from '../utils/TitleRuntime';
 
-const TMDB_IMAGE_API_BASE_URL = 'http://image.tmdb.org/t/p/w500/';
-
 const ImageContainer = styled.View`
     flex: 0.5;
     flex-direction: row;
@@ -45,23 +43,19 @@ const YearText = styled(ReelayText.H6Emphasized)`
 export default TitleSearchResultItem = ({ navigation, result, source }) => {
     const { cognitoUser } = useContext(AuthContext);
     const titleObj = result;
-    const skipPosterLoad = (titleObj.posterURI === null);
-    const [posterLoaded, setPosterLoaded] = useState(skipPosterLoad);
-
-    const posterImageUri = titleObj.posterURI ? getPosterURL(titleObj.posterURI) : null;
 
     // for movies and series
     // note that release_date for series has been overwritten with its first air date
-    const title = titleObj.display;
-    const actors = titleObj.displayActors?.map(actor => actor.name)
+    const title = titleObj?.display;
+    const actors = titleObj?.displayActors?.map(actor => actor.name)
             .filter((actor) => actor !== undefined)
             .join(", ") 
         ?? [];
 
 
-    const releaseYear = (titleObj.releaseDate && titleObj.releaseDate.length >= 4) 
+    const releaseYear = (titleObj?.releaseDate && titleObj?.releaseDate.length >= 4) 
         ? titleObj.releaseDate.slice(0,4) : '';
-    const runtimeString = getRuntimeString(titleObj.runtime);
+    const runtimeString = getRuntimeString(titleObj?.runtime);
 
     const selectResult = () => {
         if (source && source === 'create') {
@@ -96,23 +90,21 @@ export default TitleSearchResultItem = ({ navigation, result, source }) => {
     }
 
     return (
-        <PressableContainer key={titleObj.id} onPress={selectResult}>
+        <PressableContainer key={titleObj?.id} onPress={selectResult}>
             <ImageContainer>
-                { posterImageUri && (
+                { titleObj?.posterSource && (
                     <Image
-                        source={{ uri: posterImageUri }}
+                        source={titleObj?.posterSource}
                         style={{ height: 120, width: 80, borderRadius: 6 }}
                         PlaceholderContent={<ActivityIndicator />}
-                        onLoadEnd={() => setPosterLoaded(true)}
                     />
                 )}
-                { !posterImageUri && <TitleText>{"No Poster Available"}</TitleText>}
-                { !posterLoaded && <View style={{ height: 150 }} />}
+                { !titleObj.posterSource && <TitleText>{"No Poster Available"}</TitleText>}
             </ImageContainer>
             <TitleLineContainer>
-                <TitleText>{posterLoaded ? title : ""}</TitleText>
-                <YearText>{posterLoaded ? `${releaseYear}    ${runtimeString}` : ""}</YearText>
-                <ActorText>{posterLoaded ? actors : ""}</ActorText>
+                <TitleText>{title}</TitleText>
+                <YearText>{`${releaseYear}    ${runtimeString}`}</YearText>
+                <ActorText>{actors}</ActorText>
             </TitleLineContainer>
         </PressableContainer>
     );

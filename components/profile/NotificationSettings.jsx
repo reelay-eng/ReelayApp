@@ -102,7 +102,7 @@ const NotificationsSettingsWrapper = ({ cognitoUser }) => {
     const toggleNotifyAll = () => {
         setNotifyAll(!notifyAll);
         let value = (!notifyAll ? true : false);
-        //setNotifyPrompts(value);
+        setNotifyPrompts(value);
         setNotifyReactions(value);
         //setNotifyTrending(value);
 
@@ -161,7 +161,7 @@ const NotificationsSettingsWrapper = ({ cognitoUser }) => {
             <AllNotificationSetting enabled={notifyAll} toggle={toggleNotifyAll}/>
             <Divider />
             <ReactionsNotificationSetting enabled={notifyReactions} toggle={toggleNotifyReactions}/>
-            {/* <PromptNotificationSetting enabled={notifyPrompts} toggle={toggleNotifyPrompts}/> */}
+            <PromptNotificationSetting enabled={notifyPrompts} toggle={toggleNotifyPrompts}/>
             {/* <TrendingNotificationSetting enabled={notifyTrending} toggle={toggleNotifyTrending}/> */}
         </NotificationSettingsContainer>
     )
@@ -213,7 +213,6 @@ const TrendingNotificationSetting = ({enabled, toggle}) => {
 const NotificationSetting = ({title, subtext, isToggled, toggleFunction}) => {
     const NotificationSettingContainer = styled(View)`
         width: 100%;
-        height: 60px;
         display: flex;
         flex-direction: row;
         justify-content: space-around;
@@ -241,7 +240,7 @@ const NotificationSetting = ({title, subtext, isToggled, toggleFunction}) => {
     `;
     const NotificationSettingSubtext = styled(ReelayText.Caption)`
         text-align: left;
-        margin-top: -2px;
+        margin-top: 6px;
         color: #FFFFFF
         opacity: 0.5;
     `;

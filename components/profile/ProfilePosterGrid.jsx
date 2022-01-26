@@ -1,6 +1,5 @@
 import React from 'react';
 import { Dimensions, Image, Pressable, View } from 'react-native';
-import { getPosterURL } from '../../api/TMDbApi';
 import styled from 'styled-components/native';
 
 const { width } = Dimensions.get('window');
@@ -51,8 +50,6 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
             height: ${POSTER_HEIGHT}px;
             width: ${POSTER_WIDTH}px;
         `
-        const posterURI = stack[0].title.posterURI;
-        const posterURL = getPosterURL(posterURI);
 
         const viewProfileFeed = () => {
             navigation.push('ProfileFeedScreen', { 
@@ -62,8 +59,8 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
         }
 
         return (
-            <PosterContainer key={posterURI} onPress={viewProfileFeed}>
-                <PosterImage source={{ uri: posterURL }} />
+            <PosterContainer key={stack[0].title.id} onPress={viewProfileFeed}>
+                <PosterImage source={stack[0].title.posterSource} />
             </PosterContainer>
         );
     }
