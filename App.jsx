@@ -73,8 +73,6 @@ function App() {
     const [currentComment, setCurrentComment] = useState('');
     const [dotMenuVisible, setDotMenuVisible] = useState(false);
     const [likesVisible, setLikesVisible] = useState(false);
-    const [overlayVisible, setOverlayVisible] = useState(false);
-    const [overlayData, setOverlayData] = useState({});
     const [paused, setPaused] = useState(false);
     const [playPauseVisible, setPlayPauseVisible] = useState('none');
     const [tabBarVisible, setTabBarVisible] = useState(true);
@@ -289,8 +287,6 @@ function App() {
         currentComment,     setCurrentComment,
         dotMenuVisible,     setDotMenuVisible,
         likesVisible,       setLikesVisible,
-        overlayData,        setOverlayData,
-        overlayVisible,     setOverlayVisible,
         paused,             setPaused,
         playPauseVisible,   setPlayPauseVisible,
         tabBarVisible,      setTabBarVisible,

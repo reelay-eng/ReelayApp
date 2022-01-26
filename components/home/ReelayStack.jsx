@@ -90,11 +90,8 @@ const ReelayStack = ({
     const [stackPosition, setStackPosition] = useState(0);
     const { cognitoUser } = useContext(AuthContext);
     const { 
-        overlayVisible, setOverlayVisible,
-        setTabBarVisible,
         paused, setPaused,
         playPauseVisible, setPlayPauseVisible,
-        setOverlayData,  
     } = useContext(FeedContext);
     const viewableReelay = stack[stackPosition];
 
