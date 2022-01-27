@@ -41,6 +41,7 @@ import {
     registerUser, 
     registerPushTokenForUser,
 } from './api/ReelayDBApi';
+import { getWatchlistItems } from './api/WatchlistApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { showErrorToast } from './components/utils/toasts';
 
@@ -62,6 +63,7 @@ function App() {
     const [myFollowers, setMyFollowers] = useState([]);
     const [myFollowing, setMyFollowing] = useState([]);
     const [myCreatorStacks, setMyCreatorStacks] = useState([]);
+    const [myWatchlistItems, setMyWatchlistItems] = useState([]);
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [signedIn, setSignedIn] = useState(false);
     const [session, setSession] = useState({});
@@ -225,10 +227,12 @@ function App() {
             const nextMyFollowers = await getFollowers(reelayDBUser.sub);
             const nextMyFollowing = await getFollowing(reelayDBUser.sub);
             const nextMyCreatorStacks = await getStacksByCreator(reelayDBUser.sub);
+            const nextMyWatchlistItems = await getWatchlistItems(reelayDBUser.sub);
     
             setMyFollowers(nextMyFollowers);
             setMyFollowing(nextMyFollowing);
             setMyCreatorStacks(nextMyCreatorStacks);
+            setMyWatchlistItems(nextMyWatchlistItems);
         }
     }
 
@@ -271,6 +275,7 @@ function App() {
         myFollowers,        setMyFollowers,
         myFollowing,        setMyFollowing,
         myCreatorStacks,    setMyCreatorStacks,
+        myWatchlistItems,   setMyWatchlistItems,
         reelayDBUser,       setReelayDBUser,
         session,            setSession,
         signedIn,           setSignedIn,

@@ -1,5 +1,5 @@
 import Constants from 'expo-constants';
-import { fetchResults, fetchResults2 } from './fetchResults';
+import { fetchResults } from './fetchResults';
 import { fetchAnnotatedTitle } from './TMDbApi';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
