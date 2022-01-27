@@ -17,9 +17,9 @@ import { FeedContext } from '../context/FeedContext';
 
 import HomeFeedScreen from '../screens/authenticated/HomeFeedScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
+import NotificationSettingsScreen from '../screens/authenticated/NotificationSettingsScreen';
 import ProfileFeedScreen from '../screens/authenticated/ProfileFeedScreen';
 import ProfileSettingsScreen from '../screens/authenticated/ProfileSettingsScreen';
-import NotificationSettingsScreen from '../screens/authenticated/NotificationSettingsScreen';
 import ReelayCameraScreen from '../screens/authenticated/ReelayCameraScreen';
 import ReelayUploadScreen from '../screens/authenticated/ReelayUploadScreen';
 import ReportedContentFeedScreen from '../screens/authenticated/ReportedContentFeedScreen';
@@ -33,17 +33,20 @@ import TMDBCreditScreen from '../screens/authenticated/TMDBCreditScreen';
 import UserFollowScreen from '../screens/authenticated/UserFollowScreen';
 import UserProfileScreen from '../screens/authenticated/UserProfileScreen';
 import VenueSelectScreen from '../screens/authenticated/VenueSelectScreen';
+import WatchlistScreen from '../screens/authenticated/WatchlistScreen';
 
-import HomeIcon from '../assets/icons/navbar/home-icon.png'
-import ProfileIcon from '../assets/icons/navbar/profile-icon.png'
-import SearchIcon from '../assets/icons/navbar/search-icon.png'
-import CreateIcon from '../assets/icons/navbar/create-icon.png'
+import HomeIcon from '../assets/icons/navbar/home-icon.png';
+import ProfileIcon from '../assets/icons/navbar/profile-icon.png';
+import SearchIcon from '../assets/icons/navbar/search-icon.png';
+import CreateIcon from '../assets/icons/navbar/create-icon.png';
+import WatchlistIcon from '../assets/icons/navbar/watchlist-icon.png';
  
 const AppStack = createStackNavigator();
 const BottomTab = createBottomTabNavigator();
 const HomeTabStack = createStackNavigator();
 const SearchTabStack = createStackNavigator();
 const CreateReelayTabStack = createStackNavigator();
+const WatchlistTabStack = createStackNavigator();
 const ProfileTabStack = createStackNavigator();
 
 const BOTTOM_TAB_ICON_SIZE = 24;
@@ -170,6 +173,26 @@ const BottomTabNavigator = () => {
 					tabBarIcon: ({ focused }) => (
 						<Image
 							source={CreateIcon}
+							style={{
+								opacity: focused
+									? TAB_BAR_ACTIVE_OPACITY
+									: TAB_BAR_INACTIVE_OPACITY,
+								width: BOTTOM_TAB_ICON_SIZE,
+								height: BOTTOM_TAB_ICON_SIZE,
+								margin: 0,
+								padding: 0,
+							}}
+						/>
+					),
+				}}
+			/>
+			<BottomTab.Screen
+				name="Watchlist"
+				component={WatchlistTabNavigator}
+				options={{
+					tabBarIcon: ({ focused }) => (
+						<Image
+							source={WatchlistIcon}
 							style={{
 								opacity: focused
 									? TAB_BAR_ACTIVE_OPACITY
@@ -372,6 +395,24 @@ const CreateReelayTabNavigator = () => {
                 }}
             />
         </CreateReelayTabStack.Navigator>
+    );
+}
+
+const WatchlistTabNavigator = () => {
+	return (
+        <WatchlistTabStack.Navigator
+            initialRouteName='WatchlistScreen'
+            detachInactiveScreens={false}
+        >
+            <WatchlistTabStack.Screen
+                name='WatchlistScreen'
+                component={WatchlistScreen}
+                options={{
+                    headerShown: false,
+                    animationEnabled: false,
+                }}
+            />
+        </WatchlistTabStack.Navigator>
     );
 }
 
