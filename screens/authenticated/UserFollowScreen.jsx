@@ -62,7 +62,7 @@ export default UserFollowScreen = ({ navigation, route }) => {
     const [drawerFollowObj, setDrawerFollowObj] = useState(null);
     const updateCounter = useRef(0);
 
-    const headerText = `${creator.username}'s ${selectedFollowType.toLowerCase()}`
+    const headerText = `${creator.username}`
     const searchPlaceholderText = `Search ${selectedFollowType}`;
 
     useEffect(() => {
