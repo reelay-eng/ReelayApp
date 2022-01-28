@@ -5,6 +5,7 @@ import styled from 'styled-components/native';
 import WatchlistItem from './WatchlistItem';
 import { AuthContext } from '../../context/AuthContext';
 import { getWatchlistItems } from '../../api/WatchlistApi';
+import WatchlistSwipeableRow from './WatchlistSwipeableRow';
 
 export default Watchlist = ({ navigation, watchlistItems, source }) => {
 
@@ -30,9 +31,10 @@ export default Watchlist = ({ navigation, watchlistItems, source }) => {
         setRefreshing(false);
     }
 
+    // compress duplicate watchlist items by title, keeping their accumuluated recs
+    // in a new `recommendations` field
     const uniqueWatchlistItems = watchlistItems.filter((nextItem, index, allItems) => {
         const { recommendedBySub, recommendedReelaySub, title } = nextItem;
-
         let nextItemHasUniqueTitle = true;
         let prevItemSameTitle = null;
 
@@ -56,19 +58,21 @@ export default Watchlist = ({ navigation, watchlistItems, source }) => {
             // ...but not before adding their recs to an accumulated list
             prevItemSameTitle.recommendations.push({ recommendedBySub, recommendedReelaySub });
         }
-
         return nextItemHasUniqueTitle;
     });
 
     return (
         <View>
+            {/* <WatchlistSwipeableRow /> */}
             { uniqueWatchlistItems?.length >= 1 &&
                 <ScrollContainer refreshControl={refreshControl}>
                     { uniqueWatchlistItems.map((nextItem) => {
                         return (
-                            <WatchlistItemContainer key={nextItem?.id}>
-                                <WatchlistItem navigation={navigation} watchlistItem={nextItem} source={source} />
-                            </WatchlistItemContainer>
+                            <WatchlistSwipeableRow>
+                                <WatchlistItemContainer key={nextItem?.id}>
+                                    <WatchlistItem navigation={navigation} watchlistItem={nextItem} source={source} />
+                                </WatchlistItemContainer>
+                            </WatchlistSwipeableRow>
                         );
                     })}
                 </ScrollContainer>
