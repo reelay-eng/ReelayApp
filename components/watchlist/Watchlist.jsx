@@ -32,7 +32,9 @@ export default Watchlist = ({ navigation, watchlistItems, source }) => {
 
     const uniqueWatchlistItems = watchlistItems.filter((nextItem, index, allItems) => {
         const { recommendedBySub, recommendedReelaySub, title } = nextItem;
+
         let nextItemHasUniqueTitle = true;
+        let prevItemSameTitle = null;
 
         const isSameTitle = (title0, title1) => {
             return (title0.id === title1.id) 
@@ -41,20 +43,20 @@ export default Watchlist = ({ navigation, watchlistItems, source }) => {
 
         // check all previous watchlist items
         allItems.slice(0, index).forEach((prevItem) => {
-            console.log('PREV ITEM: ', prevItem);
             // filter out items for the same title...
             if (isSameTitle(prevItem.title, title)) {
                 nextItemHasUniqueTitle = false;
+                prevItemSameTitle = prevItem;
             }
         });
 
         if (nextItemHasUniqueTitle) {
             nextItem.recommendations = [];
-        }
-        if (recommendedBySub) {
+        } else if (recommendedBySub) {
             // ...but not before adding their recs to an accumulated list
-            nextItem.recommendations.push({ recommendedBySub, recommendedReelaySub });
-        } 
+            prevItemSameTitle.recommendations.push({ recommendedBySub, recommendedReelaySub });
+        }
+
         return nextItemHasUniqueTitle;
     });
 

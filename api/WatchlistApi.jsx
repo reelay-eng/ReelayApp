@@ -39,6 +39,7 @@ export const addToMyWatchlist = async (reqUserSub, tmdbTitleID, titleType) => {
     if (check.error) return check.error;
 
     const routePost = `${REELAY_API_BASE_URL}/watchlists/${reqUserSub}/add`;
+    const postBody = { tmdbTitleID, titleType };
     console.log(routePost);
 
     try {
@@ -48,6 +49,7 @@ export const addToMyWatchlist = async (reqUserSub, tmdbTitleID, titleType) => {
                 ...REELAY_API_HEADERS,
                 requsersub: reqUserSub,
             },
+            body: JSON.stringify(postBody),
         });
         return dbResult;
     } catch (error) {
@@ -137,11 +139,7 @@ export const markWatchlistItemUnseen = async ({
     }
 }
 
-export const removeFromMyWatchlist = async ({
-    reqUserSub,
-    tmdbTitleID,
-    titleType,
-}) => {
+export const removeFromMyWatchlist = async (reqUserSub, tmdbTitleID, titleType) => {
     const check = checkForErrors({ reqUserSub, tmdbTitleID, titleType });
     if (check.error) return check.error;
 

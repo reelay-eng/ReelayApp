@@ -25,6 +25,7 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 // Screen Orientation
 import { getRuntimeString } from '../../components/utils/TitleRuntime';
+import AddToWatchlistButton from './AddToWatchlistButton';
 
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
@@ -170,6 +171,10 @@ export default PosterWithTrailer = ({
 		flex-direction: column;
 	`;
 
+    const AddToWatchlistContainer = styled(View)`
+        flex-direction: row;
+        justify-content: flex-end;
+    `
 	const PosterTitleContainer = styled(View)`
 		width: 90%;
 	`;
@@ -200,6 +205,9 @@ export default PosterWithTrailer = ({
 				<Icon type="ionicon" name={"arrow-back-outline"} color={"white"} size={25} />
 			</BackButtonContainer>
 			<PosterInfoContainer>
+                <AddToWatchlistContainer>
+                    <AddToWatchlistButton titleObj={titleObj} />
+                </AddToWatchlistContainer>
 				<PosterTitleContainer>
 					<PosterTitle>{title}</PosterTitle>
 				</PosterTitleContainer>
