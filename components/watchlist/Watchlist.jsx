@@ -1,8 +1,10 @@
-import React from 'react';
-import { ScrollView, View } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { RefreshControl, ScrollView, View } from 'react-native';
 
 import styled from 'styled-components/native';
 import WatchlistItem from './WatchlistItem';
+import { AuthContext } from '../../context/AuthContext';
+import { getWatchlistItems } from '../../api/WatchlistApi';
 
 export default Watchlist = ({ navigation, watchlistItems, source }) => {
 
@@ -17,23 +19,30 @@ export default Watchlist = ({ navigation, watchlistItems, source }) => {
         margin-bottom: ${ROW_HEIGHT + 105}px;
     `;
 
-    const addUniqueWatchlistItem = (nextItem, index, allItems) => {
-        const { 
-            recommendedBySub,
-            recommendedReelaySub,
-            title, 
-            tmdbTitleID, 
-            titleType 
-        } = nextItem;
+    const [refreshing, setRefreshing] = useState(false);
+    const { setMyWatchlistItems } = useContext(AuthContext);
+    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        const refreshedWatchlistItems = await getWatchlistItems(cognitoUser?.attributes?.sub);
+        setMyWatchlistItems(refreshedWatchlistItems);
+        setRefreshing(false);
+    }
+
+    const uniqueWatchlistItems = watchlistItems.filter((nextItem, index, allItems) => {
+        const { recommendedBySub, recommendedReelaySub, title } = nextItem;
+        let nextItemHasUniqueTitle = true;
 
         const isSameTitle = (title0, title1) => {
             return (title0.id === title1.id) 
                 && (title0.isSeries === title1.isSeries);
         }
 
-        let nextItemHasUniqueTitle = true;
+        // check all previous watchlist items
         allItems.slice(0, index).forEach((prevItem) => {
             console.log('PREV ITEM: ', prevItem);
+            // filter out items for the same title...
             if (isSameTitle(prevItem.title, title)) {
                 nextItemHasUniqueTitle = false;
             }
@@ -42,29 +51,21 @@ export default Watchlist = ({ navigation, watchlistItems, source }) => {
         if (nextItemHasUniqueTitle) {
             nextItem.recommendations = [];
         }
-
         if (recommendedBySub) {
-            nextItem.recommendations.push({
-                recommendedBySub,
-                recommendedReelaySub,
-            })
+            // ...but not before adding their recs to an accumulated list
+            nextItem.recommendations.push({ recommendedBySub, recommendedReelaySub });
         } 
-
         return nextItemHasUniqueTitle;
-    }
-
-    const uniqueWatchlistItems = watchlistItems.filter(addUniqueWatchlistItem);
-
-    console.log('unique watchlist items: ', uniqueWatchlistItems);
+    });
 
     return (
         <View>
             { uniqueWatchlistItems?.length >= 1 &&
-                <ScrollContainer>
-                    { uniqueWatchlistItems.map((item) => {
+                <ScrollContainer refreshControl={refreshControl}>
+                    { uniqueWatchlistItems.map((nextItem) => {
                         return (
-                            <WatchlistItemContainer key={item?.id}>
-                                <WatchlistItem navigation={navigation} watchlistItem={item} source={source} />
+                            <WatchlistItemContainer key={nextItem?.id}>
+                                <WatchlistItem navigation={navigation} watchlistItem={nextItem} source={source} />
                             </WatchlistItemContainer>
                         );
                     })}

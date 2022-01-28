@@ -22,8 +22,14 @@ const prepareWatchlistItem = async (fetchedWatchlistItem) => {
     };
 }
 
-export const getWatchlistItems = async (reqUserSub) => {
-    const routeGet = `${REELAY_API_BASE_URL}/watchlists/${reqUserSub}/all`;
+export const getWatchlistItems = async (reqUserSub, category = 'all') => {
+    if (!['all', 'unseen', 'seen', 'recs'].includes(category)) {
+        console.error('Invalid watchlist item category');
+        return [];
+    }
+    if (!reqUserSub) return [];
+
+    const routeGet = `${REELAY_API_BASE_URL}/watchlists/${reqUserSub}/${category}`;
     console.log(routeGet);
     try {
         const watchlistItems = await fetchResults(routeGet, {
@@ -38,30 +44,4 @@ export const getWatchlistItems = async (reqUserSub) => {
         console.error(error);
         return [];
     }
-}
-
-export const getWatchlistItemsUnseen = async (reqUserSub) => {
-    const routeGet = `${REELAY_API_BASE_URL}/watchlists/${reqUserSub}/unseen`;
-    console.log(routeGet);
-    try {
-        const watchlistItems = await fetchResults(routeGet, {
-            method: 'GET',
-            headers: { 
-                ...REELAY_API_HEADERS, 
-                requsersub: reqUserSub,
-            },
-        });
-        return watchlistItems;    
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
-}
-
-export const getWatchlistSeen = async () => {
-    
-}
-
-export const getWatchlistRecs = async () => {
-    
 }
