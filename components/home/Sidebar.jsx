@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { Dimensions, Pressable, Text, View } from 'react-native';
+import React, { useContext, useState, useEffect, useRef } from 'react';
+import { Dimensions, Pressable, Image, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import * as ReelayText from "../../components/global/Text";
 import styled from 'styled-components/native';
@@ -9,9 +9,12 @@ import { FeedContext } from '../../context/FeedContext';
 
 import { sendLikeNotification } from '../../api/NotificationsApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
-import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
+import { postLikeToDB, removeLike, getRegisteredUser } from '../../api/ReelayDBApi';
+
+import ReelayIcon from "../../assets/icons/reelay-icon.png";
 
 const { height, width } = Dimensions.get('window');
+// <ProfilePicture source={profileImageSource} defaultSource={ReelayIcon}/>
 
 export default Sidebar = ({ reelay }) => {
 	const ICON_SIZE = 36;
@@ -33,10 +36,39 @@ export default Sidebar = ({ reelay }) => {
 		justify-content: center;
 		margin: 10px;
 	`
+	 const ProfilePicture = styled(Image)`
+        border-radius: 48px;
+        height: 36px;
+        width: 36px;
+    `
+	const ProfilePictureContainer = styled(Pressable)`
+		align-items: center;
+		justify-content: center;
+        border-color: white;
+        border-radius: 50px;
+        border-width: 2px;
+        margin: 16px;
+		margin-bottom: 25px;
+        height: 40px;
+        width: 40px;
+    `
+
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
+	const [profilePictureURI, setProfilePictureURI] = useState();
+	// var profilePictureURI;
 
 	const { cognitoUser } = useContext(AuthContext);
 	const { setCommentsVisible, setLikesVisible, setDotMenuVisible } = useContext(FeedContext);
+
+	useEffect(() => {
+		setCreatorProfilePicture();
+		//profilePictureURI=creator;
+	}, []);
+
+	const setCreatorProfilePicture = async () => {
+		const creator = await getRegisteredUser(reelay.creator.sub);
+		setProfilePictureURI(creator.profilePictureURI);
+	}
 
 	const commentedByUser = reelay.comments.find(comment => comment.authorName === cognitoUser.username);
 	const likedByUser = reelay.likes.find(like => like.username === cognitoUser.username);
@@ -59,6 +91,7 @@ export default Sidebar = ({ reelay }) => {
 			console.log(postResult);
 			
 			setLikeUpdateCounter(likeUpdateCounter + 1);
+			
 			logAmplitudeEventProd('unlikedReelay', {
 				user: cognitoUser.username,
 				creator: reelay.creator.username,
@@ -83,6 +116,7 @@ export default Sidebar = ({ reelay }) => {
 			console.log(postResult);
 
 			setLikeUpdateCounter(likeUpdateCounter + 1);
+			
 			sendLikeNotification({ 
 				creatorSub: reelay.creator.sub,
 				user: cognitoUser,
@@ -97,8 +131,16 @@ export default Sidebar = ({ reelay }) => {
 		}
 	}
 
+	const profileImageSource =
+		profilePictureURI && profilePictureURI !== undefined && profilePictureURI !== "none"
+			? { uri: profilePictureURI }
+            : ReelayIcon;
+
 	return (
 		<SidebarView>
+			<ProfilePictureContainer>
+				<ProfilePicture source={profileImageSource} defaultSource={ReelayIcon}/>
+			</ProfilePictureContainer>
 			<SidebarButton onPress={onLikePress} onLongPress={onLikeLongPress}>
 				<Icon
 					type="ionicon"
