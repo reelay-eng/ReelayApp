@@ -189,7 +189,7 @@ export default SignInScreen = ({ navigation, route }) => {
                 logAmplitudeEventProd('signInSuccess', {
                     username: username,
                     inputText: inputText,
-                    note: 'Does not factor in user email if logged in via username',
+                    Device: Platform.OS,
                 });
                 if (!username.length) {
                     // entered an invalid email

@@ -18,7 +18,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         position: absolute;
     `
     const TopBarContainer = styled(SafeAreaView)`
-        paddingTop: ${Platform.OS === 'android' ? 25 : 0};
+        paddingTop: ${Platform.OS === 'android' ? '25px' : '0px'};
         justify-content: center;
         margin-left: 16px;
         margin-right: 16px;
