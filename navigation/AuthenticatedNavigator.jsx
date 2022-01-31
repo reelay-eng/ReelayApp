@@ -398,6 +398,62 @@ const WatchlistTabNavigator = () => {
                     animationEnabled: false,
                 }}
             />
+			<SearchTabStack.Screen
+                name='UserProfileScreen'
+                component={UserProfileScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <SearchTabStack.Screen
+                name='UserFollowScreen'
+                component={UserFollowScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <SearchTabStack.Screen
+                name='ProfileFeedScreen'
+                component={ProfileFeedScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <SearchTabStack.Screen
+                name='SingleReelayScreen'
+                component={SingleReelayScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+			<SearchTabStack.Screen
+                name='ReportedContentFeedScreen'
+                component={ReportedContentFeedScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <SearchTabStack.Screen
+                name='TitleDetailScreen'
+                component={TitleDetailScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <SearchTabStack.Screen
+                name='TitleFeedScreen'
+                component={TitleFeedScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <SearchTabStack.Screen
+                name='TitleTrailerScreen'
+                component={TitleTrailerScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
         </WatchlistTabStack.Navigator>
     );
 }

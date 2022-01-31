@@ -170,8 +170,12 @@ const ReelayStack = ({
         const { x, y } = e.nativeEvent.contentOffset;
 
         if (x % width === 0) {
-            console.log('SWIPED FEED position: ', x / width);
             const nextStackPosition = x / width;
+            if (stackPosition === nextStackPosition) {
+                return;
+            }
+
+            console.log('continued swipe!');
             const swipeDirection = nextStackPosition < stackPosition ? 'left' : 'right';
             const nextReelay = stack[nextStackPosition];
             const prevReelay = stack[stackPosition];

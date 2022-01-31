@@ -40,8 +40,6 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const runtime = titleObj?.runtime;
 	const isMovie = titleObj?.isMovie;
 
-	console.log(titleObj);
-
 	// hide tab bar
 	const { setTabBarVisible } = useContext(FeedContext);
 	useEffect(() => {

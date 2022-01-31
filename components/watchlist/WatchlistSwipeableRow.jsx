@@ -1,17 +1,25 @@
 import React, { useContext, useRef } from 'react';
-import { Animated, StyleSheet, Text, View } from 'react-native';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { RectButton, Swipeable } from 'react-native-gesture-handler';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
-import { acceptRecommendation, removeFromMyWatchlist } from '../../api/WatchlistApi';
 import { AuthContext } from '../../context/AuthContext';
 
+import { 
+    acceptRecommendation, 
+    ignoreRecommendation, 
+    markWatchlistItemSeen,
+    markWatchlistItemUnseen, 
+    removeFromMyWatchlist,
+} from '../../api/WatchlistApi';
+
 // https://snack.expo.dev/@adamgrzybowski/react-native-gesture-handler-demo
-export default WatchlistSwipeableRow = ({ children, navigation, category, watchlistItem }) => {
+export default WatchlistSwipeableRow = ({ category, children, navigation, onRefresh, watchlistItem }) => {
     const ICON_SIZE = 30;
     const swipeableRowRef = useRef();
     const { cognitoUser } = useContext(AuthContext);
+    const { recommendedBySub, tmdbTitleID, titleType } = watchlistItem;
 
     const LeftActionButtonText = styled(ReelayText.Body2)`
         color: white;
@@ -29,10 +37,10 @@ export default WatchlistSwipeableRow = ({ children, navigation, category, watchl
             outputRange: [-20, 0, 0, 1],
         });
 
+        const onPress = (category === 'Recs') ? ignoreRecommendedItem : removeItemFromWatchlist;
+
         return (
-            <RectButton style={styles.leftAction} onPress={
-                (category === 'Recs') ? ignoreRecommendation : removeFromWatchlist
-            }>
+            <RectButton style={styles.leftAction} onPress={onPress}>
                 <Icon type='ionicon' name={'remove-circle'} color='white' size={ICON_SIZE} />
                 <LeftActionButtonText>{(category === 'Recs' ? 'Ignore' : 'Remove')}</LeftActionButtonText>
             </RectButton>
@@ -48,7 +56,6 @@ export default WatchlistSwipeableRow = ({ children, navigation, category, watchl
         return (
             <Animated.View style={{ 
                 flex: 1, 
-                height: '100%', 
                 justifyContent: 'center',
                 transform: [{ translateX: 0 }], 
             }}>
@@ -62,16 +69,17 @@ export default WatchlistSwipeableRow = ({ children, navigation, category, watchl
         );
     };
 
-    const acceptRecommendationAction = async () => {
-        const { recommendedBySub, tmdbTitleID, titleType } = watchlistItem;
+    const acceptRecommendedItem = async () => {
         const result = await acceptRecommendation({
             recommendedBySub,
             reqUserSub: cognitoUser?.attributes?.sub,
-            tmdbTitleID,
-            titleType,
+            tmdbTitleID: tmdbTitleID,
+            titleType: titleType,
         });
 
         // todo: update and reload watchlist in memory
+        close();
+        await onRefresh();
         console.log(result);
     };
 
@@ -81,25 +89,73 @@ export default WatchlistSwipeableRow = ({ children, navigation, category, watchl
         });
     };
 
-    const advanceToRecommendScreen = () => {};
-    const ignoreRecommendation = () => {};
-    const markAsSeen = () => {};
-    const markAsUnseen = () => {};
-    const removeFromWatchlist = () => {};
+    const advanceToRecommendScreen = () => {
+
+    };
+
+    const ignoreRecommendedItem = async () => {
+        const result = await ignoreRecommendation({
+            recommendedBySub,
+            reqUserSub: cognitoUser?.attributes?.sub,
+            tmdbTitleID,
+            titleType,
+        });
+
+        // todo: update and reload watchlist in memory
+        close();
+        await onRefresh();
+        console.log(result);
+    };
+
+    const markItemAsSeen = async () => {
+        const result = await markWatchlistItemSeen({
+            reqUserSub: cognitoUser?.attributes?.sub,
+            tmdbTitleID,
+            titleType,
+        });
+
+        // todo: update and reload watchlist in memory
+        close();
+        await onRefresh();
+        console.log(result);
+    };
+
+    const markItemAsUnseen = async () => {
+        const result = await markWatchlistItemUnseen({
+            reqUserSub: cognitoUser?.attributes?.sub,
+            tmdbTitleID,
+            titleType,
+        });
+
+        // todo: update and reload watchlist in memory
+        close();
+        await onRefresh();
+        console.log(result);
+    };
+
+    const removeItemFromWatchlist = async () => {
+        const result = await removeFromMyWatchlist({
+            reqUserSub: cognitoUser?.attributes?.sub,
+            tmdbTitleID,
+            titleType,
+        });
+
+        // todo: update and reload watchlist in memory
+        close();
+        await onRefresh();
+        console.log(result);
+    };
 
     const renderRightActions = (progress) => (
         <View style={{ width: 192, flexDirection: 'row' }}>
-            {/* { (category === 'My List') && renderRightAction(removeFromWatchlist, 'Remove', 'remove-circle', '#1a1a1a', 192, progress) } */}
-            { (category === 'My List') && renderRightAction(advanceToCreateScreen, 'Create', 'add-circle', '#e8362a', 128, progress) }
-            { (category === 'My List') && renderRightAction(markAsSeen, 'Seen', 'checkmark-circle', '#2977ef', 64, progress) }
+            { (category === 'My List') && renderRightAction(advanceToCreateScreen, 'Create', 'add-circle', '#e8362a', 192, progress) }
+            { (category === 'My List') && renderRightAction(markItemAsSeen, 'Seen', 'checkmark-circle', '#2977ef', 96, progress) }
 
-            {/* { (category === 'Seen') && renderRightAction(removeFromWatchlist, 'Remove', 'remove-circle', '#1a1a1a', 192, progress) } */}
             { (category === 'Seen') && renderRightAction(advanceToCreateScreen, 'Create', 'add-circle', '#e8362a', 192, progress) }
             { (category === 'Seen') && renderRightAction(advanceToRecommendScreen, 'Send Rec', 'paper-plane', '#2977ef', 96, progress) }
 
-            {/* { (category === 'Recs') && renderRightAction(ignoreRecommendation, 'Ignore', 'remove-circle', '#1a1a1a', 192, progress) } */}
-            { (category === 'Recs') && renderRightAction(advanceToCreateScreen, 'Create', 'add-circle', '#e8362a', 128, progress) }
-            { (category === 'Recs') && renderRightAction(acceptRecommendationAction, 'Accept Rec', 'checkmark-circle', '#2977ef', 64, progress) }
+            { (category === 'Recs') && renderRightAction(advanceToCreateScreen, 'Create', 'add-circle', '#e8362a', 192, progress) }
+            { (category === 'Recs') && renderRightAction(acceptRecommendedItem, 'Accept Rec', 'checkmark-circle', '#2977ef', 96, progress) }
         </View>
     );
 
@@ -126,19 +182,19 @@ export default WatchlistSwipeableRow = ({ children, navigation, category, watchl
 
 const styles = StyleSheet.create({
     leftAction: {
-        flex: 1,
+        alignItems: 'center',
         backgroundColor: '#497AFC',
         borderRadius: 6,
         borderColor: 'black',
         borderWidth: 1,
-        justifyContent: 'center',
+        flex: 1,
         flexDirection: 'row',
-        alignItems: 'center',
+        justifyContent: 'center',
     },
     actionText: {
+        backgroundColor: 'transparent',
         color: 'white',
         fontSize: 16,
-        backgroundColor: 'transparent',
         padding: 10,
     },
     rightAction: {

@@ -7,16 +7,16 @@ import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
 import { getRuntimeString } from '../utils/TitleRuntime';
 
+const WatchlistItemContainer = styled(Pressable)`
+    flex: 1;
+    flex-direction: row;
+    margin: 10px 10px 10px 20px;
+`
 const ImageContainer = styled(View)`
     flex: 0.5;
     flex-direction: row;
     align-items: center;
     width: 500px;
-`
-const PressableContainer = styled(Pressable)`
-    flex: 1;
-    flex-direction: row;
-    margin: 10px 10px 10px 20px;
 `
 const SliderIconContainer = styled(View)`
     align-items: center;
@@ -53,10 +53,11 @@ export default WatchlistItem = ({ navigation, watchlistItem, category }) => {
 
     const runtimeString = getRuntimeString(title?.runtime);
 
-    const selectResult = () => {}
-
     return (
-        <PressableContainer key={title?.id} onPress={selectResult}>
+        <WatchlistItemContainer key={title?.id} onPress={() => {
+            console.log('helllllooO!!!')
+            navigation.push('TitleDetailScreen', { titleObj: title });
+        }}>
             <ImageContainer>
                 { title?.posterSource && (
                     <Image
@@ -75,6 +76,6 @@ export default WatchlistItem = ({ navigation, watchlistItem, category }) => {
             <SliderIconContainer>
                 <Icon type='ionicon' name='caret-back' color='white' size={20} />
             </SliderIconContainer>
-        </PressableContainer>
+        </WatchlistItemContainer>
     );
 };

@@ -21,11 +21,6 @@ export default AddToWatchlistButton = ({ titleObj }) => {
 
     const [isAdded, setIsAdded] = useState(titleSeen); // check if it's actually added
 
-    const addToLocalWatchlist = (resultItem) => {
-        const nextWatchlistItems = [...myWatchlistItems, resultItem];
-        setMyWatchlistItems(nextWatchlistItems);
-    }
-
     const removeFromLocalWatchlist = () => {
         const nextWatchlistItems = myWatchlistItems.filter((nextItem) => {
             const { tmdbTitleID, titleType } = nextItem;
@@ -36,6 +31,9 @@ export default AddToWatchlistButton = ({ titleObj }) => {
     }
 
     const addOrRemoveFromWatchlist = async () => {
+        const titleType = titleObj.isSeries ? 'tv' : 'film';
+        const tmdbTitleID = titleObj.id;
+
         if (isAdded) {
             // remove from watchlist
             const dbResult = await removeFromMyWatchlist(reelayDBUser?.sub, tmdbTitleID, titleType);
@@ -46,11 +44,10 @@ export default AddToWatchlistButton = ({ titleObj }) => {
             console.log(dbResult);    
         } else {
             // add to watchlist
-            const titleType = titleObj.isSeries ? 'tv' : 'film';
-            console.log('TITLE OBJ: ', titleObj);
-            const dbResult = await addToMyWatchlist(reelayDBUser?.sub, titleObj.id, titleType);
+            const dbResult = await addToMyWatchlist(reelayDBUser?.sub, tmdbTitleID, titleType);
             if (!dbResult.error) {
-                addToLocalWatchlist(dbResult);
+                const nextWatchlistItems = [...myWatchlistItems, dbResult];
+                setMyWatchlistItems(nextWatchlistItems);
                 setIsAdded(true);
             }
             console.log(dbResult);    

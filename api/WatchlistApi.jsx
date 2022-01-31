@@ -51,7 +51,7 @@ export const addToMyWatchlist = async (reqUserSub, tmdbTitleID, titleType) => {
             },
             body: JSON.stringify(postBody),
         });
-        return dbResult;
+        return prepareWatchlistItem(dbResult);
     } catch (error) {
         console.error(error);
         return error;
@@ -139,7 +139,7 @@ export const markWatchlistItemUnseen = async ({
     }
 }
 
-export const removeFromMyWatchlist = async (reqUserSub, tmdbTitleID, titleType) => {
+export const removeFromMyWatchlist = async ({ reqUserSub, tmdbTitleID, titleType }) => {
     const check = checkForErrors({ reqUserSub, tmdbTitleID, titleType });
     if (check.error) return check.error;
 

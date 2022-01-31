@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { RefreshControl, ScrollView, View } from 'react-native';
+import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 
 import styled from 'styled-components/native';
 import WatchlistItem from './WatchlistItem';
@@ -9,8 +9,9 @@ import WatchlistSwipeableRow from './WatchlistSwipeableRow';
 
 export default Watchlist = ({ navigation, watchlistItems, category }) => {
 
+    console.log('RENDERING WATCHLIST');
     const ROW_HEIGHT = 125;
-    const WatchlistItemContainer = styled(View)`
+    const WatchlistItemContainer = styled(Pressable)`
         background-color: black;
         border-bottom-color: #505050;
         border-bottom-width: 0.3px;
@@ -22,7 +23,7 @@ export default Watchlist = ({ navigation, watchlistItems, category }) => {
     `;
 
     const [refreshing, setRefreshing] = useState(false);
-    const { setMyWatchlistItems } = useContext(AuthContext);
+    const { cognitoUser, setMyWatchlistItems } = useContext(AuthContext);
     const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
     const onRefresh = async () => {
@@ -72,8 +73,11 @@ export default Watchlist = ({ navigation, watchlistItems, category }) => {
                             <WatchlistSwipeableRow key={nextItem.id} 
                                     category={category}
                                     navigation={navigation} 
+                                    onRefresh={onRefresh}
                                     watchlistItem={nextItem}>
-                                <WatchlistItemContainer key={nextItem?.id}>
+                                <WatchlistItemContainer key={nextItem?.id} onPress={() => {
+                                    navigation.push('TitleDetailScreen', { titleObj: nextItem.title });
+                                }}>
                                     <WatchlistItem category={category} navigation={navigation} watchlistItem={nextItem} />
                                 </WatchlistItemContainer>
                             </WatchlistSwipeableRow>
