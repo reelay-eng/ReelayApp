@@ -7,16 +7,17 @@ import { AuthContext } from '../../context/AuthContext';
 import { getWatchlistItems } from '../../api/WatchlistApi';
 import WatchlistSwipeableRow from './WatchlistSwipeableRow';
 
-export default Watchlist = ({ navigation, watchlistItems, source }) => {
+export default Watchlist = ({ navigation, watchlistItems, category }) => {
 
-    const ROW_HEIGHT = 165
+    const ROW_HEIGHT = 125;
     const WatchlistItemContainer = styled(View)`
-        height: ${ROW_HEIGHT}px;
+        background-color: black;
         border-bottom-color: #505050;
         border-bottom-width: 0.3px;
     `
 
     const ScrollContainer = styled(ScrollView)`
+        margin-top: 40px;
         margin-bottom: ${ROW_HEIGHT + 105}px;
     `;
 
@@ -68,9 +69,12 @@ export default Watchlist = ({ navigation, watchlistItems, source }) => {
                 <ScrollContainer refreshControl={refreshControl}>
                     { uniqueWatchlistItems.map((nextItem) => {
                         return (
-                            <WatchlistSwipeableRow>
+                            <WatchlistSwipeableRow key={nextItem.id} 
+                                    category={category}
+                                    navigation={navigation} 
+                                    watchlistItem={nextItem}>
                                 <WatchlistItemContainer key={nextItem?.id}>
-                                    <WatchlistItem navigation={navigation} watchlistItem={nextItem} source={source} />
+                                    <WatchlistItem category={category} navigation={navigation} watchlistItem={nextItem} />
                                 </WatchlistItemContainer>
                             </WatchlistSwipeableRow>
                         );

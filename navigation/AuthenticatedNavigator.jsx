@@ -9,8 +9,6 @@ import React, { useContext } from 'react';
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image, StyleSheet } from 'react-native';
-import { Icon } from 'react-native-elements';
-import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
 
 import { FeedContext } from '../context/FeedContext';
@@ -57,25 +55,13 @@ export default AuthenticatedNavigator = () => {
     return (
         <AppStack.Navigator initialRouteName='BottomTab'>
             <AppStack.Screen name='BottomTab' component={BottomTabNavigator} 
-                options={{
-                    headerShown: false,
-                }}
-            />
+                options={{ headerShown: false }} />
             <AppStack.Screen name='VenueSelectScreen' component={VenueSelectScreen}
-                options={{
-                animationEnabled: false,
-                headerShown: false,
-                }} />
+                options={{ headerShown: false }} />
             <AppStack.Screen name='ReelayCameraScreen' component={ReelayCameraScreen}
-                options={{ 
-                animationEnabled: false,
-                headerShown: false,
-                }} />
+                options={{ headerShown: false }} />
             <AppStack.Screen name='ReelayUploadScreen' component={ReelayUploadScreen}
-                options={{ 
-                animationEnabled: false,
-                headerShown: false,
-                }} /> 
+                options={{ headerShown: false }} /> 
         </AppStack.Navigator>
     );
 }

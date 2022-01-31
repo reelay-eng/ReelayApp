@@ -33,7 +33,7 @@ const SelectorBarContainer = styled(View)`
 
 export default WatchlistScreen = ({ navigation }) => {
     const { cognitoUser, myWatchlistItems } = useContext(AuthContext);
-    const [selectedType, setSelectedType] = useState('My List');
+    const [selectedCategory, setselectedCategory] = useState('My List');
 
     useEffect(() => {
         logAmplitudeEventProd('openMyWatchlist', {
@@ -44,11 +44,11 @@ export default WatchlistScreen = ({ navigation }) => {
 
     const categoryWatchlistItems = myWatchlistItems.filter((nextItem) => {
         const { hasAcceptedRec, hasSeenTitle } = nextItem;
-        if (selectedType === 'My List') {
+        if (selectedCategory === 'My List') {
             return hasAcceptedRec && !hasSeenTitle;
-        } else if (selectedType === 'Seen') {
+        } else if (selectedCategory === 'Seen') {
             return hasSeenTitle;
-        } else if (selectedType === 'Recs') {
+        } else if (selectedCategory === 'Recs') {
             return !hasAcceptedRec && !hasSeenTitle;
         }
     });
@@ -60,15 +60,15 @@ export default WatchlistScreen = ({ navigation }) => {
 				<SelectorBarContainer>
 					<ToggleSelector
 						options={['My List', 'Seen', 'Recs']}
-						selectedOption={selectedType}
-						onSelect={(type) => setSelectedType(type)}
+						selectedOption={selectedCategory}
+						onSelect={(type) => setselectedCategory(type)}
 					/>
 				</SelectorBarContainer>
 			</TopBarContainer>
             <Watchlist
                 navigation={navigation}
                 watchlistItems={categoryWatchlistItems}
-                source={selectedType}
+                category={selectedCategory}
             />
 		</WatchlistScreenContainer>
 	);

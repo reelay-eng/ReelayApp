@@ -3,14 +3,9 @@ import { ActivityIndicator, Pressable, View } from 'react-native';
 import { Icon, Image } from 'react-native-elements';
 import * as ReelayText from "../global/Text";
 import styled from 'styled-components/native';
-import { getPosterURL } from '../../api/TMDbApi';
 
 import { AuthContext } from '../../context/AuthContext';
-import { showErrorToast } from '../utils/toasts';
-import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { getRuntimeString } from '../utils/TitleRuntime';
-
-import Swipeable from 'react-native-gesture-handler/Swipeable';
 
 const ImageContainer = styled(View)`
     flex: 0.5;
@@ -22,31 +17,30 @@ const PressableContainer = styled(Pressable)`
     flex: 1;
     flex-direction: row;
     margin: 10px 10px 10px 20px;
-    height: 165px;
 `
 const SliderIconContainer = styled(View)`
     align-items: center;
     justify-content: center;
 `
-const TitleText = styled(ReelayText.H5Emphasized)`
+const TitleText = styled(ReelayText.H6)`
     color: white
     font-size: 22px;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
 `
-const TitleLineContainer = styled.View`
+const TitleLineContainer = styled(View)`
     flex: 1;
     justify-content: center;
     align-items: flex-start;
 `;
-const ActorText = styled(ReelayText.H6Emphasized)`
+const ActorText = styled(ReelayText.Subtitle1)`
     color: gray
     font-size: 16px;
 `
-const YearText = styled(ReelayText.H6Emphasized)`
+const YearText = styled(ReelayText.Subtitle1)`
     color: gray
 `
 
-export default WatchlistItem = ({ navigation, watchlistItem, source }) => {
+export default WatchlistItem = ({ navigation, watchlistItem, category }) => {
     const { cognitoUser } = useContext(AuthContext);
     const { title, recommendations } = watchlistItem;
 
@@ -67,7 +61,7 @@ export default WatchlistItem = ({ navigation, watchlistItem, source }) => {
                 { title?.posterSource && (
                     <Image
                         source={title?.posterSource}
-                        style={{ height: 120, width: 80, borderRadius: 6 }}
+                        style={{ height: 90, width: 60, borderRadius: 6 }}
                         PlaceholderContent={<ActivityIndicator />}
                     />
                 )}
