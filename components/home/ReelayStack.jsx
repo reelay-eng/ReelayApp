@@ -103,8 +103,8 @@ const ReelayStack = ({
 
     const playPause = () => {
         if (paused) {
-            setPaused(false);
-            setPlayPauseVisible('pause');
+            // setPaused(false);
+            // setPlayPauseVisible('pause');
             setTimeout(() => {
                 setPlayPauseVisible('none');
             }, PLAY_PAUSE_ICON_TIMEOUT);    
@@ -116,8 +116,8 @@ const ReelayStack = ({
                 username: cognitoUser.username,
             });
         } else {
-            setPaused(true);
-            setPlayPauseVisible('play');
+            // setPaused(true);
+            // setPlayPauseVisible('play');
             setTimeout(() => {
                 if (playPauseVisible === 'play') {
                     setPlayPauseVisible('none');
@@ -144,7 +144,7 @@ const ReelayStack = ({
 
     const renderReelay = ({ item, index }) => {
         console.log('calling render reelay, index: ', index);
-        console.log('reelay: ', item);
+        // console.log('reelay: ', item);
         const reelay = item;
         const reelayViewable = stackViewable && (index === stackPosition);   
         if (reelayViewable) console.log('Reelay is viewable: ', index);

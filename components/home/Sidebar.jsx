@@ -15,15 +15,21 @@ import ReelayIcon from "../../assets/icons/reelay-icon.png";
 
 const { height, width } = Dimensions.get('window');
 // <ProfilePicture source={profileImageSource} defaultSource={ReelayIcon}/>
+const ICON_SIZE = 36;
+
+const SidebarButton = styled(Pressable)`
+	align-items: center;
+	justify-content: center;
+	margin: 10px;
+`
+const Count = styled(ReelayText.Subtitle1)`
+	color: #fff;
+	text-shadow-color: rgba(0, 0, 0, 0.2);
+	text-shadow-offset: 1px 1px;
+	text-shadow-radius: 1px;
+`
 
 export default Sidebar = ({ reelay }) => {
-	const ICON_SIZE = 36;
-	const Count = styled(ReelayText.Subtitle1)`
-		color: #fff;
-		text-shadow-color: rgba(0, 0, 0, 0.2);
-		text-shadow-offset: 1px 1px;
-		text-shadow-radius: 1px;
-	`
 	const SidebarView = styled(View)`
 		align-items: center;
 		align-self: flex-end;
@@ -31,12 +37,19 @@ export default Sidebar = ({ reelay }) => {
 		position: absolute;
 		bottom: ${height / 3}px;
 	`
-	const SidebarButton = styled(Pressable)`
-		align-items: center;
-		justify-content: center;
-		margin: 10px;
-	`
-	 const ProfilePicture = styled(Image)`
+	
+	return (
+		<SidebarView>
+			<ProfilePicture reelay={reelay} />
+			<LikeButton reelay={reelay} />
+			<CommentButton reelay={reelay} />
+			<DotMenuButton />
+		</SidebarView>
+	);
+}
+
+const ProfilePicture = ({ reelay }) => {
+	const ProfilePicture = styled(Image)`
         border-radius: 48px;
         height: 36px;
         width: 36px;
@@ -53,29 +66,32 @@ export default Sidebar = ({ reelay }) => {
         width: 40px;
     `
 
-	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
-	const [profilePictureURI, setProfilePictureURI] = useState();
-	// var profilePictureURI;
-
-	const { cognitoUser } = useContext(AuthContext);
-	const { setCommentsVisible, setLikesVisible, setDotMenuVisible } = useContext(FeedContext);
+	const [profilePicSource, setProfilePicSource] = useState();
 
 	useEffect(() => {
 		setCreatorProfilePicture();
-		//profilePictureURI=creator;
 	}, []);
 
 	const setCreatorProfilePicture = async () => {
 		const creator = await getRegisteredUser(reelay.creator.sub);
-		setProfilePictureURI(creator.profilePictureURI);
+		const profilePicSource =  { uri: creator.profilePictureURI } ?? ReelayIcon;
+		setProfilePicSource(profilePicSource);
 	}
+	return (
+		<ProfilePictureContainer>
+			<ProfilePicture source={profilePicSource} defaultSource={ReelayIcon}/>
+		</ProfilePictureContainer>
+	)
+}
 
-	const commentedByUser = reelay.comments.find(comment => comment.authorName === cognitoUser.username);
+const LikeButton = ({ reelay }) => {
+	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
+
+	const { cognitoUser } = useContext(AuthContext);
+	const { setLikesVisible } = useContext(FeedContext);
+
 	const likedByUser = reelay.likes.find(like => like.username === cognitoUser.username);
 
-	const onCommentLongPress = async () => setCommentsVisible(true);
-	const onCommentPress = async () => setCommentsVisible(true);
-	const onDotMenuPress = async () => setDotMenuVisible(true);
 	const onLikeLongPress = async () => setLikesVisible(true);
 
 	const onLikePress = async () => {
@@ -130,56 +146,66 @@ export default Sidebar = ({ reelay }) => {
 			});
 		}
 	}
+	return (
+	<SidebarButton onPress={onLikePress} onLongPress={onLikeLongPress}>
+		<Icon
+			type="ionicon"
+			name="heart"
+			color={likedByUser ? "#db1f2e" : "white"}
+			iconStyle={{
+				shadowColor: "black",
+				shadowOpacity: 0.2,
+				shadowRadius: 2,
+				shadowOffset: {
+					width: 0, // These can't both be 0
+					height: 1, // i.e. the shadow has to be offset in some way
+				},
+			}}
+			size={ICON_SIZE}
+		/>
+		<Count>{reelay.likes.length}</Count>
+	</SidebarButton>)
+}
 
-	const profileImageSource =
-		profilePictureURI && profilePictureURI !== undefined && profilePictureURI !== "none"
-			? { uri: profilePictureURI }
-            : ReelayIcon;
+const CommentButton = ({ reelay }) => {
+	const { cognitoUser } = useContext(AuthContext);
+	const { setCommentsVisible} = useContext(FeedContext);
+
+	const commentedByUser = reelay.comments.find((comment) => comment.authorName === cognitoUser.username);
+
+	const onCommentLongPress = async () => setCommentsVisible(true);
+	const onCommentPress = async () => setCommentsVisible(true);
 
 	return (
-		<SidebarView>
-			<ProfilePictureContainer>
-				<ProfilePicture source={profileImageSource} defaultSource={ReelayIcon}/>
-			</ProfilePictureContainer>
-			<SidebarButton onPress={onLikePress} onLongPress={onLikeLongPress}>
-				<Icon
-					type="ionicon"
-					name="heart"
-					color={likedByUser ? "#db1f2e" : "white"}
-					iconStyle={{
-						shadowColor: "black",
-						shadowOpacity: 0.2,
-						shadowRadius: 2,
-						shadowOffset: {
-							width: 0, // These can't both be 0
-							height: 1, // i.e. the shadow has to be offset in some way
-						},
-					}}
-					size={ICON_SIZE}
-				/>
-				<Count>{reelay.likes.length}</Count>
-			</SidebarButton>
-			<SidebarButton onPress={onCommentPress} onLongPress={onCommentLongPress}>
-				<Icon
-					type="ionicon"
-					name="chatbubble-ellipses"
-					color={commentedByUser ? "#db1f2e" : "white"}
-					iconStyle={{
-						shadowColor: "black",
-						shadowOpacity: 0.25,
-						shadowRadius: 2,
-						shadowOffset: {
-							width: 0, // These can't both be 0
-							height: 1, // i.e. the shadow has to be offset in some way
-						},
-					}}
-					size={ICON_SIZE}
-				/>
-				<Count>{reelay.comments.length}</Count>
-			</SidebarButton>
-			<SidebarButton onPress={onDotMenuPress}>
-				<Icon type='ionicon' name={'ellipsis-horizontal'} color={'white'} size={24} />
-			</SidebarButton>
-		</SidebarView>
+		<SidebarButton onPress={onCommentPress} onLongPress={onCommentLongPress}>
+			<Icon
+				type="ionicon"
+				name="chatbubble-ellipses"
+				color={commentedByUser ? "#db1f2e" : "white"}
+				iconStyle={{
+					shadowColor: "black",
+					shadowOpacity: 0.25,
+					shadowRadius: 2,
+					shadowOffset: {
+						width: 0, // These can't both be 0
+						height: 1, // i.e. the shadow has to be offset in some way
+					},
+				}}
+				size={ICON_SIZE}
+			/>
+			<Count>{reelay.comments.length}</Count>
+		</SidebarButton>
 	);
+}
+
+const DotMenuButton = () => {
+	const onDotMenuPress = async () => setDotMenuVisible(true);
+
+	const { setDotMenuVisible } = useContext(FeedContext);
+
+	return (
+		<SidebarButton onPress={onDotMenuPress}>
+			<Icon type='ionicon' name={'ellipsis-horizontal'} color={'white'} size={24} />
+		</SidebarButton>
+	)
 }
