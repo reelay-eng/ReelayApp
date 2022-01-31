@@ -1,5 +1,5 @@
 import React from 'react';
-import { SafeAreaView, View } from 'react-native';
+import { SafeAreaView, View, Platform } from 'react-native';
 import { Icon } from 'react-native-elements';
 import * as ReelayText from '../../components/global/Text';
 
@@ -18,6 +18,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         position: absolute;
     `
     const TopBarContainer = styled(SafeAreaView)`
+        paddingTop: ${Platform.OS === 'android' ? 25 : 0};
         justify-content: center;
         margin-left: 16px;
         margin-right: 16px;
