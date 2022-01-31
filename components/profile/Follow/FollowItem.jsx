@@ -12,11 +12,11 @@ import { ActionButton, BWButton } from "../../global/Buttons";
 import * as ReelayText from "../../global/Text";
 
 const PressableContainer = styled(Pressable)`
-	display: flex;
 	align-items: center;
 	justify-content: center;
 	flex-direction: row;
-	height: 60px;
+	padding-top: 10px;
+	padding-bottom: 10px;
 	width: 100%;
 `;
 const RowContainer = styled(View)`
