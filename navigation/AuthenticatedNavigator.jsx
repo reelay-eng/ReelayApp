@@ -23,6 +23,7 @@ import ReelayUploadScreen from '../screens/authenticated/ReelayUploadScreen';
 import ReportedContentFeedScreen from '../screens/authenticated/ReportedContentFeedScreen';
 import SearchScreen from '../screens/authenticated/SearchScreen';
 import SelectTitleScreen from '../screens/authenticated/SelectTitleScreen';
+import SendRecScreen from '../screens/authenticated/SendRecScreen';
 import SingleReelayScreen from '../screens/authenticated/SingleReelayScreen';
 import TitleDetailScreen from '../screens/authenticated/TitleDetailScreen';
 import TitleFeedScreen from '../screens/authenticated/TitleFeedScreen';
@@ -398,56 +399,63 @@ const WatchlistTabNavigator = () => {
                     animationEnabled: false,
                 }}
             />
-			<SearchTabStack.Screen
+			<WatchlistTabStack.Screen
                 name='UserProfileScreen'
                 component={UserProfileScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <WatchlistTabStack.Screen
                 name='UserFollowScreen'
                 component={UserFollowScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <WatchlistTabStack.Screen
                 name='ProfileFeedScreen'
                 component={ProfileFeedScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+			<WatchlistTabStack.Screen 
+				name='SendRecScreen'
+				component={SendRecScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+            <WatchlistTabStack.Screen
                 name='SingleReelayScreen'
                 component={SingleReelayScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-			<SearchTabStack.Screen
+			<WatchlistTabStack.Screen
                 name='ReportedContentFeedScreen'
                 component={ReportedContentFeedScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <WatchlistTabStack.Screen
                 name='TitleDetailScreen'
                 component={TitleDetailScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <WatchlistTabStack.Screen
                 name='TitleFeedScreen'
                 component={TitleFeedScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <WatchlistTabStack.Screen
                 name='TitleTrailerScreen'
                 component={TitleTrailerScreen}
                 options={{

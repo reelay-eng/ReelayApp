@@ -179,21 +179,25 @@ export const sendRecommendation = async ({
     const postBody = { 
         recommendedBySub: reqUserSub,
         recommendedReelaySub,
+        tmdbTitleID,
+        titleType,
     }
     console.log(routePost);
 
     try {
         const sendRecResult = await fetchResults(routePost, {
-            method: 'GET',
+            method: 'POST',
             headers: { 
                 ...REELAY_API_HEADERS, 
                 requsersub: reqUserSub,
             },
             body: JSON.stringify(postBody),
         });
+        console.log('Worked fine');
         return await sendRecResult;    
     } catch (error) {
-        console.error(error);
+        console.log('Didn\'t work fine');
+        console.log(error);
         return [];
     }
 }

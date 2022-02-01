@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useCallback } from 'react';
 import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 
 import styled from 'styled-components/native';
@@ -24,13 +24,10 @@ export default Watchlist = ({ navigation, watchlistItems, category }) => {
 
     const [refreshing, setRefreshing] = useState(false);
     const { cognitoUser, setMyWatchlistItems } = useContext(AuthContext);
-    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
     const onRefresh = async () => {
-        setRefreshing(true);
         const refreshedWatchlistItems = await getWatchlistItems(cognitoUser?.attributes?.sub);
         setMyWatchlistItems(refreshedWatchlistItems);
-        setRefreshing(false);
     }
 
     // compress duplicate watchlist items by title, keeping their accumuluated recs
@@ -64,10 +61,12 @@ export default Watchlist = ({ navigation, watchlistItems, category }) => {
     });
 
     return (
-        <View>
-            {/* <WatchlistSwipeableRow /> */}
+        <View style={{height: '100%'}}>
+            <ScrollContainer style={{height: '100%'}}  refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }>
             { uniqueWatchlistItems?.length >= 1 &&
-                <ScrollContainer refreshControl={refreshControl}>
+                <>
                     { uniqueWatchlistItems.map((nextItem) => {
                         return (
                             <WatchlistSwipeableRow key={nextItem.id} 
@@ -83,8 +82,9 @@ export default Watchlist = ({ navigation, watchlistItems, category }) => {
                             </WatchlistSwipeableRow>
                         );
                     })}
-                </ScrollContainer>
+                </>
             }
+            </ScrollContainer>
         </View>
     );
 }

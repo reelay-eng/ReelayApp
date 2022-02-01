@@ -90,7 +90,9 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
     };
 
     const advanceToRecommendScreen = () => {
-
+        navigation.push('SendRecScreen', {
+            watchlistItem: watchlistItem
+        });
     };
 
     const ignoreRecommendedItem = async () => {

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import { 
     ActivityIndicator, 
     Image,
@@ -19,6 +19,9 @@ import * as ReelayText from "../../components/global/Text";
 import { BWButton } from "../../components/global/Buttons";
 import * as VideoThumbnails from "expo-video-thumbnails";
 
+// Context
+import { AuthContext } from '../../context/AuthContext';
+
 // Media
 import SplashImage from "../../assets/images/reelay-splash.png";
 
@@ -26,6 +29,7 @@ import SplashImage from "../../assets/images/reelay-splash.png";
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 export default PopularReelaysRow = ({ navigation, titleObj }) => {
+    const { cognitoUser } = useContext(AuthContext);
 	const [topReelays, setTopReelays] = useState([]);
 	const componentMounted = useRef(true);
 

@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Image, Pressable } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
-import { addToMyWatchlist, removeFromMyWatchlist } from '../../api/WatchlistApi';
+import { addToMyWatchlist } from '../../api/WatchlistApi';
 
 const ICON_SIZE = 30;
 
@@ -21,41 +21,21 @@ export default AddToWatchlistButton = ({ titleObj }) => {
 
     const [isAdded, setIsAdded] = useState(titleSeen); // check if it's actually added
 
-    const removeFromLocalWatchlist = () => {
-        const nextWatchlistItems = myWatchlistItems.filter((nextItem) => {
-            const { tmdbTitleID, titleType } = nextItem;
-            const isSeries = (titleType === 'tv');
-            return !((tmdbTitleID === titleObj.id) && (isSeries === titleObj.isSeries));    
-        });
-        setMyWatchlistItems(nextWatchlistItems);
-    }
-
-    const addOrRemoveFromWatchlist = async () => {
+    const addToWatchlist = async () => {
         const titleType = titleObj.isSeries ? 'tv' : 'film';
         const tmdbTitleID = titleObj.id;
 
-        if (isAdded) {
-            // remove from watchlist
-            const dbResult = await removeFromMyWatchlist(reelayDBUser?.sub, tmdbTitleID, titleType);
-            if (!dbResult.error) {
-                removeFromLocalWatchlist();
-                setIsAdded(false);
-            }
-            console.log(dbResult);    
-        } else {
-            // add to watchlist
-            const dbResult = await addToMyWatchlist(reelayDBUser?.sub, tmdbTitleID, titleType);
-            if (!dbResult.error) {
-                const nextWatchlistItems = [...myWatchlistItems, dbResult];
-                setMyWatchlistItems(nextWatchlistItems);
-                setIsAdded(true);
-            }
-            console.log(dbResult);    
+        const dbResult = await addToMyWatchlist(reelayDBUser?.sub, tmdbTitleID, titleType);
+        if (!dbResult.error) {
+            const nextWatchlistItems = [...myWatchlistItems, dbResult];
+            setMyWatchlistItems(nextWatchlistItems);
+            setIsAdded(true);
         }
+        console.log(dbResult);    
     }
 
     return (
-        <Pressable onPress={addOrRemoveFromWatchlist}>
+        <Pressable onPress={addToWatchlist} disabled={isAdded}>
             <Image source={(isAdded) ? WatchlistIconAdded : WatchlistIconNotAdded} style={{
                 height: ICON_SIZE,
                 width: ICON_SIZE,

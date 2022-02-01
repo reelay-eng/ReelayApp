@@ -74,7 +74,7 @@ export default WatchlistItem = ({ navigation, watchlistItem, category }) => {
                 <ActorText>{actors}</ActorText>
             </TitleLineContainer>
             <SliderIconContainer>
-                <Icon type='ionicon' name='caret-back' color='white' size={20} />
+                <Icon type='ionicon' name='chevron-back-outline' color='white' size={25} />
             </SliderIconContainer>
         </WatchlistItemContainer>
     );
