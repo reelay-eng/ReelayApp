@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef, memo } from 'react';
-import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
+import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View, Platform } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { FeedContext } from '../../context/FeedContext';
 import ReelayStack from './ReelayStack';
@@ -27,6 +27,7 @@ const ReelayFeedContainer = styled(View)`
 const FeedSourceSelectorButton = ({ feedSource, setDrawerOpenFeedSource }) => {
     const insets = useSafeAreaInsets();
     const SourceSelectorPressable = styled(Pressable)`
+        paddingTop: ${Platform.OS === 'android' ? 25 : 0}px;
         margin-top: ${insets.top}px;
         margin-left: 20px;
         position: absolute;
@@ -160,6 +161,10 @@ export default ReelayFeed = ({ navigation,
 
         if (feedPosition === 0) {
             refreshFeed();
+            if (Platform.OS === 'android') {
+                    console.log("setting global feed position to 1", globalFeedPosition);
+                    setGlobalFeedPosition(1);
+            }
         } else {
             console.log('feed positioning to 0');
             // feedPager.current.setPage(0);

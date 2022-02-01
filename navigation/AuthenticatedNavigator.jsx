@@ -79,7 +79,6 @@ export default AuthenticatedNavigator = () => {
 
 const BottomTabNavigator = () => {
     const { tabBarVisible } = useContext(FeedContext);
-	const colorScheme = useColorScheme();
     const s = StyleSheet.create({
 		gradient: {
 			flex: 1,
@@ -110,6 +109,7 @@ const BottomTabNavigator = () => {
 					borderTopWidth: 0,
 					paddingTop: 20,
 					height: 100,
+					elevation: 0,
 					display: tabBarVisible ? "flex" : "none",
 					paddingLeft: 10,
 					paddingRight: 10,
@@ -117,7 +117,7 @@ const BottomTabNavigator = () => {
 				tabBarBackground: () => (
 					<LinearGradient
 						colors={["transparent", ReelayColors.reelayBlack]}
-						locations={[0, 0.85]}
+						locations={[0.25, 1]}
 						style={[StyleSheet.absoluteFill, s.gradient]}
 					/>
 				),
@@ -138,6 +138,7 @@ const BottomTabNavigator = () => {
 								height: BOTTOM_TAB_ICON_SIZE,
 								margin: 0,
 								padding: 0,
+								
 							}}
 						/>
 					),

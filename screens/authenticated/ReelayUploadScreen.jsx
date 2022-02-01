@@ -395,6 +395,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         const onPress = () => {
             if (uploadStage === 'preview') {
                 publishReelay();
+                setPlaying(false);
             } else if (uploadStage === 'uploading') {
                 // do nothing
             } else if (uploadStage === 'upload-complete') {
