@@ -7,32 +7,39 @@ import { AuthContext } from '../../context/AuthContext';
 import { getWatchlistItems } from '../../api/WatchlistApi';
 import WatchlistSwipeableRow from './WatchlistSwipeableRow';
 
+import moment from 'moment';
+
 export default Watchlist = ({ navigation, watchlistItems, category }) => {
 
-    console.log('RENDERING WATCHLIST');
     const ROW_HEIGHT = 125;
     const WatchlistItemContainer = styled(Pressable)`
         background-color: black;
         border-bottom-color: #505050;
         border-bottom-width: 0.3px;
     `
-
     const ScrollContainer = styled(ScrollView)`
         margin-top: 40px;
         margin-bottom: ${ROW_HEIGHT + 105}px;
-    `;
-
+    `
     const [refreshing, setRefreshing] = useState(false);
     const { cognitoUser, setMyWatchlistItems } = useContext(AuthContext);
 
+    const byDateAdded = (watchlistItem0, watchlistItem1) => {
+        const dateAdded0 = moment(watchlistItem0.addedAt);
+        const dateAdded1 = moment(watchlistItem1.addedAt);
+        return dateAdded1.diff(dateAdded0, 'seconds');
+    }
+
     const onRefresh = async () => {
         const refreshedWatchlistItems = await getWatchlistItems(cognitoUser?.attributes?.sub);
-        setMyWatchlistItems(refreshedWatchlistItems);
+        const sortedWatchlistItems = refreshedWatchlistItems.sort(byDateAdded);
+        setMyWatchlistItems(sortedWatchlistItems);
     }
 
     // compress duplicate watchlist items by title, keeping their accumuluated recs
     // in a new `recommendations` field
-    const uniqueWatchlistItems = watchlistItems.filter((nextItem, index, allItems) => {
+    const sortedWatchlistItems = watchlistItems.sort(byDateAdded);
+    const uniqueWatchlistItems = sortedWatchlistItems.filter((nextItem, index, allItems) => {
         const { recommendedBySub, recommendedReelaySub, title } = nextItem;
         let nextItemHasUniqueTitle = true;
         let prevItemSameTitle = null;
@@ -52,11 +59,12 @@ export default Watchlist = ({ navigation, watchlistItems, category }) => {
         });
 
         if (nextItemHasUniqueTitle) {
-            nextItem.recommendations = [{ recommendedBySub, recommendedReelaySub }];
+            nextItem.recommendations = [];
+        }
 
-        } else if (recommendedBySub) {
-            // ...but not before adding their recs to an accumulated list
-            prevItemSameTitle.recommendations.push({ recommendedBySub, recommendedReelaySub });
+        const recItem = (nextItemHasUniqueTitle) ? nextItem : prevItemSameTitle;
+        if (recommendedBySub) {
+            recItem.recommendations.push({ recommendedBySub, recommendedReelaySub });
         }
         return nextItemHasUniqueTitle;
     });
@@ -67,7 +75,7 @@ export default Watchlist = ({ navigation, watchlistItems, category }) => {
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
             { uniqueWatchlistItems?.length >= 1 &&
-                <>
+                <React.Fragment>
                     { uniqueWatchlistItems.map((nextItem) => {
                         return (
                             <WatchlistSwipeableRow key={nextItem.id} 
@@ -83,7 +91,7 @@ export default Watchlist = ({ navigation, watchlistItems, category }) => {
                             </WatchlistSwipeableRow>
                         );
                     })}
-                </>
+                </React.Fragment>
             }
             </ScrollContainer>
         </View>

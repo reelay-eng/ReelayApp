@@ -19,8 +19,6 @@ export default AddToWatchlistButton = ({ titleObj }) => {
             && (hasAcceptedRec === true);
     });
 
-    const [isAdded, setIsAdded] = useState(titleSeen); // check if it's actually added
-
     const addToWatchlist = async () => {
         const titleType = titleObj.isSeries ? 'tv' : 'film';
         const tmdbTitleID = titleObj.id;
@@ -29,14 +27,13 @@ export default AddToWatchlistButton = ({ titleObj }) => {
         if (!dbResult.error) {
             const nextWatchlistItems = [...myWatchlistItems, dbResult];
             setMyWatchlistItems(nextWatchlistItems);
-            setIsAdded(true);
         }
         console.log(dbResult);    
     }
 
     return (
-        <Pressable onPress={addToWatchlist} disabled={isAdded}>
-            <Image source={(isAdded) ? WatchlistIconAdded : WatchlistIconNotAdded} style={{
+        <Pressable onPress={addToWatchlist} disabled={titleSeen}>
+            <Image source={(titleSeen) ? WatchlistIconAdded : WatchlistIconNotAdded} style={{
                 height: ICON_SIZE,
                 width: ICON_SIZE,
             }} />
