@@ -19,7 +19,7 @@ export default Watchlist = ({ navigation, watchlistItems, category }) => {
     `
     const ScrollContainer = styled(ScrollView)`
         margin-top: 40px;
-        margin-bottom: ${ROW_HEIGHT + 105}px;
+        margin-bottom: 180px;
     `
     const [refreshing, setRefreshing] = useState(false);
     const { cognitoUser, setMyWatchlistItems } = useContext(AuthContext);
@@ -40,7 +40,7 @@ export default Watchlist = ({ navigation, watchlistItems, category }) => {
     // in a new `recommendations` field
     const sortedWatchlistItems = watchlistItems.sort(byDateAdded);
     const uniqueWatchlistItems = sortedWatchlistItems.filter((nextItem, index, allItems) => {
-        const { recommendedBySub, recommendedReelaySub, title } = nextItem;
+        const { recommendedBySub, recommendedByUsername, recommendedReelaySub, title } = nextItem;
         let nextItemHasUniqueTitle = true;
         let prevItemSameTitle = null;
 
@@ -64,7 +64,7 @@ export default Watchlist = ({ navigation, watchlistItems, category }) => {
 
         const recItem = (nextItemHasUniqueTitle) ? nextItem : prevItemSameTitle;
         if (recommendedBySub) {
-            recItem.recommendations.push({ recommendedBySub, recommendedReelaySub });
+            recItem.recommendations.push({ recommendedBySub, recommendedByUsername, recommendedReelaySub });
         }
         return nextItemHasUniqueTitle;
     });
@@ -74,25 +74,25 @@ export default Watchlist = ({ navigation, watchlistItems, category }) => {
             <ScrollContainer style={{height: '100%'}}  refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
-            { uniqueWatchlistItems?.length >= 1 &&
-                <React.Fragment>
-                    { uniqueWatchlistItems.map((nextItem) => {
-                        return (
-                            <WatchlistSwipeableRow key={nextItem.id} 
-                                    category={category}
-                                    navigation={navigation} 
-                                    onRefresh={onRefresh}
-                                    watchlistItem={nextItem}>
-                                <WatchlistItemContainer key={nextItem?.id} onPress={() => {
-                                    navigation.push('TitleDetailScreen', { titleObj: nextItem.title });
-                                }}>
-                                    <WatchlistItem category={category} navigation={navigation} watchlistItem={nextItem} />
-                                </WatchlistItemContainer>
-                            </WatchlistSwipeableRow>
-                        );
-                    })}
-                </React.Fragment>
-            }
+                { uniqueWatchlistItems?.length >= 1 &&
+                    <React.Fragment>
+                        { uniqueWatchlistItems.map((nextItem) => {
+                            return (
+                                <WatchlistSwipeableRow key={nextItem.id} 
+                                        category={category}
+                                        navigation={navigation} 
+                                        onRefresh={onRefresh}
+                                        watchlistItem={nextItem}>
+                                    <WatchlistItemContainer key={nextItem?.id} onPress={() => {
+                                        navigation.push('TitleDetailScreen', { titleObj: nextItem.title });
+                                    }}>
+                                        <WatchlistItem category={category} navigation={navigation} watchlistItem={nextItem} />
+                                    </WatchlistItemContainer>
+                                </WatchlistSwipeableRow>
+                            );
+                        })}
+                    </React.Fragment>
+                }
             </ScrollContainer>
         </View>
     );

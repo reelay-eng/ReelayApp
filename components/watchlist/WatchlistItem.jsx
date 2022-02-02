@@ -27,18 +27,16 @@ const SliderIconContainer = styled(View)`
     align-items: center;
     justify-content: center;
 `
-const TitleText = styled(ReelayText.H6)`
+const TitleText = styled(ReelayText.Subtitle1Emphasized)`
     color: white
-    margin-bottom: 6px;
 `
 const TitleLineContainer = styled(View)`
     flex: 1;
     justify-content: center;
     align-items: flex-start;
 `
-const ActorText = styled(ReelayText.Subtitle1)`
+const ActorText = styled(ReelayText.Subtitle2)`
     color: gray;
-    font-size: 16px;
 `
 const RecUserPill = styled(Pressable)`
     background-color: #3c3c3c;
@@ -46,46 +44,48 @@ const RecUserPill = styled(Pressable)`
     margin-left: 6px;
     padding: 6px;
 `
-const RecUserText = styled(ReelayText.Subtitle1)`
+const RecUserText = styled(ReelayText.Subtitle2)`
     color: white;
     justify-content: flex-end;
 `
-const YearText = styled(ReelayText.Subtitle1)`
+const YearText = styled(ReelayText.Subtitle2)`
     color: gray
 `
 
-const RecommendedByLine = ({ watchlistItem }) => {
+const RecommendedByLine = ({ navigation, watchlistItem }) => {
     const { recommendations } = watchlistItem;
-    const [isLoaded, setIsLoaded] = useState(false);
-    const recUsernames = useRef();
-    const recUserSubs = recommendations.map((rec) => rec.recommendedBySub);
 
-    const loadRecUsers = async () => {
-        recUsernames.current = await Promise.all(recUserSubs.map(async (userSub) => {
-            const { username } = await getRegisteredUser(userSub);
-            return `@${username}`;
-        }));
-        setIsLoaded(true);
+    const advanceToUserProfile = async (creator) => {
+        navigation.push('UserProfileScreen', { creator });
     }
 
-    useEffect(() => {
-        loadRecUsers();
-    }, []);
- 
     return (
         <RecommendedByLineContainer>
             <RecUserText>
-                { isLoaded && recUsernames.current.length > 0 && `Sent to you by` }
+                { recommendations.length > 0 && `Sent to you by` }
             </RecUserText>   
-            { isLoaded && recUsernames.current.length > 0 && recUsernames.current.map((recUsername) => {
-                return (<RecUserPill><RecUserText>{recUsername}</RecUserText></RecUserPill>);
+            { recommendations.length > 0 && recommendations.map(({
+                recommendedBySub,
+                recommendedByUsername,
+                recommendedReelaySub, // unused right now
+            }) => {
+                return (
+                    <RecUserPill key={recommendedBySub} onPress={() => {
+                        advanceToUserProfile({ 
+                            sub: recommendedBySub, 
+                            username: recommendedByUsername,
+                        });
+                    }}>
+                        <RecUserText>{recommendedByUsername ?? '@god'}</RecUserText>
+                    </RecUserPill>
+                );
             }) }
         </RecommendedByLineContainer>
     );
 }
 
 const WatchlistItemInfo = ({ navigation, watchlistItem }) => {
-    const { title, recommendations } = watchlistItem;
+    const { title } = watchlistItem;
 
     // for movies and series
     // note that release_date for series has been overwritten with its first air date
@@ -127,7 +127,7 @@ export default WatchlistItem = ({ navigation, watchlistItem }) => {
         <View>
             <WatchlistItemInfo navigation={navigation} watchlistItem={watchlistItem} />
             { watchlistItem.recommendations.length > 0 && 
-                <RecommendedByLine watchlistItem={watchlistItem} /> 
+                <RecommendedByLine navigation={navigation} watchlistItem={watchlistItem} /> 
             }
         </View>
     );

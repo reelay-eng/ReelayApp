@@ -32,9 +32,8 @@ const TitleHeader = ({ navigation, readyToSend, sendRecs, watchlistItem }) => {
         align-items: center;
         margin-right: 20px;
     `
-    const TitleText = styled(ReelayText.H6)`
+    const TitleText = styled(ReelayText.Subtitle1)`
         color: white
-        margin-bottom: 6px;
     `
     const TitleLineContainer = styled(View)`
         flex: 1;
@@ -49,11 +48,10 @@ const TitleHeader = ({ navigation, readyToSend, sendRecs, watchlistItem }) => {
         margin-top: 10px;
         margin-bottom: 10px;
     `
-    const ActorText = styled(ReelayText.Subtitle1)`
+    const ActorText = styled(ReelayText.Subtitle2)`
         color: gray
-        font-size: 16px;
     `
-    const YearText = styled(ReelayText.Subtitle1)`
+    const YearText = styled(ReelayText.Subtitle2)`
         color: gray
     `
 
@@ -128,11 +126,10 @@ const FollowerRow = ({
     `
 
     const { followerSub, followerName } = followObj;
-
     const photoCurrentS3Key = `profilepic-${followerSub}-current.jpg`;
     const profilePicURI = `${CLOUDFRONT_BASE_URL}/public/${photoCurrentS3Key}`;
-
     const creator = { sub: followerSub, username: followerName };
+
     const advanceToUserProfile = () => {
         navigation.push('UserProfileScreen', { creator });
     }
@@ -199,10 +196,6 @@ const StatusBar = ({ navigation }) => {
         color: white;
         margin-left: 10px;
     `
-    const SubheaderText = styled(ReelayText.Body2)`
-        color: white;
-        margin-left: 10px;
-        `
     const TopBarContainer = styled(View)`
         align-items: center;
         width: 100%;
@@ -328,6 +321,7 @@ const RecScreenContainer = styled(SafeAreaView)`
 `
 
 export default SendRecScreen = ({ navigation, route }) => {
+    const { cognitoUser } = useContext(AuthContext);
     const { watchlistItem } = route.params;
     const followersToSend = useRef([]);
     const [readyToSend, setReadyToSend] = useState(followersToSend.current > 0);
@@ -359,12 +353,17 @@ export default SendRecScreen = ({ navigation, route }) => {
         console.log('followers to send: ', followersToSend.current);
         const sendRecResults = await Promise.all(followersToSend.current.map(async (followObj) => {
             return await sendRecommendation({ 
-                reqUserSub: followObj.creatorSub,
+                reqUserSub: cognitoUser?.attributes?.sub,
+                reqUsername: cognitoUser?.username,
                 sendToUserSub: followObj.followerSub,
                 tmdbTitleID: watchlistItem.tmdbTitleID,
                 titleType: watchlistItem.titleType,
             });
         }));
+
+        // todo: advance to rec sent page
+
+        console.log(sendRecResults);
         showMessageToast('Recommendation sent!');
     }
 

@@ -194,6 +194,7 @@ export const removeFromMyWatchlist = async ({ reqUserSub, tmdbTitleID, titleType
 export const sendRecommendation = async ({
     recommendedReelaySub, // optional
     reqUserSub,
+    reqUsername,
     sendToUserSub,
     tmdbTitleID,
     titleType,
@@ -204,6 +205,7 @@ export const sendRecommendation = async ({
     const routePost = `${REELAY_API_BASE_URL}/watchlists/${sendToUserSub}/recs`;
     const postBody = { 
         recommendedBySub: reqUserSub,
+        recommendedByUsername: reqUsername,
         recommendedReelaySub,
         tmdbTitleID,
         titleType,
