@@ -52,7 +52,8 @@ export default Watchlist = ({ navigation, watchlistItems, category }) => {
         });
 
         if (nextItemHasUniqueTitle) {
-            nextItem.recommendations = [];
+            nextItem.recommendations = [{ recommendedBySub, recommendedReelaySub }];
+
         } else if (recommendedBySub) {
             // ...but not before adding their recs to an accumulated list
             prevItemSameTitle.recommendations.push({ recommendedBySub, recommendedReelaySub });

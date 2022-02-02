@@ -34,7 +34,6 @@ const TitleHeader = ({ navigation, readyToSend, sendRecs, watchlistItem }) => {
     `
     const TitleText = styled(ReelayText.H6)`
         color: white
-        font-size: 22px;
         margin-bottom: 6px;
     `
     const TitleLineContainer = styled(View)`
@@ -45,7 +44,7 @@ const TitleHeader = ({ navigation, readyToSend, sendRecs, watchlistItem }) => {
     const TitleHeaderPressable = styled(Pressable)`
         align-items: center;
         flex-direction: row;
-        margin-left: 50px;
+        margin-left: 20px;
         margin-right: 20px;
         margin-top: 10px;
         margin-bottom: 10px;
