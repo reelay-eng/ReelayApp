@@ -83,6 +83,32 @@ export const getWatchlistItems = async (reqUserSub, category = 'all') => {
     }
 }
 
+export const getSentRecommendations = async ({
+    reqUserSub, 
+    tmdbTitleID, 
+    titleType,
+}) => {
+    const check = checkForErrors({ reqUserSub, tmdbTitleID, titleType });
+    if (check.error) return check.error;
+    const paramStr = `tmdbTitleID=${tmdbTitleID}&titleType=${titleType}`
+    const routeGet = `${REELAY_API_BASE_URL}/watchlists/${reqUserSub}/sent?${paramStr}`;
+
+    try {
+        const sentRecs = await fetchResults(routeGet, {
+            method: 'GET',
+            headers: { 
+                ...REELAY_API_HEADERS, 
+                requsersub: reqUserSub,
+            },
+        });
+        console.log('sent recs: ', sentRecs);
+        return await Promise.all(sentRecs.map(prepareWatchlistItem));    
+    } catch (error) {
+        console.error(error);
+        return [];
+    }
+}
+
 export const markWatchlistItemSeen = async ({
     reqUserSub,
     tmdbTitleID,

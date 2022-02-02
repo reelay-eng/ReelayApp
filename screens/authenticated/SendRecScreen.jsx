@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useRef, useContext, memo, useCallback } from 'react';
-import { ActivityIndicator, Dimensions, Image, Pressable, SafeAreaView, View, Text } from 'react-native';
+import React, { useState, useRef, useContext, memo, useCallback, useEffect } from 'react';
+import { ActivityIndicator, Image, Pressable, SafeAreaView, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Constants from 'expo-constants';
 
 import BackButton from '../../components/utils/BackButton';
 import SearchField from '../../components/create-reelay/SearchField';
-import WatchlistItem from '../../components/watchlist/WatchlistItem';
 import { AuthContext } from '../../context/AuthContext';
 
 import * as ReelayText from '../../components/global/Text';
@@ -13,25 +12,25 @@ import styled from 'styled-components/native';
 
 import { getRuntimeString } from '../../components/utils/TitleRuntime';
 import { ScrollView } from 'react-native-gesture-handler';
-import { sendRecommendation } from '../../api/WatchlistApi';
+import { sendRecommendation, getSentRecommendations } from '../../api/WatchlistApi';
 import { showMessageToast } from '../../components/utils/toasts';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const ReelayIcon = require('../../assets/icons/reelay-icon.png');
 
-const MAX_FOLLOWERS_TO_SEND = 5;
-
-const TitleHeader = ({ navigation, watchlistItem, followersToSend }) => {
+const TitleHeader = ({ navigation, readyToSend, sendRecs, watchlistItem }) => {
     const SendIconPressable = styled(Pressable)`
         align-items: center;
+        background-color: ${readyToSend ? '#497afc' : 'gray' };
+        border-radius: 35px;
         justify-content: center;
-        padding-right: 10px;
+        height: 70px;
+        padding: 20px;
     `
     const ImageContainer = styled(View)`
         flex-direction: row;
         align-items: center;
         margin-right: 20px;
-        margin-bottom: 10px;
     `
     const TitleText = styled(ReelayText.H6)`
         color: white
@@ -44,6 +43,7 @@ const TitleHeader = ({ navigation, watchlistItem, followersToSend }) => {
         align-items: flex-start;
     `;
     const TitleHeaderPressable = styled(Pressable)`
+        align-items: center;
         flex-direction: row;
         margin-left: 50px;
         margin-right: 20px;
@@ -59,25 +59,10 @@ const TitleHeader = ({ navigation, watchlistItem, followersToSend }) => {
     `
 
     const { title } = watchlistItem;
-    const color = (followersToSend.current.length === 0) ? 'gray' : '#497afc';
     const runtimeString = getRuntimeString(title?.runtime);
 
     const advanceToTitleScreen = () => {
         navigation.push('TitleDetailScreen', { titleObj: title });
-    }
-
-    const sendRecommendationsToFollowers = async () => {
-        console.log("sending rec!");
-        console.log('followers to send: ', followersToSend.current);
-        const sendRecResults = await Promise.all(followersToSend.current.map(async (followObj) => {
-            return await sendRecommendation({ 
-                reqUserSub: followObj.creatorSub,
-                sendToUserSub: followObj.followerSub,
-                tmdbTitleID: watchlistItem.tmdbTitleID,
-                titleType: watchlistItem.titleType,
-            });
-        }));
-        showMessageToast('Recommendation sent!');
     }
 
     return (
@@ -96,17 +81,34 @@ const TitleHeader = ({ navigation, watchlistItem, followersToSend }) => {
                 <TitleText>{title.display}</TitleText>
                 <YearText>{`${title.releaseYear}    ${runtimeString}`}</YearText>
             </TitleLineContainer>
-            <SendIconPressable onPress={sendRecommendationsToFollowers}>
-                <Icon type='ionicon' name='paper-plane' size={30} color={color} />
+            <SendIconPressable onPress={sendRecs}>
+                <Icon type='ionicon' name='paper-plane' size={30} color={'white'} />
             </SendIconPressable>
         </TitleHeaderPressable>
     )
 }
 
-const FollowerRow = ({ followObj, isMarkedToSend, markFollowerToSend, unmarkFollowerToSend }) => {
-    const RowContainer = styled(View)`
+const FollowerRow = ({ 
+    navigation,
+    followObj, 
+    hasAlreadySent, 
+    hasMarkedToSend, 
+    markFollowerToSend, 
+    unmarkFollowerToSend,
+}) => {
+    const [markedToSend, setMarkedToSend] = useState(hasMarkedToSend);
+    const backgroundColor = (markedToSend) ? '#497afc' : 'black';
+    const iconName = (hasAlreadySent) ? 'checkmark-done' : 'checkmark';
+    const iconColor = (hasAlreadySent) ? 'gray' : 'white';
+
+    const CheckmarkIconContainer = styled(View)`
+        align-items: center;
+        justify-content: center;
+    `
+    const RowContainer = styled(Pressable)`
         display: flex;
         align-items: center;
+        background-color: ${backgroundColor};
         flex-direction: row;
         justify-content: space-between;
         padding: 6px;
@@ -119,7 +121,7 @@ const FollowerRow = ({ followObj, isMarkedToSend, markFollowerToSend, unmarkFoll
         flex-direction: row;
     `
     const UsernameText = styled(ReelayText.Subtitle1Emphasized)`
-        color: ${(props) => (props.disabled) ? 'gray' : 'white' };
+        color: ${() => (hasAlreadySent) ? 'gray' : 'white' };
     `
     const UsernameContainer = styled(View)`
         align-items: flex-start;
@@ -127,36 +129,17 @@ const FollowerRow = ({ followObj, isMarkedToSend, markFollowerToSend, unmarkFoll
     `
 
     const { followerSub, followerName } = followObj;
+
     const photoCurrentS3Key = `profilepic-${followerSub}-current.jpg`;
     const profilePicURI = `${CLOUDFRONT_BASE_URL}/public/${photoCurrentS3Key}`;
 
-    return (
-        <RowContainer>
-            <UserInfoContainer>
-                <ProfilePicture profilePicURI={profilePicURI}/>
-                <UsernameContainer>
-                    <UsernameText>{followerName}</UsernameText>
-                </UsernameContainer>
-            </UserInfoContainer>
-            <ToSendBox 
-                followObj={followObj} 
-                followerIsMarkedToSend={isMarkedToSend} 
-                markFollowerToSend={markFollowerToSend} 
-                unmarkFollowerToSend={unmarkFollowerToSend}
-            />
-        </RowContainer>
-    )
-}
-
-const ToSendBox = ({ followObj, followerIsMarkedToSend, markFollowerToSend, unmarkFollowerToSend }) => {
-    const MarkToSendPressable = styled(Pressable)`
-        padding: 10px;
-    `
-
-    const [markedToSend, setMarkedToSend] = useState(followerIsMarkedToSend);
-    const iconName = (markedToSend) ? 'checkbox-outline' : 'square-outline';
-
-    const markBox = () => {
+    const creator = { sub: followerSub, username: followerName };
+    const advanceToUserProfile = () => {
+        navigation.push('UserProfileScreen', { creator });
+    }
+    
+    const markRow = () => {
+        if (hasAlreadySent) return;
         if (markedToSend) {
             const isMarked = unmarkFollowerToSend(followObj);
             setMarkedToSend(isMarked);
@@ -164,13 +147,23 @@ const ToSendBox = ({ followObj, followerIsMarkedToSend, markFollowerToSend, unma
             const isMarked = markFollowerToSend(followObj);
             setMarkedToSend(isMarked);    
         }
-    };
+    }
 
     return (
-        <MarkToSendPressable onPress={markBox}>
-            <Icon type='ionicon' name={iconName} size={30} color='white' />
-        </MarkToSendPressable>
-    );
+        <RowContainer onPress={markRow}>
+            <UserInfoContainer>
+                <ProfilePicture profilePicURI={profilePicURI}/>
+                <UsernameContainer>
+                    <UsernameText>{followerName}</UsernameText>
+                </UsernameContainer>
+            </UserInfoContainer>
+            { (markedToSend || hasAlreadySent) && (
+                <CheckmarkIconContainer>
+                    <Icon type='ionicon' name={iconName} size={30} color={iconColor} />
+                </CheckmarkIconContainer>                        
+            )}
+        </RowContainer>
+    )
 }
 
 const ProfilePicture = React.memo(({ profilePicURI }) => {
@@ -199,7 +192,7 @@ const ProfilePicture = React.memo(({ profilePicURI }) => {
     );
 });
 
-const StatusBar = ({ navigation, headerText, subheaderText }) => {
+const StatusBar = ({ navigation }) => {
     const BackButtonContainer = styled(View)`
         margin-right: 10px;
     `
@@ -223,44 +216,103 @@ const StatusBar = ({ navigation, headerText, subheaderText }) => {
             <BackButtonContainer>
                 <BackButton navigation={navigation} />
             </BackButtonContainer>
-            <HeaderText>{headerText}</HeaderText>
+            <HeaderText>{`Send to a friend`}</HeaderText>
         </TopBarContainer>
     );
 }
 
-const FollowerSearch = () => {
+// These need to be declared outside of the search field
+// component, or else the keyboard will keep popping up and down
+const SearchFieldContainer = styled(View)`
+    margin-left: 10px;
+`
+const FollowerSearch = ({ updateSearch }) => {
     const [searchText, setSearchText] = useState('');
 
+    const updateSearchText = (newSearchText) => {
+        if (searchText !== newSearchText) {
+            setSearchText(newSearchText);
+            updateSearch(newSearchText);
+        }
+    }
     return (
+        <SearchFieldContainer>
         <SearchField
             borderRadius={4}
             searchText={searchText}
-            updateSearchText={setSearchText}
+            updateSearchText={updateSearchText}
             placeholderText={`Search followers...`} />
+        </SearchFieldContainer>
     );
 }
 
-const FollowerList = memo(({ getFollowersToSend, markFollowerToSend, unmarkFollowerToSend }) => {
+const FollowerList = memo(({ 
+    navigation,
+    getFollowersToSend, 
+    markFollowerToSend, 
+    unmarkFollowerToSend,
+    watchlistItem,
+}) => {
     const ScrollViewContainer = styled(ScrollView)`
         margin-bottom: 60px;
     `
-    const { myFollowers } = useContext(AuthContext);
+    const { cognitoUser, myFollowers } = useContext(AuthContext);
+    const priorRecs = useRef([]);
+
     const sortByFollowerName = (followObj0, followObj1) => {
         return followObj0.followerName > followObj1.followerName;
     };
 
+    const allFollowersSorted = myFollowers.sort(sortByFollowerName);
+    const [displayFollowers, setDisplayFollowers] = useState(allFollowersSorted);
+    const [isLoaded, setIsLoaded] = useState(false);
+
+    const loadPriorRecs = async (watchlistItem) => {
+        const fetchedPriorRecs = await getSentRecommendations({
+            reqUserSub: cognitoUser?.attributes?.sub,
+            tmdbTitleID: watchlistItem.tmdbTitleID,
+            titleType: watchlistItem.titleType,
+        });
+        priorRecs.current = fetchedPriorRecs;
+        setIsLoaded(true);
+    }
+
+    const updateSearch = useCallback(async (newSearchText) => {
+        if (!newSearchText.length) {
+            setDisplayFollowers(allFollowersSorted);
+        } else {
+            const filteredFollowers = myFollowers.filter((followObj) => {
+                const cleanedFollowName = followObj.followerName.toLowerCase();
+                const cleanedSearchText = newSearchText.toLowerCase();
+                return cleanedFollowName.indexOf(cleanedSearchText) !== -1;
+            });
+            const sortedFollowers = filteredFollowers.sort(sortByFollowerName);
+            setDisplayFollowers(sortedFollowers);    
+        }
+    }, []);
+
+    useEffect(() => {
+        loadPriorRecs(watchlistItem);
+    }, []);
+    
     return (
         <React.Fragment>
-            <FollowerSearch />
+            <FollowerSearch updateSearch={updateSearch} />
             <ScrollViewContainer>
-                { myFollowers.sort(sortByFollowerName).map((followObj, index) => {
-                    const isMarkedToSend = getFollowersToSend().find((nextFollowObj) => {
+                { isLoaded && displayFollowers.map((followObj, index) => {
+                    const hasMarkedToSend = getFollowersToSend().find((nextFollowObj) => {
                         return (nextFollowObj.followerSub === followObj.followerSub);
                     });
 
+                    const hasAlreadySent = priorRecs.current.find((sentWatchlistItem) => {
+                        return sentWatchlistItem.userSub === followObj.followerSub;
+                    });
+
                     return <FollowerRow key={index} 
+                        navigation={navigation}
                         followObj={followObj}
-                        isMarkedToSend={isMarkedToSend}
+                        hasMarkedToSend={!!hasMarkedToSend}
+                        hasAlreadySent={hasAlreadySent}
                         markFollowerToSend={markFollowerToSend}
                         unmarkFollowerToSend={unmarkFollowerToSend}
                     />;
@@ -303,25 +355,35 @@ export default SendRecScreen = ({ navigation, route }) => {
         return false; // isMarked
     }, []);
 
-    const headerText = `Send to a friend`;
-    const subheaderText = `You can send up to ${MAX_FOLLOWERS_TO_SEND} recs at a time`;
+    const sendRecs = async () => {
+        console.log("sending rec!");
+        console.log('followers to send: ', followersToSend.current);
+        const sendRecResults = await Promise.all(followersToSend.current.map(async (followObj) => {
+            return await sendRecommendation({ 
+                reqUserSub: followObj.creatorSub,
+                sendToUserSub: followObj.followerSub,
+                tmdbTitleID: watchlistItem.tmdbTitleID,
+                titleType: watchlistItem.titleType,
+            });
+        }));
+        showMessageToast('Recommendation sent!');
+    }
 
     return (
 		<RecScreenContainer>
-            <StatusBar
-                navigation={navigation} 
-                headerText={headerText} 
-                subheaderText={subheaderText}
-            />
+            <StatusBar navigation={navigation} />
             <TitleHeader 
                 navigation={navigation} 
-                followersToSend={followersToSend}
                 watchlistItem={watchlistItem}
+                readyToSend={readyToSend}
+                sendRecs={sendRecs}
             />
             <FollowerList 
+                navigation={navigation}
                 getFollowersToSend={getFollowersToSend}
                 markFollowerToSend={markFollowerToSend}
                 unmarkFollowerToSend={unmarkFollowerToSend}
+                watchlistItem={watchlistItem}
             />
         </RecScreenContainer>
     );

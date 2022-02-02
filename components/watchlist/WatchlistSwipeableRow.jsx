@@ -8,6 +8,7 @@ import { AuthContext } from '../../context/AuthContext';
 
 import { 
     acceptRecommendation, 
+    getSentRecommendations, 
     ignoreRecommendation, 
     markWatchlistItemSeen,
     markWatchlistItemUnseen, 
@@ -89,9 +90,9 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
         });
     };
 
-    const advanceToRecommendScreen = () => {
+    const advanceToRecommendScreen = async () => {
         navigation.push('SendRecScreen', {
-            watchlistItem: watchlistItem
+            watchlistItem: watchlistItem,
         });
     };
 
@@ -169,12 +170,20 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
         swipeableRowRef.current.close();
     };
 
+    // const openLeft = () => {
+    //     swipeableRowRef.current.openLeft();
+    // }
+
+    // const openRight = () => {
+    //     swipeableRowRef.current.openRight();
+    // }   
+
     return (
         <Swipeable
             ref={updateRef}
             friction={2}
-            leftThreshold={30}
-            rightThreshold={40}
+            leftThreshold={20}
+            rightThreshold={20}
             renderLeftActions={renderLeftActions}
             renderRightActions={renderRightActions}>
             { children }
