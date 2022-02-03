@@ -8,7 +8,7 @@ const ICON_SIZE = 30;
 import WatchlistIconAdded from '../../assets/icons/global/watchlist-added-icon.png';
 import WatchlistIconNotAdded from '../../assets/icons/global/watchlist-icon-filled.png';
 
-export default AddToWatchlistButton = ({ titleObj, reelaySub }) => {
+export default AddToWatchlistButton = ({ titleObj, reelay }) => {
     const { reelayDBUser, myWatchlistItems, setMyWatchlistItems } = useContext(AuthContext);
 
     const inWatchlist = !!myWatchlistItems.find((nextItem) => {
@@ -26,7 +26,10 @@ export default AddToWatchlistButton = ({ titleObj, reelaySub }) => {
         const titleType = titleObj.isSeries ? 'tv' : 'film';
         const tmdbTitleID = titleObj.id;
         const reqBody = { reqUserSub: reelayDBUser?.sub, tmdbTitleID, titleType };
-        if (reelaySub) reqBody.reelaySub = reelaySub;
+        if (reelay?.sub) {
+            reqBody.reelaySub = reelay.sub;
+            reqBody.creatorName = reelay.creator.username;
+        }
 
         
         const dbResult = await addToMyWatchlist(reqBody);

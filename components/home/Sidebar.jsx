@@ -132,7 +132,7 @@ export default Sidebar = ({ reelay }) => {
 				<Count>{reelay.comments.length}</Count>
 			</SidebarButton>
 			<SidebarButton>
-				<AddToWatchlistButton titleObj={reelay.title} reelaySub={reelay.sub} />
+				<AddToWatchlistButton titleObj={reelay.title} reelay={reelay} />
 			</SidebarButton>
 			<SidebarButton onPress={onDotMenuPress}>
 				<Icon 

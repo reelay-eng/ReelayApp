@@ -75,7 +75,7 @@ const RecommendedByLine = ({ navigation, watchlistItem }) => {
                             username: recommendedByUsername,
                         });
                     }}>
-                        <RecUserText>{recommendedByUsername ?? '@god'}</RecUserText>
+                        <RecUserText>{`@${recommendedByUsername}` ?? '@god'}</RecUserText>
                     </RecUserPill>
                 );
             }) }
@@ -84,7 +84,7 @@ const RecommendedByLine = ({ navigation, watchlistItem }) => {
 }
 
 const ReelayedByLine = ({ navigation, watchlistItem }) => {
-    const { recommendedReelaySub } = watchlistItem;
+    const { recommendedReelaySub, recReelayCreatorName } = watchlistItem;
     const [pressed, setPressed] = useState(false);
 
     const advanceToSingleReelayScreen = async () => {
@@ -99,7 +99,7 @@ const ReelayedByLine = ({ navigation, watchlistItem }) => {
         <RecommendedByLineContainer>
             <RecUserText>{`Reelayed by`}</RecUserText>   
             <RecUserPill onPress={advanceToSingleReelayScreen} pressed={pressed}>
-                <RecUserText>{'@god'}</RecUserText>
+                <RecUserText>{`@${recReelayCreatorName}`}</RecUserText>
             </RecUserPill>
         </RecommendedByLineContainer>
     );

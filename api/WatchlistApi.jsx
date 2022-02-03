@@ -34,15 +34,17 @@ const prepareWatchlistItem = async (fetchedWatchlistItem) => {
 
 // MANAGE WATCHLIST
 
-export const addToMyWatchlist = async ({ reqUserSub, reelaySub, tmdbTitleID, titleType }) => {
+export const addToMyWatchlist = async ({ reqUserSub, reelaySub, creatorName, tmdbTitleID, titleType }) => {
     const check = checkForErrors({ reqUserSub, tmdbTitleID, titleType });
     if (check.error) return check.error;
 
     const routePost = `${REELAY_API_BASE_URL}/watchlists/${reqUserSub}/add`;
-    const postBody = { tmdbTitleID, titleType, recommendedReelaySub: reelaySub };
-    console.log(routePost);
-
-    console.log('POST BODY: ', postBody);
+    const postBody = { 
+        recommendedReelaySub: reelaySub, 
+        recReelayCreatorName: creatorName,
+        tmdbTitleID, 
+        titleType, 
+    };
 
     try {
         const dbResult = await fetchResults(routePost, {
