@@ -265,6 +265,13 @@ const HomeTabNavigator = () => {
                     headerShown: false,
                 }}
             />
+			<HomeTabStack.Screen 
+				name='SendRecScreen'
+				component={SendRecScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
             <HomeTabStack.Screen
                 name='TitleDetailScreen'
                 component={TitleDetailScreen}
@@ -326,16 +333,23 @@ const SearchTabNavigator = () => {
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
-                name='SingleReelayScreen'
-                component={SingleReelayScreen}
+			<SearchTabStack.Screen
+                name='ReportedContentFeedScreen'
+                component={ReportedContentFeedScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-			<SearchTabStack.Screen
-                name='ReportedContentFeedScreen'
-                component={ReportedContentFeedScreen}
+			<SearchTabStack.Screen 
+				name='SendRecScreen'
+				component={SendRecScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+            <SearchTabStack.Screen
+                name='SingleReelayScreen'
+                component={SingleReelayScreen}
                 options={{
                     headerShown: false,
                 }}
@@ -500,6 +514,13 @@ const ProfileTabNavigator = () => {
 			<ProfileTabStack.Screen
 				name="ReportedContentFeedScreen"
 				component={ReportedContentFeedScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<ProfileTabStack.Screen 
+				name='SendRecScreen'
+				component={SendRecScreen}
 				options={{
 					headerShown: false,
 				}}

@@ -30,7 +30,7 @@ const Hero = ({
                 isPaused={isPaused} playPause={playPause} 
             />
             <ReelayInfo navigation={navigation} reelay={reelay} />
-            <Sidebar reelay={reelay} />
+            <Sidebar navigation={navigation} reelay={reelay} />
             { viewable && likesVisible && <LikesDrawer reelay={reelay} navigation={navigation} /> }
             { viewable && commentsVisible && <CommentsDrawer reelay={reelay} navigation={navigation} /> }
             { viewable && dotMenuVisible && 

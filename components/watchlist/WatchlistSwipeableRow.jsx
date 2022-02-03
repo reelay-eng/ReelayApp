@@ -14,6 +14,7 @@ import {
     markWatchlistItemUnseen, 
     removeFromMyWatchlist,
 } from '../../api/WatchlistApi';
+import { notifyOnAcceptRec } from '../../api/WatchlistNotifications';
 
 // https://snack.expo.dev/@adamgrzybowski/react-native-gesture-handler-demo
 export default WatchlistSwipeableRow = ({ category, children, navigation, onRefresh, watchlistItem }) => {
@@ -71,17 +72,25 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
     };
 
     const acceptRecommendedItem = async () => {
-        const result = await acceptRecommendation({
+        const dbResult = await acceptRecommendation({
             recommendedBySub,
             reqUserSub: cognitoUser?.attributes?.sub,
             tmdbTitleID: tmdbTitleID,
             titleType: titleType,
         });
 
+        const notifyResult = await notifyOnAcceptRec({
+            acceptUserSub: cognitoUser?.attributes?.sub,
+            acceptUsername: cognitoUser?.username,
+            recUserSub: recommendedBySub,
+            watchlistItem,
+        });
+
         // todo: update and reload watchlist in memory
         close();
         await onRefresh();
-        console.log(result);
+        console.log(dbResult);
+        console.log(notifyResult);
     };
 
     const advanceToCreateScreen = () => {

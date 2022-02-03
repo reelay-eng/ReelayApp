@@ -14,6 +14,7 @@ import { getRuntimeString } from '../../components/utils/TitleRuntime';
 import { ScrollView } from 'react-native-gesture-handler';
 import { sendRecommendation, getSentRecommendations } from '../../api/WatchlistApi';
 import { showMessageToast } from '../../components/utils/toasts';
+import { notifyOnSendRec } from '../../api/WatchlistNotifications';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const ReelayIcon = require('../../assets/icons/reelay-icon.png');
@@ -349,21 +350,29 @@ export default SendRecScreen = ({ navigation, route }) => {
     }, []);
 
     const sendRecs = async () => {
-        console.log("sending rec!");
-        console.log('followers to send: ', followersToSend.current);
+        console.log('sending rec!');
         const sendRecResults = await Promise.all(followersToSend.current.map(async (followObj) => {
-            return await sendRecommendation({ 
+            const dbResult = await sendRecommendation({ 
                 reqUserSub: cognitoUser?.attributes?.sub,
                 reqUsername: cognitoUser?.username,
                 sendToUserSub: followObj.followerSub,
                 tmdbTitleID: watchlistItem.tmdbTitleID,
                 titleType: watchlistItem.titleType,
             });
+
+            const notifyResult = await notifyOnSendRec({
+                reqUserSub: cognitoUser?.attributes?.sub,
+                reqUsername: cognitoUser?.username,
+                sendToUserSub: followObj.followerSub,
+                watchlistItem,
+            });
+            console.log('notify results: ', notifyResult);
+            return dbResult;
         }));
 
-        // todo: advance to rec sent page
 
-        console.log(sendRecResults);
+        // todo: advance to rec sent page
+        console.log('send rec results: ', sendRecResults);
         showMessageToast('Recommendation sent!');
     }
 

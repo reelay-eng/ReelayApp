@@ -10,6 +10,7 @@ import WatchlistIconNotAdded from '../../assets/icons/global/watchlist-icon-fill
 
 export default AddToWatchlistButton = ({ titleObj, reelay }) => {
     const { reelayDBUser, myWatchlistItems, setMyWatchlistItems } = useContext(AuthContext);
+    const isMyReelay = reelay?.creator?.sub === reelayDBUser?.sub;
 
     const inWatchlist = !!myWatchlistItems.find((nextItem) => {
         const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;

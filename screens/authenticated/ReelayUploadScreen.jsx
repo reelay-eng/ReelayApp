@@ -33,6 +33,7 @@ import styled from 'styled-components/native';
 import { postReelayToDB } from '../../api/ReelayDBApi';
 import { fetchAnnotatedTitle } from '../../api/TMDbApi';
 import ReelayColors from '../../constants/ReelayColors';
+import { notifyOnReelayedRec } from '../../api/WatchlistNotifications';
 
 const { height, width } = Dimensions.get('window');
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
@@ -277,6 +278,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                     title: annotatedTitle,
                 },
             });
+            // todo: notifyOnReelayedRec
         } catch (error) {
             // todo: better error catching
             console.log('Error uploading file: ', error);

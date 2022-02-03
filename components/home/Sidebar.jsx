@@ -11,10 +11,11 @@ import { sendLikeNotification } from '../../api/NotificationsApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
 import AddToWatchlistButton from '../titlePage/AddToWatchlistButton';
+import SendRecButton from '../watchlist/SendRecButton';
 
 const { height, width } = Dimensions.get('window');
 
-export default Sidebar = ({ reelay }) => {
+export default Sidebar = ({ navigation, reelay }) => {
 	const ICON_SIZE = 36;
 	const DOT_ICON_SIZE = ICON_SIZE * 2 / 3;
 
@@ -40,6 +41,7 @@ export default Sidebar = ({ reelay }) => {
 	const { cognitoUser } = useContext(AuthContext);
 	const { setCommentsVisible, setLikesVisible, setDotMenuVisible } = useContext(FeedContext);
 
+	const isMyReelay = reelay.creator.sub === cognitoUser?.attributes?.sub;
 	const commentedByUser = reelay.comments.find(comment => comment.authorName === cognitoUser.username);
 	const likedByUser = reelay.likes.find(like => like.username === cognitoUser.username);
 
@@ -132,7 +134,8 @@ export default Sidebar = ({ reelay }) => {
 				<Count>{reelay.comments.length}</Count>
 			</SidebarButton>
 			<SidebarButton>
-				<AddToWatchlistButton titleObj={reelay.title} reelay={reelay} />
+				{ isMyReelay && <SendRecButton navigation={navigation} titleObj={reelay.title} reelay={reelay} /> }
+				{ !isMyReelay && <AddToWatchlistButton titleObj={reelay.title} reelay={reelay} /> }
 			</SidebarButton>
 			<SidebarButton onPress={onDotMenuPress}>
 				<Icon 
