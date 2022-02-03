@@ -5,7 +5,7 @@ import * as ReelayText from "../global/Text";
 import styled from 'styled-components/native';
 
 import { getRuntimeString } from '../utils/TitleRuntime';
-import { getRegisteredUser } from '../../api/ReelayDBApi';
+import { getReelay, getRegisteredUser, prepareReelay } from '../../api/ReelayDBApi';
 
 const WatchlistItemContainer = styled(Pressable)`
     flex-direction: row;
@@ -39,7 +39,7 @@ const ActorText = styled(ReelayText.Subtitle2)`
     color: gray;
 `
 const RecUserPill = styled(Pressable)`
-    background-color: #3c3c3c;
+    background-color: ${(props) => (props?.pressed) ? 'gray' : '#3c3c3c'};
     border-radius: 6px;
     margin-left: 6px;
     padding: 6px;
@@ -54,7 +54,6 @@ const YearText = styled(ReelayText.Subtitle2)`
 
 const RecommendedByLine = ({ navigation, watchlistItem }) => {
     const { recommendations } = watchlistItem;
-
     const advanceToUserProfile = async (creator) => {
         navigation.push('UserProfileScreen', { creator });
     }
@@ -80,6 +79,28 @@ const RecommendedByLine = ({ navigation, watchlistItem }) => {
                     </RecUserPill>
                 );
             }) }
+        </RecommendedByLineContainer>
+    );
+}
+
+const ReelayedByLine = ({ navigation, watchlistItem }) => {
+    const { recommendedReelaySub } = watchlistItem;
+    const [pressed, setPressed] = useState(false);
+
+    const advanceToSingleReelayScreen = async () => {
+        setPressed(true);
+        const singleReelay = await getReelay(recommendedReelaySub);
+        const preparedReelay = await prepareReelay(singleReelay); 
+        setPressed(false);
+        navigation.push('SingleReelayScreen', { preparedReelay });
+    }
+
+    return (
+        <RecommendedByLineContainer>
+            <RecUserText>{`Reelayed by`}</RecUserText>   
+            <RecUserPill onPress={advanceToSingleReelayScreen} pressed={pressed}>
+                <RecUserText>{'@god'}</RecUserText>
+            </RecUserPill>
         </RecommendedByLineContainer>
     );
 }
@@ -128,6 +149,9 @@ export default WatchlistItem = ({ navigation, watchlistItem }) => {
             <WatchlistItemInfo navigation={navigation} watchlistItem={watchlistItem} />
             { watchlistItem.recommendations.length > 0 && 
                 <RecommendedByLine navigation={navigation} watchlistItem={watchlistItem} /> 
+            }
+            { !!watchlistItem.recommendedReelaySub && 
+                <ReelayedByLine navigation={navigation} watchlistItem={watchlistItem} />
             }
         </View>
     );

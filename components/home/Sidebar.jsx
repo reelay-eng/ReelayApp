@@ -10,11 +10,14 @@ import { FeedContext } from '../../context/FeedContext';
 import { sendLikeNotification } from '../../api/NotificationsApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
+import AddToWatchlistButton from '../titlePage/AddToWatchlistButton';
 
 const { height, width } = Dimensions.get('window');
 
 export default Sidebar = ({ reelay }) => {
 	const ICON_SIZE = 36;
+	const DOT_ICON_SIZE = ICON_SIZE * 2 / 3;
+
 	const Count = styled(ReelayText.Subtitle1)`
 		color: #fff;
 		text-shadow-color: rgba(0, 0, 0, 0.2);
@@ -24,9 +27,8 @@ export default Sidebar = ({ reelay }) => {
 	const SidebarView = styled(View)`
 		align-items: center;
 		align-self: flex-end;
-		justify-content: center;
 		position: absolute;
-		bottom: ${height / 3}px;
+		bottom: ${height / 4}px;
 	`
 	const SidebarButton = styled(Pressable)`
 		align-items: center;
@@ -97,6 +99,16 @@ export default Sidebar = ({ reelay }) => {
 		}
 	}
 
+	const IconDropShadowStyle = {
+		shadowColor: "black",
+		shadowOpacity: 0.2,
+		shadowRadius: 2,
+		shadowOffset: {
+			width: 0, // These can't both be 0
+			height: 1, // i.e. the shadow has to be offset in some way
+		},
+	}
+
 	return (
 		<SidebarView>
 			<SidebarButton onPress={onLikePress} onLongPress={onLikeLongPress}>
@@ -104,15 +116,7 @@ export default Sidebar = ({ reelay }) => {
 					type="ionicon"
 					name="heart"
 					color={likedByUser ? "#db1f2e" : "white"}
-					iconStyle={{
-						shadowColor: "black",
-						shadowOpacity: 0.2,
-						shadowRadius: 2,
-						shadowOffset: {
-							width: 0, // These can't both be 0
-							height: 1, // i.e. the shadow has to be offset in some way
-						},
-					}}
+					iconStyle={IconDropShadowStyle}
 					size={ICON_SIZE}
 				/>
 				<Count>{reelay.likes.length}</Count>
@@ -122,21 +126,22 @@ export default Sidebar = ({ reelay }) => {
 					type="ionicon"
 					name="chatbubble-ellipses"
 					color={commentedByUser ? "#db1f2e" : "white"}
-					iconStyle={{
-						shadowColor: "black",
-						shadowOpacity: 0.25,
-						shadowRadius: 2,
-						shadowOffset: {
-							width: 0, // These can't both be 0
-							height: 1, // i.e. the shadow has to be offset in some way
-						},
-					}}
+					iconStyle={IconDropShadowStyle}
 					size={ICON_SIZE}
 				/>
 				<Count>{reelay.comments.length}</Count>
 			</SidebarButton>
+			<SidebarButton>
+				<AddToWatchlistButton titleObj={reelay.title} reelaySub={reelay.sub} />
+			</SidebarButton>
 			<SidebarButton onPress={onDotMenuPress}>
-				<Icon type='ionicon' name={'ellipsis-horizontal'} color={'white'} size={24} />
+				<Icon 
+					type='ionicon' 
+					name={'ellipsis-horizontal'} 
+					color={'white'} 
+					iconStyle={IconDropShadowStyle}
+					size={DOT_ICON_SIZE} 
+				/>
 			</SidebarButton>
 		</SidebarView>
 	);

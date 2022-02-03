@@ -8,10 +8,10 @@ const ICON_SIZE = 30;
 import WatchlistIconAdded from '../../assets/icons/global/watchlist-added-icon.png';
 import WatchlistIconNotAdded from '../../assets/icons/global/watchlist-icon-filled.png';
 
-export default AddToWatchlistButton = ({ titleObj }) => {
+export default AddToWatchlistButton = ({ titleObj, reelaySub }) => {
     const { reelayDBUser, myWatchlistItems, setMyWatchlistItems } = useContext(AuthContext);
 
-    const titleSeen = !!myWatchlistItems.find((nextItem) => {
+    const inWatchlist = !!myWatchlistItems.find((nextItem) => {
         const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;
         const isSeries = (titleType === 'tv');
         return (tmdbTitleID === titleObj.id) 
@@ -19,21 +19,27 @@ export default AddToWatchlistButton = ({ titleObj }) => {
             && (hasAcceptedRec === true);
     });
 
+    const [isAdded, setIsAdded] = useState(inWatchlist);
+
     const addToWatchlist = async () => {
+        setIsAdded(true);
         const titleType = titleObj.isSeries ? 'tv' : 'film';
         const tmdbTitleID = titleObj.id;
+        const reqBody = { reqUserSub: reelayDBUser?.sub, tmdbTitleID, titleType };
+        if (reelaySub) reqBody.reelaySub = reelaySub;
 
-        const dbResult = await addToMyWatchlist(reelayDBUser?.sub, tmdbTitleID, titleType);
+        
+        const dbResult = await addToMyWatchlist(reqBody);
         if (!dbResult.error) {
             const nextWatchlistItems = [...myWatchlistItems, dbResult];
             setMyWatchlistItems(nextWatchlistItems);
         }
-        console.log(dbResult);    
+        console.log('ADD TO WATCHLIST RESULT: ', dbResult);    
     }
 
     return (
-        <Pressable onPress={addToWatchlist} disabled={titleSeen}>
-            <Image source={(titleSeen) ? WatchlistIconAdded : WatchlistIconNotAdded} style={{
+        <Pressable onPress={addToWatchlist} disabled={isAdded}>
+            <Image source={(isAdded) ? WatchlistIconAdded : WatchlistIconNotAdded} style={{
                 height: ICON_SIZE,
                 width: ICON_SIZE,
             }} />
