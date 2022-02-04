@@ -15,6 +15,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { sendRecommendation, getSentRecommendations } from '../../api/WatchlistApi';
 import { showMessageToast } from '../../components/utils/toasts';
 import { notifyOnSendRec } from '../../api/WatchlistNotifications';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const ReelayIcon = require('../../assets/icons/reelay-icon.png');
@@ -366,6 +367,14 @@ export default SendRecScreen = ({ navigation, route }) => {
                 sendToUserSub: followObj.followerSub,
                 watchlistItem,
             });
+
+            logAmplitudeEventProd('sendWatchlistRecs', {
+                recUsername: cognitoUser?.username,
+                sendToUsername: followObj.followerName,
+                title: watchlistItem.title.display,
+                source: 'sendRecScreen',
+            });
+
             console.log('notify results: ', notifyResult);
             return dbResult;
         }));

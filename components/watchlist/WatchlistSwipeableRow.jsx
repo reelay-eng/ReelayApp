@@ -15,13 +15,14 @@ import {
     removeFromMyWatchlist,
 } from '../../api/WatchlistApi';
 import { notifyOnAcceptRec } from '../../api/WatchlistNotifications';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 // https://snack.expo.dev/@adamgrzybowski/react-native-gesture-handler-demo
 export default WatchlistSwipeableRow = ({ category, children, navigation, onRefresh, watchlistItem }) => {
     const ICON_SIZE = 30;
     const swipeableRowRef = useRef();
     const { cognitoUser } = useContext(AuthContext);
-    const { recommendedBySub, tmdbTitleID, titleType } = watchlistItem;
+    const { recommendedBySub, recommendedByUsername, tmdbTitleID, titleType } = watchlistItem;
 
     const LeftActionButtonText = styled(ReelayText.Body2)`
         color: white;
@@ -75,8 +76,8 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
         const dbResult = await acceptRecommendation({
             recommendedBySub,
             reqUserSub: cognitoUser?.attributes?.sub,
-            tmdbTitleID: tmdbTitleID,
-            titleType: titleType,
+            tmdbTitleID,
+            titleType,
         });
 
         const notifyResult = await notifyOnAcceptRec({
@@ -84,6 +85,13 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
             acceptUsername: cognitoUser?.username,
             recUserSub: recommendedBySub,
             watchlistItem,
+        });
+
+        logAmplitudeEventProd('acceptRec', {
+            username: cognitoUser?.username,
+            recommendedByUsername,
+            title: watchlistItem.title.display,
+            source: 'watchlist',
         });
 
         // todo: update and reload watchlist in memory
@@ -97,11 +105,24 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
         navigation.navigate('VenueSelectScreen', {
             titleObj: watchlistItem.title
         });
+
+        logAmplitudeEventProd('advanceToCreateReelay', {
+            username: cognitoUser?.username,
+            title: watchlistItem.title.display,
+            source: 'watchlist',
+            watchlistCategory: category,
+        });
     };
 
     const advanceToRecommendScreen = async () => {
         navigation.push('SendRecScreen', {
             watchlistItem: watchlistItem,
+        });
+
+        logAmplitudeEventProd('advanceToSendRec', {
+            username: cognitoUser?.username,
+            title: watchlistItem.title.display,
+            source: 'watchlist',
         });
     };
 
@@ -111,6 +132,12 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
             reqUserSub: cognitoUser?.attributes?.sub,
             tmdbTitleID,
             titleType,
+        });
+
+        logAmplitudeEventProd('ignoreRec', {
+            username: cognitoUser?.username,
+            title: watchlistItem.title.display,
+            recommendedByUsername,
         });
 
         // todo: update and reload watchlist in memory
@@ -126,6 +153,12 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
             titleType,
         });
 
+        logAmplitudeEventProd('markWatchlistItemSeen', {
+            username: cognitoUser?.username,
+            title: watchlistItem.title.display,
+            source: 'watchlist',
+        });
+
         // todo: update and reload watchlist in memory
         close();
         await onRefresh();
@@ -139,6 +172,12 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
             titleType,
         });
 
+        logAmplitudeEventProd('markWatchlistItemUnseen', {
+            username: cognitoUser?.username,
+            title: watchlistItem.title.display,
+            source: 'watchlist',
+        });
+
         // todo: update and reload watchlist in memory
         close();
         await onRefresh();
@@ -150,6 +189,12 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
             reqUserSub: cognitoUser?.attributes?.sub,
             tmdbTitleID,
             titleType,
+        });
+
+        logAmplitudeEventProd('removeItemFromWatchlist', {
+            username: cognitoUser?.username,
+            title: watchlistItem.title.display,
+            source: 'watchlist',
         });
 
         // todo: update and reload watchlist in memory

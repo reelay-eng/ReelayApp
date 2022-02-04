@@ -2,11 +2,12 @@ import React, { useContext, useState } from 'react';
 import { Image, Pressable } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 const ICON_SIZE = 30;
 
 export default SendRecButton = ({ navigation, titleObj, reelay }) => {
-    const { myWatchlistItems } = useContext(AuthContext);
+    const { cognitoUser, myWatchlistItems } = useContext(AuthContext);
     // you should already have this reelay in the Seen section of your watchlist,
     // since you made a reelay about it
 
@@ -31,6 +32,12 @@ export default SendRecButton = ({ navigation, titleObj, reelay }) => {
                 tmdbTitleID: titleObj.id,
                 titleType: (titleObj.isSeries) ? 'tv' : 'film',
             },
+        });
+
+        logAmplitudeEventProd('advanceToSendRec', {
+            username: cognitoUser?.username,
+            title: titleObj.display,
+            source: 'reelaySidebar',
         });
     }
 

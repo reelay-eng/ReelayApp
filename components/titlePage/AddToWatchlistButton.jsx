@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Image, Pressable } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { addToMyWatchlist } from '../../api/WatchlistApi';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 const ICON_SIZE = 30;
 
@@ -10,7 +11,6 @@ import WatchlistIconNotAdded from '../../assets/icons/global/watchlist-icon-fill
 
 export default AddToWatchlistButton = ({ titleObj, reelay }) => {
     const { reelayDBUser, myWatchlistItems, setMyWatchlistItems } = useContext(AuthContext);
-    const isMyReelay = reelay?.creator?.sub === reelayDBUser?.sub;
 
     const inWatchlist = !!myWatchlistItems.find((nextItem) => {
         const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;
@@ -27,18 +27,24 @@ export default AddToWatchlistButton = ({ titleObj, reelay }) => {
         const titleType = titleObj.isSeries ? 'tv' : 'film';
         const tmdbTitleID = titleObj.id;
         const reqBody = { reqUserSub: reelayDBUser?.sub, tmdbTitleID, titleType };
+
         if (reelay?.sub) {
             reqBody.reelaySub = reelay.sub;
             reqBody.creatorName = reelay.creator.username;
         }
-
         
         const dbResult = await addToMyWatchlist(reqBody);
         if (!dbResult.error) {
             const nextWatchlistItems = [...myWatchlistItems, dbResult];
             setMyWatchlistItems(nextWatchlistItems);
+
+            logAmplitudeEventProd('addToMyWatchlist', {
+                username: reelayDBUser?.username,
+                creatorName: reelay.creator.username,
+                title: titleObj.display,
+                source: 'sendRecScreen',
+            });
         }
-        console.log('ADD TO WATCHLIST RESULT: ', dbResult);    
     }
 
     return (
