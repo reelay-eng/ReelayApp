@@ -324,7 +324,7 @@ const RecScreenContainer = styled(SafeAreaView)`
 
 export default SendRecScreen = ({ navigation, route }) => {
     const { cognitoUser } = useContext(AuthContext);
-    const { watchlistItem } = route.params;
+    const { reelay, watchlistItem } = route.params; // note: reelay can be null
     const followersToSend = useRef([]);
     const [readyToSend, setReadyToSend] = useState(followersToSend.current > 0);
 
@@ -359,6 +359,8 @@ export default SendRecScreen = ({ navigation, route }) => {
                 sendToUserSub: followObj.followerSub,
                 tmdbTitleID: watchlistItem.tmdbTitleID,
                 titleType: watchlistItem.titleType,
+                recommendedReelaySub: reelay?.sub,
+                recReelayCreatorName: reelay?.creator?.username,
             });
 
             const notifyResult = await notifyOnSendRec({

@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { SafeAreaView, View, Pressable, Text } from "react-native";
+import { SafeAreaView, View } from "react-native";
 
 //Components
-import { HeaderWithBackButton } from '../../components/global/Headers'
+import { BaseHeader } from '../../components/global/Headers'
 import SearchField from "../../components/create-reelay/SearchField";
 import TitleSearchResults from "../../components/search/TitleSearchResults";
 import UserSearchResults from "../../components/search/UserSearchResults";
-import { ActionButton, PassiveButton, ToggleSelector } from '../../components/global/Buttons';
+import { ToggleSelector } from '../../components/global/Buttons';
 import FollowButtonDrawer from "../../components/profile/Follow/FollowButtonDrawer";
 
 // Context
@@ -116,7 +116,7 @@ export default SearchScreen = ({ navigation }) => {
 
     return (
 		<SearchScreenContainer>
-			<HeaderWithBackButton navigation={navigation} text={"Search"} />
+			<BaseHeader text={"Search"} />
 			<TopBarContainer>
 				<SelectorBarContainer>
 					<ToggleSelector
@@ -143,16 +143,6 @@ export default SearchScreen = ({ navigation }) => {
 					}`}
 				/>
 			</SearchBarContainer>
-			{/* <TopBarContainer>
-                <BackButtonContainer>
-                    <BackButton navigation={navigation} />
-                </BackButtonContainer>
-                <SelectorBarContainer>
-                    <SearchTypeSelector type="Film" />
-                    <SearchTypeSelector type="TV" />
-                    <SearchTypeSelector type="Users" />
-                </SelectorBarContainer>
-            </TopBarContainer> */}
 			{selectedType !== "Users" && !loading && (
 				<TitleSearchResults
 					navigation={navigation}

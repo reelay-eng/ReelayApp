@@ -29,7 +29,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 		align-items: center;
 		align-self: flex-end;
 		position: absolute;
-		bottom: ${height / 4}px;
+		bottom: ${height / 5}px;
 	`
 	const SidebarButton = styled(Pressable)`
 		align-items: center;
@@ -134,8 +134,10 @@ export default Sidebar = ({ navigation, reelay }) => {
 				<Count>{reelay.comments.length}</Count>
 			</SidebarButton>
 			<SidebarButton>
-				{ isMyReelay && <SendRecButton navigation={navigation} titleObj={reelay.title} reelay={reelay} /> }
-				{ !isMyReelay && <AddToWatchlistButton titleObj={reelay.title} reelay={reelay} /> }
+				<AddToWatchlistButton titleObj={reelay.title} reelay={reelay} />
+			</SidebarButton>
+			<SidebarButton>
+				<SendRecButton navigation={navigation} titleObj={reelay.title} reelay={reelay} />
 			</SidebarButton>
 			<SidebarButton onPress={onDotMenuPress}>
 				<Icon 

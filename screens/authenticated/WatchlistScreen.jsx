@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { SafeAreaView, View } from 'react-native';
 
 //Components
-import { HeaderWithBackButton } from '../../components/global/Headers'
+import { BaseHeader } from '../../components/global/Headers'
 import { ToggleSelector } from '../../components/global/Buttons';
 import Watchlist from '../../components/watchlist/Watchlist';
 
@@ -64,7 +64,7 @@ export default WatchlistScreen = ({ navigation }) => {
 
     return (
 		<WatchlistScreenContainer>
-			<HeaderWithBackButton navigation={navigation} text={'Watchlist'} />
+            <BaseHeader text={'Watchlist'} />
 			<TopBarContainer>
 				<SelectorBarContainer>
 					<ToggleSelector

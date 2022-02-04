@@ -197,6 +197,7 @@ export const removeFromMyWatchlist = async ({ reqUserSub, tmdbTitleID, titleType
 
 export const sendRecommendation = async ({
     recommendedReelaySub, // optional
+    recReelayCreatorName,
     reqUserSub,
     reqUsername,
     sendToUserSub,
@@ -211,6 +212,7 @@ export const sendRecommendation = async ({
         recommendedBySub: reqUserSub,
         recommendedByUsername: reqUsername,
         recommendedReelaySub,
+        recReelayCreatorName,
         tmdbTitleID,
         titleType,
     }

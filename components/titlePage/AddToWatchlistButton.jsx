@@ -52,6 +52,7 @@ export default AddToWatchlistButton = ({ titleObj, reelay }) => {
             <Image source={(isAdded) ? WatchlistIconAdded : WatchlistIconNotAdded} style={{
                 height: ICON_SIZE,
                 width: ICON_SIZE,
+                marginBottom: 6,
             }} />
         </Pressable>
     );
