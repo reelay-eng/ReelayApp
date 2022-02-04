@@ -21,7 +21,6 @@ const WatchlistScreenContainer = styled(SafeAreaView)`
     width: 100%;
 `
 const TopBarContainer = styled(View)`
-    display: flex;
     align-items: center;
     width: 100%;
     margin-bottom: 8px;
@@ -31,9 +30,9 @@ const SelectorBarContainer = styled(View)`
     height: 40px;
 `
 
-export default WatchlistScreen = ({ navigation }) => {
+export default WatchlistScreen = ({ navigation, category='My List' }) => {
     const { cognitoUser, myWatchlistItems } = useContext(AuthContext);
-    const [selectedCategory, setSelectedCategory] = useState('My List');
+    const [selectedCategory, setSelectedCategory] = useState(category);
 
     useEffect(() => {
         logAmplitudeEventProd('openMyWatchlist', {

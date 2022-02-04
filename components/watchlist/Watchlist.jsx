@@ -24,21 +24,21 @@ export default Watchlist = ({ navigation, watchlistItems, category }) => {
     const [refreshing, setRefreshing] = useState(false);
     const { cognitoUser, setMyWatchlistItems } = useContext(AuthContext);
 
-    const byDateAdded = (watchlistItem0, watchlistItem1) => {
-        const dateAdded0 = moment(watchlistItem0.addedAt);
-        const dateAdded1 = moment(watchlistItem1.addedAt);
+    const byDateUpdated = (watchlistItem0, watchlistItem1) => {
+        const dateAdded0 = moment(watchlistItem0.updatedAt);
+        const dateAdded1 = moment(watchlistItem1.updatedAt);
         return dateAdded1.diff(dateAdded0, 'seconds');
     }
 
     const onRefresh = async () => {
         const refreshedWatchlistItems = await getWatchlistItems(cognitoUser?.attributes?.sub);
-        const sortedWatchlistItems = refreshedWatchlistItems.sort(byDateAdded);
+        const sortedWatchlistItems = refreshedWatchlistItems.sort(byDateUpdated);
         setMyWatchlistItems(sortedWatchlistItems);
     }
 
     // compress duplicate watchlist items by title, keeping their accumuluated recs
     // in a new `recommendations` field
-    const sortedWatchlistItems = watchlistItems.sort(byDateAdded);
+    const sortedWatchlistItems = watchlistItems.sort(byDateUpdated);
     const uniqueWatchlistItems = sortedWatchlistItems.filter((nextItem, index, allItems) => {
         const { recommendedBySub, recommendedByUsername, recommendedReelaySub, title } = nextItem;
         let nextItemHasUniqueTitle = true;

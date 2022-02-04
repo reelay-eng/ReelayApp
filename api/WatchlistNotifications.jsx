@@ -9,7 +9,7 @@ export const notifyOnAcceptRec = async ({ acceptUserSub, acceptUsername, recUser
         action: 'openUserProfileScreen',
         user: { sub: acceptUserSub, username: recUserSub },
     };
-    const { pushToken } = await getRegisteredUser(sendToUserSub);
+    const { pushToken } = await getRegisteredUser(recUserSub);
     return await sendPushNotification({ title, body, data, token: pushToken });
 }
 

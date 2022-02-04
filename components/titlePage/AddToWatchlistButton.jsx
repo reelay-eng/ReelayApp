@@ -8,6 +8,7 @@ const ICON_SIZE = 30;
 
 import WatchlistIconAdded from '../../assets/icons/global/watchlist-added-icon.png';
 import WatchlistIconNotAdded from '../../assets/icons/global/watchlist-icon-filled.png';
+import { showMessageToast } from '../utils/toasts';
 
 export default AddToWatchlistButton = ({ titleObj, reelay }) => {
     const { reelayDBUser, myWatchlistItems, setMyWatchlistItems } = useContext(AuthContext);
@@ -37,6 +38,7 @@ export default AddToWatchlistButton = ({ titleObj, reelay }) => {
         if (!dbResult.error) {
             const nextWatchlistItems = [...myWatchlistItems, dbResult];
             setMyWatchlistItems(nextWatchlistItems);
+            showMessageToast('Added to your watchlist');
 
             logAmplitudeEventProd('addToMyWatchlist', {
                 username: reelayDBUser?.username,

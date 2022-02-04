@@ -16,6 +16,7 @@ import {
 } from '../../api/WatchlistApi';
 import { notifyOnAcceptRec } from '../../api/WatchlistNotifications';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import { showMessageToast } from '../utils/toasts';
 
 // https://snack.expo.dev/@adamgrzybowski/react-native-gesture-handler-demo
 export default WatchlistSwipeableRow = ({ category, children, navigation, onRefresh, watchlistItem }) => {
@@ -79,6 +80,7 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
             tmdbTitleID,
             titleType,
         });
+        showMessageToast(`${watchlistItem.title.display} added to your watchlist`);
 
         const notifyResult = await notifyOnAcceptRec({
             acceptUserSub: cognitoUser?.attributes?.sub,
@@ -133,6 +135,7 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
             tmdbTitleID,
             titleType,
         });
+        showMessageToast('Removed from your recs. The sender won\'t be notified');
 
         logAmplitudeEventProd('ignoreRec', {
             username: cognitoUser?.username,
@@ -152,6 +155,7 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
             tmdbTitleID,
             titleType,
         });
+        showMessageToast('Marked as seen');
 
         logAmplitudeEventProd('markWatchlistItemSeen', {
             username: cognitoUser?.username,
@@ -190,6 +194,7 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
             tmdbTitleID,
             titleType,
         });
+        showMessageToast('Removed from your watchlist');
 
         logAmplitudeEventProd('removeItemFromWatchlist', {
             username: cognitoUser?.username,

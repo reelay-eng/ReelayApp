@@ -74,6 +74,8 @@ export default Navigation = () => {
             }
         } else if (action === 'openCreateScreen') {
             openCreateScreen();
+        } else if (action === 'openMyRecs') {
+            openMyRecs();
         }
     }
 
@@ -83,6 +85,16 @@ export default Navigation = () => {
             return;
         }
         navigationRef.current.navigate('Create');
+    }
+
+    const openMyRecs = async () => {
+        if (!navigationRef?.current) {
+            console.log('No navigation ref')
+            return;
+        }
+        navigationRef.current.navigate('Watchlist', {
+            category: 'Recs'
+        });
     }
 
     const openSingleReelayScreen = async (reelaySub) => {
