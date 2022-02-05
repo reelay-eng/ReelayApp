@@ -18,7 +18,7 @@ export default Watchlist = ({ navigation, watchlistItems, category }) => {
         border-bottom-width: 0.3px;
     `
     const ScrollContainer = styled(ScrollView)`
-        margin-top: 40px;
+        margin-top: 16px;
         margin-bottom: 180px;
     `
     const [refreshing, setRefreshing] = useState(false);
