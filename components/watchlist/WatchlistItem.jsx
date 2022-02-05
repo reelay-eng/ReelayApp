@@ -1,21 +1,19 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 import { Icon, Image } from 'react-native-elements';
 import * as ReelayText from "../global/Text";
 import styled from 'styled-components/native';
 
 import { getRuntimeString } from '../utils/TitleRuntime';
-import { getReelay, getRegisteredUser, prepareReelay } from '../../api/ReelayDBApi';
+import { RecommendedByLine, ReelayedByLine } from './RecPills';
 
 const WatchlistItemContainer = styled(Pressable)`
     flex-direction: row;
     margin: 10px 10px 10px 20px;
 `
-const RecommendedByLineContainer = styled(View)`
-    align-items: center;
+const WatchlistItemRow = styled(View)`
     flex-direction: row;
-    padding-bottom: 10px;
-    padding-left: 20px;
+    justify-content: space-between;
 `
 const ImageContainer = styled(View)`
     flex: 0.5;
@@ -37,73 +35,11 @@ const TitleLineContainer = styled(View)`
 `
 const ActorText = styled(ReelayText.Subtitle2)`
     color: gray;
-`
-const RecUserPill = styled(Pressable)`
-    background-color: ${(props) => (props?.pressed) ? 'gray' : '#3c3c3c'};
-    border-radius: 6px;
-    margin-left: 6px;
-    padding: 6px;
-`
-const RecUserText = styled(ReelayText.Subtitle2)`
-    color: white;
-    justify-content: flex-end;
+    margin-bottom: 6px;
 `
 const YearText = styled(ReelayText.Subtitle2)`
     color: gray
 `
-
-const RecommendedByLine = ({ navigation, watchlistItem }) => {
-    const { recommendations } = watchlistItem;
-    const advanceToUserProfile = async (creator) => {
-        navigation.push('UserProfileScreen', { creator });
-    }
-
-    return (
-        <RecommendedByLineContainer>
-            <RecUserText>
-                { recommendations.length > 0 && `Sent to you by` }
-            </RecUserText>   
-            { recommendations.length > 0 && recommendations.map(({
-                recommendedBySub,
-                recommendedByUsername,
-                recommendedReelaySub, // unused right now
-            }) => {
-                return (
-                    <RecUserPill key={recommendedBySub} onPress={() => {
-                        advanceToUserProfile({ 
-                            sub: recommendedBySub, 
-                            username: recommendedByUsername,
-                        });
-                    }}>
-                        <RecUserText>{`@${recommendedByUsername}` ?? '@god'}</RecUserText>
-                    </RecUserPill>
-                );
-            }) }
-        </RecommendedByLineContainer>
-    );
-}
-
-const ReelayedByLine = ({ navigation, watchlistItem }) => {
-    const { recommendedReelaySub, recReelayCreatorName } = watchlistItem;
-    const [pressed, setPressed] = useState(false);
-
-    const advanceToSingleReelayScreen = async () => {
-        setPressed(true);
-        const singleReelay = await getReelay(recommendedReelaySub);
-        const preparedReelay = await prepareReelay(singleReelay); 
-        setPressed(false);
-        navigation.push('SingleReelayScreen', { preparedReelay });
-    }
-
-    return (
-        <RecommendedByLineContainer>
-            <RecUserText>{`Reelayed by`}</RecUserText>   
-            <RecUserPill onPress={advanceToSingleReelayScreen} pressed={pressed}>
-                <RecUserText>{`@${recReelayCreatorName}`}</RecUserText>
-            </RecUserPill>
-        </RecommendedByLineContainer>
-    );
-}
 
 const WatchlistItemInfo = ({ navigation, watchlistItem }) => {
     const { title } = watchlistItem;
@@ -125,7 +61,7 @@ const WatchlistItemInfo = ({ navigation, watchlistItem }) => {
                 { title?.posterSource && (
                     <Image
                         source={title?.posterSource}
-                        style={{ height: 90, width: 60, borderRadius: 6 }}
+                        style={{ height: 108, width: 72, borderRadius: 6 }}
                         PlaceholderContent={<ActivityIndicator />}
                     />
                 )}
@@ -135,24 +71,26 @@ const WatchlistItemInfo = ({ navigation, watchlistItem }) => {
                 <TitleText>{title.display}</TitleText>
                 <YearText>{`${title.releaseYear}    ${runtimeString}`}</YearText>
                 <ActorText>{actors}</ActorText>
+                { watchlistItem.recommendations.length > 0 && 
+                    <RecommendedByLine navigation={navigation} watchlistItem={watchlistItem} /> 
+                }
+                { !!watchlistItem.recommendedReelaySub && 
+                    <ReelayedByLine navigation={navigation} watchlistItem={watchlistItem} />
+                }
             </TitleLineContainer>
-            <SliderIconContainer>
-                <Icon type='ionicon' name='chevron-back-outline' color='white' size={25} />
-            </SliderIconContainer>
         </WatchlistItemContainer>
     );
 }
 
 export default WatchlistItem = ({ navigation, watchlistItem }) => {
     return (
-        <View>
-            <WatchlistItemInfo navigation={navigation} watchlistItem={watchlistItem} />
-            { watchlistItem.recommendations.length > 0 && 
-                <RecommendedByLine navigation={navigation} watchlistItem={watchlistItem} /> 
-            }
-            { !!watchlistItem.recommendedReelaySub && 
-                <ReelayedByLine navigation={navigation} watchlistItem={watchlistItem} />
-            }
-        </View>
+        <WatchlistItemRow>
+            <View style={{ flex: 1 }}>
+                <WatchlistItemInfo navigation={navigation} watchlistItem={watchlistItem} />
+            </View>
+            <SliderIconContainer>
+                <Icon type='ionicon' name='chevron-back-outline' color='white' size={25} />
+            </SliderIconContainer>
+        </WatchlistItemRow>
     );
 };

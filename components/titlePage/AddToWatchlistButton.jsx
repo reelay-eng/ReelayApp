@@ -42,7 +42,7 @@ export default AddToWatchlistButton = ({ titleObj, reelay }) => {
 
             logAmplitudeEventProd('addToMyWatchlist', {
                 username: reelayDBUser?.username,
-                creatorName: reelay.creator.username,
+                creatorName: reelay?.creator?.username,
                 title: titleObj.display,
                 source: 'sendRecScreen',
             });

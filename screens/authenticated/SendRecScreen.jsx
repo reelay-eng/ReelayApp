@@ -5,6 +5,7 @@ import Constants from 'expo-constants';
 
 import BackButton from '../../components/utils/BackButton';
 import SearchField from '../../components/create-reelay/SearchField';
+import { ReelayedByLine } from '../../components/watchlist/RecPills';
 import { AuthContext } from '../../context/AuthContext';
 
 import * as ReelayText from '../../components/global/Text';
@@ -20,7 +21,17 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const ReelayIcon = require('../../assets/icons/reelay-icon.png');
 
-const TitleHeader = ({ navigation, readyToSend, sendRecs, watchlistItem }) => {
+const TitleHeader = ({ navigation, readyToSend, reelay, sendRecs, watchlistItem }) => {
+    const ImageContainer = styled(View)`
+        flex-direction: row;
+        align-items: center;
+        margin-right: 20px;
+    `
+    const ReelayedByLineWrapper = styled(View)`
+        flex-direction: row;
+        margin-left: 20px;
+        margin-right: 30px;
+    `
     const SendIconPressable = styled(Pressable)`
         align-items: center;
         background-color: ${readyToSend ? '#497afc' : 'gray' };
@@ -28,11 +39,6 @@ const TitleHeader = ({ navigation, readyToSend, sendRecs, watchlistItem }) => {
         justify-content: center;
         height: 70px;
         padding: 20px;
-    `
-    const ImageContainer = styled(View)`
-        flex-direction: row;
-        align-items: center;
-        margin-right: 20px;
     `
     const TitleText = styled(ReelayText.Subtitle1)`
         color: white
@@ -50,13 +56,9 @@ const TitleHeader = ({ navigation, readyToSend, sendRecs, watchlistItem }) => {
         margin-top: 10px;
         margin-bottom: 10px;
     `
-    const ActorText = styled(ReelayText.Subtitle2)`
-        color: gray
-    `
     const YearText = styled(ReelayText.Subtitle2)`
         color: gray
     `
-
     const { title } = watchlistItem;
     const runtimeString = getRuntimeString(title?.runtime);
 
@@ -65,25 +67,29 @@ const TitleHeader = ({ navigation, readyToSend, sendRecs, watchlistItem }) => {
     }
 
     return (
-        <TitleHeaderPressable onPress={advanceToTitleScreen}>
-            <ImageContainer>
-                { title?.posterSource && (
+        <React.Fragment>
+            <TitleHeaderPressable onPress={advanceToTitleScreen}>
+                <ImageContainer>
                     <Image
                         source={title?.posterSource}
                         style={{ height: 90, width: 60, borderRadius: 6 }}
                         PlaceholderContent={<ActivityIndicator />}
                     />
-                )}
-                { !title.posterSource && <TitleText>{"No Poster Available"}</TitleText>}
-            </ImageContainer>
-            <TitleLineContainer>
-                <TitleText>{title.display}</TitleText>
-                <YearText>{`${title.releaseYear}    ${runtimeString}`}</YearText>
-            </TitleLineContainer>
-            <SendIconPressable onPress={sendRecs}>
-                <Icon type='ionicon' name='paper-plane' size={30} color={'white'} />
-            </SendIconPressable>
-        </TitleHeaderPressable>
+                </ImageContainer>
+                <TitleLineContainer>
+                    <TitleText>{title.display}</TitleText>
+                    <YearText>{`${title.releaseYear}    ${runtimeString}`}</YearText>
+                </TitleLineContainer>
+                <SendIconPressable onPress={sendRecs}>
+                    <Icon type='ionicon' name='paper-plane' size={30} color={'white'} />
+                </SendIconPressable>
+            </TitleHeaderPressable>
+            { watchlistItem.recommendedReelaySub && 
+                <ReelayedByLineWrapper>
+                    <ReelayedByLine navigation={navigation} watchlistItem={watchlistItem} />
+                </ReelayedByLineWrapper>        
+            }
+        </React.Fragment>
     )
 }
 
@@ -385,6 +391,7 @@ export default SendRecScreen = ({ navigation, route }) => {
         // todo: advance to rec sent page
         console.log('send rec results: ', sendRecResults);
         showMessageToast('Recommendation sent!');
+        navigation.goBack();
     }
 
     return (
@@ -394,6 +401,7 @@ export default SendRecScreen = ({ navigation, route }) => {
                 navigation={navigation} 
                 watchlistItem={watchlistItem}
                 readyToSend={readyToSend}
+                reelay={reelay}
                 sendRecs={sendRecs}
             />
             <FollowerList 

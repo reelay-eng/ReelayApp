@@ -26,6 +26,7 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 // Screen Orientation
 import { getRuntimeString } from '../../components/utils/TitleRuntime';
 import AddToWatchlistButton from './AddToWatchlistButton';
+import SendRecButton from '../watchlist/SendRecButton';
 
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
@@ -100,7 +101,7 @@ export default PosterWithTrailer = ({
 		}, []);
 
 		const TaglineContainer = styled(View)`
-			width: 90%;
+            width: 90%;
 			display: flex;
 			flex-direction: row;
 			align-items: center;
@@ -174,6 +175,7 @@ export default PosterWithTrailer = ({
     const AddToWatchlistContainer = styled(View)`
         flex-direction: row;
         justify-content: flex-end;
+        margin-bottom: 10px;
     `
 	const PosterTitleContainer = styled(View)`
 		width: 90%;
@@ -205,13 +207,16 @@ export default PosterWithTrailer = ({
 				<Icon type="ionicon" name={"arrow-back-outline"} color={"white"} size={25} />
 			</BackButtonContainer>
 			<PosterInfoContainer>
-                <AddToWatchlistContainer>
-                    <AddToWatchlistButton titleObj={titleObj} />
-                </AddToWatchlistContainer>
-				<PosterTitleContainer>
-					<PosterTitle>{title}</PosterTitle>
-				</PosterTitleContainer>
-				<PosterTagline />
+            <AddToWatchlistContainer>
+                <AddToWatchlistButton titleObj={titleObj} />
+            </AddToWatchlistContainer>
+            <AddToWatchlistContainer>
+                <SendRecButton navigation={navigation} titleObj={titleObj} />
+            </AddToWatchlistContainer>
+            <PosterTitleContainer>
+                <PosterTitle>{title}</PosterTitle>
+            </PosterTitleContainer>
+            <PosterTagline />
 				{trailerURI && (
 					<TrailerButtonContainer>
 						<ActionButton

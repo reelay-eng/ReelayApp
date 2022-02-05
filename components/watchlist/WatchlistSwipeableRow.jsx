@@ -18,6 +18,12 @@ import { notifyOnAcceptRec } from '../../api/WatchlistNotifications';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { showMessageToast } from '../utils/toasts';
 
+const SwipeColors = {
+    RED: '#FE4747',
+    BLUE: '#2977EF',
+    GREEN: '#04BD6C',
+}
+
 // https://snack.expo.dev/@adamgrzybowski/react-native-gesture-handler-demo
 export default WatchlistSwipeableRow = ({ category, children, navigation, onRefresh, watchlistItem }) => {
     const ICON_SIZE = 30;
@@ -210,14 +216,14 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
 
     const renderRightActions = (progress) => (
         <View style={{ width: 192, flexDirection: 'row' }}>
-            { (category === 'My List') && renderRightAction(advanceToCreateScreen, 'Create', 'add-circle', '#e8362a', 192, progress) }
-            { (category === 'My List') && renderRightAction(markItemAsSeen, 'Seen', 'checkmark-circle', '#2977ef', 96, progress) }
+            { (category === 'My List') && renderRightAction(advanceToCreateScreen, 'Create', 'add-circle', SwipeColors.BLUE, 192, progress) }
+            { (category === 'My List') && renderRightAction(markItemAsSeen, 'Seen', 'checkmark-circle', SwipeColors.GREEN, 96, progress) }
 
-            { (category === 'Seen') && renderRightAction(advanceToCreateScreen, 'Create', 'add-circle', '#e8362a', 192, progress) }
-            { (category === 'Seen') && renderRightAction(advanceToRecommendScreen, 'Send Rec', 'paper-plane', '#2977ef', 96, progress) }
+            { (category === 'Seen') && renderRightAction(advanceToCreateScreen, 'Create', 'add-circle', SwipeColors.BLUE, 192, progress) }
+            { (category === 'Seen') && renderRightAction(advanceToRecommendScreen, 'Send Rec', 'paper-plane', SwipeColors.GREEN, 96, progress) }
 
-            { (category === 'Recs') && renderRightAction(advanceToCreateScreen, 'Create', 'add-circle', '#e8362a', 192, progress) }
-            { (category === 'Recs') && renderRightAction(acceptRecommendedItem, 'Accept Rec', 'checkmark-circle', '#2977ef', 96, progress) }
+            { (category === 'Recs') && renderRightAction(advanceToCreateScreen, 'Create', 'add-circle', SwipeColors.BLUE, 192, progress) }
+            { (category === 'Recs') && renderRightAction(acceptRecommendedItem, 'Accept Rec', 'checkmark-circle', SwipeColors.GREEN, 96, progress) }
         </View>
     );
 
@@ -253,7 +259,7 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
 const styles = StyleSheet.create({
     leftAction: {
         alignItems: 'center',
-        backgroundColor: '#497AFC',
+        backgroundColor: SwipeColors.RED,
         borderRadius: 6,
         borderColor: 'black',
         borderWidth: 1,
