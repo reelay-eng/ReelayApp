@@ -4,11 +4,54 @@ import { View } from 'react-native';
 import FeedVideoPlayer from './FeedVideoPlayer';
 import ReelayInfo from './ReelayInfo';
 import Sidebar from './Sidebar';
-import { FeedContext } from '../../context/FeedContext';
 
 import LikesDrawer from './LikesDrawer';
 import CommentsDrawer from './CommentsDrawer';
 import Reelay3DotDrawer from './Reelay3DotDrawer';
+
+const HeroOverlay = ({reelay, viewable, navigation}) => {
+
+    const [likesVisible, setLikesVisible] = useState(false);
+    const [commentsVisible, setCommentsVisible] = useState(false);
+    const [dotMenuVisible, setDotMenuVisible] = useState(false);
+
+    return (
+      <View>
+            <ReelayInfo navigation={navigation} reelay={reelay} />
+            <Sidebar
+                reelay={reelay}
+                setLikesVisible={setLikesVisible}
+                setCommentsVisible={setCommentsVisible}
+                setDotMenuVisible={setDotMenuVisible}
+            />
+            {viewable && likesVisible && (
+                <LikesDrawer
+                    reelay={reelay}
+                    navigation={navigation}
+                    likesVisible={likesVisible}
+                    setLikesVisible={setLikesVisible}
+                />
+            )}
+            {viewable && commentsVisible && (
+                <CommentsDrawer
+                    reelay={reelay}
+                    navigation={navigation}
+                    commentsVisible={commentsVisible}
+                    setCommentsVisible={setCommentsVisible}
+                />
+            )}
+            {viewable && dotMenuVisible && (
+                <Reelay3DotDrawer
+                    reelay={reelay}
+                    navigation={navigation}
+                    dotMenuVisible={dotMenuVisible}
+                    setDotMenuVisible={setDotMenuVisible}
+                />
+            )}
+      </View>
+    );
+}
+
 
 const Hero = ({ 
     index, 
@@ -20,7 +63,10 @@ const Hero = ({
     viewable,
 }) => {
 
-    const { likesVisible, commentsVisible, dotMenuVisible } = useContext(FeedContext);
+    const [likesVisible, setLikesVisible] = useState(false);
+    const [commentsVisible, setCommentsVisible] = useState(false);
+    const [dotMenuVisible, setDotMenuVisible] = useState(false);
+
     console.log('hero re-rendering: ', reelay.title.display);
 
     return (
@@ -28,17 +74,9 @@ const Hero = ({
             <FeedVideoPlayer 
                 reelay={reelay} viewable={viewable} 
                 isPaused={isPaused} playPause={playPause} 
+                navigation={navigation}
             />
-            <ReelayInfo navigation={navigation} reelay={reelay} />
-            <Sidebar reelay={reelay} />
-            { viewable && likesVisible && <LikesDrawer reelay={reelay} navigation={navigation} /> }
-            { viewable && commentsVisible && <CommentsDrawer reelay={reelay} navigation={navigation} /> }
-            { viewable && dotMenuVisible && 
-                <Reelay3DotDrawer 
-                    reelay={reelay} 
-                    navigation={navigation}
-                /> 
-            }
+            <HeroOverlay reelay={reelay} viewable={viewable} navigation={navigation} />
         </View>
     );
 }

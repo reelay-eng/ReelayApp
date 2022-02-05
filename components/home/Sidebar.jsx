@@ -5,7 +5,6 @@ import * as ReelayText from "../../components/global/Text";
 import styled from 'styled-components/native';
 
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 
 import { sendLikeNotification } from '../../api/NotificationsApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -29,7 +28,7 @@ const Count = styled(ReelayText.Subtitle1)`
 	text-shadow-radius: 1px;
 `
 
-export default Sidebar = ({ reelay }) => {
+export default Sidebar = ({ reelay, setLikesVisible, setCommentsVisible, setDotMenuVisible }) => {
 	const SidebarView = styled(View)`
 		align-items: center;
 		align-self: flex-end;
@@ -37,15 +36,15 @@ export default Sidebar = ({ reelay }) => {
 		position: absolute;
 		bottom: ${height / 3}px;
 	`
-	
+
 	return (
-		<SidebarView>
-			<ProfilePicture reelay={reelay} />
-			<LikeButton reelay={reelay} />
-			<CommentButton reelay={reelay} />
-			<DotMenuButton />
-		</SidebarView>
-	);
+    <SidebarView>
+      <ProfilePicture reelay={reelay} />
+      <LikeButton reelay={reelay} setLikesVisible={setLikesVisible} />
+      <CommentButton reelay={reelay} setCommentsVisible={setCommentsVisible} />
+      <DotMenuButton setDotMenuVisible={setDotMenuVisible} />
+    </SidebarView>
+  );
 }
 
 const ProfilePicture = ({ reelay }) => {
@@ -84,11 +83,10 @@ const ProfilePicture = ({ reelay }) => {
 	)
 }
 
-const LikeButton = ({ reelay }) => {
+const LikeButton = ({ reelay, setLikesVisible }) => {
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 
 	const { cognitoUser } = useContext(AuthContext);
-	const { setLikesVisible } = useContext(FeedContext);
 
 	const likedByUser = reelay.likes.find(like => like.username === cognitoUser.username);
 
@@ -167,9 +165,8 @@ const LikeButton = ({ reelay }) => {
 	</SidebarButton>)
 }
 
-const CommentButton = ({ reelay }) => {
+const CommentButton = ({ reelay, setCommentsVisible }) => {
 	const { cognitoUser } = useContext(AuthContext);
-	const { setCommentsVisible} = useContext(FeedContext);
 
 	const commentedByUser = reelay.comments.find((comment) => comment.authorName === cognitoUser.username);
 
@@ -198,10 +195,8 @@ const CommentButton = ({ reelay }) => {
 	);
 }
 
-const DotMenuButton = () => {
+const DotMenuButton = ({ setDotMenuVisible }) => {
 	const onDotMenuPress = async () => setDotMenuVisible(true);
-
-	const { setDotMenuVisible } = useContext(FeedContext);
 
 	return (
 		<SidebarButton onPress={onDotMenuPress}>
