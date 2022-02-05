@@ -111,7 +111,7 @@ export default UserReelayFeed = ({ navigation,
                         height: height,
                         width: width,
                     }}
-                    windowSize={3}
+                    windowSize={2}
                 />        
             }
         </ReelayFeedContainer>

@@ -276,7 +276,7 @@ export default ReelayFeed = ({ navigation,
               height: height,
               width: width,
             }}
-            windowSize={3}
+            windowSize={2}
           />
         )}
         {currStackList.length >= 1 && feedSource === "following" && (
@@ -301,7 +301,7 @@ export default ReelayFeed = ({ navigation,
               height: height,
               width: width,
             }}
-            windowSize={3}
+            windowSize={2}
           />
         )}
         <FeedSourceSelectorButton

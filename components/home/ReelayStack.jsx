@@ -221,7 +221,7 @@ const ReelayStack = ({
                 renderItem={renderReelay} 
                 onScroll={onStackSwiped} 
                 pagingEnabled={true} 
-                windowSize={3}
+                windowSize={2}
             />
             <TopRightContainer style={{ top: insets.top }}>
                 <Pressable onPress={openTitleDetail}>
