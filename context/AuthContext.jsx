@@ -12,6 +12,5 @@ export const AuthContext = createContext({
     reelayDBUser: {},
     signedIn: false,
     session: {},
-    username: '',
     isReturningUser: false,
 });

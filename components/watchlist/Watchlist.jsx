@@ -4,7 +4,7 @@ import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import styled from 'styled-components/native';
 import WatchlistItem from './WatchlistItem';
 import { AuthContext } from '../../context/AuthContext';
-import { getWatchlistItems } from '../../api/WatchlistApi';
+import { refreshMyWatchlist } from '../../api/ReelayUserApi';
 import WatchlistSwipeableRow from './WatchlistSwipeableRow';
 
 import moment from 'moment';
@@ -29,7 +29,7 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
     }
 
     const onRefresh = async () => {
-        const refreshedWatchlistItems = await getWatchlistItems(cognitoUser?.attributes?.sub);
+        const refreshedWatchlistItems = await refreshMyWatchlist(cognitoUser?.attributes?.sub);
         const sortedWatchlistItems = refreshedWatchlistItems.sort(byDateUpdated);
         setMyWatchlistItems(sortedWatchlistItems);
     }

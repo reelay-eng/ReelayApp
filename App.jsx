@@ -33,15 +33,8 @@ import { FeedContext } from './context/FeedContext';
 import { UploadContext } from './context/UploadContext';
 
 // api imports
-import { 
-    getFollowers, 
-    getFollowing, 
-    getRegisteredUser, 
-    getStacksByCreator, 
-    registerUser, 
-    registerPushTokenForUser,
-} from './api/ReelayDBApi';
-import { getWatchlistItems } from './api/WatchlistApi';
+import { registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
+import { loadMyFollowers, loadMyFollowing, loadMyReelayStacks, loadMyUser, loadMyWatchlist } from './api/ReelayUserApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { showErrorToast } from './components/utils/toasts';
 
@@ -67,7 +60,6 @@ function App() {
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [signedIn, setSignedIn] = useState(false);
     const [session, setSession] = useState({});
-    const [username, setUsername] = useState('');
     const [isReturningUser, setIsReturningUser] = useState(false);
 
     // Feed context hooks
@@ -92,6 +84,8 @@ function App() {
     useEffect(() => {
         if (reelayDBUser?.sub) {
             loadMyProfile();
+        } else {
+            // not signed in?
         }
     }, [reelayDBUser]);
 
@@ -198,7 +192,7 @@ function App() {
                 setCredentials(tryCredentials);
                 setSignedIn(true);
 
-                tryReelayDBUser = await getRegisteredUser(tryCognitoUser?.attributes?.sub);
+                tryReelayDBUser = await loadMyUser(tryCognitoUser?.attributes?.sub);
                 setReelayDBUser(tryReelayDBUser);
             }
         } catch (error) {
@@ -224,10 +218,10 @@ function App() {
 
     const loadMyProfile = async () => {
         if (signedIn && reelayDBUser && reelayDBUser.sub) {
-            const nextMyFollowers = await getFollowers(reelayDBUser.sub);
-            const nextMyFollowing = await getFollowing(reelayDBUser.sub);
-            const nextMyCreatorStacks = await getStacksByCreator(reelayDBUser.sub);
-            const nextMyWatchlistItems = await getWatchlistItems(reelayDBUser.sub);
+            const nextMyFollowers = await loadMyFollowers(reelayDBUser.sub);
+            const nextMyFollowing = await loadMyFollowing(reelayDBUser.sub);
+            const nextMyCreatorStacks = await loadMyReelayStacks(reelayDBUser.sub);
+            const nextMyWatchlistItems = await loadMyWatchlist(reelayDBUser.sub);
     
             setMyFollowers(nextMyFollowers);
             setMyFollowing(nextMyFollowing);
@@ -279,7 +273,6 @@ function App() {
         reelayDBUser,       setReelayDBUser,
         session,            setSession,
         signedIn,           setSignedIn,
-        username,           setUsername,
         isReturningUser,    setIsReturningUser
     }
 

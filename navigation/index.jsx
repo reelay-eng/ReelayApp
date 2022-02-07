@@ -23,6 +23,7 @@ import LinkingConfiguration from './LinkingConfiguration';
 import { getReelay, prepareReelay } from '../api/ReelayDBApi';
 import moment from 'moment';
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
+import { refreshMyWatchlist } from '../api/ReelayUserApi';
 
 export default Navigation = () => {
     /**
@@ -35,7 +36,7 @@ export default Navigation = () => {
     const notificationListener = useRef();
     const responseListener = useRef(); 
 
-    const { cognitoUser } = useContext(AuthContext);
+    const { cognitoUser, setMyWatchlistItems } = useContext(AuthContext);
     
     const onNotificationReceived = (notification) => {
         const content = parseNotificationContent(notification);
@@ -92,6 +93,10 @@ export default Navigation = () => {
             console.log('No navigation ref')
             return;
         }
+
+        const refreshedWatchlist = await refreshMyWatchlist(cognitoUser?.attributes?.sub);
+        setMyWatchlistItems(refreshedWatchlist);
+
         navigationRef.current.navigate('Watchlist', {
             category: 'Recs',
         });

@@ -4,13 +4,12 @@ import { AuthContext } from '../../context/AuthContext';
 import { Auth } from 'aws-amplify';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
-import colors from "../../constants/ReelayColors";
-import BackButton from "../../components/utils/BackButton";
 import { Icon } from "react-native-elements";
 import styled from 'styled-components/native';
 import * as ReelayText from "../../components/global/Text";
 import { BWButton } from "../../components/global/Buttons";
 import { HeaderWithBackButton } from "../global/Headers";
+import { clearLocalUserData } from '../../api/ReelayUserApi';
 
 export const ProfileSettings = ({navigation}) => {
     const ViewContainer = styled(View)`
@@ -141,6 +140,7 @@ const Logout = () => {
             const signOutResult = await Auth.signOut();
             setSignedIn(false);
             console.log(signOutResult);
+            await clearLocalUserData();
             // setCognitoUser({});
             // setSession({});
             // setCredentials({});

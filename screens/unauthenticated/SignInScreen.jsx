@@ -14,7 +14,14 @@ import { getInputUsername } from '../../components/utils/usernameOrEmail';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
-import { getRegisteredUser } from '../../api/ReelayDBApi';
+
+import { 
+    refreshMyFollowers, 
+    refreshMyFollowing, 
+    refreshMyReelayStacks, 
+    refreshMyUser, 
+    refreshMyWatchlist 
+} from '../../api/ReelayUserApi';
 
 const REELAY_ICON_SOURCE = require('../../assets/icons/reelay-icon.png');
 
@@ -99,8 +106,11 @@ export default SignInScreen = ({ navigation, route }) => {
     const { 
         setCognitoUser, 
         setReelayDBUser, 
-        setUsername, 
         setSignedIn,
+        setMyFollowing,
+        setMyFollowers,
+        setMyWatchlistItems,
+        setMyCreatorStacks,
     } = useContext(AuthContext);
 
     const ForgotPassword = () => {
@@ -179,6 +189,20 @@ export default SignInScreen = ({ navigation, route }) => {
             });
         }
 
+        const refreshUserData = async (userSub) => {
+            const reelayDBUser = await refreshMyUser(userSub);
+            const myFollowing = await refreshMyFollowing(userSub);
+            const myFollowers = await refreshMyFollowers(userSub);
+            const myWatchlistItems = await refreshMyWatchlist(userSub);
+            const myCreatorStacks = await refreshMyReelayStacks(userSub);
+
+            setReelayDBUser(reelayDBUser);
+            setMyFollowing(myFollowing);
+            setMyFollowers(myFollowers);
+            setMyWatchlistItems(myWatchlistItems);
+            setMyCreatorStacks(myCreatorStacks);
+        }
+
         const signInUser = async () => {
             console.log('Attempting user sign in');
             try {
@@ -207,9 +231,7 @@ export default SignInScreen = ({ navigation, route }) => {
                 console.log(cognitoUser);
 
                 setCognitoUser(cognitoUser);
-                setUsername(cognitoUser.username);
-                const reelayDBUser = await getRegisteredUser(cognitoUser?.attributes?.sub);
-                setReelayDBUser(reelayDBUser);
+                await refreshUserData(cognitoUser?.attributes?.sub);
                 setSignedIn(true);
                 console.log('Signed in user successfully');
 

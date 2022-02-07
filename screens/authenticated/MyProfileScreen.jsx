@@ -6,11 +6,7 @@ import { Autolink } from "react-native-autolink";
 import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
 
 // API
-import { getStacksByCreator } from '../../api/ReelayDBApi';
-import {
-  getFollowers,
-  getFollowing,
-} from "../../api/ReelayDBApi";
+import { refreshMyFollowers, refreshMyFollowing, refreshMyReelayStacks } from '../../api/ReelayUserApi';
 
 // Components
 import ProfileHeader from '../../components/profile/ProfileHeader';
@@ -96,16 +92,16 @@ export default MyProfileScreen = ({ navigation, route }) => {
     }
     const userSub = cognitoUser?.attributes?.sub;
 
-    const loadCreatorStacks = async () => {
-        const nextMyCreatorStacks = await getStacksByCreator(userSub);
+    const refreshMyReelays = async () => {
+        const nextMyCreatorStacks = await refreshMyReelayStacks(userSub);
         nextMyCreatorStacks.forEach(stack => stack.sort(sortReelays));
         nextMyCreatorStacks.sort(sortStacks);
         setMyCreatorStacks(nextMyCreatorStacks);
     }
 
-    const loadFollows = async () => {
-        const nextMyFollowers = await getFollowers(userSub);
-        const nextMyFollowing = await getFollowing(userSub);
+    const refreshMyFollows = async () => {
+        const nextMyFollowers = await refreshMyFollowers(userSub);
+        const nextMyFollowing = await refreshMyFollowing(userSub);
 
         setMyFollowers(nextMyFollowers);
         setMyFollowing(nextMyFollowing);
@@ -114,8 +110,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const onRefresh = async () => {
         if (userSub.length) {
             setRefreshing(true);
-            await loadCreatorStacks();
-            await loadFollows();
+            await refreshMyReelays();
+            await refreshMyFollows();
             setRefreshing(false);
         }
     }
