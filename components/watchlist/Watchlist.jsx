@@ -1,4 +1,4 @@
-import React, { useContext, useState, useCallback } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
 
 import styled from 'styled-components/native';
@@ -9,7 +9,7 @@ import WatchlistSwipeableRow from './WatchlistSwipeableRow';
 
 import moment from 'moment';
 
-export default Watchlist = ({ navigation, watchlistItems, category }) => {
+export default Watchlist = ({ category, navigation, refresh, watchlistItems }) => {
 
     const ROW_HEIGHT = 125;
     const WatchlistItemContainer = styled(Pressable)`
@@ -35,6 +35,10 @@ export default Watchlist = ({ navigation, watchlistItems, category }) => {
         const sortedWatchlistItems = refreshedWatchlistItems.sort(byDateUpdated);
         setMyWatchlistItems(sortedWatchlistItems);
     }
+
+    useEffect(() => {
+        if (refresh) onRefresh();
+    }, []);
 
     // compress duplicate watchlist items by title, keeping their accumuluated recs
     // in a new `recommendations` field
