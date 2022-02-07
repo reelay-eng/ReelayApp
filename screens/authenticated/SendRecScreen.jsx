@@ -17,6 +17,7 @@ import { sendRecommendation, getSentRecommendations } from '../../api/WatchlistA
 import { showMessageToast } from '../../components/utils/toasts';
 import { notifyOnSendRec } from '../../api/WatchlistNotifications';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import ReelayColors from '../../constants/ReelayColors';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const ReelayIcon = require('../../assets/icons/reelay-icon.png');
@@ -34,7 +35,7 @@ const TitleHeader = ({ navigation, readyToSend, reelay, sendRecs, watchlistItem 
     `
     const SendIconPressable = styled(Pressable)`
         align-items: center;
-        background-color: ${readyToSend ? '#497afc' : 'gray' };
+        background-color: ${readyToSend ? ReelayColors.reelayBlue : 'gray' };
         border-radius: 35px;
         justify-content: center;
         height: 70px;
@@ -102,7 +103,7 @@ const FollowerRow = ({
     unmarkFollowerToSend,
 }) => {
     const [markedToSend, setMarkedToSend] = useState(hasMarkedToSend);
-    const backgroundColor = (markedToSend) ? '#497afc' : 'black';
+    const backgroundColor = (markedToSend) ? ReelayColors.reelayBlue : 'black';
     const iconName = (hasAlreadySent) ? 'checkmark-done' : 'checkmark';
     const iconColor = (hasAlreadySent) ? 'gray' : 'white';
 

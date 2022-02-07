@@ -10,8 +10,6 @@ import WatchlistSwipeableRow from './WatchlistSwipeableRow';
 import moment from 'moment';
 
 export default Watchlist = ({ category, navigation, refresh, watchlistItems }) => {
-
-    const ROW_HEIGHT = 125;
     const WatchlistItemContainer = styled(Pressable)`
         background-color: black;
         border-bottom-color: #505050;

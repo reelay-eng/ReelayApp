@@ -12,6 +12,7 @@ import { ToggleSelector } from '../../components/global/Buttons';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import { getFollowers, getFollowing } from '../../api/ReelayDBApi';
+import ReelayColors from '../../constants/ReelayColors';
 
 const BackButtonContainer = styled(View)`
     margin-right: 10px;
@@ -132,6 +133,7 @@ export default UserFollowScreen = ({ navigation, route }) => {
 			</TopBarContainer>
 			<SelectorBarContainer>
 				<ToggleSelector
+                    color={ReelayColors.reelayBlue}
 					options={["Followers", "Following"]}
 					selectedOption={selectedFollowType}
 					onSelect={setSelectedFollowType}

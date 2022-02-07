@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 import { Image } from 'react-native-elements';
 import * as ReelayText from "../../components/global/Text";
 import styled from 'styled-components/native';
@@ -10,33 +10,29 @@ import { showErrorToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { getRuntimeString } from '../utils/TitleRuntime';
 
-const ImageContainer = styled.View`
+const ImageContainer = styled(View)`
     flex: 0.5;
     flex-direction: row;
     align-items: center;
     width: 500px;
 `
-const PressableContainer = styled.Pressable`
+const PressableContainer = styled(Pressable)`
     flex: 1;
     flex-direction: row;
     margin: 10px 10px 10px 20px;
-    height: 165px;
 `
-const TitleText = styled(ReelayText.H5Emphasized)`
+const TitleText = styled(ReelayText.Subtitle1Emphasized)`
     color: white
-    font-size: 22px;
-    margin-bottom: 10px;
 `
-const TitleLineContainer = styled.View`
+const TitleLineContainer = styled(View)`
     flex: 1;
     justify-content: center;
     align-items: flex-start;
 `;
-const ActorText = styled(ReelayText.H6Emphasized)`
+const ActorText = styled(ReelayText.Subtitle2)`
     color: gray
-    font-size: 16px;
 `
-const YearText = styled(ReelayText.H6Emphasized)`
+const YearText = styled(ReelayText.Subtitle2)`
     color: gray
 `
 
@@ -95,7 +91,7 @@ export default TitleSearchResultItem = ({ navigation, result, source }) => {
                 { titleObj?.posterSource && (
                     <Image
                         source={titleObj?.posterSource}
-                        style={{ height: 120, width: 80, borderRadius: 6 }}
+                        style={{ height: 108, width: 72, borderRadius: 6 }}
                         PlaceholderContent={<ActivityIndicator />}
                     />
                 )}

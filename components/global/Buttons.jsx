@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { Pressable, View, Text, Image } from 'react-native';
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
-const RedAddIcon = require('../../assets/icons/red_add_icon.png');
 import * as ReelayText from './Text';
+
+const RedAddIcon = require('../../assets/icons/red_add_icon.png');
 
 const ButtonPressable = styled(Pressable)`
     width: 100%;
@@ -41,7 +42,7 @@ export const Button = ({
 	text,
 	onPress,
 	pressedColor = "#0B2046",
-	backgroundColor = "#2977EF",
+	backgroundColor = ReelayColors.reelayBlue,
 	fontColor = "white",
 	borderRadius = "20px",
 	border = "",
@@ -81,6 +82,15 @@ export const Button = ({
 	);
 };
 
+export const ActionButton2 = ({ 
+	actionType='primary',
+	onPress,
+	disabled=false,
+
+}) => {
+
+}
+
 export const ActionButton = ({
 	text,
     onPress,
@@ -90,7 +100,8 @@ export const ActionButton = ({
     leftIcon = null,
     rightIcon = null
 }) => {
-	if (color === "red")
+
+	if (color === "red") {
 		return (
 			<Button
 				onPress={onPress}
@@ -99,11 +110,11 @@ export const ActionButton = ({
                 leftIcon={leftIcon}
                 rightIcon={rightIcon}
 				borderRadius={borderRadius}
-				backgroundColor={"#e8362a"}
+				backgroundColor={ReelayColors.reelayRed}
 				pressedColor={"#63100a"}
 			/>
 		);
-	else
+	} else if (color === 'blue') {
 		return (
 			<Button
 				onPress={onPress}
@@ -111,8 +122,22 @@ export const ActionButton = ({
 				rightIcon={rightIcon}
 				text={text}
 				borderRadius={borderRadius}
+				backgroundColor={ReelayColors.reelayBlue}
 			/>
 		);
+	} else if (color === 'green') {
+		return (
+			<Button
+				onPress={onPress}
+				text={text}
+				disabled={disabled}
+				leftIcon={leftIcon}
+				rightIcon={rightIcon}
+				borderRadius={borderRadius}
+				backgroundColor={ReelayColors.reelayGreen}
+			/>
+		);
+	}
 };
 
 export const PassiveButton = ({
@@ -175,7 +200,7 @@ export const RedPlusButton = ({onPress}) => {
     )
 }
 
-export const ToggleSelector = ({ options, selectedOption, onSelect,  }) => {
+export const ToggleSelector = ({ options, selectedOption, onSelect, color }) => {
     const BackgroundBox = styled(View)`
 		align-items: center;
 		background-color: #252527;
@@ -193,7 +218,7 @@ export const ToggleSelector = ({ options, selectedOption, onSelect,  }) => {
         width: ${100 / options.length}%;
     `
     const ActiveButtonContainer = styled(ButtonContainer)`
-		background-color: ${ReelayColors.reelayBlue};
+		background-color: ${color ?? ReelayColors.reelayBlue};
 		border-radius: 6px;
 	`;
     const OptionText = styled(ReelayText.Subtitle2)`

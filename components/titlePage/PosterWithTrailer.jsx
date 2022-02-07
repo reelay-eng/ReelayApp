@@ -220,6 +220,7 @@ export default PosterWithTrailer = ({
 				{trailerURI && (
 					<TrailerButtonContainer>
 						<ActionButton
+							color='green'
 							text={"Watch Trailer"}
 							leftIcon={
 								<Icon
@@ -245,7 +246,7 @@ export default PosterWithTrailer = ({
 				)}
 				<CreateReelayButtonContainer>
 					<ActionButton
-						color="red"
+						color='blue'
 						text={"Create a Reelay"}
 						leftIcon={
 							<Icon
