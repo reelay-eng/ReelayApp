@@ -92,9 +92,8 @@ export default Navigation = () => {
             console.log('No navigation ref')
             return;
         }
-        navigationRef.current.navigate('WatchlistScreen', {
+        navigationRef.current.navigate('Watchlist', {
             category: 'Recs',
-            refresh: true,
         });
     }
 

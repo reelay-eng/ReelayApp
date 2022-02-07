@@ -163,6 +163,21 @@ export default PosterWithTrailer = ({
 		);
 	};
 
+    const AddToWatchlistContainer = styled(View)`
+        flex-direction: row;
+        justify-content: flex-end;
+        margin-bottom: 10px;
+    `;
+	const BackButtonContainer = styled(Pressable)`
+		position: absolute;
+		margin-top: 51px;
+		margin-left: 21px;
+	`;
+	const CreateReelayButtonContainer = styled(View)`
+		width: 100%;
+		height: 40px;
+		margin-top: 10px;
+	`;
 	const PosterInfoContainer = styled(View)`
 		position: absolute;
 		left: 4%;
@@ -171,34 +186,22 @@ export default PosterWithTrailer = ({
 		display: flex;
 		flex-direction: column;
 	`;
-
-    const AddToWatchlistContainer = styled(View)`
-        flex-direction: row;
-        justify-content: flex-end;
-        margin-bottom: 10px;
-    `
 	const PosterTitleContainer = styled(View)`
 		width: 90%;
 	`;
 	const PosterTitle = styled(ReelayText.H4Bold)`
 		color: white;
 	`;
-
 	const TrailerButtonContainer = styled(View)`
 		width: 100%;
 		height: 40px;
 	`;
-	const CreateReelayButtonContainer = styled(View)`
-		width: 100%;
-		height: 40px;
-		margin-top: 10px;
-	`;
-
-	const BackButtonContainer = styled(Pressable)`
-		position: absolute;
-		margin-top: 51px;
-		margin-left: 21px;
-	`;
+	const WatchlistButtonsContainer = styled(View)`
+		
+	`
+	const InfoBarContainer = styled(View)`
+		flex-direction: row;
+	`
 
 	return (
 		<PosterContainer>
@@ -207,16 +210,20 @@ export default PosterWithTrailer = ({
 				<Icon type="ionicon" name={"arrow-back-outline"} color={"white"} size={25} />
 			</BackButtonContainer>
 			<PosterInfoContainer>
-            <AddToWatchlistContainer>
-                <AddToWatchlistButton titleObj={titleObj} />
-            </AddToWatchlistContainer>
-            <AddToWatchlistContainer>
-                <SendRecButton navigation={navigation} titleObj={titleObj} />
-            </AddToWatchlistContainer>
-            <PosterTitleContainer>
-                <PosterTitle>{title}</PosterTitle>
-            </PosterTitleContainer>
-            <PosterTagline />
+				<InfoBarContainer>
+					<PosterTitleContainer>
+						<PosterTitle>{title}</PosterTitle>
+						<PosterTagline />
+					</PosterTitleContainer>
+					<WatchlistButtonsContainer>
+						<AddToWatchlistContainer>
+							<AddToWatchlistButton titleObj={titleObj} />
+						</AddToWatchlistContainer>
+						<AddToWatchlistContainer>
+							<SendRecButton navigation={navigation} titleObj={titleObj} />
+						</AddToWatchlistContainer>
+					</WatchlistButtonsContainer>
+				</InfoBarContainer>
 				{trailerURI && (
 					<TrailerButtonContainer>
 						<ActionButton
