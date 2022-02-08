@@ -42,16 +42,30 @@ export default WatchlistScreen = ({ navigation, route }) => {
         });
     }, [navigation]);
 
+    let recCount = 0;
+    let myListCount = 0;
+    let seenCount = 0;
+    
     const categoryWatchlistItems = myWatchlistItems.filter((nextItem) => {
         const { hasAcceptedRec, hasSeenTitle } = nextItem;
-        if (selectedCategory === 'My List') {
-            return hasAcceptedRec && !hasSeenTitle;
-        } else if (selectedCategory === 'Seen') {
-            return hasSeenTitle;
-        } else if (selectedCategory === 'Recs') {
-            return !hasAcceptedRec && !hasSeenTitle;
+
+        const inMyList = hasAcceptedRec && !hasSeenTitle
+        const inRecs = !hasAcceptedRec && !hasSeenTitle;
+        const inSeen = hasSeenTitle;
+
+        if (inMyList) {
+            myListCount += 1;
+            return selectedCategory === 'My List';
+        } else if (inRecs) {
+            recCount += 1;
+            return selectedCategory === 'Recs';
+        } else {
+            seenCount += 1;
+            return selectedCategory === 'Seen';
         }
     });
+
+    console.log('CO)UNTS: ', recCount, myListCount, seenCount);
 
     const onSelectCategory = (category) => {
         setSelectedCategory(category);
@@ -62,12 +76,21 @@ export default WatchlistScreen = ({ navigation, route }) => {
         });
     }
 
+    const recCountDisplay = `(${recCount})`;
+    const myListCountDisplay = `(${myListCount})`;
+    const seenCountDisplay = `(${seenCount})`;
+
+    const recDisplay = (recCount > 0) ? `Recs ${recCountDisplay}` : 'Recs';
+    const myListDisplay = (myListCount > 0) ? `My List ${myListCountDisplay}` : 'My List';
+    const seenDisplay = (seenCount > 0) ? `Seen ${seenCountDisplay}` : 'Seen';
+
     return (
 		<WatchlistScreenContainer>
             <BaseHeader text={'Watchlist'} />
 			<TopBarContainer>
 				<SelectorBarContainer>
 					<ToggleSelector
+                        displayOptions={[recDisplay, myListDisplay, seenDisplay]}
 						options={['Recs', 'My List', 'Seen']}
 						selectedOption={selectedCategory}
 						onSelect={onSelectCategory}

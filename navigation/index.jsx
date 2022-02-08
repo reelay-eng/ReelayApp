@@ -6,6 +6,7 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { 
     addNotificationReceivedListener, 
@@ -36,7 +37,7 @@ export default Navigation = () => {
     const notificationListener = useRef();
     const responseListener = useRef(); 
 
-    const { cognitoUser, setMyWatchlistItems } = useContext(AuthContext);
+    const { cognitoUser, myWatchlistItems, setMyWatchlistItems } = useContext(AuthContext);
     
     const onNotificationReceived = (notification) => {
         const content = parseNotificationContent(notification);
@@ -65,18 +66,18 @@ export default Navigation = () => {
             if (!data.reelaySub) {
                 console.log('No reelay sub given');
             } else {
-                openSingleReelayScreen(data.reelaySub);
+                openSingleReelayScreen(data?.reelaySub);
             }
         } else if (action === 'openUserProfileScreen') {
             if (!data.user) {
               console.log("No user given");
             } else {
-                openUserProfileScreen(data.user);
+                openUserProfileScreen(data?.user);
             }
         } else if (action === 'openCreateScreen') {
             openCreateScreen();
         } else if (action === 'openMyRecs') {
-            openMyRecs();
+            openMyRecs(data?.newItems);
         }
     }
 
@@ -88,18 +89,18 @@ export default Navigation = () => {
         navigationRef.current.navigate('Create');
     }
 
-    const openMyRecs = async () => {
+    const openMyRecs = async (newWatchlistItems) => {
         if (!navigationRef?.current) {
             console.log('No navigation ref')
             return;
         }
 
-        const refreshedWatchlist = await refreshMyWatchlist(cognitoUser?.attributes?.sub);
-        setMyWatchlistItems(refreshedWatchlist);
+        const allMyWatchlistItems = [...newWatchlistItems, ...myWatchlistItems];
+        console.log('ALL MY WATCHLIST ITEMS: ', allMyWatchlistItems.map(item => item.title.display).join(', '));
+        setMyWatchlistItems(allMyWatchlistItems);
 
-        navigationRef.current.navigate('Watchlist', {
-            category: 'Recs',
-        });
+        navigationRef.current.navigate('Watchlist', { category: 'Recs' });
+        await AsyncStorage.setItem('myWatchlist', JSON.stringify(allMyWatchlistItems));
     }
 
     const openSingleReelayScreen = async (reelaySub) => {

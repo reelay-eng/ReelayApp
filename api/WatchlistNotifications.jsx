@@ -13,28 +13,11 @@ export const notifyOnAcceptRec = async ({ acceptUserSub, acceptUsername, recUser
     return await sendPushNotification({ title, body, data, token: pushToken });
 }
 
-// maybe don't use this one
-export const notifyOnAddToWatchlist = async ({ reqUserSub, reqUsername, creatorSub, watchlistItem }) => {
-    const title = `${watchlistItem?.title?.display} (${watchlistItem?.title?.releaseYear}) added to a watchlist!`;
-    const body = `${reqUsername} added from your reelay`;
-
-    const data = { 
-        action: 'openSingleReelayScreen',
-        reelaySub: watchlistItem?.recommendedReelaySub,
-    };
-
-    const { pushToken } = await getRegisteredUser(creatorSub);
-    console.log(user);
-    return await sendPushNotification({ title, body, data, token: pushToken });
-}
-
 export const notifyOnSendRec = async ({ reqUserSub, reqUsername, sendToUserSub, watchlistItem }) => {
     const title = `${reqUsername} sent you a recommendation`;
     const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear})`;
 
-    // todo: if the title is already in your watchlist, should say:
-    // "${reqUsername} also recommended..." 
-    const data = { action: 'openMyRecs' };
+    const data = { action: 'openMyRecs', newItems: [watchlistItem] };
     const { pushToken } = await getRegisteredUser(sendToUserSub);
     return await sendPushNotification({ title, body, data, token: pushToken });
 }

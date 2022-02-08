@@ -200,7 +200,7 @@ export const RedPlusButton = ({onPress}) => {
     )
 }
 
-export const ToggleSelector = ({ options, selectedOption, onSelect, color }) => {
+export const ToggleSelector = ({ displayOptions, options, selectedOption, onSelect, color }) => {
     const BackgroundBox = styled(View)`
 		align-items: center;
 		background-color: #252527;
@@ -230,18 +230,22 @@ export const ToggleSelector = ({ options, selectedOption, onSelect, color }) => 
 
     return (
         <BackgroundBox>
-            { options.map((option) => {
+            { options.map((option, index) => {
                 if (option === selectedOption) {
                     return (
                         <ActiveButtonContainer key={option}>
-                            <OptionText>{option}</OptionText>
+							<OptionText>
+								{ (displayOptions && displayOptions[index]) ?? option }
+							</OptionText>
                         </ActiveButtonContainer>
                     );
                 } else {
                     return (
                         <PassiveButtonContainer key={option}
                                 onPress={() => onSelect(option)}>
-                            <OptionText>{option}</OptionText>
+                            <OptionText>
+								{ (displayOptions && displayOptions[index]) ?? option }
+							</OptionText>
                         </PassiveButtonContainer>
                     );
                 }
