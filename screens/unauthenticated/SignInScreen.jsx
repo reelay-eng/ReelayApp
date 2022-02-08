@@ -196,6 +196,8 @@ export default SignInScreen = ({ navigation, route }) => {
             const myWatchlistItems = await refreshMyWatchlist(userSub);
             const myCreatorStacks = await refreshMyReelayStacks(userSub);
 
+            console.log('REFRESHED USER OBJ: ', reelayDBUser);
+
             setReelayDBUser(reelayDBUser);
             setMyFollowing(myFollowing);
             setMyFollowers(myFollowers);

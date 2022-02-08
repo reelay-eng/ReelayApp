@@ -170,7 +170,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
                 <UserInfoContainer>
                     {reelayDBUser?.bio && (
                         <BioText 
-                            text={reelayDBUser.bio.trim()} 
+                            text={reelayDBUser?.bio?.trim() ?? ''} 
                             linkStyle={{ color: '#3366BB' }} 
                             url
                         /> 

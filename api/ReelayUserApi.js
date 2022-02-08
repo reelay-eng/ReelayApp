@@ -4,15 +4,16 @@ import { getWatchlistItems } from './WatchlistApi';
 
 const loadUserData = async (userSub, key, apiCallback) => {
     let userData = await AsyncStorage.getItem(key);
-    if (!userData) {
+    // I swear, AsyncStorage literally returns the string ='null'
+    // when a key lookup fails. WHY.
+    if (userData === 'null') { 
         userData = await apiCallback(userSub);
-        console.log('KEY: ', key);
-        console.log(userData);
         await AsyncStorage.setItem(key, JSON.stringify(userData));
     }
-    try {
+
+    if (typeof(userData) === 'string') {
         return JSON.parse(userData);
-    } catch (error) {
+    } else {
         return userData;
     }
 }
@@ -21,9 +22,9 @@ const refreshUserData = async (userSub, key, apiCallback) => {
     const refreshedUserData = await apiCallback(userSub);
     await AsyncStorage.setItem(key, JSON.stringify(refreshedUserData));
 
-    try {
+    if (typeof(userData) === 'string') {        
         return JSON.parse(refreshedUserData);
-    } catch (error) {
+    } else {
         return refreshedUserData;
     }
 }
@@ -33,6 +34,13 @@ export const clearLocalUserData = async () => {
     const result = await Promise.all(keys.map(async (key) => {
         return await AsyncStorage.removeItem(key);
     }));
+    
+    console.log('Clearing local user data...');
+    const clearResult = await Promise.all(keys.map(async (key) => {
+        const asyncValue = await AsyncStorage.getItem(key);
+        console.log(`Async value for ${key}: ${asyncValue}`);
+    }));
+    console.log('Finished clearing local data.');
     return result;
 }
 

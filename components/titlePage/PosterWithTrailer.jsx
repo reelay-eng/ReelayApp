@@ -187,6 +187,7 @@ export default PosterWithTrailer = ({
 		flex-direction: column;
 	`;
 	const PosterTitleContainer = styled(View)`
+		justify-content: flex-end;
 		width: 90%;
 	`;
 	const PosterTitle = styled(ReelayText.H4Bold)`
@@ -197,7 +198,7 @@ export default PosterWithTrailer = ({
 		height: 40px;
 	`;
 	const WatchlistButtonsContainer = styled(View)`
-		
+		margin-bottom: 10px;
 	`
 	const InfoBarContainer = styled(View)`
 		flex-direction: row;

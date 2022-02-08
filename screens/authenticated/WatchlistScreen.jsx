@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Image, Pressable, SafeAreaView, View } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaView, View } from 'react-native';
 
 import { BaseHeader } from '../../components/global/Headers'
 import { ToggleSelector } from '../../components/global/Buttons';

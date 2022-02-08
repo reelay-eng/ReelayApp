@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { SafeAreaView, View } from "react-native";
+import { ActivityIndicator, SafeAreaView, View } from "react-native";
 
 //Components
 import { BaseHeader } from '../../components/global/Headers'
@@ -91,6 +91,7 @@ export default SearchScreen = ({ navigation }) => {
             source: 'search',
         });
         try {
+            setLoading(true);
             let annotatedResults;
             if (searchType === "Film") {
                 annotatedResults = await searchTitles(newSearchText, false);
@@ -124,7 +125,7 @@ export default SearchScreen = ({ navigation }) => {
 						selectedOption={selectedType}
 						onSelect={(type) => {
 							setSelectedType(type);
-							setLoading(true);
+                            if (searchText.length) setLoading(true);
 						}}
 					/>
 				</SelectorBarContainer>
@@ -160,6 +161,7 @@ export default SearchScreen = ({ navigation }) => {
 					setDrawerOpen={setDrawerOpen}
 				/>
 			)}
+            { loading && <ActivityIndicator /> }
 			{drawerOpen && (
 				<FollowButtonDrawer
 					creatorFollowers={creatorFollowers}

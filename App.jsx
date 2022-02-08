@@ -46,9 +46,6 @@ const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash.png');
 function App() {
     const colorScheme = useColorScheme();
 
-    // push notifications
-    const [expoPushToken, setExpoPushToken] = useState('');
-
     // Auth context hooks
     const [cognitoUser, setCognitoUser] = useState({});
     const [credentials, setCredentials] = useState({});
@@ -254,8 +251,6 @@ function App() {
             } else {
                 console.log('Push token already registered');
             }
-
-            setExpoPushToken(devicePushToken);
         } catch (error) {
             console.log(error);
         }
@@ -264,7 +259,6 @@ function App() {
     const authState = {
         cognitoUser,        setCognitoUser,
         credentials,        setCredentials,
-        expoPushToken,      setExpoPushToken,
         isLoading,          setIsLoading,
         myFollowers,        setMyFollowers,
         myFollowing,        setMyFollowing,

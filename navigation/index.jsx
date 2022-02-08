@@ -96,7 +96,6 @@ export default Navigation = () => {
         }
 
         const allMyWatchlistItems = [...newWatchlistItems, ...myWatchlistItems];
-        console.log('ALL MY WATCHLIST ITEMS: ', allMyWatchlistItems.map(item => item.title.display).join(', '));
         setMyWatchlistItems(allMyWatchlistItems);
 
         navigationRef.current.navigate('Watchlist', { category: 'Recs' });
