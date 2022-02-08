@@ -11,6 +11,5 @@ export const AuthContext = createContext({
     followRequests: [],
     reelayDBUser: {},
     signedIn: false,
-    session: {},
     isReturningUser: false,
 });

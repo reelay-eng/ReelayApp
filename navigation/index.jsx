@@ -171,11 +171,12 @@ const RootNavigator = () => {
     }
 
     useEffect(() => {
-        if (!signedIn) {
-            setCognitoUser({});
-            setReelayDBUser({});
-            setSession({});
-            setCredentials({});    
+        if (!signedIn ) {
+            console.log('SIGNING OUT OF EVERYTHING');
+            // setCognitoUser({});
+            // setReelayDBUser({});
+            // setSession({});
+            // setCredentials({});    
         }
     }, [signedIn]);
 

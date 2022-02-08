@@ -56,7 +56,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
         padding-bottom: 5px;
     `;
 
-
     const [refreshing, setRefreshing] = useState(false);
     const [isEditingProfile, setIsEditingProfile] = useState(false);
 	const { 
@@ -70,6 +69,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
         setMyCreatorStacks,
     } = useContext(AuthContext); 
 
+    console.log('COGNITO USER: ', cognitoUser);
+
     const { setTabBarVisible } = useContext(FeedContext);
 
     useEffect(() => {
@@ -79,7 +80,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
     useEffect(() => {
         logAmplitudeEventProd("openMyProfileScreen", {
             username: cognitoUser?.attributes?.username,
-            email: cognitoUser.attributes.email,
+            email: cognitoUser?.attributes?.email,
         });
     }, []);
 

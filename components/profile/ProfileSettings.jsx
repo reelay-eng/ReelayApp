@@ -123,10 +123,7 @@ const SettingEntry = ({text, iconName, onPress}) => {
 const Logout = () => {
     const {
         cognitoUser,
-        setCredentials,
-        setSession,
         setSignedIn,
-        setCognitoUser,
     } = useContext(AuthContext);
 
     const signOut = async () => {
@@ -134,16 +131,15 @@ const Logout = () => {
         try {
             logAmplitudeEventProd('signOut', {
                 username: cognitoUser.username,
-                email: cognitoUser.attributes.email,
+                email: cognitoUser?.attributes?.email,
             });
     
             const signOutResult = await Auth.signOut();
             setSignedIn(false);
+            // todo: deregister for push tokens
+            // todo: deregister cognito user
             console.log(signOutResult);
             await clearLocalUserData();
-            // setCognitoUser({});
-            // setSession({});
-            // setCredentials({});
         } catch (error) {
             console.log(error);
         }

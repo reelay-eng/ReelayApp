@@ -231,10 +231,7 @@ export default SignInScreen = ({ navigation, route }) => {
                 const cognitoUser = await Auth.signIn(username, password);
                 console.log('Received sign in result');
                 console.log(cognitoUser);
-
                 setCognitoUser(cognitoUser);
-                await refreshUserData(cognitoUser?.attributes?.sub);
-                setSignedIn(true);
                 console.log('Signed in user successfully');
 
             } catch (error) {

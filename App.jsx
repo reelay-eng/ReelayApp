@@ -33,7 +33,7 @@ import { FeedContext } from './context/FeedContext';
 import { UploadContext } from './context/UploadContext';
 
 // api imports
-import { registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
+import { getRegisteredUser, registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
 import { loadMyFollowers, loadMyFollowing, loadMyReelayStacks, loadMyUser, loadMyWatchlist } from './api/ReelayUserApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { showErrorToast } from './components/utils/toasts';
@@ -74,21 +74,21 @@ function App() {
     useEffect(() => {
         (async () => {
             await initServices();
-            await authenticateUser();
+            await autoAuthenticateUser(); // this should just update cognitoUser
         })()
     }, []);
 
+    // first load my profile
     useEffect(() => {
-        if (reelayDBUser?.sub) {
-            loadMyProfile();
-        } else {
-            // not signed in?
-        }
-    }, [reelayDBUser]);
+        loadMyProfile();
+    }, [cognitoUser]);
 
     useEffect(() => {
-        registerUserAndPushTokens();
-    }, [cognitoUser]);
+        if (reelayDBUser?.sub) {
+            setSignedIn(true);
+            registerMyPushToken();
+        }
+    }, [reelayDBUser]);
 
     const initServices = async () => {
         Amplitude.initializeAsync(
@@ -173,84 +173,67 @@ function App() {
 		});
     }
 
-    const authenticateUser = async () => {
+    const autoAuthenticateUser = async () => {
         console.log('Setting up authentication');
-
-        let trySession, tryCognitoUser, tryCredentials, trySignedIn, tryReelayDBUser;
-    
+        let tryCognitoUser, tryCredentials;
         try {
-            trySession = await Auth.currentSession();
             tryCognitoUser = await Auth.currentAuthenticatedUser();
             tryCredentials = await Auth.currentUserCredentials();
 
             if (tryCredentials.authenticated) {
-                setSession(trySession);
                 setCognitoUser(tryCognitoUser);
-                setCredentials(tryCredentials);
-                setSignedIn(true);
-
-                tryReelayDBUser = await loadMyUser(tryCognitoUser?.attributes?.sub);
-                setReelayDBUser(tryReelayDBUser);
             }
         } catch (error) {
             logAmplitudeEventProd('authErrorForAuthenticateUser', {
                 error: error,
                 hasValidCredentials: tryCredentials?.authenticated,
-                hasValidSession: trySession ? true : false,
-                reelayDBUserSub: tryReelayDBUser?.sub,
-                signedIn: trySignedIn,
                 username: tryCognitoUser?.username,
             });
         }
 
-        setIsLoading(false);
         logAmplitudeEventProd('authenticationComplete', {
             hasValidCredentials: tryCredentials?.authenticated,
-            hasValidSession: trySession ? true : false,
-            reelayDBUserSub: tryReelayDBUser?.sub,
-            signedIn: trySignedIn,
             username: tryCognitoUser?.attributes?.sub,
         });    
+        setIsLoading(false);
     }
 
-    const loadMyProfile = async () => {
-        if (signedIn && reelayDBUser && reelayDBUser.sub) {
-            const nextMyFollowers = await loadMyFollowers(reelayDBUser.sub);
-            const nextMyFollowing = await loadMyFollowing(reelayDBUser.sub);
-            const nextMyCreatorStacks = await loadMyReelayStacks(reelayDBUser.sub);
-            const nextMyWatchlistItems = await loadMyWatchlist(reelayDBUser.sub);
+    const fetchOrRegisterUser = async () => {
+        const userSub = cognitoUser?.attributes?.sub;
+        if (!userSub) return null;
     
-            setMyFollowers(nextMyFollowers);
-            setMyFollowing(nextMyFollowing);
-            setMyCreatorStacks(nextMyCreatorStacks);
-            setMyWatchlistItems(nextMyWatchlistItems);
+        return await getRegisteredUser(userSub) 
+            ?? await registerUser(cognitoUser);
+    }    
+
+    const loadMyProfile = async () => {
+        const userSub = cognitoUser?.attributes?.sub;
+        if (userSub) {
+            const reelayDBUserLoaded = await fetchOrRegisterUser();
+            const myFollowersLoaded = await loadMyFollowers(userSub);
+            const myFollowingLoaded = await loadMyFollowing(userSub);
+            const myCreatorStacksLoaded = await loadMyReelayStacks(userSub);
+            const myWatchlistItemsLoaded = await loadMyWatchlist(userSub);
+    
+            setReelayDBUser(reelayDBUserLoaded);
+            setMyFollowers(myFollowersLoaded);
+            setMyFollowing(myFollowingLoaded);
+            setMyCreatorStacks(myCreatorStacksLoaded);
+            setMyWatchlistItems(myWatchlistItemsLoaded);
         }
     }
 
-    const registerUserAndPushTokens = async () => {
-        const validUser = cognitoUser?.username;
-        if (!validUser) return;
-
+    const registerMyPushToken = async () => {
         try {
-            const registeredUser = await registerUser(cognitoUser);
-            if (registeredUser.error) {
-                showErrorToast(
-                    "We couldn't register your device for push notifications. Please contact the Reelay team."
-                );
-                return;
-            }
-
             const devicePushToken = await registerForPushNotificationsAsync();
-            if (!registeredUser.pushToken || registeredUser.pushToken !== devicePushToken) {
+            if (!reelayDBUser.pushToken || reelayDBUser.pushToken !== devicePushToken) {
                 console.log('Registering new push token');
-                await registerPushTokenForUser(registeredUser, devicePushToken);
+                await registerPushTokenForUser(reelayDBUser.sub, devicePushToken);
                 logAmplitudeEventProd('pushTokenRegistered', {
-                    registeredUser: registeredUser,
+                    registeredUser: reelayDBUser,
                     devicePushToken: devicePushToken,
                 });
-            } else {
-                console.log('Push token already registered');
-            }
+            }    
         } catch (error) {
             console.log(error);
         }

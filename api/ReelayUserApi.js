@@ -6,7 +6,7 @@ const loadUserData = async (userSub, key, apiCallback) => {
     let userData = await AsyncStorage.getItem(key);
     // I swear, AsyncStorage literally returns the string ='null'
     // when a key lookup fails. WHY.
-    if (userData === 'null') { 
+    if (!userData || userData === 'null') { 
         userData = await apiCallback(userSub);
         await AsyncStorage.setItem(key, JSON.stringify(userData));
     }
