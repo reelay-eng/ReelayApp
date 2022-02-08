@@ -18,12 +18,6 @@ const HeroOverlay = ({reelay, viewable, navigation}) => {
     return (
       <View>
             <ReelayInfo navigation={navigation} reelay={reelay} />
-            <Sidebar
-                reelay={reelay}
-                setLikesVisible={setLikesVisible}
-                setCommentsVisible={setCommentsVisible}
-                setDotMenuVisible={setDotMenuVisible}
-            />
             {viewable && likesVisible && (
                 <LikesDrawer
                     reelay={reelay}
@@ -48,6 +42,12 @@ const HeroOverlay = ({reelay, viewable, navigation}) => {
                     setDotMenuVisible={setDotMenuVisible}
                 />
             )}
+            <Sidebar
+                reelay={reelay}
+                setLikesVisible={setLikesVisible}
+                setCommentsVisible={setCommentsVisible}
+                setDotMenuVisible={setDotMenuVisible}
+            />
       </View>
     );
 }
@@ -62,11 +62,6 @@ const Hero = ({
     setIsPaused,
     viewable,
 }) => {
-
-    const [likesVisible, setLikesVisible] = useState(false);
-    const [commentsVisible, setCommentsVisible] = useState(false);
-    const [dotMenuVisible, setDotMenuVisible] = useState(false);
-
     console.log('hero re-rendering: ', reelay.title.display);
 
     return (

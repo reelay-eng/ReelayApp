@@ -55,6 +55,7 @@ export default function FeedVideoPlayer({
 	}, [viewable, paused, focused]);
 
     useFocusEffect(React.useCallback(() => {
+		
 		if (viewable) setFocused(true);
         return () => {
 			if (viewable) setFocused(false);
@@ -79,7 +80,7 @@ export default function FeedVideoPlayer({
 			})
 		}
 	}
-
+	console.log("rrerendering!")
 	return (
 		<Pressable onPress={playPause}>
 			<Video
