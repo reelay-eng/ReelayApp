@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Image, KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback, SafeAreaView, Pressable, View } from 'react-native';
+import { KeyboardAvoidingView, Keyboard, TouchableWithoutFeedback, SafeAreaView, Pressable, View, ActivityIndicator } from 'react-native';
 import { Icon, Input } from 'react-native-elements';
 import { Button } from '../../components/global/Buttons';
 import BackButton from '../../components/utils/BackButton';
@@ -14,16 +14,6 @@ import { getInputUsername } from '../../components/utils/usernameOrEmail';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
-
-import { 
-    refreshMyFollowers, 
-    refreshMyFollowing, 
-    refreshMyReelayStacks, 
-    refreshMyUser, 
-    refreshMyWatchlist 
-} from '../../api/ReelayUserApi';
-
-const REELAY_ICON_SOURCE = require('../../assets/icons/reelay-icon.png');
 
 export const KeyboardHidingBlackContainer = ({ children }) => {
     const FullScreenBlackContainer = styled(SafeAreaView)`
@@ -64,12 +54,6 @@ export default SignInScreen = ({ navigation, route }) => {
 		name: "warning",
 		type: "ionicon",
 	};
-
-    const CTAButton = styled(Button)`
-        align-self: center;
-        margin-bottom: 40px;
-        width: 75%;
-    `
     const InputContainer = styled(View)`
 		margin-bottom: 60px;
 		width: 90%;
@@ -90,7 +74,6 @@ export default SignInScreen = ({ navigation, route }) => {
 		width: 95%;
 		height: 56px;
 	`;
-
     const ErrorContainer = styled(View)`
         width: 100%;
         display: flex;
@@ -101,18 +84,9 @@ export default SignInScreen = ({ navigation, route }) => {
         color: ${ReelayColors.reelayRed};
         text-align: center;
     `
+    const [signingIn, setSigningIn] = useState(false);
+    const { setCognitoUser, setSignedIn } = useContext(AuthContext);
     
-
-    const { 
-        setCognitoUser, 
-        setReelayDBUser, 
-        setSignedIn,
-        setMyFollowing,
-        setMyFollowers,
-        setMyWatchlistItems,
-        setMyCreatorStacks,
-    } = useContext(AuthContext);
-
     const ForgotPassword = () => {
         const ForgotPasswordContainer = styled(View)`
 			flex-direction: row;
@@ -145,13 +119,12 @@ export default SignInScreen = ({ navigation, route }) => {
         const [badPassword, setBadPassword] = useState(false);
         const [hidePassword, setHidePassword] = useState(true);
         const [otherError, setOtherError] = useState(false);
-    
-        const [signingIn, setSigningIn] = useState(false);
-        
+            
         const changeInputText = (text) => {
             setInputText(text);
             if (badEmail) setBadEmail(false);
         }
+
         const changePasswordText = (text) => {
 			setPassword(text);
 			if (badPassword) setBadPassword(false);
@@ -189,22 +162,6 @@ export default SignInScreen = ({ navigation, route }) => {
             });
         }
 
-        const refreshUserData = async (userSub) => {
-            const reelayDBUser = await refreshMyUser(userSub);
-            const myFollowing = await refreshMyFollowing(userSub);
-            const myFollowers = await refreshMyFollowers(userSub);
-            const myWatchlistItems = await refreshMyWatchlist(userSub);
-            const myCreatorStacks = await refreshMyReelayStacks(userSub);
-
-            console.log('REFRESHED USER OBJ: ', reelayDBUser);
-
-            setReelayDBUser(reelayDBUser);
-            setMyFollowing(myFollowing);
-            setMyFollowers(myFollowers);
-            setMyWatchlistItems(myWatchlistItems);
-            setMyCreatorStacks(myCreatorStacks);
-        }
-
         const signInUser = async () => {
             console.log('Attempting user sign in');
             try {
@@ -233,6 +190,7 @@ export default SignInScreen = ({ navigation, route }) => {
                 console.log(cognitoUser);
                 setCognitoUser(cognitoUser);
                 console.log('Signed in user successfully');
+                setSignedIn(true);
 
             } catch (error) {
                 console.log('Received error');
@@ -348,8 +306,14 @@ export default SignInScreen = ({ navigation, route }) => {
 						<BackButton navigation={navigation} />
 					</BackButtonContainer>
 					<TextContainer>
-						<HeaderText>Log In</HeaderText>
-						<SublineText>Get back into the mix</SublineText>
+						<HeaderText>
+                            { !signingIn && 'Log in'}
+                            { signingIn && 'Logging you in...'}
+                        </HeaderText>
+						<SublineText>
+                            { !signingIn && 'Get back into the mix'}
+                            { signingIn && 'Just a moment'}
+                        </SublineText>
 					</TextContainer>
 				</TopBarContainer>
 			</Container>
@@ -360,7 +324,8 @@ export default SignInScreen = ({ navigation, route }) => {
         <KeyboardHidingBlackContainer>
             <TopBar />
             <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
-                <UsernameAndPassword />
+                { !signingIn && <UsernameAndPassword /> }
+                { signingIn && <ActivityIndicator /> }
             </KeyboardAvoidingView>
         </KeyboardHidingBlackContainer>
     );

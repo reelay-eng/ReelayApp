@@ -170,16 +170,6 @@ const RootNavigator = () => {
         isCurrentlyBanned = (moment(reelayDBUser?.banExpiryAt).diff(moment(), 'minutes') > 0);
     }
 
-    useEffect(() => {
-        if (!signedIn ) {
-            console.log('SIGNING OUT OF EVERYTHING');
-            // setCognitoUser({});
-            // setReelayDBUser({});
-            // setSession({});
-            // setCredentials({});    
-        }
-    }, [signedIn]);
-
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>
             { signedIn && isCurrentlyBanned && <Stack.Screen name="Suspended" component={AccountSuspendedScreen} /> }

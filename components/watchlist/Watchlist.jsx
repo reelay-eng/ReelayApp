@@ -29,9 +29,11 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
     }
 
     const onRefresh = async () => {
+        setRefreshing(true);
         const refreshedWatchlistItems = await refreshMyWatchlist(cognitoUser?.attributes?.sub);
         const sortedWatchlistItems = refreshedWatchlistItems.sort(byDateUpdated);
         setMyWatchlistItems(sortedWatchlistItems);
+        setRefreshing(false);
     }
 
     const renderWatchlistItem = ({ item, index }) => {
@@ -95,6 +97,7 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
                 keyExtractor={item => String(item.id)}
                 pagingEnabled={false}
                 renderItem={renderWatchlistItem}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 showsVerticalScrollIndicator={false}
                 style={{ 
                     height: '100%', 
