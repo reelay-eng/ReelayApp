@@ -1,19 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Image, Pressable, SafeAreaView, View } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-//Components
 import { BaseHeader } from '../../components/global/Headers'
 import { ToggleSelector } from '../../components/global/Buttons';
 import Watchlist from '../../components/watchlist/Watchlist';
 import WatchlistCoachMark from '../../components/watchlist/WatchlistCoachMark';
 
-// Context
 import { AuthContext } from '../../context/AuthContext';
-
-// Logging
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
-
-// Styling
 import styled from 'styled-components/native';
 
 const WatchlistScreenContainer = styled(SafeAreaView)`
@@ -45,7 +40,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
     let recCount = 0;
     let myListCount = 0;
     let seenCount = 0;
-    
+
     const categoryWatchlistItems = myWatchlistItems.filter((nextItem) => {
         const { hasAcceptedRec, hasSeenTitle } = nextItem;
 
@@ -64,8 +59,6 @@ export default WatchlistScreen = ({ navigation, route }) => {
             return selectedCategory === 'Seen';
         }
     });
-
-    console.log('CO)UNTS: ', recCount, myListCount, seenCount);
 
     const onSelectCategory = (category) => {
         setSelectedCategory(category);

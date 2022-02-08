@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { Pressable, FlatList, RefreshControl, ScrollView, View } from 'react-native';
 
 import styled from 'styled-components/native';
 import WatchlistItem from './WatchlistItem';
@@ -32,6 +32,22 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
         const refreshedWatchlistItems = await refreshMyWatchlist(cognitoUser?.attributes?.sub);
         const sortedWatchlistItems = refreshedWatchlistItems.sort(byDateUpdated);
         setMyWatchlistItems(sortedWatchlistItems);
+    }
+
+    const renderWatchlistItem = ({ item, index }) => {
+        return (
+            <WatchlistSwipeableRow key={item.id} 
+                    category={category}
+                    navigation={navigation} 
+                    onRefresh={onRefresh}
+                    watchlistItem={item}>
+                <WatchlistItemContainer key={item?.id} onPress={() => {
+                    navigation.push('TitleDetailScreen', { titleObj: item.title });
+                }}>
+                    <WatchlistItem category={category} navigation={navigation} watchlistItem={item} />
+                </WatchlistItemContainer>
+            </WatchlistSwipeableRow>
+        );
     }
 
     useEffect(() => {
@@ -73,29 +89,19 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
 
     return (
         <View style={{height: '100%'}}>
-            <ScrollContainer style={{height: '100%'}}  refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }>
-                { uniqueWatchlistItems?.length >= 1 &&
-                    <React.Fragment>
-                        { uniqueWatchlistItems.map((nextItem) => {
-                            return (
-                                <WatchlistSwipeableRow key={nextItem.id} 
-                                        category={category}
-                                        navigation={navigation} 
-                                        onRefresh={onRefresh}
-                                        watchlistItem={nextItem}>
-                                    <WatchlistItemContainer key={nextItem?.id} onPress={() => {
-                                        navigation.push('TitleDetailScreen', { titleObj: nextItem.title });
-                                    }}>
-                                        <WatchlistItem category={category} navigation={navigation} watchlistItem={nextItem} />
-                                    </WatchlistItemContainer>
-                                </WatchlistSwipeableRow>
-                            );
-                        })}
-                    </React.Fragment>
-                }
-            </ScrollContainer>
+            <FlatList 
+                data={uniqueWatchlistItems}
+                horizontal={false}
+                keyExtractor={item => String(item.id)}
+                pagingEnabled={false}
+                renderItem={renderWatchlistItem}
+                showsVerticalScrollIndicator={false}
+                style={{ 
+                    height: '100%', 
+                    marginTop: 16, 
+                    marginBottom: 180,
+                }}
+            />
         </View>
     );
 }

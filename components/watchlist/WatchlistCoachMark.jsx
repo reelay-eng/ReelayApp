@@ -39,11 +39,11 @@ export default WatchlistCoachMark = ({ category, navigation }) => {
 
     useEffect(() => {
         checkIfSeenCoachMark();
-    }, [navigation]);
+    }, [category, navigation]);
 
 
     const checkIfSeenCoachMark = async () => {
-        const clearResult = await clearCoachMark();
+        // const clearResult = await clearCoachMark();
         const hasSeenCoachMark = await AsyncStorage.getItem(hasSeenCoachMarkKey);
         if (!hasSeenCoachMark) setShowCoachMark(true);
     }
@@ -75,8 +75,6 @@ export default WatchlistCoachMark = ({ category, navigation }) => {
 
         const titleText = coachMessages[category]?.title;
         const bodyText = coachMessages[category]?.body;
-
-        console.log('rendering coach mark: ', category);
     
         return (
             <CoachMarkContainer>
