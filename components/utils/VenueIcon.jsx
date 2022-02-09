@@ -11,12 +11,14 @@ const iconCrackle = require(ICON_PATH + 'crackle.png');
 const iconCriterion = require(ICON_PATH + 'criterion.png');
 const iconDisney = require(ICON_PATH + 'disney.png');
 const iconFestivals = require(ICON_PATH + 'festivals.png');
+const iconHomeVideo = require(ICON_PATH + "homevideo.png")
 const iconHBO = require(ICON_PATH + 'hbomax.png');
 const iconHulu = require(ICON_PATH + 'hulu.png');
 const iconMubi = require(ICON_PATH + 'mubi.png');
 const iconNetfix = require(ICON_PATH + 'netflix.png');
 const iconOther = require(ICON_PATH + 'other.png');
 const iconOldTheaters = require(ICON_PATH + "oldCinemas.png");
+const iconOldHomeVideo = require(ICON_PATH + "oldHomeVideo.png");
 const iconOldFestivals = require(ICON_PATH + "oldFestivals.png");
 const iconOldOther = require(ICON_PATH + "oldOther.png");
 const iconParamount = require(ICON_PATH + 'paramount.png');
@@ -51,6 +53,12 @@ export const otherVenues = [
         oldSource: iconOldTheaters,
         text: "In theaters",
         venue: "theaters"
+    },
+    {
+        source: iconHomeVideo,
+        oldSource: iconOldHomeVideo,
+        text: 'Home video',
+        venue: "homevideo"
     },
     {
         source: iconOther,

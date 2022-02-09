@@ -59,6 +59,9 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
 
 	const { setTabBarVisible } = useContext(FeedContext);
 	const { reelayDBUser } = useContext(AuthContext);
+
+	console.log('REELAY DB USER: ', reelayDBUser);
+
 	const initBio = reelayDBUser.bio ? reelayDBUser.bio : "";
 	const initWebsite = reelayDBUser.website ? reelayDBUser.website : "";
   	const bioRef = useRef(initBio);

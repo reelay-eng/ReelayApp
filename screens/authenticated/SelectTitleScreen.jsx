@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { SafeAreaView, View, Pressable, Text } from 'react-native';
 import { FeedContext } from '../../context/FeedContext';
 
-import {HeaderWithBackButton} from '../../components/global/Headers';
+import {BaseHeader } from '../../components/global/Headers';
 import SearchField from '../../components/create-reelay/SearchField';
 import TitleSearchResults from '../../components/search/TitleSearchResults';
 import { ActionButton, PassiveButton, ToggleSelector } from '../../components/global/Buttons';
@@ -26,12 +26,6 @@ const SearchBarContainer = styled(View)`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-`;
-const BackButtonContainer = styled(View)`
-	position: relative;
-	width: 20%;
-	min-width: 30px;
-	z-index: 3;
 `;
 
 export default SelectTitleScreen = ({ navigation }) => {
@@ -128,7 +122,7 @@ export default SelectTitleScreen = ({ navigation }) => {
     return (
 		<SafeAreaView style={{ backgroundColor: "black", height: "100%", width: "100%" }}>
 			<TopBarContainer>
-				<HeaderWithBackButton navigation={navigation} text={"Create"} />
+                <BaseHeader text={"Create"} />
 				<SelectorBarContainer>
 					<ToggleSelector
 						options={["Film", "TV"]}

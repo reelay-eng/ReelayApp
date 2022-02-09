@@ -3,6 +3,7 @@ import { View, Pressable, Text } from 'react-native';
 import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 import ReelayColors from '../../../constants/ReelayColors';
+import * as ReelayText from '../../global/Text';
 import { AuthContext } from '../../../context/AuthContext';
 import { followCreator, unfollowCreator } from '../../../api/ReelayDBApi';
 import { sendFollowNotification } from "../../../api/NotificationsApi";
@@ -25,14 +26,11 @@ const FollowButton = styled(Pressable)`
     border-width: 1px;
     justify-content: center;
     flex-direction: row;
-    height: 50px;
+    height: 44px;
     width: 75%;
 `;
-const FollowText = styled(Text)`
+const FollowText = styled(ReelayText.Subtitle1Emphasized)`
     color: white;
-    font-size: 18px;
-    font-weight: bold;
-    line-height: 21px;
 `;
 
 export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowers }) => {
@@ -84,8 +82,8 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
         <FollowContainer>
             { !alreadyFollowingCreator && (
                 <FollowButton 
-                    backgroundColor={ReelayColors.reelayRed}
-                    borderColor={ReelayColors.reelayRed}
+                    backgroundColor={ReelayColors.reelayBlue}
+                    borderColor={ReelayColors.reelayBlue}
                     onPress={followUser}
                 >
                     <FollowText>{'Follow'}</FollowText>

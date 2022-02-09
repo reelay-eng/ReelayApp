@@ -6,6 +6,7 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { 
     addNotificationReceivedListener, 
@@ -23,6 +24,7 @@ import LinkingConfiguration from './LinkingConfiguration';
 import { getReelay, prepareReelay } from '../api/ReelayDBApi';
 import moment from 'moment';
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
+import { refreshMyWatchlist } from '../api/ReelayUserApi';
 
 export default Navigation = () => {
     /**
@@ -35,7 +37,7 @@ export default Navigation = () => {
     const notificationListener = useRef();
     const responseListener = useRef(); 
 
-    const { cognitoUser } = useContext(AuthContext);
+    const { cognitoUser, myWatchlistItems, setMyWatchlistItems } = useContext(AuthContext);
     
     const onNotificationReceived = (notification) => {
         const content = parseNotificationContent(notification);
@@ -64,16 +66,18 @@ export default Navigation = () => {
             if (!data.reelaySub) {
                 console.log('No reelay sub given');
             } else {
-                openSingleReelayScreen(data.reelaySub);
+                openSingleReelayScreen(data?.reelaySub);
             }
         } else if (action === 'openUserProfileScreen') {
             if (!data.user) {
               console.log("No user given");
             } else {
-                openUserProfileScreen(data.user);
+                openUserProfileScreen(data?.user);
             }
         } else if (action === 'openCreateScreen') {
             openCreateScreen();
+        } else if (action === 'openMyRecs') {
+            openMyRecs(data?.newItems);
         }
     }
 
@@ -83,6 +87,19 @@ export default Navigation = () => {
             return;
         }
         navigationRef.current.navigate('Create');
+    }
+
+    const openMyRecs = async (newWatchlistItems) => {
+        if (!navigationRef?.current) {
+            console.log('No navigation ref')
+            return;
+        }
+
+        const allMyWatchlistItems = [...newWatchlistItems, ...myWatchlistItems];
+        setMyWatchlistItems(allMyWatchlistItems);
+
+        navigationRef.current.navigate('Watchlist', { category: 'Recs' });
+        await AsyncStorage.setItem('myWatchlist', JSON.stringify(allMyWatchlistItems));
     }
 
     const openSingleReelayScreen = async (reelaySub) => {
@@ -152,15 +169,6 @@ const RootNavigator = () => {
     if (reelayDBUser?.isBanned) {
         isCurrentlyBanned = (moment(reelayDBUser?.banExpiryAt).diff(moment(), 'minutes') > 0);
     }
-
-    useEffect(() => {
-        if (!signedIn) {
-            setCognitoUser({});
-            setReelayDBUser({});
-            setSession({});
-            setCredentials({});    
-        }
-    }, [signedIn]);
 
     return (
         <Stack.Navigator screenOptions={{ headerShown: false }}>

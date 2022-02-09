@@ -8,9 +8,7 @@ export default function HomeFeedScreen({ navigation, route }) {
         background-color: black;
     `
     const forceRefresh = route?.params?.forceRefresh;
-    useEffect(() => {
 
-    }, []);
     return (
         <TransparentContainer>
             <ReelayFeed

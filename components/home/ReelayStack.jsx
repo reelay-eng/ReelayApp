@@ -144,7 +144,6 @@ const ReelayStack = ({
 
     const renderReelay = ({ item, index }) => {
         console.log('calling render reelay, index: ', index);
-        console.log('reelay: ', item);
         const reelay = item;
         const reelayViewable = stackViewable && (index === stackPosition);   
         if (reelayViewable) console.log('Reelay is viewable: ', index);
@@ -171,8 +170,12 @@ const ReelayStack = ({
         const { x, y } = e.nativeEvent.contentOffset;
 
         if (x % width === 0) {
-            console.log('SWIPED FEED position: ', x / width);
             const nextStackPosition = x / width;
+            if (stackPosition === nextStackPosition) {
+                return;
+            }
+
+            console.log('continued swipe!');
             const swipeDirection = nextStackPosition < stackPosition ? 'left' : 'right';
             const nextReelay = stack[nextStackPosition];
             const prevReelay = stack[stackPosition];
@@ -197,7 +200,6 @@ const ReelayStack = ({
     const insets = useSafeAreaInsets();
 
     const openTitleDetail = async () => {
-        console.log('VIEWABLE REELAY: ', viewableReelay.title);
         navigation.push('TitleDetailScreen', {
             titleObj: viewableReelay.title,
         });

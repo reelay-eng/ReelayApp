@@ -1,5 +1,5 @@
 import Constants from 'expo-constants';
-import { fetchResults, fetchResults2 } from './fetchResults';
+import { fetchResults } from './fetchResults';
 import { fetchAnnotatedTitle } from './TMDbApi';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
@@ -392,20 +392,15 @@ export const prepareReelay = async (fetchedReelay) => {
     };
 }
 
-export const registerUser = async (user) => {
-    const { attributes, username } = user;
+export const registerUser = async (cognitoUserObj) => {
+    console.log('register user: ', cognitoUserObj);
+    const { username, attributes } = cognitoUserObj; // do not pass password
     const { email, sub } = attributes;
-    const routeGet = REELAY_API_BASE_URL + '/users/sub/' + sub;
-    const resultGet = await fetchResults(routeGet, { 
-        method: 'GET',
-        headers: REELAY_API_HEADERS,
-    });
 
     const encEmail = encodeURIComponent(email);
     const encUsername = encodeURI(username);
 
-    if (resultGet.error) {
-        // user is not registered
+    try {
         console.log('Registering user...');
         // todo: sanity check emails and usernames
         const routePost = `${REELAY_API_BASE_URL}/users/sub?email=${encEmail}&username=${encUsername}&sub=${sub}`;
@@ -415,13 +410,14 @@ export const registerUser = async (user) => {
         });
         console.log('User registry entry created: ', resultPost);
         return resultPost;
-    } else {
-        return resultGet;
+    } catch (error) {
+        console.log(error);
+        return null;
     }
 }
 
-export const registerPushTokenForUser = async (user, pushToken) => {
-    const routePatch = `${REELAY_API_BASE_URL}/users/sub/${user.sub}?pushToken=${pushToken}`;
+export const registerPushTokenForUser = async (userSub, pushToken) => {
+    const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}?pushToken=${pushToken}`;
     const resultPatch = await fetchResults(routePatch, { 
         method: 'PATCH',
         headers: REELAY_API_HEADERS,
@@ -430,7 +426,7 @@ export const registerPushTokenForUser = async (user, pushToken) => {
     return resultPatch;
 }
 
-// note that we do not yet have a remove comment function
+// todo: make a remove comment function
 
 export const removeLike = async (like) => {
 

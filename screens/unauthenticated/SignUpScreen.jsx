@@ -16,6 +16,7 @@ import styled from 'styled-components/native';
 import { KeyboardHidingBlackContainer } from "./SignInScreen";
 import constraints from '../../components/utils/EmailValidationConstraints';
 import { Button } from '../../components/global/Buttons';
+import { registerUser } from '../../api/ReelayDBApi';
 
 const REELAY_ICON_SOURCE = require('../../assets/icons/reelay-icon.png');
 const SIGN_UP_ERROR_MESSAGE = "Couldn't create an account. Try a different username?";
@@ -198,6 +199,9 @@ export default SignUpScreen = ({ navigation, route }) => {
                         email: email.toLowerCase(),
                     },
                 }); 
+
+                console.log('SIGN UP RESULT', signUpResult);
+                // const reelayDBSignUpResult = await registerUser(signUpResult);
                 navigation.push('ConfirmEmailScreen', { username });
                 logAmplitudeEventProd('signUp', {
                     email: username,

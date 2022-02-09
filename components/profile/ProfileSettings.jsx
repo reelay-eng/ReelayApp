@@ -4,13 +4,12 @@ import { AuthContext } from '../../context/AuthContext';
 import { Auth } from 'aws-amplify';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
-import colors from "../../constants/ReelayColors";
-import BackButton from "../../components/utils/BackButton";
 import { Icon } from "react-native-elements";
 import styled from 'styled-components/native';
 import * as ReelayText from "../../components/global/Text";
 import { BWButton } from "../../components/global/Buttons";
 import { HeaderWithBackButton } from "../global/Headers";
+import { clearLocalUserData } from '../../api/ReelayUserApi';
 
 export const ProfileSettings = ({navigation}) => {
     const ViewContainer = styled(View)`
@@ -124,10 +123,7 @@ const SettingEntry = ({text, iconName, onPress}) => {
 const Logout = () => {
     const {
         cognitoUser,
-        setCredentials,
-        setSession,
         setSignedIn,
-        setCognitoUser,
     } = useContext(AuthContext);
 
     const signOut = async () => {
@@ -135,15 +131,15 @@ const Logout = () => {
         try {
             logAmplitudeEventProd('signOut', {
                 username: cognitoUser.username,
-                email: cognitoUser.attributes.email,
+                email: cognitoUser?.attributes?.email,
             });
     
             const signOutResult = await Auth.signOut();
             setSignedIn(false);
+            // todo: deregister for push tokens
+            // todo: deregister cognito user
             console.log(signOutResult);
-            // setCognitoUser({});
-            // setSession({});
-            // setCredentials({});
+            await clearLocalUserData();
         } catch (error) {
             console.log(error);
         }

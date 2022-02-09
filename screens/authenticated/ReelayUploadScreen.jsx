@@ -33,6 +33,7 @@ import styled from 'styled-components/native';
 import { postReelayToDB } from '../../api/ReelayDBApi';
 import { fetchAnnotatedTitle } from '../../api/TMDbApi';
 import ReelayColors from '../../constants/ReelayColors';
+import { notifyOnReelayedRec } from '../../api/WatchlistNotifications';
 
 const { height, width } = Dimensions.get('window');
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
@@ -118,7 +119,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const [uploadStage, setUploadStage] = useState(uploadStages[0]);
     const [confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible] = useState(false);
 
-    const { cognitoUser, reelayDBUser } = useContext(AuthContext);
+    const { cognitoUser, myWatchlistItems, reelayDBUser } = useContext(AuthContext);
     const { s3Client } = useContext(UploadContext);
 
     const uploadReelayToS3 = async (videoURI, videoS3Key) => {
@@ -276,6 +277,13 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                     ...reelayDBBody, 
                     title: annotatedTitle,
                 },
+            });
+            // todo: notifyOnReelayedRec
+
+            notifyOnReelayedRec({ 
+                creatorName: cognitoUser.username,
+                reelay: reelayDBBody,
+                watchlistItems: myWatchlistItems,
             });
         } catch (error) {
             // todo: better error catching

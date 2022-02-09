@@ -44,7 +44,7 @@ const FeedSourceSelectorButton = ({ feedSource, setDrawerOpenFeedSource }) => {
     );
 }
 
-export default ReelayFeed = ({ navigation, 
+const ReelayFeed = ({ navigation, 
     initialStackPos = 0,
     forceRefresh = false, 
 }) => {
@@ -61,15 +61,13 @@ export default ReelayFeed = ({ navigation,
     const [refreshing, setRefreshing] = useState(false);
     const [globalStackList, setGlobalStackList] = useState([]);
     const [followingStackList, setFollowingStackList] = useState([]);
-    const [stackCounter, setStackCounter] = useState(0);
 
     var currStackList = (feedSource === 'global') ? globalStackList : followingStackList;
 
     useEffect(() => {
         loadFollowingFeed();
         loadGlobalFeed();
-        console.log("what feed to load...", feedSource)
-    }, [navigation]);
+    }, []);
 
     const loadFollowingFeed = async () => {
         console.log("loading following feed....");
@@ -228,7 +226,6 @@ export default ReelayFeed = ({ navigation,
 
     const onFeedSwiped = async (e) => {
         const { x, y } = e.nativeEvent.contentOffset;
-
         const feedPosition = (feedSource === 'global') ? globalFeedPosition : followingFeedPosition;
 
         if (y % height === 0) {
@@ -254,7 +251,7 @@ export default ReelayFeed = ({ navigation,
         }
     }
 
-    console.log('feed is rendering');
+    console.log('feed is rendering: ', initialStackPos, forceRefresh);
 
     return (
       <ReelayFeedContainer>
@@ -325,3 +322,5 @@ export default ReelayFeed = ({ navigation,
       </ReelayFeedContainer>
     );
 }
+
+export default memo(ReelayFeed, (prevProps, nextProps) => true);
