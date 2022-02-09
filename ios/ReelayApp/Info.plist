@@ -49,9 +49,9 @@
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
     <key>NSMicrophoneUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your microphone</string>
+    <string>Allow Reelay to access your microphone</string>
     <key>NSCameraUsageDescription</key>
-    <string>Allow $(PRODUCT_NAME) to access your camera</string>
+    <string>Allow Reelay to access your camera</string>
     <key>UIUserInterfaceStyle</key>
     <string>Automatic</string>
     <key>CFBundleURLTypes</key>

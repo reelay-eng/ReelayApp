@@ -41,7 +41,7 @@
     "expo-auth-session": "~3.3.1",
     "expo-av": "~9.2.3",
     "expo-camera": "~11.2.2",
-    "expo-cli": "^4.4.4",
+    "expo-cli": "^5.1.1",
     "expo-constants": "~11.0.1",
     "expo-device": "~3.3.0",
     "expo-file-system": "~11.1.3",
