@@ -195,7 +195,10 @@ function App() {
             hasValidCredentials: tryCredentials?.authenticated,
             username: tryCognitoUser?.attributes?.sub,
         });    
-        setIsLoading(false);
+        if (!tryCredentials.authenticated) {
+            setIsLoading(false);
+            // else, keep loading until loadMyProfile finishes
+        }
     }
 
     const fetchOrRegisterUser = async () => {
@@ -220,6 +223,7 @@ function App() {
             setMyFollowing(myFollowingLoaded);
             setMyCreatorStacks(myCreatorStacksLoaded);
             setMyWatchlistItems(myWatchlistItemsLoaded);
+            setIsLoading(false);
         }
     }
 

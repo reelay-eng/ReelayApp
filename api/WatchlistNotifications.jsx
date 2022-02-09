@@ -2,7 +2,7 @@ import { getRegisteredUser } from './ReelayDBApi';
 import { sendPushNotification } from './NotificationsApi';
 
 export const notifyOnAcceptRec = async ({ acceptUserSub, acceptUsername, recUserSub, watchlistItem }) => {
-    const title = `${acceptUsername} accepted your recommendation!`;
+    const title = `${acceptUsername} accepted your rec!`;
     const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear}) is now in their watchlist`;
 
     const data = { 
@@ -14,7 +14,7 @@ export const notifyOnAcceptRec = async ({ acceptUserSub, acceptUsername, recUser
 }
 
 export const notifyOnSendRec = async ({ reqUserSub, reqUsername, sendToUserSub, watchlistItem }) => {
-    const title = `${reqUsername} sent you a recommendation`;
+    const title = `${reqUsername} sent you a rec!`;
     const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear})`;
 
     const data = { action: 'openMyRecs', newItems: [watchlistItem] };
@@ -22,16 +22,31 @@ export const notifyOnSendRec = async ({ reqUserSub, reqUsername, sendToUserSub, 
     return await sendPushNotification({ title, body, data, token: pushToken });
 }
 
-export const notifyOnReelayedRec = async ({ creatorSub, creatorName, recUserSub, reelaySub }) => {
-    const title = `${creatorName} reelayed a title you recommended!`;
-    const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear})`;
+export const notifyOnReelayedRec = async ({ creatorName, reelay, watchlistItems }) => {
+    const notifyWatchlistItems = watchlistItems.filter((item) => {
+        const { recommendedBySub, tmdbTitleID, titleType } = item;
+        return (reelay.tmdbTitleID === tmdbTitleID 
+            && reelay.isSeries === (titleType === 'tv')
+            && recommendedBySub);
+    });
 
-    const data = { 
-        action: 'openSingleReelayScreen',
-        reelaySub: reelaySub,
-    };
+    const pushNotificationResults = await Promise.all(
+        notifyWatchlistItems.map(async (watchlistItem) => {
+            try {
+                const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear})`;
+                const data = { 
+                    action: 'openSingleReelayScreen',
+                    reelaySub: reelay.datastoreSub,
+                };
+            
+                const { pushToken } = await getRegisteredUser(watchlistItem.recommendedBySub);    
+                const title = `${creatorName} reelayed a title you recommended!`;
+                return await sendPushNotification({ title, body, data, token: pushToken });    
+            } catch (error) {
+                return { error };
+            }
+        })
+    );
 
-    const { pushToken } = await getRegisteredUser(recUserSub);
-    return await sendPushNotification({ title, body, data, token: pushToken });
+    return pushNotificationResults;
 }
-
