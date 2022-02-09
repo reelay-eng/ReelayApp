@@ -29,11 +29,9 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
     }
 
     const onRefresh = async () => {
-        setRefreshing(true);
         const refreshedWatchlistItems = await refreshMyWatchlist(cognitoUser?.attributes?.sub);
         const sortedWatchlistItems = refreshedWatchlistItems.sort(byDateUpdated);
         setMyWatchlistItems(sortedWatchlistItems);
-        setRefreshing(false);
     }
 
     const renderWatchlistItem = ({ item, index }) => {
