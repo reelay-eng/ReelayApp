@@ -2,11 +2,6 @@
 # yarn lockfile v1
 
 
-"@amplitude/react-native@^2.7.1":
-  version "2.7.1"
-  resolved "https://registry.yarnpkg.com/@amplitude/react-native/-/react-native-2.7.1.tgz#a2872002b0fbb0002ef81dcfee64ca9b037a1bb4"
-  integrity sha512-/6qM29Hrh6S2FhG1FWwBxW8gSerjHDh8AEThk4X670CgznvtBqnRBvBWSexqMOPiGi/PS2ePr15FGOgN3HSBPw==
-
 "@aws-amplify/analytics@4.0.19":
   version "4.0.19"
   resolved "https://registry.yarnpkg.com/@aws-amplify/analytics/-/analytics-4.0.19.tgz#3f14665c7dacee81fcb9d2b998d9609c91766341"
@@ -9655,10 +9650,10 @@ expect@^25.5.0:
     jest-message-util "^25.5.0"
     jest-regex-util "^25.2.6"
 
-expo-analytics-amplitude@~11.1.1:
-  version "11.1.1"
-  resolved "https://registry.yarnpkg.com/expo-analytics-amplitude/-/expo-analytics-amplitude-11.1.1.tgz#6fd49e6f54e2ef0768989186eff7603b44f45b41"
-  integrity sha512-ppwOm+r7y1h2Y+GvMKaaSUYEOHB3gaP4wzM5Fp8d77iC6P8zcFh7d17a1QBsZ2n3nvsup8Rd1enbW294yOa4qw==
+expo-analytics-amplitude@~10.2.0:
+  version "10.2.0"
+  resolved "https://registry.yarnpkg.com/expo-analytics-amplitude/-/expo-analytics-amplitude-10.2.0.tgz#e0a793cc1485bafd8c88fcf8f3925a54b7e92ff3"
+  integrity sha512-7FflzcaqseFu6TvVXgDjiiN1loSuwCAB/B2sCSXHYGyvlGYAak7fwDUV+nbOhjWzYG36S4xg6yHfdWPSxNs1mA==
 
 expo-application@~3.2.0:
   version "3.2.0"
