@@ -10,6 +10,7 @@ import {
     StyleSheet,
 	Linking
 } from 'react-native';
+import { useFocusEffect } from "@react-navigation/native";
 import { AuthContext } from '../../context/AuthContext';
 
 // API
@@ -43,8 +44,6 @@ import RRating from "../../assets/images/MPAA_Ratings/RRating.png";
 // Logging
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
-// Screen Orientation
-import * as ScreenOrientation from 'expo-screen-orientation';
 import { getRuntimeString } from '../../components/utils/TitleRuntime';
 
 const Spacer = styled(View)`
@@ -72,13 +71,14 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 
 	// hide tab bar
 	const { setTabBarVisible } = useContext(FeedContext);
-	useEffect(() => {
+	
+	useFocusEffect(React.useCallback(() => {
 		setTabBarVisible(false);
 		// ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
 		return () => {
 			setTabBarVisible(true);
 		};
-	});
+	}));
 
 	const ScrollBox = styled(ScrollView)`
 		position: absolute;
@@ -383,6 +383,8 @@ const ReturnButton = ({ navigation }) => {
 const PopularReelaysRow = ({ navigation, titleObj }) => {
 	const [topReelays, setTopReelays] = useState([]);
 	const componentMounted = useRef(true);
+	
+	const { cognitoUser } = useContext(AuthContext);
 
 	const byReelayPopularity = (reelay1, reelay2) => {
 		const reelay1Score = reelay1.likes.length + reelay1.comments.length;

@@ -69,10 +69,7 @@ function App() {
     const [isReturningUser, setIsReturningUser] = useState(false);
 
     // Feed context hooks
-    const [commentsVisible, setCommentsVisible] = useState(false);
     const [currentComment, setCurrentComment] = useState('');
-    const [dotMenuVisible, setDotMenuVisible] = useState(false);
-    const [likesVisible, setLikesVisible] = useState(false);
     const [paused, setPaused] = useState(false);
     const [playPauseVisible, setPlayPauseVisible] = useState('none');
     const [tabBarVisible, setTabBarVisible] = useState(true);
@@ -283,10 +280,7 @@ function App() {
     }
 
     const feedState = {
-        commentsVisible,    setCommentsVisible,
         currentComment,     setCurrentComment,
-        dotMenuVisible,     setDotMenuVisible,
-        likesVisible,       setLikesVisible,
         paused,             setPaused,
         playPauseVisible,   setPlayPauseVisible,
         tabBarVisible,      setTabBarVisible,

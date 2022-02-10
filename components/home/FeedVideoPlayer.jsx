@@ -17,10 +17,11 @@ export default function FeedVideoPlayer({
 	viewable,
  }) {
 	const [focused, setFocused] = useState(false);
-	const [playbackObject, setPlaybackObject] = useState(null);
+	// const [playbackObject, setPlaybackObject] = useState(null);
 
 	const loadStatus = useRef(0);
 	const playheadCounter = useRef(0);
+	const playbackObject = useRef(null);
 
 	const { cognitoUser } = useContext(AuthContext);
 	const { paused } = useContext(FeedContext);
@@ -28,14 +29,14 @@ export default function FeedVideoPlayer({
 	const shouldPlay = viewable && focused && !paused;
 
 	const _handleVideoRef = (component) => {
-		const playbackObject = component;
+		playbackObject.current = component;
 		const wasPlayingOnLastRender = playheadCounter.current % 2 === 1;
 
-		setPlaybackObject(playbackObject);
+		// setPlaybackObject(playbackObject);
 		if (!viewable && wasPlayingOnLastRender) {
 			playheadCounter.current += 1;
 			try {
-				playbackObject.setPositionAsync(0);
+				playbackObject.current.setPositionAsync(0);
 			} catch (e) {
 				console.log(e);
 			}
@@ -51,7 +52,7 @@ export default function FeedVideoPlayer({
 	}
 
 	useEffect(() => {
-		if (shouldPlay) playbackObject.playAsync();
+		if (shouldPlay) playbackObject.current.playAsync();
 	}, [viewable, paused, focused]);
 
     useFocusEffect(React.useCallback(() => {
