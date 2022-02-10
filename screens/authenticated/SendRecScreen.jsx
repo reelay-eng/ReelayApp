@@ -99,8 +99,8 @@ const FollowerRow = ({
     followObj, 
     hasAlreadySent, 
     hasMarkedToSend, 
-    markFollowerToSend, 
-    unmarkFollowerToSend,
+    markFollowToSend, 
+    unmarkFollowToSend,
 }) => {
     const [markedToSend, setMarkedToSend] = useState(hasMarkedToSend);
     const backgroundColor = (markedToSend) ? ReelayColors.reelayBlue : 'black';
@@ -134,11 +134,11 @@ const FollowerRow = ({
         justify-content: center;
     `
 
-    const { followerSub, followerName } = followObj;
-    const photoCurrentS3Key = `profilepic-${followerSub}-current.jpg`;
+    const { followSub, followName } = followObj;
+    const photoCurrentS3Key = `profilepic-${followSub}-current.jpg`;
     const profilePicURI = `${CLOUDFRONT_BASE_URL}/public/${photoCurrentS3Key}`;
-    const creator = { sub: followerSub, username: followerName };
 
+    const creator = { sub: followSub, username: followName };
     const advanceToUserProfile = () => {
         navigation.push('UserProfileScreen', { creator });
     }
@@ -146,10 +146,10 @@ const FollowerRow = ({
     const markRow = () => {
         if (hasAlreadySent) return;
         if (markedToSend) {
-            const isMarked = unmarkFollowerToSend(followObj);
+            const isMarked = unmarkFollowToSend(followObj);
             setMarkedToSend(isMarked);
         } else {
-            const isMarked = markFollowerToSend(followObj);
+            const isMarked = markFollowToSend(followObj);
             setMarkedToSend(isMarked);    
         }
     }
@@ -159,7 +159,7 @@ const FollowerRow = ({
             <UserInfoContainer>
                 <ProfilePicture profilePicURI={profilePicURI}/>
                 <UsernameContainer>
-                    <UsernameText>{followerName}</UsernameText>
+                    <UsernameText>{followName}</UsernameText>
                 </UsernameContainer>
             </UserInfoContainer>
             { (markedToSend || hasAlreadySent) && (
@@ -242,30 +242,48 @@ const FollowerSearch = ({ updateSearch }) => {
             borderRadius={4}
             searchText={searchText}
             updateSearchText={updateSearchText}
-            placeholderText={`Search followers...`} />
+            placeholderText={`Search followers and following...`} />
         </SearchFieldContainer>
     );
 }
 
 const FollowerList = memo(({ 
     navigation,
-    getFollowersToSend, 
-    markFollowerToSend, 
-    unmarkFollowerToSend,
+    getFollowsToSend, 
+    markFollowToSend, 
+    unmarkFollowToSend,
     watchlistItem,
 }) => {
     const ScrollViewContainer = styled(ScrollView)`
         margin-bottom: 60px;
     `
-    const { cognitoUser, myFollowers } = useContext(AuthContext);
+    const { cognitoUser, myFollowing, myFollowers } = useContext(AuthContext);
     const priorRecs = useRef([]);
 
-    const sortByFollowerName = (followObj0, followObj1) => {
-        return followObj0.followerName > followObj1.followerName;
-    };
+    const iAmFollowing = (followObj) => (followObj.followerName === cognitoUser?.username);
+    const getFollowName = (followObj) => iAmFollowing(followObj) ? followObj.creatorName : followObj.followerName;
+    const getFollowSub = (followObj) => iAmFollowing(followObj) ? followObj.creatorSub : followObj.followerSub;
+    const sortByFollowName = (followObj0, followObj1) => (followObj0.followName > followObj1.followName);
 
-    const allFollowersSorted = myFollowers.sort(sortByFollowerName);
-    const [displayFollowers, setDisplayFollowers] = useState(allFollowersSorted);
+    const allFollowsConcat = [...myFollowers, ...myFollowing].map((followObj) => {
+        // allows us to treat the object the same whether it's a creator or a follower
+        return {
+            ...followObj,
+            followIsCreator: iAmFollowing(followObj),
+            followName: getFollowName(followObj),
+            followSub: getFollowSub(followObj),
+        }
+    });
+
+    const allFollowsUnique = (allFollowsConcat.filter((followObj, index) => {
+        // const followUsername = getFollowName(followObj);
+        const prevFollowIndex = allFollowsConcat.slice(0, index).findIndex((prevFollowObj) => {
+            return (followObj.followName === prevFollowObj.followName);
+        });
+        return (prevFollowIndex === -1);
+    })).sort(sortByFollowName);
+
+    const [displayFollows, setDisplayFollows] = useState(allFollowsUnique);
     const [isLoaded, setIsLoaded] = useState(false);
 
     const loadPriorRecs = async (watchlistItem) => {
@@ -280,15 +298,16 @@ const FollowerList = memo(({
 
     const updateSearch = useCallback(async (newSearchText) => {
         if (!newSearchText.length) {
-            setDisplayFollowers(allFollowersSorted);
+            // setDisplayFollowers(allFollowersSorted);
+            setDisplayFollows(allFollowsUnique);
         } else {
-            const filteredFollowers = myFollowers.filter((followObj) => {
-                const cleanedFollowName = followObj.followerName.toLowerCase();
+            const filteredFollows = allFollowsUnique.filter((followObj) => {
+                const cleanedFollowName = followObj.followName.toLowerCase();
                 const cleanedSearchText = newSearchText.toLowerCase();
                 return cleanedFollowName.indexOf(cleanedSearchText) !== -1;
             });
-            const sortedFollowers = filteredFollowers.sort(sortByFollowerName);
-            setDisplayFollowers(sortedFollowers);    
+            const sortedFollows = filteredFollows.sort(sortByFollowName);
+            setDisplayFollows(sortedFollows);
         }
     }, []);
 
@@ -300,13 +319,13 @@ const FollowerList = memo(({
         <React.Fragment>
             <FollowerSearch updateSearch={updateSearch} />
             <ScrollViewContainer>
-                { isLoaded && displayFollowers.map((followObj, index) => {
-                    const hasMarkedToSend = getFollowersToSend().find((nextFollowObj) => {
-                        return (nextFollowObj.followerSub === followObj.followerSub);
+                { isLoaded && displayFollows.map((followObj, index) => {
+                    const hasMarkedToSend = getFollowsToSend().find((nextFollowObj) => {
+                        return (nextFollowObj.followSub === followObj.followSub);
                     });
 
                     const hasAlreadySent = priorRecs.current.find((sentWatchlistItem) => {
-                        return sentWatchlistItem.userSub === followObj.followerSub;
+                        return sentWatchlistItem.userSub === followObj.followSub;
                     });
 
                     return <FollowerRow key={index} 
@@ -314,8 +333,8 @@ const FollowerList = memo(({
                         followObj={followObj}
                         hasMarkedToSend={!!hasMarkedToSend}
                         hasAlreadySent={hasAlreadySent}
-                        markFollowerToSend={markFollowerToSend}
-                        unmarkFollowerToSend={unmarkFollowerToSend}
+                        markFollowToSend={markFollowToSend}
+                        unmarkFollowToSend={unmarkFollowToSend}
                     />;
                 })}
             </ScrollViewContainer>
@@ -332,26 +351,26 @@ const RecScreenContainer = styled(SafeAreaView)`
 export default SendRecScreen = ({ navigation, route }) => {
     const { cognitoUser } = useContext(AuthContext);
     const { reelay, watchlistItem } = route.params; // note: reelay can be null
-    const followersToSend = useRef([]);
-    const [readyToSend, setReadyToSend] = useState(followersToSend.current > 0);
+    const followsToSend = useRef([]);
+    const [readyToSend, setReadyToSend] = useState(followsToSend.current > 0);
 
-    const getFollowersToSend = useCallback(() => {
-        return followersToSend.current;
+    const getFollowsToSend = useCallback(() => {
+        return followsToSend.current;
     }, []);
 
-    const markFollowerToSend = useCallback((followObj) => {
-        followersToSend.current.push(followObj);
+    const markFollowToSend = useCallback((followObj) => {
+        followsToSend.current.push(followObj);
         if (!readyToSend) {
             setReadyToSend(true);
         }
         return true;
     }, []);
 
-    const unmarkFollowerToSend = useCallback((followObj) => {
-        followersToSend.current = followersToSend.current.filter((nextFollowObj) => {
-            return followObj.followerSub !== nextFollowObj.followerSub;
+    const unmarkFollowToSend = useCallback((followObj) => {
+        followsToSend.current = followsToSend.current.filter((nextFollowObj) => {
+            return followObj.followSub !== nextFollowObj.followSub;
         });
-        if (!followersToSend.current.length) {
+        if (!followsToSend.current.length) {
             setReadyToSend(false);
         }
         return false; // isMarked
@@ -359,11 +378,11 @@ export default SendRecScreen = ({ navigation, route }) => {
 
     const sendRecs = async () => {
         console.log('sending rec!');
-        const sendRecResults = await Promise.all(followersToSend.current.map(async (followObj) => {
+        const sendRecResults = await Promise.all(followsToSend.current.map(async (followObj) => {
             const dbResult = await sendRecommendation({ 
                 reqUserSub: cognitoUser?.attributes?.sub,
                 reqUsername: cognitoUser?.username,
-                sendToUserSub: followObj.followerSub,
+                sendToUserSub: followObj.followSub,
                 tmdbTitleID: watchlistItem.tmdbTitleID,
                 titleType: watchlistItem.titleType,
                 recommendedReelaySub: reelay?.sub,
@@ -373,13 +392,13 @@ export default SendRecScreen = ({ navigation, route }) => {
             const notifyResult = await notifyOnSendRec({
                 reqUserSub: cognitoUser?.attributes?.sub,
                 reqUsername: cognitoUser?.username,
-                sendToUserSub: followObj.followerSub,
+                sendToUserSub: followObj.followSub,
                 watchlistItem,
             });
 
             logAmplitudeEventProd('sendWatchlistRecs', {
                 recUsername: cognitoUser?.username,
-                sendToUsername: followObj.followerName,
+                sendToUsername: followObj.followName,
                 title: watchlistItem.title.display,
                 source: 'sendRecScreen',
             });
@@ -407,9 +426,9 @@ export default SendRecScreen = ({ navigation, route }) => {
             />
             <FollowerList 
                 navigation={navigation}
-                getFollowersToSend={getFollowersToSend}
-                markFollowerToSend={markFollowerToSend}
-                unmarkFollowerToSend={unmarkFollowerToSend}
+                getFollowsToSend={getFollowsToSend}
+                markFollowToSend={markFollowToSend}
+                unmarkFollowToSend={unmarkFollowToSend}
                 watchlistItem={watchlistItem}
             />
         </RecScreenContainer>
