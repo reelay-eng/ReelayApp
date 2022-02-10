@@ -180,7 +180,7 @@ function App() {
             tryCognitoUser = await Auth.currentAuthenticatedUser();
             tryCredentials = await Auth.currentUserCredentials();
 
-            if (tryCredentials.authenticated) {
+            if (tryCredentials?.authenticated) {
                 setCognitoUser(tryCognitoUser);
             }
         } catch (error) {
@@ -195,7 +195,7 @@ function App() {
             hasValidCredentials: tryCredentials?.authenticated,
             username: tryCognitoUser?.attributes?.sub,
         });    
-        if (!tryCredentials.authenticated) {
+        if (!tryCredentials?.authenticated) {
             setIsLoading(false);
             // else, keep loading until loadMyProfile finishes
         }
