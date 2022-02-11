@@ -2,7 +2,7 @@
   "expo": {
     "name": "Reelay",
     "slug": "ReelayApp",
-    "version": "1.0.45",
+    "version": "1.0.47",
     "orientation": "portrait",
     "icon": "./assets/icons/reelay-icon.png",
     "scheme": "reelayapp",
@@ -11,18 +11,6 @@
       "image": "./assets/images/reelay-splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#000000"
-    },
-    "hooks": {
-      "postPublish": [
-        {
-          "file": "sentry-expo/upload-sourcemaps",
-          "config": {
-            "organization": "reelay-inc",
-            "project": "reelay-inc",
-            "authToken": "ee5540bac8794172bba8e8041cc31e06eba7cf549653470c96669188f8552005"
-          }
-        }
-      ]
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -52,7 +40,6 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "sentry-expo",
       [
 			"expo-image-picker",
 			{
