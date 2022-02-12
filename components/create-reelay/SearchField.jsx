@@ -26,7 +26,7 @@ export default SearchField = ({
 					fontFamily: "Outfit-Regular",
 					fontSize: 16,
 					fontStyle: "normal",
-					lineHeight: 24,
+					lineHeight: 20,
 					letterSpacing: 0.15,
 					textAlign: "left",
 				}}
