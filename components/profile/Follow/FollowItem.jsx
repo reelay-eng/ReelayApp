@@ -9,7 +9,12 @@ import { followCreator } from '../../../api/ReelayDBApi';
 import { sendFollowNotification } from "../../../api/NotificationsApi";
 import { showErrorToast } from '../../utils/toasts';
 import { ActionButton, BWButton } from "../../global/Buttons";
+
+import Constants from 'expo-constants';
 import * as ReelayText from "../../global/Text";
+import ReelayIcon from '../../../assets/icons/reelay-icon.png'
+
+const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 
 const PressableContainer = styled(Pressable)`
 	align-items: center;
@@ -72,10 +77,13 @@ export default FollowItem = ({
     setDrawerOpen,
 }) => {
     const { reelayDBUser, myFollowing, setMyFollowing } = useContext(AuthContext);
+	const [validProfileImage, setValidProfileImage] = useState(true);
 
     const followUsername = (followType === 'Following') ? followObj.creatorName : followObj.followerName;
     const followUserSub = (followType === 'Following') ? followObj.creatorSub : followObj.followerSub;
-    const followProfilePictureURI = null;
+    let followProfilePictureURI = (followType === 'Following') ?
+		`${CLOUDFRONT_BASE_URL}/public/profilepic-${followObj?.creatorSub}-current.jpg` :
+		`${CLOUDFRONT_BASE_URL}/public/profilepic-${followObj?.followerSub}-current.jpg`;
 
     const myUserSub = reelayDBUser.sub;
     const isMyProfile = (myUserSub === followUserSub);
@@ -132,15 +140,18 @@ export default FollowItem = ({
 		<PressableContainer onPress={selectResult}>
 			<RowContainer>
 				<ProfilePictureContainer>
-					{followProfilePictureURI && (
-						<ProfilePicture
-							source={{ uri: followProfilePictureURI }}
-							PlaceholderContent={<ActivityIndicator />}
-						/>
-					)}
-					{!followProfilePictureURI && (
-						<ProfilePicture source={require("../../../assets/icons/reelay-icon.png")} />
-					)}
+					{ validProfileImage ? null : (
+							<ProfilePicture
+								source={ReelayIcon}
+							/>
+						)
+					}
+					<ProfilePicture
+						source={{ uri: followProfilePictureURI }}
+						style={validProfileImage ? {} : {display: 'none'}}
+						PlaceholderContent={<ActivityIndicator />}
+						onError={() => {setValidProfileImage(false)}}
+					/>
 				</ProfilePictureContainer>
 				<UsernameContainer>
 					<UsernameText>{followUsername}</UsernameText>
