@@ -15,6 +15,7 @@ import { FeedContext } from '../context/FeedContext';
 
 import HomeFeedScreen from '../screens/authenticated/HomeFeedScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
+import NotificationScreen from '../screens/authenticated/NotificationScreen';
 import NotificationSettingsScreen from '../screens/authenticated/NotificationSettingsScreen';
 import ProfileFeedScreen from '../screens/authenticated/ProfileFeedScreen';
 import ProfileSettingsScreen from '../screens/authenticated/ProfileSettingsScreen';
@@ -566,6 +567,13 @@ const ProfileTabNavigator = () => {
 			<ProfileTabStack.Screen
 				name="TMDBCreditScreen"
 				component={TMDBCreditScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<ProfileTabStack.Screen
+				name="NotificationScreen"
+				component={NotificationScreen}
 				options={{
 					headerShown: false,
 				}}

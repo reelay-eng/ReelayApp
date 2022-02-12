@@ -46,6 +46,11 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
                         navigation.push('ProfileSettingsScreen', {initialFeedPos: 0});
                     }} />
                 </SettingsIconContainer>
+                <SettingsIconContainer>
+                    <Icon type='ionicon' size={27} color={'white'} name='notifications' onPress={() => {
+                        navigation.push('NotificationScreen');
+                    }} />
+                </SettingsIconContainer>
             </RightCornerContainer>
         );
     }

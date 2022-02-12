@@ -34,6 +34,98 @@ const getDevicePushToken = async () => {
     return token;
 }
 
+export const getAllMyNotifications = async (userSub, page = 0) => {
+    const routeGet = REELAY_API_BASE_URL + `/notifications/${userSub}/all?page=${page}`;
+    const resultGet = await fetchResults(routeGet, { 
+        method: 'GET',
+        headers: REELAY_API_HEADERS,
+    });
+    return resultGet;
+}
+
+export const getMyNotificationSettings = async(user) => {
+    const routeGet = REELAY_API_BASE_URL + `/users/sub/${user.attributes.sub}/settings`;
+    const resultGet = await fetchResults(routeGet, { 
+        method: 'GET',
+        headers: REELAY_API_HEADERS,
+    });
+    return resultGet;
+}
+
+export const getUserNotificationSettings = async (user) => {
+    console.log(user);
+    const routeGet = REELAY_API_BASE_URL + `/users/sub/${user.sub}/settings`;
+    const resultGet = await fetchResults(routeGet, { 
+        method: 'GET',
+        headers: REELAY_API_HEADERS,
+    });
+    return resultGet;
+}
+
+export const hideNotification = async (notificationID) => {
+    const routeDelete = REELAY_API_BASE_URL + `/notifications/${notificationID}/hide`;
+    const resultDelete = await fetchResults(routeDelete, { 
+        method: 'DELETE',
+        headers: REELAY_API_HEADERS,
+    });
+    return resultDelete;
+}
+
+export const markAllNotificationsSeen = async (userSub) => {
+    const routeGet = REELAY_API_BASE_URL + `/notifications/${userSub}/markAllSeen`;
+    const resultGet = await fetchResults(routeGet, { 
+        method: 'GET',
+        headers: REELAY_API_HEADERS,
+    });
+    return resultGet;
+}
+
+export const markNotificationActivated = async (notificationID) => {
+    const routePatch = REELAY_API_BASE_URL + `/notifications/${notificationID}/markActivated`;
+    const resultPatch = await fetchResults(routePatch, { 
+        method: 'PATCH',
+        headers: REELAY_API_HEADERS,
+    });
+    return resultPatch;
+}
+
+export const markNotificationReceived = async (notificationID) => {
+    const routePatch = REELAY_API_BASE_URL + `/notifications/${notificationID}/markReceived`;
+    const resultPatch = await fetchResults(routePatch, { 
+        method: 'PATCH',
+        headers: REELAY_API_HEADERS,
+    });
+    return resultPatch;
+}
+
+export const markNotificationSeen = async (notificationID) => {
+    const routePatch = REELAY_API_BASE_URL + `/notifications/${notificationID}/markSeen`;
+    const resultPatch = await fetchResults(routePatch, { 
+        method: 'PATCH',
+        headers: REELAY_API_HEADERS,
+    });
+    return resultPatch;
+}
+
+// https://docs.expo.dev/push-notifications/push-notifications-setup/
+export const registerForPushNotificationsAsync = async () => {
+    if (Platform.OS === 'android') {
+        Notifications.setNotificationChannelAsync('default', {
+            name: 'default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+        });
+    }
+
+    if (Constants.isDevice) {
+        return await getDevicePushToken();
+    } else {
+        alert('Must use physical device for Push Notifications');
+        return null;
+    }
+}; 
+
 // We probably shouldn't let these have default values...
 export const sendPushNotification = async ({
     body='', 
@@ -77,25 +169,6 @@ export const sendPushNotification = async ({
 
     return expoResponse;
 }
-
-// https://docs.expo.dev/push-notifications/push-notifications-setup/
-export const registerForPushNotificationsAsync = async () => {
-    if (Platform.OS === 'android') {
-        Notifications.setNotificationChannelAsync('default', {
-            name: 'default',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
-        });
-    }
-
-    if (Constants.isDevice) {
-        return await getDevicePushToken();
-    } else {
-        alert('Must use physical device for Push Notifications');
-        return null;
-    }
-}; 
 
 export const sendCommentNotificationToCreator = async ({ creatorSub, author, reelay, commentText }) => {
     const recipientIsAuthor = (creatorSub === author.attributes.sub);
@@ -276,25 +349,6 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
 
         await sendPushNotification({ title, body, data, token, sendToUserSub: notifyReelay.creator.sub });    
     })
-}
-
-export const getMyNotificationSettings = async(user) => {
-    const routeGet = REELAY_API_BASE_URL + `/users/sub/${user.attributes.sub}/settings`;
-    const resultGet = await fetchResults(routeGet, { 
-        method: 'GET',
-        headers: REELAY_API_HEADERS,
-    });
-    return resultGet;
-}
-
-export const getUserNotificationSettings = async (user) => {
-    console.log(user);
-    const routeGet = REELAY_API_BASE_URL + `/users/sub/${user.sub}/settings`;
-    const resultGet = await fetchResults(routeGet, { 
-        method: 'GET',
-        headers: REELAY_API_HEADERS,
-    });
-    return resultGet;
 }
 
 export const setMyNotificationSettings = async({user, notifyPrompts, notifyReactions, notifyTrending }) => {
