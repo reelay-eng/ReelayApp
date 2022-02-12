@@ -10,7 +10,7 @@ export const notifyOnAcceptRec = async ({ acceptUserSub, acceptUsername, recUser
         user: { sub: acceptUserSub, username: recUserSub },
     };
     const { pushToken } = await getRegisteredUser(recUserSub);
-    return await sendPushNotification({ title, body, data, token: pushToken });
+    return await sendPushNotification({ title, body, data, token: pushToken, sendToUserSub: recUserSub });
 }
 
 export const notifyOnSendRec = async ({ reqUserSub, reqUsername, sendToUserSub, watchlistItem }) => {
@@ -19,7 +19,7 @@ export const notifyOnSendRec = async ({ reqUserSub, reqUsername, sendToUserSub, 
 
     const data = { action: 'openMyRecs', newItems: [watchlistItem] };
     const { pushToken } = await getRegisteredUser(sendToUserSub);
-    return await sendPushNotification({ title, body, data, token: pushToken });
+    return await sendPushNotification({ title, body, data, token: pushToken, sendToUserSub });
 }
 
 export const notifyOnReelayedRec = async ({ creatorName, reelay, watchlistItems }) => {
@@ -39,9 +39,10 @@ export const notifyOnReelayedRec = async ({ creatorName, reelay, watchlistItems 
                     reelaySub: reelay.datastoreSub,
                 };
             
-                const { pushToken } = await getRegisteredUser(watchlistItem.recommendedBySub);    
+                const { recommendedBySub } = watchlistItem;
+                const { pushToken } = await getRegisteredUser(recommendedBySub);    
                 const title = `${creatorName} reelayed a title you recommended!`;
-                return await sendPushNotification({ title, body, data, token: pushToken });    
+                return await sendPushNotification({ title, body, data, token: pushToken, sendToUserSub: recommendedBySub });    
             } catch (error) {
                 return { error };
             }

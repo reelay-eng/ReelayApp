@@ -40,27 +40,42 @@ export const sendPushNotification = async ({
     data={},
     title='You have a notification from Reelay', 
     token, 
-    sound='default'
+    sound='default',
+    sendToUserSub,
 }) => {
     const dataToPush = { 
         ...data, 
         'content-available': 1 
     };
 
-    const message = { body, data: dataToPush, sound, title, to: token };
-    const response = await fetch(EXPO_NOTIFICATION_URL, {
+    const reelayDBRoutePost = `${REELAY_API_BASE_URL}/notifications/${sendToUserSub}`;
+    const reelayDBPostBody = { title, body, data: dataToPush };
+
+    console.log('POST BODY: ', reelayDBPostBody);
+    const postResult = await fetchResults(reelayDBRoutePost, {
+        method: 'POST',
+        headers: REELAY_API_HEADERS,
+        body: JSON.stringify(reelayDBPostBody),
+    });
+
+    console.log('Notification posted to ReelayDB: ', postResult);
+
+    const expoMessage = { body, data: dataToPush, sound, title, to: token };
+    const expoResponse = await fetchResults(EXPO_NOTIFICATION_URL, {
         method: 'POST',
         headers: {
             Accept: 'application/json',
             'Accept-encoding': 'gzip, deflate',
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(message),
+        body: JSON.stringify(expoMessage),
     });
 
-    if (response?.data?.error) {
-        console.log(response.data.error);
+    if (expoResponse?.data?.error) {
+        console.log(expoResponse.data.error);
     }
+
+    return expoResponse;
 }
 
 // https://docs.expo.dev/push-notifications/push-notifications-setup/
@@ -111,28 +126,27 @@ export const sendCommentNotificationToCreator = async ({ creatorSub, author, ree
         reelaySub: reelay.sub,
     };
 
-    await sendPushNotification({ title, body, data, token });
+    await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
 }
 
 export const sendCommentNotificationToThread = async ({ creator, author, reelay, commentText }) => {
-
     reelay.comments.map(async (comment, index) => {
         const notifyAuthorName = comment.authorName;
-        const notifyUser = await getUserByUsername(notifyAuthorName);
+        const notifyAuthor = await getUserByUsername(notifyAuthorName);
 
-        const { settingsNotifyReactions } = await getUserNotificationSettings(notifyUser);
+        const { settingsNotifyReactions } = await getUserNotificationSettings(notifyAuthor);
         if (!settingsNotifyReactions) {
             console.log('Author does not want to receive push notifications');
             return;
         }    
 
-        const token = notifyUser?.pushToken;
+        const token = notifyAuthor?.pushToken;
         if (!token) {
             console.log('Comment author not registered for notifications');
             return;
         }
 
-        const recipientIsAuthor = (notifyUser.sub === author.attributes.sub);
+        const recipientIsAuthor = (notifyAuthor.sub === author.attributes.sub);
         if (recipientIsAuthor) {
             console.log('No need to send notification to comment author');
             return;
@@ -153,7 +167,7 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
             reelaySub: reelay.sub,
         };
 
-        await sendPushNotification({ title, body, data, token });    
+        await sendPushNotification({ title, body, data, token, sendToUserSub: notifyAuthor?.sub });    
     });
 }
 
@@ -181,7 +195,7 @@ export const sendFollowNotification = async ({ creatorSub, follower }) => {
         user: follower,
     };
     console.log("sending notification");
-    await sendPushNotification({ title, body, data, token });
+    await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
 };
 
 export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
@@ -203,7 +217,7 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
             reelaySub: reelay.sub,
         };
     
-        await sendPushNotification({ title, body, data, token });
+        await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
         return;
     }
 
@@ -219,7 +233,7 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
         reelaySub: reelay.sub,
     };
 
-    await sendPushNotification({ title, body, data, token });
+    await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
 }
 
 export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay }) => {
@@ -260,7 +274,7 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
             reelaySub: reelay.datastoreSub,
         };
 
-        await sendPushNotification({ title, body, data, token });    
+        await sendPushNotification({ title, body, data, token, sendToUserSub: notifyReelay.creator.sub });    
     })
 }
 
