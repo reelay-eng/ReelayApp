@@ -7,6 +7,7 @@ export const handlePushNotificationResponse = async ({ navigation, notificationC
     const { cognitoUser, myWatchlistItems, setMyWatchlistItems } = userContext;
     const { title, body, data } = notificationContent;
     const action = data?.action;
+    console.log('handle push data: ', data);
     if (!action) {
         console.log('No action given');
         return;
@@ -24,18 +25,18 @@ export const handlePushNotificationResponse = async ({ navigation, notificationC
         if (!data.reelaySub) {
             console.log('No reelay sub given');
         } else {
-            openSingleReelayScreen(navigation, data?.reelaySub);
+            await openSingleReelayScreen(navigation, data?.reelaySub);
         }
     } else if (action === 'openUserProfileScreen') {
         if (!data.user) {
           console.log("No user given");
         } else {
-            openUserProfileScreen(navigation, data?.user);
+            await openUserProfileScreen(navigation, data?.user);
         }
     } else if (action === 'openCreateScreen') {
-        openCreateScreen(navigation);
+        await openCreateScreen(navigation);
     } else if (action === 'openMyRecs') {
-        openMyRecs(navigation, data?.newItems, myWatchlistItems, setMyWatchlistItems);
+        await openMyRecs(navigation, data?.newItems, myWatchlistItems, setMyWatchlistItems);
     }
 }
 

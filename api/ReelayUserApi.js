@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getAllMyNotifications } from './NotificationsApi';
 import { getFollowers, getFollowing, getRegisteredUser, getStacksByCreator } from './ReelayDBApi';
 import { getWatchlistItems } from './WatchlistApi';
 
@@ -52,6 +53,10 @@ export const loadMyFollowers = async (userSub) => {
     return await loadUserData(userSub, 'myFollowers', getFollowers);
 }
 
+export const loadMyNotifications = async (userSub) => {
+    return await loadUserData(userSub, 'myNotifications', getAllMyNotifications);
+}
+
 export const loadMyReelayStacks = async (userSub) => {
     return await loadUserData(userSub, 'myReelayStacks', getStacksByCreator);
 }
@@ -70,6 +75,10 @@ export const refreshMyFollowing = async (userSub) => {
 
 export const refreshMyFollowers = async (userSub) => {
     return await refreshUserData(userSub, 'myFollowers', getFollowers);
+}
+
+export const refreshMyNotifications = async (userSub) => {
+    return await refreshUserData(userSub, 'myNotifications', getAllMyNotifications);
 }
 
 export const refreshMyReelayStacks = async (userSub) => {

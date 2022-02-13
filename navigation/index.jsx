@@ -93,7 +93,7 @@ export default Navigation = () => {
 const Stack = createStackNavigator();
 
 const RootNavigator = () => {
-    const { signedIn, setCognitoUser, reelayDBUser, setReelayDBUser, setSession, setCredentials } = useContext(AuthContext);
+    const { signedIn, reelayDBUser } = useContext(AuthContext);
     let isCurrentlyBanned = false;
     if (reelayDBUser?.isBanned) {
         isCurrentlyBanned = (moment(reelayDBUser?.banExpiryAt).diff(moment(), 'minutes') > 0);

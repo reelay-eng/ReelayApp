@@ -40,7 +40,19 @@ export const getAllMyNotifications = async (userSub, page = 0) => {
         method: 'GET',
         headers: REELAY_API_HEADERS,
     });
-    return resultGet;
+
+    // notification content is comprised of { title, body, data }
+    // the last of these is stored as a JSON string, so we parse it before storing locally
+    const parsedNotifications = resultGet.map((notification) => {
+        try {
+            notification.data = JSON.parse(notification?.data);
+        } catch (error) {
+            console.log('Error in getAllMyNotifications: ', error);
+        }
+        return notification;
+    })
+
+    return parsedNotifications;
 }
 
 export const getMyNotificationSettings = async(user) => {

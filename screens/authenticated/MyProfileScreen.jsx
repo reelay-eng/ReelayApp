@@ -69,8 +69,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
         setMyCreatorStacks,
     } = useContext(AuthContext); 
 
-    console.log('COGNITO USER: ', cognitoUser);
-
     const { setTabBarVisible } = useContext(FeedContext);
 
     useEffect(() => {

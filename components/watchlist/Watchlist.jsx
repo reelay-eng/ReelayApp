@@ -82,7 +82,12 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
 
         const recItem = (nextItemHasUniqueTitle) ? nextItem : prevItemSameTitle;
         if (recommendedBySub) {
-            recItem.recommendations.push({ recommendedBySub, recommendedByUsername, recommendedReelaySub });
+            try {
+                recItem.recommendations.push({ recommendedBySub, recommendedByUsername, recommendedReelaySub });
+            } catch (error) {
+                console.log('Could not push: ', nextItemHasUniqueTitle);
+                console.log(error);
+            }
         }
         return nextItemHasUniqueTitle;
     });
