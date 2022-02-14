@@ -144,7 +144,7 @@ export default UserSearchResultItem = ({
 						{!alreadyFollowing && !isMyProfile && (
 							<ActionButton
 								text="Follow"
-								color="red"
+								color="blue"
 								borderRadius="8px"
 								backgroundColor={ReelayColors.reelayRed}
 								borderColor={ReelayColors.reelayBlack}

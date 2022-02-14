@@ -1,17 +1,37 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Image, Pressable, RefreshControl, SafeAreaView, View } from 'react-native';
-import * as ReelayText from '../../components/global/Text';
-import { HeaderWithBackButton } from '../../components/global/Headers';
-import styled from 'styled-components/native';
+import { Icon } from 'react-native-elements';
 
+import { ActionButton, BWButton } from '../../components/global/Buttons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../../context/AuthContext';
-import { refreshMyNotifications } from '../../api/ReelayUserApi';
 import { FlatList } from 'react-native-gesture-handler';
+import { followCreator } from '../../api/ReelayDBApi';
 import { handlePushNotificationResponse } from '../../navigation/NotificationHandler';
-import ReelayIcon from '../../assets/icons/reelay-icon.png'
+import { HeaderWithBackButton } from '../../components/global/Headers';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 import moment from 'moment';
+import NotificationSwipeableRow from '../../components/notifications/NotificationSwipeableRow';
+import ProfilePicture from '../../components/global/ProfilePicture';
+import ReelayIcon from '../../assets/icons/reelay-icon.png';
+import * as ReelayText from '../../components/global/Text';
+import { refreshMyNotifications } from '../../api/ReelayUserApi';
+import ReelayColors from '../../constants/ReelayColors';
+import { sendFollowNotification } from '../../api/NotificationsApi';
+import styled from 'styled-components/native';
 
+const ACTIVITY_IMAGE_SIZE = 44;
+
+const MessageTitle = styled(ReelayText.Body2)`
+    color: white;
+`
+const MessageBody = styled(ReelayText.Body2)`
+    color: white;
+`
+const MessageTimestamp = styled(ReelayText.Body2)`
+    color: #9C9AA3;
+`
 const NotificationItemPressable = styled(Pressable)`
     background-color: ${(props) => (props.pressed) ? '#2d2d2d' : '#1d1d1d' };
     border-color: #2d2d2d;
@@ -21,7 +41,7 @@ const NotificationItemPressable = styled(Pressable)`
     margin-top: 6px;
     margin-bottom: 6px;
     padding: 6px;
-    width: 90%;
+    width: 100%;
 `
 const NotificationPicContainer = styled(View)`
     align-items: center;
@@ -32,20 +52,25 @@ const NotificationMessageContainer = styled(View)`
     align-items: flex-start;
     justify-content: center;
     flex: 1;
-    margin-left: 10px;
     padding: 8px;
 `
-const MessageTitle = styled(ReelayText.Body2)`
-    color: white;
+const ReelayIconImage = styled(Image)`
+    border-radius: 12px;
+    height: ${ACTIVITY_IMAGE_SIZE}px;
+    width: ${ACTIVITY_IMAGE_SIZE}px;
 `
-const MessageBody = styled(ReelayText.Body2)`
-    color: white;
+const RightActionContainer = styled(View)`
+    align-items: center;
+    justify-content: center;
+    margin: 8px;
 `
-const MessageTimestamp = styled(ReelayText.Body2)`
-    color: #9C9AA3;
+const TitlePoster = styled(Image)`
+    border-radius: 8px;
+    height: ${ACTIVITY_IMAGE_SIZE * 1.5}px;
+    width: ${ACTIVITY_IMAGE_SIZE}px;
 `
 
-const NotificationItem = ({ navigation, notificationContent }) => {
+const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     moment.updateLocale("en", {
         relativeTime: {
             future: "in %s",
@@ -66,9 +91,104 @@ const NotificationItem = ({ navigation, notificationContent }) => {
     });    
 
     const { id, title, body, data, createdAt } = notificationContent;
-    const timestamp = moment(createdAt).fromNow();
     const authContext = useContext(AuthContext);
+    const { reelayDBUser, myFollowing, setMyFollowing } = authContext;
     const [pressed, setPressed] = useState(false);
+    const timestamp = moment(createdAt).fromNow();
+
+    const FollowButton = ({ followedByUser }) => {
+        const FollowButtonContainer = styled(View)`
+            height: 40px;
+            width: 90px;
+            justify-content: center;
+        `
+        const alreadyFollowing = !!myFollowing.find((nextUser) => {
+            return (nextUser?.creatorSub === followedByUser?.sub);
+        });
+
+        const followUser = async () => {
+            const followResult = await followCreator(followedByUser.sub, reelayDBUser?.sub);
+            const success = !followResult?.error && !followResult?.requestStatus;
+            
+            if (success) {
+                const allMyFollowing = [...myFollowing, followResult];
+                setMyFollowing(allMyFollowing);
+                await AsyncStorage.setItem('myFollowing', JSON.stringify(allMyFollowing));
+            } else {
+                logAmplitudeEventProd('followCreatorError', {
+                    error: followResult?.error,
+                    requestStatus: followResult?.requestStatus,
+                });
+                return;
+            }
+    
+            logAmplitudeEventProd('followedCreator', {
+                username: reelayDBUser?.username,
+                creatorName: followedByUser?.username,
+            });
+    
+            await sendFollowNotification({
+              creatorSub: followedByUser?.sub,
+              follower: reelayDBUser,
+            });
+        }
+
+        if (!alreadyFollowing) {
+            return (
+                <FollowButtonContainer>
+                    <ActionButton
+                        backgroundColor={ReelayColors.reelayRed}
+                        borderColor={ReelayColors.reelayBlack}
+                        borderRadius="8px"
+                        color="blue"
+                        onPress={followUser}
+                        text="Follow"
+                    />
+                </FollowButtonContainer>
+            );        
+        } else {
+            return (
+                <FollowButtonContainer>
+                    <BWButton 
+                        borderRadius="8px" 
+                        text="Friends"
+                        rightIcon={<Icon type="ionicon" name="checkmark-circle" color={"white"} size={16} />}                
+                    />
+                </FollowButtonContainer>
+            );
+        }
+    }
+
+    const renderNotificationPic = () => {
+        const { action, newItems, user, notifyType } = data;
+        // availability: 
+        // newItems is ONLY present on openMyRecs actions
+        // user is present in openUserProfileScreen actions and altActions
+
+        if (notifyType === 'loveYourself') {
+            return <Icon type='ionicon' name='heart' size={ACTIVITY_IMAGE_SIZE} color={'red'} />
+        } 
+
+        if (action === 'openCreateScreen') {
+            return <ReelayIconImage source={ReelayIcon} />;
+        } else if (action === 'openMyRecs') {
+            const title = newItems[0]?.title;
+            const posterSource = title?.posterSource;
+            return <TitlePoster source={posterSource} /> ;
+        } else if (action === 'openSingleReelayScreen') {
+            return <ReelayIconImage source={ReelayIcon} />;
+        } else if (action === 'openUserProfileScreen') {
+            return <ProfilePicture userSub={user?.sub} size={ACTIVITY_IMAGE_SIZE} />
+        }
+    }
+
+    const renderRightAction = () => {
+        const { notifyType, user } = data;
+        if (notifyType === 'sendFollowNotification') {
+            return <FollowButton followedByUser={user} />
+        }
+        return <React.Fragment />
+    }
 
     const onPress = async () => {
         setPressed(true);
@@ -81,27 +201,43 @@ const NotificationItem = ({ navigation, notificationContent }) => {
     };
 
     return (
-        <NotificationItemPressable key={id} onPress={onPress} pressed={pressed}>
-            <NotificationPicContainer>
-                <Image source={ReelayIcon} style={{ height: 54, width: 54, borderRadius: 12 }} />
-            </NotificationPicContainer>
-            <NotificationMessageContainer>
-                <MessageTitle>{title}</MessageTitle>
-                <MessageBody key={body} style={{ paddingBottom: 4 }}>
-                    {body}
-                </MessageBody>
-                <MessageTimestamp>
-                    {timestamp}
-                </MessageTimestamp>
-            </NotificationMessageContainer>
-        </NotificationItemPressable>
+        <NotificationSwipeableRow notificationID={id} onRefresh={onRefresh}>
+            <NotificationItemPressable key={id} onPress={onPress} pressed={pressed}>
+                <NotificationPicContainer>
+                    { renderNotificationPic() }
+                </NotificationPicContainer>
+                <NotificationMessageContainer>
+                    <MessageTitle>{title}</MessageTitle>
+                    { (body.length > 0) &&
+                        <MessageBody key={body} style={{ paddingBottom: 4 }}>
+                            {body}
+                        </MessageBody>                
+                    }
+                    <MessageTimestamp>
+                        {timestamp}
+                    </MessageTimestamp>
+                </NotificationMessageContainer>
+                <RightActionContainer>
+                    { renderRightAction() }
+                </RightActionContainer>
+            </NotificationItemPressable>
+        </NotificationSwipeableRow>
     )
 }
 
 const NotificationList = ({ navigation }) => {
+    const NotificationItemContainer = styled(View)`
+        width: 100%;
+    `
     const { cognitoUser, myNotifications, setMyNotifications } = useContext(AuthContext);
     const [refreshing, setRefreshing] = useState(false);
-    const renderNotificationItem = ({ item }) => <NotificationItem navigation={navigation} notificationContent={item} />;
+    const renderNotificationItem = ({ item }) => <NotificationItem navigation={navigation} notificationContent={item} onRefresh={onRefresh} />;
+
+    const displayNotifications = myNotifications.sort((item0, item1) => {
+        const moment0 = moment(item0?.createdAt);
+        const moment1 = moment(item1?.createdAt);
+        return moment0.diff(moment1) < 0;
+    })
 
     const onRefresh = async () => {
         console.log('CALLING ON REFRESH');
@@ -110,7 +246,7 @@ const NotificationList = ({ navigation }) => {
 
     return (
         <FlatList 
-            data={myNotifications}
+            data={displayNotifications}
             horizontal={false}
             initialScrollIndex={0}
             pagingEnabled={false}
@@ -134,7 +270,6 @@ export default NotificationScreen = ({ navigation, route }) => {
         height: 100%;
         width: 100%;
     `
-
     return (
         <NotificationScreenContainer>
             <HeaderWithBackButton navigation={navigation} text={'Activity'} />

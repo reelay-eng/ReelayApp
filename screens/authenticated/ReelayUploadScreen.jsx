@@ -278,10 +278,10 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                     title: annotatedTitle,
                 },
             });
-            // todo: notifyOnReelayedRec
 
             notifyOnReelayedRec({ 
-                creatorName: cognitoUser.username,
+                creatorSub: cognitoUser?.attributes?.sub,
+                creatorName: cognitoUser?.username,
                 reelay: reelayDBBody,
                 watchlistItems: myWatchlistItems,
             });
@@ -403,7 +403,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         const onPress = () => {
             if (uploadStage === 'preview') {
                 publishReelay();
-                setPlaying(false);
             } else if (uploadStage === 'uploading') {
                 // do nothing
             } else if (uploadStage === 'upload-complete') {

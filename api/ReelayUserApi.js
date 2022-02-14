@@ -31,7 +31,7 @@ const refreshUserData = async (userSub, key, apiCallback) => {
 }
 
 export const clearLocalUserData = async () => {
-    const keys = ['myFollowing', 'myFollowers', 'myReelayStacks', 'myUser', 'myWatchlist'];
+    const keys = ['myFollowing', 'myFollowers', 'myNotifications', 'myReelayStacks', 'myUser', 'myWatchlist'];
     const result = await Promise.all(keys.map(async (key) => {
         return await AsyncStorage.removeItem(key);
     }));

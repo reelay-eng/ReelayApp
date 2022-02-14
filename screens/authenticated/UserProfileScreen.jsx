@@ -51,6 +51,9 @@ const ProfileScrollView = styled(ScrollView)`
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 
 export default UserProfileScreen = ({ navigation, route }) => {
+    const { creator } = route.params;
+    const { sub, username } = creator; // these are the only fields you need to pass in
+
     const [creatorStacks, setCreatorStacks] = useState([]);
     const [creatorFollowers, setCreatorFollowers] = useState([]);
     const [creatorFollowing, setCreatorFollowing] = useState([]);
@@ -59,8 +62,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const [refreshing, setRefreshing] = useState(true);
 
     const { cognitoUser } = useContext(AuthContext);
-    const { creator } = route.params;
-    const creatorSub = creator.sub ?? '';
+    const creatorSub = sub ?? '';
     const creatorProfilePictureURI = creatorSub.length > 0 ? `${CLOUDFRONT_BASE_URL}/public/profilepic-${creatorSub}-current.jpg` : null;
 
     const loadCreatorStacks = async () => {
@@ -72,8 +74,8 @@ export default UserProfileScreen = ({ navigation, route }) => {
     }
 
     const loadFollows = async () => {
-        const nextFollowers = await getFollowers(creator.sub);
-        const nextFollowing = await getFollowing(creator.sub);
+        const nextFollowers = await getFollowers(creatorSub);
+        const nextFollowing = await getFollowing(creatorSub);
 
         setCreatorFollowers(nextFollowers);
         setCreatorFollowing(nextFollowing);
@@ -102,7 +104,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
         onRefresh();
         logAmplitudeEventProd('viewProfile', {
             username: cognitoUser?.attributes?.username,
-            creatorName: creator.username,
+            creatorName: username,
         });    
     }, []);
 

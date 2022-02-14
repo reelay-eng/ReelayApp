@@ -48,17 +48,24 @@ const openCreateScreen = async (navigation) => {
     navigation.navigate('Create');
 }
 
+// todo: only add if coming from external push notification
 const openMyRecs = async (navigation, newWatchlistItems, myWatchlistItems, setMyWatchlistItems) => {
     if (!navigation) {
         console.log('No navigation ref')
         return;
     }
 
+    const isSameWatchlistItem = (item0, item1) => (item0.id === item1.id);
     const allMyWatchlistItems = [...newWatchlistItems, ...myWatchlistItems];
-    setMyWatchlistItems(allMyWatchlistItems);
-
+    const uniqueWatchlistItems = allMyWatchlistItems.filter((nextItem, index) => {
+        const duplicateIndex = allMyWatchlistItems.slice(0, index).findIndex((prevItem) => {
+            return isSameWatchlistItem(prevItem, nextItem);
+        });
+        return duplicateIndex === -1;
+    });
+    setMyWatchlistItems(uniqueWatchlistItems);
+    await AsyncStorage.setItem('myWatchlist', JSON.stringify(uniqueWatchlistItems));
     navigation.navigate('Watchlist', { category: 'Recs' });
-    await AsyncStorage.setItem('myWatchlist', JSON.stringify(allMyWatchlistItems));
 }
 
 const openSingleReelayScreen = async (navigation, reelaySub) => {

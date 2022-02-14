@@ -6,6 +6,7 @@ export const notifyOnAcceptRec = async ({ acceptUserSub, acceptUsername, recUser
     const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear}) is now in their watchlist`;
 
     const data = { 
+        notifyType: 'notifyOnAcceptRec',
         action: 'openUserProfileScreen',
         user: { sub: acceptUserSub, username: recUserSub },
     };
@@ -17,12 +18,19 @@ export const notifyOnSendRec = async ({ reqUserSub, reqUsername, sendToUserSub, 
     const title = `${reqUsername} sent you a rec!`;
     const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear})`;
 
-    const data = { action: 'openMyRecs', newItems: [watchlistItem] };
+    const data = { 
+        notifyType: 'notifyOnSendRec',
+        action: 'openMyRecs', 
+        newItems: [watchlistItem],
+
+        altAction: 'openUserProfileScreen',
+        user: { sub: reqUserSub, username: reqUsername },
+    };
     const { pushToken } = await getRegisteredUser(sendToUserSub);
     return await sendPushNotification({ title, body, data, token: pushToken, sendToUserSub });
 }
 
-export const notifyOnReelayedRec = async ({ creatorName, reelay, watchlistItems }) => {
+export const notifyOnReelayedRec = async ({ creatorName, creatorSub, reelay, watchlistItems }) => {
     const notifyWatchlistItems = watchlistItems.filter((item) => {
         const { recommendedBySub, tmdbTitleID, titleType } = item;
         return (reelay.tmdbTitleID === tmdbTitleID 
@@ -35,8 +43,12 @@ export const notifyOnReelayedRec = async ({ creatorName, reelay, watchlistItems 
             try {
                 const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear})`;
                 const data = { 
+                    notifyType: 'notifyOnReelayedRec',
                     action: 'openSingleReelayScreen',
                     reelaySub: reelay.datastoreSub,
+
+                    altAction: 'openUserProfileScreen',
+                    user: { sub: creatorSub, username: creatorName },
                 };
             
                 const { recommendedBySub } = watchlistItem;
