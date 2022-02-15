@@ -34,6 +34,11 @@ const getDevicePushToken = async () => {
     return token;
 }
 
+const condensedTitleObj = (titleObj) => {
+    const { id, display, posterSource, releaseYear } = titleObj;
+    return { id, display, posterSource, releaseYear };
+}
+
 export const getAllMyNotifications = async (userSub, page = 0) => {
     const routeGet = REELAY_API_BASE_URL + `/notifications/${userSub}/all?page=${page}`;
     const resultGet = await fetchResults(routeGet, { 
@@ -214,6 +219,7 @@ export const sendCommentNotificationToCreator = async ({ creatorSub, author, ree
         // reelaySub is used by the primary action
         action: 'openSingleReelayScreen',
         reelaySub: reelay.sub,
+        title: condensedTitleObj(reelay.title),
 
         // 'user' obj is used by the alt action
         altAction: 'openUserProfileScreen',
@@ -261,6 +267,8 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
             commentText,
             action: 'openSingleReelayScreen',
             reelaySub: reelay.sub,
+            title: condensedTitleObj(reelay.title),   
+
             altAction: 'openUserProfileScreen',
             user: { sub: author.sub, username: author.username },
         };
@@ -314,6 +322,7 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
         const data = { 
             action: 'openSingleReelayScreen',
             reelaySub: reelay.sub,
+            title: condensedTitleObj(reelay.title),   
             notifyType: 'loveYourself',
         };
     
@@ -332,6 +341,7 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
         notifyType: 'sendLikeNotification',
         action: 'openSingleReelayScreen',
         reelaySub: reelay.sub,
+        title: condensedTitleObj(reelay.title),   
         altAction: 'openUserProfileScreen',
         user: { sub: user.sub, username: user.username },
     };
@@ -376,6 +386,7 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
             notifyType: 'sendStackPushNotificationToOtherCreators',
             action: 'openSingleReelayScreen',
             reelaySub: reelay.sub,
+            title: condensedTitleObj(reelay.title),   
             altAction: 'openUserProfileScreen',
             user: { sub: creator.attributes.sub, username: creator.username },
         };

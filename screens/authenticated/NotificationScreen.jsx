@@ -6,7 +6,7 @@ import { ActionButton, BWButton } from '../../components/global/Buttons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../../context/AuthContext';
 import { FlatList } from 'react-native-gesture-handler';
-import { followCreator } from '../../api/ReelayDBApi';
+import { followCreator, getReelay, prepareReelay } from '../../api/ReelayDBApi';
 import { handlePushNotificationResponse } from '../../navigation/NotificationHandler';
 import { HeaderWithBackButton } from '../../components/global/Headers';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
@@ -159,24 +159,79 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         }
     }
 
+    const ReplyButton = () => {
+        const ReplyButtonContainer = styled(View)`
+            height: 40px;
+            width: 90px;
+            justify-content: center;
+        `
+        const pushSingleReelayScreen = async () => {
+            setPressed(true);
+            const singleReelay = await getReelay(data?.reelaySub);
+            const preparedReelay = await prepareReelay(singleReelay); 
+            setPressed(false);
+            navigation.push('SingleReelayScreen', { preparedReelay });    
+        }
+
+        // logAmplitudeEventProd('tappedReplyFromNotificationCenter', {
+        //     username: reelayDBUser?.username,
+        //     creatorName: followedByUser?.username,
+        // });
+
+        return (
+            <ReplyButtonContainer>
+                <ActionButton
+                    backgroundColor={ReelayColors.reelayRed}
+                    borderColor={ReelayColors.reelayBlack}
+                    borderRadius="8px"
+                    color="green"
+                    onPress={pushSingleReelayScreen}
+                    text="Reply"
+                />
+            </ReplyButtonContainer>
+        );        
+    }
+
+    const renderNotificationMessage = () => {
+        const { action, commentText, newItems, notifyType, user } = data;
+        return (
+            <React.Fragment>
+                <MessageTitle>{title}</MessageTitle>
+                { (body.length > 0) &&
+                    <MessageBody key={body} style={{ paddingBottom: 4 }}>
+                        {body}
+                    </MessageBody>                
+                }
+                <MessageTimestamp>
+                    {timestamp}
+                </MessageTimestamp>
+            </React.Fragment>
+        );
+    }
+
     const renderNotificationPic = () => {
-        const { action, newItems, user, notifyType } = data;
+        const { action, newItems, notifyType, title, user } = data;
         // availability: 
         // newItems is ONLY present on openMyRecs actions
         // user is present in openUserProfileScreen actions and altActions
+        // title is present on openSingleReelayScreen actions
 
         if (notifyType === 'loveYourself') {
             return <Icon type='ionicon' name='heart' size={ACTIVITY_IMAGE_SIZE} color={'red'} />
-        } 
+        } else if (notifyType === 'sendCommentNotificationToCreator' 
+                || notifyType === 'sendCommentNotificationToThread') {
+            const posterSource = title?.posterSource;
+            return <TitlePoster source={posterSource} /> ;        
+        }
 
         if (action === 'openCreateScreen') {
             return <ReelayIconImage source={ReelayIcon} />;
         } else if (action === 'openMyRecs') {
-            const title = newItems[0]?.title;
-            const posterSource = title?.posterSource;
+            const posterSource = newItems[0]?.title?.posterSource;
             return <TitlePoster source={posterSource} /> ;
         } else if (action === 'openSingleReelayScreen') {
-            return <ReelayIconImage source={ReelayIcon} />;
+            const posterSource = title?.posterSource;
+            return <TitlePoster source={posterSource} />;
         } else if (action === 'openUserProfileScreen') {
             return <ProfilePicture userSub={user?.sub} size={ACTIVITY_IMAGE_SIZE} />
         }
@@ -184,9 +239,16 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
 
     const renderRightAction = () => {
         const { notifyType, user } = data;
-        if (notifyType === 'sendFollowNotification') {
+        if (notifyType === 'sendFollowNotification' ||
+            notifyType === 'sendLikeNotification') {
             return <FollowButton followedByUser={user} />
         }
+        
+        if (notifyType === 'sendCommentNotificationToCreator' ||
+            notifyType === 'sendCommentNotificationToThread') {
+                return <ReplyButton />
+            }
+
         return <React.Fragment />
     }
 
@@ -207,15 +269,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
                     { renderNotificationPic() }
                 </NotificationPicContainer>
                 <NotificationMessageContainer>
-                    <MessageTitle>{title}</MessageTitle>
-                    { (body.length > 0) &&
-                        <MessageBody key={body} style={{ paddingBottom: 4 }}>
-                            {body}
-                        </MessageBody>                
-                    }
-                    <MessageTimestamp>
-                        {timestamp}
-                    </MessageTimestamp>
+                    { renderNotificationMessage() }
                 </NotificationMessageContainer>
                 <RightActionContainer>
                     { renderRightAction() }
@@ -241,7 +295,8 @@ const NotificationList = ({ navigation }) => {
 
     const onRefresh = async () => {
         console.log('CALLING ON REFRESH');
-        await refreshMyNotifications(cognitoUser?.attributes?.sub);
+        const allMyNotifications = await refreshMyNotifications(cognitoUser?.attributes?.sub);
+        setMyNotifications(allMyNotifications);
     }
 
     return (
