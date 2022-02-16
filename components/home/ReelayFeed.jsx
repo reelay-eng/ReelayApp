@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState, useRef, memo } from 'react';
 import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { FeedContext } from '../../context/FeedContext';
 import ReelayStack from './ReelayStack';
 import FeedSourceSelectorDrawer from './FeedSourceSelectorDrawer';
 

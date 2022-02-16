@@ -1,4 +1,4 @@
-import React, { useContext, useState, memo } from 'react';
+import React, { useContext, useState, useRef, memo } from 'react';
 import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from 'react-native-elements';
@@ -11,26 +11,14 @@ import * as ReelayText from '../../components/global/Text';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 
 const { height, width } = Dimensions.get('window');
-const ICON_SIZE = 96;
-const PLAY_PAUSE_ICON_TIMEOUT = 800;
 
 const BackButtonContainer = styled(SafeAreaView)`
     align-self: flex-start;
     margin-left: 16px;
     position: absolute;
     top: 40px;
-`
-const IconContainer = styled(Pressable)`
-    position: absolute;
-    left: ${(width - ICON_SIZE) / 2}px;
-    opacity: 50;
-    top: ${(height - ICON_SIZE) / 2}px;
-    height: ${ICON_SIZE}px;
-    width: ${ICON_SIZE}px;
-    zIndex: 3;
 `
 const ReelayFeedContainer = styled(View)`
     background-color: black;
@@ -62,15 +50,6 @@ const StackLocationText = styled(ReelayText.Body2)`
     color: black;
 `
 
-const PlayPauseIcon = ({ onPress, type = 'play' }) => {
-    const ICON_SIZE = 48;
-    return (
-        <IconContainer onPress={onPress}>
-            <Icon type='ionicon' name={type} color={'white'} size={ICON_SIZE} />
-        </IconContainer>
-    );
-}
-
 const StackLocation = ({ position, length }) => {
     const text = String(position + 1) + ' / ' + String(length);
     return (
@@ -89,10 +68,6 @@ const ReelayStack = ({
 }) => {
     const [stackPosition, setStackPosition] = useState(0);
     const { cognitoUser } = useContext(AuthContext);
-    const { 
-        paused, setPaused,
-        playPauseVisible, setPlayPauseVisible,
-    } = useContext(FeedContext);
     const viewableReelay = stack[stackPosition];
 
     const getItemLayout = (data, index) => ({
@@ -100,39 +75,6 @@ const ReelayStack = ({
         offset: width * index, index,
         index: index,
     });
-
-    const playPause = () => {
-        console.log("pause?")
-        if (paused) {
-            setPaused(false);
-            setPlayPauseVisible('pause');
-            setTimeout(() => {
-                setPlayPauseVisible('none');
-            }, PLAY_PAUSE_ICON_TIMEOUT);    
-
-            logAmplitudeEventProd('playVideo', {
-                creatorName: viewableReelay.creator.username,
-                reelayID: viewableReelay.id,
-                reelayTitle: viewableReelay.title.display,
-                username: cognitoUser.username,
-            });
-        } else {
-            setPaused(true);
-            setPlayPauseVisible('play');
-            setTimeout(() => {
-                if (playPauseVisible === 'play') {
-                    setPlayPauseVisible('none');
-                }
-            }, PLAY_PAUSE_ICON_TIMEOUT);   
-
-            logAmplitudeEventProd('pauseVideo', {
-                creatorName: viewableReelay.creator.username,
-                reelayID: viewableReelay.id,
-                reelayTitle: viewableReelay.title.display,
-                username: cognitoUser.username,
-            });
-        }
-    }
 
     const renderBackButton = () => {
         return (
@@ -157,13 +99,10 @@ const ReelayStack = ({
                     reelay={reelay} 
                     viewable={reelayViewable}
                     index={index} 
-                    isPaused={paused}
-                    playPause={playPause} 
                     stackIndex={index} 
                     stackPosition={stackPosition}
                 />
                 { isFixedStack && renderBackButton() }
-                { playPauseVisible !== 'none' && <PlayPauseIcon onPress={playPause} type={playPauseVisible} /> }
             </ReelayFeedContainer>
         );
     };

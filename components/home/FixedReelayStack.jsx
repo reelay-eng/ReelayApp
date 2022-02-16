@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Dimensions, FlatList, View } from 'react-native';
-import { FeedContext } from '../../context/FeedContext';
 import ReelayStack from './ReelayStack';
 
 import { AuthContext } from '../../context/AuthContext';

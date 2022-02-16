@@ -53,28 +53,29 @@ const HeroOverlay = ({reelay, viewable, navigation}) => {
 }
 
 
-const Hero = ({ 
-    index, 
-    isPaused,
+const Hero = ({
+    index,
     navigation,
     reelay,
-    playPause,
-    setIsPaused,
     viewable,
 }) => {
-    console.log('hero re-rendering: ', reelay.title.display);
+  console.log("hero re-rendering: ", reelay.title.display);
 
-    return (
-        <View key={index} style={{ justifyContent: 'flex-end'}}>
-            <FeedVideoPlayer 
-                reelay={reelay} viewable={viewable} 
-                isPaused={isPaused} playPause={playPause} 
-                navigation={navigation}
-            />
-            <HeroOverlay reelay={reelay} viewable={viewable} navigation={navigation} />
-        </View>
-    );
-}
+  return (
+    <View key={index} style={{ justifyContent: "flex-end" }}>
+      <FeedVideoPlayer
+        reelay={reelay}
+        viewable={viewable}
+        navigation={navigation}
+      />
+      <HeroOverlay
+        reelay={reelay}
+        viewable={viewable}
+        navigation={navigation}
+      />
+    </View>
+  );
+};
 
 const areEqual = (prevProps, nextProps) => {
     return (
