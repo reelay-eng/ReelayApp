@@ -6,18 +6,20 @@ import WatchlistItem from './WatchlistItem';
 import { AuthContext } from '../../context/AuthContext';
 import { refreshMyWatchlist } from '../../api/ReelayUserApi';
 import WatchlistSwipeableRow from './WatchlistSwipeableRow';
+import { RecommendedByLine, ReelayedByLine } from './RecPills';
 
 import moment from 'moment';
 
 export default Watchlist = ({ category, navigation, refresh, watchlistItems }) => {
     const WatchlistItemContainer = styled(Pressable)`
-        background-color: black;
-        border-bottom-color: #505050;
-        border-bottom-width: 0.3px;
+        background-color: #1c1c1c;
+        border-color: #2d2d2d;
+        border-radius: 8px;
+        border-width: 0.3px;
+        margin: 10px;
     `
-    const ScrollContainer = styled(ScrollView)`
-        margin-top: 16px;
-        margin-bottom: 180px;
+    const WatchlistItemSeparator = styled(View)`
+        height: 12px;
     `
     const [refreshing, setRefreshing] = useState(false);
     const { cognitoUser, setMyWatchlistItems } = useContext(AuthContext);
@@ -36,18 +38,40 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
 
     const renderWatchlistItem = ({ item, index }) => {
         return (
-            <WatchlistSwipeableRow key={item.id} 
-                    category={category}
-                    navigation={navigation} 
-                    onRefresh={onRefresh}
-                    watchlistItem={item}>
-                <WatchlistItemContainer key={item?.id} onPress={() => {
-                    navigation.push('TitleDetailScreen', { titleObj: item.title });
-                }}>
-                    <WatchlistItem category={category} navigation={navigation} watchlistItem={item} />
-                </WatchlistItemContainer>
-            </WatchlistSwipeableRow>
+            <React.Fragment>
+                <WatchlistSwipeableRow key={item.id} 
+                        category={category}
+                        navigation={navigation} 
+                        onRefresh={onRefresh}
+                        watchlistItem={item}>
+                    <WatchlistItemContainer key={item?.id} onPress={() => {
+                        navigation.push('TitleDetailScreen', { titleObj: item.title });
+                    }}>
+                        <WatchlistItem category={category} navigation={navigation} watchlistItem={item} />
+                    </WatchlistItemContainer>
+                </WatchlistSwipeableRow>
+                { renderWatchlistItemUnderContainer(item) }
+            </React.Fragment>
         );
+    }
+
+    const renderWatchlistItemUnderContainer = (item) => {
+        const shouldRenderUnderContainer = (item.recommendations.length > 0) || (!!item.recommendedReelaySub);
+        if (shouldRenderUnderContainer) {
+            return (
+                <React.Fragment>
+                    { item.recommendations.length > 0 && 
+                        <RecommendedByLine navigation={navigation} watchlistItem={item} /> 
+                    }
+                    { !!item.recommendedReelaySub && 
+                        <ReelayedByLine navigation={navigation} watchlistItem={item} />
+                    }
+                    <WatchlistItemSeparator />
+                </React.Fragment>
+            );
+        } else {
+            return <React.Fragment />
+        }
     }
 
     useEffect(() => {

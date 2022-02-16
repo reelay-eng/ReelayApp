@@ -271,19 +271,20 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     }
 
     const renderRightAction = () => {
-        const { notifyType, user } = data;
+        const { notifyType, title, user } = data;
         if (
             notifyType === 'notifyOnReelayedRec' ||
             notifyType === 'sendFollowNotification' ||
-            notifyType === 'sendLikeNotification' || 
             notifyType === 'sendStackPushNotificationToOtherCreators'
         ) {
             return <FollowButton followedByUser={user} />
         }
         
         if (notifyType === 'sendCommentNotificationToCreator' ||
+            notifyType === 'sendLikeNotification' || 
             notifyType === 'sendCommentNotificationToThread') {
-            return <ReplyButton />
+            const posterSource = title?.posterSource;
+            return <TitlePoster source={posterSource} />
         }
 
         if (notifyType === 'notifyOnSendRec') {

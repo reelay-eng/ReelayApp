@@ -7,12 +7,12 @@ import styled from 'styled-components/native';
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 
 const ProfileImage = styled(Image)`
-    border-radius: ${(props) => props.size / 4}px;
+    border-radius: ${(props) => (props.circle) ? props.size/2 : props.size/4}px;
     height: ${(props) => props.size}px;
     width: ${(props) => props.size}px;
 `
 
-export default ProfilePicture = ({ user, navigation, size = 16 }) => {
+export default ProfilePicture = ({ user, navigation, size = 16, circle = false }) => {
     const [validProfileImage, setValidProfileImage] = useState(true);
     const userSub = user?.sub ?? user?.attributes?.sub;
     const uri  = `${CLOUDFRONT_BASE_URL}/public/profilepic-${userSub}-current.jpg`;
@@ -23,6 +23,7 @@ export default ProfilePicture = ({ user, navigation, size = 16 }) => {
         }}>
             { validProfileImage ? null : (<ProfileImage size={size} source={ReelayIcon}  />) }
             <ProfileImage
+                circle={circle}
                 size={size}
                 source={{ uri }}
                 style={(validProfileImage) ? {} : { display: 'none' }}

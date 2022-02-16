@@ -209,8 +209,9 @@ export const sendCommentNotificationToCreator = async ({ creatorSub, author, ree
     }
 
     const title = `@${author.username} commented on your reelay!`;
-    const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
-    const body = `${bodyTitle}: ${commentText}`;
+    // const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
+    // const body = `${bodyTitle}: ${commentText}`;
+    const body = '';
     const data = {        
         notifyType: 'sendCommentNotificationToCreator', 
         commentText,
@@ -252,8 +253,9 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
         }
 
         const title = `@${author.username} also commented on @${creator.username}'s reelay`;
-        const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
-        const body = `${bodyTitle}: ${commentText}`;
+        // const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
+        // const body = `${bodyTitle}: ${commentText}`;
+        const body = '';
         const data = { 
             notifyType: 'sendCommentNotificationToThread',
             commentText,
