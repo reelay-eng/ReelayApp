@@ -24,7 +24,6 @@ const FollowResults = ({
 
     const ROW_HEIGHT = 100;
     const FollowItemContainer = styled(View)`
-        height: 100px;
         border-bottom-color: #505050;
         border-bottom-width: 0.3px;
     `;

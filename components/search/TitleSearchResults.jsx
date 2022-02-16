@@ -6,15 +6,15 @@ import styled from 'styled-components/native';
 
 export default TitleSearchResults = ({ navigation, searchResults, source }) => {
 
-    const ROW_HEIGHT = 165
     const SearchResultContainer = styled(View)`
-        height: ${ROW_HEIGHT}px;
         border-bottom-color: #505050;
         border-bottom-width: 0.3px;
+        padding-top: 5px;
+        padding-bottom: 5px;
     `
 
     const SearchResultsScrollContainer = styled(ScrollView)`
-        margin-bottom: ${ROW_HEIGHT + 105}px;
+        margin-bottom: ${270}px;
     `;
 
     return (

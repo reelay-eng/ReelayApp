@@ -6,11 +6,7 @@ import { Autolink } from "react-native-autolink";
 import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
 
 // API
-import { getStacksByCreator } from '../../api/ReelayDBApi';
-import {
-  getFollowers,
-  getFollowing,
-} from "../../api/ReelayDBApi";
+import { refreshMyFollowers, refreshMyFollowing, refreshMyReelayStacks } from '../../api/ReelayUserApi';
 
 // Components
 import ProfileHeader from '../../components/profile/ProfileHeader';
@@ -60,7 +56,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
         padding-bottom: 5px;
     `;
 
-
     const [refreshing, setRefreshing] = useState(false);
     const [isEditingProfile, setIsEditingProfile] = useState(false);
 	const { 
@@ -74,6 +69,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
         setMyCreatorStacks,
     } = useContext(AuthContext); 
 
+    console.log('COGNITO USER: ', cognitoUser);
+
     const { setTabBarVisible } = useContext(FeedContext);
 
     useEffect(() => {
@@ -83,7 +80,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
     useEffect(() => {
         logAmplitudeEventProd("openMyProfileScreen", {
             username: cognitoUser?.attributes?.username,
-            email: cognitoUser.attributes.email,
+            email: cognitoUser?.attributes?.email,
         });
     }, []);
 
@@ -96,16 +93,16 @@ export default MyProfileScreen = ({ navigation, route }) => {
     }
     const userSub = cognitoUser?.attributes?.sub;
 
-    const loadCreatorStacks = async () => {
-        const nextMyCreatorStacks = await getStacksByCreator(userSub);
+    const refreshMyReelays = async () => {
+        const nextMyCreatorStacks = await refreshMyReelayStacks(userSub);
         nextMyCreatorStacks.forEach(stack => stack.sort(sortReelays));
         nextMyCreatorStacks.sort(sortStacks);
         setMyCreatorStacks(nextMyCreatorStacks);
     }
 
-    const loadFollows = async () => {
-        const nextMyFollowers = await getFollowers(userSub);
-        const nextMyFollowing = await getFollowing(userSub);
+    const refreshMyFollows = async () => {
+        const nextMyFollowers = await refreshMyFollowers(userSub);
+        const nextMyFollowing = await refreshMyFollowing(userSub);
 
         setMyFollowers(nextMyFollowers);
         setMyFollowing(nextMyFollowing);
@@ -114,8 +111,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const onRefresh = async () => {
         if (userSub.length) {
             setRefreshing(true);
-            await loadCreatorStacks();
-            await loadFollows();
+            await refreshMyReelays();
+            await refreshMyFollows();
             setRefreshing(false);
         }
     }
@@ -174,7 +171,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
                 <UserInfoContainer>
                     {reelayDBUser?.bio && (
                         <BioText 
-                            text={reelayDBUser.bio.trim()} 
+                            text={reelayDBUser?.bio?.trim() ?? ''} 
                             linkStyle={{ color: '#3366BB' }} 
                             url
                         /> 

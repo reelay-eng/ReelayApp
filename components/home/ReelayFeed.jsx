@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef, memo } from 'react';
-import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
+import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View, Platform } from 'react-native';
 import { Icon } from 'react-native-elements';
 import ReelayStack from './ReelayStack';
 import FeedSourceSelectorDrawer from './FeedSourceSelectorDrawer';
@@ -26,6 +26,7 @@ const ReelayFeedContainer = styled(View)`
 const FeedSourceSelectorButton = ({ feedSource, setDrawerOpenFeedSource }) => {
     const insets = useSafeAreaInsets();
     const SourceSelectorPressable = styled(Pressable)`
+        paddingTop: ${Platform.OS === 'android' ? 25 : 0}px;
         margin-top: ${insets.top}px;
         margin-left: 20px;
         position: absolute;
@@ -42,7 +43,7 @@ const FeedSourceSelectorButton = ({ feedSource, setDrawerOpenFeedSource }) => {
     );
 }
 
-export default ReelayFeed = ({ navigation, 
+const ReelayFeed = ({ navigation, 
     initialStackPos = 0,
     forceRefresh = false, 
 }) => {
@@ -59,15 +60,13 @@ export default ReelayFeed = ({ navigation,
     const [refreshing, setRefreshing] = useState(false);
     const [globalStackList, setGlobalStackList] = useState([]);
     const [followingStackList, setFollowingStackList] = useState([]);
-    const [stackCounter, setStackCounter] = useState(0);
 
     var currStackList = (feedSource === 'global') ? globalStackList : followingStackList;
 
     useEffect(() => {
         loadFollowingFeed();
         loadGlobalFeed();
-        console.log("what feed to load...", feedSource)
-    }, [navigation]);
+    }, []);
 
     const loadFollowingFeed = async () => {
         console.log("loading following feed....");
@@ -159,6 +158,10 @@ export default ReelayFeed = ({ navigation,
 
         if (feedPosition === 0) {
             refreshFeed();
+            if (Platform.OS === 'android') {
+                    console.log("setting global feed position to 1", globalFeedPosition);
+                    setGlobalFeedPosition(1);
+            }
         } else {
             console.log('feed positioning to 0');
             // feedPager.current.setPage(0);
@@ -222,7 +225,6 @@ export default ReelayFeed = ({ navigation,
 
     const onFeedSwiped = async (e) => {
         const { x, y } = e.nativeEvent.contentOffset;
-
         const feedPosition = (feedSource === 'global') ? globalFeedPosition : followingFeedPosition;
 
         if (y % height === 0) {
@@ -248,7 +250,7 @@ export default ReelayFeed = ({ navigation,
         }
     }
 
-    console.log('feed is rendering');
+    console.log('feed is rendering: ', initialStackPos, forceRefresh);
 
     return (
       <ReelayFeedContainer>
@@ -319,3 +321,5 @@ export default ReelayFeed = ({ navigation,
       </ReelayFeedContainer>
     );
 }
+
+export default memo(ReelayFeed, (prevProps, nextProps) => true);

@@ -35,7 +35,7 @@ const getDevicePushToken = async () => {
 }
 
 // We probably shouldn't let these have default values...
-const sendPushNotification = async ({
+export const sendPushNotification = async ({
     body='', 
     data={},
     title='You have a notification from Reelay', 
