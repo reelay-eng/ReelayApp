@@ -33,14 +33,8 @@ const MessageTimestamp = styled(ReelayText.Body2)`
     color: #9C9AA3;
 `
 const NotificationItemPressable = styled(Pressable)`
-    background-color: ${(props) => (props.pressed) ? '#2d2d2d' : '#1d1d1d' };
-    border-color: #2d2d2d;
-    border-radius: 8px;
-    border-width: 0.3px;
+    background-color: ${(props) => (props.pressed) ? '#2d2d2d' : 'black' };
     flex-direction: row;
-    margin-top: 6px;
-    margin-bottom: 6px;
-    padding: 6px;
     width: 100%;
 `
 const NotificationPicContainer = styled(View)`
@@ -95,32 +89,6 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     const { reelayDBUser, myFollowing, setMyFollowing } = authContext;
     const [pressed, setPressed] = useState(false);
     const timestamp = moment(createdAt).fromNow();
-
-    const AcceptRecButton = () => {
-        const AcceptRecButtonContainer = styled(View)`
-            flex-direction: row;
-            justify-content: center;
-            height: 40px;
-            width: 90px;
-        `
-        const acceptRec = async () => {
-
-        }
-
-        return (
-            <AcceptRecButtonContainer>
-                <ActionButton
-                    backgroundColor={ReelayColors.reelayRed}
-                    borderColor={ReelayColors.reelayBlack}
-                    borderRadius="8px"
-                    color="green"
-                    onPress={acceptRec}
-                    text="Accept"
-                    rightIcon={<Icon type='ionicon' name='checkmark-circle' size={16} color='white' />}                
-                />
-            </AcceptRecButtonContainer>
-        );        
-    }
 
     const FollowButton = ({ followedByUser }) => {
         const FollowButtonContainer = styled(View)`
@@ -219,7 +187,6 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     }
 
     const renderNotificationMessage = () => {
-        const { action, commentText, newItems, notifyType, user } = data;
         return (
             <React.Fragment>
                 <MessageTitle>{title}</MessageTitle>
@@ -236,59 +203,53 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     }
 
     const renderNotificationPic = () => {
-        const { action, newItems, notifyType, title, user } = data;
-        // availability: 
+        const { notifyType, user } = data;
         // newItems is ONLY present on openMyRecs actions
         // user is present in openSingleReelayScreen actions and openUserProfileScreen actions
         // title is present on openSingleReelayScreen actions
 
+        const profilePicNotifyTypes = [
+            'notifyOnReelayedRec',
+            'notifyOnSendRec',
+            'sendCommentNotificationToCreator',
+            'sendCommentNotificationToThread',
+            'sendFollowNotification',
+            'sendLikeNotification',
+            'sendStackPushNotificationToOtherCreators',
+        ];
+
+        if (profilePicNotifyTypes.includes(notifyType)) {
+            return <ProfilePicture navigation={navigation} user={user} size={ACTIVITY_IMAGE_SIZE} />;
+        }
+
         if (notifyType === 'loveYourself') {
             return <Icon type='ionicon' name='heart' size={ACTIVITY_IMAGE_SIZE} color={'red'} />
         }
-        
-        if (action === 'openCreateScreen') {
-            return <ReelayIconImage source={ReelayIcon} />;
-        }
-        
-        if (action === 'openMyRecs') {
-            const posterSource = newItems[0]?.title?.posterSource;
-            return (
-                <Pressable onPress={() => {
-                    navigation.push('TitleDetailScreen', { titleObj: newItems[0]?.title })
-                }}>
-                    <TitlePoster source={posterSource} />
-                </Pressable>
-            );
-        }
-        
-        if (action === 'openSingleReelayScreen') {
-            return <ProfilePicture navigation={navigation} user={user} size={ACTIVITY_IMAGE_SIZE} />
-        }
-        
-        if (action === 'openUserProfileScreen') {
-            return <ProfilePicture navigation={navigation} user={user} size={ACTIVITY_IMAGE_SIZE} />
-        }
+
+        return <React.Fragment />        
     }
 
     const renderRightAction = () => {
-        const { notifyType, title, user } = data;
-        if (
-            notifyType === 'notifyOnReelayedRec' ||
-            notifyType === 'sendFollowNotification' ||
-            notifyType === 'sendStackPushNotificationToOtherCreators'
-        ) {
+        const { notifyType, title, user, newItems } = data;
+        const followButtonTypes = ['sendFollowNotification'];
+        const posterButtonTypes = [
+            'notifyOnReelayedRec',
+            'notifyOnSendRec',
+            'sendCommentNotificationToCreator',
+            'sendCommentNotificationToThread',
+            'sendLikeNotification',
+            'sendStackPushNotificationToOtherCreators',
+        ];
+
+        if (followButtonTypes.includes(notifyType)) {
             return <FollowButton followedByUser={user} />
         }
-        
-        if (notifyType === 'sendCommentNotificationToCreator' ||
-            notifyType === 'sendLikeNotification' || 
-            notifyType === 'sendCommentNotificationToThread') {
-            const posterSource = title?.posterSource;
-            return <TitlePoster source={posterSource} />
-        }
 
-        if (notifyType === 'notifyOnSendRec') {
-            return <AcceptRecButton />
+        if (posterButtonTypes.includes(notifyType)) {
+            const posterSource = (notifyType === 'notifyOnSendRec') 
+                ? newItems?.[0]?.title?.posterSource
+                : title?.posterSource;
+            return <TitlePoster source={posterSource} />;
         }
 
         return <React.Fragment />

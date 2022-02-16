@@ -71,8 +71,8 @@ export const RecommendedByLine = ({ navigation, watchlistItem }) => {
             </Pressable>
             <RecUserText>
                 { recommendations.length > 1 && ` +${recommendations.length - 1} ` }
-                { recommendations.length === 1 && ` recommends` }
-                { recommendations.length > 1 && ` recommend` }
+                { recommendations.length === 1 && ` recommends  ` }
+                { recommendations.length > 1 && ` recommend  ` }
             </RecUserText>
         </RecommendedByLineContainer>
     );

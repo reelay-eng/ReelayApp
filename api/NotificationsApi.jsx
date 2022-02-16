@@ -245,6 +245,12 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
             return;
         }
 
+        const recipientIsCreator = (notifyAuthor.sub === creator?.sub);
+        if (recipientIsCreator) {
+            console.log('No need to send notification to creator');
+            return;
+        }    
+
         const recipientAlreadyNotified = (comment) => comment.authorName === notifyAuthorName;
         const recipientIndex = reelay.comments.findIndex(recipientAlreadyNotified);
         if (recipientIndex < index) {
@@ -301,7 +307,8 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
     const recipientIsAuthor = (creatorSub === user.attributes.sub);
     if (recipientIsAuthor) {
         const title = `Achievement earned: Love Yourself`;
-        const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
+        // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
+        const body = '';
         const data = { 
             action: 'openSingleReelayScreen',
             reelaySub: reelay.sub,
@@ -319,7 +326,8 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
     }
 
     const title = `@${user.username} liked your reelay!`;
-    const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
+    // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
+    const body = '';
     const data = { 
         notifyType: 'sendLikeNotification',
         action: 'openSingleReelayScreen',
@@ -358,7 +366,8 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
         }
 
         const title = `@${creator.username} also posted a reelay!`;
-        const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
+        // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
+        const body = '';
         const data = { 
             notifyType: 'sendStackPushNotificationToOtherCreators',
             action: 'openSingleReelayScreen',

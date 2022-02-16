@@ -3,8 +3,8 @@ import { sendPushNotification } from './NotificationsApi';
 
 export const notifyOnAcceptRec = async ({ acceptUserSub, acceptUsername, recUserSub, watchlistItem }) => {
     const title = `@${acceptUsername} accepted your rec!`;
-    const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear}) is now in their watchlist`;
-
+    // const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear}) is now in their watchlist`;
+    const body = '';
     const data = { 
         notifyType: 'notifyOnAcceptRec',
         action: 'openUserProfileScreen',
@@ -16,7 +16,8 @@ export const notifyOnAcceptRec = async ({ acceptUserSub, acceptUsername, recUser
 
 export const notifyOnSendRec = async ({ reqUserSub, reqUsername, sendToUserSub, watchlistItem }) => {
     const title = `@${reqUsername} sent you a rec!`;
-    const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear})`;
+    // const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear})`;
+    const body = '';
 
     const data = { 
         notifyType: 'notifyOnSendRec',
@@ -41,7 +42,8 @@ export const notifyOnReelayedRec = async ({ creatorName, creatorSub, reelay, wat
     const pushNotificationResults = await Promise.all(
         notifyWatchlistItems.map(async (watchlistItem) => {
             try {
-                const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear})`;
+                // const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear})`;
+                const body = '';
                 const data = { 
                     notifyType: 'notifyOnReelayedRec',
                     action: 'openSingleReelayScreen',
