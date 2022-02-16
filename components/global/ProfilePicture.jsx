@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, Image, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable } from 'react-native';
 import Constants from 'expo-constants';
 import ReelayIcon from '../../assets/icons/reelay-icon.png'
 import styled from 'styled-components/native';
@@ -12,12 +12,15 @@ const ProfileImage = styled(Image)`
     width: ${(props) => props.size}px;
 `
 
-export default ProfilePicture = ({ userSub, size = 16 }) => {
+export default ProfilePicture = ({ user, navigation, size = 16 }) => {
     const [validProfileImage, setValidProfileImage] = useState(true);
+    const userSub = user?.sub ?? user?.attributes?.sub;
     const uri  = `${CLOUDFRONT_BASE_URL}/public/profilepic-${userSub}-current.jpg`;
 
     return (
-        <React.Fragment>
+        <Pressable onPress={() => {
+            navigation.push('UserProfileScreen', { creator: user });
+        }}>
             { validProfileImage ? null : (<ProfileImage size={size} source={ReelayIcon}  />) }
             <ProfileImage
                 size={size}
@@ -26,6 +29,6 @@ export default ProfilePicture = ({ userSub, size = 16 }) => {
                 PlaceholderContent={<ActivityIndicator />}
                 onError={() => { setValidProfileImage(false) }}
             />
-        </React.Fragment>
+        </Pressable>
     )
 }

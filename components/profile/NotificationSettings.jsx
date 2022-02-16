@@ -192,7 +192,7 @@ const ReactionsNotificationSetting = ({enabled, toggle}) => {
     return (
         <NotificationSetting
                 title="Interactions" 
-                subtext="Notify me when people react to my posts"
+                subtext="Notify me when people react to my posts and send me recs"
                 isToggled={enabled}
                 toggleFunction={toggle}
         />

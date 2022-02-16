@@ -1,12 +1,15 @@
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
-import { getRegisteredUser, getUserByUsername, getMostRecentReelaysByTitle } from './ReelayDBApi';
 import { fetchResults } from './fetchResults';
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 
-const EXPO_NOTIFICATION_URL = Constants.manifest.extra.expoNotificationUrl;
-const STACK_NOTIFICATION_LIMIT = 4;
+import { 
+    getMostRecentReelaysByTitle,
+    getRegisteredUser, 
+    getUserByUsername, 
+} from './ReelayDBApi';
 
+const EXPO_NOTIFICATION_URL = Constants.manifest.extra.expoNotificationUrl;
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 const REELAY_API_KEY = Constants.manifest.extra.reelayApiKey;
 
@@ -69,9 +72,8 @@ export const getMyNotificationSettings = async(user) => {
     return resultGet;
 }
 
-export const getUserNotificationSettings = async (user) => {
-    console.log(user);
-    const routeGet = REELAY_API_BASE_URL + `/users/sub/${user.sub}/settings`;
+export const getUserNotificationSettings = async (userSub) => {
+    const routeGet = REELAY_API_BASE_URL + `/users/sub/${userSub}/settings`;
     const resultGet = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS,
@@ -149,18 +151,20 @@ export const registerForPushNotificationsAsync = async () => {
 export const sendPushNotification = async ({
     body='', 
     data={},
+    sendToUserSub,
+    sound='default',
     title='You have a notification from Reelay', 
     token, 
-    sound='default',
-    sendToUserSub,
 }) => {
-    const dataToPush = { 
-        ...data, 
-        'content-available': 1 
-    };
-
-    const reelayDBRoutePost = `${REELAY_API_BASE_URL}/notifications/${sendToUserSub}`;
+    const dataToPush = { ...data, 'content-available': 1 };
     const reelayDBPostBody = { title, body, data: dataToPush };
+    const reelayDBRoutePost = `${REELAY_API_BASE_URL}/notifications/${sendToUserSub}`;
+
+    const { settingsNotifyReactions } = await getUserNotificationSettings(sendToUserSub);
+    if (!settingsNotifyReactions) {
+        console.log('Creator does not want to receive push notifications');
+        return;
+    }
 
     console.log('POST BODY: ', reelayDBPostBody);
     const postResult = await fetchResults(reelayDBRoutePost, {
@@ -199,18 +203,12 @@ export const sendCommentNotificationToCreator = async ({ creatorSub, author, ree
     const creator = await getRegisteredUser(creatorSub);
     const token = creator?.pushToken;
 
-    const { settingsNotifyReactions } = await getUserNotificationSettings(creator);
-    if (!settingsNotifyReactions) {
-        console.log('Creator does not want to receive push notifications');
-        return;
-    }
-
     if (!token) {
         console.log('Creator not registered for notifications');
         return;
     }
 
-    const title = `${author.username} commented on your reelay!`;
+    const title = `@${author.username} commented on your reelay!`;
     const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
     const body = `${bodyTitle}: ${commentText}`;
     const data = {        
@@ -223,7 +221,7 @@ export const sendCommentNotificationToCreator = async ({ creatorSub, author, ree
 
         // 'user' obj is used by the alt action
         altAction: 'openUserProfileScreen',
-        user: { sub: author.sub, username: author.username },
+        user: { sub: author.attributes.sub, username: author.username },
     };
 
     await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
@@ -233,12 +231,6 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
     reelay.comments.map(async (comment, index) => {
         const notifyAuthorName = comment.authorName;
         const notifyAuthor = await getUserByUsername(notifyAuthorName);
-
-        const { settingsNotifyReactions } = await getUserNotificationSettings(notifyAuthor);
-        if (!settingsNotifyReactions) {
-            console.log('Author does not want to receive push notifications');
-            return;
-        }    
 
         const token = notifyAuthor?.pushToken;
         if (!token) {
@@ -259,7 +251,7 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
             return;
         }
 
-        const title = `${author.username} also commented on ${creator.username}'s reelay`;
+        const title = `@${author.username} also commented on @${creator.username}'s reelay`;
         const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
         const body = `${bodyTitle}: ${commentText}`;
         const data = { 
@@ -270,7 +262,7 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
             title: condensedTitleObj(reelay.title),   
 
             altAction: 'openUserProfileScreen',
-            user: { sub: author.sub, username: author.username },
+            user: { sub: author.attributes.sub, username: author.username },
         };
 
         await sendPushNotification({ title, body, data, token, sendToUserSub: notifyAuthor?.sub });    
@@ -282,17 +274,12 @@ export const sendFollowNotification = async ({ creatorSub, follower }) => {
     const creator = await getRegisteredUser(creatorSub);
     const token = creator?.pushToken;
 
-    const { settingsNotifyReactions } = await getUserNotificationSettings(creator); 
-    if (!settingsNotifyReactions) {
-        console.log("Creator does not want to receive push notifications"); // is it this type of notif?
-        return;
-    }
     if (!token) {
         console.log("Creator not registered for follow notifications");
         return;
     }
 
-    const title = `${follower.username} followed you!`;
+    const title = `@${follower.username} followed you!`;
     const body = ``;
     const data = {
         action: "openUserProfileScreen",
@@ -308,12 +295,6 @@ export const sendFollowNotification = async ({ creatorSub, follower }) => {
 export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
     const creator = await getRegisteredUser(creatorSub);
     const token = creator?.pushToken;
-
-    const { settingsNotifyReactions } = await getUserNotificationSettings(creator);
-    if (!settingsNotifyReactions) {
-        console.log('Creator does not want to receive push notifications');
-        return;
-    }
 
     const recipientIsAuthor = (creatorSub === user.attributes.sub);
     if (recipientIsAuthor) {
@@ -335,7 +316,7 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
         return;
     }
 
-    const title = `${user.username} liked your reelay!`;
+    const title = `@${user.username} liked your reelay!`;
     const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
     const data = { 
         notifyType: 'sendLikeNotification',
@@ -343,7 +324,7 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
         reelaySub: reelay.sub,
         title: condensedTitleObj(reelay.title),   
         altAction: 'openUserProfileScreen',
-        user: { sub: user.sub, username: user.username },
+        user: { sub: user.attributes.sub, username: user.username },
     };
 
     await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
@@ -354,12 +335,6 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
     
     notifyReelayStack.map(async (notifyReelay, index) => {
         const notifyCreator = await getRegisteredUser(notifyReelay.creator.sub);
-
-        const { settingsNotifyReactions } = await getUserNotificationSettings(notifyCreator);
-        if (!settingsNotifyReactions) {
-            console.log('Creator does not want to receive push notifications');
-            return;
-        }
         const token = notifyCreator?.pushToken;
 
         if (!token) {
@@ -380,7 +355,7 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
             return;
         }
 
-        const title = `${creator.username} also posted a reelay!`;
+        const title = `@${creator.username} also posted a reelay!`;
         const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
         const data = { 
             notifyType: 'sendStackPushNotificationToOtherCreators',

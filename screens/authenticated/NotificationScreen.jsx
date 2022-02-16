@@ -23,7 +23,7 @@ import styled from 'styled-components/native';
 
 const ACTIVITY_IMAGE_SIZE = 44;
 
-const MessageTitle = styled(ReelayText.Body2)`
+const MessageTitle = styled(ReelayText.Body2Emphasized)`
     color: white;
 `
 const MessageBody = styled(ReelayText.Body2)`
@@ -96,6 +96,32 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     const [pressed, setPressed] = useState(false);
     const timestamp = moment(createdAt).fromNow();
 
+    const AcceptRecButton = () => {
+        const AcceptRecButtonContainer = styled(View)`
+            flex-direction: row;
+            justify-content: center;
+            height: 40px;
+            width: 90px;
+        `
+        const acceptRec = async () => {
+
+        }
+
+        return (
+            <AcceptRecButtonContainer>
+                <ActionButton
+                    backgroundColor={ReelayColors.reelayRed}
+                    borderColor={ReelayColors.reelayBlack}
+                    borderRadius="8px"
+                    color="green"
+                    onPress={acceptRec}
+                    text="Accept"
+                    rightIcon={<Icon type='ionicon' name='checkmark-circle' size={16} color='white' />}                
+                />
+            </AcceptRecButtonContainer>
+        );        
+    }
+
     const FollowButton = ({ followedByUser }) => {
         const FollowButtonContainer = styled(View)`
             height: 40px;
@@ -107,7 +133,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         });
 
         const followUser = async () => {
-            const followResult = await followCreator(followedByUser.sub, reelayDBUser?.sub);
+            const followResult = await followCreator(followedByUser?.sub, reelayDBUser?.sub);
             const success = !followResult?.error && !followResult?.requestStatus;
             
             if (success) {
@@ -143,6 +169,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
                         color="blue"
                         onPress={followUser}
                         text="Follow"
+                        rightIcon={<Icon type='ionicon' name='person-add' size={16} color='white' />}                
                     />
                 </FollowButtonContainer>
             );        
@@ -170,13 +197,11 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
             const singleReelay = await getReelay(data?.reelaySub);
             const preparedReelay = await prepareReelay(singleReelay); 
             setPressed(false);
-            navigation.push('SingleReelayScreen', { preparedReelay });    
+            navigation.push('SingleReelayScreen', { 
+                openCommentsOnLoad: true,
+                preparedReelay 
+            });    
         }
-
-        // logAmplitudeEventProd('tappedReplyFromNotificationCenter', {
-        //     username: reelayDBUser?.username,
-        //     creatorName: followedByUser?.username,
-        // });
 
         return (
             <ReplyButtonContainer>
@@ -184,9 +209,10 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
                     backgroundColor={ReelayColors.reelayRed}
                     borderColor={ReelayColors.reelayBlack}
                     borderRadius="8px"
-                    color="green"
+                    color="blue"
                     onPress={pushSingleReelayScreen}
                     text="Reply"
+                    rightIcon={<Icon type='ionicon' name='arrow-undo' size={16} color='white' />}                
                 />
             </ReplyButtonContainer>
         );        
@@ -213,41 +239,56 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         const { action, newItems, notifyType, title, user } = data;
         // availability: 
         // newItems is ONLY present on openMyRecs actions
-        // user is present in openUserProfileScreen actions and altActions
+        // user is present in openSingleReelayScreen actions and openUserProfileScreen actions
         // title is present on openSingleReelayScreen actions
 
         if (notifyType === 'loveYourself') {
             return <Icon type='ionicon' name='heart' size={ACTIVITY_IMAGE_SIZE} color={'red'} />
-        } else if (notifyType === 'sendCommentNotificationToCreator' 
-                || notifyType === 'sendCommentNotificationToThread') {
-            const posterSource = title?.posterSource;
-            return <TitlePoster source={posterSource} /> ;        
         }
-
+        
         if (action === 'openCreateScreen') {
             return <ReelayIconImage source={ReelayIcon} />;
-        } else if (action === 'openMyRecs') {
+        }
+        
+        if (action === 'openMyRecs') {
             const posterSource = newItems[0]?.title?.posterSource;
-            return <TitlePoster source={posterSource} /> ;
-        } else if (action === 'openSingleReelayScreen') {
-            const posterSource = title?.posterSource;
-            return <TitlePoster source={posterSource} />;
-        } else if (action === 'openUserProfileScreen') {
-            return <ProfilePicture userSub={user?.sub} size={ACTIVITY_IMAGE_SIZE} />
+            return (
+                <Pressable onPress={() => {
+                    navigation.push('TitleDetailScreen', { titleObj: newItems[0]?.title })
+                }}>
+                    <TitlePoster source={posterSource} />
+                </Pressable>
+            );
+        }
+        
+        if (action === 'openSingleReelayScreen') {
+            return <ProfilePicture navigation={navigation} user={user} size={ACTIVITY_IMAGE_SIZE} />
+        }
+        
+        if (action === 'openUserProfileScreen') {
+            return <ProfilePicture navigation={navigation} user={user} size={ACTIVITY_IMAGE_SIZE} />
         }
     }
 
     const renderRightAction = () => {
         const { notifyType, user } = data;
-        if (notifyType === 'sendFollowNotification' ||
-            notifyType === 'sendLikeNotification') {
+        if (
+            notifyType === 'notifyOnReelayedRec' ||
+            notifyType === 'sendFollowNotification' ||
+            notifyType === 'sendLikeNotification' || 
+            notifyType === 'sendStackPushNotificationToOtherCreators'
+        ) {
             return <FollowButton followedByUser={user} />
         }
         
         if (notifyType === 'sendCommentNotificationToCreator' ||
             notifyType === 'sendCommentNotificationToThread') {
-                return <ReplyButton />
-            }
+            return <ReplyButton />
+        }
+
+        if (notifyType === 'notifyOnSendRec') {
+            return <AcceptRecButton />
+        }
 
         return <React.Fragment />
     }
@@ -280,9 +321,6 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
 }
 
 const NotificationList = ({ navigation }) => {
-    const NotificationItemContainer = styled(View)`
-        width: 100%;
-    `
     const { cognitoUser, myNotifications, setMyNotifications } = useContext(AuthContext);
     const [refreshing, setRefreshing] = useState(false);
     const renderNotificationItem = ({ item }) => <NotificationItem navigation={navigation} notificationContent={item} onRefresh={onRefresh} />;
