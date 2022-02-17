@@ -34,16 +34,20 @@ const PlayPauseIcon = ({ onPress, type = "play" }) => {
 export default function FeedVideoPlayer({ 
 	reelay, 
 	viewable,
+	paused
  }) {
 	const [focused, setFocused] = useState(false);
-    const paused = useRef(viewable);
-    const [playPauseVisible, setplayPauseVisible] = useState("none");
+    // const paused = useRef(viewable);
+	// const showPlayPause = paused.current ? "play" : "none";
+    const [playPauseVisible, setPlayPauseVisible] = useState(
+      paused.current ? "play" : "none"
+    );
 	const loadStatus = useRef(0);
 	const playheadCounter = useRef(0);
 	const playbackObject = useRef(null);
 	const shouldPlay = useRef((viewable && focused && !paused.current));
 
-	const { cognitoUser } = useContext(AuthContext);
+    const { cognitoUser } = useContext(AuthContext);
 
 	const _handleVideoRef = (component) => {
 		playbackObject.current = component;
@@ -69,11 +73,13 @@ export default function FeedVideoPlayer({
 	}
 
 	useEffect(()=> {
+		const showPlayPause = paused.current ? "play" : "none";
 		shouldPlay.current = viewable && focused && !paused.current;
 		if (shouldPlay.current) 
 			playbackObject.current.playAsync();
 		else 
 			playbackObject.current.pauseAsync();
+		if (showPlayPause !== playPauseVisible) setPlayPauseVisible(showPlayPause);
 	}, [viewable, paused, focused]);
 
     useFocusEffect(React.useCallback(() => {
@@ -106,10 +112,10 @@ export default function FeedVideoPlayer({
     const playPause = () => {
         if (paused.current) {
             paused.current = false;
-            setplayPauseVisible("pause");
+            setPlayPauseVisible("pause");
 			playbackObject.current.playAsync();
             setTimeout(() => {
-            	setplayPauseVisible("none");
+            	setPlayPauseVisible("none");
             }, PLAY_PAUSE_ICON_TIMEOUT);    
 
             logAmplitudeEventProd("playVideo", {
@@ -120,11 +126,11 @@ export default function FeedVideoPlayer({
             });
         } else {
             paused.current = true;
-            setplayPauseVisible("play");
+            setPlayPauseVisible("play");
 			playbackObject.current.pauseAsync();
             setTimeout(() => {
                 if (playPauseVisible === 'play') {
-            		setplayPauseVisible("none");
+            		setPlayPauseVisible("none");
                 }
             }, PLAY_PAUSE_ICON_TIMEOUT);   
 

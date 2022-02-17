@@ -202,15 +202,15 @@ const AddToWatchlist = ({ reelay }) => {
 }
 
 const SendRecommendation = ({ navigation, reelay }) => {
-  return (
-    <SidebarButton>
-		<SendRecButton
-			navigation={navigation}
-			titleObj={reelay.title}
-			reelay={reelay}
-		/>
-    </SidebarButton>
-  );
+	return (
+		<SidebarButton>
+			<SendRecButton
+				navigation={navigation}
+				titleObj={reelay.title}
+				reelay={reelay}
+			/>
+		</SidebarButton>
+	);
 };
 
 

@@ -28,6 +28,7 @@ export default UserReelayFeed = ({ navigation,
     const { cognitoUser } = useContext(AuthContext);
     const [feedPosition, setFeedPosition] = useState(0);
     const [stackList, setStackList] = useState([]);
+    const paused = useRef(false);
 
     useEffect(() => {
         const stackEmpty = !stackList.length;
@@ -62,6 +63,7 @@ export default UserReelayFeed = ({ navigation,
                 initialStackPos={initialStackPos}
                 isFixedStack={true}
                 navigation={navigation}
+                paused={paused}
             />
         );
     }

@@ -65,6 +65,7 @@ const ReelayStack = ({
     initialStackPos = 0,
     isFixedStack,
     navigation,
+    paused
 }) => {
     const [stackPosition, setStackPosition] = useState(0);
     const { cognitoUser } = useContext(AuthContext);
@@ -90,7 +91,7 @@ const ReelayStack = ({
         const reelay = item;
         const reelayViewable = stackViewable && (index === stackPosition);   
         if (reelayViewable) console.log('Reelay is viewable: ', index);
-        
+        console.log("rerrended stack");
         return (
             <ReelayFeedContainer key={reelay.id}>
                 <Hero 
@@ -100,6 +101,7 @@ const ReelayStack = ({
                     index={index} 
                     stackIndex={index} 
                     stackPosition={stackPosition}
+                    paused={paused}
                 />
                 { isFixedStack && renderBackButton() }
             </ReelayFeedContainer>

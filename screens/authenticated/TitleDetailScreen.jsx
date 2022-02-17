@@ -5,6 +5,7 @@ import {
     ScrollView, 
     View,
 } from 'react-native';
+import { useFocusEffect } from "@react-navigation/native";
 
 // Context
 import { FeedContext } from '../../context/FeedContext';

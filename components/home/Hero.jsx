@@ -10,7 +10,6 @@ import CommentsDrawer from './CommentsDrawer';
 import Reelay3DotDrawer from './Reelay3DotDrawer';
 
 const HeroOverlay = ({reelay, viewable, navigation}) => {
-
     const [likesVisible, setLikesVisible] = useState(false);
     const [commentsVisible, setCommentsVisible] = useState(false);
     const [dotMenuVisible, setDotMenuVisible] = useState(false);
@@ -43,6 +42,7 @@ const HeroOverlay = ({reelay, viewable, navigation}) => {
                 />
             )}
             <Sidebar
+                navigation={navigation}
                 reelay={reelay}
                 setLikesVisible={setLikesVisible}
                 setCommentsVisible={setCommentsVisible}
@@ -58,23 +58,25 @@ const Hero = ({
     navigation,
     reelay,
     viewable,
+    paused
 }) => {
-  console.log("hero re-rendering: ", reelay.title.display);
+    console.log("hero re-rendering: ", reelay.title.display);
 
-  return (
-    <View key={index} style={{ justifyContent: "flex-end" }}>
-      <FeedVideoPlayer
-        reelay={reelay}
-        viewable={viewable}
-        navigation={navigation}
-      />
-      <HeroOverlay
-        reelay={reelay}
-        viewable={viewable}
-        navigation={navigation}
-      />
-    </View>
-  );
+    return (
+        <View key={index} style={{ justifyContent: "flex-end" }}>
+        <FeedVideoPlayer
+            reelay={reelay}
+            viewable={viewable}
+            navigation={navigation}
+            paused={paused}
+        />
+        <HeroOverlay
+            reelay={reelay}
+            viewable={viewable}
+            navigation={navigation}
+        />
+        </View>
+    );
 };
 
 const areEqual = (prevProps, nextProps) => {

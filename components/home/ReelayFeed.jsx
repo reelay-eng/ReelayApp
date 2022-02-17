@@ -50,6 +50,7 @@ const ReelayFeed = ({ navigation,
 
     const feedPager = useRef();
     const nextPage = useRef(0);
+    const paused = useRef(false);
 
     const { cognitoUser } = useContext(AuthContext);
 
@@ -219,6 +220,7 @@ const ReelayFeed = ({ navigation,
                 feedIndex={index}
                 initialStackPos={initialStackPos}
                 navigation={navigation}
+                paused={paused}
             />
         );
     }
