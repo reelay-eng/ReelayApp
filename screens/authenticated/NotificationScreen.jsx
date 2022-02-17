@@ -18,7 +18,7 @@ import ReelayIcon from '../../assets/icons/reelay-icon.png';
 import * as ReelayText from '../../components/global/Text';
 import { refreshMyNotifications } from '../../api/ReelayUserApi';
 import ReelayColors from '../../constants/ReelayColors';
-import { sendFollowNotification } from '../../api/NotificationsApi';
+import { markNotificationActivated, markAllNotificationsSeen, sendFollowNotification } from '../../api/NotificationsApi';
 import styled from 'styled-components/native';
 
 const ACTIVITY_IMAGE_SIZE = 44;
@@ -31,6 +31,11 @@ const MessageBody = styled(ReelayText.Body2)`
 `
 const MessageTimestamp = styled(ReelayText.Body2)`
     color: #9C9AA3;
+`
+const MessageTimestampContainer = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: flex-start;
 `
 const NotificationItemPressable = styled(Pressable)`
     background-color: ${(props) => (props.pressed) ? '#2d2d2d' : 'black' };
@@ -63,6 +68,13 @@ const TitlePoster = styled(Image)`
     height: ${ACTIVITY_IMAGE_SIZE * 1.5}px;
     width: ${ACTIVITY_IMAGE_SIZE}px;
 `
+const UnreadIndicator = styled(View)`
+    border-radius: 4px;
+    background-color: ${ReelayColors.reelayBlue};
+    height: 8px;
+    margin: 4px;
+    width: 8px;
+`
 
 const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     moment.updateLocale("en", {
@@ -84,7 +96,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         },
     });    
 
-    const { id, title, body, data, createdAt } = notificationContent;
+    const { id, title, body, data, createdAt, seen } = notificationContent;
     const authContext = useContext(AuthContext);
     const { reelayDBUser, myFollowing, setMyFollowing } = authContext;
     const [pressed, setPressed] = useState(false);
@@ -195,9 +207,12 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
                         {body}
                     </MessageBody>                
                 }
-                <MessageTimestamp>
-                    {timestamp}
-                </MessageTimestamp>
+                <MessageTimestampContainer>
+                    <MessageTimestamp>
+                        {timestamp}
+                    </MessageTimestamp>
+                    { !seen && <UnreadIndicator /> }
+                </MessageTimestampContainer>
             </React.Fragment>
         );
     }
@@ -257,11 +272,15 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
 
     const onPress = async () => {
         setPressed(true);
+        const activatedPromise = markNotificationActivated(id);
         await handlePushNotificationResponse({ 
             navigation,
             notificationContent, 
             userContext: authContext,
         });
+
+        const activatedResult = await activatedPromise;
+        console.log('Activated notification: ', activatedResult);
         setPressed(false);
     };
 
@@ -325,9 +344,17 @@ export default NotificationScreen = ({ navigation, route }) => {
         height: 100%;
         width: 100%;
     `
+    const { reelayDBUser, myNotifications } = useContext(AuthContext);
+    const unread = myNotifications.filter(({ seen }) => !seen).length;
+    const unreadText = (unread > 0) ? `(${unread} new)` : '';
+
+    useEffect(() => {
+        if (unread > 0) markAllNotificationsSeen(reelayDBUser?.sub);
+    }, [navigation]);
+
     return (
         <NotificationScreenContainer>
-            <HeaderWithBackButton navigation={navigation} text={'Activity'} />
+            <HeaderWithBackButton navigation={navigation} text={`Activity ${unreadText}`} />
             <NotificationList navigation={navigation} />
         </NotificationScreenContainer>
     );

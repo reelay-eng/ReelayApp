@@ -6,11 +6,11 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import React, { useContext } from 'react';
+import styled from 'styled-components/native';
 
 import { LinearGradient } from 'expo-linear-gradient';
-import { Image, StyleSheet } from 'react-native';
-import useColorScheme from '../hooks/useColorScheme';
-
+import { Image, StyleSheet, SafeAreaView, View } from 'react-native';
+import { AuthContext } from '../context/AuthContext';
 import { FeedContext } from '../context/FeedContext';
 
 import HomeFeedScreen from '../screens/authenticated/HomeFeedScreen';
@@ -53,6 +53,15 @@ const BOTTOM_TAB_ICON_SIZE = 24;
 const TAB_BAR_ACTIVE_OPACITY = 1;
 const TAB_BAR_INACTIVE_OPACITY = 0.8;
 
+const UnreadIconIndicator = styled(SafeAreaView)`
+	background-color: ${ReelayColors.reelayBlue}
+	border-radius: 5px;
+	height: 10px;
+	width: 10px;
+	position: absolute;
+	right: 0px;
+`
+
 export default AuthenticatedNavigator = () => {
     return (
         <AppStack.Navigator initialRouteName='BottomTab'>
@@ -68,7 +77,20 @@ export default AuthenticatedNavigator = () => {
     );
 }
 
+const bottomTabIconStyle = (focused) => {
+	return {
+		opacity: (focused)
+			? TAB_BAR_ACTIVE_OPACITY
+			: TAB_BAR_INACTIVE_OPACITY,
+		width: BOTTOM_TAB_ICON_SIZE,
+		height: BOTTOM_TAB_ICON_SIZE,
+	};
+};
+
 const BottomTabNavigator = () => {
+	const { myNotifications } = useContext(AuthContext);
+	const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
+
     const { tabBarVisible } = useContext(FeedContext);
     const s = StyleSheet.create({
 		gradient: {
@@ -121,16 +143,7 @@ const BottomTabNavigator = () => {
 					tabBarIcon: ({ focused }) => (
 						<Image
 							source={HomeIcon}
-							style={{
-								opacity: focused
-									? TAB_BAR_ACTIVE_OPACITY
-									: TAB_BAR_INACTIVE_OPACITY,
-								width: BOTTOM_TAB_ICON_SIZE,
-								height: BOTTOM_TAB_ICON_SIZE,
-								margin: 0,
-								padding: 0,
-								
-							}}
+							style={bottomTabIconStyle(focused)}
 						/>
 					),
 				}}
@@ -142,15 +155,7 @@ const BottomTabNavigator = () => {
 					tabBarIcon: ({ focused }) => (
 						<Image
 							source={SearchIcon}
-							style={{
-								opacity: focused
-									? TAB_BAR_ACTIVE_OPACITY
-									: TAB_BAR_INACTIVE_OPACITY,
-								width: BOTTOM_TAB_ICON_SIZE,
-								height: BOTTOM_TAB_ICON_SIZE,
-								margin: 0,
-								padding: 0,
-							}}
+							style={bottomTabIconStyle(focused)}
 						/>
 					),
 				}}
@@ -162,15 +167,7 @@ const BottomTabNavigator = () => {
 					tabBarIcon: ({ focused }) => (
 						<Image
 							source={CreateIcon}
-							style={{
-								opacity: focused
-									? TAB_BAR_ACTIVE_OPACITY
-									: TAB_BAR_INACTIVE_OPACITY,
-								width: BOTTOM_TAB_ICON_SIZE,
-								height: BOTTOM_TAB_ICON_SIZE,
-								margin: 0,
-								padding: 0,
-							}}
+							style={bottomTabIconStyle(focused)}
 						/>
 					),
 				}}
@@ -182,15 +179,7 @@ const BottomTabNavigator = () => {
 					tabBarIcon: ({ focused }) => (
 						<Image
 							source={WatchlistIcon}
-							style={{
-								opacity: focused
-									? TAB_BAR_ACTIVE_OPACITY
-									: TAB_BAR_INACTIVE_OPACITY,
-								width: BOTTOM_TAB_ICON_SIZE,
-								height: BOTTOM_TAB_ICON_SIZE,
-								margin: 0,
-								padding: 0,
-							}}
+							style={bottomTabIconStyle(focused)}
 						/>
 					),
 				}}
@@ -200,18 +189,13 @@ const BottomTabNavigator = () => {
 				component={ProfileTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<Image
-							source={ProfileIcon}
-							style={{
-								opacity: focused
-									? TAB_BAR_ACTIVE_OPACITY
-									: TAB_BAR_INACTIVE_OPACITY,
-								width: BOTTOM_TAB_ICON_SIZE,
-								height: BOTTOM_TAB_ICON_SIZE,
-								margin: 0,
-								padding: 0,
-							}}
-						/>
+						<View>
+							<Image
+								source={ProfileIcon}
+								style={bottomTabIconStyle(focused)}
+							/>
+							{ hasUnreadNotifications && <UnreadIconIndicator /> }
+						</View>
 					),
 				}}
 			/>

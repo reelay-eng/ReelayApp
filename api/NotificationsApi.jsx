@@ -93,12 +93,13 @@ export const hideNotification = async (notificationID) => {
 }
 
 export const markAllNotificationsSeen = async (userSub) => {
-    const routeGet = REELAY_API_BASE_URL + `/notifications/${userSub}/markAllSeen`;
-    const resultGet = await fetchResults(routeGet, { 
-        method: 'GET',
+    const routePatch = REELAY_API_BASE_URL + `/notifications/${userSub}/markAllSeen`;
+    const resultPatch = await fetchResults(routePatch, { 
+        method: 'PATCH',
         headers: REELAY_API_HEADERS,
     });
-    return resultGet;
+    console.log('MARK ALL SEEN: ', resultPatch);
+    return resultPatch;
 }
 
 export const markNotificationActivated = async (notificationID) => {
@@ -245,6 +246,8 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
             return;
         }
 
+        // if we don't catch this, we'll send a notification twice to a creator
+        // who commented on their own reelay
         const recipientIsCreator = (notifyAuthor.sub === creator?.sub);
         if (recipientIsCreator) {
             console.log('No need to send notification to creator');
