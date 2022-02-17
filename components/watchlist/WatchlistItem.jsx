@@ -60,7 +60,7 @@ const WatchlistItemInfo = ({ navigation, watchlistItem }) => {
                 { title?.posterSource && (
                     <Image
                         source={title?.posterSource}
-                        style={{ height: 108, width: 72, borderRadius: 6 }}
+                        style={{ height: 81, width: 54, borderRadius: 6 }}
                         PlaceholderContent={<ActivityIndicator />}
                     />
                 )}
