@@ -78,9 +78,15 @@ export default WatchlistScreen = ({ navigation, route }) => {
     const myListDisplay = (myListCount > 0) ? `My List ${myListCountDisplay}` : 'My List';
     const seenDisplay = (seenCount > 0) ? `Seen ${seenCountDisplay}` : 'Seen';
 
+    const headerText = (selectedCategory === 'My List') 
+                    ? 'Watchlist'
+                    : (selectedCategory === 'Recs')
+                        ? 'Watchlist Recs'
+                        : 'Seen';
+
     return (
 		<WatchlistScreenContainer>
-            <BaseHeader text={'Watchlist'} />
+            <BaseHeader text={headerText} />
 			<TopBarContainer>
 				<SelectorBarContainer>
 					<ToggleSelector

@@ -2,7 +2,7 @@ import { getRegisteredUser } from './ReelayDBApi';
 import { sendPushNotification } from './NotificationsApi';
 
 export const notifyOnAcceptRec = async ({ acceptUserSub, acceptUsername, recUserSub, watchlistItem }) => {
-    const title = `@${acceptUsername} accepted your rec!`;
+    const title = `@${acceptUsername} accepted your rec.`;
     // const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear}) is now in their watchlist`;
     const body = '';
     const data = { 
@@ -15,7 +15,7 @@ export const notifyOnAcceptRec = async ({ acceptUserSub, acceptUsername, recUser
 }
 
 export const notifyOnSendRec = async ({ reqUserSub, reqUsername, sendToUserSub, watchlistItem }) => {
-    const title = `@${reqUsername} sent you a rec!`;
+    const title = `@${reqUsername} sent you a rec.`;
     // const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear})`;
     const body = '';
 
@@ -55,7 +55,7 @@ export const notifyOnReelayedRec = async ({ creatorName, creatorSub, reelay, wat
             
                 const { recommendedBySub } = watchlistItem;
                 const { pushToken } = await getRegisteredUser(recommendedBySub);    
-                const title = `@${creatorName} reelayed a title you recommended!`;
+                const title = `@${creatorName} reelayed a title you recommended.`;
                 return await sendPushNotification({ title, body, data, token: pushToken, sendToUserSub: recommendedBySub });    
             } catch (error) {
                 return { error };

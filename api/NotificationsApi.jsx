@@ -209,7 +209,7 @@ export const sendCommentNotificationToCreator = async ({ creatorSub, author, ree
         return;
     }
 
-    const title = `@${author.username} commented on your reelay!`;
+    const title = `@${author.username} commented on your reelay.`;
     // const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
     // const body = `${bodyTitle}: ${commentText}`;
     const body = '';
@@ -261,7 +261,11 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
             return;
         }
 
-        const title = `@${author.username} also commented on @${creator.username}'s reelay`;
+        const creatorDirectObject = (creator.username === author.username) 
+            ? 'their'
+            : `@${creator.username}'s`;
+            
+        const title = `@${author.username} also commented on ${creatorDirectObject} reelay.`;
         // const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
         // const body = `${bodyTitle}: ${commentText}`;
         const body = '';
@@ -290,7 +294,7 @@ export const sendFollowNotification = async ({ creatorSub, follower }) => {
         return;
     }
 
-    const title = `@${follower.username} followed you!`;
+    const title = `@${follower.username} followed you.`;
     const body = ``;
     const data = {
         action: "openUserProfileScreen",
@@ -328,7 +332,7 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
         return;
     }
 
-    const title = `@${user.username} liked your reelay!`;
+    const title = `@${user.username} liked your reelay.`;
     // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
     const body = '';
     const data = { 
@@ -368,7 +372,7 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
             return;
         }
 
-        const title = `@${creator.username} also posted a reelay!`;
+        const title = `@${creator.username} also posted a reelay.`;
         // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
         const body = '';
         const data = { 
