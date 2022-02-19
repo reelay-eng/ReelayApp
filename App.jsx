@@ -242,6 +242,8 @@ function App() {
     const registerMyPushToken = async () => {
         try {
             const devicePushToken = await registerForPushNotificationsAsync();
+            if (!devicePushToken) return;
+
             if (!reelayDBUser.pushToken || reelayDBUser.pushToken !== devicePushToken) {
                 console.log('Registering new push token');
                 await registerPushTokenForUser(reelayDBUser.sub, devicePushToken);

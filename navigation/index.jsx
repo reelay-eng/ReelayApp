@@ -10,7 +10,9 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { 
     addNotificationReceivedListener, 
     addNotificationResponseReceivedListener,
+    getBadgeCountAsync,
     removeNotificationSubscription,
+    setBadgeCountAsync,
 } from 'expo-notifications';
 
 import { AuthContext } from '../context/AuthContext';
@@ -22,6 +24,7 @@ import LinkingConfiguration from './LinkingConfiguration';
 
 import moment from 'moment';
 import { handlePushNotificationResponse } from './NotificationHandler';
+import { markNotificationReceived } from '../api/NotificationsApi';
 
 export default Navigation = () => {
     /**
@@ -35,9 +38,15 @@ export default Navigation = () => {
     const responseListener = useRef(); 
     const authContext = useContext(AuthContext);
     
-    const onNotificationReceived = (notification) => {
-        const content = parseNotificationContent(notification);
-        console.log('NOTIFICATION RECEIVED', content);
+    const onNotificationReceived = async (notification) => {
+        const notificationContent = parseNotificationContent(notification);
+        console.log('NOTIFICATION RECEIVED', notificationContent);
+
+        const { id } = notificationContent;
+        markNotificationReceived(id);
+
+        const badgeCount = await getBadgeCountAsync();
+        setBadgeCountAsync(badgeCount + 1);
     }
  
     const onNotificationResponseReceived = async (notificationResponse) => {

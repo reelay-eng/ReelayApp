@@ -21,6 +21,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import { markNotificationActivated, markAllNotificationsSeen, notifyCreatorOnFollow } from '../../api/NotificationsApi';
 import styled from 'styled-components/native';
 import { ReelayedByLine } from '../../components/watchlist/RecPills';
+import { setBadgeCountAsync } from 'expo-notifications';
 
 const ACTIVITY_IMAGE_SIZE = 44;
 
@@ -165,8 +166,6 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         }
     }
 
-    console.log('NEW WATCHLIST ITEM: ', data?.newWatchlistItem);
-
     const renderNotificationMessage = () => {
         return (
             <React.Fragment>
@@ -284,9 +283,11 @@ const NotificationList = ({ navigation }) => {
     })
 
     const onRefresh = async () => {
+        setRefreshing(true);
         console.log('CALLING ON REFRESH');
         const allMyNotifications = await refreshMyNotifications(cognitoUser?.attributes?.sub);
         setMyNotifications(allMyNotifications);
+        setRefreshing(false);
     }
 
     return (
@@ -321,6 +322,9 @@ export default NotificationScreen = ({ navigation, route }) => {
 
     useEffect(() => {
         if (unread > 0) markAllNotificationsSeen(reelayDBUser?.sub);
+        setBadgeCountAsync(0);
+
+        logAmplitudeEventProd('openMyNotifications', { username: reelayDBUser?.username });
     }, [navigation]);
 
     return (

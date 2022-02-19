@@ -24,7 +24,11 @@ const getDevicePushToken = async () => {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
     if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
+        const { status } = await Notifications.requestPermissionsAsync({
+            ios: { 
+                allowBadge: true,
+            }
+        });
         finalStatus = status;
     }
     if (finalStatus !== 'granted') {

@@ -6,7 +6,6 @@ import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
 
-import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { showMessageToast } from '../utils/toasts';
 import { hideNotification } from '../../api/NotificationsApi';
 
@@ -28,7 +27,7 @@ export default NotificationSwipeableRow = ({ children, notificationID, onRefresh
         margin: 10px;
     `
 
-    const renderRightAction = (onPress, actionName, iconName, color, x, progress) => {
+    const renderRightAction = (onPress, iconName, color, x, progress) => {
         const trans = progress.interpolate({
             inputRange: [0, 1],
             outputRange: [x, 0],
@@ -43,8 +42,7 @@ export default NotificationSwipeableRow = ({ children, notificationID, onRefresh
                 <RectButton
                     style={[styles.rightAction, { backgroundColor: color }]}
                     onPress={onPress}>
-                    <Icon type='ionicon' name={iconName} color='white' size={ICON_SIZE} style={{ marginTop: 10 }} />
-                    <RightActionButtonText>{actionName}</RightActionButtonText>
+                    <Icon type='ionicon' name={iconName} color='white' size={ICON_SIZE} />
                 </RectButton>
             </Animated.View>
         );
@@ -59,8 +57,8 @@ export default NotificationSwipeableRow = ({ children, notificationID, onRefresh
     };
 
     const renderRightActions = (progress) => (
-        <View style={{ width: 96, flexDirection: 'row' }}>
-            { renderRightAction(hideNotificationItem, 'Hide', 'eye-off', SwipeColors.RED, 96, progress) }
+        <View style={{ width: 72, flexDirection: 'row' }}>
+            { renderRightAction(hideNotificationItem, 'eye-off', SwipeColors.RED, 72, progress) }
         </View>
     );
 

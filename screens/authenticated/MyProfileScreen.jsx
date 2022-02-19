@@ -6,7 +6,14 @@ import { Autolink } from "react-native-autolink";
 import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
 
 // API
-import { refreshMyFollowers, refreshMyFollowing, refreshMyReelayStacks } from '../../api/ReelayUserApi';
+import { 
+    refreshMyFollowers, 
+    refreshMyFollowing, 
+    refreshMyNotifications, 
+    refreshMyReelayStacks, 
+    refreshMyUser, 
+    refreshMyWatchlist 
+} from '../../api/ReelayUserApi';
 
 // Components
 import ProfileHeader from '../../components/profile/ProfileHeader';
@@ -67,6 +74,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
         setMyFollowers, 
         setMyFollowing,
         setMyCreatorStacks,
+        setMyNotifications,
+        setMyWatchlistItems,
     } = useContext(AuthContext); 
 
     const { setTabBarVisible } = useContext(FeedContext);
@@ -91,26 +100,30 @@ export default MyProfileScreen = ({ navigation, route }) => {
     }
     const userSub = cognitoUser?.attributes?.sub;
 
-    const refreshMyReelays = async () => {
-        const nextMyCreatorStacks = await refreshMyReelayStacks(userSub);
-        nextMyCreatorStacks.forEach(stack => stack.sort(sortReelays));
-        nextMyCreatorStacks.sort(sortStacks);
-        setMyCreatorStacks(nextMyCreatorStacks);
-    }
-
-    const refreshMyFollows = async () => {
-        const nextMyFollowers = await refreshMyFollowers(userSub);
-        const nextMyFollowing = await refreshMyFollowing(userSub);
-
-        setMyFollowers(nextMyFollowers);
-        setMyFollowing(nextMyFollowing);
-    }
-
     const onRefresh = async () => {
         if (userSub.length) {
+            console.log('Now refreshing');
             setRefreshing(true);
-            await refreshMyReelays();
-            await refreshMyFollows();
+            try {
+                const nextMyCreatorStacks = await refreshMyReelayStacks(userSub);
+                const nextMyFollowers = await refreshMyFollowers(userSub);
+                const nextMyFollowing = await refreshMyFollowing(userSub);
+                const nextMyNotifications = await refreshMyNotifications(userSub);
+                const nextMyWatchlistItems = await refreshMyWatchlist(userSub);
+                
+                nextMyCreatorStacks.forEach((stack) => stack.sort(sortReelays));
+                nextMyCreatorStacks.sort(sortStacks);
+    
+                setMyCreatorStacks(nextMyCreatorStacks);    
+                setMyFollowers(nextMyFollowers);
+                setMyFollowing(nextMyFollowing);    
+                setMyNotifications(nextMyNotifications);
+                setMyWatchlistItems(nextMyWatchlistItems);    
+
+                console.log('Refresh complete');
+            } catch (error) {
+                console.log(error);
+            }
             setRefreshing(false);
         }
     }
@@ -161,11 +174,10 @@ export default MyProfileScreen = ({ navigation, route }) => {
 				setIsEditingProfile={setIsEditingProfile}
 			/>
 			<ProfileTopBar creator={cognitoUser} navigation={navigation} atProfileBase={true} />
-			<ProfileScrollView
-				refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-			>
+			<ProfileScrollView refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }>
 				<ProfileHeader profilePictureURI={reelayDBUser?.profilePictureURI} />
-
                 <UserInfoContainer>
                     {reelayDBUser?.bio && (
                         <BioText 
