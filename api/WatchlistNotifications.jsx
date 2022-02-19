@@ -1,5 +1,5 @@
 import { getRegisteredUser } from './ReelayDBApi';
-import { sendPushNotification } from './NotificationsApi';
+import { condensedTitleObj, sendPushNotification } from './NotificationsApi';
 
 export const notifyOnAcceptRec = async ({ acceptUserSub, acceptUsername, recUserSub, watchlistItem }) => {
     const title = `@${acceptUsername} accepted your rec.`;
@@ -8,7 +8,8 @@ export const notifyOnAcceptRec = async ({ acceptUserSub, acceptUsername, recUser
     const data = { 
         notifyType: 'notifyOnAcceptRec',
         action: 'openUserProfileScreen',
-        user: { sub: acceptUserSub, username: recUserSub },
+        title: condensedTitleObj(watchlistItem.title),
+        fromUser: { sub: acceptUserSub, username: acceptUsername },
     };
     const { pushToken } = await getRegisteredUser(recUserSub);
     return await sendPushNotification({ title, body, data, token: pushToken, sendToUserSub: recUserSub });
@@ -18,14 +19,22 @@ export const notifyOnSendRec = async ({ reqUserSub, reqUsername, sendToUserSub, 
     const title = `@${reqUsername} sent you a rec.`;
     // const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear})`;
     const body = '';
+    const condensedWatchlistItem = {
+        ...watchlistItem,
+        title: condensedTitleObj(watchlistItem.title)
+    };
+
+    console.log('Condensed watchlist item: ', condensedWatchlistItem);
+    const { recommendedReelaySub } = watchlistItem;
 
     const data = { 
         notifyType: 'notifyOnSendRec',
-        action: 'openMyRecs', 
-        newItems: [watchlistItem],
-
-        altAction: 'openUserProfileScreen',
-        user: { sub: reqUserSub, username: reqUsername },
+        action: (recommendedReelaySub) ? 'openSingleReelayScreen' : 'openMyRecs', 
+        fromUser: { sub: reqUserSub, username: reqUsername },
+        // this duplicity saves logic on the other end
+        newWatchlistItem: condensedWatchlistItem,
+        reelaySub: recommendedReelaySub,
+        title: condensedTitleObj(watchlistItem.title), 
     };
     const { pushToken } = await getRegisteredUser(sendToUserSub);
     return await sendPushNotification({ title, body, data, token: pushToken, sendToUserSub });
@@ -48,9 +57,8 @@ export const notifyOnReelayedRec = async ({ creatorName, creatorSub, reelay, wat
                     notifyType: 'notifyOnReelayedRec',
                     action: 'openSingleReelayScreen',
                     reelaySub: reelay.datastoreSub,
-
-                    altAction: 'openUserProfileScreen',
-                    user: { sub: creatorSub, username: creatorName },
+                    title: condensedTitleObj(item.title),
+                    fromUser: { sub: creatorSub, username: creatorName },
                 };
             
                 const { recommendedBySub } = watchlistItem;

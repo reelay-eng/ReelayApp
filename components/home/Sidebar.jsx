@@ -7,7 +7,7 @@ import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
 import { FeedContext } from '../../context/FeedContext';
 
-import { sendLikeNotification } from '../../api/NotificationsApi';
+import { notifyCreatorOnLike } from '../../api/NotificationsApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
 import AddToWatchlistButton from '../titlePage/AddToWatchlistButton';
@@ -87,7 +87,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 			console.log(postResult);
 
 			setLikeUpdateCounter(likeUpdateCounter + 1);
-			sendLikeNotification({ 
+			notifyCreatorOnLike({ 
 				creatorSub: reelay.creator.sub,
 				user: cognitoUser,
 				reelay: reelay,

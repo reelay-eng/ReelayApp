@@ -27,7 +27,7 @@ import { Icon } from 'react-native-elements';
 import * as Progress from 'react-native-progress';
 
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
-import { sendStackPushNotificationToOtherCreators } from '../../api/NotificationsApi';
+import { notifyOtherCreatorsOnReelayPosted } from '../../api/NotificationsApi';
 
 import styled from 'styled-components/native';
 import { postReelayToDB } from '../../api/ReelayDBApi';
@@ -271,7 +271,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // we can reuse fetchReelaysForStack from ReelayDBApi
 
             const annotatedTitle = await fetchAnnotatedTitle(reelayDBBody.tmdbTitleID, reelayDBBody.isSeries);
-            await sendStackPushNotificationToOtherCreators({
+            await notifyOtherCreatorsOnReelayPosted({
                 creator: cognitoUser,
                 reelay: { 
                     ...reelayDBBody, 

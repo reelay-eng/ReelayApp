@@ -28,15 +28,15 @@ export const handlePushNotificationResponse = async ({ navigation, notificationC
             await openSingleReelayScreen(navigation, data?.reelaySub);
         }
     } else if (action === 'openUserProfileScreen') {
-        if (!data.user) {
+        if (!data.fromUser) {
           console.log("No user given");
         } else {
-            await openUserProfileScreen(navigation, data?.user);
+            await openUserProfileScreen(navigation, data?.fromUser);
         }
     } else if (action === 'openCreateScreen') {
         await openCreateScreen(navigation);
     } else if (action === 'openMyRecs') {
-        await openMyRecs(navigation, data?.newItems, myWatchlistItems, setMyWatchlistItems);
+        await openMyRecs(navigation, [data?.newWatchlistItem], myWatchlistItems, setMyWatchlistItems);
     }
 }
 

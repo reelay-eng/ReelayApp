@@ -23,8 +23,8 @@ import * as ReelayText from '../../components/global/Text';
 import ReelayIcon from '../../assets/icons/reelay-icon.png';
 
 import { 
-    sendCommentNotificationToCreator, 
-    sendCommentNotificationToThread 
+	notifyCreatorOnComment,
+	notifyThreadOnComment,
 } from '../../api/NotificationsApi';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -388,13 +388,13 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 			const postResult = await postCommentToDB(commentBody, reelay.sub);
 			console.log("Comment posted: ", postResult);
 
-			await sendCommentNotificationToCreator({
+			await notifyCreatorOnComment({
 				creatorSub: reelay.creator.sub,
 				author: cognitoUser,
 				reelay: reelay,
 				commentText: commentText,
 			});
-			await sendCommentNotificationToThread({
+			await notifyThreadOnComment({
 				creator: reelay.creator,
 				author: cognitoUser,
 				reelay: reelay,

@@ -18,8 +18,9 @@ import ReelayIcon from '../../assets/icons/reelay-icon.png';
 import * as ReelayText from '../../components/global/Text';
 import { refreshMyNotifications } from '../../api/ReelayUserApi';
 import ReelayColors from '../../constants/ReelayColors';
-import { markNotificationActivated, markAllNotificationsSeen, sendFollowNotification } from '../../api/NotificationsApi';
+import { markNotificationActivated, markAllNotificationsSeen, notifyCreatorOnFollow } from '../../api/NotificationsApi';
 import styled from 'styled-components/native';
+import { ReelayedByLine } from '../../components/watchlist/RecPills';
 
 const ACTIVITY_IMAGE_SIZE = 44;
 
@@ -53,10 +54,8 @@ const NotificationMessageContainer = styled(View)`
     flex: 1;
     padding: 8px;
 `
-const ReelayIconImage = styled(Image)`
-    border-radius: 12px;
-    height: ${ACTIVITY_IMAGE_SIZE}px;
-    width: ${ACTIVITY_IMAGE_SIZE}px;
+const ReelayedByLineContainer = styled(View)`
+    margin-top: 10px;
 `
 const RightActionContainer = styled(View)`
     align-items: center;
@@ -133,7 +132,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
                 creatorName: followedByUser?.username,
             });
     
-            await sendFollowNotification({
+            await notifyCreatorOnFollow({
               creatorSub: followedByUser?.sub,
               follower: reelayDBUser,
             });
@@ -166,37 +165,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         }
     }
 
-    const ReplyButton = () => {
-        const ReplyButtonContainer = styled(View)`
-            height: 40px;
-            width: 90px;
-            justify-content: center;
-        `
-        const pushSingleReelayScreen = async () => {
-            setPressed(true);
-            const singleReelay = await getReelay(data?.reelaySub);
-            const preparedReelay = await prepareReelay(singleReelay); 
-            setPressed(false);
-            navigation.push('SingleReelayScreen', { 
-                openCommentsOnLoad: true,
-                preparedReelay 
-            });    
-        }
-
-        return (
-            <ReplyButtonContainer>
-                <ActionButton
-                    backgroundColor={ReelayColors.reelayRed}
-                    borderColor={ReelayColors.reelayBlack}
-                    borderRadius="8px"
-                    color="blue"
-                    onPress={pushSingleReelayScreen}
-                    text="Reply"
-                    rightIcon={<Icon type='ionicon' name='arrow-undo' size={16} color='white' />}                
-                />
-            </ReplyButtonContainer>
-        );        
-    }
+    console.log('NEW WATCHLIST ITEM: ', data?.newWatchlistItem);
 
     const renderNotificationMessage = () => {
         return (
@@ -213,28 +182,31 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
                     </MessageTimestamp>
                     { !seen && <UnreadIndicator /> }
                 </MessageTimestampContainer>
+                <ReelayedByLineContainer>
+                    { data?.newWatchlistItem?.recommendedReelaySub && 
+                        <ReelayedByLine marginLeft={0} navigation={navigation} watchlistItem={data?.newWatchlistItem} />
+                    }
+                </ReelayedByLineContainer>
             </React.Fragment>
         );
     }
 
     const renderNotificationPic = () => {
-        const { notifyType, user } = data;
-        // newItems is ONLY present on openMyRecs actions
-        // user is present in openSingleReelayScreen actions and openUserProfileScreen actions
-        // title is present on openSingleReelayScreen actions
+        const { notifyType, fromUser } = data;
 
         const profilePicNotifyTypes = [
+            'notifyOnAcceptRec',
             'notifyOnReelayedRec',
             'notifyOnSendRec',
-            'sendCommentNotificationToCreator',
-            'sendCommentNotificationToThread',
-            'sendFollowNotification',
-            'sendLikeNotification',
-            'sendStackPushNotificationToOtherCreators',
+            'notifyCreatorOnComment',
+            'notifyThreadOnComment',
+            'notifyCreatorOnFollow',
+            'notifyCreatorOnLike',
+            'notifyOtherCreatorsOnReelayPosted',
         ];
 
         if (profilePicNotifyTypes.includes(notifyType)) {
-            return <ProfilePicture navigation={navigation} user={user} size={ACTIVITY_IMAGE_SIZE} />;
+            return <ProfilePicture navigation={navigation} user={fromUser} size={ACTIVITY_IMAGE_SIZE} />;
         }
 
         if (notifyType === 'loveYourself') {
@@ -245,25 +217,24 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     }
 
     const renderRightAction = () => {
-        const { notifyType, title, user, newItems } = data;
-        const followButtonTypes = ['sendFollowNotification'];
+        const { notifyType, title, fromUser } = data;
+        const followButtonTypes = ['notifyCreatorOnFollow'];
         const posterButtonTypes = [
+            'notifyOnAcceptRec',
             'notifyOnReelayedRec',
             'notifyOnSendRec',
-            'sendCommentNotificationToCreator',
-            'sendCommentNotificationToThread',
-            'sendLikeNotification',
-            'sendStackPushNotificationToOtherCreators',
+            'notifyCreatorOnComment',
+            'notifyThreadOnComment',
+            'notifyCreatorOnLike',
+            'notifyOtherCreatorsOnReelayPosted',
         ];
 
         if (followButtonTypes.includes(notifyType)) {
-            return <FollowButton followedByUser={user} />
+            return <FollowButton followedByUser={fromUser} />
         }
 
         if (posterButtonTypes.includes(notifyType)) {
-            const posterSource = (notifyType === 'notifyOnSendRec') 
-                ? newItems?.[0]?.title?.posterSource
-                : title?.posterSource;
+            const posterSource = title?.posterSource;
             return <TitlePoster source={posterSource} />;
         }
 

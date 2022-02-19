@@ -37,7 +37,7 @@ const getDevicePushToken = async () => {
     return token;
 }
 
-const condensedTitleObj = (titleObj) => {
+export const condensedTitleObj = (titleObj) => {
     const { id, display, posterSource, releaseYear } = titleObj;
     return { id, display, posterSource, releaseYear };
 }
@@ -194,7 +194,7 @@ export const sendPushNotification = async ({
     return expoResponse;
 }
 
-export const sendCommentNotificationToCreator = async ({ creatorSub, author, reelay, commentText }) => {
+export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, commentText }) => {
     const recipientIsAuthor = (creatorSub === author.attributes.sub);
     if (recipientIsAuthor) {
         console.log('No need to send notification to creator');
@@ -214,22 +214,19 @@ export const sendCommentNotificationToCreator = async ({ creatorSub, author, ree
     // const body = `${bodyTitle}: ${commentText}`;
     const body = '';
     const data = {        
-        notifyType: 'sendCommentNotificationToCreator', 
+        notifyType: 'notifyCreatorOnComment', 
         commentText,
         // reelaySub is used by the primary action
         action: 'openSingleReelayScreen',
         reelaySub: reelay.sub,
         title: condensedTitleObj(reelay.title),
-
-        // 'user' obj is used by the alt action
-        altAction: 'openUserProfileScreen',
-        user: { sub: author.attributes.sub, username: author.username },
+        fromUser: { sub: author.attributes.sub, username: author.username },
     };
 
     await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
 }
 
-export const sendCommentNotificationToThread = async ({ creator, author, reelay, commentText }) => {
+export const notifyThreadOnComment = async ({ creator, author, reelay, commentText }) => {
     reelay.comments.map(async (comment, index) => {
         const notifyAuthorName = comment.authorName;
         const notifyAuthor = await getUserByUsername(notifyAuthorName);
@@ -270,21 +267,19 @@ export const sendCommentNotificationToThread = async ({ creator, author, reelay,
         // const body = `${bodyTitle}: ${commentText}`;
         const body = '';
         const data = { 
-            notifyType: 'sendCommentNotificationToThread',
+            notifyType: 'notifyThreadOnComment',
             commentText,
             action: 'openSingleReelayScreen',
             reelaySub: reelay.sub,
             title: condensedTitleObj(reelay.title),   
-
-            altAction: 'openUserProfileScreen',
-            user: { sub: author.attributes.sub, username: author.username },
+            fromUser: { sub: author.attributes.sub, username: author.username },
         };
 
         await sendPushNotification({ title, body, data, token, sendToUserSub: notifyAuthor?.sub });    
     });
 }
 
-export const sendFollowNotification = async ({ creatorSub, follower }) => {
+export const notifyCreatorOnFollow = async ({ creatorSub, follower }) => {
     console.log('follower', follower)
     const creator = await getRegisteredUser(creatorSub);
     const token = creator?.pushToken;
@@ -298,8 +293,8 @@ export const sendFollowNotification = async ({ creatorSub, follower }) => {
     const body = ``;
     const data = {
         action: "openUserProfileScreen",
-        user: { sub: follower.sub, username: follower.username },
-        notifyType: 'sendFollowNotification',
+        fromUser: { sub: follower.sub, username: follower.username },
+        notifyType: 'notifyCreatorOnFollow',
         // here, the alt action is to follow, and we can get that
         // from the type 
     };
@@ -307,7 +302,7 @@ export const sendFollowNotification = async ({ creatorSub, follower }) => {
     await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
 };
 
-export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
+export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
     const creator = await getRegisteredUser(creatorSub);
     const token = creator?.pushToken;
 
@@ -336,18 +331,17 @@ export const sendLikeNotification = async ({ creatorSub, user, reelay }) => {
     // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
     const body = '';
     const data = { 
-        notifyType: 'sendLikeNotification',
+        notifyType: 'notifyCreatorOnLike',
         action: 'openSingleReelayScreen',
         reelaySub: reelay.sub,
         title: condensedTitleObj(reelay.title),   
-        altAction: 'openUserProfileScreen',
-        user: { sub: user.attributes.sub, username: user.username },
+        fromUser: { sub: user.attributes.sub, username: user.username },
     };
 
     await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
 }
 
-export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay }) => {
+export const notifyOtherCreatorsOnReelayPosted = async ({ creator, reelay }) => {
     const notifyReelayStack = await getMostRecentReelaysByTitle(reelay.title.id);
     
     notifyReelayStack.map(async (notifyReelay, index) => {
@@ -376,12 +370,11 @@ export const sendStackPushNotificationToOtherCreators = async ({ creator, reelay
         // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
         const body = '';
         const data = { 
-            notifyType: 'sendStackPushNotificationToOtherCreators',
+            notifyType: 'notifyOtherCreatorsOnReelayPosted',
             action: 'openSingleReelayScreen',
             reelaySub: reelay.sub,
             title: condensedTitleObj(reelay.title),   
-            altAction: 'openUserProfileScreen',
-            user: { sub: creator.attributes.sub, username: creator.username },
+            fromUser: { sub: creator.attributes.sub, username: creator.username },
         };
 
         await sendPushNotification({ title, body, data, token, sendToUserSub: notifyReelay.creator.sub });    

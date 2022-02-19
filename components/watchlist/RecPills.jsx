@@ -24,7 +24,7 @@ const ReelayedByLineContainer = styled(Pressable)`
     align-items: center;
     flex-direction: row;
     justify-content: flex-start;
-    margin-left: 25px;
+    margin-left: ${({ marginLeft }) => marginLeft ?? 25}px;
     padding-bottom: 6px;
 `
 const RecUserText = styled(ReelayText.Body2)`
@@ -55,7 +55,7 @@ export const RecommendedByLine = ({ navigation, watchlistItem }) => {
         const recUser = { sub: recommendedBySub, username: recommendedByUsername };
         return (
             <ProfilePictureOverlap key={recommendedBySub}>
-                <ProfilePicture navigation={navigation} circle={true} user={recUser} size={30} />
+                <ProfilePicture navigation={navigation} circle={true} user={recUser} size={24} />
             </ProfilePictureOverlap>
         );
     });
@@ -78,7 +78,7 @@ export const RecommendedByLine = ({ navigation, watchlistItem }) => {
     );
 }
 
-export const ReelayedByLine = ({ navigation, watchlistItem }) => {
+export const ReelayedByLine = ({ marginLeft = 25, navigation, watchlistItem }) => {
     const { recommendedReelaySub, recReelayCreatorName } = watchlistItem;
     const [pressed, setPressed] = useState(false);
     const [recReelayCreatorSub, setRecReelayCreatorSub] = useState('none');
@@ -110,8 +110,8 @@ export const ReelayedByLine = ({ navigation, watchlistItem }) => {
     }
 
     return (
-        <ReelayedByLineContainer key={recommendedReelaySub} onPress={advanceToSingleReelayScreen}>
-            <ProfilePicture circle={true} navigation={navigation} size={30} user={creator} />
+        <ReelayedByLineContainer key={recommendedReelaySub} marginLeft={marginLeft} onPress={advanceToSingleReelayScreen}>
+            <ProfilePicture circle={true} navigation={navigation} size={24} user={creator} />
             <RecUserTextEmphasized>{`@${recReelayCreatorName}`}</RecUserTextEmphasized>
             <RecUserText>{`'s reelay  `}</RecUserText>   
             <Icon type='ionicon' name='caret-forward-circle' size={24} color={(pressed) ? 'gray' : 'white'} />
