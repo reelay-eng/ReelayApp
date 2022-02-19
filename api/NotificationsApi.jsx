@@ -289,7 +289,7 @@ export const notifyCreatorOnFollow = async ({ creatorSub, follower }) => {
         return;
     }
 
-    const title = `@${follower.username} followed you.`;
+    const title = `@${follower.username} followed you!`;
     const body = ``;
     const data = {
         action: "openUserProfileScreen",
@@ -298,7 +298,6 @@ export const notifyCreatorOnFollow = async ({ creatorSub, follower }) => {
         // here, the alt action is to follow, and we can get that
         // from the type 
     };
-    console.log("sending notification");
     await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
 };
 

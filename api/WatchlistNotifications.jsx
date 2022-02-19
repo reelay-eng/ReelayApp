@@ -16,7 +16,7 @@ export const notifyOnAcceptRec = async ({ acceptUserSub, acceptUsername, recUser
 }
 
 export const notifyOnSendRec = async ({ reqUserSub, reqUsername, sendToUserSub, watchlistItem }) => {
-    const title = `@${reqUsername} sent you a rec.`;
+    const title = `@${reqUsername} sent you a rec!`;
     // const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear})`;
     const body = '';
     const condensedWatchlistItem = {
