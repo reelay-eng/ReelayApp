@@ -91,7 +91,6 @@ const ReelayStack = ({
         const reelay = item;
         const reelayViewable = stackViewable && (index === stackPosition);   
         if (reelayViewable) console.log('Reelay is viewable: ', index);
-        console.log("rerrended stack");
         return (
             <ReelayFeedContainer key={reelay.id}>
                 <Hero 
