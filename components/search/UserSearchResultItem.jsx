@@ -5,7 +5,7 @@ import styled from "styled-components/native";
 import { ActionButton, BWButton } from '../../components/global/Buttons';
 import { Dimensions } from "react-native";
 import { followCreator, getFollowers } from "../../api/ReelayDBApi";
-import { sendFollowNotification } from "../../api/NotificationsApi";
+import { notifyCreatorOnFollow } from "../../api/NotificationsApi";
 import * as ReelayText from '../../components/global/Text';
 
 import { AuthContext } from "../../context/AuthContext";
@@ -95,7 +95,7 @@ export default UserSearchResultItem = ({
             // handle error
         }
 
-        await sendFollowNotification({
+        await notifyCreatorOnFollow({
             creatorSub: userSub,
             follower: reelayDBUser,
         });
@@ -144,7 +144,7 @@ export default UserSearchResultItem = ({
 						{!alreadyFollowing && !isMyProfile && (
 							<ActionButton
 								text="Follow"
-								color="red"
+								color="blue"
 								borderRadius="8px"
 								backgroundColor={ReelayColors.reelayRed}
 								borderColor={ReelayColors.reelayBlack}

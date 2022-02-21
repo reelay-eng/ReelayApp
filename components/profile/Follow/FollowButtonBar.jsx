@@ -6,7 +6,7 @@ import ReelayColors from '../../../constants/ReelayColors';
 import * as ReelayText from '../../global/Text';
 import { AuthContext } from '../../../context/AuthContext';
 import { followCreator, unfollowCreator } from '../../../api/ReelayDBApi';
-import { sendFollowNotification } from "../../../api/NotificationsApi";
+import { notifyCreatorOnFollow } from "../../../api/NotificationsApi";
 
 import { logAmplitudeEventProd } from '../../utils/EventLogger';
 import FollowButtonDrawer from './FollowButtonDrawer';
@@ -65,7 +65,7 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
             creatorName: creator.username,
         });
 
-        await sendFollowNotification({
+        await notifyCreatorOnFollow({
           creatorSub: creatorSub,
           follower: reelayDBUser,
         });

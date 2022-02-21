@@ -4,10 +4,13 @@ export const AuthContext = createContext({
     cognitoUser: {},
     credentials: {},
     isLoading: false,
+
+    myCreatorStacks: [],
     myFollowing: [],
     myFollowers: [],
-    myCreatorStacks: [],
+    myNotifications: [],
     myWatchlistItems: [],
+
     followRequests: [],
     reelayDBUser: {},
     signedIn: false,

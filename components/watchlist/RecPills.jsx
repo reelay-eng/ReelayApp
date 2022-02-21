@@ -1,66 +1,100 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Pressable, View } from 'react-native';
-import { getReelay, prepareReelay } from '../../api/ReelayDBApi';
+import { getReelay, getUserByUsername, prepareReelay } from '../../api/ReelayDBApi';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
 
+import ProfilePicture from '../global/ProfilePicture';
+import { Icon } from 'react-native-elements';
+
+const ProfilePictureOverlap = styled(View)`
+    margin-left: -15px;
+    text-shadow-color: rgba(0, 0, 0, 0.2);
+    text-shadow-offset: 1px 1px;
+    text-shadow-radius: 1px;
+`
 const RecommendedByLineContainer = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: flex-start;
-    padding-bottom: 10px;
+    margin-left: 40px;
+    padding-bottom: 6px;
 `
-const ReelayedByLineContainer = styled(View)`
+const ReelayedByLineContainer = styled(Pressable)`
     align-items: center;
     flex-direction: row;
     justify-content: flex-start;
-    padding-bottom: 10px;
+    margin-left: ${({ marginLeft }) => marginLeft ?? 25}px;
+    padding-bottom: 6px;
 `
-const RecUserPill = styled(Pressable)`
-    background-color: ${(props) => (props?.pressed) ? 'gray' : '#3c3c3c'};
-    border-radius: 6px;
-    margin-left: 6px;
-    padding: 6px;
-`
-const RecUserText = styled(ReelayText.Subtitle2)`
+const RecUserText = styled(ReelayText.Body2)`
     color: white;
     justify-content: flex-end;
+`
+const RecUserTextEmphasized = styled(ReelayText.Body2Bold)`
+    color: white;
+    justify-content: flex-end;
+    margin-left: 6px;
 `
 
 export const RecommendedByLine = ({ navigation, watchlistItem }) => {
     const { recommendations } = watchlistItem;
-    const advanceToUserProfile = async (creator) => {
+    const advanceToUserProfile = async () => {
+        const creator = { 
+            sub: recommendations[0].recommendedBySub, 
+            username: recommendations[0].recommendedByUsername 
+        };
         navigation.push('UserProfileScreen', { creator });
     }
 
+    const profilePictures = recommendations.reverse().map(({ 
+        recommendedBySub,
+        recommendedByUsername,
+    }) => {
+        // just a name transformation
+        const recUser = { sub: recommendedBySub, username: recommendedByUsername };
+        return (
+            <ProfilePictureOverlap key={recommendedBySub}>
+                <ProfilePicture navigation={navigation} circle={true} user={recUser} size={24} />
+            </ProfilePictureOverlap>
+        );
+    });
+
+    const firstRecUsername = `@${recommendations[0].recommendedByUsername}`;
     return (
-        <RecommendedByLineContainer>
+        <RecommendedByLineContainer key={firstRecUsername}>
+            { profilePictures }
+            <Pressable onPress={advanceToUserProfile}>
+                <RecUserTextEmphasized>
+                    { firstRecUsername }
+                </RecUserTextEmphasized>
+            </Pressable>
             <RecUserText>
-                { recommendations.length > 0 && `Sent to you by` }
-            </RecUserText>   
-            { recommendations.length > 0 && recommendations.map(({
-                recommendedBySub,
-                recommendedByUsername,
-                recommendedReelaySub, // unused right now
-            }) => {
-                return (
-                    <RecUserPill key={recommendedBySub} onPress={() => {
-                        advanceToUserProfile({ 
-                            sub: recommendedBySub, 
-                            username: recommendedByUsername,
-                        });
-                    }}>
-                        <RecUserText>{`@${recommendedByUsername}` ?? '@god'}</RecUserText>
-                    </RecUserPill>
-                );
-            }) }
+                { recommendations.length > 1 && ` +${recommendations.length - 1} ` }
+                { recommendations.length === 1 && ` recommends  ` }
+                { recommendations.length > 1 && ` recommend  ` }
+            </RecUserText>
         </RecommendedByLineContainer>
     );
 }
 
-export const ReelayedByLine = ({ navigation, watchlistItem }) => {
+export const ReelayedByLine = ({ marginLeft = 25, navigation, watchlistItem }) => {
     const { recommendedReelaySub, recReelayCreatorName } = watchlistItem;
     const [pressed, setPressed] = useState(false);
+    const [recReelayCreatorSub, setRecReelayCreatorSub] = useState('none');
+
+    useEffect(() => {
+        fetchCreatorSub();
+    }, []);
+
+    const fetchCreatorSub = async () => {
+        try  {
+            const { sub } = await getUserByUsername(recReelayCreatorName);
+            setRecReelayCreatorSub(sub);    
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     const advanceToSingleReelayScreen = async () => {
         setPressed(true);
@@ -70,12 +104,17 @@ export const ReelayedByLine = ({ navigation, watchlistItem }) => {
         navigation.push('SingleReelayScreen', { preparedReelay });
     }
 
+    const creator = {
+        sub: recReelayCreatorSub, 
+        username: recReelayCreatorName,
+    }
+
     return (
-        <ReelayedByLineContainer>
-            <RecUserText>{`Reelayed by`}</RecUserText>   
-            <RecUserPill onPress={advanceToSingleReelayScreen} pressed={pressed}>
-                <RecUserText>{`@${recReelayCreatorName}`}</RecUserText>
-            </RecUserPill>
+        <ReelayedByLineContainer key={recommendedReelaySub} marginLeft={marginLeft} onPress={advanceToSingleReelayScreen}>
+            <ProfilePicture circle={true} navigation={navigation} size={24} user={creator} />
+            <RecUserTextEmphasized>{`@${recReelayCreatorName}`}</RecUserTextEmphasized>
+            <RecUserText>{`'s reelay  `}</RecUserText>   
+            <Icon type='ionicon' name='caret-forward-circle' size={24} color={(pressed) ? 'gray' : 'white'} />
         </ReelayedByLineContainer>
     );
 }

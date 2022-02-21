@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { SafeAreaView, View } from 'react-native';
+import { Dimensions, SafeAreaView, View } from 'react-native';
 
 import { BaseHeader } from '../../components/global/Headers'
 import { ToggleSelector } from '../../components/global/Buttons';
@@ -9,6 +9,8 @@ import WatchlistCoachMark from '../../components/watchlist/WatchlistCoachMark';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import styled from 'styled-components/native';
+
+const { width } = Dimensions.get('window');
 
 const WatchlistScreenContainer = styled(SafeAreaView)`
     background-color: black;
@@ -20,7 +22,7 @@ const TopBarContainer = styled(View)`
     width: 100%;
 `
 const SelectorBarContainer = styled(View)`
-    width: 90%;
+    width: ${width - 20}px;
 `
 
 export default WatchlistScreen = ({ navigation, route }) => {
@@ -76,9 +78,15 @@ export default WatchlistScreen = ({ navigation, route }) => {
     const myListDisplay = (myListCount > 0) ? `My List ${myListCountDisplay}` : 'My List';
     const seenDisplay = (seenCount > 0) ? `Seen ${seenCountDisplay}` : 'Seen';
 
+    const headerText = (selectedCategory === 'My List') 
+                    ? 'Watchlist'
+                    : (selectedCategory === 'Recs')
+                        ? 'Watchlist Recs'
+                        : 'Seen';
+
     return (
 		<WatchlistScreenContainer>
-            <BaseHeader text={'Watchlist'} />
+            <BaseHeader text={headerText} />
 			<TopBarContainer>
 				<SelectorBarContainer>
 					<ToggleSelector
