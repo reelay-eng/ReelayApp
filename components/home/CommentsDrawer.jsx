@@ -6,7 +6,6 @@ import {
     Modal, 
     Pressable, 
     ScrollView, 
-    Text, 
     TextInput, 
     View,
     Image,
@@ -72,7 +71,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         margin-top: auto;
         width: 100%;
     `
-    const ModalContainer = styled(View)`
+    const ModalContainer = styled(Pressable)`
         position: absolute;
     `
     const { cognitoUser, reelayDBUser } = useContext(AuthContext);
@@ -310,13 +309,14 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 						<ScrollView
 							ref={scrollViewRef}
 							style={{ maxHeight: maxDrawerHeight / 2 }}
+							keyboardShouldPersistTaps={'handled'}
 						>
                             <Comments comments={reelay.comments}/>
 						</ScrollView>
 						<Spacer height="12px" />
 					</>
 				)}
-
+				
 				<View style={BlackBoxContainerStyle}>
                     <AuthorImage user={cognitoUser}/>
 					<CommentInput
@@ -454,16 +454,18 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 
     return (
 		<ModalContainer>
-            <Modal animationType="slide" transparent={true} visible={commentsVisible}>
-				<KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-					<Backdrop onPress={closeDrawer} />
-                    <DrawerContainer>
+			<ScrollView keyboardShouldPersistTaps={"handled"}>
+				<Modal animationType="slide" transparent={true} visible={commentsVisible}>
+					<KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+						<Backdrop onPress={closeDrawer} />
+						<DrawerContainer>
 							<Header />
 							<CommentBox />
-                        {/* <CloseButton /> */}
-					</DrawerContainer>
-				</KeyboardAvoidingView>
-			</Modal>
+							{/* <CloseButton /> */}
+						</DrawerContainer>
+					</KeyboardAvoidingView>
+				</Modal>
+			</ScrollView>
 		</ModalContainer>
-	);
+    );
 };
