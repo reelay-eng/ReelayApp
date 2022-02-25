@@ -53,6 +53,7 @@ const ReelayFeed = ({ navigation,
     const nextPage = useRef(0);
 
     const { cognitoUser } = useContext(AuthContext);
+    const { setTabBarVisible } = useContext(FeedContext);
 
     const [globalFeedPosition, setGlobalFeedPosition] = useState(0);
     const [followingFeedPosition, setFollowingFeedPosition] = useState(0);
@@ -65,6 +66,7 @@ const ReelayFeed = ({ navigation,
     var currStackList = (feedSource === 'global') ? globalStackList : followingStackList;
 
     useEffect(() => {
+        setTabBarVisible(true); // to ensure tab bar is always here
         loadFollowingFeed();
         loadGlobalFeed();
     }, []);
