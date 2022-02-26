@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState, memo} from 'react';
+import React, { useContext, useRef, useState, useEffect, memo} from 'react';
 import { 
     Dimensions,
     Keyboard, 
@@ -82,7 +82,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         setCommentsVisible(false);
     }
 
-    const Header = () => {
+    const Header = ({ numOfComment }) => {
 
         // comments are for Gray Bar indicating slide-to-close, if we ever put it in. 
         const HeaderContainer = styled(View)`
@@ -109,9 +109,8 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         const CloseButtonContainer = styled(Pressable)`
             align-self: flex-end;
         `
-        const headerText = reelay.comments.length
-			? `${reelay.comments.length} comments`
-			: "No comments... be the first!";
+		const headerText = numOfComment ? `${numOfComment} comments` : "No comments... be the first!"
+		
         return (
             <HeaderContainer>
                 {/* <GrayBar /> */}
@@ -129,11 +128,12 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 		border-radius: 16px;
 	`;
 
-    const Comments = memo(({comments}) => {
+    const Comments = ({ comments }) => {
         const CommentsContainer = styled(View)`
 			width: 100%;
 			padding-top: 13px;
 		`;
+		
         return (
             <CommentsContainer>
                 {comments.map((comment, i) => (
@@ -141,7 +141,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
                 ))}
             </CommentsContainer>
         );
-    });
+	};
 
     const AsyncProfilePhoto = ({ source }) => {
 		return (
@@ -268,8 +268,10 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         const [render, setRender] = useState(false);
         const scrollViewRef = useRef();
         const [maxDrawerHeight, setMaxDrawerHeight] = useState(height);
+		const commentNumber = useRef(reelay.comments.length);
 
         const rerender = () => {
+			commentNumber.current = reelay.comments.length;
             setRender(!render);
         }
 
@@ -301,9 +303,10 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 				</CommentProfilePhotoContainer>
 			);
         })
-
+		
         return (
 			<View>
+				<Header numOfComment={commentNumber.current} />
 				{reelay.comments.length > 0 && (
 					<>
 						<ScrollView
@@ -459,7 +462,6 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 					<KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
 						<Backdrop onPress={closeDrawer} />
 						<DrawerContainer>
-							<Header />
 							<CommentBox />
 							{/* <CloseButton /> */}
 						</DrawerContainer>
