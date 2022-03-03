@@ -5,6 +5,7 @@ import { Camera } from 'expo-camera';
 import { Dimensions, View, SafeAreaView, Pressable} from 'react-native';
 import { Image, Icon } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import BackButton from '../../components/utils/BackButton';
@@ -282,6 +283,10 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             backCount++
             if (backCount == 2) {
                 backTimer=0;
+<<<<<<< HEAD
+=======
+                console.log("Clicked twice")
+>>>>>>> d119f51 (small tweaks, clean up, and added double tap on camera to flip)
                 flipCamera();
             } else {
                 backTimer = setTimeout(() => {

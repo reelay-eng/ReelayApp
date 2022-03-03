@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+<<<<<<< HEAD
 
 import { EncodingType, readAsStringAsync } from 'expo-file-system';
 import { Buffer } from 'buffer';
@@ -12,25 +13,22 @@ import {
     PutObjectCommand,
     UploadPartCommand,
 } from '@aws-sdk/client-s3';
+=======
+>>>>>>> d119f51 (small tweaks, clean up, and added double tap on camera to flip)
 
 import ConfirmRetakeDrawer from '../../components/create-reelay/ConfirmRetakeDrawer';  
 
-import Constants from 'expo-constants';
 import * as MediaLibrary from 'expo-media-library';
 
 import PreviewVideoPlayer from '../../components/create-reelay/PreviewVideoPlayer';
 
-import { Dimensions, Image, SafeAreaView, Pressable, Text, View } from 'react-native';
+import { Image, SafeAreaView, Pressable, View } from 'react-native';
 import * as ReelayText from '../../components/global/Text';
 import { Icon } from 'react-native-elements';
-import * as Progress from 'react-native-progress';
 
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
-import { notifyOtherCreatorsOnReelayPosted } from '../../api/NotificationsApi';
 
 import styled from 'styled-components/native';
-import { postReelayToDB } from '../../api/ReelayDBApi';
-import { fetchAnnotatedTitle } from '../../api/TMDbApi';
 import ReelayColors from '../../constants/ReelayColors';
 import { notifyOnReelayedRec } from '../../api/WatchlistNotifications';
 import { useDispatch, useSelector } from 'react-redux';
@@ -63,7 +61,7 @@ const SaveButtonPressable = styled(Pressable)`
     bottom: 10px;
     left: 10px;
 `
-const UploadButtonPressable = styled(Pressable)`
+const ContinueButtonPressable = styled(Pressable)`
     background-color: ${props => props.color}
     border-radius: 24px;
     flex-direction: row;
@@ -74,7 +72,7 @@ const UploadButtonPressable = styled(Pressable)`
     bottom: 10px;
     right: 10px;
 `
-const UploadButtonText = styled(ReelayText.H6Emphasized)`
+const ContinueButtonText = styled(ReelayText.H6Emphasized)`
     color: white;
     margin-left: 10px;
 `
@@ -88,13 +86,6 @@ const UploadBottomBar = styled(SafeAreaView)`
 const UploadTopArea = styled(SafeAreaView)`
     flex-direction: row;
     justify-content: space-between;
-`
-const UploadProgressBarContainer = styled(View)`
-    align-self: center;
-    justify-content: center;
-    height: 10px;
-    width: ${width - 20}px;
-    bottom: 30px;
 `
 const UploadScreenContainer = styled(View)`
     height: 100%;
@@ -115,8 +106,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     ];
 
     const [playing, setPlaying] = useState(true);
-    const [uploadProgress, setUploadProgress] = useState(0.0);
-    const [uploadStage, setUploadStage] = useState(uploadStages[0]);
     const [confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible] = useState(false);
 
     const dispatch = useDispatch();
@@ -362,7 +351,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         );
     }
 
-    const UploadButton = () => {
+    const ContinueButton = () => {
         const onPress = () => {
             // if (uploadStage === 'preview') {
             //     publishReelay();
@@ -382,32 +371,10 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         }
 
         return (
-            <UploadButtonPressable onPress={onPress} color={ReelayColors.reelayBlue}>
+            <ContinueButtonPressable onPress={onPress} color={ReelayColors.reelayBlue}>
                 <Icon type='ionicon' name={"checkmark-outline"} color={'white'} size={30} />
-                <UploadButtonText>{"Confirm"}</UploadButtonText>
-            </UploadButtonPressable>
-        );
-    }
-
-    const UploadProgressBar = () => {
-        const indeterminate = (uploadProgress < 0.1) && (uploadStage === 'uploading');
-        const progressBarColor = (uploadStage === 'upload-complete') 
-            ? 'green' 
-            : 'white';
-    
-        return (
-            <UploadProgressBarContainer>
-                { ((uploadStage === 'uploading') || (uploadStage === 'upload-complete')) && 
-                    <Progress.Bar 
-                        color={progressBarColor} 
-                        indeterminate={indeterminate} 
-                        progress={uploadProgress} 
-                        width={width - 20} 
-                        height={8}
-                        borderRadius={8}
-                    />
-                }
-            </UploadProgressBarContainer>
+                <ContinueButtonText>{"Continue"}</ContinueButtonText>
+            </ContinueButtonPressable>
         );
     }
 
@@ -420,9 +387,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     }
 
     const openConfirmRetakeDrawer = async () => {
-        if (uploadStage !== 'uploading' || uploadStage !== 'upload-complete') {
-            setConfirmRetakeDrawerVisible(true);
-        }
+        setConfirmRetakeDrawerVisible(true);
     }
 
     return (
@@ -432,19 +397,16 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             </PressableVideoContainer>
             <UploadTopArea>
                 <BackButtonPressable onPress={openConfirmRetakeDrawer}>
-                    { (uploadStage !== 'uploading' || uploadStage !== 'upload-complete') &&
-                        <Icon type='ionicon' name='chevron-back-outline' color={'white'} size={30} />
-                    }
+                    <Icon type='ionicon' name='chevron-back-outline' color={'white'} size={30} />
                 </BackButtonPressable>
                 <PosterContainer>
                     <Image source={titleObj.posterSource} style={posterStyle} />
                 </PosterContainer>
             </UploadTopArea>
             <UploadBottomArea>
-                <UploadProgressBar />
                 <UploadBottomBar>
                     <SaveButton />
-                    <UploadButton />
+                    <ContinueButton />
                 </UploadBottomBar>
             </UploadBottomArea>
             <ConfirmRetakeDrawer 

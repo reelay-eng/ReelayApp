@@ -20,11 +20,10 @@ import {
 import ConfirmRetakeDrawer from '../../components/create-reelay/ConfirmRetakeDrawer';  
 
 import Constants from 'expo-constants';
-import * as MediaLibrary from 'expo-media-library';
 
 import PreviewVideoPlayer from '../../components/create-reelay/PreviewVideoPlayer';
 
-import { Dimensions, Image, SafeAreaView, Pressable, TextInput, View, Keyboard, KeyboardAvoidingView } from 'react-native';
+import { Dimensions, Image, SafeAreaView, Pressable, TextInput, View, Keyboard } from 'react-native';
 import * as ReelayText from '../../components/global/Text';
 import { Icon } from 'react-native-elements';
 import * as Progress from 'react-native-progress';
@@ -44,10 +43,6 @@ const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
 const UPLOAD_CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
 
-const BackButtonPressable = styled(Pressable)`
-    top: 10px;
-    left: 10px;
-`
 const CancelButtonPressable = styled(Pressable)`
     align-items: center;
     background-color: ${props => props.color}
@@ -94,10 +89,6 @@ const UploadBottomArea = styled(SafeAreaView)`
     justify-content: flex-end;
 `
 const UploadBottomBar = styled(SafeAreaView)`
-    flex-direction: row;
-    justify-content: space-between;
-`
-const UploadTopArea = styled(SafeAreaView)`
     flex-direction: row;
     justify-content: space-between;
 `
@@ -255,6 +246,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // but a collision is less than a one in a quadrillion chance
             console.log("star count is", starCount);
 
+            console.log("star count in upload:", starCount)
             const reelayDBBody = {
                 creatorSub: cognitoUser?.attributes?.sub,
                 creatorName: cognitoUser.username,
@@ -349,7 +341,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             color: white;
             margin-top: 4px;
             width: 90%;
-            margin-right: 12px;
+            margin-right: 18px;
         `;
         const BackButton = styled(Pressable)`
             margin-right: 20px;
@@ -501,8 +493,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         );
     };
 
-    const playPause = () => playing ? setPlaying(false) : setPlaying(true);
-
     const posterStyle = {
         borderRadius: 4, 
         height: 70, 
@@ -519,7 +509,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     return (
         <UploadScreenContainer>
             <Header navigation={navigation} />
-            <KeyboardAwareScrollView extraScrollHeight={50}>
+            <KeyboardAwareScrollView extraScrollHeight={60}>
             <ScrollView>
                 <PressableVideoContainer>
                     <PreviewVideoPlayer videoURI={videoURI} playing={playing} />
