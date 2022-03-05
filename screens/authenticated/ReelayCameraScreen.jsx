@@ -5,7 +5,6 @@ import { Camera } from 'expo-camera';
 import { Dimensions, View, SafeAreaView, Pressable} from 'react-native';
 import { Image, Icon } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import BackButton from '../../components/utils/BackButton';

@@ -50,7 +50,7 @@ const CancelButtonPressable = styled(Pressable)`
     bottom: 10px;
     justify-content: center;
     height: 48px;
-    left: 17px;
+    left: 18px;
     width: 150px;
 `
 const CancelButtonText = styled(ReelayText.H6Emphasized)`
@@ -78,7 +78,7 @@ const UploadButtonPressable = styled(Pressable)`
     height: 48px;
     width: 175px;
     bottom: 10px;
-    right: 17px;
+    right: 18px;
 `
 const UploadButtonText = styled(ReelayText.H6Emphasized)`
     color: white;
