@@ -285,6 +285,9 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 reelay: reelayDBBody,
                 watchlistItems: myWatchlistItems,
             });
+            
+            navigation.navigate("HomeFeedScreen", { forceRefresh: true });
+
         } catch (error) {
             // todo: better error catching
             console.log('Error uploading file: ', error);
