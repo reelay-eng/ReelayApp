@@ -1,7 +1,4 @@
-// import Toast from 'react-native-root-toast';
 import Toast from "react-native-toast-message";
-
-// todo: should these be _exactly_ the same?
 
 const showMessageToast = async (message, position = 'top') => {
     Toast.show({
@@ -15,7 +12,6 @@ const showMessageToast = async (message, position = 'top') => {
 }
 
 const showErrorToast = async (message, position = 'top') => {
-    console.log("show error toast")
     Toast.show({
         type: "error",
         text1: message,

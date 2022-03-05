@@ -1,7 +1,6 @@
 // react imports
 import React, { useEffect, useRef, useState } from 'react';
 import { Image, Text, View, Pressable } from 'react-native';
-import { Icon } from "react-native-elements";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './navigation';
 import styled from 'styled-components/native';
