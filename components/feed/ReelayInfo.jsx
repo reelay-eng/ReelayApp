@@ -1,6 +1,6 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
-import * as ReelayText from '../../components/global/Text';
+import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 

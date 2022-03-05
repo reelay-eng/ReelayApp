@@ -7,7 +7,7 @@ import Poster from './Poster';
 
 import styled from 'styled-components/native';
 import { VenueIcon } from '../utils/VenueIcon';
-import * as ReelayText from '../../components/global/Text';
+import * as ReelayText from '../global/Text';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';

@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
-import * as ReelayText from "../../components/global/Text";
+import * as ReelayText from "../global/Text";
 import styled from 'styled-components/native';
 
 import { AuthContext } from '../../context/AuthContext';

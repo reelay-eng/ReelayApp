@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { getReportedReelayStacks } from '../../api/ReelayDBApi';
 
-import ReportedReelayFeed from '../../components/home/FixedReelayStack';
+import ReportedReelayFeed from '../../components/feed/FixedReelayStack';
 import styled from 'styled-components/native';
 import moment from 'moment';
 

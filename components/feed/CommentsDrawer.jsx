@@ -18,8 +18,8 @@ import { FeedContext } from '../../context/FeedContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
 import Constants from 'expo-constants';
-import { BWButton } from '../../components/global/Buttons';
-import * as ReelayText from '../../components/global/Text';
+import { BWButton } from '../global/Buttons';
+import * as ReelayText from '../global/Text';
 import ReelayIcon from '../../assets/icons/reelay-icon.png';
 
 import { 

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import ReelayFeed from '../../components/home/ReelayFeed';
+import ReelayFeed from '../../components/feed/ReelayFeed';
 import styled from 'styled-components/native';
 
 export default function HomeFeedScreen({ navigation, route }) {

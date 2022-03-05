@@ -26,8 +26,9 @@ const iconPeacock = require(ICON_PATH + 'peacock.png');
 const iconTheaters = require(ICON_PATH + 'cinemas.png');
 const iconYouTube = require(ICON_PATH + 'youtube.png');
 
+// When adding a new venue, be sure to add it in back end if it should be selectable as a preferred streaming service.
 export const iconVenues = [
-    { source: iconAmazon, venue: 'amazon', },
+    { source: iconAmazon, venue: 'amazon' },
     { source: iconAppleTV, venue: 'appletv' },
     { source: iconCrackle, venue: 'crackle' },
     { source: iconCriterion, venue: 'criterion' },

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 
-import FixedReelayStack from '../../components/home/FixedReelayStack';
+import FixedReelayStack from '../../components/feed/FixedReelayStack';
 import styled from 'styled-components/native';
 
 export default SingleReelayScreen = ({ navigation, route }) => {
