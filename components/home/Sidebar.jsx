@@ -5,7 +5,6 @@ import * as ReelayText from "../../components/global/Text";
 import styled from 'styled-components/native';
 
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 
 import { notifyCreatorOnLike } from '../../api/NotificationsApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -14,40 +13,55 @@ import AddToWatchlistButton from '../titlePage/AddToWatchlistButton';
 import SendRecButton from '../watchlist/SendRecButton';
 
 const { height, width } = Dimensions.get('window');
+const ICON_SIZE = 36;
+const DOT_ICON_SIZE = ICON_SIZE * 2 / 3;
 
-export default Sidebar = ({ navigation, reelay, commentsCount }) => {
-	const ICON_SIZE = 36;
-	const DOT_ICON_SIZE = ICON_SIZE * 2 / 3;
+const Count = styled(ReelayText.Subtitle1)`
+	color: #fff;
+	text-shadow-color: rgba(0, 0, 0, 0.2);
+	text-shadow-offset: 1px 1px;
+	text-shadow-radius: 1px;
+`
+const SidebarView = styled(View)`
+	align-items: center;
+	align-self: flex-end;
+	position: absolute;
+	bottom: ${height / 5}px;
+`
+const SidebarButton = styled(Pressable)`
+	align-items: center;
+	justify-content: center;
+	margin: 10px;
+`
+const IconDropShadowStyle = {
+	shadowColor: "black",
+	shadowOpacity: 0.2,
+	shadowRadius: 2,
+	shadowOffset: {
+		width: 0, // These can't both be 0
+		height: 1, // i.e. the shadow has to be offset in some way
+	},
+}
 
-	const Count = styled(ReelayText.Subtitle1)`
-		color: #fff;
-		text-shadow-color: rgba(0, 0, 0, 0.2);
-		text-shadow-offset: 1px 1px;
-		text-shadow-radius: 1px;
-	`
-	const SidebarView = styled(View)`
-		align-items: center;
-		align-self: flex-end;
-		position: absolute;
-		bottom: ${height / 5}px;
-	`
-	const SidebarButton = styled(Pressable)`
-		align-items: center;
-		justify-content: center;
-		margin: 10px;
-	`
+export default Sidebar = ({ navigation, reelay, commentsCount, setLikesVisible, setCommentsVisible, setDotMenuVisible }) => {
+	return (
+		<SidebarView>
+			<LikeButton reelay={reelay} setLikesVisible={setLikesVisible}/>
+			<CommentButton reelay={reelay} setCommentsVisible={setCommentsVisible} commentsCount={commentsCount} />
+			<AddToWatchlist reelay={reelay}/>
+			<SendRecommendation reelay={reelay} navigation={navigation} />
+			<DotMenuButton setDotMenuVisible={setDotMenuVisible}/>
+		</SidebarView> 
+	);
+}
+
+const LikeButton = ({ reelay, setLikesVisible }) => {
+	const { cognitoUser } = useContext(AuthContext);
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 
-	const { cognitoUser } = useContext(AuthContext);
-	const { setCommentsVisible, setLikesVisible, setDotMenuVisible } = useContext(FeedContext);
-
 	const isMyReelay = reelay.creator.sub === cognitoUser?.attributes?.sub;
-	const commentedByUser = reelay.comments.find(comment => comment.authorName === cognitoUser.username);
 	const likedByUser = reelay.likes.find(like => like.username === cognitoUser.username);
 
-	const onCommentLongPress = async () => setCommentsVisible(true);
-	const onCommentPress = async () => setCommentsVisible(true);
-	const onDotMenuPress = async () => setDotMenuVisible(true);
 	const onLikeLongPress = async () => setLikesVisible(true);
 
 	const onLikePress = async () => {
@@ -101,53 +115,77 @@ export default Sidebar = ({ navigation, reelay, commentsCount }) => {
 		}
 	}
 
-	const IconDropShadowStyle = {
-		shadowColor: "black",
-		shadowOpacity: 0.2,
-		shadowRadius: 2,
-		shadowOffset: {
-			width: 0, // These can't both be 0
-			height: 1, // i.e. the shadow has to be offset in some way
-		},
-	}
-
 	return (
-		<SidebarView>
-			<SidebarButton onPress={onLikePress} onLongPress={onLikeLongPress}>
-				<Icon
-					type="ionicon"
-					name="heart"
-					color={likedByUser ? "#db1f2e" : "white"}
-					iconStyle={IconDropShadowStyle}
-					size={ICON_SIZE}
-				/>
-				<Count>{reelay.likes.length}</Count>
-			</SidebarButton>
-			<SidebarButton onPress={onCommentPress} onLongPress={onCommentLongPress}>
-				<Icon
-					type="ionicon"
-					name="chatbubble-ellipses"
-					color={commentedByUser ? "#db1f2e" : "white"}
-					iconStyle={IconDropShadowStyle}
-					size={ICON_SIZE}
-				/>
-				<Count>{commentsCount.current}</Count>
-			</SidebarButton>
-			<SidebarButton>
-				<AddToWatchlistButton titleObj={reelay.title} reelay={reelay} />
-			</SidebarButton>
-			<SidebarButton>
-				<SendRecButton navigation={navigation} titleObj={reelay.title} reelay={reelay} />
-			</SidebarButton>
-			<SidebarButton onPress={onDotMenuPress}>
-				<Icon 
-					type='ionicon' 
-					name={'ellipsis-horizontal'} 
-					color={'white'} 
-					iconStyle={IconDropShadowStyle}
-					size={DOT_ICON_SIZE} 
-				/>
-			</SidebarButton>
-		</SidebarView>
+		<SidebarButton onPress={onLikePress} onLongPress={onLikeLongPress}>
+			<Icon
+				type="ionicon"
+				name="heart"
+				color={likedByUser ? "#db1f2e" : "white"}
+				iconStyle={IconDropShadowStyle}
+				size={ICON_SIZE}
+			/>
+			<Count>{reelay.likes.length}</Count>
+		</SidebarButton>
+	)
+}
+
+const CommentButton = ({ reelay, setCommentsVisible, commentsCount }) =>{
+	const { cognitoUser } = useContext(AuthContext);
+	
+	const commentedByUser = reelay.comments.find(comment => comment.authorName === cognitoUser.username);
+
+	const onCommentLongPress = async () => setCommentsVisible(true);
+	const onCommentPress = async () => setCommentsVisible(true);
+	
+	return (
+	<SidebarButton onPress={onCommentPress} onLongPress={onCommentLongPress}>
+		<Icon
+			type="ionicon"
+			name="chatbubble-ellipses"
+			color={commentedByUser ? "#db1f2e" : "white"}
+			iconStyle={IconDropShadowStyle}
+			size={ICON_SIZE}
+		/>
+		<Count>{commentsCount.current}</Count>
+	</SidebarButton>
+	)
+}
+
+
+
+const AddToWatchlist = ({ reelay }) => {
+	return (
+		<SidebarButton>
+			<AddToWatchlistButton titleObj={reelay.title} reelay={reelay} />
+		</SidebarButton>
 	);
 }
+
+const SendRecommendation = ({ navigation, reelay }) => {
+	return (
+		<SidebarButton>
+			<SendRecButton
+				navigation={navigation}
+				titleObj={reelay.title}
+				reelay={reelay}
+			/>
+		</SidebarButton>
+	);
+};
+
+
+const DotMenuButton = ({ setDotMenuVisible }) => {
+  	const onDotMenuPress = async () => setDotMenuVisible(true);
+
+	return (
+		<SidebarButton onPress={onDotMenuPress}>
+			<Icon
+				type="ionicon"
+				name={"ellipsis-horizontal"}
+				color={"white"}
+				iconStyle={IconDropShadowStyle}
+				size={DOT_ICON_SIZE}
+			/>
+		</SidebarButton>
+	);
+};

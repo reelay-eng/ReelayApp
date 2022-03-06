@@ -13,7 +13,6 @@ import {
 
 import { Button, Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
 import Constants from 'expo-constants';
@@ -51,7 +50,7 @@ moment.updateLocale("en", {
 	},
 });
 
-export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
+export default CommentsDrawer = ({ reelay, navigation, commentsCount, commentsVisible, setCommentsVisible }) => {
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
     const CLOSE_BUTTON_SIZE = 25;
     const MAX_COMMENT_LENGTH = 200;
@@ -75,7 +74,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
         position: absolute;
     `
     const { cognitoUser, reelayDBUser } = useContext(AuthContext);
-    const { commentsVisible, setCommentsVisible } = useContext(FeedContext);
+
     const closeDrawer = () => {
         console.log('Closing drawer');
         Keyboard.dismiss();

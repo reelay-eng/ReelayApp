@@ -4,7 +4,6 @@ import { Icon } from 'react-native-elements';
 import { blockCreator, removeReelay, reportReelay, suspendAccount } from '../../api/ReelayDBApi';
 
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import styled from 'styled-components/native';
 
@@ -14,9 +13,8 @@ import { showMessageToast } from '../utils/toasts';
 
 const ContentPolicy  = require('../../constants/ContentPolicy.json');
 
-const ReelayDotMenuContents = ({ reelay, navigation }) => {
+const ReelayDotMenuContents = ({ reelay, navigation, setDotMenuVisible }) => {
     const { cognitoUser, reelayDBUser } = useContext(AuthContext);
-    const { setDotMenuVisible } = useContext(FeedContext);
     const isMyReelay = (cognitoUser?.attributes?.sub === reelay.creator.sub); 
 
     const [drawerState, setDrawerState] = useState('options');
@@ -425,8 +423,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
     );
 }
 
-const Reelay3DotDrawer = ({ reelay, navigation }) => {
-    const { dotMenuVisible, setDotMenuVisible } = useContext(FeedContext);
+const Reelay3DotDrawer = ({ reelay, navigation, dotMenuVisible, setDotMenuVisible }) => {
     const closeDrawer = () => setDotMenuVisible(false);
 
     const ModalContainer = styled(View)`
@@ -443,7 +440,7 @@ const Reelay3DotDrawer = ({ reelay, navigation }) => {
         <ModalContainer>
             <Modal animationType='slide' transparent={true} visible={dotMenuVisible}>
                 <Backdrop onPress={closeDrawer}/>
-                <ReelayDotMenuContents reelay={reelay} navigation={navigation} />
+                <ReelayDotMenuContents reelay={reelay} navigation={navigation} setDotMenuVisible={setDotMenuVisible} />
             </Modal>
         </ModalContainer>
     );
