@@ -11,10 +11,12 @@ import styled from 'styled-components/native';
 import { ActivityIndicator } from 'react-native-paper';
 
 import { getFollowingFeed, getGlobalFeed } from '../../api/ReelayDBApi';
+import { FeedContext } from '../../context/FeedContext';
 
 import { showErrorToast, showMessageToast } from '../utils/toasts';
 import { useFocusEffect } from '@react-navigation/core';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 const { height, width } = Dimensions.get('window');
 
 const ReelayFeedContainer = styled(View)`
