@@ -6,7 +6,7 @@ import styled from 'styled-components/native';
 
 import { AuthContext } from '../../context/AuthContext';
 
-import { sendLikeNotification } from '../../api/NotificationsApi';
+import { notifyCreatorOnLike } from '../../api/NotificationsApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { postLikeToDB, removeLike, getRegisteredUser } from '../../api/ReelayDBApi';
 
@@ -144,8 +144,7 @@ const LikeButton = ({ reelay, setLikesVisible }) => {
 			console.log(postResult);
 
 			setLikeUpdateCounter(likeUpdateCounter + 1);
-			
-			sendLikeNotification({ 
+			notifyCreatorOnLike({ 
 				creatorSub: reelay.creator.sub,
 				user: cognitoUser,
 				reelay: reelay,

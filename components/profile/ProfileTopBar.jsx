@@ -1,12 +1,15 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { SafeAreaView, View, Platform } from 'react-native';
 import { Icon } from 'react-native-elements';
+import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
-
 import styled from 'styled-components/native';
+import { AuthContext } from '../../context/AuthContext';
 
 export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) => {
     const creatorName = creator.username ?? 'User not found';
+    const { myNotifications } = useContext(AuthContext);
+    const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
     const BackButtonContainer = styled(SafeAreaView)`
         align-self: flex-start;
@@ -37,6 +40,14 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         align-self: center;
         margin-right: 10px;
     `
+    const UnreadIconIndicator = styled(View)`
+        background-color: ${ReelayColors.reelayBlue}
+        border-radius: 5px;
+        height: 10px;
+        width: 10px;
+        position: absolute;
+        right: 0px;
+    `
 
     const SettingsButton = () => {
         return (
@@ -46,6 +57,12 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
                         navigation.push('ProfileSettingsScreen', {initialFeedPos: 0});
                     }} />
                 </SettingsIconContainer>
+                <SettingsIconContainer>
+                    <Icon type='ionicon' size={27} color={'white'} name='notifications' onPress={() => {
+                        navigation.push('NotificationScreen');
+                    }} />
+                    { hasUnreadNotifications && <UnreadIconIndicator /> }
+                </SettingsIconContainer>
             </RightCornerContainer>
         );
     }
@@ -53,12 +70,12 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
     return (
         <TopBarContainer>
             { !atProfileBase &&
-            <>
-                <BackButtonContainer>
-                    <Icon type='ionicon' size={30} color={'white'} name='chevron-back-outline' 
-                        onPress={() => navigation.pop()} />
-                </BackButtonContainer>  
-            </>      
+                <React.Fragment>
+                    <BackButtonContainer>
+                        <Icon type='ionicon' size={30} color={'white'} name='chevron-back-outline' 
+                            onPress={() => navigation.pop()} />
+                    </BackButtonContainer>  
+                </React.Fragment>      
             }
             <HeadingText>@{creatorName}</HeadingText>
             { atProfileBase && <SettingsButton /> }

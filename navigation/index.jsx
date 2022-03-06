@@ -6,12 +6,13 @@
 import React, { useContext, useEffect, useRef } from 'react';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { 
     addNotificationReceivedListener, 
     addNotificationResponseReceivedListener,
+    getBadgeCountAsync,
     removeNotificationSubscription,
+    setBadgeCountAsync,
 } from 'expo-notifications';
 
 import { AuthContext } from '../context/AuthContext';
@@ -21,10 +22,9 @@ import UnauthenticatedNavigator from './UnauthenticatedNavigator';
 import AccountSuspendedScreen from '../screens/suspended/AccountSuspendedScreen';
 import LinkingConfiguration from './LinkingConfiguration';
 
-import { getReelay, prepareReelay } from '../api/ReelayDBApi';
 import moment from 'moment';
-import { logAmplitudeEventProd } from '../components/utils/EventLogger';
-import { refreshMyWatchlist } from '../api/ReelayUserApi';
+import { handlePushNotificationResponse } from './NotificationHandler';
+import { markNotificationReceived } from '../api/NotificationsApi';
 
 export default Navigation = () => {
     /**
@@ -36,95 +36,33 @@ export default Navigation = () => {
     const navigationRef = useRef();
     const notificationListener = useRef();
     const responseListener = useRef(); 
-
-    const { cognitoUser, myWatchlistItems, setMyWatchlistItems } = useContext(AuthContext);
+    const authContext = useContext(AuthContext);
     
-    const onNotificationReceived = (notification) => {
-        const content = parseNotificationContent(notification);
-        console.log('NOTIFICATION RECEIVED', content);
+    const onNotificationReceived = async (notification) => {
+        const notificationContent = parseNotificationContent(notification);
+        console.log('NOTIFICATION RECEIVED', notificationContent);
+
+        const { id } = notificationContent;
+        markNotificationReceived(id);
+
+        const badgeCount = await getBadgeCountAsync();
+        setBadgeCountAsync(badgeCount + 1);
     }
  
-     const onNotificationResponseReceived = async (notificationResponse) => {
+    const onNotificationResponseReceived = async (notificationResponse) => {
         const { notification, actionIdentifier, userText } = notificationResponse;
-        const { title, body, data } = parseNotificationContent(notification);
-
-        const action = data?.action;
-        if (!action) {
-            console.log('No action given');
-            return;
-        }
-
-        logAmplitudeEventProd('openedNotification', {
-            username: cognitoUser?.username,
-            sub: cognitoUser?.attributes.sub,
-            action,
-            title, 
-            body,
+        const notificationContent = parseNotificationContent(notification);
+        handlePushNotificationResponse({ 
+            navigation: navigationRef?.current, 
+            notificationContent,
+            userContext: authContext, 
         });
-
-        if (action === 'openSingleReelayScreen') {
-            if (!data.reelaySub) {
-                console.log('No reelay sub given');
-            } else {
-                openSingleReelayScreen(data?.reelaySub);
-            }
-        } else if (action === 'openUserProfileScreen') {
-            if (!data.user) {
-              console.log("No user given");
-            } else {
-                openUserProfileScreen(data?.user);
-            }
-        } else if (action === 'openCreateScreen') {
-            openCreateScreen();
-        } else if (action === 'openMyRecs') {
-            openMyRecs(data?.newItems);
-        }
     }
-
-    const openCreateScreen = async () => {
-        if (!navigationRef?.current) {
-            console.log('No navigation ref');
-            return;
-        }
-        navigationRef.current.navigate('Create');
-    }
-
-    const openMyRecs = async (newWatchlistItems) => {
-        if (!navigationRef?.current) {
-            console.log('No navigation ref')
-            return;
-        }
-
-        const allMyWatchlistItems = [...newWatchlistItems, ...myWatchlistItems];
-        setMyWatchlistItems(allMyWatchlistItems);
-
-        navigationRef.current.navigate('Watchlist', { category: 'Recs' });
-        await AsyncStorage.setItem('myWatchlist', JSON.stringify(allMyWatchlistItems));
-    }
-
-    const openSingleReelayScreen = async (reelaySub) => {
-        if (!navigationRef?.current) {
-            console.log('No navigation ref')
-            return;
-        }
-
-        const singleReelay = await getReelay(reelaySub);
-        const preparedReelay = await prepareReelay(singleReelay); 
-        navigationRef.current.navigate('SingleReelayScreen', { preparedReelay })
-    }
-
-    const openUserProfileScreen = async (user) => {
-        if (!navigationRef?.current) {
-            console.log("No navigation ref");
-            return;
-        }
-        navigationRef.current.navigate('UserProfileScreen', { creator: user });
-    };
 
     const parseNotificationContent = (notification) => {
         const { date, request } = notification;
         const { identifier, content, trigger } = request;
-
+    
         /** You can use the following from the content object:
             const { 
                 title, 
@@ -136,10 +74,10 @@ export default Navigation = () => {
                 categoryIdentifier 
             } = content;
         */
-
+    
         return content;
-    }
- 
+    }    
+    
     useEffect(() => {
         notificationListener.current = addNotificationReceivedListener(onNotificationReceived);
         responseListener.current = addNotificationResponseReceivedListener(onNotificationResponseReceived);
@@ -164,7 +102,7 @@ export default Navigation = () => {
 const Stack = createStackNavigator();
 
 const RootNavigator = () => {
-    const { signedIn, setCognitoUser, reelayDBUser, setReelayDBUser, setSession, setCredentials } = useContext(AuthContext);
+    const { signedIn, reelayDBUser } = useContext(AuthContext);
     let isCurrentlyBanned = false;
     if (reelayDBUser?.isBanned) {
         isCurrentlyBanned = (moment(reelayDBUser?.banExpiryAt).diff(moment(), 'minutes') > 0);

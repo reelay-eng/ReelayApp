@@ -155,7 +155,6 @@ export const getFollowRequests = async (creatorSub) => {
 
 export const getReelay = async (reelaySub) => {
     const routeGet = `${REELAY_API_BASE_URL}/reelays/sub/${reelaySub}?visibility=${FEED_VISIBILITY}`;
-    console.log('ROUTE GET: ', routeGet);
     const fetchedReelay = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS,
@@ -165,8 +164,6 @@ export const getReelay = async (reelaySub) => {
         console.log('Could not get reelays for this creator');
         return null;
     }
-
-    console.log(fetchedReelay);
 
     return fetchedReelay;
 }

@@ -6,7 +6,7 @@ import { logAmplitudeEventProd } from '../../utils/EventLogger';
 import styled from 'styled-components/native';
 import ReelayColors from '../../../constants/ReelayColors';
 import { followCreator } from '../../../api/ReelayDBApi';
-import { sendFollowNotification } from "../../../api/NotificationsApi";
+import { notifyCreatorOnFollow } from "../../../api/NotificationsApi";
 import { showErrorToast } from '../../utils/toasts';
 import { ActionButton, BWButton } from "../../global/Buttons";
 
@@ -112,7 +112,7 @@ export default FollowItem = ({
             followSub: reelayDBUser.sub
         });
 
-        await sendFollowNotification({
+        await notifyCreatorOnFollow({
           creatorSub: followUserSub,
           follower: reelayDBUser,
         });

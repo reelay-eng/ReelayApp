@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useContext, useEffect, useState, useRef, memo } from 'react';
 import { Dimensions, FlatList, View } from 'react-native';
 import ReelayStack from './ReelayStack';
 
@@ -16,7 +16,7 @@ const ReelayFeedContainer = styled(View)`
     width: ${width}px;
 `
 
-export default UserReelayFeed = ({ navigation, 
+const FixedReelayStack = ({ navigation, 
     initialFeedPos = 0,
     initialStackPos = 0,
     fixedStackList = [],
@@ -118,3 +118,5 @@ export default UserReelayFeed = ({ navigation,
         </ReelayFeedContainer>
     );
 }
+
+export default memo(FixedReelayStack);

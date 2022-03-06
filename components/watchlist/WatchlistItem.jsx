@@ -5,28 +5,27 @@ import * as ReelayText from "../global/Text";
 import styled from 'styled-components/native';
 
 import { getRuntimeString } from '../utils/TitleRuntime';
-import { RecommendedByLine, ReelayedByLine } from './RecPills';
 
 const WatchlistItemContainer = styled(Pressable)`
     flex-direction: row;
-    margin: 10px 10px 10px 20px;
 `
 const WatchlistItemRow = styled(View)`
     flex-direction: row;
     justify-content: space-between;
+    margin: 1.5px;
 `
 const ImageContainer = styled(View)`
-    flex: 0.5;
     flex-direction: row;
-    align-items: center;
-    width: 500px;
+    align-items: flex-start;
+    margin-right: 15px;
 `
 const SliderIconContainer = styled(View)`
     align-items: center;
     justify-content: center;
 `
-const TitleText = styled(ReelayText.Subtitle1Emphasized)`
+const TitleText = styled(ReelayText.H5Emphasized)`
     color: white
+    font-size: 20px;
 `
 const TitleLineContainer = styled(View)`
     flex: 1;
@@ -61,7 +60,7 @@ const WatchlistItemInfo = ({ navigation, watchlistItem }) => {
                 { title?.posterSource && (
                     <Image
                         source={title?.posterSource}
-                        style={{ height: 108, width: 72, borderRadius: 6 }}
+                        style={{ height: 81, width: 54, borderRadius: 6 }}
                         PlaceholderContent={<ActivityIndicator />}
                     />
                 )}
@@ -70,13 +69,7 @@ const WatchlistItemInfo = ({ navigation, watchlistItem }) => {
             <TitleLineContainer>
                 <TitleText>{title.display}</TitleText>
                 <YearText>{`${title.releaseYear}    ${runtimeString}`}</YearText>
-                <ActorText>{actors}</ActorText>
-                { watchlistItem.recommendations.length > 0 && 
-                    <RecommendedByLine navigation={navigation} watchlistItem={watchlistItem} /> 
-                }
-                { !!watchlistItem.recommendedReelaySub && 
-                    <ReelayedByLine navigation={navigation} watchlistItem={watchlistItem} />
-                }
+                {/* <ActorText>{actors}</ActorText> */}
             </TitleLineContainer>
         </WatchlistItemContainer>
     );
@@ -89,7 +82,7 @@ export default WatchlistItem = ({ navigation, watchlistItem }) => {
                 <WatchlistItemInfo navigation={navigation} watchlistItem={watchlistItem} />
             </View>
             <SliderIconContainer>
-                <Icon type='ionicon' name='chevron-back-outline' color='white' size={25} />
+                <Icon type='ionicon' name='chevron-back-outline' color='white' size={20} />
             </SliderIconContainer>
         </WatchlistItemRow>
     );

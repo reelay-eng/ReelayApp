@@ -34,9 +34,16 @@ import { UploadContext } from './context/UploadContext';
 
 // api imports
 import { getRegisteredUser, registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
-import { loadMyFollowers, loadMyFollowing, loadMyReelayStacks, loadMyUser, loadMyWatchlist } from './api/ReelayUserApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { showErrorToast } from './components/utils/toasts';
+import { 
+    loadMyFollowers, 
+    loadMyFollowing, 
+    loadMyReelayStacks, 
+    loadMyNotifications, 
+    loadMyUser, 
+    loadMyWatchlist 
+} from './api/ReelayUserApi';
 
 // font imports
 import * as Font from 'expo-font';
@@ -50,10 +57,13 @@ function App() {
     const [cognitoUser, setCognitoUser] = useState({});
     const [credentials, setCredentials] = useState({});
     const [isLoading, setIsLoading] = useState(true);
+
+    const [myCreatorStacks, setMyCreatorStacks] = useState([]);
     const [myFollowers, setMyFollowers] = useState([]);
     const [myFollowing, setMyFollowing] = useState([]);
-    const [myCreatorStacks, setMyCreatorStacks] = useState([]);
+    const [myNotifications, setMyNotifications] = useState([]);
     const [myWatchlistItems, setMyWatchlistItems] = useState([]);
+
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [signedIn, setSignedIn] = useState(false);
     const [session, setSession] = useState({});
@@ -207,15 +217,17 @@ function App() {
         const userSub = cognitoUser?.attributes?.sub;
         if (userSub) {
             const reelayDBUserLoaded = await fetchOrRegisterUser();
+            const myCreatorStacksLoaded = await loadMyReelayStacks(userSub);
             const myFollowersLoaded = await loadMyFollowers(userSub);
             const myFollowingLoaded = await loadMyFollowing(userSub);
-            const myCreatorStacksLoaded = await loadMyReelayStacks(userSub);
+            const myNotifications = await loadMyNotifications(userSub);
             const myWatchlistItemsLoaded = await loadMyWatchlist(userSub);
     
             setReelayDBUser(reelayDBUserLoaded);
             setMyFollowers(myFollowersLoaded);
             setMyFollowing(myFollowingLoaded);
             setMyCreatorStacks(myCreatorStacksLoaded);
+            setMyNotifications(myNotifications);
             setMyWatchlistItems(myWatchlistItemsLoaded);
             setIsLoading(false);
         }
@@ -224,6 +236,8 @@ function App() {
     const registerMyPushToken = async () => {
         try {
             const devicePushToken = await registerForPushNotificationsAsync();
+            if (!devicePushToken) return;
+
             if (!reelayDBUser.pushToken || reelayDBUser.pushToken !== devicePushToken) {
                 console.log('Registering new push token');
                 await registerPushTokenForUser(reelayDBUser.sub, devicePushToken);
@@ -241,10 +255,13 @@ function App() {
         cognitoUser,        setCognitoUser,
         credentials,        setCredentials,
         isLoading,          setIsLoading,
+
+        myCreatorStacks,    setMyCreatorStacks,
         myFollowers,        setMyFollowers,
         myFollowing,        setMyFollowing,
-        myCreatorStacks,    setMyCreatorStacks,
+        myNotifications,    setMyNotifications,
         myWatchlistItems,   setMyWatchlistItems,
+
         reelayDBUser,       setReelayDBUser,
         session,            setSession,
         signedIn,           setSignedIn,

@@ -195,6 +195,7 @@ export const fetchAnnotatedTitle = async (titleID, isSeries) => {
 		if (rating === undefined) rating = null;
 	}
 
+    // todo: would like titleType to deprecate isMovie and isSeries
     const annotatedTitle = {
         id: tmdbTitleObject.id,
         director: getDirector(titleCredits),
@@ -211,6 +212,7 @@ export const fetchAnnotatedTitle = async (titleID, isSeries) => {
         releaseDate: releaseDate,
         releaseYear: releaseYear,
         tagline: tmdbTitleObject.tagline,
+        titleType: (isSeries) ? 'tv' : 'film',
         trailerURI: trailerURI,
         rating: rating,
         runtime: tmdbTitleObject.runtime,

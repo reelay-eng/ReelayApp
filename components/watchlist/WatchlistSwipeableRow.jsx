@@ -241,7 +241,7 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
 
     // const openRight = () => {
     //     swipeableRowRef.current.openRight();
-    // }   
+    // }
 
     return (
         <Swipeable
@@ -266,6 +266,8 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'center',
+        marginTop: 10,
+        marginBottom: 10,
     },
     actionText: {
         backgroundColor: 'transparent',
@@ -280,5 +282,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         flex: 1,
         justifyContent: 'center',
+        marginTop: 10,
+        marginBottom: 10,
     },
 });

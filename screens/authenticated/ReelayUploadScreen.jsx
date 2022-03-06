@@ -27,7 +27,7 @@ import { Icon } from 'react-native-elements';
 import * as Progress from 'react-native-progress';
 
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
-import { sendStackPushNotificationToOtherCreators } from '../../api/NotificationsApi';
+import { notifyOtherCreatorsOnReelayPosted } from '../../api/NotificationsApi';
 
 import styled from 'styled-components/native';
 import { postReelayToDB } from '../../api/ReelayDBApi';
@@ -271,20 +271,23 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // we can reuse fetchReelaysForStack from ReelayDBApi
 
             const annotatedTitle = await fetchAnnotatedTitle(reelayDBBody.tmdbTitleID, reelayDBBody.isSeries);
-            await sendStackPushNotificationToOtherCreators({
+            await notifyOtherCreatorsOnReelayPosted({
                 creator: cognitoUser,
                 reelay: { 
                     ...reelayDBBody, 
                     title: annotatedTitle,
                 },
             });
-            // todo: notifyOnReelayedRec
 
             notifyOnReelayedRec({ 
-                creatorName: cognitoUser.username,
+                creatorSub: cognitoUser?.attributes?.sub,
+                creatorName: cognitoUser?.username,
                 reelay: reelayDBBody,
                 watchlistItems: myWatchlistItems,
             });
+            
+            navigation.navigate("HomeFeedScreen", { forceRefresh: true });
+
         } catch (error) {
             // todo: better error catching
             console.log('Error uploading file: ', error);
@@ -403,7 +406,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         const onPress = () => {
             if (uploadStage === 'preview') {
                 publishReelay();
-                setPlaying(false);
             } else if (uploadStage === 'uploading') {
                 // do nothing
             } else if (uploadStage === 'upload-complete') {
