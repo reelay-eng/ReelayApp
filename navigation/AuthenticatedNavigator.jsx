@@ -143,10 +143,13 @@ const BottomTabNavigator = () => {
 				component={HomeTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<Image
-							source={HomeIcon}
-							style={bottomTabIconStyle(focused)}
-						/>
+						<View>
+							<Image
+								source={HomeIcon}
+								style={bottomTabIconStyle(focused)}
+							/>
+							{ hasUnreadNotifications && <UnreadIconIndicator /> }
+						</View>
 					),
 				}}
 			/>
@@ -196,7 +199,6 @@ const BottomTabNavigator = () => {
 								source={ProfileIcon}
 								style={bottomTabIconStyle(focused)}
 							/>
-							{ hasUnreadNotifications && <UnreadIconIndicator /> }
 						</View>
 					),
 				}}
