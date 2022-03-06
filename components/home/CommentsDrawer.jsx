@@ -51,7 +51,7 @@ moment.updateLocale("en", {
 	},
 });
 
-export default CommentsDrawer = ({ reelay, navigation }) => {
+export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
     const CLOSE_BUTTON_SIZE = 25;
     const MAX_COMMENT_LENGTH = 200;
@@ -109,7 +109,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         const CloseButtonContainer = styled(Pressable)`
             align-self: flex-end;
         `
-		const headerText = numOfComment ? `${numOfComment} comments` : "No comments... be the first!"
+		const headerText = commentsCount.current ? `${commentsCount.current} comments` : "No comments... be the first!"
 		
         return (
             <HeaderContainer>
@@ -271,7 +271,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 		const commentNumber = useRef(reelay.comments.length);
 
         const rerender = () => {
-			commentNumber.current = reelay.comments.length;
+			commentsCount.current = reelay.comments.length;
             setRender(!render);
         }
 
