@@ -265,6 +265,7 @@ const ReelayFeed = ({ navigation,
             horizontal={false}
             initialNumToRender={1}
             initialScrollIndex={globalFeedPosition}
+            keyboardShouldPersistTaps={"handled"}
             keyExtractor={(stack) => String(stack[0].title.id)}
             maxToRenderPerBatch={1}
             onEndReached={extendFeed}
@@ -290,6 +291,7 @@ const ReelayFeed = ({ navigation,
             horizontal={false}
             initialNumToRender={1}
             initialScrollIndex={followingFeedPosition}
+            keyboardShouldPersistTaps={"handled"}
             keyExtractor={(stack) => String(stack[0].title.id)}
             maxToRenderPerBatch={1}
             onEndReached={extendFeed}
@@ -309,17 +311,17 @@ const ReelayFeed = ({ navigation,
           />
         )}
         <FeedSourceSelectorButton
-            feedSource={feedSource}
-            drawerOpenFeedSource={drawerOpenFeedSource}
-            setDrawerOpenFeedSource={setDrawerOpenFeedSource}
+          feedSource={feedSource}
+          drawerOpenFeedSource={drawerOpenFeedSource}
+          setDrawerOpenFeedSource={setDrawerOpenFeedSource}
         />
         {drawerOpenFeedSource && (
-            <FeedSourceSelectorDrawer
-                feedSource={feedSource}
-                setFeedSource={setFeedSource}
-                drawerOpen={drawerOpenFeedSource}
-                setDrawerOpen={setDrawerOpenFeedSource}
-            />
+          <FeedSourceSelectorDrawer
+            feedSource={feedSource}
+            setFeedSource={setFeedSource}
+            drawerOpen={drawerOpenFeedSource}
+            setDrawerOpen={setDrawerOpenFeedSource}
+          />
         )}
       </ReelayFeedContainer>
     );

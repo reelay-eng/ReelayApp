@@ -219,6 +219,7 @@ const ReelayStack = ({
                 initialNumToRender={1}
                 initialScrollIndex={initialStackPos}
                 getItemLayout={getItemLayout}
+                keyboardShouldPersistTaps={"handled"}
                 maxToRenderPerBatch={2}
                 renderItem={renderReelay} 
                 onScroll={onStackSwiped} 

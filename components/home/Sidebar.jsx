@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import * as ReelayText from "../../components/global/Text";
@@ -15,7 +15,7 @@ import SendRecButton from '../watchlist/SendRecButton';
 
 const { height, width } = Dimensions.get('window');
 
-export default Sidebar = ({ navigation, reelay }) => {
+export default Sidebar = ({ navigation, reelay, commentsCount }) => {
 	const ICON_SIZE = 36;
 	const DOT_ICON_SIZE = ICON_SIZE * 2 / 3;
 
@@ -131,7 +131,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 					iconStyle={IconDropShadowStyle}
 					size={ICON_SIZE}
 				/>
-				<Count>{reelay.comments.length}</Count>
+				<Count>{commentsCount.current}</Count>
 			</SidebarButton>
 			<SidebarButton>
 				<AddToWatchlistButton titleObj={reelay.title} reelay={reelay} />
