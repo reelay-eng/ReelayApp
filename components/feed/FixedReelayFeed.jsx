@@ -16,7 +16,7 @@ const ReelayFeedContainer = styled(View)`
     width: ${width}px;
 `
 
-const FixedReelayStack = ({ navigation, 
+const FixedReelayFeed = ({ navigation, 
     initialFeedPos = 0,
     initialStackPos = 0,
     fixedStackList = [],
@@ -117,4 +117,4 @@ const FixedReelayStack = ({ navigation,
     );
 }
 
-export default memo(FixedReelayStack);
+export default memo(FixedReelayFeed);

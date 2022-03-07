@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 
-import FixedReelayStack from '../../components/feed/FixedReelayStack';
+import FixedReelayFeed from '../../components/feed/FixedReelayFeed';
 import styled from 'styled-components/native';
 
 export default TitleFeedScreen = ({ navigation, route }) => {
@@ -13,7 +13,7 @@ export default TitleFeedScreen = ({ navigation, route }) => {
     `
     return (
         <TitleFeedContainer>
-            <FixedReelayStack 
+            <FixedReelayFeed 
                 navigation={navigation} 
                 initialStackPos={initialStackPos} 
                 fixedStackList={fixedStackList} 

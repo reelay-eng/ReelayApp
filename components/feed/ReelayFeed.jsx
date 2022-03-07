@@ -144,6 +144,9 @@ const ReelayFeed = ({ navigation,
             setFollowingStackList(newStackList)
         }
 
+        console.log("finished extending", feedSource, "feed");
+        console.log("Stack List Length: ", newStackList.length);
+
         return fetchedStacks;
     }
 

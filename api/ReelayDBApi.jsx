@@ -181,6 +181,27 @@ export const getReelaysByCreator = async (creatorSub) => {
     return fetchedReelays;
 }
 
+export const getReelaysByVenue = async ( venues, page = 0 ) => {
+    const routeGet = `${REELAY_API_BASE_URL}/reelays?page=${page}&visibility=${FEED_VISIBILITY}`;
+    const fetchedReelays = await fetchResults(routeGet, { 
+        method: 'GET',
+        headers: { ...REELAY_API_HEADERS, 'venue': JSON.stringify(venues) },
+    });
+    if (!fetchedReelays) {
+        console.log('Found no reelays with that venue.');
+        return null;
+    }
+    return fetchedReelays;
+}
+
+export const getStacksByVenue = async ( venues, page = 0) => {
+    const venueReelays = await getReelaysByVenue(venues, page);
+    if (!venueReelays) return [];
+
+    const preparedStacks = await prepareStacks(venueReelays);
+    return preparedStacks;
+}
+
 export const getStacksByCreator = async (creatorSub) => {
     console.log('Getting stacks by creator');
     const creatorReelays = await getReelaysByCreator(creatorSub);
