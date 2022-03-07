@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { View, Text } from 'react-native'
+import { View, Text, Pressable } from 'react-native'
 import styled from 'styled-components';
 import { AuthContext } from '../../context/AuthContext';
 import * as ReelayText from '../../components/global/Text';
@@ -34,7 +34,7 @@ const Announcements = ({ navigation }) => {
  // fill once we start using
 }
 
-const ITContainer = styled.View`
+const InTheatersContainer = styled.View`
     width: 100%;
     height: 45%
     display: flex;
@@ -43,10 +43,10 @@ const ITContainer = styled.View`
     padding-top: 15px;
     border: solid 1px red;
 `
-const ITHeader = styled(ReelayText.H5Bold)`
+const InTheatersHeader = styled(ReelayText.H5Bold)`
     color: white;
 `
-const ITPosterRowContainer = styled.ScrollView`
+const InTheatersPosterRowContainer = styled.ScrollView`
     display: flex;
     flex-direction: row;
     width: 100%;
@@ -62,25 +62,45 @@ const InTheaters = ({ navigation }) => {
     useEffect(() => {
         (async () => {
             const nextTheaterStacks = await getStacksByVenue(['theaters']);
-            const flattenedPosterReelays = nextTheaterStacks.map(stack => stack[0]);
-            const cleanedPosterReelays = flattenedPosterReelays.map(reelay => {delete reelay.comments; delete reelay.likes; return reelay;})
+            // const flattenedPosterReelays = nextTheaterStacks.map(stack => stack[0]);
+            // const cleanedPosterReelays = flattenedPosterReelays.map(reelay => {
+            //     delete reelay.comments; 
+            //     delete reelay.likes; 
+            //     return reelay;
+            // })
             setTheaterStacks(nextTheaterStacks);
-            setDisplayPosterReelays(cleanedPosterReelays);
-
+            // setDisplayPosterReelays(cleanedPosterReelays);
         })();
     }, [setTheaterStacks])
+
+    // const goToReelay = (index) => {
+	// 	if (topReelays.length === 0) return;
+	// 	navigation.push("TitleFeedScreen", {
+	// 		initialStackPos: index,
+	// 		fixedStackList: [topReelays],
+	// 	});
+	// 	logAmplitudeEventProd('openTitleFeed', {
+	// 		username: cognitoUser?.username,
+	// 		title: titleObj?.title?.display,
+	// 		source: 'titlePage',
+	// 		});
+	// };
     
     return (
-        <ITContainer>
-            <ITHeader>In Theaters Now</ITHeader>
-            <ITPosterRowContainer horizontal={true}>
-                <ITPoster />
-            </ITPosterRowContainer>
-        </ITContainer>
+        <InTheatersContainer>
+            <InTheatersHeader>In Theaters Now</InTheatersHeader>
+            <InTheatersPosterRowContainer horizontal={true}>
+                { theaterStacks.map((stack, index) => {
+                    return (
+                        <InTheatersPoster key={`feedIndex${index}`} /**data={stack} *//>
+                    )
+                })}
+            </InTheatersPosterRowContainer>
+        </InTheatersContainer>
     )
 }
 
-const ITPoster = styled.View`
+const InTheatersPoster = styled.Pressable`
     width: 45%;
     height: 80%;
     border-width: 1px;
@@ -88,9 +108,9 @@ const ITPoster = styled.View`
     border-radius: 20px;
 `
 
-const InTheatersPoster = ({ navigation }) => {
+// const InTheatersPoster = ({ navigation }) => {
 
-}
+// }
 
 const WhatMyFriendsAreWatching = ({ navigation }) => {
 

@@ -11,7 +11,7 @@ import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import { ActivityIndicator } from 'react-native-paper';
 
-import { getFollowingFeed, getGlobalFeed } from '../../api/ReelayDBApi';
+import { getFeed } from '../../api/ReelayDBApi';
 
 import { showErrorToast, showMessageToast } from '../utils/toasts';
 import { useFocusEffect } from '@react-navigation/core';
@@ -47,43 +47,33 @@ const FeedSourceSelectorButton = ({ feedSource, setDrawerOpenFeedSource }) => {
 const ReelayFeed = ({ navigation, 
     initialStackPos = 0,
     forceRefresh = false, 
+    initialFeedSource = 'global'
 }) => {
 
     const feedPager = useRef();
     const nextPage = useRef(0);
 
-    const { cognitoUser } = useContext(AuthContext);
+    const { cognitoUser, reelayDBUser } = useContext(AuthContext);
     const { setTabBarVisible } = useContext(FeedContext);
 
     const [globalFeedPosition, setGlobalFeedPosition] = useState(0);
     const [followingFeedPosition, setFollowingFeedPosition] = useState(0);
-    const [feedSource, setFeedSource] = useState('global');
+    const [feedSource, setFeedSource] = useState(initialFeedSource);
     const [drawerOpenFeedSource, setDrawerOpenFeedSource] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [globalStackList, setGlobalStackList] = useState([]);
     const [followingStackList, setFollowingStackList] = useState([]);
 
+    const [selectedStackList, setSelectedStackList] = useState([]);
+
     var currStackList = (feedSource === 'global') ? globalStackList : followingStackList;
 
     useEffect(() => {
         setTabBarVisible(true); // to ensure tab bar is always here
-        loadFollowingFeed();
-        loadGlobalFeed();
+        loadSelectedFeed();
     }, []);
 
-    const loadFollowingFeed = async () => {
-        console.log("loading following feed....");
-        const stackEmpty = !currStackList.length;
-        if (!stackEmpty && !forceRefresh) {
-            console.log("following feed already loaded");
-            return;
-        }
-
-        console.log("gotta load the feed");
-        await extendFeed();
-    }
-
-    const loadGlobalFeed = async () => {
+    const loadSelectedFeed = async () => {
         console.log("loading", feedSource, " feed....");
         const stackEmpty = !currStackList.length;
         if (!stackEmpty && !forceRefresh) {
@@ -117,11 +107,10 @@ const ReelayFeed = ({ navigation,
 
     const extendFeed = async () => {
         const page = nextPage.current;
-        const fetchedStacks = (feedSource === 'global') 
-            ? await getGlobalFeed({ reqUserSub: cognitoUser?.attributes?.sub, page })
-            : await getFollowingFeed({ reqUserSub: cognitoUser?.attributes?.sub, page });
 
-        console.log("extending", feedSource, "feed");
+        const fetchedStacks = await getFeed({ feedSource: feedSource, reqUserSub: reelayDBUser?.sub, page });
+        
+        console.log("extending", feedSource, "feed, with page = ", page);
 
         // probably don't need to create this every time, but we want to avoid unnecessary state
         const titleIDEntries = {};
@@ -144,7 +133,7 @@ const ReelayFeed = ({ navigation,
             setFollowingStackList(newStackList)
         }
 
-        console.log("finished extending", feedSource, "feed");
+        console.log("finished extending", initialFeedSource, "feed");
         console.log("Stack List Length: ", newStackList.length);
 
         return fetchedStacks;
@@ -194,10 +183,8 @@ const ReelayFeed = ({ navigation,
         logAmplitudeEventProd('refreshFeed', {
             'source': feedSource,
         });    
-        setRefreshing(true);   
-        const fetchedStacks = (feedSource === 'global') 
-            ? await getGlobalFeed({ reqUserSub: cognitoUser?.attributes?.sub, page: 0 })
-            : await getFollowingFeed({ reqUserSub: cognitoUser?.attributes?.sub, page: 0 });
+        setRefreshing(true);
+        const fetchedStacks = await getFeed({ feedSource: feedSource, reqUserSub: reelayDBUser?.sub, page: 0 });
 
         nextPage.current = 1;
         if (feedSource === "global") {

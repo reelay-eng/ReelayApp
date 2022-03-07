@@ -236,27 +236,9 @@ const prepareStacks = async (fetchedStacks) => {
     return await Promise.all(fetchedStacks.map(prepareReelaysForStack));
 }
 
-export const getFollowingFeed = async ({ reqUserSub, page = 0 }) => {
-    console.log('Getting most recent reelays for people I follow');
-    const routeGet = `${REELAY_API_BASE_URL}/feed/following?page=${page}&visibility=${FEED_VISIBILITY}`;
-    const fetchedStacks = await fetchResults(routeGet, { 
-        method: 'GET',
-        headers: {
-            ...REELAY_API_HEADERS,
-            requsersub: reqUserSub,
-        }, 
-    });
-
-    if (!fetchedStacks) {
-        console.log('Found no reelays in feed');
-        return null;
-    }
-    return await prepareStacks(fetchedStacks);
-}
-
-export const getGlobalFeed = async ({ reqUserSub, page = 0 }) => {
-    console.log('Getting most recent reelays...');
-    const routeGet = `${REELAY_API_BASE_URL}/feed/global?page=${page}&visibility=${FEED_VISIBILITY}`;
+export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
+    console.log(`Getting most recent ${feedSource} reelays...`);
+    const routeGet = `${REELAY_API_BASE_URL}/feed/${feedSource}?page=${page}&visibility=${FEED_VISIBILITY}`;
     const fetchedStacks = await fetchResults(routeGet, { 
         method: 'GET',
         headers: {

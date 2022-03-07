@@ -9,10 +9,14 @@ export default function HomeFeedScreen({ navigation, route }) {
     `
     const forceRefresh = route?.params?.forceRefresh;
 
+    // valid feed sources: [global, following, theaters, streaming, festivals]
+    const initialFeedSource = route?.params?.initialFeedSource;
+
     return (
         <TransparentContainer>
             <ReelayFeed
                 forceRefresh={forceRefresh}
+                initialFeedSource={initialFeedSource ?? 'global'}
                 navigation={navigation}
             />
         </TransparentContainer>
