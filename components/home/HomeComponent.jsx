@@ -4,7 +4,9 @@ import styled from 'styled-components';
 import { AuthContext } from '../../context/AuthContext';
 import * as ReelayText from '../../components/global/Text';
 
-import { getReelaysByVenue, getStacksByVenue } from '../../api/ReelayDBApi';
+import { logAmplitudeEventProd } from '../utils/EventLogger'
+
+import { getFeed } from '../../api/ReelayDBApi';
 
 import HomeHeader from './HomeHeader';
 
@@ -16,8 +18,6 @@ const HomeContainer = styled.SafeAreaView`
 `
 
 const HomeComponent = ({ navigation }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-    console.log(reelayDBUser);
     return (
         <HomeContainer>
             <HomeHeader navigation={navigation} />
@@ -46,7 +46,7 @@ const InTheatersContainer = styled.View`
 const InTheatersHeader = styled(ReelayText.H5Bold)`
     color: white;
 `
-const InTheatersPosterRowContainer = styled.ScrollView`
+const InTheatersElementRowContainer = styled.ScrollView`
     display: flex;
     flex-direction: row;
     width: 100%;
@@ -56,61 +56,65 @@ const InTheatersPosterRowContainer = styled.ScrollView`
 
 const InTheaters = ({ navigation }) => {
 
-    const [theaterStacks, setTheaterStacks] = useState([[]]); // [[]]
+    const { reelayDBUser } = useContext(AuthContext);
+    const [theaterStacks, setTheaterStacks] = useState([]); // [[]]
     const [displayPosterReelays, setDisplayPosterReelays] = useState([]);
 
     useEffect(() => {
         (async () => {
-            const nextTheaterStacks = await getStacksByVenue(['theaters']);
-            // const flattenedPosterReelays = nextTheaterStacks.map(stack => stack[0]);
-            // const cleanedPosterReelays = flattenedPosterReelays.map(reelay => {
-            //     delete reelay.comments; 
-            //     delete reelay.likes; 
-            //     return reelay;
-            // })
+            let nextTheaterStacks = await getFeed({ reqUserSub: reelayDBUser?.sub, feedSource: "theaters", page: 0 });
             setTheaterStacks(nextTheaterStacks);
-            // setDisplayPosterReelays(cleanedPosterReelays);
         })();
-    }, [setTheaterStacks])
+    }, [])
 
-    // const goToReelay = (index) => {
-	// 	if (topReelays.length === 0) return;
-	// 	navigation.push("TitleFeedScreen", {
-	// 		initialStackPos: index,
-	// 		fixedStackList: [topReelays],
-	// 	});
-	// 	logAmplitudeEventProd('openTitleFeed', {
-	// 		username: cognitoUser?.username,
-	// 		title: titleObj?.title?.display,
-	// 		source: 'titlePage',
-	// 		});
-	// };
+    const goToReelay = (index, titleObj) => {
+		if (theaterStacks.length === 0) return;
+		navigation.push("FeedScreen", {
+			initialStackPos: index,
+            initialFeedSource: 'theaters'
+		});
+
+		logAmplitudeEventProd('openTheatersFeed', {
+			username: reelayDBUser?.username,
+            title: titleObj?.display
+		});
+	};
     
     return (
         <InTheatersContainer>
             <InTheatersHeader>In Theaters Now</InTheatersHeader>
-            <InTheatersPosterRowContainer horizontal={true}>
+            <InTheatersElementRowContainer horizontal={true}>
                 { theaterStacks.map((stack, index) => {
                     return (
-                        <InTheatersPoster key={`feedIndex${index}`} /**data={stack} *//>
+                        <InTheatersElement key={index} onPress={() => goToReelay(index, stack[0].title)} stack={stack}/>
                     )
                 })}
-            </InTheatersPosterRowContainer>
+            </InTheatersElementRowContainer>
         </InTheatersContainer>
     )
 }
 
-const InTheatersPoster = styled.Pressable`
-    width: 45%;
-    height: 80%;
+const InTheatersPosterContainer = styled.Pressable`
+    width: 133px;
+    height: 200px;
     border-width: 1px;
     border-color: blue;
     border-radius: 20px;
 `
 
-// const InTheatersPoster = ({ navigation }) => {
+const InTheatersPoster = styled.Image`
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+`
 
-// }
+const InTheatersElement = ({ onPress, stack }) => {
+    return (
+        <InTheatersPosterContainer onPress={onPress}>
+            <InTheatersPoster source={ stack[0].title.posterSource } />
+        </InTheatersPosterContainer>
+    )
+}
 
 const WhatMyFriendsAreWatching = ({ navigation }) => {
 

@@ -3,7 +3,6 @@ import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View, Platform } f
 import { Icon } from 'react-native-elements';
 import { FeedContext } from '../../context/FeedContext';
 import ReelayStack from './ReelayStack';
-import FeedSourceSelectorDrawer from './FeedSourceSelectorDrawer';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
@@ -24,25 +23,6 @@ const ReelayFeedContainer = styled(View)`
     height: ${height}px;
     width: ${width}px;
 `
-const FeedSourceSelectorButton = ({ feedSource, setDrawerOpenFeedSource }) => {
-    const insets = useSafeAreaInsets();
-    const SourceSelectorPressable = styled(Pressable)`
-        paddingTop: ${Platform.OS === 'android' ? 25 : 0}px;
-        margin-top: ${insets.top}px;
-        margin-left: 20px;
-        position: absolute;
-    `
-    const iconName = (feedSource === 'global') ? 'earth' : 'people-circle';
-    const onPress = () => {
-        setDrawerOpenFeedSource(true);
-    }
-
-    return (
-        <SourceSelectorPressable onPress={onPress}>
-            <Icon type='ionicon' name={iconName} color={'white'} size={27} />
-        </SourceSelectorPressable>
-    );
-}
 
 const ReelayFeed = ({ navigation, 
     initialStackPos = 0,
@@ -56,17 +36,11 @@ const ReelayFeed = ({ navigation,
     const { cognitoUser, reelayDBUser } = useContext(AuthContext);
     const { setTabBarVisible } = useContext(FeedContext);
 
-    const [globalFeedPosition, setGlobalFeedPosition] = useState(0);
-    const [followingFeedPosition, setFollowingFeedPosition] = useState(0);
     const [feedSource, setFeedSource] = useState(initialFeedSource);
-    const [drawerOpenFeedSource, setDrawerOpenFeedSource] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
-    const [globalStackList, setGlobalStackList] = useState([]);
-    const [followingStackList, setFollowingStackList] = useState([]);
 
     const [selectedStackList, setSelectedStackList] = useState([]);
-
-    var currStackList = (feedSource === 'global') ? globalStackList : followingStackList;
+    const [selectedFeedPosition, setSelectedFeedPosition] = useState(0);
 
     useEffect(() => {
         setTabBarVisible(true); // to ensure tab bar is always here
@@ -75,7 +49,7 @@ const ReelayFeed = ({ navigation,
 
     const loadSelectedFeed = async () => {
         console.log("loading", feedSource, " feed....");
-        const stackEmpty = !currStackList.length;
+        const stackEmpty = !selectedStackList.length;
         if (!stackEmpty && !forceRefresh) {
           console.log("feed already loaded");
           return;
@@ -85,10 +59,7 @@ const ReelayFeed = ({ navigation,
 
     useEffect(() => {
         // show the other feed
-        currStackList =
-            feedSource === "global" ? globalStackList : followingStackList;
-        // display currStackList
-        const stackEmpty = !currStackList.length;
+        const stackEmpty = !selectedStackList.length;
         if (!stackEmpty && !forceRefresh) {
           console.log("feed already loaded");
           return;
@@ -97,12 +68,14 @@ const ReelayFeed = ({ navigation,
     }, [feedSource]);
 
     useFocusEffect(() => {
-        const unsubscribe = navigation.getParent()
+        if (initialFeedSource === 'global') {
+            const unsubscribe = navigation.getParent()
             .addListener('tabPress', e => {
                 e.preventDefault();
                 onTabPress();
             });
-        return unsubscribe;
+            return unsubscribe;
+        }
     });
 
     const extendFeed = async () => {
@@ -114,7 +87,7 @@ const ReelayFeed = ({ navigation,
 
         // probably don't need to create this every time, but we want to avoid unnecessary state
         const titleIDEntries = {};
-        currStackList.forEach((curStack) => titleIDEntries[curStack[0].title.id] = 1);
+        selectedStackList.forEach((selectedStack) => titleIDEntries[selectedStack[0].title.id] = 1);
 
         const notAlreadyInStack = (fetchedStack) => {
             const alreadyInStack = titleIDEntries[fetchedStack[0].title.id];
@@ -123,18 +96,14 @@ const ReelayFeed = ({ navigation,
         }
 
         const filteredStacks = fetchedStacks.filter(notAlreadyInStack);
-        const newStackList = [...currStackList, ...filteredStacks];
+        const newStackList = [...selectedStackList, ...filteredStacks];
         nextPage.current = page + 1;
         console.log(nextPage)
-        if (feedSource === "global") {
-            setGlobalStackList(newStackList)
-        }
-        else {
-            setFollowingStackList(newStackList)
-        }
+        setSelectedStackList(newStackList);
 
         console.log("finished extending", initialFeedSource, "feed");
         console.log("Stack List Length: ", newStackList.length);
+        console.log(newStackList);
 
         return fetchedStacks;
     }
@@ -149,28 +118,22 @@ const ReelayFeed = ({ navigation,
 
     const onTabPress = async () => {
         navigation.navigate('FeedScreen');
-        const feedPosition = (feedSource === 'global') ? globalFeedPosition : followingFeedPosition;
 
         if (feedPosition === 0) {
             refreshFeed();
-            if (Platform.OS === 'android') {
-                    console.log("setting global feed position to 1", globalFeedPosition);
-                    setGlobalFeedPosition(1);
-            }
         } else {
             console.log('feed positioning to 0');
             // feedPager.current.setPage(0);
+            setSelectedFeedPosition(0);
             if (feedSource === "global") {
-                setGlobalFeedPosition(0);
                 logAmplitudeEventProd('openHomeFeed', {
                     'source': feedSource,
                     username: cognitoUser?.attributes?.sub,
-                    });
+                });
             } else {
-                setFollowingFeedPosition(0);
                 logAmplitudeEventProd('openFollowingFeed', {
                     'Source': feedSource,
-                    });
+                });
             }
             feedPager.current.scrollToOffset({
                 offset: 0, animated: true,
@@ -187,11 +150,7 @@ const ReelayFeed = ({ navigation,
         const fetchedStacks = await getFeed({ feedSource: feedSource, reqUserSub: reelayDBUser?.sub, page: 0 });
 
         nextPage.current = 1;
-        if (feedSource === "global") {
-            setGlobalStackList(fetchedStacks);
-        } else {
-            setFollowingStackList(fetchedStacks);
-        }     
+        setSelectedStackList(fetchedStacks);
         setRefreshing(false);
         // the user is at the top of the feed
         // but the message is at the bottom of the screen
@@ -200,11 +159,8 @@ const ReelayFeed = ({ navigation,
     
 
     const renderStack = ({ item, index }) => {
-        const feedPosition =
-          feedSource === "global" ? globalFeedPosition : followingFeedPosition;
-
         const stack = item;
-        const stackViewable = (index === feedPosition);
+        const stackViewable = (index === selectedFeedPosition);
 
         return (
             <ReelayStack 
@@ -218,14 +174,13 @@ const ReelayFeed = ({ navigation,
 
     const onFeedSwiped = async (e) => {
         const { x, y } = e.nativeEvent.contentOffset;
-        const feedPosition = (feedSource === 'global') ? globalFeedPosition : followingFeedPosition;
 
         if (y % height === 0) {
             const nextFeedPosition = y / height;
-            const swipeDirection = nextFeedPosition < feedPosition ? 'up' : 'down';
+            const swipeDirection = nextFeedPosition < selectedFeedPosition ? 'up' : 'down';
             
-            const nextStack = currStackList[nextFeedPosition];
-            const prevStack = currStackList[feedPosition];
+            const nextStack = selectedStackList[nextFeedPosition];
+            const prevStack = selectedStackList[selectedFeedPosition];
 
             const logProperties = {
                 nextReelayTitle: nextStack[0].title.display,
@@ -235,11 +190,7 @@ const ReelayFeed = ({ navigation,
                 username: cognitoUser.username,
             }
             logAmplitudeEventProd('swipedFeed', logProperties);
-            if (feedSource === "global") {
-                setGlobalFeedPosition(nextFeedPosition);
-            } else {
-                setFollowingFeedPosition(nextFeedPosition);
-            }
+            setSelectedFeedPosition(nextFeedPosition);
         }
     }
 
@@ -247,14 +198,14 @@ const ReelayFeed = ({ navigation,
 
     return (
       <ReelayFeedContainer>
-        {currStackList.length < 1 && <ActivityIndicator />}
-        {currStackList.length >= 1 && feedSource === "global" && (
+        {selectedStackList.length < 1 && <ActivityIndicator />}
+        {selectedStackList.length >= 1 && (
           <FlatList
-            data={globalStackList}
+            data={selectedStackList}
             getItemLayout={getItemLayout}
             horizontal={false}
             initialNumToRender={1}
-            initialScrollIndex={globalFeedPosition}
+            initialScrollIndex={selectedFeedPosition}
             keyExtractor={(stack) => String(stack[0].title.id)}
             maxToRenderPerBatch={1}
             onEndReached={extendFeed}
@@ -272,44 +223,6 @@ const ReelayFeed = ({ navigation,
             }}
             windowSize={3}
           />
-        )}
-        {currStackList.length >= 1 && feedSource === "following" && (
-          <FlatList
-            data={followingStackList}
-            getItemLayout={getItemLayout}
-            horizontal={false}
-            initialNumToRender={1}
-            initialScrollIndex={followingFeedPosition}
-            keyExtractor={(stack) => String(stack[0].title.id)}
-            maxToRenderPerBatch={1}
-            onEndReached={extendFeed}
-            onRefresh={refreshFeed}
-            onScroll={onFeedSwiped}
-            pagingEnabled={true}
-            refreshing={refreshing}
-            ref={feedPager}
-            renderItem={renderStack}
-            showsVerticalScrollIndicator={false}
-            style={{
-              backgroundColor: "transparent",
-              height: height,
-              width: width,
-            }}
-            windowSize={3}
-          />
-        )}
-        <FeedSourceSelectorButton
-            feedSource={feedSource}
-            drawerOpenFeedSource={drawerOpenFeedSource}
-            setDrawerOpenFeedSource={setDrawerOpenFeedSource}
-        />
-        {drawerOpenFeedSource && (
-            <FeedSourceSelectorDrawer
-                feedSource={feedSource}
-                setFeedSource={setFeedSource}
-                drawerOpen={drawerOpenFeedSource}
-                setDrawerOpen={setDrawerOpenFeedSource}
-            />
         )}
       </ReelayFeedContainer>
     );
