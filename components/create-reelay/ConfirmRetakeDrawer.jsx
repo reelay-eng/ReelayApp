@@ -96,7 +96,7 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
     const ExitOption = () => {
         const onPress = () => {
             setConfirmRetakeDrawerVisible(false);
-            navigation.navigate('HomeFeedScreen');
+            navigation.navigate('FeedScreen');
             logAmplitudeEventProd('exitCreate', {
                 username: cognitoUser.username,
                 title: titleObj.display,

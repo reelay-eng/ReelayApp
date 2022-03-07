@@ -10,7 +10,7 @@ export default {
 		screens: {
 			Authenticated: {
 				screens: {
-					HomeFeedScreen: "HomeFeedScreen",
+					FeedScreen: "FeedScreen",
 					SelectTitleScreen: "SelectTitleScreen",
 					ReelayCameraScreen: "ReelayCameraScreen",
 					ReelayUploadScreen: "ReelayUploadScreen",

@@ -148,7 +148,7 @@ const ReelayFeed = ({ navigation,
     }
 
     const onTabPress = async () => {
-        navigation.navigate('HomeFeedScreen');
+        navigation.navigate('FeedScreen');
         const feedPosition = (feedSource === 'global') ? globalFeedPosition : followingFeedPosition;
 
         if (feedPosition === 0) {

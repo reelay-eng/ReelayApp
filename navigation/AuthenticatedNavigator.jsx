@@ -13,7 +13,7 @@ import { Image, StyleSheet, SafeAreaView, View } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 import { FeedContext } from '../context/FeedContext';
 
-import HomeFeedScreen from '../screens/authenticated/HomeFeedScreen';
+import FeedScreen from '../screens/authenticated/FeedScreen';
 import HomeScreen from '../screens/authenticated/HomeScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
 import NotificationScreen from '../screens/authenticated/NotificationScreen';
@@ -308,8 +308,8 @@ const FeedTabNavigator = () => {
     return (
         <FeedTabStack.Navigator>
             <FeedTabStack.Screen
-                name='HomeFeedScreen'
-                component={HomeFeedScreen}
+                name='FeedScreen'
+                component={FeedScreen}
                 options={{
                     headerShown: false,
                 }}
