@@ -1,29 +1,25 @@
-import Toast from 'react-native-root-toast';
-
-// todo: should these be _exactly_ the same?
+import Toast from "react-native-toast-message";
 
 const showMessageToast = async (message, position = 'top') => {
-    const toastPosition = (position === 'top') ? Toast.positions.TOP : Toast.positions.BOTTOM;
-    const messageToast = Toast.show(message, {
-        duration: Toast.durations.LONG,
-        position: toastPosition,
-        animation: true,
-        hideOnPress: true,
-        delay: 0,
+    Toast.show({
+        type: 'info',
+        text1: message,
+        visibilityTime: 5000,
+        position: position,
+        bottomOffset: 80, // should eventually change with tabbarvisible?
+        topOffset: 70, // should eventually change with tabbarvisible?
     });
-    setTimeout(() => Toast.hide(messageToast), 5000);
 }
 
 const showErrorToast = async (message, position = 'top') => {
-    const toastPosition = (position === 'top') ? Toast.positions.TOP : Toast.positions.BOTTOM;
-    const errorToast = Toast.show(message, {
-        duration: Toast.durations.LONG,
-        position: toastPosition,
-        animation: true,
-        hideOnPress: true,
-        delay: 0,
+    Toast.show({
+        type: "error",
+        text1: message,
+        visibilityTime: 5000,
+        position: position,
+        bottomOffset: 80, 
+        topOffset: 70,
     });
-    setTimeout(() => Toast.hide(errorToast), 5000);
 }
 
 export { showMessageToast, showErrorToast };

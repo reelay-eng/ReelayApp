@@ -1,6 +1,6 @@
 // react imports
 import React, { useEffect, useRef, useState } from 'react';
-import { Image, Platform, View } from 'react-native';
+import { Image, Text, View, Pressable } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './navigation';
 import styled from 'styled-components/native';
@@ -35,7 +35,9 @@ import { UploadContext } from './context/UploadContext';
 // api imports
 import { getRegisteredUser, registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
-import { showErrorToast } from './components/utils/toasts';
+import { toastConfig } from './components/utils/ToastConfig';
+import Toast from "react-native-toast-message";
+
 import { 
     loadMyFollowers, 
     loadMyFollowing, 
@@ -313,6 +315,7 @@ function App() {
                         <UploadContext.Provider value={uploadState}>
                             <StatusBar hidden={true} />
                             <Navigation colorScheme={colorScheme} />
+                            <Toast config={toastConfig}/>
                         </UploadContext.Provider>
                     </FeedContext.Provider>
                 </AuthContext.Provider>
