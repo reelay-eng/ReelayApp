@@ -446,7 +446,6 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 						text={"Post"}
 						onPress={(commentText) => {
 							onCommentPost(commentText);
-							Keyboard.dismiss();
 						}}
 					/>
 				</PostButtonContainer>
