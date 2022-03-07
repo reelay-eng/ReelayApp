@@ -1,86 +1,47 @@
-import React, { useRef, useState, memo } from 'react';
+import React, { useContext, useRef, memo } from 'react';
 import { View } from 'react-native';
 
 import FeedVideoPlayer from './FeedVideoPlayer';
 import ReelayInfo from './ReelayInfo';
 import Sidebar from './Sidebar';
+import { FeedContext } from '../../context/FeedContext';
 
 import LikesDrawer from './LikesDrawer';
 import CommentsDrawer from './CommentsDrawer';
 import Reelay3DotDrawer from './Reelay3DotDrawer';
 
-const HeroOverlay = ({reelay, viewable, navigation}) => {
-    const [likesVisible, setLikesVisible] = useState(false);
-    const [commentsVisible, setCommentsVisible] = useState(false);
-    const [dotMenuVisible, setDotMenuVisible] = useState(false);
+const Hero = ({ 
+    index, 
+    isPaused,
+    navigation,
+    reelay,
+    playPause,
+    viewable,
+}) => {
+
+    const { likesVisible, commentsVisible, dotMenuVisible } = useContext(FeedContext);
+    console.log('hero re-rendering: ', reelay.title.display);
     const commentsCount = useRef(reelay.comments.length);
 
     return (
-      <View>
-            <ReelayInfo navigation={navigation} reelay={reelay} />
-            {viewable && likesVisible && (
-                <LikesDrawer
-                    reelay={reelay}
-                    navigation={navigation}
-                    likesVisible={likesVisible}
-                    setLikesVisible={setLikesVisible}
-                />
-            )}
-            {viewable && commentsVisible && (
-                <CommentsDrawer
-                    reelay={reelay}
-                    navigation={navigation}
-                    commentsCount={commentsCount}
-                    commentsVisible={commentsVisible}
-                    setCommentsVisible={setCommentsVisible}
-                />
-            )}
-            {viewable && dotMenuVisible && (
-                <Reelay3DotDrawer
-                    reelay={reelay}
-                    navigation={navigation}
-                    dotMenuVisible={dotMenuVisible}
-                    setDotMenuVisible={setDotMenuVisible}
-                />
-            )}
-            <Sidebar
-                navigation={navigation}
-                reelay={reelay}
-                setLikesVisible={setLikesVisible}
-                setCommentsVisible={setCommentsVisible}
-                setDotMenuVisible={setDotMenuVisible}
-                commentsCount={commentsCount}
+        <View key={index} style={{ justifyContent: 'flex-end'}}>
+            <FeedVideoPlayer 
+                reelay={reelay} viewable={viewable} 
+                isPaused={isPaused} playPause={playPause} 
             />
-      </View>
-    );
-}
-
-
-const Hero = ({
-    index,
-    navigation,
-    reelay,
-    viewable,
-    paused
-}) => {
-    console.log("hero re-rendering: ", reelay.title.display);
-
-    return (
-        <View key={index} style={{ justifyContent: "flex-end" }}>
-        <FeedVideoPlayer
-            reelay={reelay}
-            viewable={viewable}
-            navigation={navigation}
-            paused={paused}
-        />
-        <HeroOverlay
-            reelay={reelay}
-            viewable={viewable}
-            navigation={navigation}
-        />
+            <ReelayInfo navigation={navigation} reelay={reelay} />
+            <Sidebar navigation={navigation} reelay={reelay} commentsCount={commentsCount}/>
+            { viewable && likesVisible && <LikesDrawer reelay={reelay} navigation={navigation} /> }
+            { viewable && commentsVisible && <CommentsDrawer reelay={reelay} navigation={navigation} commentsCount={commentsCount} /> }
+            { viewable && dotMenuVisible && 
+                <Reelay3DotDrawer 
+                    reelay={reelay} 
+                    navigation={navigation}
+                /> 
+            }
         </View>
     );
-};
+}
 
 const areEqual = (prevProps, nextProps) => {
     return (

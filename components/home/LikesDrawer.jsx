@@ -2,11 +2,12 @@ import React, { useContext } from 'react';
 import { Modal, View, Text, Pressable } from 'react-native';
 import * as ReelayText from '../../components/global/Text';
 import { Icon } from 'react-native-elements';
+import { FeedContext } from '../../context/FeedContext';
 import styled from 'styled-components/native';
 import { getUserByUsername } from '../../api/ReelayDBApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
-export default LikesDrawer = ({ reelay, navigation, likesVisible, setLikesVisible }) => {
+export default LikesDrawer = ({ reelay, navigation }) => {
 
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
 
@@ -31,6 +32,7 @@ export default LikesDrawer = ({ reelay, navigation, likesVisible, setLikesVisibl
     const ModalContainer = styled(View)`
         position: absolute;
     `
+    const { likesVisible, setLikesVisible } = useContext(FeedContext);
     const closeDrawer = () => setLikesVisible(false);
 
     const Header = () => {
