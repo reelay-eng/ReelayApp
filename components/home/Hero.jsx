@@ -20,7 +20,6 @@ const Hero = ({
 }) => {
 
     const { likesVisible, commentsVisible, dotMenuVisible } = useContext(FeedContext);
-    console.log('hero re-rendering: ', reelay.title.display);
     const commentsCount = useRef(reelay.comments.length);
 
     return (

@@ -82,7 +82,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
         setCommentsVisible(false);
     }
 
-    const Header = ({ numOfComment }) => {
+    const Header = () => {
 
         // comments are for Gray Bar indicating slide-to-close, if we ever put it in. 
         const HeaderContainer = styled(View)`
@@ -268,7 +268,6 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
         const [render, setRender] = useState(false);
         const scrollViewRef = useRef();
         const [maxDrawerHeight, setMaxDrawerHeight] = useState(height);
-		const commentNumber = useRef(reelay.comments.length);
 
         const rerender = () => {
 			commentsCount.current = reelay.comments.length;
@@ -306,7 +305,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 		
         return (
 			<View>
-				<Header numOfComment={commentNumber.current} />
+				<Header />
 				{reelay.comments.length > 0 && (
 					<>
 						<ScrollView
