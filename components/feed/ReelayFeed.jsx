@@ -83,7 +83,7 @@ const ReelayFeed = ({ navigation,
 
         const fetchedStacks = await getFeed({ feedSource: feedSource, reqUserSub: reelayDBUser?.sub, page });
         
-        console.log("extending", feedSource, "feed, with page = ", page);
+        console.log("extending", feedSource, "feed, with page = ", page, "and stacks length", fetchedStacks.length);
 
         // probably don't need to create this every time, but we want to avoid unnecessary state
         const titleIDEntries = {};
@@ -100,10 +100,6 @@ const ReelayFeed = ({ navigation,
         nextPage.current = page + 1;
         console.log(nextPage)
         setSelectedStackList(newStackList);
-
-        console.log("finished extending", initialFeedSource, "feed");
-        console.log("Stack List Length: ", newStackList.length);
-        console.log(newStackList);
 
         return fetchedStacks;
     }

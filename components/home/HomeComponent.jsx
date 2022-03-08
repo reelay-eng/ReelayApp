@@ -41,7 +41,6 @@ const InTheatersContainer = styled.View`
     flex-direction: column;
     padding-left: 15px;
     padding-top: 15px;
-    border: solid 1px red;
 `
 const InTheatersHeader = styled(ReelayText.H5Bold)`
     color: white;
@@ -51,18 +50,17 @@ const InTheatersElementRowContainer = styled.ScrollView`
     flex-direction: row;
     width: 100%;
     height: auto;
-    border: solid 1px yellow;
 `
 
 const InTheaters = ({ navigation }) => {
 
     const { reelayDBUser } = useContext(AuthContext);
-    const [theaterStacks, setTheaterStacks] = useState([]); // [[]]
-    const [displayPosterReelays, setDisplayPosterReelays] = useState([]);
+    const [theaterStacks, setTheaterStacks] = useState([]);
 
     useEffect(() => {
         (async () => {
             let nextTheaterStacks = await getFeed({ reqUserSub: reelayDBUser?.sub, feedSource: "theaters", page: 0 });
+            console.log("Next Theater Stacks Length:", nextTheaterStacks.length);
             setTheaterStacks(nextTheaterStacks);
         })();
     }, [])
@@ -84,7 +82,7 @@ const InTheaters = ({ navigation }) => {
         <InTheatersContainer>
             <InTheatersHeader>In Theaters Now</InTheatersHeader>
             <InTheatersElementRowContainer horizontal={true}>
-                { theaterStacks.map((stack, index) => {
+                { theaterStacks.length > 0 && theaterStacks.map((stack, index) => {
                     return (
                         <InTheatersElement key={index} onPress={() => goToReelay(index, stack[0].title)} stack={stack}/>
                     )
@@ -97,8 +95,6 @@ const InTheaters = ({ navigation }) => {
 const InTheatersPosterContainer = styled.Pressable`
     width: 133px;
     height: 200px;
-    border-width: 1px;
-    border-color: blue;
     border-radius: 20px;
 `
 
