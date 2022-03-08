@@ -247,6 +247,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             console.log("star count is", starCount);
 
             console.log("star count in upload:", starCount)
+            console.log("reelay description:", descriptionRef.current)
             const reelayDBBody = {
                 creatorSub: cognitoUser?.attributes?.sub,
                 creatorName: cognitoUser.username,

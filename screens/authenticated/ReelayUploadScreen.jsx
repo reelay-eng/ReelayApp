@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-<<<<<<< HEAD
 
 import { EncodingType, readAsStringAsync } from 'expo-file-system';
 import { Buffer } from 'buffer';
@@ -13,8 +12,6 @@ import {
     PutObjectCommand,
     UploadPartCommand,
 } from '@aws-sdk/client-s3';
-=======
->>>>>>> d119f51 (small tweaks, clean up, and added double tap on camera to flip)
 
 import ConfirmRetakeDrawer from '../../components/create-reelay/ConfirmRetakeDrawer';  
 

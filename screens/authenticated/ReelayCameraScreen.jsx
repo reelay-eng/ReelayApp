@@ -282,10 +282,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             backCount++
             if (backCount == 2) {
                 backTimer=0;
-<<<<<<< HEAD
-=======
-                console.log("Clicked twice")
->>>>>>> d119f51 (small tweaks, clean up, and added double tap on camera to flip)
                 flipCamera();
             } else {
                 backTimer = setTimeout(() => {
