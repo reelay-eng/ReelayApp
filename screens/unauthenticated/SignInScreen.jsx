@@ -14,6 +14,7 @@ import { getInputUsername } from '../../components/utils/usernameOrEmail';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
+import SocialLoginBar from '../../components/auth/SocialLoginBar';
 
 export const KeyboardHidingBlackContainer = ({ children }) => {
     const FullScreenBlackContainer = styled(SafeAreaView)`
@@ -55,24 +56,21 @@ export default SignInScreen = ({ navigation, route }) => {
 		type: "ionicon",
 	};
     const InputContainer = styled(View)`
-		margin-bottom: 60px;
+		margin-bottom: 30px;
 		width: 90%;
-		height: 60%;
 		display: flex;
 		flex-direction: column;
 	`;
     const AlignmentContainer = styled(View)`
+        height: 100%;
 		width: 100%;
-		height: 100%;
 		flex-direction: column;
 		align-items: center;
-		justify-content: space-between;
 	`;
-
 	const CTAButtonContainer = styled(View)`
-		margin-bottom: 40px;
-		width: 95%;
+		width: 90%;
 		height: 56px;
+        margin: 20px;
 	`;
     const ErrorContainer = styled(View)`
         width: 100%;
@@ -112,7 +110,6 @@ export default SignInScreen = ({ navigation, route }) => {
     }
 
     const UsernameAndPassword = () => {
-
         const [inputText, setInputText] = useState('');
         const [badEmail, setBadEmail] = useState(false);
         const [password, setPassword] = useState('');
@@ -258,7 +255,7 @@ export default SignInScreen = ({ navigation, route }) => {
 				)}
 				<CTAButtonContainer>
 					<Button
-						text={signingIn ? "Logging in..." : "Log In"}
+						text={signingIn ? "Logging in..." : "Log in"}
 						onPress={signInUser}
 						disabled={signingIn}
 						backgroundColor={ReelayColors.reelayBlue}
@@ -266,6 +263,7 @@ export default SignInScreen = ({ navigation, route }) => {
 						borderRadius="26px"
 					/>
 				</CTAButtonContainer>
+                <SocialLoginBar disabed={signingIn} navigation={navigation} />
 			</AlignmentContainer>
 		);
     }
@@ -326,7 +324,11 @@ export default SignInScreen = ({ navigation, route }) => {
         <KeyboardHidingBlackContainer>
             <TopBar />
             <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
-                { !signingIn && <UsernameAndPassword /> }
+                { !signingIn &&
+                    <React.Fragment>
+                        <UsernameAndPassword /> 
+                    </React.Fragment>
+                }
                 { signingIn && <ActivityIndicator /> }
             </KeyboardAvoidingView>
         </KeyboardHidingBlackContainer>

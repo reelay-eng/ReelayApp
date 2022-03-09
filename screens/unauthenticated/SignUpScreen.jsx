@@ -16,6 +16,7 @@ import styled from 'styled-components/native';
 import { KeyboardHidingBlackContainer } from "./SignInScreen";
 import constraints from '../../components/utils/EmailValidationConstraints';
 import { Button } from '../../components/global/Buttons';
+import SocialLoginBar from '../../components/auth/SocialLoginBar';
 
 const REELAY_ICON_SOURCE = require('../../assets/icons/reelay-icon.png');
 const SIGN_UP_ERROR_MESSAGE = "Couldn't create an account. Try a different username?";
@@ -74,9 +75,7 @@ export default SignUpScreen = ({ navigation, route }) => {
     }
 
     const InputContainer = styled(View)`
-        margin-bottom: 60px;
         width: 90%;
-        height: 60%;
         display: flex;
         flex-direction: column;
     `
@@ -89,7 +88,7 @@ export default SignUpScreen = ({ navigation, route }) => {
     `
     const CTAButtonContainer = styled(View)`
         margin-bottom: 16px;
-        width: 92%;
+        width: 90%;
         height: 56px;
     `
     const SignUpDisclosure = styled(ReelayText.Caption)`
@@ -301,8 +300,9 @@ export default SignUpScreen = ({ navigation, route }) => {
 							borderRadius="26px"
 						/>
 					</CTAButtonContainer>
+                    <SocialLoginBar navigation={navigation} />
 					<SignUpDisclosure>
-						By clicking Sign Up, you agree to the{" "}
+						By Signing Up, you agree to the{" "}
 						<SignUpDisclosureLink url="https://www.reelay.app/terms-of-use">
 							Terms of Service
 						</SignUpDisclosureLink>{" "}
@@ -336,7 +336,6 @@ export default SignUpScreen = ({ navigation, route }) => {
 		`;
 
         const TextContainer = styled(View)`
-            margin-bottom: 20px;
             align-items: center;
         `
         const HeaderText = styled(ReelayText.H5Emphasized)`
