@@ -19,7 +19,8 @@ const captureSize = Math.floor(height * 0.07);
 const ringSize = captureSize + 20;    
 
 export default ReelayCameraScreen = ({ navigation, route }) => {
-
+    var backCount = 0;
+    var backTimer = 0;
     const { cognitoUser } = useContext(AuthContext);
     const { titleObj, venue } = route.params;
 
@@ -60,6 +61,14 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 console.warn(error);
             }
         }
+    };
+
+    const flipCamera = () => {
+        setCameraType((prevCameraType) =>
+            prevCameraType === Camera.Constants.Type.back
+            ? Camera.Constants.Type.front
+            : Camera.Constants.Type.back
+        );
     };
     
     const MediaLibraryPicker = () => {
@@ -171,14 +180,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             align-self: center;
         `
 
-        const flipCamera = () => {
-            setCameraType((prevCameraType) =>
-                prevCameraType === Camera.Constants.Type.back
-                ? Camera.Constants.Type.front
-                : Camera.Constants.Type.back
-            );
-        };
-
         return (
             <FlipCameraButtonContainer onPress={flipCamera}>
                 <Icon type='ionicon' name='sync-outline' color={'white'} size={36} />
@@ -270,14 +271,24 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         );
     }
 
-    const CameraContainer = styled(View)`
+    const CameraContainer = styled(Pressable)`
         position: absolute;
         height: 100%;
         width: 100%;
     `
 
     return (
-        <CameraContainer>
+        <CameraContainer onPress={() => {
+            backCount++
+            if (backCount == 2) {
+                backTimer=0;
+                flipCamera();
+            } else {
+                backTimer = setTimeout(() => {
+                    backCount = 0
+                }, 500)
+            }
+        }}>
             <ReelayCamera />
             <RecordOverlay />
         </CameraContainer>
