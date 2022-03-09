@@ -205,7 +205,7 @@ const ReelayFeed = ({ navigation,
         setRefreshing(false);
         // the user is at the top of the feed
         // but the message is at the bottom of the screen
-        showMessageToast('You\'re at the top', { position: 'bottom' });
+        showMessageToast('You\'re at the top');
     }
     
 

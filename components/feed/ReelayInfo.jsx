@@ -9,7 +9,7 @@ export default ReelayInfo = ({ navigation, reelay }) => {
 	const InfoView = styled(View)`
 		justify-content: flex-end;
 		position: absolute;
-		bottom: 120px;
+		bottom: 100px;
 		margin-left: 20px;
 		width: 80%;
 	`
@@ -21,16 +21,7 @@ export default ReelayInfo = ({ navigation, reelay }) => {
 		align-self: flex-end;
 		color: white;
 	`
-	const TitleInfo = styled(View)`
-		flex-direction: row;
-		align-items: center;
-	`
-	const Title = styled(ReelayText.Body2)`
-		color: white;
-	`
 
-	const displayTitle = (reelay.title.display) ? reelay.title.display : 'Title not found\ ';
-	const year = (reelay.title.releaseYear) ? reelay.title.releaseYear : '';
 	const creator = reelay.creator;
 
 	const goToProfile = () => {

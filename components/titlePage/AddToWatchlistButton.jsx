@@ -4,10 +4,10 @@ import { AuthContext } from '../../context/AuthContext';
 import { addToMyWatchlist } from '../../api/WatchlistApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
-const ICON_SIZE = 22;
+const ICON_SIZE = 24;
 
 import WatchlistIconAdded from '../../assets/icons/global/watchlist-added-icon.png';
-import WatchlistIconNotAdded from '../../assets/icons/global/watchlist-icon-filled.png';
+import WatchlistIconNotAdded from '../../assets/icons/global/add-to-watchlist-icon.png';
 import { showMessageToast } from '../utils/toasts';
 
 export default AddToWatchlistButton = ({ titleObj, reelay }) => {
@@ -52,9 +52,8 @@ export default AddToWatchlistButton = ({ titleObj, reelay }) => {
     return (
         <Pressable onPress={addToWatchlist} disabled={isAdded}>
             <Image source={(isAdded) ? WatchlistIconAdded : WatchlistIconNotAdded} style={{
-                height: ICON_SIZE,
-                width: ICON_SIZE,
-                marginBottom: 2,
+                height: (isAdded) ? ICON_SIZE-2 : ICON_SIZE,
+                width: (isAdded) ? ICON_SIZE-2 : ICON_SIZE,
             }} />
         </Pressable>
     );

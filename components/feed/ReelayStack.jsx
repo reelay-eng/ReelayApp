@@ -70,7 +70,7 @@ const Title = styled(Text)`
     color: white;
     font-family: Outfit-Medium;
     font-size: 18px;
-    line-height: 20px;
+    line-height: 24px;
     letter-spacing: 0.18px;
 `
 const WatchListButton = styled(Pressable)`
@@ -256,7 +256,7 @@ const ReelayStack = ({
                     <Poster title={viewableReelay.title} />
                     <TitleInfo>
                         <TitleContainer>
-                            <Title>
+                            <Title numberOfLines={2} ellipsizeMode={"tail"}>
                                 {displayTitle}
                             </Title>
                         </TitleContainer>
