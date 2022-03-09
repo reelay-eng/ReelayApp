@@ -8,7 +8,7 @@ import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 
 export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible }) => {
-    const { cognitoUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
 
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
 
@@ -72,7 +72,7 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
             setConfirmRetakeDrawerVisible(false);
             navigation.pop();
             logAmplitudeEventProd('retake', {
-                username: cognitoUser.username,
+                username: reelayDBUser?.username,
                 title: titleObj.display,
             });    
         }
@@ -98,7 +98,7 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
             setConfirmRetakeDrawerVisible(false);
             navigation.navigate('HomeFeedScreen');
             logAmplitudeEventProd('exitCreate', {
-                username: cognitoUser.username,
+                username: reelayDBUser?.username,
                 title: titleObj.display,
             });    
         }

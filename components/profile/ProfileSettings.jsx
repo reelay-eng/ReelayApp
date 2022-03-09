@@ -121,17 +121,14 @@ const SettingEntry = ({text, iconName, onPress}) => {
 }
 
 const Logout = () => {
-    const {
-        cognitoUser,
-        setSignedIn,
-    } = useContext(AuthContext);
+    const { reelayDBUser, setSignedIn } = useContext(AuthContext);
 
     const signOut = async () => {
         // todo: confirm sign out
         try {
             logAmplitudeEventProd('signOut', {
-                username: cognitoUser.username,
-                email: cognitoUser?.attributes?.email,
+                username: reelayDBUser?.username,
+                email: reelayDBUser?.email,
             });
     
             const signOutResult = await Auth.signOut();

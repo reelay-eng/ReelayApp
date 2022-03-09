@@ -47,7 +47,7 @@ const SearchBarContainer = styled(View)`
 
 
 export default UserFollowScreen = ({ navigation, route }) => {
-    const { cognitoUser, myFollowers, myFollowing } = useContext(AuthContext);
+    const { myFollowers, myFollowing } = useContext(AuthContext);
 
     const { creator, initFollowType, initFollowers, initFollowing } = route.params;
     const [searchText, setSearchText] = useState('');

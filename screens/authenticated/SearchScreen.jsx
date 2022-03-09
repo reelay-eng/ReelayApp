@@ -50,7 +50,7 @@ const SearchBarContainer = styled(View)`
 `
 
 export default SearchScreen = ({ navigation }) => {
-    const { cognitoUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
 
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState("");
@@ -73,8 +73,8 @@ export default SearchScreen = ({ navigation }) => {
 
     useEffect(() => {
         logAmplitudeEventProd('openSearchScreen', {
-            username: cognitoUser.username,
-            userSub: cognitoUser?.attributes?.sub,
+            username: reelayDBUser?.username,
+            userSub: reelayDBUser?.sub,
             source: 'search',
         });
     }, [navigation]);
@@ -85,7 +85,7 @@ export default SearchScreen = ({ navigation }) => {
             return;
         }
         logAmplitudeEventProd('search', {
-            username: cognitoUser?.attributes?.sub,
+            username: reelayDBUser?.sub,
             searchText: newSearchText,
             searchType: searchType,
             source: 'search',

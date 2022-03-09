@@ -50,7 +50,7 @@ export default PosterWithTrailer = ({
 		width: 100%;
 	`;
 
-	const { cognitoUser } = useContext(AuthContext);
+	const { reelayDBUser } = useContext(AuthContext);
 	
 	const PosterWithOverlay = () => {
 		const PosterImage = styled(Image)`
@@ -269,7 +269,7 @@ export default PosterWithTrailer = ({
 								titleObj: titleObj,
 							});
 							logAmplitudeEventProd('advanceToCreateReelay', {
-								username: cognitoUser?.username,
+								username: reelayDBUser?.username,
 								title: titleObj?.title?.display,
 								source: 'titlePage',
 							});

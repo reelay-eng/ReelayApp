@@ -8,7 +8,7 @@ import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 
 export default FeedSourceSelectorDrawer = ({ feedSource, setFeedSource, drawerOpen, setDrawerOpen }) => {
-    const { cognitoUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
 
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
 
@@ -80,8 +80,8 @@ export default FeedSourceSelectorDrawer = ({ feedSource, setFeedSource, drawerOp
             setFeedSource('following');
             closeDrawer();
             logAmplitudeEventProd('setFeedFollowing', {
-                username: cognitoUser.username,
-                userSub: cognitoUser?.attributes?.sub,
+                username: reelayDBUser?.username,
+                userSub: reelayDBUser?.sub,
             });    
         }
 
@@ -100,8 +100,8 @@ export default FeedSourceSelectorDrawer = ({ feedSource, setFeedSource, drawerOp
             setFeedSource('global');
             closeDrawer();
             logAmplitudeEventProd('setFeedGlobal', {
-                username: cognitoUser.username,
-                userSub: cognitoUser?.attributes?.sub,
+                username: reelayDBUser?.username,
+                userSub: reelayDBUser?.sub,
             });    
         }
 
