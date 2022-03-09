@@ -120,7 +120,6 @@ export default SignUpScreen = ({ navigation, route }) => {
 
 
     const SignUpInputs = () => {
-
         const [email, setEmail] = useState("");
         const emailInvalid = validate({ emailAddress: email }, constraints);
         const showEmailError = email.length > 0 && !!emailInvalid;
@@ -291,16 +290,16 @@ export default SignUpScreen = ({ navigation, route }) => {
 					/>
 				</InputContainer>
 				<SignUpButtonAndDisclosureContainer>
+                    <SocialLoginBar navigation={navigation} />
 					<CTAButtonContainer>
 						<Button
-							text="Send me a confirmation code"
+							text="Sign Up"
 							onPress={createAccount}
 							backgroundColor={ReelayColors.reelayBlue}
 							fontColor="white"
 							borderRadius="26px"
 						/>
 					</CTAButtonContainer>
-                    <SocialLoginBar navigation={navigation} />
 					<SignUpDisclosure>
 						By Signing Up, you agree to the{" "}
 						<SignUpDisclosureLink url="https://www.reelay.app/terms-of-use">
@@ -341,6 +340,9 @@ export default SignUpScreen = ({ navigation, route }) => {
         const HeaderText = styled(ReelayText.H5Emphasized)`
             color: white;
             margin-bottom: 4px;
+        `
+        const SublineText = styled(ReelayText.Caption)`
+            color: white;
         `
 
         return (

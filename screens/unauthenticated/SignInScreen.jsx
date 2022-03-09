@@ -16,6 +16,73 @@ import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import SocialLoginBar from '../../components/auth/SocialLoginBar';
 
+const AuthInput = styled(Input)`
+    color: white;
+    font-family: Outfit-Regular;
+    font-size: 16px;
+    font-style: normal;
+    letter-spacing: 0.15px;
+    margin-left: 8px;
+`
+const AuthInputContainerStyle = {
+    marginBottom: -5,
+    width: "100%",
+};
+
+const AuthInputUsernameIconStyle = {
+    color: "white",
+    name: "person-outline",
+    type: "ionicon",
+};
+
+const AuthInputWarningIconStyle = {
+    color: ReelayColors.reelayRed,
+    name: "warning",
+    type: "ionicon",
+};
+
+const AlignmentContainer = styled(View)`
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    width: 100%;
+`
+const BottomButtonsContainer = styled(View)`
+    width: 100%;
+    margin-bottom: 24px;
+    flex-direction: column;
+    align-items: center;
+`
+const ErrorContainer = styled(View)`
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+const ErrorText = styled(ReelayText.H6Emphasized)`
+    color: ${ReelayColors.reelayRed};
+    text-align: center;
+`
+const ForgotPasswordContainer = styled(View)`
+    flex-direction: row;
+    align-items: center;
+    margin-left: 10px;
+    width: 100%;
+`
+const InputContainer = styled(View)`
+    margin-bottom: 30px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+`
+const SignInButtonContainer = styled(View)`
+    width: 90%;
+    height: 56px;
+    margin: 20px;
+`
+
+
 export const KeyboardHidingBlackContainer = ({ children }) => {
     const FullScreenBlackContainer = styled(SafeAreaView)`
         background-color: ${ReelayColors.reelayBlack};
@@ -33,65 +100,10 @@ export const KeyboardHidingBlackContainer = ({ children }) => {
 
 
 export default SignInScreen = ({ navigation, route }) => {
-    const AuthInput = styled(Input)`
-		color: white;
-		font-family: Outfit-Regular;
-		font-size: 16px;
-		font-style: normal;
-		letter-spacing: 0.15px;
-		margin-left: 8px;
-	`;
-	const AuthInputContainerStyle = {
-        marginBottom: -5,
-        width: "100%",
-    };
-    const AuthInputUsernameIconStyle = {
-		color: "white",
-		name: "person-outline",
-		type: "ionicon",
-    };
-    const AuthInputWarningIconStyle = {
-		color: ReelayColors.reelayRed,
-		name: "warning",
-		type: "ionicon",
-	};
-    const InputContainer = styled(View)`
-		margin-bottom: 30px;
-		width: 90%;
-		display: flex;
-		flex-direction: column;
-	`;
-    const AlignmentContainer = styled(View)`
-        height: 100%;
-		width: 100%;
-		flex-direction: column;
-		align-items: center;
-	`;
-	const SignInButtonContainer = styled(View)`
-		width: 90%;
-		height: 56px;
-        margin: 20px;
-	`;
-    const ErrorContainer = styled(View)`
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    `
-    const ErrorText = styled(ReelayText.H6Emphasized)`
-        color: ${ReelayColors.reelayRed};
-        text-align: center;
-    `
     const [signingIn, setSigningIn] = useState(false);
     const { setCognitoUser, setSignedIn } = useContext(AuthContext);
     
     const ForgotPassword = () => {
-        const ForgotPasswordContainer = styled(View)`
-			flex-direction: row;
-			align-items: center;
-            margin-left: 10px;
-			width: 100%;
-		`;
 		const ForgotPasswordText = styled(ReelayText.Subtitle1)`
 			color: ${ReelayColors.reelayBlue};
             opacity: ${props => props.pressed ? 0.7 : 1};
@@ -246,17 +258,23 @@ export default SignInScreen = ({ navigation, route }) => {
 						</ErrorText>
 					</ErrorContainer>
 				)}
-				<SignInButtonContainer>
-					<Button
-						text={signingIn ? "Logging in..." : "Log in"}
-						onPress={signInWithUsernameAndPassword}
-						disabled={signingIn}
-						backgroundColor={ReelayColors.reelayBlue}
-						fontColor="white"
-						borderRadius="26px"
-					/>
-				</SignInButtonContainer>
-                <SocialLoginBar signingIn={signingIn} setSigningIn={setSigningIn} navigation={navigation} />
+                <BottomButtonsContainer>
+                    <SocialLoginBar 
+                        navigation={navigation} 
+                        signingIn={signingIn} 
+                        setSigningIn={setSigningIn} 
+                    />
+                    <SignInButtonContainer>
+                        <Button
+                            text={signingIn ? "Logging in..." : "Log in"}
+                            onPress={signInWithUsernameAndPassword}
+                            disabled={signingIn}
+                            backgroundColor={ReelayColors.reelayBlue}
+                            fontColor="white"
+                            borderRadius="26px"
+                        />
+                    </SignInButtonContainer>
+                </BottomButtonsContainer>
 			</AlignmentContainer>
 		);
     }

@@ -28,12 +28,12 @@ const MessageText = styled(ReelayText.H6)`
 `
 const SocialLoginContainer = styled(View)`
     align-items: center;
-    justify-content: center;
-    margin: 10px;
+    justify-content: flex-end;
+    margin: 20px;
 `
 const SocialAuthButton = styled(Pressable)`
     align-items: center;
-    background-color: white;
+    background-color: #222528;
     border-radius: 16px;
     height: 108px;
     justify-content: center;
@@ -90,7 +90,7 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
 
         return (
             <SocialAuthButton onPress={signInWithApple}>
-                <Icon type='ionicon' name='logo-apple' size={33} />
+                <Icon type='ionicon' name='logo-apple' color='white' size={33} />
             </SocialAuthButton>
         );
     }
@@ -153,23 +153,23 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
 
         return (
             <SocialAuthButton onPress={signInWithGoogle}>
-                <Icon type='ionicon' name='logo-google' size={30} />
+                <Icon type='ionicon' name='logo-google' color='white' size={30} />
             </SocialAuthButton>
         );
     }
 
     return (
-        <SocialLoginContainer>
-            <MessageContainer>
-                <React.Fragment>
-                    <MessageText>{'Or'}</MessageText>
-                </React.Fragment>
-            </MessageContainer>
-            <ButtonRowContainer>
-                <AppleAuthButton />
-                <GoogleAuthButton />
-            </ButtonRowContainer>
-        </SocialLoginContainer>
+        <React.Fragment>
+            {/* <MessageContainer>
+                <MessageText>{'Or'}</MessageText>
+            </MessageContainer> */}
+            <SocialLoginContainer>
+                <ButtonRowContainer>
+                    <AppleAuthButton />
+                    <GoogleAuthButton />
+                </ButtonRowContainer>
+            </SocialLoginContainer>
+        </React.Fragment>
     )
 }
 
