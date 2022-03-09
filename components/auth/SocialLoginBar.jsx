@@ -1,13 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { Image, ImageBackground, Pressable, SafeAreaView, View } from "react-native";
 import * as ReelayText from '../../components/global/Text';
 import styled from "styled-components/native";
-
 import { Icon } from "react-native-elements";
 
 import * as Google from 'expo-auth-session/providers/google';
 import * as Apple  from 'expo-apple-authentication';
 import { fetchResults } from "../../api/fetchResults";
+import { AuthContext } from "../../context/AuthContext";
+
+import { matchSocialAuthAccount, saveAndRegisterSocialAuthToken } from "../../api/ReelayUserApi";
+import { getUserByEmail } from "../../api/ReelayDBApi";
 
 const ButtonRowContainer = styled(View)`
     align-items: center;
@@ -39,6 +42,7 @@ const SocialAuthButton = styled(Pressable)`
 `
 
 export default SocialLoginBar = ({ navigation }) => {
+    const { setReelayDBUserID } = useContext(AuthContext);
 
     const AppleAuthButton = () => {
         const signInWithApple = async () => {
@@ -71,25 +75,34 @@ export default SocialLoginBar = ({ navigation }) => {
             if (accessToken) {
                 const query = `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${accessToken}`;
                 const googleUserObj = await fetchResults(query, { method: 'GET' });
-                console.log(googleUserObj);
+                console.log('Google user obj: ', googleUserObj);
 
-                // todo: IF there's a match
-                // const authAccountMatches = await getAuthAccountMatch({ method: 'google', value: '123' });
-                // if (authAccountMatches?.error || authAccountMatches.length === 0) {
-                //     const authAccountObj = await registerAuthAccount({ 
-                //         method: 'google', 
-                //         email: userCredentials?.email,
-                //         googleUserID: userCredentials?.id,
-                //         givenName: userCredentials?.given_name,
-                //         familyName: userCredentials?.family_name,
-                //     });
-                //     navigation.push('ChooseUsernameScreen', { authAccountObj });
-                // };
-                navigation.push('ChooseUsernameScreen', {
-                    method: 'google',
-                    credentials: response?.authentication,
-                    userObj: googleUserObj,
-                })
+                const authAccountMatch = await matchSocialAuthAccount({ 
+                    method: 'google', 
+                    value: googleUserObj?.id 
+                });
+
+                if (authAccountMatch && !authAccountMatch?.error) {
+                    // this social login is registered
+                    setReelayDBUserID(authAccountMatch?.reelayDBUserID);
+                    saveAndRegisterSocialAuthToken(existingUser?.sub);
+                } else {
+                    // social login not registered
+                    const existingUser = await getUserByEmail(googleUserObj?.email);
+                    if (existingUser) {
+                        // username and user obj already created
+                        setReelayDBUserID(existingUser?.sub);
+                        saveAndRegisterSocialAuthToken(existingUser?.sub);
+                        console.log('Existing user signed in');
+                    } else {
+                        // username and user obj NOT created
+                        navigation.push('ChooseUsernameScreen', {
+                            method: 'google',
+                            email: googleUserObj?.email,
+                            googleUserID: googleUserObj?.id,
+                        });
+                    }
+                }
             }
         }
 

@@ -62,7 +62,11 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
                 console.log('SIGN UP RESULT: ', signUpResult);    
 
                 const newCognitoUser = await Auth.signIn(username, password);
-                const dbResult = await registerUser(newCognitoUser);
+                const dbResult = await registerUser({
+                    email: newCognitoUser?.attributes?.email,
+                    username: newCognitoUser?.username,
+                    sub: newCognitoUser?.attributes?.sub,
+                });
                 console.log('DB SIGN UP RESULT: ', dbResult);
                 setCognitoUser(newCognitoUser);
             } catch (error) {

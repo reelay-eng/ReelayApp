@@ -9,7 +9,7 @@ import styled from 'styled-components/native';
 import * as ReelayText from "../../components/global/Text";
 import { BWButton } from "../../components/global/Buttons";
 import { HeaderWithBackButton } from "../global/Headers";
-import { clearLocalUserData } from '../../api/ReelayUserApi';
+import { clearLocalUserData, deregisterSocialAuthToken } from '../../api/ReelayUserApi';
 
 export const ProfileSettings = ({navigation}) => {
     const ViewContainer = styled(View)`
@@ -121,7 +121,7 @@ const SettingEntry = ({text, iconName, onPress}) => {
 }
 
 const Logout = () => {
-    const { reelayDBUser, setSignedIn } = useContext(AuthContext);
+    const { reelayDBUser, setSignedIn, setReelayDBUserID } = useContext(AuthContext);
 
     const signOut = async () => {
         // todo: confirm sign out
@@ -133,6 +133,8 @@ const Logout = () => {
     
             const signOutResult = await Auth.signOut();
             setSignedIn(false);
+            setReelayDBUserID(null);
+            deregisterSocialAuthToken();
             // todo: deregister for push tokens
             // todo: deregister cognito user
             console.log(signOutResult);

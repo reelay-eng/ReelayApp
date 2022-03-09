@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Icon, Input } from 'react-native-elements';
 import { Button } from '../../components/global/Buttons';
 import BackButton from '../../components/utils/BackButton';
-import { searchUsers } from '../../api/ReelayDBApi';
+import { registerUser, searchUsers } from '../../api/ReelayDBApi';
 import { AuthContext } from '../../context/AuthContext';
 
 import { 
@@ -18,6 +18,7 @@ import {
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
+import { registerSocialAuthAccount, saveAndRegisterSocialAuthToken } from '../../api/ReelayUserApi';
 // import { registerReelayDBUser } from '../../api/ReelayUserApi';
 
 export const KeyboardHidingBlackContainer = ({ children }) => {
@@ -79,7 +80,7 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
 		height: 56px;
 	`
 
-    const { method, credentials, userObj } = route?.params;
+    const { method, email, googleUserID, appleUserID } = route?.params;
     const [signingIn, setSigningIn] = useState(false);
     // const { setReelayDBUserID } = useContext(AuthContext);
     
@@ -110,7 +111,7 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
             const partialMatchingUsers = await searchUsers(username);
             if (partialMatchingUsers?.error) {
                 setErrorText('Error connecting to DB');
-                setCanSignUp(false);
+                setCan (false);
                 return;
             }
 
@@ -128,11 +129,16 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
         const completeSignUp = async () => {
             setSigningIn(true);
             console.log('Signing up...');
-            console.log('Auth account ID: ', authAccountObj?.reelayDBUserID);
-            // const completeSignUpResult = await registerReelayDBUser(inputText, authAccountObj);
-            // console.log(completeSignUpResult);
+            const authAccountObj = await registerSocialAuthAccount({ method, email, googleUserID, appleUserID });
+            console.log('Auth account register result: ', completeSignUpResult);
+            
+            const { reelayDBUserID } = authAccountObj;
+            const completeSignUpResult = await registerUser({ email, username: inputText, sub: reelayDBUserID });
+            console.log('Social sign up result: ', completeSignUpResult);
+
+            saveAndRegisterSocialAuthToken(reelayDBUserID);
             setSigningIn(false);
-            // setReelayDBUserID(authAccountObj?.reelayDBUserID);
+            setReelayDBUserID(reelayDBUserID);
         }
         
         return (

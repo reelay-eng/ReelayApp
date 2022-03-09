@@ -164,13 +164,7 @@ export default SignInScreen = ({ navigation, route }) => {
             try {
                 setSigningIn(true);
                 if (otherError) setOtherError(false);
-                const username = await getInputUsername(inputText);
-                console.log('username: ', username);
-                logAmplitudeEventProd('signInSuccess', {
-                    username: username,
-                    inputText: inputText,
-                    Device: Platform.OS,
-                });
+                const username = await getInputUsername(inputText);                
                 if (!username.length) {
                     // entered an invalid email
                     handleBadEmail();
@@ -183,12 +177,15 @@ export default SignInScreen = ({ navigation, route }) => {
                 }
 
                 const cognitoUser = await Auth.signIn(username, password);
-                console.log('Received sign in result');
-                console.log(cognitoUser);
+                console.log('Received sign in result: ', cognitoUser);
                 setCognitoUser(cognitoUser);
                 console.log('Signed in user successfully');
                 setSignedIn(true);
-
+                logAmplitudeEventProd('signInSuccess', {
+                    username: username,
+                    inputText: inputText,
+                    Device: Platform.OS,
+                });
             } catch (error) {
                 console.log('Received error');
                 console.log(error);
@@ -204,6 +201,7 @@ export default SignInScreen = ({ navigation, route }) => {
                 }
             }
         }
+        
         const PasswordIconComponent = () => {
 			if (hidePassword)
 				return (
