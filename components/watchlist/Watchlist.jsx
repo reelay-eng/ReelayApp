@@ -121,6 +121,7 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
             <FlatList 
                 data={uniqueWatchlistItems}
                 horizontal={false}
+                keyboardShouldPersistTaps={"handled"}
                 keyExtractor={item => String(item.id)}
                 pagingEnabled={false}
                 renderItem={renderWatchlistItem}

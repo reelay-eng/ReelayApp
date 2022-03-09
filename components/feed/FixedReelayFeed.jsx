@@ -98,8 +98,9 @@ const FixedReelayFeed = ({ navigation,
                     horizontal={false}
                     initialNumToRender={1}
                     initialScrollIndex={initialFeedPos}
-                    maxToRenderPerBatch={1}
+                    keyboardShouldPersistTaps={"handled"}
                     keyExtractor={stack => String(stack[0].title.id)}
+                    maxToRenderPerBatch={1}
                     onScroll={onFeedSwiped}
                     pagingEnabled={true}
                     ref={feedPager}

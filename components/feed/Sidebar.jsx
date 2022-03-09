@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import * as ReelayText from "../global/Text";

@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState, memo} from 'react';
+import React, { useContext, useRef, useState, useEffect, memo} from 'react';
 import { 
     Dimensions,
     Keyboard, 
@@ -6,7 +6,6 @@ import {
     Modal, 
     Pressable, 
     ScrollView, 
-    Text, 
     TextInput, 
     View,
     Image,
@@ -52,7 +51,7 @@ moment.updateLocale("en", {
 	},
 });
 
-export default CommentsDrawer = ({ reelay, navigation }) => {
+export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
     const CLOSE_BUTTON_SIZE = 25;
     const MAX_COMMENT_LENGTH = 200;
@@ -72,7 +71,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         margin-top: auto;
         width: 100%;
     `
-    const ModalContainer = styled(View)`
+    const ModalContainer = styled(Pressable)`
         position: absolute;
     `
     const { cognitoUser, reelayDBUser } = useContext(AuthContext);
@@ -110,9 +109,8 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         const CloseButtonContainer = styled(Pressable)`
             align-self: flex-end;
         `
-        const headerText = reelay.comments.length
-			? `${reelay.comments.length} comments`
-			: "No comments... be the first!";
+		const headerText = commentsCount.current ? `${commentsCount.current} comments` : "No comments... be the first!"
+		
         return (
             <HeaderContainer>
                 {/* <GrayBar /> */}
@@ -130,11 +128,12 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 		border-radius: 16px;
 	`;
 
-    const Comments = memo(({comments}) => {
+    const Comments = ({ comments }) => {
         const CommentsContainer = styled(View)`
 			width: 100%;
 			padding-top: 13px;
 		`;
+		
         return (
             <CommentsContainer>
                 {comments.map((comment, i) => (
@@ -142,7 +141,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
                 ))}
             </CommentsContainer>
         );
-    });
+	};
 
     const AsyncProfilePhoto = ({ source }) => {
 		return (
@@ -271,6 +270,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         const [maxDrawerHeight, setMaxDrawerHeight] = useState(height);
 
         const rerender = () => {
+			commentsCount.current = reelay.comments.length;
             setRender(!render);
         }
 
@@ -302,21 +302,23 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 				</CommentProfilePhotoContainer>
 			);
         })
-
+		
         return (
 			<View>
+				<Header />
 				{reelay.comments.length > 0 && (
 					<>
 						<ScrollView
 							ref={scrollViewRef}
 							style={{ maxHeight: maxDrawerHeight / 2 }}
+							keyboardShouldPersistTaps={'handled'}
 						>
                             <Comments comments={reelay.comments}/>
 						</ScrollView>
 						<Spacer height="12px" />
 					</>
 				)}
-
+				
 				<View style={BlackBoxContainerStyle}>
                     <AuthorImage user={cognitoUser}/>
 					<CommentInput
@@ -444,7 +446,6 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 						text={"Post"}
 						onPress={(commentText) => {
 							onCommentPost(commentText);
-							Keyboard.dismiss();
 						}}
 					/>
 				</PostButtonContainer>
@@ -454,16 +455,17 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 
     return (
 		<ModalContainer>
-            <Modal animationType="slide" transparent={true} visible={commentsVisible}>
-				<KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-					<Backdrop onPress={closeDrawer} />
-                    <DrawerContainer>
-							<Header />
+			<ScrollView keyboardShouldPersistTaps={"handled"}>
+				<Modal animationType="slide" transparent={true} visible={commentsVisible}>
+					<KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+						<Backdrop onPress={closeDrawer} />
+						<DrawerContainer>
 							<CommentBox />
-                        {/* <CloseButton /> */}
-					</DrawerContainer>
-				</KeyboardAvoidingView>
-			</Modal>
+							{/* <CloseButton /> */}
+						</DrawerContainer>
+					</KeyboardAvoidingView>
+				</Modal>
+			</ScrollView>
 		</ModalContainer>
-	);
+    );
 };

@@ -38,7 +38,7 @@ export default AddToWatchlistButton = ({ titleObj, reelay }) => {
         if (!dbResult.error) {
             const nextWatchlistItems = [...myWatchlistItems, dbResult];
             setMyWatchlistItems(nextWatchlistItems);
-            showMessageToast('Added to your watchlist');
+            showMessageToast('Added to your watchlist', 'bottom');
 
             logAmplitudeEventProd('addToMyWatchlist', {
                 username: reelayDBUser?.username,
