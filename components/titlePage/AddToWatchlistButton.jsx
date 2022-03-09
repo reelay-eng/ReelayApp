@@ -4,7 +4,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { addToMyWatchlist } from '../../api/WatchlistApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
-const ICON_SIZE = 30;
+const ICON_SIZE = 22;
 
 import WatchlistIconAdded from '../../assets/icons/global/watchlist-added-icon.png';
 import WatchlistIconNotAdded from '../../assets/icons/global/watchlist-icon-filled.png';
@@ -48,13 +48,13 @@ export default AddToWatchlistButton = ({ titleObj, reelay }) => {
             });
         }
     }
-
+    // new icon type : "reorder-three"
     return (
         <Pressable onPress={addToWatchlist} disabled={isAdded}>
             <Image source={(isAdded) ? WatchlistIconAdded : WatchlistIconNotAdded} style={{
                 height: ICON_SIZE,
                 width: ICON_SIZE,
-                marginBottom: 6,
+                marginBottom: 2,
             }} />
         </Pressable>
     );

@@ -4,7 +4,7 @@ import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
-const ICON_SIZE = 30;
+const ICON_SIZE = 20;
 
 export default SendRecButton = ({ navigation, titleObj, reelay }) => {
     const { cognitoUser } = useContext(AuthContext);

@@ -11,6 +11,7 @@ export default ReelayInfo = ({ navigation, reelay }) => {
 		position: absolute;
 		bottom: 120px;
 		margin-left: 20px;
+		width: 80%;
 	`
 	const PostInfo = styled(View)`
 		flex-direction: row;
@@ -47,9 +48,9 @@ export default ReelayInfo = ({ navigation, reelay }) => {
 				<PostInfo>
 					<Username>@{creator?.username}</Username>
 				</PostInfo>
-				<TitleInfo>
+				{/* <TitleInfo>
 					<Title>{displayTitle} ({year})</Title>
-				</TitleInfo>
+				</TitleInfo> */}
 			</Pressable>
 		</InfoView>
 	);

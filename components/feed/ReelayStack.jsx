@@ -4,10 +4,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from 'react-native-elements';
 import Hero from './Hero';
 import Poster from './Poster';
+import AddToWatchlistButton from '../titlePage/AddToWatchlistButton';
 
 import styled from 'styled-components/native';
-import { VenueIcon } from '../utils/VenueIcon';
-import * as ReelayText from '../global/Text';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
@@ -37,29 +36,60 @@ const ReelayFeedContainer = styled(View)`
     height: ${height}px;
     width: ${width}px;
 `
-const TopRightContainer = styled(View)`
+const StackLengthText = styled(Text)`
+    color: white;
+    font-family: Outfit-Regular;
+    font-size: 12px;
+    height: 16px;
+    line-height: 16px;
+    letter-spacing: 0.25px;
     position: absolute;
-    left: ${width - 90}px;
-    zIndex: 3;
+    right: 20px;
 `
-const UnderPosterContainer = styled(View)`
-    flex-direction: row;
-    justify-content: flex-end;
+const TitleContainer = styled(View)`
+    width: 210px;
 `
-const StackLocationOval = styled(View)`
-    align-items: flex-end;
+const TitleDetailContainer = styled(View)`
     align-self: center;
-    background-color: white;
-    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.36);
+    border-radius: 8px;
+    display: flex;
+    height: 100px;
+    width: 345px;
     justify-content: center;
-    right: 6px;
-    height: 22px;
-    width: 50px;
+    position: absolute;
+    top: 47px;
     zIndex: 3;
 `
-const StackLocationText = styled(ReelayText.Body2)`
+const TitleInfo = styled(View)`
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 3px;
+`
+const Title = styled(Text)`
+    color: white;
+    font-family: Outfit-Medium;
+    font-size: 18px;
+    line-height: 20px;
+    letter-spacing: 0.18px;
+`
+const WatchListButton = styled(Pressable)`
+    align-items: center;
     align-self: center;
-    color: black;
+    background: rgba(255, 255, 255, 0.35);
+    border-radius: 50px;
+    height: 45px;
+    justify-content: center;
+    width: 45px;
+`
+const Year = styled(Text)`
+    color: white;
+    font-family: Outfit-Regular;
+    font-size: 12px;
+    height: 16px;
+    width: 35px;
+    line-height: 16px;
+    letter-spacing: 0.4px;
 `
 
 const PlayPauseIcon = ({ onPress, type = 'play' }) => {
@@ -68,15 +98,6 @@ const PlayPauseIcon = ({ onPress, type = 'play' }) => {
         <IconContainer onPress={onPress}>
             <Icon type='ionicon' name={type} color={'white'} size={ICON_SIZE} />
         </IconContainer>
-    );
-}
-
-const StackLocation = ({ position, length }) => {
-    const text = String(position + 1) + ' / ' + String(length);
-    return (
-        <StackLocationOval>
-            <StackLocationText>{ text }</StackLocationText>
-        </StackLocationOval>
     );
 }
 
@@ -94,6 +115,10 @@ const ReelayStack = ({
         playPauseVisible, setPlayPauseVisible,
     } = useContext(FeedContext);
     const viewableReelay = stack[stackPosition];
+    
+    // figure out how to do ellipses for displayTitle
+    const displayTitle = (viewableReelay.title.display) ? viewableReelay.title.display : 'Title not found\ '; 
+	const year = (viewableReelay.title.releaseYear) ? viewableReelay.title.releaseYear : '';
 
     const getItemLayout = (data, index) => ({
         length: width, 
@@ -225,15 +250,25 @@ const ReelayStack = ({
                 pagingEnabled={true} 
                 windowSize={3}
             />
-            <TopRightContainer style={{ top: insets.top }}>
-                <Pressable onPress={openTitleDetail}>
+            <TitleDetailContainer style={{ top: insets.top }}>
+                <Pressable onPress={openTitleDetail} style={{flexDirection: "row"}}>
                     <Poster title={viewableReelay.title} />
+                    <TitleInfo>
+                        <TitleContainer>
+                            <Title>
+                                {displayTitle}
+                            </Title>
+                        </TitleContainer>
+                        <View style={{flexDirection: "row", marginTop: 5}}>
+                            <Year>{year}</Year>
+                            <StackLengthText>{(stack.length>1) ? `${stack.length} Reelays` : `${stack.length} Reelay`}</StackLengthText>
+                        </View>
+                    </TitleInfo>
+                    <WatchListButton>
+                        <AddToWatchlistButton titleObj={viewableReelay.title} reelay={viewableReelay}/>
+                    </WatchListButton>
                 </Pressable>
-                <UnderPosterContainer>
-                    { stack.length > 1 && <StackLocation position={stackPosition} length={stack.length} /> }
-                    { viewableReelay?.content?.venue && <VenueIcon venue={viewableReelay.content.venue} size={25} border={2} /> }
-                </UnderPosterContainer>
-            </TopRightContainer>
+            </TitleDetailContainer>
         </ReelayFeedContainer>
     );
 }

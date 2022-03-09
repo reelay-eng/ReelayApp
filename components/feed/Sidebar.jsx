@@ -10,16 +10,22 @@ import { FeedContext } from '../../context/FeedContext';
 import { notifyCreatorOnLike } from '../../api/NotificationsApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
-import AddToWatchlistButton from '../titlePage/AddToWatchlistButton';
 import SendRecButton from '../watchlist/SendRecButton';
 
 const { height, width } = Dimensions.get('window');
 
 export default Sidebar = ({ navigation, reelay }) => {
-	const ICON_SIZE = 36;
-	const DOT_ICON_SIZE = ICON_SIZE * 2 / 3;
+	const ICON_SIZE = 21;
+	const DOT_ICON_SIZE = 18;
 
-	const Count = styled(ReelayText.Subtitle1)`
+	const Count = styled(Text)`
+		font-family: Outfit-Regular;
+		font-size: 14px;
+		font-style: normal;
+		line-height: 20px;
+		letter-spacing: 0.25px;
+		text-align: left;
+
 		color: #fff;
 		text-shadow-color: rgba(0, 0, 0, 0.2);
 		text-shadow-offset: 1px 1px;
@@ -29,12 +35,20 @@ export default Sidebar = ({ navigation, reelay }) => {
 		align-items: center;
 		align-self: flex-end;
 		position: absolute;
-		bottom: ${height / 5}px;
+		bottom: ${height / 8}px;
 	`
 	const SidebarButton = styled(Pressable)`
 		align-items: center;
+		background: rgba(255, 255, 255, 0.35);
+		border-radius: 50px;
+		height: 40px;
 		justify-content: center;
-		margin: 10px;
+		margin-top: 8px;
+		width: 40px;
+	`
+	const ButtonContainer = styled(View)`
+		align-items: center;
+		margin-right: 10px;
 	`
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 
@@ -113,41 +127,50 @@ export default Sidebar = ({ navigation, reelay }) => {
 
 	return (
 		<SidebarView>
-			<SidebarButton onPress={onLikePress} onLongPress={onLikeLongPress}>
-				<Icon
-					type="ionicon"
-					name="heart"
-					color={likedByUser ? "#db1f2e" : "white"}
-					iconStyle={IconDropShadowStyle}
-					size={ICON_SIZE}
-				/>
+			<ButtonContainer>
+				<SidebarButton onPress={onLikePress} onLongPress={onLikeLongPress}>
+					<Icon
+						type="ionicon"
+						name="heart"
+						color={likedByUser ? "#db1f2e" : "white"}
+						iconStyle={IconDropShadowStyle}
+						size={ICON_SIZE}
+					/>
+				</SidebarButton>
 				<Count>{reelay.likes.length}</Count>
-			</SidebarButton>
-			<SidebarButton onPress={onCommentPress} onLongPress={onCommentLongPress}>
-				<Icon
-					type="ionicon"
-					name="chatbubble-ellipses"
-					color={commentedByUser ? "#db1f2e" : "white"}
-					iconStyle={IconDropShadowStyle}
-					size={ICON_SIZE}
-				/>
+			</ButtonContainer>
+
+			<ButtonContainer>
+				<SidebarButton onPress={onCommentPress} onLongPress={onCommentLongPress}>
+					<Icon
+						type="ionicon"
+						name="chatbubble-ellipses"
+						color={commentedByUser ? "#db1f2e" : "white"}
+						iconStyle={IconDropShadowStyle}
+						size={ICON_SIZE}
+					/>
+				</SidebarButton>
 				<Count>{reelay.comments.length}</Count>
-			</SidebarButton>
-			<SidebarButton>
-				<AddToWatchlistButton titleObj={reelay.title} reelay={reelay} />
-			</SidebarButton>
-			<SidebarButton>
-				<SendRecButton navigation={navigation} titleObj={reelay.title} reelay={reelay} />
-			</SidebarButton>
-			<SidebarButton onPress={onDotMenuPress}>
-				<Icon 
-					type='ionicon' 
-					name={'ellipsis-horizontal'} 
-					color={'white'} 
-					iconStyle={IconDropShadowStyle}
-					size={DOT_ICON_SIZE} 
-				/>
-			</SidebarButton>
+			</ButtonContainer>
+
+			<ButtonContainer>
+				<SidebarButton>
+					<SendRecButton navigation={navigation} titleObj={reelay.title} reelay={reelay} />
+				</SidebarButton>
+				<Count>{" "}</Count>
+			</ButtonContainer>
+
+			<ButtonContainer>
+				<SidebarButton onPress={onDotMenuPress}>
+					<Icon 
+						type='ionicon' 
+						name={'ellipsis-horizontal'} 
+						color={'white'} 
+						iconStyle={IconDropShadowStyle}
+						size={DOT_ICON_SIZE} 
+					/>
+				</SidebarButton>
+			</ButtonContainer>
 		</SidebarView>
 	);
 }
