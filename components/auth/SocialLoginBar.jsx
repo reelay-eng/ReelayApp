@@ -41,7 +41,7 @@ const SocialAuthButton = styled(Pressable)`
     width: 108px;
 `
 
-export default SocialLoginBar = ({ navigation }) => {
+export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
     const { setReelayDBUserID } = useContext(AuthContext);
 
     const AppleAuthButton = () => {
@@ -54,6 +54,38 @@ export default SocialLoginBar = ({ navigation }) => {
             });
             console.log(credentials);
             // TODO: create an auth token, and set reelayDBUser corresponding to the Apple credentials
+
+            const appleUserID = credentials?.user;
+            const appleEmail = credentials?.email ?? 'anthony.mainero@gmail.com';
+            const { familyName, givenName } = credentials?.fullName;
+
+            const authAccountMatch = await matchSocialAuthAccount({ 
+                method: 'apple', 
+                value: appleUserID,
+            });
+
+            if (authAccountMatch && !authAccountMatch?.error) {
+                // this social login is registered
+                const { reelayDBUserID } = authAccountMatch;
+                setReelayDBUserID(reelayDBUserID);
+                saveAndRegisterSocialAuthToken(reelayDBUserID);
+            } else {
+                // social login not registered
+                const existingUser = await getUserByEmail(appleEmail);
+                if (existingUser) {
+                    // username and user obj already created
+                    setReelayDBUserID(existingUser?.sub);
+                    saveAndRegisterSocialAuthToken(existingUser?.sub);
+                    console.log('Existing user signed in');
+                } else {
+                    // username and user obj NOT created
+                    navigation.push('ChooseUsernameScreen', {
+                        method: 'apple',
+                        email: appleEmail,
+                        appleUserID,
+                    });
+                }
+            }
         }
 
         return (
@@ -72,36 +104,41 @@ export default SocialLoginBar = ({ navigation }) => {
 
         const onSignInResponse = async () => {
             const accessToken = response?.authentication?.accessToken;
-            if (accessToken) {
-                const query = `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${accessToken}`;
-                const googleUserObj = await fetchResults(query, { method: 'GET' });
-                console.log('Google user obj: ', googleUserObj);
+            if (!accessToken) {
+                console.log('No access token');
+                return;
+            }
 
-                const authAccountMatch = await matchSocialAuthAccount({ 
-                    method: 'google', 
-                    value: googleUserObj?.id 
-                });
+            setSigningIn(true);
+            const query = `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${accessToken}`;
+            const googleUserObj = await fetchResults(query, { method: 'GET' });
+            console.log('Google user obj: ', googleUserObj);
 
-                if (authAccountMatch && !authAccountMatch?.error) {
-                    // this social login is registered
-                    setReelayDBUserID(authAccountMatch?.reelayDBUserID);
+            const authAccountMatch = await matchSocialAuthAccount({ 
+                method: 'google', 
+                value: googleUserObj?.id 
+            });
+
+            if (authAccountMatch && !authAccountMatch?.error) {
+                // this social login is registered
+                const { reelayDBUserID } = authAccountMatch;
+                setReelayDBUserID(reelayDBUserID);
+                saveAndRegisterSocialAuthToken(reelayDBUserID);
+            } else {
+                // social login not registered
+                const existingUser = await getUserByEmail(googleUserObj?.email);
+                if (existingUser) {
+                    // username and user obj already created
+                    setReelayDBUserID(existingUser?.sub);
                     saveAndRegisterSocialAuthToken(existingUser?.sub);
+                    console.log('Existing user signed in');
                 } else {
-                    // social login not registered
-                    const existingUser = await getUserByEmail(googleUserObj?.email);
-                    if (existingUser) {
-                        // username and user obj already created
-                        setReelayDBUserID(existingUser?.sub);
-                        saveAndRegisterSocialAuthToken(existingUser?.sub);
-                        console.log('Existing user signed in');
-                    } else {
-                        // username and user obj NOT created
-                        navigation.push('ChooseUsernameScreen', {
-                            method: 'google',
-                            email: googleUserObj?.email,
-                            googleUserID: googleUserObj?.id,
-                        });
-                    }
+                    // username and user obj NOT created
+                    navigation.push('ChooseUsernameScreen', {
+                        method: 'google',
+                        email: googleUserObj?.email,
+                        googleUserID: googleUserObj?.id,
+                    });
                 }
             }
         }

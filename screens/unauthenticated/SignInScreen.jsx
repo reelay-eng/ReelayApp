@@ -67,7 +67,7 @@ export default SignInScreen = ({ navigation, route }) => {
 		flex-direction: column;
 		align-items: center;
 	`;
-	const CTAButtonContainer = styled(View)`
+	const SignInButtonContainer = styled(View)`
 		width: 90%;
 		height: 56px;
         margin: 20px;
@@ -122,11 +122,6 @@ export default SignInScreen = ({ navigation, route }) => {
             if (badEmail) setBadEmail(false);
         }
 
-        const changePasswordText = (text) => {
-			setPassword(text);
-			if (badPassword) setBadPassword(false);
-		};
-
         const handleBadEmail = async () => {
             setBadEmail(true);
             setSigningIn(false);
@@ -159,7 +154,7 @@ export default SignInScreen = ({ navigation, route }) => {
             });
         }
 
-        const signInUser = async () => {
+        const signInWithUsernameAndPassword = async () => {
             console.log('Attempting user sign in');
             try {
                 setSigningIn(true);
@@ -201,7 +196,7 @@ export default SignInScreen = ({ navigation, route }) => {
                 }
             }
         }
-        
+
         const PasswordIconComponent = () => {
 			if (hidePassword)
 				return (
@@ -251,17 +246,17 @@ export default SignInScreen = ({ navigation, route }) => {
 						</ErrorText>
 					</ErrorContainer>
 				)}
-				<CTAButtonContainer>
+				<SignInButtonContainer>
 					<Button
 						text={signingIn ? "Logging in..." : "Log in"}
-						onPress={signInUser}
+						onPress={signInWithUsernameAndPassword}
 						disabled={signingIn}
 						backgroundColor={ReelayColors.reelayBlue}
 						fontColor="white"
 						borderRadius="26px"
 					/>
-				</CTAButtonContainer>
-                <SocialLoginBar disabed={signingIn} navigation={navigation} />
+				</SignInButtonContainer>
+                <SocialLoginBar signingIn={signingIn} setSigningIn={setSigningIn} navigation={navigation} />
 			</AlignmentContainer>
 		);
     }
