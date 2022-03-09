@@ -16,7 +16,6 @@ import styled from 'styled-components/native';
 import { KeyboardHidingBlackContainer } from "./SignInScreen";
 import constraints from '../../components/utils/EmailValidationConstraints';
 import { Button } from '../../components/global/Buttons';
-import { registerUser } from '../../api/ReelayDBApi';
 
 const REELAY_ICON_SOURCE = require('../../assets/icons/reelay-icon.png');
 const SIGN_UP_ERROR_MESSAGE = "Couldn't create an account. Try a different username?";
@@ -88,7 +87,6 @@ export default SignUpScreen = ({ navigation, route }) => {
         align-items: center;
         justify-content: space-between;
     `
-
     const CTAButtonContainer = styled(View)`
         margin-bottom: 16px;
         width: 92%;
@@ -98,8 +96,9 @@ export default SignUpScreen = ({ navigation, route }) => {
 		color: white;
         text-align: center;
         width: 80%;
-	`;
-    const SignUpDisclosureLink = ({url, children}) => {
+	`
+
+    const SignUpDisclosureLink = ({ url, children }) => {
         const LinkText = styled(ReelayText.Caption)`
             color: white;
             text-decoration-line: underline;
@@ -111,8 +110,6 @@ export default SignUpScreen = ({ navigation, route }) => {
                 <LinkText>{children}</LinkText>
             </LinkPressable>
         )
-
-
     }
 
     const SignUpButtonAndDisclosureContainer = styled(View)`
@@ -201,8 +198,7 @@ export default SignUpScreen = ({ navigation, route }) => {
                 }); 
 
                 console.log('SIGN UP RESULT', signUpResult);
-                // const reelayDBSignUpResult = await registerUser(signUpResult);
-                navigation.push('ConfirmEmailScreen', { username });
+                navigation.push('ConfirmEmailScreen', { username, password });
                 logAmplitudeEventProd('signUp', {
                     email: username,
                     username: username,
@@ -241,6 +237,7 @@ export default SignUpScreen = ({ navigation, route }) => {
 						onChangeText={setEmail}
 						leftIcon={AuthInputEmailIconStyle}
 						rightIcon={showEmailError ? AuthInputWarningIconStyle : null}
+                        textContentType='emailAddress'
 						value={email}
 					/>
 					<AuthInput
@@ -254,6 +251,7 @@ export default SignUpScreen = ({ navigation, route }) => {
 						onChangeText={setUsername}
 						leftIcon={AuthInputUsernameIconStyle}
 						rightIcon={showUsernameError ? AuthInputWarningIconStyle : null}
+                        textContentType='username'
 						value={username}
 					/>
 					<AuthInput
@@ -271,6 +269,7 @@ export default SignUpScreen = ({ navigation, route }) => {
 						leftIcon={PasswordIconComponent}
 						rightIcon={showPasswordError ? AuthInputWarningIconStyle : null}
 						secureTextEntry={hidePassword}
+                        textContentType='newPassword'
 						value={password}
 					/>
 					<AuthInput
@@ -288,13 +287,14 @@ export default SignUpScreen = ({ navigation, route }) => {
 							passwordsMatch ? AuthInputLockedIconStyle : AuthInputUnlockedIconStyle
 						}
 						rightIcon={showConfirmPasswordError ? AuthInputWarningIconStyle : null}
+                        textContentType='newPassword'
 						value={confirmPassword}
 					/>
 				</InputContainer>
 				<SignUpButtonAndDisclosureContainer>
 					<CTAButtonContainer>
 						<Button
-							text="Sign Up"
+							text="Send me a confirmation code"
 							onPress={createAccount}
 							backgroundColor={ReelayColors.reelayBlue}
 							fontColor="white"
@@ -337,14 +337,12 @@ export default SignUpScreen = ({ navigation, route }) => {
 
         const TextContainer = styled(View)`
             margin-bottom: 20px;
+            align-items: center;
         `
-        const HeaderText = styled(ReelayText.H5Bold)`
+        const HeaderText = styled(ReelayText.H5Emphasized)`
             color: white;
             margin-bottom: 4px;
         `
-        const SublineText = styled(ReelayText.Caption)`
-			color: white;
-		`;
 
         return (
 			<Container>
@@ -353,8 +351,7 @@ export default SignUpScreen = ({ navigation, route }) => {
 						<BackButton navigation={navigation} />
 					</BackButtonContainer>
 					<TextContainer>
-						<HeaderText>Let's Get Started!</HeaderText>
-						<SublineText>Fill out the form to continue</SublineText>
+						<HeaderText>Sign up in seconds</HeaderText>
 					</TextContainer>
 				</TopBarContainer>
 			</Container>

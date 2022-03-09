@@ -43,7 +43,6 @@ import {
     loadMyFollowing, 
     loadMyReelayStacks, 
     loadMyNotifications, 
-    loadMyUser, 
     loadMyWatchlist 
 } from './api/ReelayUserApi';
 
@@ -92,7 +91,9 @@ function App() {
 
     // first load my profile
     useEffect(() => {
-        loadMyProfile();
+        if (cognitoUser?.attributes?.sub) {
+            loadMyProfile(cognitoUser?.attributes?.sub);
+        }
     }, [cognitoUser]);
 
     useEffect(() => {
@@ -213,32 +214,21 @@ function App() {
         }
     }
 
-    const fetchOrRegisterUser = async () => {
-        const userSub = cognitoUser?.attributes?.sub;
-        if (!userSub) return null;
-    
-        return await getRegisteredUser(userSub) 
-            ?? await registerUser(cognitoUser);
-    }    
+    const loadMyProfile = async (userSub) => {
+        const reelayDBUserLoaded = await getRegisteredUser(userSub);
+        const myCreatorStacksLoaded = await loadMyReelayStacks(userSub);
+        const myFollowersLoaded = await loadMyFollowers(userSub);
+        const myFollowingLoaded = await loadMyFollowing(userSub);
+        const myNotifications = await loadMyNotifications(userSub);
+        const myWatchlistItemsLoaded = await loadMyWatchlist(userSub);
 
-    const loadMyProfile = async () => {
-        const userSub = cognitoUser?.attributes?.sub;
-        if (userSub) {
-            const reelayDBUserLoaded = await fetchOrRegisterUser();
-            const myCreatorStacksLoaded = await loadMyReelayStacks(userSub);
-            const myFollowersLoaded = await loadMyFollowers(userSub);
-            const myFollowingLoaded = await loadMyFollowing(userSub);
-            const myNotifications = await loadMyNotifications(userSub);
-            const myWatchlistItemsLoaded = await loadMyWatchlist(userSub);
-    
-            setReelayDBUser(reelayDBUserLoaded);
-            setMyFollowers(myFollowersLoaded);
-            setMyFollowing(myFollowingLoaded);
-            setMyCreatorStacks(myCreatorStacksLoaded);
-            setMyNotifications(myNotifications);
-            setMyWatchlistItems(myWatchlistItemsLoaded);
-            setIsLoading(false);
-        }
+        setReelayDBUser(reelayDBUserLoaded);
+        setMyFollowers(myFollowersLoaded);
+        setMyFollowing(myFollowingLoaded);
+        setMyCreatorStacks(myCreatorStacksLoaded);
+        setMyNotifications(myNotifications);
+        setMyWatchlistItems(myWatchlistItemsLoaded);
+        setIsLoading(false);
     }
 
     const registerMyPushToken = async () => {

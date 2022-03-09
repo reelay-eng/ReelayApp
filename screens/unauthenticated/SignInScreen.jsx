@@ -233,6 +233,7 @@ export default SignInScreen = ({ navigation, route }) => {
 						errorMessage={badEmail && "Incorrect email"}
 						onChangeText={changeInputText}
 						rightIcon={badEmail ? AuthInputWarningIconStyle : null}
+                        textContentType='emailAddress'
 						value={inputText}
 					/>
 					<AuthInput
@@ -243,6 +244,7 @@ export default SignInScreen = ({ navigation, route }) => {
 						onChangeText={setPassword}
 						secureTextEntry={hidePassword}
 						rightIcon={badPassword ? AuthInputWarningIconStyle : null}
+                        textContentType='password'
 						value={password}
 					/>
 					<ForgotPassword />

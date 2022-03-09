@@ -117,12 +117,14 @@ export default ForgotPasswordScreen = ({ navigation }) => {
 				<InputContainer>
 					<AuthInput
 						autoCapitalize="none"
+						autoComplete="email"
 						containerStyle={AuthInputContainerStyle}
 						leftIcon={AuthInputUsernameIconStyle}
 						placeholder={"Enter username or email"}
 						errorMessage={!!error.length && error}
 						onChangeText={changeInputText}
 						rightIcon={!!error.length ? AuthInputWarningIconStyle : null}
+						textContextType='emailAddress'
 						value={inputText}
 					/>
 					<CTAButtonContainer>

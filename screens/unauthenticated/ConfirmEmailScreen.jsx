@@ -9,12 +9,12 @@ import { showErrorToast, showMessageToast } from '../../components/utils/toasts'
 
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
-
-const REELAY_ICON_SOURCE = require('../../assets/icons/reelay-icon.png');
+import { AuthContext } from '../../context/AuthContext';
+import { registerUser } from '../../api/ReelayDBApi';
 
 export default ConfirmEmailScreen = ({ navigation, route }) => {
-
-    const { username } = route.params;
+    const { username, password } = route.params;
+    const { setCognitoUser } = useContext(AuthContext);
 
     const InputContainer = styled(View)`
         margin-bottom: 60px;
@@ -39,14 +39,6 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
 		letter-spacing: 0.15px;
 		margin-left: 8px;
 	`; 
-    const ReelayPicture = styled(Image)`
-        align-self: center;
-        justify-content: center;
-        margin-top: 20px;
-        margin-bottom: 20px;
-        height: 192px;
-        width: 192px;
-    ` 
     const AuthInputContainerStyle = {
         alignSelf: 'center',
         margin: 10,
@@ -61,31 +53,30 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
     }
 
     const ConfirmationCodeInput = () => {
-
         const [confirmationCode, setConfirmationCode] = useState('');
         
         const confirmEmail = async () => {
-            console.log('Attempting email confirmation');
-            await Auth.confirmSignUp(
-                username, 
-                confirmationCode
-            ).then((result) => {
-                console.log('Email confirmed');
-                console.log(result);
-                navigation.popToTop();
-                navigation.push('SignInScreen');
-            }).catch((error) => {
+            try {
+                console.log('Attempting email confirmation');
+                const signUpResult = await Auth.confirmSignUp(username, confirmationCode);
+                console.log('SIGN UP RESULT: ', signUpResult);    
+
+                const newCognitoUser = await Auth.signIn(username, password);
+                const dbResult = await registerUser(newCognitoUser);
+                console.log('DB SIGN UP RESULT: ', dbResult);
+                setCognitoUser(newCognitoUser);
+            } catch (error) {
                 console.log('Could not confirm email address');
-                console.log(error);
                 showErrorToast('Could not confirm email address');
-            });
+                return { error };
+            }
         }
     
         const resendConfirmationCode = async () => {
             console.log('Attempting to resend confirmation code');
             try {
                 const resendResult = await Auth.resendSignUp(username);
-                console.log('Confirmation code resent');
+                console.log('Confirmation code resent: ', resendResult);
                 showMessageToast('Confirmation code resent');
             } catch (error) {
                 console.log('Could not resend confirmation code');
