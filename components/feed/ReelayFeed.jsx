@@ -26,6 +26,7 @@ const ReelayFeedContainer = styled(View)`
 
 const ReelayFeed = ({ navigation, 
     initialStackPos = 0,
+    initialFeedPos = 0,
     forceRefresh = false, 
     initialFeedSource = 'global'
 }) => {
@@ -40,7 +41,7 @@ const ReelayFeed = ({ navigation,
     const [refreshing, setRefreshing] = useState(false);
 
     const [selectedStackList, setSelectedStackList] = useState([]);
-    const [selectedFeedPosition, setSelectedFeedPosition] = useState(0);
+    const [selectedFeedPosition, setSelectedFeedPosition] = useState(initialFeedPos);
 
     useEffect(() => {
         setTabBarVisible(true); // to ensure tab bar is always here

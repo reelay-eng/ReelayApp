@@ -36,7 +36,7 @@ const Announcements = ({ navigation }) => {
 
 const InTheatersContainer = styled.View`
     width: 100%;
-    height: 45%
+    height: auto;
     display: flex;
     flex-direction: column;
     padding-left: 15px;
@@ -49,7 +49,8 @@ const InTheatersElementRowContainer = styled.ScrollView`
     display: flex;
     flex-direction: row;
     width: 100%;
-    height: auto;
+    padding-top: 16px;
+    padding-bottom: 10px;
 `
 
 const InTheaters = ({ navigation }) => {
@@ -68,7 +69,7 @@ const InTheaters = ({ navigation }) => {
     const goToReelay = (index, titleObj) => {
 		if (theaterStacks.length === 0) return;
 		navigation.push("FeedScreen", {
-			initialStackPos: index,
+			initialFeedPos: index,
             initialFeedSource: 'theaters'
 		});
 
@@ -92,23 +93,38 @@ const InTheaters = ({ navigation }) => {
     )
 }
 
-const InTheatersPosterContainer = styled.Pressable`
+const InTheatersElementContainer = styled.Pressable`
+    margin-right: 16px;
+    display: flex;
     width: 133px;
-    height: 200px;
-    border-radius: 20px;
 `
 
 const InTheatersPoster = styled.Image`
-    width: 100%;
-    height: 100%;
-    border-radius: 20px;
+    width: 133px;
+    height: 200px;
+    border-radius: 8px;
+`
+
+const InTheatersReleaseYear = styled(ReelayText.CaptionEmphasized)`
+    margin-top: 8px;
+    color: white;
+    opacity: 0.5;
+`
+
+const InTheatersTitle = styled(ReelayText.H6)`
+    margin-top: 10px;
+    color: white;
+    opacity: 1;
 `
 
 const InTheatersElement = ({ onPress, stack }) => {
+    console.log(stack[0].title);
     return (
-        <InTheatersPosterContainer onPress={onPress}>
+        <InTheatersElementContainer onPress={onPress}>
             <InTheatersPoster source={ stack[0].title.posterSource } />
-        </InTheatersPosterContainer>
+            <InTheatersReleaseYear>{stack[0].title.releaseYear}</InTheatersReleaseYear>
+            <InTheatersTitle>{stack[0].title.display}</InTheatersTitle>
+        </InTheatersElementContainer>
     )
 }
 
