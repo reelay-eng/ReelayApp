@@ -5,6 +5,7 @@ import {
     ScrollView, 
     View,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 
 // Context
 import { FeedContext } from '../../context/FeedContext';
@@ -42,12 +43,12 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 
 	// hide tab bar
 	const { setTabBarVisible } = useContext(FeedContext);
-	useEffect(() => {
+	useFocusEffect(React.useCallback(() => {
 		setTabBarVisible(false);
-		return () => {
+        return () => {
 			setTabBarVisible(true);
-		};
-	});
+		}
+    }));
 
 	const ScrollBox = styled(ScrollView)`
 		position: absolute;
