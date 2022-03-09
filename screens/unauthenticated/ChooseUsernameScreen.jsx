@@ -4,6 +4,7 @@ import { Button } from '../../components/global/Buttons';
 import BackButton from '../../components/utils/BackButton';
 import { registerUser, searchUsers } from '../../api/ReelayDBApi';
 import { AuthContext } from '../../context/AuthContext';
+import { Auth } from 'aws-amplify';
 
 import { 
     ActivityIndicator,
@@ -19,7 +20,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import { registerSocialAuthAccount, saveAndRegisterSocialAuthToken } from '../../api/ReelayUserApi';
-// import { registerReelayDBUser } from '../../api/ReelayUserApi';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 export const KeyboardHidingBlackContainer = ({ children }) => {
     const FullScreenBlackContainer = styled(SafeAreaView)`
@@ -80,7 +81,7 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
 		height: 56px;
 	`
 
-    const { method, email, googleUserID, appleUserID } = route?.params;
+    const { method, email, googleUserID, appleUserID, password } = route?.params;
     const [signingIn, setSigningIn] = useState(false);
     // const { setReelayDBUserID } = useContext(AuthContext);
     
@@ -127,18 +128,33 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
         }
 
         const completeSignUp = async () => {
+            const username = inputText;
             setSigningIn(true);
+            logAmplitudeEventProd('signUp', { email, username });
             console.log('Signing up...');
-            const authAccountObj = await registerSocialAuthAccount({ method, email, googleUserID, appleUserID });
-            console.log('Auth account register result: ', completeSignUpResult);
-            
-            const { reelayDBUserID } = authAccountObj;
-            const completeSignUpResult = await registerUser({ email, username: inputText, sub: reelayDBUserID });
-            console.log('Social sign up result: ', completeSignUpResult);
 
-            saveAndRegisterSocialAuthToken(reelayDBUserID);
-            setSigningIn(false);
-            setReelayDBUserID(reelayDBUserID);
+            if (method === 'apple' || method === 'google') {
+                const authAccountObj = await registerSocialAuthAccount({ method, email, googleUserID, appleUserID });
+                console.log('Auth account register result: ', completeSignUpResult);
+    
+                const { reelayDBUserID } = authAccountObj;
+                const completeSignUpResult = await registerUser({ email, username, sub: reelayDBUserID });
+                console.log('Social sign up result: ', completeSignUpResult);
+    
+                saveAndRegisterSocialAuthToken(reelayDBUserID);
+                setSigningIn(false);
+                setReelayDBUserID(reelayDBUserID);    
+            } else if (method === 'cognito') {
+                const signUpResult = await Auth.signUp({
+                    username: username,
+                    password: password,
+                    attributes: { email: email.toLowerCase() },
+                }); 
+                console.log('SIGN UP RESULT', signUpResult);
+                navigation.push('ConfirmEmailScreen', { username, password });
+            } else {
+                console.log('No valid signup method specified');
+            }
         }
         
         return (

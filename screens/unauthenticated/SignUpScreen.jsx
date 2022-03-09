@@ -1,15 +1,10 @@
-import React, { useContext, useState } from 'react';
-import { Image, KeyboardAvoidingView, SafeAreaView, Pressable, TouchableWithoutFeedback, View, Linking } from 'react-native';
+import React, { useState } from 'react';
+import { KeyboardAvoidingView, Pressable, TouchableWithoutFeedback, View, Linking } from 'react-native';
 import { Icon, Input } from 'react-native-elements';
 import BackButton from '../../components/utils/BackButton';
 import { showErrorToast } from '../../components/utils/toasts';
 import { validate } from "validate.js";
 import * as ReelayText from '../../components/global/Text';
-
-import { Auth } from 'aws-amplify';
-import { AuthContext } from '../../context/AuthContext';
-import * as Amplitude from 'expo-analytics-amplitude';
-import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
@@ -18,85 +13,83 @@ import constraints from '../../components/utils/EmailValidationConstraints';
 import { Button } from '../../components/global/Buttons';
 import SocialLoginBar from '../../components/auth/SocialLoginBar';
 
-const REELAY_ICON_SOURCE = require('../../assets/icons/reelay-icon.png');
-const SIGN_UP_ERROR_MESSAGE = "Couldn't create an account. Try a different username?";
+const AuthInput = styled(Input)`
+    color: white;
+    font-family: Outfit-Regular;
+    font-size: 16px;
+    font-style: normal;
+    letter-spacing: 0.15px;
+    margin-left: 8px;
+`
+
+const AuthInputContainerStyle = (active) => {
+    return {
+        marginBottom: -5,
+        width: "100%",
+        opacity: active ? 1 : 0.7,
+    }
+};
+const AuthInputWarningIconStyle = {
+    color: ReelayColors.reelayRed,
+    name: "warning",
+    type: "ionicon",
+};
+const AuthInputEmailIconStyle = {
+    color: "white",
+    name: "mail-outline",
+    type: "ionicon",
+};
+const AuthInputLockedIconStyle = {
+    color: "white",
+    name: "lock-closed-outline",
+    type: "ionicon",
+};
+const AuthInputUnlockedIconStyle = {
+    color: "white",
+    name: "lock-open-outline",
+    type: "ionicon",
+};
+
+const ErrorMessageStyle = {
+    fontFamily: 'Outfit',
+    fontSize: 16,
+    fontWeight: 400,
+    color: ReelayColors.reelayBlue,
+    paddingLeft: 32,
+    paddingRight: 32,
+    paddingBottom: 10,
+}
+
+const InputContainer = styled(View)`
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+`
+const AlignmentContainer = styled(View)`
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+`
+const BottomButtonsContainer = styled(View)`
+    width: 100%;
+    margin-bottom: 24px;
+    flex-direction: column;
+    align-items: center;
+`
+const SignUpButtonContainer = styled(View)`
+    margin-bottom: 16px;
+    width: 90%;
+    height: 56px;
+`
+const SignUpDisclosure = styled(ReelayText.Caption)`
+    color: white;
+    text-align: center;
+    width: 80%;
+`
 
 export default SignUpScreen = ({ navigation, route }) => {
-
-    const AuthInput = styled(Input)`
-		color: white;
-		font-family: Outfit-Regular;
-		font-size: 16px;
-		font-style: normal;
-		letter-spacing: 0.15px;
-        margin-left: 8px;
-	`; 
-    const AuthInputContainerStyle = (active) => {
-        return {
-			marginBottom: -5,
-            width: "100%",
-            opacity: active ? 1 : 0.7,
-		}
-    }
-    const AuthInputWarningIconStyle = {
-		color: ReelayColors.reelayRed,
-		name: "warning",
-		type: "ionicon",
-	};
-    const AuthInputEmailIconStyle = {
-		color: "white",
-		name: "mail-outline",
-		type: "ionicon",
-    };
-    const AuthInputUsernameIconStyle = {
-		color: "white",
-		name: "person-outline",
-		type: "ionicon",
-    };
-    const AuthInputLockedIconStyle = {
-		color: "white",
-		name: "lock-closed-outline",
-		type: "ionicon",
-    };
-    const AuthInputUnlockedIconStyle = {
-        color: "white",
-        name: "lock-open-outline",
-        type: "ionicon",
-    };
-
-    const ErrorMessageStyle = {
-        fontFamily: 'Outfit',
-        fontSize: 16,
-        fontWeight: 400,
-        color: ReelayColors.reelayBlue,
-        paddingLeft: 32,
-        paddingRight: 32,
-        paddingBottom: 10,
-    }
-
-    const InputContainer = styled(View)`
-        width: 90%;
-        display: flex;
-        flex-direction: column;
-    `
-    const AlignmentContainer = styled(View)`
-        width: 100%;
-        height: 100%;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
-    `
-    const CTAButtonContainer = styled(View)`
-        margin-bottom: 16px;
-        width: 90%;
-        height: 56px;
-    `
-    const SignUpDisclosure = styled(ReelayText.Caption)`
-		color: white;
-        text-align: center;
-        width: 80%;
-	`
-
     const SignUpDisclosureLink = ({ url, children }) => {
         const LinkText = styled(ReelayText.Caption)`
             color: white;
@@ -111,28 +104,11 @@ export default SignUpScreen = ({ navigation, route }) => {
         )
     }
 
-    const SignUpButtonAndDisclosureContainer = styled(View)`
-        width: 100%;
-        margin-bottom: 24px;
-        flex-direction: column;
-        align-items: center;
-    `
-
-
     const SignUpInputs = () => {
         const [email, setEmail] = useState("");
         const emailInvalid = validate({ emailAddress: email }, constraints);
         const showEmailError = email.length > 0 && !!emailInvalid;
         const [emailFieldActive, setEmailFieldActive] = useState(false);
-
-
-        const [username, setUsername] = useState("");
-        const newValidUsernameRegex = /^([a-zA-z0-9]+(?:[.-_+][a-zA-Z0-9]+)*)$/g;
-        const validUsernameLength = username.length > 2 && username.length < 26;
-        const usernamePassesRegex = newValidUsernameRegex.test(username);
-        const validUsername = validUsernameLength && usernamePassesRegex;
-        const showUsernameError = username.length > 0 && !usernamePassesRegex;
-        const [usernameFieldActive, setUsernameFieldActive] = useState(false);
 
         const [password, setPassword] = useState('');
         const [passwordFieldActive, setPasswordFieldActive] = useState(false);
@@ -149,23 +125,23 @@ export default SignUpScreen = ({ navigation, route }) => {
 		const showConfirmPasswordError =
 			!passwordsMatch && confirmPassword.length >= password.length;
 
-        const createAccountDisabled = !(
-			passwordsMatch &&
-			passwordLongEnough &&
-			!emailInvalid &&
-			validUsername
-		);
-        
+        const createAccountDisabled = !(passwordsMatch && passwordLongEnough && !emailInvalid);
+
+        const advanceToCreateUsername = () => {
+            if (createAccountDisabled) {
+                console.log('create account disabled');
+                handleFailedAccountCreation();
+                return;
+            }
+
+            navigation.push('ChooseUsernameScreen', { 
+                method: 'cognito', email, password,
+            });
+        }
 
         const handleFailedAccountCreation = async () => {
             if (emailInvalid) {
 				showErrorToast(emailInvalid.emailAddress[0], "top");
-			} else if (!validUsername) {
-				if (!validUsernameLength) {
-					showErrorToast("Usernames must be between 3 and 25 characters");
-				} else {
-					showErrorToast("Usernames should be alphanumeric. Separators .+_- are okay");
-				}
 			} else if (!passwordLongEnough) {
 				showErrorToast("Password not long enough");
 			} else if (!passwordsMatch) {
@@ -176,36 +152,6 @@ export default SignUpScreen = ({ navigation, route }) => {
         const hideShowPassword = async () => {
             setHidePassword(!hidePassword);
             setHideConfirmPassword(!hideConfirmPassword);
-        }
-    
-        const createAccount = async () => {
-            if (createAccountDisabled) {
-                console.log('create account disabled');
-                handleFailedAccountCreation();
-                return;
-            }
-
-            console.log('Attempting account creation');
-            try {
-                const signUpResult = await Auth.signUp({
-                    username: username,
-                    password: password,
-                    attributes: {
-                        email: email.toLowerCase(),
-                    },
-                }); 
-
-                console.log('SIGN UP RESULT', signUpResult);
-                navigation.push('ConfirmEmailScreen', { username, password });
-                logAmplitudeEventProd('signUp', {
-                    email: username,
-                    username: username,
-                });
-            } catch (error) {
-                console.log('Couldn\'t sign up user');
-                console.log(error);
-                showErrorToast(SIGN_UP_ERROR_MESSAGE);
-            }
         }
 
         const PasswordIconComponent = () => {
@@ -237,20 +183,6 @@ export default SignUpScreen = ({ navigation, route }) => {
 						rightIcon={showEmailError ? AuthInputWarningIconStyle : null}
                         textContentType='emailAddress'
 						value={email}
-					/>
-					<AuthInput
-						autoCapitalize="none"
-						containerStyle={AuthInputContainerStyle(
-							usernameFieldActive || showUsernameError
-						)}
-						onFocus={() => setUsernameFieldActive(true)}
-						onBlur={() => setUsernameFieldActive(false)}
-						placeholder={"Pick a username"}
-						onChangeText={setUsername}
-						leftIcon={AuthInputUsernameIconStyle}
-						rightIcon={showUsernameError ? AuthInputWarningIconStyle : null}
-                        textContentType='username'
-						value={username}
 					/>
 					<AuthInput
 						containerStyle={AuthInputContainerStyle(
@@ -289,17 +221,17 @@ export default SignUpScreen = ({ navigation, route }) => {
 						value={confirmPassword}
 					/>
 				</InputContainer>
-				<SignUpButtonAndDisclosureContainer>
+				<BottomButtonsContainer>
                     <SocialLoginBar navigation={navigation} />
-					<CTAButtonContainer>
+					<SignUpButtonContainer>
 						<Button
 							text="Sign Up"
-							onPress={createAccount}
+							onPress={advanceToCreateUsername}
 							backgroundColor={ReelayColors.reelayBlue}
 							fontColor="white"
 							borderRadius="26px"
 						/>
-					</CTAButtonContainer>
+					</SignUpButtonContainer>
 					<SignUpDisclosure>
 						By Signing Up, you agree to the{" "}
 						<SignUpDisclosureLink url="https://www.reelay.app/terms-of-use">
@@ -310,7 +242,7 @@ export default SignUpScreen = ({ navigation, route }) => {
 							Privacy Policy
 						</SignUpDisclosureLink>
 					</SignUpDisclosure>
-				</SignUpButtonAndDisclosureContainer>
+				</BottomButtonsContainer>
 			</AlignmentContainer>
 		);
     }
