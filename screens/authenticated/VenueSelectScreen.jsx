@@ -1,8 +1,7 @@
 import React from 'react';
-import { Alert, Pressable, SafeAreaView, ScrollView, Text, View, Linking, Image } from 'react-native';
+import { Alert, Pressable, SafeAreaView, ScrollView, View, Linking, Image } from 'react-native';
 import { Camera } from 'expo-camera';
-import BackButton from '../../components/utils/BackButton';
-import { getIconVenues, getOtherVenues, iconVenues, otherVenues } from '../../components/utils/VenueIcon';
+import { getIconVenues, getOtherVenues } from '../../components/utils/VenueIcon';
 import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import ReelayColors from '../../constants/ReelayColors';

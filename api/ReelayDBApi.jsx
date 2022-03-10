@@ -347,6 +347,16 @@ export const postLikeToDB = async (likeBody, reelaySub) => {
     return resultPost;
 }
 
+export const postStreamingSubscriptionToDB = async (userID, streamingSubscriptionBody) => {
+    const routePost = `${REELAY_API_BASE_URL}/streamingSubscriptions/${userID}`;
+    const resultPost = await fetchResults(routePost, {
+        method: 'POST',
+        body: JSON.stringify(streamingSubscriptionBody),
+        headers: REELAY_API_HEADERS,
+    });
+    return resultPost;
+}
+
 export const prepareReelay = async (fetchedReelay) => {
     const titleObj = await fetchAnnotatedTitle(
         fetchedReelay.tmdbTitleID, 

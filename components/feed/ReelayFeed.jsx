@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef, memo } from 'react';
+import React, { useCallback, useContext, useEffect, useState, useRef, memo } from 'react';
 import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View, Platform } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { FeedContext } from '../../context/FeedContext';
@@ -28,7 +28,8 @@ const ReelayFeed = ({ navigation,
     initialStackPos = 0,
     initialFeedPos = 0,
     forceRefresh = false, 
-    initialFeedSource = 'global'
+    initialFeedSource = 'global',
+    isOnFeedTab = true
 }) => {
 
     const feedPager = useRef();
@@ -68,8 +69,8 @@ const ReelayFeed = ({ navigation,
         extendFeed();
     }, [feedSource]);
 
-    useFocusEffect(() => {
-        if (initialFeedSource === 'global') {
+    useFocusEffect(useCallback(() => {
+        if (initialFeedSource === 'global' && isOnFeedTab) {
             const unsubscribe = navigation.getParent()
             .addListener('tabPress', e => {
                 e.preventDefault();
@@ -77,7 +78,7 @@ const ReelayFeed = ({ navigation,
             });
             return unsubscribe;
         }
-    });
+    }));
 
     const extendFeed = async () => {
         const page = nextPage.current;
@@ -116,7 +117,7 @@ const ReelayFeed = ({ navigation,
     const onTabPress = async () => {
         navigation.navigate('FeedScreen');
 
-        if (feedPosition === 0) {
+        if (selectedFeedPosition === 0) {
             refreshFeed();
         } else {
             console.log('feed positioning to 0');
