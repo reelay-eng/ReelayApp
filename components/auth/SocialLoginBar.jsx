@@ -1,6 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import { Image, ImageBackground, Pressable, SafeAreaView, View } from "react-native";
-import * as ReelayText from '../../components/global/Text';
+import { Pressable, View } from "react-native";
 import styled from "styled-components/native";
 import { Icon } from "react-native-elements";
 
@@ -9,22 +8,17 @@ import * as Apple  from 'expo-apple-authentication';
 import { fetchResults } from "../../api/fetchResults";
 import { AuthContext } from "../../context/AuthContext";
 
-import { matchSocialAuthAccount, saveAndRegisterSocialAuthToken } from "../../api/ReelayUserApi";
+import { 
+    matchSocialAuthAccount, 
+    registerSocialAuthAccount, 
+    saveAndRegisterSocialAuthToken,
+} from "../../api/ReelayUserApi";
 import { getUserByEmail } from "../../api/ReelayDBApi";
 
 const ButtonRowContainer = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: center;
-`
-const MessageContainer = styled(View)`
-    margin: 10px;
-`
-const MessageText = styled(ReelayText.H6)`
-    color: white;
-    font-size: 18px;
-    margin-bottom: 6px;
-    text-align: center;
 `
 const SocialLoginContainer = styled(View)`
     align-items: center;
@@ -44,6 +38,36 @@ const SocialAuthButton = styled(Pressable)`
 export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
     const { setReelayDBUserID } = useContext(AuthContext);
 
+    const appleOrGoogleCascadingSignIn = async ({ method, email, appleUserID, googleUserID }) => {
+        const authAccountMatch = await matchSocialAuthAccount({ 
+            method, 
+            value: (method === 'apple') ? appleUserID : googleUserID,
+        });
+
+        if (authAccountMatch && !authAccountMatch?.error) {
+            // this social login is registered
+            console.log('Auth account found: ', authAccountMatch);
+            const { reelayDBUserID } = authAccountMatch;
+            setReelayDBUserID(reelayDBUserID);
+            saveAndRegisterSocialAuthToken(reelayDBUserID);
+        } else {
+            // social login not registered
+            const existingUser = await getUserByEmail(email);
+            if (existingUser) {
+                // user completed initial sign up through cognito
+                setReelayDBUserID(existingUser?.sub);
+                saveAndRegisterSocialAuthToken(existingUser?.sub);
+                // link the social auth account 
+                // apple will only give us an email address the first time we signin with apple
+                registerSocialAuthAccount({ method, email, appleUserID, googleUserID });
+                console.log('Existing user signed in');
+            } else {
+                // totally new user w/o cognito -- needs a username before completing signup
+                navigation.push('ChooseUsernameScreen', { method, email, appleUserID, googleUserID });
+            }
+        }
+    }
+
     const AppleAuthButton = () => {
         const signInWithApple = async () => {
             const credentials = await Apple.signInAsync({
@@ -52,40 +76,15 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
                     Apple.AppleAuthenticationScope.EMAIL,
                 ]
             });
-            console.log(credentials);
-            // TODO: create an auth token, and set reelayDBUser corresponding to the Apple credentials
+            console.log('Apple credentials: ', credentials);
 
+            // todo: what if the credentials are bad?
+
+            setSigningIn(true); 
             const appleUserID = credentials?.user;
-            const appleEmail = credentials?.email ?? 'anthony.mainero@gmail.com';
+            const email = credentials?.email;
             const { familyName, givenName } = credentials?.fullName;
-
-            const authAccountMatch = await matchSocialAuthAccount({ 
-                method: 'apple', 
-                value: appleUserID,
-            });
-
-            if (authAccountMatch && !authAccountMatch?.error) {
-                // this social login is registered
-                const { reelayDBUserID } = authAccountMatch;
-                setReelayDBUserID(reelayDBUserID);
-                saveAndRegisterSocialAuthToken(reelayDBUserID);
-            } else {
-                // social login not registered
-                const existingUser = await getUserByEmail(appleEmail);
-                if (existingUser) {
-                    // username and user obj already created
-                    setReelayDBUserID(existingUser?.sub);
-                    saveAndRegisterSocialAuthToken(existingUser?.sub);
-                    console.log('Existing user signed in');
-                } else {
-                    // username and user obj NOT created
-                    navigation.push('ChooseUsernameScreen', {
-                        method: 'apple',
-                        email: appleEmail,
-                        appleUserID,
-                    });
-                }
-            }
+            appleOrGoogleCascadingSignIn({ method: 'apple', email, appleUserID });
         }
 
         return (
@@ -109,38 +108,14 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
                 return;
             }
 
-            setSigningIn(true);
-            const query = `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${accessToken}`;
-            const googleUserObj = await fetchResults(query, { method: 'GET' });
+            setSigningIn(true); 
+            const googleUserQuery = `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${accessToken}`;
+            const googleUserObj = await fetchResults(googleUserQuery, { method: 'GET' });
+
             console.log('Google user obj: ', googleUserObj);
-
-            const authAccountMatch = await matchSocialAuthAccount({ 
-                method: 'google', 
-                value: googleUserObj?.id 
-            });
-
-            if (authAccountMatch && !authAccountMatch?.error) {
-                // this social login is registered
-                const { reelayDBUserID } = authAccountMatch;
-                setReelayDBUserID(reelayDBUserID);
-                saveAndRegisterSocialAuthToken(reelayDBUserID);
-            } else {
-                // social login not registered
-                const existingUser = await getUserByEmail(googleUserObj?.email);
-                if (existingUser) {
-                    // username and user obj already created
-                    setReelayDBUserID(existingUser?.sub);
-                    saveAndRegisterSocialAuthToken(existingUser?.sub);
-                    console.log('Existing user signed in');
-                } else {
-                    // username and user obj NOT created
-                    navigation.push('ChooseUsernameScreen', {
-                        method: 'google',
-                        email: googleUserObj?.email,
-                        googleUserID: googleUserObj?.id,
-                    });
-                }
-            }
+            const googleUserID = googleUserObj?.id;
+            const email = googleUserObj?.email;
+            appleOrGoogleCascadingSignIn({ method: 'google', email, googleUserID });
         }
 
         const signInWithGoogle = async () => {
@@ -159,17 +134,11 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
     }
 
     return (
-        <React.Fragment>
-            {/* <MessageContainer>
-                <MessageText>{'Or'}</MessageText>
-            </MessageContainer> */}
-            <SocialLoginContainer>
-                <ButtonRowContainer>
-                    <AppleAuthButton />
-                    <GoogleAuthButton />
-                </ButtonRowContainer>
-            </SocialLoginContainer>
-        </React.Fragment>
+        <SocialLoginContainer>
+            <ButtonRowContainer>
+                <AppleAuthButton />
+                <GoogleAuthButton />
+            </ButtonRowContainer>
+        </SocialLoginContainer>
     )
 }
-

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Pressable, TouchableWithoutFeedback, View, Linking } from 'react-native';
+import { KeyboardAvoidingView, Pressable, TouchableWithoutFeedback, View, Linking, ActivityIndicator } from 'react-native';
 import { Icon, Input } from 'react-native-elements';
 import BackButton from '../../components/utils/BackButton';
 import { showErrorToast } from '../../components/utils/toasts';
@@ -90,6 +90,8 @@ const SignUpDisclosure = styled(ReelayText.Caption)`
 `
 
 export default SignUpScreen = ({ navigation, route }) => {
+    // signingUp behavior activates when loading from social, but not cognito
+    const [signingUp, setSigningUp] = useState(false);
     const SignUpDisclosureLink = ({ url, children }) => {
         const LinkText = styled(ReelayText.Caption)`
             color: white;
@@ -222,7 +224,11 @@ export default SignUpScreen = ({ navigation, route }) => {
 					/>
 				</InputContainer>
 				<BottomButtonsContainer>
-                    <SocialLoginBar navigation={navigation} />
+                    <SocialLoginBar 
+                        navigation={navigation} 
+                        signingIn={signingUp} 
+                        setSigningIn={setSigningUp} 
+                    />
 					<SignUpButtonContainer>
 						<Button
 							text="Sign Up"
@@ -284,7 +290,10 @@ export default SignUpScreen = ({ navigation, route }) => {
 						<BackButton navigation={navigation} />
 					</BackButtonContainer>
 					<TextContainer>
-						<HeaderText>Sign up in seconds</HeaderText>
+						<HeaderText>
+                            { !signingUp && 'Sign up in seconds' }
+                            { signingUp && 'Getting ready...' }
+                        </HeaderText>
 					</TextContainer>
 				</TopBarContainer>
 			</Container>
@@ -295,7 +304,8 @@ export default SignUpScreen = ({ navigation, route }) => {
         <KeyboardHidingBlackContainer>
             <TopBar />
             <KeyboardAvoidingView behavior='padding' style={{flex: 1, height: "80%"}}>
-                <SignUpInputs />
+                { !signingUp && <SignUpInputs /> }
+                { signingUp && <ActivityIndicator /> }
             </KeyboardAvoidingView>
         </KeyboardHidingBlackContainer>
     );

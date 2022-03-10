@@ -124,6 +124,8 @@ export const matchSocialAuthAccount = async ({ method, value }) => {
 export const registerSocialAuthAccount = async ({ method, email, googleUserID, appleUserID }) => {
     try {
         const existingUserObj = await getUserByEmail(email);
+        // if the user has an existing cognito sub, use that one
+        // otherwise, generate a new one
         const reelayDBUserID = existingUserObj?.sub ?? v4();
         const authAccountObj = {
             reelayDBUserID,

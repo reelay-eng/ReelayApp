@@ -335,11 +335,7 @@ export default SignInScreen = ({ navigation, route }) => {
         <KeyboardHidingBlackContainer>
             <TopBar />
             <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
-                { !signingIn &&
-                    <React.Fragment>
-                        <UsernameAndPassword /> 
-                    </React.Fragment>
-                }
+                { !signingIn && <UsernameAndPassword /> }
                 { signingIn && <ActivityIndicator /> }
             </KeyboardAvoidingView>
         </KeyboardHidingBlackContainer>
