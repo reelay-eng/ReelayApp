@@ -10,6 +10,7 @@ import styled from 'styled-components/native';
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image, StyleSheet, SafeAreaView, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 import { AuthContext } from '../context/AuthContext';
 import { FeedContext } from '../context/FeedContext';
 
@@ -158,10 +159,11 @@ const BottomTabNavigator = () => {
 				component={FeedTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<Image
-							source={FeedIcon}
-							style={bottomTabIconStyle(focused)}
-						/>
+						// <Image
+						// 	source={FeedIcon}
+						// 	style={bottomTabIconStyle(focused)}
+						// />
+						<Icon type='ionicon' name='earth' color='white' size={BOTTOM_TAB_ICON_SIZE} />
 					),
 				}}
 			/>
@@ -170,10 +172,11 @@ const BottomTabNavigator = () => {
 				component={CreateReelayTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<Image
-							source={CreateIcon}
-							style={bottomTabIconStyle(focused)}
-						/>
+						// <Image
+						// 	source={CreateIcon}
+						// 	style={bottomTabIconStyle(focused)}
+						// />
+						<Icon type='ionicon' name='add-circle' color='white' size={33} />
 					),
 				}}
 			/>

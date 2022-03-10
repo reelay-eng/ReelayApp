@@ -12,6 +12,8 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import { FeedContext } from '../../context/FeedContext';
 
+import * as ReelayText from '../global/Text';
+
 const { height, width } = Dimensions.get('window');
 const ICON_SIZE = 96;
 const PLAY_PAUSE_ICON_TIMEOUT = 800;
@@ -36,15 +38,10 @@ const ReelayFeedContainer = styled(View)`
     height: ${height}px;
     width: ${width}px;
 `
-const StackLengthText = styled(Text)`
+const StackLengthText = styled(ReelayText.CaptionEmphasized)`
     color: white;
-    font-family: Outfit-Regular;
-    font-size: 12px;
     height: 16px;
-    line-height: 16px;
-    letter-spacing: 0.25px;
-    position: absolute;
-    right: 20px;
+    font-size: 12px;
 `
 const TitleContainer = styled(View)`
     width: 210px;
@@ -53,10 +50,9 @@ const TitleDetailContainer = styled(View)`
     align-self: center;
     background: rgba(0, 0, 0, 0.36);
     border-radius: 8px;
-    display: flex;
     height: 100px;
-    width: 345px;
-    justify-content: center;
+    width: ${width - 20}px;
+    justify-content: space-between;
     position: absolute;
     top: 47px;
     zIndex: 3;
@@ -64,7 +60,7 @@ const TitleDetailContainer = styled(View)`
 const TitleInfo = styled(View)`
     flex-direction: column;
     justify-content: center;
-    padding-left: 3px;
+    padding: 5px;
 `
 const Title = styled(Text)`
     color: white;
@@ -73,23 +69,11 @@ const Title = styled(Text)`
     line-height: 24px;
     letter-spacing: 0.18px;
 `
-const WatchListButton = styled(Pressable)`
-    align-items: center;
-    align-self: center;
-    background: rgba(255, 255, 255, 0.35);
-    border-radius: 50px;
-    height: 45px;
-    justify-content: center;
-    width: 45px;
-`
-const Year = styled(Text)`
+const YearText = styled(ReelayText.CaptionEmphasized)`
     color: white;
-    font-family: Outfit-Regular;
-    font-size: 12px;
     height: 16px;
     width: 35px;
-    line-height: 16px;
-    letter-spacing: 0.4px;
+    margin-bottom: 4px;
 `
 
 const PlayPauseIcon = ({ onPress, type = 'play' }) => {
@@ -252,7 +236,10 @@ const ReelayStack = ({
                 windowSize={3}
             />
             <TitleDetailContainer style={{ top: insets.top }}>
-                <Pressable onPress={openTitleDetail} style={{flexDirection: "row"}}>
+                <Pressable onPress={openTitleDetail} style={{
+                    flexDirection: "row",
+                    justifyContent: 'space-between',
+                }}>
                     <Poster title={viewableReelay.title} />
                     <TitleInfo>
                         <TitleContainer>
@@ -260,14 +247,17 @@ const ReelayStack = ({
                                 {displayTitle}
                             </Title>
                         </TitleContainer>
-                        <View style={{flexDirection: "row", marginTop: 5}}>
-                            <Year>{year}</Year>
-                            <StackLengthText>{(stack.length>1) ? `${stack.length} Reelays` : `${stack.length} Reelay`}</StackLengthText>
+                        <View style={{ flexDirection: "column", marginTop: 5 }}>
+                            { year.length > 0 && <YearText>{year}</YearText> }
+                            <StackLengthText>
+                                {(stack.length > 1) 
+                                    ? `${stack.length} Reelays  << swipe >>` 
+                                    : `${stack.length} Reelay`
+                                }
+                            </StackLengthText>
                         </View>
                     </TitleInfo>
-                    <WatchListButton>
-                        <AddToWatchlistButton titleObj={viewableReelay.title} reelay={viewableReelay}/>
-                    </WatchListButton>
+                    <AddToWatchlistButton titleObj={viewableReelay.title} reelay={viewableReelay}/> 
                 </Pressable>
             </TitleDetailContainer>
         </ReelayFeedContainer>

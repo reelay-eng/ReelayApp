@@ -11,11 +11,12 @@ import { notifyCreatorOnLike } from '../../api/NotificationsApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
 import SendRecButton from '../watchlist/SendRecButton';
+import ReelayColors from '../../constants/ReelayColors';
 
 const { height, width } = Dimensions.get('window');
 
 export default Sidebar = ({ navigation, reelay }) => {
-	const ICON_SIZE = 21;
+	const ICON_SIZE = 24;
 	const DOT_ICON_SIZE = 18;
 
 	const Count = styled(Text)`
@@ -35,16 +36,16 @@ export default Sidebar = ({ navigation, reelay }) => {
 		align-items: center;
 		align-self: flex-end;
 		position: absolute;
-		bottom: ${height / 8}px;
+		bottom: ${height / 4}px;
 	`
 	const SidebarButton = styled(Pressable)`
 		align-items: center;
 		background: rgba(255, 255, 255, 0.35);
 		border-radius: 50px;
-		height: 40px;
+		height: 44px;
 		justify-content: center;
 		margin-top: 8px;
-		width: 40px;
+		width: 44px;
 	`
 	const ButtonContainer = styled(View)`
 		align-items: center;
@@ -132,7 +133,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 					<Icon
 						type="ionicon"
 						name="heart"
-						color={likedByUser ? "#db1f2e" : "white"}
+						color={likedByUser ? ReelayColors.reelayRed : "white"}
 						iconStyle={IconDropShadowStyle}
 						size={ICON_SIZE}
 					/>
@@ -145,7 +146,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 					<Icon
 						type="ionicon"
 						name="chatbubble-ellipses"
-						color={commentedByUser ? "#db1f2e" : "white"}
+						color={commentedByUser ? ReelayColors.reelayRed : "white"}
 						iconStyle={IconDropShadowStyle}
 						size={ICON_SIZE}
 					/>

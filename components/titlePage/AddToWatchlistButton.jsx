@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
-import { Image, Pressable } from 'react-native';
+import { Image, Pressable, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
-import { addToMyWatchlist } from '../../api/WatchlistApi';
+import { addToMyWatchlist, removeFromMyWatchlist } from '../../api/WatchlistApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 const ICON_SIZE = 24;
@@ -9,6 +9,22 @@ const ICON_SIZE = 24;
 import WatchlistIconAdded from '../../assets/icons/global/watchlist-added-icon.png';
 import WatchlistIconNotAdded from '../../assets/icons/global/add-to-watchlist-icon.png';
 import { showMessageToast } from '../utils/toasts';
+import styled from 'styled-components/native';
+
+const WatchListButtonCircleContainer = styled(View)`
+    align-items: center;
+    align-self: center;
+    background: rgba(255, 255, 255, 0.35);
+    border-radius: 50px;
+    height: 45px;
+    justify-content: center;
+    width: 45px;
+`
+const WatchlistButtonOuterContainer = styled(Pressable)`
+    align-items: flex-end;
+    justify-content: center;
+    width: 60px;
+`
 
 export default AddToWatchlistButton = ({ titleObj, reelay }) => {
     const { reelayDBUser, myWatchlistItems, setMyWatchlistItems } = useContext(AuthContext);
@@ -24,7 +40,6 @@ export default AddToWatchlistButton = ({ titleObj, reelay }) => {
     const [isAdded, setIsAdded] = useState(inWatchlist);
 
     const addToWatchlist = async () => {
-        setIsAdded(true);
         const titleType = titleObj.isSeries ? 'tv' : 'film';
         const tmdbTitleID = titleObj.id;
         const reqBody = { reqUserSub: reelayDBUser?.sub, tmdbTitleID, titleType };
@@ -33,28 +48,56 @@ export default AddToWatchlistButton = ({ titleObj, reelay }) => {
             reqBody.reelaySub = reelay.sub;
             reqBody.creatorName = reelay.creator.username;
         }
-        
-        const dbResult = await addToMyWatchlist(reqBody);
-        if (!dbResult.error) {
-            const nextWatchlistItems = [...myWatchlistItems, dbResult];
-            setMyWatchlistItems(nextWatchlistItems);
-            showMessageToast('Added to your watchlist', 'bottom');
 
-            logAmplitudeEventProd('addToMyWatchlist', {
-                username: reelayDBUser?.username,
-                creatorName: reelay?.creator?.username,
-                title: titleObj.display,
-                source: 'sendRecScreen',
-            });
+        if (isAdded) {
+            // remove from watchlist
+            setIsAdded(false);
+            const dbResult = await removeFromMyWatchlist(reqBody);
+            if (!dbResult.error) {
+                const nextWatchlistItems = myWatchlistItems.filter((nextItem) => {
+                    const isRemovedTitle = (nextItem?.tmdbTitleID === tmdbTitleID) && (nextItem?.titleType === titleType);
+                    return !isRemovedTitle;
+                });
+                setMyWatchlistItems(nextWatchlistItems);
+                showMessageToast('Removed from your watchlist', 'bottom');
+    
+                logAmplitudeEventProd('removedFromMyWatchlist', {
+                    username: reelayDBUser?.username,
+                    creatorName: reelay?.creator?.username,
+                    title: titleObj.display,
+                    source: 'sendRecScreen',
+                });
+
+            }    
+        } else {
+            // add to watchlist
+            setIsAdded(true);
+            const dbResult = await addToMyWatchlist(reqBody);
+            if (!dbResult.error) {
+                const nextWatchlistItems = [...myWatchlistItems, dbResult];
+                setMyWatchlistItems(nextWatchlistItems);
+                showMessageToast('Added to your watchlist', 'bottom');
+    
+                logAmplitudeEventProd('addToMyWatchlist', {
+                    username: reelayDBUser?.username,
+                    creatorName: reelay?.creator?.username,
+                    title: titleObj.display,
+                    source: 'sendRecScreen',
+                });
+            }    
         }
+        
     }
+
     // new icon type : "reorder-three"
     return (
-        <Pressable onPress={addToWatchlist} disabled={isAdded}>
-            <Image source={(isAdded) ? WatchlistIconAdded : WatchlistIconNotAdded} style={{
-                height: (isAdded) ? ICON_SIZE-2 : ICON_SIZE,
-                width: (isAdded) ? ICON_SIZE-2 : ICON_SIZE,
-            }} />
-        </Pressable>
+        <WatchlistButtonOuterContainer onPress={addToWatchlist}>
+            <WatchListButtonCircleContainer>
+                <Image source={(isAdded) ? WatchlistIconAdded : WatchlistIconNotAdded} style={{
+                    height: (isAdded) ? ICON_SIZE-2 : ICON_SIZE,
+                    width: (isAdded) ? ICON_SIZE-2 : ICON_SIZE,
+                }} />
+            </WatchListButtonCircleContainer>
+        </WatchlistButtonOuterContainer>
     );
 }
