@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useCallback, useContext, useEffect, useState, useRef } from 'react';
 import { View, Text, Pressable } from 'react-native'
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
@@ -140,10 +140,8 @@ const IconContainer = styled.View`
         margin: 4px;
     `
 const IconOptionsContainer = styled.View`
-    display: flex;
     align-items: center;
     justify-content: center;
-    flex: 1;
     flex-direction: row;
     flex-wrap: wrap;
     margin-top: 20px;
@@ -156,49 +154,51 @@ const VenueSaveButtonContainer = styled.View`
     height: 40px;
 `
 
+const IconList = memo(({ onTapVenue }) => {
+    const iconVenues = getIconVenues();
+    return (
+        <IconOptionsContainer>
+            {iconVenues.map((venueObj) => {
+                const venue = venueObj.venue;
+                return (
+                    <IconContainer key={venue}>
+                        <VenueBadge venue={venue} searchVenues={iconVenues} onTapVenue={onTapVenue}/>
+                    </IconContainer>
+                );
+            })}
+        </IconOptionsContainer>
+    )
+})
+
 
 const IconOptions = () => {
-    const iconVenues = getIconVenues();
     const { reelayDBUser } = useContext(AuthContext);
-    const [hasSelectedVenues, setHasSelectedVenues] = useState(false);
-
-    var selectedVenues = [];
+    const selectedVenues = useRef([]);
+    const [saveDisabled, setSaveDisabled] = useState(true);
 
     const onSave = () => {
-        selectedVenues.forEach(venue => {
-            postStreamingSubscriptionToDB(reelayDBUser?.id, { platform: venue });
+        selectedVenues.current.forEach(venue => {
+            postStreamingSubscriptionToDB(reelayDBUser?.sub, { platform: venue });
         })
-        AsyncStorage.setItem('hasPickedStreamingServicesBefore', 1);
+        AsyncStorage.setItem('hasPickedStreamingServicesBefore', "1");
     }
     const onTapVenue = (venue) => {
-        if (selectedVenues.includes(venue)) {
-            console.log("before tap!", selectedVenues)
-            selectedVenues = selectedVenues.filter(v => v !== venue);
-            if (selectedVenues.length === 0) setHasSelectedVenues(false);
-            console.log("after tap!", selectedVenues)
+        if (selectedVenues.current.includes(venue)) {
+            selectedVenues.current = selectedVenues.current.filter(v => v !== venue);
+            if (selectedVenues.current.length === 0 && !saveDisabled) setSaveDisabled(true);  
         }
         else {
-            console.log("before tap2!", selectedVenues)
-            selectedVenues.push(venue);
-            if (selectedVenues.length !== 0 && !hasSelectedVenues) setHasSelectedVenues(true);
-            console.log("after tap2!", selectedVenues)
+            selectedVenues.current = [...selectedVenues.current, venue];
+            if (saveDisabled) setSaveDisabled(false);
+            console.log("CALLING");
         }
     }
     return (
         <View style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-            <IconOptionsContainer>
-                {iconVenues.map((venueObj) => {
-                    const venue = venueObj.venue;
-                    return (
-                        <IconContainer key={venue}>
-                            <VenueBadge venue={venue} searchVenues={iconVenues} onTapVenue={onTapVenue}/>
-                        </IconContainer>
-                    );
-                })}
-            </IconOptionsContainer>
+            <IconList onTapVenue={onTapVenue} />
             <VenueSaveButtonContainer>
                 <BWButton 
-                    disabled={!hasSelectedVenues} 
+                    disabled={saveDisabled} 
                     text="Save"
                     onPress={onSave}
 
