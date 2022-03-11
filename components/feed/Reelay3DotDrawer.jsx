@@ -15,9 +15,9 @@ import { showMessageToast } from '../utils/toasts';
 const ContentPolicy  = require('../../constants/ContentPolicy.json');
 
 const ReelayDotMenuContents = ({ reelay, navigation }) => {
-    const { cognitoUser, reelayDBUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
     const { setDotMenuVisible } = useContext(FeedContext);
-    const isMyReelay = (cognitoUser?.attributes?.sub === reelay.creator.sub); 
+    const isMyReelay = (reelayDBUser?.sub === reelay.creator.sub); 
 
     const [drawerState, setDrawerState] = useState('options');
     const [selectedPolicy, setSelectedPolicy] = useState({});
@@ -81,13 +81,13 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
     const BlockCreatorConfirm = () => {
         const onPress = async () => {
-            const blockCreatorResult = await blockCreator(reelay.creator.sub, cognitoUser?.attributes?.sub);
+            const blockCreatorResult = await blockCreator(reelay.creator.sub, reelayDBUser?.sub);
             console.log(blockCreatorResult);
             setDrawerState('block-creator-complete');
 
             logAmplitudeEventProd('blockCreator', {
-                username: cognitoUser.username,
-                userSub: cognitoUser?.attributes?.sub,
+                username: reelayDBUser?.username,
+                userSub: reelayDBUser?.sub,
                 creatorName: reelay.creator.username,
                 creatorSub: reelay.creator.sub,
                 reelaySub: reelay.sub,
@@ -177,8 +177,8 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
             setDrawerState('remove-reelay-complete');
 
             logAmplitudeEventProd('removeReelay', {
-                username: cognitoUser.username,
-                userSub: cognitoUser?.attributes?.sub,
+                username: reelayDBUser?.username,
+                userSub: reelayDBUser?.sub,
                 creatorName: reelay.creator.username,
                 creatorSub: reelay.creator.sub,
                 reelaySub: reelay.sub,
@@ -262,7 +262,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         }
 
         onPress = async () => {
-            const reportReelayResult = await reportReelay(cognitoUser?.attributes?.sub, {
+            const reportReelayResult = await reportReelay(reelayDBUser?.sub, {
                 creatorSub: reelay.creator.sub, 
                 creatorName: reelay.creator.username,
                 policyViolationCode: selectedPolicy.id, 
@@ -273,8 +273,8 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
             setDrawerState('report-content-complete');
 
             logAmplitudeEventProd('reportReelay', {
-                username: cognitoUser.username,
-                userSub: cognitoUser?.attributes?.sub,
+                username: reelayDBUser?.username,
+                userSub: reelayDBUser?.sub,
                 creatorName: reelay.creator.username,
                 creatorSub: reelay.creator.sub,
                 reelaySub: reelay.sub,
@@ -326,13 +326,13 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
     const SuspendAccountConfirm = () => {
         const onPress = async () => {
-            const suspendAccountResult = await suspendAccount(reelay.creator.sub, cognitoUser?.attributes?.sub);
+            const suspendAccountResult = await suspendAccount(reelay.creator.sub, reelayDBUser?.sub);
             console.log(suspendAccountResult);
             setDrawerState('suspend-account-complete');
 
             logAmplitudeEventProd('suspendAccount', {
-                username: cognitoUser.username,
-                userSub: cognitoUser?.attributes?.sub,
+                username: reelayDBUser?.username,
+                userSub: reelayDBUser?.sub,
                 creatorName: reelay.creator.username,
                 creatorSub: reelay.creator.sub,
                 reelaySub: reelay.sub,

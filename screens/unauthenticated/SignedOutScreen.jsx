@@ -1,11 +1,6 @@
 import React from "react";
 import {
 	Image,
-	KeyboardAvoidingView,
-	Keyboard,
-	TouchableWithoutFeedback,
-	SafeAreaView,
-	Text,
     View,
     ImageBackground
 } from "react-native";

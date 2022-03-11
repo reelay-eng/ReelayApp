@@ -28,7 +28,7 @@ const SwipeColors = {
 export default WatchlistSwipeableRow = ({ category, children, navigation, onRefresh, watchlistItem }) => {
     const ICON_SIZE = 30;
     const swipeableRowRef = useRef();
-    const { cognitoUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
     const { recommendedBySub, recommendedByUsername, tmdbTitleID, titleType } = watchlistItem;
 
     const LeftActionButtonText = styled(ReelayText.Body2)`
@@ -82,21 +82,21 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
     const acceptRecommendedItem = async () => {
         const dbResult = await acceptRecommendation({
             recommendedBySub,
-            reqUserSub: cognitoUser?.attributes?.sub,
+            reqUserSub: reelayDBUser?.sub,
             tmdbTitleID,
             titleType,
         });
         showMessageToast(`${watchlistItem.title.display} added to your watchlist`);
 
         const notifyResult = await notifyOnAcceptRec({
-            acceptUserSub: cognitoUser?.attributes?.sub,
-            acceptUsername: cognitoUser?.username,
+            acceptUserSub: reelayDBUser?.sub,
+            acceptUsername: reelayDBUser?.username,
             recUserSub: recommendedBySub,
             watchlistItem,
         });
 
         logAmplitudeEventProd('acceptRec', {
-            username: cognitoUser?.username,
+            username: reelayDBUser?.username,
             recommendedByUsername,
             title: watchlistItem.title.display,
             source: 'watchlist',
@@ -115,7 +115,7 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
         });
 
         logAmplitudeEventProd('advanceToCreateReelay', {
-            username: cognitoUser?.username,
+            username: reelayDBUser?.username,
             title: watchlistItem.title.display,
             source: 'watchlist',
             watchlistCategory: category,
@@ -128,7 +128,7 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
         });
 
         logAmplitudeEventProd('advanceToSendRec', {
-            username: cognitoUser?.username,
+            username: reelayDBUser?.username,
             title: watchlistItem.title.display,
             source: 'watchlist',
         });
@@ -137,14 +137,14 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
     const ignoreRecommendedItem = async () => {
         const result = await ignoreRecommendation({
             recommendedBySub,
-            reqUserSub: cognitoUser?.attributes?.sub,
+            reqUserSub: reelayDBUser?.sub,
             tmdbTitleID,
             titleType,
         });
         showMessageToast('Removed from your recs. The sender won\'t be notified');
 
         logAmplitudeEventProd('ignoreRec', {
-            username: cognitoUser?.username,
+            username: reelayDBUser?.username,
             title: watchlistItem.title.display,
             recommendedByUsername,
         });
@@ -157,14 +157,14 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
 
     const markItemAsSeen = async () => {
         const result = await markWatchlistItemSeen({
-            reqUserSub: cognitoUser?.attributes?.sub,
+            reqUserSub: reelayDBUser?.sub,
             tmdbTitleID,
             titleType,
         });
         showMessageToast('Marked as seen');
 
         logAmplitudeEventProd('markWatchlistItemSeen', {
-            username: cognitoUser?.username,
+            username: reelayDBUser?.username,
             title: watchlistItem.title.display,
             source: 'watchlist',
         });
@@ -177,13 +177,13 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
 
     const markItemAsUnseen = async () => {
         const result = await markWatchlistItemUnseen({
-            reqUserSub: cognitoUser?.attributes?.sub,
+            reqUserSub: reelayDBUser?.sub,
             tmdbTitleID,
             titleType,
         });
 
         logAmplitudeEventProd('markWatchlistItemUnseen', {
-            username: cognitoUser?.username,
+            username: reelayDBUser?.username,
             title: watchlistItem.title.display,
             source: 'watchlist',
         });
@@ -196,14 +196,14 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
 
     const removeItemFromWatchlist = async () => {
         const result = await removeFromMyWatchlist({
-            reqUserSub: cognitoUser?.attributes?.sub,
+            reqUserSub: reelayDBUser?.sub,
             tmdbTitleID,
             titleType,
         });
         showMessageToast('Removed from your watchlist');
 
         logAmplitudeEventProd('removeItemFromWatchlist', {
-            username: cognitoUser?.username,
+            username: reelayDBUser?.username,
             title: watchlistItem.title.display,
             source: 'watchlist',
         });

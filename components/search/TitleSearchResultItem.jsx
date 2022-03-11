@@ -37,7 +37,7 @@ const YearText = styled(ReelayText.Subtitle2)`
 `
 
 export default TitleSearchResultItem = ({ navigation, result, source }) => {
-    const { cognitoUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
     const titleObj = result;
 
     // for movies and series
@@ -60,7 +60,7 @@ export default TitleSearchResultItem = ({ navigation, result, source }) => {
             });
 
             logAmplitudeEventProd('advanceToCreateReelay', {
-                username: cognitoUser.username,
+                username: reelayDBUser?.username,
                 title: title,
                 source: 'TitleSearchResult',
             });
@@ -70,14 +70,14 @@ export default TitleSearchResultItem = ({ navigation, result, source }) => {
             }); 
             
             logAmplitudeEventProd('selectSearchResult', {
-                username: cognitoUser.username,
+                username: reelayDBUser?.username,
                 title: title,
                 source: 'search',
             }); 
         } else {
             showErrorToast('Error selecting result. Please reach out to the Reelay team.');
             logAmplitudeEventProd('selectSearchResultError', {
-                username: cognitoUser.username,
+                username: reelayDBUser?.username,
                 title: title,
                 source: source,
             }); 

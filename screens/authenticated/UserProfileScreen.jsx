@@ -61,7 +61,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const [websiteText, setWebsiteText] = useState("")
     const [refreshing, setRefreshing] = useState(true);
 
-    const { cognitoUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
     const creatorSub = sub ?? '';
     const creatorProfilePictureURI = creatorSub.length > 0 ? `${CLOUDFRONT_BASE_URL}/public/profilepic-${creatorSub}-current.jpg` : null;
 
@@ -103,12 +103,12 @@ export default UserProfileScreen = ({ navigation, route }) => {
     useEffect(() => {
         onRefresh();
         logAmplitudeEventProd('viewProfile', {
-            username: cognitoUser?.attributes?.username,
+            username: reelayDBUser?.username,
             creatorName: username,
         });    
     }, []);
 
-    const isMyProfile = (creatorSub === cognitoUser?.attributes?.sub);
+    const isMyProfile = (creatorSub === reelayDBUser?.sub);
 
     const sortReelays = (reelay1, reelay2) => reelay2.postedDateTime - reelay1.postedDateTime;
     const sortStacks = (stack1, stack2) => stack2[0].postedDateTime - stack1[0].postedDateTime;

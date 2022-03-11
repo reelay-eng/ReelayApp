@@ -52,7 +52,7 @@ const ReelayFeed = ({ navigation,
     const feedPager = useRef();
     const nextPage = useRef(0);
 
-    const { cognitoUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
     const { setTabBarVisible } = useContext(FeedContext);
 
     const [globalFeedPosition, setGlobalFeedPosition] = useState(0);
@@ -118,8 +118,8 @@ const ReelayFeed = ({ navigation,
     const extendFeed = async () => {
         const page = nextPage.current;
         const fetchedStacks = (feedSource === 'global') 
-            ? await getGlobalFeed({ reqUserSub: cognitoUser?.attributes?.sub, page })
-            : await getFollowingFeed({ reqUserSub: cognitoUser?.attributes?.sub, page });
+            ? await getGlobalFeed({ reqUserSub: reelayDBUser?.sub, page })
+            : await getFollowingFeed({ reqUserSub: reelayDBUser?.sub, page });
 
         console.log("extending", feedSource, "feed");
 
@@ -172,7 +172,7 @@ const ReelayFeed = ({ navigation,
                 setGlobalFeedPosition(0);
                 logAmplitudeEventProd('openHomeFeed', {
                     'source': feedSource,
-                    username: cognitoUser?.attributes?.sub,
+                    username: reelayDBUser?.sub,
                     });
             } else {
                 setFollowingFeedPosition(0);
@@ -193,8 +193,8 @@ const ReelayFeed = ({ navigation,
         });    
         setRefreshing(true);   
         const fetchedStacks = (feedSource === 'global') 
-            ? await getGlobalFeed({ reqUserSub: cognitoUser?.attributes?.sub, page: 0 })
-            : await getFollowingFeed({ reqUserSub: cognitoUser?.attributes?.sub, page: 0 });
+            ? await getGlobalFeed({ reqUserSub: reelayDBUser?.sub, page: 0 })
+            : await getFollowingFeed({ reqUserSub: reelayDBUser?.sub, page: 0 });
 
         nextPage.current = 1;
         if (feedSource === "global") {
@@ -242,7 +242,7 @@ const ReelayFeed = ({ navigation,
                 prevReelayTitle: prevStack[0].title.display,
                 source: feedSource,
                 swipeDirection: swipeDirection,
-                username: cognitoUser.username,
+                username: reelayDBUser?.username,
             }
             logAmplitudeEventProd('swipedFeed', logProperties);
             if (feedSource === "global") {
@@ -310,7 +310,7 @@ const ReelayFeed = ({ navigation,
             windowSize={3}
           />
         )}
-        <FeedSourceSelectorButton
+        {/* <FeedSourceSelectorButton
           feedSource={feedSource}
           drawerOpenFeedSource={drawerOpenFeedSource}
           setDrawerOpenFeedSource={setDrawerOpenFeedSource}
@@ -322,7 +322,7 @@ const ReelayFeed = ({ navigation,
             drawerOpen={drawerOpenFeedSource}
             setDrawerOpen={setDrawerOpenFeedSource}
           />
-        )}
+        )} */}
       </ReelayFeedContainer>
     );
 }

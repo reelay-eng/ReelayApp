@@ -56,12 +56,12 @@ export default Sidebar = ({ navigation, reelay }) => {
 	`
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 
-	const { cognitoUser } = useContext(AuthContext);
+	const { reelayDBUser } = useContext(AuthContext);
 	const { setCommentsVisible, setLikesVisible, setDotMenuVisible } = useContext(FeedContext);
 
-	const isMyReelay = reelay.creator.sub === cognitoUser?.attributes?.sub;
-	const commentedByUser = reelay.comments.find(comment => comment.authorName === cognitoUser.username);
-	const likedByUser = reelay.likes.find(like => like.username === cognitoUser.username);
+	const isMyReelay = reelay.creator.sub === reelayDBUser?.sub;
+	const commentedByUser = reelay.comments.find(comment => comment.authorName === reelayDBUser?.username);
+	const likedByUser = reelay.likes.find(like => like.username === reelayDBUser?.username);
 
 	const onCommentLongPress = async () => setCommentsVisible(true);
 	const onCommentPress = async () => setCommentsVisible(true);
@@ -72,23 +72,23 @@ export default Sidebar = ({ navigation, reelay }) => {
 		if (likedByUser) {
 			const unlikeBody = {
 				creatorName: reelay.creator.username,
-				username: cognitoUser.username,
+				username: reelayDBUser?.username,
 				reelaySub: reelay.sub,
 			}
-			reelay.likes = reelay.likes.filter(likes => likes.username !== cognitoUser.username);
+			reelay.likes = reelay.likes.filter(likes => likes.username !== reelayDBUser?.username);
 		
 			const postResult = await removeLike(unlikeBody, reelay.sub);
 			console.log(postResult);
 			
 			setLikeUpdateCounter(likeUpdateCounter + 1);
 			logAmplitudeEventProd('unlikedReelay', {
-				user: cognitoUser.username,
+				user: reelayDBUser.username,
 				creator: reelay.creator.username,
 				title: reelay.title.display,
 				reelayID: reelay.id,
 			});
 			console.log('unlikedReelay', {
-				user: cognitoUser.username,
+				user: reelayDBUser?.username,
 				creator: reelay.creator.username,
 				title: reelay.title.display,
 				reelayID: reelay.id,
@@ -96,7 +96,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 		} else {
 			const likeBody = {
 				creatorName: reelay.creator.username,
-				username: cognitoUser.username,
+				username: reelayDBUser?.username,
 				postedAt: new Date().toISOString(),
 			}
 			reelay.likes.push(likeBody);		
@@ -107,11 +107,11 @@ export default Sidebar = ({ navigation, reelay }) => {
 			setLikeUpdateCounter(likeUpdateCounter + 1);
 			notifyCreatorOnLike({ 
 				creatorSub: reelay.creator.sub,
-				user: cognitoUser,
+				user: reelayDBUser,
 				reelay: reelay,
 			});
 			logAmplitudeEventProd('likedReelay', {
-				user: cognitoUser.username,
+				user: reelayDBUser?.username,
 				creator: reelay.creator.username,
 				title: reelay.title.display,
 				reelayID: reelay.id,

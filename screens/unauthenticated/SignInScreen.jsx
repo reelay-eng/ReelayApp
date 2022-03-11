@@ -14,6 +14,74 @@ import { getInputUsername } from '../../components/utils/usernameOrEmail';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
+import SocialLoginBar from '../../components/auth/SocialLoginBar';
+
+const AuthInput = styled(Input)`
+    color: white;
+    font-family: Outfit-Regular;
+    font-size: 16px;
+    font-style: normal;
+    letter-spacing: 0.15px;
+    margin-left: 8px;
+`
+const AuthInputContainerStyle = {
+    marginBottom: -5,
+    width: "100%",
+};
+
+const AuthInputUsernameIconStyle = {
+    color: "white",
+    name: "person-outline",
+    type: "ionicon",
+};
+
+const AuthInputWarningIconStyle = {
+    color: ReelayColors.reelayRed,
+    name: "warning",
+    type: "ionicon",
+};
+
+const AlignmentContainer = styled(View)`
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    width: 100%;
+`
+const BottomButtonsContainer = styled(View)`
+    width: 100%;
+    margin-bottom: 24px;
+    flex-direction: column;
+    align-items: center;
+`
+const ErrorContainer = styled(View)`
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`
+const ErrorText = styled(ReelayText.H6Emphasized)`
+    color: ${ReelayColors.reelayRed};
+    text-align: center;
+`
+const ForgotPasswordContainer = styled(View)`
+    flex-direction: row;
+    align-items: center;
+    margin-left: 10px;
+    width: 100%;
+`
+const InputContainer = styled(View)`
+    margin-bottom: 30px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+`
+const SignInButtonContainer = styled(View)`
+    width: 90%;
+    height: 56px;
+    margin: 20px;
+`
+
 
 export const KeyboardHidingBlackContainer = ({ children }) => {
     const FullScreenBlackContainer = styled(SafeAreaView)`
@@ -32,68 +100,10 @@ export const KeyboardHidingBlackContainer = ({ children }) => {
 
 
 export default SignInScreen = ({ navigation, route }) => {
-    const AuthInput = styled(Input)`
-		color: white;
-		font-family: Outfit-Regular;
-		font-size: 16px;
-		font-style: normal;
-		letter-spacing: 0.15px;
-		margin-left: 8px;
-	`;
-	const AuthInputContainerStyle = {
-        marginBottom: -5,
-        width: "100%",
-    };
-    const AuthInputUsernameIconStyle = {
-		color: "white",
-		name: "person-outline",
-		type: "ionicon",
-    };
-    const AuthInputWarningIconStyle = {
-		color: ReelayColors.reelayRed,
-		name: "warning",
-		type: "ionicon",
-	};
-    const InputContainer = styled(View)`
-		margin-bottom: 60px;
-		width: 90%;
-		height: 60%;
-		display: flex;
-		flex-direction: column;
-	`;
-    const AlignmentContainer = styled(View)`
-		width: 100%;
-		height: 100%;
-		flex-direction: column;
-		align-items: center;
-		justify-content: space-between;
-	`;
-
-	const CTAButtonContainer = styled(View)`
-		margin-bottom: 40px;
-		width: 95%;
-		height: 56px;
-	`;
-    const ErrorContainer = styled(View)`
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    `
-    const ErrorText = styled(ReelayText.H6Emphasized)`
-        color: ${ReelayColors.reelayRed};
-        text-align: center;
-    `
     const [signingIn, setSigningIn] = useState(false);
     const { setCognitoUser, setSignedIn } = useContext(AuthContext);
     
     const ForgotPassword = () => {
-        const ForgotPasswordContainer = styled(View)`
-			flex-direction: row;
-			align-items: center;
-            margin-left: 10px;
-			width: 100%;
-		`;
 		const ForgotPasswordText = styled(ReelayText.Subtitle1)`
 			color: ${ReelayColors.reelayBlue};
             opacity: ${props => props.pressed ? 0.7 : 1};
@@ -112,7 +122,6 @@ export default SignInScreen = ({ navigation, route }) => {
     }
 
     const UsernameAndPassword = () => {
-
         const [inputText, setInputText] = useState('');
         const [badEmail, setBadEmail] = useState(false);
         const [password, setPassword] = useState('');
@@ -124,11 +133,6 @@ export default SignInScreen = ({ navigation, route }) => {
             setInputText(text);
             if (badEmail) setBadEmail(false);
         }
-
-        const changePasswordText = (text) => {
-			setPassword(text);
-			if (badPassword) setBadPassword(false);
-		};
 
         const handleBadEmail = async () => {
             setBadEmail(true);
@@ -162,18 +166,12 @@ export default SignInScreen = ({ navigation, route }) => {
             });
         }
 
-        const signInUser = async () => {
+        const signInWithUsernameAndPassword = async () => {
             console.log('Attempting user sign in');
             try {
                 setSigningIn(true);
                 if (otherError) setOtherError(false);
-                const username = await getInputUsername(inputText);
-                console.log('username: ', username);
-                logAmplitudeEventProd('signInSuccess', {
-                    username: username,
-                    inputText: inputText,
-                    Device: Platform.OS,
-                });
+                const username = await getInputUsername(inputText);                
                 if (!username.length) {
                     // entered an invalid email
                     handleBadEmail();
@@ -186,12 +184,15 @@ export default SignInScreen = ({ navigation, route }) => {
                 }
 
                 const cognitoUser = await Auth.signIn(username, password);
-                console.log('Received sign in result');
-                console.log(cognitoUser);
+                console.log('Received sign in result: ', cognitoUser);
                 setCognitoUser(cognitoUser);
                 console.log('Signed in user successfully');
                 setSignedIn(true);
-
+                logAmplitudeEventProd('signInSuccess', {
+                    username: username,
+                    inputText: inputText,
+                    Device: Platform.OS,
+                });
             } catch (error) {
                 console.log('Received error');
                 console.log(error);
@@ -207,6 +208,7 @@ export default SignInScreen = ({ navigation, route }) => {
                 }
             }
         }
+
         const PasswordIconComponent = () => {
 			if (hidePassword)
 				return (
@@ -233,6 +235,7 @@ export default SignInScreen = ({ navigation, route }) => {
 						errorMessage={badEmail && "Incorrect email"}
 						onChangeText={changeInputText}
 						rightIcon={badEmail ? AuthInputWarningIconStyle : null}
+                        textContentType='emailAddress'
 						value={inputText}
 					/>
 					<AuthInput
@@ -243,6 +246,7 @@ export default SignInScreen = ({ navigation, route }) => {
 						onChangeText={setPassword}
 						secureTextEntry={hidePassword}
 						rightIcon={badPassword ? AuthInputWarningIconStyle : null}
+                        textContentType='password'
 						value={password}
 					/>
 					<ForgotPassword />
@@ -254,16 +258,23 @@ export default SignInScreen = ({ navigation, route }) => {
 						</ErrorText>
 					</ErrorContainer>
 				)}
-				<CTAButtonContainer>
-					<Button
-						text={signingIn ? "Logging in..." : "Log In"}
-						onPress={signInUser}
-						disabled={signingIn}
-						backgroundColor={ReelayColors.reelayBlue}
-						fontColor="white"
-						borderRadius="26px"
-					/>
-				</CTAButtonContainer>
+                <BottomButtonsContainer>
+                    <SocialLoginBar 
+                        navigation={navigation} 
+                        signingIn={signingIn} 
+                        setSigningIn={setSigningIn} 
+                    />
+                    <SignInButtonContainer>
+                        <Button
+                            text={signingIn ? "Logging in..." : "Log in"}
+                            onPress={signInWithUsernameAndPassword}
+                            disabled={signingIn}
+                            backgroundColor={ReelayColors.reelayBlue}
+                            fontColor="white"
+                            borderRadius="26px"
+                        />
+                    </SignInButtonContainer>
+                </BottomButtonsContainer>
 			</AlignmentContainer>
 		);
     }

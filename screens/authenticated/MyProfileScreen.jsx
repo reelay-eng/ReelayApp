@@ -66,7 +66,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const [refreshing, setRefreshing] = useState(false);
     const [isEditingProfile, setIsEditingProfile] = useState(false);
 	const { 
-        cognitoUser, 
         myFollowers, 
         myFollowing,
         myCreatorStacks,
@@ -86,21 +85,22 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     useEffect(() => {
         logAmplitudeEventProd("openMyProfileScreen", {
-            username: cognitoUser?.attributes?.username,
-            email: cognitoUser?.attributes?.email,
+            username: reelayDBUser?.username,
+            email: reelayDBUser?.email,
         });
     }, []);
 
 
-    if (!cognitoUser) {
+    if (!reelayDBUser) {
         return (
             <ProfileTopBar atProfileBase={true} creator={{ username: 'User not found' }} 
                 navigation={navigation} />
         );
     }
-    const userSub = cognitoUser?.attributes?.sub;
+
 
     const onRefresh = async () => {
+        const userSub = reelayDBUser?.sub;
         if (userSub.length) {
             console.log('Now refreshing');
             setRefreshing(true);
@@ -135,7 +135,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     useEffect(() => {
         logAmplitudeEventProd('viewMyProfile', {
-            username: cognitoUser?.attributes?.username,
+            username: reelayDBUser?.username,
         });    
     }, []);
 
@@ -173,7 +173,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 				isEditingProfile={isEditingProfile}
 				setIsEditingProfile={setIsEditingProfile}
 			/>
-			<ProfileTopBar creator={cognitoUser} navigation={navigation} atProfileBase={true} />
+			<ProfileTopBar creator={reelayDBUser} navigation={navigation} atProfileBase={true} />
 			<ProfileScrollView refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
@@ -195,8 +195,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
 					navigation={navigation}
 					reelayCount={reelayCount}
 					creator={{
-						username: cognitoUser.username,
-						sub: cognitoUser?.attributes?.sub,
+						username: reelayDBUser.username,
+						sub: reelayDBUser?.sub,
 					}}
 					followers={myFollowers}
 					following={myFollowing}

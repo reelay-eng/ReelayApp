@@ -16,7 +16,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 export default NotificationSettings = ({ navigation }) => {
-    const { cognitoUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
     const { setTabBarVisible } = useContext(FeedContext);
     useEffect(() => {
         setTabBarVisible(false);
@@ -37,12 +37,12 @@ export default NotificationSettings = ({ navigation }) => {
     return (
         <ViewContainer>
             <HeaderWithBackButton navigation={navigation} text="Notification Settings"/>
-            <NotificationsSettingsWrapper cognitoUser={cognitoUser}/>
+            <NotificationsSettingsWrapper reelayDBUser={reelayDBUser}/>
         </ViewContainer>
     )
 }
 
-const NotificationsSettingsWrapper = ({ cognitoUser }) => {
+const NotificationsSettingsWrapper = ({ reelayDBUser }) => {
     
     const [notifyAll, setNotifyAll] = useState(true);
     const [notifyPrompts, setNotifyPrompts] = useState(true);
@@ -72,7 +72,7 @@ const NotificationsSettingsWrapper = ({ cognitoUser }) => {
                 settingsNotifyPrompts, 
                 settingsNotifyReactions, 
                 settingsNotifyTrending 
-            } = await getMyNotificationSettings(cognitoUser);
+            } = await getMyNotificationSettings(reelayDBUser);
             
            if (componentMounted.current) {  // no react state updates on unmounted components since this is async setter
                 setNotifyPrompts(settingsNotifyPrompts);
@@ -109,7 +109,7 @@ const NotificationsSettingsWrapper = ({ cognitoUser }) => {
         // logic for DB updates
         // setMyNotificationSettings({user, notifyPrompts: value, notifyReactions: value, notifyTrending: value});
         setMyNotificationSettings({ 
-            user: cognitoUser, 
+            user: reelayDBUser, 
             notifyPrompts: true, 
             notifyReactions: value, 
             notifyTrending: true
@@ -125,7 +125,7 @@ const NotificationsSettingsWrapper = ({ cognitoUser }) => {
 
         // logic for DB updates
         setMyNotificationSettings({ 
-            user: cognitoUser, 
+            user: reelayDBUser, 
             notifyPrompts: !notifyPrompts, 
             notifyReactions, 
             notifyTrending
@@ -138,7 +138,7 @@ const NotificationsSettingsWrapper = ({ cognitoUser }) => {
 
         // logic for DB updates
         setMyNotificationSettings({ 
-            user: cognitoUser, 
+            user: reelayDBUser, 
             notifyPrompts, 
             notifyReactions: !notifyReactions, 
             notifyTrending
@@ -149,7 +149,7 @@ const NotificationsSettingsWrapper = ({ cognitoUser }) => {
         setNotifyAll(allTrue(notifyPrompts, notifyReactions, !notifyTrending));
         // logic for DB updates
         setMyNotificationSettings({ 
-            user: cognitoUser, 
+            user: reelayDBUser, 
             notifyPrompts, 
             notifyReactions, 
             notifyTrending: !notifyTrending

@@ -119,7 +119,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const [uploadStage, setUploadStage] = useState(uploadStages[0]);
     const [confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible] = useState(false);
 
-    const { cognitoUser, myWatchlistItems, reelayDBUser } = useContext(AuthContext);
+    const { myWatchlistItems, reelayDBUser } = useContext(AuthContext);
     const { s3Client } = useContext(UploadContext);
 
     const uploadReelayToS3 = async (videoURI, videoS3Key) => {
@@ -218,7 +218,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         }
 
         logAmplitudeEventProd('publishReelayStarted', {
-            username: cognitoUser.username,
+            username: reelayDBUser?.username,
             title: titleObj.display,
         });
 
@@ -229,7 +229,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // Adding the file extension directly to the key seems to trigger S3 getting the right content type,
             // not setting contentType as a parameter in the Storage.put call.
             const uploadTimestamp = Date.now();
-            const videoS3Key = `reelayvid-${cognitoUser?.attributes?.sub}-${uploadTimestamp}.mp4`;
+            const videoS3Key = `reelayvid-${reelayDBUser?.sub}-${uploadTimestamp}.mp4`;
             const s3UploadResult = await uploadReelayToS3(videoURI, `public/${videoS3Key}`);
             console.log(s3UploadResult);
 
@@ -238,8 +238,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // but a collision is less than a one in a quadrillion chance
 
             const reelayDBBody = {
-                creatorSub: cognitoUser?.attributes?.sub,
-                creatorName: cognitoUser.username,
+                creatorSub: reelayDBUser?.sub,
+                creatorName: reelayDBUser?.username,
                 datastoreSub: uuidv4(), 
                 isMovie: titleObj.isMovie,
                 isSeries: titleObj.isSeries,
@@ -262,8 +262,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             console.log('REELAYDB USER: ', reelayDBUser);
 
             logAmplitudeEventProd('publishReelayComplete', {
-                username: cognitoUser.username,
-                userSub: cognitoUser?.attributes?.sub,
+                username: reelayDBUser?.username,
+                userSub: reelayDBUser?.sub,
                 title: titleObj.display,
             });
 
@@ -272,7 +272,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
             const annotatedTitle = await fetchAnnotatedTitle(reelayDBBody.tmdbTitleID, reelayDBBody.isSeries);
             await notifyOtherCreatorsOnReelayPosted({
-                creator: cognitoUser,
+                creator: reelayDBUser,
                 reelay: { 
                     ...reelayDBBody, 
                     title: annotatedTitle,
@@ -280,8 +280,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             });
 
             notifyOnReelayedRec({ 
-                creatorSub: cognitoUser?.attributes?.sub,
-                creatorName: cognitoUser?.username,
+                creatorSub: reelayDBUser?.sub,
+                creatorName: reelayDBUser?.username,
                 reelay: reelayDBBody,
                 watchlistItems: myWatchlistItems,
             });
@@ -295,7 +295,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             setUploadStage('upload-failed-retry');
             
             logAmplitudeEventProd('uploadFailed', {
-                username: cognitoUser.username,
+                username: reelayDBUser?.username,
                 title: titleObj.display,
             });
         }
@@ -344,7 +344,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             } catch (error) {
                 console.log('Could not save to local device...');
                 logAmplitudeEventProd('saveToDeviceFailed', {
-                    username: cognitoUser.username,
+                    username: reelayDBUser?.username,
                     title: titleObj.display,
                 });
                 setDownloadStage('download-failed-retry');

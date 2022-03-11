@@ -25,7 +25,7 @@ const FixedReelayFeed = ({ navigation,
 
     const feedPager = useRef();
 
-    const { cognitoUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
     const [feedPosition, setFeedPosition] = useState(0);
     const [stackList, setStackList] = useState([]);
 
@@ -81,7 +81,7 @@ const FixedReelayFeed = ({ navigation,
                 prevReelayTitle: prevStack[0].title.display,
                 source: 'fixedStack',
                 swipeDirection: swipeDirection,
-                username: cognitoUser.username,
+                username: reelayDBUser?.username,
             }
             logAmplitudeEventProd('swipedFeed', logProperties);
             setFeedPosition(nextFeedPosition);

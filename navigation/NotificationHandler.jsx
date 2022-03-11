@@ -3,7 +3,7 @@ import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 import { getReelay, prepareReelay } from "../api/ReelayDBApi";
 
 export const handlePushNotificationResponse = async ({ navigation, notificationContent, userContext }) => {
-    const { cognitoUser, myWatchlistItems, setMyWatchlistItems } = userContext;
+    const { reelayDBUser, myWatchlistItems, setMyWatchlistItems } = userContext;
     const { title, body, data } = notificationContent;
     const action = data?.action;
     console.log('handle push data: ', data);
@@ -13,8 +13,8 @@ export const handlePushNotificationResponse = async ({ navigation, notificationC
     }
 
     logAmplitudeEventProd('openedNotification', {
-        username: cognitoUser?.username,
-        sub: cognitoUser?.attributes.sub,
+        username: reelayDBUser?.username,
+        sub: reelayDBUser?.sub,
         action,
         title, 
         body,

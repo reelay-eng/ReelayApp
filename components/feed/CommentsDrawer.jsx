@@ -74,7 +74,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
     const ModalContainer = styled(Pressable)`
         position: absolute;
     `
-    const { cognitoUser, reelayDBUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
     const { commentsVisible, setCommentsVisible } = useContext(FeedContext);
     const closeDrawer = () => {
         console.log('Closing drawer');
@@ -294,7 +294,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 
         const AuthorImage = memo(({user}) => {
             const authorImageSource = {
-				uri: `${CLOUDFRONT_BASE_URL}/public/profilepic-${user.attributes.sub}-current.jpg`,
+				uri: `${CLOUDFRONT_BASE_URL}/public/profilepic-${user?.sub}-current.jpg`,
 			};
             return (
 				<CommentProfilePhotoContainer>
@@ -320,7 +320,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 				)}
 				
 				<View style={BlackBoxContainerStyle}>
-                    <AuthorImage user={cognitoUser}/>
+                    <AuthorImage user={reelayDBUser}/>
 					<CommentInput
 						setMaxDrawerHeight={setMaxDrawerHeight}
                         scrollViewRef={scrollViewRef}
@@ -376,8 +376,8 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 		const onCommentPost = async () => {
 			setCommentPosting(true);
 			const commentBody = {
-				authorName: cognitoUser.username,
-				authorSub: cognitoUser?.attributes?.sub,
+				authorName: reelayDBUser?.username,
+				authorSub: reelayDBUser?.sub,
 				content: commentText,
 				creatorName: reelay.creator.username,
 				creatorSub: reelay.creator.sub,
@@ -392,13 +392,13 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 
 			await notifyCreatorOnComment({
 				creatorSub: reelay.creator.sub,
-				author: cognitoUser,
+				author: reelayDBUser,
 				reelay: reelay,
 				commentText: commentText,
 			});
 			await notifyThreadOnComment({
 				creator: reelay.creator,
-				author: cognitoUser,
+				author: reelayDBUser,
 				reelay: reelay,
 				commentText: commentText,
 			});
@@ -411,7 +411,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 			}
 
 			logAmplitudeEventProd("commentedOnReelay", {
-				user: cognitoUser.username,
+				user: reelayDBUser?.username,
 				creator: reelay.creator.username,
 				title: reelay.title.display,
 				reelayID: reelay.id,
@@ -446,6 +446,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 						text={"Post"}
 						onPress={(commentText) => {
 							onCommentPost(commentText);
+							// Keyboard.dismiss();
 						}}
 					/>
 				</PostButtonContainer>

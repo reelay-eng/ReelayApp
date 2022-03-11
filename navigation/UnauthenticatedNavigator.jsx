@@ -3,6 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import { AuthContext } from "../context/AuthContext";
 
+import ChooseUsernameScreen from '../screens/unauthenticated/ChooseUsernameScreen';
 import ConfirmEmailScreen from '../screens/unauthenticated/ConfirmEmailScreen';
 import ForgotPasswordScreen from '../screens/unauthenticated/ForgotPasswordScreen';
 import ForgotPasswordSubmitScreen from '../screens/unauthenticated/ForgotPasswordSubmitScreen';
@@ -38,6 +39,13 @@ export default UnauthenticatedNavigator = () => {
         <AuthenticationStack.Screen
             name="SignUpScreen"
             component={SignUpScreen}
+            options={{
+                headerShown: false,
+            }}
+        />
+        <AuthenticationStack.Screen
+            name="ChooseUsernameScreen"
+            component={ChooseUsernameScreen}
             options={{
                 headerShown: false,
             }}

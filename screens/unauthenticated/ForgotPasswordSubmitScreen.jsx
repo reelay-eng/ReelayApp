@@ -199,6 +199,7 @@ export default ForgotPasswordSubmitScreen = ({ navigation, route }) => {
 						leftIcon={PasswordIconComponent}
 						rightIcon={!!newPasswordError ? AuthInputWarningIconStyle : null}
 						errorMessage={newPasswordError}
+						textContentType='newPassword'
 						value={newPassword}
 					/>
 					<AuthInput
@@ -213,6 +214,7 @@ export default ForgotPasswordSubmitScreen = ({ navigation, route }) => {
 						rightIcon={!passwordsMatch ? AuthInputWarningIconStyle : null}
 						errorMessage={!passwordsMatch && "Passwords do not match"}
 						secureTextEntry={true}
+						textContentType='newPassword'
 						value={confirmNewPassword}
 					/>
 

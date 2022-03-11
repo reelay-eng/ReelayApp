@@ -33,7 +33,7 @@ const ReelayFeed = ({ navigation,
     const feedPager = useRef();
     const nextPage = useRef(0);
 
-    const { cognitoUser, reelayDBUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
     const { setTabBarVisible } = useContext(FeedContext);
 
     const [feedSource, setFeedSource] = useState(initialFeedSource);
@@ -124,7 +124,7 @@ const ReelayFeed = ({ navigation,
             if (feedSource === "global") {
                 logAmplitudeEventProd('openHomeFeed', {
                     'source': feedSource,
-                    username: cognitoUser?.attributes?.sub,
+                    username: reelayDBUser?.sub,
                 });
             } else {
                 logAmplitudeEventProd('openFollowingFeed', {
@@ -183,7 +183,7 @@ const ReelayFeed = ({ navigation,
                 prevReelayTitle: prevStack[0].title.display,
                 source: feedSource,
                 swipeDirection: swipeDirection,
-                username: cognitoUser.username,
+                username: reelayDBUser?.username,
             }
             logAmplitudeEventProd('swipedFeed', logProperties);
             setSelectedFeedPosition(nextFeedPosition);

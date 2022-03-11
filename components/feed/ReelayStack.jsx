@@ -98,7 +98,7 @@ const ReelayStack = ({
     navigation,
 }) => {
     const [stackPosition, setStackPosition] = useState(0);
-    const { cognitoUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
     const { 
         paused, setPaused,
         playPauseVisible, setPlayPauseVisible,
@@ -127,7 +127,7 @@ const ReelayStack = ({
                 creatorName: viewableReelay.creator.username,
                 reelayID: viewableReelay.id,
                 reelayTitle: viewableReelay.title.display,
-                username: cognitoUser.username,
+                username: reelayDBUser?.username,
             });
         } else {
             setPaused(true);
@@ -142,7 +142,7 @@ const ReelayStack = ({
                 creatorName: viewableReelay.creator.username,
                 reelayID: viewableReelay.id,
                 reelayTitle: viewableReelay.title.display,
-                username: cognitoUser.username,
+                username: reelayDBUser?.username,
             });
         }
     }
@@ -202,7 +202,7 @@ const ReelayStack = ({
                 prevReelayTitle: prevReelay.title.display,
                 source: 'stack',
                 swipeDirection: swipeDirection,
-                username: cognitoUser.username,
+                username: reelayDBUser?.username,
             }
             logAmplitudeEventProd('swipedFeed', logProperties);
             setStackPosition(nextStackPosition);
@@ -220,7 +220,7 @@ const ReelayStack = ({
         logAmplitudeEventProd('openTitleScreen', {
             reelayID: viewableReelay.id,
             reelayTitle: viewableReelay.title.display,
-            username: cognitoUser.username,
+            username: reelayDBUser?.username,
             source: 'poster',
         });
     }

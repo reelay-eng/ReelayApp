@@ -1,11 +1,10 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, TextInput, Alert, Keyboard } from "react-native";
-import { Icon, Input } from "react-native-elements";
 
 // Expo imports
 import * as ImagePicker from "expo-image-picker";
 import Constants from 'expo-constants';
-import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
+import { manipulateAsync } from "expo-image-manipulator";
 
 // Upload imports
 import { Buffer } from "buffer";
@@ -253,7 +252,6 @@ const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 
 const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 
-	const { cognitoUser } = useContext(AuthContext);
 	const { reelayDBUser, setReelayDBUser } = useContext(AuthContext);
 	const { s3Client } = useContext(UploadContext);
 
@@ -269,7 +267,7 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 		});
 		handleImagePicked(result);
 		logAmplitudeEventProd("profilePhotoUpdatedCamera", {
-			username: cognitoUser.username,
+			username: reelayDBUser?.username,
 		});
 	};
 
@@ -297,7 +295,7 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 				close();
 				const { cloudfrontPhotoURI } = await uploadProfilePhotoToS3(pickerResult.uri);
 				if (reelayDBUser?.profilePictureURI !== cloudfrontPhotoURI) {
-					const patchResult = await updateProfilePic(cognitoUser?.attributes?.sub, cloudfrontPhotoURI);
+					const patchResult = await updateProfilePic(reelayDBUser?.sub, cloudfrontPhotoURI);
 					console.log("Patched Profile Image: ", patchResult);
 					logAmplitudeEventProd("profilePhotoUpdatedCameraroll", {
 						"Profile Photo Updated": "Profile Photo Updated",
@@ -334,8 +332,8 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 		const uploadTimestamp = Date.now();
 		const resizedPhoto = await resizeImage(photoURI);
 		const resizedPhotoURI = resizedPhoto.base64;
-		const photoTimestampedS3Key = `profilepic-${cognitoUser?.attributes?.sub}-${uploadTimestamp}.jpg`;
-		const photoCurrentS3Key = `profilepic-${cognitoUser?.attributes?.sub}-current.jpg`;
+		const photoTimestampedS3Key = `profilepic-${reelayDBUser?.sub}-${uploadTimestamp}.jpg`;
+		const photoCurrentS3Key = `profilepic-${reelayDBUser?.sub}-current.jpg`;
 		const { timestampedUploadResult, currentUploadResult } = await uploadProfilePicToS3(
 			resizedPhotoURI,
 			`public/${photoTimestampedS3Key}`,
