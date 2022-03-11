@@ -115,7 +115,7 @@ export default SignInScreen = ({ navigation, route }) => {
         return (
 			<ForgotPasswordContainer>
 				<Pressable onPress={handleForgotPassword}>
-					{({ pressed }) => <ForgotPasswordText pressed={pressed}>Forgot Password?</ForgotPasswordText>}
+					{({ pressed }) => <ForgotPasswordText pressed={pressed}>Forgot Password? Tap here</ForgotPasswordText>}
 				</Pressable>
 			</ForgotPasswordContainer>
 		);
@@ -259,11 +259,11 @@ export default SignInScreen = ({ navigation, route }) => {
 					</ErrorContainer>
 				)}
                 <BottomButtonsContainer>
-                    <SocialLoginBar 
+                    {/* <SocialLoginBar 
                         navigation={navigation} 
                         signingIn={signingIn} 
                         setSigningIn={setSigningIn} 
-                    />
+                    /> */}
                     <SignInButtonContainer>
                         <Button
                             text={signingIn ? "Logging in..." : "Log in"}

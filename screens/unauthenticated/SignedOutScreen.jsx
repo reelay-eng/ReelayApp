@@ -53,7 +53,7 @@ export default SignedOutScreen = ({ navigation }) => {
     const SignUpButton = () => (
         <ButtonContainer>
             <Button
-                text="Sign Up"
+                text="Sign Up!"
                 onPress={() => navigation.push('SignUpScreen')}
                 backgroundColor="white"
                 pressedColor="#DCDCDC"

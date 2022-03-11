@@ -16,6 +16,7 @@ import {
 } from "../../api/ReelayUserApi";
 import { getUserByEmail } from "../../api/ReelayDBApi";
 import { makeRedirectUri } from "expo-auth-session";
+import { logEventWithPropertiesAsync } from "expo-analytics-amplitude";
 
 const ButtonRowContainer = styled(View)`
     align-items: center;
@@ -38,6 +39,7 @@ const SocialAuthButton = styled(Pressable)`
 `
 
 export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
+    try {
     const { setReelayDBUserID } = useContext(AuthContext);
 
     const appleOrGoogleCascadingSignIn = async ({
@@ -86,12 +88,9 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
                         Apple.AppleAuthenticationScope.EMAIL,
                     ]
                 });
-                console.log('Apple credentials: ', credentials);
-    
-                // todo: what if the credentials are bad?
     
                 setSigningIn(true); 
-                const { email, fullName, identityToken, user } = credentials;
+                const { email, fullName, user } = credentials;
                 appleOrGoogleCascadingSignIn({ method: 'apple', email, fullName, appleUserID: user });    
             } catch (error) {
                 console.log(error);
@@ -111,15 +110,21 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
         const iOSURLScheme = Constants.manifest.extra.googleiOSURLScheme;
 
         const useNativeiOSRedirectURI = (
-            process.env.NODE_ENV === 'production' && 
-            Platform.OS === 'ios'
+            (Platform.OS === 'ios') && (
+                !(process?.env?.NODE_ENV) ||
+                (process?.env?.NODE_ENV === 'production')
+            )
         );
 
         const googleAuthRequestConfig = { expoClientId, iOSClientId };
-        const [request, response, promptAsync] = (useNativeiOSRedirectURI) 
-            ? Google.useAuthRequest(googleAuthRequestConfig, { native: iOSURLScheme })
-            : Google.useAuthRequest(googleAuthRequestConfig);
-        
+        try {
+            if (useNativeiOSRedirectURI) googleAuthRequestConfig.redirectUri = makeRedirectUri({ native: iOSURLScheme });
+        } catch (error) {
+            console.log(error);
+            logEventWithPropertiesAsync('makeRedirectURIError', { error });
+        }
+
+        const [request, response, promptAsync] = Google.useAuthRequest(googleAuthRequestConfig);        
         const onSignInResponse = async () => {
             const accessToken = response?.authentication?.accessToken;
             if (!accessToken) {
@@ -163,5 +168,10 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
                 <GoogleAuthButton />
             </ButtonRowContainer>
         </SocialLoginContainer>
-    )
+    )    
+    } catch (error) {
+        console.log(error);
+        logEventWithPropertiesAsync('socialLoginError', { error });
+        return <React.Fragment />
+    }
 }

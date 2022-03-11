@@ -237,11 +237,11 @@ export default SignUpScreen = ({ navigation, route }) => {
 					/>
 				</InputContainer>
 				<BottomButtonsContainer>
-                    <SocialLoginBar 
+                    {/* <SocialLoginBar 
                         navigation={navigation} 
                         signingIn={false} 
                         setSigningIn={() => {}} 
-                    />
+                    /> */}
 					<SignUpButtonContainer>
 						<Button
 							text="Sign Up"
