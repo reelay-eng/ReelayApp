@@ -67,8 +67,8 @@ export const getAllMyNotifications = async (userSub, page = 0) => {
     return parsedNotifications;
 }
 
-export const getMyNotificationSettings = async(user) => {
-    const routeGet = REELAY_API_BASE_URL + `/users/sub/${user.attributes.sub}/settings`;
+export const getMyNotificationSettings = async (user) => {
+    const routeGet = REELAY_API_BASE_URL + `/users/sub/${user?.sub}/settings`;
     const resultGet = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS,
@@ -199,7 +199,7 @@ export const sendPushNotification = async ({
 }
 
 export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, commentText }) => {
-    const recipientIsAuthor = (creatorSub === author.attributes.sub);
+    const recipientIsAuthor = (creatorSub === author?.sub);
     if (recipientIsAuthor) {
         console.log('No need to send notification to creator');
         return;
@@ -213,7 +213,7 @@ export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, comme
         return;
     }
 
-    const title = `@${author.username} commented on your reelay.`;
+    const title = `@${author?.username} commented on your reelay.`;
     // const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
     // const body = `${bodyTitle}: ${commentText}`;
     const body = '';
@@ -224,7 +224,7 @@ export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, comme
         action: 'openSingleReelayScreen',
         reelaySub: reelay.sub,
         title: condensedTitleObj(reelay.title),
-        fromUser: { sub: author.attributes.sub, username: author.username },
+        fromUser: { sub: author?.sub, username: author?.username },
     };
 
     await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
@@ -241,7 +241,7 @@ export const notifyThreadOnComment = async ({ creator, author, reelay, commentTe
             return;
         }
 
-        const recipientIsAuthor = (notifyAuthor.sub === author.attributes.sub);
+        const recipientIsAuthor = (notifyAuthor?.sub === author?.sub);
         if (recipientIsAuthor) {
             console.log('No need to send notification to comment author');
             return;
@@ -249,7 +249,7 @@ export const notifyThreadOnComment = async ({ creator, author, reelay, commentTe
 
         // if we don't catch this, we'll send a notification twice to a creator
         // who commented on their own reelay
-        const recipientIsCreator = (notifyAuthor.sub === creator?.sub);
+        const recipientIsCreator = (notifyAuthor?.sub === creator?.sub);
         if (recipientIsCreator) {
             console.log('No need to send notification to creator');
             return;
@@ -276,7 +276,7 @@ export const notifyThreadOnComment = async ({ creator, author, reelay, commentTe
             action: 'openSingleReelayScreen',
             reelaySub: reelay.sub,
             title: condensedTitleObj(reelay.title),   
-            fromUser: { sub: author.attributes.sub, username: author.username },
+            fromUser: { sub: author.sub, username: author.username },
         };
 
         await sendPushNotification({ title, body, data, token, sendToUserSub: notifyAuthor?.sub });    
@@ -309,15 +309,15 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
     const creator = await getRegisteredUser(creatorSub);
     const token = creator?.pushToken;
 
-    const recipientIsAuthor = (creatorSub === user.attributes.sub);
+    const recipientIsAuthor = (creatorSub === user?.sub);
     if (recipientIsAuthor) {
         const title = `Achievement earned: Love Yourself`;
         // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
         const body = '';
         const data = { 
             action: 'openSingleReelayScreen',
-            reelaySub: reelay.sub,
-            title: condensedTitleObj(reelay.title),   
+            reelaySub: reelay?.sub,
+            title: condensedTitleObj(reelay?.title),   
             notifyType: 'loveYourself',
         };
     
@@ -330,7 +330,7 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
         return;
     }
 
-    const title = `@${user.username} liked your reelay.`;
+    const title = `@${user?.username} liked your reelay.`;
     // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
     const body = '';
     const data = { 
@@ -338,7 +338,7 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
         action: 'openSingleReelayScreen',
         reelaySub: reelay.sub,
         title: condensedTitleObj(reelay.title),   
-        fromUser: { sub: user.attributes.sub, username: user.username },
+        fromUser: { sub: user?.sub, username: user?.username },
     };
 
     await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
@@ -356,7 +356,7 @@ export const notifyOtherCreatorsOnReelayPosted = async ({ creator, reelay }) => 
             return;
         }
 
-        const recipientIsCreator = (notifyCreator.sub === creator.attributes.sub);
+        const recipientIsCreator = (notifyCreator.sub === creator?.sub);
         if (recipientIsCreator) {
             console.log('No need to send notification to creator');
             return;
@@ -377,16 +377,16 @@ export const notifyOtherCreatorsOnReelayPosted = async ({ creator, reelay }) => 
             action: 'openSingleReelayScreen',
             reelaySub: reelay.sub,
             title: condensedTitleObj(reelay.title),   
-            fromUser: { sub: creator.attributes.sub, username: creator.username },
+            fromUser: { sub: creator?.sub, username: creator?.username },
         };
 
         await sendPushNotification({ title, body, data, token, sendToUserSub: notifyReelay.creator.sub });    
     })
 }
 
-export const setMyNotificationSettings = async({user, notifyPrompts, notifyReactions, notifyTrending }) => {
+export const setMyNotificationSettings = async ({ user, notifyPrompts, notifyReactions, notifyTrending }) => {
     const routePost =  
-        `${REELAY_API_BASE_URL}/users/sub/${user.attributes.sub}/settings?notifyPrompts=${notifyPrompts}&notifyReactions=${notifyReactions}&notifyTrending=${notifyTrending}`;
+        `${REELAY_API_BASE_URL}/users/sub/${user?.sub}/settings?notifyPrompts=${notifyPrompts}&notifyReactions=${notifyReactions}&notifyTrending=${notifyTrending}`;
     const resultPost = await fetchResults(routePost, { 
         method: 'POST',
         headers: REELAY_API_HEADERS,

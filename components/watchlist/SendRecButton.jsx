@@ -7,7 +7,7 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 const ICON_SIZE = 30;
 
 export default SendRecButton = ({ navigation, titleObj, reelay }) => {
-    const { cognitoUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
     // you should already have this reelay in the Seen section of your watchlist,
     // since you made a reelay about it
 
@@ -28,7 +28,7 @@ export default SendRecButton = ({ navigation, titleObj, reelay }) => {
         });
 
         logAmplitudeEventProd('advanceToSendRec', {
-            username: cognitoUser?.username,
+            username: reelayDBUser?.username,
             title: titleObj.display,
             source: 'reelaySidebar',
         });

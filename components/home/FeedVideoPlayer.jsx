@@ -13,7 +13,6 @@ const { height, width } = Dimensions.get('window');
 export default function FeedVideoPlayer({ 
 	playPause,
 	reelay, 
-	setReelayOverlay,
 	viewable,
  }) {
 	const [focused, setFocused] = useState(false);
@@ -22,7 +21,7 @@ export default function FeedVideoPlayer({
 	const loadStatus = useRef(0);
 	const playheadCounter = useRef(0);
 
-	const { cognitoUser } = useContext(AuthContext);
+	const { reelayDBUser } = useContext(AuthContext);
 	const { paused } = useContext(FeedContext);
 	
 	const shouldPlay = viewable && focused && !paused;
@@ -75,7 +74,7 @@ export default function FeedVideoPlayer({
 				reelayID: reelay.id,
 				reelayCreator: reelay.creator.username,
 				title: reelay.title.display,
-				username: cognitoUser.username,
+				username: reelayDBUser?.username,
 			})
 		}
 	}

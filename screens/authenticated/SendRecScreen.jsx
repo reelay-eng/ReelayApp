@@ -257,10 +257,10 @@ const FollowerList = memo(({
     const ScrollViewContainer = styled(ScrollView)`
         margin-bottom: 60px;
     `
-    const { cognitoUser, myFollowing, myFollowers } = useContext(AuthContext);
+    const { reelayDBUser, myFollowing, myFollowers } = useContext(AuthContext);
     const priorRecs = useRef([]);
 
-    const iAmFollowing = (followObj) => (followObj.followerName === cognitoUser?.username);
+    const iAmFollowing = (followObj) => (followObj.followerName === reelayDBUser?.username);
     const getFollowName = (followObj) => iAmFollowing(followObj) ? followObj.creatorName : followObj.followerName;
     const getFollowSub = (followObj) => iAmFollowing(followObj) ? followObj.creatorSub : followObj.followerSub;
     const sortByFollowName = (followObj0, followObj1) => (followObj0.followName > followObj1.followName);
@@ -288,7 +288,7 @@ const FollowerList = memo(({
 
     const loadPriorRecs = async (watchlistItem) => {
         const fetchedPriorRecs = await getSentRecommendations({
-            reqUserSub: cognitoUser?.attributes?.sub,
+            reqUserSub: reelayDBUser?.sub,
             tmdbTitleID: watchlistItem.tmdbTitleID,
             titleType: watchlistItem.titleType,
         });
@@ -349,7 +349,7 @@ const RecScreenContainer = styled(SafeAreaView)`
 `
 
 export default SendRecScreen = ({ navigation, route }) => {
-    const { cognitoUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
     const { reelay, watchlistItem } = route.params; // note: reelay can be null
     const followsToSend = useRef([]);
     const [readyToSend, setReadyToSend] = useState(followsToSend.current > 0);
@@ -380,8 +380,8 @@ export default SendRecScreen = ({ navigation, route }) => {
         console.log('sending rec!');
         const sendRecResults = await Promise.all(followsToSend.current.map(async (followObj) => {
             const dbResult = await sendRecommendation({ 
-                reqUserSub: cognitoUser?.attributes?.sub,
-                reqUsername: cognitoUser?.username,
+                reqUserSub: reelayDBUser?.sub,
+                reqUsername: reelayDBUser?.username,
                 sendToUserSub: followObj.followSub,
                 tmdbTitleID: watchlistItem.tmdbTitleID,
                 titleType: watchlistItem.titleType,
@@ -390,14 +390,14 @@ export default SendRecScreen = ({ navigation, route }) => {
             });
 
             const notifyResult = await notifyOnSendRec({
-                reqUserSub: cognitoUser?.attributes?.sub,
-                reqUsername: cognitoUser?.username,
+                reqUserSub: reelayDBUser?.sub,
+                reqUsername: reelayDBUser?.username,
                 sendToUserSub: followObj.followSub,
                 watchlistItem,
             });
 
             logAmplitudeEventProd('sendWatchlistRecs', {
-                recUsername: cognitoUser?.username,
+                recUsername: reelayDBUser?.username,
                 sendToUsername: followObj.followName,
                 title: watchlistItem.title.display,
                 source: 'sendRecScreen',

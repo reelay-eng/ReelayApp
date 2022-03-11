@@ -13,6 +13,7 @@ export const AuthContext = createContext({
 
     followRequests: [],
     reelayDBUser: {},
+    reelayDBUserID: null,
     signedIn: false,
     isReturningUser: false,
 });

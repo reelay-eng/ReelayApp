@@ -19,11 +19,8 @@ export default FollowButtonDrawer = ({
     followType,
     sourceScreen = 'UserFollowScreen',
 }) => {
-    const { cognitoUser, myFollowing, setMyFollowing } = useContext(AuthContext);
+    const { reelayDBUser, myFollowing, setMyFollowing } = useContext(AuthContext);
     const { creatorName, creatorSub } = followObj;
-
-    const myUsername = cognitoUser.username;
-    const myUserSub = cognitoUser?.attributes?.sub;
 
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
 
@@ -65,11 +62,11 @@ export default FollowButtonDrawer = ({
     const closeDrawer = () => setDrawerOpen(false);
 
     const unfollowUser = async () => {
-        const unfollowResult = await unfollowCreator(creatorSub, myUserSub);
+        const unfollowResult = await unfollowCreator(creatorSub, reelayDBUser?.sub);
         const unfollowSucceeded = !unfollowResult?.error;
 
         if (unfollowSucceeded) {
-            const removeFromCreatorFollows = (followObj) => followObj.followerSub !== myUserSub;
+            const removeFromCreatorFollows = (followObj) => followObj?.followerSub !== reelayDBUser?.sub;
             const nextCreatorFollowers = creatorFollowers.filter(removeFromCreatorFollows);
             setCreatorFollowers(nextCreatorFollowers);
             
@@ -80,8 +77,8 @@ export default FollowButtonDrawer = ({
             logAmplitudeEventProd('unfollowedCreatorError', {
                 creatorName: creatorName,
                 creatorSub: creatorSub,
-                username: myUsername,
-                userSub: myUserSub,
+                username: reelayDBUser?.username,
+                userSub: reelayDBUser?.sub,
             });   
              
             showErrorToast('Cannot unfollow creator. Please reach out to the Reelay team');
@@ -91,8 +88,8 @@ export default FollowButtonDrawer = ({
         logAmplitudeEventProd('unfollowedCreator', {
             creatorName: creatorName,
             creatorSub: creatorSub,
-            username: myUsername,
-            userSub: myUserSub,
+            username: reelayDBUser?.username,
+            userSub: reelayDBUser?.sub,
         });
     };
 

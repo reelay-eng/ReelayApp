@@ -43,8 +43,8 @@ import {
     loadMyFollowing, 
     loadMyReelayStacks, 
     loadMyNotifications, 
-    loadMyUser, 
-    loadMyWatchlist 
+    loadMyWatchlist, 
+    verifySocialAuthToken,
 } from './api/ReelayUserApi';
 
 // font imports
@@ -67,6 +67,7 @@ function App() {
     const [myWatchlistItems, setMyWatchlistItems] = useState([]);
 
     const [reelayDBUser, setReelayDBUser] = useState({});
+    const [reelayDBUserID, setReelayDBUserID] = useState(null);
     const [signedIn, setSignedIn] = useState(false);
     const [session, setSession] = useState({});
     const [isReturningUser, setIsReturningUser] = useState(false);
@@ -90,9 +91,21 @@ function App() {
         })()
     }, []);
 
-    // first load my profile
+    /**
+     * The following useEffect statements are set up to allow EITHER
+     * a cognito identity OR a social auth identity to log in a user and
+     * load their profile. Both do this by setting reelayDBUserID, which in
+     * turn loads the whole profile and signs the user in.
+     */
+
     useEffect(() => {
-        loadMyProfile();
+        if (reelayDBUserID) loadMyProfile(reelayDBUserID);
+    }, [reelayDBUserID]);
+
+    useEffect(() => {
+        if (cognitoUser?.attributes?.sub) {
+            setReelayDBUserID(cognitoUser?.attributes?.sub);
+        }
     }, [cognitoUser]);
 
     useEffect(() => {
@@ -187,14 +200,30 @@ function App() {
 
     const autoAuthenticateUser = async () => {
         console.log('Setting up authentication');
-        let tryCognitoUser, tryCredentials;
+        let tryCredentials, tryCognitoUser, tryVerifySocialAuth;
         try {
-            tryCognitoUser = await Auth.currentAuthenticatedUser();
             tryCredentials = await Auth.currentUserCredentials();
-
             if (tryCredentials?.authenticated) {
+                // use cognito to sign in the user
+                tryCognitoUser = await Auth.currentAuthenticatedUser();
                 setCognitoUser(tryCognitoUser);
+            } else {
+                // try using a social auth token to sign in the user
+                const authTokenJSON = await AsyncStorage.getItem('mySocialAuthToken');
+                if (authTokenJSON) {
+                    const { reelayDBUserID, token } = JSON.parse(authTokenJSON);
+                    tryVerifySocialAuth = await verifySocialAuthToken();
+                    if (tryVerifySocialAuth?.success) {
+                        console.log('Auto authentication from social login successful');
+                        setReelayDBUserID(reelayDBUserID);
+                    }
+                }
             }
+            logAmplitudeEventProd('authenticationComplete', {
+                hasValidCredentials: tryCredentials?.authenticated,
+                username: tryCognitoUser?.attributes?.sub,
+            });        
+
         } catch (error) {
             logAmplitudeEventProd('authErrorForAuthenticateUser', {
                 error: error,
@@ -203,42 +232,27 @@ function App() {
             });
         }
 
-        logAmplitudeEventProd('authenticationComplete', {
-            hasValidCredentials: tryCredentials?.authenticated,
-            username: tryCognitoUser?.attributes?.sub,
-        });    
-        if (!tryCredentials?.authenticated) {
+        if (!tryCredentials?.authenticated && !tryVerifySocialAuth?.success) {
             setIsLoading(false);
             // else, keep loading until loadMyProfile finishes
         }
     }
 
-    const fetchOrRegisterUser = async () => {
-        const userSub = cognitoUser?.attributes?.sub;
-        if (!userSub) return null;
-    
-        return await getRegisteredUser(userSub) 
-            ?? await registerUser(cognitoUser);
-    }    
+    const loadMyProfile = async (userSub) => {
+        const reelayDBUserLoaded = await getRegisteredUser(userSub);
+        const myCreatorStacksLoaded = await loadMyReelayStacks(userSub);
+        const myFollowersLoaded = await loadMyFollowers(userSub);
+        const myFollowingLoaded = await loadMyFollowing(userSub);
+        const myNotifications = await loadMyNotifications(userSub);
+        const myWatchlistItemsLoaded = await loadMyWatchlist(userSub);
 
-    const loadMyProfile = async () => {
-        const userSub = cognitoUser?.attributes?.sub;
-        if (userSub) {
-            const reelayDBUserLoaded = await fetchOrRegisterUser();
-            const myCreatorStacksLoaded = await loadMyReelayStacks(userSub);
-            const myFollowersLoaded = await loadMyFollowers(userSub);
-            const myFollowingLoaded = await loadMyFollowing(userSub);
-            const myNotifications = await loadMyNotifications(userSub);
-            const myWatchlistItemsLoaded = await loadMyWatchlist(userSub);
-    
-            setReelayDBUser(reelayDBUserLoaded);
-            setMyFollowers(myFollowersLoaded);
-            setMyFollowing(myFollowingLoaded);
-            setMyCreatorStacks(myCreatorStacksLoaded);
-            setMyNotifications(myNotifications);
-            setMyWatchlistItems(myWatchlistItemsLoaded);
-            setIsLoading(false);
-        }
+        setReelayDBUser(reelayDBUserLoaded);
+        setMyFollowers(myFollowersLoaded);
+        setMyFollowing(myFollowingLoaded);
+        setMyCreatorStacks(myCreatorStacksLoaded);
+        setMyNotifications(myNotifications);
+        setMyWatchlistItems(myWatchlistItemsLoaded);
+        setIsLoading(false);
     }
 
     const registerMyPushToken = async () => {
@@ -271,6 +285,7 @@ function App() {
         myWatchlistItems,   setMyWatchlistItems,
 
         reelayDBUser,       setReelayDBUser,
+        reelayDBUserID,     setReelayDBUserID,
         session,            setSession,
         signedIn,           setSignedIn,
         isReturningUser,    setIsReturningUser

@@ -21,7 +21,7 @@ const ringSize = captureSize + 20;
 export default ReelayCameraScreen = ({ navigation, route }) => {
     var backCount = 0;
     var backTimer = 0;
-    const { cognitoUser } = useContext(AuthContext);
+    const { reelayDBUser} = useContext(AuthContext);
     const { titleObj, venue } = route.params;
 
     const cameraRef = useRef(null);
@@ -52,7 +52,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 if (videoRecording?.uri) {
                     pushToUploadScreen(videoRecording.uri);
                     logAmplitudeEventProd('videoRecorded', {
-                        username: cognitoUser.username,
+                        username: reelayDBUser?.username,
                         title: titleObj.display,
                     })
                     

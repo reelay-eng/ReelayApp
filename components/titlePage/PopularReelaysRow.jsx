@@ -29,7 +29,7 @@ import SplashImage from "../../assets/images/reelay-splash.png";
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 export default PopularReelaysRow = ({ navigation, titleObj }) => {
-    const { cognitoUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
 	const [topReelays, setTopReelays] = useState([]);
 	const componentMounted = useRef(true);
 
@@ -59,7 +59,7 @@ export default PopularReelaysRow = ({ navigation, titleObj }) => {
 			fixedStackList: [topReelays],
 		});
 		logAmplitudeEventProd('openTitleFeed', {
-			username: cognitoUser?.username,
+			username: reelayDBUser?.username,
 			title: titleObj?.title?.display,
 			source: 'titlePage',
 			});

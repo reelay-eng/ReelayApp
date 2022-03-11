@@ -19,7 +19,6 @@ const SwipeColors = {
 export default NotificationSwipeableRow = ({ children, notificationID, onRefresh }) => {
     const ICON_SIZE = 30;
     const swipeableRowRef = useRef();
-    const { cognitoUser } = useContext(AuthContext);
     const { width } = Dimensions.get('window');
 
     const RightActionButtonText = styled(ReelayText.Body2)`

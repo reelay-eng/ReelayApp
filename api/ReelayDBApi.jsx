@@ -389,11 +389,7 @@ export const prepareReelay = async (fetchedReelay) => {
     };
 }
 
-export const registerUser = async (cognitoUserObj) => {
-    console.log('register user: ', cognitoUserObj);
-    const { username, attributes } = cognitoUserObj; // do not pass password
-    const { email, sub } = attributes;
-
+export const registerUser = async ({ email, username, sub }) => {
     const encEmail = encodeURIComponent(email);
     const encUsername = encodeURI(username);
 

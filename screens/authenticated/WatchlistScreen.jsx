@@ -26,15 +26,15 @@ const SelectorBarContainer = styled(View)`
 `
 
 export default WatchlistScreen = ({ navigation, route }) => {
-    const { cognitoUser, myWatchlistItems } = useContext(AuthContext);
+    const { reelayDBUser, myWatchlistItems } = useContext(AuthContext);
     const category = route?.params?.category ?? 'My List';
     const refresh = route?.params?.refresh ?? false;
     const [selectedCategory, setSelectedCategory] = useState(category);
 
     useEffect(() => {
         logAmplitudeEventProd('openMyWatchlist', {
-            username: cognitoUser.username,
-            userSub: cognitoUser?.attributes?.sub,
+            username: reelayDBUser?.username,
+            userSub: reelayDBUser?.sub,
         });
     }, [navigation]);
 
@@ -65,8 +65,8 @@ export default WatchlistScreen = ({ navigation, route }) => {
         setSelectedCategory(category);
         logAmplitudeEventProd('setWatchlistCategory', {
             category: category,
-            username: cognitoUser.username,
-            userSub: cognitoUser?.attributes?.sub,
+            username: reelayDBUser?.username,
+            userSub: reelayDBUser?.sub,
         });
     }
 

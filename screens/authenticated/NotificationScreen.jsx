@@ -272,7 +272,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
 }
 
 const NotificationList = ({ navigation }) => {
-    const { cognitoUser, myNotifications, setMyNotifications } = useContext(AuthContext);
+    const { reelayDBUser, myNotifications, setMyNotifications } = useContext(AuthContext);
     const [refreshing, setRefreshing] = useState(false);
     const renderNotificationItem = ({ item }) => <NotificationItem navigation={navigation} notificationContent={item} onRefresh={onRefresh} />;
 
@@ -285,7 +285,7 @@ const NotificationList = ({ navigation }) => {
     const onRefresh = async () => {
         setRefreshing(true);
         console.log('CALLING ON REFRESH');
-        const allMyNotifications = await refreshMyNotifications(cognitoUser?.attributes?.sub);
+        const allMyNotifications = await refreshMyNotifications(reelayDBUser?.sub);
         setMyNotifications(allMyNotifications);
         setRefreshing(false);
     }

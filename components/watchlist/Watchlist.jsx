@@ -22,7 +22,7 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
         height: 12px;
     `
     const [refreshing, setRefreshing] = useState(false);
-    const { cognitoUser, setMyWatchlistItems } = useContext(AuthContext);
+    const { reelayDBUser, setMyWatchlistItems } = useContext(AuthContext);
 
     const byDateUpdated = (watchlistItem0, watchlistItem1) => {
         const dateAdded0 = moment(watchlistItem0.updatedAt);
@@ -31,7 +31,7 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
     }
 
     const onRefresh = async () => {
-        const refreshedWatchlistItems = await refreshMyWatchlist(cognitoUser?.attributes?.sub);
+        const refreshedWatchlistItems = await refreshMyWatchlist(reelayDBUser?.sub);
         const sortedWatchlistItems = refreshedWatchlistItems.sort(byDateUpdated);
         setMyWatchlistItems(sortedWatchlistItems);
     }
