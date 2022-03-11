@@ -89,7 +89,7 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
         width: 95%;
 	`
 
-    const { method, email, googleUserID, appleUserID, password } = route?.params;
+    const { method, email, fullName, googleUserID, appleUserID, password } = route?.params;
     const [signingIn, setSigningIn] = useState(false);
     const { setReelayDBUserID } = useContext(AuthContext);
     
@@ -136,7 +136,7 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
             console.log('Signing up...');
 
             if (method === 'apple' || method === 'google') {
-                const authAccountObj = await registerSocialAuthAccount({ method, email, googleUserID, appleUserID });
+                const authAccountObj = await registerSocialAuthAccount({ method, email, fullName, googleUserID, appleUserID });
                 console.log('Auth account register result: ', completeSignUpResult);
     
                 const { reelayDBUserID } = authAccountObj;

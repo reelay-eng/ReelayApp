@@ -121,7 +121,7 @@ export const matchSocialAuthAccount = async ({ method, value }) => {
     }
 }
 
-export const registerSocialAuthAccount = async ({ method, email, googleUserID, appleUserID }) => {
+export const registerSocialAuthAccount = async ({ method, email, fullName, googleUserID, appleUserID }) => {
     try {
         const existingUserObj = await getUserByEmail(email);
         // if the user has an existing cognito sub, use that one
@@ -130,6 +130,10 @@ export const registerSocialAuthAccount = async ({ method, email, googleUserID, a
         const authAccountObj = {
             reelayDBUserID,
             email,
+
+            // note: should change our API to say family name and given name
+            firstName: fullName?.givenName ?? null,
+            lastName: fullName?.familyName ?? null,
     
             googleSignInEnabled: (method === 'google'),
             appleSignInEnabled: (method === 'apple'),

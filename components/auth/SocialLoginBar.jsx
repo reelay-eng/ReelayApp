@@ -40,7 +40,13 @@ const SocialAuthButton = styled(Pressable)`
 export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
     const { setReelayDBUserID } = useContext(AuthContext);
 
-    const appleOrGoogleCascadingSignIn = async ({ method, email, appleUserID, googleUserID }) => {
+    const appleOrGoogleCascadingSignIn = async ({
+        method, 
+        email, 
+        fullName, 
+        appleUserID, 
+        googleUserID 
+    }) => {
         const authAccountMatch = await matchSocialAuthAccount({ 
             method, 
             value: (method === 'apple') ? appleUserID : googleUserID,
@@ -61,33 +67,35 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
                 saveAndRegisterSocialAuthToken(existingUser?.sub);
                 // link the social auth account 
                 // apple will only give us an email address the first time we signin with apple
-                registerSocialAuthAccount({ method, email, appleUserID, googleUserID });
+                registerSocialAuthAccount({ method, email, fullName, appleUserID, googleUserID });
                 console.log('Existing user signed in');
             } else {
                 console.log('Totally new user');
                 // totally new user w/o cognito -- needs a username before completing signup
-                navigation.push('ChooseUsernameScreen', { method, email, appleUserID, googleUserID });
+                navigation.push('ChooseUsernameScreen', { method, email, fullName, appleUserID, googleUserID });
             }
         }
     }
 
     const AppleAuthButton = () => {
         const signInWithApple = async () => {
-            const credentials = await Apple.signInAsync({
-                requestedScopes: [
-                    Apple.AppleAuthenticationScope.FULL_NAME,
-                    Apple.AppleAuthenticationScope.EMAIL,
-                ]
-            });
-            console.log('Apple credentials: ', credentials);
-
-            // todo: what if the credentials are bad?
-
-            setSigningIn(true); 
-            const appleUserID = credentials?.user;
-            const email = credentials?.email;
-            const { familyName, givenName } = credentials?.fullName;
-            appleOrGoogleCascadingSignIn({ method: 'apple', email, appleUserID });
+            try {
+                const credentials = await Apple.signInAsync({
+                    requestedScopes: [
+                        Apple.AppleAuthenticationScope.FULL_NAME,
+                        Apple.AppleAuthenticationScope.EMAIL,
+                    ]
+                });
+                console.log('Apple credentials: ', credentials);
+    
+                // todo: what if the credentials are bad?
+    
+                setSigningIn(true); 
+                const { email, fullName, identityToken, user } = credentials;
+                appleOrGoogleCascadingSignIn({ method: 'apple', email, fullName, appleUserID: user });    
+            } catch (error) {
+                console.log(error);
+            }
         }
 
         return (
@@ -126,7 +134,11 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
             console.log('Google user obj: ', googleUserObj);
             const googleUserID = googleUserObj?.id;
             const email = googleUserObj?.email;
-            appleOrGoogleCascadingSignIn({ method: 'google', email, googleUserID });
+            const fullName = {
+                familyName: googleUserObj?.family_name,
+                givenName: googleUserObj?.given_name,
+            };
+            appleOrGoogleCascadingSignIn({ method: 'google', email, fullName, googleUserID });
         }
 
         const signInWithGoogle = async () => {
