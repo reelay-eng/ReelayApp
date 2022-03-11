@@ -94,6 +94,7 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
                 appleOrGoogleCascadingSignIn({ method: 'apple', email, fullName, appleUserID: user });    
             } catch (error) {
                 console.log(error);
+                logEventWithPropertiesAsync('appleSignInError', { error });
             }
         }
 
@@ -106,23 +107,10 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
 
     const GoogleAuthButton = () => {
         const expoClientId = Constants.manifest.extra.googleExpoClientId;
-        const iOSClientId = Constants.manifest.extra.googleiOSClientId;
-        const iOSURLScheme = Constants.manifest.extra.googleiOSURLScheme;
+        const iosClientId = Constants.manifest.extra.googleiOSClientId;
+        const iosURLScheme = Constants.manifest.extra.googleiOSURLScheme;
 
-        const useNativeiOSRedirectURI = (
-            (Platform.OS === 'ios') && (
-                !(process?.env?.NODE_ENV) ||
-                (process?.env?.NODE_ENV === 'production')
-            )
-        );
-
-        const googleAuthRequestConfig = { expoClientId, iOSClientId };
-        // try {
-        //     if (useNativeiOSRedirectURI) googleAuthRequestConfig.redirectUri = makeRedirectUri({ native: iOSURLScheme });
-        // } catch (error) {
-        //     console.log(error);
-        //     logEventWithPropertiesAsync('makeRedirectURIError', { error });
-        // }
+        const googleAuthRequestConfig = { expoClientId, iosClientId };
 
         const [request, response, promptAsync] = Google.useAuthRequest(googleAuthRequestConfig);        
         const onSignInResponse = async () => {

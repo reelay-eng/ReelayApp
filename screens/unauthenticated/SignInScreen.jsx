@@ -115,7 +115,7 @@ export default SignInScreen = ({ navigation, route }) => {
         return (
 			<ForgotPasswordContainer>
 				<Pressable onPress={handleForgotPassword}>
-					{({ pressed }) => <ForgotPasswordText pressed={pressed}>Forgot Password? Tap here</ForgotPasswordText>}
+					{({ pressed }) => <ForgotPasswordText pressed={pressed}>Forgot Password?</ForgotPasswordText>}
 				</Pressable>
 			</ForgotPasswordContainer>
 		);
