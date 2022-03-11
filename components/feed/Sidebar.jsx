@@ -36,7 +36,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 		align-items: center;
 		align-self: flex-end;
 		position: absolute;
-		bottom: ${height / 4}px;
+		bottom: ${height / 6}px;
 	`
 	const SidebarButton = styled(Pressable)`
 		align-items: center;

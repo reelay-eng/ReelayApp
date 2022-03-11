@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { ActivityIndicator, Image, Pressable } from 'react-native';
 import Constants from 'expo-constants';
 import ReelayIcon from '../../assets/icons/reelay-icon.png'
 import styled from 'styled-components/native';
+import ReelayColors from '../../constants/ReelayColors';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 
@@ -14,7 +15,7 @@ const ProfileImage = styled(Image)`
     width: ${(props) => props.size}px;
 `
 
-export default ProfilePicture = ({ user, navigation, size = 16 }) => {
+export default ProfilePicture = memo(({ user, navigation, size = 16 }) => {
     const [validProfileImage, setValidProfileImage] = useState(true);
     const userSub = user?.sub ?? user?.attributes?.sub;
     const uri  = `${CLOUDFRONT_BASE_URL}/public/profilepic-${userSub}-current.jpg`;
@@ -23,7 +24,7 @@ export default ProfilePicture = ({ user, navigation, size = 16 }) => {
         <Pressable onPress={() => {
             navigation.push('UserProfileScreen', { creator: user });
         }}>
-            { validProfileImage ? null : (<ProfileImage size={size} source={ReelayIcon} border={true}  />) }
+            { validProfileImage ? null : (<ProfileImage size={size} source={ReelayIcon}  />) }
             <ProfileImage
                 size={size}
                 source={{ uri }}
@@ -33,4 +34,4 @@ export default ProfilePicture = ({ user, navigation, size = 16 }) => {
             />
         </Pressable>
     )
-}
+}, []);

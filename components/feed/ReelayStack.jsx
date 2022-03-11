@@ -157,7 +157,6 @@ const ReelayStack = ({
     }
 
     const renderReelay = ({ item, index }) => {
-        console.log('calling render reelay, index: ', index);
         const reelay = item;
         const reelayViewable = stackViewable && (index === stackPosition);   
         if (reelayViewable) console.log('Reelay is viewable: ', index);

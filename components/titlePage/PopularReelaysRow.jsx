@@ -80,30 +80,28 @@ export default PopularReelaysRow = ({ navigation, titleObj }) => {
 		const [loading, setLoading] = useState(true);
 		const [thumbnailURI, setThumbnailURI] = useState("");
 
+		const loadThumbnail = async (isMounted) => {
+			try {
+				const source = reelay.content.videoURI;
+				const options = { time: 1000, quality: 0.4 };
+				const { uri } = await VideoThumbnails.getThumbnailAsync(source, options);
+				if (isMounted) {
+					setThumbnailURI(uri);
+					setLoading(false);
+				}
+			} catch (error) {
+				console.warn(error);
+				if (isMounted) {
+					setThumbnailURI('');
+					setLoading(false);
+				}
+			}
+		}
+
 		useEffect(() => {
 			// Generate thumnbail async
 			let isMounted = true;
-			(async () => {
-				try {
-					const { uri } = await VideoThumbnails.getThumbnailAsync(
-						reelay.content.videoURI,
-						{
-							time: 1000,
-							quality: 0.4,
-						}
-					);
-					if (isMounted) {
-						setThumbnailURI(uri);
-						setLoading(false);
-					}
-				} catch (error) {
-					console.warn(error);
-					if (isMounted) {
-						setLoading(false);
-						setThumbnailURI("");
-					}
-				}
-			})();
+			loadThumbnail(isMounted);
 			return () => (isMounted = false);
 		}, []);
 

@@ -115,7 +115,7 @@ const ReelayFeed = ({ navigation,
     const onTabPress = async () => {
         navigation.navigate('FeedScreen');
 
-        if (feedPosition === 0) {
+        if (selectedFeedPosition === 0) {
             refreshFeed();
         } else {
             console.log('feed positioning to 0');
