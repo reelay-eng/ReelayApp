@@ -346,7 +346,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 			alignSelf: "center",
 			color: "white",
 			fontFamily: "Outfit-Regular",
-			fontSize: 16,
+			fontSize: 14,
 			fontStyle: "normal",
 			lineHeight: 24,
 			letterSpacing: 0.25,
