@@ -1,20 +1,20 @@
 import React, { useContext, useState } from 'react';
-import { Image, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { addToMyWatchlist, removeFromMyWatchlist } from '../../api/WatchlistApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 const ICON_SIZE = 24;
 
-import WatchlistIconAdded from '../../assets/icons/global/watchlist-added-icon.png';
-import WatchlistIconNotAdded from '../../assets/icons/global/add-to-watchlist-icon.png';
+import { AddToWatchlistIconSVG, WatchlistAddedIconSVG } from '../global/SVGs';
 import { showMessageToast } from '../utils/toasts';
 import styled from 'styled-components/native';
+import ReelayColors from '../../constants/ReelayColors';
 
 const WatchListButtonCircleContainer = styled(View)`
     align-items: center;
     align-self: center;
-    background: rgba(255, 255, 255, 0.35);
+    background: ${({ isAdded }) => (isAdded) ? ReelayColors.reelayBlue : 'rgba(255, 255, 255, 0.40)'};
     border-radius: 50px;
     height: 45px;
     justify-content: center;
@@ -92,11 +92,9 @@ export default AddToWatchlistButton = ({ titleObj, reelay }) => {
     // new icon type : "reorder-three"
     return (
         <WatchlistButtonOuterContainer onPress={addToWatchlist}>
-            <WatchListButtonCircleContainer>
-                <Image source={(isAdded) ? WatchlistIconAdded : WatchlistIconNotAdded} style={{
-                    height: (isAdded) ? ICON_SIZE-2 : ICON_SIZE,
-                    width: (isAdded) ? ICON_SIZE-2 : ICON_SIZE,
-                }} />
+            <WatchListButtonCircleContainer isAdded={isAdded}>
+                { isAdded && <WatchlistAddedIconSVG /> }
+                { !isAdded && <AddToWatchlistIconSVG /> }
             </WatchListButtonCircleContainer>
         </WatchlistButtonOuterContainer>
     );

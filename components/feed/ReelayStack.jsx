@@ -61,14 +61,19 @@ const TitleInfo = styled(View)`
     flex-direction: column;
     justify-content: center;
     padding: 5px;
+    font-size: 18px;
 `
 const Title = styled(Text)`
     color: white;
     font-family: Outfit-Medium;
-    font-size: 18px;
     line-height: 24px;
     letter-spacing: 0.18px;
 `
+const TitleText = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 18px;
+`
+
 const YearText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
@@ -243,9 +248,9 @@ const ReelayStack = ({
                     <Poster title={viewableReelay.title} />
                     <TitleInfo>
                         <TitleContainer>
-                            <Title numberOfLines={2} ellipsizeMode={"tail"}>
+                            <TitleText numberOfLines={2} ellipsizeMode={"tail"}>
                                 {displayTitle}
-                            </Title>
+                            </TitleText>
                         </TitleContainer>
                         <View style={{ flexDirection: "column", marginTop: 5 }}>
                             { year.length > 0 && <YearText>{year}</YearText> }

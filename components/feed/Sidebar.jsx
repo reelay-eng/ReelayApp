@@ -40,7 +40,10 @@ export default Sidebar = ({ navigation, reelay }) => {
 	`
 	const SidebarButton = styled(Pressable)`
 		align-items: center;
-		background: rgba(255, 255, 255, 0.35);
+		background: ${({ addHighlight }) => (addHighlight) 
+			? 'rgba(41, 119, 239, 0.40)'
+			: 'rgba(255, 255, 255, 0.20)'
+		};
 		border-radius: 50px;
 		height: 44px;
 		justify-content: center;
@@ -129,7 +132,9 @@ export default Sidebar = ({ navigation, reelay }) => {
 	return (
 		<SidebarView>
 			<ButtonContainer>
-				<SidebarButton onPress={onLikePress} onLongPress={onLikeLongPress}>
+				<SidebarButton 
+					onPress={onLikePress} 
+					onLongPress={onLikeLongPress}>
 					<Icon
 						type="ionicon"
 						name="heart"
@@ -142,11 +147,14 @@ export default Sidebar = ({ navigation, reelay }) => {
 			</ButtonContainer>
 
 			<ButtonContainer>
-				<SidebarButton onPress={onCommentPress} onLongPress={onCommentLongPress}>
+				<SidebarButton 
+					addHighlight={commentedByUser}
+					onPress={onCommentPress} 
+					onLongPress={onCommentLongPress}>
 					<Icon
 						type="ionicon"
 						name="chatbubble-ellipses"
-						color={commentedByUser ? ReelayColors.reelayRed : "white"}
+						color={'white'}
 						iconStyle={IconDropShadowStyle}
 						size={ICON_SIZE}
 					/>
@@ -158,7 +166,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 				<SidebarButton>
 					<SendRecButton navigation={navigation} titleObj={reelay.title} reelay={reelay} />
 				</SidebarButton>
-				<Count>{" "}</Count>
+				<Count>{''}</Count>
 			</ButtonContainer>
 
 			<ButtonContainer>
