@@ -12,6 +12,7 @@ import { KeyboardHidingBlackContainer } from "./SignInScreen";
 import constraints from '../../components/utils/EmailValidationConstraints';
 import { Button } from '../../components/global/Buttons';
 import SocialLoginBar from '../../components/auth/SocialLoginBar';
+import { registerUser } from '../../api/ReelayDBApi';
 
 const AuthInput = styled(Input)`
     color: white;
@@ -120,6 +121,7 @@ export default SignUpScreen = ({ navigation, route }) => {
 
         const [hidePassword, setHidePassword] = useState(true);
         const [hideConfirmPassword, setHideConfirmPassword] = useState(true);
+
         const hideShowPasswordPrompt = hidePassword ? 'Show Password' : 'Hide Password';
         const passwordsMatch = (password === confirmPassword);
         const passwordLongEnough = (password.length >= 8);
@@ -187,15 +189,23 @@ export default SignUpScreen = ({ navigation, route }) => {
 						value={email}
 					/>
 					<AuthInput
+                        autoComplete='password-new'
+                        blurOnSubmit={false}
 						containerStyle={AuthInputContainerStyle(
 							passwordFieldActive || showPasswordError
 						)}
 						onFocus={() => setPasswordFieldActive(true)}
 						onBlur={() => setPasswordFieldActive(false)}
+                        onEndEditing={() => {
+                            if (!createAccountDisabled) {
+                                advanceToCreateUsername();
+                            }
+                        }}
 						errorMessage={
 							showPasswordError && "Passwords must be at least 8 characters."
 						}
 						errorProps={ErrorMessageStyle}
+                        passwordRules='minlength: 8;'
 						placeholder={"Enter password"}
 						onChangeText={setPassword}
 						leftIcon={PasswordIconComponent}
@@ -205,6 +215,8 @@ export default SignUpScreen = ({ navigation, route }) => {
 						value={password}
 					/>
 					<AuthInput
+                        autoComplete='password-new'
+                        blurOnSubmit={false}
 						containerStyle={AuthInputContainerStyle(
 							confirmPasswordFieldActive || showConfirmPasswordError
 						)}
@@ -212,9 +224,10 @@ export default SignUpScreen = ({ navigation, route }) => {
 						onBlur={() => setConfirmPasswordFieldActive(false)}
 						errorMessage={showConfirmPasswordError && "Passwords don't match!"}
 						errorProps={ErrorMessageStyle}
+                        passwordRules='minlength: 8;'
 						placeholder={"Re-enter password"}
 						onChangeText={setConfirmPassword}
-						secureTextEntry={hideConfirmPassword}
+						secureTextEntry={hidePassword}
 						leftIcon={
 							passwordsMatch ? AuthInputLockedIconStyle : AuthInputUnlockedIconStyle
 						}
@@ -226,8 +239,8 @@ export default SignUpScreen = ({ navigation, route }) => {
 				<BottomButtonsContainer>
                     <SocialLoginBar 
                         navigation={navigation} 
-                        signingIn={signingUp} 
-                        setSigningIn={setSigningUp} 
+                        signingIn={false} 
+                        setSigningIn={() => {}} 
                     />
 					<SignUpButtonContainer>
 						<Button

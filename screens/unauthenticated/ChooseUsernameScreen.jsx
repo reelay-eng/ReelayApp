@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Icon, Input } from 'react-native-elements';
 import { Button } from '../../components/global/Buttons';
 import BackButton from '../../components/utils/BackButton';
@@ -21,6 +21,7 @@ import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import { registerSocialAuthAccount, saveAndRegisterSocialAuthToken } from '../../api/ReelayUserApi';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import { showErrorToast } from '../../components/utils/toasts';
 
 export const KeyboardHidingBlackContainer = ({ children }) => {
     const FullScreenBlackContainer = styled(SafeAreaView)`
@@ -56,17 +57,6 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
 		type: "ionicon",
         size: 20,
     };
-    const AuthInputWarningIconStyle = {
-		color: ReelayColors.reelayRed,
-		name: "warning",
-		type: "ionicon",
-	};
-    const InputContainer = styled(View)`
-		margin-bottom: 60px;
-		width: 90%;
-		display: flex;
-		flex-direction: column;
-	`;
     const AlignmentContainer = styled(View)`
 		width: 100%;
 		height: 100%;
@@ -74,61 +64,73 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
 		align-items: center;
 		justify-content: space-between;
 	`;
-
+    const TopContainer = styled(View)`
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    `
+    const InputContainer = styled(View)`
+        flex-direction: column;
+        margin-bottom: 30px;
+        width: 90%;
+    `;
+    const InstructionText = styled(ReelayText.Body2)`
+        color: white;
+        margin-left: 10px;
+        text-align: left;
+    `
+    const InstructionContainer = styled(View)`
+        align-items: flex-start;
+        width: 90%;
+    `
 	const SignupButtonContainer = styled(View)`
 		margin-bottom: 40px;
-		width: 95%;
 		height: 56px;
+        width: 95%;
 	`
 
     const { method, email, googleUserID, appleUserID, password } = route?.params;
     const [signingIn, setSigningIn] = useState(false);
-    // const { setReelayDBUserID } = useContext(AuthContext);
+    const { setReelayDBUserID } = useContext(AuthContext);
     
     const UsernameInput = () => {
-
         const [inputText, setInputText] = useState('');
-
-        const newValidUsernameRegex = /^([a-zA-z0-9]+(?:[.-_+][a-zA-Z0-9]+)*)$/g;
+        const newValidUsernameRegex = /^([a-zA-z]+[a-zA-z0-9]*(?:[.\-_+][a-zA-Z0-9]+)*)$/g;
         const validUsernameLength = inputText.length > 3 && inputText.length < 26;
         const usernamePassesRegex = newValidUsernameRegex.test(inputText);
-        const usernameIsValid = validUsernameLength && usernamePassesRegex;
+        const usernameHasValidForm = validUsernameLength && usernamePassesRegex;
 
-        console.log('Username is valid? ', usernameIsValid);
-
-        const [canSignUp, setCanSignUp] = useState(false);
-        const [errorText, setErrorText] = useState((usernameIsValid || inputText.length <= 3) ? '' :
-            'Usernames must be between 4 and 25 characters, alphanumeric. Separators .+_- are okay'
-        );
+        console.log('Username is valid? ', usernameHasValidForm);
 
         const changeInputText = async (inputUsername) => {
             setInputText(inputUsername);
-            // setIsCheckingUsername(true);
-            await checkUsernameValid(inputUsername);
-            // setIsCheckingUsername(false);
         }
 
-        const checkUsernameValid = async (username) => {
+        const isUsernameValid = async (username) => {
+            if (!usernameHasValidForm) {
+                showErrorToast('Usernames must be between 4 and 25 characters, alphanumeric. Separators .+_- are okay');
+                return false;
+            }
             const partialMatchingUsers = await searchUsers(username);
             if (partialMatchingUsers?.error) {
-                setErrorText('Error connecting to DB');
-                setCan (false);
-                return;
+                return false;
             }
 
             const usernamesMatch = (userObj) => (userObj.username === username);
             const fullMatchIndex = await partialMatchingUsers.findIndex(usernamesMatch);
-            if (fullMatchIndex === -1 && usernameIsValid) {
-                setCanSignUp(true);
-                setErrorText('');
+            if (fullMatchIndex === -1) {
+                return true;
             } else {
-                setErrorText('That username is already taken');
-                setCanSignUp(false);
+                showErrorToast('That username is already taken');
+                return false;
             }
         }
 
         const completeSignUp = async () => {
             const username = inputText;
+            const canSignUp = await isUsernameValid(username);
+            if (!canSignUp) return;
+
             setSigningIn(true);
             logAmplitudeEventProd('signUp', { email, username });
             console.log('Signing up...');
@@ -159,23 +161,31 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
         
         return (
 			<AlignmentContainer>
-				<InputContainer>
-					<AuthInput
-						autoCapitalize="none"
-						containerStyle={AuthInputContainerStyle}
-						leftIcon={AuthInputAtIconStyle}
-						placeholder={"lukeskywalker"}
-						errorMessage={(!canSignUp && errorText)}
-						onChangeText={changeInputText}
-						rightIcon={(canSignUp || inputText.length <= 3) ? null : AuthInputWarningIconStyle}
-						value={inputText}
-					/>
-				</InputContainer>
+                <TopContainer>
+                    <InputContainer>
+                        <AuthInput
+                            autoComplete='none'
+                            autoCapitalize="none"
+                            containerStyle={AuthInputContainerStyle}
+                            leftIcon={AuthInputAtIconStyle}
+                            placeholder={"lukeskywalker"}
+                            onChangeText={changeInputText}
+                            textContentType='username'
+                            value={inputText}
+                        />
+                    </InputContainer>
+                    <InstructionContainer>
+                        <InstructionText>
+                            {'Usernames must be between 4 and 25 characters, \
+                                alphanumeric, and start with letters. Separators .+_- are okay'}
+                        </InstructionText>
+                    </InstructionContainer>
+                </TopContainer>
 				<SignupButtonContainer>
 					<Button
 						text={signingIn ? "Beaming you in..." : "Complete sign up"}
 						onPress={completeSignUp}
-						disabled={!canSignUp || signingIn}
+						disabled={signingIn || !usernameHasValidForm}
 						backgroundColor={ReelayColors.reelayBlue}
 						fontColor="white"
 						borderRadius="26px"

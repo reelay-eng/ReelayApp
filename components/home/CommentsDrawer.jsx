@@ -294,7 +294,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 
         const AuthorImage = memo(({user}) => {
             const authorImageSource = {
-				uri: `${CLOUDFRONT_BASE_URL}/public/profilepic-${user.attributes.sub}-current.jpg`,
+				uri: `${CLOUDFRONT_BASE_URL}/public/profilepic-${user?.sub}-current.jpg`,
 			};
             return (
 				<CommentProfilePhotoContainer>

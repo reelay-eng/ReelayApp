@@ -53,7 +53,7 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
         } else {
             // social login not registered
             const existingUser = await getUserByEmail(email);
-            if (existingUser) {
+            if (existingUser?.sub) {
                 // user completed initial sign up through cognito
                 setReelayDBUserID(existingUser?.sub);
                 saveAndRegisterSocialAuthToken(existingUser?.sub);
@@ -62,6 +62,7 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
                 registerSocialAuthAccount({ method, email, appleUserID, googleUserID });
                 console.log('Existing user signed in');
             } else {
+                console.log('Totally new user');
                 // totally new user w/o cognito -- needs a username before completing signup
                 navigation.push('ChooseUsernameScreen', { method, email, appleUserID, googleUserID });
             }
