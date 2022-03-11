@@ -34,4 +34,6 @@ export default ProfilePicture = memo(({ user, navigation, size = 16 }) => {
             />
         </Pressable>
     )
-}, []);
+}, (prevProps, nextProps) => {
+    return (prevProps?.user?.sub === nextProps?.user?.sub);
+});
