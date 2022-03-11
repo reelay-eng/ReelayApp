@@ -37,6 +37,10 @@ export default ({ config }) => {
         cloudfrontBaseUrl: 'https://di92fpd9s7eko.cloudfront.net',
         expoNotificationUrl: 'https://exp.host/--/api/v2/push/send',
 
+        googleExpoClientId: '75256805031-843i4qaqde5g2hm0q3pn6toat65cne42.apps.googleusercontent.com',
+        googleiOSClientId: '75256805031-89iubu60jfrko1lcn1oj2n4lgshdnljf.apps.googleusercontent.com',
+        googleiOSURLScheme: 'com.googleusercontent.apps.75256805031-89iubu60jfrko1lcn1oj2n4lgshdnljf',
+
         reelayApiBaseUrl: getReelayAPIBaseURL(),
         reelayApiKey: 'ac739ac2-5877-47de-a861-59bc776bdd27',
         reelayS3UploadBucket: 'reelay-content211002-dev',

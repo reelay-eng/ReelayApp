@@ -1,7 +1,8 @@
 import React, { useContext, useEffect } from "react";
-import { Pressable, View } from "react-native";
+import { Platform, Pressable, View } from "react-native";
 import styled from "styled-components/native";
 import { Icon } from "react-native-elements";
+import Constants from "expo-constants";
 
 import * as Google from 'expo-auth-session/providers/google';
 import * as Apple  from 'expo-apple-authentication';
@@ -14,6 +15,7 @@ import {
     saveAndRegisterSocialAuthToken,
 } from "../../api/ReelayUserApi";
 import { getUserByEmail } from "../../api/ReelayDBApi";
+import { makeRedirectUri } from "expo-auth-session";
 
 const ButtonRowContainer = styled(View)`
     align-items: center;
@@ -96,12 +98,20 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
     }
 
     const GoogleAuthButton = () => {
-        const [request, response, promptAsync] = Google.useAuthRequest({
-            // todo: move these to manifest or server
-            expoClientId: '75256805031-843i4qaqde5g2hm0q3pn6toat65cne42.apps.googleusercontent.com',
-            iosClientId: '75256805031-89iubu60jfrko1lcn1oj2n4lgshdnljf.apps.googleusercontent.com',
-        });
+        const expoClientId = Constants.manifest.extra.googleExpoClientId;
+        const iOSClientId = Constants.manifest.extra.googleiOSClientId;
+        const iOSURLScheme = Constants.manifest.extra.googleiOSURLScheme;
 
+        const useNativeiOSRedirectURI = (
+            process.env.NODE_ENV === 'production' && 
+            Platform.OS === 'ios'
+        );
+
+        const googleAuthRequestConfig = { expoClientId, iOSClientId };
+        const [request, response, promptAsync] = (useNativeiOSRedirectURI) 
+            ? Google.useAuthRequest(googleAuthRequestConfig, { native: iOSURLScheme })
+            : Google.useAuthRequest(googleAuthRequestConfig);
+        
         const onSignInResponse = async () => {
             const accessToken = response?.authentication?.accessToken;
             if (!accessToken) {
