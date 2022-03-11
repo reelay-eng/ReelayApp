@@ -117,12 +117,12 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
         );
 
         const googleAuthRequestConfig = { expoClientId, iOSClientId };
-        try {
-            if (useNativeiOSRedirectURI) googleAuthRequestConfig.redirectUri = makeRedirectUri({ native: iOSURLScheme });
-        } catch (error) {
-            console.log(error);
-            logEventWithPropertiesAsync('makeRedirectURIError', { error });
-        }
+        // try {
+        //     if (useNativeiOSRedirectURI) googleAuthRequestConfig.redirectUri = makeRedirectUri({ native: iOSURLScheme });
+        // } catch (error) {
+        //     console.log(error);
+        //     logEventWithPropertiesAsync('makeRedirectURIError', { error });
+        // }
 
         const [request, response, promptAsync] = Google.useAuthRequest(googleAuthRequestConfig);        
         const onSignInResponse = async () => {
