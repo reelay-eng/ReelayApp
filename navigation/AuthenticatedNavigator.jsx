@@ -157,13 +157,7 @@ const BottomTabNavigator = () => {
 				component={FeedTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<View>
-							{/* <Image
-								source={SearchIcon}
-								style={bottomTabIconStyle(focused)}
-							/> */}
-							<Icon type='ionicon' name='planet' size={30} color='white' />
-						</View>
+						<Icon type='ionicon' name='earth' size={24} color='white' />
 					),
 				}}
 			/>
@@ -211,7 +205,7 @@ const BottomTabNavigator = () => {
 const HomeTabNavigator = () => {
 	return (
 		<HomeTabStack.Navigator 
-			initialRouteName="SearchScreen"
+			initialRouteName="HomeScreen"
 			detachInactiveScreens={false}
 		>
 			<HomeTabStack.Screen

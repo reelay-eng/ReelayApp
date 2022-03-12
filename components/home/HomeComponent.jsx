@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import HomeHeader from './HomeHeader';
 import InTheaters from './InTheaters';
-import WhatMyFriendsAreWatching from './WhatMyFriendsAreWatching';
+import FriendsAreWatching from './FriendsAreWatching';
 import OnMyStreamingServices from './OnMyStreamingServices';
 
 const HomeContainer = styled.SafeAreaView`
@@ -28,7 +28,7 @@ const HomeComponent = ({ navigation }) => {
             <ScrollContainer>
                 {/* <Announcements /> */}
                 <InTheaters navigation={navigation} />
-                <WhatMyFriendsAreWatching navigation={navigation} />
+                <FriendsAreWatching navigation={navigation} />
                 <OnMyStreamingServices navigation={navigation} />
                 {/* <FilmFestivalsBadge navigation={navigation} /> */} 
                 <Spacer height={80} />

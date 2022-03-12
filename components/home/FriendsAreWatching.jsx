@@ -3,37 +3,37 @@ import { View, Text, Pressable } from 'react-native'
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
-import * as ReelayText from '../../components/global/Text';
+import * as ReelayText from '../global/Text';
 import { getFeed } from '../../api/ReelayDBApi';
 import { LinearGradient } from 'expo-linear-gradient';
 import HomeScreenCardStackImage from '../../assets/images/home/home-screen-cardstack.png';
 import { ActionButton } from '../global/Buttons';
 import { ReelayThumbnail } from '../titlePage/PopularReelaysRow';
+import { VenueIcon } from '../utils/VenueIcon';
 
-const WhatMyFriendsContainer = styled.View`
-    width: 100%;
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 20px;
-`
-const WhatMyFriendsHeader = styled(ReelayText.H5Bold)`
-    padding-left: 15px;
-    padding-top: 15px;
-    color: white;
-`
-
-const FollowingRowContainer = styled.ScrollView`
-    display: flex;
-    padding-left: 15px;
-    padding-top: 15px;
-    flex-direction: row;
-    width: 100%;
-    padding-top: 16px;
-    padding-bottom: 10px;
-`
-
-const WhatMyFriendsAreWatching = ({ navigation }) => {
+const FriendsAreWatching = ({ navigation }) => {
+    const FriendsAreWatchingContainer = styled.View`
+        width: 100%;
+        height: auto;
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+    `
+    const FriendsAreWatchingHeader = styled(ReelayText.H5Bold)`
+        color: white;
+        font-size: 18px
+        padding-left: 15px;
+        padding-top: 15px;
+    `
+    const FollowingRowContainer = styled.ScrollView`
+        display: flex;
+        padding-left: 15px;
+        padding-top: 15px;
+        flex-direction: row;
+        width: 100%;
+        padding-top: 16px;
+        padding-bottom: 10px;
+    `
     const { reelayDBUser } = useContext(AuthContext);
     const [followingStacks, setFollowingStacks] = useState([]);
     const [loadedFollowingStacks, setLoadedFollowingStacks] = useState(false);
@@ -59,41 +59,56 @@ const WhatMyFriendsAreWatching = ({ navigation }) => {
 		});
 	};
 
+
     return (
-        <WhatMyFriendsContainer>
-            <WhatMyFriendsHeader>What my friends are watching</WhatMyFriendsHeader>
+        <FriendsAreWatchingContainer>
+            <FriendsAreWatchingHeader>{'Friends are watching'}</FriendsAreWatchingHeader>
             {followingStacks.length === 0 && loadedFollowingStacks && <YouDontFollowAnyUsers navigation={navigation} />}
             {followingStacks.length > 0 && (
                 <FollowingRowContainer horizontal>
-                    { followingStacks.map((stack, index) => {
-                        return (
-                            <FollowingElement key={index} onPress={() => goToReelay(index, stack[0].title)} stack={stack}/>
-                        )
-                    })}
+                    { followingStacks.map((stack, index) => <FollowingElement stack={stack} index={index} />)}
                 </FollowingRowContainer>
             )}
-        </WhatMyFriendsContainer>
+        </FriendsAreWatchingContainer>
         
     )
 }
 
-const FollowingElementContainer = styled.Pressable`
-    margin-right: 12px;
-    display: flex;
-    width: 105px;
-`
+const FollowingElement = ({ stack, index }) => {
+    const TitleText = styled(ReelayText.Caption)`
+        color: white;
+        font-size: 12px;
+        margin-left: 6px;
+        text-align: center;
+    `
+    const TitleRow = styled(View)`
+        flex-direction: row;
+        justify-content: center;
+        width: 100%;
+    `
+    const FollowingElementContainer = styled(Pressable)`
+        margin: 6px;
+        display: flex;
+        width: 120px;
+    `
+    const onPress = () => goToReelay(index, stack[0].title);
+    const fullTitle = stack[0].title.display;
+    const displayTitle = (fullTitle?.length > 13) 
+        ? fullTitle.substring(0, 10) + "..."
+        : fullTitle;
 
-const FollowingElement = ({ stack, onPress }) => {
+    console.log('REELAY: ', stack[0]);
 
     return (
-        <FollowingElementContainer onPress={onPress}>
+        <FollowingElementContainer key={index}>
             <ReelayThumbnail reelay={stack[0]} onPress={onPress} />
+            <TitleRow>
+                { stack[0]?.content?.venue &&  <VenueIcon venue={stack[0]?.content?.venue} size={14} /> }
+                <TitleText>{displayTitle}</TitleText>
+            </TitleRow>
         </FollowingElementContainer>
     )
 }
-
-
-
 
 const YouDontFollowContainer = styled.View`
     width: 100%;
@@ -183,4 +198,4 @@ const YouDontFollowAnyUsers = ({ navigation }) => {
     )
 }
 
-export default WhatMyFriendsAreWatching;
+export default FriendsAreWatching;

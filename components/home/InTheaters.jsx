@@ -14,9 +14,10 @@ const InTheatersContainer = styled.View`
     margin-bottom: 20px;
 `
 const InTheatersHeader = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 18px;
     padding-left: 15px;
     padding-top: 15px;
-    color: white;
 `
 const InTheatersElementRowContainer = styled.ScrollView`
     display: flex;
@@ -24,7 +25,6 @@ const InTheatersElementRowContainer = styled.ScrollView`
     padding-top: 15px;
     flex-direction: row;
     width: 100%;
-    padding-top: 16px;
     padding-bottom: 10px;
 `
 
@@ -56,8 +56,7 @@ const InTheaters = memo(({ navigation }) => {
     
     return (
         <InTheatersContainer>
-            <InTheatersHeader>In Theaters Now</InTheatersHeader>
-            
+            <InTheatersHeader>{'In theaters now'}</InTheatersHeader>
                 { theaterStacks.length > 0 && (
                     <InTheatersElementRowContainer horizontal>
                         { theaterStacks.map((stack, index) => {
@@ -89,7 +88,7 @@ const InTheatersReleaseYear = styled(ReelayText.CaptionEmphasized)`
     opacity: 0.5;
 `
 
-const InTheatersTitle = styled(ReelayText.H6)`
+const InTheatersTitle = styled(ReelayText.H6Emphasized)`
     margin-top: 10px;
     color: white;
     opacity: 1;

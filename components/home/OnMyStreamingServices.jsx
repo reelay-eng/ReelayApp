@@ -20,9 +20,10 @@ const StreamingServicesContainer = styled.View`
     margin-bottom: 20px;
 `
 const StreamingServicesHeader = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 18px;
     padding-left: 15px;
     padding-top: 15px;
-    color: white;
 `
 const StreamingServicesElementRowContainer = styled.ScrollView`
     display: flex;
@@ -42,7 +43,10 @@ const OnMyStreamingServices = memo(({ navigation }) => {
 
     useEffect(() => {
         (async () => {
-            let nextStreamingStacks = await getFeed({ reqUserSub: reelayDBUser?.sub, feedSource: "streaming", page: 0 });
+            let nextStreamingStacks = await getFeed({ 
+                reqUserSub: reelayDBUser?.sub, 
+                feedSource: "streaming", page: 0 
+            });
             setStreamingStacks(nextStreamingStacks);
         })();
     }, [])
@@ -81,7 +85,6 @@ const OnMyStreamingServices = memo(({ navigation }) => {
     return (
         <StreamingServicesContainer>
             <StreamingServicesHeader>My Streaming Services</StreamingServicesHeader>
-            
                 { streamingStacks.length > 0 && (
                     <StreamingServicesElementRowContainer horizontal>
                         { streamingStacks.map((stack, index) => {
@@ -135,10 +138,6 @@ const StreamingServiceSelectorDescription = styled(ReelayText.Body2)`
     margin-left: 15px;
     margin-top: 5px;
 `
-
-const IconContainer = styled.View`
-        margin: 4px;
-    `
 const IconOptionsContainer = styled.View`
     align-items: center;
     justify-content: center;
@@ -147,7 +146,6 @@ const IconOptionsContainer = styled.View`
     margin-top: 20px;
     width: 100%;
 `
-
 const VenueSaveButtonContainer = styled.View`
     margin-top: 10px;
     width: 88%;
@@ -161,14 +159,17 @@ const IconList = memo(({ onTapVenue }) => {
             {iconVenues.map((venueObj) => {
                 const venue = venueObj.venue;
                 return (
-                    <IconContainer key={venue}>
-                        <VenueBadge venue={venue} searchVenues={iconVenues} onTapVenue={onTapVenue}/>
-                    </IconContainer>
+                    <VenueBadge 
+                        key={venue}
+                        onTapVenue={onTapVenue}
+                        searchVenues={iconVenues} 
+                        venue={venue} 
+                    />
                 );
             })}
         </IconOptionsContainer>
     )
-})
+});
 
 
 const IconOptions = () => {
@@ -190,18 +191,16 @@ const IconOptions = () => {
         else {
             selectedVenues.current = [...selectedVenues.current, venue];
             if (saveDisabled) setSaveDisabled(false);
-            console.log("CALLING");
         }
     }
     return (
-        <View style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{ justifyContent: 'center', alignItems: 'center'}}>
             <IconList onTapVenue={onTapVenue} />
             <VenueSaveButtonContainer>
                 <BWButton 
                     disabled={saveDisabled} 
                     text="Save"
                     onPress={onSave}
-
                 />
             </VenueSaveButtonContainer>
         </View>
@@ -215,27 +214,21 @@ const VenueBadge = ({ venue, searchVenues, subtext="", onTapVenue }) => {
         width: 80px;
         height: 93px;
         border-radius: 11px;
-        display: flex;
         justify-content: center;
         align-items: center;
         background-color: ${ReelayColors.reelayBlue};
-    `;
-
+    `
     const PrimaryVenueImage = styled.Image`
         height: 42px;
         width: 42px;
         border-radius: 21px;
         border-width: 1px;
         border-color: white;
-    `;
-    const OtherVenueImageContainer = styled.View`
-        height: 30px;
-        width: 30px;
-        margin: 5px;
     `
     const OtherVenueImage = styled.Image`
-        height: 100%;
-        width: 100%;
+        height: 42px;
+        width: 42px;
+        margin: 5px;
         resizeMode: contain;
     `
     const OtherVenueSubtext = styled(ReelayText.CaptionEmphasized)`
@@ -243,39 +236,41 @@ const VenueBadge = ({ venue, searchVenues, subtext="", onTapVenue }) => {
         padding: 5px;
         text-align: center;
     `
+
+    const onPress = () => {
+        onTapVenue(venue, !isPressed); 
+        setIsPressed(!isPressed);
+    };
+
+    const VenueGradient = () => (
+        <LinearGradient
+            colors={["#272525", "#19242E"]}
+            style={{
+                flex: 1,
+                opacity: 1,
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                borderRadius: `11px`,
+            }}
+        />
+    );
+
     return (
-        <>
+        <View style={{ margin: 4 }}>
             {source && (
-                <PressableVenue onPress={() => {onTapVenue(venue, !isPressed); setIsPressed(!isPressed)}}>
-                    {({ pressed }) => (
-                        <>
-                            {(!pressed && !isPressed) && (
-                                <LinearGradient
-                                    colors={["#272525", "#19242E"]}
-                                    style={{
-                                        flex: 1,
-                                        opacity: 1,
-                                        position: "absolute",
-                                        width: "100%",
-                                        height: "100%",
-                                        borderRadius: `11px`,
-                                    }}
-                                />
-                            )}
-                            {subtext.length > 0 && (
-                                <>
-                                    <OtherVenueImageContainer>
-                                        <OtherVenueImage source={source} />
-                                    </OtherVenueImageContainer>
-                                    <OtherVenueSubtext>{subtext}</OtherVenueSubtext>
-                                </>
-                            )}
-                            {!(subtext.length > 0) && <PrimaryVenueImage source={source} />}
-                        </>
+                <PressableVenue onPress={onPress}>
+                    { (!isPressed) && <VenueGradient /> }
+                    { subtext.length > 0 && (
+                        <React.Fragment>
+                            <OtherVenueImage source={source} />
+                            <OtherVenueSubtext>{subtext}</OtherVenueSubtext>
+                        </React.Fragment>
                     )}
+                    { !(subtext.length > 0) && <PrimaryVenueImage source={source} /> }
                 </PressableVenue>
             )}
-        </>
+        </View>
     );
 };
 
@@ -284,7 +279,6 @@ const StreamingServiceSelector = () => {
     return (
         <StreamingServicesContainer>
             <StreamingServicesHeader>Where do you stream?</StreamingServicesHeader>
-            <StreamingServiceSelectorDescription>Select everywhere you stream for a more personalized experience.</StreamingServiceSelectorDescription>
             <IconOptions />
         </StreamingServicesContainer>
     )

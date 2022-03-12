@@ -28,6 +28,106 @@ import SplashImage from "../../assets/images/reelay-splash.png";
 // Logging
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
+export const ReelayThumbnail = ({ reelay, index, onPress }) => {
+	const ThumbnailContainer = styled(View)`
+		justify-content: center;
+		margin: 6px;
+		height: 202px;
+		width: 107px;
+	`;
+	const ThumbnailImage = styled(Image)`
+		border-radius: 8px;
+		height: 200px;
+		width: 105px;
+	`;
+	const [loading, setLoading] = useState(true);
+	const [thumbnailURI, setThumbnailURI] = useState("");
+
+	const loadThumbnail = async (isMounted) => {
+		try {
+			const source = reelay.content.videoURI;
+			const options = { time: 1000, quality: 0.4 };
+			const { uri } = await VideoThumbnails.getThumbnailAsync(source, options);
+			if (isMounted) {
+				setThumbnailURI(uri);
+				setLoading(false);
+			}
+		} catch (error) {
+			console.warn(error);
+			if (isMounted) {
+				setThumbnailURI('');
+				setLoading(false);
+			}
+		}
+	}
+
+	useEffect(() => {
+		// Generate thumnbail async
+		let isMounted = true;
+		loadThumbnail(isMounted);
+		return () => (isMounted = false);
+	}, []);
+
+	const GradientContainer = styled(View)`
+		position: absolute;
+		width: 100%;
+		height: 65%;
+		top: 35%;
+		bottom: 0;
+		left: 0;
+		right: 0;
+		justify-content: center;
+		align-items: center;
+		border-radius: 8px;
+	`;
+	const UsernameText = styled(ReelayText.Subtitle2)`
+		padding: 5px;
+		position: absolute;
+		bottom: 5%;
+		color: white;
+	`;
+
+	const GradientOverlay = ({ username }) => {
+		return (
+			<React.Fragment>
+				<ThumbnailImage
+					source={(thumbnailURI.length > 0)
+						? { uri: thumbnailURI } 
+						: SplashImage
+					}
+				/>
+				<GradientContainer>
+					<LinearGradient
+						colors={["transparent", "#0B1424"]}
+						style={{
+							flex: 1,
+							opacity: 1,
+							width: "100%",
+							height: "100%",
+							borderRadius: "8px",
+						}}
+					/>
+					<UsernameText>
+						{`@${ username.length > 13
+							? username.substring(0, 10) + "..."
+							: username
+						}`}
+					</UsernameText>
+				</GradientContainer>
+			</React.Fragment>
+		)
+	}
+
+	return (
+		<Pressable key={reelay.id} onPress={onPress}>
+			<ThumbnailContainer>
+				{loading && <ActivityIndicator />}
+				{!loading && (<GradientOverlay username={reelay.creator.username} />)}
+			</ThumbnailContainer>
+		</Pressable>
+	);
+};
+
 export default PopularReelaysRow = ({ navigation, titleObj }) => {
     const { reelayDBUser } = useContext(AuthContext);
 	const [topReelays, setTopReelays] = useState([]);
@@ -65,149 +165,6 @@ export default PopularReelaysRow = ({ navigation, titleObj }) => {
 			});
 	};
 
-	const ReelayThumbnail = ({ reelay, index }) => {
-		const ThumbnailContainer = styled(View)`
-			justify-content: center;
-			margin: 6px;
-			height: 202px;
-			width: 107px;
-		`;
-		const ThumbnailImage = styled(Image)`
-			border-radius: 8px;
-			height: 200px;
-			width: 105px;
-		`;
-		const [loading, setLoading] = useState(true);
-		const [thumbnailURI, setThumbnailURI] = useState("");
-
-		const loadThumbnail = async (isMounted) => {
-			try {
-				const source = reelay.content.videoURI;
-				const options = { time: 1000, quality: 0.4 };
-				const { uri } = await VideoThumbnails.getThumbnailAsync(source, options);
-				if (isMounted) {
-					setThumbnailURI(uri);
-					setLoading(false);
-				}
-			} catch (error) {
-				console.warn(error);
-				if (isMounted) {
-					setThumbnailURI('');
-					setLoading(false);
-				}
-			}
-		}
-
-		useEffect(() => {
-			// Generate thumnbail async
-			let isMounted = true;
-			loadThumbnail(isMounted);
-			return () => (isMounted = false);
-		}, []);
-
-		const GradientContainer = styled(View)`
-			position: absolute;
-			width: 100%;
-			height: 65%;
-			top: 35%;
-			bottom: 0;
-			left: 0;
-			right: 0;
-			justify-content: center;
-			align-items: center;
-			border-radius: 8px;
-		`;
-		const UsernameText = styled(ReelayText.Subtitle2)`
-			padding: 5px;
-			position: absolute;
-			bottom: 5%;
-			color: white;
-		`;
-
-
-		return (
-			<Pressable
-				key={reelay.id}
-				onPress={() => {
-					goToReelay(index);
-				}}
-			>
-				<ThumbnailContainer>
-					{loading && <ActivityIndicator />}
-					{!loading && (
-						<>
-							<ThumbnailImage
-								source={
-									thumbnailURI.length > 0 ? { uri: thumbnailURI } : SplashImage
-								}
-							/>
-							<GradientContainer>
-								<LinearGradient
-									colors={["transparent", "#0B1424"]}
-									style={{
-										flex: 1,
-										opacity: 1,
-										width: "100%",
-										height: "100%",
-										borderRadius: "8px",
-									}}
-								/>
-								<UsernameText>
-									{`@${
-										reelay.creator.username.length > 13
-											? reelay.creator.username.substring(0, 10) + "..."
-											: reelay.creator.username
-									}`}
-								</UsernameText>
-							</GradientContainer>
-						</>
-					)}
-				</ThumbnailContainer>
-			</Pressable>
-		);
-	};
-
-	const TopReelays = () => {
-		const TopReelaysContainer = styled(View)`
-			width: 95%;
-			left: 5%;
-		`;
-		const ThumbnailScrollContainer = styled(View)`
-			align-items: center;
-			flex-direction: row;
-			justify-content: flex-start;
-			height: 220px;
-			width: 100%;
-		`;
-		const TopReelaysHeader = styled(ReelayText.H5Emphasized)`
-			padding: 10px;
-			color: white;
-		`;
-
-		return (
-			<TopReelaysContainer>
-				<TopReelaysHeader>{`Top Reviews`}</TopReelaysHeader>
-				<ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-					<ThumbnailScrollContainer>
-						{
-							topReelays.map((reelay, index) => {
-								return (
-									<ReelayThumbnail
-										key={reelay.id}
-										reelay={reelay}
-										onPress={() => {
-											goToReelay(index);
-										}}
-									/>
-								);
-							})
-						}
-					</ThumbnailScrollContainer>
-				</ScrollView>
-			</TopReelaysContainer>
-		);
-	};
-
 	const Container = styled(View)`
 		width: 100%;
 	`;
@@ -221,10 +178,11 @@ export default PopularReelaysRow = ({ navigation, titleObj }) => {
 	const ButtonSizer = styled(View)`
 		width: 84%;
 		height: 40px;
-	`;
+	`
+
 	if (topReelays.length > 0) return (
 		<Container>
-			<TopReelays />
+			<TopReelays topReelays={topReelays} />
 			<ButtonContainer>
 				<ButtonSizer>
 					<BWButton
@@ -241,106 +199,39 @@ export default PopularReelaysRow = ({ navigation, titleObj }) => {
 	else return null;
 };
 
-const ReelayThumbnail = ({ reelay, onPress }) => {
-	const ThumbnailContainer = styled(View)`
-		justify-content: center;
-		margin: 6px;
-		height: 202px;
-		width: 107px;
+const TopReelays = ({ topReelays }) => {
+	const TopReelaysContainer = styled(View)`
+		width: 95%;
+		left: 5%;
 	`;
-	const ThumbnailImage = styled(Image)`
-		border-radius: 8px;
-		height: 200px;
-		width: 105px;
-	`;
-	const [loading, setLoading] = useState(true);
-	const [thumbnailURI, setThumbnailURI] = useState("");
-
-	useEffect(() => {
-		// Generate thumnbail async
-		let isMounted = true;
-		(async () => {
-			try {
-				const { uri } = await VideoThumbnails.getThumbnailAsync(
-					reelay.content.videoURI,
-					{
-						time: 1000,
-						quality: 0.4,
-					}
-				);
-				if (isMounted) {
-					setThumbnailURI(uri);
-					setLoading(false);
-				}
-			} catch (error) {
-				console.warn(error);
-				if (isMounted) {
-					setLoading(false);
-					setThumbnailURI("");
-				}
-			}
-		})();
-		return () => (isMounted = false);
-	}, []);
-
-	const GradientContainer = styled(View)`
-		position: absolute;
-		width: 100%;
-		height: 65%;
-		top: 35%;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		justify-content: center;
+	const ThumbnailScrollContainer = styled(View)`
 		align-items: center;
-		border-radius: 8px;
+		flex-direction: row;
+		justify-content: flex-start;
+		height: 220px;
+		width: 100%;
 	`;
-	const UsernameText = styled(ReelayText.Subtitle2)`
-		padding: 5px;
-		position: absolute;
-		bottom: 5%;
+	const TopReelaysHeader = styled(ReelayText.H5Emphasized)`
+		padding: 10px;
 		color: white;
 	`;
 
-
 	return (
-		<Pressable
-			key={reelay.id}
-			onPress={onPress}
-		>
-			<ThumbnailContainer>
-				{loading && <ActivityIndicator />}
-				{!loading && (
-					<>
-						<ThumbnailImage
-							source={
-								thumbnailURI.length > 0 ? { uri: thumbnailURI } : SplashImage
-							}
-						/>
-						<GradientContainer>
-							<LinearGradient
-								colors={["transparent", "#0B1424"]}
-								style={{
-									flex: 1,
-									opacity: 1,
-									width: "100%",
-									height: "100%",
-									borderRadius: "8px",
-								}}
+		<TopReelaysContainer>
+			<TopReelaysHeader>{`Top Reviews`}</TopReelaysHeader>
+			<ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+				<ThumbnailScrollContainer>
+					{ topReelays.map((reelay, index) => {
+						return (
+							<ReelayThumbnail
+								key={reelay.id}
+								reelay={reelay}
+								onPress={() => goToReelay(index)}
 							/>
-							<UsernameText>
-								{`@${
-									reelay.creator.username.length > 13
-										? reelay.creator.username.substring(0, 10) + "..."
-										: reelay.creator.username
-								}`}
-							</UsernameText>
-						</GradientContainer>
-					</>
-				)}
-			</ThumbnailContainer>
-		</Pressable>
+						);
+					})}
+				</ThumbnailScrollContainer>
+			</ScrollView>
+		</TopReelaysContainer>
 	);
 };
-
-export { ReelayThumbnail }
