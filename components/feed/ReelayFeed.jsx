@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef, memo } from 'react';
+import React, { useCallback, useContext, useEffect, useState, useRef, memo } from 'react';
 import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View, Platform } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { FeedContext } from '../../context/FeedContext';
@@ -26,8 +26,10 @@ const ReelayFeedContainer = styled(View)`
 
 const ReelayFeed = ({ navigation, 
     initialStackPos = 0,
+    initialFeedPos = 0,
     forceRefresh = false, 
-    initialFeedSource = 'global'
+    initialFeedSource = 'global',
+    isOnFeedTab = true
 }) => {
 
     const feedPager = useRef();
@@ -40,7 +42,7 @@ const ReelayFeed = ({ navigation,
     const [refreshing, setRefreshing] = useState(false);
 
     const [selectedStackList, setSelectedStackList] = useState([]);
-    const [selectedFeedPosition, setSelectedFeedPosition] = useState(0);
+    const [selectedFeedPosition, setSelectedFeedPosition] = useState(initialFeedPos);
 
     useEffect(() => {
         setTabBarVisible(true); // to ensure tab bar is always here
@@ -67,8 +69,8 @@ const ReelayFeed = ({ navigation,
         extendFeed();
     }, [feedSource]);
 
-    useFocusEffect(() => {
-        if (initialFeedSource === 'global') {
+    useFocusEffect(useCallback(() => {
+        if (initialFeedSource === 'global' && isOnFeedTab) {
             const unsubscribe = navigation.getParent()
             .addListener('tabPress', e => {
                 e.preventDefault();
@@ -76,7 +78,7 @@ const ReelayFeed = ({ navigation,
             });
             return unsubscribe;
         }
-    });
+    }));
 
     const extendFeed = async () => {
         const page = nextPage.current;

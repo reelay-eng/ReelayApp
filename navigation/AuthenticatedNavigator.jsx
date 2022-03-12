@@ -15,6 +15,7 @@ import { AuthContext } from '../context/AuthContext';
 import { FeedContext } from '../context/FeedContext';
 
 import FeedScreen from '../screens/authenticated/FeedScreen';
+import HomeScreen from '../screens/authenticated/HomeScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
 import NotificationScreen from '../screens/authenticated/NotificationScreen';
 import NotificationSettingsScreen from '../screens/authenticated/NotificationSettingsScreen';
@@ -45,7 +46,7 @@ import { WatchlistAddedIconSVG } from '../components/global/SVGs';
 const AppStack = createStackNavigator();
 const BottomTab = createBottomTabNavigator();
 const SearchTabStack = createStackNavigator();
-
+const HomeTabStack = createStackNavigator();
 const FeedTabStack = createStackNavigator();
 const CreateReelayTabStack = createStackNavigator();
 const WatchlistTabStack = createStackNavigator();
@@ -136,30 +137,32 @@ const BottomTabNavigator = () => {
 						style={[StyleSheet.absoluteFill, s.gradient]}
 					/>
 				),
+				lazy: false,
 			}}
 		>
 			<BottomTab.Screen
 				name="Home"
-				component={FeedTabNavigator}
+				component={HomeTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<Image
-							source={FeedIcon}
+							source={HomeIcon}
 							style={bottomTabIconStyle(focused)}
 						/>
 					),
 				}}
 			/>
 			<BottomTab.Screen
-				name="Search"
-				component={SearchTabNavigator}
+				name="Global"
+				component={FeedTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<View>
-							<Image
+							{/* <Image
 								source={SearchIcon}
 								style={bottomTabIconStyle(focused)}
-							/>
+							/> */}
+							<Icon type='ionicon' name='planet' size={30} color='white' />
 						</View>
 					),
 				}}
@@ -205,97 +208,104 @@ const BottomTabNavigator = () => {
 // Each tab has its own navigation stack, you can read more about this pattern here:
 // https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab
 
-const SearchTabNavigator = () => {
+const HomeTabNavigator = () => {
 	return (
-		<SearchTabStack.Navigator 
+		<HomeTabStack.Navigator 
 			initialRouteName="SearchScreen"
 			detachInactiveScreens={false}
 		>
-			<SearchTabStack.Screen
+			<HomeTabStack.Screen
+                name='HomeScreen'
+                component={HomeScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+			<HomeTabStack.Screen
                 name='SearchScreen'
                 component={SearchScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <HomeTabStack.Screen
                 name='FeedScreen'
                 component={FeedScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <HomeTabStack.Screen
                 name='UserProfileScreen'
                 component={UserProfileScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <HomeTabStack.Screen
                 name='UserFollowScreen'
                 component={UserFollowScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <HomeTabStack.Screen
                 name='ProfileFeedScreen'
                 component={ProfileFeedScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-			<SearchTabStack.Screen
+			<HomeTabStack.Screen
                 name='ReportedContentFeedScreen'
                 component={ReportedContentFeedScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-			<SearchTabStack.Screen 
+			<HomeTabStack.Screen 
 				name='SendRecScreen'
 				component={SendRecScreen}
 				options={{
 					headerShown: false,
 				}}
 			/>
-            <SearchTabStack.Screen
+            <HomeTabStack.Screen
                 name='SingleReelayScreen'
                 component={SingleReelayScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <HomeTabStack.Screen
                 name='TitleDetailScreen'
                 component={TitleDetailScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <HomeTabStack.Screen
                 name='TitleFeedScreen'
                 component={TitleFeedScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <HomeTabStack.Screen
                 name='TitleTrailerScreen'
                 component={TitleTrailerScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-			<SearchTabStack.Screen
+			<HomeTabStack.Screen
 				name="NotificationScreen"
 				component={NotificationScreen}
 				options={{
 					headerShown: false,
 				}}
 			/>
-		</SearchTabStack.Navigator>
+		</HomeTabStack.Navigator>
 	)
 }
 
