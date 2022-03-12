@@ -11,7 +11,6 @@ const InTheatersContainer = styled.View`
     height: auto;
     display: flex;
     flex-direction: column;
-    margin-bottom: 20px;
 `
 const InTheatersHeader = styled(ReelayText.H5Bold)`
     color: white;

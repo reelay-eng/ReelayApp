@@ -137,7 +137,7 @@ const BottomTabNavigator = () => {
 						style={[StyleSheet.absoluteFill, s.gradient]}
 					/>
 				),
-				lazy: false,
+				// lazy: false,
 			}}
 		>
 			<BottomTab.Screen

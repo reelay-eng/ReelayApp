@@ -194,6 +194,19 @@ export const getReelaysByVenue = async ( venues, page = 0 ) => {
     return fetchedReelays;
 }
 
+export const getStreamingSubscriptions = async (userSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/streamingSubscriptions/${userSub}`;
+    const resultGet = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: REELAY_API_HEADERS,
+    });
+    if (!resultGet) {
+        console.log('Error fetching streaming subscriptions');
+        return [];
+    }
+    return resultGet;
+}
+
 export const getStacksByVenue = async ( venues, page = 0) => {
     const venueReelays = await getReelaysByVenue(venues, page);
     if (!venueReelays) return [];
@@ -337,7 +350,6 @@ export const postCommentToDB = async (commentBody, reelaySub) => {
 }
 
 export const postLikeToDB = async (likeBody, reelaySub) => {
-    
     const routePost = `${REELAY_API_BASE_URL}/reelays/sub/${reelaySub}/likes`;
     const resultPost = await fetchResults(routePost, {
         method: 'POST',

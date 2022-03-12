@@ -46,8 +46,44 @@ const FriendsAreWatching = ({ navigation }) => {
         })();
     }, []);
 
+    return (
+        <FriendsAreWatchingContainer>
+            <FriendsAreWatchingHeader>{'Friends are watching'}</FriendsAreWatchingHeader>
+            {followingStacks.length === 0 && loadedFollowingStacks && <YouDontFollowAnyUsers navigation={navigation} />}
+            {followingStacks.length > 0 && (
+                <FollowingRowContainer horizontal>
+                    { followingStacks.map((stack, index) =>  {
+                        return (
+                            <FollowingElement
+                                index={index}
+                                navigation={navigation}
+                                stack={stack}
+                        />);
+                    })}
+                </FollowingRowContainer>
+            )}
+        </FriendsAreWatchingContainer>   
+    )
+}
+
+const FollowingElement = ({ stack, index, navigation }) => {
+    const TitleText = styled(ReelayText.Caption)`
+        color: white;
+        font-size: 12px;
+        margin-left: 6px;
+        text-align: center;
+    `
+    const TitleWithVenueRow = styled(View)`
+        flex-direction: row;
+        justify-content: center;
+        width: 100%;
+    `
+    const FollowingElementContainer = styled(Pressable)`
+        margin: 6px;
+        display: flex;
+        width: 120px;
+    `
     const goToReelay = (index, titleObj) => {
-		if (followingStacks.length === 0) return;
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'following',
@@ -59,38 +95,7 @@ const FriendsAreWatching = ({ navigation }) => {
 		});
 	};
 
-
-    return (
-        <FriendsAreWatchingContainer>
-            <FriendsAreWatchingHeader>{'Friends are watching'}</FriendsAreWatchingHeader>
-            {followingStacks.length === 0 && loadedFollowingStacks && <YouDontFollowAnyUsers navigation={navigation} />}
-            {followingStacks.length > 0 && (
-                <FollowingRowContainer horizontal>
-                    { followingStacks.map((stack, index) => <FollowingElement stack={stack} index={index} />)}
-                </FollowingRowContainer>
-            )}
-        </FriendsAreWatchingContainer>
-        
-    )
-}
-
-const FollowingElement = ({ stack, index }) => {
-    const TitleText = styled(ReelayText.Caption)`
-        color: white;
-        font-size: 12px;
-        margin-left: 6px;
-        text-align: center;
-    `
-    const TitleRow = styled(View)`
-        flex-direction: row;
-        justify-content: center;
-        width: 100%;
-    `
-    const FollowingElementContainer = styled(Pressable)`
-        margin: 6px;
-        display: flex;
-        width: 120px;
-    `
+    const { reelayDBUser } = useContext(AuthContext);
     const onPress = () => goToReelay(index, stack[0].title);
     const fullTitle = stack[0].title.display;
     const displayTitle = (fullTitle?.length > 13) 
@@ -102,10 +107,10 @@ const FollowingElement = ({ stack, index }) => {
     return (
         <FollowingElementContainer key={index}>
             <ReelayThumbnail reelay={stack[0]} onPress={onPress} />
-            <TitleRow>
+            <TitleWithVenueRow>
                 { stack[0]?.content?.venue &&  <VenueIcon venue={stack[0]?.content?.venue} size={14} /> }
                 <TitleText>{displayTitle}</TitleText>
-            </TitleRow>
+            </TitleWithVenueRow>
         </FollowingElementContainer>
     )
 }
