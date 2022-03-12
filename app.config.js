@@ -10,7 +10,7 @@ export default ({ config }) => {
         if (process.env.NODE_ENV === 'dev' ||
             process.env.NODE_ENV === 'devg') return 'https://api-dev.reelay.app';
         if (process.env.NODE_ENV === 'local' || 
-            process.env.NODE_ENV === 'localg') return 'https://reelay-api-dev2.loca.lt';
+            process.env.NODE_ENV === 'localg') return 'https://reelay-api-dev.loca.lt';
 
         // should be unreachable but just in case
         return 'https://api-prod.reelay.app';
@@ -36,6 +36,10 @@ export default ({ config }) => {
         amplitudeApiKey: '41cdcb8df4bfc40ab39155a7e3401d22',
         cloudfrontBaseUrl: 'https://di92fpd9s7eko.cloudfront.net',
         expoNotificationUrl: 'https://exp.host/--/api/v2/push/send',
+
+        googleExpoClientId: '75256805031-843i4qaqde5g2hm0q3pn6toat65cne42.apps.googleusercontent.com',
+        googleiOSClientId: '75256805031-89iubu60jfrko1lcn1oj2n4lgshdnljf.apps.googleusercontent.com',
+        googleiOSURLScheme: 'com.googleusercontent.apps.75256805031-89iubu60jfrko1lcn1oj2n4lgshdnljf',
 
         reelayApiBaseUrl: getReelayAPIBaseURL(),
         reelayApiKey: 'ac739ac2-5877-47de-a861-59bc776bdd27',

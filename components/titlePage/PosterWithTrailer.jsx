@@ -163,21 +163,21 @@ export default PosterWithTrailer = ({
 		);
 	};
 
-    const AddToWatchlistContainer = styled(View)`
-        flex-direction: row;
-        justify-content: flex-end;
-        margin-bottom: 10px;
-    `;
 	const BackButtonContainer = styled(Pressable)`
 		position: absolute;
 		margin-top: 51px;
 		margin-left: 21px;
-	`;
+	`
 	const CreateReelayButtonContainer = styled(View)`
 		width: 100%;
 		height: 40px;
 		margin-top: 10px;
-	`;
+	`
+	const InfoBarContainer = styled(View)`
+		align-items: center;
+		flex-direction: row;
+		justify-content: space-between;
+	`
 	const PosterInfoContainer = styled(View)`
 		position: absolute;
 		left: 4%;
@@ -185,22 +185,26 @@ export default PosterWithTrailer = ({
 		width: 92%;
 		display: flex;
 		flex-direction: column;
-	`;
+	`
 	const PosterTitleContainer = styled(View)`
 		justify-content: flex-end;
-		width: 90%;
-	`;
+	`
 	const PosterTitle = styled(ReelayText.H4Bold)`
 		color: white;
-	`;
+	`
+	const SendRecButtonContainer = styled(View)`
+		align-items: center;
+		background-color: rgba(255, 255, 255, 0.40);
+		border-radius: 30px;
+		justify-content: center;
+		height: 45px;
+		width: 45px;
+	`
 	const TrailerButtonContainer = styled(View)`
 		width: 100%;
 		height: 40px;
-	`;
-	const WatchlistButtonsContainer = styled(View)`
-		margin-bottom: 10px;
 	`
-	const InfoBarContainer = styled(View)`
+	const WatchlistButtonsContainer = styled(View)`
 		flex-direction: row;
 	`
 
@@ -217,12 +221,10 @@ export default PosterWithTrailer = ({
 						<PosterTagline />
 					</PosterTitleContainer>
 					<WatchlistButtonsContainer>
-						<AddToWatchlistContainer>
-							<AddToWatchlistButton titleObj={titleObj} />
-						</AddToWatchlistContainer>
-						<AddToWatchlistContainer>
+						<AddToWatchlistButton titleObj={titleObj} />
+						<SendRecButtonContainer>
 							<SendRecButton navigation={navigation} titleObj={titleObj} />
-						</AddToWatchlistContainer>
+						</SendRecButtonContainer>
 					</WatchlistButtonsContainer>
 				</InfoBarContainer>
 				{trailerURI && (

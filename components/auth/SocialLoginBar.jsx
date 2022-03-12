@@ -1,7 +1,8 @@
 import React, { useContext, useEffect } from "react";
-import { Pressable, View } from "react-native";
+import { Platform, Pressable, View } from "react-native";
 import styled from "styled-components/native";
 import { Icon } from "react-native-elements";
+import Constants from "expo-constants";
 
 import * as Google from 'expo-auth-session/providers/google';
 import * as Apple  from 'expo-apple-authentication';
@@ -14,6 +15,8 @@ import {
     saveAndRegisterSocialAuthToken,
 } from "../../api/ReelayUserApi";
 import { getUserByEmail } from "../../api/ReelayDBApi";
+import { makeRedirectUri } from "expo-auth-session";
+import { logEventWithPropertiesAsync } from "expo-analytics-amplitude";
 
 const ButtonRowContainer = styled(View)`
     align-items: center;
@@ -36,9 +39,16 @@ const SocialAuthButton = styled(Pressable)`
 `
 
 export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
+    try {
     const { setReelayDBUserID } = useContext(AuthContext);
 
-    const appleOrGoogleCascadingSignIn = async ({ method, email, appleUserID, googleUserID }) => {
+    const appleOrGoogleCascadingSignIn = async ({
+        method, 
+        email, 
+        fullName, 
+        appleUserID, 
+        googleUserID 
+    }) => {
         const authAccountMatch = await matchSocialAuthAccount({ 
             method, 
             value: (method === 'apple') ? appleUserID : googleUserID,
@@ -59,33 +69,33 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
                 saveAndRegisterSocialAuthToken(existingUser?.sub);
                 // link the social auth account 
                 // apple will only give us an email address the first time we signin with apple
-                registerSocialAuthAccount({ method, email, appleUserID, googleUserID });
+                registerSocialAuthAccount({ method, email, fullName, appleUserID, googleUserID });
                 console.log('Existing user signed in');
             } else {
                 console.log('Totally new user');
                 // totally new user w/o cognito -- needs a username before completing signup
-                navigation.push('ChooseUsernameScreen', { method, email, appleUserID, googleUserID });
+                navigation.push('ChooseUsernameScreen', { method, email, fullName, appleUserID, googleUserID });
             }
         }
     }
 
     const AppleAuthButton = () => {
         const signInWithApple = async () => {
-            const credentials = await Apple.signInAsync({
-                requestedScopes: [
-                    Apple.AppleAuthenticationScope.FULL_NAME,
-                    Apple.AppleAuthenticationScope.EMAIL,
-                ]
-            });
-            console.log('Apple credentials: ', credentials);
-
-            // todo: what if the credentials are bad?
-
-            setSigningIn(true); 
-            const appleUserID = credentials?.user;
-            const email = credentials?.email;
-            const { familyName, givenName } = credentials?.fullName;
-            appleOrGoogleCascadingSignIn({ method: 'apple', email, appleUserID });
+            try {
+                const credentials = await Apple.signInAsync({
+                    requestedScopes: [
+                        Apple.AppleAuthenticationScope.FULL_NAME,
+                        Apple.AppleAuthenticationScope.EMAIL,
+                    ]
+                });
+    
+                setSigningIn(true); 
+                const { email, fullName, user } = credentials;
+                appleOrGoogleCascadingSignIn({ method: 'apple', email, fullName, appleUserID: user });    
+            } catch (error) {
+                console.log(error);
+                logEventWithPropertiesAsync('appleSignInError', { error });
+            }
         }
 
         return (
@@ -96,12 +106,15 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
     }
 
     const GoogleAuthButton = () => {
-        const [request, response, promptAsync] = Google.useAuthRequest({
-            // todo: move these to manifest or server
-            expoClientId: '75256805031-843i4qaqde5g2hm0q3pn6toat65cne42.apps.googleusercontent.com',
-            iosClientId: '75256805031-89iubu60jfrko1lcn1oj2n4lgshdnljf.apps.googleusercontent.com',
-        });
+        const expoClientId = Constants.manifest.extra.googleExpoClientId;
+        const iosClientId = Constants.manifest.extra.googleiOSClientId;
+        const iosURLScheme = Constants.manifest.extra.googleiOSURLScheme;
 
+        const [request, response, promptAsync] = Google.useAuthRequest({ 
+            expoClientId, 
+            iosClientId, 
+            redirectUri: makeRedirectUri({ native: `${iosURLScheme}://redirect` }),
+        });        
         const onSignInResponse = async () => {
             const accessToken = response?.authentication?.accessToken;
             if (!accessToken) {
@@ -116,7 +129,11 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
             console.log('Google user obj: ', googleUserObj);
             const googleUserID = googleUserObj?.id;
             const email = googleUserObj?.email;
-            appleOrGoogleCascadingSignIn({ method: 'google', email, googleUserID });
+            const fullName = {
+                familyName: googleUserObj?.family_name,
+                givenName: googleUserObj?.given_name,
+            };
+            appleOrGoogleCascadingSignIn({ method: 'google', email, fullName, googleUserID });
         }
 
         const signInWithGoogle = async () => {
@@ -141,5 +158,10 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
                 <GoogleAuthButton />
             </ButtonRowContainer>
         </SocialLoginContainer>
-    )
+    )    
+    } catch (error) {
+        console.log(error);
+        logEventWithPropertiesAsync('socialLoginError', { error });
+        return <React.Fragment />
+    }
 }

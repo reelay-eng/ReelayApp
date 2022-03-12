@@ -7,8 +7,15 @@ import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import { ActivityIndicator } from 'react-native-paper';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import BackButton from '../utils/BackButton';
 const { height, width } = Dimensions.get('window');
 
+const BackButtonContainer = styled(View)`
+    background-color: transparent;
+    position: absolute;
+    top: 150px;
+    z-index: 4;
+`
 const ReelayFeedContainer = styled(View)`
     background-color: black;
     justify-content: flex-start;
@@ -16,7 +23,7 @@ const ReelayFeedContainer = styled(View)`
     width: ${width}px;
 `
 
-const FixedReelayStack = ({ navigation, 
+const FixedReelayFeed = ({ navigation, 
     initialFeedPos = 0,
     initialStackPos = 0,
     fixedStackList = [],
@@ -56,13 +63,16 @@ const FixedReelayStack = ({ navigation,
         console.log(`index: ${index} feed position: ${feedPosition}, viewable? ${stackViewable}`);
 
         return (
-            <ReelayStack 
-                stack={stack} stackViewable={stackViewable}
-                feedIndex={index}
-                initialStackPos={initialStackPos}
-                isFixedStack={true}
-                navigation={navigation}
-            />
+            <React.Fragment>
+                <ReelayStack 
+                    stack={stack} 
+                    stackViewable={stackViewable}
+                    feedIndex={index}
+                    initialStackPos={initialStackPos}
+                    isFixedStack={true}
+                    navigation={navigation}
+                />
+            </React.Fragment>
         );
     }
 
@@ -112,10 +122,13 @@ const FixedReelayStack = ({ navigation,
                         width: width,
                     }}
                     windowSize={3}
-                />        
+                />
             }
+            <BackButtonContainer>
+                <BackButton navigation={navigation} />
+            </BackButtonContainer>
         </ReelayFeedContainer>
     );
 }
 
-export default memo(FixedReelayStack);
+export default memo(FixedReelayFeed);

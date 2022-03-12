@@ -1,15 +1,22 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.reelay.reelayapp"
-    android:versionCode="1"
-    android:versionName="1.0.2" >
-    <application android:name="co.app.reelay.MainApplication">
-        <activity android:name="co.app.reelay.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
-    </application>
+<manifest 
+    xmlns:android="http://schemas.android.com/apk/res/android" 
+    package="com.reelay.reelayapp" 
+    android:versionCode="1" 
+    android:versionName="1.0.2">
     ...
+  <application android:name="co.app.reelay.MainApplication">
+    <activity android:name="co.app.reelay.MainActivity" android:launchMode="singleTask">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <data android:scheme="reelayapp" />
+        <data android:scheme="com.googleusercontent.apps.75256805031-89iubu60jfrko1lcn1oj2n4lgshdnljf"/>
+      </intent-filter>
+    </activity>
+  </application>
 </manifest>

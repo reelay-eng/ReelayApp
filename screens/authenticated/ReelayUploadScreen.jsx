@@ -286,7 +286,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 watchlistItems: myWatchlistItems,
             });
             
-            navigation.navigate("HomeFeedScreen", { forceRefresh: true });
+            navigation.navigate("FeedScreen", { forceRefresh: true });
 
         } catch (error) {
             // todo: better error catching
@@ -410,7 +410,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 // do nothing
             } else if (uploadStage === 'upload-complete') {
                 navigation.popToTop();
-                navigation.navigate('HomeFeedScreen', { forceRefresh: true });    
+                navigation.navigate('FeedScreen', { forceRefresh: true });    
             } else if (uploadStage === 'upload-failed-retry') {
                 publishReelay();
             }

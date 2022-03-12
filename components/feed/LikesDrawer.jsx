@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Modal, View, Text, Pressable } from 'react-native';
-import * as ReelayText from '../../components/global/Text';
+import * as ReelayText from '../global/Text';
 import { Icon } from 'react-native-elements';
 import { FeedContext } from '../../context/FeedContext';
 import styled from 'styled-components/native';

@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
-import * as ReelayText from "../../components/global/Text";
+import * as ReelayText from "../global/Text";
 import styled from 'styled-components/native';
 
 import { AuthContext } from '../../context/AuthContext';
@@ -10,16 +10,23 @@ import { FeedContext } from '../../context/FeedContext';
 import { notifyCreatorOnLike } from '../../api/NotificationsApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
-import AddToWatchlistButton from '../titlePage/AddToWatchlistButton';
 import SendRecButton from '../watchlist/SendRecButton';
+import ReelayColors from '../../constants/ReelayColors';
 
 const { height, width } = Dimensions.get('window');
 
-export default Sidebar = ({ navigation, reelay, commentsCount }) => {
-	const ICON_SIZE = 36;
-	const DOT_ICON_SIZE = ICON_SIZE * 2 / 3;
+export default Sidebar = ({ navigation, reelay }) => {
+	const ICON_SIZE = 24;
+	const DOT_ICON_SIZE = 18;
 
-	const Count = styled(ReelayText.Subtitle1)`
+	const Count = styled(Text)`
+		font-family: Outfit-Regular;
+		font-size: 14px;
+		font-style: normal;
+		line-height: 20px;
+		letter-spacing: 0.25px;
+		text-align: left;
+
 		color: #fff;
 		text-shadow-color: rgba(0, 0, 0, 0.2);
 		text-shadow-offset: 1px 1px;
@@ -29,12 +36,23 @@ export default Sidebar = ({ navigation, reelay, commentsCount }) => {
 		align-items: center;
 		align-self: flex-end;
 		position: absolute;
-		bottom: ${height / 5}px;
+		bottom: ${height / 6}px;
 	`
 	const SidebarButton = styled(Pressable)`
 		align-items: center;
+		background: ${({ addHighlight }) => (addHighlight) 
+			? 'rgba(41, 119, 239, 0.40)'
+			: 'rgba(255, 255, 255, 0.20)'
+		};
+		border-radius: 50px;
+		height: 44px;
 		justify-content: center;
-		margin: 10px;
+		margin-top: 8px;
+		width: 44px;
+	`
+	const ButtonContainer = styled(View)`
+		align-items: center;
+		margin-right: 10px;
 	`
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 
@@ -113,41 +131,55 @@ export default Sidebar = ({ navigation, reelay, commentsCount }) => {
 
 	return (
 		<SidebarView>
-			<SidebarButton onPress={onLikePress} onLongPress={onLikeLongPress}>
-				<Icon
-					type="ionicon"
-					name="heart"
-					color={likedByUser ? "#db1f2e" : "white"}
-					iconStyle={IconDropShadowStyle}
-					size={ICON_SIZE}
-				/>
+			<ButtonContainer>
+				<SidebarButton 
+					onPress={onLikePress} 
+					onLongPress={onLikeLongPress}>
+					<Icon
+						type="ionicon"
+						name="heart"
+						color={likedByUser ? ReelayColors.reelayRed : "white"}
+						iconStyle={IconDropShadowStyle}
+						size={ICON_SIZE}
+					/>
+				</SidebarButton>
 				<Count>{reelay.likes.length}</Count>
-			</SidebarButton>
-			<SidebarButton onPress={onCommentPress} onLongPress={onCommentLongPress}>
-				<Icon
-					type="ionicon"
-					name="chatbubble-ellipses"
-					color={commentedByUser ? "#db1f2e" : "white"}
-					iconStyle={IconDropShadowStyle}
-					size={ICON_SIZE}
-				/>
-				<Count>{commentsCount.current}</Count>
-			</SidebarButton>
-			<SidebarButton>
-				<AddToWatchlistButton titleObj={reelay.title} reelay={reelay} />
-			</SidebarButton>
-			<SidebarButton>
-				<SendRecButton navigation={navigation} titleObj={reelay.title} reelay={reelay} />
-			</SidebarButton>
-			<SidebarButton onPress={onDotMenuPress}>
-				<Icon 
-					type='ionicon' 
-					name={'ellipsis-horizontal'} 
-					color={'white'} 
-					iconStyle={IconDropShadowStyle}
-					size={DOT_ICON_SIZE} 
-				/>
-			</SidebarButton>
+			</ButtonContainer>
+
+			<ButtonContainer>
+				<SidebarButton 
+					addHighlight={commentedByUser}
+					onPress={onCommentPress} 
+					onLongPress={onCommentLongPress}>
+					<Icon
+						type="ionicon"
+						name="chatbubble-ellipses"
+						color={'white'}
+						iconStyle={IconDropShadowStyle}
+						size={ICON_SIZE}
+					/>
+				</SidebarButton>
+				<Count>{reelay.comments.length}</Count>
+			</ButtonContainer>
+
+			<ButtonContainer>
+				<SidebarButton>
+					<SendRecButton navigation={navigation} titleObj={reelay.title} reelay={reelay} />
+				</SidebarButton>
+				<Count>{''}</Count>
+			</ButtonContainer>
+
+			<ButtonContainer>
+				<SidebarButton onPress={onDotMenuPress}>
+					<Icon 
+						type='ionicon' 
+						name={'ellipsis-horizontal'} 
+						color={'white'} 
+						iconStyle={IconDropShadowStyle}
+						size={DOT_ICON_SIZE} 
+					/>
+				</SidebarButton>
+			</ButtonContainer>
 		</SidebarView>
 	);
 }

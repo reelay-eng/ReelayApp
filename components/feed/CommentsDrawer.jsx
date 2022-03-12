@@ -17,8 +17,8 @@ import { FeedContext } from '../../context/FeedContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
 import Constants from 'expo-constants';
-import { BWButton } from '../../components/global/Buttons';
-import * as ReelayText from '../../components/global/Text';
+import { BWButton } from '../global/Buttons';
+import * as ReelayText from '../global/Text';
 import ReelayIcon from '../../assets/icons/reelay-icon.png';
 
 import { 
@@ -346,7 +346,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 			alignSelf: "center",
 			color: "white",
 			fontFamily: "Outfit-Regular",
-			fontSize: 16,
+			fontSize: 14,
 			fontStyle: "normal",
 			lineHeight: 24,
 			letterSpacing: 0.25,

@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState, useRef } from "react";
 import { ActivityIndicator, SafeAreaView, View } from "react-native";
 
 //Components
-import { BaseHeader } from '../../components/global/Headers'
+import { HeaderWithBackButton } from '../../components/global/Headers'
 import SearchField from "../../components/create-reelay/SearchField";
 import TitleSearchResults from "../../components/search/TitleSearchResults";
 import UserSearchResults from "../../components/search/UserSearchResults";
@@ -117,7 +117,7 @@ export default SearchScreen = ({ navigation }) => {
 
     return (
 		<SearchScreenContainer>
-			<BaseHeader text={"Search"} />
+			<HeaderWithBackButton navigation={navigation} text={"Search"} />
 			<TopBarContainer>
 				<SelectorBarContainer>
 					<ToggleSelector
