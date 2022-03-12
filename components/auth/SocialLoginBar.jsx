@@ -110,9 +110,11 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
         const iosClientId = Constants.manifest.extra.googleiOSClientId;
         const iosURLScheme = Constants.manifest.extra.googleiOSURLScheme;
 
-        const googleAuthRequestConfig = { expoClientId, iosClientId };
-
-        const [request, response, promptAsync] = Google.useAuthRequest(googleAuthRequestConfig);        
+        const [request, response, promptAsync] = Google.useAuthRequest({ 
+            expoClientId, 
+            iosClientId, 
+            redirectUri: makeRedirectUri({ native: `${iosURLScheme}://redirect` }),
+        });        
         const onSignInResponse = async () => {
             const accessToken = response?.authentication?.accessToken;
             if (!accessToken) {

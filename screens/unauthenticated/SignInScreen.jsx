@@ -259,11 +259,11 @@ export default SignInScreen = ({ navigation, route }) => {
 					</ErrorContainer>
 				)}
                 <BottomButtonsContainer>
-                    <SocialLoginBar 
+                    {/* <SocialLoginBar 
                         navigation={navigation} 
                         signingIn={signingIn} 
                         setSigningIn={setSigningIn} 
-                    />
+                    /> */}
                     <SignInButtonContainer>
                         <Button
                             text={signingIn ? "Logging in..." : "Log in"}
