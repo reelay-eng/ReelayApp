@@ -5,9 +5,8 @@ import { View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 
-
 const HomeHeader = ({ text = "reelay", navigation }) => {
-    const { myNotifications } = useContext(AuthContext);
+    const { reelayDBUser, myNotifications } = useContext(AuthContext);
     const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
 	const HeaderContainer = styled(View)`

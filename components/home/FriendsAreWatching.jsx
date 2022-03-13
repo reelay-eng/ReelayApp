@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { Fragment, memo, useContext, useEffect, useState } from 'react';
 import { View, Text, Pressable } from 'react-native'
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
@@ -48,19 +48,21 @@ const FriendsAreWatching = ({ navigation }) => {
 
     return (
         <FriendsAreWatchingContainer>
-            <FriendsAreWatchingHeader>{'Friends are watching'}</FriendsAreWatchingHeader>
             {followingStacks.length === 0 && loadedFollowingStacks && <YouDontFollowAnyUsers navigation={navigation} />}
             {followingStacks.length > 0 && (
-                <FollowingRowContainer horizontal>
-                    { followingStacks.map((stack, index) =>  {
-                        return (
-                            <FollowingElement
-                                index={index}
-                                navigation={navigation}
-                                stack={stack}
-                        />);
-                    })}
-                </FollowingRowContainer>
+                <Fragment>
+                    <FriendsAreWatchingHeader>{'Friends are watching'}</FriendsAreWatchingHeader>
+                    <FollowingRowContainer horizontal>
+                        { followingStacks.map((stack, index) =>  {
+                            return (
+                                <FollowingElement
+                                    index={index}
+                                    navigation={navigation}
+                                    stack={stack}
+                            />);
+                        })}
+                    </FollowingRowContainer>
+                </Fragment>
             )}
         </FriendsAreWatchingContainer>   
     )
@@ -79,7 +81,6 @@ const FollowingElement = ({ stack, index, navigation }) => {
         width: 100%;
     `
     const FollowingElementContainer = styled(Pressable)`
-        margin: 6px;
         display: flex;
         width: 120px;
     `
@@ -101,8 +102,6 @@ const FollowingElement = ({ stack, index, navigation }) => {
     const displayTitle = (fullTitle?.length > 13) 
         ? fullTitle.substring(0, 10) + "..."
         : fullTitle;
-
-    console.log('REELAY: ', stack[0]);
 
     return (
         <FollowingElementContainer key={index}>
@@ -189,7 +188,7 @@ const YouDontFollowAnyUsers = ({ navigation }) => {
                     }}
                 /> 
                 <YouDontFollowGradientContentBox>
-                    <YouDontFollowHeadline>You don't follow any users.</YouDontFollowHeadline>
+                    <YouDontFollowHeadline>Find your crowd.</YouDontFollowHeadline>
                     <YouDontFollowBody>Explore the global feed and find other reelayers to follow.</YouDontFollowBody>
                     <YouDontFollowButtonBox>
                         <ActionButton

@@ -22,6 +22,7 @@ import { markNotificationActivated, markAllNotificationsSeen, notifyCreatorOnFol
 import styled from 'styled-components/native';
 import { ReelayedByLine } from '../../components/watchlist/RecPills';
 import { setBadgeCountAsync } from 'expo-notifications';
+import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 
 const ACTIVITY_IMAGE_SIZE = 44;
 
@@ -326,6 +327,10 @@ export default NotificationScreen = ({ navigation, route }) => {
 
         logAmplitudeEventProd('openMyNotifications', { username: reelayDBUser?.username });
     }, [navigation]);
+
+    if (reelayDBUser?.username === 'be_our_guest') {
+        return <JustShowMeSignupPage navigation={navigation} fullPage={true} />
+    }
 
     return (
         <NotificationScreenContainer>

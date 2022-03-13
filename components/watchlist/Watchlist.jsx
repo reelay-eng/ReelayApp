@@ -36,10 +36,15 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
         setMyWatchlistItems(sortedWatchlistItems);
     }
 
+    useEffect(() => {
+        if (refresh) onRefresh();
+    }, []);
+
     const renderWatchlistItem = ({ item, index }) => {
         return (
             <React.Fragment>
-                <WatchlistSwipeableRow key={item.id} 
+                <WatchlistSwipeableRow 
+                        key={item.id} 
                         category={category}
                         navigation={navigation} 
                         onRefresh={onRefresh}
@@ -73,10 +78,6 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
             return <React.Fragment />
         }
     }
-
-    useEffect(() => {
-        if (refresh) onRefresh();
-    }, []);
 
     // compress duplicate watchlist items by title, keeping their accumuluated recs
     // in a new `recommendations` field

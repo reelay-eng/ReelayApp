@@ -121,7 +121,13 @@ const SettingEntry = ({text, iconName, onPress}) => {
 }
 
 const Logout = () => {
-    const { reelayDBUser, setSignedIn, setReelayDBUserID } = useContext(AuthContext);
+    const { 
+        reelayDBUser, 
+        setReelayDBUserID,
+        setSignedIn, 
+        setSignUpFromGuest,
+        signUpFromGuest,
+    } = useContext(AuthContext);
 
     const signOut = async () => {
         // todo: confirm sign out
@@ -131,6 +137,7 @@ const Logout = () => {
                 email: reelayDBUser?.email,
             });
     
+            if (signUpFromGuest) setSignUpFromGuest(false);
             const signOutResult = await Auth.signOut();
             setSignedIn(false);
             setReelayDBUserID(null);

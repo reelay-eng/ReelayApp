@@ -59,6 +59,7 @@ function App() {
     const [cognitoUser, setCognitoUser] = useState({});
     const [credentials, setCredentials] = useState({});
     const [isLoading, setIsLoading] = useState(true);
+    const [isReturningUser, setIsReturningUser] = useState(false);
 
     const [myCreatorStacks, setMyCreatorStacks] = useState([]);
     const [myFollowers, setMyFollowers] = useState([]);
@@ -69,13 +70,13 @@ function App() {
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [reelayDBUserID, setReelayDBUserID] = useState(null);
     const [signedIn, setSignedIn] = useState(false);
-    const [session, setSession] = useState({});
-    const [isReturningUser, setIsReturningUser] = useState(false);
+    const [signUpFromGuest, setSignUpFromGuest] = useState(false);
 
     // Feed context hooks
     const [commentsVisible, setCommentsVisible] = useState(false);
     const [currentComment, setCurrentComment] = useState('');
     const [dotMenuVisible, setDotMenuVisible] = useState(false);
+    const [justShowMeSignupVisible, setJustShowMeSignupVisible] = useState(false);
     const [likesVisible, setLikesVisible] = useState(false);
     const [paused, setPaused] = useState(false);
     const [playPauseVisible, setPlayPauseVisible] = useState('none');
@@ -114,6 +115,51 @@ function App() {
             registerMyPushToken();
         }
     }, [reelayDBUser]);
+
+    const autoAuthenticateUser = async () => {
+        console.log('Setting up authentication');
+        let tryCredentials, tryCognitoUser, tryVerifySocialAuth;
+        try {
+            tryCredentials = await Auth.currentUserCredentials();
+            if (tryCredentials?.authenticated) {
+                // use cognito to sign in the user
+                tryCognitoUser = await Auth.currentAuthenticatedUser();
+                setCognitoUser(tryCognitoUser);
+                if (tryCognitoUser?.username === 'be_our_guest') {
+                    setSignUpFromGuest(true);
+                } else {
+                    setSignUpFromGuest(false);
+                }
+            } else {
+                // try using a social auth token to sign in the user
+                const authTokenJSON = await AsyncStorage.getItem('mySocialAuthToken');
+                if (authTokenJSON) {
+                    const { reelayDBUserID, token } = JSON.parse(authTokenJSON);
+                    tryVerifySocialAuth = await verifySocialAuthToken();
+                    if (tryVerifySocialAuth?.success) {
+                        console.log('Auto authentication from social login successful');
+                        setReelayDBUserID(reelayDBUserID);
+                    }
+                }
+            }
+            logAmplitudeEventProd('authenticationComplete', {
+                hasValidCredentials: tryCredentials?.authenticated,
+                username: tryCognitoUser?.attributes?.sub,
+            });        
+
+        } catch (error) {
+            logAmplitudeEventProd('authErrorForAuthenticateUser', {
+                error: error,
+                hasValidCredentials: tryCredentials?.authenticated,
+                username: tryCognitoUser?.username,
+            });
+        }
+
+        if (!tryCredentials?.authenticated && !tryVerifySocialAuth?.success) {
+            setIsLoading(false);
+            // else, keep loading until loadMyProfile finishes
+        }
+    }
 
     const initServices = async () => {
         Amplitude.initializeAsync(
@@ -198,46 +244,6 @@ function App() {
 		});
     }
 
-    const autoAuthenticateUser = async () => {
-        console.log('Setting up authentication');
-        let tryCredentials, tryCognitoUser, tryVerifySocialAuth;
-        try {
-            tryCredentials = await Auth.currentUserCredentials();
-            if (tryCredentials?.authenticated) {
-                // use cognito to sign in the user
-                tryCognitoUser = await Auth.currentAuthenticatedUser();
-                setCognitoUser(tryCognitoUser);
-            } else {
-                // try using a social auth token to sign in the user
-                const authTokenJSON = await AsyncStorage.getItem('mySocialAuthToken');
-                if (authTokenJSON) {
-                    const { reelayDBUserID, token } = JSON.parse(authTokenJSON);
-                    tryVerifySocialAuth = await verifySocialAuthToken();
-                    if (tryVerifySocialAuth?.success) {
-                        console.log('Auto authentication from social login successful');
-                        setReelayDBUserID(reelayDBUserID);
-                    }
-                }
-            }
-            logAmplitudeEventProd('authenticationComplete', {
-                hasValidCredentials: tryCredentials?.authenticated,
-                username: tryCognitoUser?.attributes?.sub,
-            });        
-
-        } catch (error) {
-            logAmplitudeEventProd('authErrorForAuthenticateUser', {
-                error: error,
-                hasValidCredentials: tryCredentials?.authenticated,
-                username: tryCognitoUser?.username,
-            });
-        }
-
-        if (!tryCredentials?.authenticated && !tryVerifySocialAuth?.success) {
-            setIsLoading(false);
-            // else, keep loading until loadMyProfile finishes
-        }
-    }
-
     const loadMyProfile = async (userSub) => {
         const reelayDBUserLoaded = await getRegisteredUser(userSub);
         const myCreatorStacksLoaded = await loadMyReelayStacks(userSub);
@@ -257,6 +263,7 @@ function App() {
 
     const registerMyPushToken = async () => {
         try {
+            if (reelayDBUser?.username === 'be_our_guest') return;
             const devicePushToken = await registerForPushNotificationsAsync();
             if (!devicePushToken) return;
 
@@ -277,6 +284,7 @@ function App() {
         cognitoUser,        setCognitoUser,
         credentials,        setCredentials,
         isLoading,          setIsLoading,
+        isReturningUser,    setIsReturningUser,
 
         myCreatorStacks,    setMyCreatorStacks,
         myFollowers,        setMyFollowers,
@@ -286,9 +294,8 @@ function App() {
 
         reelayDBUser,       setReelayDBUser,
         reelayDBUserID,     setReelayDBUserID,
-        session,            setSession,
         signedIn,           setSignedIn,
-        isReturningUser,    setIsReturningUser
+        signUpFromGuest,    setSignUpFromGuest,
     }
 
     const uploadState = {
@@ -299,6 +306,7 @@ function App() {
         commentsVisible,    setCommentsVisible,
         currentComment,     setCurrentComment,
         dotMenuVisible,     setDotMenuVisible,
+        justShowMeSignupVisible, setJustShowMeSignupVisible,
         likesVisible,       setLikesVisible,
         paused,             setPaused,
         playPauseVisible,   setPlayPauseVisible,

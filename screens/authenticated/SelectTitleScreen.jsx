@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { SafeAreaView, View, Pressable, Text } from 'react-native';
+import { AuthContext } from '../../context/AuthContext';
 import { FeedContext } from '../../context/FeedContext';
 
 import {BaseHeader } from '../../components/global/Headers';
@@ -10,6 +11,7 @@ import { ActionButton, PassiveButton, ToggleSelector } from '../../components/gl
 import styled from 'styled-components/native';
 import { searchTitles } from '../../api/ReelayDBApi';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 
 const TopBarContainer = styled(View)`
 	display: flex;
@@ -35,6 +37,7 @@ export default SelectTitleScreen = ({ navigation }) => {
     const [searchType, setSearchType] = useState('Film');
     const updateCounter = useRef(0);
 
+    const { reelayDBUser } = useContext(AuthContext);
     const { setTabBarVisible } = useContext(FeedContext);
 
     useEffect(() => {
@@ -48,44 +51,8 @@ export default SelectTitleScreen = ({ navigation }) => {
             });
     }, [searchText, searchType]);
 
-    const FilmTVSelector = ({ type }) => {
-
-        const selected = (searchType === type);
-
-        const SelectorContainer = styled(View)`
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            align-items: center;
-            height: 40px;
-            flex: 0.4;
-        `;
-    
-        return (
-            <SelectorContainer>
-                {selected && (
-                        <ActionButton
-                        onPress={() => {
-                            setSearchType(type);
-                        }}
-                        text={type}
-                        fontSize='22px'
-                        borderRadius='15px'
-                        />
-                )}
-
-                {!selected && (
-                        <PassiveButton 
-                        onPress={() => {
-                            setSearchType(type);
-                        }}
-                        text={type}
-                        fontSize='22px'
-                        borderRadius='15px'
-                        />
-                )}
-            </SelectorContainer>
-        );
+    if (reelayDBUser?.username === 'be_our_guest') {
+        return <JustShowMeSignupPage navigation={navigation} headerText={'Make a Reelay'} />
     }
 
     const updateSearch = async (newSearchText, searchType, counter) => {

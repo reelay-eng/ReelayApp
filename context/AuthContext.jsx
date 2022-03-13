@@ -4,6 +4,7 @@ export const AuthContext = createContext({
     cognitoUser: {},
     credentials: {},
     isLoading: false,
+    isReturningUser: false,
 
     myCreatorStacks: [],
     myFollowing: [],
@@ -15,5 +16,5 @@ export const AuthContext = createContext({
     reelayDBUser: {},
     reelayDBUserID: null,
     signedIn: false,
-    isReturningUser: false,
+    signUpFromGuest: false,
 });

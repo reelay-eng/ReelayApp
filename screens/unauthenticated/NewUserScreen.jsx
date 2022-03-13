@@ -139,7 +139,7 @@ const CarouselComponent = ({navigation}) => {
     const handleFinishedOnboarding = () => {
         AsyncStorage.setItem('isReturningUser', '1');
         setIsReturningUser(true);
-        navigation.navigate('SignedOutScreen');
+        navigation.push('SignedOutScreen', { autoSignInAsGuest: true });
     }
 
     const handleGoToNextItem = () => {
