@@ -5,7 +5,9 @@ import {
     View,
     StyleSheet,
 } from 'react-native';
+
 import { AuthContext } from '../../context/AuthContext';
+import { FeedContext } from '../../context/FeedContext';
 
 // API
 import { getLogoURL, fetchMovieProviders } from '../../api/TMDbApi';
@@ -51,6 +53,7 @@ export default PosterWithTrailer = ({
 	`;
 
 	const { reelayDBUser } = useContext(AuthContext);
+	const { justShowMeSignupVisible, setJustShowMeSignupVisible } = useContext(FeedContext);
 	
 	const PosterWithOverlay = () => {
 		const PosterImage = styled(Image)`
@@ -208,6 +211,26 @@ export default PosterWithTrailer = ({
 		flex-direction: row;
 	`
 
+	const showMeSignupIfGuest = () => {
+		if (reelayDBUser?.username === 'be_our_guest') {
+			setJustShowMeSignupVisible(true);
+			return true;
+		}
+		return false;
+	}
+
+	const advanceToCreateReelay = () => {
+		if (showMeSignupIfGuest()) return;
+		navigation.getParent().push("VenueSelectScreen", {
+			titleObj: titleObj,
+		});
+		logAmplitudeEventProd('advanceToCreateReelay', {
+			username: reelayDBUser?.username,
+			title: titleObj?.title?.display,
+			source: 'titlePage',
+		});
+	}
+
 	return (
 		<PosterContainer>
 			<PosterWithOverlay />
@@ -266,16 +289,7 @@ export default PosterWithTrailer = ({
 								size={20}
 							/>
 						}
-						onPress={() => {
-							navigation.getParent().push("VenueSelectScreen", {
-								titleObj: titleObj,
-							});
-							logAmplitudeEventProd('advanceToCreateReelay', {
-								username: reelayDBUser?.username,
-								title: titleObj?.title?.display,
-								source: 'titlePage',
-							});
-						}}
+						onPress={advanceToCreateReelay}
 						borderRadius={"20px"}
 					/>
 				</CreateReelayButtonContainer>

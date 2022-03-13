@@ -19,6 +19,7 @@ import AppleTVAd from '../../components/titlePage/AppleTVAd';
 import MovieInformation from '../../components/titlePage/MovieInformation';
 import PopularReelaysRow from '../../components/titlePage/PopularReelaysRow';
 import PosterWithTrailer from '../../components/titlePage/PosterWithTrailer';
+import JustShowMeSignupDrawer from '../../components/global/JustShowMeSignupDrawer';
 
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
@@ -42,7 +43,11 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const isMovie = titleObj?.isMovie;
 
 	// hide tab bar
-	const { setTabBarVisible } = useContext(FeedContext);
+	const { 
+		justShowMeSignupVisible,
+		setJustShowMeSignupVisible,
+		setTabBarVisible,
+	} = useContext(FeedContext);
 	useFocusEffect(React.useCallback(() => {
 		setTabBarVisible(false);
         return () => {
@@ -77,6 +82,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 			<AppleTVAd />
 			<BottomBackButton navigation={navigation} />
 			<Spacer height={100} />
+			{ justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
 		</ScrollBox>
 	);
 };

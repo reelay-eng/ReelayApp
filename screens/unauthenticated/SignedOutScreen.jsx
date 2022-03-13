@@ -1,9 +1,5 @@
-import React from "react";
-import {
-	Image,
-    View,
-    ImageBackground
-} from "react-native";
+import React, { useContext } from "react";
+import { Image, ImageBackground, View } from "react-native";
 import { Button } from '../../components/global/Buttons';
 import ReelayColors from "../../constants/ReelayColors";
 import styled from "styled-components/native";
@@ -11,6 +7,9 @@ import styled from "styled-components/native";
 import ReelaySplashBackground from "../../assets/images/reelay-splash-background.png";
 import ReelayLogoText from "../../assets/images/reelay-logo-text.png";
 
+import Amplify, { Auth } from "aws-amplify";
+import { AuthContext } from "../../context/AuthContext";
+import { showErrorToast } from "../../components/utils/toasts";
 
 const Container = styled(View)`
     width: 100%;
@@ -49,6 +48,7 @@ const ButtonContainer = styled(View)`
 `;
 
 export default SignedOutScreen = ({ navigation }) => {
+    const { setCognitoUser } = useContext(AuthContext);
 
     const SignUpButton = () => (
         <ButtonContainer>
@@ -61,12 +61,27 @@ export default SignedOutScreen = ({ navigation }) => {
                 borderRadius="60px"
             />
         </ButtonContainer>
-    )
+    );
+
     const LogInButton = () => (
 		<ButtonContainer>
 			<Button
 				text="Log In"
 				onPress={() => navigation.push('SignInScreen')}
+                backgroundColor="white"
+                pressedColor="#DCDCDC"
+                fontColor={ReelayColors.reelayBlue}
+                borderRadius="60px"
+
+			/>
+		</ButtonContainer>
+	);
+
+    const JustShowMeButton = () => (
+		<ButtonContainer>
+			<Button
+				text="Just show me the app"
+				onPress={justShowMeLogin}
 				backgroundColor="transparent"
 				pressedColor="rgba(0, 0, 0, 0.05)"
 				fontColor="white"
@@ -76,6 +91,17 @@ export default SignedOutScreen = ({ navigation }) => {
 		</ButtonContainer>
 	);
     
+    const justShowMeLogin = async () => {
+        try {
+            const username = 'be_our_guest';
+            const password = 'candelabra';
+            const guestCognitoUser = await Auth.signIn({ username, password });     
+            setCognitoUser(guestCognitoUser);
+        } catch (error) {
+            console.log(error);
+            showErrorToast('Oh no! We couldn\'t guest you in. Try again or contact support@reelay.app');
+        }
+    }
 
     return (
         <Container>
@@ -86,6 +112,7 @@ export default SignedOutScreen = ({ navigation }) => {
                 <ButtonsFlexContainer>
                     <SignUpButton />
                     <LogInButton />
+                    <JustShowMeButton />
                 </ButtonsFlexContainer>
             </ReelayBackground>
         </Container>

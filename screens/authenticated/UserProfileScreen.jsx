@@ -6,17 +6,18 @@ import { getStacksByCreator, getRegisteredUser, getFollowers, getFollowing } fro
 
 import Constants from 'expo-constants';
 import FollowButtonBar from '../../components/profile/Follow/FollowButtonBar';
+import JustShowMeSignupDrawer from '../../components/global/JustShowMeSignupDrawer';
 import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
 import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
 import * as ReelayText from "../../components/global/Text";
+
 import { AuthContext } from '../../context/AuthContext';
+import { FeedContext } from '../../context/FeedContext';
 
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import styled from 'styled-components/native';
-
-
 
 const UserInfoContainer = styled(View)`
     align-self: center;
@@ -62,8 +63,11 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const [refreshing, setRefreshing] = useState(true);
 
     const { reelayDBUser } = useContext(AuthContext);
+    const { justShowMeSignupVisible } = useContext(FeedContext);
     const creatorSub = sub ?? '';
-    const creatorProfilePictureURI = creatorSub.length > 0 ? `${CLOUDFRONT_BASE_URL}/public/profilepic-${creatorSub}-current.jpg` : null;
+    const creatorProfilePictureURI = creatorSub.length > 0 
+        ? `${CLOUDFRONT_BASE_URL}/public/profilepic-${creatorSub}-current.jpg` 
+        : null;
 
     const loadCreatorStacks = async () => {
         const nextCreatorStacks = await getStacksByCreator(creatorSub);
@@ -118,11 +122,9 @@ export default UserProfileScreen = ({ navigation, route }) => {
     return (
         <ProfileScreenContainer>
             <ProfileTopBar creator={creator} navigation={navigation} />
-            <ProfileScrollView
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                }
-                >
+            <ProfileScrollView refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }>
                 <ProfileHeader profilePictureURI={creatorProfilePictureURI} />
                 <UserInfoContainer>
                     {bioText !== "" && (
@@ -160,6 +162,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
                     navigation={navigation}
                 />
             </ProfileScrollView>
+            { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} />}
         </ProfileScreenContainer>
     );
 }

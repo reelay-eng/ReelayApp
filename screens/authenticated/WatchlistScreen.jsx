@@ -3,6 +3,7 @@ import { Dimensions, SafeAreaView, View } from 'react-native';
 
 import { BaseHeader } from '../../components/global/Headers'
 import { ToggleSelector } from '../../components/global/Buttons';
+import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import Watchlist from '../../components/watchlist/Watchlist';
 import WatchlistCoachMark from '../../components/watchlist/WatchlistCoachMark';
 
@@ -37,6 +38,10 @@ export default WatchlistScreen = ({ navigation, route }) => {
             userSub: reelayDBUser?.sub,
         });
     }, [navigation]);
+
+    if (reelayDBUser?.username === 'be_our_guest') {
+        return <JustShowMeSignupPage navigation={navigation} />
+    }
 
     let recCount = 0;
     let myListCount = 0;

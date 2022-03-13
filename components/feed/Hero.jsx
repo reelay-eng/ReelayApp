@@ -9,6 +9,7 @@ import { FeedContext } from '../../context/FeedContext';
 import LikesDrawer from './LikesDrawer';
 import CommentsDrawer from './CommentsDrawer';
 import Reelay3DotDrawer from './Reelay3DotDrawer';
+import JustShowMeSignupDrawer from '../global/JustShowMeSignupDrawer';
 
 const Hero = ({ 
     index, 
@@ -19,7 +20,7 @@ const Hero = ({
     viewable,
 }) => {
 
-    const { likesVisible, commentsVisible, dotMenuVisible } = useContext(FeedContext);
+    const { likesVisible, commentsVisible, dotMenuVisible, justShowMeSignupVisible } = useContext(FeedContext);
     const commentsCount = useRef(reelay.comments.length);
 
     return (
@@ -38,6 +39,7 @@ const Hero = ({
                     navigation={navigation}
                 /> 
             }
+            { viewable && justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
         </View>
     );
 }

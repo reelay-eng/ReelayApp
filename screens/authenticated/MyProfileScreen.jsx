@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { RefreshControl, SafeAreaView, ScrollView, View, Linking } from 'react-native';
 import { Autolink } from "react-native-autolink";
+import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 
 // Logging
 import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
@@ -30,7 +31,6 @@ import { FeedContext } from "../../context/FeedContext";
 
 // Styling
 import styled from 'styled-components/native';
-
 
 export default MyProfileScreen = ({ navigation, route }) => {
     const ProfileScreenContainer = styled(SafeAreaView)`
@@ -90,6 +90,15 @@ export default MyProfileScreen = ({ navigation, route }) => {
         });
     }, []);
 
+    useEffect(() => {
+        logAmplitudeEventProd('viewMyProfile', {
+            username: reelayDBUser?.username,
+        });    
+    }, []);
+
+    if (reelayDBUser?.username === 'be_our_guest') {
+        return <JustShowMeSignupPage navigation={navigation} />
+    }
 
     if (!reelayDBUser) {
         return (
@@ -132,12 +141,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const sortStacks = (stack1, stack2) => stack2[0].postedDateTime - stack1[0].postedDateTime;
     const reelayCounter = (sum, nextStack) => sum + nextStack.length;
     const reelayCount = myCreatorStacks.reduce(reelayCounter, 0);
-
-    useEffect(() => {
-        logAmplitudeEventProd('viewMyProfile', {
-            username: reelayDBUser?.username,
-        });    
-    }, []);
 
     const EditProfileButton = () => {
         const Container = styled(View)`

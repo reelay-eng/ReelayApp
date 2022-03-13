@@ -57,18 +57,45 @@ export default Sidebar = ({ navigation, reelay }) => {
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 
 	const { reelayDBUser } = useContext(AuthContext);
-	const { setCommentsVisible, setLikesVisible, setDotMenuVisible } = useContext(FeedContext);
+	const { 
+		setCommentsVisible, 
+		setLikesVisible, 
+		setDotMenuVisible, 
+		setJustShowMeSignupVisible,
+	} = useContext(FeedContext);
 
 	const isMyReelay = reelay.creator.sub === reelayDBUser?.sub;
 	const commentedByUser = reelay.comments.find(comment => comment.authorName === reelayDBUser?.username);
 	const likedByUser = reelay.likes.find(like => like.username === reelayDBUser?.username);
 
-	const onCommentLongPress = async () => setCommentsVisible(true);
-	const onCommentPress = async () => setCommentsVisible(true);
-	const onDotMenuPress = async () => setDotMenuVisible(true);
-	const onLikeLongPress = async () => setLikesVisible(true);
+	const onCommentLongPress = async () => {
+		if (showMeSignupIfGuest()) return;
+		setCommentsVisible(true);
+	}
+	const onCommentPress = async () => {
+		if (showMeSignupIfGuest()) return;
+		setCommentsVisible(true);
+	}
+	const onDotMenuPress = async () => {
+		if (showMeSignupIfGuest()) return;
+		setDotMenuVisible(true);
+	}
+	const onLikeLongPress = async () => {
+		if (showMeSignupIfGuest()) return;
+		setLikesVisible(true);
+	}
+
+	const showMeSignupIfGuest = () => {
+		if (reelayDBUser?.username === 'be_our_guest') {
+			setJustShowMeSignupVisible(true);
+			return true;
+		}
+		return false;
+	}
 
 	const onLikePress = async () => {
+		if (showMeSignupIfGuest()) return;
+
 		if (likedByUser) {
 			const unlikeBody = {
 				creatorName: reelay.creator.username,

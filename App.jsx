@@ -76,6 +76,7 @@ function App() {
     const [commentsVisible, setCommentsVisible] = useState(false);
     const [currentComment, setCurrentComment] = useState('');
     const [dotMenuVisible, setDotMenuVisible] = useState(false);
+    const [justShowMeSignupVisible, setJustShowMeSignupVisible] = useState(false);
     const [likesVisible, setLikesVisible] = useState(false);
     const [paused, setPaused] = useState(false);
     const [playPauseVisible, setPlayPauseVisible] = useState('none');
@@ -299,6 +300,7 @@ function App() {
         commentsVisible,    setCommentsVisible,
         currentComment,     setCurrentComment,
         dotMenuVisible,     setDotMenuVisible,
+        justShowMeSignupVisible, setJustShowMeSignupVisible,
         likesVisible,       setLikesVisible,
         paused,             setPaused,
         playPauseVisible,   setPlayPauseVisible,
