@@ -97,7 +97,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
     }, []);
 
     if (reelayDBUser?.username === 'be_our_guest') {
-        return <JustShowMeSignupPage navigation={navigation} />
+        return <JustShowMeSignupPage navigation={navigation} headerText='My Reelays' />
     }
 
     if (!reelayDBUser) {

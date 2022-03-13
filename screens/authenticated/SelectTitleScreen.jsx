@@ -52,7 +52,7 @@ export default SelectTitleScreen = ({ navigation }) => {
     }, [searchText, searchType]);
 
     if (reelayDBUser?.username === 'be_our_guest') {
-        return <JustShowMeSignupPage navigation={navigation} />
+        return <JustShowMeSignupPage navigation={navigation} headerText={'Make a Reelay'} />
     }
 
     const updateSearch = async (newSearchText, searchType, counter) => {

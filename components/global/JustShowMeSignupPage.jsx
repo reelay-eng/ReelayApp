@@ -13,12 +13,13 @@ import { clearLocalUserData } from '../../api/ReelayUserApi';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
-export default JustShowMeSignupPage = ({ fullPage = true }) => {
+export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Reelay' }) => {
     const { 
         reelayDBUser,
         setReelayDBUserID, 
         setSignedIn,
         setSignUpFromGuest,
+        signUpFromGuest,
     } = useContext(AuthContext);
 
     const BottomContainer = styled(View)`
@@ -52,16 +53,16 @@ export default JustShowMeSignupPage = ({ fullPage = true }) => {
         height: 100%;
         margin: 10px;
     `
-    const KeepBrowsingButton = styled(Pressable)`
+    const ExitButton = styled(Pressable)`
         align-items: center;
         background-color: white;
         border-radius: 60px;
         height: 48px;
         justify-content: center;
-        margin-bottom: 10px;
+        margin-top: 10px;
         width: 90%;
     `
-    const KeepBrowsingText = styled(ReelayText.CaptionEmphasized)`
+    const ExitText = styled(ReelayText.CaptionEmphasized)`
         color: black;
         text-align: center;
     `
@@ -91,7 +92,7 @@ export default JustShowMeSignupPage = ({ fullPage = true }) => {
                 email: reelayDBUser?.email,
             });
     
-            setSignUpFromGuest(true);
+            if (!signUpFromGuest) setSignUpFromGuest(true);
             const signOutResult = await Auth.signOut();
             setSignedIn(false);
             setReelayDBUserID(null);
@@ -104,11 +105,29 @@ export default JustShowMeSignupPage = ({ fullPage = true }) => {
         }
     }
 
+    const exitGuestAccount = async () => {
+        try {
+            logAmplitudeEventProd('guestExit', {
+                username: reelayDBUser?.username,
+                email: reelayDBUser?.email,
+            });
+    
+            if (signUpFromGuest) setSignUpFromGuest(false);
+            const signOutResult = await Auth.signOut();
+            setSignedIn(false);
+            setReelayDBUserID(null);
+            console.log(signOutResult);
+            await clearLocalUserData();
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     return (
         <View style={{ justifyContent: 'center', flex: 1 }}>
             <JustShowMeContainer>
                 <TopContainer>
-                    <HeaderText>{'Join Reelay'}</HeaderText>
+                    <HeaderText>{headerText}</HeaderText>
                     <DogWithGlassesContainer>
                         <DogWithGlassesImage source={DogWithGlasses} />
                     </DogWithGlassesContainer>
@@ -120,6 +139,11 @@ export default JustShowMeSignupPage = ({ fullPage = true }) => {
                     <SignUpButton onPress={goToSignUp}>
                         <SignUpText>{'Sign up'}</SignUpText>
                     </SignUpButton>
+                    { fullPage && (
+                        <ExitButton onPress={exitGuestAccount}>
+                            <ExitText>{'Exit'}</ExitText>
+                        </ExitButton>
+                    )}
                 </BottomContainer>
             </JustShowMeContainer>
         </View>

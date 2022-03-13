@@ -40,7 +40,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
     }, [navigation]);
 
     if (reelayDBUser?.username === 'be_our_guest') {
-        return <JustShowMeSignupPage navigation={navigation} />
+        return <JustShowMeSignupPage navigation={navigation} headerText='My Watchlist' />
     }
 
     let recCount = 0;
