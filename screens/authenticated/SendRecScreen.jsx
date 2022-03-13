@@ -426,7 +426,10 @@ export default SendRecScreen = ({ navigation, route }) => {
                 sendRecs={sendRecs}
             />
             { reelayDBUser?.username === 'be_our_guest' &&
-                <JustShowMeSignupPage navigation={navigation} />
+                <JustShowMeSignupPage 
+                    fullPage={false}
+                    navigation={navigation} 
+                />
             }
             { reelayDBUser?.username !== 'be_our_guest' &&
                 <FollowerList 

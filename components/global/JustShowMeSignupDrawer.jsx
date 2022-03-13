@@ -42,6 +42,7 @@ const JustShowMeSignup = () => {
         reelayDBUser,
         setReelayDBUserID, 
         setSignedIn,
+        setSignUpFromGuest,
     } = useContext(AuthContext);
 
     const { setJustShowMeSignupVisible } = useContext(FeedContext);
@@ -115,6 +116,7 @@ const JustShowMeSignup = () => {
                 email: reelayDBUser?.email,
             });
     
+            setSignUpFromGuest(true);
             const signOutResult = await Auth.signOut();
             setJustShowMeSignupVisible(false);
             setSignedIn(false);

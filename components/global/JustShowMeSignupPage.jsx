@@ -9,16 +9,16 @@ import ReelayColors from '../../constants/ReelayColors';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 import { clearLocalUserData } from '../../api/ReelayUserApi';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
-export default JustShowMeSignupPage = () => {
+export default JustShowMeSignupPage = ({ fullPage = true }) => {
     const { 
         reelayDBUser,
         setReelayDBUserID, 
         setSignedIn,
+        setSignUpFromGuest,
     } = useContext(AuthContext);
 
     const BottomContainer = styled(View)`
@@ -71,6 +71,7 @@ export default JustShowMeSignupPage = () => {
         border-radius: 60px;
         height: 48px;
         justify-content: center;
+        margin-bottom: ${(fullPage) ? 0 : 40}px;
         width: 90%;
     `
     const SignUpText = styled(ReelayText.CaptionEmphasized)`
@@ -90,6 +91,7 @@ export default JustShowMeSignupPage = () => {
                 email: reelayDBUser?.email,
             });
     
+            setSignUpFromGuest(true);
             const signOutResult = await Auth.signOut();
             setSignedIn(false);
             setReelayDBUserID(null);
@@ -103,7 +105,7 @@ export default JustShowMeSignupPage = () => {
     }
 
     return (
-        <View>
+        <View style={{ justifyContent: 'center', flex: 1 }}>
             <JustShowMeContainer>
                 <TopContainer>
                     <HeaderText>{'Join Reelay'}</HeaderText>

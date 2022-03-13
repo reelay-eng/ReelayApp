@@ -59,6 +59,7 @@ function App() {
     const [cognitoUser, setCognitoUser] = useState({});
     const [credentials, setCredentials] = useState({});
     const [isLoading, setIsLoading] = useState(true);
+    const [isReturningUser, setIsReturningUser] = useState(false);
 
     const [myCreatorStacks, setMyCreatorStacks] = useState([]);
     const [myFollowers, setMyFollowers] = useState([]);
@@ -69,8 +70,7 @@ function App() {
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [reelayDBUserID, setReelayDBUserID] = useState(null);
     const [signedIn, setSignedIn] = useState(false);
-    const [session, setSession] = useState({});
-    const [isReturningUser, setIsReturningUser] = useState(false);
+    const [signUpFromGuest, setSignUpFromGuest] = useState(false);
 
     // Feed context hooks
     const [commentsVisible, setCommentsVisible] = useState(false);
@@ -208,6 +208,11 @@ function App() {
                 // use cognito to sign in the user
                 tryCognitoUser = await Auth.currentAuthenticatedUser();
                 setCognitoUser(tryCognitoUser);
+                if (tryCognitoUser?.username === 'be_our_guest') {
+                    setSignUpFromGuest(true);
+                } else {
+                    setSignUpFromGuest(false);
+                }
             } else {
                 // try using a social auth token to sign in the user
                 const authTokenJSON = await AsyncStorage.getItem('mySocialAuthToken');
@@ -258,6 +263,7 @@ function App() {
 
     const registerMyPushToken = async () => {
         try {
+            if (reelayDBUser?.username === 'be_our_guest') return;
             const devicePushToken = await registerForPushNotificationsAsync();
             if (!devicePushToken) return;
 
@@ -278,6 +284,7 @@ function App() {
         cognitoUser,        setCognitoUser,
         credentials,        setCredentials,
         isLoading,          setIsLoading,
+        isReturningUser,    setIsReturningUser,
 
         myCreatorStacks,    setMyCreatorStacks,
         myFollowers,        setMyFollowers,
@@ -287,9 +294,8 @@ function App() {
 
         reelayDBUser,       setReelayDBUser,
         reelayDBUserID,     setReelayDBUserID,
-        session,            setSession,
         signedIn,           setSignedIn,
-        isReturningUser,    setIsReturningUser
+        signUpFromGuest,    setSignUpFromGuest,
     }
 
     const uploadState = {

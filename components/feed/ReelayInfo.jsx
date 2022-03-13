@@ -42,7 +42,7 @@ const ReelayInfoBare = ({ navigation, reelay }) => {
 			<Pressable onPress={goToProfile}>
 				<PostInfo>
 					<ProfilePicContainer>
-						<ProfilePicture navigation={navigation} circle={true} user={creator} size={30} />
+						<ProfilePicture navigation={navigation} border circle user={creator} size={30} />
 					</ProfilePicContainer>
 					<Username>@{creator?.username}</Username>
 				</PostInfo>
