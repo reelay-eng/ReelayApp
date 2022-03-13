@@ -43,7 +43,8 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
     const renderWatchlistItem = ({ item, index }) => {
         return (
             <React.Fragment>
-                <WatchlistSwipeableRow key={item.id} 
+                <WatchlistSwipeableRow 
+                        key={item.id} 
                         category={category}
                         navigation={navigation} 
                         onRefresh={onRefresh}

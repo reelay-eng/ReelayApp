@@ -116,6 +116,51 @@ function App() {
         }
     }, [reelayDBUser]);
 
+    const autoAuthenticateUser = async () => {
+        console.log('Setting up authentication');
+        let tryCredentials, tryCognitoUser, tryVerifySocialAuth;
+        try {
+            tryCredentials = await Auth.currentUserCredentials();
+            if (tryCredentials?.authenticated) {
+                // use cognito to sign in the user
+                tryCognitoUser = await Auth.currentAuthenticatedUser();
+                setCognitoUser(tryCognitoUser);
+                if (tryCognitoUser?.username === 'be_our_guest') {
+                    setSignUpFromGuest(true);
+                } else {
+                    setSignUpFromGuest(false);
+                }
+            } else {
+                // try using a social auth token to sign in the user
+                const authTokenJSON = await AsyncStorage.getItem('mySocialAuthToken');
+                if (authTokenJSON) {
+                    const { reelayDBUserID, token } = JSON.parse(authTokenJSON);
+                    tryVerifySocialAuth = await verifySocialAuthToken();
+                    if (tryVerifySocialAuth?.success) {
+                        console.log('Auto authentication from social login successful');
+                        setReelayDBUserID(reelayDBUserID);
+                    }
+                }
+            }
+            logAmplitudeEventProd('authenticationComplete', {
+                hasValidCredentials: tryCredentials?.authenticated,
+                username: tryCognitoUser?.attributes?.sub,
+            });        
+
+        } catch (error) {
+            logAmplitudeEventProd('authErrorForAuthenticateUser', {
+                error: error,
+                hasValidCredentials: tryCredentials?.authenticated,
+                username: tryCognitoUser?.username,
+            });
+        }
+
+        if (!tryCredentials?.authenticated && !tryVerifySocialAuth?.success) {
+            setIsLoading(false);
+            // else, keep loading until loadMyProfile finishes
+        }
+    }
+
     const initServices = async () => {
         Amplitude.initializeAsync(
             Constants.manifest.extra.amplitudeApiKey
@@ -197,51 +242,6 @@ function App() {
 			"Outfit-ExtraBold": require("./assets/fonts/Outfit-ExtraBold.ttf"),
 			"Outfit-Black": require("./assets/fonts/Outfit-Black.ttf"),
 		});
-    }
-
-    const autoAuthenticateUser = async () => {
-        console.log('Setting up authentication');
-        let tryCredentials, tryCognitoUser, tryVerifySocialAuth;
-        try {
-            tryCredentials = await Auth.currentUserCredentials();
-            if (tryCredentials?.authenticated) {
-                // use cognito to sign in the user
-                tryCognitoUser = await Auth.currentAuthenticatedUser();
-                setCognitoUser(tryCognitoUser);
-                if (tryCognitoUser?.username === 'be_our_guest') {
-                    setSignUpFromGuest(true);
-                } else {
-                    setSignUpFromGuest(false);
-                }
-            } else {
-                // try using a social auth token to sign in the user
-                const authTokenJSON = await AsyncStorage.getItem('mySocialAuthToken');
-                if (authTokenJSON) {
-                    const { reelayDBUserID, token } = JSON.parse(authTokenJSON);
-                    tryVerifySocialAuth = await verifySocialAuthToken();
-                    if (tryVerifySocialAuth?.success) {
-                        console.log('Auto authentication from social login successful');
-                        setReelayDBUserID(reelayDBUserID);
-                    }
-                }
-            }
-            logAmplitudeEventProd('authenticationComplete', {
-                hasValidCredentials: tryCredentials?.authenticated,
-                username: tryCognitoUser?.attributes?.sub,
-            });        
-
-        } catch (error) {
-            logAmplitudeEventProd('authErrorForAuthenticateUser', {
-                error: error,
-                hasValidCredentials: tryCredentials?.authenticated,
-                username: tryCognitoUser?.username,
-            });
-        }
-
-        if (!tryCredentials?.authenticated && !tryVerifySocialAuth?.success) {
-            setIsLoading(false);
-            // else, keep loading until loadMyProfile finishes
-        }
     }
 
     const loadMyProfile = async (userSub) => {

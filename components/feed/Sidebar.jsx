@@ -167,7 +167,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 						type="ionicon"
 						name="heart"
 						color={likedByUser ? ReelayColors.reelayRed : "white"}
-						iconStyle={IconDropShadowStyle}
+						// iconStyle={IconDropShadowStyle}
 						size={ICON_SIZE}
 					/>
 				</SidebarButton>
@@ -183,7 +183,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 						type="ionicon"
 						name="chatbubble-ellipses"
 						color={'white'}
-						iconStyle={IconDropShadowStyle}
+						// iconStyle={IconDropShadowStyle}
 						size={ICON_SIZE}
 					/>
 				</SidebarButton>
@@ -203,7 +203,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 						type='ionicon' 
 						name={'ellipsis-horizontal'} 
 						color={'white'} 
-						iconStyle={IconDropShadowStyle}
+						// iconStyle={IconDropShadowStyle}
 						size={DOT_ICON_SIZE} 
 					/>
 				</SidebarButton>

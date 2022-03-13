@@ -53,7 +53,9 @@ const ReelayLogoContainer = styled(View)`
     align-items: center;
 `
 
-export default SignedOutScreen = ({ navigation }) => {
+export default SignedOutScreen = ({ navigation, route }) => {
+    const autoSignInAsGuest = route?.params?.autoSignInAsGuest ?? false;
+    console.log('auto sign up? ', autoSignInAsGuest, route);
     const { setCognitoUser, signUpFromGuest, setSignUpFromGuest } = useContext(AuthContext);
     const [signingInJustShowMe, setSigningInJustShowMe] = useState(false);
 
@@ -79,8 +81,6 @@ export default SignedOutScreen = ({ navigation }) => {
                 pressedColor="#DCDCDC"
                 fontColor={ReelayColors.reelayBlue}
                 borderRadius="60px"
-
-
 			/>
 		</ButtonContainer>
 	);
@@ -110,15 +110,20 @@ export default SignedOutScreen = ({ navigation }) => {
                 },
             };
             setCognitoUser(guestCognitoUser);
+            console.log('Just show me completing: ', guestCognitoUser);
         } catch (error) {
             console.log(error);
             showErrorToast('Oh no! We couldn\'t guest you in. Try again or contact support@reelay.app');
+            setSigningInJustShowMe(false);
         }
     }
 
     useEffect(() => {
+        if (autoSignInAsGuest) justShowMeLogin();
+    }, []);
+
+    useEffect(() => {
         if (signUpFromGuest) {
-            console.log('pushing');
             navigation.push('SignUpScreen');
             setSignUpFromGuest(false);
         }
