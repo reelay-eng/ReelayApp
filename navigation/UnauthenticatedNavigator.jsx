@@ -16,10 +16,13 @@ import SplashScreen from '../screens/unauthenticated/SplashScreen';
 const AuthenticationStack = createStackNavigator();
 
 export default UnauthenticatedNavigator = () => {
-    const { isReturningUser } = React.useContext(AuthContext);
+    const { isReturningUser, signUpFromGuest } = React.useContext(AuthContext);
+    // const initialRoute = isReturningUser ? "SignedOutScreen":"NewUserScreen"
+    let initialRoute = 'NewUserScreen';
+    if (isReturningUser) initialRoute = 'SignedOutScreen';
   return (
     <AuthenticationStack.Navigator
-        initialRouteName={isReturningUser?"SignedOutScreen":"NewUserScreen"}
+        initialRouteName={isReturningUser ? "SignedOutScreen":"NewUserScreen"}
         detachInactiveScreens={false}
       >
         <AuthenticationStack.Screen

@@ -5,7 +5,9 @@ import {
     View,
     StyleSheet,
 } from 'react-native';
+
 import { AuthContext } from '../../context/AuthContext';
+import { FeedContext } from '../../context/FeedContext';
 
 // API
 import { getLogoURL, fetchMovieProviders } from '../../api/TMDbApi';
@@ -51,6 +53,7 @@ export default PosterWithTrailer = ({
 	`;
 
 	const { reelayDBUser } = useContext(AuthContext);
+	const { setJustShowMeSignupVisible } = useContext(FeedContext);
 	
 	const PosterWithOverlay = () => {
 		const PosterImage = styled(Image)`
@@ -65,19 +68,16 @@ export default PosterWithTrailer = ({
 			opacity: ${(props) => props.opacity};
 			position: absolute;
 		`;
-		const s = StyleSheet.create({
-			gradient: {
-				flex: 1,
-				opacity: 1,
-			},
-		});
 		return (
 			<>
 				<PosterImage source={posterSource} />
 				<PosterOverlay color={ReelayColors.reelayBlack} opacity={0.2} />
 				<LinearGradient
 					colors={["transparent", ReelayColors.reelayBlack]}
-					style={s.gradient}
+					style={{gradient: {
+						flex: 1,
+						opacity: 1,
+					}}}
 				/>
 			</>
 		);
@@ -177,17 +177,17 @@ export default PosterWithTrailer = ({
 		align-items: center;
 		flex-direction: row;
 		justify-content: space-between;
+		display: flex;
 	`
 	const PosterInfoContainer = styled(View)`
 		position: absolute;
-		left: 4%;
+		align-self: center;
 		bottom: 5%;
 		width: 92%;
-		display: flex;
-		flex-direction: column;
 	`
 	const PosterTitleContainer = styled(View)`
 		justify-content: flex-end;
+		flex: 1;
 	`
 	const PosterTitle = styled(ReelayText.H4Bold)`
 		color: white;
@@ -198,6 +198,7 @@ export default PosterWithTrailer = ({
 		border-radius: 30px;
 		justify-content: center;
 		height: 45px;
+		margin: 10px;
 		width: 45px;
 	`
 	const TrailerButtonContainer = styled(View)`
@@ -205,8 +206,73 @@ export default PosterWithTrailer = ({
 		height: 40px;
 	`
 	const WatchlistButtonsContainer = styled(View)`
-		flex-direction: row;
+		align-items: flex-end;
+		flex: 0.1;
+		justify-content: center;
+		left: 10px;
+		margin-bottom: 15px;
 	`
+
+	const showMeSignupIfGuest = () => {
+		if (reelayDBUser?.username === 'be_our_guest') {
+			setJustShowMeSignupVisible(true);
+			return true;
+		}
+		return false;
+	}
+
+	const advanceToCreateReelay = () => {
+		if (showMeSignupIfGuest()) return;
+		navigation.getParent().push("VenueSelectScreen", {
+			titleObj: titleObj,
+		});
+		logAmplitudeEventProd('advanceToCreateReelay', {
+			username: reelayDBUser?.username,
+			title: titleObj?.title?.display,
+			source: 'titlePage',
+		});
+	}
+
+	const advanceToWatchTrailer = () => {
+		navigation.push("TitleTrailerScreen", {
+			trailerURI: trailerURI,
+		});
+		logAmplitudeEventProd("watchTrailer", {
+			title: title,
+			tmdbTitleID: tmdbTitleID,
+			source: "poster",
+		});
+	}
+
+	const CreateReelayButton = () => {
+		const createReelayIcon = <Icon color={"white"} type="ionicon" name="add-circle-outline" size={20} />;
+		return (
+			<CreateReelayButtonContainer>
+				<ActionButton
+					color='blue'
+					text={"Create a Reelay"}
+					leftIcon={createReelayIcon}
+					onPress={advanceToCreateReelay}
+					borderRadius={"20px"}
+				/>
+			</CreateReelayButtonContainer>
+		);
+	}
+
+	const WatchTrailerButton = () => {
+		const watchTrailerIcon = <Icon color={"white"} type="ionicon" name="play-circle-outline" size={20} />;
+		return (
+			<TrailerButtonContainer>
+				<ActionButton
+					color='green'
+					text={"Watch Trailer"}
+					leftIcon={watchTrailerIcon}
+					onPress={advanceToWatchTrailer}
+					borderRadius={"20px"}
+				/>
+			</TrailerButtonContainer>
+		);
+	}
 
 	return (
 		<PosterContainer>
@@ -221,64 +287,14 @@ export default PosterWithTrailer = ({
 						<PosterTagline />
 					</PosterTitleContainer>
 					<WatchlistButtonsContainer>
-						<AddToWatchlistButton titleObj={titleObj} />
 						<SendRecButtonContainer>
 							<SendRecButton navigation={navigation} titleObj={titleObj} />
 						</SendRecButtonContainer>
+						<AddToWatchlistButton titleObj={titleObj} />
 					</WatchlistButtonsContainer>
 				</InfoBarContainer>
-				{trailerURI && (
-					<TrailerButtonContainer>
-						<ActionButton
-							color='green'
-							text={"Watch Trailer"}
-							leftIcon={
-								<Icon
-									color={"white"}
-									type="ionicon"
-									name="play-circle-outline"
-									size={20}
-								/>
-							}
-							onPress={() => {
-								navigation.push("TitleTrailerScreen", {
-									trailerURI: trailerURI,
-								});
-								logAmplitudeEventProd("watchTrailer", {
-									title: title,
-									tmdbTitleID: tmdbTitleID,
-									source: "poster",
-								});
-							}}
-							borderRadius={"20px"}
-						/>
-					</TrailerButtonContainer>
-				)}
-				<CreateReelayButtonContainer>
-					<ActionButton
-						color='blue'
-						text={"Create a Reelay"}
-						leftIcon={
-							<Icon
-								color={"white"}
-								type="ionicon"
-								name="add-circle-outline"
-								size={20}
-							/>
-						}
-						onPress={() => {
-							navigation.getParent().push("VenueSelectScreen", {
-								titleObj: titleObj,
-							});
-							logAmplitudeEventProd('advanceToCreateReelay', {
-								username: reelayDBUser?.username,
-								title: titleObj?.title?.display,
-								source: 'titlePage',
-							});
-						}}
-						borderRadius={"20px"}
-					/>
-				</CreateReelayButtonContainer>
+				{ trailerURI && <WatchTrailerButton /> }
+				<CreateReelayButton />
 			</PosterInfoContainer>
 		</PosterContainer>
 	);

@@ -5,6 +5,7 @@ import styled from 'styled-components/native';
 import ReelayColors from '../../../constants/ReelayColors';
 import * as ReelayText from '../../global/Text';
 import { AuthContext } from '../../../context/AuthContext';
+import { FeedContext } from '../../../context/FeedContext';
 import { followCreator, unfollowCreator } from '../../../api/ReelayDBApi';
 import { notifyCreatorOnFollow } from "../../../api/NotificationsApi";
 
@@ -35,6 +36,7 @@ const FollowText = styled(ReelayText.Subtitle1Emphasized)`
 
 export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowers }) => {
     const { reelayDBUser, myFollowing, setMyFollowing } = useContext(AuthContext);
+    const { setJustShowMeSignupVisible } = useContext(FeedContext);
     
     const creatorSub = creator.sub;
     const userSub = reelayDBUser.sub;
@@ -45,7 +47,16 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
     const creatorInList = (followObj) => followObj.creatorSub === creator.sub;
     const alreadyFollowingCreator = myFollowing.find(creatorInList);
 
+	const showMeSignupIfGuest = () => {
+		if (reelayDBUser?.username === 'be_our_guest') {
+			setJustShowMeSignupVisible(true);
+			return true;
+		}
+		return false;
+	}
+
     const followUser = async () => {
+        if (showMeSignupIfGuest()) return;
         const followResult = await followCreator(creatorSub, userSub);
         const isFollowing = !followResult?.error && !followResult?.requestStatus;
         

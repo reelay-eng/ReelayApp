@@ -18,6 +18,7 @@ import { showMessageToast } from '../../components/utils/toasts';
 import { notifyOnSendRec } from '../../api/WatchlistNotifications';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import ReelayColors from '../../constants/ReelayColors';
+import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const ReelayIcon = require('../../assets/icons/reelay-icon.png');
@@ -424,13 +425,21 @@ export default SendRecScreen = ({ navigation, route }) => {
                 reelay={reelay}
                 sendRecs={sendRecs}
             />
-            <FollowerList 
-                navigation={navigation}
-                getFollowsToSend={getFollowsToSend}
-                markFollowToSend={markFollowToSend}
-                unmarkFollowToSend={unmarkFollowToSend}
-                watchlistItem={watchlistItem}
-            />
+            { reelayDBUser?.username === 'be_our_guest' &&
+                <JustShowMeSignupPage 
+                    fullPage={false}
+                    navigation={navigation} 
+                />
+            }
+            { reelayDBUser?.username !== 'be_our_guest' &&
+                <FollowerList 
+                    navigation={navigation}
+                    getFollowsToSend={getFollowsToSend}
+                    markFollowToSend={markFollowToSend}
+                    unmarkFollowToSend={unmarkFollowToSend}
+                    watchlistItem={watchlistItem}
+                />
+            }
         </RecScreenContainer>
     );
 }

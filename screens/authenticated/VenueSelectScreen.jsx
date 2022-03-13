@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Alert, Pressable, SafeAreaView, ScrollView, Text, View, Linking, Image } from 'react-native';
 import { Camera } from 'expo-camera';
-import BackButton from '../../components/utils/BackButton';
 import { getIconVenues, getOtherVenues, iconVenues, otherVenues } from '../../components/utils/VenueIcon';
 import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,17 +8,22 @@ import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from "../../components/global/Text";
 import { BWButton } from "../../components/global/Buttons";
 import { HeaderWithBackButton } from "../../components/global/Headers";
+
+import { AuthContext } from '../../context/AuthContext';
+import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 export default VenueSelectScreen = ({ navigation, route }) => {
-
-    const ICON_SIZE = 64;
-    const BORDER_SIZE = 4;
-
     const { titleObj } = route.params;
     const iconVenues = getIconVenues();
     const otherVenues = getOtherVenues();
     const searchVenues = [...iconVenues, ...otherVenues];
+
+    const { reelayDBUser } = useContext(AuthContext);
+
+    if (reelayDBUser?.username === 'be_our_guest') {
+        return <JustShowMeSignupPage navigation={navigation} showBackButton={true} />
+    }
     
     const ScreenOuterContainer = styled(View)`
         height: 100%;

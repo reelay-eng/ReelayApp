@@ -7,6 +7,7 @@ import { showErrorToast } from '../../components/utils/toasts';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
+import { FeedContext } from '../../context/FeedContext';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 import { getInputUsername } from '../../components/utils/usernameOrEmail';
@@ -171,7 +172,7 @@ export default SignInScreen = ({ navigation, route }) => {
             try {
                 setSigningIn(true);
                 if (otherError) setOtherError(false);
-                const username = await getInputUsername(inputText);                
+                const username = await getInputUsername(inputText);
                 if (!username.length) {
                     // entered an invalid email
                     handleBadEmail();

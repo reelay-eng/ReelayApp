@@ -2,6 +2,8 @@ import React, { useContext } from 'react';
 import { Text, View, Pressable } from 'react-native';
 import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
+import { FeedContext } from '../../context/FeedContext';
+
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import * as ReelayText from '../../components/global/Text';
 
@@ -30,8 +32,17 @@ export default ProfileStatsBar = ({
 }) => {
 
     const { reelayDBUser } = useContext(AuthContext);
+    const { setJustShowMeSignupVisible } = useContext(FeedContext);
 
+	const showMeSignupIfGuest = () => {
+		if (reelayDBUser?.username === 'be_our_guest') {
+			setJustShowMeSignupVisible(true);
+			return true;
+		}
+		return false;
+	}
     const viewFollows = ({ followType }) => {
+        if (showMeSignupIfGuest()) return;
         navigation.push('UserFollowScreen', {
             creator: creator,
             initFollowType: followType,
@@ -41,6 +52,7 @@ export default ProfileStatsBar = ({
     }
 
     const viewFollowers = () => {
+        if (showMeSignupIfGuest()) return;
         viewFollows({ followType: 'Followers' });
         logAmplitudeEventProd('viewFollowers', {
             username: reelayDBUser.username,
@@ -49,6 +61,7 @@ export default ProfileStatsBar = ({
     }
 
     const viewFollowing = () => {
+        if (showMeSignupIfGuest()) return;
         viewFollows({ followType: 'Following' });
         logAmplitudeEventProd('viewFollowing', {
             username: reelayDBUser.username,

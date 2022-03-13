@@ -10,12 +10,12 @@ const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const ProfileImage = styled(Image)`
     border-color: white;
     border-radius: ${(props) => props.size/2}px;
-    border-width: ${(props) => (props.border) ? 0.7 : 0}px;
+    border-width: ${(props) => (props.border) ? 1 : 0}px;
     height: ${(props) => props.size}px;
     width: ${(props) => props.size}px;
 `
 
-export default ProfilePicture = memo(({ user, navigation, size = 16 }) => {
+export default ProfilePicture = memo(({ border = null, user, navigation, size = 16 }) => {
     const [validProfileImage, setValidProfileImage] = useState(true);
     const userSub = user?.sub ?? user?.attributes?.sub;
     const uri  = `${CLOUDFRONT_BASE_URL}/public/profilepic-${userSub}-current.jpg`;
@@ -26,6 +26,7 @@ export default ProfilePicture = memo(({ user, navigation, size = 16 }) => {
         }}>
             { validProfileImage ? null : (<ProfileImage size={size} source={ReelayIcon}  />) }
             <ProfileImage
+                border={border}
                 size={size}
                 source={{ uri }}
                 style={(validProfileImage) ? {} : { display: 'none' }}
