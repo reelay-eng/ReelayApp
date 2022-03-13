@@ -117,13 +117,9 @@ const JustShowMeSignup = () => {
             });
     
             setSignUpFromGuest(true);
-            const signOutResult = await Auth.signOut();
             setJustShowMeSignupVisible(false);
             setSignedIn(false);
             setReelayDBUserID(null);
-            // todo: deregister for push tokens
-            // todo: deregister cognito user
-            console.log(signOutResult);
             await clearLocalUserData();
         } catch (error) {
             console.log(error);

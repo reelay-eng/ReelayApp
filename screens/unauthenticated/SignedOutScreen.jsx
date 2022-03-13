@@ -102,9 +102,13 @@ export default SignedOutScreen = ({ navigation }) => {
     const justShowMeLogin = async () => {
         try {
             setSigningInJustShowMe(true);
-            const username = 'be_our_guest';
-            const password = 'candelabra';
-            const guestCognitoUser = await Auth.signIn({ username, password });     
+            const guestCognitoUser = {
+                username: 'be_our_guest',
+                attributes: {
+                    sub: '1cc34e07-36b3-49b8-afc8-f39f827a7600',
+                    email: 'support@reelay.app',
+                },
+            };
             setCognitoUser(guestCognitoUser);
         } catch (error) {
             console.log(error);
