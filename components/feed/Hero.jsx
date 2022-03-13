@@ -33,12 +33,7 @@ const Hero = ({
             <Sidebar navigation={navigation} reelay={reelay} commentsCount={commentsCount}/>
             { viewable && likesVisible && <LikesDrawer reelay={reelay} navigation={navigation} /> }
             { viewable && commentsVisible && <CommentsDrawer reelay={reelay} navigation={navigation} commentsCount={commentsCount} /> }
-            { viewable && dotMenuVisible && 
-                <Reelay3DotDrawer 
-                    reelay={reelay} 
-                    navigation={navigation}
-                /> 
-            }
+            { viewable && dotMenuVisible && <Reelay3DotDrawer reelay={reelay} navigation={navigation} /> }
             { viewable && justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
         </View>
     );

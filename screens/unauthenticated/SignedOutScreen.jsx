@@ -16,7 +16,7 @@ const ButtonsFlexContainer = styled(View)`
     position: absolute;
     height: 100%;
     padding-bottom: 50px;
-    width: 100%;
+    width: 95%;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -62,9 +62,9 @@ export default SignedOutScreen = ({ navigation }) => {
             <Button
                 text="Sign Up"
                 onPress={() => navigation.push('SignUpScreen')}
-                backgroundColor="white"
+                backgroundColor={'rgba(41, 119, 239, 0.9)'}
                 pressedColor="#DCDCDC"
-                fontColor={ReelayColors.reelayBlue}
+                fontColor={'white'}
                 borderRadius="60px"
             />
         </ButtonContainer>
@@ -79,6 +79,7 @@ export default SignedOutScreen = ({ navigation }) => {
                 pressedColor="#DCDCDC"
                 fontColor={ReelayColors.reelayBlue}
                 borderRadius="60px"
+
 
 			/>
 		</ButtonContainer>

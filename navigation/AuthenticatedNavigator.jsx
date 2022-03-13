@@ -488,6 +488,13 @@ const ProfileTabNavigator = () => {
 				}}
 			/>
 			<ProfileTabStack.Screen
+				name="NotificationScreen"
+				component={NotificationScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<ProfileTabStack.Screen
 				name="UserProfileScreen"
 				component={UserProfileScreen}
 				options={{
