@@ -308,8 +308,6 @@ function App() {
         dotMenuVisible,     setDotMenuVisible,
         justShowMeSignupVisible, setJustShowMeSignupVisible,
         likesVisible,       setLikesVisible,
-        paused,             setPaused,
-        playPauseVisible,   setPlayPauseVisible,
         tabBarVisible,      setTabBarVisible,
     }
 
