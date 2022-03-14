@@ -79,19 +79,20 @@ export default PopularReelaysRow = ({ navigation, titleObj }) => {
 		`;
 		const [loading, setLoading] = useState(true);
 		const [thumbnailURI, setThumbnailURI] = useState("");
+		const thumbnailImageSource = thumbnailURI.length > 0 ? { uri: thumbnailURI } : SplashImage;
 
-		const loadThumbnail = async (isMounted) => {
+		const loadThumbnail = async () => {
 			try {
 				const source = reelay.content.videoURI;
 				const options = { time: 1000, quality: 0.4 };
 				const { uri } = await VideoThumbnails.getThumbnailAsync(source, options);
-				if (isMounted) {
+				if (componentMounted.current) {
 					setThumbnailURI(uri);
 					setLoading(false);
 				}
 			} catch (error) {
 				console.warn(error);
-				if (isMounted) {
+				if (componentMounted.current) {
 					setThumbnailURI('');
 					setLoading(false);
 				}
@@ -99,10 +100,7 @@ export default PopularReelaysRow = ({ navigation, titleObj }) => {
 		}
 
 		useEffect(() => {
-			// Generate thumnbail async
-			let isMounted = true;
-			loadThumbnail(isMounted);
-			return () => (isMounted = false);
+			loadThumbnail();
 		}, []);
 
 		const GradientContainer = styled(View)`
@@ -122,8 +120,8 @@ export default PopularReelaysRow = ({ navigation, titleObj }) => {
 			position: absolute;
 			bottom: 5%;
 			color: white;
+			font-size: 12px;
 		`;
-
 
 		return (
 			<Pressable
@@ -136,11 +134,7 @@ export default PopularReelaysRow = ({ navigation, titleObj }) => {
 					{loading && <ActivityIndicator />}
 					{!loading && (
 						<>
-							<ThumbnailImage
-								source={
-									thumbnailURI.length > 0 ? { uri: thumbnailURI } : SplashImage
-								}
-							/>
+							<ThumbnailImage source={thumbnailImageSource} />
 							<GradientContainer>
 								<LinearGradient
 									colors={["transparent", "#0B1424"]}

@@ -63,21 +63,13 @@ const TitleInfo = styled(View)`
     padding: 5px;
     font-size: 18px;
 `
-const Title = styled(Text)`
-    color: white;
-    font-family: Outfit-Medium;
-    line-height: 24px;
-    letter-spacing: 0.18px;
-`
 const TitleText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
 `
-
 const YearText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
-    width: 35px;
     margin-bottom: 4px;
 `
 
@@ -213,6 +205,9 @@ const ReelayStack = ({
     const insets = useSafeAreaInsets();
 
     const openTitleDetail = async () => {
+        if (!viewableReelay?.title?.display) {
+            return;
+        }
         navigation.push('TitleDetailScreen', {
             titleObj: viewableReelay.title,
         });
