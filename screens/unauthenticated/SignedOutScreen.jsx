@@ -6,9 +6,8 @@ import * as ReelayText from '../../components/global/Text';
 import styled from "styled-components/native";
 
 import ReelaySplashBackground from "../../assets/images/reelay-splash-background.png";
-import ReelayLogoText from "../../assets/images/reelay-logo-text.png";
+import ReelayLogoText from "../../assets/images/reelay-logo-text-with-dog.png";
 
-import { Auth } from "aws-amplify";
 import { AuthContext } from "../../context/AuthContext";
 import { showErrorToast } from "../../components/utils/toasts";
 
@@ -55,9 +54,8 @@ const ReelayLogoContainer = styled(View)`
 
 export default SignedOutScreen = ({ navigation, route }) => {
     const autoSignInAsGuest = route?.params?.autoSignInAsGuest ?? false;
-    console.log('auto sign up? ', autoSignInAsGuest, route);
     const { setCognitoUser, signUpFromGuest, setSignUpFromGuest } = useContext(AuthContext);
-    const [signingInJustShowMe, setSigningInJustShowMe] = useState(false);
+    const [signingInJustShowMe, setSigningInJustShowMe] = useState(autoSignInAsGuest);
 
     const SignUpButton = () => (
         <ButtonContainer>
@@ -133,7 +131,7 @@ export default SignedOutScreen = ({ navigation, route }) => {
         <Container>
             <ReelayBackground source={ReelaySplashBackground} resizeMode="cover">
                 <ReelayLogoContainer>
-                    <Image source={ReelayLogoText} style={{width: 187, height: 157}} />
+                    <Image source={ReelayLogoText} style={{width: 200, height: 200}} />
                 </ReelayLogoContainer>
                 { signingInJustShowMe && (
                     <LoadingContainer>

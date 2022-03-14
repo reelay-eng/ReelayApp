@@ -8,7 +8,7 @@ const TMDB_IMAGE_API_BASE_URL = Constants.manifest.extra.tmdbImageApiBaseUrl;
 const POPULARITY_WEIGHT = 5;
 const TMDB_SEARCH_RANK_WEIGHT = 10;
 
-const PLACEHOLDER_POSTER_SOURCE = require('../assets/images/reelay-splash.png');
+const PLACEHOLDER_POSTER_SOURCE = require('../assets/images/reelay-splash-with-dog.png');
 
 const matchScoreForTitleSearch = (result) => {
     const titleToSearch = result.title.toLowerCase().replace(/:/g, '');

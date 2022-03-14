@@ -6,7 +6,7 @@ import * as ReelayText from '../global/Text';
 import moment from 'moment';
 import styled from 'styled-components/native';
 
-const ReelayIcon = require('../../assets/icons/reelay-icon.png');
+const ReelayIcon = require('../../assets/icons/reelay-icon-with-dog-black.png');
 
 const CoachMarkContainer = styled(View)`
     background-color: white;

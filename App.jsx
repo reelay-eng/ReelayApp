@@ -50,7 +50,7 @@ import {
 // font imports
 import * as Font from 'expo-font';
 
-const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash.png');
+const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png');
 
 function App() {
     const colorScheme = useColorScheme();

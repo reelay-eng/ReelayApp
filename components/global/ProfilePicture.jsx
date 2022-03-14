@@ -1,7 +1,7 @@
 import React, { useState, memo } from 'react';
 import { ActivityIndicator, Image, Pressable } from 'react-native';
 import Constants from 'expo-constants';
-import ReelayIcon from '../../assets/icons/reelay-icon.png'
+import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 
@@ -24,7 +24,9 @@ export default ProfilePicture = memo(({ border = null, user, navigation, size = 
         <Pressable onPress={() => {
             navigation.push('UserProfileScreen', { creator: user });
         }}>
-            { validProfileImage ? null : (<ProfileImage size={size} source={ReelayIcon}  />) }
+            { validProfileImage ? null : (
+                <ProfileImage border circle size={size} source={ReelayIcon} />) 
+            }
             <ProfileImage
                 border={border}
                 size={size}

@@ -14,7 +14,6 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import moment from 'moment';
 import NotificationSwipeableRow from '../../components/notifications/NotificationSwipeableRow';
 import ProfilePicture from '../../components/global/ProfilePicture';
-import ReelayIcon from '../../assets/icons/reelay-icon.png';
 import * as ReelayText from '../../components/global/Text';
 import { refreshMyNotifications } from '../../api/ReelayUserApi';
 import ReelayColors from '../../constants/ReelayColors';

@@ -132,7 +132,7 @@ export default UserSearchResultItem = ({
 						/>
 					)}
 					{!profilePictureURI && (
-						<ProfilePicture source={require("../../assets/icons/reelay-icon.png")} />
+						<ProfilePicture source={require("../../assets/icons/reelay-icon-with-dog-black.png")} />
 					)}
 				</ProfilePictureContainer>
 				<UsernameContainer>
