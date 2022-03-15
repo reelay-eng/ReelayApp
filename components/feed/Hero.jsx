@@ -11,24 +11,13 @@ import CommentsDrawer from './CommentsDrawer';
 import Reelay3DotDrawer from './Reelay3DotDrawer';
 import JustShowMeSignupDrawer from '../global/JustShowMeSignupDrawer';
 
-const Hero = ({ 
-    index, 
-    isPaused,
-    navigation,
-    reelay,
-    playPause,
-    viewable,
-}) => {
-
+const Hero = ({ index, navigation, reelay, viewable }) => {
     const { likesVisible, commentsVisible, dotMenuVisible, justShowMeSignupVisible } = useContext(FeedContext);
     const commentsCount = useRef(reelay.comments.length);
 
     return (
         <View key={index} style={{ justifyContent: 'flex-end'}}>
-            <FeedVideoPlayer 
-                reelay={reelay} viewable={viewable} 
-                isPaused={isPaused} playPause={playPause} 
-            />
+            <FeedVideoPlayer reelay={reelay} viewable={viewable} />
             <ReelayInfo navigation={navigation} reelay={reelay} />
             <Sidebar navigation={navigation} reelay={reelay} commentsCount={commentsCount}/>
             { viewable && likesVisible && <LikesDrawer reelay={reelay} navigation={navigation} /> }
@@ -40,10 +29,7 @@ const Hero = ({
 }
 
 const areEqual = (prevProps, nextProps) => {
-    return (
-        prevProps.isPaused === nextProps.isPaused &&
-        prevProps.viewable === nextProps.viewable
-    );
+    return (prevProps.viewable === nextProps.viewable);
 }
 
 export default memo(Hero, areEqual);

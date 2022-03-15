@@ -31,9 +31,11 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
     }
 
     const onRefresh = async () => {
+        setRefreshing(true);
         const refreshedWatchlistItems = await refreshMyWatchlist(reelayDBUser?.sub);
         const sortedWatchlistItems = refreshedWatchlistItems.sort(byDateUpdated);
         setMyWatchlistItems(sortedWatchlistItems);
+        setRefreshing(false);
     }
 
     useEffect(() => {
@@ -101,11 +103,9 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
             }
         });
 
-        if (nextItemHasUniqueTitle) {
-            nextItem.recommendations = [];
-        }
-
         const recItem = (nextItemHasUniqueTitle) ? nextItem : prevItemSameTitle;
+        if (!recItem.recommendations) recItem.recommendations = [];
+        
         if (recommendedBySub) {
             try {
                 recItem.recommendations.push({ recommendedBySub, recommendedByUsername, recommendedReelaySub });

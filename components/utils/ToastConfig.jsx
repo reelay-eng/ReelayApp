@@ -9,6 +9,7 @@ export const toastConfig = {
         {...props}
         style={{ borderLeftColor: "pink" }}
         contentContainerStyle={{ paddingHorizontal: 15 }}
+        text1NumberOfLines={3}
         text1Style={{
             fontSize: 15,
             fontWeight: "400",
@@ -36,7 +37,7 @@ export const toastConfig = {
             borderRadius: 10,
             width: 351,
         }}
-        text1NumberOfLines={2}
+        text1NumberOfLines={3}
         text1Style={{
             color: "white",
             fontFamily: "Outfit-Medium",
@@ -61,7 +62,7 @@ export const toastConfig = {
             //     </View>
             // )}
             style={{ borderLeftColor: "transparent", borderRadius: 10, width: 351 }}
-            text1NumberOfLines={1}
+            text1NumberOfLines={3}
             text1Style={{
                 fontFamily: "Outfit-Medium",
                 fontSize: 15,

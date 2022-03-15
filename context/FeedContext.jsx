@@ -6,7 +6,5 @@ export const FeedContext = createContext({
     dotMenueVisible: false,
     justShowMeSignupVisible: false,
     likesVisible: false,
-    paused: false,
-    playPauseVisible: 'none',
     tabBarVisible: true,
 });

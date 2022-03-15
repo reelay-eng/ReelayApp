@@ -10,28 +10,15 @@ import styled from 'styled-components/native';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
-
 import * as ReelayText from '../global/Text';
 
 const { height, width } = Dimensions.get('window');
-const ICON_SIZE = 96;
-const PLAY_PAUSE_ICON_TIMEOUT = 800;
 
 const BackButtonContainer = styled(SafeAreaView)`
     align-self: flex-start;
     margin-left: 16px;
     position: absolute;
     top: 40px;
-`
-const IconContainer = styled(Pressable)`
-    position: absolute;
-    left: ${(width - ICON_SIZE) / 2}px;
-    opacity: 50;
-    top: ${(height - ICON_SIZE) / 2}px;
-    height: ${ICON_SIZE}px;
-    width: ${ICON_SIZE}px;
-    zIndex: 3;
 `
 const ReelayFeedContainer = styled(View)`
     background-color: black;
@@ -63,32 +50,15 @@ const TitleInfo = styled(View)`
     padding: 5px;
     font-size: 18px;
 `
-const Title = styled(Text)`
-    color: white;
-    font-family: Outfit-Medium;
-    line-height: 24px;
-    letter-spacing: 0.18px;
-`
 const TitleText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
 `
-
 const YearText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
-    width: 35px;
     margin-bottom: 4px;
 `
-
-const PlayPauseIcon = ({ onPress, type = 'play' }) => {
-    const ICON_SIZE = 48;
-    return (
-        <IconContainer onPress={onPress}>
-            <Icon type='ionicon' name={type} color={'white'} size={ICON_SIZE} />
-        </IconContainer>
-    );
-}
 
 const ReelayStack = ({ 
     stack,  
@@ -99,10 +69,6 @@ const ReelayStack = ({
 }) => {
     const [stackPosition, setStackPosition] = useState(0);
     const { reelayDBUser } = useContext(AuthContext);
-    const { 
-        paused, setPaused,
-        playPauseVisible, setPlayPauseVisible,
-    } = useContext(FeedContext);
     const viewableReelay = stack[stackPosition];
     
     // figure out how to do ellipses for displayTitle
@@ -114,38 +80,6 @@ const ReelayStack = ({
         offset: width * index, index,
         index: index,
     });
-
-    const playPause = () => {
-        if (paused) {
-            setPaused(false);
-            setPlayPauseVisible('pause');
-            setTimeout(() => {
-                setPlayPauseVisible('none');
-            }, PLAY_PAUSE_ICON_TIMEOUT);    
-
-            logAmplitudeEventProd('playVideo', {
-                creatorName: viewableReelay.creator.username,
-                reelayID: viewableReelay.id,
-                reelayTitle: viewableReelay.title.display,
-                username: reelayDBUser?.username,
-            });
-        } else {
-            setPaused(true);
-            setPlayPauseVisible('play');
-            setTimeout(() => {
-                if (playPauseVisible === 'play') {
-                    setPlayPauseVisible('none');
-                }
-            }, PLAY_PAUSE_ICON_TIMEOUT);   
-
-            logAmplitudeEventProd('pauseVideo', {
-                creatorName: viewableReelay.creator.username,
-                reelayID: viewableReelay.id,
-                reelayTitle: viewableReelay.title.display,
-                username: reelayDBUser?.username,
-            });
-        }
-    }
 
     const renderBackButton = () => {
         return (
@@ -159,22 +93,15 @@ const ReelayStack = ({
     const renderReelay = ({ item, index }) => {
         const reelay = item;
         const reelayViewable = stackViewable && (index === stackPosition);   
-        if (reelayViewable) console.log('Reelay is viewable: ', index);
-        
         return (
             <ReelayFeedContainer key={reelay.id}>
                 <Hero 
+                    index={index} 
                     navigation={navigation} 
                     reelay={reelay} 
                     viewable={reelayViewable}
-                    index={index} 
-                    isPaused={paused}
-                    playPause={playPause} 
-                    stackIndex={index} 
-                    stackPosition={stackPosition}
                 />
                 { isFixedStack && renderBackButton() }
-                { playPauseVisible !== 'none' && <PlayPauseIcon onPress={playPause} type={playPauseVisible} /> }
             </ReelayFeedContainer>
         );
     };
@@ -188,7 +115,6 @@ const ReelayStack = ({
                 return;
             }
 
-            console.log('continued swipe!');
             const swipeDirection = nextStackPosition < stackPosition ? 'left' : 'right';
             const nextReelay = stack[nextStackPosition];
             const prevReelay = stack[stackPosition];
@@ -213,6 +139,9 @@ const ReelayStack = ({
     const insets = useSafeAreaInsets();
 
     const openTitleDetail = async () => {
+        if (!viewableReelay?.title?.display) {
+            return;
+        }
         navigation.push('TitleDetailScreen', {
             titleObj: viewableReelay.title,
         });
@@ -269,7 +198,6 @@ const ReelayStack = ({
 }
 
 const areEqual = (prevProps, nextProps) => {
-    // console.log('are stacks equal? ', prevProps.stack[0].title.display, prevProps.stackViewable, nextProps.stackViewable);
     return prevProps.stackViewable === nextProps.stackViewable;
 }
 

@@ -21,7 +21,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
-const ReelayIcon = require('../../assets/icons/reelay-icon.png');
+const ReelayIcon = require('../../assets/icons/reelay-icon-with-dog-black.png');
 
 const TitleHeader = ({ navigation, readyToSend, reelay, sendRecs, watchlistItem }) => {
     const ImageContainer = styled(View)`
