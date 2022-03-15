@@ -50,11 +50,11 @@ export const RecommendedByLine = ({ navigation, watchlistItem }) => {
     const profilePictures = recommendations.reverse().map(({ 
         recommendedBySub,
         recommendedByUsername,
-    }) => {
+    }, index) => {
         // just a name transformation
         const recUser = { sub: recommendedBySub, username: recommendedByUsername };
         return (
-            <ProfilePictureOverlap key={recommendedBySub}>
+            <ProfilePictureOverlap key={`${recommendedBySub}-${index}`}>
                 <ProfilePicture navigation={navigation} circle={true} user={recUser} size={24} />
             </ProfilePictureOverlap>
         );

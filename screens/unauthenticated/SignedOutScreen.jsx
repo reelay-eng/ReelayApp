@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Image, ImageBackground, View } from "react-native";
 import { Button } from '../../components/global/Buttons';
 import ReelayColors from "../../constants/ReelayColors";
-import * as ReelayText from '../../components/global/Text';
 import styled from "styled-components/native";
 
 import ReelaySplashBackground from "../../assets/images/reelay-splash-background.png";
