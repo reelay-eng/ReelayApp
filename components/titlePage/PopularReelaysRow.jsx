@@ -23,7 +23,7 @@ import * as VideoThumbnails from "expo-video-thumbnails";
 import { AuthContext } from '../../context/AuthContext';
 
 // Media
-import SplashImage from "../../assets/images/reelay-splash.png";
+import SplashImage from "../../assets/images/reelay-splash-with-dog.png";
 
 // Logging
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';

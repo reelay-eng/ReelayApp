@@ -1,20 +1,16 @@
 import React, { useCallback, useContext, useEffect, useState, useRef, memo } from 'react';
-import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View, Platform } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { ActivityIndicator, Dimensions, FlatList, View } from 'react-native';
 import { FeedContext } from '../../context/FeedContext';
 import ReelayStack from './ReelayStack';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
-
-import styled from 'styled-components/native';
-import { ActivityIndicator } from 'react-native-paper';
-
 import { getFeed } from '../../api/ReelayDBApi';
 
-import { showErrorToast, showMessageToast } from '../utils/toasts';
+import styled from 'styled-components/native';
+import { showMessageToast } from '../utils/toasts';
 import { useFocusEffect } from '@react-navigation/core';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 const { height, width } = Dimensions.get('window');
 
 const ReelayFeedContainer = styled(View)`
@@ -145,16 +141,16 @@ const ReelayFeed = ({ navigation,
             'source': feedSource,
         });    
         setRefreshing(true);
-        const fetchedStacks = await getFeed({ feedSource: feedSource, reqUserSub: reelayDBUser?.sub, page: 0 });
-
+        const fetchedStacks = await getFeed({ 
+            feedSource: feedSource, 
+            reqUserSub: reelayDBUser?.sub, 
+            page: 0 
+        });
         nextPage.current = 1;
         setSelectedStackList(fetchedStacks);
         setRefreshing(false);
-        // the user is at the top of the feed
-        // but the message is at the bottom of the screen
         showMessageToast('You\'re at the top', 'top');
     }
-    
 
     const renderStack = ({ item, index }) => {
         const stack = item;

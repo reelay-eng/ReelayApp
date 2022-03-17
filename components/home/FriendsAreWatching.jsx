@@ -56,6 +56,7 @@ const FriendsAreWatching = ({ navigation }) => {
                         { followingStacks.map((stack, index) =>  {
                             return (
                                 <FollowingElement
+                                    key={index}
                                     index={index}
                                     navigation={navigation}
                                     stack={stack}
@@ -104,7 +105,7 @@ const FollowingElement = ({ stack, index, navigation }) => {
         : fullTitle;
 
     return (
-        <FollowingElementContainer key={index}>
+        <FollowingElementContainer>
             <ReelayThumbnail reelay={stack[0]} onPress={onPress} />
             <TitleWithVenueRow>
                 { stack[0]?.content?.venue &&  <VenueIcon venue={stack[0]?.content?.venue} size={14} /> }

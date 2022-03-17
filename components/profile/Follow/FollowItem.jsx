@@ -12,7 +12,7 @@ import { ActionButton, BWButton } from "../../global/Buttons";
 
 import Constants from 'expo-constants';
 import * as ReelayText from "../../global/Text";
-import ReelayIcon from '../../../assets/icons/reelay-icon.png'
+import ReelayIcon from '../../../assets/icons/reelay-icon-with-dog-black.png'
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 

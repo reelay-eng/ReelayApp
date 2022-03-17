@@ -24,7 +24,7 @@ import { UploadContext } from "../../context/UploadContext";
 import styled from "styled-components/native";
 import ReelayColors from "../../constants/ReelayColors";
 
-import ReelayIcon from "../../assets/icons/reelay-icon.png";
+import ReelayIcon from "../../assets/icons/reelay-icon-with-dog-black.png";
 import * as ReelayText from "../global/Text";
 import { HeaderDoneCancel } from '../global/Headers';
 import { logAmplitudeEventProd } from "../utils/EventLogger";

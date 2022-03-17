@@ -1,7 +1,7 @@
 import React from 'react';
 import { Image, Pressable, SafeAreaView } from 'react-native';
 import styled from 'styled-components/native';
-import ReelayIcon from '../../assets/icons/reelay-icon.png';
+import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png';
 
 export default ProfileHeader = ({profilePictureURI = null}) => {
     const ProfileHeaderContainer = styled(SafeAreaView)`

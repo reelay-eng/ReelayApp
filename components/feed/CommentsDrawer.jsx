@@ -19,7 +19,7 @@ import moment from 'moment';
 import Constants from 'expo-constants';
 import { BWButton } from '../global/Buttons';
 import * as ReelayText from '../global/Text';
-import ReelayIcon from '../../assets/icons/reelay-icon.png';
+import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png';
 
 import { 
 	notifyCreatorOnComment,

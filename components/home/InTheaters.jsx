@@ -55,7 +55,7 @@ const InTheaters = memo(({ navigation }) => {
     
     return (
         <InTheatersContainer>
-            <InTheatersHeader>{'In theaters now'}</InTheatersHeader>
+            <InTheatersHeader>{'In theaters'}</InTheatersHeader>
                 { theaterStacks.length > 0 && (
                     <InTheatersElementRowContainer horizontal>
                         { theaterStacks.map((stack, index) => {
