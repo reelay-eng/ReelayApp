@@ -8,7 +8,7 @@ import { getFeed } from '../../api/ReelayDBApi';
 import { LinearGradient } from 'expo-linear-gradient';
 import HomeScreenCardStackImage from '../../assets/images/home/home-screen-cardstack.png';
 import { ActionButton } from '../global/Buttons';
-import { ReelayThumbnail } from '../titlePage/PopularReelaysRow';
+import ReelayThumbnail from '../global/ReelayThumbnail';
 import { VenueIcon } from '../utils/VenueIcon';
 
 const FriendsAreWatching = ({ navigation }) => {

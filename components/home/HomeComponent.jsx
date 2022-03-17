@@ -27,8 +27,8 @@ const HomeComponent = ({ navigation }) => {
             <HomeHeader navigation={navigation} />
             <ScrollContainer>
                 {/* <Announcements /> */}
-                <InTheaters navigation={navigation} />
                 <FriendsAreWatching navigation={navigation} />
+                <InTheaters navigation={navigation} />
                 <OnMyStreamingServices navigation={navigation} />
                 {/* <FilmFestivalsBadge navigation={navigation} /> */} 
                 <Spacer height={80} />
