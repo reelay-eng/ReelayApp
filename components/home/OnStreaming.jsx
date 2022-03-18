@@ -3,12 +3,12 @@ import { View, Text, Pressable } from 'react-native'
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
-import * as ReelayText from '../../components/global/Text';
+import * as ReelayText from '../global/Text';
 import { getFeed } from '../../api/ReelayDBApi';
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { LinearGradient } from 'expo-linear-gradient';
 import { ActivityIndicator } from 'react-native-paper';
-import { getIconVenues } from '../../components/utils/VenueIcon';
+import { getIconVenues } from '../utils/VenueIcon';
 import { postStreamingSubscriptionToDB } from '../../api/ReelayDBApi';
 import { BWButton } from '../global/Buttons';
 
@@ -34,37 +34,23 @@ const StreamingServicesElementRowContainer = styled.ScrollView`
     padding-top: 16px;
     padding-bottom: 10px;
 `
+const VenueSaveButtonContainer = styled.View`
+    margin-top: 10px;
+    width: 88%;
+    height: 40px;
+`
 
-const OnMyStreamingServices = memo(({ navigation }) => {
-
-    const { reelayDBUser } = useContext(AuthContext);
-    const [streamingStacks, setStreamingStacks] = useState([]);
-    const [hasPickedStreamingServicesBefore, setHasPickedStreamingServicesBefore] = useState("loading");
-
-    useEffect(() => {
-        (async () => {
-            let nextStreamingStacks = await getFeed({ 
-                reqUserSub: reelayDBUser?.sub, 
-                feedSource: "streaming", page: 0 
-            });
-            setStreamingStacks(nextStreamingStacks);
-        })();
-    }, [])
-
-    useEffect(() => {
-        (async () => {
-            const value = await AsyncStorage.getItem("hasPickedStreamingServicesBefore");
-            if (value !== null) {
-                setHasPickedStreamingServicesBefore(true);
-            }
-            else setHasPickedStreamingServicesBefore(false);
-        })()
-    }, [])
-
-    console.log(hasPickedStreamingServicesBefore);
+const OnStreaming = ({ navigation }) => {
+    const { 
+        myStacksOnStreaming,
+        myStreamingSubscriptions, 
+        reelayDBUser, 
+        setMyStacksOnStreaming,
+        setMyStreamingSubscriptions,
+    } = useContext(AuthContext);
 
     const goToReelay = (index, titleObj) => {
-		if (streamingStacks.length === 0) return;
+		if (myStacksOnStreaming.length === 0) return;
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'streaming',
@@ -77,67 +63,29 @@ const OnMyStreamingServices = memo(({ navigation }) => {
 		});
 	};
 
-    if (hasPickedStreamingServicesBefore === "loading") return <ActivityIndicator />
-    if (!hasPickedStreamingServicesBefore) return (
+    if (!myStreamingSubscriptions?.length) return (
         <StreamingServiceSelector />
-    )
+    );
+
+    const StreamingRow = () => {
+        return (
+            <StreamingServicesElementRowContainer horizontal>
+            { myStacksOnStreaming.map((stack, index) => {
+                const onPress = () => goToReelay(index, stack[0].title);
+                return <StreamingServicesElement key={index} onPress={onPress} stack={stack}/>;
+            })}
+            </StreamingServicesElementRowContainer>
+        );
+    }
     
     return (
         <StreamingServicesContainer>
-            <StreamingServicesHeader>My Streaming Services</StreamingServicesHeader>
-                { streamingStacks.length > 0 && (
-                    <StreamingServicesElementRowContainer horizontal>
-                        { streamingStacks.map((stack, index) => {
-                            return (
-                                <StreamingServicesElement key={index} onPress={() => goToReelay(index, stack[0].title)} stack={stack}/>
-                            )
-                        })}
-                    </StreamingServicesElementRowContainer>
-                )}
+            <StreamingServicesHeader>{'On my streaming'}</StreamingServicesHeader>
+            { myStacksOnStreaming.length > 0 && <StreamingRow /> }
         </StreamingServicesContainer>
     )
-});
+};
 
-const StreamingServicesElementContainer = styled.Pressable`
-    margin-right: 16px;
-    display: flex;
-    width: 133px;
-`
-
-const StreamingServicesPoster = styled.Image`
-    width: 133px;
-    height: 200px;
-    border-radius: 8px;
-`
-
-const StreamingServicesReleaseYear = styled(ReelayText.CaptionEmphasized)`
-    margin-top: 8px;
-    color: white;
-    opacity: 0.5;
-`
-
-const StreamingServicesTitle = styled(ReelayText.H6)`
-    margin-top: 10px;
-    color: white;
-    opacity: 1;
-`
-
-const StreamingServicesElement = ({ onPress, stack }) => {
-    return (
-        <StreamingServicesElementContainer onPress={onPress}>
-            <StreamingServicesPoster source={ stack[0].title.posterSource } />
-            <StreamingServicesReleaseYear>{stack[0].title.releaseYear}</StreamingServicesReleaseYear>
-            <StreamingServicesTitle>{stack[0].title.display}</StreamingServicesTitle>
-        </StreamingServicesElementContainer>
-    )
-}
-
-const StreamingServiceSelectorDescription = styled(ReelayText.Body2)`
-    color: white;
-    width: 80%;
-    margin-left: 15px;
-    margin-top: 5px;
-`
 const IconOptionsContainer = styled.View`
     align-items: center;
     justify-content: center;
@@ -146,12 +94,6 @@ const IconOptionsContainer = styled.View`
     margin-top: 20px;
     width: 100%;
 `
-const VenueSaveButtonContainer = styled.View`
-    margin-top: 10px;
-    width: 88%;
-    height: 40px;
-`
-
 const IconList = memo(({ onTapVenue }) => {
     const iconVenues = getIconVenues();
     return (
@@ -170,7 +112,6 @@ const IconList = memo(({ onTapVenue }) => {
         </IconOptionsContainer>
     )
 });
-
 
 const IconOptions = () => {
     const { reelayDBUser } = useContext(AuthContext);
@@ -207,9 +148,50 @@ const IconOptions = () => {
     );
 }
 
+const StreamingServicesElementContainer = styled.Pressable`
+    margin-right: 16px;
+    display: flex;
+    width: 120px;
+`
+const StreamingServicesPoster = styled.Image`
+    width: 120px;
+    height: 180px;
+    border-radius: 8px;
+`
+const StreamingServicesReleaseYear = styled(ReelayText.CaptionEmphasized)`
+    margin-top: 8px;
+    color: white;
+    opacity: 0.5;
+`
+const StreamingServicesTitle = styled(ReelayText.H6)`
+    font-size: 18px;
+    margin-top: 10px;
+    color: white;
+    opacity: 1;
+`
+
+const StreamingServicesElement = ({ onPress, stack }) => {
+    return (
+        <StreamingServicesElementContainer onPress={onPress}>
+            <StreamingServicesPoster source={ stack[0].title.posterSource } />
+            <StreamingServicesReleaseYear>{stack[0].title.releaseYear}</StreamingServicesReleaseYear>
+            <StreamingServicesTitle>{stack[0].title.display}</StreamingServicesTitle>
+        </StreamingServicesElementContainer>
+    )
+}
+
+const StreamingServiceSelector = () => {
+    return (
+        <StreamingServicesContainer>
+            <StreamingServicesHeader>{'Where do you stream?'}</StreamingServicesHeader>
+            <IconOptions />
+        </StreamingServicesContainer>
+    )
+}
+
 const VenueBadge = ({ venue, searchVenues, subtext="", onTapVenue }) => {
     const [isPressed, setIsPressed] = useState(false);
-    const source = venue.length ? searchVenues.find((vi) => vi.venue === venue).source : null;
+    const iconSource = venue.length ? searchVenues.find((vi) => vi.venue === venue).source : null;
     const PressableVenue = styled(Pressable)`
         width: 80px;
         height: 93px;
@@ -258,30 +240,20 @@ const VenueBadge = ({ venue, searchVenues, subtext="", onTapVenue }) => {
 
     return (
         <View style={{ margin: 4 }}>
-            {source && (
+            {iconSource && (
                 <PressableVenue onPress={onPress}>
                     { (!isPressed) && <VenueGradient /> }
                     { subtext.length > 0 && (
                         <React.Fragment>
-                            <OtherVenueImage source={source} />
+                            <OtherVenueImage source={iconSource} />
                             <OtherVenueSubtext>{subtext}</OtherVenueSubtext>
                         </React.Fragment>
                     )}
-                    { !(subtext.length > 0) && <PrimaryVenueImage source={source} /> }
+                    { !(subtext.length > 0) && <PrimaryVenueImage source={iconSource} /> }
                 </PressableVenue>
             )}
         </View>
     );
 };
 
-const StreamingServiceSelector = () => {
-
-    return (
-        <StreamingServicesContainer>
-            <StreamingServicesHeader>Where do you stream?</StreamingServicesHeader>
-            <IconOptions />
-        </StreamingServicesContainer>
-    )
-}
-
-export default OnMyStreamingServices;
+export default memo(OnStreaming, )

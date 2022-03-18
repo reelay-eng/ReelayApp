@@ -12,6 +12,11 @@ export const AuthContext = createContext({
     myNotifications: [],
     myWatchlistItems: [],
 
+    myStreamingSubscriptions: [],
+    myStacksFollowing: [],
+    myStacksInTheaters: [],
+    myStacksOnStreaming: [],
+
     followRequests: [],
     reelayDBUser: {},
     reelayDBUserID: null,

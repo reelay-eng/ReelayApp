@@ -1,8 +1,15 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { 
+    getFollowers, 
+    getFollowing, 
+    getRegisteredUser, 
+    getStacksByCreator, 
+    getStreamingSubscriptions, 
+    getUserByEmail 
+} from './ReelayDBApi';
 import { getAllMyNotifications } from './NotificationsApi';
-import { getFollowers, getFollowing, getRegisteredUser, getStacksByCreator, getUserByEmail } from './ReelayDBApi';
 import { getWatchlistItems } from './WatchlistApi';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { fetchResults } from './fetchResults';
 import { v4 } from 'uuid';
@@ -65,7 +72,7 @@ export const loadMyReelayStacks = async (userSub) => {
 }
 
 export const loadMyStreamingSubscriptions = async (userSub) => {
-    return await loadMyData(userSub, 'myStreamingSubscriptions', () => {});
+    return await loadMyData(userSub, 'myStreamingSubscriptions', getStreamingSubscriptions);
 }
 
 export const loadMyUser = async (userSub) => {

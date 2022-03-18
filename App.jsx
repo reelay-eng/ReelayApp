@@ -33,7 +33,7 @@ import { FeedContext } from './context/FeedContext';
 import { UploadContext } from './context/UploadContext';
 
 // api imports
-import { getRegisteredUser, registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
+import { getFeed, getRegisteredUser, registerPushTokenForUser } from './api/ReelayDBApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { toastConfig } from './components/utils/ToastConfig';
 import Toast from "react-native-toast-message";
@@ -43,6 +43,7 @@ import {
     loadMyFollowing, 
     loadMyReelayStacks, 
     loadMyNotifications, 
+    loadMyStreamingSubscriptions,
     loadMyWatchlist, 
     verifySocialAuthToken,
 } from './api/ReelayUserApi';
@@ -67,6 +68,11 @@ function App() {
     const [myNotifications, setMyNotifications] = useState([]);
     const [myWatchlistItems, setMyWatchlistItems] = useState([]);
 
+    const [myStacksFollowing, setMyStacksFollowing] = useState([]);
+    const [myStacksInTheaters, setMyStacksInTheaters] = useState([]);
+    const [myStacksOnStreaming, setMyStacksOnStreaming] = useState([]);
+    const [myStreamingSubscriptions, setMyStreamingSubscriptions] = useState([]);
+
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [reelayDBUserID, setReelayDBUserID] = useState(null);
     const [signedIn, setSignedIn] = useState(false);
@@ -78,8 +84,6 @@ function App() {
     const [dotMenuVisible, setDotMenuVisible] = useState(false);
     const [justShowMeSignupVisible, setJustShowMeSignupVisible] = useState(false);
     const [likesVisible, setLikesVisible] = useState(false);
-    const [paused, setPaused] = useState(false);
-    const [playPauseVisible, setPlayPauseVisible] = useState('none');
     const [tabBarVisible, setTabBarVisible] = useState(true);
 
     // Upload context hooks
@@ -252,12 +256,24 @@ function App() {
         const myNotifications = await loadMyNotifications(userSub);
         const myWatchlistItemsLoaded = await loadMyWatchlist(userSub);
 
+        const reqUserSub = userSub;
+        const myStreamingSubscriptions = await loadMyStreamingSubscriptions(userSub);
+        const myStacksFollowing = await getFeed({ reqUserSub, feedSource: 'following', page: 0 });
+        const myStacksInTheaters = await getFeed({ reqUserSub, feedSource: 'theaters', page: 0 });
+        const myStacksOnStreaming = await getFeed({ reqUserSub, feedSource: 'streaming', page: 0 });
+
         setReelayDBUser(reelayDBUserLoaded);
         setMyFollowers(myFollowersLoaded);
         setMyFollowing(myFollowingLoaded);
         setMyCreatorStacks(myCreatorStacksLoaded);
         setMyNotifications(myNotifications);
         setMyWatchlistItems(myWatchlistItemsLoaded);
+
+        setMyStreamingSubscriptions(myStreamingSubscriptions);
+        setMyStacksFollowing(myStacksFollowing);
+        setMyStacksInTheaters(myStacksInTheaters);
+        setMyStacksOnStreaming(myStacksOnStreaming);
+
         setIsLoading(false);
     }
 
@@ -291,6 +307,11 @@ function App() {
         myFollowing,        setMyFollowing,
         myNotifications,    setMyNotifications,
         myWatchlistItems,   setMyWatchlistItems,
+
+        myStacksFollowing,  setMyStacksFollowing,
+        myStacksInTheaters, setMyStacksInTheaters,
+        myStacksOnStreaming,    setMyStacksOnStreaming,
+        myStreamingSubscriptions, setMyStreamingSubscriptions,
 
         reelayDBUser,       setReelayDBUser,
         reelayDBUserID,     setReelayDBUserID,
