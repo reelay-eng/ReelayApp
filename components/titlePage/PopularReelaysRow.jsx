@@ -97,6 +97,8 @@ const TopReelays = ({ goToReelay, topReelays }) => {
 		color: white;
 	`;
 
+	// TODO: move scroll view into a flatlist
+
 	return (
 		<TopReelaysContainer>
 			<TopReelaysHeader>{`Top Reviews`}</TopReelaysHeader>
