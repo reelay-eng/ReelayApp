@@ -14,6 +14,7 @@ import {
 } from '../../api/ReelayUserApi';
 import { getFeed } from '../../api/ReelayDBApi';
 import { AuthContext } from '../../context/AuthContext';
+import FestivalsPrompt from './FestivalsPrompt';
 
 const HomeContainer = styled(SafeAreaView)`
     width: 100%;
@@ -72,7 +73,7 @@ const HomeComponent = ({ navigation }) => {
                 <FriendsAreWatching navigation={navigation} />
                 <InTheaters navigation={navigation} />
                 <OnStreaming navigation={navigation} onRefresh={onRefresh} />
-                {/* <FilmFestivalsBadge navigation={navigation} /> */} 
+                <FestivalsPrompt navigation={navigation} />
                 <Spacer height={80} />
             </ScrollContainer>
             <BottomBar />
