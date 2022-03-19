@@ -14,6 +14,7 @@ import {
 } from '../../api/ReelayUserApi';
 import { getFeed } from '../../api/ReelayDBApi';
 import { AuthContext } from '../../context/AuthContext';
+import { FeedContext } from '../../context/FeedContext';
 import FestivalsPrompt from './FestivalsPrompt';
 
 const HomeContainer = styled(SafeAreaView)`
@@ -40,6 +41,7 @@ const HomeComponent = ({ navigation }) => {
         setMyStacksInTheaters,
         setMyStacksOnStreaming,
     } = useContext(AuthContext);
+    const { justShowMeSignupVisible } = useContext(FeedContext);
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -77,6 +79,7 @@ const HomeComponent = ({ navigation }) => {
                 <Spacer height={80} />
             </ScrollContainer>
             <BottomBar />
+            { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
         </HomeContainer>
     )
 }

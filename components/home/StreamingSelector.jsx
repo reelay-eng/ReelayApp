@@ -1,6 +1,7 @@
 import React, { memo, useContext, useState, useRef, Fragment } from 'react';
 import { View, Text, Pressable } from 'react-native'
 import { AuthContext } from '../../context/AuthContext';
+import { FeedContext } from '../../context/FeedContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
@@ -74,7 +75,9 @@ const IconOptions = ({ onRefresh }) => {
         align-items: center;
         justify-content: center;
     `
-    const { reelayDBUser, myStreamingSubscriptions, setMyStreamingSubscriptions } = useContext(AuthContext);
+    const { reelayDBUser, myStreamingSubscriptions } = useContext(AuthContext);
+    const { setJustShowMeSignupVisible } = useContext(FeedContext);
+
     const myStreamingPlatforms = myStreamingSubscriptions.map(({ platform }) => platform);
     const selectedVenues = useRef(myStreamingPlatforms);
     const [saveDisabled, setSaveDisabled] = useState(false);
@@ -105,6 +108,10 @@ const IconOptions = ({ onRefresh }) => {
     }
 
     const onSave = async () => {
+        if (reelayDBUser?.username === 'be_our_guest') {
+            setJustShowMeSignupVisible(true);
+            return;
+        }
         await addAndRemoveSubscriptionChanges();
         const nextSubscriptions = await refreshMyStreamingSubscriptions(reelayDBUser?.sub);
         await onRefresh();
