@@ -14,7 +14,6 @@ const FriendsAreWatching = ({ navigation }) => {
         height: auto;
         display: flex;
         flex-direction: column;
-        margin-bottom: 20px;
     `
     const FriendsAreWatchingHeader = styled(ReelayText.H5Bold)`
         color: white;
@@ -29,7 +28,6 @@ const FriendsAreWatching = ({ navigation }) => {
         flex-direction: row;
         width: 100%;
         padding-top: 16px;
-        padding-bottom: 10px;
     `
     const { myFollowing, myStacksFollowing } = useContext(AuthContext);
 
@@ -98,8 +96,8 @@ const FollowingElement = ({ stack, index, navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const onPress = () => goToReelay(index, stack[0].title);
     const fullTitle = stack[0].title.display;
-    const displayTitle = (fullTitle?.length > 13) 
-        ? fullTitle.substring(0, 10) + "..."
+    const displayTitle = (fullTitle?.length > 26) 
+        ? fullTitle.substring(0, 23) + "..."
         : fullTitle;
 
     return (
@@ -111,10 +109,10 @@ const FollowingElement = ({ stack, index, navigation }) => {
                 reelay={stack[0]} 
                 width={120} 
             />
-            <TitleInfoLine>
+            {/* <TitleInfoLine>
                 <TitleYear>{stack[0].title.releaseYear}</TitleYear>
-            </TitleInfoLine>
-            <TitleText>{stack[0]?.title?.display}</TitleText>
+            </TitleInfoLine> */}
+            <TitleText>{displayTitle}</TitleText>
             <TitleVenue>
                 <VenueIcon venue={stack[0]?.content?.venue} size={24} />
             </TitleVenue>

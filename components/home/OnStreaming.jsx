@@ -15,6 +15,11 @@ const EditStreamingServicesButton = styled(Pressable)`
 const EditText = styled(ReelayText.Caption)`
     color: ${ReelayColors.reelayBlue};
 `
+const ReelayCount = styled(ReelayText.CaptionEmphasized)`
+    margin-top: 8px;
+    color: white;
+    opacity: 0.5;
+`
 const ReelayPreviewContainer = styled(Pressable)`
     margin-right: 16px;
     display: flex;
@@ -40,6 +45,10 @@ const StreamingServicesHeader = styled(ReelayText.H5Bold)`
 `
 const StreamingServicesHeaderContainer = styled(View)`
     align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+`
+const TitleInfoLine = styled(View)`
     flex-direction: row;
     justify-content: space-between;
 `
@@ -161,11 +170,19 @@ export default OnStreaming = ({ navigation }) => {
 const StreamingServicesElement = ({ onPress, stack }) => {
     const reelayCount = stack?.length;
     const venue = stack[0]?.content?.venue;
+    const fullTitle = stack[0].title.display;
+    const displayTitle = (fullTitle?.length > 26) 
+        ? fullTitle.substring(0, 23) + "..."
+        : fullTitle;
+
     return (
         <ReelayPreviewContainer onPress={onPress}>
             <TitlePoster source={ stack[0]?.title?.posterSource } />
-            <TitleReleaseYear>{stack[0]?.title?.releaseYear}</TitleReleaseYear>
-            <TitleText>{stack[0]?.title?.display}</TitleText>
+            <TitleInfoLine>
+                <TitleReleaseYear>{stack[0]?.title?.releaseYear}</TitleReleaseYear>
+                <ReelayCount>{`${stack.length} ${(stack.length > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
+            </TitleInfoLine>
+            <TitleText>{displayTitle}</TitleText>
             <TitleVenue>
                 <VenueIcon venue={venue} size={24} />
             </TitleVenue>

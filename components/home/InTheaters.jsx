@@ -70,10 +70,6 @@ const ReelayCount = styled(ReelayText.CaptionEmphasized)`
     color: white;
     opacity: 0.5;
 `
-const TitleInfoLine = styled(View)`
-    flex-direction: row;
-    justify-content: space-between;
-`
 const TitlePoster = styled(Image)`
     width: 120px;
     height: 180px;
@@ -85,20 +81,18 @@ const TitleText = styled(ReelayText.H6Emphasized)`
     color: white;
     opacity: 1;
 `
-const TitleYear = styled(ReelayText.CaptionEmphasized)`
-    margin-top: 8px;
-    color: white;
-    opacity: 0.5;
-`
 
 const InTheatersElement = ({ onPress, stack }) => {
+    const fullTitle = stack[0].title.display;
+    const displayTitle = (fullTitle?.length > 26) 
+        ? fullTitle.substring(0, 23) + "..."
+        : fullTitle;
+
     return (
         <InTheatersElementContainer onPress={onPress}>
             <TitlePoster source={ stack[0].title.posterSource } />
-            <TitleInfoLine>
-                <ReelayCount>{`${stack.length} ${(stack.length > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
-            </TitleInfoLine>
-            <TitleText>{stack[0].title.display}</TitleText>
+            <ReelayCount>{`${stack.length} ${(stack.length > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
+            <TitleText>{displayTitle}</TitleText>
         </InTheatersElementContainer>
     )
 }
