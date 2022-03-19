@@ -11,11 +11,18 @@ import * as ReelayText from "../../components/global/Text";
 import { UploadContext } from '../../context/UploadContext'; 
 import SplashImage from "../../assets/images/reelay-splash-with-dog.png";
 import { generateThumbnail, getThumbnailURI, saveThumbnail } from '../../api/ThumbnailApi';
+import ProfilePicture from './ProfilePicture';
 
 export default ReelayThumbnail = ({ reelay, onPress, height = 200, margin = 6, width = 105 }) => {
-	const GradientContainer = styled(View)`
-		position: absolute;
+	const CreatorLineContainer = styled(View)`
         align-items: center;
+        flex-direction: row;
+        margin-left: 5px;
+        bottom: 0px;
+        position: absolute;
+    `
+    const GradientContainer = styled(View)`
+		position: absolute;
 		border-radius: 8px;
 		width: 100%;
 		height: 65%;
@@ -34,8 +41,6 @@ export default ReelayThumbnail = ({ reelay, onPress, height = 200, margin = 6, w
 	const UsernameText = styled(ReelayText.Subtitle2)`
         font-size: 12px;
 		padding: 5px;
-		position: absolute;
-		bottom: 5%;
 		color: white;
 	`
 	const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
@@ -72,16 +77,27 @@ export default ReelayThumbnail = ({ reelay, onPress, height = 200, margin = 6, w
 							borderRadius: "8px",
 						}}
 					/>
-					<UsernameText>
-						{`@${ username.length > 13
-							? username.substring(0, 10) + "..."
-							: username
-						}`}
-					</UsernameText>
+                    <CreatorLine username={username} />
 				</GradientContainer>
 			</React.Fragment>
 		)
 	}
+
+    const CreatorLine = ({ username}) => {
+        const condensedUsername = (username.length > 10)
+            ? username.substring(0, 10) + "..."
+            : username;
+        
+        
+        return (
+            <CreatorLineContainer>
+                <ProfilePicture user={reelay?.creator} size={24} border  />
+                <UsernameText>
+                    {`@${condensedUsername}`}
+                </UsernameText>
+            </CreatorLineContainer>
+        );
+    }
 
 	return (
 		<Pressable key={reelay.id} onPress={onPress}>

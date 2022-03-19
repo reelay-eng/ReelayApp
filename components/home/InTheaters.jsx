@@ -96,7 +96,6 @@ const InTheatersElement = ({ onPress, stack }) => {
         <InTheatersElementContainer onPress={onPress}>
             <TitlePoster source={ stack[0].title.posterSource } />
             <TitleInfoLine>
-                <TitleYear>{stack[0].title.releaseYear}</TitleYear>
                 <ReelayCount>{`${stack.length} ${(stack.length > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
             </TitleInfoLine>
             <TitleText>{stack[0].title.display}</TitleText>

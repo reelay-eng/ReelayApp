@@ -65,14 +65,16 @@ const IconList = memo(({ onTapVenue }) => {
 });
 
 const IconOptions = () => {
-    const { reelayDBUser } = useContext(AuthContext);
-    const selectedVenues = useRef([]);
+    const { reelayDBUser, myStreamingSubscriptions, setMyStreamingSubscriptions } = useContext(AuthContext);
+    const myStreamingPlatforms = myStreamingSubscriptions.map(({ platform }) => platform);
+    const selectedVenues = useRef(myStreamingPlatforms);
     const [saveDisabled, setSaveDisabled] = useState(true);
 
     const onSave = () => {
         selectedVenues.current.forEach(venue => {
             postStreamingSubscriptionToDB(reelayDBUser?.sub, { platform: venue });
-        })
+        });
+
     }
     const onTapVenue = (venue) => {
         if (selectedVenues.current.includes(venue)) {
