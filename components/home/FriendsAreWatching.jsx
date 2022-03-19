@@ -1,15 +1,12 @@
-import React, { Fragment, memo, useContext, useEffect, useState } from 'react';
-import { View, Text, Pressable } from 'react-native'
+import React, { Fragment, useContext } from 'react';
+import { Image, Pressable, View } from 'react-native'
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
-import { getFeed } from '../../api/ReelayDBApi';
-import { LinearGradient } from 'expo-linear-gradient';
-import HomeScreenCardStackImage from '../../assets/images/home/home-screen-cardstack.png';
-import { ActionButton } from '../global/Buttons';
 import ReelayThumbnail from '../global/ReelayThumbnail';
 import { VenueIcon } from '../utils/VenueIcon';
+import FollowOthersPrompt from './FollowOthersPrompt';
 
 const FriendsAreWatching = ({ navigation }) => {
     const FriendsAreWatchingContainer = styled.View`
@@ -34,26 +31,16 @@ const FriendsAreWatching = ({ navigation }) => {
         padding-top: 16px;
         padding-bottom: 10px;
     `
-    const { reelayDBUser } = useContext(AuthContext);
-    const [followingStacks, setFollowingStacks] = useState([]);
-    const [loadedFollowingStacks, setLoadedFollowingStacks] = useState(false);
-
-    useEffect(() => {
-        (async () => {
-            let nextFollowingStacks = await getFeed({ reqUserSub: reelayDBUser?.sub, feedSource: "following", page: 0 });
-            setFollowingStacks(nextFollowingStacks);
-            setLoadedFollowingStacks(true);
-        })();
-    }, []);
+    const { myFollowing, myStacksFollowing } = useContext(AuthContext);
 
     return (
         <FriendsAreWatchingContainer>
-            {followingStacks.length === 0 && loadedFollowingStacks && <YouDontFollowAnyUsers navigation={navigation} />}
-            {followingStacks.length > 0 && (
+            { myFollowing.length === 0 && <FollowOthersPrompt navigation={navigation} />}
+            { myStacksFollowing.length > 0 && (
                 <Fragment>
                     <FriendsAreWatchingHeader>{'Friends are watching'}</FriendsAreWatchingHeader>
                     <FollowingRowContainer horizontal>
-                        { followingStacks.map((stack, index) =>  {
+                        { myStacksFollowing.map((stack, index) =>  {
                             return (
                                 <FollowingElement
                                     key={index}
@@ -69,22 +56,33 @@ const FriendsAreWatching = ({ navigation }) => {
     )
 }
 
+const FollowingElementContainer = styled(Pressable)`
+    display: flex;
+    width: 120px;
+    margin-right: 12px;
+`
+const TitleInfoLine = styled(View)`
+    flex-direction: row;
+    justify-content: space-between;
+`
+const TitleText = styled(ReelayText.H6Emphasized)`
+    font-size: 16px;
+    margin-top: 10px;
+    color: white;
+    opacity: 1;
+`
+const TitleVenue = styled(View)`
+    position: absolute;
+    top: 4px;
+    right: 4px;
+`
+const TitleYear = styled(ReelayText.CaptionEmphasized)`
+    margin-top: 8px;
+    color: white;
+    opacity: 0.5;
+`
+
 const FollowingElement = ({ stack, index, navigation }) => {
-    const TitleText = styled(ReelayText.Caption)`
-        color: white;
-        font-size: 12px;
-        margin-left: 6px;
-        text-align: center;
-    `
-    const TitleWithVenueRow = styled(View)`
-        flex-direction: row;
-        justify-content: center;
-        width: 100%;
-    `
-    const FollowingElementContainer = styled(Pressable)`
-        display: flex;
-        width: 120px;
-    `
     const goToReelay = (index, titleObj) => {
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
@@ -106,100 +104,21 @@ const FollowingElement = ({ stack, index, navigation }) => {
 
     return (
         <FollowingElementContainer>
-            <ReelayThumbnail reelay={stack[0]} onPress={onPress} />
-            <TitleWithVenueRow>
-                { stack[0]?.content?.venue &&  <VenueIcon venue={stack[0]?.content?.venue} size={14} /> }
-                <TitleText>{displayTitle}</TitleText>
-            </TitleWithVenueRow>
+            <ReelayThumbnail 
+                height={180} 
+                margin={0}
+                onPress={onPress} 
+                reelay={stack[0]} 
+                width={120} 
+            />
+            <TitleInfoLine>
+                <TitleYear>{stack[0].title.releaseYear}</TitleYear>
+            </TitleInfoLine>
+            <TitleText>{stack[0]?.title?.display}</TitleText>
+            <TitleVenue>
+                <VenueIcon venue={stack[0]?.content?.venue} size={24} />
+            </TitleVenue>
         </FollowingElementContainer>
-    )
-}
-
-const YouDontFollowContainer = styled.View`
-    width: 100%;
-    height: auto;
-    margin-top: 4px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-`
-const YouDontFollowPosters= styled.Image`
-    width: 162px;
-    height: 156px;
-    margin-bottom: -105px;
-    margin-left: 15px;
-    z-index: 2;
-`
-const YouDontFollowGradientContainer = styled.View`
-    width: 90%;
-    height: 273px;
-    border-radius: 11px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-`
-const YouDontFollowGradientContentBox = styled.View`
-    width: 100%;
-    display: flex;
-    align-items: center;
-    margin-top: auto;
-`
-const YouDontFollowHeadline = styled(ReelayText.H5Bold)`
-    color: white;
-    text-align: center;
-    margin-bottom: 5px;
-`
-const YouDontFollowBody = styled(ReelayText.Body1)`
-    color: white;
-    text-align: center;
-    margin-bottom: 30px;
-`
-const YouDontFollowButtonBox = styled.View`
-    width: 95%;
-    height: 40px;
-    margin-bottom: 15px;
-`
-
-const YouDontFollowAnyUsers = ({ navigation }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-    const goToReelayFeed = () => {
-        navigation.push("FeedScreen", {
-            initialRouteName: 'global',
-            initialFeedPos: 0,
-            isOnFeedTab: false,
-        })
-        logAmplitudeEventProd('openGlobalFeedFromHomeScreenPrompt', {
-			username: reelayDBUser?.username
-		});
-    }
-    return (
-        <YouDontFollowContainer>
-            <YouDontFollowPosters source={HomeScreenCardStackImage}/>
-            <YouDontFollowGradientContainer>
-                <LinearGradient
-                    colors={["#272525", "#19242E"]}
-                    style={{
-                        flex: 1,
-                        opacity: 1,
-                        position: "absolute",
-                        width: "100%",
-                        height: "100%",
-                        borderRadius: `11px`,
-                    }}
-                /> 
-                <YouDontFollowGradientContentBox>
-                    <YouDontFollowHeadline>Find your crowd.</YouDontFollowHeadline>
-                    <YouDontFollowBody>Explore the global feed and find other reelayers to follow.</YouDontFollowBody>
-                    <YouDontFollowButtonBox>
-                        <ActionButton
-                            text="Reelay Feed"
-                            onPress={goToReelayFeed}
-                        />
-                    </YouDontFollowButtonBox>
-                </YouDontFollowGradientContentBox>
-            </YouDontFollowGradientContainer>
-        </YouDontFollowContainer>
     )
 }
 

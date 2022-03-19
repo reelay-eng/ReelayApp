@@ -1,5 +1,5 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
-import { View, Text, Pressable } from 'react-native'
+import { View, Text, Pressable, RefreshControl } from 'react-native'
 import styled from 'styled-components';
 
 import HomeHeader from './HomeHeader';
@@ -22,10 +22,20 @@ const Spacer = styled.View`
 `
 
 const HomeComponent = ({ navigation }) => {
+
+    const [refreshing, setRefreshing] = useState(false);
+    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        // todo
+        setTimeout(() => setRefreshing(false), 2000);
+    }
+
     return (
         <HomeContainer>
             <HomeHeader navigation={navigation} />
-            <ScrollContainer>
+            <ScrollContainer refreshControl={refreshControl}>
                 {/* <Announcements /> */}
                 <FriendsAreWatching navigation={navigation} />
                 <InTheaters navigation={navigation} />
@@ -33,6 +43,7 @@ const HomeComponent = ({ navigation }) => {
                 {/* <FilmFestivalsBadge navigation={navigation} /> */} 
                 <Spacer height={80} />
             </ScrollContainer>
+            <BottomBar />
         </HomeContainer>
     )
 }
@@ -40,6 +51,14 @@ const HomeComponent = ({ navigation }) => {
 const Announcements = ({ navigation }) => {
  // fill once we start using
 }
+
+const BottomBar = styled(View)`
+    background-color: black;
+    height: 100px;
+    width: 100%;
+    position: absolute;
+    bottom: 0px;
+`
 
 const FilmFestivalsBadge = ({ navigation }) => {
 

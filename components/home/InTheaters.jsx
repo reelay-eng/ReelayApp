@@ -1,10 +1,9 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
-import { View, Text, Pressable } from 'react-native'
+import { Image, Pressable, View } from 'react-native'
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../../components/global/Text';
-import { getFeed } from '../../api/ReelayDBApi';
 
 const InTheatersContainer = styled.View`
     width: 100%;
@@ -29,18 +28,10 @@ const InTheatersElementRowContainer = styled.ScrollView`
 
 const InTheaters = memo(({ navigation }) => {
 
-    const { reelayDBUser } = useContext(AuthContext);
-    const [theaterStacks, setTheaterStacks] = useState([]);
-
-    useEffect(() => {
-        (async () => {
-            let nextTheaterStacks = await getFeed({ reqUserSub: reelayDBUser?.sub, feedSource: "theaters", page: 0 });
-            setTheaterStacks(nextTheaterStacks);
-        })();
-    }, [])
+    const { reelayDBUser, myStacksInTheaters } = useContext(AuthContext);
 
     const goToReelay = (index, titleObj) => {
-		if (theaterStacks.length === 0) return;
+		if (myStacksInTheaters.length === 0) return;
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'theaters',
@@ -56,9 +47,9 @@ const InTheaters = memo(({ navigation }) => {
     return (
         <InTheatersContainer>
             <InTheatersHeader>{'In theaters'}</InTheatersHeader>
-                { theaterStacks.length > 0 && (
+                { myStacksInTheaters.length > 0 && (
                     <InTheatersElementRowContainer horizontal>
-                        { theaterStacks.map((stack, index) => {
+                        { myStacksInTheaters.map((stack, index) => {
                             return (
                                 <InTheatersElement key={index} onPress={() => goToReelay(index, stack[0].title)} stack={stack}/>
                             )
@@ -69,36 +60,46 @@ const InTheaters = memo(({ navigation }) => {
     )
 });
 
-const InTheatersElementContainer = styled.Pressable`
+const InTheatersElementContainer = styled(Pressable)`
     margin-right: 16px;
     display: flex;
-    width: 133px;
+    width: 120px;
 `
-
-const InTheatersPoster = styled.Image`
-    width: 133px;
-    height: 200px;
+const ReelayCount = styled(ReelayText.CaptionEmphasized)`
+    margin-top: 8px;
+    color: white;
+    opacity: 0.5;
+`
+const TitleInfoLine = styled(View)`
+    flex-direction: row;
+    justify-content: space-between;
+`
+const TitlePoster = styled(Image)`
+    width: 120px;
+    height: 180px;
     border-radius: 8px;
 `
-
-const InTheatersReleaseYear = styled(ReelayText.CaptionEmphasized)`
+const TitleText = styled(ReelayText.H6Emphasized)`
+    font-size: 16px;
+    margin-top: 10px;
+    color: white;
+    opacity: 1;
+`
+const TitleYear = styled(ReelayText.CaptionEmphasized)`
     margin-top: 8px;
     color: white;
     opacity: 0.5;
 `
 
-const InTheatersTitle = styled(ReelayText.H6Emphasized)`
-    margin-top: 10px;
-    color: white;
-    opacity: 1;
-`
-
 const InTheatersElement = ({ onPress, stack }) => {
     return (
         <InTheatersElementContainer onPress={onPress}>
-            <InTheatersPoster source={ stack[0].title.posterSource } />
-            <InTheatersReleaseYear>{stack[0].title.releaseYear}</InTheatersReleaseYear>
-            <InTheatersTitle>{stack[0].title.display}</InTheatersTitle>
+            <TitlePoster source={ stack[0].title.posterSource } />
+            <TitleInfoLine>
+                <TitleYear>{stack[0].title.releaseYear}</TitleYear>
+                <ReelayCount>{`${stack.length} ${(stack.length > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
+            </TitleInfoLine>
+            <TitleText>{stack[0].title.display}</TitleText>
         </InTheatersElementContainer>
     )
 }

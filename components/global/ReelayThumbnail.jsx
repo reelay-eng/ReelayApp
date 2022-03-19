@@ -12,31 +12,27 @@ import { UploadContext } from '../../context/UploadContext';
 import SplashImage from "../../assets/images/reelay-splash-with-dog.png";
 import { generateThumbnail, getThumbnailURI, saveThumbnail } from '../../api/ThumbnailApi';
 
-export default ReelayThumbnail = ({ reelay, onPress }) => {
+export default ReelayThumbnail = ({ reelay, onPress, height = 200, margin = 6, width = 105 }) => {
 	const GradientContainer = styled(View)`
 		position: absolute;
+        align-items: center;
+		border-radius: 8px;
 		width: 100%;
 		height: 65%;
 		top: 35%;
-		bottom: 0;
-		left: 0;
-		right: 0;
 		justify-content: center;
-		align-items: center;
-		border-radius: 8px;
 	`
 	const ThumbnailContainer = styled(View)`
 		justify-content: center;
-		margin: 6px;
-		height: 202px;
-		width: 107px;
+		margin: ${margin}px;
 	`
 	const ThumbnailImage = styled(Image)`
 		border-radius: 8px;
-		height: 200px;
-		width: 105px;
+		height: ${height}px;
+		width: ${width}px;
 	`
 	const UsernameText = styled(ReelayText.Subtitle2)`
+        font-size: 12px;
 		padding: 5px;
 		position: absolute;
 		bottom: 5%;

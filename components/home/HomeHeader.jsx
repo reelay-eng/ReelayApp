@@ -1,11 +1,13 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import * as ReelayText from "../global/Text";
-import { View } from 'react-native';
+import { Image, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 
-const HomeHeader = ({ text = "reelay", navigation }) => {
+import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png';
+
+const HomeHeader = ({ navigation }) => {
     const { reelayDBUser, myNotifications } = useContext(AuthContext);
     const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
@@ -41,7 +43,7 @@ const HomeHeader = ({ text = "reelay", navigation }) => {
 	return (
 		<React.Fragment>
 			<HeaderContainer>
-				<HeaderText>{text}</HeaderText>
+                <HeaderText>{'reelay'}</HeaderText>
                 <IconsContainer>
                     <IconContainer>
                         <Icon type='ionicon' size={27} color={'white'} name='search' onPress={() => {
