@@ -6,8 +6,10 @@ import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getIconVenues } from '../utils/VenueIcon';
-import { postStreamingSubscriptionToDB } from '../../api/ReelayDBApi';
 import { BWButton } from '../global/Buttons';
+
+import { postStreamingSubscriptionToDB, removeStreamingSubscription } from '../../api/ReelayDBApi';
+import { refreshMyStreamingSubscriptions } from '../../api/ReelayUserApi';
 
 const StreamingServicesContainer = styled.View`
     width: 100%;
@@ -45,15 +47,18 @@ const IconOptionsContainer = styled.View`
     margin-top: 20px;
     width: 100%;
 `
-const IconList = memo(({ onTapVenue }) => {
+const IconList = memo(({ onTapVenue, initSelectedVenues }) => {
     const iconVenues = getIconVenues();
     return (
         <IconOptionsContainer>
             {iconVenues.map((venueObj) => {
                 const venue = venueObj.venue;
+                const matchVenue = (selectedVenue) => (venue === selectedVenue);
+                const initSelected = !!initSelectedVenues.find(matchVenue);
                 return (
                     <VenueBadge 
                         key={venue}
+                        initSelected={initSelected}
                         onTapVenue={onTapVenue}
                         searchVenues={iconVenues} 
                         venue={venue} 
@@ -65,43 +70,77 @@ const IconList = memo(({ onTapVenue }) => {
 });
 
 const IconOptions = () => {
+    const IconOptionsContainer = styled(View)`
+        align-items: center;
+        justify-content: center;
+    `
     const { reelayDBUser, myStreamingSubscriptions, setMyStreamingSubscriptions } = useContext(AuthContext);
     const myStreamingPlatforms = myStreamingSubscriptions.map(({ platform }) => platform);
     const selectedVenues = useRef(myStreamingPlatforms);
-    const [saveDisabled, setSaveDisabled] = useState(true);
+    const [saveDisabled, setSaveDisabled] = useState(false);
 
-    const onSave = () => {
-        selectedVenues.current.forEach(venue => {
-            postStreamingSubscriptionToDB(reelayDBUser?.sub, { platform: venue });
-        });
+    const addAndRemoveSubscriptionChanges = async () => {
+        // compare to find new subscriptions to post
+        const postIfNewSubscription = async (selectedVenue) => {
+            console.log('selected venue: ', selectedVenue);
+            const matchToSelectedVenue = (platform) => (platform === selectedVenue);
+            if (!myStreamingPlatforms.find(matchToSelectedVenue)) {
+                // adding a new subscription
+                console.log('adding new subscription: ', selectedVenue);
+                await postStreamingSubscriptionToDB(reelayDBUser?.sub, { platform: selectedVenue });
+                return true;
+            } else return false;
+        }
 
+        // compare to find old subscriptions to remove
+        const removeIfOldSubscription = async (subscribedPlatform) => {
+            console.log('subscribed platform: ', subscribedPlatform);
+            const matchToSubscribedPlatform = (venue) => (venue === subscribedPlatform);
+            if (!selectedVenues.current.find(matchToSubscribedPlatform)) {
+                // remove unselected platform from subscriptions
+                console.log('removing subscription: ', subscribedPlatform);
+                await removeStreamingSubscription(reelayDBUser?.sub, { platform: subscribedPlatform });
+                return true;
+            } else return false;
+        }
+
+        await Promise.all(selectedVenues.current.map(postIfNewSubscription));
+        await Promise.all(myStreamingPlatforms.map(removeIfOldSubscription));
     }
+
+    const onSave = async () => {
+        await addAndRemoveSubscriptionChanges();
+        const nextSubscriptions = await refreshMyStreamingSubscriptions(reelayDBUser?.sub);
+        console.log('saving subscriptions: ', nextSubscriptions);
+        if (nextSubscriptions && !nextSubscriptions?.error) {
+            setMyStreamingSubscriptions(nextSubscriptions);
+        }
+    }
+
     const onTapVenue = (venue) => {
         if (selectedVenues.current.includes(venue)) {
+            // remove from list
+            console.log('removing from list: ', venue);
             selectedVenues.current = selectedVenues.current.filter(v => v !== venue);
-            if (selectedVenues.current.length === 0 && !saveDisabled) setSaveDisabled(true);  
-        }
-        else {
+        } else {
+            // add to list
+            console.log('adding to list: ', venue);
             selectedVenues.current = [...selectedVenues.current, venue];
-            if (saveDisabled) setSaveDisabled(false);
         }
     }
+
     return (
-        <View style={{ justifyContent: 'center', alignItems: 'center'}}>
-            <IconList onTapVenue={onTapVenue} />
+        <IconOptionsContainer>
+            <IconList initSelectedVenues={myStreamingPlatforms} onTapVenue={onTapVenue} />
             <VenueSaveButtonContainer>
-                <BWButton 
-                    disabled={saveDisabled} 
-                    text="Save"
-                    onPress={onSave}
-                />
+                <BWButton disabled={saveDisabled} text="Save" onPress={onSave} />
             </VenueSaveButtonContainer>
-        </View>
+        </IconOptionsContainer>
     );
 }
 
-const VenueBadge = ({ venue, searchVenues, subtext="", onTapVenue }) => {
-    const [isPressed, setIsPressed] = useState(false);
+const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
+    const [selected, setSelected] = useState(initSelected);
     const iconSource = venue.length ? searchVenues.find((vi) => vi.venue === venue).source : null;
     if (!iconSource) return <Fragment />;
 
@@ -134,8 +173,8 @@ const VenueBadge = ({ venue, searchVenues, subtext="", onTapVenue }) => {
     `
 
     const onPress = () => {
-        onTapVenue(venue, !isPressed); 
-        setIsPressed(!isPressed);
+        onTapVenue(venue, !selected); 
+        setSelected(!selected);
     };
 
     const VenueGradient = () => (
@@ -153,15 +192,9 @@ const VenueBadge = ({ venue, searchVenues, subtext="", onTapVenue }) => {
     );
 
     return (
-        <PressableVenue onPress={onPress}>
-            { (!isPressed) && <VenueGradient /> }
-            { subtext.length > 0 && (
-                <React.Fragment>
-                    <OtherVenueImage source={iconSource} />
-                    <OtherVenueSubtext>{subtext}</OtherVenueSubtext>
-                </React.Fragment>
-            )}
-            { !(subtext.length > 0) && <PrimaryVenueImage source={iconSource} /> }
+        <PressableVenue onPress={onPress} selected={selected}>
+            { (!selected) && <VenueGradient /> }
+            <PrimaryVenueImage source={iconSource} />
         </PressableVenue>
     );
 };

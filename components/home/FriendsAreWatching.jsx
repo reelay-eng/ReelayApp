@@ -109,9 +109,6 @@ const FollowingElement = ({ stack, index, navigation }) => {
                 reelay={stack[0]} 
                 width={120} 
             />
-            {/* <TitleInfoLine>
-                <TitleYear>{stack[0].title.releaseYear}</TitleYear>
-            </TitleInfoLine> */}
             <TitleText>{displayTitle}</TitleText>
             <TitleVenue>
                 <VenueIcon venue={stack[0]?.content?.venue} size={24} />

@@ -125,7 +125,7 @@ export const refreshMyReelayStacks = async (userSub) => {
 }
 
 export const refreshMyStreamingSubscriptions = async (userSub) => {
-    return await refreshMyData(userSub, 'myStreamingSubscriptions', () => {});
+    return await refreshMyData(userSub, 'myStreamingSubscriptions', getStreamingSubscriptions);
 }
 
 export const refreshMyUser = async (userSub) => {

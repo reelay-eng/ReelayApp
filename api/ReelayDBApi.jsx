@@ -359,8 +359,8 @@ export const postLikeToDB = async (likeBody, reelaySub) => {
     return resultPost;
 }
 
-export const postStreamingSubscriptionToDB = async (userID, streamingSubscriptionBody) => {
-    const routePost = `${REELAY_API_BASE_URL}/streamingSubscriptions/${userID}`;
+export const postStreamingSubscriptionToDB = async (userSub, streamingSubscriptionBody) => {
+    const routePost = `${REELAY_API_BASE_URL}/streamingSubscriptions/${userSub}`;
     const resultPost = await fetchResults(routePost, {
         method: 'POST',
         body: JSON.stringify(streamingSubscriptionBody),
@@ -447,7 +447,6 @@ export const registerPushTokenForUser = async (userSub, pushToken) => {
 // todo: make a remove comment function
 
 export const removeLike = async (like) => {
-
     const removeBody = {
         username: like.username,
         reelaySub: like.reelaySub,
@@ -467,6 +466,16 @@ export const removeReelay = async (reelay) => {
     const resultRemove = await fetchResults(routeRemove, {
         method: 'DELETE',
         headers: REELAY_API_HEADERS,
+    });
+    return resultRemove;
+}
+
+export const removeStreamingSubscription = async (userSub, removeSubscriptionBody) => {
+    const routeRemove = `${REELAY_API_BASE_URL}/streamingSubscriptions/${userSub}`;
+    const resultRemove = await fetchResults(routeRemove, {
+        method: 'DELETE',
+        headers: REELAY_API_HEADERS,
+        body: JSON.stringify(removeSubscriptionBody),
     });
     return resultRemove;
 }
