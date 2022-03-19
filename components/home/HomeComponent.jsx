@@ -1,5 +1,5 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
-import { View, Text, Pressable, RefreshControl } from 'react-native'
+import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native'
 import styled from 'styled-components';
 
 import HomeHeader from './HomeHeader';
@@ -7,13 +7,21 @@ import InTheaters from './InTheaters';
 import FriendsAreWatching from './FriendsAreWatching';
 import OnStreaming from './OnStreaming';
 
-const HomeContainer = styled.SafeAreaView`
+import { 
+    loadMyFollowing,
+    loadMyNotifications,
+    loadMyStreamingSubscriptions,
+} from '../../api/ReelayUserApi';
+import { getFeed } from '../../api/ReelayDBApi';
+import { AuthContext } from '../../context/AuthContext';
+
+const HomeContainer = styled(SafeAreaView)`
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
 `
-const ScrollContainer = styled.ScrollView`
+const ScrollContainer = styled(ScrollView)`
     width: 100%;
     height: auto;
 `
@@ -22,15 +30,39 @@ const Spacer = styled.View`
 `
 
 const HomeComponent = ({ navigation }) => {
-
-    const [refreshing, setRefreshing] = useState(false);
-    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+    const {
+        reelayDBUserID,
+        setMyFollowing,
+        setMyNotifications,
+        setMyStreamingSubscriptions,
+        setMyStacksFollowing,
+        setMyStacksInTheaters,
+        setMyStacksOnStreaming,
+    } = useContext(AuthContext);
 
     const onRefresh = async () => {
         setRefreshing(true);
-        // todo
-        setTimeout(() => setRefreshing(false), 2000);
+        const myFollowingLoaded = await loadMyFollowing(reelayDBUserID);
+        const myNotifications = await loadMyNotifications(reelayDBUserID);
+        const myStreamingSubscriptions = await loadMyStreamingSubscriptions(reelayDBUserID);
+
+        const reqUserSub = reelayDBUserID;
+        const myStacksFollowing = await getFeed({ reqUserSub, feedSource: 'following', page: 0 });
+        const myStacksInTheaters = await getFeed({ reqUserSub, feedSource: 'theaters', page: 0 });
+        const myStacksOnStreaming = await getFeed({ reqUserSub, feedSource: 'streaming', page: 0 });
+
+        setMyFollowing(myFollowingLoaded);
+        setMyNotifications(myNotifications);
+        setMyStreamingSubscriptions(myStreamingSubscriptions);
+        setMyStacksFollowing(myStacksFollowing);
+        setMyStacksInTheaters(myStacksInTheaters);
+        setMyStacksOnStreaming(myStacksOnStreaming);
+
+        setRefreshing(false);
     }
+
+    const [refreshing, setRefreshing] = useState(false);
+    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
     return (
         <HomeContainer>
@@ -39,7 +71,7 @@ const HomeComponent = ({ navigation }) => {
                 {/* <Announcements /> */}
                 <FriendsAreWatching navigation={navigation} />
                 <InTheaters navigation={navigation} />
-                <OnStreaming navigation={navigation} />
+                <OnStreaming navigation={navigation} onRefresh={onRefresh} />
                 {/* <FilmFestivalsBadge navigation={navigation} /> */} 
                 <Spacer height={80} />
             </ScrollContainer>

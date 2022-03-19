@@ -87,7 +87,7 @@ const DrawerContainer = styled(View)`
     width: 100%;
 `
 
-export default OnStreaming = ({ navigation }) => {
+export default OnStreaming = ({ navigation, onRefresh }) => {
     const { 
         myStacksOnStreaming,
         myStreamingSubscriptions, 
@@ -110,12 +110,11 @@ export default OnStreaming = ({ navigation }) => {
 	};
 
     if (!myStreamingSubscriptions?.length) return (
-        <StreamingSelector />
+        <StreamingSelector onRefresh={onRefresh} />
     );
 
     const EditButton = () => {
         const [editDrawerVisible, setEditDrawerVisible] = useState(false);
-
         const openDrawer = () => setEditDrawerVisible(true);
 
         return (
@@ -139,7 +138,7 @@ export default OnStreaming = ({ navigation }) => {
             <Modal animationType="slide" transparent={true} visible={editDrawerVisible}>
                 <Backdrop onPress={closeDrawer} />
                 <DrawerContainer>
-                    <StreamingSelector setEditDrawerVisible />
+                    <StreamingSelector onRefresh={onRefresh} setEditDrawerVisible={setEditDrawerVisible} />
                 </DrawerContainer>
             </Modal>
         );

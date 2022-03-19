@@ -207,8 +207,8 @@ function App() {
             else {
                 setIsReturningUser(false);
             }
-		} catch (e) {
-			console.log(e)
+		} catch (error) {
+			console.log(error)
 		}
     }
 

@@ -30,11 +30,11 @@ const VenueSaveButtonContainer = styled.View`
     height: 40px;
 `
 
-export default StreamingSelector = () => {
+export default StreamingSelector = ({ onRefresh, setEditDrawerVisible }) => {
     return (
         <StreamingServicesContainer>
             <StreamingServicesHeader>{'Where do you stream?'}</StreamingServicesHeader>
-            <IconOptions />
+            <IconOptions onRefresh={onRefresh} />
         </StreamingServicesContainer>
     )
 }
@@ -69,7 +69,7 @@ const IconList = memo(({ onTapVenue, initSelectedVenues }) => {
     )
 });
 
-const IconOptions = () => {
+const IconOptions = ({ onRefresh }) => {
     const IconOptionsContainer = styled(View)`
         align-items: center;
         justify-content: center;
@@ -82,11 +82,9 @@ const IconOptions = () => {
     const addAndRemoveSubscriptionChanges = async () => {
         // compare to find new subscriptions to post
         const postIfNewSubscription = async (selectedVenue) => {
-            console.log('selected venue: ', selectedVenue);
             const matchToSelectedVenue = (platform) => (platform === selectedVenue);
             if (!myStreamingPlatforms.find(matchToSelectedVenue)) {
                 // adding a new subscription
-                console.log('adding new subscription: ', selectedVenue);
                 await postStreamingSubscriptionToDB(reelayDBUser?.sub, { platform: selectedVenue });
                 return true;
             } else return false;
@@ -94,11 +92,9 @@ const IconOptions = () => {
 
         // compare to find old subscriptions to remove
         const removeIfOldSubscription = async (subscribedPlatform) => {
-            console.log('subscribed platform: ', subscribedPlatform);
             const matchToSubscribedPlatform = (venue) => (venue === subscribedPlatform);
             if (!selectedVenues.current.find(matchToSubscribedPlatform)) {
                 // remove unselected platform from subscriptions
-                console.log('removing subscription: ', subscribedPlatform);
                 await removeStreamingSubscription(reelayDBUser?.sub, { platform: subscribedPlatform });
                 return true;
             } else return false;
@@ -111,20 +107,15 @@ const IconOptions = () => {
     const onSave = async () => {
         await addAndRemoveSubscriptionChanges();
         const nextSubscriptions = await refreshMyStreamingSubscriptions(reelayDBUser?.sub);
-        console.log('saving subscriptions: ', nextSubscriptions);
-        if (nextSubscriptions && !nextSubscriptions?.error) {
-            setMyStreamingSubscriptions(nextSubscriptions);
-        }
+        await onRefresh();
     }
 
     const onTapVenue = (venue) => {
         if (selectedVenues.current.includes(venue)) {
             // remove from list
-            console.log('removing from list: ', venue);
             selectedVenues.current = selectedVenues.current.filter(v => v !== venue);
         } else {
             // add to list
-            console.log('adding to list: ', venue);
             selectedVenues.current = [...selectedVenues.current, venue];
         }
     }
