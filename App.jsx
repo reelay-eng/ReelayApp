@@ -71,6 +71,7 @@ function App() {
     const [myStacksFollowing, setMyStacksFollowing] = useState([]);
     const [myStacksInTheaters, setMyStacksInTheaters] = useState([]);
     const [myStacksOnStreaming, setMyStacksOnStreaming] = useState([]);
+    const [myStacksAtFestivals, setMyStacksAtFestivals] = useState([]);
     const [myStreamingSubscriptions, setMyStreamingSubscriptions] = useState([]);
 
     const [reelayDBUser, setReelayDBUser] = useState({});
@@ -261,6 +262,7 @@ function App() {
         const myStacksFollowing = await getFeed({ reqUserSub, feedSource: 'following', page: 0 });
         const myStacksInTheaters = await getFeed({ reqUserSub, feedSource: 'theaters', page: 0 });
         const myStacksOnStreaming = await getFeed({ reqUserSub, feedSource: 'streaming', page: 0 });
+        const myStacksAtFestivals = await getFeed({ reqUserSub, feedSource: 'festivals', page: 0 });
 
         setReelayDBUser(reelayDBUserLoaded);
         setMyFollowers(myFollowersLoaded);
@@ -273,6 +275,7 @@ function App() {
         setMyStacksFollowing(myStacksFollowing);
         setMyStacksInTheaters(myStacksInTheaters);
         setMyStacksOnStreaming(myStacksOnStreaming);
+        setMyStacksAtFestivals(myStacksAtFestivals);
 
         setIsLoading(false);
     }
@@ -311,6 +314,7 @@ function App() {
         myStacksFollowing,  setMyStacksFollowing,
         myStacksInTheaters, setMyStacksInTheaters,
         myStacksOnStreaming,    setMyStacksOnStreaming,
+        myStacksAtFestivals,    setMyStacksAtFestivals,
         myStreamingSubscriptions, setMyStreamingSubscriptions,
 
         reelayDBUser,       setReelayDBUser,

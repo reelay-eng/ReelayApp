@@ -6,6 +6,7 @@ import HomeHeader from './HomeHeader';
 import InTheaters from './InTheaters';
 import FriendsAreWatching from './FriendsAreWatching';
 import OnStreaming from './OnStreaming';
+import AtFestivals from './AtFestivals';
 
 import { 
     loadMyFollowing,
@@ -15,7 +16,6 @@ import {
 import { getFeed } from '../../api/ReelayDBApi';
 import { AuthContext } from '../../context/AuthContext';
 import { FeedContext } from '../../context/FeedContext';
-import FestivalsPrompt from './FestivalsPrompt';
 
 const HomeContainer = styled(SafeAreaView)`
     width: 100%;
@@ -40,6 +40,7 @@ const HomeComponent = ({ navigation }) => {
         setMyStacksFollowing,
         setMyStacksInTheaters,
         setMyStacksOnStreaming,
+        setMyStacksAtFestivals,
     } = useContext(AuthContext);
     const { justShowMeSignupVisible } = useContext(FeedContext);
 
@@ -53,6 +54,7 @@ const HomeComponent = ({ navigation }) => {
         const myStacksFollowing = await getFeed({ reqUserSub, feedSource: 'following', page: 0 });
         const myStacksInTheaters = await getFeed({ reqUserSub, feedSource: 'theaters', page: 0 });
         const myStacksOnStreaming = await getFeed({ reqUserSub, feedSource: 'streaming', page: 0 });
+        const myStacksAtFestivals = await getFeed({ reqUserSub, feedSource: 'festivals', page: 0 });
 
         setMyFollowing(myFollowingLoaded);
         setMyNotifications(myNotifications);
@@ -60,7 +62,7 @@ const HomeComponent = ({ navigation }) => {
         setMyStacksFollowing(myStacksFollowing);
         setMyStacksInTheaters(myStacksInTheaters);
         setMyStacksOnStreaming(myStacksOnStreaming);
-
+        setMyStacksAtFestivals(myStacksAtFestivals);
         setRefreshing(false);
     }
 
@@ -75,7 +77,7 @@ const HomeComponent = ({ navigation }) => {
                 <FriendsAreWatching navigation={navigation} />
                 <InTheaters navigation={navigation} />
                 <OnStreaming navigation={navigation} onRefresh={onRefresh} />
-                <FestivalsPrompt navigation={navigation} />
+                <AtFestivals navigation={navigation} />
                 <Spacer height={80} />
             </ScrollContainer>
             <BottomBar />

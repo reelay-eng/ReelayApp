@@ -36,7 +36,6 @@ const StreamingServicesContainer = styled(View)`
     height: auto;
     display: flex;
     flex-direction: column;
-    margin-bottom: 20px;
 `
 const StreamingServicesHeader = styled(ReelayText.H5Bold)`
     color: white;

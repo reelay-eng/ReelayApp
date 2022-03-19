@@ -16,6 +16,7 @@ export const AuthContext = createContext({
     myStacksFollowing: [],
     myStacksInTheaters: [],
     myStacksOnStreaming: [],
+    myStacksAtFestivals: [],
 
     followRequests: [],
     reelayDBUser: {},

@@ -15,6 +15,18 @@ export default AtFestivals = ({ navigation }) => {
         display: flex;
         flex-direction: column;
     `
+    const { reelayDBUser } = useContext(AuthContext);
+    const { settingsShowFilmFestivals } = reelayDBUser;
+
+    return (
+        <FriendsAreWatchingContainer>
+            { settingsShowFilmFestivals && <FestivalsPrompt navigation={navigation} /> }
+            { !settingsShowFilmFestivals && <FestivalReelaysRow navigation={navigation} /> }
+        </FriendsAreWatchingContainer>   
+    )
+}
+
+const FestivalReelaysRow = ({ navigation }) => {
     const FriendsAreWatchingHeader = styled(ReelayText.H5Bold)`
         color: white;
         font-size: 18px
@@ -29,29 +41,23 @@ export default AtFestivals = ({ navigation }) => {
         width: 100%;
         padding-top: 16px;
     `
-    const { myFollowing, myStacksFollowing } = useContext(AuthContext);
-
+    const { myStacksAtFestivals } = useContext(AuthContext);
     return (
-        <FriendsAreWatchingContainer>
-            <FestivalsPrompt navigation={navigation} />
-            {/* { myStacksFollowing.length > 0 && (
-                <Fragment>
-                    <FriendsAreWatchingHeader>{'Friends are watching'}</FriendsAreWatchingHeader>
-                    <FollowingRowContainer horizontal>
-                        { myStacksFollowing.map((stack, index) =>  {
-                            return (
-                                <FollowingElement
-                                    key={index}
-                                    index={index}
-                                    navigation={navigation}
-                                    stack={stack}
-                            />);
-                        })}
-                    </FollowingRowContainer>
-                </Fragment>
-            )} */}
-        </FriendsAreWatchingContainer>   
-    )
+        <Fragment>
+            <FriendsAreWatchingHeader>{'At festivals'}</FriendsAreWatchingHeader>
+            <FollowingRowContainer horizontal>
+                { myStacksAtFestivals.map((stack, index) =>  {
+                    return (
+                        <FollowingElement
+                            key={index}
+                            index={index}
+                            navigation={navigation}
+                            stack={stack}
+                    />);
+                })}
+            </FollowingRowContainer>
+        </Fragment>
+    );
 }
 
 const FollowingElementContainer = styled(Pressable)`
@@ -84,7 +90,7 @@ const FollowingElement = ({ stack, index, navigation }) => {
     const goToReelay = (index, titleObj) => {
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
-            initialFeedSource: 'following',
+            initialFeedSource: 'festivals',
             isOnFeedTab: false
 		});
 		logAmplitudeEventProd('openFollowingFeed', {
