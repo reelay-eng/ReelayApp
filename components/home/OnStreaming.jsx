@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Image, Modal, Pressable, ScrollView, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import StreamingSelector from './StreamingSelector';
 import * as ReelayText from '../global/Text';
@@ -36,16 +37,23 @@ const StreamingServicesContainer = styled(View)`
     height: auto;
     display: flex;
     flex-direction: column;
+    margin-bottom: 10px;
 `
-const StreamingServicesHeader = styled(ReelayText.H5Bold)`
+const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
     padding: 15px;
 `
-const StreamingServicesHeaderContainer = styled(View)`
+const HeaderContainer = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
+`
+const HeaderContainerLeft = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    margin-left: 15px;
+    margin-top: 15px;
 `
 const TitleInfoLine = styled(View)`
     flex-direction: row;
@@ -156,10 +164,13 @@ export default OnStreaming = ({ navigation, onRefresh }) => {
     
     return (
         <StreamingServicesContainer>
-            <StreamingServicesHeaderContainer>
-                <StreamingServicesHeader>{'On streaming'}</StreamingServicesHeader>
+            <HeaderContainer>
+                <HeaderContainerLeft>
+                    <Icon type='font-awesome' name='television' size={24} color='white' />
+                    <HeaderText>{'On streaming'}</HeaderText>
+                </HeaderContainerLeft>
                 <EditButton />
-            </StreamingServicesHeaderContainer>
+            </HeaderContainer>
             { myStacksOnStreaming.length > 0 && <StreamingRow /> }
         </StreamingServicesContainer>
     )

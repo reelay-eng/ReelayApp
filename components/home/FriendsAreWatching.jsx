@@ -1,5 +1,6 @@
 import React, { Fragment, useContext } from 'react';
-import { Image, Pressable, View } from 'react-native'
+import { Image, Pressable, ScrollView, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
@@ -9,19 +10,25 @@ import { VenueIcon } from '../utils/VenueIcon';
 import FollowOthersPrompt from './FollowOthersPrompt';
 
 const FriendsAreWatching = ({ navigation }) => {
-    const FriendsAreWatchingContainer = styled.View`
+    const FriendsAreWatchingContainer = styled(View)`
         width: 100%;
         height: auto;
         display: flex;
         flex-direction: column;
+        margin-bottom: 10px;
     `
-    const FriendsAreWatchingHeader = styled(ReelayText.H5Bold)`
+    const HeaderContainer = styled(View)`
+        align-items: flex-end;
+        flex-direction: row;
+        margin-left: 15px;
+        margin-top: 15px;
+    `
+    const HeaderText = styled(ReelayText.H5Bold)`
         color: white;
-        font-size: 18px
-        padding-left: 15px;
-        padding-top: 15px;
+        font-size: 18px;
+        margin-left: 12px;
     `
-    const FollowingRowContainer = styled.ScrollView`
+    const FollowingRowContainer = styled(ScrollView)`
         display: flex;
         padding-left: 15px;
         padding-top: 15px;
@@ -36,7 +43,10 @@ const FriendsAreWatching = ({ navigation }) => {
             { myFollowing.length === 0 && <FollowOthersPrompt navigation={navigation} />}
             { myStacksFollowing.length > 0 && (
                 <Fragment>
-                    <FriendsAreWatchingHeader>{'Friends are watching'}</FriendsAreWatchingHeader>
+                    <HeaderContainer>
+                        <Icon type='ionicon' name='people' size={24} color='white' />
+                        <HeaderText>{'Friends are watching'}</HeaderText>
+                    </HeaderContainer>
                     <FollowingRowContainer horizontal>
                         { myStacksFollowing.map((stack, index) =>  {
                             return (

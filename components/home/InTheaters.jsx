@@ -1,5 +1,6 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
-import { Image, Pressable, View } from 'react-native'
+import { Image, Pressable, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
@@ -11,19 +12,24 @@ const InTheatersContainer = styled.View`
     display: flex;
     flex-direction: column;
 `
-const InTheatersHeader = styled(ReelayText.H5Bold)`
+const HeaderContainer = styled(View)`
+    align-items: flex-end;
+    flex-direction: row;
+    margin-left: 15px;
+    margin-top: 15px;
+`
+const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
-    padding-left: 15px;
-    padding-top: 15px;
+    margin-left: 12px;
 `
-const InTheatersElementRowContainer = styled.ScrollView`
+const InTheatersRowContainer = styled.ScrollView`
     display: flex;
     padding-left: 15px;
     padding-top: 15px;
     flex-direction: row;
     width: 100%;
-    padding-bottom: 10px;
+    margin-bottom: 10px;
 `
 
 const InTheaters = memo(({ navigation }) => {
@@ -46,16 +52,19 @@ const InTheaters = memo(({ navigation }) => {
     
     return (
         <InTheatersContainer>
-            <InTheatersHeader>{'In theaters'}</InTheatersHeader>
-                { myStacksInTheaters.length > 0 && (
-                    <InTheatersElementRowContainer horizontal>
-                        { myStacksInTheaters.map((stack, index) => {
-                            return (
-                                <InTheatersElement key={index} onPress={() => goToReelay(index, stack[0].title)} stack={stack}/>
-                            )
-                        })}
-                    </InTheatersElementRowContainer>
-                )}
+            <HeaderContainer>
+                <Icon type='font-awesome' name='ticket' size={24} color='white' />
+                <HeaderText>{'In theaters'}</HeaderText>
+            </HeaderContainer>
+            { myStacksInTheaters.length > 0 && (
+                <InTheatersRowContainer horizontal>
+                    { myStacksInTheaters.map((stack, index) => {
+                        return (
+                            <InTheatersElement key={index} onPress={() => goToReelay(index, stack[0].title)} stack={stack}/>
+                        )
+                    })}
+                </InTheatersRowContainer>
+            )}
         </InTheatersContainer>
     )
 });
@@ -69,6 +78,10 @@ const ReelayCount = styled(ReelayText.CaptionEmphasized)`
     margin-top: 8px;
     color: white;
     opacity: 0.5;
+`
+const TitleInfoLine = styled(View)`
+    flex-direction: row;
+    justify-content: space-between;
 `
 const TitlePoster = styled(Image)`
     width: 120px;
@@ -91,7 +104,9 @@ const InTheatersElement = ({ onPress, stack }) => {
     return (
         <InTheatersElementContainer onPress={onPress}>
             <TitlePoster source={ stack[0].title.posterSource } />
-            <ReelayCount>{`${stack.length} ${(stack.length > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
+            <TitleInfoLine>
+                <ReelayCount>{`${stack.length} ${(stack.length > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
+            </TitleInfoLine>
             <TitleText>{displayTitle}</TitleText>
         </InTheatersElementContainer>
     )

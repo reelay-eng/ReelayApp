@@ -1,5 +1,6 @@
 import React, { Fragment, useContext } from 'react';
-import { Image, Pressable, View } from 'react-native'
+import { Image, Pressable, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
@@ -20,18 +21,23 @@ export default AtFestivals = ({ navigation }) => {
 
     return (
         <FriendsAreWatchingContainer>
-            { settingsShowFilmFestivals && <FestivalsPrompt navigation={navigation} /> }
-            { !settingsShowFilmFestivals && <FestivalReelaysRow navigation={navigation} /> }
+            { !settingsShowFilmFestivals && <FestivalsPrompt navigation={navigation} /> }
+            { settingsShowFilmFestivals && <FestivalReelaysRow navigation={navigation} /> }
         </FriendsAreWatchingContainer>   
     )
 }
 
 const FestivalReelaysRow = ({ navigation }) => {
-    const FriendsAreWatchingHeader = styled(ReelayText.H5Bold)`
+    const HeaderContainer = styled(View)`
+        align-items: flex-end;
+        flex-direction: row;
+        margin-left: 15px;
+        margin-top: 15px;
+    `
+    const HeaderText = styled(ReelayText.H5Bold)`
         color: white;
         font-size: 18px
-        padding-left: 15px;
-        padding-top: 15px;
+        margin-left: 12px;
     `
     const FollowingRowContainer = styled.ScrollView`
         display: flex;
@@ -44,7 +50,10 @@ const FestivalReelaysRow = ({ navigation }) => {
     const { myStacksAtFestivals } = useContext(AuthContext);
     return (
         <Fragment>
-            <FriendsAreWatchingHeader>{'At festivals'}</FriendsAreWatchingHeader>
+            <HeaderContainer>
+                <Icon type='font-awesome' name='pagelines' size={24} color='white' />
+                <HeaderText>{'At festivals'}</HeaderText>
+            </HeaderContainer>
             <FollowingRowContainer horizontal>
                 { myStacksAtFestivals.map((stack, index) =>  {
                     return (

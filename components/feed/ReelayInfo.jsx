@@ -5,8 +5,7 @@ import styled from 'styled-components/native';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import ProfilePicture from '../global/ProfilePicture';
 
-const ReelayInfoBare = ({ navigation, reelay }) => {
-
+const ReelayInfo = ({ navigation, reelay }) => {
 	const InfoView = styled(View)`
 		justify-content: flex-end;
 		position: absolute;
@@ -25,7 +24,6 @@ const ReelayInfoBare = ({ navigation, reelay }) => {
 		align-self: flex-end;
 		color: white;
 	`
-
 	const creator = reelay.creator;
 
 	const goToProfile = () => {
@@ -51,6 +49,6 @@ const ReelayInfoBare = ({ navigation, reelay }) => {
 	);
 };
 
-export default ReelayInfo = memo(ReelayInfoBare, (prevProps, nextProps) => {
+export default memo(ReelayInfo, (prevProps, nextProps) => {
 	return (prevProps.reelay.datastoreSub === nextProps.reelay.datastoreSub);
 });

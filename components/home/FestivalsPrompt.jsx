@@ -67,7 +67,7 @@ export default FestivalsPrompt = ({ navigation }) => {
 const FestivalIcon = () => {
     return (
         <FestivalIconContainer>
-            <Icon type='ionicon' name='flash' size={40} color='white' />
+            <Icon type='font-awesome' name='pagelines' size={40} color='white' />
         </FestivalIconContainer>
     );
 }
@@ -98,7 +98,7 @@ const PromptResponseBox = () => {
             return;
         }
     }
-    
+
     const optOutOfFestivals = () => {
         if (reelayDBUser?.username === 'be_our_guest') {
             setJustShowMeSignupVisible(true);
