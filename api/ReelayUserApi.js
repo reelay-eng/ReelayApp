@@ -27,7 +27,9 @@ const REELAY_API_HEADERS = {
 export const clearLocalUserData = async () => {
     const keys = ['myFollowing', 'myFollowers', 'myNotifications', 'myReelayStacks', 'myUser', 'myWatchlist'];
     const result = await Promise.all(keys.map(async (key) => {
-        return await AsyncStorage.removeItem(key);
+        const removeResult = await AsyncStorage.removeItem(key);
+        console.log('Clearing local user data: ', key, removeResult);
+        return removeResult;
     }));
     
     console.log('Clearing local user data...');

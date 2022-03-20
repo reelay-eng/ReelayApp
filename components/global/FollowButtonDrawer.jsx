@@ -1,14 +1,14 @@
 import React, { useContext, useState } from 'react';
 import { Modal, View, Text, Pressable } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { unfollowCreator } from '../../../api/ReelayDBApi';
+import { unfollowCreator } from '../../api/ReelayDBApi';
 
-import { AuthContext } from '../../../context/AuthContext';
-import { logAmplitudeEventProd } from '../../utils/EventLogger';
+import { AuthContext } from '../../context/AuthContext';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 import styled from 'styled-components/native';
-import ReelayColors from '../../../constants/ReelayColors';
-import * as ReelayText from '../../global/Text';
-import { showErrorToast } from '../../utils/toasts';
+import ReelayColors from '../../constants/ReelayColors';
+import * as ReelayText from './Text';
+import { showErrorToast } from '../utils/toasts';
 
 export default FollowButtonDrawer = ({ 
     creatorFollowers,
@@ -16,7 +16,6 @@ export default FollowButtonDrawer = ({
     drawerOpen,
     setDrawerOpen,
     followObj,
-    followType,
     sourceScreen = 'UserFollowScreen',
 }) => {
     const { reelayDBUser, myFollowing, setMyFollowing } = useContext(AuthContext);
@@ -61,18 +60,11 @@ export default FollowButtonDrawer = ({
     `
     const closeDrawer = () => setDrawerOpen(false);
 
-    const unfollowUser = async () => {
+    const unfollowOnPress = async () => {
         const unfollowResult = await unfollowCreator(creatorSub, reelayDBUser?.sub);
-        const unfollowSucceeded = !unfollowResult?.error;
-
-        if (unfollowSucceeded) {
-            const removeFromCreatorFollows = (followObj) => followObj?.followerSub !== reelayDBUser?.sub;
-            const nextCreatorFollowers = creatorFollowers.filter(removeFromCreatorFollows);
-            setCreatorFollowers(nextCreatorFollowers);
-            
-            const removeFromMyFollows = (followObj) => followObj.creatorSub !== creatorSub;
-            const nextMyFollowing = myFollowing.filter(removeFromMyFollows);
-            setMyFollowing(nextMyFollowing);
+        console.log('UNFOLLOW RESULT: ', unfollowResult);
+        if (unfollowResult && !unfollowResult?.error) {
+            removeFollowObjsFromState();
         } else {
             logAmplitudeEventProd('unfollowedCreatorError', {
                 creatorName: creatorName,
@@ -84,6 +76,20 @@ export default FollowButtonDrawer = ({
             showErrorToast('Cannot unfollow creator. Please reach out to the Reelay team');
             return;
         }
+    };
+
+    const removeFollowObjsFromState = () => {
+        if (sourceScreen !== 'Feed') {
+            // creatorFollowers and setCreatorFollowers are not passed from the feed
+            // since they are not displayed, and they would take too long to load
+            const removeFromCreatorFollows = (followObj) => followObj?.followerSub !== reelayDBUser?.sub;
+            const nextCreatorFollowers = creatorFollowers.filter(removeFromCreatorFollows);
+            setCreatorFollowers(nextCreatorFollowers);    
+        }
+        
+        const removeFromMyFollows = (followObj) => followObj.creatorSub !== creatorSub;
+        const nextMyFollowing = myFollowing.filter(removeFromMyFollows);
+        setMyFollowing(nextMyFollowing);
 
         logAmplitudeEventProd('unfollowedCreator', {
             creatorName: creatorName,
@@ -91,19 +97,6 @@ export default FollowButtonDrawer = ({
             username: reelayDBUser?.username,
             userSub: reelayDBUser?.sub,
         });
-    };
-
-    const UnfollowOption = () => {
-        const onPress = () => {
-            setDrawerOpen(false);
-            unfollowUser();
-        }
-        return (
-            <OptionContainerPressable onPress={onPress}>
-                <Icon type='ionicon' name='remove-circle' size={30} color={'white'} />
-                <OptionText>{`Unfollow ${creatorName}`}</OptionText>
-            </OptionContainerPressable>
-        );
     }
 
     const CancelOption = () => {
@@ -121,6 +114,19 @@ export default FollowButtonDrawer = ({
                 <UnfollowOption />
                 <CancelOption />
             </FollowOptionsContainer>
+        );
+    }
+
+    const UnfollowOption = () => {
+        const onPress = () => {
+            setDrawerOpen(false);
+            unfollowOnPress();
+        }
+        return (
+            <OptionContainerPressable onPress={onPress}>
+                <Icon type='ionicon' name='remove-circle' size={30} color={'white'} />
+                <OptionText>{`Unfollow ${creatorName}`}</OptionText>
+            </OptionContainerPressable>
         );
     }
 

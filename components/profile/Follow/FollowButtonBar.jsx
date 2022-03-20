@@ -10,7 +10,7 @@ import { followCreator, unfollowCreator } from '../../../api/ReelayDBApi';
 import { notifyCreatorOnFollow } from "../../../api/NotificationsApi";
 
 import { logAmplitudeEventProd } from '../../utils/EventLogger';
-import FollowButtonDrawer from './FollowButtonDrawer';
+import FollowButtonDrawer from '../../global/FollowButtonDrawer';
 
 const FollowContainer = styled(View)`
     align-self: center;

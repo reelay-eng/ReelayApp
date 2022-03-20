@@ -17,52 +17,41 @@ const REELAY_API_HEADERS = {
 export const followCreator = async (creatorSub, followerSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/follows?creatorSub=${creatorSub}&followerSub=${followerSub}`;
     console.log(routeGet);
-    const follow = await fetchResults(routeGet, {
+    const followResult = await fetchResults(routeGet, {
         method: "POST",
         headers: REELAY_API_HEADERS,
     });
-
-    if (!follow) {
-        console.log("Could not follow user")
-    }
-    return follow;
+    return followResult;
 }
 
 export const acceptFollowRequest = async (creatorSub, followerSub) => {
-    const routeGet = `${REELAY_API_BASE_URL}/follows/accept?creatorSub=${creatorSub}&followerSub=${followerSub}`;
-    console.log(routeGet);
-    const follow = await fetchResults(routeGet, {
+    const routePost = `${REELAY_API_BASE_URL}/follows/accept?creatorSub=${creatorSub}&followerSub=${followerSub}`;
+    console.log(routePost);
+    const acceptRequestResult = await fetchResults(routePost, {
       method: "POST",
       headers: REELAY_API_HEADERS,
     });
-    if (!follow) {
-      console.log("Could not accept user follow request");
-    }
+    return acceptRequestResult;
 }
 
 export const rejectFollowRequest = async (creatorSub, followerSub) => {
-    const routeGet = `${REELAY_API_BASE_URL}/follows/reject?creatorSub=${creatorSub}&followerSub=${followerSub}`;
-    console.log(routeGet);
-    const follow = await fetchResults(routeGet, {
+    const routeDelete = `${REELAY_API_BASE_URL}/follows/reject?creatorSub=${creatorSub}&followerSub=${followerSub}`;
+    console.log(routeDelete);
+    const rejectRequestResult = await fetchResults(routeDelete, {
         method: "DELETE",
         headers: REELAY_API_HEADERS,
     });
-    if (!follow) {
-        console.log("Could not reject user follow request");
-    }
+    return rejectRequestResult;
 };
 
 export const unfollowCreator = async (creatorSub, followerSub) => {
     const routeRemove = `${REELAY_API_BASE_URL}/follows?creatorSub=${creatorSub}&followerSub=${followerSub}`;
     console.log(routeRemove);
-    const unfollow = await fetchResults(routeRemove, {
+    const unfollowResult = await fetchResults(routeRemove, {
         method: "DELETE",
         headers: REELAY_API_HEADERS,
     });
-    console.log(unfollow)
-    if (!unfollow) {
-        console.log("Could not unfollow user");
-    }
+    return unfollowResult;
 }
 
 export const unblockCreator = async (creatorSub, blockingUserSub) => {
@@ -164,7 +153,6 @@ export const getReelay = async (reelaySub) => {
         console.log('Could not get reelays for this creator');
         return null;
     }
-
     return fetchedReelay;
 }
 

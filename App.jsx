@@ -250,19 +250,36 @@ function App() {
     }
 
     const loadMyProfile = async (userSub) => {
-        const reelayDBUserLoaded = await getRegisteredUser(userSub);
-        const myCreatorStacksLoaded = await loadMyReelayStacks(userSub);
-        const myFollowersLoaded = await loadMyFollowers(userSub);
-        const myFollowingLoaded = await loadMyFollowing(userSub);
-        const myNotifications = await loadMyNotifications(userSub);
-        const myWatchlistItemsLoaded = await loadMyWatchlist(userSub);
-
         const reqUserSub = userSub;
-        const myStreamingSubscriptions = await loadMyStreamingSubscriptions(userSub);
-        const myStacksFollowing = await getFeed({ reqUserSub, feedSource: 'following', page: 0 });
-        const myStacksInTheaters = await getFeed({ reqUserSub, feedSource: 'theaters', page: 0 });
-        const myStacksOnStreaming = await getFeed({ reqUserSub, feedSource: 'streaming', page: 0 });
-        const myStacksAtFestivals = await getFeed({ reqUserSub, feedSource: 'festivals', page: 0 });
+        // make sure to maintain consistent ordering between these arrays
+        // when you modify them
+        const [
+            reelayDBUserLoaded,
+            myCreatorStacksLoaded,
+            myFollowersLoaded,
+            myFollowingLoaded,
+            myNotifications,
+            myWatchlistItemsLoaded,
+
+            myStreamingSubscriptions,
+            myStacksFollowing,
+            myStacksInTheaters,
+            myStacksOnStreaming,
+            myStacksAtFestivals,
+        ] = await Promise.all([
+            getRegisteredUser(userSub),
+            loadMyReelayStacks(userSub),
+            loadMyFollowers(userSub),
+            loadMyFollowing(userSub),
+            loadMyNotifications(userSub),
+            loadMyWatchlist(userSub),
+
+            loadMyStreamingSubscriptions(userSub),
+            getFeed({ reqUserSub, feedSource: 'following', page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'streaming', page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'festivals', page: 0 }),
+        ]);
 
         setReelayDBUser(reelayDBUserLoaded);
         setMyFollowers(myFollowersLoaded);
@@ -276,7 +293,6 @@ function App() {
         setMyStacksInTheaters(myStacksInTheaters);
         setMyStacksOnStreaming(myStacksOnStreaming);
         setMyStacksAtFestivals(myStacksAtFestivals);
-
         setIsLoading(false);
     }
 

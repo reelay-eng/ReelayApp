@@ -4,7 +4,7 @@ import { SafeAreaView, View, Text } from 'react-native';
 import BackButton from '../../components/utils/BackButton';
 import SearchField from '../../components/create-reelay/SearchField';
 import FollowResults from '../../components/profile/Follow/FollowResults';
-import FollowButtonDrawer from '../../components/profile/Follow/FollowButtonDrawer';
+import FollowButtonDrawer from '../../components/global/FollowButtonDrawer';
 
 import { AuthContext } from '../../context/AuthContext';
 
