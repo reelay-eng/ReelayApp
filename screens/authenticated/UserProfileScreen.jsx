@@ -78,9 +78,10 @@ export default UserProfileScreen = ({ navigation, route }) => {
     }
 
     const loadFollows = async () => {
-        const nextFollowers = await getFollowers(creatorSub);
-        const nextFollowing = await getFollowing(creatorSub);
-
+        const [nextFollowers, nextFollowing] = await Promise.all([
+            getFollowers(creatorSub),
+            getFollowing(creatorSub),
+        ]);
         setCreatorFollowers(nextFollowers);
         setCreatorFollowing(nextFollowing);
     };
@@ -97,9 +98,11 @@ export default UserProfileScreen = ({ navigation, route }) => {
         }
 
         if (creatorSub.length) {
-            await loadCreatorStacks();
-            await loadFollows();
-            await loadUserInformation();
+            await Promise.all([
+                loadCreatorStacks(),
+                loadFollows(),
+                loadUserInformation(),
+            ])
         }
         setRefreshing(false);
     }

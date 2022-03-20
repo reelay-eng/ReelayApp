@@ -114,11 +114,19 @@ export default MyProfileScreen = ({ navigation, route }) => {
             console.log('Now refreshing');
             setRefreshing(true);
             try {
-                const nextMyCreatorStacks = await refreshMyReelayStacks(userSub);
-                const nextMyFollowers = await refreshMyFollowers(userSub);
-                const nextMyFollowing = await refreshMyFollowing(userSub);
-                const nextMyNotifications = await refreshMyNotifications(userSub);
-                const nextMyWatchlistItems = await refreshMyWatchlist(userSub);
+                const [
+                    nextMyCreatorStacks,
+                    nextMyFollowers,
+                    nextMyFollowing,
+                    nextMyNotifications,
+                    nextMyWatchlistItems,
+                ] = await Promise.all([
+                    refreshMyReelayStacks(userSub),
+                    refreshMyFollowers(userSub),
+                    refreshMyFollowing(userSub),
+                    refreshMyNotifications(userSub),
+                    refreshMyWatchlist(userSub),
+                ]);
                 
                 nextMyCreatorStacks.forEach((stack) => stack.sort(sortReelays));
                 nextMyCreatorStacks.sort(sortStacks);
