@@ -17,13 +17,6 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 export default NotificationSettings = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    // const { setTabBarVisible } = useContext(FeedContext);
-    // useEffect(() => {
-    //     setTabBarVisible(false);
-    //     return () => {
-    //         setTabBarVisible(true)
-    //     }
-    // })
 
     const ViewContainer = styled(View)`
         width: 100%;

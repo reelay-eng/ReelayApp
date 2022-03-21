@@ -50,20 +50,20 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         right: 0px;
     `
 
-    const SettingsButton = () => {
+    const SettingsButtons = () => {
         return (
             <RightCornerContainer>
                 <SettingsIconContainer>
                     <Icon type='ionicon' size={27} color={'white'} name='cog-outline' onPress={() => {
-                        navigation.push('ProfileSettingsScreen', {initialFeedPos: 0});
+                        navigation.push('ProfileSettingsScreen', { initialFeedPos: 0 });
                     }} />
                 </SettingsIconContainer>
-                <SettingsIconContainer>
+                {/* <SettingsIconContainer>
                     <Icon type='ionicon' size={27} color={'white'} name='notifications' onPress={() => {
                         navigation.push('NotificationScreen');
                     }} />
                      { hasUnreadNotifications && <UnreadIconIndicator /> }
-                </SettingsIconContainer>
+                </SettingsIconContainer> */}
             </RightCornerContainer>
         );
     }
@@ -71,14 +71,12 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
     return (
         <TopBarContainer>
             { !atProfileBase && 
-                <React.Fragment>
-                    <BackButtonContainer>
-                        <BackButton navigation={navigation} />
-                    </BackButtonContainer>  
-                </React.Fragment>      
+                <BackButtonContainer>
+                    <BackButton navigation={navigation} />
+                </BackButtonContainer>  
             }
             <HeadingText>@{creatorName}</HeadingText>
-            { atProfileBase && <SettingsButton /> }
+            { atProfileBase && <SettingsButtons /> }
         </TopBarContainer>
     );
 }

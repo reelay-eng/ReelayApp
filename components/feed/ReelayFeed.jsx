@@ -33,7 +33,8 @@ const ReelayFeed = ({ navigation,
     initialFeedPos = 0,
     forceRefresh = false, 
     initialFeedSource = 'global',
-    isOnFeedTab = true
+    isOnFeedTab = true,
+    pinnedReelay = null,
 }) => {
 
     const feedPager = useRef();
@@ -45,7 +46,8 @@ const ReelayFeed = ({ navigation,
     const [feedSource, setFeedSource] = useState(initialFeedSource);
     const [refreshing, setRefreshing] = useState(false);
 
-    const [selectedStackList, setSelectedStackList] = useState([]);
+    const initStackList = (pinnedReelay) ? [[ pinnedReelay ]] : [];
+    const [selectedStackList, setSelectedStackList] = useState(initStackList);
     const [selectedFeedPosition, setSelectedFeedPosition] = useState(initialFeedPos);
 
     useEffect(() => {
@@ -65,7 +67,7 @@ const ReelayFeed = ({ navigation,
 
     useEffect(() => {
         // show the other feed
-        const stackEmpty = !selectedStackList.length;
+        const stackEmpty = (!selectedStackList.length) || (pinnedReelay && selectedStackList.length === 1);
         if (!stackEmpty && !forceRefresh) {
           console.log("feed already loaded");
           return;
@@ -211,7 +213,7 @@ const ReelayFeed = ({ navigation,
     return (
       <ReelayFeedContainer>
         {selectedStackList.length < 1 && <ActivityIndicator />}
-        {selectedStackList.length >= 1 && (
+        {selectedStackList.length >= 2 && (
           <FlatList
             data={selectedStackList}
             getItemLayout={getItemLayout}

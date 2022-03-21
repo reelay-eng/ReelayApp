@@ -1,12 +1,16 @@
 import React, { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
-import styled from 'styled-components';
-import * as ReelayText from '../global/Text';
-import { LinearGradient } from 'expo-linear-gradient';
-import HomeScreenCardStackImage from '../../assets/images/home/home-screen-cardstack.png';
 import { ActionButton } from '../global/Buttons';
 import { Icon } from 'react-native-elements';
+
+import styled from 'styled-components';
+import * as ReelayText from '../global/Text';
+import Constants from 'expo-constants';
+import { LinearGradient } from 'expo-linear-gradient';
+import HomeScreenCardStackImage from '../../assets/images/home/home-screen-cardstack.png';
+
+import { getReelay, prepareReelay } from '../../api/ReelayDBApi';
 
 const YouDontFollowContainer = styled.View`
     width: 100%;
@@ -66,6 +70,20 @@ export default YouDontFollowPrompt = ({ navigation }) => {
 			username: reelayDBUser?.username
 		});
     }
+
+    const loadGlobalFeedWithPinnedWelcome = async () => {
+        const welcomeReelaySub = Constants.manifest.extra.welcomeReelaySub;
+        // the reelay was uploaded to dev visibility, not global
+        const welcomeReelay = await getReelay(welcomeReelaySub, 'dev');
+        const preparedReelay = await prepareReelay(welcomeReelay);
+        navigation.push("FeedScreen", {
+            initialRouteName: 'global',
+            initialFeedPos: 0,
+            isOnFeedTab: false,
+            pinnedReelay: preparedReelay,
+        });
+    }
+
     return (
         <YouDontFollowContainer>
             <YouDontFollowPosters source={HomeScreenCardStackImage}/>
@@ -86,11 +104,18 @@ export default YouDontFollowPrompt = ({ navigation }) => {
                     <YouDontFollowBody>Explore the global feed and find other reelayers to follow</YouDontFollowBody>
                     <YouDontFollowButtonBox>
                         <ActionButton
-                            text="Watch Tutorial"
-                            onPress={goToReelayFeed}
+                            text="Take a quick tour"
+                            onPress={loadGlobalFeedWithPinnedWelcome}
                             rightIcon={<Icon type='ionicon' name='play-circle' size={20} color='white' /> }
                         />
                     </YouDontFollowButtonBox>
+                    {/* <YouDontFollowButtonBox>
+                        <ActionButton
+                            text="Go to Reelay Feed"
+                            onPress={goToReelayFeed}
+                            rightIcon={<Icon type='ionicon' name='play-circle' size={20} color='white' /> }
+                        />
+                    </YouDontFollowButtonBox> */}
                 </YouDontFollowGradientContentBox>
             </YouDontFollowGradientContainer>
         </YouDontFollowContainer>

@@ -50,6 +50,7 @@ export default ({ config }) => {
         tmdbApiKey: '033f105cd28f507f3dc6ae794d5e44f5',
         tmdbApiBaseUrl: 'https://api.themoviedb.org/3',
         tmdbImageApiBaseUrl: 'http://image.tmdb.org/t/p/w500/',
+        welcomeReelaySub: '3693fe18-0226-44e9-84da-0d2992fffcfa',
 
         feedVisibility: getVisibility(),
         uploadVisibility: getVisibility(),

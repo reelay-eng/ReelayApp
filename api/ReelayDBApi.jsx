@@ -142,8 +142,8 @@ export const getFollowRequests = async (creatorSub) => {
     return requests;
 };
 
-export const getReelay = async (reelaySub) => {
-    const routeGet = `${REELAY_API_BASE_URL}/reelays/sub/${reelaySub}?visibility=${FEED_VISIBILITY}`;
+export const getReelay = async (reelaySub, visibility=FEED_VISIBILITY) => {
+    const routeGet = `${REELAY_API_BASE_URL}/reelays/sub/${reelaySub}?visibility=${visibility}`;
     const fetchedReelay = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS,
@@ -371,6 +371,7 @@ export const prepareReelay = async (fetchedReelay) => {
             console.log(error);
         }
     }
+    if (!fetchedReelay.comments) fetchedReelay.comments = [];
     const sortedComments = fetchedReelay.comments.sort(sortCommentsByPostedDate);
 
     const reportedContent = (fetchedReelay.reviewStatus) ? {

@@ -12,11 +12,13 @@ import LikesDrawer from './LikesDrawer';
 import CommentsDrawer from './CommentsDrawer';
 import Reelay3DotDrawer from './Reelay3DotDrawer';
 import JustShowMeSignupDrawer from '../global/JustShowMeSignupDrawer';
+import Constants from 'expo-constants';
 
 const Hero = ({ index, navigation, reelay, viewable }) => {
     const { myFollowing, reelayDBUser } = useContext(AuthContext);
     const { likesVisible, commentsVisible, dotMenuVisible, justShowMeSignupVisible } = useContext(FeedContext);
     const commentsCount = useRef(reelay?.comments?.length);
+    const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
 
     useEffect(() => {
         checkShouldMarkSeen({ reelay, reelayDBUser, myFollowing });
@@ -28,7 +30,7 @@ const Hero = ({ index, navigation, reelay, viewable }) => {
         <View key={index} style={{ justifyContent: 'flex-end'}}>
             <FeedVideoPlayer reelay={reelay} viewable={viewable} />
             <ReelayInfo navigation={navigation} reelay={reelay} />
-            <Sidebar navigation={navigation} reelay={reelay} commentsCount={commentsCount}/>
+            { !isWelcomeVideo && <Sidebar navigation={navigation} reelay={reelay} commentsCount={commentsCount}/> }
             { viewable && likesVisible && <LikesDrawer reelay={reelay} navigation={navigation} /> }
             { viewable && commentsVisible && <CommentsDrawer reelay={reelay} navigation={navigation} commentsCount={commentsCount} /> }
             { viewable && dotMenuVisible && <Reelay3DotDrawer reelay={reelay} navigation={navigation} /> }
