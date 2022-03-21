@@ -6,6 +6,7 @@ import * as ReelayText from '../global/Text';
 import { LinearGradient } from 'expo-linear-gradient';
 import HomeScreenCardStackImage from '../../assets/images/home/home-screen-cardstack.png';
 import { ActionButton } from '../global/Buttons';
+import { Icon } from 'react-native-elements';
 
 const YouDontFollowContainer = styled.View`
     width: 100%;
@@ -53,7 +54,7 @@ const YouDontFollowButtonBox = styled.View`
     margin-bottom: 15px;
 `
 
-export default FollowOthersPrompt = ({ navigation }) => {
+export default YouDontFollowPrompt = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const goToReelayFeed = () => {
         navigation.push("FeedScreen", {
@@ -85,8 +86,9 @@ export default FollowOthersPrompt = ({ navigation }) => {
                     <YouDontFollowBody>Explore the global feed and find other reelayers to follow</YouDontFollowBody>
                     <YouDontFollowButtonBox>
                         <ActionButton
-                            text="Reelay Feed"
+                            text="Watch Tutorial"
                             onPress={goToReelayFeed}
+                            rightIcon={<Icon type='ionicon' name='play-circle' size={20} color='white' /> }
                         />
                     </YouDontFollowButtonBox>
                 </YouDontFollowGradientContentBox>

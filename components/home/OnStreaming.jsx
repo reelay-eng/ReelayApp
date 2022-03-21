@@ -145,7 +145,7 @@ export default OnStreaming = ({ navigation, onRefresh }) => {
             <Modal animationType="slide" transparent={true} visible={editDrawerVisible}>
                 <Backdrop onPress={closeDrawer} />
                 <DrawerContainer>
-                    <StreamingSelector onRefresh={onRefresh} setEditDrawerVisible={setEditDrawerVisible} />
+                    <StreamingSelector onRefresh={onRefresh} />
                 </DrawerContainer>
             </Modal>
         );

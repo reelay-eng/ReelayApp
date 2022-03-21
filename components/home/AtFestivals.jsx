@@ -20,6 +20,7 @@ export default AtFestivals = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const { settingsShowFilmFestivals } = reelayDBUser;
     const [showFestivalsPrompt, setShowFestivalsPrompt] = useState(false);
+    const [showFestivalsRow, setShowFestivalsRow] = useState(settingsShowFilmFestivals);
 
     const checkShowFestivalsPrompt = async () => {
         const hasSetPreference = await AsyncStorage.getItem('hasSetFestivalPreference');
@@ -28,15 +29,18 @@ export default AtFestivals = ({ navigation }) => {
 
     useEffect(() => {
         checkShowFestivalsPrompt();
-    }, []);
+    }, [showFestivalsPrompt]);
     
     return (
         <FriendsAreWatchingContainer>
             { showFestivalsPrompt && <FestivalsPrompt 
                 navigation={navigation} 
                 setShowFestivalsPrompt={setShowFestivalsPrompt} 
+                setShowFestivalsRow={setShowFestivalsRow} 
             /> }
-            { settingsShowFilmFestivals && <FestivalReelaysRow navigation={navigation} /> }
+            { showFestivalsRow && <FestivalReelaysRow 
+                navigation={navigation} 
+            /> }
         </FriendsAreWatchingContainer>   
     );
 }

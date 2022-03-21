@@ -54,14 +54,14 @@ const ButtonBoxRow = styled(View)`
     width: 100%;
 `
 
-export default FestivalsPrompt = ({ navigation, setShowFestivalsPrompt }) => {
+export default FestivalsPrompt = ({ navigation, setShowFestivalsPrompt, setShowFestivalsRow }) => {
     return (
         <FestivalsPromptContainer>
             <PromptGradient /> 
             <FestivalIcon />
             <Headline>{'Are you into film festivals?'}</Headline>
             <PromptBody>{'Say Yes to see reelays from festivals on your home page. You can always change this later in Settings.'}</PromptBody>
-            <PromptResponseBox setShowFestivalsPrompt={setShowFestivalsPrompt} />
+            <PromptResponseBox setShowFestivalsPrompt={setShowFestivalsPrompt} setShowFestivalsRow={setShowFestivalsRow} />
         </FestivalsPromptContainer>
     )
 }
@@ -90,7 +90,7 @@ const PromptGradient = () => {
     );
 }
 
-const PromptResponseBox = ({ setShowFestivalsPrompt }) => {
+const PromptResponseBox = ({ setShowFestivalsPrompt, setShowFestivalsRow }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const { setJustShowMeSignupVisible } = useContext(FeedContext);
 
@@ -104,6 +104,7 @@ const PromptResponseBox = ({ setShowFestivalsPrompt }) => {
         const dbResult = await updateUserFestivalPreference(reelayDBUser?.sub, 'true');
         console.log(dbResult);
         setShowFestivalsPrompt(false);
+        setShowFestivalsRow(true);
     }
 
     const optOutOfFestivals = async () => {
@@ -116,6 +117,7 @@ const PromptResponseBox = ({ setShowFestivalsPrompt }) => {
         const dbResult = await updateUserFestivalPreference(reelayDBUser?.sub, 'false');
         console.log(dbResult);
         setShowFestivalsPrompt(false);
+        setShowFestivalsRow(false);
     }
 
     return (

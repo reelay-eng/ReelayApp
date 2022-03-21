@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
 import ReelayThumbnail from '../global/ReelayThumbnail';
 import { VenueIcon } from '../utils/VenueIcon';
-import FollowOthersPrompt from './FollowOthersPrompt';
+import YouDontFollowPrompt from './YouDontFollowPrompt';
 
 const FriendsAreWatching = ({ navigation }) => {
     const FriendsAreWatchingContainer = styled(View)`
@@ -42,7 +42,7 @@ const FriendsAreWatching = ({ navigation }) => {
     console.log(myFollowing);
     return (
         <FriendsAreWatchingContainer>
-            { myFollowing.length === 0 && <FollowOthersPrompt navigation={navigation} />}
+            { myFollowing.length === 0 && <YouDontFollowPrompt navigation={navigation} />}
             { myStacksFollowing.length > 0 && myFollowing.length > 0 && (
                 <Fragment>
                     <HeaderContainer>

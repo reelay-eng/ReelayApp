@@ -31,7 +31,7 @@ const VenueSaveButtonContainer = styled.View`
     height: 40px;
 `
 
-export default StreamingSelector = ({ onRefresh, setEditDrawerVisible }) => {
+export default StreamingSelector = ({ onRefresh }) => {
     return (
         <StreamingServicesContainer>
             <StreamingServicesHeader>{'Where do you stream?'}</StreamingServicesHeader>

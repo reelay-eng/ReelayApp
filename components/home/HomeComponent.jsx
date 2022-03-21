@@ -98,8 +98,4 @@ const BottomBar = styled(View)`
     bottom: 0px;
 `
 
-const FilmFestivalsBadge = ({ navigation }) => {
-
-}
-
 export default HomeComponent;

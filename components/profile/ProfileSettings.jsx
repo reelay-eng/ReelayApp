@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Text, View, Pressable, Linking } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { Auth } from 'aws-amplify';
@@ -42,7 +42,7 @@ export const ProfileSettings = ({navigation}) => {
 
     return (
 		<ViewContainer>
-			<HeaderWithBackButton navigation={navigation} />
+			<HeaderWithBackButton navigation={navigation} text='Settings & Info' />
 			<SettingsContainer>
 				<TopSettings>
 					<SettingEntry
@@ -69,6 +69,13 @@ export const ProfileSettings = ({navigation}) => {
 					<SettingEntry
 						text="TMDB Credit"
 						iconName="server-outline"
+						onPress={() => {
+							navigation.push("TMDBCreditScreen");
+						}}
+					/>
+                    <SettingEntry
+						text="Watch Tutorial"
+						iconName="glasses"
 						onPress={() => {
 							navigation.push("TMDBCreditScreen");
 						}}
