@@ -1,4 +1,4 @@
-import React, { Fragment, useContext } from 'react';
+import React, { Fragment, useContext, useEffect, useState } from 'react';
 import { Image, Pressable, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
@@ -8,6 +8,7 @@ import * as ReelayText from '../global/Text';
 import ReelayThumbnail from '../global/ReelayThumbnail';
 import { VenueIcon } from '../utils/VenueIcon';
 import FestivalsPrompt from './FestivalsPrompt';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default AtFestivals = ({ navigation }) => {
     const FriendsAreWatchingContainer = styled.View`
@@ -18,13 +19,26 @@ export default AtFestivals = ({ navigation }) => {
     `
     const { reelayDBUser } = useContext(AuthContext);
     const { settingsShowFilmFestivals } = reelayDBUser;
+    const [showFestivalsPrompt, setShowFestivalsPrompt] = useState(false);
 
+    const checkShowFestivalsPrompt = async () => {
+        const hasSetPreference = await AsyncStorage.getItem('hasSetFestivalPreference');
+        if (!hasSetPreference) setShowFestivalsPrompt(true);
+    }
+
+    useEffect(() => {
+        checkShowFestivalsPrompt();
+    }, []);
+    
     return (
         <FriendsAreWatchingContainer>
-            { !settingsShowFilmFestivals && <FestivalsPrompt navigation={navigation} /> }
+            { showFestivalsPrompt && <FestivalsPrompt 
+                navigation={navigation} 
+                setShowFestivalsPrompt={setShowFestivalsPrompt} 
+            /> }
             { settingsShowFilmFestivals && <FestivalReelaysRow navigation={navigation} /> }
         </FriendsAreWatchingContainer>   
-    )
+    );
 }
 
 const FestivalReelaysRow = ({ navigation }) => {

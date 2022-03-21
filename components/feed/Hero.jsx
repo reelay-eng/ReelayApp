@@ -22,6 +22,8 @@ const Hero = ({ index, navigation, reelay, viewable }) => {
         checkShouldMarkSeen({ reelay, reelayDBUser, myFollowing });
     }, [viewable]);
 
+    console.log('Hero is rendering: ', reelayDBUser?.username, reelay.title.display);
+
     return (
         <View key={index} style={{ justifyContent: 'flex-end'}}>
             <FeedVideoPlayer reelay={reelay} viewable={viewable} />

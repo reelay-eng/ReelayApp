@@ -15,6 +15,8 @@ export default function FeedScreen({ navigation, route }) {
     const initialFeedPos = route?.params?.initialFeedPos;
     const isOnFeedTab = route?.params?.isOnFeedTab;
 
+    console.log('Feed screen is rendering');
+
     return (
         <TransparentContainer>
             <ReelayFeed

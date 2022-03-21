@@ -5,6 +5,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
+import BackButton from '../utils/BackButton';
 
 export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) => {
     const creatorName = creator.username ?? 'User not found';
@@ -69,11 +70,10 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
 
     return (
         <TopBarContainer>
-            { !atProfileBase &&
+            { !atProfileBase && 
                 <React.Fragment>
                     <BackButtonContainer>
-                        <Icon type='ionicon' size={30} color={'white'} name='chevron-back-outline' 
-                            onPress={() => navigation.pop()} />
+                        <BackButton navigation={navigation} />
                     </BackButtonContainer>  
                 </React.Fragment>      
             }

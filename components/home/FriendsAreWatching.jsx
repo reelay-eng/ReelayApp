@@ -36,16 +36,18 @@ const FriendsAreWatching = ({ navigation }) => {
         width: 100%;
         padding-top: 16px;
     `
+
     const { myFollowing, myStacksFollowing } = useContext(AuthContext);
 
+    console.log(myFollowing);
     return (
         <FriendsAreWatchingContainer>
             { myFollowing.length === 0 && <FollowOthersPrompt navigation={navigation} />}
-            { myStacksFollowing.length > 0 && (
+            { myStacksFollowing.length > 0 && myFollowing.length > 0 && (
                 <Fragment>
                     <HeaderContainer>
                         <Icon type='ionicon' name='people' size={24} color='white' />
-                        <HeaderText>{'Friends are watching'}</HeaderText>
+                        <HeaderText>{'People are watching'}</HeaderText>
                     </HeaderContainer>
                     <FollowingRowContainer horizontal>
                         { myStacksFollowing.map((stack, index) =>  {

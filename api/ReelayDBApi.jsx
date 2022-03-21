@@ -543,6 +543,19 @@ export const updateUserBio = async (userSub, bio) => {
     return resultPatch;
 };
 
+export const updateUserFestivalPreference = async (userSub, showFilmFestivals) => {
+    const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}/settings?showFilmFestivals=${showFilmFestivals}`;
+    const resultPatch = await fetchResults(routePatch, {
+        method: "PATCH",
+        headers: {
+            ...REELAY_API_HEADERS,
+            requsersub: userSub,
+        },
+    });
+    console.log("Patched user festival preference to: ", showFilmFestivals);
+    return resultPatch;
+};
+
 export const updateProfilePic = async (sub, photoURI) => {
     const routePatch = `${REELAY_API_BASE_URL}/users/sub/${sub}/profilepic`;
     const updateBody = {

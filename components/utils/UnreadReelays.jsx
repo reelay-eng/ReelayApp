@@ -59,7 +59,7 @@ const getRelationship = ({ reelay, reelayDBUser, myFollowing }) => {
 
 const isNewerReelay = (thisReelay, lastReelay) => {
     try {
-        if (!lastReelay.postedDateTime) return true;
+        if (!lastReelay?.postedDateTime) return true;
         const lastReelayCreatedAt = moment(lastReelay?.postedDateTime);
         const thisReelayCreatedAt = moment(thisReelay?.postedDateTime);
         // date comparison: newer is larger

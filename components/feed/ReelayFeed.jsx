@@ -11,9 +11,16 @@ import { checkForUnseenGlobalReelays } from '../utils/UnreadReelays';
 import styled from 'styled-components/native';
 import { showMessageToast } from '../utils/toasts';
 import { useFocusEffect } from '@react-navigation/core';
+import BackButton from '../utils/BackButton';
 
 const { height, width } = Dimensions.get('window');
 
+const BackButtonContainer = styled(View)`
+    background-color: transparent;
+    position: absolute;
+    top: 150px;
+    z-index: 4;
+`
 const ReelayFeedContainer = styled(View)`
     background-color: black;
     justify-content: flex-start;
@@ -229,8 +236,16 @@ const ReelayFeed = ({ navigation,
             windowSize={3}
           />
         )}
+        { feedSource !== 'global' && (
+            <BackButtonContainer>
+                <BackButton navigation={navigation} />
+            </BackButtonContainer>
+        )}
       </ReelayFeedContainer>
     );
 }
 
-export default memo(ReelayFeed, (prevProps, nextProps) => true);
+export default memo(ReelayFeed, (prevProps, nextProps) => {
+    console.log('reelay feed memo is called: ', prevProps, nextProps);
+    return true;
+});
