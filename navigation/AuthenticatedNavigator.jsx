@@ -92,9 +92,9 @@ const bottomTabIconStyle = (focused) => {
 
 const BottomTabNavigator = () => {
 	const { myNotifications } = useContext(AuthContext);
+	const { hasUnseenGlobalReelays, tabBarVisible } = useContext(FeedContext);
 	const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
-    const { tabBarVisible } = useContext(FeedContext);
     const s = StyleSheet.create({
 		gradient: {
 			flex: 1,
@@ -157,7 +157,10 @@ const BottomTabNavigator = () => {
 				component={FeedTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<Icon type='ionicon' name='earth' size={24} color='white' />
+						<View>
+							<Icon type='ionicon' name='earth' size={24} color='white' />
+							{ hasUnseenGlobalReelays && <UnreadIconIndicator /> }
+						</View>
 					),
 				}}
 			/>
@@ -185,13 +188,10 @@ const BottomTabNavigator = () => {
 				component={ProfileTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<View>
-							<Image
-								source={ProfileIcon}
-								style={bottomTabIconStyle(focused)}
-							/>
-							{ hasUnreadNotifications && <UnreadIconIndicator /> }
-						</View>
+						<Image
+							source={ProfileIcon}
+							style={bottomTabIconStyle(focused)}
+						/>
 					),
 				}}
 			/>

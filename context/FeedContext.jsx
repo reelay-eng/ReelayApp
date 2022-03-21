@@ -3,7 +3,8 @@ import React, { createContext } from 'react';
 export const FeedContext = createContext({
     commentsVisible: false,
     currentComment: '',
-    dotMenueVisible: false,
+    dotMenuVisible: false,
+    hasUnseenGlobalReelays: false,
     justShowMeSignupVisible: false,
     likesVisible: false,
     tabBarVisible: true,
