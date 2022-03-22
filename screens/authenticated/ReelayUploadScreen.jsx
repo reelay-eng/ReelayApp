@@ -34,6 +34,7 @@ import { postReelayToDB } from '../../api/ReelayDBApi';
 import { fetchAnnotatedTitle } from '../../api/TMDbApi';
 import ReelayColors from '../../constants/ReelayColors';
 import { notifyOnReelayedRec } from '../../api/WatchlistNotifications';
+import { FeedContext } from '../../context/FeedContext';
 
 const { height, width } = Dimensions.get('window');
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
@@ -121,6 +122,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
     const { myWatchlistItems, reelayDBUser } = useContext(AuthContext);
     const { s3Client } = useContext(UploadContext);
+    const { setRefreshOnUpload } = useContext(FeedContext);
 
     const uploadReelayToS3 = async (videoURI, videoS3Key) => {
         setUploadProgress(0.2);
@@ -286,6 +288,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 watchlistItems: myWatchlistItems,
             });
             
+            setRefreshOnUpload(true);
+            navigation.popToTop();
             navigation.navigate("FeedScreen", { forceRefresh: true });
 
         } catch (error) {

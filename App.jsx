@@ -80,6 +80,7 @@ function App() {
     const [likesVisible, setLikesVisible] = useState(false);
     const [paused, setPaused] = useState(false);
     const [playPauseVisible, setPlayPauseVisible] = useState('none');
+    const [refreshOnUpload, setRefreshOnUpload] = useState(false);
     const [tabBarVisible, setTabBarVisible] = useState(true);
 
     // Upload context hooks
@@ -308,6 +309,7 @@ function App() {
         dotMenuVisible,     setDotMenuVisible,
         justShowMeSignupVisible, setJustShowMeSignupVisible,
         likesVisible,       setLikesVisible,
+        refreshOnUpload,    setRefreshOnUpload,
         tabBarVisible,      setTabBarVisible,
     }
 
