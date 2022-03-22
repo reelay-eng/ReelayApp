@@ -1,6 +1,24 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import moment from "moment";
 
+/**
+ * recentReelaysCache:
+ *      [ {
+ *          reelay: { sub, creator, tmdbTitleID, isSeries },
+ *          addedAt: moment,
+ *          lastAccessedAt: moment,
+ *      ]
+ *      
+ * recentTitlesCache:
+ *      [ {
+ *          title: { fetchAnnotatedTitle(tmdbTitleID, isSeries) },
+ *          addedAt: moment,
+ *          lastAccessedAt: moment,
+ *      ]
+ * 
+ * 
+ */
+
 export const checkShouldMarkSeen = async ({ reelay, reelayDBUser, myFollowing }) => {
     const [alreadyFollowing, isMyProfile] = getRelationship({ reelay, reelayDBUser, myFollowing });    
     const lastReelayMarkedSeen = await getLastReelayMarkedSeen();

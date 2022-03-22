@@ -47,7 +47,7 @@ const FriendsAreWatching = ({ navigation }) => {
                 <Fragment>
                     <HeaderContainer>
                         <Icon type='ionicon' name='people' size={24} color='white' />
-                        <HeaderText>{'People are watching'}</HeaderText>
+                        <HeaderText>{'Friends are watching'}</HeaderText>
                     </HeaderContainer>
                     <FollowingRowContainer horizontal>
                         { myStacksFollowing.map((stack, index) =>  {
@@ -111,6 +111,8 @@ const FollowingElement = ({ stack, index, navigation }) => {
     const displayTitle = (fullTitle?.length > 26) 
         ? fullTitle.substring(0, 23) + "..."
         : fullTitle;
+
+    console.log('CONTENT: ', stack[0].content);
 
     return (
         <FollowingElementContainer>

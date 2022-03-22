@@ -80,8 +80,8 @@ export const getOtherVenues = () => {
 export const VenueIcon = memo(({ border = 0, onPress, size = 48, venue }) => {
 
     const searchItems = [...iconVenues, ...otherVenues];
-    const sourceVenueObject = venue.length ? searchItems.find(vi => vi.venue === venue) : null;
-    const isOther = venue.length ? otherVenues.map(e => e.venue)?.includes(venue) : null;
+    const sourceVenueObject = venue?.length ? searchItems.find(vi => vi.venue === venue) : null;
+    const isOther = venue?.length ? otherVenues.map(e => e.venue)?.includes(venue) : null;
     const source = isOther ? sourceVenueObject?.oldSource : sourceVenueObject?.source;
     const radius = (size / 2) + (border ? 4 : 0);
     

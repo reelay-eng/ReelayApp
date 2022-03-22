@@ -105,6 +105,7 @@ const IconOptions = ({ onRefresh }) => {
 
         await Promise.all(selectedVenues.current.map(postIfNewSubscription));
         await Promise.all(myStreamingPlatforms.map(removeIfOldSubscription));
+        await refreshMyStreamingSubscriptions(reelayDBUser?.sub);
     }
 
     const onSave = async () => {
@@ -113,7 +114,6 @@ const IconOptions = ({ onRefresh }) => {
             return;
         }
         await addAndRemoveSubscriptionChanges();
-        const nextSubscriptions = await refreshMyStreamingSubscriptions(reelayDBUser?.sub);
         await onRefresh();
     }
 
