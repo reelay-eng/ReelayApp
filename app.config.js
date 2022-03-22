@@ -18,10 +18,10 @@ export default ({ config }) => {
 
     const getVisibility = () => {
         if (process.env.NODE_ENV === 'production' ||
+            process.env.NODE_ENV === 'staging' ||
             process.env.NODE_ENV === 'devg' ||
             process.env.NODE_ENV === 'localg') return 'global';
-        if (process.env.NODE_ENV === 'staging' ||
-            process.env.NODE_ENV === 'dev' ||
+        if (process.env.NODE_ENV === 'dev' ||
             process.env.NODE_ENV === 'local') return 'dev';
 
         // should be unreachable but just in case

@@ -34,6 +34,7 @@ amplifytools.xcconfig
 
 package-lock.json
 yarn-error.log
+yarn.lock
 .eslintignore
 install_nvm.sh
 
