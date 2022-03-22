@@ -226,7 +226,7 @@ export default PosterWithTrailer = ({
 		console.log("go to venue select")
 		navigation.reset({
 			index: 0,
-			routes: [{ name: 'BottomTab' }, {name: 'VenueSelectScreen', params: {titleObj:titleObj}}]
+			routes: [{ name: 'BottomTab' }, { name: 'VenueSelectScreen', params: { titleObj: titleObj } }]
 		});
 		logAmplitudeEventProd('advanceToCreateReelay', {
 			username: reelayDBUser?.username,

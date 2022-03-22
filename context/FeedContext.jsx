@@ -6,6 +6,6 @@ export const FeedContext = createContext({
     dotMenueVisible: false,
     justShowMeSignupVisible: false,
     likesVisible: false,
-    refreshOnUpload:false,
+    refreshOnUpload: false,
     tabBarVisible: true,
 });
