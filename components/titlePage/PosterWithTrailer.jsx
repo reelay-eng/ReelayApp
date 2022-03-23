@@ -68,18 +68,27 @@ export default PosterWithTrailer = ({
 			opacity: ${(props) => props.opacity};
 			position: absolute;
 		`;
+		const GradientContainer = styled(View)`
+ 			width: 100%;
+ 			height: 100%;
+			flex: 1;
+ 		`;
+
 		return (
-			<>
+			<View style={{height: "100%", width: "100%"}}>
 				<PosterImage source={posterSource} />
 				<PosterOverlay color={ReelayColors.reelayBlack} opacity={0.2} />
-				<LinearGradient
-					colors={["transparent", ReelayColors.reelayBlack]}
-					style={{gradient: {
-						flex: 1,
-						opacity: 1,
-					}}}
-				/>
-			</>
+				<GradientContainer>
+					<LinearGradient
+						colors={["transparent", ReelayColors.reelayBlack]}
+						style={{
+							opacity: 1,
+							width: '100%', 
+							height: '100%'
+						}}
+					/>
+				</GradientContainer>
+			</View>
 		);
 	};
 
@@ -223,8 +232,10 @@ export default PosterWithTrailer = ({
 
 	const advanceToCreateReelay = () => {
 		if (showMeSignupIfGuest()) return;
-		navigation.getParent().push("VenueSelectScreen", {
-			titleObj: titleObj,
+		console.log("go to venue select")
+		navigation.reset({
+			index: 0,
+			routes: [{ name: 'BottomTab' }, { name: 'VenueSelectScreen', params: { titleObj: titleObj } }]
 		});
 		logAmplitudeEventProd('advanceToCreateReelay', {
 			username: reelayDBUser?.username,

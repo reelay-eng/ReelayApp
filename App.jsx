@@ -86,6 +86,7 @@ function App() {
     const [hasUnseenGlobalReelays, setHasUnseenGlobalReelays] = useState(false);
     const [justShowMeSignupVisible, setJustShowMeSignupVisible] = useState(false);
     const [likesVisible, setLikesVisible] = useState(false);
+    const [refreshOnUpload, setRefreshOnUpload] = useState(false);
     const [tabBarVisible, setTabBarVisible] = useState(true);
 
     // Upload context hooks
@@ -351,6 +352,7 @@ function App() {
         hasUnseenGlobalReelays, setHasUnseenGlobalReelays,
         justShowMeSignupVisible, setJustShowMeSignupVisible,
         likesVisible,       setLikesVisible,
+        refreshOnUpload,    setRefreshOnUpload,
         tabBarVisible,      setTabBarVisible,
     }
 

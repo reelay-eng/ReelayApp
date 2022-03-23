@@ -77,10 +77,14 @@ export default MyProfileScreen = ({ navigation, route }) => {
         setMyWatchlistItems,
     } = useContext(AuthContext); 
 
-    const { setTabBarVisible } = useContext(FeedContext);
+    const { setTabBarVisible, refreshOnUpload, setRefreshOnUpload } = useContext(FeedContext);
 
     useEffect(() => {
         setTabBarVisible(true);
+        if (refreshOnUpload) {
+            setRefreshOnUpload(false);
+            onRefresh();
+        }
     });
 
     useEffect(() => {
