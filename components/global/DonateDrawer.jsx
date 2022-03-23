@@ -1,6 +1,5 @@
-import React, { Fragment, useContext, useEffect } from 'react';
+import React, { Fragment, useContext } from 'react';
 import { Image, Linking, Modal, Pressable, SafeAreaView, View } from 'react-native';
-import DogWithGlasses from '../../assets/images/dog-with-glasses.png';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 import ReelayColors from '../../constants/ReelayColors';
@@ -8,7 +7,6 @@ import { AuthContext } from '../../context/AuthContext';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import Autolink from 'react-native-autolink';
-import { ActivityIndicator } from 'react-native-paper';
 
 export default DonateDrawer = ({ 
     donateObj, 
@@ -34,13 +32,24 @@ export default DonateDrawer = ({
         position: absolute;
     `
     const { reelayDBUser } = useContext(AuthContext);
-    const closeDrawer= () => setDonateDrawerVisible(false);
+    const closeDrawer= () => {
+        logAmplitudeEventProd('closedDonationDrawer', {
+            donationTitle: donateObj?.donationTitle,
+            creatorName: reelay?.creator?.username,
+            reelaySub: reelay?.sub,
+            title: reelay?.title?.display,
+            username: reelayDBUser?.username,
+        });    
+        setDonateDrawerVisible(false);
+    }
 
     logAmplitudeEventProd('openedDonationDrawer', {
         donationTitle: donateObj?.donationTitle,
         creatorName: reelay?.creator?.username,
+        reelaySub: reelay?.sub,
+        title: reelay?.title?.display,
         username: reelayDBUser?.username,
-    });
+});
 
     return (
         <ModalContainer>
@@ -58,7 +67,16 @@ export default DonateDrawer = ({
 const DonatePrompt = ({ donateObj, reelay, setDonateDrawerVisible }) => {
     const { donationTitle, imageURL, linkURL } = donateObj;
     const { reelayDBUser } = useContext(AuthContext);
-    const closeDrawer = () => setDonateDrawerVisible(false);
+    const closeDrawer = () => {
+        logAmplitudeEventProd('closedDonationDrawer', {
+            donationTitle: donationTitle,
+            creatorName: reelay?.creator?.username,
+            reelaySub: reelay?.sub,
+            title: reelay?.title?.display,
+            username: reelayDBUser?.username,
+        });    
+        setDonateDrawerVisible(false);
+    }
 
     const BottomContainer = styled(View)`
         align-items: center;
@@ -129,9 +147,11 @@ const DonatePrompt = ({ donateObj, reelay, setDonateDrawerVisible }) => {
     `
 
     const openDonateLink = () => {
-        logAmplitudeEventProd('openedDonationDrawer', {
+        logAmplitudeEventProd('openedDonationLink', {
             donationTitle: donateObj?.donationTitle,
             creatorName: reelay?.creator?.username,
+            reelaySub: reelay?.sub,
+            title: reelay?.title?.display,
             username: reelayDBUser?.username,
         });
         Linking.openURL(linkURL);    
