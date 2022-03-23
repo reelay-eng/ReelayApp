@@ -146,7 +146,7 @@ export default PosterWithTrailer = ({
 		`;
 
 		// Quick fix in order to fit runtime and release year
-		const ReducedGenres = genres.slice(0, 2);
+		const ReducedGenres = genres?.slice(0, 2);
 
 		//Conversion from minutes to hours and minutes
 		const runtimeString = getRuntimeString(runtime);
