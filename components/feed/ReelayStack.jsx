@@ -6,6 +6,8 @@ import Hero from './Hero';
 import Poster from './Poster';
 import AddToWatchlistButton from '../titlePage/AddToWatchlistButton';
 
+import { VenueIcon } from '../utils/VenueIcon';
+
 import styled from 'styled-components/native';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -58,6 +60,16 @@ const YearText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
     margin-bottom: 4px;
+    margin-left: 5px;
+`
+
+const VenueContainer = styled(View)`
+    margin-top: -4px;
+`
+
+const YearVenueContainer = styled(View)`
+    flex-direction: row;
+    margin-top: 0px;
 `
 
 const ReelayStack = ({ 
@@ -181,7 +193,14 @@ const ReelayStack = ({
                             </TitleText>
                         </TitleContainer>
                         <View style={{ flexDirection: "column", marginTop: 5 }}>
-                            { year.length > 0 && <YearText>{year}</YearText> }
+                            <YearVenueContainer>
+                                { viewableReelay?.content?.venue && 
+                                    <VenueContainer>
+                                        <VenueIcon venue={viewableReelay.content.venue} size={20} border={1} />
+                                    </VenueContainer>
+                                }
+                                { year.length > 0 && <YearText>{year}</YearText> }
+                            </YearVenueContainer>
                             <StackLengthText>
                                 {(stack.length > 1) 
                                     ? `${stack.length} Reelays  << swipe >>` 
