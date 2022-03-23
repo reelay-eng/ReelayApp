@@ -10,7 +10,9 @@ import styled from 'styled-components/native';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
+import { FeedContext } from '../../context/FeedContext';
 import * as ReelayText from '../global/Text';
+import DonateButton from '../global/DonateButton';
 
 const { height, width } = Dimensions.get('window');
 
@@ -69,7 +71,15 @@ const ReelayStack = ({
 }) => {
     const [stackPosition, setStackPosition] = useState(0);
     const { reelayDBUser } = useContext(AuthContext);
+    const { donateLinks } = useContext(FeedContext);
+
     const viewableReelay = stack[stackPosition];
+    const donateObj = donateLinks.find((donateLinkObj) => {
+        const { tmdbTitleID, titleType } = donateLinkObj;
+        const viewableTitleID = stack[0].title.id;
+        const viewableTitleType = (stack[0].title.isSeries) ? 'tv' : 'film';
+        return ((tmdbTitleID === viewableTitleID) && titleType === viewableTitleType);
+    });
     
     // figure out how to do ellipses for displayTitle
     const displayTitle = (viewableReelay.title.display) ? viewableReelay.title.display : 'Title not found\ '; 
@@ -190,7 +200,8 @@ const ReelayStack = ({
                             </StackLengthText>
                         </View>
                     </TitleInfo>
-                    <AddToWatchlistButton titleObj={viewableReelay.title} reelay={viewableReelay}/> 
+                    { !donateObj && <AddToWatchlistButton titleObj={viewableReelay.title} reelay={viewableReelay}/> }
+                    { donateObj && <DonateButton donateObj={donateObj} reelay={viewableReelay} /> }
                 </Pressable>
             </TitleDetailContainer>
         </ReelayFeedContainer>

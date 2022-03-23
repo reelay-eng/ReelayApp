@@ -61,6 +61,8 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 		height: 100%;
 		background-color: #0d0d0d;
 	`;
+
+	console.log(`TITLE DETAIL SCREEN: ${titleObj.display} tmdb id: ${tmdbTitleID}, is movie: ${isMovie}`);
 	return (
 		<ScrollBox showsVerticalScrollIndicator={false}>
 			<PosterWithTrailer

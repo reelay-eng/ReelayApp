@@ -111,6 +111,16 @@ export const getReportedReelayStacks = async () => {
     return preparedReportedStacks;
 }
 
+export const getAllDonateLinks = async () => {
+    const routeGet = `${REELAY_API_BASE_URL}/donateLinks/all`;
+    console.log('donate links route: ', routeGet);
+    const resultGet = await fetchResults(routeGet, {
+        method: "GET",
+        headers: REELAY_API_HEADERS,
+    });
+    return resultGet;
+}
+
 export const getFollowing = async (creatorSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/follows/follower/sub/${creatorSub}`;
     console.log(routeGet);

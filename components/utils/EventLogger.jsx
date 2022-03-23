@@ -5,7 +5,6 @@ const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 export const logAmplitudeEventProd = async (eventName, options) => {
     if (FEED_VISIBILITY === 'global') {
-        // slava ukraini
         const optionsNoLocation = {
             ...options,
             disableCity: true,

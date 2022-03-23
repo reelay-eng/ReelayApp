@@ -33,7 +33,7 @@ import { FeedContext } from './context/FeedContext';
 import { UploadContext } from './context/UploadContext';
 
 // api imports
-import { getRegisteredUser, registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
+import { getAllDonateLinks, getRegisteredUser, registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { toastConfig } from './components/utils/ToastConfig';
 import Toast from "react-native-toast-message";
@@ -75,6 +75,7 @@ function App() {
     // Feed context hooks
     const [commentsVisible, setCommentsVisible] = useState(false);
     const [currentComment, setCurrentComment] = useState('');
+    const [donateLinks, setDonateLinks] = useState([]);
     const [dotMenuVisible, setDotMenuVisible] = useState(false);
     const [justShowMeSignupVisible, setJustShowMeSignupVisible] = useState(false);
     const [likesVisible, setLikesVisible] = useState(false);
@@ -259,6 +260,11 @@ function App() {
         setMyCreatorStacks(myCreatorStacksLoaded);
         setMyNotifications(myNotifications);
         setMyWatchlistItems(myWatchlistItemsLoaded);
+
+        const donateLinks = await getAllDonateLinks();
+        console.log('donate links: ', donateLinks);
+        setDonateLinks(donateLinks);
+
         setIsLoading(false);
     }
 
@@ -306,6 +312,7 @@ function App() {
     const feedState = {
         commentsVisible,    setCommentsVisible,
         currentComment,     setCurrentComment,
+        donateLinks,        setDonateLinks,
         dotMenuVisible,     setDotMenuVisible,
         justShowMeSignupVisible, setJustShowMeSignupVisible,
         likesVisible,       setLikesVisible,
