@@ -8,6 +8,7 @@ import { AuthContext } from '../../context/AuthContext';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import Autolink from 'react-native-autolink';
+import { ActivityIndicator } from 'react-native-paper';
 
 export default DonateDrawer = ({ 
     donateObj, 
@@ -15,6 +16,12 @@ export default DonateDrawer = ({
     reelay,
     setDonateDrawerVisible 
 }) => {
+    const Backdrop = styled(Pressable)`
+        background-color: transparent;
+        height: 100%;
+        position: absolute;
+        width: 100%;
+    `
     const DrawerContainer = styled(View)`
         background-color: #1a1a1a;
         border-top-left-radius: 20px;
@@ -26,20 +33,31 @@ export default DonateDrawer = ({
     const ModalContainer = styled(View)`
         position: absolute;
     `
+    const { reelayDBUser } = useContext(AuthContext);
+    const closeDrawer= () => setDonateDrawerVisible(false);
+
+    logAmplitudeEventProd('openedDonationDrawer', {
+        donationTitle: donateObj?.donationTitle,
+        creatorName: reelay?.creator?.username,
+        username: reelayDBUser?.username,
+    });
+
     return (
         <ModalContainer>
             <Modal animationType="slide" transparent={true} visible={donateDrawerVisible}>
+                <Backdrop onPress={closeDrawer} />
                 <DrawerContainer>
-                    <DonatePrompt donateObj={donateObj} setDonateDrawerVisible={setDonateDrawerVisible} />
+                    <DonatePrompt donateObj={donateObj} reelay={reelay} 
+                        setDonateDrawerVisible={setDonateDrawerVisible} />
                 </DrawerContainer>
             </Modal>
         </ModalContainer>
     );
 }
 
-const DonatePrompt = ({ donateObj, setDonateDrawerVisible }) => {
+const DonatePrompt = ({ donateObj, reelay, setDonateDrawerVisible }) => {
+    const { donationTitle, imageURL, linkURL } = donateObj;
     const { reelayDBUser } = useContext(AuthContext);
-    const { linkURL } = donateObj;
     const closeDrawer = () => setDonateDrawerVisible(false);
 
     const BottomContainer = styled(View)`
@@ -48,36 +66,30 @@ const DonatePrompt = ({ donateObj, setDonateDrawerVisible }) => {
     `
     const DonateTitleText = styled(ReelayText.H5)`
         color: white;
-        font-size: 20px;
         margin-bottom: 10px;
+        border-bottom-width: 2px;
+        border-bottom-color: white;
+        border-radius: 4px;
+        padding: 10px;
         text-align: center;
-    `
-    const DogWithGlassesImage = styled(Image)`
-        height: 80px;
-        width: 80px;
-    `
-    const DogWithGlassesContainer = styled(View)`
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 20px;
-        width: 100%;
     `
     const ExplainText = styled(ReelayText.Body2Emphasized)`
         color: white;
         margin-bottom: 20px;
-        text-align: center;
-        width: 75%;
-    `
-    const HeaderText = styled(ReelayText.H5)`
-        color: white;
-        margin-bottom: 10px;
-        text-align: center;
+        text-align: left;
+        width: 90%;
     `
     const DonatePromptContainer = styled(SafeAreaView)`
         align-items: center;
         justify-content: center;
         margin: 10px;
         height: 100%;
+    `
+    const DonationImage = styled(Image)`
+        border-radius: 8px;
+        height: 140px;
+        margin: 20px;
+        width: 140px;
     `
     const KeepBrowsingButton = styled(Pressable)`
         align-items: center;
@@ -116,28 +128,35 @@ const DonatePrompt = ({ donateObj, setDonateDrawerVisible }) => {
         width: 100%;
     `
 
+    const openDonateLink = () => {
+        logAmplitudeEventProd('openedDonationDrawer', {
+            donationTitle: donateObj?.donationTitle,
+            creatorName: reelay?.creator?.username,
+            username: reelayDBUser?.username,
+        });
+        Linking.openURL(linkURL);    
+    }
+
     return (
-        <DonatePromptContainer>
-            <TopContainer>
-                <HeaderText>{'Donate to a cause'}</HeaderText>
-                <DonateTitleText>{'Ukraine\'s defenders'}</DonateTitleText>
-                <ExplainText>
-                    {'A cause is set up for this title. You can tap the link below to donate.'}
-                </ExplainText>
-                <LinkToDonateRaw text={linkURL} url={linkURL} linkStyle={{ color: 'white' }}>
-                    { linkURL }
-                </LinkToDonateRaw>
-            </TopContainer>
-            <BottomContainer>
-                <LinkToDonateButton onPress={() => {
-                    Linking.openURL(linkURL);
-                }}>
-                    <LinkToDonateText>{'Donate Now'}</LinkToDonateText>
-                </LinkToDonateButton>
-                <KeepBrowsingButton onPress={closeDrawer}>
-                    <KeepBrowsingText>{'Close'}</KeepBrowsingText>
-                </KeepBrowsingButton>
-            </BottomContainer>
-        </DonatePromptContainer>
+        <Fragment>
+            <DonatePromptContainer>
+                <DonationImage source={{ uri: imageURL }} />
+                <TopContainer>
+                    <DonateTitleText>{donationTitle}</DonateTitleText>
+                    <ExplainText>
+                        {'We\'ve set up a donation link for this title. Tap the link below to learn more and give.'}
+                    </ExplainText>
+                </TopContainer>
+                <BottomContainer>
+                    <LinkToDonateRaw text={linkURL} url={linkURL} linkStyle={{ color: 'white' }} />
+                    <LinkToDonateButton onPress={openDonateLink}>
+                        <LinkToDonateText>{'Donate Now'}</LinkToDonateText>
+                    </LinkToDonateButton>
+                    <KeepBrowsingButton onPress={closeDrawer}>
+                        <KeepBrowsingText>{'Close'}</KeepBrowsingText>
+                    </KeepBrowsingButton>
+                </BottomContainer>
+            </DonatePromptContainer>
+        </Fragment>
     );
 }

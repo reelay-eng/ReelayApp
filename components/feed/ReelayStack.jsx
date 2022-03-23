@@ -74,7 +74,7 @@ const ReelayStack = ({
     const { donateLinks } = useContext(FeedContext);
 
     const viewableReelay = stack[stackPosition];
-    const donateObj = donateLinks.find((donateLinkObj) => {
+    const donateObj = donateLinks?.find((donateLinkObj) => {
         const { tmdbTitleID, titleType } = donateLinkObj;
         const viewableTitleID = stack[0].title.id;
         const viewableTitleType = (stack[0].title.isSeries) ? 'tv' : 'film';
