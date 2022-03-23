@@ -60,11 +60,11 @@ const YearText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
     margin-bottom: 4px;
-    margin-left: 5px;
 `
 
 const VenueContainer = styled(View)`
     margin-top: -4px;
+    margin-right: 5px;
 `
 
 const YearVenueContainer = styled(View)`
