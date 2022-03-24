@@ -30,7 +30,6 @@ import useColorScheme from './hooks/useColorScheme';
 // context imports
 import { AuthContext } from './context/AuthContext';
 import { FeedContext } from './context/FeedContext';
-import { UploadContext } from './context/UploadContext';
 
 // api imports
 import { getRegisteredUser, registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
@@ -49,11 +48,14 @@ import {
 
 // font imports
 import * as Font from 'expo-font';
+import { connect, Provider, useDispatch, useSelector } from 'react-redux';
+import store, { mapStateToProps } from './redux/store';
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png');
 
 function App() {
     const colorScheme = useColorScheme();
+    const dispatch = useDispatch();
 
     // Auth context hooks
     const [cognitoUser, setCognitoUser] = useState({});
@@ -83,9 +85,6 @@ function App() {
     const [refreshOnUpload, setRefreshOnUpload] = useState(false);
     const [tabBarVisible, setTabBarVisible] = useState(true);
 
-    // Upload context hooks
-    const [s3Client, setS3Client] = useState(null);
-
     useEffect(() => {
         (async () => {
             await initServices();
@@ -113,6 +112,7 @@ function App() {
     useEffect(() => {
         if (reelayDBUser?.sub) {
             setSignedIn(true);
+            dispatch({ type: 'setSignedIn', payload: true });
             registerMyPushToken();
         }
     }, [reelayDBUser]);
@@ -211,8 +211,8 @@ function App() {
 
     const initS3Client = () => {
         try {
-            setupURLPolyfill();
-            setS3Client(new S3Client({
+            setupURLPolyfill();            
+            const newS3Client = new S3Client({
                 region: AWSExports.aws_project_region,
                 credentials: fromCognitoIdentityPool({
                     client: new CognitoIdentityClient({ 
@@ -220,7 +220,8 @@ function App() {
                     }),
                     identityPoolId: AWSExports.aws_cognito_identity_pool_id,
                 }),
-            }));    
+            });
+            dispatch({ type: 'setS3Client', payload: newS3Client });
         } catch (error) {
             console.log('Could not initialize S3 client');
             console.log(error);
@@ -299,10 +300,6 @@ function App() {
         signUpFromGuest,    setSignUpFromGuest,
     }
 
-    const uploadState = {
-        s3Client,           setS3Client,
-    }
-
     const feedState = {
         commentsVisible,    setCommentsVisible,
         currentComment,     setCurrentComment,
@@ -335,11 +332,9 @@ function App() {
             <SafeAreaProvider>
                 <AuthContext.Provider value={authState}>
                     <FeedContext.Provider value={feedState}>
-                        <UploadContext.Provider value={uploadState}>
-                            <StatusBar hidden={true} />
-                            <Navigation colorScheme={colorScheme} />
-                            <Toast config={toastConfig}/>
-                        </UploadContext.Provider>
+                        <StatusBar hidden={true} />
+                        <Navigation colorScheme={colorScheme} />
+                        <Toast config={toastConfig}/>
                     </FeedContext.Provider>
                 </AuthContext.Provider>
             </SafeAreaProvider>
@@ -347,4 +342,13 @@ function App() {
     }
 }
 
-export default App;
+const ReduxApp = () => {
+    return (
+        <Provider store={store}>
+            <App />
+        </Provider>
+    )
+}
+
+connect(mapStateToProps)(ReduxApp);
+export default ReduxApp;

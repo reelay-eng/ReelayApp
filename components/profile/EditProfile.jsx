@@ -18,7 +18,7 @@ import { updateProfilePic, updateUserBio, updateUserWebsite } from "../../api/Re
 // Context
 import { FeedContext } from "../../context/FeedContext";
 import { AuthContext } from "../../context/AuthContext";
-import { UploadContext } from "../../context/UploadContext";
+import { useSelector } from "react-redux";
 
 // Styling
 import styled from "styled-components/native";
@@ -253,7 +253,7 @@ const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 
 	const { reelayDBUser, setReelayDBUser } = useContext(AuthContext);
-	const { s3Client } = useContext(UploadContext);
+	const s3Client = useSelector(state => state.s3Client);
 
 	const takePhoto = async () => {
 		const cameraStatus = await ImagePicker.requestCameraPermissionsAsync();

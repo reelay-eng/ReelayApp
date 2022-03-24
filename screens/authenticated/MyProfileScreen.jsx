@@ -28,9 +28,11 @@ import * as ReelayText from "../../components/global/Text";
 // Context
 import { AuthContext } from "../../context/AuthContext";
 import { FeedContext } from "../../context/FeedContext";
+import { useSelector } from 'react-redux';
 
 // Styling
 import styled from 'styled-components/native';
+import store from '../../redux/store';
 
 export default MyProfileScreen = ({ navigation, route }) => {
     const ProfileScreenContainer = styled(SafeAreaView)`
@@ -77,6 +79,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
         setMyWatchlistItems,
     } = useContext(AuthContext); 
 
+    const signedIn = useSelector(state => state.signedIn);
+    console.log('Is signed in: ', signedIn);
     const { setTabBarVisible, refreshOnUpload, setRefreshOnUpload } = useContext(FeedContext);
 
     useEffect(() => {
@@ -118,11 +122,19 @@ export default MyProfileScreen = ({ navigation, route }) => {
             console.log('Now refreshing');
             setRefreshing(true);
             try {
-                const nextMyCreatorStacks = await refreshMyReelayStacks(userSub);
-                const nextMyFollowers = await refreshMyFollowers(userSub);
-                const nextMyFollowing = await refreshMyFollowing(userSub);
-                const nextMyNotifications = await refreshMyNotifications(userSub);
-                const nextMyWatchlistItems = await refreshMyWatchlist(userSub);
+                const [
+                    nextMyCreatorStacks,
+                    nextMyFollowers,
+                    nextMyFollowing,
+                    nextMyNotifications,
+                    nextMyWatchlistItems,
+                ] = await Promise.all([
+                    refreshMyReelayStacks(userSub),
+                    refreshMyFollowers(userSub),
+                    refreshMyFollowing(userSub),
+                    refreshMyNotifications(userSub),
+                    refreshMyWatchlist(userSub),
+                ]);
                 
                 nextMyCreatorStacks.forEach((stack) => stack.sort(sortReelays));
                 nextMyCreatorStacks.sort(sortStacks);
