@@ -10,9 +10,7 @@ const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3ThumbnailBucket;
 const THUMBNAIL_QUALITY = 0.5;
 
 export const getThumbnailURI = (reelay) => {
-    const uri = `${CLOUDFRONT_THUMBNAIL_URL}/thumbnails/reelay-${reelay?.sub}`;
-    console.log('URI: ', uri);
-    return uri;
+    return `${CLOUDFRONT_THUMBNAIL_URL}/thumbnails/reelay-${reelay?.sub}`;
 }
 
 export const getThumbnailS3Key = (reelay) => {

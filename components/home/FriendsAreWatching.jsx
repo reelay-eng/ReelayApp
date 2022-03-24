@@ -113,8 +113,6 @@ const FollowingElement = ({ stack, index, navigation }) => {
         ? fullTitle.substring(0, 23) + "..."
         : fullTitle;
 
-    console.log('CONTENT: ', stack[0].content);
-
     return (
         <FollowingElementContainer>
             <ReelayThumbnail 
