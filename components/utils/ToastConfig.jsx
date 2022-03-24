@@ -7,9 +7,9 @@ import styled from 'styled-components/native';
 const DoneText = styled(Text)`
     color: #2977ef;
     font-family: Outfit-Medium;
-    font-size: 15;
+    font-size: 15px;
     font-style: normal;
-    line-height: 20;
+    line-height: 20px;
     letter-spacing: 0.5px; 
     text-align: left
 `;
