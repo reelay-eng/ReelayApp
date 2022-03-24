@@ -30,7 +30,6 @@ import useColorScheme from './hooks/useColorScheme';
 // context imports
 import { AuthContext } from './context/AuthContext';
 import { FeedContext } from './context/FeedContext';
-import { UploadContext } from './context/UploadContext';
 
 // api imports
 import { getRegisteredUser, registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
@@ -85,9 +84,6 @@ function App() {
     const [playPauseVisible, setPlayPauseVisible] = useState('none');
     const [refreshOnUpload, setRefreshOnUpload] = useState(false);
     const [tabBarVisible, setTabBarVisible] = useState(true);
-
-    // Upload context hooks
-    const [s3Client, setS3Client] = useState(null);
 
     useEffect(() => {
         (async () => {
@@ -215,8 +211,8 @@ function App() {
 
     const initS3Client = () => {
         try {
-            setupURLPolyfill();
-            setS3Client(new S3Client({
+            setupURLPolyfill();            
+            const newS3Client = new S3Client({
                 region: AWSExports.aws_project_region,
                 credentials: fromCognitoIdentityPool({
                     client: new CognitoIdentityClient({ 
@@ -224,7 +220,8 @@ function App() {
                     }),
                     identityPoolId: AWSExports.aws_cognito_identity_pool_id,
                 }),
-            }));    
+            });
+            dispatch({ type: 'setS3Client', payload: newS3Client });
         } catch (error) {
             console.log('Could not initialize S3 client');
             console.log(error);
@@ -303,10 +300,6 @@ function App() {
         signUpFromGuest,    setSignUpFromGuest,
     }
 
-    const uploadState = {
-        s3Client,           setS3Client,
-    }
-
     const feedState = {
         commentsVisible,    setCommentsVisible,
         currentComment,     setCurrentComment,
@@ -339,11 +332,9 @@ function App() {
             <SafeAreaProvider>
                 <AuthContext.Provider value={authState}>
                     <FeedContext.Provider value={feedState}>
-                        <UploadContext.Provider value={uploadState}>
-                            <StatusBar hidden={true} />
-                            <Navigation colorScheme={colorScheme} />
-                            <Toast config={toastConfig}/>
-                        </UploadContext.Provider>
+                        <StatusBar hidden={true} />
+                        <Navigation colorScheme={colorScheme} />
+                        <Toast config={toastConfig}/>
                     </FeedContext.Provider>
                 </AuthContext.Provider>
             </SafeAreaProvider>

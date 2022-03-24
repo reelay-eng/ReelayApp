@@ -91,14 +91,14 @@ const appReducer = ( state = initialState, action) => {
         case 'setJustShowMeSignupVisible':
             return { ...state, justShowMeSignupVisible: action.payload }
         case 'setLikesVisible':
-            return { ...state, commentsVisible: action.payload }
+            return { ...state, likesVisible: action.payload }
         case 'setRefreshOnUpload':
-            return { ...state, currentComment: action.payload }
+            return { ...state, refreshOnUpload: action.payload }
         case 'setTabBarVisible':
-            return { ...state, dotMenuVisible: action.payload }
+            return { ...state, tabBarVisible: action.payload }
 
         case 'setS3Client':
-            return { ...state, hasUnseenGlobalReelays: action.payload }
+            return { ...state, s3Client: action.payload }
             
         default: 
             return state
