@@ -28,9 +28,11 @@ import * as ReelayText from "../../components/global/Text";
 // Context
 import { AuthContext } from "../../context/AuthContext";
 import { FeedContext } from "../../context/FeedContext";
+import { useSelector } from 'react-redux';
 
 // Styling
 import styled from 'styled-components/native';
+import store from '../../redux/store';
 
 export default MyProfileScreen = ({ navigation, route }) => {
     const ProfileScreenContainer = styled(SafeAreaView)`
@@ -77,6 +79,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
         setMyWatchlistItems,
     } = useContext(AuthContext); 
 
+    const signedIn = useSelector(state => state.signedIn);
+    console.log('Is signed in: ', signedIn);
     const { setTabBarVisible, refreshOnUpload, setRefreshOnUpload } = useContext(FeedContext);
 
     useEffect(() => {
