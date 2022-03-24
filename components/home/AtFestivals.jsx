@@ -18,10 +18,8 @@ export default AtFestivals = ({ navigation }) => {
         display: flex;
         flex-direction: column;
     `
-    const { reelayDBUser } = useContext(AuthContext);
-    const { settingsShowFilmFestivals } = reelayDBUser;
+    const showFestivalsRow = useSelector(state => state.showFestivalsRow);
     const [showFestivalsPrompt, setShowFestivalsPrompt] = useState(false);
-    const [showFestivalsRow, setShowFestivalsRow] = useState(settingsShowFilmFestivals);
 
     const checkShowFestivalsPrompt = async () => {
         const hasSetPreference = await AsyncStorage.getItem('hasSetFestivalPreference');
@@ -37,7 +35,6 @@ export default AtFestivals = ({ navigation }) => {
             { showFestivalsPrompt && <FestivalsPrompt 
                 navigation={navigation} 
                 setShowFestivalsPrompt={setShowFestivalsPrompt} 
-                setShowFestivalsRow={setShowFestivalsRow} 
             /> }
             { showFestivalsRow && <FestivalReelaysRow 
                 navigation={navigation} 

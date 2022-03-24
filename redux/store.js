@@ -31,8 +31,9 @@ const initialState = {
     justShowMeSignupVisible: false,
     likesVisible: false,
     refreshOnUpload: false,
-    tabBarVisible: true,
     s3Client: null,
+    showFestivalsRow: false,
+    tabBarVisible: true,
 }
 
 const appReducer = ( state = initialState, action) => {
@@ -94,11 +95,12 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, likesVisible: action.payload }
         case 'setRefreshOnUpload':
             return { ...state, refreshOnUpload: action.payload }
-        case 'setTabBarVisible':
-            return { ...state, tabBarVisible: action.payload }
-
         case 'setS3Client':
             return { ...state, s3Client: action.payload }
+        case 'setShowFestivalsRow':
+            return { ...state, showFestivalsRow: action.payload }
+        case 'setTabBarVisible':
+            return { ...state, tabBarVisible: action.payload }    
             
         default: 
             return state
@@ -115,6 +117,7 @@ export const mapStateToProps = (state) => ({
     myFollowing: state.myFollowing,
     myFollowers: state.myFollowers,
     myNotifications: state.myNotifications,
+    myPreferences: state.myPreferences,
     myWatchlistItems: state.myWatchlistItems,
 
     myStreamingSubscriptions: state.myStreamingSubscriptions,
@@ -136,8 +139,9 @@ export const mapStateToProps = (state) => ({
     justShowMeSignupVisible: state.justShowMeSignupVisible,
     likesVisible: state.likesVisible,
     refreshOnUpload: state.refreshOnUpload,
-    tabBarVisible: state.tabBarVisible,
     s3Client: state.s3Client,
+    showFestivalsRow: state.showFestivalsRow,
+    tabBarVisible: state.tabBarVisible,
 });
 
 let store = createStore(appReducer);

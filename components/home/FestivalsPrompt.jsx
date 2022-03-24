@@ -12,6 +12,7 @@ import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { updateUserFestivalPreference } from '../../api/ReelayDBApi';
+import { useDispatch } from 'react-redux';
 
 const FestivalsPromptContainer = styled.View`
     align-items: center;
@@ -54,14 +55,14 @@ const ButtonBoxRow = styled(View)`
     width: 100%;
 `
 
-export default FestivalsPrompt = ({ navigation, setShowFestivalsPrompt, setShowFestivalsRow }) => {
+export default FestivalsPrompt = ({ navigation, setShowFestivalsPrompt }) => {
     return (
         <FestivalsPromptContainer>
             <PromptGradient /> 
             <FestivalIcon />
             <Headline>{'Are you into film festivals?'}</Headline>
             <PromptBody>{'Say Yes to see reelays from festivals on your home page. You can always change this later in Settings.'}</PromptBody>
-            <PromptResponseBox setShowFestivalsPrompt={setShowFestivalsPrompt} setShowFestivalsRow={setShowFestivalsRow} />
+            <PromptResponseBox setShowFestivalsPrompt={setShowFestivalsPrompt} />
         </FestivalsPromptContainer>
     )
 }
@@ -90,9 +91,10 @@ const PromptGradient = () => {
     );
 }
 
-const PromptResponseBox = ({ setShowFestivalsPrompt, setShowFestivalsRow }) => {
+const PromptResponseBox = ({ setShowFestivalsPrompt }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const { setJustShowMeSignupVisible } = useContext(FeedContext);
+    const dispatch = useDispatch();
 
     const optInToFestivals = async () => {
         if (reelayDBUser?.username === 'be_our_guest') {
@@ -104,7 +106,7 @@ const PromptResponseBox = ({ setShowFestivalsPrompt, setShowFestivalsRow }) => {
         const dbResult = await updateUserFestivalPreference(reelayDBUser?.sub, 'true');
         console.log(dbResult);
         setShowFestivalsPrompt(false);
-        setShowFestivalsRow(true);
+        dispatch({ type: 'setShowFestivals', payload: true });
     }
 
     const optOutOfFestivals = async () => {
@@ -117,7 +119,7 @@ const PromptResponseBox = ({ setShowFestivalsPrompt, setShowFestivalsRow }) => {
         const dbResult = await updateUserFestivalPreference(reelayDBUser?.sub, 'false');
         console.log(dbResult);
         setShowFestivalsPrompt(false);
-        setShowFestivalsRow(false);
+        dispatch({ type: 'setShowFestivals', payload: true });
     }
 
     return (

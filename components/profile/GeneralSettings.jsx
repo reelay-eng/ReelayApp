@@ -1,8 +1,7 @@
-import React, { useState, useContext, useEffect, useRef } from 'react';
+import React, { useContext } from 'react';
 import { View, Switch, Linking, Pressable } from 'react-native';
 
 // Context
-import { FeedContext } from "../../context/FeedContext";
 import { AuthContext } from '../../context/AuthContext';
 
 // API
@@ -14,6 +13,7 @@ import * as ReelayText from "../../components/global/Text";
 import { HeaderWithBackButton } from "../global/Headers";
 import ReelayColors from '../../constants/ReelayColors';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default GeneralSettings = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
@@ -35,8 +35,8 @@ export default GeneralSettings = ({ navigation }) => {
 }
 
 const GeneralSettingsWrapper = ({ reelayDBUser }) => {
-    const { settingsShowFilmFestivals } = reelayDBUser;
-    const [showFilmFestivals, setShowFilmFestivals] = useState(settingsShowFilmFestivals);
+    const dispatch = useDispatch();
+    const showFestivalsRow = useSelector(state => state.showFestivalsRow);
 
     const GeneralSettingsContainer = styled(View)`
         width: 90%;
@@ -53,28 +53,26 @@ const GeneralSettingsWrapper = ({ reelayDBUser }) => {
         opacity: 0.7;
         width: 98%;
     `
-    const toggleShowFilmFestivals = async () => {
-        setShowFilmFestivals(!showFilmFestivals);
-        const dbResult = await updateUserFestivalPreference(reelayDBUser?.sub, !showFilmFestivals);
-        console.log(dbResult);
-        reelayDBUser.settingsShowFilmFestivals = !showFilmFestivals;
+    const toggleShowFestivalsRow = async () => {
+        const dbResult = await updateUserFestivalPreference(reelayDBUser?.sub, !showFestivalsRow);
+        dispatch({ type: 'setShowFestivalsRow', payload: !showFestivalsRow })
 
-        logAmplitudeEventProd('toggleShowFilmFestivals', {
+        logAmplitudeEventProd('toggleShowFestivalsRow', {
             username: reelayDBUser?.username,
-            showFilmFestivals: !showFilmFestivals
+            showFestivalsRow: !showFestivalsRow
         });
     }
 
     return (
         <GeneralSettingsContainer>
             <Divider />
-            <ShowFestivalSetting enabled={showFilmFestivals} toggle={toggleShowFilmFestivals}/>
+            <ShowFestivalSetting enabled={showFestivalsRow} toggle={toggleShowFestivalsRow}/>
         </GeneralSettingsContainer>
     )
 }
 
 
-const ShowFestivalSetting = ({enabled, toggle}) => {
+const ShowFestivalSetting = ({ enabled, toggle }) => {
     return (
         <NotificationSetting
                 title="Show Film Festivals" 

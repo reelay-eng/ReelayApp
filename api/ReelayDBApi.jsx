@@ -544,8 +544,8 @@ export const updateUserBio = async (userSub, bio) => {
     return resultPatch;
 };
 
-export const updateUserFestivalPreference = async (userSub, showFilmFestivals) => {
-    const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}/settings?showFilmFestivals=${showFilmFestivals}`;
+export const updateUserFestivalPreference = async (userSub, showFestivalsRow) => {
+    const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}/settings?showFilmFestivals=${showFestivalsRow}`;
     const resultPatch = await fetchResults(routePatch, {
         method: "PATCH",
         headers: {
@@ -553,7 +553,7 @@ export const updateUserFestivalPreference = async (userSub, showFilmFestivals) =
             requsersub: userSub,
         },
     });
-    console.log("Patched user festival preference to: ", showFilmFestivals);
+    console.log("Patched user festival preference to: ", showFestivalsRow);
     return resultPatch;
 };
 
