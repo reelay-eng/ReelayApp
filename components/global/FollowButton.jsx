@@ -10,6 +10,7 @@ import { notifyCreatorOnFollow } from '../../api/NotificationsApi';
 
 import styled from 'styled-components/native';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default FollowButton = ({ creator }) => {
 	const AlreadyFollowingButtonPressable = styled(Pressable)`
@@ -36,8 +37,9 @@ export default FollowButton = ({ creator }) => {
 		height: 30px;
 		width: 90px;
 	`
-
-	const { myFollowing, setMyFollowing, reelayDBUser } = useContext(AuthContext);
+    const dispatch = useDispatch();
+	const { reelayDBUser } = useContext(AuthContext);
+    const myFollowing = useSelector(state => state.myFollowing);
 	const isMyProfile = reelayDBUser?.sub === creator?.sub;
 
 	const findFollowUser = (userObj) => (userObj.creatorSub === creator?.sub);
@@ -52,7 +54,8 @@ export default FollowButton = ({ creator }) => {
 	const followOnPress = async () => {
 		const followResult = await followCreator(creator?.sub, reelayDBUser?.sub);
         const isFollowing = !followResult?.error && !followResult?.requestStatus;
-		setMyFollowing([...myFollowing, followResult]);
+        dispatch({ type: 'setMyFollowing', payload: [...myFollowing, followResult] });
+        
 
         if (!isFollowing) {
             logAmplitudeEventProd('followCreatorError', {

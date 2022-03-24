@@ -13,6 +13,7 @@ import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import { getFollowers, getFollowing } from '../../api/ReelayDBApi';
 import ReelayColors from '../../constants/ReelayColors';
+import { useSelector } from 'react-redux';
 
 const BackButtonContainer = styled(View)`
     margin-right: 10px;
@@ -47,7 +48,8 @@ const SearchBarContainer = styled(View)`
 
 
 export default UserFollowScreen = ({ navigation, route }) => {
-    const { myFollowers, myFollowing } = useContext(AuthContext);
+    const { myFollowers } = useContext(AuthContext);
+    const myFollowing = useSelector(state => state.myFollowing);
 
     const { creator, initFollowType, initFollowers, initFollowing } = route.params;
     const [searchText, setSearchText] = useState('');

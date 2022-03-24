@@ -12,6 +12,7 @@ import styled from 'styled-components/native';
 import { showMessageToast } from '../utils/toasts';
 import { useFocusEffect } from '@react-navigation/core';
 import BackButton from '../utils/BackButton';
+import { useSelector } from 'react-redux';
 
 const { height, width } = Dimensions.get('window');
 
@@ -40,7 +41,8 @@ const ReelayFeed = ({ navigation,
     const feedPager = useRef();
     const nextPage = useRef(0);
 
-    const { myFollowing, reelayDBUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
+    const myFollowing = useSelector(state => state.myFollowing);
     const { setTabBarVisible, setHasUnseenGlobalReelays } = useContext(FeedContext);
 
     const [feedSource, setFeedSource] = useState(initialFeedSource);

@@ -13,9 +13,11 @@ import CommentsDrawer from './CommentsDrawer';
 import Reelay3DotDrawer from './Reelay3DotDrawer';
 import JustShowMeSignupDrawer from '../global/JustShowMeSignupDrawer';
 import Constants from 'expo-constants';
+import { useSelector } from 'react-redux';
 
 const Hero = ({ index, navigation, reelay, viewable }) => {
-    const { myFollowing, reelayDBUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
+    const myFollowing = useSelector(state => state.myFollowing);
     const { likesVisible, commentsVisible, dotMenuVisible, justShowMeSignupVisible } = useContext(FeedContext);
     const commentsCount = useRef(reelay?.comments?.length);
     const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);

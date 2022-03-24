@@ -9,6 +9,7 @@ import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from './Text';
 import { showErrorToast } from '../utils/toasts';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default FollowButtonDrawer = ({ 
     creatorFollowers,
@@ -18,7 +19,9 @@ export default FollowButtonDrawer = ({
     followObj,
     sourceScreen = 'UserFollowScreen',
 }) => {
-    const { reelayDBUser, myFollowing, setMyFollowing } = useContext(AuthContext);
+    const dispatch = useDispatch();
+    const { reelayDBUser } = useContext(AuthContext);
+    const myFollowing = useSelector(state => state.myFollowing);
     const { creatorName, creatorSub } = followObj;
 
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
@@ -89,7 +92,7 @@ export default FollowButtonDrawer = ({
         
         const removeFromMyFollows = (followObj) => followObj.creatorSub !== creatorSub;
         const nextMyFollowing = myFollowing.filter(removeFromMyFollows);
-        setMyFollowing(nextMyFollowing);
+        dispatch({ type: 'setMyFollowing', payload: nextMyFollowing });
 
         logAmplitudeEventProd('unfollowedCreator', {
             creatorName: creatorName,

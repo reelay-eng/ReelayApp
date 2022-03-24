@@ -38,10 +38,9 @@ const FriendsAreWatching = ({ navigation }) => {
         padding-top: 16px;
     `
 
-    const { myFollowing } = useContext(AuthContext);
+    const myFollowing = useSelector(state => state.myFollowing);
     const myStacksFollowing = useSelector(state => state.myStacksFollowing);
 
-    console.log(myFollowing);
     return (
         <FriendsAreWatchingContainer>
             { myFollowing.length === 0 && <YouDontFollowPrompt navigation={navigation} />}

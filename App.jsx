@@ -66,7 +66,6 @@ function App() {
 
     const [myCreatorStacks, setMyCreatorStacks] = useState([]);
     const [myFollowers, setMyFollowers] = useState([]);
-    const [myFollowing, setMyFollowing] = useState([]);
     const [myNotifications, setMyNotifications] = useState([]);
     const [myWatchlistItems, setMyWatchlistItems] = useState([]);
 
@@ -280,10 +279,11 @@ function App() {
 
         setReelayDBUser(reelayDBUserLoaded);
         setMyFollowers(myFollowersLoaded);
-        setMyFollowing(myFollowingLoaded);
         setMyCreatorStacks(myCreatorStacksLoaded);
         setMyNotifications(myNotifications);
         setMyWatchlistItems(myWatchlistItemsLoaded);
+
+        dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
 
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
         dispatch({ type: 'setMyStacksFollowing', payload: myStacksFollowing });
@@ -320,7 +320,6 @@ function App() {
 
         myCreatorStacks,    setMyCreatorStacks,
         myFollowers,        setMyFollowers,
-        myFollowing,        setMyFollowing,
         myNotifications,    setMyNotifications,
         myWatchlistItems,   setMyWatchlistItems,
 

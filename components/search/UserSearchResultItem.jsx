@@ -10,6 +10,7 @@ import * as ReelayText from '../../components/global/Text';
 
 import { AuthContext } from "../../context/AuthContext";
 import { logAmplitudeEventProd } from "../utils/EventLogger";
+import { useDispatch, useSelector } from "react-redux";
 
 const PressableContainer = styled(Pressable)`
     display: flex;
@@ -61,7 +62,9 @@ export default UserSearchResultItem = ({
     setDrawerFollowObj,
     setDrawerOpen,
 }) => {
-    const { reelayDBUser, myFollowing, setMyFollowing } = useContext(AuthContext);
+    const dispatch = useDispatch();
+    const { reelayDBUser } = useContext(AuthContext);
+    const myFollowing = useSelector(state => state.myFollowing);
     const searchedUser = result;
     const profilePictureURI = searchedUser.profilePictureURI;
 
@@ -90,7 +93,7 @@ export default UserSearchResultItem = ({
         const isFollowing = !followResult?.error && !followResult?.requestStatus;
 
         if (isFollowing) {
-            setMyFollowing([...myFollowing, followResult]);
+            dispatch({ type: 'setMyFollowing', payload: [...myFollowing, followResult] });
         } else {
             // handle error
         }

@@ -8,13 +8,15 @@ import { AuthContext } from '../../context/AuthContext';
 import ReelayColors from '../../constants/ReelayColors';
 import Constants from 'expo-constants';
 import { getReelay, prepareReelay } from '../../api/ReelayDBApi';
+import { useSelector } from 'react-redux';
 
 const IconContainer = styled(View)`
     margin-left: 8px;
 `
 
 const HomeHeader = ({ navigation }) => {
-    const { reelayDBUser, myFollowing, myNotifications } = useContext(AuthContext);
+    const { myNotifications } = useContext(AuthContext);
+    const myFollowing = useSelector(state => state.myFollowing);
     const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
 	const HeaderContainer = styled(View)`

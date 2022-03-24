@@ -37,7 +37,6 @@ const HomeComponent = ({ navigation }) => {
     const dispatch = useDispatch();
     const {
         reelayDBUserID,
-        setMyFollowing,
         setMyNotifications,
     } = useContext(AuthContext);
     const { justShowMeSignupVisible } = useContext(FeedContext);
@@ -54,7 +53,6 @@ const HomeComponent = ({ navigation }) => {
         const myStacksOnStreaming = await getFeed({ reqUserSub, feedSource: 'streaming', page: 0 });
         const myStacksAtFestivals = await getFeed({ reqUserSub, feedSource: 'festivals', page: 0 });
 
-        setMyFollowing(myFollowingLoaded);
         setMyNotifications(myNotifications);
         
         dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });

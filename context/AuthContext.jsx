@@ -7,7 +7,6 @@ export const AuthContext = createContext({
     isReturningUser: false,
 
     myCreatorStacks: [],
-    myFollowing: [],
     myFollowers: [],
     myNotifications: [],
     myWatchlistItems: [],

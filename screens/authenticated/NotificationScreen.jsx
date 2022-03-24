@@ -22,6 +22,7 @@ import styled from 'styled-components/native';
 import { ReelayedByLine } from '../../components/watchlist/RecPills';
 import { setBadgeCountAsync } from 'expo-notifications';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
+import { useDispatch, useSelector } from 'react-redux';
 
 const ACTIVITY_IMAGE_SIZE = 44;
 
@@ -96,9 +97,9 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         },
     });    
 
+    const dispatch = useDispatch();
     const { id, title, body, data, createdAt, seen } = notificationContent;
-    const authContext = useContext(AuthContext);
-    const { reelayDBUser, myFollowing, setMyFollowing } = authContext;
+    const { reelayDBUser } = useContext(AuthContext);
     const [pressed, setPressed] = useState(false);
     const timestamp = moment(createdAt).fromNow();
 
@@ -108,6 +109,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
             width: 90px;
             justify-content: center;
         `
+        const myFollowing = useSelector(state => state.myFollowing);
         const alreadyFollowing = !!myFollowing.find((nextUser) => {
             return (nextUser?.creatorSub === followedByUser?.sub);
         });
@@ -118,7 +120,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
             
             if (success) {
                 const allMyFollowing = [...myFollowing, followResult];
-                setMyFollowing(allMyFollowing);
+                dispatch({ type: 'setMyFollowing', payload: allMyFollowing });
                 await AsyncStorage.setItem('myFollowing', JSON.stringify(allMyFollowing));
             } else {
                 logAmplitudeEventProd('followCreatorError', {
