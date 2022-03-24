@@ -61,12 +61,21 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 		height: 100%;
 		background-color: #0d0d0d;
 	`;
+
+    const changeSize = (sourceURI, newSizeIndex) => {
+		if (!(sourceURI?.uri)) return sourceURI;
+        const sizes=['w92', 'w154', 'w185', 'w342', 'w500', 'w780']
+        var uriArr = sourceURI.uri.split('/');
+        uriArr[5] = sizes[newSizeIndex];
+        return {uri: uriArr.join('/')}
+    }
+
 	return (
 		<ScrollBox showsVerticalScrollIndicator={false}>
 			<PosterWithTrailer
 				navigation={navigation}
 				height={height * 0.6}
-				posterSource={titleObj?.posterSource}
+				posterSource={changeSize(titleObj.posterSource, 4)}
 				title={titleObj?.display}
 				titleObj={titleObj}
 				tmdbTitleID={tmdbTitleID}

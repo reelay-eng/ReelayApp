@@ -56,7 +56,6 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
             height: ${POSTER_HEIGHT}px;
             width: ${POSTER_WIDTH}px;
         `
-        const posterSource = changeSize(stack[0].title.posterSource, 2);
         const viewProfileFeed = () => {
             navigation.push('ProfileFeedScreen', { 
                 initialFeedPos: index, 
@@ -66,7 +65,7 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
 
         return (
             <PosterContainer key={stack[0].title.id} onPress={viewProfileFeed}>
-                <PosterImage source={posterSource} />
+                <PosterImage source={stack[0].title.posterSource} />
             </PosterContainer>
         );
     }

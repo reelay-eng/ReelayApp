@@ -3,7 +3,7 @@ import { fetchResults } from './fetchResults';
 
 const TMDB_API_BASE_URL = Constants.manifest.extra.tmdbApiBaseUrl;
 const TMDB_API_KEY = Constants.manifest.extra.tmdbApiKey;
-const TMDB_IMAGE_API_BASE_URL = Constants.manifest.extra.tmdbImageApiBaseUrl;
+const TMDB_IMAGE_API_BASE_URL = Constants.manifest.extra.tmdbImageApiBaseUrl.substr(0,27);
 
 const POPULARITY_WEIGHT = 5;
 const TMDB_SEARCH_RANK_WEIGHT = 10;
@@ -194,7 +194,6 @@ export const fetchAnnotatedTitle = async (titleID, isSeries) => {
 		rating = ratingObject?.release_dates?.find((e) => e.certification != "")?.certification;
 		if (rating === undefined) rating = null;
 	}
-
     // todo: would like titleType to deprecate isMovie and isSeries
     const annotatedTitle = {
         id: tmdbTitleObject.id,
@@ -207,7 +206,7 @@ export const fetchAnnotatedTitle = async (titleID, isSeries) => {
         overview: tmdbTitleObject.overview,
         posterURI: tmdbTitleObject ? tmdbTitleObject.poster_path : null,
         posterSource: tmdbTitleObject?.poster_path 
-            ? { uri: getPosterURL(tmdbTitleObject?.poster_path) }
+            ? { uri: getPosterURL(tmdbTitleObject?.poster_path, 185) }
             : PLACEHOLDER_POSTER_SOURCE,
         releaseDate: releaseDate,
         releaseYear: releaseYear,
@@ -250,8 +249,8 @@ export const getDisplayActors = (titleCredits, max = 2) => {
     return null;
 }
 
-export const getPosterURL = (posterURI) => {
-    return posterURI ? `${TMDB_IMAGE_API_BASE_URL}${posterURI}` : null;
+export const getPosterURL = (posterURI, size) => {
+    return posterURI ? `${TMDB_IMAGE_API_BASE_URL}${size}${posterURI}` : null;
 }
 
 export const getLogoURL = (logoPath) => {
