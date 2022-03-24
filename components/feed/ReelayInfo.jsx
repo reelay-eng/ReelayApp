@@ -31,7 +31,7 @@ const ReelayInfo = ({ navigation, reelay }) => {
 		flex-direction: row;
 		align-items: center;
 	`
-	const Description = styled(ReelayText.CaptionEmphasized)`
+	const Description = styled(ReelayText.Caption)`
 		color: white;
 	`
 	const creator = reelay.creator;

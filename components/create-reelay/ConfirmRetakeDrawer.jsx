@@ -71,7 +71,7 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
         const onPress = () => {
             setConfirmRetakeDrawerVisible(false);
             navigation.pop();
-            if (lastState === "Upload") navigation.pop() // pop one more time if on upload confirm screen
+            // if (lastState === "Upload") navigation.pop() // pop one more time if on upload confirm screen
             logAmplitudeEventProd('retake', {
                 username: reelayDBUser?.username,
                 title: titleObj.display,

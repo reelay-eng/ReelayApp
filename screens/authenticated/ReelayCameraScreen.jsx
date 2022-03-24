@@ -34,7 +34,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             return;
         }
 
-        navigation.push('ReelayUploadScreen', {
+        navigation.push('ReelayInfoScreen', {
             titleObj: titleObj,
             videoURI: videoURI,
             venue: venue,

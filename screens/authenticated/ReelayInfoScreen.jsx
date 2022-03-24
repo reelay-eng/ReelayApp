@@ -1,6 +1,11 @@
 import React, { useContext, useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+<<<<<<< HEAD
 import { Rating, AirbnbRating } from 'react-native-ratings';
+=======
+import { UploadContext } from '../../context/UploadContext';
+import { FeedContext } from '../../context/FeedContext';
+>>>>>>> 96c56e6 (can add descriptions to reelays with a modified upload screen)
 import StarRating from 'react-native-star-rating';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useSelector } from 'react-redux';
@@ -123,9 +128,15 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const [starCount, setStarCount] = useState(0);
     const [confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible] = useState(false);
 
+<<<<<<< HEAD
     const { cognitoUser, reelayDBUser } = useContext(AuthContext);
 	const s3Client = useSelector(state => state.s3Client);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+=======
+    const { cognitoUser, myWatchlistItems, reelayDBUser } = useContext(AuthContext);
+    const { s3Client } = useContext(UploadContext);
+    const { setRefreshOnUpload } = useContext(FeedContext);
+>>>>>>> 96c56e6 (can add descriptions to reelays with a modified upload screen)
 
     const descriptionRef = useRef("");
     const descriptionInputRef = useRef(null);
@@ -244,10 +255,14 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // Post Reelay object to ReelayDB
             // not checking for dupes on uuidv4(), 
             // but a collision is less than a one in a quadrillion chance
+<<<<<<< HEAD
             console.log("star count is", starCount);
 
             console.log("star count in upload:", starCount)
             console.log("reelay description:", descriptionRef.current)
+=======
+            
+>>>>>>> 96c56e6 (can add descriptions to reelays with a modified upload screen)
             const reelayDBBody = {
                 creatorSub: cognitoUser?.attributes?.sub,
                 creatorName: cognitoUser.username,
@@ -271,8 +286,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
             console.log('saved new Reelay');
             console.log('Upload dialog complete.');
-
-            console.log('REELAYDB USER: ', reelayDBUser);
 
             logAmplitudeEventProd('publishReelayComplete', {
                 username: cognitoUser.username,
@@ -298,8 +311,15 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 reelay: reelayDBBody,
                 watchlistItems: myWatchlistItems,
             });
+<<<<<<< HEAD
             
             navigation.navigate("Global", { forceRefresh: true });
+=======
+
+            setRefreshOnUpload(true);
+            navigation.popToTop();
+            navigation.navigate("FeedScreen", { forceRefresh: true });
+>>>>>>> 96c56e6 (can add descriptions to reelays with a modified upload screen)
 
         } catch (error) {
             // todo: better error catching
@@ -350,7 +370,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         return (
             <>
                 <HeaderContainer>
-                    <BackButton onPress={() => navigation.goBack()}>
+                    <BackButton onPress={() => setConfirmRetakeDrawerVisible(true)}>
                         <Icon type="ionicon" name="arrow-back-outline" color="white" size={24} />
                     </BackButton>
                     <HeaderText>{"Upload"}</HeaderText>
@@ -457,7 +477,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             letter-spacing: 0.15px;
             margin-left: 8px;
             padding: 10px;
-            width: 87%;
+            width: 95%;
           `;
         const DescriptionInputContainer = styled(View)`
             align-self: center;
@@ -478,14 +498,14 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 		    <TouchableWithoutFeedback onPress={() => {descriptionInputRef.current.focus();}}>
                 <DescriptionInputContainer>
                     <DescriptionInput
+                        clearButtonMode={'while-editing'}
 				        ref={descriptionInputRef}
                         maxLength={250}
                         defaultValue={descriptionRef.current}
-                        placeholder={"Add a caption!"}
+                        placeholder={"Add a description..."}
                         placeholderTextColor={"gray"}
                         onChangeText={changeInputText}
                         onPressOut={Keyboard.dismiss()}
-                        returnKeyLabel="return"
                         returnKeyType="done"
                     />
                 </DescriptionInputContainer>
@@ -518,7 +538,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 </PressableVideoContainer>
                 <InfoContainer>
                     <EditDescription descriptionRef={descriptionRef} descriptionInputRef={descriptionInputRef} />
-                    <StarRating 
+                    {/* <StarRating 
                         disabled={false}
                         maxStars={5}
                         fullStarColor={'#f1c40f'}
@@ -526,7 +546,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                         rating={starCount}
                         selectedStar={onStarRatingPress}
                         starStyle={{width: 50, height: 50}}
-                    />
+                    /> */}
                 </InfoContainer>
             </ScrollView>
             </KeyboardAwareScrollView>
