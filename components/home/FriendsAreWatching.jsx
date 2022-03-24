@@ -8,6 +8,7 @@ import * as ReelayText from '../global/Text';
 import ReelayThumbnail from '../global/ReelayThumbnail';
 import { VenueIcon } from '../utils/VenueIcon';
 import YouDontFollowPrompt from './YouDontFollowPrompt';
+import { useSelector } from 'react-redux';
 
 const FriendsAreWatching = ({ navigation }) => {
     const FriendsAreWatchingContainer = styled(View)`
@@ -37,7 +38,8 @@ const FriendsAreWatching = ({ navigation }) => {
         padding-top: 16px;
     `
 
-    const { myFollowing, myStacksFollowing } = useContext(AuthContext);
+    const { myFollowing } = useContext(AuthContext);
+    const myStacksFollowing = useSelector(state => state.myStacksFollowing);
 
     console.log(myFollowing);
     return (

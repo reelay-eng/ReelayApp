@@ -5,6 +5,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../../components/global/Text';
+import { useSelector } from 'react-redux';
 
 const InTheatersContainer = styled.View`
     width: 100%;
@@ -34,7 +35,8 @@ const InTheatersRowContainer = styled.ScrollView`
 
 const InTheaters = memo(({ navigation }) => {
 
-    const { reelayDBUser, myStacksInTheaters } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
+    const myStacksInTheaters = useSelector(state => state.myStacksInTheaters);
 
     const goToReelay = (index, titleObj) => {
 		if (myStacksInTheaters.length === 0) return;

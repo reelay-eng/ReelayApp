@@ -9,6 +9,7 @@ import ReelayThumbnail from '../global/ReelayThumbnail';
 import { VenueIcon } from '../utils/VenueIcon';
 import FestivalsPrompt from './FestivalsPrompt';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSelector } from 'react-redux';
 
 export default AtFestivals = ({ navigation }) => {
     const FriendsAreWatchingContainer = styled.View`
@@ -65,7 +66,7 @@ const FestivalReelaysRow = ({ navigation }) => {
         width: 100%;
         padding-top: 16px;
     `
-    const { myStacksAtFestivals } = useContext(AuthContext);
+    const myStacksAtFestivals = useSelector(state => state.myStacksAtFestivals);
     return (
         <Fragment>
             <HeaderContainer>

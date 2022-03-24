@@ -70,12 +70,6 @@ function App() {
     const [myNotifications, setMyNotifications] = useState([]);
     const [myWatchlistItems, setMyWatchlistItems] = useState([]);
 
-    const [myStacksFollowing, setMyStacksFollowing] = useState([]);
-    const [myStacksInTheaters, setMyStacksInTheaters] = useState([]);
-    const [myStacksOnStreaming, setMyStacksOnStreaming] = useState([]);
-    const [myStacksAtFestivals, setMyStacksAtFestivals] = useState([]);
-    const [myStreamingSubscriptions, setMyStreamingSubscriptions] = useState([]);
-
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [reelayDBUserID, setReelayDBUserID] = useState(null);
     const [signedIn, setSignedIn] = useState(false);
@@ -291,11 +285,11 @@ function App() {
         setMyNotifications(myNotifications);
         setMyWatchlistItems(myWatchlistItemsLoaded);
 
-        setMyStreamingSubscriptions(myStreamingSubscriptions);
-        setMyStacksFollowing(myStacksFollowing);
-        setMyStacksInTheaters(myStacksInTheaters);
-        setMyStacksOnStreaming(myStacksOnStreaming);
-        setMyStacksAtFestivals(myStacksAtFestivals);
+        dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
+        dispatch({ type: 'setMyStacksFollowing', payload: myStacksFollowing });
+        dispatch({ type: 'setMyStacksInTheaters', payload: myStacksInTheaters });
+        dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });
+        dispatch({ type: 'setMyStacksAtFestivals', payload: myStacksAtFestivals });
         setIsLoading(false);
     }
 
@@ -329,12 +323,6 @@ function App() {
         myFollowing,        setMyFollowing,
         myNotifications,    setMyNotifications,
         myWatchlistItems,   setMyWatchlistItems,
-
-        myStacksFollowing,  setMyStacksFollowing,
-        myStacksInTheaters, setMyStacksInTheaters,
-        myStacksOnStreaming,    setMyStacksOnStreaming,
-        myStacksAtFestivals,    setMyStacksAtFestivals,
-        myStreamingSubscriptions, setMyStreamingSubscriptions,
 
         reelayDBUser,       setReelayDBUser,
         reelayDBUserID,     setReelayDBUserID,

@@ -17,6 +17,8 @@ import { getFeed } from '../../api/ReelayDBApi';
 import { AuthContext } from '../../context/AuthContext';
 import { FeedContext } from '../../context/FeedContext';
 
+import { useDispatch } from 'react-redux';
+
 const HomeContainer = styled(SafeAreaView)`
     width: 100%;
     height: 100%;
@@ -32,15 +34,11 @@ const Spacer = styled.View`
 `
 
 const HomeComponent = ({ navigation }) => {
+    const dispatch = useDispatch();
     const {
         reelayDBUserID,
         setMyFollowing,
         setMyNotifications,
-        setMyStreamingSubscriptions,
-        setMyStacksFollowing,
-        setMyStacksInTheaters,
-        setMyStacksOnStreaming,
-        setMyStacksAtFestivals,
     } = useContext(AuthContext);
     const { justShowMeSignupVisible } = useContext(FeedContext);
 
@@ -58,11 +56,15 @@ const HomeComponent = ({ navigation }) => {
 
         setMyFollowing(myFollowingLoaded);
         setMyNotifications(myNotifications);
-        setMyStreamingSubscriptions(myStreamingSubscriptions);
-        setMyStacksFollowing(myStacksFollowing);
-        setMyStacksInTheaters(myStacksInTheaters);
-        setMyStacksOnStreaming(myStacksOnStreaming);
-        setMyStacksAtFestivals(myStacksAtFestivals);
+        
+        dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
+        dispatch({ type: 'setMyNotifications', payload: myNotifications });
+        dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
+        dispatch({ type: 'setMyStacksFollowing', payload: myStacksFollowing });
+        dispatch({ type: 'setMyStacksInTheaters', payload: myStacksInTheaters });
+        dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });        
+        dispatch({ type: 'myStacksAtFestivals', payload: myStacksAtFestivals });
+
         setRefreshing(false);
     }
 

@@ -11,6 +11,7 @@ import { BWButton } from '../global/Buttons';
 
 import { postStreamingSubscriptionToDB, removeStreamingSubscription } from '../../api/ReelayDBApi';
 import { refreshMyStreamingSubscriptions } from '../../api/ReelayUserApi';
+import { useSelector } from 'react-redux';
 
 const StreamingServicesContainer = styled.View`
     width: 100%;
@@ -75,8 +76,9 @@ const IconOptions = ({ onRefresh }) => {
         align-items: center;
         justify-content: center;
     `
-    const { reelayDBUser, myStreamingSubscriptions } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
     const { setJustShowMeSignupVisible } = useContext(FeedContext);
+    const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
 
     const myStreamingPlatforms = myStreamingSubscriptions.map(({ platform }) => platform);
     const selectedVenues = useRef(myStreamingPlatforms);

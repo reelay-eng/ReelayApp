@@ -8,10 +8,10 @@ import {
 import styled from 'styled-components/native';
 import { LinearGradient } from "expo-linear-gradient";
 import * as ReelayText from "../../components/global/Text";
-import { UploadContext } from '../../context/UploadContext'; 
 import SplashImage from "../../assets/images/reelay-splash-with-dog.png";
 import { generateThumbnail, getThumbnailURI, saveThumbnail } from '../../api/ThumbnailApi';
 import ProfilePicture from './ProfilePicture';
+import { useSelector } from 'react-redux';
 
 export default ReelayThumbnail = ({ reelay, onPress, height = 200, margin = 6, width = 105 }) => {
 	const CreatorLineContainer = styled(View)`
@@ -45,7 +45,7 @@ export default ReelayThumbnail = ({ reelay, onPress, height = 200, margin = 6, w
 	`
 	const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
 	const [thumbnailSource, setThumbnailSource] = useState(cloudfrontThumbnailSource);
-	const { s3Client } = useContext(UploadContext);
+	const s3Client = useSelector(state => state.s3Client);
 
 	const generateAndSaveThumbnail = async () => {
 		console.log('ON ERROR TRIGGERED: ', getThumbnailURI(reelay));

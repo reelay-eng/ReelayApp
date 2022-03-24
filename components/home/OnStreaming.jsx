@@ -9,6 +9,7 @@ import { VenueIcon } from '../utils/VenueIcon';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import ReelayColors from '../../constants/ReelayColors';
+import { useSelector } from 'react-redux';
 
 const EditStreamingServicesButton = styled(Pressable)`
     padding: 15px;
@@ -96,10 +97,11 @@ const DrawerContainer = styled(View)`
 
 export default OnStreaming = ({ navigation, onRefresh }) => {
     const { 
-        myStacksOnStreaming,
-        myStreamingSubscriptions, 
         reelayDBUser, 
     } = useContext(AuthContext);
+    
+    const myStacksOnStreaming = useSelector(state => state.myStacksOnStreaming);
+    const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
 
     const goToReelay = (index, titleObj) => {
 		if (!myStacksOnStreaming?.length) return;
