@@ -27,6 +27,12 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
     if (!creatorStacks.length) {
         return <View />;
     }
+    const changeSize = (sourceURI, newSizeIndex) => {
+        const sizes=['w92', 'w154', 'w185', 'w342', 'w500', 'w780']
+        var uriArr = sourceURI.uri.split('/');
+        uriArr[5] = sizes[newSizeIndex];
+        return {uri: uriArr.join('/')}
+    }
 
     const AfterImage = () => {
         // afterimages are invisible views that keep the grid aligned. 
@@ -50,7 +56,7 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
             height: ${POSTER_HEIGHT}px;
             width: ${POSTER_WIDTH}px;
         `
-
+        const posterSource = changeSize(stack[0].title.posterSource, 2);
         const viewProfileFeed = () => {
             navigation.push('ProfileFeedScreen', { 
                 initialFeedPos: index, 
@@ -60,7 +66,7 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
 
         return (
             <PosterContainer key={stack[0].title.id} onPress={viewProfileFeed}>
-                <PosterImage source={stack[0].title.posterSource} />
+                <PosterImage source={posterSource} />
             </PosterContainer>
         );
     }
