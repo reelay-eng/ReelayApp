@@ -256,3 +256,12 @@ export const getPosterURL = (posterURI, size) => {
 export const getLogoURL = (logoPath) => {
     return logoPath ? `${TMDB_IMAGE_API_BASE_URL}${logoPath}` : null;
 }
+
+
+export const changeSize = (sourceURI, newSize) => {
+    if (!(sourceURI?.uri)) return sourceURI;
+    // const sizes=['w92', 'w154', 'w185', 'w342', 'w500', 'w780']
+    var uriArr = sourceURI.uri.split('/');
+    uriArr[5] = newSize;
+    return {uri: uriArr.join('/')}
+}

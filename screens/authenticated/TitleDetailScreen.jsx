@@ -20,6 +20,7 @@ import MovieInformation from '../../components/titlePage/MovieInformation';
 import PopularReelaysRow from '../../components/titlePage/PopularReelaysRow';
 import PosterWithTrailer from '../../components/titlePage/PosterWithTrailer';
 import JustShowMeSignupDrawer from '../../components/global/JustShowMeSignupDrawer';
+import { changeSize } from '../../api/TMDbApi';
 
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
@@ -62,20 +63,12 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 		background-color: #0d0d0d;
 	`;
 
-    const changeSize = (sourceURI, newSizeIndex) => {
-		if (!(sourceURI?.uri)) return sourceURI;
-        const sizes=['w92', 'w154', 'w185', 'w342', 'w500', 'w780']
-        var uriArr = sourceURI.uri.split('/');
-        uriArr[5] = sizes[newSizeIndex];
-        return {uri: uriArr.join('/')}
-    }
-
 	return (
 		<ScrollBox showsVerticalScrollIndicator={false}>
 			<PosterWithTrailer
 				navigation={navigation}
 				height={height * 0.6}
-				posterSource={changeSize(titleObj.posterSource, 4)}
+				posterSource={changeSize(titleObj.posterSource, 'w500')}
 				title={titleObj?.display}
 				titleObj={titleObj}
 				tmdbTitleID={tmdbTitleID}
