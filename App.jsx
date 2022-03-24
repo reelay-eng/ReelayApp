@@ -49,11 +49,14 @@ import {
 
 // font imports
 import * as Font from 'expo-font';
+import { connect, Provider, useDispatch, useSelector } from 'react-redux';
+import store, { mapStateToProps } from './redux/store';
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png');
 
 function App() {
     const colorScheme = useColorScheme();
+    const dispatch = useDispatch();
 
     // Auth context hooks
     const [cognitoUser, setCognitoUser] = useState({});
@@ -113,6 +116,7 @@ function App() {
     useEffect(() => {
         if (reelayDBUser?.sub) {
             setSignedIn(true);
+            dispatch({ type: 'setSignedIn', payload: true });
             registerMyPushToken();
         }
     }, [reelayDBUser]);
@@ -347,4 +351,13 @@ function App() {
     }
 }
 
-export default App;
+const ReduxApp = () => {
+    return (
+        <Provider store={store}>
+            <App />
+        </Provider>
+    )
+}
+
+connect(mapStateToProps)(ReduxApp);
+export default ReduxApp;
