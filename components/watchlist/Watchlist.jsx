@@ -86,7 +86,7 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
     const sortedWatchlistItems = watchlistItems.sort(byDateUpdated);
     const uniqueWatchlistItems = sortedWatchlistItems.filter((nextItem, index, allItems) => {
         const { recommendedBySub, recommendedByUsername, recommendedReelaySub, title } = nextItem;
-        let nextItemHasUniqueTitle = true;
+        let isFirstItemWithTitle = true;
         let prevItemSameTitle = null;
 
         const isSameTitle = (title0, title1) => {
@@ -95,26 +95,21 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
         }
 
         // check all previous watchlist items
-        allItems.slice(0, index).forEach((prevItem) => {
+        allItems.slice(0, index).find((prevItem) => {
             // filter out items for the same title...
             if (isSameTitle(prevItem.title, title)) {
-                nextItemHasUniqueTitle = false;
+                isFirstItemWithTitle = false;
                 prevItemSameTitle = prevItem;
+                return true;
             }
+            return false;
         });
 
-        const recItem = (nextItemHasUniqueTitle) ? nextItem : prevItemSameTitle;
-        if (!recItem.recommendations) recItem.recommendations = [];
+        const recItem = (isFirstItemWithTitle) ? nextItem : prevItemSameTitle;
+        if (!Array.isArray(recItem.recommendations)) recItem.recommendations = [];
         
-        if (recommendedBySub) {
-            try {
-                recItem.recommendations.push({ recommendedBySub, recommendedByUsername, recommendedReelaySub });
-            } catch (error) {
-                console.log('Could not push: ', nextItemHasUniqueTitle);
-                console.log(error);
-            }
-        }
-        return nextItemHasUniqueTitle;
+        if (recommendedBySub) recItem.recommendations.push({ recommendedBySub, recommendedByUsername, recommendedReelaySub });
+        return isFirstItemWithTitle;
     });
 
     return (
