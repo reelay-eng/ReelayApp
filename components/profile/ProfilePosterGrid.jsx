@@ -27,13 +27,6 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
     if (!creatorStacks.length) {
         return <View />;
     }
-    const changeSize = (sourceURI, newSizeIndex) => {
-        const sizes=['w92', 'w154', 'w185', 'w342', 'w500', 'w780']
-        var uriArr = sourceURI.uri.split('/');
-        uriArr[5] = sizes[newSizeIndex];
-        return {uri: uriArr.join('/')}
-    }
-
     const AfterImage = () => {
         // afterimages are invisible views that keep the grid aligned. 
         // it's a hacky solution for now
