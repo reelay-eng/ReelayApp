@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
 import { Image, View, SafeAreaView } from 'react-native';
+import { changeSize } from '../../api/TMDbApi';
 
 import styled from 'styled-components/native';
 
@@ -24,7 +25,7 @@ export default Poster = memo(({ title }) => {
 	return (
 		<SafeAreaView>
 			<PosterContainer>
-				{ <PosterImage source={title.posterSource} /> }
+				{ <PosterImage source={changeSize(title.posterSource, 'w154')} /> }
 			</PosterContainer>
 		</SafeAreaView>
 	);
