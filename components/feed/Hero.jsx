@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import FeedVideoPlayer from './FeedVideoPlayer';
 import ReelayInfo from './ReelayInfo';
 import Sidebar from './Sidebar';
+import { useSelector } from 'react-redux';
 import { FeedContext } from '../../context/FeedContext';
 
 import LikesDrawer from './LikesDrawer';
@@ -12,7 +13,10 @@ import Reelay3DotDrawer from './Reelay3DotDrawer';
 import JustShowMeSignupDrawer from '../global/JustShowMeSignupDrawer';
 
 const Hero = ({ index, navigation, reelay, viewable }) => {
-    const { likesVisible, commentsVisible, dotMenuVisible, justShowMeSignupVisible } = useContext(FeedContext);
+    const likesVisible = useSelector(state => state.likesVisible);
+    const commentsVisible = useSelector(state => state.commentsVisible);
+    const dotMenuVisible = useSelector(state => state.dotMenuVisible);
+    const { justShowMeSignupVisible } = useContext(FeedContext);
     const commentsCount = useRef(reelay.comments.length);
 
     return (

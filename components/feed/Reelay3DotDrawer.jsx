@@ -4,7 +4,7 @@ import { Icon } from 'react-native-elements';
 import { blockCreator, removeReelay, reportReelay, suspendAccount } from '../../api/ReelayDBApi';
 
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
+import { useDispatch, useSelector } from 'react-redux';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import styled from 'styled-components/native';
 
@@ -16,7 +16,9 @@ const ContentPolicy  = require('../../constants/ContentPolicy.json');
 
 const ReelayDotMenuContents = ({ reelay, navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const { setDotMenuVisible } = useContext(FeedContext);
+
+    const dispatch = useDispatch();
+
     const isMyReelay = (reelayDBUser?.sub === reelay.creator.sub); 
 
     const [drawerState, setDrawerState] = useState('options');
@@ -63,7 +65,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         color: white;
     `
     const closeDrawer = () => {
-        setDotMenuVisible(false)
+        dispatch({ type: 'setDotMenuVisible', payload: false });
     };
 
     const BlockCreatorOption = () => {
@@ -426,8 +428,9 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 }
 
 const Reelay3DotDrawer = ({ reelay, navigation }) => {
-    const { dotMenuVisible, setDotMenuVisible } = useContext(FeedContext);
-    const closeDrawer = () => setDotMenuVisible(false);
+    const dotMenuVisible = useSelector(state => state.dotMenuVisible);
+    const dispatch = useDispatch();
+    const closeDrawer = () => dispatch({ type: 'setDotMenuVisible', payload: false });
 
     const ModalContainer = styled(View)`
         position: absolute;

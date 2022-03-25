@@ -75,13 +75,7 @@ function App() {
     const [signUpFromGuest, setSignUpFromGuest] = useState(false);
 
     // Feed context hooks
-    const [commentsVisible, setCommentsVisible] = useState(false);
-    const [currentComment, setCurrentComment] = useState('');
-    const [dotMenuVisible, setDotMenuVisible] = useState(false);
     const [justShowMeSignupVisible, setJustShowMeSignupVisible] = useState(false);
-    const [likesVisible, setLikesVisible] = useState(false);
-    const [paused, setPaused] = useState(false);
-    const [playPauseVisible, setPlayPauseVisible] = useState('none');
     const [refreshOnUpload, setRefreshOnUpload] = useState(false);
 
     useEffect(() => {
@@ -300,11 +294,7 @@ function App() {
     }
 
     const feedState = {
-        commentsVisible,    setCommentsVisible,
-        currentComment,     setCurrentComment,
-        dotMenuVisible,     setDotMenuVisible,
         justShowMeSignupVisible, setJustShowMeSignupVisible,
-        likesVisible,       setLikesVisible,
         refreshOnUpload,    setRefreshOnUpload,
     }
 
