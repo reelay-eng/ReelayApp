@@ -16,7 +16,7 @@ const Hero = ({ index, navigation, reelay, viewable }) => {
     const likesVisible = useSelector(state => state.likesVisible);
     const commentsVisible = useSelector(state => state.commentsVisible);
     const dotMenuVisible = useSelector(state => state.dotMenuVisible);
-    const { justShowMeSignupVisible } = useContext(FeedContext);
+    const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
     const commentsCount = useRef(reelay.comments.length);
 
     return (

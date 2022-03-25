@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 import { addToMyWatchlist, removeFromMyWatchlist } from '../../api/WatchlistApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
@@ -11,6 +10,7 @@ import { AddToWatchlistIconSVG, WatchlistAddedIconSVG } from '../global/SVGs';
 import { showMessageToast } from '../utils/toasts';
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
+import { useDispatch } from 'react-redux';
 
 const WatchListButtonCircleContainer = styled(View)`
     align-items: center;
@@ -29,7 +29,7 @@ const WatchlistButtonOuterContainer = styled(Pressable)`
 
 export default AddToWatchlistButton = ({ titleObj, reelay }) => {
     const { reelayDBUser, myWatchlistItems, setMyWatchlistItems } = useContext(AuthContext);
-    const { setJustShowMeSignupVisible } = useContext(FeedContext);
+    const dispatch = useDispatch();
 
     const inWatchlist = !!myWatchlistItems.find((nextItem) => {
         const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;
@@ -42,7 +42,7 @@ export default AddToWatchlistButton = ({ titleObj, reelay }) => {
 
     const showMeSignupIfGuest = () => {
 		if (reelayDBUser?.username === 'be_our_guest') {
-			setJustShowMeSignupVisible(true);
+			dispatch({ type: 'setJustShowMeSignupVisible', payload: true });
 			return true;
 		}
 		return false;

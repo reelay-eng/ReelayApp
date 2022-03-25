@@ -29,6 +29,7 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { getRuntimeString } from '../../components/utils/TitleRuntime';
 import AddToWatchlistButton from './AddToWatchlistButton';
 import SendRecButton from '../watchlist/SendRecButton';
+import { useDispatch } from 'react-redux';
 
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
@@ -53,7 +54,7 @@ export default PosterWithTrailer = ({
 	`;
 
 	const { reelayDBUser } = useContext(AuthContext);
-	const { setJustShowMeSignupVisible } = useContext(FeedContext);
+	const dispatch = useDispatch();
 	
 	const PosterWithOverlay = () => {
 		const PosterImage = styled(Image)`
@@ -224,7 +225,7 @@ export default PosterWithTrailer = ({
 
 	const showMeSignupIfGuest = () => {
 		if (reelayDBUser?.username === 'be_our_guest') {
-			setJustShowMeSignupVisible(true);
+			dispatch({ type: 'setJustShowMeSignupVisible', payload: true })
 			return true;
 		}
 		return false;

@@ -5,12 +5,12 @@ import styled from 'styled-components/native';
 import ReelayColors from '../../../constants/ReelayColors';
 import * as ReelayText from '../../global/Text';
 import { AuthContext } from '../../../context/AuthContext';
-import { FeedContext } from '../../../context/FeedContext';
 import { followCreator, unfollowCreator } from '../../../api/ReelayDBApi';
 import { notifyCreatorOnFollow } from "../../../api/NotificationsApi";
 
 import { logAmplitudeEventProd } from '../../utils/EventLogger';
 import FollowButtonDrawer from './FollowButtonDrawer';
+import { useDispatch } from 'react-redux';
 
 const FollowContainer = styled(View)`
     align-self: center;
@@ -36,7 +36,7 @@ const FollowText = styled(ReelayText.Subtitle1Emphasized)`
 
 export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowers }) => {
     const { reelayDBUser, myFollowing, setMyFollowing } = useContext(AuthContext);
-    const { setJustShowMeSignupVisible } = useContext(FeedContext);
+    const dispatch = useDispatch();
     
     const creatorSub = creator.sub;
     const userSub = reelayDBUser.sub;
@@ -49,7 +49,7 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
 
 	const showMeSignupIfGuest = () => {
 		if (reelayDBUser?.username === 'be_our_guest') {
-			setJustShowMeSignupVisible(true);
+			dispatch({ type: 'setJustShowMeSignupVisible', payload: true });
 			return true;
 		}
 		return false;

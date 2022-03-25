@@ -87,7 +87,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 
 	const showMeSignupIfGuest = () => {
 		if (reelayDBUser?.username === 'be_our_guest') {
-			setJustShowMeSignupVisible(true);
+			dispatch({ type: 'setJustShowMeSignupVisible', payload: true })
 			return true;
 		}
 		return false;

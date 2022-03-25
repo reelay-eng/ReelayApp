@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { RefreshControl, SafeAreaView, ScrollView, Linking, View } from 'react-native';
 import { Autolink } from "react-native-autolink";
+import { useSelector } from 'react-redux';
 
 import { getStacksByCreator, getRegisteredUser, getFollowers, getFollowing } from '../../api/ReelayDBApi';
 
@@ -63,7 +64,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const [refreshing, setRefreshing] = useState(true);
 
     const { reelayDBUser } = useContext(AuthContext);
-    const { justShowMeSignupVisible } = useContext(FeedContext);
+	const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
     const creatorSub = sub ?? '';
     const creatorProfilePictureURI = creatorSub.length > 0 
         ? `${CLOUDFRONT_BASE_URL}/public/profilepic-${creatorSub}-current.jpg` 

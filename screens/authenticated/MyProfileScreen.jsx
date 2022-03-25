@@ -80,14 +80,14 @@ export default MyProfileScreen = ({ navigation, route }) => {
     } = useContext(AuthContext); 
 
     const signedIn = useSelector(state => state.signedIn);
+    const refreshOnUpload = useSelector(state => state.refreshOnUpload);
   	const dispatch = useDispatch();
     console.log('Is signed in: ', signedIn);
-    const { refreshOnUpload, setRefreshOnUpload } = useContext(FeedContext);
 
     useEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
         if (refreshOnUpload) {
-            setRefreshOnUpload(false);
+			dispatch({ type: 'setRefreshOnUpload', payload: false })
             onRefresh();
         }
     });

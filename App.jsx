@@ -74,10 +74,6 @@ function App() {
     const [signedIn, setSignedIn] = useState(false);
     const [signUpFromGuest, setSignUpFromGuest] = useState(false);
 
-    // Feed context hooks
-    const [justShowMeSignupVisible, setJustShowMeSignupVisible] = useState(false);
-    const [refreshOnUpload, setRefreshOnUpload] = useState(false);
-
     useEffect(() => {
         (async () => {
             await initServices();
@@ -291,11 +287,6 @@ function App() {
         reelayDBUserID,     setReelayDBUserID,
         signedIn,           setSignedIn,
         signUpFromGuest,    setSignUpFromGuest,
-    }
-
-    const feedState = {
-        justShowMeSignupVisible, setJustShowMeSignupVisible,
-        refreshOnUpload,    setRefreshOnUpload,
     }
 
     if (isLoading) {
