@@ -33,6 +33,8 @@ const initialState = {
     refreshOnUpload: false,
     tabBarVisible: true,
     s3Client: null,
+
+    isEditingProfile: false,
 }
 
 const appReducer = ( state = initialState, action) => {
@@ -99,6 +101,9 @@ const appReducer = ( state = initialState, action) => {
 
         case 'setS3Client':
             return { ...state, s3Client: action.payload }
+
+        case 'setIsEditingProfile':
+            return { ...state, isEditingProfile: action.payload }
             
         default: 
             return state
@@ -138,6 +143,8 @@ export const mapStateToProps = (state) => ({
     refreshOnUpload: state.refreshOnUpload,
     tabBarVisible: state.tabBarVisible,
     s3Client: state.s3Client,
+
+    isEditingProfile: state.isEditingProfile,
 });
 
 let store = createStore(appReducer);

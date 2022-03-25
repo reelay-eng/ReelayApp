@@ -6,7 +6,6 @@ import styled from 'styled-components/native';
 import { useDispatch } from 'react-redux';
 
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 
 import { notifyCreatorOnLike } from '../../api/NotificationsApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -60,9 +59,6 @@ export default Sidebar = ({ navigation, reelay }) => {
 	const dispatch = useDispatch();
 
 	const { reelayDBUser } = useContext(AuthContext);
-	const { 
-		setJustShowMeSignupVisible,
-	} = useContext(FeedContext);
 
 	const isMyReelay = reelay.creator.sub === reelayDBUser?.sub;
 	const commentedByUser = reelay.comments.find(comment => comment.authorName === reelayDBUser?.username);

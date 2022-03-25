@@ -27,7 +27,6 @@ import * as ReelayText from "../../components/global/Text";
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
-import { FeedContext } from "../../context/FeedContext";
 import { useDispatch, useSelector } from 'react-redux';
 
 // Styling
@@ -66,7 +65,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
     `;
 
     const [refreshing, setRefreshing] = useState(false);
-    const [isEditingProfile, setIsEditingProfile] = useState(false);
 	const { 
         myFollowers, 
         myFollowing,
@@ -81,7 +79,9 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     const signedIn = useSelector(state => state.signedIn);
     const refreshOnUpload = useSelector(state => state.refreshOnUpload);
+    // const isEditingProfile = useSelector(state => state.isEditingProfile);
   	const dispatch = useDispatch();
+
     console.log('Is signed in: ', signedIn);
 
     useEffect(() => {
@@ -179,7 +179,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 					<BWButton
 						text="Edit Profile"
 						onPress={() => {
-                            setIsEditingProfile(true);
+                            dispatch({ type: 'setIsEditingProfile', payload: true });
 						}}
 					/>
 				</EditProfileButtonContainer>
@@ -189,10 +189,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     return (
 		<ProfileScreenContainer>
-			<EditProfile
-				isEditingProfile={isEditingProfile}
-				setIsEditingProfile={setIsEditingProfile}
-			/>
+			<EditProfile/>
 			<ProfileTopBar creator={reelayDBUser} navigation={navigation} atProfileBase={true} />
 			<ProfileScrollView refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

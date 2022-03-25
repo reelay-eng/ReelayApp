@@ -29,7 +29,6 @@ import useColorScheme from './hooks/useColorScheme';
 
 // context imports
 import { AuthContext } from './context/AuthContext';
-import { FeedContext } from './context/FeedContext';
 
 // api imports
 import { getRegisteredUser, registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
@@ -310,11 +309,9 @@ function App() {
         return (
             <SafeAreaProvider>
                 <AuthContext.Provider value={authState}>
-                    <FeedContext.Provider value={feedState}>
                         <StatusBar hidden={true} />
                         <Navigation colorScheme={colorScheme} />
                         <Toast config={toastConfig}/>
-                    </FeedContext.Provider>
                 </AuthContext.Provider>
             </SafeAreaProvider>
         );

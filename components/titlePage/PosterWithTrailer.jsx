@@ -7,7 +7,6 @@ import {
 } from 'react-native';
 
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 
 // API
 import { getLogoURL, fetchMovieProviders } from '../../api/TMDbApi';

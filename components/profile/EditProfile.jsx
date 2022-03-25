@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, TextInput, Alert, Keyboard } from "react-native";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 // Expo imports
 import * as ImagePicker from "expo-image-picker";
@@ -17,9 +17,7 @@ import {
 import { updateProfilePic, updateUserBio, updateUserWebsite } from "../../api/ReelayDBApi";
 
 // Context
-import { FeedContext } from "../../context/FeedContext";
 import { AuthContext } from "../../context/AuthContext";
-import { useSelector } from "react-redux";
 
 // Styling
 import styled from "styled-components/native";
@@ -37,7 +35,7 @@ const Spacer = styled(View)`
 	height: ${(props) => (props.height ? props.height : "0px")};
 `;
 
-export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
+export default EditProfile = () => {
     const ModalContainer = styled(View)`
 		position: absolute;
 		height: 100%;
@@ -57,7 +55,8 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
 		height: 100%;
   `;
 
-  	const dispatch = useDispatch();
+	const isEditingProfile = useSelector(state => state.isEditingProfile);
+	const dispatch = useDispatch();
 	const { reelayDBUser } = useContext(AuthContext);
 
 	const initBio = reelayDBUser.bio ? reelayDBUser.bio : "";
@@ -78,11 +77,11 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
     const doneFunc = async () => {
 		// save all information
 		await saveInfo();
-        setIsEditingProfile(false);
+		dispatch({ type: 'setIsEditingProfile', payload: false });
     }
 
     const cancelFunc = () => {
-        setIsEditingProfile(false);
+		dispatch({ type: 'setIsEditingProfile', payload: false });
     }
 
 	const saveInfo = async () => {

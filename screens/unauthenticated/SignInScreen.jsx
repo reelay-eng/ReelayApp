@@ -7,7 +7,6 @@ import { showErrorToast } from '../../components/utils/toasts';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 import { getInputUsername } from '../../components/utils/usernameOrEmail';

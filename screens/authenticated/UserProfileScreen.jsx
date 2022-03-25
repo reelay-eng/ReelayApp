@@ -15,7 +15,6 @@ import ProfileTopBar from '../../components/profile/ProfileTopBar';
 import * as ReelayText from "../../components/global/Text";
 
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import styled from 'styled-components/native';
