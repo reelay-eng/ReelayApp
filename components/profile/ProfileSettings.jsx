@@ -1,7 +1,8 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Text, View, Pressable, Linking } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { Auth } from 'aws-amplify';
+import Constants from 'expo-constants';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 import { Icon } from "react-native-elements";
@@ -10,6 +11,7 @@ import * as ReelayText from "../../components/global/Text";
 import { BWButton } from "../../components/global/Buttons";
 import { HeaderWithBackButton } from "../global/Headers";
 import { clearLocalUserData, deregisterSocialAuthToken } from '../../api/ReelayUserApi';
+import { getReelay, prepareReelay } from '../../api/ReelayDBApi';
 
 export const ProfileSettings = ({navigation}) => {
     const ViewContainer = styled(View)`
@@ -40,16 +42,37 @@ export const ProfileSettings = ({navigation}) => {
 		align-items: center;
 	`;
 
+    const loadWelcomeVideoScreen = async () => {
+        const welcomeReelaySub = Constants.manifest.extra.welcomeReelaySub;
+        const welcomeReelay = await getReelay(welcomeReelaySub, 'dev');
+        const preparedReelay = await prepareReelay(welcomeReelay);
+        navigation.push('SingleReelayScreen', { preparedReelay });
+    }
+
     return (
 		<ViewContainer>
-			<HeaderWithBackButton navigation={navigation} />
+			<HeaderWithBackButton navigation={navigation} text='Settings & Info' />
 			<SettingsContainer>
 				<TopSettings>
-					<SettingEntry
+                    <SettingEntry
+						text="App Experience"
+						iconName="aperture"
+						onPress={() => {
+							navigation.push("GeneralSettingsScreen");
+						}}
+					/>
+                    <SettingEntry
 						text="Notifications"
 						iconName="notifications-outline"
 						onPress={() => {
 							navigation.push("NotificationSettingsScreen");
+						}}
+					/>
+                    <SettingEntry
+						text="Privacy Policy"
+						iconName="clipboard-outline"
+						onPress={() => {
+							Linking.openURL("https://www.reelay.app/privacy-policy");
 						}}
 					/>
 					<SettingEntry
@@ -60,18 +83,16 @@ export const ProfileSettings = ({navigation}) => {
 						}}
 					/>
 					<SettingEntry
-						text="Privacy Policy"
-						iconName="clipboard-outline"
-						onPress={() => {
-							Linking.openURL("https://www.reelay.app/privacy-policy");
-						}}
-					/>
-					<SettingEntry
 						text="TMDB Credit"
 						iconName="server-outline"
 						onPress={() => {
 							navigation.push("TMDBCreditScreen");
 						}}
+					/>
+                    <SettingEntry
+						text="Watch Tutorial"
+						iconName="glasses"
+						onPress={loadWelcomeVideoScreen}
 					/>
 				</TopSettings>
 				<BottomSettings>

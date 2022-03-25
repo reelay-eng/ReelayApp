@@ -28,7 +28,7 @@ import * as ReelayText from "../../components/global/Text";
 // Context
 import { AuthContext } from "../../context/AuthContext";
 import { FeedContext } from "../../context/FeedContext";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 // Styling
 import styled from 'styled-components/native';
@@ -69,18 +69,14 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const [isEditingProfile, setIsEditingProfile] = useState(false);
 	const { 
         myFollowers, 
-        myFollowing,
         myCreatorStacks,
         reelayDBUser,
         setMyFollowers, 
-        setMyFollowing,
         setMyCreatorStacks,
-        setMyNotifications,
-        setMyWatchlistItems,
     } = useContext(AuthContext); 
 
-    const signedIn = useSelector(state => state.signedIn);
-    console.log('Is signed in: ', signedIn);
+    const dispatch = useDispatch();
+    const myFollowing = useSelector(state => state.myFollowing);
     const { setTabBarVisible, refreshOnUpload, setRefreshOnUpload } = useContext(FeedContext);
 
     useEffect(() => {
@@ -141,9 +137,10 @@ export default MyProfileScreen = ({ navigation, route }) => {
     
                 setMyCreatorStacks(nextMyCreatorStacks);    
                 setMyFollowers(nextMyFollowers);
-                setMyFollowing(nextMyFollowing);    
-                setMyNotifications(nextMyNotifications);
-                setMyWatchlistItems(nextMyWatchlistItems);    
+
+                dispatch({ type: 'setMyNotifications', payload: nextMyNotifications });
+                dispatch({ type: 'setMyWatchlistItems', payload: nextMyWatchlistItems });
+                dispatch({ type: 'setMyFollowing', payload: nextMyFollowing });
 
                 console.log('Refresh complete');
             } catch (error) {

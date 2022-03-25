@@ -1,4 +1,5 @@
 import { createStore } from "redux";
+import { stacksOnStreamingReducer, watchlistRecsReducer } from "./reducers";
 
 const initialState = {
     cognitoUser: {},
@@ -31,12 +32,12 @@ const initialState = {
     justShowMeSignupVisible: false,
     likesVisible: false,
     refreshOnUpload: false,
-    tabBarVisible: true,
     s3Client: null,
+    showFestivalsRow: false,
+    tabBarVisible: true,
 }
 
 const appReducer = ( state = initialState, action) => {
-    console.log('DISPATCHED ACTION: ', action.type, action.payload);
     switch(action.type) {
         case 'setCognitoUser':
             return { ...state, cognitoUser: action.payload }
@@ -56,7 +57,8 @@ const appReducer = ( state = initialState, action) => {
         case 'setMyNotifications':
             return { ...state, myNotifications: action.payload }
         case 'setMyWatchlistItems':
-            return { ...state, myWatchlistItems: action.payload }  
+            const myWatchlistItems = watchlistRecsReducer(action.payload);
+            return { ...state, myWatchlistItems };
 
         case 'setMyStreamingSubscriptions':
             return { ...state, myStreamingSubscriptions: action.payload }
@@ -65,7 +67,11 @@ const appReducer = ( state = initialState, action) => {
         case 'setMyStacksInTheaters':
             return { ...state, myStacksInTheaters: action.payload }
         case 'setMyStacksOnStreaming':
-            return { ...state, myStacksOnStreaming: action.payload }
+            const myStacksOnStreaming = stacksOnStreamingReducer({
+                stacksOnStreaming: action.payload, 
+                streamingSubscriptions: state.myStreamingSubscriptions,
+            });
+            return { ...state, myStacksOnStreaming }
         case 'setMyStacksAtFestivals':
             return { ...state, myStacksAtFestivals: action.payload }
 
@@ -94,11 +100,12 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, likesVisible: action.payload }
         case 'setRefreshOnUpload':
             return { ...state, refreshOnUpload: action.payload }
-        case 'setTabBarVisible':
-            return { ...state, tabBarVisible: action.payload }
-
         case 'setS3Client':
             return { ...state, s3Client: action.payload }
+        case 'setShowFestivalsRow':
+            return { ...state, showFestivalsRow: action.payload }
+        case 'setTabBarVisible':
+            return { ...state, tabBarVisible: action.payload }    
             
         default: 
             return state
@@ -115,6 +122,7 @@ export const mapStateToProps = (state) => ({
     myFollowing: state.myFollowing,
     myFollowers: state.myFollowers,
     myNotifications: state.myNotifications,
+    myPreferences: state.myPreferences,
     myWatchlistItems: state.myWatchlistItems,
 
     myStreamingSubscriptions: state.myStreamingSubscriptions,
@@ -136,8 +144,9 @@ export const mapStateToProps = (state) => ({
     justShowMeSignupVisible: state.justShowMeSignupVisible,
     likesVisible: state.likesVisible,
     refreshOnUpload: state.refreshOnUpload,
-    tabBarVisible: state.tabBarVisible,
     s3Client: state.s3Client,
+    showFestivalsRow: state.showFestivalsRow,
+    tabBarVisible: state.tabBarVisible,
 });
 
 let store = createStore(appReducer);

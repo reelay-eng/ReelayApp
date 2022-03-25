@@ -19,6 +19,7 @@ import { notifyOnSendRec } from '../../api/WatchlistNotifications';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import ReelayColors from '../../constants/ReelayColors';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
+import { useSelector } from 'react-redux';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const ReelayIcon = require('../../assets/icons/reelay-icon-with-dog-black.png');
@@ -258,7 +259,8 @@ const FollowerList = memo(({
     const ScrollViewContainer = styled(ScrollView)`
         margin-bottom: 60px;
     `
-    const { reelayDBUser, myFollowing, myFollowers } = useContext(AuthContext);
+    const { reelayDBUser, myFollowers } = useContext(AuthContext);
+    const myFollowing = useSelector(state => state.myFollowing);
     const priorRecs = useRef([]);
 
     const iAmFollowing = (followObj) => (followObj.followerName === reelayDBUser?.username);

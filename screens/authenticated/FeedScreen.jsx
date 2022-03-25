@@ -11,13 +11,23 @@ export default function FeedScreen({ navigation, route }) {
 
     // valid feed sources: [global, following, theaters, streaming, festivals]
     const initialFeedSource = route?.params?.initialFeedSource;
+    const initialStackPos = route?.params?.initialStackPos;
+    const initialFeedPos = route?.params?.initialFeedPos;
+    const isOnFeedTab = route?.params?.isOnFeedTab;
+    const pinnedReelay = route?.params?.pinnedReelay;
+
+    console.log('Feed screen is rendering');
 
     return (
         <TransparentContainer>
             <ReelayFeed
                 forceRefresh={forceRefresh}
                 initialFeedSource={initialFeedSource ?? 'global'}
+                initialStackPos={initialStackPos ?? 0}
+                initialFeedPos={initialFeedPos ?? 0}
+                isOnFeedTab={isOnFeedTab ?? true}
                 navigation={navigation}
+                pinnedReelay={pinnedReelay}
             />
         </TransparentContainer>
     );

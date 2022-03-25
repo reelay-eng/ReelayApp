@@ -17,52 +17,41 @@ const REELAY_API_HEADERS = {
 export const followCreator = async (creatorSub, followerSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/follows?creatorSub=${creatorSub}&followerSub=${followerSub}`;
     console.log(routeGet);
-    const follow = await fetchResults(routeGet, {
+    const followResult = await fetchResults(routeGet, {
         method: "POST",
         headers: REELAY_API_HEADERS,
     });
-
-    if (!follow) {
-        console.log("Could not follow user")
-    }
-    return follow;
+    return followResult;
 }
 
 export const acceptFollowRequest = async (creatorSub, followerSub) => {
-    const routeGet = `${REELAY_API_BASE_URL}/follows/accept?creatorSub=${creatorSub}&followerSub=${followerSub}`;
-    console.log(routeGet);
-    const follow = await fetchResults(routeGet, {
+    const routePost = `${REELAY_API_BASE_URL}/follows/accept?creatorSub=${creatorSub}&followerSub=${followerSub}`;
+    console.log(routePost);
+    const acceptRequestResult = await fetchResults(routePost, {
       method: "POST",
       headers: REELAY_API_HEADERS,
     });
-    if (!follow) {
-      console.log("Could not accept user follow request");
-    }
+    return acceptRequestResult;
 }
 
 export const rejectFollowRequest = async (creatorSub, followerSub) => {
-    const routeGet = `${REELAY_API_BASE_URL}/follows/reject?creatorSub=${creatorSub}&followerSub=${followerSub}`;
-    console.log(routeGet);
-    const follow = await fetchResults(routeGet, {
+    const routeDelete = `${REELAY_API_BASE_URL}/follows/reject?creatorSub=${creatorSub}&followerSub=${followerSub}`;
+    console.log(routeDelete);
+    const rejectRequestResult = await fetchResults(routeDelete, {
         method: "DELETE",
         headers: REELAY_API_HEADERS,
     });
-    if (!follow) {
-        console.log("Could not reject user follow request");
-    }
+    return rejectRequestResult;
 };
 
 export const unfollowCreator = async (creatorSub, followerSub) => {
     const routeRemove = `${REELAY_API_BASE_URL}/follows?creatorSub=${creatorSub}&followerSub=${followerSub}`;
     console.log(routeRemove);
-    const unfollow = await fetchResults(routeRemove, {
+    const unfollowResult = await fetchResults(routeRemove, {
         method: "DELETE",
         headers: REELAY_API_HEADERS,
     });
-    console.log(unfollow)
-    if (!unfollow) {
-        console.log("Could not unfollow user");
-    }
+    return unfollowResult;
 }
 
 export const unblockCreator = async (creatorSub, blockingUserSub) => {
@@ -153,8 +142,8 @@ export const getFollowRequests = async (creatorSub) => {
     return requests;
 };
 
-export const getReelay = async (reelaySub) => {
-    const routeGet = `${REELAY_API_BASE_URL}/reelays/sub/${reelaySub}?visibility=${FEED_VISIBILITY}`;
+export const getReelay = async (reelaySub, visibility=FEED_VISIBILITY) => {
+    const routeGet = `${REELAY_API_BASE_URL}/reelays/sub/${reelaySub}?visibility=${visibility}`;
     const fetchedReelay = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS,
@@ -164,7 +153,6 @@ export const getReelay = async (reelaySub) => {
         console.log('Could not get reelays for this creator');
         return null;
     }
-
     return fetchedReelay;
 }
 
@@ -192,6 +180,19 @@ export const getReelaysByVenue = async ( venues, page = 0 ) => {
         return null;
     }
     return fetchedReelays;
+}
+
+export const getStreamingSubscriptions = async (userSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/streamingSubscriptions/${userSub}`;
+    const resultGet = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: REELAY_API_HEADERS,
+    });
+    if (!resultGet) {
+        console.log('Error fetching streaming subscriptions');
+        return [];
+    }
+    return resultGet;
 }
 
 export const getStacksByVenue = async ( venues, page = 0) => {
@@ -337,11 +338,20 @@ export const postCommentToDB = async (commentBody, reelaySub) => {
 }
 
 export const postLikeToDB = async (likeBody, reelaySub) => {
-    
     const routePost = `${REELAY_API_BASE_URL}/reelays/sub/${reelaySub}/likes`;
     const resultPost = await fetchResults(routePost, {
         method: 'POST',
         body: JSON.stringify(likeBody),
+        headers: REELAY_API_HEADERS,
+    });
+    return resultPost;
+}
+
+export const postStreamingSubscriptionToDB = async (userSub, streamingSubscriptionBody) => {
+    const routePost = `${REELAY_API_BASE_URL}/streamingSubscriptions/${userSub}`;
+    const resultPost = await fetchResults(routePost, {
+        method: 'POST',
+        body: JSON.stringify(streamingSubscriptionBody),
         headers: REELAY_API_HEADERS,
     });
     return resultPost;
@@ -361,6 +371,7 @@ export const prepareReelay = async (fetchedReelay) => {
             console.log(error);
         }
     }
+    if (!fetchedReelay.comments) fetchedReelay.comments = [];
     const sortedComments = fetchedReelay.comments.sort(sortCommentsByPostedDate);
 
     const reportedContent = (fetchedReelay.reviewStatus) ? {
@@ -425,7 +436,6 @@ export const registerPushTokenForUser = async (userSub, pushToken) => {
 // todo: make a remove comment function
 
 export const removeLike = async (like) => {
-
     const removeBody = {
         username: like.username,
         reelaySub: like.reelaySub,
@@ -445,6 +455,16 @@ export const removeReelay = async (reelay) => {
     const resultRemove = await fetchResults(routeRemove, {
         method: 'DELETE',
         headers: REELAY_API_HEADERS,
+    });
+    return resultRemove;
+}
+
+export const removeStreamingSubscription = async (userSub, removeSubscriptionBody) => {
+    const routeRemove = `${REELAY_API_BASE_URL}/streamingSubscriptions/${userSub}`;
+    const resultRemove = await fetchResults(routeRemove, {
+        method: 'DELETE',
+        headers: REELAY_API_HEADERS,
+        body: JSON.stringify(removeSubscriptionBody),
     });
     return resultRemove;
 }
@@ -521,6 +541,19 @@ export const updateUserBio = async (userSub, bio) => {
         body: JSON.stringify(updateBody),
     });
     console.log("Patched user bio to: ", bio);
+    return resultPatch;
+};
+
+export const updateUserFestivalPreference = async (userSub, showFestivalsRow) => {
+    const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}/settings?showFilmFestivals=${showFestivalsRow}`;
+    const resultPatch = await fetchResults(routePatch, {
+        method: "PATCH",
+        headers: {
+            ...REELAY_API_HEADERS,
+            requsersub: userSub,
+        },
+    });
+    console.log("Patched user festival preference to: ", showFestivalsRow);
     return resultPatch;
 };
 

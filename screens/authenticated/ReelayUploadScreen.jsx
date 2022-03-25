@@ -120,7 +120,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const [uploadStage, setUploadStage] = useState(uploadStages[0]);
     const [confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible] = useState(false);
 
-    const { myWatchlistItems, reelayDBUser } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
+    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const { setRefreshOnUpload } = useContext(FeedContext);
     const s3Client = useSelector(state => state.s3Client);
 

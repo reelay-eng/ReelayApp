@@ -35,6 +35,7 @@ export default ({ config }) => {
         appEnv: process.env.NODE_ENV,
         amplitudeApiKey: '41cdcb8df4bfc40ab39155a7e3401d22',
         cloudfrontBaseUrl: 'https://di92fpd9s7eko.cloudfront.net',
+        cloudfrontThumbnailUrl: 'https://dx4ubbn9al8bz.cloudfront.net',
         expoNotificationUrl: 'https://exp.host/--/api/v2/push/send',
 
         googleExpoClientId: '75256805031-843i4qaqde5g2hm0q3pn6toat65cne42.apps.googleusercontent.com',
@@ -44,10 +45,12 @@ export default ({ config }) => {
         reelayApiBaseUrl: getReelayAPIBaseURL(),
         reelayApiKey: 'ac739ac2-5877-47de-a861-59bc776bdd27',
         reelayS3UploadBucket: 'reelay-content211002-dev',
+        reelayS3ThumbnailBucket: 'reelay-thumbnails',
 
         tmdbApiKey: '033f105cd28f507f3dc6ae794d5e44f5',
         tmdbApiBaseUrl: 'https://api.themoviedb.org/3',
         tmdbImageApiBaseUrl: 'http://image.tmdb.org/t/p/w500/',
+        welcomeReelaySub: '3693fe18-0226-44e9-84da-0d2992fffcfa',
 
         feedVisibility: getVisibility(),
         uploadVisibility: getVisibility(),
