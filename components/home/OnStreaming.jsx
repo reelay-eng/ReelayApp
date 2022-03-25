@@ -188,10 +188,16 @@ const StreamingServicesElement = ({ onPress, stack }) => {
 
     return (
         <ReelayPreviewContainer onPress={onPress}>
-            <TitlePoster source={ stack[0]?.title?.posterSource } />
+            <ReelayThumbnail 
+                height={180} 
+                margin={0}
+                onPress={onPress} 
+                reelay={stack[0]} 
+                width={120} 
+            />
             <TitleInfoLine>
                 <TitleReleaseYear>{stack[0]?.title?.releaseYear}</TitleReleaseYear>
-                <ReelayCount>{`${stack.length} ${(stack.length > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
+                <ReelayCount>{`${reelayCount} ${(reelayCount > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
             </TitleInfoLine>
             <TitleText>{displayTitle}</TitleText>
             <TitleVenue>
