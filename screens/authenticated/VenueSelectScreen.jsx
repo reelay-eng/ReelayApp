@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Alert, Pressable, SafeAreaView, ScrollView, View, Linking, Image } from 'react-native';
 import { Camera } from 'expo-camera';
-import { getIconVenues, getOtherVenues } from '../../components/utils/VenueIcon';
+import { getStreamingVenues, getOtherVenues } from '../../components/utils/VenueIcon';
 
 import styled from 'styled-components/native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -16,9 +16,9 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 export default VenueSelectScreen = ({ navigation, route }) => {
     const { titleObj } = route.params;
-    const iconVenues = getIconVenues();
+    const streamingVenues = getStreamingVenues();
     const otherVenues = getOtherVenues();
-    const searchVenues = [...iconVenues, ...otherVenues];
+    const searchVenues = [...streamingVenues, ...otherVenues];
 
     const { reelayDBUser } = useContext(AuthContext);
 

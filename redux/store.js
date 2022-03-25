@@ -1,5 +1,5 @@
 import { createStore } from "redux";
-import { watchlistRecsReducer } from "./reducers";
+import { stacksOnStreamingReducer, watchlistRecsReducer } from "./reducers";
 
 const initialState = {
     cognitoUser: {},
@@ -58,7 +58,7 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, myNotifications: action.payload }
         case 'setMyWatchlistItems':
             const myWatchlistItems = watchlistRecsReducer(action.payload);
-            return { ...state, myWatchlistItems: myWatchlistItems };
+            return { ...state, myWatchlistItems };
 
         case 'setMyStreamingSubscriptions':
             return { ...state, myStreamingSubscriptions: action.payload }
@@ -67,7 +67,11 @@ const appReducer = ( state = initialState, action) => {
         case 'setMyStacksInTheaters':
             return { ...state, myStacksInTheaters: action.payload }
         case 'setMyStacksOnStreaming':
-            return { ...state, myStacksOnStreaming: action.payload }
+            const myStacksOnStreaming = stacksOnStreamingReducer({
+                stacksOnStreaming: action.payload, 
+                streamingSubscriptions: state.myStreamingSubscriptions,
+            });
+            return { ...state, myStacksOnStreaming }
         case 'setMyStacksAtFestivals':
             return { ...state, myStacksAtFestivals: action.payload }
 

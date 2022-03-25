@@ -6,7 +6,7 @@ import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
 import { LinearGradient } from 'expo-linear-gradient';
-import { getIconVenues } from '../utils/VenueIcon';
+import { getStreamingVenues } from '../utils/VenueIcon';
 import { BWButton } from '../global/Buttons';
 
 import { postStreamingSubscriptionToDB, removeStreamingSubscription } from '../../api/ReelayDBApi';
@@ -50,10 +50,10 @@ const IconOptionsContainer = styled.View`
     width: 100%;
 `
 const IconList = memo(({ onTapVenue, initSelectedVenues }) => {
-    const iconVenues = getIconVenues();
+    const streamingVenues = getStreamingVenues();
     return (
         <IconOptionsContainer>
-            {iconVenues.map((venueObj) => {
+            {streamingVenues.map((venueObj) => {
                 const venue = venueObj.venue;
                 const matchVenue = (selectedVenue) => (venue === selectedVenue);
                 const initSelected = !!initSelectedVenues.find(matchVenue);
@@ -62,7 +62,7 @@ const IconList = memo(({ onTapVenue, initSelectedVenues }) => {
                         key={venue}
                         initSelected={initSelected}
                         onTapVenue={onTapVenue}
-                        searchVenues={iconVenues} 
+                        searchVenues={streamingVenues} 
                         venue={venue} 
                     />
                 );
