@@ -64,8 +64,6 @@ export const getAllMyNotifications = async (userSub, page = 0) => {
         return notification;
     });
 
-    console.log('parsed notifications: ', parsedNotifications);
-
     return parsedNotifications;
 }
 

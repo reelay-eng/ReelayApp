@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import { ActionButton } from '../global/Buttons';
 import { Icon } from 'react-native-elements';
@@ -59,18 +58,6 @@ const YouDontFollowButtonBox = styled.View`
 `
 
 export default YouDontFollowPrompt = ({ navigation }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-    const goToReelayFeed = () => {
-        navigation.push("FeedScreen", {
-            initialRouteName: 'global',
-            initialFeedPos: 0,
-            isOnFeedTab: false,
-        })
-        logAmplitudeEventProd('openGlobalFeedFromHomeScreenPrompt', {
-			username: reelayDBUser?.username
-		});
-    }
-
     const loadGlobalFeedWithPinnedWelcome = async () => {
         const welcomeReelaySub = Constants.manifest.extra.welcomeReelaySub;
         // the reelay was uploaded to dev visibility, not global
@@ -109,13 +96,6 @@ export default YouDontFollowPrompt = ({ navigation }) => {
                             rightIcon={<Icon type='ionicon' name='play-circle' size={20} color='white' /> }
                         />
                     </YouDontFollowButtonBox>
-                    {/* <YouDontFollowButtonBox>
-                        <ActionButton
-                            text="Go to Reelay Feed"
-                            onPress={goToReelayFeed}
-                            rightIcon={<Icon type='ionicon' name='play-circle' size={20} color='white' /> }
-                        />
-                    </YouDontFollowButtonBox> */}
                 </YouDontFollowGradientContentBox>
             </YouDontFollowGradientContainer>
         </YouDontFollowContainer>

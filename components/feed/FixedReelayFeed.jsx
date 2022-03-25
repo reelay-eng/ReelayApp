@@ -132,6 +132,5 @@ const FixedReelayFeed = ({ navigation,
 }
 
 export default memo(FixedReelayFeed, (prevProps, nextProps) => {
-    console.log('Fixed feed memo called');
     return true;
 });

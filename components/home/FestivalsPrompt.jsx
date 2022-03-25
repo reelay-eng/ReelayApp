@@ -61,7 +61,7 @@ export default FestivalsPrompt = ({ navigation, setShowFestivalsPrompt }) => {
             <PromptGradient /> 
             <FestivalIcon />
             <Headline>{'Are you into film festivals?'}</Headline>
-            <PromptBody>{'Say Yes to see reelays from festivals on your home page. You can always change this later in Settings.'}</PromptBody>
+            <PromptBody>{'Choose whether you want to see reelays from festivals on your home page. You can always change this later in Settings.'}</PromptBody>
             <PromptResponseBox setShowFestivalsPrompt={setShowFestivalsPrompt} />
         </FestivalsPromptContainer>
     )
