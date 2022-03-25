@@ -1,17 +1,18 @@
-import React, { memo } from 'react';
+import React, { memo, useContext, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import * as ReelayText from '../global/Text';
-import styled from 'styled-components/native';
-import { logAmplitudeEventProd } from '../utils/EventLogger';
 import ProfilePicture from '../global/ProfilePicture';
 
-const ReelayInfoBare = ({ navigation, reelay }) => {
+import styled from 'styled-components/native';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
+import FollowButton from '../global/FollowButton';
 
+const ReelayInfo = ({ navigation, reelay }) => {
 	const InfoView = styled(View)`
 		justify-content: flex-end;
 		position: absolute;
 		bottom: 100px;
-		margin-left: 10px;
+		margin-left: 15px;
 		width: 80%;
 	`
 	const PostInfo = styled(View)`
@@ -22,12 +23,10 @@ const ReelayInfoBare = ({ navigation, reelay }) => {
 		margin-right: 8px;
 	`
 	const Username = styled(ReelayText.Subtitle1Emphasized)`
-		align-self: flex-end;
 		color: white;
+		margin-right: 8px;
 	`
-
 	const creator = reelay.creator;
-
 	const goToProfile = () => {
 		navigation.push('UserProfileScreen', { creator });
 		logAmplitudeEventProd('viewProfile', { 
@@ -37,6 +36,8 @@ const ReelayInfoBare = ({ navigation, reelay }) => {
 		});
 	}
 
+	console.log('Rerendering reelay info');
+
 	return (
 		<InfoView>
 			<Pressable onPress={goToProfile}>
@@ -45,12 +46,13 @@ const ReelayInfoBare = ({ navigation, reelay }) => {
 						<ProfilePicture navigation={navigation} border circle user={creator} size={30} />
 					</ProfilePicContainer>
 					<Username>@{creator?.username}</Username>
+					<FollowButton creator={creator} />
 				</PostInfo>
 			</Pressable>
 		</InfoView>
 	);
 };
 
-export default ReelayInfo = memo(ReelayInfoBare, (prevProps, nextProps) => {
+export default memo(ReelayInfo, (prevProps, nextProps) => {
 	return (prevProps.reelay.datastoreSub === nextProps.reelay.datastoreSub);
 });

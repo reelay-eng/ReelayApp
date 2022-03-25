@@ -25,7 +25,7 @@ export default ProfilePicture = memo(({ border = null, user, navigation, size = 
             navigation.push('UserProfileScreen', { creator: user });
         }}>
             { validProfileImage ? null : (
-                <ProfileImage border circle size={size} source={ReelayIcon} />) 
+                <ProfileImage border size={size} source={ReelayIcon} />) 
             }
             <ProfileImage
                 border={border}

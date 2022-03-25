@@ -47,7 +47,7 @@ export const RecommendedByLine = ({ navigation, watchlistItem }) => {
         navigation.push('UserProfileScreen', { creator });
     }
 
-    const profilePictures = recommendations.reverse().map(({ 
+    const profilePictures = recommendations.reverse().slice(0,3).map(({ 
         recommendedBySub,
         recommendedByUsername,
     }, index) => {

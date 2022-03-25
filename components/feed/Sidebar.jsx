@@ -99,11 +99,10 @@ export default Sidebar = ({ navigation, reelay }) => {
 				reelaySub: reelay.sub,
 			}
 			reelay.likes = reelay.likes.filter(likes => likes.username !== reelayDBUser?.username);
+			setLikeUpdateCounter(likeUpdateCounter + 1);
 		
 			const postResult = await removeLike(unlikeBody, reelay.sub);
 			console.log(postResult);
-			
-			setLikeUpdateCounter(likeUpdateCounter + 1);
 			logAmplitudeEventProd('unlikedReelay', {
 				user: reelayDBUser.username,
 				creator: reelay.creator.username,
@@ -122,12 +121,11 @@ export default Sidebar = ({ navigation, reelay }) => {
 				username: reelayDBUser?.username,
 				postedAt: new Date().toISOString(),
 			}
-			reelay.likes.push(likeBody);		
+			reelay.likes.push(likeBody);
+			setLikeUpdateCounter(likeUpdateCounter + 1);		
 
 			const postResult = await postLikeToDB(likeBody, reelay.sub);
 			console.log(postResult);
-
-			setLikeUpdateCounter(likeUpdateCounter + 1);
 			notifyCreatorOnLike({ 
 				creatorSub: reelay.creator.sub,
 				user: reelayDBUser,

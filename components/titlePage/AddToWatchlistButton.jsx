@@ -10,7 +10,7 @@ import { AddToWatchlistIconSVG, WatchlistAddedIconSVG } from '../global/SVGs';
 import { showMessageToast } from '../utils/toasts';
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const WatchListButtonCircleContainer = styled(View)`
     align-items: center;
@@ -28,8 +28,10 @@ const WatchlistButtonOuterContainer = styled(Pressable)`
 `
 
 export default AddToWatchlistButton = ({ titleObj, reelay }) => {
-    const { reelayDBUser, myWatchlistItems, setMyWatchlistItems } = useContext(AuthContext);
     const dispatch = useDispatch();
+    const { reelayDBUser } = useContext(AuthContext);
+    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+    const { setJustShowMeSignupVisible } = useContext(FeedContext);
 
     const inWatchlist = !!myWatchlistItems.find((nextItem) => {
         const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;
@@ -68,7 +70,7 @@ export default AddToWatchlistButton = ({ titleObj, reelay }) => {
                     const isRemovedTitle = (nextItem?.tmdbTitleID === tmdbTitleID) && (nextItem?.titleType === titleType);
                     return !isRemovedTitle;
                 });
-                setMyWatchlistItems(nextWatchlistItems);
+                dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
                 showMessageToast('Removed from your watchlist', 'bottom');
     
                 logAmplitudeEventProd('removedFromMyWatchlist', {
@@ -85,7 +87,7 @@ export default AddToWatchlistButton = ({ titleObj, reelay }) => {
             const dbResult = await addToMyWatchlist(reqBody);
             if (!dbResult.error) {
                 const nextWatchlistItems = [...myWatchlistItems, dbResult];
-                setMyWatchlistItems(nextWatchlistItems);
+                dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
                 showMessageToast('Added to your watchlist', 'bottom');
     
                 logAmplitudeEventProd('addToMyWatchlist', {

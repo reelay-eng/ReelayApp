@@ -9,8 +9,8 @@ import { followCreator, unfollowCreator } from '../../../api/ReelayDBApi';
 import { notifyCreatorOnFollow } from "../../../api/NotificationsApi";
 
 import { logAmplitudeEventProd } from '../../utils/EventLogger';
-import FollowButtonDrawer from './FollowButtonDrawer';
-import { useDispatch } from 'react-redux';
+import FollowButtonDrawer from '../../global/FollowButtonDrawer';
+import { useDispatch, useSelector } from 'react-redux';
 
 const FollowContainer = styled(View)`
     align-self: center;
@@ -35,8 +35,10 @@ const FollowText = styled(ReelayText.Subtitle1Emphasized)`
 `;
 
 export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowers }) => {
-    const { reelayDBUser, myFollowing, setMyFollowing } = useContext(AuthContext);
     const dispatch = useDispatch();
+    const { reelayDBUser } = useContext(AuthContext);
+    const myFollowing = useSelector(state => state.myFollowing);
+    const { setJustShowMeSignupVisible } = useContext(FeedContext);
     
     const creatorSub = creator.sub;
     const userSub = reelayDBUser.sub;
@@ -62,7 +64,7 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
         
         if (isFollowing) {
             setCreatorFollowers([...creatorFollowers, followResult]);
-            setMyFollowing([...myFollowing, followResult]);
+            dispatch({ type: 'setMyFollowing', action: [...myFollowing, followResult] });
         } else {
             logAmplitudeEventProd('followCreatorError', {
                 error: followResult?.error,

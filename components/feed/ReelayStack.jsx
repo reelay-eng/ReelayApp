@@ -2,6 +2,7 @@ import React, { useContext, useState, memo } from 'react';
 import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from 'react-native-elements';
+import Constants from 'expo-constants';
 import Hero from './Hero';
 import Poster from './Poster';
 import AddToWatchlistButton from '../titlePage/AddToWatchlistButton';
@@ -56,17 +57,15 @@ const TitleText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
 `
+const VenueContainer = styled(View)`
+    margin-top: -4px;
+    margin-right: 5px;
+`
 const YearText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
     margin-bottom: 4px;
 `
-
-const VenueContainer = styled(View)`
-    margin-top: -4px;
-    margin-right: 5px;
-`
-
 const YearVenueContainer = styled(View)`
     flex-direction: row;
     margin-top: 0px;
@@ -82,10 +81,15 @@ const ReelayStack = ({
     const [stackPosition, setStackPosition] = useState(0);
     const { reelayDBUser } = useContext(AuthContext);
     const viewableReelay = stack[stackPosition];
+    const isWelcomeReelay = Constants.manifest.extra.welcomeReelaySub === viewableReelay?.sub;
     
     // figure out how to do ellipses for displayTitle
-    const displayTitle = (viewableReelay.title.display) ? viewableReelay.title.display : 'Title not found\ '; 
-	const year = (viewableReelay.title.releaseYear) ? viewableReelay.title.releaseYear : '';
+    let displayTitle = (viewableReelay.title.display) ? viewableReelay.title.display : 'Title not found'; 
+	let displayYear = (viewableReelay.title.releaseYear) ? viewableReelay.title.releaseYear : '';
+    if (isWelcomeReelay) {
+        displayTitle = 'Welcome to Reelay';
+        displayYear = '2022';
+    }
 
     const getItemLayout = (data, index) => ({
         length: width, 
@@ -199,7 +203,7 @@ const ReelayStack = ({
                                         <VenueIcon venue={viewableReelay.content.venue} size={20} border={1} />
                                     </VenueContainer>
                                 }
-                                { year.length > 0 && <YearText>{year}</YearText> }
+                                { displayYear.length > 0 && <YearText>{displayYear}</YearText> }
                             </YearVenueContainer>
                             <StackLengthText>
                                 {(stack.length > 1) 

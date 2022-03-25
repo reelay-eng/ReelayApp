@@ -25,6 +25,7 @@ import LinkingConfiguration from './LinkingConfiguration';
 import moment from 'moment';
 import { handlePushNotificationResponse } from './NotificationHandler';
 import { markNotificationReceived } from '../api/NotificationsApi';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default Navigation = () => {
     /**
@@ -36,7 +37,13 @@ export default Navigation = () => {
     const navigationRef = useRef();
     const notificationListener = useRef();
     const responseListener = useRef(); 
-    const authContext = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
+    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+    const dispatch = useDispatch();
+
+    const setMyWatchlistItems = (payload) => {
+        dispatch({ type: 'setMyWatchlistItems', payload });
+    }
     
     const onNotificationReceived = async (notification) => {
         const notificationContent = parseNotificationContent(notification);
@@ -53,9 +60,11 @@ export default Navigation = () => {
         const { notification, actionIdentifier, userText } = notificationResponse;
         const notificationContent = parseNotificationContent(notification);
         handlePushNotificationResponse({ 
+            myWatchlistItems,
             navigation: navigationRef?.current, 
             notificationContent,
-            userContext: authContext, 
+            reelayDBUser,
+            setMyWatchlistItems,
         });
     }
 

@@ -31,7 +31,7 @@ import useColorScheme from './hooks/useColorScheme';
 import { AuthContext } from './context/AuthContext';
 
 // api imports
-import { getRegisteredUser, registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
+import { getFeed, getRegisteredUser, registerPushTokenForUser } from './api/ReelayDBApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { toastConfig } from './components/utils/ToastConfig';
 import Toast from "react-native-toast-message";
@@ -41,6 +41,7 @@ import {
     loadMyFollowing, 
     loadMyReelayStacks, 
     loadMyNotifications, 
+    loadMyStreamingSubscriptions,
     loadMyWatchlist, 
     verifySocialAuthToken,
 } from './api/ReelayUserApi';
@@ -64,9 +65,6 @@ function App() {
 
     const [myCreatorStacks, setMyCreatorStacks] = useState([]);
     const [myFollowers, setMyFollowers] = useState([]);
-    const [myFollowing, setMyFollowing] = useState([]);
-    const [myNotifications, setMyNotifications] = useState([]);
-    const [myWatchlistItems, setMyWatchlistItems] = useState([]);
 
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [reelayDBUserID, setReelayDBUserID] = useState(null);
@@ -192,8 +190,8 @@ function App() {
             else {
                 setIsReturningUser(false);
             }
-		} catch (e) {
-			console.log(e)
+		} catch (error) {
+			console.log(error);
 		}
     }
 
@@ -235,19 +233,51 @@ function App() {
     }
 
     const loadMyProfile = async (userSub) => {
-        const reelayDBUserLoaded = await getRegisteredUser(userSub);
-        const myCreatorStacksLoaded = await loadMyReelayStacks(userSub);
-        const myFollowersLoaded = await loadMyFollowers(userSub);
-        const myFollowingLoaded = await loadMyFollowing(userSub);
-        const myNotifications = await loadMyNotifications(userSub);
-        const myWatchlistItemsLoaded = await loadMyWatchlist(userSub);
+        const reqUserSub = userSub;
+        // make sure to maintain consistent ordering between these arrays
+        // when you modify them
+        const [
+            reelayDBUserLoaded,
+            myCreatorStacksLoaded,
+            myFollowersLoaded,
+            myFollowingLoaded,
+            myNotificationsLoaded,
+            myWatchlistItemsLoaded,
+
+            myStreamingSubscriptions,
+            myStacksFollowing,
+            myStacksInTheaters,
+            myStacksOnStreaming,
+            myStacksAtFestivals,
+        ] = await Promise.all([
+            getRegisteredUser(userSub),
+            loadMyReelayStacks(userSub),
+            loadMyFollowers(userSub),
+            loadMyFollowing(userSub),
+            loadMyNotifications(userSub),
+            loadMyWatchlist(userSub),
+            loadMyStreamingSubscriptions(userSub),
+
+            getFeed({ reqUserSub, feedSource: 'following', page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'streaming', page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'festivals', page: 0 }),
+        ]);
 
         setReelayDBUser(reelayDBUserLoaded);
         setMyFollowers(myFollowersLoaded);
-        setMyFollowing(myFollowingLoaded);
         setMyCreatorStacks(myCreatorStacksLoaded);
-        setMyNotifications(myNotifications);
-        setMyWatchlistItems(myWatchlistItemsLoaded);
+
+        dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
+        dispatch({ type: 'setMyNotifications', payload: myNotificationsLoaded });
+        dispatch({ type: 'setMyWatchlistItems', payload: myWatchlistItemsLoaded });
+        dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
+
+        dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
+        dispatch({ type: 'setMyStacksFollowing', payload: myStacksFollowing });
+        dispatch({ type: 'setMyStacksInTheaters', payload: myStacksInTheaters });
+        dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });
+        dispatch({ type: 'setMyStacksAtFestivals', payload: myStacksAtFestivals });
         setIsLoading(false);
     }
 
@@ -278,9 +308,6 @@ function App() {
 
         myCreatorStacks,    setMyCreatorStacks,
         myFollowers,        setMyFollowers,
-        myFollowing,        setMyFollowing,
-        myNotifications,    setMyNotifications,
-        myWatchlistItems,   setMyWatchlistItems,
 
         reelayDBUser,       setReelayDBUser,
         reelayDBUserID,     setReelayDBUserID,

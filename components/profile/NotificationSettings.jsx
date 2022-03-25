@@ -1,6 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
 import { View, Switch, Linking, Pressable } from 'react-native';
-import { useDispatch } from "react-redux";
 
 // Context
 import { AuthContext } from '../../context/AuthContext';
@@ -17,13 +16,6 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 export default NotificationSettings = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
-	const dispatch = useDispatch();
-    useEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false });
-        return () => {
-			dispatch({ type: 'setTabBarVisible', payload: true });
-		}
-    })
 
     const ViewContainer = styled(View)`
         width: 100%;

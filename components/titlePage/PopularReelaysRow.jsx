@@ -1,31 +1,12 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { 
-    ActivityIndicator, 
-    Image,
-    Pressable, 
-    ScrollView, 
-    View,
-} from 'react-native';
+import { ScrollView, View } from 'react-native';
 
-// API
 import { getMostRecentReelaysByTitle } from "../../api/ReelayDBApi";
-
-// Styling
+import ReelayThumbnail from '../global/ReelayThumbnail';
 import styled from 'styled-components/native';
-import { LinearGradient } from "expo-linear-gradient";
-
-// Components
 import * as ReelayText from "../../components/global/Text";
 import { BWButton } from "../../components/global/Buttons";
-import * as VideoThumbnails from "expo-video-thumbnails";
-
-// Context
 import { AuthContext } from '../../context/AuthContext';
-
-// Media
-import SplashImage from "../../assets/images/reelay-splash-with-dog.png";
-
-// Logging
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 export default PopularReelaysRow = ({ navigation, titleObj }) => {
@@ -65,141 +46,6 @@ export default PopularReelaysRow = ({ navigation, titleObj }) => {
 			});
 	};
 
-	const ReelayThumbnail = ({ reelay, index }) => {
-		const ThumbnailContainer = styled(View)`
-			justify-content: center;
-			margin: 6px;
-			height: 202px;
-			width: 107px;
-		`;
-		const ThumbnailImage = styled(Image)`
-			border-radius: 8px;
-			height: 200px;
-			width: 105px;
-		`;
-		const [loading, setLoading] = useState(true);
-		const [thumbnailURI, setThumbnailURI] = useState("");
-		const thumbnailImageSource = thumbnailURI.length > 0 ? { uri: thumbnailURI } : SplashImage;
-
-		const loadThumbnail = async () => {
-			try {
-				const source = reelay.content.videoURI;
-				const options = { time: 1000, quality: 0.4 };
-				const { uri } = await VideoThumbnails.getThumbnailAsync(source, options);
-				if (componentMounted.current) {
-					setThumbnailURI(uri);
-					setLoading(false);
-				}
-			} catch (error) {
-				console.warn(error);
-				if (componentMounted.current) {
-					setThumbnailURI('');
-					setLoading(false);
-				}
-			}
-		}
-
-		useEffect(() => {
-			loadThumbnail();
-		}, []);
-
-		const GradientContainer = styled(View)`
-			position: absolute;
-			width: 100%;
-			height: 65%;
-			top: 35%;
-			bottom: 0;
-			left: 0;
-			right: 0;
-			justify-content: center;
-			align-items: center;
-			border-radius: 8px;
-		`;
-		const UsernameText = styled(ReelayText.Subtitle2)`
-			padding: 5px;
-			position: absolute;
-			bottom: 5%;
-			color: white;
-			font-size: 12px;
-		`;
-
-		return (
-			<Pressable
-				key={reelay.id}
-				onPress={() => {
-					goToReelay(index);
-				}}
-			>
-				<ThumbnailContainer>
-					{loading && <ActivityIndicator />}
-					{!loading && (
-						<>
-							<ThumbnailImage source={thumbnailImageSource} />
-							<GradientContainer>
-								<LinearGradient
-									colors={["transparent", "#0B1424"]}
-									style={{
-										flex: 1,
-										opacity: 1,
-										width: "100%",
-										height: "100%",
-										borderRadius: "8px",
-									}}
-								/>
-								<UsernameText>
-									{`@${
-										reelay.creator.username.length > 13
-											? reelay.creator.username.substring(0, 10) + "..."
-											: reelay.creator.username
-									}`}
-								</UsernameText>
-							</GradientContainer>
-						</>
-					)}
-				</ThumbnailContainer>
-			</Pressable>
-		);
-	};
-
-	const TopReelays = () => {
-		const TopReelaysContainer = styled(View)`
-			width: 95%;
-			left: 5%;
-		`;
-		const ThumbnailScrollContainer = styled(View)`
-			align-items: center;
-			flex-direction: row;
-			justify-content: flex-start;
-			height: 220px;
-			width: 100%;
-		`;
-		const TopReelaysHeader = styled(ReelayText.H5Emphasized)`
-			padding: 10px;
-			color: white;
-		`;
-
-		return (
-			<TopReelaysContainer>
-				<TopReelaysHeader>{`Top Reviews`}</TopReelaysHeader>
-				<ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-					<ThumbnailScrollContainer>
-						{
-							topReelays.map((reelay, index) => {
-								return (
-									<ReelayThumbnail
-										key={reelay.id}
-										reelay={reelay}
-										index={index}
-									/>
-								);
-							})
-						}
-					</ThumbnailScrollContainer>
-				</ScrollView>
-			</TopReelaysContainer>
-		);
-	};
-
 	const Container = styled(View)`
 		width: 100%;
 	`;
@@ -213,10 +59,11 @@ export default PopularReelaysRow = ({ navigation, titleObj }) => {
 	const ButtonSizer = styled(View)`
 		width: 84%;
 		height: 40px;
-	`;
+	`
+
 	if (topReelays.length > 0) return (
 		<Container>
-			<TopReelays />
+			<TopReelays goToReelay={goToReelay} topReelays={topReelays} />
 			<ButtonContainer>
 				<ButtonSizer>
 					<BWButton
@@ -231,4 +78,43 @@ export default PopularReelaysRow = ({ navigation, titleObj }) => {
 		</Container>
 	);
 	else return null;
+};
+
+const TopReelays = ({ goToReelay, topReelays }) => {
+	const TopReelaysContainer = styled(View)`
+		width: 95%;
+		left: 5%;
+	`;
+	const ThumbnailScrollContainer = styled(View)`
+		align-items: center;
+		flex-direction: row;
+		justify-content: flex-start;
+		height: 220px;
+		width: 100%;
+	`;
+	const TopReelaysHeader = styled(ReelayText.H5Emphasized)`
+		padding: 10px;
+		color: white;
+	`;
+
+	// TODO: move scroll view into a flatlist
+
+	return (
+		<TopReelaysContainer>
+			<TopReelaysHeader>{`Top Reviews`}</TopReelaysHeader>
+			<ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+				<ThumbnailScrollContainer>
+					{ topReelays.map((reelay, index) => {
+						return (
+							<ReelayThumbnail
+								key={reelay.id}
+								reelay={reelay}
+								onPress={() => goToReelay(index)}
+							/>
+						);
+					})}
+				</ThumbnailScrollContainer>
+			</ScrollView>
+		</TopReelaysContainer>
+	);
 };

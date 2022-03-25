@@ -15,6 +15,8 @@ import { Icon } from 'react-native-elements';
 import { AuthContext } from '../context/AuthContext';
 
 import FeedScreen from '../screens/authenticated/FeedScreen';
+import GeneralSettingsScreen from '../screens/authenticated/GeneralSettingsScreen';
+import HomeScreen from '../screens/authenticated/HomeScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
 import NotificationScreen from '../screens/authenticated/NotificationScreen';
 import NotificationSettingsScreen from '../screens/authenticated/NotificationSettingsScreen';
@@ -41,11 +43,12 @@ import FeedIcon from '../assets/icons/navbar/feed-icon.png';
 import ProfileIcon from '../assets/icons/navbar/profile-icon.png';
 import SearchIcon from '../assets/icons/navbar/search-icon.png';
 import { WatchlistAddedIconSVG } from '../components/global/SVGs';
+import { useSelector } from 'react-redux';
  
 const AppStack = createStackNavigator();
 const BottomTab = createBottomTabNavigator();
 const SearchTabStack = createStackNavigator();
-
+const HomeTabStack = createStackNavigator();
 const FeedTabStack = createStackNavigator();
 const CreateReelayTabStack = createStackNavigator();
 const WatchlistTabStack = createStackNavigator();
@@ -90,7 +93,7 @@ const bottomTabIconStyle = (focused) => {
 };
 
 const BottomTabNavigator = () => {
-	const { myNotifications } = useContext(AuthContext);
+	const myNotifications = useSelector(state => state.myNotifications);
 	const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
 	const tabBarVisible = useSelector((state) => state.tabBarVisible)
@@ -136,30 +139,31 @@ const BottomTabNavigator = () => {
 						style={[StyleSheet.absoluteFill, s.gradient]}
 					/>
 				),
+				lazy: false,
 			}}
 		>
 			<BottomTab.Screen
 				name="Home"
-				component={FeedTabNavigator}
-				options={{
-					tabBarIcon: ({ focused }) => (
-						<Image
-							source={FeedIcon}
-							style={bottomTabIconStyle(focused)}
-						/>
-					),
-				}}
-			/>
-			<BottomTab.Screen
-				name="Search"
-				component={SearchTabNavigator}
+				component={HomeTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<View>
 							<Image
-								source={SearchIcon}
+								source={HomeIcon}
 								style={bottomTabIconStyle(focused)}
 							/>
+							{ hasUnreadNotifications && <UnreadIconIndicator /> }
+						</View>
+					),
+				}}
+			/>
+			<BottomTab.Screen
+				name="Global"
+				component={FeedTabNavigator}
+				options={{
+					tabBarIcon: ({ focused }) => (
+						<View>
+							<Icon type='ionicon' name='earth' size={24} color='white' />
 						</View>
 					),
 				}}
@@ -188,13 +192,10 @@ const BottomTabNavigator = () => {
 				component={ProfileTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<View>
-							<Image
-								source={ProfileIcon}
-								style={bottomTabIconStyle(focused)}
-							/>
-							{ hasUnreadNotifications && <UnreadIconIndicator /> }
-						</View>
+						<Image
+							source={ProfileIcon}
+							style={bottomTabIconStyle(focused)}
+						/>
 					),
 				}}
 			/>
@@ -205,97 +206,104 @@ const BottomTabNavigator = () => {
 // Each tab has its own navigation stack, you can read more about this pattern here:
 // https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab
 
-const SearchTabNavigator = () => {
+const HomeTabNavigator = () => {
 	return (
-		<SearchTabStack.Navigator 
-			initialRouteName="SearchScreen"
+		<HomeTabStack.Navigator 
+			initialRouteName="HomeScreen"
 			detachInactiveScreens={false}
 		>
-			<SearchTabStack.Screen
+			<HomeTabStack.Screen
+                name='HomeScreen'
+                component={HomeScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+			<HomeTabStack.Screen
                 name='SearchScreen'
                 component={SearchScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <HomeTabStack.Screen
                 name='FeedScreen'
                 component={FeedScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <HomeTabStack.Screen
                 name='UserProfileScreen'
                 component={UserProfileScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <HomeTabStack.Screen
                 name='UserFollowScreen'
                 component={UserFollowScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <HomeTabStack.Screen
                 name='ProfileFeedScreen'
                 component={ProfileFeedScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-			<SearchTabStack.Screen
+			<HomeTabStack.Screen
                 name='ReportedContentFeedScreen'
                 component={ReportedContentFeedScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-			<SearchTabStack.Screen 
+			<HomeTabStack.Screen 
 				name='SendRecScreen'
 				component={SendRecScreen}
 				options={{
 					headerShown: false,
 				}}
 			/>
-            <SearchTabStack.Screen
+            <HomeTabStack.Screen
                 name='SingleReelayScreen'
                 component={SingleReelayScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <HomeTabStack.Screen
                 name='TitleDetailScreen'
                 component={TitleDetailScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <HomeTabStack.Screen
                 name='TitleFeedScreen'
                 component={TitleFeedScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-            <SearchTabStack.Screen
+            <HomeTabStack.Screen
                 name='TitleTrailerScreen'
                 component={TitleTrailerScreen}
                 options={{
                     headerShown: false,
                 }}
             />
-			<SearchTabStack.Screen
+			<HomeTabStack.Screen
 				name="NotificationScreen"
 				component={NotificationScreen}
 				options={{
 					headerShown: false,
 				}}
 			/>
-		</SearchTabStack.Navigator>
+		</HomeTabStack.Navigator>
 	)
 }
 
@@ -569,6 +577,13 @@ const ProfileTabNavigator = () => {
 			<ProfileTabStack.Screen
 				name="TMDBCreditScreen"
 				component={TMDBCreditScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<ProfileTabStack.Screen
+				name="GeneralSettingsScreen"
+				component={GeneralSettingsScreen}
 				options={{
 					headerShown: false,
 				}}
