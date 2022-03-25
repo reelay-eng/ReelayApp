@@ -74,7 +74,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
         setMyFollowers, 
         setMyCreatorStacks,
         setMyNotifications,
-        setMyWatchlistItems,
     } = useContext(AuthContext); 
 
     const dispatch = useDispatch();
@@ -140,8 +139,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
                 setMyCreatorStacks(nextMyCreatorStacks);    
                 setMyFollowers(nextMyFollowers);
                 setMyNotifications(nextMyNotifications);
-                setMyWatchlistItems(nextMyWatchlistItems);    
 
+                dispatch({ type: 'setMyWatchlistItems', payload: nextMyWatchlistItems });
                 dispatch({ type: 'setMyFollowing', payload: nextMyFollowing });
 
                 console.log('Refresh complete');

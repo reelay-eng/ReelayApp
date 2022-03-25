@@ -2,8 +2,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 import { getReelay, prepareReelay } from "../api/ReelayDBApi";
 
-export const handlePushNotificationResponse = async ({ navigation, notificationContent, userContext }) => {
-    const { reelayDBUser, myWatchlistItems, setMyWatchlistItems } = userContext;
+export const handlePushNotificationResponse = async ({ 
+    myWatchlistItems, 
+    navigation, 
+    notificationContent, 
+    reelayDBUser, 
+    setMyWatchlistItems 
+}) => {
     const { title, body, data } = notificationContent;
     const action = data?.action;
     console.log('handle push data: ', data);

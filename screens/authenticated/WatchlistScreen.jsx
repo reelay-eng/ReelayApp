@@ -10,6 +10,7 @@ import WatchlistCoachMark from '../../components/watchlist/WatchlistCoachMark';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import styled from 'styled-components/native';
+import { useSelector } from 'react-redux';
 
 const { width } = Dimensions.get('window');
 
@@ -27,7 +28,8 @@ const SelectorBarContainer = styled(View)`
 `
 
 export default WatchlistScreen = ({ navigation, route }) => {
-    const { reelayDBUser, myWatchlistItems } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
+    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const category = route?.params?.category ?? 'My List';
     const refresh = route?.params?.refresh ?? false;
     const [selectedCategory, setSelectedCategory] = useState(category);

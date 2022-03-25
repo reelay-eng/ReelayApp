@@ -8,7 +8,7 @@ import { refreshMyWatchlist } from '../../api/ReelayUserApi';
 import WatchlistSwipeableRow from './WatchlistSwipeableRow';
 import { RecommendedByLine, ReelayedByLine } from './RecPills';
 
-import moment from 'moment';
+import { useDispatch } from 'react-redux';
 
 export default Watchlist = ({ category, navigation, refresh, watchlistItems }) => {
     const WatchlistItemContainer = styled(Pressable)`
@@ -21,20 +21,14 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
     const WatchlistItemSeparator = styled(View)`
         height: 12px;
     `
+    const dispatch = useDispatch();
     const [refreshing, setRefreshing] = useState(false);
-    const { reelayDBUser, setMyWatchlistItems } = useContext(AuthContext);
-
-    const byDateUpdated = (watchlistItem0, watchlistItem1) => {
-        const dateAdded0 = moment(watchlistItem0.updatedAt);
-        const dateAdded1 = moment(watchlistItem1.updatedAt);
-        return dateAdded1.diff(dateAdded0, 'seconds');
-    }
+    const { reelayDBUser } = useContext(AuthContext);
 
     const onRefresh = async () => {
         setRefreshing(true);
-        const refreshedWatchlistItems = await refreshMyWatchlist(reelayDBUser?.sub);
-        const sortedWatchlistItems = refreshedWatchlistItems.sort(byDateUpdated);
-        setMyWatchlistItems(sortedWatchlistItems);
+        const nextWatchlistItems = await refreshMyWatchlist(reelayDBUser?.sub);
+        dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })
         setRefreshing(false);
     }
 
@@ -81,41 +75,10 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
         }
     }
 
-    // compress duplicate watchlist items by title, keeping their accumuluated recs
-    // in a new `recommendations` field
-    const sortedWatchlistItems = watchlistItems.sort(byDateUpdated);
-    const uniqueWatchlistItems = sortedWatchlistItems.filter((nextItem, index, allItems) => {
-        const { recommendedBySub, recommendedByUsername, recommendedReelaySub, title } = nextItem;
-        let isFirstItemWithTitle = true;
-        let prevItemSameTitle = null;
-
-        const isSameTitle = (title0, title1) => {
-            return (title0.id === title1.id) 
-                && (title0.isSeries === title1.isSeries);
-        }
-
-        // check all previous watchlist items
-        allItems.slice(0, index).find((prevItem) => {
-            // filter out items for the same title...
-            if (isSameTitle(prevItem.title, title)) {
-                isFirstItemWithTitle = false;
-                prevItemSameTitle = prevItem;
-                return true;
-            }
-            return false;
-        });
-
-        const recItem = (isFirstItemWithTitle) ? nextItem : prevItemSameTitle;
-        if (!Array.isArray(recItem.recommendations)) recItem.recommendations = [];
-        
-        if (recommendedBySub) recItem.recommendations.push({ recommendedBySub, recommendedByUsername, recommendedReelaySub });
-        return isFirstItemWithTitle;
-    });
-
     return (
         <View style={{height: '100%'}}>
             <FlatList 
-                data={uniqueWatchlistItems}
+                data={watchlistItems}
                 horizontal={false}
                 keyboardShouldPersistTaps={"handled"}
                 keyExtractor={item => String(item.id)}

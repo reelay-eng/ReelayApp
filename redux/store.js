@@ -1,4 +1,5 @@
 import { createStore } from "redux";
+import { watchlistRecsReducer } from "./reducers";
 
 const initialState = {
     cognitoUser: {},
@@ -37,7 +38,6 @@ const initialState = {
 }
 
 const appReducer = ( state = initialState, action) => {
-    console.log('DISPATCHED ACTION: ', action.type, action.payload);
     switch(action.type) {
         case 'setCognitoUser':
             return { ...state, cognitoUser: action.payload }
@@ -57,7 +57,8 @@ const appReducer = ( state = initialState, action) => {
         case 'setMyNotifications':
             return { ...state, myNotifications: action.payload }
         case 'setMyWatchlistItems':
-            return { ...state, myWatchlistItems: action.payload }  
+            const myWatchlistItems = watchlistRecsReducer(action.payload);
+            return { ...state, myWatchlistItems: myWatchlistItems };
 
         case 'setMyStreamingSubscriptions':
             return { ...state, myStreamingSubscriptions: action.payload }

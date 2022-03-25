@@ -67,7 +67,6 @@ function App() {
     const [myCreatorStacks, setMyCreatorStacks] = useState([]);
     const [myFollowers, setMyFollowers] = useState([]);
     const [myNotifications, setMyNotifications] = useState([]);
-    const [myWatchlistItems, setMyWatchlistItems] = useState([]);
 
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [reelayDBUserID, setReelayDBUserID] = useState(null);
@@ -269,8 +268,8 @@ function App() {
             loadMyFollowing(userSub),
             loadMyNotifications(userSub),
             loadMyWatchlist(userSub),
-
             loadMyStreamingSubscriptions(userSub),
+
             getFeed({ reqUserSub, feedSource: 'following', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'streaming', page: 0 }),
@@ -281,9 +280,10 @@ function App() {
         setMyFollowers(myFollowersLoaded);
         setMyCreatorStacks(myCreatorStacksLoaded);
         setMyNotifications(myNotifications);
-        setMyWatchlistItems(myWatchlistItemsLoaded);
 
         dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
+        dispatch({ type: 'setMyWatchlistItems', payload: myWatchlistItemsLoaded });
+        dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
 
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
         dispatch({ type: 'setMyStacksFollowing', payload: myStacksFollowing });
@@ -321,7 +321,6 @@ function App() {
         myCreatorStacks,    setMyCreatorStacks,
         myFollowers,        setMyFollowers,
         myNotifications,    setMyNotifications,
-        myWatchlistItems,   setMyWatchlistItems,
 
         reelayDBUser,       setReelayDBUser,
         reelayDBUserID,     setReelayDBUserID,
