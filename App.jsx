@@ -76,7 +76,6 @@ function App() {
     const [commentsVisible, setCommentsVisible] = useState(false);
     const [currentComment, setCurrentComment] = useState('');
     const [dotMenuVisible, setDotMenuVisible] = useState(false);
-    const [hasUnseenGlobalReelays, setHasUnseenGlobalReelays] = useState(false);
     const [justShowMeSignupVisible, setJustShowMeSignupVisible] = useState(false);
     const [likesVisible, setLikesVisible] = useState(false);
     const [refreshOnUpload, setRefreshOnUpload] = useState(false);
@@ -330,7 +329,6 @@ function App() {
         commentsVisible,    setCommentsVisible,
         currentComment,     setCurrentComment,
         dotMenuVisible,     setDotMenuVisible,
-        hasUnseenGlobalReelays, setHasUnseenGlobalReelays,
         justShowMeSignupVisible, setJustShowMeSignupVisible,
         likesVisible,       setLikesVisible,
         refreshOnUpload,    setRefreshOnUpload,

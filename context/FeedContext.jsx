@@ -4,7 +4,6 @@ export const FeedContext = createContext({
     commentsVisible: false,
     currentComment: '',
     dotMenuVisible: false,
-    hasUnseenGlobalReelays: false,
     justShowMeSignupVisible: false,
     likesVisible: false,
     refreshOnUpload: false,

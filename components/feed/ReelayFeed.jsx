@@ -6,7 +6,6 @@ import ReelayStack from './ReelayStack';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import { getFeed } from '../../api/ReelayDBApi';
-import { checkForUnseenGlobalReelays } from '../utils/UnreadReelays';
 
 import styled from 'styled-components/native';
 import { showMessageToast } from '../utils/toasts';
@@ -42,8 +41,7 @@ const ReelayFeed = ({ navigation,
     const nextPage = useRef(0);
 
     const { reelayDBUser } = useContext(AuthContext);
-    const myFollowing = useSelector(state => state.myFollowing);
-    const { setTabBarVisible, setHasUnseenGlobalReelays } = useContext(FeedContext);
+    const { setTabBarVisible } = useContext(FeedContext);
 
     const [feedSource, setFeedSource] = useState(initialFeedSource);
     const [refreshing, setRefreshing] = useState(false);
@@ -91,7 +89,6 @@ const ReelayFeed = ({ navigation,
     const extendFeed = async () => {
         const page = nextPage.current;
         const fetchedStacks = await getFeed({ feedSource: feedSource, reqUserSub: reelayDBUser?.sub, page });
-        if (feedSource === 'global' && page === 0) markIfHasUnseenGlobalReelays();
 
         // probably don't need to create this every time, but we want to avoid unnecessary state
         const titleIDEntries = {};
@@ -119,17 +116,6 @@ const ReelayFeed = ({ navigation,
             offset: index * height,
             index: index, 
         }
-    }
-
-    const markIfHasUnseenGlobalReelays = async () => {
-        if (feedSource !== 'global') return;
-        const hasUnseen = await checkForUnseenGlobalReelays({ 
-            globalStacks: selectedStackList, 
-            myFollowing,
-            reelayDBUser,
-        });
-        console.log('has unseen? ', hasUnseen);
-        if (hasUnseen) setHasUnseenGlobalReelays(true);
     }
 
     const onTabPress = async () => {

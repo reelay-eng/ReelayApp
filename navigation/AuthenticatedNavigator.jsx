@@ -94,7 +94,7 @@ const bottomTabIconStyle = (focused) => {
 
 const BottomTabNavigator = () => {
 	const myNotifications = useSelector(state => state.myNotifications);
-	const { hasUnseenGlobalReelays, tabBarVisible } = useContext(FeedContext);
+	const { tabBarVisible } = useContext(FeedContext);
 	const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
     const s = StyleSheet.create({
@@ -164,7 +164,6 @@ const BottomTabNavigator = () => {
 					tabBarIcon: ({ focused }) => (
 						<View>
 							<Icon type='ionicon' name='earth' size={24} color='white' />
-							{/* { hasUnseenGlobalReelays && <UnreadIconIndicator /> } */}
 						</View>
 					),
 				}}

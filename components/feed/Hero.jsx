@@ -6,25 +6,18 @@ import ReelayInfo from './ReelayInfo';
 import Sidebar from './Sidebar';
 import { AuthContext } from '../../context/AuthContext';
 import { FeedContext } from '../../context/FeedContext';
-import { checkShouldMarkSeen } from '../utils/UnreadReelays';
 
 import LikesDrawer from './LikesDrawer';
 import CommentsDrawer from './CommentsDrawer';
 import Reelay3DotDrawer from './Reelay3DotDrawer';
 import JustShowMeSignupDrawer from '../global/JustShowMeSignupDrawer';
 import Constants from 'expo-constants';
-import { useSelector } from 'react-redux';
 
 const Hero = ({ index, navigation, reelay, viewable }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const myFollowing = useSelector(state => state.myFollowing);
     const { likesVisible, commentsVisible, dotMenuVisible, justShowMeSignupVisible } = useContext(FeedContext);
     const commentsCount = useRef(reelay?.comments?.length);
     const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
-
-    useEffect(() => {
-        checkShouldMarkSeen({ reelay, reelayDBUser, myFollowing });
-    }, [viewable]);
 
     console.log('Hero is rendering: ', reelayDBUser?.username, reelay.title.display);
 
