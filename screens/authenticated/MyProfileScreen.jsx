@@ -28,7 +28,7 @@ import * as ReelayText from "../../components/global/Text";
 // Context
 import { AuthContext } from "../../context/AuthContext";
 import { FeedContext } from "../../context/FeedContext";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 // Styling
 import styled from 'styled-components/native';
@@ -80,11 +80,12 @@ export default MyProfileScreen = ({ navigation, route }) => {
     } = useContext(AuthContext); 
 
     const signedIn = useSelector(state => state.signedIn);
+  	const dispatch = useDispatch();
     console.log('Is signed in: ', signedIn);
-    const { setTabBarVisible, refreshOnUpload, setRefreshOnUpload } = useContext(FeedContext);
+    const { refreshOnUpload, setRefreshOnUpload } = useContext(FeedContext);
 
     useEffect(() => {
-        setTabBarVisible(true);
+        dispatch({ type: 'setTabBarVisible', payload: true });
         if (refreshOnUpload) {
             setRefreshOnUpload(false);
             onRefresh();

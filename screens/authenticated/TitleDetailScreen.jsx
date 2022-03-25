@@ -6,6 +6,7 @@ import {
     View,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useDispatch } from "react-redux";
 
 // Context
 import { FeedContext } from '../../context/FeedContext';
@@ -47,15 +48,14 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const { 
 		justShowMeSignupVisible,
 		setJustShowMeSignupVisible,
-		setTabBarVisible,
 	} = useContext(FeedContext);
+	const dispatch = useDispatch();
 	useFocusEffect(React.useCallback(() => {
-		setTabBarVisible(false);
+		dispatch({ type: 'setTabBarVisible', payload: false });
         return () => {
-			setTabBarVisible(true);
+			dispatch({ type: 'setTabBarVisible', payload: true });
 		}
     }));
-
 	const ScrollBox = styled(ScrollView)`
 		position: absolute;
 		width: 100%;

@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, TextInput, Alert, Keyboard } from "react-native";
+import { useDispatch } from "react-redux";
 
 // Expo imports
 import * as ImagePicker from "expo-image-picker";
@@ -56,7 +57,7 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
 		height: 100%;
   `;
 
-	const { setTabBarVisible } = useContext(FeedContext);
+  	const dispatch = useDispatch();
 	const { reelayDBUser } = useContext(AuthContext);
 
 	const initBio = reelayDBUser.bio ? reelayDBUser.bio : "";
@@ -68,10 +69,10 @@ export default EditProfile = ({ isEditingProfile, setIsEditingProfile }) => {
 	const currentFocus = useRef("");
 
 	useEffect(() => {
-		setTabBarVisible(false);
-		return () => {
-			setTabBarVisible(true);
-		};
+		dispatch({ type: 'setTabBarVisible', payload: false });
+        return () => {
+			dispatch({ type: 'setTabBarVisible', payload: true });
+		}
 	}, []);
 
     const doneFunc = async () => {

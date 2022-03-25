@@ -7,12 +7,12 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import React, { useContext } from 'react';
 import styled from 'styled-components/native';
+import { useSelector } from "react-redux";
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image, StyleSheet, SafeAreaView, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../context/AuthContext';
-import { FeedContext } from '../context/FeedContext';
 
 import FeedScreen from '../screens/authenticated/FeedScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
@@ -93,7 +93,7 @@ const BottomTabNavigator = () => {
 	const { myNotifications } = useContext(AuthContext);
 	const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
-    const { tabBarVisible } = useContext(FeedContext);
+	const tabBarVisible = useSelector((state) => state.tabBarVisible)
     const s = StyleSheet.create({
 		gradient: {
 			flex: 1,

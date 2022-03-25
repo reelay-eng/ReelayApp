@@ -83,7 +83,6 @@ function App() {
     const [paused, setPaused] = useState(false);
     const [playPauseVisible, setPlayPauseVisible] = useState('none');
     const [refreshOnUpload, setRefreshOnUpload] = useState(false);
-    const [tabBarVisible, setTabBarVisible] = useState(true);
 
     useEffect(() => {
         (async () => {
@@ -307,7 +306,6 @@ function App() {
         justShowMeSignupVisible, setJustShowMeSignupVisible,
         likesVisible,       setLikesVisible,
         refreshOnUpload,    setRefreshOnUpload,
-        tabBarVisible,      setTabBarVisible,
     }
 
     if (isLoading) {
