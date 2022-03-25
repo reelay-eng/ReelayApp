@@ -66,7 +66,6 @@ function App() {
 
     const [myCreatorStacks, setMyCreatorStacks] = useState([]);
     const [myFollowers, setMyFollowers] = useState([]);
-    const [myNotifications, setMyNotifications] = useState([]);
 
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [reelayDBUserID, setReelayDBUserID] = useState(null);
@@ -253,7 +252,7 @@ function App() {
             myCreatorStacksLoaded,
             myFollowersLoaded,
             myFollowingLoaded,
-            myNotifications,
+            myNotificationsLoaded,
             myWatchlistItemsLoaded,
 
             myStreamingSubscriptions,
@@ -279,9 +278,9 @@ function App() {
         setReelayDBUser(reelayDBUserLoaded);
         setMyFollowers(myFollowersLoaded);
         setMyCreatorStacks(myCreatorStacksLoaded);
-        setMyNotifications(myNotifications);
 
         dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
+        dispatch({ type: 'setMyNotifications', payload: myNotificationsLoaded });
         dispatch({ type: 'setMyWatchlistItems', payload: myWatchlistItemsLoaded });
         dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
 
@@ -320,7 +319,6 @@ function App() {
 
         myCreatorStacks,    setMyCreatorStacks,
         myFollowers,        setMyFollowers,
-        myNotifications,    setMyNotifications,
 
         reelayDBUser,       setReelayDBUser,
         reelayDBUserID,     setReelayDBUserID,

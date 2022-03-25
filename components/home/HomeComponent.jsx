@@ -35,10 +35,7 @@ const Spacer = styled.View`
 
 const HomeComponent = ({ navigation }) => {
     const dispatch = useDispatch();
-    const {
-        reelayDBUserID,
-        setMyNotifications,
-    } = useContext(AuthContext);
+    const { reelayDBUserID } = useContext(AuthContext);
     const { justShowMeSignupVisible } = useContext(FeedContext);
 
     const onRefresh = async () => {
@@ -52,8 +49,6 @@ const HomeComponent = ({ navigation }) => {
         const myStacksInTheaters = await getFeed({ reqUserSub, feedSource: 'theaters', page: 0 });
         const myStacksOnStreaming = await getFeed({ reqUserSub, feedSource: 'streaming', page: 0 });
         const myStacksAtFestivals = await getFeed({ reqUserSub, feedSource: 'festivals', page: 0 });
-
-        setMyNotifications(myNotifications);
         
         dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
         dispatch({ type: 'setMyNotifications', payload: myNotifications });

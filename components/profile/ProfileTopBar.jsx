@@ -9,8 +9,6 @@ import BackButton from '../utils/BackButton';
 
 export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) => {
     const creatorName = creator.username ?? 'User not found';
-    const { myNotifications } = useContext(AuthContext);
-    const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
     const BackButtonContainer = styled(SafeAreaView)`
         align-self: flex-start;
@@ -58,12 +56,6 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
                         navigation.push('ProfileSettingsScreen', { initialFeedPos: 0 });
                     }} />
                 </SettingsIconContainer>
-                {/* <SettingsIconContainer>
-                    <Icon type='ionicon' size={27} color={'white'} name='notifications' onPress={() => {
-                        navigation.push('NotificationScreen');
-                    }} />
-                     { hasUnreadNotifications && <UnreadIconIndicator /> }
-                </SettingsIconContainer> */}
             </RightCornerContainer>
         );
     }

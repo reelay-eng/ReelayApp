@@ -43,6 +43,7 @@ import FeedIcon from '../assets/icons/navbar/feed-icon.png';
 import ProfileIcon from '../assets/icons/navbar/profile-icon.png';
 import SearchIcon from '../assets/icons/navbar/search-icon.png';
 import { WatchlistAddedIconSVG } from '../components/global/SVGs';
+import { useSelector } from 'react-redux';
  
 const AppStack = createStackNavigator();
 const BottomTab = createBottomTabNavigator();
@@ -92,7 +93,7 @@ const bottomTabIconStyle = (focused) => {
 };
 
 const BottomTabNavigator = () => {
-	const { myNotifications } = useContext(AuthContext);
+	const myNotifications = useSelector(state => state.myNotifications);
 	const { hasUnseenGlobalReelays, tabBarVisible } = useContext(FeedContext);
 	const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
@@ -138,7 +139,7 @@ const BottomTabNavigator = () => {
 						style={[StyleSheet.absoluteFill, s.gradient]}
 					/>
 				),
-				// lazy: false,
+				lazy: false,
 			}}
 		>
 			<BottomTab.Screen
@@ -146,10 +147,13 @@ const BottomTabNavigator = () => {
 				component={HomeTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<Image
-							source={HomeIcon}
-							style={bottomTabIconStyle(focused)}
-						/>
+						<View>
+							<Image
+								source={HomeIcon}
+								style={bottomTabIconStyle(focused)}
+							/>
+							{ hasUnreadNotifications && <UnreadIconIndicator /> }
+						</View>
 					),
 				}}
 			/>
@@ -160,7 +164,7 @@ const BottomTabNavigator = () => {
 					tabBarIcon: ({ focused }) => (
 						<View>
 							<Icon type='ionicon' name='earth' size={24} color='white' />
-							{ hasUnseenGlobalReelays && <UnreadIconIndicator /> }
+							{/* { hasUnseenGlobalReelays && <UnreadIconIndicator /> } */}
 						</View>
 					),
 				}}

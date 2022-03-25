@@ -73,7 +73,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
         reelayDBUser,
         setMyFollowers, 
         setMyCreatorStacks,
-        setMyNotifications,
     } = useContext(AuthContext); 
 
     const dispatch = useDispatch();
@@ -138,8 +137,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
     
                 setMyCreatorStacks(nextMyCreatorStacks);    
                 setMyFollowers(nextMyFollowers);
-                setMyNotifications(nextMyNotifications);
 
+                dispatch({ type: 'setMyNotifications', payload: nextMyNotifications });
                 dispatch({ type: 'setMyWatchlistItems', payload: nextMyWatchlistItems });
                 dispatch({ type: 'setMyFollowing', payload: nextMyFollowing });
 

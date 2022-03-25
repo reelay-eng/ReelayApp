@@ -62,7 +62,9 @@ export const getAllMyNotifications = async (userSub, page = 0) => {
             console.log('Error in getAllMyNotifications: ', error);
         }
         return notification;
-    })
+    });
+
+    console.log('parsed notifications: ', parsedNotifications);
 
     return parsedNotifications;
 }

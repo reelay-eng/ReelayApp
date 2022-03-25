@@ -274,7 +274,9 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
 }
 
 const NotificationList = ({ navigation }) => {
-    const { reelayDBUser, myNotifications, setMyNotifications } = useContext(AuthContext);
+    const dispatch = useDispatch();
+    const myNotifications = useSelector(state => state.myNotifications);
+    const { reelayDBUser } = useContext(AuthContext);
     const [refreshing, setRefreshing] = useState(false);
     const renderNotificationItem = ({ item }) => <NotificationItem navigation={navigation} notificationContent={item} onRefresh={onRefresh} />;
 
@@ -288,7 +290,8 @@ const NotificationList = ({ navigation }) => {
         setRefreshing(true);
         console.log('CALLING ON REFRESH');
         const allMyNotifications = await refreshMyNotifications(reelayDBUser?.sub);
-        setMyNotifications(allMyNotifications);
+        console.log(allMyNotifications[allMyNotifications.length - 1]);
+        dispatch({ type: 'setMyNotifications', payload: allMyNotifications });
         setRefreshing(false);
     }
 
@@ -318,7 +321,8 @@ export default NotificationScreen = ({ navigation, route }) => {
         height: 100%;
         width: 100%;
     `
-    const { reelayDBUser, myNotifications } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
+    const myNotifications = useSelector(state => state.myNotifications);
     const unread = myNotifications.filter(({ seen }) => !seen).length;
     const unreadText = (unread > 0) ? `(${unread} new)` : '';
 

@@ -15,7 +15,7 @@ const IconContainer = styled(View)`
 `
 
 const HomeHeader = ({ navigation }) => {
-    const { myNotifications } = useContext(AuthContext);
+    const myNotifications = useSelector(state => state.myNotifications);
     const myFollowing = useSelector(state => state.myFollowing);
     const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
