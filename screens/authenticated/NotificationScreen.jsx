@@ -98,6 +98,9 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     });    
 
     const dispatch = useDispatch();
+    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+    const setMyWatchlistItems = (payload) => dispatch({ action: 'setMyWatchlistItems', payload });
+
     const { id, title, body, data, createdAt, seen } = notificationContent;
     const { reelayDBUser } = useContext(AuthContext);
     const [pressed, setPressed] = useState(false);
@@ -246,9 +249,11 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         setPressed(true);
         const activatedPromise = markNotificationActivated(id);
         await handlePushNotificationResponse({ 
+            myWatchlistItems,
             navigation,
             notificationContent, 
-            userContext: authContext,
+            reelayDBUser,
+            setMyWatchlistItems,
         });
 
         const activatedResult = await activatedPromise;
