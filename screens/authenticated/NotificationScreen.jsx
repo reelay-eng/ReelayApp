@@ -246,19 +246,14 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     }
 
     const onPress = async () => {
-        setPressed(true);
-        const activatedPromise = markNotificationActivated(id);
-        await handlePushNotificationResponse({ 
+        markNotificationActivated(id);
+        handlePushNotificationResponse({ 
             myWatchlistItems,
             navigation,
             notificationContent, 
             reelayDBUser,
             setMyWatchlistItems,
         });
-
-        const activatedResult = await activatedPromise;
-        console.log('Activated notification: ', activatedResult);
-        setPressed(false);
     };
 
     return (
