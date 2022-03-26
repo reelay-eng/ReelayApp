@@ -32,7 +32,7 @@ import { AuthContext } from './context/AuthContext';
 import { FeedContext } from './context/FeedContext';
 
 // api imports
-import { getFeed, getRegisteredUser, registerPushTokenForUser } from './api/ReelayDBApi';
+import { getFeed, getAllDonateLinks, getRegisteredUser, registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { toastConfig } from './components/utils/ToastConfig';
 import Toast from "react-native-toast-message";
@@ -75,6 +75,7 @@ function App() {
     // Feed context hooks
     const [commentsVisible, setCommentsVisible] = useState(false);
     const [currentComment, setCurrentComment] = useState('');
+    const [donateLinks, setDonateLinks] = useState([]);
     const [dotMenuVisible, setDotMenuVisible] = useState(false);
     const [justShowMeSignupVisible, setJustShowMeSignupVisible] = useState(false);
     const [likesVisible, setLikesVisible] = useState(false);
@@ -253,8 +254,9 @@ function App() {
             myFollowingLoaded,
             myNotificationsLoaded,
             myWatchlistItemsLoaded,
-
             myStreamingSubscriptions,
+            donateLinksLoaded,
+
             myStacksFollowing,
             myStacksInTheaters,
             myStacksOnStreaming,
@@ -267,11 +269,13 @@ function App() {
             loadMyNotifications(userSub),
             loadMyWatchlist(userSub),
             loadMyStreamingSubscriptions(userSub),
+            getAllDonateLinks(),
 
             getFeed({ reqUserSub, feedSource: 'following', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'streaming', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'festivals', page: 0 }),
+
         ]);
 
         setReelayDBUser(reelayDBUserLoaded);
@@ -284,6 +288,7 @@ function App() {
         dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
 
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
+        dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
         dispatch({ type: 'setMyStacksFollowing', payload: myStacksFollowing });
         dispatch({ type: 'setMyStacksInTheaters', payload: myStacksInTheaters });
         dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });

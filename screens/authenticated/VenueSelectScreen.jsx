@@ -68,7 +68,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         `
         return (
 			<IconOptionsContainer>
-				{iconVenues.map((venueObj) => {
+				{streamingVenues.map((venueObj) => {
 					const venue = venueObj.venue;
 					return (
 						<IconContainer key={venue}>

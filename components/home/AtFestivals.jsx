@@ -90,9 +90,10 @@ const FollowingElementContainer = styled(Pressable)`
     width: 120px;
     margin-right: 12px;
 `
-const TitleInfoLine = styled(View)`
-    flex-direction: row;
-    justify-content: space-between;
+const TitlePoster = styled(Image)`
+    width: 120px;
+    height: 180px;
+    border-radius: 8px;
 `
 const TitleText = styled(ReelayText.H6Emphasized)`
     font-size: 16px;
@@ -104,11 +105,6 @@ const TitleVenue = styled(View)`
     position: absolute;
     top: 4px;
     right: 4px;
-`
-const TitleYear = styled(ReelayText.CaptionEmphasized)`
-    margin-top: 8px;
-    color: white;
-    opacity: 0.5;
 `
 
 const FollowingElement = ({ stack, index, navigation }) => {
@@ -132,14 +128,8 @@ const FollowingElement = ({ stack, index, navigation }) => {
         : fullTitle;
 
     return (
-        <FollowingElementContainer>
-            <ReelayThumbnail 
-                height={180} 
-                margin={0}
-                onPress={onPress} 
-                reelay={stack[0]} 
-                width={120} 
-            />
+        <FollowingElementContainer onPress={onPress}>
+            <TitlePoster source={stack[0]?.title?.posterSource} />
             <TitleText>{displayTitle}</TitleText>
             <TitleVenue>
                 <VenueIcon venue={stack[0]?.content?.venue} size={24} />
