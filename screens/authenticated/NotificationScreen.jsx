@@ -21,6 +21,8 @@ import { markNotificationActivated, markAllNotificationsSeen, notifyCreatorOnFol
 import styled from 'styled-components/native';
 import { ReelayedByLine } from '../../components/watchlist/RecPills';
 import { setBadgeCountAsync } from 'expo-notifications';
+import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
+import { useDispatch, useSelector } from 'react-redux';
 
 const ACTIVITY_IMAGE_SIZE = 44;
 
@@ -95,9 +97,12 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         },
     });    
 
+    const dispatch = useDispatch();
+    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+    const setMyWatchlistItems = (payload) => dispatch({ action: 'setMyWatchlistItems', payload });
+
     const { id, title, body, data, createdAt, seen } = notificationContent;
-    const authContext = useContext(AuthContext);
-    const { reelayDBUser, myFollowing, setMyFollowing } = authContext;
+    const { reelayDBUser } = useContext(AuthContext);
     const [pressed, setPressed] = useState(false);
     const timestamp = moment(createdAt).fromNow();
 
@@ -107,6 +112,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
             width: 90px;
             justify-content: center;
         `
+        const myFollowing = useSelector(state => state.myFollowing);
         const alreadyFollowing = !!myFollowing.find((nextUser) => {
             return (nextUser?.creatorSub === followedByUser?.sub);
         });
@@ -117,7 +123,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
             
             if (success) {
                 const allMyFollowing = [...myFollowing, followResult];
-                setMyFollowing(allMyFollowing);
+                dispatch({ type: 'setMyFollowing', payload: allMyFollowing });
                 await AsyncStorage.setItem('myFollowing', JSON.stringify(allMyFollowing));
             } else {
                 logAmplitudeEventProd('followCreatorError', {
@@ -240,17 +246,14 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     }
 
     const onPress = async () => {
-        setPressed(true);
-        const activatedPromise = markNotificationActivated(id);
-        await handlePushNotificationResponse({ 
+        markNotificationActivated(id);
+        handlePushNotificationResponse({ 
+            myWatchlistItems,
             navigation,
             notificationContent, 
-            userContext: authContext,
+            reelayDBUser,
+            setMyWatchlistItems,
         });
-
-        const activatedResult = await activatedPromise;
-        console.log('Activated notification: ', activatedResult);
-        setPressed(false);
     };
 
     return (
@@ -271,7 +274,9 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
 }
 
 const NotificationList = ({ navigation }) => {
-    const { reelayDBUser, myNotifications, setMyNotifications } = useContext(AuthContext);
+    const dispatch = useDispatch();
+    const myNotifications = useSelector(state => state.myNotifications);
+    const { reelayDBUser } = useContext(AuthContext);
     const [refreshing, setRefreshing] = useState(false);
     const renderNotificationItem = ({ item }) => <NotificationItem navigation={navigation} notificationContent={item} onRefresh={onRefresh} />;
 
@@ -285,7 +290,8 @@ const NotificationList = ({ navigation }) => {
         setRefreshing(true);
         console.log('CALLING ON REFRESH');
         const allMyNotifications = await refreshMyNotifications(reelayDBUser?.sub);
-        setMyNotifications(allMyNotifications);
+        console.log(allMyNotifications[allMyNotifications.length - 1]);
+        dispatch({ type: 'setMyNotifications', payload: allMyNotifications });
         setRefreshing(false);
     }
 
@@ -315,7 +321,8 @@ export default NotificationScreen = ({ navigation, route }) => {
         height: 100%;
         width: 100%;
     `
-    const { reelayDBUser, myNotifications } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
+    const myNotifications = useSelector(state => state.myNotifications);
     const unread = myNotifications.filter(({ seen }) => !seen).length;
     const unreadText = (unread > 0) ? `(${unread} new)` : '';
 
@@ -325,6 +332,10 @@ export default NotificationScreen = ({ navigation, route }) => {
 
         logAmplitudeEventProd('openMyNotifications', { username: reelayDBUser?.username });
     }, [navigation]);
+
+    if (reelayDBUser?.username === 'be_our_guest') {
+        return <JustShowMeSignupPage navigation={navigation} fullPage={true} />
+    }
 
     return (
         <NotificationScreenContainer>

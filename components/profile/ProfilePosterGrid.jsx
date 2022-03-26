@@ -27,7 +27,6 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
     if (!creatorStacks.length) {
         return <View />;
     }
-
     const AfterImage = () => {
         // afterimages are invisible views that keep the grid aligned. 
         // it's a hacky solution for now
@@ -50,7 +49,6 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
             height: ${POSTER_HEIGHT}px;
             width: ${POSTER_WIDTH}px;
         `
-
         const viewProfileFeed = () => {
             navigation.push('ProfileFeedScreen', { 
                 initialFeedPos: index, 

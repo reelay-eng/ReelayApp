@@ -13,6 +13,7 @@ import { ActionButton, BWButton } from "../../global/Buttons";
 import Constants from 'expo-constants';
 import * as ReelayText from "../../global/Text";
 import ReelayIcon from '../../../assets/icons/reelay-icon-with-dog-black.png'
+import { useDispatch, useSelector } from 'react-redux';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 
@@ -76,7 +77,9 @@ export default FollowItem = ({
     setDrawerFollowObj,
     setDrawerOpen,
 }) => {
-    const { reelayDBUser, myFollowing, setMyFollowing } = useContext(AuthContext);
+	const dispatch = useDispatch();
+    const { reelayDBUser } = useContext(AuthContext);
+	const myFollowing = useSelector(state => state.myFollowing);
 	const [validProfileImage, setValidProfileImage] = useState(true);
 
     const followUsername = (followType === 'Following') ? followObj.creatorName : followObj.followerName;
@@ -96,7 +99,7 @@ export default FollowItem = ({
         const isFollowing = !followResult?.error && !followResult?.requestStatus;
 
         if (isFollowing) {
-            setMyFollowing([...myFollowing, followResult]);
+			dispatch({ type: 'setMyFollowing', payload: [...myFollowing, followResult] });
         } else {
             logAmplitudeEventProd('followCreatorError', {
                 error: followResult?.error,

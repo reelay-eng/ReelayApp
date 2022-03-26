@@ -5,11 +5,10 @@ import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
+import BackButton from '../utils/BackButton';
 
 export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) => {
     const creatorName = creator.username ?? 'User not found';
-    const { myNotifications } = useContext(AuthContext);
-    const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
     const BackButtonContainer = styled(SafeAreaView)`
         align-self: flex-start;
@@ -49,19 +48,13 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         right: 0px;
     `
 
-    const SettingsButton = () => {
+    const SettingsButtons = () => {
         return (
             <RightCornerContainer>
                 <SettingsIconContainer>
                     <Icon type='ionicon' size={27} color={'white'} name='cog-outline' onPress={() => {
-                        navigation.push('ProfileSettingsScreen', {initialFeedPos: 0});
+                        navigation.push('ProfileSettingsScreen', { initialFeedPos: 0 });
                     }} />
-                </SettingsIconContainer>
-                <SettingsIconContainer>
-                    <Icon type='ionicon' size={27} color={'white'} name='notifications' onPress={() => {
-                        navigation.push('NotificationScreen');
-                    }} />
-                     { hasUnreadNotifications && <UnreadIconIndicator /> }
                 </SettingsIconContainer>
             </RightCornerContainer>
         );
@@ -69,16 +62,13 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
 
     return (
         <TopBarContainer>
-            { !atProfileBase &&
-                <React.Fragment>
-                    <BackButtonContainer>
-                        <Icon type='ionicon' size={30} color={'white'} name='chevron-back-outline' 
-                            onPress={() => navigation.pop()} />
-                    </BackButtonContainer>  
-                </React.Fragment>      
+            { !atProfileBase && 
+                <BackButtonContainer>
+                    <BackButton navigation={navigation} />
+                </BackButtonContainer>  
             }
             <HeadingText>@{creatorName}</HeadingText>
-            { atProfileBase && <SettingsButton /> }
+            { atProfileBase && <SettingsButtons /> }
         </TopBarContainer>
     );
 }

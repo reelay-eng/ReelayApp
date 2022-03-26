@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef, memo } from 'react';
+import React, { useCallback, useContext, useEffect, useState, useRef, memo } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, View } from 'react-native';
 import { FeedContext } from '../../context/FeedContext';
 import ReelayStack from './ReelayStack';
@@ -10,9 +10,17 @@ import { getFeed } from '../../api/ReelayDBApi';
 import styled from 'styled-components/native';
 import { showMessageToast } from '../utils/toasts';
 import { useFocusEffect } from '@react-navigation/core';
+import BackButton from '../utils/BackButton';
+import { useSelector } from 'react-redux';
 
 const { height, width } = Dimensions.get('window');
 
+const BackButtonContainer = styled(View)`
+    background-color: transparent;
+    position: absolute;
+    top: 150px;
+    z-index: 4;
+`
 const ReelayFeedContainer = styled(View)`
     background-color: black;
     justify-content: flex-start;
@@ -22,8 +30,11 @@ const ReelayFeedContainer = styled(View)`
 
 const ReelayFeed = ({ navigation, 
     initialStackPos = 0,
+    initialFeedPos = 0,
     forceRefresh = false, 
-    initialFeedSource = 'global'
+    initialFeedSource = 'global',
+    isOnFeedTab = true,
+    pinnedReelay = null,
 }) => {
 
     const feedPager = useRef();
@@ -35,8 +46,9 @@ const ReelayFeed = ({ navigation,
     const [feedSource, setFeedSource] = useState(initialFeedSource);
     const [refreshing, setRefreshing] = useState(false);
 
-    const [selectedStackList, setSelectedStackList] = useState([]);
-    const [selectedFeedPosition, setSelectedFeedPosition] = useState(0);
+    const initStackList = (pinnedReelay) ? [[ pinnedReelay ]] : [];
+    const [selectedStackList, setSelectedStackList] = useState(initStackList);
+    const [selectedFeedPosition, setSelectedFeedPosition] = useState(initialFeedPos);
 
     useEffect(() => {
         setTabBarVisible(true); // to ensure tab bar is always here
@@ -55,7 +67,7 @@ const ReelayFeed = ({ navigation,
 
     useEffect(() => {
         // show the other feed
-        const stackEmpty = !selectedStackList.length;
+        const stackEmpty = (!selectedStackList.length) || (pinnedReelay && selectedStackList.length === 1);
         if (!stackEmpty && !forceRefresh) {
           console.log("feed already loaded");
           return;
@@ -63,8 +75,8 @@ const ReelayFeed = ({ navigation,
         extendFeed();
     }, [feedSource]);
 
-    useFocusEffect(() => {
-        if (initialFeedSource === 'global') {
+    useFocusEffect(useCallback(() => {
+        if (initialFeedSource === 'global' && isOnFeedTab) {
             const unsubscribe = navigation.getParent()
             .addListener('tabPress', e => {
                 e.preventDefault();
@@ -72,18 +84,16 @@ const ReelayFeed = ({ navigation,
             });
             return unsubscribe;
         }
-    });
+    }));
 
     const extendFeed = async () => {
         const page = nextPage.current;
-
         const fetchedStacks = await getFeed({ feedSource: feedSource, reqUserSub: reelayDBUser?.sub, page });
-        
-        console.log("extending", feedSource, "feed, with page = ", page, "and stacks length", fetchedStacks.length);
 
         // probably don't need to create this every time, but we want to avoid unnecessary state
         const titleIDEntries = {};
-        selectedStackList.forEach((selectedStack) => titleIDEntries[selectedStack[0].title.id] = 1);
+        const addToTitleEntries = (reelayStack) => titleIDEntries[reelayStack[0].title.id] = 1;
+        selectedStackList.forEach(addToTitleEntries);
 
         const notAlreadyInStack = (fetchedStack) => {
             const alreadyInStack = titleIDEntries[fetchedStack[0].title.id];
@@ -191,7 +201,7 @@ const ReelayFeed = ({ navigation,
     return (
       <ReelayFeedContainer>
         {selectedStackList.length < 1 && <ActivityIndicator />}
-        {selectedStackList.length >= 1 && (
+        {selectedStackList.length >= 2 && (
           <FlatList
             data={selectedStackList}
             getItemLayout={getItemLayout}
@@ -216,8 +226,16 @@ const ReelayFeed = ({ navigation,
             windowSize={3}
           />
         )}
+        { feedSource !== 'global' && (
+            <BackButtonContainer>
+                <BackButton navigation={navigation} />
+            </BackButtonContainer>
+        )}
       </ReelayFeedContainer>
     );
 }
 
-export default memo(ReelayFeed, (prevProps, nextProps) => true);
+export default memo(ReelayFeed, (prevProps, nextProps) => {
+    console.log('reelay feed memo is called: ', prevProps, nextProps);
+    return true;
+});

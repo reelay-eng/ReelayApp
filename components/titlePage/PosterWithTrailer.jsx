@@ -68,18 +68,27 @@ export default PosterWithTrailer = ({
 			opacity: ${(props) => props.opacity};
 			position: absolute;
 		`;
+		const GradientContainer = styled(View)`
+ 			width: 100%;
+ 			height: 100%;
+			flex: 1;
+ 		`;
+
 		return (
-			<>
+			<View style={{height: "100%", width: "100%"}}>
 				<PosterImage source={posterSource} />
 				<PosterOverlay color={ReelayColors.reelayBlack} opacity={0.2} />
-				<LinearGradient
-					colors={["transparent", ReelayColors.reelayBlack]}
-					style={{gradient: {
-						flex: 1,
-						opacity: 1,
-					}}}
-				/>
-			</>
+				<GradientContainer>
+					<LinearGradient
+						colors={["transparent", ReelayColors.reelayBlack]}
+						style={{
+							opacity: 1,
+							width: '100%', 
+							height: '100%'
+						}}
+					/>
+				</GradientContainer>
+			</View>
 		);
 	};
 
@@ -137,7 +146,7 @@ export default PosterWithTrailer = ({
 		`;
 
 		// Quick fix in order to fit runtime and release year
-		const ReducedGenres = genres.slice(0, 2);
+		const ReducedGenres = genres?.slice(0, 2);
 
 		//Conversion from minutes to hours and minutes
 		const runtimeString = getRuntimeString(runtime);

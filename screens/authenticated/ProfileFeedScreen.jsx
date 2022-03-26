@@ -12,9 +12,6 @@ export default ProfileFeedScreen = ({ navigation, route }) => {
         background-color: black;
     `
     console.log('Rendering profile feed screen');
-    console.log(stackList.length);
-
-    console.log(stackList[0]);
 
     return (
         <ProfileFeedContainer>

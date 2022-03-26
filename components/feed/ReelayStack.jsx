@@ -2,17 +2,20 @@ import React, { useContext, useState, memo } from 'react';
 import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from 'react-native-elements';
+import Constants from 'expo-constants';
 import Hero from './Hero';
 import Poster from './Poster';
 import AddToWatchlistButton from '../titlePage/AddToWatchlistButton';
+
+import { VenueIcon } from '../utils/VenueIcon';
 
 import styled from 'styled-components/native';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 import * as ReelayText from '../global/Text';
 import DonateButton from '../global/DonateButton';
+import { useSelector } from 'react-redux';
 
 const { height, width } = Dimensions.get('window');
 
@@ -56,10 +59,18 @@ const TitleText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
 `
+const VenueContainer = styled(View)`
+    margin-top: -4px;
+    margin-right: 5px;
+`
 const YearText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
     margin-bottom: 4px;
+`
+const YearVenueContainer = styled(View)`
+    flex-direction: row;
+    margin-top: 0px;
 `
 
 const ReelayStack = ({ 
@@ -71,7 +82,7 @@ const ReelayStack = ({
 }) => {
     const [stackPosition, setStackPosition] = useState(0);
     const { reelayDBUser } = useContext(AuthContext);
-    const { donateLinks } = useContext(FeedContext);
+    const donateLinks = useSelector(state => state.donateLinks);
 
     const viewableReelay = stack[stackPosition];
     const donateObj = donateLinks?.find((donateLinkObj) => {
@@ -80,10 +91,15 @@ const ReelayStack = ({
         const viewableTitleType = (stack[0].title.isSeries) ? 'tv' : 'film';
         return ((tmdbTitleID === viewableTitleID) && titleType === viewableTitleType);
     });
+    const isWelcomeReelay = Constants.manifest.extra.welcomeReelaySub === viewableReelay?.sub;
     
     // figure out how to do ellipses for displayTitle
-    const displayTitle = (viewableReelay.title.display) ? viewableReelay.title.display : 'Title not found\ '; 
-	const year = (viewableReelay.title.releaseYear) ? viewableReelay.title.releaseYear : '';
+    let displayTitle = (viewableReelay.title.display) ? viewableReelay.title.display : 'Title not found'; 
+	let displayYear = (viewableReelay.title.releaseYear) ? viewableReelay.title.releaseYear : '';
+    if (isWelcomeReelay) {
+        displayTitle = 'Welcome to Reelay';
+        displayYear = '2022';
+    }
 
     const getItemLayout = (data, index) => ({
         length: width, 
@@ -191,7 +207,14 @@ const ReelayStack = ({
                             </TitleText>
                         </TitleContainer>
                         <View style={{ flexDirection: "column", marginTop: 5 }}>
-                            { year.length > 0 && <YearText>{year}</YearText> }
+                            <YearVenueContainer>
+                                { viewableReelay?.content?.venue && 
+                                    <VenueContainer>
+                                        <VenueIcon venue={viewableReelay.content.venue} size={20} border={1} />
+                                    </VenueContainer>
+                                }
+                                { displayYear.length > 0 && <YearText>{displayYear}</YearText> }
+                            </YearVenueContainer>
                             <StackLengthText>
                                 {(stack.length > 1) 
                                     ? `${stack.length} Reelays  << swipe >>` 

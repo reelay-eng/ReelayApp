@@ -27,19 +27,19 @@ const iconTheaters = require(ICON_PATH + 'cinemas.png');
 const iconYouTube = require(ICON_PATH + 'youtube.png');
 
 // When adding a new venue, be sure to add it in back end if it should be selectable as a preferred streaming service.
-export const iconVenues = [
-    { source: iconAmazon, venue: 'amazon' },
-    { source: iconAppleTV, venue: 'appletv' },
-    { source: iconCrackle, venue: 'crackle' },
-    { source: iconCriterion, venue: 'criterion' },
-    { source: iconDisney, venue: 'disney' },
-    { source: iconHBO, venue: 'hbomax' },
-    { source: iconHulu, venue: 'hulu' },
-    { source: iconMubi, venue: 'mubi' },
-    { source: iconNetfix, venue: 'netflix' },
-    { source: iconParamount, venue: 'paramount' },
-    { source: iconPeacock, venue: 'peacock' },
-    { source: iconYouTube, venue: 'youtube' },
+export const streamingVenues = [
+    { source: iconAmazon, venue: 'amazon', tmdbProviderID: 119 },
+    { source: iconAppleTV, venue: 'appletv', tmdbProviderID: 2 },
+    { source: iconCrackle, venue: 'crackle', tmdbProviderID: 12 },
+    { source: iconCriterion, venue: 'criterion', tmdbProviderID: 258 },
+    { source: iconDisney, venue: 'disney', tmdbProviderID: 337 },
+    { source: iconHBO, venue: 'hbomax', tmdbProviderID: 384 },
+    { source: iconHulu, venue: 'hulu', tmdbProviderID: 15 },
+    { source: iconMubi, venue: 'mubi', tmdbProviderID: 11 },
+    { source: iconNetfix, venue: 'netflix', tmdbProviderID: 8 },
+    { source: iconParamount, venue: 'paramount', tmdbProviderID: 531 },
+    { source: iconPeacock, venue: 'peacock', tmdbProviderID: 387 },
+    { source: iconYouTube, venue: 'youtube', tmdbProviderID: 192 },
 ];
 
 export const otherVenues = [
@@ -69,8 +69,8 @@ export const otherVenues = [
     },
 ];
 
-export const getIconVenues = () => {
-    return iconVenues;
+export const getStreamingVenues = () => {
+    return streamingVenues;
 }    
 
 export const getOtherVenues = () => {
@@ -79,9 +79,9 @@ export const getOtherVenues = () => {
 
 export const VenueIcon = memo(({ border = 0, onPress, size = 48, venue }) => {
 
-    const searchItems = [...iconVenues, ...otherVenues];
-    const sourceVenueObject = venue.length ? searchItems.find(vi => vi.venue === venue) : null;
-    const isOther = venue.length ? otherVenues.map(e => e.venue)?.includes(venue) : null;
+    const searchItems = [...streamingVenues, ...otherVenues];
+    const sourceVenueObject = venue?.length ? searchItems.find(vi => vi.venue === venue) : null;
+    const isOther = venue?.length ? otherVenues.map(e => e.venue)?.includes(venue) : null;
     const source = isOther ? sourceVenueObject?.oldSource : sourceVenueObject?.source;
     const radius = (size / 2) + (border ? 4 : 0);
     

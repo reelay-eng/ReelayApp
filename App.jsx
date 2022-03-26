@@ -30,10 +30,9 @@ import useColorScheme from './hooks/useColorScheme';
 // context imports
 import { AuthContext } from './context/AuthContext';
 import { FeedContext } from './context/FeedContext';
-import { UploadContext } from './context/UploadContext';
 
 // api imports
-import { getAllDonateLinks, getRegisteredUser, registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
+import { getFeed, getAllDonateLinks, getRegisteredUser, registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { toastConfig } from './components/utils/ToastConfig';
 import Toast from "react-native-toast-message";
@@ -43,17 +42,21 @@ import {
     loadMyFollowing, 
     loadMyReelayStacks, 
     loadMyNotifications, 
+    loadMyStreamingSubscriptions,
     loadMyWatchlist, 
     verifySocialAuthToken,
 } from './api/ReelayUserApi';
 
 // font imports
 import * as Font from 'expo-font';
+import { connect, Provider, useDispatch, useSelector } from 'react-redux';
+import store, { mapStateToProps } from './redux/store';
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png');
 
 function App() {
     const colorScheme = useColorScheme();
+    const dispatch = useDispatch();
 
     // Auth context hooks
     const [cognitoUser, setCognitoUser] = useState({});
@@ -63,9 +66,6 @@ function App() {
 
     const [myCreatorStacks, setMyCreatorStacks] = useState([]);
     const [myFollowers, setMyFollowers] = useState([]);
-    const [myFollowing, setMyFollowing] = useState([]);
-    const [myNotifications, setMyNotifications] = useState([]);
-    const [myWatchlistItems, setMyWatchlistItems] = useState([]);
 
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [reelayDBUserID, setReelayDBUserID] = useState(null);
@@ -79,13 +79,8 @@ function App() {
     const [dotMenuVisible, setDotMenuVisible] = useState(false);
     const [justShowMeSignupVisible, setJustShowMeSignupVisible] = useState(false);
     const [likesVisible, setLikesVisible] = useState(false);
-    const [paused, setPaused] = useState(false);
-    const [playPauseVisible, setPlayPauseVisible] = useState('none');
     const [refreshOnUpload, setRefreshOnUpload] = useState(false);
     const [tabBarVisible, setTabBarVisible] = useState(true);
-
-    // Upload context hooks
-    const [s3Client, setS3Client] = useState(null);
 
     useEffect(() => {
         (async () => {
@@ -114,6 +109,7 @@ function App() {
     useEffect(() => {
         if (reelayDBUser?.sub) {
             setSignedIn(true);
+            dispatch({ type: 'setSignedIn', payload: true });
             registerMyPushToken();
         }
     }, [reelayDBUser]);
@@ -205,15 +201,15 @@ function App() {
             else {
                 setIsReturningUser(false);
             }
-		} catch (e) {
-			console.log(e)
+		} catch (error) {
+			console.log(error);
 		}
     }
 
     const initS3Client = () => {
         try {
-            setupURLPolyfill();
-            setS3Client(new S3Client({
+            setupURLPolyfill();            
+            const newS3Client = new S3Client({
                 region: AWSExports.aws_project_region,
                 credentials: fromCognitoIdentityPool({
                     client: new CognitoIdentityClient({ 
@@ -221,7 +217,8 @@ function App() {
                     }),
                     identityPoolId: AWSExports.aws_cognito_identity_pool_id,
                 }),
-            }));    
+            });
+            dispatch({ type: 'setS3Client', payload: newS3Client });
         } catch (error) {
             console.log('Could not initialize S3 client');
             console.log(error);
@@ -247,24 +244,55 @@ function App() {
     }
 
     const loadMyProfile = async (userSub) => {
-        const reelayDBUserLoaded = await getRegisteredUser(userSub);
-        const myCreatorStacksLoaded = await loadMyReelayStacks(userSub);
-        const myFollowersLoaded = await loadMyFollowers(userSub);
-        const myFollowingLoaded = await loadMyFollowing(userSub);
-        const myNotifications = await loadMyNotifications(userSub);
-        const myWatchlistItemsLoaded = await loadMyWatchlist(userSub);
+        const reqUserSub = userSub;
+        // make sure to maintain consistent ordering between these arrays
+        // when you modify them
+        const [
+            reelayDBUserLoaded,
+            myCreatorStacksLoaded,
+            myFollowersLoaded,
+            myFollowingLoaded,
+            myNotificationsLoaded,
+            myWatchlistItemsLoaded,
+            myStreamingSubscriptions,
+            donateLinksLoaded,
+
+            myStacksFollowing,
+            myStacksInTheaters,
+            myStacksOnStreaming,
+            myStacksAtFestivals,
+        ] = await Promise.all([
+            getRegisteredUser(userSub),
+            loadMyReelayStacks(userSub),
+            loadMyFollowers(userSub),
+            loadMyFollowing(userSub),
+            loadMyNotifications(userSub),
+            loadMyWatchlist(userSub),
+            loadMyStreamingSubscriptions(userSub),
+            getAllDonateLinks(),
+
+            getFeed({ reqUserSub, feedSource: 'following', page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'streaming', page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'festivals', page: 0 }),
+
+        ]);
 
         setReelayDBUser(reelayDBUserLoaded);
         setMyFollowers(myFollowersLoaded);
-        setMyFollowing(myFollowingLoaded);
         setMyCreatorStacks(myCreatorStacksLoaded);
-        setMyNotifications(myNotifications);
-        setMyWatchlistItems(myWatchlistItemsLoaded);
 
-        const donateLinks = await getAllDonateLinks();
-        console.log('donate links: ', donateLinks);
-        setDonateLinks(donateLinks);
+        dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
+        dispatch({ type: 'setMyNotifications', payload: myNotificationsLoaded });
+        dispatch({ type: 'setMyWatchlistItems', payload: myWatchlistItemsLoaded });
+        dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
 
+        dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
+        dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
+        dispatch({ type: 'setMyStacksFollowing', payload: myStacksFollowing });
+        dispatch({ type: 'setMyStacksInTheaters', payload: myStacksInTheaters });
+        dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });
+        dispatch({ type: 'setMyStacksAtFestivals', payload: myStacksAtFestivals });
         setIsLoading(false);
     }
 
@@ -295,9 +323,6 @@ function App() {
 
         myCreatorStacks,    setMyCreatorStacks,
         myFollowers,        setMyFollowers,
-        myFollowing,        setMyFollowing,
-        myNotifications,    setMyNotifications,
-        myWatchlistItems,   setMyWatchlistItems,
 
         reelayDBUser,       setReelayDBUser,
         reelayDBUserID,     setReelayDBUserID,
@@ -305,14 +330,9 @@ function App() {
         signUpFromGuest,    setSignUpFromGuest,
     }
 
-    const uploadState = {
-        s3Client,           setS3Client,
-    }
-
     const feedState = {
         commentsVisible,    setCommentsVisible,
         currentComment,     setCurrentComment,
-        donateLinks,        setDonateLinks,
         dotMenuVisible,     setDotMenuVisible,
         justShowMeSignupVisible, setJustShowMeSignupVisible,
         likesVisible,       setLikesVisible,
@@ -342,11 +362,9 @@ function App() {
             <SafeAreaProvider>
                 <AuthContext.Provider value={authState}>
                     <FeedContext.Provider value={feedState}>
-                        <UploadContext.Provider value={uploadState}>
-                            <StatusBar hidden={true} />
-                            <Navigation colorScheme={colorScheme} />
-                            <Toast config={toastConfig}/>
-                        </UploadContext.Provider>
+                        <StatusBar hidden={true} />
+                        <Navigation colorScheme={colorScheme} />
+                        <Toast config={toastConfig}/>
                     </FeedContext.Provider>
                 </AuthContext.Provider>
             </SafeAreaProvider>
@@ -354,4 +372,13 @@ function App() {
     }
 }
 
-export default App;
+const ReduxApp = () => {
+    return (
+        <Provider store={store}>
+            <App />
+        </Provider>
+    )
+}
+
+connect(mapStateToProps)(ReduxApp);
+export default ReduxApp;

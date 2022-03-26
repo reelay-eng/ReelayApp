@@ -72,6 +72,9 @@ const FixedReelayFeed = ({ navigation,
                     isFixedStack={true}
                     navigation={navigation}
                 />
+                <BackButtonContainer>
+                    <BackButton navigation={navigation} />
+                </BackButtonContainer>
             </React.Fragment>
         );
     }
@@ -124,11 +127,10 @@ const FixedReelayFeed = ({ navigation,
                     windowSize={3}
                 />
             }
-            <BackButtonContainer>
-                <BackButton navigation={navigation} />
-            </BackButtonContainer>
         </ReelayFeedContainer>
     );
 }
 
-export default memo(FixedReelayFeed);
+export default memo(FixedReelayFeed, (prevProps, nextProps) => {
+    return true;
+});

@@ -28,9 +28,11 @@ import * as ReelayText from "../../components/global/Text";
 // Context
 import { AuthContext } from "../../context/AuthContext";
 import { FeedContext } from "../../context/FeedContext";
+import { useDispatch, useSelector } from 'react-redux';
 
 // Styling
 import styled from 'styled-components/native';
+import store from '../../redux/store';
 
 export default MyProfileScreen = ({ navigation, route }) => {
     const ProfileScreenContainer = styled(SafeAreaView)`
@@ -67,16 +69,14 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const [isEditingProfile, setIsEditingProfile] = useState(false);
 	const { 
         myFollowers, 
-        myFollowing,
         myCreatorStacks,
         reelayDBUser,
         setMyFollowers, 
-        setMyFollowing,
         setMyCreatorStacks,
-        setMyNotifications,
-        setMyWatchlistItems,
     } = useContext(AuthContext); 
 
+    const dispatch = useDispatch();
+    const myFollowing = useSelector(state => state.myFollowing);
     const { setTabBarVisible, refreshOnUpload, setRefreshOnUpload } = useContext(FeedContext);
 
     useEffect(() => {
@@ -118,20 +118,29 @@ export default MyProfileScreen = ({ navigation, route }) => {
             console.log('Now refreshing');
             setRefreshing(true);
             try {
-                const nextMyCreatorStacks = await refreshMyReelayStacks(userSub);
-                const nextMyFollowers = await refreshMyFollowers(userSub);
-                const nextMyFollowing = await refreshMyFollowing(userSub);
-                const nextMyNotifications = await refreshMyNotifications(userSub);
-                const nextMyWatchlistItems = await refreshMyWatchlist(userSub);
+                const [
+                    nextMyCreatorStacks,
+                    nextMyFollowers,
+                    nextMyFollowing,
+                    nextMyNotifications,
+                    nextMyWatchlistItems,
+                ] = await Promise.all([
+                    refreshMyReelayStacks(userSub),
+                    refreshMyFollowers(userSub),
+                    refreshMyFollowing(userSub),
+                    refreshMyNotifications(userSub),
+                    refreshMyWatchlist(userSub),
+                ]);
                 
                 nextMyCreatorStacks.forEach((stack) => stack.sort(sortReelays));
                 nextMyCreatorStacks.sort(sortStacks);
     
                 setMyCreatorStacks(nextMyCreatorStacks);    
                 setMyFollowers(nextMyFollowers);
-                setMyFollowing(nextMyFollowing);    
-                setMyNotifications(nextMyNotifications);
-                setMyWatchlistItems(nextMyWatchlistItems);    
+
+                dispatch({ type: 'setMyNotifications', payload: nextMyNotifications });
+                dispatch({ type: 'setMyWatchlistItems', payload: nextMyWatchlistItems });
+                dispatch({ type: 'setMyFollowing', payload: nextMyFollowing });
 
                 console.log('Refresh complete');
             } catch (error) {
