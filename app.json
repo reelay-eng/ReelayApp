@@ -19,6 +19,9 @@
       "**/*"
     ],
     "ios": {
+      "associatedDomains" : [
+        "applinks:on.reelay.app"
+      ],
       "supportsTablet": true,
       "bundleIdentifier": "ReelayiOS",
       "infoPlist": {
