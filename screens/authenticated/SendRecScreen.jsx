@@ -1,9 +1,10 @@
-import React, { useState, useRef, useContext, memo, useCallback, useEffect } from 'react';
-import { ActivityIndicator, Image, Pressable, SafeAreaView, View } from 'react-native';
+import React, { useState, useRef, useContext, memo, useCallback, useEffect, Fragment } from 'react';
+import { ActivityIndicator, Image, Pressable, SafeAreaView, Share, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import Constants from 'expo-constants';
 
 import BackButton from '../../components/utils/BackButton';
+import ProfilePicture from '../../components/global/ProfilePicture';
 import SearchField from '../../components/create-reelay/SearchField';
 import { ReelayedByLine } from '../../components/watchlist/RecPills';
 import { AuthContext } from '../../context/AuthContext';
@@ -22,7 +23,6 @@ import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { useSelector } from 'react-redux';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
-const ReelayIcon = require('../../assets/icons/reelay-icon-with-dog-black.png');
 
 const TitleHeader = ({ navigation, readyToSend, reelay, sendRecs, watchlistItem }) => {
     const ImageContainer = styled(View)`
@@ -113,6 +113,11 @@ const FollowerRow = ({
         align-items: center;
         justify-content: center;
     `
+    const ProfilePictureContainer = styled(View)`
+        margin-top: 6px;
+        margin-bottom: 6px;
+        margin-right: 10px;
+    `;
     const RowContainer = styled(Pressable)`
         display: flex;
         align-items: center;
@@ -159,7 +164,9 @@ const FollowerRow = ({
     return (
         <RowContainer onPress={markRow}>
             <UserInfoContainer>
-                <ProfilePicture profilePicURI={profilePicURI}/>
+                <ProfilePictureContainer>
+                    <ProfilePicture user={creator} size={32} />
+                </ProfilePictureContainer>
                 <UsernameContainer>
                     <UsernameText>{followName}</UsernameText>
                 </UsernameContainer>
@@ -172,32 +179,6 @@ const FollowerRow = ({
         </RowContainer>
     )
 }
-
-const ProfilePicture = React.memo(({ profilePicURI }) => {
-    const ProfileImage = styled(Image)`
-        border-radius: 16px;
-        border-width: 1px;
-        border-color: white;
-        height: 32px;
-        width: 32px;
-    `;
-    const ProfilePictureContainer = styled(View)`
-        margin: 10px;
-    `;
-
-    return (
-        <ProfilePictureContainer>
-            <ProfileImage
-                style={{ zIndex: 2 }}
-                source={{ uri: profilePicURI }}
-            />
-            <ProfileImage
-                style={{ position: 'absolute', zIndex: 1 }}
-                source={ReelayIcon}
-            />
-        </ProfilePictureContainer>
-    );
-});
 
 const StatusBar = ({ navigation }) => {
     const BackButtonContainer = styled(View)`
@@ -253,6 +234,7 @@ const FollowerList = memo(({
     navigation,
     getFollowsToSend, 
     markFollowToSend, 
+    reelay,
     unmarkFollowToSend,
     watchlistItem,
 }) => {
@@ -301,7 +283,6 @@ const FollowerList = memo(({
 
     const updateSearch = useCallback(async (newSearchText) => {
         if (!newSearchText.length) {
-            // setDisplayFollowers(allFollowersSorted);
             setDisplayFollows(allFollowsUnique);
         } else {
             const filteredFollows = allFollowsUnique.filter((followObj) => {
@@ -322,6 +303,7 @@ const FollowerList = memo(({
         <React.Fragment>
             <FollowerSearch updateSearch={updateSearch} />
             <ScrollViewContainer>
+                <ShareExternalRow navigation={navigation} reelay={reelay} />
                 { isLoaded && displayFollows.map((followObj, index) => {
                     const hasMarkedToSend = getFollowsToSend().find((nextFollowObj) => {
                         return (nextFollowObj.followSub === followObj.followSub);
@@ -427,6 +409,7 @@ export default SendRecScreen = ({ navigation, route }) => {
                 reelay={reelay}
                 sendRecs={sendRecs}
             />
+
             { reelayDBUser?.username === 'be_our_guest' &&
                 <JustShowMeSignupPage 
                     fullPage={false}
@@ -438,10 +421,67 @@ export default SendRecScreen = ({ navigation, route }) => {
                     navigation={navigation}
                     getFollowsToSend={getFollowsToSend}
                     markFollowToSend={markFollowToSend}
+                    reelay={reelay}
                     unmarkFollowToSend={unmarkFollowToSend}
                     watchlistItem={watchlistItem}
                 />
             }
         </RecScreenContainer>
     );
+}
+
+const ShareExternalRow = ({ navigation, reelay }) => {
+    const IconContainer = styled(View)`
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+    `
+    const RowContainer = styled(Pressable)`
+        display: flex;
+        align-items: center;
+        background-color: black;
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 6px;
+        padding-left: 20px;
+        padding-right: 20px;
+        border-bottom-color: #505050;
+        border-bottom-width: 0.3px;    
+    `
+    const UserInfoContainer = styled(View)`
+        flex-direction: row;
+    `
+    const UsernameText = styled(ReelayText.Subtitle1Emphasized)`
+        color: white;
+    `
+    const UsernameContainer = styled(View)`
+        align-items: flex-start;
+        justify-content: center;
+    `
+
+    const { reelayDBUser } = useContext(AuthContext);
+
+    const shareReelay = async () => {
+        const content = {
+            url: reelay.content.videoURI,
+            message: `${reelayDBUser?.username} sent you a rec on reelay!`,
+            title: `${reelay?.creator?.username} on ${reelay?.title?.display}`,
+        };
+        const options = {};
+        const sharedAction = await Share.share(content, options);
+        console.log(sharedAction);
+    }
+
+    return (
+        <RowContainer onPress={shareReelay}>
+            <UserInfoContainer>
+                <IconContainer>
+                    <Icon type='ionicon' name='share-social' color='white' size={32} />
+                </IconContainer>
+                <UsernameContainer>
+                    <UsernameText>{'Share outside of Reelay'}</UsernameText>
+                </UsernameContainer>
+            </UserInfoContainer>
+        </RowContainer>
+    )
 }
