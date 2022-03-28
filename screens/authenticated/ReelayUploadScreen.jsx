@@ -122,7 +122,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-    const { setRefreshOnUpload } = useContext(FeedContext);
     const s3Client = useSelector(state => state.s3Client);
 
     const uploadReelayToS3 = async (videoURI, videoS3Key) => {

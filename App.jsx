@@ -56,10 +56,10 @@ const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png'
 function App() {
     const colorScheme = useColorScheme();
     const dispatch = useDispatch();
+    const credentials = useSelector(state => state.credentials);
 
     // Auth context hooks
     const [cognitoUser, setCognitoUser] = useState({});
-    const [credentials, setCredentials] = useState({});
     const [isLoading, setIsLoading] = useState(true);
     const [isReturningUser, setIsReturningUser] = useState(false);
 
@@ -302,7 +302,6 @@ function App() {
 
     const authState = {
         cognitoUser,        setCognitoUser,
-        credentials,        setCredentials,
         isLoading,          setIsLoading,
         isReturningUser,    setIsReturningUser,
 

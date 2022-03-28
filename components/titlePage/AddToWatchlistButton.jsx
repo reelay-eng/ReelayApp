@@ -31,7 +31,6 @@ export default AddToWatchlistButton = ({ titleObj, reelay }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-    const { setJustShowMeSignupVisible } = useContext(FeedContext);
 
     const inWatchlist = !!myWatchlistItems.find((nextItem) => {
         const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;

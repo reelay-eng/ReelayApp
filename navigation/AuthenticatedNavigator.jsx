@@ -43,7 +43,6 @@ import FeedIcon from '../assets/icons/navbar/feed-icon.png';
 import ProfileIcon from '../assets/icons/navbar/profile-icon.png';
 import SearchIcon from '../assets/icons/navbar/search-icon.png';
 import { WatchlistAddedIconSVG } from '../components/global/SVGs';
-import { useSelector } from 'react-redux';
  
 const AppStack = createStackNavigator();
 const BottomTab = createBottomTabNavigator();

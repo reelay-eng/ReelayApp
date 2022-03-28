@@ -38,7 +38,6 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myFollowing = useSelector(state => state.myFollowing);
-    const { setJustShowMeSignupVisible } = useContext(FeedContext);
     
     const creatorSub = creator.sub;
     const userSub = reelayDBUser.sub;
