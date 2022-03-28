@@ -259,7 +259,8 @@ const FollowerList = memo(({
     const ScrollViewContainer = styled(ScrollView)`
         margin-bottom: 60px;
     `
-    const { reelayDBUser, myFollowers } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
+    const myFollowers = useSelector(state => state.myFollowers);
     const myFollowing = useSelector(state => state.myFollowing);
     const priorRecs = useRef([]);
 

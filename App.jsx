@@ -62,12 +62,9 @@ function App() {
     // Auth context hooks
     const [cognitoUser, setCognitoUser] = useState({});
 
-    const [myCreatorStacks, setMyCreatorStacks] = useState([]);
-    const [myFollowers, setMyFollowers] = useState([]);
-
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [reelayDBUserID, setReelayDBUserID] = useState(null);
-    
+
     useEffect(() => {
         (async () => {
             await initServices();
@@ -264,8 +261,8 @@ function App() {
         ]);
 
         setReelayDBUser(reelayDBUserLoaded);
-        setMyFollowers(myFollowersLoaded);
-        setMyCreatorStacks(myCreatorStacksLoaded);
+        dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
+        dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
 
         dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
         dispatch({ type: 'setMyNotifications', payload: myNotificationsLoaded });
@@ -302,9 +299,6 @@ function App() {
 
     const authState = {
         cognitoUser,        setCognitoUser,
-
-        myCreatorStacks,    setMyCreatorStacks,
-        myFollowers,        setMyFollowers,
 
         reelayDBUser,       setReelayDBUser,
         reelayDBUserID,     setReelayDBUserID,

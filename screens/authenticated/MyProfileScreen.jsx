@@ -12,7 +12,6 @@ import {
     refreshMyFollowing, 
     refreshMyNotifications, 
     refreshMyReelayStacks, 
-    refreshMyUser, 
     refreshMyWatchlist 
 } from '../../api/ReelayUserApi';
 
@@ -66,16 +65,14 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     const [refreshing, setRefreshing] = useState(false);
 	const { 
-        myFollowers, 
-        myCreatorStacks,
         reelayDBUser,
-        setMyFollowers, 
-        setMyCreatorStacks,
     } = useContext(AuthContext); 
 
     const signedIn = useSelector(state => state.signedIn);
     const refreshOnUpload = useSelector(state => state.refreshOnUpload);
+    const myFollowers = useSelector(state => state.myFollowers);
     const myFollowing = useSelector(state => state.myFollowing);
+    const myCreatorStacks = useSelector(state => state.myCreatorStacks);
   	const dispatch = useDispatch();
 
     console.log('Is signed in: ', signedIn);
@@ -136,8 +133,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
                 nextMyCreatorStacks.forEach((stack) => stack.sort(sortReelays));
                 nextMyCreatorStacks.sort(sortStacks);
     
-                setMyCreatorStacks(nextMyCreatorStacks);    
-                setMyFollowers(nextMyFollowers);
+                dispatch({ type: 'setMyCreatorStacks', payload: nextMyCreatorStacks });  
+                dispatch({ type: 'setMyFollowers', payload: nextMyFollowers });  
 
                 dispatch({ type: 'setMyNotifications', payload: nextMyNotifications });
                 dispatch({ type: 'setMyWatchlistItems', payload: nextMyWatchlistItems });
