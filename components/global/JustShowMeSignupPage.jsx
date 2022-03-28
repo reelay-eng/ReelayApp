@@ -12,15 +12,14 @@ import { AuthContext } from '../../context/AuthContext';
 import { clearLocalUserData } from '../../api/ReelayUserApi';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Reelay' }) => {
     const { 
         reelayDBUser,
         setReelayDBUserID,
-        setSignUpFromGuest,
-        signUpFromGuest,
     } = useContext(AuthContext);
+    const signUpFromGuest = useSelector(state => state.signUpFromGuest)
     const dispatch = useDispatch();
 
     const BottomContainer = styled(View)`
@@ -93,7 +92,7 @@ export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Ree
                 email: reelayDBUser?.email,
             });
     
-            if (!signUpFromGuest) setSignUpFromGuest(true);
+            if (!signUpFromGuest) dispatch({ type: 'setSignUpFromGuest', payload: true });
             const signOutResult = await Auth.signOut();
             dispatch({ type: 'setSignedIn', payload: false });
             setReelayDBUserID(null);
@@ -113,7 +112,7 @@ export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Ree
                 email: reelayDBUser?.email,
             });
     
-            if (signUpFromGuest) setSignUpFromGuest(false);
+            if (signUpFromGuest) dispatch({ type: 'setSignUpFromGuest', payload: false });
             const signOutResult = await Auth.signOut();
             dispatch({ type: 'setSignedIn', payload: false });
             setReelayDBUserID(null);

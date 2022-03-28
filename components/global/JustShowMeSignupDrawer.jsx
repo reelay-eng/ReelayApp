@@ -41,7 +41,6 @@ const JustShowMeSignup = () => {
     const { 
         reelayDBUser,
         setReelayDBUserID, 
-        setSignUpFromGuest,
     } = useContext(AuthContext);
 
     const dispatch = useDispatch();
@@ -115,7 +114,7 @@ const JustShowMeSignup = () => {
                 email: reelayDBUser?.email,
             });
     
-            setSignUpFromGuest(true);
+            dispatch({ type: 'setSignUpFromGuest', payload: true });
             dispatch({ type: 'setJustShowMeSignupVisible', payload: false });
             dispatch({ type: 'setSignedIn', payload: false });
             setReelayDBUserID(null);

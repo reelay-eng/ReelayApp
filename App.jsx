@@ -67,7 +67,6 @@ function App() {
 
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [reelayDBUserID, setReelayDBUserID] = useState(null);
-    const [signUpFromGuest, setSignUpFromGuest] = useState(false);
 
     useEffect(() => {
         (async () => {
@@ -110,9 +109,9 @@ function App() {
                 tryCognitoUser = await Auth.currentAuthenticatedUser();
                 setCognitoUser(tryCognitoUser);
                 if (tryCognitoUser?.username === 'be_our_guest') {
-                    setSignUpFromGuest(true);
+                    dispatch({ type: 'setSignUpFromGuest', payload: true });
                 } else {
-                    setSignUpFromGuest(false);
+                    dispatch({ type: 'setSignUpFromGuest', payload: false });
                 }
             } else {
                 // try using a social auth token to sign in the user
@@ -305,7 +304,6 @@ function App() {
 
         reelayDBUser,       setReelayDBUser,
         reelayDBUserID,     setReelayDBUserID,
-        signUpFromGuest,    setSignUpFromGuest,
     }
 
     if (isLoading) {

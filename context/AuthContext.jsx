@@ -10,5 +10,4 @@ export const AuthContext = createContext({
     reelayDBUser: {},
     reelayDBUserID: null,
     signedIn: false,
-    signUpFromGuest: false,
 });
