@@ -61,7 +61,6 @@ function App() {
 
     // Auth context hooks
     const [cognitoUser, setCognitoUser] = useState({});
-    const [isReturningUser, setIsReturningUser] = useState(false);
 
     const [myCreatorStacks, setMyCreatorStacks] = useState([]);
     const [myFollowers, setMyFollowers] = useState([]);
@@ -185,10 +184,10 @@ function App() {
         try {
 			const value = await AsyncStorage.getItem("isReturningUser");
 			if (value !== null) {
-                setIsReturningUser(true);
+                dispatch({ type: 'setIsReturningUser', payload: true });
             }
             else {
-                setIsReturningUser(false);
+                dispatch({ type: 'setIsReturningUser', payload: false });
             }
 		} catch (error) {
 			console.log(error);
@@ -302,7 +301,6 @@ function App() {
 
     const authState = {
         cognitoUser,        setCognitoUser,
-        isReturningUser,    setIsReturningUser,
 
         myCreatorStacks,    setMyCreatorStacks,
         myFollowers,        setMyFollowers,
