@@ -41,7 +41,6 @@ const JustShowMeSignup = () => {
     const { 
         reelayDBUser,
         setReelayDBUserID, 
-        setSignedIn,
         setSignUpFromGuest,
     } = useContext(AuthContext);
 
@@ -118,7 +117,7 @@ const JustShowMeSignup = () => {
     
             setSignUpFromGuest(true);
             dispatch({ type: 'setJustShowMeSignupVisible', payload: false });
-            setSignedIn(false);
+            dispatch({ type: 'setSignedIn', payload: false });
             setReelayDBUserID(null);
             await clearLocalUserData();
         } catch (error) {

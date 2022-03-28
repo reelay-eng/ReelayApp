@@ -67,7 +67,6 @@ function App() {
 
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [reelayDBUserID, setReelayDBUserID] = useState(null);
-    const [signedIn, setSignedIn] = useState(false);
     const [signUpFromGuest, setSignUpFromGuest] = useState(false);
 
     useEffect(() => {
@@ -96,7 +95,6 @@ function App() {
 
     useEffect(() => {
         if (reelayDBUser?.sub) {
-            setSignedIn(true);
             dispatch({ type: 'setSignedIn', payload: true });
             registerMyPushToken();
         }
@@ -307,7 +305,6 @@ function App() {
 
         reelayDBUser,       setReelayDBUser,
         reelayDBUserID,     setReelayDBUserID,
-        signedIn,           setSignedIn,
         signUpFromGuest,    setSignUpFromGuest,
     }
 

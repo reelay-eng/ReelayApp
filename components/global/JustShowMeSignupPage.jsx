@@ -12,15 +12,16 @@ import { AuthContext } from '../../context/AuthContext';
 import { clearLocalUserData } from '../../api/ReelayUserApi';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import { useDispatch } from 'react-redux';
 
 export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Reelay' }) => {
     const { 
         reelayDBUser,
-        setReelayDBUserID, 
-        setSignedIn,
+        setReelayDBUserID,
         setSignUpFromGuest,
         signUpFromGuest,
     } = useContext(AuthContext);
+    const dispatch = useDispatch();
 
     const BottomContainer = styled(View)`
         align-items: center;
@@ -94,7 +95,7 @@ export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Ree
     
             if (!signUpFromGuest) setSignUpFromGuest(true);
             const signOutResult = await Auth.signOut();
-            setSignedIn(false);
+            dispatch({ type: 'setSignedIn', payload: false });
             setReelayDBUserID(null);
             // todo: deregister for push tokens
             // todo: deregister cognito user
@@ -114,7 +115,7 @@ export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Ree
     
             if (signUpFromGuest) setSignUpFromGuest(false);
             const signOutResult = await Auth.signOut();
-            setSignedIn(false);
+            dispatch({ type: 'setSignedIn', payload: false });
             setReelayDBUserID(null);
             console.log(signOutResult);
             await clearLocalUserData();
