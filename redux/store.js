@@ -27,6 +27,7 @@ const initialState = {
 
     commentsVisible: false,
     currentComment: '',
+    donateLinks: [],
     dotMenuVisible: false,
     hasUnseenGlobalReelays: false,
     justShowMeSignupVisible: false,
@@ -93,6 +94,8 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, commentsVisible: action.payload }
         case 'setCurrentComment':
             return { ...state, currentComment: action.payload }
+        case 'setDonateLinks':
+            return { ...state, donateLinks: action.payload }
         case 'setDotMenuVisible':
             return { ...state, dotMenuVisible: action.payload }
         case 'setHasUnseenGlobalReelays':
@@ -146,6 +149,7 @@ export const mapStateToProps = (state) => ({
 
     commentsVisible: state.commentsVisible,
     currentComment: state.currentComment,
+    donateLinks: state.donateLinks,
     dotMenuVisible: state.dotMenuVisible,
     hasUnseenGlobalReelays: state.hasUnseenGlobalReelays,
     justShowMeSignupVisible: state.justShowMeSignupVisible,

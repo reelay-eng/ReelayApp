@@ -31,7 +31,7 @@ import useColorScheme from './hooks/useColorScheme';
 import { AuthContext } from './context/AuthContext';
 
 // api imports
-import { getFeed, getRegisteredUser, registerPushTokenForUser } from './api/ReelayDBApi';
+import { getFeed, getAllDonateLinks, getRegisteredUser, registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { toastConfig } from './components/utils/ToastConfig';
 import Toast from "react-native-toast-message";
@@ -67,7 +67,7 @@ function App() {
 
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [reelayDBUserID, setReelayDBUserID] = useState(null);
-
+    
     useEffect(() => {
         (async () => {
             await initServices();
@@ -239,8 +239,9 @@ function App() {
             myFollowingLoaded,
             myNotificationsLoaded,
             myWatchlistItemsLoaded,
-
             myStreamingSubscriptions,
+            donateLinksLoaded,
+
             myStacksFollowing,
             myStacksInTheaters,
             myStacksOnStreaming,
@@ -253,11 +254,13 @@ function App() {
             loadMyNotifications(userSub),
             loadMyWatchlist(userSub),
             loadMyStreamingSubscriptions(userSub),
+            getAllDonateLinks(),
 
             getFeed({ reqUserSub, feedSource: 'following', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'streaming', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'festivals', page: 0 }),
+
         ]);
 
         setReelayDBUser(reelayDBUserLoaded);
@@ -270,6 +273,7 @@ function App() {
         dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
 
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
+        dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
         dispatch({ type: 'setMyStacksFollowing', payload: myStacksFollowing });
         dispatch({ type: 'setMyStacksInTheaters', payload: myStacksInTheaters });
         dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });
