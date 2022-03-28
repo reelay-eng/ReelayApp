@@ -2,7 +2,6 @@ import React, { createContext } from 'react';
 
 export const AuthContext = createContext({
     cognitoUser: {},
-    isLoading: false,
     isReturningUser: false,
 
     myCreatorStacks: [],

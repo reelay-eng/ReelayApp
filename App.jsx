@@ -57,10 +57,10 @@ function App() {
     const colorScheme = useColorScheme();
     const dispatch = useDispatch();
     const credentials = useSelector(state => state.credentials);
+    const isLoading = useSelector(state => state.isLoading);
 
     // Auth context hooks
     const [cognitoUser, setCognitoUser] = useState({});
-    const [isLoading, setIsLoading] = useState(true);
     const [isReturningUser, setIsReturningUser] = useState(false);
 
     const [myCreatorStacks, setMyCreatorStacks] = useState([]);
@@ -143,7 +143,7 @@ function App() {
         }
 
         if (!tryCredentials?.authenticated && !tryVerifySocialAuth?.success) {
-            setIsLoading(false);
+            dispatch({ type: 'setIsLoading', payload: false });
             // else, keep loading until loadMyProfile finishes
         }
     }
@@ -278,7 +278,7 @@ function App() {
         dispatch({ type: 'setMyStacksInTheaters', payload: myStacksInTheaters });
         dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });
         dispatch({ type: 'setMyStacksAtFestivals', payload: myStacksAtFestivals });
-        setIsLoading(false);
+        dispatch({ type: 'setIsLoading', payload: false });
     }
 
     const registerMyPushToken = async () => {
@@ -302,7 +302,6 @@ function App() {
 
     const authState = {
         cognitoUser,        setCognitoUser,
-        isLoading,          setIsLoading,
         isReturningUser,    setIsReturningUser,
 
         myCreatorStacks,    setMyCreatorStacks,
