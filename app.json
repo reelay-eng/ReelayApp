@@ -2,7 +2,7 @@
   "expo": {
     "name": "Reelay",
     "slug": "ReelayApp",
-    "version": "1.0.61",
+    "version": "1.0.62",
     "orientation": "portrait",
     "icon": "./assets/icons/reelay-icon-with-dog-black.png",
     "scheme": "reelayapp",
@@ -19,6 +19,9 @@
       "**/*"
     ],
     "ios": {
+      "associatedDomains" : [
+        "applinks:on.reelay.app"
+      ],
       "supportsTablet": true,
       "bundleIdentifier": "ReelayiOS",
       "infoPlist": {
