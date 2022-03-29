@@ -12,6 +12,7 @@ import { BWButton } from "../../components/global/Buttons";
 import { HeaderWithBackButton } from "../global/Headers";
 import { clearLocalUserData, deregisterSocialAuthToken } from '../../api/ReelayUserApi';
 import { getReelay, prepareReelay } from '../../api/ReelayDBApi';
+import { useDispatch, useSelector } from 'react-redux';
 
 export const ProfileSettings = ({navigation}) => {
     const ViewContainer = styled(View)`
@@ -145,10 +146,9 @@ const Logout = () => {
     const { 
         reelayDBUser, 
         setReelayDBUserID,
-        setSignedIn, 
-        setSignUpFromGuest,
-        signUpFromGuest,
     } = useContext(AuthContext);
+    const signUpFromGuest = useSelector(state => state.signUpFromGuest);
+    const dispatch = useDispatch();
 
     const signOut = async () => {
         // todo: confirm sign out
@@ -158,9 +158,9 @@ const Logout = () => {
                 email: reelayDBUser?.email,
             });
     
-            if (signUpFromGuest) setSignUpFromGuest(false);
+            if (signUpFromGuest) dispatch({ type: 'setSignUpFromGuest', payload: false });
             const signOutResult = await Auth.signOut();
-            setSignedIn(false);
+            dispatch({ type: 'setSignedIn', payload: false });
             setReelayDBUserID(null);
             deregisterSocialAuthToken();
             // todo: deregister for push tokens

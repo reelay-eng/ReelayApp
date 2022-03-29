@@ -9,6 +9,7 @@ import ReelayLogoText from "../../assets/images/reelay-logo-text-with-dog.png";
 
 import { AuthContext } from "../../context/AuthContext";
 import { showErrorToast } from "../../components/utils/toasts";
+import { useDispatch, useSelector } from "react-redux";
 
 const ButtonsFlexContainer = styled(View)`
     position: absolute;
@@ -53,8 +54,10 @@ const ReelayLogoContainer = styled(View)`
 
 export default SignedOutScreen = ({ navigation, route }) => {
     const autoSignInAsGuest = route?.params?.autoSignInAsGuest ?? false;
-    const { setCognitoUser, signUpFromGuest, setSignUpFromGuest } = useContext(AuthContext);
+    const { setCognitoUser } = useContext(AuthContext);
     const [signingInJustShowMe, setSigningInJustShowMe] = useState(autoSignInAsGuest);
+    const signUpFromGuest = useSelector(state => state.signUpFromGuest);
+    const dispatch = useDispatch();
 
     const SignUpButton = () => (
         <ButtonContainer>
@@ -122,7 +125,7 @@ export default SignedOutScreen = ({ navigation, route }) => {
     useEffect(() => {
         if (signUpFromGuest) {
             navigation.push('SignUpScreen');
-            setSignUpFromGuest(false);
+            dispatch({ type: 'setSignUpFromGuest', payload: false });
         }
     });
 

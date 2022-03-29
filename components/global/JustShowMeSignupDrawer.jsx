@@ -1,5 +1,6 @@
 import React, { Fragment, useContext, useEffect } from 'react';
 import { Image, Modal, Pressable, SafeAreaView, View } from 'react-native';
+import { useSelector, useDispatch } from 'react-redux';
 import { Icon } from 'react-native-elements';
 import DogWithGlasses from '../../assets/images/dog-with-glasses.png';
 import styled from 'styled-components/native';
@@ -8,13 +9,12 @@ import ReelayColors from '../../constants/ReelayColors';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 import { clearLocalUserData } from '../../api/ReelayUserApi';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 export default JustShowMeSignupDrawer = ({ navigation }) => {
-    const { justShowMeSignUpVisible } = useContext(FeedContext);
+    const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
 
     const DrawerContainer = styled(View)`
         background-color: #1a1a1a;
@@ -28,7 +28,7 @@ export default JustShowMeSignupDrawer = ({ navigation }) => {
     `
     return (
         <ModalContainer>
-            <Modal animationType="slide" transparent={true} visible={justShowMeSignUpVisible}>
+            <Modal animationType="slide" transparent={true} visible={justShowMeSignupVisible}>
                 <DrawerContainer>
                     <JustShowMeSignup navigation={navigation} />
                 </DrawerContainer>
@@ -41,12 +41,10 @@ const JustShowMeSignup = () => {
     const { 
         reelayDBUser,
         setReelayDBUserID, 
-        setSignedIn,
-        setSignUpFromGuest,
     } = useContext(AuthContext);
 
-    const { setJustShowMeSignupVisible } = useContext(FeedContext);
-    const closeDrawer = () => setJustShowMeSignupVisible(false);
+    const dispatch = useDispatch();
+    const closeDrawer = () => dispatch({ type: 'setJustShowMeSignupVisible', payload: false });
 
     const BottomContainer = styled(View)`
         align-items: center;
@@ -116,9 +114,9 @@ const JustShowMeSignup = () => {
                 email: reelayDBUser?.email,
             });
     
-            setSignUpFromGuest(true);
-            setJustShowMeSignupVisible(false);
-            setSignedIn(false);
+            dispatch({ type: 'setSignUpFromGuest', payload: true });
+            dispatch({ type: 'setJustShowMeSignupVisible', payload: false });
+            dispatch({ type: 'setSignedIn', payload: false });
             setReelayDBUserID(null);
             await clearLocalUserData();
         } catch (error) {

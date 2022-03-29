@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState, useRef, memo } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, View } from 'react-native';
-import { FeedContext } from '../../context/FeedContext';
+import { useDispatch } from "react-redux";
 import ReelayStack from './ReelayStack';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -41,7 +41,7 @@ const ReelayFeed = ({ navigation,
     const nextPage = useRef(0);
 
     const { reelayDBUser } = useContext(AuthContext);
-    const { setTabBarVisible } = useContext(FeedContext);
+	const dispatch = useDispatch();
 
     const [feedSource, setFeedSource] = useState(initialFeedSource);
     const [refreshing, setRefreshing] = useState(false);
@@ -51,7 +51,7 @@ const ReelayFeed = ({ navigation,
     const [selectedFeedPosition, setSelectedFeedPosition] = useState(initialFeedPos);
 
     useEffect(() => {
-        setTabBarVisible(true); // to ensure tab bar is always here
+		dispatch({ type: 'setTabBarVisible', payload: true }); // to ensure tab bar is always here
         loadSelectedFeed();
     }, []);
 

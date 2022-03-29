@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { Text, View, Pressable } from 'react-native';
+import { useDispatch } from 'react-redux';
 import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import * as ReelayText from '../../components/global/Text';
@@ -32,11 +32,11 @@ export default ProfileStatsBar = ({
 }) => {
 
     const { reelayDBUser } = useContext(AuthContext);
-    const { setJustShowMeSignupVisible } = useContext(FeedContext);
+    const dispatch = useDispatch();
 
 	const showMeSignupIfGuest = () => {
 		if (reelayDBUser?.username === 'be_our_guest') {
-			setJustShowMeSignupVisible(true);
+			dispatch({ type: 'setJustShowMeSignupVisible', payload: true })
 			return true;
 		}
 		return false;

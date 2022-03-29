@@ -7,7 +7,6 @@ import { showErrorToast } from '../../components/utils/toasts';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 import { getInputUsername } from '../../components/utils/usernameOrEmail';
@@ -16,6 +15,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import SocialLoginBar from '../../components/auth/SocialLoginBar';
+import { useDispatch } from 'react-redux';
 
 const AuthInput = styled(Input)`
     color: white;
@@ -102,7 +102,8 @@ export const KeyboardHidingBlackContainer = ({ children }) => {
 
 export default SignInScreen = ({ navigation, route }) => {
     const [signingIn, setSigningIn] = useState(false);
-    const { setCognitoUser, setSignedIn } = useContext(AuthContext);
+    const { setCognitoUser } = useContext(AuthContext);
+    const dispatch = useDispatch();
     
     const ForgotPassword = () => {
 		const ForgotPasswordText = styled(ReelayText.Subtitle1)`
@@ -188,7 +189,7 @@ export default SignInScreen = ({ navigation, route }) => {
                 console.log('Received sign in result: ', cognitoUser);
                 setCognitoUser(cognitoUser);
                 console.log('Signed in user successfully');
-                setSignedIn(true);
+                dispatch({ type: 'setSignedIn', payload: true})
                 logAmplitudeEventProd('signInSuccess', {
                     username: username,
                     inputText: inputText,

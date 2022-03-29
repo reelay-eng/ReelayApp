@@ -34,6 +34,9 @@ const initialState = {
     likesVisible: false,
     refreshOnUpload: false,
     s3Client: null,
+
+    isEditingProfile: false,
+    
     showFestivalsRow: false,
     tabBarVisible: true,
 }
@@ -105,6 +108,10 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, refreshOnUpload: action.payload }
         case 'setS3Client':
             return { ...state, s3Client: action.payload }
+
+        case 'setIsEditingProfile':
+            return { ...state, isEditingProfile: action.payload }
+            
         case 'setShowFestivalsRow':
             return { ...state, showFestivalsRow: action.payload }
         case 'setTabBarVisible':
@@ -149,6 +156,9 @@ export const mapStateToProps = (state) => ({
     likesVisible: state.likesVisible,
     refreshOnUpload: state.refreshOnUpload,
     s3Client: state.s3Client,
+
+    isEditingProfile: state.isEditingProfile,
+    
     showFestivalsRow: state.showFestivalsRow,
     tabBarVisible: state.tabBarVisible,
 });

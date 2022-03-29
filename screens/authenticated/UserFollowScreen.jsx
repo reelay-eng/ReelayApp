@@ -6,8 +6,6 @@ import SearchField from '../../components/create-reelay/SearchField';
 import FollowResults from '../../components/profile/Follow/FollowResults';
 import FollowButtonDrawer from '../../components/global/FollowButtonDrawer';
 
-import { AuthContext } from '../../context/AuthContext';
-
 import { ToggleSelector } from '../../components/global/Buttons';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
@@ -48,7 +46,7 @@ const SearchBarContainer = styled(View)`
 
 
 export default UserFollowScreen = ({ navigation, route }) => {
-    const { myFollowers } = useContext(AuthContext);
+    const myFollowers = useSelector(state => state.myFollowers);
     const myFollowing = useSelector(state => state.myFollowing);
 
     const { creator, initFollowType, initFollowers, initFollowing } = route.params;

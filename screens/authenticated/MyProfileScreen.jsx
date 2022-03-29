@@ -12,7 +12,6 @@ import {
     refreshMyFollowing, 
     refreshMyNotifications, 
     refreshMyReelayStacks, 
-    refreshMyUser, 
     refreshMyWatchlist 
 } from '../../api/ReelayUserApi';
 
@@ -27,7 +26,6 @@ import * as ReelayText from "../../components/global/Text";
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
-import { FeedContext } from "../../context/FeedContext";
 import { useDispatch, useSelector } from 'react-redux';
 
 // Styling
@@ -66,23 +64,23 @@ export default MyProfileScreen = ({ navigation, route }) => {
     `;
 
     const [refreshing, setRefreshing] = useState(false);
-    const [isEditingProfile, setIsEditingProfile] = useState(false);
 	const { 
-        myFollowers, 
-        myCreatorStacks,
         reelayDBUser,
-        setMyFollowers, 
-        setMyCreatorStacks,
     } = useContext(AuthContext); 
 
-    const dispatch = useDispatch();
+    const signedIn = useSelector(state => state.signedIn);
+    const refreshOnUpload = useSelector(state => state.refreshOnUpload);
+    const myFollowers = useSelector(state => state.myFollowers);
     const myFollowing = useSelector(state => state.myFollowing);
-    const { setTabBarVisible, refreshOnUpload, setRefreshOnUpload } = useContext(FeedContext);
+    const myCreatorStacks = useSelector(state => state.myCreatorStacks);
+  	const dispatch = useDispatch();
+
+    console.log('Is signed in: ', signedIn);
 
     useEffect(() => {
-        setTabBarVisible(true);
+        dispatch({ type: 'setTabBarVisible', payload: true });
         if (refreshOnUpload) {
-            setRefreshOnUpload(false);
+			dispatch({ type: 'setRefreshOnUpload', payload: false })
             onRefresh();
         }
     });
@@ -135,8 +133,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
                 nextMyCreatorStacks.forEach((stack) => stack.sort(sortReelays));
                 nextMyCreatorStacks.sort(sortStacks);
     
-                setMyCreatorStacks(nextMyCreatorStacks);    
-                setMyFollowers(nextMyFollowers);
+                dispatch({ type: 'setMyCreatorStacks', payload: nextMyCreatorStacks });  
+                dispatch({ type: 'setMyFollowers', payload: nextMyFollowers });  
 
                 dispatch({ type: 'setMyNotifications', payload: nextMyNotifications });
                 dispatch({ type: 'setMyWatchlistItems', payload: nextMyWatchlistItems });
@@ -175,7 +173,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 					<BWButton
 						text="Edit Profile"
 						onPress={() => {
-                            setIsEditingProfile(true);
+                            dispatch({ type: 'setIsEditingProfile', payload: true });
 						}}
 					/>
 				</EditProfileButtonContainer>
@@ -185,10 +183,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     return (
 		<ProfileScreenContainer>
-			<EditProfile
-				isEditingProfile={isEditingProfile}
-				setIsEditingProfile={setIsEditingProfile}
-			/>
+			<EditProfile/>
 			<ProfileTopBar creator={reelayDBUser} navigation={navigation} atProfileBase={true} />
 			<ProfileScrollView refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

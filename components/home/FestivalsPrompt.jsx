@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import { View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 
 import * as ReelayText from '../global/Text';
 import { ActionButton, PassiveButton } from '../global/Buttons';
@@ -93,12 +92,11 @@ const PromptGradient = () => {
 
 const PromptResponseBox = ({ setShowFestivalsPrompt }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const { setJustShowMeSignupVisible } = useContext(FeedContext);
     const dispatch = useDispatch();
 
     const optInToFestivals = async () => {
         if (reelayDBUser?.username === 'be_our_guest') {
-            setJustShowMeSignupVisible(true);
+            dispatch({ type: 'setJustShowMeSignupVisible', payload: true });
             return;
         }
 
@@ -111,7 +109,7 @@ const PromptResponseBox = ({ setShowFestivalsPrompt }) => {
 
     const optOutOfFestivals = async () => {
         if (reelayDBUser?.username === 'be_our_guest') {
-            setJustShowMeSignupVisible(true);
+            dispatch({ type: 'setJustShowMeSignupVisible', payload: true });
             return;
         }
 

@@ -3,9 +3,9 @@ import { Dimensions, Pressable, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import * as ReelayText from "../global/Text";
 import styled from 'styled-components/native';
+import { useDispatch } from 'react-redux';
 
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 
 import { notifyCreatorOnLike } from '../../api/NotificationsApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -56,14 +56,9 @@ export default Sidebar = ({ navigation, reelay }) => {
 		margin-right: 10px;
 	`
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
+	const dispatch = useDispatch();
 
 	const { reelayDBUser } = useContext(AuthContext);
-	const { 
-		setCommentsVisible, 
-		setLikesVisible, 
-		setDotMenuVisible, 
-		setJustShowMeSignupVisible,
-	} = useContext(FeedContext);
 
 	const isMyReelay = reelay.creator.sub === reelayDBUser?.sub;
 	const commentedByUser = reelay.comments.find(comment => comment.authorName === reelayDBUser?.username);
@@ -71,24 +66,24 @@ export default Sidebar = ({ navigation, reelay }) => {
 
 	const onCommentLongPress = async () => {
 		if (showMeSignupIfGuest()) return;
-		setCommentsVisible(true);
+		dispatch({ type: 'setCommentsVisible', payload: true })
 	}
 	const onCommentPress = async () => {
 		if (showMeSignupIfGuest()) return;
-		setCommentsVisible(true);
+		dispatch({ type: 'setCommentsVisible', payload: true })
 	}
 	const onDotMenuPress = async () => {
 		if (showMeSignupIfGuest()) return;
-		setDotMenuVisible(true);
+		dispatch({ type: 'setDotMenuVisible', payload: true })
 	}
 	const onLikeLongPress = async () => {
 		if (showMeSignupIfGuest()) return;
-		setLikesVisible(true);
+		dispatch({ type: 'setLikesVisible', payload: true })
 	}
 
 	const showMeSignupIfGuest = () => {
 		if (reelayDBUser?.username === 'be_our_guest') {
-			setJustShowMeSignupVisible(true);
+			dispatch({ type: 'setJustShowMeSignupVisible', payload: true })
 			return true;
 		}
 		return false;

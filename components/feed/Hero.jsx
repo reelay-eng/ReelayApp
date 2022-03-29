@@ -4,8 +4,8 @@ import { View } from 'react-native';
 import FeedVideoPlayer from './FeedVideoPlayer';
 import ReelayInfo from './ReelayInfo';
 import Sidebar from './Sidebar';
+import { useSelector } from 'react-redux';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 
 import LikesDrawer from './LikesDrawer';
 import CommentsDrawer from './CommentsDrawer';
@@ -14,9 +14,12 @@ import JustShowMeSignupDrawer from '../global/JustShowMeSignupDrawer';
 import Constants from 'expo-constants';
 
 const Hero = ({ index, navigation, reelay, viewable }) => {
+    const likesVisible = useSelector(state => state.likesVisible);
+    const commentsVisible = useSelector(state => state.commentsVisible);
+    const dotMenuVisible = useSelector(state => state.dotMenuVisible);
+    const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
+    const commentsCount = useRef(reelay.comments.length);
     const { reelayDBUser } = useContext(AuthContext);
-    const { likesVisible, commentsVisible, dotMenuVisible, justShowMeSignupVisible } = useContext(FeedContext);
-    const commentsCount = useRef(reelay?.comments?.length);
     const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
 
     console.log('Hero is rendering: ', reelayDBUser?.username, reelay.title.display);

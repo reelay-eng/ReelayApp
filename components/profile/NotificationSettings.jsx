@@ -2,7 +2,6 @@ import React, { useState, useContext, useEffect, useRef } from 'react';
 import { View, Switch, Linking, Pressable } from 'react-native';
 
 // Context
-import { FeedContext } from "../../context/FeedContext";
 import { AuthContext } from '../../context/AuthContext';
 
 // API
