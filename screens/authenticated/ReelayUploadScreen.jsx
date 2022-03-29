@@ -33,8 +33,7 @@ import { postReelayToDB } from '../../api/ReelayDBApi';
 import { fetchAnnotatedTitle } from '../../api/TMDbApi';
 import ReelayColors from '../../constants/ReelayColors';
 import { notifyOnReelayedRec } from '../../api/WatchlistNotifications';
-import { FeedContext } from '../../context/FeedContext';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const { height, width } = Dimensions.get('window');
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
@@ -120,9 +119,9 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const [uploadStage, setUploadStage] = useState(uploadStages[0]);
     const [confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible] = useState(false);
 
+    const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-    const { setRefreshOnUpload } = useContext(FeedContext);
     const s3Client = useSelector(state => state.s3Client);
 
     const uploadReelayToS3 = async (videoURI, videoS3Key) => {
@@ -289,7 +288,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 watchlistItems: myWatchlistItems,
             });
             
-            setRefreshOnUpload(true);
+			dispatch({ type: 'setRefreshOnUpload', payload: true })
             navigation.popToTop();
             navigation.navigate("FeedScreen", { forceRefresh: true });
 

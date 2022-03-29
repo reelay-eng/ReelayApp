@@ -10,10 +10,10 @@ import {
     View,
     Image,
 } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Button, Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
 import Constants from 'expo-constants';
@@ -75,11 +75,13 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
         position: absolute;
     `
     const { reelayDBUser } = useContext(AuthContext);
-    const { commentsVisible, setCommentsVisible } = useContext(FeedContext);
+
+    const commentsVisible = useSelector(state => state.commentsVisible);
+    const dispatch = useDispatch();
     const closeDrawer = () => {
         console.log('Closing drawer');
         Keyboard.dismiss();
-        setCommentsVisible(false);
+        dispatch({ type: 'setCommentsVisible', payload: false });
     }
 
     const Header = () => {
@@ -225,7 +227,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 
 		const onPress = async () => {
 			const creator = await getUserByUsername(username);
-			setCommentsVisible(false);
+			dispatch({ type: 'setCommentsVisible', payload: false });
 			navigation.push("UserProfileScreen", {
 				creator: creator,
 			});

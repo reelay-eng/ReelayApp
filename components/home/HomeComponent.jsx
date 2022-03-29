@@ -15,9 +15,8 @@ import {
 } from '../../api/ReelayUserApi';
 import { getFeed } from '../../api/ReelayDBApi';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const HomeContainer = styled(SafeAreaView)`
     width: 100%;
@@ -36,7 +35,7 @@ const Spacer = styled.View`
 const HomeComponent = ({ navigation }) => {
     const dispatch = useDispatch();
     const { reelayDBUserID } = useContext(AuthContext);
-    const { justShowMeSignupVisible } = useContext(FeedContext);
+    const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
 
     const onRefresh = async () => {
         setRefreshing(true);

@@ -29,7 +29,6 @@ import useColorScheme from './hooks/useColorScheme';
 
 // context imports
 import { AuthContext } from './context/AuthContext';
-import { FeedContext } from './context/FeedContext';
 
 // api imports
 import { getFeed, getAllDonateLinks, getRegisteredUser, registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
@@ -57,30 +56,14 @@ const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png'
 function App() {
     const colorScheme = useColorScheme();
     const dispatch = useDispatch();
+    const credentials = useSelector(state => state.credentials);
+    const isLoading = useSelector(state => state.isLoading);
 
     // Auth context hooks
     const [cognitoUser, setCognitoUser] = useState({});
-    const [credentials, setCredentials] = useState({});
-    const [isLoading, setIsLoading] = useState(true);
-    const [isReturningUser, setIsReturningUser] = useState(false);
-
-    const [myCreatorStacks, setMyCreatorStacks] = useState([]);
-    const [myFollowers, setMyFollowers] = useState([]);
 
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [reelayDBUserID, setReelayDBUserID] = useState(null);
-    const [signedIn, setSignedIn] = useState(false);
-    const [signUpFromGuest, setSignUpFromGuest] = useState(false);
-
-    // Feed context hooks
-    const [commentsVisible, setCommentsVisible] = useState(false);
-    const [currentComment, setCurrentComment] = useState('');
-    const [donateLinks, setDonateLinks] = useState([]);
-    const [dotMenuVisible, setDotMenuVisible] = useState(false);
-    const [justShowMeSignupVisible, setJustShowMeSignupVisible] = useState(false);
-    const [likesVisible, setLikesVisible] = useState(false);
-    const [refreshOnUpload, setRefreshOnUpload] = useState(false);
-    const [tabBarVisible, setTabBarVisible] = useState(true);
 
     useEffect(() => {
         (async () => {
@@ -108,7 +91,6 @@ function App() {
 
     useEffect(() => {
         if (reelayDBUser?.sub) {
-            setSignedIn(true);
             dispatch({ type: 'setSignedIn', payload: true });
             registerMyPushToken();
         }
@@ -124,9 +106,9 @@ function App() {
                 tryCognitoUser = await Auth.currentAuthenticatedUser();
                 setCognitoUser(tryCognitoUser);
                 if (tryCognitoUser?.username === 'be_our_guest') {
-                    setSignUpFromGuest(true);
+                    dispatch({ type: 'setSignUpFromGuest', payload: true });
                 } else {
-                    setSignUpFromGuest(false);
+                    dispatch({ type: 'setSignUpFromGuest', payload: false });
                 }
             } else {
                 // try using a social auth token to sign in the user
@@ -154,7 +136,7 @@ function App() {
         }
 
         if (!tryCredentials?.authenticated && !tryVerifySocialAuth?.success) {
-            setIsLoading(false);
+            dispatch({ type: 'setIsLoading', payload: false });
             // else, keep loading until loadMyProfile finishes
         }
     }
@@ -196,10 +178,10 @@ function App() {
         try {
 			const value = await AsyncStorage.getItem("isReturningUser");
 			if (value !== null) {
-                setIsReturningUser(true);
+                dispatch({ type: 'setIsReturningUser', payload: true });
             }
             else {
-                setIsReturningUser(false);
+                dispatch({ type: 'setIsReturningUser', payload: false });
             }
 		} catch (error) {
 			console.log(error);
@@ -279,8 +261,8 @@ function App() {
         ]);
 
         setReelayDBUser(reelayDBUserLoaded);
-        setMyFollowers(myFollowersLoaded);
-        setMyCreatorStacks(myCreatorStacksLoaded);
+        dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
+        dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
 
         dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
         dispatch({ type: 'setMyNotifications', payload: myNotificationsLoaded });
@@ -293,7 +275,7 @@ function App() {
         dispatch({ type: 'setMyStacksInTheaters', payload: myStacksInTheaters });
         dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });
         dispatch({ type: 'setMyStacksAtFestivals', payload: myStacksAtFestivals });
-        setIsLoading(false);
+        dispatch({ type: 'setIsLoading', payload: false });
     }
 
     const registerMyPushToken = async () => {
@@ -317,27 +299,9 @@ function App() {
 
     const authState = {
         cognitoUser,        setCognitoUser,
-        credentials,        setCredentials,
-        isLoading,          setIsLoading,
-        isReturningUser,    setIsReturningUser,
-
-        myCreatorStacks,    setMyCreatorStacks,
-        myFollowers,        setMyFollowers,
 
         reelayDBUser,       setReelayDBUser,
         reelayDBUserID,     setReelayDBUserID,
-        signedIn,           setSignedIn,
-        signUpFromGuest,    setSignUpFromGuest,
-    }
-
-    const feedState = {
-        commentsVisible,    setCommentsVisible,
-        currentComment,     setCurrentComment,
-        dotMenuVisible,     setDotMenuVisible,
-        justShowMeSignupVisible, setJustShowMeSignupVisible,
-        likesVisible,       setLikesVisible,
-        refreshOnUpload,    setRefreshOnUpload,
-        tabBarVisible,      setTabBarVisible,
     }
 
     if (isLoading) {
@@ -361,11 +325,9 @@ function App() {
         return (
             <SafeAreaProvider>
                 <AuthContext.Provider value={authState}>
-                    <FeedContext.Provider value={feedState}>
                         <StatusBar hidden={true} />
                         <Navigation colorScheme={colorScheme} />
                         <Toast config={toastConfig}/>
-                    </FeedContext.Provider>
                 </AuthContext.Provider>
             </SafeAreaProvider>
         );

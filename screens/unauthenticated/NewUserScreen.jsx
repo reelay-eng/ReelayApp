@@ -17,6 +17,7 @@ import ReelayLogoText from "../../assets/images/reelay-logo-text-with-dog.png";
 import StockPhotoGroup from "../../assets/images/Onboarding/Stock-reelay-onboarding.png";
 import TrailerPhoto from "../../assets/images/Onboarding/Trailers-reelay-onboarding.png";
 import * as ReelayText from '../../components/global/Text';
+import { useDispatch } from "react-redux";
 
 const Container = styled(View)`
 	width: 100%;
@@ -134,11 +135,11 @@ const CarouselComponent = ({navigation}) => {
     const [activeDotIndex, setActiveDotIndex] = useState(0);
     const isLastItem = activeDotIndex === (CarouselJsonItems.length - 1) ? true : false;
     const carouselRef = useRef();
-    const { setIsReturningUser } = useContext(AuthContext);
+	const dispatch = useDispatch();
     
     const handleFinishedOnboarding = () => {
         AsyncStorage.setItem('isReturningUser', '1');
-        setIsReturningUser(true);
+		dispatch({ type: 'setIsReturningUser', payload: true });
         navigation.push('SignedOutScreen', { autoSignInAsGuest: true });
     }
 

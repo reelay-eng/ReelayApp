@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { SafeAreaView, View, Pressable, Text } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
+import { useDispatch } from "react-redux";
 
 import {BaseHeader } from '../../components/global/Headers';
 import SearchField from '../../components/create-reelay/SearchField';
@@ -38,10 +38,10 @@ export default SelectTitleScreen = ({ navigation }) => {
     const updateCounter = useRef(0);
 
     const { reelayDBUser } = useContext(AuthContext);
-    const { setTabBarVisible } = useContext(FeedContext);
+	const dispatch = useDispatch();
 
     useEffect(() => {
-        setTabBarVisible(true);
+        dispatch({ type: 'setTabBarVisible', payload: true }); 
     }, []);
 
     useEffect(() => {
