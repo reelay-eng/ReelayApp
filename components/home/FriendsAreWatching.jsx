@@ -50,7 +50,7 @@ const FriendsAreWatching = ({ navigation }) => {
                         <Icon type='ionicon' name='people' size={24} color='white' />
                         <HeaderText>{'Friends are watching'}</HeaderText>
                     </HeaderContainer>
-                    <FollowingRowContainer horizontal>
+                    <FollowingRowContainer horizontal showsHorizontalScrollIndicator={false}>
                         { myStacksFollowing.map((stack, index) =>  {
                             return (
                                 <FollowingElement
@@ -124,7 +124,7 @@ const FollowingElement = ({ stack, index, navigation }) => {
             />
             <TitleText>{displayTitle}</TitleText>
             <TitleVenue>
-                <VenueIcon venue={stack[0]?.content?.venue} size={24} />
+                <VenueIcon venue={stack[0]?.content?.venue} size={24} border={1} />
             </TitleVenue>
         </FollowingElementContainer>
     )

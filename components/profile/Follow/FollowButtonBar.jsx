@@ -63,7 +63,7 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
         
         if (isFollowing) {
             setCreatorFollowers([...creatorFollowers, followResult]);
-            dispatch({ type: 'setMyFollowing', action: [...myFollowing, followResult] });
+            dispatch({ type: 'setMyFollowing', payload: [...myFollowing, followResult] });
         } else {
             logAmplitudeEventProd('followCreatorError', {
                 error: followResult?.error,
