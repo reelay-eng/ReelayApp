@@ -189,7 +189,6 @@ export default SignInScreen = ({ navigation, route }) => {
                 console.log('Received sign in result: ', cognitoUser);
                 setCognitoUser(cognitoUser);
                 console.log('Signed in user successfully');
-                dispatch({ type: 'setSignedIn', payload: true})
                 logAmplitudeEventProd('signInSuccess', {
                     username: username,
                     inputText: inputText,
