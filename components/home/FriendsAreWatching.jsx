@@ -82,16 +82,6 @@ const TitleText = styled(ReelayText.H6Emphasized)`
     color: white;
     opacity: 1;
 `
-const TitleVenue = styled(View)`
-    position: absolute;
-    top: 4px;
-    right: 4px;
-`
-const TitleYear = styled(ReelayText.CaptionEmphasized)`
-    margin-top: 8px;
-    color: white;
-    opacity: 0.5;
-`
 
 const FollowingElement = ({ stack, index, navigation }) => {
     const goToReelay = (index, titleObj) => {
@@ -123,9 +113,6 @@ const FollowingElement = ({ stack, index, navigation }) => {
                 width={120} 
             />
             <TitleText>{displayTitle}</TitleText>
-            <TitleVenue>
-                <VenueIcon venue={stack[0]?.content?.venue} size={24} border={1} />
-            </TitleVenue>
         </FollowingElementContainer>
     )
 }

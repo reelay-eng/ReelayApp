@@ -8,6 +8,7 @@ import {
 import styled from 'styled-components/native';
 import { LinearGradient } from "expo-linear-gradient";
 import * as ReelayText from "../../components/global/Text";
+import { VenueIcon } from '../utils/VenueIcon';
 import SplashImage from "../../assets/images/reelay-splash-with-dog.png";
 import { generateThumbnail, getThumbnailURI, saveThumbnail } from '../../api/ThumbnailApi';
 import ProfilePicture from './ProfilePicture';
@@ -28,6 +29,11 @@ export default ReelayThumbnail = ({ reelay, onPress, height = 200, margin = 6, w
 		height: 65%;
 		top: 35%;
 		justify-content: center;
+	`
+	const TitleVenue = styled(View)`
+		position: absolute;
+		top: 4px;
+		right: 4px;
 	`
 	const ThumbnailContainer = styled(View)`
 		justify-content: center;
@@ -66,6 +72,9 @@ export default ReelayThumbnail = ({ reelay, onPress, height = 200, margin = 6, w
 					onError={generateAndSaveThumbnail} 
 					source={thumbnailSource} 
 				/>
+				<TitleVenue>
+					<VenueIcon venue={reelay?.content?.venue} size={24} border={1} />
+				</TitleVenue>
 				<GradientContainer>
 					<LinearGradient
 						colors={["transparent", "#0B1424"]}
