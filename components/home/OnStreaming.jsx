@@ -5,6 +5,7 @@ import { AuthContext } from '../../context/AuthContext';
 import StreamingSelector from './StreamingSelector';
 import * as ReelayText from '../global/Text';
 import { VenueIcon } from '../utils/VenueIcon';
+import SeeMore from '../global/SeeMore';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
@@ -158,7 +159,7 @@ export default OnStreaming = ({ navigation, onRefresh }) => {
             <ReelayPreviewRowContainer horizontal>
             { myStacksOnStreaming.map((stack, index) => {
                 const onPress = () => goToReelay(index, stack[0]?.title);
-                return <StreamingServicesElement key={index} onPress={onPress} stack={stack}/>;
+                return <StreamingServicesElement index={index} onPress={onPress} stack={stack} length={myStacksOnStreaming.length}/>;
             })}
             </ReelayPreviewRowContainer>
         );
@@ -178,13 +179,26 @@ export default OnStreaming = ({ navigation, onRefresh }) => {
     )
 };
 
-const StreamingServicesElement = ({ onPress, stack }) => {
+const StreamingServicesElement = ({ index, onPress, stack, length }) => {
     const reelayCount = stack?.length;
     const venue = stack[0]?.content?.venue;
     const fullTitle = stack[0].title.display;
     const displayTitle = (fullTitle?.length > 26) 
         ? fullTitle.substring(0, 23) + "..."
         : fullTitle;
+
+    if (index === length-1) {
+        return (
+        <ReelayPreviewContainer>
+            <SeeMore 
+                height={180} 
+                onPress={onPress} 
+                reelay={stack[0]} 
+                width={117} 
+            />
+        </ReelayPreviewContainer>
+        )
+    }
 
     return (
         <ReelayPreviewContainer onPress={onPress}>

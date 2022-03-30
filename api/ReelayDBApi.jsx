@@ -257,12 +257,19 @@ export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
             requsersub: reqUserSub,
         }, 
     });
-
-    if (!fetchedStacks) {
+    const routeGetNextPage = `${REELAY_API_BASE_URL}/feed/${feedSource}?page=${page+1}&visibility=${FEED_VISIBILITY}`;
+    const fetchedStacksNextPage = await fetchResults(routeGetNextPage, { 
+        method: 'GET',
+        headers: {
+            ...REELAY_API_HEADERS,
+            requsersub: reqUserSub,
+        }, 
+    });
+    if (!fetchedStacks && !fetchedStacksNextPage) {
         console.log('Found no reelays in feed');
         return null;
     }
-    return await prepareStacks(fetchedStacks);
+    return await prepareStacks(fetchedStacks.concat(fetchedStacksNextPage));
 }
 
 export const getMostRecentReelaysByTitle = async (tmdbTitleID, page = 0) => {

@@ -1,11 +1,12 @@
 import React, { Fragment, useContext } from 'react';
-import { Image, Pressable, ScrollView, View } from 'react-native';
+import { Image, Pressable, ScrollView, View, Text } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
 import ReelayThumbnail from '../global/ReelayThumbnail';
+import SeeMore from '../global/SeeMore';
 import { VenueIcon } from '../utils/VenueIcon';
 import YouDontFollowPrompt from './YouDontFollowPrompt';
 import { useSelector } from 'react-redux';
@@ -32,7 +33,6 @@ const FriendsAreWatching = ({ navigation }) => {
     const FollowingRowContainer = styled(ScrollView)`
         display: flex;
         padding-left: 15px;
-        padding-top: 15px;
         flex-direction: row;
         width: 100%;
         padding-top: 16px;
@@ -58,6 +58,7 @@ const FriendsAreWatching = ({ navigation }) => {
                                     index={index}
                                     navigation={navigation}
                                     stack={stack}
+                                    length={myStacksFollowing.length}
                             />);
                         })}
                     </FollowingRowContainer>
@@ -93,7 +94,7 @@ const TitleYear = styled(ReelayText.CaptionEmphasized)`
     opacity: 0.5;
 `
 
-const FollowingElement = ({ stack, index, navigation }) => {
+const FollowingElement = ({ stack, index, navigation, length }) => {
     const goToReelay = (index, titleObj) => {
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
@@ -113,6 +114,18 @@ const FollowingElement = ({ stack, index, navigation }) => {
         ? fullTitle.substring(0, 23) + "..."
         : fullTitle;
 
+    if (index === length-1) {
+        return (
+            <FollowingElementContainer>
+                <SeeMore 
+                    height={180} 
+                    onPress={onPress} 
+                    reelay={stack[0]} 
+                    width={115} 
+                />
+            </FollowingElementContainer>
+        )
+    }
     return (
         <FollowingElementContainer>
             <ReelayThumbnail 

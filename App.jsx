@@ -243,6 +243,11 @@ function App() {
             myStacksInTheaters,
             myStacksOnStreaming,
             myStacksAtFestivals,
+
+            myStacksFollowingPageTwo,
+            myStacksInTheatersPageTwo,
+            myStacksOnStreamingPageTwo,
+            myStacksAtFestivalsPageTwo,
         ] = await Promise.all([
             getRegisteredUser(userSub),
             loadMyReelayStacks(userSub),
