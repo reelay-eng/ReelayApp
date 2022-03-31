@@ -9,6 +9,7 @@ const POPULARITY_WEIGHT = 5;
 const TMDB_SEARCH_RANK_WEIGHT = 10;
 
 const PLACEHOLDER_POSTER_SOURCE = require('../assets/images/reelay-splash-with-dog.png');
+const WELCOME_VIDEO_POSTER_SOURCE = require('../assets/images/welcome-video-poster-with-dog.png');
 
 const matchScoreForTitleSearch = (result) => {
     const titleToSearch = result.title.toLowerCase().replace(/:/g, '');
@@ -167,7 +168,7 @@ export const fetchSeriesTrailerURI = async(titleID) => {
     }
 }
 
-export const fetchAnnotatedTitle = async (titleID, isSeries) => {
+export const fetchAnnotatedTitle = async (titleID, isSeries, isWelcomeReelay = false) => {
     if (!titleID) return null;
 
     const tmdbTitleObject = isSeries 
@@ -181,6 +182,15 @@ export const fetchAnnotatedTitle = async (titleID, isSeries) => {
     const trailerURI = isSeries
         ? await fetchSeriesTrailerURI(titleID)
         : await fetchMovieTrailerURI(titleID);
+
+    
+    let posterSource = PLACEHOLDER_POSTER_SOURCE;
+    if (tmdbTitleObject?.poster_path) {
+        posterSource = { uri: getPosterURL(tmdbTitleObject?.poster_path, 185) };
+    }
+    if (isWelcomeReelay) {
+        posterSource = WELCOME_VIDEO_POSTER_SOURCE;
+    }
 
     const releaseDate = isSeries ? tmdbTitleObject.first_air_date : tmdbTitleObject.release_date;
     const releaseYear = (releaseDate?.length >= 4) ? (releaseDate.slice(0, 4)) : '';
@@ -201,19 +211,17 @@ export const fetchAnnotatedTitle = async (titleID, isSeries) => {
         display: isSeries ? tmdbTitleObject.name : tmdbTitleObject.title,
         displayActors: getDisplayActors(titleCredits),
         isMovie: !isSeries,
-        isSeries: isSeries,
+        isSeries,
         genres: tmdbTitleObject.genres,
         overview: tmdbTitleObject.overview,
         posterURI: tmdbTitleObject ? tmdbTitleObject.poster_path : null,
-        posterSource: tmdbTitleObject?.poster_path 
-            ? { uri: getPosterURL(tmdbTitleObject?.poster_path, 185) }
-            : PLACEHOLDER_POSTER_SOURCE,
-        releaseDate: releaseDate,
-        releaseYear: releaseYear,
+        posterSource,
+        releaseDate,
+        releaseYear,
         tagline: tmdbTitleObject.tagline,
         titleType: (isSeries) ? 'tv' : 'film',
-        trailerURI: trailerURI,
-        rating: rating,
+        trailerURI,
+        rating,
         runtime: tmdbTitleObject.runtime,
     }
 

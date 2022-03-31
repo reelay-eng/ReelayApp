@@ -75,7 +75,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 			<PopularReelaysRow navigation={navigation} titleObj={titleObj} />
 			<MovieInformation director={director} actors={actors} description={overview} rating={rating} />
 			<Spacer height={20} />
-			<AppleTVAd />
+			{/* <AppleTVAd /> */}
 			<BottomBackButton navigation={navigation} />
 			<Spacer height={100} />
 			{ justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }

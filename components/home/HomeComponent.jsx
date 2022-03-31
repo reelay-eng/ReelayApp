@@ -66,7 +66,7 @@ const HomeComponent = ({ navigation }) => {
     return (
         <HomeContainer>
             <HomeHeader navigation={navigation} />
-            <ScrollContainer refreshControl={refreshControl}>
+            <ScrollContainer refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 {/* <Announcements /> */}
                 <FriendsAreWatching navigation={navigation} />
                 <InTheaters navigation={navigation} />

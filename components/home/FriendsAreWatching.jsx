@@ -50,7 +50,7 @@ const FriendsAreWatching = ({ navigation }) => {
                         <Icon type='ionicon' name='people' size={24} color='white' />
                         <HeaderText>{'Friends are watching'}</HeaderText>
                     </HeaderContainer>
-                    <FollowingRowContainer horizontal>
+                    <FollowingRowContainer horizontal showsHorizontalScrollIndicator={false}>
                         { myStacksFollowing.map((stack, index) =>  {
                             return (
                                 <FollowingElement
@@ -81,16 +81,6 @@ const TitleText = styled(ReelayText.H6Emphasized)`
     margin-top: 10px;
     color: white;
     opacity: 1;
-`
-const TitleVenue = styled(View)`
-    position: absolute;
-    top: 4px;
-    right: 4px;
-`
-const TitleYear = styled(ReelayText.CaptionEmphasized)`
-    margin-top: 8px;
-    color: white;
-    opacity: 0.5;
 `
 
 const FollowingElement = ({ stack, index, navigation }) => {
@@ -123,9 +113,6 @@ const FollowingElement = ({ stack, index, navigation }) => {
                 width={120} 
             />
             <TitleText>{displayTitle}</TitleText>
-            <TitleVenue>
-                <VenueIcon venue={stack[0]?.content?.venue} size={24} />
-            </TitleVenue>
         </FollowingElementContainer>
     )
 }

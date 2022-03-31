@@ -70,7 +70,7 @@ const FestivalReelaysRow = ({ navigation }) => {
                 <Icon type='font-awesome' name='pagelines' size={24} color='white' />
                 <HeaderText>{'At festivals'}</HeaderText>
             </HeaderContainer>
-            <FollowingRowContainer horizontal>
+            <FollowingRowContainer horizontal showsHorizontalScrollIndicator={false}>
                 { myStacksAtFestivals.map((stack, index) =>  {
                     return (
                         <FollowingElement
@@ -89,6 +89,15 @@ const FollowingElementContainer = styled(Pressable)`
     display: flex;
     width: 120px;
     margin-right: 12px;
+`
+const ReelayCount = styled(ReelayText.CaptionEmphasized)`
+    margin-top: 8px;
+    color: white;
+    opacity: 0.5;
+`
+const TitleInfoLine = styled(View)`
+    flex-direction: row;
+    justify-content: space-between;
 `
 const TitlePoster = styled(Image)`
     width: 120px;
@@ -126,14 +135,15 @@ const FollowingElement = ({ stack, index, navigation }) => {
     const displayTitle = (fullTitle?.length > 26) 
         ? fullTitle.substring(0, 23) + "..."
         : fullTitle;
+    const reelayCount = stack?.length;
 
     return (
         <FollowingElementContainer onPress={onPress}>
             <TitlePoster source={stack[0]?.title?.posterSource} />
+            <TitleInfoLine>
+                <ReelayCount>{`${reelayCount} ${(reelayCount > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
+            </TitleInfoLine>
             <TitleText>{displayTitle}</TitleText>
-            <TitleVenue>
-                <VenueIcon venue={stack[0]?.content?.venue} size={24} />
-            </TitleVenue>
         </FollowingElementContainer>
     )
 }

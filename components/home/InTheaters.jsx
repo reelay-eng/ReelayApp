@@ -59,7 +59,7 @@ const InTheaters = memo(({ navigation }) => {
                 <HeaderText>{'In theaters'}</HeaderText>
             </HeaderContainer>
             { myStacksInTheaters.length > 0 && (
-                <InTheatersRowContainer horizontal>
+                <InTheatersRowContainer horizontal showsHorizontalScrollIndicator={false}>
                     { myStacksInTheaters.map((stack, index) => {
                         return (
                             <InTheatersElement key={index} onPress={() => goToReelay(index, stack[0].title)} stack={stack}/>
