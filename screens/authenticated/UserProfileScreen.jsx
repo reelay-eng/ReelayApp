@@ -138,7 +138,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
                         />
                     )}
                     {websiteText !== "" && (
-                        <WebsiteText onPress={() => Linking.openURL(websiteText)}>
+                        <WebsiteText onPress={() => Linking.openURL('https://' + websiteText)}>
                         {" "}
                         {websiteText}{" "}
                         </WebsiteText>

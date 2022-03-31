@@ -135,7 +135,6 @@ export default PosterWithTrailer = ({
 			margin-left: 0px;
 		`;
 		const TaglineTextContainer = styled(View)`
-			margin-left: ${topProviderLogo.length > 0 ? "7px" : "0px"};
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -153,11 +152,11 @@ export default PosterWithTrailer = ({
 
 		return (
 			<TaglineContainer>
-				{topProviderLogo.length > 0 && (
+				{/* {topProviderLogo.length > 0 && (
 					<ProviderImagesContainer>
 						<ProviderImage source={{ uri: getLogoURL(topProviderLogo) }} />
 					</ProviderImagesContainer>
-				)}
+				)} */}
 				{isMovie === true && (
 					<TaglineTextContainer>
 						<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}    {runtimeString}</TaglineText>

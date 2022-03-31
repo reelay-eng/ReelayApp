@@ -156,7 +156,7 @@ export default OnStreaming = ({ navigation, onRefresh }) => {
 
     const StreamingRow = () => {
         return (
-            <ReelayPreviewRowContainer horizontal>
+            <ReelayPreviewRowContainer horizontal showsHorizontalScrollIndicator={false}>
             { myStacksOnStreaming.map((stack, index) => {
                 const onPress = () => goToReelay(index, stack[0]?.title);
                 return <StreamingServicesElement key={index} index={index} onPress={onPress} stack={stack} length={myStacksOnStreaming.length}/>;
@@ -202,20 +202,13 @@ const StreamingServicesElement = ({ index, onPress, stack, length }) => {
 
     return (
         <ReelayPreviewContainer onPress={onPress}>
-            <ReelayThumbnail 
-                height={180} 
-                margin={0}
-                onPress={onPress} 
-                reelay={stack[0]} 
-                width={120} 
-            />
+            <TitlePoster source={stack[0]?.title?.posterSource} onPress={onPress} />
             <TitleInfoLine>
-                <TitleReleaseYear>{stack[0]?.title?.releaseYear}</TitleReleaseYear>
                 <ReelayCount>{`${reelayCount} ${(reelayCount > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
             </TitleInfoLine>
             <TitleText>{displayTitle}</TitleText>
             <TitleVenue>
-                <VenueIcon venue={venue} size={24} />
+                <VenueIcon venue={venue} size={24} border={1} />
             </TitleVenue>
         </ReelayPreviewContainer>
     )

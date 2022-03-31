@@ -11,7 +11,6 @@ import { getFeed } from '../../api/ReelayDBApi';
 import styled from 'styled-components/native';
 import { showMessageToast } from '../utils/toasts';
 import { useFocusEffect } from '@react-navigation/core';
-import BackButton from '../utils/BackButton';
 import { useSelector } from 'react-redux';
 
 const { height, width } = Dimensions.get('window');
@@ -227,11 +226,6 @@ const ReelayFeed = ({ navigation,
             }}
             windowSize={3}
           />
-        )}
-        { feedSource !== 'global' && (
-            <BackButtonContainer>
-                <BackButton navigation={navigation} />
-            </BackButtonContainer>
         )}
       </ReelayFeedContainer>
     );
