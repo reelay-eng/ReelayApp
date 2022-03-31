@@ -29,7 +29,7 @@ const initialState = {
     currentComment: '',
     donateLinks: [],
     dotMenuVisible: false,
-    hasUnseenGlobalReelays: false,
+    hasUnseenGlobalReelays: true,
     justShowMeSignupVisible: false,
     likesVisible: false,
     refreshOnUpload: false,

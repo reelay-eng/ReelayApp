@@ -159,7 +159,7 @@ export default OnStreaming = ({ navigation, onRefresh }) => {
             <ReelayPreviewRowContainer horizontal>
             { myStacksOnStreaming.map((stack, index) => {
                 const onPress = () => goToReelay(index, stack[0]?.title);
-                return <StreamingServicesElement index={index} onPress={onPress} stack={stack} length={myStacksOnStreaming.length}/>;
+                return <StreamingServicesElement key={index} index={index} onPress={onPress} stack={stack} length={myStacksOnStreaming.length}/>;
             })}
             </ReelayPreviewRowContainer>
         );

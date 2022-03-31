@@ -64,6 +64,7 @@ const InTheaters = memo(({ navigation }) => {
                     { myStacksInTheaters.map((stack, index) => {
                         return (
                             <InTheatersElement 
+                                key={index}
                                 index={index} 
                                 onPress={() => goToReelay(index, stack[0].title)} 
                                 stack={stack} 

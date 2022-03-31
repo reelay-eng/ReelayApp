@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect, useState, useRef, memo } fro
 import { ActivityIndicator, Dimensions, FlatList, View } from 'react-native';
 import { useDispatch } from "react-redux";
 import ReelayStack from './ReelayStack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
@@ -77,6 +78,9 @@ const ReelayFeed = ({ navigation,
 
     useFocusEffect(useCallback(() => {
         if (initialFeedSource === 'global' && isOnFeedTab) {
+            AsyncStorage.setItem('lastOnGlobalFeed', new Date().toISOString());
+            dispatch({ type: 'setHasUnseenGlobalReelays', payload: false });
+
             const unsubscribe = navigation.getParent()
             .addListener('tabPress', e => {
                 e.preventDefault();
@@ -195,8 +199,6 @@ const ReelayFeed = ({ navigation,
             setSelectedFeedPosition(nextFeedPosition);
         }
     }
-
-    console.log('feed is rendering: ', initialStackPos, forceRefresh);
 
     return (
       <ReelayFeedContainer>
