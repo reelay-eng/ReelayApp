@@ -79,7 +79,7 @@ const FestivalReelaysRow = ({ navigation }) => {
                             index={index}
                             navigation={navigation}
                             stack={stack}
-                            length={myStacksAtFestivals.length}
+                            myStacksAtFestivals={myStacksAtFestivals}
                     />);
                 })}
             </FollowingRowContainer>
@@ -118,11 +118,12 @@ const TitleVenue = styled(View)`
     right: 4px;
 `
 
-const FollowingElement = ({ stack, index, navigation, length }) => {
+const FollowingElement = ({ stack, index, navigation, myStacksAtFestivals }) => {
     const goToReelay = (index, titleObj) => {
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'festivals',
+            initialStackList: myStacksAtFestivals,
             isOnFeedTab: false
 		});
 		logAmplitudeEventProd('openFollowingFeed', {
@@ -140,7 +141,7 @@ const FollowingElement = ({ stack, index, navigation, length }) => {
     const reelayCount = stack?.length;
 
 
-    if (index === length-1) {
+    if (index === myStacksAtFestivals.length-1) {
         return (
             <FollowingElementContainer>
                 <SeeMore 

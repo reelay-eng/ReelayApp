@@ -12,6 +12,7 @@ export default function FeedScreen({ navigation, route }) {
     // valid feed sources: [global, following, theaters, streaming, festivals]
     const initialFeedSource = route?.params?.initialFeedSource;
     const initialStackPos = route?.params?.initialStackPos;
+    const initialStackList = route?.params?.initialStackList;
     const initialFeedPos = route?.params?.initialFeedPos;
     const isOnFeedTab = route?.params?.isOnFeedTab;
     const pinnedReelay = route?.params?.pinnedReelay;
@@ -25,6 +26,7 @@ export default function FeedScreen({ navigation, route }) {
                 initialFeedSource={initialFeedSource ?? 'global'}
                 initialStackPos={initialStackPos ?? 0}
                 initialFeedPos={initialFeedPos ?? 0}
+                initialStackList={initialStackList}
                 isOnFeedTab={isOnFeedTab ?? true}
                 navigation={navigation}
                 pinnedReelay={pinnedReelay}

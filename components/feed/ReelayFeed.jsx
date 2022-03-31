@@ -33,12 +33,12 @@ const ReelayFeed = ({ navigation,
     initialFeedPos = 0,
     forceRefresh = false, 
     initialFeedSource = 'global',
+    initialStackList = [],
     isOnFeedTab = true,
     pinnedReelay = null,
 }) => {
-
     const feedPager = useRef();
-    const nextPage = useRef(0);
+    const nextPage = useRef(0 + initialStackList.length/4);
 
     const { reelayDBUser } = useContext(AuthContext);
 	const dispatch = useDispatch();
@@ -47,7 +47,7 @@ const ReelayFeed = ({ navigation,
     const [refreshing, setRefreshing] = useState(false);
 
     const initStackList = (pinnedReelay) ? [[ pinnedReelay ]] : [];
-    const [selectedStackList, setSelectedStackList] = useState(initStackList);
+    const [selectedStackList, setSelectedStackList] = useState(initStackList.concat(initialStackList));
     const [selectedFeedPosition, setSelectedFeedPosition] = useState(initialFeedPos);
 
     useEffect(() => {
@@ -106,7 +106,7 @@ const ReelayFeed = ({ navigation,
 
         const filteredStacks = fetchedStacks.filter(notAlreadyInStack);
         const newStackList = [...selectedStackList, ...filteredStacks];
-        nextPage.current = page + 1;
+        nextPage.current = page + 2;
         console.log(nextPage)
         setSelectedStackList(newStackList);
 

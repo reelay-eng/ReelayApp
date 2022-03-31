@@ -58,7 +58,7 @@ const FriendsAreWatching = ({ navigation }) => {
                                     index={index}
                                     navigation={navigation}
                                     stack={stack}
-                                    length={myStacksFollowing.length}
+                                    myStacksFollowing={myStacksFollowing}
                             />);
                         })}
                     </FollowingRowContainer>
@@ -84,12 +84,13 @@ const TitleText = styled(ReelayText.H6Emphasized)`
     opacity: 1;
 `
 
-const FollowingElement = ({ stack, index, navigation, length }) => {
+const FollowingElement = ({ stack, index, navigation, myStacksFollowing }) => {
     const goToReelay = (index, titleObj) => {
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'following',
-            isOnFeedTab: false
+            initialStackList: myStacksFollowing,
+            isOnFeedTab: false,
 		});
 		logAmplitudeEventProd('openFollowingFeed', {
 			username: reelayDBUser?.username,
@@ -104,7 +105,7 @@ const FollowingElement = ({ stack, index, navigation, length }) => {
         ? fullTitle.substring(0, 23) + "..."
         : fullTitle;
 
-    if (index === length-1) {
+    if (index === myStacksFollowing.length-1) {
         return (
             <FollowingElementContainer>
                 <SeeMore 
