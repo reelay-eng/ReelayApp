@@ -14,7 +14,14 @@ import { generateThumbnail, getThumbnailURI, saveThumbnail } from '../../api/Thu
 import ProfilePicture from './ProfilePicture';
 import { useSelector } from 'react-redux';
 
-export default ReelayThumbnail = ({ reelay, onPress, height = 200, margin = 6, width = 105 }) => {
+export default ReelayThumbnail = ({ 
+	height = 200, 
+	margin = 6, 
+	onPress, 
+	reelay, 
+	showIcons = true,
+	width = 105,
+}) => {
 	const CreatorLineContainer = styled(View)`
         align-items: center;
         flex-direction: row;
@@ -72,9 +79,11 @@ export default ReelayThumbnail = ({ reelay, onPress, height = 200, margin = 6, w
 					onError={generateAndSaveThumbnail} 
 					source={thumbnailSource} 
 				/>
-				<TitleVenue>
-					<VenueIcon venue={reelay?.content?.venue} size={24} border={1} />
-				</TitleVenue>
+				{ showIcons && 
+					<TitleVenue>
+						<VenueIcon venue={reelay?.content?.venue} size={24} border={1} />
+					</TitleVenue>			
+				}
 				<GradientContainer>
 					<LinearGradient
 						colors={["transparent", "#0B1424"]}
@@ -83,10 +92,12 @@ export default ReelayThumbnail = ({ reelay, onPress, height = 200, margin = 6, w
 							opacity: 1,
 							width: "100%",
 							height: "100%",
-							borderRadius: "8px",
+							borderRadius: "6px",
 						}}
 					/>
-                    <CreatorLine username={username} />
+					{ showIcons && 
+						<CreatorLine username={username} />
+					}
 				</GradientContainer>
 			</React.Fragment>
 		)

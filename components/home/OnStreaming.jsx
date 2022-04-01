@@ -192,6 +192,7 @@ const StreamingServicesElement = ({ index, onPress, stack, length }) => {
         return (
         <ReelayPreviewContainer>
             <SeeMore 
+                display='poster'
                 height={180} 
                 onPress={onPress} 
                 reelay={stack[0]} 

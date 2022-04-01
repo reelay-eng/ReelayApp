@@ -114,6 +114,7 @@ const InTheatersElement = ({ index, onPress, stack, length }) => {
         return (
         <InTheatersElementContainer>
             <SeeMore 
+                display='poster'
                 height={180} 
                 onPress={onPress} 
                 reelay={stack[0]} 
