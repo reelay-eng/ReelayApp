@@ -44,7 +44,7 @@ export default SeeMore = ({ reelay, display='thumbnail', onPress, height = 200, 
 						onPress={onPress} 
 						reelay={reelay} 
 						showIcons={false}
-						width={120} 
+						width={115} 
 					/>
 				}
 				{ display === 'poster' &&
@@ -56,7 +56,7 @@ export default SeeMore = ({ reelay, display='thumbnail', onPress, height = 200, 
 								opacity: 1,
 								width: 120,
 								height: 180,
-								borderRadius: 8,
+								borderRadius: 6,
 								position: 'absolute',
 							}}
 						/>
