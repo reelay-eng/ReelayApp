@@ -145,6 +145,7 @@ const FollowingElement = ({ stack, index, navigation, myStacksAtFestivals }) => 
         return (
             <FollowingElementContainer>
                 <SeeMore 
+                    display='poster'
                     height={180} 
                     onPress={onPress} 
                     reelay={stack[0]} 
