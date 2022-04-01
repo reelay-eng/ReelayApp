@@ -123,8 +123,8 @@ const FollowingElement = ({ stack, index, navigation, myStacksAtFestivals }) => 
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'festivals',
-            initialStackList: myStacksAtFestivals,
-            isOnFeedTab: false
+            isOnFeedTab: false,
+            preloadedStackList: myStacksAtFestivals,
 		});
 		logAmplitudeEventProd('openFollowingFeed', {
 			username: reelayDBUser?.username,

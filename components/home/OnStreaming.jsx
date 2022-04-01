@@ -110,8 +110,8 @@ export default OnStreaming = ({ navigation, onRefresh }) => {
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'streaming',
-            initialStackList: myStacksOnStreaming,
-            isOnFeedTab: false
+            isOnFeedTab: false,
+            preloadedStackList: myStacksOnStreaming,
 		});
 
 		logAmplitudeEventProd('openStreamingFeed', {

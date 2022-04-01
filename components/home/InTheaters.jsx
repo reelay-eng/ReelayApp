@@ -44,8 +44,8 @@ const InTheaters = memo(({ navigation }) => {
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'theaters',
-            initialStackList: myStacksInTheaters,
-            isOnFeedTab: false
+            isOnFeedTab: false,
+            preloadedStackList: myStacksInTheaters,
 		});
 
 		logAmplitudeEventProd('openTheatersFeed', {
