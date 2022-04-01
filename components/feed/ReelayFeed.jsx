@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useEffect, useState, useRef, memo } fro
 import { ActivityIndicator, Dimensions, FlatList, View } from 'react-native';
 import { useDispatch } from "react-redux";
 import ReelayStack from './ReelayStack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
@@ -32,12 +33,12 @@ const ReelayFeed = ({ navigation,
     initialFeedPos = 0,
     forceRefresh = false, 
     initialFeedSource = 'global',
+    preloadedStackList = [],
     isOnFeedTab = true,
     pinnedReelay = null,
 }) => {
-
     const feedPager = useRef();
-    const nextPage = useRef(0);
+    const nextPage = useRef(preloadedStackList?.length ? 2 : 0);
 
     const { reelayDBUser } = useContext(AuthContext);
 	const dispatch = useDispatch();
@@ -46,7 +47,7 @@ const ReelayFeed = ({ navigation,
     const [refreshing, setRefreshing] = useState(false);
 
     const initStackList = (pinnedReelay) ? [[ pinnedReelay ]] : [];
-    const [selectedStackList, setSelectedStackList] = useState(initStackList);
+    const [selectedStackList, setSelectedStackList] = useState(initStackList.concat(preloadedStackList));
     const [selectedFeedPosition, setSelectedFeedPosition] = useState(initialFeedPos);
 
     useEffect(() => {
@@ -76,6 +77,9 @@ const ReelayFeed = ({ navigation,
 
     useFocusEffect(useCallback(() => {
         if (initialFeedSource === 'global' && isOnFeedTab) {
+            AsyncStorage.setItem('lastOnGlobalFeed', new Date().toISOString());
+            dispatch({ type: 'setHasUnseenGlobalReelays', payload: false });
+
             const unsubscribe = navigation.getParent()
             .addListener('tabPress', e => {
                 e.preventDefault();
@@ -194,8 +198,6 @@ const ReelayFeed = ({ navigation,
             setSelectedFeedPosition(nextFeedPosition);
         }
     }
-
-    console.log('feed is rendering: ', initialStackPos, forceRefresh);
 
     return (
       <ReelayFeedContainer>

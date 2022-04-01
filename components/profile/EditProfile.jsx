@@ -81,6 +81,8 @@ export default EditProfile = () => {
     }
 
     const cancelFunc = () => {
+		bioRef.current = initBio;
+		websiteRef.current = initWebsite;
 		dispatch({ type: 'setIsEditingProfile', payload: false });
     }
 

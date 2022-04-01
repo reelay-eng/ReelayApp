@@ -181,6 +181,14 @@ export default MyProfileScreen = ({ navigation, route }) => {
 		);
     }
 
+    const fixLink = (link) => {
+        if (link.startsWith('https://')) {
+            return link;
+        } else {
+            return 'https://'+link;
+        }
+    }
+
     return (
 		<ProfileScreenContainer>
 			<EditProfile/>
@@ -198,7 +206,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
                         /> 
                     )}
                     {reelayDBUser?.website && (
-                        <WebsiteText onPress={() => Linking.openURL(reelayDBUser.website)}> {reelayDBUser.website} </WebsiteText>
+                        <WebsiteText onPress={() => Linking.openURL(fixLink(reelayDBUser.website))}> {reelayDBUser.website} </WebsiteText>
                     )}
                 </UserInfoContainer>
 				<EditProfileButton />

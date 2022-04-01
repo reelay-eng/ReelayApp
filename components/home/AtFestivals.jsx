@@ -6,6 +6,7 @@ import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
 import ReelayThumbnail from '../global/ReelayThumbnail';
+import SeeMore from '../global/SeeMore';
 import { VenueIcon } from '../utils/VenueIcon';
 import FestivalsPrompt from './FestivalsPrompt';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -78,6 +79,7 @@ const FestivalReelaysRow = ({ navigation }) => {
                             index={index}
                             navigation={navigation}
                             stack={stack}
+                            myStacksAtFestivals={myStacksAtFestivals}
                     />);
                 })}
             </FollowingRowContainer>
@@ -116,12 +118,13 @@ const TitleVenue = styled(View)`
     right: 4px;
 `
 
-const FollowingElement = ({ stack, index, navigation }) => {
+const FollowingElement = ({ stack, index, navigation, myStacksAtFestivals }) => {
     const goToReelay = (index, titleObj) => {
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'festivals',
-            isOnFeedTab: false
+            isOnFeedTab: false,
+            preloadedStackList: myStacksAtFestivals,
 		});
 		logAmplitudeEventProd('openFollowingFeed', {
 			username: reelayDBUser?.username,
@@ -137,6 +140,19 @@ const FollowingElement = ({ stack, index, navigation }) => {
         : fullTitle;
     const reelayCount = stack?.length;
 
+
+    if (index === myStacksAtFestivals.length-1) {
+        return (
+            <FollowingElementContainer>
+                <SeeMore 
+                    height={180} 
+                    onPress={onPress} 
+                    reelay={stack[0]} 
+                    width={115} 
+                />
+            </FollowingElementContainer>
+        )
+    }
     return (
         <FollowingElementContainer onPress={onPress}>
             <TitlePoster source={stack[0]?.title?.posterSource} />

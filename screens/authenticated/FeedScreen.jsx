@@ -15,6 +15,7 @@ export default function FeedScreen({ navigation, route }) {
     const initialFeedPos = route?.params?.initialFeedPos;
     const isOnFeedTab = route?.params?.isOnFeedTab;
     const pinnedReelay = route?.params?.pinnedReelay;
+    const preloadedStackList = route?.params?.preloadedStackList;
 
     console.log('Feed screen is rendering');
 
@@ -28,6 +29,7 @@ export default function FeedScreen({ navigation, route }) {
                 isOnFeedTab={isOnFeedTab ?? true}
                 navigation={navigation}
                 pinnedReelay={pinnedReelay}
+                preloadedStackList={preloadedStackList}
             />
         </TransparentContainer>
     );
