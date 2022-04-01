@@ -85,8 +85,8 @@ const HomeComponent = ({ navigation }) => {
             <ScrollContainer refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 {/* <Announcements /> */}
                 <FriendsAreWatching navigation={navigation} />
-                <InTheaters navigation={navigation} />
                 <OnStreaming navigation={navigation} onRefresh={onRefresh} />
+                <InTheaters navigation={navigation} />
                 <AtFestivals navigation={navigation} />
                 <Spacer height={80} />
             </ScrollContainer>
