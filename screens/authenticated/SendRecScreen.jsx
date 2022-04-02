@@ -8,6 +8,7 @@ import ProfilePicture from '../../components/global/ProfilePicture';
 import SearchField from '../../components/create-reelay/SearchField';
 import { ReelayedByLine } from '../../components/watchlist/RecPills';
 import { AuthContext } from '../../context/AuthContext';
+import * as Linking from 'expo-linking';
 
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
@@ -304,7 +305,7 @@ const FollowerList = memo(({
         <React.Fragment>
             <FollowerSearch updateSearch={updateSearch} />
             <ScrollViewContainer>
-                <ShareExternalRow navigation={navigation} reelay={reelay} />
+                { reelay && <ShareExternalRow navigation={navigation} reelay={reelay} /> }
                 { isLoaded && displayFollows.map((followObj, index) => {
                     const hasMarkedToSend = getFollowsToSend().find((nextFollowObj) => {
                         return (nextFollowObj.followSub === followObj.followSub);
@@ -463,8 +464,9 @@ const ShareExternalRow = ({ navigation, reelay }) => {
     const { reelayDBUser } = useContext(AuthContext);
 
     const shareReelay = async () => {
+        const shareURL = Linking.createURL(`/reelay/${reelay.sub}`)
         const content = {
-            url: reelay.content.videoURI,
+            url: shareURL,
             message: `${reelayDBUser?.username} sent you a rec on reelay!`,
             title: `${reelay?.creator?.username} on ${reelay?.title?.display}`,
         };
