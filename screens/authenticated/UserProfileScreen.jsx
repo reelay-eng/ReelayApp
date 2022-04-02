@@ -122,6 +122,14 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const reelayCounter = (sum, nextStack) => sum + nextStack.length;
     const reelayCount = creatorStacks.reduce(reelayCounter, 0);
 
+    const fixLink = (link) => {
+        if (link.startsWith('https://') || link.startsWith('http://')) {
+            return link;
+        } else {
+            return 'https://'+link;
+        }
+    }
+
     return (
         <ProfileScreenContainer>
             <ProfileTopBar creator={creator} navigation={navigation} />
@@ -138,7 +146,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
                         />
                     )}
                     {websiteText !== "" && (
-                        <WebsiteText onPress={() => Linking.openURL('https://' + websiteText)}>
+                        <WebsiteText onPress={() => Linking.openURL(fixLink(websiteText))}>
                         {" "}
                         {websiteText}{" "}
                         </WebsiteText>

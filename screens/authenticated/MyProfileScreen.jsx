@@ -182,7 +182,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
     }
 
     const fixLink = (link) => {
-        if (link.startsWith('https://')) {
+        if (link.startsWith('https://') || link.startsWith('http://')) {
             return link;
         } else {
             return 'https://'+link;
