@@ -5,7 +5,6 @@ import styled from 'styled-components/native';
 import ReelayColors from '../../../constants/ReelayColors';
 import * as ReelayText from '../../global/Text';
 import { AuthContext } from '../../../context/AuthContext';
-import { FeedContext } from '../../../context/FeedContext';
 import { followCreator, unfollowCreator } from '../../../api/ReelayDBApi';
 import { notifyCreatorOnFollow } from "../../../api/NotificationsApi";
 
@@ -39,7 +38,6 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myFollowing = useSelector(state => state.myFollowing);
-    const { setJustShowMeSignupVisible } = useContext(FeedContext);
     
     const creatorSub = creator.sub;
     const userSub = reelayDBUser.sub;
@@ -52,7 +50,7 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
 
 	const showMeSignupIfGuest = () => {
 		if (reelayDBUser?.username === 'be_our_guest') {
-			setJustShowMeSignupVisible(true);
+			dispatch({ type: 'setJustShowMeSignupVisible', payload: true });
 			return true;
 		}
 		return false;
@@ -65,7 +63,7 @@ export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowe
         
         if (isFollowing) {
             setCreatorFollowers([...creatorFollowers, followResult]);
-            dispatch({ type: 'setMyFollowing', action: [...myFollowing, followResult] });
+            dispatch({ type: 'setMyFollowing', payload: [...myFollowing, followResult] });
         } else {
             logAmplitudeEventProd('followCreatorError', {
                 error: followResult?.error,

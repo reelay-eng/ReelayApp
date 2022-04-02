@@ -7,12 +7,12 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import React, { useContext } from 'react';
 import styled from 'styled-components/native';
+import { useSelector } from "react-redux";
 
 import { LinearGradient } from 'expo-linear-gradient';
 import { Image, StyleSheet, SafeAreaView, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../context/AuthContext';
-import { FeedContext } from '../context/FeedContext';
 
 import FeedScreen from '../screens/authenticated/FeedScreen';
 import GeneralSettingsScreen from '../screens/authenticated/GeneralSettingsScreen';
@@ -43,7 +43,6 @@ import FeedIcon from '../assets/icons/navbar/feed-icon.png';
 import ProfileIcon from '../assets/icons/navbar/profile-icon.png';
 import SearchIcon from '../assets/icons/navbar/search-icon.png';
 import { WatchlistAddedIconSVG } from '../components/global/SVGs';
-import { useSelector } from 'react-redux';
  
 const AppStack = createStackNavigator();
 const BottomTab = createBottomTabNavigator();
@@ -94,9 +93,10 @@ const bottomTabIconStyle = (focused) => {
 
 const BottomTabNavigator = () => {
 	const myNotifications = useSelector(state => state.myNotifications);
-	const { tabBarVisible } = useContext(FeedContext);
+	const hasUnseenGlobalReelays = useSelector(state => state.hasUnseenGlobalReelays);
 	const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
+	const tabBarVisible = useSelector((state) => state.tabBarVisible)
     const s = StyleSheet.create({
 		gradient: {
 			flex: 1,
@@ -164,6 +164,7 @@ const BottomTabNavigator = () => {
 					tabBarIcon: ({ focused }) => (
 						<View>
 							<Icon type='ionicon' name='earth' size={24} color='white' />
+							{hasUnseenGlobalReelays && <UnreadIconIndicator /> }
 						</View>
 					),
 				}}

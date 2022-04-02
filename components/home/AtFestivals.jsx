@@ -6,6 +6,7 @@ import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
 import ReelayThumbnail from '../global/ReelayThumbnail';
+import SeeMore from '../global/SeeMore';
 import { VenueIcon } from '../utils/VenueIcon';
 import FestivalsPrompt from './FestivalsPrompt';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -70,7 +71,7 @@ const FestivalReelaysRow = ({ navigation }) => {
                 <Icon type='font-awesome' name='pagelines' size={24} color='white' />
                 <HeaderText>{'At festivals'}</HeaderText>
             </HeaderContainer>
-            <FollowingRowContainer horizontal>
+            <FollowingRowContainer horizontal showsHorizontalScrollIndicator={false}>
                 { myStacksAtFestivals.map((stack, index) =>  {
                     return (
                         <FollowingElement
@@ -78,6 +79,7 @@ const FestivalReelaysRow = ({ navigation }) => {
                             index={index}
                             navigation={navigation}
                             stack={stack}
+                            myStacksAtFestivals={myStacksAtFestivals}
                     />);
                 })}
             </FollowingRowContainer>
@@ -89,6 +91,15 @@ const FollowingElementContainer = styled(Pressable)`
     display: flex;
     width: 120px;
     margin-right: 12px;
+`
+const ReelayCount = styled(ReelayText.CaptionEmphasized)`
+    margin-top: 8px;
+    color: white;
+    opacity: 0.5;
+`
+const TitleInfoLine = styled(View)`
+    flex-direction: row;
+    justify-content: space-between;
 `
 const TitlePoster = styled(Image)`
     width: 120px;
@@ -107,12 +118,13 @@ const TitleVenue = styled(View)`
     right: 4px;
 `
 
-const FollowingElement = ({ stack, index, navigation }) => {
+const FollowingElement = ({ stack, index, navigation, myStacksAtFestivals }) => {
     const goToReelay = (index, titleObj) => {
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'festivals',
-            isOnFeedTab: false
+            isOnFeedTab: false,
+            preloadedStackList: myStacksAtFestivals,
 		});
 		logAmplitudeEventProd('openFollowingFeed', {
 			username: reelayDBUser?.username,
@@ -126,14 +138,29 @@ const FollowingElement = ({ stack, index, navigation }) => {
     const displayTitle = (fullTitle?.length > 26) 
         ? fullTitle.substring(0, 23) + "..."
         : fullTitle;
+    const reelayCount = stack?.length;
 
+
+    if (index === myStacksAtFestivals.length-1) {
+        return (
+            <FollowingElementContainer>
+                <SeeMore 
+                    display='poster'
+                    height={180} 
+                    onPress={onPress} 
+                    reelay={stack[0]} 
+                    width={115} 
+                />
+            </FollowingElementContainer>
+        )
+    }
     return (
         <FollowingElementContainer onPress={onPress}>
             <TitlePoster source={stack[0]?.title?.posterSource} />
+            <TitleInfoLine>
+                <ReelayCount>{`${reelayCount} ${(reelayCount > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
+            </TitleInfoLine>
             <TitleText>{displayTitle}</TitleText>
-            <TitleVenue>
-                <VenueIcon venue={stack[0]?.content?.venue} size={24} />
-            </TitleVenue>
         </FollowingElementContainer>
     )
 }

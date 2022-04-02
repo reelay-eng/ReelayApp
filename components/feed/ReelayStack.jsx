@@ -1,7 +1,7 @@
 import React, { useContext, useState, memo } from 'react';
 import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Icon } from 'react-native-elements';
+import BackButton from '../utils/BackButton';
 import Constants from 'expo-constants';
 import Hero from './Hero';
 import Poster from './Poster';
@@ -21,9 +21,8 @@ const { height, width } = Dimensions.get('window');
 
 const BackButtonContainer = styled(SafeAreaView)`
     align-self: flex-start;
-    margin-left: 16px;
     position: absolute;
-    top: 40px;
+    top: 150px;
 `
 const ReelayFeedContainer = styled(View)`
     background-color: black;
@@ -77,9 +76,9 @@ const ReelayStack = ({
     stack,  
     stackViewable,
     initialStackPos = 0,
-    isFixedStack,
     navigation,
 }) => {
+
     const [stackPosition, setStackPosition] = useState(0);
     const { reelayDBUser } = useContext(AuthContext);
     const donateLinks = useSelector(state => state.donateLinks);
@@ -110,15 +109,16 @@ const ReelayStack = ({
     const renderBackButton = () => {
         return (
             <BackButtonContainer>
-            <Icon type='ionicon' size={30} color={'white'} name='chevron-back-outline' 
-                onPress={() => navigation.pop()} />
+                <BackButton navigation={navigation} />
             </BackButtonContainer>
         );
     }
 
     const renderReelay = ({ item, index }) => {
         const reelay = item;
-        const reelayViewable = stackViewable && (index === stackPosition);   
+        const reelayViewable = stackViewable && (index === stackPosition);  
+        
+        console.log('can go back: ', navigation.canGoBack());
         return (
             <ReelayFeedContainer key={reelay.id}>
                 <Hero 
@@ -127,7 +127,7 @@ const ReelayStack = ({
                     reelay={reelay} 
                     viewable={reelayViewable}
                 />
-                { isFixedStack && renderBackButton() }
+                { navigation.canGoBack() && renderBackButton() }
             </ReelayFeedContainer>
         );
     };
@@ -194,7 +194,7 @@ const ReelayStack = ({
                 pagingEnabled={true} 
                 windowSize={3}
             />
-            <TitleDetailContainer style={{ top: insets.top }}>
+            <TitleDetailContainer canGoBack={(navigation.canGoBack())}>
                 <Pressable onPress={openTitleDetail} style={{
                     flexDirection: "row",
                     justifyContent: 'space-between',

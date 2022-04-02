@@ -5,7 +5,7 @@
  */
 
 export default {
-	prefixes: ["reelay://"],
+	prefixes: ["reelay://", "reelayapp://", "https://on.reelay.app/*"],
 	config: {
 		screens: {
 			Authenticated: {

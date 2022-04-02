@@ -5,6 +5,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../../components/global/Text';
+import SeeMore from '../global/SeeMore';
 import { useSelector } from 'react-redux';
 
 const InTheatersContainer = styled.View`
@@ -43,7 +44,8 @@ const InTheaters = memo(({ navigation }) => {
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'theaters',
-            isOnFeedTab: false
+            isOnFeedTab: false,
+            preloadedStackList: myStacksInTheaters,
 		});
 
 		logAmplitudeEventProd('openTheatersFeed', {
@@ -59,10 +61,15 @@ const InTheaters = memo(({ navigation }) => {
                 <HeaderText>{'In theaters'}</HeaderText>
             </HeaderContainer>
             { myStacksInTheaters.length > 0 && (
-                <InTheatersRowContainer horizontal>
+                <InTheatersRowContainer horizontal showsHorizontalScrollIndicator={false}>
                     { myStacksInTheaters.map((stack, index) => {
                         return (
-                            <InTheatersElement key={index} onPress={() => goToReelay(index, stack[0].title)} stack={stack}/>
+                            <InTheatersElement 
+                                key={index}
+                                index={index} 
+                                onPress={() => goToReelay(index, stack[0].title)} 
+                                stack={stack} 
+                                length={myStacksInTheaters.length}/>
                         )
                     })}
                 </InTheatersRowContainer>
@@ -97,11 +104,25 @@ const TitleText = styled(ReelayText.H6Emphasized)`
     opacity: 1;
 `
 
-const InTheatersElement = ({ onPress, stack }) => {
+const InTheatersElement = ({ index, onPress, stack, length }) => {
     const fullTitle = stack[0].title.display;
     const displayTitle = (fullTitle?.length > 26) 
         ? fullTitle.substring(0, 23) + "..."
         : fullTitle;
+
+    if (index === length-1) {
+        return (
+        <InTheatersElementContainer>
+            <SeeMore 
+                display='poster'
+                height={180} 
+                onPress={onPress} 
+                reelay={stack[0]} 
+                width={117} 
+            />
+        </InTheatersElementContainer>
+        )
+    }
 
     return (
         <InTheatersElementContainer onPress={onPress}>

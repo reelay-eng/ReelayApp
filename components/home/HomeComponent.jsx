@@ -1,6 +1,7 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
 import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native'
 import styled from 'styled-components';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import HomeHeader from './HomeHeader';
 import InTheaters from './InTheaters';
@@ -15,9 +16,8 @@ import {
 } from '../../api/ReelayUserApi';
 import { getFeed } from '../../api/ReelayDBApi';
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const HomeContainer = styled(SafeAreaView)`
     width: 100%;
@@ -36,9 +36,24 @@ const Spacer = styled.View`
 const HomeComponent = ({ navigation }) => {
     const dispatch = useDispatch();
     const { reelayDBUserID } = useContext(AuthContext);
-    const { justShowMeSignupVisible } = useContext(FeedContext);
+    const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
+
+    useEffect(() => {
+        checkForUnseenGlobalReelays();
+    }, [])
+
+    const checkForUnseenGlobalReelays = async () => {
+        const globalFeed = await getFeed({ reelayDBUserID, feedSource: 'global', page: 0 });
+        if (globalFeed) {
+            const lastReelayPostTime = globalFeed[0][0].postedDateTime;
+            const lastOnGlobal = await AsyncStorage.getItem('lastOnGlobalFeed');
+            dispatch({ type: 'setHasUnseenGlobalReelays', payload: lastOnGlobal ? (lastOnGlobal<lastReelayPostTime) : true});
+        }
+    }
 
     const onRefresh = async () => {
+        await checkForUnseenGlobalReelays();
+
         setRefreshing(true);
         const myFollowingLoaded = await loadMyFollowing(reelayDBUserID);
         const myNotifications = await loadMyNotifications(reelayDBUserID);
@@ -67,11 +82,11 @@ const HomeComponent = ({ navigation }) => {
     return (
         <HomeContainer>
             <HomeHeader navigation={navigation} />
-            <ScrollContainer refreshControl={refreshControl}>
+            <ScrollContainer refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 {/* <Announcements /> */}
                 <FriendsAreWatching navigation={navigation} />
-                <InTheaters navigation={navigation} />
                 <OnStreaming navigation={navigation} onRefresh={onRefresh} />
+                <InTheaters navigation={navigation} />
                 <AtFestivals navigation={navigation} />
                 <Spacer height={80} />
             </ScrollContainer>

@@ -4,7 +4,6 @@ import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { Video, Audio } from 'expo-av'
 import { useFocusEffect } from '@react-navigation/native';
-import { FeedContext } from '../../context/FeedContext';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import styled from 'styled-components/native';

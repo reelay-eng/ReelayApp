@@ -7,7 +7,6 @@ import {
 } from 'react-native';
 
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 
 // API
 import { getLogoURL, fetchMovieProviders } from '../../api/TMDbApi';
@@ -29,6 +28,7 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { getRuntimeString } from '../../components/utils/TitleRuntime';
 import AddToWatchlistButton from './AddToWatchlistButton';
 import SendRecButton from '../watchlist/SendRecButton';
+import { useDispatch } from 'react-redux';
 
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
@@ -53,7 +53,7 @@ export default PosterWithTrailer = ({
 	`;
 
 	const { reelayDBUser } = useContext(AuthContext);
-	const { setJustShowMeSignupVisible } = useContext(FeedContext);
+	const dispatch = useDispatch();
 	
 	const PosterWithOverlay = () => {
 		const PosterImage = styled(Image)`
@@ -135,7 +135,6 @@ export default PosterWithTrailer = ({
 			margin-left: 0px;
 		`;
 		const TaglineTextContainer = styled(View)`
-			margin-left: ${topProviderLogo.length > 0 ? "7px" : "0px"};
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -153,11 +152,11 @@ export default PosterWithTrailer = ({
 
 		return (
 			<TaglineContainer>
-				{topProviderLogo.length > 0 && (
+				{/* {topProviderLogo.length > 0 && (
 					<ProviderImagesContainer>
 						<ProviderImage source={{ uri: getLogoURL(topProviderLogo) }} />
 					</ProviderImagesContainer>
-				)}
+				)} */}
 				{isMovie === true && (
 					<TaglineTextContainer>
 						<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}    {runtimeString}</TaglineText>
@@ -224,7 +223,7 @@ export default PosterWithTrailer = ({
 
 	const showMeSignupIfGuest = () => {
 		if (reelayDBUser?.username === 'be_our_guest') {
-			setJustShowMeSignupVisible(true);
+			dispatch({ type: 'setJustShowMeSignupVisible', payload: true })
 			return true;
 		}
 		return false;

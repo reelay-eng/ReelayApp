@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Modal, View, Text, Pressable } from 'react-native';
 import * as ReelayText from '../global/Text';
 import { Icon } from 'react-native-elements';
-import { FeedContext } from '../../context/FeedContext';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components/native';
 import { getUserByUsername } from '../../api/ReelayDBApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -32,8 +32,9 @@ export default LikesDrawer = ({ reelay, navigation }) => {
     const ModalContainer = styled(View)`
         position: absolute;
     `
-    const { likesVisible, setLikesVisible } = useContext(FeedContext);
-    const closeDrawer = () => setLikesVisible(false);
+    const likesVisible = useSelector(state => state.likesVisible);
+    const dispatch = useDispatch();
+    const closeDrawer = () => dispatch({ type: 'setLikesVisible', payload: false });
 
     const Header = () => {
         const HeaderContainer = styled(View)`
@@ -69,7 +70,7 @@ export default LikesDrawer = ({ reelay, navigation }) => {
         `
         const goToProfile = async (username) => {
             const creator = await getUserByUsername(username);
-            setLikesVisible(false);
+            dispatch({ type: 'setLikesVisible', payload: false })
             navigation.push('UserProfileScreen', {
                 creator: creator
             })

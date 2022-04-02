@@ -1,11 +1,12 @@
 import React, { Fragment, useContext } from 'react';
-import { Image, Pressable, ScrollView, View } from 'react-native';
+import { Image, Pressable, ScrollView, View, Text } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
 import ReelayThumbnail from '../global/ReelayThumbnail';
+import SeeMore from '../global/SeeMore';
 import { VenueIcon } from '../utils/VenueIcon';
 import YouDontFollowPrompt from './YouDontFollowPrompt';
 import { useSelector } from 'react-redux';
@@ -32,7 +33,6 @@ const FriendsAreWatching = ({ navigation }) => {
     const FollowingRowContainer = styled(ScrollView)`
         display: flex;
         padding-left: 15px;
-        padding-top: 15px;
         flex-direction: row;
         width: 100%;
         padding-top: 16px;
@@ -50,7 +50,7 @@ const FriendsAreWatching = ({ navigation }) => {
                         <Icon type='ionicon' name='people' size={24} color='white' />
                         <HeaderText>{'Friends are watching'}</HeaderText>
                     </HeaderContainer>
-                    <FollowingRowContainer horizontal>
+                    <FollowingRowContainer horizontal showsHorizontalScrollIndicator={false}>
                         { myStacksFollowing.map((stack, index) =>  {
                             return (
                                 <FollowingElement
@@ -58,6 +58,7 @@ const FriendsAreWatching = ({ navigation }) => {
                                     index={index}
                                     navigation={navigation}
                                     stack={stack}
+                                    myStacksFollowing={myStacksFollowing}
                             />);
                         })}
                     </FollowingRowContainer>
@@ -82,23 +83,14 @@ const TitleText = styled(ReelayText.H6Emphasized)`
     color: white;
     opacity: 1;
 `
-const TitleVenue = styled(View)`
-    position: absolute;
-    top: 4px;
-    right: 4px;
-`
-const TitleYear = styled(ReelayText.CaptionEmphasized)`
-    margin-top: 8px;
-    color: white;
-    opacity: 0.5;
-`
 
-const FollowingElement = ({ stack, index, navigation }) => {
+const FollowingElement = ({ stack, index, navigation, myStacksFollowing }) => {
     const goToReelay = (index, titleObj) => {
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'following',
-            isOnFeedTab: false
+            isOnFeedTab: false,
+            preloadedStackList: myStacksFollowing,
 		});
 		logAmplitudeEventProd('openFollowingFeed', {
 			username: reelayDBUser?.username,
@@ -113,6 +105,18 @@ const FollowingElement = ({ stack, index, navigation }) => {
         ? fullTitle.substring(0, 23) + "..."
         : fullTitle;
 
+    if (index === myStacksFollowing.length-1) {
+        return (
+            <FollowingElementContainer>
+                <SeeMore 
+                    height={180} 
+                    onPress={onPress} 
+                    reelay={stack[0]} 
+                    width={115} 
+                />
+            </FollowingElementContainer>
+        )
+    }
     return (
         <FollowingElementContainer>
             <ReelayThumbnail 
@@ -123,9 +127,6 @@ const FollowingElement = ({ stack, index, navigation }) => {
                 width={120} 
             />
             <TitleText>{displayTitle}</TitleText>
-            <TitleVenue>
-                <VenueIcon venue={stack[0]?.content?.venue} size={24} />
-            </TitleVenue>
         </FollowingElementContainer>
     )
 }

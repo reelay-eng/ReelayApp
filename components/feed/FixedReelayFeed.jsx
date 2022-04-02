@@ -7,15 +7,8 @@ import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import { ActivityIndicator } from 'react-native-paper';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
-import BackButton from '../utils/BackButton';
 const { height, width } = Dimensions.get('window');
 
-const BackButtonContainer = styled(View)`
-    background-color: transparent;
-    position: absolute;
-    top: 150px;
-    z-index: 4;
-`
 const ReelayFeedContainer = styled(View)`
     background-color: black;
     justify-content: flex-start;
@@ -69,12 +62,8 @@ const FixedReelayFeed = ({ navigation,
                     stackViewable={stackViewable}
                     feedIndex={index}
                     initialStackPos={initialStackPos}
-                    isFixedStack={true}
                     navigation={navigation}
                 />
-                <BackButtonContainer>
-                    <BackButton navigation={navigation} />
-                </BackButtonContainer>
             </React.Fragment>
         );
     }

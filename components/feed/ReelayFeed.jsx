@@ -1,7 +1,8 @@
 import React, { useCallback, useContext, useEffect, useState, useRef, memo } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, View } from 'react-native';
-import { FeedContext } from '../../context/FeedContext';
+import { useDispatch } from "react-redux";
 import ReelayStack from './ReelayStack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
@@ -10,7 +11,6 @@ import { getFeed } from '../../api/ReelayDBApi';
 import styled from 'styled-components/native';
 import { showMessageToast } from '../utils/toasts';
 import { useFocusEffect } from '@react-navigation/core';
-import BackButton from '../utils/BackButton';
 import { useSelector } from 'react-redux';
 
 const { height, width } = Dimensions.get('window');
@@ -33,25 +33,25 @@ const ReelayFeed = ({ navigation,
     initialFeedPos = 0,
     forceRefresh = false, 
     initialFeedSource = 'global',
+    preloadedStackList = [],
     isOnFeedTab = true,
     pinnedReelay = null,
 }) => {
-
     const feedPager = useRef();
-    const nextPage = useRef(0);
+    const nextPage = useRef(preloadedStackList?.length ? 2 : 0);
 
     const { reelayDBUser } = useContext(AuthContext);
-    const { setTabBarVisible } = useContext(FeedContext);
+	const dispatch = useDispatch();
 
     const [feedSource, setFeedSource] = useState(initialFeedSource);
     const [refreshing, setRefreshing] = useState(false);
 
     const initStackList = (pinnedReelay) ? [[ pinnedReelay ]] : [];
-    const [selectedStackList, setSelectedStackList] = useState(initStackList);
+    const [selectedStackList, setSelectedStackList] = useState(initStackList.concat(preloadedStackList));
     const [selectedFeedPosition, setSelectedFeedPosition] = useState(initialFeedPos);
 
     useEffect(() => {
-        setTabBarVisible(true); // to ensure tab bar is always here
+		dispatch({ type: 'setTabBarVisible', payload: true }); // to ensure tab bar is always here
         loadSelectedFeed();
     }, []);
 
@@ -77,6 +77,9 @@ const ReelayFeed = ({ navigation,
 
     useFocusEffect(useCallback(() => {
         if (initialFeedSource === 'global' && isOnFeedTab) {
+            AsyncStorage.setItem('lastOnGlobalFeed', new Date().toISOString());
+            dispatch({ type: 'setHasUnseenGlobalReelays', payload: false });
+
             const unsubscribe = navigation.getParent()
             .addListener('tabPress', e => {
                 e.preventDefault();
@@ -196,8 +199,6 @@ const ReelayFeed = ({ navigation,
         }
     }
 
-    console.log('feed is rendering: ', initialStackPos, forceRefresh);
-
     return (
       <ReelayFeedContainer>
         {selectedStackList.length < 1 && <ActivityIndicator />}
@@ -225,11 +226,6 @@ const ReelayFeed = ({ navigation,
             }}
             windowSize={3}
           />
-        )}
-        { feedSource !== 'global' && (
-            <BackButtonContainer>
-                <BackButton navigation={navigation} />
-            </BackButtonContainer>
         )}
       </ReelayFeedContainer>
     );

@@ -12,12 +12,13 @@ import SignedOutScreen from '../screens/unauthenticated/SignedOutScreen';
 import SignInScreen from '../screens/unauthenticated/SignInScreen';
 import SignUpScreen from '../screens/unauthenticated/SignUpScreen';
 import SplashScreen from '../screens/unauthenticated/SplashScreen';
+import { useSelector } from 'react-redux';
 
 const AuthenticationStack = createStackNavigator();
 
 export default UnauthenticatedNavigator = () => {
-    const { isReturningUser, signUpFromGuest } = React.useContext(AuthContext);
     // const initialRoute = isReturningUser ? "SignedOutScreen":"NewUserScreen"
+    const isReturningUser = useSelector(state => state.isReturningUser)
     let initialRoute = 'NewUserScreen';
     if (isReturningUser) initialRoute = 'SignedOutScreen';
   return (

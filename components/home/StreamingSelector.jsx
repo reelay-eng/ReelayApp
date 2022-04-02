@@ -1,7 +1,6 @@
 import React, { memo, useContext, useState, useRef, Fragment } from 'react';
 import { View, Text, Pressable } from 'react-native'
 import { AuthContext } from '../../context/AuthContext';
-import { FeedContext } from '../../context/FeedContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
@@ -11,7 +10,7 @@ import { BWButton } from '../global/Buttons';
 
 import { postStreamingSubscriptionToDB, removeStreamingSubscription } from '../../api/ReelayDBApi';
 import { refreshMyStreamingSubscriptions } from '../../api/ReelayUserApi';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const StreamingServicesContainer = styled.View`
     width: 100%;
@@ -76,8 +75,8 @@ const IconOptions = ({ onRefresh }) => {
         align-items: center;
         justify-content: center;
     `
+    const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
-    const { setJustShowMeSignupVisible } = useContext(FeedContext);
     const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
 
     const myStreamingPlatforms = myStreamingSubscriptions.map(({ platform }) => platform);
@@ -112,7 +111,7 @@ const IconOptions = ({ onRefresh }) => {
 
     const onSave = async () => {
         if (reelayDBUser?.username === 'be_our_guest') {
-            setJustShowMeSignupVisible(true);
+            dispatch({ type: 'setJustShowMeSignupVisible', payload: true });
             return;
         }
         await addAndRemoveSubscriptionChanges();

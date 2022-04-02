@@ -6,6 +6,7 @@ const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 const REELAY_API_KEY = Constants.manifest.extra.reelayApiKey;
+const WELCOME_REELAY_SUB = Constants.manifest.extra.welcomeReelaySub;
 
 const REELAY_API_HEADERS = {
     Accept: 'application/json',
@@ -257,12 +258,19 @@ export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
             requsersub: reqUserSub,
         }, 
     });
-
-    if (!fetchedStacks) {
+    const routeGetNextPage = `${REELAY_API_BASE_URL}/feed/${feedSource}?page=${page+1}&visibility=${FEED_VISIBILITY}`;
+    const fetchedStacksNextPage = await fetchResults(routeGetNextPage, { 
+        method: 'GET',
+        headers: {
+            ...REELAY_API_HEADERS,
+            requsersub: reqUserSub,
+        }, 
+    });
+    if (!fetchedStacks && !fetchedStacksNextPage) {
         console.log('Found no reelays in feed');
         return null;
     }
-    return await prepareStacks(fetchedStacks);
+    return await prepareStacks(fetchedStacks.concat(fetchedStacksNextPage));
 }
 
 export const getMostRecentReelaysByTitle = async (tmdbTitleID, page = 0) => {
@@ -368,9 +376,12 @@ export const postStreamingSubscriptionToDB = async (userSub, streamingSubscripti
 }
 
 export const prepareReelay = async (fetchedReelay) => {
+
+    const isWelcomeReelay = (fetchedReelay.datastoreSub === WELCOME_REELAY_SUB);
     const titleObj = await fetchAnnotatedTitle(
         fetchedReelay.tmdbTitleID, 
-        fetchedReelay.isSeries
+        fetchedReelay.isSeries,
+        isWelcomeReelay
     );
     const videoURIObject = await getVideoURIObject(fetchedReelay);
     const sortCommentsByPostedDate = (comment1, comment2) => {
