@@ -8,7 +8,6 @@ import ProfilePicture from '../../components/global/ProfilePicture';
 import SearchField from '../../components/create-reelay/SearchField';
 import { ReelayedByLine } from '../../components/watchlist/RecPills';
 import { AuthContext } from '../../context/AuthContext';
-import * as Linking from 'expo-linking';
 
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
@@ -22,8 +21,10 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import ReelayColors from '../../constants/ReelayColors';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { useSelector } from 'react-redux';
+import { createDeeplinkPathToReelay } from '../../api/ReelayDBApi';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
+const REELAY_WEB_BASE_URL = Constants.manifest.extra.reelayWebBaseUrl;
 
 const TitleHeader = ({ navigation, readyToSend, reelay, sendRecs, watchlistItem }) => {
     const ImageContainer = styled(View)`
@@ -464,10 +465,11 @@ const ShareExternalRow = ({ navigation, reelay }) => {
     const { reelayDBUser } = useContext(AuthContext);
 
     const shareReelay = async () => {
-        const shareURL = Linking.createURL(`/reelay/${reelay.sub}`)
+        const deeplinkObj = await createDeeplinkPathToReelay(reelayDBUser?.sub, reelayDBUser?.username, reelay?.sub);
+        console.log('created deeplink obj: ', deeplinkObj);
+
         const content = {
-            url: shareURL,
-            message: `${reelayDBUser?.username} sent you a rec on reelay!`,
+            url: REELAY_WEB_BASE_URL + deeplinkObj?.publicPath,
             title: `${reelay?.creator?.username} on ${reelay?.title?.display}`,
         };
         const options = {};
