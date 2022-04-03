@@ -9,7 +9,7 @@ import {
 import { AuthContext } from '../../context/AuthContext';
 
 // API
-import { getLogoURL, fetchMovieProviders } from '../../api/TMDbApi';
+import { getLogoURL, changeSize, fetchMovieProviders } from '../../api/TMDbApi';
 
 // Styling
 import ReelayColors from "../../constants/ReelayColors";
@@ -28,7 +28,7 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { getRuntimeString } from '../../components/utils/TitleRuntime';
 import AddToWatchlistButton from './AddToWatchlistButton';
 import SendRecButton from '../watchlist/SendRecButton';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
@@ -93,15 +93,22 @@ export default PosterWithTrailer = ({
 	};
 
 	const PosterTagline = () => {
-		const [topProviderLogo, setTopProviderLogo] = useState("");
+		const [topProviderLogoURL, setTopProviderLogoURL] = useState("");
 		const componentMounted = useRef(true);
+		const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
 		useEffect(() => {
 			(async () => {
 				var providers = await fetchMovieProviders(tmdbTitleID);
 				if (!providers || !providers.US) return;
-				providers = providers.US; // change this for when we want multi country support
-				if (providers.rent?.length > 0 && componentMounted.current) {
-					setTopProviderLogo(providers.rent[0].logo_path);
+				providers = providers.US;
+				if (providers.flatrate?.length > 0 && componentMounted.current) {
+					providers = providers.flatrate;
+					// check providers to return the first one that is in my streaming subscriptions
+					const providerIsInMyStreaming = (provider) => (myStreamingSubscriptions.find(subscription => subscription.tmdbProviderID === provider.provider_id))
+					const providersInMyStreamingSubscriptions = providers.filter(providerIsInMyStreaming);
+					if (providersInMyStreamingSubscriptions.length > 0) setTopProviderLogoURL(providersInMyStreamingSubscriptions[0].logo_path);
+					// if none are in streaming, return the first one with a flat rate anywhere so I know where I can watch it.
+					else setTopProviderLogoURL(providers[0].logo_path);
 				}
 			})();
 			return () => {
@@ -133,6 +140,7 @@ export default PosterWithTrailer = ({
 			border-color: #ffffff;
 			border-radius: 15px;
 			margin-left: 0px;
+			margin-right: 10px;
 		`;
 		const TaglineTextContainer = styled(View)`
 			display: flex;
@@ -150,23 +158,19 @@ export default PosterWithTrailer = ({
 		//Conversion from minutes to hours and minutes
 		const runtimeString = getRuntimeString(runtime);
 
+		const completeLogoURI = { uri: getLogoURL(topProviderLogoURL)};
+		const sizeCorrectedLogoURI = changeSize(completeLogoURI, "w92");
+
 		return (
 			<TaglineContainer>
-				{/* {topProviderLogo.length > 0 && (
+				{topProviderLogoURL.length > 0 && (
 					<ProviderImagesContainer>
-						<ProviderImage source={{ uri: getLogoURL(topProviderLogo) }} />
+						<ProviderImage source={sizeCorrectedLogoURI} />
 					</ProviderImagesContainer>
-				)} */}
-				{isMovie === true && (
-					<TaglineTextContainer>
-						<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}    {runtimeString}</TaglineText>
-					</TaglineTextContainer>
-				)} 
-				{isMovie === false && (
-					<TaglineTextContainer>
-						<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}</TaglineText>
-					</TaglineTextContainer>
 				)}
+				<TaglineTextContainer>
+					<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}    {isMovie ? runtimeString : null} </TaglineText>
+				</TaglineTextContainer>
 			</TaglineContainer>
 		);
 	};
