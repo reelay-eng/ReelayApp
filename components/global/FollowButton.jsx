@@ -13,7 +13,7 @@ import { Button } from '../global/Buttons';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { useDispatch, useSelector } from 'react-redux';
 
-export default FollowButton = ({ creator, bar=false, fancy=false, followingThem = false }) => {
+export default FollowButton = ({ creator, bar=false, fancy=false, creatorFollowsMe = false }) => {
 	const Spacer = styled(View)`
 		height: ${props => props.height ?? "10px"};
 	`
@@ -96,7 +96,7 @@ export default FollowButton = ({ creator, bar=false, fancy=false, followingThem 
     }
 
 	const AlreadyFollowingButton = () => {
-		const displayText = fancy ? (followingThem ? "Friends" : "Following") : "Following"
+		const displayText = fancy ? (creatorFollowsMe ? "Friends" : "Following") : "Following"
 		return (
 			<ButtonContainer>
 				<Button

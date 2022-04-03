@@ -167,7 +167,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         ];
 
         if (followButtonTypes.includes(notifyType)) {
-            return <FollowButton creator={fromUser} fancy followingThem/>
+            return <FollowButton creator={fromUser} fancy creatorFollowsMe/> // creator necessarily follows you b.c. your notification is "Follow Back"
         }
 
         if (posterButtonTypes.includes(notifyType)) {
