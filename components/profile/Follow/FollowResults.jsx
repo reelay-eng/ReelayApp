@@ -1,39 +1,25 @@
 import React from "react";
 import { RefreshControl, ScrollView, View } from "react-native";
 import FollowItem from "./FollowItem";
-
 import styled from 'styled-components/native';
 
+const ROW_HEIGHT = 100;
 const FollowItemContainer = styled(View)`
-    display: flex;
-    align-items: center;
-    justify-content: center;
     border-bottom-color: #505050;
     border-bottom-width: 0.3px;
-`
+`;
+const FollowScrollContainer = styled(ScrollView)`
+    margin-bottom: ${ROW_HEIGHT + 185}px;
+`;
 
 const FollowResults = ({ 
     followType, 
     navigation, 
     onRefresh,
     refreshing, 
-    searchResults, 
-    setDrawerFollowObj,
-    setDrawerOpen,
+    searchResults
 }) => {
-
-    const ROW_HEIGHT = 100;
-    const FollowItemContainer = styled(View)`
-        border-bottom-color: #505050;
-        border-bottom-width: 0.3px;
-    `;
-    const FollowScrollContainer = styled(ScrollView)`
-        margin-bottom: ${ROW_HEIGHT + 185}px;
-    `;
-
     const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
-    
-
     return (
         <View>
             {searchResults.length >= 1 && (
@@ -45,8 +31,6 @@ const FollowResults = ({
                                     followObj={followObj}
                                     followType={followType}
                                     navigation={navigation}
-                                    setDrawerFollowObj={setDrawerFollowObj}
-                                    setDrawerOpen={setDrawerOpen}
                                 />
                             </FollowItemContainer>
                         );

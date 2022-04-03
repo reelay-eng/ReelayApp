@@ -7,7 +7,6 @@ import SearchField from "../../components/create-reelay/SearchField";
 import TitleSearchResults from "../../components/search/TitleSearchResults";
 import UserSearchResults from "../../components/search/UserSearchResults";
 import { ToggleSelector } from '../../components/global/Buttons';
-import FollowButtonDrawer from "../../components/global/FollowButtonDrawer";
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
@@ -157,22 +156,9 @@ export default SearchScreen = ({ navigation }) => {
 					navigation={navigation}
 					searchResults={searchResults}
 					source={"search"}
-					setCreatorFollowers={setCreatorFollowers}
-					setDrawerFollowObj={setDrawerFollowObj}
-					setDrawerOpen={setDrawerOpen}
 				/>
 			)}
             { loading && <ActivityIndicator /> }
-			{drawerOpen && (
-				<FollowButtonDrawer
-					creatorFollowers={creatorFollowers}
-					setCreatorFollowers={setCreatorFollowers}
-					drawerOpen={drawerOpen}
-					setDrawerOpen={setDrawerOpen}
-					followObj={drawerFollowObj}
-					sourceScreen={"UserFollowScreen"}
-				/>
-			)}
 		</SearchScreenContainer>
 	);
 };

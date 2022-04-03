@@ -161,13 +161,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
                     following={creatorFollowing}
                     prevScreen={"UserProfileScreen"}
                 />
-                {!isMyProfile && (
-                    <FollowButtonBar
-                    creator={creator}
-                    creatorFollowers={creatorFollowers}
-                    setCreatorFollowers={setCreatorFollowers}
-                    />
-                )}
+                {!isMyProfile && <FollowButtonBar creator={creator} bar /> }
                 <ProfilePosterGrid
                     creatorStacks={creatorStacks}
                     navigation={navigation}
