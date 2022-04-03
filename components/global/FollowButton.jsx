@@ -1,39 +1,24 @@
 import React, { useContext } from 'react';
 import { Pressable, View } from 'react-native';
 import * as ReelayText from '../global/Text';
+import ReelayColors from '../../constants/ReelayColors';
 import { AuthContext } from '../../context/AuthContext';
+import { Icon } from 'react-native-elements';
 
 import { followCreator, unfollowCreator } from '../../api/ReelayDBApi';
 import { notifyCreatorOnFollow } from '../../api/NotificationsApi';
 
 import styled from 'styled-components/native';
+import { Button } from '../global/Buttons';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { useDispatch, useSelector } from 'react-redux';
 
-export default FollowButton = ({ creator, bar=false }) => {
+export default FollowButton = ({ creator, bar=false, fancy=false, followingThem = false }) => {
 	const Spacer = styled(View)`
 		height: ${props => props.height ?? "10px"};
 	`
-	const AlreadyFollowingButtonPressable = styled(Pressable)`
-		align-items: center;
-		background: rgba(0, 0, 0, 0.36);
-		border-color: white;
-		border-radius: ${bar ? "25px" : "8px"};
-		border-width: 1px;
-		justify-content: center;
-		flex-direction: row;
-		height: ${bar ? "44px" : "30px"};
-		width: ${bar ? "75%" : "90px"};
-	`
-	const FollowButtonText = styled(ReelayText.CaptionEmphasized)`
-		color: white;
-	`
-	const NotYetFollowingButtonPressable = styled(Pressable)`
-		align-items: center;
-		background: rgba(41, 119, 239, 0.9);
-		border-radius: ${bar ? "25px" : "8px"};
-		justify-content: center;
-		flex-direction: row;
+
+	const ButtonContainer = styled(View)`
 		height: ${bar ? "44px" : "30px"};
 		width: ${bar ? "75%" : "90px"};
 	`
@@ -111,18 +96,40 @@ export default FollowButton = ({ creator, bar=false }) => {
     }
 
 	const AlreadyFollowingButton = () => {
+		const displayText = fancy ? (followingThem ? "Friends" : "Following") : "Following"
 		return (
-			<AlreadyFollowingButtonPressable onPress={unfollowOnPress}>
-				<FollowButtonText>{'Following'}</FollowButtonText>
-			</AlreadyFollowingButtonPressable>
+			<ButtonContainer>
+				<Button
+					onPress={unfollowOnPress}
+					text={displayText}
+					rightIcon={fancy ? <Icon type='ionicon' name='checkmark-circle' size={16} color='white' /> : null}
+					borderRadius={bar ? "25px" : "8px"}
+					backgroundColor={"#0D0D0D60"}
+					fontColor={"#FFFFFF"}
+					pressedColor={ "#2E2E2E"}
+					border={"solid 1px white"}
+				/>
+			</ButtonContainer>
+			// <AlreadyFollowingButtonPressable onPress={unfollowOnPress}>
+			// 	<FollowButtonText>{'Following'}</FollowButtonText>
+			// </AlreadyFollowingButtonPressable>
 		);
 	}
 
 	const NotYetFollowingButton = () => {
 		return (
-			<NotYetFollowingButtonPressable onPress={followOnPress}>
-				<FollowButtonText>{'Follow'}</FollowButtonText>
-			</NotYetFollowingButtonPressable>
+			<ButtonContainer>
+				<Button 
+					onPress={followOnPress}
+					rightIcon={fancy ? <Icon type='ionicon' name='person-add' size={16} color='white' /> : null}
+					text='Follow'
+					borderRadius={bar ? "25px" : "8px"}
+					backgroundColor={ReelayColors.reelayBlue + "DE"}
+				/>
+			</ButtonContainer>
+			// <NotYetFollowingButtonPressable onPress={followOnPress}>
+			// 	<FollowButtonText>{'Follow'}</FollowButtonText>
+			// </NotYetFollowingButtonPressable>
 		);
 	};
 

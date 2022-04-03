@@ -2,11 +2,9 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Image, Pressable, RefreshControl, SafeAreaView, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
-import { ActionButton, BWButton } from '../../components/global/Buttons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../../context/AuthContext';
 import { FlatList } from 'react-native-gesture-handler';
-import { followCreator, getReelay, prepareReelay } from '../../api/ReelayDBApi';
+import FollowButton from '../../components/global/FollowButton';
 import { handlePushNotificationResponse } from '../../navigation/NotificationHandler';
 import { HeaderWithBackButton } from '../../components/global/Headers';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
@@ -106,71 +104,6 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     const [pressed, setPressed] = useState(false);
     const timestamp = moment(createdAt).fromNow();
 
-    const FollowButton = ({ followedByUser }) => {
-        const FollowButtonContainer = styled(View)`
-            height: 40px;
-            width: 90px;
-            justify-content: center;
-        `
-        const myFollowing = useSelector(state => state.myFollowing);
-        const alreadyFollowing = !!myFollowing.find((nextUser) => {
-            return (nextUser?.creatorSub === followedByUser?.sub);
-        });
-
-        const followUser = async () => {
-            const followResult = await followCreator(followedByUser?.sub, reelayDBUser?.sub);
-            const success = !followResult?.error && !followResult?.requestStatus;
-            
-            if (success) {
-                const allMyFollowing = [...myFollowing, followResult];
-                dispatch({ type: 'setMyFollowing', payload: allMyFollowing });
-                await AsyncStorage.setItem('myFollowing', JSON.stringify(allMyFollowing));
-            } else {
-                logAmplitudeEventProd('followCreatorError', {
-                    error: followResult?.error,
-                    requestStatus: followResult?.requestStatus,
-                });
-                return;
-            }
-    
-            logAmplitudeEventProd('followedCreator', {
-                username: reelayDBUser?.username,
-                creatorName: followedByUser?.username,
-            });
-    
-            await notifyCreatorOnFollow({
-              creatorSub: followedByUser?.sub,
-              follower: reelayDBUser,
-            });
-        }
-
-        if (!alreadyFollowing) {
-            return (
-                <FollowButtonContainer>
-                    <ActionButton
-                        backgroundColor={ReelayColors.reelayRed}
-                        borderColor={ReelayColors.reelayBlack}
-                        borderRadius="8px"
-                        color="blue"
-                        onPress={followUser}
-                        text="Follow"
-                        rightIcon={<Icon type='ionicon' name='person-add' size={16} color='white' />}                
-                    />
-                </FollowButtonContainer>
-            );        
-        } else {
-            return (
-                <FollowButtonContainer>
-                    <BWButton 
-                        borderRadius="8px" 
-                        text="Friends"
-                        rightIcon={<Icon type="ionicon" name="checkmark-circle" color={"white"} size={16} />}                
-                    />
-                </FollowButtonContainer>
-            );
-        }
-    }
-
     const renderNotificationMessage = () => {
         return (
             <React.Fragment>
@@ -234,7 +167,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         ];
 
         if (followButtonTypes.includes(notifyType)) {
-            return <FollowButton followedByUser={fromUser} />
+            return <FollowButton creator={fromUser} fancy followingThem/>
         }
 
         if (posterButtonTypes.includes(notifyType)) {
