@@ -209,6 +209,7 @@ const ReelayFeed = ({ navigation,
             horizontal={false}
             initialNumToRender={1}
             initialScrollIndex={selectedFeedPosition}
+            keyboardShouldPersistTaps={"handled"}
             keyExtractor={(stack) => String(stack[0].title.id)}
             maxToRenderPerBatch={1}
             onEndReached={extendFeed}
