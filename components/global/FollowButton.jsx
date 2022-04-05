@@ -110,9 +110,6 @@ export default FollowButton = ({ creator, bar=false, fancy=false, creatorFollows
 					border={"solid 1px white"}
 				/>
 			</ButtonContainer>
-			// <AlreadyFollowingButtonPressable onPress={unfollowOnPress}>
-			// 	<FollowButtonText>{'Following'}</FollowButtonText>
-			// </AlreadyFollowingButtonPressable>
 		);
 	}
 
@@ -127,9 +124,6 @@ export default FollowButton = ({ creator, bar=false, fancy=false, creatorFollows
 					backgroundColor={ReelayColors.reelayBlue + "DE"}
 				/>
 			</ButtonContainer>
-			// <NotYetFollowingButtonPressable onPress={followOnPress}>
-			// 	<FollowButtonText>{'Follow'}</FollowButtonText>
-			// </NotYetFollowingButtonPressable>
 		);
 	};
 

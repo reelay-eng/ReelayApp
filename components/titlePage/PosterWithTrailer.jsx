@@ -10,6 +10,7 @@ import { AuthContext } from '../../context/AuthContext';
 
 // API
 import { getLogoURL, changeSize, fetchMovieProviders } from '../../api/TMDbApi';
+import { streamingVenues } from '../utils/VenueIcon'
 
 // Styling
 import ReelayColors from "../../constants/ReelayColors";
@@ -93,24 +94,34 @@ export default PosterWithTrailer = ({
 	};
 
 	const PosterTagline = () => {
-		const [topProviderLogoURL, setTopProviderLogoURL] = useState("");
+		const [topProviders, setTopProviders] = useState([]);
 		const componentMounted = useRef(true);
 		const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
 		useEffect(() => {
-			(async () => {
+			const fetchAndConfigureProviders = async () => {
 				var providers = await fetchMovieProviders(tmdbTitleID);
 				if (!providers || !providers.US) return;
 				providers = providers.US;
 				if (providers.flatrate?.length > 0 && componentMounted.current) {
-					providers = providers.flatrate;
+					const ReelayStreamingProviderIDs = streamingVenues.map(venue => venue.tmdbProviderID);
+					const isReelayProvider = (provider) => (ReelayStreamingProviderIDs.includes(provider.provider_id));
+					const providersOnReelay = providers.flatrate.filter(isReelayProvider);
+
 					// check providers to return the first one that is in my streaming subscriptions
-					const providerIsInMyStreaming = (provider) => (myStreamingSubscriptions.find(subscription => subscription.tmdbProviderID === provider.provider_id))
-					const providersInMyStreamingSubscriptions = providers.filter(providerIsInMyStreaming);
-					if (providersInMyStreamingSubscriptions.length > 0) setTopProviderLogoURL(providersInMyStreamingSubscriptions[0].logo_path);
-					// if none are in streaming, return the first one with a flat rate anywhere so I know where I can watch it.
-					else setTopProviderLogoURL(providers[0].logo_path);
+					const providerIsInMyStreaming = (provider) => (myStreamingSubscriptions.some(subscription => subscription.tmdbProviderID == provider.provider_id))
+					// sort the providersOnReelay by those who satisfy providerIsInMyStreaming. For each of those, place an 'isInMyStreaming' boolean field on the resulting object.
+					const providersOnReelayWithIsInMyStreaming = providersOnReelay.map(provider => ({
+						...provider,
+						isInMyStreaming: providerIsInMyStreaming(provider)
+					}));
+					// sort the providersOnReelayWithIsInMyStreaming by the isInMyStreaming boolean field.
+					const providersOnReelaySorted = providersOnReelayWithIsInMyStreaming.sort((a, b) => (a.isInMyStreaming ? -1 : 1));
+					console.log("Providers sorted by my streaming", providersOnReelaySorted);
+					if (componentMounted.current) setTopProviders(providersOnReelaySorted);
 				}
-			})();
+			}
+
+			fetchAndConfigureProviders();
 			return () => {
 				componentMounted.current = false;
 			};
@@ -133,15 +144,46 @@ export default PosterWithTrailer = ({
 			align-items: flex-start;
 			justify-content: space-between;
 		`;
-		const ProviderImage = styled(Image)`
-			width: 30px;
-			height: 30px;
-			border-width: 1px;
-			border-color: #ffffff;
-			border-radius: 15px;
-			margin-left: 0px;
-			margin-right: 10px;
-		`;
+		const ProviderImage = ({ source, highlight }) => {
+			const ProviderImageBase = styled(Image)`
+				width: 30px;
+				height: 30px;
+				border-width: 1px;
+				border-color: ${props => props.highlight ? ReelayColors.reelayBlue : "#ffffff"};
+				border-radius: 15px;
+				margin-left: 0px;
+				margin-right: 10px;
+			`;
+
+			const CheckmarkCircle = styled(View)`
+				position: absolute;
+				align-items: center;
+				justify-content: center;
+				align-self: flex-end;
+				border-radius: 50px;
+			`
+
+			const CheckmarkCircleContainer = styled(View)`
+				position: absolute;
+				width: 32px;
+				height: 32px;
+				flex-direction: column;
+				align-items: flex-end;
+				justify-content: flex-end;
+			`
+			return (
+				<>
+					<ProviderImageBase source={source} highlight={highlight} />
+					{ highlight && (
+						<CheckmarkCircleContainer>
+							<CheckmarkCircle>
+								<Icon style={{background: "white"}}type="ionicon" name="checkmark-circle" size={15} color={ReelayColors.reelayBlue} />
+							</CheckmarkCircle>
+						</CheckmarkCircleContainer>
+					)}
+				</>
+			)
+		}
 		const TaglineTextContainer = styled(View)`
 			display: flex;
 			align-items: center;
@@ -158,16 +200,17 @@ export default PosterWithTrailer = ({
 		//Conversion from minutes to hours and minutes
 		const runtimeString = getRuntimeString(runtime);
 
-		const completeLogoURI = { uri: getLogoURL(topProviderLogoURL)};
-		const sizeCorrectedLogoURI = changeSize(completeLogoURI, "w92");
-
 		return (
 			<TaglineContainer>
-				{topProviderLogoURL.length > 0 && (
-					<ProviderImagesContainer>
-						<ProviderImage source={sizeCorrectedLogoURI} />
-					</ProviderImagesContainer>
-				)}
+				<ProviderImagesContainer>
+				{ topProviders.length > 0 && topProviders.map((provider, index) => {
+					const completeLogoURI = { uri: getLogoURL(provider.logo_path)};
+					const sizeCorrectedLogoURI = changeSize(completeLogoURI, "w92");
+					return (
+						<ProviderImage key={index} source={sizeCorrectedLogoURI} highlight={!!provider.isInMyStreaming}/>
+					);
+				})}
+				</ProviderImagesContainer>
 				<TaglineTextContainer>
 					<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}    {isMovie ? runtimeString : null} </TaglineText>
 				</TaglineTextContainer>
