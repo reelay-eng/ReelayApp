@@ -98,30 +98,42 @@ export default PosterWithTrailer = ({
 		const componentMounted = useRef(true);
 		const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
 		useEffect(() => {
-			const fetchAndConfigureProviders = async () => {
-				var providers = await fetchMovieProviders(tmdbTitleID);
-				if (!providers || !providers.US) return;
-				providers = providers.US;
-				if (providers.flatrate?.length > 0 && componentMounted.current) {
-					const ReelayStreamingProviderIDs = streamingVenues.map(venue => venue.tmdbProviderID);
-					const isReelayProvider = (provider) => (ReelayStreamingProviderIDs.includes(provider.provider_id));
-					const providersOnReelay = providers.flatrate.filter(isReelayProvider);
+			/**
+			 * This was an attempt at navigating TMDB's api to display correct providers. 
+			 * It comes with UI styling for what the venues SHOULD look like in the future.
+			 * Only delete when you're sure it's not needed.
+			 * 
+			 * * Note that this does work: it does display all places you can *stream* the given movie.
+			 * * However, it fails to account for where you can buy / rent / watch it otherwise on that platform. 
+			*/
 
-					// check providers to return the first one that is in my streaming subscriptions
-					const providerIsInMyStreaming = (provider) => (myStreamingSubscriptions.some(subscription => subscription.tmdbProviderID == provider.provider_id))
-					// sort the providersOnReelay by those who satisfy providerIsInMyStreaming. For each of those, place an 'isInMyStreaming' boolean field on the resulting object.
-					const providersOnReelayWithIsInMyStreaming = providersOnReelay.map(provider => ({
-						...provider,
-						isInMyStreaming: providerIsInMyStreaming(provider)
-					}));
-					// sort the providersOnReelayWithIsInMyStreaming by the isInMyStreaming boolean field.
-					const providersOnReelaySorted = providersOnReelayWithIsInMyStreaming.sort((a, b) => (a.isInMyStreaming ? -1 : 1));
-					console.log("Providers sorted by my streaming", providersOnReelaySorted);
-					if (componentMounted.current) setTopProviders(providersOnReelaySorted);
-				}
-			}
+			// const fetchAndConfigureProviders = async () => {
+			// 	var providersRaw = await fetchMovieProviders(tmdbTitleID);
+			// 	if (!providersRaw || !providers.US) return;
+			// 	providersRaw = providers.US;
+			// 	var providers = [].concat(providers.flatrate, providers.rent, providers.buy).filter(e => e !== undefined)
+			// 	var providersIDs = providers.map(e => e.provider_id);
+			// 	providers = providers.filter((provider, index) => providersIDs.indexOf(provider.provider_id) === index)
+			// 	if (providers.length > 0 && componentMounted.current) {
+			// 		const ReelayStreamingProviderIDs = streamingVenues.map(venue => venue.tmdbProviderID);
+			// 		const isReelayProvider = (provider) => (ReelayStreamingProviderIDs.includes(provider.provider_id));
+			// 		const providersOnReelay = providers.filter(isReelayProvider);
 
-			fetchAndConfigureProviders();
+			// 		// check providers to return the first one that is in my streaming subscriptions
+			// 		const providerIsInMyStreaming = (provider) => (myStreamingSubscriptions.some(subscription => subscription.tmdbProviderID == provider.provider_id))
+			// 		// sort the providersOnReelay by those who satisfy providerIsInMyStreaming. For each of those, place an 'isInMyStreaming' boolean field on the resulting object.
+			// 		const providersOnReelayWithIsInMyStreaming = providersOnReelay.map(provider => ({
+			// 			...provider,
+			// 			isInMyStreaming: providerIsInMyStreaming(provider)
+			// 		}));
+			// 		// sort the providersOnReelayWithIsInMyStreaming by the isInMyStreaming boolean field.
+			// 		const providersOnReelaySorted = providersOnReelayWithIsInMyStreaming.sort((a, b) => (a.isInMyStreaming ? -1 : 1)).slice(0, 3);
+			// 		console.log("Providers sorted by my streaming", providersOnReelaySorted);
+			// 		if (componentMounted.current) setTopProviders(providersOnReelaySorted);
+			// 	}
+			// }
+
+			// fetchAndConfigureProviders();
 			return () => {
 				componentMounted.current = false;
 			};
@@ -136,7 +148,6 @@ export default PosterWithTrailer = ({
 			margin-bottom: 15px;
 			margin-top: 5px;
 		`;
-		// in case we want to have multiple provider images
 
 		const ProviderImagesContainer = styled(View)`
 			display: flex;
@@ -164,15 +175,15 @@ export default PosterWithTrailer = ({
 			`
 
 			const CheckmarkCircleContainer = styled(View)`
-				position: absolute;
 				width: 32px;
 				height: 32px;
 				flex-direction: column;
 				align-items: flex-end;
 				justify-content: flex-end;
+				position: absolute;
 			`
 			return (
-				<>
+				<View style={{position: "relative"}}>
 					<ProviderImageBase source={source} highlight={highlight} />
 					{ highlight && (
 						<CheckmarkCircleContainer>
@@ -181,7 +192,7 @@ export default PosterWithTrailer = ({
 							</CheckmarkCircle>
 						</CheckmarkCircleContainer>
 					)}
-				</>
+				</View>
 			)
 		}
 		const TaglineTextContainer = styled(View)`
@@ -203,13 +214,13 @@ export default PosterWithTrailer = ({
 		return (
 			<TaglineContainer>
 				<ProviderImagesContainer>
-				{ topProviders.length > 0 && topProviders.map((provider, index) => {
+				{/* { topProviders.length > 0 && topProviders.map((provider, index) => {
 					const completeLogoURI = { uri: getLogoURL(provider.logo_path)};
 					const sizeCorrectedLogoURI = changeSize(completeLogoURI, "w92");
 					return (
 						<ProviderImage key={index} source={sizeCorrectedLogoURI} highlight={!!provider.isInMyStreaming}/>
 					);
-				})}
+				})} */}
 				</ProviderImagesContainer>
 				<TaglineTextContainer>
 					<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}    {isMovie ? runtimeString : null} </TaglineText>
