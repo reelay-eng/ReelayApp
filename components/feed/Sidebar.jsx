@@ -29,7 +29,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 		text-align: left;
 
 		color: #fff;
-		text-shadow-color: rgba(0, 0, 0, 0.2);
+		text-shadow-color: rgba(0, 0, 0, 0.3);
 		text-shadow-offset: 1px 1px;
 		text-shadow-radius: 1px;
 	`
@@ -50,6 +50,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 		justify-content: center;
 		margin-top: 8px;
 		width: 44px;
+		box-shadow: 0px 1px 1px rgba(0,0,0,0.7);
 	`
 	const ButtonContainer = styled(View)`
 		align-items: center;
@@ -160,7 +161,6 @@ export default Sidebar = ({ navigation, reelay }) => {
 						type="ionicon"
 						name="heart"
 						color={likedByUser ? ReelayColors.reelayRed : "white"}
-						// iconStyle={IconDropShadowStyle}
 						size={ICON_SIZE}
 					/>
 				</SidebarButton>
@@ -176,7 +176,6 @@ export default Sidebar = ({ navigation, reelay }) => {
 						type="ionicon"
 						name="chatbubble-ellipses"
 						color={'white'}
-						// iconStyle={IconDropShadowStyle}
 						size={ICON_SIZE}
 					/>
 				</SidebarButton>
@@ -195,8 +194,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 					<Icon 
 						type='ionicon' 
 						name={'ellipsis-horizontal'} 
-						color={'white'} 
-						// iconStyle={IconDropShadowStyle}
+						color={'white'}
 						size={DOT_ICON_SIZE} 
 					/>
 				</SidebarButton>

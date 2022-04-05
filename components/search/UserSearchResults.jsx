@@ -9,7 +9,7 @@ const FollowItemContainer = styled(View)`
     border-bottom-width: 0.3px;
 `;
 
-const UserSearchResults = ({ navigation, searchResults, setCreatorFollowers, setDrawerFollowObj, setDrawerOpen }) => {
+const UserSearchResults = ({ navigation, searchResults }) => {
     const ROW_HEIGHT = 165;
 	const SearchResultsScrollContainer = styled(ScrollView)`
 		margin-bottom: ${ROW_HEIGHT + 105}px;
@@ -24,9 +24,6 @@ const UserSearchResults = ({ navigation, searchResults, setCreatorFollowers, set
                             <UserSearchResultItem
                               result={result}
                               navigation={navigation}
-                              setCreatorFollowers={setCreatorFollowers}
-                              setDrawerFollowObj={setDrawerFollowObj}
-                              setDrawerOpen={setDrawerOpen}
                             />
                           </FollowItemContainer>
                         );

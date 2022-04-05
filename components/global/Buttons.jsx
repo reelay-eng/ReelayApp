@@ -82,15 +82,6 @@ export const Button = ({
 	);
 };
 
-export const ActionButton2 = ({ 
-	actionType='primary',
-	onPress,
-	disabled=false,
-
-}) => {
-
-}
-
 export const ActionButton = ({
 	text,
     onPress,
