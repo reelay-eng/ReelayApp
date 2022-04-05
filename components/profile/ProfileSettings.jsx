@@ -164,9 +164,7 @@ const Logout = () => {
             dispatch({ type: 'setSignedIn', payload: false });
             setReelayDBUserID(null);
             deregisterSocialAuthToken();
-            // todo: deregister for push tokens
-            console.log('push token plz be gone')
-            registerPushTokenForUser(reelayDBUserID, null); // need to get it to properly set upon sign in
+            registerPushTokenForUser(reelayDBUserID, null); 
             // todo: deregister cognito user
             console.log(signOutResult);
             await clearLocalUserData();
