@@ -22,14 +22,12 @@ export const stacksOnStreamingReducer = ({ stacksOnStreaming, streamingSubscript
     const subscribedVenues = streamingSubscriptions.map(subscription => subscription.platform);
     const bringReelayWithSubscribedVenueToFront = (reelayStack) => {
         const reelayFromSubscribedVenue = (reelay) => {
-            console.log('Reelay content: ', reelay?.content);
             if (!reelay?.content?.venue) return false;
             return subscribedVenues.includes(reelay.content.venue);
         }
         const firstIndexWithSubscribedPlatform = reelayStack.findIndex(reelayFromSubscribedVenue);
 
         if (firstIndexWithSubscribedPlatform !== -1) {
-            console.log('Found an index with a subscribed venue');
             arrayMove(reelayStack, firstIndexWithSubscribedPlatform, 0);
         }
         return reelayStack;

@@ -96,13 +96,6 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
             border-bottom-color: #2D2D2D;
             border-bottom-width: 1px;
         `
-        // const GrayBar = styled(View)`
-        //     border-radius: 10px;
-        //     opacity: 0.2;
-        //     border: solid 2px white;
-        //     width: 70px;
-        //     align-self: center;
-        // `
         const HeaderText = styled(ReelayText.CaptionEmphasized)`
             position: absolute;
             align-self: center;
@@ -115,7 +108,6 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 		
         return (
             <HeaderContainer>
-                {/* <GrayBar /> */}
                 <HeaderText>{headerText}</HeaderText>
                 <CloseButtonContainer onPress={closeDrawer}>
                     <Icon color={'white'} type='ionicon' name='close' size={CLOSE_BUTTON_SIZE}/>
@@ -161,8 +153,8 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 	};
 
     const Comment = ({ comment }) => {
-        const [commentLiked, setCommentLiked] = useState(false); // alter to make default state the database value for whether you've liked that comment yet or not.
-		const [numCommentLikes, setNumCommentLikes] = useState(0); // similarly alter to make default state the database value for the number of comment likes currently
+        const [commentLiked, setCommentLiked] = useState(comment?.likes?.userLiked ?? false);
+		const [numCommentLikes, setNumCommentLikes] = useState(comment?.likes?.numberOfLikes ?? 0); 
         const commentImageSource = {
 			uri: `${CLOUDFRONT_BASE_URL}/public/profilepic-${comment.authorSub}-current.jpg`,
 		}
@@ -187,7 +179,8 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 			justify-content: center;
 		`;
 		const CommentIconText = styled(ReelayText.Caption)`
-			color: #86878b;
+			color: white;
+			margin-top: 4px;
 		`;
 		const CommentTextContainer = styled(View)`
 			display: flex;
@@ -254,7 +247,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 						color={commentLiked ? "#FF4848" : "#FFFFFF"}
 						size={16}
 					/>
-					{numCommentLikes > 1 && (
+					{numCommentLikes > 0 && (
 						<CommentIconText>{numCommentLikes}</CommentIconText>
 					)}
 				</RightCommentIconContainer>
@@ -444,7 +437,6 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 						text={"Post"}
 						onPress={(commentText) => {
 							onCommentPost(commentText);
-							// Keyboard.dismiss();
 						}}
 					/>
 				</PostButtonContainer>
@@ -460,7 +452,6 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 						<Backdrop onPress={closeDrawer} />
 						<DrawerContainer>
 							<CommentBox />
-							{/* <CloseButton /> */}
 						</DrawerContainer>
 					</KeyboardAvoidingView>
 				</Modal>

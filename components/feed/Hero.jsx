@@ -25,14 +25,34 @@ const Hero = ({ index, navigation, reelay, viewable }) => {
 
     console.log('Hero is rendering: ', reelayDBUser?.username, reelay.title.display);
 
-    const loadCommentLikesForReelay = async () => {
+    const addLikesToComment = (commentID, commentLikeObj) => {
+        const matchCommentID = (nextCommentObj) => (nextCommentObj.id === commentID);
+        const commentObj = reelay?.comments?.find(matchCommentID);
+        commentObj.likes = commentLikeObj;
+    }
+
+    const loadCommentLikes = async () => {
         const commentLikes = await getCommentLikesForReelay(reelay.sub, reelayDBUser?.sub);
-        console.log('COMMENT LIKES FOR REELAY: ', reelay.title.display, reelay.creator.username);
-        console.log(commentLikes);
+        const singleReelayEntry = commentLikes?.reelays?.[reelay.sub];
+        if (singleReelayEntry) {
+            const commentEntries = singleReelayEntry?.comments;
+            if (!commentEntries) {
+                console.log('error: could not load comment entries');
+                return;
+            }
+            const commentIDs = Object.keys(commentEntries);
+            commentIDs.forEach((commentID) => {
+                console.log('comment id with like attached: ', commentID);
+                const commentLikeObj = commentEntries[commentID];
+                addLikesToComment(commentID, commentLikeObj);
+            })
+        }
+        reelay.commentLikesLoaded = true;
     }
 
     useEffect(() => {
-        loadCommentLikesForReelay();
+        if (reelay?.commentLikesLoaded) return;
+        loadCommentLikes();
     }, []);
 
     return (

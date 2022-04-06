@@ -249,7 +249,8 @@ const prepareStacks = async (fetchedStacks) => {
 }
 
 export const getCommentLikesForReelay = async (reelaySub, reqUserSub) => {
-    const routeGet = `${REELAY_API_BASE_URL}/comments/likes/all?reelaySub=${reelaySub}&userSub=${reqUserSub}`;
+    const reelaySubsJSON = JSON.stringify([reelaySub]);
+    const routeGet = `${REELAY_API_BASE_URL}/comments/likes/all?reelaySubs=${reelaySubsJSON}&userSub=${reqUserSub}`;
     const resultGet = await fetchResults(routeGet, {
         method: 'GET',
         headers: REELAY_API_HEADERS,
@@ -480,9 +481,9 @@ export const removeComment = async (commentID, reqUserSub) => {
     // todo
 }
 
-export const removeCommentLike = async (commentID, likerSub) => {
+export const removeCommentLike = async (commentUUID, userSub) => {
     // todo
-    const routeDelete = `${REELAY_API_BASE_URL}/comments/like`;
+    const routeDelete = `${REELAY_API_BASE_URL}/comments/like?commentUUID=${commentUUID}&userSub=${userSub}`;
     const resultDelete = await fetchResults(routeDelete, {
         method: 'DELETE',
         headers: REELAY_API_HEADERS,
