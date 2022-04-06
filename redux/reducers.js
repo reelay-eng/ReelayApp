@@ -21,7 +21,11 @@ const isSameTitle = (title0, title1) => {
 export const stacksOnStreamingReducer = ({ stacksOnStreaming, streamingSubscriptions }) => {
     const subscribedVenues = streamingSubscriptions.map(subscription => subscription.platform);
     const bringReelayWithSubscribedVenueToFront = (reelayStack) => {
-        const reelayFromSubscribedVenue = (reelay) => subscribedVenues.includes(reelay.content.venue);
+        const reelayFromSubscribedVenue = (reelay) => {
+            console.log('Reelay content: ', reelay?.content);
+            if (!reelay?.content?.venue) return false;
+            return subscribedVenues.includes(reelay.content.venue);
+        }
         const firstIndexWithSubscribedPlatform = reelayStack.findIndex(reelayFromSubscribedVenue);
 
         if (firstIndexWithSubscribedPlatform !== -1) {

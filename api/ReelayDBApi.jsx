@@ -248,6 +248,16 @@ const prepareStacks = async (fetchedStacks) => {
     return await Promise.all(fetchedStacks.map(prepareReelaysForStack));
 }
 
+export const getCommentLikesForReelay = async (reelaySub, reqUserSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/comments/likes/all?reelaySub=${reelaySub}&userSub=${reqUserSub}`;
+    const resultGet = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: REELAY_API_HEADERS,
+    });
+    console.log('Getting comment likes: ', resultGet);
+    return resultGet;
+}
+
 export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
     console.log(`Getting most recent ${feedSource} reelays...`);
     const routeGet = `${REELAY_API_BASE_URL}/feed/${feedSource}?page=${page}&visibility=${FEED_VISIBILITY}`;
@@ -355,6 +365,18 @@ export const postCommentToDB = async (commentBody, reelaySub) => {
     return resultPost;
 }
 
+export const postCommentLikeToDB = async (commentUUID, commentAuthorSub, commentLikerSub) => {
+    const reqBody = { commentUUID, commentAuthorSub, commentLikerSub };
+    const routePost = `${REELAY_API_BASE_URL}/comments/like`;
+    const resultPost = await fetchResults(routePost, {
+        method: 'POST',
+        body: JSON.stringify(reqBody),
+        headers: REELAY_API_HEADERS,
+    });
+    console.log('Posted comment like: ', resultPost);
+    return resultPost;
+}
+
 export const postLikeToDB = async (likeBody, reelaySub) => {
     const routePost = `${REELAY_API_BASE_URL}/reelays/sub/${reelaySub}/likes`;
     const resultPost = await fetchResults(routePost, {
@@ -454,7 +476,20 @@ export const registerPushTokenForUser = async (userSub, pushToken) => {
     return resultPatch;
 }
 
-// todo: make a remove comment function
+export const removeComment = async (commentID, reqUserSub) => {
+    // todo
+}
+
+export const removeCommentLike = async (commentID, likerSub) => {
+    // todo
+    const routeDelete = `${REELAY_API_BASE_URL}/comments/like`;
+    const resultDelete = await fetchResults(routeDelete, {
+        method: 'DELETE',
+        headers: REELAY_API_HEADERS,
+    });
+    console.log('Deleted comment like: ', resultDelete);
+    return resultDelete;
+}
 
 export const removeLike = async (like) => {
     const removeBody = {

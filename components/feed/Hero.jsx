@@ -12,6 +12,7 @@ import CommentsDrawer from './CommentsDrawer';
 import Reelay3DotDrawer from './Reelay3DotDrawer';
 import JustShowMeSignupDrawer from '../global/JustShowMeSignupDrawer';
 import Constants from 'expo-constants';
+import { getCommentLikesForReelay } from '../../api/ReelayDBApi';
 
 const Hero = ({ index, navigation, reelay, viewable }) => {
     const likesVisible = useSelector(state => state.likesVisible);
@@ -23,6 +24,16 @@ const Hero = ({ index, navigation, reelay, viewable }) => {
     const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
 
     console.log('Hero is rendering: ', reelayDBUser?.username, reelay.title.display);
+
+    const loadCommentLikesForReelay = async () => {
+        const commentLikes = await getCommentLikesForReelay(reelay.sub, reelayDBUser?.sub);
+        console.log('COMMENT LIKES FOR REELAY: ', reelay.title.display, reelay.creator.username);
+        console.log(commentLikes);
+    }
+
+    useEffect(() => {
+        loadCommentLikesForReelay();
+    }, []);
 
     return (
         <View key={index} style={{ justifyContent: 'flex-end'}}>

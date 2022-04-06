@@ -27,7 +27,7 @@ import {
 } from '../../api/NotificationsApi';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
-import { getRegisteredUser, getUserByUsername, postCommentToDB } from '../../api/ReelayDBApi';
+import { getRegisteredUser, getUserByUsername, postCommentLikeToDB, postCommentToDB, removeCommentLike } from '../../api/ReelayDBApi';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 
@@ -208,14 +208,10 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 			const commentIsNowLiked = !commentLiked;
 			if (commentIsNowLiked) {
 				setNumCommentLikes(numCommentLikes + 1);
-				/**
-				 * Here, put logic for liking comment in DB and incrementing number of comment likes. React state updates automatically.
-				 */
+				postCommentLikeToDB(comment?.id, comment?.authorSub, reelayDBUser?.sub)
 			} else {
 				setNumCommentLikes(numCommentLikes - 1);
-				/**
-				 * Here, put logic for liking comment in DB and incrementing number of comment likes. React state updates automatically.
-				 */
+				removeCommentLike(comment?.id, reelayDBUser?.sub);
 			}
 			setCommentLiked(commentIsNowLiked);
 		};
@@ -251,17 +247,17 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 
 				{/* On implementing comment likes, remove the view below and uncomment the snippet below. */}
 				<View />
-				{/* <RightCommentIconContainer onPress={toggleCommentLike}>
-                            <Icon
-                                type="ionicon"
-                                name={commentLiked ? "heart" : "heart-outline"}
-                                color={commentLiked ? "#FF4848" : "#FFFFFF"}
-                                size={16}
-                            />
-                            {numCommentLikes > 1 && (
-                                <CommentIconText>{numCommentLikes}</CommentIconText>
-                            )}
-                        </RightCommentIconContainer> */}
+				<RightCommentIconContainer onPress={toggleCommentLike}>
+					<Icon
+						type="ionicon"
+						name={commentLiked ? "heart" : "heart-outline"}
+						color={commentLiked ? "#FF4848" : "#FFFFFF"}
+						size={16}
+					/>
+					{numCommentLikes > 1 && (
+						<CommentIconText>{numCommentLikes}</CommentIconText>
+					)}
+				</RightCommentIconContainer>
 			</CommentItemContainer>
 		);
 	};
