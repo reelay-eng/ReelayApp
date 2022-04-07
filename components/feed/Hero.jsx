@@ -42,7 +42,6 @@ const Hero = ({ index, navigation, reelay, viewable }) => {
             }
             const commentIDs = Object.keys(commentEntries);
             commentIDs.forEach((commentID) => {
-                console.log('comment id with like attached: ', commentID);
                 const commentLikeObj = commentEntries[commentID];
                 addLikesToComment(commentID, commentLikeObj);
             })

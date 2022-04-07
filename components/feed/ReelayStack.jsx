@@ -118,7 +118,6 @@ const ReelayStack = ({
         const reelay = item;
         const reelayViewable = stackViewable && (index === stackPosition);  
         
-        console.log('can go back: ', navigation.canGoBack());
         return (
             <ReelayFeedContainer key={reelay.id}>
                 <Hero 

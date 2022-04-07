@@ -90,7 +90,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
         const HeaderContainer = styled(View)`
             justify-content: center;
             margin-left: 12px;
-            margin-right: 12px;
+            margin-right: 20px;
             padding-top: 10px;
             padding-bottom: 10px;
             border-bottom-color: #2D2D2D;
@@ -173,10 +173,8 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 			margin-top: 4px;
 		`;
 		const RightCommentIconContainer = styled(Pressable)`
-			width: 10%;
-			flex-direction: column;
 			align-items: center;
-			justify-content: center;
+			justify-content: flex-start;
 		`;
 		const CommentIconText = styled(ReelayText.Caption)`
 			color: white;
@@ -238,8 +236,6 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 					</CommentText>
 				</CommentTextContainer>
 
-				{/* On implementing comment likes, remove the view below and uncomment the snippet below. */}
-				<View />
 				<RightCommentIconContainer onPress={toggleCommentLike}>
 					<Icon
 						type="ionicon"
