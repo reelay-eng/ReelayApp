@@ -13,6 +13,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Button, Icon } from 'react-native-elements';
+import { RectButton, Swipeable } from 'react-native-gesture-handler';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
@@ -174,16 +175,17 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 		`;
 		const RightCommentIconContainer = styled(Pressable)`
 			align-items: center;
-			justify-content: flex-start;
+			justify-content: center;
+			top: 3px;
 		`;
 		const CommentIconText = styled(ReelayText.Caption)`
-			color: white;
-			margin-top: 4px;
+			color: #86878b;
+			font-size: 12px;
 		`;
 		const CommentTextContainer = styled(View)`
 			display: flex;
 			flex-direction: column;
-			width: 80%;
+			width: 75%;
 		`;
 		const CommentText = styled(ReelayText.Body2)`
 			color: white;
@@ -241,11 +243,9 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 						type="ionicon"
 						name={commentLiked ? "heart" : "heart-outline"}
 						color={commentLiked ? "#FF4848" : "#FFFFFF"}
-						size={16}
+						size={15}
 					/>
-					{numCommentLikes > 0 && (
-						<CommentIconText>{numCommentLikes}</CommentIconText>
-					)}
+					<CommentIconText>{(numCommentLikes>0) ? numCommentLikes : " "}</CommentIconText>
 				</RightCommentIconContainer>
 			</CommentItemContainer>
 		);
