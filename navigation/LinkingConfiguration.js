@@ -4,8 +4,12 @@
  * https://reactnavigation.org/docs/configuring-links
  */
 
+import * as Linking from 'expo-linking';
+
+const prefix = Linking.createURL('/');
+
 export default {
-	prefixes: ["reelay://", "reelayapp://", "https://on.reelay.app/*"],
+	prefixes: [prefix, "https://on.reelay.app/*"],
 	config: {
 		screens: {
 			Authenticated: {

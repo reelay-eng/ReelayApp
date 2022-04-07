@@ -23,6 +23,7 @@ import 'react-native-get-random-values';
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import * as Amplitude from 'expo-analytics-amplitude';
+import * as Linking from 'expo-linking';
 import { logAmplitudeEventProd } from './components/utils/EventLogger';
 import { StatusBar } from 'expo-status-bar';
 import useColorScheme from './hooks/useColorScheme';
@@ -61,16 +62,20 @@ function App() {
 
     // Auth context hooks
     const [cognitoUser, setCognitoUser] = useState({});
-
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [reelayDBUserID, setReelayDBUserID] = useState(null);
 
+    // Deep linking
+    const [deeplinkURL, setDeeplinkUrl] = useState(null);
+
     useEffect(() => {
-        (async () => {
-            await initServices();
-            await autoAuthenticateUser(); // this should just update cognitoUser
-        })()
+        initReelayApp();
+        return initReelayAppCleanup;
     }, []);
+
+    useEffect(() => {
+        console.log('DEEPLINK URL: ', deeplinkURL);
+    }, [deeplinkURL]);
 
     /**
      * The following useEffect statements are set up to allow EITHER
@@ -141,7 +146,17 @@ function App() {
         }
     }
 
+    const initReelayApp = async () => {
+        await initServices();
+        await autoAuthenticateUser();
+    }
+
+    const initReelayAppCleanup = async () => {
+        Linking.removeEventListener('url');
+    }
+
     const initServices = async () => {
+        initDeeplinkHandlers();
         Amplitude.initializeAsync(
             Constants.manifest.extra.amplitudeApiKey
         );
@@ -155,6 +170,7 @@ function App() {
         
         Auth.configure({ mandatorySignIn: false });
         Storage.configure({ level: 'public' });    
+
         initS3Client();
         
         Audio.setAudioModeAsync({
@@ -186,6 +202,21 @@ function App() {
 		} catch (error) {
 			console.log(error);
 		}
+    }
+
+    const handleDeepLink = async (event) => {
+        const deeplinkURL = Linking.parse(event.url);
+        if (deeplinkURL) {
+            setDeeplinkUrl(deeplinkURL);
+        }
+    }
+
+    const initDeeplinkHandlers = async () => {
+        Linking.addEventListener('url', handleDeepLink);
+        const initialURL = await Linking.getInitialURL();
+        if (initialURL) {
+            setDeeplinkUrl(Linking.parse(initialURL));
+        }
     }
 
     const initS3Client = () => {
@@ -299,7 +330,6 @@ function App() {
 
     const authState = {
         cognitoUser,        setCognitoUser,
-
         reelayDBUser,       setReelayDBUser,
         reelayDBUserID,     setReelayDBUserID,
     }
