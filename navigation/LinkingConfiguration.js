@@ -14,6 +14,7 @@ export default {
 					SelectTitleScreen: "SelectTitleScreen",
 					ReelayCameraScreen: "ReelayCameraScreen",
 					ReelayUploadScreen: "ReelayUploadScreen",
+					ReelayInfoScreen: "ReelayInfoScreen",
 					VenueSelectScreen: "VenueSelectScreen",
 					MyProfileScreen: "MyProfileScreen",
 					ProfileSettingsScreen: "ProfileSettingsScreen",

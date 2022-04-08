@@ -394,6 +394,7 @@ export const prepareReelay = async (fetchedReelay) => {
     }
     if (!fetchedReelay.comments) fetchedReelay.comments = [];
     const sortedComments = fetchedReelay.comments.sort(sortCommentsByPostedDate);
+    // console.log(fetchedReelay)
 
     const reportedContent = (fetchedReelay.reviewStatus) ? {
         firstReportedAt: fetchedReelay.firstReportedAt,
@@ -416,7 +417,9 @@ export const prepareReelay = async (fetchedReelay) => {
             videoURI: videoURIObject.videoURI,    
         },
         comments: sortedComments,
+        description: fetchedReelay.description,
         likes: fetchedReelay.likes,
+        starRating: fetchedReelay.starRating,
         sub: fetchedReelay.datastoreSub,
         title: titleObj,
         postedDateTime: fetchedReelay.postedAt ?? fetchedReelay.maxPostedAt,

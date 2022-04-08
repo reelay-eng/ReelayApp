@@ -26,7 +26,17 @@ const ReelayInfo = ({ navigation, reelay }) => {
 		color: white;
 		margin-right: 8px;
 	`
+	const DescriptionContainer = styled(View)`
+		margin-top: 8px;
+		flex-direction: row;
+		align-items: center;
+	`
+	const Description = styled(ReelayText.CaptionEmphasized)`
+		color: white;
+	`
 	const creator = reelay.creator;
+	const description = reelay.description;
+
 	const goToProfile = () => {
 		navigation.push('UserProfileScreen', { creator });
 		logAmplitudeEventProd('viewProfile', { 
@@ -49,6 +59,11 @@ const ReelayInfo = ({ navigation, reelay }) => {
 					<FollowButton creator={creator} />
 				</PostInfo>
 			</Pressable>
+
+			{description && 
+			(<DescriptionContainer>
+				<Description>{description}</Description>
+			</DescriptionContainer>)}
 		</InfoView>
 	);
 };

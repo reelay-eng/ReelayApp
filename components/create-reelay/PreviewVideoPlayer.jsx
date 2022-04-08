@@ -21,22 +21,23 @@ export default function VideoPlayer({ videoURI, playing }) {
     }));
 	
 	return (
-			<Video
-				isLooping
-				isMuted={false}
-				progressUpdateIntervalMillis={50}
-				rate={1.0}
-				resizeMode='cover'
-				shouldDuckAndroid={true}
-				shouldPlay={playing && isFocused}
-				source={{ uri: videoURI }}
-				staysActiveInBackground={false}
-				style={{
-					height: '100%',
-					width: '100%',
-				}}
-				useNativeControls={false}
-				volume={1.0}
-			/>
+		<Video
+			isLooping
+			isMuted={false}
+			progressUpdateIntervalMillis={50}
+			rate={1.0}
+			resizeMode='cover'
+			shouldDuckAndroid={true}
+			shouldPlay={playing && isFocused}
+			source={{ uri: videoURI }}
+			staysActiveInBackground={false}
+			style={{
+				height: '100%',
+				width: '100%',
+				borderRadius: 12,
+			}}
+			useNativeControls={false}
+			volume={1.0}
+		/>
 	);
 }
