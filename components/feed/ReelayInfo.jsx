@@ -35,7 +35,8 @@ const ReelayInfo = ({ navigation, reelay }) => {
 		color: white;
 	`
 	const creator = reelay.creator;
-	const description = reelay.description;
+	const description = reelay.description ? reelay.description: "";
+	console.log("description is ",description,"!")
 
 	const goToProfile = () => {
 		navigation.push('UserProfileScreen', { creator });
@@ -60,7 +61,7 @@ const ReelayInfo = ({ navigation, reelay }) => {
 				</PostInfo>
 			</Pressable>
 
-			{description && 
+			{description.length>0 && 
 			(<DescriptionContainer>
 				<Description>{description}</Description>
 			</DescriptionContainer>)}

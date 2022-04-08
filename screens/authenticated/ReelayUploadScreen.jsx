@@ -1,7 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import { UploadContext } from '../../context/UploadContext';
-import { FeedContext } from '../../context/FeedContext';
 
 import { EncodingType, readAsStringAsync } from 'expo-file-system';
 import { Buffer } from 'buffer';
@@ -17,6 +15,8 @@ import {
 
 import ConfirmRetakeDrawer from '../../components/create-reelay/ConfirmRetakeDrawer';  
 
+import Constants from 'expo-constants';
+
 import * as MediaLibrary from 'expo-media-library';
 
 import PreviewVideoPlayer from '../../components/create-reelay/PreviewVideoPlayer';
@@ -29,16 +29,12 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
-<<<<<<< HEAD
 import { notifyOnReelayedRec } from '../../api/WatchlistNotifications';
 import { useDispatch, useSelector } from 'react-redux';
 
-const { height, width } = Dimensions.get('window');
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
 const UPLOAD_CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
-=======
->>>>>>> 96c56e6 (can add descriptions to reelays with a modified upload screen)
 
 const BackButtonPressable = styled(Pressable)`
     top: 10px;

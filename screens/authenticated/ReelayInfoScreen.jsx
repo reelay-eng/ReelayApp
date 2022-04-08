@@ -1,14 +1,8 @@
 import React, { useContext, useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-<<<<<<< HEAD
-import { Rating, AirbnbRating } from 'react-native-ratings';
-=======
-import { UploadContext } from '../../context/UploadContext';
-import { FeedContext } from '../../context/FeedContext';
->>>>>>> 96c56e6 (can add descriptions to reelays with a modified upload screen)
 import StarRating from 'react-native-star-rating';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { EncodingType, readAsStringAsync } from 'expo-file-system';
 import { Buffer } from 'buffer';
@@ -128,15 +122,10 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const [starCount, setStarCount] = useState(0);
     const [confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible] = useState(false);
 
-<<<<<<< HEAD
     const { cognitoUser, reelayDBUser } = useContext(AuthContext);
+    const dispatch = useDispatch();
 	const s3Client = useSelector(state => state.s3Client);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-=======
-    const { cognitoUser, myWatchlistItems, reelayDBUser } = useContext(AuthContext);
-    const { s3Client } = useContext(UploadContext);
-    const { setRefreshOnUpload } = useContext(FeedContext);
->>>>>>> 96c56e6 (can add descriptions to reelays with a modified upload screen)
 
     const descriptionRef = useRef("");
     const descriptionInputRef = useRef(null);
@@ -255,14 +244,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // Post Reelay object to ReelayDB
             // not checking for dupes on uuidv4(), 
             // but a collision is less than a one in a quadrillion chance
-<<<<<<< HEAD
-            console.log("star count is", starCount);
-
-            console.log("star count in upload:", starCount)
-            console.log("reelay description:", descriptionRef.current)
-=======
             
->>>>>>> 96c56e6 (can add descriptions to reelays with a modified upload screen)
             const reelayDBBody = {
                 creatorSub: cognitoUser?.attributes?.sub,
                 creatorName: cognitoUser.username,
@@ -311,15 +293,10 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 reelay: reelayDBBody,
                 watchlistItems: myWatchlistItems,
             });
-<<<<<<< HEAD
-            
-            navigation.navigate("Global", { forceRefresh: true });
-=======
 
-            setRefreshOnUpload(true);
+			dispatch({ type: 'setRefreshOnUpload', payload: true });
             navigation.popToTop();
-            navigation.navigate("FeedScreen", { forceRefresh: true });
->>>>>>> 96c56e6 (can add descriptions to reelays with a modified upload screen)
+            navigation.navigate("Global", { forceRefresh: true });
 
         } catch (error) {
             // todo: better error catching
@@ -538,7 +515,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 </PressableVideoContainer>
                 <InfoContainer>
                     <EditDescription descriptionRef={descriptionRef} descriptionInputRef={descriptionInputRef} />
-                    {/* <StarRating 
+                    <StarRating 
                         disabled={false}
                         maxStars={5}
                         fullStarColor={'#f1c40f'}
@@ -546,7 +523,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                         rating={starCount}
                         selectedStar={onStarRatingPress}
                         starStyle={{width: 50, height: 50}}
-                    /> */}
+                    />
                 </InfoContainer>
             </ScrollView>
             </KeyboardAwareScrollView>
