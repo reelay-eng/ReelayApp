@@ -111,13 +111,13 @@ const UploadBottomArea = styled(Pressable)`
 const UploadBottomBar = styled(SafeAreaView)`
     flex-direction: row;
     justify-content: space-between;
+    margin-top: 20px;
 `
 const UploadProgressBarContainer = styled(View)`
     align-self: center;
+    bottom: 10px;
     justify-content: center;
-    height: 10px;
     width: ${width - 20}px;
-    bottom: 25px;
 `
 const UploadScreenContainer = styled(SafeAreaView)`
     height: 100%;
@@ -447,6 +447,32 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         );
     }
 
+    const DescriptionAndStarRating = () => {
+        return (
+            <InfoContainer>
+                { starCount === 0 && <RatingText>{"Want to rate it?"}</RatingText> }
+                <StarRatingContainer>
+                    <StarRating 
+                        disabled={false}
+                        emptyStarColor={'#c4c4c4'}
+                        maxStars={5}
+                        fullStarColor={'white'}
+                        halfStarEnabled={true}
+                        rating={starCount}
+                        selectedStar={onStarRatingPress}
+                        starSize={30}
+                        starStyle={{ paddingRight: 8 }}
+                    />
+                    { starCount > 0 && 
+                        <ClearRatingContainer onPress={onClearRatingPress}>
+                            <ClearRatingText>{"Clear"}</ClearRatingText>
+                        </ClearRatingContainer>                        
+                    }
+                </StarRatingContainer>
+                <EditDescription descriptionRef={descriptionRef} descriptionInputRef={descriptionInputRef} />
+            </InfoContainer>
+        );
+    }
 
     const EditDescription = ({ descriptionRef, descriptionInputRef }) => {
         const changeInputText = (text) => {
@@ -463,7 +489,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                         maxLength={250}
                         multiline={true}
                         defaultValue={descriptionRef.current}
-                        placeholder={"Add a description..."}
+                        placeholder={"Add a description"}
                         placeholderTextColor={"gray"}
                         onChangeText={changeInputText}
                         onPressOut={Keyboard.dismiss()}
@@ -489,28 +515,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             <Header navigation={navigation} />
             <KeyboardAvoidingView behavior='position'>
                 <UploadBottomArea onPress={Keyboard.dismiss}>
-                    <InfoContainer>
-                        <RatingText>{"Want to rate it?"}</RatingText>
-                        <StarRatingContainer>
-                            <StarRating 
-                                disabled={false}
-                                emptyStarColor={'#c4c4c4'}
-                                maxStars={5}
-                                fullStarColor={'white'}
-                                halfStarEnabled={true}
-                                rating={starCount}
-                                selectedStar={onStarRatingPress}
-                                starSize={30}
-                                starStyle={{ paddingRight: 8 }}
-                            />
-                            { starCount > 0 && 
-                                <ClearRatingContainer onPress={onClearRatingPress}>
-                                    <ClearRatingText>{"Clear"}</ClearRatingText>
-                                </ClearRatingContainer>                        
-                            }
-                        </StarRatingContainer>
-                        <EditDescription descriptionRef={descriptionRef} descriptionInputRef={descriptionInputRef} />
-                    </InfoContainer>
+                    <DescriptionAndStarRating />
                     <UploadProgressBar />
                     <UploadBottomBar>
                         <DownloadButton titleObj={titleObj} videoURI={videoURI} />

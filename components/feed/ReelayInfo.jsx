@@ -28,16 +28,16 @@ const ReelayInfo = ({ navigation, reelay }) => {
 		margin-right: 8px;
 	`
 	const DescriptionContainer = styled(View)`
-		margin-top: 3px;
-		margin-left: 8px;
-		flex-direction: row;
 		align-items: center;
+		flex-direction: row;
+		margin-top: 6px;
+		margin-bottom: 6px;
 	`
 	const Description = styled(ReelayText.Caption)`
 		color: white;
 	`
 	const StarRatingContainer = styled(View)`
-		margin-top: 5px;
+		margin-top: 8px;
 		flex-direction: row;
 		align-items: center;
 		width: 10%;
@@ -74,18 +74,19 @@ const ReelayInfo = ({ navigation, reelay }) => {
 					disabled={true}
 					emptyStarColor={'#c4c4c4'}
 					maxStars={5}
-					fullStarColor={'#f1c40f'}
+					fullStarColor={'white'}
 					halfStarEnabled={true}
 					rating={starRating}
 					starSize={20}
-					starStyle={{marginLeft: 7}}
+					starStyle={{ paddingRight: 4 }}
 				/>
 			</StarRatingContainer>}
 
-			{description.length>0 && 
-			(<DescriptionContainer>
-				<Description>{description}</Description>
-			</DescriptionContainer>)}
+			{(description.length > 0) && 
+				<DescriptionContainer>
+					<Description>{description}</Description>
+				</DescriptionContainer>
+			}
 		</InfoView>
 	);
 };
