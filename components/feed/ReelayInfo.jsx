@@ -44,10 +44,7 @@ const ReelayInfo = ({ navigation, reelay }) => {
 	`
 	const creator = reelay.creator;
 	const description = reelay.description ? reelay.description: "";
-	console.log("add half?", reelay.starRatingAddHalf)
 	const starRating = reelay.starRating + (reelay.starRatingAddHalf ? 0.5 : 0);
-	console.log("description is ",description,"!")
-	console.log("starRating is ",starRating,"!")
 
 	const goToProfile = () => {
 		navigation.push('UserProfileScreen', { creator });

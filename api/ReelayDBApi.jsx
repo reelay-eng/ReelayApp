@@ -394,7 +394,6 @@ export const prepareReelay = async (fetchedReelay) => {
     }
     if (!fetchedReelay.comments) fetchedReelay.comments = [];
     const sortedComments = fetchedReelay.comments.sort(sortCommentsByPostedDate);
-    // console.log(fetchedReelay)
 
     const reportedContent = (fetchedReelay.reviewStatus) ? {
         firstReportedAt: fetchedReelay.firstReportedAt,
