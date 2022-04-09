@@ -13,7 +13,6 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Button, Icon } from 'react-native-elements';
-import { RectButton, Swipeable } from 'react-native-gesture-handler';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
@@ -21,6 +20,7 @@ import Constants from 'expo-constants';
 import { BWButton } from '../global/Buttons';
 import * as ReelayText from '../global/Text';
 import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png';
+import SwipeableComment from './SwipeableComment';
 
 import { 
 	notifyCreatorOnComment,
@@ -128,12 +128,19 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 			width: 100%;
 			padding-top: 13px;
 		`;
-		
+		// gives warning about each child having unique key
         return (
             <CommentsContainer>
-                {comments.map((comment, i) => (
-                    <Comment comment={comment} key={(comment.userID ?? comment.authorName) + comment.postedAt} />
-                ))}
+                {comments.map((comment, i) => {
+					if (comment.authorSub === reelayDBUser.sub)  {
+						return (
+						<SwipeableComment>
+							<Comment comment={comment} key={(comment.userID ?? comment.authorName) + comment.postedAt} />
+						</SwipeableComment>)
+					} else {
+						return (<Comment comment={comment} key={(comment.userID ?? comment.authorName) + comment.postedAt}/>)
+					}
+				})}
             </CommentsContainer>
         );
 	};
@@ -161,9 +168,9 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 		}
         
         const CommentItemContainer = styled(Pressable)`
+			height: 60px;
 			padding-left: 16px;
 			padding-right: 16px;
-			padding-bottom: 13px;
 			display: flex;
 			flex-direction: row;
 		`;
@@ -177,6 +184,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 			align-items: center;
 			justify-content: center;
 			top: 3px;
+			width: 8%;
 		`;
 		const CommentIconText = styled(ReelayText.Caption)`
 			color: #86878b;
@@ -215,15 +223,17 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 		const timestamp = moment(comment.postedAt).fromNow();
 
 		const onPress = async () => {
-			const creator = await getUserByUsername(username);
-			dispatch({ type: 'setCommentsVisible', payload: false });
-			navigation.push("UserProfileScreen", {
-				creator: creator,
-			});
-			logAmplitudeEventProd('viewProfile', {
-				username: username,
-				source: 'commentDrawer',
-			});
+			if (username !== reelayDBUser.username) {
+				const creator = await getUserByUsername(username);
+				dispatch({ type: 'setCommentsVisible', payload: false });
+				navigation.push("UserProfileScreen", {
+					creator: creator,
+				});
+				logAmplitudeEventProd('viewProfile', {
+					username: username,
+					source: 'commentDrawer',
+				});
+			}
 		};
 		
 		return (
