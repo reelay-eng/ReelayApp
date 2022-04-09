@@ -23,7 +23,6 @@ import NotificationSettingsScreen from '../screens/authenticated/NotificationSet
 import ProfileFeedScreen from '../screens/authenticated/ProfileFeedScreen';
 import ProfileSettingsScreen from '../screens/authenticated/ProfileSettingsScreen';
 import ReelayCameraScreen from '../screens/authenticated/ReelayCameraScreen';
-import ReelayInfoScreen from '../screens/authenticated/ReelayInfoScreen';
 import ReelayUploadScreen from '../screens/authenticated/ReelayUploadScreen';
 import ReportedContentFeedScreen from '../screens/authenticated/ReportedContentFeedScreen';
 import SearchScreen from '../screens/authenticated/SearchScreen';
@@ -77,8 +76,6 @@ export default AuthenticatedNavigator = () => {
             <AppStack.Screen name='ReelayCameraScreen' component={ReelayCameraScreen}
                 options={{ headerShown: false }} />
             <AppStack.Screen name='ReelayUploadScreen' component={ReelayUploadScreen}
-                options={{ headerShown: false }} /> 
-			<AppStack.Screen name='ReelayInfoScreen' component={ReelayInfoScreen}
                 options={{ headerShown: false }} /> 
         </AppStack.Navigator>
     );

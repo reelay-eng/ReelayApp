@@ -420,6 +420,7 @@ export const prepareReelay = async (fetchedReelay) => {
         description: fetchedReelay.description,
         likes: fetchedReelay.likes,
         starRating: fetchedReelay.starRating,
+        starRatingAddHalf: fetchedReelay.starRatingAddHalf,
         sub: fetchedReelay.datastoreSub,
         title: titleObj,
         postedDateTime: fetchedReelay.postedAt ?? fetchedReelay.maxPostedAt,

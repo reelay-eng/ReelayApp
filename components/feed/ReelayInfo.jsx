@@ -2,6 +2,7 @@ import React, { memo, useContext, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import ProfilePicture from '../global/ProfilePicture';
+import StarRating from 'react-native-star-rating';
 
 import styled from 'styled-components/native';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -11,7 +12,7 @@ const ReelayInfo = ({ navigation, reelay }) => {
 	const InfoView = styled(View)`
 		justify-content: flex-end;
 		position: absolute;
-		bottom: 100px;
+		bottom: 86px;
 		margin-left: 15px;
 		width: 80%;
 	`
@@ -27,16 +28,26 @@ const ReelayInfo = ({ navigation, reelay }) => {
 		margin-right: 8px;
 	`
 	const DescriptionContainer = styled(View)`
-		margin-top: 8px;
+		margin-top: 3px;
+		margin-left: 8px;
 		flex-direction: row;
 		align-items: center;
 	`
 	const Description = styled(ReelayText.Caption)`
 		color: white;
 	`
+	const StarRatingContainer = styled(View)`
+		margin-top: 5px;
+		flex-direction: row;
+		align-items: center;
+		width: 10%;
+	`
 	const creator = reelay.creator;
 	const description = reelay.description ? reelay.description: "";
+	console.log("add half?", reelay.starRatingAddHalf)
+	const starRating = reelay.starRating + (reelay.starRatingAddHalf ? 0.5 : 0);
 	console.log("description is ",description,"!")
+	console.log("starRating is ",starRating,"!")
 
 	const goToProfile = () => {
 		navigation.push('UserProfileScreen', { creator });
@@ -60,6 +71,19 @@ const ReelayInfo = ({ navigation, reelay }) => {
 					<FollowButton creator={creator} />
 				</PostInfo>
 			</Pressable>
+
+			{(starRating>0) && <StarRatingContainer>
+				<StarRating 
+					disabled={true}
+					emptyStarColor={'#c4c4c4'}
+					maxStars={5}
+					fullStarColor={'#f1c40f'}
+					halfStarEnabled={true}
+					rating={starRating}
+					starSize={20}
+					starStyle={{marginLeft: 7}}
+				/>
+			</StarRatingContainer>}
 
 			{description.length>0 && 
 			(<DescriptionContainer>
