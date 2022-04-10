@@ -55,8 +55,6 @@ const ReelayInfo = ({ navigation, reelay }) => {
 		});
 	}
 
-	console.log('Rerendering reelay info');
-
 	return (
 		<InfoView>
 			<Pressable onPress={goToProfile}>
