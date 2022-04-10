@@ -75,7 +75,7 @@ const DescriptionInput = styled(TextInput)`
     width: 100%;
 `
 const DescriptionInputContainer = styled(View)`
-    background-color: black;
+    background-color: rgba(0,0,0,0.5);
     border-radius: 8px;
     border-color: white;
     border-width: 1px;
@@ -375,21 +375,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             }
         }
 
-        // https://ionic.io/ionicons
-        const getCurrentIconName = () => {
-            if (uploadStage === 'preview') {
-                return 'paper-plane';
-            } else if (uploadStage === 'uploading') {
-                return 'ellipsis-horizontal';
-            } else if (uploadStage === 'upload-complete') {
-                return 'checkmark-done';
-            } else if (uploadStage === 'upload-failed-retry') {
-                return 'reload';
-            } else {
-                return 'help';
-            }
-        }
-
         const getCurrentText = () => {
             if (uploadStage === 'preview') {
                 return 'Post';
@@ -419,7 +404,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
         return (
             <UploadButtonPressable onPress={onPress} color={getCurrentButtonColor()}>
-                {/* <Icon type='ionicon' name={getCurrentIconName()} color={'white'} size={30} /> */}
                 <UploadButtonText>{getCurrentText()}</UploadButtonText>
             </UploadButtonPressable>
         );
