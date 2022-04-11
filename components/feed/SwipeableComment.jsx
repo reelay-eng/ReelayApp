@@ -5,6 +5,7 @@ import { RectButton, Swipeable } from 'react-native-gesture-handler';
 import { AuthContext } from '../../context/AuthContext';
 
 import { showMessageToast } from '../utils/toasts';
+import { removeComment } from '../../api/ReelayDBApi';
 
 const SwipeColors = {
     RED: '#FE4747',
@@ -13,13 +14,15 @@ const SwipeColors = {
 }
 
 // https://snack.expo.dev/@adamgrzybowski/react-native-gesture-handler-demo
-export default SwipeableComment = ({ children, comment }) => {
+export default SwipeableComment = ({ children, commentItem }) => {
     const ICON_SIZE = 15;
     const swipeableRowRef = useRef();
     const { reelayDBUser } = useContext(AuthContext);
+    console.log(commentItem)
 
-    const removeComment = async () => {
+    const removeCommentOnPress = async () => {
         console.log("removing comment");
+        await removeComment(commentItem.id);
     }
 
     const renderRightAction = (onPress, iconName, color, x, progress) => {
@@ -44,7 +47,7 @@ export default SwipeableComment = ({ children, comment }) => {
     };
     const renderRightActions = (progress) => (
         <View style={{ width: 60, height: 61, flexDirection: 'row', marginRight: 10 }}>
-            { renderRightAction(removeComment, 'trash-outline', SwipeColors.RED, 70, progress) }
+            { renderRightAction(removeCommentOnPress, 'trash-outline', SwipeColors.RED, 70, progress) }
         </View>
     );
 

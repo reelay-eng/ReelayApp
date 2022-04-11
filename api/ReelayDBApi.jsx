@@ -476,8 +476,15 @@ export const registerPushTokenForUser = async (userSub, pushToken) => {
     return resultPatch;
 }
 
-export const removeComment = async (commentID, reqUserSub) => {
+export const removeComment = async (commentID) => {
     // todo
+    const routeDelete = `${REELAY_API_BASE_URL}/comments/${commentID}`;
+    const resultDelete = await fetchResults(routeDelete, {
+        method: 'DELETE',
+        headers: REELAY_API_HEADERS,
+    });
+    console.log('Deleted comment like: ', resultDelete);
+    return resultDelete;
 }
 
 export const removeCommentLike = async (commentUUID, userSub) => {

@@ -134,7 +134,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
                 {comments.map((comment, i) => {
 					if (comment.authorSub === reelayDBUser.sub)  {
 						return (
-						<SwipeableComment>
+						<SwipeableComment commentItem={comment}>
 							<Comment comment={comment} key={(comment.userID ?? comment.authorName) + comment.postedAt} />
 						</SwipeableComment>)
 					} else {
