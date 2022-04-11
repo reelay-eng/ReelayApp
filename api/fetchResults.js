@@ -1,6 +1,6 @@
 // https://dmitripavlutin.com/timeout-fetch-request/
-export const fetchResults = async (query, options={ timeout: 8000 }) => {
-    const { timeout = 8000 } = options;
+export const fetchResults = async (query, options={ timeout: 30000 }) => {
+    const { timeout = 30000 } = options;
 
     try {
         const controller = new AbortController();

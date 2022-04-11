@@ -65,17 +65,10 @@ function App() {
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [reelayDBUserID, setReelayDBUserID] = useState(null);
 
-    // Deep linking
-    const [deeplinkURL, setDeeplinkUrl] = useState(null);
-
     useEffect(() => {
         initReelayApp();
-        return initReelayAppCleanup;
     }, []);
 
-    useEffect(() => {
-        console.log('DEEPLINK URL: ', deeplinkURL);
-    }, [deeplinkURL]);
 
     /**
      * The following useEffect statements are set up to allow EITHER
@@ -151,12 +144,7 @@ function App() {
         await autoAuthenticateUser();
     }
 
-    const initReelayAppCleanup = async () => {
-        Linking.removeEventListener('url');
-    }
-
     const initServices = async () => {
-        initDeeplinkHandlers();
         Amplitude.initializeAsync(
             Constants.manifest.extra.amplitudeApiKey
         );
@@ -170,7 +158,6 @@ function App() {
         
         Auth.configure({ mandatorySignIn: false });
         Storage.configure({ level: 'public' });    
-
         initS3Client();
         
         Audio.setAudioModeAsync({
@@ -202,21 +189,6 @@ function App() {
 		} catch (error) {
 			console.log(error);
 		}
-    }
-
-    const handleDeepLink = async (event) => {
-        const deeplinkURL = Linking.parse(event.url);
-        if (deeplinkURL) {
-            setDeeplinkUrl(deeplinkURL);
-        }
-    }
-
-    const initDeeplinkHandlers = async () => {
-        Linking.addEventListener('url', handleDeepLink);
-        const initialURL = await Linking.getInitialURL();
-        if (initialURL) {
-            setDeeplinkUrl(Linking.parse(initialURL));
-        }
     }
 
     const initS3Client = () => {

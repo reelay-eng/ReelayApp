@@ -10,7 +10,7 @@ export default ({ config }) => {
         if (process.env.NODE_ENV === 'dev' ||
             process.env.NODE_ENV === 'devg') return 'https://api-dev.reelay.app';
         if (process.env.NODE_ENV === 'local' || 
-            process.env.NODE_ENV === 'localg') return 'https://reelay-api-dev.loca.lt';
+            process.env.NODE_ENV === 'localg') return 'https://reelay-api-dev2.loca.lt';
 
         // should be unreachable but just in case
         return 'https://api-prod.reelay.app';
