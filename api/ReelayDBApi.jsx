@@ -103,7 +103,6 @@ export const getReportedReelayStacks = async () => {
 
 export const getAllDonateLinks = async () => {
     const routeGet = `${REELAY_API_BASE_URL}/donateLinks/all`;
-    console.log('donate links route: ', routeGet);
     const resultGet = await fetchResults(routeGet, {
         method: "GET",
         headers: REELAY_API_HEADERS,
@@ -416,7 +415,10 @@ export const prepareReelay = async (fetchedReelay) => {
             videoURI: videoURIObject.videoURI,    
         },
         comments: sortedComments,
+        description: fetchedReelay.description,
         likes: fetchedReelay.likes,
+        starRating: fetchedReelay.starRating,
+        starRatingAddHalf: fetchedReelay.starRatingAddHalf,
         sub: fetchedReelay.datastoreSub,
         title: titleObj,
         postedDateTime: fetchedReelay.postedAt ?? fetchedReelay.maxPostedAt,

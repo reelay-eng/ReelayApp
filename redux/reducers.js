@@ -25,7 +25,6 @@ export const stacksOnStreamingReducer = ({ stacksOnStreaming, streamingSubscript
         const firstIndexWithSubscribedPlatform = reelayStack.findIndex(reelayFromSubscribedVenue);
 
         if (firstIndexWithSubscribedPlatform !== -1) {
-            console.log('Found an index with a subscribed venue');
             arrayMove(reelayStack, firstIndexWithSubscribedPlatform, 0);
         }
         return reelayStack;

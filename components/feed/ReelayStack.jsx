@@ -1,21 +1,13 @@
 import React, { useContext, useState, memo } from 'react';
-import { Dimensions, FlatList, Pressable, SafeAreaView, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Dimensions, FlatList, SafeAreaView, View } from 'react-native';
 import BackButton from '../utils/BackButton';
-import Constants from 'expo-constants';
 import Hero from './Hero';
-import Poster from './Poster';
-import AddToWatchlistButton from '../titlePage/AddToWatchlistButton';
-
-import { VenueIcon } from '../utils/VenueIcon';
-
-import styled from 'styled-components/native';
+import TitleBanner from './TitleBanner';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
-import * as ReelayText from '../global/Text';
-import DonateButton from '../global/DonateButton';
 import { useSelector } from 'react-redux';
+import styled from 'styled-components/native';
 
 const { height, width } = Dimensions.get('window');
 
@@ -29,48 +21,6 @@ const ReelayFeedContainer = styled(View)`
     height: ${height}px;
     width: ${width}px;
 `
-const StackLengthText = styled(ReelayText.CaptionEmphasized)`
-    color: white;
-    height: 16px;
-    font-size: 12px;
-`
-const TitleContainer = styled(View)`
-    width: 210px;
-`
-const TitleDetailContainer = styled(View)`
-    align-self: center;
-    background: rgba(0, 0, 0, 0.36);
-    border-radius: 8px;
-    height: 100px;
-    width: ${width - 20}px;
-    justify-content: space-between;
-    position: absolute;
-    top: 47px;
-    zIndex: 3;
-`
-const TitleInfo = styled(View)`
-    flex-direction: column;
-    justify-content: center;
-    padding: 5px;
-    font-size: 18px;
-`
-const TitleText = styled(ReelayText.H5Bold)`
-    color: white;
-    font-size: 18px;
-`
-const VenueContainer = styled(View)`
-    margin-top: -4px;
-    margin-right: 5px;
-`
-const YearText = styled(ReelayText.CaptionEmphasized)`
-    color: white;
-    height: 16px;
-    margin-bottom: 4px;
-`
-const YearVenueContainer = styled(View)`
-    flex-direction: row;
-    margin-top: 0px;
-`
 
 const ReelayStack = ({ 
     stack,  
@@ -78,7 +28,6 @@ const ReelayStack = ({
     initialStackPos = 0,
     navigation,
 }) => {
-
     const [stackPosition, setStackPosition] = useState(0);
     const { reelayDBUser } = useContext(AuthContext);
     const donateLinks = useSelector(state => state.donateLinks);
@@ -90,15 +39,6 @@ const ReelayStack = ({
         const viewableTitleType = (stack[0].title.isSeries) ? 'tv' : 'film';
         return ((tmdbTitleID === viewableTitleID) && titleType === viewableTitleType);
     });
-    const isWelcomeReelay = Constants.manifest.extra.welcomeReelaySub === viewableReelay?.sub;
-    
-    // figure out how to do ellipses for displayTitle
-    let displayTitle = (viewableReelay.title.display) ? viewableReelay.title.display : 'Title not found'; 
-	let displayYear = (viewableReelay.title.releaseYear) ? viewableReelay.title.releaseYear : '';
-    if (isWelcomeReelay) {
-        displayTitle = 'Welcome to Reelay';
-        displayYear = '2022';
-    }
 
     const getItemLayout = (data, index) => ({
         length: width, 
@@ -118,7 +58,6 @@ const ReelayStack = ({
         const reelay = item;
         const reelayViewable = stackViewable && (index === stackPosition);  
         
-        console.log('can go back: ', navigation.canGoBack());
         return (
             <ReelayFeedContainer key={reelay.id}>
                 <Hero 
@@ -160,25 +99,6 @@ const ReelayStack = ({
         }
     }
 
-    // For some reason, useSafeAreaInsets works, but SafeAreaView doesn't
-    // https://docs.expo.dev/versions/latest/sdk/safe-area-context/ 
-    const insets = useSafeAreaInsets();
-
-    const openTitleDetail = async () => {
-        if (!viewableReelay?.title?.display) {
-            return;
-        }
-        navigation.push('TitleDetailScreen', {
-            titleObj: viewableReelay.title,
-        });
-        logAmplitudeEventProd('openTitleScreen', {
-            reelayID: viewableReelay.id,
-            reelayTitle: viewableReelay.title.display,
-            username: reelayDBUser?.username,
-            source: 'poster',
-        });
-    }
-
     return (
         <ReelayFeedContainer>
             <FlatList 
@@ -194,39 +114,13 @@ const ReelayStack = ({
                 pagingEnabled={true} 
                 windowSize={3}
             />
-            <TitleDetailContainer canGoBack={(navigation.canGoBack())}>
-                <Pressable onPress={openTitleDetail} style={{
-                    flexDirection: "row",
-                    justifyContent: 'space-between',
-                }}>
-                    <Poster title={viewableReelay.title} />
-                    <TitleInfo>
-                        <TitleContainer>
-                            <TitleText numberOfLines={2} ellipsizeMode={"tail"}>
-                                {displayTitle}
-                            </TitleText>
-                        </TitleContainer>
-                        <View style={{ flexDirection: "column", marginTop: 5 }}>
-                            <YearVenueContainer>
-                                { viewableReelay?.content?.venue && 
-                                    <VenueContainer>
-                                        <VenueIcon venue={viewableReelay.content.venue} size={20} border={1} />
-                                    </VenueContainer>
-                                }
-                                { displayYear.length > 0 && <YearText>{displayYear}</YearText> }
-                            </YearVenueContainer>
-                            <StackLengthText>
-                                {(stack.length > 1) 
-                                    ? `${stack.length} Reelays  << swipe >>` 
-                                    : `${stack.length} Reelay`
-                                }
-                            </StackLengthText>
-                        </View>
-                    </TitleInfo>
-                    { !donateObj && <AddToWatchlistButton titleObj={viewableReelay.title} reelay={viewableReelay}/> }
-                    { donateObj && <DonateButton donateObj={donateObj} reelay={viewableReelay} /> }
-                </Pressable>
-            </TitleDetailContainer>
+            <TitleBanner 
+                titleObj={viewableReelay?.title}
+                navigation={navigation}
+                viewableReelay={viewableReelay}
+                stack={stack}
+                donateObj={donateObj}
+            />
         </ReelayFeedContainer>
     );
 }
