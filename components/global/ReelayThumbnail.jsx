@@ -41,7 +41,7 @@ export default ReelayThumbnail = ({
 		align-items: center;
 		flex-direction: row;
 		margin-top: -5px;
-		margin-bottom: 5px;
+		margin-bottom: 8px;
 		margin-left: 35px;
 	`
 	const TitleVenue = styled(View)`
