@@ -39,14 +39,10 @@ const CommentTextWithMentions = ({ comment, navigation }) => {
     };
 
     const commentPartsWithMentions = parseValue(comment.content, [mentionFollowType]);
+    const isMention = (part) => (part.partType && isMentionPartType(part.partType));
     const timestamp = moment(comment.postedAt).fromNow();
-    console.log('comment parts with mentions: ', commentPartsWithMentions);
 
-    const isMention = (commentPart) => {
-        return (commentPart.partType && isMentionPartType(commentPart.partType));
-    }
-
-    const advanceToMentionProfile = ({ mentionData }) => {
+    const advanceToMentionProfile = (mentionData) => {
         const mentionUser = {
             sub: mentionData.id,
             username: mentionData.name,
@@ -59,9 +55,7 @@ const CommentTextWithMentions = ({ comment, navigation }) => {
     const renderCommentPart = (commentPart, index) => {
         if (isMention(commentPart)) {
             return (
-                <MentionButton key={index} onPress={() => {
-                    advanceToMentionProfile({ mentionData: commentPart.data })
-                }}>
+                <MentionButton key={index} onPress={() => advanceToMentionProfile(commentPart.data)}>
                     <Text style={MentionTextStyle}>{commentPart.text}</Text>
                 </MentionButton>
             );

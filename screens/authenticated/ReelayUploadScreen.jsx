@@ -24,7 +24,7 @@ import { Icon } from 'react-native-elements';
 import * as Progress from 'react-native-progress';
 
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
-import { notifyOtherCreatorsOnReelayPosted } from '../../api/NotificationsApi';
+import { notifyOtherCreatorsOnReelayPosted, notifyMentionsOnReelayPosted } from '../../api/NotificationsApi';
 
 import styled from 'styled-components/native';
 import { postReelayToDB } from '../../api/ReelayDBApi';
@@ -32,7 +32,7 @@ import { fetchAnnotatedTitle } from '../../api/TMDbApi';
 import ReelayColors from '../../constants/ReelayColors';
 import { notifyOnReelayedRec } from '../../api/WatchlistNotifications';
 import DownloadButton from '../../components/create-reelay/DownloadButton';
-import DescriptionAndStarRating from '../../components/create-reelay/DescriptionAndStarRating';
+import UploadDescriptionAndStarRating from '../../components/create-reelay/UploadDescriptionAndStarRating';
 
 const { height, width } = Dimensions.get('window');
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
@@ -251,14 +251,21 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // we can reuse fetchReelaysForStack from ReelayDBApi
 
             const annotatedTitle = await fetchAnnotatedTitle(reelayDBBody.tmdbTitleID, reelayDBBody.isSeries);
-            await notifyOtherCreatorsOnReelayPosted({
+
+            notifyMentionsOnReelayPosted({
                 creator: reelayDBUser,
                 reelay: { 
                     ...reelayDBBody, 
                     title: annotatedTitle,
                 },
             });
-
+            notifyOtherCreatorsOnReelayPosted({
+                creator: reelayDBUser,
+                reelay: { 
+                    ...reelayDBBody, 
+                    title: annotatedTitle,
+                },
+            });
             notifyOnReelayedRec({ 
                 creatorSub: reelayDBUser?.sub,
                 creatorName: reelayDBUser?.username,
@@ -388,7 +395,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             <Header navigation={navigation} />
             <KeyboardAvoidingView behavior='position'>
                 <UploadBottomArea onPress={Keyboard.dismiss}>
-                    <DescriptionAndStarRating 
+                    <UploadDescriptionAndStarRating 
                         starCountRef={starCountRef}
                         descriptionRef={descriptionRef}
                     />

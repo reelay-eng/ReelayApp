@@ -31,7 +31,7 @@ const SuggestionContainer = styled(View)`
     bottom: 24px;
     margin-left: 8px;
     position: absolute;
-    width: 90%;
+    width: 300px;
     zIndex: 4;
 `
 const SuggestionItem = styled(Pressable)`

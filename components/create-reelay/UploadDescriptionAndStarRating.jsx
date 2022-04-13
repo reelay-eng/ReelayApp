@@ -4,7 +4,7 @@ import StarRating from 'react-native-star-rating';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Dimensions, SafeAreaView, Pressable, TextInput, View } from 'react-native';
-import * as ReelayText from '../../components/global/Text';
+import * as ReelayText from '../global/Text';
 import TextInputWithMentions from '../feed/TextInputWithMentions';
 import styled from 'styled-components/native';
 
@@ -14,7 +14,6 @@ const InfoContainer = styled(SafeAreaView)`
     align-items: flex-start;
     justify-content: center;
     margin-top: 15px;
-    margin-bottom: 15px;
     width: 100%;
 `
 const RatingText = styled(ReelayText.Subtitle1)`
@@ -41,7 +40,6 @@ const DescriptionInputContainer = styled(View)`
     border-width: 1px;
     flex-direction: row;
     padding: 5px;
-    padding-bottom: 15px;
     margin: 12px;
     width: 100%;
 `
@@ -52,7 +50,7 @@ const StarRatingContainer = styled(View)`
     margin-bottom: 12px;
 `
 
-export default DescriptionAndStarRating = ({ starCountRef, descriptionRef }) => {
+export default UploadDescriptionAndStarRating = ({ starCountRef, descriptionRef }) => {
     const [renderCount, setRenderCount] = useState(0);
 
     const onStarRatingPress = (rating) => {
