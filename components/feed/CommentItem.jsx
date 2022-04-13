@@ -1,14 +1,11 @@
 import React, { useContext, useRef, useState, useEffect, memo} from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { isMentionPartType, parseValue, MentionInput } from 'react-native-controlled-mentions'
+import { isMentionPartType, parseValue } from 'react-native-controlled-mentions'
 
-import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
-import Constants from 'expo-constants';
 import * as ReelayText from '../global/Text';
-
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { getUserByUsername } from '../../api/ReelayDBApi';

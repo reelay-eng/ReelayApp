@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState, useEffect, memo} from 'react';
+import React, { useContext, useRef, useState, memo} from 'react';
 import { 
     Dimensions,
     Keyboard, 
@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Button, Icon } from 'react-native-elements';
+import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import moment from 'moment';

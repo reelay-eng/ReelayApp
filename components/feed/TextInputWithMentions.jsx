@@ -1,21 +1,11 @@
 import React, { useContext } from 'react';
-import { 
-    Dimensions,
-    Keyboard, 
-    KeyboardAvoidingView, 
-    Modal, 
-    Pressable, 
-    ScrollView, 
-    TextInput, 
-    Text,
-    View,
-    Image,
-} from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { MentionInput } from 'react-native-controlled-mentions'
 
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
+import ProfilePicture from '../global/ProfilePicture';
 import * as ReelayText from '../global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 
@@ -35,9 +25,15 @@ const MentionTextStyle = {
 
 const SuggestionContainer = styled(View)`
     background-color: #1a1a1a;
+    border-bottom-right-radius: 20px;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
-    width: 100%;
+    border-color: rgba(255,255,255,0.5);
+    border-width: 1px;
+    bottom: 24px;
+    margin-left: 8px;
+    position: absolute;
+    width: 90%;
 `
 const SuggestionItem = styled(Pressable)`
     align-items: center;
@@ -46,6 +42,7 @@ const SuggestionItem = styled(Pressable)`
 `
 const SuggestionUsernameText = styled(ReelayText.Body2)`
     color: white;
+    margin-left: 8px;
 `
 const TextInputStyle = {
     alignSelf: "center",
@@ -114,8 +111,13 @@ export default TextInputWithMentions = ({ commentText, setCommentText, scrollVie
 
         const renderSuggestionItem = (suggestion) => {
             const onPress = () => onSuggestionPress(suggestion);
+            const mentionUser = {
+                sub: suggestion.id,
+                username: suggestion.name,
+            }
             return (
                 <SuggestionItem key={suggestion.name} onPress={onPress}>
+                    <ProfilePicture size={32} user={mentionUser} />
                     <SuggestionUsernameText>@{suggestion.name}</SuggestionUsernameText>
                 </SuggestionItem>
             );

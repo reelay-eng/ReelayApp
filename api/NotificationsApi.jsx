@@ -263,6 +263,14 @@ export const notifyMentionsOnComment = async ({ creator, author, reelay, comment
             };
         
             await sendPushNotification({ title, body, data, token, sendToUserSub: notifyMentionedUser?.sub });
+            logAmplitudeEventProd('userMentionedInCommnet', {
+                mentionedUsername: notifyMentionedUser.username,
+                authorUsername: author.username,
+                creatorUsername: creator.username,
+                title: reelay.title.display,
+                commentText: commentText,
+                reelaySub: reelay.sub,
+            });
         }
     });
 }
