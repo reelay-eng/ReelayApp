@@ -1,5 +1,5 @@
 import React, { useContext, useRef, useState, useEffect, memo} from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { isMentionPartType, parseValue, MentionInput } from 'react-native-controlled-mentions'
 
@@ -13,8 +13,7 @@ import * as ReelayText from '../global/Text';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { getUserByUsername } from '../../api/ReelayDBApi';
 import ProfilePicture from '../global/ProfilePicture';
-
-const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const CommentTextStyled = styled(ReelayText.Body2)`
     color: white;
@@ -23,29 +22,65 @@ const CommentTimestampText = styled(ReelayText.Body2)`
     color: #86878b;
 `;
 
+const MentionButton = styled(TouchableOpacity)`
+    align-items: flex-end;
+`
 const MentionTextStyle = {
+    alignItems: 'flex-end',
     color: ReelayColors.reelayBlue,
     fontFamily: "Outfit-Regular",
     fontSize: 14,
     fontStyle: "normal",
-    lineHeight: 24,
     letterSpacing: 0.25,
 }
 
-const CommentTextWithMentions = ({ comment }) => {
+const CommentTextWithMentions = ({ comment, navigation }) => {
+    const dispatch = useDispatch();
     const mentionFollowType = {
         trigger: '@',
         textStyle: MentionTextStyle,
     };
 
-    const timestamp = moment(comment.postedAt).fromNow();
     const commentPartsWithMentions = parseValue(comment.content, [mentionFollowType]);
+    const timestamp = moment(comment.postedAt).fromNow();
     console.log('comment parts with mentions: ', commentPartsWithMentions);
+
+    const isMention = (commentPart) => {
+        return (commentPart.partType && isMentionPartType(commentPart.partType));
+    }
+
+    const advanceToMentionProfile = ({ mentionData }) => {
+        const mentionUser = {
+            sub: mentionData.id,
+            username: mentionData.name,
+        }
+
+        dispatch({ type: 'setCommentsVisible', payload: false });
+        navigation.push('UserProfileScreen', { creator: mentionUser });
+    }
+
+    const renderCommentPart = (commentPart, index) => {
+        if (isMention(commentPart)) {
+            return (
+                <MentionButton key={index} onPress={() => {
+                    advanceToMentionProfile({ mentionData: commentPart.data })
+                }}>
+                    <Text style={MentionTextStyle}>{commentPart.text}</Text>
+                </MentionButton>
+            );
+        }
+
+        return (
+            <CommentTextStyled key={index}>
+                {commentPart.text}
+            </CommentTextStyled>
+        );
+    }
 
     return (
         <React.Fragment>
             <CommentTextStyled>
-                {commentPartsWithMentions.plainText} 
+                { commentPartsWithMentions.parts.map(renderCommentPart) }
                 <CommentTimestampText>
                     {`  ${timestamp}`}
                 </CommentTimestampText>
@@ -57,10 +92,8 @@ const CommentTextWithMentions = ({ comment }) => {
 export default CommentItem = ({ comment, navigation }) => {
     const [commentLiked, setCommentLiked] = useState(false); // alter to make default state the database value for whether you've liked that comment yet or not.
     const [numCommentLikes, setNumCommentLikes] = useState(0); // similarly alter to make default state the database value for the number of comment likes currently
-    const commentImageSource = {
-        uri: `${CLOUDFRONT_BASE_URL}/public/profilepic-${comment.authorSub}-current.jpg`,
-    }
-    
+    const dispatch = useDispatch();
+
     const CommentItemContainer = styled(Pressable)`
         padding-left: 16px;
         padding-right: 16px;
@@ -116,13 +149,13 @@ export default CommentItem = ({ comment, navigation }) => {
     };
     
     return (
-        <CommentItemContainer onPress={onPress}>
+        <CommentItemContainer>
             <LeftCommentIconContainer>
                 <ProfilePicture navigation={navigation} user={author} size={32} />
             </LeftCommentIconContainer>
             <CommentTextContainer>
                 <UsernameText>{`@${author.username}`}</UsernameText>
-                <CommentTextWithMentions comment={comment} />
+                <CommentTextWithMentions comment={comment} navigation={navigation} />
             </CommentTextContainer>
 
             {/* On implementing comment likes, remove the view below and uncomment the snippet below. */}

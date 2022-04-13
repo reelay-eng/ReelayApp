@@ -21,6 +21,7 @@ import * as ReelayText from '../global/Text';
 
 import { 
 	notifyCreatorOnComment,
+	notifyMentionsOnComment,
 	notifyThreadOnComment,
 } from '../../api/NotificationsApi';
 
@@ -59,8 +60,6 @@ const CommentInputContainer = styled(View)`
 export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
     const CLOSE_BUTTON_SIZE = 25;
-    const MAX_COMMENT_LENGTH = 200;
-
     const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
     const Backdrop = styled(Pressable)`
@@ -90,8 +89,6 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
     }
 
     const Header = () => {
-
-        // comments are for Gray Bar indicating slide-to-close, if we ever put it in. 
         const HeaderContainer = styled(View)`
             justify-content: center;
             margin-left: 12px;
@@ -113,7 +110,6 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 		
         return (
             <HeaderContainer>
-                {/* <GrayBar /> */}
                 <HeaderText>{headerText}</HeaderText>
                 <CloseButtonContainer onPress={closeDrawer}>
                     <Icon color={'white'} type='ionicon' name='close' size={CLOSE_BUTTON_SIZE}/>
@@ -229,7 +225,6 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 		const [commentText, setCommentText] = useState("");
 		const [commentPosting, setCommentPosting] = useState(false);
 
-
 		const keyboardWillShow = async (e) => {
 			const keyboardHeight = e.endCoordinates.height;
 			const shortHeight = height - keyboardHeight;
@@ -272,6 +267,13 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 				reelay: reelay,
 				commentText: commentText,
 			});
+			await notifyMentionsOnComment({
+				creator: reelay.creator,
+				author: reelayDBUser,
+				reelay: reelay,
+				commentText: commentText,
+			})
+
 			setCommentText("");
             setCommentPosting(false);
             reelay.comments.push(commentBody);
@@ -291,7 +293,6 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 
         return (
 			<CommentInputContainer>
-				{/* Setting up TextInput as a styled component forces the keyboard to disappear... */}
 				<View style={TextBoxStyle}>
 					<TextInputWithMentions 
 						commentText={commentText}
@@ -303,10 +304,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 					<BWButton
 						disabled={!commentText.length || commentPosting}
 						text={"Post"}
-						onPress={(commentText) => {
-							onCommentPost(commentText);
-							// Keyboard.dismiss();
-						}}
+						onPress={onCommentPost}
 					/>
 				</PostButtonContainer>
 			</CommentInputContainer>
@@ -321,7 +319,6 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 						<Backdrop onPress={closeDrawer} />
 						<DrawerContainer>
 							<CommentBox />
-							{/* <CloseButton /> */}
 						</DrawerContainer>
 					</KeyboardAvoidingView>
 				</Modal>
