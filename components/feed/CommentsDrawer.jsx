@@ -31,9 +31,9 @@ import CommentItem from './CommentItem';
 import TextInputWithMentions from './TextInputWithMentions';
 import ProfilePicture from '../global/ProfilePicture';
 
-const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
-
 const { height, width } = Dimensions.get('window');
+const COMMENT_TEXT_INPUT_WIDTH = width - 146;
+
 moment.updateLocale("en", {
 	relativeTime: {
 		future: "in %s",
@@ -168,17 +168,16 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 			flexDirection: "row",
 			justifyContent: "space-between",
 		};
-        const CommentProfilePhotoContainer = styled(View)`
+        const ProfilePictureContainer = styled(View)`
 			justify-content: flex-end;
 			margin-right: 6px;
-			width: 32px;
 		`;
 
         const AuthorImage = ({ user }) => {
             return (
-				<CommentProfilePhotoContainer>
-					<ProfilePicture size={32} user={user} />
-				</CommentProfilePhotoContainer>
+				<ProfilePictureContainer>
+					<ProfilePicture size={40} user={user} />
+				</ProfilePictureContainer>
 			);
         };
 		
@@ -220,7 +219,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 		const TextBoxStyle = {
 			justifyContent: 'flex-start',
 			alignItems: 'flex-start',
-			width: width - 138,
+			width: COMMENT_TEXT_INPUT_WIDTH,
 		};
 
 		const [commentText, setCommentText] = useState("");
@@ -296,6 +295,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 			<CommentInputContainer>
 				<View style={TextBoxStyle}>
 					<TextInputWithMentions 
+						boxWidth={COMMENT_TEXT_INPUT_WIDTH}
 						commentText={commentText}
 						setCommentText={setCommentText}
 						scrollViewRef={scrollViewRef}

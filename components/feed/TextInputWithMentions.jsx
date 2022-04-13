@@ -28,11 +28,11 @@ const SuggestionContainer = styled(View)`
     border-top-right-radius: 20px;
     border-color: rgba(255,255,255, 0.8);
     border-width: 1px;
-    bottom: 24px;
+    bottom: 40px;
     margin-left: 8px;
     position: absolute;
     width: 300px;
-    zIndex: 4;
+    zIndex: 5;
 `
 const SuggestionItem = styled(Pressable)`
     align-items: center;
@@ -43,20 +43,6 @@ const SuggestionUsernameText = styled(ReelayText.Body2)`
     color: white;
     margin-left: 8px;
 `
-const TextInputStyle = {
-    alignSelf: "center",
-    color: "white",
-    fontFamily: "Outfit-Regular",
-    fontSize: 14,
-    fontStyle: "normal",
-    lineHeight: 24,
-    letterSpacing: 0.25,
-    textAlign: "left",
-    paddingLeft: 12,
-    paddingRight: 12,
-    paddingBottom: 6,
-};
-
 const getFollowSuggestions = (myFollowers, myFollowing, reelayDBUser) => {
     const iAmFollowing = (followObj) => (followObj.followerName === reelayDBUser?.username);
     const getFollowName = (followObj) => iAmFollowing(followObj) ? followObj.creatorName : followObj.followerName;
@@ -91,12 +77,29 @@ export default TextInputWithMentions = ({
     inputRef = null, 
     placeholder = 'Add comment...',
     setCommentText, 
-    scrollViewRef 
+    scrollViewRef,
+    boxWidth,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const myFollowers = useSelector(state => state.myFollowers);
     const myFollowing = useSelector(state => state.myFollowing);
     const suggestions = getFollowSuggestions(myFollowers, myFollowing, reelayDBUser);
+
+    let TextInputStyle = {
+        alignSelf: "center",
+        color: "white",
+        fontFamily: "Outfit-Regular",
+        fontSize: 14,
+        fontStyle: "normal",
+        lineHeight: 24,
+        letterSpacing: 0.25,
+        textAlign: "left",
+        paddingLeft: 12,
+        paddingRight: 12,
+        paddingBottom: 6,
+    };  
+    
+    if (boxWidth) TextInputStyle.width = boxWidth;
 
     const onFocus = () => {
         if (scrollViewRef?.current) {
