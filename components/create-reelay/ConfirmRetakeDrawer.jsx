@@ -96,7 +96,7 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
     const ExitOption = () => {
         const onPress = () => {
             setConfirmRetakeDrawerVisible(false);
-            navigation.navigate('FeedScreen');
+            navigation.navigate('HomeScreen');
             logAmplitudeEventProd('exitCreate', {
                 username: reelayDBUser?.username,
                 title: titleObj.display,

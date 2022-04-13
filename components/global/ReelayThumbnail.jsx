@@ -25,23 +25,24 @@ export default ReelayThumbnail = ({
 }) => {
 	const CreatorLineContainer = styled(View)`
         align-items: center;
+		bottom: 12px;
         flex-direction: row;
         margin-left: 5px;
+		position: absolute;
     `
     const GradientContainer = styled(View)`
 		align-items: flex-start;
-		position: absolute;
 		border-radius: 8px;
+		height: 100%;
+		justify-content: flex-end;
+		position: absolute;
 		width: 100%;
-		height: 65%;
-		top: 35%;
-		justify-content: center;
 	`
 	const StarRatingContainer = styled(View)`
 		align-items: center;
 		flex-direction: row;
 		margin-top: -5px;
-		margin-bottom: 8px;
+		margin-bottom: 6px;
 		margin-left: 35px;
 	`
 	const TitleVenue = styled(View)`
@@ -97,10 +98,11 @@ export default ReelayThumbnail = ({
 						colors={["transparent", "#0B1424"]}
 						style={{
 							flex: 1,
-							opacity: 1,
+							opacity: 0.6,
 							width: "100%",
 							height: "100%",
 							borderRadius: "6px",
+							position: 'absolute',
 						}}
 					/>
 					{ showIcons && <CreatorLine username={username} /> }

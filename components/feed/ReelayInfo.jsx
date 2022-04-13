@@ -1,8 +1,9 @@
 import React, { memo, useContext, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, TouchableOpacity, Text, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import ProfilePicture from '../global/ProfilePicture';
 import StarRating from 'react-native-star-rating';
+import { isMentionPartType, parseValue } from 'react-native-controlled-mentions';
 
 import styled from 'styled-components/native';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -33,8 +34,12 @@ const ReelayInfo = ({ navigation, reelay }) => {
 		margin-top: 6px;
 		margin-bottom: 6px;
 	`
-	const Description = styled(ReelayText.Caption)`
+	const DescriptionText = styled(ReelayText.Caption)`
 		color: white;
+		line-height: 20px;
+	`
+	const MentionButton = styled(TouchableOpacity)`
+		align-items: flex-end;
 	`
 	const StarRatingContainer = styled(View)`
 		margin-top: 8px;
@@ -44,7 +49,21 @@ const ReelayInfo = ({ navigation, reelay }) => {
 	`
 	const creator = reelay.creator;
 	const description = reelay.description ? reelay.description: "";
+	const mentionType = { trigger: '@' };
+	const descriptionPartsWithMentions = (description.length > 0) 
+		? parseValue(description, [mentionType]) 
+		: { parts: [] };
+		
+	const isMention = (part) => (part.partType && isMentionPartType(part.partType));
 	const starRating = reelay.starRating + (reelay.starRatingAddHalf ? 0.5 : 0);
+
+    const advanceToMentionProfile = (mentionData) => {
+        const mentionUser = {
+            sub: mentionData.id,
+            username: mentionData.name,
+        }
+        navigation.push('UserProfileScreen', { creator: mentionUser });
+    }
 
 	const goToProfile = () => {
 		navigation.push('UserProfileScreen', { creator });
@@ -54,6 +73,31 @@ const ReelayInfo = ({ navigation, reelay }) => {
 			source: 'reelayInfo',
 		});
 	}
+
+	const MentionTextStyle = {
+		alignItems: 'flex-end',
+		color: ReelayColors.reelayBlue,
+		fontFamily: "Outfit-Regular",
+		fontSize: 14,
+		fontStyle: "normal",
+		letterSpacing: 0.25,
+	}	
+
+	const renderDescriptionPart = (descriptionPart, index) => {
+        if (isMention(descriptionPart)) {
+            return (
+                <MentionButton key={index} onPress={() => advanceToMentionProfile(descriptionPart.data)}>
+                    <Text style={MentionTextStyle}>{descriptionPart.text}</Text>
+                </MentionButton>
+            );
+        }
+
+        return (
+            <DescriptionText key={index}>
+                {descriptionPart.text}
+            </DescriptionText>
+        );
+    }
 
 	return (
 		<InfoView>
@@ -82,7 +126,9 @@ const ReelayInfo = ({ navigation, reelay }) => {
 
 			{(description.length > 0) && 
 				<DescriptionContainer>
-					<Description>{description}</Description>
+					<DescriptionText>
+						{ descriptionPartsWithMentions.parts.map(renderDescriptionPart) }
+					</DescriptionText>
 				</DescriptionContainer>
 			}
 		</InfoView>

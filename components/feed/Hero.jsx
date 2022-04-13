@@ -29,6 +29,7 @@ const Hero = ({ index, navigation, reelay, viewable }) => {
         const matchCommentID = (nextCommentObj) => (nextCommentObj.id === commentID);
         const commentObj = reelay?.comments?.find(matchCommentID);
         commentObj.likes = commentLikeObj;
+        console.log('added likes to comment for reelay: ', reelay.title.display, index, commentLikeObj);
     }
 
     const loadCommentLikes = async () => {
