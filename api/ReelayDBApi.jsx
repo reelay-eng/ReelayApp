@@ -481,11 +481,12 @@ export const registerPushTokenForUser = async (userSub, pushToken) => {
 }
 
 export const removeComment = async (commentID) => {
-    // todo
-    const routeDelete = `${REELAY_API_BASE_URL}/comments/${commentID}`;
+    const routeDelete = `${REELAY_API_BASE_URL}/comments`;
+    const deleteBody = { commentID };
     const resultDelete = await fetchResults(routeDelete, {
         method: 'DELETE',
         headers: REELAY_API_HEADERS,
+        body: JSON.stringify(deleteBody),
     });
     console.log('Deleted comment: ', resultDelete);
     return resultDelete;

@@ -18,7 +18,6 @@ import moment from 'moment';
 import Constants from 'expo-constants';
 import { BWButton } from '../global/Buttons';
 import * as ReelayText from '../global/Text';
-import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png';
 import SwipeableComment from './SwipeableComment';
 
 import { 
@@ -123,37 +122,42 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
         );
     }
 
-    const CommentProfilePhoto = styled(Image)`
-		width: 32px;
-		height: 32px;
-		border-radius: 16px;
-	`;
-
-    const Comments = ({ comments }) => {
+    const CommentList = ({ comments, rerender }) => {
         const CommentsContainer = styled(View)`
 			width: 100%;
 			padding-top: 13px;
 		`;
-		// gives warning about each child having unique key
+
+		const onCommentDelete = async (comment) => {
+			console.log('comment length before delete: ', reelay.comments.length);
+			const removeOnCommentID = (nextComment) => (comment.id !== nextComment.id);
+			reelay.comments = reelay.comments.filter(removeOnCommentID);
+			console.log('comment length after delete: ', reelay.comments.length);
+            rerender(); // for comment to be removed
+
+			logAmplitudeEventProd("deletedComment", {
+				user: reelayDBUser?.username,
+				creator: reelay.creator.username,
+				title: reelay.title.display,
+				reelayID: reelay.id,
+				commentText: comment.content,
+			});
+		};
+
         return (
             <CommentsContainer>
-                {/* {comments.map((comment, i) => {
+                {comments.map((comment, i) => {
+					const commentKey = (comment.userID ?? comment.authorName) + comment.postedAt;
 					if (comment.authorSub === reelayDBUser.sub)  {
 						return (
-						<SwipeableComment commentItem={comment}>
-							<Comment comment={comment} key={(comment.userID ?? comment.authorName) + comment.postedAt} />
-						</SwipeableComment>)
+							<SwipeableComment key={commentKey} comment={comment} onCommentDelete={onCommentDelete}>
+								<CommentItem comment={comment} navigation={navigation} />
+							</SwipeableComment>
+						);
 					} else {
-						return (<Comment comment={comment} key={(comment.userID ?? comment.authorName) + comment.postedAt}/>)
+						return <CommentItem key={commentKey} comment={comment} navigation={navigation} />;
 					}
-				})} */}
-                {comments.map((comment, i) => (
-                    <CommentItem 
-						key={(comment.userID ?? comment.authorName) + comment.postedAt}
-						comment={comment} 
-						navigation={navigation}
-					/>
-                ))}
+				})}
             </CommentsContainer>
         );
 	};
@@ -205,7 +209,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 							style={{ maxHeight: maxDrawerHeight / 2 }}
 							keyboardShouldPersistTaps={'handled'}
 						>
-                            <Comments comments={reelay.comments}/>
+                            <CommentList comments={reelay.comments} rerender={rerender} />
 						</ScrollView>
 						<Spacer height="12px" />
 					</>
@@ -267,6 +271,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 			console.log(commentBody);
 
 			const postResult = await postCommentToDB(commentBody, reelay.sub);
+			commentBody.id = postResult.id;
 			console.log("Comment posted: ", postResult);
 
 			await notifyCreatorOnComment({

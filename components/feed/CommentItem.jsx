@@ -1,9 +1,9 @@
-import React, { useContext, useRef, useState, useEffect, memo} from 'react';
+import React, { useContext, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useDispatch, useSelector } from 'react-redux';
 import { isMentionPartType, parseValue } from 'react-native-controlled-mentions';
-import { getUserByUsername, postCommentLikeToDB, removeCommentLike } from '../../api/ReelayDBApi';
+import { postCommentLikeToDB, removeCommentLike } from '../../api/ReelayDBApi';
 
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
@@ -89,6 +89,7 @@ export default CommentItem = ({ comment, navigation }) => {
     const dispatch = useDispatch();
 
     const CommentItemContainer = styled(Pressable)`
+        background-color: #1a1a1a;
         padding-left: 16px;
         padding-right: 16px;
         padding-bottom: 13px;

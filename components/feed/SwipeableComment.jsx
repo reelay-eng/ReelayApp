@@ -2,7 +2,6 @@ import React, { useContext, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { RectButton, Swipeable } from 'react-native-gesture-handler';
-import { AuthContext } from '../../context/AuthContext';
 
 import { showMessageToast } from '../utils/toasts';
 import { removeComment } from '../../api/ReelayDBApi';
@@ -14,16 +13,14 @@ const SwipeColors = {
 }
 
 // https://snack.expo.dev/@adamgrzybowski/react-native-gesture-handler-demo
-export default SwipeableComment = ({ children, commentItem }) => {
+export default SwipeableComment = ({ children, comment, onCommentDelete }) => {
     const ICON_SIZE = 15;
     const swipeableRowRef = useRef();
-    const { reelayDBUser } = useContext(AuthContext);
-    console.log(commentItem)
 
     const removeCommentOnPress = async () => {
-        console.log("removing comment");
-        const removeCommentItem = await removeComment(commentItem.id);
-        // show toast message
+        onCommentDelete(comment);
+        const removeCommentResult = await removeComment(comment.id);
+        // show toast 
         showMessageToast('Comment has been deleted');
     }
 
@@ -56,18 +53,6 @@ export default SwipeableComment = ({ children, commentItem }) => {
     const updateRef = (ref) => {
         swipeableRowRef.current = ref;
     };
-
-    const close = () => {
-        swipeableRowRef.current.close();
-    };
-
-    // const openLeft = () => {
-    //     swipeableRowRef.current.openLeft();
-    // }
-
-    const openRight = () => {
-        swipeableRowRef.current.openRight();
-    }
 
     return (
         <Swipeable
