@@ -487,7 +487,7 @@ export const removeComment = async (commentID) => {
         method: 'DELETE',
         headers: REELAY_API_HEADERS,
     });
-    console.log('Deleted comment like: ', resultDelete);
+    console.log('Deleted comment: ', resultDelete);
     return resultDelete;
 }
 

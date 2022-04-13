@@ -22,7 +22,9 @@ export default SwipeableComment = ({ children, commentItem }) => {
 
     const removeCommentOnPress = async () => {
         console.log("removing comment");
-        await removeComment(commentItem.id);
+        const removeCommentItem = await removeComment(commentItem.id);
+        // show toast message
+        showMessageToast('Comment has been deleted');
     }
 
     const renderRightAction = (onPress, iconName, color, x, progress) => {
