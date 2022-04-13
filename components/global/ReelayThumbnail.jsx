@@ -7,6 +7,7 @@ import {
 
 import styled from 'styled-components/native';
 import { LinearGradient } from "expo-linear-gradient";
+import StarRating from 'react-native-star-rating';
 import * as ReelayText from "../../components/global/Text";
 import { VenueIcon } from '../utils/VenueIcon';
 import SplashImage from "../../assets/images/reelay-splash-with-dog.png";
@@ -26,16 +27,22 @@ export default ReelayThumbnail = ({
         align-items: center;
         flex-direction: row;
         margin-left: 5px;
-        bottom: 0px;
-        position: absolute;
     `
     const GradientContainer = styled(View)`
+		align-items: flex-start;
 		position: absolute;
 		border-radius: 8px;
 		width: 100%;
 		height: 65%;
 		top: 35%;
 		justify-content: center;
+	`
+	const StarRatingContainer = styled(View)`
+		align-items: center;
+		flex-direction: row;
+		margin-top: -5px;
+		margin-bottom: 8px;
+		margin-left: 35px;
 	`
 	const TitleVenue = styled(View)`
 		position: absolute;
@@ -59,6 +66,7 @@ export default ReelayThumbnail = ({
 	const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
 	const [thumbnailSource, setThumbnailSource] = useState(cloudfrontThumbnailSource);
 	const s3Client = useSelector(state => state.s3Client);
+	const starRating = (reelay.starRating ?? 0) + (reelay.starRatingAddHalf ? 0.5 : 0);
 
 	const generateAndSaveThumbnail = async () => {
 		console.log('ON ERROR TRIGGERED: ', getThumbnailURI(reelay));
@@ -95,12 +103,28 @@ export default ReelayThumbnail = ({
 							borderRadius: "6px",
 						}}
 					/>
-					{ showIcons && 
-						<CreatorLine username={username} />
-					}
+					{ showIcons && <CreatorLine username={username} /> }
+					{ showIcons && (starRating > 0) && <StarRatingLine /> }
 				</GradientContainer>
 			</React.Fragment>
 		)
+	}
+
+	const StarRatingLine = () => {
+		return (
+			<StarRatingContainer>
+				<StarRating 
+					disabled={true}
+					emptyStarColor={'#c4c4c4'}
+					maxStars={5}
+					fullStarColor={'white'}
+					halfStarEnabled={true}
+					rating={starRating}
+					starSize={12}
+					starStyle={{ paddingRight: 2 }}
+				/>
+			</StarRatingContainer>
+		);
 	}
 
     const CreatorLine = ({ username}) => {

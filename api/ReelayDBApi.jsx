@@ -168,6 +168,7 @@ export const getReelay = async (reelaySub, visibility=FEED_VISIBILITY) => {
 
 export const getReelaysByCreator = async (creatorSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/users/sub/${creatorSub}/reelays?visibility=${FEED_VISIBILITY}`;
+    console.log('GET REELAYS BY CREATOR: ', routeGet);
     const fetchedReelays = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS,
