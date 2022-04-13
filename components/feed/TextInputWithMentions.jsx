@@ -26,12 +26,13 @@ const SuggestionContainer = styled(View)`
     border-bottom-right-radius: 20px;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
-    border-color: rgba(255,255,255,0.5);
+    border-color: rgba(255,255,255, 0.8);
     border-width: 1px;
     bottom: 24px;
     margin-left: 8px;
     position: absolute;
     width: 90%;
+    zIndex: 4;
 `
 const SuggestionItem = styled(Pressable)`
     align-items: center;
@@ -53,7 +54,7 @@ const TextInputStyle = {
     textAlign: "left",
     paddingLeft: 12,
     paddingRight: 12,
-    width: 300,
+    paddingBottom: 6,
 };
 
 const getFollowSuggestions = (myFollowers, myFollowing, reelayDBUser) => {
@@ -104,7 +105,6 @@ export default TextInputWithMentions = ({
     }
 
     const renderSuggestions = ({ keyword, onSuggestionPress }) => {
-        console.log('render suggestions called: ', keyword);
         if (!keyword) return <View />;
 
         const matchOnKeyword = (suggestion) => {
@@ -114,7 +114,6 @@ export default TextInputWithMentions = ({
         }
 
         const renderSuggestionItem = (suggestion) => {
-            console.log('rendering suggestion item: ', suggestion.name);
             const onPress = () => onSuggestionPress(suggestion);
             const mentionUser = {
                 sub: suggestion.id,

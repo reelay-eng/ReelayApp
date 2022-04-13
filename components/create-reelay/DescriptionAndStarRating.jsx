@@ -34,15 +34,6 @@ const ClearRatingContainer = styled(Pressable)`
     padding: 3px;
     width: 25%;
 `
-const DescriptionInput = styled(TextInput)`
-    color: white;
-    font-family: Outfit-Regular;
-    font-size: 16px;
-    font-style: normal;
-    letter-spacing: 0.15px;
-    padding: 10px;
-    width: 100%;
-`
 const DescriptionInputContainer = styled(View)`
     background-color: rgba(0,0,0,0.5);
     border-radius: 8px;

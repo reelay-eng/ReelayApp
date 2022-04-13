@@ -29,6 +29,7 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { postCommentToDB } from '../../api/ReelayDBApi';
 import CommentItem from './CommentItem';
 import TextInputWithMentions from './TextInputWithMentions';
+import ProfilePicture from '../global/ProfilePicture';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 
@@ -169,19 +170,17 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 		};
         const CommentProfilePhotoContainer = styled(View)`
 			justify-content: flex-end;
+			margin-right: 6px;
 			width: 32px;
 		`;
 
-        const AuthorImage = memo(({user}) => {
-            const authorImageSource = {
-				uri: `${CLOUDFRONT_BASE_URL}/public/profilepic-${user?.sub}-current.jpg`,
-			};
+        const AuthorImage = ({ user }) => {
             return (
 				<CommentProfilePhotoContainer>
-					<CommentProfilePhoto source={authorImageSource} />
+					<ProfilePicture size={32} user={user} />
 				</CommentProfilePhotoContainer>
 			);
-        })
+        };
 		
         return (
 			<View>
@@ -219,6 +218,8 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 		`;
 
 		const TextBoxStyle = {
+			justifyContent: 'flex-start',
+			alignItems: 'flex-start',
 			width: width - 138,
 		};
 
