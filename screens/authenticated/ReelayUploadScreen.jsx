@@ -1,7 +1,5 @@
 import React, { useContext, useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import StarRating from 'react-native-star-rating';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { EncodingType, readAsStringAsync } from 'expo-file-system';
@@ -24,7 +22,6 @@ import { Dimensions, Image, SafeAreaView, Pressable, TextInput, View, Keyboard, 
 import * as ReelayText from '../../components/global/Text';
 import { Icon } from 'react-native-elements';
 import * as Progress from 'react-native-progress';
-import { ScrollView, TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { notifyOtherCreatorsOnReelayPosted } from '../../api/NotificationsApi';
@@ -35,60 +32,13 @@ import { fetchAnnotatedTitle } from '../../api/TMDbApi';
 import ReelayColors from '../../constants/ReelayColors';
 import { notifyOnReelayedRec } from '../../api/WatchlistNotifications';
 import DownloadButton from '../../components/create-reelay/DownloadButton';
+import DescriptionAndStarRating from '../../components/create-reelay/DescriptionAndStarRating';
 
 const { height, width } = Dimensions.get('window');
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
 const UPLOAD_CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
 
-const InfoContainer = styled(SafeAreaView)`
-    align-items: flex-start;
-    justify-content: center;
-    margin-top: 15px;
-    margin-bottom: 15px;
-    width: 100%;
-`
-const RatingText = styled(ReelayText.Subtitle1)`
-    color: #c4c4c4;
-    text-align: left;
-    margin-bottom: 8px;
-    margin-left: 12px;
-`
-const ClearRatingText = styled(ReelayText.Subtitle1)`
-    color: #c4c4c4;
-    font-size: 15px;
-    text-align: right;
-`
-const ClearRatingContainer = styled(Pressable)`
-    align-items: center;
-    justify-content: center;
-    padding: 3px;
-    width: 25%;
-`
-const DescriptionInput = styled(TextInput)`
-    color: white;
-    font-family: Outfit-Regular;
-    font-size: 16px;
-    font-style: normal;
-    letter-spacing: 0.15px;
-    padding: 10px;
-    width: 100%;
-`
-const DescriptionInputContainer = styled(View)`
-    background-color: rgba(0,0,0,0.5);
-    border-radius: 8px;
-    border-color: white;
-    border-width: 1px;
-    flex-direction: row;
-    padding: 5px;
-    margin: 12px;
-`
-const StarRatingContainer = styled(View)`
-    flex-direction: row;
-    justify-content: space-between;
-    margin-left: 12px;
-    margin-bottom: 12px;
-`
 const UploadButtonPressable = styled(Pressable)`
     background-color: ${props => props.color}
     border-radius: 24px;
@@ -108,10 +58,11 @@ const UploadButtonText = styled(ReelayText.H6Emphasized)`
 const UploadBottomArea = styled(Pressable)`
     justify-content: flex-end;
 `
-const UploadBottomBar = styled(SafeAreaView)`
+const UploadBottomBar = styled(View)`
     flex-direction: row;
     justify-content: space-between;
     margin-top: 20px;
+    margin-bottom: 40px;
 `
 const UploadProgressBarContainer = styled(View)`
     align-self: center;
@@ -119,7 +70,7 @@ const UploadProgressBarContainer = styled(View)`
     justify-content: center;
     width: ${width - 20}px;
 `
-const UploadScreenContainer = styled(SafeAreaView)`
+const UploadScreenContainer = styled(View)`
     height: 100%;
     width: 100%;
     background-color: black;
@@ -139,7 +90,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
     const [uploadProgress, setUploadProgress] = useState(0.0);
     const [uploadStage, setUploadStage] = useState(uploadStages[0]);
-    const [starCount, setStarCount] = useState(0);
     const [confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible] = useState(false);
 
     const { reelayDBUser } = useContext(AuthContext);
@@ -147,8 +97,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 	const s3Client = useSelector(state => state.s3Client);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
 
-    const descriptionRef = useRef("");
-    const descriptionInputRef = useRef(null);
+    const descriptionRef = useRef('');
+    const starCountRef = useRef(0);
 
     const uploadReelayToS3 = async (videoURI, videoS3Key) => {
         setUploadProgress(0.2);
@@ -264,7 +214,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // Post Reelay object to ReelayDB
             // not checking for dupes on uuidv4(), 
             // but a collision is less than a one in a quadrillion chance
-            const starRating = starCount*2;
+            const starRating = starCountRef.current * 2;
             
             const reelayDBBody = {
                 creatorSub: reelayDBUser?.sub,
@@ -346,6 +296,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             margin-right: 18px;
         `;
         const BackButton = styled(Pressable)`
+            margin-top: 40px;
             margin-right: 20px;
         `;
         return (
@@ -431,75 +382,16 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         );
     }
 
-    const DescriptionAndStarRating = () => {
-        return (
-            <InfoContainer>
-                { starCount === 0 && <RatingText>{"Want to rate it?"}</RatingText> }
-                <StarRatingContainer>
-                    <StarRating 
-                        disabled={false}
-                        emptyStarColor={'#c4c4c4'}
-                        maxStars={5}
-                        fullStarColor={'white'}
-                        halfStarEnabled={true}
-                        rating={starCount}
-                        selectedStar={onStarRatingPress}
-                        starSize={30}
-                        starStyle={{ paddingRight: 8 }}
-                    />
-                    { starCount > 0 && 
-                        <ClearRatingContainer onPress={onClearRatingPress}>
-                            <ClearRatingText>{"Clear"}</ClearRatingText>
-                        </ClearRatingContainer>                        
-                    }
-                </StarRatingContainer>
-                <EditDescription descriptionRef={descriptionRef} descriptionInputRef={descriptionInputRef} />
-            </InfoContainer>
-        );
-    }
-
-    const EditDescription = ({ descriptionRef, descriptionInputRef }) => {
-        const changeInputText = (text) => {
-            descriptionRef.current=text;
-        };    
-
-        return (
-            <>
-		    <TouchableWithoutFeedback onPress={() => descriptionInputRef.current.focus()}>
-                <DescriptionInputContainer>
-                    <DescriptionInput
-                        clearButtonMode={'while-editing'}
-				        ref={descriptionInputRef}
-                        maxLength={250}
-                        multiline={true}
-                        defaultValue={descriptionRef.current}
-                        placeholder={"Add a description"}
-                        placeholderTextColor={"gray"}
-                        onChangeText={changeInputText}
-                        onPressOut={Keyboard.dismiss()}
-                        returnKeyType="done"
-                    />
-                </DescriptionInputContainer>
-            </TouchableWithoutFeedback>
-            </>
-        );
-    };
-
-    const onStarRatingPress = (rating) => {
-        setStarCount(rating);
-    }
-    const onClearRatingPress = () => {
-        setStarCount(0);
-    }
-
-
     return (
         <UploadScreenContainer>
             <PreviewVideoPlayer posterSource={titleObj.posterSource} videoURI={videoURI} />
             <Header navigation={navigation} />
             <KeyboardAvoidingView behavior='position'>
                 <UploadBottomArea onPress={Keyboard.dismiss}>
-                    <DescriptionAndStarRating />
+                    <DescriptionAndStarRating 
+                        starCountRef={starCountRef}
+                        descriptionRef={descriptionRef}
+                    />
                     <UploadProgressBar />
                     <UploadBottomBar>
                         <DownloadButton titleObj={titleObj} videoURI={videoURI} />

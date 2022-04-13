@@ -9,14 +9,12 @@ import ProfilePicture from '../global/ProfilePicture';
 import * as ReelayText from '../global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 
-import { logAmplitudeEventProd } from '../utils/EventLogger';
-
 const MAX_COMMENT_LENGTH = 300;
 const MAX_SUGGESTIONS = 6;
 
 const MentionTextStyle = {
     color: ReelayColors.reelayBlue,
-    fontFamily: "Outfit-Regular",
+    fontFamily: "Outfit-Bold",
     fontSize: 14,
     fontStyle: "normal",
     lineHeight: 24,
@@ -55,7 +53,7 @@ const TextInputStyle = {
     textAlign: "left",
     paddingLeft: 12,
     paddingRight: 12,
-    width: "100%",
+    width: 300,
 };
 
 const getFollowSuggestions = (myFollowers, myFollowing, reelayDBUser) => {
@@ -73,7 +71,6 @@ const getFollowSuggestions = (myFollowers, myFollowing, reelayDBUser) => {
     });
 
     const allFollowsUnique = (allFollowsConcat.filter((followObj, index) => {
-        // const followUsername = getFollowName(followObj);
         const prevFollowIndex = allFollowsConcat.slice(0, index).findIndex((prevFollowObj) => {
             return (followObj.followName === prevFollowObj.followName);
         });
@@ -88,7 +85,13 @@ const getFollowSuggestions = (myFollowers, myFollowing, reelayDBUser) => {
     return suggestions;
 }
 
-export default TextInputWithMentions = ({ commentText, setCommentText, scrollViewRef }) => {
+export default TextInputWithMentions = ({ 
+    commentText, 
+    inputRef = null, 
+    placeholder = 'Add comment...',
+    setCommentText, 
+    scrollViewRef 
+}) => {
     const { reelayDBUser } = useContext(AuthContext);
     const myFollowers = useSelector(state => state.myFollowers);
     const myFollowing = useSelector(state => state.myFollowing);
@@ -101,6 +104,7 @@ export default TextInputWithMentions = ({ commentText, setCommentText, scrollVie
     }
 
     const renderSuggestions = ({ keyword, onSuggestionPress }) => {
+        console.log('render suggestions called: ', keyword);
         if (!keyword) return <View />;
 
         const matchOnKeyword = (suggestion) => {
@@ -110,6 +114,7 @@ export default TextInputWithMentions = ({ commentText, setCommentText, scrollVie
         }
 
         const renderSuggestionItem = (suggestion) => {
+            console.log('rendering suggestion item: ', suggestion.name);
             const onPress = () => onSuggestionPress(suggestion);
             const mentionUser = {
                 sub: suggestion.id,
@@ -147,8 +152,9 @@ export default TextInputWithMentions = ({ commentText, setCommentText, scrollVie
             numberOfLines={4}
             blurOnSubmit={true}
             onFocus={onFocus}
-            placeholder={"Add comment..."}
+            placeholder={placeholder}
             placeholderTextColor={"gray"}
+            inputRef={inputRef}
             returnKeyType="done"
             style={TextInputStyle}
             value={commentText}
