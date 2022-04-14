@@ -91,7 +91,11 @@ export const reportReelay = async (reportingUserSub, reportReq) => {
 }
 
 export const createDeeplinkPathToReelay = async (linkingUserSub, linkingUsername, reelaySub) => {
-    const deeplinkPath = Linking.createURL(`/reelay/${reelaySub}`);
+    // using the scheme reelayapp://, the statement below creates an unusable triple slash
+    // ...doesn't happen on expo
+    let deeplinkPath = Linking.createURL(`/reelay/${reelaySub}`);
+    deeplinkPath = deeplinkPath.replace('///', '//'); 
+
     const routePost = `${REELAY_API_BASE_URL}/deeplink/`;
     const postBody = {
         linkingUserSub, 
