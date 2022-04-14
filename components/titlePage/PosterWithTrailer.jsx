@@ -9,7 +9,8 @@ import {
 import { AuthContext } from '../../context/AuthContext';
 
 // API
-import { getLogoURL, fetchMovieProviders } from '../../api/TMDbApi';
+import { getLogoURL, changeSize, fetchMovieProviders } from '../../api/TMDbApi';
+import { streamingVenues } from '../utils/VenueIcon'
 
 // Styling
 import ReelayColors from "../../constants/ReelayColors";
@@ -28,7 +29,7 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { getRuntimeString } from '../../components/utils/TitleRuntime';
 import AddToWatchlistButton from './AddToWatchlistButton';
 import SendRecButton from '../watchlist/SendRecButton';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
@@ -93,17 +94,46 @@ export default PosterWithTrailer = ({
 	};
 
 	const PosterTagline = () => {
-		const [topProviderLogo, setTopProviderLogo] = useState("");
+		const [topProviders, setTopProviders] = useState([]);
 		const componentMounted = useRef(true);
+		const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
 		useEffect(() => {
-			(async () => {
-				var providers = await fetchMovieProviders(tmdbTitleID);
-				if (!providers || !providers.US) return;
-				providers = providers.US; // change this for when we want multi country support
-				if (providers.rent?.length > 0 && componentMounted.current) {
-					setTopProviderLogo(providers.rent[0].logo_path);
-				}
-			})();
+			/**
+			 * This was an attempt at navigating TMDB's api to display correct providers. 
+			 * It comes with UI styling for what the venues SHOULD look like in the future.
+			 * Only delete when you're sure it's not needed.
+			 * 
+			 * * Note that this does work: it does display all places you can *stream* the given movie.
+			 * * However, it fails to account for where you can buy / rent / watch it otherwise on that platform. 
+			*/
+
+			// const fetchAndConfigureProviders = async () => {
+			// 	var providersRaw = await fetchMovieProviders(tmdbTitleID);
+			// 	if (!providersRaw || !providers.US) return;
+			// 	providersRaw = providers.US;
+			// 	var providers = [].concat(providers.flatrate, providers.rent, providers.buy).filter(e => e !== undefined)
+			// 	var providersIDs = providers.map(e => e.provider_id);
+			// 	providers = providers.filter((provider, index) => providersIDs.indexOf(provider.provider_id) === index)
+			// 	if (providers.length > 0 && componentMounted.current) {
+			// 		const ReelayStreamingProviderIDs = streamingVenues.map(venue => venue.tmdbProviderID);
+			// 		const isReelayProvider = (provider) => (ReelayStreamingProviderIDs.includes(provider.provider_id));
+			// 		const providersOnReelay = providers.filter(isReelayProvider);
+
+			// 		// check providers to return the first one that is in my streaming subscriptions
+			// 		const providerIsInMyStreaming = (provider) => (myStreamingSubscriptions.some(subscription => subscription.tmdbProviderID == provider.provider_id))
+			// 		// sort the providersOnReelay by those who satisfy providerIsInMyStreaming. For each of those, place an 'isInMyStreaming' boolean field on the resulting object.
+			// 		const providersOnReelayWithIsInMyStreaming = providersOnReelay.map(provider => ({
+			// 			...provider,
+			// 			isInMyStreaming: providerIsInMyStreaming(provider)
+			// 		}));
+			// 		// sort the providersOnReelayWithIsInMyStreaming by the isInMyStreaming boolean field.
+			// 		const providersOnReelaySorted = providersOnReelayWithIsInMyStreaming.sort((a, b) => (a.isInMyStreaming ? -1 : 1)).slice(0, 3);
+			// 		console.log("Providers sorted by my streaming", providersOnReelaySorted);
+			// 		if (componentMounted.current) setTopProviders(providersOnReelaySorted);
+			// 	}
+			// }
+
+			// fetchAndConfigureProviders();
 			return () => {
 				componentMounted.current = false;
 			};
@@ -118,7 +148,6 @@ export default PosterWithTrailer = ({
 			margin-bottom: 15px;
 			margin-top: 5px;
 		`;
-		// in case we want to have multiple provider images
 
 		const ProviderImagesContainer = styled(View)`
 			display: flex;
@@ -126,14 +155,46 @@ export default PosterWithTrailer = ({
 			align-items: flex-start;
 			justify-content: space-between;
 		`;
-		const ProviderImage = styled(Image)`
-			width: 30px;
-			height: 30px;
-			border-width: 1px;
-			border-color: #ffffff;
-			border-radius: 15px;
-			margin-left: 0px;
-		`;
+		const ProviderImage = ({ source, highlight }) => {
+			const ProviderImageBase = styled(Image)`
+				width: 30px;
+				height: 30px;
+				border-width: 1px;
+				border-color: ${props => props.highlight ? ReelayColors.reelayBlue : "#ffffff"};
+				border-radius: 15px;
+				margin-left: 0px;
+				margin-right: 10px;
+			`;
+
+			const CheckmarkCircle = styled(View)`
+				position: absolute;
+				align-items: center;
+				justify-content: center;
+				align-self: flex-end;
+				border-radius: 50px;
+			`
+
+			const CheckmarkCircleContainer = styled(View)`
+				width: 32px;
+				height: 32px;
+				flex-direction: column;
+				align-items: flex-end;
+				justify-content: flex-end;
+				position: absolute;
+			`
+			return (
+				<View style={{position: "relative"}}>
+					<ProviderImageBase source={source} highlight={highlight} />
+					{ highlight && (
+						<CheckmarkCircleContainer>
+							<CheckmarkCircle>
+								<Icon style={{background: "white"}}type="ionicon" name="checkmark-circle" size={15} color={ReelayColors.reelayBlue} />
+							</CheckmarkCircle>
+						</CheckmarkCircleContainer>
+					)}
+				</View>
+			)
+		}
 		const TaglineTextContainer = styled(View)`
 			display: flex;
 			align-items: center;
@@ -152,21 +213,18 @@ export default PosterWithTrailer = ({
 
 		return (
 			<TaglineContainer>
-				{/* {topProviderLogo.length > 0 && (
-					<ProviderImagesContainer>
-						<ProviderImage source={{ uri: getLogoURL(topProviderLogo) }} />
-					</ProviderImagesContainer>
-				)} */}
-				{isMovie === true && (
-					<TaglineTextContainer>
-						<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}    {runtimeString}</TaglineText>
-					</TaglineTextContainer>
-				)} 
-				{isMovie === false && (
-					<TaglineTextContainer>
-						<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}</TaglineText>
-					</TaglineTextContainer>
-				)}
+				<ProviderImagesContainer>
+				{/* { topProviders.length > 0 && topProviders.map((provider, index) => {
+					const completeLogoURI = { uri: getLogoURL(provider.logo_path)};
+					const sizeCorrectedLogoURI = changeSize(completeLogoURI, "w92");
+					return (
+						<ProviderImage key={index} source={sizeCorrectedLogoURI} highlight={!!provider.isInMyStreaming}/>
+					);
+				})} */}
+				</ProviderImagesContainer>
+				<TaglineTextContainer>
+					<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}    {isMovie ? runtimeString : null} </TaglineText>
+				</TaglineTextContainer>
 			</TaglineContainer>
 		);
 	};

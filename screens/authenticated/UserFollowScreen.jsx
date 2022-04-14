@@ -1,17 +1,15 @@
-import React, { useEffect, useState, useRef, useContext } from 'react';
-import { SafeAreaView, View, Text } from 'react-native';
+import React, { useEffect, useState, useRef } from 'react';
+import { SafeAreaView, View } from 'react-native';
 
 import BackButton from '../../components/utils/BackButton';
 import SearchField from '../../components/create-reelay/SearchField';
 import FollowResults from '../../components/profile/Follow/FollowResults';
-import FollowButtonDrawer from '../../components/global/FollowButtonDrawer';
 
 import { ToggleSelector } from '../../components/global/Buttons';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import { getFollowers, getFollowing } from '../../api/ReelayDBApi';
 import ReelayColors from '../../constants/ReelayColors';
-import { useSelector } from 'react-redux';
 
 const BackButtonContainer = styled(View)`
     margin-right: 10px;
@@ -46,9 +44,6 @@ const SearchBarContainer = styled(View)`
 
 
 export default UserFollowScreen = ({ navigation, route }) => {
-    const myFollowers = useSelector(state => state.myFollowers);
-    const myFollowing = useSelector(state => state.myFollowing);
-
     const { creator, initFollowType, initFollowers, initFollowing } = route.params;
     const [searchText, setSearchText] = useState('');
     const [creatorFollowers, setCreatorFollowers] = useState(initFollowers);
@@ -59,8 +54,6 @@ export default UserFollowScreen = ({ navigation, route }) => {
     const [searchResults, setSearchResults] = useState(allSearchResults);
     const [selectedFollowType, setSelectedFollowType] = useState(initFollowType);
 
-    const [drawerOpen, setDrawerOpen] = useState(false);
-    const [drawerFollowObj, setDrawerFollowObj] = useState(null);
     const updateCounter = useRef(0);
 
     const headerText = `@${creator.username}`
@@ -75,10 +68,6 @@ export default UserFollowScreen = ({ navigation, route }) => {
         creatorFollowers,
         creatorFollowing, 
     ]);
-
-    useEffect(() => {
-        // remember: these 
-    }, [myFollowers, myFollowing]);
 
     const onRefresh = async () => {
         updateCounter.current += 1;
@@ -153,20 +142,7 @@ export default UserFollowScreen = ({ navigation, route }) => {
 				onRefresh={onRefresh}
 				refreshing={refreshing}
 				searchResults={searchResults}
-				setDrawerFollowObj={setDrawerFollowObj}
-				setDrawerOpen={setDrawerOpen}
 			/>
-			{drawerOpen && (
-				<FollowButtonDrawer
-					creatorFollowers={creatorFollowers}
-					setCreatorFollowers={setCreatorFollowers}
-					drawerOpen={drawerOpen}
-					setDrawerOpen={setDrawerOpen}
-					followObj={drawerFollowObj}
-					followType={selectedFollowType}
-					sourceScreen={"UserFollowScreen"}
-				/>
-			)}
 		</SearchScreenContainer>
 	);
 };

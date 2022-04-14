@@ -1,16 +1,12 @@
-import React, { useContext, useState } from "react";
-import { ActivityIndicator, Pressable, View, Text } from "react-native";
-import { Icon, Image } from "react-native-elements";
+import React, { useContext } from "react";
+import { ActivityIndicator, Pressable, View } from "react-native";
+import { Image } from "react-native-elements";
 import styled from "styled-components/native";
-import { ActionButton, BWButton } from '../../components/global/Buttons';
-import { Dimensions } from "react-native";
-import { followCreator, getFollowers } from "../../api/ReelayDBApi";
-import { notifyCreatorOnFollow } from "../../api/NotificationsApi";
+import FollowButton from '../global/FollowButton';
 import * as ReelayText from '../../components/global/Text';
 
 import { AuthContext } from "../../context/AuthContext";
 import { logAmplitudeEventProd } from "../utils/EventLogger";
-import { useDispatch, useSelector } from "react-redux";
 
 const PressableContainer = styled(Pressable)`
     display: flex;
@@ -50,26 +46,22 @@ const ProfilePictureContainer = styled(View)`
 const FollowButtonFlexContainer = styled(View)`
     flex: 0.3;
 `
-const FollowButtonContainer = styled(View)`
-	height: 30px;
-    width: 90px;
-`;
 
 export default UserSearchResultItem = ({
     result,
-    navigation,
-    setCreatorFollowers, 
-    setDrawerFollowObj,
-    setDrawerOpen,
+    navigation
 }) => {
-    const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
-    const myFollowing = useSelector(state => state.myFollowing);
     const searchedUser = result;
     const profilePictureURI = searchedUser.profilePictureURI;
 
     const username = searchedUser.username;
     const userSub = searchedUser.sub; // sub is the user's unique id
+
+    const followButtonCreatorObj = {
+        sub: userSub,
+        username: username,
+    }
 
     const selectResult = () => {
         navigation.push("UserProfileScreen", { creator: searchedUser });
@@ -80,49 +72,8 @@ export default UserSearchResultItem = ({
         }); 
     };
 
-    const findFollowUser = (userObj) => {
-        return userObj.creatorSub === userSub;
-    };
-
-    const alreadyFollowing = myFollowing.find(findFollowUser);
     const myUserSub = reelayDBUser.sub;
     const isMyProfile = myUserSub === userSub;
-
-    const followUser = async () => {
-        const followResult = await followCreator(userSub, myUserSub);
-        const isFollowing = !followResult?.error && !followResult?.requestStatus;
-
-        if (isFollowing) {
-            dispatch({ type: 'setMyFollowing', payload: [...myFollowing, followResult] });
-        } else {
-            // handle error
-        }
-
-        await notifyCreatorOnFollow({
-            creatorSub: userSub,
-            follower: reelayDBUser,
-        });
-
-        logAmplitudeEventProd("followedUser", {
-            followerName: reelayDBUser.username,
-            followSub: reelayDBUser.sub,
-        });
-    };
-
-    const initiateUnfollowUser = async () => {
-            setCreatorFollowers(await getFollowers(userSub));
-            if (alreadyFollowing) {
-                setDrawerFollowObj(myFollowing.find(findFollowUser));
-            } else {
-                setDrawerFollowObj(myFollowing.find(findFollowUser));
-            }
-            setDrawerOpen(true);
-
-            logAmplitudeEventProd("unfollowedUser", {
-                followerName: reelayDBUser.username,
-                followSub: reelayDBUser.sub,
-            });
-    };
 
     return (
 		<PressableContainer onPress={selectResult}>
@@ -142,35 +93,11 @@ export default UserSearchResultItem = ({
 					<UsernameText>{username}</UsernameText>
 				</UsernameContainer>
 
-				<FollowButtonFlexContainer>
-					<FollowButtonContainer>
-						{!alreadyFollowing && !isMyProfile && (
-							<ActionButton
-								text="Follow"
-								color="blue"
-								borderRadius="8px"
-								backgroundColor={ReelayColors.reelayRed}
-								borderColor={ReelayColors.reelayBlack}
-								onPress={followUser}
-							/>
-						)}
-						{alreadyFollowing && !isMyProfile && (
-							<BWButton
-								text="Following"
-								borderRadius="8px"
-								onPress={initiateUnfollowUser}
-								rightIcon={
-									<Icon
-										type="ionicon"
-										name="chevron-down-outline"
-										color={"white"}
-										size={15}
-									/>
-								}
-							/>
-						)}
-					</FollowButtonContainer>
-				</FollowButtonFlexContainer>
+				{ !isMyProfile && (
+                    <FollowButtonFlexContainer>
+					    <FollowButton creator={followButtonCreatorObj} />
+				    </FollowButtonFlexContainer>
+                )}
 			</RowContainer>
 		</PressableContainer>
 	);

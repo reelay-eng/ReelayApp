@@ -122,7 +122,6 @@ export const getReportedReelayStacks = async () => {
 
 export const getAllDonateLinks = async () => {
     const routeGet = `${REELAY_API_BASE_URL}/donateLinks/all`;
-    console.log('donate links route: ', routeGet);
     const resultGet = await fetchResults(routeGet, {
         method: "GET",
         headers: REELAY_API_HEADERS,
@@ -188,6 +187,7 @@ export const getReelay = async (reelaySub, visibility=FEED_VISIBILITY) => {
 
 export const getReelaysByCreator = async (creatorSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/users/sub/${creatorSub}/reelays?visibility=${FEED_VISIBILITY}`;
+    console.log('GET REELAYS BY CREATOR: ', routeGet);
     const fetchedReelays = await fetchResults(routeGet, { 
         method: 'GET',
         headers: REELAY_API_HEADERS,
@@ -265,6 +265,17 @@ const prepareStacks = async (fetchedStacks) => {
         return await Promise.all(fetchedReelaysForStack.map(prepareReelay));
     }
     return await Promise.all(fetchedStacks.map(prepareReelaysForStack));
+}
+
+export const getCommentLikesForReelay = async (reelaySub, reqUserSub) => {
+    const reelaySubsJSON = JSON.stringify([reelaySub]);
+    const routeGet = `${REELAY_API_BASE_URL}/comments/likes/all?reelaySubs=${reelaySubsJSON}&userSub=${reqUserSub}`;
+    const resultGet = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: REELAY_API_HEADERS,
+    });
+    console.log('Getting comment likes: ', resultGet);
+    return resultGet;
 }
 
 export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
@@ -374,6 +385,18 @@ export const postCommentToDB = async (commentBody, reelaySub) => {
     return resultPost;
 }
 
+export const postCommentLikeToDB = async (commentUUID, commentAuthorSub, commentLikerSub) => {
+    const reqBody = { commentUUID, commentAuthorSub, commentLikerSub };
+    const routePost = `${REELAY_API_BASE_URL}/comments/like`;
+    const resultPost = await fetchResults(routePost, {
+        method: 'POST',
+        body: JSON.stringify(reqBody),
+        headers: REELAY_API_HEADERS,
+    });
+    console.log('Posted comment like: ', resultPost);
+    return resultPost;
+}
+
 export const postLikeToDB = async (likeBody, reelaySub) => {
     const routePost = `${REELAY_API_BASE_URL}/reelays/sub/${reelaySub}/likes`;
     const resultPost = await fetchResults(routePost, {
@@ -435,7 +458,10 @@ export const prepareReelay = async (fetchedReelay) => {
             videoURI: videoURIObject.videoURI,    
         },
         comments: sortedComments,
+        description: fetchedReelay.description,
         likes: fetchedReelay.likes,
+        starRating: fetchedReelay.starRating,
+        starRatingAddHalf: fetchedReelay.starRatingAddHalf,
         sub: fetchedReelay.datastoreSub,
         title: titleObj,
         postedDateTime: fetchedReelay.postedAt ?? fetchedReelay.maxPostedAt,
@@ -473,7 +499,28 @@ export const registerPushTokenForUser = async (userSub, pushToken) => {
     return resultPatch;
 }
 
-// todo: make a remove comment function
+export const removeComment = async (commentID) => {
+    const routeDelete = `${REELAY_API_BASE_URL}/comments`;
+    const deleteBody = { commentID };
+    const resultDelete = await fetchResults(routeDelete, {
+        method: 'DELETE',
+        headers: REELAY_API_HEADERS,
+        body: JSON.stringify(deleteBody),
+    });
+    console.log('Deleted comment: ', resultDelete);
+    return resultDelete;
+}
+
+export const removeCommentLike = async (commentUUID, userSub) => {
+    // todo
+    const routeDelete = `${REELAY_API_BASE_URL}/comments/like?commentUUID=${commentUUID}&userSub=${userSub}`;
+    const resultDelete = await fetchResults(routeDelete, {
+        method: 'DELETE',
+        headers: REELAY_API_HEADERS,
+    });
+    console.log('Deleted comment like: ', resultDelete);
+    return resultDelete;
+}
 
 export const removeLike = async (like) => {
     const removeBody = {

@@ -11,7 +11,7 @@ import * as ReelayText from "../../components/global/Text";
 import { BWButton } from "../../components/global/Buttons";
 import { HeaderWithBackButton } from "../global/Headers";
 import { clearLocalUserData, deregisterSocialAuthToken } from '../../api/ReelayUserApi';
-import { getReelay, prepareReelay } from '../../api/ReelayDBApi';
+import { getReelay, prepareReelay, registerPushTokenForUser } from '../../api/ReelayDBApi';
 import { useDispatch, useSelector } from 'react-redux';
 
 export const ProfileSettings = ({navigation}) => {
@@ -145,6 +145,7 @@ const SettingEntry = ({text, iconName, onPress}) => {
 const Logout = () => {
     const { 
         reelayDBUser, 
+        reelayDBUserID,
         setReelayDBUserID,
     } = useContext(AuthContext);
     const signUpFromGuest = useSelector(state => state.signUpFromGuest);
@@ -163,7 +164,7 @@ const Logout = () => {
             dispatch({ type: 'setSignedIn', payload: false });
             setReelayDBUserID(null);
             deregisterSocialAuthToken();
-            // todo: deregister for push tokens
+            registerPushTokenForUser(reelayDBUserID, null); 
             // todo: deregister cognito user
             console.log(signOutResult);
             await clearLocalUserData();

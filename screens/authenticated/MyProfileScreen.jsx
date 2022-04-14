@@ -75,8 +75,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const myCreatorStacks = useSelector(state => state.myCreatorStacks);
   	const dispatch = useDispatch();
 
-    console.log('Is signed in: ', signedIn);
-
     useEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
         if (refreshOnUpload) {
@@ -182,7 +180,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
     }
 
     const fixLink = (link) => {
-        if (link.startsWith('https://')) {
+        if (link.startsWith('https://') || link.startsWith('http://')) {
             return link;
         } else {
             return 'https://'+link;

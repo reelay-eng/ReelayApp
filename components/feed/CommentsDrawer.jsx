@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState, useEffect, memo} from 'react';
+import React, { useContext, useRef, useState, memo} from 'react';
 import { 
     Dimensions,
     Keyboard, 
@@ -6,32 +6,37 @@ import {
     Modal, 
     Pressable, 
     ScrollView, 
-    TextInput, 
     View,
     Image,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Button, Icon } from 'react-native-elements';
+import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
 import Constants from 'expo-constants';
 import { BWButton } from '../global/Buttons';
 import * as ReelayText from '../global/Text';
-import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png';
+import SwipeableComment from './SwipeableComment';
 
 import { 
 	notifyCreatorOnComment,
+	notifyMentionsOnComment,
 	notifyThreadOnComment,
 } from '../../api/NotificationsApi';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
-import { getRegisteredUser, getUserByUsername, postCommentToDB } from '../../api/ReelayDBApi';
+import { getRegisteredUser, getUserByUsername, postCommentLikeToDB, postCommentToDB, removeCommentLike } from '../../api/ReelayDBApi';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
+import CommentItem from './CommentItem';
+import TextInputWithMentions from './TextInputWithMentions';
+import ProfilePicture from '../global/ProfilePicture';
 
 const { height, width } = Dimensions.get('window');
+const COMMENT_TEXT_INPUT_WIDTH = width - 146;
+
 moment.updateLocale("en", {
 	relativeTime: {
 		future: "in %s",
@@ -51,11 +56,14 @@ moment.updateLocale("en", {
 	},
 });
 
+const CommentInputContainer = styled(View)`
+	align-items: flex-end;
+	flex-direction: row;
+`
+
 export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
     const CLOSE_BUTTON_SIZE = 25;
-    const MAX_COMMENT_LENGTH = 200;
-
     const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
     const Backdrop = styled(Pressable)`
@@ -85,24 +93,15 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
     }
 
     const Header = () => {
-
-        // comments are for Gray Bar indicating slide-to-close, if we ever put it in. 
         const HeaderContainer = styled(View)`
             justify-content: center;
             margin-left: 12px;
-            margin-right: 12px;
+            margin-right: 20px;
             padding-top: 10px;
             padding-bottom: 10px;
             border-bottom-color: #2D2D2D;
             border-bottom-width: 1px;
         `
-        // const GrayBar = styled(View)`
-        //     border-radius: 10px;
-        //     opacity: 0.2;
-        //     border: solid 2px white;
-        //     width: 70px;
-        //     align-self: center;
-        // `
         const HeaderText = styled(ReelayText.CaptionEmphasized)`
             position: absolute;
             align-self: center;
@@ -115,7 +114,6 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 		
         return (
             <HeaderContainer>
-                {/* <GrayBar /> */}
                 <HeaderText>{headerText}</HeaderText>
                 <CloseButtonContainer onPress={closeDrawer}>
                     <Icon color={'white'} type='ionicon' name='close' size={CLOSE_BUTTON_SIZE}/>
@@ -124,146 +122,44 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
         );
     }
 
-    const CommentProfilePhoto = styled(Image)`
-		width: 32px;
-		height: 32px;
-		border-radius: 16px;
-	`;
-
-    const Comments = ({ comments }) => {
+    const CommentList = ({ comments, rerender }) => {
         const CommentsContainer = styled(View)`
 			width: 100%;
 			padding-top: 13px;
 		`;
-		
+
+		const onCommentDelete = async (comment) => {
+			console.log('comment length before delete: ', reelay.comments.length);
+			const removeOnCommentID = (nextComment) => (comment.id !== nextComment.id);
+			reelay.comments = reelay.comments.filter(removeOnCommentID);
+			console.log('comment length after delete: ', reelay.comments.length);
+            rerender(); // for comment to be removed
+
+			logAmplitudeEventProd("deletedComment", {
+				user: reelayDBUser?.username,
+				creator: reelay.creator.username,
+				title: reelay.title.display,
+				reelayID: reelay.id,
+				commentText: comment.content,
+			});
+		};
+
         return (
             <CommentsContainer>
-                {comments.map((comment, i) => (
-                    <Comment comment={comment} key={(comment.userID ?? comment.authorName) + comment.postedAt} />
-                ))}
+                {comments.map((comment, i) => {
+					const commentKey = (comment.userID ?? comment.authorName) + comment.postedAt;
+					if (comment.authorSub === reelayDBUser.sub)  {
+						return (
+							<SwipeableComment key={commentKey} comment={comment} onCommentDelete={onCommentDelete}>
+								<CommentItem comment={comment} navigation={navigation} />
+							</SwipeableComment>
+						);
+					} else {
+						return <CommentItem key={commentKey} comment={comment} navigation={navigation} />;
+					}
+				})}
             </CommentsContainer>
         );
-	};
-
-    const AsyncProfilePhoto = ({ source }) => {
-		return (
-			<>
-				<CommentProfilePhoto
-					style={{ zIndex: 2 }}
-					source={source}
-				/>
-				<CommentProfilePhoto
-					style={{ position: "absolute", zIndex: 1 }}
-					source={ReelayIcon}
-				/>
-			</>
-		);
-	};
-
-    const Comment = ({ comment }) => {
-        const [commentLiked, setCommentLiked] = useState(false); // alter to make default state the database value for whether you've liked that comment yet or not.
-		const [numCommentLikes, setNumCommentLikes] = useState(0); // similarly alter to make default state the database value for the number of comment likes currently
-        const commentImageSource = {
-			uri: `${CLOUDFRONT_BASE_URL}/public/profilepic-${comment.authorSub}-current.jpg`,
-		}
-        
-        const CommentItemContainer = styled(Pressable)`
-			padding-left: 16px;
-			padding-right: 16px;
-			padding-bottom: 13px;
-			display: flex;
-			flex-direction: row;
-		`;
-		const LeftCommentIconContainer = styled(View)`
-			width: 10%;
-			align-items: center;
-			margin-right: 12px;
-			margin-top: 4px;
-		`;
-		const RightCommentIconContainer = styled(Pressable)`
-			width: 10%;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-		`;
-		const CommentIconText = styled(ReelayText.Caption)`
-			color: #86878b;
-		`;
-		const CommentTextContainer = styled(View)`
-			display: flex;
-			flex-direction: column;
-			width: 80%;
-		`;
-		const CommentText = styled(ReelayText.Body2)`
-			color: white;
-		`;
-		const CommentTimestampText = styled(ReelayText.Body2)`
-			color: #86878b;
-		`;
-		const UsernameText = styled(ReelayText.CaptionEmphasized)`
-			color: #86878b;
-		`;
-
-		const toggleCommentLike = () => {
-			const commentIsNowLiked = !commentLiked;
-			if (commentIsNowLiked) {
-				setNumCommentLikes(numCommentLikes + 1);
-				/**
-				 * Here, put logic for liking comment in DB and incrementing number of comment likes. React state updates automatically.
-				 */
-			} else {
-				setNumCommentLikes(numCommentLikes - 1);
-				/**
-				 * Here, put logic for liking comment in DB and incrementing number of comment likes. React state updates automatically.
-				 */
-			}
-			setCommentLiked(commentIsNowLiked);
-		};
-
-		// main feed currently returns from DataStore, using userID
-		// profile feeds return from ReelayDB, using authorName
-		const username = comment.userID ?? comment.authorName;
-		const timestamp = moment(comment.postedAt).fromNow();
-
-		const onPress = async () => {
-			const creator = await getUserByUsername(username);
-			dispatch({ type: 'setCommentsVisible', payload: false });
-			navigation.push("UserProfileScreen", {
-				creator: creator,
-			});
-			logAmplitudeEventProd('viewProfile', {
-				username: username,
-				source: 'commentDrawer',
-			});
-		};
-		
-		return (
-            <CommentItemContainer onPress={onPress}>
-				<LeftCommentIconContainer>
-					<AsyncProfilePhoto source={commentImageSource} />
-				</LeftCommentIconContainer>
-				<CommentTextContainer>
-					<UsernameText>{`@${username}`}</UsernameText>
-					<CommentText>
-						{comment.content} <CommentTimestampText>{timestamp}</CommentTimestampText>
-					</CommentText>
-				</CommentTextContainer>
-
-				{/* On implementing comment likes, remove the view below and uncomment the snippet below. */}
-				<View />
-				{/* <RightCommentIconContainer onPress={toggleCommentLike}>
-                            <Icon
-                                type="ionicon"
-                                name={commentLiked ? "heart" : "heart-outline"}
-                                color={commentLiked ? "#FF4848" : "#FFFFFF"}
-                                size={16}
-                            />
-                            {numCommentLikes > 1 && (
-                                <CommentIconText>{numCommentLikes}</CommentIconText>
-                            )}
-                        </RightCommentIconContainer> */}
-			</CommentItemContainer>
-		);
 	};
 
     const CommentBox = () => {
@@ -290,20 +186,18 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 			flexDirection: "row",
 			justifyContent: "space-between",
 		};
-        const CommentProfilePhotoContainer = styled(View)`
-			width: 32px;
+        const ProfilePictureContainer = styled(View)`
+			justify-content: flex-end;
+			margin-right: 6px;
 		`;
 
-        const AuthorImage = memo(({user}) => {
-            const authorImageSource = {
-				uri: `${CLOUDFRONT_BASE_URL}/public/profilepic-${user?.sub}-current.jpg`,
-			};
+        const AuthorImage = ({ user }) => {
             return (
-				<CommentProfilePhotoContainer>
-					<CommentProfilePhoto source={authorImageSource} />
-				</CommentProfilePhotoContainer>
+				<ProfilePictureContainer>
+					<ProfilePicture size={40} user={user} />
+				</ProfilePictureContainer>
 			);
-        })
+        };
 		
         return (
 			<View>
@@ -315,7 +209,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 							style={{ maxHeight: maxDrawerHeight / 2 }}
 							keyboardShouldPersistTaps={'handled'}
 						>
-                            <Comments comments={reelay.comments}/>
+                            <CommentList comments={reelay.comments} rerender={rerender} />
 						</ScrollView>
 						<Spacer height="12px" />
 					</>
@@ -341,26 +235,13 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 		`;
 
 		const TextBoxStyle = {
-			width: width - 138,
-		};
-
-		const TextInputStyle = {
-			alignSelf: "center",
-			color: "white",
-			fontFamily: "Outfit-Regular",
-			fontSize: 14,
-			fontStyle: "normal",
-			lineHeight: 24,
-			letterSpacing: 0.25,
-			textAlign: "left",
-			paddingLeft: 12,
-			paddingRight: 12,
-			width: "100%",
+			justifyContent: 'flex-start',
+			alignItems: 'flex-start',
+			width: COMMENT_TEXT_INPUT_WIDTH,
 		};
 
 		const [commentText, setCommentText] = useState("");
 		const [commentPosting, setCommentPosting] = useState(false);
-
 
 		const keyboardWillShow = async (e) => {
 			const keyboardHeight = e.endCoordinates.height;
@@ -390,6 +271,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 			console.log(commentBody);
 
 			const postResult = await postCommentToDB(commentBody, reelay.sub);
+			commentBody.id = postResult.id;
 			console.log("Comment posted: ", postResult);
 
 			await notifyCreatorOnComment({
@@ -404,6 +286,13 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 				reelay: reelay,
 				commentText: commentText,
 			});
+			await notifyMentionsOnComment({
+				creator: reelay.creator,
+				author: reelayDBUser,
+				reelay: reelay,
+				commentText: commentText,
+			})
+
 			setCommentText("");
             setCommentPosting(false);
             reelay.comments.push(commentBody);
@@ -420,39 +309,25 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 				commentText: commentText,
 			});
 		};
+
         return (
-			<>
-				{/* Setting up TextInput as a styled component forces the keyboard to disappear... */}
+			<CommentInputContainer>
 				<View style={TextBoxStyle}>
-					<TextInput
-						maxLength={MAX_COMMENT_LENGTH}
-						multiline
-						numberOfLines={4}
-						blurOnSubmit={true}
-						onChangeText={(text) => setCommentText(text)}
-						onFocus={() => {
-							if (scrollViewRef?.current) {
-								scrollViewRef.current.scrollToEnd({ animated: false });
-							}
-						}}
-						placeholder={"Add comment..."}
-						placeholderTextColor={"gray"}
-						returnKeyType="done"
-						style={TextInputStyle}
-						defaultValue={commentText}
+					<TextInputWithMentions 
+						boxWidth={COMMENT_TEXT_INPUT_WIDTH}
+						commentText={commentText}
+						setCommentText={setCommentText}
+						scrollViewRef={scrollViewRef}
 					/>
 				</View>
 				<PostButtonContainer>
 					<BWButton
 						disabled={!commentText.length || commentPosting}
 						text={"Post"}
-						onPress={(commentText) => {
-							onCommentPost(commentText);
-							// Keyboard.dismiss();
-						}}
+						onPress={onCommentPost}
 					/>
 				</PostButtonContainer>
-			</>
+			</CommentInputContainer>
 		);
 	};
 
@@ -464,7 +339,6 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 						<Backdrop onPress={closeDrawer} />
 						<DrawerContainer>
 							<CommentBox />
-							{/* <CloseButton /> */}
 						</DrawerContainer>
 					</KeyboardAvoidingView>
 				</Modal>

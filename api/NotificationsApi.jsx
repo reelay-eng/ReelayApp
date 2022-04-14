@@ -2,6 +2,7 @@ import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import { fetchResults } from './fetchResults';
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
+import { isMentionPartType, parseValue } from 'react-native-controlled-mentions'
 
 import { 
     getMostRecentReelaysByTitle,
@@ -230,6 +231,50 @@ export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, comme
     await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
 }
 
+export const notifyMentionsOnComment = async ({ creator, author, reelay, commentText }) => {
+    const mentionFollowType = { trigger: '@' };
+    const commentParts = parseValue(commentText, [mentionFollowType]);
+    const isMention = (part) => (part.partType && isMentionPartType(part.partType));
+
+    commentParts.parts.forEach(async (commentPart) => {
+        if (isMention(commentPart)) {
+            const notifyMentionedUserSub = commentPart.data.id;
+            const notifyMentionedUser = await getRegisteredUser(notifyMentionedUserSub);
+            const token = notifyMentionedUser?.pushToken;
+            
+            if (!token) {
+                console.log('Comment author not registered for notifications');
+                return;
+            }
+        
+            let creatorDirectObject = `@${creator.username}'s`;
+            if (creator.username === author.username) creatorDirectObject = 'their';
+            if (creator.username === notifyMentionedUser.username) creatorDirectObject = 'your';
+                
+            const title = `@${author.username} mentioned you in a comment on ${creatorDirectObject} reelay.`;
+            const body = '';
+            const data = { 
+                notifyType: 'notifyMentionedUserOnComment',
+                commentText,
+                action: 'openSingleReelayScreen',
+                reelaySub: reelay.sub,
+                title: condensedTitleObj(reelay.title),   
+                fromUser: { sub: author.sub, username: author.username },
+            };
+        
+            await sendPushNotification({ title, body, data, token, sendToUserSub: notifyMentionedUser?.sub });
+            logAmplitudeEventProd('userMentionedInCommnet', {
+                mentionedUsername: notifyMentionedUser.username,
+                authorUsername: author.username,
+                creatorUsername: creator.username,
+                title: reelay.title.display,
+                commentText: commentText,
+                reelaySub: reelay.sub,
+            });
+        }
+    });
+}
+
 export const notifyThreadOnComment = async ({ creator, author, reelay, commentText }) => {
     reelay.comments.map(async (comment, index) => {
         const notifyAuthorName = comment.authorName;
@@ -342,6 +387,48 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
     };
 
     await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
+}
+
+export const notifyMentionsOnReelayPosted = async ({ creator, reelay }) => {
+    const descriptionText = reelay.description;
+    if (!descriptionText || descriptionText === '') return;
+
+    const mentionFollowType = { trigger: '@' };
+    const descriptionParts = parseValue(descriptionText, [mentionFollowType]);
+    const isMention = (part) => (part.partType && isMentionPartType(part.partType));
+
+    descriptionParts.parts.forEach(async (descriptionPart) => {
+        if (isMention(descriptionPart)) {
+            const notifyMentionedUserSub = descriptionPart.data.id;
+            const notifyMentionedUser = await getRegisteredUser(notifyMentionedUserSub);
+            const token = notifyMentionedUser?.pushToken;
+            
+            if (!token) {
+                console.log('Comment author not registered for notifications');
+                return;
+            }
+                        
+            const title = `@${creator.username} mentioned you in their reelay for ${reelay.title.display}.`;
+            const body = '';
+            const data = { 
+                notifyType: 'notifyMentionedUserOnReelayPosted',
+                descriptionText,
+                action: 'openSingleReelayScreen',
+                reelaySub: reelay.sub,
+                title: condensedTitleObj(reelay.title),   
+                fromUser: { sub: creator.sub, username: creator.username },
+            };
+        
+            await sendPushNotification({ title, body, data, token, sendToUserSub: notifyMentionedUser?.sub });
+            logAmplitudeEventProd('userMentionedInReelay', {
+                mentionedUsername: notifyMentionedUser.username,
+                creatorUsername: creator.username,
+                title: reelay.title.display,
+                descriptionText,
+                reelaySub: reelay.sub,
+            });
+        }
+    });
 }
 
 export const notifyOtherCreatorsOnReelayPosted = async ({ creator, reelay }) => {

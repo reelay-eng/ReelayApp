@@ -22,7 +22,9 @@ export default ProfilePicture = memo(({ border = null, user, navigation, size = 
 
     return (
         <Pressable onPress={() => {
-            navigation.push('UserProfileScreen', { creator: user });
+            if (navigation) {
+                navigation.push('UserProfileScreen', { creator: user });
+            }
         }}>
             { validProfileImage ? null : (
                 <ProfileImage border size={size} source={ReelayIcon} />) 

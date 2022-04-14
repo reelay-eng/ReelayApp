@@ -1,127 +1,18 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { View, Pressable, Text } from 'react-native';
-import { Icon } from 'react-native-elements';
+import React from 'react';
+import { View } from 'react-native';
 import styled from 'styled-components/native';
-import ReelayColors from '../../../constants/ReelayColors';
-import * as ReelayText from '../../global/Text';
-import { AuthContext } from '../../../context/AuthContext';
-import { followCreator, unfollowCreator } from '../../../api/ReelayDBApi';
-import { notifyCreatorOnFollow } from "../../../api/NotificationsApi";
-
-import { logAmplitudeEventProd } from '../../utils/EventLogger';
-import FollowButtonDrawer from '../../global/FollowButtonDrawer';
-import { useDispatch, useSelector } from 'react-redux';
+import FollowButton from '../../global/FollowButton';
 
 const FollowContainer = styled(View)`
-    align-self: center;
-    flex-direction: row;
-    margin-top: 10px;
-    margin-bottom: 20px;
-`;
-const FollowButton = styled(Pressable)`
+    width: 100%;
+    display: flex;
     align-items: center;
-    align-self: center;
-    background-color: ${props => props.backgroundColor};
-    border-color: ${props => props.borderColor};
-    border-radius: 36px;
-    border-width: 1px;
-    justify-content: center;
-    flex-direction: row;
-    height: 44px;
-    width: 75%;
-`;
-const FollowText = styled(ReelayText.Subtitle1Emphasized)`
-    color: white;
 `;
 
-export default FollowButtonBar = ({ creator, creatorFollowers, setCreatorFollowers }) => {
-    const dispatch = useDispatch();
-    const { reelayDBUser } = useContext(AuthContext);
-    const myFollowing = useSelector(state => state.myFollowing);
-    
-    const creatorSub = creator.sub;
-    const userSub = reelayDBUser.sub;
-
-    const [drawerOpen, setDrawerOpen] = useState(false);
-    const [drawerFollowObj, setDrawerFollowObj] = useState(null);
-
-    const creatorInList = (followObj) => followObj.creatorSub === creator.sub;
-    const alreadyFollowingCreator = myFollowing.find(creatorInList);
-
-	const showMeSignupIfGuest = () => {
-		if (reelayDBUser?.username === 'be_our_guest') {
-			dispatch({ type: 'setJustShowMeSignupVisible', payload: true });
-			return true;
-		}
-		return false;
-	}
-
-    const followUser = async () => {
-        if (showMeSignupIfGuest()) return;
-        const followResult = await followCreator(creatorSub, userSub);
-        const isFollowing = !followResult?.error && !followResult?.requestStatus;
-        
-        if (isFollowing) {
-            setCreatorFollowers([...creatorFollowers, followResult]);
-            dispatch({ type: 'setMyFollowing', payload: [...myFollowing, followResult] });
-        } else {
-            logAmplitudeEventProd('followCreatorError', {
-                error: followResult?.error,
-                requestStatus: followResult?.requestStatus,
-            });
-            return;
-        }
-
-        logAmplitudeEventProd('followedCreator', {
-            username: reelayDBUser.username,
-            creatorName: creator.username,
-        });
-
-        await notifyCreatorOnFollow({
-          creatorSub: creatorSub,
-          follower: reelayDBUser,
-        });
-    };
-
-    const initiateUnfollowUser = async () => {
-        const followObj = myFollowing.find(creatorInList);
-        setDrawerFollowObj(followObj);
-        setDrawerOpen(true);
-    }
-
-    // if the person already follows, then it should say following
+export default FollowButtonBar = ({ creator }) => {
     return (
         <FollowContainer>
-            { !alreadyFollowingCreator && (
-                <FollowButton 
-                    backgroundColor={ReelayColors.reelayBlue}
-                    borderColor={ReelayColors.reelayBlue}
-                    onPress={followUser}
-                >
-                    <FollowText>{'Follow'}</FollowText>
-                </FollowButton>
-            )}
-            { alreadyFollowingCreator && (
-                <FollowButton 
-                    backgroundColor={ReelayColors.reelayBlack}
-                    borderColor={'white'}
-                    onPress={initiateUnfollowUser} 
-                >
-                    <FollowText>{'Following'}</FollowText>
-                    <Icon type='ionicon' name='caret-down' color={'white'} size={20} />
-                </FollowButton>
-            )}
-            { drawerOpen && 
-                <FollowButtonDrawer 
-                    creatorFollowers={creatorFollowers}
-                    setCreatorFollowers={setCreatorFollowers}
-                    drawerOpen={drawerOpen}
-                    setDrawerOpen={setDrawerOpen}
-                    followObj={drawerFollowObj}
-                    followType={'Following'}
-                    sourceScreen={'UserProfileScreen'}
-                />
-            }
+            <FollowButton creator={creator} bar/>
         </FollowContainer>
     );
 };

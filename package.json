@@ -77,10 +77,12 @@
     "react-native": "0.63.4",
     "react-native-autolink": "^4.0.0",
     "react-native-camera": "^3.43.6",
+    "react-native-controlled-mentions": "^2.2.5",
     "react-native-countdown-circle-timer": "^2.5.3",
     "react-native-elements": "^3.4.2",
     "react-native-gesture-handler": "~1.10.2",
     "react-native-get-random-values": "^1.7.1",
+    "react-native-keyboard-aware-scroll-view": "^0.9.5",
     "react-native-pager-view": "5.0.12",
     "react-native-paper": "^4.9.2",
     "react-native-progress": "^5.0.0",
@@ -90,6 +92,7 @@
     "react-native-screens": "~3.4.0",
     "react-native-share": "^7.3.7",
     "react-native-snap-carousel": "^3.9.1",
+    "react-native-star-rating": "^1.1.0",
     "react-native-svg": "12.1.1",
     "react-native-swipe-gestures": "^1.0.5",
     "react-native-toast-message": "^2.1.1",
@@ -120,5 +123,5 @@
   "private": true,
   "name": "ReelayApp",
   "license": "LicenseRef-LICENSE",
-  "version": "1.0.17"
+  "version": "1.0.65"
 }

@@ -7,6 +7,7 @@ import {
 
 import styled from 'styled-components/native';
 import { LinearGradient } from "expo-linear-gradient";
+import StarRating from 'react-native-star-rating';
 import * as ReelayText from "../../components/global/Text";
 import { VenueIcon } from '../utils/VenueIcon';
 import SplashImage from "../../assets/images/reelay-splash-with-dog.png";
@@ -24,18 +25,25 @@ export default ReelayThumbnail = ({
 }) => {
 	const CreatorLineContainer = styled(View)`
         align-items: center;
+		bottom: 12px;
         flex-direction: row;
         margin-left: 5px;
-        bottom: 0px;
-        position: absolute;
+		position: absolute;
     `
     const GradientContainer = styled(View)`
-		position: absolute;
+		align-items: flex-start;
 		border-radius: 8px;
+		height: 100%;
+		justify-content: flex-end;
+		position: absolute;
 		width: 100%;
-		height: 65%;
-		top: 35%;
-		justify-content: center;
+	`
+	const StarRatingContainer = styled(View)`
+		align-items: center;
+		flex-direction: row;
+		margin-top: -5px;
+		margin-bottom: 6px;
+		margin-left: 35px;
 	`
 	const TitleVenue = styled(View)`
 		position: absolute;
@@ -59,6 +67,7 @@ export default ReelayThumbnail = ({
 	const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
 	const [thumbnailSource, setThumbnailSource] = useState(cloudfrontThumbnailSource);
 	const s3Client = useSelector(state => state.s3Client);
+	const starRating = (reelay.starRating ?? 0) + (reelay.starRatingAddHalf ? 0.5 : 0);
 
 	const generateAndSaveThumbnail = async () => {
 		console.log('ON ERROR TRIGGERED: ', getThumbnailURI(reelay));
@@ -89,18 +98,35 @@ export default ReelayThumbnail = ({
 						colors={["transparent", "#0B1424"]}
 						style={{
 							flex: 1,
-							opacity: 1,
+							opacity: 0.6,
 							width: "100%",
 							height: "100%",
 							borderRadius: "6px",
+							position: 'absolute',
 						}}
 					/>
-					{ showIcons && 
-						<CreatorLine username={username} />
-					}
+					{ showIcons && <CreatorLine username={username} /> }
+					{ showIcons && (starRating > 0) && <StarRatingLine /> }
 				</GradientContainer>
 			</React.Fragment>
 		)
+	}
+
+	const StarRatingLine = () => {
+		return (
+			<StarRatingContainer>
+				<StarRating 
+					disabled={true}
+					emptyStarColor={'#c4c4c4'}
+					maxStars={5}
+					fullStarColor={'white'}
+					halfStarEnabled={true}
+					rating={starRating}
+					starSize={12}
+					starStyle={{ paddingRight: 2 }}
+				/>
+			</StarRatingContainer>
+		);
 	}
 
     const CreatorLine = ({ username}) => {
