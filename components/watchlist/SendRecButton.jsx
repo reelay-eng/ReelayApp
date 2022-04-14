@@ -36,7 +36,7 @@ export default SendRecButton = ({ navigation, titleObj, reelay }) => {
 
     return (
         <Pressable onPress={advanceToRecommendScreen}>
-            <Icon type='ionicon' name='paper-plane' color='white' size={ICON_SIZE} />
+            <Icon type='ionicon' name='arrow-redo' color='white' size={ICON_SIZE} />
         </Pressable>
     );
 }
