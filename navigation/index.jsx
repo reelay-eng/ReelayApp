@@ -27,6 +27,9 @@ import moment from 'moment';
 import { handlePushNotificationResponse } from './NotificationHandler';
 import { markNotificationReceived } from '../api/NotificationsApi';
 import { useDispatch, useSelector } from 'react-redux';
+import { logAmplitudeEventProd } from '../components/utils/EventLogger';
+
+const UUID_LENGTH = 36;
 
 export default Navigation = () => {
     /**
@@ -121,11 +124,22 @@ export default Navigation = () => {
         if (deeplinkURL) {
             const navigation = navigationRef?.current;
             const { path } = deeplinkURL;
+            logAmplitudeEventProd('openedAppFromDeeplink', {
+                username: reelayDBUser?.username,
+                deeplink: JSON.stringify(deeplinkURL),
+                path: path,
+            });
+
             if (path?.startsWith('reelay/')) {
                 const reelaySub = path.substr('reelay/'.length);
                 if (reelaySub) {
                     navigation.navigate('SingleReelayScreen', { reelaySub });
                 }
+            } else if (path.length === UUID_LENGTH) {
+                // assume it's a reelay sub -- not entirely sure why it's cutting
+                // off 'reelay/' from the front of path, but that's what we're seeing
+                const reelaySub = path;
+                navigation.navigate('SingleReelayScreen', { reelaySub });
             }
         }
     }, [deeplinkURL]);
