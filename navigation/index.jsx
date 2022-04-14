@@ -3,7 +3,7 @@
  * https://reactnavigation.org/docs/getting-started
  *
  */
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { NavigationContainer, DarkTheme } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -14,6 +14,7 @@ import {
     removeNotificationSubscription,
     setBadgeCountAsync,
 } from 'expo-notifications';
+import * as Linking from 'expo-linking';
 
 import { AuthContext } from '../context/AuthContext';
 
@@ -40,6 +41,23 @@ export default Navigation = () => {
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const dispatch = useDispatch();
+
+    const [deeplinkURL, setDeeplinkURL] = useState(null);
+
+    const handleDeepLink = async (event) => {
+        const deeplinkURL = Linking.parse(event.url);
+        if (deeplinkURL) {
+            setDeeplinkURL(deeplinkURL);
+        }
+    }
+
+    const initDeeplinkHandlers = async () => {
+        Linking.addEventListener('url', handleDeepLink);
+        const initialURL = await Linking.getInitialURL();
+        if (initialURL) {
+            setDeeplinkURL(Linking.parse(initialURL));
+        }
+    }
 
     const setMyWatchlistItems = (payload) => {
         dispatch({ type: 'setMyWatchlistItems', payload });
@@ -88,14 +106,29 @@ export default Navigation = () => {
     }    
     
     useEffect(() => {
+        initDeeplinkHandlers();
         notificationListener.current = addNotificationReceivedListener(onNotificationReceived);
         responseListener.current = addNotificationResponseReceivedListener(onNotificationResponseReceived);
 
         return () => {
             removeNotificationSubscription(notificationListener.current);
             removeNotificationSubscription(responseListener.current);
+            Linking.removeEventListener('url');
         }
     }, []);
+
+    useEffect(() => {
+        if (deeplinkURL) {
+            const navigation = navigationRef?.current;
+            const { path } = deeplinkURL;
+            if (path?.startsWith('reelay/')) {
+                const reelaySub = path.substr('reelay/'.length);
+                if (reelaySub) {
+                    navigation.navigate('SingleReelayScreen', { reelaySub });
+                }
+            }
+        }
+    }, [deeplinkURL]);
     
     return (
         <NavigationContainer ref={navigationRef}

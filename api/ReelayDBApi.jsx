@@ -1,6 +1,7 @@
 import Constants from 'expo-constants';
 import { fetchResults } from './fetchResults';
 import { fetchAnnotatedTitle } from './TMDbApi';
+import * as Linking from 'expo-linking';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -87,6 +88,24 @@ export const reportReelay = async (reportingUserSub, reportReq) => {
 
     console.log(reportReelayResult);
     return reportReelayResult;
+}
+
+export const createDeeplinkPathToReelay = async (linkingUserSub, linkingUsername, reelaySub) => {
+    const deeplinkPath = Linking.createURL(`/reelay/${reelaySub}`);
+    const routePost = `${REELAY_API_BASE_URL}/deeplink/`;
+    const postBody = {
+        linkingUserSub, 
+        linkingUsername,
+        deeplinkPath,
+        propsJSON: null,
+    };
+
+    const dbResult = await fetchResults(routePost, {
+        method: 'POST',
+        headers: REELAY_API_HEADERS,
+        body: JSON.stringify(postBody),
+    });
+    return dbResult;
 }
 
 export const getReportedReelayStacks = async () => {

@@ -105,7 +105,6 @@ export const getSentRecommendations = async ({
                 requsersub: reqUserSub,
             },
         });
-        console.log('sent recs: ', sentRecs);
         return await Promise.all(sentRecs.map(prepareWatchlistItem));    
     } catch (error) {
         console.error(error);
