@@ -1,14 +1,16 @@
-import React, { useContext, useRef, useState, useEffect, memo} from 'react';
+import React, { useContext, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 import { useDispatch, useSelector } from 'react-redux';
-import { isMentionPartType, parseValue } from 'react-native-controlled-mentions'
+import { isMentionPartType, parseValue } from 'react-native-controlled-mentions';
+import { postCommentLikeToDB, removeCommentLike } from '../../api/ReelayDBApi';
 
+import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
 import * as ReelayText from '../global/Text';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
-import { getUserByUsername } from '../../api/ReelayDBApi';
 import ProfilePicture from '../global/ProfilePicture';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
@@ -81,11 +83,13 @@ const CommentTextWithMentions = ({ comment, navigation }) => {
 }
 
 export default CommentItem = ({ comment, navigation }) => {
-    const [commentLiked, setCommentLiked] = useState(false); // alter to make default state the database value for whether you've liked that comment yet or not.
-    const [numCommentLikes, setNumCommentLikes] = useState(0); // similarly alter to make default state the database value for the number of comment likes currently
+    const { reelayDBUser } = useContext(AuthContext);
+    const [commentLiked, setCommentLiked] = useState(comment?.likes?.userLiked); // alter to make default state the database value for whether you've liked that comment yet or not.
+    const [numCommentLikes, setNumCommentLikes] = useState(comment?.likes?.numberOfLikes ?? 0); // similarly alter to make default state the database value for the number of comment likes currently
     const dispatch = useDispatch();
 
     const CommentItemContainer = styled(Pressable)`
+        background-color: #1a1a1a;
         padding-left: 16px;
         padding-right: 16px;
         padding-bottom: 13px;
@@ -97,6 +101,18 @@ export default CommentItem = ({ comment, navigation }) => {
         align-items: center;
         margin-right: 12px;
         margin-top: 4px;
+    `;
+    const RightCommentIconContainer = styled(Pressable)`
+        align-items: center;
+        justify-content: center;
+        top: 3px;
+        right: 10px;
+        padding: 10px;
+        padding-bottom: 0px;
+    `;
+    const CommentIconText = styled(ReelayText.Caption)`
+        color: #86878b;
+        font-size: 12px;
     `;
     const CommentTextContainer = styled(View)`
         display: flex;
@@ -111,33 +127,29 @@ export default CommentItem = ({ comment, navigation }) => {
         const commentIsNowLiked = !commentLiked;
         if (commentIsNowLiked) {
             setNumCommentLikes(numCommentLikes + 1);
-            /**
-             * Here, put logic for liking comment in DB and incrementing number of comment likes. React state updates automatically.
-             */
+            postCommentLikeToDB(comment?.id, comment?.authorSub, reelayDBUser?.sub);
+            if (comment.likes) {
+                comment.likes.numberOfLikes++;
+                comment.likes.userLiked = true;
+            } else {
+                comment.likes = {
+                    numberOfLikes: 1,
+                    userLiked: true,
+                }
+            }
         } else {
             setNumCommentLikes(numCommentLikes - 1);
-            /**
-             * Here, put logic for liking comment in DB and incrementing number of comment likes. React state updates automatically.
-             */
+            removeCommentLike(comment?.id, reelayDBUser?.sub);
+            comment.likes.numberOfLikes--;
+            comment.likes.userLiked = false;
         }
         setCommentLiked(commentIsNowLiked);
     };
 
+
     // main feed currently returns from DataStore, using userID
     // profile feeds return from ReelayDB, using authorName
     const author = { username: comment.authorName, sub: comment.authorSub };
-
-    const onPress = async () => {
-        const creator = await getUserByUsername(author.username);
-        dispatch({ type: 'setCommentsVisible', payload: false });
-        navigation.push("UserProfileScreen", {
-            creator: creator,
-        });
-        logAmplitudeEventProd('viewProfile', {
-            username: author.username,
-            source: 'commentDrawer',
-        });
-    };
     
     return (
         <CommentItemContainer>
@@ -148,20 +160,16 @@ export default CommentItem = ({ comment, navigation }) => {
                 <UsernameText>{`@${author.username}`}</UsernameText>
                 <CommentTextWithMentions comment={comment} navigation={navigation} />
             </CommentTextContainer>
-
-            {/* On implementing comment likes, remove the view below and uncomment the snippet below. */}
             <View />
-            {/* <RightCommentIconContainer onPress={toggleCommentLike}>
-                        <Icon
-                            type="ionicon"
-                            name={commentLiked ? "heart" : "heart-outline"}
-                            color={commentLiked ? "#FF4848" : "#FFFFFF"}
-                            size={16}
-                        />
-                        {numCommentLikes > 1 && (
-                            <CommentIconText>{numCommentLikes}</CommentIconText>
-                        )}
-                    </RightCommentIconContainer> */}
+            <RightCommentIconContainer onPress={toggleCommentLike}>
+                <Icon
+                    type="ionicon"
+                    name={commentLiked ? "heart" : "heart-outline"}
+                    color={commentLiked ? "#FF4848" : "#FFFFFF"}
+                    size={15}
+                />
+                <CommentIconText>{(numCommentLikes>0) ? numCommentLikes : " "}</CommentIconText>
+            </RightCommentIconContainer>
         </CommentItemContainer>
     );
 };

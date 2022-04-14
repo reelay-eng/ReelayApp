@@ -18,6 +18,7 @@ import moment from 'moment';
 import Constants from 'expo-constants';
 import { BWButton } from '../global/Buttons';
 import * as ReelayText from '../global/Text';
+import SwipeableComment from './SwipeableComment';
 
 import { 
 	notifyCreatorOnComment,
@@ -26,7 +27,9 @@ import {
 } from '../../api/NotificationsApi';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
-import { postCommentToDB } from '../../api/ReelayDBApi';
+import { getRegisteredUser, getUserByUsername, postCommentLikeToDB, postCommentToDB, removeCommentLike } from '../../api/ReelayDBApi';
+
+const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 import CommentItem from './CommentItem';
 import TextInputWithMentions from './TextInputWithMentions';
 import ProfilePicture from '../global/ProfilePicture';
@@ -93,7 +96,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
         const HeaderContainer = styled(View)`
             justify-content: center;
             margin-left: 12px;
-            margin-right: 12px;
+            margin-right: 20px;
             padding-top: 10px;
             padding-bottom: 10px;
             border-bottom-color: #2D2D2D;
@@ -119,27 +122,42 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
         );
     }
 
-    const CommentProfilePhoto = styled(Image)`
-		width: 32px;
-		height: 32px;
-		border-radius: 16px;
-	`;
-
-    const Comments = ({ comments }) => {
+    const CommentList = ({ comments, rerender }) => {
         const CommentsContainer = styled(View)`
 			width: 100%;
 			padding-top: 13px;
 		`;
-		
+
+		const onCommentDelete = async (comment) => {
+			console.log('comment length before delete: ', reelay.comments.length);
+			const removeOnCommentID = (nextComment) => (comment.id !== nextComment.id);
+			reelay.comments = reelay.comments.filter(removeOnCommentID);
+			console.log('comment length after delete: ', reelay.comments.length);
+            rerender(); // for comment to be removed
+
+			logAmplitudeEventProd("deletedComment", {
+				user: reelayDBUser?.username,
+				creator: reelay.creator.username,
+				title: reelay.title.display,
+				reelayID: reelay.id,
+				commentText: comment.content,
+			});
+		};
+
         return (
             <CommentsContainer>
-                {comments.map((comment, i) => (
-                    <CommentItem 
-						key={(comment.userID ?? comment.authorName) + comment.postedAt}
-						comment={comment} 
-						navigation={navigation}
-					/>
-                ))}
+                {comments.map((comment, i) => {
+					const commentKey = (comment.userID ?? comment.authorName) + comment.postedAt;
+					if (comment.authorSub === reelayDBUser.sub)  {
+						return (
+							<SwipeableComment key={commentKey} comment={comment} onCommentDelete={onCommentDelete}>
+								<CommentItem comment={comment} navigation={navigation} />
+							</SwipeableComment>
+						);
+					} else {
+						return <CommentItem key={commentKey} comment={comment} navigation={navigation} />;
+					}
+				})}
             </CommentsContainer>
         );
 	};
@@ -191,7 +209,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 							style={{ maxHeight: maxDrawerHeight / 2 }}
 							keyboardShouldPersistTaps={'handled'}
 						>
-                            <Comments comments={reelay.comments}/>
+                            <CommentList comments={reelay.comments} rerender={rerender} />
 						</ScrollView>
 						<Spacer height="12px" />
 					</>
@@ -253,6 +271,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 			console.log(commentBody);
 
 			const postResult = await postCommentToDB(commentBody, reelay.sub);
+			commentBody.id = postResult.id;
 			console.log("Comment posted: ", postResult);
 
 			await notifyCreatorOnComment({
