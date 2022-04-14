@@ -25,8 +25,8 @@ export default SingleReelayScreen = ({ navigation, route }) => {
     const [singleReelay, setSingleReelay] = useState(preparedReelay);
 
     const loadSingleReelay = async () => {
-        const singleReelay = await getReelay(reelaySub);
-        const preparedReelay = await prepareReelay(singleReelay);  
+        const fetchedReelay = await getReelay(reelaySub);
+        const preparedReelay = await prepareReelay(fetchedReelay);  
         setSingleReelay(preparedReelay);
     }
 
