@@ -89,6 +89,31 @@ export const reportReelay = async (reportingUserSub, reportReq) => {
     return reportReelayResult;
 }
 
+<<<<<<< Updated upstream
+=======
+export const createDeeplinkPathToReelay = async (linkingUserSub, linkingUsername, reelaySub) => {
+    // using the scheme reelayapp://, the statement below creates an unusable triple slash
+    // ...doesn't happen on expo
+    let deeplinkPath = Linking.createURL(`/reelay/${reelaySub}`);
+    deeplinkPath = deeplinkPath.replace('///', '//'); 
+
+    const routePost = `${REELAY_API_BASE_URL}/deeplink/`;
+    const postBody = {
+        linkingUserSub, 
+        linkingUsername,
+        deeplinkPath,
+        propsJSON: null,
+    };
+
+    const dbResult = await fetchResults(routePost, {
+        method: 'POST',
+        headers: REELAY_API_HEADERS,
+        body: JSON.stringify(postBody),
+    });
+    return dbResult;
+}
+
+>>>>>>> Stashed changes
 export const getReportedReelayStacks = async () => {
     const routeGet = `${REELAY_API_BASE_URL}/reported-content/feed?visibility=${FEED_VISIBILITY}`;
     const fetchedReportedStacks = await fetchResults(routeGet, {
