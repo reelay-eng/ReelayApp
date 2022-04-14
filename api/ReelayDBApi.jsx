@@ -278,7 +278,6 @@ export const getCommentLikesForReelay = async (reelaySub, reqUserSub) => {
         method: 'GET',
         headers: REELAY_API_HEADERS,
     });
-    console.log('Getting comment likes: ', resultGet);
     return resultGet;
 }
 

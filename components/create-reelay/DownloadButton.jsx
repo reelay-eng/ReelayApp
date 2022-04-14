@@ -7,19 +7,20 @@ import ReelayColors from "../../constants/ReelayColors";
 import * as MediaLibrary from 'expo-media-library';
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 import styled from 'styled-components/native';
+import { showErrorToast } from "../utils/toasts";
 
 const DownloadButtonPressable = styled(Pressable)`
-    background-color: ${props => props.color}
+    background-color: ${({ color }) => color};
     border-radius: 24px;
     align-items: center;
     justify-content: center;
-    height: 48px;
-    width: 80px;
+    height: ${({ height }) => height}px;
+    width: ${({ width }) => width}px;
     bottom: 10px;
     left: 10px;
 `
 
-export default DownloadButton = ({ titleObj, videoURI }) => {
+export default DownloadButton = ({ titleObj, videoURI, height = 48, width = 80 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const [hasSavePermission, setHasSavePermission] = useState(null);
     const [downloadStage, setDownloadStage] = useState('preview');
@@ -56,7 +57,7 @@ export default DownloadButton = ({ titleObj, videoURI }) => {
         } else if (downloadStage === 'download-complete') {
             return 'white';
         } else {
-            return ReelayColors.reelayRed;
+            return 'white';
         }
     }
 
@@ -78,12 +79,18 @@ export default DownloadButton = ({ titleObj, videoURI }) => {
                 username: reelayDBUser?.username,
                 title: titleObj.display,
             });
+            showErrorToast('Oops. Could not save to local device');
             setDownloadStage('download-failed-retry');
         }
     }
 
     return (
-        <DownloadButtonPressable onPress={downloadReelay} color={getBackgroundColor()}>
+        <DownloadButtonPressable 
+            color={getBackgroundColor()} 
+            onPress={downloadReelay} 
+            height={height} 
+            width={width}
+        >
             <Icon type='ionicon' name={getCurrentIconName()} color={getCurrentIconColor()} size={24} />
         </DownloadButtonPressable>  
     );
