@@ -23,6 +23,7 @@ import 'react-native-get-random-values';
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import * as Amplitude from 'expo-analytics-amplitude';
+import * as Linking from 'expo-linking';
 import { logAmplitudeEventProd } from './components/utils/EventLogger';
 import { StatusBar } from 'expo-status-bar';
 import useColorScheme from './hooks/useColorScheme';
@@ -61,16 +62,13 @@ function App() {
 
     // Auth context hooks
     const [cognitoUser, setCognitoUser] = useState({});
-
     const [reelayDBUser, setReelayDBUser] = useState({});
     const [reelayDBUserID, setReelayDBUserID] = useState(null);
 
     useEffect(() => {
-        (async () => {
-            await initServices();
-            await autoAuthenticateUser(); // this should just update cognitoUser
-        })()
+        initReelayApp();
     }, []);
+
 
     /**
      * The following useEffect statements are set up to allow EITHER
@@ -139,6 +137,11 @@ function App() {
             dispatch({ type: 'setIsLoading', payload: false });
             // else, keep loading until loadMyProfile finishes
         }
+    }
+
+    const initReelayApp = async () => {
+        await initServices();
+        await autoAuthenticateUser();
     }
 
     const initServices = async () => {
@@ -299,7 +302,6 @@ function App() {
 
     const authState = {
         cognitoUser,        setCognitoUser,
-
         reelayDBUser,       setReelayDBUser,
         reelayDBUserID,     setReelayDBUserID,
     }

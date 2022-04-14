@@ -1,6 +1,7 @@
 import Constants from 'expo-constants';
 import { fetchResults } from './fetchResults';
 import { fetchAnnotatedTitle } from './TMDbApi';
+import * as Linking from 'expo-linking';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -89,8 +90,6 @@ export const reportReelay = async (reportingUserSub, reportReq) => {
     return reportReelayResult;
 }
 
-<<<<<<< Updated upstream
-=======
 export const createDeeplinkPathToReelay = async (linkingUserSub, linkingUsername, reelaySub) => {
     // using the scheme reelayapp://, the statement below creates an unusable triple slash
     // ...doesn't happen on expo
@@ -113,7 +112,6 @@ export const createDeeplinkPathToReelay = async (linkingUserSub, linkingUsername
     return dbResult;
 }
 
->>>>>>> Stashed changes
 export const getReportedReelayStacks = async () => {
     const routeGet = `${REELAY_API_BASE_URL}/reported-content/feed?visibility=${FEED_VISIBILITY}`;
     const fetchedReportedStacks = await fetchResults(routeGet, {

@@ -1,10 +1,8 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { SafeAreaView, View, Platform } from 'react-native';
 import { Icon } from 'react-native-elements';
-import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
-import { AuthContext } from '../../context/AuthContext';
 import BackButton from '../utils/BackButton';
 
 export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) => {
@@ -39,20 +37,11 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         align-self: center;
         margin-right: 10px;
     `
-    const UnreadIconIndicator = styled(View)`
-        background-color: ${ReelayColors.reelayBlue}
-        border-radius: 5px;
-        height: 10px;
-        width: 10px;
-        position: absolute;
-        right: 0px;
-    `
-
     const SettingsButtons = () => {
         return (
             <RightCornerContainer>
                 <SettingsIconContainer>
-                    <Icon type='ionicon' size={27} color={'white'} name='cog-outline' onPress={() => {
+                    <Icon type='ionicon' size={27} color={'white'} name='settings-outline' onPress={() => {
                         navigation.push('ProfileSettingsScreen', { initialFeedPos: 0 });
                     }} />
                 </SettingsIconContainer>

@@ -43,6 +43,7 @@ export default ({ config }) => {
         googleiOSURLScheme: 'com.googleusercontent.apps.75256805031-89iubu60jfrko1lcn1oj2n4lgshdnljf',
 
         reelayApiBaseUrl: getReelayAPIBaseURL(),
+        reelayWebBaseUrl: 'https://on.reelay.app',
         reelayApiKey: 'ac739ac2-5877-47de-a861-59bc776bdd27',
         reelayS3UploadBucket: 'reelay-content211002-dev',
         reelayS3ThumbnailBucket: 'reelay-thumbnails',
