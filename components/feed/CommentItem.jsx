@@ -83,11 +83,6 @@ const CommentTextWithMentions = ({ comment, navigation }) => {
 }
 
 export default CommentItem = ({ comment, navigation }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-    const [commentLiked, setCommentLiked] = useState(comment?.likes?.userLiked); // alter to make default state the database value for whether you've liked that comment yet or not.
-    const [numCommentLikes, setNumCommentLikes] = useState(comment?.likes?.numberOfLikes ?? 0); // similarly alter to make default state the database value for the number of comment likes currently
-    const dispatch = useDispatch();
-
     const CommentItemContainer = styled(Pressable)`
         background-color: #1a1a1a;
         padding-left: 16px;
@@ -102,6 +97,35 @@ export default CommentItem = ({ comment, navigation }) => {
         margin-right: 12px;
         margin-top: 4px;
     `;
+    const CommentTextContainer = styled(View)`
+        display: flex;
+        flex-direction: column;
+        width: 80%;
+    `;
+    const UsernameText = styled(ReelayText.CaptionEmphasized)`
+        color: #86878b;
+    `;
+
+    // main feed currently returns from DataStore, using userID
+    // profile feeds return from ReelayDB, using authorName
+    const author = { username: comment.authorName, sub: comment.authorSub };
+    
+    return (
+        <CommentItemContainer>
+            <LeftCommentIconContainer>
+                <ProfilePicture navigation={navigation} user={author} size={32} />
+            </LeftCommentIconContainer>
+            <CommentTextContainer>
+                <UsernameText>{`@${author.username}`}</UsernameText>
+                <CommentTextWithMentions comment={comment} navigation={navigation} />
+            </CommentTextContainer>
+            <View />
+            <CommentLikes comment={comment} />
+        </CommentItemContainer>
+    );
+};
+
+const CommentLikes = ({ comment }) => {
     const RightCommentIconContainer = styled(Pressable)`
         align-items: center;
         justify-content: center;
@@ -114,14 +138,10 @@ export default CommentItem = ({ comment, navigation }) => {
         color: #86878b;
         font-size: 12px;
     `;
-    const CommentTextContainer = styled(View)`
-        display: flex;
-        flex-direction: column;
-        width: 80%;
-    `;
-    const UsernameText = styled(ReelayText.CaptionEmphasized)`
-        color: #86878b;
-    `;
+
+    const { reelayDBUser } = useContext(AuthContext);
+    const [commentLiked, setCommentLiked] = useState(comment?.likes?.userLiked); // alter to make default state the database value for whether you've liked that comment yet or not.
+    const [numCommentLikes, setNumCommentLikes] = useState(comment?.likes?.numberOfLikes ?? 0); // similarly alter to make default state the database value for the number of comment likes currently
 
     const toggleCommentLike = () => {
         const commentIsNowLiked = !commentLiked;
@@ -146,30 +166,15 @@ export default CommentItem = ({ comment, navigation }) => {
         setCommentLiked(commentIsNowLiked);
     };
 
-
-    // main feed currently returns from DataStore, using userID
-    // profile feeds return from ReelayDB, using authorName
-    const author = { username: comment.authorName, sub: comment.authorSub };
-    
     return (
-        <CommentItemContainer>
-            <LeftCommentIconContainer>
-                <ProfilePicture navigation={navigation} user={author} size={32} />
-            </LeftCommentIconContainer>
-            <CommentTextContainer>
-                <UsernameText>{`@${author.username}`}</UsernameText>
-                <CommentTextWithMentions comment={comment} navigation={navigation} />
-            </CommentTextContainer>
-            <View />
-            <RightCommentIconContainer onPress={toggleCommentLike}>
-                <Icon
-                    type="ionicon"
-                    name={commentLiked ? "heart" : "heart-outline"}
-                    color={commentLiked ? "#FF4848" : "#FFFFFF"}
-                    size={15}
-                />
-                <CommentIconText>{(numCommentLikes>0) ? numCommentLikes : " "}</CommentIconText>
-            </RightCommentIconContainer>
-        </CommentItemContainer>
+        <RightCommentIconContainer onPress={toggleCommentLike}>
+            <Icon
+                type="ionicon"
+                name={commentLiked ? "heart" : "heart-outline"}
+                color={commentLiked ? "#FF4848" : "#FFFFFF"}
+                size={15}
+            />
+            <CommentIconText>{(numCommentLikes>0) ? numCommentLikes : " "}</CommentIconText>
+        </RightCommentIconContainer>
     );
-};
+}
