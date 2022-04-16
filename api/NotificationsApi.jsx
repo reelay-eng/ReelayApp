@@ -231,6 +231,35 @@ export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, comme
     await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
 }
 
+export const notifyUserOnCommentLike = async ({ commenterSub, user, reelay }) => {
+    const creator = await getRegisteredUser(commenterSub);
+    const token = creator?.pushToken;
+
+    const recipientIsAuthor = (commenterSub === user?.sub);
+    if (recipientIsAuthor) {
+        console.log('No need to send notification')
+        return;
+    }
+
+    if (!token) {
+        console.log('Creator not registered for like notifications');
+        return;
+    }
+
+    const title = `@${user?.username} liked your comment.`;
+    // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
+    const body = '';
+    const data = { 
+        notifyType: 'notifyUserOnCommentLike',
+        action: 'openSingleReelayScreen',
+        reelaySub: reelay.sub,
+        title: condensedTitleObj(reelay.title),   
+        fromUser: { sub: user?.sub, username: user?.username },
+    };
+
+    await sendPushNotification({ title, body, data, token, sendToUserSub: commenterSub });
+}
+
 export const notifyMentionsOnComment = async ({ creator, author, reelay, commentText }) => {
     const mentionFollowType = { trigger: '@' };
     const commentParts = parseValue(commentText, [mentionFollowType]);

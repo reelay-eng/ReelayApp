@@ -33,6 +33,7 @@ const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 import CommentItem from './CommentItem';
 import TextInputWithMentions from './TextInputWithMentions';
 import ProfilePicture from '../global/ProfilePicture';
+import { notifyUserOnCommentLike } from '../../api/NotificationsApi';
 
 const { height, width } = Dimensions.get('window');
 const COMMENT_TEXT_INPUT_WIDTH = width - 146;
@@ -86,10 +87,17 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 
     const commentsVisible = useSelector(state => state.commentsVisible);
     const dispatch = useDispatch();
+	const likedComments = useRef([]);
+
     const closeDrawer = () => {
         console.log('Closing drawer');
         Keyboard.dismiss();
         dispatch({ type: 'setCommentsVisible', payload: false });
+		// send notifs for liking comments
+		console.log(likedComments.current)
+		likedComments.current.forEach((userSub) => {
+			notifyUserOnCommentLike(userSub, reelayDBUser, reelay);
+		})
     }
 
     const Header = () => {
@@ -151,11 +159,11 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
 					if (comment.authorSub === reelayDBUser.sub)  {
 						return (
 							<SwipeableComment key={commentKey} comment={comment} onCommentDelete={onCommentDelete}>
-								<CommentItem comment={comment} navigation={navigation} />
+								<CommentItem comment={comment} navigation={navigation} likedComments={likedComments} />
 							</SwipeableComment>
 						);
 					} else {
-						return <CommentItem key={commentKey} comment={comment} navigation={navigation} />;
+						return <CommentItem key={commentKey} comment={comment} navigation={navigation} likedComments={likedComments} />;
 					}
 				})}
             </CommentsContainer>

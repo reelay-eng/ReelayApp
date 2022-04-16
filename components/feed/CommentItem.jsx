@@ -82,7 +82,7 @@ const CommentTextWithMentions = ({ comment, navigation }) => {
     )
 }
 
-export default CommentItem = ({ comment, navigation }) => {
+export default CommentItem = ({ comment, navigation, likedComments }) => {
     const CommentItemContainer = styled(Pressable)`
         background-color: #1a1a1a;
         padding-left: 16px;
@@ -120,12 +120,12 @@ export default CommentItem = ({ comment, navigation }) => {
                 <CommentTextWithMentions comment={comment} navigation={navigation} />
             </CommentTextContainer>
             <View />
-            <CommentLikes comment={comment} />
+            <CommentLikes comment={comment} likedComments={likedComments} />
         </CommentItemContainer>
     );
 };
 
-const CommentLikes = ({ comment }) => {
+const CommentLikes = ({ comment, likedComments }) => {
     const RightCommentIconContainer = styled(Pressable)`
         align-items: center;
         justify-content: center;
@@ -157,11 +157,16 @@ const CommentLikes = ({ comment }) => {
                     userLiked: true,
                 }
             }
+            likedComments.current.push(comment.authorSub);
+            console.log('liked comments: ', likedComments.current)
         } else {
             setNumCommentLikes(numCommentLikes - 1);
             removeCommentLike(comment?.id, reelayDBUser?.sub);
             comment.likes.numberOfLikes--;
             comment.likes.userLiked = false;
+			const removeFromLikedComments = (userSub) => (userSub !== comment.authorSub);
+            likedComments.current = likedComments.current.filter(removeFromLikedComments);
+            console.log('liked comments: ', likedComments.current)
         }
         setCommentLiked(commentIsNowLiked);
     };
