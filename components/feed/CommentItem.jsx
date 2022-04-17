@@ -85,12 +85,7 @@ const CommentTextWithMentions = ({ comment, navigation }) => {
     )
 }
 
-export default CommentItem = ({ comment, navigation }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-    const [commentLiked, setCommentLiked] = useState(comment?.likes?.userLiked); // alter to make default state the database value for whether you've liked that comment yet or not.
-    const [numCommentLikes, setNumCommentLikes] = useState(comment?.likes?.numberOfLikes ?? 0); // similarly alter to make default state the database value for the number of comment likes currently
-    const dispatch = useDispatch();
-
+export default CommentItem = ({ comment, navigation, likedComments }) => {
     const CommentItemContainer = styled(Pressable)`
         background-color: #1a1a1a;
         padding-left: 16px;
@@ -105,18 +100,6 @@ export default CommentItem = ({ comment, navigation }) => {
         margin-right: 12px;
         margin-top: 4px;
     `;
-    const RightCommentIconContainer = styled(Pressable)`
-        align-items: center;
-        justify-content: center;
-        top: 3px;
-        right: 10px;
-        padding: 10px;
-        padding-bottom: 0px;
-    `;
-    const CommentIconText = styled(ReelayText.Caption)`
-        color: #86878b;
-        font-size: 12px;
-    `;
     const CommentTextContainer = styled(View)`
         display: flex;
         flex-direction: column;
@@ -125,30 +108,6 @@ export default CommentItem = ({ comment, navigation }) => {
     const UsernameText = styled(ReelayText.CaptionEmphasized)`
         color: #86878b;
     `;
-
-    const toggleCommentLike = () => {
-        const commentIsNowLiked = !commentLiked;
-        if (commentIsNowLiked) {
-            setNumCommentLikes(numCommentLikes + 1);
-            postCommentLikeToDB(comment?.id, comment?.authorSub, reelayDBUser?.sub);
-            if (comment.likes) {
-                comment.likes.numberOfLikes++;
-                comment.likes.userLiked = true;
-            } else {
-                comment.likes = {
-                    numberOfLikes: 1,
-                    userLiked: true,
-                }
-            }
-        } else {
-            setNumCommentLikes(numCommentLikes - 1);
-            removeCommentLike(comment?.id, reelayDBUser?.sub);
-            comment.likes.numberOfLikes--;
-            comment.likes.userLiked = false;
-        }
-        setCommentLiked(commentIsNowLiked);
-    };
-
 
     // main feed currently returns from DataStore, using userID
     // profile feeds return from ReelayDB, using authorName
@@ -164,15 +123,66 @@ export default CommentItem = ({ comment, navigation }) => {
                 <CommentTextWithMentions comment={comment} navigation={navigation} />
             </CommentTextContainer>
             <View />
-            <RightCommentIconContainer onPress={toggleCommentLike}>
-                <Icon
-                    type="ionicon"
-                    name={commentLiked ? "heart" : "heart-outline"}
-                    color={commentLiked ? "#FF4848" : "#FFFFFF"}
-                    size={15}
-                />
-                <CommentIconText>{(numCommentLikes>0) ? numCommentLikes : " "}</CommentIconText>
-            </RightCommentIconContainer>
+            <CommentLikes comment={comment} likedComments={likedComments} />
         </CommentItemContainer>
     );
 };
+
+const CommentLikes = ({ comment, likedComments }) => {
+    const RightCommentIconContainer = styled(Pressable)`
+        align-items: center;
+        justify-content: center;
+        top: 3px;
+        right: 10px;
+        padding: 10px;
+        padding-bottom: 0px;
+    `;
+    const CommentIconText = styled(ReelayText.Caption)`
+        color: #86878b;
+        font-size: 12px;
+    `;
+
+    const { reelayDBUser } = useContext(AuthContext);
+    const [commentLiked, setCommentLiked] = useState(comment?.likes?.userLiked); // alter to make default state the database value for whether you've liked that comment yet or not.
+    const [numCommentLikes, setNumCommentLikes] = useState(comment?.likes?.numberOfLikes ?? 0); // similarly alter to make default state the database value for the number of comment likes currently
+
+    const toggleCommentLike = () => {
+        const commentIsNowLiked = !commentLiked;
+        if (commentIsNowLiked) {
+            setNumCommentLikes(numCommentLikes + 1);
+            postCommentLikeToDB(comment?.id, comment?.authorSub, reelayDBUser?.sub);
+            if (comment.likes) {
+                comment.likes.numberOfLikes++;
+                comment.likes.userLiked = true;
+            } else {
+                comment.likes = {
+                    numberOfLikes: 1,
+                    userLiked: true,
+                }
+            }
+            likedComments.current.push(comment.authorSub);
+            console.log('liked comments: ', likedComments.current)
+        } else {
+            setNumCommentLikes(numCommentLikes - 1);
+            removeCommentLike(comment?.id, reelayDBUser?.sub);
+            comment.likes.numberOfLikes--;
+            comment.likes.userLiked = false;
+			const removeFromLikedComments = (userSub) => (userSub !== comment.authorSub);
+            likedComments.current = likedComments.current.filter(removeFromLikedComments);
+            console.log('liked comments: ', likedComments.current)
+        }
+        setCommentLiked(commentIsNowLiked);
+    };
+
+    return (
+        <RightCommentIconContainer onPress={toggleCommentLike}>
+            <Icon
+                type="ionicon"
+                name={commentLiked ? "heart" : "heart-outline"}
+                color={commentLiked ? "#FF4848" : "#FFFFFF"}
+                size={15}
+            />
+            <CommentIconText>{(numCommentLikes>0) ? numCommentLikes : " "}</CommentIconText>
+        </RightCommentIconContainer>
+    );
+}
