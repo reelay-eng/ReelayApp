@@ -177,7 +177,7 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
         `
         const BlackBoxContainerStyle = {
 			backgroundColor: "#0d0d0d",
-			minHeight: 80,
+			minHeight: 70,
 			paddingBottom: 24,
 			paddingTop: 12,
 			paddingLeft: 16,
