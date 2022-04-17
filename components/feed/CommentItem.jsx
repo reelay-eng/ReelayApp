@@ -16,13 +16,15 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const CommentTextStyled = styled(ReelayText.Body2)`
     color: white;
+    padding: 0px;
+    margin: 0px;
 `;
 const CommentTimestampText = styled(ReelayText.Body2)`
     color: #86878b;
 `;
 
 const MentionButton = styled(TouchableOpacity)`
-    align-items: flex-end;
+    top: 3px;
 `
 const MentionTextStyle = {
     alignItems: 'flex-end',
@@ -31,13 +33,14 @@ const MentionTextStyle = {
     fontSize: 14,
     fontStyle: "normal",
     letterSpacing: 0.25,
+    lineHeight: 20
 }
 
 const CommentTextWithMentions = ({ comment, navigation }) => {
     const dispatch = useDispatch();
     const mentionFollowType = {
         trigger: '@',
-        textStyle: MentionTextStyle,
+        textStyle: MentionTextStyle
     };
 
     const commentPartsWithMentions = parseValue(comment.content, [mentionFollowType]);
@@ -58,7 +61,7 @@ const CommentTextWithMentions = ({ comment, navigation }) => {
         if (isMention(commentPart)) {
             return (
                 <MentionButton key={index} onPress={() => advanceToMentionProfile(commentPart.data)}>
-                    <Text style={MentionTextStyle}>{commentPart.text}</Text>
+                    <Text style={[MentionTextStyle, {bottom: 0, marginBottom: 0}]}>{commentPart.text}</Text>
                 </MentionButton>
             );
         }
