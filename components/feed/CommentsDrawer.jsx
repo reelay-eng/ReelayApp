@@ -93,10 +93,9 @@ export default CommentsDrawer = ({ reelay, navigation, commentsCount }) => {
         console.log('Closing drawer');
         Keyboard.dismiss();
         dispatch({ type: 'setCommentsVisible', payload: false });
-		// send notifs for liking comments
-		console.log(likedComments.current)
+		
 		likedComments.current.forEach((userSub) => {
-			notifyUserOnCommentLike(userSub, reelayDBUser, reelay);
+			notifyUserOnCommentLike({ authorSub: userSub, user: reelayDBUser, reelay: reelay });
 		})
     }
 
