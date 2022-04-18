@@ -1,11 +1,9 @@
-import React, { useState, memo } from 'react';
+import React, { useState, memo, useEffect } from 'react';
 import { ActivityIndicator, Image, Pressable } from 'react-native';
 import Constants from 'expo-constants';
 import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
 import styled from 'styled-components/native';
-import ReelayColors from '../../constants/ReelayColors';
-
-const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
+import { getSingleProfilePic } from '../../api/ReelayLocalImageCache';
 
 const ProfileImage = styled(Image)`
     border-color: white;
@@ -17,8 +15,20 @@ const ProfileImage = styled(Image)`
 
 export default ProfilePicture = memo(({ border = null, user, navigation, size = 16 }) => {
     const [validProfileImage, setValidProfileImage] = useState(true);
+    const [source, setSource] = useState(ReelayIcon);
     const userSub = user?.sub ?? user?.attributes?.sub;
-    const uri  = `${CLOUDFRONT_BASE_URL}/public/profilepic-${userSub}-current.jpg`;
+
+    const loadImage = async () => {
+        const rand = String(Math.random()).substring(0,3);
+        console.log('started loading profile pic: ', userSub, rand);
+        const uri = await getSingleProfilePic(userSub);
+        console.log('finished loading profile pic: ', userSub, rand);
+        setSource({ uri });
+    }
+
+    useEffect(() => {
+        loadImage();
+    }, []);
 
     return (
         <Pressable onPress={() => {
@@ -32,7 +42,7 @@ export default ProfilePicture = memo(({ border = null, user, navigation, size = 
             <ProfileImage
                 border={border}
                 size={size}
-                source={{ uri }}
+                source={source}
                 style={(validProfileImage) ? {} : { display: 'none' }}
                 PlaceholderContent={<ActivityIndicator />}
                 onError={() => { setValidProfileImage(false) }}
