@@ -14,16 +14,12 @@ import JustShowMeSignupDrawer from '../global/JustShowMeSignupDrawer';
 import Constants from 'expo-constants';
 import { getCommentLikesForReelay } from '../../api/ReelayDBApi';
 
-const Hero = ({ index, navigation, reelay, viewable }) => {
+const HeroModals = ({ reelay, navigation }) => {
     const likesVisible = useSelector(state => state.likesVisible);
     const commentsVisible = useSelector(state => state.commentsVisible);
     const dotMenuVisible = useSelector(state => state.dotMenuVisible);
     const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
-    const commentsCount = useRef(reelay.comments.length);
     const { reelayDBUser } = useContext(AuthContext);
-    const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
-
-    console.log('Hero is rendering: ', reelayDBUser?.username, reelay.title.display);
 
     const addLikesToComment = (commentID, commentLikeObj) => {
         const matchCommentID = (nextCommentObj) => (nextCommentObj.id === commentID);
@@ -54,15 +50,29 @@ const Hero = ({ index, navigation, reelay, viewable }) => {
         loadCommentLikes();
     }, []);
 
+
+    return (
+        <React.Fragment>
+            { likesVisible && <LikesDrawer reelay={reelay} navigation={navigation} /> }
+            { commentsVisible && <CommentsDrawer reelay={reelay} navigation={navigation} /> }
+            { dotMenuVisible && <Reelay3DotDrawer reelay={reelay} navigation={navigation} /> }
+            { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
+        </React.Fragment>
+    );
+}
+
+const Hero = ({ index, navigation, reelay, viewable }) => {
+    const { reelayDBUser } = useContext(AuthContext);
+    const commentsCount = useRef(reelay.comments.length);
+    const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
+    console.log('Hero is rendering: ', reelayDBUser?.username, reelay.title.display);
+
     return (
         <View key={index} style={{ justifyContent: 'flex-end'}}>
             <FeedVideoPlayer reelay={reelay} viewable={viewable} />
             <ReelayInfo navigation={navigation} reelay={reelay} />
             { !isWelcomeVideo && <Sidebar navigation={navigation} reelay={reelay} commentsCount={commentsCount}/> }
-            { viewable && likesVisible && <LikesDrawer reelay={reelay} navigation={navigation} /> }
-            { viewable && commentsVisible && <CommentsDrawer reelay={reelay} navigation={navigation} commentsCount={commentsCount} /> }
-            { viewable && dotMenuVisible && <Reelay3DotDrawer reelay={reelay} navigation={navigation} /> }
-            { viewable && justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
+            { viewable && <HeroModals reelay={reelay} navigation={navigation} /> }
         </View>
     );
 }
