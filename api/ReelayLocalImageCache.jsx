@@ -2,12 +2,25 @@ import * as FileSystem from 'expo-file-system';
 import Constants from 'expo-constants';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
+const TMDB_IMAGE_API_BASE_URL = Constants.manifest.extra.tmdbImageApiBaseUrl.substr(0,27);
 
-const imgDir = FileSystem.cacheDirectory + 'img/';
+const imgDir = FileSystem.cacheDirectory + 'img';
 const profilePicRemoteURI = (userSub) => `${CLOUDFRONT_BASE_URL}/public/profilepic-${userSub}-current.jpg`;
-const profilePicLocalURI = (userSub) => imgDir + `profilepic-${userSub}.jpg`;
-const titlePosterRemoteURI = (tmdbTitleID, titleType) => '';
-const titlePosterLocalURI = (tmdbTitleID, titleType) => imgDir + `${titleType}-${tmdbTitleID}-poster.jpg`;
+const profilePicLocalURI = (userSub) => imgDir + `/profilepic-${userSub}.jpg`;
+const titlePosterRemoteURI = (posterPath, size = 185) => `${TMDB_IMAGE_API_BASE_URL}${size}${posterPath}`;
+const titlePosterLocalURI = (posterPath) => imgDir + posterPath;
+
+const cacheProfilePic = async (userSub) => {
+    const localURI = profilePicLocalURI(userSub);
+    const remoteURI = profilePicRemoteURI(userSub);
+    await FileSystem.downloadAsync(remoteURI, localURI);
+}
+
+const cacheTitlePoster = async (posterPath) => {
+    const localURI = titlePosterLocalURI(posterPath);
+    const remoteURI = titlePosterRemoteURI(posterPath);
+    await FileSystem.downloadAsync(remoteURI, localURI);
+}
 
 // Checks if img directory exists. If not, creates it
 export const ensureLocalImageDirExists = async () => {
@@ -16,12 +29,6 @@ export const ensureLocalImageDirExists = async () => {
         console.log("Image directory doesn't exist, creating...");
         await FileSystem.makeDirectoryAsync(imgDir, { intermediates: true });
     }
-}
-
-const cacheProfilePic = async (userSub) => {
-    const localURI = profilePicLocalURI(userSub);
-    const remoteURI = profilePicRemoteURI(userSub);
-    await FileSystem.downloadAsync(remoteURI, localURI);
 }
 
 export const getProfilePicURI = (userSub, local = true) => {
@@ -33,8 +40,17 @@ export const getProfilePicURI = (userSub, local = true) => {
     }
 }
 
+export const getTitlePosterURI = (posterPath, local = true) => {
+    if (local) {
+        return titlePosterLocalURI(posterPath);
+    } else {
+        cacheTitlePoster(posterPath);
+        return titlePosterRemoteURI(posterPath);    
+    }
+}
+
 // Deletes whole giphy directory with all its content
-export async function deleteAllCachedImages() {
+export async function clearAllCachedImages() {
     console.log('Deleting all cached images...');
     await FileSystem.deleteAsync(imgDir);
 }

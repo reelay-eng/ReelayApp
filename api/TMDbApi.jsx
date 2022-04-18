@@ -214,7 +214,7 @@ export const fetchAnnotatedTitle = async (titleID, isSeries, isWelcomeReelay = f
         isSeries,
         genres: tmdbTitleObject.genres,
         overview: tmdbTitleObject.overview,
-        posterURI: tmdbTitleObject ? tmdbTitleObject.poster_path : null,
+        posterPath: tmdbTitleObject ? tmdbTitleObject.poster_path : null,
         posterSource,
         releaseDate,
         releaseYear,
@@ -257,8 +257,8 @@ export const getDisplayActors = (titleCredits, max = 2) => {
     return null;
 }
 
-export const getPosterURL = (posterURI, size) => {
-    return posterURI ? `${TMDB_IMAGE_API_BASE_URL}${size}${posterURI}` : null;
+export const getPosterURL = (posterPath, size) => {
+    return posterPath ? `${TMDB_IMAGE_API_BASE_URL}${size}${posterPath}` : null;
 }
 
 export const getLogoURL = (logoPath) => {
