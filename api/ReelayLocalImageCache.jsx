@@ -18,66 +18,19 @@ export const ensureLocalImageDirExists = async () => {
     }
 }
 
-export const addMultipleProfilePics = async (userSubs) => {
-    try {
-        // await ensureDirExists();
-        console.log('Downloading', userSubs.length, 'profile pics...');
-        await Promise.all(userSubs.map((userSub) => {
-            const remoteURI = profilePicRemoteURI(userSub);
-            const localURI = profilePicLocalURI(userSub);
-            FileSystem.downloadAsync(remoteURI, localURI);
-        }));
-    } catch (error) {
-        console.error("Couldn't download profile pics: ", error);
-    }
-}
-
-export const addMultipleTitlePosters = async (titleObjs) => {
-    try {
-        // await ensureDirExists();
-        console.log('Downloading', titleObjs.length, 'title posters...');
-        await Promise.all(titleObjs.map((titleObj) => {
-            const { tmdbTitleID, titleType } = titleObj;
-            const remoteURI = titlePosterRemoteURI(tmdbTitleID, titleType);
-            const localURI = titlePosterLocalURI(tmdbTitleID, titleType);
-            FileSystem.downloadAsync(remoteURI, localURI);
-        }));
-    } catch (error) {
-        console.error("Couldn't download title posters: ", error);
-    }
-}
-
-// Returns URI to our local gif file
-// If our gif doesn't exist locally, it downloads it
-export const getSingleProfilePic = async (userSub) => {
-    // await ensureDirExists();
+const cacheProfilePic = async (userSub) => {
     const localURI = profilePicLocalURI(userSub);
-    const localFileInfo = await FileSystem.getInfoAsync(localURI);
-    console.log('middle loading profile pic: ', userSub);
-
-    if (!localFileInfo.exists) {
-        console.log("Profile pic isn't cached locally. Downloading...");
-        console.log(localURI);
-        console.log(remoteURI);
-        const remoteURI = profilePicRemoteURI(userSub);
-        await FileSystem.downloadAsync(remoteURI, localURI);
-    }
-
-    return localURI;
+    const remoteURI = profilePicRemoteURI(userSub);
+    await FileSystem.downloadAsync(remoteURI, localURI);
 }
 
-export const getSingleTitlePoster = async (tmdbTitleID, titleType) => {
-    // await ensureDirExists();
-    const localURI = titlePosterLocalURI(tmdbTitleID, titleType);
-    const localFileInfo = await FileSystem.getInfoAsync(localURI);
-
-    if (!localFileInfo.exists) {
-        console.log("Profile pic isn't cached locally. Downloading...");
-        const remoteURI = titlePosterRemoteURI(tmdbTitleID, titleType);
-        await FileSystem.downloadAsync(remoteURI, localURI);
+export const getProfilePicURI = (userSub, local = true) => {
+    if (local) {
+        return profilePicLocalURI(userSub);
+    } else {
+        cacheProfilePic(userSub);
+        return profilePicRemoteURI(userSub);    
     }
-
-    return localURI;
 }
 
 // Deletes whole giphy directory with all its content

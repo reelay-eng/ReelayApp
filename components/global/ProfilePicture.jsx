@@ -1,9 +1,8 @@
-import React, { useState, memo, useEffect } from 'react';
+import React, { useState, memo } from 'react';
 import { ActivityIndicator, Image, Pressable } from 'react-native';
-import Constants from 'expo-constants';
 import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
 import styled from 'styled-components/native';
-import { getSingleProfilePic } from '../../api/ReelayLocalImageCache';
+import { getProfilePicURI } from '../../api/ReelayLocalImageCache';
 
 const ProfileImage = styled(Image)`
     border-color: white;
@@ -14,21 +13,26 @@ const ProfileImage = styled(Image)`
 `
 
 export default ProfilePicture = memo(({ border = null, user, navigation, size = 16 }) => {
-    const [validProfileImage, setValidProfileImage] = useState(true);
-    const [source, setSource] = useState(ReelayIcon);
     const userSub = user?.sub ?? user?.attributes?.sub;
+    const [loadState, setLoadState] = useState('local');
 
-    const loadImage = async () => {
-        const rand = String(Math.random()).substring(0,3);
-        console.log('started loading profile pic: ', userSub, rand);
-        const uri = await getSingleProfilePic(userSub);
-        console.log('finished loading profile pic: ', userSub, rand);
-        setSource({ uri });
+    const getProfilePicSource = () => {
+        if (loadState === 'local') {
+            return { uri: getProfilePicURI(userSub, true) };
+        } else if (loadState === 'remote') {
+            return { uri: getProfilePicURI(userSub, false) };
+        } else {
+            return ReelayIcon;
+        }
     }
 
-    useEffect(() => {
-        loadImage();
-    }, []);
+    const onLoadError = () => {
+        if (loadState === 'local') {
+            setLoadState('remote');
+        } else if (loadState === 'remote') {
+            setLoadState('default');
+        }
+    }
 
     return (
         <Pressable onPress={() => {
@@ -36,19 +40,19 @@ export default ProfilePicture = memo(({ border = null, user, navigation, size = 
                 navigation.push('UserProfileScreen', { creator: user });
             }
         }}>
-            { validProfileImage ? null : (
-                <ProfileImage border size={size} source={ReelayIcon} />) 
+            { (loadState === 'default') && 
+                <ProfileImage border size={size} source={ReelayIcon} /> 
             }
             <ProfileImage
                 border={border}
                 size={size}
-                source={source}
-                style={(validProfileImage) ? {} : { display: 'none' }}
+                source={getProfilePicSource()}
+                style={(loadState === 'default') ? { display: 'none' } : {}}
                 PlaceholderContent={<ActivityIndicator />}
-                onError={() => { setValidProfileImage(false) }}
+                onError={onLoadError}
             />
         </Pressable>
-    )
+    );
 }, (prevProps, nextProps) => {
     return (prevProps?.user?.sub === nextProps?.user?.sub);
 });
