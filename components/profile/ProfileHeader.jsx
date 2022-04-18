@@ -1,20 +1,15 @@
 import React from 'react';
-import { Image, Pressable, SafeAreaView } from 'react-native';
+import { Pressable, SafeAreaView } from 'react-native';
 import styled from 'styled-components/native';
-import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png';
+import ProfilePicture from '../global/ProfilePicture';
 
-export default ProfileHeader = ({profilePictureURI = null}) => {
+export default ProfileHeader = ({ creator }) => {
     const ProfileHeaderContainer = styled(SafeAreaView)`
 		align-items: center;
 		margin-top: 16px;
 		margin-bottom: 8px;
 		width: 100%;
 	`;
-    const ProfilePicture = styled(Image)`
-        border-radius: 48px;
-        height: 96px;
-        width: 96px;
-    `
     const ProfilePictureContainer = styled(Pressable)`
         border-color: white;
         border-radius: 50px;
@@ -23,14 +18,10 @@ export default ProfileHeader = ({profilePictureURI = null}) => {
         height: 100px;
         width: 100px;
     `
-    const profileImageSource =
-		profilePictureURI && profilePictureURI !== undefined && profilePictureURI !== "none"
-			? { uri: profilePictureURI }
-            : ReelayIcon;
     return (
         <ProfileHeaderContainer>
             <ProfilePictureContainer>
-                <ProfilePicture source={profileImageSource} defaultSource={ReelayIcon}/>
+                <ProfilePicture user={creator} size={96} />
             </ProfilePictureContainer>
         </ProfileHeaderContainer>
     );

@@ -144,13 +144,7 @@ const FollowerRow = ({
     `
 
     const { followSub, followName } = followObj;
-    const photoCurrentS3Key = `profilepic-${followSub}-current.jpg`;
-    const profilePicURI = `${CLOUDFRONT_BASE_URL}/public/${photoCurrentS3Key}`;
-
     const creator = { sub: followSub, username: followName };
-    const advanceToUserProfile = () => {
-        navigation.push('UserProfileScreen', { creator });
-    }
     
     const markRow = () => {
         if (hasAlreadySent) return;
@@ -167,7 +161,7 @@ const FollowerRow = ({
         <RowContainer onPress={markRow}>
             <UserInfoContainer>
                 <ProfilePictureContainer>
-                    <ProfilePicture user={creator} size={32} />
+                    <ProfilePicture user={creator} size={32} navigation={navigation} />
                 </ProfilePictureContainer>
                 <UsernameContainer>
                     <UsernameText>{followName}</UsernameText>

@@ -1,15 +1,11 @@
-import React, { useState, useContext } from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
-import { Image } from 'react-native-elements';
+import React, { useContext } from 'react';
+import { Pressable, View } from 'react-native';
 import { AuthContext } from '../../../context/AuthContext';
 import styled from 'styled-components/native';
 import FollowButton from '../../global/FollowButton';
 
-import Constants from 'expo-constants';
 import * as ReelayText from "../../global/Text";
-import ReelayIcon from '../../../assets/icons/reelay-icon-with-dog-black.png'
-
-const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
+import ProfilePicture from '../../global/ProfilePicture';
 
 const PressableContainer = styled(Pressable)`
 	align-items: center;
@@ -33,13 +29,6 @@ const UsernameContainer = styled.View`
 	align-items: flex-start;
 	justify-content: center;
 	flex: 0.6;
-`;
-const ProfilePicture = styled(Image)`
-	border-radius: 16px;
-	border-width: 1px;
-	border-color: white;
-	height: 32px;
-	width: 32px;
 `;
 const ProfilePictureContainer = styled(View)`
 	margin: 10px;
@@ -66,55 +55,32 @@ export default FollowItem = ({
     navigation
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
-	const [validProfileImage, setValidProfileImage] = useState(true);
-
     const followUsername = (followType === 'Following') ? followObj.creatorName : followObj.followerName;
     const followUserSub = (followType === 'Following') ? followObj.creatorSub : followObj.followerSub;
 
-	const followButtonCreatorObj = {
+	const followUser = {
 		sub: followUserSub,
 		username: followUsername
 	}
-
-    let followProfilePictureURI = (followType === 'Following') ?
-		`${CLOUDFRONT_BASE_URL}/public/profilepic-${followObj?.creatorSub}-current.jpg` :
-		`${CLOUDFRONT_BASE_URL}/public/profilepic-${followObj?.followerSub}-current.jpg`;
 
     const myUserSub = reelayDBUser.sub;
     const isMyProfile = (myUserSub === followUserSub);
 
     const selectResult = () => {
-        navigation.push('UserProfileScreen', { 
-            creator: {
-                sub: followUserSub,
-                username: followUsername,
-            }
-        });
+        navigation.push('UserProfileScreen', { creator: followUser });
     };
 
     return (
 		<PressableContainer onPress={selectResult}>
 			<RowContainer>
 				<ProfilePictureContainer>
-					{ validProfileImage ? null : (
-							<ProfilePicture
-								source={ReelayIcon}
-							/>
-						)
-					}
-					<ProfilePicture
-						source={{ uri: followProfilePictureURI }}
-						style={validProfileImage ? {} : {display: 'none'}}
-						PlaceholderContent={<ActivityIndicator />}
-						onError={() => {setValidProfileImage(false)}}
-					/>
+					<ProfilePicture user={followUser} size={32} navigation={navigation} />
 				</ProfilePictureContainer>
 				<UsernameContainer>
 					<UsernameText>{followUsername}</UsernameText>
 				</UsernameContainer>
-
 				<FollowButtonFlexContainer>
-					{!isMyProfile && <FollowButton creator={followButtonCreatorObj} />}
+					{!isMyProfile && <FollowButton creator={followUser} />}
 				</FollowButtonFlexContainer>
 			</RowContainer>
 		</PressableContainer>

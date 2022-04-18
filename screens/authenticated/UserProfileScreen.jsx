@@ -5,7 +5,6 @@ import { useSelector } from 'react-redux';
 
 import { getStacksByCreator, getRegisteredUser, getFollowers, getFollowing } from '../../api/ReelayDBApi';
 
-import Constants from 'expo-constants';
 import FollowButtonBar from '../../components/profile/Follow/FollowButtonBar';
 import JustShowMeSignupDrawer from '../../components/global/JustShowMeSignupDrawer';
 import ProfileHeader from '../../components/profile/ProfileHeader';
@@ -49,8 +48,6 @@ const ProfileScrollView = styled(ScrollView)`
     margin-bottom: 60px;
 `
 
-const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
-
 export default UserProfileScreen = ({ navigation, route }) => {
     const { creator } = route.params;
     const { sub, username } = creator; // these are the only fields you need to pass in
@@ -65,9 +62,6 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
 	const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
     const creatorSub = sub ?? '';
-    const creatorProfilePictureURI = creatorSub.length > 0 
-        ? `${CLOUDFRONT_BASE_URL}/public/profilepic-${creatorSub}-current.jpg` 
-        : null;
 
     const loadCreatorStacks = async () => {
         const nextCreatorStacks = await getStacksByCreator(creatorSub);
@@ -136,7 +130,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
             <ProfileScrollView refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
-                <ProfileHeader profilePictureURI={creatorProfilePictureURI} />
+                <ProfileHeader creator={creator} />
                 <UserInfoContainer>
                     {bioText !== "" && (
                         <BioText
