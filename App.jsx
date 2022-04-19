@@ -51,7 +51,7 @@ import {
 import * as Font from 'expo-font';
 import { connect, Provider, useDispatch, useSelector } from 'react-redux';
 import store, { mapStateToProps } from './redux/store';
-import { clearAllCachedImages, ensureLocalImageDirExists } from './api/ReelayLocalImageCache';
+import { ensureLocalImageDirExists } from './api/ReelayLocalImageCache';
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png');
 
@@ -176,7 +176,6 @@ function App() {
         });
         await loadFonts();
         await checkIsNewUser();
-        await clearAllCachedImages();
         await ensureLocalImageDirExists();
     }
 

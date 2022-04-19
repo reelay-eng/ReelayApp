@@ -223,11 +223,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             right: 10px;
             top: 10px;
         `
-        const posterStyle = {
-            borderRadius: 8, 
-            height: 120, 
-            width: 80, 
-        }
 
         return (
             <OverlayContainer>
