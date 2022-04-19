@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import * as ReelayText from '../../components/global/Text';
 import SeeMore from '../global/SeeMore';
 import { useSelector } from 'react-redux';
+import TitlePoster from '../global/TitlePoster';
 
 const InTheatersContainer = styled.View`
     width: 100%;
@@ -92,11 +93,6 @@ const TitleInfoLine = styled(View)`
     flex-direction: row;
     justify-content: space-between;
 `
-const TitlePoster = styled(Image)`
-    width: 120px;
-    height: 180px;
-    border-radius: 8px;
-`
 const TitleText = styled(ReelayText.H6Emphasized)`
     font-size: 16px;
     margin-top: 10px;
@@ -126,7 +122,7 @@ const InTheatersElement = ({ index, onPress, stack, length }) => {
 
     return (
         <InTheatersElementContainer onPress={onPress}>
-            <TitlePoster source={ stack[0].title.posterSource } />
+            <TitlePoster title={stack[0]?.title} width={120} />
             <TitleInfoLine>
                 <ReelayCount>{`${stack.length} ${(stack.length > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
             </TitleInfoLine>

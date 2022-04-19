@@ -194,7 +194,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 			<ProfileScrollView refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
-				<ProfileHeader profilePictureURI={reelayDBUser?.profilePictureURI} />
+				<ProfileHeader creator={reelayDBUser} />
                 <UserInfoContainer>
                     {reelayDBUser?.bio && (
                         <BioText 

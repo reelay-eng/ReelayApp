@@ -23,7 +23,6 @@ import 'react-native-get-random-values';
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import * as Amplitude from 'expo-analytics-amplitude';
-import * as Linking from 'expo-linking';
 import { logAmplitudeEventProd } from './components/utils/EventLogger';
 import { StatusBar } from 'expo-status-bar';
 import useColorScheme from './hooks/useColorScheme';
@@ -51,6 +50,8 @@ import {
 import * as Font from 'expo-font';
 import { connect, Provider, useDispatch, useSelector } from 'react-redux';
 import store, { mapStateToProps } from './redux/store';
+import { ensureLocalImageDirExists } from './api/ReelayLocalImageCache';
+import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png');
 
@@ -175,6 +176,8 @@ function App() {
         });
         await loadFonts();
         await checkIsNewUser();
+        await ensureLocalImageDirExists();
+        await ensureLocalTitleDirExists();
     }
 
     const checkIsNewUser = async () => {

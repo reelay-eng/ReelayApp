@@ -6,6 +6,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import styled from 'styled-components/native';
 import ReelayThumbnail from './ReelayThumbnail';
 import * as ReelayText from "../../components/global/Text";
+import TitlePoster from './TitlePoster';
 
 export default SeeMore = ({ reelay, display='thumbnail', onPress, height = 200, width = 105 }) => {
     const GradientContainer = styled(View)`
@@ -27,11 +28,11 @@ export default SeeMore = ({ reelay, display='thumbnail', onPress, height = 200, 
     const SeeMoreText = styled(ReelayText.CaptionEmphasized)`
         color: white;
     `
-	const TitlePoster = styled(Image)`
-		width: 120px;
-		height: 180px;
-		border-radius: 8px;
-	`
+	// const TitlePoster = styled(Image)`
+	// 	width: 120px;
+	// 	height: 180px;
+	// 	border-radius: 8px;
+	// `
 
 	const GradientOverlay = () => {
 		return (
@@ -49,7 +50,8 @@ export default SeeMore = ({ reelay, display='thumbnail', onPress, height = 200, 
 				}
 				{ display === 'poster' &&
 					<React.Fragment>
-						<TitlePoster source={reelay?.title?.posterSource} />
+						{/* <TitlePoster source={reelay?.title?.posterSource} /> */}
+						<TitlePoster title={reelay?.title} width={120} />
 						<LinearGradient
 							colors={["transparent", "#0B1424"]}
 							style={{

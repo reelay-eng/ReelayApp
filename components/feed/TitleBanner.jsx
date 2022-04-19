@@ -4,13 +4,13 @@ import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
 import Constants from 'expo-constants';
 
-import Poster from './Poster';
 import AddToWatchlistButton from '../titlePage/AddToWatchlistButton';
 import { VenueIcon } from '../utils/VenueIcon';
 import DonateButton from '../global/DonateButton';
 
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 import styled from 'styled-components/native';
+import TitlePoster from "../global/TitlePoster";
 
 const { height, width } = Dimensions.get('window');
 
@@ -39,6 +39,9 @@ const TitleInfo = styled(View)`
     justify-content: center;
     padding: 5px;
     font-size: 18px;
+`
+const TitlePosterContainer = styled(View)`
+    margin: 5px;
 `
 const TitleText = styled(ReelayText.H5Bold)`
     color: white;
@@ -94,7 +97,9 @@ export default TitleBanner = ({
 
     return (
         <TitleDetailContainer onPress={openTitleDetail}>
-            <Poster title={titleObj} />
+            <TitlePosterContainer>
+                <TitlePoster title={titleObj} onPress={openTitleDetail} width={60} />
+            </TitlePosterContainer>
             <TitleInfo>
                 <TitleContainer>
                     <TitleText numberOfLines={2} ellipsizeMode={"tail"}>

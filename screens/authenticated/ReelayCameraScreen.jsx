@@ -13,6 +13,7 @@ import styled from 'styled-components/native';
 import { showErrorToast } from '../../components/utils/toasts';
 
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import TitlePoster from '../../components/global/TitlePoster';
 
 const { height, width } = Dimensions.get('window');
 const captureSize = Math.floor(height * 0.07);
@@ -72,7 +73,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     };
     
     const MediaLibraryPicker = () => {
-
         // these positions are eyeballed
         const MediaLibraryContainer = styled(SafeAreaView)`
             position: absolute;
@@ -223,11 +223,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             right: 10px;
             top: 10px;
         `
-        const posterStyle = {
-            borderRadius: 8, 
-            height: 120, 
-            width: 80, 
-        }
 
         return (
             <OverlayContainer>
@@ -235,7 +230,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                     <BackButton navigation={navigation}/>
                 </TopLeftContainer>
                 <TopRightContainer>
-                    <Image source={titleObj.posterSource} style={posterStyle} />
+                    <TitlePoster title={titleObj} width={80} />
                     <VenueIndicator />
                 </TopRightContainer>
                 <RecordInterface />

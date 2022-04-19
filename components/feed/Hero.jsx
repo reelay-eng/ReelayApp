@@ -1,4 +1,4 @@
-import React, { useContext, useRef, memo, useEffect } from 'react';
+import React, { useContext, useRef, memo, useEffect, useState } from 'react';
 import { View } from 'react-native';
 
 import FeedVideoPlayer from './FeedVideoPlayer';
@@ -13,13 +13,20 @@ import Reelay3DotDrawer from './Reelay3DotDrawer';
 import JustShowMeSignupDrawer from '../global/JustShowMeSignupDrawer';
 import Constants from 'expo-constants';
 import { getCommentLikesForReelay } from '../../api/ReelayDBApi';
+import { useFocusEffect } from '@react-navigation/native';
 
 const HeroModals = ({ reelay, navigation }) => {
+    const [modalsViewable, setModalsViewable] = useState(false);
     const likesVisible = useSelector(state => state.likesVisible);
     const commentsVisible = useSelector(state => state.commentsVisible);
     const dotMenuVisible = useSelector(state => state.dotMenuVisible);
     const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
     const { reelayDBUser } = useContext(AuthContext);
+
+    useFocusEffect(() => {
+        setModalsViewable(true);
+        return () => setModalsViewable(false);
+    });
 
     const addLikesToComment = (commentID, commentLikeObj) => {
         const matchCommentID = (nextCommentObj) => (nextCommentObj.id === commentID);
@@ -50,6 +57,7 @@ const HeroModals = ({ reelay, navigation }) => {
         loadCommentLikes();
     }, []);
 
+    if (!modalsViewable) return <View />;
 
     return (
         <React.Fragment>
@@ -61,11 +69,14 @@ const HeroModals = ({ reelay, navigation }) => {
     );
 }
 
-const Hero = ({ index, navigation, reelay, viewable }) => {
+export default Hero = ({ index, navigation, reelay, viewable }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const commentsCount = useRef(reelay.comments.length);
     const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
-    console.log('Hero is rendering: ', reelayDBUser?.username, reelay.title.display);
+
+    if (viewable) {
+        console.log('Hero is viewable: ', reelay.creator.username, reelay.title.display);
+    }
 
     return (
         <View key={index} style={{ justifyContent: 'flex-end'}}>
@@ -76,9 +87,3 @@ const Hero = ({ index, navigation, reelay, viewable }) => {
         </View>
     );
 }
-
-const areEqual = (prevProps, nextProps) => {
-    return (prevProps.viewable === nextProps.viewable);
-}
-
-export default memo(Hero, areEqual);

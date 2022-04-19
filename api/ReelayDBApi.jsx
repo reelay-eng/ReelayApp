@@ -421,7 +421,6 @@ export const postStreamingSubscriptionToDB = async (userSub, streamingSubscripti
 }
 
 export const prepareReelay = async (fetchedReelay) => {
-
     const isWelcomeReelay = (fetchedReelay.datastoreSub === WELCOME_REELAY_SUB);
     const titleObj = await fetchAnnotatedTitle(
         fetchedReelay.tmdbTitleID, 

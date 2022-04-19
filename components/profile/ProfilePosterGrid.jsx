@@ -2,6 +2,7 @@ import React from 'react';
 import { Dimensions, Image, Pressable, View } from 'react-native';
 import StarRating from 'react-native-star-rating';
 import styled from 'styled-components/native';
+import TitlePoster from '../global/TitlePoster';
 
 const { width } = Dimensions.get('window');
 
@@ -13,7 +14,7 @@ const POSTER_ROW_LENGTH = 4;
 const POSTER_WIDTH = GRID_WIDTH / POSTER_ROW_LENGTH - 2 * POSTER_HALF_MARGIN;
 const POSTER_HEIGHT = 1.5 * POSTER_WIDTH;
 
-const PosterContainer = styled(Pressable)`
+const PosterContainer = styled(View)`
     align-items: center;
     margin: ${POSTER_HALF_MARGIN}px;
 `
@@ -82,8 +83,9 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
         const starRating = (stack[0].starRating ?? 0) + (stack[0].starRatingAddHalf ? 0.5 : 0);
 
         return (
-            <PosterContainer key={stack[0].title.id} onPress={viewProfileFeed}>
-                <PosterImage source={stack[0].title.posterSource} />
+            <PosterContainer key={stack[0].title.id}>
+                {/* <PosterImage source={stack[0].title.posterSource} /> */}
+                <TitlePoster title={stack[0].title} onPress={viewProfileFeed} width={POSTER_WIDTH} />
                 { starRating > 0 && <StarRatingLine rating={starRating} /> }
             </PosterContainer>
         );

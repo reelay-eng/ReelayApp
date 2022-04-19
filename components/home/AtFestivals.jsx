@@ -11,6 +11,7 @@ import { VenueIcon } from '../utils/VenueIcon';
 import FestivalsPrompt from './FestivalsPrompt';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSelector } from 'react-redux';
+import TitlePoster from '../global/TitlePoster';
 
 export default AtFestivals = ({ navigation }) => {
     const FriendsAreWatchingContainer = styled.View`
@@ -101,21 +102,11 @@ const TitleInfoLine = styled(View)`
     flex-direction: row;
     justify-content: space-between;
 `
-const TitlePoster = styled(Image)`
-    width: 120px;
-    height: 180px;
-    border-radius: 8px;
-`
 const TitleText = styled(ReelayText.H6Emphasized)`
     font-size: 16px;
     margin-top: 10px;
     color: white;
     opacity: 1;
-`
-const TitleVenue = styled(View)`
-    position: absolute;
-    top: 4px;
-    right: 4px;
 `
 
 const FollowingElement = ({ stack, index, navigation, myStacksAtFestivals }) => {
@@ -156,7 +147,7 @@ const FollowingElement = ({ stack, index, navigation, myStacksAtFestivals }) => 
     }
     return (
         <FollowingElementContainer onPress={onPress}>
-            <TitlePoster source={stack[0]?.title?.posterSource} />
+            <TitlePoster title={stack[0]?.title} width={120} />
             <TitleInfoLine>
                 <ReelayCount>{`${reelayCount} ${(reelayCount > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
             </TitleInfoLine>

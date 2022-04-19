@@ -391,7 +391,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
     return (
         <UploadScreenContainer>
-            <PreviewVideoPlayer posterSource={titleObj.posterSource} videoURI={videoURI} />
+            <PreviewVideoPlayer title={titleObj} videoURI={videoURI} />
             <Header navigation={navigation} />
             <KeyboardAvoidingView behavior='position'>
                 <UploadBottomArea onPress={Keyboard.dismiss}>
