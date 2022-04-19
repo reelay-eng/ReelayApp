@@ -11,6 +11,7 @@ import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../global/Text';
 import { showMessageToast } from '../utils/toasts';
+import DownloadButton from '../create-reelay/DownloadButton';
 
 const ContentPolicy  = require('../../constants/ContentPolicy.json');
 
@@ -40,6 +41,13 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
     const ContentContainer = styled(View)`
         width: 100%;
         padding: 30px;
+    `
+    const DownloadContainer = styled(View)`
+        align-items: flex-end;
+        justify-content: flex-end;
+        position: absolute;
+        bottom: 10px;
+        right: 30px;
     `
     const DrawerContainer = styled(View)`
         background-color: ${ReelayColors.reelayBlack};
@@ -99,7 +107,6 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
         return (
             <ContentContainer>
-                <Header />
                 <Prompt text={'Are you sure you want to block this creator?'} />
                 <OptionContainerPressable onPress={onPress}>
                     <Icon type='ionicon' name='remove-circle' size={27} color={'white'} />
@@ -114,33 +121,11 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         const blockCompleteMessage = 'You have blocked this user. Our support team will review their posts and comments. Please email support@reelay.app if there\'s more we can help with.';
         return (
             <ContentContainer>
-                <Header />
                 <Prompt text={blockCompleteMessage} />
                 <CancelOption />
             </ContentContainer>
         );
     }
-
-    const Header = () => {
-        const HeaderContainer = styled(View)`
-            align-items: center;
-            flex-direction: row;
-            justify-content: space-between;
-            margin-bottom: 6px;
-        `;
-        const CloseButtonContainer = styled(Pressable)`
-            align-items: flex-end;
-            justify-content: flex-end;
-            width: 100%;
-        `
-        return (
-            <HeaderContainer>
-                <CloseButtonContainer onPress={closeDrawer}>
-                    <Icon color={"white"} type="ionicon" name="close" size={27} />
-                </CloseButtonContainer>
-            </HeaderContainer>
-        );
-    };
 
     const Prompt = ({ text }) => {
         const PromptContainer = styled(View)`
@@ -190,7 +175,6 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
         return (
             <ContentContainer>
-                <Header />
                 <Prompt text={'Are you sure you want to remove this reelay?'} />
                 <OptionContainerPressable onPress={onPress}>
                     <Icon type='ionicon' name='remove-circle' size={27} color={'white'} />
@@ -206,7 +190,6 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         
         return (
             <ContentContainer>
-                <Header />
                 <Prompt text={removeReelayMessage} />
                 <CancelOption />
             </ContentContainer>
@@ -230,11 +213,11 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         return (
             <ScrollView>
                 <ContentContainer>
-                    <Header />
                     <Prompt text={'Thanks for flagging. What should we review?'} />
                     { ContentPolicy.policies.map((policy) => {
                         return <ContentPolicyOption key={policy.id} policy={policy} />;
                     })}
+                    <CancelOption />
                 </ContentContainer>
             </ScrollView>
         );
@@ -288,7 +271,6 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         return (
             <ScrollView>
                 <ContentContainer>
-                    <Header />
                     <Prompt text={statement} />
                     { exampleList.map((example, index) => <Prompt key={index} text={`\t*\t${example}`} /> )}
                     <OptionContainerPressable onPress={onPress}>
@@ -306,7 +288,6 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         
         return (
             <ContentContainer>
-                <Header />
                 <Prompt text={removeReelayMessage} />
                 <CancelOption />
             </ContentContainer>
@@ -344,7 +325,6 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
         return (
             <ContentContainer>
-                <Header />
                 <Prompt text={'Are you sure you want to suspend this account? They must be manually reinstated'} />
                 <OptionContainerPressable onPress={onPress}>
                     <Icon type='ionicon' name='remove-circle' size={27} color={'white'} />
@@ -359,7 +339,6 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         const suspendAccountMessage = 'You have suspended this account. It must be manually re-instated';
         return (
             <ContentContainer>
-                <Header />
                 <Prompt text={suspendAccountMessage} />
                 <CancelOption />
             </ContentContainer>
@@ -400,30 +379,43 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
     const DotMenuOptions = () => {
         return (
             <ContentContainer>
-                <Header />
                 { !isMyReelay && <ReportContentOption /> }
                 { !isMyReelay && <BlockCreatorOption /> }
                 { (reelayDBUser?.role === 'admin' || isMyReelay) && <RemoveReelayOption /> }
                 { (reelayDBUser?.role === 'admin') && <ViewReportedContentFeedOption /> }
                 { (reelayDBUser?.role === 'admin') && !isMyReelay && <SuspendAccountOption /> }
                 <CancelOption />
+                <DownloadOption />
             </ContentContainer>
         );
     }
 
+    const DownloadOption = () => {
+        return (
+            <DownloadContainer>
+                <DownloadButton 
+                    height={48}
+                    width={48}
+                    titleObj={reelay.title} 
+                    videoURI={reelay.content.videoURI} 
+                />
+            </DownloadContainer>
+        );
+    }
+
     return (
-        <DrawerContainer>
-            { drawerState === 'options' && <DotMenuOptions /> }
-            { drawerState === 'block-creator-confirm' && <BlockCreatorConfirm /> }
-            { drawerState === 'block-creator-complete' && <BlockCreatorComplete /> }
-            { drawerState === 'remove-reelay-confirm' && <RemoveReelayConfirm /> }
-            { drawerState === 'remove-reelay-complete' && <RemoveReelayComplete /> }
-            { drawerState === 'report-content-select-violation' && <ReportContentSelectViolation /> }
-            { drawerState === 'report-content-submit' && <ReportContentSubmit /> }
-            { drawerState === 'report-content-complete' && <ReportContentComplete /> }
-            { drawerState === 'suspend-account-confirm' && <SuspendAccountConfirm /> }
-            { drawerState === 'suspend-account-complete' && <SuspendAccountComplete /> }
-        </DrawerContainer>
+            <DrawerContainer>
+                { drawerState === 'options' && <DotMenuOptions /> }
+                { drawerState === 'block-creator-confirm' && <BlockCreatorConfirm /> }
+                { drawerState === 'block-creator-complete' && <BlockCreatorComplete /> }
+                { drawerState === 'remove-reelay-confirm' && <RemoveReelayConfirm /> }
+                { drawerState === 'remove-reelay-complete' && <RemoveReelayComplete /> }
+                { drawerState === 'report-content-select-violation' && <ReportContentSelectViolation /> }
+                { drawerState === 'report-content-submit' && <ReportContentSubmit /> }
+                { drawerState === 'report-content-complete' && <ReportContentComplete /> }
+                { drawerState === 'suspend-account-confirm' && <SuspendAccountConfirm /> }
+                { drawerState === 'suspend-account-complete' && <SuspendAccountComplete /> }
+            </DrawerContainer>
     );
 }
 

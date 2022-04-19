@@ -39,7 +39,8 @@ const ReelayInfo = ({ navigation, reelay }) => {
 		line-height: 20px;
 	`
 	const MentionButton = styled(TouchableOpacity)`
-		align-items: flex-end;
+		position: relative;
+		margin-bottom: -3px;
 	`
 	const StarRatingContainer = styled(View)`
 		margin-top: 8px;
@@ -81,6 +82,7 @@ const ReelayInfo = ({ navigation, reelay }) => {
 		fontSize: 14,
 		fontStyle: "normal",
 		letterSpacing: 0.25,
+		lineHeight: 20
 	}	
 
 	const renderDescriptionPart = (descriptionPart, index) => {

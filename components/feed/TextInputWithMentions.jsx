@@ -91,13 +91,21 @@ export default TextInputWithMentions = ({
         fontFamily: "Outfit-Regular",
         fontSize: 14,
         fontStyle: "normal",
-        lineHeight: 24,
+        lineHeight: 20,
         letterSpacing: 0.25,
         textAlign: "left",
         paddingLeft: 12,
         paddingRight: 12,
         paddingBottom: 6,
-    };  
+    };
+
+    let TextInputContainerStyle = {
+        paddingTop: 5,
+        paddingBottom: 5,
+        alignItems: 'center',
+        justifyContent: 'center'
+    }
+
     
     if (boxWidth) TextInputStyle.width = boxWidth;
 
@@ -159,6 +167,7 @@ export default TextInputWithMentions = ({
             inputRef={inputRef}
             returnKeyType="done"
             style={TextInputStyle}
+            containerStyle={TextInputContainerStyle}
             value={commentText}
             onChange={setCommentText}
             partTypes={[ mentionFollowType ]}
