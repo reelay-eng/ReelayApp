@@ -28,7 +28,7 @@ const ReelayStack = ({
     initialStackPos = 0,
     navigation,
 }) => {
-    const [stackPosition, setStackPosition] = useState(0);
+    const [stackPosition, setStackPosition] = useState(initialStackPos);
     const { reelayDBUser } = useContext(AuthContext);
     const donateLinks = useSelector(state => state.donateLinks);
 

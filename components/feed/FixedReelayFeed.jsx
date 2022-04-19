@@ -24,10 +24,11 @@ const FixedReelayFeed = ({ navigation,
 }) => {
 
     const feedPager = useRef();
-
     const { reelayDBUser } = useContext(AuthContext);
-    const [feedPosition, setFeedPosition] = useState(0);
+    const [feedPosition, setFeedPosition] = useState(initialFeedPos);
     const [stackList, setStackList] = useState([]);
+
+    console.log('feed position: ', feedPosition);
 
     useEffect(() => {
         const stackEmpty = !stackList.length;
@@ -51,9 +52,6 @@ const FixedReelayFeed = ({ navigation,
     const renderStack = ({ item, index }) => {
         const stack = item;
         const stackViewable = (index === feedPosition);
-
-        console.log(`Rendering stack for ${stack[0].title.display ?? 'none'}`);
-        console.log(`index: ${index} feed position: ${feedPosition}, viewable? ${stackViewable}`);
 
         return (
             <React.Fragment>
