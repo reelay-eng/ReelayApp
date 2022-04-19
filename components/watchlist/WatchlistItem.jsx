@@ -5,6 +5,7 @@ import * as ReelayText from "../global/Text";
 import styled from 'styled-components/native';
 
 import { getRuntimeString } from '../utils/TitleRuntime';
+import TitlePoster from '../global/TitlePoster';
 
 const WatchlistItemContainer = styled(Pressable)`
     flex-direction: row;
@@ -17,6 +18,7 @@ const WatchlistItemRow = styled(View)`
 const ImageContainer = styled(View)`
     flex-direction: row;
     align-items: flex-start;
+    margin: 5px;
     margin-right: 15px;
 `
 const SliderIconContainer = styled(View)`
@@ -31,10 +33,6 @@ const TitleLineContainer = styled(View)`
     flex: 1;
     justify-content: center;
     align-items: flex-start;
-`
-const ActorText = styled(ReelayText.Subtitle2)`
-    color: gray;
-    margin-bottom: 6px;
 `
 const YearText = styled(ReelayText.Subtitle2)`
     color: gray
@@ -57,19 +55,12 @@ const WatchlistItemInfo = ({ navigation, watchlistItem }) => {
             navigation.push('TitleDetailScreen', { titleObj: title });
         }}>
             <ImageContainer>
-                { title?.posterSource && (
-                    <Image
-                        source={title?.posterSource}
-                        style={{ height: 81, width: 54, borderRadius: 6 }}
-                        PlaceholderContent={<ActivityIndicator />}
-                    />
-                )}
+                { title?.posterSource && <TitlePoster title={title} width={54} /> }
                 { !title.posterSource && <TitleText>{"No Poster Available"}</TitleText>}
             </ImageContainer>
             <TitleLineContainer>
                 <TitleText>{title.display}</TitleText>
                 <YearText>{`${title.releaseYear}    ${runtimeString}`}</YearText>
-                {/* <ActorText>{actors}</ActorText> */}
             </TitleLineContainer>
         </WatchlistItemContainer>
     );
