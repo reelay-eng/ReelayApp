@@ -1,5 +1,6 @@
 import Constants from 'expo-constants';
 import { fetchResults } from './fetchResults';
+import { cacheAnnotatedTitle, fetchAnnotatedTitleFromCache } from './ReelayLocalTitleCache';
 
 const TMDB_API_BASE_URL = Constants.manifest.extra.tmdbApiBaseUrl;
 const TMDB_API_KEY = Constants.manifest.extra.tmdbApiKey;
@@ -170,6 +171,9 @@ export const fetchSeriesTrailerURI = async(titleID) => {
 
 export const fetchAnnotatedTitle = async (titleID, isSeries, isWelcomeReelay = false) => {
     if (!titleID) return null;
+    const titleType = (isSeries) ? 'tv' : 'film';
+    const cachedTitle = await fetchAnnotatedTitleFromCache(titleID, titleType);
+    if (cachedTitle) return cachedTitle;
 
     const tmdbTitleObject = isSeries 
         ? await fetchSeries(titleID)
@@ -205,7 +209,7 @@ export const fetchAnnotatedTitle = async (titleID, isSeries, isWelcomeReelay = f
 		if (rating === undefined) rating = null;
 	}
     // todo: would like titleType to deprecate isMovie and isSeries
-    const annotatedTitle = {
+    let annotatedTitle = {
         id: tmdbTitleObject.id,
         director: getDirector(titleCredits),
         display: isSeries ? tmdbTitleObject.name : tmdbTitleObject.title,
@@ -219,24 +223,22 @@ export const fetchAnnotatedTitle = async (titleID, isSeries, isWelcomeReelay = f
         releaseDate,
         releaseYear,
         tagline: tmdbTitleObject.tagline,
-        titleType: (isSeries) ? 'tv' : 'film',
+        titleType,
         trailerURI,
         rating,
         runtime: tmdbTitleObject.runtime,
     }
 
     if (isSeries) {
-        if (!tmdbTitleObject.name) {
-            console.log('Series title object does not have name');
-        }
-        return {
+        annotatedTitle = {
             ...annotatedTitle,
             title: tmdbTitleObject.name,
             releaseDate: tmdbTitleObject.first_air_date
         };
-    } else {
-        return annotatedTitle;
     }
+
+    cacheAnnotatedTitle(annotatedTitle);
+    return annotatedTitle;
 }
 
 export const getDirector = (titleCredits) => {
