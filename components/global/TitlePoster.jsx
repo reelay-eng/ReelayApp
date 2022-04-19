@@ -10,9 +10,13 @@ const WELCOME_VIDEO_POSTER_SOURCE = require('../../assets/images/welcome-video-p
 
 export default TitlePoster = memo(({ title, onPress, width = 60 }) => {
     const [loadState, setLoadState] = useState('local');
-	const PosterContainer = styled(Pressable)`
-		z-index: 3;
-	`
+	const PosterContainer = (onPress) 
+        ? styled(Pressable)`
+            z-index: 3;
+        `
+        : styled(View)`
+            z-index: 3;
+        `
 	const PosterImage = styled(Image)`
 		border-radius: ${width / 10}px;
 		width: ${width}px;

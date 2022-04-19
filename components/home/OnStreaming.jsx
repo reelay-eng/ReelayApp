@@ -11,6 +11,7 @@ import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import ReelayColors from '../../constants/ReelayColors';
 import { useSelector } from 'react-redux';
+import TitlePoster from '../global/TitlePoster';
 
 const EditStreamingServicesButton = styled(Pressable)`
     padding: 15px;
@@ -60,16 +61,6 @@ const HeaderContainerLeft = styled(View)`
 const TitleInfoLine = styled(View)`
     flex-direction: row;
     justify-content: space-between;
-`
-const TitlePoster = styled(Image)`
-    width: 120px;
-    height: 180px;
-    border-radius: 8px;
-`
-const TitleReleaseYear = styled(ReelayText.CaptionEmphasized)`
-    margin-top: 8px;
-    color: white;
-    opacity: 0.5;
 `
 const TitleText = styled(ReelayText.H6)`
     font-size: 16px;
@@ -204,7 +195,7 @@ const StreamingServicesElement = ({ index, onPress, stack, length }) => {
 
     return (
         <ReelayPreviewContainer onPress={onPress}>
-            <TitlePoster source={stack[0]?.title?.posterSource} onPress={onPress} />
+            <TitlePoster title={stack[0]?.title} width={120} />
             <TitleInfoLine>
                 <ReelayCount>{`${reelayCount} ${(reelayCount > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
             </TitleInfoLine>

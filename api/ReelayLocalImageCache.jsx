@@ -50,7 +50,10 @@ export const getTitlePosterURI = (posterPath, local = true) => {
 }
 
 // Deletes whole giphy directory with all its content
-export async function clearAllCachedImages() {
-    console.log('Deleting all cached images...');
-    await FileSystem.deleteAsync(imgDir);
+export const clearAllCachedImages = async () => {
+    const dirInfo = await FileSystem.getInfoAsync(imgDir);
+    if (dirInfo.exists) {
+        console.log('Deleting all cached images...');
+        await FileSystem.deleteAsync(imgDir);
+    }
 }

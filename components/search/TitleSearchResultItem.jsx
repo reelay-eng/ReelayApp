@@ -1,20 +1,18 @@
 import React, { useContext, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
-import { Image } from 'react-native-elements';
 import * as ReelayText from "../../components/global/Text";
 import styled from 'styled-components/native';
-import { getPosterURL } from '../../api/TMDbApi';
 
 import { AuthContext } from '../../context/AuthContext';
 import { showErrorToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { getRuntimeString } from '../utils/TitleRuntime';
+import TitlePoster from '../global/TitlePoster';
 
 const ImageContainer = styled(View)`
     flex: 0.5;
     flex-direction: row;
     align-items: center;
-    width: 500px;
 `
 const PressableContainer = styled(Pressable)`
     flex: 1;
@@ -89,11 +87,7 @@ export default TitleSearchResultItem = ({ navigation, result, source }) => {
         <PressableContainer key={titleObj?.id} onPress={selectResult}>
             <ImageContainer>
                 { titleObj?.posterSource && (
-                    <Image
-                        source={titleObj?.posterSource}
-                        style={{ height: 108, width: 72, borderRadius: 6 }}
-                        PlaceholderContent={<ActivityIndicator />}
-                    />
+                    <TitlePoster title={titleObj} width={72} />
                 )}
                 { !titleObj.posterSource && <TitleText>{"No Poster Available"}</TitleText>}
             </ImageContainer>
