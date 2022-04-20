@@ -7,9 +7,8 @@ export default ProfileHeader = ({ creator, shouldCenter=false }) => {
     const ProfileHeaderContainer = styled(SafeAreaView)`
         flex: 1;
 		align-items: center;
-		margin-top: 16px;
 		margin-left: 8px;
-		width: 95px;
+		width: 90px;
         align-self: ${(shouldCenter) ? 'center' : 'flex-start'};
 	`;
     const ProfilePictureContainer = styled(Pressable)`

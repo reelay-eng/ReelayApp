@@ -58,7 +58,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
         text-align: left;
         padding-bottom: 3px;
         font-family: Outfit-Regular;
-        font-size: 14px;
+        font-size: 16px;
         font-style: normal;
         line-height: 20px;
         letter-spacing: 0.1px;
@@ -167,7 +167,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
             margin-bottom: 8px;
 		`;
         const EditProfileButtonContainer = styled(View)`
-            width: 80%;
+            width: 90%;
             height: 40px;
         `
 

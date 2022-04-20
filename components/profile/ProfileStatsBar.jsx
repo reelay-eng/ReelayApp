@@ -10,10 +10,11 @@ import * as ReelayText from '../../components/global/Text';
 const BarContainer = styled(View)`
     align-self: center;
     flex-direction: row;
+    justify-content: space-between;
+    width: 86%;
 `
 const StatContainer = styled(Pressable)`
     align-items: center;
-    width: 100px;
     margin: 10px;
     margin-top: 5px;
 `

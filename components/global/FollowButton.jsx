@@ -19,8 +19,8 @@ export default FollowButton = ({ creator, bar=false, fancy=false, creatorFollows
 	`
 
 	const ButtonContainer = styled(View)`
-		height: ${bar ? "44px" : "30px"};
-		width: ${bar ? "75%" : "90px"};
+		height: ${bar ? "40px" : "30px"};
+		width: ${bar ? "90%" : "90px"};
 	`
     const dispatch = useDispatch();
 	const { reelayDBUser } = useContext(AuthContext);

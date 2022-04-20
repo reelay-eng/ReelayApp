@@ -27,7 +27,7 @@ const BioText = styled(Autolink)`
     color: white;
     padding-bottom: 3px;
     font-family: Outfit-Regular;
-    font-size: 14px;
+    font-size: 16px;
     font-style: normal;
     line-height: 20px;
     letter-spacing: 0.1px;
@@ -46,7 +46,6 @@ const ProfileScreenContainer = styled(SafeAreaView)`
     width: 100%;
 `
 const HeaderContainer = styled(View)`
-    display: flex;
     width: 100%;
     flex-wrap: wrap;
     flex-direction: row;
