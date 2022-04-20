@@ -8,6 +8,7 @@ import InTheaters from './InTheaters';
 import FriendsAreWatching from './FriendsAreWatching';
 import OnStreaming from './OnStreaming';
 import AtFestivals from './AtFestivals';
+import GlobalTopics from '../topics/GlobalTopics';
 
 import { 
     loadMyFollowing,
@@ -85,6 +86,7 @@ const HomeComponent = ({ navigation }) => {
             <ScrollContainer refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 {/* <Announcements /> */}
                 <FriendsAreWatching navigation={navigation} />
+                <GlobalTopics navigation={navigation} />
                 <OnStreaming navigation={navigation} onRefresh={onRefresh} />
                 <InTheaters navigation={navigation} />
                 <AtFestivals navigation={navigation} />
