@@ -335,6 +335,20 @@ export const getRegisteredUser = async (userSub) => {
     return resultGet;
 }
 
+export const getTopReelaysOfTheWeek = async ({ reqUserSub, page = 0 }) => {
+    // note that trending does not yet implement pagination...
+    const routeGet = `${REELAY_API_BASE_URL}/feed/trending?page=${page}&visibility=${FEED_VISIBILITY}`;
+    const fetchedReelays = await fetchResults(routeGet, { 
+        method: 'GET',
+        headers: {
+            ...REELAY_API_HEADERS,
+            requsersub: reqUserSub,
+        }, 
+    });
+    const preparedReelays = await Promise.all(fetchedReelays.map(prepareReelay));
+    return preparedReelays;
+}
+
 export const getUserByEmail = async (address) => {
     const routeGet = `${REELAY_API_BASE_URL}/users/byemail/${address}`;
     const userResult = await fetchResults(routeGet, {

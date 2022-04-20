@@ -91,6 +91,7 @@ const ReelayFeed = ({ navigation,
 
     const extendFeed = async () => {
         const page = nextPage.current;
+        if (feedSource === 'trending') return;
         const fetchedStacks = await getFeed({ feedSource: feedSource, reqUserSub: reelayDBUser?.sub, page });
 
         // probably don't need to create this every time, but we want to avoid unnecessary state
