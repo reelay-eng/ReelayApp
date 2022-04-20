@@ -33,6 +33,12 @@ import styled from 'styled-components/native';
 import store from '../../redux/store';
 
 export default MyProfileScreen = ({ navigation, route }) => {
+    const HeaderContainer = styled(View)`
+        display: flex;
+        width: 100%;
+        flex-wrap: wrap;
+        flex-direction: row;
+    `
     const ProfileScreenContainer = styled(SafeAreaView)`
         background-color: black;
         height: 100%;
@@ -43,23 +49,23 @@ export default MyProfileScreen = ({ navigation, route }) => {
     `;
     const UserInfoContainer = styled(View)`
         align-self: center;
-        width: 75%;
-        padding-bottom: 10px;
+        width: 72%;
+        padding-top: 10px;
     `;
     // should have same style as: ReelayText.Subtitle1
     const BioText = styled(Autolink)` 
         color: white;
-        text-align: center;
-        padding-bottom: 5px;
+        text-align: left;
+        padding-bottom: 3px;
         font-family: Outfit-Regular;
-        font-size: 16px;
+        font-size: 14px;
         font-style: normal;
-        line-height: 24px;
-        letter-spacing: 0.15px;
+        line-height: 20px;
+        letter-spacing: 0.1px;
     `;
-    const WebsiteText = styled(ReelayText.Subtitle1)`
+    const WebsiteText = styled(ReelayText.Subtitle2)`
         color: 'rgb(51,102,187)';
-        text-align: center;
+        text-align: left;
         padding-bottom: 5px;
     `;
 
@@ -161,7 +167,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
             margin-bottom: 8px;
 		`;
         const EditProfileButtonContainer = styled(View)`
-            width: 75%;
+            width: 80%;
             height: 40px;
         `
 
@@ -194,19 +200,21 @@ export default MyProfileScreen = ({ navigation, route }) => {
 			<ProfileScrollView refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
-				<ProfileHeader creator={reelayDBUser} />
-                <UserInfoContainer>
-                    {reelayDBUser?.bio && (
-                        <BioText 
-                            text={reelayDBUser?.bio?.trim() ?? ''} 
-                            linkStyle={{ color: '#3366BB' }} 
-                            url
-                        /> 
-                    )}
-                    {reelayDBUser?.website && (
-                        <WebsiteText onPress={() => Linking.openURL(fixLink(reelayDBUser.website))}> {reelayDBUser.website} </WebsiteText>
-                    )}
-                </UserInfoContainer>
+                <HeaderContainer>
+                    <ProfileHeader creator={reelayDBUser} />
+                    <UserInfoContainer>
+                        {reelayDBUser?.bio && (
+                            <BioText 
+                                text={reelayDBUser?.bio?.trim() ?? ''} 
+                                linkStyle={{ color: '#3366BB' }} 
+                                url
+                            /> 
+                        )}
+                        {reelayDBUser?.website && (
+                            <WebsiteText onPress={() => Linking.openURL(fixLink(reelayDBUser.website))}> {reelayDBUser.website} </WebsiteText>
+                        )}
+                    </UserInfoContainer>
+                </HeaderContainer>
 				<EditProfileButton />
 				<ProfileStatsBar
 					navigation={navigation}

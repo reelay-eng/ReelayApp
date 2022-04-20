@@ -131,7 +131,7 @@ export default FollowButton = ({ creator, bar=false, fancy=false, creatorFollows
 		<>
 			{ !alreadyFollowing && !isMyProfile && <NotYetFollowingButton /> }
 			{ alreadyFollowing && !isMyProfile && <AlreadyFollowingButton /> }
-			{ bar && <Spacer height="20px" />}
+			{ bar && <Spacer height="10px" />}
 		</>
 	);
 }

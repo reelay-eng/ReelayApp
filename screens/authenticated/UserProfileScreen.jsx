@@ -20,22 +20,23 @@ import styled from 'styled-components/native';
 
 const UserInfoContainer = styled(View)`
     align-self: center;
-    width: 75%;
-    padding-bottom: 10px;
+    width: 72%;
+    padding-top: 10px;
 `;
 const BioText = styled(Autolink)`
     color: white;
-    text-align: center;
-    padding-bottom: 5px;
+    padding-bottom: 3px;
     font-family: Outfit-Regular;
-    font-size: 16px;
+    font-size: 14px;
     font-style: normal;
-    line-height: 24px;
-    letter-spacing: 0.15px;
+    line-height: 20px;
+    letter-spacing: 0.1px;
+	text-align: left;
 `;
-const WebsiteText = styled(ReelayText.Subtitle1)`
+const WebsiteText = styled(ReelayText.Subtitle2)`
     color: "rgb(51,102,187)";
-    text-align: center;
+    font-size: 14px;
+    text-align: left;
     padding-bottom: 5px;
 `;
 
@@ -43,6 +44,12 @@ const ProfileScreenContainer = styled(SafeAreaView)`
     background-color: black;
     height: 100%;
     width: 100%;
+`
+const HeaderContainer = styled(View)`
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    flex-direction: row;
 `
 const ProfileScrollView = styled(ScrollView)`
     margin-bottom: 60px;
@@ -130,6 +137,31 @@ export default UserProfileScreen = ({ navigation, route }) => {
             <ProfileScrollView refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
+                <ProfileHeaderAndInfo creator={creator} bioText={bioText} websiteText={websiteText}/>
+                {!isMyProfile && <FollowButtonBar creator={creator} bar /> }
+
+                <ProfileStatsBar
+                    navigation={navigation}
+                    reelayCount={reelayCount}
+                    creator={creator}
+                    followers={creatorFollowers}
+                    following={creatorFollowing}
+                    prevScreen={"UserProfileScreen"}
+                />
+                <ProfilePosterGrid
+                    creatorStacks={creatorStacks}
+                    navigation={navigation}
+                />
+            </ProfileScrollView>
+            { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} />}
+        </ProfileScreenContainer>
+    );
+}
+
+const ProfileHeaderAndInfo = ({ creator, bioText, websiteText }) => {
+    if (bioText !== "" || websiteText !== "") {
+        return (
+            <HeaderContainer>
                 <ProfileHeader creator={creator} />
                 <UserInfoContainer>
                     {bioText !== "" && (
@@ -146,22 +178,14 @@ export default UserProfileScreen = ({ navigation, route }) => {
                         </WebsiteText>
                     )}
                 </UserInfoContainer>
-
-                <ProfileStatsBar
-                    navigation={navigation}
-                    reelayCount={reelayCount}
-                    creator={creator}
-                    followers={creatorFollowers}
-                    following={creatorFollowing}
-                    prevScreen={"UserProfileScreen"}
-                />
-                {!isMyProfile && <FollowButtonBar creator={creator} bar /> }
-                <ProfilePosterGrid
-                    creatorStacks={creatorStacks}
-                    navigation={navigation}
-                />
-            </ProfileScrollView>
-            { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} />}
-        </ProfileScreenContainer>
-    );
+            </HeaderContainer>
+        )
+    }
+    else {
+        return (
+            <>
+                <ProfileHeader creator={creator} shouldCenter={true} />
+            </>
+        )
+    }
 }
