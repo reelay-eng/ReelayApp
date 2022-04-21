@@ -28,10 +28,7 @@ const PlayPauseIcon = ({ onPress, type = 'play' }) => {
     );
 }
 
-const ReelayVideo = memo(({ 
-	handleVideoRef, 
-	onLoad,
-	onLoadStart,
+const ReelayVideo = ({ 
 	onPlaybackStatusUpdate,
 	shouldPlay,
 	videoURI,
@@ -40,34 +37,24 @@ const ReelayVideo = memo(({
 		<Video
 			isLooping={true}
 			isMuted={false}
-			onLoad={onLoad}
-			onLoadStart={onLoadStart}
 			onPlaybackStatusUpdate={onPlaybackStatusUpdate}
 			progressUpdateIntervalMillis={50}
 			rate={1.0}
-			ref={(component) => handleVideoRef(component)}
 			resizeMode='cover'
 			shouldDuckAndroid={true}
 			shouldPlay={shouldPlay}
 			source={{ uri: videoURI }}
 			staysActiveInBackground={false}
-			style={{
-				height: height,
-				width: width,
-			}}
+			style={{ height, width }}
 			useNativeControls={false}
 			volume={1.0}
 		/>
 	);
-}, (prevProps, nextProps) => (prevProps.shouldPlay === nextProps.shouldPlay));
+}
 
 export default function FeedVideoPlayer({ reelay, viewable }) {
 	const PLAY_PAUSE_ICON_TIMEOUT = 800;
 	const [focused, setFocused] = useState(false);
-	const [playbackObject, setPlaybackObject] = useState(null);
-
-	const loadStatus = useRef(0);
-	const playheadCounter = useRef(0);
 
 	const { reelayDBUser } = useContext(AuthContext);
 	const [paused, setPaused] = useState(false);
@@ -75,30 +62,7 @@ export default function FeedVideoPlayer({ reelay, viewable }) {
 	
 	const shouldPlay = viewable && focused && !paused;
 
-	const handleVideoRef = (component) => {
-		const playbackObject = component;
-		const wasPlayingOnLastRender = playheadCounter.current % 2 === 1;
-
-		setPlaybackObject(playbackObject);
-		if (!viewable && wasPlayingOnLastRender) {
-			playheadCounter.current += 1;
-			try {
-				playbackObject.setPositionAsync(0);
-			} catch (e) {
-				console.log(e);
-			}
-		} else if (viewable && !wasPlayingOnLastRender) {
-			// results in odd-numbered playhead counter
-			playheadCounter.current += 1;
-		}
-
-		if (playheadCounter.current > 1 && loadStatus.current != 2) {
-			console.log('video isn\'t loaded yet', reelay.title.display, reelay.creator.username);
-		}
-	}
-
 	useEffect(() => {
-		if (shouldPlay) playbackObject.playAsync();
 		if (!viewable && paused) {
 			setPaused(false);
 			setPlayPauseVisible('none');
@@ -111,14 +75,6 @@ export default function FeedVideoPlayer({ reelay, viewable }) {
 			if (viewable) setFocused(false);
 		}
     }));
-
-	const onLoad = async (playbackStatus) => {
-		loadStatus.current = 2;
-	}
-
-	const onLoadStart = async (playbackStatus) => {
-		loadStatus.current = 1;
-	}
 
 	const onPlaybackStatusUpdate = (playbackStatus) => {
 		if (playbackStatus?.didJustFinish && viewable) {
@@ -166,9 +122,6 @@ export default function FeedVideoPlayer({ reelay, viewable }) {
 	return (
 		<Pressable onPress={onPlayPause}>
 			<ReelayVideo 
-				handleVideoRef={handleVideoRef} 
-				onLoad={onLoad}
-				onLoadStart={onLoadStart}
 				onPlaybackStatusUpdate={onPlaybackStatusUpdate}
 				shouldPlay={shouldPlay} 
 				videoURI={reelay?.content?.videoURI}
