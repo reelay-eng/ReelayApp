@@ -3,52 +3,24 @@ import { RefreshControl, SafeAreaView, ScrollView, Linking, View } from 'react-n
 import { Autolink } from "react-native-autolink";
 import { useSelector } from 'react-redux';
 
-import { getStacksByCreator, getRegisteredUser, getFollowers, getFollowing } from '../../api/ReelayDBApi';
+import { getStacksByCreator, getRegisteredUser, getFollowers, getFollowing, getStreamingSubscriptions } from '../../api/ReelayDBApi';
 
 import FollowButtonBar from '../../components/profile/Follow/FollowButtonBar';
 import JustShowMeSignupDrawer from '../../components/global/JustShowMeSignupDrawer';
-import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
 import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
-import * as ReelayText from "../../components/global/Text";
+import ProfileHeaderAndInfo from '../../components/profile/ProfileHeaderAndInfo';
 
 import { AuthContext } from '../../context/AuthContext';
 
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import styled from 'styled-components/native';
 
-const UserInfoContainer = styled(View)`
-    align-self: center;
-    width: 72%;
-    padding-top: 10px;
-`;
-const BioText = styled(Autolink)`
-    color: white;
-    padding-bottom: 3px;
-    font-family: Outfit-Regular;
-    font-size: 16px;
-    font-style: normal;
-    line-height: 20px;
-    letter-spacing: 0.1px;
-	text-align: left;
-`;
-const WebsiteText = styled(ReelayText.Subtitle2)`
-    color: "rgb(51,102,187)";
-    font-size: 14px;
-    text-align: left;
-    padding-bottom: 5px;
-`;
-
 const ProfileScreenContainer = styled(SafeAreaView)`
     background-color: black;
     height: 100%;
     width: 100%;
-`
-const HeaderContainer = styled(View)`
-    width: 100%;
-    flex-wrap: wrap;
-    flex-direction: row;
 `
 const ProfileScrollView = styled(ScrollView)`
     margin-bottom: 60px;
@@ -63,6 +35,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const [creatorFollowing, setCreatorFollowing] = useState([]);
     const [bioText, setBioText] = useState("");
     const [websiteText, setWebsiteText] = useState("")
+    const [streamingSubscriptions, setStreamingSubscriptions] = useState([]);
     const [refreshing, setRefreshing] = useState(true);
 
     const { reelayDBUser } = useContext(AuthContext);
@@ -92,6 +65,11 @@ export default UserProfileScreen = ({ navigation, route }) => {
         setWebsiteText(creatorInfo.website ? creatorInfo.website : "")
     }
 
+    const loadUserStreamingSubscriptions = async () => {
+        const subscriptions = await getStreamingSubscriptions(creator.sub);
+        setStreamingSubscriptions(subscriptions);
+    }
+
     const onRefresh = async () => {
         if (!refreshing) {
             setRefreshing(true);
@@ -102,6 +80,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
                 loadCreatorStacks(),
                 loadFollows(),
                 loadUserInformation(),
+                loadUserStreamingSubscriptions(),
             ])
         }
         setRefreshing(false);
@@ -114,7 +93,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
             creatorName: username,
         });    
     }, []);
-
+    console.log("subscriptions...", streamingSubscriptions)
     const isMyProfile = (creatorSub === reelayDBUser?.sub);
 
     const sortReelays = (reelay1, reelay2) => reelay2.postedDateTime - reelay1.postedDateTime;
@@ -122,21 +101,18 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const reelayCounter = (sum, nextStack) => sum + nextStack.length;
     const reelayCount = creatorStacks.reduce(reelayCounter, 0);
 
-    const fixLink = (link) => {
-        if (link.startsWith('https://') || link.startsWith('http://')) {
-            return link;
-        } else {
-            return 'https://'+link;
-        }
-    }
-
     return (
         <ProfileScreenContainer>
             <ProfileTopBar creator={creator} navigation={navigation} />
             <ProfileScrollView refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
-                <ProfileHeaderAndInfo creator={creator} bioText={bioText} websiteText={websiteText}/>
+                <ProfileHeaderAndInfo 
+                    creator={creator} 
+                    bioText={bioText} 
+                    websiteText={websiteText}
+                    streamingSubscriptions={streamingSubscriptions}
+                />
                 {!isMyProfile && <FollowButtonBar creator={creator} bar /> }
 
                 <ProfileStatsBar
@@ -155,36 +131,4 @@ export default UserProfileScreen = ({ navigation, route }) => {
             { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} />}
         </ProfileScreenContainer>
     );
-}
-
-const ProfileHeaderAndInfo = ({ creator, bioText, websiteText }) => {
-    if (bioText !== "" || websiteText !== "") {
-        return (
-            <HeaderContainer>
-                <ProfileHeader creator={creator} />
-                <UserInfoContainer>
-                    {bioText !== "" && (
-                        <BioText
-                        text={bioText.trim()}
-                        linkStyle={{ color: "#3366BB" }}
-                        url
-                        />
-                    )}
-                    {websiteText !== "" && (
-                        <WebsiteText onPress={() => Linking.openURL(fixLink(websiteText))}>
-                        {" "}
-                        {websiteText}{" "}
-                        </WebsiteText>
-                    )}
-                </UserInfoContainer>
-            </HeaderContainer>
-        )
-    }
-    else {
-        return (
-            <>
-                <ProfileHeader creator={creator} shouldCenter={true} />
-            </>
-        )
-    }
 }

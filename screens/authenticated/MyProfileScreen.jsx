@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { RefreshControl, SafeAreaView, ScrollView, View, Linking } from 'react-native';
+import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
 import { Autolink } from "react-native-autolink";
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 
@@ -12,17 +12,18 @@ import {
     refreshMyFollowing, 
     refreshMyNotifications, 
     refreshMyReelayStacks, 
-    refreshMyWatchlist 
+    refreshMyWatchlist,
+    getStreamingSubscriptions,
 } from '../../api/ReelayUserApi';
 
 // Components
-import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
 import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
 import EditProfile from "../../components/profile/EditProfile";
 import { BWButton } from "../../components/global/Buttons";
 import * as ReelayText from "../../components/global/Text";
+import ProfileHeaderAndInfo from '../../components/profile/ProfileHeaderAndInfo';
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
@@ -33,12 +34,6 @@ import styled from 'styled-components/native';
 import store from '../../redux/store';
 
 export default MyProfileScreen = ({ navigation, route }) => {
-    const HeaderContainer = styled(View)`
-        display: flex;
-        width: 100%;
-        flex-wrap: wrap;
-        flex-direction: row;
-    `
     const ProfileScreenContainer = styled(SafeAreaView)`
         background-color: black;
         height: 100%;
@@ -46,27 +41,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
     `;
     const ProfileScrollView = styled(ScrollView)`
         margin-bottom: 60px;
-    `;
-    const UserInfoContainer = styled(View)`
-        align-self: center;
-        width: 72%;
-        padding-top: 10px;
-    `;
-    // should have same style as: ReelayText.Subtitle1
-    const BioText = styled(Autolink)` 
-        color: white;
-        text-align: left;
-        padding-bottom: 3px;
-        font-family: Outfit-Regular;
-        font-size: 16px;
-        font-style: normal;
-        line-height: 20px;
-        letter-spacing: 0.1px;
-    `;
-    const WebsiteText = styled(ReelayText.Subtitle2)`
-        color: 'rgb(51,102,187)';
-        text-align: left;
-        padding-bottom: 5px;
     `;
 
     const [refreshing, setRefreshing] = useState(false);
@@ -79,8 +53,9 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const myFollowers = useSelector(state => state.myFollowers);
     const myFollowing = useSelector(state => state.myFollowing);
     const myCreatorStacks = useSelector(state => state.myCreatorStacks);
+    const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
   	const dispatch = useDispatch();
-
+     console.log('myStreamingSubscriptions is:', myStreamingSubscriptions)
     useEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
         if (refreshOnUpload) {
@@ -126,12 +101,14 @@ export default MyProfileScreen = ({ navigation, route }) => {
                     nextMyFollowing,
                     nextMyNotifications,
                     nextMyWatchlistItems,
+                    nextMyStreamingSubscriptions
                 ] = await Promise.all([
                     refreshMyReelayStacks(userSub),
                     refreshMyFollowers(userSub),
                     refreshMyFollowing(userSub),
                     refreshMyNotifications(userSub),
                     refreshMyWatchlist(userSub),
+                    getStreamingSubscriptions(userSub),
                 ]);
                 
                 nextMyCreatorStacks.forEach((stack) => stack.sort(sortReelays));
@@ -143,6 +120,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
                 dispatch({ type: 'setMyNotifications', payload: nextMyNotifications });
                 dispatch({ type: 'setMyWatchlistItems', payload: nextMyWatchlistItems });
                 dispatch({ type: 'setMyFollowing', payload: nextMyFollowing });
+
+                dispatch({ type: 'setMyStreamingSubscriptions', payload: nextMyStreamingSubscriptions });
 
                 console.log('Refresh complete');
             } catch (error) {
@@ -185,14 +164,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
 		);
     }
 
-    const fixLink = (link) => {
-        if (link.startsWith('https://') || link.startsWith('http://')) {
-            return link;
-        } else {
-            return 'https://'+link;
-        }
-    }
-
     return (
 		<ProfileScreenContainer>
 			<EditProfile/>
@@ -200,21 +171,12 @@ export default MyProfileScreen = ({ navigation, route }) => {
 			<ProfileScrollView refreshControl={
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
-                <HeaderContainer>
-                    <ProfileHeader creator={reelayDBUser} />
-                    <UserInfoContainer>
-                        {reelayDBUser?.bio && (
-                            <BioText 
-                                text={reelayDBUser?.bio?.trim() ?? ''} 
-                                linkStyle={{ color: '#3366BB' }} 
-                                url
-                            /> 
-                        )}
-                        {reelayDBUser?.website && (
-                            <WebsiteText onPress={() => Linking.openURL(fixLink(reelayDBUser.website))}> {reelayDBUser.website} </WebsiteText>
-                        )}
-                    </UserInfoContainer>
-                </HeaderContainer>
+                <ProfileHeaderAndInfo 
+                    creator={reelayDBUser} 
+                    bioText={reelayDBUser.bio} 
+                    websiteText={reelayDBUser.website} 
+                    streamingSubscriptions={myStreamingSubscriptions}
+                />
 				<EditProfileButton />
 				<ProfileStatsBar
 					navigation={navigation}
@@ -232,3 +194,4 @@ export default MyProfileScreen = ({ navigation, route }) => {
 		</ProfileScreenContainer>
 	);
 }
+
