@@ -8,6 +8,7 @@ import {
 import styled from 'styled-components/native';
 import { LinearGradient } from "expo-linear-gradient";
 import { Video, Audio } from 'expo-av';
+import { Icon } from 'react-native-elements';
 import StarRating from 'react-native-star-rating';
 import * as ReelayText from "../../components/global/Text";
 import { VenueIcon } from '../utils/VenueIcon';
@@ -23,6 +24,7 @@ export default ReelayThumbnail = ({
 	onPress, 
 	reelay, 
 	showIcons = true,
+	showLikes = false,
 	width = 105,
 }) => {
 	const CreatorLineContainer = styled(View)`
@@ -40,17 +42,24 @@ export default ReelayThumbnail = ({
 		position: absolute;
 		width: 100%;
 	`
-	const PlayPausePressable = styled(Pressable)`
+	const LikeContainer = styled(View)`
+		align-items: flex-start;
+		flex-direction: row;
 		position: absolute;
-		height: 100%;
-		width: 100%;
+		top: 4px;
+		left: 4px;
+	`
+	const LikeText = styled(ReelayText.Subtitle2)`
+		font-size: 14px;
+		margin-left: 2px;
+		color: white;
 	`
 	const StarRatingContainer = styled(View)`
 		align-items: center;
 		flex-direction: row;
 		margin-top: -5px;
 		margin-bottom: 6px;
-		margin-left: 35px;
+		margin-left: ${(props) => 35 + props.addLeft}px;
 	`
 	const TitleVenue = styled(View)`
 		position: absolute;
@@ -67,8 +76,8 @@ export default ReelayThumbnail = ({
 		width: ${width}px;
 	`
 	const UsernameText = styled(ReelayText.Subtitle2)`
-        font-size: 12px;
-		padding: 5px;
+        font-size: ${(props) => props.size}px;
+		padding: ${(props) => props.size - 7}px;
 		color: white;
 	`
 	const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
@@ -102,9 +111,10 @@ export default ReelayThumbnail = ({
 				)}
 				{ showIcons && 
 					<TitleVenue>
-						<VenueIcon venue={reelay?.content?.venue} size={24} border={1} />
+						<VenueIcon venue={reelay?.content?.venue} size={asMutedVideo ? 24: 16} border={1} />
 					</TitleVenue>			
 				}
+				{ asMutedVideo && <LikeCounter likeCount={reelay.likes.length} /> }
 				<GradientContainer>
 					<LinearGradient
 						colors={["transparent", "#0B1424"]}
@@ -126,7 +136,7 @@ export default ReelayThumbnail = ({
 
 	const StarRatingLine = () => {
 		return (
-			<StarRatingContainer>
+			<StarRatingContainer addLeft={ asMutedVideo ? 12 : 0}>
 				<StarRating 
 					disabled={true}
 					emptyStarColor={'#c4c4c4'}
@@ -134,7 +144,7 @@ export default ReelayThumbnail = ({
 					fullStarColor={'white'}
 					halfStarEnabled={true}
 					rating={starRating}
-					starSize={12}
+					starSize={asMutedVideo ? 16 : 12}
 					starStyle={{ paddingRight: 2 }}
 				/>
 			</StarRatingContainer>
@@ -148,13 +158,22 @@ export default ReelayThumbnail = ({
         
         return (
             <CreatorLineContainer>
-                <ProfilePicture user={reelay?.creator} size={24} border  />
-                <UsernameText>
+                <ProfilePicture user={reelay?.creator} size={asMutedVideo ? 32 : 24} border  />
+                <UsernameText size={asMutedVideo ? 16 : 12}>
                     {`@${condensedUsername}`}
                 </UsernameText>
             </CreatorLineContainer>
         );
     }
+
+	const LikeCounter = ({ likeCount }) => {
+		return (
+			<LikeContainer>
+				<Icon type='ionicon' name='heart' color='white' size={24} />
+				<LikeText>{likeCount}</LikeText>
+			</LikeContainer>
+		);
+	}
 
 	const MutedVideoPlayer = () => {
 		return (

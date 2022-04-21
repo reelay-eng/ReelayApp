@@ -22,6 +22,7 @@ const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
     padding: 15px;
+    padding-left: 11px;
 `
 const HeaderContainer = styled(View)`
     align-items: center;
@@ -31,7 +32,7 @@ const HeaderContainer = styled(View)`
 const HeaderContainerLeft = styled(View)`
     align-items: center;
     flex-direction: row;
-    margin-left: 15px;
+    margin-left: 19px;
     margin-top: 15px;
 `
 const TopOfTheWeekContainer = styled(View)`
@@ -85,6 +86,7 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
                     height={MAJOR_REELAY_HEIGHT} 
                     margin={0}
                     onPress={() => goToReelay(0)} 
+                    showLikes={true}
                     reelay={topOfTheWeek[0]} 
                     width={MAJOR_REELAY_WIDTH} 
                 />
@@ -95,6 +97,7 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
                         height={MINOR_REELAY_HEIGHT} 
                         margin={0}
                         onPress={() => goToReelay(1)} 
+                        showLikes={true}
                         reelay={topOfTheWeek[1]} 
                         width={MINOR_REELAY_WIDTH} 
                     />
@@ -104,6 +107,7 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
                         height={MINOR_REELAY_HEIGHT} 
                         margin={0}
                         onPress={() => goToReelay(2)} 
+                        showLikes={true}
                         reelay={topOfTheWeek[2]} 
                         width={MINOR_REELAY_WIDTH} 
                     />

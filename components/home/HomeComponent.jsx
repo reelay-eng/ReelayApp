@@ -85,8 +85,8 @@ const HomeComponent = ({ navigation }) => {
             <HomeHeader navigation={navigation} />
             <ScrollContainer refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 {/* <Announcements /> */}
-                <FriendsAreWatching navigation={navigation} />
                 <TopOfTheWeek navigation={navigation} />
+                <FriendsAreWatching navigation={navigation} />
                 <OnStreaming navigation={navigation} onRefresh={onRefresh} />
                 <InTheaters navigation={navigation} />
                 <AtFestivals navigation={navigation} />
