@@ -82,7 +82,7 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
         <ThreeReelaysContainer>
             <MajorReelayElementContainer>
                 <ReelayThumbnail 
-                    asMutedVideo={true}
+                    asTopOfTheWeek={true}
                     height={MAJOR_REELAY_HEIGHT} 
                     margin={0}
                     onPress={() => goToReelay(0)} 

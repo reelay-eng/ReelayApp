@@ -18,15 +18,21 @@ import ProfilePicture from './ProfilePicture';
 import { useSelector } from 'react-redux';
 
 export default ReelayThumbnail = ({ 
-	asMutedVideo = false,
-	height = 200, 
+	asTopOfTheWeek = false,
+	height = 180, 
 	margin = 6, 
 	onPress, 
 	reelay, 
 	showIcons = true,
-	showLikes = false,
-	width = 105,
+	width = 120,
 }) => {
+	const ICON_SIZE = asTopOfTheWeek ? 24 : 16;
+	const STAR_RATING_ADD_LEFT = asTopOfTheWeek ? 12 : 0;
+	const STAR_SIZE = asTopOfTheWeek ? 16 : 12;
+	const PROFILE_PIC_SIZE = asTopOfTheWeek ? 32 : 24;
+	const USERNAME_TEXT_SIZE = asTopOfTheWeek ? 16 : 12;
+	const USERNAME_ADD_LEFT = USERNAME_TEXT_SIZE - 7;
+
 	const CreatorLineContainer = styled(View)`
         align-items: center;
 		bottom: 12px;
@@ -59,7 +65,7 @@ export default ReelayThumbnail = ({
 		flex-direction: row;
 		margin-top: -5px;
 		margin-bottom: 6px;
-		margin-left: ${(props) => 35 + props.addLeft}px;
+		margin-left: ${35 + STAR_RATING_ADD_LEFT}px;
 	`
 	const TitleVenue = styled(View)`
 		position: absolute;
@@ -70,15 +76,24 @@ export default ReelayThumbnail = ({
 		justify-content: center;
 		margin: ${margin}px;
 	`
+	const ThumbnailGradient = styled(LinearGradient)`
+		border-radius: 6px;
+		flex: 1;
+		opacity: 0.6;
+		position: absolute;
+		height: 100%;
+		width: 100%;
+	`
 	const ThumbnailImage = styled(Image)`
 		border-radius: 8px;
 		height: ${height}px;
 		width: ${width}px;
 	`
 	const UsernameText = styled(ReelayText.Subtitle2)`
-        font-size: ${(props) => props.size}px;
-		padding: ${(props) => props.size - 7}px;
+        font-size: ${USERNAME_TEXT_SIZE}px;
+		padding: ${USERNAME_ADD_LEFT}px;
 		color: white;
+		flex: 1;
 	`
 	const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
 	const [thumbnailSource, setThumbnailSource] = useState(cloudfrontThumbnailSource);
@@ -100,33 +115,23 @@ export default ReelayThumbnail = ({
 	const GradientOverlay = ({ username }) => {
 		return (
 			<React.Fragment>
-				{ !asMutedVideo && (
+				{ !asTopOfTheWeek && (
 					<ThumbnailImage 
 						onError={generateAndSaveThumbnail} 
 						source={thumbnailSource} 
 					/>
 				)}
-				{ asMutedVideo && (
+				{ asTopOfTheWeek && (
 					<MutedVideoPlayer />
 				)}
 				{ showIcons && 
 					<TitleVenue>
-						<VenueIcon venue={reelay?.content?.venue} size={asMutedVideo ? 24: 16} border={1} />
+						<VenueIcon venue={reelay?.content?.venue} size={ICON_SIZE} border={1} />
 					</TitleVenue>			
 				}
-				{ asMutedVideo && <LikeCounter likeCount={reelay.likes.length} /> }
+				{ asTopOfTheWeek && <LikeCounter likeCount={reelay.likes.length} /> }
 				<GradientContainer>
-					<LinearGradient
-						colors={["transparent", "#0B1424"]}
-						style={{
-							flex: 1,
-							opacity: 0.6,
-							width: "100%",
-							height: "100%",
-							borderRadius: "6px",
-							position: 'absolute',
-						}}
-					/>
+					<ThumbnailGradient colors={["transparent", "#0B1424"]} />
 					{ showIcons && <CreatorLine username={username} /> }
 					{ showIcons && (starRating > 0) && <StarRatingLine /> }
 				</GradientContainer>
@@ -136,7 +141,7 @@ export default ReelayThumbnail = ({
 
 	const StarRatingLine = () => {
 		return (
-			<StarRatingContainer addLeft={ asMutedVideo ? 12 : 0}>
+			<StarRatingContainer>
 				<StarRating 
 					disabled={true}
 					emptyStarColor={'#c4c4c4'}
@@ -144,23 +149,19 @@ export default ReelayThumbnail = ({
 					fullStarColor={'white'}
 					halfStarEnabled={true}
 					rating={starRating}
-					starSize={asMutedVideo ? 16 : 12}
+					starSize={STAR_SIZE}
 					starStyle={{ paddingRight: 2 }}
 				/>
 			</StarRatingContainer>
 		);
 	}
 
-    const CreatorLine = ({ username }) => {
-        const condensedUsername = (username.length > 10)
-            ? username.substring(0, 10) + "..."
-            : username;
-        
+    const CreatorLine = ({ username }) => {        
         return (
             <CreatorLineContainer>
-                <ProfilePicture user={reelay?.creator} size={asMutedVideo ? 32 : 24} border  />
-                <UsernameText size={asMutedVideo ? 16 : 12}>
-                    {`@${condensedUsername}`}
+                <ProfilePicture user={reelay?.creator} size={PROFILE_PIC_SIZE} border />
+                <UsernameText numberOfLines={1}>
+                    {`@${username}`}
                 </UsernameText>
             </CreatorLineContainer>
         );
