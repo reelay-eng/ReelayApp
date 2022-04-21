@@ -398,6 +398,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
                     width={48}
                     titleObj={reelay.title} 
                     videoURI={reelay.content.videoURI} 
+                    uploadedReelay={reelay}
                 />
             </DownloadContainer>
         );

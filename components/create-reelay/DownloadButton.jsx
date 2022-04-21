@@ -5,6 +5,7 @@ import { AuthContext } from "../../context/AuthContext";
 
 import ReelayColors from "../../constants/ReelayColors";
 import * as MediaLibrary from 'expo-media-library';
+import * as FileSystem from 'expo-file-system';
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 import styled from 'styled-components/native';
 import { showErrorToast } from "../utils/toasts";
@@ -20,7 +21,13 @@ const DownloadButtonPressable = styled(Pressable)`
     left: 10px;
 `
 
-export default DownloadButton = ({ titleObj, videoURI, height = 48, width = 80 }) => {
+export default DownloadButton = ({ 
+    titleObj, 
+    videoURI, 
+    height = 48, 
+    width = 80, 
+    uploadedReelay = null,
+}) => {
     const { reelayDBUser } = useContext(AuthContext);
     const [hasSavePermission, setHasSavePermission] = useState(null);
     const [downloadStage, setDownloadStage] = useState('preview');
@@ -29,7 +36,7 @@ export default DownloadButton = ({ titleObj, videoURI, height = 48, width = 80 }
         if (downloadStage === 'preview') {
             return 'white';
         } else if (downloadStage === 'downloading') {
-            return ReelayColors.reelayBlack;
+            return 'gray';
         } else if (downloadStage === 'download-complete') {
             return 'green';
         } else {
@@ -61,6 +68,19 @@ export default DownloadButton = ({ titleObj, videoURI, height = 48, width = 80 }
         }
     }
 
+    const downloadReelayRemote = async () => {
+        const fileKey = `/${uploadedReelay.sub}.mp4`;
+        const reelayDir = FileSystem.cacheDirectory + 'reelays';
+        const dirInfo = await FileSystem.getInfoAsync(reelayDir);
+        if (!dirInfo.exists) {
+            console.log("Reelay directory doesn't exist, creating...");
+            await FileSystem.makeDirectoryAsync(reelayDir, { intermediates: true });
+        }            
+        const localURI = reelayDir + fileKey;
+        await FileSystem.downloadAsync(uploadedReelay.content.videoURI, localURI);
+        return localURI;
+    }
+
     const downloadReelay = async () => {
         if (!hasSavePermission) {
             const { status } = await MediaLibrary.requestPermissionsAsync();
@@ -71,7 +91,11 @@ export default DownloadButton = ({ titleObj, videoURI, height = 48, width = 80 }
 
         try {
             setDownloadStage('downloading');
-            await MediaLibrary.saveToLibraryAsync(videoURI);
+            let localURI = videoURI;
+            if (uploadedReelay) {
+                localURI = await downloadReelayRemote();
+            }
+            await MediaLibrary.saveToLibraryAsync(localURI);
             setDownloadStage('download-complete');
         } catch (error) {
             console.log('Could not save to local device...');
