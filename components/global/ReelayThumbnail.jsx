@@ -7,6 +7,7 @@ import {
 
 import styled from 'styled-components/native';
 import { LinearGradient } from "expo-linear-gradient";
+import { Video, Audio } from 'expo-av';
 import StarRating from 'react-native-star-rating';
 import * as ReelayText from "../../components/global/Text";
 import { VenueIcon } from '../utils/VenueIcon';
@@ -16,6 +17,7 @@ import ProfilePicture from './ProfilePicture';
 import { useSelector } from 'react-redux';
 
 export default ReelayThumbnail = ({ 
+	asMutedVideo = false,
 	height = 200, 
 	margin = 6, 
 	onPress, 
@@ -36,6 +38,11 @@ export default ReelayThumbnail = ({
 		height: 100%;
 		justify-content: flex-end;
 		position: absolute;
+		width: 100%;
+	`
+	const PlayPausePressable = styled(Pressable)`
+		position: absolute;
+		height: 100%;
 		width: 100%;
 	`
 	const StarRatingContainer = styled(View)`
@@ -84,10 +91,15 @@ export default ReelayThumbnail = ({
 	const GradientOverlay = ({ username }) => {
 		return (
 			<React.Fragment>
-				<ThumbnailImage 
-					onError={generateAndSaveThumbnail} 
-					source={thumbnailSource} 
-				/>
+				{ !asMutedVideo && (
+					<ThumbnailImage 
+						onError={generateAndSaveThumbnail} 
+						source={thumbnailSource} 
+					/>
+				)}
+				{ asMutedVideo && (
+					<MutedVideoPlayer />
+				)}
 				{ showIcons && 
 					<TitleVenue>
 						<VenueIcon venue={reelay?.content?.venue} size={24} border={1} />
@@ -129,11 +141,10 @@ export default ReelayThumbnail = ({
 		);
 	}
 
-    const CreatorLine = ({ username}) => {
+    const CreatorLine = ({ username }) => {
         const condensedUsername = (username.length > 10)
             ? username.substring(0, 10) + "..."
             : username;
-        
         
         return (
             <CreatorLineContainer>
@@ -144,6 +155,30 @@ export default ReelayThumbnail = ({
             </CreatorLineContainer>
         );
     }
+
+	const MutedVideoPlayer = () => {
+		return (
+			<React.Fragment>
+				<Video
+					isLooping
+					isMuted={true}
+					rate={1.0}
+					resizeMode='cover'
+					shouldDuckAndroid={true}
+					shouldPlay={true}
+					source={{ uri: reelay.content.videoURI }}
+					staysActiveInBackground={false}
+					style={{
+						height: height,
+						width: width,
+						borderRadius: 8,
+					}}
+					useNativeControls={false}
+					volume={1.0}
+				/>
+			</React.Fragment>
+		);
+	}
 
 	return (
 		<Pressable key={reelay.id} onPress={onPress}>

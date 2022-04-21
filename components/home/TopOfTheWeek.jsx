@@ -1,16 +1,15 @@
-import React, { useContext, useState } from 'react';
-import { Dimensions, Image, Modal, Pressable, ScrollView, View } from 'react-native';
+import React, { useContext } from 'react';
+import { Dimensions, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import * as ReelayText from '../global/Text';
-import { VenueIcon } from '../utils/VenueIcon';
 import ReelayThumbnail from '../global/ReelayThumbnail';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import { useSelector } from 'react-redux';
 
-const { height, width } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const IN_MARGIN_WIDTH = width - 30;
 const MAJOR_REELAY_WIDTH = IN_MARGIN_WIDTH * 0.65;
@@ -58,9 +57,8 @@ const ThreeReelaysContainer = styled(View)`
     margin-left: 15px;
 `
 
-const ThreeReelays = ({ navigation }) => {
+const ThreeReelays = ({ navigation, topOfTheWeek }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const topOfTheWeek = useSelector(state => state.topOfTheWeek);
     const topOfTheWeekStacks = topOfTheWeek.map(reelay => [reelay]);
 
     const goToReelay = (index) => {
@@ -83,6 +81,7 @@ const ThreeReelays = ({ navigation }) => {
         <ThreeReelaysContainer>
             <MajorReelayElementContainer>
                 <ReelayThumbnail 
+                    asMutedVideo={true}
                     height={MAJOR_REELAY_HEIGHT} 
                     margin={0}
                     onPress={() => goToReelay(0)} 
@@ -115,6 +114,12 @@ const ThreeReelays = ({ navigation }) => {
 }
 
 export default TopOfTheWeek = ({ navigation }) => {
+    const topOfTheWeek = useSelector(state => state.topOfTheWeek);
+    if (!topOfTheWeek?.length || topOfTheWeek.length < 3) {
+        // just in case
+        return <View />;
+    }
+
     return (
         <TopOfTheWeekContainer>
             <HeaderContainer>
@@ -123,7 +128,7 @@ export default TopOfTheWeek = ({ navigation }) => {
                     <HeaderText>{'Top of the week'}</HeaderText>
                 </HeaderContainerLeft>
             </HeaderContainer>
-            <ThreeReelays navigation={navigation} />
+            <ThreeReelays navigation={navigation} topOfTheWeek={topOfTheWeek} />
         </TopOfTheWeekContainer>
     )
 }
