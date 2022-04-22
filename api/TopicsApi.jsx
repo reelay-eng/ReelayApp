@@ -12,7 +12,7 @@ const REELAY_API_HEADERS = {
     'reelayapikey': REELAY_API_KEY,
 };
 
-export const createTopic = ({ 
+export const createTopic = async ({ 
     clubID = null,
     creatorName, 
     creatorSub, 
@@ -39,17 +39,17 @@ export const createTopic = ({
     return createTopicResult;
 }
 
-export const editTopic = ({
+export const editTopic = async ({
     description, 
     reqUserSub, 
     title, 
     topicID,
 }) => {
     const routePatch = `${REELAY_API_BASE_URL}/topics`;
-    const patchBody = { reqUserSub, topicID };
+    const patchBody = { topicID };
 
     if (description) patchBody.description = description;
-    if (title) patchBody.title = title;
+    if (title) patchBody.prompt = title;
 
     const resultPatch = await fetchResults(routePatch, {
         method: 'PATCH',
@@ -62,7 +62,8 @@ export const editTopic = ({
     return resultPatch;
 }
 
-export const getGlobalTopics = ({ page = 0 }) => {
+export const getGlobalTopics = async ({ page = 0 }) => {
+    console.log('Getting global topics...');
     const routeGet = `${REELAY_API_BASE_URL}/topics?page=${page}&visibility=${FEED_VISIBILITY}`;
     const resultGet = await fetchResults(routeGet, {
         method: 'GET',
@@ -71,7 +72,7 @@ export const getGlobalTopics = ({ page = 0 }) => {
     return resultGet;
 }
 
-export const removeTopic = ({ reqUserSub, topicID }) => {
+export const removeTopic = async ({ reqUserSub, topicID }) => {
     const routeDelete =  `${REELAY_API_BASE_URL}/topics`;
     const deleteBody = { topicID };
     const resultDelete = await fetchResults(routeDelete, {
@@ -85,7 +86,7 @@ export const removeTopic = ({ reqUserSub, topicID }) => {
     return resultDelete;
 }
 
-export const reportTopic = ({ reqUserSub, topicID }) => {
+export const reportTopic = async ({ reqUserSub, topicID }) => {
     const routePost =  `${REELAY_API_BASE_URL}/topics/report`;
     const postBody = { topicID };
     const resultPost = await fetchResults(routePost, {
@@ -99,7 +100,7 @@ export const reportTopic = ({ reqUserSub, topicID }) => {
     return resultPost;
 }
 
-export const searchTopics = ({ searchText, page = 0 }) => {
+export const searchTopics = async ({ searchText, page = 0 }) => {
     const routeGet = `${REELAY_API_BASE_URL}/topics/search?searchText=${searchText}&page=${page}&visibility=${FEED_VISIBILITY}`;
     const resultGet = await fetchResults(routeGet, {
         method: 'GET',

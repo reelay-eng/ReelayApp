@@ -19,6 +19,7 @@ import { getFeed } from '../../api/ReelayDBApi';
 import { AuthContext } from '../../context/AuthContext';
 
 import { useDispatch, useSelector } from 'react-redux';
+import { getGlobalTopics } from '../../api/TopicsApi';
 
 const HomeContainer = styled(SafeAreaView)`
     width: 100%;
@@ -61,11 +62,13 @@ const HomeComponent = ({ navigation }) => {
         const myStreamingSubscriptions = await loadMyStreamingSubscriptions(reelayDBUserID);
 
         const reqUserSub = reelayDBUserID;
+        const globalTopics = await getGlobalTopics({ reqUserSub, page: 0 });
         const myStacksFollowing = await getFeed({ reqUserSub, feedSource: 'following', page: 0 });
         const myStacksInTheaters = await getFeed({ reqUserSub, feedSource: 'theaters', page: 0 });
         const myStacksOnStreaming = await getFeed({ reqUserSub, feedSource: 'streaming', page: 0 });
         const myStacksAtFestivals = await getFeed({ reqUserSub, feedSource: 'festivals', page: 0 });
         
+        dispatch({ type: 'setGlobalTopics', payload: globalTopics });
         dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
         dispatch({ type: 'setMyNotifications', payload: myNotifications });
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });

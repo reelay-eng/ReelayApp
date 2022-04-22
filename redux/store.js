@@ -7,6 +7,7 @@ const initialState = {
     isLoading: true,
     isReturningUser: false,
 
+    globalTopics: [],
     myCreatorStacks: [],
     myFollowing: [],
     myFollowers: [],
@@ -52,6 +53,8 @@ const appReducer = ( state = initialState, action) => {
         case 'setIsReturningUser':
             return { ...state, isReturningUser: action.payload }
 
+        case 'setGlobalTopics':
+            return { ...state, globalTopics: action.payload }
         case 'setMyCreatorStacks':
             return { ...state, myCreatorStacks: action.payload }
         case 'setMyFollowing':
@@ -128,6 +131,7 @@ export const mapStateToProps = (state) => ({
     isLoading: state.isLoading,
     isReturningUser: state.isReturningUser,
 
+    globalTopics: state.globalTopics,
     myCreatorStacks: state.myCreatorStacks,
     myFollowing: state.myFollowing,
     myFollowers: state.myFollowers,

@@ -49,18 +49,18 @@ const CreatorName = styled(ReelayText.CaptionEmphasized)`
     padding-top: 4px;
 `
 const DescriptionLine = styled(View)`
-    margin-left: 18px;
-    margin-right: 18px;
+    margin-left: 16px;
+    margin-right: 16px;
     margin-bottom: 9px;
 `
 const DescriptionText = styled(ReelayText.CaptionEmphasized)`
     color: #86878B;
 `
-const PromptLine = styled(View)`
+const TitleLine = styled(View)`
     margin-left: 16px;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
 `
-const PromptText = styled(ReelayText.H5Emphasized)`
+const TitleText = styled(ReelayText.H6Emphasized)`
     color: white;
 `
 const TopicCardContainer = styled(View)`
@@ -98,7 +98,7 @@ const CardBottomRowNoStacks = ({ navigation }) => {
 export default TopicCard = ({ navigation, topic, stacks = [] }) => {
     const creator = {
         sub: topic.creatorSub,
-        username: topic.creatorUsername,
+        username: topic.creatorName,
     };
 
     return (
@@ -108,9 +108,9 @@ export default TopicCard = ({ navigation, topic, stacks = [] }) => {
                 <ProfilePicture user={creator} size={24} />
                 <CreatorName>{creator.username}</CreatorName>
             </CreatorLine>
-            <PromptLine>
-                <PromptText>{topic.prompt}</PromptText>
-            </PromptLine>
+            <TitleLine>
+                <TitleText>{topic.title}</TitleText>
+            </TitleLine>
             <DescriptionLine>
                 <DescriptionText numberOfLines={2}>{topic.description}</DescriptionText>
             </DescriptionLine>

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { 
     Dimensions,
     Keyboard, 
@@ -10,17 +10,24 @@ import {
 } from 'react-native';
 import styled from 'styled-components/native';
 
+import { AuthContext } from '../../context/AuthContext';
 import BackButton from '../../components/utils/BackButton';
 import * as ReelayText from '../../components/global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
 
+import { createTopic } from '../../api/TopicsApi';
+import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
+
 const { width } = Dimensions.get('window');
 
 const CreateTopicButtonContainer = styled(TouchableOpacity)`
     align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
+    background-color: ${(props) => props.disabled 
+        ? 'white' 
+        : ReelayColors.reelayBlue
+    };
     border-radius: 40px;
     justify-content: center;
     height: 40px;
@@ -68,11 +75,15 @@ const SectionContainerBottom = styled(SectionContainer)`
     bottom: 20px;
 `
 const TitleText = styled(ReelayText.Subtitle2)`
-    color: white;
+    color: ${(props) => props.disabled ? 'black' : 'white'};
     font-size: 16px;
 `
+const TITLE_MIN_LENGTH = 6;
+const TITLE_MAX_LENGTH = 140;
+const DESCRIPTION_MAX_LENGTH = 280;
 
 export default function CreateTopicScreen({ navigation, route }) {
+    const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
     const descriptionFieldRef = useRef(null);
     const descriptionTextRef = useRef('');
@@ -85,9 +96,40 @@ export default function CreateTopicScreen({ navigation, route }) {
     const focusTitle = () => titleFieldRef?.current && titleFieldRef.current.focus();
 
     const CreateTopicButton = () => {
+        const [publishing, setPublishing] = useState(false);
+        const onPress = async () => {
+            setPublishing(true);
+            const titleText = titleTextRef.current;
+
+            console.log('TITLE TEXT: ', titleText);
+            if (titleText.length < TITLE_MIN_LENGTH) {
+                showErrorToast('Could not create topic: prompt is too short');
+                return;
+            }
+
+            const publishResult = await createTopic({ 
+                creatorName: reelayDBUser?.username,
+                creatorSub: reelayDBUser?.sub,
+                description: descriptionTextRef.current,
+                title: titleTextRef.current,
+            });
+            console.log(publishResult);
+
+            if (!publishResult || publishResult?.error) {
+                showErrorToast('Something went wrong! Could not create topic');
+                setPublishing(false);
+            } else {
+                showMessageToast('Topic created!');
+                navigation.goBack();
+            }
+            return publishResult;
+        };
+
         return (
-            <CreateTopicButtonContainer>
-                <TitleText>{'Create topic'}</TitleText>
+            <CreateTopicButtonContainer disabled={publishing} onPress={onPress}>
+                <TitleText disabled={publishing}>
+                    {publishing ? 'Creating...' : 'Create topic'}
+                </TitleText>
             </CreateTopicButtonContainer>
         );
     }
@@ -98,11 +140,10 @@ export default function CreateTopicScreen({ navigation, route }) {
                 <TitleText>{'Description'}</TitleText>
                 <TouchableWithoutFeedback onPress={focusDescription}>
                     <DescriptionInputField 
-                        ref={titleFieldRef}
-                        maxLength={250}
+                        ref={descriptionFieldRef}
+                        maxLength={DESCRIPTION_MAX_LENGTH}
                         multiline
-                        numberOfLines={4}
-                        defaultValue={titleTextRef.current}
+                        defaultValue={descriptionTextRef.current}
                         placeholder={"Go on..."}
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
                         onChangeText={changeDescriptionText}
@@ -131,7 +172,7 @@ export default function CreateTopicScreen({ navigation, route }) {
                 <TouchableWithoutFeedback onPress={focusTitle}>
                     <TitleInputField 
                         ref={titleFieldRef}
-                        maxLength={250}
+                        maxLength={TITLE_MAX_LENGTH}
                         multiline
                         numberOfLines={4}
                         defaultValue={titleTextRef.current}
