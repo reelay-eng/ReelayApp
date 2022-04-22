@@ -135,7 +135,7 @@ export default function CreateTopicScreen({ navigation, route }) {
                         multiline
                         numberOfLines={4}
                         defaultValue={titleTextRef.current}
-                        placeholder={"What should we reelay?"}
+                        placeholder={"What should people reelay?"}
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
                         onChangeText={changeTitleText}
                         onPressOut={Keyboard.dismiss()}
