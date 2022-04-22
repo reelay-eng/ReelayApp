@@ -4,6 +4,7 @@ import { Linking, View } from 'react-native';
 import { Autolink } from "react-native-autolink";
 
 import ProfileHeader from '../../components/profile/ProfileHeader';
+import ProfileStatsBar from './ProfileStatsBar';
 import * as ReelayText from "../../components/global/Text";
 import { VenueIcon } from '../../components/utils/VenueIcon';
 
@@ -45,7 +46,7 @@ const VenueContainer = styled(View)`
     width: 26px;
 `
 
-export default ProfileHeaderAndInfo = ({ creator, bioText, websiteText, streamingSubscriptions }) => {
+export default ProfileHeaderAndInfo = ({ navigation, creator, bioText, websiteText, streamingSubscriptions, reelayCount, followers, following, prevScreen }) => {
     const fixLink = (link) => {
         if (link.startsWith('https://') || link.startsWith('http://')) {
             return link;
@@ -82,6 +83,15 @@ export default ProfileHeaderAndInfo = ({ creator, bioText, websiteText, streamin
                         })}
                     </SubscriptionsContainer>
                 </UserInfoContainer>
+
+                <ProfileStatsBar
+                    navigation={navigation}
+                    reelayCount={reelayCount}
+                    creator={creator}
+                    followers={followers}
+                    following={following}
+                    prevScreen={prevScreen}
+                />
             </HeaderContainer>
         )
     }

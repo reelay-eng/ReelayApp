@@ -8,7 +8,6 @@ import { getStacksByCreator, getRegisteredUser, getFollowers, getFollowing, getS
 import FollowButtonBar from '../../components/profile/Follow/FollowButtonBar';
 import JustShowMeSignupDrawer from '../../components/global/JustShowMeSignupDrawer';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
-import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
 import ProfileHeaderAndInfo from '../../components/profile/ProfileHeaderAndInfo';
 
@@ -107,21 +106,17 @@ export default UserProfileScreen = ({ navigation, route }) => {
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
                 <ProfileHeaderAndInfo 
+                    navigation={navigation}
                     creator={creator} 
                     bioText={bioText} 
                     websiteText={websiteText}
                     streamingSubscriptions={streamingSubscriptions}
-                />
-                {!isMyProfile && <FollowButtonBar creator={creator} bar /> }
-
-                <ProfileStatsBar
-                    navigation={navigation}
                     reelayCount={reelayCount}
-                    creator={creator}
                     followers={creatorFollowers}
                     following={creatorFollowing}
                     prevScreen={"UserProfileScreen"}
                 />
+                {!isMyProfile && <FollowButtonBar creator={creator} bar /> }
                 <ProfilePosterGrid
                     creatorStacks={creatorStacks}
                     navigation={navigation}
