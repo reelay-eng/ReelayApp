@@ -14,6 +14,7 @@ import {
     refreshMyReelayStacks, 
     refreshMyWatchlist,
     getStreamingSubscriptions,
+    refreshMyUser,
 } from '../../api/ReelayUserApi';
 
 // Components
@@ -49,12 +50,15 @@ export default MyProfileScreen = ({ navigation, route }) => {
     } = useContext(AuthContext); 
 
     const signedIn = useSelector(state => state.signedIn);
+    const isEditingProfile = useSelector(state => state.isEditingProfile);
     const refreshOnUpload = useSelector(state => state.refreshOnUpload);
     const myFollowers = useSelector(state => state.myFollowers);
     const myFollowing = useSelector(state => state.myFollowing);
     const myCreatorStacks = useSelector(state => state.myCreatorStacks);
     const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
   	const dispatch = useDispatch();
+
+    const [renderCount, setRenderCount] = useState(0);
       
     useEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
@@ -76,6 +80,13 @@ export default MyProfileScreen = ({ navigation, route }) => {
             username: reelayDBUser?.username,
         });    
     }, []);
+
+    useEffect(() => {
+        if (!isEditingProfile) {
+            console.log('profile render count: ', renderCount + 1);
+            setRenderCount(renderCount + 1);
+        }
+    }, [isEditingProfile]);
 
     if (reelayDBUser?.username === 'be_our_guest') {
         return <JustShowMeSignupPage navigation={navigation} headerText='My Reelays' />
