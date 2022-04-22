@@ -7,8 +7,6 @@ import ProfileHeader from '../../components/profile/ProfileHeader';
 import * as ReelayText from "../../components/global/Text";
 import { VenueIcon } from '../../components/utils/VenueIcon';
 
-import { getStreamingSubscriptions } from '../../api/ReelayDBApi';
-
 import styled from 'styled-components/native';
 
 
@@ -19,9 +17,8 @@ const UserInfoContainer = styled(View)`
 `;
 const BioText = styled(Autolink)`
     color: white;
-    padding-bottom: 3px;
     font-family: Outfit-Regular;
-    font-size: 16px;
+    font-size: 14px;
     font-style: normal;
     line-height: 20px;
     letter-spacing: 0.1px;
@@ -31,7 +28,7 @@ const WebsiteText = styled(ReelayText.Subtitle2)`
     color: "rgb(51,102,187)";
     font-size: 14px;
     text-align: left;
-    padding-bottom: 5px;
+    padding-bottom: 3px;
 `;
 const HeaderContainer = styled(View)`
     width: 100%;

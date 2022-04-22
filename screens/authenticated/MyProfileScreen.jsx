@@ -55,7 +55,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const myCreatorStacks = useSelector(state => state.myCreatorStacks);
     const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
   	const dispatch = useDispatch();
-     console.log('myStreamingSubscriptions is:', myStreamingSubscriptions)
+      
     useEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
         if (refreshOnUpload) {
@@ -173,8 +173,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
             }>
                 <ProfileHeaderAndInfo 
                     creator={reelayDBUser} 
-                    bioText={reelayDBUser.bio} 
-                    websiteText={reelayDBUser.website} 
+                    bioText={(reelayDBUser.bio) ? reelayDBUser.bio : ""} 
+                    websiteText={(reelayDBUser.website) ? reelayDBUser.website : ""} 
                     streamingSubscriptions={myStreamingSubscriptions}
                 />
 				<EditProfileButton />

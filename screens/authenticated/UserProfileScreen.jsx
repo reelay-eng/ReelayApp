@@ -93,7 +93,6 @@ export default UserProfileScreen = ({ navigation, route }) => {
             creatorName: username,
         });    
     }, []);
-    console.log("subscriptions...", streamingSubscriptions)
     const isMyProfile = (creatorSub === reelayDBUser?.sub);
 
     const sortReelays = (reelay1, reelay2) => reelay2.postedDateTime - reelay1.postedDateTime;
