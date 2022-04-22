@@ -14,6 +14,7 @@ import { Image, StyleSheet, SafeAreaView, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../context/AuthContext';
 
+import CreateTopicScreen from '../screens/authenticated/CreateTopicScreen';
 import FeedScreen from '../screens/authenticated/FeedScreen';
 import GeneralSettingsScreen from '../screens/authenticated/GeneralSettingsScreen';
 import HomeScreen from '../screens/authenticated/HomeScreen';
@@ -220,6 +221,13 @@ const HomeTabNavigator = () => {
                     headerShown: false,
                 }}
             />
+			<HomeTabStack.Screen
+				name='CreateTopicScreen'
+				component={CreateTopicScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
 			<HomeTabStack.Screen
                 name='SearchScreen'
                 component={SearchScreen}
