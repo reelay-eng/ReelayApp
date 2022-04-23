@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
-import { Autolink } from "react-native-autolink";
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 
 // Logging
@@ -14,16 +13,13 @@ import {
     refreshMyReelayStacks, 
     refreshMyWatchlist,
     getStreamingSubscriptions,
-    refreshMyUser,
 } from '../../api/ReelayUserApi';
 
 // Components
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
-import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
 import EditProfile from "../../components/profile/EditProfile";
 import { BWButton } from "../../components/global/Buttons";
-import * as ReelayText from "../../components/global/Text";
 import ProfileHeaderAndInfo from '../../components/profile/ProfileHeaderAndInfo';
 
 // Context
@@ -45,11 +41,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
     `;
 
     const [refreshing, setRefreshing] = useState(false);
-	const { 
-        reelayDBUser,
-    } = useContext(AuthContext); 
+	const { reelayDBUser } = useContext(AuthContext); 
 
-    const signedIn = useSelector(state => state.signedIn);
     const isEditingProfile = useSelector(state => state.isEditingProfile);
     const refreshOnUpload = useSelector(state => state.refreshOnUpload);
     const myFollowers = useSelector(state => state.myFollowers);

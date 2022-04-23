@@ -37,7 +37,8 @@ const WebsiteText = styled(ReelayText.Subtitle2)`
     color: "rgb(51,102,187)";
     font-size: 14px;
     text-align: left;
-    padding-bottom: 3px;
+    padding-top: 6px;
+    padding-bottom: 9px;
 `;
 const HeaderContainer = styled(View)`
     width: 95%;
@@ -64,44 +65,38 @@ export default ProfileHeaderAndInfo = ({ navigation, creator, bioText, websiteTe
         }
     }
 
-        return (
-            <HeaderContainer>
-                <ProfileHeader creator={creator} />
+    const goToWebsiteLink = () => Linking.openURL(fixLink(websiteText))
 
-                <ProfileTopRightContainer>
-                    <ProfileStatsBar
-                        navigation={navigation}
-                        reelayCount={reelayCount}
-                        creator={creator}
-                        followers={followers}
-                        following={following}
-                        prevScreen={prevScreen}
-                    />
-                </ProfileTopRightContainer>
-                <UserInfoContainer>
+    return (
+        <HeaderContainer>
+            <ProfileHeader creator={creator} />
+            <ProfileTopRightContainer>
+                <ProfileStatsBar
+                    navigation={navigation}
+                    reelayCount={reelayCount}
+                    creator={creator}
+                    followers={followers}
+                    following={following}
+                    prevScreen={prevScreen}
+                />
+            </ProfileTopRightContainer>
+            <UserInfoContainer>
                 {bioText !== "" && (
-                        <BioText
-                        text={bioText.trim()}
-                        linkStyle={{ color: "#3366BB" }}
-                        url
-                        />
-                    )}
-                    {websiteText !== "" && (
-                        <WebsiteText onPress={() => Linking.openURL(fixLink(websiteText))}>
-                        {" "}
-                        {websiteText}{" "}
-                        </WebsiteText>
-                    )}
-                    <SubscriptionsContainer alignSelf={'flex-start'} marginBottom={'0px'}>
-                        {streamingSubscriptions.map((subscription, index) => {
-                            return (
+                    <BioText text={bioText.trim()} linkStyle={{ color: "#3366BB" }} url /> 
+                )}
+                {websiteText !== "" && (
+                    <WebsiteText onPress={goToWebsiteLink}>{websiteText}</WebsiteText>
+                )}
+                <SubscriptionsContainer alignSelf={'flex-start'} marginBottom={'0px'}>
+                    {streamingSubscriptions.map((subscription, index) => {
+                        return (
                             <VenueContainer key={index}>
                                 <VenueIcon venue={subscription.platform} size={24} border={1} />
                             </VenueContainer>
-                            );
-                        })}
-                    </SubscriptionsContainer>
-                </UserInfoContainer>
-            </HeaderContainer>
-        )
+                        );
+                    })}
+                </SubscriptionsContainer>
+            </UserInfoContainer>
+        </HeaderContainer>
+    )
 }
