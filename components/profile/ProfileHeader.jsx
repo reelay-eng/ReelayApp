@@ -3,25 +3,27 @@ import { Pressable, SafeAreaView } from 'react-native';
 import styled from 'styled-components/native';
 import ProfilePicture from '../global/ProfilePicture';
 
-export default ProfileHeader = ({ creator }) => {
+export default ProfileHeader = ({ creator, shouldCenter=false }) => {
     const ProfileHeaderContainer = styled(SafeAreaView)`
+        flex: 1;
 		align-items: center;
-		margin-top: 16px;
-		margin-bottom: 8px;
-		width: 100%;
+		margin-left: 8px;
+		width: 90px;
+        align-self: ${(shouldCenter) ? 'center' : 'flex-start'};
 	`;
     const ProfilePictureContainer = styled(Pressable)`
         border-color: white;
         border-radius: 50px;
         border-width: 2px;
         margin: 16px;
-        height: 100px;
-        width: 100px;
+        height: 84px;
+        width: 84px;
+        border-width: 2px;
     `
     return (
         <ProfileHeaderContainer>
             <ProfilePictureContainer>
-                <ProfilePicture user={creator} size={96} />
+                <ProfilePicture user={creator} size={80} />
             </ProfilePictureContainer>
         </ProfileHeaderContainer>
     );

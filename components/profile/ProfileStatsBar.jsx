@@ -9,17 +9,19 @@ import * as ReelayText from '../../components/global/Text';
 
 const BarContainer = styled(View)`
     align-self: center;
+    width: 100%;
     flex-direction: row;
+    justify-content: space-between;
 `
 const StatContainer = styled(Pressable)`
     align-items: center;
-    width: 90px;
     margin: 10px;
+    margin-top: 5px;
 `
-const DimensionText = styled(ReelayText.Subtitle1)`
+const DimensionText = styled(ReelayText.Subtitle2)`
     color: white;
 `
-const StatText = styled(ReelayText.H6Emphasized)`
+const StatText = styled(ReelayText.Subtitle1)`
     color: white;
 `
 
