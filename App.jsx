@@ -31,7 +31,7 @@ import useColorScheme from './hooks/useColorScheme';
 import { AuthContext } from './context/AuthContext';
 
 // api imports
-import { getFeed, getAllDonateLinks, getRegisteredUser, registerPushTokenForUser, getTopReelaysOfTheWeek } from './api/ReelayDBApi';
+import { getFeed, getAllDonateLinks, getRegisteredUser, registerPushTokenForUser } from './api/ReelayDBApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { toastConfig } from './components/utils/ToastConfig';
 import Toast from "react-native-toast-message";
@@ -264,7 +264,7 @@ function App() {
             getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'streaming', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'festivals', page: 0 }),
-            getTopReelaysOfTheWeek({ reqUserSub, page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'trending', page: 0 }),
         ]);
 
         setReelayDBUser(reelayDBUserLoaded);

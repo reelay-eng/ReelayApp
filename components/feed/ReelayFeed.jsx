@@ -91,7 +91,6 @@ const ReelayFeed = ({ navigation,
 
     const extendFeed = async () => {
         const page = nextPage.current;
-        if (feedSource === 'trending') return;
         const fetchedStacks = await getFeed({ feedSource: feedSource, reqUserSub: reelayDBUser?.sub, page });
 
         // probably don't need to create this every time, but we want to avoid unnecessary state
@@ -211,7 +210,7 @@ const ReelayFeed = ({ navigation,
             initialNumToRender={1}
             initialScrollIndex={selectedFeedPosition}
             keyboardShouldPersistTaps={"handled"}
-            keyExtractor={(stack) => String(stack[0].title.id)}
+            keyExtractor={(stack) => `${stack[0].title.id}-${stack[0].sub}`}
             maxToRenderPerBatch={1}
             onEndReached={extendFeed}
             onRefresh={refreshFeed}

@@ -284,26 +284,19 @@ export const getCommentLikesForReelay = async (reelaySub, reqUserSub) => {
 export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
     console.log(`Getting most recent ${feedSource} reelays...`);
     const routeGet = `${REELAY_API_BASE_URL}/feed/${feedSource}?page=${page}&visibility=${FEED_VISIBILITY}`;
-    const fetchedStacks = await fetchResults(routeGet, { 
+    let fetchedStacks = await fetchResults(routeGet, { 
         method: 'GET',
         headers: {
             ...REELAY_API_HEADERS,
             requsersub: reqUserSub,
         }, 
     });
-    const routeGetNextPage = `${REELAY_API_BASE_URL}/feed/${feedSource}?page=${page+1}&visibility=${FEED_VISIBILITY}`;
-    const fetchedStacksNextPage = await fetchResults(routeGetNextPage, { 
-        method: 'GET',
-        headers: {
-            ...REELAY_API_HEADERS,
-            requsersub: reqUserSub,
-        }, 
-    });
-    if (!fetchedStacks && !fetchedStacksNextPage) {
+    if (!fetchedStacks) {
         console.log('Found no reelays in feed');
         return null;
     }
-    return await prepareStacks(fetchedStacks.concat(fetchedStacksNextPage));
+    if (feedSource === 'trending') fetchedStacks = fetchedStacks.map(reelay => [reelay]);
+    return await prepareStacks(fetchedStacks);
 }
 
 export const getMostRecentReelaysByTitle = async (tmdbTitleID, page = 0) => {
@@ -335,20 +328,6 @@ export const getRegisteredUser = async (userSub) => {
     return resultGet;
 }
 
-export const getTopReelaysOfTheWeek = async ({ reqUserSub, page = 0 }) => {
-    // note that trending does not yet implement pagination...
-    const routeGet = `${REELAY_API_BASE_URL}/feed/trending?page=${page}&visibility=${FEED_VISIBILITY}`;
-    const fetchedReelays = await fetchResults(routeGet, { 
-        method: 'GET',
-        headers: {
-            ...REELAY_API_HEADERS,
-            requsersub: reqUserSub,
-        }, 
-    });
-    const preparedReelays = await Promise.all(fetchedReelays.map(prepareReelay));
-    return preparedReelays;
-}
-
 export const getUserByEmail = async (address) => {
     const routeGet = `${REELAY_API_BASE_URL}/users/byemail/${address}`;
     const userResult = await fetchResults(routeGet, {
@@ -374,7 +353,7 @@ export const getUserByUsername = async (username) => {
     return resultGet;
 }
 
-export const getVideoURIObject = async (fetchedReelay) => {    
+export const getVideoURIObject = (fetchedReelay) => {    
     const cloudfrontVideoURI = `${CLOUDFRONT_BASE_URL}/public/${fetchedReelay.videoS3Key}`;
     return { 
         id: fetchedReelay.id, 
@@ -441,7 +420,7 @@ export const prepareReelay = async (fetchedReelay) => {
         fetchedReelay.isSeries,
         isWelcomeReelay
     );
-    const videoURIObject = await getVideoURIObject(fetchedReelay);
+    const videoURIObject = getVideoURIObject(fetchedReelay);
     const sortCommentsByPostedDate = (comment1, comment2) => {
         try {
             const diff = Date.parse(comment1.postedAt) - Date.parse(comment2.postedAt);

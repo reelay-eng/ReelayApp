@@ -29,7 +29,6 @@ import {
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { getRegisteredUser, getUserByUsername, postCommentLikeToDB, postCommentToDB, removeCommentLike } from '../../api/ReelayDBApi';
 
-const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 import CommentItem from './CommentItem';
 import TextInputWithMentions from './TextInputWithMentions';
 import ProfilePicture from '../global/ProfilePicture';

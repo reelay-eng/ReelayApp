@@ -60,7 +60,6 @@ const ThreeReelaysContainer = styled(View)`
 
 const ThreeReelays = ({ navigation, topOfTheWeek }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const topOfTheWeekStacks = topOfTheWeek.map(reelay => [reelay]);
 
     const goToReelay = (index) => {
 		if (!topOfTheWeek?.length) return;
@@ -69,7 +68,7 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
 			initialFeedPos: index,
             initialFeedSource: 'trending',
             isOnFeedTab: false,
-            preloadedStackList: topOfTheWeekStacks,
+            preloadedStackList: topOfTheWeek,
 		});
 
 		logAmplitudeEventProd('openTopOfTheWeek', {
@@ -87,7 +86,7 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
                     margin={0}
                     onPress={() => goToReelay(0)} 
                     showLikes={true}
-                    reelay={topOfTheWeek[0]} 
+                    reelay={topOfTheWeek[0][0]} 
                     width={MAJOR_REELAY_WIDTH} 
                 />
             </MajorReelayElementContainer>
@@ -98,7 +97,7 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
                         margin={0}
                         onPress={() => goToReelay(1)} 
                         showLikes={true}
-                        reelay={topOfTheWeek[1]} 
+                        reelay={topOfTheWeek[1][0]} 
                         width={MINOR_REELAY_WIDTH} 
                     />
                 </MinorReelayElementContainer>
@@ -108,7 +107,7 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
                         margin={0}
                         onPress={() => goToReelay(2)} 
                         showLikes={true}
-                        reelay={topOfTheWeek[2]} 
+                        reelay={topOfTheWeek[2][0]} 
                         width={MINOR_REELAY_WIDTH} 
                     />
                 </MinorReelayElementContainer>
