@@ -12,8 +12,8 @@ import {
     refreshMyNotifications, 
     refreshMyReelayStacks, 
     refreshMyWatchlist,
-    getStreamingSubscriptions,
 } from '../../api/ReelayUserApi';
+import { getStreamingSubscriptions } from '../../api/ReelayDBApi';
 
 // Components
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
@@ -139,6 +139,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const sortStacks = (stack1, stack2) => stack2[0].postedDateTime - stack1[0].postedDateTime;
     const reelayCounter = (sum, nextStack) => sum + nextStack.length;
     const reelayCount = myCreatorStacks.reduce(reelayCounter, 0);
+    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
     const EditProfileButton = () => {
         const Container = styled(View)`
@@ -171,9 +172,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 		<ProfileScreenContainer>
 			<EditProfile/>
 			<ProfileTopBar creator={reelayDBUser} navigation={navigation} atProfileBase={true} />
-			<ProfileScrollView refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }>
+			<ProfileScrollView showsVerticalScrollIndicator={false} refreshControl={refreshControl}>
                 <ProfileHeaderAndInfo 
 					navigation={navigation}
                     creator={reelayDBUser} 

@@ -165,7 +165,7 @@ const EditBio = ({ bioRef, bioInputRef, currentFocus }) => {
 			<BioInputContainer>
 			<BioInput
 				ref={bioInputRef}
-				autoCapitalize='off'
+				autoCapitalize='none'
 				maxLength={250}
 				multiline
 				numberOfLines={4}

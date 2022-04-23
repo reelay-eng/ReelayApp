@@ -98,13 +98,12 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const sortStacks = (stack1, stack2) => stack2[0].postedDateTime - stack1[0].postedDateTime;
     const reelayCounter = (sum, nextStack) => sum + nextStack.length;
     const reelayCount = creatorStacks.reduce(reelayCounter, 0);
+    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
     return (
         <ProfileScreenContainer>
             <ProfileTopBar creator={creator} navigation={navigation} />
-            <ProfileScrollView refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }>
+            <ProfileScrollView showsVerticalScrollIndicator={false} refreshControl={refreshControl}>
                 <ProfileHeaderAndInfo 
                     navigation={navigation}
                     creator={creator} 
