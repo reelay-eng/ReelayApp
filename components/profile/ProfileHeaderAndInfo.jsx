@@ -13,8 +13,16 @@ import styled from 'styled-components/native';
 
 const UserInfoContainer = styled(View)`
     align-self: center;
-    width: 72%;
-    padding-top: 10px;
+    justify-content: center;
+    width: 90%;
+    padding: 20px;
+    padding-top: 0px;
+`;
+const ProfileTopRightContainer = styled(View)`
+    align-self: center;
+    justify-content: center;
+    padding-right: 10px;
+    width: 67%;
 `;
 const BioText = styled(Autolink)`
     color: white;
@@ -32,9 +40,10 @@ const WebsiteText = styled(ReelayText.Subtitle2)`
     padding-bottom: 3px;
 `;
 const HeaderContainer = styled(View)`
-    width: 100%;
+    width: 95%;
     flex-wrap: wrap;
     flex-direction: row;
+    align-self: center;
 `
 const SubscriptionsContainer = styled(View)`
     align-self: ${props => props.alignSelf};
@@ -55,12 +64,22 @@ export default ProfileHeaderAndInfo = ({ navigation, creator, bioText, websiteTe
         }
     }
 
-    if (bioText !== "" || websiteText !== "") {
         return (
             <HeaderContainer>
                 <ProfileHeader creator={creator} />
+
+                <ProfileTopRightContainer>
+                    <ProfileStatsBar
+                        navigation={navigation}
+                        reelayCount={reelayCount}
+                        creator={creator}
+                        followers={followers}
+                        following={following}
+                        prevScreen={prevScreen}
+                    />
+                </ProfileTopRightContainer>
                 <UserInfoContainer>
-                    {bioText !== "" && (
+                {bioText !== "" && (
                         <BioText
                         text={bioText.trim()}
                         linkStyle={{ color: "#3366BB" }}
@@ -73,7 +92,7 @@ export default ProfileHeaderAndInfo = ({ navigation, creator, bioText, websiteTe
                         {websiteText}{" "}
                         </WebsiteText>
                     )}
-                    <SubscriptionsContainer alignSelf={'flex-start'} marginBottom={'5px'}>
+                    <SubscriptionsContainer alignSelf={'flex-start'} marginBottom={'0px'}>
                         {streamingSubscriptions.map((subscription, index) => {
                             return (
                             <VenueContainer key={index}>
@@ -83,32 +102,6 @@ export default ProfileHeaderAndInfo = ({ navigation, creator, bioText, websiteTe
                         })}
                     </SubscriptionsContainer>
                 </UserInfoContainer>
-
-                <ProfileStatsBar
-                    navigation={navigation}
-                    reelayCount={reelayCount}
-                    creator={creator}
-                    followers={followers}
-                    following={following}
-                    prevScreen={prevScreen}
-                />
             </HeaderContainer>
         )
-    }
-    else {
-        return (
-            <>
-                <ProfileHeader creator={creator} shouldCenter={true} />
-                <SubscriptionsContainer alignSelf={'center'} marginBottom={'15px'}>
-                    {streamingSubscriptions.map((subscription, index) => {
-                        return (
-                        <VenueContainer key={index}>
-                            <VenueIcon venue={subscription.platform} size={24} border={1} />
-                        </VenueContainer>
-                        );
-                    })}
-                </SubscriptionsContainer>
-            </>
-        )
-    }
 }

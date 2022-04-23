@@ -18,6 +18,7 @@ export default ProfileHeader = ({ creator, shouldCenter=false }) => {
         margin: 16px;
         height: 84px;
         width: 84px;
+        border-width: 2px;
     `
     return (
         <ProfileHeaderContainer>

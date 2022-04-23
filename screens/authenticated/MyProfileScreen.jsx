@@ -150,7 +150,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const EditProfileButton = () => {
         const Container = styled(View)`
 			width: 100%;
-			height: 40px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
@@ -183,23 +182,17 @@ export default MyProfileScreen = ({ navigation, route }) => {
                 <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
             }>
                 <ProfileHeaderAndInfo 
+					navigation={navigation}
                     creator={reelayDBUser} 
                     bioText={(reelayDBUser.bio) ? reelayDBUser.bio : ""} 
                     websiteText={(reelayDBUser.website) ? reelayDBUser.website : ""} 
                     streamingSubscriptions={myStreamingSubscriptions}
-                />
-				<EditProfileButton />
-				<ProfileStatsBar
-					navigation={navigation}
 					reelayCount={reelayCount}
-					creator={{
-						username: reelayDBUser.username,
-						sub: reelayDBUser?.sub,
-					}}
 					followers={myFollowers}
 					following={myFollowing}
 					prevScreen={"MyProfileScreen"}
-				/>
+                />
+				<EditProfileButton />
 				<ProfilePosterGrid creatorStacks={myCreatorStacks} navigation={navigation} />
 			</ProfileScrollView>
 		</ProfileScreenContainer>
