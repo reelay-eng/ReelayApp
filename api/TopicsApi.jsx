@@ -1,16 +1,9 @@
 import Constants from 'expo-constants';
 import { fetchResults } from './fetchResults';
+import ReelayAPIHeaders from './ReelayAPIHeaders';
 
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
-const REELAY_API_KEY = Constants.manifest.extra.reelayApiKey;
-
-const REELAY_API_HEADERS = {
-    Accept: 'application/json',
-    'Accept-encoding': 'gzip, deflate',
-    'Content-Type': 'application/json',
-    'reelayapikey': REELAY_API_KEY,
-};
 
 export const createTopic = async ({ 
     clubID = null,
@@ -31,7 +24,7 @@ export const createTopic = async ({
     const createTopicResult = await fetchResults(routePost, {
         method: 'POST',
         headers: {
-            ...REELAY_API_HEADERS,
+            ...ReelayAPIHeaders,
             requsersub: creatorSub,
         },
         body: JSON.stringify(postBody),
@@ -54,7 +47,7 @@ export const editTopic = async ({
     const resultPatch = await fetchResults(routePatch, {
         method: 'PATCH',
         headers: {
-            ...REELAY_API_HEADERS,
+            ...ReelayAPIHeaders,
             requsersub: reqUserSub,
         },
         body: JSON.stringify(patchBody),
@@ -67,7 +60,7 @@ export const getGlobalTopics = async ({ page = 0 }) => {
     const routeGet = `${REELAY_API_BASE_URL}/topics?page=${page}&visibility=${FEED_VISIBILITY}`;
     const resultGet = await fetchResults(routeGet, {
         method: 'GET',
-        headers: REELAY_API_HEADERS,
+        headers: ReelayAPIHeaders,
     });
     return resultGet;
 }
@@ -78,7 +71,7 @@ export const removeTopic = async ({ reqUserSub, topicID }) => {
     const resultDelete = await fetchResults(routeDelete, {
         method: 'DELETE',
         headers: {
-            ...REELAY_API_HEADERS,
+            ...ReelayAPIHeaders,
             reqUserSub,
         },
         body: JSON.stringify(deleteBody),
@@ -92,7 +85,7 @@ export const reportTopic = async ({ reqUserSub, topicID }) => {
     const resultPost = await fetchResults(routePost, {
         method: 'POST',
         headers: {
-            ...REELAY_API_HEADERS,
+            ...ReelayAPIHeaders,
             reqUserSub,
         },
         body: JSON.stringify(postBody),
@@ -104,7 +97,7 @@ export const searchTopics = async ({ searchText, page = 0 }) => {
     const routeGet = `${REELAY_API_BASE_URL}/topics/search?searchText=${searchText}&page=${page}&visibility=${FEED_VISIBILITY}`;
     const resultGet = await fetchResults(routeGet, {
         method: 'GET',
-        headers: REELAY_API_HEADERS,
+        headers: ReelayAPIHeaders,
     });
     return resultGet;
 }

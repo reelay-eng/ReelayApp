@@ -19,6 +19,7 @@ import { useDispatch } from 'react-redux';
 
 import { createTopic } from '../../api/TopicsApi';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
+import TopicAddFirstReelayDrawer from '../../components/topics/TopicAddFirstReelayDrawer';
 
 const { width } = Dimensions.get('window');
 
@@ -84,9 +85,12 @@ const DESCRIPTION_MAX_LENGTH = 280;
 
 export default function CreateTopicScreen({ navigation, route }) {
     const { reelayDBUser } = useContext(AuthContext);
+    const [addFirstReelayDrawerVisible, setAddFirstReelayDrawerVisible] = useState(true);
+
     const dispatch = useDispatch();
     const descriptionFieldRef = useRef(null);
     const descriptionTextRef = useRef('');
+    const publishedTopicRef = useRef(null);
     const titleFieldRef = useRef(null);
     const titleTextRef = useRef('');
 
@@ -119,8 +123,9 @@ export default function CreateTopicScreen({ navigation, route }) {
                 showErrorToast('Something went wrong! Could not create topic');
                 setPublishing(false);
             } else {
+                publishedTopicRef.current = publishResult;
                 showMessageToast('Topic created!');
-                navigation.goBack();
+                setAddFirstReelayDrawerVisible(true);
             }
             return publishResult;
         };
@@ -205,6 +210,14 @@ export default function CreateTopicScreen({ navigation, route }) {
             <SectionContainerBottom>
                 <CreateTopicButton />
             </SectionContainerBottom>
+            { addFirstReelayDrawerVisible && (
+                <TopicAddFirstReelayDrawer 
+                    navigation={navigation}
+                    drawerVisible={addFirstReelayDrawerVisible}
+                    setDrawerVisible={setAddFirstReelayDrawerVisible}
+                    publishedTopic={publishedTopicRef.current}
+                /> 
+            )}
         </CreateScreenContainer>
     );
 };

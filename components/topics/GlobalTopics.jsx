@@ -13,14 +13,15 @@ const { width } = Dimensions.get('window');
 
 const CreateTopicButtonContainer = styled(TouchableOpacity)`
     align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
-    border-color: ${ReelayColors.reelayBlue};
+    background-color: black;
+    border-color: white;
     border-radius: 20px;
+    border-width: 1px;
     flex-direction: row;
     justify-content: center;
     height: 36px;
     margin: 16px;
-    margin-left: 15px;
+    margin-left: 14px;
     width: ${width - 32}px;
 `
 const CreateTopicText = styled(ReelayText.CaptionEmphasized)`
