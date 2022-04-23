@@ -81,8 +81,7 @@ const WatchTutorialButton = ({ navigation }) => {
         border-radius: 6px;
         flex-direction: row;
         margin-left: 12px;
-        padding-top: 4px;
-        padding-bottom: 4px;
+        padding: 4px;
     `
     const TutorialButtonText = styled(ReelayText.CaptionEmphasized)`
         margin-left: 6px;

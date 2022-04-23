@@ -31,7 +31,7 @@ import useColorScheme from './hooks/useColorScheme';
 import { AuthContext } from './context/AuthContext';
 
 // api imports
-import { getFeed, getAllDonateLinks, getRegisteredUser, registerUser, registerPushTokenForUser } from './api/ReelayDBApi';
+import { getFeed, getAllDonateLinks, getRegisteredUser, registerPushTokenForUser } from './api/ReelayDBApi';
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { toastConfig } from './components/utils/ToastConfig';
 import Toast from "react-native-toast-message";
@@ -252,6 +252,7 @@ function App() {
             myStacksInTheaters,
             myStacksOnStreaming,
             myStacksAtFestivals,
+            topOfTheWeek,
         ] = await Promise.all([
             getRegisteredUser(userSub),
             loadMyReelayStacks(userSub),
@@ -267,7 +268,7 @@ function App() {
             getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'streaming', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'festivals', page: 0 }),
-
+            getFeed({ reqUserSub, feedSource: 'trending', page: 0 }),
         ]);
 
         setReelayDBUser(reelayDBUserLoaded);
@@ -287,6 +288,7 @@ function App() {
         dispatch({ type: 'setMyStacksInTheaters', payload: myStacksInTheaters });
         dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });
         dispatch({ type: 'setMyStacksAtFestivals', payload: myStacksAtFestivals });
+        dispatch({ type: 'setTopOfTheWeek', payload: topOfTheWeek });
         dispatch({ type: 'setIsLoading', payload: false });
     }
 

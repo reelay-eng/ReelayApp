@@ -13,16 +13,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { fetchResults } from './fetchResults';
 import { v4 } from 'uuid';
+import ReelayAPIHeaders from './ReelayAPIHeaders';
 
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
-const REELAY_API_KEY = Constants.manifest.extra.reelayApiKey;
-
-const REELAY_API_HEADERS = {
-    Accept: 'application/json',
-    'Accept-encoding': 'gzip, deflate',
-    'Content-Type': 'application/json',
-    'reelayapikey': REELAY_API_KEY,
-};
 
 export const clearLocalUserData = async () => {
     console.log('Clearing local user data...');
@@ -81,7 +74,7 @@ export const matchSocialAuthAccount = async ({ method, value }) => {
         const routeGet = `${REELAY_API_BASE_URL}/socialAuth/matchAccount${params}`;
         const resultGet = await fetchResults(routeGet, {
             method: 'GET',
-            headers: REELAY_API_HEADERS,
+            headers: ReelayAPIHeaders,
         });
         return resultGet;    
     } catch (error) {
@@ -152,7 +145,7 @@ export const registerSocialAuthAccount = async ({ method, email, fullName, googl
         const routePost = `${REELAY_API_BASE_URL}/socialAuth/registerAccount`;
         const resultPost = await fetchResults(routePost, {
             method: 'POST',
-            headers: REELAY_API_HEADERS,
+            headers: ReelayAPIHeaders,
             body: JSON.stringify(authAccountObj),
         });
         console.log('Register social auth account result: ', resultPost);
@@ -171,7 +164,7 @@ export const saveAndRegisterSocialAuthToken = async (reelayDBUserID) => {
         const routePost = `${REELAY_API_BASE_URL}/socialAuth/registerToken`;
         const resultPost = await fetchResults(routePost, {
             method: 'POST',
-            headers: REELAY_API_HEADERS,
+            headers: ReelayAPIHeaders,
             body: authTokenJSON,
         });
         console.log('Register social auth token result: ', resultPost);
@@ -189,7 +182,7 @@ export const deregisterSocialAuthToken = async () => {
         const routeDelete = `${REELAY_API_BASE_URL}/socialAuth/deregisterToken`;
         const resultDelete = await fetchResults(routeDelete, {
             method: 'DELETE',
-            headers: REELAY_API_HEADERS,
+            headers: ReelayAPIHeaders,
             body: authTokenJSON,
         });
         console.log('Deregister social auth token result: ', resultDelete);
@@ -207,7 +200,7 @@ export const verifySocialAuthToken = async () => {
         const routeVerify = `${REELAY_API_BASE_URL}/socialAuth/verifyToken`
         const resultVerify = await fetchResults(routeVerify, {
             method: 'POST',
-            headers: REELAY_API_HEADERS,
+            headers: ReelayAPIHeaders,
             body: authTokenJSON
         });
         console.log('Verify social auth token result: ', resultVerify);
