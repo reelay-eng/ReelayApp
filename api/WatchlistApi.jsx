@@ -1,16 +1,9 @@
 import Constants from 'expo-constants';
 import { fetchResults } from './fetchResults';
 import { fetchAnnotatedTitle } from './TMDbApi';
+import ReelayAPIHeaders from './ReelayAPIHeaders';
 
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
-const REELAY_API_KEY = Constants.manifest.extra.reelayApiKey;
-
-const REELAY_API_HEADERS = {
-    Accept: 'application/json',
-    'Accept-encoding': 'gzip, deflate',
-    'Content-Type': 'application/json',
-    'reelayapikey': REELAY_API_KEY,
-};
 
 const checkForErrors = ({ reqUserSub, tmdbTitleID, titleType }) => {
     if (!['film', 'tv'].includes(titleType)) {
@@ -50,7 +43,7 @@ export const addToMyWatchlist = async ({ reqUserSub, reelaySub, creatorName, tmd
         const dbResult = await fetchResults(routePost, {
             method: 'POST',
             headers: {
-                ...REELAY_API_HEADERS,
+                ...ReelayAPIHeaders,
                 requsersub: reqUserSub,
             },
             body: JSON.stringify(postBody),
@@ -76,7 +69,7 @@ export const getWatchlistItems = async (reqUserSub, category = 'all') => {
         const watchlistItems = await fetchResults(routeGet, {
             method: 'GET',
             headers: { 
-                ...REELAY_API_HEADERS, 
+                ...ReelayAPIHeaders, 
                 requsersub: reqUserSub,
             },
         });
@@ -101,7 +94,7 @@ export const getSentRecommendations = async ({
         const sentRecs = await fetchResults(routeGet, {
             method: 'GET',
             headers: { 
-                ...REELAY_API_HEADERS, 
+                ...ReelayAPIHeaders, 
                 requsersub: reqUserSub,
             },
         });
@@ -128,7 +121,7 @@ export const markWatchlistItemSeen = async ({
         const patchResult = await fetchResults(routePatch, {
             method: 'PATCH',
             headers: { 
-                ...REELAY_API_HEADERS, 
+                ...ReelayAPIHeaders, 
                 requsersub: reqUserSub,
             },
             body: JSON.stringify(patchBody),
@@ -156,7 +149,7 @@ export const markWatchlistItemUnseen = async ({
         const patchResult = await fetchResults(routePatch, {
             method: 'PATCH',
             headers: { 
-                ...REELAY_API_HEADERS, 
+                ...ReelayAPIHeaders, 
                 requsersub: reqUserSub,
             },
             body: JSON.stringify(patchBody),
@@ -180,7 +173,7 @@ export const removeFromMyWatchlist = async ({ reqUserSub, tmdbTitleID, titleType
         const removeResult = await fetchResults(routePatch, {
             method: 'DELETE',
             headers: { 
-                ...REELAY_API_HEADERS, 
+                ...ReelayAPIHeaders, 
                 requsersub: reqUserSub,
             },
             body: JSON.stringify(patchBody),
@@ -221,7 +214,7 @@ export const sendRecommendation = async ({
         const sendRecResult = await fetchResults(routePost, {
             method: 'POST',
             headers: { 
-                ...REELAY_API_HEADERS, 
+                ...ReelayAPIHeaders, 
                 requsersub: reqUserSub,
             },
             body: JSON.stringify(postBody),
@@ -256,7 +249,7 @@ export const acceptRecommendation = async ({
         const sendRecResult = await fetchResults(routePatch, {
             method: 'PATCH',
             headers: { 
-                ...REELAY_API_HEADERS, 
+                ...ReelayAPIHeaders, 
                 requsersub: reqUserSub,
             },
             body: JSON.stringify(patchBody),
@@ -289,7 +282,7 @@ export const ignoreRecommendation = async ({
         const sendRecResult = await fetchResults(routePatch, {
             method: 'DELETE',
             headers: { 
-                ...REELAY_API_HEADERS, 
+                ...ReelayAPIHeaders, 
                 requsersub: reqUserSub,
             },
             body: JSON.stringify(deleteBody),

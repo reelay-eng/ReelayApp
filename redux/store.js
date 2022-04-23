@@ -4,6 +4,8 @@ import { stacksOnStreamingReducer, watchlistRecsReducer } from "./reducers";
 const initialState = {
     cognitoUser: {},
     credentials: {},
+    donateLinks: [],
+    isEditingProfile: false,
     isLoading: true,
     isReturningUser: false,
 
@@ -18,6 +20,8 @@ const initialState = {
     myStacksInTheaters: [],
     myStacksOnStreaming: [],
     myStacksAtFestivals: [],
+    topOfTheWeek: [],
+    
 
     followRequests: [],
     reelayDBUser: {},
@@ -25,17 +29,14 @@ const initialState = {
     signedIn: false,
     signedUpFromGuest: false,
 
+    likesVisible: false,
     commentsVisible: false,
     currentComment: '',
-    donateLinks: [],
     dotMenuVisible: false,
     hasUnseenGlobalReelays: true,
     justShowMeSignupVisible: false,
-    likesVisible: false,
     refreshOnUpload: false,
     s3Client: null,
-
-    isEditingProfile: false,
     
     showFestivalsRow: false,
     tabBarVisible: true,
@@ -47,6 +48,10 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, cognitoUser: action.payload }
         case 'setCredentials':
             return { ...state, credentials: action.payload }
+        case 'setDonateLinks':
+            return { ...state, donateLinks: action.payload }    
+        case 'setIsEditingProfile':
+            return { ...state, isEditingProfile: action.payload }    
         case 'setIsLoading':
             return { ...state, isLoading: action.payload }
         case 'setIsReturningUser':
@@ -78,6 +83,8 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, myStacksOnStreaming }
         case 'setMyStacksAtFestivals':
             return { ...state, myStacksAtFestivals: action.payload }
+        case 'setTopOfTheWeek':
+            return { ...state, topOfTheWeek: action.payload }
 
         case 'setFollowRequests':
             return { ...state, followRequests: action.payload }
@@ -94,8 +101,6 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, commentsVisible: action.payload }
         case 'setCurrentComment':
             return { ...state, currentComment: action.payload }
-        case 'setDonateLinks':
-            return { ...state, donateLinks: action.payload }
         case 'setDotMenuVisible':
             return { ...state, dotMenuVisible: action.payload }
         case 'setHasUnseenGlobalReelays':
@@ -108,9 +113,6 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, refreshOnUpload: action.payload }
         case 'setS3Client':
             return { ...state, s3Client: action.payload }
-
-        case 'setIsEditingProfile':
-            return { ...state, isEditingProfile: action.payload }
             
         case 'setShowFestivalsRow':
             return { ...state, showFestivalsRow: action.payload }
@@ -125,6 +127,8 @@ const appReducer = ( state = initialState, action) => {
 export const mapStateToProps = (state) => ({
     cognitoUser: state.cognitoUser,
     credentials: state.credentials,
+    donateLinks: state.donateLinks,
+    isEditingProfile: state.isEditingProfile,
     isLoading: state.isLoading,
     isReturningUser: state.isReturningUser,
 
@@ -140,6 +144,7 @@ export const mapStateToProps = (state) => ({
     myStacksInTheaters: state.myStacksInTheaters,
     myStacksOnStreaming: state.myStacksOnStreaming,
     myStacksAtFestivals: state.myStacksAtFestivals,
+    topOfTheWeek: state.topOfTheWeek,
 
     followRequests: state.followRequests,
     reelayDBUser: state.reelayDBUser,
@@ -149,15 +154,12 @@ export const mapStateToProps = (state) => ({
 
     commentsVisible: state.commentsVisible,
     currentComment: state.currentComment,
-    donateLinks: state.donateLinks,
     dotMenuVisible: state.dotMenuVisible,
     hasUnseenGlobalReelays: state.hasUnseenGlobalReelays,
     justShowMeSignupVisible: state.justShowMeSignupVisible,
     likesVisible: state.likesVisible,
     refreshOnUpload: state.refreshOnUpload,
     s3Client: state.s3Client,
-
-    isEditingProfile: state.isEditingProfile,
     
     showFestivalsRow: state.showFestivalsRow,
     tabBarVisible: state.tabBarVisible,

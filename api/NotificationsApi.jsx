@@ -2,7 +2,8 @@ import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import { fetchResults } from './fetchResults';
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
-import { isMentionPartType, parseValue } from 'react-native-controlled-mentions'
+import { isMentionPartType, parseValue } from 'react-native-controlled-mentions';
+import ReelayAPIHeaders from './ReelayAPIHeaders';
 
 import { 
     getMostRecentReelaysByTitle,
@@ -12,14 +13,6 @@ import {
 
 const EXPO_NOTIFICATION_URL = Constants.manifest.extra.expoNotificationUrl;
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
-const REELAY_API_KEY = Constants.manifest.extra.reelayApiKey;
-
-const REELAY_API_HEADERS = {
-    Accept: 'application/json',
-    'Accept-encoding': 'gzip, deflate',
-    'Content-Type': 'application/json',
-    'reelayapikey': REELAY_API_KEY,
-};
 
 const getDevicePushToken = async () => {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -51,7 +44,7 @@ export const getAllMyNotifications = async (userSub, page = 0) => {
     const routeGet = REELAY_API_BASE_URL + `/notifications/${userSub}/all?page=${page}`;
     const resultGet = await fetchResults(routeGet, { 
         method: 'GET',
-        headers: REELAY_API_HEADERS,
+        headers: ReelayAPIHeaders,
     });
 
     // notification content is comprised of { title, body, data }
@@ -72,7 +65,7 @@ export const getMyNotificationSettings = async (user) => {
     const routeGet = REELAY_API_BASE_URL + `/users/sub/${user?.sub}/settings`;
     const resultGet = await fetchResults(routeGet, { 
         method: 'GET',
-        headers: REELAY_API_HEADERS,
+        headers: ReelayAPIHeaders,
     });
     return resultGet;
 }
@@ -81,7 +74,7 @@ export const getUserNotificationSettings = async (userSub) => {
     const routeGet = REELAY_API_BASE_URL + `/users/sub/${userSub}/settings`;
     const resultGet = await fetchResults(routeGet, { 
         method: 'GET',
-        headers: REELAY_API_HEADERS,
+        headers: ReelayAPIHeaders,
     });
     return resultGet;
 }
@@ -90,7 +83,7 @@ export const hideNotification = async (notificationID) => {
     const routeDelete = REELAY_API_BASE_URL + `/notifications/${notificationID}/hide`;
     const resultDelete = await fetchResults(routeDelete, { 
         method: 'DELETE',
-        headers: REELAY_API_HEADERS,
+        headers: ReelayAPIHeaders,
     });
 
     console.log('HID NOTIFICATION: ', resultDelete);
@@ -101,7 +94,7 @@ export const markAllNotificationsSeen = async (userSub) => {
     const routePatch = REELAY_API_BASE_URL + `/notifications/${userSub}/markAllSeen`;
     const resultPatch = await fetchResults(routePatch, { 
         method: 'PATCH',
-        headers: REELAY_API_HEADERS,
+        headers: ReelayAPIHeaders,
     });
     console.log('MARK ALL SEEN: ', resultPatch);
     return resultPatch;
@@ -111,7 +104,7 @@ export const markNotificationActivated = async (notificationID) => {
     const routePatch = REELAY_API_BASE_URL + `/notifications/${notificationID}/markActivated`;
     const resultPatch = await fetchResults(routePatch, { 
         method: 'PATCH',
-        headers: REELAY_API_HEADERS,
+        headers: ReelayAPIHeaders,
     });
     return resultPatch;
 }
@@ -120,7 +113,7 @@ export const markNotificationReceived = async (notificationID) => {
     const routePatch = REELAY_API_BASE_URL + `/notifications/${notificationID}/markReceived`;
     const resultPatch = await fetchResults(routePatch, { 
         method: 'PATCH',
-        headers: REELAY_API_HEADERS,
+        headers: ReelayAPIHeaders,
     });
     return resultPatch;
 }
@@ -129,7 +122,7 @@ export const markNotificationSeen = async (notificationID) => {
     const routePatch = REELAY_API_BASE_URL + `/notifications/${notificationID}/markSeen`;
     const resultPatch = await fetchResults(routePatch, { 
         method: 'PATCH',
-        headers: REELAY_API_HEADERS,
+        headers: ReelayAPIHeaders,
     });
     return resultPatch;
 }
@@ -175,7 +168,7 @@ export const sendPushNotification = async ({
     console.log('POST BODY: ', reelayDBPostBody);
     const postResult = await fetchResults(reelayDBRoutePost, {
         method: 'POST',
-        headers: REELAY_API_HEADERS,
+        headers: ReelayAPIHeaders,
         body: JSON.stringify(reelayDBPostBody),
     });
 
@@ -509,7 +502,7 @@ export const setMyNotificationSettings = async ({ user, notifyPrompts, notifyRea
         `${REELAY_API_BASE_URL}/users/sub/${user?.sub}/settings?notifyPrompts=${notifyPrompts}&notifyReactions=${notifyReactions}&notifyTrending=${notifyTrending}`;
     const resultPost = await fetchResults(routePost, { 
         method: 'POST',
-        headers: REELAY_API_HEADERS,
+        headers: ReelayAPIHeaders,
     });
     return resultPost;
 }

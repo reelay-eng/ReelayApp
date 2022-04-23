@@ -18,6 +18,7 @@ import { getFeed } from '../../api/ReelayDBApi';
 import { AuthContext } from '../../context/AuthContext';
 
 import { useDispatch, useSelector } from 'react-redux';
+import TopOfTheWeek from './TopOfTheWeek';
 
 const HomeContainer = styled(SafeAreaView)`
     width: 100%;
@@ -84,6 +85,7 @@ const HomeComponent = ({ navigation }) => {
             <HomeHeader navigation={navigation} />
             <ScrollContainer refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 {/* <Announcements /> */}
+                <TopOfTheWeek navigation={navigation} />
                 <FriendsAreWatching navigation={navigation} />
                 <OnStreaming navigation={navigation} onRefresh={onRefresh} />
                 <InTheaters navigation={navigation} />
