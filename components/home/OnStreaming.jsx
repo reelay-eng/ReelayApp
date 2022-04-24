@@ -56,7 +56,6 @@ const HeaderContainerLeft = styled(View)`
     align-items: center;
     flex-direction: row;
     margin-left: 15px;
-    margin-top: 15px;
 `
 const TitleInfoLine = styled(View)`
     flex-direction: row;

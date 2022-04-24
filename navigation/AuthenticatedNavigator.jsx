@@ -33,6 +33,7 @@ import SingleReelayScreen from '../screens/authenticated/SingleReelayScreen';
 import TitleDetailScreen from '../screens/authenticated/TitleDetailScreen';
 import TitleFeedScreen from '../screens/authenticated/TitleFeedScreen';
 import TitleTrailerScreen from '../screens/authenticated/TitleTrailerScreen';
+import TopicsListScreen from '../screens/authenticated/TopicsListScreen';
 import TMDBCreditScreen from '../screens/authenticated/TMDBCreditScreen';
 import UserFollowScreen from '../screens/authenticated/UserFollowScreen';
 import UserProfileScreen from '../screens/authenticated/UserProfileScreen';
@@ -224,6 +225,13 @@ const HomeTabNavigator = () => {
 			<HomeTabStack.Screen
 				name='CreateTopicScreen'
 				component={CreateTopicScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<HomeTabStack.Screen
+				name='TopicsListScreen'
+				component={TopicsListScreen}
 				options={{
 					headerShown: false,
 				}}

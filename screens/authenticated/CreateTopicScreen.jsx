@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { 
+    ActivityIndicator,
     Dimensions,
     Keyboard, 
     SafeAreaView, 
@@ -85,7 +86,7 @@ const DESCRIPTION_MAX_LENGTH = 280;
 
 export default function CreateTopicScreen({ navigation, route }) {
     const { reelayDBUser } = useContext(AuthContext);
-    const [addFirstReelayDrawerVisible, setAddFirstReelayDrawerVisible] = useState(true);
+    const [addFirstReelayDrawerVisible, setAddFirstReelayDrawerVisible] = useState(false);
 
     const dispatch = useDispatch();
     const descriptionFieldRef = useRef(null);
@@ -102,12 +103,13 @@ export default function CreateTopicScreen({ navigation, route }) {
     const CreateTopicButton = () => {
         const [publishing, setPublishing] = useState(false);
         const onPress = async () => {
+            if (publishing) return;
             setPublishing(true);
             const titleText = titleTextRef.current;
 
-            console.log('TITLE TEXT: ', titleText);
             if (titleText.length < TITLE_MIN_LENGTH) {
                 showErrorToast('Could not create topic: prompt is too short');
+                setPublishing(false);
                 return;
             }
 
@@ -131,10 +133,10 @@ export default function CreateTopicScreen({ navigation, route }) {
         };
 
         return (
-            <CreateTopicButtonContainer disabled={publishing} onPress={onPress}>
-                <TitleText disabled={publishing}>
-                    {publishing ? 'Creating...' : 'Create topic'}
-                </TitleText>
+            <CreateTopicButtonContainer onPress={onPress}>
+                { publishing && <ActivityIndicator/> }
+                { !publishing && <TitleText>{'Create topic'}</TitleText> }
+                
             </CreateTopicButtonContainer>
         );
     }
@@ -165,7 +167,7 @@ export default function CreateTopicScreen({ navigation, route }) {
         return (
             <HeaderContainer>
                 <BackButton navigation={navigation} />
-                <HeaderText>{'Create a topic'}</HeaderText>
+                <HeaderText>{'Start a new topic'}</HeaderText>
             </HeaderContainer>
         );
     }

@@ -19,15 +19,13 @@ const CreateTopicButtonContainer = styled(TouchableOpacity)`
     border-width: 1px;
     flex-direction: row;
     justify-content: center;
-    height: 36px;
+    height: 40px;
     margin: 16px;
     margin-left: 14px;
     width: ${width - 32}px;
 `
-const CreateTopicText = styled(ReelayText.CaptionEmphasized)`
+const CreateTopicText = styled(ReelayText.Subtitle2)`
     color: white;
-    font-size: 12px;
-    line-height: 16px;
 `
 const HeaderContainer = styled(View)`
     align-items: center;
@@ -38,7 +36,10 @@ const HeaderContainerLeft = styled(View)`
     align-items: center;
     flex-direction: row;
     margin-left: 15px;
-    margin-top: 15px;
+`
+const HeaderContainerRight = styled(TouchableOpacity)`
+    align-items: center;
+    flex-direction: row;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
@@ -52,6 +53,10 @@ const GlobalTopicsContainer = styled(View)`
     flex-direction: column;
     margin-bottom: 10px;
 `
+const SeeAllTopicsText = styled(ReelayText.Subtitle2)`
+    color: ${ReelayColors.reelayBlue};
+    margin-right: 15px;
+`
 const TopicsPreviewContainer = styled(ScrollView)`
     display: flex;
     flex-direction: row;
@@ -61,21 +66,20 @@ const TopicsPreviewContainer = styled(ScrollView)`
 
 export default GlobalTopics = ({ navigation }) => {
     const fetchedTopics = useSelector(state => state.globalTopics);
-    console.log('fetched topics: ', fetchedTopics);
+    const advanceToTopicsList = () => navigation.push('TopicsListScreen');
 
     const CreateTopicButton = () => {
         const advanceToCreateTopic = () => navigation.push('CreateTopicScreen');
         return (
             <CreateTopicButtonContainer onPress={advanceToCreateTopic}>
                 <CreateTopicText>
-                    {'Create a topic'}
+                    {'Start a new topic'}
                 </CreateTopicText>
             </CreateTopicButtonContainer>
         );
     }
 
     const TopicsRow = () => {
-
         const renderTopic = (topic, index) => {
             const onPress = () => console.log('pressed on topic');
             return (
@@ -106,6 +110,9 @@ export default GlobalTopics = ({ navigation }) => {
                     <Icon type='ionicon' name='bulb' size={24} color='white' />
                     <HeaderText>{'Topics'}</HeaderText>
                 </HeaderContainerLeft>
+                <HeaderContainerRight onPress={advanceToTopicsList}>
+                    <SeeAllTopicsText>{'See all'}</SeeAllTopicsText>
+                </HeaderContainerRight>
             </HeaderContainer>
             { fetchedTopics.length > 0 && <TopicsRow /> }
             <CreateTopicButton />
