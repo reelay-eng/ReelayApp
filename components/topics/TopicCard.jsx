@@ -80,15 +80,15 @@ const WatchReelaysButtonContainer = styled(View)`
 
 `
 
-const CardBottomRowNoStacks = ({ navigation }) => {
-    const advanceToCreateTopic = () => navigation.push('CreateTopicScreen');
+const CardBottomRowNoStacks = ({ navigation, topic }) => {
+    const advanceToCreateReelay = () => navigation.navigate('SelectTitleScreen', { topic });
 
     return (
         <BottomRowContainer>
             <BottomRowLeftText>
                 {'0 reelays, be the first!'}
             </BottomRowLeftText>
-            <CreateReelayButton onPress={advanceToCreateTopic}>
+            <CreateReelayButton onPress={advanceToCreateReelay}>
                 <Icon type='ionicon' name='add' color='white' size={20} />
                 <CreateReelayText>{'Create Reelay'}</CreateReelayText>
             </CreateReelayButton>
@@ -115,7 +115,7 @@ export default TopicCard = ({ navigation, topic, stacks = [] }) => {
             <DescriptionLine>
                 <DescriptionText numberOfLines={2}>{topic.description}</DescriptionText>
             </DescriptionLine>
-            { !stacks.length && <CardBottomRowNoStacks navigation={navigation} /> }
+            { !stacks.length && <CardBottomRowNoStacks navigation={navigation} topic={topic} /> }
         </TopicCardContainer>
     );
 }
