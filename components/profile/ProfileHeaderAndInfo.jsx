@@ -1,15 +1,13 @@
 
 import React, { useState, useEffect } from 'react';
-import { Linking, View } from 'react-native';
+import { Linking, Pressable, View } from 'react-native';
 import { Autolink } from "react-native-autolink";
 
-import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfileStatsBar from './ProfileStatsBar';
 import * as ReelayText from "../../components/global/Text";
 import { VenueIcon } from '../../components/utils/VenueIcon';
 
 import styled from 'styled-components/native';
-
 
 const UserInfoContainer = styled(View)`
     align-self: center;
@@ -18,6 +16,16 @@ const UserInfoContainer = styled(View)`
     padding: 20px;
     padding-top: 0px;
 `;
+const ProfilePictureContainer = styled(Pressable)`
+    border-color: white;
+    border-radius: 50px;
+    border-width: 2px;
+    margin: 16px;
+    margin-left: 18px;
+    height: 84px;
+    width: 84px;
+    border-width: 2px;
+`
 const ProfileTopRightContainer = styled(View)`
     align-self: center;
     justify-content: center;
@@ -69,7 +77,9 @@ export default ProfileHeaderAndInfo = ({ navigation, creator, bioText, websiteTe
 
     return (
         <HeaderContainer>
-            <ProfileHeader creator={creator} />
+             <ProfilePictureContainer>
+                <ProfilePicture user={creator} size={80} />
+            </ProfilePictureContainer>
             <ProfileTopRightContainer>
                 <ProfileStatsBar
                     navigation={navigation}

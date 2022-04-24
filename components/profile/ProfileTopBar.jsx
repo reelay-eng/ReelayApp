@@ -10,7 +10,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
 
     const RightCornerContainer = styled(View)`
         position: absolute;
-        right: 16px;
+        right: 8px;
     `
     const TopBarContainer = styled(SafeAreaView)`
         align-items: center;
@@ -18,6 +18,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         height: 30px;
         margin-left: 16px;
         margin-right: 16px;
+        margin-bottom: 8px;
         shadow-color: white;
         shadow-offset: 8px;
         shadow-radius: 2px;     
