@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { searchTopics } from '../../api/TopicsApi';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get('window');
 
@@ -175,12 +176,12 @@ export default TopicsListScreen = ({ navigation }) => {
         setDisplayTopics(topicSearchResults);
     }
 
-    useEffect(() => {
+    useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
         return () => {
             dispatch({ type: 'setTabBarVisible', payload: true });
         }
-    });
+    })
 
     return (
         <ScreenContainer>

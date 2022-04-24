@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Alert, Pressable, SafeAreaView, ScrollView, View, Linking, Image } from 'react-native';
 import { Camera } from 'expo-camera';
 import { getStreamingVenues, getOtherVenues } from '../../components/utils/VenueIcon';
@@ -14,6 +14,9 @@ import { AuthContext } from '../../context/AuthContext';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
+import { useDispatch } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
+
 export default VenueSelectScreen = ({ navigation, route }) => {
     const { titleObj } = route.params;
     const streamingVenues = getStreamingVenues();
@@ -21,6 +24,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
     const searchVenues = [...streamingVenues, ...otherVenues];
 
     const { reelayDBUser } = useContext(AuthContext);
+    const dispatch = useDispatch();
 
     if (reelayDBUser?.username === 'be_our_guest') {
         return <JustShowMeSignupPage navigation={navigation} showBackButton={true} />
@@ -36,11 +40,22 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         width: 100%;
         background-color: black;
     `
-    const advancetoCameraScreen = async (venue) => {
-        const { status } = await Camera.requestPermissionsAsync();
-        const hasPermission = (status === "granted");
 
-        if (hasPermission) {
+    const getCameraPermissions = async () => {
+        const { status } = await Camera.requestCameraPermissionsAsync();
+        return (status === "granted");
+    }
+
+    const getMicPermissions = async () => {
+        const { status } = await Camera.requestMicrophonePermissionsAsync();
+        return (status === "granted");
+    }
+
+    const advancetoCameraScreen = async (venue) => {
+        const hasCameraPermissions = await getCameraPermissions();
+        const hasMicPermissions = await getMicPermissions();
+
+        if (hasCameraPermissions && hasMicPermissions) {
             navigation.push('ReelayCameraScreen', {
                 titleObj: titleObj,
                 venue: venue,
@@ -111,7 +126,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
     const alertCameraAccess = async () => {
         Alert.alert(
             "Please allow camera access",
-            "To make a reelay, please enable camera permissions in your phone settings",
+            "To make a reelay, please enable camera and microphone permissions in your phone settings",
             [
               {
                 text: "Cancel",
@@ -200,6 +215,11 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         justify-content: space-between;
         align-items: center;
     `
+
+    useFocusEffect(() => {
+        dispatch({ type: 'setTabBarVisible', payload: false });
+        return () => dispatch({ type: 'setTabBarVisible', payload: true });
+    });
 
     return (
 		<ScreenOuterContainer>

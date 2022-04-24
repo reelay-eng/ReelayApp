@@ -20,8 +20,6 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
     return (
         <CommonStack.Navigator initialRouteName={initialRouteName} detachInactiveScreens={false}>
             { children }
-            { /* ..... */}
-
             <CommonStack.Screen
                 name='FeedScreen'
                 component={FeedScreen}
@@ -106,6 +104,14 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
                     headerShown: false,
                 }}
             />
+            <CommonStack.Screen name='SelectTitleScreen' component={SelectTitleScreen}
+                options={{ headerShown: false }} />
+            <CommonStack.Screen name='VenueSelectScreen' component={VenueSelectScreen}
+                options={{ headerShown: false }} />
+            <CommonStack.Screen name='ReelayCameraScreen' component={ReelayCameraScreen}
+                options={{ headerShown: false }} />
+            <CommonStack.Screen name='ReelayUploadScreen' component={ReelayUploadScreen}
+                options={{ headerShown: false }} /> 
         </CommonStack.Navigator>
     );
 }

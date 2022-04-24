@@ -81,7 +81,7 @@ const WatchReelaysButtonContainer = styled(View)`
 `
 
 const CardBottomRowNoStacks = ({ navigation, topic }) => {
-    const advanceToCreateReelay = () => navigation.navigate('SelectTitleScreen', { topic });
+    const advanceToCreateReelay = () => navigation.push('SelectTitleScreen', { topic });
 
     return (
         <BottomRowContainer>

@@ -43,12 +43,12 @@ export default AuthenticatedNavigator = () => {
         <AppStack.Navigator initialRouteName='BottomTab'>
             <AppStack.Screen name='BottomTab' component={BottomTabNavigator} 
                 options={{ headerShown: false }} />
-            <AppStack.Screen name='VenueSelectScreen' component={VenueSelectScreen}
+            {/* <AppStack.Screen name='VenueSelectScreen' component={VenueSelectScreen}
                 options={{ headerShown: false }} />
             <AppStack.Screen name='ReelayCameraScreen' component={ReelayCameraScreen}
                 options={{ headerShown: false }} />
             <AppStack.Screen name='ReelayUploadScreen' component={ReelayUploadScreen}
-                options={{ headerShown: false }} /> 
+                options={{ headerShown: false }} />  */}
         </AppStack.Navigator>
     );
 }

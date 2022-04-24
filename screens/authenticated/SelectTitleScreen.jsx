@@ -3,7 +3,8 @@ import { SafeAreaView, View, Pressable, Text } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { useDispatch } from "react-redux";
 
-import {BaseHeader } from '../../components/global/Headers';
+import { BaseHeader, HeaderWithBackButton } from '../../components/global/Headers';
+import * as ReelayText from '../../components/global/Text';
 import SearchField from '../../components/create-reelay/SearchField';
 import TitleSearchResults from '../../components/search/TitleSearchResults';
 import { ActionButton, PassiveButton, ToggleSelector } from '../../components/global/Buttons';
@@ -13,46 +14,57 @@ import { searchTitles } from '../../api/ReelayDBApi';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 
-const TopBarContainer = styled(View)`
-	display: flex;
-	align-items: center;
-	width: 100%;
-	margin-bottom: 8px;
-`;
-const SelectorBarContainer = styled(View)`
-	width: 90%;
-	height: 40px;
-`;
 const SearchBarContainer = styled(View)`
 	width: 100%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 `;
-
-export default SelectTitleScreen = ({ navigation }) => {
-    
+const SelectorBarContainer = styled(View)`
+	width: 90%;
+	height: 40px;
+`;
+const TopBarContainer = styled(View)`
+	display: flex;
+	align-items: center;
+	width: 100%;
+	margin-bottom: 8px;
+`;
+const TopicTitleContainer = styled(View)`
+    background-color: #1a1a1a;
+    border-radius: 4px;
+    margin-bottom: 12px;
+    padding: 8px;
+    width: 90%;
+`
+const TopicTitleText = styled(ReelayText.H6)`
+    color: white;
+    display: flex;
+    flex-direction: row;
+    font-size: 14px;
+    line-height: 16px;
+`
+export default SelectTitleScreen = ({ navigation, route }) => {
     const [searchText, setSearchText] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchType, setSearchType] = useState('Film');
+
+    const topic = route?.params?.topic;
     const updateCounter = useRef(0);
 
     const { reelayDBUser } = useContext(AuthContext);
 	const dispatch = useDispatch();
 
-    useEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: true }); 
-    }, []);
-
-    useEffect(() => {
-        logAmplitudeEventProd('openSelectTitleScreen', {
-            searchText,
-            searchType,
-            });
-    }, [searchText, searchType]);
-
     if (reelayDBUser?.username === 'be_our_guest') {
         return <JustShowMeSignupPage navigation={navigation} headerText={'Make a Reelay'} />
+    }
+
+    const TopicLabel = () => {
+        return (
+            <TopicTitleContainer>
+                <TopicTitleText numberOfLines={2}>{'Replying to: '}{topic?.title}</TopicTitleText>
+            </TopicTitleContainer>
+        );
     }
 
     const updateSearch = async (newSearchText, searchType, counter) => {
@@ -63,12 +75,12 @@ export default SelectTitleScreen = ({ navigation }) => {
 
         try {
             if (searchType === 'Film') {
-                annotatedResults = await searchTitles(newSearchText, false);
+                const annotatedResults = await searchTitles(newSearchText, false);
                 if (counter === updateCounter.current) {
                     setSearchResults(annotatedResults);
                 }
             } else {
-                annotatedResults = await searchTitles(newSearchText, true);
+                const annotatedResults = await searchTitles(newSearchText, true);
                 if (counter === updateCounter.current) {
                     setSearchResults(annotatedResults);
                 }
@@ -79,17 +91,24 @@ export default SelectTitleScreen = ({ navigation }) => {
     }
 
     useEffect(() => {
+        dispatch({ type: 'setTabBarVisible', payload: true }); 
+    }, []);
+
+    useEffect(() => {
+        logAmplitudeEventProd('openSelectTitleScreen', { searchText, searchType });
+    }, [searchText, searchType]);
+
+    useEffect(() => {
         updateCounter.current += 1;
         updateSearch(searchText, searchType, updateCounter.current);
     }, [searchText, searchType]);
 
-    useEffect(() => {
-    }, [searchResults])
-
     return (
 		<SafeAreaView style={{ backgroundColor: "black", height: "100%", width: "100%" }}>
 			<TopBarContainer>
-                <BaseHeader text={"Create"} />
+                { !topic && <BaseHeader text={"Create a reelay"} /> }
+                { topic && <HeaderWithBackButton navigation={navigation} text={"Create a reelay"} /> }
+                { topic && <TopicLabel /> }
 				<SelectorBarContainer>
 					<ToggleSelector
 						options={["Film", "TV"]}

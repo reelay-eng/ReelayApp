@@ -10,7 +10,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { Icon } from 'react-native-elements';
 
-export default TopicAddFirstReelayDrawer = ({ navigation, drawerVisible, setDrawerVisible }) => {
+export default TopicAddFirstReelayDrawer = ({ navigation, drawerVisible, setDrawerVisible, publishedTopic }) => {
 
     const DrawerContainer = styled(View)`
         background-color: #1a1a1a;
@@ -122,7 +122,7 @@ const TopicAddFirstReelay = ({ navigation, setDrawerVisible }) => {
 		if (showMeSignupIfGuest()) return;
         setDrawerVisible(false);
         navigation.goBack();
-        navigation.navigate('SelectTitleScreen');
+        navigation.navigate('SelectTitleScreen', { topic: publishedTopic });
         
 		logAmplitudeEventProd('advanceToCreateReelay', {
 			username: reelayDBUser?.username,

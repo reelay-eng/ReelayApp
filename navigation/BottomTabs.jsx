@@ -8,9 +8,12 @@ import HomeScreen from '../screens/authenticated/HomeScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
 import NotificationSettingsScreen from '../screens/authenticated/NotificationSettingsScreen';
 import ProfileSettingsScreen from '../screens/authenticated/ProfileSettingsScreen';
+import ReelayCameraScreen from '../screens/authenticated/ReelayCameraScreen';
+import ReelayUploadScreen from '../screens/authenticated/ReelayUploadScreen';
 import SelectTitleScreen from '../screens/authenticated/SelectTitleScreen';
 import TopicsListScreen from '../screens/authenticated/TopicsListScreen';
 import TMDBCreditScreen from '../screens/authenticated/TMDBCreditScreen';
+import VenueSelectScreen from '../screens/authenticated/VenueSelectScreen';
 import WatchlistScreen from '../screens/authenticated/WatchlistScreen';
 
 export const HomeTabNavigator = () => {
@@ -49,16 +52,7 @@ export const FeedTabNavigator = () => {
 export const CreateReelayTabNavigator = () => {
     const CreateReelayTabStack = createStackNavigator();
     return (
-        <AuthenticatedCommonStack initialRouteName='SelectTitleScreen'>
-            <CreateReelayTabStack.Screen
-                name='SelectTitleScreen'
-                component={SelectTitleScreen}
-                options={{
-                    headerShown: false,
-                    animationEnabled: false,
-                }}
-            />
-        </AuthenticatedCommonStack>
+        <AuthenticatedCommonStack initialRouteName='SelectTitleScreen' />
     );
 }
 

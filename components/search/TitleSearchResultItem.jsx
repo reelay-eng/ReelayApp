@@ -53,7 +53,7 @@ export default TitleSearchResultItem = ({ navigation, result, source }) => {
 
     const selectResult = () => {
         if (source && source === 'create') {
-            navigation.navigate('VenueSelectScreen', {
+            navigation.push('VenueSelectScreen', {
                 titleObj: titleObj
             });
 

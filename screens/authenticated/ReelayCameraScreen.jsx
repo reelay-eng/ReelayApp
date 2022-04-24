@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+import { useDispatch } from 'react-redux';
 
 import { Camera } from 'expo-camera';
 import { Dimensions, View, SafeAreaView, Pressable} from 'react-native';
@@ -22,6 +23,7 @@ const ringSize = captureSize + 20;
 export default ReelayCameraScreen = ({ navigation, route }) => {
     var backCount = 0;
     var backTimer = 0;
+    const dispatch = useDispatch();
     const { reelayDBUser} = useContext(AuthContext);
     const { titleObj, venue } = route.params;
 
