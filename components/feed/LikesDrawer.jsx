@@ -1,11 +1,13 @@
-import React, { useContext } from 'react';
-import { Modal, View, Text, Pressable } from 'react-native';
+import React from 'react';
+import { Modal, View, ScrollView, Pressable } from 'react-native';
 import * as ReelayText from '../global/Text';
 import { Icon } from 'react-native-elements';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components/native';
 import { getUserByUsername } from '../../api/ReelayDBApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import ProfilePicture from '../global/ProfilePicture';
+import FollowButton from '../global/FollowButton';
 
 export default LikesDrawer = ({ reelay, navigation }) => {
 
@@ -25,7 +27,6 @@ export default LikesDrawer = ({ reelay, navigation }) => {
         height: auto;
         margin-top: auto;
         max-height: 70%;
-        padding: 20px;
         padding-bottom: 30px;
         width: 100%;
     `
@@ -38,36 +39,67 @@ export default LikesDrawer = ({ reelay, navigation }) => {
 
     const Header = () => {
         const HeaderContainer = styled(View)`
-            align-items: center;
-            flex-direction: row;
-            justify-content: space-between;
-            margin: 12px;
+            justify-content: center;
+            margin-left: 12px;
+            margin-right: 20px;
+            border-bottom-color: #2D2D2D;
+            border-bottom-width: 1px;
+            margin-bottom: 5px;
         `
-        const HeaderText = styled(ReelayText.H6Emphasized)`
+        const HeaderText = styled(ReelayText.CaptionEmphasized)`
+            position: absolute;
+            align-self: center;
             color: white;
-        ` 
-        const headerText = reelay.likes.length ? `Likes (${reelay.likes.length})` : 'Likes';
+        `
+        const CloseButtonContainer = styled(Pressable)`
+            align-self: flex-end;
+        `
+		const headerText = (reelay.comments.length) ? `${reelay.likes.length} likes` : "No likes... be the first!"
+		
         return (
             <HeaderContainer>
                 <HeaderText>{headerText}</HeaderText>
-                <Pressable onPress={closeDrawer}>
-                    <Icon color={'white'} type='ionicon' name='close' size={CLOSE_BUTTON_SIZE} />
-                </Pressable>
+                <CloseButtonContainer onPress={closeDrawer}>
+                    <Icon color={'white'} type='ionicon' name='close' size={CLOSE_BUTTON_SIZE}/>
+                </CloseButtonContainer>
             </HeaderContainer>
         );
     }
 
-    const Likes = () => {
-        const LikesContainer = styled(View)`
-            width: 100%;
+    const LikeItem = ({ like }) => {
+        const likeUser = {username: like.username, sub: like.userSub};
+
+        const LikeItemContainer = styled(View)`
+            height: 50px;
+            flex-direction: row;
+            margin-left: 10px;
+            margin-right: 10px;
         `
-        const LikeItemContainer = styled(Pressable)`
-            margin: 10px;
-            width: 100%;
+        const LeftLikePartContainer = styled(Pressable)`
+            flex: 2;
+            flex-direction: row;
         `
-        const UsernameText = styled(ReelayText.Body1)`
-            color: white;
+        const ProfilePictureContainer = styled(View)`
+            height: 100%;
+            justify-content: center;
+            margin-right: 12px;
+            margin-left: 15px;
+        `;
+        const LikeTextContainer = styled(View)`
+            width: 80%;
+            height: 100%;
+            justify-content: center;
+        `;
+        const UsernameText = styled(ReelayText.Subtitle1Emphasized)`
+            color: #94959A;
         `
+
+        const RightLikePartContainer = styled(View)`
+            flex: 1;
+            justify-content: center;
+            align-items: center;
+        `
+
         const goToProfile = async (username) => {
             const creator = await getUserByUsername(username);
             dispatch({ type: 'setLikesVisible', payload: false })
@@ -82,15 +114,40 @@ export default LikesDrawer = ({ reelay, navigation }) => {
         }
 
         return (
+            <LikeItemContainer>
+                <LeftLikePartContainer onPress={() => goToProfile(likeUser.username)}>
+                    <ProfilePictureContainer>
+                        <ProfilePicture user={likeUser} size={32}/>
+                    </ProfilePictureContainer>
+                    <LikeTextContainer>
+                        <UsernameText>{likeUser.username}</UsernameText>
+                    </LikeTextContainer>
+                </LeftLikePartContainer>
+                <RightLikePartContainer>
+                    <FollowButton creator={likeUser} />
+                </RightLikePartContainer>
+            </LikeItemContainer>
+        )
+
+    }
+
+    const Likes = () => {
+        const LikesContainer = styled(View)`
+            width: 100%;
+        `
+        const LikesScrollView = styled(ScrollView)`
+            width: 100%;
+        `
+        return (
             <LikesContainer>
                 <Header />
-                { reelay.likes.map(like => {
-                    return (
-                        <LikeItemContainer key={like.username} onPress={() => goToProfile(like.username)}>
-                            <UsernameText>{like.username}</UsernameText>
-                        </LikeItemContainer>
-                    );
-                })}
+                <LikesScrollView scrollEnabled={reelay.likes.length > 6}>
+                    { reelay.likes.map((like, index) => {
+                        return (
+                            <LikeItem key={`like${index}`} like={like} />
+                        );
+                    })}
+                </LikesScrollView>
             </LikesContainer>
         );
     }
