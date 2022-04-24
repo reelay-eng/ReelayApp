@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { RefreshControl, SafeAreaView, ScrollView, View, Linking } from 'react-native';
-import { Autolink } from "react-native-autolink";
+import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 
 // Logging
@@ -12,17 +11,16 @@ import {
     refreshMyFollowing, 
     refreshMyNotifications, 
     refreshMyReelayStacks, 
-    refreshMyWatchlist 
+    refreshMyWatchlist,
 } from '../../api/ReelayUserApi';
+import { getStreamingSubscriptions } from '../../api/ReelayDBApi';
 
 // Components
-import ProfileHeader from '../../components/profile/ProfileHeader';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
-import ProfileStatsBar from '../../components/profile/ProfileStatsBar';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
 import EditProfile from "../../components/profile/EditProfile";
 import { BWButton } from "../../components/global/Buttons";
-import * as ReelayText from "../../components/global/Text";
+import ProfileHeaderAndInfo from '../../components/profile/ProfileHeaderAndInfo';
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
@@ -41,40 +39,20 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const ProfileScrollView = styled(ScrollView)`
         margin-bottom: 60px;
     `;
-    const UserInfoContainer = styled(View)`
-        align-self: center;
-        width: 75%;
-        padding-bottom: 10px;
-    `;
-    // should have same style as: ReelayText.Subtitle1
-    const BioText = styled(Autolink)` 
-        color: white;
-        text-align: center;
-        padding-bottom: 5px;
-        font-family: Outfit-Regular;
-        font-size: 16px;
-        font-style: normal;
-        line-height: 24px;
-        letter-spacing: 0.15px;
-    `;
-    const WebsiteText = styled(ReelayText.Subtitle1)`
-        color: 'rgb(51,102,187)';
-        text-align: center;
-        padding-bottom: 5px;
-    `;
 
     const [refreshing, setRefreshing] = useState(false);
-	const { 
-        reelayDBUser,
-    } = useContext(AuthContext); 
+	const { reelayDBUser } = useContext(AuthContext); 
 
-    const signedIn = useSelector(state => state.signedIn);
+    const isEditingProfile = useSelector(state => state.isEditingProfile);
     const refreshOnUpload = useSelector(state => state.refreshOnUpload);
     const myFollowers = useSelector(state => state.myFollowers);
     const myFollowing = useSelector(state => state.myFollowing);
     const myCreatorStacks = useSelector(state => state.myCreatorStacks);
+    const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
   	const dispatch = useDispatch();
 
+    const [renderCount, setRenderCount] = useState(0);
+      
     useEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
         if (refreshOnUpload) {
@@ -95,6 +73,13 @@ export default MyProfileScreen = ({ navigation, route }) => {
             username: reelayDBUser?.username,
         });    
     }, []);
+
+    useEffect(() => {
+        if (!isEditingProfile) {
+            console.log('profile render count: ', renderCount + 1);
+            setRenderCount(renderCount + 1);
+        }
+    }, [isEditingProfile]);
 
     if (reelayDBUser?.username === 'be_our_guest') {
         return <JustShowMeSignupPage navigation={navigation} headerText='My Reelays' />
@@ -120,12 +105,14 @@ export default MyProfileScreen = ({ navigation, route }) => {
                     nextMyFollowing,
                     nextMyNotifications,
                     nextMyWatchlistItems,
+                    nextMyStreamingSubscriptions
                 ] = await Promise.all([
                     refreshMyReelayStacks(userSub),
                     refreshMyFollowers(userSub),
                     refreshMyFollowing(userSub),
                     refreshMyNotifications(userSub),
                     refreshMyWatchlist(userSub),
+                    getStreamingSubscriptions(userSub),
                 ]);
                 
                 nextMyCreatorStacks.forEach((stack) => stack.sort(sortReelays));
@@ -137,6 +124,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
                 dispatch({ type: 'setMyNotifications', payload: nextMyNotifications });
                 dispatch({ type: 'setMyWatchlistItems', payload: nextMyWatchlistItems });
                 dispatch({ type: 'setMyFollowing', payload: nextMyFollowing });
+
+                dispatch({ type: 'setMyStreamingSubscriptions', payload: nextMyStreamingSubscriptions });
 
                 console.log('Refresh complete');
             } catch (error) {
@@ -150,18 +139,18 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const sortStacks = (stack1, stack2) => stack2[0].postedDateTime - stack1[0].postedDateTime;
     const reelayCounter = (sum, nextStack) => sum + nextStack.length;
     const reelayCount = myCreatorStacks.reduce(reelayCounter, 0);
+    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
     const EditProfileButton = () => {
         const Container = styled(View)`
 			width: 100%;
-			height: 40px;
 			display: flex;
 			align-items: center;
 			justify-content: center;
             margin-bottom: 8px;
 		`;
         const EditProfileButtonContainer = styled(View)`
-            width: 75%;
+            width: 90%;
             height: 40px;
         `
 
@@ -179,48 +168,26 @@ export default MyProfileScreen = ({ navigation, route }) => {
 		);
     }
 
-    const fixLink = (link) => {
-        if (link.startsWith('https://') || link.startsWith('http://')) {
-            return link;
-        } else {
-            return 'https://'+link;
-        }
-    }
-
     return (
 		<ProfileScreenContainer>
 			<EditProfile/>
 			<ProfileTopBar creator={reelayDBUser} navigation={navigation} atProfileBase={true} />
-			<ProfileScrollView refreshControl={
-                <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-            }>
-				<ProfileHeader creator={reelayDBUser} />
-                <UserInfoContainer>
-                    {reelayDBUser?.bio && (
-                        <BioText 
-                            text={reelayDBUser?.bio?.trim() ?? ''} 
-                            linkStyle={{ color: '#3366BB' }} 
-                            url
-                        /> 
-                    )}
-                    {reelayDBUser?.website && (
-                        <WebsiteText onPress={() => Linking.openURL(fixLink(reelayDBUser.website))}> {reelayDBUser.website} </WebsiteText>
-                    )}
-                </UserInfoContainer>
-				<EditProfileButton />
-				<ProfileStatsBar
+			<ProfileScrollView showsVerticalScrollIndicator={false} refreshControl={refreshControl}>
+                <ProfileHeaderAndInfo 
 					navigation={navigation}
+                    creator={reelayDBUser} 
+                    bioText={(reelayDBUser.bio) ? reelayDBUser.bio : ""} 
+                    websiteText={(reelayDBUser.website) ? reelayDBUser.website : ""} 
+                    streamingSubscriptions={myStreamingSubscriptions}
 					reelayCount={reelayCount}
-					creator={{
-						username: reelayDBUser.username,
-						sub: reelayDBUser?.sub,
-					}}
 					followers={myFollowers}
 					following={myFollowing}
 					prevScreen={"MyProfileScreen"}
-				/>
+                />
+				<EditProfileButton />
 				<ProfilePosterGrid creatorStacks={myCreatorStacks} navigation={navigation} />
 			</ProfileScrollView>
 		</ProfileScreenContainer>
 	);
 }
+

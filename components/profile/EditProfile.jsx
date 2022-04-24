@@ -88,10 +88,10 @@ export default EditProfile = () => {
 
 	const saveInfo = async () => {
 		reelayDBUser.bio = bioRef.current.trim() === "" ? null : bioRef.current;
-		await updateUserBio(reelayDBUser.sub, reelayDBUser.bio);
+		await updateUserBio(reelayDBUser.sub, bioRef.current.trim());
 		reelayDBUser.website =
 			websiteRef.current.trim() === "" ? null : websiteRef.current;
-		await updateUserWebsite(reelayDBUser.sub, reelayDBUser.website);
+		await updateUserWebsite(reelayDBUser.sub, websiteRef.current.trim());
 	}
 
 	return (
@@ -165,6 +165,7 @@ const EditBio = ({ bioRef, bioInputRef, currentFocus }) => {
 			<BioInputContainer>
 			<BioInput
 				ref={bioInputRef}
+				autoCapitalize='none'
 				maxLength={250}
 				multiline
 				numberOfLines={4}
@@ -491,6 +492,9 @@ const EditWebsite = ({ websiteRef, websiteInputRef, currentFocus }) => {
 			<WebsiteInputContainer>
 			<WebsiteInput
 				ref={websiteInputRef}
+				autoComplete='none'
+				autoCapitalize='off'
+				autoCorrect={false}
 				defaultValue={websiteRef.current}
 				placeholder={"Any cool links?"}
 				placeholderTextColor={"gray"}
