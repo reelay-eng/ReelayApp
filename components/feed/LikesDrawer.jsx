@@ -13,7 +13,7 @@ export default LikesDrawer = ({ reelay, navigation }) => {
 
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
 
-    const CLOSE_BUTTON_SIZE = 36;
+    const CLOSE_BUTTON_SIZE = 25;
     const Backdrop = styled(Pressable)`
         background-color: transparent;
         height: 100%;
@@ -21,7 +21,7 @@ export default LikesDrawer = ({ reelay, navigation }) => {
         width: 100%;
     `
     const DrawerContainer = styled(View)`
-        background-color: black;
+        background-color: #1a1a1a;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
         height: auto;
@@ -42,9 +42,11 @@ export default LikesDrawer = ({ reelay, navigation }) => {
             justify-content: center;
             margin-left: 12px;
             margin-right: 20px;
+            margin-bottom: 5px;
             border-bottom-color: #2D2D2D;
             border-bottom-width: 1px;
-            margin-bottom: 5px;
+            padding-top: 10px;
+            padding-bottom: 10px;
         `
         const HeaderText = styled(ReelayText.CaptionEmphasized)`
             position: absolute;
