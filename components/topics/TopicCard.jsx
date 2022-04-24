@@ -58,6 +58,7 @@ const DescriptionText = styled(ReelayText.CaptionEmphasized)`
 `
 const TitleLine = styled(View)`
     margin-left: 16px;
+    margin-right: 16px;
     margin-bottom: 8px;
 `
 const TitleText = styled(ReelayText.H6Emphasized)`
@@ -118,16 +119,3 @@ export default TopicCard = ({ navigation, topic, stacks = [] }) => {
         </TopicCardContainer>
     );
 }
-
-
-{/* <LinearGradient
-colors={["transparent", "#0B1424"]}
-style={{
-    flex: 1,
-    opacity: 0.6,
-    width: "100%",
-    height: "100%",
-    borderRadius: "6px",
-    position: 'absolute',
-}}
-/> */}
