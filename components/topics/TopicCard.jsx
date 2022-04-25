@@ -7,6 +7,7 @@ import ProfilePicture from '../global/ProfilePicture';
 import { Icon } from 'react-native-elements';
 import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { useSelector } from 'react-redux';
 
 const { height, width } = Dimensions.get('window');
 
@@ -20,8 +21,13 @@ const BottomRowContainer = styled(View)`
 const BottomRowLeftText = styled(ReelayText.Subtitle2)`
     color: #86878B;
 `
-const ContributorPicsContainer = styled(View)`
-
+const ContributorPicContainer = styled(View)`
+    margin-left: -10px;
+`
+const ContributorRowContainer = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    margin-left: 10px;
 `
 const CreateReelayButton = styled(TouchableOpacity)`
     align-items: center;
@@ -56,6 +62,12 @@ const DescriptionLine = styled(View)`
 const DescriptionText = styled(ReelayText.CaptionEmphasized)`
     color: #86878B;
 `
+const PlayReelaysButton = styled(TouchableOpacity)`
+    align-items: center;
+    border-radius: 17px;
+    flex-direction: row;
+    justify-content: center;
+`
 const TitleLine = styled(View)`
     margin-left: 16px;
     margin-right: 16px;
@@ -76,18 +88,12 @@ const TopicCardGradient = styled(LinearGradient)`
     width: 100%;
     position: absolute;
 `
-const WatchReelaysButtonContainer = styled(View)`
-
-`
 
 const CardBottomRowNoStacks = ({ navigation, topic }) => {
     const advanceToCreateReelay = () => navigation.push('SelectTitleScreen', { topic });
-
     return (
         <BottomRowContainer>
-            <BottomRowLeftText>
-                {'0 reelays, be the first!'}
-            </BottomRowLeftText>
+            <BottomRowLeftText>{'0 reelays, be the first!'}</BottomRowLeftText>
             <CreateReelayButton onPress={advanceToCreateReelay}>
                 <Icon type='ionicon' name='add' color='white' size={20} />
                 <CreateReelayText>{'Create Reelay'}</CreateReelayText>
@@ -96,7 +102,63 @@ const CardBottomRowNoStacks = ({ navigation, topic }) => {
     );
 }
 
-export default TopicCard = ({ globalTopicIndex, navigation, topic, stacks = [] }) => {
+const CardBottomRowWithStacks = ({ advanceToTopicsFeed, topic }) => {
+    const MAX_DISPLAY_CREATORS = 5;
+    const myFollowing = useSelector(state => state.myFollowing);
+    const inMyFollowing = (creator) => !!myFollowing.find((nextFollowing) => nextFollowing.sub === creator.sub);
+
+    const getDisplayCreators = () => {
+        // list up to five profile pics, first preference towards people you follow
+        const uniqueCreatorEntries = topic.reelays.reduce((creatorEntries, nextReelay) => {
+            const nextCreator = { 
+                sub: nextReelay.creator.sub,
+                username: nextReelay.creator.username,
+                isFollowing: inMyFollowing(nextReelay.creator)
+            };
+
+            if (!creatorEntries[nextCreator.sub]) {
+                creatorEntries[nextCreator.sub] = nextCreator;
+            }
+            return creatorEntries;
+        }, {});
+
+        const uniqueCreatorList = Object.values(uniqueCreatorEntries);
+        if (uniqueCreatorList.length <= MAX_DISPLAY_CREATORS) return uniqueCreatorList;
+        return uniqueCreatorList.slice(MAX_DISPLAY_CREATORS);
+    }
+    
+    return (
+        <BottomRowContainer>
+            <CreatorProfilePicRow 
+                displayCreators={getDisplayCreators()} 
+                reelayCount={topic.reelays.length} 
+            />
+            <PlayReelaysButton onPress={advanceToTopicsFeed}>
+                <Icon type='ionicon' name='play-circle' color='white' size={30} />
+            </PlayReelaysButton>
+        </BottomRowContainer>
+    );
+}
+
+const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
+    const renderProfilePic = (creator) => {
+        return (
+            <ContributorPicContainer key={creator.sub}>
+                <ProfilePicture user={creator} size={24} />
+            </ContributorPicContainer>
+        );
+    }
+    return (
+        <ContributorRowContainer>
+            { displayCreators.map(renderProfilePic)}
+            <BottomRowLeftText>
+                {`    ${reelayCount} reelays`}
+            </BottomRowLeftText>
+        </ContributorRowContainer>
+    );
+}
+
+export default TopicCard = ({ globalTopicIndex, navigation, topic }) => {
     const creator = {
         sub: topic.creatorSub,
         username: topic.creatorName,
@@ -123,7 +185,10 @@ export default TopicCard = ({ globalTopicIndex, navigation, topic, stacks = [] }
             <DescriptionLine>
                 <DescriptionText numberOfLines={2}>{topic.description}</DescriptionText>
             </DescriptionLine>
-            { !stacks.length && <CardBottomRowNoStacks navigation={navigation} topic={topic} /> }
+            { (!topic.reelays.length) && <CardBottomRowNoStacks navigation={navigation} topic={topic} /> }
+            { (topic.reelays.length > 0) && (
+                <CardBottomRowWithStacks advanceToTopicsFeed={advanceToTopicsFeed} topic={topic} />
+             )}
         </TopicCardContainer>
     );
 }
