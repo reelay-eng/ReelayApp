@@ -1,6 +1,7 @@
 import Constants from 'expo-constants';
 import { fetchResults } from './fetchResults';
 import ReelayAPIHeaders from './ReelayAPIHeaders';
+import { prepareReelay } from './ReelayDBApi';
 
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
@@ -58,11 +59,18 @@ export const editTopic = async ({
 export const getGlobalTopics = async ({ page = 0 }) => {
     console.log('Getting global topics...');
     const routeGet = `${REELAY_API_BASE_URL}/topics?page=${page}&visibility=${FEED_VISIBILITY}`;
-    const resultGet = await fetchResults(routeGet, {
+    const topicsWithReelays = await fetchResults(routeGet, {
         method: 'GET',
         headers: ReelayAPIHeaders,
     });
-    return resultGet;
+
+    const prepareTopicReelays = async (topic) => {
+        topic.reelays = await Promise.all(topic.reelays.map(prepareReelay));
+        return topic;
+    }
+
+    const preparedTopics = await Promise.all(topicsWithReelays.map(prepareTopicReelays));
+    return preparedTopics;
 }
 
 export const removeTopic = async ({ reqUserSub, topicID }) => {

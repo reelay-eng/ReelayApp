@@ -13,11 +13,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Image, StyleSheet, SafeAreaView, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
-import { HomeTabNavigator, FeedTabNavigator, CreateReelayTabNavigator, WatchlistTabNavigator, ProfileTabNavigator } from './BottomTabs';
-
-import ReelayCameraScreen from '../screens/authenticated/ReelayCameraScreen';
-import ReelayUploadScreen from '../screens/authenticated/ReelayUploadScreen';
-import VenueSelectScreen from '../screens/authenticated/VenueSelectScreen';
+import { 
+	HomeTabNavigator, 
+	FeedTabNavigator, 
+	CreateReelayTabNavigator, 
+	WatchlistTabNavigator, 
+	ProfileTabNavigator 
+} from './BottomTabs';
 
 import HomeIcon from '../assets/icons/navbar/home-icon.png';
 import ProfileIcon from '../assets/icons/navbar/profile-icon.png';
@@ -37,22 +39,6 @@ const UnreadIconIndicator = styled(SafeAreaView)`
 	position: absolute;
 	right: 0px;
 `
-
-export default AuthenticatedNavigator = () => {
-    return (
-        <AppStack.Navigator initialRouteName='BottomTab'>
-            <AppStack.Screen name='BottomTab' component={BottomTabNavigator} 
-                options={{ headerShown: false }} />
-            {/* <AppStack.Screen name='VenueSelectScreen' component={VenueSelectScreen}
-                options={{ headerShown: false }} />
-            <AppStack.Screen name='ReelayCameraScreen' component={ReelayCameraScreen}
-                options={{ headerShown: false }} />
-            <AppStack.Screen name='ReelayUploadScreen' component={ReelayUploadScreen}
-                options={{ headerShown: false }} />  */}
-        </AppStack.Navigator>
-    );
-}
-
 const bottomTabIconStyle = (focused) => {
 	return {
 		opacity: (focused)
@@ -63,7 +49,7 @@ const bottomTabIconStyle = (focused) => {
 	};
 };
 
-const BottomTabNavigator = () => {
+export default AuthenticatedNavigator = () => {
 	const myNotifications = useSelector(state => state.myNotifications);
 	const hasUnseenGlobalReelays = useSelector(state => state.hasUnseenGlobalReelays);
 	const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;

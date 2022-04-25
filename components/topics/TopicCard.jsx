@@ -64,7 +64,7 @@ const TitleLine = styled(View)`
 const TitleText = styled(ReelayText.H6Emphasized)`
     color: white;
 `
-const TopicCardContainer = styled(View)`
+const TopicCardContainer = styled(TouchableOpacity)`
     background-color: black;
     border-radius: 11px;
     margin-right: 8px;
@@ -96,17 +96,25 @@ const CardBottomRowNoStacks = ({ navigation, topic }) => {
     );
 }
 
-export default TopicCard = ({ navigation, topic, stacks = [] }) => {
+export default TopicCard = ({ globalTopicIndex, navigation, topic, stacks = [] }) => {
     const creator = {
         sub: topic.creatorSub,
         username: topic.creatorName,
     };
 
+    const advanceToTopicsFeed = () => {
+        if (topic.reelays.length) {
+            navigation.push('TopicsFeedScreen', { 
+                initTopicIndex: globalTopicIndex 
+            });    
+        }
+    }
+
     return (
-        <TopicCardContainer>
+        <TopicCardContainer onPress={advanceToTopicsFeed}>
             <TopicCardGradient colors={['#252527', '#19242E']} />
             <CreatorLine>
-                <ProfilePicture user={creator} size={24} />
+            <ProfilePicture user={creator} size={24} />
                 <CreatorName>{creator.username}</CreatorName>
             </CreatorLine>
             <TitleLine>

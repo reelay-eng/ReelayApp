@@ -152,6 +152,7 @@ export default TopicsListScreen = ({ navigation }) => {
             return (
                 <TopicCardContainer key={topic.id} >
                     <TopicCard 
+                        globalTopicIndex={index}
                         navigation={navigation} 
                         onPress={onPress} 
                         topic={topic} 

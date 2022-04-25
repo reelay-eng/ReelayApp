@@ -85,6 +85,7 @@ export default GlobalTopics = ({ navigation }) => {
             return (
                 <TopicCard 
                     key={index} 
+                    globalTopicIndex={index}
                     navigation={navigation} 
                     onPress={onPress} 
                     topic={topic} 
