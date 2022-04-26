@@ -34,8 +34,6 @@ export default TopicsFeed = ({ initTopicIndex, navigation }) => {
     const [feedPosition, setFeedPosition] = useState(initTopicIndex);
     const [refreshing, setRefreshing] = useState(false);
 
-    console.log('global topic stacks: ', globalTopicStacks);
-
     useEffect(() => {
 		dispatch({ type: 'setTabBarVisible', payload: true }); // to ensure tab bar is always here
         // loadSelectedFeed();
@@ -58,16 +56,13 @@ export default TopicsFeed = ({ initTopicIndex, navigation }) => {
     }
 
     const renderStack = ({ item, index }) => {
-        const stack = item;
         const stackViewable = (index === feedPosition);
-
         return (
             <TopicStack 
-                stack={stack} 
-                stackViewable={stackViewable}
-                feedIndex={index}
                 initialStackPos={0}
                 navigation={navigation}
+                topic={globalTopics[index]}
+                stackViewable={stackViewable}
             />
         );
     }
