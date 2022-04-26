@@ -8,20 +8,14 @@ export default function TopicsFeedScreen({ navigation, route }) {
         background-color: black;
     `
     const initTopicIndex = route?.params?.initTopicIndex;
+    const showTabBarOnReturn = route?.params?.showTabBarOnReturn ?? true;
 
     return (
         <TransparentContainer>
-            {/* <ReelayFeed
-                initialFeedSource={'topics'}
-                initialStackPos={0}
-                initialFeedPos={globalTopicIndex}
-                isOnFeedTab={false}
-                navigation={navigation}
-                preloadedStackList={globalStacks}
-            /> */}
             <TopicsFeed
                 initTopicIndex={initTopicIndex}
                 navigation={navigation}
+                showTabBarOnReturn={showTabBarOnReturn}
             />
         </TransparentContainer>
     );

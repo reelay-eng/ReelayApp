@@ -98,9 +98,8 @@ const TopicCardContainer = styled(View)`
     margin-bottom: 18px;
 `
 const TopicScrollContainer = styled(ScrollView)`
-    display: flex;
-    flex-direction: row;
     padding-left: 15px;
+    padding-bottom: 80px;
     width: 100%;
 `
 
@@ -149,13 +148,12 @@ export default TopicsListScreen = ({ navigation }) => {
 
     const TopicScroll = () => {
         const renderTopic = (topic, index) => {
-            const onPress = () => console.log('pressed on topic');
             return (
                 <TopicCardContainer key={topic.id} >
                     <TopicCard 
                         globalTopicIndex={index}
                         navigation={navigation} 
-                        onPress={onPress} 
+                        showTabBarOnReturn={false}
                         topic={topic} 
                     />
                 </TopicCardContainer>
@@ -175,16 +173,15 @@ export default TopicsListScreen = ({ navigation }) => {
     const resetTopics = () => setDisplayTopics(fetchedTopics);
     const updateSearchResults = async (searchText) => {
         const topicSearchResults = await searchTopics({ searchText, page: 0 });
-        console.log('topic search results: ', topicSearchResults);
         setDisplayTopics(topicSearchResults);
     }
 
-    useFocusEffect(() => {
+    useEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
         return () => {
             dispatch({ type: 'setTabBarVisible', payload: true });
         }
-    })
+    }, []);
 
     return (
         <ScreenContainer>

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { ActivityIndicator, Dimensions, FlatList, View } from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import { useDispatch } from "react-redux";
 import TopicStack from './TopicStack';
 
@@ -9,22 +9,17 @@ import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import { showMessageToast } from '../utils/toasts';
 import { useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get('window');
 
-const BackButtonContainer = styled(View)`
-    background-color: transparent;
-    position: absolute;
-    top: 150px;
-    z-index: 4;
-`
 const TopicsFeedContainer = styled(View)`
     background-color: black;
     justify-content: flex-start;
     height: ${height}px;
     width: ${width}px;
 `
-export default TopicsFeed = ({ initTopicIndex, navigation }) => {
+export default TopicsFeed = ({ initTopicIndex, navigation, showTabBarOnReturn = true }) => {
     const { reelayDBUser } = useContext(AuthContext);
 	const dispatch = useDispatch();
     const feedPager = useRef();
@@ -34,10 +29,15 @@ export default TopicsFeed = ({ initTopicIndex, navigation }) => {
     const [feedPosition, setFeedPosition] = useState(initTopicIndex);
     const [refreshing, setRefreshing] = useState(false);
 
-    useEffect(() => {
-		dispatch({ type: 'setTabBarVisible', payload: true }); // to ensure tab bar is always here
-        // loadSelectedFeed();
-    }, []);
+    useFocusEffect(() => {
+        dispatch({ type: 'setTabBarVisible', payload: false });
+        return () => {
+            if (showTabBarOnReturn) {
+                console.log('showing tab bar on return');
+                dispatch({ type: 'setTabBarVisible', payload: true });
+            }    
+        }
+    });
 
     const extendFeed = () => {
         // todo

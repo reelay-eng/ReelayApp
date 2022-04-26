@@ -1,10 +1,11 @@
 import React, { useContext, useState, memo } from 'react';
-import { Dimensions, FlatList, SafeAreaView, View } from 'react-native';
+import { Dimensions, FlatList, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import Hero from '../feed/Hero';
+import * as ReelayText from '../global/Text';
+import ReelayColors from '../../constants/ReelayColors';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
-import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
 import TopicFeedHeader from './TopicFeedHeader';
 import TopicTitleBanner from './TopicTitleBanner';
@@ -12,6 +13,24 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { height, width } = Dimensions.get('window');
 
+const AddReelayButtonContainer = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 20px;
+    flex-direction: row;
+    justify-content: center;
+    height: 40px;
+    width: ${width - 32}px;
+`
+const AddReelayButtonOuterContainer = styled(SafeAreaView)`
+    align-items: center;
+    bottom: 0px;
+    position: absolute;
+    width: 100%;
+`
+const AddReelayButtonText = styled(ReelayText.Subtitle2)`
+    color: white;
+`
 const BannerContainer = styled(View)`
     top: ${(props) => props.offset}px;
     align-items: center;
@@ -24,6 +43,18 @@ const ReelayFeedContainer = styled(View)`
     height: ${height}px;
     width: ${width}px;
 `
+const AddReelayButton = ({ navigation, topic }) => {
+    const advanceToCreateTopic = () => navigation.push('SelectTitleScreen', { topic });
+    return (
+        <AddReelayButtonOuterContainer>
+        <AddReelayButtonContainer onPress={advanceToCreateTopic}>
+            <AddReelayButtonText>
+                {'Add a reelay'}
+            </AddReelayButtonText>
+        </AddReelayButtonContainer>
+        </AddReelayButtonOuterContainer>
+    );
+}
 
 export default TopicStack = ({ 
     initialStackPos = 0,
@@ -113,6 +144,7 @@ export default TopicStack = ({
                 position={stackPosition}
                 topic={topic}
             />
+            <AddReelayButton navigation={navigation} topic={topic} />
         </ReelayFeedContainer>
     );
 }

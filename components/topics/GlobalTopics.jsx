@@ -63,6 +63,9 @@ const TopicsPreviewContainer = styled(ScrollView)`
     padding-left: 15px;
     width: 100%;
 `
+const TopicScrollRightSpacer = styled(View)`
+    width: 15px;
+`
 
 export default GlobalTopics = ({ navigation }) => {
     const fetchedTopics = useSelector(state => state.globalTopics);
@@ -77,6 +80,15 @@ export default GlobalTopics = ({ navigation }) => {
                 </CreateTopicText>
             </CreateTopicButtonContainer>
         );
+    }
+
+    const getItemLayout = (topic, index) => {
+        const cardWidth = width;
+        return {
+            length: cardWidth,
+            offset: index * cardWidth,
+            index: index, 
+        }
     }
 
     const TopicsRow = () => {
@@ -95,11 +107,12 @@ export default GlobalTopics = ({ navigation }) => {
 
         return (
             <TopicsPreviewContainer 
+                getItemLayout={getItemLayout}
                 horizontal 
                 showsHorizontalScrollIndicator={false}
-                pagingEnabled={true}
             >
                 { fetchedTopics.map(renderTopic) }
+                <TopicScrollRightSpacer />
             </TopicsPreviewContainer>
         );
     }

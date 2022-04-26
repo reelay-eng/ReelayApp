@@ -7,7 +7,7 @@ import { BaseHeader, HeaderWithBackButton } from '../../components/global/Header
 import * as ReelayText from '../../components/global/Text';
 import SearchField from '../../components/create-reelay/SearchField';
 import TitleSearchResults from '../../components/search/TitleSearchResults';
-import { ActionButton, PassiveButton, ToggleSelector } from '../../components/global/Buttons';
+import { ToggleSelector } from '../../components/global/Buttons';
 
 import styled from 'styled-components/native';
 import { searchTitles } from '../../api/ReelayDBApi';
@@ -30,11 +30,17 @@ const TopBarContainer = styled(View)`
 	width: 100%;
 	margin-bottom: 8px;
 `;
+
+// color is ReelayColors.reelayGreen at reduced opacity
 const TopicTitleContainer = styled(View)`
-    background-color: #1a1a1a;
-    border-radius: 4px;
-    margin-bottom: 12px;
-    padding: 8px;
+    background-color: rgba(4, 189, 108, 0.65);
+    border-radius: 40px;
+    margin-top: -8px;
+    margin-bottom: 24px;
+    padding-top: 12px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 10px;
     width: 90%;
 `
 const TopicTitleText = styled(ReelayText.H6)`
@@ -50,6 +56,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     const [searchType, setSearchType] = useState('Film');
 
     const topic = route?.params?.topic;
+
     const updateCounter = useRef(0);
 
     const { reelayDBUser } = useContext(AuthContext);
@@ -62,7 +69,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     const TopicLabel = () => {
         return (
             <TopicTitleContainer>
-                <TopicTitleText numberOfLines={2}>{'Replying to: '}{topic?.title}</TopicTitleText>
+                <TopicTitleText numberOfLines={2}>{'Topic: '}{topic?.title}</TopicTitleText>
             </TopicTitleContainer>
         );
     }
@@ -107,7 +114,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
 		<SafeAreaView style={{ backgroundColor: "black", height: "100%", width: "100%" }}>
 			<TopBarContainer>
                 { !topic && <BaseHeader text={"Create a reelay"} /> }
-                { topic && <HeaderWithBackButton navigation={navigation} text={"Create a reelay"} /> }
+                { topic && <HeaderWithBackButton navigation={navigation} text={"Add a reelay"} /> }
                 { topic && <TopicLabel /> }
 				<SelectorBarContainer>
 					<ToggleSelector

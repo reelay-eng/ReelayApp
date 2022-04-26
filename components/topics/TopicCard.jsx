@@ -76,17 +76,23 @@ const TitleLine = styled(View)`
 const TitleText = styled(ReelayText.H6Emphasized)`
     color: white;
 `
-const TopicCardContainer = styled(TouchableOpacity)`
-    background-color: black;
-    border-radius: 11px;
-    margin-right: 8px;
-    width: ${width-32}px;
-`
 const TopicCardGradient = styled(LinearGradient)`
     border-radius: 11px;
     height: 100%;
     width: 100%;
     position: absolute;
+`
+const TopicCardPressable = styled(TouchableOpacity)`
+    background-color: black;
+    border-radius: 11px;
+    margin-right: 8px;
+    width: ${width-32}px;
+`
+const TopicCardView = styled(View)`
+    background-color: black;
+    border-radius: 11px;
+    margin-right: 8px;
+    width: ${width-32}px;
 `
 
 const CardBottomRowNoStacks = ({ navigation, topic }) => {
@@ -158,7 +164,8 @@ const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
     );
 }
 
-export default TopicCard = ({ globalTopicIndex, navigation, topic }) => {
+export default TopicCard = ({ globalTopicIndex, navigation, topic, showTabBarOnReturn = true }) => {
+    const canPress = (topic.reelays.length > 0);
     const creator = {
         sub: topic.creatorSub,
         username: topic.creatorName,
@@ -167,13 +174,22 @@ export default TopicCard = ({ globalTopicIndex, navigation, topic }) => {
     const advanceToTopicsFeed = () => {
         if (topic.reelays.length) {
             navigation.push('TopicsFeedScreen', { 
-                initTopicIndex: globalTopicIndex 
+                initTopicIndex: globalTopicIndex,
+                showTabBarOnReturn,
             });    
         }
     }
 
+    const TopicCardContainer = ({ canPress, children, onPress }) => {
+        if (canPress) {
+            return <TopicCardPressable onPress={onPress}>{children}</TopicCardPressable>;
+        } else {
+            return <TopicCardView>{children}</TopicCardView>;
+        }
+    }
+
     return (
-        <TopicCardContainer onPress={advanceToTopicsFeed}>
+        <TopicCardContainer canPress={canPress} onPress={advanceToTopicsFeed}>
             <TopicCardGradient colors={['#252527', '#19242E']} />
             <CreatorLine>
             <ProfilePicture user={creator} size={24} />
