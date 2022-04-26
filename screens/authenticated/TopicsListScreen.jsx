@@ -106,7 +106,6 @@ const TopicScrollContainer = styled(ScrollView)`
 export default TopicsListScreen = ({ navigation }) => {
     const dispatch = useDispatch();
     const fetchedTopics = useSelector(state => state.globalTopics);
-    console.log('fetched topics: ', fetchedTopics);
     const searchBarRef = useRef(null);
 
     const [displayTopics, setDisplayTopics] = useState(fetchedTopics);

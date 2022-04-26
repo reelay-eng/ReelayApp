@@ -44,12 +44,14 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	// hide tab bar
 	const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
 	const dispatch = useDispatch();
-	useFocusEffect(React.useCallback(() => {
+	
+	useEffect(() => {
 		dispatch({ type: 'setTabBarVisible', payload: false });
         return () => {
 			dispatch({ type: 'setTabBarVisible', payload: true });
 		}
-    }));
+	}, []);
+
 	const ScrollBox = styled(ScrollView)`
 		position: absolute;
 		width: 100%;

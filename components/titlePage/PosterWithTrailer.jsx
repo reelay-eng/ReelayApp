@@ -290,10 +290,7 @@ export default PosterWithTrailer = ({
 	const advanceToCreateReelay = () => {
 		if (showMeSignupIfGuest()) return;
 		console.log("go to venue select")
-		navigation.reset({
-			index: 0,
-			routes: [{ name: 'BottomTab' }, { name: 'VenueSelectScreen', params: { titleObj: titleObj } }]
-		});
+		navigation.push('VenueSelectScreen', { titleObj: titleObj });
 		logAmplitudeEventProd('advanceToCreateReelay', {
 			username: reelayDBUser?.username,
 			title: titleObj?.title?.display,

@@ -13,6 +13,7 @@ import styled from 'styled-components/native';
 import { searchTitles } from '../../api/ReelayDBApi';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
+import { useFocusEffect } from '@react-navigation/native';
 
 const SearchBarContainer = styled(View)`
 	width: 100%;
@@ -56,7 +57,6 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     const [searchType, setSearchType] = useState('Film');
 
     const topic = route?.params?.topic;
-
     const updateCounter = useRef(0);
 
     const { reelayDBUser } = useContext(AuthContext);
@@ -97,9 +97,11 @@ export default SelectTitleScreen = ({ navigation, route }) => {
         }
     }
 
-    useEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: true }); 
-    }, []);
+    useFocusEffect(() => {
+        if (!topic){
+            dispatch({ type: 'setTabBarVisible', payload: true }); 
+        }
+    })
 
     useEffect(() => {
         logAmplitudeEventProd('openSelectTitleScreen', { searchText, searchType });

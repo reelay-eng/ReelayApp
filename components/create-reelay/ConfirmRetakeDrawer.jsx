@@ -6,9 +6,11 @@ import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
+import { useDispatch } from 'react-redux';
 
 export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible, lastState }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const dispatch = useDispatch();
 
     // https://medium.com/@ndyhrdy/making-the-bottom-sheet-modal-using-react-native-e226a30bed13
 
@@ -96,6 +98,7 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
     const ExitOption = () => {
         const onPress = () => {
             setConfirmRetakeDrawerVisible(false);
+            dispatch({ type: 'setTabBarVisible', payload: true });
             navigation.navigate('HomeScreen');
             logAmplitudeEventProd('exitCreate', {
                 username: reelayDBUser?.username,

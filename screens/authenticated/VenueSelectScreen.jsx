@@ -15,7 +15,6 @@ import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 import { useDispatch } from 'react-redux';
-import { useFocusEffect } from '@react-navigation/native';
 
 export default VenueSelectScreen = ({ navigation, route }) => {
     const { titleObj } = route.params;
@@ -216,10 +215,9 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         align-items: center;
     `
 
-    useFocusEffect(() => {
+    useEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
-        return () => dispatch({ type: 'setTabBarVisible', payload: true });
-    });
+    }, []);
 
     return (
 		<ScreenOuterContainer>

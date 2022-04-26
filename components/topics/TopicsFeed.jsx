@@ -29,7 +29,7 @@ export default TopicsFeed = ({ initTopicIndex, navigation, showTabBarOnReturn = 
     const [feedPosition, setFeedPosition] = useState(initTopicIndex);
     const [refreshing, setRefreshing] = useState(false);
 
-    useFocusEffect(() => {
+    useEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
         return () => {
             if (showTabBarOnReturn) {
@@ -37,7 +37,7 @@ export default TopicsFeed = ({ initTopicIndex, navigation, showTabBarOnReturn = 
                 dispatch({ type: 'setTabBarVisible', payload: true });
             }    
         }
-    });
+    }, []);
 
     const extendFeed = () => {
         // todo
