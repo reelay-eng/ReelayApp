@@ -140,6 +140,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
 				navigation={navigation}
 				searchResults={searchResults}
 				source={"create"}
+                topicID={topic?.id}
 			/>
 		</SafeAreaView>
 	);

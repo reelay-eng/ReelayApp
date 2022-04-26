@@ -78,8 +78,10 @@ const UploadScreenContainer = styled(View)`
 `
 
 export default ReelayUploadScreen = ({ navigation, route }) => {
-
     const { titleObj, videoURI, venue } = route.params;
+    const topicID = route.params?.topicID;
+
+    console.log('topic id on upload screen: ', topicID);
 
     const uploadStages = [
         'preview',
@@ -227,6 +229,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 starRating: Math.floor(starRating/2),
                 starRatingAddHalf: (starRating%2===1) ? true : false,
                 tmdbTitleID: titleObj.id,
+                topicID: topicID ?? null,
                 venue: venue,
                 videoS3Key: videoS3Key,
                 visibility: UPLOAD_VISIBILITY,
