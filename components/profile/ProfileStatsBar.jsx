@@ -8,10 +8,7 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import * as ReelayText from '../../components/global/Text';
 
 const BarContainer = styled(View)`
-    align-self: center;
-    width: 100%;
     flex-direction: row;
-    justify-content: space-between;
 `
 const StatContainer = styled(Pressable)`
     align-items: center;
