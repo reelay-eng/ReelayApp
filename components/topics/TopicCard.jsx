@@ -111,13 +111,13 @@ const CardBottomRowWithStacks = ({ advanceToTopicsFeed, topic }) => {
         // list up to five profile pics, first preference towards people you follow
         const uniqueCreatorEntries = topic.reelays.reduce((creatorEntries, nextReelay) => {
             const nextCreator = { 
-                sub: nextReelay.creator.sub,
-                username: nextReelay.creator.username,
-                isFollowing: inMyFollowing(nextReelay.creator)
+                sub: nextReelay?.creator?.sub,
+                username: nextReelay?.creator?.username,
+                isFollowing: inMyFollowing(nextReelay?.creator)
             };
 
-            if (!creatorEntries[nextCreator.sub]) {
-                creatorEntries[nextCreator.sub] = nextCreator;
+            if (!creatorEntries[nextCreator?.sub]) {
+                creatorEntries[nextCreator?.sub] = nextCreator;
             }
             return creatorEntries;
         }, {});
@@ -143,7 +143,7 @@ const CardBottomRowWithStacks = ({ advanceToTopicsFeed, topic }) => {
 const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
     const renderProfilePic = (creator) => {
         return (
-            <ContributorPicContainer key={creator.sub}>
+            <ContributorPicContainer key={creator?.sub}>
                 <ProfilePicture user={creator} size={24} />
             </ContributorPicContainer>
         );

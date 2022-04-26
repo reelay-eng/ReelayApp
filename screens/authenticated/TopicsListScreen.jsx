@@ -107,6 +107,7 @@ const TopicScrollContainer = styled(ScrollView)`
 export default TopicsListScreen = ({ navigation }) => {
     const dispatch = useDispatch();
     const fetchedTopics = useSelector(state => state.globalTopics);
+    console.log('fetched topics: ', fetchedTopics);
     const searchBarRef = useRef(null);
 
     const [displayTopics, setDisplayTopics] = useState(fetchedTopics);
@@ -174,6 +175,7 @@ export default TopicsListScreen = ({ navigation }) => {
     const resetTopics = () => setDisplayTopics(fetchedTopics);
     const updateSearchResults = async (searchText) => {
         const topicSearchResults = await searchTopics({ searchText, page: 0 });
+        console.log('topic search results: ', topicSearchResults);
         setDisplayTopics(topicSearchResults);
     }
 
