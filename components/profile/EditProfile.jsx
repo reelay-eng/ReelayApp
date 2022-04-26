@@ -32,7 +32,7 @@ import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 const { height, width } = Dimensions.get("window");
 
 const Spacer = styled(View)`
-	height: ${(props) => (props.height ? props.height : "0px")};
+	height: 10px;
 `;
 
 export default EditProfile = () => {
@@ -438,7 +438,7 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 							<MenuOptionText>Take Photo</MenuOptionText>
 						</MenuOption>
 					</MenuOptionsContainer>
-					<Spacer height="10px" />
+					<Spacer />
 					<MenuOptionsContainer>
 						<MenuOption onPress={close}>
 							<MenuOptionText>Cancel</MenuOptionText>
@@ -493,7 +493,7 @@ const EditWebsite = ({ websiteRef, websiteInputRef, currentFocus }) => {
 			<WebsiteInput
 				ref={websiteInputRef}
 				autoComplete='none'
-				autoCapitalize='off'
+				autoCapitalize='none'
 				autoCorrect={false}
 				defaultValue={websiteRef.current}
 				placeholder={"Any cool links?"}
