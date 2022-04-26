@@ -56,7 +56,7 @@ export default LikesDrawer = ({ reelay, navigation }) => {
         const CloseButtonContainer = styled(Pressable)`
             align-self: flex-end;
         `
-		const headerText = (reelay.comments.length) ? `${reelay.likes.length} likes` : "No likes... be the first!"
+		const headerText = (reelay.likes.length) ? `${reelay.likes.length} like${reelay.likes.length > 1 ? "s" : ""}` : "No likes... be the first!"
 		
         return (
             <HeaderContainer>
