@@ -8,6 +8,7 @@ import { Icon } from 'react-native-elements';
 import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
+import JustShowMeSignupDrawer from '../global/JustShowMeSignupDrawer';
 
 const { height, width } = Dimensions.get('window');
 
@@ -19,6 +20,7 @@ const BottomRowContainer = styled(View)`
     bottom: 4px;
 `
 const BottomRowLeftText = styled(ReelayText.Subtitle2)`
+    margin-left: 8px;
     color: #86878B;
 `
 const ContributorPicContainer = styled(View)`
@@ -47,11 +49,16 @@ const CreateReelayText = styled(ReelayText.CaptionEmphasized)`
 const CreatorLine = styled(View)`
     align-items: center;
     flex-direction: row;
+    justify-content: space-between;
     margin: 16px;
+`
+const CreatorLineLeft = styled(View)`
+    align-items: center;
+    flex-direction: row;
 `
 const CreatorName = styled(ReelayText.CaptionEmphasized)`
     color: #86878B;
-    margin-left: 6px;
+    margin-left: 8px;
     padding-top: 4px;
 `
 const DescriptionLine = styled(View)`
@@ -61,6 +68,10 @@ const DescriptionLine = styled(View)`
 `
 const DescriptionText = styled(ReelayText.CaptionEmphasized)`
     color: #86878B;
+`
+const DotMenuButtonContainer = styled(TouchableOpacity)`
+    padding-left: 4px;
+    padding-right: 4px;
 `
 const PlayReelaysButton = styled(TouchableOpacity)`
     align-items: center;
@@ -147,6 +158,8 @@ const CardBottomRowWithStacks = ({ advanceToTopicsFeed, topic }) => {
 }
 
 const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
+    const pluralCount = (reelayCount > 1) ? 's' : '';
+    const reelayCountText = `${reelayCount} reelay${pluralCount}`;
     const renderProfilePic = (creator) => {
         return (
             <ContributorPicContainer key={creator?.sub}>
@@ -157,9 +170,7 @@ const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
     return (
         <ContributorRowContainer>
             { displayCreators.map(renderProfilePic)}
-            <BottomRowLeftText>
-                {`    ${reelayCount} reelays`}
-            </BottomRowLeftText>
+            <BottomRowLeftText>{reelayCountText}</BottomRowLeftText>
         </ContributorRowContainer>
     );
 }
@@ -191,12 +202,28 @@ export default TopicCard = ({ navigation, topic, showTabBarOnReturn = true }) =>
         }
     }
 
+    const DotMenuButton = () => {
+        const [topicDotMenuVisible, setTopicDotMenuVisible] = useState(false);
+        const openDrawer = () => setTopicDotMenuVisible(true);
+        return (
+            <DotMenuButtonContainer onPress={openDrawer}>
+                <Icon type='ionicon' name='ellipsis-horizontal' size={20} color='white' />
+                { topicDotMenuVisible && (
+                    <View />
+                )}
+            </DotMenuButtonContainer>
+        );
+    }
+
     return (
         <TopicCardContainer canPress={canPress} onPress={advanceToTopicsFeed}>
             <TopicCardGradient colors={['#252527', '#19242E']} />
             <CreatorLine>
-            <ProfilePicture user={creator} size={24} />
-                <CreatorName>{creator.username}</CreatorName>
+                <CreatorLineLeft>
+                    <ProfilePicture user={creator} size={24} />
+                    <CreatorName>{creator.username}</CreatorName>
+                </CreatorLineLeft>
+                <DotMenuButton />
             </CreatorLine>
             <TitleLine>
                 <TitleText>{topic.title}</TitleText>

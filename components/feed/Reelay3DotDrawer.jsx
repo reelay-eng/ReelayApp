@@ -8,10 +8,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import styled from 'styled-components/native';
 
-import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../global/Text';
 import { showMessageToast } from '../utils/toasts';
 import DownloadButton from '../create-reelay/DownloadButton';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ContentPolicy  = require('../../constants/ContentPolicy.json');
 
@@ -19,28 +19,16 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
 
     const dispatch = useDispatch();
-
     const isMyReelay = (reelayDBUser?.sub === reelay.creator.sub); 
 
     const [drawerState, setDrawerState] = useState('options');
     const [selectedPolicy, setSelectedPolicy] = useState({});
+    const bottomOffset = useSafeAreaInsets().bottom + 15;
     
-    console.log('3 dot drawer rendering: ', drawerState);
-    const drawerStates = [
-        'options',
-        'block-creator-confirm',
-        'block-creator-complete',
-        'report-content-select-violation',
-        'report-content-submit',
-        'report-content-complete',
-        'remove-reelay-confirm',
-        'suspend-account-confirm',
-        'suspend-account-complete',
-    ];
-
     const ContentContainer = styled(View)`
+        padding-left: 24px;
+        padding-right: 24px;
         width: 100%;
-        padding: 30px;
     `
     const DownloadContainer = styled(View)`
         align-items: flex-end;
@@ -50,15 +38,22 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         right: 30px;
     `
     const DrawerContainer = styled(View)`
-        background-color: ${ReelayColors.reelayBlack};
+        background-color: #1a1a1a;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
-        border-width: 1px;
         height: auto;
         margin-top: auto;
         max-height: 70%;
-        padding-bottom: 40px;
+        padding-bottom: ${bottomOffset}px;
         width: 100%;
+    `
+    const IconSpacer = styled(View)`
+        width: 8px;
+    `
+    const ListOptionContainer = styled(View)`
+        flex-direction: row;
+        margin: 6px;
+        margin-right: 0px;
     `
     const OptionContainerPressable = styled(Pressable)`
         flex-direction: row;
@@ -67,9 +62,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         margin-top: 20px;
         color: #2977EF;
     `
-    const OptionText = styled(ReelayText.Body1)`
-        margin-left: 20px;
-        margin-right: 20px;
+    const OptionText = styled(ReelayText.Body2)`
         color: white;
     `
     const closeDrawer = () => {
@@ -83,7 +76,8 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         
         return (
             <OptionContainerPressable onPress={onPress}>
-                <Icon type='ionicon' name='remove-circle' size={27} color={'white'} />
+                <Icon type='ionicon' name='remove-circle' size={20} color={'white'} />
+                <IconSpacer />
                 <OptionText>{`Block Creator`}</OptionText>
             </OptionContainerPressable>
         );
@@ -109,10 +103,10 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
             <ContentContainer>
                 <Prompt text={'Are you sure you want to block this creator?'} />
                 <OptionContainerPressable onPress={onPress}>
-                    <Icon type='ionicon' name='remove-circle' size={27} color={'white'} />
+                    <Icon type='ionicon' name='remove-circle' size={20} color={'white'} />
+                    <IconSpacer />
                     <OptionText>{`Yes, block this creator`}</OptionText>
                 </OptionContainerPressable>
-                <CancelOption />
             </ContentContainer>
         );
     }
@@ -122,8 +116,31 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         return (
             <ContentContainer>
                 <Prompt text={blockCompleteMessage} />
-                <CancelOption />
             </ContentContainer>
+        );
+    }
+
+    const Header = () => {
+        const HeaderContainer = styled(View)`
+            justify-content: center;
+            margin-left: 12px;
+            margin-right: 20px;
+            margin-bottom: 5px;
+            border-bottom-color: #2D2D2D;
+            border-bottom-width: 1px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+        `
+        const CloseButtonContainer = styled(Pressable)`
+            align-self: flex-end;
+        `		
+
+        return (
+            <HeaderContainer>
+                <CloseButtonContainer onPress={closeDrawer}>
+                    <Icon color={'white'} type='ionicon' name='close' size={25}/>
+                </CloseButtonContainer>
+            </HeaderContainer>
         );
     }
 
@@ -131,8 +148,9 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         const PromptContainer = styled(View)`
             align-items: flex-start;
         `
-        const PromptText = styled(ReelayText.Body1)`
+        const PromptText = styled(ReelayText.Subtitle1Emphasized)`
             color: white;
+            padding-top: 8px;
         `
         return (
             <PromptContainer>
@@ -146,11 +164,12 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
             setDrawerState('remove-reelay-confirm');
         }
         
-        const optionText = (isMyReelay) ? 'Remove Reelay' : 'Remove Reelay (Admin)'
+        const optionText = (isMyReelay) ? 'Remove Reelay' : '(Admin) Remove Reelay'
 
         return (
             <OptionContainerPressable onPress={onPress}>
-                <Icon type='ionicon' name='trash' size={27} color={'white'} />
+                <Icon type='ionicon' name='trash' size={20} color={'white'} />
+                <IconSpacer />
                 <OptionText>{optionText}</OptionText>
             </OptionContainerPressable>
         );
@@ -177,10 +196,10 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
             <ContentContainer>
                 <Prompt text={'Are you sure you want to remove this reelay?'} />
                 <OptionContainerPressable onPress={onPress}>
-                    <Icon type='ionicon' name='remove-circle' size={27} color={'white'} />
+                    <Icon type='ionicon' name='remove-circle' size={20} color={'white'} />
+                    <IconSpacer />
                     <OptionText>{`Yes, remove`}</OptionText>
                 </OptionContainerPressable>
-                <CancelOption />
             </ContentContainer>
         );
     }
@@ -191,7 +210,6 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         return (
             <ContentContainer>
                 <Prompt text={removeReelayMessage} />
-                <CancelOption />
             </ContentContainer>
         );
     }
@@ -203,7 +221,8 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
         return (
             <OptionContainerPressable onPress={onPress}>
-                <Icon type='ionicon' name='flag' size={27} color={'white'} />
+                <Icon type='ionicon' name='flag' size={20} color={'white'} />
+                <IconSpacer />
                 <OptionText selected={false}>{`Report Content`}</OptionText>
             </OptionContainerPressable>
         );
@@ -213,11 +232,10 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         return (
             <ScrollView>
                 <ContentContainer>
-                    <Prompt text={'Thanks for flagging. What should we review?'} />
+                    <Prompt text={'What should we review?'} />
                     { ContentPolicy.policies.map((policy) => {
                         return <ContentPolicyOption key={policy.id} policy={policy} />;
                     })}
-                    <CancelOption />
                 </ContentContainer>
             </ScrollView>
         );
@@ -235,7 +253,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         return (
             <OptionContainerPressable onPress={onPress}>
                 <OptionText selected={false}>{displayName}</OptionText>
-                <Icon type='ionicon' name='chevron-forward' size={27} color={'white'} />
+                <Icon type='ionicon' name='chevron-forward' size={20} color={'white'} />
             </OptionContainerPressable>
         );
     }
@@ -271,13 +289,19 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         return (
             <ScrollView>
                 <ContentContainer>
-                    <Prompt text={statement} />
-                    { exampleList.map((example, index) => <Prompt key={index} text={`\t*\t${example}`} /> )}
+                    <OptionText>{statement}</OptionText>
+                    { exampleList.map((example, index) => {
+                        return (
+                            <ListOptionContainer>
+                                <OptionText key={index}>{example}</OptionText>
+                            </ListOptionContainer>
+                        );
+                     })}
                     <OptionContainerPressable onPress={onPress}>
-                        <Icon type='ionicon' name='paper-plane' size={27} color={'white'} />
+                        <Icon type='ionicon' name='paper-plane' size={20} color={'white'} />
+                        <IconSpacer />
                         <OptionText selected={false}>{'Submit Report'}</OptionText>
                     </OptionContainerPressable>
-                    <CancelOption />
                 </ContentContainer>
             </ScrollView>
         );
@@ -289,7 +313,6 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         return (
             <ContentContainer>
                 <Prompt text={removeReelayMessage} />
-                <CancelOption />
             </ContentContainer>
         );
     }
@@ -301,8 +324,9 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
         return (
             <OptionContainerPressable onPress={onPress}>
-                <Icon type='ionicon' name='hand-right' size={27} color={'white'} />
-                <OptionText selected={false}>{`Suspend Account (Admin)`}</OptionText>
+                <Icon type='ionicon' name='hand-right' size={20} color={'white'} />
+                <IconSpacer />
+                <OptionText selected={false}>{`(Admin) Suspend Account`}</OptionText>
             </OptionContainerPressable>
         );
     }
@@ -327,10 +351,10 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
             <ContentContainer>
                 <Prompt text={'Are you sure you want to suspend this account? They must be manually reinstated'} />
                 <OptionContainerPressable onPress={onPress}>
-                    <Icon type='ionicon' name='remove-circle' size={27} color={'white'} />
+                    <Icon type='ionicon' name='remove-circle' size={20} color={'white'} />
+                    <IconSpacer />
                     <OptionText>{`Yes, suspend this account`}</OptionText>
                 </OptionContainerPressable>
-                <CancelOption />
             </ContentContainer>
         );
     }
@@ -340,7 +364,6 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         return (
             <ContentContainer>
                 <Prompt text={suspendAccountMessage} />
-                <CancelOption />
             </ContentContainer>
         );
     }
@@ -353,8 +376,9 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
         return (
             <OptionContainerPressable onPress={onPress}>
-                <Icon type='ionicon' name='eye' size={27} color={'white'} />
-                <OptionText>{`View Reported Content (Admin)`}</OptionText>
+                <Icon type='ionicon' name='eye' size={20} color={'white'} />
+                <IconSpacer />
+                <OptionText>{`(Admin) View Reported Content`}</OptionText>
             </OptionContainerPressable>
         );
     }
@@ -370,7 +394,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
         return (
             <OptionContainerPressable onPress={onPress}>
-                <Icon type='ionicon' name='arrow-back' size={27} color={'white'} />
+                <Icon type='ionicon' name='arrow-back' size={20} color={'white'} />
                 <OptionText>{`Back`}</OptionText>
             </OptionContainerPressable>
         );
@@ -382,9 +406,8 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
                 { !isMyReelay && <ReportContentOption /> }
                 { !isMyReelay && <BlockCreatorOption /> }
                 { (reelayDBUser?.role === 'admin' || isMyReelay) && <RemoveReelayOption /> }
-                { (reelayDBUser?.role === 'admin') && <ViewReportedContentFeedOption /> }
                 { (reelayDBUser?.role === 'admin') && !isMyReelay && <SuspendAccountOption /> }
-                <CancelOption />
+                { (reelayDBUser?.role === 'admin') && <ViewReportedContentFeedOption /> }
                 <DownloadOption />
             </ContentContainer>
         );
@@ -406,6 +429,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
     return (
             <DrawerContainer>
+                <Header />
                 { drawerState === 'options' && <DotMenuOptions /> }
                 { drawerState === 'block-creator-confirm' && <BlockCreatorConfirm /> }
                 { drawerState === 'block-creator-complete' && <BlockCreatorComplete /> }
