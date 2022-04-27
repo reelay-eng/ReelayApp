@@ -10,6 +10,7 @@ import styled from 'styled-components/native';
 import TopicFeedHeader from './TopicFeedHeader';
 import TopicTitleBanner from './TopicTitleBanner';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Icon } from 'react-native-elements';
 
 const { height, width } = Dimensions.get('window');
 
@@ -30,6 +31,7 @@ const AddReelayButtonOuterContainer = styled(View)`
 `
 const AddReelayButtonText = styled(ReelayText.Subtitle2)`
     color: white;
+    margin-left: 4px;
 `
 const BannerContainer = styled(View)`
     top: ${(props) => props.offset}px;
@@ -48,6 +50,7 @@ const AddReelayButton = ({ navigation, offset, topic }) => {
     return (
         <AddReelayButtonOuterContainer offset={offset}>
         <AddReelayButtonContainer onPress={advanceToCreateTopic}>
+            <Icon type='ionicon' name='add-circle-outline' size={16} color='white' />
             <AddReelayButtonText>
                 {'Add a reelay'}
             </AddReelayButtonText>

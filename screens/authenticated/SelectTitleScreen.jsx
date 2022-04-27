@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { SafeAreaView, View, Pressable, Text } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { useDispatch } from "react-redux";
+import { Icon } from 'react-native-elements';
 
 import { BaseHeader, HeaderWithBackButton } from '../../components/global/Headers';
 import * as ReelayText from '../../components/global/Text';
@@ -36,6 +37,7 @@ const TopBarContainer = styled(View)`
 const TopicTitleContainer = styled(View)`
     background-color: rgba(4, 189, 108, 0.65);
     border-radius: 40px;
+    flex-direction: row;
     margin-top: -8px;
     margin-bottom: 24px;
     padding-top: 12px;
@@ -50,6 +52,7 @@ const TopicTitleText = styled(ReelayText.H6)`
     flex-direction: row;
     font-size: 14px;
     line-height: 16px;
+    margin-left: 4px;
 `
 export default SelectTitleScreen = ({ navigation, route }) => {
     const [searchText, setSearchText] = useState('');
@@ -69,6 +72,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     const TopicLabel = () => {
         return (
             <TopicTitleContainer>
+                <Icon type='ionicon' name='bulb' size={16} color='white' />
                 <TopicTitleText numberOfLines={2}>{'Topic: '}{topic?.title}</TopicTitleText>
             </TopicTitleContainer>
         );
