@@ -121,7 +121,7 @@ export default GlobalTopics = ({ navigation }) => {
         <GlobalTopicsContainer>
             <HeaderContainer>
                 <HeaderContainerLeft>
-                    <Icon type='ionicon' name='bulb' size={24} color='white' />
+                    <Icon type='ionicon' name='logo-ionic' size={24} color='white' />
                     <HeaderText>{'Topics'}</HeaderText>
                 </HeaderContainerLeft>
                 <HeaderContainerRight onPress={advanceToTopicsList}>

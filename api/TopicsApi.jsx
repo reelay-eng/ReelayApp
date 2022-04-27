@@ -74,7 +74,7 @@ export const getGlobalTopics = async ({ page = 0 }) => {
 }
 
 export const removeTopic = async ({ reqUserSub, topicID }) => {
-    const routeDelete =  `${REELAY_API_BASE_URL}/topics`;
+    const routeDelete =  `${REELAY_API_BASE_URL}/topics/`;
     const deleteBody = { topicID };
     const resultDelete = await fetchResults(routeDelete, {
         method: 'DELETE',

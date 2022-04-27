@@ -8,7 +8,7 @@ import { Icon } from 'react-native-elements';
 import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
-import JustShowMeSignupDrawer from '../global/JustShowMeSignupDrawer';
+import TopicDotMenuDrawer from './TopicDotMenuDrawer';
 
 const { height, width } = Dimensions.get('window');
 
@@ -209,7 +209,12 @@ export default TopicCard = ({ navigation, topic, showTabBarOnReturn = true }) =>
             <DotMenuButtonContainer onPress={openDrawer}>
                 <Icon type='ionicon' name='ellipsis-horizontal' size={20} color='white' />
                 { topicDotMenuVisible && (
-                    <View />
+                    <TopicDotMenuDrawer 
+                        navigation={navigation}
+                        topic={topic}
+                        drawerVisible={topicDotMenuVisible}
+                        setDrawerVisible={setTopicDotMenuVisible}
+                    />
                 )}
             </DotMenuButtonContainer>
         );

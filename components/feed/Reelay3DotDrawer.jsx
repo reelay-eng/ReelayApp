@@ -383,23 +383,6 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         );
     }
 
-    const CancelOption = () => {
-        const onPress = () => {
-            if (drawerState === 'options') {
-                closeDrawer();
-            } else {
-                setDrawerState('options');
-            }
-        }
-
-        return (
-            <OptionContainerPressable onPress={onPress}>
-                <Icon type='ionicon' name='arrow-back' size={20} color={'white'} />
-                <OptionText>{`Back`}</OptionText>
-            </OptionContainerPressable>
-        );
-    }
-
     const DotMenuOptions = () => {
         return (
             <ContentContainer>

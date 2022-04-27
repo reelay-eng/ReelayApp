@@ -72,7 +72,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     const TopicLabel = () => {
         return (
             <TopicTitleContainer>
-                <Icon type='ionicon' name='bulb' size={16} color='white' />
+                <Icon type='ionicon' name='logo-ionic' size={16} color='white' />
                 <TopicTitleText numberOfLines={2}>{'Topic: '}{topic?.title}</TopicTitleText>
             </TopicTitleContainer>
         );
