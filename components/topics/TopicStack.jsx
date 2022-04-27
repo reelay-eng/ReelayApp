@@ -22,9 +22,9 @@ const AddReelayButtonContainer = styled(TouchableOpacity)`
     height: 40px;
     width: ${width - 32}px;
 `
-const AddReelayButtonOuterContainer = styled(SafeAreaView)`
+const AddReelayButtonOuterContainer = styled(View)`
     align-items: center;
-    bottom: 0px;
+    bottom: ${(props) => props.offset ?? 0}px;
     position: absolute;
     width: 100%;
 `
@@ -43,10 +43,10 @@ const ReelayFeedContainer = styled(View)`
     height: ${height}px;
     width: ${width}px;
 `
-const AddReelayButton = ({ navigation, topic }) => {
+const AddReelayButton = ({ navigation, offset, topic }) => {
     const advanceToCreateTopic = () => navigation.push('SelectTitleScreen', { topic });
     return (
-        <AddReelayButtonOuterContainer>
+        <AddReelayButtonOuterContainer offset={offset}>
         <AddReelayButtonContainer onPress={advanceToCreateTopic}>
             <AddReelayButtonText>
                 {'Add a reelay'}
@@ -66,6 +66,7 @@ export default TopicStack = ({
     const stack = topic.reelays;
     const [stackPosition, setStackPosition] = useState(initialStackPos);
     const headerTopOffset = useSafeAreaInsets().top;
+    const addReelayBottomOffset = useSafeAreaInsets().bottom;
 
     const getItemLayout = (data, index) => ({
         length: width, 
@@ -144,7 +145,11 @@ export default TopicStack = ({
                 position={stackPosition}
                 topic={topic}
             />
-            <AddReelayButton navigation={navigation} topic={topic} />
+            <AddReelayButton 
+                navigation={navigation} 
+                offset={addReelayBottomOffset}
+                topic={topic} 
+            />
         </ReelayFeedContainer>
     );
 }

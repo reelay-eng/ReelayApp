@@ -148,6 +148,7 @@ export default function CreateTopicScreen({ navigation, route }) {
                 <TouchableWithoutFeedback onPress={focusDescription}>
                     <DescriptionInputField 
                         ref={descriptionFieldRef}
+                        blurOnSubmit={true}
                         maxLength={DESCRIPTION_MAX_LENGTH}
                         multiline
                         defaultValue={descriptionTextRef.current}
@@ -155,8 +156,8 @@ export default function CreateTopicScreen({ navigation, route }) {
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
                         onChangeText={changeDescriptionText}
                         onPressOut={Keyboard.dismiss()}
-                        returnKeyLabel="return"
-                        returnKeyType="default"
+                        returnKeyLabel="done"
+                        returnKeyType="done"
                     />
                 </TouchableWithoutFeedback>   
             </SectionContainer> 
@@ -179,6 +180,7 @@ export default function CreateTopicScreen({ navigation, route }) {
                 <TouchableWithoutFeedback onPress={focusTitle}>
                     <TitleInputField 
                         ref={titleFieldRef}
+                        blurOnSubmit={true}
                         maxLength={TITLE_MAX_LENGTH}
                         multiline
                         numberOfLines={4}
@@ -186,9 +188,10 @@ export default function CreateTopicScreen({ navigation, route }) {
                         placeholder={"What should people reelay?"}
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
                         onChangeText={changeTitleText}
-                        onPressOut={Keyboard.dismiss()}
-                        returnKeyLabel="return"
-                        returnKeyType="default"
+                        onSubmitEditing={Keyboard.dismiss}
+                        onPressOut={Keyboard.dismiss}
+                        returnKeyLabel="done"
+                        returnKeyType="done"
                     />
                 </TouchableWithoutFeedback>   
             </SectionContainer> 
@@ -203,6 +206,7 @@ export default function CreateTopicScreen({ navigation, route }) {
     });
 
     return (
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <CreateScreenContainer>
             <View>
                 <Header />
@@ -217,9 +221,10 @@ export default function CreateTopicScreen({ navigation, route }) {
                     navigation={navigation}
                     drawerVisible={addFirstReelayDrawerVisible}
                     setDrawerVisible={setAddFirstReelayDrawerVisible}
-                    publishedTopic={publishedTopicRef.current}
+                    topic={publishedTopicRef.current}
                 /> 
             )}
         </CreateScreenContainer>
+        </TouchableWithoutFeedback>
     );
 };

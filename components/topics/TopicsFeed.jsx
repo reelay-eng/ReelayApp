@@ -23,8 +23,8 @@ export default TopicsFeed = ({ initTopicIndex, navigation, showTabBarOnReturn = 
     const { reelayDBUser } = useContext(AuthContext);
 	const dispatch = useDispatch();
     const feedPager = useRef();
-    const globalTopics = useSelector(state => state.globalTopics);
-    const globalTopicStacks = globalTopics.map(topic => topic.reelays).filter(stack => stack.length > 0);
+    const globalTopicsWithReelays = useSelector(state => state.globalTopicsWithReelays);
+    const globalTopicStacks = globalTopicsWithReelays.map(topic => topic.reelays);
 
     const [feedPosition, setFeedPosition] = useState(initTopicIndex);
     const [refreshing, setRefreshing] = useState(false);
@@ -61,7 +61,7 @@ export default TopicsFeed = ({ initTopicIndex, navigation, showTabBarOnReturn = 
             <TopicStack 
                 initialStackPos={0}
                 navigation={navigation}
-                topic={globalTopics[index]}
+                topic={globalTopicsWithReelays[index]}
                 stackViewable={stackViewable}
             />
         );
@@ -85,7 +85,7 @@ export default TopicsFeed = ({ initTopicIndex, navigation, showTabBarOnReturn = 
                 username: reelayDBUser?.username,
             }
             logAmplitudeEventProd('swipedFeed', logProperties);
-            setFeedPosition(feedPosition);
+            setFeedPosition(nextFeedPosition);
         }
     }
 

@@ -164,17 +164,20 @@ const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
     );
 }
 
-export default TopicCard = ({ globalTopicIndex, navigation, topic, showTabBarOnReturn = true }) => {
+export default TopicCard = ({ navigation, topic, showTabBarOnReturn = true }) => {
     const canPress = (topic.reelays.length > 0);
     const creator = {
         sub: topic.creatorSub,
         username: topic.creatorName,
     };
 
+    const globalTopicsWithReelays = useSelector(state => state.globalTopicsWithReelays);
+    const topicFeedIndex = globalTopicsWithReelays.findIndex((nextTopic) => nextTopic.id === topic.id);
+
     const advanceToTopicsFeed = () => {
         if (topic.reelays.length) {
             navigation.push('TopicsFeedScreen', { 
-                initTopicIndex: globalTopicIndex,
+                initTopicIndex: topicFeedIndex,
                 showTabBarOnReturn,
             });    
         }
