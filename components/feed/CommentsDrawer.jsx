@@ -116,7 +116,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         const CloseButtonContainer = styled(Pressable)`
             align-self: flex-end;
         `
-		const headerText = (reelay.comments.length) ? `${reelay.comments.length} comments` : "No comments... be the first!"
+		const headerText = (reelay.comments.length) ? `${reelay.comments.length} comment${reelay.comments.length > 1 ? "s" : ""}` : "No comments... be the first!"
 		
         return (
             <HeaderContainer>

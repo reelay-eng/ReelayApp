@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Pressable, View } from 'react-native';
+import { Dimensions, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 import { AuthContext } from '../../context/AuthContext';
@@ -13,14 +13,16 @@ import { Button } from '../global/Buttons';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { useDispatch, useSelector } from 'react-redux';
 
+const { width } = Dimensions.get('window');
+
 export default FollowButton = ({ creator, bar=false, fancy=false, creatorFollowsMe = false }) => {
 	const Spacer = styled(View)`
-		height: ${props => props.height ?? "10px"};
+		height: 10px;
 	`
 
 	const ButtonContainer = styled(View)`
-		height: ${bar ? "40px" : "30px"};
-		width: ${bar ? "90%" : "90px"};
+		height: ${bar ? 40 : 30}px;
+		width: ${bar ? (width - 32) : 90}px;
 	`
     const dispatch = useDispatch();
 	const { reelayDBUser } = useContext(AuthContext);
@@ -131,7 +133,7 @@ export default FollowButton = ({ creator, bar=false, fancy=false, creatorFollows
 		<>
 			{ !alreadyFollowing && !isMyProfile && <NotYetFollowingButton /> }
 			{ alreadyFollowing && !isMyProfile && <AlreadyFollowingButton /> }
-			{ bar && <Spacer height="10px" />}
+			{ bar && <Spacer />}
 		</>
 	);
 }

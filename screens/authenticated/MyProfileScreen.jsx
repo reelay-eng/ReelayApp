@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
+import { Dimensions, RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 
 // Logging
@@ -29,6 +29,8 @@ import { useDispatch, useSelector } from 'react-redux';
 // Styling
 import styled from 'styled-components/native';
 import store from '../../redux/store';
+
+const { width } = Dimensions.get('window');
 
 export default MyProfileScreen = ({ navigation, route }) => {
     const ProfileScreenContainer = styled(SafeAreaView)`
@@ -150,7 +152,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
             margin-bottom: 8px;
 		`;
         const EditProfileButtonContainer = styled(View)`
-            width: 90%;
+            width: ${width - 32}px;
             height: 40px;
         `
 

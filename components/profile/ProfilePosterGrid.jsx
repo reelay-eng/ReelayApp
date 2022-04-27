@@ -9,9 +9,9 @@ const { width } = Dimensions.get('window');
 const GRID_SIDE_MARGIN = 16;
 const GRID_WIDTH = width - (2 * GRID_SIDE_MARGIN);
 
-const POSTER_HALF_MARGIN = 8;
+const POSTER_HALF_MARGIN = 4;
 const POSTER_ROW_LENGTH = 4;
-const POSTER_WIDTH = GRID_WIDTH / POSTER_ROW_LENGTH - 2 * POSTER_HALF_MARGIN;
+const POSTER_WIDTH = (GRID_WIDTH / POSTER_ROW_LENGTH) - (2 * POSTER_HALF_MARGIN);
 const POSTER_HEIGHT = 1.5 * POSTER_WIDTH;
 
 const PosterContainer = styled(View)`
@@ -19,16 +19,13 @@ const PosterContainer = styled(View)`
     margin: ${POSTER_HALF_MARGIN}px;
 `
 const PosterGridContainer = styled(View)`
-    align-self: center;
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
+    margin-top: 4px;
+    margin-left: ${GRID_SIDE_MARGIN}px;
+    margin-right: ${GRID_SIDE_MARGIN}px;
     width: ${GRID_WIDTH}px;
-`
-const PosterImage = styled(Image)`
-    border-radius: ${POSTER_HALF_MARGIN}px;
-    height: ${POSTER_HEIGHT}px;
-    width: ${POSTER_WIDTH}px;
 `
 const StarRatingContainer = styled(View)`
     align-items: center;
