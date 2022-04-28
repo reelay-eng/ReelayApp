@@ -1,7 +1,6 @@
 import React, { memo, useContext, useEffect, useState } from 'react';
 import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native'
 import styled from 'styled-components';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import HomeHeader from './HomeHeader';
 import InTheaters from './InTheaters';

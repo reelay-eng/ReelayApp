@@ -17,7 +17,10 @@ const BottomRowContainer = styled(View)`
     flex-direction: row;
     justify-content: space-between;
     margin: 16px;
-    bottom: 4px;
+    margin-bottom: 0px;
+    bottom: 16px;
+    position: absolute;
+    width: ${width - 64}px;
 `
 const BottomRowLeftText = styled(ReelayText.Subtitle2)`
     margin-left: 8px;
@@ -86,6 +89,7 @@ const TitleLine = styled(View)`
 `
 const TitleText = styled(ReelayText.H6Emphasized)`
     color: white;
+    font-size: 18px;
 `
 const TopicCardGradient = styled(LinearGradient)`
     border-radius: 11px;
@@ -96,12 +100,14 @@ const TopicCardGradient = styled(LinearGradient)`
 const TopicCardPressable = styled(TouchableOpacity)`
     background-color: black;
     border-radius: 11px;
+    height: 220px;
     margin-right: 8px;
     width: ${width-32}px;
 `
 const TopicCardView = styled(View)`
     background-color: black;
     border-radius: 11px;
+    height: 220px;
     margin-right: 8px;
     width: ${width-32}px;
 `
@@ -169,7 +175,7 @@ const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
     }
     return (
         <ContributorRowContainer>
-            { displayCreators.map(renderProfilePic)}
+            { displayCreators.map(renderProfilePic) }
             <BottomRowLeftText>{reelayCountText}</BottomRowLeftText>
         </ContributorRowContainer>
     );
@@ -231,10 +237,10 @@ export default TopicCard = ({ navigation, topic, showTabBarOnReturn = true }) =>
                 <DotMenuButton />
             </CreatorLine>
             <TitleLine>
-                <TitleText>{topic.title}</TitleText>
+                <TitleText numberOfLines={2}>{topic.title}</TitleText>
             </TitleLine>
             <DescriptionLine>
-                <DescriptionText numberOfLines={2}>{topic.description}</DescriptionText>
+                <DescriptionText numberOfLines={3}>{topic.description}</DescriptionText>
             </DescriptionLine>
             { (!topic.reelays.length) && <CardBottomRowNoStacks navigation={navigation} topic={topic} /> }
             { (topic.reelays.length > 0) && (

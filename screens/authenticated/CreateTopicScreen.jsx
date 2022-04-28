@@ -65,7 +65,7 @@ const TitleInputField = styled(TextInput)`
     padding: 12px;
 `
 const DescriptionInputField = styled(TitleInputField)`
-    height: 200px;
+    height: 90px;
 `
 const SectionContainer = styled(View)`
     margin-left: 20px;
@@ -81,8 +81,8 @@ const TitleText = styled(ReelayText.Subtitle2)`
     font-size: 16px;
 `
 const TITLE_MIN_LENGTH = 6;
-const TITLE_MAX_LENGTH = 140;
-const DESCRIPTION_MAX_LENGTH = 280;
+const TITLE_MAX_LENGTH = 70;
+const DESCRIPTION_MAX_LENGTH = 140;
 
 export default function CreateTopicScreen({ navigation, route }) {
     const { reelayDBUser } = useContext(AuthContext);
@@ -151,6 +151,7 @@ export default function CreateTopicScreen({ navigation, route }) {
                         blurOnSubmit={true}
                         maxLength={DESCRIPTION_MAX_LENGTH}
                         multiline
+                        numberOfLines={3}
                         defaultValue={descriptionTextRef.current}
                         placeholder={"Go on..."}
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
@@ -183,7 +184,7 @@ export default function CreateTopicScreen({ navigation, route }) {
                         blurOnSubmit={true}
                         maxLength={TITLE_MAX_LENGTH}
                         multiline
-                        numberOfLines={4}
+                        numberOfLines={2}
                         defaultValue={titleTextRef.current}
                         placeholder={"What should people reelay?"}
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
