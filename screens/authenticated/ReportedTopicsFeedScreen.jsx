@@ -99,14 +99,11 @@ export default ReportedTopicsFeedScreen = ({ navigation }) => {
     const sortReportedTopics = (topic0, topic1) => {
         const lastReported0 = moment(topic0.lastReportedAt);
         const lastReported1 = moment(topic1.lastReportedAt);
-        console.log('reported 0: ', lastReported0);
-        console.log('reported 1: ', lastReported1);
         return lastReported1.diff(lastReported0, 'minutes');
     }
 
     const loadReportedTopics = async () => {
         const reportedContent = await getReportedTopics({ reqUserSub: reelayDBUser?.sub });
-        console.log('reported content: ', reportedContent);
         if (reportedContent && !reportedContent.error) {
             setReportedTopics(reportedContent.sort(sortReportedTopics));
         }

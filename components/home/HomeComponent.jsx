@@ -41,22 +41,7 @@ const HomeComponent = ({ navigation }) => {
     const { reelayDBUserID } = useContext(AuthContext);
     const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
 
-    useEffect(() => {
-        checkForUnseenGlobalReelays();
-    }, [])
-
-    const checkForUnseenGlobalReelays = async () => {
-        const globalFeed = await getFeed({ reelayDBUserID, feedSource: 'global', page: 0 });
-        if (globalFeed) {
-            const lastReelayPostTime = globalFeed[0][0].postedDateTime;
-            const lastOnGlobal = await AsyncStorage.getItem('lastOnGlobalFeed');
-            dispatch({ type: 'setHasUnseenGlobalReelays', payload: lastOnGlobal ? (lastOnGlobal<lastReelayPostTime) : true});
-        }
-    }
-
     const onRefresh = async () => {
-        await checkForUnseenGlobalReelays();
-
         setRefreshing(true);
         const myFollowingLoaded = await loadMyFollowing(reelayDBUserID);
         const myNotifications = await loadMyNotifications(reelayDBUserID);

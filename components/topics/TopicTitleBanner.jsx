@@ -78,7 +78,10 @@ export default TopicTitleBanner = ({ navigation, reelay }) => {
         if (!reelay?.title?.display) {
             return;
         }
-        navigation.push('TitleDetailScreen', { titleObj: reelay.title });
+        navigation.push('TitleDetailScreen', { 
+            titleObj: reelay.title,
+            showTabBarOnReturn: false,
+        });
 
         logAmplitudeEventProd('openTitleScreen', {
             reelayID: reelay.id,
