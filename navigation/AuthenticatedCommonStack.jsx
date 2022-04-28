@@ -6,7 +6,8 @@ import NotificationScreen from '../screens/authenticated/NotificationScreen';
 import ProfileFeedScreen from '../screens/authenticated/ProfileFeedScreen';
 import ReelayCameraScreen from '../screens/authenticated/ReelayCameraScreen';
 import ReelayUploadScreen from '../screens/authenticated/ReelayUploadScreen';
-import ReportedContentFeedScreen from '../screens/authenticated/ReportedContentFeedScreen';
+import ReportedReelaysFeedScreen from '../screens/authenticated/ReportedReelaysFeedScreen';
+import ReportedTopicsFeedScreen from '../screens/authenticated/ReportedTopicsFeedScreen';
 import SearchScreen from '../screens/authenticated/SearchScreen';
 import SelectTitleScreen from '../screens/authenticated/SelectTitleScreen';
 import SendRecScreen from '../screens/authenticated/SendRecScreen';
@@ -30,7 +31,9 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
 				options={{ headerShown: false }} />
             <CommonStack.Screen name='ProfileFeedScreen' component={ProfileFeedScreen}
                 options={{ headerShown: false }} />
-			<CommonStack.Screen name='ReportedContentFeedScreen' component={ReportedContentFeedScreen}
+			<CommonStack.Screen name='ReportedReelaysFeedScreen' component={ReportedReelaysFeedScreen}
+                options={{ headerShown: false }} />
+            <CommonStack.Screen name='ReportedTopicsFeedScreen' component={ReportedTopicsFeedScreen}
                 options={{ headerShown: false }} />
             <CommonStack.Screen name='SearchScreen' component={SearchScreen}
                 options={{ headerShown: false }} />

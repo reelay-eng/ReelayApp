@@ -1,7 +1,7 @@
 import React, { useContext, useState, memo} from 'react';
-import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
+import { Modal, View, Text, Pressable, ScrollView, TouchableOpacity } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { blockCreator, removeReelay, reportReelay, suspendAccount } from '../../api/ReelayDBApi';
+import { blockCreator, suspendAccount } from '../../api/ReelayDBApi';
 
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -11,7 +11,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../global/Text';
 import { showMessageToast } from '../utils/toasts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { removeTopic } from '../../api/TopicsApi';
+import { removeTopic, reportTopic } from '../../api/TopicsApi';
 
 const ContentPolicy  = require('../../constants/ContentPolicy.json');
 
@@ -46,7 +46,7 @@ const TopicDrawerContents = ({ navigation, setDrawerVisible, topic }) => {
         margin: 6px;
         margin-right: 0px;
     `
-    const OptionContainerPressable = styled(Pressable)`
+    const OptionContainerPressable = styled(TouchableOpacity)`
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
@@ -76,9 +76,9 @@ const TopicDrawerContents = ({ navigation, setDrawerVisible, topic }) => {
 
     const BlockCreatorConfirm = () => {
         const onPress = async () => {
+            setDrawerState('block-creator-complete');
             const blockCreatorResult = await blockCreator(topic.creatorSub, reelayDBUser?.sub);
             console.log(blockCreatorResult);
-            setDrawerState('block-creator-complete');
 
             logAmplitudeEventProd('blockCreator', {
                 username: reelayDBUser?.username,
@@ -168,6 +168,7 @@ const TopicDrawerContents = ({ navigation, setDrawerVisible, topic }) => {
 
     const RemoveTopicConfirm = () => {
         const onPress = async () => {
+            setDrawerState('remove-topic-complete');
             const removeResult = await removeTopic({ 
                 reqUserSub: reelayDBUser?.sub, 
                 topicID: topic.id 
@@ -176,7 +177,6 @@ const TopicDrawerContents = ({ navigation, setDrawerVisible, topic }) => {
 
             // todo: update state to remove topic from global list
             showMessageToast('This topic has been removed');
-            setDrawerState('remove-topic-complete');
 
             logAmplitudeEventProd('removeTopic', {
                 username: reelayDBUser?.username,
@@ -255,30 +255,26 @@ const TopicDrawerContents = ({ navigation, setDrawerVisible, topic }) => {
 
     const ReportContentSubmit = () => {
         const { statement, exampleList } = selectedPolicy;
-        if (!selectedPolicy.id) {
-            // todo
-        }
-
         onPress = async () => {
-            // const reportReelayResult = await reportReelay(reelayDBUser?.sub, {
-            //     creatorSub: reelay.creator.sub, 
-            //     creatorName: reelay.creator.username,
-            //     policyViolationCode: selectedPolicy.id, 
-            //     reelaySub: reelay.sub,
-            // });
+            setDrawerState('report-content-complete');
+            const reportTopicResult = await reportTopic(reelayDBUser?.sub, {
+                creatorSub: topic.creatorSub, 
+                creatorName: topic.creatorName,
+                policyViolationCode: selectedPolicy.id, 
+                topicID: topic.id,
+            });
 
-            // console.log('report reelay result: ', reportReelayResult);
-            // setDrawerState('report-content-complete');
+            console.log('report topic result: ', reportTopicResult);
 
-            // logAmplitudeEventProd('reportReelay', {
-            //     username: reelayDBUser?.username,
-            //     userSub: reelayDBUser?.sub,
-            //     creatorName: reelay.creator.username,
-            //     creatorSub: reelay.creator.sub,
-            //     reelaySub: reelay.sub,
-            //     title: reelay.title.display,
-            //     violationCode: selectedPolicy.id,
-            // });
+            logAmplitudeEventProd('reportTopic', {
+                username: reelayDBUser?.username,
+                userSub: reelayDBUser?.sub,
+                creatorName: topic.creatorName,
+                creatorSub: topic.creatorSub,
+                reelaySub: topic.id,
+                title: topic.title,
+                violationCode: selectedPolicy.id,
+            });
         }
 
         return (
@@ -287,8 +283,8 @@ const TopicDrawerContents = ({ navigation, setDrawerVisible, topic }) => {
                     <OptionText>{statement}</OptionText>
                     { exampleList.map((example, index) => {
                         return (
-                            <ListOptionContainer>
-                                <OptionText key={index}>{example}</OptionText>
+                            <ListOptionContainer key={index}>
+                                <OptionText>{example}</OptionText>
                             </ListOptionContainer>
                         );
                      })}
@@ -327,9 +323,9 @@ const TopicDrawerContents = ({ navigation, setDrawerVisible, topic }) => {
 
     const SuspendAccountConfirm = () => {
         const onPress = async () => {
+            setDrawerState('suspend-account-complete');
             const suspendAccountResult = await suspendAccount(topic.creatorSub, reelayDBUser?.sub);
             console.log(suspendAccountResult);
-            setDrawerState('suspend-account-complete');
 
             logAmplitudeEventProd('suspendAccount', {
                 username: reelayDBUser?.username,
@@ -365,8 +361,7 @@ const TopicDrawerContents = ({ navigation, setDrawerVisible, topic }) => {
     const ViewReportedContentFeedOption = () => {
         const onPress = () => {
             closeDrawer();
-            // TODO: show reported topics screen instead
-            navigation.push('ReportedContentFeedScreen');
+            navigation.push('ReportedTopicsFeedScreen');
         }
 
         return (

@@ -260,10 +260,6 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
     const ReportContentSubmit = () => {
         const { statement, exampleList } = selectedPolicy;
-        if (!selectedPolicy.id) {
-            // todo
-        }
-
         onPress = async () => {
             const reportReelayResult = await reportReelay(reelayDBUser?.sub, {
                 creatorSub: reelay.creator.sub, 
@@ -371,7 +367,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
     const ViewReportedContentFeedOption = () => {
         const onPress = () => {
             closeDrawer();
-            navigation.push('ReportedContentFeedScreen');
+            navigation.push('ReportedReelaysFeedScreen');
         }
 
         return (

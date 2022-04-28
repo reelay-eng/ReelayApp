@@ -87,18 +87,25 @@ export const removeTopic = async ({ reqUserSub, topicID }) => {
     return resultDelete;
 }
 
-export const reportTopic = async ({ reqUserSub, topicID }) => {
-    const routePost =  `${REELAY_API_BASE_URL}/topics/report`;
-    const postBody = { topicID };
-    const resultPost = await fetchResults(routePost, {
+export const reportTopic = async (reqUserSub, reportReq) => {
+    const routePost = `${REELAY_API_BASE_URL}/reported-content/topic`;
+    const reportTopicResult = await fetchResults(routePost, {
+        body: JSON.stringify(reportReq),
         method: 'POST',
-        headers: {
-            ...ReelayAPIHeaders,
-            reqUserSub,
-        },
-        body: JSON.stringify(postBody),
+        headers: { ...ReelayAPIHeaders, requsersub: reqUserSub },
     });
-    return resultPost;
+
+    console.log(reportTopicResult);
+    return reportTopicResult;
+}
+
+export const getReportedTopics = async ({ reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/reported-content/topicFeed?visibility=${FEED_VISIBILITY}`;
+    const fetchedReportedTopics = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: { ...ReelayAPIHeaders, requsersub: reqUserSub },
+    });
+    return fetchedReportedTopics;
 }
 
 export const searchTopics = async ({ searchText, page = 0 }) => {
