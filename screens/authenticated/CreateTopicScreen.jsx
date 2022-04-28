@@ -16,7 +16,7 @@ import BackButton from '../../components/utils/BackButton';
 import * as ReelayText from '../../components/global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 import { useFocusEffect } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { createTopic } from '../../api/TopicsApi';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
@@ -86,6 +86,7 @@ const DESCRIPTION_MAX_LENGTH = 140;
 
 export default function CreateTopicScreen({ navigation, route }) {
     const { reelayDBUser } = useContext(AuthContext);
+    const globalTopics = useSelector(state => state.globalTopics);
     const [addFirstReelayDrawerVisible, setAddFirstReelayDrawerVisible] = useState(false);
 
     const dispatch = useDispatch();
@@ -125,7 +126,9 @@ export default function CreateTopicScreen({ navigation, route }) {
                 showErrorToast('Something went wrong! Could not create topic');
                 setPublishing(false);
             } else {
+                publishResult.reelays = [];
                 publishedTopicRef.current = publishResult;
+                dispatch({ type: 'setGlobalTopics', payload: [publishResult, ...globalTopics ]});
                 showMessageToast('Topic created!');
                 setAddFirstReelayDrawerVisible(true);
             }
