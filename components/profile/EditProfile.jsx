@@ -14,7 +14,7 @@ import {
 } from "@aws-sdk/client-s3";
 
 // DB
-import { updateProfilePic, updateUserBio, updateUserWebsite } from "../../api/ReelayDBApi";
+import { searchUsers, updateProfilePic, updateUserBio, updateUserWebsite } from "../../api/ReelayDBApi";
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
@@ -32,7 +32,18 @@ import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 const { height, width } = Dimensions.get("window");
 
 const Spacer = styled(View)`
-	height: 10px;
+	height: ${(props) => (props.height ? props.height : "0px")};
+`;
+
+const SectionTitleText = styled(ReelayText.Body2Bold)`
+	align-self: flex-start;
+	color: grey;
+`;
+
+const SectionTitleContainer = styled(View)`
+	align-self: center;
+	padding: 5px;
+	width: 72%;
 `;
 
 export default EditProfile = () => {
@@ -59,8 +70,13 @@ export default EditProfile = () => {
 	const dispatch = useDispatch();
 	const { reelayDBUser } = useContext(AuthContext);
 
+	// console.log("reelayDBUSER:", reelayDBUser)
+
+	const initUsername = "";
 	const initBio = reelayDBUser.bio ? reelayDBUser.bio : "";
 	const initWebsite = reelayDBUser.website ? reelayDBUser.website : "";
+	const usernameRef = useRef(initUsername);
+	const usernameInputRef = useRef(null);
   	const bioRef = useRef(initBio);
   	const bioInputRef = useRef(null);
   	const websiteRef = useRef(initWebsite);
@@ -88,10 +104,10 @@ export default EditProfile = () => {
 
 	const saveInfo = async () => {
 		reelayDBUser.bio = bioRef.current.trim() === "" ? null : bioRef.current;
-		await updateUserBio(reelayDBUser.sub, bioRef.current.trim());
+		await updateUserBio(reelayDBUser.sub, reelayDBUser.bio);
 		reelayDBUser.website =
 			websiteRef.current.trim() === "" ? null : websiteRef.current;
-		await updateUserWebsite(reelayDBUser.sub, websiteRef.current.trim());
+		await updateUserWebsite(reelayDBUser.sub, reelayDBUser.website);
 	}
 
 	return (
@@ -114,12 +130,103 @@ export default EditProfile = () => {
 				</EditProfilePicContainer>
 				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 					<EditInfoContainer>
+						<EditUsername usernameRef={usernameRef} usernameInputRef={usernameInputRef} currentFocus={currentFocus}/>
 						<EditBio bioRef={bioRef} bioInputRef={bioInputRef} currentFocus={currentFocus} />
 						<EditWebsite websiteRef={websiteRef} websiteInputRef={websiteInputRef} currentFocus={currentFocus}/>
 					</EditInfoContainer>
 				</TouchableWithoutFeedback>
 			</Modal>
 		</ModalContainer>
+  );
+};
+
+
+const EditUsername = ({ usernameRef, usernameInputRef, currentFocus }) => {
+	const UsernameInput = styled(TextInput)`
+		color: white;
+		font-family: Outfit-Regular;
+		font-size: 16px;
+		font-style: normal;
+		letter-spacing: 0.15px;
+		margin-left: 8px;
+		padding: 10px;
+		width: 87%;
+  	`;
+	const UsernameInputContainer = styled(View)`
+		align-self: center;
+		background-color: #1a1a1a;
+		border-radius: 16px;
+		flex-direction: row;
+		padding: 5px;
+		width: 80%;
+		${props => props.border ? props.border : ''}
+  	`;
+
+	const newValidUsernameRegex = /^([a-zA-z]+[a-zA-z0-9]*(?:[.\-_+][a-zA-Z0-9]+)*)$/g;
+	const [border, setBorder] = useState('');
+
+	const isUsernameValid = async (username, usernameHasValidForm) => {
+		if (!usernameHasValidForm) {
+			// showErrorToast('Usernames must be between 4 and 25 characters, alphanumeric. Separators .+_- are okay');
+			return false;
+		}
+		const partialMatchingUsers = await searchUsers(username);
+		if (partialMatchingUsers?.error) {
+			return false;
+		}
+
+		const usernamesMatch = (userObj) => (userObj.username === username);
+		const fullMatchIndex = await partialMatchingUsers.findIndex(usernamesMatch);
+		if (fullMatchIndex === -1) {
+			return true;
+		} else {
+			// showErrorToast('That username is already taken');
+			return false;
+		}
+	}
+
+	const changeInputText = async (text) => {
+		usernameRef.current=text;
+		// check if valid username and if it is not, turn outline red
+		const validUsernameLength = text.length > 3 && text.length < 26;
+		const usernamePassesRegex = newValidUsernameRegex.test(text);
+		const usernameHasValidForm = validUsernameLength && usernamePassesRegex;
+		const usernameIsValid = await isUsernameValid(text, usernameHasValidForm);
+		console.log(usernameIsValid);
+		if (usernameIsValid) {
+			setBorder("border-width: 1px; border-color: #04BD6C;")
+		} else {
+			setBorder("border-width: 1px; border-color: #fe4747;")
+		}
+	};
+
+	const usernameOnPress = () => {
+		usernameInputRef.current.focus(); 
+		currentFocus.current='username';
+	}
+
+	return (
+		<>
+		<SectionTitleContainer>
+			<SectionTitleText>{"Username"}</SectionTitleText>
+		</SectionTitleContainer>
+		<TouchableWithoutFeedback onPress={usernameOnPress}>
+			<UsernameInputContainer border={border}>
+			<UsernameInput
+				ref={usernameInputRef}
+				maxLength={25}
+				defaultValue={usernameRef.current}
+				placeholder={"Wanna change your identity?"}
+				placeholderTextColor={"gray"}
+				onChangeText={changeInputText}
+				onPressOut={Keyboard.dismiss()}
+				returnKeyLabel="return"
+				returnKeyType="default"
+			/>
+			
+			</UsernameInputContainer>
+		</TouchableWithoutFeedback>
+		</>
   );
 };
 
@@ -142,30 +249,25 @@ const EditBio = ({ bioRef, bioInputRef, currentFocus }) => {
 		padding: 5px;
 		width: 80%;
   	`;
-	const EditBioContainer = styled(View)`
-		align-self: center;
-		padding: 5px;
-		width: 72%;
-  `;
-	const EditBioText = styled(ReelayText.Body2Bold)`
-		align-self: flex-start;
-		color: grey;
-	`;
 
 	const changeInputText = (text) => {
 		bioRef.current=text;
 	};
 
+	const bioOnPress = () => {
+		bioInputRef.current.focus(); 
+		currentFocus.current='bio'
+	}
+
 	return (
 		<>
-		<EditBioContainer>
-			<EditBioText>{"Bio"}</EditBioText>
-		</EditBioContainer>
-		<TouchableWithoutFeedback onPress={() => {bioInputRef.current.focus(); currentFocus.current='bio'}}>
+		<SectionTitleContainer>
+			<SectionTitleText>{"Bio"}</SectionTitleText>
+		</SectionTitleContainer>
+		<TouchableWithoutFeedback onPress={bioOnPress}>
 			<BioInputContainer>
 			<BioInput
 				ref={bioInputRef}
-				autoCapitalize='none'
 				maxLength={250}
 				multiline
 				numberOfLines={4}
@@ -438,7 +540,7 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 							<MenuOptionText>Take Photo</MenuOptionText>
 						</MenuOption>
 					</MenuOptionsContainer>
-					<Spacer />
+					<Spacer height="10px" />
 					<MenuOptionsContainer>
 						<MenuOption onPress={close}>
 							<MenuOptionText>Cancel</MenuOptionText>
@@ -469,32 +571,25 @@ const EditWebsite = ({ websiteRef, websiteInputRef, currentFocus }) => {
 		padding: 5px;
 		width: 80%;
 	`;
-	const EditWebsiteContainer = styled(View)`
-		align-self: center;
-		padding: 5px;
-		width: 72%;
-	`;
-	const EditWebsiteText = styled(ReelayText.Body2Bold)`
-		align-self: flex-start;
-		color: grey;
-	`;
 
 	const changeInputText = (text) => {
 		websiteRef.current = text;
 	};
 
+	const websiteOnPress = () => {
+		websiteInputRef.current.focus(); 
+		currentFocus.current = "website";
+	}
+
 	return (
 		<>
-		<EditWebsiteContainer>
-			<EditWebsiteText>{"Website"}</EditWebsiteText>
-		</EditWebsiteContainer>
-		<TouchableWithoutFeedback onPress={() => {websiteInputRef.current.focus(); currentFocus.current = "website";}}>
+		<SectionTitleContainer>
+			<SectionTitleText>{"Website"}</SectionTitleText>
+		</SectionTitleContainer>
+		<TouchableWithoutFeedback onPress={websiteOnPress}>
 			<WebsiteInputContainer>
 			<WebsiteInput
 				ref={websiteInputRef}
-				autoComplete='none'
-				autoCapitalize='none'
-				autoCorrect={false}
 				defaultValue={websiteRef.current}
 				placeholder={"Any cool links?"}
 				placeholderTextColor={"gray"}
