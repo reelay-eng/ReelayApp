@@ -1,15 +1,12 @@
 import React, { Fragment, useContext, useEffect } from 'react';
 import { Image, Pressable, SafeAreaView, View } from 'react-native';
-import { Icon } from 'react-native-elements';
 import DogWithGlasses from '../../assets/images/dog-with-glasses.png';
-import BackButton from '../utils/BackButton';
 import styled from 'styled-components/native';
 import * as ReelayText from './Text';
 import ReelayColors from '../../constants/ReelayColors';
 
 import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
-import { clearLocalUserData } from '../../api/ReelayUserApi';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { useDispatch, useSelector } from 'react-redux';
@@ -99,7 +96,6 @@ export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Ree
             // todo: deregister for push tokens
             // todo: deregister cognito user
             console.log(signOutResult);
-            await clearLocalUserData();
         } catch (error) {
             console.log(error);
         }
@@ -117,7 +113,6 @@ export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Ree
             dispatch({ type: 'setSignedIn', payload: false });
             setReelayDBUserID(null);
             console.log(signOutResult);
-            await clearLocalUserData();
         } catch (error) {
             console.log(error);
         }

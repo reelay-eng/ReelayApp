@@ -14,6 +14,7 @@ const InTheatersContainer = styled.View`
     height: auto;
     display: flex;
     flex-direction: column;
+    margin-bottom: 10px;
 `
 const HeaderContainer = styled(View)`
     align-items: flex-end;
@@ -32,7 +33,6 @@ const InTheatersRowContainer = styled.ScrollView`
     padding-top: 15px;
     flex-direction: row;
     width: 100%;
-    margin-bottom: 10px;
 `
 
 const InTheaters = memo(({ navigation }) => {
@@ -93,19 +93,8 @@ const TitleInfoLine = styled(View)`
     flex-direction: row;
     justify-content: space-between;
 `
-const TitleText = styled(ReelayText.H6Emphasized)`
-    font-size: 16px;
-    margin-top: 10px;
-    color: white;
-    opacity: 1;
-`
 
 const InTheatersElement = ({ index, onPress, stack, length }) => {
-    const fullTitle = stack[0].title.display;
-    const displayTitle = (fullTitle?.length > 26) 
-        ? fullTitle.substring(0, 23) + "..."
-        : fullTitle;
-
     if (index === length-1) {
         return (
         <InTheatersElementContainer>
@@ -126,7 +115,6 @@ const InTheatersElement = ({ index, onPress, stack, length }) => {
             <TitleInfoLine>
                 <ReelayCount>{`${stack.length} ${(stack.length > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
             </TitleInfoLine>
-            <TitleText>{displayTitle}</TitleText>
         </InTheatersElementContainer>
     )
 }

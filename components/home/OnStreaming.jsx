@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Image, Modal, Pressable, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, ScrollView, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import StreamingSelector from './StreamingSelector';
@@ -37,8 +37,6 @@ const ReelayPreviewRowContainer = styled(ScrollView)`
 `
 const StreamingServicesContainer = styled(View)`
     width: 100%;
-    height: auto;
-    display: flex;
     flex-direction: column;
     margin-bottom: 10px;
 `
@@ -61,12 +59,6 @@ const TitleInfoLine = styled(View)`
     flex-direction: row;
     justify-content: space-between;
 `
-const TitleText = styled(ReelayText.H6)`
-    font-size: 16px;
-    margin-top: 10px;
-    color: white;
-    opacity: 1;
-`
 const TitleVenue = styled(View)`
     position: absolute;
     top: 4px;
@@ -86,11 +78,9 @@ const DrawerContainer = styled(View)`
     width: 100%;
 `
 
-export default OnStreaming = ({ navigation, onRefresh }) => {
-    const { 
-        reelayDBUser, 
-    } = useContext(AuthContext);
-    
+export default OnStreaming = ({ navigation }) => {
+    const { reelayDBUser } = useContext(AuthContext);
+    const [refreshing, setRefreshing] = useState(false);
     const myStacksOnStreaming = useSelector(state => state.myStacksOnStreaming);
     const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
 
@@ -111,7 +101,7 @@ export default OnStreaming = ({ navigation, onRefresh }) => {
 	};
 
     if (!myStreamingSubscriptions?.length) return (
-        <StreamingSelector onRefresh={onRefresh} />
+        <StreamingSelector setRefreshing={setRefreshing} />
     );
 
     const EditButton = () => {
@@ -139,9 +129,23 @@ export default OnStreaming = ({ navigation, onRefresh }) => {
             <Modal animationType="slide" transparent={true} visible={editDrawerVisible}>
                 <Backdrop onPress={closeDrawer} />
                 <DrawerContainer>
-                    <StreamingSelector onRefresh={onRefresh} />
+                    <StreamingSelector setRefreshing={setRefreshing} />
                 </DrawerContainer>
             </Modal>
+        );
+    }
+
+    const RefreshIndicator = () => {
+        const RefreshContainer = styled(View)`
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            width: 100%;
+        `
+        return (
+            <RefreshContainer>
+                <ActivityIndicator />
+            </RefreshContainer>
         );
     }
 
@@ -165,7 +169,8 @@ export default OnStreaming = ({ navigation, onRefresh }) => {
                 </HeaderContainerLeft>
                 <EditButton />
             </HeaderContainer>
-            { myStacksOnStreaming.length > 0 && <StreamingRow /> }
+            { refreshing && <RefreshIndicator /> }
+            { !refreshing && myStacksOnStreaming.length > 0 && <StreamingRow /> }
         </StreamingServicesContainer>
     )
 };
@@ -173,10 +178,6 @@ export default OnStreaming = ({ navigation, onRefresh }) => {
 const StreamingServicesElement = ({ index, onPress, stack, length }) => {
     const reelayCount = stack?.length;
     const venue = stack[0]?.content?.venue;
-    const fullTitle = stack[0].title.display;
-    const displayTitle = (fullTitle?.length > 26) 
-        ? fullTitle.substring(0, 23) + "..."
-        : fullTitle;
 
     if (index === length-1) {
         return (
@@ -198,7 +199,6 @@ const StreamingServicesElement = ({ index, onPress, stack, length }) => {
             <TitleInfoLine>
                 <ReelayCount>{`${reelayCount} ${(reelayCount > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
             </TitleInfoLine>
-            <TitleText>{displayTitle}</TitleText>
             <TitleVenue>
                 <VenueIcon venue={venue} size={24} border={1} />
             </TitleVenue>

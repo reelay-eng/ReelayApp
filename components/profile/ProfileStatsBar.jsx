@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Text, View, Pressable } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
@@ -10,7 +10,7 @@ import * as ReelayText from '../../components/global/Text';
 const BarContainer = styled(View)`
     flex-direction: row;
 `
-const StatContainer = styled(Pressable)`
+const StatContainer = styled(TouchableOpacity)`
     align-items: center;
     margin: 10px;
     margin-top: 5px;

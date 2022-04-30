@@ -7,13 +7,13 @@ import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
 
 // API
 import { 
-    refreshMyFollowers, 
-    refreshMyFollowing, 
-    refreshMyNotifications, 
-    refreshMyReelayStacks, 
-    refreshMyWatchlist,
-} from '../../api/ReelayUserApi';
-import { getStreamingSubscriptions } from '../../api/ReelayDBApi';
+    getFollowers,
+    getFollowing,
+    getStacksByCreator,
+    getStreamingSubscriptions,
+} from '../../api/ReelayDBApi';
+import { getWatchlistItems } from '../../api/WatchlistApi';
+import { getAllMyNotifications } from '../../api/NotificationsApi';
 
 // Components
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
@@ -28,7 +28,6 @@ import { useDispatch, useSelector } from 'react-redux';
 
 // Styling
 import styled from 'styled-components/native';
-import store from '../../redux/store';
 
 const { width } = Dimensions.get('window');
 
@@ -109,11 +108,11 @@ export default MyProfileScreen = ({ navigation, route }) => {
                     nextMyWatchlistItems,
                     nextMyStreamingSubscriptions
                 ] = await Promise.all([
-                    refreshMyReelayStacks(userSub),
-                    refreshMyFollowers(userSub),
-                    refreshMyFollowing(userSub),
-                    refreshMyNotifications(userSub),
-                    refreshMyWatchlist(userSub),
+                    getStacksByCreator(userSub),
+                    getFollowers(userSub),
+                    getFollowing(userSub),
+                    getAllMyNotifications(userSub),
+                    getWatchlistItems(userSub),
                     getStreamingSubscriptions(userSub),
                 ]);
                 
