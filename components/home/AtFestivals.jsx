@@ -14,7 +14,7 @@ import { useSelector } from 'react-redux';
 import TitlePoster from '../global/TitlePoster';
 
 export default AtFestivals = ({ navigation }) => {
-    const FriendsAreWatchingContainer = styled.View`
+    const AtFestivalsContainer = styled.View`
         width: 100%;
         height: auto;
         display: flex;
@@ -33,7 +33,7 @@ export default AtFestivals = ({ navigation }) => {
     }, [showFestivalsPrompt]);
     
     return (
-        <FriendsAreWatchingContainer>
+        <AtFestivalsContainer>
             { showFestivalsPrompt && <FestivalsPrompt 
                 navigation={navigation} 
                 setShowFestivalsPrompt={setShowFestivalsPrompt} 
@@ -41,7 +41,7 @@ export default AtFestivals = ({ navigation }) => {
             { showFestivalsRow && <FestivalReelaysRow 
                 navigation={navigation} 
             /> }
-        </FriendsAreWatchingContainer>   
+        </AtFestivalsContainer>   
     );
 }
 
@@ -125,10 +125,6 @@ const FollowingElement = ({ stack, index, navigation, myStacksAtFestivals }) => 
 
     const { reelayDBUser } = useContext(AuthContext);
     const onPress = () => goToReelay(index, stack[0].title);
-    const fullTitle = stack[0].title.display;
-    const displayTitle = (fullTitle?.length > 26) 
-        ? fullTitle.substring(0, 23) + "..."
-        : fullTitle;
     const reelayCount = stack?.length;
 
 
@@ -151,7 +147,7 @@ const FollowingElement = ({ stack, index, navigation, myStacksAtFestivals }) => 
             <TitleInfoLine>
                 <ReelayCount>{`${reelayCount} ${(reelayCount > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
             </TitleInfoLine>
-            <TitleText>{displayTitle}</TitleText>
+            <TitleText numberOfLines={2}>{stack[0].title.display}</TitleText>
         </FollowingElementContainer>
     )
 }

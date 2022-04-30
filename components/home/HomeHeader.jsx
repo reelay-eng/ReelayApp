@@ -20,12 +20,13 @@ const HomeHeader = ({ navigation }) => {
     const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
 	const HeaderContainer = styled(View)`
-		width: 100%;
-		padding: 15px;
+		padding-left: 15px;
+        padding-right: 15px;
 		display: flex;
 		flex-direction: row;
 		justify-content: space-between;
 		align-items: center;
+        width: 100%;
 	`;
     const HeaderContainerLeft = styled(View)`
         align-items: center;
@@ -50,27 +51,25 @@ const HomeHeader = ({ navigation }) => {
     `
 
 	return (
-		<React.Fragment>
-			<HeaderContainer>
-                <HeaderContainerLeft>
-                    <HeaderText>{'reelay'}</HeaderText>
-                    { myFollowing.length > 0 && <WatchTutorialButton navigation={navigation} /> }
-                </HeaderContainerLeft>
-                <HeaderContainerRight>
-                    <IconContainer>
-                        <Icon type='ionicon' size={27} color={'white'} name='search' onPress={() => {
-                            navigation.push('SearchScreen');
-                        }} />
-                    </IconContainer>
-                    <IconContainer>
-                        <Icon type='ionicon' size={27} color={'white'} name='notifications' onPress={() => {
-                            navigation.push('NotificationScreen');
-                        }} />
-                        { hasUnreadNotifications && <UnreadIconIndicator /> }
-                    </IconContainer>
-                </HeaderContainerRight>
-			</HeaderContainer>
-		</React.Fragment>
+        <HeaderContainer>
+            <HeaderContainerLeft>
+                <HeaderText>{'reelay'}</HeaderText>
+                { myFollowing.length > 0 && <WatchTutorialButton navigation={navigation} /> }
+            </HeaderContainerLeft>
+            <HeaderContainerRight>
+                <IconContainer>
+                    <Icon type='ionicon' size={27} color={'white'} name='search' onPress={() => {
+                        navigation.push('SearchScreen');
+                    }} />
+                </IconContainer>
+                <IconContainer>
+                    <Icon type='ionicon' size={27} color={'white'} name='notifications' onPress={() => {
+                        navigation.push('NotificationScreen');
+                    }} />
+                    { hasUnreadNotifications && <UnreadIconIndicator /> }
+                </IconContainer>
+            </HeaderContainerRight>
+        </HeaderContainer>
 	);
 };
 

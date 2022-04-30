@@ -12,6 +12,7 @@ import styled from 'styled-components/native';
 import { Button } from '../global/Buttons';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { useDispatch, useSelector } from 'react-redux';
+import { v4 } from 'uuid';
 
 const { width } = Dimensions.get('window');
 
@@ -29,7 +30,7 @@ export default FollowButton = ({ creator, bar=false, fancy=false, creatorFollows
     const myFollowing = useSelector(state => state.myFollowing);
 	const isMyProfile = reelayDBUser?.sub === creator?.sub;
 
-	const findFollowUser = (userObj) => (userObj.creatorSub === creator?.sub);
+	const findFollowUser = (followObj) => (followObj.creatorSub === creator?.sub);
     const alreadyFollowing = myFollowing.find(findFollowUser);
 
 	const showMeSignupIfGuest = () => {
@@ -42,9 +43,19 @@ export default FollowButton = ({ creator, bar=false, fancy=false, creatorFollows
 
 	const followOnPress = async () => {
 		if (showMeSignupIfGuest()) return;
+
+		// uuidv4 will be replaced by the real uuid next time the app loads
+		// this allows us to still use id as the list key in FollowResults
+		const followObj = {
+			id: v4(), 
+			creatorName: creator?.username,
+			creatorSub: creator?.sub,
+			followerName: reelayDBUser?.username,
+			followerSub: reelayDBUser?.sub,
+		}
+		dispatch({ type: 'setMyFollowing', payload: [followObj, ...myFollowing] });
 		const followResult = await followCreator(creator?.sub, reelayDBUser?.sub);
         const isFollowing = !followResult?.error && !followResult?.requestStatus;
-        dispatch({ type: 'setMyFollowing', payload: [...myFollowing, followResult] });
 
         if (!isFollowing) {
             logAmplitudeEventProd('followCreatorError', {

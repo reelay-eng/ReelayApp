@@ -31,20 +31,26 @@ import useColorScheme from './hooks/useColorScheme';
 import { AuthContext } from './context/AuthContext';
 
 // api imports
-import { getFeed, getAllDonateLinks, getRegisteredUser, registerPushTokenForUser } from './api/ReelayDBApi';
+import { 
+    getFeed, 
+    getAllDonateLinks, 
+    getRegisteredUser, 
+    registerPushTokenForUser,
+    getFollowers, 
+    getFollowing, 
+    getStacksByCreator, 
+    getStreamingSubscriptions, 
+} from './api/ReelayDBApi';
+import { getAllMyNotifications } from './api/NotificationsApi';
+import { getWatchlistItems } from './api/WatchlistApi';
+
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { toastConfig } from './components/utils/ToastConfig';
 import Toast from "react-native-toast-message";
 
-import { 
-    loadMyFollowers, 
-    loadMyFollowing, 
-    loadMyReelayStacks, 
-    loadMyNotifications, 
-    loadMyStreamingSubscriptions,
-    loadMyWatchlist, 
-    verifySocialAuthToken,
-} from './api/ReelayUserApi';
+import { verifySocialAuthToken } from './api/ReelayUserApi';
+
+
 
 // font imports
 import * as Font from 'expo-font';
@@ -252,12 +258,12 @@ function App() {
             topOfTheWeek,
         ] = await Promise.all([
             getRegisteredUser(userSub),
-            loadMyReelayStacks(userSub),
-            loadMyFollowers(userSub),
-            loadMyFollowing(userSub),
-            loadMyNotifications(userSub),
-            loadMyWatchlist(userSub),
-            loadMyStreamingSubscriptions(userSub),
+            getStacksByCreator(userSub),
+            getFollowers(userSub),
+            getFollowing(userSub),
+            getAllMyNotifications(userSub),
+            getWatchlistItems(userSub),
+            getStreamingSubscriptions(userSub),
             getAllDonateLinks(),
 
             getFeed({ reqUserSub, feedSource: 'following', page: 0 }),

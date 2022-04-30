@@ -9,12 +9,8 @@ import FriendsAreWatching from './FriendsAreWatching';
 import OnStreaming from './OnStreaming';
 import AtFestivals from './AtFestivals';
 
-import { 
-    loadMyFollowing,
-    loadMyNotifications,
-    loadMyStreamingSubscriptions,
-} from '../../api/ReelayUserApi';
-import { getFeed } from '../../api/ReelayDBApi';
+import { getFeed, getFollowing, getStreamingSubscriptions } from '../../api/ReelayDBApi';
+import { getAllMyNotifications } from '../../api/NotificationsApi';
 import { AuthContext } from '../../context/AuthContext';
 
 import { useDispatch, useSelector } from 'react-redux';
@@ -56,9 +52,9 @@ const HomeComponent = ({ navigation }) => {
         await checkForUnseenGlobalReelays();
 
         setRefreshing(true);
-        const myFollowingLoaded = await loadMyFollowing(reelayDBUserID);
-        const myNotifications = await loadMyNotifications(reelayDBUserID);
-        const myStreamingSubscriptions = await loadMyStreamingSubscriptions(reelayDBUserID);
+        const myFollowingLoaded = await getFollowing(reelayDBUserID);
+        const myNotifications = await getAllMyNotifications(reelayDBUserID);
+        const myStreamingSubscriptions = await getStreamingSubscriptions(reelayDBUserID);
 
         const reqUserSub = reelayDBUserID;
         const myStacksFollowing = await getFeed({ reqUserSub, feedSource: 'following', page: 0 });
@@ -87,7 +83,7 @@ const HomeComponent = ({ navigation }) => {
                 {/* <Announcements /> */}
                 <TopOfTheWeek navigation={navigation} />
                 <FriendsAreWatching navigation={navigation} />
-                <OnStreaming navigation={navigation} onRefresh={onRefresh} />
+                <OnStreaming navigation={navigation} refreshing={refreshing} setRefreshing={setRefreshing} />
                 <InTheaters navigation={navigation} />
                 <AtFestivals navigation={navigation} />
                 <Spacer height={80} />

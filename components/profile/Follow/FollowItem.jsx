@@ -55,15 +55,16 @@ export default FollowItem = ({
     navigation
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const followUsername = (followType === 'Following') ? followObj.creatorName : followObj.followerName;
-    const followUserSub = (followType === 'Following') ? followObj.creatorSub : followObj.followerSub;
+	const myUserSub = reelayDBUser.sub;
+	const iAmFollowing = followObj.followerSub === myUserSub;
+    const followUsername = (iAmFollowing) ? followObj.creatorName : followObj.followerName;
+    const followUserSub = (iAmFollowing) ? followObj.creatorSub : followObj.followerSub;
 
 	const followUser = {
 		sub: followUserSub,
 		username: followUsername
 	}
 
-    const myUserSub = reelayDBUser.sub;
     const isMyProfile = (myUserSub === followUserSub);
 
     const selectResult = () => {
