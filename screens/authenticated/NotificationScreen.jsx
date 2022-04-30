@@ -13,9 +13,8 @@ import moment from 'moment';
 import NotificationSwipeableRow from '../../components/notifications/NotificationSwipeableRow';
 import ProfilePicture from '../../components/global/ProfilePicture';
 import * as ReelayText from '../../components/global/Text';
-import { refreshMyNotifications } from '../../api/ReelayUserApi';
 import ReelayColors from '../../constants/ReelayColors';
-import { markNotificationActivated, markAllNotificationsSeen, notifyCreatorOnFollow } from '../../api/NotificationsApi';
+import { markNotificationActivated, markAllNotificationsSeen, getAllMyNotifications } from '../../api/NotificationsApi';
 import styled from 'styled-components/native';
 import { ReelayedByLine } from '../../components/watchlist/RecPills';
 import { setBadgeCountAsync } from 'expo-notifications';
@@ -224,7 +223,7 @@ const NotificationList = ({ navigation }) => {
     const onRefresh = async () => {
         setRefreshing(true);
         console.log('CALLING ON REFRESH');
-        const allMyNotifications = await refreshMyNotifications(reelayDBUser?.sub);
+        const allMyNotifications = await getAllMyNotifications(reelayDBUser?.sub);
         console.log(allMyNotifications[allMyNotifications.length - 1]);
         dispatch({ type: 'setMyNotifications', payload: allMyNotifications });
         setRefreshing(false);

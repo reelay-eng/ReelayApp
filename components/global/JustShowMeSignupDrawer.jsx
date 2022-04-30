@@ -1,16 +1,12 @@
 import React, { Fragment, useContext, useEffect } from 'react';
 import { Image, Modal, Pressable, SafeAreaView, View } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { Icon } from 'react-native-elements';
 import DogWithGlasses from '../../assets/images/dog-with-glasses.png';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 
-import { Auth } from 'aws-amplify';
 import { AuthContext } from '../../context/AuthContext';
-import { clearLocalUserData } from '../../api/ReelayUserApi';
-
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 export default JustShowMeSignupDrawer = ({ navigation }) => {
@@ -118,7 +114,6 @@ const JustShowMeSignup = () => {
             dispatch({ type: 'setJustShowMeSignupVisible', payload: false });
             dispatch({ type: 'setSignedIn', payload: false });
             setReelayDBUserID(null);
-            await clearLocalUserData();
         } catch (error) {
             console.log(error);
         }

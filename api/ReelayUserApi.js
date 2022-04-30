@@ -1,14 +1,4 @@
-import { 
-    getFollowers, 
-    getFollowing, 
-    getRegisteredUser, 
-    getStacksByCreator, 
-    getStreamingSubscriptions, 
-    getUserByEmail 
-} from './ReelayDBApi';
-import { getAllMyNotifications } from './NotificationsApi';
-import { getWatchlistItems } from './WatchlistApi';
-
+import { getUserByEmail } from './ReelayDBApi';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { fetchResults } from './fetchResults';
@@ -16,57 +6,6 @@ import { v4 } from 'uuid';
 import ReelayAPIHeaders from './ReelayAPIHeaders';
 
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
-
-export const clearLocalUserData = async () => {
-    console.log('Clearing local user data...');
-    const keys = ['myFollowing', 'myFollowers', 'myNotifications', 'myReelayStacks', 'myUser', 'myWatchlist'];
-    keys.forEach(key => AsyncStorage.removeItem(key));
-    return result;
-}
-
-const loadMyData = async (userSub, key, apiCallback) => {
-    let userData = await AsyncStorage.getItem(key);
-    // I swear, AsyncStorage literally returns the string ='null'
-    // when a key lookup fails. WHY.
-    if (!userData || userData === 'null') { 
-        userData = await apiCallback(userSub);
-        await AsyncStorage.setItem(key, JSON.stringify(userData));
-    }
-
-    if (typeof(userData) === 'string') {
-        return JSON.parse(userData);
-    } else {
-        return userData;
-    }
-}
-
-export const loadMyFollowing = async (userSub) => {
-    return await loadMyData(userSub, 'myFollowing', getFollowing);
-}
-
-export const loadMyFollowers = async (userSub) => {
-    return await loadMyData(userSub, 'myFollowers', getFollowers);
-}
-
-export const loadMyNotifications = async (userSub) => {
-    return await loadMyData(userSub, 'myNotifications', getAllMyNotifications);
-}
-
-export const loadMyReelayStacks = async (userSub) => {
-    return await loadMyData(userSub, 'myReelayStacks', getStacksByCreator);
-}
-
-export const loadMyStreamingSubscriptions = async (userSub) => {
-    return await loadMyData(userSub, 'myStreamingSubscriptions', getStreamingSubscriptions);
-}
-
-export const loadMyUser = async (userSub) => {
-    return await loadMyData(userSub, 'myUser', getRegisteredUser);
-}
-
-export const loadMyWatchlist = async (userSub) => {
-    return await loadMyData(userSub, 'myWatchlist', getWatchlistItems);
-}
 
 export const matchSocialAuthAccount = async ({ method, value }) => {
     try {
@@ -80,45 +19,6 @@ export const matchSocialAuthAccount = async ({ method, value }) => {
     } catch (error) {
         return { error };
     }
-}
-
-const refreshMyData = async (userSub, key, apiCallback) => {
-    const refreshedUserData = await apiCallback(userSub);
-    await AsyncStorage.setItem(key, JSON.stringify(refreshedUserData));
-
-    if (typeof(userData) === 'string') {        
-        return JSON.parse(refreshedUserData);
-    } else {
-        return refreshedUserData;
-    }
-}
-
-export const refreshMyFollowing = async (userSub) => {
-    return await refreshMyData(userSub, 'myFollowing', getFollowing);
-}
-
-export const refreshMyFollowers = async (userSub) => {
-    return await refreshMyData(userSub, 'myFollowers', getFollowers);
-}
-
-export const refreshMyNotifications = async (userSub) => {
-    return await refreshMyData(userSub, 'myNotifications', getAllMyNotifications);
-}
-
-export const refreshMyReelayStacks = async (userSub) => {
-    return await refreshMyData(userSub, 'myReelayStacks', getStacksByCreator);
-}
-
-export const refreshMyStreamingSubscriptions = async (userSub) => {
-    return await refreshMyData(userSub, 'myStreamingSubscriptions', getStreamingSubscriptions);
-}
-
-export const refreshMyUser = async (userSub) => {
-    return await refreshMyData(userSub, 'myUser', getRegisteredUser);
-}
-
-export const refreshMyWatchlist = async (userSub) => {
-    return await refreshMyData(userSub, 'myWatchlist', getWatchlistItems);
 }
 
 export const registerSocialAuthAccount = async ({ method, email, fullName, googleUserID, appleUserID }) => {
