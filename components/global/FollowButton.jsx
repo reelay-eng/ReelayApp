@@ -12,6 +12,7 @@ import styled from 'styled-components/native';
 import { Button } from '../global/Buttons';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { useDispatch, useSelector } from 'react-redux';
+import { v4 } from 'uuid';
 
 const { width } = Dimensions.get('window');
 
@@ -43,7 +44,10 @@ export default FollowButton = ({ creator, bar=false, fancy=false, creatorFollows
 	const followOnPress = async () => {
 		if (showMeSignupIfGuest()) return;
 
+		// uuidv4 will be replaced by the real uuid next time the app loads
+		// this allows us to still use id as the list key in FollowResults
 		const followObj = {
+			id: v4(), 
 			creatorName: creator?.username,
 			creatorSub: creator?.sub,
 			followerName: reelayDBUser?.username,

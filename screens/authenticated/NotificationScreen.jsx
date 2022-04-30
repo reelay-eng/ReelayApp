@@ -137,6 +137,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
             'notifyCreatorOnComment',
             'notifyMentionedUserOnComment',
             'notifyThreadOnComment',
+            'notifyUserOnCommentLike',
             'notifyCreatorOnFollow',
             'notifyCreatorOnLike',
             'notifyOtherCreatorsOnReelayPosted',
@@ -163,6 +164,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
             'notifyCreatorOnComment',
             'notifyMentionedUserOnComment',
             'notifyThreadOnComment',
+            'notifyUserOnCommentLike',
             'notifyCreatorOnLike',
             'notifyOtherCreatorsOnReelayPosted',
         ];

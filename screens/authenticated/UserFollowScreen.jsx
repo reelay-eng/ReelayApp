@@ -81,7 +81,7 @@ export default UserFollowScreen = ({ navigation, route }) => {
         setRefreshing(false);
     }
 
-    const updateSearch = async (counter) => {
+    const updateSearch = (counter) => {
         if (!searchText || searchText === undefined || searchText === '') {
             setSearchResults(allSearchResults);
         }
@@ -106,7 +106,7 @@ export default UserFollowScreen = ({ navigation, route }) => {
         }
     };
 
-    const updateSearchText = async (newSearchText) => {
+    const updateSearchText = (newSearchText) => {
         if (newSearchText !== searchText) {
             setSearchText(newSearchText);
         }
