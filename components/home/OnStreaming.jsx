@@ -37,8 +37,6 @@ const ReelayPreviewRowContainer = styled(ScrollView)`
 `
 const StreamingServicesContainer = styled(View)`
     width: 100%;
-    height: auto;
-    display: flex;
     flex-direction: column;
     margin-bottom: 10px;
 `
@@ -56,17 +54,10 @@ const HeaderContainerLeft = styled(View)`
     align-items: center;
     flex-direction: row;
     margin-left: 15px;
-    margin-top: 15px;
 `
 const TitleInfoLine = styled(View)`
     flex-direction: row;
     justify-content: space-between;
-`
-const TitleText = styled(ReelayText.H6)`
-    font-size: 16px;
-    margin-top: 10px;
-    color: white;
-    opacity: 1;
 `
 const TitleVenue = styled(View)`
     position: absolute;
@@ -187,10 +178,6 @@ export default OnStreaming = ({ navigation }) => {
 const StreamingServicesElement = ({ index, onPress, stack, length }) => {
     const reelayCount = stack?.length;
     const venue = stack[0]?.content?.venue;
-    const fullTitle = stack[0].title.display;
-    const displayTitle = (fullTitle?.length > 26) 
-        ? fullTitle.substring(0, 23) + "..."
-        : fullTitle;
 
     if (index === length-1) {
         return (
@@ -212,7 +199,6 @@ const StreamingServicesElement = ({ index, onPress, stack, length }) => {
             <TitleInfoLine>
                 <ReelayCount>{`${reelayCount} ${(reelayCount > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
             </TitleInfoLine>
-            <TitleText>{displayTitle}</TitleText>
             <TitleVenue>
                 <VenueIcon venue={venue} size={24} border={1} />
             </TitleVenue>

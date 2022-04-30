@@ -7,15 +7,12 @@ import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
 import ReelayThumbnail from '../global/ReelayThumbnail';
 import SeeMore from '../global/SeeMore';
-import { VenueIcon } from '../utils/VenueIcon';
 import YouDontFollowPrompt from './YouDontFollowPrompt';
 import { useSelector } from 'react-redux';
 
 const FriendsAreWatching = ({ navigation }) => {
     const FriendsAreWatchingContainer = styled(View)`
         width: 100%;
-        height: auto;
-        display: flex;
         flex-direction: column;
         margin-bottom: 10px;
     `
@@ -69,13 +66,8 @@ const FriendsAreWatching = ({ navigation }) => {
 }
 
 const FollowingElementContainer = styled(Pressable)`
-    display: flex;
     width: 120px;
     margin-right: 12px;
-`
-const TitleInfoLine = styled(View)`
-    flex-direction: row;
-    justify-content: space-between;
 `
 const TitleText = styled(ReelayText.H6Emphasized)`
     font-size: 16px;
@@ -100,10 +92,6 @@ const FollowingElement = ({ stack, index, navigation, myStacksFollowing }) => {
 
     const { reelayDBUser } = useContext(AuthContext);
     const onPress = () => goToReelay(index, stack[0].title);
-    const fullTitle = stack[0].title.display;
-    const displayTitle = (fullTitle?.length > 26) 
-        ? fullTitle.substring(0, 23) + "..."
-        : fullTitle;
 
     if (index === myStacksFollowing.length-1) {
         return (
@@ -126,7 +114,7 @@ const FollowingElement = ({ stack, index, navigation, myStacksFollowing }) => {
                 reelay={stack[0]} 
                 width={120} 
             />
-            <TitleText>{displayTitle}</TitleText>
+            <TitleText numberOfLines={2}>{stack[0].title.display}</TitleText>
         </FollowingElementContainer>
     )
 }
