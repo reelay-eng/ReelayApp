@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Image, Modal, Pressable, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Image, Modal, Pressable, ScrollView, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import StreamingSelector from './StreamingSelector';
@@ -87,11 +87,9 @@ const DrawerContainer = styled(View)`
     width: 100%;
 `
 
-export default OnStreaming = ({ navigation, onRefresh }) => {
-    const { 
-        reelayDBUser, 
-    } = useContext(AuthContext);
-    
+export default OnStreaming = ({ navigation }) => {
+    const { reelayDBUser } = useContext(AuthContext);
+    const [refreshing, setRefreshing] = useState(false);
     const myStacksOnStreaming = useSelector(state => state.myStacksOnStreaming);
     const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
 
@@ -112,7 +110,7 @@ export default OnStreaming = ({ navigation, onRefresh }) => {
 	};
 
     if (!myStreamingSubscriptions?.length) return (
-        <StreamingSelector onRefresh={onRefresh} />
+        <StreamingSelector setRefreshing={setRefreshing} />
     );
 
     const EditButton = () => {
@@ -140,9 +138,23 @@ export default OnStreaming = ({ navigation, onRefresh }) => {
             <Modal animationType="slide" transparent={true} visible={editDrawerVisible}>
                 <Backdrop onPress={closeDrawer} />
                 <DrawerContainer>
-                    <StreamingSelector onRefresh={onRefresh} />
+                    <StreamingSelector setRefreshing={setRefreshing} />
                 </DrawerContainer>
             </Modal>
+        );
+    }
+
+    const RefreshIndicator = () => {
+        const RefreshContainer = styled(View)`
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            width: 100%;
+        `
+        return (
+            <RefreshContainer>
+                <ActivityIndicator />
+            </RefreshContainer>
         );
     }
 
@@ -166,7 +178,8 @@ export default OnStreaming = ({ navigation, onRefresh }) => {
                 </HeaderContainerLeft>
                 <EditButton />
             </HeaderContainer>
-            { myStacksOnStreaming.length > 0 && <StreamingRow /> }
+            { refreshing && <RefreshIndicator /> }
+            { !refreshing && myStacksOnStreaming.length > 0 && <StreamingRow /> }
         </StreamingServicesContainer>
     )
 };

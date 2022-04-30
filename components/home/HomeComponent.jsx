@@ -83,7 +83,7 @@ const HomeComponent = ({ navigation }) => {
                 {/* <Announcements /> */}
                 <TopOfTheWeek navigation={navigation} />
                 <FriendsAreWatching navigation={navigation} />
-                <OnStreaming navigation={navigation} onRefresh={onRefresh} />
+                <OnStreaming navigation={navigation} refreshing={refreshing} setRefreshing={setRefreshing} />
                 <InTheaters navigation={navigation} />
                 <AtFestivals navigation={navigation} />
                 <Spacer height={80} />
