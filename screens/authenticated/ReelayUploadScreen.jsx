@@ -18,7 +18,7 @@ import ConfirmRetakeDrawer from '../../components/create-reelay/ConfirmRetakeDra
 import Constants from 'expo-constants';
 import PreviewVideoPlayer from '../../components/create-reelay/PreviewVideoPlayer';
 
-import { Dimensions, Image, SafeAreaView, Pressable, TextInput, View, Keyboard, KeyboardAvoidingView } from 'react-native';
+import { Dimensions, Pressable, View, Keyboard, KeyboardAvoidingView } from 'react-native';
 import * as ReelayText from '../../components/global/Text';
 import { Icon } from 'react-native-elements';
 import * as Progress from 'react-native-progress';
@@ -27,7 +27,7 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { notifyOtherCreatorsOnReelayPosted, notifyMentionsOnReelayPosted } from '../../api/NotificationsApi';
 
 import styled from 'styled-components/native';
-import { postReelayToDB } from '../../api/ReelayDBApi';
+import { postReelayToDB, prepareReelay } from '../../api/ReelayDBApi';
 import { fetchAnnotatedTitle } from '../../api/TMDbApi';
 import ReelayColors from '../../constants/ReelayColors';
 import { notifyOnReelayedRec } from '../../api/WatchlistNotifications';
@@ -80,6 +80,8 @@ const UploadScreenContainer = styled(View)`
 export default ReelayUploadScreen = ({ navigation, route }) => {
     const { titleObj, videoURI, venue } = route.params;
     const topicID = route.params?.topicID;
+    const globalTopics = useSelector(state => state.globalTopics);
+    const reelayTopic = topicID ? globalTopics.find(nextTopic => nextTopic.id === topicID) : null;
 
     console.log('topic id on upload screen: ', topicID);
 
@@ -253,32 +255,34 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // janky, but this gets the reelay into the format we need, so that
             // we can reuse fetchReelaysForStack from ReelayDBApi
 
-            const annotatedTitle = await fetchAnnotatedTitle(reelayDBBody.tmdbTitleID, reelayDBBody.isSeries);
+            const preparedReelay = await prepareReelay(reelayDBBody);
+            preparedReelay.likes = [];
+            preparedReelay.comments = [];
 
             notifyMentionsOnReelayPosted({
                 creator: reelayDBUser,
-                reelay: { 
-                    ...reelayDBBody, 
-                    title: annotatedTitle,
-                },
+                reelay: preparedReelay,
             });
             notifyOtherCreatorsOnReelayPosted({
                 creator: reelayDBUser,
-                reelay: { 
-                    ...reelayDBBody, 
-                    title: annotatedTitle,
-                },
+                reelay: preparedReelay,
             });
             notifyOnReelayedRec({ 
                 creatorSub: reelayDBUser?.sub,
                 creatorName: reelayDBUser?.username,
-                reelay: reelayDBBody,
+                reelay: preparedReelay,
                 watchlistItems: myWatchlistItems,
             });
 
 			dispatch({ type: 'setRefreshOnUpload', payload: true });
             navigation.popToTop();
-            navigation.navigate("Global", { forceRefresh: true });
+            if (topicID && reelayTopic) {
+                reelayTopic.reelays = [preparedReelay, ...reelayTopic.reelays];
+                dispatch({ type: 'setGlobalTopics', payload: globalTopics });
+                navigation.navigate('Home');
+            } else {
+                navigation.navigate('Global', { forceRefresh: true });
+            }
 
         } catch (error) {
             // todo: better error catching
