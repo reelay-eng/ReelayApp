@@ -1,4 +1,4 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native'
 import styled from 'styled-components';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -15,6 +15,7 @@ import { AuthContext } from '../../context/AuthContext';
 
 import { useDispatch, useSelector } from 'react-redux';
 import TopOfTheWeek from './TopOfTheWeek';
+import { useFocusEffect } from '@react-navigation/native';
 
 const HomeContainer = styled(SafeAreaView)`
     width: 100%;
@@ -33,11 +34,23 @@ const Spacer = styled.View`
 const HomeComponent = ({ navigation }) => {
     const dispatch = useDispatch();
     const { reelayDBUserID } = useContext(AuthContext);
+    const scrollRef = useRef(null);
     const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
 
     useEffect(() => {
         checkForUnseenGlobalReelays();
     }, [])
+
+    useFocusEffect(() => {
+        const unsubscribe = navigation.getParent().addListener('tabPress', e => {
+            e.preventDefault();
+            if (scrollRef.current) {
+                scrollRef.current.scrollTo({ y: 0, animated: true });
+                onRefresh();
+            }
+        });
+        return () => unsubscribe();
+    })
 
     const checkForUnseenGlobalReelays = async () => {
         const globalFeed = await getFeed({ reelayDBUserID, feedSource: 'global', page: 0 });
@@ -79,7 +92,7 @@ const HomeComponent = ({ navigation }) => {
     return (
         <HomeContainer>
             <HomeHeader navigation={navigation} />
-            <ScrollContainer refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
+            <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 {/* <Announcements /> */}
                 <TopOfTheWeek navigation={navigation} />
                 <FriendsAreWatching navigation={navigation} />
