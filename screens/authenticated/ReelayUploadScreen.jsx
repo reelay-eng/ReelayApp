@@ -24,11 +24,14 @@ import { Icon } from 'react-native-elements';
 import * as Progress from 'react-native-progress';
 
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
-import { notifyOtherCreatorsOnReelayPosted, notifyMentionsOnReelayPosted } from '../../api/NotificationsApi';
+import {
+    notifyOtherCreatorsOnReelayPosted, 
+    notifyMentionsOnReelayPosted,
+    notifyTopicCreatorOnReelayPosted,
+} from '../../api/NotificationsApi';
 
 import styled from 'styled-components/native';
 import { postReelayToDB, prepareReelay } from '../../api/ReelayDBApi';
-import { fetchAnnotatedTitle } from '../../api/TMDbApi';
 import ReelayColors from '../../constants/ReelayColors';
 import { notifyOnReelayedRec } from '../../api/WatchlistNotifications';
 import DownloadButton from '../../components/create-reelay/DownloadButton';
@@ -252,9 +255,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 title: titleObj.display,
             });
 
-            // janky, but this gets the reelay into the format we need, so that
-            // we can reuse fetchReelaysForStack from ReelayDBApi
-
             const preparedReelay = await prepareReelay(reelayDBBody);
             preparedReelay.likes = [];
             preparedReelay.comments = [];
@@ -266,6 +266,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             notifyOtherCreatorsOnReelayPosted({
                 creator: reelayDBUser,
                 reelay: preparedReelay,
+                topic: reelayTopic ?? null,
             });
             notifyOnReelayedRec({ 
                 creatorSub: reelayDBUser?.sub,
@@ -273,6 +274,14 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 reelay: preparedReelay,
                 watchlistItems: myWatchlistItems,
             });
+
+            if (reelayTopic) {
+                notifyTopicCreatorOnReelayPosted({
+                    creator: reelayDBUser,
+                    reelay: preparedReelay,
+                    topic: reelayTopic,
+                });
+            }
 
 			dispatch({ type: 'setRefreshOnUpload', payload: true });
             navigation.popToTop();
