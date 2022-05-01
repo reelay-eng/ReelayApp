@@ -1,8 +1,9 @@
 import React from "react";
-import { View } from "react-native";
+import { Easing, View } from "react-native";
 import * as ReelayText from '../global/Text';
 import BackButton from "../utils/BackButton";
 import { LinearGradient } from "expo-linear-gradient";
+import TextTicker from 'react-native-text-ticker';
 import styled from 'styled-components/native';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -36,16 +37,23 @@ const TopicTitleRow = styled(View)`
     top: 10px;
     width: 100%;
 `
-const TopicTitleText = styled(ReelayText.H6Emphasized)`
+const TitleTicker = styled(TextTicker)`
     color: white;
     display: flex;
     margin-top: 4px;
+    font-family: Outfit-Regular;
+	font-size: 16px;
+	font-style: normal;
+	line-height: 20px;
+	letter-spacing: 0.15px;
+	text-align: left;
 `
 
 export default TopicFeedHeader = ({ navigation, position, topic }) => {
     const headerTopOffset = useSafeAreaInsets().top;
     const headerHeight = headerTopOffset + 40;
     const positionText = `${position + 1}/${topic.reelays.length}`;
+    const scrollDuration = topic.title.length * 180;
 
     return (
         <React.Fragment>
@@ -56,7 +64,17 @@ export default TopicFeedHeader = ({ navigation, position, topic }) => {
                 </PositionRow>
                 <TopicTitleRow>
                     <BackButton navigation={navigation} />
-                    <TopicTitleText>{topic.title}</TopicTitleText>
+                    <TitleTicker 
+                        animationType={'scroll'} 
+                        bounce={false} 
+                        duration={scrollDuration} 
+                        easing={Easing.linear} 
+                        loop 
+                        marqueeDelay={1000} 
+                        repeatSpacer={25}
+                    >
+                        {topic.title}
+                    </TitleTicker>
                 </TopicTitleRow>
             </HeaderBackground>
         </React.Fragment>
