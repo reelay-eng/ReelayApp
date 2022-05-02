@@ -101,14 +101,12 @@ const TopicCardPressable = styled(TouchableOpacity)`
     background-color: black;
     border-radius: 11px;
     height: 220px;
-    margin-right: 8px;
     width: ${width-32}px;
 `
 const TopicCardView = styled(View)`
     background-color: black;
     border-radius: 11px;
     height: 220px;
-    margin-right: 8px;
     width: ${width-32}px;
 `
 

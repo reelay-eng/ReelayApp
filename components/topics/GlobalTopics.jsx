@@ -8,6 +8,7 @@ import TopicCard from './TopicCard';
 import exampleTopic from './exampleTopic.json';
 import { useSelector } from 'react-redux';
 import ReelayColors from '../../constants/ReelayColors';
+import Carousel from 'react-native-snap-carousel';
 
 const { width } = Dimensions.get('window');
 
@@ -57,15 +58,6 @@ const SeeAllTopicsText = styled(ReelayText.Subtitle2)`
     color: ${ReelayColors.reelayBlue};
     margin-right: 15px;
 `
-const TopicsPreviewContainer = styled(ScrollView)`
-    display: flex;
-    flex-direction: row;
-    padding-left: 15px;
-    width: 100%;
-`
-const TopicScrollRightSpacer = styled(View)`
-    width: 15px;
-`
 
 export default GlobalTopics = ({ navigation }) => {
     const fetchedTopics = useSelector(state => state.globalTopics);
@@ -82,17 +74,8 @@ export default GlobalTopics = ({ navigation }) => {
         );
     }
 
-    const getItemLayout = (topic, index) => {
-        const cardWidth = width;
-        return {
-            length: cardWidth,
-            offset: index * cardWidth,
-            index: index, 
-        }
-    }
-
     const TopicsRow = () => {
-        const renderTopic = (topic, index) => {
+        const renderTopic = ({ item, index }) => {
             const onPress = () => console.log('pressed on topic');
             return (
                 <TopicCard 
@@ -100,20 +83,23 @@ export default GlobalTopics = ({ navigation }) => {
                     globalTopicIndex={index}
                     navigation={navigation} 
                     onPress={onPress} 
-                    topic={topic} 
+                    topic={item} 
                 />
             );
         }
 
         return (
-            <TopicsPreviewContainer 
-                getItemLayout={getItemLayout}
-                horizontal 
-                showsHorizontalScrollIndicator={false}
-            >
-                { fetchedTopics.map(renderTopic) }
-                <TopicScrollRightSpacer />
-            </TopicsPreviewContainer>
+            <Carousel
+                data={fetchedTopics}
+                renderItem={renderTopic}
+                itemWidth={width - 32}
+                sliderWidth={width}
+                itemHeight={220}
+                sliderHeight={240}
+                activeSlideAlignment={'center'}
+                activeAnimationType={'decay'}
+                inactiveSlideScale={0.95}
+            />
         );
     }
     
