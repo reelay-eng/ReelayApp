@@ -495,7 +495,7 @@ export const notifyOtherCreatorsOnReelayPosted = async ({ creator, reelay, topic
         const body = '';
         const data = { 
             notifyType: 'notifyOtherCreatorsOnReelayPosted',
-            action: 'openSingleReelayScreen',
+            action: (topic) ? 'openTopicAtReelay' : 'openSingleReelayScreen',
             reelaySub: reelay.sub,
             title: condensedTitleObj(reelay.title),   
             fromUser: { sub: creator?.sub, username: creator?.username },
@@ -524,7 +524,7 @@ export const notifyTopicCreatorOnReelayPosted = async ({ creator, reelay, topic 
     const body = '';
     const data = { 
         notifyType: 'notifyTopicCreatorOnReelayPosted',
-        action: 'openSingleReelayScreen',
+        action: (topic) ? 'openTopicAtReelay' : 'openSingleReelayScreen',
         reelaySub: reelay.sub,
         title: condensedTitleObj(reelay.title),   
         fromUser: creator,

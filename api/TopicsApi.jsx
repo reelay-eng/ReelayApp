@@ -80,6 +80,8 @@ export const getSingleTopic = async (topicID) => {
         headers: ReelayAPIHeaders,
     });
 
+    console.log('fetched topic: ', topicWithReelays);
+
     topicWithReelays.reelays = await Promise.all(topicWithReelays.reelays.map(prepareReelay));
     return await topicWithReelays;
 }

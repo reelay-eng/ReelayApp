@@ -1,9 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Image, Pressable, RefreshControl, SafeAreaView, View } from 'react-native';
+import { Image, FlatList, TouchableOpacity, RefreshControl, SafeAreaView, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
 import { AuthContext } from '../../context/AuthContext';
-import { FlatList } from 'react-native-gesture-handler';
 import FollowButton from '../../components/global/FollowButton';
 import { handlePushNotificationResponse } from '../../navigation/NotificationHandler';
 import { HeaderWithBackButton } from '../../components/global/Headers';
@@ -37,7 +36,7 @@ const MessageTimestampContainer = styled(View)`
     flex-direction: row;
     justify-content: flex-start;
 `
-const NotificationItemPressable = styled(Pressable)`
+const NotificationItemPressable = styled(TouchableOpacity)`
     background-color: ${(props) => (props.pressed) ? '#2d2d2d' : 'black' };
     flex-direction: row;
     width: 100%;
@@ -95,8 +94,8 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     });    
 
     const dispatch = useDispatch();
+    const globalTopics = useSelector(state => state.globalTopics);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-    const setMyWatchlistItems = (payload) => dispatch({ action: 'setMyWatchlistItems', payload });
 
     const { id, title, body, data, createdAt, seen } = notificationContent;
     const { reelayDBUser } = useContext(AuthContext);
@@ -138,6 +137,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
             'notifyMentionedUserOnComment',
             'notifyMentionedUserOnReelayPosted',
             'notifyThreadOnComment',
+            'notifyTopicCreatorOnReelayPosted',
             'notifyUserOnCommentLike',
             'notifyCreatorOnFollow',
             'notifyCreatorOnLike',
@@ -166,6 +166,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
             'notifyMentionedUserOnComment',
             'notifyMentionedUserOnReelayPosted',
             'notifyThreadOnComment',
+            'notifyTopicCreatorOnReelayPosted',
             'notifyUserOnCommentLike',
             'notifyCreatorOnLike',
             'notifyOtherCreatorsOnReelayPosted',
@@ -186,11 +187,12 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     const onPress = async () => {
         markNotificationActivated(id);
         handlePushNotificationResponse({ 
-            myWatchlistItems,
+            dispatch,
             navigation,
             notificationContent, 
             reelayDBUser,
-            setMyWatchlistItems,
+            globalTopics,
+            myWatchlistItems,
         });
     };
 
@@ -226,9 +228,7 @@ const NotificationList = ({ navigation }) => {
 
     const onRefresh = async () => {
         setRefreshing(true);
-        console.log('CALLING ON REFRESH');
         const allMyNotifications = await getAllMyNotifications(reelayDBUser?.sub);
-        console.log(allMyNotifications[allMyNotifications.length - 1]);
         dispatch({ type: 'setMyNotifications', payload: allMyNotifications });
         setRefreshing(false);
     }

@@ -19,7 +19,12 @@ const TopicsFeedContainer = styled(View)`
     height: ${height}px;
     width: ${width}px;
 `
-export default TopicsFeed = ({ initTopicIndex, navigation, showTabBarOnReturn = true }) => {
+export default TopicsFeed = ({ 
+    navigation, 
+    initTopicIndex, 
+    initReelayIndex,
+    showTabBarOnReturn = true,
+}) => {
     const { reelayDBUser } = useContext(AuthContext);
 	const dispatch = useDispatch();
     const feedPager = useRef();
@@ -59,7 +64,7 @@ export default TopicsFeed = ({ initTopicIndex, navigation, showTabBarOnReturn = 
         const stackViewable = (index === feedPosition);
         return (
             <TopicStack 
-                initialStackPos={0}
+                initialStackPos={initReelayIndex}
                 navigation={navigation}
                 topic={globalTopicsWithReelays[index]}
                 stackViewable={stackViewable}
