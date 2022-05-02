@@ -62,9 +62,10 @@ export default TopicsFeed = ({
 
     const renderStack = ({ item, index }) => {
         const stackViewable = (index === feedPosition);
+        const initialStackPos = (index === initTopicIndex) ? initReelayIndex : 0;
         return (
             <TopicStack 
-                initialStackPos={initReelayIndex}
+                initialStackPos={initialStackPos}
                 navigation={navigation}
                 topic={globalTopicsWithReelays[index]}
                 stackViewable={stackViewable}
