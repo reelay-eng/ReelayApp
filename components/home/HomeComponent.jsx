@@ -51,18 +51,31 @@ const HomeComponent = ({ navigation }) => {
 
     const onRefresh = async () => {
         setRefreshing(true);
-        const myFollowingLoaded = await getFollowing(reelayDBUserID);
-        const myNotifications = await getAllMyNotifications(reelayDBUserID);
-        const myStreamingSubscriptions = await getStreamingSubscriptions(reelayDBUserID);
-
         const reqUserSub = reelayDBUserID;
-        const globalTopics = await getGlobalTopics({ reqUserSub, page: 0 });
-        const myStacksFollowing = await getFeed({ reqUserSub, feedSource: 'following', page: 0 });
-        const myStacksInTheaters = await getFeed({ reqUserSub, feedSource: 'theaters', page: 0 });
-        const myStacksOnStreaming = await getFeed({ reqUserSub, feedSource: 'streaming', page: 0 });
-        const myStacksAtFestivals = await getFeed({ reqUserSub, feedSource: 'festivals', page: 0 });
+        const [
+            myFollowingLoaded,
+            myNotifications,
+            myStreamingSubscriptions,
+            globalTopics,
+            topOfTheWeek,
+            myStacksFollowing,
+            myStacksInTheaters,
+            myStacksOnStreaming,
+            myStacksAtFestivals,
+        ] = await Promise.all([
+            getFollowing(reelayDBUserID),
+            getAllMyNotifications(reelayDBUserID),
+            getStreamingSubscriptions(reelayDBUserID),
+            getGlobalTopics({ reqUserSub, page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'trending', page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'following', page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'streaming', page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'festivals', page: 0 }),
+        ]);
         
         dispatch({ type: 'setGlobalTopics', payload: globalTopics });
+        dispatch({ type: 'setTopOfTheWeek', payload: topOfTheWeek });
         dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
         dispatch({ type: 'setMyNotifications', payload: myNotifications });
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
@@ -70,7 +83,6 @@ const HomeComponent = ({ navigation }) => {
         dispatch({ type: 'setMyStacksInTheaters', payload: myStacksInTheaters });
         dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });        
         dispatch({ type: 'myStacksAtFestivals', payload: myStacksAtFestivals });
-
         setRefreshing(false);
     }
 
