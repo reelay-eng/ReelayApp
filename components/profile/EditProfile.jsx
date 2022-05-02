@@ -14,7 +14,7 @@ import {
 } from "@aws-sdk/client-s3";
 
 // DB
-import { searchUsers, updateProfilePic, updateUserBio, updateUserWebsite } from "../../api/ReelayDBApi";
+import { searchUsers, updateProfilePic, updateUserBio, updateUsername, updateUserWebsite } from "../../api/ReelayDBApi";
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
@@ -28,8 +28,10 @@ import * as ReelayText from "../global/Text";
 import { HeaderDoneCancel } from '../global/Headers';
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { showErrorToast } from "../utils/toasts";
 
 const { height, width } = Dimensions.get("window");
+const newValidUsernameRegex = /^([a-zA-z]+[a-zA-z0-9]*(?:[.\-_+][a-zA-Z0-9]+)*)$/g;
 
 const Spacer = styled(View)`
 	height: ${(props) => (props.height ? props.height : "0px")};
@@ -45,6 +47,31 @@ const SectionTitleContainer = styled(View)`
 	padding: 5px;
 	width: 72%;
 `;
+
+const isUsernameValid = async (username) => {
+	const validUsernameLength = username.length > 3 && username.length < 26;
+	const usernamePassesRegex = newValidUsernameRegex.test(username);
+	const usernameHasValidForm = validUsernameLength && usernamePassesRegex;
+
+	console.log("checking", username,"!")
+	if (!usernameHasValidForm) {
+		console.log('Usernames must be between 4 and 25 characters, alphanumeric. Separators .+_- are okay');
+		return false;
+	}
+	const partialMatchingUsers = await searchUsers(username);
+	if (partialMatchingUsers?.error) {
+		return false;
+	}
+
+	const usernamesMatch = (userObj) => (userObj.username === username);
+	const fullMatchIndex = await partialMatchingUsers.findIndex(usernamesMatch);
+	if (fullMatchIndex === -1) {
+		return true;
+	} else {
+		console.log('That username is already taken');
+		return false;
+	}
+}
 
 export default EditProfile = () => {
     const ModalContainer = styled(View)`
@@ -70,7 +97,7 @@ export default EditProfile = () => {
 	const dispatch = useDispatch();
 	const { reelayDBUser } = useContext(AuthContext);
 
-	// console.log("reelayDBUSER:", reelayDBUser)
+	console.log("reelayDBUSER:", reelayDBUser)
 
 	const initUsername = "";
 	const initBio = reelayDBUser.bio ? reelayDBUser.bio : "";
@@ -92,8 +119,12 @@ export default EditProfile = () => {
 
     const doneFunc = async () => {
 		// save all information
-		await saveInfo();
-		dispatch({ type: 'setIsEditingProfile', payload: false });
+		const successfulySaved = await saveInfo();
+		if (successfulySaved) {
+			dispatch({ type: 'setIsEditingProfile', payload: false });
+		} else{
+			showErrorToast("Info did not save successfully! Try again.")
+		}
     }
 
     const cancelFunc = () => {
@@ -103,11 +134,23 @@ export default EditProfile = () => {
     }
 
 	const saveInfo = async () => {
+		const usernameIsValid = isUsernameValid(usernameRef.current.trim());
+		if (usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
+			// username changed
+			reelayDBUser.username = usernameRef.current.trim();
+			// const usernameUpdatedSuccessfully = await updateUsername(reelayDBUser.sub, reelayDBUser.username);
+			const usernameUpdatedSuccessfully = false; 	// placeholder
+			// if username not set properly, return false of save info and toast message error
+			if (!usernameUpdatedSuccessfully) {
+				return false;
+			}
+		} 
 		reelayDBUser.bio = bioRef.current.trim() === "" ? null : bioRef.current;
-		await updateUserBio(reelayDBUser.sub, reelayDBUser.bio);
+		const bioUpdatedSuccessfully = await updateUserBio(reelayDBUser.sub, reelayDBUser.bio);
 		reelayDBUser.website =
 			websiteRef.current.trim() === "" ? null : websiteRef.current;
-		await updateUserWebsite(reelayDBUser.sub, reelayDBUser.website);
+		const websiteUpdatedSuccessfully = await updateUserWebsite(reelayDBUser.sub, reelayDBUser.website);
+		return (bioUpdatedSuccessfully && websiteUpdatedSuccessfully);
 	}
 
 	return (
@@ -161,42 +204,19 @@ const EditUsername = ({ usernameRef, usernameInputRef, currentFocus }) => {
 		width: 80%;
 		${props => props.border ? props.border : ''}
   	`;
-
-	const newValidUsernameRegex = /^([a-zA-z]+[a-zA-z0-9]*(?:[.\-_+][a-zA-Z0-9]+)*)$/g;
 	const [border, setBorder] = useState('');
-
-	const isUsernameValid = async (username, usernameHasValidForm) => {
-		if (!usernameHasValidForm) {
-			// showErrorToast('Usernames must be between 4 and 25 characters, alphanumeric. Separators .+_- are okay');
-			return false;
-		}
-		const partialMatchingUsers = await searchUsers(username);
-		if (partialMatchingUsers?.error) {
-			return false;
-		}
-
-		const usernamesMatch = (userObj) => (userObj.username === username);
-		const fullMatchIndex = await partialMatchingUsers.findIndex(usernamesMatch);
-		if (fullMatchIndex === -1) {
-			return true;
-		} else {
-			// showErrorToast('That username is already taken');
-			return false;
-		}
-	}
 
 	const changeInputText = async (text) => {
 		usernameRef.current=text;
 		// check if valid username and if it is not, turn outline red
-		const validUsernameLength = text.length > 3 && text.length < 26;
-		const usernamePassesRegex = newValidUsernameRegex.test(text);
-		const usernameHasValidForm = validUsernameLength && usernamePassesRegex;
-		const usernameIsValid = await isUsernameValid(text, usernameHasValidForm);
-		console.log(usernameIsValid);
+		const usernameIsValid = await isUsernameValid(text.trim());
+		// console.log(usernameIsValid);
 		if (usernameIsValid) {
-			setBorder("border-width: 1px; border-color: #04BD6C;")
+			//setBorder("border-width: 1px; border-color: #04BD6C;")
+			console.log('green')
 		} else {
-			setBorder("border-width: 1px; border-color: #fe4747;")
+			// setBorder("border-width: 1px; border-color: #fe4747;")
+			console.log('red')
 		}
 	};
 

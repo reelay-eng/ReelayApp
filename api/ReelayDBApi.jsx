@@ -601,6 +601,23 @@ export const unsuspendAccount = async (bannedUserSub, adminUserSub) => {
     return resultPost;
 }
 
+export const updateUsername = async (userSub, newUsername) => {
+    const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}`;
+    const updateBody = {
+        username: newUsername
+    };
+    const resultPatch = await fetchResults(routePatch, {
+        method: "PATCH",
+        headers: {
+            ...ReelayAPIHeaders,
+            requsersub: userSub,
+        },
+        body: JSON.stringify(updateBody),
+    });
+    console.log("Patched user bio to: ", newUsername);
+    return resultPatch;
+};
+
 // make it work?
 export const updateUserBio = async (userSub, bio) => {
     const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}`;
