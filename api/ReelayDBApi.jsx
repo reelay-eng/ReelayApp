@@ -284,11 +284,11 @@ export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
             requsersub: reqUserSub,
         }, 
     });
+    console.log('fetched stacks length: ', feedSource, fetchedStacks.length);
     if (!fetchedStacks) {
         console.log('Found no reelays in feed');
         return null;
     }
-    if (feedSource === 'trending') fetchedStacks = fetchedStacks.map(reelay => [reelay]);
     return await prepareStacks(fetchedStacks);
 }
 

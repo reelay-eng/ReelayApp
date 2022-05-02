@@ -20,7 +20,7 @@ const FriendsAreWatching = ({ navigation }) => {
         align-items: flex-end;
         flex-direction: row;
         margin-left: 15px;
-        margin-top: 15px;
+        margin-top: 5px;
     `
     const HeaderText = styled(ReelayText.H5Bold)`
         color: white;

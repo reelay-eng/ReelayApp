@@ -1,19 +1,20 @@
 import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native'
 import styled from 'styled-components';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import HomeHeader from './HomeHeader';
 import InTheaters from './InTheaters';
 import FriendsAreWatching from './FriendsAreWatching';
 import OnStreaming from './OnStreaming';
 import AtFestivals from './AtFestivals';
+import GlobalTopics from '../topics/GlobalTopics';
 
 import { getFeed, getFollowing, getStreamingSubscriptions } from '../../api/ReelayDBApi';
 import { getAllMyNotifications } from '../../api/NotificationsApi';
 import { AuthContext } from '../../context/AuthContext';
 
 import { useDispatch, useSelector } from 'react-redux';
+import { getGlobalTopics } from '../../api/TopicsApi';
 import TopOfTheWeek from './TopOfTheWeek';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -37,10 +38,6 @@ const HomeComponent = ({ navigation }) => {
     const scrollRef = useRef(null);
     const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
 
-    useEffect(() => {
-        checkForUnseenGlobalReelays();
-    }, [])
-
     useFocusEffect(() => {
         const unsubscribe = navigation.getParent().addListener('tabPress', e => {
             e.preventDefault();
@@ -52,29 +49,33 @@ const HomeComponent = ({ navigation }) => {
         return () => unsubscribe();
     })
 
-    const checkForUnseenGlobalReelays = async () => {
-        const globalFeed = await getFeed({ reelayDBUserID, feedSource: 'global', page: 0 });
-        if (globalFeed) {
-            const lastReelayPostTime = globalFeed[0][0].postedDateTime;
-            const lastOnGlobal = await AsyncStorage.getItem('lastOnGlobalFeed');
-            dispatch({ type: 'setHasUnseenGlobalReelays', payload: lastOnGlobal ? (lastOnGlobal<lastReelayPostTime) : true});
-        }
-    }
-
     const onRefresh = async () => {
-        await checkForUnseenGlobalReelays();
-
         setRefreshing(true);
-        const myFollowingLoaded = await getFollowing(reelayDBUserID);
-        const myNotifications = await getAllMyNotifications(reelayDBUserID);
-        const myStreamingSubscriptions = await getStreamingSubscriptions(reelayDBUserID);
-
         const reqUserSub = reelayDBUserID;
-        const myStacksFollowing = await getFeed({ reqUserSub, feedSource: 'following', page: 0 });
-        const myStacksInTheaters = await getFeed({ reqUserSub, feedSource: 'theaters', page: 0 });
-        const myStacksOnStreaming = await getFeed({ reqUserSub, feedSource: 'streaming', page: 0 });
-        const myStacksAtFestivals = await getFeed({ reqUserSub, feedSource: 'festivals', page: 0 });
+        const [
+            myFollowingLoaded,
+            myNotifications,
+            myStreamingSubscriptions,
+            globalTopics,
+            topOfTheWeek,
+            myStacksFollowing,
+            myStacksInTheaters,
+            myStacksOnStreaming,
+            myStacksAtFestivals,
+        ] = await Promise.all([
+            getFollowing(reelayDBUserID),
+            getAllMyNotifications(reelayDBUserID),
+            getStreamingSubscriptions(reelayDBUserID),
+            getGlobalTopics({ reqUserSub, page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'trending', page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'following', page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'streaming', page: 0 }),
+            getFeed({ reqUserSub, feedSource: 'festivals', page: 0 }),
+        ]);
         
+        dispatch({ type: 'setGlobalTopics', payload: globalTopics });
+        dispatch({ type: 'setTopOfTheWeek', payload: topOfTheWeek });
         dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
         dispatch({ type: 'setMyNotifications', payload: myNotifications });
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
@@ -82,7 +83,6 @@ const HomeComponent = ({ navigation }) => {
         dispatch({ type: 'setMyStacksInTheaters', payload: myStacksInTheaters });
         dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });        
         dispatch({ type: 'myStacksAtFestivals', payload: myStacksAtFestivals });
-
         setRefreshing(false);
     }
 
@@ -96,7 +96,8 @@ const HomeComponent = ({ navigation }) => {
                 {/* <Announcements /> */}
                 <TopOfTheWeek navigation={navigation} />
                 <FriendsAreWatching navigation={navigation} />
-                <OnStreaming navigation={navigation} refreshing={refreshing} setRefreshing={setRefreshing} />
+                <GlobalTopics navigation={navigation} />
+                <OnStreaming navigation={navigation} />
                 <InTheaters navigation={navigation} />
                 <AtFestivals navigation={navigation} />
                 <Spacer height={80} />
