@@ -22,7 +22,7 @@ const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
     padding: 15px;
-    padding-left: 11px;
+    padding-left: 15px;
 `
 const HeaderContainer = styled(View)`
     align-items: center;
@@ -32,8 +32,7 @@ const HeaderContainer = styled(View)`
 const HeaderContainerLeft = styled(View)`
     align-items: center;
     flex-direction: row;
-    margin-left: 19px;
-    margin-top: 15px;
+    margin-left: 15px;
 `
 const TopOfTheWeekContainer = styled(View)`
     width: 100%;
@@ -120,6 +119,7 @@ export default TopOfTheWeek = ({ navigation }) => {
     const topOfTheWeek = useSelector(state => state.topOfTheWeek);
     if (!topOfTheWeek?.length || topOfTheWeek.length < 3) {
         // just in case
+        console.log('Top of the week: not enough to display');
         return <View />;
     }
 

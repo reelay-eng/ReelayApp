@@ -4,7 +4,7 @@ import { Pressable, FlatList, RefreshControl, ScrollView, View } from 'react-nat
 import styled from 'styled-components/native';
 import WatchlistItem from './WatchlistItem';
 import { AuthContext } from '../../context/AuthContext';
-import { refreshMyWatchlist } from '../../api/ReelayUserApi';
+import { getWatchlistItems } from '../../api/WatchlistApi';
 import WatchlistSwipeableRow from './WatchlistSwipeableRow';
 import { RecommendedByLine, ReelayedByLine } from './RecPills';
 
@@ -27,7 +27,7 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
 
     const onRefresh = async () => {
         setRefreshing(true);
-        const nextWatchlistItems = await refreshMyWatchlist(reelayDBUser?.sub);
+        const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
         dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })
         setRefreshing(false);
     }

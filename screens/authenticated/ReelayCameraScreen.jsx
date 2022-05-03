@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+import { useDispatch } from 'react-redux';
 
 import { Camera } from 'expo-camera';
 import { Dimensions, View, SafeAreaView, Pressable} from 'react-native';
@@ -22,8 +23,10 @@ const ringSize = captureSize + 20;
 export default ReelayCameraScreen = ({ navigation, route }) => {
     var backCount = 0;
     var backTimer = 0;
+    const dispatch = useDispatch();
     const { reelayDBUser} = useContext(AuthContext);
     const { titleObj, venue } = route.params;
+    const topicID = route.params?.topicID;
 
     const cameraRef = useRef(null);
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
@@ -35,10 +38,11 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             return;
         }
 
-        navigation.push('ReelayUploadScreen', {
-            titleObj: titleObj,
-            videoURI: videoURI,
-            venue: venue,
+        navigation.push('ReelayUploadScreen', { 
+            titleObj, 
+            topicID, 
+            videoURI, 
+            venue,
         });
 
         // setting this prematurely when we advance to the upload screen,

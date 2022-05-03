@@ -31,20 +31,26 @@ import useColorScheme from './hooks/useColorScheme';
 import { AuthContext } from './context/AuthContext';
 
 // api imports
-import { getFeed, getAllDonateLinks, getRegisteredUser, registerPushTokenForUser } from './api/ReelayDBApi';
+import { 
+    getFeed, 
+    getAllDonateLinks, 
+    getRegisteredUser, 
+    registerPushTokenForUser,
+    getFollowers, 
+    getFollowing, 
+    getStacksByCreator, 
+    getStreamingSubscriptions, 
+} from './api/ReelayDBApi';
+import { getAllMyNotifications } from './api/NotificationsApi';
+import { getWatchlistItems } from './api/WatchlistApi';
+
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { toastConfig } from './components/utils/ToastConfig';
 import Toast from "react-native-toast-message";
 
-import { 
-    loadMyFollowers, 
-    loadMyFollowing, 
-    loadMyReelayStacks, 
-    loadMyNotifications, 
-    loadMyStreamingSubscriptions,
-    loadMyWatchlist, 
-    verifySocialAuthToken,
-} from './api/ReelayUserApi';
+import { verifySocialAuthToken } from './api/ReelayUserApi';
+
+
 
 // font imports
 import * as Font from 'expo-font';
@@ -52,6 +58,7 @@ import { connect, Provider, useDispatch, useSelector } from 'react-redux';
 import store, { mapStateToProps } from './redux/store';
 import { ensureLocalImageDirExists } from './api/ReelayLocalImageCache';
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
+import { getGlobalTopics } from './api/TopicsApi';
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png');
 
@@ -100,6 +107,7 @@ function App() {
         let tryCredentials, tryCognitoUser, tryVerifySocialAuth;
         try {
             tryCredentials = await Auth.currentUserCredentials();
+            Auth.currentSession();
             if (tryCredentials?.authenticated) {
                 // use cognito to sign in the user
                 tryCognitoUser = await Auth.currentAuthenticatedUser();
@@ -245,6 +253,7 @@ function App() {
             myStreamingSubscriptions,
             donateLinksLoaded,
 
+            globalTopics,
             myStacksFollowing,
             myStacksInTheaters,
             myStacksOnStreaming,
@@ -252,14 +261,15 @@ function App() {
             topOfTheWeek,
         ] = await Promise.all([
             getRegisteredUser(userSub),
-            loadMyReelayStacks(userSub),
-            loadMyFollowers(userSub),
-            loadMyFollowing(userSub),
-            loadMyNotifications(userSub),
-            loadMyWatchlist(userSub),
-            loadMyStreamingSubscriptions(userSub),
+            getStacksByCreator(userSub),
+            getFollowers(userSub),
+            getFollowing(userSub),
+            getAllMyNotifications(userSub),
+            getWatchlistItems(userSub),
+            getStreamingSubscriptions(userSub),
             getAllDonateLinks(),
 
+            getGlobalTopics({ reqUserSub, page: 0 }),
             getFeed({ reqUserSub, feedSource: 'following', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'streaming', page: 0 }),
@@ -278,6 +288,8 @@ function App() {
 
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
         dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
+
+        dispatch({ type: 'setGlobalTopics', payload: globalTopics });
         dispatch({ type: 'setMyStacksFollowing', payload: myStacksFollowing });
         dispatch({ type: 'setMyStacksInTheaters', payload: myStacksInTheaters });
         dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });

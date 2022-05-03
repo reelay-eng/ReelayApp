@@ -1,13 +1,14 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 import { getReelay, prepareReelay } from "../api/ReelayDBApi";
+import { getSingleTopic } from '../api/TopicsApi';
 
 export const handlePushNotificationResponse = async ({ 
-    myWatchlistItems, 
+    dispatch,
     navigation, 
     notificationContent, 
     reelayDBUser, 
-    setMyWatchlistItems 
+    globalTopics,
+    myWatchlistItems, 
 }) => {
     const { title, body, data } = notificationContent;
     const action = data?.action;
@@ -40,7 +41,9 @@ export const handlePushNotificationResponse = async ({
     } else if (action === 'openCreateScreen') {
         await openCreateScreen(navigation);
     } else if (action === 'openMyRecs') {
-        await openMyRecs(navigation, [data?.newWatchlistItem], myWatchlistItems, setMyWatchlistItems);
+        await openMyRecs(dispatch, navigation, [data?.newWatchlistItem], myWatchlistItems);
+    } else if (action === 'openTopicAtReelay') {
+        await openTopicAtReelay(navigation, globalTopics, data?.reelaySub)
     }
 }
 
@@ -53,7 +56,7 @@ const openCreateScreen = async (navigation) => {
 }
 
 // todo: only add if coming from external push notification
-const openMyRecs = async (navigation, newWatchlistItems, myWatchlistItems, setMyWatchlistItems) => {
+const openMyRecs = async (dispatch, navigation, newWatchlistItems, myWatchlistItems) => {
     if (!navigation) {
         console.log('No navigation ref')
         return;
@@ -67,8 +70,8 @@ const openMyRecs = async (navigation, newWatchlistItems, myWatchlistItems, setMy
         });
         return duplicateIndex === -1;
     });
-    setMyWatchlistItems(uniqueWatchlistItems);
-    await AsyncStorage.setItem('myWatchlist', JSON.stringify(uniqueWatchlistItems));
+
+    dispatch({ type: 'setMyWatchlistItems', payload: uniqueWatchlistItems });
     navigation.navigate('Watchlist', { category: 'Recs' });
 }
 
@@ -81,6 +84,24 @@ const openSingleReelayScreen = async (navigation, reelaySub) => {
     const singleReelay = await getReelay(reelaySub);
     const preparedReelay = await prepareReelay(singleReelay); 
     navigation.navigate('SingleReelayScreen', { preparedReelay })
+}
+
+const openTopicAtReelay = async (navigation, globalTopics, reelaySub) => {
+    if (!navigation) {
+        console.log('No navigation ref')
+        return;
+    }
+
+    const singleReelay = await getReelay(reelaySub);
+    const findReelayInTopic = (nextReelay) => nextReelay?.sub === reelaySub;
+    const fetchedTopicWithReelays = await getSingleTopic(singleReelay.topicID);
+    if (!fetchedTopicWithReelays?.reelays?.length) return;
+
+    let reelayIndex = fetchedTopicWithReelays.reelays.findIndex(findReelayInTopic);
+    navigation.navigate('SingleTopicScreen', {
+        initReelayIndex: reelayIndex,
+        topic: fetchedTopicWithReelays,
+    });  
 }
 
 const openUserProfileScreen = async (navigation, user) => {

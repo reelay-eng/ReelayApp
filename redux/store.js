@@ -9,6 +9,8 @@ const initialState = {
     isLoading: true,
     isReturningUser: false,
 
+    globalTopics: [],
+    globalTopicsWithReelays: [],
     myCreatorStacks: [],
     myFollowing: [],
     myFollowers: [],
@@ -57,6 +59,12 @@ const appReducer = ( state = initialState, action) => {
         case 'setIsReturningUser':
             return { ...state, isReturningUser: action.payload }
 
+        case 'setGlobalTopics':
+            const globalTopics = action.payload;
+            const globalTopicsWithReelays = globalTopics.filter((topic) => {
+                return topic.reelays.length > 0;
+            })
+            return { ...state, globalTopics, globalTopicsWithReelays };
         case 'setMyCreatorStacks':
             return { ...state, myCreatorStacks: action.payload }
         case 'setMyFollowing':
@@ -132,6 +140,8 @@ export const mapStateToProps = (state) => ({
     isLoading: state.isLoading,
     isReturningUser: state.isReturningUser,
 
+    globalTopics: state.globalTopics,
+    globalTopicsWithReelays: state.globalTopicsWithReelays,
     myCreatorStacks: state.myCreatorStacks,
     myFollowing: state.myFollowing,
     myFollowers: state.myFollowers,

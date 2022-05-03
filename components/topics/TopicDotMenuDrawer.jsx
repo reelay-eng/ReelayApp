@@ -1,27 +1,25 @@
 import React, { useContext, useState, memo} from 'react';
-import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
+import { Modal, View, Text, Pressable, ScrollView, TouchableOpacity } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { blockCreator, removeReelay, reportReelay, suspendAccount } from '../../api/ReelayDBApi';
+import { blockCreator, suspendAccount } from '../../api/ReelayDBApi';
 
 import { AuthContext } from '../../context/AuthContext';
-import { useDispatch, useSelector } from 'react-redux';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import styled from 'styled-components/native';
 
+import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../global/Text';
 import { showMessageToast } from '../utils/toasts';
-import DownloadButton from '../create-reelay/DownloadButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { removeTopic, reportTopic } from '../../api/TopicsApi';
 
 const ContentPolicy  = require('../../constants/ContentPolicy.json');
 
-const ReelayDotMenuContents = ({ reelay, navigation }) => {
+const TopicDrawerContents = ({ navigation, setDrawerVisible, topic }) => {
     const { reelayDBUser } = useContext(AuthContext);
-
-    const dispatch = useDispatch();
-    const isMyReelay = (reelayDBUser?.sub === reelay.creator.sub); 
-
     const [drawerState, setDrawerState] = useState('options');
+    const isMyTopic = (topic.creatorSub === reelayDBUser?.sub);
+
     const [selectedPolicy, setSelectedPolicy] = useState({});
     const bottomOffset = useSafeAreaInsets().bottom + 15;
     
@@ -29,13 +27,6 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         padding-left: 24px;
         padding-right: 24px;
         width: 100%;
-    `
-    const DownloadContainer = styled(View)`
-        align-items: flex-end;
-        justify-content: flex-end;
-        position: absolute;
-        bottom: 10px;
-        right: 30px;
     `
     const DrawerContainer = styled(View)`
         background-color: #1a1a1a;
@@ -55,7 +46,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         margin: 6px;
         margin-right: 0px;
     `
-    const OptionContainerPressable = styled(Pressable)`
+    const OptionContainerPressable = styled(TouchableOpacity)`
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
@@ -66,7 +57,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         color: white;
     `
     const closeDrawer = () => {
-        dispatch({ type: 'setDotMenuVisible', payload: false });
+        setDrawerVisible(false);
     };
 
     const BlockCreatorOption = () => {
@@ -85,17 +76,17 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
     const BlockCreatorConfirm = () => {
         const onPress = async () => {
-            const blockCreatorResult = await blockCreator(reelay.creator.sub, reelayDBUser?.sub);
-            console.log(blockCreatorResult);
             setDrawerState('block-creator-complete');
+            const blockCreatorResult = await blockCreator(topic.creatorSub, reelayDBUser?.sub);
+            console.log(blockCreatorResult);
 
             logAmplitudeEventProd('blockCreator', {
                 username: reelayDBUser?.username,
                 userSub: reelayDBUser?.sub,
-                creatorName: reelay.creator.username,
-                creatorSub: reelay.creator.sub,
-                reelaySub: reelay.sub,
-                title: reelay.title.display,
+                creatorName: topic.creatorName,
+                creatorSub: topic.creatorSub,
+                topicID: topic.id,
+                title: topic.title,
             });
         }
 
@@ -159,12 +150,12 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         );
     }
 
-    const RemoveReelayOption = () => {
+    const RemoveTopicOption = () => {
         const onPress = async () => {
-            setDrawerState('remove-reelay-confirm');
+            setDrawerState('remove-topic-confirm');
         }
         
-        const optionText = (isMyReelay) ? 'Remove Reelay' : '(Admin) Remove Reelay'
+        const optionText = (isMyTopic) ? 'Remove Topic' : '(Admin) Remove Topic'
 
         return (
             <OptionContainerPressable onPress={onPress}>
@@ -175,26 +166,31 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         );
     }
 
-    const RemoveReelayConfirm = () => {
+    const RemoveTopicConfirm = () => {
         const onPress = async () => {
-            const removeResult = await removeReelay(reelay);
+            setDrawerState('remove-topic-complete');
+            const removeResult = await removeTopic({ 
+                reqUserSub: reelayDBUser?.sub, 
+                topicID: topic.id 
+            });
             console.log(removeResult);
-            showMessageToast('This reelay has been removed');
-            setDrawerState('remove-reelay-complete');
 
-            logAmplitudeEventProd('removeReelay', {
+            // todo: update state to remove topic from global list
+            showMessageToast('This topic has been removed');
+
+            logAmplitudeEventProd('removeTopic', {
                 username: reelayDBUser?.username,
                 userSub: reelayDBUser?.sub,
-                creatorName: reelay.creator.username,
-                creatorSub: reelay.creator.sub,
-                reelaySub: reelay.sub,
-                title: reelay.title.display,
+                creatorName: topic.creatorName,
+                creatorSub: topic.creatorSub,
+                topicID: topic.id,
+                title: topic.title,
             });
         }
 
         return (
             <ContentContainer>
-                <Prompt text={'Are you sure you want to remove this reelay?'} />
+                <Prompt text={'Are you sure you want to remove this topic?'} />
                 <OptionContainerPressable onPress={onPress}>
                     <Icon type='ionicon' name='remove-circle' size={20} color={'white'} />
                     <IconSpacer />
@@ -204,12 +200,12 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         );
     }
 
-    const RemoveReelayComplete = () => {
-        const removeReelayMessage = 'You have removed this reelay for everyone';
+    const RemoveTopicComplete = () => {
+        const removeTopicMessage = 'You have removed this topic for everyone';
         
         return (
             <ContentContainer>
-                <Prompt text={removeReelayMessage} />
+                <Prompt text={removeTopicMessage} />
             </ContentContainer>
         );
     }
@@ -245,7 +241,6 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         const { id, displayName, statement, exampleList } = policy;
 
         const onPress = () => {
-            // todo
             setSelectedPolicy(policy);
             setDrawerState('report-content-submit');
         }
@@ -261,23 +256,23 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
     const ReportContentSubmit = () => {
         const { statement, exampleList } = selectedPolicy;
         onPress = async () => {
-            const reportReelayResult = await reportReelay(reelayDBUser?.sub, {
-                creatorSub: reelay.creator.sub, 
-                creatorName: reelay.creator.username,
+            setDrawerState('report-content-complete');
+            const reportTopicResult = await reportTopic(reelayDBUser?.sub, {
+                creatorSub: topic.creatorSub, 
+                creatorName: topic.creatorName,
                 policyViolationCode: selectedPolicy.id, 
-                reelaySub: reelay.sub,
+                topicID: topic.id,
             });
 
-            console.log('report reelay result: ', reportReelayResult);
-            setDrawerState('report-content-complete');
+            console.log('report topic result: ', reportTopicResult);
 
-            logAmplitudeEventProd('reportReelay', {
+            logAmplitudeEventProd('reportTopic', {
                 username: reelayDBUser?.username,
                 userSub: reelayDBUser?.sub,
-                creatorName: reelay.creator.username,
-                creatorSub: reelay.creator.sub,
-                reelaySub: reelay.sub,
-                title: reelay.title.display,
+                creatorName: topic.creatorName,
+                creatorSub: topic.creatorSub,
+                reelaySub: topic.id,
+                title: topic.title,
                 violationCode: selectedPolicy.id,
             });
         }
@@ -288,8 +283,8 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
                     <OptionText>{statement}</OptionText>
                     { exampleList.map((example, index) => {
                         return (
-                            <ListOptionContainer>
-                                <OptionText key={index}>{example}</OptionText>
+                            <ListOptionContainer key={index}>
+                                <OptionText>{example}</OptionText>
                             </ListOptionContainer>
                         );
                      })}
@@ -304,11 +299,10 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
     }
 
     const ReportContentComplete = () => {
-        const removeReelayMessage = 'You have reported this reelay. Reelay moderators are notified, and will review this content within 24 hours. Please reach out to support@reelay.app for more.';
-        
+        const removeTopicMessage = 'You have reported this topic. Reelay moderators are notified, and will review this content within 24 hours. Please reach out to support@reelay.app for more.';
         return (
             <ContentContainer>
-                <Prompt text={removeReelayMessage} />
+                <Prompt text={removeTopicMessage} />
             </ContentContainer>
         );
     }
@@ -329,17 +323,17 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
     const SuspendAccountConfirm = () => {
         const onPress = async () => {
-            const suspendAccountResult = await suspendAccount(reelay.creator.sub, reelayDBUser?.sub);
-            console.log(suspendAccountResult);
             setDrawerState('suspend-account-complete');
+            const suspendAccountResult = await suspendAccount(topic.creatorSub, reelayDBUser?.sub);
+            console.log(suspendAccountResult);
 
             logAmplitudeEventProd('suspendAccount', {
                 username: reelayDBUser?.username,
                 userSub: reelayDBUser?.sub,
-                creatorName: reelay.creator.username,
-                creatorSub: reelay.creator.sub,
-                reelaySub: reelay.sub,
-                title: reelay.title.display,
+                creatorName: topic.creatorName,
+                creatorSub: topic.creatorSub,
+                topicID: topic.id,
+                title: topic.title,
             });
         }
 
@@ -367,14 +361,14 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
     const ViewReportedContentFeedOption = () => {
         const onPress = () => {
             closeDrawer();
-            navigation.push('ReportedReelaysFeedScreen');
+            navigation.push('ReportedTopicsFeedScreen');
         }
 
         return (
             <OptionContainerPressable onPress={onPress}>
                 <Icon type='ionicon' name='eye' size={20} color={'white'} />
                 <IconSpacer />
-                <OptionText>{`(Admin) View Reported Content`}</OptionText>
+                <OptionText>{`(Admin) View Reported Topics`}</OptionText>
             </OptionContainerPressable>
         );
     }
@@ -382,27 +376,12 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
     const DotMenuOptions = () => {
         return (
             <ContentContainer>
-                { !isMyReelay && <ReportContentOption /> }
-                { !isMyReelay && <BlockCreatorOption /> }
-                { (reelayDBUser?.role === 'admin' || isMyReelay) && <RemoveReelayOption /> }
-                { (reelayDBUser?.role === 'admin') && !isMyReelay && <SuspendAccountOption /> }
+                { !isMyTopic && <ReportContentOption /> }
+                { !isMyTopic && <BlockCreatorOption /> }
+                { (reelayDBUser?.role === 'admin' || isMyTopic) && <RemoveTopicOption /> }
+                { (reelayDBUser?.role === 'admin') && !isMyTopic && <SuspendAccountOption /> }
                 { (reelayDBUser?.role === 'admin') && <ViewReportedContentFeedOption /> }
-                <DownloadOption />
             </ContentContainer>
-        );
-    }
-
-    const DownloadOption = () => {
-        return (
-            <DownloadContainer>
-                <DownloadButton 
-                    height={48}
-                    width={48}
-                    titleObj={reelay.title} 
-                    videoURI={reelay.content.videoURI} 
-                    uploadedReelay={reelay}
-                />
-            </DownloadContainer>
         );
     }
 
@@ -412,22 +391,17 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
                 { drawerState === 'options' && <DotMenuOptions /> }
                 { drawerState === 'block-creator-confirm' && <BlockCreatorConfirm /> }
                 { drawerState === 'block-creator-complete' && <BlockCreatorComplete /> }
-                { drawerState === 'remove-reelay-confirm' && <RemoveReelayConfirm /> }
-                { drawerState === 'remove-reelay-complete' && <RemoveReelayComplete /> }
+                { drawerState === 'remove-topic-confirm' && <RemoveTopicConfirm /> }
+                { drawerState === 'remove-topic-complete' && <RemoveTopicComplete /> }
                 { drawerState === 'report-content-select-violation' && <ReportContentSelectViolation /> }
                 { drawerState === 'report-content-submit' && <ReportContentSubmit /> }
                 { drawerState === 'report-content-complete' && <ReportContentComplete /> }
                 { drawerState === 'suspend-account-confirm' && <SuspendAccountConfirm /> }
                 { drawerState === 'suspend-account-complete' && <SuspendAccountComplete /> }
             </DrawerContainer>
-    );
-}
+    );}
 
-const Reelay3DotDrawer = ({ reelay, navigation }) => {
-    const dotMenuVisible = useSelector(state => state.dotMenuVisible);
-    const dispatch = useDispatch();
-    const closeDrawer = () => dispatch({ type: 'setDotMenuVisible', payload: false });
-
+export default TopicDotMenuDrawer = ({ topic, navigation, drawerVisible, setDrawerVisible }) => {
     const ModalContainer = styled(View)`
         position: absolute;
     `
@@ -437,20 +411,18 @@ const Reelay3DotDrawer = ({ reelay, navigation }) => {
         position: absolute;
         width: 100%;
     `
-
+    const closeDrawer = () => setDrawerVisible(false);
     return (
         <ModalContainer>
-            <Modal animationType='slide' transparent={true} visible={dotMenuVisible}>
+            <Modal animationType='slide' transparent={true} visible={drawerVisible}>
                 <Backdrop onPress={closeDrawer}/>
-                <ReelayDotMenuContents reelay={reelay} navigation={navigation} />
+                <TopicDrawerContents 
+                    navigation={navigation} 
+                    setDrawerVisible={setDrawerVisible} 
+                    topic={topic} 
+                />
             </Modal>
         </ModalContainer>
     );
 
 }
-
-const areEqual = (prevDrawerProps, nextDrawerProps) => {
-    return true;
-}
-
-export default memo(Reelay3DotDrawer, (areEqual));

@@ -6,7 +6,7 @@ import ReportedReelayFeed from '../../components/feed/FixedReelayFeed';
 import styled from 'styled-components/native';
 import moment from 'moment';
 
-export default ReportedContentFeedScreen = ({ navigation }) => {
+export default ReportedReelaysFeedScreen = ({ navigation }) => {
     const ReportedContentFeedContainer = styled(View)`
         height: 100%;
         width: 100%;

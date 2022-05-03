@@ -8,8 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { getStreamingVenues } from '../utils/VenueIcon';
 import { BWButton } from '../global/Buttons';
 
-import { postStreamingSubscriptionToDB, removeStreamingSubscription } from '../../api/ReelayDBApi';
-import { refreshMyStreamingSubscriptions } from '../../api/ReelayUserApi';
+import { getFeed, postStreamingSubscriptionToDB, removeStreamingSubscription } from '../../api/ReelayDBApi';
 import { useDispatch, useSelector } from 'react-redux';
 
 const StreamingServicesContainer = styled.View`
@@ -31,11 +30,11 @@ const VenueSaveButtonContainer = styled.View`
     height: 40px;
 `
 
-export default StreamingSelector = ({ onRefresh }) => {
+export default StreamingSelector = ({ setRefreshing }) => {
     return (
         <StreamingServicesContainer>
             <StreamingServicesHeader>{'Where do you stream?'}</StreamingServicesHeader>
-            <IconOptions onRefresh={onRefresh} />
+            <IconOptions setRefreshing={setRefreshing} />
         </StreamingServicesContainer>
     )
 }
@@ -70,7 +69,7 @@ const IconList = memo(({ onTapVenue, initSelectedVenues }) => {
     )
 });
 
-const IconOptions = ({ onRefresh }) => {
+const IconOptions = ({ setRefreshing }) => {
     const IconOptionsContainer = styled(View)`
         align-items: center;
         justify-content: center;
@@ -79,6 +78,7 @@ const IconOptions = ({ onRefresh }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
 
+    // todo: consistent naming (platform or venue?)
     const myStreamingPlatforms = myStreamingSubscriptions.map(({ platform }) => platform);
     const selectedVenues = useRef(myStreamingPlatforms);
     const [saveDisabled, setSaveDisabled] = useState(false);
@@ -86,27 +86,38 @@ const IconOptions = ({ onRefresh }) => {
     const addAndRemoveSubscriptionChanges = async () => {
         // compare to find new subscriptions to post
         const postIfNewSubscription = async (selectedVenue) => {
-            const matchToSelectedVenue = (platform) => (platform === selectedVenue);
-            if (!myStreamingPlatforms.find(matchToSelectedVenue)) {
+            const matchSelectedVenue = (platform) => (selectedVenue === platform);
+            if (!myStreamingPlatforms.find(matchSelectedVenue)) {
                 // adding a new subscription
-                await postStreamingSubscriptionToDB(reelayDBUser?.sub, { platform: selectedVenue });
-                return true;
-            } else return false;
+                postStreamingSubscriptionToDB(reelayDBUser?.sub, { platform: selectedVenue });
+            }
         }
 
         // compare to find old subscriptions to remove
-        const removeIfOldSubscription = async (subscribedPlatform) => {
-            const matchToSubscribedPlatform = (venue) => (venue === subscribedPlatform);
-            if (!selectedVenues.current.find(matchToSubscribedPlatform)) {
+        const removeIfOldSubscription = async (platform) => {
+            const matchSubscribedPlatform = (selectedVenue) => (selectedVenue === platform);
+            if (!selectedVenues.current.find(matchSubscribedPlatform)) {
                 // remove unselected platform from subscriptions
-                await removeStreamingSubscription(reelayDBUser?.sub, { platform: subscribedPlatform });
-                return true;
-            } else return false;
+                removeStreamingSubscription(reelayDBUser?.sub, { platform });
+            };
         }
 
-        await Promise.all(selectedVenues.current.map(postIfNewSubscription));
-        await Promise.all(myStreamingPlatforms.map(removeIfOldSubscription));
-        await refreshMyStreamingSubscriptions(reelayDBUser?.sub);
+        const myNextStreamingSubscriptions = selectedVenues.current.map((venue) => {
+            return { userID: reelayDBUser?.sub, platform: venue };
+        });
+
+        dispatch({ type: 'setMyStreamingSubscriptions', payload: myNextStreamingSubscriptions });
+        // todo: use a loading indicator
+        setRefreshing(true);
+        await selectedVenues.current.map(postIfNewSubscription);
+        await myStreamingPlatforms.map(removeIfOldSubscription);
+        const myStacksOnStreaming = await getFeed({ 
+            reqUserSub: reelayDBUser?.sub, 
+            feedSource: 'streaming', 
+            page: 0,
+        });
+        dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });
+        setRefreshing(false);
     }
 
     const onSave = async () => {
@@ -115,7 +126,6 @@ const IconOptions = ({ onRefresh }) => {
             return;
         }
         await addAndRemoveSubscriptionChanges();
-        await onRefresh();
     }
 
     const onTapVenue = (venue) => {
