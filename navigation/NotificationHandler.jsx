@@ -93,19 +93,7 @@ const openTopicAtReelay = async (navigation, globalTopics, reelaySub) => {
     }
 
     const singleReelay = await getReelay(reelaySub);
-    const findTopicInGlobal = (nextTopic) => nextTopic?.id === singleReelay?.topicID;
     const findReelayInTopic = (nextReelay) => nextReelay?.sub === reelaySub;
-
-    const topicIndex = globalTopics.findIndex(findTopicInGlobal);
-    if (topicIndex !== -1) {
-        let reelayIndex = globalTopics[topicIndex]?.reelays?.findIndex(findReelayInTopic);
-        navigation.navigate('TopicsFeedScreen', {
-            initTopicIndex: topicIndex,
-            initReelayIndex: reelayIndex ?? 0,  
-        });  
-        return;
-    }
-
     const fetchedTopicWithReelays = await getSingleTopic(singleReelay.topicID);
     if (!fetchedTopicWithReelays?.reelays?.length) return;
 
