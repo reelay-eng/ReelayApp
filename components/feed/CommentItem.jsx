@@ -16,7 +16,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const CommentTextStyled = styled(ReelayText.Body2)`
     color: white;
-    padding: 0px;
+    padding-right: 10px;
     margin: 0px;
 `;
 const CommentTimestampText = styled(ReelayText.Body2)`
