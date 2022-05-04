@@ -4,7 +4,7 @@ import TitleSearchResultItem from './TitleSearchResultItem';
 
 import styled from 'styled-components/native';
 
-export default TitleSearchResults = ({ navigation, searchResults, source }) => {
+export default TitleSearchResults = ({ navigation, searchResults, source, topicID }) => {
 
     const SearchResultContainer = styled(View)`
         border-bottom-color: #505050;
@@ -24,7 +24,12 @@ export default TitleSearchResults = ({ navigation, searchResults, source }) => {
                     { searchResults.map(result => {
                         return (
                           <SearchResultContainer key={result?.id}>
-                            <TitleSearchResultItem navigation={navigation} result={result} source={source} />
+                            <TitleSearchResultItem 
+                                navigation={navigation} 
+                                result={result} 
+                                source={source} 
+                                topicID={topicID}
+                            />
                           </SearchResultContainer>
                         );
                     })}

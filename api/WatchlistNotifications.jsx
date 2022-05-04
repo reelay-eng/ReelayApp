@@ -43,8 +43,8 @@ export const notifyOnSendRec = async ({ reqUserSub, reqUsername, sendToUserSub, 
 export const notifyOnReelayedRec = async ({ creatorName, creatorSub, reelay, watchlistItems }) => {
     const notifyWatchlistItems = watchlistItems.filter((item) => {
         const { recommendedBySub, tmdbTitleID, titleType } = item;
-        return (reelay.tmdbTitleID === tmdbTitleID 
-            && reelay.isSeries === (titleType === 'tv')
+        return (reelay.title.id === tmdbTitleID 
+            && reelay.title.titleType === titleType
             && recommendedBySub);
     });
 

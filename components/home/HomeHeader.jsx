@@ -22,6 +22,7 @@ const HomeHeader = ({ navigation }) => {
 	const HeaderContainer = styled(View)`
 		padding-left: 15px;
         padding-right: 15px;
+        padding-bottom: 10px;
 		display: flex;
 		flex-direction: row;
 		justify-content: space-between;

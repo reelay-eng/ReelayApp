@@ -58,6 +58,7 @@ import { connect, Provider, useDispatch, useSelector } from 'react-redux';
 import store, { mapStateToProps } from './redux/store';
 import { ensureLocalImageDirExists } from './api/ReelayLocalImageCache';
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
+import { getGlobalTopics } from './api/TopicsApi';
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png');
 
@@ -106,6 +107,7 @@ function App() {
         let tryCredentials, tryCognitoUser, tryVerifySocialAuth;
         try {
             tryCredentials = await Auth.currentUserCredentials();
+            Auth.currentSession();
             if (tryCredentials?.authenticated) {
                 // use cognito to sign in the user
                 tryCognitoUser = await Auth.currentAuthenticatedUser();
@@ -251,6 +253,7 @@ function App() {
             myStreamingSubscriptions,
             donateLinksLoaded,
 
+            globalTopics,
             myStacksFollowing,
             myStacksInTheaters,
             myStacksOnStreaming,
@@ -266,6 +269,7 @@ function App() {
             getStreamingSubscriptions(userSub),
             getAllDonateLinks(),
 
+            getGlobalTopics({ reqUserSub, page: 0 }),
             getFeed({ reqUserSub, feedSource: 'following', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'streaming', page: 0 }),
@@ -284,6 +288,8 @@ function App() {
 
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
         dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
+
+        dispatch({ type: 'setGlobalTopics', payload: globalTopics });
         dispatch({ type: 'setMyStacksFollowing', payload: myStacksFollowing });
         dispatch({ type: 'setMyStacksInTheaters', payload: myStacksInTheaters });
         dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });

@@ -38,7 +38,7 @@ const ReelayFeed = ({ navigation,
     pinnedReelay = null,
 }) => {
     const feedPager = useRef();
-    const nextPage = useRef(preloadedStackList?.length ? 2 : 0);
+    const nextPage = useRef(preloadedStackList?.length ? 1 : 0);
 
     const { reelayDBUser } = useContext(AuthContext);
 	const dispatch = useDispatch();
@@ -55,6 +55,24 @@ const ReelayFeed = ({ navigation,
         loadSelectedFeed();
     }, []);
 
+    useEffect(() => {
+        if (feedSource === 'global' && nextPage.current === 1) {
+            checkForUnseenGlobalReelays();
+        }
+    }, [selectedStackList]);
+
+    const checkForUnseenGlobalReelays = async () => {
+        try {
+            const lastReelayPostTime = selectedStackList[0][0].postedDateTime;
+            const lastOnGlobal = await AsyncStorage.getItem('lastOnGlobalFeed');
+            const hasUnseenGlobalReelays = lastOnGlobal ? (lastOnGlobal < lastReelayPostTime) : true;
+            dispatch({ type: 'setHasUnseenGlobalReelays', payload: hasUnseenGlobalReelays });    
+        } catch (error) {
+            console.log(error);
+            return;
+        }
+    }
+
     const loadSelectedFeed = async () => {
         console.log("loading", feedSource, " feed....");
         const stackEmpty = !selectedStackList.length;
@@ -63,6 +81,7 @@ const ReelayFeed = ({ navigation,
           return;
         }
         await extendFeed();
+        // if (feedSource === 'global') checkForUnseenGlobalReelays();
     }
 
     useEffect(() => {

@@ -40,6 +40,11 @@ export const condensedTitleObj = (titleObj) => {
     return { id, display, posterSource, releaseYear };
 }
 
+const condensedTitle = (displayTitle) => {
+    if (displayTitle.length < 25) return displayTitle;
+    return displayTitle.substring(0, 22) + '...';
+}
+
 export const getAllMyNotifications = async (userSub, page = 0) => {
     const routeGet = REELAY_API_BASE_URL + `/notifications/${userSub}/all?page=${page}`;
     const resultGet = await fetchResults(routeGet, { 
@@ -86,7 +91,6 @@ export const hideNotification = async (notificationID) => {
         headers: ReelayAPIHeaders,
     });
 
-    console.log('HID NOTIFICATION: ', resultDelete);
     return resultDelete;
 }
 
@@ -96,7 +100,6 @@ export const markAllNotificationsSeen = async (userSub) => {
         method: 'PATCH',
         headers: ReelayAPIHeaders,
     });
-    console.log('MARK ALL SEEN: ', resultPatch);
     return resultPatch;
 }
 
@@ -165,14 +168,11 @@ export const sendPushNotification = async ({
         return;
     }
 
-    console.log('POST BODY: ', reelayDBPostBody);
     const postResult = await fetchResults(reelayDBRoutePost, {
         method: 'POST',
         headers: ReelayAPIHeaders,
         body: JSON.stringify(reelayDBPostBody),
     });
-
-    console.log('Notification posted to ReelayDB: ', postResult);
 
     const expoMessage = { body, data: dataToPush, sound, title, to: token };
     const expoResponse = await fetchResults(EXPO_NOTIFICATION_URL, {
@@ -211,11 +211,11 @@ export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, comme
     // const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
     // const body = `${bodyTitle}: ${commentText}`;
     const body = '';
+    const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
     const data = {        
         notifyType: 'notifyCreatorOnComment', 
         commentText,
-        // reelaySub is used by the primary action
-        action: 'openSingleReelayScreen',
+        action,
         reelaySub: reelay.sub,
         title: condensedTitleObj(reelay.title),
         fromUser: { sub: author?.sub, username: author?.username },
@@ -244,11 +244,11 @@ export const notifyUserOnCommentLike = async ({ authorSub, user, reelay }) => {
       ? 'your'
       : `@${creator.username}'s`;
     const title = `@${user?.username} liked your comment on ${creatorDirectObject} reelay.`;
-    
     const body = '';
+    const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
     const data = { 
         notifyType: 'notifyUserOnCommentLike',
-        action: 'openSingleReelayScreen',
+        action,
         reelaySub: reelay.sub,
         title: condensedTitleObj(reelay.title),   
         fromUser: { sub: user?.sub, username: user?.username },
@@ -279,10 +279,11 @@ export const notifyMentionsOnComment = async ({ creator, author, reelay, comment
                 
             const title = `@${author.username} mentioned you in a comment on ${creatorDirectObject} reelay.`;
             const body = '';
+            const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
             const data = { 
                 notifyType: 'notifyMentionedUserOnComment',
                 commentText,
-                action: 'openSingleReelayScreen',
+                action,
                 reelaySub: reelay.sub,
                 title: condensedTitleObj(reelay.title),   
                 fromUser: { sub: author.sub, username: author.username },
@@ -341,10 +342,11 @@ export const notifyThreadOnComment = async ({ creator, author, reelay, commentTe
         // const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
         // const body = `${bodyTitle}: ${commentText}`;
         const body = '';
+        const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
         const data = { 
             notifyType: 'notifyThreadOnComment',
             commentText,
-            action: 'openSingleReelayScreen',
+            action,
             reelaySub: reelay.sub,
             title: condensedTitleObj(reelay.title),   
             fromUser: { sub: author.sub, username: author.username },
@@ -355,7 +357,6 @@ export const notifyThreadOnComment = async ({ creator, author, reelay, commentTe
 }
 
 export const notifyCreatorOnFollow = async ({ creatorSub, follower }) => {
-    console.log('follower', follower)
     const creator = await getRegisteredUser(creatorSub);
     const token = creator?.pushToken;
 
@@ -385,8 +386,9 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
         const title = `Achievement earned: Love Yourself`;
         // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
         const body = '';
+        const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
         const data = { 
-            action: 'openSingleReelayScreen',
+            action,
             reelaySub: reelay?.sub,
             title: condensedTitleObj(reelay?.title),   
             notifyType: 'loveYourself',
@@ -404,9 +406,10 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
     const title = `@${user?.username} liked your reelay.`;
     // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
     const body = '';
+    const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
     const data = { 
         notifyType: 'notifyCreatorOnLike',
-        action: 'openSingleReelayScreen',
+        action,
         reelaySub: reelay.sub,
         title: condensedTitleObj(reelay.title),   
         fromUser: { sub: user?.sub, username: user?.username },
@@ -433,13 +436,14 @@ export const notifyMentionsOnReelayPosted = async ({ creator, reelay }) => {
                 console.log('Comment author not registered for notifications');
                 return;
             }
-                        
+
             const title = `@${creator.username} mentioned you in their reelay for ${reelay.title.display}.`;
             const body = '';
+            const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
             const data = { 
                 notifyType: 'notifyMentionedUserOnReelayPosted',
                 descriptionText,
-                action: 'openSingleReelayScreen',
+                action,
                 reelaySub: reelay.sub,
                 title: condensedTitleObj(reelay.title),   
                 fromUser: { sub: creator.sub, username: creator.username },
@@ -457,8 +461,10 @@ export const notifyMentionsOnReelayPosted = async ({ creator, reelay }) => {
     });
 }
 
-export const notifyOtherCreatorsOnReelayPosted = async ({ creator, reelay }) => {
-    const notifyReelayStack = await getMostRecentReelaysByTitle(reelay.title.id);
+export const notifyOtherCreatorsOnReelayPosted = async ({ creator, reelay, topic = null }) => {
+    const notifyReelayStack = (topic) 
+        ? topic.reelays
+        : await getMostRecentReelaysByTitle(reelay.title.id);
     
     notifyReelayStack.map(async (notifyReelay, index) => {
         const notifyCreator = await getRegisteredUser(notifyReelay.creator.sub);
@@ -481,13 +487,14 @@ export const notifyOtherCreatorsOnReelayPosted = async ({ creator, reelay }) => 
             console.log('Recipient already notified');
             return;
         }
-
-        const title = `@${creator.username} also posted a reelay.`;
+        const title = (topic) 
+            ? `@${creator.username} also posted a reelay in ${condensedTitle(topic.title)}`
+            : `@${creator.username} also posted a reelay for ${condensedTitle(reelay.title)}`;
         // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
         const body = '';
         const data = { 
             notifyType: 'notifyOtherCreatorsOnReelayPosted',
-            action: 'openSingleReelayScreen',
+            action: (topic) ? 'openTopicAtReelay' : 'openSingleReelayScreen',
             reelaySub: reelay.sub,
             title: condensedTitleObj(reelay.title),   
             fromUser: { sub: creator?.sub, username: creator?.username },
@@ -495,6 +502,34 @@ export const notifyOtherCreatorsOnReelayPosted = async ({ creator, reelay }) => 
 
         await sendPushNotification({ title, body, data, token, sendToUserSub: notifyReelay.creator.sub });    
     })
+}
+
+export const notifyTopicCreatorOnReelayPosted = async ({ creator, reelay, topic }) => {
+    const topicCreator = await getRegisteredUser(topic.creatorSub);
+    const token = topicCreator?.pushToken;
+
+    const recipientIsCreator = (creator.sub === topicCreator?.sub);
+    if (recipientIsCreator) {
+        console.log('No need to send notification to creator');
+        return;
+    }
+
+    if (!token) {
+        console.log('Creator not registered for like notifications');
+        return;
+    }
+
+    const title = `@${creator?.username} added a reelay to your topic.`;
+    const body = '';
+    const data = { 
+        notifyType: 'notifyTopicCreatorOnReelayPosted',
+        action: (topic) ? 'openTopicAtReelay' : 'openSingleReelayScreen',
+        reelaySub: reelay.sub,
+        title: condensedTitleObj(reelay.title),   
+        fromUser: creator,
+    };
+
+    await sendPushNotification({ title, body, data, token, sendToUserSub: topicCreator?.sub });
 }
 
 export const setMyNotificationSettings = async ({ user, notifyPrompts, notifyReactions, notifyTrending }) => {

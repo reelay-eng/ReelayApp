@@ -42,6 +42,7 @@ export default Navigation = () => {
     const notificationListener = useRef();
     const responseListener = useRef(); 
     const { reelayDBUser } = useContext(AuthContext);
+    const globalTopics = useSelector(state => state.globalTopics);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const dispatch = useDispatch();
 
@@ -61,10 +62,6 @@ export default Navigation = () => {
             setDeeplinkURL(Linking.parse(initialURL));
         }
     }
-
-    const setMyWatchlistItems = (payload) => {
-        dispatch({ type: 'setMyWatchlistItems', payload });
-    }
     
     const onNotificationReceived = async (notification) => {
         const notificationContent = parseNotificationContent(notification);
@@ -81,11 +78,12 @@ export default Navigation = () => {
         const { notification, actionIdentifier, userText } = notificationResponse;
         const notificationContent = parseNotificationContent(notification);
         handlePushNotificationResponse({ 
-            myWatchlistItems,
+            dispatch,
             navigation: navigationRef?.current, 
             notificationContent,
             reelayDBUser,
-            setMyWatchlistItems,
+            globalTopics,
+            myWatchlistItems,
         });
     }
 
