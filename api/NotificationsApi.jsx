@@ -192,9 +192,10 @@ export const sendPushNotification = async ({
     return expoResponse;
 }
 
-export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, commentText }) => {
+export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, commentText, mentionedUsers }) => {
     const recipientIsAuthor = (creatorSub === author?.sub);
-    if (recipientIsAuthor) {
+    const recipientMentioned = mentionedUsers.includes(creatorSub);
+    if (recipientIsAuthor || recipientMentioned) {
         console.log('No need to send notification to creator');
         return;
     }
@@ -207,10 +208,10 @@ export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, comme
         return;
     }
 
-    const title = `@${author?.username} commented on your reelay.`;
+    const title = `${author?.username}`;
     // const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
     // const body = `${bodyTitle}: ${commentText}`;
-    const body = '';
+    const body = `commented on your reelay for ${reelay.title.display}`;
     const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
     const data = {        
         notifyType: 'notifyCreatorOnComment', 
@@ -240,11 +241,12 @@ export const notifyUserOnCommentLike = async ({ authorSub, user, reelay }) => {
         return;
     }
 
-    const creatorDirectObject = (creator.username === commentAuthor.username) 
-      ? 'your'
-      : `@${creator.username}'s`;
-    const title = `@${user?.username} liked your comment on ${creatorDirectObject} reelay.`;
-    const body = '';
+    let creatorDirectObject = `@${creator.username}'s`;
+    if (creator.username === user?.username) creatorDirectObject = 'their';
+    if (creator.username === commentAuthor.username) creatorDirectObject = 'your';
+
+    const title = `${user?.username}`;
+    const body = `liked your comment on ${creatorDirectObject} reelay.`;
     const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
     const data = { 
         notifyType: 'notifyUserOnCommentLike',
@@ -262,6 +264,8 @@ export const notifyMentionsOnComment = async ({ creator, author, reelay, comment
     const commentParts = parseValue(commentText, [mentionFollowType]);
     const isMention = (part) => (part.partType && isMentionPartType(part.partType));
 
+    let mentionedUsers = [];
+
     commentParts.parts.forEach(async (commentPart) => {
         if (isMention(commentPart)) {
             const notifyMentionedUserSub = commentPart.data.id;
@@ -277,8 +281,8 @@ export const notifyMentionsOnComment = async ({ creator, author, reelay, comment
             if (creator.username === author.username) creatorDirectObject = 'their';
             if (creator.username === notifyMentionedUser.username) creatorDirectObject = 'your';
                 
-            const title = `@${author.username} mentioned you in a comment on ${creatorDirectObject} reelay.`;
-            const body = '';
+            const title = `${author.username}`;
+            const body = 'tagged you in a comment';
             const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
             const data = { 
                 notifyType: 'notifyMentionedUserOnComment',
@@ -288,7 +292,9 @@ export const notifyMentionsOnComment = async ({ creator, author, reelay, comment
                 title: condensedTitleObj(reelay.title),   
                 fromUser: { sub: author.sub, username: author.username },
             };
-        
+
+            mentionedUsers.push(notifyMentionedUserSub);
+
             await sendPushNotification({ title, body, data, token, sendToUserSub: notifyMentionedUser?.sub });
             logAmplitudeEventProd('userMentionedInCommnet', {
                 mentionedUsername: notifyMentionedUser.username,
@@ -300,9 +306,11 @@ export const notifyMentionsOnComment = async ({ creator, author, reelay, comment
             });
         }
     });
+
+    return mentionedUsers;
 }
 
-export const notifyThreadOnComment = async ({ creator, author, reelay, commentText }) => {
+export const notifyThreadOnComment = async ({ creator, author, reelay, commentText, mentionedUsers }) => {
     reelay.comments.map(async (comment, index) => {
         const notifyAuthorName = comment.authorName;
         const notifyAuthor = await getUserByUsername(notifyAuthorName);
@@ -314,7 +322,8 @@ export const notifyThreadOnComment = async ({ creator, author, reelay, commentTe
         }
 
         const recipientIsAuthor = (notifyAuthor?.sub === author?.sub);
-        if (recipientIsAuthor) {
+        const recipientMentioned = mentionedUsers.includes(notifyAuthor.sub);
+        if (recipientIsAuthor || recipientMentioned) {
             console.log('No need to send notification to comment author');
             return;
         }
@@ -334,14 +343,13 @@ export const notifyThreadOnComment = async ({ creator, author, reelay, commentTe
             return;
         }
 
-        const creatorDirectObject = (creator.username === author.username) 
-            ? 'their'
-            : `@${creator.username}'s`;
+        let creatorDirectObject = `@${creator.username}'s`;
+        if (creator.username === author.username) creatorDirectObject = 'their';
             
-        const title = `@${author.username} also commented on ${creatorDirectObject} reelay.`;
+        const title = `${author.username}`;
         // const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
         // const body = `${bodyTitle}: ${commentText}`;
-        const body = '';
+        const body = `commented on ${creatorDirectObject} reelay for ${reelay.title.display}`;
         const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
         const data = { 
             notifyType: 'notifyThreadOnComment',
@@ -355,7 +363,7 @@ export const notifyThreadOnComment = async ({ creator, author, reelay, commentTe
         await sendPushNotification({ title, body, data, token, sendToUserSub: notifyAuthor?.sub });    
     });
 }
-
+///
 export const notifyCreatorOnFollow = async ({ creatorSub, follower }) => {
     const creator = await getRegisteredUser(creatorSub);
     const token = creator?.pushToken;
@@ -365,8 +373,8 @@ export const notifyCreatorOnFollow = async ({ creatorSub, follower }) => {
         return;
     }
 
-    const title = `@${follower.username} followed you!`;
-    const body = ``;
+    const title = `${follower.username}`;
+    const body = `started following you`;
     const data = {
         action: "openUserProfileScreen",
         fromUser: { sub: follower.sub, username: follower.username },
@@ -383,9 +391,9 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
 
     const recipientIsAuthor = (creatorSub === user?.sub);
     if (recipientIsAuthor) {
-        const title = `Achievement earned: Love Yourself`;
+        const title = `Achievement Unlocked!`;
         // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
-        const body = '';
+        const body = '❤️ Love Yourself ❤️';
         const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
         const data = { 
             action,
@@ -403,9 +411,9 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
         return;
     }
 
-    const title = `@${user?.username} liked your reelay.`;
+    const title = `${user?.username}`;
     // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
-    const body = '';
+    const body = `liked your reelay for ${reelay.title.display}`;
     const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
     const data = { 
         notifyType: 'notifyCreatorOnLike',
@@ -426,6 +434,8 @@ export const notifyMentionsOnReelayPosted = async ({ creator, reelay }) => {
     const descriptionParts = parseValue(descriptionText, [mentionFollowType]);
     const isMention = (part) => (part.partType && isMentionPartType(part.partType));
 
+    let mentionedUsers = [];
+
     descriptionParts.parts.forEach(async (descriptionPart) => {
         if (isMention(descriptionPart)) {
             const notifyMentionedUserSub = descriptionPart.data.id;
@@ -436,9 +446,9 @@ export const notifyMentionsOnReelayPosted = async ({ creator, reelay }) => {
                 console.log('Comment author not registered for notifications');
                 return;
             }
-
-            const title = `@${creator.username} mentioned you in their reelay for ${reelay.title.display}.`;
-            const body = '';
+                        
+            const title = `${creator.username}`;
+            const body = `tagged you in their reelay for ${reelay.title.display}`;
             const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
             const data = { 
                 notifyType: 'notifyMentionedUserOnReelayPosted',
@@ -448,7 +458,9 @@ export const notifyMentionsOnReelayPosted = async ({ creator, reelay }) => {
                 title: condensedTitleObj(reelay.title),   
                 fromUser: { sub: creator.sub, username: creator.username },
             };
-        
+
+            mentionedUsers.push(notifyMentionedUser.sub);
+
             await sendPushNotification({ title, body, data, token, sendToUserSub: notifyMentionedUser?.sub });
             logAmplitudeEventProd('userMentionedInReelay', {
                 mentionedUsername: notifyMentionedUser.username,
@@ -459,9 +471,10 @@ export const notifyMentionsOnReelayPosted = async ({ creator, reelay }) => {
             });
         }
     });
+    return mentionedUsers;
 }
 
-export const notifyOtherCreatorsOnReelayPosted = async ({ creator, reelay, topic = null }) => {
+export const notifyOtherCreatorsOnReelayPosted = async ({ creator, reelay, topic = null, mentionedUsers }) => { // this is the topics one
     const notifyReelayStack = (topic) 
         ? topic.reelays
         : await getMostRecentReelaysByTitle(reelay.title.id);
@@ -474,9 +487,11 @@ export const notifyOtherCreatorsOnReelayPosted = async ({ creator, reelay, topic
             console.log('Creator not registered for like notifications');
             return;
         }
-
+        console.log("mentionedUsers",mentionedUsers)
         const recipientIsCreator = (notifyCreator.sub === creator?.sub);
-        if (recipientIsCreator) {
+        const recipientMentioned = mentionedUsers.includes(notifyCreator.sub);
+        console.log(recipientMentioned)
+        if (recipientIsCreator || recipientMentioned) {
             console.log('No need to send notification to creator');
             return;
         }    
@@ -487,11 +502,10 @@ export const notifyOtherCreatorsOnReelayPosted = async ({ creator, reelay, topic
             console.log('Recipient already notified');
             return;
         }
-        const title = (topic) 
-            ? `@${creator.username} also posted a reelay in ${condensedTitle(topic.title)}`
-            : `@${creator.username} also posted a reelay for ${condensedTitle(reelay.title)}`;
+        const title = (topic) ? `${creator.username}` : `${reelay.title.display}`;
         // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
-        const body = '';
+        const body = (topic) ? `added to the topic: ${condensedTitle(topic.title)}` : `new reelay by ${creator.username}`; // add name for topic
+        console.log("sending notifcation to ", notifyCreator)
         const data = { 
             notifyType: 'notifyOtherCreatorsOnReelayPosted',
             action: (topic) ? 'openTopicAtReelay' : 'openSingleReelayScreen',
@@ -519,8 +533,8 @@ export const notifyTopicCreatorOnReelayPosted = async ({ creator, reelay, topic 
         return;
     }
 
-    const title = `@${creator?.username} added a reelay to your topic.`;
-    const body = '';
+    const title = `${creator?.username}`;
+    const body = `added to your topic: ${condensedTitle(topic.title)}`;
     const data = { 
         notifyType: 'notifyTopicCreatorOnReelayPosted',
         action: (topic) ? 'openTopicAtReelay' : 'openSingleReelayScreen',

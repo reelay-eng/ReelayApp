@@ -279,24 +279,26 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 			commentBody.id = postResult.id;
 			console.log("Comment posted: ", postResult);
 
+			const mentionedUsers = await notifyMentionsOnComment({
+				creator: reelay.creator,
+				author: reelayDBUser,
+				reelay: reelay,
+				commentText: commentText,
+			})
 			await notifyCreatorOnComment({
 				creatorSub: reelay.creator.sub,
 				author: reelayDBUser,
 				reelay: reelay,
 				commentText: commentText,
+				mentionedUsers: mentionedUsers
 			});
 			await notifyThreadOnComment({
 				creator: reelay.creator,
 				author: reelayDBUser,
 				reelay: reelay,
 				commentText: commentText,
+				mentionedUsers: mentionedUsers
 			});
-			await notifyMentionsOnComment({
-				creator: reelay.creator,
-				author: reelayDBUser,
-				reelay: reelay,
-				commentText: commentText,
-			})
 
 			setCommentText("");
             setCommentPosting(false);
