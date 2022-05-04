@@ -194,7 +194,7 @@ export const sendPushNotification = async ({
 
 export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, commentText, mentionedUsers }) => {
     const recipientIsAuthor = (creatorSub === author?.sub);
-    const recipientMentioned = mentionedUsers.includes(creatorSub);
+    const recipientMentioned = mentionedUsers && mentionedUsers.includes(creatorSub);
     if (recipientIsAuthor || recipientMentioned) {
         console.log('No need to send notification to creator');
         return;
@@ -322,7 +322,7 @@ export const notifyThreadOnComment = async ({ creator, author, reelay, commentTe
         }
 
         const recipientIsAuthor = (notifyAuthor?.sub === author?.sub);
-        const recipientMentioned = mentionedUsers.includes(notifyAuthor.sub);
+        const recipientMentioned = mentionedUsers && mentionedUsers.includes(notifyAuthor.sub);
         if (recipientIsAuthor || recipientMentioned) {
             console.log('No need to send notification to comment author');
             return;
@@ -487,9 +487,9 @@ export const notifyOtherCreatorsOnReelayPosted = async ({ creator, reelay, topic
             console.log('Creator not registered for like notifications');
             return;
         }
-        console.log("mentionedUsers",mentionedUsers)
+
         const recipientIsCreator = (notifyCreator.sub === creator?.sub);
-        const recipientMentioned = mentionedUsers.includes(notifyCreator.sub);
+        const recipientMentioned = mentionedUsers && mentionedUsers.includes(notifyCreator.sub);
         console.log(recipientMentioned)
         if (recipientIsCreator || recipientMentioned) {
             console.log('No need to send notification to creator');

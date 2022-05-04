@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createTopic } from '../../api/TopicsApi';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import TopicAddFirstReelayDrawer from '../../components/topics/TopicAddFirstReelayDrawer';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 const { width } = Dimensions.get('window');
 
@@ -131,6 +132,12 @@ export default function CreateTopicScreen({ navigation, route }) {
                 dispatch({ type: 'setGlobalTopics', payload: [publishResult, ...globalTopics ]});
                 showMessageToast('Topic created!');
                 setAddFirstReelayDrawerVisible(true);
+
+                logAmplitudeEventProd('createdTopic', {
+                    title: titleTextRef.current,
+                    description: descriptionTextRef.current,
+                    creatorName: reelayDBUser?.username,
+                });
             }
             return publishResult;
         };
