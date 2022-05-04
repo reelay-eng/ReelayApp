@@ -166,7 +166,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     return (
 		<ProfileScreenContainer>
-			<EditProfile/>
+			{ isEditingProfile && <EditProfile/> }
 			<ProfileTopBar creator={reelayDBUser} navigation={navigation} atProfileBase={true} />
 			<ProfileScrollView showsVerticalScrollIndicator={false} refreshControl={refreshControl}>
                 <ProfileHeaderAndInfo 
