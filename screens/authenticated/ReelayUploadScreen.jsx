@@ -206,6 +206,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         logAmplitudeEventProd('publishReelayStarted', {
             username: reelayDBUser.username,
             title: titleObj.display,
+            destination: (topicID) ? 'InTopic' : 'OnProfile',
         });
 
         try {
