@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { SafeAreaView, View, Pressable, Text } from 'react-native';
+import { SafeAreaView, View, Pressable, Text, ActivityIndicator } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { useDispatch } from "react-redux";
 import { Icon } from 'react-native-elements';
@@ -55,6 +55,7 @@ const TopicTitleText = styled(ReelayText.H6)`
     margin-left: 4px;
 `
 export default SelectTitleScreen = ({ navigation, route }) => {
+    const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchType, setSearchType] = useState('Film');
@@ -85,14 +86,13 @@ export default SelectTitleScreen = ({ navigation, route }) => {
         }
 
         try {
-            if (searchType === 'Film') {
-                const annotatedResults = await searchTitles(newSearchText, false);
-                if (counter === updateCounter.current) {
+            setLoading(true);
+            if (counter === updateCounter.current) {
+                if (searchType === 'Film') {
+                    const annotatedResults = await searchTitles(newSearchText, false);
                     setSearchResults(annotatedResults);
-                }
-            } else {
-                const annotatedResults = await searchTitles(newSearchText, true);
-                if (counter === updateCounter.current) {
+                } else {
+                    const annotatedResults = await searchTitles(newSearchText, true);
                     setSearchResults(annotatedResults);
                 }
             }
@@ -109,12 +109,19 @@ export default SelectTitleScreen = ({ navigation, route }) => {
 
     useEffect(() => {
         logAmplitudeEventProd('openSelectTitleScreen', { searchText, searchType });
-    }, [searchText, searchType]);
+    }, []);
 
     useEffect(() => {
         updateCounter.current += 1;
-        updateSearch(searchText, searchType, updateCounter.current);
+        const nextUpdateCounter = updateCounter.current;
+        setTimeout(() => {
+            updateSearch(searchText, searchType, nextUpdateCounter);
+        }, 200);
     }, [searchText, searchType]);
+
+    useEffect(() => {
+        setLoading(false);
+    }, [searchResults]);
 
     return (
 		<SafeAreaView style={{ backgroundColor: "black", height: "100%", width: "100%" }}>
@@ -140,12 +147,15 @@ export default SelectTitleScreen = ({ navigation, route }) => {
 					placeholderText="What did you see?"
 				/>
 			</SearchBarContainer>
-			<TitleSearchResults
-				navigation={navigation}
-				searchResults={searchResults}
-				source={"create"}
-                topicID={topic?.id ?? null}
-			/>
+            { !loading && (
+                <TitleSearchResults
+                    navigation={navigation}
+                    searchResults={searchResults}
+                    source={"create"}
+                    topicID={topic?.id ?? null}
+                />
+            )}
+            { loading && <ActivityIndicator /> }
 		</SafeAreaView>
 	);
 };

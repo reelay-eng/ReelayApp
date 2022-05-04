@@ -28,6 +28,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 // Styling
 import styled from 'styled-components/native';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
@@ -54,25 +55,19 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     const [renderCount, setRenderCount] = useState(0);
       
-    useEffect(() => {
+    useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
+    })
+
+    useEffect(() => {
         if (refreshOnUpload) {
 			dispatch({ type: 'setRefreshOnUpload', payload: false })
             onRefresh();
         }
-    });
-
-    useEffect(() => {
         logAmplitudeEventProd("openMyProfileScreen", {
             username: reelayDBUser?.username,
             email: reelayDBUser?.email,
         });
-    }, []);
-
-    useEffect(() => {
-        logAmplitudeEventProd('viewMyProfile', {
-            username: reelayDBUser?.username,
-        });    
     }, []);
 
     useEffect(() => {
