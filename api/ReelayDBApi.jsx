@@ -436,6 +436,8 @@ export const prepareReelay = async (fetchedReelay) => {
 
     return {
         id: fetchedReelay.id,
+        clubID: fetchedReelay.clubID,
+        topicID: fetchedReelay.topicID,
         creator: {
             avatar: '../../assets/images/icon.png',
             sub: fetchedReelay.creatorSub,
