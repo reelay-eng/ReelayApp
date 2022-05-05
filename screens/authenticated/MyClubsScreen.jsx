@@ -1,10 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Dimensions, SafeAreaView, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { BaseHeader } from '../../components/global/Headers'
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { AuthContext } from '../../context/AuthContext';
+import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
 
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import styled from 'styled-components/native';
@@ -21,7 +22,7 @@ const { width } = Dimensions.get('window');
 const GRID_PADDING = 16;
 const GRID_WIDTH = width - (2 * GRID_PADDING);
 const GRID_HALF_MARGIN = 8;
-const GRID_ROW_LENGTH = 4;
+const GRID_ROW_LENGTH = 3;
 const CLUB_BUTTON_SIZE = (GRID_WIDTH / GRID_ROW_LENGTH) - (2 * GRID_HALF_MARGIN);
 
 const ClubButtonPressable = styled(TouchableOpacity)`
@@ -34,15 +35,26 @@ const ClubGridContainer = styled(View)`
     padding: ${GRID_PADDING}px;
     width: 100%;
 `
+const ClubImage = styled(Image)`
+    border-color: white;
+    border-radius: ${CLUB_BUTTON_SIZE/2}px;
+    border-width: 1px;
+    height: ${CLUB_BUTTON_SIZE}px;
+    width: ${CLUB_BUTTON_SIZE}px;
+`
 const ClubTitleText = styled(ReelayText.Body2)`
+    text-align: center;
     color: white;
     margin-top: 4px;
+    width: ${CLUB_BUTTON_SIZE}px;
 `
 const CreateClubGradient = styled(LinearGradient)`
     align-items: center;
     border-radius: ${CLUB_BUTTON_SIZE/2}px;
     height: ${CLUB_BUTTON_SIZE}px;
     justify-content: center;
+    padding-left: 2px;
+    padding-top: 2px;
     width: ${CLUB_BUTTON_SIZE}px;
 `
 const MyClubsScreenContainer = styled(SafeAreaView)`
@@ -50,8 +62,19 @@ const MyClubsScreenContainer = styled(SafeAreaView)`
     height: 100%;
     width: 100%;
 `
-const ClubButton = ({ navigation }) => {
+const ClubButton = ({ club, navigation }) => {
+    const advanceToClubScreen = () => {};
+    const clubPicSource = club.pictureURI ? { uri: club.pictureURI } : ReelayIcon;
 
+    return (
+        <ClubButtonPressable onPress={advanceToClubScreen}>
+            {/* <CreateClubGradient colors={['#2977EF', '#FF4848']}>
+                <Icon type='ionicon' name='add' size={CLUB_BUTTON_SIZE * 0.6} color='white' />
+            </CreateClubGradient> */}
+            <ClubImage source={clubPicSource} />
+            <ClubTitleText>{club.name}</ClubTitleText>
+        </ClubButtonPressable>
+    );
 }
 
 const ClubButtonGrid = ({ children }) => {
@@ -65,7 +88,7 @@ const ClubButtonGrid = ({ children }) => {
 }
 
 const CreateClubButton = ({ navigation }) => {
-    const advanceToCreateClub = () => {};
+    const advanceToCreateClub = () => navigation.push('CreateClubScreen');
     return (
         <ClubButtonPressable onPress={advanceToCreateClub}>
             <CreateClubGradient colors={['#2977EF', '#FF4848']}>
@@ -91,6 +114,7 @@ const MyWatchlistButton = ({ navigation }) => {
 
 export default MyClubsScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const myClubs = useSelector(state => state.myClubs);
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -114,6 +138,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
             <ClubButtonGrid>
                 <CreateClubButton navigation={navigation} />
                 <MyWatchlistButton navigation={navigation} />
+                { myClubs.map(club => <ClubButton key={club.id} club={club} navigation={navigation} />) }
             </ClubButtonGrid>
 		</MyClubsScreenContainer>
 	);

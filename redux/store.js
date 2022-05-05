@@ -11,6 +11,7 @@ const initialState = {
 
     globalTopics: [],
     globalTopicsWithReelays: [],
+    myClubs: [],
     myCreatorStacks: [],
     myFollowing: [],
     myFollowers: [],
@@ -23,7 +24,6 @@ const initialState = {
     myStacksOnStreaming: [],
     myStacksAtFestivals: [],
     topOfTheWeek: [],
-    
 
     followRequests: [],
     reelayDBUser: {},
@@ -65,6 +65,8 @@ const appReducer = ( state = initialState, action) => {
                 return topic.reelays.length > 0;
             })
             return { ...state, globalTopics, globalTopicsWithReelays };
+        case 'setMyClubs':
+            return { ...state, myClubs: action.payload };
         case 'setMyCreatorStacks':
             return { ...state, myCreatorStacks: action.payload }
         case 'setMyFollowing':
@@ -142,6 +144,7 @@ export const mapStateToProps = (state) => ({
 
     globalTopics: state.globalTopics,
     globalTopicsWithReelays: state.globalTopicsWithReelays,
+    myClubs: state.myClubs,
     myCreatorStacks: state.myCreatorStacks,
     myFollowing: state.myFollowing,
     myFollowers: state.myFollowers,
