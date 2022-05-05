@@ -5,10 +5,18 @@ const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const TMDB_IMAGE_API_BASE_URL = Constants.manifest.extra.tmdbImageApiBaseUrl.substr(0,27);
 
 const imgDir = FileSystem.cacheDirectory + 'img';
+const clubPicRemoteURI = (clubID) => `${CLOUDFRONT_BASE_URL}/public/clubPic-${clubID}.jpg`;
+const clubPicLocalURI = (clubID) => imgDir + `/clubpic-${clubID}.jpg`;
 const profilePicRemoteURI = (userSub) => `${CLOUDFRONT_BASE_URL}/public/profilepic-${userSub}-current.jpg`;
 const profilePicLocalURI = (userSub) => imgDir + `/profilepic-${userSub}.jpg`;
 const titlePosterRemoteURI = (posterPath, size = 185) => `${TMDB_IMAGE_API_BASE_URL}${size}${posterPath}`;
 const titlePosterLocalURI = (posterPath) => imgDir + posterPath;
+
+const cacheClubPic = async (clubID) => {
+    const localURI = clubPicLocalURI(clubID);
+    const remoteURI = clubPicRemoteURI(clubID);
+    await FileSystem.downloadAsync(remoteURI, localURI);
+}
 
 const cacheProfilePic = async (userSub) => {
     const localURI = profilePicLocalURI(userSub);
@@ -28,6 +36,15 @@ export const ensureLocalImageDirExists = async () => {
     if (!dirInfo.exists) {
         console.log("Image directory doesn't exist, creating...");
         await FileSystem.makeDirectoryAsync(imgDir, { intermediates: true });
+    }
+}
+
+export const getClubPicURI = (clubID, local = true) => {
+    if (local) {
+        return clubPicLocalURI(clubID);
+    } else {
+        cacheClubPic(clubID);
+        return clubPicRemoteURI(clubID);    
     }
 }
 

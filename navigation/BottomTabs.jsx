@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import AuthenticatedCommonStack from './AuthenticatedCommonStack';
 
+import ClubAddMembersScreen from '../screens/authenticated/ClubAddMembersScreen';
 import CreateClubScreen from '../screens/authenticated/CreateClubScreen';
 import CreateTopicScreen from '../screens/authenticated/CreateTopicScreen';
 import GeneralSettingsScreen from '../screens/authenticated/GeneralSettingsScreen';
@@ -45,6 +46,7 @@ export const ClubsTabNavigator = () => {
                 ...commonOptions,
                 animationEnabled: false,
             }} />
+            <ClubsTabStack.Screen name='ClubAddMembersScreen' component={ClubAddMembersScreen} options={commonOptions} />
             <ClubsTabStack.Screen name='CreateClubScreen' component={CreateClubScreen} options={commonOptions} />
             <ClubsTabStack.Screen name='WatchlistScreen' component={WatchlistScreen} options={commonOptions} />
         </AuthenticatedCommonStack>

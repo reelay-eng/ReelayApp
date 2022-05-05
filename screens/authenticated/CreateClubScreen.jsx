@@ -122,10 +122,11 @@ export default function CreateClubScreen({ navigation, route }) {
     const CreateClubButton = () => {
         const onPress = async () => {
             if (publishing) return;
-            const clubObj = await publishClub();
-            if (clubObj) {
-                console.log('new club obj: ', clubObj);
+            const club = await publishClub();
+            if (club) {
+                console.log('new club obj: ', club);
                 // advance to invite screen
+                navigation.push('ClubAddMembersScreen', { club });
             } else {
                 console.log('could not create club obj');
             }
