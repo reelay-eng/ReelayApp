@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { Dimensions, ScrollView, TouchableOpacity, View } from 'react-native';
+import React, { useContext, useRef } from 'react';
+import { Dimensions, TouchableOpacity, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
 
 import { Icon } from 'react-native-elements';
 import TopicCard from './TopicCard';
-import exampleTopic from './exampleTopic.json';
 import { useSelector } from 'react-redux';
 import ReelayColors from '../../constants/ReelayColors';
 import Carousel from 'react-native-snap-carousel';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
+import { AuthContext } from '../../context/AuthContext';
 
 const { width } = Dimensions.get('window');
 
@@ -60,6 +61,8 @@ const SeeAllTopicsText = styled(ReelayText.Subtitle2)`
 `
 
 export default GlobalTopics = ({ navigation }) => {
+    const { reelayDBUser } = useContext(AuthContext);
+    const curTopicIndex = useRef(0);
     const fetchedTopics = useSelector(state => state.globalTopics);
     const advanceToTopicsList = () => navigation.push('TopicsListScreen');
 
@@ -75,6 +78,20 @@ export default GlobalTopics = ({ navigation }) => {
     }
 
     const TopicsRow = () => {
+        const onBeforeSnapToItem = async (swipeIndex) => {
+            const swipeDirection = swipeIndex < curTopicIndex.current ? 'left' : 'right';
+            const nextTopic = fetchedTopics[swipeIndex];
+            const prevTopic = fetchedTopics[curTopicIndex.current];
+
+            logAmplitudeEventProd('swipedTopics', {
+                nextTopicTitle: nextTopic.title,
+                prevReelayTitle: prevTopic.title,
+                source: 'global',
+                swipeDirection: swipeDirection,
+                username: reelayDBUser?.username,
+            });
+        }
+
         const renderTopic = ({ item, index }) => {
             const onPress = () => console.log('pressed on topic');
             return (
@@ -90,15 +107,16 @@ export default GlobalTopics = ({ navigation }) => {
 
         return (
             <Carousel
-                data={fetchedTopics}
-                renderItem={renderTopic}
-                itemWidth={width - 32}
-                sliderWidth={width}
-                itemHeight={220}
-                sliderHeight={240}
-                activeSlideAlignment={'center'}
                 activeAnimationType={'decay'}
+                activeSlideAlignment={'center'}
+                data={fetchedTopics}
                 inactiveSlideScale={0.95}
+                itemHeight={220}
+                itemWidth={width - 32}
+                onBeforeSnapToItem={onBeforeSnapToItem}
+                renderItem={renderTopic}
+                sliderHeight={240}
+                sliderWidth={width}
             />
         );
     }

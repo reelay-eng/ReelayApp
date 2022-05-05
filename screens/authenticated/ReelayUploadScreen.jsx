@@ -36,6 +36,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import { notifyOnReelayedRec } from '../../api/WatchlistNotifications';
 import DownloadButton from '../../components/create-reelay/DownloadButton';
 import UploadDescriptionAndStarRating from '../../components/create-reelay/UploadDescriptionAndStarRating';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get('window');
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
@@ -205,6 +206,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         logAmplitudeEventProd('publishReelayStarted', {
             username: reelayDBUser.username,
             title: titleObj.display,
+            destination: (topicID) ? 'InTopic' : 'OnProfile',
         });
 
         try {
@@ -259,15 +261,20 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             preparedReelay.likes = [];
             preparedReelay.comments = [];
 
-            notifyMentionsOnReelayPosted({
+            const mentionedUsers = await notifyMentionsOnReelayPosted({
                 creator: reelayDBUser,
                 reelay: preparedReelay,
             });
+
+            console.log("mentionedUsers",mentionedUsers)
+
             notifyOtherCreatorsOnReelayPosted({
                 creator: reelayDBUser,
                 reelay: preparedReelay,
                 topic: reelayTopic ?? null,
+                mentionedUsers: mentionedUsers,
             });
+
             notifyOnReelayedRec({ 
                 creatorSub: reelayDBUser?.sub,
                 creatorName: reelayDBUser?.username,
@@ -404,6 +411,11 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             </UploadProgressBarContainer>
         );
     }
+
+    useFocusEffect(() => {
+        console.log('refocusing');
+        dispatch({ type: 'setTabBarVisible', payload: false });
+    });
 
     return (
         <UploadScreenContainer>

@@ -63,7 +63,10 @@ export default SearchScreen = ({ navigation }) => {
 
     useEffect(() => {
         updateCounter.current += 1;
-        updateSearch(searchText, selectedType, updateCounter.current);
+        const nextUpdateCounter = updateCounter.current;
+        setTimeout(() => {
+            updateSearch(searchText, selectedType, nextUpdateCounter);
+        }, 200);
     }, [searchText, selectedType]);
 
     useEffect(() => {
@@ -83,24 +86,24 @@ export default SearchScreen = ({ navigation }) => {
             setSearchResults([]);
             return;
         }
-        logAmplitudeEventProd('search', {
-            username: reelayDBUser?.sub,
-            searchText: newSearchText,
-            searchType: searchType,
-            source: 'search',
-        });
         try {
-            setLoading(true);
-            let annotatedResults;
-            if (searchType === "Film") {
-                annotatedResults = await searchTitles(newSearchText, false);
-            } else if (searchType === "TV") {
-                annotatedResults = await searchTitles(newSearchText, true);
-            } else {
-                annotatedResults = await searchUsers(newSearchText);
-            }
             if (updateCounter.current === counter) {
+                setLoading(true);
+                let annotatedResults;
+                if (searchType === "Film") {
+                    annotatedResults = await searchTitles(newSearchText, false);
+                } else if (searchType === "TV") {
+                    annotatedResults = await searchTitles(newSearchText, true);
+                } else {
+                    annotatedResults = await searchUsers(newSearchText);
+                }
                 setSearchResults(annotatedResults);
+                logAmplitudeEventProd('search', {
+                    username: reelayDBUser?.sub,
+                    searchText: newSearchText,
+                    searchType: searchType,
+                    source: 'search',
+                });    
             }
         } catch (error) {
             console.log(error);
