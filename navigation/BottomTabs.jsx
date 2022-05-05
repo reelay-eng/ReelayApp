@@ -5,6 +5,7 @@ import AuthenticatedCommonStack from './AuthenticatedCommonStack';
 import CreateTopicScreen from '../screens/authenticated/CreateTopicScreen';
 import GeneralSettingsScreen from '../screens/authenticated/GeneralSettingsScreen';
 import HomeScreen from '../screens/authenticated/HomeScreen';
+import MyClubsScreen from '../screens/authenticated/MyClubsScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
 import NotificationSettingsScreen from '../screens/authenticated/NotificationSettingsScreen';
 import ProfileSettingsScreen from '../screens/authenticated/ProfileSettingsScreen';
@@ -60,17 +61,38 @@ export const CreateReelayTabNavigator = () => {
     );
 }
 
-export const WatchlistTabNavigator = () => {
-    const WatchlistTabStack = createStackNavigator();
+// export const WatchlistTabNavigator = () => {
+//     const WatchlistTabStack = createStackNavigator();
+// 	return (
+//         <AuthenticatedCommonStack initialRouteName='WatchlistScreen'>
+//             <WatchlistTabStack.Screen
+//                 name='WatchlistScreen'
+//                 component={WatchlistScreen}
+//                 options={{
+//                     headerShown: false,
+//                     animationEnabled: false,
+//                 }}
+//             />
+//         </AuthenticatedCommonStack>
+//     );
+// }
+
+export const ClubsTabNavigator = () => {
+    const ClubsTabStack = createStackNavigator();
 	return (
-        <AuthenticatedCommonStack initialRouteName='WatchlistScreen'>
-            <WatchlistTabStack.Screen
-                name='WatchlistScreen'
-                component={WatchlistScreen}
+        <AuthenticatedCommonStack initialRouteName='MyClubsScreen'>
+            <ClubsTabStack.Screen
+                name='MyClubsScreen'
+                component={MyClubsScreen}
                 options={{
                     headerShown: false,
                     animationEnabled: false,
                 }}
+            />
+            <ClubsTabStack.Screen
+                name='WatchlistScreen'
+                component={WatchlistScreen}
+                options={{ headerShown: false }}
             />
         </AuthenticatedCommonStack>
     );

@@ -89,7 +89,7 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
                 style={{ 
                     height: '100%', 
                     marginTop: 16, 
-                    marginBottom: 180,
+                    marginBottom: 16,
                 }}
             />
         </View>

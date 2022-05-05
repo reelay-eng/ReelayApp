@@ -17,15 +17,13 @@ import {
 	HomeTabNavigator, 
 	FeedTabNavigator, 
 	CreateReelayTabNavigator, 
-	WatchlistTabNavigator, 
-	ProfileTabNavigator 
+	ProfileTabNavigator, 
+	ClubsTabNavigator
 } from './BottomTabs';
 
 import HomeIcon from '../assets/icons/navbar/home-icon.png';
 import ProfileIcon from '../assets/icons/navbar/profile-icon.png';
-import { WatchlistAddedIconSVG } from '../components/global/SVGs';
  
-const AppStack = createStackNavigator();
 const BottomTab = createBottomTabNavigator();
 const BOTTOM_TAB_ICON_SIZE = 24;
 const TAB_BAR_ACTIVE_OPACITY = 1;
@@ -138,11 +136,11 @@ export default AuthenticatedNavigator = () => {
 				}}
 			/>
 			<BottomTab.Screen
-				name="Watchlist"
-				component={WatchlistTabNavigator}
+				name="Clubs"
+				component={ClubsTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<WatchlistAddedIconSVG size={30} />
+						<Icon type='ionicon' name='book' size={24} color='white' />
 					),
 				}}
 			/>

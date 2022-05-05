@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Dimensions, SafeAreaView, View } from 'react-native';
 
-import { BaseHeader } from '../../components/global/Headers'
+import { HeaderWithBackButton } from '../../components/global/Headers'
 import { ToggleSelector } from '../../components/global/Buttons';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import Watchlist from '../../components/watchlist/Watchlist';
@@ -10,7 +10,8 @@ import WatchlistCoachMark from '../../components/watchlist/WatchlistCoachMark';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import styled from 'styled-components/native';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
@@ -29,6 +30,7 @@ const SelectorBarContainer = styled(View)`
 
 export default WatchlistScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const dispatch = useDispatch();
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const category = route?.params?.category ?? 'My List';
     const refresh = route?.params?.refresh ?? false;
@@ -40,6 +42,10 @@ export default WatchlistScreen = ({ navigation, route }) => {
             userSub: reelayDBUser?.sub,
         });
     }, [navigation]);
+
+    useFocusEffect(() => {
+        dispatch({ type: 'setTabBarVisible', payload: false });
+    });
 
     if (reelayDBUser?.username === 'be_our_guest') {
         return <JustShowMeSignupPage navigation={navigation} headerText='My Watchlist' />
@@ -86,14 +92,14 @@ export default WatchlistScreen = ({ navigation, route }) => {
     const seenDisplay = (seenCount > 0) ? `Seen ${seenCountDisplay}` : 'Seen';
 
     const headerText = (selectedCategory === 'My List') 
-                    ? 'Watchlist'
+                    ? 'My Watchlist'
                     : (selectedCategory === 'Recs')
                         ? 'Watchlist Recs'
                         : 'Seen';
 
     return (
 		<WatchlistScreenContainer>
-            <BaseHeader text={headerText} />
+            <HeaderWithBackButton navigation={navigation} text={headerText} />
 			<TopBarContainer>
 				<SelectorBarContainer>
 					<ToggleSelector
@@ -103,7 +109,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
 						onSelect={onSelectCategory}
 					/>
 				</SelectorBarContainer>
-                <WatchlistCoachMark category={selectedCategory} navigation={navigation} />
+                {/* <WatchlistCoachMark category={selectedCategory} navigation={navigation} /> */}
 			</TopBarContainer>
             <Watchlist
                 category={selectedCategory}
