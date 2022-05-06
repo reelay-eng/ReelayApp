@@ -95,7 +95,7 @@ export default TextInputWithMentions = ({
         letterSpacing: 0.25,
         textAlign: "left",
         paddingLeft: 12,
-        paddingRight: 12,
+        paddingRight: 18, // az – right side padding is off by 6px, for some weird reason.
         paddingBottom: 6,
     };
 
