@@ -59,6 +59,7 @@ import store, { mapStateToProps } from './redux/store';
 import { ensureLocalImageDirExists } from './api/ReelayLocalImageCache';
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
 import { getGlobalTopics } from './api/TopicsApi';
+import { getClubsForUser } from './api/ClubsApi';
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png');
 
@@ -254,6 +255,7 @@ function App() {
             donateLinksLoaded,
 
             globalTopics,
+            myClubs,
             myStacksFollowing,
             myStacksInTheaters,
             myStacksOnStreaming,
@@ -270,12 +272,15 @@ function App() {
             getAllDonateLinks(),
 
             getGlobalTopics({ reqUserSub, page: 0 }),
+            getClubsForUser(userSub),
             getFeed({ reqUserSub, feedSource: 'following', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'streaming', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'festivals', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'trending', page: 0 }),
         ]);
+
+        console.log('my clubs: ', myClubs);
 
         setReelayDBUser(reelayDBUserLoaded);
         dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
@@ -290,6 +295,7 @@ function App() {
         dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
 
         dispatch({ type: 'setGlobalTopics', payload: globalTopics });
+        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
         dispatch({ type: 'setMyStacksFollowing', payload: myStacksFollowing });
         dispatch({ type: 'setMyStacksInTheaters', payload: myStacksInTheaters });
         dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });

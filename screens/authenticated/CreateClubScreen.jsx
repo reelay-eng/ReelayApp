@@ -27,6 +27,7 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { Buffer } from "buffer";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { v4 } from 'uuid';
+import { createClub } from '../../api/ClubsApi';
 
 const { width } = Dimensions.get('window');
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -88,8 +89,8 @@ const TitleText = styled(ReelayText.Subtitle2)`
     font-size: 16px;
 `
 const TITLE_MIN_LENGTH = 6;
-const TITLE_MAX_LENGTH = 70;
-const DESCRIPTION_MAX_LENGTH = 140;
+const TITLE_MAX_LENGTH = 25;
+const DESCRIPTION_MAX_LENGTH = 75;
 
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
@@ -114,9 +115,6 @@ export default function CreateClubScreen({ navigation, route }) {
 
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
-        return () => {
-            dispatch({ type: 'setTabBarVisible', payload: true });
-        }
     });
 
     const CreateClubButton = () => {
@@ -126,7 +124,7 @@ export default function CreateClubScreen({ navigation, route }) {
             if (club) {
                 console.log('new club obj: ', club);
                 // advance to invite screen
-                navigation.push('ClubAddMembersScreen', { club });
+                navigation.push('ClubInviteMembersScreen', { club });
             } else {
                 console.log('could not create club obj');
             }
@@ -201,25 +199,26 @@ export default function CreateClubScreen({ navigation, route }) {
     const publishClub = async () => {
         try {
             setPublishing(true);
-            const clubID = v4();
-            let pictureURI = null;
-            if (clubPicSourceRef?.current?.uri) {
-                const { uploadResult, cloudfrontPhotoURI } = await uploadClubPicToS3(clubID, clubPicSourceRef.current.uri);
-                pictureURI = cloudfrontPhotoURI;
-            }
             const clubPostBody = {
-                id: clubID,
                 creatorName: reelayDBUser?.username,
                 creatorSub: reelayDBUser?.sub,
                 name: titleTextRef.current,
                 description: descriptionTextRef.current,
-                pictureURI,
                 visibility: 'private',
             }
-            dispatch({ type: 'setMyClubs', payload: [clubPostBody, ...myClubs] });
+            const clubObj = await createClub(clubPostBody);
+            // todo: handle bad upload
+            const clubID = createClubResult?.id;
+            if (clubID && clubPicSourceRef?.current?.uri) {
+                const uploadResult = await uploadClubPicToS3(clubID, clubPicSourceRef.current.uri);
+                console.log('club pic upload result: ', uploadResult);
+                // todo: handle failed upload
+            }
+            dispatch({ type: 'setMyClubs', payload: [clubObj, ...myClubs] });
             // todo: post club body to reelayDB
+            console.log(clubObj);
             setPublishing(false);
-            return clubPostBody;
+            return clubObj;
         } catch (error) {
             console.log(error);
             showErrorToast('Ruh roh! Could not create club. Please try again.');
@@ -242,8 +241,7 @@ export default function CreateClubScreen({ navigation, route }) {
 				Body: photoBuffer,
 			})
 		);
-        const cloudfrontPhotoURI = `${CLOUDFRONT_BASE_URL}/${photoS3Key}`;
-		return { uploadResult, cloudfrontPhotoURI };
+        return uploadResult;
 	};
 
     const resizeImage = async (photoURI) => {

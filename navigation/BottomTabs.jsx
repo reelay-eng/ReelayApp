@@ -3,7 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import AuthenticatedCommonStack from './AuthenticatedCommonStack';
 
 import ClubActivityScreen from '../screens/authenticated/ClubActivityScreen';
-import ClubAddMembersScreen from '../screens/authenticated/ClubAddMembersScreen';
+import ClubInviteMembersScreen from '../screens/authenticated/ClubInviteMembersScreen';
 import ClubFeedScreen from '../screens/authenticated/ClubFeedScreen';
 import ClubInfoScreen from '../screens/authenticated/ClubInfoScreen';
 import CreateClubScreen from '../screens/authenticated/CreateClubScreen';
@@ -50,7 +50,7 @@ export const ClubsTabNavigator = () => {
                 animationEnabled: false,
             }} />
             <ClubsTabStack.Screen name='ClubActivityScreen' component={ClubActivityScreen} options={commonOptions} />
-            <ClubsTabStack.Screen name='ClubAddMembersScreen' component={ClubAddMembersScreen} options={commonOptions} />
+            <ClubsTabStack.Screen name='ClubInviteMembersScreen' component={ClubInviteMembersScreen} options={commonOptions} />
             <ClubsTabStack.Screen name='ClubFeedScreen' component={ClubFeedScreen} options={commonOptions} />
             <ClubsTabStack.Screen name='ClubInfoScreen' component={ClubInfoScreen} options={commonOptions} />
             <ClubsTabStack.Screen name='CreateClubScreen' component={CreateClubScreen} options={commonOptions} />

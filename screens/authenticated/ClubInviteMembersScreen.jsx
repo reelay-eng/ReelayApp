@@ -17,6 +17,7 @@ import ClubPicture from '../../components/global/ClubPicture';
 import InviteMyFollowsList from '../../components/clubs/InviteMyFollowsList';
 import { useFocusEffect } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { addMemberToClub } from '../../api/ClubsApi';
 
 const { width } = Dimensions.get('window');
 
@@ -107,7 +108,7 @@ const SkipButtonRow = ({ club, navigation, sendRecs }) => {
     );
 }
 
-export default ClubAddMembersScreen = ({ navigation, route }) => {
+export default ClubInviteMembersScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
     const { club } = route.params; // note: reelay can be null
@@ -140,12 +141,18 @@ export default ClubAddMembersScreen = ({ navigation, route }) => {
     const sendRecs = async () => {
         console.log('sending rec!');
         const sendRecResults = await Promise.all(followsToSend.current.map(async (followObj) => {
-            console.log('should send club invite to: ', followObj.followName);
+            const addMemberResult = await addMemberToClub({
+                clubID: club.id,
+                userSub: followObj.followSub,
+                username: followObj.followName,
+                role: 'member',
+                invitedBySub: reelayDBUser?.sub,
+                invitedByUsername: reelayDBUser?.username,
+                inviteLinkID: null,
+            });
+            console.log('club invite result: ', addMemberResult);
         }));
 
-
-        // todo: advance to rec sent page
-        // console.log('send rec results: ', sendRecResults);
         showMessageToast(`${sendRecResults.length} people added to ${club.name}`);
         navigation.push('ClubActivityScreen', { club });
     }
@@ -164,7 +171,7 @@ export default ClubAddMembersScreen = ({ navigation, route }) => {
                 markFollowToSend={markFollowToSend}
                 unmarkFollowToSend={unmarkFollowToSend}
             />
-            <SkipButtonRow club={club} />
+            <SkipButtonRow club={club} navigation={navigation} />
         </InviteScreenContainer>
     );
 }
