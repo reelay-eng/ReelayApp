@@ -36,6 +36,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import { notifyOnReelayedRec } from '../../api/WatchlistNotifications';
 import DownloadButton from '../../components/create-reelay/DownloadButton';
 import UploadDescriptionAndStarRating from '../../components/create-reelay/UploadDescriptionAndStarRating';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get('window');
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
@@ -404,6 +405,11 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             </UploadProgressBarContainer>
         );
     }
+
+    useFocusEffect(() => {
+        console.log('refocusing');
+        dispatch({ type: 'setTabBarVisible', payload: false });
+    });
 
     return (
         <UploadScreenContainer>

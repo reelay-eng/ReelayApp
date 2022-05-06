@@ -29,6 +29,7 @@ import { HeaderDoneCancel } from '../global/Headers';
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { showErrorToast } from "../utils/toasts";
+import { useFocusEffect } from "@react-navigation/native";
 
 const { height, width } = Dimensions.get("window");
 const newValidUsernameRegex = /^([a-zA-z]+[a-zA-z0-9]*(?:[.\-_+][a-zA-Z0-9]+)*)$/g;
@@ -110,12 +111,12 @@ export default EditProfile = () => {
     const websiteInputRef = useRef(null);
 	const currentFocus = useRef("");
 
-	useEffect(() => {
+	useFocusEffect(() => {
 		dispatch({ type: 'setTabBarVisible', payload: false });
         return () => {
 			dispatch({ type: 'setTabBarVisible', payload: true });
 		}
-	}, []);
+	});
 
     const doneFunc = async () => {
 		// save all information
@@ -411,7 +412,7 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 		handleImagePicked(result);
 	};
 
-	handleImagePicked = async (pickerResult) => {
+	const handleImagePicked = async (pickerResult) => {
         try {
 			if (pickerResult.cancelled) {
 				return;
