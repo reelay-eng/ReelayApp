@@ -32,12 +32,11 @@ const InviteScreenContainer = styled(SafeAreaView)`
 `
 const SendIconPressable = styled(Pressable)`
     align-items: center;
-    background-color: ${(props) => props.readyToSend ? ReelayColors.reelayBlue : 'gray' };
-    border-radius: 10px;
+    border-radius: 16px;
     justify-content: center;
     margin-left: 10px;
-    height: 40px;
-    width: 60px;
+    height: 48px;
+    width: 48px;
 `
 const SkipButton = styled(TouchableOpacity)`
     align-items: center;
@@ -88,19 +87,20 @@ const TitleHeader = ({ navigation, club, readyToSend, sendRecs }) => {
                     <YearText>{club.description}</YearText>
                 </TitleLineContainer>
                 <SendIconPressable onPress={sendRecs} readyToSend={readyToSend}>
-                    <Icon type='ionicon' name='paper-plane' size={24} color={'white'} />
+                    <Icon type='ionicon' name='paper-plane' size={24} color={(readyToSend) ? ReelayColors.reelayBlue : 'white'} />
                 </SendIconPressable>
             </TitleHeaderContainer>
         </React.Fragment>
     )
 }
 
-const SkipAndSendRow = ({ navigation, sendRecs }) => {
+const SkipButtonRow = ({ club, navigation, sendRecs }) => {
     const bottomOffset = useSafeAreaInsets().bottom;
+    const advanceToClubActivityScreen = () => navigation.push('ClubActivityScreen', { club });
     // todo: secret achievement earned: created a diary
     return (
         <SkipAndSendRowContainer bottomOffset={bottomOffset}>
-            <SkipButton>
+            <SkipButton onPress={advanceToClubActivityScreen}>
                 <SkipText>{'Send invites later'}</SkipText>
             </SkipButton>
         </SkipAndSendRowContainer>
@@ -147,7 +147,7 @@ export default ClubAddMembersScreen = ({ navigation, route }) => {
         // todo: advance to rec sent page
         // console.log('send rec results: ', sendRecResults);
         showMessageToast(`${sendRecResults.length} people added to ${club.name}`);
-        // navigation.goBack();
+        navigation.push('ClubActivityScreen', { club });
     }
 
     return (
@@ -164,7 +164,7 @@ export default ClubAddMembersScreen = ({ navigation, route }) => {
                 markFollowToSend={markFollowToSend}
                 unmarkFollowToSend={unmarkFollowToSend}
             />
-            <SkipAndSendRow />
+            <SkipButtonRow club={club} />
         </InviteScreenContainer>
     );
 }

@@ -2,7 +2,10 @@ import React, { useContext } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import AuthenticatedCommonStack from './AuthenticatedCommonStack';
 
+import ClubActivityScreen from '../screens/authenticated/ClubActivityScreen';
 import ClubAddMembersScreen from '../screens/authenticated/ClubAddMembersScreen';
+import ClubFeedScreen from '../screens/authenticated/ClubFeedScreen';
+import ClubInfoScreen from '../screens/authenticated/ClubInfoScreen';
 import CreateClubScreen from '../screens/authenticated/CreateClubScreen';
 import CreateTopicScreen from '../screens/authenticated/CreateTopicScreen';
 import GeneralSettingsScreen from '../screens/authenticated/GeneralSettingsScreen';
@@ -46,7 +49,10 @@ export const ClubsTabNavigator = () => {
                 ...commonOptions,
                 animationEnabled: false,
             }} />
+            <ClubsTabStack.Screen name='ClubActivityScreen' component={ClubActivityScreen} options={commonOptions} />
             <ClubsTabStack.Screen name='ClubAddMembersScreen' component={ClubAddMembersScreen} options={commonOptions} />
+            <ClubsTabStack.Screen name='ClubFeedScreen' component={ClubFeedScreen} options={commonOptions} />
+            <ClubsTabStack.Screen name='ClubInfoScreen' component={ClubInfoScreen} options={commonOptions} />
             <ClubsTabStack.Screen name='CreateClubScreen' component={CreateClubScreen} options={commonOptions} />
             <ClubsTabStack.Screen name='WatchlistScreen' component={WatchlistScreen} options={commonOptions} />
         </AuthenticatedCommonStack>

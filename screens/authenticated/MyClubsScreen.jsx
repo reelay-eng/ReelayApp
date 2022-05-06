@@ -63,7 +63,7 @@ const MyClubsScreenContainer = styled(SafeAreaView)`
     width: 100%;
 `
 const ClubButton = ({ club, navigation }) => {
-    const advanceToClubScreen = () => {};
+    const advanceToClubScreen = () => navigation.push('ClubActivityScreen', { club });
     const clubPicSource = club.pictureURI ? { uri: club.pictureURI } : ReelayIcon;
 
     return (
