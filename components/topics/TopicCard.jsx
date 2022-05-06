@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Dimensions, Pressable, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
@@ -9,6 +9,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
 import TopicDotMenuDrawer from './TopicDotMenuDrawer';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
+import { AuthContext } from '../../context/AuthContext';
 
 const { height, width } = Dimensions.get('window');
 
@@ -180,6 +182,7 @@ const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
 }
 
 export default TopicCard = ({ navigation, topic, showTabBarOnReturn = true }) => {
+    const { reelayDBUser } = useContext(AuthContext);
     const canPress = (topic.reelays.length > 0);
     const creator = {
         sub: topic.creatorSub,
@@ -195,6 +198,10 @@ export default TopicCard = ({ navigation, topic, showTabBarOnReturn = true }) =>
                 initTopicIndex: topicFeedIndex,
                 showTabBarOnReturn,
             });    
+            logAmplitudeEventProd('openedTopic', {
+                title: topic.title,
+                username: reelayDBUser?.username,
+            });
         }
     }
 

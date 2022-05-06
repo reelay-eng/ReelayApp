@@ -206,6 +206,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         logAmplitudeEventProd('publishReelayStarted', {
             username: reelayDBUser.username,
             title: titleObj.display,
+            destination: (topicID) ? 'InTopic' : 'OnProfile',
         });
 
         try {
@@ -260,15 +261,20 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             preparedReelay.likes = [];
             preparedReelay.comments = [];
 
-            notifyMentionsOnReelayPosted({
+            const mentionedUsers = await notifyMentionsOnReelayPosted({
                 creator: reelayDBUser,
                 reelay: preparedReelay,
             });
+
+            console.log("mentionedUsers",mentionedUsers)
+
             notifyOtherCreatorsOnReelayPosted({
                 creator: reelayDBUser,
                 reelay: preparedReelay,
                 topic: reelayTopic ?? null,
+                mentionedUsers: mentionedUsers,
             });
+
             notifyOnReelayedRec({ 
                 creatorSub: reelayDBUser?.sub,
                 creatorName: reelayDBUser?.username,
