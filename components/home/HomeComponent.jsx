@@ -39,6 +39,7 @@ const HomeComponent = ({ navigation }) => {
     const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
 
     useFocusEffect(() => {
+        dispatch({ type: 'setTabBarVisible', payload: true });
         const unsubscribe = navigation.getParent().addListener('tabPress', e => {
             e.preventDefault();
             if (scrollRef.current) {

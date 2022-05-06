@@ -15,12 +15,6 @@ import { useSelector } from 'react-redux';
 
 const { height, width } = Dimensions.get('window');
 
-const BackButtonContainer = styled(View)`
-    background-color: transparent;
-    position: absolute;
-    top: 150px;
-    z-index: 4;
-`
 const ReelayFeedContainer = styled(View)`
     background-color: black;
     justify-content: flex-start;
@@ -51,9 +45,12 @@ const ReelayFeed = ({ navigation,
     const [selectedFeedPosition, setSelectedFeedPosition] = useState(initialFeedPos);
 
     useEffect(() => {
-		dispatch({ type: 'setTabBarVisible', payload: true }); // to ensure tab bar is always here
         loadSelectedFeed();
     }, []);
+
+    useFocusEffect(() => {
+		dispatch({ type: 'setTabBarVisible', payload: true }); // to ensure tab bar is always here
+    })
 
     useEffect(() => {
         if (feedSource === 'global' && nextPage.current === 1) {
@@ -81,7 +78,6 @@ const ReelayFeed = ({ navigation,
           return;
         }
         await extendFeed();
-        // if (feedSource === 'global') checkForUnseenGlobalReelays();
     }
 
     useEffect(() => {
