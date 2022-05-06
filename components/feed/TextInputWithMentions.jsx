@@ -160,12 +160,10 @@ export default TextInputWithMentions = ({
             maxLength={MAX_COMMENT_LENGTH}
             multiline
             numberOfLines={4}
-            blurOnSubmit={true}
             onFocus={onFocus}
             placeholder={placeholder}
             placeholderTextColor={"gray"}
             inputRef={inputRef}
-            returnKeyType="done"
             style={TextInputStyle}
             containerStyle={TextInputContainerStyle}
             value={commentText}
