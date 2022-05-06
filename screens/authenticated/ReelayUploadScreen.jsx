@@ -70,7 +70,6 @@ const UploadBottomBar = styled(View)`
 `
 const UploadProgressBarContainer = styled(View)`
     align-self: center;
-    bottom: 10px;
     justify-content: center;
     width: ${width - 20}px;
 `
