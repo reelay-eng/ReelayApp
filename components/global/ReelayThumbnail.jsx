@@ -35,7 +35,7 @@ export default ReelayThumbnail = ({
 	const PROFILE_PIC_SIZE = asTopOfTheWeek ? 32 : 24;
 	const USERNAME_TEXT_SIZE = asTopOfTheWeek ? 16 : 12;
 	const USERNAME_ADD_LEFT = USERNAME_TEXT_SIZE - 7;
-	const POSTER_WIDTH = 70;
+	const POSTER_WIDTH = width / 4;
 
 	const Spacer = styled(View)`
 		height: ${props => props.height ?? '0'}px;

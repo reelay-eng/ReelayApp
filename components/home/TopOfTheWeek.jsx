@@ -97,6 +97,7 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
                         margin={0}
                         onPress={() => goToReelay(1)} 
                         showLikes={true}
+                        showPoster={true}
                         reelay={topOfTheWeek[1][0]} 
                         width={MINOR_REELAY_WIDTH} 
                     />
@@ -107,6 +108,7 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
                         margin={0}
                         onPress={() => goToReelay(2)} 
                         showLikes={true}
+                        showPoster={true}
                         reelay={topOfTheWeek[2][0]} 
                         width={MINOR_REELAY_WIDTH} 
                     />
