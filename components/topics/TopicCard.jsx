@@ -207,7 +207,7 @@ export default TopicCard = ({ navigation, topic, showTabBarOnReturn = true }) =>
 
     const TopicCardContainer = ({ canPress, children, onPress }) => {
         if (canPress) {
-            return <TopicCardPressable onPress={onPress}>{children}</TopicCardPressable>;
+            return <TopicCardPressable activeOpacity={0.5} onPress={onPress}>{children}</TopicCardPressable>;
         } else {
             return <TopicCardView>{children}</TopicCardView>;
         }

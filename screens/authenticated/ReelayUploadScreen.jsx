@@ -65,14 +65,14 @@ const UploadBottomArea = styled(Pressable)`
 const UploadBottomBar = styled(View)`
     flex-direction: row;
     justify-content: space-between;
-    margin-top: 20px;
+    margin-top: 24px;
     margin-bottom: 40px;
 `
 const UploadProgressBarContainer = styled(View)`
     align-self: center;
-    bottom: 10px;
     justify-content: center;
-    width: ${width - 20}px;
+    padding-top: 12px;
+    width: ${width - 24}px;
 `
 const UploadScreenContainer = styled(View)`
     height: 100%;
@@ -103,6 +103,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
 	const s3Client = useSelector(state => state.s3Client);
+    const showProgressBar = ((uploadStage === 'uploading') || (uploadStage === 'upload-complete'));
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
 
     const descriptionRef = useRef('');
@@ -398,22 +399,19 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     
         return (
             <UploadProgressBarContainer>
-                { ((uploadStage === 'uploading') || (uploadStage === 'upload-complete')) && 
                     <Progress.Bar 
                         color={progressBarColor} 
                         indeterminate={indeterminate} 
                         progress={uploadProgress} 
-                        width={width - 20} 
+                        width={width - 24} 
                         height={8}
                         borderRadius={8}
                     />
-                }
             </UploadProgressBarContainer>
         );
     }
 
     useFocusEffect(() => {
-        console.log('refocusing');
         dispatch({ type: 'setTabBarVisible', payload: false });
     });
 
@@ -427,7 +425,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                         starCountRef={starCountRef}
                         descriptionRef={descriptionRef}
                     />
-                    <UploadProgressBar />
+                    { showProgressBar && <UploadProgressBar /> }
                     <UploadBottomBar>
                         <DownloadButton titleObj={titleObj} videoURI={videoURI} />
                         <UploadButton />

@@ -15,8 +15,11 @@ import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import SocialLoginBar from '../../components/auth/SocialLoginBar';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getUserByUsername } from '../../api/ReelayDBApi';
+
+const DEFAULT_USERNAME_LOGIN_ERROR_TEXT = "Username/email is incorrect";
+const DEFAULT_PASSWORD_LOGIN_ERROR_TEXT = "Password is incorrect";
 
 const AuthInput = styled(Input)`
     color: white;
@@ -62,9 +65,10 @@ const ErrorContainer = styled(View)`
     justify-content: center;
     align-items: center;
 `
-const ErrorText = styled(ReelayText.H6Emphasized)`
+const ErrorText = styled(ReelayText.Body1)`
     color: ${ReelayColors.reelayRed};
-    text-align: center;
+    text-align: left;
+    padding: 20px;
 `
 const ForgotPasswordContainer = styled(View)`
     flex-direction: row;
@@ -102,9 +106,10 @@ export const KeyboardHidingBlackContainer = ({ children }) => {
 
 
 export default SignInScreen = ({ navigation, route }) => {
-    const [signingIn, setSigningIn] = useState(false);
     const { setCognitoUser } = useContext(AuthContext);
+    const [signingIn, setSigningIn] = useState(false);
     const dispatch = useDispatch();
+
     
     const ForgotPassword = () => {
 		const ForgotPasswordText = styled(ReelayText.Subtitle1)`
@@ -125,59 +130,71 @@ export default SignInScreen = ({ navigation, route }) => {
     }
 
     const UsernameAndPassword = () => {
-        const [inputText, setInputText] = useState('');
-        const [badEmail, setBadEmail] = useState(false);
+        const [usernameOrEmail, setUsernameOrEmail] = useState('');
         const [password, setPassword] = useState('');
-        const [badPassword, setBadPassword] = useState(false);
-        const [hidePassword, setHidePassword] = useState(true);
-        const [otherError, setOtherError] = useState(false);
+
+        const usernameLoginError = useSelector(state => state.usernameLoginError);
+        const passwordLoginError = useSelector(state => state.passwordLoginError);
+        const hidePassword = useSelector(state => state.loginPasswordHidden);
+
+        const badUsername = usernameLoginError.length > 0;
+        const badPassword = passwordLoginError.length > 0;
+
+        const setUsernameLoginError = (next) => { dispatch({type: 'setUsernameLoginError', payload: next })}
+        const setPasswordLoginError = (next) => { dispatch({type: 'setPasswordLoginError', payload: next })}
+        const setHidePassword = (next) => { dispatch({type: 'setLoginPasswordHidden', payload: next })}
             
-        const changeInputText = (text) => {
-            setInputText(text);
-            if (badEmail) setBadEmail(false);
+        const changeUsernameInput = (text) => {
+            setUsernameOrEmail(text);
+            if (badUsername) setUsernameLoginError("");
         }
 
-        const handleBadEmail = async () => {
-            setBadEmail(true);
-            setSigningIn(false);
-            logAmplitudeEventProd('signInFailedBadEmail', {
-                email: inputText,
-            });
+        const changePasswordText = (text) => {
+            setPassword(text);
+            if (badPassword) setPasswordLoginError("");
         }
 
-        const handleBadPassword = async () => {
-            setBadPassword(true);
+        const handleBadUsername = () => {
+            setUsernameLoginError(DEFAULT_USERNAME_LOGIN_ERROR_TEXT);
             setSigningIn(false);
-            logAmplitudeEventProd('signInFailedBadPassword', {
-                username: inputText,
-            });
+            logAmplitudeEventProd('signInFailedBadUsername', { usernameOrEmail });
+        }
+
+        const handleBadPassword = () => {
+            setPasswordLoginError(DEFAULT_PASSWORD_LOGIN_ERROR_TEXT);
+            setSigningIn(false);
+            logAmplitudeEventProd('signInFailedBadPassword', { usernameOrEmail });
         }
 
         const handleUnconfirmedUser = async () => {
-            navigation.push('ConfirmEmailScreen', { username: inputText });
-            logAmplitudeEventProd('signInFailedUnconfirmedEmail', {
-                username: inputText,
-            });
+            const username = await getInputUsername(usernameOrEmail);
+            await Auth.resendSignUp(username);
+            const { email } = await getUserByUsername(username);
+            navigation.push('ConfirmEmailScreen', { username, email, password });
+            logAmplitudeEventProd('signInFailedUnconfirmedEmail', { username });
         }
 
-        const handleOtherErrors = async (error) => {
-            setOtherError(true);
+        const handleBadInput = () => {
+            if (usernameOrEmail.includes(" ")) setUsernameLoginError("Username/email cannot contain spaces");
+            else showErrorToast("One or more fields contain invalid characters.");
             setSigningIn(false);
-            logAmplitudeEventProd('signInFailedOtherReason', {
-                username: inputText,
-                error: error,
-            });
+            logAmplitudeEventProd('signInFailedBadInput', { usernameOrEmail });
+        }
+
+        const handleOtherErrors = (error) => {
+            showErrorToast("Something went wrong. Please try again. If the issue persists, please email support@reelay.app", "top")
+            setSigningIn(false);
+            logAmplitudeEventProd('signInFailedOtherReason', { usernameOrEmail, error });
         }
 
         const signInWithUsernameAndPassword = async () => {
             console.log('Attempting user sign in');
             try {
                 setSigningIn(true);
-                if (otherError) setOtherError(false);
-                const username = await getInputUsername(inputText);
+                const username = await getInputUsername(usernameOrEmail);
                 if (!username.length) {
                     // entered an invalid email
-                    handleBadEmail();
+                    handleBadUsername();
                     return;
                 }
                 else if (!password.length) {
@@ -192,23 +209,27 @@ export default SignInScreen = ({ navigation, route }) => {
                 setCognitoUser(cognitoUser);
                 console.log('Signed in user successfully');
                 logAmplitudeEventProd('signInSuccess', {
-                    username: username,
-                    inputText: inputText,
+                    username,
                     Device: Platform.OS,
                 });
             } catch (error) {
                 console.log('Received error');
+                console.log(`${error?.code}: `);
                 console.log(error);
  
                 if (error.code === 'UserNotConfirmedException') {
-                    handleUnconfirmedUser();
+                    await handleUnconfirmedUser();
                 } else if (error.code === 'NotAuthorizedException') {
                     handleBadPassword();
                 } else if (error.code === 'UserNotFoundException') {
-                    handleBadEmail();
-                } else {
+                    handleBadUsername();
+                } else if (error.code === "InvalidParameterException") {
+                    handleBadInput();
+                }
+                else {
                     handleOtherErrors(error);
                 }
+                setSigningIn(false);
             }
         }
 
@@ -235,18 +256,18 @@ export default SignInScreen = ({ navigation, route }) => {
 						containerStyle={AuthInputContainerStyle}
 						leftIcon={AuthInputUsernameIconStyle}
 						placeholder={"Enter username or email"}
-						errorMessage={badEmail && "Incorrect email"}
-						onChangeText={changeInputText}
-						rightIcon={badEmail ? AuthInputWarningIconStyle : null}
+						errorMessage={usernameLoginError}
+						onChangeText={changeUsernameInput}
+						rightIcon={badUsername ? AuthInputWarningIconStyle : null}
                         textContentType='emailAddress'
-						value={inputText}
+						value={usernameOrEmail}
 					/>
 					<AuthInput
 						containerStyle={AuthInputContainerStyle}
 						placeholder={"Enter password"}
-						errorMessage={badPassword && "Incorrect password"}
+						errorMessage={passwordLoginError}
 						leftIcon={PasswordIconComponent}
-						onChangeText={setPassword}
+						onChangeText={changePasswordText}
 						secureTextEntry={hidePassword}
 						rightIcon={badPassword ? AuthInputWarningIconStyle : null}
                         textContentType='password'
@@ -254,13 +275,6 @@ export default SignInScreen = ({ navigation, route }) => {
 					/>
 					<ForgotPassword />
 				</InputContainer>
-				{otherError && (
-					<ErrorContainer>
-						<ErrorText>
-							Something went wrong. Please reach out to the Reelay team
-						</ErrorText>
-					</ErrorContainer>
-				)}
                 <BottomButtonsContainer>
                     {/* <SocialLoginBar 
                         navigation={navigation} 

@@ -16,6 +16,7 @@ import SplashImage from "../../assets/images/reelay-splash-with-dog.png";
 import { generateThumbnail, getThumbnailURI, saveThumbnail } from '../../api/ThumbnailApi';
 import ProfilePicture from './ProfilePicture';
 import { useSelector } from 'react-redux';
+import TitlePoster from './TitlePoster';
 
 export default ReelayThumbnail = ({ 
 	asTopOfTheWeek = false,
@@ -23,6 +24,8 @@ export default ReelayThumbnail = ({
 	margin = 6, 
 	onPress, 
 	reelay, 
+	showPoster = false,
+	showVenue = true,
 	showIcons = true,
 	width = 120,
 }) => {
@@ -32,6 +35,11 @@ export default ReelayThumbnail = ({
 	const PROFILE_PIC_SIZE = asTopOfTheWeek ? 32 : 24;
 	const USERNAME_TEXT_SIZE = asTopOfTheWeek ? 16 : 12;
 	const USERNAME_ADD_LEFT = USERNAME_TEXT_SIZE - 7;
+	const POSTER_WIDTH = width / 4;
+
+	const Spacer = styled(View)`
+		height: ${props => props.height ?? '0'}px;
+	`
 
 	const CreatorLineContainer = styled(View)`
         align-items: center;
@@ -67,11 +75,15 @@ export default ReelayThumbnail = ({
 		margin-bottom: 6px;
 		margin-left: ${35 + STAR_RATING_ADD_LEFT}px;
 	`
-	const TitleVenue = styled(View)`
+
+	const TopRightContainer = styled(View)`
 		position: absolute;
 		top: 4px;
 		right: 4px;
+		flex-direction: column;
+		align-items: flex-end;
 	`
+
 	const ThumbnailContainer = styled(View)`
 		justify-content: center;
 		margin: ${margin}px;
@@ -112,6 +124,8 @@ export default ReelayThumbnail = ({
 		return thumbnailObj;
 	}
 
+	console.log(reelay?.title);
+
 	const GradientOverlay = ({ username }) => {
 		return (
 			<React.Fragment>
@@ -125,9 +139,15 @@ export default ReelayThumbnail = ({
 					<MutedVideoPlayer />
 				)}
 				{ showIcons && 
-					<TitleVenue>
-						<VenueIcon venue={reelay?.content?.venue} size={ICON_SIZE} border={1} />
-					</TitleVenue>			
+					<TopRightContainer>
+						{ showPoster && (
+							<React.Fragment>
+								<TitlePoster title={reelay?.title} width={POSTER_WIDTH} onPress={() => {}}/>
+								<Spacer height={5} />
+							</React.Fragment>
+						 ) }
+						{ showVenue && <VenueIcon venue={reelay?.content?.venue} size={ICON_SIZE} border={1} /> }
+					</TopRightContainer>			
 				}
 				{ asTopOfTheWeek && <LikeCounter likeCount={reelay.likes.length} /> }
 				<GradientContainer>

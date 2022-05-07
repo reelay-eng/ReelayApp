@@ -42,6 +42,13 @@ const initialState = {
     
     showFestivalsRow: false,
     tabBarVisible: true,
+
+    // authentication
+    loginUsernameInputText: '',
+    loginPasswordInputText: '',
+    usernameLoginError: '',
+    passwordLoginError: '',
+    loginPasswordHidden: true,
 }
 
 const appReducer = ( state = initialState, action) => {
@@ -126,6 +133,18 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, showFestivalsRow: action.payload }
         case 'setTabBarVisible':
             return { ...state, tabBarVisible: action.payload }    
+        
+        // authentication
+        case 'setLoginUsernameInputText':
+            return { ...state, loginUsernameInputText: action.payload }
+        case 'setLoginPasswordInputText':
+            return { ...state, loginPasswordInputText: action.payload }
+        case 'setUsernameLoginError':
+            return { ...state, usernameLoginError: action.payload }
+        case 'setPasswordLoginError':
+            return { ...state, passwordLoginError: action.payload }
+        case 'setLoginPasswordHidden':
+            return { ...state, loginPasswordHidden: action.payload }
             
         default: 
             return state
@@ -173,6 +192,12 @@ export const mapStateToProps = (state) => ({
     
     showFestivalsRow: state.showFestivalsRow,
     tabBarVisible: state.tabBarVisible,
+
+    loginUsernameInputText: state.loginUsernameInputText,
+    loginPasswordInputText: state.loginPasswordInputText,
+    usernameLoginError: state.usernameLoginError,
+    passwordLoginError: state.passwordLoginError,
+    loginPasswordHidden: state.loginPasswordHidden,
 });
 
 let store = createStore(appReducer);

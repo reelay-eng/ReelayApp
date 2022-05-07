@@ -9,17 +9,19 @@ import * as ReelayText from '../../components/global/Text';
 
 const BarContainer = styled(View)`
     flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
 `
 const StatContainer = styled(TouchableOpacity)`
     align-items: center;
-    margin: 10px;
-    margin-top: 5px;
+    width: 33%;
 `
 const DimensionText = styled(ReelayText.Subtitle2)`
     color: white;
 `
 const StatText = styled(ReelayText.Subtitle1)`
     color: white;
+    font-size: 18px;
 `
 
 export default ProfileStatsBar = ({ 
