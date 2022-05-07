@@ -107,12 +107,9 @@ export const KeyboardHidingBlackContainer = ({ children }) => {
 
 export default SignInScreen = ({ navigation, route }) => {
     const { setCognitoUser } = useContext(AuthContext);
+    const [signingIn, setSigningIn] = useState(false);
     const dispatch = useDispatch();
 
-    const signingIn = useSelector(state => state.signingIn);
-    const setSigningIn = (val) => {
-        dispatch({ type: 'setSigningIn', payload: val });
-    }
     
     const ForgotPassword = () => {
 		const ForgotPasswordText = styled(ReelayText.Subtitle1)`
@@ -133,11 +130,8 @@ export default SignInScreen = ({ navigation, route }) => {
     }
 
     const UsernameAndPassword = () => {
-        const inputText = useSelector(state => state.loginUsernameInputText);
-        const setInputText = (val) => { dispatch({type: 'setLoginUsernameInputText', payload: val}); }
-
-        const password = useSelector(state => state.loginPasswordInputText);
-        const setPassword = (val) => { dispatch({type: 'setLoginPasswordInputText', payload: val}); }
+        const [usernameOrEmail, setUsernameOrEmail] = useState('');
+        const [password, setPassword] = useState('');
 
         const usernameLoginError = useSelector(state => state.usernameLoginError);
         const passwordLoginError = useSelector(state => state.passwordLoginError);
@@ -150,8 +144,8 @@ export default SignInScreen = ({ navigation, route }) => {
         const setPasswordLoginError = (next) => { dispatch({type: 'setPasswordLoginError', payload: next })}
         const setHidePassword = (next) => { dispatch({type: 'setLoginPasswordHidden', payload: next })}
             
-        const changeInputText = (text) => {
-            setInputText(text);
+        const changeUsernameInput = (text) => {
+            setUsernameOrEmail(text);
             if (badUsername) setUsernameLoginError("");
         }
 
@@ -163,21 +157,17 @@ export default SignInScreen = ({ navigation, route }) => {
         const handleBadUsername = () => {
             setUsernameLoginError(DEFAULT_USERNAME_LOGIN_ERROR_TEXT);
             setSigningIn(false);
-            logAmplitudeEventProd('signInFailedBadEmail', {
-                email: inputText,
-            });
+            logAmplitudeEventProd('signInFailedBadUsername', { usernameOrEmail });
         }
 
         const handleBadPassword = () => {
             setPasswordLoginError(DEFAULT_PASSWORD_LOGIN_ERROR_TEXT);
             setSigningIn(false);
-            logAmplitudeEventProd('signInFailedBadPassword', {
-                username: inputText,
-            });
+            logAmplitudeEventProd('signInFailedBadPassword', { usernameOrEmail });
         }
 
         const handleUnconfirmedUser = async () => {
-            const username = inputText;
+            const username = await getInputUsername(usernameOrEmail);
             await Auth.resendSignUp(username);
             const { email } = await getUserByUsername(username);
             navigation.push('ConfirmEmailScreen', { username, email, password });
@@ -185,29 +175,23 @@ export default SignInScreen = ({ navigation, route }) => {
         }
 
         const handleBadInput = () => {
-            if (inputText.includes(" ")) setUsernameLoginError("Username/email cannot contain spaces");
+            if (usernameOrEmail.includes(" ")) setUsernameLoginError("Username/email cannot contain spaces");
             else showErrorToast("One or more fields contain invalid characters.");
             setSigningIn(false);
-            logAmplitudeEventProd('signInFailedBadInput', {
-                username: inputText,
-                password: password
-            });
+            logAmplitudeEventProd('signInFailedBadInput', { usernameOrEmail });
         }
 
         const handleOtherErrors = (error) => {
             showErrorToast("Something went wrong. Please try again. If the issue persists, please email support@reelay.app", "top")
             setSigningIn(false);
-            logAmplitudeEventProd('signInFailedOtherReason', {
-                username: inputText,
-                error: error,
-            });
+            logAmplitudeEventProd('signInFailedOtherReason', { usernameOrEmail, error });
         }
 
         const signInWithUsernameAndPassword = async () => {
             console.log('Attempting user sign in');
             try {
                 setSigningIn(true);
-                const username = await getInputUsername(inputText);
+                const username = await getInputUsername(usernameOrEmail);
                 if (!username.length) {
                     // entered an invalid email
                     handleBadUsername();
@@ -224,8 +208,7 @@ export default SignInScreen = ({ navigation, route }) => {
                 setCognitoUser(cognitoUser);
                 console.log('Signed in user successfully');
                 logAmplitudeEventProd('signInSuccess', {
-                    username: username,
-                    inputText: inputText,
+                    username,
                     Device: Platform.OS,
                 });
             } catch (error) {
@@ -273,10 +256,10 @@ export default SignInScreen = ({ navigation, route }) => {
 						leftIcon={AuthInputUsernameIconStyle}
 						placeholder={"Enter username or email"}
 						errorMessage={usernameLoginError}
-						onChangeText={changeInputText}
+						onChangeText={changeUsernameInput}
 						rightIcon={badUsername ? AuthInputWarningIconStyle : null}
                         textContentType='emailAddress'
-						value={inputText}
+						value={usernameOrEmail}
 					/>
 					<AuthInput
 						containerStyle={AuthInputContainerStyle}

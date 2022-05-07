@@ -19,6 +19,7 @@ import { ReelayedByLine } from '../../components/watchlist/RecPills';
 import { setBadgeCountAsync } from 'expo-notifications';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { useDispatch, useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
 
 const ACTIVITY_IMAGE_SIZE = 44;
 
@@ -259,10 +260,15 @@ export default NotificationScreen = ({ navigation, route }) => {
         height: 100%;
         width: 100%;
     `
+    const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myNotifications = useSelector(state => state.myNotifications);
     const unread = myNotifications.filter(({ seen }) => !seen).length;
     const unreadText = (unread > 0) ? `(${unread} new)` : '';
+
+    useFocusEffect(() => {
+        dispatch({ type: 'setTabBarVisible', payload: false });
+    });
 
     useEffect(() => {
         if (unread > 0) markAllNotificationsSeen(reelayDBUser?.sub);

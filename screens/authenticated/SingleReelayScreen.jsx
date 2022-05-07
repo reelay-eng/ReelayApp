@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-
 import FixedReelayFeed from '../../components/feed/FixedReelayFeed';
 import styled from 'styled-components/native';
 
 import { getReelay, prepareReelay } from '../../api/ReelayDBApi';
-import { getSingleTopic } from '../../api/TopicsApi';
+import { useDispatch } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
 
 const LoadingContainer = styled(View)`
     align-items: center;
@@ -14,7 +14,6 @@ const LoadingContainer = styled(View)`
     height: 100%;
     width: 100%;
 `
-
 const TitleFeedContainer = styled(View)`
     height: 100%;
     width: 100%;
@@ -23,20 +22,18 @@ const TitleFeedContainer = styled(View)`
 
 export default SingleReelayScreen = ({ navigation, route }) => {
     const { preparedReelay, reelaySub } = route.params;
+    const dispatch = useDispatch();
     const [singleReelay, setSingleReelay] = useState(preparedReelay);
-    const [topic, setTopic] = useState(null);
 
     const loadSingleReelay = async () => {
         const fetchedReelay = await getReelay(reelaySub);
         const preparedReelay = await prepareReelay(fetchedReelay);  
         setSingleReelay(preparedReelay);
-
-        if (preparedReelay.topicID) {
-            const topicObj = await getSingleTopic(preparedReelay.topicID);
-            setTopic(topicObj);
-            // todo: tappable banner directing you to single topic feed
-        }
     }
+
+    useFocusEffect(() => {
+        dispatch({ type: 'setTabBarVisible', payload: true });
+    });
 
     useEffect(() => {
         if (!singleReelay) loadSingleReelay();
