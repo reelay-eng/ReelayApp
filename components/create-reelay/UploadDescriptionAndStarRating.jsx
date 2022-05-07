@@ -39,10 +39,12 @@ const DescriptionInputContainer = styled(View)`
     border-color: white;
     border-width: 1px;
     flex-direction: row;
+    justify-content: flex-start;
+    align-items: flex-start;
     padding: 5px;
-    margin: 12px;
     width: 100%;
 `
+
 const StarRatingContainer = styled(View)`
     flex-direction: row;
     justify-content: space-between;
@@ -96,10 +98,13 @@ const EditDescription = ({ descriptionRef }) => {
         descriptionRef.current = text;
     };
 
+    const DESCRIPTION_INPUT_WIDTH = width - 24;
+
+
     return (
-        <>
+        <View style={{width: '100%', flexDirection: 'row', justifyContent: 'center'}}>
         <Pressable 
-            style={{ width: width - 24 }}
+            style={{ width: DESCRIPTION_INPUT_WIDTH }}
             onPress={() => descriptionInputRef.current.focus()}>
             <DescriptionInputContainer>
                 <TextInputWithMentions 
@@ -107,10 +112,11 @@ const EditDescription = ({ descriptionRef }) => {
                     setCommentText={changeInputTextWithRef}
                     inputRef={descriptionInputRef}
                     placeholder='Add a description, tag people...'
+                    boxWidth={DESCRIPTION_INPUT_WIDTH}
                 />
             </DescriptionInputContainer>
         </Pressable>
-        </>
+        </View>
     );
 };
 
