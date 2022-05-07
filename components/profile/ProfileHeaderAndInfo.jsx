@@ -24,7 +24,8 @@ const ProfilePictureContainer = styled(Pressable)`
 `
 const StatsBarContainer = styled(View)`
     justify-content: center;
-    padding-right: 10px;
+    width: 75%;
+    align-items: center;
 `;
 const BioText = styled(Autolink)`
     color: white;
@@ -33,7 +34,7 @@ const BioText = styled(Autolink)`
     font-style: normal;
     line-height: 20px;
     letter-spacing: 0.1px;
-    padding-bottom: 12px;
+    padding-bottom: 8px;
 	text-align: left;
 `;
 const WebsiteText = styled(ReelayText.Subtitle2)`
@@ -45,6 +46,7 @@ const WebsiteText = styled(ReelayText.Subtitle2)`
 const HeaderContainer = styled(View)`
     flex-direction: row;
     padding: 16px;
+    justify-content: space-around;
 `
 const SubscriptionsContainer = styled(View)`
     flex-direction: row;
