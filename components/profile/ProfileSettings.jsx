@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { Text, View, Pressable, Linking } from 'react-native';
+import { Text, View, Pressable, Linking, Dimensions, SafeAreaView } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { Auth } from 'aws-amplify';
 import Constants from 'expo-constants';
@@ -13,35 +13,36 @@ import { HeaderWithBackButton } from "../global/Headers";
 import { deregisterSocialAuthToken } from '../../api/ReelayUserApi';
 import { getReelay, prepareReelay, registerPushTokenForUser } from '../../api/ReelayDBApi';
 import { useDispatch, useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
+
+const { height } = Dimensions.get('window');
 
 export const ProfileSettings = ({navigation}) => {
-    const ViewContainer = styled(View)`
-        width: 100%;
-        height: 100%;
+    const ViewContainer = styled(SafeAreaView)`
         color: white;
-        display: flex;
-        flex-direction: column;
-    `
-    const SettingsContainer = styled(View)`
+        height: 100%;
         width: 100%;
-        height: 80%;
-        display: flex;
-        flex-direction: column;
+    `
+    const SettingsContainer = styled(SafeAreaView)`
         align-items: center;
+        display: flex;
         justify-content: space-between;
+        width: 100%;
     `;
     const TopSettings = styled(View)`
-        width: 100%;
-        display: flex;
-        flex-direction: column;
         align-items: center;
+        width: 100%;
     `
-    const BottomSettings = styled(View)`
+    const BottomSettings = styled(SafeAreaView)`
+        align-items: center;
+        bottom: 0px;
+        position: absolute;
 		width: 100%;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-	`;
+	`
+    const dispatch = useDispatch();
+    useFocusEffect(() => {
+        dispatch({ type: 'setTabBarVisible', payload: false });
+    });
 
     const loadWelcomeVideoScreen = async () => {
         const welcomeReelaySub = Constants.manifest.extra.welcomeReelaySub;
@@ -97,38 +98,38 @@ export const ProfileSettings = ({navigation}) => {
 					/>
 				</TopSettings>
 				<BottomSettings>
-					<Logout />
 				</BottomSettings>
 			</SettingsContainer>
+            <Logout />
 		</ViewContainer>
 	);
 }
 
 const SettingEntry = ({text, iconName, onPress}) => {
     const Container = styled(Pressable)`
-        width: 100%;
-        height: 60px;
         display: flex;
         flex-direction: row;
         justify-content: center;
+        height: 60px;
+        width: 100%;
     `
     const SettingEntryWrapper = styled(View)`
-        display: flex;
-        width: 90%;
-        flex-direction: row;
         align-items: center;
-        justify-content: space-between;
-    `;
-    const SettingEntryIconTextContainer = styled(View)`
         display: flex;
         flex-direction: row;
+        justify-content: space-between;
+        width: 90%;
+    `
+    const SettingEntryIconTextContainer = styled(View)`
         align-items: flex-start;
-    `;
+        display: flex;
+        flex-direction: row;
+    `
     const SettingEntryText = styled(ReelayText.Body1)`
         color: #FFFFFF;
         margin-left: 12px;
         margin-top: 3px;
-    `;
+    `
     return (
 		<Container onPress={onPress}>
 			<SettingEntryWrapper>
@@ -159,10 +160,12 @@ const Logout = () => {
                 email: reelayDBUser?.email,
             });
     
-            if (signUpFromGuest) dispatch({ type: 'setSignUpFromGuest', payload: false });
-            const signOutResult = await Auth.signOut();
+            if (signUpFromGuest) {
+                dispatch({ type: 'setSignUpFromGuest', payload: false });
+            }
             dispatch({ type: 'setSignedIn', payload: false });
             setReelayDBUserID(null);
+            const signOutResult = await Auth.signOut();
             deregisterSocialAuthToken();
             registerPushTokenForUser(reelayDBUserID, null); 
             // todo: deregister cognito user
@@ -172,23 +175,25 @@ const Logout = () => {
         }
     }
 
-    const Container = styled(View)`
-		width: 100%;
-		display: flex;
+    const LogoutContainer = styled(SafeAreaView)`
+        align-items: center;
+        bottom: 0px;
+        display: flex;
 		justify-content: center;
-		align-items: center;
-	`;
-
+        position: absolute;
+        width: 100%;
+	`
     const LogoutButtonContainer = styled(Pressable)`
-        width: 90%;
+        bottom: 0px;
         height: 40px;
-    `;
+        width: 90%;
+    `
 
     return (
-		<Container>
+		<LogoutContainer>
 			<LogoutButtonContainer>
 				<BWButton onPress={signOut} text={"Log Out"} />
 			</LogoutButtonContainer>
-		</Container>
+		</LogoutContainer>
 	);
 }

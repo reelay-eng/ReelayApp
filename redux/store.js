@@ -44,7 +44,6 @@ const initialState = {
     tabBarVisible: true,
 
     // authentication
-    signingIn: false,
     loginUsernameInputText: '',
     loginPasswordInputText: '',
     usernameLoginError: '',
@@ -136,8 +135,6 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, tabBarVisible: action.payload }    
         
         // authentication
-        case 'setSigningIn':
-            return { ...state, signingIn: action.payload }
         case 'setLoginUsernameInputText':
             return { ...state, loginUsernameInputText: action.payload }
         case 'setLoginPasswordInputText':
@@ -196,7 +193,6 @@ export const mapStateToProps = (state) => ({
     showFestivalsRow: state.showFestivalsRow,
     tabBarVisible: state.tabBarVisible,
 
-    signingIn: state.signingIn,
     loginUsernameInputText: state.loginUsernameInputText,
     loginPasswordInputText: state.loginPasswordInputText,
     usernameLoginError: state.usernameLoginError,
