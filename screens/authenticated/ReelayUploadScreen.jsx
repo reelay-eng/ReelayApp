@@ -70,9 +70,8 @@ const UploadBottomBar = styled(View)`
 `
 const UploadProgressBarContainer = styled(View)`
     align-self: center;
-    bottom: 10px;
     justify-content: center;
-    width: ${width - 20}px;
+    width: ${width - 24}px;
 `
 const UploadScreenContainer = styled(View)`
     height: 100%;
@@ -403,7 +402,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                         color={progressBarColor} 
                         indeterminate={indeterminate} 
                         progress={uploadProgress} 
-                        width={width - 20} 
+                        width={width - 24} 
                         height={8}
                         borderRadius={8}
                     />
