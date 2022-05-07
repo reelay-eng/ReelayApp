@@ -23,12 +23,90 @@ import { registerSocialAuthAccount, saveAndRegisterSocialAuthToken } from '../..
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { showErrorToast } from '../../components/utils/toasts';
 
+const FullScreenBlackContainer = styled(SafeAreaView)`
+    background-color: ${ReelayColors.reelayBlack};
+    height: 100%;
+    width: 100%;
+`
+const AuthInput = styled(Input)`
+    color: white;
+    font-family: Outfit-Regular;
+    font-size: 16px;
+    font-style: normal;
+    letter-spacing: 0.15px;
+    margin-left: 8px;
+`
+const AuthInputContainerStyle = {
+    marginBottom: -5,
+    width: "100%",
+};
+const AuthInputAtIconStyle = {
+    color: "white",
+    name: "at",
+    type: "ionicon",
+    size: 20,
+};
+const AlignmentContainer = styled(View)`
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+`
+const TopContainer = styled(View)`
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+`
+const InputContainer = styled(View)`
+    flex-direction: column;
+    margin-bottom: 30px;
+    width: 90%;
+`;
+const InstructionText = styled(ReelayText.Body2)`
+    color: white;
+    margin-left: 10px;
+    text-align: left;
+`
+const InstructionContainer = styled(View)`
+    align-items: flex-start;
+    width: 90%;
+`
+const SignupButtonContainer = styled(View)`
+    margin-bottom: 40px;
+    height: 56px;
+    width: 95%;
+`
+const Container = styled(View)`
+    width: 100%;
+    height: 20%;
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 20px;
+`
+const TopBarContainer = styled(View)`
+    width: 85%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin-bottom: 10px;
+`
+const BackButtonContainer = styled(View)`
+    margin-left: -10px;
+    margin-bottom: 50px;
+`
+const TextContainer = styled(View)`
+    margin-bottom: 20px;
+`
+const HeaderText = styled(ReelayText.H5Bold)`
+    color: white;
+    margin-bottom: 10px;
+`
+const SublineText = styled(ReelayText.Caption)`
+    color: white;
+`
+
 export const KeyboardHidingBlackContainer = ({ children }) => {
-    const FullScreenBlackContainer = styled(SafeAreaView)`
-        background-color: ${ReelayColors.reelayBlack};
-        height: 100%;
-        width: 100%;
-    `;
     return ( 
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <FullScreenBlackContainer>
@@ -39,56 +117,6 @@ export const KeyboardHidingBlackContainer = ({ children }) => {
 };
 
 export default ChooseUsernameScreen = ({ navigation, route }) => {    
-    const AuthInput = styled(Input)`
-		color: white;
-		font-family: Outfit-Regular;
-		font-size: 16px;
-		font-style: normal;
-		letter-spacing: 0.15px;
-		margin-left: 8px;
-	`;
-	const AuthInputContainerStyle = {
-        marginBottom: -5,
-        width: "100%",
-    };
-    const AuthInputAtIconStyle = {
-		color: "white",
-		name: "at",
-		type: "ionicon",
-        size: 20,
-    };
-    const AlignmentContainer = styled(View)`
-		width: 100%;
-		height: 100%;
-		flex-direction: column;
-		align-items: center;
-		justify-content: space-between;
-	`;
-    const TopContainer = styled(View)`
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-    `
-    const InputContainer = styled(View)`
-        flex-direction: column;
-        margin-bottom: 30px;
-        width: 90%;
-    `;
-    const InstructionText = styled(ReelayText.Body2)`
-        color: white;
-        margin-left: 10px;
-        text-align: left;
-    `
-    const InstructionContainer = styled(View)`
-        align-items: flex-start;
-        width: 90%;
-    `
-	const SignupButtonContainer = styled(View)`
-		margin-bottom: 40px;
-		height: 56px;
-        width: 95%;
-	`
-
     const { method, email, fullName, googleUserID, appleUserID, password } = route?.params;
     const [signingIn, setSigningIn] = useState(false);
     const { setReelayDBUserID } = useContext(AuthContext);
@@ -96,11 +124,9 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
     const UsernameInput = () => {
         const [inputText, setInputText] = useState('');
         const newValidUsernameRegex = /^([a-zA-z]+[a-zA-z0-9]*(?:[.\-_+][a-zA-Z0-9]+)*)$/g;
-        const validUsernameLength = inputText.length > 3 && inputText.length < 26;
+        const validUsernameLength = inputText.length > 3 && inputText.length < 17;
         const usernamePassesRegex = newValidUsernameRegex.test(inputText);
         const usernameHasValidForm = validUsernameLength && usernamePassesRegex;
-
-        console.log('Username is valid? ', usernameHasValidForm);
 
         const changeInputText = async (inputUsername) => {
             setInputText(inputUsername);
@@ -108,7 +134,7 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
 
         const isUsernameValid = async (username) => {
             if (!usernameHasValidForm) {
-                showErrorToast('Usernames must be between 4 and 25 characters, alphanumeric. Separators .+_- are okay');
+                showErrorToast('Ruh roh! Username has an invalid format. See instructions below');
                 return false;
             }
             const partialMatchingUsers = await searchUsers(username);
@@ -128,10 +154,13 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
 
         const completeSignUp = async () => {
             const username = inputText;
-            const canSignUp = await isUsernameValid(username);
-            if (!canSignUp) return;
-
             setSigningIn(true);
+            const canSignUp = await isUsernameValid(username);
+            if (!canSignUp) {
+                setSigningIn(false);
+                return;
+            }
+
             logAmplitudeEventProd('signUp', { email, username });
             console.log('Signing up...');
 
@@ -152,8 +181,19 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
                     password: password,
                     attributes: { email: email.toLowerCase() },
                 }); 
-                console.log('SIGN UP RESULT', signUpResult);
-                navigation.push('ConfirmEmailScreen', { username, password });
+                const dbResult = await registerUser({
+                    email: email.toLowerCase(),
+                    username: username,
+                    sub: signUpResult?.userSub,
+                });
+
+                console.log('Sign up result (cognito)', signUpResult);
+                console.log('Sign up result (reelayDB)', dbResult);
+                navigation.push('ConfirmEmailScreen', { 
+                    username,
+                    email: email.toLowerCase(), 
+                    password,
+                });
             } else {
                 console.log('No valid signup method specified');
             }
@@ -176,7 +216,7 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
                     </InputContainer>
                     <InstructionContainer>
                         <InstructionText>
-                            {'Usernames must be between 4 and 25 characters, \
+                            {'Usernames must be between 4 and 16 characters, \
                                 alphanumeric, and start with letters. Separators .+_- are okay'}
                         </InstructionText>
                     </InstructionContainer>
@@ -196,36 +236,6 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
     }
 
     const TopBar = () => {
-		const Container = styled(View)`
-			width: 100%;
-			height: 20%;
-			flex-direction: row;
-			justify-content: center;
-            margin-bottom: 20px;
-		`;
-		const TopBarContainer = styled(View)`
-			width: 85%;
-			display: flex;
-			flex-direction: column;
-			justify-content: flex-start;
-			margin-bottom: 10px;
-		`;
-		const BackButtonContainer = styled(View)`
-			margin-left: -10px;
-			margin-bottom: 50px;
-		`;
-
-		const TextContainer = styled(View)`
-			margin-bottom: 20px;
-		`;
-		const HeaderText = styled(ReelayText.H5Bold)`
-			color: white;
-			margin-bottom: 10px;
-		`;
-		const SublineText = styled(ReelayText.Caption)`
-			color: white;
-		`;
-
 		return (
 			<Container>
 				<TopBarContainer>
