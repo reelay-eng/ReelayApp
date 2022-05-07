@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, TextInput, Alert, Keyboard } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+import { useFocusEffect } from "@react-navigation/native";
 
 // Expo imports
 import * as ImagePicker from "expo-image-picker";
@@ -29,10 +30,9 @@ import { HeaderDoneCancel } from '../global/Headers';
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { showErrorToast } from "../utils/toasts";
-import { useFocusEffect } from "@react-navigation/native";
+import { checkUsername } from "../utils/ValidUsernameCheck"
 
 const { height, width } = Dimensions.get("window");
-const newValidUsernameRegex = /^([a-zA-z]+[a-zA-z0-9]*(?:[.\-_+][a-zA-Z0-9]+)*)$/g;
 
 const Spacer = styled(View)`
 	height: ${(props) => (props.height ? props.height : "0px")};
@@ -48,15 +48,32 @@ const SectionTitleContainer = styled(View)`
 	padding: 5px;
 	width: 72%;
 `;
+const UsernameInput = styled(TextInput)`
+	color: white;
+	font-family: Outfit-Regular;
+	font-size: 16px;
+	font-style: normal;
+	letter-spacing: 0.15px;
+	margin-left: 8px;
+	padding: 10px;
+	width: 87%;
+`;
+const UsernameInputContainer = styled(View)`
+	align-self: center;
+	background-color: #1a1a1a;
+	border-radius: 16px;
+	flex-direction: row;
+	padding: 5px;
+	width: 80%;
+`;
 
 const isUsernameValid = async (username) => {
-	const validUsernameLength = username.length > 3 && username.length < 26;
-	const usernamePassesRegex = newValidUsernameRegex.test(username);
-	const usernameHasValidForm = validUsernameLength && usernamePassesRegex;
+	const usernameHasValidForm = checkUsername(username);
 
-	console.log("checking", username,"!")
+	// console.log("checking", username,"!")
 	if (!usernameHasValidForm) {
 		console.log('Usernames must be between 4 and 25 characters, alphanumeric. Separators .+_- are okay');
+		showErrorToast('Usernames must be between 4 and 25 characters, alphanumeric. Separators .+_- are okay');
 		return false;
 	}
 	const partialMatchingUsers = await searchUsers(username);
@@ -70,6 +87,7 @@ const isUsernameValid = async (username) => {
 		return true;
 	} else {
 		console.log('That username is already taken');
+		showErrorToast('That username is already taken');
 		return false;
 	}
 }
@@ -98,9 +116,7 @@ export default EditProfile = () => {
 	const dispatch = useDispatch();
 	const { reelayDBUser } = useContext(AuthContext);
 
-	console.log("reelayDBUSER:", reelayDBUser)
-
-	const initUsername = "";
+	const initUsername = reelayDBUser.username;
 	const initBio = reelayDBUser.bio ? reelayDBUser.bio : "";
 	const initWebsite = reelayDBUser.website ? reelayDBUser.website : "";
 	const usernameRef = useRef(initUsername);
@@ -121,6 +137,7 @@ export default EditProfile = () => {
     const doneFunc = async () => {
 		// save all information
 		const successfulySaved = await saveInfo();
+		console.log("successfuly Saved?",successfulySaved)
 		if (successfulySaved) {
 			dispatch({ type: 'setIsEditingProfile', payload: false });
 		} else{
@@ -135,17 +152,16 @@ export default EditProfile = () => {
     }
 
 	const saveInfo = async () => {
-		const usernameIsValid = isUsernameValid(usernameRef.current.trim());
+		const usernameIsValid = await isUsernameValid(usernameRef.current.trim());
 		if (usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
-			// username changed
-			reelayDBUser.username = usernameRef.current.trim();
-			// const usernameUpdatedSuccessfully = await updateUsername(reelayDBUser.sub, reelayDBUser.username);
-			const usernameUpdatedSuccessfully = false; 	// placeholder
-			// if username not set properly, return false of save info and toast message error
+			const usernameUpdatedSuccessfully = await updateUsername(reelayDBUser.sub, usernameRef.current.trim());
 			if (!usernameUpdatedSuccessfully) {
 				return false;
 			}
-		} 
+			reelayDBUser.username = usernameRef.current.trim();
+		} else if (!usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
+			return false;
+		}
 		reelayDBUser.bio = bioRef.current.trim() === "" ? null : bioRef.current;
 		const bioUpdatedSuccessfully = await updateUserBio(reelayDBUser.sub, reelayDBUser.bio);
 		reelayDBUser.website =
@@ -186,39 +202,9 @@ export default EditProfile = () => {
 
 
 const EditUsername = ({ usernameRef, usernameInputRef, currentFocus }) => {
-	const UsernameInput = styled(TextInput)`
-		color: white;
-		font-family: Outfit-Regular;
-		font-size: 16px;
-		font-style: normal;
-		letter-spacing: 0.15px;
-		margin-left: 8px;
-		padding: 10px;
-		width: 87%;
-  	`;
-	const UsernameInputContainer = styled(View)`
-		align-self: center;
-		background-color: #1a1a1a;
-		border-radius: 16px;
-		flex-direction: row;
-		padding: 5px;
-		width: 80%;
-		${props => props.border ? props.border : ''}
-  	`;
-	const [border, setBorder] = useState('');
 
 	const changeInputText = async (text) => {
 		usernameRef.current=text;
-		// check if valid username and if it is not, turn outline red
-		const usernameIsValid = await isUsernameValid(text.trim());
-		// console.log(usernameIsValid);
-		if (usernameIsValid) {
-			//setBorder("border-width: 1px; border-color: #04BD6C;")
-			console.log('green')
-		} else {
-			// setBorder("border-width: 1px; border-color: #fe4747;")
-			console.log('red')
-		}
 	};
 
 	const usernameOnPress = () => {
@@ -232,8 +218,11 @@ const EditUsername = ({ usernameRef, usernameInputRef, currentFocus }) => {
 			<SectionTitleText>{"Username"}</SectionTitleText>
 		</SectionTitleContainer>
 		<TouchableWithoutFeedback onPress={usernameOnPress}>
-			<UsernameInputContainer border={border}>
+			<UsernameInputContainer>
 			<UsernameInput
+				autoCorrect={false}
+				autoComplete='none'
+				autoCapitalize="none"
 				ref={usernameInputRef}
 				maxLength={25}
 				defaultValue={usernameRef.current}
@@ -288,6 +277,8 @@ const EditBio = ({ bioRef, bioInputRef, currentFocus }) => {
 		<TouchableWithoutFeedback onPress={bioOnPress}>
 			<BioInputContainer>
 			<BioInput
+				autoComplete='none'
+				autoCapitalize="none"
 				ref={bioInputRef}
 				maxLength={250}
 				multiline
@@ -610,6 +601,8 @@ const EditWebsite = ({ websiteRef, websiteInputRef, currentFocus }) => {
 		<TouchableWithoutFeedback onPress={websiteOnPress}>
 			<WebsiteInputContainer>
 			<WebsiteInput
+				autoComplete='none'
+				autoCapitalize="none"
 				ref={websiteInputRef}
 				defaultValue={websiteRef.current}
 				placeholder={"Any cool links?"}

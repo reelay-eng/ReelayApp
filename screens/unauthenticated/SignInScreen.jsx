@@ -16,6 +16,7 @@ import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import SocialLoginBar from '../../components/auth/SocialLoginBar';
 import { useDispatch } from 'react-redux';
+import { getUserByUsername } from '../../api/ReelayDBApi';
 
 const AuthInput = styled(Input)`
     color: white;
@@ -184,8 +185,9 @@ export default SignInScreen = ({ navigation, route }) => {
                     handleBadPassword();
                     return;
                 }
+                const creator = await getUserByUsername(username);
 
-                const cognitoUser = await Auth.signIn(username, password);
+                const cognitoUser = await Auth.signIn(creator.originalUsername, password); 
                 console.log('Received sign in result: ', cognitoUser);
                 setCognitoUser(cognitoUser);
                 console.log('Signed in user successfully');
