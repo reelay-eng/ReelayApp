@@ -21,6 +21,7 @@ const DimensionText = styled(ReelayText.Subtitle2)`
 `
 const StatText = styled(ReelayText.Subtitle1)`
     color: white;
+    font-size: 18px;
 `
 
 export default ProfileStatsBar = ({ 
