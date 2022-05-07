@@ -16,6 +16,7 @@ import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import SocialLoginBar from '../../components/auth/SocialLoginBar';
 import { useDispatch } from 'react-redux';
+import { getUserByUsername } from '../../api/ReelayDBApi';
 
 const AuthInput = styled(Input)`
     color: white;
@@ -153,10 +154,11 @@ export default SignInScreen = ({ navigation, route }) => {
         }
 
         const handleUnconfirmedUser = async () => {
-            navigation.push('ConfirmEmailScreen', { username: inputText });
-            logAmplitudeEventProd('signInFailedUnconfirmedEmail', {
-                username: inputText,
-            });
+            const username = inputText;
+            await Auth.resendSignUp(username);
+            const { email } = await getUserByUsername(username);
+            navigation.push('ConfirmEmailScreen', { username, email, password });
+            logAmplitudeEventProd('signInFailedUnconfirmedEmail', { username });
         }
 
         const handleOtherErrors = async (error) => {
@@ -199,7 +201,7 @@ export default SignInScreen = ({ navigation, route }) => {
                 console.log(error);
  
                 if (error.code === 'UserNotConfirmedException') {
-                    handleUnconfirmedUser();
+                    await handleUnconfirmedUser();
                 } else if (error.code === 'NotAuthorizedException') {
                     handleBadPassword();
                 } else if (error.code === 'UserNotFoundException') {
@@ -207,6 +209,7 @@ export default SignInScreen = ({ navigation, route }) => {
                 } else {
                     handleOtherErrors(error);
                 }
+                setSigningIn(false);
             }
         }
 

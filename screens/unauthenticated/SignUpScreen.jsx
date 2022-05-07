@@ -122,12 +122,12 @@ export default SignUpScreen = ({ navigation, route }) => {
         const [hidePassword, setHidePassword] = useState(true);
         const [hideConfirmPassword, setHideConfirmPassword] = useState(true);
 
-        const hideShowPasswordPrompt = hidePassword ? 'Show Password' : 'Hide Password';
+        // const hideShowPasswordPrompt = hidePassword ? 'Show Password' : 'Hide Password';
         const passwordsMatch = (password === confirmPassword);
         const passwordLongEnough = (password.length >= 8);
         const showPasswordError = !passwordLongEnough && password.length > 0;
-		const showConfirmPasswordError =
-			!passwordsMatch && confirmPassword.length >= password.length;
+		const showConfirmPasswordError = (!passwordsMatch && 
+            (confirmPassword.length >= password.length));
 
         const createAccountDisabled = !(passwordsMatch && passwordLongEnough && !emailInvalid);
 
@@ -196,11 +196,6 @@ export default SignUpScreen = ({ navigation, route }) => {
 						)}
 						onFocus={() => setPasswordFieldActive(true)}
 						onBlur={() => setPasswordFieldActive(false)}
-                        onEndEditing={() => {
-                            if (!createAccountDisabled) {
-                                advanceToCreateUsername();
-                            }
-                        }}
 						errorMessage={
 							showPasswordError && "Passwords must be at least 8 characters."
 						}
