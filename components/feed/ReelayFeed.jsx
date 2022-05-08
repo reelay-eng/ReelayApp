@@ -122,7 +122,6 @@ const ReelayFeed = ({ navigation,
         const filteredStacks = fetchedStacks.filter(notAlreadyInStack);
         const newStackList = [...selectedStackList, ...filteredStacks];
         nextPage.current = page + 1;
-        console.log(nextPage)
         setSelectedStackList(newStackList);
 
         return fetchedStacks;
