@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Icon, Input } from 'react-native-elements';
+import React, { useContext, useState } from 'react';
+import { Input } from 'react-native-elements';
 import { Button } from '../../components/global/Buttons';
 import BackButton from '../../components/utils/BackButton';
 import { registerUser, searchUsers } from '../../api/ReelayDBApi';
@@ -11,7 +11,6 @@ import {
     Keyboard, 
     KeyboardAvoidingView, 
     SafeAreaView, 
-    Pressable, 
     TouchableWithoutFeedback, 
     View, 
 } from 'react-native';
@@ -22,6 +21,7 @@ import styled from 'styled-components/native';
 import { registerSocialAuthAccount, saveAndRegisterSocialAuthToken } from '../../api/ReelayUserApi';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { showErrorToast } from '../../components/utils/toasts';
+import { checkUsername } from '../../components/utils/ValidUsernameCheck';
 
 const FullScreenBlackContainer = styled(SafeAreaView)`
     background-color: ${ReelayColors.reelayBlack};
@@ -123,10 +123,7 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
     
     const UsernameInput = () => {
         const [inputText, setInputText] = useState('');
-        const newValidUsernameRegex = /^([a-zA-z]+[a-zA-z0-9]*(?:[.\-_+][a-zA-Z0-9]+)*)$/g;
-        const validUsernameLength = inputText.length > 3 && inputText.length < 17;
-        const usernamePassesRegex = newValidUsernameRegex.test(inputText);
-        const usernameHasValidForm = validUsernameLength && usernamePassesRegex;
+        const usernameHasValidForm = checkUsername(inputText);
 
         const changeInputText = async (inputUsername) => {
             setInputText(inputUsername);

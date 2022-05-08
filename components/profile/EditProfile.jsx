@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, TextInput, Text, Keyboard } from "react-native";
+import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, TextInput, Keyboard } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -31,8 +31,6 @@ import { logAmplitudeEventProd } from "../utils/EventLogger";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { showErrorToast } from "../utils/toasts";
 import { Icon } from "react-native-elements";
-
-const { height, width } = Dimensions.get("window");
 
 const Spacer = styled(View)`
 	height: ${(props) => (props.height ? props.height : "0px")};
@@ -91,7 +89,7 @@ export default EditProfile = ({navigation}) => {
 		navigation.push("AccountInfoScreen");
 		dispatch({ type: 'setIsEditingProfile', payload: false });
 	}
-	
+
     const doneFunc = async () => {
 		// save all information
 		const successfulySaved = await saveInfo();

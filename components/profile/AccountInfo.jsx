@@ -1,8 +1,7 @@
 import React, { useContext, useRef, useState } from "react";
-import { View, TextInput, Keyboard, Pressable } from "react-native";
+import { View, Keyboard, Pressable } from "react-native";
 import { Input } from 'react-native-elements';
 import { Button } from '../../components/global/Buttons';
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 // Context
 import { AuthContext } from '../../context/AuthContext';
@@ -16,7 +15,7 @@ import * as ReelayText from "../global/Text";
 import { HeaderWithBackButton } from "../global/Headers";
 import ReelayColors from '../../constants/ReelayColors';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import { showErrorToast, showMessageToast } from "../utils/toasts";
 import { checkUsername } from "../utils/ValidUsernameCheck"
@@ -151,6 +150,11 @@ const AccountInfoWrapper = ({ navigation, reelayDBUser }) => {
                 setSavingInfo(false);
 				return false;
 			}
+            logAmplitudeEventProd('changedUsername', {
+                userSub: reelayDBUser.sub,
+                oldUsername: reelayDBUser.username,
+                newUsername: usernameRef.current.trim(),
+            });
 			reelayDBUser.username = usernameRef.current.trim();
 		} else if (!usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
             setSavingInfo(false);
