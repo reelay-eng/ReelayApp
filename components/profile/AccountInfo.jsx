@@ -264,18 +264,3 @@ const CancelButton = ({cancelOnPress}) => {
         </SaveInfoButtonContainer>
     )
 }
-
-// save info
-/*
-
-		const usernameIsValid = await isUsernameValid(usernameRef.current.trim());
-		if (usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
-			const usernameUpdatedSuccessfully = await updateUsername(reelayDBUser.sub, usernameRef.current.trim());
-			if (!usernameUpdatedSuccessfully) {
-				return false;
-			}
-			reelayDBUser.username = usernameRef.current.trim();
-		} else if (!usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
-			return false;
-		}
- */

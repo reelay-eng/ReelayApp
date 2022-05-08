@@ -86,15 +86,15 @@ export default EditProfile = ({navigation}) => {
 			dispatch({ type: 'setTabBarVisible', payload: true });
 		}
 	});
+
 	const editUsernameOnPress = () => {
-		// navigation
 		navigation.push("AccountInfoScreen");
 		dispatch({ type: 'setIsEditingProfile', payload: false });
 	}
+	
     const doneFunc = async () => {
 		// save all information
 		const successfulySaved = await saveInfo();
-		console.log("successfuly Saved?",successfulySaved)
 		if (successfulySaved) {
 			dispatch({ type: 'setIsEditingProfile', payload: false });
 		} else{
