@@ -69,7 +69,7 @@ const BottomButtonsContainer = styled(View)`
     align-items: center;
 `
 
-export default AccountInfo = ({ navigation }) => {
+export default AccountInfo = ({ navigation, refreshProfile }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
     const ViewContainer = styled(View)`
@@ -88,12 +88,16 @@ export default AccountInfo = ({ navigation }) => {
     return (
         <ViewContainer>
             <HeaderWithBackButton navigation={navigation} text="Edit Account"/>
-            <AccountInfoWrapper navigation={navigation} reelayDBUser={reelayDBUser}/>
+            <AccountInfoWrapper 
+                navigation={navigation} 
+                reelayDBUser={reelayDBUser} 
+                refreshProfile={refreshProfile} 
+            />
         </ViewContainer>
     )
 }
 
-const AccountInfoWrapper = ({ navigation, reelayDBUser }) => {
+const AccountInfoWrapper = ({ navigation, reelayDBUser, refreshProfile }) => {
     const AccountInfoContainer = styled(View)`
         width: 90%;
         height: 100%;
@@ -156,6 +160,8 @@ const AccountInfoWrapper = ({ navigation, reelayDBUser }) => {
                 newUsername: usernameRef.current.trim(),
             });
 			reelayDBUser.username = usernameRef.current.trim();
+            navigation.goBack();
+            refreshProfile();
 		} else if (!usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
             setSavingInfo(false);
 			return false;

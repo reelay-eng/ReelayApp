@@ -47,7 +47,7 @@ const SectionTitleContainer = styled(View)`
 	width: 72%;
 `;
 
-export default EditProfile = ({navigation}) => {
+export default EditProfile = ({ navigation, refreshProfile }) => {
     const ModalContainer = styled(View)`
 		position: absolute;
 		height: 100%;
@@ -86,7 +86,7 @@ export default EditProfile = ({navigation}) => {
 	});
 
 	const editUsernameOnPress = () => {
-		navigation.push("AccountInfoScreen");
+		navigation.push("AccountInfoScreen", { refreshProfile });
 		dispatch({ type: 'setIsEditingProfile', payload: false });
 	}
 
@@ -147,7 +147,7 @@ export default EditProfile = ({navigation}) => {
 
 const EditUsername = ({username, editUsernameOnPress}) => {
 	const EditUsernameContainer = styled(Pressable)`
-		padding-top: 20px;
+		padding-top: 40px;
 		flex-direction: row;
 		justify-content: center;
 		background-color: black;
@@ -166,7 +166,7 @@ const EditUsername = ({username, editUsernameOnPress}) => {
 		<EditUsernameContainer onPress={editUsernameOnPress}>
 			<UsernameText> {`@${username} `} </UsernameText>
 			<RightIconContainer>
-				<Icon type='ionicon' name='pencil-sharp' size={18} color={'#b5b5b5'} />
+				<Icon type='ionicon' name='create-outline' size={20} color={'#b5b5b5'} />
 			</RightIconContainer>
 		</EditUsernameContainer>
  	)
@@ -191,6 +191,9 @@ const EditBio = ({ bioRef, bioInputRef, currentFocus }) => {
 		padding: 5px;
 		width: 80%;
   	`;
+	const EditBioContainer = styled(View)`
+		margin-top: 16px;
+	`
 
 	const changeInputText = (text) => {
 		bioRef.current=text;
@@ -202,31 +205,31 @@ const EditBio = ({ bioRef, bioInputRef, currentFocus }) => {
 	}
 
 	return (
-		<>
-		<SectionTitleContainer>
-			<SectionTitleText>{"Bio"}</SectionTitleText>
-		</SectionTitleContainer>
-		<TouchableWithoutFeedback onPress={bioOnPress}>
-			<BioInputContainer>
-			<BioInput
-				autoComplete='none'
-				autoCapitalize="none"
-				ref={bioInputRef}
-				maxLength={250}
-				multiline
-				numberOfLines={4}
-				defaultValue={bioRef.current}
-				placeholder={"Who are you?"}
-				placeholderTextColor={"gray"}
-				onChangeText={changeInputText}
-				onPressOut={Keyboard.dismiss()}
-				returnKeyLabel="return"
-				returnKeyType="default"
-			/>
-			
-			</BioInputContainer>
-		</TouchableWithoutFeedback>
-		</>
+		<EditBioContainer>
+			<SectionTitleContainer>
+				<SectionTitleText>{"Bio"}</SectionTitleText>
+			</SectionTitleContainer>
+			<TouchableWithoutFeedback onPress={bioOnPress}>
+				<BioInputContainer>
+				<BioInput
+					autoComplete='none'
+					autoCapitalize="none"
+					ref={bioInputRef}
+					maxLength={250}
+					multiline
+					numberOfLines={4}
+					defaultValue={bioRef.current}
+					placeholder={"Who are you?"}
+					placeholderTextColor={"gray"}
+					onChangeText={changeInputText}
+					onPressOut={Keyboard.dismiss()}
+					returnKeyLabel="return"
+					returnKeyType="default"
+				/>
+				
+				</BioInputContainer>
+			</TouchableWithoutFeedback>
+		</EditBioContainer>
   );
 };
 
@@ -514,6 +517,9 @@ const EditWebsite = ({ websiteRef, websiteInputRef, currentFocus }) => {
 		padding: 5px;
 		width: 80%;
 	`;
+	const EditWebsiteContainer = styled(View)`
+		margin-top: 16px;
+	`
 
 	const changeInputText = (text) => {
 		websiteRef.current = text;
@@ -525,26 +531,26 @@ const EditWebsite = ({ websiteRef, websiteInputRef, currentFocus }) => {
 	}
 
 	return (
-		<>
-		<SectionTitleContainer>
-			<SectionTitleText>{"Website"}</SectionTitleText>
-		</SectionTitleContainer>
-		<TouchableWithoutFeedback onPress={websiteOnPress}>
-			<WebsiteInputContainer>
-			<WebsiteInput
-				autoComplete='none'
-				autoCapitalize="none"
-				ref={websiteInputRef}
-				defaultValue={websiteRef.current}
-				placeholder={"Any cool links?"}
-				placeholderTextColor={"gray"}
-				onChangeText={changeInputText}
-				onPressOut={Keyboard.dismiss()}
-				returnKeyLabel="return"
-				returnKeyType="default"
-			/>
-			</WebsiteInputContainer>
-		</TouchableWithoutFeedback>
-		</>
+		<EditWebsiteContainer>
+			<SectionTitleContainer>
+				<SectionTitleText>{"Website"}</SectionTitleText>
+			</SectionTitleContainer>
+			<TouchableWithoutFeedback onPress={websiteOnPress}>
+				<WebsiteInputContainer>
+				<WebsiteInput
+					autoComplete='none'
+					autoCapitalize="none"
+					ref={websiteInputRef}
+					defaultValue={websiteRef.current}
+					placeholder={"Any cool links?"}
+					placeholderTextColor={"gray"}
+					onChangeText={changeInputText}
+					onPressOut={Keyboard.dismiss()}
+					returnKeyLabel="return"
+					returnKeyType="default"
+				/>
+				</WebsiteInputContainer>
+			</TouchableWithoutFeedback>
+		</EditWebsiteContainer>
 	);
 };
