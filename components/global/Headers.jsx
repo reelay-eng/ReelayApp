@@ -71,7 +71,7 @@ export const HeaderDoneCancel = ({ onDone, onCancel, text = "Settings", withBar=
 		justify-content: space-between;
 		align-items: center;
 	`;
-	const HeaderText = styled(ReelayText.H5Emphasized)`
+	const HeaderText = styled(ReelayText.H6Emphasized)`
 		text-align: center;
 		color: white;
 	`;
@@ -80,10 +80,10 @@ export const HeaderDoneCancel = ({ onDone, onCancel, text = "Settings", withBar=
 		border-color: white;
 		opacity: 0.1;
 	`
-	const DoneText = styled(ReelayText.H6)`
+	const DoneText = styled(ReelayText.Subtitle1Emphasized)`
 		color: ${ReelayColors.reelayBlue};
 	`
-	const CancelText = styled(ReelayText.H6)`
+	const CancelText = styled(ReelayText.Subtitle1Emphasized)`
 		color: white;
 		opacity: 0.9;
 	`

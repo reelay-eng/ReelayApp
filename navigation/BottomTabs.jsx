@@ -3,6 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import AuthenticatedCommonStack from './AuthenticatedCommonStack';
 
 import CreateTopicScreen from '../screens/authenticated/CreateTopicScreen';
+import AccountInfoScreen from '../screens/authenticated/AccountInfoScreen';
 import GeneralSettingsScreen from '../screens/authenticated/GeneralSettingsScreen';
 import HomeScreen from '../screens/authenticated/HomeScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
@@ -83,6 +84,13 @@ export const ProfileTabNavigator = () => {
 			<ProfileTabStack.Screen
 				name="MyProfileScreen"
 				component={MyProfileScreen}
+				options={{
+					headerShown: false,
+				}}
+			/>
+			<ProfileTabStack.Screen
+				name="AccountInfoScreen"
+				component={AccountInfoScreen}
 				options={{
 					headerShown: false,
 				}}
