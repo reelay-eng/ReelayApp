@@ -1,11 +1,14 @@
-import React, { useContext } from 'react';
-import { View, Switch, Linking, Pressable } from 'react-native';
+import React, { useContext, useRef, useState } from "react";
+import { View, TextInput, Keyboard, Pressable } from "react-native";
+import { Input } from 'react-native-elements';
+import { Button } from '../../components/global/Buttons';
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 // Context
 import { AuthContext } from '../../context/AuthContext';
 
 // API
-import { updateUserFestivalPreference } from '../../api/ReelayDBApi';
+import { searchUsers, updateUsername } from "../../api/ReelayDBApi";
 
 // Styling
 import styled from "styled-components/native";
@@ -14,9 +17,62 @@ import { HeaderWithBackButton } from "../global/Headers";
 import ReelayColors from '../../constants/ReelayColors';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { useDispatch, useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
+import { showErrorToast, showMessageToast } from "../utils/toasts";
+import { checkUsername } from "../utils/ValidUsernameCheck"
+
+const AlignmentContainer = styled(View)`
+    align-items: center;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+`
+const UsernameInstructionText = styled(ReelayText.Body2)`
+    color: white;
+    margin-left: 10px;
+    text-align: left;
+`
+const UsernameInstructionContainer = styled(View)`
+    align-items: flex-start;
+    width: 90%;
+`
+const SectionTitleText = styled(ReelayText.Body2Bold)`
+	align-self: flex-start;
+	color: grey;
+`;
+const SectionTitleContainer = styled(View)`
+	align-self: center;
+	width: 85%;
+`;
+const UsernameInput = styled(Input)`
+    color: white;
+    font-family: Outfit-Regular;
+    font-size: 16px;
+    font-style: normal;
+    letter-spacing: 0.15px;
+    margin-left: 8px;
+`;
+const InputContainer = styled(Pressable)`
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+`
+const SaveInfoButtonContainer = styled(View)`
+    width: 90%;
+    height: 45px;
+    margin: 6px;
+`
+const BottomButtonsContainer = styled(View)`
+    width: 100%;
+    position: absolute;
+    bottom: 80px;
+    flex-direction: column;
+    align-items: center;
+`
 
 export default AccountInfo = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const dispatch = useDispatch();
     const ViewContainer = styled(View)`
         width: 100%;
         height: 100%;
@@ -26,19 +82,20 @@ export default AccountInfo = ({ navigation }) => {
         align-items: center;
     `
 
+    useFocusEffect(() => {
+        dispatch({ type: 'setTabBarVisible', payload: false });
+    })
+
     return (
         <ViewContainer>
-            <HeaderWithBackButton navigation={navigation} text="Account Information"/>
-            <GeneralSettingsWrapper reelayDBUser={reelayDBUser}/>
+            <HeaderWithBackButton navigation={navigation} text="Edit Account"/>
+            <AccountInfoWrapper navigation={navigation} reelayDBUser={reelayDBUser}/>
         </ViewContainer>
     )
 }
 
-const GeneralSettingsWrapper = ({ reelayDBUser }) => {
-    const dispatch = useDispatch();
-    const showFestivalsRow = useSelector(state => state.showFestivalsRow);
-
-    const GeneralSettingsContainer = styled(View)`
+const AccountInfoWrapper = ({ navigation, reelayDBUser }) => {
+    const AccountInfoContainer = styled(View)`
         width: 90%;
         height: 100%;
         display: flex;
@@ -52,87 +109,173 @@ const GeneralSettingsWrapper = ({ reelayDBUser }) => {
         height: 1px;
         opacity: 0.7;
         width: 98%;
+        margin-bottom: 15px;
     `
-    const toggleShowFestivalsRow = async () => {
-        const dbResult = await updateUserFestivalPreference(reelayDBUser?.sub, !showFestivalsRow);
-        dispatch({ type: 'setShowFestivalsRow', payload: !showFestivalsRow })
 
-        logAmplitudeEventProd('toggleShowFestivalsRow', {
-            username: reelayDBUser?.username,
-            showFestivalsRow: !showFestivalsRow
-        });
+	const initUsername = reelayDBUser.username;
+	const usernameRef = useRef(initUsername);
+	const usernameInputRef = useRef(null);
+	const currentFocus = useRef("");
+    const [savingInfo, setSavingInfo] = useState(false);
+
+    const isUsernameValid = async (username) => {
+        const usernameHasValidForm = checkUsername(username);
+
+        if (!usernameHasValidForm) {
+            console.log('Usernames must be between 4 and 16 characters, alphanumeric. Separators .+_- are okay');
+            showErrorToast('Invalid username');
+            return false;
+        }
+        const partialMatchingUsers = await searchUsers(username);
+        if (partialMatchingUsers?.error) {
+            return false;
+        }
+
+        const usernamesMatch = (userObj) => (userObj.username === username);
+        const fullMatchIndex = await partialMatchingUsers.findIndex(usernamesMatch);
+        if (fullMatchIndex === -1) {
+            return true;
+        } else if (username!==reelayDBUser.username) {
+            console.log('That username is already taken');
+            showErrorToast('That username is already taken');
+            return false;
+        }
+    }
+
+    const saveInfo = async () => {
+        setSavingInfo(true);
+        const usernameIsValid = await isUsernameValid(usernameRef.current.trim());
+		if (usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
+			const usernameUpdatedSuccessfully = await updateUsername(reelayDBUser.sub, usernameRef.current.trim());
+			if (!usernameUpdatedSuccessfully) {
+                setSavingInfo(false);
+				return false;
+			}
+			reelayDBUser.username = usernameRef.current.trim();
+		} else if (!usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
+            setSavingInfo(false);
+			return false;
+		}
+        showMessageToast("Account information saved!")
+        setSavingInfo(false);
+        return true;
+    }
+    const cancelOnPress = () => {
+        navigation.pop();
     }
 
     return (
-        <GeneralSettingsContainer>
+        <AccountInfoContainer>
             <Divider />
-            <ShowFestivalSetting enabled={showFestivalsRow} toggle={toggleShowFestivalsRow}/>
-        </GeneralSettingsContainer>
+            <AlignmentContainer>
+                <EditUsername usernameRef={usernameRef} usernameInputRef={usernameInputRef} currentFocus={currentFocus} />
+            </AlignmentContainer>
+            <BottomButtonsContainer>
+                <SaveButton saveInfo={saveInfo} savingInfo={savingInfo} />
+                <CancelButton cancelOnPress={cancelOnPress} />
+            </BottomButtonsContainer>
+        </AccountInfoContainer>
     )
 }
 
 
-const ShowFestivalSetting = ({ enabled, toggle }) => {
+const EditUsername = ({ usernameRef, usernameInputRef, currentFocus }) => {
+    const UsernameInputContainerStyle = {
+        marginBottom: -5,
+        width: "100%",
+    };
+    const AuthInputAtIconStyle = {
+        color: "white",
+        name: "at",
+        type: "ionicon",
+        size: 20,
+    };
+
+	const changeInputText = async (text) => {
+		usernameRef.current=text;
+	};
+
+	const usernameOnPress = () => {
+		usernameInputRef.current.focus(); 
+		currentFocus.current='username';
+	}
+
+	return (
+        <>
+            <SectionTitleContainer>
+                <SectionTitleText>{"Username"}</SectionTitleText>
+            </SectionTitleContainer>
+
+            <InputContainer onPress={usernameOnPress}>
+                <UsernameInput
+                    autoCorrect={false}
+                    autoComplete='none'
+                    autoCapitalize="none"
+                    containerStyle={UsernameInputContainerStyle}
+                    leftIcon={AuthInputAtIconStyle}
+                    ref={usernameInputRef}
+                    maxLength={25}
+                    defaultValue={usernameRef.current}
+                    placeholder={"lukeskywalker"}
+                    placeholderTextColor={"gray"}
+                    onChangeText={changeInputText}
+                    onPressOut={Keyboard.dismiss()}
+                    returnKeyLabel="return"
+                    returnKeyType="default"
+                />  
+            </InputContainer>
+
+            <UsernameInstructionContainer>
+                <UsernameInstructionText>
+                    {'Usernames must be between 4 and 16 characters, \
+                        alphanumeric, and start with letters. Separators \
+                        \n.+_- are okay.'}
+                </UsernameInstructionText>
+            </UsernameInstructionContainer>
+        </>
+  );
+};
+
+const SaveButton = ({saveInfo, savingInfo}) => {
     return (
-        <NotificationSetting
-                title="Show Film Festivals" 
-                subtext="Feature content from film festivals on your home page"
-                isToggled={enabled}
-                toggleFunction={toggle}
-        />
+        <SaveInfoButtonContainer>
+            <Button
+                text={savingInfo ? "Saving..." : "Save"}
+                onPress={saveInfo}
+                disabled={savingInfo}
+                backgroundColor={ReelayColors.reelayBlue}
+                fontColor="white"
+                borderRadius="26px"
+            />
+        </SaveInfoButtonContainer>
     )
 }
 
-const NotificationSetting = ({title, subtext, isToggled, toggleFunction}) => {
-    const NotificationSettingContainer = styled(View)`
-        width: 100%;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-        padding: 5px;
-    `;
-    const FirstColumn = styled(Pressable)`
-        width: 80%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-evenly;
-        align-items: flex-start;
-        padding: 5px;
-    `;
-    const SecondColumn = styled(View)`
-        width: 20%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    `;
-    const NotificationSettingText = styled(ReelayText.Body1)`
-        text-align: center;
-        color: white;
-        margin-right: 20px;
-        margin-top: 0px;
-    `;
-    const NotificationSettingSubtext = styled(ReelayText.Caption)`
-        text-align: left;
-        margin-top: 6px;
-        color: #FFFFFF
-        opacity: 0.5;
-    `;
-    const NotificationSlider = styled(Switch)``;
+const CancelButton = ({cancelOnPress}) => {
     return (
-		<NotificationSettingContainer>
-            <FirstColumn onPress={() => Linking.openSettings()}>
-				<NotificationSettingText>{title}</NotificationSettingText>
-				{subtext && <NotificationSettingSubtext>{subtext}</NotificationSettingSubtext>}
-			</FirstColumn>
-			<SecondColumn>
-				<NotificationSlider
-					value={isToggled}
-					onValueChange={toggleFunction}
-					trackColor={{ false: "#39393D", true: ReelayColors.reelayBlue }}
-					thumbColor={"#FFFFFF"}
-					ios_backgroundColor="#39393D"
-				/>
-			</SecondColumn>
-		</NotificationSettingContainer>
-	);
+        <SaveInfoButtonContainer>
+            <Button
+                text={"Cancel"}
+                onPress={cancelOnPress}
+                backgroundColor="white"
+                fontColor={ReelayColors.reelayBlack}
+                borderRadius="26px"
+            />
+        </SaveInfoButtonContainer>
+    )
 }
+
+// save info
+/*
+
+		const usernameIsValid = await isUsernameValid(usernameRef.current.trim());
+		if (usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
+			const usernameUpdatedSuccessfully = await updateUsername(reelayDBUser.sub, usernameRef.current.trim());
+			if (!usernameUpdatedSuccessfully) {
+				return false;
+			}
+			reelayDBUser.username = usernameRef.current.trim();
+		} else if (!usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
+			return false;
+		}
+ */

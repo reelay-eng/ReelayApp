@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, TextInput, Alert, Keyboard } from "react-native";
+import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, TextInput, Text, Keyboard } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -15,7 +15,7 @@ import {
 } from "@aws-sdk/client-s3";
 
 // DB
-import { searchUsers, updateProfilePic, updateUserBio, updateUsername, updateUserWebsite } from "../../api/ReelayDBApi";
+import { updateProfilePic, updateUserBio, updateUserWebsite } from "../../api/ReelayDBApi";
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
@@ -30,7 +30,7 @@ import { HeaderDoneCancel } from '../global/Headers';
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { showErrorToast } from "../utils/toasts";
-import { checkUsername } from "../utils/ValidUsernameCheck"
+import { Icon } from "react-native-elements";
 
 const { height, width } = Dimensions.get("window");
 
@@ -48,26 +48,8 @@ const SectionTitleContainer = styled(View)`
 	padding: 5px;
 	width: 72%;
 `;
-const UsernameInput = styled(TextInput)`
-	color: white;
-	font-family: Outfit-Regular;
-	font-size: 16px;
-	font-style: normal;
-	letter-spacing: 0.15px;
-	margin-left: 8px;
-	padding: 10px;
-	width: 87%;
-`;
-const UsernameInputContainer = styled(View)`
-	align-self: center;
-	background-color: #1a1a1a;
-	border-radius: 16px;
-	flex-direction: row;
-	padding: 5px;
-	width: 80%;
-`;
 
-export default EditProfile = () => {
+export default EditProfile = ({navigation}) => {
     const ModalContainer = styled(View)`
 		position: absolute;
 		height: 100%;
@@ -78,7 +60,6 @@ export default EditProfile = () => {
 	`;
 	const EditProfilePicContainer = styled(Pressable)`
 		background-color: black;
-		height: 20%;
 		width: 100%;
 	`;
 	const EditInfoContainer = styled(SafeAreaView)`
@@ -91,11 +72,8 @@ export default EditProfile = () => {
 	const dispatch = useDispatch();
 	const { reelayDBUser } = useContext(AuthContext);
 
-	const initUsername = reelayDBUser.username;
 	const initBio = reelayDBUser.bio ? reelayDBUser.bio : "";
 	const initWebsite = reelayDBUser.website ? reelayDBUser.website : "";
-	const usernameRef = useRef(initUsername);
-	const usernameInputRef = useRef(null);
   	const bioRef = useRef(initBio);
   	const bioInputRef = useRef(null);
   	const websiteRef = useRef(initWebsite);
@@ -108,7 +86,11 @@ export default EditProfile = () => {
 			dispatch({ type: 'setTabBarVisible', payload: true });
 		}
 	});
-
+	const editUsernameOnPress = () => {
+		// navigation
+		navigation.push("AccountInfoScreen");
+		dispatch({ type: 'setIsEditingProfile', payload: false });
+	}
     const doneFunc = async () => {
 		// save all information
 		const successfulySaved = await saveInfo();
@@ -126,42 +108,7 @@ export default EditProfile = () => {
 		dispatch({ type: 'setIsEditingProfile', payload: false });
     }
 
-	const isUsernameValid = async (username) => {
-		const usernameHasValidForm = checkUsername(username);
-
-		// console.log("checking", username,"!")
-		if (!usernameHasValidForm) {
-			console.log('Usernames must be between 4 and 25 characters, alphanumeric. Separators .+_- are okay');
-			showErrorToast('Usernames must be between 4 and 25 characters, alphanumeric. Separators .+_- are okay');
-			return false;
-		}
-		const partialMatchingUsers = await searchUsers(username);
-		if (partialMatchingUsers?.error) {
-			return false;
-		}
-
-		const usernamesMatch = (userObj) => (userObj.username === username);
-		const fullMatchIndex = await partialMatchingUsers.findIndex(usernamesMatch);
-		if (fullMatchIndex === -1) {
-			return true;
-		} else if (username!==reelayDBUser.username) {
-			console.log('That username is already taken');
-			showErrorToast('That username is already taken');
-			return false;
-		}
-	}
-
 	const saveInfo = async () => {
-		const usernameIsValid = await isUsernameValid(usernameRef.current.trim());
-		if (usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
-			const usernameUpdatedSuccessfully = await updateUsername(reelayDBUser.sub, usernameRef.current.trim());
-			if (!usernameUpdatedSuccessfully) {
-				return false;
-			}
-			reelayDBUser.username = usernameRef.current.trim();
-		} else if (!usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
-			return false;
-		}
 		reelayDBUser.bio = bioRef.current.trim() === "" ? null : bioRef.current;
 		const bioUpdatedSuccessfully = await updateUserBio(reelayDBUser.sub, reelayDBUser.bio);
 		reelayDBUser.website =
@@ -185,6 +132,7 @@ export default EditProfile = () => {
 					text="Edit Profile"
 				/>
 				</HeaderContainer>
+				<EditUsername username={reelayDBUser.username} editUsernameOnPress={editUsernameOnPress} />
 				<EditProfilePicContainer onPress={Keyboard.dismiss}>
 					<EditProfileImage />
 				</EditProfilePicContainer>
@@ -199,45 +147,32 @@ export default EditProfile = () => {
   );
 };
 
-
-const EditUsername = ({ usernameRef, usernameInputRef, currentFocus }) => {
-
-	const changeInputText = async (text) => {
-		usernameRef.current=text;
-	};
-
-	const usernameOnPress = () => {
-		usernameInputRef.current.focus(); 
-		currentFocus.current='username';
-	}
-
+const EditUsername = ({username, editUsernameOnPress}) => {
+	const EditUsernameContainer = styled(Pressable)`
+		padding-top: 20px;
+		flex-direction: row;
+		justify-content: center;
+		background-color: black;
+		justify-content: center;
+	`
+	const UsernameText = styled(ReelayText.H6Emphasized)`
+		align-self: center;
+		color: #d4d4d4;
+	`;
+	const RightIconContainer = styled(View)`
+		height: 18px;
+		width: 18px;
+		align-self: center;
+	`
 	return (
-		<>
-		<SectionTitleContainer>
-			<SectionTitleText>{"Username"}</SectionTitleText>
-		</SectionTitleContainer>
-		<TouchableWithoutFeedback onPress={usernameOnPress}>
-			<UsernameInputContainer>
-			<UsernameInput
-				autoCorrect={false}
-				autoComplete='none'
-				autoCapitalize="none"
-				ref={usernameInputRef}
-				maxLength={25}
-				defaultValue={usernameRef.current}
-				placeholder={"Wanna change your identity?"}
-				placeholderTextColor={"gray"}
-				onChangeText={changeInputText}
-				onPressOut={Keyboard.dismiss()}
-				returnKeyLabel="return"
-				returnKeyType="default"
-			/>
-			
-			</UsernameInputContainer>
-		</TouchableWithoutFeedback>
-		</>
-  );
-};
+		<EditUsernameContainer onPress={editUsernameOnPress}>
+			<UsernameText> {`@${username} `} </UsernameText>
+			<RightIconContainer>
+				<Icon type='ionicon' name='pencil-sharp' size={18} color={'#b5b5b5'} />
+			</RightIconContainer>
+		</EditUsernameContainer>
+ 	)
+}
 
 const EditBio = ({ bioRef, bioInputRef, currentFocus }) => {
 	const BioInput = styled(TextInput)`
@@ -304,14 +239,13 @@ const EditProfileImage = () => {
 
 	const profilePictureURI = reelayDBUser?.profilePictureURI;
 	
-	
 	const startEditPhoto = () => {
         if (!isUploading) setIsEditingPhoto(true);
     }
 	const Container = styled(View)`
 		width: 100%;
-		padding-top: 20px;
-		padding-bottom: 20px;
+		padding-top: 15px;
+		padding-bottom: 10px;
 		display: flex;
 		align-items: center;
 		justify-content: center;

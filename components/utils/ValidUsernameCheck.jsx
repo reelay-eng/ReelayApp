@@ -7,7 +7,7 @@ export const checkUsername = (username) => {
     if (username.length<4 || username.length>16) {
         return false;
     }
-    if (!isAlphaNumeric(username[0]) || !isAlphaNumeric(username[username.length-1])) {
+    if (!isAlpha(username[0]) || !isAlphaNumeric(username[username.length-1])) {
         return false;
     }
 
@@ -19,6 +19,20 @@ export const checkUsername = (username) => {
 
     return true;
 }
+
+const isAlpha = (str) => {
+    var code, i, len;
+
+    for (i = 0, len = str.length; i < len; i++) {
+        code = str.charCodeAt(i);
+        if (!(code > 64 && code < 91) && // upper alpha (A-Z)
+            !(code > 96 && code < 123)) { // lower alpha (a-z)
+        return false;
+        }
+    }
+    return true;
+};
+
 
 const isAlphaNumeric = (str) => {
     var code, i, len;
