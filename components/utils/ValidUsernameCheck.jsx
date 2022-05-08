@@ -4,7 +4,7 @@ export const checkUsername = (username) => {
     // cannot start with symbols
     // only connectors allowed are .-_+
     // has to be alphanumeric
-    if (username.length<4 || username.length>25) {
+    if (username.length<4 || username.length>16) {
         return false;
     }
     if (!isAlphaNumeric(username[0]) || !isAlphaNumeric(username[username.length-1])) {
@@ -38,18 +38,13 @@ const isValidConnector = (str) => {
     switch (str) {
         case ".":
             return true;
-
         case "_":
             return true;
-
         case "-":
             return true;
-
         case "+":
             return true;
-
         default:
             return false;
     }
-    return false;
 };

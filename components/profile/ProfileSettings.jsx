@@ -57,6 +57,13 @@ export const ProfileSettings = ({navigation}) => {
 			<SettingsContainer>
 				<TopSettings>
                     <SettingEntry
+						text="Account Information"
+						iconName="person"
+						onPress={() => {
+							navigation.push("AccountInfoScreen");
+						}}
+					/>
+                    <SettingEntry
 						text="App Experience"
 						iconName="aperture"
 						onPress={() => {

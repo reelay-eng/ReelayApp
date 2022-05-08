@@ -67,31 +67,6 @@ const UsernameInputContainer = styled(View)`
 	width: 80%;
 `;
 
-const isUsernameValid = async (username) => {
-	const usernameHasValidForm = checkUsername(username);
-
-	// console.log("checking", username,"!")
-	if (!usernameHasValidForm) {
-		console.log('Usernames must be between 4 and 25 characters, alphanumeric. Separators .+_- are okay');
-		showErrorToast('Usernames must be between 4 and 25 characters, alphanumeric. Separators .+_- are okay');
-		return false;
-	}
-	const partialMatchingUsers = await searchUsers(username);
-	if (partialMatchingUsers?.error) {
-		return false;
-	}
-
-	const usernamesMatch = (userObj) => (userObj.username === username);
-	const fullMatchIndex = await partialMatchingUsers.findIndex(usernamesMatch);
-	if (fullMatchIndex === -1) {
-		return true;
-	} else {
-		console.log('That username is already taken');
-		showErrorToast('That username is already taken');
-		return false;
-	}
-}
-
 export default EditProfile = () => {
     const ModalContainer = styled(View)`
 		position: absolute;
@@ -151,6 +126,31 @@ export default EditProfile = () => {
 		dispatch({ type: 'setIsEditingProfile', payload: false });
     }
 
+	const isUsernameValid = async (username) => {
+		const usernameHasValidForm = checkUsername(username);
+
+		// console.log("checking", username,"!")
+		if (!usernameHasValidForm) {
+			console.log('Usernames must be between 4 and 25 characters, alphanumeric. Separators .+_- are okay');
+			showErrorToast('Usernames must be between 4 and 25 characters, alphanumeric. Separators .+_- are okay');
+			return false;
+		}
+		const partialMatchingUsers = await searchUsers(username);
+		if (partialMatchingUsers?.error) {
+			return false;
+		}
+
+		const usernamesMatch = (userObj) => (userObj.username === username);
+		const fullMatchIndex = await partialMatchingUsers.findIndex(usernamesMatch);
+		if (fullMatchIndex === -1) {
+			return true;
+		} else if (username!==reelayDBUser.username) {
+			console.log('That username is already taken');
+			showErrorToast('That username is already taken');
+			return false;
+		}
+	}
+
 	const saveInfo = async () => {
 		const usernameIsValid = await isUsernameValid(usernameRef.current.trim());
 		if (usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
@@ -190,7 +190,6 @@ export default EditProfile = () => {
 				</EditProfilePicContainer>
 				<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 					<EditInfoContainer>
-						<EditUsername usernameRef={usernameRef} usernameInputRef={usernameInputRef} currentFocus={currentFocus}/>
 						<EditBio bioRef={bioRef} bioInputRef={bioInputRef} currentFocus={currentFocus} />
 						<EditWebsite websiteRef={websiteRef} websiteInputRef={websiteInputRef} currentFocus={currentFocus}/>
 					</EditInfoContainer>
