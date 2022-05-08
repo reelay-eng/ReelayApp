@@ -1,7 +1,8 @@
 export const checkUsername = (username) => {
     // original regex = /^([a-zA-z]+[a-zA-z0-9]*(?:[.\-_+][a-zA-Z0-9]+)*)$/g;
     // must be between 4 and 25 characters
-    // cannot start with symbols
+    // cannot start with symbols or numbers
+    // cannot end with symbols
     // only connectors allowed are .-_+
     // has to be alphanumeric
     if (username.length<4 || username.length>16) {

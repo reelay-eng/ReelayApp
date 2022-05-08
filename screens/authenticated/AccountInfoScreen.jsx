@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, Text, View } from 'react-native';
+import React from 'react';
+import { SafeAreaView } from 'react-native';
 import styled from 'styled-components';
 
 import AccountInfo from '../../components/profile/AccountInfo';
 
-export default AccountInfoScreen = ({navigation, route}) => {
+export default AccountInfoScreen = ({navigation}) => {
     const AccountInfoContainer = styled(SafeAreaView)`
         background-color: black;
         height: 100%;
