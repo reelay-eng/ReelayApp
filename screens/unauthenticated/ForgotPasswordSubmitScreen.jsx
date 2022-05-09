@@ -13,6 +13,7 @@ import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import { Button } from '../../components/global/Buttons';
+import { getUserByUsername } from '../../api/ReelayDBApi';
 
 export default ForgotPasswordSubmitScreen = ({ navigation, route }) => {
 
@@ -127,11 +128,13 @@ export default ForgotPasswordSubmitScreen = ({ navigation, route }) => {
             }
 
             try {
+                const creator = await getUserByUsername(username);
+
                 const forgotPasswordSubmitResult = await Auth.forgotPasswordSubmit(
-                    username,
+                    creator.originalUsername,
                     confirmationCode,
                     newPassword
-                );    
+                );     
 
                 console.log('Reset password successfully');
                 console.log(forgotPasswordSubmitResult);
@@ -152,7 +155,9 @@ export default ForgotPasswordSubmitScreen = ({ navigation, route }) => {
             console.log('Attempting to resend forgot password email');
 
             try {
-                const resendForgotPasswordResult = await Auth.forgotPassword(username);
+                const creator = await getUserByUsername(username);
+
+                const resendForgotPasswordResult = await Auth.forgotPassword(creator.originalUsername); 
                 console.log(resendForgotPasswordResult);
                 showMessageToast(RESEND_FORGOT_PW_EMAIL_MESSAGE);    
             } catch (error) {

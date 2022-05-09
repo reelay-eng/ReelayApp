@@ -11,6 +11,7 @@ import { showErrorToast, showMessageToast } from '../../components/utils/toasts'
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
+import { useDispatch } from 'react-redux';
 
 const AuthInput = styled(Input)`
     color: white;
@@ -74,6 +75,7 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
     const { username, email, password } = route.params;
     const { setCognitoUser } = useContext(AuthContext);
     const [confirming, setConfirming] = useState(false);
+    const dispatch = useDispatch();
 
     const ConfirmationCodeInput = () => {
         const [confirmationCode, setConfirmationCode] = useState('');
@@ -83,8 +85,9 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
             try {
                 console.log('Attempting email confirmation');
                 const signUpResult = await Auth.confirmSignUp(username, confirmationCode);
-                console.log('Confirm sign up result (cognito): ', signUpResult);    
                 const newCognitoUser = await Auth.signIn(username, password);
+                const cognitoSession = await Auth.currentSession();
+                dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });
                 setCognitoUser(newCognitoUser);
             } catch (error) {
                 setConfirming(false);

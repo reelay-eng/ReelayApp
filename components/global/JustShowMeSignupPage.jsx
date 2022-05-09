@@ -92,6 +92,7 @@ export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Ree
             if (!signUpFromGuest) dispatch({ type: 'setSignUpFromGuest', payload: true });
             const signOutResult = await Auth.signOut();
             dispatch({ type: 'setSignedIn', payload: false });
+            dispatch({ type: 'clearAuthSession', payload: {} });
             setReelayDBUserID(null);
             // todo: deregister for push tokens
             // todo: deregister cognito user
@@ -111,6 +112,7 @@ export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Ree
             if (signUpFromGuest) dispatch({ type: 'setSignUpFromGuest', payload: false });
             const signOutResult = await Auth.signOut();
             dispatch({ type: 'setSignedIn', payload: false });
+            dispatch({ type: 'clearAuthSession', payload: {} });
             setReelayDBUserID(null);
             console.log(signOutResult);
         } catch (error) {
