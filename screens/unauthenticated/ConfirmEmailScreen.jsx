@@ -11,6 +11,7 @@ import { showErrorToast, showMessageToast } from '../../components/utils/toasts'
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
+import { useDispatch } from 'react-redux';
 
 const AuthInput = styled(Input)`
     color: white;
@@ -74,6 +75,7 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
     const { username, email, password } = route.params;
     const { setCognitoUser } = useContext(AuthContext);
     const [confirming, setConfirming] = useState(false);
+    const dispatch = useDispatch();
 
     const ConfirmationCodeInput = () => {
         const [confirmationCode, setConfirmationCode] = useState('');
