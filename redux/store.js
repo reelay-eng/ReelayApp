@@ -1,7 +1,9 @@
 import { createStore } from "redux";
 import { cognitoSessionReducer, stacksOnStreamingReducer, watchlistRecsReducer } from "./reducers";
+import { getReelayAuthHeaders, getReelayBaseHeaders } from "../api/ReelayAPIHeaders";
 
 const initialState = {
+    apiHeaders: getReelayBaseHeaders(),
     authSession: {},
     cognitoUser: {},
     donateLinks: [],
@@ -54,11 +56,15 @@ const initialState = {
 const appReducer = ( state = initialState, action) => {
     switch(action.type) {
         case 'clearAuthSession':
-            return { ...state, authSession: {} };
+            return { 
+                ...state, 
+                apiHeaders: getReelayBaseHeaders(),
+                authSession: {}, 
+            };
         case 'setAuthSessionFromCognito':
             const authSession = cognitoSessionReducer(action.payload);
-            console.log('setting auth session: ', authSession);
-            return { ...state, authSession }
+            const apiHeaders = getReelayAuthHeaders(authSession);
+            return { ...state, authSession, apiHeaders };
         case 'setCognitoUser':
             return { ...state, cognitoUser: action.payload }
         case 'setDonateLinks':
@@ -156,6 +162,7 @@ const appReducer = ( state = initialState, action) => {
 }
 
 export const mapStateToProps = (state) => ({
+    apiHeaders: state.apiHeaders,
     authSession: state.authSession,
     cognitoUser: state.cognitoUser,
     donateLinks: state.donateLinks,

@@ -10,12 +10,9 @@ import styled from 'styled-components/native';
 import * as ReelayText from "../../components/global/Text";
 import { BWButton } from "../../components/global/Buttons";
 import { HeaderWithBackButton } from "../global/Headers";
-import { deregisterSocialAuthToken } from '../../api/ReelayUserApi';
 import { getReelay, prepareReelay, registerPushTokenForUser } from '../../api/ReelayDBApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
-
-const { height } = Dimensions.get('window');
 
 export const ProfileSettings = ({navigation}) => {
     const ViewContainer = styled(SafeAreaView)`
@@ -173,7 +170,7 @@ const Logout = () => {
             dispatch({ type: 'setSignedIn', payload: false });
             setReelayDBUserID(null);
             const signOutResult = await Auth.signOut();
-            deregisterSocialAuthToken();
+            dispatch({ type: 'clearAuthSession', payload: {} });
             registerPushTokenForUser(reelayDBUserID, null); 
             // todo: deregister cognito user
             console.log(signOutResult);

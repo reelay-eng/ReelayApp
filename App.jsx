@@ -48,10 +48,6 @@ import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { toastConfig } from './components/utils/ToastConfig';
 import Toast from "react-native-toast-message";
 
-import { verifySocialAuthToken } from './api/ReelayUserApi';
-
-
-
 // font imports
 import * as Font from 'expo-font';
 import { connect, Provider, useDispatch, useSelector } from 'react-redux';
@@ -115,8 +111,10 @@ function App() {
                 const signUpFromGuest = (tryCognitoUser?.username === 'be_our_guest');
                 dispatch({ type: 'setSignUpFromGuest', payload: signUpFromGuest });
 
-                const cognitoSession = await Auth.currentSession();
-                dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });
+                if (!signUpFromGuest) {
+                    const cognitoSession = await Auth.currentSession();
+                    dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });    
+                }
             } 
             logAmplitudeEventProd('authenticationComplete', {
                 hasValidCredentials: tryCredentials?.authenticated,
