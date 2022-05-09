@@ -95,7 +95,7 @@ export default TextInputWithMentions = ({
         letterSpacing: 0.25,
         textAlign: "left",
         paddingLeft: 12,
-        paddingRight: 12,
+        paddingRight: 18, // az – right side padding is off by 6px, for some weird reason.
         paddingBottom: 6,
     };
 
@@ -160,12 +160,10 @@ export default TextInputWithMentions = ({
             maxLength={MAX_COMMENT_LENGTH}
             multiline
             numberOfLines={4}
-            blurOnSubmit={true}
             onFocus={onFocus}
             placeholder={placeholder}
             placeholderTextColor={"gray"}
             inputRef={inputRef}
-            returnKeyType="done"
             style={TextInputStyle}
             containerStyle={TextInputContainerStyle}
             value={commentText}

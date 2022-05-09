@@ -1,9 +1,11 @@
 import { createStore } from "redux";
-import { stacksOnStreamingReducer, watchlistRecsReducer } from "./reducers";
+import { cognitoSessionReducer, stacksOnStreamingReducer, watchlistRecsReducer } from "./reducers";
+import { getReelayAuthHeaders, getReelayBaseHeaders } from "../api/ReelayAPIHeaders";
 
 const initialState = {
+    apiHeaders: getReelayBaseHeaders(),
+    authSession: {},
     cognitoUser: {},
-    credentials: {},
     donateLinks: [],
     isEditingProfile: false,
     isLoading: true,
@@ -42,14 +44,29 @@ const initialState = {
     
     showFestivalsRow: false,
     tabBarVisible: true,
+
+    // authentication
+    loginUsernameInputText: '',
+    loginPasswordInputText: '',
+    usernameLoginError: '',
+    passwordLoginError: '',
+    loginPasswordHidden: true,
 }
 
 const appReducer = ( state = initialState, action) => {
     switch(action.type) {
+        case 'clearAuthSession':
+            return { 
+                ...state, 
+                apiHeaders: getReelayBaseHeaders(),
+                authSession: {}, 
+            };
+        case 'setAuthSessionFromCognito':
+            const authSession = cognitoSessionReducer(action.payload);
+            const apiHeaders = getReelayAuthHeaders(authSession);
+            return { ...state, authSession, apiHeaders };
         case 'setCognitoUser':
             return { ...state, cognitoUser: action.payload }
-        case 'setCredentials':
-            return { ...state, credentials: action.payload }
         case 'setDonateLinks':
             return { ...state, donateLinks: action.payload }    
         case 'setIsEditingProfile':
@@ -128,6 +145,18 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, showFestivalsRow: action.payload }
         case 'setTabBarVisible':
             return { ...state, tabBarVisible: action.payload }    
+        
+        // authentication
+        case 'setLoginUsernameInputText':
+            return { ...state, loginUsernameInputText: action.payload }
+        case 'setLoginPasswordInputText':
+            return { ...state, loginPasswordInputText: action.payload }
+        case 'setUsernameLoginError':
+            return { ...state, usernameLoginError: action.payload }
+        case 'setPasswordLoginError':
+            return { ...state, passwordLoginError: action.payload }
+        case 'setLoginPasswordHidden':
+            return { ...state, loginPasswordHidden: action.payload }
             
         default: 
             return state
@@ -135,8 +164,9 @@ const appReducer = ( state = initialState, action) => {
 }
 
 export const mapStateToProps = (state) => ({
+    apiHeaders: state.apiHeaders,
+    authSession: state.authSession,
     cognitoUser: state.cognitoUser,
-    credentials: state.credentials,
     donateLinks: state.donateLinks,
     isEditingProfile: state.isEditingProfile,
     isLoading: state.isLoading,
@@ -176,6 +206,12 @@ export const mapStateToProps = (state) => ({
     
     showFestivalsRow: state.showFestivalsRow,
     tabBarVisible: state.tabBarVisible,
+
+    loginUsernameInputText: state.loginUsernameInputText,
+    loginPasswordInputText: state.loginPasswordInputText,
+    usernameLoginError: state.usernameLoginError,
+    passwordLoginError: state.passwordLoginError,
+    loginPasswordHidden: state.loginPasswordHidden,
 });
 
 let store = createStore(appReducer);

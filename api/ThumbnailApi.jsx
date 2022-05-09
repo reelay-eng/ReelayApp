@@ -26,7 +26,6 @@ export const generateThumbnail = async (reelay) => {
             const source = reelay?.content?.videoURI;
             const options = { time: thumbnailTimecode, quality: THUMBNAIL_QUALITY };
             const thumbnailObj = await getThumbnailAsync(source, options);
-            console.log(thumbnailObj);
             return thumbnailObj;
         } catch (error) {
             console.warn(error);
@@ -42,7 +41,6 @@ export const saveThumbnail = async (reelay, s3Client, thumbnailObj) => {
 
     const s3Key = getThumbnailS3Key(reelay);
     const uploadResult = await uploadToS3SinglePart(imageBuffer, s3Client, s3Key);
-    console.log('SAVE RESULT: ', uploadResult);
     // todo: write boolean to reelay obj: thumbnailExists
 }
 

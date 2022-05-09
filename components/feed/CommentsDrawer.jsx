@@ -273,11 +273,9 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 				reelaySub: reelay.sub,
 				visibility: FEED_VISIBILITY,
 			};
-			console.log(commentBody);
 
 			const postResult = await postCommentToDB(commentBody, reelay.sub);
 			commentBody.id = postResult.id;
-			console.log("Comment posted: ", postResult);
 
 			const mentionedUsers = await notifyMentionsOnComment({
 				creator: reelay.creator,

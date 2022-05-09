@@ -8,6 +8,7 @@ import ClubFeedScreen from '../screens/authenticated/ClubFeedScreen';
 import ClubInfoScreen from '../screens/authenticated/ClubInfoScreen';
 import CreateClubScreen from '../screens/authenticated/CreateClubScreen';
 import CreateTopicScreen from '../screens/authenticated/CreateTopicScreen';
+import AccountInfoScreen from '../screens/authenticated/AccountInfoScreen';
 import GeneralSettingsScreen from '../screens/authenticated/GeneralSettingsScreen';
 import HomeScreen from '../screens/authenticated/HomeScreen';
 import MyClubsScreen from '../screens/authenticated/MyClubsScreen';
@@ -69,6 +70,7 @@ export const ProfileTabNavigator = () => {
 			<ProfileTabStack.Screen name="TMDBCreditScreen" component={TMDBCreditScreen} options={commonOptions} />
 			<ProfileTabStack.Screen name="GeneralSettingsScreen" component={GeneralSettingsScreen} options={commonOptions} />
 			<ProfileTabStack.Screen name="NotificationSettingsScreen" component={NotificationSettingsScreen} options={commonOptions} />
+			<ProfileTabStack.Screen name="AccountInfoScreen" component={AccountInfoScreen} options={commonOptions} />
 		</AuthenticatedCommonStack>
 	);
 }

@@ -1,8 +1,9 @@
 import React, { useContext, useState } from 'react';
-import { Image, KeyboardAvoidingView, SafeAreaView, Text, View } from 'react-native';
+import { ActivityIndicator, KeyboardAvoidingView, SafeAreaView, View } from 'react-native';
 import { Input } from 'react-native-elements';
 import { Button } from '../../components/global/Buttons';
 import BackButton from '../../components/utils/BackButton';
+import * as ReelayText from '../../components/global/Text';
 
 import { Auth } from 'aws-amplify';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
@@ -10,67 +11,87 @@ import { showErrorToast, showMessageToast } from '../../components/utils/toasts'
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
-import { registerUser } from '../../api/ReelayDBApi';
+import { useDispatch } from 'react-redux';
+
+const AuthInput = styled(Input)`
+    color: white;
+    font-family: Outfit-Regular;
+    font-size: 16px;
+    font-style: normal;
+    letter-spacing: 0.15px;
+    margin-left: 8px;
+`
+const AuthInputContainerStyle = {
+    alignSelf: 'center',
+    margin: 10,
+    marginBottom: 40,
+    paddingLeft: 32,
+    paddingRight: 32,
+}
+const AuthInputRightIconStyle = {
+    color: 'white',
+    name: 'mail-outline',
+    type: 'ionicon', 
+}
+
+const BackButtonContainer = styled(View)`
+    margin-left: 20px;
+    margin-top: 20px;
+`
+const CTAButtonContainer = styled(View)`
+    margin-bottom: 16px;
+    width: 95%;
+    height: 56px;
+`
+const HeaderContainer = styled(View)`
+    align-items: center;
+    justify-content: center;
+    margin-top: 40px;
+`
+const HeaderText = styled(ReelayText.H6)`
+    color: white;
+    text-align: center;
+`
+const InputContainer = styled(View)`
+    align-items: center;
+    margin-bottom: 60px;
+`
+const LoadingContainer = styled(View)`
+    align-items: center;
+    margin-top: 40px;
+    justify-content: center;
+`
+const ScreenContainer = styled(SafeAreaView)`
+    background-color: ${ReelayColors.reelayBlack};
+    height: 100%;
+    width: 100%;
+`
+const TopBarContainer = styled(View)`
+    flex-direction: row;
+    justify-content: flex-start;
+`
 
 export default ConfirmEmailScreen = ({ navigation, route }) => {
-    const { username, password } = route.params;
+    const { username, email, password } = route.params;
     const { setCognitoUser } = useContext(AuthContext);
-
-    const InputContainer = styled(View)`
-        margin-bottom: 60px;
-        flex-direction: column;
-        align-items: center;
-    `
-    const ScreenContainer = styled(SafeAreaView)`
-        background-color: ${ReelayColors.reelayBlack};
-        height: 100%;
-        width: 100%;
-    `
-    const CTAButtonContainer = styled(View)`
-		margin-bottom: 40px;
-		width: 95%;
-		height: 56px;
-	`;
-    const AuthInput = styled(Input)`
-		color: white;
-		font-family: Outfit-Regular;
-		font-size: 16px;
-		font-style: normal;
-		letter-spacing: 0.15px;
-		margin-left: 8px;
-	`; 
-    const AuthInputContainerStyle = {
-        alignSelf: 'center',
-        margin: 10,
-        marginBottom: 40,
-        paddingLeft: 32,
-        paddingRight: 32,
-    }
-    const AuthInputRightIconStyle = {
-        color: 'white',
-        name: 'mail-outline',
-        type: 'ionicon', 
-    }
+    const [confirming, setConfirming] = useState(false);
+    const dispatch = useDispatch();
 
     const ConfirmationCodeInput = () => {
         const [confirmationCode, setConfirmationCode] = useState('');
         
         const confirmEmail = async () => {
+            setConfirming(true);
             try {
                 console.log('Attempting email confirmation');
                 const signUpResult = await Auth.confirmSignUp(username, confirmationCode);
-                console.log('SIGN UP RESULT: ', signUpResult);    
-
                 const newCognitoUser = await Auth.signIn(username, password);
-                const dbResult = await registerUser({
-                    email: newCognitoUser?.attributes?.email,
-                    username: newCognitoUser?.username,
-                    sub: newCognitoUser?.attributes?.sub,
-                });
-                console.log('DB SIGN UP RESULT: ', dbResult);
+                const cognitoSession = await Auth.currentSession();
+                dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });
                 setCognitoUser(newCognitoUser);
             } catch (error) {
-                console.log('Could not confirm email address');
+                setConfirming(false);
+                console.log(error);
                 showErrorToast('Could not confirm email address');
                 return { error };
             }
@@ -125,15 +146,18 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
 		);
     }
 
+    const Header = () => {
+        const message = (confirming) 
+            ? `Just a moment` 
+            : `We've sent a confirmation code to ${email}`;
+        return (
+            <HeaderContainer>
+                <HeaderText>{message}</HeaderText>
+            </HeaderContainer>
+        );
+    }
+
     const TopBar = () => {
-        const BackButtonContainer = styled(View)`
-            margin-left: 20px;
-            margin-top: 20px;
-        `
-        const TopBarContainer = styled(View)`
-            flex-direction: row;
-            justify-content: flex-start;
-        `
         return (
             <TopBarContainer>
                 <BackButtonContainer>
@@ -146,9 +170,17 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
     return (
         <ScreenContainer>
             <TopBar />
-            <KeyboardAvoidingView behavior='padding' style={{flex: 1, justifyContent: 'center'}}>
-                <ConfirmationCodeInput />
-            </KeyboardAvoidingView>
+            <Header />
+            { !confirming && (
+                <KeyboardAvoidingView behavior='padding' style={{flex: 1, justifyContent: 'center'}}>
+                    <ConfirmationCodeInput />
+                </KeyboardAvoidingView>    
+            )}
+            { confirming && (
+                <LoadingContainer>
+                    <ActivityIndicator /> 
+                </LoadingContainer>
+            )}
         </ScreenContainer>
     );
 }

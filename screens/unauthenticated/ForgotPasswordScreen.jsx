@@ -14,6 +14,7 @@ import ReelayColors from '../../constants/ReelayColors';
 
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { getInputUsername } from '../../components/utils/usernameOrEmail';
+import { getUserByUsername } from '../../api/ReelayDBApi';
 
 export default ForgotPasswordScreen = ({ navigation }) => {
 
@@ -94,8 +95,10 @@ export default ForgotPasswordScreen = ({ navigation }) => {
             }
 
 			try {
+                const creator = await getUserByUsername(username);
+
 				setSending(true);
-				const forgotPasswordResult = await Auth.forgotPassword(username);
+				const forgotPasswordResult = await Auth.forgotPassword(creator.originalUsername);
 				setSending(false);
                 navigation.push('ForgotPasswordSubmitScreen', {
                     username: username

@@ -3,6 +3,8 @@ import { Dimensions, Image, Pressable, View } from 'react-native';
 import StarRating from 'react-native-star-rating';
 import styled from 'styled-components/native';
 import TitlePoster from '../global/TitlePoster';
+import { LinearGradient } from "expo-linear-gradient";
+import ReelayColors from '../../constants/ReelayColors';
 
 const { width } = Dimensions.get('window');
 
@@ -83,7 +85,21 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
             <PosterContainer key={stack[0].title.id}>
                 {/* <PosterImage source={stack[0].title.posterSource} /> */}
                 <TitlePoster title={stack[0].title} onPress={viewProfileFeed} width={POSTER_WIDTH} />
-                { starRating > 0 && <StarRatingLine rating={starRating} /> }
+                { starRating > 0 && (
+                <>
+                    <LinearGradient
+                        colors={["transparent", ReelayColors.reelayBlack]}
+                        style={{
+                            opacity: 0.85,
+                            width: POSTER_WIDTH,
+                            height: POSTER_HEIGHT/2,
+                            borderRadius: 6,
+                            position: 'absolute',
+                            top: POSTER_HEIGHT/2,
+                        }}
+                    />
+                    <StarRatingLine rating={starRating} />
+                </>) }
             </PosterContainer>
         );
     }

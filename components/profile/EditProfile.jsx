@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, TextInput, Alert, Keyboard } from "react-native";
+import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, TextInput, Keyboard } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
+import { useFocusEffect } from "@react-navigation/native";
 
 // Expo imports
 import * as ImagePicker from "expo-image-picker";
@@ -28,15 +29,25 @@ import * as ReelayText from "../global/Text";
 import { HeaderDoneCancel } from '../global/Headers';
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
-import { useFocusEffect } from "@react-navigation/native";
-
-const { height, width } = Dimensions.get("window");
+import { showErrorToast } from "../utils/toasts";
+import { Icon } from "react-native-elements";
 
 const Spacer = styled(View)`
-	height: 10px;
+	height: ${(props) => (props.height ? props.height : "0px")};
 `;
 
-export default EditProfile = () => {
+const SectionTitleText = styled(ReelayText.Body2Bold)`
+	align-self: flex-start;
+	color: grey;
+`;
+
+const SectionTitleContainer = styled(View)`
+	align-self: center;
+	padding: 5px;
+	width: 72%;
+`;
+
+export default EditProfile = ({ navigation, refreshProfile }) => {
     const ModalContainer = styled(View)`
 		position: absolute;
 		height: 100%;
@@ -47,7 +58,6 @@ export default EditProfile = () => {
 	`;
 	const EditProfilePicContainer = styled(Pressable)`
 		background-color: black;
-		height: 20%;
 		width: 100%;
 	`;
 	const EditInfoContainer = styled(SafeAreaView)`
@@ -75,10 +85,19 @@ export default EditProfile = () => {
 		}
 	});
 
+	const editUsernameOnPress = () => {
+		navigation.push("AccountInfoScreen", { refreshProfile });
+		dispatch({ type: 'setIsEditingProfile', payload: false });
+	}
+
     const doneFunc = async () => {
 		// save all information
-		await saveInfo();
-		dispatch({ type: 'setIsEditingProfile', payload: false });
+		const successfulySaved = await saveInfo();
+		if (successfulySaved) {
+			dispatch({ type: 'setIsEditingProfile', payload: false });
+		} else{
+			showErrorToast("Info did not save successfully! Try again.")
+		}
     }
 
     const cancelFunc = () => {
@@ -89,10 +108,11 @@ export default EditProfile = () => {
 
 	const saveInfo = async () => {
 		reelayDBUser.bio = bioRef.current.trim() === "" ? null : bioRef.current;
-		await updateUserBio(reelayDBUser.sub, bioRef.current.trim());
+		const bioUpdatedSuccessfully = await updateUserBio(reelayDBUser.sub, reelayDBUser.bio);
 		reelayDBUser.website =
 			websiteRef.current.trim() === "" ? null : websiteRef.current;
-		await updateUserWebsite(reelayDBUser.sub, websiteRef.current.trim());
+		const websiteUpdatedSuccessfully = await updateUserWebsite(reelayDBUser.sub, reelayDBUser.website);
+		return (bioUpdatedSuccessfully && websiteUpdatedSuccessfully);
 	}
 
 	return (
@@ -110,6 +130,7 @@ export default EditProfile = () => {
 					text="Edit Profile"
 				/>
 				</HeaderContainer>
+				<EditUsername username={reelayDBUser.username} editUsernameOnPress={editUsernameOnPress} />
 				<EditProfilePicContainer onPress={Keyboard.dismiss}>
 					<EditProfileImage />
 				</EditProfilePicContainer>
@@ -123,6 +144,33 @@ export default EditProfile = () => {
 		</ModalContainer>
   );
 };
+
+const EditUsername = ({ username, editUsernameOnPress }) => {
+	const EditUsernameContainer = styled(View)`
+		padding-top: 40px;
+		flex-direction: row;
+		justify-content: center;
+		background-color: black;
+		justify-content: center;
+	`
+	const UsernameText = styled(ReelayText.H6Emphasized)`
+		align-self: center;
+		color: #d4d4d4;
+	`;
+	const RightIconContainer = styled(View)`
+		height: 18px;
+		width: 18px;
+		align-self: center;
+	`
+	return (
+		<EditUsernameContainer>
+			<UsernameText> {`@${username} `} </UsernameText>
+			{/* <RightIconContainer>
+				<Icon type='ionicon' name='create-outline' size={20} color={'#b5b5b5'} />
+			</RightIconContainer> */}
+		</EditUsernameContainer>
+ 	)
+}
 
 const EditBio = ({ bioRef, bioInputRef, currentFocus }) => {
 	const BioInput = styled(TextInput)`
@@ -144,44 +192,44 @@ const EditBio = ({ bioRef, bioInputRef, currentFocus }) => {
 		width: 80%;
   	`;
 	const EditBioContainer = styled(View)`
-		align-self: center;
-		padding: 5px;
-		width: 72%;
-  `;
-	const EditBioText = styled(ReelayText.Body2Bold)`
-		align-self: flex-start;
-		color: grey;
-	`;
+		margin-top: 16px;
+	`
 
 	const changeInputText = (text) => {
 		bioRef.current=text;
 	};
 
+	const bioOnPress = () => {
+		bioInputRef.current.focus(); 
+		currentFocus.current='bio'
+	}
+
 	return (
-		<>
 		<EditBioContainer>
-			<EditBioText>{"Bio"}</EditBioText>
+			<SectionTitleContainer>
+				<SectionTitleText>{"Bio"}</SectionTitleText>
+			</SectionTitleContainer>
+			<TouchableWithoutFeedback onPress={bioOnPress}>
+				<BioInputContainer>
+				<BioInput
+					autoComplete='none'
+					autoCapitalize="none"
+					ref={bioInputRef}
+					maxLength={250}
+					multiline
+					numberOfLines={4}
+					defaultValue={bioRef.current}
+					placeholder={"Who are you?"}
+					placeholderTextColor={"gray"}
+					onChangeText={changeInputText}
+					onPressOut={Keyboard.dismiss()}
+					returnKeyLabel="return"
+					returnKeyType="default"
+				/>
+				
+				</BioInputContainer>
+			</TouchableWithoutFeedback>
 		</EditBioContainer>
-		<TouchableWithoutFeedback onPress={() => {bioInputRef.current.focus(); currentFocus.current='bio'}}>
-			<BioInputContainer>
-			<BioInput
-				ref={bioInputRef}
-				autoCapitalize='none'
-				maxLength={250}
-				multiline
-				numberOfLines={4}
-				defaultValue={bioRef.current}
-				placeholder={"Who are you?"}
-				placeholderTextColor={"gray"}
-				onChangeText={changeInputText}
-				onPressOut={Keyboard.dismiss()}
-				returnKeyLabel="return"
-				returnKeyType="default"
-			/>
-			
-			</BioInputContainer>
-		</TouchableWithoutFeedback>
-		</>
   );
 };
 
@@ -192,14 +240,13 @@ const EditProfileImage = () => {
 
 	const profilePictureURI = reelayDBUser?.profilePictureURI;
 	
-	
 	const startEditPhoto = () => {
         if (!isUploading) setIsEditingPhoto(true);
     }
 	const Container = styled(View)`
 		width: 100%;
-		padding-top: 20px;
-		padding-bottom: 20px;
+		padding-top: 15px;
+		padding-bottom: 10px;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -439,7 +486,7 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 							<MenuOptionText>Take Photo</MenuOptionText>
 						</MenuOption>
 					</MenuOptionsContainer>
-					<Spacer />
+					<Spacer height="10px" />
 					<MenuOptionsContainer>
 						<MenuOption onPress={close}>
 							<MenuOptionText>Cancel</MenuOptionText>
@@ -471,41 +518,39 @@ const EditWebsite = ({ websiteRef, websiteInputRef, currentFocus }) => {
 		width: 80%;
 	`;
 	const EditWebsiteContainer = styled(View)`
-		align-self: center;
-		padding: 5px;
-		width: 72%;
-	`;
-	const EditWebsiteText = styled(ReelayText.Body2Bold)`
-		align-self: flex-start;
-		color: grey;
-	`;
+		margin-top: 16px;
+	`
 
 	const changeInputText = (text) => {
 		websiteRef.current = text;
 	};
 
+	const websiteOnPress = () => {
+		websiteInputRef.current.focus(); 
+		currentFocus.current = "website";
+	}
+
 	return (
-		<>
 		<EditWebsiteContainer>
-			<EditWebsiteText>{"Website"}</EditWebsiteText>
+			<SectionTitleContainer>
+				<SectionTitleText>{"Website"}</SectionTitleText>
+			</SectionTitleContainer>
+			<TouchableWithoutFeedback onPress={websiteOnPress}>
+				<WebsiteInputContainer>
+				<WebsiteInput
+					autoComplete='none'
+					autoCapitalize="none"
+					ref={websiteInputRef}
+					defaultValue={websiteRef.current}
+					placeholder={"Any cool links?"}
+					placeholderTextColor={"gray"}
+					onChangeText={changeInputText}
+					onPressOut={Keyboard.dismiss()}
+					returnKeyLabel="return"
+					returnKeyType="default"
+				/>
+				</WebsiteInputContainer>
+			</TouchableWithoutFeedback>
 		</EditWebsiteContainer>
-		<TouchableWithoutFeedback onPress={() => {websiteInputRef.current.focus(); currentFocus.current = "website";}}>
-			<WebsiteInputContainer>
-			<WebsiteInput
-				ref={websiteInputRef}
-				autoComplete='none'
-				autoCapitalize='none'
-				autoCorrect={false}
-				defaultValue={websiteRef.current}
-				placeholder={"Any cool links?"}
-				placeholderTextColor={"gray"}
-				onChangeText={changeInputText}
-				onPressOut={Keyboard.dismiss()}
-				returnKeyLabel="return"
-				returnKeyType="default"
-			/>
-			</WebsiteInputContainer>
-		</TouchableWithoutFeedback>
-		</>
 	);
 };
