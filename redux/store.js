@@ -1,9 +1,9 @@
 import { createStore } from "redux";
-import { stacksOnStreamingReducer, watchlistRecsReducer } from "./reducers";
+import { cognitoSessionReducer, stacksOnStreamingReducer, watchlistRecsReducer } from "./reducers";
 
 const initialState = {
+    authSession: {},
     cognitoUser: {},
-    credentials: {},
     donateLinks: [],
     isEditingProfile: false,
     isLoading: true,
@@ -53,10 +53,14 @@ const initialState = {
 
 const appReducer = ( state = initialState, action) => {
     switch(action.type) {
+        case 'clearAuthSession':
+            return { ...state, authSession: {} };
+        case 'setAuthSessionFromCognito':
+            const authSession = cognitoSessionReducer(action.payload);
+            console.log('setting auth session: ', authSession);
+            return { ...state, authSession }
         case 'setCognitoUser':
             return { ...state, cognitoUser: action.payload }
-        case 'setCredentials':
-            return { ...state, credentials: action.payload }
         case 'setDonateLinks':
             return { ...state, donateLinks: action.payload }    
         case 'setIsEditingProfile':
@@ -152,8 +156,8 @@ const appReducer = ( state = initialState, action) => {
 }
 
 export const mapStateToProps = (state) => ({
+    authSession: state.authSession,
     cognitoUser: state.cognitoUser,
-    credentials: state.credentials,
     donateLinks: state.donateLinks,
     isEditingProfile: state.isEditingProfile,
     isLoading: state.isLoading,

@@ -65,7 +65,6 @@ const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png'
 function App() {
     const colorScheme = useColorScheme();
     const dispatch = useDispatch();
-    const credentials = useSelector(state => state.credentials);
     const isLoading = useSelector(state => state.isLoading);
 
     // Auth context hooks
@@ -112,23 +111,13 @@ function App() {
                 // use cognito to sign in the user
                 tryCognitoUser = await Auth.currentAuthenticatedUser();
                 setCognitoUser(tryCognitoUser);
-                if (tryCognitoUser?.username === 'be_our_guest') {
-                    dispatch({ type: 'setSignUpFromGuest', payload: true });
-                } else {
-                    dispatch({ type: 'setSignUpFromGuest', payload: false });
-                }
-            } else {
-                // try using a social auth token to sign in the user
-                const authTokenJSON = await AsyncStorage.getItem('mySocialAuthToken');
-                if (authTokenJSON) {
-                    const { reelayDBUserID, token } = JSON.parse(authTokenJSON);
-                    tryVerifySocialAuth = await verifySocialAuthToken();
-                    if (tryVerifySocialAuth?.success) {
-                        console.log('Auto authentication from social login successful');
-                        setReelayDBUserID(reelayDBUserID);
-                    }
-                }
-            }
+
+                const signUpFromGuest = (tryCognitoUser?.username === 'be_our_guest');
+                dispatch({ type: 'setSignUpFromGuest', payload: signUpFromGuest });
+
+                const cognitoSession = await Auth.currentSession();
+                dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });
+            } 
             logAmplitudeEventProd('authenticationComplete', {
                 hasValidCredentials: tryCredentials?.authenticated,
                 username: tryCognitoUser?.attributes?.sub,
@@ -220,7 +209,6 @@ function App() {
             console.log(error);
             logAmplitudeEventProd('s3InitializeError', {
                 error: error.message,
-                credentials: credentials
             });
         }
     }

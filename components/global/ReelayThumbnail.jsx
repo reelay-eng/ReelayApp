@@ -124,8 +124,6 @@ export default ReelayThumbnail = ({
 		return thumbnailObj;
 	}
 
-	console.log(reelay?.title);
-
 	const GradientOverlay = ({ username }) => {
 		return (
 			<React.Fragment>

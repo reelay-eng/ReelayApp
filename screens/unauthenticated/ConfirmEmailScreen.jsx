@@ -83,8 +83,9 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
             try {
                 console.log('Attempting email confirmation');
                 const signUpResult = await Auth.confirmSignUp(username, confirmationCode);
-                console.log('Confirm sign up result (cognito): ', signUpResult);    
                 const newCognitoUser = await Auth.signIn(username, password);
+                const cognitoSession = await Auth.currentSession();
+                dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });
                 setCognitoUser(newCognitoUser);
             } catch (error) {
                 setConfirming(false);

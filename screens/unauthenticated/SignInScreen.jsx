@@ -202,11 +202,13 @@ export default SignInScreen = ({ navigation, route }) => {
                     handleBadPassword();
                     return;
                 }
+                
                 const creator = await getUserByUsername(username);
-
-                const cognitoUser = await Auth.signIn(creator.originalUsername, password); 
-                console.log('Received sign in result: ', cognitoUser);
+                const cognitoUser = await Auth.signIn(creator.originalUsername, password);                 
+                const cognitoSession = await Auth.currentSession();
+                dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });
                 setCognitoUser(cognitoUser);
+
                 console.log('Signed in user successfully');
                 logAmplitudeEventProd('signInSuccess', {
                     username,
