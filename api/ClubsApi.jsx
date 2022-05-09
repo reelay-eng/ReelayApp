@@ -74,7 +74,6 @@ export const createClub = async ({
         description,
         name,
         visibility,
-        pictureURI,
     };
     const createClubResult = await fetchResults(routePost, {
         method: 'POST',
@@ -107,7 +106,7 @@ export const getClubMembers = async (clubID, reqUserSub) => {
     return resultGet;
 }
 
-export const getClubsForUser = async (userSub) => {
+export const getClubsMemberOf = async (userSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/clubs/memberOf/${userSub}`;
     const resultGet = await fetchResults(routeGet, {
         method: 'GET',

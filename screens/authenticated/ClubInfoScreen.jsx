@@ -95,7 +95,6 @@ const ClubProfileInfo = ({ club }) => {
 }
 
 const ClubSettings = ({ club, navigation }) => {
-    const advanceToInviteScreen = () => navigation.push('ClubInviteMembersScreen', { club });
     const [allowMemberInvites, setAllowMemberInvites] = useState(true);
     return (
         <React.Fragment>
@@ -121,7 +120,7 @@ const ClubSettings = ({ club, navigation }) => {
                     <SettingsText>{'Add Members'}</SettingsText>
                     <SettingsSubtext>{'Invite more people to the club'}</SettingsSubtext>
                 </SettingsTextContainer>
-                <SettingsRowRightButton onPress={advanceToInviteScreen}>
+                <SettingsRowRightButton onPress={() => {}}>
                     <Icon type='ionicon' name='person-add' color='white' size={24} />
                 </SettingsRowRightButton>
             </SettingsRow>

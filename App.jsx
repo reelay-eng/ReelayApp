@@ -55,7 +55,7 @@ import store, { mapStateToProps } from './redux/store';
 import { ensureLocalImageDirExists } from './api/ReelayLocalImageCache';
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
 import { getGlobalTopics } from './api/TopicsApi';
-import { getClubsForUser } from './api/ClubsApi';
+import { getClubsMemberOf } from './api/ClubsApi';
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png');
 
@@ -258,7 +258,7 @@ function App() {
             getAllDonateLinks(),
 
             getGlobalTopics({ reqUserSub, page: 0 }),
-            getClubsForUser(userSub),
+            getClubsMemberOf(userSub),
             getFeed({ reqUserSub, feedSource: 'following', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'streaming', page: 0 }),

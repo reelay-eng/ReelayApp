@@ -1,13 +1,14 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Pressable, SafeAreaView, TouchableOpacity, View } from 'react-native';
+import React from 'react';
+import { Pressable } from 'react-native';
+import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import BackButton from '../utils/BackButton';
 import ClubPicture from '../global/ClubPicture';
 
-const BackButtonContainer = styled(SafeAreaView)`
-    left: 0px;
+const BackButtonContainer = styled(Pressable)`
+    left: 16px;
+    top: ${(props) => props.offset}px;
     position: absolute;
 `
 const ClubNameText = styled(ReelayText.Subtitle2)`
@@ -34,8 +35,8 @@ export default ClubBanner = ({ club, navigation }) => {
                 <ClubPicture club={club} size={30} />
                 <ClubNameText>{club.name}</ClubNameText>
             </HeaderBackground>
-            <BackButtonContainer>
-                <BackButton navigation={navigation} />
+            <BackButtonContainer offset={headerTopOffset} onPress={() => navigation.popToTop()}>
+                <Icon type='ionicon' name={'arrow-back-outline'} color={'white'} size={30} />
             </BackButtonContainer>
         </React.Fragment>
     );

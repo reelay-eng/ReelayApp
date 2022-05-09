@@ -128,14 +128,36 @@ const FollowerSearch = ({ updateSearch }) => {
 
 export default MyFollowsList = ({ 
     navigation,
-    getFollowsToSend, 
-    markFollowToSend, 
-    unmarkFollowToSend,
+    followsToSend, 
+    readyToSend,
+    setReadyToSend,
+    // markFollowToSend, 
+    // unmarkFollowToSend,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const myFollowers = useSelector(state => state.myFollowers);
     const myFollowing = useSelector(state => state.myFollowing);
     const priorClubMembers = useRef([]);
+
+    const markFollowToSend = useCallback((followObj) => {
+        followsToSend.current.push(followObj);
+        if (!readyToSend) {
+            setReadyToSend(true);
+        }
+        console.log('marking follow', followsToSend.current, readyToSend);
+        return true;
+    }, []);
+
+    const unmarkFollowToSend = useCallback((followObj) => {
+        followsToSend.current = followsToSend.current.filter((nextFollowObj) => {
+            return followObj.followSub !== nextFollowObj.followSub;
+        });
+        console.log('follows to send: ', followsToSend.current);
+        if (!followsToSend.current.length) {
+            setReadyToSend(false);
+        }
+        return false; // isMarked
+    }, []);
 
     const iAmFollowing = (followObj) => (followObj.followerName === reelayDBUser?.username);
     const getFollowName = (followObj) => iAmFollowing(followObj) ? followObj.creatorName : followObj.followerName;
@@ -190,7 +212,7 @@ export default MyFollowsList = ({
             <FollowerSearch updateSearch={updateSearch} />
             <ScrollViewContainer>
                 { isLoaded && displayFollows.map((followObj, index) => {
-                    const hasMarkedToSend = getFollowsToSend().find((nextFollowObj) => {
+                    const hasMarkedToSend = followsToSend.current.find((nextFollowObj) => {
                         return (nextFollowObj.followSub === followObj.followSub);
                     });
 

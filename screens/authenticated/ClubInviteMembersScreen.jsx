@@ -33,7 +33,8 @@ const InviteScreenContainer = styled(SafeAreaView)`
 `
 const SendIconPressable = styled(Pressable)`
     align-items: center;
-    border-radius: 16px;
+    background-color: ${(props) => (props.readyToSend) ? ReelayColors.reelayBlue : 'transparent'};
+    border-radius: 24px;
     justify-content: center;
     margin-left: 10px;
     height: 48px;
@@ -88,7 +89,7 @@ const TitleHeader = ({ navigation, club, readyToSend, sendRecs }) => {
                     <YearText>{club.description}</YearText>
                 </TitleLineContainer>
                 <SendIconPressable onPress={sendRecs} readyToSend={readyToSend}>
-                    <Icon type='ionicon' name='paper-plane' size={24} color={(readyToSend) ? ReelayColors.reelayBlue : 'white'} />
+                    <Icon type='ionicon' name='paper-plane' size={24} color={(readyToSend) ? 'white' : 'gray'} />
                 </SendIconPressable>
             </TitleHeaderContainer>
         </React.Fragment>
@@ -115,28 +116,28 @@ export default ClubInviteMembersScreen = ({ navigation, route }) => {
 
     const followsToSend = useRef([]);
     const [readyToSend, setReadyToSend] = useState(followsToSend.current > 0);
-    const getFollowsToSend = useCallback(() => followsToSend.current, []);
-    const markFollowToSend = useCallback((followObj) => {
-        followsToSend.current.push(followObj);
-        if (!readyToSend) {
-            setReadyToSend(true);
-        }
-        return true;
-    }, []);
+    // const getFollowsToSend = useCallback(() => followsToSend.current, []);
+    // const markFollowToSend = useCallback((followObj) => {
+    //     followsToSend.current.push(followObj);
+    //     if (!readyToSend) {
+    //         setReadyToSend(true);
+    //     }
+    //     return true;
+    // }, []);
 
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
     });
 
-    const unmarkFollowToSend = useCallback((followObj) => {
-        followsToSend.current = followsToSend.current.filter((nextFollowObj) => {
-            return followObj.followSub !== nextFollowObj.followSub;
-        });
-        if (!followsToSend.current.length) {
-            setReadyToSend(false);
-        }
-        return false; // isMarked
-    }, []);
+    // const unmarkFollowToSend = useCallback((followObj) => {
+    //     followsToSend.current = followsToSend.current.filter((nextFollowObj) => {
+    //         return followObj.followSub !== nextFollowObj.followSub;
+    //     });
+    //     if (!followsToSend.current.length) {
+    //         setReadyToSend(false);
+    //     }
+    //     return false; // isMarked
+    // }, []);
 
     const sendRecs = async () => {
         console.log('sending rec!');
@@ -167,9 +168,12 @@ export default ClubInviteMembersScreen = ({ navigation, route }) => {
             />
             <InviteMyFollowsList 
                 navigation={navigation}
-                getFollowsToSend={getFollowsToSend}
-                markFollowToSend={markFollowToSend}
-                unmarkFollowToSend={unmarkFollowToSend}
+                followsToSend={followsToSend}
+                readyToSend={readyToSend}
+                setReadyToSend={setReadyToSend}
+                // getFollowsToSend={getFollowsToSend}
+                // markFollowToSend={markFollowToSend}
+                // unmarkFollowToSend={unmarkFollowToSend}
             />
             <SkipButtonRow club={club} navigation={navigation} />
         </InviteScreenContainer>

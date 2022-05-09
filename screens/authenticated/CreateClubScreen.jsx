@@ -208,14 +208,14 @@ export default function CreateClubScreen({ navigation, route }) {
             }
             const clubObj = await createClub(clubPostBody);
             // todo: handle bad upload
-            const clubID = createClubResult?.id;
+            const clubID = clubObj?.id;
+            console.log('club object: ', clubObj);
             if (clubID && clubPicSourceRef?.current?.uri) {
                 const uploadResult = await uploadClubPicToS3(clubID, clubPicSourceRef.current.uri);
                 console.log('club pic upload result: ', uploadResult);
                 // todo: handle failed upload
             }
             dispatch({ type: 'setMyClubs', payload: [clubObj, ...myClubs] });
-            // todo: post club body to reelayDB
             console.log(clubObj);
             setPublishing(false);
             return clubObj;

@@ -5,7 +5,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BaseHeader } from '../../components/global/Headers'
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { AuthContext } from '../../context/AuthContext';
-import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
 
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import styled from 'styled-components/native';
@@ -16,6 +15,7 @@ import ProfilePicture from '../../components/global/ProfilePicture';
 import { ScrollView } from 'react-native-gesture-handler';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
+import ClubPicture from '../../components/global/ClubPicture';
 
 const { width } = Dimensions.get('window');
 
@@ -64,14 +64,9 @@ const MyClubsScreenContainer = styled(SafeAreaView)`
 `
 const ClubButton = ({ club, navigation }) => {
     const advanceToClubScreen = () => navigation.push('ClubActivityScreen', { club });
-    const clubPicSource = club.pictureURI ? { uri: club.pictureURI } : ReelayIcon;
-
     return (
         <ClubButtonPressable onPress={advanceToClubScreen}>
-            {/* <CreateClubGradient colors={['#2977EF', '#FF4848']}>
-                <Icon type='ionicon' name='add' size={CLUB_BUTTON_SIZE * 0.6} color='white' />
-            </CreateClubGradient> */}
-            <ClubImage source={clubPicSource} />
+            <ClubPicture club={club} size={CLUB_BUTTON_SIZE} />
             <ClubTitleText>{club.name}</ClubTitleText>
         </ClubButtonPressable>
     );
