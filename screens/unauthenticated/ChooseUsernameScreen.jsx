@@ -162,12 +162,9 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
             console.log('Signing up...');
 
             if (method === 'apple' || method === 'google') {
-                const authAccountObj = await registerSocialAuthAccount({ method, email, fullName, googleUserID, appleUserID });
-                console.log('Auth account register result: ', completeSignUpResult);
-    
+                const authAccountObj = await registerSocialAuthAccount({ method, email, fullName, googleUserID, appleUserID });    
                 const { reelayDBUserID } = authAccountObj;
                 const completeSignUpResult = await registerUser({ email, username, sub: reelayDBUserID });
-                console.log('Social sign up result: ', completeSignUpResult);
     
                 saveAndRegisterSocialAuthToken(reelayDBUserID);
                 setSigningIn(false);
@@ -184,8 +181,6 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
                     sub: signUpResult?.userSub,
                 });
 
-                console.log('Sign up result (cognito)', signUpResult);
-                console.log('Sign up result (reelayDB)', dbResult);
                 navigation.push('ConfirmEmailScreen', { 
                     username,
                     email: email.toLowerCase(), 

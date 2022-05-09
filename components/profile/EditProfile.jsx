@@ -145,8 +145,8 @@ export default EditProfile = ({ navigation, refreshProfile }) => {
   );
 };
 
-const EditUsername = ({username, editUsernameOnPress}) => {
-	const EditUsernameContainer = styled(Pressable)`
+const EditUsername = ({ username, editUsernameOnPress }) => {
+	const EditUsernameContainer = styled(View)`
 		padding-top: 40px;
 		flex-direction: row;
 		justify-content: center;
@@ -163,11 +163,11 @@ const EditUsername = ({username, editUsernameOnPress}) => {
 		align-self: center;
 	`
 	return (
-		<EditUsernameContainer onPress={editUsernameOnPress}>
+		<EditUsernameContainer>
 			<UsernameText> {`@${username} `} </UsernameText>
-			<RightIconContainer>
+			{/* <RightIconContainer>
 				<Icon type='ionicon' name='create-outline' size={20} color={'#b5b5b5'} />
-			</RightIconContainer>
+			</RightIconContainer> */}
 		</EditUsernameContainer>
  	)
 }

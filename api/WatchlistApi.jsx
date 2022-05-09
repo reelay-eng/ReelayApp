@@ -219,10 +219,8 @@ export const sendRecommendation = async ({
             },
             body: JSON.stringify(postBody),
         });
-        console.log('Worked fine');
         return await sendRecResult;    
     } catch (error) {
-        console.log('Didn\'t work fine');
         console.log(error);
         return [];
     }
