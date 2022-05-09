@@ -113,7 +113,6 @@ export const getReportedReelayStacks = async () => {
     });
 
     const preparedReportedStacks = await prepareStacks(fetchedReportedStacks);
-    console.log('REPORTED REELAYS: ', preparedReportedStacks);
     return preparedReportedStacks;
 }
 
@@ -184,7 +183,6 @@ export const getReelay = async (reelaySub, visibility=FEED_VISIBILITY) => {
 
 export const getReelaysByCreator = async (creatorSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/users/sub/${creatorSub}/reelays?visibility=${FEED_VISIBILITY}`;
-    console.log('GET REELAYS BY CREATOR: ', routeGet);
     const fetchedReelays = await fetchResults(routeGet, { 
         method: 'GET',
         headers: ReelayAPIHeaders,
@@ -382,7 +380,6 @@ export const postCommentLikeToDB = async (commentUUID, commentAuthorSub, comment
         body: JSON.stringify(reqBody),
         headers: ReelayAPIHeaders,
     });
-    console.log('Posted comment like: ', resultPost);
     return resultPost;
 }
 
@@ -471,7 +468,6 @@ export const registerUser = async ({ email, username, sub }) => {
             method: 'POST',
             headers: ReelayAPIHeaders,
         });
-        console.log('User registry entry created: ', resultPost);
         return resultPost;
     } catch (error) {
         console.log(error);
@@ -485,7 +481,6 @@ export const registerPushTokenForUser = async (userSub, pushToken) => {
         method: 'PATCH',
         headers: ReelayAPIHeaders,
     });
-    console.log('Patched user registry entry: ', resultPatch);
     return resultPatch;
 }
 
@@ -497,7 +492,6 @@ export const removeComment = async (commentID) => {
         headers: ReelayAPIHeaders,
         body: JSON.stringify(deleteBody),
     });
-    console.log('Deleted comment: ', resultDelete);
     return resultDelete;
 }
 
@@ -508,7 +502,6 @@ export const removeCommentLike = async (commentUUID, userSub) => {
         method: 'DELETE',
         headers: ReelayAPIHeaders,
     });
-    console.log('Deleted comment like: ', resultDelete);
     return resultDelete;
 }
 
@@ -620,7 +613,6 @@ export const updateUsername = async (userSub, newUsername) => {
     return resultPatch;
 };
 
-// make it work?
 export const updateUserBio = async (userSub, bio) => {
     const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}`;
     const updateBody = {
@@ -634,7 +626,6 @@ export const updateUserBio = async (userSub, bio) => {
         },
         body: JSON.stringify(updateBody),
     });
-    console.log("Patched user bio to: ", bio);
     return resultPatch;
 };
 
@@ -647,7 +638,6 @@ export const updateUserFestivalPreference = async (userSub, showFestivalsRow) =>
             requsersub: userSub,
         },
     });
-    console.log("Patched user festival preference to: ", showFestivalsRow);
     return resultPatch;
 };
 
@@ -661,7 +651,6 @@ export const updateProfilePic = async (sub, photoURI) => {
         headers: ReelayAPIHeaders,
         body: JSON.stringify(updateBody)
 	});
-    console.log("Patched user profile picture to: ", photoURI);
 	return resultPatch;
 };
 
@@ -678,6 +667,5 @@ export const updateUserWebsite = async (userSub, website) => {
         },
         body: JSON.stringify(updateBody),
     });
-    console.log("Patched user website to: ", website);
     return resultPatch;
 };

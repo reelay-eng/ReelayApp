@@ -18,6 +18,13 @@ const isSameTitle = (title0, title1) => {
     return (title0.id === title1.id) && (title0.isSeries === title1.isSeries);
 }
 
+export const cognitoSessionReducer = (session) => {
+    const idToken = session.idToken.jwtToken;
+    const accessToken = session.accessToken.jwtToken;
+    const refreshToken = session.refreshToken.token;
+    return { idToken, accessToken, refreshToken };
+}
+
 export const stacksOnStreamingReducer = ({ stacksOnStreaming, streamingSubscriptions }) => {
     const subscribedVenues = streamingSubscriptions.map(subscription => subscription.platform);
     const bringReelayWithSubscribedVenueToFront = (reelayStack) => {
