@@ -5,7 +5,7 @@ const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const TMDB_IMAGE_API_BASE_URL = Constants.manifest.extra.tmdbImageApiBaseUrl.substr(0,27);
 
 const imgDir = FileSystem.cacheDirectory + 'img';
-const clubPicRemoteURI = (clubID) => `${CLOUDFRONT_BASE_URL}/public/clubPic-${clubID}.jpg`;
+const clubPicRemoteURI = (clubID) => `${CLOUDFRONT_BASE_URL}/public/clubpic-${clubID}.jpg`;
 const clubPicLocalURI = (clubID) => imgDir + `/clubpic-${clubID}.jpg`;
 const profilePicRemoteURI = (userSub) => `${CLOUDFRONT_BASE_URL}/public/profilepic-${userSub}-current.jpg`;
 const profilePicLocalURI = (userSub) => imgDir + `/profilepic-${userSub}.jpg`;

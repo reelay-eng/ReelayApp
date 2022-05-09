@@ -80,18 +80,18 @@ const appReducer = ( state = initialState, action) => {
             const globalTopics = action.payload;
             const globalTopicsWithReelays = globalTopics.filter((topic) => {
                 return topic.reelays.length > 0;
-            })
+            });
             return { ...state, globalTopics, globalTopicsWithReelays };
         case 'setMyClubs':
             return { ...state, myClubs: action.payload };
         case 'setMyCreatorStacks':
-            return { ...state, myCreatorStacks: action.payload }
+            return { ...state, myCreatorStacks: action.payload };
         case 'setMyFollowing':
-            return { ...state, myFollowing: action.payload }
+            return { ...state, myFollowing: action.payload };
         case 'setMyFollowers':
-            return { ...state, myFollowers: action.payload }
+            return { ...state, myFollowers: action.payload };
         case 'setMyNotifications':
-            return { ...state, myNotifications: action.payload }
+            return { ...state, myNotifications: action.payload };
         case 'setMyWatchlistItems':
             const myWatchlistItems = watchlistRecsReducer(action.payload);
             return { ...state, myWatchlistItems };

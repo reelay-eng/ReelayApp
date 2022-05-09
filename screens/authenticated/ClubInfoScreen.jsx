@@ -9,6 +9,9 @@ import ClubPicture from '../../components/global/ClubPicture';
 import { Icon } from 'react-native-elements';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faLink } from '@fortawesome/free-solid-svg-icons';
+import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
+import { getClubMembers } from '../../api/ClubsApi';
+import { AuthContext } from '../../context/AuthContext';
 
 const BackButtonContainer = styled(SafeAreaView)`
     left: 0px;
@@ -39,10 +42,26 @@ const InfoScreenContainer = styled(View)`
     height: 100%;
     width: 100%;
 `
+const MemberRowContainer = styled(TouchableOpacity)`
+    display: flex;
+    align-items: center;
+    background-color: black;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-top: 6px;
+    padding-bottom: 6px;
+    border-bottom-color: #505050;
+    border-bottom-width: 0.3px;    
+`
 const ProfileInfoContainer = styled(View)`
     align-items: center;
     margin-top: 20px;
     margin-bottom: 36px;
+`
+const ProfilePictureContainer = styled(View)`
+    margin-top: 6px;
+    margin-bottom: 6px;
+    margin-right: 10px;
 `
 const SectionHeaderText = styled(ReelayText.H5Bold)`
     color: white;
@@ -75,13 +94,47 @@ const TopBarContainer = styled(View)`
     padding-top: ${(props) => props.topOffset}px;
     width: 100%;
 `
-const ClubMembers = ({ club, navigation }) => {
-    // todo
+const UserInfoContainer = styled(View)`
+    flex-direction: row;
+`
+const UsernameText = styled(ReelayText.Subtitle1Emphasized)`
+    color: white;
+`
+const UsernameContainer = styled(View)`
+    align-items: flex-start;
+    justify-content: center;
+`
+const ClubMembers = ({ clubMembers, navigation }) => {
     return (
         <React.Fragment>
             <SectionHeaderText>{'Members'}</SectionHeaderText>
+            { clubMembers.map((member) => {
+                return <ClubMemberRow key={member.userSub} member={member} navigation={navigation} /> 
+            })}
         </React.Fragment>
     );
+}
+
+const ClubMemberRow = ({ member, navigation }) => {
+    const user = {
+        sub: member.userSub,
+        username: member.username,
+    }
+    const advanceToUserProfile = () => {
+        navigation.push('UserProfileScreen', { creator: user });
+    }
+    return (
+        <MemberRowContainer onPress={() => advanceToUserProfile}>
+            <UserInfoContainer>
+                <ProfilePictureContainer>
+                    <ProfilePicture user={user} size={32} navigation={navigation} />
+                </ProfilePictureContainer>
+                <UsernameContainer>
+                    <UsernameText>{member.username}</UsernameText>
+                </UsernameContainer>
+            </UserInfoContainer>
+        </MemberRowContainer>
+    )
 }
 
 const ClubProfileInfo = ({ club }) => {
@@ -94,8 +147,10 @@ const ClubProfileInfo = ({ club }) => {
     );
 }
 
-const ClubSettings = ({ club, navigation }) => {
+const ClubSettings = ({ club, clubMembers, navigation }) => {
     const [allowMemberInvites, setAllowMemberInvites] = useState(true);
+    const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
+
     return (
         <React.Fragment>
             <SectionHeaderText>{'Settings'}</SectionHeaderText>
@@ -120,7 +175,7 @@ const ClubSettings = ({ club, navigation }) => {
                     <SettingsText>{'Add Members'}</SettingsText>
                     <SettingsSubtext>{'Invite more people to the club'}</SettingsSubtext>
                 </SettingsTextContainer>
-                <SettingsRowRightButton onPress={() => {}}>
+                <SettingsRowRightButton onPress={() => setInviteDrawerVisible(true)}>
                     <Icon type='ionicon' name='person-add' color='white' size={24} />
                 </SettingsRowRightButton>
             </SettingsRow>
@@ -133,6 +188,14 @@ const ClubSettings = ({ club, navigation }) => {
                     <FontAwesomeIcon icon={ faLink } size={24} color='white' />
                 </SettingsRowRightButton>
             </SettingsRow>
+            { inviteDrawerVisible && (
+                <InviteMyFollowsDrawer
+                    navigation={navigation}
+                    clubMembers={clubMembers}
+                    drawerVisible={inviteDrawerVisible}
+                    setDrawerVisible={setInviteDrawerVisible}
+                />
+            )}
         </React.Fragment>
     );
 }
@@ -155,14 +218,27 @@ const ClubEditButton = () => {
 
 export default ClubInfoScreen = ({ navigation, route }) => {
     const { club } = route?.params;
+    const { reelayDBUser } = useContext(AuthContext);
+    const [clubMembers, setClubMembers] = useState([]);
+
+    const loadMembers = async () => {
+        const members = await getClubMembers(club.id, reelayDBUser?.sub);
+        setClubMembers(members);
+    }
+
+    useEffect(() => {
+        loadMembers();
+    }, []);
+
+
     return (
         <InfoScreenContainer>
             <ClubTopBar club={club} navigation={navigation} />
             <ScrollView showsVerticalScrollIndicator={false}>
                 <ClubProfileInfo club={club} />
-                <ClubSettings club={club} navigation={navigation} />
+                <ClubSettings club={club} clubMembers={clubMembers} navigation={navigation} />
                 <HorizontalDivider />
-                <ClubMembers club={club} navigation={navigation} />
+                <ClubMembers clubMembers={clubMembers} navigation={navigation} />
             </ScrollView>
         </InfoScreenContainer>
     );
