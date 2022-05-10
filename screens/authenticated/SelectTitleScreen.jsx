@@ -61,6 +61,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     const [searchType, setSearchType] = useState('Film');
 
     const topic = route?.params?.topic;
+    const clubTitle = route?.params?.clubTitle;
     const updateCounter = useRef(0);
 
     const { reelayDBUser } = useContext(AuthContext);
@@ -126,8 +127,8 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     return (
 		<SafeAreaView style={{ backgroundColor: "black", height: "100%", width: "100%" }}>
 			<TopBarContainer>
-                { !topic && <BaseHeader text={"Create a reelay"} /> }
-                { topic && <HeaderWithBackButton navigation={navigation} text={"Add a reelay"} /> }
+                { (!topic && !clubTitle) && <BaseHeader text={"Create a reelay"} /> }
+                { (topic || clubTitle) && <HeaderWithBackButton navigation={navigation} text={"Add a reelay"} /> }
                 { topic && <TopicLabel /> }
 				<SelectorBarContainer>
 					<ToggleSelector

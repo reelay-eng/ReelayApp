@@ -20,13 +20,21 @@ const Backdrop = styled(Pressable)`
     width: 100%;
 `
 const DrawerContainer = styled(View)`
-    background-color: black;
+    background-color: #1a1a1a;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
     margin-top: auto;
     max-height: 70%;
     padding-bottom: 80px;
     width: 100%;
+`
+const HeaderContainer = styled(View)`
+    align-items: center;
+    padding: 12px;
+    padding-bottom: 0px;
+`
+const HeaderText = styled(ReelayText.CaptionEmphasized)`
+    color: white;
 `
 const ModalContainer = styled(View)`
     position: absolute;
@@ -52,11 +60,18 @@ const SendInvitesButtonText = styled(ReelayText.Subtitle2)`
 `
 
 export default InviteMyFollowsDrawer = ({ navigation, clubMembers, drawerVisible, setDrawerVisible }) => {
-    // const { reelayDBUser } = useContext(AuthContext);
-    // const dispatch = useDispatch();
+    const { reelayDBUser } = useContext(AuthContext);
     const followsToSend = useRef([]);
     const bottomOffset = useSafeAreaInsets().bottom;
     const closeDrawer = () => setDrawerVisible(false);
+
+    const Header = () => {
+        return (
+            <HeaderContainer>
+                <HeaderText>{'Invite your friends'}</HeaderText>
+            </HeaderContainer>
+        );
+    }
 
     const SendInvitesButton = () => {
         return (
@@ -71,15 +86,16 @@ export default InviteMyFollowsDrawer = ({ navigation, clubMembers, drawerVisible
 
     return (
         <ModalContainer>
-                <Modal animationType='slide' transparent={true} visible={drawerVisible}>
-                {/* <KeyboardAvoidingView> */}
-                    <Backdrop onPress={closeDrawer}/>
-                    <DrawerContainer>
+            <Modal animationType='slide' transparent={true} visible={drawerVisible}>
+            <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+                <Backdrop onPress={closeDrawer}/>
+                <DrawerContainer>
+                    <Header />
                         <InviteMyFollowsList clubMembers={clubMembers} followsToSend={followsToSend} />
-                        <SendInvitesButton />
-                    </DrawerContainer>
-                    {/* </KeyboardAvoidingView> */}
-                </Modal>
+                    <SendInvitesButton />
+                </DrawerContainer>
+                </KeyboardAvoidingView>
+            </Modal>
         </ModalContainer>
     );
 }

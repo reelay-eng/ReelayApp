@@ -1,5 +1,5 @@
 import React, { useState, useRef, useContext, useCallback, useEffect } from 'react';
-import { Dimensions, KeyboardAvoidingView, Pressable, View } from 'react-native';
+import { Dimensions, Pressable, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
 import ProfilePicture from '../global/ProfilePicture';
@@ -63,7 +63,7 @@ const FollowerRow = ({
     unmarkFollowToSend,
 }) => {
     const [rowHighlighted, setRowHighlighted] = useState(hasMarkedToSend);
-    const backgroundColor = (rowHighlighted) ? ReelayColors.reelayBlue : 'black';
+    const backgroundColor = (rowHighlighted) ? ReelayColors.reelayBlue : '#1a1a1a';
     const iconName = (isAlreadyMember) ? 'checkmark-done' : 'checkmark';
     const iconColor = (isAlreadyMember) ? 'gray' : 'white';
 
