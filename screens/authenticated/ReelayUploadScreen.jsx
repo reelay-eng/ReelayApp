@@ -83,11 +83,13 @@ const UploadScreenContainer = styled(View)`
 
 export default ReelayUploadScreen = ({ navigation, route }) => {
     const { titleObj, videoURI, venue } = route.params;
-    const topicID = route.params?.topicID;
+    const clubID = route.params?.clubID ?? null;
+    const myClubs = useSelector(state => state.myClubs);
+    const reelayClub = clubID ? myClubs.find(nextClub => nextClub.id === clubID) : null;
+
+    const topicID = route.params?.topicID ?? null;
     const globalTopics = useSelector(state => state.globalTopics);
     const reelayTopic = topicID ? globalTopics.find(nextTopic => nextTopic.id === topicID) : null;
-
-    console.log('topic id on upload screen: ', topicID);
 
     const uploadStages = [
         'preview',
@@ -204,10 +206,15 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             return;
         }
 
+        const destination = (clubID && topicID) ? 'InClubTopic' 
+            : (clubID) ? 'InClub' 
+            : (topicID) ? 'InTopic' 
+            : 'OnProfile';
+
         logAmplitudeEventProd('publishReelayStarted', {
             username: reelayDBUser.username,
             title: titleObj.display,
-            destination: (topicID) ? 'InTopic' : 'OnProfile',
+            destination: destination,
         });
 
         try {
@@ -227,6 +234,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             const starRating = starCountRef.current * 2;
             
             const reelayDBBody = {
+                clubID: clubID ?? null,
                 creatorSub: reelayDBUser?.sub,
                 creatorName: reelayDBUser.username,
                 datastoreSub: uuidv4(), 
@@ -272,10 +280,12 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             notifyOtherCreatorsOnReelayPosted({
                 creator: reelayDBUser,
                 reelay: preparedReelay,
-                topic: reelayTopic ?? null,
+                topic: reelayTopic,
+                club: reelayClub,
                 mentionedUsers: mentionedUsers,
             });
 
+            // todo: likely remove
             notifyOnReelayedRec({ 
                 creatorSub: reelayDBUser?.sub,
                 creatorName: reelayDBUser?.username,
@@ -288,19 +298,30 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                     creator: reelayDBUser,
                     reelay: preparedReelay,
                     topic: reelayTopic,
+                    club: reelayClub,
                 });
+            }
+
+            if (reelayClub) {
+                // todo: notify other creators in club for same title
             }
 
 			dispatch({ type: 'setRefreshOnUpload', payload: true });
             navigation.popToTop();
-            if (topicID && reelayTopic) {
+
+            // todo: line up the clubs and topics logic
+            if (clubID && topicID) {
+                navigation.navigate('Clubs');
+            } else if (clubID) {
+                navigation.navigate('Clubs');
+            } else if (topicID && reelayTopic) {
+                // global topic
                 reelayTopic.reelays = [preparedReelay, ...reelayTopic.reelays];
                 dispatch({ type: 'setGlobalTopics', payload: globalTopics });
                 navigation.navigate('Home');
             } else {
                 navigation.navigate('Global', { forceRefresh: true });
             }
-
         } catch (error) {
             // todo: better error catching
             console.log('Error uploading file: ', error);
@@ -318,13 +339,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         const HeaderContainer = styled(View)`
             padding: 20px;
             align-items: flex-start;
-        `;
-        const HeaderText = styled(ReelayText.H5Emphasized)`
-            text-align: center;
-            color: white;
-            margin-top: 4px;
-            width: 90%;
-            margin-right: 18px;
         `;
         const BackButton = styled(Pressable)`
             margin-top: 40px;

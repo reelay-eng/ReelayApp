@@ -117,7 +117,10 @@ const TitleCardPressable = styled(TouchableOpacity)`
 `
 
 const CardBottomRowNoStacks = ({ navigation, clubTitle }) => {
-    const advanceToCreateReelay = () => navigation.push('SelectTitleScreen', { clubTitle });
+    const advanceToCreateReelay = () => navigation.push('VenueSelectScreen', { 
+        clubID: clubTitle.clubID,
+        titleObj: clubTitle.title, 
+    });
     return (
         <BottomRowContainer>
             <BottomRowLeftText>{'0 reelays, be the first!'}</BottomRowLeftText>

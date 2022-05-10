@@ -18,7 +18,8 @@ import { useDispatch } from 'react-redux';
 
 export default VenueSelectScreen = ({ navigation, route }) => {
     const titleObj = route.params?.titleObj;
-    const topicID = route.params?.topicID;
+    const topicID = route.params?.topicID ?? null;
+    const clubID = route.params?.clubID ?? null;
 
     const streamingVenues = getStreamingVenues();
     const otherVenues = getOtherVenues();
@@ -57,7 +58,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         const hasMicPermissions = await getMicPermissions();
 
         if (hasCameraPermissions && hasMicPermissions) {
-            navigation.push('ReelayCameraScreen', { titleObj, topicID, venue });    
+            navigation.push('ReelayCameraScreen', { titleObj, venue, topicID, clubID });    
             logAmplitudeEventProd('selectVenue', { venue });
         } else {
             alertCameraAccess();

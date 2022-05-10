@@ -26,7 +26,9 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
     const { reelayDBUser} = useContext(AuthContext);
     const { titleObj, venue } = route.params;
-    const topicID = route.params?.topicID;
+
+    const topicID = route.params?.topicID ?? null;
+    const clubID = route.params?.clubID ?? null;
 
     const cameraRef = useRef(null);
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
@@ -40,9 +42,10 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
 
         navigation.push('ReelayUploadScreen', { 
             titleObj, 
-            topicID, 
             videoURI, 
             venue,
+            clubID,
+            topicID, 
         });
 
         // setting this prematurely when we advance to the upload screen,

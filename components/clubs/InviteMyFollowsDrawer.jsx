@@ -59,7 +59,7 @@ const SendInvitesButtonText = styled(ReelayText.Subtitle2)`
     margin-left: 4px;
 `
 
-export default InviteMyFollowsDrawer = ({ navigation, clubMembers, drawerVisible, setDrawerVisible }) => {
+export default InviteMyFollowsDrawer = ({ clubMembers, drawerVisible, setDrawerVisible }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const followsToSend = useRef([]);
     const bottomOffset = useSafeAreaInsets().bottom;

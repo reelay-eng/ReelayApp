@@ -12,6 +12,7 @@ import { faLink } from '@fortawesome/free-solid-svg-icons';
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
 import { getClubMembers } from '../../api/ClubsApi';
 import { AuthContext } from '../../context/AuthContext';
+import FollowButton from '../../components/global/FollowButton';
 
 const BackButtonContainer = styled(SafeAreaView)`
     left: 0px;
@@ -42,6 +43,10 @@ const InfoScreenContainer = styled(View)`
     height: 100%;
     width: 100%;
 `
+const MemberInfoContainer = styled(View)`
+    align-items: center;
+    flex-direction: row;
+`
 const MemberRowContainer = styled(TouchableOpacity)`
     display: flex;
     align-items: center;
@@ -52,6 +57,9 @@ const MemberRowContainer = styled(TouchableOpacity)`
     padding-bottom: 6px;
     border-bottom-color: #505050;
     border-bottom-width: 0.3px;    
+`
+const MemberSectionSpacer = styled(View)`
+    height: 6px;
 `
 const ProfileInfoContainer = styled(View)`
     align-items: center;
@@ -67,7 +75,7 @@ const SectionHeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
 `
-const SettingsRow = styled(View)`
+const SettingsRow = styled(TouchableOpacity)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
@@ -75,7 +83,7 @@ const SettingsRow = styled(View)`
     padding-bottom: 16px;
     width: 100%;
 `
-const SettingsRowRightButton = styled(TouchableOpacity)`
+const SettingsRowRightButton = styled(View)`
     margin-right: 12px;
 `
 const SettingsSubtext = styled(ReelayText.Body1)`
@@ -94,9 +102,6 @@ const TopBarContainer = styled(View)`
     padding-top: ${(props) => props.topOffset}px;
     width: 100%;
 `
-const UserInfoContainer = styled(View)`
-    flex-direction: row;
-`
 const UsernameText = styled(ReelayText.Subtitle1Emphasized)`
     color: white;
 `
@@ -108,6 +113,7 @@ const ClubMembers = ({ clubMembers, navigation }) => {
     return (
         <React.Fragment>
             <SectionHeaderText>{'Members'}</SectionHeaderText>
+            <MemberSectionSpacer />
             { clubMembers.map((member) => {
                 return <ClubMemberRow key={member.userSub} member={member} navigation={navigation} /> 
             })}
@@ -125,14 +131,15 @@ const ClubMemberRow = ({ member, navigation }) => {
     }
     return (
         <MemberRowContainer onPress={() => advanceToUserProfile}>
-            <UserInfoContainer>
+            <MemberInfoContainer>
                 <ProfilePictureContainer>
                     <ProfilePicture user={user} size={32} navigation={navigation} />
                 </ProfilePictureContainer>
                 <UsernameContainer>
                     <UsernameText>{member.username}</UsernameText>
                 </UsernameContainer>
-            </UserInfoContainer>
+            </MemberInfoContainer>
+            <FollowButton creator={user} />
         </MemberRowContainer>
     )
 }
@@ -154,7 +161,7 @@ const ClubSettings = ({ club, clubMembers, navigation }) => {
     return (
         <React.Fragment>
             <SectionHeaderText>{'Settings'}</SectionHeaderText>
-            <SettingsRow>
+            <SettingsRow onPress={() => setAllowMemberInvites(!allowMemberInvites)}>
                 <SettingsTextContainer>
                     <SettingsText>{'Quick Invite'}</SettingsText>
                     <SettingsSubtext>{'Members can invite other members'}</SettingsSubtext>
@@ -170,12 +177,12 @@ const ClubSettings = ({ club, clubMembers, navigation }) => {
                     ios_backgroundColor="#39393D"    
                 />
             </SettingsRow>
-            <SettingsRow>
+            <SettingsRow onPress={() => setInviteDrawerVisible(true)}>
                 <SettingsTextContainer>
                     <SettingsText>{'Add Members'}</SettingsText>
                     <SettingsSubtext>{'Invite more people to the club'}</SettingsSubtext>
                 </SettingsTextContainer>
-                <SettingsRowRightButton onPress={() => setInviteDrawerVisible(true)}>
+                <SettingsRowRightButton>
                     <Icon type='ionicon' name='person-add' color='white' size={24} />
                 </SettingsRowRightButton>
             </SettingsRow>
@@ -193,6 +200,7 @@ const ClubSettings = ({ club, clubMembers, navigation }) => {
                     navigation={navigation}
                     clubMembers={clubMembers}
                     drawerVisible={inviteDrawerVisible}
+                    provideSkipOption={false}
                     setDrawerVisible={setInviteDrawerVisible}
                 />
             )}
@@ -229,7 +237,6 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     useEffect(() => {
         loadMembers();
     }, []);
-
 
     return (
         <InfoScreenContainer>
