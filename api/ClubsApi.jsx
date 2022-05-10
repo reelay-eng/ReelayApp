@@ -2,6 +2,7 @@ import Constants from 'expo-constants';
 import { fetchResults } from './fetchResults';
 import ReelayAPIHeaders from './ReelayAPIHeaders';
 import { prepareReelay } from './ReelayDBApi';
+import { fetchAnnotatedTitle } from './TMDbApi';
 
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
@@ -36,24 +37,24 @@ export const addMemberToClub = async ({
 }
 
 export const addTitleToClub = async ({
+    addedByUsername,
+    addedByUserSub,
     clubID,
-    userSub,
-    username,
+    titleType,
     tmdbTitleID,
-    titleType
 }) => {
     const routePost = `${REELAY_API_BASE_URL}/clubs/title/${clubID}`;
     const postBody = {
-        userSub,
-        username,
+        addedByUsername,
+        addedByUserSub,
+        titleType,
         tmdbTitleID,
-        titleType
     }
     const addTitleResult = await fetchResults(routePost, {
         method: 'POST',
         headers: {
             ...ReelayAPIHeaders,
-            requsersub: userSub
+            requsersub: addedByUserSub
         },
         body: JSON.stringify(postBody),
     });
@@ -120,14 +121,20 @@ export const getClubsMemberOf = async (userSub) => {
 
 export const getClubTitles = async (clubID, reqUserSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/clubs/titles/${clubID}`;
-    const resultGet = await fetchResults(routeGet, {
+    const clubTitles = await fetchResults(routeGet, {
         method: 'GET',
         headers: {
             ...ReelayAPIHeaders,
             requsersub: reqUserSub,
         },
-    })
-    return resultGet;
+    });
+
+    const annotatedClubTitles = await Promise.all(clubTitles.map(async (clubTitle) => {
+        const { tmdbTitleID, titleType } = clubTitle;
+        const annotatedTitle = await fetchAnnotatedTitle(tmdbTitleID, titleType === 'tv');
+        return { ...clubTitle, title: annotatedTitle, reelays: [] }; // todo
+    }));
+    return annotatedClubTitles;
 }
 
 export const getClubTopics = async (clubID, reqUserSub) => {

@@ -1,8 +1,10 @@
 import React from 'react';
-import { Image, SafeAreaView, View } from 'react-native';
+import { Dimensions, Image, SafeAreaView, View } from 'react-native';
 import DogWithGlasses from '../../assets/images/dog-with-glasses.png';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
+
+const { height } = Dimensions.get('window');
 
 export default NoTitlesYetPrompt = () => {
     const DogWithGlassesImage = styled(Image)`
@@ -31,6 +33,7 @@ export default NoTitlesYetPrompt = () => {
         justify-content: center;
         height: 100%;
         margin: 10px;
+        margin-top: 60px;
     `
 
     return (

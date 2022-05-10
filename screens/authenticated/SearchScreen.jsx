@@ -55,11 +55,7 @@ export default SearchScreen = ({ navigation }) => {
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [selectedType, setSelectedType] = useState("Film");
-    const [creatorFollowers, setCreatorFollowers] = useState([]);
     const updateCounter = useRef(0);
-
-    const [drawerOpen, setDrawerOpen] = useState(false);
-    const [drawerFollowObj, setDrawerFollowObj] = useState(null);
 
     useEffect(() => {
         updateCounter.current += 1;
