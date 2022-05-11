@@ -119,8 +119,8 @@ export const getClubsMemberOf = async (userSub) => {
     return resultGet;
 }
 
-export const getClubTitles = async (clubID, reqUserSub) => {
-    const routeGet = `${REELAY_API_BASE_URL}/clubs/titles/${clubID}`;
+export const getClubTitles = async (clubID, reqUserSub, visibility) => {
+    const routeGet = `${REELAY_API_BASE_URL}/clubs/titles/${clubID}?visibility=${visibility}`;
     const clubTitles = await fetchResults(routeGet, {
         method: 'GET',
         headers: {
@@ -132,7 +132,8 @@ export const getClubTitles = async (clubID, reqUserSub) => {
     const annotatedClubTitles = await Promise.all(clubTitles.map(async (clubTitle) => {
         const { tmdbTitleID, titleType } = clubTitle;
         const annotatedTitle = await fetchAnnotatedTitle(tmdbTitleID, titleType === 'tv');
-        return { ...clubTitle, title: annotatedTitle, reelays: [] }; // todo
+        const preparedReelays = await Promise.all(clubTitle.reelays.map(prepareReelay));
+        return { ...clubTitle, title: annotatedTitle, reelays: preparedReelays };
     }));
     return annotatedClubTitles;
 }

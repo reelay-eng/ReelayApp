@@ -161,7 +161,7 @@ const CardBottomRowWithStacks = ({ advanceToClubTitleFeed, clubTitle }) => {
         <BottomRowContainer>
             <CreatorProfilePicRow 
                 displayCreators={getDisplayCreators()} 
-                reelayCount={topic.reelays.length} 
+                reelayCount={clubTitle.reelays.length} 
             />
             <PlayReelaysButton onPress={advanceToClubTitleFeed}>
                 <Icon type='ionicon' name='play-circle' color='white' size={30} />

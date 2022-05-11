@@ -65,7 +65,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const loadClubTitles = async () => {
         try { 
             setRefreshing(true);
-            const titles = await getClubTitles(club.id, reelayDBUser?.sub);
+            const titles = await getClubTitles(club.id, reelayDBUser?.sub, club.visibility);
             setClubTitles(titles);   
             setRefreshing(false); 
         } catch (error) {
