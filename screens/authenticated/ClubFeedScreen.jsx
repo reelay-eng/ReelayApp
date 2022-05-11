@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
 import styled from 'styled-components/native';
-import ClubBanner from '../../components/clubs/ClubBanner';
+import ClubFeed from '../../components/clubs/ClubFeed';
 
 const ActivityScreenContainer = styled(View)`
     background-color: black;
@@ -11,9 +11,17 @@ const ActivityScreenContainer = styled(View)`
 
 export default ClubFeedScreen = ({ navigation, route }) => {
     const { club } = route.params;
+    const initFeedIndex = route?.params?.initFeedIndex ?? 0;
+    const initStackIndex = route?.params?.initStackIndex ?? 0;
+
     return (
         <ActivityScreenContainer>
-            <ClubBanner club={club} navigation={navigation} />
+            <ClubFeed
+                club={club}
+                initFeedIndex={initFeedIndex}
+                initStackIndex={initStackIndex}
+                navigation={navigation}
+            />
         </ActivityScreenContainer>
     );
 }

@@ -9,7 +9,7 @@ import ClubBanner from '../../components/clubs/ClubBanner';
 import ClubTitleCard from '../../components/clubs/ClubTitleCard';
 import NoTitlesYetPrompt from '../../components/clubs/NoTitlesYetPrompt';
 
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import { getClubMembers, getClubTitles } from '../../api/ClubsApi';
 import { AuthContext } from '../../context/AuthContext';
@@ -45,28 +45,38 @@ const AddTitleButtonText = styled(ReelayText.Subtitle2)`
 const ScrollContainer = styled(ScrollView)`
     top: ${(props) => props.topOffset}px;
     height: ${(props) => height - props.topOffset}px;
+    margin-bottom: ${(props) => props.bottomOffset}px;
     width: 100%;
 `
 
 export default ClubActivityScreen = ({ navigation, route }) => {
-    const { club, promptToInvite } = route.params;
     const { reelayDBUser } = useContext(AuthContext);
-    const topOffset = useSafeAreaInsets().top + 80;
-    const bottomOffset = useSafeAreaInsets().bottom;
+    const { clubID, promptToInvite } = route.params;
+    const myClubs = useSelector(state => state.myClubs);
+    const club = myClubs.find(nextClub => nextClub.id === clubID);
+
     const dispatch = useDispatch();
     const onGoBack = () => navigation.popToTop();
+    const topOffset = useSafeAreaInsets().top + 80;
+    const bottomOffset = useSafeAreaInsets().bottom;
 
-    const [clubMembers, setClubMembers] = useState([]);
-    const [clubTitles, setClubTitles] = useState([]);
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
     const [refreshing, setRefreshing] = useState(false);
-    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={loadClubTitles} progressViewOffset={400} />;
+    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
-    const loadClubTitles = async () => {
+    // const clubTitlesWithReelays = clubTitles.filter(clubTitle => clubTitle?.reelays?.length > 0);
+    // const clubStacks = clubTitlesWithReelays.map(clubTitle => clubTitle.reelays);
+
+    const onRefresh = async () => {
         try { 
             setRefreshing(true);
-            const titles = await getClubTitles(club.id, reelayDBUser?.sub, club.visibility);
-            setClubTitles(titles);   
+            const [titles, members] = await Promise.all([
+                getClubTitles(club.id, reelayDBUser?.sub),
+                getClubMembers(club.id, reelayDBUser?.sub),
+            ]);
+            club.titles = titles;
+            club.members = members;
+            dispatch({ type: 'setMyClubs', payload: myClubs });
             setRefreshing(false); 
         } catch (error) {
             console.log(error);
@@ -75,14 +85,8 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         }
     }
 
-    const loadMembers = async () => {
-        const members = await getClubMembers(club.id, reelayDBUser?.sub);
-        setClubMembers(members);
-    }
-
     useEffect(() => {
-        loadClubTitles();
-        loadMembers();
+        onRefresh();
     }, []);
 
     useFocusEffect(() => {
@@ -104,14 +108,23 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     return (
         <ActivityScreenContainer>
             <ScrollContainer 
-                contentContainerStyle={{ alignItems: 'center' }}
+                contentContainerStyle={{ alignItems: 'center', paddingBottom: 180 }}
                 topOffset={topOffset} 
+                bottomOffset={bottomOffset}
                 refreshControl={refreshControl} 
                 showsVerticalScrollIndicator={false}
             >
-                { (!refreshing && !clubTitles?.length) && <NoTitlesYetPrompt /> } 
-                { (clubTitles.length > 0 ) && clubTitles.map((clubTitle) => {
-                    return <ClubTitleCard key={clubTitle.id} clubTitle={clubTitle} navigation={navigation} />;
+                { (!refreshing && !club.titles?.length) && <NoTitlesYetPrompt /> } 
+                { (club.titles.length > 0 ) && club.titles.map((clubTitle) => {
+                    // const matchClubTitle = (nextClubTitle) => (nextClubTitle.id === clubTitle.id);
+                    // const clubFeedIndex = clubTitlesWithReelays.findIndex(matchClubTitle);
+                    return (
+                        <ClubTitleCard 
+                            key={clubTitle.id} 
+                            club={club}
+                            clubTitle={clubTitle} 
+                            navigation={navigation} 
+                        />);
                 })}
             </ScrollContainer>
             <ClubBanner club={club} navigation={navigation} onGoBack={onGoBack} />

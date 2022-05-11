@@ -1,5 +1,9 @@
 import { createStore } from "redux";
-import { cognitoSessionReducer, stacksOnStreamingReducer, watchlistRecsReducer } from "./reducers";
+import { 
+    cognitoSessionReducer, 
+    stacksOnStreamingReducer, 
+    watchlistRecsReducer 
+} from "./reducers";
 import { getReelayAuthHeaders, getReelayBaseHeaders } from "../api/ReelayAPIHeaders";
 
 const initialState = {

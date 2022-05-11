@@ -97,30 +97,38 @@ export const editClub = async ({
 
 export const getClubMembers = async (clubID, reqUserSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/clubs/members/${clubID}`;
-    const resultGet = await fetchResults(routeGet, {
+    const fetchedClubs = await fetchResults(routeGet, {
         method: 'GET',
         headers: {
             ...ReelayAPIHeaders,
             requsersub: reqUserSub,
         },
-    })
-    return resultGet;
+    });
+    fetchedClubs.forEach((club) => {
+        if (!club?.members) club.members = [];
+        if (!club?.titles) club.titles = [];
+    });
+    return fetchedClubs;
 }
 
 export const getClubsMemberOf = async (userSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/clubs/memberOf/${userSub}`;
-    const resultGet = await fetchResults(routeGet, {
+    const fetchedClubs = await fetchResults(routeGet, {
         method: 'GET',
         headers: {
             ...ReelayAPIHeaders,
             requsersub: userSub,
         },
+    });
+    fetchedClubs.forEach((club) => {
+        if (!club?.members) club.members = [];
+        if (!club?.titles) club.titles = [];
     })
-    return resultGet;
+    return fetchedClubs;
 }
 
-export const getClubTitles = async (clubID, reqUserSub, visibility) => {
-    const routeGet = `${REELAY_API_BASE_URL}/clubs/titles/${clubID}?visibility=${visibility}`;
+export const getClubTitles = async (clubID, reqUserSub) => {
+    const routeGet = `${REELAY_API_BASE_URL}/clubs/titles/${clubID}`;
     const clubTitles = await fetchResults(routeGet, {
         method: 'GET',
         headers: {

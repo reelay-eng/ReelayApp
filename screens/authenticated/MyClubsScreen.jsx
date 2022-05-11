@@ -63,7 +63,7 @@ const MyClubsScreenContainer = styled(SafeAreaView)`
     width: 100%;
 `
 const ClubButton = ({ club, navigation }) => {
-    const advanceToClubScreen = () => navigation.push('ClubActivityScreen', { club, promptToInvite: false });
+    const advanceToClubScreen = () => navigation.push('ClubActivityScreen', { clubID: club.id, promptToInvite: false });
     return (
         <ClubButtonPressable onPress={advanceToClubScreen}>
             <ClubPicture club={club} size={CLUB_BUTTON_SIZE} />

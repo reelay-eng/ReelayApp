@@ -188,30 +188,27 @@ const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
     );
 }
 
-export default ClubTitleCard = ({ navigation, clubTitle }) => {
+export default ClubTitleCard = ({ navigation, club, clubTitle }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const { addedByUserSub, addedByUsername, clubID, title } = clubTitle;
+    const { addedByUserSub, addedByUsername, title } = clubTitle;
+    const clubTitleKey = `${clubTitle.titleType}-${clubTitle.tmdbTitleID}`;
     const addedByUser = { sub: addedByUserSub, username: addedByUsername };
 
     const releaseYear = (title?.releaseDate && title?.releaseDate.length >= 4) 
         ? title.releaseDate.slice(0,4) : '';
     const runtimeString = getRuntimeString(title?.runtime);
 
+    const clubTitlesWithReelays = club.titles.filter(clubTitle => clubTitle?.reelays?.length > 0);
+    const clubStacks = clubTitlesWithReelays.map(clubTitle => clubTitle.reelays);
 
-    // const canPress = (topic.reelays.length > 0);
-    // const creator = {
-    //     sub: topic.creatorSub,
-    //     username: topic.creatorName,
-    // };
-
-    // const globalTopicsWithReelays = useSelector(state => state.globalTopicsWithReelays);
-    // const topicFeedIndex = globalTopicsWithReelays.findIndex((nextTopic) => nextTopic.id === topic.id);
+    const clubFeedIndex = clubStacks.find((nextClubTitle) => {
+        const nextClubTitleKey = `${nextClubTitle.titleType}-${nextClubTitle.tmdbTitleID}`;
+        return (nextClubTitleKey === clubTitleKey);
+    });
 
     const advanceToClubTitleFeed = () => {
         if (clubTitle.reelays.length) {
-            navigation.push('ClubTitleFeedScreen', { 
-                initClubTitleIndex: 0,
-            });    
+            navigation.push('ClubFeedScreen', { club, initFeedIndex: clubFeedIndex });    
             logAmplitudeEventProd('openedClubTitleFeed', {
                 title: title.display,
                 username: reelayDBUser?.username,
@@ -238,7 +235,7 @@ export default ClubTitleCard = ({ navigation, clubTitle }) => {
     // }
 
     return (
-        <TitleCardPressable onPress={() => {}}>
+        <TitleCardPressable onPress={advanceToClubTitleFeed}>
             <TitleCardGradient colors={['#252527', '#19242E']} />
             <AddedByLine>
                 <AddedByLineLeft>

@@ -93,13 +93,10 @@ export default GlobalTopics = ({ navigation }) => {
         }
 
         const renderTopic = ({ item, index }) => {
-            const onPress = () => console.log('pressed on topic');
             return (
                 <TopicCard 
                     key={index} 
-                    globalTopicIndex={index}
                     navigation={navigation} 
-                    onPress={onPress} 
                     topic={item} 
                 />
             );
