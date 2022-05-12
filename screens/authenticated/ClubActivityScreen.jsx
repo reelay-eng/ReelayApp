@@ -54,19 +54,15 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const { clubID, promptToInvite } = route.params;
     const myClubs = useSelector(state => state.myClubs);
     const club = myClubs.find(nextClub => nextClub.id === clubID);
+    const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
 
     const dispatch = useDispatch();
     const onGoBack = () => navigation.popToTop();
     const topOffset = useSafeAreaInsets().top + 80;
     const bottomOffset = useSafeAreaInsets().bottom;
 
-    const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
     const [refreshing, setRefreshing] = useState(false);
     const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
-
-    // const clubTitlesWithReelays = clubTitles.filter(clubTitle => clubTitle?.reelays?.length > 0);
-    // const clubStacks = clubTitlesWithReelays.map(clubTitle => clubTitle.reelays);
-
     const onRefresh = async () => {
         try { 
             setRefreshing(true);
@@ -131,10 +127,11 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             <AddTitleButton />
             { inviteDrawerVisible && (
                 <InviteMyFollowsDrawer 
-                    clubMembers={clubMembers}
+                    club={club}
                     drawerVisible={inviteDrawerVisible}
-                    provideSkipOption={true}
                     setDrawerVisible={setInviteDrawerVisible}
+                    onRefresh={onRefresh}
+                    provideSkipOption={true}
                 />
             )}
         </ActivityScreenContainer>

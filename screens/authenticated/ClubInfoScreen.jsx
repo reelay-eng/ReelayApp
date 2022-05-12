@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { TouchableOpacity, SafeAreaView, Switch, View, ScrollView } from 'react-native';
+import { RefreshControl, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import BackButton from '../../components/utils/BackButton';
@@ -10,9 +10,11 @@ import { Icon } from 'react-native-elements';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faLink } from '@fortawesome/free-solid-svg-icons';
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
-import { getClubMembers } from '../../api/ClubsApi';
 import { AuthContext } from '../../context/AuthContext';
 import FollowButton from '../../components/global/FollowButton';
+import { editClub, getClubMembers, getClubTitles } from '../../api/ClubsApi';
+import { useDispatch, useSelector } from 'react-redux';
+import { showErrorToast } from '../../components/utils/toasts';
 
 const BackButtonContainer = styled(SafeAreaView)`
     left: 0px;
@@ -23,7 +25,19 @@ const ClubHeaderText = styled(ReelayText.H5Emphasized)`
 `
 const ClubDescriptionText = styled(ReelayText.Body2)`
     color: white;
-    margin-top: 8px;
+    margin-top: 16px;
+`
+const ClubPrivacyRow = styled(View)`
+    align-items: flex-end;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 4px;
+    width: 100%;
+`
+const ClubPrivacyText = styled(ReelayText.Body2)`
+    color: white;
+    margin-right: 8px;
+    padding-top: 4px;
 `
 const ClubNameText = styled(ReelayText.H5Emphasized)`
     color: white;
@@ -56,10 +70,10 @@ const MemberRowContainer = styled(TouchableOpacity)`
     padding-top: 6px;
     padding-bottom: 6px;
     border-bottom-color: #505050;
-    border-bottom-width: 0.3px;    
+    border-bottom-width: 0.0px;    
 `
 const MemberSectionSpacer = styled(View)`
-    height: 6px;
+    height: 12px;
 `
 const ProfileInfoContainer = styled(View)`
     align-items: center;
@@ -101,6 +115,10 @@ const TopBarContainer = styled(View)`
     height: ${(props) => props.topOffset + 40}px;
     padding-top: ${(props) => props.topOffset}px;
     width: 100%;
+`
+const TopBarRightContainer = styled(SafeAreaView)`
+    right: 0px;
+    position: absolute;
 `
 const UsernameText = styled(ReelayText.Subtitle1Emphasized)`
     color: white;
@@ -148,27 +166,39 @@ const ClubProfileInfo = ({ club }) => {
     return (
         <ProfileInfoContainer>
             <ClubPicture club={club} size={120} />
-            <ClubNameText>{club.name}</ClubNameText>
             <ClubDescriptionText>{club.description}</ClubDescriptionText>
+            {/* <ClubDescriptionText>{'Private'}</ClubDescriptionText> */}
         </ProfileInfoContainer>
     );
 }
 
-const ClubSettings = ({ club, clubMembers, navigation }) => {
+const ClubSettings = ({ club, onRefresh }) => {
     const [allowMemberInvites, setAllowMemberInvites] = useState(true);
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
+    const { reelayDBUser } = useContext(AuthContext);
+
+    const switchAllowMemberInvites = async () => {
+        const shouldAllow = !allowMemberInvites;
+        setAllowMemberInvites(shouldAllow);
+        const patchResult = await editClub({
+            clubID: club.id,
+            membersCanInvite: shouldAllow,
+            reqUserSub: reelayDBUser?.sub,
+        });
+        console.log(patchResult);
+    }
 
     return (
         <React.Fragment>
             <SectionHeaderText>{'Settings'}</SectionHeaderText>
-            <SettingsRow onPress={() => setAllowMemberInvites(!allowMemberInvites)}>
+            <SettingsRow onPress={switchAllowMemberInvites}>
                 <SettingsTextContainer>
-                    <SettingsText>{'Quick Invite'}</SettingsText>
+                    <SettingsText>{'Open Invite'}</SettingsText>
                     <SettingsSubtext>{'Members can invite other members'}</SettingsSubtext>
                 </SettingsTextContainer>
                 <Switch 
                     value={allowMemberInvites}
-                    onValueChange={setAllowMemberInvites}
+                    onValueChange={switchAllowMemberInvites}
                     trackColor={{ 
                         false: "#39393D", 
                         true: ReelayColors.reelayGreen,
@@ -197,11 +227,11 @@ const ClubSettings = ({ club, clubMembers, navigation }) => {
             </SettingsRow>
             { inviteDrawerVisible && (
                 <InviteMyFollowsDrawer
-                    navigation={navigation}
-                    clubMembers={clubMembers}
+                    club={club}
                     drawerVisible={inviteDrawerVisible}
-                    provideSkipOption={false}
                     setDrawerVisible={setInviteDrawerVisible}
+                    onRefresh={onRefresh}
+                    provideSkipOption={false}
                 />
             )}
         </React.Fragment>
@@ -212,10 +242,16 @@ const ClubTopBar = ({ club, navigation }) => {
     const topOffset = useSafeAreaInsets().top;
     return (
         <TopBarContainer topOffset={topOffset}>
-            <ClubHeaderText>{'Club Info'}</ClubHeaderText>
+            <ClubHeaderText numberOfLines={1}>{club.name}</ClubHeaderText>
             <BackButtonContainer>
                 <BackButton navigation={navigation} />
             </BackButtonContainer>
+            <TopBarRightContainer>
+            <ClubPrivacyRow>
+                <ClubPrivacyText>{'Private'}</ClubPrivacyText>
+                <Icon type='ionicon' name='lock-closed' color='white' size={24} />
+            </ClubPrivacyRow>
+            </TopBarRightContainer>
         </TopBarContainer>
     );
 }
@@ -225,27 +261,49 @@ const ClubEditButton = () => {
 }
 
 export default ClubInfoScreen = ({ navigation, route }) => {
+    const dispatch = useDispatch();
     const { club } = route?.params;
+    const myClubs = useSelector(state => state.myClubs);
     const { reelayDBUser } = useContext(AuthContext);
-    const [clubMembers, setClubMembers] = useState([]);
+    const bottomOffset = useSafeAreaInsets().bottom;
 
-    const loadMembers = async () => {
-        const members = await getClubMembers(club.id, reelayDBUser?.sub);
-        setClubMembers(members);
+    const [refreshing, setRefreshing] = useState(false);
+    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+    const onRefresh = async () => {
+        try { 
+            setRefreshing(true);
+            const [titles, members] = await Promise.all([
+                getClubTitles(club.id, reelayDBUser?.sub),
+                getClubMembers(club.id, reelayDBUser?.sub),
+            ]);
+            club.titles = titles;
+            club.members = members;
+            dispatch({ type: 'setMyClubs', payload: myClubs });
+            setRefreshing(false); 
+        } catch (error) {
+            console.log(error);
+            showErrorToast('Ruh roh! Could not load club activity');
+            setRefreshing(false);
+        }
     }
 
     useEffect(() => {
-        loadMembers();
+        onRefresh();
     }, []);
+
 
     return (
         <InfoScreenContainer>
             <ClubTopBar club={club} navigation={navigation} />
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView 
+                contentContainerStyle={{ paddingBottom: bottomOffset }} 
+                refreshControl={refreshControl}
+                showsVerticalScrollIndicator={false}
+            >
                 <ClubProfileInfo club={club} />
-                <ClubSettings club={club} clubMembers={clubMembers} navigation={navigation} />
+                <ClubSettings club={club} onRefresh={onRefresh} />
                 <HorizontalDivider />
-                <ClubMembers clubMembers={clubMembers} navigation={navigation} />
+                <ClubMembers clubMembers={club.members} navigation={navigation} />
             </ScrollView>
         </InfoScreenContainer>
     );

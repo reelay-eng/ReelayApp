@@ -39,19 +39,12 @@ export default Watchlist = ({ category, navigation, refresh, watchlistItems }) =
     const renderWatchlistItem = ({ item, index }) => {
         return (
             <React.Fragment>
-                <WatchlistSwipeableRow 
-                        key={item.id} 
-                        category={category}
-                        navigation={navigation} 
-                        onRefresh={onRefresh}
-                        watchlistItem={item}>
                     <WatchlistItemContainer key={item?.id} onPress={() => {
                         navigation.push('TitleDetailScreen', { titleObj: item.title });
                     }}>
                         <WatchlistItem category={category} navigation={navigation} watchlistItem={item} />
                     </WatchlistItemContainer>
-                </WatchlistSwipeableRow>
-                { renderWatchlistItemUnderContainer(item) }
+                {/* { renderWatchlistItemUnderContainer(item) } */}
             </React.Fragment>
         );
     }

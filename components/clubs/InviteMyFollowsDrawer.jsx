@@ -1,5 +1,13 @@
 import React, { useContext, useRef, useState } from 'react';
-import { Dimensions, KeyboardAvoidingView, Modal, Pressable, TouchableOpacity, View } from 'react-native';
+import { 
+    ActivityIndicator, 
+    Dimensions, 
+    KeyboardAvoidingView, 
+    Modal, 
+    Pressable, 
+    TouchableOpacity, 
+    View,
+} from 'react-native';
 import { Icon } from 'react-native-elements';
 
 import { AuthContext } from '../../context/AuthContext';
@@ -10,6 +18,8 @@ import styled from 'styled-components/native';
 import { useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import InviteMyFollowsList from './InviteMyFollowsList';
+import { addMemberToClub } from '../../api/ClubsApi';
+import { showErrorToast, showMessageToast } from '../utils/toasts';
 
 const { width } = Dimensions.get('window');
 
@@ -59,11 +69,12 @@ const SendInvitesButtonText = styled(ReelayText.Subtitle2)`
     margin-left: 4px;
 `
 
-export default InviteMyFollowsDrawer = ({ clubMembers, drawerVisible, setDrawerVisible }) => {
+export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible, onRefresh, provideSkipOption }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const followsToSend = useRef([]);
     const bottomOffset = useSafeAreaInsets().bottom;
     const closeDrawer = () => setDrawerVisible(false);
+    const [sendingInvites, setSendingInvites] = useState(false);
 
     const Header = () => {
         return (
@@ -74,11 +85,45 @@ export default InviteMyFollowsDrawer = ({ clubMembers, drawerVisible, setDrawerV
     }
 
     const SendInvitesButton = () => {
+        const addInvitee = async (followObj) => {
+            return await addMemberToClub({
+                clubID: club.id,
+                userSub: followObj.followSub,
+                username: followObj.followName,
+                role: 'member',
+                invitedBySub: reelayDBUser?.sub,
+                invitedByUsername: reelayDBUser?.username,
+                inviteLinkID: null,
+            });
+        }
+
+        const addInviteesToClub = async () => {
+            try {
+                if (sendingInvites) return;
+                setSendingInvites(true);
+                const inviteResults = await Promise.all(followsToSend.current.map(addInvitee));
+                console.log('Invite results: ', inviteResults);
+                setSendingInvites(false);
+                const peopleWord = (addTitleResults.length > 1) ? 'people' : 'person';
+                showMessageToast(`Added ${inviteResults.length} ${peopleWord} to ${club.name}`);
+                onRefresh();
+            } catch (error) {
+                console.log(error);
+                showErrorToast('Ruh roh! Couldn\'t send invites. Try again?');
+                setSendingInvites(false);
+            }
+        } 
+
         return (
             <SendInvitesButtonOuterContainer bottomOffset={bottomOffset}>
-                <SendInvitesButtonContainer onPress={() => {}}>
-                    <Icon type='ionicon' name='paper-plane' size={16} color='white' />
-                    <SendInvitesButtonText>{'Send invites'}</SendInvitesButtonText>
+                <SendInvitesButtonContainer onPress={addInviteesToClub}>
+                    { sendingInvites && <ActivityIndicator /> }
+                    { !sendingInvites && (
+                        <React.Fragment>
+                            <Icon type='ionicon' name='paper-plane' size={16} color='white' />
+                            <SendInvitesButtonText>{'Invite to club'}</SendInvitesButtonText>                    
+                        </React.Fragment>
+                    )}
                 </SendInvitesButtonContainer>
             </SendInvitesButtonOuterContainer>
         );
@@ -91,7 +136,7 @@ export default InviteMyFollowsDrawer = ({ clubMembers, drawerVisible, setDrawerV
                 <Backdrop onPress={closeDrawer}/>
                 <DrawerContainer>
                     <Header />
-                        <InviteMyFollowsList clubMembers={clubMembers} followsToSend={followsToSend} />
+                        <InviteMyFollowsList clubMembers={club.members} followsToSend={followsToSend} />
                     <SendInvitesButton />
                 </DrawerContainer>
                 </KeyboardAvoidingView>

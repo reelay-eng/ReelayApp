@@ -7,23 +7,15 @@ import styled from 'styled-components/native';
 import { getRuntimeString } from '../utils/TitleRuntime';
 import TitlePoster from '../global/TitlePoster';
 
-const WatchlistItemContainer = styled(Pressable)`
+const ActionButtonContainer = styled(View)`
     flex-direction: row;
-`
-const WatchlistItemRow = styled(View)`
-    flex-direction: row;
-    justify-content: space-between;
-    margin: 1.5px;
+    margin-right: 16px;
 `
 const ImageContainer = styled(View)`
     flex-direction: row;
     align-items: flex-start;
     margin: 5px;
     margin-right: 15px;
-`
-const SliderIconContainer = styled(View)`
-    align-items: center;
-    justify-content: center;
 `
 const TitleText = styled(ReelayText.H5Emphasized)`
     color: white
@@ -34,20 +26,16 @@ const TitleLineContainer = styled(View)`
     justify-content: center;
     align-items: flex-start;
 `
+const WatchlistItemContainer = styled(Pressable)`
+    align-items: center;
+    flex-direction: row;
+`
 const YearText = styled(ReelayText.Subtitle2)`
     color: gray
 `
 
-const WatchlistItemInfo = ({ navigation, watchlistItem }) => {
+export default WatchlistItem = ({ navigation, watchlistItem }) => {
     const { title } = watchlistItem;
-
-    // for movies and series
-    // note that release_date for series has been overwritten with its first air date
-    const actors = title?.displayActors?.map(actor => actor.name)
-            .filter((actor) => actor !== undefined)
-            .join(", ") 
-        ?? [];
-
     const runtimeString = getRuntimeString(title?.runtime);
 
     return (
@@ -62,19 +50,9 @@ const WatchlistItemInfo = ({ navigation, watchlistItem }) => {
                 <TitleText>{title.display}</TitleText>
                 <YearText>{`${title.releaseYear}    ${runtimeString}`}</YearText>
             </TitleLineContainer>
+            <ActionButtonContainer>
+                <Icon type='ionicon' name='add-circle' color='white' size={36} />
+            </ActionButtonContainer>
         </WatchlistItemContainer>
-    );
-}
-
-export default WatchlistItem = ({ navigation, watchlistItem }) => {
-    return (
-        <WatchlistItemRow>
-            <View style={{ flex: 1 }}>
-                <WatchlistItemInfo navigation={navigation} watchlistItem={watchlistItem} />
-            </View>
-            <SliderIconContainer>
-                <Icon type='ionicon' name='chevron-back-outline' color='white' size={20} />
-            </SliderIconContainer>
-        </WatchlistItemRow>
     );
 };

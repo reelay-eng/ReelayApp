@@ -199,9 +199,7 @@ export default ClubTitleCard = ({ navigation, club, clubTitle }) => {
     const runtimeString = getRuntimeString(title?.runtime);
 
     const clubTitlesWithReelays = club.titles.filter(clubTitle => clubTitle?.reelays?.length > 0);
-    const clubStacks = clubTitlesWithReelays.map(clubTitle => clubTitle.reelays);
-
-    const clubFeedIndex = clubStacks.find((nextClubTitle) => {
+    const clubFeedIndex = clubTitlesWithReelays.findIndex((nextClubTitle) => {
         const nextClubTitleKey = `${nextClubTitle.titleType}-${nextClubTitle.tmdbTitleID}`;
         return (nextClubTitleKey === clubTitleKey);
     });

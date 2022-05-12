@@ -46,14 +46,9 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
 	const dispatch = useDispatch();
 	
-	useEffect(() => {
+	useFocusEffect(() => {
 		dispatch({ type: 'setTabBarVisible', payload: false });
-        return () => {
-			if (showTabBarOnReturn) {
-				dispatch({ type: 'setTabBarVisible', payload: true });
-			}
-		}
-	}, []);
+	});
 
 	const ScrollBox = styled(ScrollView)`
 		position: absolute;

@@ -91,8 +91,24 @@ export const editClub = async ({
     clubID,
     name,
     description,
+    membersCanInvite,
+    reqUserSub,
 }) => {
-    // todo
+    const routePatch = `${REELAY_API_BASE_URL}/clubs/${clubID}`;
+    const patchBody = {};
+    if (name) patchBody.name = name;
+    if (description) patchBody.description = description;
+    if (membersCanInvite !== undefined) patchBody.membersCanInvite = membersCanInvite;
+
+    const resultPatch = await fetchResults(routePatch, {
+        method: 'PATCH',
+        headers: {
+            ...ReelayAPIHeaders,
+            requsersub: reqUserSub,
+        },
+        body: JSON.stringify(patchBody),
+    });
+    return resultPatch;
 }
 
 export const getClubMembers = async (clubID, reqUserSub) => {
