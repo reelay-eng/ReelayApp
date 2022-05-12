@@ -24,6 +24,7 @@ import ClubPicture from '../global/ClubPicture';
 
 import { AddToClubsIconSVG, AddedToClubsIconSVG } from '../global/SVGs';
 import ProfilePicture from '../global/ProfilePicture';
+import { addToMyWatchlist } from '../../api/WatchlistApi';
 
 const { width } = Dimensions.get('window');
 
@@ -106,10 +107,13 @@ const ScrollViewContainer = styled(ScrollView)`
 `
 export default AddToClubsDrawer = ({ drawerVisible, setDrawerVisible, titleObj, reelay }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const titleKey = `${titleObj.titleType}-${titleObj.id}`;
+
     const myClubs = useSelector(state => state.myClubs);
     const clubsToSend = useRef([]);
+
+    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const sendToWatchlist = useRef(false); // todo
-    const titleKey = `${titleObj.titleType}-${titleObj.id}`;
 
     const bottomOffset = useSafeAreaInsets().bottom;
     const closeDrawer = () => setDrawerVisible(false);
@@ -142,6 +146,18 @@ export default AddToClubsDrawer = ({ drawerVisible, setDrawerVisible, titleObj, 
                 setAddingTitle(true);
                 const addTitleResults = await Promise.all(clubsToSend.map(addTitleAsync))
                 console.log('Add results: ', addTitleResults);
+                if (sendToWatchlist.current) {
+                    const addToWatchlistResult = await addToMyWatchlist({
+                        reqUserSub: reelayDBUser?.sub,
+                        reelaySub: reelay?.sub,
+                        creatorName: reelay?.creator?.username,
+                        tmdbTitleID: titleObj.id,
+                        titleType: titleObj.titleType,
+                    });
+                    console.log(addToWatchlistResult);
+                    const nextWatchlistItems = [addToWatchlistResult, ...myWatchlistItems];
+                    dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
+                }
                 setAddingTitle(false);
                 const clubsWord = (addTitleResults.length > 1) ? 'clubs' : 'club';
                 showMessageToast(`Added ${titleObj.display} to ${addTitleResults.length} ${clubsWord}`);
@@ -239,8 +255,15 @@ export default AddToClubsDrawer = ({ drawerVisible, setDrawerVisible, titleObj, 
     const SelectMyWatchlistRow = () => {
         const [rowHighlighted, setRowHighlighted] = useState(false);
         const backgroundColor = (rowHighlighted) ? ReelayColors.reelayBlue : '#1a1a1a';
-        const isAlreadyAdded = false;
 
+        const matchWatchlistItem = (nextWatchlistItem) => {
+            if (!nextWatchlistItem.hasAcceptedRec) return false;
+            const { titleType, tmdbTitleID } = nextWatchlistItem;
+            const watchlistItemTitleKey = `${titleType}-${tmdbTitleID}`;
+            return (watchlistItemTitleKey === titleKey);
+        }
+
+        const isAlreadyAdded = myWatchlistItems.find(matchWatchlistItem);
         const iconName = (isAlreadyAdded) ? 'checkmark-done' : 'checkmark';
         const iconColor = (isAlreadyAdded) ? 'gray' : 'white';    
 
