@@ -11,6 +11,7 @@ import DonateButton from '../global/DonateButton';
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 import styled from 'styled-components/native';
 import TitlePoster from "../global/TitlePoster";
+import AddToClubsButton from "../clubs/AddToClubsButton";
 
 const { height, width } = Dimensions.get('window');
 
@@ -123,7 +124,7 @@ export default TitleBanner = ({
                     </StackLengthText>
                 </View>
             </TitleInfo>
-            { !donateObj && <AddToWatchlistButton titleObj={viewableReelay.title} reelay={viewableReelay}/> }
+            { !donateObj && <AddToClubsButton titleObj={viewableReelay.title} reelay={viewableReelay} /> }
             { donateObj && <DonateButton donateObj={donateObj} reelay={viewableReelay} /> }
         </TitleDetailContainer>    
     );

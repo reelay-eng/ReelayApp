@@ -124,7 +124,6 @@ export default function CreateClubScreen({ navigation, route }) {
             if (club) {
                 console.log('new club obj: ', club);
                 // advance to invite screen
-                // navigation.push('ClubInviteMembersScreen', { club });
                 navigation.push('ClubActivityScreen', { club, promptToInvite: true });
             } else {
                 console.log('could not create club obj');

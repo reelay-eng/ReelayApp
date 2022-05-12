@@ -1,5 +1,36 @@
 import * as React from 'react';
-import Svg, { Circle, Rect, Path } from 'react-native-svg';
+import Svg, { Circle, Line, Rect, Path } from 'react-native-svg';
+
+export const AddToClubsIconSVG = ({ size = 24 }) => {
+    return (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <Line x1="12" y1="18" x2="12" y2="11" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <Line x1="8.5" y1="14.5" x2="15.5" y2="14.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <Path d="M20 7H4C2.89543 7 2 7.89543 2 9V20C2 21.1046 2.89543 22 4 22H20C21.1046 22 22 21.1046 22 20V9C22 7.89543 21.1046 7 20 7Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <Path d="M17 2L12 7L7 2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </Svg>
+    );
+}
+
+export const AddedToClubsIconSVG = ({ size = 24 }) => {
+    return (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <Path d="M20 7H4C2.89543 7 2 7.89543 2 9V20C2 21.1046 2.89543 22 4 22H20C21.1046 22 22 21.1046 22 20V9C22 7.89543 21.1046 7 20 7Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <Path d="M17 2L12 7L7 2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <Line x1="17.071" y1="12.4142" x2="11.4142" y2="18.0711" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <Line x1="11.3358" y1="18" x2="8.75" y2="15.4142" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        </Svg>
+    );
+}
+
+export const ClubsIconSVG = ({ size = 24 }) => {
+    return (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <Path d="M20 7H4C2.89543 7 2 7.89543 2 9V20C2 21.1046 2.89543 22 4 22H20C21.1046 22 22 21.1046 22 20V9C22 7.89543 21.1046 7 20 7Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <Path d="M17 2L12 7L7 2" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </Svg>
+    );
+}
 
 export const AddToWatchlistIconSVG = ({ size=24 }) => {
     return (

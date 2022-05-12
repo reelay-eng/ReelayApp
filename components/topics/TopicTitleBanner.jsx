@@ -125,7 +125,7 @@ export default TopicTitleBanner = ({ navigation, reelay }) => {
                 <TitlePoster title={reelay.title} onPress={openTitleDetail} width={48} />
             </TitlePosterContainer>
             <TitleInfo />
-            { !donateObj && <AddToWatchlistButton titleObj={reelay.title} reelay={reelay}/> }
+            { !donateObj && <AddToClubsButton titleObj={reelay.title} reelay={reelay} /> }
             { donateObj && <DonateButton donateObj={donateObj} reelay={reelay} /> }
         </TitleDetailContainer>    
     );

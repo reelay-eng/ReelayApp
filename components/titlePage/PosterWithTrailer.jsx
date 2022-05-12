@@ -271,7 +271,7 @@ export default PosterWithTrailer = ({
 		width: 100%;
 		height: 40px;
 	`
-	const WatchlistButtonsContainer = styled(View)`
+	const ShareButtonsContainer = styled(View)`
 		align-items: flex-end;
 		flex: 0.1;
 		justify-content: center;
@@ -351,12 +351,12 @@ export default PosterWithTrailer = ({
 						<PosterTitle>{title}</PosterTitle>
 						<PosterTagline />
 					</PosterTitleContainer>
-					<WatchlistButtonsContainer>
+					<ShareButtonsContainer>
 						<SendRecButtonContainer>
 							<SendRecButton navigation={navigation} titleObj={titleObj} />
 						</SendRecButtonContainer>
-						<AddToWatchlistButton titleObj={titleObj} />
-					</WatchlistButtonsContainer>
+						<AddToClubsButton titleObj={titleObj} />
+					</ShareButtonsContainer>
 				</InfoBarContainer>
 				{ trailerURI && <WatchTrailerButton /> }
 				<CreateReelayButton />
