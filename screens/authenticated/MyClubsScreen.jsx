@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Dimensions, Image, SafeAreaView, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, RefreshControl, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { BaseHeader } from '../../components/global/Headers'
@@ -16,6 +16,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 import ClubPicture from '../../components/global/ClubPicture';
+import { getClubsMemberOf } from '../../api/ClubsApi';
+import { showErrorToast } from '../../components/utils/toasts';
 
 const { width } = Dimensions.get('window');
 
@@ -62,55 +64,70 @@ const MyClubsScreenContainer = styled(SafeAreaView)`
     height: 100%;
     width: 100%;
 `
-const ClubButton = ({ club, navigation }) => {
-    const advanceToClubScreen = () => navigation.push('ClubActivityScreen', { clubID: club.id, promptToInvite: false });
-    return (
-        <ClubButtonPressable onPress={advanceToClubScreen}>
-            <ClubPicture club={club} size={CLUB_BUTTON_SIZE} />
-            <ClubTitleText>{club.name}</ClubTitleText>
-        </ClubButtonPressable>
-    );
-}
-
-const ClubButtonGrid = ({ children }) => {
-    return (
-        <ScrollView showsVerticalScrollIndicator={false}>
-            <ClubGridContainer>
-                { children }
-            </ClubGridContainer>
-        </ScrollView>
-    );
-}
-
-const CreateClubButton = ({ navigation }) => {
-    const advanceToCreateClub = () => navigation.push('CreateClubScreen');
-    return (
-        <ClubButtonPressable onPress={advanceToCreateClub}>
-            <CreateClubGradient colors={['#2977EF', '#FF4848']}>
-                <Icon type='ionicon' name='add' size={CLUB_BUTTON_SIZE * 0.6} color='white' />
-            </CreateClubGradient>
-            <ClubTitleText>{'Create Club'}</ClubTitleText>
-        </ClubButtonPressable>
-    );
-}
-
-const MyWatchlistButton = ({ navigation }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-    const advanceToMyWatchlist = () => navigation.push('WatchlistScreen');
-    return (
-        <ClubButtonPressable onPress={advanceToMyWatchlist}>
-            <TouchableWithoutFeedback>
-                <ProfilePicture user={reelayDBUser} size={CLUB_BUTTON_SIZE} />
-            </TouchableWithoutFeedback>
-            <ClubTitleText>{'My Watchlist'}</ClubTitleText>
-        </ClubButtonPressable>
-    );
-}
 
 export default MyClubsScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const [refreshing, setRefreshing] = useState(false);
     const myClubs = useSelector(state => state.myClubs);
     const dispatch = useDispatch();
+
+    const ClubButton = ({ club }) => {
+        const advanceToClubScreen = () => navigation.push('ClubActivityScreen', { clubID: club.id, promptToInvite: false });
+        return (
+            <ClubButtonPressable onPress={advanceToClubScreen}>
+                <ClubPicture club={club} size={CLUB_BUTTON_SIZE} />
+                <ClubTitleText>{club.name}</ClubTitleText>
+            </ClubButtonPressable>
+        );
+    }
+
+    const ClubButtonGrid = ({ children }) => {
+        const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        return (
+            <ScrollView refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
+                <ClubGridContainer>
+                    { children }
+                </ClubGridContainer>
+            </ScrollView>
+        );
+    }    
+    
+    const CreateClubButton = () => {
+        const advanceToCreateClub = () => navigation.push('CreateClubScreen');
+        return (
+            <ClubButtonPressable onPress={advanceToCreateClub}>
+                <CreateClubGradient colors={['#2977EF', '#FF4848']}>
+                    <Icon type='ionicon' name='add' size={CLUB_BUTTON_SIZE * 0.6} color='white' />
+                </CreateClubGradient>
+                <ClubTitleText>{'Create Club'}</ClubTitleText>
+            </ClubButtonPressable>
+        );
+    }
+    
+    const MyWatchlistButton = ({ navigation }) => {
+        const { reelayDBUser } = useContext(AuthContext);
+        const advanceToMyWatchlist = () => navigation.push('WatchlistScreen');
+        return (
+            <ClubButtonPressable onPress={advanceToMyWatchlist}>
+                <TouchableWithoutFeedback>
+                    <ProfilePicture user={reelayDBUser} size={CLUB_BUTTON_SIZE} />
+                </TouchableWithoutFeedback>
+                <ClubTitleText>{'My Watchlist'}</ClubTitleText>
+            </ClubButtonPressable>
+        );
+    }
+
+    const onRefresh = async () => {
+        try {
+            setRefreshing(true);
+            const nextMyClubs = await getClubsMemberOf(reelayDBUser?.sub);
+            dispatch({ type: 'setMyClubs', payload: nextMyClubs });
+            setRefreshing(false);    
+        } catch (error) {
+            showErrorToast('Ruh roh! Could not refresh clubs. Try again?');
+            setRefreshing(false);
+        }
+    }
 
     useEffect(() => {
         logAmplitudeEventProd('openMyClubs', {
@@ -121,7 +138,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
 
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
-    })
+    });
 
     if (reelayDBUser?.username === 'be_our_guest') {
         return <JustShowMeSignupPage navigation={navigation} headerText='My Clubs' />

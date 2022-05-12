@@ -39,9 +39,11 @@ const ClubPrivacyText = styled(ReelayText.Body2)`
     margin-right: 8px;
     padding-top: 4px;
 `
-const ClubNameText = styled(ReelayText.H5Emphasized)`
-    color: white;
-    margin-top: 20px;
+const EditButton = styled(TouchableOpacity)``
+const EditButtonText = styled(ReelayText.Body2)`
+    color: ${ReelayColors.reelayBlue};
+    margin-right: 8px;
+    padding-top: 4px;
 `
 const HorizontalDivider = styled(View)`
     border-color: rgba(255,255,255,0.5);
@@ -167,7 +169,6 @@ const ClubProfileInfo = ({ club }) => {
         <ProfileInfoContainer>
             <ClubPicture club={club} size={120} />
             <ClubDescriptionText>{club.description}</ClubDescriptionText>
-            {/* <ClubDescriptionText>{'Private'}</ClubDescriptionText> */}
         </ProfileInfoContainer>
     );
 }
@@ -259,6 +260,9 @@ const ClubSettings = ({ club, onRefresh }) => {
 
 const ClubTopBar = ({ club, navigation }) => {
     const topOffset = useSafeAreaInsets().top;
+    const { reelayDBUser } = useContext(AuthContext);
+    const isClubOwner = (reelayDBUser?.sub === club.creatorSub);
+
     return (
         <TopBarContainer topOffset={topOffset}>
             <ClubHeaderText numberOfLines={1}>{club.name}</ClubHeaderText>
@@ -267,16 +271,26 @@ const ClubTopBar = ({ club, navigation }) => {
             </BackButtonContainer>
             <TopBarRightContainer>
             <ClubPrivacyRow>
-                <ClubPrivacyText>{'Private'}</ClubPrivacyText>
-                <Icon type='ionicon' name='lock-closed' color='white' size={24} />
+                { isClubOwner && <ClubEditButton club={club} navigation={navigation} /> }
+                { !isClubOwner && (
+                    <React.Fragment>
+                        <ClubPrivacyText>{'Private'}</ClubPrivacyText>
+                        <Icon type='ionicon' name='lock-closed' color='white' size={24} />
+                    </React.Fragment>
+                )}
             </ClubPrivacyRow>
             </TopBarRightContainer>
         </TopBarContainer>
     );
 }
 
-const ClubEditButton = () => {
-    // todo
+const ClubEditButton = ({ club, navigation }) => {
+    const advanceToEditClubScreen = () => navigation.push('EditClubScreen', { club });
+    return (
+        <EditButton onPress={advanceToEditClubScreen}>
+            <EditButtonText>{'Edit'}</EditButtonText>
+        </EditButton>
+    );
 }
 
 export default ClubInfoScreen = ({ navigation, route }) => {
@@ -305,11 +319,6 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             setRefreshing(false);
         }
     }
-
-    useEffect(() => {
-        onRefresh();
-    }, []);
-
 
     return (
         <InfoScreenContainer>

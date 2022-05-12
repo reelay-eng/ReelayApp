@@ -82,7 +82,9 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     }
 
     useEffect(() => {
-        onRefresh();
+        if (!club.members?.length || !club.titles?.length) {
+            onRefresh();
+        }
     }, []);
 
     useFocusEffect(() => {
