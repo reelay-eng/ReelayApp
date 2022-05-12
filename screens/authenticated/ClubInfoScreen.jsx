@@ -176,6 +176,7 @@ const ClubSettings = ({ club, onRefresh }) => {
     const [allowMemberInvites, setAllowMemberInvites] = useState(true);
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
     const { reelayDBUser } = useContext(AuthContext);
+    const isClubOwner = (reelayDBUser?.sub === club.creatorSub);
 
     const switchAllowMemberInvites = async () => {
         const shouldAllow = !allowMemberInvites;
@@ -188,9 +189,8 @@ const ClubSettings = ({ club, onRefresh }) => {
         console.log(patchResult);
     }
 
-    return (
-        <React.Fragment>
-            <SectionHeaderText>{'Settings'}</SectionHeaderText>
+    const AllowMemberInvitesRow = () => {
+        return (
             <SettingsRow onPress={switchAllowMemberInvites}>
                 <SettingsTextContainer>
                     <SettingsText>{'Open Invite'}</SettingsText>
@@ -207,6 +207,11 @@ const ClubSettings = ({ club, onRefresh }) => {
                     ios_backgroundColor="#39393D"    
                 />
             </SettingsRow>
+        );
+    }
+
+    const AddMembersRow = () => {
+        return (
             <SettingsRow onPress={() => setInviteDrawerVisible(true)}>
                 <SettingsTextContainer>
                     <SettingsText>{'Add Members'}</SettingsText>
@@ -216,6 +221,11 @@ const ClubSettings = ({ club, onRefresh }) => {
                     <Icon type='ionicon' name='person-add' color='white' size={24} />
                 </SettingsRowRightButton>
             </SettingsRow>
+        );
+    }
+
+    const ShareClubLinkRow = () => {
+        return (
             <SettingsRow>
                 <SettingsTextContainer>
                     <SettingsText>{'Send Link'}</SettingsText>
@@ -225,6 +235,15 @@ const ClubSettings = ({ club, onRefresh }) => {
                     <FontAwesomeIcon icon={ faLink } size={24} color='white' />
                 </SettingsRowRightButton>
             </SettingsRow>
+        );
+    }
+
+    return (
+        <React.Fragment>
+            <SectionHeaderText>{'Settings'}</SectionHeaderText>
+            { isClubOwner && <AllowMemberInvitesRow />}
+            { (isClubOwner || club.allowMemberInvites) && <AddMembersRow /> }
+            <ShareClubLinkRow />
             { inviteDrawerVisible && (
                 <InviteMyFollowsDrawer
                     club={club}
