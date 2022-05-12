@@ -254,6 +254,8 @@ export default SignInScreen = ({ navigation, route }) => {
 			<AlignmentContainer>
 				<InputContainer>
 					<AuthInput
+                        autoCorrect={false}
+                        autoComplete='none'
 						autoCapitalize="none"
 						containerStyle={AuthInputContainerStyle}
 						leftIcon={AuthInputUsernameIconStyle}
