@@ -23,6 +23,7 @@ import { showErrorToast, showMessageToast } from '../utils/toasts';
 import ClubPicture from '../global/ClubPicture';
 
 import { AddToClubsIconSVG, AddedToClubsIconSVG } from '../global/SVGs';
+import ProfilePicture from '../global/ProfilePicture';
 
 const { width } = Dimensions.get('window');
 
@@ -117,7 +118,7 @@ export default AddToClubsDrawer = ({ drawerVisible, setDrawerVisible, titleObj, 
     const Header = () => {
         return (
             <HeaderContainer>
-                <HeaderText>{'Add to clubs & watchlist'}</HeaderText>
+                <HeaderText>{'Add to a club'}</HeaderText>
             </HeaderContainer>
         );
     }
@@ -236,7 +237,44 @@ export default AddToClubsDrawer = ({ drawerVisible, setDrawerVisible, titleObj, 
     }
 
     const SelectMyWatchlistRow = () => {
-        
+        const [rowHighlighted, setRowHighlighted] = useState(false);
+        const backgroundColor = (rowHighlighted) ? ReelayColors.reelayBlue : '#1a1a1a';
+        const isAlreadyAdded = false;
+
+        const iconName = (isAlreadyAdded) ? 'checkmark-done' : 'checkmark';
+        const iconColor = (isAlreadyAdded) ? 'gray' : 'white';    
+
+        const markRow = () => {
+            if (isAlreadyAdded) return;
+            if (rowHighlighted) {
+                sendToWatchlist.current = false;
+                setRowHighlighted(false);
+            } else {
+                sendToWatchlist.current = true;
+                setRowHighlighted(true);
+            }    
+        }
+
+        return (
+            <RowContainer backgroundColor={backgroundColor} onPress={markRow}>
+                <ClubRowContainer>
+                    <ProfilePictureContainer>
+                        <ProfilePicture user={reelayDBUser} size={32} />
+                    </ProfilePictureContainer>
+                    <ClubNameText isAlreadyAdded={isAlreadyAdded}>{'My Watchlist'}</ClubNameText>
+                </ClubRowContainer>
+                { (rowHighlighted || isAlreadyAdded) && (
+                    <CheckmarkIconContainer>
+                        <Icon type='ionicon' name={iconName} size={30} color={iconColor} />
+                    </CheckmarkIconContainer>                        
+                )}
+                {(!rowHighlighted && !isAlreadyAdded) && (
+                    <CheckmarkIconContainer>
+                        <AddToClubsIconSVG size={30} />
+                    </CheckmarkIconContainer>
+                )}
+            </RowContainer>
+        );
     }
 
     return (
@@ -247,7 +285,7 @@ export default AddToClubsDrawer = ({ drawerVisible, setDrawerVisible, titleObj, 
                 <DrawerContainer>
                     <Header />
                     <ScrollViewContainer>
-                        {/* <SelectMyWatchlistRow /> */}
+                        <SelectMyWatchlistRow />
                         <SelectClubsList />
                     </ScrollViewContainer>
                     <AddTitleButton />
