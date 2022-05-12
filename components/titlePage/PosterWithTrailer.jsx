@@ -352,9 +352,9 @@ export default PosterWithTrailer = ({
 						<PosterTagline />
 					</PosterTitleContainer>
 					<ShareButtonsContainer>
-						<SendRecButtonContainer>
+						{/* <SendRecButtonContainer>
 							<SendRecButton navigation={navigation} titleObj={titleObj} />
-						</SendRecButtonContainer>
+						</SendRecButtonContainer> */}
 						<AddToClubsButton titleObj={titleObj} />
 					</ShareButtonsContainer>
 				</InfoBarContainer>

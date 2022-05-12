@@ -266,8 +266,6 @@ function App() {
             getFeed({ reqUserSub, feedSource: 'trending', page: 0 }),
         ]);
 
-        console.log('my clubs: ', myClubs);
-
         setReelayDBUser(reelayDBUserLoaded);
         dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
         dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });

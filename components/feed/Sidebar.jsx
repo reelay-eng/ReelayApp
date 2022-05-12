@@ -13,6 +13,7 @@ import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
 import SendRecButton from '../watchlist/SendRecButton';
 import ReelayColors from '../../constants/ReelayColors';
 import { showMessageToast } from '../utils/toasts';
+import ShareOutButton from './ShareOutButton';
 
 const { height, width } = Dimensions.get('window');
 
@@ -141,16 +142,6 @@ export default Sidebar = ({ navigation, reelay }) => {
 		}
 	}
 
-	const IconDropShadowStyle = {
-		shadowColor: "black",
-		shadowOpacity: 0.2,
-		shadowRadius: 2,
-		shadowOffset: {
-			width: 0, // These can't both be 0
-			height: 1, // i.e. the shadow has to be offset in some way
-		},
-	}
-
 	return (
 		<SidebarView>
 			<ButtonContainer>
@@ -184,7 +175,8 @@ export default Sidebar = ({ navigation, reelay }) => {
 
 			<ButtonContainer>
 				<SidebarButton>
-					<SendRecButton navigation={navigation} titleObj={reelay.title} reelay={reelay} />
+					{/* <SendRecButton navigation={navigation} titleObj={reelay.title} reelay={reelay} /> */}
+					<ShareOutButton reelay={reelay} />
 				</SidebarButton>
 				<Count>{''}</Count>
 			</ButtonContainer>
