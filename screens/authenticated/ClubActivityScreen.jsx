@@ -15,6 +15,7 @@ import { getClubMembers, getClubTitles } from '../../api/ClubsApi';
 import { AuthContext } from '../../context/AuthContext';
 import { showErrorToast } from '../../components/utils/toasts';
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { height, width } = Dimensions.get('window');
 
@@ -32,9 +33,11 @@ const AddTitleButtonContainer = styled(TouchableOpacity)`
     height: 40px;
     width: ${width - 32}px;
 `
-const AddTitleButtonOuterContainer = styled(View)`
+const AddTitleButtonOuterContainer = styled(LinearGradient)`
     align-items: center;
-    bottom: ${(props) => props.bottomOffset ?? 0}px;
+    bottom: 0px;
+    padding-top: 20px;
+    padding-bottom: ${(props) => props.bottomOffset ?? 0}px;
     position: absolute;
     width: 100%;
 `
@@ -45,7 +48,7 @@ const AddTitleButtonText = styled(ReelayText.Subtitle2)`
 const ScrollContainer = styled(ScrollView)`
     top: ${(props) => props.topOffset}px;
     height: ${(props) => height - props.topOffset}px;
-    margin-bottom: ${(props) => props.bottomOffset}px;
+    padding-bottom: ${(props) => props.bottomOffset}px;
     width: 100%;
 `
 
@@ -62,7 +65,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const bottomOffset = useSafeAreaInsets().bottom;
 
     const [refreshing, setRefreshing] = useState(false);
-    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
     const onRefresh = async () => {
         try { 
             setRefreshing(true);
@@ -80,6 +82,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             setRefreshing(false);
         }
     }
+    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
     useEffect(() => {
         if (!club.members?.length || !club.titles?.length) {
@@ -94,7 +97,9 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const AddTitleButton = () => {
         const advanceToAddTitleScreen = () => navigation.push('ClubAddTitleScreen', { club });
         return (
-            <AddTitleButtonOuterContainer bottomOffset={bottomOffset}>
+            <AddTitleButtonOuterContainer 
+                bottomOffset={bottomOffset} 
+                colors={['transparent', 'black']}>
                 <AddTitleButtonContainer onPress={advanceToAddTitleScreen}>
                     <Icon type='ionicon' name='add-circle-outline' size={16} color='white' />
                     <AddTitleButtonText>{'Add a title'}</AddTitleButtonText>
@@ -106,7 +111,10 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     return (
         <ActivityScreenContainer>
             <ScrollContainer 
-                contentContainerStyle={{ alignItems: 'center', paddingBottom: 180 }}
+                contentContainerStyle={{ 
+                    alignItems: 'center', 
+                    paddingBottom: 210,
+                }}
                 topOffset={topOffset} 
                 bottomOffset={bottomOffset}
                 refreshControl={refreshControl} 
@@ -114,14 +122,13 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             >
                 { (!refreshing && !club.titles?.length) && <NoTitlesYetPrompt /> } 
                 { (club.titles.length > 0 ) && club.titles.map((clubTitle) => {
-                    // const matchClubTitle = (nextClubTitle) => (nextClubTitle.id === clubTitle.id);
-                    // const clubFeedIndex = clubTitlesWithReelays.findIndex(matchClubTitle);
                     return (
                         <ClubTitleCard 
                             key={clubTitle.id} 
                             club={club}
                             clubTitle={clubTitle} 
                             navigation={navigation} 
+                            onRefresh={onRefresh}
                         />);
                 })}
             </ScrollContainer>

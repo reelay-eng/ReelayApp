@@ -11,6 +11,7 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import TitlePoster from '../global/TitlePoster';
 import { getRuntimeString } from '../utils/TitleRuntime';
+import ClubTitleDotMenuDrawer from './ClubTitleDotMenuDrawer';
 
 const { height, width } = Dimensions.get('window');
 
@@ -188,11 +189,15 @@ const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
     );
 }
 
-export default ClubTitleCard = ({ navigation, club, clubTitle }) => {
+export default ClubTitleCard = ({ navigation, club, clubTitle, onRefresh }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const { addedByUserSub, addedByUsername, title } = clubTitle;
     const clubTitleKey = `${clubTitle.titleType}-${clubTitle.tmdbTitleID}`;
     const addedByUser = { sub: addedByUserSub, username: addedByUsername };
+
+    const isAddedByMe = (addedByUserSub === reelayDBUser?.sub);
+    const isClubOwner = (club.creatorSub === reelayDBUser?.sub);
+    const dotMenuButtonVisible = (isAddedByMe || isClubOwner || reelayDBUser?.role === 'admin');
 
     const releaseYear = (title?.releaseDate && title?.releaseDate.length >= 4) 
         ? title.releaseDate.slice(0,4) : '';
@@ -214,23 +219,24 @@ export default ClubTitleCard = ({ navigation, club, clubTitle }) => {
         }
     }
 
-    // const DotMenuButton = () => {
-    //     const [topicDotMenuVisible, setTopicDotMenuVisible] = useState(false);
-    //     const openDrawer = () => setTopicDotMenuVisible(true);
-    //     return (
-    //         <DotMenuButtonContainer onPress={openDrawer}>
-    //             <Icon type='ionicon' name='ellipsis-horizontal' size={20} color='white' />
-    //             { topicDotMenuVisible && (
-    //                 <TopicDotMenuDrawer 
-    //                     navigation={navigation}
-    //                     topic={topic}
-    //                     drawerVisible={topicDotMenuVisible}
-    //                     setDrawerVisible={setTopicDotMenuVisible}
-    //                 />
-    //             )}
-    //         </DotMenuButtonContainer>
-    //     );
-    // }
+    const DotMenuButton = () => {
+        const [dotMenuVisible, setDotMenuVisible] = useState(false);
+        const openDrawer = () => setDotMenuVisible(true);
+        return (
+            <DotMenuButtonContainer onPress={openDrawer}>
+                <Icon type='ionicon' name='ellipsis-horizontal' size={20} color='white' />
+                { dotMenuVisible && (
+                    <ClubTitleDotMenuDrawer 
+                        navigation={navigation}
+                        clubTitle={clubTitle}
+                        drawerVisible={dotMenuVisible}
+                        setDrawerVisible={setDotMenuVisible}
+                        onRefresh={onRefresh}
+                    />
+                )}
+            </DotMenuButtonContainer>
+        );
+    }
 
     return (
         <TitleCardPressable onPress={advanceToClubTitleFeed}>
@@ -240,7 +246,7 @@ export default ClubTitleCard = ({ navigation, club, clubTitle }) => {
                     <ProfilePicture user={addedByUser} size={24} />
                     <AddedByUsername>{`Added by ${addedByUsername}`}</AddedByUsername>
                 </AddedByLineLeft>
-                {/* <DotMenuButton /> */}
+                { dotMenuButtonVisible && <DotMenuButton /> }
             </AddedByLine>
             <TitleLine>
                 <TitlePoster title={title} width={56} />
