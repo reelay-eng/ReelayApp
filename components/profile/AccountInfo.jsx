@@ -237,9 +237,7 @@ const EditUsername = ({ usernameRef, usernameInputRef, currentFocus }) => {
 
             <UsernameInstructionContainer>
                 <UsernameInstructionText>
-                    {'Usernames must be between 4 and 16 characters, \
-                        alphanumeric, and start with letters. Separators \
-                        \n.+_- are okay.'}
+                    {"Usernames must be between 4 and 16 characters, alphanumeric, and start with letters. Separators .+_- are okay."}
                 </UsernameInstructionText>
             </UsernameInstructionContainer>
         </>
