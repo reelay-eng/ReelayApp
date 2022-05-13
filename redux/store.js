@@ -2,6 +2,7 @@ import { createStore } from "redux";
 import { 
     cognitoSessionReducer, 
     stacksOnStreamingReducer, 
+    updateClubReducer, 
     watchlistRecsReducer 
 } from "./reducers";
 import { getReelayAuthHeaders, getReelayBaseHeaders } from "../api/ReelayAPIHeaders";
@@ -88,6 +89,10 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, globalTopics, globalTopicsWithReelays };
         case 'setMyClubs':
             return { ...state, myClubs: action.payload };
+        case 'setUpdatedClub':
+            const updatedClub = action.payload;
+            const updatedMyClubs = updateClubReducer(state.myClubs, updatedClub);
+            return { ...state, myClubs: updatedMyClubs };    
         case 'setMyCreatorStacks':
             return { ...state, myCreatorStacks: action.payload };
         case 'setMyFollowing':

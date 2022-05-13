@@ -18,6 +18,12 @@ const isSameTitle = (title0, title1) => {
     return (title0.id === title1.id) && (title0.isSeries === title1.isSeries);
 }
 
+export const updateClubReducer = (myClubs, updatedClub) => {
+    const myClubsFiltered = myClubs.filter((nextClub) => nextClub.id !== updatedClub.id);
+    const updatedClubObj = { ...updatedClub };
+    return [ updatedClubObj, ...myClubsFiltered];
+}
+
 export const cognitoSessionReducer = (session) => {
     const idToken = session.idToken.jwtToken;
     const accessToken = session.accessToken.jwtToken;

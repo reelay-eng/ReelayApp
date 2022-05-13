@@ -1,14 +1,9 @@
 import React, { useContext, useState } from 'react';
 import { Pressable, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
-import { addToMyWatchlist, removeFromMyWatchlist } from '../../api/WatchlistApi';
-import { addTitleToClub } from '../../api/ClubsApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
-const ICON_SIZE = 24;
-
 import { AddToWatchlistIconSVG, WatchlistAddedIconSVG } from '../global/SVGs';
-import { showMessageToast } from '../utils/toasts';
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 import { useDispatch, useSelector } from 'react-redux';
@@ -32,16 +27,17 @@ const ClubsButtonOuterContainer = styled(Pressable)`
 export default AddToClubsButton = ({ titleObj, reelay }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
-    // const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
 
-    // const inWatchlist = !!myWatchlistItems.find((nextItem) => {
-    //     const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;
-    //     const isSeries = (titleType === 'tv');
-    //     return (tmdbTitleID === titleObj.id) 
-    //         && (isSeries === titleObj.isSeries)
-    //         && (hasAcceptedRec === true);
-    // });
-    const [isAdded, setIsAdded] = useState(false);
+    const inWatchlist = !!myWatchlistItems.find((nextItem) => {
+        const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;
+        const isSeries = (titleType === 'tv');
+        return (tmdbTitleID === titleObj.id) 
+            && (isSeries === titleObj.isSeries)
+            && (hasAcceptedRec === true);
+    });
+
+    const [isAddedToWatchlist, setIsAddedToWatchlist] = useState(inWatchlist);
     const [drawerVisible, setDrawerVisible] = useState(false);
 
     const showMeSignupIfGuest = () => {
@@ -62,69 +58,19 @@ export default AddToClubsButton = ({ titleObj, reelay }) => {
         });
     }
 
-    // const addToWatchlist = async () => {
-    //     if (showMeSignupIfGuest()) return;
-    //     const titleType = titleObj.isSeries ? 'tv' : 'film';
-    //     const tmdbTitleID = titleObj.id;
-    //     const reqBody = { reqUserSub: reelayDBUser?.sub, tmdbTitleID, titleType };
-
-    //     if (reelay?.sub) {
-    //         reqBody.reelaySub = reelay.sub;
-    //         reqBody.creatorName = reelay.creator.username;
-    //     }
-
-    //     if (isAdded) {
-    //         // remove from watchlist
-    //         setIsAdded(false);
-    //         const dbResult = await removeFromMyWatchlist(reqBody);
-    //         if (!dbResult.error) {
-    //             const nextWatchlistItems = myWatchlistItems.filter((nextItem) => {
-    //                 const isRemovedTitle = (nextItem?.tmdbTitleID === tmdbTitleID) && (nextItem?.titleType === titleType);
-    //                 return !isRemovedTitle;
-    //             });
-    //             dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
-    //             showMessageToast('Removed from your watchlist', 'bottom');
-    
-                // logAmplitudeEventProd('removedFromMyWatchlist', {
-                //     username: reelayDBUser?.username,
-                //     creatorName: reelay?.creator?.username,
-                //     title: titleObj.display,
-                //     source: 'sendRecScreen',
-                // });
-
-    //         }    
-    //     } else {
-    //         // add to watchlist
-    //         setIsAdded(true);
-    //         const dbResult = await addToMyWatchlist(reqBody);
-    //         if (!dbResult.error) {
-    //             const nextWatchlistItems = [...myWatchlistItems, dbResult];
-    //             dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
-    //             showMessageToast('Added to your watchlist', 'bottom');
-    
-    //             logAmplitudeEventProd('addToMyWatchlist', {
-    //                 username: reelayDBUser?.username,
-    //                 creatorName: reelay?.creator?.username,
-    //                 title: titleObj.display,
-    //                 source: 'sendRecScreen',
-    //             });
-    //         }    
-    //     }
-    // }
-
-    // new icon type : "reorder-three"
     return (
         <ClubsButtonOuterContainer onPress={openAddToClubsDrawer}>
-            <ClubsButtonCircleContainer isAdded={isAdded}>
-                { isAdded && <WatchlistAddedIconSVG /> }
-                { !isAdded && <AddToWatchlistIconSVG /> }
+            <ClubsButtonCircleContainer isAdded={isAddedToWatchlist}>
+                { isAddedToWatchlist && <WatchlistAddedIconSVG /> }
+                { !isAddedToWatchlist && <AddToWatchlistIconSVG /> }
             </ClubsButtonCircleContainer>
             { drawerVisible && (
                 <AddToClubsDrawer 
-                    drawerVisible={drawerVisible}
-                    setDrawerVisible={setDrawerVisible}
                     titleObj={titleObj}
                     reelay={reelay}
+                    drawerVisible={drawerVisible}
+                    setDrawerVisible={setDrawerVisible}
+                    setIsAddedToWatchlist={setIsAddedToWatchlist}
                 />
             )}
         </ClubsButtonOuterContainer>

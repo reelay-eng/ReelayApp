@@ -105,8 +105,15 @@ const RowContainer = styled(Pressable)`
 const ScrollViewContainer = styled(ScrollView)`
     margin-bottom: 10px;
 `
-export default AddToClubsDrawer = ({ drawerVisible, setDrawerVisible, titleObj, reelay }) => {
+export default AddToClubsDrawer = ({ 
+    titleObj, 
+    reelay,
+    drawerVisible, 
+    setDrawerVisible, 
+    setIsAddedToWatchlist,
+}) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const dispatch = useDispatch();
     const titleKey = `${titleObj.titleType}-${titleObj.id}`;
 
     const myClubs = useSelector(state => state.myClubs);
@@ -128,40 +135,48 @@ export default AddToClubsDrawer = ({ drawerVisible, setDrawerVisible, titleObj, 
     }
 
     const AddTitleButton = () => {
-        const addTitleAsync = async (club) => {
+        const addToClubWrapper = async (club) => {
             const addTitleResult = await addTitleToClub({
                 addedByUsername: reelayDBUser?.username,
                 addedByUserSub: reelayDBUser?.sub,
                 clubID: club.id,
                 titleType: titleObj.titleType,
-                tmdbTitleID: titleObj.tmdbTitleID,
+                tmdbTitleID: titleObj.id,
             });
             console.log('added title to club: ', club.name, addTitleResult);
+            club.titles = [addTitleResult, ...club.titles];
+            dispatch({ type: 'setUpdatedClub', payload: club });
             return addTitleResult;
         }
 
-        const addTitleToSelectedClubs = async () => {
+        const addToWatchlistWrapper = async () => {
+            if (sendToWatchlist.current) {
+                setIsAddedToWatchlist(true);
+                const addToWatchlistResult = await addToMyWatchlist({
+                    reqUserSub: reelayDBUser?.sub,
+                    reelaySub: reelay?.sub,
+                    creatorName: reelay?.creator?.username,
+                    tmdbTitleID: titleObj.id,
+                    titleType: titleObj.titleType,
+                });
+                console.log(addToWatchlistResult);
+                const nextWatchlistItems = [addToWatchlistResult, ...myWatchlistItems];
+                dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
+            }
+        }
+
+        const addTitleToAllSelectedClubs = async () => {
             try {
                 if (addingTitle) return;
                 setAddingTitle(true);
-                const addTitleResults = await Promise.all(clubsToSend.map(addTitleAsync))
+                const addTitleResults = await Promise.all(clubsToSend.current.map(addToClubWrapper))
                 console.log('Add results: ', addTitleResults);
                 if (sendToWatchlist.current) {
-                    const addToWatchlistResult = await addToMyWatchlist({
-                        reqUserSub: reelayDBUser?.sub,
-                        reelaySub: reelay?.sub,
-                        creatorName: reelay?.creator?.username,
-                        tmdbTitleID: titleObj.id,
-                        titleType: titleObj.titleType,
-                    });
-                    console.log(addToWatchlistResult);
-                    const nextWatchlistItems = [addToWatchlistResult, ...myWatchlistItems];
-                    dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
+                    addToWatchlistWrapper();
                 }
                 setAddingTitle(false);
                 const clubsWord = (addTitleResults.length > 1) ? 'clubs' : 'club';
                 showMessageToast(`Added ${titleObj.display} to ${addTitleResults.length} ${clubsWord}`);
-                onRefresh();
             } catch (error) {
                 console.log(error);
                 showErrorToast('Ruh roh! Couldn\'t add to clubs. Try again?');
@@ -171,7 +186,7 @@ export default AddToClubsDrawer = ({ drawerVisible, setDrawerVisible, titleObj, 
 
         return (
             <AddTitleButtonOuterContainer bottomOffset={bottomOffset}>
-                <AddTitleButtonContainer onPress={addTitleToSelectedClubs}>
+                <AddTitleButtonContainer onPress={addTitleToAllSelectedClubs}>
                     { addingTitle && <ActivityIndicator /> }
                     { !addingTitle && (
                         <React.Fragment>

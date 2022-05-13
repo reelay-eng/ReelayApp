@@ -23,6 +23,7 @@ import {
 
 import HomeIcon from '../assets/icons/navbar/home-icon.png';
 import ProfileIcon from '../assets/icons/navbar/profile-icon.png';
+import { ClubsIconSVG } from '../components/global/SVGs';
  
 const BottomTab = createBottomTabNavigator();
 const BOTTOM_TAB_ICON_SIZE = 24;
@@ -140,7 +141,8 @@ export default AuthenticatedNavigator = () => {
 				component={ClubsTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<Icon type='ionicon' name='book' size={24} color='white' />
+						<Icon type='ionicon' name='people-circle' size={27} color='white' />
+						// <ClubsIconSVG size={24} />
 					),
 				}}
 			/>

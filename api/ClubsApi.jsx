@@ -50,7 +50,7 @@ export const addTitleToClub = async ({
         titleType,
         tmdbTitleID,
     }
-    const addTitleResult = await fetchResults(routePost, {
+    const addClubTitleResult = await fetchResults(routePost, {
         method: 'POST',
         headers: {
             ...ReelayAPIHeaders,
@@ -58,7 +58,8 @@ export const addTitleToClub = async ({
         },
         body: JSON.stringify(postBody),
     });
-    return addTitleResult;
+    const annotatedTitle = await fetchAnnotatedTitle(tmdbTitleID, titleType === 'tv');
+    return { ...addClubTitleResult, title: annotatedTitle, reelays: [] };
 }
 
 export const createClub = async ({ 
