@@ -30,7 +30,6 @@ import { v4 } from 'uuid';
 import { createClub } from '../../api/ClubsApi';
 
 const { width } = Dimensions.get('window');
-const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 const CreateClubButtonContainer = styled(TouchableOpacity)`
     align-items: center;
@@ -207,9 +206,11 @@ export default function CreateClubScreen({ navigation, route }) {
                 visibility: 'private',
             }
             const clubObj = await createClub(clubPostBody);
-            // todo: handle bad upload
             const clubID = clubObj?.id;
-            console.log('club object: ', clubObj);
+            clubObj.titles = [];
+            clubObj.members = [];
+
+            // todo: handle bad upload
             if (clubID && clubPicSourceRef?.current?.uri) {
                 const uploadResult = await uploadClubPicToS3(clubID, clubPicSourceRef.current.uri);
                 console.log('club pic upload result: ', uploadResult);

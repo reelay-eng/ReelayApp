@@ -237,7 +237,7 @@ export const deleteClub = async ({
     clubID,
     reqUserSub,
 }) => {
-    const routeRemove = `${REELAY_API_BASE_URL}/clubs/${clubID}`;
+    const routeRemove = `${REELAY_API_BASE_URL}/clubs/club/${clubID}`;
     const resultRemove = await fetchResults(routeRemove, {
         method: 'DELETE',
         headers: {

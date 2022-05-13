@@ -72,7 +72,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
 
     const ClubButton = ({ club }) => {
-        const advanceToClubScreen = () => navigation.push('ClubActivityScreen', { clubID: club.id, promptToInvite: false });
+        const advanceToClubScreen = () => navigation.push('ClubActivityScreen', { club, promptToInvite: false });
         return (
             <ClubButtonPressable onPress={advanceToClubScreen}>
                 <ClubPicture club={club} size={CLUB_BUTTON_SIZE} />

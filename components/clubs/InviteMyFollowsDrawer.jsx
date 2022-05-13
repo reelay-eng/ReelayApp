@@ -69,7 +69,7 @@ const SendInvitesButtonText = styled(ReelayText.Subtitle2)`
     margin-left: 4px;
 `
 
-export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible, onRefresh, provideSkipOption }) => {
+export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible, onRefresh }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const followsToSend = useRef([]);
     const bottomOffset = useSafeAreaInsets().bottom;
@@ -107,6 +107,7 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
                 const peopleWord = (inviteResults.length > 1) ? 'people' : 'person';
                 showMessageToast(`Added ${inviteResults.length} ${peopleWord} to ${club.name}`);
                 onRefresh();
+                closeDrawer();
             } catch (error) {
                 console.log(error);
                 showErrorToast('Ruh roh! Couldn\'t send invites. Try again?');

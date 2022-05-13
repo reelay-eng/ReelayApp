@@ -206,7 +206,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             return (
                 <MemberEditButton onPress={onPress}>
                     <EditButtonText>
-                        {isEditing ? 'Done' : 'Edit'}
+                        {isEditing ? 'Done' : 'Manage'}
                     </EditButtonText>
                 </MemberEditButton>
             )
@@ -440,7 +440,6 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                         drawerVisible={inviteDrawerVisible}
                         setDrawerVisible={setInviteDrawerVisible}
                         onRefresh={onRefresh}
-                        provideSkipOption={false}
                     />
                 )}
             </React.Fragment>

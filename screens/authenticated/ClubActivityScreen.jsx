@@ -54,9 +54,9 @@ const ScrollContainer = styled(ScrollView)`
 
 export default ClubActivityScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const { clubID, promptToInvite } = route.params;
-    const myClubs = useSelector(state => state.myClubs);
-    const club = myClubs.find(nextClub => nextClub.id === clubID);
+    const { club, promptToInvite } = route.params;
+    // const myClubs = useSelector(state => state.myClubs);
+    // const club = myClubs.find(nextClub => nextClub.id === clubID);
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
 
     const dispatch = useDispatch();
@@ -74,7 +74,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             ]);
             club.titles = titles;
             club.members = members;
-            dispatch({ type: 'setMyClubs', payload: myClubs });
+            dispatch({ type: 'setUpdatedClub', payload: club });
             setRefreshing(false); 
         } catch (error) {
             console.log(error);
@@ -120,8 +120,8 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 refreshControl={refreshControl} 
                 showsVerticalScrollIndicator={false}
             >
-                { (!refreshing && !club.titles?.length) && <NoTitlesYetPrompt /> } 
-                { (club.titles.length > 0 ) && club.titles.map((clubTitle) => {
+                { (!refreshing && !club?.titles?.length) && <NoTitlesYetPrompt /> } 
+                { (club.titles?.length > 0 ) && club.titles?.map((clubTitle) => {
                     return (
                         <ClubTitleCard 
                             key={clubTitle.id} 
@@ -140,7 +140,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                     drawerVisible={inviteDrawerVisible}
                     setDrawerVisible={setInviteDrawerVisible}
                     onRefresh={onRefresh}
-                    provideSkipOption={true}
                 />
             )}
         </ActivityScreenContainer>
