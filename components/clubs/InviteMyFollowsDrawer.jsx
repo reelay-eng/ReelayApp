@@ -104,7 +104,7 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
                 const inviteResults = await Promise.all(followsToSend.current.map(addInvitee));
                 console.log('Invite results: ', inviteResults);
                 setSendingInvites(false);
-                const peopleWord = (addTitleResults.length > 1) ? 'people' : 'person';
+                const peopleWord = (inviteResults.length > 1) ? 'people' : 'person';
                 showMessageToast(`Added ${inviteResults.length} ${peopleWord} to ${club.name}`);
                 onRefresh();
             } catch (error) {

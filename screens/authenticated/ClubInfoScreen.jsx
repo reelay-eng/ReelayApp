@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { RefreshControl, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, RefreshControl, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import BackButton from '../../components/utils/BackButton';
@@ -12,9 +12,9 @@ import { faLink } from '@fortawesome/free-solid-svg-icons';
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
 import { AuthContext } from '../../context/AuthContext';
 import FollowButton from '../../components/global/FollowButton';
-import { editClub, getClubMembers, getClubTitles } from '../../api/ClubsApi';
+import { editClub, getClubMembers, getClubTitles, removeMemberFromClub, banMemberFromClub } from '../../api/ClubsApi';
 import { useDispatch, useSelector } from 'react-redux';
-import { showErrorToast } from '../../components/utils/toasts';
+import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 
 const BackButtonContainer = styled(SafeAreaView)`
     left: 0px;
@@ -23,7 +23,7 @@ const BackButtonContainer = styled(SafeAreaView)`
 const ClubHeaderText = styled(ReelayText.H5Emphasized)`
     color: white;
 `
-const ClubDescriptionText = styled(ReelayText.Body2)`
+const ClubDescriptionText = styled(ReelayText.Body2)` 
     color: white;
     margin-top: 16px;
 `
@@ -36,7 +36,8 @@ const ClubPrivacyRow = styled(View)`
 `
 const ClubPrivacyText = styled(ReelayText.Body2)`
     color: white;
-    margin-right: 8px;
+    font-size: 12px;
+    margin-right: 4px;
     padding-top: 4px;
 `
 const EditButton = styled(TouchableOpacity)``
@@ -59,9 +60,15 @@ const InfoScreenContainer = styled(View)`
     height: 100%;
     width: 100%;
 `
+const MemberEditButton = styled(TouchableOpacity)``
 const MemberInfoContainer = styled(View)`
     align-items: center;
     flex-direction: row;
+`
+const MemberRightButtonContainer = styled(View)`
+    flex-direction: row;
+    position: absolute;
+    right: 0px;
 `
 const MemberRowContainer = styled(TouchableOpacity)`
     display: flex;
@@ -87,9 +94,28 @@ const ProfilePictureContainer = styled(View)`
     margin-bottom: 6px;
     margin-right: 10px;
 `
+const RemoveButtonContainer = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${(props) => (props?.ban) ? 'white' : ReelayColors.reelayRed};
+    border-radius: 8px;
+    flex-direction: row;
+    justify-content: center;
+    margin-right: ${(props) => (props?.ban) ? 8 : 0}px;
+    height: 30px;
+    width: 75px;
+`
+const RemoveButtonText = styled(ReelayText.Body2)`
+    color: ${(props) => (props?.ban) ? 'black' : 'white'};
+`
 const SectionHeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
+`
+const SectionRow = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
 `
 const SettingsRow = styled(TouchableOpacity)`
     align-items: center;
@@ -129,179 +155,17 @@ const UsernameContainer = styled(View)`
     align-items: flex-start;
     justify-content: center;
 `
-const ClubMembers = ({ clubMembers, navigation }) => {
-    return (
-        <React.Fragment>
-            <SectionHeaderText>{'Members'}</SectionHeaderText>
-            <MemberSectionSpacer />
-            { clubMembers.map((member) => {
-                return <ClubMemberRow key={member.userSub} member={member} navigation={navigation} /> 
-            })}
-        </React.Fragment>
-    );
-}
-
-const ClubMemberRow = ({ member, navigation }) => {
-    const user = {
-        sub: member.userSub,
-        username: member.username,
-    }
-    const advanceToUserProfile = () => {
-        navigation.push('UserProfileScreen', { creator: user });
-    }
-    return (
-        <MemberRowContainer onPress={() => advanceToUserProfile}>
-            <MemberInfoContainer>
-                <ProfilePictureContainer>
-                    <ProfilePicture user={user} size={32} navigation={navigation} />
-                </ProfilePictureContainer>
-                <UsernameContainer>
-                    <UsernameText>{member.username}</UsernameText>
-                </UsernameContainer>
-            </MemberInfoContainer>
-            <FollowButton creator={user} />
-        </MemberRowContainer>
-    )
-}
-
-const ClubProfileInfo = ({ club }) => {
-    return (
-        <ProfileInfoContainer>
-            <ClubPicture club={club} size={120} />
-            <ClubDescriptionText>{club.description}</ClubDescriptionText>
-        </ProfileInfoContainer>
-    );
-}
-
-const ClubSettings = ({ club, onRefresh }) => {
-    const [allowMemberInvites, setAllowMemberInvites] = useState(true);
-    const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
-    const { reelayDBUser } = useContext(AuthContext);
-    const isClubOwner = (reelayDBUser?.sub === club.creatorSub);
-
-    const switchAllowMemberInvites = async () => {
-        const shouldAllow = !allowMemberInvites;
-        setAllowMemberInvites(shouldAllow);
-        const patchResult = await editClub({
-            clubID: club.id,
-            membersCanInvite: shouldAllow,
-            reqUserSub: reelayDBUser?.sub,
-        });
-        console.log(patchResult);
-    }
-
-    const AllowMemberInvitesRow = () => {
-        return (
-            <SettingsRow onPress={switchAllowMemberInvites}>
-                <SettingsTextContainer>
-                    <SettingsText>{'Open Invite'}</SettingsText>
-                    <SettingsSubtext>{'Members can invite other members'}</SettingsSubtext>
-                </SettingsTextContainer>
-                <Switch 
-                    value={allowMemberInvites}
-                    onValueChange={switchAllowMemberInvites}
-                    trackColor={{ 
-                        false: "#39393D", 
-                        true: ReelayColors.reelayGreen,
-                    }}
-                    thumbColor={"#FFFFFF"}
-                    ios_backgroundColor="#39393D"    
-                />
-            </SettingsRow>
-        );
-    }
-
-    const AddMembersRow = () => {
-        return (
-            <SettingsRow onPress={() => setInviteDrawerVisible(true)}>
-                <SettingsTextContainer>
-                    <SettingsText>{'Add Members'}</SettingsText>
-                    <SettingsSubtext>{'Invite more people to the club'}</SettingsSubtext>
-                </SettingsTextContainer>
-                <SettingsRowRightButton>
-                    <Icon type='ionicon' name='person-add' color='white' size={24} />
-                </SettingsRowRightButton>
-            </SettingsRow>
-        );
-    }
-
-    const ShareClubLinkRow = () => {
-        return (
-            <SettingsRow>
-                <SettingsTextContainer>
-                    <SettingsText>{'Send Link'}</SettingsText>
-                    <SettingsSubtext>{'Share the club link'}</SettingsSubtext>
-                </SettingsTextContainer>
-                <SettingsRowRightButton>
-                    <FontAwesomeIcon icon={ faLink } size={24} color='white' />
-                </SettingsRowRightButton>
-            </SettingsRow>
-        );
-    }
-
-    return (
-        <React.Fragment>
-            <SectionHeaderText>{'Settings'}</SectionHeaderText>
-            { isClubOwner && <AllowMemberInvitesRow />}
-            { (isClubOwner || club.allowMemberInvites) && <AddMembersRow /> }
-            <ShareClubLinkRow />
-            { inviteDrawerVisible && (
-                <InviteMyFollowsDrawer
-                    club={club}
-                    drawerVisible={inviteDrawerVisible}
-                    setDrawerVisible={setInviteDrawerVisible}
-                    onRefresh={onRefresh}
-                    provideSkipOption={false}
-                />
-            )}
-        </React.Fragment>
-    );
-}
-
-const ClubTopBar = ({ club, navigation }) => {
-    const topOffset = useSafeAreaInsets().top;
-    const { reelayDBUser } = useContext(AuthContext);
-    const isClubOwner = (reelayDBUser?.sub === club.creatorSub);
-
-    return (
-        <TopBarContainer topOffset={topOffset}>
-            <ClubHeaderText numberOfLines={1}>{club.name}</ClubHeaderText>
-            <BackButtonContainer>
-                <BackButton navigation={navigation} />
-            </BackButtonContainer>
-            <TopBarRightContainer>
-            <ClubPrivacyRow>
-                { isClubOwner && <ClubEditButton club={club} navigation={navigation} /> }
-                { !isClubOwner && (
-                    <React.Fragment>
-                        <ClubPrivacyText>{'Private'}</ClubPrivacyText>
-                        <Icon type='ionicon' name='lock-closed' color='white' size={24} />
-                    </React.Fragment>
-                )}
-            </ClubPrivacyRow>
-            </TopBarRightContainer>
-        </TopBarContainer>
-    );
-}
-
-const ClubEditButton = ({ club, navigation }) => {
-    const advanceToEditClubScreen = () => navigation.push('EditClubScreen', { club });
-    return (
-        <EditButton onPress={advanceToEditClubScreen}>
-            <EditButtonText>{'Edit'}</EditButtonText>
-        </EditButton>
-    );
-}
 
 export default ClubInfoScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
     const { club } = route?.params;
     const myClubs = useSelector(state => state.myClubs);
     const { reelayDBUser } = useContext(AuthContext);
-    const bottomOffset = useSafeAreaInsets().bottom;
+    const isClubOwner = (reelayDBUser?.sub === club.creatorSub);
 
+    const bottomOffset = useSafeAreaInsets().bottom;
     const [refreshing, setRefreshing] = useState(false);
-    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+
     const onRefresh = async () => {
         try { 
             setRefreshing(true);
@@ -311,7 +175,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             ]);
             club.titles = titles;
             club.members = members;
-            dispatch({ type: 'setMyClubs', payload: myClubs });
+            dispatch({ type: 'setUpdatedClub', payload: club });
             setRefreshing(false); 
         } catch (error) {
             console.log(error);
@@ -319,19 +183,305 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             setRefreshing(false);
         }
     }
+    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
+    const ClubEditButton = () => {
+        const advanceToEditClubScreen = () => navigation.push('EditClubScreen', { club });
+        return (
+            <EditButton onPress={advanceToEditClubScreen}>
+                <EditButtonText>{'Edit'}</EditButtonText>
+            </EditButton>
+        );
+    }
+
+
+    const ClubMembers = () => {
+        const [isEditing, setIsEditing] = useState(false);
+        const memberCount = club.members.reduce((count, member) => {
+            return (member.role === 'banned') ? count : count + 1;
+        }, 0);
+        
+        const EditMembersButton = () => {
+            const onPress = () => setIsEditing(!isEditing);
+            return (
+                <MemberEditButton onPress={onPress}>
+                    <EditButtonText>
+                        {isEditing ? 'Done' : 'Edit'}
+                    </EditButtonText>
+                </MemberEditButton>
+            )
+        }
+    
+        return (
+            <React.Fragment>
+                <SectionRow>
+                    <SectionHeaderText>{`Members  (${memberCount})`}</SectionHeaderText>
+                    { isClubOwner && <EditMembersButton />}                
+                </SectionRow>
+                <MemberSectionSpacer />
+                { club.members.map((member) => {
+                    if (member.role === 'banned') return <View key={member.userSub} />;
+                    return (
+                        <ClubMemberRow 
+                            key={member.userSub} 
+                            isEditing={isEditing}
+                            member={member} 
+                            navigation={navigation} 
+                        /> 
+                    )
+                })}
+            </React.Fragment>
+        );
+    }
+    
+    const ClubMemberRow = ({ isEditing, member }) => {
+        const { username, userSub } = member;
+        const user = { username, sub: userSub };
+        const isMyUser = (userSub === reelayDBUser?.sub);
+    
+        const advanceToUserProfile = () => {
+            navigation.push('UserProfileScreen', { creator: user });
+        }
+
+        const BanButton = () => {
+            const [banning, setBanning] = useState(false);
+            const banFromClub = async () => {
+                try {
+                    if (banning) return;
+                    setBanning(true);
+                    const removeResult = await banMemberFromClub({
+                        clubID: club.id,
+                        userSub,
+                        reqUserSub: reelayDBUser?.sub,
+                    });
+                    console.log(removeResult);
+                    onRefresh();
+                    showMessageToast(`You've banned ${username} from ${club.name}`);
+                } catch (error) {
+                    console.log(error);
+                    showErrorToast('Ruh roh! Could not leave club. Try again?');
+                    setBanning(false);
+                }
+            }
+
+            if (isMyUser) return <View />;
+            return (
+                <RemoveButtonContainer ban={true} onPress={banFromClub}>
+                    { banning && <ActivityIndicator /> }
+                    { !banning && <RemoveButtonText ban={true}>{'Ban'}</RemoveButtonText> }
+                </RemoveButtonContainer>
+            );
+        }        
+
+        const LeaveButton = () => {
+            const [leaving, setLeaving] = useState(false);
+            const leaveClub = async () => {
+                try {
+                    if (leaving) return;
+                    setLeaving(true);
+                    const removeResult = await removeMemberFromClub({
+                        clubID: club.id,
+                        userSub: reelayDBUser?.sub,
+                        reqUserSub: reelayDBUser?.sub,
+                    });
+                    console.log(removeResult);
+                    navigation.popToTop();
+                    const myClubsRemoved = myClubs.filter(nextClub => nextClub.id !== club.id);
+                    showMessageToast(`You've left ${club.name}`)
+                    dispatch({ type: 'setMyClubs', payload: myClubsRemoved });    
+                } catch (error) {
+                    console.log(error);
+                    showErrorToast('Ruh roh! Could not leave club. Try again?');
+                    setLeaving(false);
+                }
+            }
+
+            return (
+                <RemoveButtonContainer onPress={leaveClub}>
+                    { leaving && <ActivityIndicator /> }
+                    { !leaving && <RemoveButtonText>{'Leave'}</RemoveButtonText> }
+                </RemoveButtonContainer>
+            );
+        }
+    
+        const RemoveButton = () => {
+            const [removing, setRemoving] = useState(false);
+            const removeFromClub = async () => {
+                try {
+                    if (removing) return;
+                    setRemoving(true);
+                    const removeResult = await removeMemberFromClub({
+                        clubID: club.id,
+                        userSub,
+                        reqUserSub: reelayDBUser?.sub,
+                    });
+                    console.log(removeResult);
+                    onRefresh();
+                    showMessageToast(`You've removed ${username} from ${club.name}`);
+                } catch (error) {
+                    console.log(error);
+                    showErrorToast('Ruh roh! Could not leave club. Try again?');
+                    setRemoving(false);
+                }
+            }
+
+            if (isMyUser) return <View />;
+            return (
+                <RemoveButtonContainer onPress={removeFromClub}>
+                    { removing && <ActivityIndicator /> }
+                    { !removing && <RemoveButtonText>{'Remove'}</RemoveButtonText> }
+                </RemoveButtonContainer>
+            );
+        }
+    
+        return (
+            <MemberRowContainer onPress={() => advanceToUserProfile}>
+                <MemberInfoContainer>
+                    <ProfilePictureContainer>
+                        <ProfilePicture user={user} size={32} navigation={navigation} />
+                    </ProfilePictureContainer>
+                    <UsernameContainer>
+                        <UsernameText>{username}</UsernameText>
+                    </UsernameContainer>
+                </MemberInfoContainer>
+                <MemberRightButtonContainer>
+                    { !isEditing && !isMyUser && <FollowButton creator={user} /> }
+                    { !isClubOwner && isMyUser && <LeaveButton /> }
+                    { isEditing && <BanButton /> }
+                    { isEditing && <RemoveButton /> }
+                </MemberRightButtonContainer>
+            </MemberRowContainer>
+        )
+    }
+    
+    const ClubProfileInfo = () => {
+        return (
+            <ProfileInfoContainer>
+                <ClubPicture club={club} size={120} />
+                <ClubDescriptionText>{club.description}</ClubDescriptionText>
+            </ProfileInfoContainer>
+        );
+    }
+    
+    const ClubSettings = () => {
+        const [allowMemberInvites, setAllowMemberInvites] = useState(true);
+        const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
+        const { reelayDBUser } = useContext(AuthContext);
+    
+        const switchAllowMemberInvites = async () => {
+            const shouldAllow = !allowMemberInvites;
+            setAllowMemberInvites(shouldAllow);
+            const patchResult = await editClub({
+                clubID: club.id,
+                membersCanInvite: shouldAllow,
+                reqUserSub: reelayDBUser?.sub,
+            });
+            console.log(patchResult);
+        }
+    
+        const AllowMemberInvitesRow = () => {
+            return (
+                <SettingsRow onPress={switchAllowMemberInvites}>
+                    <SettingsTextContainer>
+                        <SettingsText>{'Open Invite'}</SettingsText>
+                        <SettingsSubtext>{'Members can invite other members'}</SettingsSubtext>
+                    </SettingsTextContainer>
+                    <Switch 
+                        value={allowMemberInvites}
+                        onValueChange={switchAllowMemberInvites}
+                        trackColor={{ 
+                            false: "#39393D", 
+                            true: ReelayColors.reelayGreen,
+                        }}
+                        thumbColor={"#FFFFFF"}
+                        ios_backgroundColor="#39393D"    
+                    />
+                </SettingsRow>
+            );
+        }
+    
+        const AddMembersRow = () => {
+            return (
+                <SettingsRow onPress={() => setInviteDrawerVisible(true)}>
+                    <SettingsTextContainer>
+                        <SettingsText>{'Add Members'}</SettingsText>
+                        <SettingsSubtext>{'Invite more people to the club'}</SettingsSubtext>
+                    </SettingsTextContainer>
+                    <SettingsRowRightButton>
+                        <Icon type='ionicon' name='person-add' color='white' size={24} />
+                    </SettingsRowRightButton>
+                </SettingsRow>
+            );
+        }
+    
+        const ShareClubLinkRow = () => {
+            return (
+                <SettingsRow>
+                    <SettingsTextContainer>
+                        <SettingsText>{'Send Link'}</SettingsText>
+                        <SettingsSubtext>{'Share the club link'}</SettingsSubtext>
+                    </SettingsTextContainer>
+                    <SettingsRowRightButton>
+                        <FontAwesomeIcon icon={ faLink } size={24} color='white' />
+                    </SettingsRowRightButton>
+                </SettingsRow>
+            );
+        }
+    
+        return (
+            <React.Fragment>
+                <SectionHeaderText>{'Settings'}</SectionHeaderText>
+                { isClubOwner && <AllowMemberInvitesRow />}
+                { (isClubOwner || club.allowMemberInvites) && <AddMembersRow /> }
+                <ShareClubLinkRow />
+                { inviteDrawerVisible && (
+                    <InviteMyFollowsDrawer
+                        club={club}
+                        drawerVisible={inviteDrawerVisible}
+                        setDrawerVisible={setInviteDrawerVisible}
+                        onRefresh={onRefresh}
+                        provideSkipOption={false}
+                    />
+                )}
+            </React.Fragment>
+        );
+    }
+    
+    const ClubTopBar = () => {
+        const topOffset = useSafeAreaInsets().top;
+        return (
+            <TopBarContainer topOffset={topOffset}>
+                <ClubHeaderText numberOfLines={1}>{club.name}</ClubHeaderText>
+                <BackButtonContainer>
+                    <BackButton navigation={navigation} />
+                </BackButtonContainer>
+                <TopBarRightContainer>
+                <ClubPrivacyRow>
+                    { isClubOwner && <ClubEditButton club={club} navigation={navigation} /> }
+                    { !isClubOwner && (
+                        <React.Fragment>
+                            <ClubPrivacyText>{'Private'}</ClubPrivacyText>
+                            <Icon type='ionicon' name='lock-closed' color='white' size={20} />
+                        </React.Fragment>
+                    )}
+                </ClubPrivacyRow>
+                </TopBarRightContainer>
+            </TopBarContainer>
+        );
+    }
+    
     return (
         <InfoScreenContainer>
-            <ClubTopBar club={club} navigation={navigation} />
+            <ClubTopBar />
             <ScrollView 
                 contentContainerStyle={{ paddingBottom: bottomOffset }} 
                 refreshControl={refreshControl}
                 showsVerticalScrollIndicator={false}
             >
-                <ClubProfileInfo club={club} />
-                <ClubSettings club={club} onRefresh={onRefresh} />
+                <ClubProfileInfo />
+                <ClubSettings />
                 <HorizontalDivider />
-                <ClubMembers clubMembers={club.members} navigation={navigation} />
+                <ClubMembers />
             </ScrollView>
         </InfoScreenContainer>
     );

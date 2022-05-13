@@ -190,6 +190,9 @@ export default InviteMyFollowsList = ({ clubMembers, followsToSend, }) => {
 
                     const findFollowInMembers = (member) => member.userSub === followObj.followSub;
                     const isAlreadyMember = clubMembers.find(findFollowInMembers);
+                    if (isAlreadyMember && isAlreadyMember?.role === 'banned') {
+                        return <View key={followObj.followSub} />
+                    }
 
                     return <FollowerRow key={index} 
                         followObj={followObj}

@@ -93,7 +93,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
     }    
     
     const CreateClubButton = () => {
-        const advanceToCreateClub = () => navigation.push('CreateClubScreen');
+        const advanceToCreateClub = async () => navigation.push('CreateClubScreen');
         return (
             <ClubButtonPressable onPress={advanceToCreateClub}>
                 <CreateClubGradient colors={['#2977EF', '#FF4848']}>

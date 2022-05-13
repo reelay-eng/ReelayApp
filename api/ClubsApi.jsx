@@ -193,6 +193,24 @@ export const removeMemberFromClub = async ({
     return resultRemove;
 }
 
+export const banMemberFromClub = async ({
+    clubID,
+    userSub,
+    reqUserSub,
+}) => {
+    const routeRemove = `${REELAY_API_BASE_URL}/clubs/member/${clubID}/ban`;
+    const removeBody = { userSub };
+    const resultRemove = await fetchResults(routeRemove, {
+        method: 'DELETE',
+        headers: {
+            ...ReelayAPIHeaders,
+            requsersub: reqUserSub,
+        },
+        body: JSON.stringify(removeBody),
+    });
+    return resultRemove;
+}
+
 export const removeTitleFromClub = async ({
     clubID,
     tmdbTitleID,
@@ -213,4 +231,20 @@ export const removeTitleFromClub = async ({
         body: JSON.stringify(removeBody),
     });
     return resultRemove;
+}
+
+export const deleteClub = async ({
+    clubID,
+    reqUserSub,
+}) => {
+    const routeRemove = `${REELAY_API_BASE_URL}/clubs/${clubID}`;
+    const resultRemove = await fetchResults(routeRemove, {
+        method: 'DELETE',
+        headers: {
+            ...ReelayAPIHeaders,
+            requsersub: reqUserSub,
+        },
+    });
+    return resultRemove;
+
 }
