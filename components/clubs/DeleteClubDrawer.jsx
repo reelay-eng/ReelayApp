@@ -95,10 +95,13 @@ const PromptText = styled(ReelayText.Body2)`
 export default DeleteClubDrawer = ({ club, navigation, drawerVisible, setDrawerVisible }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
-    const closeDrawer = () => setDrawerVisible(false);
-    const confirmDeleteText = useRef('');
-    const [deleting, setDeleting] = useState(false);
+    
+    const authSession = useSelector(state => state.authSession);
     const myClubs = useSelector(state => state.myClubs);
+
+    const [deleting, setDeleting] = useState(false);
+    const confirmDeleteText = useRef('');
+    const closeDrawer = () => setDrawerVisible(false);
 
     const onChangeConfirmText = (text) => {
         confirmDeleteText.current = text;
@@ -127,6 +130,7 @@ export default DeleteClubDrawer = ({ club, navigation, drawerVisible, setDrawerV
                 }
                 setDeleting(true);
                 const deleteClubResult = await deleteClub({
+                    authSession,
                     clubID: club.id,
                     reqUserSub: reelayDBUser?.sub,
                 });

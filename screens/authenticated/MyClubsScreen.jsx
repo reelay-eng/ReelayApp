@@ -68,6 +68,7 @@ const MyClubsScreenContainer = styled(SafeAreaView)`
 export default MyClubsScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const [refreshing, setRefreshing] = useState(false);
+    const authSession = useSelector(state => state.authSession);
     const myClubs = useSelector(state => state.myClubs);
     const dispatch = useDispatch();
 
@@ -120,7 +121,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
     const onRefresh = async () => {
         try {
             setRefreshing(true);
-            const nextMyClubs = await getClubsMemberOf(reelayDBUser?.sub);
+            const nextMyClubs = await getClubsMemberOf({ authSession, userSub: reelayDBUser?.sub });
             dispatch({ type: 'setMyClubs', payload: nextMyClubs });
             setRefreshing(false);    
         } catch (error) {

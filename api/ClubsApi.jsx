@@ -1,13 +1,13 @@
 import Constants from 'expo-constants';
 import { fetchResults } from './fetchResults';
-import ReelayAPIHeaders from './ReelayAPIHeaders';
+import { getReelayAuthHeaders } from './ReelayAPIHeaders';
 import { prepareReelay } from './ReelayDBApi';
 import { fetchAnnotatedTitle } from './TMDbApi';
 
-const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 
 export const addMemberToClub = async ({
+    authSession,
     clubID,
     userSub,
     username,
@@ -28,7 +28,7 @@ export const addMemberToClub = async ({
     const addMemberResult = await fetchResults(routePost, {
         method: 'POST',
         headers: {
-            ...ReelayAPIHeaders,
+            ...getReelayAuthHeaders(authSession),
             requsersub: invitedBySub
         },
         body: JSON.stringify(postBody),
@@ -37,6 +37,7 @@ export const addMemberToClub = async ({
 }
 
 export const addTitleToClub = async ({
+    authSession,
     addedByUsername,
     addedByUserSub,
     clubID,
@@ -53,7 +54,7 @@ export const addTitleToClub = async ({
     const addClubTitleResult = await fetchResults(routePost, {
         method: 'POST',
         headers: {
-            ...ReelayAPIHeaders,
+            ...getReelayAuthHeaders(authSession),
             requsersub: addedByUserSub
         },
         body: JSON.stringify(postBody),
@@ -63,6 +64,7 @@ export const addTitleToClub = async ({
 }
 
 export const createClub = async ({ 
+    authSession,
     creatorName, 
     creatorSub, 
     description, 
@@ -80,7 +82,7 @@ export const createClub = async ({
     const createClubResult = await fetchResults(routePost, {
         method: 'POST',
         headers: {
-            ...ReelayAPIHeaders,
+            ...getReelayAuthHeaders(authSession),
             requsersub: creatorSub,
         },
         body: JSON.stringify(postBody),
@@ -89,6 +91,7 @@ export const createClub = async ({
 }
 
 export const editClub = async ({
+    authSession,
     clubID,
     name,
     description,
@@ -104,7 +107,7 @@ export const editClub = async ({
     const resultPatch = await fetchResults(routePatch, {
         method: 'PATCH',
         headers: {
-            ...ReelayAPIHeaders,
+            ...getReelayAuthHeaders(authSession),
             requsersub: reqUserSub,
         },
         body: JSON.stringify(patchBody),
@@ -112,12 +115,12 @@ export const editClub = async ({
     return resultPatch;
 }
 
-export const getClubMembers = async (clubID, reqUserSub) => {
+export const getClubMembers = async ({ authSession, clubID, reqUserSub }) => {
     const routeGet = `${REELAY_API_BASE_URL}/clubs/members/${clubID}`;
     const fetchedClubs = await fetchResults(routeGet, {
         method: 'GET',
         headers: {
-            ...ReelayAPIHeaders,
+            ...getReelayAuthHeaders(authSession),
             requsersub: reqUserSub,
         },
     });
@@ -128,12 +131,12 @@ export const getClubMembers = async (clubID, reqUserSub) => {
     return fetchedClubs;
 }
 
-export const getClubsMemberOf = async (userSub) => {
+export const getClubsMemberOf = async ({ authSession, userSub }) => {
     const routeGet = `${REELAY_API_BASE_URL}/clubs/memberOf/${userSub}`;
     const fetchedClubs = await fetchResults(routeGet, {
         method: 'GET',
         headers: {
-            ...ReelayAPIHeaders,
+            ...getReelayAuthHeaders(authSession),
             requsersub: userSub,
         },
     });
@@ -144,12 +147,12 @@ export const getClubsMemberOf = async (userSub) => {
     return fetchedClubs;
 }
 
-export const getClubTitles = async (clubID, reqUserSub) => {
+export const getClubTitles = async ({ authSession, clubID, reqUserSub }) => {
     const routeGet = `${REELAY_API_BASE_URL}/clubs/titles/${clubID}`;
     const clubTitles = await fetchResults(routeGet, {
         method: 'GET',
         headers: {
-            ...ReelayAPIHeaders,
+            ...getReelayAuthHeaders(authSession),
             requsersub: reqUserSub,
         },
     });
@@ -163,29 +166,25 @@ export const getClubTitles = async (clubID, reqUserSub) => {
     return annotatedClubTitles;
 }
 
-export const getClubTopics = async (clubID, reqUserSub) => {
+export const getClubTopics = async ({ authSession, clubID, reqUserSub }) => {
     const routeGet = `${REELAY_API_BASE_URL}/clubs/topics/${clubID}`;
     const resultGet = await fetchResults(routeGet, {
         method: 'GET',
         headers: {
-            ...ReelayAPIHeaders,
+            ...getReelayAuthHeaders(authSession),
             requsersub: reqUserSub,
         },
     })
     return resultGet;
 }
 
-export const removeMemberFromClub = async ({
-    clubID,
-    userSub,
-    reqUserSub,
-}) => {
+export const removeMemberFromClub = async ({ authSession, clubID, userSub, reqUserSub }) => {
     const routeRemove = `${REELAY_API_BASE_URL}/clubs/member/${clubID}`;
     const removeBody = { userSub };
     const resultRemove = await fetchResults(routeRemove, {
         method: 'DELETE',
         headers: {
-            ...ReelayAPIHeaders,
+            ...getReelayAuthHeaders(authSession),
             requsersub: reqUserSub,
         },
         body: JSON.stringify(removeBody),
@@ -193,17 +192,13 @@ export const removeMemberFromClub = async ({
     return resultRemove;
 }
 
-export const banMemberFromClub = async ({
-    clubID,
-    userSub,
-    reqUserSub,
-}) => {
+export const banMemberFromClub = async ({ authSession, clubID, userSub, reqUserSub }) => {
     const routeRemove = `${REELAY_API_BASE_URL}/clubs/member/${clubID}/ban`;
     const removeBody = { userSub };
     const resultRemove = await fetchResults(routeRemove, {
         method: 'DELETE',
         headers: {
-            ...ReelayAPIHeaders,
+            ...getReelayAuthHeaders(authSession),
             requsersub: reqUserSub,
         },
         body: JSON.stringify(removeBody),
@@ -212,6 +207,7 @@ export const banMemberFromClub = async ({
 }
 
 export const removeTitleFromClub = async ({
+    authSession, 
     clubID,
     tmdbTitleID,
     titleType,
@@ -225,7 +221,7 @@ export const removeTitleFromClub = async ({
     const resultRemove = await fetchResults(routeRemove, {
         method: 'DELETE',
         headers: {
-            ...ReelayAPIHeaders,
+            ...getReelayAuthHeaders(authSession),
             requsersub: reqUserSub,
         },
         body: JSON.stringify(removeBody),
@@ -233,15 +229,12 @@ export const removeTitleFromClub = async ({
     return resultRemove;
 }
 
-export const deleteClub = async ({
-    clubID,
-    reqUserSub,
-}) => {
+export const deleteClub = async ({ authSession, clubID, reqUserSub }) => {
     const routeRemove = `${REELAY_API_BASE_URL}/clubs/club/${clubID}`;
     const resultRemove = await fetchResults(routeRemove, {
         method: 'DELETE',
         headers: {
-            ...ReelayAPIHeaders,
+            ...getReelayAuthHeaders(authSession),
             requsersub: reqUserSub,
         },
     });

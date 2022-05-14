@@ -18,7 +18,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { addMemberToClub, addTitleToClub } from '../../api/ClubsApi';
+import { addTitleToClub } from '../../api/ClubsApi';
 import { showErrorToast, showMessageToast } from '../utils/toasts';
 import ClubPicture from '../global/ClubPicture';
 
@@ -113,6 +113,7 @@ export default AddToClubsDrawer = ({
     setIsAddedToWatchlist,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const authSession = useSelector(state => state.authSession);
     const dispatch = useDispatch();
     const titleKey = `${titleObj.titleType}-${titleObj.id}`;
 
@@ -137,6 +138,7 @@ export default AddToClubsDrawer = ({
     const AddTitleButton = () => {
         const addToClubWrapper = async (club) => {
             const addTitleResult = await addTitleToClub({
+                authSession,
                 addedByUsername: reelayDBUser?.username,
                 addedByUserSub: reelayDBUser?.sub,
                 clubID: club.id,
@@ -153,6 +155,7 @@ export default AddToClubsDrawer = ({
             if (sendToWatchlist.current) {
                 setIsAddedToWatchlist(true);
                 const addToWatchlistResult = await addToMyWatchlist({
+                    authSession,
                     reqUserSub: reelayDBUser?.sub,
                     reelaySub: reelay?.sub,
                     creatorName: reelay?.creator?.username,

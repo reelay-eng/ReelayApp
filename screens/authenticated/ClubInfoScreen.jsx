@@ -157,10 +157,11 @@ const UsernameContainer = styled(View)`
 `
 
 export default ClubInfoScreen = ({ navigation, route }) => {
-    const dispatch = useDispatch();
-    const { club } = route?.params;
-    const myClubs = useSelector(state => state.myClubs);
     const { reelayDBUser } = useContext(AuthContext);
+    const { club } = route?.params;
+    const dispatch = useDispatch();
+    const authSession = useSelector(state => state.authSession);
+    const myClubs = useSelector(state => state.myClubs);
     const isClubOwner = (reelayDBUser?.sub === club.creatorSub);
 
     const bottomOffset = useSafeAreaInsets().bottom;
@@ -170,8 +171,16 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         try { 
             setRefreshing(true);
             const [titles, members] = await Promise.all([
-                getClubTitles(club.id, reelayDBUser?.sub),
-                getClubMembers(club.id, reelayDBUser?.sub),
+                getClubTitles({ 
+                    authSession,
+                    clubID: club.id, 
+                    reqUserSub: reelayDBUser?.sub,
+                }),
+                getClubMembers({
+                    authSession,
+                    clubID: club.id, 
+                    reqUserSub: reelayDBUser?.sub,
+                }),
             ]);
             club.titles = titles;
             club.members = members;
@@ -250,6 +259,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     if (banning) return;
                     setBanning(true);
                     const removeResult = await banMemberFromClub({
+                        authSession,
                         clubID: club.id,
                         userSub,
                         reqUserSub: reelayDBUser?.sub,
@@ -280,6 +290,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     if (leaving) return;
                     setLeaving(true);
                     const removeResult = await removeMemberFromClub({
+                        authSession,
                         clubID: club.id,
                         userSub: reelayDBUser?.sub,
                         reqUserSub: reelayDBUser?.sub,
@@ -311,6 +322,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     if (removing) return;
                     setRemoving(true);
                     const removeResult = await removeMemberFromClub({
+                        authSession,
                         clubID: club.id,
                         userSub,
                         reqUserSub: reelayDBUser?.sub,
@@ -372,6 +384,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             const shouldAllow = !allowMemberInvites;
             setAllowMemberInvites(shouldAllow);
             const patchResult = await editClub({
+                authSession,
                 clubID: club.id,
                 membersCanInvite: shouldAllow,
                 reqUserSub: reelayDBUser?.sub,

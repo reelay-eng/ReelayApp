@@ -15,7 +15,7 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import * as ReelayText from '../../components/global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import InviteMyFollowsList from './InviteMyFollowsList';
 import { addMemberToClub } from '../../api/ClubsApi';
@@ -71,6 +71,7 @@ const SendInvitesButtonText = styled(ReelayText.Subtitle2)`
 
 export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible, onRefresh }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const authSession = useSelector(state => state.authSession);
     const followsToSend = useRef([]);
     const bottomOffset = useSafeAreaInsets().bottom;
     const closeDrawer = () => setDrawerVisible(false);
@@ -87,6 +88,7 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
     const SendInvitesButton = () => {
         const addInvitee = async (followObj) => {
             return await addMemberToClub({
+                authSession,
                 clubID: club.id,
                 userSub: followObj.followSub,
                 username: followObj.followName,

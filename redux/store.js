@@ -5,10 +5,8 @@ import {
     updateClubReducer, 
     watchlistRecsReducer 
 } from "./reducers";
-import { getReelayAuthHeaders, getReelayBaseHeaders } from "../api/ReelayAPIHeaders";
 
 const initialState = {
-    apiHeaders: getReelayBaseHeaders(),
     authSession: {},
     cognitoUser: {},
     donateLinks: [],
@@ -61,15 +59,10 @@ const initialState = {
 const appReducer = ( state = initialState, action) => {
     switch(action.type) {
         case 'clearAuthSession':
-            return { 
-                ...state, 
-                apiHeaders: getReelayBaseHeaders(),
-                authSession: {}, 
-            };
+            return { ...state, authSession: {}, };
         case 'setAuthSessionFromCognito':
             const authSession = cognitoSessionReducer(action.payload);
-            const apiHeaders = getReelayAuthHeaders(authSession);
-            return { ...state, authSession, apiHeaders };
+            return { ...state, authSession };
         case 'setCognitoUser':
             return { ...state, cognitoUser: action.payload }
         case 'setDonateLinks':
@@ -173,7 +166,6 @@ const appReducer = ( state = initialState, action) => {
 }
 
 export const mapStateToProps = (state) => ({
-    apiHeaders: state.apiHeaders,
     authSession: state.authSession,
     cognitoUser: state.cognitoUser,
     donateLinks: state.donateLinks,

@@ -96,6 +96,7 @@ const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 
 export default function CreateClubScreen({ navigation, route }) {
     const { reelayDBUser } = useContext(AuthContext);
+    const authSession = useSelector(state => state.authSession);
     const myClubs = useSelector(state => state.myClubs);
     const s3Client = useSelector(state => state.s3Client);
     const [publishing, setPublishing] = useState(false);
@@ -199,6 +200,7 @@ export default function CreateClubScreen({ navigation, route }) {
         try {
             setPublishing(true);
             const clubPostBody = {
+                authSession,
                 creatorName: reelayDBUser?.username,
                 creatorSub: reelayDBUser?.sub,
                 name: titleTextRef.current,

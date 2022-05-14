@@ -110,7 +110,9 @@ const DESCRIPTION_MAX_LENGTH = 75;
 export default function EditClubScreen({ navigation, route }) {
     const { reelayDBUser } = useContext(AuthContext);
     const { club } = route.params;
+    const authSession = useSelector(state => state.authSession);
     const myClubs = useSelector(state => state.myClubs);
+
     const [deleteClubDrawerVisible, setDeleteClubDrawerVisible] = useState(false);
     const [editPicDrawerVisible, setEditPicDrawerVisible] = useState(false);
     const [publishing, setPublishing] = useState(false);
@@ -149,6 +151,7 @@ export default function EditClubScreen({ navigation, route }) {
                 // todo: not fully working yet
                 dispatch({ type: 'setMyClubs', payload: myClubs });
                 const editResult = await editClub({
+                    authSession,
                     clubID: club.id,
                     reqUserSub: reelayDBUser?.sub,
                     ...editBody,
@@ -177,7 +180,6 @@ export default function EditClubScreen({ navigation, route }) {
         }
         return (
             <DeleteClubButtonContainer onPress={openConfirmDeleteDrawer}>
-                {/* <DeleteClubText>{'Delete this club'}</DeleteClubText> */}
                 <Icon type='ionicon' name='trash' color='white' size={24} />
             </DeleteClubButtonContainer>
         );

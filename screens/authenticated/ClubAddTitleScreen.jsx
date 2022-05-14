@@ -7,7 +7,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import ClubBanner from '../../components/clubs/ClubBanner';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 
 import { AuthContext } from '../../context/AuthContext';
@@ -95,6 +95,8 @@ const YearText = styled(ReelayText.Subtitle2)`
 export default ClubAddTitleScreen = ({ navigation, route }) => {
     const { club } = route.params;
     const { reelayDBUser } = useContext(AuthContext);
+    const authSession = useSelector(state => state.authSession);
+
     const topOffset = useSafeAreaInsets().top + 80;
     const bottomOffset = useSafeAreaInsets().bottom;
     const dispatch = useDispatch();
@@ -122,6 +124,7 @@ export default ClubAddTitleScreen = ({ navigation, route }) => {
                 const addTitleResults = await Promise.all(
                     selectedTitles.current.map(async (titleObj) => {
                         return await addTitleToClub({ 
+                            authSession,
                             addedByUserSub: reelayDBUser?.sub, 
                             addedByUsername: reelayDBUser?.username,
                             clubID: club.id, 

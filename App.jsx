@@ -63,6 +63,7 @@ function App() {
     const colorScheme = useColorScheme();
     const dispatch = useDispatch();
     const isLoading = useSelector(state => state.isLoading);
+    const authSession = useSelector(state => state.authSession);
 
     // Auth context hooks
     const [cognitoUser, setCognitoUser] = useState({});
@@ -258,7 +259,7 @@ function App() {
             getAllDonateLinks(),
 
             getGlobalTopics({ reqUserSub, page: 0 }),
-            getClubsMemberOf(userSub),
+            getClubsMemberOf({ authSession, userSub }),
             getFeed({ reqUserSub, feedSource: 'following', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'streaming', page: 0 }),

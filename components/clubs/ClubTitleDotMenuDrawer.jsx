@@ -10,14 +10,15 @@ import * as ReelayText from '../global/Text';
 import { showMessageToast } from '../utils/toasts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { removeTitleFromClub } from '../../api/ClubsApi';
+import { useSelector } from 'react-redux';
 
 
 const TitleDrawerContents = ({ clubTitle, onRefresh, setDrawerVisible }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const [drawerState, setDrawerState] = useState('options');
-    const addedByMe = (clubTitle.addedByUserSub === reelayDBUser?.sub);
+    const authSession = useSelector(state => state.authSession);
 
-    const [selectedPolicy, setSelectedPolicy] = useState({});
+    const addedByMe = (clubTitle.addedByUserSub === reelayDBUser?.sub);
     const bottomOffset = useSafeAreaInsets().bottom + 15;
     
     const ContentContainer = styled(View)`
@@ -110,6 +111,7 @@ const TitleDrawerContents = ({ clubTitle, onRefresh, setDrawerVisible }) => {
         const onPress = async () => {
             setDrawerState('remove-title-complete');
             const removeResult = await removeTitleFromClub({
+                authSession,
                 clubID: clubTitle.clubID,
                 tmdbTitleID: clubTitle.tmdbTitleID,
                 titleType: clubTitle.titleType,
@@ -117,7 +119,7 @@ const TitleDrawerContents = ({ clubTitle, onRefresh, setDrawerVisible }) => {
             })
             console.log(removeResult);
             onRefresh();
-            
+
             showMessageToast('This title has been removed');
             logAmplitudeEventProd('removeTitle', {
                 username: reelayDBUser?.username,

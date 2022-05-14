@@ -55,12 +55,10 @@ const ScrollContainer = styled(ScrollView)`
 export default ClubActivityScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const { club, promptToInvite } = route.params;
-    // const myClubs = useSelector(state => state.myClubs);
-    // const club = myClubs.find(nextClub => nextClub.id === clubID);
+    const authSession = useSelector(state => state.authSession);
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
 
     const dispatch = useDispatch();
-    const onGoBack = () => navigation.popToTop();
     const topOffset = useSafeAreaInsets().top + 80;
     const bottomOffset = useSafeAreaInsets().bottom;
 
@@ -69,8 +67,16 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         try { 
             setRefreshing(true);
             const [titles, members] = await Promise.all([
-                getClubTitles(club.id, reelayDBUser?.sub),
-                getClubMembers(club.id, reelayDBUser?.sub),
+                getClubTitles({ 
+                    authSession,
+                    clubID: club.id, 
+                    reqUserSub: reelayDBUser?.sub,
+                }),
+                getClubMembers({
+                    authSession,
+                    clubID: club.id, 
+                    reqUserSub: reelayDBUser?.sub,
+                }),
             ]);
             club.titles = titles;
             club.members = members;
@@ -132,7 +138,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                         />);
                 })}
             </ScrollContainer>
-            <ClubBanner club={club} navigation={navigation} onGoBack={onGoBack} />
+            <ClubBanner club={club} navigation={navigation} />
             <AddTitleButton />
             { inviteDrawerVisible && (
                 <InviteMyFollowsDrawer 

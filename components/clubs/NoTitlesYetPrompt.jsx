@@ -41,9 +41,9 @@ export default NoTitlesYetPrompt = () => {
             <DogWithGlassesContainer>
                 <DogWithGlassesImage source={DogWithGlasses} />
             </DogWithGlassesContainer>
-            <HeaderText>{'Nothing here yet'}</HeaderText>
+            <HeaderText>{'Add the first title!'}</HeaderText>
             <ExplainText>
-                {'Add the first title!'}
+                {'Get the club started'}
             </ExplainText>
         </NoTitlesYetContainer>
     );
