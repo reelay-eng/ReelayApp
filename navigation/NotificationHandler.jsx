@@ -7,7 +7,6 @@ export const handlePushNotificationResponse = async ({
     navigation, 
     notificationContent, 
     reelayDBUser, 
-    globalTopics,
     myWatchlistItems, 
 }) => {
     const { title, body, data } = notificationContent;
@@ -43,8 +42,16 @@ export const handlePushNotificationResponse = async ({
     } else if (action === 'openMyRecs') {
         await openMyRecs(dispatch, navigation, [data?.newWatchlistItem], myWatchlistItems);
     } else if (action === 'openTopicAtReelay') {
-        await openTopicAtReelay(navigation, globalTopics, data?.reelaySub)
+        await openTopicAtReelay(navigation, data?.reelaySub)
     }
+}
+
+const openClubActivityScreen = async (navigation, clubID) => {
+    // todo
+}
+
+const openClubAtReelay = async (navigation, reelaySub) => {
+    // todo
 }
 
 const openCreateScreen = async (navigation) => {
@@ -86,7 +93,11 @@ const openSingleReelayScreen = async (navigation, reelaySub) => {
     navigation.navigate('SingleReelayScreen', { preparedReelay })
 }
 
-const openTopicAtReelay = async (navigation, globalTopics, reelaySub) => {
+const openTitleScreen = async (navigation, titleObj) => {
+
+}
+
+const openTopicAtReelay = async (navigation, reelaySub) => {
     if (!navigation) {
         console.log('No navigation ref')
         return;

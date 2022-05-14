@@ -209,8 +209,6 @@ export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, comme
     }
 
     const title = `${author?.username}`;
-    // const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
-    // const body = `${bodyTitle}: ${commentText}`;
     const body = `commented on your reelay for ${reelay.title.display}`;
     const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
     const data = {        
@@ -347,8 +345,6 @@ export const notifyThreadOnComment = async ({ creator, author, reelay, commentTe
         if (creator.username === author.username) creatorDirectObject = 'their';
             
         const title = `${author.username}`;
-        // const bodyTitle = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
-        // const body = `${bodyTitle}: ${commentText}`;
         const body = `commented on ${creatorDirectObject} reelay for ${reelay.title.display}`;
         const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
         const data = { 
@@ -392,7 +388,6 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
     const recipientIsAuthor = (creatorSub === user?.sub);
     if (recipientIsAuthor) {
         const title = `Achievement Unlocked!`;
-        // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
         const body = '❤️ Love Yourself ❤️';
         const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
         const data = { 
@@ -412,7 +407,6 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
     }
 
     const title = `${user?.username}`;
-    // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
     const body = `liked your reelay for ${reelay.title.display}`;
     const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
     const data = { 
@@ -503,7 +497,6 @@ export const notifyOtherCreatorsOnReelayPosted = async ({ creator, reelay, topic
             return;
         }
         const title = (topic) ? `${creator.username}` : `${reelay.title.display}`;
-        // const body = (reelay.title.releaseYear) ? `${reelay.title.display} (${reelay.title.releaseYear})` : `${reelay.title.display}`;
         const body = (topic) ? `added to the topic: ${condensedTitle(topic.title)}` : `new reelay by ${creator.username}`; // add name for topic
         console.log("sending notifcation to ", notifyCreator)
         const data = { 

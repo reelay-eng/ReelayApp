@@ -42,7 +42,6 @@ export default Navigation = () => {
     const notificationListener = useRef();
     const responseListener = useRef(); 
     const { reelayDBUser } = useContext(AuthContext);
-    const globalTopics = useSelector(state => state.globalTopics);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const dispatch = useDispatch();
 
@@ -82,7 +81,6 @@ export default Navigation = () => {
             navigation: navigationRef?.current, 
             notificationContent,
             reelayDBUser,
-            globalTopics,
             myWatchlistItems,
         });
     }

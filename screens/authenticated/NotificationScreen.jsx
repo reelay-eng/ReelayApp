@@ -95,7 +95,6 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     });    
 
     const dispatch = useDispatch();
-    const globalTopics = useSelector(state => state.globalTopics);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
 
     const { id, title, body, data, createdAt, seen } = notificationContent;
@@ -131,18 +130,22 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         const { notifyType, fromUser } = data;
 
         const profilePicNotifyTypes = [
+            'notifyClubOnTitleAdded',
+            'notifyClubTitleThreadOnNewReelay',
+            'notifyClubTopicThreadOnNewReelay',
+            'notifyCreatorOnComment',
+            'notifyCreatorOnFollow',
+            'notifyCreatorOnLike',
+            'notifyMentionedUserOnComment',
+            'notifyMentionedUserOnReelayPosted',
+            'notifyNewMemberOnClubInvite',
             'notifyOnAcceptRec',
             'notifyOnReelayedRec',
             'notifyOnSendRec',
-            'notifyCreatorOnComment',
-            'notifyMentionedUserOnComment',
-            'notifyMentionedUserOnReelayPosted',
+            'notifyOtherCreatorsOnReelayPosted',
             'notifyThreadOnComment',
             'notifyTopicCreatorOnReelayPosted',
             'notifyUserOnCommentLike',
-            'notifyCreatorOnFollow',
-            'notifyCreatorOnLike',
-            'notifyOtherCreatorsOnReelayPosted',
         ];
 
         if (profilePicNotifyTypes.includes(notifyType)) {
@@ -160,17 +163,21 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         const { notifyType, title, fromUser } = data;
         const followButtonTypes = ['notifyCreatorOnFollow'];
         const posterButtonTypes = [
+            'notifyClubOnTitleAdded',
+            'notifyClubTitleThreadOnNewReelay',
+            'notifyClubTopicThreadOnNewReelay',
+            'notifyCreatorOnComment',
+            'notifyCreatorOnLike',
+            'notifyMentionedUserOnComment',
+            'notifyMentionedUserOnReelayPosted',
+            'notifyNewMemberOnClubInvite',
             'notifyOnAcceptRec',
             'notifyOnReelayedRec',
             'notifyOnSendRec',
-            'notifyCreatorOnComment',
-            'notifyMentionedUserOnComment',
-            'notifyMentionedUserOnReelayPosted',
+            'notifyOtherCreatorsOnReelayPosted',
             'notifyThreadOnComment',
             'notifyTopicCreatorOnReelayPosted',
             'notifyUserOnCommentLike',
-            'notifyCreatorOnLike',
-            'notifyOtherCreatorsOnReelayPosted',
         ];
 
         if (followButtonTypes.includes(notifyType)) {
@@ -192,7 +199,6 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
             navigation,
             notificationContent, 
             reelayDBUser,
-            globalTopics,
             myWatchlistItems,
         });
     };
