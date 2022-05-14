@@ -274,6 +274,7 @@ export default SignInScreen = ({ navigation, route }) => {
 						rightIcon={badPassword ? AuthInputWarningIconStyle : null}
                         textContentType='password'
 						value={password}
+                        onSubmitEditing={signInWithUsernameAndPassword}   
 					/>
 					<ForgotPassword />
 				</InputContainer>

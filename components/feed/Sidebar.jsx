@@ -121,6 +121,9 @@ export default Sidebar = ({ navigation, reelay }) => {
 				creatorName: reelay.creator.username,
 				username: reelayDBUser?.username,
 				postedAt: new Date().toISOString(),
+
+				// for frontend purpose only, not used on backend:
+				userSub: reelayDBUser?.sub,
 			}
 			reelay.likes.push(likeBody);
 			setLikeUpdateCounter(likeUpdateCounter + 1);		
