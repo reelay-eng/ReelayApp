@@ -7,7 +7,6 @@ const ICON_PATH = '../../assets/icons/venues/';
 
 const iconAmazon = require(ICON_PATH + 'amazon.png');
 const iconAppleTV = require(ICON_PATH + 'appletv.png');
-const iconCrackle = require(ICON_PATH + 'crackle.png');
 const iconCriterion = require(ICON_PATH + 'criterion.png');
 const iconCrunchyroll = require(ICON_PATH + 'crunchyroll.png');
 const iconDisney = require(ICON_PATH + 'disney.png');
@@ -15,6 +14,7 @@ const iconFestivals = require(ICON_PATH + 'festivals.png');
 const iconHomeVideo = require(ICON_PATH + "homevideo.png")
 const iconHBO = require(ICON_PATH + 'hbomax.png');
 const iconHulu = require(ICON_PATH + 'hulu.png');
+const iconKanopy = require(ICON_PATH + 'kanopy.png');
 const iconMubi = require(ICON_PATH + 'mubi.png');
 const iconNetflix = require(ICON_PATH + 'netflix.png');
 const iconOther = require(ICON_PATH + 'other.png');
@@ -52,7 +52,7 @@ export const streamingVenues = [
     { source: iconYouTube, venue: 'youtube', tmdbProviderID: 192 },
     { source: iconShudder, venue: 'shudder', tmdbProviderID: 0 },
     { source: iconCrunchyroll, venue: 'crunchyroll', tmdbProviderID: 0 },
-    { source: iconCrackle, venue: 'crackle', tmdbProviderID: 12 },
+    { source: iconKanopy, venue: 'kanopy', tmdbProviderID: 0 },
 ];
 
 export const otherVenues = [
