@@ -38,13 +38,11 @@ export default Navigation = () => {
      * https://docs.expo.dev/versions/latest/sdk/notifications/#notificationresponse
      * https://docs.expo.dev/versions/latest/sdk/notifications/#handling-push-notifications-with-react-navigation
      */
+    const myClubs = useSelector(state => state.myClubs);
     const navigationRef = useRef();
     const notificationListener = useRef();
     const responseListener = useRef(); 
     const { reelayDBUser } = useContext(AuthContext);
-    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-    const dispatch = useDispatch();
-
     const [deeplinkURL, setDeeplinkURL] = useState(null);
 
     const handleDeepLink = async (event) => {
@@ -77,11 +75,10 @@ export default Navigation = () => {
         const { notification, actionIdentifier, userText } = notificationResponse;
         const notificationContent = parseNotificationContent(notification);
         handlePushNotificationResponse({ 
-            dispatch,
+            myClubs,
             navigation: navigationRef?.current, 
             notificationContent,
             reelayDBUser,
-            myWatchlistItems,
         });
     }
 

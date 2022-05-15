@@ -8,8 +8,8 @@ import {
     TouchableOpacity, 
     View,
 } from 'react-native';
-import { Icon } from 'react-native-elements';
 
+import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import * as ReelayText from '../../components/global/Text';
@@ -20,6 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import InviteMyFollowsList from './InviteMyFollowsList';
 import { addMemberToClub } from '../../api/ClubsApi';
 import { showErrorToast, showMessageToast } from '../utils/toasts';
+import { notifyNewMemberOnClubInvite } from '../../api/ClubNotifications';
 
 const { width } = Dimensions.get('window');
 
@@ -87,7 +88,7 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
 
     const SendInvitesButton = () => {
         const addInvitee = async (followObj) => {
-            return await addMemberToClub({
+            const addMemberResult = await addMemberToClub({
                 authSession,
                 clubID: club.id,
                 userSub: followObj.followSub,
@@ -97,6 +98,17 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
                 invitedByUsername: reelayDBUser?.username,
                 inviteLinkID: null,
             });
+
+            notifyNewMemberOnClubInvite({
+                club,
+                invitedByUser: reelayDBUser,
+                newMember: {
+                    sub: followObj.followSub,
+                    username: followObj.followName,
+                },
+            });
+            
+            return addMemberResult;
         }
 
         const addInviteesToClub = async () => {
@@ -104,7 +116,6 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
                 if (sendingInvites) return;
                 setSendingInvites(true);
                 const inviteResults = await Promise.all(followsToSend.current.map(addInvitee));
-                console.log('Invite results: ', inviteResults);
                 setSendingInvites(false);
                 const peopleWord = (inviteResults.length > 1) ? 'people' : 'person';
                 showMessageToast(`Added ${inviteResults.length} ${peopleWord} to ${club.name}`);

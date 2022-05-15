@@ -18,13 +18,14 @@ import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { addTitleToClub } from '../../api/ClubsApi';
+import { addTitleToClub, getClubMembers } from '../../api/ClubsApi';
 import { showErrorToast, showMessageToast } from '../utils/toasts';
 import ClubPicture from '../global/ClubPicture';
 
 import { AddToClubsIconSVG, AddedToClubsIconSVG } from '../global/SVGs';
 import ProfilePicture from '../global/ProfilePicture';
 import { addToMyWatchlist } from '../../api/WatchlistApi';
+import { notifyClubOnTitleAdded } from '../../api/ClubNotifications';
 
 const { width } = Dimensions.get('window');
 
@@ -145,7 +146,22 @@ export default AddToClubsDrawer = ({
                 titleType: titleObj.titleType,
                 tmdbTitleID: titleObj.id,
             });
-            console.log('added title to club: ', club.name, addTitleResult);
+
+            // we need to refresh club membership before sending notifications
+            // since a user can share a title before loading the club page
+            // (and therefore before loading club membership)
+            club.members = await getClubMembers({
+                authSession,
+                clubID: club.id,
+                reqUserSub: reelayDBUser?.sub,
+            });
+
+            notifyClubOnTitleAdded({
+                club,
+                clubTitle: addTitleResult,
+                addedByUser: reelayDBUser,
+            });
+
             club.titles = [addTitleResult, ...club.titles];
             dispatch({ type: 'setUpdatedClub', payload: club });
             return addTitleResult;
@@ -173,7 +189,6 @@ export default AddToClubsDrawer = ({
                 if (addingTitle) return;
                 setAddingTitle(true);
                 const addTitleResults = await Promise.all(clubsToSend.current.map(addToClubWrapper))
-                console.log('Add results: ', addTitleResults);
                 if (sendToWatchlist.current) {
                     addToWatchlistWrapper();
                 }

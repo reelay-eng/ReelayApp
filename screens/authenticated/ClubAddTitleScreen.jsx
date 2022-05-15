@@ -20,6 +20,7 @@ import TitlePoster from '../../components/global/TitlePoster';
 import { getRuntimeString } from '../../components/utils/TitleRuntime';
 import { addTitleToClub } from '../../api/ClubsApi';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
+import { notifyClubOnTitleAdded } from '../../api/ClubNotifications';
 
 const { height, width } = Dimensions.get('window');
 
@@ -123,14 +124,24 @@ export default ClubAddTitleScreen = ({ navigation, route }) => {
                 setUploading(true);
                 const addTitleResults = await Promise.all(
                     selectedTitles.current.map(async (titleObj) => {
-                        return await addTitleToClub({ 
+                        const addTitleResult = await addTitleToClub({ 
                             authSession,
                             addedByUserSub: reelayDBUser?.sub, 
                             addedByUsername: reelayDBUser?.username,
                             clubID: club.id, 
                             titleType: titleObj.titleType,
                             tmdbTitleID: titleObj.id,
-                        });            
+                        });
+
+                        notifyClubOnTitleAdded({
+                            club,
+                            clubTitle: addTitleResult,
+                            addedByUser: reelayDBUser,
+                        });
+
+                        club.titles = [addTitleResult, ...club.titles];
+                        dispatch({ type: 'setUpdatedClub', payload: club });            
+                        return addTitleResult;
                     })
                 );
                 const titleWord = `title${(addTitleResults.length > 1) ? 's' : ''}`;
