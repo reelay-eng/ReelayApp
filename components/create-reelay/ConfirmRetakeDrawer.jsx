@@ -22,17 +22,21 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
     `
     const ConfirmationContainer = styled(View)`
         width: 100%;
-        padding: 30px;
+        padding-left: 24px;
+        padding-right: 24px;
     `
-    const DrawerContainer = styled(View)`
-        background-color: black;
+    const DrawerContainer = styled(View)` 
+        background-color: #1a1a1a;
         border-top-left-radius: 12px;
         border-top-right-radius: 12px;
         height: auto;
         margin-top: auto;
         max-height: 70%;
-        padding-bottom: 80px;
+        padding-bottom: 35px;
         width: 100%;
+    `
+    const IconSpacer = styled(View)`
+        width: 8px;
     `
     const ModalContainer = styled(View)`
         position: absolute;
@@ -48,13 +52,12 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
         align-items: center;
         flex-direction: row;
         justify-content: space-between;
-        margin-bottom: 10px;
     `
-    const OptionText = styled(ReelayText.Body1)`
-        margin-left: 20px;
+    const OptionText = styled(ReelayText.Body2)`
         color: white;
-    ` 
-    const PromptText = styled(ReelayText.Body1)`
+    `
+
+    const PromptText = styled(ReelayText.Body2)`
         color: white;
     ` 
 
@@ -80,7 +83,8 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
         }
         return (
             <OptionContainerPressable onPress={onPress}>
-                <Icon type='ionicon' name='trash' size={30} color={'white'} />
+                <Icon type='ionicon' name='trash' size={20} color={'white'} />
+                <IconSpacer />
                 <OptionText>{'Retake'}</OptionText>
             </OptionContainerPressable>
         );
@@ -89,7 +93,8 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
     const CancelOption = () => {
         return (
             <OptionContainerPressable onPress={closeDrawer}>
-                <Icon type='ionicon' name='close' size={30} color={'white'} />
+                <Icon type='ionicon' name='close' size={20} color={'white'} />
+                <IconSpacer />
                 <OptionText>{'Cancel'}</OptionText>
             </OptionContainerPressable>
         );
@@ -107,7 +112,8 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
         }
         return (
             <OptionContainerPressable onPress={onPress}>
-                <Icon type='ionicon' name='exit-outline' size={30} color={'white'} />
+                <Icon type='ionicon' name='exit-outline' size={20} color={'white'} />
+                <IconSpacer />
                 <OptionText>{'Exit to Home'}</OptionText>
             </OptionContainerPressable>
         );
@@ -124,11 +130,36 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
         );
     }
 
+    const Header = () => {
+        const HeaderContainer = styled(View)`
+            justify-content: center;
+            margin-left: 12px;
+            margin-right: 20px;
+            margin-bottom: 5px;
+            border-bottom-color: #2D2D2D;
+            border-bottom-width: 1px;
+            padding-top: 8px;
+            padding-bottom: 8px;
+        `
+        const CloseButtonContainer = styled(Pressable)`
+            align-self: flex-end;
+        `		
+
+        return (
+            <HeaderContainer>
+                <CloseButtonContainer onPress={closeDrawer}>
+                    <Icon color={'white'} type='ionicon' name='close' size={25}/>
+                </CloseButtonContainer>
+            </HeaderContainer>
+        );
+    }
+
     return (
         <ModalContainer>
             <Modal animationType='slide' transparent={true} visible={confirmRetakeDrawerVisible}>
                  <Backdrop onPress={closeDrawer}/>
                 <DrawerContainer>
+                    <Header />
                     <Confirmation />
                 </DrawerContainer>
             </Modal>
