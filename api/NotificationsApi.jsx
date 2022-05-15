@@ -241,7 +241,7 @@ export const notifyUserOnCommentLike = async ({ authorSub, user, reelay }) => {
         return;
     }
 
-    let creatorDirectObject = `@${creator.username}'s`;
+    let creatorDirectObject = `${creator.username}'s`;
     if (creator.username === user?.username) creatorDirectObject = 'their';
     if (creator.username === commentAuthor.username) creatorDirectObject = 'your';
 
@@ -277,7 +277,7 @@ export const notifyMentionsOnComment = async ({ creator, author, reelay, comment
                 return;
             }
         
-            let creatorDirectObject = `@${creator.username}'s`;
+            let creatorDirectObject = `${creator.username}'s`;
             if (creator.username === author.username) creatorDirectObject = 'their';
             if (creator.username === notifyMentionedUser.username) creatorDirectObject = 'your';
                 
@@ -343,7 +343,7 @@ export const notifyThreadOnComment = async ({ creator, author, reelay, commentTe
             return;
         }
 
-        let creatorDirectObject = `@${creator.username}'s`;
+        let creatorDirectObject = `${creator.username}'s`;
         if (creator.username === author.username) creatorDirectObject = 'their';
             
         const title = `${author.username}`;
