@@ -12,7 +12,8 @@ const FollowItemContainer = styled(View)`
 const UserSearchResults = ({ navigation, searchResults }) => {
     const ROW_HEIGHT = 165;
 	const SearchResultsScrollContainer = styled(ScrollView)`
-		margin-bottom: ${ROW_HEIGHT + 105}px;
+		padding-bottom: ${ROW_HEIGHT}px;
+		margin-bottom: ${ROW_HEIGHT+105}px;
 	`;
     return (
         <View>
