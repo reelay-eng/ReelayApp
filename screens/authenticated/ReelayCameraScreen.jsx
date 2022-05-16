@@ -18,12 +18,12 @@ import TitlePoster from '../../components/global/TitlePoster';
 
 const { height, width } = Dimensions.get('window');
 const captureSize = Math.floor(height * 0.07);
-const ringSize = captureSize + 20;    
+const ringSize = captureSize + 20;
+
+const MAX_VIDEO_DURATION_SEC = 60;
+const MAX_VIDEO_DURATION_MILLIS = 1000 * MAX_VIDEO_DURATION_SEC;
 
 export default ReelayCameraScreen = ({ navigation, route }) => {
-    var backCount = 0;
-    var backTimer = 0;
-    const dispatch = useDispatch();
     const { reelayDBUser} = useContext(AuthContext);
     const { titleObj, venue } = route.params;
     const topicID = route.params?.topicID;
@@ -67,14 +67,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             }
         }
     };
-
-    const flipCamera = () => {
-        setCameraType((prevCameraType) =>
-            prevCameraType === Camera.Constants.Type.back
-            ? Camera.Constants.Type.front
-            : Camera.Constants.Type.back
-        );
-    };
     
     const MediaLibraryPicker = () => {
         // these positions are eyeballed
@@ -99,7 +91,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                     quality: 1,
                 });
                 if (!selectedVideo || !selectedVideo.uri || selectedVideo.cancelled) return;
-                if (selectedVideo.duration > 15000) { // in milliseconds
+                if (selectedVideo.duration > MAX_VIDEO_DURATION_MILLIS) {
                     showErrorToast('You can only upload 15 second videos or shorter');
                     return;
                 }
@@ -123,8 +115,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const RecordButton = () => {
 
         const RECORD_COLOR = '#cb2d26';
-        const REELAY_DURATION_SECONDS = 15;
-
         const [isRecording, setIsRecording] = useState(false);
 
         const RecordButtonCenter = styled(Pressable)`
@@ -161,7 +151,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         return (
             <CountdownCircleTimer 
                 colors={[[RECORD_COLOR]]}
-                duration={REELAY_DURATION_SECONDS} 
+                duration={MAX_VIDEO_DURATION_SEC} 
                 isPlaying={isRecording} 
                 key={retakeCounter} // this resets the timer on a retake
                 size={ringSize} 
@@ -276,18 +266,31 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         width: 100%;
     `
 
+    let tapCount = 0;
+    let tapTimer = 0;
+    const resetDoubleTap = () => tapCount = 0;
+
+    const flipCamera = () => {
+        tapTimer = 0;
+        const getNextCameraType = (prevCameraType) => {
+            return (prevCameraType === Camera.Constants.Type.back)
+                ? Camera.Constants.Type.front
+                : Camera.Constants.Type.back;
+        }
+        setCameraType(getNextCameraType);
+    };
+
+    const handleDoubleTap = () => {
+        tapCount++;
+        if (tapCount % 2 === 0) {
+            flipCamera(); 
+        } else {
+            tapTimer = setTimeout(resetDoubleTap, 500);
+        }
+    }
+
     return (
-        <CameraContainer onPress={() => {
-            backCount++
-            if (backCount == 2) {
-                backTimer=0;
-                flipCamera();
-            } else {
-                backTimer = setTimeout(() => {
-                    backCount = 0
-                }, 500)
-            }
-        }}>
+        <CameraContainer onPress={handleDoubleTap}>
             <ReelayCamera />
             <RecordOverlay />
         </CameraContainer>

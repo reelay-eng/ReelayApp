@@ -70,7 +70,6 @@ const HeroModals = ({ reelay, navigation }) => {
 }
 
 export default Hero = ({ index, navigation, reelay, viewable }) => {
-    const { reelayDBUser } = useContext(AuthContext);
     const commentsCount = useRef(reelay.comments.length);
     const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
 

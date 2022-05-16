@@ -28,6 +28,7 @@ import { handlePushNotificationResponse } from './NotificationHandler';
 import { markNotificationReceived } from '../api/NotificationsApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
+import { uploadReelay } from '../api/UploadAPI';
 
 const UUID_LENGTH = 36;
 
@@ -38,13 +39,22 @@ export default Navigation = () => {
      * https://docs.expo.dev/versions/latest/sdk/notifications/#notificationresponse
      * https://docs.expo.dev/versions/latest/sdk/notifications/#handling-push-notifications-with-react-navigation
      */
+
+    const { reelayDBUser } = useContext(AuthContext);
+
     const navigationRef = useRef();
     const notificationListener = useRef();
     const responseListener = useRef(); 
-    const { reelayDBUser } = useContext(AuthContext);
+
+    const dispatch = useDispatch();
     const globalTopics = useSelector(state => state.globalTopics);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-    const dispatch = useDispatch();
+    const s3Client = useSelector(state => state.s3Client);
+    const uploadRequest = useSelector(state => state.uploadRequest);
+    const uploadStage = useSelector(state => state.uploadStage);
+
+    const setUploadProgress = (progress) => dispatch({ type: 'setUploadProgress', payload: progress });
+    const setUploadStage = (stage) => dispatch({ type: 'setUploadStage', payload: stage });
 
     const [deeplinkURL, setDeeplinkURL] = useState(null);
 
@@ -141,6 +151,22 @@ export default Navigation = () => {
             }
         }
     }, [deeplinkURL]);
+
+    useEffect(() => {
+        const uploadReadyToStart = (
+            uploadRequest && 
+            uploadRequest?.reelayDBBody && 
+            uploadStage === 'upload-ready'
+        );
+        if (uploadReadyToStart) {
+            dispatch({ type: 'setUploadStage', payload: 'uploading' });
+            uploadRequest.pushToGlobalTopics = () => {};
+            uploadRequest.s3Client = s3Client;
+            uploadRequest.setUploadProgress = setUploadProgress;
+            uploadRequest.setUploadStage = setUploadStage;
+            uploadReelay(uploadRequest);
+        }
+    }, [uploadRequest, uploadStage]);
     
     return (
         <NavigationContainer ref={navigationRef}

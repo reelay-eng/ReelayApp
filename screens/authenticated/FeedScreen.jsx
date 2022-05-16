@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import ReelayFeed from '../../components/feed/ReelayFeed';
 import styled from 'styled-components/native';
 
@@ -7,13 +7,13 @@ export default function FeedScreen({ navigation, route }) {
         flex: 1;
         background-color: black;
     `
-    const forceRefresh = route?.params?.forceRefresh;
 
     // valid feed sources: [global, following, theaters, streaming, festivals]
     const initialFeedSource = route?.params?.initialFeedSource;
     const initialStackPos = route?.params?.initialStackPos;
     const initialFeedPos = route?.params?.initialFeedPos;
     const isOnFeedTab = route?.params?.isOnFeedTab;
+    const forceRefresh = route?.params?.forceRefresh;
     const pinnedReelay = route?.params?.pinnedReelay;
     const preloadedStackList = route?.params?.preloadedStackList;
 
