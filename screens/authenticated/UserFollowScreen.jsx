@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
 import { SafeAreaView, View } from 'react-native';
 
 import BackButton from '../../components/utils/BackButton';
@@ -10,6 +10,8 @@ import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import { getFollowers, getFollowing } from '../../api/ReelayDBApi';
 import ReelayColors from '../../constants/ReelayColors';
+import { useSelector } from 'react-redux';
+import { AuthContext } from '../../context/AuthContext';
 
 const BackButtonContainer = styled(View)`
     margin-right: 10px;
@@ -49,6 +51,9 @@ export default UserFollowScreen = ({ navigation, route }) => {
     const [creatorFollowers, setCreatorFollowers] = useState(initFollowers);
     const [creatorFollowing, setCreatorFollowing] = useState(initFollowing);
     const [refreshing, setRefreshing] = useState(false);
+
+    const myFollowing = useSelector(state => state.myFollowing);
+    const { reelayDBUser } = useContext(AuthContext);
 
     const allSearchResults = (initFollowType === 'Followers') ? creatorFollowers : creatorFollowing;
     const [searchResults, setSearchResults] = useState(allSearchResults);
@@ -98,6 +103,32 @@ export default UserFollowScreen = ({ navigation, route }) => {
                         ? nextFollowObj.followerName.toLowerCase()
                         : nextFollowObj.creatorName.toLowerCase();
                     return cleanedFollowName.indexOf(cleanedSearchText) != -1; 
+                });
+
+                filteredFollowResults.sort(function(a, b) { 
+                    if (selectedFollowType === 'Followers') {
+                        if (a?.followerName === reelayDBUser.username)   return -1;
+                        if (b?.followerName === reelayDBUser.username)   return 1;
+
+                        const followingUserA = myFollowing.find((user) => { return a?.followerName === user.creatorName });
+                        const followingUserB = myFollowing.find((user) => { return b?.followerName === user.creatorName });
+
+                        if (followingUserA === followingUserB) {
+                            return (a.followerName > b.followerName) ? 1 : -1;
+                        }
+                        return (followingUserA) ? -1 : 1;
+                    } else if (selectedFollowType === 'Following') {
+                        if (a?.creatorName === reelayDBUser.username)   return -1;
+                        if (b?.creatorName === reelayDBUser.username)   return 1;
+
+                        const followingUserA = myFollowing.find((user) => { return a?.creatorName === user.creatorName });
+                        const followingUserB = myFollowing.find((user) => { return b?.creatorName === user.creatorName });
+
+                        if (followingUserA === followingUserB) {
+                            return (a.creatorName > b.creatorName) ? 1 : -1;
+                        } 
+                        return (followingUserA) ? -1 : 1;
+                    }
                 });
                 setSearchResults(filteredFollowResults);
             }

@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { ActivityIndicator, SafeAreaView, View } from "react-native";
+import { useSelector } from "react-redux";
 
 //Components
 import { HeaderWithBackButton } from '../../components/global/Headers'
@@ -50,6 +51,7 @@ const SearchBarContainer = styled(View)`
 
 export default SearchScreen = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const myFollowing = useSelector(state => state.myFollowing);
 
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState("");
@@ -96,6 +98,20 @@ export default SearchScreen = ({ navigation }) => {
                     annotatedResults = await searchTitles(newSearchText, true);
                 } else {
                     annotatedResults = await searchUsers(newSearchText);
+                }
+                if (selectedType === "Users") { 
+                    annotatedResults = annotatedResults.sort(function(a, b) { 
+                        if (a.username === reelayDBUser.username)   return -1;
+                        if (b.username === reelayDBUser.username)   return 1;
+
+                        const followingUserA = myFollowing.find((user) => { return a.username === user.creatorName });
+                        const followingUserB = myFollowing.find((user) => { return b.username === user.creatorName });
+
+                        if (followingUserA === followingUserB) {
+                            return (a.username > b.username) ? 1 : -1;
+                        }
+                        return (followingUserA) ? -1 : 1;
+                    })
                 }
                 setSearchResults(annotatedResults);
                 logAmplitudeEventProd('search', {
