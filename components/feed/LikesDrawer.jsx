@@ -142,6 +142,7 @@ export default LikesDrawer = ({ reelay, navigation }) => {
         `
         const LikesScrollView = styled(ScrollView)`
             width: 100%;
+            margin-bottom: 30px;
         `
         
         reelay.likes.sort(function(a, b) { 
