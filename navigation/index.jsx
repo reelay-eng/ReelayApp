@@ -45,18 +45,19 @@ export default Navigation = () => {
     const navigationRef = useRef();
     const notificationListener = useRef();
     const responseListener = useRef(); 
+    const [deeplinkURL, setDeeplinkURL] = useState(null);
 
     const dispatch = useDispatch();
     const globalTopics = useSelector(state => state.globalTopics);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+
     const s3Client = useSelector(state => state.s3Client);
     const uploadRequest = useSelector(state => state.uploadRequest);
     const uploadStage = useSelector(state => state.uploadStage);
 
     const setUploadProgress = (progress) => dispatch({ type: 'setUploadProgress', payload: progress });
     const setUploadStage = (stage) => dispatch({ type: 'setUploadStage', payload: stage });
-
-    const [deeplinkURL, setDeeplinkURL] = useState(null);
+    const clearUploadRequest = () => dispatch({ type: 'setUploadRequest', payload: null });
 
     const handleDeepLink = async (event) => {
         const deeplinkURL = Linking.parse(event.url);
@@ -160,10 +161,10 @@ export default Navigation = () => {
         );
         if (uploadReadyToStart) {
             dispatch({ type: 'setUploadStage', payload: 'uploading' });
-            uploadRequest.pushToGlobalTopics = () => {};
             uploadRequest.s3Client = s3Client;
             uploadRequest.setUploadProgress = setUploadProgress;
             uploadRequest.setUploadStage = setUploadStage;
+            uploadRequest.clearUploadRequest = clearUploadRequest;
             uploadReelay(uploadRequest);
         }
     }, [uploadRequest, uploadStage]);

@@ -27,10 +27,10 @@ const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
 
 
 export const uploadReelay = async ({ 
+    clearUploadRequest,
     destination,
     reelayDBBody, 
     reelayTopic,
-    pushToGlobalTopics,
     s3Client,
     setUploadProgress, 
     setUploadStage,
@@ -55,6 +55,13 @@ export const uploadReelay = async ({
             videoURI, 
             videoS3Key,
         });
+
+        if (!s3UploadResult) {
+            setUploadStage('upload-failed-retry');
+            setUploadProgress(1.0);
+            return;
+        }
+
         console.log('Saved Reelay to S3: ', s3UploadResult);
         setUploadProgress(0.8);
     
@@ -66,6 +73,7 @@ export const uploadReelay = async ({
         setTimeout(() => {
             setUploadStage('none');
             setUploadProgress(0.0);
+            clearUploadRequest();
         }, 3000);
     
         console.log('saved new Reelay');
@@ -80,11 +88,6 @@ export const uploadReelay = async ({
         const preparedReelay = await prepareReelay(reelayDBBody);
         preparedReelay.likes = [];
         preparedReelay.comments = [];    
-
-        if (reelayTopic) {
-            reelayTopic.reelays = [preparedReelay, ...reelayTopic.reelays];
-            pushToGlobalTopics(reelayTopic);
-        }
     
         await sendNotificationsOnUpload({ preparedReelay, reelayTopic });     
     } catch (error) {
@@ -120,7 +123,7 @@ const sendNotificationsOnUpload = async ({ preparedReelay, reelayTopic }) => {
     // });
 
     if (reelayTopic) {
-        reelayTopic.reelays = [preparedReelay, ...reelayTopic.reelays];
+        // reelayTopic.reelays = [preparedReelay, ...reelayTopic.reelays];
         notifyTopicCreatorOnReelayPosted({
             creator,
             reelay: preparedReelay,
@@ -147,14 +150,17 @@ const uploadReelayToS3 = async ({ s3Client, setUploadProgress, videoURI, videoS3
 }
 
 const uploadToS3SinglePart = async ({ s3Client, videoBuffer, videoS3Key }) => {
-    const uploadResult = await s3Client.send(new PutObjectCommand({
-        Bucket: S3_UPLOAD_BUCKET,
-        Key: `public/${videoS3Key}`,
-        ContentType: 'video/mp4',
-        Body: videoBuffer,
-    }));
-
-    return uploadResult;
+    try {
+        return await s3Client.send(new PutObjectCommand({
+            Bucket: S3_UPLOAD_BUCKET,
+            Key: `public/${videoS3Key}`,
+            ContentType: 'video/mp4',
+            Body: videoBuffer,
+        }));
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
 }
 
 const uploadToS3Multipart = async ({ s3Client, setUploadProgress, videoBuffer, videoS3Key }) => {
@@ -222,5 +228,6 @@ const uploadToS3Multipart = async ({ s3Client, setUploadProgress, videoBuffer, v
     
     } catch (error) {
         console.log(error);
+        return null;
     }
 }

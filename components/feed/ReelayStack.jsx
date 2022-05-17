@@ -33,6 +33,8 @@ const ReelayStack = ({
     const { reelayDBUser } = useContext(AuthContext);
     const donateLinks = useSelector(state => state.donateLinks);
     const uploadStage = useSelector(state => state.uploadStage);
+    const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
+    const showProgressBar = showProgressBarStages.includes(uploadStage);
 
     const viewableReelay = stack[stackPosition];
     const donateObj = donateLinks?.find((donateLinkObj) => {
@@ -124,7 +126,7 @@ const ReelayStack = ({
                 stack={stack}
                 donateObj={donateObj}
             />
-            { uploadStage === 'uploading' && <UploadProgressBar /> }
+            { showProgressBar && <UploadProgressBar mountLocation={'globalFeed'} /> }
         </ReelayFeedContainer>
     );
 }

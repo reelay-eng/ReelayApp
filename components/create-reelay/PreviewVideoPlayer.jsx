@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Image, Pressable, View } from 'react-native';
 import { Video, Audio } from 'expo-av'
 import styled from 'styled-components/native';
@@ -15,7 +15,7 @@ const TitlePosterContainer = styled(View)`
 	right: 20px;
 `
 
-export default PreviewVideoPlayer = ({ title, videoURI }) => {
+export default PreviewVideoPlayer = ({ isMuted, title, videoURI }) => {
 	const [playing, setPlaying] = useState(true);
 	const playPause = () => setPlaying(!playing);
 
@@ -29,7 +29,7 @@ export default PreviewVideoPlayer = ({ title, videoURI }) => {
 		<PlayPausePressable onPress={playPause}>
 			<Video
 				isLooping
-				isMuted={false}
+				isMuted={isMuted}
 				progressUpdateIntervalMillis={50}
 				rate={1.0}
 				resizeMode='cover'

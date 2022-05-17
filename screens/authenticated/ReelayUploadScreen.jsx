@@ -56,7 +56,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
     const { titleObj, videoURI, venue } = route.params;
     const [confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible] = useState(false);
-
+    const [previewIsMuted, setPreviewIsMuted] = useState(false);
+ 
     const descriptionRef = useRef('');
     const starCountRef = useRef(0);
 
@@ -73,7 +74,9 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         try {
             // Adding the file extension directly to the key seems to trigger S3 getting the right content type,
             // not setting contentType as a parameter in the Storage.put call.
+            setPreviewIsMuted(true);
             const destination = (topicID) ? 'InTopic' : 'OnProfile';
+            const posterSource = titleObj?.posterSource;
             const starRating = starCountRef.current * 2;
             const uploadTimestamp = Date.now();
             const videoS3Key = `reelayvid-${reelayDBUser?.sub}-${uploadTimestamp}.mp4`;
@@ -97,6 +100,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
             const uploadRequest = {
                 destination,
+                posterSource,
                 reelayDBBody, 
                 reelayTopic,
                 videoURI, 
@@ -108,7 +112,14 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             dispatch({ type: 'setUploadStage', payload: 'upload-ready' });
 
             navigation.popToTop();
-            navigation.navigate('Global');
+            if (reelayTopic) {
+                navigation.navigate('SingleTopicScreen', {
+                    initReelayIndex: 0,
+                    topic: reelayTopic,
+                });
+            } else {
+                navigation.navigate('Global');
+            }
 
         } catch (error) {
             // todo: better error catching
@@ -157,7 +168,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
     return (
         <UploadScreenContainer>
-            <PreviewVideoPlayer title={titleObj} videoURI={videoURI} />
+            <PreviewVideoPlayer isMuted={previewIsMuted} title={titleObj} videoURI={videoURI} />
             <Header navigation={navigation} />
             <KeyboardAvoidingView behavior='position'>
                 <UploadBottomArea onPress={Keyboard.dismiss}>
