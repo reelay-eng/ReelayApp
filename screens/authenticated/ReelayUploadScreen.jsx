@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { v4 as uuidv4 } from 'uuid';
@@ -7,7 +7,7 @@ import ConfirmRetakeDrawer from '../../components/create-reelay/ConfirmRetakeDra
 import Constants from 'expo-constants';
 import PreviewVideoPlayer from '../../components/create-reelay/PreviewVideoPlayer';
 
-import { Pressable, View, Keyboard, KeyboardAvoidingView } from 'react-native';
+import { Pressable, View, Keyboard, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
 import * as ReelayText from '../../components/global/Text';
 import { Icon } from 'react-native-elements';
 
@@ -26,12 +26,12 @@ const UploadButtonPressable = styled(Pressable)`
     align-items: center;
     justify-content: center;
     height: 48px;
-    width: 125px;
+    width: 140px;
     bottom: 10px;
     right: 12px;
 `
 const UploadButtonText = styled(ReelayText.H6Emphasized)`
-    color: white;
+    color: ${props => props.buttonTextColor};
     font-size: 16px;
     text-align: center;
 `
@@ -43,6 +43,8 @@ const UploadBottomBar = styled(View)`
     justify-content: space-between;
     margin-top: 24px;
     margin-bottom: 40px;
+    margin-left: 2px;
+    margin-right: 2px;
 `
 const UploadScreenContainer = styled(View)`
     height: 100%;
@@ -64,6 +66,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const topicID = route.params?.topicID;
     const globalTopics = useSelector(state => state.globalTopics);
     const reelayTopic = topicID ? globalTopics.find(nextTopic => nextTopic.id === topicID) : null;
+    const uploadStage = useSelector(state => state.uploadStage);
 
     const publishReelay = async () => {
         if (!videoURI) {
@@ -107,19 +110,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 videoS3Key,             
             }
 
-            console.log('upload request: ', uploadRequest);
             dispatch({ type: 'setUploadRequest', payload: uploadRequest });
             dispatch({ type: 'setUploadStage', payload: 'upload-ready' });
-
-            navigation.popToTop();
-            if (reelayTopic) {
-                navigation.navigate('SingleTopicScreen', {
-                    initReelayIndex: 0,
-                    topic: reelayTopic,
-                });
-            } else {
-                navigation.navigate('Global');
-            }
 
         } catch (error) {
             // todo: better error catching
@@ -155,9 +147,18 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     };
 
     const UploadButton = () => {
+        const buttonDisabledStages = ['upload-reelay', 'preparing-upload', 'uploading'];
+        const buttonDisabled = buttonDisabledStages.includes(uploadStage);
+        const buttonText = (buttonDisabled) ? 'Preparing...   ' : 'Post';
+        const buttonColor = (buttonDisabled) ? 'white' : ReelayColors.reelayBlue;
+        const buttonTextColor = (buttonDisabled) ? 'black' : 'white';
+
         return (
-            <UploadButtonPressable onPress={publishReelay} color={ReelayColors.reelayBlue}>
-                <UploadButtonText>{'Post'}</UploadButtonText>
+            <UploadButtonPressable color={buttonColor} onPress={publishReelay}>
+                <UploadButtonText buttonTextColor={buttonTextColor}>
+                    {buttonText}
+                </UploadButtonText>
+                { buttonDisabled && <ActivityIndicator /> }
             </UploadButtonPressable>
         );
     }
@@ -165,6 +166,22 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
     });
+
+    useEffect(() => {
+        // in multipart uploads, the app will freeze during preparing-upload
+        // so we don't want to navigate away until we're done with that part
+        if (uploadStage === 'uploading') {
+            navigation.popToTop();
+            if (reelayTopic) {
+                navigation.navigate('SingleTopicScreen', {
+                    initReelayIndex: 0,
+                    topic: reelayTopic,
+                });
+            } else {
+                navigation.navigate('Global');
+            }
+        }
+    }, [uploadStage])
 
     return (
         <UploadScreenContainer>

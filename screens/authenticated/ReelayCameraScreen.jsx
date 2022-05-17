@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { useDispatch } from 'react-redux';
 
-import { Camera } from 'expo-camera';
+import { Camera, CameraRecordingOptions } from 'expo-camera';
 import { Dimensions, View, SafeAreaView, Pressable} from 'react-native';
 import { Image, Icon } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
@@ -50,23 +50,28 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         setRetakeCounter(retakeCounter + 1);
     }
     
-    const recordVideo = async () => {
-        if (cameraRef.current) {
-            try {
-                const videoRecording = await cameraRef.current.recordAsync();
-                if (videoRecording?.uri) {
-                    pushToUploadScreen(videoRecording.uri);
-                    logAmplitudeEventProd('videoRecorded', {
-                        username: reelayDBUser?.username,
-                        title: titleObj.display,
-                    })
+    // const recordVideo = async () => {
+    //     console.log('record video called');
+    //     if (cameraRef.current) {
+    //         try {
+    //             const videoRecording = await cameraRef.current.recordAsync({
+    //                 quality: Camera.Constants.VideoQuality['1080p'],
+    //                 codec: Camera.Constants.VideoCodec.H264,
+    //             });
+    //             console.log('video recording complete');
+    //             if (videoRecording?.uri) {
+    //                 pushToUploadScreen(videoRecording.uri);
+    //                 logAmplitudeEventProd('videoRecorded', {
+    //                     username: reelayDBUser?.username,
+    //                     title: titleObj.display,
+    //                 })
                     
-                }
-            } catch (error) {
-                console.warn(error);
-            }
-        }
-    };
+    //             }
+    //         } catch (error) {
+    //             console.warn(error);
+    //         }
+    //     }
+    // };
     
     const MediaLibraryPicker = () => {
         // these positions are eyeballed
@@ -113,7 +118,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     }
 
     const RecordButton = () => {
-
         const RECORD_COLOR = '#cb2d26';
         const [isRecording, setIsRecording] = useState(false);
 
@@ -127,19 +131,40 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         useEffect(() => {
             if (isRecording) {
                 recordVideo();
+            } else {
+                stopVideoRecording();
             }
         }, [isRecording]);
 
         const onRecordButtonPress = () => {
-            if (isRecording) {
-                stopVideoRecording();
-            } else {
-                setIsRecording(true);
-            }
+            setIsRecording(!isRecording);
         }
 
+        const recordVideo = async () => {
+            console.log('record video called');
+            if (cameraRef.current) {
+                console.log('camera is current');
+                try {
+                    const videoRecording = await cameraRef.current.recordAsync({
+                        // quality: Camera.Constants.VideoQuality['1080p'],
+                        codec: Camera.Constants.VideoCodec.H264,
+                    });
+                    console.log('video recording complete');
+                    if (videoRecording?.uri) {
+                        pushToUploadScreen(videoRecording.uri);
+                        logAmplitudeEventProd('videoRecorded', {
+                            username: reelayDBUser?.username,
+                            title: titleObj.display,
+                        })
+                        
+                    }
+                } catch (error) {
+                    console.warn(error);
+                }
+            }
+        };    
+
         const stopVideoRecording = async () => {
-            setIsRecording(false);
             if (cameraRef.current) {
                 await cameraRef.current.stopRecording();
                 console.log('stop recording complete');            
@@ -158,9 +183,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 strokeWidth={5} 
                 trailColor='transparent'
                 strokeLinecap={'round'}
-                onComplete={() => {
-                    stopVideoRecording();
-            }}>
+                onComplete={() => setIsRecording(false)}>
                 <RecordButtonCenter activeOpacity={0.7} onPress={onRecordButtonPress} />
             </CountdownCircleTimer>
         )
@@ -238,7 +261,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 ref={cameraRef}
                 type={cameraType} 
                 style={{ height: '100%', width: '100%', position: 'absolute'}}
-                flashMode={Camera.Constants.FlashMode.off}
+                flashMode={Camera.Constants.FlashMode.torch}
                 onMountError={(error) => {
                     console.log("camera error", error);
                 }}

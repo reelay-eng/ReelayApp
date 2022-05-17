@@ -1,6 +1,5 @@
 import { EncodingType, readAsStringAsync } from 'expo-file-system';
 import { Buffer } from 'buffer';
-import { v4 as uuidv4 } from 'uuid';
 
 import { 
     CreateMultipartUploadCommand,
@@ -22,9 +21,7 @@ import { postReelayToDB, prepareReelay } from './ReelayDBApi';
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
-const UPLOAD_CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
-const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
-
+const UPLOAD_CHUNK_SIZE = 8 * 1024 * 1024; // 5MB
 
 export const uploadReelay = async ({ 
     clearUploadRequest,
@@ -46,12 +43,13 @@ export const uploadReelay = async ({
             destination,
         });
 
-        setUploadStage('uploading');
+        setUploadStage('preparing-upload');
         setUploadProgress(0.2);
     
         const s3UploadResult = await uploadReelayToS3({ 
             s3Client, 
             setUploadProgress, 
+            setUploadStage,
             videoURI, 
             videoS3Key,
         });
@@ -123,7 +121,6 @@ const sendNotificationsOnUpload = async ({ preparedReelay, reelayTopic }) => {
     // });
 
     if (reelayTopic) {
-        // reelayTopic.reelays = [preparedReelay, ...reelayTopic.reelays];
         notifyTopicCreatorOnReelayPosted({
             creator,
             reelay: preparedReelay,
@@ -132,25 +129,47 @@ const sendNotificationsOnUpload = async ({ preparedReelay, reelayTopic }) => {
     }
 }
 
-const uploadReelayToS3 = async ({ s3Client, setUploadProgress, videoURI, videoS3Key }) => {
-    console.log('beginning s3 upload: ', videoURI, videoS3Key);
-    const videoStr = await readAsStringAsync(videoURI, { encoding: EncodingType.Base64 });
-    const videoBuffer = Buffer.from(videoStr, 'base64');
-    setUploadProgress(0.4);
-
-    let result;
-    if (videoBuffer.byteLength < UPLOAD_CHUNK_SIZE) {
-        result = await uploadToS3SinglePart({ s3Client, videoBuffer, videoS3Key });
-    } else {
-        result = await uploadToS3Multipart({ s3Client, setUploadProgress, videoBuffer, videoS3Key });
+const uploadReelayToS3 = async ({ 
+    s3Client, 
+    setUploadProgress, 
+    setUploadStage, 
+    videoURI, 
+    videoS3Key,
+}) => {
+    try {
+        console.log('beginning s3 upload: ', videoURI, videoS3Key);
+        const videoStr = await readAsStringAsync(videoURI, { encoding: EncodingType.Base64 });
+        const videoBuffer = Buffer.from(videoStr, 'base64');
+        setUploadProgress(0.4);
+    
+        let result;
+        if (videoBuffer.byteLength < UPLOAD_CHUNK_SIZE) {
+            result = await uploadToS3SinglePart({ 
+                s3Client, 
+                setUploadStage, 
+                videoBuffer, 
+                videoS3Key, 
+            });
+        } else {
+            result = await uploadToS3Multipart({ 
+                s3Client, 
+                setUploadProgress, 
+                setUploadStage, 
+                videoBuffer, 
+                videoS3Key,
+            });
+        }
+        console.log('S3 upload complete');
+        return result;    
+    } catch (error) {
+        console.log(error);
+        return null;
     }
-
-    console.log('S3 upload complete');
-    return result;
 }
 
-const uploadToS3SinglePart = async ({ s3Client, videoBuffer, videoS3Key }) => {
+const uploadToS3SinglePart = async ({ s3Client, setUploadStage, videoBuffer, videoS3Key }) => {
     try {
+        setUploadStage('uploading');
         return await s3Client.send(new PutObjectCommand({
             Bucket: S3_UPLOAD_BUCKET,
             Key: `public/${videoS3Key}`,
@@ -163,51 +182,59 @@ const uploadToS3SinglePart = async ({ s3Client, videoBuffer, videoS3Key }) => {
     }
 }
 
-const uploadToS3Multipart = async ({ s3Client, setUploadProgress, videoBuffer, videoS3Key }) => {
+const uploadToS3Multipart = async ({ 
+    s3Client, 
+    setUploadProgress, 
+    setUploadStage, 
+    videoBuffer, 
+    videoS3Key,
+}) => {
     /**
      * AWS requires each part must be at least 5MB. In this method, each part
      * is exactly 5MB except the last chunk, which can be up to 10MB
      */
 
     try {
-        console.log('Beginning multipart upload');
+        console.log('Creating multipart upload command');
         const numParts = Math.floor(videoBuffer.byteLength / UPLOAD_CHUNK_SIZE);
         const partNumberRange = Array.from(Array(numParts), (empty, index) => index);
     
+        // note: the CreateMultipartUploadCommand takes a long time. unclear why
         const { UploadId } = await s3Client.send(new CreateMultipartUploadCommand({
             Bucket: S3_UPLOAD_BUCKET,
             Key: `public/${videoS3Key}`,
             ContentType: 'video/mp4',
         }));
-    
-        console.log('Completed create multipart upload command: ');
-    
+        console.log('Completed create multipart upload command');
+
+        setUploadStage('uploading');
         setUploadProgress(0.6);
-    
-        const uploadPartResults = await Promise.all(partNumberRange.map(async (partNumber) => {
-            console.log('PART NUMBER: ', partNumber);
-    
-            // byteEnd rounds to the end of the file, so its buffer is normally > 5MB
+
+        const videoBufferParts = partNumberRange.map((partNumber) => {
+            console.log('start slicing video buffer #', partNumber);
             const byteBegin = partNumber * UPLOAD_CHUNK_SIZE;
             const byteEnd = (partNumber === numParts - 1)
                 ? videoBuffer.byteLength
                 : byteBegin + UPLOAD_CHUNK_SIZE;
+            const slice = videoBuffer.slice(byteBegin, byteEnd);
+            console.log('finish slicing video buffer #', partNumber);
+            return slice;
+        });
     
-            const result = await s3Client.send(new UploadPartCommand({
+        await Promise.all(partNumberRange.map(async (partNumber) => {
+            console.log('start upload part #', partNumber);
+            const uploadPartResult = await s3Client.send(new UploadPartCommand({
                 Bucket: S3_UPLOAD_BUCKET,
                 Key: `public/${videoS3Key}`,
                 ContentType: 'video/mp4',
-                Body: videoBuffer.slice(byteBegin, byteEnd),
+                Body: videoBufferParts[partNumber],
                 PartNumber: partNumber + 1, // part numbers must be between 1 and 10,000
                 UploadId: UploadId,
             }));
-    
-            console.log('result completed');
-            return result;
+            console.log('complete upload part #', partNumber);
+            return uploadPartResult;
         }));
-    
-        // console.log(uploadPartResults);
-    
+        
         const uploadParts = await s3Client.send(new ListPartsCommand({
             Bucket: S3_UPLOAD_BUCKET,
             Key: `public/${videoS3Key}`,
