@@ -101,7 +101,7 @@ export default DownloadButton = ({
             console.log('Could not save to local device...');
             logAmplitudeEventProd('saveToDeviceFailed', {
                 username: reelayDBUser?.username,
-                title: titleObj.display,
+                title: titleObj?.display,
             });
             showErrorToast('Oops. Could not save to local device');
             setDownloadStage('download-failed-retry');

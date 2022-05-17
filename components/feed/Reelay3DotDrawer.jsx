@@ -34,8 +34,8 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         align-items: flex-end;
         justify-content: flex-end;
         position: absolute;
-        bottom: 10px;
-        right: 30px;
+        bottom: -20px;
+        right: 36px;
     `
     const DrawerContainer = styled(View)`
         background-color: #1a1a1a;
@@ -123,25 +123,14 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
     const Header = () => {
         const HeaderContainer = styled(View)`
             justify-content: center;
+            height: 24px;
             margin-left: 12px;
             margin-right: 20px;
-            margin-bottom: 5px;
+            margin-bottom: 12px;
             border-bottom-color: #2D2D2D;
             border-bottom-width: 1px;
-            padding-top: 8px;
-            padding-bottom: 8px;
         `
-        const CloseButtonContainer = styled(Pressable)`
-            align-self: flex-end;
-        `		
-
-        return (
-            <HeaderContainer>
-                <CloseButtonContainer onPress={closeDrawer}>
-                    <Icon color={'white'} type='ionicon' name='close' size={25}/>
-                </CloseButtonContainer>
-            </HeaderContainer>
-        );
+        return <HeaderContainer />;
     }
 
     const Prompt = ({ text }) => {

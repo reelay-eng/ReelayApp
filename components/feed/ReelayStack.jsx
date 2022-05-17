@@ -8,6 +8,7 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components/native';
+import UploadProgressBar from '../global/UploadProgressBar';
 
 const { height, width } = Dimensions.get('window');
 
@@ -31,6 +32,9 @@ const ReelayStack = ({
     const [stackPosition, setStackPosition] = useState(initialStackPos);
     const { reelayDBUser } = useContext(AuthContext);
     const donateLinks = useSelector(state => state.donateLinks);
+    const uploadStage = useSelector(state => state.uploadStage);
+    const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
+    const showProgressBar = showProgressBarStages.includes(uploadStage);
 
     const viewableReelay = stack[stackPosition];
     const donateObj = donateLinks?.find((donateLinkObj) => {
@@ -57,6 +61,7 @@ const ReelayStack = ({
     const renderReelay = ({ item, index }) => {
         const reelay = item;
         const reelayViewable = stackViewable && (index === stackPosition);  
+        const atStackTop = (navigation?.getState()?.index === 0);
         
         return (
             <ReelayFeedContainer key={reelay.id}>
@@ -66,7 +71,7 @@ const ReelayStack = ({
                     reelay={reelay} 
                     viewable={reelayViewable}
                 />
-                { navigation.canGoBack() && renderBackButton() }
+                { !atStackTop && renderBackButton() }
             </ReelayFeedContainer>
         );
     };
@@ -121,6 +126,7 @@ const ReelayStack = ({
                 stack={stack}
                 donateObj={donateObj}
             />
+            { showProgressBar && <UploadProgressBar mountLocation={'globalFeed'} /> }
         </ReelayFeedContainer>
     );
 }
