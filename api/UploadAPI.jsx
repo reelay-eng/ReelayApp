@@ -14,7 +14,6 @@ import {
     notifyMentionsOnReelayPosted,
     notifyTopicCreatorOnReelayPosted,
 } from './NotificationsApi';
-// import { notifyOnReelayedRec } from '../../api/WatchlistNotifications';
 
 import Constants from 'expo-constants';
 import { postReelayToDB, prepareReelay } from './ReelayDBApi';
@@ -112,13 +111,6 @@ const sendNotificationsOnUpload = async ({ preparedReelay, reelayTopic }) => {
         topic: reelayTopic ?? null,
         mentionedUsers: mentionedUsers,
     });
-
-    // notifyOnReelayedRec({ 
-    //     creatorSub: reelayDBUser?.sub,
-    //     creatorName: reelayDBUser?.username,
-    //     reelay: preparedReelay,
-    //     watchlistItems: myWatchlistItems,
-    // });
 
     if (reelayTopic) {
         notifyTopicCreatorOnReelayPosted({

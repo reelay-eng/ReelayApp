@@ -1,20 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Image, Pressable, View } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable } from 'react-native';
 import { Video, Audio } from 'expo-av'
 import styled from 'styled-components/native';
-import TitlePoster from '../global/TitlePoster';
 
 const PlayPausePressable = styled(Pressable)`
 	position: absolute;
 	height: 100%;
 	width: 100%;
 `
-const TitlePosterContainer = styled(View)`
-	position: absolute;
-	top: 40px;
-	right: 20px;
-`
-
 export default PreviewVideoPlayer = ({ isMuted, title, videoURI }) => {
 	const [playing, setPlaying] = useState(true);
 	const playPause = () => setPlaying(!playing);
@@ -45,9 +38,6 @@ export default PreviewVideoPlayer = ({ isMuted, title, videoURI }) => {
 				useNativeControls={false}
 				volume={1.0}
 			/>
-			<TitlePosterContainer>
-				<TitlePoster title={title} width={80} />
-			</TitlePosterContainer>
 		</PlayPausePressable>
 	);
 }

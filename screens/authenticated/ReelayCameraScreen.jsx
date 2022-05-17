@@ -29,6 +29,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const topicID = route.params?.topicID;
 
     const cameraRef = useRef(null);
+    const recordingLength = useRef(0);
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const [retakeCounter, setRetakeCounter] = useState(0);
 
@@ -41,6 +42,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         navigation.push('ReelayUploadScreen', { 
             titleObj, 
             topicID, 
+            recordingLengthSeconds: recordingLength.current,
             videoURI, 
             venue,
         });
@@ -49,29 +51,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         // not when we return from it via the Retake button
         setRetakeCounter(retakeCounter + 1);
     }
-    
-    // const recordVideo = async () => {
-    //     console.log('record video called');
-    //     if (cameraRef.current) {
-    //         try {
-    //             const videoRecording = await cameraRef.current.recordAsync({
-    //                 quality: Camera.Constants.VideoQuality['1080p'],
-    //                 codec: Camera.Constants.VideoCodec.H264,
-    //             });
-    //             console.log('video recording complete');
-    //             if (videoRecording?.uri) {
-    //                 pushToUploadScreen(videoRecording.uri);
-    //                 logAmplitudeEventProd('videoRecorded', {
-    //                     username: reelayDBUser?.username,
-    //                     title: titleObj.display,
-    //                 })
-                    
-    //             }
-    //         } catch (error) {
-    //             console.warn(error);
-    //         }
-    //     }
-    // };
     
     const MediaLibraryPicker = () => {
         // these positions are eyeballed
@@ -141,14 +120,14 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         }
 
         const recordVideo = async () => {
-            console.log('record video called');
             if (cameraRef.current) {
-                console.log('camera is current');
                 try {
+                    startCameraTimer();
                     const videoRecording = await cameraRef.current.recordAsync({
                         // quality: Camera.Constants.VideoQuality['1080p'],
                         codec: Camera.Constants.VideoCodec.H264,
                     });
+                    clearInterval();
                     console.log('video recording complete');
                     if (videoRecording?.uri) {
                         pushToUploadScreen(videoRecording.uri);
@@ -163,6 +142,14 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 }
             }
         };    
+
+        const startCameraTimer = () => {
+            // note: this is just use to detect how long the video is
+            // it does not perform the cutoff
+            setInterval(() => {
+                recordingLength.current = recordingLength.current + 1;
+            }, 1000);
+        }
 
         const stopVideoRecording = async () => {
             if (cameraRef.current) {

@@ -87,12 +87,14 @@ export default TitleBanner = ({
         }
         navigation.push('TitleDetailScreen', { titleObj });
 
-        logAmplitudeEventProd('openTitleScreen', {
-            reelayID: viewableReelay.id,
-            reelayTitle: viewableReelay.title.display,
-            username: reelayDBUser?.username,
-            source: 'poster',
-        });
+        if (viewableReelay) {
+            logAmplitudeEventProd('openTitleScreen', {
+                reelayID: viewableReelay?.id,
+                reelayTitle: viewableReelay?.title.display,
+                username: reelayDBUser?.username,
+                source: 'poster',
+            });    
+        }
     }
 
     return (
@@ -116,10 +118,8 @@ export default TitleBanner = ({
                         { displayYear.length > 0 && <YearText>{displayYear}</YearText> }
                     </YearVenueContainer>
                     <StackLengthText>
-                        {(stack.length > 1) 
-                            ? `${stack.length} Reelays  << swipe >>` 
-                            : `${stack.length} Reelay`
-                        }
+                        {(stack?.length > 1) && `${stack.length} Reelays  << swipe >>` }
+                        {(stack?.length === 1) && `${stack.length} Reelay` }
                     </StackLengthText>
                 </View>
             </TitleInfo>

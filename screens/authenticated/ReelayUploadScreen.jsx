@@ -6,8 +6,9 @@ import { v4 as uuidv4 } from 'uuid';
 import ConfirmRetakeDrawer from '../../components/create-reelay/ConfirmRetakeDrawer';  
 import Constants from 'expo-constants';
 import PreviewVideoPlayer from '../../components/create-reelay/PreviewVideoPlayer';
+import TitlePoster from '../../components/global/TitlePoster';
 
-import { Pressable, View, Keyboard, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
+import { Pressable, View, Keyboard, KeyboardAvoidingView, ActivityIndicator, Dimensions } from 'react-native';
 import * as ReelayText from '../../components/global/Text';
 import { Icon } from 'react-native-elements';
 
@@ -18,7 +19,33 @@ import UploadDescriptionAndStarRating from '../../components/create-reelay/Uploa
 import { useFocusEffect } from '@react-navigation/native';
 
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
+const { width } = Dimensions.get('window');
 
+const BackButtonContainer = styled(Pressable)`
+    margin-top: 40px;
+    margin-right: 20px;
+`
+const HeaderContainer = styled(View)`
+    align-items: flex-start;
+    flex-direction: row;
+    padding: 20px;
+    width: ${width}px;
+`
+const PatientContainer = styled(View)`
+    background-color: rgba(0,0,0,0.35);
+    border-radius: 16px;
+    margin: 10px;
+    margin-bottom: 0px;
+    padding: 12px;
+`
+const PatientText = styled(ReelayText.Subtitle1)`
+    color: white;
+`
+const TitlePosterContainer = styled(View)`
+    position: absolute;
+    top: 40px;
+    right: 20px;
+`
 const UploadButtonPressable = styled(Pressable)`
     background-color: ${props => props.color}
     border-radius: 24px;
@@ -56,7 +83,7 @@ const UploadScreenContainer = styled(View)`
 export default ReelayUploadScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
-    const { titleObj, videoURI, venue } = route.params;
+    const { recordingLengthSeconds, titleObj, videoURI, venue } = route.params;
     const [confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible] = useState(false);
     const [previewIsMuted, setPreviewIsMuted] = useState(false);
  
@@ -66,7 +93,12 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const topicID = route.params?.topicID;
     const globalTopics = useSelector(state => state.globalTopics);
     const reelayTopic = topicID ? globalTopics.find(nextTopic => nextTopic.id === topicID) : null;
+    const pleaseBePatientShouldDisplay = (recordingLengthSeconds > 15);
+
     const uploadStage = useSelector(state => state.uploadStage);
+    const uploadStartedStages = ['upload-reelay', 'preparing-upload', 'uploading'];
+    const uploadStarted = uploadStartedStages.includes(uploadStage);
+
 
     const publishReelay = async () => {
         if (!videoURI) {
@@ -119,46 +151,58 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         }
     }
 
-    const Header = () => {
-        const HeaderContainer = styled(View)`
-            padding: 20px;
-            align-items: flex-start;
-        `;
-        const HeaderText = styled(ReelayText.H5Emphasized)`
-            text-align: center;
-            color: white;
-            margin-top: 4px;
-            width: 90%;
-            margin-right: 18px;
-        `;
-        const BackButton = styled(Pressable)`
-            margin-top: 40px;
-            margin-right: 20px;
-        `;
+    const HeaderWithPoster = () => {
         return (
             <>
                 <HeaderContainer>
-                    <BackButton onPress={() => setConfirmRetakeDrawerVisible(true)}>
+                    <BackButtonContainer onPress={() => setConfirmRetakeDrawerVisible(true)}>
                         <Icon type="ionicon" name="arrow-back-outline" color="white" size={24} />
-                    </BackButton>
+                    </BackButtonContainer>
+                    <TitlePosterContainer>
+                        <TitlePoster title={titleObj} width={80} />
+                    </TitlePosterContainer>
                 </HeaderContainer>
             </>
         );
     };
 
+    const PleaseBePatientPrompt = () => {
+        return (
+            <PatientContainer>
+                <PatientText>
+                    {'Longer videos can take a little while to process. Thanks for being patient!'}
+                </PatientText>
+            </PatientContainer>
+        )
+    }
+
+    const UploadBottomRow = () => {
+        return (
+            <UploadBottomArea onPress={Keyboard.dismiss}>
+                { pleaseBePatientShouldDisplay && uploadStarted && <PleaseBePatientPrompt /> }
+                <UploadDescriptionAndStarRating 
+                    starCountRef={starCountRef}
+                    descriptionRef={descriptionRef}
+                />
+                <UploadBottomBar>
+                    <DownloadButton titleObj={titleObj} videoURI={videoURI} />
+                    <UploadButton />
+                </UploadBottomBar>
+            </UploadBottomArea>
+        )
+    }
+
     const UploadButton = () => {
-        const buttonDisabledStages = ['upload-reelay', 'preparing-upload', 'uploading'];
-        const buttonDisabled = buttonDisabledStages.includes(uploadStage);
-        const buttonText = (buttonDisabled) ? 'Preparing...   ' : 'Post';
-        const buttonColor = (buttonDisabled) ? 'white' : ReelayColors.reelayBlue;
-        const buttonTextColor = (buttonDisabled) ? 'black' : 'white';
+        const buttonText = (uploadStarted) ? 'Preparing...   ' : 'Post';
+        const buttonColor = (uploadStarted) ? 'white' : ReelayColors.reelayBlue;
+        const buttonTextColor = (uploadStarted) ? 'black' : 'white';
 
         return (
             <UploadButtonPressable color={buttonColor} onPress={publishReelay}>
                 <UploadButtonText buttonTextColor={buttonTextColor}>
                     {buttonText}
                 </UploadButtonText>
-                { buttonDisabled && <ActivityIndicator /> }
+                { uploadStarted && <ActivityIndicator /> }
             </UploadButtonPressable>
         );
     }
@@ -183,22 +227,14 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         }
     }, [uploadStage])
 
+
+
     return (
         <UploadScreenContainer>
             <PreviewVideoPlayer isMuted={previewIsMuted} title={titleObj} videoURI={videoURI} />
-            <Header navigation={navigation} />
+            <HeaderWithPoster />
             <KeyboardAvoidingView behavior='position'>
-                <UploadBottomArea onPress={Keyboard.dismiss}>
-                    <UploadDescriptionAndStarRating 
-                        starCountRef={starCountRef}
-                        descriptionRef={descriptionRef}
-                    />
-                    {/* { showProgressBar && <UploadProgressBar /> } */}
-                    <UploadBottomBar>
-                        <DownloadButton titleObj={titleObj} videoURI={videoURI} />
-                        <UploadButton />
-                    </UploadBottomBar>
-                </UploadBottomArea>
+                <UploadBottomRow />
             </KeyboardAvoidingView>
             <ConfirmRetakeDrawer 
                 navigation={navigation} titleObj={titleObj} 
