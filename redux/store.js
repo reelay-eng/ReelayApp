@@ -29,7 +29,7 @@ const initialState = {
     myStacksOnStreaming: [],
     myStacksAtFestivals: [],
     topOfTheWeek: [],
-
+    
     followRequests: [],
     reelayDBUser: {},
     reelayDBUserID: null,
@@ -44,6 +44,9 @@ const initialState = {
     justShowMeSignupVisible: false,
     refreshOnUpload: false,
     s3Client: null,
+    uploadProgress: 0,
+    uploadRequest: null,
+    uploadStage: 'none',
     
     showFestivalsRow: false,
     tabBarVisible: true,
@@ -142,6 +145,12 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, refreshOnUpload: action.payload }
         case 'setS3Client':
             return { ...state, s3Client: action.payload }
+        case 'setUploadProgress':
+            return { ...state, uploadProgress: action.payload }
+        case 'setUploadRequest':
+            return { ...state, uploadRequest: action.payload }
+        case 'setUploadStage':
+            return { ...state, uploadStage: action.payload }
             
         case 'setShowFestivalsRow':
             return { ...state, showFestivalsRow: action.payload }
@@ -204,6 +213,9 @@ export const mapStateToProps = (state) => ({
     likesVisible: state.likesVisible,
     refreshOnUpload: state.refreshOnUpload,
     s3Client: state.s3Client,
+    uploadProgress: state.uploadProgress,
+    uploadRequest: state.uploadRequest,
+    uploadStage: state.uploadStage,
     
     showFestivalsRow: state.showFestivalsRow,
     tabBarVisible: state.tabBarVisible,

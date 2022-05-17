@@ -1,12 +1,17 @@
 import { useFocusEffect } from '@react-navigation/native';
-import React from 'react';
+import React, { useState } from 'react';
+import { RefreshControl, ScrollView } from 'react-native';
 import { useDispatch } from 'react-redux';
+import { getSingleTopic } from '../../api/TopicsApi';
 
 export default SingleTopicScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
-    const topic = route?.params?.topic;
+    const initTopic = route?.params?.topic;
     const initReelayIndex = route?.params?.initReelayIndex;
     const showTabBarOnReturn = route?.params?.showTabBarOnReturn ?? true;
+
+    const [topic, setTopic] = useState(initTopic);
+    const [refreshing, setRefreshing] = useState(false);
 
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
@@ -15,14 +20,33 @@ export default SingleTopicScreen = ({ navigation, route }) => {
                 dispatch({ type: 'setTabBarVisible', payload: true });
             }
         }
-    })
+    });
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        const refreshedTopic = await getSingleTopic(topic.id);
+        setTopic(refreshedTopic);
+        setRefreshing(false);
+    }
+
+    const refreshControl = (
+        <RefreshControl 
+            refreshing={refreshing} 
+            onRefresh={onRefresh} 
+        />
+    );
 
     return (
-        <TopicStack 
-            initialStackPos={initReelayIndex}
-            navigation={navigation}
-            topic={topic}
-            stackViewable={true}
-        />
+        <ScrollView 
+            refreshControl={refreshControl} 
+            showsVerticalScrollIndicator={false}
+        >
+            <TopicStack 
+                initialStackPos={initReelayIndex}
+                navigation={navigation}
+                topic={topic}
+                stackViewable={true}
+            />
+        </ScrollView>
     );
 }

@@ -11,7 +11,6 @@ import { getFeed } from '../../api/ReelayDBApi';
 import styled from 'styled-components/native';
 import { showMessageToast } from '../utils/toasts';
 import { useFocusEffect } from '@react-navigation/core';
-import { useSelector } from 'react-redux';
 
 const { height, width } = Dimensions.get('window');
 

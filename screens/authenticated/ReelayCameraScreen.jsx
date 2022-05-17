@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { useDispatch } from 'react-redux';
 
-import { Camera } from 'expo-camera';
+import { Camera, CameraRecordingOptions } from 'expo-camera';
 import { Dimensions, View, SafeAreaView, Pressable} from 'react-native';
 import { Image, Icon } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
@@ -18,12 +18,12 @@ import TitlePoster from '../../components/global/TitlePoster';
 
 const { height, width } = Dimensions.get('window');
 const captureSize = Math.floor(height * 0.07);
-const ringSize = captureSize + 20;    
+const ringSize = captureSize + 20;
+
+const MAX_VIDEO_DURATION_SEC = 60;
+const MAX_VIDEO_DURATION_MILLIS = 1000 * MAX_VIDEO_DURATION_SEC;
 
 export default ReelayCameraScreen = ({ navigation, route }) => {
-    var backCount = 0;
-    var backTimer = 0;
-    const dispatch = useDispatch();
     const { reelayDBUser} = useContext(AuthContext);
     const { titleObj, venue } = route.params;
 
@@ -31,6 +31,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const clubID = route.params?.clubID ?? null;
 
     const cameraRef = useRef(null);
+    const recordingLength = useRef(0);
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const [retakeCounter, setRetakeCounter] = useState(0);
 
@@ -42,6 +43,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
 
         navigation.push('ReelayUploadScreen', { 
             titleObj, 
+            recordingLengthSeconds: recordingLength.current,
             videoURI, 
             venue,
             clubID,
@@ -52,32 +54,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         // not when we return from it via the Retake button
         setRetakeCounter(retakeCounter + 1);
     }
-    
-    const recordVideo = async () => {
-        if (cameraRef.current) {
-            try {
-                const videoRecording = await cameraRef.current.recordAsync();
-                if (videoRecording?.uri) {
-                    pushToUploadScreen(videoRecording.uri);
-                    logAmplitudeEventProd('videoRecorded', {
-                        username: reelayDBUser?.username,
-                        title: titleObj.display,
-                    })
-                    
-                }
-            } catch (error) {
-                console.warn(error);
-            }
-        }
-    };
-
-    const flipCamera = () => {
-        setCameraType((prevCameraType) =>
-            prevCameraType === Camera.Constants.Type.back
-            ? Camera.Constants.Type.front
-            : Camera.Constants.Type.back
-        );
-    };
     
     const MediaLibraryPicker = () => {
         // these positions are eyeballed
@@ -102,7 +78,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                     quality: 1,
                 });
                 if (!selectedVideo || !selectedVideo.uri || selectedVideo.cancelled) return;
-                if (selectedVideo.duration > 15000) { // in milliseconds
+                if (selectedVideo.duration > MAX_VIDEO_DURATION_MILLIS) {
                     showErrorToast('You can only upload 15 second videos or shorter');
                     return;
                 }
@@ -124,10 +100,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     }
 
     const RecordButton = () => {
-
         const RECORD_COLOR = '#cb2d26';
-        const REELAY_DURATION_SECONDS = 15;
-
         const [isRecording, setIsRecording] = useState(false);
 
         const RecordButtonCenter = styled(Pressable)`
@@ -140,19 +113,48 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         useEffect(() => {
             if (isRecording) {
                 recordVideo();
+            } else {
+                stopVideoRecording();
             }
         }, [isRecording]);
 
         const onRecordButtonPress = () => {
-            if (isRecording) {
-                stopVideoRecording();
-            } else {
-                setIsRecording(true);
+            setIsRecording(!isRecording);
+        }
+
+        const recordVideo = async () => {
+            if (cameraRef.current) {
+                try {
+                    startCameraTimer();
+                    const videoRecording = await cameraRef.current.recordAsync({
+                        // quality: Camera.Constants.VideoQuality['1080p'],
+                        codec: Camera.Constants.VideoCodec.H264,
+                    });
+                    clearInterval();
+                    console.log('video recording complete');
+                    if (videoRecording?.uri) {
+                        pushToUploadScreen(videoRecording.uri);
+                        logAmplitudeEventProd('videoRecorded', {
+                            username: reelayDBUser?.username,
+                            title: titleObj.display,
+                        })
+                        
+                    }
+                } catch (error) {
+                    console.warn(error);
+                }
             }
+        };    
+
+        const startCameraTimer = () => {
+            // note: this is just use to detect how long the video is
+            // it does not perform the cutoff
+            setInterval(() => {
+                recordingLength.current = recordingLength.current + 1;
+            }, 1000);
         }
 
         const stopVideoRecording = async () => {
-            setIsRecording(false);
             if (cameraRef.current) {
                 await cameraRef.current.stopRecording();
                 console.log('stop recording complete');            
@@ -164,16 +166,14 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         return (
             <CountdownCircleTimer 
                 colors={[[RECORD_COLOR]]}
-                duration={REELAY_DURATION_SECONDS} 
+                duration={MAX_VIDEO_DURATION_SEC} 
                 isPlaying={isRecording} 
                 key={retakeCounter} // this resets the timer on a retake
                 size={ringSize} 
                 strokeWidth={5} 
                 trailColor='transparent'
                 strokeLinecap={'round'}
-                onComplete={() => {
-                    stopVideoRecording();
-            }}>
+                onComplete={() => setIsRecording(false)}>
                 <RecordButtonCenter activeOpacity={0.7} onPress={onRecordButtonPress} />
             </CountdownCircleTimer>
         )
@@ -251,7 +251,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 ref={cameraRef}
                 type={cameraType} 
                 style={{ height: '100%', width: '100%', position: 'absolute'}}
-                flashMode={Camera.Constants.FlashMode.off}
+                flashMode={Camera.Constants.FlashMode.torch}
                 onMountError={(error) => {
                     console.log("camera error", error);
                 }}
@@ -279,18 +279,31 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         width: 100%;
     `
 
+    let tapCount = 0;
+    let tapTimer = 0;
+    const resetDoubleTap = () => tapCount = 0;
+
+    const flipCamera = () => {
+        tapTimer = 0;
+        const getNextCameraType = (prevCameraType) => {
+            return (prevCameraType === Camera.Constants.Type.back)
+                ? Camera.Constants.Type.front
+                : Camera.Constants.Type.back;
+        }
+        setCameraType(getNextCameraType);
+    };
+
+    const handleDoubleTap = () => {
+        tapCount++;
+        if (tapCount % 2 === 0) {
+            flipCamera(); 
+        } else {
+            tapTimer = setTimeout(resetDoubleTap, 500);
+        }
+    }
+
     return (
-        <CameraContainer onPress={() => {
-            backCount++
-            if (backCount == 2) {
-                backTimer=0;
-                flipCamera();
-            } else {
-                backTimer = setTimeout(() => {
-                    backCount = 0
-                }, 500)
-            }
-        }}>
+        <CameraContainer onPress={handleDoubleTap}>
             <ReelayCamera />
             <RecordOverlay />
         </CameraContainer>

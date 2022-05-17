@@ -11,6 +11,8 @@ import TopicFeedHeader from './TopicFeedHeader';
 import TopicTitleBanner from './TopicTitleBanner';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from 'react-native-elements';
+import { useSelector } from 'react-redux';
+import UploadProgressBar from '../global/UploadProgressBar';
 
 const { height, width } = Dimensions.get('window');
 
@@ -70,6 +72,10 @@ export default TopicStack = ({
     const [stackPosition, setStackPosition] = useState(initialStackPos);
     const headerTopOffset = useSafeAreaInsets().top;
     const addReelayBottomOffset = useSafeAreaInsets().bottom;
+
+    const uploadStage = useSelector(state => state.uploadStage);
+    const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
+    const showProgressBar = showProgressBarStages.includes(uploadStage);
 
     const getItemLayout = (data, index) => ({
         length: width, 
@@ -153,6 +159,7 @@ export default TopicStack = ({
                 offset={addReelayBottomOffset}
                 topic={topic} 
             />
+            { showProgressBar && <UploadProgressBar mountLocation={'globalTopics'} /> }
         </ReelayFeedContainer>
     );
 }
