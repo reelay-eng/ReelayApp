@@ -103,12 +103,12 @@ export default ClubAddTitleScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
 
     const [loading, setLoading] = useState(false);
-    const [readyToAdd, setReadyToAdd] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
     const [searchText, setSearchText] = useState('');
+
+    const [selectedTitle, setSelectedTitle] = useState(null);
     const [selectedType, setSelectedType] = useState("Film");
 
-    const selectedTitles = useRef([]);
     const updateCounter = useRef(0);
 
     useFocusEffect(() => {
@@ -118,34 +118,30 @@ export default ClubAddTitleScreen = ({ navigation, route }) => {
     const AddTitleButton = () => {
         const [uploading, setUploading] = useState(false);
 
-        const addAllTitlesToClub = async () => {
+        const addSelectedTitleToClub = async () => {
             if (uploading) return;
+            if (!selectedTitle) return;
+
             try {
                 setUploading(true);
-                const addTitleResults = await Promise.all(
-                    selectedTitles.current.map(async (titleObj) => {
-                        const addTitleResult = await addTitleToClub({ 
-                            authSession,
-                            addedByUserSub: reelayDBUser?.sub, 
-                            addedByUsername: reelayDBUser?.username,
-                            clubID: club.id, 
-                            titleType: titleObj.titleType,
-                            tmdbTitleID: titleObj.id,
-                        });
+                const addTitleResult = await addTitleToClub({ 
+                    authSession,
+                    addedByUserSub: reelayDBUser?.sub, 
+                    addedByUsername: reelayDBUser?.username,
+                    clubID: club.id, 
+                    titleType: selectedTitle.titleType,
+                    tmdbTitleID: selectedTitle.id,
+                });
 
-                        notifyClubOnTitleAdded({
-                            club,
-                            clubTitle: addTitleResult,
-                            addedByUser: reelayDBUser,
-                        });
+                notifyClubOnTitleAdded({
+                    club,
+                    clubTitle: addTitleResult,
+                    addedByUser: reelayDBUser,
+                });
 
-                        club.titles = [addTitleResult, ...club.titles];
-                        dispatch({ type: 'setUpdatedClub', payload: club });            
-                        return addTitleResult;
-                    })
-                );
-                const titleWord = `title${(addTitleResults.length > 1) ? 's' : ''}`;
-                showMessageToast(`Added ${addTitleResults.length} ${titleWord} to ${club.name}`);
+                club.titles = [addTitleResult, ...club.titles];
+                dispatch({ type: 'setUpdatedClub', payload: club });            
+                showMessageToast(`Added to ${club.name}`);
                 setUploading(false);
                 navigation.pop();
             } catch (error) {
@@ -157,7 +153,7 @@ export default ClubAddTitleScreen = ({ navigation, route }) => {
 
         return (
             <AddTitleButtonOuterContainer bottomOffset={bottomOffset}>
-                <AddTitleButtonContainer onPress={addAllTitlesToClub}>
+                <AddTitleButtonContainer onPress={addSelectedTitleToClub}>
                     { uploading && <ActivityIndicator /> }
                     { !uploading && (
                         <React.Fragment>
@@ -202,9 +198,7 @@ export default ClubAddTitleScreen = ({ navigation, route }) => {
     }
 
     const SearchedTitle = ({ titleObj }) => {
-        const findTitle = (nextTitleObj) => (nextTitleObj.id === titleObj.id);
-        const filterTitle = (nextTitleObj) => (nextTitleObj.id !== titleObj.id);
-        const isSelected = !!selectedTitles.current.find(findTitle);
+        const isSelected = (selectedTitle && selectedTitle?.id === titleObj.id);
         const [selected, setSelected] = useState(isSelected);
 
         const title = titleObj?.display;
@@ -220,17 +214,15 @@ export default ClubAddTitleScreen = ({ navigation, route }) => {
             if (selected) {
                 setSelected(false);
                 Keyboard.dismiss();
-                selectedTitles.current = selectedTitles.current.filter(filterTitle);
-                if (selectedTitles.current.length === 0) {
-                    setReadyToAdd(false);
-                }
+                // selectedTitle.current = null;
+                // setReadyToAdd(false);
+                setSelectedTitle(null);
             } else {
                 setSelected(true);
                 Keyboard.dismiss();
-                selectedTitles.current.push(titleObj);
-                if (!readyToAdd) {
-                    setReadyToAdd(true);
-                }
+                // selectedTitle.current = titleObj;
+                // setReadyToAdd(true);
+                setSelectedTitle(titleObj);
             }
         }
     
@@ -244,10 +236,6 @@ export default ClubAddTitleScreen = ({ navigation, route }) => {
                 </TitleLineContainer>
             </TitleResultRow>
         );
-    }
-
-    const renderSearchedTitle = ({ item, index }) => {
-        return <SearchedTitle titleObj={item} />;
     }
 
     const updateSearch = async (newSearchText, searchType, counter) => {
@@ -275,10 +263,7 @@ export default ClubAddTitleScreen = ({ navigation, route }) => {
     const updateSearchDeferred = (newSearchText) => {
         updateCounter.current += 1;
         const nextUpdateCounter = updateCounter.current;
-        selectedTitles.current = [];
-        if (readyToAdd) {
-            setReadyToAdd(false);
-        }
+        setSelectedTitle(null);
         setTimeout(() => {
             updateSearch(newSearchText, selectedType, nextUpdateCounter);
         }, 200);
@@ -315,7 +300,7 @@ export default ClubAddTitleScreen = ({ navigation, route }) => {
 				/>
 			</SearchBarContainer>
             <SearchResults />
-            { readyToAdd && <AddTitleButton /> }
+            { selectedTitle && <AddTitleButton /> }
         </SearchScreenContainer>
         </React.Fragment>
     );

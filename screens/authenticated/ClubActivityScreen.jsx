@@ -16,6 +16,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { showErrorToast } from '../../components/utils/toasts';
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
 import { LinearGradient } from 'expo-linear-gradient';
+import ReelayColors from '../../constants/ReelayColors';
 
 const { height, width } = Dimensions.get('window');
 
@@ -44,6 +45,19 @@ const AddTitleButtonOuterContainer = styled(LinearGradient)`
 const AddTitleButtonText = styled(ReelayText.Subtitle2)`
     color: white;
     margin-left: 4px;
+`
+const DescriptionContainer = styled(View)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlack};
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    padding: 8px;
+    padding-left: 16px;
+    padding-right: 16px;
+    width: 100%;
+`
+const DescriptionText = styled(ReelayText.Body2)`
+    color: white;
 `
 const ScrollContainer = styled(ScrollView)`
     top: ${(props) => props.topOffset}px;
@@ -114,8 +128,8 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         );
     }
 
-    return (
-        <ActivityScreenContainer>
+    const ClubActivityScroll = ({ children }) => {
+        return (
             <ScrollContainer 
                 contentContainerStyle={{ 
                     alignItems: 'center', 
@@ -126,6 +140,25 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 refreshControl={refreshControl} 
                 showsVerticalScrollIndicator={false}
             >
+                { children }
+            </ScrollContainer>
+        )
+    }
+
+    const DescriptionFold = () => {
+        return (
+            <DescriptionContainer>
+                <DescriptionText>
+                    { club.description }
+                </DescriptionText>
+            </DescriptionContainer>
+        )
+    }
+
+    return (
+        <ActivityScreenContainer>
+            <ClubActivityScroll>
+                <DescriptionFold />
                 { (!refreshing && !club?.titles?.length) && <NoTitlesYetPrompt /> } 
                 { (club.titles?.length > 0 ) && club.titles?.map((clubTitle) => {
                     return (
@@ -137,7 +170,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                             onRefresh={onRefresh}
                         />);
                 })}
-            </ScrollContainer>
+            </ClubActivityScroll>
             <ClubBanner club={club} navigation={navigation} />
             <AddTitleButton />
             { inviteDrawerVisible && (

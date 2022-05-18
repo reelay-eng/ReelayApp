@@ -27,8 +27,6 @@ export const notifyClubOnTitleAdded = async ({ club, clubTitle, addedByUser }) =
         await sendPushNotification({ title, body, data, token, sendToUserSub });
     }
 
-    console.log('notifying club: ', club);
-
     await Promise.all(club.members.map((clubMember) => {
         if (clubMember?.role === 'banned') return;
         if (clubMember?.userSub === addedByUser?.sub) return;

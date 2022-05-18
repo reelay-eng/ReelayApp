@@ -19,7 +19,7 @@ const ClubNameText = styled(ReelayText.Subtitle2)`
 `
 const HeaderBackground = styled(Pressable)`
     align-items: flex-end;
-    background-color: rgba(255,255,255,0.05);
+    background-color: rgba(0,0,0,0.35);
     flex-direction: row;
     height: ${(props) => props.height}px;
     justify-content: center;
