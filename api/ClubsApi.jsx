@@ -4,6 +4,7 @@ import { getReelayAuthHeaders } from './ReelayAPIHeaders';
 import { prepareReelay } from './ReelayDBApi';
 import { fetchAnnotatedTitle } from './TMDbApi';
 
+const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 
 export const addMemberToClub = async ({
@@ -147,8 +148,8 @@ export const getClubsMemberOf = async ({ authSession, userSub }) => {
     return fetchedClubs;
 }
 
-export const getClubTitles = async ({ authSession, clubID, reqUserSub }) => {
-    const routeGet = `${REELAY_API_BASE_URL}/clubs/titles/${clubID}`;
+export const getClubTitles = async ({ authSession, clubID, page = 0, reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/clubs/titles/${clubID}?page=${page}&visibility=${FEED_VISIBILITY}`;
     const clubTitles = await fetchResults(routeGet, {
         method: 'GET',
         headers: {
@@ -166,8 +167,8 @@ export const getClubTitles = async ({ authSession, clubID, reqUserSub }) => {
     return annotatedClubTitles;
 }
 
-export const getClubTopics = async ({ authSession, clubID, reqUserSub }) => {
-    const routeGet = `${REELAY_API_BASE_URL}/clubs/topics/${clubID}`;
+export const getClubTopics = async ({ authSession, clubID, page = 0, reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/clubs/topics/${clubID}?page=${page}&visibility=${FEED_VISIBILITY}`;
     const resultGet = await fetchResults(routeGet, {
         method: 'GET',
         headers: {

@@ -17,6 +17,8 @@ import { showErrorToast } from '../../components/utils/toasts';
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
 import { LinearGradient } from 'expo-linear-gradient';
 import ReelayColors from '../../constants/ReelayColors';
+import AddTitleOrTopicDrawer from '../../components/clubs/AddTitleOrTopicDrawer';
+import UploadProgressBar from '../../components/global/UploadProgressBar';
 
 const { height, width } = Dimensions.get('window');
 
@@ -76,6 +78,10 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const topOffset = useSafeAreaInsets().top + 80;
     const bottomOffset = useSafeAreaInsets().bottom;
 
+    const uploadStage = useSelector(state => state.uploadStage);
+    const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
+    const showProgressBar = showProgressBarStages.includes(uploadStage);
+
     const [refreshing, setRefreshing] = useState(false);
     const onRefresh = async () => {
         try { 
@@ -116,14 +122,24 @@ export default ClubActivityScreen = ({ navigation, route }) => {
 
     const AddTitleButton = () => {
         const advanceToAddTitleScreen = () => navigation.push('ClubAddTitleScreen', { club });
+        const [titleOrTopicDrawerVisible, setTitleOrTopicDrawerVisible] = useState(false);
+
         return (
             <AddTitleButtonOuterContainer 
                 bottomOffset={bottomOffset} 
                 colors={['transparent', 'black']}>
-                <AddTitleButtonContainer onPress={advanceToAddTitleScreen}>
+                <AddTitleButtonContainer onPress={() => setTitleOrTopicDrawerVisible(true)}>
                     <Icon type='ionicon' name='add-circle-outline' size={16} color='white' />
-                    <AddTitleButtonText>{'Add a title'}</AddTitleButtonText>
+                    <AddTitleButtonText>{'Add title or topic'}</AddTitleButtonText>
                 </AddTitleButtonContainer>
+                { titleOrTopicDrawerVisible && (
+                    <AddTitleOrTopicDrawer
+                        club={club}
+                        navigation={navigation}
+                        drawerVisible={titleOrTopicDrawerVisible}
+                        setDrawerVisible={setTitleOrTopicDrawerVisible}
+                    />
+                )}
             </AddTitleButtonOuterContainer>
         );
     }
@@ -159,6 +175,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         <ActivityScreenContainer>
             <ClubActivityScroll>
                 <DescriptionFold />
+                { showProgressBar && <UploadProgressBar mountLocation={'InClub'} clubID={club.id} /> }
                 { (!refreshing && !club?.titles?.length) && <NoTitlesYetPrompt /> } 
                 { (club.titles?.length > 0 ) && club.titles?.map((clubTitle) => {
                     return (

@@ -97,6 +97,11 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const clubID = route.params?.clubID ?? null;
     const myClubs = useSelector(state => state.myClubs);
     const reelayClub = clubID ? myClubs.find(nextClub => nextClub.id === clubID) : null;
+    const matchClubTitle = (clubTitle) => (
+        clubTitle.tmdbTitleID === titleObj.id && 
+        clubTitle.titleType === titleObj.titleType
+    );
+    const reelayClubTitle = reelayClub ? reelayClub.titles?.find(matchClubTitle) : null;
 
     const pleaseBePatientShouldDisplay = (recordingLengthSeconds > 15);
     const uploadStage = useSelector(state => state.uploadStage);
@@ -144,7 +149,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             const uploadRequest = {
                 destination,
                 posterSource,
-                reelayDBBody, 
+                reelayDBBody,
+                reelayClubTitle, 
                 reelayTopic,
                 videoURI, 
                 videoS3Key,             
@@ -224,10 +230,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         // so we don't want to navigate away until we're done with that part
         if (uploadStage === 'uploading') {
             navigation.popToTop();
-            if (clubID && topicID) {
-                navigation.navigate('Clubs');
-            } else if (clubID) {
-                navigation.navigate('Clubs');
+            if (clubID && reelayClub) {
+                navigation.push('ClubActivityScreen', { club: reelayClub });
             } else if (topicID && reelayTopic) {
                 navigation.navigate('SingleTopicScreen', {
                     initReelayIndex: 0,

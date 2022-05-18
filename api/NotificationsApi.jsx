@@ -468,10 +468,26 @@ export const notifyMentionsOnReelayPosted = async ({ creator, reelay }) => {
     return mentionedUsers;
 }
 
-export const notifyOtherCreatorsOnReelayPosted = async ({ creator, reelay, topic = null, mentionedUsers }) => { // this is the topics one
-    const notifyReelayStack = (topic) 
-        ? topic.reelays
-        : await getMostRecentReelaysByTitle(reelay.title.id);
+export const notifyOtherCreatorsOnReelayPosted = async ({ 
+    creator, 
+    reelay, 
+    topic = null,
+    clubTitle = null,
+    mentionedUsers,
+}) => {
+    let notifyReelayStack;
+    let action;
+
+    if (topic) {
+        notifyReelayStack = topic.reelays;
+        action = 'openTopicAtReelay';
+    } else if (clubTitle) {
+        notifyReelayStack = clubTitle.reelays;
+        action = 'openClubActivityScreen';
+    } else {
+        notifyReelayStack = getMostRecentReelaysByTitle(reelay.title.id);
+        action = 'openSingleReelayScreen';
+    }
     
     notifyReelayStack.map(async (notifyReelay, index) => {
         const notifyCreator = await getRegisteredUser(notifyReelay.creator.sub);
@@ -501,8 +517,9 @@ export const notifyOtherCreatorsOnReelayPosted = async ({ creator, reelay, topic
         console.log("sending notifcation to ", notifyCreator)
         const data = { 
             notifyType: 'notifyOtherCreatorsOnReelayPosted',
-            action: (topic) ? 'openTopicAtReelay' : 'openSingleReelayScreen',
+            action,
             reelaySub: reelay.sub,
+            club: (clubTitle) ? { id: clubTitle.clubID } : null,
             title: condensedTitleObj(reelay.title),   
             fromUser: { sub: creator?.sub, username: creator?.username },
         };

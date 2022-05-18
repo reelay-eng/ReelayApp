@@ -109,17 +109,16 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             width: ${captureSize}px;
             border-radius: ${Math.floor(captureSize / 2)}px;
         `
-
-        useEffect(() => {
-            if (isRecording) {
-                recordVideo();
-            } else {
-                stopVideoRecording();
-            }
-        }, [isRecording]);
-
+        
         const onRecordButtonPress = () => {
-            setIsRecording(!isRecording);
+            console.log('button press: ', isRecording);
+            if (isRecording) {
+                stopVideoRecording();
+                setIsRecording(false);
+            } else {
+                recordVideo();
+                setIsRecording(true);
+            }
         }
 
         const recordVideo = async () => {

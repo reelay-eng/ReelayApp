@@ -26,6 +26,7 @@ export const uploadReelay = async ({
     clearUploadRequest,
     destination,
     reelayDBBody, 
+    reelayClubTitle,
     reelayTopic,
     s3Client,
     setUploadProgress, 
@@ -86,7 +87,7 @@ export const uploadReelay = async ({
         preparedReelay.likes = [];
         preparedReelay.comments = [];    
     
-        await sendNotificationsOnUpload({ preparedReelay, reelayTopic });     
+        await sendNotificationsOnUpload({ preparedReelay, reelayClubTitle, reelayTopic });     
     } catch (error) {
         setUploadProgress(0.0);
         setUploadStage('upload-failed-retry');
@@ -98,7 +99,7 @@ export const uploadReelay = async ({
     }
 }
 
-const sendNotificationsOnUpload = async ({ preparedReelay, reelayTopic }) => {
+const sendNotificationsOnUpload = async ({ preparedReelay, reelayClubTitle, reelayTopic }) => {
     const { creator } = preparedReelay;
     const mentionedUsers = await notifyMentionsOnReelayPosted({
         creator,
@@ -108,9 +109,10 @@ const sendNotificationsOnUpload = async ({ preparedReelay, reelayTopic }) => {
     notifyOtherCreatorsOnReelayPosted({
         creator,
         reelay: preparedReelay,
+        clubTitle: reelayClubTitle ?? null,
         topic: reelayTopic ?? null,
         mentionedUsers: mentionedUsers,
-    });
+    });    
 
     if (reelayTopic) {
         notifyTopicCreatorOnReelayPosted({
