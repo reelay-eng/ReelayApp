@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Modal, View, ScrollView, Pressable } from 'react-native';
 import * as ReelayText from '../global/Text';
 import { Icon } from 'react-native-elements';
@@ -8,6 +8,7 @@ import { getUserByUsername } from '../../api/ReelayDBApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import ProfilePicture from '../global/ProfilePicture';
 import FollowButton from '../global/FollowButton';
+import { AuthContext } from '../../context/AuthContext';
 
 export default LikesDrawer = ({ reelay, navigation }) => {
 
@@ -33,7 +34,9 @@ export default LikesDrawer = ({ reelay, navigation }) => {
     const ModalContainer = styled(View)`
         position: absolute;
     `
+    const { reelayDBUser } = useContext(AuthContext);
     const likesVisible = useSelector(state => state.likesVisible);
+    const myFollowing = useSelector(state => state.myFollowing);
     const dispatch = useDispatch();
     const closeDrawer = () => dispatch({ type: 'setLikesVisible', payload: false });
 
@@ -139,7 +142,22 @@ export default LikesDrawer = ({ reelay, navigation }) => {
         `
         const LikesScrollView = styled(ScrollView)`
             width: 100%;
+            margin-bottom: 30px;
         `
+        
+        reelay.likes.sort(function(a, b) { 
+            if (a.username === reelayDBUser.username)   return -1;
+            if (b.username === reelayDBUser.username)   return 1;
+
+            const followingUserA = myFollowing.find((user) => { return a.username === user.creatorName });
+            const followingUserB = myFollowing.find((user) => { return b.username === user.creatorName });
+
+            if (followingUserA === followingUserB) {
+                return (a.username > b.username) ? 1 : -1;
+            }
+            return (followingUserA) ? -1 : 1;
+        });
+
         return (
             <LikesContainer>
                 <Header />
