@@ -40,11 +40,6 @@ export const condensedTitleObj = (titleObj) => {
     return { id, display, posterSource, releaseYear };
 }
 
-const condensedTitle = (displayTitle) => {
-    if (displayTitle.length < 25) return displayTitle;
-    return displayTitle.substring(0, 22) + '...';
-}
-
 export const getAllMyNotifications = async (userSub, page = 0) => {
     const routeGet = REELAY_API_BASE_URL + `/notifications/${userSub}/all?page=${page}`;
     const resultGet = await fetchResults(routeGet, { 
@@ -513,7 +508,7 @@ export const notifyOtherCreatorsOnReelayPosted = async ({
             return;
         }
         const title = (topic) ? `${creator.username}` : `${reelay.title.display}`;
-        const body = (topic) ? `added to the topic: ${condensedTitle(topic.title)}` : `new reelay by ${creator.username}`; // add name for topic
+        const body = (topic) ? `added to the topic: ${topic.title}` : `new reelay by ${creator.username}`; // add name for topic
         console.log("sending notifcation to ", notifyCreator)
         const data = { 
             notifyType: 'notifyOtherCreatorsOnReelayPosted',
@@ -544,7 +539,7 @@ export const notifyTopicCreatorOnReelayPosted = async ({ creator, reelay, topic 
     }
 
     const title = `${creator?.username}`;
-    const body = `added to your topic: ${condensedTitle(topic.title)}`;
+    const body = `added to your topic: ${topic.title}`;
     const data = { 
         notifyType: 'notifyTopicCreatorOnReelayPosted',
         action: (topic) ? 'openTopicAtReelay' : 'openSingleReelayScreen',

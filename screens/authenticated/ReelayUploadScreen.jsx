@@ -81,27 +81,43 @@ const UploadScreenContainer = styled(View)`
 `
 
 export default ReelayUploadScreen = ({ navigation, route }) => {
+    const { 
+        clubID, 
+        recordingLengthSeconds, 
+        titleObj, 
+        topicID, 
+        videoURI, 
+        venue,
+    } = route.params;
+
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
-    const { recordingLengthSeconds, titleObj, videoURI, venue } = route.params;
     const [confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible] = useState(false);
     const [previewIsMuted, setPreviewIsMuted] = useState(false);
  
     const descriptionRef = useRef('');
     const starCountRef = useRef(0);
 
-    const topicID = route.params?.topicID;
-    const globalTopics = useSelector(state => state.globalTopics);
-    const reelayTopic = topicID ? globalTopics.find(nextTopic => nextTopic.id === topicID) : null;
-
-    const clubID = route.params?.clubID ?? null;
     const myClubs = useSelector(state => state.myClubs);
-    const reelayClub = clubID ? myClubs.find(nextClub => nextClub.id === clubID) : null;
+    const globalTopics = useSelector(state => state.globalTopics);
+
+    const reelayClub = (clubID) 
+        ? myClubs.find(nextClub => nextClub.id === clubID) 
+        : null;
+
     const matchClubTitle = (clubTitle) => (
         clubTitle.tmdbTitleID === titleObj.id && 
         clubTitle.titleType === titleObj.titleType
     );
-    const reelayClubTitle = reelayClub ? reelayClub.titles?.find(matchClubTitle) : null;
+    const reelayClubTitle = (reelayClub)
+        ? reelayClub.titles?.find(matchClubTitle) 
+        : null;
+
+    const reelayTopic = (topicID && clubID) 
+            ? reelayClub?.topics?.find(nextTopic => nextTopic.id === topicID)
+        : (topicID) 
+            ? globalTopics.find(nextTopic => nextTopic.id === topicID) 
+        : null;
 
     const pleaseBePatientShouldDisplay = (recordingLengthSeconds > 15);
     const uploadStage = useSelector(state => state.uploadStage);
@@ -241,8 +257,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             }
         }
     }, [uploadStage])
-
-
 
     return (
         <UploadScreenContainer>

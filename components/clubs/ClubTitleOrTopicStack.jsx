@@ -107,13 +107,13 @@ export default ClubTitleOrTopicStack = ({
         index: index,
     });
 
-    const renderTitleBanner = () => {
+    const renderTitleBanner = (reelay) => {
         return (
             <BannerContainer offset={titleBannerTopOffset}>
                 <TitleBanner 
-                    titleObj={viewableReelay?.title}
+                    titleObj={reelay?.title}
                     navigation={navigation}
-                    viewableReelay={viewableReelay}
+                    viewableReelay={reelay}
                     stack={stack}
                     donateObj={donateObj}
                 />
@@ -124,6 +124,9 @@ export default ClubTitleOrTopicStack = ({
     const renderReelay = ({ item, index }) => {
         const reelay = item;
         const reelayViewable = stackViewable && (index === stackPosition);  
+        if (reelayViewable) {
+            console.log('rendering title banner: ', viewableReelay?.title.display);
+        }
         
         return (
             <ReelayFeedContainer key={reelay.id}>
@@ -133,7 +136,7 @@ export default ClubTitleOrTopicStack = ({
                     reelay={reelay} 
                     viewable={reelayViewable}
                 />
-                { activityType === 'topic' && renderTitleBanner() }
+                { activityType === 'topic' && renderTitleBanner(reelay) }
             </ReelayFeedContainer>
         );
     };
@@ -182,7 +185,7 @@ export default ClubTitleOrTopicStack = ({
                 windowSize={3}
             />
             <ClubBanner club={club} navigation={navigation} />
-            { activityType === 'title' && renderTitleBanner() }
+            { activityType === 'title' && renderTitleBanner(viewableReelay) }
             <AddReelayButton 
                 activityType={activityType}
                 navigation={navigation} 
