@@ -109,6 +109,7 @@ const TopReelays = ({ goToReelay, topReelays }) => {
 							<ReelayThumbnail
 								key={reelay.id}
 								reelay={reelay}
+								showVenue={false}
 								onPress={() => goToReelay(index)}
 							/>
 						);
