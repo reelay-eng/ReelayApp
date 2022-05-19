@@ -142,7 +142,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: ${ReelayColors.reelayBlue};
+            background-color: transparent;
 		`;
 
 		const PrimaryVenueImage = styled(Image)`
@@ -167,25 +167,33 @@ export default VenueSelectScreen = ({ navigation, route }) => {
             padding: 5px;
             text-align: center;
         `
+        
+        const VenueGradient = ({ selected }) => {
+            const GRADIENT_START_COLOR = selected ? "#2977EF": "#272525"
+            const GRADIENT_END_COLOR = selected ? "#FF4848" : "#19242E"
+            return (
+                <LinearGradient
+                    colors={[GRADIENT_START_COLOR, GRADIENT_END_COLOR]}
+                    style={{
+                        flex: 1,
+                        opacity: 1,
+                        position: "absolute",
+                        width: "100%",
+                        height: "100%",
+                        borderRadius: `11px`,
+                    }}
+                />
+            )
+        };
+
+
 		return (
 			<>
                 {source && (
 					<PressableVenue onPress={() => advancetoCameraScreen(venue)}>
 						{({ pressed }) => (
 							<>
-								{!pressed && (
-									<LinearGradient
-										colors={["#272525", "#19242E"]}
-										style={{
-											flex: 1,
-											opacity: 1,
-											position: "absolute",
-											width: "100%",
-											height: "100%",
-											borderRadius: `11px`,
-										}}
-									/>
-								)}
+								<VenueGradient selected={pressed} />
 								{subtext.length > 0 && (
 									<>
 										<OtherVenueImageContainer>
