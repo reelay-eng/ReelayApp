@@ -27,7 +27,6 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 // Screen Orientation
 import { getRuntimeString } from '../../components/utils/TitleRuntime';
-import AddToWatchlistButton from './AddToWatchlistButton';
 import { useDispatch, useSelector } from 'react-redux';
 
 const Spacer = styled(View)`
