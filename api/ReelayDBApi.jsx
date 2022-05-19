@@ -319,6 +319,15 @@ export const getRegisteredUser = async (userSub) => {
     return resultGet;
 }
 
+export const getVenuesWhereSeen = async (titleType, tmdbTitleID, visibility="global") => {
+    const routeGet = `${REELAY_API_BASE_URL}/venues/seenOn?titleType=${titleType}&tmdbTitleID=${tmdbTitleID}&visibility=${visibility}`;
+    const resultGet = await fetchResults(routeGet, {
+        method: "GET",
+        headers: ReelayAPIHeaders,
+    });
+    return resultGet;
+}
+
 export const getUserByEmail = async (address) => {
     const routeGet = `${REELAY_API_BASE_URL}/users/byemail/${address}`;
     const userResult = await fetchResults(routeGet, {
