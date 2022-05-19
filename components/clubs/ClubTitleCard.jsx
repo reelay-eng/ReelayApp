@@ -12,6 +12,7 @@ import { AuthContext } from '../../context/AuthContext';
 import TitlePoster from '../global/TitlePoster';
 import { getRuntimeString } from '../utils/TitleRuntime';
 import ClubTitleDotMenuDrawer from './ClubTitleDotMenuDrawer';
+import ReelayColors from '../../constants/ReelayColors';
 
 const { height, width } = Dimensions.get('window');
 
@@ -52,32 +53,39 @@ const CreateReelayText = styled(ReelayText.CaptionEmphasized)`
     font-size: 12px;
     line-height: 16px;
 `
-const AddedByLine = styled(View)`
-    align-items: center;
+const CardTopLineContainer = styled(View)`
+    align-items: flex-start;
     flex-direction: row;
     justify-content: space-between;
     margin: 16px;
+    margin-bottom: 4px;
 `
-const AddedByLineLeft = styled(View)`
+const CardTopLineContainerLeft = styled(View)`
     align-items: center;
     flex-direction: row;
+`
+const CardTopLineContainerRight = styled(View)`
+    align-items: flex-end;
 `
 const AddedByUsername = styled(ReelayText.CaptionEmphasized)`
     color: #86878B;
     margin-left: 8px;
     padding-top: 4px;
 `
-const DescriptionLine = styled(View)`
-    margin-left: 16px;
-    margin-right: 16px;
-    margin-bottom: 9px;
-`
 const DescriptionText = styled(ReelayText.CaptionEmphasized)`
     color: #86878B;
 `
 const DotMenuButtonContainer = styled(TouchableOpacity)`
-    padding-left: 4px;
     padding-right: 4px;
+`
+const MarkSeenButtonContainer = styled(TouchableOpacity)`
+    align-items: center;
+    flex-direction: row;
+    padding-left: 4px;
+`
+const MarkSeenText = styled(ReelayText.CaptionEmphasized)`
+    color: #86878B;
+    padding-right: 6px;
 `
 const PlayReelaysButton = styled(TouchableOpacity)`
     align-items: center;
@@ -90,7 +98,7 @@ const TitleDetailLine = styled(View)`
     margin-left: 8px;
     width: ${width - 128}px;
 `
-const TitleLine = styled(View)`
+const TitleLineContainer = styled(View)`
     flex-direction: row;
     margin-left: 16px;
     margin-right: 16px;
@@ -196,8 +204,8 @@ export default ClubTitleCard = ({
     onRefresh,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const { addedByUserSub, addedByUsername, title } = clubTitle;
-    // const clubTitleKey = `${clubTitle.titleType}-${clubTitle.tmdbTitleID}`;
     const addedByUser = { sub: addedByUserSub, username: addedByUsername };
 
     const isAddedByMe = (addedByUserSub === reelayDBUser?.sub);
@@ -208,21 +216,20 @@ export default ClubTitleCard = ({
         ? title.releaseDate.slice(0,4) : '';
     const runtimeString = getRuntimeString(title?.runtime);
 
-    // const clubTitlesWithReelays = club.titles.filter(clubTitle => clubTitle?.reelays?.length > 0);
-    // const clubFeedIndex = clubTitlesWithReelays.findIndex((nextClubTitle) => {
-    //     const nextClubTitleKey = `${nextClubTitle.titleType}-${nextClubTitle.tmdbTitleID}`;
-    //     return (nextClubTitleKey === clubTitleKey);
-    // });
-
-    // const advanceToClubTitleFeed = () => {
-    //     if (clubTitle.reelays.length) {
-    //         navigation.push('ClubFeedScreen', { club, initFeedIndex: clubFeedIndex });    
-    //         logAmplitudeEventProd('openedClubTitleFeed', {
-    //             title: title.display,
-    //             username: reelayDBUser?.username,
-    //         });
-    //     }
-    // }
+    const CardTopLine = () => {
+        return (
+            <CardTopLineContainer>
+                <CardTopLineContainerLeft>
+                    <ProfilePicture user={addedByUser} size={24} />
+                    <AddedByUsername>{`Added by ${addedByUsername}`}</AddedByUsername>
+                </CardTopLineContainerLeft>
+                <CardTopLineContainerRight>
+                    <MarkSeenButton />
+                    { dotMenuButtonVisible && <DotMenuButton /> }
+                </CardTopLineContainerRight>
+            </CardTopLineContainer>
+        );
+    }
 
     const DotMenuButton = () => {
         const [dotMenuVisible, setDotMenuVisible] = useState(false);
@@ -243,23 +250,55 @@ export default ClubTitleCard = ({
         );
     }
 
-    return (
-        <TitleCardPressable onPress={advanceToFeed}>
-            <TitleCardGradient colors={['#252527', '#19242E']} />
-            <AddedByLine>
-                <AddedByLineLeft>
-                    <ProfilePicture user={addedByUser} size={24} />
-                    <AddedByUsername>{`Added by ${addedByUsername}`}</AddedByUsername>
-                </AddedByLineLeft>
-                { dotMenuButtonVisible && <DotMenuButton /> }
-            </AddedByLine>
-            <TitleLine>
+    const MarkSeenButton = () => {
+        const inWatchlist = !!myWatchlistItems.find((nextItem) => {
+            const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;
+            return (tmdbTitleID === clubTitle.tmdbTitleID) 
+                && (titleType === clubTitle.titleType)
+                && (hasAcceptedRec === true);
+        });    
+        const [markedSeen, setMarkedSeen] = useState(inWatchlist);
+
+        const updateWatchlistReqBody = { 
+            reqUserSub: reelayDBUser?.sub, 
+            tmdbTitleID: clubTitle.tmdbTitleID, 
+            titleType: clubTitle.titleType,
+        };
+
+        const markSeen = () => {
+            setMarkedSeen(true);
+        }
+
+        const markUnseen = () => {
+            setMarkedSeen(false);
+        }
+
+        return (
+            <MarkSeenButtonContainer onPress={(markedSeen) ? markUnseen : markSeen}>
+                <MarkSeenText>{'Seen'}</MarkSeenText>
+                { markedSeen && <Icon type='ionicon' name='checkmark-circle' color={ReelayColors.reelayBlue} size={30} />}
+                { !markedSeen && <Icon type='ionicon' name='ellipse-outline' color={'white'} size={30} />}
+            </MarkSeenButtonContainer>
+        );
+    }
+
+    const TitleLine = () => {
+        return (
+            <TitleLineContainer>
                 <TitlePoster title={title} width={56} />
                 <TitleDetailLine>
                     <TitleText numberOfLines={2}>{title.display}</TitleText>
                     <DescriptionText>{`${releaseYear}    ${runtimeString}`}</DescriptionText>
                 </TitleDetailLine>
-            </TitleLine>
+            </TitleLineContainer>
+        );
+    }
+
+    return (
+        <TitleCardPressable onPress={advanceToFeed}>
+            <TitleCardGradient colors={['#252527', '#19242E']} />
+            <CardTopLine />
+            <TitleLine />
             { (!clubTitle.reelays.length) && <CardBottomRowNoStacks navigation={navigation} clubTitle={clubTitle} /> }
             { (clubTitle.reelays.length > 0) && (
                 <CardBottomRowWithStacks advanceToFeed={advanceToFeed} clubTitle={clubTitle} />
