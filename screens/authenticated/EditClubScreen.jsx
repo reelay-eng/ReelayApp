@@ -29,6 +29,10 @@ import { Icon } from 'react-native-elements';
 
 const { width } = Dimensions.get('window');
 
+const BackButtonContainer = styled(SafeAreaView)`
+    left: 0px;
+    position: absolute;
+`
 const ClubPictureContainer = styled(View)`
     align-items: center;
     justify-content: center;
@@ -43,16 +47,16 @@ const EditScreenContainer = styled(SafeAreaView)`
     height: 100%;
     width: 100%;
 `
-const HeaderContainer = styled(View)`
-    align-items: center;
+const TopBarContainer = styled(View)`
+    align-items: flex-end;
     flex-direction: row;
-    margin-left: 10px;
+    height: 72px;
+    justify-content: center;
     margin-bottom: 16px;
 `
-const HeaderText = styled(ReelayText.H5Emphasized)`
+const TopBarText = styled(ReelayText.H5Emphasized)`
     color: white;
-    margin-left: 20px;
-    margin-top: 4px;
+    margin-bottom: 10px;
 `
 const SaveButtonContainer = styled(TouchableOpacity)`
     align-items: center;
@@ -78,14 +82,13 @@ const TitleInputField = styled(TextInput)`
     padding: 12px;
 `
 const DeleteClubButtonContainer = styled(TouchableOpacity)`
-    align-items: center;
-    border-radius: 10px;
+    align-items: flex-end;
     flex-direction: row;
-    height: 40px;
-    justify-content: center;
+    height: 72px;
+    justify-content: flex-end;
     position: absolute;
     right: 20px;
-    top: 4px;
+    padding-bottom: 12px;
 `
 const DescriptionInputField = styled(TitleInputField)`
     height: 90px;
@@ -132,6 +135,64 @@ export default function EditClubScreen({ navigation, route }) {
         dispatch({ type: 'setTabBarVisible', payload: false });
     });
 
+    const DeleteClubButton = () => {
+        const openConfirmDeleteDrawer = () => {
+            setDeleteClubDrawerVisible(true);
+        }
+        return (
+            <DeleteClubButtonContainer onPress={openConfirmDeleteDrawer}>
+                <Icon type='ionicon' name='trash' color='white' size={24} />
+            </DeleteClubButtonContainer>
+        );
+    }
+
+    const DescriptionInput = () => {
+        return (
+            <SectionContainer>
+                <TitleText>{'Description'}</TitleText>
+                <TouchableWithoutFeedback onPress={focusDescription}>
+                    <DescriptionInputField 
+                        ref={descriptionFieldRef}
+                        blurOnSubmit={true}
+                        maxLength={DESCRIPTION_MAX_LENGTH}
+                        multiline
+                        numberOfLines={3}
+                        defaultValue={descriptionTextRef.current}
+                        placeholder={"Who's the club for?"}
+                        placeholderTextColor={'rgba(255,255,255,0.6)'}
+                        onChangeText={changeDescriptionText}
+                        onPressOut={Keyboard.dismiss()}
+                        returnKeyLabel="done"
+                        returnKeyType="done"
+                    />
+                </TouchableWithoutFeedback>   
+            </SectionContainer> 
+        );
+    }
+
+    const EditableClubPic = () => {
+        return (
+            <ClubPictureContainer>
+                <ClubPicture club={club} size={120} />
+                <TouchableOpacity onPress={() => setEditPicDrawerVisible(true)}>
+                    <EditPictureText>{'Change picture'}</EditPictureText>
+                </TouchableOpacity>
+            </ClubPictureContainer>
+        )
+    }
+
+    const Header = () => {
+        return (
+            <View>
+                <TopBar />
+                <EditableClubPic />
+                <TitleInput />
+                <DescriptionInput />
+                <DeleteClubButton />
+            </View>
+        )
+    }
+
     const SaveButton = () => {
         const onPress = async () => {
             if (publishing) return;
@@ -174,50 +235,6 @@ export default function EditClubScreen({ navigation, route }) {
         );
     }
 
-    const DeleteClubButton = () => {
-        const openConfirmDeleteDrawer = () => {
-            setDeleteClubDrawerVisible(true);
-        }
-        return (
-            <DeleteClubButtonContainer onPress={openConfirmDeleteDrawer}>
-                <Icon type='ionicon' name='trash' color='white' size={24} />
-            </DeleteClubButtonContainer>
-        );
-    }
-
-    const DescriptionInput = () => {
-        return (
-            <SectionContainer>
-                <TitleText>{'Description'}</TitleText>
-                <TouchableWithoutFeedback onPress={focusDescription}>
-                    <DescriptionInputField 
-                        ref={descriptionFieldRef}
-                        blurOnSubmit={true}
-                        maxLength={DESCRIPTION_MAX_LENGTH}
-                        multiline
-                        numberOfLines={3}
-                        defaultValue={descriptionTextRef.current}
-                        placeholder={"Who's the club for?"}
-                        placeholderTextColor={'rgba(255,255,255,0.6)'}
-                        onChangeText={changeDescriptionText}
-                        onPressOut={Keyboard.dismiss()}
-                        returnKeyLabel="done"
-                        returnKeyType="done"
-                    />
-                </TouchableWithoutFeedback>   
-            </SectionContainer> 
-        );
-    }
-
-    const Header = () => {
-        return (
-            <HeaderContainer>
-                <BackButton navigation={navigation} />
-                <HeaderText>{'Edit club info'}</HeaderText>
-            </HeaderContainer>
-        );
-    }
-
     const TitleInput = () => {
         return (
             <SectionContainer>
@@ -243,21 +260,21 @@ export default function EditClubScreen({ navigation, route }) {
         );
     }
 
+    const TopBar = () => {
+        return (
+            <TopBarContainer>
+                <BackButtonContainer>
+                    <BackButton navigation={navigation} />
+                </BackButtonContainer>
+                <TopBarText>{'Edit club info'}</TopBarText>
+            </TopBarContainer>
+        );
+    }
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <EditScreenContainer>
-                <View>
-                    <Header />
-                    <ClubPictureContainer>
-                        <ClubPicture club={club} size={120} />
-                        <TouchableOpacity onPress={() => setEditPicDrawerVisible(true)}>
-                            <EditPictureText>{'Change picture'}</EditPictureText>
-                        </TouchableOpacity>
-                    </ClubPictureContainer>
-                    <TitleInput />
-                    <DescriptionInput />
-                    <DeleteClubButton />
-                </View>
+                <Header />
                 <SectionContainerBottom>
                     <SaveButton />
                 </SectionContainerBottom>

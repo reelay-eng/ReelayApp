@@ -17,11 +17,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 
 const BackButtonContainer = styled(SafeAreaView)`
-    left: 0px;
+    left: -10px;
     position: absolute;
 `
 const ClubHeaderText = styled(ReelayText.H5Emphasized)`
     color: white;
+    margin-bottom: 10px;
 `
 const ClubDescriptionText = styled(ReelayText.Body2)` 
     color: white;
@@ -40,11 +41,12 @@ const ClubPrivacyText = styled(ReelayText.Body2)`
     margin-right: 4px;
     padding-top: 4px;
 `
-const EditButton = styled(TouchableOpacity)``
+const EditButton = styled(TouchableOpacity)`
+    padding: 12px;
+    padding-right: 8px;
+`
 const EditButtonText = styled(ReelayText.Body2)`
     color: ${ReelayColors.reelayBlue};
-    margin-right: 8px;
-    padding-top: 4px;
 `
 const HorizontalDivider = styled(View)`
     border-color: rgba(255,255,255,0.5);
@@ -137,11 +139,10 @@ const SettingsText = styled(ReelayText.Body1)`
 const SettingsTextContainer = styled(View)`
 `
 const TopBarContainer = styled(View)`
-    align-items: center;
+    align-items: flex-end;
     flex-direction: row;
     justify-content: center;
-    height: ${(props) => props.topOffset + 40}px;
-    padding-top: ${(props) => props.topOffset}px;
+    height: ${(props) => props.headerHeight}px;
     width: 100%;
 `
 const TopBarRightContainer = styled(SafeAreaView)`
@@ -465,9 +466,9 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     }
     
     const ClubTopBar = () => {
-        const topOffset = useSafeAreaInsets().top;
+        const headerHeight = useSafeAreaInsets().top + 72;
         return (
-            <TopBarContainer topOffset={topOffset}>
+            <TopBarContainer headerHeight={headerHeight}>
                 <ClubHeaderText numberOfLines={1}>{club.name}</ClubHeaderText>
                 <BackButtonContainer>
                     <BackButton navigation={navigation} />
