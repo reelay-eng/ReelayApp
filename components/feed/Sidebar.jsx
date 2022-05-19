@@ -175,7 +175,6 @@ export default Sidebar = ({ navigation, reelay }) => {
 
 			<ButtonContainer>
 				<SidebarButton>
-					{/* <SendRecButton navigation={navigation} titleObj={reelay.title} reelay={reelay} /> */}
 					<ShareOutButton reelay={reelay} />
 				</SidebarButton>
 				<Count>{''}</Count>

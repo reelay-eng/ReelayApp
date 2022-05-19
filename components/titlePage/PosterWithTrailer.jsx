@@ -28,7 +28,6 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 // Screen Orientation
 import { getRuntimeString } from '../../components/utils/TitleRuntime';
 import AddToWatchlistButton from './AddToWatchlistButton';
-import SendRecButton from '../watchlist/SendRecButton';
 import { useDispatch, useSelector } from 'react-redux';
 
 const Spacer = styled(View)`
@@ -258,15 +257,6 @@ export default PosterWithTrailer = ({
 	const PosterTitle = styled(ReelayText.H4Bold)`
 		color: white;
 	`
-	const SendRecButtonContainer = styled(View)`
-		align-items: center;
-		background-color: rgba(255, 255, 255, 0.40);
-		border-radius: 30px;
-		justify-content: center;
-		height: 45px;
-		margin: 10px;
-		width: 45px;
-	`
 	const TrailerButtonContainer = styled(View)`
 		width: 100%;
 		height: 40px;
@@ -352,9 +342,6 @@ export default PosterWithTrailer = ({
 						<PosterTagline />
 					</PosterTitleContainer>
 					<ShareButtonsContainer>
-						{/* <SendRecButtonContainer>
-							<SendRecButton navigation={navigation} titleObj={titleObj} />
-						</SendRecButtonContainer> */}
 						<AddToClubsButton titleObj={titleObj} />
 					</ShareButtonsContainer>
 				</InfoBarContainer>

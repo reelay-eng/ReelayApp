@@ -4,7 +4,6 @@ import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
 import Constants from 'expo-constants';
 
-import AddToWatchlistButton from '../titlePage/AddToWatchlistButton';
 import { VenueIcon } from '../utils/VenueIcon';
 import DonateButton from '../global/DonateButton';
 

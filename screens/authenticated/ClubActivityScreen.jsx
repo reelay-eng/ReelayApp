@@ -186,7 +186,10 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         const { activityType } = activity;
         const matchFeedTitleOrTopic = (nextTitleOrTopic) => (activity.id === nextTitleOrTopic.id);
         const initFeedIndex = feedTitlesAndTopics.findIndex(matchFeedTitleOrTopic);
-        const advanceToFeed = () => navigation.push('ClubFeedScreen', { club, initFeedIndex });   
+        const advanceToFeed = () => {
+            if (initFeedIndex === -1) return;
+            navigation.push('ClubFeedScreen', { club, initFeedIndex });   
+        }
 
         if (activityType === 'title') {
             const clubTitle = activity;

@@ -4,14 +4,13 @@ import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
 import Constants from 'expo-constants';
 
-import AddToWatchlistButton from '../titlePage/AddToWatchlistButton';
+import AddToClubsButton from "../clubs/AddToClubsButton";
 import { VenueIcon } from '../utils/VenueIcon';
 import DonateButton from '../global/DonateButton';
 
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 import styled from 'styled-components/native';
 import TitlePoster from "../global/TitlePoster";
-import AddToClubsButton from "../clubs/AddToClubsButton";
 
 const { height, width } = Dimensions.get('window');
 
@@ -88,14 +87,12 @@ export default TitleBanner = ({
         }
         navigation.push('TitleDetailScreen', { titleObj });
 
-        if (viewableReelay) {
-            logAmplitudeEventProd('openTitleScreen', {
-                reelayID: viewableReelay?.id,
-                reelayTitle: viewableReelay?.title.display,
-                username: reelayDBUser?.username,
-                source: 'poster',
-            });    
-        }
+        logAmplitudeEventProd('openTitleScreen', {
+            reelayID: viewableReelay.id,
+            reelayTitle: viewableReelay.title.display,
+            username: reelayDBUser?.username,
+            source: 'poster',
+        });
     }
 
     return (
@@ -119,8 +116,10 @@ export default TitleBanner = ({
                         { displayYear.length > 0 && <YearText>{displayYear}</YearText> }
                     </YearVenueContainer>
                     <StackLengthText>
-                        {(stack?.length > 1) && `${stack.length} Reelays  << swipe >>` }
-                        {(stack?.length === 1) && `${stack.length} Reelay` }
+                        {(stack.length > 1) 
+                            ? `${stack.length} Reelays  << swipe >>` 
+                            : `${stack.length} Reelay`
+                        }
                     </StackLengthText>
                 </View>
             </TitleInfo>
