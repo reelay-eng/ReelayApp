@@ -169,22 +169,17 @@ const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
         border-width: 1px;
         border-color: white;
     `
-    const OtherVenueImage = styled.Image`
-        height: 42px;
-        width: 42px;
-        margin: 5px;
-        resizeMode: contain;
-    `
-    const OtherVenueSubtext = styled(ReelayText.CaptionEmphasized)`
-        color: white;
-        padding: 5px;
-        text-align: center;
-    `
 
     const onPress = () => {
         onTapVenue(venue, !selected); 
         setSelected(!selected);
     };
+
+    const VenueImage = memo(({ source }) => {
+        return <PrimaryVenueImage source={source} />
+    }, (prevProps, nextProps) => {
+        return prevProps.source === nextProps.source;
+    });
 
     const VenueGradient = ({ selected }) => {
         const GRADIENT_START_COLOR = selected ? "#2977EF": "#272525"
@@ -207,7 +202,7 @@ const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
     return (
         <PressableVenue onPress={onPress} selected={selected}>
             <VenueGradient selected={selected}/>
-            <PrimaryVenueImage source={iconSource} />
+            <VenueImage source={iconSource} />
         </PressableVenue>
     );
 };

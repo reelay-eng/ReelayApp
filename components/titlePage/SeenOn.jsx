@@ -14,8 +14,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import * as Linking from 'expo-linking';
 
-import Constants from 'expo-constants';
-
 const SeenOnContainer = styled(View)`
     width: 95%;
     left: 5%;
