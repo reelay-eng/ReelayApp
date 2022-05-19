@@ -14,6 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import * as Linking from 'expo-linking';
 
+import Constants from 'expo-constants';
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 const SeenOnContainer = styled(View)`
