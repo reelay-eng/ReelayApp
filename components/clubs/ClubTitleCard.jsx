@@ -6,13 +6,15 @@ import styled from 'styled-components/native';
 import ProfilePicture from '../global/ProfilePicture';
 import { Icon } from 'react-native-elements';
 import { LinearGradient } from "expo-linear-gradient";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import TitlePoster from '../global/TitlePoster';
 import { getRuntimeString } from '../utils/TitleRuntime';
 import ClubTitleDotMenuDrawer from './ClubTitleDotMenuDrawer';
 import ReelayColors from '../../constants/ReelayColors';
+import { getWatchlistItems, markWatchlistItemSeen, markWatchlistItemUnseen } from '../../api/WatchlistApi';
+import { showMessageToast } from '../utils/toasts';
 
 const { height, width } = Dimensions.get('window');
 
@@ -203,6 +205,7 @@ export default ClubTitleCard = ({
     navigation, 
     onRefresh,
 }) => {
+    const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const { addedByUserSub, addedByUsername, title } = clubTitle;
@@ -252,10 +255,11 @@ export default ClubTitleCard = ({
 
     const MarkSeenButton = () => {
         const inWatchlist = !!myWatchlistItems.find((nextItem) => {
-            const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;
+            const { tmdbTitleID, titleType, hasAcceptedRec, hasSeenTitle } = nextItem;
             return (tmdbTitleID === clubTitle.tmdbTitleID) 
                 && (titleType === clubTitle.titleType)
-                && (hasAcceptedRec === true);
+                && (hasAcceptedRec)
+                && (hasSeenTitle);
         });    
         const [markedSeen, setMarkedSeen] = useState(inWatchlist);
 
@@ -265,12 +269,40 @@ export default ClubTitleCard = ({
             titleType: clubTitle.titleType,
         };
 
-        const markSeen = () => {
+        const markSeen = async () => {
             setMarkedSeen(true);
+            const markSeenResult = await markWatchlistItemSeen(updateWatchlistReqBody);
+            console.log('mark seen result: ', markSeenResult);
+            // todo: update state in my watchlist
+            showMessageToast('Title marked as seen');
+    
+            logAmplitudeEventProd('markWatchlistItemSeen', {
+                username: reelayDBUser?.username,
+                title: clubTitle?.title?.display,
+                source: 'clubActivityScreen',
+                clubName: club?.name,
+            });
+
+            const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
+            dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })    
         }
 
-        const markUnseen = () => {
+        const markUnseen = async () => {
             setMarkedSeen(false);
+            const markUnseenResult = await markWatchlistItemUnseen(updateWatchlistReqBody);
+            console.log('mark unseen result: ', markUnseenResult);
+            // todo: update state in my watchlist
+            showMessageToast('Title marked unseen');
+
+            logAmplitudeEventProd('markWatchlistItemUnseen', {
+                username: reelayDBUser?.username,
+                title: clubTitle?.title?.display,
+                source: 'clubActivityScreen',
+                clubName: club?.name,
+            });
+
+            const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
+            dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })    
         }
 
         return (

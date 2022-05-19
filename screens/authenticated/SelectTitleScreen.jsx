@@ -64,8 +64,6 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     const topic = route?.params?.topic;
     const updateCounter = useRef(0);
 
-    console.log('on select title: ', clubID, topic?.id);
-
     const { reelayDBUser } = useContext(AuthContext);
 	const dispatch = useDispatch();
 
