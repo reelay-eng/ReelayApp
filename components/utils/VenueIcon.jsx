@@ -34,25 +34,25 @@ const iconYouTube = require(ICON_PATH + 'youtube.png');
 
 // When adding a new venue, be sure to add it in back end if it should be selectable as a preferred streaming service.
 export const streamingVenues = [
-    { source: iconAppleTV, venue: 'appletv', tmdbProviderID: 2 },
-    { source: iconDisney, venue: 'disney', tmdbProviderID: 337 },
-    { source: iconHBO, venue: 'hbomax', tmdbProviderID: 384 },
-    { source: iconNetflix, venue: 'netflix', tmdbProviderID: 8 },
+    { source: iconAppleTV, venue: 'appletv', deeplink: "https://tv.apple.com", tmdbProviderID: 2 },
+    { source: iconDisney, venue: 'disney', deeplink: "disneyplus://", tmdbProviderID: 337 },
+    { source: iconHBO, venue: 'hbomax', deeplink: "hbomax://", tmdbProviderID: 384 },
+    { source: iconNetflix, venue: 'netflix', deeplink: "nflx://", tmdbProviderID: 8 },
 
-    { source: iconAmazon, venue: 'amazon', tmdbProviderID: 119 },
-    { source: iconHulu, venue: 'hulu', tmdbProviderID: 15 },
-    { source: iconCriterion, venue: 'criterion', tmdbProviderID: 258 },
-    { source: iconParamount, venue: 'paramount', tmdbProviderID: 531 },
+    { source: iconAmazon, venue: 'amazon', deeplink: "aiv://", tmdbProviderID: 119 },
+    { source: iconHulu, venue: 'hulu', deeplink: "hulu://", tmdbProviderID: 15 },
+    { source: iconCriterion, venue: 'criterion', deeplink: "vhxcriterionchannel://", tmdbProviderID: 258 },
+    { source: iconParamount, venue: 'paramount', deeplink: "com.cbsvideo.app://", tmdbProviderID: 531 },
 
-    { source: iconMubi, venue: 'mubi', tmdbProviderID: 11 },
-    { source: iconPeacock, venue: 'peacock', tmdbProviderID: 387 },
-    { source: iconPlutoTV, venue: 'plutotv', tmdbProviderID: 0 },
-    { source: iconTubi, venue: 'tubi', tmdbProviderID: 0 },
+    { source: iconMubi, venue: 'mubi', deeplink: "mubi://",tmdbProviderID: 11 },
+    { source: iconPeacock, venue: 'peacock', deeplink: "peacock://", tmdbProviderID: 387 },
+    { source: iconPlutoTV, venue: 'plutotv', deeplink: "plutotv://", tmdbProviderID: 0 },
+    { source: iconTubi, venue: 'tubi', deeplink: "tubitv://", tmdbProviderID: 0 },
     
-    { source: iconYouTube, venue: 'youtube', tmdbProviderID: 192 },
-    { source: iconShudder, venue: 'shudder', tmdbProviderID: 0 },
-    { source: iconCrunchyroll, venue: 'crunchyroll', tmdbProviderID: 0 },
-    { source: iconKanopy, venue: 'kanopy', tmdbProviderID: 0 },
+    { source: iconYouTube, venue: 'youtube', deeplink: "youtube://", tmdbProviderID: 192 },
+    { source: iconShudder, venue: 'shudder', deeplink: "shudder://", tmdbProviderID: 0 },
+    { source: iconCrunchyroll, venue: 'crunchyroll', deeplink: "crunchyroll://", tmdbProviderID: 0 },
+    { source: iconKanopy, venue: 'kanopy', deeplink: "fb1519029161670311://", tmdbProviderID: 0 },
 ];
 
 export const otherVenues = [
