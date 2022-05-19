@@ -155,7 +155,7 @@ const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
 
     const PressableVenue = styled(Pressable)`
         align-items: center;
-        background-color: ${ReelayColors.reelayBlue};
+        background-color: transparent;
         border-radius: 11px;
         height: 93px;
         justify-content: center;
@@ -186,23 +186,27 @@ const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
         setSelected(!selected);
     };
 
-    const VenueGradient = () => (
-        <LinearGradient
-            colors={["#272525", "#19242E"]}
-            style={{
-                flex: 1,
-                opacity: 1,
-                position: "absolute",
-                width: "100%",
-                height: "100%",
-                borderRadius: `11px`,
-            }}
-        />
-    );
+    const VenueGradient = ({ selected }) => {
+        const GRADIENT_START_COLOR = selected ? "#2977EF": "#272525"
+        const GRADIENT_END_COLOR = selected ? "#FF4848" : "#19242E"
+        return (
+            <LinearGradient
+                colors={[GRADIENT_START_COLOR, GRADIENT_END_COLOR]}
+                style={{
+                    flex: 1,
+                    opacity: 1,
+                    position: "absolute",
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: `11px`,
+                }}
+            />
+        )
+    };
 
     return (
         <PressableVenue onPress={onPress} selected={selected}>
-            { (!selected) && <VenueGradient /> }
+            <VenueGradient selected={selected}/>
             <PrimaryVenueImage source={iconSource} />
         </PressableVenue>
     );
