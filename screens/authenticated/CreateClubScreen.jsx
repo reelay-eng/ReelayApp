@@ -209,8 +209,9 @@ export default function CreateClubScreen({ navigation, route }) {
             }
             const clubObj = await createClub(clubPostBody);
             const clubID = clubObj?.id;
-            clubObj.titles = [];
             clubObj.members = [];
+            clubObj.titles = [];
+            clubObj.topics = [];
 
             // todo: handle bad upload
             if (clubID && clubPicSourceRef?.current?.uri) {

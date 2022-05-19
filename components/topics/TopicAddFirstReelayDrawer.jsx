@@ -59,6 +59,7 @@ const DrawerContainer = styled(View)`
 `
 const ExplainText = styled(ReelayText.Body2Emphasized)`
     color: white;
+    margin-top: 8px;
     margin-bottom: 20px;
     text-align: center;
     width: 90%;
@@ -127,7 +128,7 @@ const TopicAddFirstReelay = ({ navigation, setDrawerVisible, topic }) => {
 		if (showMeSignupIfGuest()) return;
         setDrawerVisible(false);
         navigation.goBack();
-        navigation.navigate('SelectTitleScreen', { topic });
+        navigation.navigate('SelectTitleScreen', { topic, clubID: topic?.clubID });
         
 		logAmplitudeEventProd('advanceToCreateReelay', {
 			username: reelayDBUser?.username,

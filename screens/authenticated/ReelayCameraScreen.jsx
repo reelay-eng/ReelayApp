@@ -250,7 +250,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 ref={cameraRef}
                 type={cameraType} 
                 style={{ height: '100%', width: '100%', position: 'absolute'}}
-                flashMode={Camera.Constants.FlashMode.torch}
+                flashMode={Camera.Constants.FlashMode.off}
                 onMountError={(error) => {
                     console.log("camera error", error);
                 }}

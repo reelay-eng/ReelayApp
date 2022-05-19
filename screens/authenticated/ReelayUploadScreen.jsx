@@ -119,8 +119,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // Adding the file extension directly to the key seems to trigger S3 getting the right content type,
             // not setting contentType as a parameter in the Storage.put call.
             setPreviewIsMuted(true);
-            const destination = (clubID && topicID) ? 'InClubTopic' 
-                : (clubID) ? 'InClub' 
+            const destination = (clubID) ? 'InClub' 
                 : (topicID) ? 'InTopic' 
                 : 'OnProfile';
             const posterSource = titleObj?.posterSource;

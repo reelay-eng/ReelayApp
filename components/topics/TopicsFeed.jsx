@@ -23,7 +23,6 @@ export default TopicsFeed = ({
     navigation, 
     initTopicIndex, 
     initReelayIndex,
-    showTabBarOnReturn = true,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
 	const dispatch = useDispatch();
@@ -36,13 +35,7 @@ export default TopicsFeed = ({
 
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
-        return () => {
-            if (showTabBarOnReturn) {
-                console.log('showing tab bar on return');
-                dispatch({ type: 'setTabBarVisible', payload: true });
-            }    
-        }
-    })
+    });
 
     const extendFeed = () => {
         // todo

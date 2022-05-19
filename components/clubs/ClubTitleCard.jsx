@@ -113,7 +113,6 @@ const TitleCardPressable = styled(TouchableOpacity)`
     border-radius: 11px;
     height: 220px;
     margin-top: 8px;
-    margin-bottom: 8px;
     width: ${width-32}px;
 `
 
@@ -133,7 +132,7 @@ const CardBottomRowNoStacks = ({ navigation, clubTitle }) => {
     );
 }
 
-const CardBottomRowWithStacks = ({ advanceToClubTitleFeed, clubTitle }) => {
+const CardBottomRowWithStacks = ({ advanceToFeed, clubTitle }) => {
     const MAX_DISPLAY_CREATORS = 5;
     const myFollowing = useSelector(state => state.myFollowing);
     const inMyFollowing = (creator) => !!myFollowing.find((nextFollowing) => nextFollowing.sub === creator.sub);
@@ -164,7 +163,7 @@ const CardBottomRowWithStacks = ({ advanceToClubTitleFeed, clubTitle }) => {
                 displayCreators={getDisplayCreators()} 
                 reelayCount={clubTitle.reelays.length} 
             />
-            <PlayReelaysButton onPress={advanceToClubTitleFeed}>
+            <PlayReelaysButton onPress={advanceToFeed}>
                 <Icon type='ionicon' name='play-circle' color='white' size={30} />
             </PlayReelaysButton>
         </BottomRowContainer>
@@ -189,10 +188,16 @@ const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
     );
 }
 
-export default ClubTitleCard = ({ navigation, club, clubTitle, onRefresh }) => {
+export default ClubTitleCard = ({ 
+    advanceToFeed,
+    club, 
+    clubTitle, 
+    navigation, 
+    onRefresh,
+}) => {
     const { reelayDBUser } = useContext(AuthContext);
     const { addedByUserSub, addedByUsername, title } = clubTitle;
-    const clubTitleKey = `${clubTitle.titleType}-${clubTitle.tmdbTitleID}`;
+    // const clubTitleKey = `${clubTitle.titleType}-${clubTitle.tmdbTitleID}`;
     const addedByUser = { sub: addedByUserSub, username: addedByUsername };
 
     const isAddedByMe = (addedByUserSub === reelayDBUser?.sub);
@@ -203,21 +208,21 @@ export default ClubTitleCard = ({ navigation, club, clubTitle, onRefresh }) => {
         ? title.releaseDate.slice(0,4) : '';
     const runtimeString = getRuntimeString(title?.runtime);
 
-    const clubTitlesWithReelays = club.titles.filter(clubTitle => clubTitle?.reelays?.length > 0);
-    const clubFeedIndex = clubTitlesWithReelays.findIndex((nextClubTitle) => {
-        const nextClubTitleKey = `${nextClubTitle.titleType}-${nextClubTitle.tmdbTitleID}`;
-        return (nextClubTitleKey === clubTitleKey);
-    });
+    // const clubTitlesWithReelays = club.titles.filter(clubTitle => clubTitle?.reelays?.length > 0);
+    // const clubFeedIndex = clubTitlesWithReelays.findIndex((nextClubTitle) => {
+    //     const nextClubTitleKey = `${nextClubTitle.titleType}-${nextClubTitle.tmdbTitleID}`;
+    //     return (nextClubTitleKey === clubTitleKey);
+    // });
 
-    const advanceToClubTitleFeed = () => {
-        if (clubTitle.reelays.length) {
-            navigation.push('ClubFeedScreen', { club, initFeedIndex: clubFeedIndex });    
-            logAmplitudeEventProd('openedClubTitleFeed', {
-                title: title.display,
-                username: reelayDBUser?.username,
-            });
-        }
-    }
+    // const advanceToClubTitleFeed = () => {
+    //     if (clubTitle.reelays.length) {
+    //         navigation.push('ClubFeedScreen', { club, initFeedIndex: clubFeedIndex });    
+    //         logAmplitudeEventProd('openedClubTitleFeed', {
+    //             title: title.display,
+    //             username: reelayDBUser?.username,
+    //         });
+    //     }
+    // }
 
     const DotMenuButton = () => {
         const [dotMenuVisible, setDotMenuVisible] = useState(false);
@@ -239,7 +244,7 @@ export default ClubTitleCard = ({ navigation, club, clubTitle, onRefresh }) => {
     }
 
     return (
-        <TitleCardPressable onPress={advanceToClubTitleFeed}>
+        <TitleCardPressable onPress={advanceToFeed}>
             <TitleCardGradient colors={['#252527', '#19242E']} />
             <AddedByLine>
                 <AddedByLineLeft>
@@ -257,7 +262,7 @@ export default ClubTitleCard = ({ navigation, club, clubTitle, onRefresh }) => {
             </TitleLine>
             { (!clubTitle.reelays.length) && <CardBottomRowNoStacks navigation={navigation} clubTitle={clubTitle} /> }
             { (clubTitle.reelays.length > 0) && (
-                <CardBottomRowWithStacks advanceToClubTitleFeed={advanceToClubTitleFeed} clubTitle={clubTitle} />
+                <CardBottomRowWithStacks advanceToFeed={advanceToFeed} clubTitle={clubTitle} />
             )}
         </TitleCardPressable>
     );

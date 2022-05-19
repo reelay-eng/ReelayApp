@@ -1,14 +1,13 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { ActivityIndicator, Dimensions, FlatList, SafeAreaView, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, View } from 'react-native';
 import { useDispatch } from "react-redux";
-import ClubTitleStack from './ClubTitleStack';
+import ClubTitleOrTopicStack from './ClubTitleOrTopicStack';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 
+import moment from 'moment';
 import styled from 'styled-components/native';
-import { showMessageToast } from '../utils/toasts';
-import { useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get('window');
@@ -30,10 +29,17 @@ export default ClubFeed = ({
     const feedPager = useRef();
     const [feedPosition, setFeedPosition] = useState(initFeedIndex);
     const [refreshing, setRefreshing] = useState(false);
+    
+    const titleOrTopicHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
+    const sortClubTitlesAndTopics = (titleOrTopic0, titleOrTopic1) => {
+        const lastActivity0 = moment(titleOrTopic0?.lastUpdatedAt);
+        const lastActivity1 = moment(titleOrTopic1?.lastUpdatedAt);
+        return lastActivity0.diff(lastActivity1, 'seconds') < 0;
+    }
 
-    // todo: this duplicates code from the title card
-    const clubTitlesWithReelays = club.titles.filter(clubTitle => clubTitle?.reelays?.length > 0);
-    const clubStacks = clubTitlesWithReelays.map(clubTitle => clubTitle.reelays);
+    const feedTitlesAndTopics = [...club.titles, ...club.topics]
+        .sort(sortClubTitlesAndTopics)
+        .filter(titleOrTopicHasReelays);
 
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
@@ -56,18 +62,18 @@ export default ClubFeed = ({
     }
 
     const renderStack = ({ item, index }) => {
-        const stack = clubStacks[index];
+        const clubTitleOrTopic = item;
         const stackViewable = (index === feedPosition);
         const initialStackPos = (index === initFeedIndex) ? initStackIndex : 0;
-        return (
-            <ClubTitleStack
-                initialStackPos={initialStackPos}
-                navigation={navigation}
-                stackViewable={stackViewable}
-                club={club}
-                stack={stack}
-            />
-        );
+
+        return <ClubTitleOrTopicStack
+            key={clubTitleOrTopic.id}
+            club={club}
+            clubTitleOrTopic={clubTitleOrTopic}
+            initialStackPos={initialStackPos}
+            navigation={navigation}
+            stackViewable={stackViewable}
+        />
     }
 
     const onFeedSwiped = async (e) => {
@@ -77,12 +83,12 @@ export default ClubFeed = ({
             const nextFeedPosition = y / height;
             const swipeDirection = nextFeedPosition < feedPosition ? 'up' : 'down';
             
-            const nextStack = clubStacks[nextFeedPosition];
-            const prevStack = clubStacks[feedPosition];
+            const nextTitleOrTopic = feedTitlesAndTopics[nextFeedPosition];
+            const prevTitleOrTopic = feedTitlesAndTopics[feedPosition];
 
             const logProperties = {
-                nextReelayTitle: nextStack[0].title.display,
-                prevReelayTitle: prevStack[0].title.display,
+                nextReelayTitle: nextTitleOrTopic.reelays[0].title.display,
+                prevReelayTitle: prevTitleOrTopic.reelays[0].title.display,
                 source: 'clubs',
                 swipeDirection: swipeDirection,
                 username: reelayDBUser?.username,
@@ -94,16 +100,16 @@ export default ClubFeed = ({
 
     return (
         <ClubFeedContainer>
-            { clubStacks.length < 1 && <ActivityIndicator />}
-            { clubStacks.length >= 1 && (
+            { feedTitlesAndTopics.length < 1 && <ActivityIndicator />}
+            { feedTitlesAndTopics.length >= 1 && (
                 <FlatList
-                    data={clubStacks}
+                    data={feedTitlesAndTopics}
                     getItemLayout={getItemLayout}
                     horizontal={false}
                     initialNumToRender={1}
                     initialScrollIndex={feedPosition}
                     keyboardShouldPersistTaps={"handled"}
-                    keyExtractor={(stack) => `${stack[0].title.id}-${stack[0].sub}`}
+                    // keyExtractor={(stack) => `${stack[0].title.id}-${stack[0].sub}`}
                     maxToRenderPerBatch={1}
                     onEndReached={extendFeed}
                     onRefresh={refreshFeed}

@@ -21,6 +21,8 @@ export default VenueSelectScreen = ({ navigation, route }) => {
     const topicID = route.params?.topicID ?? null;
     const clubID = route.params?.clubID ?? null;
 
+    console.log('on venue select: ', topicID, clubID);
+
     const streamingVenues = getStreamingVenues();
     const otherVenues = getOtherVenues();
     const searchVenues = [...streamingVenues, ...otherVenues];

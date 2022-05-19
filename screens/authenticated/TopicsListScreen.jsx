@@ -23,6 +23,7 @@ import { showErrorToast, showMessageToast } from '../../components/utils/toasts'
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { searchTopics } from '../../api/TopicsApi';
 import { useFocusEffect } from '@react-navigation/native';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 const { height, width } = Dimensions.get('window');
 
@@ -104,11 +105,13 @@ const TopicScrollContainer = styled(ScrollView)`
 `
 
 export default TopicsListScreen = ({ navigation }) => {
+    const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
-    const fetchedTopics = useSelector(state => state.globalTopics);
+    const globalTopics = useSelector(state => state.globalTopics);
+    const globalTopicsWithReelays = useSelector(state => state.globalTopicsWithReelays);
     const searchBarRef = useRef(null);
 
-    const [displayTopics, setDisplayTopics] = useState(fetchedTopics);
+    const [displayTopics, setDisplayTopics] = useState(globalTopics);
     const [searching, setSearching] = useState(false);
 
     const CreateTopicButton = () => {
@@ -135,9 +138,7 @@ export default TopicsListScreen = ({ navigation }) => {
     }
 
     const SearchTopicsButton = () => {
-        const onPress = () => {
-            setSearching(true);
-        }
+        const onPress = () => setSearching(true);
         return (
             <SearchButtonContainer onPress={onPress}>
                 <Icon type='ionicon' name='search' color='white' size={24} />
@@ -147,12 +148,28 @@ export default TopicsListScreen = ({ navigation }) => {
 
     const TopicScroll = () => {
         const renderTopic = (topic, index) => {
+            const matchTopic = (nextTopic) => (nextTopic.id === topic.id);
+            const topicFeedIndex = globalTopicsWithReelays.findIndex(matchTopic);
+        
+            const advanceToFeed = () => {
+                if (!topic.reelays?.length) return;
+                navigation.push('TopicsFeedScreen', { 
+                    initTopicIndex: topicFeedIndex,
+                });
+                
+                logAmplitudeEventProd('openedTopic', {
+                    clubID: null,
+                    title: topic.title,
+                    username: reelayDBUser?.username,
+                });
+            }
+
             return (
                 <TopicCardContainer key={topic.id} >
                     <TopicCard 
-                        globalTopicIndex={index}
+                        advanceToFeed={advanceToFeed}
+                        clubID={null}
                         navigation={navigation} 
-                        showTabBarOnReturn={false}
                         topic={topic} 
                     />
                 </TopicCardContainer>
@@ -169,9 +186,13 @@ export default TopicsListScreen = ({ navigation }) => {
         )
     }
 
-    const resetTopics = () => setDisplayTopics(fetchedTopics);
+    const resetTopics = () => setDisplayTopics(globalTopics);
     const updateSearchResults = async (searchText) => {
-        const topicSearchResults = await searchTopics({ searchText, page: 0 });
+        const topicSearchResults = await searchTopics({ 
+            searchText, 
+            page: 0, 
+            reqUserSub: reelayDBUser?.sub,
+        });
         setDisplayTopics(topicSearchResults);
     }
 

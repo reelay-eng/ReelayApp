@@ -63,7 +63,8 @@ const SeeAllTopicsText = styled(ReelayText.Subtitle2)`
 export default GlobalTopics = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const curTopicIndex = useRef(0);
-    const fetchedTopics = useSelector(state => state.globalTopics);
+    const globalTopics = useSelector(state => state.globalTopics);
+    const globalTopicsWithReelays = useSelector(state => state.globalTopicsWithReelays);
     const advanceToTopicsList = () => navigation.push('TopicsListScreen');
 
     const CreateTopicButton = () => {
@@ -80,8 +81,8 @@ export default GlobalTopics = ({ navigation }) => {
     const TopicsRow = () => {
         const onBeforeSnapToItem = async (swipeIndex) => {
             const swipeDirection = swipeIndex < curTopicIndex.current ? 'left' : 'right';
-            const nextTopic = fetchedTopics[swipeIndex];
-            const prevTopic = fetchedTopics[curTopicIndex.current];
+            const nextTopic = globalTopics[swipeIndex];
+            const prevTopic = globalTopics[curTopicIndex.current];
 
             logAmplitudeEventProd('swipedTopics', {
                 nextTopicTitle: nextTopic.title,
@@ -93,11 +94,29 @@ export default GlobalTopics = ({ navigation }) => {
         }
 
         const renderTopic = ({ item, index }) => {
+            const topic = item;
+            const matchTopic = (nextTopic) => (nextTopic.id === topic.id);
+            const topicFeedIndex = globalTopicsWithReelays.findIndex(matchTopic);
+        
+            const advanceToFeed = () => {
+                if (!topic.reelays?.length) return;
+                navigation.push('TopicsFeedScreen', { 
+                    initTopicIndex: topicFeedIndex,
+                });
+                
+                logAmplitudeEventProd('openedTopic', {
+                    clubID: null,
+                    title: topic.title,
+                    username: reelayDBUser?.username,
+                });
+            }
             return (
                 <TopicCard 
                     key={index} 
+                    advanceToFeed={advanceToFeed}
+                    clubID={null}
                     navigation={navigation} 
-                    topic={item} 
+                    topic={topic} 
                 />
             );
         }
@@ -106,7 +125,7 @@ export default GlobalTopics = ({ navigation }) => {
             <Carousel
                 activeAnimationType={'decay'}
                 activeSlideAlignment={'center'}
-                data={fetchedTopics}
+                data={globalTopics}
                 inactiveSlideScale={0.95}
                 itemHeight={220}
                 itemWidth={width - 32}
@@ -129,7 +148,7 @@ export default GlobalTopics = ({ navigation }) => {
                     <SeeAllTopicsText>{'See all'}</SeeAllTopicsText>
                 </HeaderContainerRight>
             </HeaderContainer>
-            { fetchedTopics.length > 0 && <TopicsRow /> }
+            { globalTopics.length > 0 && <TopicsRow /> }
             <CreateTopicButton />
         </GlobalTopicsContainer>
     )

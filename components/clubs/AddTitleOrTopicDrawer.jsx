@@ -61,7 +61,7 @@ export default InviteMyFollowsDrawer = ({ club, navigation, drawerVisible, setDr
     }
     const advanceToAddTopicScreen = () => {
         closeDrawer();
-        navigation.push('ClubAddTitleScreen', { club });
+        navigation.push('CreateTopicScreen', { club });
     }
 
     return (

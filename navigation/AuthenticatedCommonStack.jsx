@@ -1,6 +1,7 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import React, { useContext } from 'react';
 
+import CreateTopicScreen from '../screens/authenticated/CreateTopicScreen';
 import FeedScreen from '../screens/authenticated/FeedScreen';
 import NotificationScreen from '../screens/authenticated/NotificationScreen';
 import ProfileFeedScreen from '../screens/authenticated/ProfileFeedScreen';
@@ -16,6 +17,8 @@ import SingleTopicScreen from '../screens/authenticated/SingleTopicScreen';
 import TitleDetailScreen from '../screens/authenticated/TitleDetailScreen';
 import TitleFeedScreen from '../screens/authenticated/TitleFeedScreen';
 import TitleTrailerScreen from '../screens/authenticated/TitleTrailerScreen';
+import TopicsFeedScreen from '../screens/authenticated/TopicsFeedScreen';
+import TopicsListScreen from '../screens/authenticated/TopicsListScreen';
 import UserFollowScreen from '../screens/authenticated/UserFollowScreen';
 import UserProfileScreen from '../screens/authenticated/UserProfileScreen';
 import VenueSelectScreen from '../screens/authenticated/VenueSelectScreen';
@@ -27,6 +30,7 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
     return (
         <CommonStack.Navigator initialRouteName={initialRouteName} detachInactiveScreens={false}>
             { children }
+            <CommonStack.Screen name='CreateTopicScreen' component={CreateTopicScreen} options={commonOptions} />
             <CommonStack.Screen name='FeedScreen' component={FeedScreen} options={commonOptions} />
             <CommonStack.Screen name="NotificationScreen" component={NotificationScreen} options={commonOptions} />
             <CommonStack.Screen name='ProfileFeedScreen' component={ProfileFeedScreen} options={commonOptions} />
@@ -39,6 +43,8 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
             <CommonStack.Screen name='TitleDetailScreen' component={TitleDetailScreen} options={commonOptions} />
             <CommonStack.Screen name='TitleFeedScreen' component={TitleFeedScreen} options={commonOptions} />
             <CommonStack.Screen name='TitleTrailerScreen' component={TitleTrailerScreen} options={commonOptions} />
+            <CommonStack.Screen name='TopicsFeedScreen' component={TopicsFeedScreen} options={commonOptions} />
+			<CommonStack.Screen name='TopicsListScreen' component={TopicsListScreen} options={commonOptions} />
             <CommonStack.Screen name='UserProfileScreen' component={UserProfileScreen} options={commonOptions} />
             <CommonStack.Screen name='UserFollowScreen' component={UserFollowScreen} options={commonOptions} />
             <CommonStack.Screen name='SelectTitleScreen' component={SelectTitleScreen} options={commonOptions} />

@@ -4,6 +4,7 @@ import { Icon } from 'react-native-elements';
 import * as ReelayText from '../../components/global/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
+import moment from 'moment';
 
 import ClubBanner from '../../components/clubs/ClubBanner';
 import ClubTitleCard from '../../components/clubs/ClubTitleCard';
@@ -11,7 +12,7 @@ import NoTitlesYetPrompt from '../../components/clubs/NoTitlesYetPrompt';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
-import { getClubMembers, getClubTitles } from '../../api/ClubsApi';
+import { getClubMembers, getClubTitles, getClubTopics } from '../../api/ClubsApi';
 import { AuthContext } from '../../context/AuthContext';
 import { showErrorToast } from '../../components/utils/toasts';
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
@@ -19,6 +20,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import ReelayColors from '../../constants/ReelayColors';
 import AddTitleOrTopicDrawer from '../../components/clubs/AddTitleOrTopicDrawer';
 import UploadProgressBar from '../../components/global/UploadProgressBar';
+import TopicCard from '../../components/topics/TopicCard';
 
 const { height, width } = Dimensions.get('window');
 
@@ -51,12 +53,11 @@ const AddTitleButtonText = styled(ReelayText.Subtitle2)`
 const DescriptionContainer = styled(View)`
     align-items: center;
     background-color: ${ReelayColors.reelayBlack};
-    border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
+    border-radius: 12px;
+    margin-bottom: 12px;
     padding: 8px;
     padding-left: 16px;
     padding-right: 16px;
-    width: 100%;
 `
 const DescriptionText = styled(ReelayText.Body2)`
     color: white;
@@ -82,24 +83,43 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
 
+    const sortClubActivity = (activity0, activity1) => {
+        const lastActivity0 = moment(activity0?.lastUpdatedAt);
+        const lastActivity1 = moment(activity1?.lastUpdatedAt);
+        return lastActivity0.diff(lastActivity1, 'seconds') < 0;
+    }
+    const clubActivities = [
+        ...club.titles, 
+        ...club.topics
+    ].sort(sortClubActivity);
+
+    const titleOrTopicHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
+    const feedTitlesAndTopics = clubActivities.filter(titleOrTopicHasReelays);
+
     const [refreshing, setRefreshing] = useState(false);
     const onRefresh = async () => {
         try { 
             setRefreshing(true);
-            const [titles, members] = await Promise.all([
-                getClubTitles({ 
-                    authSession,
-                    clubID: club.id, 
-                    reqUserSub: reelayDBUser?.sub,
-                }),
+            const [members, titles, topics] = await Promise.all([
                 getClubMembers({
                     authSession,
                     clubID: club.id, 
                     reqUserSub: reelayDBUser?.sub,
                 }),
+                getClubTitles({ 
+                    authSession,
+                    clubID: club.id, 
+                    reqUserSub: reelayDBUser?.sub,
+                }),
+                getClubTopics({
+                    authSession,
+                    clubID: club.id,
+                    reqUserSub: reelayDBUser?.sub,
+                }),
             ]);
-            club.titles = titles;
             club.members = members;
+            club.titles = titles;
+            club.topics = topics;
             dispatch({ type: 'setUpdatedClub', payload: club });
             setRefreshing(false); 
         } catch (error) {
@@ -121,9 +141,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     });
 
     const AddTitleButton = () => {
-        const advanceToAddTitleScreen = () => navigation.push('ClubAddTitleScreen', { club });
         const [titleOrTopicDrawerVisible, setTitleOrTopicDrawerVisible] = useState(false);
-
         return (
             <AddTitleButtonOuterContainer 
                 bottomOffset={bottomOffset} 
@@ -161,6 +179,39 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         )
     }
 
+    const ClubActivity = ({ activity }) => {
+        const { activityType } = activity;
+        const matchFeedTitleOrTopic = (nextTitleOrTopic) => (activity.id === nextTitleOrTopic.id);
+        const initFeedIndex = feedTitlesAndTopics.findIndex(matchFeedTitleOrTopic);
+        const advanceToFeed = () => navigation.push('ClubFeedScreen', { club, initFeedIndex });   
+
+        if (activityType === 'title') {
+            const clubTitle = activity;
+            return (
+                <ClubTitleCard 
+                    key={clubTitle.id} 
+                    advanceToFeed={advanceToFeed}
+                    club={club}
+                    clubTitle={clubTitle} 
+                    navigation={navigation} 
+                    onRefresh={onRefresh}
+                />
+            );    
+        } else if (activityType === 'topic') {
+            const clubTopic = activity;
+            return (
+                <TopicCard 
+                    advanceToFeed={advanceToFeed}
+                    clubID={club.id}
+                    navigation={navigation} 
+                    topic={clubTopic} 
+                />
+            );
+        } else {
+            return <View />;
+        }
+    }
+
     const DescriptionFold = () => {
         return (
             <DescriptionContainer>
@@ -177,15 +228,8 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 <DescriptionFold />
                 { showProgressBar && <UploadProgressBar mountLocation={'InClub'} clubID={club.id} /> }
                 { (!refreshing && !club?.titles?.length) && <NoTitlesYetPrompt /> } 
-                { (club.titles?.length > 0 ) && club.titles?.map((clubTitle) => {
-                    return (
-                        <ClubTitleCard 
-                            key={clubTitle.id} 
-                            club={club}
-                            clubTitle={clubTitle} 
-                            navigation={navigation} 
-                            onRefresh={onRefresh}
-                        />);
+                { (clubActivities?.length > 0 ) && clubActivities?.map((activity) => {
+                    return <ClubActivity key={activity.id} activity={activity} /> 
                 })}
             </ClubActivityScroll>
             <ClubBanner club={club} navigation={navigation} />

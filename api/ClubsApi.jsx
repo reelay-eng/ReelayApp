@@ -128,6 +128,7 @@ export const getClubMembers = async ({ authSession, clubID, reqUserSub }) => {
     fetchedClubs.forEach((club) => {
         if (!club?.members) club.members = [];
         if (!club?.titles) club.titles = [];
+        if (!club?.topics) club.topics = [];
     });
     return fetchedClubs;
 }
@@ -144,6 +145,7 @@ export const getClubsMemberOf = async ({ authSession, userSub }) => {
     fetchedClubs.forEach((club) => {
         if (!club?.members) club.members = [];
         if (!club?.titles) club.titles = [];
+        if (!club?.topics) club.topics = [];
     })
     return fetchedClubs;
 }
@@ -162,21 +164,27 @@ export const getClubTitles = async ({ authSession, clubID, page = 0, reqUserSub 
         const { tmdbTitleID, titleType } = clubTitle;
         const annotatedTitle = await fetchAnnotatedTitle(tmdbTitleID, titleType === 'tv');
         const preparedReelays = await Promise.all(clubTitle.reelays.map(prepareReelay));
-        return { ...clubTitle, title: annotatedTitle, reelays: preparedReelays };
+        return { ...clubTitle, activityType: 'title', title: annotatedTitle, reelays: preparedReelays };
     }));
     return annotatedClubTitles;
 }
 
 export const getClubTopics = async ({ authSession, clubID, page = 0, reqUserSub }) => {
     const routeGet = `${REELAY_API_BASE_URL}/clubs/topics/${clubID}?page=${page}&visibility=${FEED_VISIBILITY}`;
-    const resultGet = await fetchResults(routeGet, {
+    const topicsWithReelays = await fetchResults(routeGet, {
         method: 'GET',
         headers: {
             ...getReelayAuthHeaders(authSession),
             requsersub: reqUserSub,
         },
-    })
-    return resultGet;
+    });
+
+    const prepareTopicReelays = async (topic) => {
+        topic.reelays = await Promise.all(topic.reelays.map(prepareReelay));
+        topic.activityType = 'topic';
+        return topic;
+    }
+    return await Promise.all(topicsWithReelays.map(prepareTopicReelays));
 }
 
 export const removeMemberFromClub = async ({ authSession, clubID, userSub, reqUserSub }) => {

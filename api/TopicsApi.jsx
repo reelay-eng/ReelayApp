@@ -121,11 +121,11 @@ export const getReportedTopics = async ({ reqUserSub }) => {
     return fetchedReportedTopics;
 }
 
-export const searchTopics = async ({ searchText, page = 0 }) => {
+export const searchTopics = async ({ searchText, page = 0, reqUserSub }) => {
     const routeGet = `${REELAY_API_BASE_URL}/topics/search?searchText=${searchText}&page=${page}&visibility=${FEED_VISIBILITY}`;
     const topicsWithReelays = await fetchResults(routeGet, {
         method: 'GET',
-        headers: ReelayAPIHeaders,
+        headers: { ...ReelayAPIHeaders, requsersub: reqUserSub },
     });
 
     const prepareTopicReelays = async (topic) => {

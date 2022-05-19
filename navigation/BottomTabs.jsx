@@ -16,8 +16,6 @@ import MyClubsScreen from '../screens/authenticated/MyClubsScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
 import NotificationSettingsScreen from '../screens/authenticated/NotificationSettingsScreen';
 import ProfileSettingsScreen from '../screens/authenticated/ProfileSettingsScreen';
-import TopicsFeedScreen from '../screens/authenticated/TopicsFeedScreen';
-import TopicsListScreen from '../screens/authenticated/TopicsListScreen';
 import TMDBCreditScreen from '../screens/authenticated/TMDBCreditScreen';
 import WatchlistScreen from '../screens/authenticated/WatchlistScreen';
 
@@ -27,9 +25,6 @@ export const HomeTabNavigator = () => {
 	return (
 		<AuthenticatedCommonStack initialRouteName="HomeScreen">
 			<HomeTabStack.Screen name='HomeScreen' component={HomeScreen} options={commonOptions} />
-			<HomeTabStack.Screen name='CreateTopicScreen' component={CreateTopicScreen} options={commonOptions} />
-            <HomeTabStack.Screen name='TopicsFeedScreen' component={TopicsFeedScreen} options={commonOptions} />
-			<HomeTabStack.Screen name='TopicsListScreen' component={TopicsListScreen} options={commonOptions} />
 		</AuthenticatedCommonStack>
 	)
 }

@@ -12,7 +12,7 @@ import { faLink } from '@fortawesome/free-solid-svg-icons';
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
 import { AuthContext } from '../../context/AuthContext';
 import FollowButton from '../../components/global/FollowButton';
-import { editClub, getClubMembers, getClubTitles, removeMemberFromClub, banMemberFromClub } from '../../api/ClubsApi';
+import { editClub, getClubMembers, getClubTitles, removeMemberFromClub, banMemberFromClub, getClubTopics } from '../../api/ClubsApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 
@@ -170,20 +170,25 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     const onRefresh = async () => {
         try { 
             setRefreshing(true);
-            const [titles, members] = await Promise.all([
-                getClubTitles({ 
-                    authSession,
-                    clubID: club.id, 
-                    reqUserSub: reelayDBUser?.sub,
-                }),
+            const [members, titles, topics] = await Promise.all([
                 getClubMembers({
                     authSession,
                     clubID: club.id, 
                     reqUserSub: reelayDBUser?.sub,
                 }),
+                getClubTitles({ 
+                    authSession,
+                    clubID: club.id, 
+                    reqUserSub: reelayDBUser?.sub,
+                }),
+                getClubTopics({
+                    authSession,
+                    clubID: club.id, 
+                    reqUserSub: reelayDBUser?.sub,
+                }),
             ]);
-            club.titles = titles;
             club.members = members;
+            club.titles = titles;
             dispatch({ type: 'setUpdatedClub', payload: club });
             setRefreshing(false); 
         } catch (error) {
