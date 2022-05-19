@@ -79,6 +79,13 @@ const UploadScreenContainer = styled(View)`
     background-color: black;
     justify-content: space-between;
 `
+const WhereAmIPostingContainer = styled(View)`
+    background-color: rgba(0,0,0,0.35);
+    border-radius: 16px;
+    margin: 10px;
+    margin-bottom: 0px;
+    padding: 12px;
+`
 
 export default ReelayUploadScreen = ({ navigation, route }) => {
     const { 
@@ -97,6 +104,10 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
  
     const descriptionRef = useRef('');
     const starCountRef = useRef(0);
+
+    const destination = (clubID) ? 'InClub' 
+        : (topicID) ? 'InTopic' 
+        : 'OnProfile';
 
     const myClubs = useSelector(state => state.myClubs);
     const globalTopics = useSelector(state => state.globalTopics);
@@ -135,9 +146,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             // Adding the file extension directly to the key seems to trigger S3 getting the right content type,
             // not setting contentType as a parameter in the Storage.put call.
             setPreviewIsMuted(true);
-            const destination = (clubID) ? 'InClub' 
-                : (topicID) ? 'InTopic' 
-                : 'OnProfile';
             const posterSource = titleObj?.posterSource;
             const starRating = starCountRef.current * 2;
             const uploadTimestamp = Date.now();
@@ -213,6 +221,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                     starCountRef={starCountRef}
                     descriptionRef={descriptionRef}
                 />
+                {/* <WhereAmIPosting /> */}
                 <UploadBottomBar>
                     <DownloadButton titleObj={titleObj} videoURI={videoURI} />
                     <UploadButton />
@@ -222,7 +231,12 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     }
 
     const UploadButton = () => {
-        const buttonText = (uploadStarted) ? 'Preparing...   ' : 'Post';
+        const postDestinationText = (destination === 'InClub')
+                ? 'Post to Club'
+            : (destination === 'InTopic')
+                ? 'Post to Topic'
+            : 'Post on Profile';
+        const buttonText = (uploadStarted) ? 'Preparing...   ' : postDestinationText;
         const buttonColor = (uploadStarted) ? 'white' : ReelayColors.reelayBlue;
         const buttonTextColor = (uploadStarted) ? 'black' : 'white';
 

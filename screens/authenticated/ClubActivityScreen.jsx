@@ -24,6 +24,9 @@ import TopicCard from '../../components/topics/TopicCard';
 
 const { height, width } = Dimensions.get('window');
 
+const ActivityContainer = styled(View)`
+    margin-bottom: 8px;
+`
 const ActivityScreenContainer = styled(View)`
     background-color: black;
     height: 100%;
@@ -188,24 +191,28 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         if (activityType === 'title') {
             const clubTitle = activity;
             return (
-                <ClubTitleCard 
-                    key={clubTitle.id} 
-                    advanceToFeed={advanceToFeed}
-                    club={club}
-                    clubTitle={clubTitle} 
-                    navigation={navigation} 
-                    onRefresh={onRefresh}
-                />
+                <ActivityContainer>
+                    <ClubTitleCard 
+                        key={clubTitle.id} 
+                        advanceToFeed={advanceToFeed}
+                        club={club}
+                        clubTitle={clubTitle} 
+                        navigation={navigation} 
+                        onRefresh={onRefresh}
+                    />
+                </ActivityContainer>
             );    
         } else if (activityType === 'topic') {
             const clubTopic = activity;
             return (
-                <TopicCard 
-                    advanceToFeed={advanceToFeed}
-                    clubID={club.id}
-                    navigation={navigation} 
-                    topic={clubTopic} 
-                />
+                <ActivityContainer>
+                    <TopicCard 
+                        advanceToFeed={advanceToFeed}
+                        clubID={club.id}
+                        navigation={navigation} 
+                        topic={clubTopic} 
+                    />
+                </ActivityContainer>
             );
         } else {
             return <View />;

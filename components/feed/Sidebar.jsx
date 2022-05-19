@@ -1,7 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
-import * as ReelayText from "../global/Text";
 import styled from 'styled-components/native';
 import { useDispatch } from 'react-redux';
 
@@ -10,9 +9,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { notifyCreatorOnLike } from '../../api/NotificationsApi';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
-import SendRecButton from '../watchlist/SendRecButton';
 import ReelayColors from '../../constants/ReelayColors';
-import { showMessageToast } from '../utils/toasts';
 import ShareOutButton from './ShareOutButton';
 
 const { height, width } = Dimensions.get('window');

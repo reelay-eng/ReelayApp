@@ -122,7 +122,6 @@ const TitleCardPressable = styled(TouchableOpacity)`
     background-color: black;
     border-radius: 11px;
     height: 220px;
-    margin-top: 8px;
     width: ${width-32}px;
 `
 
@@ -136,7 +135,7 @@ const CardBottomRowNoStacks = ({ navigation, clubTitle }) => {
             <BottomRowLeftText>{'0 reelays, be the first!'}</BottomRowLeftText>
             <CreateReelayButton onPress={advanceToCreateReelay}>
                 <Icon type='ionicon' name='add' color='white' size={20} />
-                <CreateReelayText>{'Create Reelay'}</CreateReelayText>
+                <CreateReelayText>{'Add Reelay'}</CreateReelayText>
             </CreateReelayButton>
         </BottomRowContainer>
     );

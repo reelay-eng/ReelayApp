@@ -119,7 +119,7 @@ const CardBottomRowNoStacks = ({ navigation, clubID, topic }) => {
             <BottomRowLeftText>{'0 reelays, be the first!'}</BottomRowLeftText>
             <CreateReelayButton onPress={advanceToCreateReelay}>
                 <Icon type='ionicon' name='add' color='white' size={20} />
-                <CreateReelayText>{'Create Reelay'}</CreateReelayText>
+                <CreateReelayText>{'Add Reelay'}</CreateReelayText>
             </CreateReelayButton>
         </BottomRowContainer>
     );

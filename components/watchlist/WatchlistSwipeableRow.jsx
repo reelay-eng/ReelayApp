@@ -17,6 +17,7 @@ import {
 import { notifyOnAcceptRec } from '../../api/WatchlistNotifications';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { showMessageToast } from '../utils/toasts';
+import ReelayColors from '../../constants/ReelayColors';
 
 const SwipeColors = {
     RED: '#FE4747',
@@ -24,136 +25,38 @@ const SwipeColors = {
     GREEN: '#04BD6C',
 }
 
+// alignItems: 'center',
+// borderRadius: 12,
+// flex: 1,
+// justifyContent: 'center',
+// marginTop: 10,
+// marginBottom: 10,
+// marginLeft: -10,
+
+
+const RemoveButton = styled(RectButton)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayRed};
+    border-radius: 12px;
+    flex: 1;
+    justify-content: center;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: -10px;
+`
+
 // https://snack.expo.dev/@adamgrzybowski/react-native-gesture-handler-demo
-export default WatchlistSwipeableRow = ({ category, children, navigation, onRefresh, watchlistItem }) => {
+export default WatchlistSwipeableRow = ({ children, onRefresh, watchlistItem }) => {
     const ICON_SIZE = 30;
     const swipeableRowRef = useRef();
     const { reelayDBUser } = useContext(AuthContext);
-    const { recommendedBySub, recommendedByUsername, tmdbTitleID, titleType } = watchlistItem;
+    const { tmdbTitleID, titleType } = watchlistItem;
 
-    const LeftActionButtonText = styled(ReelayText.Body2)`
-        color: white;
-        margin-left: 10px;
-    `
     const RightActionButtonText = styled(ReelayText.Body2)`
         position: absolute;
         color: white;
         bottom: 10px;
     `
-
-    const renderLeftActions = (progress, dragX) => {
-        const trans = dragX.interpolate({
-            inputRange: [0, 50, 100, 101],
-            outputRange: [-20, 0, 0, 1],
-        });
-
-        const onPress = (category === 'Recs') ? ignoreRecommendedItem : removeItemFromWatchlist;
-
-        return (
-            <RectButton style={styles.leftAction} onPress={onPress}>
-                <Icon type='ionicon' name={'remove-circle'} color='white' size={ICON_SIZE} />
-                <LeftActionButtonText>{(category === 'Recs' ? 'Ignore' : 'Remove')}</LeftActionButtonText>
-            </RectButton>
-        );
-    };
-
-    const renderRightAction = (onPress, actionName, iconName, color, x, progress) => {
-        const trans = progress.interpolate({
-            inputRange: [0, 1],
-            outputRange: [x, 0],
-        });
-
-        return (
-            <Animated.View style={{ 
-                flex: 1, 
-                justifyContent: 'center',
-                transform: [{ translateX: 0 }], 
-            }}>
-                <RectButton
-                    style={[styles.rightAction, { backgroundColor: color }]}
-                    onPress={onPress}>
-                    <Icon type='ionicon' name={iconName} color='white' size={ICON_SIZE} />
-                    <RightActionButtonText>{actionName}</RightActionButtonText>
-                </RectButton>
-            </Animated.View>
-        );
-    };
-
-    const acceptRecommendedItem = async () => {
-        const dbResult = await acceptRecommendation({
-            recommendedBySub,
-            reqUserSub: reelayDBUser?.sub,
-            tmdbTitleID,
-            titleType,
-        });
-        showMessageToast(`${watchlistItem.title.display} added to your watchlist`);
-
-        const notifyResult = await notifyOnAcceptRec({
-            acceptUserSub: reelayDBUser?.sub,
-            acceptUsername: reelayDBUser?.username,
-            recUserSub: recommendedBySub,
-            watchlistItem,
-        });
-
-        logAmplitudeEventProd('acceptRec', {
-            username: reelayDBUser?.username,
-            recommendedByUsername,
-            title: watchlistItem.title.display,
-            source: 'watchlist',
-        });
-
-        // todo: update and reload watchlist in memory
-        close();
-        await onRefresh();
-        console.log(dbResult);
-        console.log(notifyResult);
-    };
-
-    const advanceToCreateScreen = () => {
-        navigation.navigate('VenueSelectScreen', {
-            titleObj: watchlistItem.title
-        });
-
-        logAmplitudeEventProd('advanceToCreateReelay', {
-            username: reelayDBUser?.username,
-            title: watchlistItem.title.display,
-            source: 'watchlist',
-            watchlistCategory: category,
-        });
-    };
-
-    const advanceToRecommendScreen = async () => {
-        navigation.push('SendRecScreen', {
-            watchlistItem: watchlistItem,
-        });
-
-        logAmplitudeEventProd('advanceToSendRec', {
-            username: reelayDBUser?.username,
-            title: watchlistItem.title.display,
-            source: 'watchlist',
-        });
-    };
-
-    const ignoreRecommendedItem = async () => {
-        const result = await ignoreRecommendation({
-            recommendedBySub,
-            reqUserSub: reelayDBUser?.sub,
-            tmdbTitleID,
-            titleType,
-        });
-        showMessageToast('Removed from your recs. The sender won\'t be notified');
-
-        logAmplitudeEventProd('ignoreRec', {
-            username: reelayDBUser?.username,
-            title: watchlistItem.title.display,
-            recommendedByUsername,
-        });
-
-        // todo: update and reload watchlist in memory
-        close();
-        await onRefresh();
-        console.log(result);
-    };
 
     const markItemAsSeen = async () => {
         const result = await markWatchlistItemSeen({
@@ -164,25 +67,6 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
         showMessageToast('Marked as seen');
 
         logAmplitudeEventProd('markWatchlistItemSeen', {
-            username: reelayDBUser?.username,
-            title: watchlistItem.title.display,
-            source: 'watchlist',
-        });
-
-        // todo: update and reload watchlist in memory
-        close();
-        await onRefresh();
-        console.log(result);
-    };
-
-    const markItemAsUnseen = async () => {
-        const result = await markWatchlistItemUnseen({
-            reqUserSub: reelayDBUser?.sub,
-            tmdbTitleID,
-            titleType,
-        });
-
-        logAmplitudeEventProd('markWatchlistItemUnseen', {
             username: reelayDBUser?.username,
             title: watchlistItem.title.display,
             source: 'watchlist',
@@ -214,75 +98,27 @@ export default WatchlistSwipeableRow = ({ category, children, navigation, onRefr
         console.log(result);
     };
 
-    const renderRightActions = (progress) => (
-        <View style={{ width: 192, flexDirection: 'row' }}>
-            { (category === 'My List') && renderRightAction(advanceToCreateScreen, 'Create', 'add-circle', SwipeColors.BLUE, 192, progress) }
-            { (category === 'My List') && renderRightAction(markItemAsSeen, 'Seen', 'checkmark-circle', SwipeColors.GREEN, 96, progress) }
-
-            { (category === 'Seen') && renderRightAction(advanceToCreateScreen, 'Create', 'add-circle', SwipeColors.BLUE, 192, progress) }
-            { (category === 'Seen') && renderRightAction(advanceToRecommendScreen, 'Send Rec', 'paper-plane', SwipeColors.GREEN, 96, progress) }
-
-            { (category === 'Recs') && renderRightAction(advanceToCreateScreen, 'Create', 'add-circle', SwipeColors.BLUE, 192, progress) }
-            { (category === 'Recs') && renderRightAction(acceptRecommendedItem, 'Accept Rec', 'checkmark-circle', SwipeColors.GREEN, 96, progress) }
+    const renderRemoveButton = (progress) => (
+        <View style={{ width: 96, flexDirection: 'row' }}>
+            <Animated.View style={{ 
+                flex: 1, 
+                justifyContent: 'center',
+                transform: [{ translateX: 0 }], 
+            }}>
+                <RemoveButton onPress={removeItemFromWatchlist}>
+                    <Icon type='ionicon' name={'remove-circle'} color='white' size={ICON_SIZE} />
+                    <RightActionButtonText>{'Remove'}</RightActionButtonText>
+                </RemoveButton>
+            </Animated.View>
         </View>
     );
 
-    const updateRef = (ref) => {
-        swipeableRowRef.current = ref;
-    };
-
-    const close = () => {
-        swipeableRowRef.current.close();
-    };
-
-    // const openLeft = () => {
-    //     swipeableRowRef.current.openLeft();
-    // }
-
-    // const openRight = () => {
-    //     swipeableRowRef.current.openRight();
-    // }
+    const updateRef = (ref) => swipeableRowRef.current = ref;
+    const close = () => swipeableRowRef.current.close();
 
     return (
-        <Swipeable
-            ref={updateRef}
-            friction={2}
-            leftThreshold={20}
-            rightThreshold={20}
-            renderLeftActions={renderLeftActions}
-            renderRightActions={renderRightActions}>
+        <Swipeable ref={updateRef} friction={2} rightThreshold={20} renderRightActions={renderRemoveButton}>
             { children }
         </Swipeable>
     );
 }
-
-const styles = StyleSheet.create({
-    leftAction: {
-        alignItems: 'center',
-        backgroundColor: SwipeColors.RED,
-        borderRadius: 6,
-        borderColor: 'black',
-        borderWidth: 1,
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        marginTop: 10,
-        marginBottom: 10,
-    },
-    actionText: {
-        backgroundColor: 'transparent',
-        color: 'white',
-        fontSize: 16,
-        padding: 10,
-    },
-    rightAction: {
-        alignItems: 'center',
-        borderRadius: 6,
-        borderColor: 'black',
-        borderWidth: 1,
-        flex: 1,
-        justifyContent: 'center',
-        marginTop: 10,
-        marginBottom: 10,
-    },
-});
