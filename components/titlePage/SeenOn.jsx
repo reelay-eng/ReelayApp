@@ -14,6 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 import * as Linking from 'expo-linking';
 
+const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 const SeenOnContainer = styled(View)`
     width: 95%;
@@ -50,7 +51,7 @@ export default SeenOn = ({ titleType, tmdbTitleID}) => {
     const totalVenuesLength = (venuesSeenOnMyStreaming.length + venuesSeenNotOnMyStreaming?.length) ?? 0;
 
     const loadVenuesWhereSeen = async () => {
-        const venues = await getVenuesWhereSeen(titleType, tmdbTitleID, "dev");
+        const venues = await getVenuesWhereSeen(titleType, tmdbTitleID, FEED_VISIBILITY);
 
         const byVenueInStreamingVenues = (venue) => streamingVenuesUnboxed.includes(venue);
         const streamingVenues = venues.filter(byVenueInStreamingVenues);
