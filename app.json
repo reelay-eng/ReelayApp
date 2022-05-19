@@ -28,7 +28,8 @@
         "UIBackgroundModes": [
           "fetch",
           "remote-notification"
-        ]
+        ],
+        "LSApplicationQueriesSchemes": ["disneyplus", "hbomax", "nflx", "aiv", "hulu", "vhxcriterionchannel", "com.cbsvideo.app", "mubi", "peacock", "plutotv", "tubitv", "youtube", "shudder", "crunchyroll", "fb1519029161670311"]
       }
     },
     "android": {
