@@ -122,22 +122,21 @@ export default SeenOn = ({ titleType, tmdbTitleID}) => {
             }
         }
 
+        const SeenOnButtonGradient = styled(LinearGradient)`
+            flex: 1;
+            opacity: 1;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 11px;
+        `
+
 		return (
 			<>
                 {source && (
 					<TouchableVenue onPress={attemptOpenDeeplinkURL} activeOpacity={0.6}>
 						<>
-                            <LinearGradient
-                                colors={[GRADIENT_START_COLOR, GRADIENT_END_COLOR]}
-                                style={{
-                                    flex: 1,
-                                    opacity: 1,
-                                    position: "absolute",
-                                    width: "100%",
-                                    height: "100%",
-                                    borderRadius: `11px`,
-                                }}
-                            />
+                            <SeenOnButtonGradient colors={[GRADIENT_START_COLOR, GRADIENT_END_COLOR]}/>
                             <PrimaryVenueImage source={source} />
                         </>
 					</TouchableVenue>
