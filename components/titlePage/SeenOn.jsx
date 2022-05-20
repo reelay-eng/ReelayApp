@@ -95,7 +95,16 @@ export default SeenOn = ({ titleType, tmdbTitleID}) => {
         const attemptOpenDeeplinkURL = async () => {
             if (deeplinkURL) {
                 try {
-                    if (await Linking.canOpenURL(deeplinkURL)) await Linking.openURL(deeplinkURL);
+                    if (await Linking.canOpenURL(deeplinkURL)) {
+                        logAmplitudeEventProd("seenOnStreamingAppOpened", {
+                            titleType,
+                            tmdbTitleID,
+                            venue,
+                            source,
+                            deeplinkURL
+                        });
+                        await Linking.openURL(deeplinkURL);
+                    }
                     else {
                         showErrorToast("You must first install that app.");
                         logAmplitudeEventProd("seenOnStreamingAppNotInstalled", {
