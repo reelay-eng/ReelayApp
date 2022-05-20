@@ -155,7 +155,7 @@ const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
 
     const PressableVenue = styled(Pressable)`
         align-items: center;
-        background-color: ${ReelayColors.reelayBlue};
+        background-color: transparent;
         border-radius: 11px;
         height: 93px;
         justify-content: center;
@@ -169,41 +169,40 @@ const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
         border-width: 1px;
         border-color: white;
     `
-    const OtherVenueImage = styled.Image`
-        height: 42px;
-        width: 42px;
-        margin: 5px;
-        resizeMode: contain;
-    `
-    const OtherVenueSubtext = styled(ReelayText.CaptionEmphasized)`
-        color: white;
-        padding: 5px;
-        text-align: center;
-    `
 
     const onPress = () => {
         onTapVenue(venue, !selected); 
         setSelected(!selected);
     };
 
-    const VenueGradient = () => (
-        <LinearGradient
-            colors={["#272525", "#19242E"]}
-            style={{
-                flex: 1,
-                opacity: 1,
-                position: "absolute",
-                width: "100%",
-                height: "100%",
-                borderRadius: `11px`,
-            }}
-        />
-    );
+    const VenueImage = memo(({ source }) => {
+        return <PrimaryVenueImage source={source} />
+    }, (prevProps, nextProps) => {
+        return prevProps.source === nextProps.source;
+    });
+
+    const VenueGradient = ({ selected }) => {
+        const GRADIENT_START_COLOR = selected ? "#2977EF": "#272525"
+        const GRADIENT_END_COLOR = selected ? "#FF4848" : "#19242E"
+        return (
+            <LinearGradient
+                colors={[GRADIENT_START_COLOR, GRADIENT_END_COLOR]}
+                style={{
+                    flex: 1,
+                    opacity: 1,
+                    position: "absolute",
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: `11px`,
+                }}
+            />
+        )
+    };
 
     return (
         <PressableVenue onPress={onPress} selected={selected}>
-            { (!selected) && <VenueGradient /> }
-            <PrimaryVenueImage source={iconSource} />
+            <VenueGradient selected={selected}/>
+            <VenueImage source={iconSource} />
         </PressableVenue>
     );
 };
