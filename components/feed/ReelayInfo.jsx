@@ -28,7 +28,7 @@ const ReelayInfo = ({ navigation, reelay }) => {
 		color: white;
 		margin-right: 8px;
 	`
-	const DescriptionContainer = styled(View)`
+	const DescriptionContainer = styled(Pressable)`
 		align-items: center;
 		flex-direction: row;
 		margin-top: 6px;
@@ -51,6 +51,7 @@ const ReelayInfo = ({ navigation, reelay }) => {
 	const creator = reelay.creator;
 	const description = reelay.description ? reelay.description: "";
 	const mentionType = { trigger: '@' };
+	const [expanded, setExpanded] = useState(false);
 	const descriptionPartsWithMentions = (description.length > 0) 
 		? parseValue(description, [mentionType]) 
 		: { parts: [] };
@@ -101,6 +102,10 @@ const ReelayInfo = ({ navigation, reelay }) => {
         );
     }
 
+	const expandDescription = () => {
+		setExpanded(!expanded);
+	}
+
 	return (
 		<InfoView>
 			<Pressable onPress={goToProfile}>
@@ -127,8 +132,8 @@ const ReelayInfo = ({ navigation, reelay }) => {
 			</StarRatingContainer>}
 
 			{(description.length > 0) && 
-				<DescriptionContainer>
-					<DescriptionText>
+				<DescriptionContainer onPress={expandDescription}>
+					<DescriptionText numberOfLines={(expanded) ? 0 : 1} ellipsizeMode='tail'>
 						{ descriptionPartsWithMentions.parts.map(renderDescriptionPart) }
 					</DescriptionText>
 				</DescriptionContainer>
