@@ -96,7 +96,7 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
                 role: 'member',
                 invitedBySub: reelayDBUser?.sub,
                 invitedByUsername: reelayDBUser?.username,
-                inviteLinkID: null,
+                clubLinkID: null,
             });
 
             notifyNewMemberOnClubInvite({

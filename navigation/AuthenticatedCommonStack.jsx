@@ -1,6 +1,7 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import React, { useContext } from 'react';
 
+import ClubJoinFromLinkScreen from '../screens/authenticated/ClubJoinFromLinkScreen';
 import CreateTopicScreen from '../screens/authenticated/CreateTopicScreen';
 import FeedScreen from '../screens/authenticated/FeedScreen';
 import NotificationScreen from '../screens/authenticated/NotificationScreen';
@@ -29,6 +30,7 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
     return (
         <CommonStack.Navigator initialRouteName={initialRouteName} detachInactiveScreens={false}>
             { children }
+            <CommonStack.Screen name='ClubJoinFromLinkScreen' component={ClubJoinFromLinkScreen} options={commonOptions} />
             <CommonStack.Screen name='CreateTopicScreen' component={CreateTopicScreen} options={commonOptions} />
             <CommonStack.Screen name='FeedScreen' component={FeedScreen} options={commonOptions} />
             <CommonStack.Screen name="NotificationScreen" component={NotificationScreen} options={commonOptions} />

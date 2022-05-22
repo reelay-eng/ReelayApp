@@ -1,20 +1,37 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, RefreshControl, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as Clipboard from 'expo-clipboard';
+import Constants from 'expo-constants';
 import styled from 'styled-components/native';
+
 import BackButton from '../../components/utils/BackButton';
 import * as ReelayText from '../../components/global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 import ClubPicture from '../../components/global/ClubPicture';
+
 import { Icon } from 'react-native-elements';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faLink } from '@fortawesome/free-solid-svg-icons';
+
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
 import { AuthContext } from '../../context/AuthContext';
 import FollowButton from '../../components/global/FollowButton';
-import { editClub, getClubMembers, getClubTitles, removeMemberFromClub, banMemberFromClub, getClubTopics } from '../../api/ClubsApi';
+
+import { 
+    banMemberFromClub, 
+    createDeeplinkPathToClub,
+    editClub, 
+    getClubMembers, 
+    getClubTitles, 
+    getClubTopics,
+    removeMemberFromClub, 
+} from '../../api/ClubsApi';
+
 import { useDispatch, useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
+
+const INVITE_BASE_URL = Constants.manifest.extra.reelayWebInviteUrl;
 
 const BackButtonContainer = styled(SafeAreaView)`
     left: -10px;
@@ -29,10 +46,10 @@ const ClubDescriptionText = styled(ReelayText.Body2)`
     margin-top: 16px;
 `
 const ClubPrivacyRow = styled(View)`
-    align-items: flex-end;
+    align-items: center;
     flex-direction: row;
     justify-content: center;
-    margin-top: 4px;
+    margin-bottom: 12px;
     width: 100%;
 `
 const ClubPrivacyText = styled(ReelayText.Body2)`
@@ -209,7 +226,6 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         );
     }
 
-
     const ClubMembers = () => {
         const [isEditing, setIsEditing] = useState(false);
         const memberCount = club.members.reduce((count, member) => {
@@ -381,7 +397,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         );
     }
     
-    const ClubSettings = () => {
+    const InviteSettings = () => {
         const [allowMemberInvites, setAllowMemberInvites] = useState(true);
         const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
         const { reelayDBUser } = useContext(AuthContext);
@@ -434,8 +450,29 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         }
     
         const ShareClubLinkRow = () => {
+            const copyClubLinkToClipboard = async () => {
+                try {
+                    const clubLinkObj = await createDeeplinkPathToClub({
+                        authSession,
+                        clubID: club.id,
+                        invitedByUserSub: reelayDBUser?.sub,
+                        invitedByUsername: reelayDBUser?.username,
+                    });
+
+                    console.log(clubLinkObj);
+                    if (clubLinkObj?.inviteCode && !clubLinkObj?.error) {
+                        const copyLink = INVITE_BASE_URL + clubLinkObj.inviteCode;
+                        Clipboard.setString(copyLink);
+                        showMessageToast('Invite link copied to clipboard!');
+                    }
+
+                } catch (error) {
+                    console.log(error);
+                    showErrorToast('Ruh roh! Couldn\'t copy the club link. Try again?');
+                }                
+            }
             return (
-                <SettingsRow>
+                <SettingsRow onPress={copyClubLinkToClipboard}>
                     <SettingsTextContainer>
                         <SettingsText>{'Send Link'}</SettingsText>
                         <SettingsSubtext>{'Share the club link'}</SettingsSubtext>
@@ -449,9 +486,9 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     
         return (
             <React.Fragment>
-                <SectionHeaderText>{'Settings'}</SectionHeaderText>
+                <SectionHeaderText>{'Invites'}</SectionHeaderText>
                 { isClubOwner && <AllowMemberInvitesRow />}
-                { (isClubOwner || club.allowMemberInvites) && <AddMembersRow /> }
+                <AddMembersRow />
                 <ShareClubLinkRow />
                 { inviteDrawerVisible && (
                     <InviteMyFollowsDrawer
@@ -497,7 +534,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 showsVerticalScrollIndicator={false}
             >
                 <ClubProfileInfo />
-                <ClubSettings />
+                { (isClubOwner || club.allowMemberInvites) && <InviteSettings /> }
                 <HorizontalDivider />
                 <ClubMembers />
             </ScrollView>

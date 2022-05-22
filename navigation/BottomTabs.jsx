@@ -3,12 +3,12 @@ import { createStackNavigator } from '@react-navigation/stack';
 import AuthenticatedCommonStack from './AuthenticatedCommonStack';
 
 import AccountInfoScreen from '../screens/authenticated/AccountInfoScreen';
+import ClubAcceptInviteScreen from '../screens/authenticated/ClubAcceptInviteScreen';
 import ClubActivityScreen from '../screens/authenticated/ClubActivityScreen';
 import ClubAddTitleScreen from '../screens/authenticated/ClubAddTitleScreen';
 import ClubFeedScreen from '../screens/authenticated/ClubFeedScreen';
 import ClubInfoScreen from '../screens/authenticated/ClubInfoScreen';
 import CreateClubScreen from '../screens/authenticated/CreateClubScreen';
-import CreateTopicScreen from '../screens/authenticated/CreateTopicScreen';
 import EditClubScreen from '../screens/authenticated/EditClubScreen';
 import GeneralSettingsScreen from '../screens/authenticated/GeneralSettingsScreen';
 import HomeScreen from '../screens/authenticated/HomeScreen';
@@ -47,6 +47,7 @@ export const ClubsTabNavigator = () => {
                 animationEnabled: false,
             }} />
             <ClubsTabStack.Screen name='ClubActivityScreen' component={ClubActivityScreen} options={commonOptions} />
+            <ClubsTabStack.Screen name='ClubAcceptInviteScreen' component={ClubAcceptInviteScreen} options={commonOptions} />
             <ClubsTabStack.Screen name='ClubAddTitleScreen' component={ClubAddTitleScreen} options={commonOptions} />
             <ClubsTabStack.Screen name='ClubFeedScreen' component={ClubFeedScreen} options={commonOptions} />
             <ClubsTabStack.Screen name='ClubInfoScreen' component={ClubInfoScreen} options={commonOptions} />

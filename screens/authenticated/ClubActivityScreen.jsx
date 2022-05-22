@@ -74,7 +74,7 @@ const ScrollContainer = styled(ScrollView)`
 
 export default ClubActivityScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const { club, promptToInvite } = route.params;
+    const { club, promptToInvite, welcomeNewMember } = route.params;
     const authSession = useSelector(state => state.authSession);
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
 
@@ -230,6 +230,10 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 </DescriptionText>
             </DescriptionContainer>
         )
+    }
+
+    if (welcomeNewMember) {
+        console.log('should welcome new user!')        
     }
 
     return (

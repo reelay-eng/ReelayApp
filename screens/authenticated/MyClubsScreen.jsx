@@ -74,6 +74,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
 
     const ClubButton = ({ club }) => {
         const advanceToClubScreen = () => navigation.push('ClubActivityScreen', { club, promptToInvite: false });
+        const advanceToJoinScreen = () => navigation.push('ClubAcceptInviteScreen', { inviteCode: 'htsbq' });
         return (
             <ClubButtonPressable onPress={advanceToClubScreen}>
                 <ClubPicture club={club} size={CLUB_BUTTON_SIZE} />

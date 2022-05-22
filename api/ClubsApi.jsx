@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import * as Linking from 'expo-linking';
 import { fetchResults } from './fetchResults';
 import { getReelayAuthHeaders } from './ReelayAPIHeaders';
 import { prepareReelay } from './ReelayDBApi';
@@ -15,7 +16,7 @@ export const addMemberToClub = async ({
     role,
     invitedBySub, 
     invitedByUsername, 
-    inviteLinkID,
+    clubLinkID,
 }) => {
     const routePost = `${REELAY_API_BASE_URL}/clubs/member/${clubID}`;
     const postBody = {
@@ -24,7 +25,7 @@ export const addMemberToClub = async ({
         role, 
         invitedBySub, 
         invitedByUsername, 
-        inviteLinkID
+        clubLinkID
     };
     const addMemberResult = await fetchResults(routePost, {
         method: 'POST',
@@ -91,6 +92,30 @@ export const createClub = async ({
     return createClubResult;
 }
 
+export const createDeeplinkPathToClub = async ({ authSession, clubID, invitedByUserSub, invitedByUsername }) => {
+    // using the scheme reelayapp://, the statement below creates an unusable triple slash
+    // ...doesn't happen on expo
+    let deeplinkURI = Linking.createURL(`/clubInvite`);
+    deeplinkURI = deeplinkURI.replace('///', '//'); 
+
+    const routePost = `${REELAY_API_BASE_URL}/clubs/invite/${clubID}`;
+    const postBody = {
+        invitedByUserSub, 
+        invitedByUsername,
+        deeplinkURI,
+    };
+
+    const dbResult = await fetchResults(routePost, {
+        method: 'POST',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            requsersub: invitedByUserSub,
+        },
+        body: JSON.stringify(postBody),
+    });
+    return dbResult;
+}
+
 export const editClub = async ({
     authSession,
     clubID,
@@ -114,6 +139,18 @@ export const editClub = async ({
         body: JSON.stringify(patchBody),
     });
     return resultPatch;
+}
+
+export const getClubInviteFromCode = async ({ authSession, inviteCode, reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/clubs/invite/${inviteCode}`;
+    const clubInviteResult = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            requsersub: reqUserSub,
+        },
+    });
+    return clubInviteResult;
 }
 
 export const getClubMembers = async ({ authSession, clubID, reqUserSub }) => {
