@@ -108,17 +108,17 @@ export default MyClubsScreen = ({ navigation, route }) => {
         );
     }    
     
-    const CreateClubButton = () => {
-        const advanceToCreateClub = async () => navigation.push('CreateClubScreen');
-        return (
-            <ClubButtonPressable onPress={advanceToCreateClub}>
-                <CreateClubGradient colors={['#2977EF', '#FF4848']}>
-                    <Icon type='ionicon' name='add' size={CLUB_BUTTON_SIZE * 0.6} color='white' />
-                </CreateClubGradient>
-                <ClubTitleText>{'Create Club'}</ClubTitleText>
-            </ClubButtonPressable>
-        );
-    }
+    // const CreateClubButton = () => {
+    //     const advanceToCreateClub = async () => navigation.push('CreateClubScreen');
+    //     return (
+    //         <ClubButtonPressable onPress={advanceToCreateClub}>
+    //             <CreateClubGradient colors={['#2977EF', '#FF4848']}>
+    //                 <Icon type='ionicon' name='add' size={CLUB_BUTTON_SIZE * 0.6} color='white' />
+    //             </CreateClubGradient>
+    //             <ClubTitleText>{'Create Club'}</ClubTitleText>
+    //         </ClubButtonPressable>
+    //     );
+    // }
 
     const NewClubButton = () => {
         const advanceToCreateClub = async () => navigation.push('CreateClubScreen');
@@ -129,7 +129,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
         );
     }
     
-    const MyWatchlistButton = ({ navigation }) => {
+    const MyWatchlistButton = () => {
         const { reelayDBUser } = useContext(AuthContext);
         const advanceToMyWatchlist = () => navigation.push('WatchlistScreen');
         return (

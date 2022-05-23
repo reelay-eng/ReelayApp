@@ -193,7 +193,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             navigation.push('ClubFeedScreen', { club, initFeedIndex });   
         }
 
-        console.log('activity: ', activity);
         if (activityType === 'title') {
             const clubTitle = activity;
             return (

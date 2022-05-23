@@ -26,6 +26,7 @@ import { AddToClubsIconSVG, AddedToClubsIconSVG } from '../global/SVGs';
 import ProfilePicture from '../global/ProfilePicture';
 import { addToMyWatchlist } from '../../api/WatchlistApi';
 import { notifyClubOnTitleAdded } from '../../api/ClubNotifications';
+import { notifyOnAddedToWatchlist } from '../../api/WatchlistNotifications';
 
 const { width } = Dimensions.get('window');
 
@@ -178,8 +179,17 @@ export default AddToClubsDrawer = ({
                     tmdbTitleID: titleObj.id,
                     titleType: titleObj.titleType,
                 });
-                console.log(addToWatchlistResult);
                 const nextWatchlistItems = [addToWatchlistResult, ...myWatchlistItems];
+
+                // todo: should also be conditional based on user settings
+                if (reelay?.creator) {
+                    notifyOnAddedToWatchlist({
+                        reelayedByUserSub: reelay?.creator?.sub,
+                        addedByUserSub: reelayDBUser?.sub,
+                        addedByUsername: reelayDBUser?.username,
+                        watchlistItem: addToWatchlistResult,
+                    });    
+                }
                 dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
             }
         }

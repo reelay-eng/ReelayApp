@@ -1,75 +1,18 @@
 import { getRegisteredUser } from './ReelayDBApi';
 import { condensedTitleObj, sendPushNotification } from './NotificationsApi';
 
-export const notifyOnAcceptRec = async ({ acceptUserSub, acceptUsername, recUserSub, watchlistItem }) => {
-    const title = `@${acceptUsername} accepted your rec.`;
-    // const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear}) is now in their watchlist`;
-    const body = '';
+export const notifyOnAddedToWatchlist = async ({ reelayedByUserSub, addedByUserSub, addedByUsername, watchlistItem }) => {
+    const title = `@${addedByUsername}`;
+    const body = `added ${watchlistItem?.title?.display} to their watchlist from your reelay`;
     const data = { 
-        notifyType: 'notifyOnAcceptRec',
-        action: 'openUserProfileScreen',
+        notifyType: 'notifyOnAddedToWatchlist',
+        action: 'openSingleReelayScreen',
+        reelaySub: watchlistItem?.recommendedReelaySub,
         title: condensedTitleObj(watchlistItem.title),
-        fromUser: { sub: acceptUserSub, username: acceptUsername },
+        fromUser: { sub: addedByUserSub, username: addedByUsername },
     };
-    const { pushToken } = await getRegisteredUser(recUserSub);
-    return await sendPushNotification({ title, body, data, token: pushToken, sendToUserSub: recUserSub });
-}
+    console.log('notify data: ', data);
+    const { pushToken } = await getRegisteredUser(reelayedByUserSub);
+    return await sendPushNotification({ title, body, data, token: pushToken, sendToUserSub: reelayedByUserSub });
 
-export const notifyOnSendRec = async ({ reqUserSub, reqUsername, sendToUserSub, watchlistItem }) => {
-    const title = `@${reqUsername} sent you a rec!`;
-    // const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear})`;
-    const body = '';
-    const condensedWatchlistItem = {
-        ...watchlistItem,
-        title: condensedTitleObj(watchlistItem.title)
-    };
-
-    console.log('Condensed watchlist item: ', condensedWatchlistItem);
-    const { recommendedReelaySub } = watchlistItem;
-
-    const data = { 
-        notifyType: 'notifyOnSendRec',
-        action: (recommendedReelaySub) ? 'openSingleReelayScreen' : 'openMyRecs', 
-        fromUser: { sub: reqUserSub, username: reqUsername },
-        // this duplicity saves logic on the other end
-        newWatchlistItem: condensedWatchlistItem,
-        reelaySub: recommendedReelaySub,
-        title: condensedTitleObj(watchlistItem.title), 
-    };
-    const { pushToken } = await getRegisteredUser(sendToUserSub);
-    return await sendPushNotification({ title, body, data, token: pushToken, sendToUserSub });
-}
-
-export const notifyOnReelayedRec = async ({ creatorName, creatorSub, reelay, watchlistItems }) => {
-    const notifyWatchlistItems = watchlistItems.filter((item) => {
-        const { recommendedBySub, tmdbTitleID, titleType } = item;
-        return (reelay.title.id === tmdbTitleID 
-            && reelay.title.titleType === titleType
-            && recommendedBySub);
-    });
-
-    const pushNotificationResults = await Promise.all(
-        notifyWatchlistItems.map(async (watchlistItem) => {
-            try {
-                // const body = `${watchlistItem.title.display} (${watchlistItem.title.releaseYear})`;
-                const body = '';
-                const data = { 
-                    notifyType: 'notifyOnReelayedRec',
-                    action: 'openSingleReelayScreen',
-                    reelaySub: reelay.datastoreSub,
-                    title: condensedTitleObj(item.title),
-                    fromUser: { sub: creatorSub, username: creatorName },
-                };
-            
-                const { recommendedBySub } = watchlistItem;
-                const { pushToken } = await getRegisteredUser(recommendedBySub);    
-                const title = `@${creatorName} reelayed a title you recommended.`;
-                return await sendPushNotification({ title, body, data, token: pushToken, sendToUserSub: recommendedBySub });    
-            } catch (error) {
-                return { error };
-            }
-        })
-    );
-
-    return pushNotificationResults;
 }

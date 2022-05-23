@@ -138,6 +138,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
             'notifyMentionedUserOnReelayPosted',
             'notifyNewMemberOnClubInvite',
             'notifyOnAcceptRec',
+            'notifyOnAddedToWatchlist',
             'notifyOnReelayedRec',
             'notifyOnSendRec',
             'notifyOtherCreatorsOnReelayPosted',
@@ -170,6 +171,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
             'notifyMentionedUserOnReelayPosted',
             'notifyNewMemberOnClubInvite',
             'notifyOnAcceptRec',
+            'notifyOnAddedToWatchlist',
             'notifyOnReelayedRec',
             'notifyOnSendRec',
             'notifyOtherCreatorsOnReelayPosted',
@@ -270,7 +272,7 @@ export default NotificationScreen = ({ navigation, route }) => {
     const unreadText = (unread > 0) ? `(${unread} new)` : '';
 
     useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false });
+        dispatch({ type: 'setTabBarVisible', payload: true });
     });
 
     useEffect(() => {

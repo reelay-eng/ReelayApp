@@ -84,32 +84,13 @@ const openCreateScreen = async (navigation) => {
     navigation.navigate('Create');
 }
 
-// const openMyRecs = async (dispatch, navigation, newWatchlistItems, myWatchlistItems) => {
-//     if (!navigation) {
-//         console.log('No navigation ref')
-//         return;
-//     }
-
-//     const isSameWatchlistItem = (item0, item1) => (item0.id === item1.id);
-//     const allMyWatchlistItems = [...newWatchlistItems, ...myWatchlistItems];
-//     const uniqueWatchlistItems = allMyWatchlistItems.filter((nextItem, index) => {
-//         const duplicateIndex = allMyWatchlistItems.slice(0, index).findIndex((prevItem) => {
-//             return isSameWatchlistItem(prevItem, nextItem);
-//         });
-//         return duplicateIndex === -1;
-//     });
-
-//     dispatch({ type: 'setMyWatchlistItems', payload: uniqueWatchlistItems });
-//     navigation.navigate('Watchlist', { category: 'Recs' });
-// }
-
 const openSingleReelayScreen = async (navigation, reelaySub) => {
     if (!navigation) {
         console.log('No navigation ref')
         return;
     }
 
-    if (!data.reelaySub) {
+    if (!reelaySub) {
         console.log('No reelay sub given');
         return;
     }
