@@ -126,9 +126,6 @@ export default ClubTitleOrTopicStack = ({
     const renderReelay = ({ item, index }) => {
         const reelay = item;
         const reelayViewable = stackViewable && (index === stackPosition);  
-        if (reelayViewable) {
-            console.log('rendering title banner: ', viewableReelay?.title.display);
-        }
         
         return (
             <ReelayFeedContainer key={reelay.id}>
