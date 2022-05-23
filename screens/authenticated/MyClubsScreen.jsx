@@ -37,13 +37,6 @@ const ClubGridContainer = styled(View)`
     padding: ${GRID_PADDING}px;
     width: 100%;
 `
-const ClubImage = styled(Image)`
-    border-color: white;
-    border-radius: ${CLUB_BUTTON_SIZE/2}px;
-    border-width: 1px;
-    height: ${CLUB_BUTTON_SIZE}px;
-    width: ${CLUB_BUTTON_SIZE}px;
-`
 const ClubTitleText = styled(ReelayText.Body2)`
     text-align: center;
     color: white;
@@ -59,10 +52,31 @@ const CreateClubGradient = styled(LinearGradient)`
     padding-top: 2px;
     width: ${CLUB_BUTTON_SIZE}px;
 `
+const HeaderText = styled(ReelayText.H5Emphasized)`
+    color: white;
+    margin-top: 4px;
+    text-align: left;
+`
 const MyClubsScreenContainer = styled(SafeAreaView)`
     background-color: black;
     height: 100%;
     width: 100%;
+`
+const NewClubButtonPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: black;
+    border-color: white;
+    border-radius: 12px;
+    border-width: 1.4px;
+    height: 32px;
+    justify-content: center;
+    width: 40px;
+`
+const TopBarContainer = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 20px;
 `
 
 export default MyClubsScreen = ({ navigation, route }) => {
@@ -103,6 +117,15 @@ export default MyClubsScreen = ({ navigation, route }) => {
                 </CreateClubGradient>
                 <ClubTitleText>{'Create Club'}</ClubTitleText>
             </ClubButtonPressable>
+        );
+    }
+
+    const NewClubButton = () => {
+        const advanceToCreateClub = async () => navigation.push('CreateClubScreen');
+        return (
+            <NewClubButtonPressable onPress={advanceToCreateClub}>
+                <Icon type='ionicon' name='add' size={24} color='white' />
+            </NewClubButtonPressable>
         );
     }
     
@@ -148,11 +171,14 @@ export default MyClubsScreen = ({ navigation, route }) => {
 
     return (
 		<MyClubsScreenContainer>
-            <BaseHeader text={'My Clubs'} />
+            <TopBarContainer>
+                <HeaderText>{'My Clubs'}</HeaderText>
+                <NewClubButton />
+            </TopBarContainer>
             <ClubButtonGrid>
-                <CreateClubButton navigation={navigation} />
-                <MyWatchlistButton navigation={navigation} />
-                { myClubs.map(club => <ClubButton key={club.id} club={club} navigation={navigation} />) }
+                {/* <CreateClubButton /> */}
+                <MyWatchlistButton />
+                { myClubs.map(club => <ClubButton key={club.id} club={club} />) }
             </ClubButtonGrid>
 		</MyClubsScreenContainer>
 	);
