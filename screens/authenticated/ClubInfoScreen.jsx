@@ -30,6 +30,7 @@ import {
 
 import { useDispatch, useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
+import BigBubbleBath from '../../components/clubs/BigBubbleBath';
 
 const INVITE_BASE_URL = Constants.manifest.extra.reelayWebInviteUrl;
 
@@ -391,7 +392,8 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     const ClubProfileInfo = () => {
         return (
             <ProfileInfoContainer>
-                <ClubPicture club={club} size={120} />
+                {/* <ClubPicture club={club} size={120} /> */}
+                <BigBubbleBath club={club} />
                 <ClubDescriptionText>{club.description}</ClubDescriptionText>
             </ProfileInfoContainer>
         );
