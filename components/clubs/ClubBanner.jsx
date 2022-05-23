@@ -26,7 +26,6 @@ const BubbleBathRightContainer = styled(View)`
     height: 48px;
     margin-left: 8px;
 `
-
 const BubbleLeftOneContainer = styled(View)`
     position: absolute;
     align-items: flex-end;
@@ -78,8 +77,6 @@ const BubbleRightFiveContainer = styled(View)`
     top: 8px;
     left: 48px;
 `
-
-
 const ClubNameText = styled(ReelayText.Subtitle2)`
     color: white;
     margin-right: 4px;
@@ -88,16 +85,21 @@ const HeaderBackground = styled(Pressable)`
     align-items: flex-end;
     background-color: rgba(0,0,0,0.35);
     flex-direction: row;
-    height: ${(props) => props.height}px;
     justify-content: center;
     padding-left: 6px;
     padding-right: 16px;
     padding-bottom: 10px;
+    padding-top: ${props => props.topOffset}px;
     position: absolute;
     width: 100%;
 `
 const BubbleBathHeaderContainer = styled(View)`
     align-items: center;
+    justify-content: center;
+`
+const CondensedHeaderContainer = styled(View)`
+    align-items: center;
+    flex-direction: column;
     justify-content: center;
 `
 const InfoButtonContainer = styled(TouchableOpacity)`
@@ -107,19 +109,16 @@ const InfoButtonContainer = styled(TouchableOpacity)`
     right: 16px;
     top: ${props => props.topOffset}px;
 `
-export default ClubBanner = ({ club, navigation }) => {
+export default ClubBanner = ({ club, navigation, showBubbleBath = true, topicTitle = null }) => {
     const topOffset = useSafeAreaInsets().top;
-    const headerHeight = topOffset + 72;
-    const backButtonTopOffset = topOffset + 22;
-    const infoButtonTopOffset = topOffset + 32;
-
-    // const doubleClubMembers = [...club.members, ...club.members];
+    const backButtonTopOffset = topOffset - 10;
+    const infoButtonTopOffset = topOffset;
 
     const bubbleBathLeftMembers = club.members.filter((clubMember, index) => {
         if (index >= 10) return false;
         return (index % 2 === 0);
     }).map((clubMember) => {
-        return { sub: clubMember.userSub, username: clubMember.username }
+        return { sub: clubMember.userSub, username: clubMember.username } 
     });
 
     const bubbleBathRightMembers = club.members.filter((clubMember, index) => {
@@ -130,19 +129,6 @@ export default ClubBanner = ({ club, navigation }) => {
     });
 
     const advanceToClubInfoScreen = () => navigation.push('ClubInfoScreen', { club });
-
-    const BubbleBathHeader = () => {
-        return (
-            <BubbleBathHeaderContainer>
-                <BubbleBathContainer>
-                    <BubbleBathLeft />
-                    <ClubPicture club={club} size={48} />
-                    <BubbleBathRight />
-                </BubbleBathContainer>
-                <ClubNameText>{club.name}</ClubNameText>
-            </BubbleBathHeaderContainer>
-        );
-    }
 
     const BubbleBathLeft = () => {
         return (
@@ -208,6 +194,28 @@ export default ClubBanner = ({ club, navigation }) => {
         );
     }
 
+    const CondensedHeader = () => {
+        return (
+            <CondensedHeaderContainer>
+                <ClubNameText>{club.name}</ClubNameText>
+                { topicTitle && <ClubNameText>{topicTitle}</ClubNameText> }
+            </CondensedHeaderContainer>
+        );
+    }
+
+    const HeaderWithBubbleBath = () => {
+        return (
+            <BubbleBathHeaderContainer>
+                <BubbleBathContainer>
+                    <BubbleBathLeft />
+                    <ClubPicture club={club} size={48} />
+                    <BubbleBathRight />
+                </BubbleBathContainer>
+                <ClubNameText>{club.name}</ClubNameText>
+            </BubbleBathHeaderContainer>
+        );
+    }
+
     const InfoButton = () => {
         return (
             <InfoButtonContainer onPress={advanceToClubInfoScreen} topOffset={infoButtonTopOffset}>
@@ -217,11 +225,12 @@ export default ClubBanner = ({ club, navigation }) => {
     }
 
     return (
-        <HeaderBackground height={headerHeight} onPress={advanceToClubInfoScreen}>
+        <HeaderBackground onPress={advanceToClubInfoScreen} topOffset={topOffset}>
             <BackButtonContainer topOffset={backButtonTopOffset}>
                 <BackButton navigation={navigation} />
             </BackButtonContainer>
-            <BubbleBathHeader />
+            { showBubbleBath && <HeaderWithBubbleBath /> }
+            { !showBubbleBath && <CondensedHeader /> }
             <InfoButton />
         </HeaderBackground>
     );

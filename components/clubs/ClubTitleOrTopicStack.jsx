@@ -35,7 +35,7 @@ const AddReelayButtonText = styled(ReelayText.Subtitle2)`
     color: white;
     margin-left: 4px;
 `
-const BannerContainer = styled(View)`
+const TitleBannerContainer = styled(View)`
     top: ${(props) => props.offset}px;
     align-items: center;
     margin-top: 10px;
@@ -90,7 +90,9 @@ export default ClubTitleOrTopicStack = ({
     const [stackPosition, setStackPosition] = useState(initialStackPos);
     const viewableReelay = stack[stackPosition];
 
-    const titleBannerTopOffset = useSafeAreaInsets().top + 24;
+    const titleBannerTopOffset = (activityType === 'topic')
+        ? 54
+        : 32;
     const addReelayBottomOffset = useSafeAreaInsets().bottom;
 
     const donateLinks = useSelector(state => state.donateLinks);
@@ -109,7 +111,7 @@ export default ClubTitleOrTopicStack = ({
 
     const renderTitleBanner = (reelay) => {
         return (
-            <BannerContainer offset={titleBannerTopOffset}>
+            <TitleBannerContainer offset={titleBannerTopOffset}>
                 <TitleBanner 
                     titleObj={reelay?.title}
                     navigation={navigation}
@@ -117,7 +119,7 @@ export default ClubTitleOrTopicStack = ({
                     stack={stack}
                     donateObj={donateObj}
                 />
-            </BannerContainer>
+            </TitleBannerContainer>
         );
     }
 
@@ -184,7 +186,12 @@ export default ClubTitleOrTopicStack = ({
                 pagingEnabled={true} 
                 windowSize={3}
             />
-            <ClubBanner club={club} navigation={navigation} />
+            <ClubBanner 
+                club={club} 
+                navigation={navigation} 
+                showBubbleBath={false}
+                topicTitle={(activityType === 'topic') ? clubTitleOrTopic?.title : null}
+            />
             { activityType === 'title' && renderTitleBanner(viewableReelay) }
             <AddReelayButton 
                 activityType={activityType}

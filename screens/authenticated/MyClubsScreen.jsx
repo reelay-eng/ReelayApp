@@ -66,7 +66,7 @@ const NewClubButtonPressable = styled(TouchableOpacity)`
     align-items: center;
     background-color: black;
     border-color: white;
-    border-radius: 12px;
+    border-radius: 10px;
     border-width: 1.4px;
     height: 32px;
     justify-content: center;
