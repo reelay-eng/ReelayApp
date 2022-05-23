@@ -14,7 +14,7 @@ import { AuthContext } from '../../context/AuthContext';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default VenueSelectScreen = ({ navigation, route }) => {
     const titleObj = route.params?.titleObj;
@@ -29,6 +29,7 @@ export default VenueSelectScreen = ({ navigation, route }) => {
 
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
+    const myClubs = useSelector(state => state.myClubs);
 
     if (reelayDBUser?.username === 'be_our_guest') {
         return <JustShowMeSignupPage navigation={navigation} showBackButton={true} />
@@ -60,12 +61,17 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         const hasMicPermissions = await getMicPermissions();
 
         if (hasCameraPermissions && hasMicPermissions) {
-            navigation.push('ReelayCameraScreen', { titleObj, venue, topicID, clubID });    
+            if (clubID || topicID || myClubs?.length === 0) {
+                navigation.push('ReelayCameraScreen', { titleObj, venue, topicID, clubID });    
+            } else {
+                navigation.push('SelectDestinationScreen', { titleObj, venue, topicID, clubID });
+            }
             logAmplitudeEventProd('selectVenue', { venue });
         } else {
             alertCameraAccess();
         }
     }
+
 
     const IconOptions = () => {
         const IconContainer = styled(View)`

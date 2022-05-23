@@ -17,6 +17,8 @@ import ReelayColors from '../../constants/ReelayColors';
 import DownloadButton from '../../components/create-reelay/DownloadButton';
 import UploadDescriptionAndStarRating from '../../components/create-reelay/UploadDescriptionAndStarRating';
 import { useFocusEffect } from '@react-navigation/native';
+import { addTitleToClub } from '../../api/ClubsApi';
+import { showErrorToast } from '../../components/utils/toasts';
 
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
 const { width } = Dimensions.get('window');
@@ -98,6 +100,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     } = route.params;
 
     const { reelayDBUser } = useContext(AuthContext);
+    const authSession = useSelector(state => state.authSession);
     const dispatch = useDispatch();
     const [confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible] = useState(false);
     const [previewIsMuted, setPreviewIsMuted] = useState(false);
@@ -132,9 +135,27 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
     const pleaseBePatientShouldDisplay = (recordingLengthSeconds > 15);
     const uploadStage = useSelector(state => state.uploadStage);
-    const uploadStartedStages = ['upload-reelay', 'preparing-upload', 'uploading'];
+    const uploadStartedStages = ['check-new-title', 'upload-reelay', 'preparing-upload', 'uploading'];
     const uploadStarted = uploadStartedStages.includes(uploadStage);
 
+    const checkIfNewClubTitle = async () => {
+        if (reelayClubTitle) return reelayClubTitle; // don't need to create a new club title;
+        try {
+            const newClubTitle = await addTitleToClub({
+                authSession,
+                addedByUsername: reelayDBUser?.username,
+                addedByUserSub: reelayDBUser?.sub,
+                clubID,
+                tmdbTitleID: titleObj?.id,
+                titleType: titleObj?.titleType,
+            });
+            console.log('added new club title: ', newClubTitle);
+            return newClubTitle;    
+        } catch (error) {
+            console.log(error);
+            return { error };
+        }
+    }
 
     const publishReelay = async () => {
         if (!videoURI) {
@@ -180,6 +201,17 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             }
 
             dispatch({ type: 'setUploadRequest', payload: uploadRequest });
+            dispatch({ type: 'setUploadStage', payload: 'check-new-title' });
+
+            const clubTitle = await checkIfNewClubTitle();
+            if (clubTitle?.error) {
+                if (!clubTitle || clubTitle?.error) {
+                    showErrorToast('Ruh roh! There was an error adding this title to the club');
+                }
+                // todo: do something
+                // this can run parallel with the actual upload
+            }
+            
             dispatch({ type: 'setUploadStage', payload: 'upload-ready' });
 
         } catch (error) {
@@ -221,7 +253,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                     starCountRef={starCountRef}
                     descriptionRef={descriptionRef}
                 />
-                {/* <WhereAmIPosting /> */}
                 <UploadBottomBar>
                     <DownloadButton titleObj={titleObj} videoURI={videoURI} />
                     <UploadButton />
