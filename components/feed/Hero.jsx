@@ -6,6 +6,7 @@ import ReelayInfo from './ReelayInfo';
 import Sidebar from './Sidebar';
 import { useSelector } from 'react-redux';
 import { AuthContext } from '../../context/AuthContext';
+import { LinearGradient } from "expo-linear-gradient";
 
 import LikesDrawer from './LikesDrawer';
 import CommentsDrawer from './CommentsDrawer';
@@ -14,6 +15,7 @@ import JustShowMeSignupDrawer from '../global/JustShowMeSignupDrawer';
 import Constants from 'expo-constants';
 import { getCommentLikesForReelay } from '../../api/ReelayDBApi';
 import { useFocusEffect } from '@react-navigation/native';
+import styled from 'styled-components/native';
 
 const HeroModals = ({ reelay, navigation }) => {
     const [modalsViewable, setModalsViewable] = useState(false);
@@ -70,8 +72,15 @@ const HeroModals = ({ reelay, navigation }) => {
 }
 
 export default Hero = ({ index, navigation, reelay, viewable }) => {
+	const HeroGradient = styled(LinearGradient)`
+		position: absolute;
+		opacity: 0.8;
+		height: 100%;
+		width: 100%;
+	`
     const commentsCount = useRef(reelay.comments.length);
     const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
+	const [expanded, setExpanded] = useState(false);
 
     if (viewable) {
         console.log('Hero is viewable: ', reelay.creator.username, reelay.title.display);
@@ -80,7 +89,11 @@ export default Hero = ({ index, navigation, reelay, viewable }) => {
     return (
         <View key={index} style={{ justifyContent: 'flex-end'}}>
             <FeedVideoPlayer reelay={reelay} viewable={viewable} />
-            <ReelayInfo navigation={navigation} reelay={reelay} />
+
+            {(expanded) && <HeroGradient colors={["transparent", "#383838", "#000000"]} locations={[0, 0.25, 0.65]} />}
+            {(!expanded) && <HeroGradient colors={["transparent", "#0d0d0d"]} locations={[0.60, 1]} />}
+
+            <ReelayInfo navigation={navigation} reelay={reelay} setExpanded={setExpanded} />
             { !isWelcomeVideo && <Sidebar navigation={navigation} reelay={reelay} commentsCount={commentsCount}/> }
             { viewable && <HeroModals reelay={reelay} navigation={navigation} /> }
         </View>
