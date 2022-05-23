@@ -91,7 +91,7 @@ export default Hero = ({ index, navigation, reelay, viewable }) => {
             <FeedVideoPlayer reelay={reelay} viewable={viewable} />
 
             {(expanded) && <HeroGradient colors={["transparent", "#383838", "#000000"]} locations={[0, 0.25, 0.65]} />}
-            {(!expanded) && <HeroGradient colors={["transparent", "#0d0d0d"]} locations={[0.60, 1]} />}
+            {(!expanded) && <HeroGradient colors={["transparent", "#0d0d0d"]} locations={[0.50, 1]} />}
 
             <ReelayInfo navigation={navigation} reelay={reelay} setExpanded={setExpanded} />
             { !isWelcomeVideo && <Sidebar navigation={navigation} reelay={reelay} commentsCount={commentsCount}/> }
