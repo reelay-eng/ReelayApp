@@ -24,7 +24,7 @@ export const addMemberToClub = async ({
         username, 
         role, 
         invitedBySub, 
-        invitedByUsername, 
+        invitedByUsername,
         clubLinkID
     };
     const addMemberResult = await fetchResults(routePost, {
@@ -155,19 +155,18 @@ export const getClubInviteFromCode = async ({ authSession, inviteCode, reqUserSu
 
 export const getClubMembers = async ({ authSession, clubID, reqUserSub }) => {
     const routeGet = `${REELAY_API_BASE_URL}/clubs/members/${clubID}`;
-    const fetchedClubs = await fetchResults(routeGet, {
+    const fetchedMembers = await fetchResults(routeGet, {
         method: 'GET',
         headers: {
             ...getReelayAuthHeaders(authSession),
             requsersub: reqUserSub,
         },
     });
-    fetchedClubs.forEach((club) => {
-        if (!club?.members) club.members = [];
-        if (!club?.titles) club.titles = [];
-        if (!club?.topics) club.topics = [];
+    fetchedMembers.forEach(member => {
+        member.activityType = 'member';
+        member.lastUpdatedAt = member.createdAt;
     });
-    return fetchedClubs;
+    return fetchedMembers;
 }
 
 export const getClubsMemberOf = async ({ authSession, userSub }) => {

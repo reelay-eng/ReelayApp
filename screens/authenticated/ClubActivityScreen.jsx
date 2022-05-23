@@ -21,6 +21,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import AddTitleOrTopicDrawer from '../../components/clubs/AddTitleOrTopicDrawer';
 import UploadProgressBar from '../../components/global/UploadProgressBar';
 import TopicCard from '../../components/topics/TopicCard';
+import ClubAddedMemberCard from './ClubAddedMemberCard';
 
 const { height, width } = Dimensions.get('window');
 
@@ -92,12 +93,13 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         return lastActivity0.diff(lastActivity1, 'seconds') < 0;
     }
     const clubActivities = [
+        ...club.members,
         ...club.titles, 
         ...club.topics
     ].sort(sortClubActivity);
 
-    const titleOrTopicHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
-    const feedTitlesAndTopics = clubActivities.filter(titleOrTopicHasReelays);
+    const activityHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
+    const feedTitlesAndTopics = clubActivities.filter(activityHasReelays);
 
     const [refreshing, setRefreshing] = useState(false);
     const onRefresh = async () => {
@@ -191,6 +193,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             navigation.push('ClubFeedScreen', { club, initFeedIndex });   
         }
 
+        console.log('activity: ', activity);
         if (activityType === 'title') {
             const clubTitle = activity;
             return (
@@ -217,6 +220,8 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                     />
                 </ActivityContainer>
             );
+        } else if (activityType === 'member'  && activityType?.role !== 'banned') {
+            return <ClubAddedMemberCard member={activity} />
         } else {
             return <View />;
         }

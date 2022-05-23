@@ -141,8 +141,7 @@ export default AuthenticatedNavigator = () => {
 				component={ClubsTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<Icon type='ionicon' name='people-circle' size={27} color='white' />
-						// <ClubsIconSVG size={24} />
+						<ClubsIconSVG size={24} />
 					),
 				}}
 			/>
