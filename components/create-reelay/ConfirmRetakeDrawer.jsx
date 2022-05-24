@@ -104,6 +104,7 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
         const onPress = () => {
             setConfirmRetakeDrawerVisible(false);
             dispatch({ type: 'setTabBarVisible', payload: true });
+            navigation.popToTop();
             navigation.navigate('HomeScreen');
             logAmplitudeEventProd('exitCreate', {
                 username: reelayDBUser?.username,

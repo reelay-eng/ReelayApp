@@ -212,13 +212,12 @@ export default SelectDestinationScreen = ({ navigation, route }) => {
 
     return (
         <ScreenContainer>
-            <HeaderWithBackButton navigation={navigation} text={'Where do you want to post?'} />
+            <HeaderWithBackButton navigation={navigation} text={'Where to post?'} />
             <ScrollView showsVerticalScrollIndicator={false}>
                 <TitleHeader />
                 <SelectClubsList />
                 <SelectMyProfileRow />
             </ScrollView>
-            {/* <ContinueButton /> */}
         </ScreenContainer>
 	);
 }

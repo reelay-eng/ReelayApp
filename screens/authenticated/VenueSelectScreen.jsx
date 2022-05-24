@@ -61,11 +61,12 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         const hasMicPermissions = await getMicPermissions();
 
         if (hasCameraPermissions && hasMicPermissions) {
-            if (clubID || topicID || myClubs?.length === 0) {
-                navigation.push('ReelayCameraScreen', { titleObj, venue, topicID, clubID });    
-            } else {
-                navigation.push('SelectDestinationScreen', { titleObj, venue, topicID, clubID });
-            }
+            navigation.push('ReelayCameraScreen', { titleObj, venue, topicID, clubID });    
+            // if (clubID || topicID || myClubs?.length === 0) {
+            //     navigation.push('ReelayCameraScreen', { titleObj, venue, topicID, clubID });    
+            // } else {
+            //     navigation.push('SelectDestinationScreen', { titleObj, venue, topicID, clubID });
+            // }
             logAmplitudeEventProd('selectVenue', { venue });
         } else {
             alertCameraAccess();

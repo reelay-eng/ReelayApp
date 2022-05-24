@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid';
 import ConfirmRetakeDrawer from '../../components/create-reelay/ConfirmRetakeDrawer';  
 import Constants from 'expo-constants';
 import PreviewVideoPlayer from '../../components/create-reelay/PreviewVideoPlayer';
+import PostDestinationDrawer from '../../components/clubs/PostDestinationDrawer';
 import TitlePoster from '../../components/global/TitlePoster';
 
 import { Pressable, View, Keyboard, KeyboardAvoidingView, ActivityIndicator, Dimensions } from 'react-native';
@@ -17,7 +18,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import DownloadButton from '../../components/create-reelay/DownloadButton';
 import UploadDescriptionAndStarRating from '../../components/create-reelay/UploadDescriptionAndStarRating';
 import { useFocusEffect } from '@react-navigation/native';
-import { addTitleToClub } from '../../api/ClubsApi';
+import { addTitleToClub, getClubTitles } from '../../api/ClubsApi';
 import { showErrorToast } from '../../components/utils/toasts';
 
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
@@ -102,45 +103,103 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
     const dispatch = useDispatch();
+
     const [confirmRetakeDrawerVisible, setConfirmRetakeDrawerVisible] = useState(false);
+    const [destinationDrawerVisible, setDestinationDrawerVisible] = useState(false);
     const [previewIsMuted, setPreviewIsMuted] = useState(false);
  
     const descriptionRef = useRef('');
     const starCountRef = useRef(0);
+    const pleaseBePatientShouldDisplay = (recordingLengthSeconds > 15);
 
-    const destination = (clubID) ? 'InClub' 
-        : (topicID) ? 'InTopic' 
-        : 'OnProfile';
-
+    // get the club we're (optionally) posting in
     const myClubs = useSelector(state => state.myClubs);
+
+    // get the topic we're (optionally) posting in
     const globalTopics = useSelector(state => state.globalTopics);
+    
+    const uploadRequest = useSelector(state => state.uploadRequest);
+    const uploadStage = useSelector(state => state.uploadStage);
+    const uploadStartedStages = ['check-club-title', 'upload-reelay', 'preparing-upload', 'uploading'];
+    const uploadStarted = uploadStartedStages.includes(uploadStage);
 
-    const reelayClub = (clubID) 
-        ? myClubs.find(nextClub => nextClub.id === clubID) 
-        : null;
+    // createUploadRequest can either be called from this screen or the
+    // select destination drawer, so we need a variable clubID
+    const createUploadRequest = async (clubID) => {
+        // Adding the file extension directly to the key seems to trigger S3 getting the right content type,
+        // not setting contentType as a parameter in the Storage.put call.
+        const videoS3Key = `reelayvid-${reelayDBUser?.sub}-${uploadTimestamp}.mp4`;
+        const posterSource = titleObj?.posterSource;
+        const starRating = starCountRef.current * 2;
+        const uploadTimestamp = Date.now();
 
-    const matchClubTitle = (clubTitle) => (
-        clubTitle.tmdbTitleID === titleObj.id && 
-        clubTitle.titleType === titleObj.titleType
-    );
-    const reelayClubTitle = (reelayClub)
-        ? reelayClub.titles?.find(matchClubTitle) 
-        : null;
+        const matchClubID = (nextClub) => (nextClub.id === clubID);
+        const reelayClub = (clubID) ? myClubs.find(matchClubID) : null;
+        const reelayClubTitle = await getOrCreateClubTitle(clubID);
 
-    const reelayTopic = (topicID && clubID) 
+        // the destination drawer cannot post directly into a topic, so
+        // if topicID is populated, this clubID must have been passed as a param
+        const reelayTopic = (topicID && clubID) 
             ? reelayClub?.topics?.find(nextTopic => nextTopic.id === topicID)
         : (topicID) 
             ? globalTopics.find(nextTopic => nextTopic.id === topicID) 
         : null;
 
-    const pleaseBePatientShouldDisplay = (recordingLengthSeconds > 15);
-    const uploadStage = useSelector(state => state.uploadStage);
-    const uploadStartedStages = ['check-new-title', 'upload-reelay', 'preparing-upload', 'uploading'];
-    const uploadStarted = uploadStartedStages.includes(uploadStage);
+        const destination = (clubID) ? 'InClub' 
+            : (topicID) ? 'InTopic' 
+            : (myClubs.length === 0) ? 'OnProfile'
+            : 'TBD';
+        
+        const reelayDBBody = {
+            clubID: clubID ?? null,
+            creatorSub: reelayDBUser?.sub,
+            creatorName: reelayDBUser.username,
+            datastoreSub: uuidv4(), 
+            description: descriptionRef.current,
+            isMovie: titleObj.isMovie,
+            isSeries: titleObj.isSeries,
+            postedAt: uploadTimestamp,
+            starRating: Math.floor(starRating/2),
+            starRatingAddHalf: (starRating%2===1) ? true : false,
+            tmdbTitleID: titleObj.id,
+            topicID: topicID ?? null,
+            venue: venue,
+            videoS3Key: videoS3Key,
+            visibility: UPLOAD_VISIBILITY,
+        }
 
-    const checkIfNewClubTitle = async () => {
-        if (reelayClubTitle) return reelayClubTitle; // don't need to create a new club title;
+        const uploadRequest = {
+            destination,
+            posterSource,
+            reelayDBBody,
+            reelayClub,
+            reelayClubTitle, 
+            reelayTopic,
+            videoURI, 
+            videoS3Key,             
+        };
+
+        return uploadRequest;
+    }
+
+    const getOrCreateClubTitle = async (clubID) => {
         try {
+            const clubTitles = await getClubTitles({
+                authSession,
+                clubID,
+                reqUserSub: reelayDBUser?.sub,
+            });
+
+            const matchClubTitle = (clubTitle) => (
+                clubTitle.tmdbTitleID === titleObj.id && 
+                clubTitle.titleType === titleObj.titleType
+            );    
+
+            const reelayClubTitle = clubTitles?.find(matchClubTitle);
+            if (reelayClubTitle) {
+                return reelayClubTitle;
+            }
+            
             const newClubTitle = await addTitleToClub({
                 authSession,
                 addedByUsername: reelayDBUser?.username,
@@ -155,68 +214,29 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             console.log(error);
             return { error };
         }
+    }    
+
+    const publishReelay = async (clubID) => {
+        try {
+            // setPreviewIsMuted(true);
+            // dispatch({ type: 'setUploadStage', payload: 'check-club-title' });
+            const uploadRequest = await createUploadRequest(clubID);
+
+            console.log('upload request: ', uploadRequest);
+
+            // dispatch({ type: 'setUploadRequest', payload: uploadRequest });
+            // dispatch({ type: 'setUploadStage', payload: 'upload-ready' });
+        } catch (error) {
+            console.log('Error uploading file: ', error);
+        }
     }
 
-    const publishReelay = async () => {
-        if (!videoURI) {
-            console.log('No video to upload.');
-            return;
-        }
-
-        try {
-            // Adding the file extension directly to the key seems to trigger S3 getting the right content type,
-            // not setting contentType as a parameter in the Storage.put call.
-            setPreviewIsMuted(true);
-            const posterSource = titleObj?.posterSource;
-            const starRating = starCountRef.current * 2;
-            const uploadTimestamp = Date.now();
-            const videoS3Key = `reelayvid-${reelayDBUser?.sub}-${uploadTimestamp}.mp4`;
-            
-            const reelayDBBody = {
-                clubID: clubID ?? null,
-                creatorSub: reelayDBUser?.sub,
-                creatorName: reelayDBUser.username,
-                datastoreSub: uuidv4(), 
-                description: descriptionRef.current,
-                isMovie: titleObj.isMovie,
-                isSeries: titleObj.isSeries,
-                postedAt: uploadTimestamp,
-                starRating: Math.floor(starRating/2),
-                starRatingAddHalf: (starRating%2===1) ? true : false,
-                tmdbTitleID: titleObj.id,
-                topicID: topicID ?? null,
-                venue: venue,
-                videoS3Key: videoS3Key,
-                visibility: UPLOAD_VISIBILITY,
-            }
-
-            const uploadRequest = {
-                destination,
-                posterSource,
-                reelayDBBody,
-                reelayClubTitle, 
-                reelayTopic,
-                videoURI, 
-                videoS3Key,             
-            }
-
-            dispatch({ type: 'setUploadRequest', payload: uploadRequest });
-            dispatch({ type: 'setUploadStage', payload: 'check-new-title' });
-
-            const clubTitle = await checkIfNewClubTitle();
-            if (clubTitle?.error) {
-                if (!clubTitle || clubTitle?.error) {
-                    showErrorToast('Ruh roh! There was an error adding this title to the club');
-                }
-                // todo: do something
-                // this can run parallel with the actual upload
-            }
-            
-            dispatch({ type: 'setUploadStage', payload: 'upload-ready' });
-
-        } catch (error) {
-            // todo: better error catching
-            console.log('Error uploading file: ', error);
+    const confirmPostDestination = () => {
+        const destinationTBD = (!clubID && !topicID && myClubs.length > 0);
+        if (destinationTBD) {
+            setDestinationDrawerVisible(true);
+        } else {
+            publishReelay(clubID);
         }
     }
 
@@ -262,17 +282,19 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     }
 
     const UploadButton = () => {
-        const postDestinationText = (destination === 'InClub')
+        const postDestinationText = (clubID)
                 ? 'Post to Club'
-            : (destination === 'InTopic')
+            : (topicID)
                 ? 'Post to Topic'
-            : 'Post on Profile';
+            : (myClubs.length === 0)
+                ? 'Post to Profile'
+            : 'Next';
         const buttonText = (uploadStarted) ? 'Preparing...   ' : postDestinationText;
         const buttonColor = (uploadStarted) ? 'white' : ReelayColors.reelayBlue;
         const buttonTextColor = (uploadStarted) ? 'black' : 'white';
 
         return (
-            <UploadButtonPressable color={buttonColor} onPress={publishReelay}>
+            <UploadButtonPressable color={buttonColor} onPress={confirmPostDestination}>
                 <UploadButtonText buttonTextColor={buttonTextColor}>
                     {buttonText}
                 </UploadButtonText>
@@ -290,6 +312,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         // so we don't want to navigate away until we're done with that part
         if (uploadStage === 'uploading') {
             navigation.popToTop();
+            const { clubID, reelayClub, topicID, reelayTopic } = uploadRequest;
             if (clubID && reelayClub) {
                 navigation.push('ClubActivityScreen', { club: reelayClub });
             } else if (topicID && reelayTopic) {
@@ -310,12 +333,21 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             <KeyboardAvoidingView behavior='position'>
                 <UploadBottomRow />
             </KeyboardAvoidingView>
-            <ConfirmRetakeDrawer 
-                navigation={navigation} titleObj={titleObj} 
-                confirmRetakeDrawerVisible={confirmRetakeDrawerVisible}
-                setConfirmRetakeDrawerVisible={setConfirmRetakeDrawerVisible}
-                lastState={"Upload"}
-            />
+            { confirmRetakeDrawerVisible && (
+                <ConfirmRetakeDrawer 
+                    navigation={navigation} titleObj={titleObj} 
+                    confirmRetakeDrawerVisible={confirmRetakeDrawerVisible}
+                    setConfirmRetakeDrawerVisible={setConfirmRetakeDrawerVisible}
+                    lastState={"Upload"}
+                />
+            )}
+            { destinationDrawerVisible && (
+                <PostDestinationDrawer
+                    publishReelay={publishReelay}
+                    drawerVisible={destinationDrawerVisible}
+                    setDrawerVisible={setDestinationDrawerVisible}
+                />
+            )}
         </UploadScreenContainer>
     );
 };
