@@ -80,6 +80,18 @@ const InfoScreenContainer = styled(View)`
     height: 100%;
     width: 100%;
 `
+const LeaveButtonContainer = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayRed};
+    border-radius: 8px;
+    flex-direction: row;
+    justify-content: center;
+    margin-left: 25%;
+    margin-right: 25%;
+    margin-top: 40px;
+    height: 40px;
+    width: 50%;
+`
 const MemberEditButton = styled(TouchableOpacity)``
 const MemberInfoContainer = styled(View)`
     align-items: center;
@@ -305,38 +317,6 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 </RemoveButtonContainer>
             );
         }        
-
-        const LeaveButton = () => {
-            const [leaving, setLeaving] = useState(false);
-            const leaveClub = async () => {
-                try {
-                    if (leaving) return;
-                    setLeaving(true);
-                    const removeResult = await removeMemberFromClub({
-                        authSession,
-                        clubID: club.id,
-                        userSub: reelayDBUser?.sub,
-                        reqUserSub: reelayDBUser?.sub,
-                    });
-                    console.log(removeResult);
-                    navigation.popToTop();
-                    const myClubsRemoved = myClubs.filter(nextClub => nextClub.id !== club.id);
-                    showMessageToast(`You've left ${club.name}`)
-                    dispatch({ type: 'setMyClubs', payload: myClubsRemoved });    
-                } catch (error) {
-                    console.log(error);
-                    showErrorToast('Ruh roh! Could not leave club. Try again?');
-                    setLeaving(false);
-                }
-            }
-
-            return (
-                <RemoveButtonContainer onPress={leaveClub}>
-                    { leaving && <ActivityIndicator /> }
-                    { !leaving && <RemoveButtonText>{'Leave'}</RemoveButtonText> }
-                </RemoveButtonContainer>
-            );
-        }
     
         const RemoveButton = () => {
             const [removing, setRemoving] = useState(false);
@@ -381,7 +361,6 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 </MemberInfoContainer>
                 <MemberRightButtonContainer>
                     { !isEditing && !isMyUser && <FollowButton creator={user} /> }
-                    { !isClubOwner && isMyUser && <LeaveButton /> }
                     { isEditing && <BanButton /> }
                     { isEditing && <RemoveButton /> }
                 </MemberRightButtonContainer>
@@ -526,6 +505,38 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             </TopBarContainer>
         );
     }
+
+    const LeaveButton = () => {
+        const [leaving, setLeaving] = useState(false);
+        const leaveClub = async () => {
+            try {
+                if (leaving) return;
+                setLeaving(true);
+                const removeResult = await removeMemberFromClub({
+                    authSession,
+                    clubID: club.id,
+                    userSub: reelayDBUser?.sub,
+                    reqUserSub: reelayDBUser?.sub,
+                });
+                console.log(removeResult);
+                navigation.popToTop();
+                const myClubsRemoved = myClubs.filter(nextClub => nextClub.id !== club.id);
+                showMessageToast(`You've left ${club.name}`)
+                dispatch({ type: 'setMyClubs', payload: myClubsRemoved });    
+            } catch (error) {
+                console.log(error);
+                showErrorToast('Ruh roh! Could not leave club. Try again?');
+                setLeaving(false);
+            }
+        }
+
+        return (
+            <LeaveButtonContainer onPress={leaveClub}>
+                { leaving && <ActivityIndicator /> }
+                { !leaving && <RemoveButtonText>{'Leave Club'}</RemoveButtonText> }
+            </LeaveButtonContainer>
+        );
+    }
     
     return (
         <InfoScreenContainer>
@@ -539,6 +550,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 { (isClubOwner || club.allowMemberInvites) && <InviteSettings /> }
                 <HorizontalDivider />
                 <ClubMembers />
+                { !isClubOwner && <LeaveButton /> }
             </ScrollView>
         </InfoScreenContainer>
     );
