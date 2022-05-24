@@ -19,6 +19,7 @@ import TitleFeedScreen from '../screens/authenticated/TitleFeedScreen';
 import TitleTrailerScreen from '../screens/authenticated/TitleTrailerScreen';
 import TopicsFeedScreen from '../screens/authenticated/TopicsFeedScreen';
 import TopicsListScreen from '../screens/authenticated/TopicsListScreen';
+import WatchlistScreen from '../screens/authenticated/WatchlistScreen';
 import UserFollowScreen from '../screens/authenticated/UserFollowScreen';
 import UserProfileScreen from '../screens/authenticated/UserProfileScreen';
 import VenueSelectScreen from '../screens/authenticated/VenueSelectScreen';
@@ -51,6 +52,7 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
             <CommonStack.Screen name='VenueSelectScreen' component={VenueSelectScreen} options={commonOptions} />
             <CommonStack.Screen name='ReelayCameraScreen' component={ReelayCameraScreen} options={commonOptions} />
             <CommonStack.Screen name='ReelayUploadScreen' component={ReelayUploadScreen} options={commonOptions} />
+            <CommonStack.Screen name='WatchlistScreen' component={WatchlistScreen} options={commonOptions} />
         </CommonStack.Navigator>
     );
 }

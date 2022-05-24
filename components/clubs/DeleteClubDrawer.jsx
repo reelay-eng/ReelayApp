@@ -74,9 +74,7 @@ const DrawerContainer = styled(View)`
 `
 const HeaderContainer = styled(View)`
     align-items: center;
-    border-bottom-color: #2D2D2D;
-    border-bottom-width: 1px;
-    height: 24px;
+    height: 16px;
     padding: 6px;
     padding: 6px;
     width: 100%;
@@ -116,7 +114,7 @@ export default DeleteClubDrawer = ({ club, navigation, drawerVisible, setDrawerV
     const AreYouSurePrompt = () => {
         return (
             <React.Fragment>
-                <PromptText>{`Are you sure you want to delete ${club.name} for everyone? Type \'delete\' below to confirm.`}</PromptText>
+                <PromptText>{`Are you sure you want to disband ${club.name}? It will disappear for all members. Type \'disband\' below to confirm.`}</PromptText>
             </React.Fragment>
         );
     }
@@ -124,7 +122,7 @@ export default DeleteClubDrawer = ({ club, navigation, drawerVisible, setDrawerV
     const ConfirmDeleteButton = () => {
         const onConfirmDelete = async () => {
             try {
-                if (confirmDeleteText.current !== 'delete') {
+                if (confirmDeleteText.current !== 'disband') {
                     showErrorToast('Ruh roh! Confirmation text incorrect');
                     return;
                 }
@@ -141,11 +139,11 @@ export default DeleteClubDrawer = ({ club, navigation, drawerVisible, setDrawerV
                 setDeleting(false);
                 navigation.popToTop();
                 // todo: notify users
-                showMessageToast(`You\'ve deleted the club ${club.name}`);
+                showMessageToast(`You\'ve disbanded the club ${club.name}`);
                 return deleteClubResult;
             } catch (error) {
                 console.log(error);
-                showErrorToast('Ruh roh! Could not delete club. Try again?');
+                showErrorToast('Ruh roh! Could not disband club. Try again?');
                 setDeleting(false);
             }
         }
@@ -155,7 +153,7 @@ export default DeleteClubDrawer = ({ club, navigation, drawerVisible, setDrawerV
                 { !deleting && (
                     <React.Fragment>
                         <Icon type='ionicon' name='trash' size={16} color='white' />
-                        <ConfirmDeleteButtonText>{'Delete club for everyone'}</ConfirmDeleteButtonText>                    
+                        <ConfirmDeleteButtonText>{'Disband club for everyone'}</ConfirmDeleteButtonText>                    
                     </React.Fragment>
                 )}
             </ConfirmDeleteButtonContainer>
@@ -175,7 +173,7 @@ export default DeleteClubDrawer = ({ club, navigation, drawerVisible, setDrawerV
                         autoComplete='none'
                         autoCapitalize="none"
                         defaultValue={confirmDeleteText.current}
-                        placeholder={"type \'delete\'"}
+                        placeholder={"type \'disband\'"}
                         placeholderTextColor={"gray"}
                         onChangeText={onChangeConfirmText}
                         onPressOut={Keyboard.dismiss()}

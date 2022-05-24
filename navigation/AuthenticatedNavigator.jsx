@@ -115,14 +115,11 @@ export default AuthenticatedNavigator = () => {
 				}}
 			/>
 			<BottomTab.Screen
-				name="Global"
-				component={FeedTabNavigator}
+				name="Clubs"
+				component={ClubsTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<View>
-							<Icon type='ionicon' name='earth' size={24} color='white' />
-							{hasUnseenGlobalReelays && <UnreadIconIndicator /> }
-						</View>
+						<ClubsIconSVG size={24} />
 					),
 				}}
 			/>
@@ -137,11 +134,14 @@ export default AuthenticatedNavigator = () => {
 				}}
 			/>
 			<BottomTab.Screen
-				name="Clubs"
-				component={ClubsTabNavigator}
+				name="Global"
+				component={FeedTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<ClubsIconSVG size={24} />
+						<View>
+							<Icon type='ionicon' name='earth' size={24} color='white' />
+							{hasUnseenGlobalReelays && <UnreadIconIndicator /> }
+						</View>
 					),
 				}}
 			/>

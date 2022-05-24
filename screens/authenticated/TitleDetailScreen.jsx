@@ -27,7 +27,6 @@ const Spacer = styled(View)`
 export default TitleDetailScreen = ({ navigation, route }) => {
 	// Screen-wide dimension handling
 	const { height, width } = Dimensions.get("window");
-	const showTabBarOnReturn = route.params?.showTabBarOnReturn ?? true;
 
 	// Parse Title Object
 	const { titleObj } = route.params;

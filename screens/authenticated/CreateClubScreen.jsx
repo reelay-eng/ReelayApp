@@ -9,6 +9,7 @@ import {
     TouchableWithoutFeedback, 
     View,
 } from 'react-native';
+import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 import { AuthContext } from '../../context/AuthContext';
@@ -59,6 +60,26 @@ const HeaderText = styled(ReelayText.H5Emphasized)`
     margin-left: 20px;
     margin-top: 4px;
 `
+const PrivacyIconContainer = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    position: absolute;
+    right: 20px;
+`
+const PrivacyText = styled(ReelayText.Subtitle2)`
+    color: white;
+    font-size: 16px;
+    margin-right: 4px;
+`
+const SectionContainer = styled(View)`
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 16px;
+`
+const SectionContainerBottom = styled(SectionContainer)`
+    align-items: center;
+    bottom: 20px;
+`
 const TitleInputField = styled(TextInput)`
     border-color: white;
     border-radius: 4px;
@@ -71,21 +92,12 @@ const TitleInputField = styled(TextInput)`
     margin-top: 6px;
     padding: 12px;
 `
-const DescriptionInputField = styled(TitleInputField)`
-    height: 90px;
-`
-const SectionContainer = styled(View)`
-    margin-left: 20px;
-    margin-right: 20px;
-    margin-top: 16px;
-`
-const SectionContainerBottom = styled(SectionContainer)`
-    align-items: center;
-    bottom: 20px;
-`
 const TitleText = styled(ReelayText.Subtitle2)`
     color: ${(props) => props.disabled ? 'black' : 'white'};
     font-size: 16px;
+`
+const DescriptionInputField = styled(TitleInputField)`
+    height: 90px;
 `
 const TITLE_MIN_LENGTH = 6;
 const TITLE_MAX_LENGTH = 25;
@@ -167,6 +179,10 @@ export default function CreateClubScreen({ navigation, route }) {
             <HeaderContainer>
                 <BackButton navigation={navigation} />
                 <HeaderText>{'Create a club'}</HeaderText>
+                <PrivacyIconContainer>
+                    <PrivacyText>{'Private'}</PrivacyText>
+                    <Icon type='ionicon' name='lock-closed' color='white' size={20} />
+                </PrivacyIconContainer>
             </HeaderContainer>
         );
     }

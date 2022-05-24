@@ -314,9 +314,13 @@ export default ClubTitleCard = ({
     }
 
     const TitleLine = () => {
+        const advanceToTitleScreen = () => {
+            navigation.push('TitleDetailScreen', { titleObj: clubTitle?.title });
+        }
+        
         return (
             <TitleLineContainer>
-                <TitlePoster title={title} width={56} />
+                <TitlePoster onPress={advanceToTitleScreen} title={title} width={56} />
                 <TitleDetailLine>
                     <TitleText numberOfLines={2}>{title.display}</TitleText>
                     <DescriptionText>{`${releaseYear}    ${runtimeString}`}</DescriptionText>

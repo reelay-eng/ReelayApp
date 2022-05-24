@@ -59,10 +59,6 @@ const TitleDrawerContents = ({ clubTitle, onRefresh, setDrawerVisible }) => {
             margin-left: 12px;
             margin-right: 20px;
             margin-bottom: 5px;
-            border-bottom-color: #2D2D2D;
-            border-bottom-width: 1px;
-            padding-top: 8px;
-            padding-bottom: 8px;
         `
         const CloseButtonContainer = styled(Pressable)`
             align-self: flex-end;
