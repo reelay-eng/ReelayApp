@@ -2,7 +2,7 @@ import React, { useState, memo } from 'react';
 import { ActivityIndicator, Image, Pressable } from 'react-native';
 import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
 import styled from 'styled-components/native';
-import { getProfilePicURI } from '../../api/ReelayLocalImageCache';
+import { cacheDefaultProfilePic, getProfilePicURI } from '../../api/ReelayLocalImageCache';
 
 const ProfileImage = styled(Image)`
     border-color: white;
@@ -22,6 +22,7 @@ export default ProfilePicture = memo(({ border = null, user, navigation, size = 
         } else if (loadState === 'remote') {
             return { uri: getProfilePicURI(userSub, false) };
         } else {
+            cacheDefaultProfilePic(userSub);
             return ReelayIcon;
         }
     }

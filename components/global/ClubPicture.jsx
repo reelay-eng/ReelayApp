@@ -2,7 +2,7 @@ import React, { useState, memo } from 'react';
 import { ActivityIndicator, Image, Pressable, View } from 'react-native';
 import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
 import styled from 'styled-components/native';
-import { getClubPicURI } from '../../api/ReelayLocalImageCache';
+import { cacheDefaultClubPic, getClubPicURI } from '../../api/ReelayLocalImageCache';
 
 const ProfileImage = styled(Image)`
     border-color: white;
@@ -12,7 +12,7 @@ const ProfileImage = styled(Image)`
     width: ${(props) => props.size}px;
 `
 
-export default ClubPicture = ({ border = null, club, navigation, size = 16 }) => {
+export default ClubPicture = ({ border = null, club, size = 16 }) => {
     const [loadState, setLoadState] = useState('local');
 
     const getClubPicSource = () => {
@@ -21,6 +21,7 @@ export default ClubPicture = ({ border = null, club, navigation, size = 16 }) =>
         } else if (loadState === 'remote') {
             return { uri: getClubPicURI(club.id, false) };
         } else {
+            cacheDefaultClubPic(club.id);
             return ReelayIcon;
         }
     }
