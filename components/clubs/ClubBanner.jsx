@@ -111,7 +111,9 @@ const InfoButtonContainer = styled(TouchableOpacity)`
 `
 export default ClubBanner = ({ club, navigation, showBubbleBath = true, topicTitle = null }) => {
     const topOffset = useSafeAreaInsets().top;
-    const backButtonTopOffset = topOffset - 10;
+    const backButtonTopOffset = (showBubbleBath) 
+        ? topOffset + 20 
+        : topOffset - 10;
     const infoButtonTopOffset = topOffset;
 
     const bubbleBathLeftMembers = club.members.filter((clubMember, index) => {

@@ -106,8 +106,12 @@ export default PostDestinationDrawer = ({ publishReelay, drawerVisible, setDrawe
     const closeDrawer = () => setDrawerVisible(false);
 
     const PostButton = () => {
+        const onPress = () => {
+            publishReelay(selectedClubID);
+            closeDrawer();
+        }
         return (
-            <PostButtonContainer onPress={() => publishReelay(selectedClubID)}>
+            <PostButtonContainer onPress={onPress}>
                 <OptionText>{'Post'}</OptionText>
             </PostButtonContainer>
         );

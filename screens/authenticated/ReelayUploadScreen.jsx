@@ -126,60 +126,72 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     // createUploadRequest can either be called from this screen or the
     // select destination drawer, so we need a variable clubID
     const createUploadRequest = async (clubID) => {
-        // Adding the file extension directly to the key seems to trigger S3 getting the right content type,
-        // not setting contentType as a parameter in the Storage.put call.
-        const videoS3Key = `reelayvid-${reelayDBUser?.sub}-${uploadTimestamp}.mp4`;
-        const posterSource = titleObj?.posterSource;
-        const starRating = starCountRef.current * 2;
-        const uploadTimestamp = Date.now();
+        try {
+            // Adding the file extension directly to the key seems to trigger S3 getting the right content type,
+            // not setting contentType as a parameter in the Storage.put call.
+            const videoS3Key = `reelayvid-${reelayDBUser?.sub}-${uploadTimestamp}.mp4`;
+            const posterSource = titleObj?.posterSource;
+            const starRating = starCountRef.current * 2;
+            const uploadTimestamp = Date.now();
+    
+            const matchClubID = (nextClub) => (nextClub.id === clubID);
+            const reelayClub = (clubID) ? myClubs.find(matchClubID) : null;
+            const reelayClubTitle = await getOrCreateClubTitle(clubID);
 
-        const matchClubID = (nextClub) => (nextClub.id === clubID);
-        const reelayClub = (clubID) ? myClubs.find(matchClubID) : null;
-        const reelayClubTitle = await getOrCreateClubTitle(clubID);
+            if (clubID && (!reelayClubTitle || reelayClubTitle?.error)) {
+                showErrorToast('Ruh roh! Couldn\'t post your reelay. Try again?');
+                return { error: 'Could not create club title' };
+            }
 
-        // the destination drawer cannot post directly into a topic, so
-        // if topicID is populated, this clubID must have been passed as a param
-        const reelayTopic = (topicID && clubID) 
-            ? reelayClub?.topics?.find(nextTopic => nextTopic.id === topicID)
-        : (topicID) 
-            ? globalTopics.find(nextTopic => nextTopic.id === topicID) 
-        : null;
-
-        const destination = (clubID) ? 'InClub' 
-            : (topicID) ? 'InTopic' 
-            : (myClubs.length === 0) ? 'OnProfile'
-            : 'TBD';
-        
-        const reelayDBBody = {
-            clubID: clubID ?? null,
-            creatorSub: reelayDBUser?.sub,
-            creatorName: reelayDBUser.username,
-            datastoreSub: uuidv4(), 
-            description: descriptionRef.current,
-            isMovie: titleObj.isMovie,
-            isSeries: titleObj.isSeries,
-            postedAt: uploadTimestamp,
-            starRating: Math.floor(starRating/2),
-            starRatingAddHalf: (starRating%2===1) ? true : false,
-            tmdbTitleID: titleObj.id,
-            topicID: topicID ?? null,
-            venue: venue,
-            videoS3Key: videoS3Key,
-            visibility: UPLOAD_VISIBILITY,
+            console.log('reelay club: ', reelayClub);
+    
+            // the destination drawer cannot post directly into a topic, so
+            // if topicID is populated, this clubID must have been passed as a param
+            const reelayTopic = (topicID && clubID) 
+                ? reelayClub?.topics?.find(nextTopic => nextTopic.id === topicID)
+            : (topicID) 
+                ? globalTopics.find(nextTopic => nextTopic.id === topicID) 
+            : null;
+    
+            const destination = (clubID) ? 'InClub' 
+                : (topicID) ? 'InTopic' 
+                : (myClubs.length === 0) ? 'OnProfile'
+                : 'TBD';
+            
+            const reelayDBBody = {
+                clubID: clubID ?? null,
+                creatorSub: reelayDBUser?.sub,
+                creatorName: reelayDBUser.username,
+                datastoreSub: uuidv4(), 
+                description: descriptionRef.current,
+                isMovie: titleObj.isMovie,
+                isSeries: titleObj.isSeries,
+                postedAt: uploadTimestamp,
+                starRating: Math.floor(starRating/2),
+                starRatingAddHalf: (starRating%2===1) ? true : false,
+                tmdbTitleID: titleObj.id,
+                topicID: topicID ?? null,
+                venue: venue,
+                videoS3Key: videoS3Key,
+                visibility: UPLOAD_VISIBILITY,
+            }
+    
+            const uploadRequest = {
+                destination,
+                posterSource,
+                reelayDBBody,
+                reelayClub,
+                reelayClubTitle, 
+                reelayTopic,
+                videoURI, 
+                videoS3Key,             
+            };
+    
+            return uploadRequest;    
+        } catch (error) {
+            console.log(error);
+            return { error };
         }
-
-        const uploadRequest = {
-            destination,
-            posterSource,
-            reelayDBBody,
-            reelayClub,
-            reelayClubTitle, 
-            reelayTopic,
-            videoURI, 
-            videoS3Key,             
-        };
-
-        return uploadRequest;
     }
 
     const getOrCreateClubTitle = async (clubID) => {
@@ -208,7 +220,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 tmdbTitleID: titleObj?.id,
                 titleType: titleObj?.titleType,
             });
-            console.log('added new club title: ', newClubTitle);
             return newClubTitle;    
         } catch (error) {
             console.log(error);
@@ -218,16 +229,20 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
     const publishReelay = async (clubID) => {
         try {
-            // setPreviewIsMuted(true);
-            // dispatch({ type: 'setUploadStage', payload: 'check-club-title' });
+            setPreviewIsMuted(true);
+            dispatch({ type: 'setUploadStage', payload: 'check-club-title' });
             const uploadRequest = await createUploadRequest(clubID);
-
-            console.log('upload request: ', uploadRequest);
-
-            // dispatch({ type: 'setUploadRequest', payload: uploadRequest });
-            // dispatch({ type: 'setUploadStage', payload: 'upload-ready' });
+            if (!uploadRequest || uploadRequest?.error) {
+                dispatch({ type: 'setUploadStage', payload: 'none' });
+                return;
+            }
+            
+            dispatch({ type: 'setUploadRequest', payload: uploadRequest });
+            dispatch({ type: 'setUploadStage', payload: 'upload-ready' });
         } catch (error) {
             console.log('Error uploading file: ', error);
+            showErrorToast('Ruh roh! Couldn\'t post your reelay. Try again?');
+            dispatch({ type: 'setUploadStage', payload: 'none' });
         }
     }
 
@@ -312,10 +327,10 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         // so we don't want to navigate away until we're done with that part
         if (uploadStage === 'uploading') {
             navigation.popToTop();
-            const { clubID, reelayClub, topicID, reelayTopic } = uploadRequest;
-            if (clubID && reelayClub) {
-                navigation.push('ClubActivityScreen', { club: reelayClub });
-            } else if (topicID && reelayTopic) {
+            const { reelayClub, reelayTopic } = uploadRequest;
+            if (reelayClub) {
+                navigation.navigate('ClubActivityScreen', { club: reelayClub });
+            } else if (reelayTopic) {
                 navigation.navigate('SingleTopicScreen', {
                     initReelayIndex: 0,
                     topic: reelayTopic,
