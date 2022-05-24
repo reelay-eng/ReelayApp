@@ -2,7 +2,7 @@ import React, { useState, memo } from 'react';
 import { ActivityIndicator, Image, Pressable } from 'react-native';
 import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
 import styled from 'styled-components/native';
-import { cacheDefaultProfilePic, getProfilePicURI } from '../../api/ReelayLocalImageCache';
+import { cacheProfilePic, checkRefreshProfilePic, getProfilePicURI } from '../../api/ReelayLocalImageCache';
 
 const ProfileImage = styled(Image)`
     border-color: white;
@@ -22,8 +22,19 @@ export default ProfilePicture = memo(({ border = null, user, navigation, size = 
         } else if (loadState === 'remote') {
             return { uri: getProfilePicURI(userSub, false) };
         } else {
-            cacheDefaultProfilePic(userSub);
             return ReelayIcon;
+        }
+    }
+
+    const onLoad = () => {
+        // if we can only load the default club pic, cache that one
+        // else, cache the one in cloudfront
+        if (loadState === 'local') {
+            checkRefreshProfilePic(user?.sub);
+        } else if (loadState === 'remote') {
+            cacheProfilePic(user?.sub, false);
+        } else if (loadState === 'default') {
+            cacheProfilePic(user?.sub, true);
         }
     }
 
@@ -50,6 +61,7 @@ export default ProfilePicture = memo(({ border = null, user, navigation, size = 
                 source={getProfilePicSource()}
                 style={(loadState === 'default') ? { display: 'none' } : {}}
                 PlaceholderContent={<ActivityIndicator />}
+                onLoad={onLoad}
                 onError={onLoadError}
             />
         </Pressable>

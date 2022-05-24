@@ -17,7 +17,7 @@ const profilePicLocalURI = (userSub) => imgDir + `/profilepic-${userSub}.jpg`;
 const titlePosterRemoteURI = (posterPath, size = 185) => `${TMDB_IMAGE_API_BASE_URL}${size}${posterPath}`;
 const titlePosterLocalURI = (posterPath) => imgDir + posterPath;
 
-const cacheClubPic = async (clubID, useDefaultPic = false) => {
+export const cacheClubPic = async (clubID, useDefaultPic = false) => {
     const localURI = clubPicLocalURI(clubID);
     const remoteURI = clubPicRemoteURI(clubID);
 
@@ -30,7 +30,7 @@ const cacheClubPic = async (clubID, useDefaultPic = false) => {
     console.log('finished caching club pic for ', clubID);
 }
 
-const cacheProfilePic = async (userSub, useDefaultPic = false) => {
+export const cacheProfilePic = async (userSub, useDefaultPic = false) => {
     const localURI = profilePicLocalURI(userSub);
     const remoteURI = profilePicRemoteURI(userSub);
 
@@ -48,9 +48,6 @@ const cacheTitlePoster = async (posterPath) => {
     const remoteURI = titlePosterRemoteURI(posterPath);
     await FileSystem.downloadAsync(remoteURI, localURI);
 }
-
-export const cacheDefaultClubPic = (clubID) => cacheClubPic(clubID, true);
-export const cacheDefaultProfilePic = (userSub) => cacheProfilePic(userSub, true);
 
 // Deletes whole giphy directory with all its content
 export const clearAllCachedImages = async () => {
@@ -72,20 +69,16 @@ export const ensureLocalImageDirExists = async () => {
 
 export const getClubPicURI = (clubID, local = true) => {
     if (local) {
-        checkRefreshClubPic(clubID);
         return clubPicLocalURI(clubID);
     } else {
-        cacheClubPic(clubID);
         return clubPicRemoteURI(clubID);    
     }
 }
 
 export const getProfilePicURI = (userSub, local = true) => {
     if (local) {
-        checkRefreshProfilePic(userSub);
         return profilePicLocalURI(userSub);
     } else {
-        cacheProfilePic(userSub);
         return profilePicRemoteURI(userSub);    
     }
 }

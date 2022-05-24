@@ -114,7 +114,9 @@ export default ClubBanner = ({ club, navigation, showBubbleBath = true, topicTit
     const backButtonTopOffset = (showBubbleBath) 
         ? topOffset + 20 
         : topOffset - 10;
-    const infoButtonTopOffset = topOffset;
+    const infoButtonTopOffset = (showBubbleBath) 
+        ? topOffset + 28 
+        : topOffset - 2;
 
     const bubbleBathLeftMembers = club.members.filter((clubMember, index) => {
         if (index >= 10) return false;

@@ -60,8 +60,7 @@ const ClubPrivacyText = styled(ReelayText.Body2)`
     padding-top: 4px;
 `
 const EditButton = styled(TouchableOpacity)`
-    padding: 12px;
-    padding-right: 8px;
+    padding: 4px;
 `
 const EditButtonText = styled(ReelayText.Body2)`
     color: ${ReelayColors.reelayBlue};

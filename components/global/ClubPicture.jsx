@@ -2,7 +2,7 @@ import React, { useState, memo } from 'react';
 import { ActivityIndicator, Image, Pressable, View } from 'react-native';
 import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
 import styled from 'styled-components/native';
-import { cacheDefaultClubPic, getClubPicURI } from '../../api/ReelayLocalImageCache';
+import { cacheClubPic, checkRefreshClubPic, getClubPicURI } from '../../api/ReelayLocalImageCache';
 
 const ProfileImage = styled(Image)`
     border-color: white;
@@ -21,8 +21,19 @@ export default ClubPicture = ({ border = null, club, size = 16 }) => {
         } else if (loadState === 'remote') {
             return { uri: getClubPicURI(club.id, false) };
         } else {
-            cacheDefaultClubPic(club.id);
             return ReelayIcon;
+        }
+    }
+
+    const onLoad = () => {
+        // if we can only load the default club pic, cache that one
+        // else, cache the one in cloudfront
+        if (loadState === 'local') {
+            checkRefreshClubPic(club.id);
+        } else if (loadState === 'remote') {
+            cacheClubPic(club.id, false);
+        } else if (loadState === 'default') {
+            cacheClubPic(club.id, true);
         }
     }
 
@@ -45,6 +56,7 @@ export default ClubPicture = ({ border = null, club, size = 16 }) => {
                 source={getClubPicSource()}
                 style={(loadState === 'default') ? { display: 'none' } : {}}
                 PlaceholderContent={<ActivityIndicator />}
+                onLoad={onLoad}
                 onError={onLoadError}
             />
         </View>
