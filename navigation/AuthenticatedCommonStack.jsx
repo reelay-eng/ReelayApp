@@ -11,7 +11,6 @@ import ReelayUploadScreen from '../screens/authenticated/ReelayUploadScreen';
 import ReportedReelaysFeedScreen from '../screens/authenticated/ReportedReelaysFeedScreen';
 import ReportedTopicsFeedScreen from '../screens/authenticated/ReportedTopicsFeedScreen';
 import SearchScreen from '../screens/authenticated/SearchScreen';
-import SelectDestinationScreen from '../screens/authenticated/SelectDestinationScreen';
 import SelectTitleScreen from '../screens/authenticated/SelectTitleScreen';
 import SingleReelayScreen from '../screens/authenticated/SingleReelayScreen';
 import SingleTopicScreen from '../screens/authenticated/SingleTopicScreen';
@@ -49,7 +48,6 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
             <CommonStack.Screen name='UserProfileScreen' component={UserProfileScreen} options={commonOptions} />
             <CommonStack.Screen name='UserFollowScreen' component={UserFollowScreen} options={commonOptions} />
             <CommonStack.Screen name='SelectTitleScreen' component={SelectTitleScreen} options={commonOptions} />
-            <CommonStack.Screen name='SelectDestinationScreen' component={SelectDestinationScreen} options={commonOptions} />
             <CommonStack.Screen name='VenueSelectScreen' component={VenueSelectScreen} options={commonOptions} />
             <CommonStack.Screen name='ReelayCameraScreen' component={ReelayCameraScreen} options={commonOptions} />
             <CommonStack.Screen name='ReelayUploadScreen' component={ReelayUploadScreen} options={commonOptions} />

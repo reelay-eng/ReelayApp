@@ -62,11 +62,6 @@ export default VenueSelectScreen = ({ navigation, route }) => {
 
         if (hasCameraPermissions && hasMicPermissions) {
             navigation.push('ReelayCameraScreen', { titleObj, venue, topicID, clubID });    
-            // if (clubID || topicID || myClubs?.length === 0) {
-            //     navigation.push('ReelayCameraScreen', { titleObj, venue, topicID, clubID });    
-            // } else {
-            //     navigation.push('SelectDestinationScreen', { titleObj, venue, topicID, clubID });
-            // }
             logAmplitudeEventProd('selectVenue', { venue });
         } else {
             alertCameraAccess();
