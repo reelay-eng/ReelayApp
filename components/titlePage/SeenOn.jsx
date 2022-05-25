@@ -68,11 +68,11 @@ export default SeenOn = ({ titleType, tmdbTitleID}) => {
     }, [])
 
     const VenueBadge = ({ venue, isOnMyStreaming = false }) => {
-        const source = venue.length ? streamingVenues.find((vi) => vi.venue === venue)?.source : null;
-        const deeplinkURL = venue.length ? streamingVenues.find((vi) => vi.venue === venue)?.deeplink : null;
+        const source = venue.length ? streamingVenues.find((venueObj) => venueObj.venue === venue)?.source : null;
+        const deeplinkURL = venue.length ? streamingVenues.find((venueObj) => venueObj.venue === venue)?.deeplink : null;
 
-        const GRADIENT_START_COLOR = isOnMyStreaming ? "#2977EF": "#272525"
-        const GRADIENT_END_COLOR = isOnMyStreaming ? "#FF4848" : "#19242E"
+        const GRADIENT_START_COLOR = "#272525"
+        const GRADIENT_END_COLOR = "#19242E"
 
 		const TouchableVenue = styled(TouchableOpacity)`
 			width: 100px;

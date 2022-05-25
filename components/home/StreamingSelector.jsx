@@ -10,6 +10,7 @@ import { BWButton } from '../global/Buttons';
 
 import { getFeed, postStreamingSubscriptionToDB, removeStreamingSubscription } from '../../api/ReelayDBApi';
 import { useDispatch, useSelector } from 'react-redux';
+import ReelayColors from '../../constants/ReelayColors';
 
 const StreamingServicesContainer = styled.View`
     width: 100%;
@@ -155,7 +156,7 @@ const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
 
     const PressableVenue = styled(Pressable)`
         align-items: center;
-        background-color: transparent;
+        background-color: ${props => props.selected ? ReelayColors.reelayBlue : "transparent"};
         border-radius: 11px;
         height: 93px;
         justify-content: center;
@@ -181,9 +182,9 @@ const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
         return prevProps.source === nextProps.source;
     });
 
-    const VenueGradient = ({ selected }) => {
-        const GRADIENT_START_COLOR = selected ? "#2977EF": "#272525"
-        const GRADIENT_END_COLOR = selected ? "#FF4848" : "#19242E"
+    const VenueGradient = () => {
+        const GRADIENT_START_COLOR = "#272525"
+        const GRADIENT_END_COLOR = "#19242E"
         return (
             <LinearGradient
                 colors={[GRADIENT_START_COLOR, GRADIENT_END_COLOR]}
@@ -201,7 +202,7 @@ const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
 
     return (
         <PressableVenue onPress={onPress} selected={selected}>
-            <VenueGradient selected={selected}/>
+            { !selected && <VenueGradient /> }
             <VenueImage source={iconSource} />
         </PressableVenue>
     );
