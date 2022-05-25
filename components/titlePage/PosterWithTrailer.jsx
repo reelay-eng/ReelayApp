@@ -214,12 +214,6 @@ export default PosterWithTrailer = ({
 	return (
 		<PosterContainer>
 			<PosterWithOverlay />
-			{/* <BackButtonContainer onPress={() => navigation.goBack()}>
-				<Icon type="ionicon" name={"arrow-back-outline"} color={"white"} size={25} />
-			</BackButtonContainer> */}
-			{/* <ShareButtonsContainer>
-				<AddToClubsButton titleObj={titleObj} />
-			</ShareButtonsContainer> */}
 			<PosterInfoContainer>
 				<InfoBarContainer>
 					<PosterTitleContainer>

@@ -41,6 +41,8 @@ export const uploadReelay = async ({
             username: creatorName,
             userSub: creatorSub,
             destination,
+            inTopic: !!reelayDBBody?.topicID,
+            inClub: !!reelayDBBody?.clubID,
         });
 
         setUploadStage('preparing-upload');

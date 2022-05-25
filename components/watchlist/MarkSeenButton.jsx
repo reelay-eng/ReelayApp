@@ -25,15 +25,6 @@ const MarkSeenText = styled(ReelayText.CaptionEmphasized)`
 export default MarkSeenButton = ({ markedSeen, setMarkedSeen, titleObj }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
-    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-
-    const inWatchlist = !!myWatchlistItems.find((nextItem) => {
-        const { tmdbTitleID, titleType, hasAcceptedRec, hasSeenTitle } = nextItem;
-        return (tmdbTitleID === titleObj.id) 
-            && (titleType === titleObj.titleType)
-            && (hasAcceptedRec)
-            && (hasSeenTitle);
-    });    
 
     const updateWatchlistReqBody = { 
         reqUserSub: reelayDBUser?.sub, 

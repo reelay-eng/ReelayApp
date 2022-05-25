@@ -143,6 +143,14 @@ export default ClubAddTitleScreen = ({ navigation, route }) => {
                 dispatch({ type: 'setUpdatedClub', payload: club });            
                 showMessageToast(`Added to ${club.name}`);
                 setUploading(false);
+
+                logAmplitudeEventProd('addedNewTitleToClub', {
+                    addedBy: reelayDBUser?.username,
+                    clubID: club.id,
+                    clubName: club.name,
+                    title: selectedTitle?.display, 
+                });
+
                 navigation.pop();
             } catch (error) {
                 console.log(error);
@@ -214,14 +222,10 @@ export default ClubAddTitleScreen = ({ navigation, route }) => {
             if (selected) {
                 setSelected(false);
                 Keyboard.dismiss();
-                // selectedTitle.current = null;
-                // setReadyToAdd(false);
                 setSelectedTitle(null);
             } else {
                 setSelected(true);
                 Keyboard.dismiss();
-                // selectedTitle.current = titleObj;
-                // setReadyToAdd(true);
                 setSelectedTitle(titleObj);
             }
         }

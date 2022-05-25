@@ -174,6 +174,8 @@ export default function CreateTopicScreen({ navigation, route }) {
                     title: titleTextRef.current,
                     description: descriptionTextRef.current,
                     creatorName: reelayDBUser?.username,
+                    inClub: !!club,
+                    club: club?.name ?? null,
                 });
             }
             return publishResult;

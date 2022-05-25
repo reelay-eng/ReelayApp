@@ -22,6 +22,7 @@ import AddTitleOrTopicDrawer from '../../components/clubs/AddTitleOrTopicDrawer'
 import UploadProgressBar from '../../components/global/UploadProgressBar';
 import TopicCard from '../../components/topics/TopicCard';
 import ClubAddedMemberCard from './ClubAddedMemberCard';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 const { height, width } = Dimensions.get('window');
 
@@ -139,6 +140,12 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         if (!club.members?.length || !club.titles?.length) {
             onRefresh();
         }
+        logAmplitudeEventProd('openedClubActivityScreen', {
+            username: reelayDBUser?.username,
+            userSub: reelayDBUser?.sub,
+            clubID: club?.id,
+            club: club?.name,
+        });
     }, []);
 
     useFocusEffect(() => {

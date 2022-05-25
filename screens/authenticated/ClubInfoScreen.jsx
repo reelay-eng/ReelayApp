@@ -31,6 +31,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import BigBubbleBath from '../../components/clubs/BigBubbleBath';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 const INVITE_BASE_URL = Constants.manifest.extra.reelayWebInviteUrl;
 
@@ -298,6 +299,16 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                         userSub,
                         reqUserSub: reelayDBUser?.sub,
                     });
+
+                    logAmplitudeEventProd('bannedMemberFromClub', {
+                        bannedByUsername: reelayDBUser?.username,
+                        bannedByUserSub: reelayDBUser?.sub,
+                        bannedUsername: username,
+                        bannedUserSub: userSub,
+                        clubID: club?.id,
+                        club: club?.name,
+                    });
+
                     console.log(removeResult);
                     onRefresh();
                     showMessageToast(`You've banned ${username} from ${club.name}`);
@@ -329,6 +340,16 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                         userSub,
                         reqUserSub: reelayDBUser?.sub,
                     });
+
+                    logAmplitudeEventProd('removedMemberFromClub', {
+                        removedByUsername: reelayDBUser?.username,
+                        removedByUserSub: reelayDBUser?.sub,
+                        removedUsername: username,
+                        removedUserSub: userSub,
+                        club: club?.name,
+                        clubID: club?.id,
+                    });
+
                     console.log(removeResult);
                     onRefresh();
                     showMessageToast(`You've removed ${username} from ${club.name}`);
@@ -446,6 +467,14 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                         showMessageToast('Invite link copied to clipboard!');
                     }
 
+                    logAmplitudeEventProd('copyClubInviteLink', {
+                        username: reelayDBUser?.username,
+                        userSub: reelayDBUser?.sub,
+                        clubID: club?.id,
+                        club: club?.name,
+                        inviteCode: clubLinkObj?.inviteCode,
+                    });
+
                 } catch (error) {
                     console.log(error);
                     showErrorToast('Ruh roh! Couldn\'t copy the club link. Try again?');
@@ -517,6 +546,14 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     userSub: reelayDBUser?.sub,
                     reqUserSub: reelayDBUser?.sub,
                 });
+
+                logAmplitudeEventProd('leftClub', {
+                    username: reelayDBUser?.username,
+                    userSub: reelayDBUser?.sub,
+                    clubID: club?.id,
+                    club: club?.name,
+                });
+
                 console.log(removeResult);
                 navigation.popToTop();
                 const myClubsRemoved = myClubs.filter(nextClub => nextClub.id !== club.id);

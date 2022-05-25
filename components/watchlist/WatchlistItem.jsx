@@ -33,7 +33,8 @@ const ImageContainer = styled(View)`
     flex-direction: row;
     align-items: flex-start;
     margin: 5px;
-    margin-right: 15px;
+    margin-left: 8px;
+    margin-right: 12px;
 `
 const MarkSeenButtonContainer = styled(TouchableOpacity)`
     align-items: center;

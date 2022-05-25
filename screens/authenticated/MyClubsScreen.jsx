@@ -2,7 +2,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Dimensions, Image, RefreshControl, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { BaseHeader } from '../../components/global/Headers'
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { AuthContext } from '../../context/AuthContext';
 
@@ -43,15 +42,15 @@ const ClubTitleText = styled(ReelayText.Body2)`
     margin-top: 4px;
     width: ${CLUB_BUTTON_SIZE}px;
 `
-const CreateClubGradient = styled(LinearGradient)`
-    align-items: center;
-    border-radius: ${CLUB_BUTTON_SIZE/2}px;
-    height: ${CLUB_BUTTON_SIZE}px;
-    justify-content: center;
-    padding-left: 2px;
-    padding-top: 2px;
-    width: ${CLUB_BUTTON_SIZE}px;
-`
+// const CreateClubGradient = styled(LinearGradient)`
+//     align-items: center;
+//     border-radius: ${CLUB_BUTTON_SIZE/2}px;
+//     height: ${CLUB_BUTTON_SIZE}px;
+//     justify-content: center;
+//     padding-left: 2px;
+//     padding-top: 2px;
+//     width: ${CLUB_BUTTON_SIZE}px;
+// `
 const HeaderText = styled(ReelayText.H5Emphasized)`
     color: white;
     margin-top: 4px;
@@ -68,7 +67,7 @@ const NewClubButtonPressable = styled(TouchableOpacity)`
     border-color: white;
     border-radius: 10px;
     border-width: 1.4px;
-    height: 32px;
+    height: 30px;
     justify-content: center;
     width: 40px;
 `
@@ -88,7 +87,6 @@ export default MyClubsScreen = ({ navigation, route }) => {
 
     const ClubButton = ({ club }) => {
         const advanceToClubScreen = () => navigation.push('ClubActivityScreen', { club, promptToInvite: false });
-        const advanceToJoinScreen = () => navigation.push('ClubAcceptInviteScreen', { inviteCode: 'htsbq' });
         return (
             <ClubButtonPressable onPress={advanceToClubScreen}>
                 <ClubPicture club={club} size={CLUB_BUTTON_SIZE} />
@@ -155,7 +153,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
     }
 
     useEffect(() => {
-        logAmplitudeEventProd('openMyClubs', {
+        logAmplitudeEventProd('openedMyClubs', {
             username: reelayDBUser?.username,
             userSub: reelayDBUser?.sub,
         });
@@ -176,7 +174,6 @@ export default MyClubsScreen = ({ navigation, route }) => {
                 <NewClubButton />
             </TopBarContainer>
             <ClubButtonGrid>
-                {/* <CreateClubButton /> */}
                 <MyWatchlistButton />
                 { myClubs.map(club => <ClubButton key={club.id} club={club} />) }
             </ClubButtonGrid>

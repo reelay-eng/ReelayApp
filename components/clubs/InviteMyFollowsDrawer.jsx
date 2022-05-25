@@ -107,6 +107,15 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
                     username: followObj.followName,
                 },
             });
+
+            logAmplitudeEventProd('addedMemberToClub', {
+                invitedByUsername: reelayDBUser?.username,
+                invitedByUserSub: reelayDBUser?.sub,
+                newMemberUsername: followObj?.followName,
+                newMemberUserSub: followObj?.followSub,
+                club: club?.name,
+                clubID: club?.id,
+            });
             
             return addMemberResult;
         }

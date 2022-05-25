@@ -134,6 +134,11 @@ export default function CreateClubScreen({ navigation, route }) {
             if (publishing) return;
             const club = await publishClub();
             if (club) {
+                logAmplitudeEventProd('clubCreated', {
+                    creatorName: reelayDBUser?.username,
+                    clubName: titleTextRef.current,
+                    pictureAdded: !!clubPicSourceRef.current,
+                });
                 console.log('new club obj: ', club);
                 // advance to invite screen
                 navigation.push('ClubActivityScreen', { club, promptToInvite: true });

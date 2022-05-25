@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Dimensions, Pressable, TouchableOpacity, View } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { Dimensions, TouchableOpacity, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
 
@@ -7,14 +7,11 @@ import ProfilePicture from '../global/ProfilePicture';
 import { Icon } from 'react-native-elements';
 import { LinearGradient } from "expo-linear-gradient";
 import { useDispatch, useSelector } from 'react-redux';
-import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import TitlePoster from '../global/TitlePoster';
 import { getRuntimeString } from '../utils/TitleRuntime';
 import ClubTitleDotMenuDrawer from './ClubTitleDotMenuDrawer';
-import ReelayColors from '../../constants/ReelayColors';
-import { getWatchlistItems, markWatchlistItemSeen, markWatchlistItemUnseen } from '../../api/WatchlistApi';
-import { showMessageToast } from '../utils/toasts';
+import MarkSeenButton from '../watchlist/MarkSeenButton';
 
 const { height, width } = Dimensions.get('window');
 
@@ -79,15 +76,6 @@ const DescriptionText = styled(ReelayText.CaptionEmphasized)`
 `
 const DotMenuButtonContainer = styled(TouchableOpacity)`
     padding-right: 4px;
-`
-const MarkSeenButtonContainer = styled(TouchableOpacity)`
-    align-items: center;
-    flex-direction: row;
-    padding-left: 4px;
-`
-const MarkSeenText = styled(ReelayText.CaptionEmphasized)`
-    color: #86878B;
-    padding-right: 6px;
 `
 const PlayReelaysButton = styled(TouchableOpacity)`
     align-items: center;
@@ -204,7 +192,6 @@ export default ClubTitleCard = ({
     navigation, 
     onRefresh,
 }) => {
-    const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const { addedByUserSub, addedByUsername, title } = clubTitle;
@@ -218,6 +205,16 @@ export default ClubTitleCard = ({
         ? title.releaseDate.slice(0,4) : '';
     const runtimeString = getRuntimeString(title?.runtime);
 
+    const inWatchlist = myWatchlistItems.find((nextItem) => {
+        const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;
+        const isSeries = (titleType === 'tv');
+        return (tmdbTitleID === title.id) 
+            && (isSeries === title.isSeries)
+            && (hasAcceptedRec === true);
+    });
+
+    const [markedSeen, setMarkedSeen] = useState(inWatchlist && inWatchlist?.hasSeenTitle);
+
     const CardTopLine = () => {
         return (
             <CardTopLineContainer>
@@ -226,7 +223,7 @@ export default ClubTitleCard = ({
                     <AddedByUsername>{`Added by ${addedByUsername}`}</AddedByUsername>
                 </CardTopLineContainerLeft>
                 <CardTopLineContainerRight>
-                    <MarkSeenButton />
+                    <MarkSeenButton markedSeen={markedSeen} setMarkedSeen={setMarkedSeen} titleObj={title} />
                     { dotMenuButtonVisible && <DotMenuButton /> }
                 </CardTopLineContainerRight>
             </CardTopLineContainer>
@@ -252,72 +249,11 @@ export default ClubTitleCard = ({
         );
     }
 
-    const MarkSeenButton = () => {
-        const inWatchlist = !!myWatchlistItems.find((nextItem) => {
-            const { tmdbTitleID, titleType, hasAcceptedRec, hasSeenTitle } = nextItem;
-            return (tmdbTitleID === clubTitle.tmdbTitleID) 
-                && (titleType === clubTitle.titleType)
-                && (hasAcceptedRec)
-                && (hasSeenTitle);
-        });    
-        const [markedSeen, setMarkedSeen] = useState(inWatchlist);
-
-        const updateWatchlistReqBody = { 
-            reqUserSub: reelayDBUser?.sub, 
-            tmdbTitleID: clubTitle.tmdbTitleID, 
-            titleType: clubTitle.titleType,
-        };
-
-        const markSeen = async () => {
-            setMarkedSeen(true);
-            const markSeenResult = await markWatchlistItemSeen(updateWatchlistReqBody);
-            console.log('mark seen result: ', markSeenResult);
-            // todo: update state in my watchlist
-            showMessageToast('Title marked as seen');
-    
-            logAmplitudeEventProd('markWatchlistItemSeen', {
-                username: reelayDBUser?.username,
-                title: clubTitle?.title?.display,
-                source: 'clubActivityScreen',
-                clubName: club?.name,
-            });
-
-            const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
-            dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })    
-        }
-
-        const markUnseen = async () => {
-            setMarkedSeen(false);
-            const markUnseenResult = await markWatchlistItemUnseen(updateWatchlistReqBody);
-            console.log('mark unseen result: ', markUnseenResult);
-            // todo: update state in my watchlist
-            showMessageToast('Title marked unseen');
-
-            logAmplitudeEventProd('markWatchlistItemUnseen', {
-                username: reelayDBUser?.username,
-                title: clubTitle?.title?.display,
-                source: 'clubActivityScreen',
-                clubName: club?.name,
-            });
-
-            const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
-            dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })    
-        }
-
-        return (
-            <MarkSeenButtonContainer onPress={(markedSeen) ? markUnseen : markSeen}>
-                <MarkSeenText>{'Seen'}</MarkSeenText>
-                { markedSeen && <Icon type='ionicon' name='checkmark-circle' color={ReelayColors.reelayBlue} size={30} />}
-                { !markedSeen && <Icon type='ionicon' name='ellipse-outline' color={'white'} size={30} />}
-            </MarkSeenButtonContainer>
-        );
-    }
-
     const TitleLine = () => {
         const advanceToTitleScreen = () => {
             navigation.push('TitleDetailScreen', { titleObj: clubTitle?.title });
         }
-        
+
         return (
             <TitleLineContainer>
                 <TitlePoster onPress={advanceToTitleScreen} title={title} width={56} />

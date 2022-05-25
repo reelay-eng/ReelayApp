@@ -169,35 +169,46 @@ export default AddToClubsDrawer = ({
                 addedByUser: reelayDBUser,
             });
 
+            logAmplitudeEventProd('addedNewTitleToClub', {
+                addedBy: reelayDBUser?.username,
+                clubID: club?.id,
+                clubName: club?.name,
+                title: titleObj?.display,
+            });
+
             club.titles = [addTitleResult, ...club.titles];
             dispatch({ type: 'setUpdatedClub', payload: club });
             return addTitleResult;
         }
 
         const addToWatchlistWrapper = async () => {
-            if (sendToWatchlist.current) {
-                setIsAddedToWatchlist(true);
-                const addToWatchlistResult = await addToMyWatchlist({
-                    authSession,
-                    reqUserSub: reelayDBUser?.sub,
-                    reelaySub: reelay?.sub,
-                    creatorName: reelay?.creator?.username,
-                    tmdbTitleID: titleObj.id,
-                    titleType: titleObj.titleType,
-                });
-                const nextWatchlistItems = [addToWatchlistResult, ...myWatchlistItems];
+            setIsAddedToWatchlist(true);
+            const addToWatchlistResult = await addToMyWatchlist({
+                authSession,
+                reqUserSub: reelayDBUser?.sub,
+                reelaySub: reelay?.sub,
+                creatorName: reelay?.creator?.username,
+                tmdbTitleID: titleObj.id,
+                titleType: titleObj.titleType,
+            });
+            const nextWatchlistItems = [addToWatchlistResult, ...myWatchlistItems];
 
-                // todo: should also be conditional based on user settings
-                if (reelay?.creator) {
-                    notifyOnAddedToWatchlist({
-                        reelayedByUserSub: reelay?.creator?.sub,
-                        addedByUserSub: reelayDBUser?.sub,
-                        addedByUsername: reelayDBUser?.username,
-                        watchlistItem: addToWatchlistResult,
-                    });    
-                }
-                dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
+            // todo: should also be conditional based on user settings
+            if (reelay?.creator) {
+                notifyOnAddedToWatchlist({
+                    reelayedByUserSub: reelay?.creator?.sub,
+                    addedByUserSub: reelayDBUser?.sub,
+                    addedByUsername: reelayDBUser?.username,
+                    watchlistItem: addToWatchlistResult,
+                });    
             }
+
+            logAmplitudeEventProd('addToMyWatchlist', {
+                title: titleObj?.display,
+                username: reelayDBUser?.username,
+                userSub: reelayDBUser?.sub,
+            });
+            dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
         }
 
         const addTitleToAllSelectedClubs = async () => {
