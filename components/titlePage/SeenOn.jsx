@@ -13,6 +13,7 @@ import { getStreamingVenues } from '../utils/VenueIcon';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import * as Linking from 'expo-linking';
+import ReelayColors from '../../constants/ReelayColors';
 
 const SeenOnContainer = styled(View)`
     width: 95%;
@@ -140,14 +141,27 @@ export default SeenOn = ({ titleType, tmdbTitleID}) => {
             border-radius: 11px;
         `
 
+        const CheckmarkCircleContainer = styled(View)`
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        `
+
+        const CheckmarkCircle = () => {
+            return (
+                <CheckmarkCircleContainer>
+                    <Icon type="ionicon" name="checkmark-circle" color={ReelayColors.reelayBlue} size={20} />
+                </CheckmarkCircleContainer>
+            )
+        }
+
 		return (
 			<>
                 {source && (
 					<TouchableVenue onPress={attemptOpenDeeplinkURL} activeOpacity={0.6}>
-						<>
-                            <SeenOnButtonGradient colors={[GRADIENT_START_COLOR, GRADIENT_END_COLOR]}/>
-                            <PrimaryVenueImage source={source} />
-                        </>
+                        <SeenOnButtonGradient colors={[GRADIENT_START_COLOR, GRADIENT_END_COLOR]}/>
+                        <PrimaryVenueImage source={source} />
+                        { isOnMyStreaming && <CheckmarkCircle />}
 					</TouchableVenue>
 				)}
 			</>
