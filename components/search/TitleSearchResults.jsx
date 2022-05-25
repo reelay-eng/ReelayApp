@@ -20,6 +20,7 @@ export default TitleSearchResults = ({
     `
 
     const SearchResultsScrollContainer = styled(ScrollView)`
+        padding-bottom: ${270}px;
         margin-bottom: ${270}px;
     `;
 

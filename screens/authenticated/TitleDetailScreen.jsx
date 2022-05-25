@@ -20,9 +20,11 @@ import PopularReelaysRow from '../../components/titlePage/PopularReelaysRow';
 import PosterWithTrailer from '../../components/titlePage/PosterWithTrailer';
 import JustShowMeSignupDrawer from '../../components/global/JustShowMeSignupDrawer';
 import { changeSize } from '../../api/TMDbApi';
+
 import BackButton from '../../components/utils/BackButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AddToClubsButton from '../../components/clubs/AddToClubsButton';
+import SeenOn from '../../components/titlePage/SeenOn';
 
 const BottomBackButtonContainer = styled(View)`
 	align-items: center;
@@ -69,6 +71,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const releaseYear = titleObj?.releaseYear;
 	const runtime = titleObj?.runtime;
 	const isMovie = titleObj?.isMovie;
+	const titleType = (isMovie ? "film" : "tv");
 
 	// hide tab bar
 	const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
@@ -105,9 +108,9 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 			/>
 			<Header />
 			<PopularReelaysRow navigation={navigation} titleObj={titleObj} />
+			<SeenOn tmdbTitleID={tmdbTitleID} titleType={titleType} />
 			<MovieInformation director={director} actors={actors} description={overview} rating={rating} />
 			<Spacer height={20} />
-			{/* <AppleTVAd /> */}
 			<BottomBackButton navigation={navigation} />
 			<Spacer height={100} />
 			{ justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
@@ -124,34 +127,3 @@ const BottomBackButton = ({ navigation }) => {
 		</BottomBackButtonContainer>
 	);
 }
-
-/** 
- * const PlusReelayThumbnail = () => {
-			const Container = styled(View)`
-				margin: 4px;
-				height: 122px;
-				width: 82px;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
-			`;
-			const PlusIconContainer = styled(View)`
-				width: 65px;
-				height: 65px;
-			`;
-			const advanceToCreateReelay = async () => {
-				navigation.getParent().push("VenueSelectScreen", {
-					titleObj: titleObj,
-				});
-			};
-
-			return (
-				<Container>
-					<PlusIconContainer>
-						<RedPlusButton onPress={advanceToCreateReelay} />
-					</PlusIconContainer>
-				</Container>
-			);
-		};
-*/

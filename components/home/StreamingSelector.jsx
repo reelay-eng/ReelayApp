@@ -1,5 +1,5 @@
 import React, { memo, useContext, useState, useRef, Fragment } from 'react';
-import { View, Text, Pressable } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
@@ -10,6 +10,7 @@ import { BWButton } from '../global/Buttons';
 
 import { getFeed, postStreamingSubscriptionToDB, removeStreamingSubscription } from '../../api/ReelayDBApi';
 import { useDispatch, useSelector } from 'react-redux';
+import ReelayColors from '../../constants/ReelayColors';
 
 const StreamingServicesContainer = styled.View`
     width: 100%;
@@ -153,9 +154,9 @@ const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
     const iconSource = venue.length ? searchVenues.find((vi) => vi.venue === venue).source : null;
     if (!iconSource) return <Fragment />;
 
-    const PressableVenue = styled(Pressable)`
+    const TouchableVenue = styled(TouchableOpacity)`
         align-items: center;
-        background-color: ${ReelayColors.reelayBlue};
+        background-color: ${props => props.selected ? ReelayColors.reelayBlue : "transparent"};
         border-radius: 11px;
         height: 93px;
         justify-content: center;
@@ -169,41 +170,40 @@ const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
         border-width: 1px;
         border-color: white;
     `
-    const OtherVenueImage = styled.Image`
-        height: 42px;
-        width: 42px;
-        margin: 5px;
-        resizeMode: contain;
-    `
-    const OtherVenueSubtext = styled(ReelayText.CaptionEmphasized)`
-        color: white;
-        padding: 5px;
-        text-align: center;
-    `
 
     const onPress = () => {
         onTapVenue(venue, !selected); 
         setSelected(!selected);
     };
 
-    const VenueGradient = () => (
-        <LinearGradient
-            colors={["#272525", "#19242E"]}
-            style={{
-                flex: 1,
-                opacity: 1,
-                position: "absolute",
-                width: "100%",
-                height: "100%",
-                borderRadius: `11px`,
-            }}
-        />
-    );
+    const VenueImage = memo(({ source }) => {
+        return <PrimaryVenueImage source={source} />
+    }, (prevProps, nextProps) => {
+        return prevProps.source === nextProps.source;
+    });
+
+    const VenueGradient = () => {
+        const GRADIENT_START_COLOR = "#272525"
+        const GRADIENT_END_COLOR = "#19242E"
+        return (
+            <LinearGradient
+                colors={[GRADIENT_START_COLOR, GRADIENT_END_COLOR]}
+                style={{
+                    flex: 1,
+                    opacity: 1,
+                    position: "absolute",
+                    width: "100%",
+                    height: "100%",
+                    borderRadius: `11px`,
+                }}
+            />
+        )
+    };
 
     return (
-        <PressableVenue onPress={onPress} selected={selected}>
-            { (!selected) && <VenueGradient /> }
-            <PrimaryVenueImage source={iconSource} />
-        </PressableVenue>
+        <TouchableVenue onPress={onPress} selected={selected} activeOpacity={0.6}>
+            { !selected && <VenueGradient /> }
+            <VenueImage source={iconSource} />
+        </TouchableVenue>
     );
 };
