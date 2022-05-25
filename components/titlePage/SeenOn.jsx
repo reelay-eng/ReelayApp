@@ -13,6 +13,7 @@ import { getStreamingVenues } from '../utils/VenueIcon';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import * as Linking from 'expo-linking';
+import ReelayColors from '../../constants/ReelayColors';
 
 const SeenOnContainer = styled(View)`
     width: 95%;
@@ -68,11 +69,11 @@ export default SeenOn = ({ titleType, tmdbTitleID}) => {
     }, [])
 
     const VenueBadge = ({ venue, isOnMyStreaming = false }) => {
-        const source = venue.length ? streamingVenues.find((vi) => vi.venue === venue)?.source : null;
-        const deeplinkURL = venue.length ? streamingVenues.find((vi) => vi.venue === venue)?.deeplink : null;
+        const source = venue.length ? streamingVenues.find((venueObj) => venueObj.venue === venue)?.source : null;
+        const deeplinkURL = venue.length ? streamingVenues.find((venueObj) => venueObj.venue === venue)?.deeplink : null;
 
-        const GRADIENT_START_COLOR = isOnMyStreaming ? "#2977EF": "#272525"
-        const GRADIENT_END_COLOR = isOnMyStreaming ? "#FF4848" : "#19242E"
+        const GRADIENT_START_COLOR = "#272525"
+        const GRADIENT_END_COLOR = "#19242E"
 
 		const TouchableVenue = styled(TouchableOpacity)`
 			width: 100px;
@@ -140,14 +141,27 @@ export default SeenOn = ({ titleType, tmdbTitleID}) => {
             border-radius: 11px;
         `
 
+        const CheckmarkCircleContainer = styled(View)`
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        `
+
+        const CheckmarkCircle = () => {
+            return (
+                <CheckmarkCircleContainer>
+                    <Icon type="ionicon" name="checkmark-circle" color={ReelayColors.reelayBlue} size={20} />
+                </CheckmarkCircleContainer>
+            )
+        }
+
 		return (
 			<>
                 {source && (
 					<TouchableVenue onPress={attemptOpenDeeplinkURL} activeOpacity={0.6}>
-						<>
-                            <SeenOnButtonGradient colors={[GRADIENT_START_COLOR, GRADIENT_END_COLOR]}/>
-                            <PrimaryVenueImage source={source} />
-                        </>
+                        <SeenOnButtonGradient colors={[GRADIENT_START_COLOR, GRADIENT_END_COLOR]}/>
+                        <PrimaryVenueImage source={source} />
+                        { isOnMyStreaming && <CheckmarkCircle />}
 					</TouchableVenue>
 				)}
 			</>
