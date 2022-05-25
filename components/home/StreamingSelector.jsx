@@ -1,5 +1,5 @@
 import React, { memo, useContext, useState, useRef, Fragment } from 'react';
-import { View, Text, Pressable } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
@@ -154,7 +154,7 @@ const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
     const iconSource = venue.length ? searchVenues.find((vi) => vi.venue === venue).source : null;
     if (!iconSource) return <Fragment />;
 
-    const PressableVenue = styled(Pressable)`
+    const TouchableVenue = styled(TouchableOpacity)`
         align-items: center;
         background-color: ${props => props.selected ? ReelayColors.reelayBlue : "transparent"};
         border-radius: 11px;
@@ -201,9 +201,9 @@ const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
     };
 
     return (
-        <PressableVenue onPress={onPress} selected={selected}>
+        <TouchableVenue onPress={onPress} selected={selected} activeOpacity={0.6}>
             { !selected && <VenueGradient /> }
             <VenueImage source={iconSource} />
-        </PressableVenue>
+        </TouchableVenue>
     );
 };
