@@ -6,7 +6,6 @@ import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 
 import ReelayColors from '../../constants/ReelayColors';
-import { AddToWatchlistIconSVG } from '../global/SVGs';
 import Constants from 'expo-constants';
 import { getReelay, prepareReelay } from '../../api/ReelayDBApi';
 import { useSelector } from 'react-redux';
@@ -57,7 +56,6 @@ const HomeHeader = ({ navigation }) => {
     const showTutorialButton = (myFollowing.length > 0) && (daysSinceSignedUp < 7);
 
     const advanceToMyNotifications = () => avigation.push('NotificationScreen');
-    const advanceToMyWatchlist = () => navigation.push('WatchlistScreen');
     const advanceToSearchScreen = () => navigation.push('SearchScreen');
 
 	return (
@@ -67,11 +65,6 @@ const HomeHeader = ({ navigation }) => {
                 { showTutorialButton && <WatchTutorialButton navigation={navigation} /> }
             </HeaderContainerLeft>
             <HeaderContainerRight>
-                { !showTutorialButton && (
-                    <IconContainer onPress={advanceToMyWatchlist}>
-                        <AddToWatchlistIconSVG size={28} />
-                    </IconContainer>
-                )}
                 <IconContainer onPress={advanceToSearchScreen}>
                     <Icon type='ionicon' size={27} color={'white'} name='search' />
                 </IconContainer>

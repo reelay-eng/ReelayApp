@@ -6,7 +6,7 @@ import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import BackButton from '../utils/BackButton';
 import { useSelector } from 'react-redux';
-import { AddToWatchlistIconSVG } from '../global/SVGs';
+import { WatchlistAddedIconSVG } from '../global/SVGs';
 
 export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) => {
     const creatorName = creator.username ?? 'User not found';
@@ -54,7 +54,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         return (
             <RightCornerContainer>
                 <IconContainer onPress={advanceToMyWatchlist}>
-                    <AddToWatchlistIconSVG size={28} />
+                    <WatchlistAddedIconSVG size={28} />
                 </IconContainer>
                 <IconContainer onPress={advanceToMyProfileSettings}>
                     <Icon type='ionicon' size={24} color={'white'} name='settings-outline' />

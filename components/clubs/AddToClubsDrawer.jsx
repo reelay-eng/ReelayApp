@@ -21,6 +21,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { addTitleToClub, getClubMembers } from '../../api/ClubsApi';
 import { showErrorToast, showMessageToast } from '../utils/toasts';
 import ClubPicture from '../global/ClubPicture';
+import MarkSeenButton from '../watchlist/MarkSeenButton';
 
 import { AddToClubsIconSVG, AddedToClubsIconSVG } from '../global/SVGs';
 import ProfilePicture from '../global/ProfilePicture';
@@ -79,7 +80,9 @@ const DrawerContainer = styled(View)`
 `
 const HeaderContainer = styled(View)`
     align-items: center;
-    padding: 12px;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 20px;
 `
 const HeaderText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -113,6 +116,8 @@ export default AddToClubsDrawer = ({
     drawerVisible, 
     setDrawerVisible, 
     setIsAddedToWatchlist,
+    markedSeen,
+    setMarkedSeen,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
@@ -133,6 +138,7 @@ export default AddToClubsDrawer = ({
         return (
             <HeaderContainer>
                 <HeaderText>{'Add to a club'}</HeaderText>
+                <MarkSeenButton markedSeen={markedSeen} setMarkedSeen={setMarkedSeen} titleObj={titleObj} />
             </HeaderContainer>
         );
     }
@@ -204,7 +210,11 @@ export default AddToClubsDrawer = ({
                 }
                 setAddingTitle(false);
                 const clubsWord = (addTitleResults.length > 1) ? 'clubs' : 'club';
-                showMessageToast(`Added ${titleObj.display} to ${addTitleResults.length} ${clubsWord}`);
+                if (addTitleResults.length > 1) {
+                    showMessageToast(`Added ${titleObj.display} to ${addTitleResults.length} ${clubsWord}`);
+                } else if (sendToWatchlist.current) {
+                    showMessageToast(`Added ${titleObj.display} to your watchlist`);
+                }
             } catch (error) {
                 console.log(error);
                 showErrorToast('Ruh roh! Couldn\'t add to clubs. Try again?');
