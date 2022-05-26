@@ -17,6 +17,20 @@ import { getCommentLikesForReelay } from '../../api/ReelayDBApi';
 import { useFocusEffect } from '@react-navigation/native';
 import styled from 'styled-components/native';
 
+const DescriptionGradient = styled(LinearGradient)`
+    position: absolute;
+    opacity: 0.7;
+    height: 100%;
+    width: 100%;
+`
+const BottomGradient = styled(LinearGradient)`
+    position: absolute;
+    bottom: 0px;
+    opacity: 0.8;
+    height: 172px;
+    width: 100%;
+`
+
 const HeroModals = ({ reelay, navigation }) => {
     const [modalsViewable, setModalsViewable] = useState(false);
     const likesVisible = useSelector(state => state.likesVisible);
@@ -72,19 +86,6 @@ const HeroModals = ({ reelay, navigation }) => {
 }
 
 export default Hero = ({ index, navigation, reelay, viewable }) => {
-	const DescriptionGradient = styled(LinearGradient)`
-		position: absolute;
-		opacity: 0.7;
-		height: 100%;
-		width: 100%;
-	`
-    const BottomGradient = styled(LinearGradient)`
-        position: absolute;
-        bottom: 0px;
-        opacity: 0.8;
-        height: 172px;
-        width: 100%;
-    `
     const commentsCount = useRef(reelay.comments.length);
     const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
 	const [expanded, setExpanded] = useState(false);
