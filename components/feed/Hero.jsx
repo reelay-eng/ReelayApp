@@ -72,12 +72,19 @@ const HeroModals = ({ reelay, navigation }) => {
 }
 
 export default Hero = ({ index, navigation, reelay, viewable }) => {
-	const HeroGradient = styled(LinearGradient)`
+	const DescriptionGradient = styled(LinearGradient)`
 		position: absolute;
-		opacity: 0.8;
+		opacity: 0.7;
 		height: 100%;
 		width: 100%;
 	`
+    const BottomGradient = styled(LinearGradient)`
+        position: absolute;
+        bottom: 0px;
+        opacity: 0.8;
+        height: 172px;
+        width: 100%;
+    `
     const commentsCount = useRef(reelay.comments.length);
     const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
 	const [expanded, setExpanded] = useState(false);
@@ -90,8 +97,8 @@ export default Hero = ({ index, navigation, reelay, viewable }) => {
         <View key={index} style={{ justifyContent: 'flex-end'}}>
             <FeedVideoPlayer reelay={reelay} viewable={viewable} />
 
-            {(expanded) && <HeroGradient colors={["transparent", "#383838", "#000000"]} locations={[0, 0.25, 0.65]} />}
-            {(!expanded) && <HeroGradient colors={["transparent", "#0d0d0d"]} locations={[0.50, 1]} />}
+            {(expanded) && <DescriptionGradient colors={["transparent", "#000000"]} />}
+            <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
 
             <ReelayInfo navigation={navigation} reelay={reelay} setExpanded={setExpanded} />
             { !isWelcomeVideo && <Sidebar navigation={navigation} reelay={reelay} commentsCount={commentsCount}/> }
