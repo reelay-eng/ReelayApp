@@ -1,5 +1,14 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Dimensions, RefreshControl, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { 
+    Dimensions, 
+    Modal, 
+    Pressable,
+    RefreshControl, 
+    ScrollView, 
+    Text, 
+    TouchableOpacity, 
+    View 
+} from 'react-native';
 import { Icon } from 'react-native-elements';
 import * as ReelayText from '../../components/global/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -244,7 +253,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     }
 
     if (welcomeNewMember) {
-        console.log('should welcome new user!')        
+        console.log('todo: should welcome new user!')        
     }
 
     return (

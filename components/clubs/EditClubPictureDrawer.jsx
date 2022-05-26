@@ -15,6 +15,7 @@ import { showErrorToast } from "../utils/toasts";
 import { manipulateAsync } from "expo-image-manipulator";
 import { Buffer } from "buffer";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { cacheClubPic } from "../../api/ReelayLocalImageCache";
 
 const Backdrop = styled(Pressable)`
     background-color: transparent;
@@ -58,9 +59,14 @@ const Spacer = styled(View)`
 `
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
 
-export default EditClubPictureDrawer = ({ clubID, drawerVisible, setDrawerVisible }) => {
+export default EditClubPictureDrawer = ({ 
+	clubID, 
+	drawerVisible, 
+	setDrawerVisible,
+	setUploadingPic,
+}) => {
 	const { reelayDBUser } = useContext(AuthContext);
-	const [uploadingPic, setUploadingPic] = useState(false);
+	// const [uploadingPic, setUploadingPic] = useState(false);
 	const s3Client = useSelector(state => state.s3Client);
 	const closeDrawer = () => setDrawerVisible(false);
 
@@ -77,9 +83,13 @@ export default EditClubPictureDrawer = ({ clubID, drawerVisible, setDrawerVisibl
 				quality: 1,
 			});
 			if (result.cancelled) return;
-			const uploadResult = await uploadClubPicToS3(clubID, result.uri);
-			console.log(uploadResult);
+
 			closeDrawer();
+			setUploadingPic(true);
+			const uploadResult = await uploadClubPicToS3(clubID, result.uri);
+			await cacheClubPic(clubID);
+			setUploadingPic(false);
+			console.log(uploadResult);
 		} catch (error) {
 			console.log(error);
 			logAmplitudeEventProd('selectClubPhotoError', {
@@ -105,9 +115,13 @@ export default EditClubPictureDrawer = ({ clubID, drawerVisible, setDrawerVisibl
 				username: reelayDBUser?.username,
 			});
 			if (result.cancelled) return;
-			const uploadResult = await uploadClubPicToS3(clubID, result.uri);
-			console.log(uploadResult);
+
 			closeDrawer();
+			setUploadingPic(true);
+			const uploadResult = await uploadClubPicToS3(clubID, result.uri);
+			await cacheClubPic(clubID);
+			setUploadingPic(false);
+			console.log(uploadResult);
 		} catch (error) {
 			console.log(error);
 			logAmplitudeEventProd('selectClubPhotoError', {

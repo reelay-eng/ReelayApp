@@ -37,6 +37,15 @@ const ClubPictureContainer = styled(View)`
     align-items: center;
     justify-content: center;
 `
+const DeleteClubButtonContainer = styled(TouchableOpacity)`
+    align-items: flex-end;
+    flex-direction: row;
+    height: 72px;
+    justify-content: flex-end;
+    position: absolute;
+    right: 20px;
+    padding-bottom: 12px;
+`
 const EditPictureText = styled(ReelayText.Body2)`
     color: ${ReelayColors.reelayBlue};
     padding-top: 16px;
@@ -47,16 +56,12 @@ const EditScreenContainer = styled(SafeAreaView)`
     height: 100%;
     width: 100%;
 `
-const TopBarContainer = styled(View)`
-    align-items: flex-end;
-    flex-direction: row;
-    height: 72px;
+const PicUploadingContainer = styled(View)`
+    align-items: center;
+    border-radius: 60px;
+    height: 156px;
     justify-content: center;
-    margin-bottom: 16px;
-`
-const TopBarText = styled(ReelayText.H5Emphasized)`
-    color: white;
-    margin-bottom: 10px;
+    width: 156px;
 `
 const SaveButtonContainer = styled(TouchableOpacity)`
     align-items: center;
@@ -68,30 +73,6 @@ const SaveButtonContainer = styled(TouchableOpacity)`
     justify-content: center;
     height: 40px;
     width: ${width - 56}px;
-`
-const TitleInputField = styled(TextInput)`
-    border-color: white;
-    border-radius: 4px;
-    border-width: 1px;
-    color: white;
-    font-family: Outfit-Regular;
-    font-size: 16px;
-    font-style: normal;
-    letter-spacing: 0.15px;
-    margin-top: 6px;
-    padding: 12px;
-`
-const DeleteClubButtonContainer = styled(TouchableOpacity)`
-    align-items: flex-end;
-    flex-direction: row;
-    height: 72px;
-    justify-content: flex-end;
-    position: absolute;
-    right: 20px;
-    padding-bottom: 12px;
-`
-const DescriptionInputField = styled(TitleInputField)`
-    height: 90px;
 `
 const SectionContainer = styled(View)`
     margin-left: 20px;
@@ -106,6 +87,32 @@ const TitleText = styled(ReelayText.Subtitle2)`
     color: ${(props) => props.disabled ? 'black' : 'white'};
     font-size: 16px;
 `
+const TitleInputField = styled(TextInput)`
+    border-color: white;
+    border-radius: 4px;
+    border-width: 1px;
+    color: white;
+    font-family: Outfit-Regular;
+    font-size: 16px;
+    font-style: normal;
+    letter-spacing: 0.15px;
+    margin-top: 6px;
+    padding: 12px;
+`
+const TopBarContainer = styled(View)`
+    align-items: flex-end;
+    flex-direction: row;
+    height: 72px;
+    justify-content: center;
+    margin-bottom: 16px;
+`
+const TopBarText = styled(ReelayText.H5Emphasized)`
+    color: white;
+    margin-bottom: 10px;
+`
+const DescriptionInputField = styled(TitleInputField)`
+    height: 90px;
+`
 const TITLE_MIN_LENGTH = 6;
 const TITLE_MAX_LENGTH = 25;
 const DESCRIPTION_MAX_LENGTH = 75;
@@ -119,6 +126,7 @@ export default function EditClubScreen({ navigation, route }) {
     const [deleteClubDrawerVisible, setDeleteClubDrawerVisible] = useState(false);
     const [editPicDrawerVisible, setEditPicDrawerVisible] = useState(false);
     const [publishing, setPublishing] = useState(false);
+    const [uploadingPic, setUploadingPic] = useState(false);
 
     const dispatch = useDispatch();
     const descriptionFieldRef = useRef(null);
@@ -171,14 +179,24 @@ export default function EditClubScreen({ navigation, route }) {
     }
 
     const EditableClubPic = () => {
-        return (
-            <ClubPictureContainer>
-                <ClubPicture club={club} size={120} />
-                <TouchableOpacity onPress={() => setEditPicDrawerVisible(true)}>
-                    <EditPictureText>{'Change picture'}</EditPictureText>
-                </TouchableOpacity>
-            </ClubPictureContainer>
-        )
+        if (uploadingPic) {
+            return (
+                <ClubPictureContainer>
+                    <PicUploadingContainer>
+                        <ActivityIndicator />
+                    </PicUploadingContainer>
+                </ClubPictureContainer>
+            );
+        } else {
+            return (
+                <ClubPictureContainer>
+                    <ClubPicture club={club} size={120} />
+                    <TouchableOpacity onPress={() => setEditPicDrawerVisible(true)}>
+                        <EditPictureText>{'Change picture'}</EditPictureText>
+                    </TouchableOpacity>
+                </ClubPictureContainer>
+            )
+        }
     }
 
     const Header = () => {
@@ -283,6 +301,7 @@ export default function EditClubScreen({ navigation, route }) {
                         clubID={club.id}
                         drawerVisible={editPicDrawerVisible}
                         setDrawerVisible={setEditPicDrawerVisible}
+                        setUploadingPic={setUploadingPic}
                     />
                 )}
                 { deleteClubDrawerVisible && (
