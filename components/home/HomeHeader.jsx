@@ -55,7 +55,7 @@ const HomeHeader = ({ navigation }) => {
     const daysSinceSignedUp = moment().diff(moment(reelayDBUser?.createdAt), 'days');
     const showTutorialButton = (myFollowing.length > 0) && (daysSinceSignedUp < 7);
 
-    const advanceToMyNotifications = () => avigation.push('NotificationScreen');
+    const advanceToMyNotifications = () => navigation.push('NotificationScreen');
     const advanceToSearchScreen = () => navigation.push('SearchScreen');
 
 	return (

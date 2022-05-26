@@ -284,6 +284,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         const isMyUser = (userSub === reelayDBUser?.sub);
     
         const advanceToUserProfile = () => {
+            console.log('advance');
             navigation.push('UserProfileScreen', { creator: user });
         }
 
@@ -370,7 +371,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         }
     
         return (
-            <MemberRowContainer onPress={() => advanceToUserProfile}>
+            <MemberRowContainer onPress={advanceToUserProfile}>
                 <MemberInfoContainer>
                     <ProfilePictureContainer>
                         <ProfilePicture user={user} size={32} navigation={navigation} />
