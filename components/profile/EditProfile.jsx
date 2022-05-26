@@ -29,8 +29,9 @@ import * as ReelayText from "../global/Text";
 import { HeaderDoneCancel } from '../global/Headers';
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
-import { showErrorToast } from "../utils/toasts";
-import { Icon } from "react-native-elements";
+import { showErrorToast, showMessageToast } from "../utils/toasts";
+import { cacheProfilePic } from "../../api/ReelayLocalImageCache";
+import ProfilePicture from "../global/ProfilePicture";
 
 const Spacer = styled(View)`
 	height: ${(props) => (props.height ? props.height : "0px")};
@@ -256,30 +257,17 @@ const EditProfileImage = () => {
 		flex-direction: column;
         align-items: center;
 	`;
-	const ProfileImage = styled(Image)`
-		border-radius: 48px;
-		height: 96px;
-		width: 96px;
-		border-width: 2px;
-		border-color: white;
-		margin-bottom: 5px;
-	`;
 	const ProfileText = styled(ReelayText.Body2Bold)`
 		color: ${({isUploading}) => isUploading ? "#4D4D4D" : "rgba(0, 165, 253, 1)"};
 		text-align: center;
 		padding: 5px;
 	`;
 
-	const profileImageSource =
-		profilePictureURI && profilePictureURI !== undefined && profilePictureURI !== "none"
-			? { uri: profilePictureURI }
-			: ReelayIcon;
-    
     return (
 		<Container>
 			<EditContainer>
 				<Pressable onPress={startEditPhoto}>
-					<ProfileImage source={profileImageSource} />
+					<ProfilePicture user={reelayDBUser} size={96} />
 				</Pressable>
 				<Pressable onPress={startEditPhoto}>
 					<ProfileText isUploading={isUploading}>
@@ -290,9 +278,7 @@ const EditProfileImage = () => {
 			<EditingPhotoMenuModal
 				visible={isEditingPhoto}
 				setIsUploading={setIsUploading}
-				close={() => {
-					setIsEditingPhoto(false);
-				}}
+				close={() => setIsEditingPhoto(false)}
 			/>
 		</Container>
 	);
@@ -300,10 +286,10 @@ const EditProfileImage = () => {
 
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
+const ON_UPLOAD_MESSAGE = 'Uploaded! It can take up to 24hrs for others to see the new pic';
 
 const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
-
-	const { reelayDBUser, setReelayDBUser } = useContext(AuthContext);
+	const { reelayDBUser } = useContext(AuthContext);
 	const s3Client = useSelector(state => state.s3Client);
 
 	const takePhoto = async () => {
@@ -346,22 +332,22 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 				close();
 				const { cloudfrontPhotoURI } = await uploadProfilePhotoToS3(pickerResult.uri);
 				if (reelayDBUser?.profilePictureURI !== cloudfrontPhotoURI) {
-					const patchResult = await updateProfilePic(reelayDBUser?.sub, cloudfrontPhotoURI);
-					console.log("Patched Profile Image: ", patchResult);
-					logAmplitudeEventProd("profilePhotoUpdatedCameraroll", {
-						"Profile Photo Updated": "Profile Photo Updated",
-					});
-					let newReelayDBUser = reelayDBUser;
-					newReelayDBUser.profilePictureURI = cloudfrontPhotoURI;
-					setReelayDBUser(newReelayDBUser);
+					updateProfilePic(reelayDBUser?.sub, cloudfrontPhotoURI);					
 				}
+				logAmplitudeEventProd('changedProfilePic', {
+					username: reelayDBUser?.username,
+					sub: reelayDBUser?.sub,
+				});
+				await cacheProfilePic(reelayDBUser?.sub);
 				setIsUploading(false);
+				showMessageToast(ON_UPLOAD_MESSAGE);
 			}
 		} catch (e) {
 			console.log("Upload Profile Picture Error: ", e);
-			logAmplitudeEventProd	("uploadProfilePictureError", {
+			logAmplitudeEventProd('changedProfilePicError', {
 				error: e,
 				username: reelayDBUser?.username,
+				sub: reelayDBUser?.sub,
 			});
 			setIsUploading(false);
 			alert("Profile photo upload failed. \nPlease try again.");
@@ -395,7 +381,6 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 
 		const currentPhotoURI = `${CLOUDFRONT_BASE_URL}/public/${photoCurrentS3Key}`;
 		console.log("user current photo URI: ", currentPhotoURI);
-		const timestampedPhotoURI = `${CLOUDFRONT_BASE_URL}/public/${photoTimestampedS3Key}`;
 
 		return {
 			timestampedUploadResult,
@@ -405,7 +390,6 @@ const EditingPhotoMenuModal = ({ visible, close, setIsUploading }) => {
 	};
 
 	const uploadProfilePicToS3 = async (photoURI, timestampedS3Key, currentS3Key) => {
-		// const photoStr = await writeAsStringAsync(photoURI, { encoding: EncodingType.Base64 });
 		const photoBuffer = Buffer.from(photoURI, "base64");
 		const timestampedUploadResult = await s3Client.send(
 			new PutObjectCommand({

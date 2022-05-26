@@ -10,7 +10,7 @@ import ReelayColors from "../../constants/ReelayColors";
 
 import * as ReelayText from "../global/Text";
 import { logAmplitudeEventProd } from "../utils/EventLogger";
-import { showErrorToast } from "../utils/toasts";
+import { showErrorToast, showMessageToast } from "../utils/toasts";
 
 import { manipulateAsync } from "expo-image-manipulator";
 import { Buffer } from "buffer";
@@ -58,6 +58,7 @@ const Spacer = styled(View)`
 	height: 10px;
 `
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
+const ON_UPLOAD_MESSAGE = 'Uploaded! It can take up to 24hrs for others to see the new pic'
 
 export default EditClubPictureDrawer = ({ 
 	clubID, 
@@ -89,6 +90,7 @@ export default EditClubPictureDrawer = ({
 			const uploadResult = await uploadClubPicToS3(clubID, result.uri);
 			await cacheClubPic(clubID);
 			setUploadingPic(false);
+			showMessageToast(ON_UPLOAD_MESSAGE);
 			console.log(uploadResult);
 		} catch (error) {
 			console.log(error);
@@ -121,6 +123,7 @@ export default EditClubPictureDrawer = ({
 			const uploadResult = await uploadClubPicToS3(clubID, result.uri);
 			await cacheClubPic(clubID);
 			setUploadingPic(false);
+			showMessageToast(ON_UPLOAD_MESSAGE);
 			console.log(uploadResult);
 		} catch (error) {
 			console.log(error);

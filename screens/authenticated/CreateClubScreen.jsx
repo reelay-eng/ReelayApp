@@ -20,14 +20,13 @@ import Constants from 'expo-constants';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 
-import EditClubPic from '../../components/clubs/EditClubPic';
+import ChooseClubPicture from '../../components/clubs/ChooseClubPicture';
 import { manipulateAsync } from "expo-image-manipulator";
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 import { Buffer } from "buffer";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { v4 } from 'uuid';
 import { createClub } from '../../api/ClubsApi';
 
 const { width } = Dimensions.get('window');
@@ -133,7 +132,7 @@ export default function CreateClubScreen({ navigation, route }) {
         const onPress = async () => {
             if (publishing) return;
             const club = await publishClub();
-            if (club) {
+            if (club && !club?.error) {
                 logAmplitudeEventProd('clubCreated', {
                     creatorName: reelayDBUser?.username,
                     clubName: titleTextRef.current,
@@ -141,6 +140,7 @@ export default function CreateClubScreen({ navigation, route }) {
                 });
                 console.log('new club obj: ', club);
                 // advance to invite screen
+                navigation.popToTop();
                 navigation.push('ClubActivityScreen', { club, promptToInvite: true });
             } else {
                 console.log('could not create club obj');
@@ -228,11 +228,16 @@ export default function CreateClubScreen({ navigation, route }) {
                 description: descriptionTextRef.current,
                 visibility: 'private',
             }
-            const clubObj = await createClub(clubPostBody);
-            const clubID = clubObj?.id;
-            clubObj.members = [];
-            clubObj.titles = [];
-            clubObj.topics = [];
+            const createClubResult = await createClub(clubPostBody);
+            if (!createClubResult || createClubResult.error) {
+                showErrorToast('Ruh roh! Could not create club. Try again?');
+                return { error: 'Could not create club' };
+            }
+            const { club } = createClubResult;
+            const clubID = club?.id;
+            club.members = [];
+            club.titles = [];
+            club.topics = [];
 
             // todo: handle bad upload
             if (clubID && clubPicSourceRef?.current?.uri) {
@@ -240,10 +245,10 @@ export default function CreateClubScreen({ navigation, route }) {
                 console.log('club pic upload result: ', uploadResult);
                 // todo: handle failed upload
             }
-            dispatch({ type: 'setMyClubs', payload: [clubObj, ...myClubs] });
-            console.log(clubObj);
+            dispatch({ type: 'setMyClubs', payload: [club, ...myClubs] });
+            console.log(club);
             setPublishing(false);
-            return clubObj;
+            return club;
         } catch (error) {
             console.log(error);
             showErrorToast('Ruh roh! Could not create club. Please try again.');
@@ -285,7 +290,7 @@ export default function CreateClubScreen({ navigation, route }) {
         <CreateScreenContainer>
             <View>
                 <Header />
-                <EditClubPic clubPicSourceRef={clubPicSourceRef} />
+                <ChooseClubPicture clubPicSourceRef={clubPicSourceRef} />
                 <TitleInput />
                 <DescriptionInput />
             </View>

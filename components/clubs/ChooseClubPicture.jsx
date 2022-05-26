@@ -1,11 +1,9 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
-import { Dimensions, Modal, View, Image, Pressable } from "react-native";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useContext, useState } from "react";
+import { Modal, View, Image, Pressable } from "react-native";
 import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
 
 // Expo imports
 import * as ImagePicker from "expo-image-picker";
-import Constants from 'expo-constants';
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
@@ -16,8 +14,6 @@ import ReelayColors from "../../constants/ReelayColors";
 
 import * as ReelayText from "../global/Text";
 import { logAmplitudeEventProd } from "../utils/EventLogger";
-
-const { height, width } = Dimensions.get("window");
 
 const Backdrop = styled(Pressable)`
     background-color: transparent;
@@ -78,7 +74,7 @@ const Spacer = styled(View)`
 	height: 10px;
 `
 
-export default EditClubPic = ({ clubPicSourceRef }) => {
+export default ChooseClubPicture = ({ clubPicSourceRef }) => {
 	const [clubPicSource, setClubPicSource] = useState(ReelayIcon);
 	const [isEditingPhoto, setIsEditingPhoto] = useState(false);
 	const startEditPhoto = () => setIsEditingPhoto(true);
@@ -103,12 +99,8 @@ export default EditClubPic = ({ clubPicSourceRef }) => {
 	);
 };
 
-const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
-const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
-
 const EditingPhotoMenuModal = ({ visible, close, setClubPicSource }) => {
 	const { reelayDBUser } = useContext(AuthContext);
-	const s3Client = useSelector(state => state.s3Client);
 
 	const choosePhoto = async () => {
 		try {

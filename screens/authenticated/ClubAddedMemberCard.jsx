@@ -26,8 +26,8 @@ export default ClubAddedMemberCard = ({ member }) => {
     const timestamp = moment(member.createdAt).fromNow();
     const user = { sub: member?.userSub, username: member?.username };
     const activityMessage = (member.role === 'owner') 
-        ? `${member.username} created the club!  ${timestamp}`
-        : `${member.invitedByUsername} added ${member.username} to the club!  ${timestamp}`;
+        ? `${member.username} created the club  ${timestamp}`
+        : ` ${member.username} was added by ${member.invitedByUsername}  ${timestamp}`;
 
     return (
         <MemberAddedContainer>

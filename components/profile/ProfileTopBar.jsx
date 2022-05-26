@@ -5,8 +5,10 @@ import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import BackButton from '../utils/BackButton';
+
 import { useSelector } from 'react-redux';
-import { WatchlistAddedIconSVG } from '../global/SVGs';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faListCheck } from '@fortawesome/free-solid-svg-icons';
 
 export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) => {
     const creatorName = creator.username ?? 'User not found';
@@ -22,6 +24,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
     `
     // should line up with home header
     const RightCornerContainer = styled(View)`
+        align-items: center;
         top: 6px;
         flex-direction: row;
         position: absolute;
@@ -49,12 +52,13 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
     const SettingsButtons = () => {
         const advanceToMyWatchlist = () => navigation.push('WatchlistScreen');
         const advanceToMyProfileSettings = () => navigation.push('ProfileSettingsScreen');
-        const advanceToMyNotifications = () => avigation.push('NotificationScreen');
+        const advanceToMyNotifications = () => navigation.push('NotificationScreen');
 
         return (
             <RightCornerContainer>
                 <IconContainer onPress={advanceToMyWatchlist}>
-                    <WatchlistAddedIconSVG size={28} />
+                    {/* <WatchlistAddedIconSVG size={28} /> */}
+                    <FontAwesomeIcon icon={ faListCheck } size={22} color='white' />
                 </IconContainer>
                 <IconContainer onPress={advanceToMyProfileSettings}>
                     <Icon type='ionicon' size={24} color={'white'} name='settings-outline' />

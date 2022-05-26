@@ -38,6 +38,7 @@ export const cacheProfilePic = async (userSub, useDefaultPic = false) => {
         await FileSystem.downloadAsync(DEFAULT_PIC_URI, localURI);
     } else {
         await FileSystem.downloadAsync(remoteURI, localURI);
+        console.log('downloaded new profile pic: ', remoteURI);
     }
     await AsyncStorage.setItem(localURI, moment().toISOString());
     console.log('finished caching profile pic for ', userSub);

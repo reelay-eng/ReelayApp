@@ -65,11 +65,13 @@ const NewClubButtonPressable = styled(TouchableOpacity)`
     align-items: center;
     background-color: black;
     border-color: white;
-    border-radius: 10px;
+    border-radius: 16px;
     border-width: 1.4px;
-    height: 30px;
+    height: 32px;
     justify-content: center;
-    width: 40px;
+    margin-right: 4px;
+    padding-left: 1px;
+    width: 32px;
 `
 const TopBarContainer = styled(View)`
     align-items: center;
