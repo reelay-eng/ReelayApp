@@ -5,7 +5,7 @@ import styled from 'styled-components/native';
 
 import { Icon } from 'react-native-elements';
 import TopicCard from './TopicCard';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import ReelayColors from '../../constants/ReelayColors';
 import Carousel from 'react-native-snap-carousel';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -61,6 +61,7 @@ const SeeAllTopicsText = styled(ReelayText.Subtitle2)`
 `
 
 export default GlobalTopics = ({ navigation }) => {
+    const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const curTopicIndex = useRef(0);
     const globalTopics = useSelector(state => state.globalTopics);
@@ -68,7 +69,18 @@ export default GlobalTopics = ({ navigation }) => {
     const advanceToTopicsList = () => navigation.push('TopicsListScreen');
 
     const CreateTopicButton = () => {
-        const advanceToCreateTopic = () => navigation.push('CreateTopicScreen');
+        const advanceToCreateTopic = () => {
+            if (showMeSignupIfGuest()) return;
+            navigation.push('CreateTopicScreen');
+        }
+
+        const showMeSignupIfGuest = () => {
+            if (reelayDBUser?.username === 'be_our_guest') {
+                dispatch({ type: 'setJustShowMeSignupVisible', payload: true })
+                return true;
+            }
+            return false;
+        }    
         return (
             <CreateTopicButtonContainer onPress={advanceToCreateTopic}>
                 <CreateTopicText>
