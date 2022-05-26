@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
 import { ActivityIndicator, SafeAreaView, View } from "react-native";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 //Components
 import { HeaderWithBackButton } from '../../components/global/Headers'
@@ -20,24 +20,19 @@ import { searchTitles, searchUsers } from "../../api/ReelayDBApi";
 
 // Styling
 import styled from "styled-components/native";
-
-const MarginBelowLine = styled(View)`
-    height: 30px;
-`
+import { useFocusEffect } from "@react-navigation/native";
 
 const SearchScreenContainer = styled(SafeAreaView)`
     background-color: black;
     height: 100%;
     width: 100%;
 `
-
 const TopBarContainer = styled(View)`
     display: flex;
     align-items: center;
     width: 100%;
     margin-bottom: 8px;
 `
-
 const SelectorBarContainer = styled(View)`
     width: 90%;
     height: 40px;
@@ -50,6 +45,7 @@ const SearchBarContainer = styled(View)`
 `
 
 export default SearchScreen = ({ navigation }) => {
+    const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myFollowing = useSelector(state => state.myFollowing);
 
@@ -79,43 +75,51 @@ export default SearchScreen = ({ navigation }) => {
         });
     }, [navigation]);
 
+    useFocusEffect(() => {
+        dispatch({ type: 'setTabBarVisible', payload: true });
+    });
+
+    const sortUserResults = (userA, userB) => {
+        if (userA.username === reelayDBUser.username)   return -1;
+        if (userB.username === reelayDBUser.username)   return 1;
+
+        const matchUserA = (followObj) => (userA.username === followObj.creatorName);
+        const matchUserB = (followObj) => (userB.username === followObj.creatorName);
+        const followingUserA = myFollowing.find(matchUserA);
+        const followingUserB = myFollowing.find(matchUserB);
+
+        if (followingUserA === followingUserB) {
+            return (userA.username > userB.username) ? 1 : -1;
+        }
+        return (followingUserA) ? -1 : 1;
+
+    }
+
     const updateSearch = async (newSearchText, searchType, counter) => {
         if (!newSearchText || newSearchText === undefined || newSearchText === '') {            
             setSearchResults([]);
             return;
         }
         try {
+            setLoading(true);
+            let annotatedResults;
+            if (searchType === "Film") {
+                annotatedResults = await searchTitles(newSearchText, false);
+            } else if (searchType === "TV") {
+                annotatedResults = await searchTitles(newSearchText, true);
+            } else {
+                annotatedResults = await searchUsers(newSearchText);
+                annotatedResults = annotatedResults.sort(sortUserResults);
+            }
+
             if (updateCounter.current === counter) {
-                setLoading(true);
-                let annotatedResults;
-                if (searchType === "Film") {
-                    annotatedResults = await searchTitles(newSearchText, false);
-                } else if (searchType === "TV") {
-                    annotatedResults = await searchTitles(newSearchText, true);
-                } else {
-                    annotatedResults = await searchUsers(newSearchText);
-                }
-                if (selectedType === "Users") { 
-                    annotatedResults = annotatedResults.sort(function(a, b) { 
-                        if (a.username === reelayDBUser.username)   return -1;
-                        if (b.username === reelayDBUser.username)   return 1;
-
-                        const followingUserA = myFollowing.find((user) => { return a.username === user.creatorName });
-                        const followingUserB = myFollowing.find((user) => { return b.username === user.creatorName });
-
-                        if (followingUserA === followingUserB) {
-                            return (a.username > b.username) ? 1 : -1;
-                        }
-                        return (followingUserA) ? -1 : 1;
-                    })
-                }
                 setSearchResults(annotatedResults);
                 logAmplitudeEventProd('search', {
                     username: reelayDBUser?.sub,
                     searchText: newSearchText,
                     searchType: searchType,
                     source: 'search',
-                });    
+                });        
             }
         } catch (error) {
             console.log(error);
@@ -135,7 +139,7 @@ export default SearchScreen = ({ navigation }) => {
 			<TopBarContainer>
 				<SelectorBarContainer>
 					<ToggleSelector
-                        displayOptions={["Film", "TV", "People"]}
+                        displayOptions={["Film", "TV", "Users"]}
 						options={["Film", "TV", "Users"]}
 						selectedOption={selectedType}
 						onSelect={(type) => {
@@ -150,12 +154,12 @@ export default SearchScreen = ({ navigation }) => {
 					searchText={searchText}
 					updateSearchText={updateSearchText}
 					borderRadius={4}
-					placeholderText={`Search for ${
+					placeholderText={`Find ${
 						selectedType === "Film"
 							? "films"
 							: selectedType === "TV"
 							? "TV shows"
-							: "people"
+							: "people on Reelay"
 					}`}
 				/>
 			</SearchBarContainer>

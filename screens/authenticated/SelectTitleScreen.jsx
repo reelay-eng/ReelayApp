@@ -88,12 +88,14 @@ export default SelectTitleScreen = ({ navigation, route }) => {
 
         try {
             setLoading(true);
-            if (counter === updateCounter.current) {
-                if (searchType === 'Film') {
-                    const annotatedResults = await searchTitles(newSearchText, false);
+            if (searchType === 'Film') {
+                const annotatedResults = await searchTitles(newSearchText, false);
+                if (counter === updateCounter.current) {
                     setSearchResults(annotatedResults);
-                } else {
-                    const annotatedResults = await searchTitles(newSearchText, true);
+                }
+            } else {
+                const annotatedResults = await searchTitles(newSearchText, true);
+                if (counter === updateCounter.current) {
                     setSearchResults(annotatedResults);
                 }
             }
@@ -148,6 +150,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
 					placeholderText="What did you see?"
 				/>
 			</SearchBarContainer>
+            { loading && <ActivityIndicator /> }
             { !loading && (
                 <TitleSearchResults
                     navigation={navigation}
@@ -157,7 +160,6 @@ export default SelectTitleScreen = ({ navigation, route }) => {
                     topicID={topic?.id ?? null}
                 />
             )}
-            { loading && <ActivityIndicator /> }
 		</SafeAreaView>
 	);
 };
