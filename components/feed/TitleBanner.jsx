@@ -4,13 +4,14 @@ import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
 import Constants from 'expo-constants';
 
-import AddToWatchlistButton from '../titlePage/AddToWatchlistButton';
+import AddToClubsButton from "../clubs/AddToClubsButton";
 import { VenueIcon } from '../utils/VenueIcon';
 import DonateButton from '../global/DonateButton';
 
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 import styled from 'styled-components/native';
 import TitlePoster from "../global/TitlePoster";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { height, width } = Dimensions.get('window');
 
@@ -22,7 +23,7 @@ const StackLengthText = styled(ReelayText.CaptionEmphasized)`
 const TitleContainer = styled(View)`
     width: 210px;
 `
-const TitleDetailContainer = styled(Pressable)`
+const TitleBannerContainer = styled(Pressable)`
     align-self: center;
     background: rgba(0, 0, 0, 0.36);
     border-radius: 8px;
@@ -31,7 +32,7 @@ const TitleDetailContainer = styled(Pressable)`
     justify-content: space-between;
     flex-direction: row;
     position: absolute;
-    top: 47px;
+    top: ${props => props.topOffset}px;
     zIndex: 3;
 `
 const TitleInfo = styled(View)`
@@ -69,6 +70,7 @@ export default TitleBanner = ({
     donateObj=null, 
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const topOffset = useSafeAreaInsets().top;
     const welcomeReelaySub = Constants.manifest.extra.welcomeReelaySub;
     const isWelcomeReelay = viewableReelay && (welcomeReelaySub === viewableReelay?.sub);
     
@@ -87,18 +89,16 @@ export default TitleBanner = ({
         }
         navigation.push('TitleDetailScreen', { titleObj });
 
-        if (viewableReelay) {
-            logAmplitudeEventProd('openTitleScreen', {
-                reelayID: viewableReelay?.id,
-                reelayTitle: viewableReelay?.title.display,
-                username: reelayDBUser?.username,
-                source: 'poster',
-            });    
-        }
+        logAmplitudeEventProd('openTitleScreen', {
+            reelayID: viewableReelay.id,
+            reelayTitle: viewableReelay.title.display,
+            username: reelayDBUser?.username,
+            source: 'poster',
+        });
     }
 
     return (
-        <TitleDetailContainer onPress={openTitleDetail}>
+        <TitleBannerContainer onPress={openTitleDetail} topOffset={topOffset}>
             <TitlePosterContainer>
                 <TitlePoster title={titleObj} onPress={openTitleDetail} width={60} />
             </TitlePosterContainer>
@@ -118,13 +118,15 @@ export default TitleBanner = ({
                         { displayYear.length > 0 && <YearText>{displayYear}</YearText> }
                     </YearVenueContainer>
                     <StackLengthText>
-                        {(stack?.length > 1) && `${stack.length} Reelays  << swipe >>` }
-                        {(stack?.length === 1) && `${stack.length} Reelay` }
+                        {(stack.length > 1) 
+                            ? `${stack.length} Reelays  << swipe >>` 
+                            : `${stack.length} Reelay`
+                        }
                     </StackLengthText>
                 </View>
             </TitleInfo>
-            { !donateObj && <AddToWatchlistButton titleObj={viewableReelay.title} reelay={viewableReelay}/> }
+            { !donateObj && <AddToClubsButton titleObj={viewableReelay.title} reelay={viewableReelay} /> }
             { donateObj && <DonateButton donateObj={donateObj} reelay={viewableReelay} /> }
-        </TitleDetailContainer>    
+        </TitleBannerContainer>    
     );
 }

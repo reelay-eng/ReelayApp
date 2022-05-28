@@ -112,20 +112,20 @@ const TopicCardView = styled(View)`
     width: ${width-32}px;
 `
 
-const CardBottomRowNoStacks = ({ navigation, topic }) => {
-    const advanceToCreateReelay = () => navigation.push('SelectTitleScreen', { topic });
+const CardBottomRowNoStacks = ({ navigation, clubID, topic }) => {
+    const advanceToCreateReelay = () => navigation.push('SelectTitleScreen', { clubID, topic });
     return (
         <BottomRowContainer>
             <BottomRowLeftText>{'0 reelays, be the first!'}</BottomRowLeftText>
             <CreateReelayButton onPress={advanceToCreateReelay}>
                 <Icon type='ionicon' name='add' color='white' size={20} />
-                <CreateReelayText>{'Create Reelay'}</CreateReelayText>
+                <CreateReelayText>{'Add Reelay'}</CreateReelayText>
             </CreateReelayButton>
         </BottomRowContainer>
     );
 }
 
-const CardBottomRowWithStacks = ({ advanceToTopicsFeed, topic }) => {
+const CardBottomRowWithStacks = ({ advanceToFeed, topic }) => {
     const MAX_DISPLAY_CREATORS = 5;
     const myFollowing = useSelector(state => state.myFollowing);
     const inMyFollowing = (creator) => !!myFollowing.find((nextFollowing) => nextFollowing.sub === creator.sub);
@@ -156,7 +156,7 @@ const CardBottomRowWithStacks = ({ advanceToTopicsFeed, topic }) => {
                 displayCreators={getDisplayCreators()} 
                 reelayCount={topic.reelays.length} 
             />
-            <PlayReelaysButton onPress={advanceToTopicsFeed}>
+            <PlayReelaysButton onPress={advanceToFeed}>
                 <Icon type='ionicon' name='play-circle' color='white' size={30} />
             </PlayReelaysButton>
         </BottomRowContainer>
@@ -181,29 +181,12 @@ const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
     );
 }
 
-export default TopicCard = ({ navigation, topic, showTabBarOnReturn = true }) => {
-    const { reelayDBUser } = useContext(AuthContext);
+export default TopicCard = ({ advanceToFeed, clubID, navigation, topic }) => {
     const canPress = (topic.reelays.length > 0);
     const creator = {
         sub: topic.creatorSub,
         username: topic.creatorName,
     };
-
-    const globalTopicsWithReelays = useSelector(state => state.globalTopicsWithReelays);
-    const topicFeedIndex = globalTopicsWithReelays.findIndex((nextTopic) => nextTopic.id === topic.id);
-
-    const advanceToTopicsFeed = () => {
-        if (topic.reelays.length) {
-            navigation.push('TopicsFeedScreen', { 
-                initTopicIndex: topicFeedIndex,
-                showTabBarOnReturn,
-            });    
-            logAmplitudeEventProd('openedTopic', {
-                title: topic.title,
-                username: reelayDBUser?.username,
-            });
-        }
-    }
 
     const TopicCardContainer = ({ canPress, children, onPress }) => {
         if (canPress) {
@@ -232,7 +215,7 @@ export default TopicCard = ({ navigation, topic, showTabBarOnReturn = true }) =>
     }
 
     return (
-        <TopicCardContainer canPress={canPress} onPress={advanceToTopicsFeed}>
+        <TopicCardContainer canPress={canPress} onPress={advanceToFeed}>
             <TopicCardGradient colors={['#252527', '#19242E']} />
             <CreatorLine>
                 <CreatorLineLeft>
@@ -247,9 +230,15 @@ export default TopicCard = ({ navigation, topic, showTabBarOnReturn = true }) =>
             <DescriptionLine>
                 <DescriptionText numberOfLines={3}>{topic.description}</DescriptionText>
             </DescriptionLine>
-            { (!topic.reelays.length) && <CardBottomRowNoStacks navigation={navigation} topic={topic} /> }
+            { (!topic.reelays.length) && (
+                <CardBottomRowNoStacks 
+                    navigation={navigation} 
+                    clubID={clubID} 
+                    topic={topic} 
+                />
+            )}
             { (topic.reelays.length > 0) && (
-                <CardBottomRowWithStacks advanceToTopicsFeed={advanceToTopicsFeed} topic={topic} />
+                <CardBottomRowWithStacks advanceToFeed={advanceToFeed} topic={topic} />
              )}
         </TopicCardContainer>
     );

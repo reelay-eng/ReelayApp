@@ -44,6 +44,7 @@ export default ({ config }) => {
 
         reelayApiBaseUrl: getReelayAPIBaseURL(),
         reelayWebBaseUrl: 'https://on.reelay.app',
+        reelayWebInviteUrl: 'https://invite.reelay.app/club/',
         reelayApiKey: 'ac739ac2-5877-47de-a861-59bc776bdd27',
         reelayS3UploadBucket: 'reelay-content211002-dev',
         reelayS3ThumbnailBucket: 'reelay-thumbnails',

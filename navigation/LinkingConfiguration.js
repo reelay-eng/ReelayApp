@@ -9,7 +9,11 @@ import * as Linking from 'expo-linking';
 const prefix = Linking.createURL('/');
 
 export default {
-	prefixes: [prefix, "https://on.reelay.app/*"],
+	prefixes: [
+		prefix, 
+		"https://on.reelay.app/*", 
+		"https://invite.reelay.app/*"
+	],
 	config: {
 		screens: {
 			Authenticated: {
@@ -24,12 +28,21 @@ export default {
 					NotificationSettingsScreen: "NotificationSettingsScreen",
 					TMDBCreditScreen: "TMDBCreditScreen",
 					ProfileFeedScreen: "ProfileFeedScreen",
+
+					// used in deeplinks
 					SingleReelayScreen: {
 						path: "/reelay/:reelaySub",
 						parse: {
 							reelaySub: (reelaySub) => String(reelaySub),
 						},
 					},
+					ClubJoinFromLinkScreen: {
+						path: "/clubInvite/:clubID/:inviteCode",
+						parse: {
+							clubID: (clubID) => String(clubID),
+							inviteCode: (inviteCode) => String(inviteCode),
+						},
+					}
 				},
 			},
 			Unauthenticated: {

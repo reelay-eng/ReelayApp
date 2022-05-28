@@ -17,15 +17,14 @@ import {
 	HomeTabNavigator, 
 	FeedTabNavigator, 
 	CreateReelayTabNavigator, 
-	WatchlistTabNavigator, 
-	ProfileTabNavigator 
+	ProfileTabNavigator, 
+	ClubsTabNavigator
 } from './BottomTabs';
 
 import HomeIcon from '../assets/icons/navbar/home-icon.png';
 import ProfileIcon from '../assets/icons/navbar/profile-icon.png';
-import { WatchlistAddedIconSVG } from '../components/global/SVGs';
+import { ClubsIconSVG } from '../components/global/SVGs';
  
-const AppStack = createStackNavigator();
 const BottomTab = createBottomTabNavigator();
 const BOTTOM_TAB_ICON_SIZE = 24;
 const TAB_BAR_ACTIVE_OPACITY = 1;
@@ -116,14 +115,11 @@ export default AuthenticatedNavigator = () => {
 				}}
 			/>
 			<BottomTab.Screen
-				name="Global"
-				component={FeedTabNavigator}
+				name="Clubs"
+				component={ClubsTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<View>
-							<Icon type='ionicon' name='earth' size={24} color='white' />
-							{hasUnseenGlobalReelays && <UnreadIconIndicator /> }
-						</View>
+						<ClubsIconSVG size={24} />
 					),
 				}}
 			/>
@@ -138,11 +134,14 @@ export default AuthenticatedNavigator = () => {
 				}}
 			/>
 			<BottomTab.Screen
-				name="Watchlist"
-				component={WatchlistTabNavigator}
+				name="Global"
+				component={FeedTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<WatchlistAddedIconSVG size={30} />
+						<View>
+							<Icon type='ionicon' name='earth' size={24} color='white' />
+							{hasUnseenGlobalReelays && <UnreadIconIndicator /> }
+						</View>
 					),
 				}}
 			/>

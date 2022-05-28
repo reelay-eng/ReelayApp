@@ -18,6 +18,17 @@ const isSameTitle = (title0, title1) => {
     return (title0.id === title1.id) && (title0.isSeries === title1.isSeries);
 }
 
+export const updateClubReducer = (myClubs, updatedClub) => {
+    const myClubsFiltered = myClubs.filter((nextClub) => nextClub.id !== updatedClub.id);
+    const updatedClubObj = { ...updatedClub };
+    const sortByLastActivity = (club0, club1) => {
+        const lastActivity0 = moment(club0?.lastActivityAt);
+        const lastActivity1 = moment(club1?.lastActivityAt);
+        return lastActivity0.diff(lastActivity1, 'seconds') < 0;
+    }
+    return [ updatedClubObj, ...myClubsFiltered].sort(sortByLastActivity);
+}
+
 export const cognitoSessionReducer = (session) => {
     const idToken = session.idToken.jwtToken;
     const accessToken = session.accessToken.jwtToken;

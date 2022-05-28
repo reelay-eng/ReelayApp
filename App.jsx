@@ -55,6 +55,7 @@ import store, { mapStateToProps } from './redux/store';
 import { ensureLocalImageDirExists } from './api/ReelayLocalImageCache';
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
 import { getGlobalTopics } from './api/TopicsApi';
+import { getClubsMemberOf } from './api/ClubsApi';
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png');
 
@@ -62,6 +63,7 @@ function App() {
     const colorScheme = useColorScheme();
     const dispatch = useDispatch();
     const isLoading = useSelector(state => state.isLoading);
+    const authSession = useSelector(state => state.authSession);
 
     // Auth context hooks
     const [cognitoUser, setCognitoUser] = useState({});
@@ -240,6 +242,7 @@ function App() {
             donateLinksLoaded,
 
             globalTopics,
+            myClubs,
             myStacksFollowing,
             myStacksInTheaters,
             myStacksOnStreaming,
@@ -256,6 +259,7 @@ function App() {
             getAllDonateLinks(),
 
             getGlobalTopics({ reqUserSub, page: 0 }),
+            getClubsMemberOf({ authSession, userSub }),
             getFeed({ reqUserSub, feedSource: 'following', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'streaming', page: 0 }),
@@ -276,6 +280,7 @@ function App() {
         dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
 
         dispatch({ type: 'setGlobalTopics', payload: globalTopics });
+        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
         dispatch({ type: 'setMyStacksFollowing', payload: myStacksFollowing });
         dispatch({ type: 'setMyStacksInTheaters', payload: myStacksInTheaters });
         dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });
@@ -330,7 +335,7 @@ function App() {
         return (
             <SafeAreaProvider>
                 <AuthContext.Provider value={authState}>
-                        <StatusBar hidden={true} />
+                        <StatusBar />
                         <Navigation colorScheme={colorScheme} />
                         <Toast config={toastConfig}/>
                 </AuthContext.Provider>

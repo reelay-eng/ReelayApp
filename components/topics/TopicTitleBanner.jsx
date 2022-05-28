@@ -4,7 +4,6 @@ import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
 import Constants from 'expo-constants';
 
-import AddToWatchlistButton from '../titlePage/AddToWatchlistButton';
 import { VenueIcon } from '../utils/VenueIcon';
 import DonateButton from '../global/DonateButton';
 
@@ -125,7 +124,7 @@ export default TopicTitleBanner = ({ navigation, reelay }) => {
                 <TitlePoster title={reelay.title} onPress={openTitleDetail} width={48} />
             </TitlePosterContainer>
             <TitleInfo />
-            { !donateObj && <AddToWatchlistButton titleObj={reelay.title} reelay={reelay}/> }
+            { !donateObj && <AddToClubsButton titleObj={reelay.title} reelay={reelay} /> }
             { donateObj && <DonateButton donateObj={donateObj} reelay={reelay} /> }
         </TitleDetailContainer>    
     );

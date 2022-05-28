@@ -1,9 +1,12 @@
 import { createStore } from "redux";
-import { cognitoSessionReducer, stacksOnStreamingReducer, watchlistRecsReducer } from "./reducers";
-import { getReelayAuthHeaders, getReelayBaseHeaders } from "../api/ReelayAPIHeaders";
+import { 
+    cognitoSessionReducer, 
+    stacksOnStreamingReducer, 
+    updateClubReducer, 
+    watchlistRecsReducer 
+} from "./reducers";
 
 const initialState = {
-    apiHeaders: getReelayBaseHeaders(),
     authSession: {},
     cognitoUser: {},
     donateLinks: [],
@@ -13,6 +16,7 @@ const initialState = {
 
     globalTopics: [],
     globalTopicsWithReelays: [],
+    myClubs: [],
     myCreatorStacks: [],
     myFollowing: [],
     myFollowers: [],
@@ -58,15 +62,10 @@ const initialState = {
 const appReducer = ( state = initialState, action) => {
     switch(action.type) {
         case 'clearAuthSession':
-            return { 
-                ...state, 
-                apiHeaders: getReelayBaseHeaders(),
-                authSession: {}, 
-            };
+            return { ...state, authSession: {}, };
         case 'setAuthSessionFromCognito':
             const authSession = cognitoSessionReducer(action.payload);
-            const apiHeaders = getReelayAuthHeaders(authSession);
-            return { ...state, authSession, apiHeaders };
+            return { ...state, authSession };
         case 'setCognitoUser':
             return { ...state, cognitoUser: action.payload }
         case 'setDonateLinks':
@@ -82,16 +81,22 @@ const appReducer = ( state = initialState, action) => {
             const globalTopics = action.payload;
             const globalTopicsWithReelays = globalTopics.filter((topic) => {
                 return topic.reelays.length > 0;
-            })
+            });
             return { ...state, globalTopics, globalTopicsWithReelays };
+        case 'setMyClubs':
+            return { ...state, myClubs: action.payload };
+        case 'setUpdatedClub':
+            const updatedClub = action.payload;
+            const updatedMyClubs = updateClubReducer(state.myClubs, updatedClub);
+            return { ...state, myClubs: updatedMyClubs };    
         case 'setMyCreatorStacks':
-            return { ...state, myCreatorStacks: action.payload }
+            return { ...state, myCreatorStacks: action.payload };
         case 'setMyFollowing':
-            return { ...state, myFollowing: action.payload }
+            return { ...state, myFollowing: action.payload };
         case 'setMyFollowers':
-            return { ...state, myFollowers: action.payload }
+            return { ...state, myFollowers: action.payload };
         case 'setMyNotifications':
-            return { ...state, myNotifications: action.payload }
+            return { ...state, myNotifications: action.payload };
         case 'setMyWatchlistItems':
             const myWatchlistItems = watchlistRecsReducer(action.payload);
             return { ...state, myWatchlistItems };
@@ -170,7 +175,6 @@ const appReducer = ( state = initialState, action) => {
 }
 
 export const mapStateToProps = (state) => ({
-    apiHeaders: state.apiHeaders,
     authSession: state.authSession,
     cognitoUser: state.cognitoUser,
     donateLinks: state.donateLinks,
@@ -180,6 +184,7 @@ export const mapStateToProps = (state) => ({
 
     globalTopics: state.globalTopics,
     globalTopicsWithReelays: state.globalTopicsWithReelays,
+    myClubs: state.myClubs,
     myCreatorStacks: state.myCreatorStacks,
     myFollowing: state.myFollowing,
     myFollowers: state.myFollowers,

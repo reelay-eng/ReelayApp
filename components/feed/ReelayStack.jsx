@@ -126,7 +126,7 @@ const ReelayStack = ({
                 stack={stack}
                 donateObj={donateObj}
             />
-            { showProgressBar && <UploadProgressBar mountLocation={'globalFeed'} /> }
+            { showProgressBar && <UploadProgressBar mountLocation={'OnProfile'} /> }
         </ReelayFeedContainer>
     );
 }

@@ -159,7 +159,7 @@ export default TopicStack = ({
                 offset={addReelayBottomOffset}
                 topic={topic} 
             />
-            { showProgressBar && <UploadProgressBar mountLocation={'globalTopics'} /> }
+            { showProgressBar && <UploadProgressBar mountLocation={'InTopic'} /> }
         </ReelayFeedContainer>
     );
 }

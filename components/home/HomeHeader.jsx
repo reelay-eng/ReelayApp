@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import * as ReelayText from "../global/Text";
-import { Image, Pressable, View } from 'react-native';
+import { Image, Pressable, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 
@@ -9,64 +9,67 @@ import ReelayColors from '../../constants/ReelayColors';
 import Constants from 'expo-constants';
 import { getReelay, prepareReelay } from '../../api/ReelayDBApi';
 import { useSelector } from 'react-redux';
+import moment from 'moment';
 
-const IconContainer = styled(View)`
-    margin-left: 8px;
+const HeaderContainer = styled(View)`
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+`;
+const HeaderContainerLeft = styled(View)`
+    align-items: center;
+    flex-direction: row;
+`;
+const HeaderContainerRight = styled(View)`
+    display: flex;
+    flex-direction: row;
+`
+const HeaderText = styled(ReelayText.H4Bold)`
+    text-align: left;
+    color: white;
+    margin-top: 4px;
+`
+const IconContainer = styled(TouchableOpacity)`
+    margin-left: 10px;
+`
+const UnreadIconIndicator = styled(View)`
+    background-color: ${ReelayColors.reelayBlue}
+    border-radius: 5px;
+    height: 10px;
+    width: 10px;
+    position: absolute;
+    right: 0px;
 `
 
 const HomeHeader = ({ navigation }) => {
+    const { reelayDBUser } = useContext(AuthContext);
     const myNotifications = useSelector(state => state.myNotifications);
     const myFollowing = useSelector(state => state.myFollowing);
     const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
-	const HeaderContainer = styled(View)`
-		padding-left: 15px;
-        padding-right: 15px;
-        padding-bottom: 10px;
-		display: flex;
-		flex-direction: row;
-		justify-content: space-between;
-		align-items: center;
-        width: 100%;
-	`;
-    const HeaderContainerLeft = styled(View)`
-        align-items: center;
-        flex-direction: row;
-    `;
-    const HeaderContainerRight = styled(View)`
-        display: flex;
-        flex-direction: row;
-    `
-	const HeaderText = styled(ReelayText.H4Bold)`
-		text-align: left;
-		color: white;
-		margin-top: 4px;
-	`;
-    const UnreadIconIndicator = styled(View)`
-        background-color: ${ReelayColors.reelayBlue}
-        border-radius: 5px;
-        height: 10px;
-        width: 10px;
-        position: absolute;
-        right: 0px;
-    `
+    const daysSinceSignedUp = moment().diff(moment(reelayDBUser?.createdAt), 'days');
+    const showTutorialButton = (myFollowing.length > 0) && (daysSinceSignedUp < 7);
+
+    const advanceToMyNotifications = () => navigation.push('NotificationScreen');
+    const advanceToSearchScreen = () => navigation.push('SearchScreen');
 
 	return (
         <HeaderContainer>
             <HeaderContainerLeft>
                 <HeaderText>{'reelay'}</HeaderText>
-                { myFollowing.length > 0 && <WatchTutorialButton navigation={navigation} /> }
+                { showTutorialButton && <WatchTutorialButton navigation={navigation} /> }
             </HeaderContainerLeft>
             <HeaderContainerRight>
-                <IconContainer>
-                    <Icon type='ionicon' size={27} color={'white'} name='search' onPress={() => {
-                        navigation.push('SearchScreen');
-                    }} />
+                <IconContainer onPress={advanceToSearchScreen}>
+                    <Icon type='ionicon' size={27} color={'white'} name='search' />
                 </IconContainer>
-                <IconContainer>
-                    <Icon type='ionicon' size={27} color={'white'} name='notifications' onPress={() => {
-                        navigation.push('NotificationScreen');
-                    }} />
+                <IconContainer onPress={advanceToMyNotifications}>
+                    <Icon type='ionicon' size={27} color={'white'} name='notifications' />
                     { hasUnreadNotifications && <UnreadIconIndicator /> }
                 </IconContainer>
             </HeaderContainerRight>

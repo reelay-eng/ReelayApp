@@ -35,9 +35,9 @@ const ProgressContainer = styled(View)`
     background-color: rgba(0,0,0,0.36);
     border-radius: 8px;
     flex-direction: row;
-    left: 10px;
+    left: ${props => props.left}px;
     padding: 8px;
-    position: absolute;
+    position: ${props => props.position ?? 'absolute'};
     top: ${props => props.topOffset}px;
 `
 const ProgressText = styled(ReelayText.CaptionEmphasized)`
@@ -58,15 +58,13 @@ export default UploadProgressBar = ({ mountLocation }) => {
     const dispatch = useDispatch();
     const { top } = useSafeAreaInsets();
 
-    const topOffset = (mountLocation === 'globalFeed') 
-            ? (top + 108) 
-        : (mountLocation === 'globalTopics')
-            ? (top + 140)
-        : top;
+    const containerPosition = (mountLocation === 'InClub') 
+        ? 'relative' 
+        : 'absolute';
 
-    const uploadIconName = (uploadStage === 'upload-failed-retry') 
-        ? 'reload-outline' 
-        : 'cloud-upload-outline';
+    const containerLeft = (mountLocation === 'InClub') 
+        ? 0
+        : 10;
 
     const downloadIconName = (downloadStage === 'download-ready')
             ? 'download-outline'
@@ -82,6 +80,7 @@ export default UploadProgressBar = ({ mountLocation }) => {
             ? 'UPLOAD FAILED. RETRY?' 
         : 'DONE';
     
+
     const progressBarColor = (uploadStage === 'upload-failed-retry') 
         ? ReelayColors.reelayRed 
         : ReelayColors.reelayBlue;
@@ -91,6 +90,18 @@ export default UploadProgressBar = ({ mountLocation }) => {
         ? width - 132
         : width - 68;
 
+    // todo: can be handled better in location-specific containers
+    const topOffset = (mountLocation === 'OnProfile') 
+            ? (top + 108) 
+        : (mountLocation === 'InTopic')
+            ? (top + 140)
+        : (mountLocation === 'InClub')
+            ? (0)
+        : top;
+
+    const uploadIconName = (uploadStage === 'upload-failed-retry') 
+        ? 'reload-outline' 
+        : 'cloud-upload-outline';
 
     const downloadVideo = async () => {
         if (!hasSavePermission) {
@@ -126,8 +137,16 @@ export default UploadProgressBar = ({ mountLocation }) => {
         dispatch({ type: 'setUploadStage', payload: 'upload-ready' });
     }
 
+    if (uploadRequest?.destination !== mountLocation) {
+        return <View />;
+    }
+
     return (
-        <ProgressContainer topOffset={topOffset}>
+        <ProgressContainer 
+            left={containerLeft}
+            position={containerPosition} 
+            topOffset={topOffset} 
+        >
             <IconContainer onPress={setRetryUpload}>
                 <Icon type='ionicon' name={uploadIconName} color='white' size={24} />
             </IconContainer>

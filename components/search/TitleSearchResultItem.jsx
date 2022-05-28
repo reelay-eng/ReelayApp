@@ -34,7 +34,7 @@ const YearText = styled(ReelayText.Subtitle2)`
     color: gray
 `
 
-export default TitleSearchResultItem = ({ navigation, result, source, topicID }) => {
+export default TitleSearchResultItem = ({ navigation, result, source, clubID, topicID }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const titleObj = result;
 
@@ -53,7 +53,7 @@ export default TitleSearchResultItem = ({ navigation, result, source, topicID })
 
     const selectResult = () => {
         if (source && source === 'create') {
-            navigation.push('VenueSelectScreen', { titleObj, topicID });
+            navigation.push('VenueSelectScreen', { titleObj, clubID, topicID });
             
             logAmplitudeEventProd('advanceToCreateReelay', {
                 username: reelayDBUser?.username,

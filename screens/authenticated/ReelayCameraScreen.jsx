@@ -26,7 +26,9 @@ const MAX_VIDEO_DURATION_MILLIS = 1000 * MAX_VIDEO_DURATION_SEC;
 export default ReelayCameraScreen = ({ navigation, route }) => {
     const { reelayDBUser} = useContext(AuthContext);
     const { titleObj, venue } = route.params;
-    const topicID = route.params?.topicID;
+
+    const topicID = route.params?.topicID ?? null;
+    const clubID = route.params?.clubID ?? null;
 
     const cameraRef = useRef(null);
     const recordingLength = useRef(0);
@@ -41,10 +43,11 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
 
         navigation.push('ReelayUploadScreen', { 
             titleObj, 
-            topicID, 
             recordingLengthSeconds: recordingLength.current,
             videoURI, 
             venue,
+            clubID,
+            topicID, 
         });
 
         // setting this prematurely when we advance to the upload screen,
@@ -106,17 +109,16 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             width: ${captureSize}px;
             border-radius: ${Math.floor(captureSize / 2)}px;
         `
-
-        useEffect(() => {
-            if (isRecording) {
-                recordVideo();
-            } else {
-                stopVideoRecording();
-            }
-        }, [isRecording]);
-
+        
         const onRecordButtonPress = () => {
-            setIsRecording(!isRecording);
+            console.log('button press: ', isRecording);
+            if (isRecording) {
+                stopVideoRecording();
+                setIsRecording(false);
+            } else {
+                recordVideo();
+                setIsRecording(true);
+            }
         }
 
         const recordVideo = async () => {

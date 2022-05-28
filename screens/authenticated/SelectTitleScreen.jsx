@@ -60,6 +60,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     const [searchResults, setSearchResults] = useState([]);
     const [searchType, setSearchType] = useState('Film');
 
+    const clubID = route?.params?.clubID;
     const topic = route?.params?.topic;
     const updateCounter = useRef(0);
 
@@ -87,12 +88,14 @@ export default SelectTitleScreen = ({ navigation, route }) => {
 
         try {
             setLoading(true);
-            if (counter === updateCounter.current) {
-                if (searchType === 'Film') {
-                    const annotatedResults = await searchTitles(newSearchText, false);
+            if (searchType === 'Film') {
+                const annotatedResults = await searchTitles(newSearchText, false);
+                if (counter === updateCounter.current) {
                     setSearchResults(annotatedResults);
-                } else {
-                    const annotatedResults = await searchTitles(newSearchText, true);
+                }
+            } else {
+                const annotatedResults = await searchTitles(newSearchText, true);
+                if (counter === updateCounter.current) {
                     setSearchResults(annotatedResults);
                 }
             }
@@ -102,7 +105,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     }
 
     useFocusEffect(() => {
-        if (!topic){
+        if (!topic) {
             dispatch({ type: 'setTabBarVisible', payload: true }); 
         }
     })
@@ -147,15 +150,16 @@ export default SelectTitleScreen = ({ navigation, route }) => {
 					placeholderText="What did you see?"
 				/>
 			</SearchBarContainer>
+            { loading && <ActivityIndicator /> }
             { !loading && (
                 <TitleSearchResults
                     navigation={navigation}
                     searchResults={searchResults}
                     source={"create"}
+                    clubID={clubID ?? null}
                     topicID={topic?.id ?? null}
                 />
             )}
-            { loading && <ActivityIndicator /> }
 		</SafeAreaView>
 	);
 };

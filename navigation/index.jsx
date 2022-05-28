@@ -49,6 +49,7 @@ export default Navigation = () => {
 
     const dispatch = useDispatch();
     const globalTopics = useSelector(state => state.globalTopics);
+    const myClubs = useSelector(state => state.myClubs);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
 
     const s3Client = useSelector(state => state.s3Client);
@@ -89,12 +90,10 @@ export default Navigation = () => {
         const { notification, actionIdentifier, userText } = notificationResponse;
         const notificationContent = parseNotificationContent(notification);
         handlePushNotificationResponse({ 
-            dispatch,
+            myClubs,
             navigation: navigationRef?.current, 
             notificationContent,
             reelayDBUser,
-            globalTopics,
-            myWatchlistItems,
         });
     }
 
@@ -129,10 +128,14 @@ export default Navigation = () => {
         }
     }, []);
 
+    // deeplinks _should_ be handled through LinkingConfiguration, but
+    // I haven't totally figured it out. This is janky, but it gets the
+    // job done. 
     useEffect(() => {
         if (deeplinkURL) {
             const navigation = navigationRef?.current;
             const { path } = deeplinkURL;
+
             logAmplitudeEventProd('openedAppFromDeeplink', {
                 username: reelayDBUser?.username,
                 deeplink: JSON.stringify(deeplinkURL),
@@ -143,6 +146,13 @@ export default Navigation = () => {
                 const reelaySub = path.substr('reelay/'.length);
                 if (reelaySub) {
                     navigation.navigate('SingleReelayScreen', { reelaySub });
+                }
+            } else if (path?.startsWith('clubInvite/')) {
+                console.log('club invite found');
+                console.log(deeplinkURL);
+                const inviteCode = path.substr('clubInvite/'.length);
+                if (inviteCode) {
+                    navigation.navigate('ClubJoinFromLinkScreen', { inviteCode });
                 }
             } else if (path.length === UUID_LENGTH) {
                 // assume it's a reelay sub -- not entirely sure why it's cutting

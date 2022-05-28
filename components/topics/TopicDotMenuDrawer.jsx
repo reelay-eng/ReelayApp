@@ -124,13 +124,12 @@ const TopicDrawerContents = ({ navigation, setDrawerVisible, topic }) => {
         `
         const CloseButtonContainer = styled(Pressable)`
             align-self: flex-end;
+            height: 16px;
         `		
 
         return (
             <HeaderContainer>
-                <CloseButtonContainer onPress={closeDrawer}>
-                    <Icon color={'white'} type='ionicon' name='close' size={25}/>
-                </CloseButtonContainer>
+                <CloseButtonContainer onPress={closeDrawer} />
             </HeaderContainer>
         );
     }

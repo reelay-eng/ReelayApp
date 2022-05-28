@@ -1,14 +1,13 @@
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 import { getReelay, prepareReelay } from "../api/ReelayDBApi";
 import { getSingleTopic } from '../api/TopicsApi';
+import { fetchAnnotatedTitle } from '../api/TMDbApi';
 
 export const handlePushNotificationResponse = async ({ 
-    dispatch,
+    myClubs,
     navigation, 
     notificationContent, 
     reelayDBUser, 
-    globalTopics,
-    myWatchlistItems, 
 }) => {
     const { title, body, data } = notificationContent;
     const action = data?.action;
@@ -26,25 +25,55 @@ export const handlePushNotificationResponse = async ({
         body,
     });
 
-    if (action === 'openSingleReelayScreen') {
-        if (!data.reelaySub) {
-            console.log('No reelay sub given');
-        } else {
+    switch (action) {
+        case 'openClubActivityScreen':
+            await openClubActivityScreen(navigation, data?.club?.id, myClubs);
+            return;
+        case 'openClubAtReelay':
+            await openClubAtReelay(navigation, data?.reelaySub);
+            return;
+        case 'openCreateScreen':
+            await openCreateScreen(navigation);
+            return;
+        case 'openSingleReelayScreen':
             await openSingleReelayScreen(navigation, data?.reelaySub);
-        }
-    } else if (action === 'openUserProfileScreen') {
-        if (!data.fromUser) {
-          console.log("No user given");
-        } else {
+            return;
+        case 'openTitleScreen':
+            await openTitleScreen(navigation, data?.titleObj);
+            return;    
+        case 'openTopicAtReelay':
+            await openTopicAtReelay(navigation, data?.reelaySub);
+            return;
+        case 'openUserProfileScreen':
             await openUserProfileScreen(navigation, data?.fromUser);
-        }
-    } else if (action === 'openCreateScreen') {
-        await openCreateScreen(navigation);
-    } else if (action === 'openMyRecs') {
-        await openMyRecs(dispatch, navigation, [data?.newWatchlistItem], myWatchlistItems);
-    } else if (action === 'openTopicAtReelay') {
-        await openTopicAtReelay(navigation, globalTopics, data?.reelaySub)
+            return;
+        case 'openMyRecs':
+            // await openMyRecs(dispatch, navigation, [data?.newWatchlistItem], myWatchlistItems);
+            return;
+        default:
+            return;
     }
+}
+
+const openClubActivityScreen = async (navigation, clubID, myClubs) => {
+    if (!navigation) {
+        console.log('No navigation ref')
+        return;
+    }
+
+    if (!clubID) {
+        console.log('No club ID given');
+        return;
+    }
+
+    const club = myClubs.find(nextClub => nextClub.id === clubID);
+    // allows us to navigate to the ClubActivityScreen
+    // ...while returning to MyClubs on navigating back
+    navigation.navigate('ClubActivityScreen', { club, promptToInvite: false });
+}
+
+const openClubAtReelay = async (navigation, reelaySub) => {
+    // todo
 }
 
 const openCreateScreen = async (navigation) => {
@@ -55,29 +84,14 @@ const openCreateScreen = async (navigation) => {
     navigation.navigate('Create');
 }
 
-// todo: only add if coming from external push notification
-const openMyRecs = async (dispatch, navigation, newWatchlistItems, myWatchlistItems) => {
+const openSingleReelayScreen = async (navigation, reelaySub) => {
     if (!navigation) {
         console.log('No navigation ref')
         return;
     }
 
-    const isSameWatchlistItem = (item0, item1) => (item0.id === item1.id);
-    const allMyWatchlistItems = [...newWatchlistItems, ...myWatchlistItems];
-    const uniqueWatchlistItems = allMyWatchlistItems.filter((nextItem, index) => {
-        const duplicateIndex = allMyWatchlistItems.slice(0, index).findIndex((prevItem) => {
-            return isSameWatchlistItem(prevItem, nextItem);
-        });
-        return duplicateIndex === -1;
-    });
-
-    dispatch({ type: 'setMyWatchlistItems', payload: uniqueWatchlistItems });
-    navigation.navigate('Watchlist', { category: 'Recs' });
-}
-
-const openSingleReelayScreen = async (navigation, reelaySub) => {
-    if (!navigation) {
-        console.log('No navigation ref')
+    if (!reelaySub) {
+        console.log('No reelay sub given');
         return;
     }
 
@@ -86,7 +100,24 @@ const openSingleReelayScreen = async (navigation, reelaySub) => {
     navigation.navigate('SingleReelayScreen', { preparedReelay })
 }
 
-const openTopicAtReelay = async (navigation, globalTopics, reelaySub) => {
+const openTitleScreen = async (navigation, titleObj) => {
+    if (!navigation) {
+        console.log('No navigation ref');
+        return;
+    }
+
+    if (!titleObj?.id || !titleObj.titleType) {
+        console.log('Invalid title type');
+        return;
+    }
+
+    const tmdbTitleID = titleObj.id;
+    const titleType = titleObj.titleType === 'isSeries';
+    const annotatedTitle = await fetchAnnotatedTitle(tmdbTitleID, titleType);
+    navigation.navigate('TitleDetailScreen', { titleObj: annotatedTitle });
+}
+
+const openTopicAtReelay = async (navigation, reelaySub) => {
     if (!navigation) {
         console.log('No navigation ref')
         return;
@@ -104,10 +135,16 @@ const openTopicAtReelay = async (navigation, globalTopics, reelaySub) => {
     });  
 }
 
-const openUserProfileScreen = async (navigation, user) => {
+const openUserProfileScreen = async (navigation, fromUser) => {
     if (!navigation) {
         console.log("No navigation ref");
         return;
     }
-    navigation.navigate('UserProfileScreen', { creator: user });
+
+    if (!data.fromUser) {
+        console.log('No from user given');
+        return;
+    }
+
+    navigation.navigate('UserProfileScreen', { creator: fromUser });
 };

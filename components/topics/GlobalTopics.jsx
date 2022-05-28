@@ -5,7 +5,7 @@ import styled from 'styled-components/native';
 
 import { Icon } from 'react-native-elements';
 import TopicCard from './TopicCard';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import ReelayColors from '../../constants/ReelayColors';
 import Carousel from 'react-native-snap-carousel';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -61,13 +61,26 @@ const SeeAllTopicsText = styled(ReelayText.Subtitle2)`
 `
 
 export default GlobalTopics = ({ navigation }) => {
+    const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const curTopicIndex = useRef(0);
-    const fetchedTopics = useSelector(state => state.globalTopics);
+    const globalTopics = useSelector(state => state.globalTopics);
+    const globalTopicsWithReelays = useSelector(state => state.globalTopicsWithReelays);
     const advanceToTopicsList = () => navigation.push('TopicsListScreen');
 
     const CreateTopicButton = () => {
-        const advanceToCreateTopic = () => navigation.push('CreateTopicScreen');
+        const advanceToCreateTopic = () => {
+            if (showMeSignupIfGuest()) return;
+            navigation.push('CreateTopicScreen');
+        }
+
+        const showMeSignupIfGuest = () => {
+            if (reelayDBUser?.username === 'be_our_guest') {
+                dispatch({ type: 'setJustShowMeSignupVisible', payload: true })
+                return true;
+            }
+            return false;
+        }    
         return (
             <CreateTopicButtonContainer onPress={advanceToCreateTopic}>
                 <CreateTopicText>
@@ -80,8 +93,8 @@ export default GlobalTopics = ({ navigation }) => {
     const TopicsRow = () => {
         const onBeforeSnapToItem = async (swipeIndex) => {
             const swipeDirection = swipeIndex < curTopicIndex.current ? 'left' : 'right';
-            const nextTopic = fetchedTopics[swipeIndex];
-            const prevTopic = fetchedTopics[curTopicIndex.current];
+            const nextTopic = globalTopics[swipeIndex];
+            const prevTopic = globalTopics[curTopicIndex.current];
 
             logAmplitudeEventProd('swipedTopics', {
                 nextTopicTitle: nextTopic.title,
@@ -93,14 +106,29 @@ export default GlobalTopics = ({ navigation }) => {
         }
 
         const renderTopic = ({ item, index }) => {
-            const onPress = () => console.log('pressed on topic');
+            const topic = item;
+            const matchTopic = (nextTopic) => (nextTopic.id === topic.id);
+            const topicFeedIndex = globalTopicsWithReelays.findIndex(matchTopic);
+        
+            const advanceToFeed = () => {
+                if (!topic.reelays?.length) return;
+                navigation.push('TopicsFeedScreen', { 
+                    initTopicIndex: topicFeedIndex,
+                });
+                
+                logAmplitudeEventProd('openedTopic', {
+                    clubID: null,
+                    title: topic.title,
+                    username: reelayDBUser?.username,
+                });
+            }
             return (
                 <TopicCard 
                     key={index} 
-                    globalTopicIndex={index}
+                    advanceToFeed={advanceToFeed}
+                    clubID={null}
                     navigation={navigation} 
-                    onPress={onPress} 
-                    topic={item} 
+                    topic={topic} 
                 />
             );
         }
@@ -109,7 +137,7 @@ export default GlobalTopics = ({ navigation }) => {
             <Carousel
                 activeAnimationType={'decay'}
                 activeSlideAlignment={'center'}
-                data={fetchedTopics}
+                data={globalTopics}
                 inactiveSlideScale={0.95}
                 itemHeight={220}
                 itemWidth={width - 32}
@@ -132,7 +160,7 @@ export default GlobalTopics = ({ navigation }) => {
                     <SeeAllTopicsText>{'See all'}</SeeAllTopicsText>
                 </HeaderContainerRight>
             </HeaderContainer>
-            { fetchedTopics.length > 0 && <TopicsRow /> }
+            { globalTopics.length > 0 && <TopicsRow /> }
             <CreateTopicButton />
         </GlobalTopicsContainer>
     )

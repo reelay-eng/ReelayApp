@@ -94,12 +94,9 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         },
     });    
 
-    const dispatch = useDispatch();
-    const globalTopics = useSelector(state => state.globalTopics);
-    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-
     const { id, title, body, data, createdAt, seen } = notificationContent;
     const { reelayDBUser } = useContext(AuthContext);
+    const myClubs = useSelector(state => state.myClubs);
     const [pressed, setPressed] = useState(false);
     const timestamp = moment(createdAt).fromNow();
 
@@ -131,18 +128,23 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         const { notifyType, fromUser } = data;
 
         const profilePicNotifyTypes = [
-            'notifyOnAcceptRec',
-            'notifyOnReelayedRec',
-            'notifyOnSendRec',
+            'notifyClubOnTitleAdded',
+            'notifyClubTitleThreadOnNewReelay',
+            'notifyClubTopicThreadOnNewReelay',
             'notifyCreatorOnComment',
+            'notifyCreatorOnFollow',
+            'notifyCreatorOnLike',
             'notifyMentionedUserOnComment',
             'notifyMentionedUserOnReelayPosted',
+            'notifyNewMemberOnClubInvite',
+            'notifyOnAcceptRec',
+            'notifyOnAddedToWatchlist',
+            'notifyOnReelayedRec',
+            'notifyOnSendRec',
+            'notifyOtherCreatorsOnReelayPosted',
             'notifyThreadOnComment',
             'notifyTopicCreatorOnReelayPosted',
             'notifyUserOnCommentLike',
-            'notifyCreatorOnFollow',
-            'notifyCreatorOnLike',
-            'notifyOtherCreatorsOnReelayPosted',
         ];
 
         if (profilePicNotifyTypes.includes(notifyType)) {
@@ -160,17 +162,22 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         const { notifyType, title, fromUser } = data;
         const followButtonTypes = ['notifyCreatorOnFollow'];
         const posterButtonTypes = [
-            'notifyOnAcceptRec',
-            'notifyOnReelayedRec',
-            'notifyOnSendRec',
+            'notifyClubOnTitleAdded',
+            'notifyClubTitleThreadOnNewReelay',
+            'notifyClubTopicThreadOnNewReelay',
             'notifyCreatorOnComment',
+            'notifyCreatorOnLike',
             'notifyMentionedUserOnComment',
             'notifyMentionedUserOnReelayPosted',
+            'notifyNewMemberOnClubInvite',
+            'notifyOnAcceptRec',
+            'notifyOnAddedToWatchlist',
+            'notifyOnReelayedRec',
+            'notifyOnSendRec',
+            'notifyOtherCreatorsOnReelayPosted',
             'notifyThreadOnComment',
             'notifyTopicCreatorOnReelayPosted',
             'notifyUserOnCommentLike',
-            'notifyCreatorOnLike',
-            'notifyOtherCreatorsOnReelayPosted',
         ];
 
         if (followButtonTypes.includes(notifyType)) {
@@ -188,12 +195,10 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     const onPress = async () => {
         markNotificationActivated(id);
         handlePushNotificationResponse({ 
-            dispatch,
+            myClubs,
             navigation,
             notificationContent, 
             reelayDBUser,
-            globalTopics,
-            myWatchlistItems,
         });
     };
 
@@ -267,7 +272,7 @@ export default NotificationScreen = ({ navigation, route }) => {
     const unreadText = (unread > 0) ? `(${unread} new)` : '';
 
     useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false });
+        dispatch({ type: 'setTabBarVisible', payload: true });
     });
 
     useEffect(() => {
