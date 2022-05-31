@@ -120,23 +120,26 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     
     const uploadRequest = useSelector(state => state.uploadRequest);
     const uploadStage = useSelector(state => state.uploadStage);
-    const uploadStartedStages = ['check-club-title', 'upload-reelay', 'preparing-upload', 'uploading'];
+    const uploadStartedStages = ['check-club-title', 'upload-ready', 'preparing-upload', 'uploading'];
     const uploadStarted = uploadStartedStages.includes(uploadStage);
 
     // createUploadRequest can either be called from this screen or the
     // select destination drawer, so we need a variable clubID
     const createUploadRequest = async (clubID) => {
         try {
-            // Adding the file extension directly to the key seems to trigger S3 getting the right content type,
-            // not setting contentType as a parameter in the Storage.put call.
-            const videoS3Key = `reelayvid-${reelayDBUser?.sub}-${uploadTimestamp}.mp4`;
             const posterSource = titleObj?.posterSource;
             const starRating = starCountRef.current * 2;
+
+            // Adding the file extension directly to the key seems to trigger S3 getting the right content type,
+            // not setting contentType as a parameter in the Storage.put call.
             const uploadTimestamp = Date.now();
+            const videoS3Key = `reelayvid-${reelayDBUser?.sub}-${uploadTimestamp}.mp4`;
     
             const matchClubID = (nextClub) => (nextClub.id === clubID);
             const reelayClub = (clubID) ? myClubs.find(matchClubID) : null;
-            const reelayClubTitle = await getOrCreateClubTitle(clubID);
+            const reelayClubTitle = (clubID) 
+                ? await getOrCreateClubTitle(clubID) 
+                : null;
 
             if (clubID && (!reelayClubTitle || reelayClubTitle?.error)) {
                 showErrorToast('Ruh roh! Couldn\'t post your reelay. Try again?');
@@ -155,8 +158,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     
             const destination = (clubID) ? 'InClub' 
                 : (topicID) ? 'InTopic' 
-                : (myClubs.length === 0) ? 'OnProfile'
-                : 'TBD';
+                : 'OnProfile';
             
             const reelayDBBody = {
                 clubID: clubID ?? null,
@@ -284,10 +286,12 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         return (
             <UploadBottomArea onPress={Keyboard.dismiss}>
                 { pleaseBePatientShouldDisplay && uploadStarted && <PleaseBePatientPrompt /> }
-                <UploadDescriptionAndStarRating 
-                    starCountRef={starCountRef}
-                    descriptionRef={descriptionRef}
-                />
+                { !uploadStarted && (
+                    <UploadDescriptionAndStarRating 
+                        starCountRef={starCountRef}
+                        descriptionRef={descriptionRef}
+                    />
+                )}
                 <UploadBottomBar>
                     <DownloadButton titleObj={titleObj} videoURI={videoURI} />
                     <UploadButton />

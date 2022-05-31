@@ -127,6 +127,7 @@ const ReelayStack = ({
                 donateObj={donateObj}
             />
             { showProgressBar && <UploadProgressBar mountLocation={'OnProfile'} /> }
+            {/* <UploadProgressBar mountLocation={'OnProfile'} /> */}
         </ReelayFeedContainer>
     );
 }

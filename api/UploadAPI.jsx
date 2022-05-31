@@ -76,7 +76,6 @@ export const uploadReelay = async ({
             clearUploadRequest();
         }, 3000);
     
-        console.log('saved new Reelay');
         console.log('Upload dialog complete.');
     
         logAmplitudeEventProd('publishReelayComplete', {
@@ -236,10 +235,7 @@ const uploadToS3Multipart = async ({
             Key: `public/${videoS3Key}`,
             UploadId: UploadId,
         }));
-        
-        console.log('UPLOAD PARTS: ', uploadParts);
-        console.log('about to complete upload');
-    
+            
         const uploadCompleteStatus = await s3Client.send(new CompleteMultipartUploadCommand({
             Bucket: S3_UPLOAD_BUCKET,
             Key: `public/${videoS3Key}`,

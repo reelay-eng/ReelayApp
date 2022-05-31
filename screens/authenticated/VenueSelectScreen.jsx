@@ -219,6 +219,9 @@ export default VenueSelectScreen = ({ navigation, route }) => {
 
     useEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
+        dispatch({ type: 'setUploadStage', payload: 'none' });
+        dispatch({ type: 'setUploadRequest', payload: null });
+        dispatch({ type: 'setUploadProgress', payload: 0.0 });
     }, []);
 
     return (

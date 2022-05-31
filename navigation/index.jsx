@@ -163,6 +163,15 @@ export default Navigation = () => {
         }
     }, [deeplinkURL]);
 
+    const beginReelayUpload = async () => {
+        dispatch({ type: 'setUploadStage', payload: 'uploading' });
+        uploadRequest.s3Client = s3Client;
+        uploadRequest.setUploadProgress = setUploadProgress;
+        uploadRequest.setUploadStage = setUploadStage;
+        uploadRequest.clearUploadRequest = clearUploadRequest;
+        await uploadReelay(uploadRequest);
+    }
+
     useEffect(() => {
         const uploadReadyToStart = (
             uploadRequest && 
@@ -170,12 +179,7 @@ export default Navigation = () => {
             uploadStage === 'upload-ready'
         );
         if (uploadReadyToStart) {
-            dispatch({ type: 'setUploadStage', payload: 'uploading' });
-            uploadRequest.s3Client = s3Client;
-            uploadRequest.setUploadProgress = setUploadProgress;
-            uploadRequest.setUploadStage = setUploadStage;
-            uploadRequest.clearUploadRequest = clearUploadRequest;
-            uploadReelay(uploadRequest);
+            beginReelayUpload();
         }
     }, [uploadRequest, uploadStage]);
     
