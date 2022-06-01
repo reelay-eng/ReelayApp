@@ -81,6 +81,13 @@ export const ProfileSettings = ({navigation}) => {
 							Linking.openURL("https://www.reelay.app/privacy-policy");
 						}}
 					/>
+                    <SettingEntry
+                        text="Report an issue"
+                        iconName="flag-outline"
+                        onPress={() => {
+                            navigation.push('ReportIssueScreen', { viewedContentType: 'profileSettings' });
+                        }}
+                    />
 					<SettingEntry
 						text="Terms and Conditions"
 						iconName="document-text-outline"

@@ -23,6 +23,7 @@ const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
 const UPLOAD_CHUNK_SIZE = 8 * 1024 * 1024; // 5MB
 
 export const uploadReelay = async ({ 
+    authSession,
     clearUploadRequest,
     destination,
     reelayDBBody, 
@@ -88,7 +89,12 @@ export const uploadReelay = async ({
         preparedReelay.likes = [];
         preparedReelay.comments = [];    
     
-        await sendNotificationsOnUpload({ preparedReelay, reelayClubTitle, reelayTopic });     
+        await sendNotificationsOnUpload({ 
+            authSession,
+            preparedReelay, 
+            reelayClubTitle, 
+            reelayTopic 
+        });     
     } catch (error) {
         setUploadProgress(0.0);
         setUploadStage('upload-failed-retry');
@@ -100,12 +106,13 @@ export const uploadReelay = async ({
     }
 }
 
-const sendNotificationsOnUpload = async ({ preparedReelay, reelayClubTitle, reelayTopic }) => {
+const sendNotificationsOnUpload = async ({ authSession, preparedReelay, reelayClubTitle, reelayTopic }) => {
     const { creator } = preparedReelay;
     const mentionedUsers = await notifyMentionsOnReelayPosted({
+        authSession,
+        clubID: (reelayClubTitle) ? reelayClubTitle?.clubID : null,
         creator,
         reelay: preparedReelay,
-        clubID: (reelayClubTitle) ? reelayClubTitle?.clubID : null,
     });
 
     notifyOtherCreatorsOnReelayPosted({
