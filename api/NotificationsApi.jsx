@@ -468,7 +468,7 @@ export const notifyOtherCreatorsOnReelayPosted = async ({
     reelay, 
     topic = null,
     clubTitle = null,
-    mentionedUsers,
+    mentionedUsers = null,
 }) => {
     let notifyReelayStack;
     let action;
@@ -480,9 +480,11 @@ export const notifyOtherCreatorsOnReelayPosted = async ({
         notifyReelayStack = clubTitle.reelays;
         action = 'openClubActivityScreen';
     } else {
-        notifyReelayStack = getMostRecentReelaysByTitle(reelay.title.id);
+        notifyReelayStack = await getMostRecentReelaysByTitle(reelay.title.id);
         action = 'openSingleReelayScreen';
     }
+
+    console.log('notify reelay stack: ', notifyReelayStack);
     
     notifyReelayStack.map(async (notifyReelay, index) => {
         const notifyCreator = await getRegisteredUser(notifyReelay.creator.sub);
@@ -495,7 +497,6 @@ export const notifyOtherCreatorsOnReelayPosted = async ({
 
         const recipientIsCreator = (notifyCreator.sub === creator?.sub);
         const recipientMentioned = mentionedUsers && mentionedUsers.includes(notifyCreator.sub);
-        console.log(recipientMentioned)
         if (recipientIsCreator || recipientMentioned) {
             console.log('No need to send notification to creator');
             return;

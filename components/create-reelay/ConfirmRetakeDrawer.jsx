@@ -80,6 +80,9 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
                 username: reelayDBUser?.username,
                 title: titleObj.display,
             });    
+
+            dispatch({ type: 'setUploadStage', payload: 'none' });
+            dispatch({ type: 'setUploadRequest', payload: null });
         }
         return (
             <OptionContainerPressable onPress={onPress}>
@@ -110,7 +113,11 @@ export default ConfirmRetakeDrawer = ({ navigation, titleObj, confirmRetakeDrawe
                 username: reelayDBUser?.username,
                 title: titleObj.display,
             });    
+
+            dispatch({ type: 'setUploadStage', payload: 'none' });
+            dispatch({ type: 'setUploadRequest', payload: null });
         }
+
         return (
             <OptionContainerPressable onPress={onPress}>
                 <Icon type='ionicon' name='exit-outline' size={20} color={'white'} />
