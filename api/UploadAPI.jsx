@@ -105,6 +105,7 @@ const sendNotificationsOnUpload = async ({ preparedReelay, reelayClubTitle, reel
     const mentionedUsers = await notifyMentionsOnReelayPosted({
         creator,
         reelay: preparedReelay,
+        clubID: (reelayClubTitle) ? reelayClubTitle?.clubID : null,
     });
 
     notifyOtherCreatorsOnReelayPosted({

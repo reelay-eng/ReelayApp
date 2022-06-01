@@ -10,6 +10,7 @@ import {
     getRegisteredUser, 
     getUserByUsername, 
 } from './ReelayDBApi';
+import { getClubMembers } from './ClubsApi';
 
 const EXPO_NOTIFICATION_URL = Constants.manifest.extra.expoNotificationUrl;
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
@@ -415,7 +416,7 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
     await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
 }
 
-export const notifyMentionsOnReelayPosted = async ({ creator, reelay }) => {
+export const notifyMentionsOnReelayPosted = async ({ clubID = null, creator, reelay }) => {
     const descriptionText = reelay.description;
     if (!descriptionText || descriptionText === '') return;
 
@@ -430,6 +431,20 @@ export const notifyMentionsOnReelayPosted = async ({ creator, reelay }) => {
             const notifyMentionedUserSub = descriptionPart.data.id;
             const notifyMentionedUser = await getRegisteredUser(notifyMentionedUserSub);
             const token = notifyMentionedUser?.pushToken;
+
+            if (clubID) {
+                const clubMembers = await getClubMembers({
+                    authSession, 
+                    clubID, 
+                    reqUserSub: creator?.sub,
+                });
+                const matchMember = (memberSub) => (memberSub === notifyMentionedUserSub);
+                const matchFound = !!clubMembers.find(matchMember);
+                if (!matchFound) {
+                    console.log('Mentioned user not in club');
+                    return;
+                }
+            }
             
             if (!token) {
                 console.log('Comment author not registered for notifications');
