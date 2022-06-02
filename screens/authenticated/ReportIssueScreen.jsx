@@ -12,12 +12,23 @@ import { Icon } from 'react-native-elements';
 import BackButton from '../../components/utils/BackButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { validate } from 'validate.js';
+import constraints from '../../components/utils/EmailValidationConstraints';
+
 const { width } = Dimensions.get('window');
 
+const ClearEmailButtonBox = styled(TouchableOpacity)`
+    align-items: center;
+    height: 100%;
+    justify-content: center;
+    position: absolute;
+    margin-top: 6px;
+    right: 8px;
+`
 const EmailTextInput = styled(TextInput)`
     color: white;
     font-family: Outfit-Regular;
-    font-size: 16px;
+    font-size: 14px;
     font-style: normal;
     letter-spacing: 0.15px;
     margin-left: 8px;
@@ -30,9 +41,9 @@ const EmailTextInputBox = styled(View)`
     border-radius: 8px;
     border-width: 1px;
     flex-direction: row;
-    padding-left: 16px;
-    padding-bottom: 16px;
-    margin-bottom: 16px;
+    padding-top: 6px;
+    padding-left: 6px;
+    padding-bottom: 6px;
     width: ${width - 64}px;
 `
 const HeaderBox = styled(View)`
@@ -58,7 +69,7 @@ const InputLabelText = styled(ReelayText.CaptionEmphasized)`
 const IssueTextInput = styled(TextInput)`
     color: white;
     font-family: Outfit-Regular;
-    font-size: 16px;
+    font-size: 14px;
     font-style: normal;
     letter-spacing: 0.15px;
     margin: 8px;
@@ -73,8 +84,8 @@ const IssueTextInputBox = styled(View)`
     flex-direction: row;
     padding-top: 6px;
     padding-bottom: 6px;
-    padding-left: 16px;
-    padding-bottom: 16px;
+    padding-left: 6px;
+    padding-bottom: 6px;
     height: 200px;
     width: ${width - 64}px;
 `
@@ -87,6 +98,7 @@ const FullscreenBox = styled(Pressable)`
 `
 const LeaveBlankText = styled(ReelayText.Body2)`
     color: gray;
+    margin-top: 8px;
 `
 const SendButtonBox = styled(TouchableOpacity)`
     align-items: center;
@@ -97,7 +109,7 @@ const SendButtonBox = styled(TouchableOpacity)`
     justify-content: center;
     width: ${width - 64}px;
 `
-const SendButtonText = styled(ReelayText.Body1)`
+const SendButtonText = styled(ReelayText.Body2)`
     color: white;
     margin-left: 6px;
 `
@@ -109,7 +121,8 @@ export default ReportIssueScreen = ({ navigation, route }) => {
     const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
     const { viewedContent, viewedContentType } = route?.params;
-    const emailTextRef = useRef(reelayDBUser?.email)
+    const emailTextRef = useRef(reelayDBUser?.email);
+    const emailValidRef = useRef(!!reelayDBUser?.email);
     const issueTextRef = useRef('');
     const topOffset = useSafeAreaInsets().top;
 
@@ -118,6 +131,21 @@ export default ReportIssueScreen = ({ navigation, route }) => {
         const changeEmailText = (newEmailText) => {
             setEmailText(newEmailText);
             emailTextRef.current = newEmailText;
+        }
+
+        const emailInvalid = validate({ emailAddress: emailText }, constraints);
+        emailValidRef.current = (emailText?.length > 0 && !emailInvalid);
+
+        const ClearEmailButton = () => {
+            const clearEmail = () => changeEmailText('');
+            const invisible = (emailText?.length === 0);
+            if (invisible) return <View />;
+            
+            return (
+                <ClearEmailButtonBox onPress={clearEmail}>
+                    <Icon type='ionicon' name='close' color='white' size={20} />
+                </ClearEmailButtonBox>
+            );
         }
 
         return (
@@ -137,8 +165,9 @@ export default ReportIssueScreen = ({ navigation, route }) => {
                             color: 'white',
                         }}
                         textContentType='emailAddress'
-                        value={emailText.current}
+                        value={emailText}
                     />
+                    <ClearEmailButton />
                 </EmailTextInputBox>
             </View>
         );
@@ -165,6 +194,7 @@ export default ReportIssueScreen = ({ navigation, route }) => {
             setIssueText(newIssueText);
             issueTextRef.current = newIssueText;
         }
+        const MAX_CHAR_COUNT = 1000;
 
         return (
             <View>
@@ -175,8 +205,10 @@ export default ReportIssueScreen = ({ navigation, route }) => {
                     <IssueTextInput
                         autoCapitalize="sentences"
                         keyboardType="default"
+                        maxLength={MAX_CHAR_COUNT}
                         multiline
                         placeholder={"Tell us about the issue"}
+                        placeholderTextColor='gray'
                         onChangeText={changeIssueText}
                         leftIcon={{
                             type: 'ionicon',
@@ -193,14 +225,30 @@ export default ReportIssueScreen = ({ navigation, route }) => {
     const SendButton = () => {
         const [sent, setSent] = useState(false);
         const ERROR_MESSAGE = 'Ruh roh! Something went wrong. Try again, or email us directly at support@reelay.app';
+        const MIN_ISSUE_CHAR_COUNT = 10;
 
         const onPress = async () => {
             try {
+                if (!emailValidRef?.current) {
+                    showErrorToast('Ruh roh! Invalid email address');
+                    return;
+                }
+
+                if (issueTextRef.current?.length < MIN_ISSUE_CHAR_COUNT) {
+                    showErrorToast('Ruh roh! This message too short');
+                    return;
+                }
+
+                if (issueTextRef.current?.length < MIN_ISSUE_CHAR_COUNT) {
+                    showErrorToast('Ruh roh! Max message length is 1000 chars');
+                    return;
+                }
+
                 setSent(true);
                 const reportResult = await reportIssue({
                     authSession,
-                    email,
-                    issueText: issueText.current,
+                    email: emailTextRef.current,
+                    issueText: issueTextRef.current,
                     reportingUserSub: reelayDBUser?.sub,
                     viewedContent,
                     viewedContentType,
@@ -208,16 +256,18 @@ export default ReportIssueScreen = ({ navigation, route }) => {
                 if (reportResult?.success) {
                     showMessageToast('Issue reported -- thanks for the feedback');
                 } else {
+                    console.log('report result: ', reportResult);
                     showErrorToast(ERROR_MESSAGE);
                 }
-            } catch(error) {
+            } catch (error) {
+                console.log(error);
                 showErrorToast(ERROR_MESSAGE);
             }
         }    
 
         return (
             <SendButtonBox disabled={sent} onPress={onPress}>
-                <Icon type='ionicon' name='mail-outline' color='white' size={24} /> 
+                <Icon type='ionicon' name='mail-outline' color='white' size={18} /> 
                 <SendButtonText>{'Submit'}</SendButtonText>
             </SendButtonBox>
         );

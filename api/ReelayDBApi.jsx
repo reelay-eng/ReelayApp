@@ -71,6 +71,24 @@ export const blockCreator = async (creatorSub, blockingUserSub) => {
     return blockCreatorResult;
 }
 
+export const reportIssue = async ({ issueText, reportingUserSub, viewedContent, viewedContentType }) => {
+    // const routePost = `${REELAY_API_BASE_URL}/blockUsers/blockUser?blockedUserSub=${creatorSub}&blockingUserSub=${blockingUserSub}`;
+    const routePost = `${REELAY_API_BASE_URL}/reported-content/issue`;
+    const body = {
+        issueText, 
+        reportingUserSub, 
+        viewedContent, 
+        viewedContentType
+    }
+
+    const reportIssueResult = await fetchResults(routePost, {
+        method: 'POST',
+        headers: ReelayAPIHeaders,
+        body: JSON.stringify(body),
+    });
+    return reportIssueResult;
+}
+
 export const reportReelay = async (reportingUserSub, reportReq) => {
     const routePost = `${REELAY_API_BASE_URL}/reported-content/reelay`;
     const reportReelayResult = await fetchResults(routePost, {
