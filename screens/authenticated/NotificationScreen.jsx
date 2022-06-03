@@ -129,6 +129,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
 
         const profilePicNotifyTypes = [
             'notifyClubOnTitleAdded',
+            'notifyClubOnTopicAdded',
             'notifyClubTitleThreadOnNewReelay',
             'notifyClubTopicThreadOnNewReelay',
             'notifyCreatorOnComment',
@@ -163,6 +164,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         const followButtonTypes = ['notifyCreatorOnFollow'];
         const posterButtonTypes = [
             'notifyClubOnTitleAdded',
+            'notifyClubOnTopicAdded',
             'notifyClubTitleThreadOnNewReelay',
             'notifyClubTopicThreadOnNewReelay',
             'notifyCreatorOnComment',

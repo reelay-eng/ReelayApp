@@ -8,6 +8,7 @@ import * as ReelayText from '../../components/global/Text';
 import BackButton from '../../components/utils/BackButton';
 import { getReportedIssues } from '../../api/ReelayDBApi';
 import { useSelector } from 'react-redux';
+import ReelayColors from '../../constants/ReelayColors';
 
 const { width } = Dimensions.get('window');
 
@@ -42,8 +43,10 @@ const ReportedContentFeedContainer = styled(SafeAreaView)`
     background-color: black;
 `
 const IssueCardContainer = styled(View)`
-    background-color: #1a1a1a;
+    border-color: white;
+    background-color: ${ReelayColors.reelayBlack};
     border-radius: 8px;
+    border-width: 1px;
     margin: 8px;
     padding: 16px;
 `

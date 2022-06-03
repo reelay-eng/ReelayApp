@@ -199,7 +199,7 @@ export default ReportIssueScreen = ({ navigation, route }) => {
         return (
             <View>
                 <InputLabelBox>
-                    <InputLabelText>{`What's up?`}</InputLabelText>
+                    <InputLabelText>{`Tell us about the issue`}</InputLabelText>
                 </InputLabelBox>
                 <IssueTextInputBox>
                     <IssueTextInput
@@ -207,7 +207,7 @@ export default ReportIssueScreen = ({ navigation, route }) => {
                         keyboardType="default"
                         maxLength={MAX_CHAR_COUNT}
                         multiline
-                        placeholder={"Tell us about the issue"}
+                        placeholder={'What are you experiencing?'}
                         placeholderTextColor='gray'
                         onChangeText={changeIssueText}
                         leftIcon={{

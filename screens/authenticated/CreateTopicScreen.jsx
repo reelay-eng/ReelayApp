@@ -22,6 +22,7 @@ import { createTopic } from '../../api/TopicsApi';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import TopicAddFirstReelayDrawer from '../../components/topics/TopicAddFirstReelayDrawer';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import { notifyClubOnTopicAdded } from '../../api/ClubNotifications';
 
 const { width } = Dimensions.get('window');
 
@@ -177,6 +178,13 @@ export default function CreateTopicScreen({ navigation, route }) {
                     inClub: !!club,
                     club: club?.name ?? null,
                 });
+
+                if (club) {
+                    notifyClubOnTopicAdded({ club, topic: publishResult, addedByUser: {
+                        sub: reelayDBUser?.sub,
+                        username: reelayDBUser?.username,
+                    }});
+                }
             }
             return publishResult;
         };
