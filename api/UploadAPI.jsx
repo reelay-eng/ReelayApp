@@ -66,16 +66,10 @@ export const uploadReelay = async ({
         console.log('Saved Reelay to S3: ', s3UploadResult);
         setUploadProgress(0.8);
     
-        const dbUploadResult = await postReelayToDB(reelayDBBody);
-        console.log('Saved Reelay to DB: ', dbUploadResult);
+        const publishedReelay = await postReelayToDB(reelayDBBody);
+        console.log('Saved Reelay to DB: ', publishedReelay);
         setUploadProgress(1.0);
         setUploadStage('upload-complete');
-
-        setTimeout(() => {
-            setUploadStage('none');
-            setUploadProgress(0.0);
-            clearUploadRequest();
-        }, 3000);
     
         console.log('Upload dialog complete.');
     
@@ -85,7 +79,7 @@ export const uploadReelay = async ({
             destination,
         });
 
-        const preparedReelay = await prepareReelay(reelayDBBody);
+        const preparedReelay = await prepareReelay(publishedReelay);
         preparedReelay.likes = [];
         preparedReelay.comments = [];    
     
@@ -95,6 +89,13 @@ export const uploadReelay = async ({
             reelayClubTitle, 
             reelayTopic 
         });     
+
+        const publishObj = {
+            preparedReelay,
+            reelayClubTitle, 
+            reelayTopic
+        };
+        return publishObj;
     } catch (error) {
         setUploadProgress(0.0);
         setUploadStage('upload-failed-retry');
@@ -103,6 +104,7 @@ export const uploadReelay = async ({
             username: creatorName,
             userSub: creatorSub,
         });
+        return { error };
     }
 }
 

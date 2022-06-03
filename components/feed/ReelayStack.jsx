@@ -28,6 +28,7 @@ const ReelayStack = ({
     stackViewable,
     initialStackPos = 0,
     navigation,
+    onRefresh,
 }) => {
     const [stackPosition, setStackPosition] = useState(initialStackPos);
     const { reelayDBUser } = useContext(AuthContext);
@@ -126,8 +127,7 @@ const ReelayStack = ({
                 stack={stack}
                 donateObj={donateObj}
             />
-            { showProgressBar && <UploadProgressBar mountLocation={'OnProfile'} /> }
-            {/* <UploadProgressBar mountLocation={'OnProfile'} /> */}
+            { showProgressBar && <UploadProgressBar mountLocation={'OnProfile'} onRefresh={onRefresh} /> }
         </ReelayFeedContainer>
     );
 }

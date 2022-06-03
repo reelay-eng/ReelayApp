@@ -49,6 +49,7 @@ export default Navigation = () => {
 
     const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
+    const globalTopics = useSelector(state => state.globalTopics);
     const myClubs = useSelector(state => state.myClubs);
 
     const s3Client = useSelector(state => state.s3Client);
@@ -168,14 +169,26 @@ export default Navigation = () => {
     // the upload screen we dismount the component, and the upload API has no
     // direct access to redux, since it's not a react component
 
-    const beginReelayUpload = async () => {
-        dispatch({ type: 'setUploadStage', payload: 'uploading' });
-        uploadRequest.authSession = authSession;
-        uploadRequest.s3Client = s3Client;
-        uploadRequest.setUploadProgress = setUploadProgress;
-        uploadRequest.setUploadStage = setUploadStage;
-        uploadRequest.clearUploadRequest = clearUploadRequest;
-        await uploadReelay(uploadRequest);
+
+    const publishReelay = async () => {
+        try {
+            dispatch({ type: 'setUploadStage', payload: 'uploading' });
+            uploadRequest.authSession = authSession;
+            uploadRequest.s3Client = s3Client;
+            uploadRequest.setUploadProgress = setUploadProgress;
+            uploadRequest.setUploadStage = setUploadStage;
+            uploadRequest.clearUploadRequest = clearUploadRequest;
+            const publishedReelay = await uploadReelay(uploadRequest);    
+            console.log('published reelay: ', publishedReelay);
+
+            // setTimeout(() => {
+            //     console.log('set timeout triggered');
+            //     setUploadProgress(0.0);
+            //     clearUploadRequest();
+            // }, 3000);    
+        } catch (error) {
+            return { error };
+        }
     }
 
     useEffect(() => {
@@ -185,7 +198,7 @@ export default Navigation = () => {
             uploadStage === 'upload-ready'
         );
         if (uploadReadyToStart) {
-            beginReelayUpload();
+            publishReelay();
         }
     }, [uploadRequest, uploadStage]);
     

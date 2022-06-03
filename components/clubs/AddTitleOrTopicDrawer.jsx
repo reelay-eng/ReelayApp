@@ -53,7 +53,7 @@ const OptionText = styled(ReelayText.Body1)`
     color: white;
 `
 
-export default InviteMyFollowsDrawer = ({ club, navigation, drawerVisible, setDrawerVisible }) => {
+export default AddTitleOrTopicDrawer = ({ navigation, club, drawerVisible, setDrawerVisible }) => {
     const closeDrawer = () => setDrawerVisible(false);
     const advanceToAddTitleScreen = () => {
         closeDrawer();

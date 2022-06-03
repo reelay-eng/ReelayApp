@@ -111,7 +111,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         `
         
         const onRecordButtonPress = () => {
-            console.log('button press: ', isRecording);
             if (isRecording) {
                 stopVideoRecording();
                 setIsRecording(false);

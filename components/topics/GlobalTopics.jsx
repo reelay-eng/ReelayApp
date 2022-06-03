@@ -10,6 +10,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import Carousel from 'react-native-snap-carousel';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
+import { getGlobalTopics } from '../../api/TopicsApi';
 
 const { width } = Dimensions.get('window');
 
