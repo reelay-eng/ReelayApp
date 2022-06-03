@@ -229,11 +229,6 @@ export default ReportIssueScreen = ({ navigation, route }) => {
 
         const onPress = async () => {
             try {
-                if (!emailValidRef?.current) {
-                    showErrorToast('Ruh roh! Invalid email address');
-                    return;
-                }
-
                 if (issueTextRef.current?.length < MIN_ISSUE_CHAR_COUNT) {
                     showErrorToast('Ruh roh! This message too short');
                     return;
@@ -249,11 +244,12 @@ export default ReportIssueScreen = ({ navigation, route }) => {
                     authSession,
                     email: emailTextRef.current,
                     issueText: issueTextRef.current,
-                    reportingUserSub: reelayDBUser?.sub,
+                    reqUserSub: reelayDBUser?.sub,
+                    reqUsername: reelayDBUser?.username,
                     viewedContent,
                     viewedContentType,
                 });    
-                if (reportResult?.success) {
+                if (reportResult && !reportResult?.error) {
                     showMessageToast('Issue reported -- thanks for the feedback');
                 } else {
                     console.log('report result: ', reportResult);
@@ -266,7 +262,7 @@ export default ReportIssueScreen = ({ navigation, route }) => {
         }    
 
         return (
-            <SendButtonBox disabled={sent} onPress={onPress}>
+            <SendButtonBox disable={sent} onPress={onPress}>
                 <Icon type='ionicon' name='mail-outline' color='white' size={18} /> 
                 <SendButtonText>{'Submit'}</SendButtonText>
             </SendButtonBox>

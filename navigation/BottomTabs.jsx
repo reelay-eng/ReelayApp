@@ -3,6 +3,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import AuthenticatedCommonStack from './AuthenticatedCommonStack';
 
 import AccountInfoScreen from '../screens/authenticated/AccountInfoScreen';
+import AdminReportedIssuesScreen from '../screens/authenticated/AdminReportedIssuesScreen';
 import ClubAcceptInviteScreen from '../screens/authenticated/ClubAcceptInviteScreen';
 import ClubActivityScreen from '../screens/authenticated/ClubActivityScreen';
 import ClubAddTitleScreen from '../screens/authenticated/ClubAddTitleScreen';
@@ -67,6 +68,7 @@ export const ProfileTabNavigator = () => {
 			<ProfileTabStack.Screen name="GeneralSettingsScreen" component={GeneralSettingsScreen} options={commonOptions} />
 			<ProfileTabStack.Screen name="NotificationSettingsScreen" component={NotificationSettingsScreen} options={commonOptions} />
 			<ProfileTabStack.Screen name="AccountInfoScreen" component={AccountInfoScreen} options={commonOptions} />
+            <ProfileTabStack.Screen name="AdminReportedIssuesScreen" component={AdminReportedIssuesScreen} options={commonOptions} />
 		</AuthenticatedCommonStack>
 	);
 }

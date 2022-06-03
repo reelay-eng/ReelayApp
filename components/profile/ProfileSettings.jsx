@@ -36,6 +36,8 @@ export const ProfileSettings = ({navigation}) => {
         position: absolute;
 		width: 100%;
 	`
+    const { reelayDBUser } = useContext(AuthContext);
+    const isAdmin = (reelayDBUser?.role === 'admin');
     const dispatch = useDispatch();
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
@@ -88,6 +90,15 @@ export const ProfileSettings = ({navigation}) => {
                             navigation.push('ReportIssueScreen', { viewedContentType: 'profileSettings' });
                         }}
                     />
+                    { isAdmin && (
+                        <SettingEntry
+                            text="(Admin) See reported issues"
+                            iconName="flag-outline"
+                            onPress={() => {
+                                navigation.push('AdminReportedIssuesScreen');
+                            }}
+                        />                    
+                    )}
 					<SettingEntry
 						text="Terms and Conditions"
 						iconName="document-text-outline"

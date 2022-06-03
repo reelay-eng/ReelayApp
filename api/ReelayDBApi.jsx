@@ -2,7 +2,7 @@ import Constants from 'expo-constants';
 import { fetchResults } from './fetchResults';
 import { fetchAnnotatedTitle } from './TMDbApi';
 import * as Linking from 'expo-linking';
-import ReelayAPIHeaders from './ReelayAPIHeaders';
+import ReelayAPIHeaders, { getReelayAuthHeaders } from './ReelayAPIHeaders';
 
 const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -71,19 +71,30 @@ export const blockCreator = async (creatorSub, blockingUserSub) => {
     return blockCreatorResult;
 }
 
-export const reportIssue = async ({ issueText, reportingUserSub, viewedContent, viewedContentType }) => {
-    // const routePost = `${REELAY_API_BASE_URL}/blockUsers/blockUser?blockedUserSub=${creatorSub}&blockingUserSub=${blockingUserSub}`;
+export const reportIssue = async ({ 
+        authSession, 
+        email, 
+        issueText, 
+        reqUserSub, 
+        reqUsername,
+        viewedContent = {}, 
+        viewedContentType = 'profileSettings'
+}) => {
     const routePost = `${REELAY_API_BASE_URL}/reported-content/issue`;
     const body = {
+        email,
         issueText, 
-        reportingUserSub, 
-        viewedContent, 
+        username: reqUsername,
+        viewedContentJSON: JSON.stringify(viewedContent), 
         viewedContentType
     }
 
     const reportIssueResult = await fetchResults(routePost, {
         method: 'POST',
-        headers: ReelayAPIHeaders,
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            reqUserSub,
+        },
         body: JSON.stringify(body),
     });
     return reportIssueResult;
@@ -121,6 +132,18 @@ export const createDeeplinkPathToReelay = async (linkingUserSub, linkingUsername
         body: JSON.stringify(postBody),
     });
     return dbResult;
+}
+
+export const getReportedIssues = async ({ authSession, reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/reported-content/issues`;
+    const reportedIssues = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            reqUserSub,
+        },
+    })
+    return reportedIssues;
 }
 
 export const getReportedReelayStacks = async () => {
