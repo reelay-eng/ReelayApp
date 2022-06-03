@@ -112,6 +112,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const starCountRef = useRef(0);
     const pleaseBePatientShouldDisplay = (recordingLengthSeconds > 15);
 
+    console.log('recording length seconds: ', recordingLengthSeconds);
+
     // get the club we're (optionally) posting in
     const myClubs = useSelector(state => state.myClubs);
 

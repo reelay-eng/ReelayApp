@@ -130,7 +130,7 @@ export default TopicsListScreen = ({ navigation }) => {
             <HeaderContainer>
                 <HeaderLeftContainer>
                     <BackButton navigation={navigation} />
-                    <HeaderText>{'Topics'}</HeaderText>
+                    <HeaderText>{'Active topics'}</HeaderText>
                 </HeaderLeftContainer>
                 <SearchTopicsButton />
             </HeaderContainer>
