@@ -1,4 +1,4 @@
-import React, { useContext, useState, memo } from 'react';
+import React, { useContext, useState, memo, useRef } from 'react';
 import { Dimensions, FlatList, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import Hero from '../feed/Hero';
 import * as ReelayText from '../global/Text';
@@ -74,6 +74,7 @@ export default TopicStack = ({
     const headerTopOffset = useSafeAreaInsets().top;
     const addReelayBottomOffset = useSafeAreaInsets().bottom;
 
+    const stackRef = useRef(null);
     const uploadStage = useSelector(state => state.uploadStage);
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
@@ -85,7 +86,7 @@ export default TopicStack = ({
     });
 
     const renderReelay = ({ item, index }) => {
-        const headerHeight = headerTopOffset + 40;
+        const headerHeight = headerTopOffset + 52;
         const reelay = item;
         const reelayViewable = stackViewable && (index === stackPosition);  
         
@@ -135,6 +136,18 @@ export default TopicStack = ({
         }
     }
 
+    const onTappedOldest = () => {
+        setStackPosition(0);
+        stackRef?.current?.scrollToIndex({ animated: false, index: 0 });
+    }
+
+    const onTappedNewest = () => {
+        const nextPosition = topic?.reelays?.length - 1;
+        setStackPosition(nextPosition);
+        console.log('next position: ', nextPosition);
+        stackRef?.current?.scrollToIndex({ animated: false, index: nextPosition });
+    }
+
     return (
         <ReelayFeedContainer>
             <FlatList 
@@ -145,6 +158,7 @@ export default TopicStack = ({
                 getItemLayout={getItemLayout}
                 keyboardShouldPersistTaps={"handled"}
                 maxToRenderPerBatch={2}
+                ref={stackRef}
                 renderItem={renderReelay} 
                 onScroll={onStackSwiped} 
                 pagingEnabled={true} 
@@ -154,13 +168,15 @@ export default TopicStack = ({
                 navigation={navigation}
                 position={stackPosition}
                 topic={topic}
+                onTappedOldest={onTappedOldest}
+                onTappedNewest={onTappedNewest}
             />
             <AddReelayButton 
                 navigation={navigation} 
                 offset={addReelayBottomOffset}
                 topic={topic} 
             />
-            { showProgressBar && <UploadProgressBar mountLocation={'InTopic'} onRefresh={onRefresh} /> }
+            { showProgressBar && <UploadProgressBar mountLocation={'InTopic'}  /> }
         </ReelayFeedContainer>
     );
 }
