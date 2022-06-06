@@ -144,7 +144,6 @@ export default TopicStack = ({
     const onTappedNewest = () => {
         const nextPosition = topic?.reelays?.length - 1;
         setStackPosition(nextPosition);
-        console.log('next position: ', nextPosition);
         stackRef?.current?.scrollToIndex({ animated: false, index: nextPosition });
     }
 

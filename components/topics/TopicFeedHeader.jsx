@@ -31,9 +31,6 @@ const PositionRow = styled(View)`
     width: 100%;
     z-index: 2;
 `
-const DisabledText = styled(ReelayText.Subtitle2)`
-    color: gray;
-`
 const PositionText = styled(ReelayText.Subtitle2)`
     color: white;
 `

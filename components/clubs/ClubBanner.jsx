@@ -109,7 +109,7 @@ const InfoButtonContainer = styled(TouchableOpacity)`
     right: 16px;
     top: ${props => props.topOffset}px;
 `
-export default ClubBanner = ({ club, navigation, showBubbleBath = true, topicTitle = null }) => {
+export default ClubBanner = ({ club, navigation, showBubbleBath = true, position = 0, topic = null }) => {
     const topOffset = useSafeAreaInsets().top;
     const backButtonTopOffset = (showBubbleBath) 
         ? topOffset + 20 
@@ -202,7 +202,7 @@ export default ClubBanner = ({ club, navigation, showBubbleBath = true, topicTit
         return (
             <CondensedHeaderContainer>
                 <ClubNameText>{club.name}</ClubNameText>
-                { topicTitle && <ClubNameText>{topicTitle}</ClubNameText> }
+                { topic && <ClubNameText>{topic?.title}</ClubNameText> }
             </CondensedHeaderContainer>
         );
     }
