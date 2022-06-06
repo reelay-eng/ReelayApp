@@ -123,12 +123,10 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
     const Header = () => {
         const HeaderContainer = styled(View)`
             justify-content: center;
-            height: 24px;
+            height: 8px;
             margin-left: 12px;
             margin-right: 20px;
             margin-bottom: 12px;
-            border-bottom-color: #2D2D2D;
-            border-bottom-width: 1px;
         `
         return <HeaderContainer />;
     }

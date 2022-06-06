@@ -48,9 +48,9 @@ export default Navigation = () => {
     const [deeplinkURL, setDeeplinkURL] = useState(null);
 
     const dispatch = useDispatch();
+    const authSession = useSelector(state => state.authSession);
     const globalTopics = useSelector(state => state.globalTopics);
     const myClubs = useSelector(state => state.myClubs);
-    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
 
     const s3Client = useSelector(state => state.s3Client);
     const uploadRequest = useSelector(state => state.uploadRequest);
@@ -163,13 +163,32 @@ export default Navigation = () => {
         }
     }, [deeplinkURL]);
 
-    const beginReelayUpload = async () => {
-        dispatch({ type: 'setUploadStage', payload: 'uploading' });
-        uploadRequest.s3Client = s3Client;
-        uploadRequest.setUploadProgress = setUploadProgress;
-        uploadRequest.setUploadStage = setUploadStage;
-        uploadRequest.clearUploadRequest = clearUploadRequest;
-        await uploadReelay(uploadRequest);
+    // handling reelay uploads here, rather than on the upload screen or
+    // entirely in the UploadAPI file, because we need access to redux state
+    // to prepare the request and trigger responses at each stage. When leaving
+    // the upload screen we dismount the component, and the upload API has no
+    // direct access to redux, since it's not a react component
+
+
+    const publishReelay = async () => {
+        try {
+            dispatch({ type: 'setUploadStage', payload: 'uploading' });
+            uploadRequest.authSession = authSession;
+            uploadRequest.s3Client = s3Client;
+            uploadRequest.setUploadProgress = setUploadProgress;
+            uploadRequest.setUploadStage = setUploadStage;
+            uploadRequest.clearUploadRequest = clearUploadRequest;
+            const publishedReelay = await uploadReelay(uploadRequest);    
+            console.log('published reelay: ', publishedReelay);
+
+            // setTimeout(() => {
+            //     console.log('set timeout triggered');
+            //     setUploadProgress(0.0);
+            //     clearUploadRequest();
+            // }, 3000);    
+        } catch (error) {
+            return { error };
+        }
     }
 
     useEffect(() => {
@@ -179,7 +198,7 @@ export default Navigation = () => {
             uploadStage === 'upload-ready'
         );
         if (uploadReadyToStart) {
-            beginReelayUpload();
+            publishReelay();
         }
     }, [uploadRequest, uploadStage]);
     

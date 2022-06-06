@@ -260,7 +260,9 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         <ActivityScreenContainer>
             <ClubActivityScroll>
                 <DescriptionFold />
-                { showProgressBar && <UploadProgressBar mountLocation={'InClub'} clubID={club.id} /> }
+                { showProgressBar && (
+                    <UploadProgressBar clubID={club.id} mountLocation={'InClub'} onRefresh={onRefresh} />
+                )}
                 { (!refreshing && !club?.titles?.length) && <NoTitlesYetPrompt /> } 
                 { (clubActivities?.length > 0 ) && clubActivities?.map((activity) => {
                     return <ClubActivity key={activity.id} activity={activity} /> 

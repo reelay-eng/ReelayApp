@@ -186,6 +186,7 @@ const ReelayFeed = ({ navigation,
                 feedIndex={index}
                 initialStackPos={initialStackPos}
                 navigation={navigation}
+                onRefresh={refreshFeed}
             />
         );
     }

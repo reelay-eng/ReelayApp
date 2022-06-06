@@ -20,7 +20,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         padding-left: ${atProfileBase ? 10: 0}px;
     `
     const IconContainer = styled(TouchableOpacity)`
-        margin-left: 10px;
+        margin-left: 20px;
     `
     // should line up with home header
     const RightCornerContainer = styled(View)`
@@ -33,13 +33,13 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
     const TopBarContainer = styled(SafeAreaView)`
         align-items: center;
         flex-direction: row;
-        height: 30px;
+        height: 40px;
         margin-left: 4px;
         margin-right: 10px;
         margin-bottom: 8px;
         shadow-color: white;
         shadow-offset: 8px;
-        shadow-radius: 2px;     
+        shadow-radius: 2px;
     `
     const UnreadIconIndicator = styled(View)`
         background-color: ${ReelayColors.reelayBlue}
@@ -58,10 +58,10 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
             <RightCornerContainer>
                 <IconContainer onPress={advanceToMyWatchlist}>
                     {/* <WatchlistAddedIconSVG size={28} /> */}
-                    <FontAwesomeIcon icon={ faListCheck } size={22} color='white' />
+                    <FontAwesomeIcon icon={ faListCheck } size={27} color='white' />
                 </IconContainer>
                 <IconContainer onPress={advanceToMyProfileSettings}>
-                    <Icon type='ionicon' size={24} color={'white'} name='settings-outline' />
+                    <Icon type='ionicon' size={27} color={'white'} name='settings-outline' />
                 </IconContainer>
                 <IconContainer onPress={advanceToMyNotifications}>
                     <Icon type='ionicon' size={27} color={'white'} name='notifications' />

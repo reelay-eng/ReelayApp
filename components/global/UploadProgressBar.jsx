@@ -45,7 +45,7 @@ const ProgressText = styled(ReelayText.CaptionEmphasized)`
     padding-bottom: 8px;
 `
 
-export default UploadProgressBar = ({ mountLocation }) => {
+export default UploadProgressBar = ({ mountLocation, onRefresh }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const uploadProgress = useSelector(state => state.uploadProgress);
     const uploadRequest = useSelector(state => state.uploadRequest);
@@ -54,7 +54,7 @@ export default UploadProgressBar = ({ mountLocation }) => {
     const [hasSavePermission, setHasSavePermission] = useState(null);
     const [downloadStage, setDownloadStage] = useState('download-ready');
 
-    const indeterminate = (uploadStage === 'upload-ready');
+    const indeterminate = (uploadStage === 'upload-ready' || uploadStage === 'refreshing');
     const dispatch = useDispatch();
     const { top } = useSafeAreaInsets();
 
@@ -125,13 +125,6 @@ export default UploadProgressBar = ({ mountLocation }) => {
         }
     }
     
-    const hideProgressBar = () => {
-        // clear the request, forget it ever happened
-        dispatch({ type: 'setUploadStage', payload: 'none' });
-        dispatch({ type: 'setUploadProgress', payload: 0.0 });
-        dispatch({ type: 'setUploadRequest', payload: null });
-    }
-
     const setRetryUpload = () => {
         if (uploadStage !== 'upload-failed-retry') return;
         dispatch({ type: 'setUploadStage', payload: 'upload-ready' });
@@ -140,6 +133,28 @@ export default UploadProgressBar = ({ mountLocation }) => {
     if (uploadRequest?.destination !== mountLocation) {
         return <View />;
     }
+
+    const checkForRefresh = async () => {
+        console.log('checking for refresh: '. uploadStage);
+        if (uploadStage === 'upload-complete') {
+            const refreshOnCompletion = !!onRefresh;
+            if (refreshOnCompletion) {
+                console.log('refreshing on completion');
+                dispatch({ type: 'setUploadStage', payload: 'refreshing' });
+                await onRefresh();
+                console.log('finished refresh');
+            }    
+
+            dispatch({ type: 'setUploadStage', payload: 'none' });
+            dispatch({ type: 'setUploadProgress', payload: 0.0 });
+            dispatch({ type: 'setUploadRequest', payload: null });
+        }
+    }
+
+    useEffect(() => {
+        console.log('new upload stage: ', uploadStage);
+        checkForRefresh();
+    }, [uploadStage]);
 
     return (
         <ProgressContainer 
@@ -166,9 +181,6 @@ export default UploadProgressBar = ({ mountLocation }) => {
                 <FailureControlsContainer>
                     <CloseContainer onPress={downloadVideo}>
                         <Icon type='ionicon' name={downloadIconName} color='white' size={24} />
-                    </CloseContainer>
-                    <CloseContainer onPress={hideProgressBar}>
-                        <Icon type='ionicon' name='close' color='white' size={24} />
                     </CloseContainer>
                 </FailureControlsContainer>
             )}

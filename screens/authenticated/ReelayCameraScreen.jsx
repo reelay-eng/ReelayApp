@@ -31,6 +31,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const clubID = route.params?.clubID ?? null;
 
     const cameraRef = useRef(null);
+    const intervalIDRef = useRef(null);
     const recordingLength = useRef(0);
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const [retakeCounter, setRetakeCounter] = useState(0);
@@ -41,14 +42,18 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             return;
         }
 
+        clearInterval(intervalIDRef?.current);
+
+        const recordingLengthSeconds = recordingLength.current;
         navigation.push('ReelayUploadScreen', { 
             titleObj, 
-            recordingLengthSeconds: recordingLength.current,
+            recordingLengthSeconds,
             videoURI, 
             venue,
             clubID,
             topicID, 
         });
+        recordingLength.current = 0;
 
         // setting this prematurely when we advance to the upload screen,
         // not when we return from it via the Retake button
@@ -83,6 +88,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                     return;
                 }
 
+                recordingLength.current = selectedVideo.duration;
                 const source = selectedVideo.uri; // note: on android, this uri is read-only        
                 pushToUploadScreen(source);
             } else {
@@ -111,7 +117,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         `
         
         const onRecordButtonPress = () => {
-            console.log('button press: ', isRecording);
             if (isRecording) {
                 stopVideoRecording();
                 setIsRecording(false);
@@ -129,7 +134,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                         // quality: Camera.Constants.VideoQuality['1080p'],
                         codec: Camera.Constants.VideoCodec.H264,
                     });
-                    clearInterval();
+                    clearInterval(intervalIDRef?.current);
                     console.log('video recording complete');
                     if (videoRecording?.uri) {
                         pushToUploadScreen(videoRecording.uri);
@@ -148,9 +153,10 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
         const startCameraTimer = () => {
             // note: this is just use to detect how long the video is
             // it does not perform the cutoff
-            setInterval(() => {
+            intervalIDRef.current = setInterval(() => {
                 recordingLength.current = recordingLength.current + 1;
             }, 1000);
+
         }
 
         const stopVideoRecording = async () => {

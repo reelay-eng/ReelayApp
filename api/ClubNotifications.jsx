@@ -6,6 +6,20 @@ const condensedClubObj = ({ id, name }) => {
     return { id, name };
 }
 
+const condensedTopicObj = ({ id, title, description }) => {
+    return { id, title, description };
+};
+
+const notifyClubMember = async ({ title, body, data, clubMember }) => {
+    console.log('notifying club member: ', clubMember, data);
+    const clubMemberWithToken = await getRegisteredUser(clubMember?.userSub);
+    const sendToUserSub = clubMember?.userSub;
+    const token = clubMemberWithToken?.pushToken;
+    if (!token) return;
+    console.log('notified');
+    await sendPushNotification({ title, body, data, token, sendToUserSub });
+}
+
 export const notifyClubOnTitleAdded = async ({ club, clubTitle, addedByUser }) => {
     const title = `${addedByUser?.username}`;
     const body = `added a new title to ${club.name}: ${clubTitle.title.display}`;
@@ -17,22 +31,31 @@ export const notifyClubOnTitleAdded = async ({ club, clubTitle, addedByUser }) =
         fromUser: { sub: addedByUser?.sub, username: addedByUser?.username },
     };
 
-    const notifyClubMemberOnTitleAdded = async ({ title, body, data, clubMember }) => {
-        console.log('notifying club member: ', clubMember, data);
-        const clubMemberWithToken = await getRegisteredUser(clubMember?.userSub);
-        const sendToUserSub = clubMember?.userSub;
-        const token = clubMemberWithToken?.pushToken;
-        if (!token) return;
-        console.log('notified');
-        await sendPushNotification({ title, body, data, token, sendToUserSub });
-    }
+    await Promise.all(club.members.map((clubMember) => {
+        if (clubMember?.role === 'banned') return;
+        if (clubMember?.userSub === addedByUser?.sub) return;
+        notifyClubMember({ title, body, data, clubMember });
+    }));
+}
+
+export const notifyClubOnTopicAdded = async ({ club, topic, addedByUser }) => {
+    const title = `${addedByUser?.username}`;
+    const body = `added a new topic to ${club.name}: ${topic?.title}`;
+    const data = {        
+        action: 'openClubActivityScreen',
+        club: condensedClubObj(club),
+        topic: condensedTopicObj(topic),
+        notifyType: 'notifyClubOnTopicAdded', 
+        fromUser: { sub: addedByUser?.sub, username: addedByUser?.username },
+    };
 
     await Promise.all(club.members.map((clubMember) => {
         if (clubMember?.role === 'banned') return;
         if (clubMember?.userSub === addedByUser?.sub) return;
-        notifyClubMemberOnTitleAdded({ title, body, data, clubMember });
+        notifyClubMember({ title, body, data, clubMember });
     }));
 }
+
 
 export const notifyNewMemberOnClubInvite = async ({ club, newMember, invitedByUser }) => {
     const title = `${invitedByUser?.username}`;

@@ -23,6 +23,7 @@ const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
 const UPLOAD_CHUNK_SIZE = 8 * 1024 * 1024; // 5MB
 
 export const uploadReelay = async ({ 
+    authSession,
     clearUploadRequest,
     destination,
     reelayDBBody, 
@@ -65,16 +66,10 @@ export const uploadReelay = async ({
         console.log('Saved Reelay to S3: ', s3UploadResult);
         setUploadProgress(0.8);
     
-        const dbUploadResult = await postReelayToDB(reelayDBBody);
-        console.log('Saved Reelay to DB: ', dbUploadResult);
+        const publishedReelay = await postReelayToDB(reelayDBBody);
+        console.log('Saved Reelay to DB: ', publishedReelay);
         setUploadProgress(1.0);
         setUploadStage('upload-complete');
-
-        setTimeout(() => {
-            setUploadStage('none');
-            setUploadProgress(0.0);
-            clearUploadRequest();
-        }, 3000);
     
         console.log('Upload dialog complete.');
     
@@ -84,11 +79,23 @@ export const uploadReelay = async ({
             destination,
         });
 
-        const preparedReelay = await prepareReelay(reelayDBBody);
+        const preparedReelay = await prepareReelay(publishedReelay);
         preparedReelay.likes = [];
         preparedReelay.comments = [];    
     
-        await sendNotificationsOnUpload({ preparedReelay, reelayClubTitle, reelayTopic });     
+        await sendNotificationsOnUpload({ 
+            authSession,
+            preparedReelay, 
+            reelayClubTitle, 
+            reelayTopic 
+        });     
+
+        const publishObj = {
+            preparedReelay,
+            reelayClubTitle, 
+            reelayTopic
+        };
+        return publishObj;
     } catch (error) {
         setUploadProgress(0.0);
         setUploadStage('upload-failed-retry');
@@ -97,12 +104,15 @@ export const uploadReelay = async ({
             username: creatorName,
             userSub: creatorSub,
         });
+        return { error };
     }
 }
 
-const sendNotificationsOnUpload = async ({ preparedReelay, reelayClubTitle, reelayTopic }) => {
+const sendNotificationsOnUpload = async ({ authSession, preparedReelay, reelayClubTitle, reelayTopic }) => {
     const { creator } = preparedReelay;
     const mentionedUsers = await notifyMentionsOnReelayPosted({
+        authSession,
+        clubID: (reelayClubTitle) ? reelayClubTitle?.clubID : null,
         creator,
         reelay: preparedReelay,
     });

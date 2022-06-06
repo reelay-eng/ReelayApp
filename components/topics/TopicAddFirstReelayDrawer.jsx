@@ -90,14 +90,20 @@ const TopContainer = styled(View)`
     width: 100%;
 `
 
-export default TopicAddFirstReelayDrawer = ({ navigation, drawerVisible, setDrawerVisible, topic }) => {
-
+export default TopicAddFirstReelayDrawer = ({ 
+    navigation, 
+    drawerVisible, 
+    refreshTopics = null, 
+    setDrawerVisible, 
+    topic 
+}) => {
     return (
         <ModalContainer>
             <Modal animationType="slide" transparent={true} visible={drawerVisible}>
                 <DrawerContainer>
                     <TopicAddFirstReelay 
                         navigation={navigation} 
+                        refreshTopics={refreshTopics}
                         setDrawerVisible={setDrawerVisible} 
                         topic={topic}
                     />
@@ -107,13 +113,13 @@ export default TopicAddFirstReelayDrawer = ({ navigation, drawerVisible, setDraw
     );
 }
 
-const TopicAddFirstReelay = ({ navigation, setDrawerVisible, topic }) => {
+const TopicAddFirstReelay = ({ navigation, setDrawerVisible, refreshTopics, topic }) => {
     const { reelayDBUser } = useContext(AuthContext);
-
     const dispatch = useDispatch();
     const goBack = () => {
         setDrawerVisible(false);
         navigation.goBack();
+        if (refreshTopics) refreshTopics();
     }
 
     const showMeSignupIfGuest = () => {

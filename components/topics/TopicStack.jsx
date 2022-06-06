@@ -64,6 +64,7 @@ const AddReelayButton = ({ navigation, offset, topic }) => {
 export default TopicStack = ({ 
     initialStackPos = 0,
     navigation,
+    onRefresh,
     stackViewable,
     topic,  
 }) => {
@@ -159,7 +160,7 @@ export default TopicStack = ({
                 offset={addReelayBottomOffset}
                 topic={topic} 
             />
-            { showProgressBar && <UploadProgressBar mountLocation={'InTopic'} /> }
+            { showProgressBar && <UploadProgressBar mountLocation={'InTopic'} onRefresh={onRefresh} /> }
         </ReelayFeedContainer>
     );
 }

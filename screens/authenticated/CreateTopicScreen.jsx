@@ -18,10 +18,12 @@ import ReelayColors from '../../constants/ReelayColors';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { createTopic } from '../../api/TopicsApi';
+import { getClubTopics } from '../../api/ClubsApi';
+import { createTopic, getGlobalTopics } from '../../api/TopicsApi';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import TopicAddFirstReelayDrawer from '../../components/topics/TopicAddFirstReelayDrawer';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import { notifyClubOnTopicAdded } from '../../api/ClubNotifications';
 
 const { width } = Dimensions.get('window');
 
@@ -114,7 +116,35 @@ export default function CreateTopicScreen({ navigation, route }) {
     const [addFirstReelayDrawerVisible, setAddFirstReelayDrawerVisible] = useState(false);
 
     const club = route?.params?.club;
+    const authSession = useSelector(state => state.authSession);
     const globalTopics = useSelector(state => state.globalTopics);
+
+    const refreshClubTopics = async () => {
+        if (!club) return;
+        try { 
+            const topics = await getClubTopics({
+                authSession,
+                clubID: club.id,
+                reqUserSub: reelayDBUser?.sub,
+            });
+            club.topics = topics;
+            dispatch({ type: 'setUpdatedClub', payload: club });
+        } catch (error) {
+            console.log(error);
+            showErrorToast('Ruh roh! Could not load club activity');
+        }
+    }
+
+    const refreshGlobalTopics = async () => {
+        try {
+            const topics = await getGlobalTopics({ page: 0 });
+            dispatch({ type: 'setGlobalTopics', payload: topics });
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const refreshTopics = (club) ? refreshClubTopics : refreshGlobalTopics;
 
     const dispatch = useDispatch();
     const descriptionFieldRef = useRef(null);
@@ -164,7 +194,12 @@ export default function CreateTopicScreen({ navigation, route }) {
             } else {
                 publishResult.reelays = [];
                 publishedTopicRef.current = publishResult;
-                if (!club) {
+
+                if (club) {
+                    club.topics = [publishResult, ...club.topics];
+                    console.log('new club topics: ', club.topics);
+                    dispatch({ type: 'setUpdatedClub', payload: club });
+                } else {
                     dispatch({ type: 'setGlobalTopics', payload: [publishResult, ...globalTopics ]});
                 }
                 showMessageToast('Topic created!');
@@ -177,6 +212,13 @@ export default function CreateTopicScreen({ navigation, route }) {
                     inClub: !!club,
                     club: club?.name ?? null,
                 });
+
+                if (club) {
+                    notifyClubOnTopicAdded({ club, topic: publishResult, addedByUser: {
+                        sub: reelayDBUser?.sub,
+                        username: reelayDBUser?.username,
+                    }});
+                }
             }
             return publishResult;
         };
@@ -271,6 +313,7 @@ export default function CreateTopicScreen({ navigation, route }) {
                         navigation={navigation}
                         drawerVisible={addFirstReelayDrawerVisible}
                         setDrawerVisible={setAddFirstReelayDrawerVisible}
+                        refreshTopics={refreshTopics}
                         topic={publishedTopicRef.current}
                     /> 
                 )}

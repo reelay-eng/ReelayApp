@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { ActivityIndicator, Dimensions, FlatList, SafeAreaView, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, RefreshControl, View } from 'react-native';
 import { useDispatch } from "react-redux";
 import TopicStack from './TopicStack';
 
@@ -7,9 +7,9 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 
 import styled from 'styled-components/native';
-import { showMessageToast } from '../utils/toasts';
 import { useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
+import { getGlobalTopics } from '../../api/TopicsApi';
 
 const { height, width } = Dimensions.get('window');
 
@@ -33,6 +33,18 @@ export default TopicsFeed = ({
     const [feedPosition, setFeedPosition] = useState(initTopicIndex);
     const [refreshing, setRefreshing] = useState(false);
 
+    const onRefresh = async () => {
+        try {
+            setRefreshing(true);
+            const nextGlobalTopics = await getGlobalTopics({ page: 0 });
+            dispatch({ type: 'setGlobalTopics', payload: nextGlobalTopics });
+            setRefreshing(false);    
+        } catch (error) {
+            console.log(error);
+            setRefreshing(false);
+        }
+    }
+
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
     });
@@ -49,10 +61,6 @@ export default TopicsFeed = ({
         }
     }
 
-    const refreshFeed = () => {
-        // todo
-    }
-
     const renderStack = ({ item, index }) => {
         const stackViewable = (index === feedPosition);
         const initialStackPos = (index === initTopicIndex) ? initReelayIndex : 0;
@@ -60,8 +68,9 @@ export default TopicsFeed = ({
             <TopicStack 
                 initialStackPos={initialStackPos}
                 navigation={navigation}
-                topic={globalTopicsWithReelays[index]}
+                onRefresh={onRefresh}
                 stackViewable={stackViewable}
+                topic={globalTopicsWithReelays[index]}
             />
         );
     }
@@ -102,12 +111,16 @@ export default TopicsFeed = ({
                     keyExtractor={(stack) => `${stack[0].title.id}-${stack[0].sub}`}
                     maxToRenderPerBatch={1}
                     onEndReached={extendFeed}
-                    onRefresh={refreshFeed}
+                    onRefresh={onRefresh}
                     onScroll={onFeedSwiped}
                     pagingEnabled={true}
                     refreshing={refreshing}
                     ref={feedPager}
                     renderItem={renderStack}
+                    refreshControl={<RefreshControl 
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    />}
                     showsVerticalScrollIndicator={false}
                     style={{
                         backgroundColor: "transparent",

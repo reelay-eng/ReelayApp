@@ -112,6 +112,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const starCountRef = useRef(0);
     const pleaseBePatientShouldDisplay = (recordingLengthSeconds > 15);
 
+    console.log('recording length seconds: ', recordingLengthSeconds);
+
     // get the club we're (optionally) posting in
     const myClubs = useSelector(state => state.myClubs);
 
@@ -137,16 +139,13 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     
             const matchClubID = (nextClub) => (nextClub.id === clubID);
             const reelayClub = (clubID) ? myClubs.find(matchClubID) : null;
-            const reelayClubTitle = (clubID) 
-                ? await getOrCreateClubTitle(clubID) 
-                : null;
+            const hasClubTitle = (clubID && !topicID);
+            const reelayClubTitle = (hasClubTitle) ? await getOrCreateClubTitle(clubID) : null;
 
-            if (clubID && (!reelayClubTitle || reelayClubTitle?.error)) {
+            if (hasClubTitle && (!reelayClubTitle || reelayClubTitle?.error)) {
                 showErrorToast('Ruh roh! Couldn\'t post your reelay. Try again?');
                 return { error: 'Could not create club title' };
             }
-
-            console.log('reelay club: ', reelayClub);
     
             // the destination drawer cannot post directly into a topic, so
             // if topicID is populated, this clubID must have been passed as a param
