@@ -1,4 +1,4 @@
-import React, { useContext, useState, memo } from 'react';
+import React, { useContext, useState, memo, useRef } from 'react';
 import { Dimensions, FlatList, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import ReelayColors from '../../constants/ReelayColors';
@@ -88,12 +88,13 @@ export default ClubTitleOrTopicStack = ({
     const { activityType, reelays } = clubTitleOrTopic;
     const stack = reelays;
     const [stackPosition, setStackPosition] = useState(initialStackPos);
+    const stackRef = useRef(null);
     const viewableReelay = stack[stackPosition];
 
-    const titleBannerTopOffset = (activityType === 'topic')
-        ? 54
-        : 32;
     const addReelayBottomOffset = useSafeAreaInsets().bottom;
+    const titleBannerTopOffset = (activityType === 'topic')
+        ? 44
+        : 26;
 
     const donateLinks = useSelector(state => state.donateLinks);
     const donateObj = donateLinks?.find((donateLinkObj) => {
@@ -109,15 +110,30 @@ export default ClubTitleOrTopicStack = ({
         index: index,
     });
 
-    const renderTitleBanner = (reelay) => {
+    const onTappedOldest = () => {
+        setStackPosition(0);
+        stackRef?.current?.scrollToIndex({ animated: false, index: 0 });
+    }
+
+    const onTappedNewest = () => {
+        const nextPosition = reelays?.length - 1;
+        setStackPosition(nextPosition);
+        stackRef?.current?.scrollToIndex({ animated: false, index: nextPosition });
+    }
+
+    const renderTitleBanner = (reelay, activityType) => {
+        const posterWidth = (activityType === 'title') ? 60 : 48;
         return (
             <TitleBannerContainer offset={titleBannerTopOffset}>
                 <TitleBanner 
-                    titleObj={reelay?.title}
-                    navigation={navigation}
-                    viewableReelay={reelay}
-                    stack={stack}
                     donateObj={donateObj}
+                    navigation={navigation}
+                    onTappedNewest={onTappedNewest}
+                    onTappedOldest={onTappedOldest}    
+                    posterWidth={posterWidth}
+                    stack={stack}
+                    titleObj={reelay?.title}
+                    viewableReelay={reelay}
                 />
             </TitleBannerContainer>
         );
@@ -135,7 +151,7 @@ export default ClubTitleOrTopicStack = ({
                     reelay={reelay} 
                     viewable={reelayViewable}
                 />
-                { activityType === 'topic' && renderTitleBanner(reelay) }
+                { activityType === 'topic' && renderTitleBanner(reelay, activityType) }
             </ReelayFeedContainer>
         );
     };
@@ -178,6 +194,7 @@ export default ClubTitleOrTopicStack = ({
                 getItemLayout={getItemLayout}
                 keyboardShouldPersistTaps={"handled"}
                 maxToRenderPerBatch={2}
+                ref={stackRef}
                 renderItem={renderReelay} 
                 onScroll={onStackSwiped} 
                 pagingEnabled={true} 
@@ -187,9 +204,10 @@ export default ClubTitleOrTopicStack = ({
                 club={club} 
                 navigation={navigation} 
                 showBubbleBath={false}
-                topicTitle={(activityType === 'topic') ? clubTitleOrTopic?.title : null}
+                position={stackPosition}
+                topic={(activityType === 'topic') ? clubTitleOrTopic : null}
             />
-            { activityType === 'title' && renderTitleBanner(viewableReelay) }
+            { activityType === 'title' && renderTitleBanner(viewableReelay, activityType) }
             <AddReelayButton 
                 activityType={activityType}
                 navigation={navigation} 

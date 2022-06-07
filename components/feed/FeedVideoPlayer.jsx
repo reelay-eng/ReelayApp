@@ -58,9 +58,10 @@ export default function FeedVideoPlayer({ reelay, viewable }) {
 
 	const { reelayDBUser } = useContext(AuthContext);
 	const [paused, setPaused] = useState(false);
+	const [finishedLoading, setFinishedLoading] = useState(false);
 	const [playPauseVisible, setPlayPauseVisible] = useState(false);
 	
-	const shouldPlay = viewable && focused && !paused;
+	const shouldPlay = viewable && focused && finishedLoading && !paused;
 
 	useEffect(() => {
 		if (!viewable && paused) {
@@ -77,6 +78,9 @@ export default function FeedVideoPlayer({ reelay, viewable }) {
     }));
 
 	const onPlaybackStatusUpdate = (playbackStatus) => {
+		if (!finishedLoading && playbackStatus?.isLoaded) {
+			setFinishedLoading(true);
+		}
 		if (playbackStatus?.didJustFinish && viewable) {
 			logAmplitudeEventProd('watchedFullReelay', {
 				reelayID: reelay.id,

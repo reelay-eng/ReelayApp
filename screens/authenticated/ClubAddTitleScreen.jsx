@@ -232,7 +232,7 @@ export default ClubAddTitleScreen = ({ navigation, route }) => {
     
         return (
             <TitleResultRow key={titleObj?.id} onPress={onPress} selected={selected}>
-                <TitlePoster title={titleObj} onPress={() => {}} />
+                <TitlePoster title={titleObj} />
                 <TitleLineContainer>
                     <TitleText>{title}</TitleText>
                     <YearText selected={selected}>{`${releaseYear}    ${runtimeString}`}</YearText>

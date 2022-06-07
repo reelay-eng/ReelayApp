@@ -1,4 +1,4 @@
-import React, { useContext, useState, memo } from 'react';
+import React, { useContext, useState, memo, useRef } from 'react';
 import { Dimensions, FlatList, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import Hero from '../feed/Hero';
 import * as ReelayText from '../global/Text';
@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from 'react-native-elements';
 import { useSelector } from 'react-redux';
 import UploadProgressBar from '../global/UploadProgressBar';
+import TitleBanner from '../feed/TitleBanner';
 
 const { height, width } = Dimensions.get('window');
 
@@ -71,9 +72,9 @@ export default TopicStack = ({
     const { reelayDBUser } = useContext(AuthContext);
     const stack = topic.reelays;
     const [stackPosition, setStackPosition] = useState(initialStackPos);
-    const headerTopOffset = useSafeAreaInsets().top;
     const addReelayBottomOffset = useSafeAreaInsets().bottom;
 
+    const stackRef = useRef(null);
     const uploadStage = useSelector(state => state.uploadStage);
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
@@ -84,8 +85,19 @@ export default TopicStack = ({
         index: index,
     });
 
+    const onTappedOldest = () => {
+        setStackPosition(0);
+        stackRef?.current?.scrollToIndex({ animated: false, index: 0 });
+    }
+
+    const onTappedNewest = () => {
+        const nextPosition = topic?.reelays?.length - 1;
+        setStackPosition(nextPosition);
+        stackRef?.current?.scrollToIndex({ animated: false, index: nextPosition });
+    }
+
     const renderReelay = ({ item, index }) => {
-        const headerHeight = headerTopOffset + 40;
+        const headerHeight = 24;
         const reelay = item;
         const reelayViewable = stackViewable && (index === stackPosition);  
         
@@ -98,10 +110,20 @@ export default TopicStack = ({
                     viewable={reelayViewable}
                 />
                 <BannerContainer offset={headerHeight}>
-                    <TopicTitleBanner
+                    {/* <TopicTitleBanner
                         navigation={navigation}
                         reelay={reelay}
-                    />
+                    /> */}
+                <TitleBanner 
+                    donateObj={null}
+                    navigation={navigation}
+                    onTappedNewest={onTappedNewest}
+                    onTappedOldest={onTappedOldest}
+                    stack={stack}
+                    titleObj={reelay?.title}
+                    viewableReelay={reelay}
+                />
+
                 </BannerContainer>
             </ReelayFeedContainer>
         );
@@ -145,6 +167,7 @@ export default TopicStack = ({
                 getItemLayout={getItemLayout}
                 keyboardShouldPersistTaps={"handled"}
                 maxToRenderPerBatch={2}
+                ref={stackRef}
                 renderItem={renderReelay} 
                 onScroll={onStackSwiped} 
                 pagingEnabled={true} 
@@ -152,7 +175,6 @@ export default TopicStack = ({
             />
             <TopicFeedHeader 
                 navigation={navigation}
-                position={stackPosition}
                 topic={topic}
             />
             <AddReelayButton 
@@ -160,7 +182,7 @@ export default TopicStack = ({
                 offset={addReelayBottomOffset}
                 topic={topic} 
             />
-            { showProgressBar && <UploadProgressBar mountLocation={'InTopic'} onRefresh={onRefresh} /> }
+            { showProgressBar && <UploadProgressBar mountLocation={'InTopic'}  /> }
         </ReelayFeedContainer>
     );
 }

@@ -1,4 +1,4 @@
-import React, { useContext, useState, memo } from 'react';
+import React, { useContext, useState, memo, useRef } from 'react';
 import { Dimensions, FlatList, SafeAreaView, View } from 'react-native';
 import BackButton from '../utils/BackButton';
 import Hero from './Hero';
@@ -34,8 +34,10 @@ const ReelayStack = ({
     const { reelayDBUser } = useContext(AuthContext);
     const donateLinks = useSelector(state => state.donateLinks);
     const uploadStage = useSelector(state => state.uploadStage);
+
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
+    const stackRef = useRef(null);
 
     const viewableReelay = stack[stackPosition];
     const donateObj = donateLinks?.find((donateLinkObj) => {
@@ -50,6 +52,18 @@ const ReelayStack = ({
         offset: width * index, index,
         index: index,
     });
+
+    const onTappedOldest = () => {
+        setStackPosition(0);
+        stackRef?.current?.scrollToIndex({ animated: false, index: 0 });
+    }
+
+    const onTappedNewest = () => {
+        const nextPosition = stack?.length - 1;
+        console.log('next position: ', nextPosition);
+        setStackPosition(nextPosition);
+        stackRef?.current?.scrollToIndex({ animated: false, index: nextPosition });
+    }
 
     const renderBackButton = () => {
         return (
@@ -115,17 +129,20 @@ const ReelayStack = ({
                 getItemLayout={getItemLayout}
                 keyboardShouldPersistTaps={"handled"}
                 maxToRenderPerBatch={2}
+                ref={stackRef}
                 renderItem={renderReelay} 
                 onScroll={onStackSwiped} 
                 pagingEnabled={true} 
                 windowSize={3}
             />
             <TitleBanner 
-                titleObj={viewableReelay?.title}
-                navigation={navigation}
-                viewableReelay={viewableReelay}
-                stack={stack}
                 donateObj={donateObj}
+                navigation={navigation}
+                onTappedNewest={onTappedNewest}
+                onTappedOldest={onTappedOldest}
+                stack={stack}
+                titleObj={viewableReelay?.title}
+                viewableReelay={viewableReelay}
             />
             { showProgressBar && <UploadProgressBar mountLocation={'OnProfile'} onRefresh={onRefresh} /> }
         </ReelayFeedContainer>
