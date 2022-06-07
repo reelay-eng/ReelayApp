@@ -39,7 +39,8 @@ import {
     getFollowers, 
     getFollowing, 
     getStacksByCreator, 
-    getStreamingSubscriptions, 
+    getStreamingSubscriptions,
+    getLatestAnnouncement, 
 } from './api/ReelayDBApi';
 import { getAllMyNotifications } from './api/NotificationsApi';
 import { getWatchlistItems } from './api/WatchlistApi';
@@ -242,6 +243,7 @@ function App() {
             donateLinksLoaded,
 
             globalTopics,
+            latestAnnouncement,
             myClubs,
             myStacksFollowing,
             myStacksInTheaters,
@@ -259,6 +261,7 @@ function App() {
             getAllDonateLinks(),
 
             getGlobalTopics({ reqUserSub, page: 0 }),
+            getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
             getClubsMemberOf({ authSession, userSub }),
             getFeed({ reqUserSub, feedSource: 'following', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
@@ -275,11 +278,11 @@ function App() {
         dispatch({ type: 'setMyNotifications', payload: myNotificationsLoaded });
         dispatch({ type: 'setMyWatchlistItems', payload: myWatchlistItemsLoaded });
         dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
-
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
         dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
 
         dispatch({ type: 'setGlobalTopics', payload: globalTopics });
+        dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
         dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
         dispatch({ type: 'setMyStacksFollowing', payload: myStacksFollowing });
         dispatch({ type: 'setMyStacksInTheaters', payload: myStacksInTheaters });

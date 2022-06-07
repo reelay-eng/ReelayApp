@@ -134,6 +134,19 @@ export const createDeeplinkPathToReelay = async (linkingUserSub, linkingUsername
     return dbResult;
 }
 
+export const getLatestAnnouncement = async ({ authSession, reqUserSub, page }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/announcements?page=${page ?? 0}&visibility=${FEED_VISIBILITY}`;
+    const latestAnnouncement = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            reqUserSub,
+        },
+    });
+    console.log('latest announcement: ', latestAnnouncement);
+    return latestAnnouncement;
+}
+
 export const getReportedIssues = async ({ authSession, reqUserSub }) => {
     const routeGet = `${REELAY_API_BASE_URL}/reported-content/issues`;
     const reportedIssues = await fetchResults(routeGet, {
@@ -400,6 +413,19 @@ export const getVideoURIObject = (fetchedReelay) => {
         id: fetchedReelay.id, 
         videoURI: cloudfrontVideoURI,
     };
+}
+
+export const postAnnouncement = async ({ authSession, reqUserSub, postBody }) => {
+    const routePost = `${REELAY_API_BASE_URL}/announcements`;
+    const resultPost = await fetchResults(routePost, {
+        method: 'POST',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            reqUserSub,
+        },
+        body: JSON.stringify(postBody)
+    });
+    return resultPost;
 }
 
 export const postReelayToDB = async (reelayBody) => {
