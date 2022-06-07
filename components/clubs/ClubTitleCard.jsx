@@ -21,12 +21,11 @@ const BottomRowContainer = styled(View)`
     justify-content: space-between;
     margin: 16px;
     margin-bottom: 0px;
-    bottom: 16px;
+    bottom: 12px;
     position: absolute;
     width: ${width - 64}px;
 `
 const BottomRowLeftText = styled(ReelayText.Subtitle2)`
-    margin-left: 8px;
     color: #86878B;
 `
 const ContributorPicContainer = styled(View)`
@@ -36,6 +35,9 @@ const ContributorRowContainer = styled(View)`
     align-items: center;
     flex-direction: row;
     margin-left: 10px;
+`
+const ContributorRowSpacer = styled(View)`
+    margin-right: 6px;
 `
 const CreateReelayButton = styled(TouchableOpacity)`
     align-items: center;
@@ -76,6 +78,8 @@ const DescriptionText = styled(ReelayText.CaptionEmphasized)`
 `
 const DotMenuButtonContainer = styled(TouchableOpacity)`
     padding-right: 4px;
+    position: absolute;
+    top: 32px;
 `
 const PlayReelaysButton = styled(TouchableOpacity)`
     align-items: center;
@@ -92,6 +96,7 @@ const TitleLineContainer = styled(View)`
     flex-direction: row;
     margin-left: 16px;
     margin-right: 16px;
+    margin-top: 8px;
     margin-bottom: 8px;
 `
 const TitleText = styled(ReelayText.H6Emphasized)`
@@ -109,7 +114,7 @@ const TitleCardGradient = styled(LinearGradient)`
 const TitleCardPressable = styled(TouchableOpacity)`
     background-color: black;
     border-radius: 11px;
-    height: 220px;
+    height: 200px;
     width: ${width-32}px;
 `
 
@@ -180,6 +185,7 @@ const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
     return (
         <ContributorRowContainer>
             { displayCreators.map(renderProfilePic) }
+            <ContributorRowSpacer />
             <BottomRowLeftText>{reelayCountText}</BottomRowLeftText>
         </ContributorRowContainer>
     );
@@ -214,6 +220,10 @@ export default ClubTitleCard = ({
     });
 
     const [markedSeen, setMarkedSeen] = useState(inWatchlist && inWatchlist?.hasSeenTitle);
+    const advanceToTitleScreen = () => navigation.push('TitleDetailScreen', { 
+        titleObj: clubTitle?.title 
+    });
+    const onPress = () => (clubTitle.reelays.length) ? advanceToFeed() : advanceToTitleScreen();
 
     const CardTopLine = () => {
         return (
@@ -231,8 +241,15 @@ export default ClubTitleCard = ({
     }
 
     const DotMenuButton = () => {
-        const [dotMenuVisible, setDotMenuVisible] = useState(false);
         const openDrawer = () => setDotMenuVisible(true);
+
+        const addedByMe = (clubTitle.addedByUserSub === reelayDBUser?.sub);
+        const isAdmin = (reelayDBUser?.role === 'admin');
+        const canDelete = (clubTitle.reelays.length === 0) && (addedByMe || isAdmin);
+        const [dotMenuVisible, setDotMenuVisible] = useState(false);
+
+        if (!canDelete) return <View />;
+    
         return (
             <DotMenuButtonContainer onPress={openDrawer}>
                 <Icon type='ionicon' name='ellipsis-horizontal' size={20} color='white' />
@@ -250,13 +267,9 @@ export default ClubTitleCard = ({
     }
 
     const TitleLine = () => {
-        const advanceToTitleScreen = () => {
-            navigation.push('TitleDetailScreen', { titleObj: clubTitle?.title });
-        }
-
         return (
             <TitleLineContainer>
-                <TitlePoster onPress={advanceToTitleScreen} title={title} width={56} />
+                <TitlePoster title={title} width={56} />
                 <TitleDetailLine>
                     <TitleText numberOfLines={2}>{title.display}</TitleText>
                     <DescriptionText>{`${releaseYear}    ${runtimeString}`}</DescriptionText>
@@ -266,7 +279,7 @@ export default ClubTitleCard = ({
     }
 
     return (
-        <TitleCardPressable onPress={advanceToFeed}>
+        <TitleCardPressable onPress={onPress}>
             <TitleCardGradient colors={['#252527', '#19242E']} />
             <CardTopLine />
             <TitleLine />

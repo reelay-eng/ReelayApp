@@ -19,6 +19,8 @@ const TitleDrawerContents = ({ clubTitle, onRefresh, setDrawerVisible }) => {
     const authSession = useSelector(state => state.authSession);
 
     const addedByMe = (clubTitle.addedByUserSub === reelayDBUser?.sub);
+    const isAdmin = (reelayDBUser?.role === 'admin');
+    const canDelete = (clubTitle.reelays.length === 0) && (addedByMe || isAdmin);
     const bottomOffset = useSafeAreaInsets().bottom + 15;
     
     const ContentContainer = styled(View)`
@@ -151,7 +153,7 @@ const TitleDrawerContents = ({ clubTitle, onRefresh, setDrawerVisible }) => {
     const DotMenuOptions = () => {
         return (
             <ContentContainer>
-                { (reelayDBUser?.role === 'admin' || addedByMe) && <RemoveTitleOption /> }
+                { (canDelete) && <RemoveTitleOption /> }
             </ContentContainer>
         );
     }
