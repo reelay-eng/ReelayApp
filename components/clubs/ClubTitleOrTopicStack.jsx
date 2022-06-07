@@ -91,10 +91,10 @@ export default ClubTitleOrTopicStack = ({
     const stackRef = useRef(null);
     const viewableReelay = stack[stackPosition];
 
-    const titleBannerTopOffset = (activityType === 'topic')
-        ? 54
-        : 32;
     const addReelayBottomOffset = useSafeAreaInsets().bottom;
+    const titleBannerTopOffset = (activityType === 'topic')
+        ? 44
+        : 26;
 
     const donateLinks = useSelector(state => state.donateLinks);
     const donateObj = donateLinks?.find((donateLinkObj) => {

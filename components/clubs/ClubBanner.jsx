@@ -9,10 +9,10 @@ import BackButton from '../utils/BackButton';
 import ProfilePicture from '../global/ProfilePicture';
 
 const BackButtonContainer = styled(View)`
+    bottom: -6px;
     left: 6px;
     justify-content: flex-end;
     position: absolute;
-    top: ${props => props.topOffset}px;
 `
 const BubbleBathContainer = styled(View)`
     align-items: center;
@@ -77,9 +77,10 @@ const BubbleRightFiveContainer = styled(View)`
     top: 8px;
     left: 48px;
 `
-const ClubNameText = styled(ReelayText.Subtitle2)`
+const ClubNameText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     margin-right: 4px;
+    margin-bottom: 4px;
 `
 const HeaderBackground = styled(Pressable)`
     align-items: flex-end;
@@ -88,7 +89,7 @@ const HeaderBackground = styled(Pressable)`
     justify-content: center;
     padding-left: 6px;
     padding-right: 16px;
-    padding-bottom: 10px;
+    padding-bottom: 4px;
     padding-top: ${props => props.topOffset}px;
     position: absolute;
     width: 100%;
@@ -107,16 +108,13 @@ const InfoButtonContainer = styled(TouchableOpacity)`
     margin-left: 5px;
     position: absolute;
     right: 16px;
-    top: ${props => props.topOffset}px;
+    bottom: 2px;
 `
 export default ClubBanner = ({ club, navigation, showBubbleBath = true, position = 0, topic = null }) => {
     const topOffset = useSafeAreaInsets().top;
-    const backButtonTopOffset = (showBubbleBath) 
-        ? topOffset + 20 
-        : topOffset - 10;
     const infoButtonTopOffset = (showBubbleBath) 
         ? topOffset + 28 
-        : topOffset - 2;
+        : topOffset - 10;
 
     const bubbleBathLeftMembers = club.members.filter((clubMember, index) => {
         if (index >= 10) return false;
@@ -230,7 +228,7 @@ export default ClubBanner = ({ club, navigation, showBubbleBath = true, position
 
     return (
         <HeaderBackground onPress={advanceToClubInfoScreen} topOffset={topOffset}>
-            <BackButtonContainer topOffset={backButtonTopOffset}>
+            <BackButtonContainer>
                 <BackButton navigation={navigation} />
             </BackButtonContainer>
             { showBubbleBath && <HeaderWithBubbleBath /> }

@@ -13,6 +13,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from 'react-native-elements';
 import { useSelector } from 'react-redux';
 import UploadProgressBar from '../global/UploadProgressBar';
+import TitleBanner from '../feed/TitleBanner';
 
 const { height, width } = Dimensions.get('window');
 
@@ -71,7 +72,6 @@ export default TopicStack = ({
     const { reelayDBUser } = useContext(AuthContext);
     const stack = topic.reelays;
     const [stackPosition, setStackPosition] = useState(initialStackPos);
-    const headerTopOffset = useSafeAreaInsets().top;
     const addReelayBottomOffset = useSafeAreaInsets().bottom;
 
     const stackRef = useRef(null);
@@ -85,8 +85,19 @@ export default TopicStack = ({
         index: index,
     });
 
+    const onTappedOldest = () => {
+        setStackPosition(0);
+        stackRef?.current?.scrollToIndex({ animated: false, index: 0 });
+    }
+
+    const onTappedNewest = () => {
+        const nextPosition = topic?.reelays?.length - 1;
+        setStackPosition(nextPosition);
+        stackRef?.current?.scrollToIndex({ animated: false, index: nextPosition });
+    }
+
     const renderReelay = ({ item, index }) => {
-        const headerHeight = headerTopOffset + 52;
+        const headerHeight = 24;
         const reelay = item;
         const reelayViewable = stackViewable && (index === stackPosition);  
         
@@ -99,10 +110,20 @@ export default TopicStack = ({
                     viewable={reelayViewable}
                 />
                 <BannerContainer offset={headerHeight}>
-                    <TopicTitleBanner
+                    {/* <TopicTitleBanner
                         navigation={navigation}
                         reelay={reelay}
-                    />
+                    /> */}
+                <TitleBanner 
+                    donateObj={null}
+                    navigation={navigation}
+                    onTappedNewest={onTappedNewest}
+                    onTappedOldest={onTappedOldest}
+                    stack={stack}
+                    titleObj={reelay?.title}
+                    viewableReelay={reelay}
+                />
+
                 </BannerContainer>
             </ReelayFeedContainer>
         );
@@ -136,17 +157,6 @@ export default TopicStack = ({
         }
     }
 
-    const onTappedOldest = () => {
-        setStackPosition(0);
-        stackRef?.current?.scrollToIndex({ animated: false, index: 0 });
-    }
-
-    const onTappedNewest = () => {
-        const nextPosition = topic?.reelays?.length - 1;
-        setStackPosition(nextPosition);
-        stackRef?.current?.scrollToIndex({ animated: false, index: nextPosition });
-    }
-
     return (
         <ReelayFeedContainer>
             <FlatList 
@@ -165,10 +175,7 @@ export default TopicStack = ({
             />
             <TopicFeedHeader 
                 navigation={navigation}
-                position={stackPosition}
                 topic={topic}
-                onTappedOldest={onTappedOldest}
-                onTappedNewest={onTappedNewest}
             />
             <AddReelayButton 
                 navigation={navigation} 
