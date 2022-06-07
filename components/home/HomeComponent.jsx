@@ -9,7 +9,7 @@ import OnStreaming from './OnStreaming';
 import AtFestivals from './AtFestivals';
 import GlobalTopics from '../topics/GlobalTopics';
 
-import { getFeed, getFollowing, getStreamingSubscriptions } from '../../api/ReelayDBApi';
+import { getFeed, getFollowing, getLatestAnnouncement, getStreamingSubscriptions } from '../../api/ReelayDBApi';
 import { getAllMyNotifications } from '../../api/NotificationsApi';
 import { AuthContext } from '../../context/AuthContext';
 
@@ -58,6 +58,7 @@ const HomeComponent = ({ navigation }) => {
             myNotifications,
             myStreamingSubscriptions,
             globalTopics,
+            latestAnnouncement,
             topOfTheWeek,
             myStacksFollowing,
             myStacksInTheaters,
@@ -68,6 +69,7 @@ const HomeComponent = ({ navigation }) => {
             getAllMyNotifications(reelayDBUserID),
             getStreamingSubscriptions(reelayDBUserID),
             getGlobalTopics({ reqUserSub, page: 0 }),
+            getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
             getFeed({ reqUserSub, feedSource: 'trending', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'following', page: 0 }),
             getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
@@ -76,6 +78,7 @@ const HomeComponent = ({ navigation }) => {
         ]);
         
         dispatch({ type: 'setGlobalTopics', payload: globalTopics });
+        dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
         dispatch({ type: 'setTopOfTheWeek', payload: topOfTheWeek });
         dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
         dispatch({ type: 'setMyNotifications', payload: myNotifications });

@@ -5,6 +5,7 @@ import ClubJoinFromLinkScreen from '../screens/authenticated/ClubJoinFromLinkScr
 import CreateTopicScreen from '../screens/authenticated/CreateTopicScreen';
 import FeedScreen from '../screens/authenticated/FeedScreen';
 import NotificationScreen from '../screens/authenticated/NotificationScreen';
+import PinAnnouncementScreen from '../screens/authenticated/PinAnnouncementScreen';
 import ProfileFeedScreen from '../screens/authenticated/ProfileFeedScreen';
 import ReelayCameraScreen from '../screens/authenticated/ReelayCameraScreen';
 import ReelayUploadScreen from '../screens/authenticated/ReelayUploadScreen';
@@ -36,6 +37,7 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
             <CommonStack.Screen name='CreateTopicScreen' component={CreateTopicScreen} options={commonOptions} />
             <CommonStack.Screen name='FeedScreen' component={FeedScreen} options={commonOptions} />
             <CommonStack.Screen name="NotificationScreen" component={NotificationScreen} options={commonOptions} />
+            <CommonStack.Screen name='PinAnnouncementScreen' component={PinAnnouncementScreen} options={commonOptions} />
             <CommonStack.Screen name='ProfileFeedScreen' component={ProfileFeedScreen} options={commonOptions} />
 			<CommonStack.Screen name='ReportedReelaysFeedScreen' component={ReportedReelaysFeedScreen} options={commonOptions} />
             <CommonStack.Screen name='ReportedTopicsFeedScreen' component={ReportedTopicsFeedScreen} options={commonOptions} />

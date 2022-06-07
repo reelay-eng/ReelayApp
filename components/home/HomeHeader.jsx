@@ -39,7 +39,7 @@ const IconContainer = styled(TouchableOpacity)`
 `
 const TutorialButtonContainer = styled(Pressable)`
     align-items: center;
-    background-color: white;
+    background-color: ${ReelayColors.reelayBlue};
     border-radius: 6px;
     flex-direction: row;
     margin-left: 12px;
@@ -47,6 +47,7 @@ const TutorialButtonContainer = styled(Pressable)`
 `
 const TutorialButtonText = styled(ReelayText.CaptionEmphasized)`
     margin-left: 6px;
+    color: white;
 `
 const UnreadIconIndicator = styled(View)`
     background-color: ${ReelayColors.reelayBlue}
@@ -64,8 +65,9 @@ const HomeHeader = ({ navigation }) => {
     const myFollowing = useSelector(state => state.myFollowing);
     const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
+    const showLatestAnnouncement = (latestAnnouncement && !latestAnnouncement?.error)
     const daysSinceSignedUp = moment().diff(moment(reelayDBUser?.createdAt), 'days');
-    const showTutorialButton = (!latestAnnouncement) && (myFollowing.length > 0) && (daysSinceSignedUp < 7);
+    const showTutorialButton = (!showLatestAnnouncement) && (myFollowing.length > 0) && (daysSinceSignedUp < 7);
 
     const advanceToMyNotifications = () => navigation.push('NotificationScreen');
     const advanceToSearchScreen = () => navigation.push('SearchScreen');
@@ -74,7 +76,7 @@ const HomeHeader = ({ navigation }) => {
         <HeaderContainer>
             <HeaderContainerLeft>
                 <HeaderText>{'reelay'}</HeaderText>
-                { latestAnnouncement && <WatchAnnouncementButton navigation={navigation} announcement={latestAnnouncement} /> }
+                { showLatestAnnouncement && <WatchAnnouncementButton navigation={navigation} announcement={latestAnnouncement} /> }
                 { showTutorialButton && <WatchTutorialButton navigation={navigation} /> }
             </HeaderContainerLeft>
             <HeaderContainerRight>
@@ -91,7 +93,7 @@ const HomeHeader = ({ navigation }) => {
 };
 
 const WatchAnnouncementButton = ({ navigation, announcement }) => {
-    const { reelaySub, optionsJSON, title } = announcement;
+    const { reelaySub, title } = announcement;
 
     const loadAnnouncementVideoScreen = async () => {
         const announcementReelay = await getReelay(reelaySub);
@@ -102,7 +104,7 @@ const WatchAnnouncementButton = ({ navigation, announcement }) => {
         <TutorialButtonContainer onPress={loadAnnouncementVideoScreen}>
             <TutorialButtonText>{title}</TutorialButtonText>
             <IconContainer>
-                <Icon type='ionicon' size={24} color={'black'} name='play-circle' />
+                <Icon type='ionicon' size={24} color={'white'} name='play-circle' />
             </IconContainer>
         </TutorialButtonContainer>
     );
@@ -119,7 +121,7 @@ const WatchTutorialButton = ({ navigation }) => {
         <TutorialButtonContainer onPress={loadWelcomeVideoScreen}>
             <TutorialButtonText>{'Welcome'}</TutorialButtonText>
             <IconContainer>
-                <Icon type='ionicon' size={24} color={'black'} name='play-circle' />
+                <Icon type='ionicon' size={24} color={'white'} name='play-circle' />
             </IconContainer>
         </TutorialButtonContainer>
     );

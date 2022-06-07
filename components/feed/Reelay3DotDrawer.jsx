@@ -13,6 +13,9 @@ import { showMessageToast } from '../utils/toasts';
 import DownloadButton from '../create-reelay/DownloadButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faThumbtack } from '@fortawesome/free-solid-svg-icons';
+
 const ContentPolicy  = require('../../constants/ContentPolicy.json');
 
 const ReelayDotMenuContents = ({ reelay, navigation }) => {
@@ -129,6 +132,21 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
             margin-bottom: 12px;
         `
         return <HeaderContainer />;
+    }
+
+    const PinAnnouncementOption = () => {
+        const onPress = async () => {
+            closeDrawer();
+            navigation.push('PinAnnouncementScreen', { reelay });
+        }
+        
+        return (
+            <OptionContainerPressable onPress={onPress}>
+                <FontAwesomeIcon icon={faThumbtack} color='white' size={20}/>
+                <IconSpacer />
+                <OptionText>{'(Admin) Pin as Announcement'}</OptionText>
+            </OptionContainerPressable>
+        );
     }
 
     const Prompt = ({ text }) => {
@@ -371,6 +389,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
             <ContentContainer>
                 { !isMyReelay && <ReportContentOption /> }
                 { !isMyReelay && <BlockCreatorOption /> }
+                { (reelayDBUser?.role === 'admin') && <PinAnnouncementOption /> }
                 { (reelayDBUser?.role === 'admin' || isMyReelay) && <RemoveReelayOption /> }
                 { (reelayDBUser?.role === 'admin') && !isMyReelay && <SuspendAccountOption /> }
                 { (reelayDBUser?.role === 'admin') && <ViewReportedContentFeedOption /> }
