@@ -76,7 +76,7 @@ const HomeHeader = ({ navigation }) => {
         <HeaderContainer>
             <HeaderContainerLeft>
                 <HeaderText>{'reelay'}</HeaderText>
-                { showLatestAnnouncement && <WatchAnnouncementButton navigation={navigation} announcement={latestAnnouncement} /> }
+                { showLatestAnnouncement && <LatestAnnouncementButton navigation={navigation} announcement={latestAnnouncement} /> }
                 { showTutorialButton && <WatchTutorialButton navigation={navigation} /> }
             </HeaderContainerLeft>
             <HeaderContainerRight>
@@ -92,12 +92,10 @@ const HomeHeader = ({ navigation }) => {
 	);
 };
 
-const WatchAnnouncementButton = ({ navigation, announcement }) => {
-    const { reelaySub, title } = announcement;
+const LatestAnnouncementButton = ({ navigation, announcement }) => {
+    const { preparedReelay, title } = announcement;
 
     const loadAnnouncementVideoScreen = async () => {
-        const announcementReelay = await getReelay(reelaySub);
-        const preparedReelay = await prepareReelay(announcementReelay);
         navigation.push('SingleReelayScreen', { preparedReelay });
     }
     return (

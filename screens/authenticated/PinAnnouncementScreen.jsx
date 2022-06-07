@@ -140,6 +140,7 @@ export default function PinAnnouncementScreen({ navigation, route }) {
                 setPublishing(false);
             } else {
                 showMessageToast('Announcement pinned!');
+                navigation.pop();
             }
             return publishResult;
         };

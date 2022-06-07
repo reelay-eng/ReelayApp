@@ -35,6 +35,7 @@ const Spacer = styled.View`
 const HomeComponent = ({ navigation }) => {
     const dispatch = useDispatch();
     const { reelayDBUserID } = useContext(AuthContext);
+    const authSession = useSelector(state => state.authSession);
     const scrollRef = useRef(null);
     const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
 

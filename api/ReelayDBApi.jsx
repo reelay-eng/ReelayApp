@@ -135,16 +135,34 @@ export const createDeeplinkPathToReelay = async (linkingUserSub, linkingUsername
 }
 
 export const getLatestAnnouncement = async ({ authSession, reqUserSub, page }) => {
-    const routeGet = `${REELAY_API_BASE_URL}/announcements?page=${page ?? 0}&visibility=${FEED_VISIBILITY}`;
-    const latestAnnouncement = await fetchResults(routeGet, {
-        method: 'GET',
-        headers: {
-            ...getReelayAuthHeaders(authSession),
-            reqUserSub,
-        },
-    });
-    console.log('latest announcement: ', latestAnnouncement);
-    return latestAnnouncement;
+    try {
+        const routeGet = `${REELAY_API_BASE_URL}/announcements?page=${page ?? 0}&visibility=${FEED_VISIBILITY}`;
+        const latestAnnouncement = await fetchResults(routeGet, {
+            method: 'GET',
+            headers: {
+                ...getReelayAuthHeaders(authSession),
+                reqUserSub,
+            },
+        });
+
+        if (!latestAnnouncement || latestAnnouncement?.error) {
+            console.log('No latest announcement');
+            return null;
+        }
+
+        const fetchedReelay = await getReelay(latestAnnouncement?.reelaySub);
+        if (fetchedReelay) {
+            console.log('fetchedReelay: ', fetchedReelay);
+            const preparedReelay = await prepareReelay(fetchedReelay);
+            latestAnnouncement.preparedReelay = preparedReelay;
+        }
+        console.log('latest announcement: ', latestAnnouncement);
+        return latestAnnouncement;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+
 }
 
 export const getReportedIssues = async ({ authSession, reqUserSub }) => {
@@ -558,6 +576,20 @@ export const registerPushTokenForUser = async (userSub, pushToken) => {
         headers: ReelayAPIHeaders,
     });
     return resultPatch;
+}
+
+export const removeAnnouncement = async ({ announcementID, authSession, reqUserSub }) => {
+    const routeDelete = `${REELAY_API_BASE_URL}/announcements`;
+    const deleteBody = { announcementID };
+    const resultDelete = await fetchResults(routeDelete, {
+        method: 'DELETE',
+        headers: { 
+            ...getReelayAuthHeaders(authSession), 
+            requsersub: reqUserSub,
+        },
+        body: JSON.stringify(deleteBody),
+    });
+    return resultDelete;
 }
 
 export const removeComment = async (commentID) => {

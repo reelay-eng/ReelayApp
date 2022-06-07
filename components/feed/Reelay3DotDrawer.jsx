@@ -1,7 +1,7 @@
 import React, { useContext, useState, memo} from 'react';
 import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { blockCreator, removeReelay, reportReelay, suspendAccount } from '../../api/ReelayDBApi';
+import { blockCreator, removeAnnouncement, removeReelay, reportReelay, suspendAccount } from '../../api/ReelayDBApi';
 
 import { AuthContext } from '../../context/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
@@ -22,7 +22,10 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
 
     const dispatch = useDispatch();
+    const authSession = useSelector(state => state.authSession);
+    const latestAnnouncement = useSelector(state => state.latestAnnouncement);
     const isMyReelay = (reelayDBUser?.sub === reelay.creator.sub); 
+    const isLatestAnnouncement = (reelay?.sub === latestAnnouncement?.reelaySub);
 
     const [drawerState, setDrawerState] = useState('options');
     const [selectedPolicy, setSelectedPolicy] = useState({});
@@ -135,16 +138,24 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
     }
 
     const PinAnnouncementOption = () => {
-        const onPress = async () => {
+        const advanceToPinScreen = async () => {
             closeDrawer();
             navigation.push('PinAnnouncementScreen', { reelay });
         }
+
+        const onPress = () => (isLatestAnnouncement) 
+            ? setDrawerState('unpin-confirm') 
+            : advanceToPinScreen();
+
+        const optionText = (isLatestAnnouncement)
+            ? '(Admin) Unpin from announcements'
+            : '(Admin) Pin as announcement';
         
         return (
             <OptionContainerPressable onPress={onPress}>
                 <FontAwesomeIcon icon={faThumbtack} color='white' size={20}/>
                 <IconSpacer />
-                <OptionText>{'(Admin) Pin as Announcement'}</OptionText>
+                <OptionText>{optionText}</OptionText>
             </OptionContainerPressable>
         );
     }
@@ -369,6 +380,38 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         );
     }
 
+    const UnpinAnnouncementConfirm = () => {
+        const onPress = async () => {
+            const unpinResult = await removeAnnouncement({
+                announcementID: latestAnnouncement?.id,
+                authSession,
+                reqUserSub: reelayDBUser?.sub,
+            });
+            console.log(unpinResult);
+            setDrawerState('unpin-complete');
+        }
+
+        return (
+            <ContentContainer>
+                <Prompt text={'Are you sure you want to unpin this announcement?'} />
+                <OptionContainerPressable onPress={onPress}>
+                    <Icon type='ionicon' name='remove-circle' size={20} color={'white'} />
+                    <IconSpacer />
+                    <OptionText>{`Yes, unpin`}</OptionText>
+                </OptionContainerPressable>
+            </ContentContainer>
+        );
+    }
+
+    const UnpinAnnouncementComplete = () => {
+        const unpinReelayMessage = 'You have unpinned this reelay.';
+        return (
+            <ContentContainer>
+                <Prompt text={unpinReelayMessage} />
+            </ContentContainer>
+        );
+    }
+
     const ViewReportedContentFeedOption = () => {
         const onPress = () => {
             closeDrawer();
@@ -425,6 +468,8 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
                 { drawerState === 'report-content-complete' && <ReportContentComplete /> }
                 { drawerState === 'suspend-account-confirm' && <SuspendAccountConfirm /> }
                 { drawerState === 'suspend-account-complete' && <SuspendAccountComplete /> }
+                { drawerState === 'unpin-confirm' && <UnpinAnnouncementConfirm /> }
+                { drawerState === 'unpin-complete' && <UnpinAnnouncementComplete /> }
             </DrawerContainer>
     );
 }
