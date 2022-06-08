@@ -15,7 +15,7 @@ const { height, width } = Dimensions.get('window');
 const BackButtonContainer = styled(SafeAreaView)`
     align-self: flex-start;
     position: absolute;
-    top: 150px;
+    top: ${props => props.isPinned ? 50 : 150}px;
 `
 const ReelayFeedContainer = styled(View)`
     background-color: black;
@@ -34,12 +34,17 @@ const ReelayStack = ({
     const { reelayDBUser } = useContext(AuthContext);
     const donateLinks = useSelector(state => state.donateLinks);
     const uploadStage = useSelector(state => state.uploadStage);
-
+    
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
     const stackRef = useRef(null);
-
     const viewableReelay = stack[stackPosition];
+
+    const latestAnnouncement = useSelector(state => state.latestAnnouncement);
+    const pinnedReelaySub = latestAnnouncement?.reelaySub;
+    const viewableReelayIsPinned = !!pinnedReelaySub && (pinnedReelaySub === viewableReelay?.sub);
+    console.log('viewable reelay is pinned: ', viewableReelayIsPinned);
+
     const donateObj = donateLinks?.find((donateLinkObj) => {
         const { tmdbTitleID, titleType } = donateLinkObj;
         const viewableTitleID = stack[0].title.id;
@@ -60,14 +65,13 @@ const ReelayStack = ({
 
     const onTappedNewest = () => {
         const nextPosition = stack?.length - 1;
-        console.log('next position: ', nextPosition);
         setStackPosition(nextPosition);
         stackRef?.current?.scrollToIndex({ animated: false, index: nextPosition });
     }
 
     const renderBackButton = () => {
         return (
-            <BackButtonContainer>
+            <BackButtonContainer isPinned={viewableReelayIsPinned}>
                 <BackButton navigation={navigation} />
             </BackButtonContainer>
         );
