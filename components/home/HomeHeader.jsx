@@ -35,7 +35,6 @@ const HeaderText = styled(ReelayText.H4Bold)`
     margin-top: 4px;
 `
 const IconContainer = styled(TouchableOpacity)`
-    margin-left: 10px;
 `
 const TutorialButtonContainer = styled(Pressable)`
     align-items: center;
@@ -43,9 +42,11 @@ const TutorialButtonContainer = styled(Pressable)`
     border-radius: 6px;
     flex-direction: row;
     margin-left: 12px;
-    padding: 4px;
+    min-height: 32px;
+    padding: 6px;
 `
 const TutorialButtonText = styled(ReelayText.CaptionEmphasized)`
+    margin-top: 2px;
     margin-left: 6px;
     color: white;
 `
@@ -100,7 +101,7 @@ const LatestAnnouncementButton = ({ navigation, announcement }) => {
     }
     return (
         <TutorialButtonContainer onPress={loadAnnouncementVideoScreen}>
-            <TutorialButtonText>{title}</TutorialButtonText>
+            <TutorialButtonText>{`${title} `}</TutorialButtonText>
             <IconContainer>
                 <Icon type='ionicon' size={24} color={'white'} name='play-circle' />
             </IconContainer>
@@ -117,7 +118,7 @@ const WatchTutorialButton = ({ navigation }) => {
     }
     return (
         <TutorialButtonContainer onPress={loadWelcomeVideoScreen}>
-            <TutorialButtonText>{'Welcome'}</TutorialButtonText>
+            <TutorialButtonText>{'Welcome '}</TutorialButtonText>
             <IconContainer>
                 <Icon type='ionicon' size={24} color={'white'} name='play-circle' />
             </IconContainer>
