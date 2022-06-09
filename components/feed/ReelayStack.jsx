@@ -15,7 +15,7 @@ const { height, width } = Dimensions.get('window');
 const BackButtonContainer = styled(SafeAreaView)`
     align-self: flex-start;
     position: absolute;
-    top: ${props => props.isPinned ? 50 : 150}px;
+    top: ${props => props.noBanner ? 50 : 150}px;
 `
 const ReelayFeedContainer = styled(View)`
     background-color: black;
@@ -24,11 +24,12 @@ const ReelayFeedContainer = styled(View)`
 `
 
 const ReelayStack = ({ 
-    stack,  
-    stackViewable,
+    feedSource,
     initialStackPos = 0,
     navigation,
     onRefresh,
+    stack,  
+    stackViewable,
 }) => {
     const [stackPosition, setStackPosition] = useState(initialStackPos);
     const { reelayDBUser } = useContext(AuthContext);
@@ -42,8 +43,11 @@ const ReelayStack = ({
 
     const latestAnnouncement = useSelector(state => state.latestAnnouncement);
     const pinnedReelaySub = latestAnnouncement?.reelaySub;
-    const viewableReelayIsPinned = !!pinnedReelaySub && (pinnedReelaySub === viewableReelay?.sub);
-    console.log('viewable reelay is pinned: ', viewableReelayIsPinned);
+    const displayAsAnnouncement = !!pinnedReelaySub && (pinnedReelaySub === viewableReelay?.sub);
+    // const displayAsAnnouncement = (latestAnnouncementViewable && 
+    //     (feedSource === 'global' || feedSource === 'single')
+    // );
+    console.log('viewable reelay is pinned: ', displayAsAnnouncement);
 
     const donateObj = donateLinks?.find((donateLinkObj) => {
         const { tmdbTitleID, titleType } = donateLinkObj;
@@ -70,8 +74,10 @@ const ReelayStack = ({
     }
 
     const renderBackButton = () => {
+        // if it's a pinned reelay, we don't use the title banner
+        // so the y-height of the back button needs to change
         return (
-            <BackButtonContainer isPinned={viewableReelayIsPinned}>
+            <BackButtonContainer noBanner={displayAsAnnouncement}>
                 <BackButton navigation={navigation} />
             </BackButtonContainer>
         );
@@ -139,15 +145,17 @@ const ReelayStack = ({
                 pagingEnabled={true} 
                 windowSize={3}
             />
-            <TitleBanner 
-                donateObj={donateObj}
-                navigation={navigation}
-                onTappedNewest={onTappedNewest}
-                onTappedOldest={onTappedOldest}
-                stack={stack}
-                titleObj={viewableReelay?.title}
-                viewableReelay={viewableReelay}
-            />
+            { !displayAsAnnouncement && (
+                <TitleBanner 
+                    donateObj={donateObj}
+                    navigation={navigation}
+                    onTappedNewest={onTappedNewest}
+                    onTappedOldest={onTappedOldest}
+                    stack={stack}
+                    titleObj={viewableReelay?.title}
+                    viewableReelay={viewableReelay}
+                />
+            )}
             { showProgressBar && <UploadProgressBar mountLocation={'OnProfile'} onRefresh={onRefresh} /> }
         </ReelayFeedContainer>
     );

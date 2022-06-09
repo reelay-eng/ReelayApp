@@ -45,7 +45,6 @@ const InTheaters = memo(({ navigation }) => {
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'theaters',
-            isOnFeedTab: false,
             preloadedStackList: myStacksInTheaters,
 		});
 

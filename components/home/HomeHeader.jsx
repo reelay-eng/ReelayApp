@@ -94,10 +94,10 @@ const HomeHeader = ({ navigation }) => {
 };
 
 const LatestAnnouncementButton = ({ navigation, announcement }) => {
-    const { preparedReelay, title } = announcement;
+    const { pinnedReelay, title } = announcement;
 
     const loadAnnouncementVideoScreen = async () => {
-        navigation.push('SingleReelayScreen', { preparedReelay });
+        navigation.push('SingleReelayScreen', { preparedReelay: pinnedReelay });
     }
     return (
         <TutorialButtonContainer onPress={loadAnnouncementVideoScreen}>

@@ -1,6 +1,7 @@
 import { createStore } from "redux";
 import { 
     cognitoSessionReducer, 
+    pinAnnouncementReducer,
     stacksOnStreamingReducer, 
     updateClubReducer, 
     watchlistRecsReducer 
@@ -22,10 +23,11 @@ const initialState = {
     myFollowing: [],
     myFollowers: [],
     myNotifications: [],
+    myStreamingSubscriptions: [],
     myWatchlistItems: [],
 
-    myStreamingSubscriptions: [],
     myStacksFollowing: [],
+    myStacksGlobal: [],
     myStacksInTheaters: [],
     myStacksOnStreaming: [],
     myStacksAtFestivals: [],
@@ -100,14 +102,22 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, myFollowers: action.payload };
         case 'setMyNotifications':
             return { ...state, myNotifications: action.payload };
+        case 'setMyStreamingSubscriptions':
+            return { ...state, myStreamingSubscriptions: action.payload }        
         case 'setMyWatchlistItems':
             const myWatchlistItems = watchlistRecsReducer(action.payload);
             return { ...state, myWatchlistItems };
 
-        case 'setMyStreamingSubscriptions':
-            return { ...state, myStreamingSubscriptions: action.payload }
+        case 'setMyStacksAtFestivals':
+            return { ...state, myStacksAtFestivals: action.payload }    
         case 'setMyStacksFollowing':
             return { ...state, myStacksFollowing: action.payload }
+        case 'setMyStacksGlobal':
+            const myStacksGlobal = pinAnnouncementReducer({
+                announcement: state.latestAnnouncement,
+                stacksGlobal: action.payload,
+            });
+            return { ...state, myStacksGlobal };
         case 'setMyStacksInTheaters':
             return { ...state, myStacksInTheaters: action.payload }
         case 'setMyStacksOnStreaming':
@@ -116,8 +126,6 @@ const appReducer = ( state = initialState, action) => {
                 streamingSubscriptions: state.myStreamingSubscriptions,
             });
             return { ...state, myStacksOnStreaming }
-        case 'setMyStacksAtFestivals':
-            return { ...state, myStacksAtFestivals: action.payload }
         case 'setTopOfTheWeek':
             return { ...state, topOfTheWeek: action.payload }
 
@@ -194,10 +202,11 @@ export const mapStateToProps = (state) => ({
     myFollowers: state.myFollowers,
     myNotifications: state.myNotifications,
     myPreferences: state.myPreferences,
+    myStreamingSubscriptions: state.myStreamingSubscriptions,
     myWatchlistItems: state.myWatchlistItems,
 
-    myStreamingSubscriptions: state.myStreamingSubscriptions,
     myStacksFollowing: state.myStacksFollowing,
+    myStacksGlobal: state.myStacksGlobal,
     myStacksInTheaters: state.myStacksInTheaters,
     myStacksOnStreaming: state.myStacksOnStreaming,
     myStacksAtFestivals: state.myStacksAtFestivals,

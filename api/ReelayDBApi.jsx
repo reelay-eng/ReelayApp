@@ -154,7 +154,7 @@ export const getLatestAnnouncement = async ({ authSession, reqUserSub, page }) =
         if (fetchedReelay) {
             console.log('fetchedReelay: ', fetchedReelay);
             const preparedReelay = await prepareReelay(fetchedReelay);
-            latestAnnouncement.preparedReelay = preparedReelay;
+            latestAnnouncement.pinnedReelay = preparedReelay;
         }
         console.log('latest announcement: ', latestAnnouncement);
         return latestAnnouncement;
@@ -342,6 +342,25 @@ export const getCommentLikesForReelay = async (reelaySub, reqUserSub) => {
         headers: ReelayAPIHeaders,
     });
     return resultGet;
+}
+
+export const getHomeFeeds = async ({ authSession, reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/feed/home?visibility=${FEED_VISIBILITY}`;
+    const fetchedFeeds = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: { 
+            ...getReelayAuthHeaders(authSession), 
+            requsersub: reqUserSub
+        },
+    });
+
+    const preparedFeeds = {};
+    await Promise.all(Object.keys(fetchedFeeds).map(async (feedKey) => {
+        preparedFeeds[feedKey] = await prepareStacks(fetchedFeeds[feedKey]);
+        return feedKey;
+    }));
+
+    return preparedFeeds;
 }
 
 export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {

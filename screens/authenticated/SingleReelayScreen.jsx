@@ -51,6 +51,7 @@ export default SingleReelayScreen = ({ navigation, route }) => {
         <TitleFeedContainer>
             <FixedReelayFeed 
                 fixedStackList={[[singleReelay]]} 
+                feedSource='single'
                 initialStackPos={0} 
                 navigation={navigation} 
             />

@@ -167,13 +167,6 @@ export default TitleBanner = ({
         );
     }
 
-    const latestAnnouncement = useSelector(state => state.latestAnnouncement);
-    const pinnedReelay = latestAnnouncement?.preparedReelay
-    const hideTitleBanner = (pinnedReelay && (pinnedReelay?.sub === viewableReelay?.sub));
-    if (hideTitleBanner) {
-        return <View />;
-    }
-
     return (
         <TitleBannerContainer topOffset={topOffset}>
             <TitlePosterContainer>

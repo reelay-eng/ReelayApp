@@ -114,7 +114,6 @@ const FollowingElement = ({ stack, index, navigation, myStacksAtFestivals }) => 
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'festivals',
-            isOnFeedTab: false,
             preloadedStackList: myStacksAtFestivals,
 		});
 		logAmplitudeEventProd('openFollowingFeed', {
