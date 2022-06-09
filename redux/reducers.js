@@ -40,11 +40,11 @@ export const pinAnnouncementReducer = ({ announcement, stacksGlobal }) => {
     const pinnedReelay = announcement?.pinnedReelay ?? null;
     if (!pinnedReelay) return stacksGlobal;
     
-    const pinnedReelayAsStack = [pinnedReelay];
     const notPinnedReelay = (reelay) => (reelay?.sub !== pinnedReelay?.sub);
     const removePinnedReelay = (stack) => stack.filter(notPinnedReelay);
-    const unpinnedStacksGlobal = stacksGlobal.filter(removePinnedReelay);
-    return [pinnedReelayAsStack, ...unpinnedStacksGlobal];
+    const removeEmptyStacks = (stack) => stack?.length > 0;
+    const unpinnedStacksGlobal = stacksGlobal.map(removePinnedReelay).filter(removeEmptyStacks);
+    return [[pinnedReelay], ...unpinnedStacksGlobal];
 }
 
 export const stacksOnStreamingReducer = ({ stacksOnStreaming, streamingSubscriptions }) => {

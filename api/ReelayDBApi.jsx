@@ -152,11 +152,9 @@ export const getLatestAnnouncement = async ({ authSession, reqUserSub, page }) =
 
         const fetchedReelay = await getReelay(latestAnnouncement?.reelaySub);
         if (fetchedReelay) {
-            console.log('fetchedReelay: ', fetchedReelay);
             const preparedReelay = await prepareReelay(fetchedReelay);
             latestAnnouncement.pinnedReelay = preparedReelay;
         }
-        console.log('latest announcement: ', latestAnnouncement);
         return latestAnnouncement;
     } catch (error) {
         console.log(error);

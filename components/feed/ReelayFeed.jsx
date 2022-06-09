@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState, useRef, memo } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, View } from 'react-native';
-import { useDispatch, useSe, useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ReelayStack from './ReelayStack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -42,6 +42,21 @@ const ReelayFeed = ({ navigation,
     const [selectedStackList, setSelectedStackList] = useState(preloadedStackList ?? initStackList);
     const [selectedFeedPosition, setSelectedFeedPosition] = useState(initialFeedPos);
     const stackEmpty = (!selectedStackList.length) || (pinnedReelay && selectedStackList.length === 1);
+
+    const latestAnnouncement = useSelector(state => state.latestAnnouncement);
+    const sortPinnedReelays = (stacks, page = 0) => {
+        const pinnedReelay = latestAnnouncement?.pinnedReelay ?? null;
+        const notPinnedReelay = (reelay) => (reelay?.sub !== pinnedReelay?.sub);
+        const removePinnedReelay = (stack) => stack.filter(notPinnedReelay);
+        const removeEmptyStacks = (stack) => stack?.length > 0;    
+        const unpinnedStacksGlobal = stacks.map(removePinnedReelay).filter(removeEmptyStacks);
+
+        if (page === 0) {
+            return [[pinnedReelay], ...unpinnedStacksGlobal];
+        } else {
+            return unpinnedStacksGlobal;
+        }
+    }
 
     useEffect(() => {
         loadSelectedFeed();
@@ -118,10 +133,11 @@ const ReelayFeed = ({ navigation,
         }
 
         const filteredStacks = fetchedStacks.filter(notAlreadyInStack);
-        const newStackList = [...selectedStackList, ...filteredStacks];
+        const sortedStacks = sortPinnedReelays(filteredStacks, page);
+        const newStackList = [...selectedStackList, ...sortedStacks];
         nextPage.current = page + 1;
-        setSelectedStackList(newStackList);
 
+        setSelectedStackList(newStackList);
         return fetchedStacks;
     }
 
@@ -169,8 +185,17 @@ const ReelayFeed = ({ navigation,
             reqUserSub: reelayDBUser?.sub, 
             page: 0 
         });
+        // todo: deduplicate this code with the reducer for setMyGlobalStacks
+        if (latestAnnouncement?.pinnedReelay && feedSource === 'global') {
+            // remove the pinned reelay from the global feed
+            const sortedStacks = sortPinnedReelays(fetchedStacks, 0);
+            setSelectedStackList(sortedStacks);
+            console.log('sorted stack list length: ', sortedStacks.length);
+        } else {
+            console.log('fetched stack list length: ', fetchedStacks.length);
+            setSelectedStackList(fetchedStacks);
+        }        
         nextPage.current = 1;
-        setSelectedStackList(fetchedStacks);
         setRefreshing(false);
         showMessageToast('You\'re at the top', 'top');
     }
