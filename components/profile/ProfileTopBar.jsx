@@ -1,12 +1,10 @@
 import React from 'react';
 import { SafeAreaView, View, Platform, TouchableOpacity } from 'react-native';
 import { Icon } from 'react-native-elements';
-import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import BackButton from '../utils/BackButton';
 
-import { useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faListCheck } from '@fortawesome/free-solid-svg-icons';
 
@@ -18,7 +16,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         padding-left: ${atProfileBase ? 10: 0}px;
     `
     const IconContainer = styled(TouchableOpacity)`
-        margin-left: 20px;
+        margin-left: 12px;
     `
     // should line up with home header
     const RightCornerContainer = styled(View)`

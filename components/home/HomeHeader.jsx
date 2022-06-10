@@ -35,6 +35,7 @@ const HeaderText = styled(ReelayText.H4Bold)`
     margin-top: 4px;
 `
 const IconContainer = styled(TouchableOpacity)`
+    margin-left: 12px;
 `
 const TutorialButtonContainer = styled(Pressable)`
     align-items: center;
