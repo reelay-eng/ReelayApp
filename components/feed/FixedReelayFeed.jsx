@@ -19,6 +19,7 @@ const ReelayFeedContainer = styled(View)`
 const FixedReelayFeed = ({ navigation, 
     initialFeedPos = 0,
     initialStackPos = 0,
+    feedSource,
     fixedStackList = [],
     forceRefresh = false, 
 }) => {
@@ -56,11 +57,11 @@ const FixedReelayFeed = ({ navigation,
         return (
             <React.Fragment>
                 <ReelayStack 
-                    stack={stack} 
-                    stackViewable={stackViewable}
-                    feedIndex={index}
+                    feedSource={feedSource}
                     initialStackPos={initialStackPos}
                     navigation={navigation}
+                    stack={stack} 
+                    stackViewable={stackViewable}
                 />
             </React.Fragment>
         );

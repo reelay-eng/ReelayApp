@@ -90,7 +90,6 @@ export default OnStreaming = ({ navigation }) => {
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'streaming',
-            isOnFeedTab: false,
             preloadedStackList: myStacksOnStreaming,
 		});
 

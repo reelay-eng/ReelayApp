@@ -1,6 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState, useRef, memo } from 'react';
 import { ActivityIndicator, Dimensions, FlatList, View } from 'react-native';
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ReelayStack from './ReelayStack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -26,8 +26,8 @@ const ReelayFeed = ({ navigation,
     initialFeedPos = 0,
     forceRefresh = false, 
     initialFeedSource = 'global',
-    preloadedStackList = [],
-    isOnFeedTab = true,
+    initStackList = [],
+    preloadedStackList = null,
     pinnedReelay = null,
 }) => {
     const feedPager = useRef();
@@ -36,12 +36,12 @@ const ReelayFeed = ({ navigation,
     const { reelayDBUser } = useContext(AuthContext);
 	const dispatch = useDispatch();
 
-    const [feedSource, setFeedSource] = useState(initialFeedSource);
+    const feedSource = initialFeedSource;
     const [refreshing, setRefreshing] = useState(false);
 
-    const initStackList = (pinnedReelay) ? [[ pinnedReelay ]] : [];
-    const [selectedStackList, setSelectedStackList] = useState(initStackList.concat(preloadedStackList));
+    const [selectedStackList, setSelectedStackList] = useState(preloadedStackList ?? initStackList);
     const [selectedFeedPosition, setSelectedFeedPosition] = useState(initialFeedPos);
+    const stackEmpty = (!selectedStackList.length) || (pinnedReelay && selectedStackList.length === 1);
 
     useEffect(() => {
         loadSelectedFeed();
@@ -71,7 +71,6 @@ const ReelayFeed = ({ navigation,
 
     const loadSelectedFeed = async () => {
         console.log("loading", feedSource, " feed....");
-        const stackEmpty = !selectedStackList.length;
         if (!stackEmpty && !forceRefresh) {
           console.log("feed already loaded");
           return;
@@ -90,7 +89,7 @@ const ReelayFeed = ({ navigation,
     }, [feedSource]);
 
     useFocusEffect(useCallback(() => {
-        if (initialFeedSource === 'global' && isOnFeedTab) {
+        if (initialFeedSource === 'global') {
             AsyncStorage.setItem('lastOnGlobalFeed', new Date().toISOString());
             dispatch({ type: 'setHasUnseenGlobalReelays', payload: false });
 
@@ -121,8 +120,8 @@ const ReelayFeed = ({ navigation,
         const filteredStacks = fetchedStacks.filter(notAlreadyInStack);
         const newStackList = [...selectedStackList, ...filteredStacks];
         nextPage.current = page + 1;
-        setSelectedStackList(newStackList);
 
+        setSelectedStackList(newStackList);
         return fetchedStacks;
     }
 
@@ -170,8 +169,9 @@ const ReelayFeed = ({ navigation,
             reqUserSub: reelayDBUser?.sub, 
             page: 0 
         });
-        nextPage.current = 1;
+
         setSelectedStackList(fetchedStacks);
+        nextPage.current = 1;
         setRefreshing(false);
         showMessageToast('You\'re at the top', 'top');
     }
@@ -182,11 +182,12 @@ const ReelayFeed = ({ navigation,
 
         return (
             <ReelayStack 
-                stack={stack} stackViewable={stackViewable}
-                feedIndex={index}
+                feedSource={feedSource}
                 initialStackPos={initialStackPos}
                 navigation={navigation}
                 onRefresh={refreshFeed}
+                stack={stack} 
+                stackViewable={stackViewable}
             />
         );
     }

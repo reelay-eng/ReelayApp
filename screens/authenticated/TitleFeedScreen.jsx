@@ -25,6 +25,7 @@ export default TitleFeedScreen = ({ navigation, route }) => {
             <FixedReelayFeed 
                 navigation={navigation} 
                 initialStackPos={initialStackPos} 
+                feedSource='title'
                 fixedStackList={fixedStackList} 
             />
         </TitleFeedContainer>

@@ -15,7 +15,12 @@ export default ProfileFeedScreen = ({ navigation, route }) => {
 
     return (
         <ProfileFeedContainer>
-            <FixedReelayFeed navigation={navigation} initialFeedPos={initialFeedPos} fixedStackList={stackList} />
+            <FixedReelayFeed 
+                navigation={navigation} 
+                initialFeedPos={initialFeedPos} 
+                feedSource='profile'
+                fixedStackList={stackList} 
+            />
         </ProfileFeedContainer>
     );
 }

@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import { LinearGradient } from 'expo-linear-gradient';
 import ProfilePicture from '../../components/global/ProfilePicture';
+import JustShowMeSignupDrawer from '../../components/global/JustShowMeSignupDrawer';
 
 const LoadingContainer = styled(View)`
     align-items: center;
@@ -22,11 +23,18 @@ const LoadingContainer = styled(View)`
 export default ClubJoinFromLinkScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
+    const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
+
     const { reelayDBUser } = useContext(AuthContext);
     const { inviteCode } = route?.params;
     const [clubInvite, setClubInvite] = useState(null);
 
     useEffect(() => {
+        if (reelayDBUser?.username === 'be_our_guest') {
+            dispatch({ type: 'setJustShowMeSignupVisible', payload: true });
+            return;
+        }    
+        console.log('reached');
         loadClubInvite();
     }, []);
 
@@ -78,9 +86,6 @@ export default ClubJoinFromLinkScreen = ({ navigation, route }) => {
 
         console.log('club joining: ', clubJoining);
         console.log('added member: ', addMemberResult);
-        // navigation.popToTop();
-        // console.log('navigating');
-        // navigation.navigate('Clubs');
         navigation.push('ClubActivityScreen', { 
             club: clubJoining,
             promptToInvite: false,
@@ -108,6 +113,7 @@ export default ClubJoinFromLinkScreen = ({ navigation, route }) => {
     return (
         <LoadingContainer>
             <ActivityIndicator />
+            { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
         </LoadingContainer>
     )
 

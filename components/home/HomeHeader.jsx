@@ -35,7 +35,21 @@ const HeaderText = styled(ReelayText.H4Bold)`
     margin-top: 4px;
 `
 const IconContainer = styled(TouchableOpacity)`
-    margin-left: 10px;
+    margin-left: 12px;
+`
+const TutorialButtonContainer = styled(Pressable)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 6px;
+    flex-direction: row;
+    margin-left: 12px;
+    height: 38px;
+    padding: 6px;
+`
+const TutorialButtonText = styled(ReelayText.CaptionEmphasized)`
+    margin-top: 2px;
+    margin-left: 6px;
+    color: white;
 `
 const UnreadIconIndicator = styled(View)`
     background-color: ${ReelayColors.reelayBlue}
@@ -48,12 +62,14 @@ const UnreadIconIndicator = styled(View)`
 
 const HomeHeader = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const latestAnnouncement = useSelector(state => state.latestAnnouncement);
     const myNotifications = useSelector(state => state.myNotifications);
     const myFollowing = useSelector(state => state.myFollowing);
     const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
+    const showLatestAnnouncement = (latestAnnouncement && !latestAnnouncement?.error)
     const daysSinceSignedUp = moment().diff(moment(reelayDBUser?.createdAt), 'days');
-    const showTutorialButton = (myFollowing.length > 0) && (daysSinceSignedUp < 7);
+    const showTutorialButton = (!showLatestAnnouncement) && (myFollowing.length > 0) && (daysSinceSignedUp < 7);
 
     const advanceToMyNotifications = () => navigation.push('NotificationScreen');
     const advanceToSearchScreen = () => navigation.push('SearchScreen');
@@ -62,6 +78,7 @@ const HomeHeader = ({ navigation }) => {
         <HeaderContainer>
             <HeaderContainerLeft>
                 <HeaderText>{'reelay'}</HeaderText>
+                { showLatestAnnouncement && <LatestAnnouncementButton navigation={navigation} announcement={latestAnnouncement} /> }
                 { showTutorialButton && <WatchTutorialButton navigation={navigation} /> }
             </HeaderContainerLeft>
             <HeaderContainerRight>
@@ -77,18 +94,23 @@ const HomeHeader = ({ navigation }) => {
 	);
 };
 
+const LatestAnnouncementButton = ({ navigation, announcement }) => {
+    const { pinnedReelay, title } = announcement;
+
+    const loadAnnouncementVideoScreen = async () => {
+        navigation.push('SingleReelayScreen', { preparedReelay: pinnedReelay });
+    }
+    return (
+        <TutorialButtonContainer onPress={loadAnnouncementVideoScreen}>
+            <TutorialButtonText>{`${title} `}</TutorialButtonText>
+            <IconContainer>
+                <Icon type='ionicon' size={24} color={'white'} name='play-circle' />
+            </IconContainer>
+        </TutorialButtonContainer>
+    );
+}
+
 const WatchTutorialButton = ({ navigation }) => {
-    const TutorialButtonContainer = styled(Pressable)`
-        align-items: center;
-        background-color: white;
-        border-radius: 6px;
-        flex-direction: row;
-        margin-left: 12px;
-        padding: 4px;
-    `
-    const TutorialButtonText = styled(ReelayText.CaptionEmphasized)`
-        margin-left: 6px;
-    `
     const loadWelcomeVideoScreen = async () => {
         const welcomeReelaySub = Constants.manifest.extra.welcomeReelaySub;
         const welcomeReelay = await getReelay(welcomeReelaySub, 'dev');
@@ -97,9 +119,9 @@ const WatchTutorialButton = ({ navigation }) => {
     }
     return (
         <TutorialButtonContainer onPress={loadWelcomeVideoScreen}>
-            <TutorialButtonText>{'Welcome'}</TutorialButtonText>
+            <TutorialButtonText>{'Welcome '}</TutorialButtonText>
             <IconContainer>
-                <Icon type='ionicon' size={24} color={'black'} name='play-circle' />
+                <Icon type='ionicon' size={24} color={'white'} name='play-circle' />
             </IconContainer>
         </TutorialButtonContainer>
     );

@@ -16,15 +16,17 @@ const initialState = {
 
     globalTopics: [],
     globalTopicsWithReelays: [],
+    latestAnnouncement: {},
     myClubs: [],
     myCreatorStacks: [],
     myFollowing: [],
     myFollowers: [],
     myNotifications: [],
+    myStreamingSubscriptions: [],
     myWatchlistItems: [],
 
-    myStreamingSubscriptions: [],
     myStacksFollowing: [],
+    myStacksGlobal: [],
     myStacksInTheaters: [],
     myStacksOnStreaming: [],
     myStacksAtFestivals: [],
@@ -83,6 +85,8 @@ const appReducer = ( state = initialState, action) => {
                 return topic.reelays.length > 0;
             });
             return { ...state, globalTopics, globalTopicsWithReelays };
+        case 'setLatestAnnouncement':
+            return { ...state, latestAnnouncement: action.payload };
         case 'setMyClubs':
             return { ...state, myClubs: action.payload };
         case 'setUpdatedClub':
@@ -97,14 +101,18 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, myFollowers: action.payload };
         case 'setMyNotifications':
             return { ...state, myNotifications: action.payload };
+        case 'setMyStreamingSubscriptions':
+            return { ...state, myStreamingSubscriptions: action.payload }        
         case 'setMyWatchlistItems':
             const myWatchlistItems = watchlistRecsReducer(action.payload);
             return { ...state, myWatchlistItems };
 
-        case 'setMyStreamingSubscriptions':
-            return { ...state, myStreamingSubscriptions: action.payload }
+        case 'setMyStacksAtFestivals':
+            return { ...state, myStacksAtFestivals: action.payload }    
         case 'setMyStacksFollowing':
             return { ...state, myStacksFollowing: action.payload }
+        case 'setMyStacksGlobal':
+            return { ...state, myStacksGlobal: action.payload };
         case 'setMyStacksInTheaters':
             return { ...state, myStacksInTheaters: action.payload }
         case 'setMyStacksOnStreaming':
@@ -113,8 +121,6 @@ const appReducer = ( state = initialState, action) => {
                 streamingSubscriptions: state.myStreamingSubscriptions,
             });
             return { ...state, myStacksOnStreaming }
-        case 'setMyStacksAtFestivals':
-            return { ...state, myStacksAtFestivals: action.payload }
         case 'setTopOfTheWeek':
             return { ...state, topOfTheWeek: action.payload }
 
@@ -184,16 +190,18 @@ export const mapStateToProps = (state) => ({
 
     globalTopics: state.globalTopics,
     globalTopicsWithReelays: state.globalTopicsWithReelays,
+    latestAnnouncement: state.latestAnnouncement,
     myClubs: state.myClubs,
     myCreatorStacks: state.myCreatorStacks,
     myFollowing: state.myFollowing,
     myFollowers: state.myFollowers,
     myNotifications: state.myNotifications,
     myPreferences: state.myPreferences,
+    myStreamingSubscriptions: state.myStreamingSubscriptions,
     myWatchlistItems: state.myWatchlistItems,
 
-    myStreamingSubscriptions: state.myStreamingSubscriptions,
     myStacksFollowing: state.myStacksFollowing,
+    myStacksGlobal: state.myStacksGlobal,
     myStacksInTheaters: state.myStacksInTheaters,
     myStacksOnStreaming: state.myStacksOnStreaming,
     myStacksAtFestivals: state.myStacksAtFestivals,

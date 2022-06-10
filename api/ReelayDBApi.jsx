@@ -134,6 +134,35 @@ export const createDeeplinkPathToReelay = async (linkingUserSub, linkingUsername
     return dbResult;
 }
 
+export const getLatestAnnouncement = async ({ authSession, reqUserSub, page }) => {
+    try {
+        const routeGet = `${REELAY_API_BASE_URL}/announcements?page=${page ?? 0}&visibility=${FEED_VISIBILITY}`;
+        const latestAnnouncement = await fetchResults(routeGet, {
+            method: 'GET',
+            headers: {
+                ...getReelayAuthHeaders(authSession),
+                reqUserSub,
+            },
+        });
+
+        if (!latestAnnouncement || latestAnnouncement?.error) {
+            console.log('No latest announcement');
+            return null;
+        }
+
+        const fetchedReelay = await getReelay(latestAnnouncement?.reelaySub);
+        if (fetchedReelay) {
+            const preparedReelay = await prepareReelay(fetchedReelay);
+            latestAnnouncement.pinnedReelay = preparedReelay;
+        }
+        return latestAnnouncement;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+
+}
+
 export const getReportedIssues = async ({ authSession, reqUserSub }) => {
     const routeGet = `${REELAY_API_BASE_URL}/reported-content/issues`;
     const reportedIssues = await fetchResults(routeGet, {
@@ -313,6 +342,25 @@ export const getCommentLikesForReelay = async (reelaySub, reqUserSub) => {
     return resultGet;
 }
 
+export const getHomeFeeds = async ({ authSession, reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/feed/home?visibility=${FEED_VISIBILITY}`;
+    const fetchedFeeds = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: { 
+            ...getReelayAuthHeaders(authSession), 
+            requsersub: reqUserSub
+        },
+    });
+
+    const preparedFeeds = {};
+    await Promise.all(Object.keys(fetchedFeeds).map(async (feedKey) => {
+        preparedFeeds[feedKey] = await prepareStacks(fetchedFeeds[feedKey]);
+        return feedKey;
+    }));
+
+    return preparedFeeds;
+}
+
 export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
     console.log(`Getting most recent ${feedSource} reelays...`);
     const routeGet = `${REELAY_API_BASE_URL}/feed/${feedSource}?page=${page}&visibility=${FEED_VISIBILITY}`;
@@ -400,6 +448,19 @@ export const getVideoURIObject = (fetchedReelay) => {
         id: fetchedReelay.id, 
         videoURI: cloudfrontVideoURI,
     };
+}
+
+export const postAnnouncement = async ({ authSession, reqUserSub, postBody }) => {
+    const routePost = `${REELAY_API_BASE_URL}/announcements`;
+    const resultPost = await fetchResults(routePost, {
+        method: 'POST',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            reqUserSub,
+        },
+        body: JSON.stringify(postBody)
+    });
+    return resultPost;
 }
 
 export const postReelayToDB = async (reelayBody) => {
@@ -532,6 +593,20 @@ export const registerPushTokenForUser = async (userSub, pushToken) => {
         headers: ReelayAPIHeaders,
     });
     return resultPatch;
+}
+
+export const removeAnnouncement = async ({ announcementID, authSession, reqUserSub }) => {
+    const routeDelete = `${REELAY_API_BASE_URL}/announcements`;
+    const deleteBody = { announcementID };
+    const resultDelete = await fetchResults(routeDelete, {
+        method: 'DELETE',
+        headers: { 
+            ...getReelayAuthHeaders(authSession), 
+            requsersub: reqUserSub,
+        },
+        body: JSON.stringify(deleteBody),
+    });
+    return resultDelete;
 }
 
 export const removeComment = async (commentID) => {

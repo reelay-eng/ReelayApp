@@ -138,7 +138,7 @@ export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Ree
                     </SignUpButton>
                     { fullPage && (
                         <ExitButton onPress={exitGuestAccount}>
-                            <ExitText>{'Exit'}</ExitText>
+                            <ExitText>{'Log in'}</ExitText>
                         </ExitButton>
                     )}
                 </BottomContainer>

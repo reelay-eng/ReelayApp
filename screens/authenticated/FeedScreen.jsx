@@ -1,21 +1,22 @@
 import React from 'react';
 import ReelayFeed from '../../components/feed/ReelayFeed';
 import styled from 'styled-components/native';
+import { useSelector } from 'react-redux';
 
 export default function FeedScreen({ navigation, route }) {
     const TransparentContainer = styled.View`
         flex: 1;
         background-color: black;
     `
-
+    const myStacksGlobal = useSelector(state => state.myStacksGlobal);
     // valid feed sources: [global, following, theaters, streaming, festivals]
-    const initialFeedSource = route?.params?.initialFeedSource;
-    const initialStackPos = route?.params?.initialStackPos;
-    const initialFeedPos = route?.params?.initialFeedPos;
-    const isOnFeedTab = route?.params?.isOnFeedTab;
-    const forceRefresh = route?.params?.forceRefresh;
-    const pinnedReelay = route?.params?.pinnedReelay;
-    const preloadedStackList = route?.params?.preloadedStackList;
+    const initialFeedSource = route?.params?.initialFeedSource ?? 'global';
+    const initialStackPos = route?.params?.initialStackPos ?? 0;
+    const initialFeedPos = route?.params?.initialFeedPos ?? 0;
+    const forceRefresh = route?.params?.forceRefresh ?? null;
+    const pinnedReelay = route?.params?.pinnedReelay ?? null;
+    const preloadedStackList = route?.params?.preloadedStackList ?? myStacksGlobal;
+    myStacksGlobal.forEach(stack => console.log('my stacks global: ', stack[0].sub));
 
     console.log('Feed screen is rendering');
 
@@ -23,10 +24,9 @@ export default function FeedScreen({ navigation, route }) {
         <TransparentContainer>
             <ReelayFeed
                 forceRefresh={forceRefresh}
-                initialFeedSource={initialFeedSource ?? 'global'}
-                initialStackPos={initialStackPos ?? 0}
-                initialFeedPos={initialFeedPos ?? 0}
-                isOnFeedTab={isOnFeedTab ?? true}
+                initialFeedSource={initialFeedSource}
+                initialStackPos={initialStackPos}
+                initialFeedPos={initialFeedPos}
                 navigation={navigation}
                 pinnedReelay={pinnedReelay}
                 preloadedStackList={preloadedStackList}

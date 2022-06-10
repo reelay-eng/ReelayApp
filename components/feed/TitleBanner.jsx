@@ -16,6 +16,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faForwardStep, faBackwardStep } from "@fortawesome/free-solid-svg-icons";
+import { useSelector } from "react-redux";
 
 const { height, width } = Dimensions.get('window');
 

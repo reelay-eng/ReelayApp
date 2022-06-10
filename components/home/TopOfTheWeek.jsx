@@ -66,7 +66,6 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'trending',
-            isOnFeedTab: false,
             preloadedStackList: topOfTheWeek,
 		});
 

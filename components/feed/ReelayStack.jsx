@@ -3,6 +3,7 @@ import { Dimensions, FlatList, SafeAreaView, View } from 'react-native';
 import BackButton from '../utils/BackButton';
 import Hero from './Hero';
 import TitleBanner from './TitleBanner';
+import * as ReelayText from '../global/Text';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
@@ -12,10 +13,26 @@ import UploadProgressBar from '../global/UploadProgressBar';
 
 const { height, width } = Dimensions.get('window');
 
+const AnnouncementTitleContainer = styled(View)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 6px;
+    flex-direction: row;
+    margin-left: 12px;
+    height: 38px;
+    padding: 6px;
+`
+const AnnouncementText = styled(ReelayText.CaptionEmphasized)`
+    margin-top: 2px;
+    margin-left: 6px;
+    margin-right: 6px;
+    color: white;
+`
 const BackButtonContainer = styled(SafeAreaView)`
-    align-self: flex-start;
+    align-items: center;
+    flex-direction: row;
     position: absolute;
-    top: 150px;
+    top: ${props => props.isPinned ? 50 : 150}px;
 `
 const ReelayFeedContainer = styled(View)`
     background-color: black;
@@ -24,22 +41,26 @@ const ReelayFeedContainer = styled(View)`
 `
 
 const ReelayStack = ({ 
-    stack,  
-    stackViewable,
     initialStackPos = 0,
     navigation,
     onRefresh,
+    stack,  
+    stackViewable,
 }) => {
     const [stackPosition, setStackPosition] = useState(initialStackPos);
     const { reelayDBUser } = useContext(AuthContext);
     const donateLinks = useSelector(state => state.donateLinks);
     const uploadStage = useSelector(state => state.uploadStage);
-
+    
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
     const stackRef = useRef(null);
-
     const viewableReelay = stack[stackPosition];
+
+    const latestAnnouncement = useSelector(state => state.latestAnnouncement);
+    const isPinnedReelay = (viewableReelay?.sub === latestAnnouncement?.pinnedReelay?.sub);
+    console.log('is pinned reelay: ', isPinnedReelay);
+
     const donateObj = donateLinks?.find((donateLinkObj) => {
         const { tmdbTitleID, titleType } = donateLinkObj;
         const viewableTitleID = stack[0].title.id;
@@ -60,15 +81,28 @@ const ReelayStack = ({
 
     const onTappedNewest = () => {
         const nextPosition = stack?.length - 1;
-        console.log('next position: ', nextPosition);
         setStackPosition(nextPosition);
         stackRef?.current?.scrollToIndex({ animated: false, index: nextPosition });
     }
 
-    const renderBackButton = () => {
+    const AnnouncementTitle = () => {
         return (
-            <BackButtonContainer>
+            <AnnouncementTitleContainer>
+                <AnnouncementText>
+                    {latestAnnouncement?.title}
+                </AnnouncementText>
+            </AnnouncementTitleContainer>
+        );
+    }
+
+    const renderBackButton = () => {
+        // if it's a pinned reelay, we don't use the title banner
+        // so the y-height of the back button needs to change
+
+        return (
+            <BackButtonContainer isPinned={isPinnedReelay}>
                 <BackButton navigation={navigation} />
+                { latestAnnouncement?.title && <AnnouncementTitle /> }
             </BackButtonContainer>
         );
     }
@@ -135,15 +169,17 @@ const ReelayStack = ({
                 pagingEnabled={true} 
                 windowSize={3}
             />
-            <TitleBanner 
-                donateObj={donateObj}
-                navigation={navigation}
-                onTappedNewest={onTappedNewest}
-                onTappedOldest={onTappedOldest}
-                stack={stack}
-                titleObj={viewableReelay?.title}
-                viewableReelay={viewableReelay}
-            />
+            { !isPinnedReelay && (
+                <TitleBanner 
+                    donateObj={donateObj}
+                    navigation={navigation}
+                    onTappedNewest={onTappedNewest}
+                    onTappedOldest={onTappedOldest}
+                    stack={stack}
+                    titleObj={viewableReelay?.title}
+                    viewableReelay={viewableReelay}
+                />
+            )}
             { showProgressBar && <UploadProgressBar mountLocation={'OnProfile'} onRefresh={onRefresh} /> }
         </ReelayFeedContainer>
     );

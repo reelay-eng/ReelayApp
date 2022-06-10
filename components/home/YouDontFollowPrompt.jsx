@@ -66,7 +66,6 @@ export default YouDontFollowPrompt = ({ navigation }) => {
         navigation.push("FeedScreen", {
             initialRouteName: 'global',
             initialFeedPos: 0,
-            isOnFeedTab: false,
             pinnedReelay: preparedReelay,
         });
     }

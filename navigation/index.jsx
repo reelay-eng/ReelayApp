@@ -150,6 +150,12 @@ export default Navigation = () => {
             } else if (path?.startsWith('clubInvite/')) {
                 console.log('club invite found');
                 console.log(deeplinkURL);
+
+                if (reelayDBUser?.username === 'be_our_guest') {
+                    dispatch({ type: 'setJustShowMeSignupVisible', payload: true });
+                    return;
+                }
+                
                 const inviteCode = path.substr('clubInvite/'.length);
                 if (inviteCode) {
                     navigation.navigate('ClubJoinFromLinkScreen', { inviteCode });
