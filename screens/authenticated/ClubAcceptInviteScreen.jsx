@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import { LinearGradient } from 'expo-linear-gradient';
 import ProfilePicture from '../../components/global/ProfilePicture';
+import JustShowMeSignupDrawer from '../../components/global/JustShowMeSignupDrawer';
 
 const AcceptInviteButtonGradient = styled(LinearGradient)`
     position: absolute;
@@ -143,6 +144,8 @@ const UsernameContainer = styled(View)`
 export default ClubAcceptInviteScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
+    const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
+
     const { reelayDBUser } = useContext(AuthContext);
     const { inviteCode } = route?.params;
 
@@ -150,7 +153,12 @@ export default ClubAcceptInviteScreen = ({ navigation, route }) => {
     const bottomOffset = useSafeAreaInsets().bottom;
 
     useEffect(() => {
-        loadClubInvite();
+        if (reelayDBUser?.username === 'be_our_guest') {
+            dispatch({ type: 'setJustShowMeSignupVisible', payload: true });
+            return;
+        }    
+        console.log('reached');
+        // loadClubInvite();
     }, []);
 
     const loadClubInvite = async () => {
@@ -241,13 +249,18 @@ export default ClubAcceptInviteScreen = ({ navigation, route }) => {
     return (
         <InfoScreenContainer>
             <ClubTopBar />
-            <ScrollView 
-                contentContainerStyle={{ paddingBottom: bottomOffset }} 
-                showsVerticalScrollIndicator={false}
-            >
-                <ClubProfileInfo />
-                <Invitation />
-            </ScrollView>
+            { justShowMeSignupVisible && (
+                <JustShowMeSignupDrawer navigation={navigation} />
+            )}
+            { !justShowMeSignupVisible && (
+                <ScrollView 
+                    contentContainerStyle={{ paddingBottom: bottomOffset }} 
+                    showsVerticalScrollIndicator={false}
+                >                
+                    <ClubProfileInfo />
+                    <Invitation />
+                </ScrollView>
+            )}
         </InfoScreenContainer>
     );
 }

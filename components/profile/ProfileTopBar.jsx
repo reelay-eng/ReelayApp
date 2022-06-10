@@ -12,8 +12,6 @@ import { faListCheck } from '@fortawesome/free-solid-svg-icons';
 
 export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) => {
     const creatorName = creator.username ?? 'User not found';
-    const myNotifications = useSelector(state => state.myNotifications);
-    const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
     const HeadingText = styled(ReelayText.H6Emphasized)`
         color: white;
@@ -41,18 +39,9 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         shadow-offset: 8px;
         shadow-radius: 2px;
     `
-    const UnreadIconIndicator = styled(View)`
-        background-color: ${ReelayColors.reelayBlue}
-        border-radius: 5px;
-        height: 10px;
-        width: 10px;
-        position: absolute;
-        right: 0px;
-    `
     const SettingsButtons = () => {
         const advanceToMyWatchlist = () => navigation.push('WatchlistScreen');
         const advanceToMyProfileSettings = () => navigation.push('ProfileSettingsScreen');
-        const advanceToMyNotifications = () => navigation.push('NotificationScreen');
 
         return (
             <RightCornerContainer>
@@ -62,10 +51,6 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
                 </IconContainer>
                 <IconContainer onPress={advanceToMyProfileSettings}>
                     <Icon type='ionicon' size={27} color={'white'} name='settings-outline' />
-                </IconContainer>
-                <IconContainer onPress={advanceToMyNotifications}>
-                    <Icon type='ionicon' size={27} color={'white'} name='notifications' />
-                    { hasUnreadNotifications && <UnreadIconIndicator /> }
                 </IconContainer>
             </RightCornerContainer>
         );

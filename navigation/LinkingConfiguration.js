@@ -37,9 +37,8 @@ export default {
 						},
 					},
 					ClubJoinFromLinkScreen: {
-						path: "/clubInvite/:clubID/:inviteCode",
+						path: "/clubInvite/:inviteCode",
 						parse: {
-							clubID: (clubID) => String(clubID),
 							inviteCode: (inviteCode) => String(inviteCode),
 						},
 					}
