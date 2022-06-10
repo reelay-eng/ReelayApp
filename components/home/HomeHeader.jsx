@@ -43,7 +43,7 @@ const TutorialButtonContainer = styled(Pressable)`
     border-radius: 6px;
     flex-direction: row;
     margin-left: 12px;
-    min-height: 32px;
+    height: 38px;
     padding: 6px;
 `
 const TutorialButtonText = styled(ReelayText.CaptionEmphasized)`

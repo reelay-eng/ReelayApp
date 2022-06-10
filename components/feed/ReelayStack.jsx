@@ -3,6 +3,7 @@ import { Dimensions, FlatList, SafeAreaView, View } from 'react-native';
 import BackButton from '../utils/BackButton';
 import Hero from './Hero';
 import TitleBanner from './TitleBanner';
+import * as ReelayText from '../global/Text';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
@@ -12,8 +13,24 @@ import UploadProgressBar from '../global/UploadProgressBar';
 
 const { height, width } = Dimensions.get('window');
 
+const AnnouncementTitleContainer = styled(View)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 6px;
+    flex-direction: row;
+    margin-left: 12px;
+    height: 38px;
+    padding: 6px;
+`
+const AnnouncementText = styled(ReelayText.CaptionEmphasized)`
+    margin-top: 2px;
+    margin-left: 6px;
+    margin-right: 6px;
+    color: white;
+`
 const BackButtonContainer = styled(SafeAreaView)`
-    align-self: flex-start;
+    align-items: center;
+    flex-direction: row;
     position: absolute;
     top: ${props => props.isPinned ? 50 : 150}px;
 `
@@ -68,12 +85,24 @@ const ReelayStack = ({
         stackRef?.current?.scrollToIndex({ animated: false, index: nextPosition });
     }
 
+    const AnnouncementTitle = () => {
+        return (
+            <AnnouncementTitleContainer>
+                <AnnouncementText>
+                    {latestAnnouncement?.title}
+                </AnnouncementText>
+            </AnnouncementTitleContainer>
+        );
+    }
+
     const renderBackButton = () => {
         // if it's a pinned reelay, we don't use the title banner
         // so the y-height of the back button needs to change
+
         return (
             <BackButtonContainer isPinned={isPinnedReelay}>
                 <BackButton navigation={navigation} />
+                { latestAnnouncement?.title && <AnnouncementTitle /> }
             </BackButtonContainer>
         );
     }
