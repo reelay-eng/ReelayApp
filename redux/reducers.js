@@ -36,17 +36,6 @@ export const cognitoSessionReducer = (session) => {
     return { idToken, accessToken, refreshToken };
 }
 
-export const pinAnnouncementReducer = ({ announcement, stacksGlobal }) => {
-    const pinnedReelay = announcement?.pinnedReelay ?? null;
-    if (!pinnedReelay) return stacksGlobal;
-    
-    const notPinnedReelay = (reelay) => (reelay?.sub !== pinnedReelay?.sub);
-    const removePinnedReelay = (stack) => stack.filter(notPinnedReelay);
-    const removeEmptyStacks = (stack) => stack?.length > 0;
-    const unpinnedStacksGlobal = stacksGlobal.map(removePinnedReelay).filter(removeEmptyStacks);
-    return [[pinnedReelay], ...unpinnedStacksGlobal];
-}
-
 export const stacksOnStreamingReducer = ({ stacksOnStreaming, streamingSubscriptions }) => {
     const subscribedVenues = streamingSubscriptions.map(subscription => subscription.platform);
     const bringReelayWithSubscribedVenueToFront = (reelayStack) => {

@@ -15,7 +15,7 @@ const { height, width } = Dimensions.get('window');
 const BackButtonContainer = styled(SafeAreaView)`
     align-self: flex-start;
     position: absolute;
-    top: ${props => props.noBanner ? 50 : 150}px;
+    top: ${props => props.isPinned ? 50 : 150}px;
 `
 const ReelayFeedContainer = styled(View)`
     background-color: black;
@@ -24,7 +24,6 @@ const ReelayFeedContainer = styled(View)`
 `
 
 const ReelayStack = ({ 
-    feedSource,
     initialStackPos = 0,
     navigation,
     onRefresh,
@@ -42,12 +41,8 @@ const ReelayStack = ({
     const viewableReelay = stack[stackPosition];
 
     const latestAnnouncement = useSelector(state => state.latestAnnouncement);
-    const pinnedReelaySub = latestAnnouncement?.reelaySub;
-    const displayAsAnnouncement = !!pinnedReelaySub && (pinnedReelaySub === viewableReelay?.sub);
-    // const displayAsAnnouncement = (latestAnnouncementViewable && 
-    //     (feedSource === 'global' || feedSource === 'single')
-    // );
-    console.log('viewable reelay is pinned: ', displayAsAnnouncement);
+    const isPinnedReelay = (viewableReelay?.sub === latestAnnouncement?.pinnedReelay?.sub);
+    console.log('is pinned reelay: ', isPinnedReelay);
 
     const donateObj = donateLinks?.find((donateLinkObj) => {
         const { tmdbTitleID, titleType } = donateLinkObj;
@@ -77,7 +72,7 @@ const ReelayStack = ({
         // if it's a pinned reelay, we don't use the title banner
         // so the y-height of the back button needs to change
         return (
-            <BackButtonContainer noBanner={displayAsAnnouncement}>
+            <BackButtonContainer isPinned={isPinnedReelay}>
                 <BackButton navigation={navigation} />
             </BackButtonContainer>
         );
@@ -145,7 +140,7 @@ const ReelayStack = ({
                 pagingEnabled={true} 
                 windowSize={3}
             />
-            { !displayAsAnnouncement && (
+            { !isPinnedReelay && (
                 <TitleBanner 
                     donateObj={donateObj}
                     navigation={navigation}

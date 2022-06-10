@@ -1,7 +1,6 @@
 import { createStore } from "redux";
 import { 
     cognitoSessionReducer, 
-    pinAnnouncementReducer,
     stacksOnStreamingReducer, 
     updateClubReducer, 
     watchlistRecsReducer 
@@ -113,11 +112,7 @@ const appReducer = ( state = initialState, action) => {
         case 'setMyStacksFollowing':
             return { ...state, myStacksFollowing: action.payload }
         case 'setMyStacksGlobal':
-            const myStacksGlobal = pinAnnouncementReducer({
-                announcement: state.latestAnnouncement,
-                stacksGlobal: action.payload,
-            });
-            return { ...state, myStacksGlobal };
+            return { ...state, myStacksGlobal: action.payload };
         case 'setMyStacksInTheaters':
             return { ...state, myStacksInTheaters: action.payload }
         case 'setMyStacksOnStreaming':

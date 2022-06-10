@@ -43,21 +43,6 @@ const ReelayFeed = ({ navigation,
     const [selectedFeedPosition, setSelectedFeedPosition] = useState(initialFeedPos);
     const stackEmpty = (!selectedStackList.length) || (pinnedReelay && selectedStackList.length === 1);
 
-    const latestAnnouncement = useSelector(state => state.latestAnnouncement);
-    const sortPinnedReelays = (stacks, page = 0) => {
-        const pinnedReelay = latestAnnouncement?.pinnedReelay ?? null;
-        const notPinnedReelay = (reelay) => (reelay?.sub !== pinnedReelay?.sub);
-        const removePinnedReelay = (stack) => stack.filter(notPinnedReelay);
-        const removeEmptyStacks = (stack) => stack?.length > 0;    
-        const unpinnedStacksGlobal = stacks.map(removePinnedReelay).filter(removeEmptyStacks);
-
-        if (page === 0) {
-            return [[pinnedReelay], ...unpinnedStacksGlobal];
-        } else {
-            return unpinnedStacksGlobal;
-        }
-    }
-
     useEffect(() => {
         loadSelectedFeed();
     }, []);
@@ -133,8 +118,7 @@ const ReelayFeed = ({ navigation,
         }
 
         const filteredStacks = fetchedStacks.filter(notAlreadyInStack);
-        const sortedStacks = sortPinnedReelays(filteredStacks, page);
-        const newStackList = [...selectedStackList, ...sortedStacks];
+        const newStackList = [...selectedStackList, ...filteredStacks];
         nextPage.current = page + 1;
 
         setSelectedStackList(newStackList);
@@ -185,16 +169,8 @@ const ReelayFeed = ({ navigation,
             reqUserSub: reelayDBUser?.sub, 
             page: 0 
         });
-        // todo: deduplicate this code with the reducer for setMyGlobalStacks
-        if (latestAnnouncement?.pinnedReelay && feedSource === 'global') {
-            // remove the pinned reelay from the global feed
-            const sortedStacks = sortPinnedReelays(fetchedStacks, 0);
-            setSelectedStackList(sortedStacks);
-            console.log('sorted stack list length: ', sortedStacks.length);
-        } else {
-            console.log('fetched stack list length: ', fetchedStacks.length);
-            setSelectedStackList(fetchedStacks);
-        }        
+
+        setSelectedStackList(fetchedStacks);
         nextPage.current = 1;
         setRefreshing(false);
         showMessageToast('You\'re at the top', 'top');
