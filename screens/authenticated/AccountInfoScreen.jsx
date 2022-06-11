@@ -10,10 +10,9 @@ export default AccountInfoScreen = ({ navigation, route }) => {
         height: 100%;
         width: 100%;
     `
-    const refreshProfile = route?.params?.refreshProfile;
     return (
         <AccountInfoContainer>
-            <AccountInfo navigation={navigation} refreshProfile={refreshProfile} />
+            <AccountInfo navigation={navigation} />
         </AccountInfoContainer>
     )
 }
