@@ -102,7 +102,7 @@ const ReelayStack = ({
         return (
             <BackButtonContainer isPinned={isPinnedReelay}>
                 <BackButton navigation={navigation} />
-                { latestAnnouncement?.title && <AnnouncementTitle /> }
+                { isPinnedReelay && latestAnnouncement?.title && <AnnouncementTitle /> }
             </BackButtonContainer>
         );
     }

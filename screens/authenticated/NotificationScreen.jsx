@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Image, FlatList, TouchableOpacity, RefreshControl, SafeAreaView, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
@@ -115,11 +115,6 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
                     </MessageTimestamp>
                     { !seen && <UnreadIndicator /> }
                 </MessageTimestampContainer>
-                <ReelayedByLineContainer>
-                    { data?.newWatchlistItem?.recommendedReelaySub && 
-                        <ReelayedByLine marginLeft={0} navigation={navigation} watchlistItem={data?.newWatchlistItem} />
-                    }
-                </ReelayedByLineContainer>
             </React.Fragment>
         );
     }
@@ -164,7 +159,6 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         const followButtonTypes = ['notifyCreatorOnFollow'];
         const posterButtonTypes = [
             'notifyClubOnTitleAdded',
-            'notifyClubOnTopicAdded',
             'notifyClubTitleThreadOnNewReelay',
             'notifyClubTopicThreadOnNewReelay',
             'notifyCreatorOnComment',
@@ -222,8 +216,15 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
 }
 
 const NotificationList = ({ navigation }) => {
+    const PAGE_SIZE = 15;
+
     const dispatch = useDispatch();
     const myNotifications = useSelector(state => state.myNotifications);
+    const unread = myNotifications.filter(({ seen }) => !seen).length;
+
+    const nextPage = Math.floor(myNotifications.length / PAGE_SIZE);
+    console.log('next page: ', nextPage, myNotifications.length);
+
     const { reelayDBUser } = useContext(AuthContext);
     const [refreshing, setRefreshing] = useState(false);
     const renderNotificationItem = ({ item }) => <NotificationItem navigation={navigation} notificationContent={item} onRefresh={onRefresh} />;
@@ -236,21 +237,52 @@ const NotificationList = ({ navigation }) => {
 
     const onRefresh = async () => {
         setRefreshing(true);
-        const allMyNotifications = await getAllMyNotifications(reelayDBUser?.sub);
-        dispatch({ type: 'setMyNotifications', payload: allMyNotifications });
+        const myNotificationsRefresh = await getAllMyNotifications(reelayDBUser?.sub);
+        dispatch({ type: 'setMyNotifications', payload: myNotificationsRefresh });
         setRefreshing(false);
     }
 
+    const extendNotifications = async () => {
+        try {
+            const fetchedNotifications = await getAllMyNotifications(reelayDBUser?.sub, nextPage);
+            if (fetchedNotifications.length === 0) return;
+
+            const combinedNotifications = [
+                ...myNotifications,
+                ...fetchedNotifications,
+            ];
+            
+            const filteredNotifications = combinedNotifications.filter((notification, index) => {
+                const matchOnId = (nextNotification) => (nextNotification.id === notification.id);
+                return combinedNotifications.findIndex(matchOnId) === index;
+            })
+
+            if (filteredNotifications.length === myNotifications.length) return;
+
+            dispatch({ type: 'setMyNotifications', payload: filteredNotifications });
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    useEffect(() => {
+        if (unread > 0) markAllNotificationsSeen(reelayDBUser?.sub);
+        setBadgeCountAsync(0);
+
+        logAmplitudeEventProd('openMyNotifications', { username: reelayDBUser?.username });
+    }, [navigation]);
+
     return (
         <FlatList 
+            contentContainerStyle={{ alignItems: 'center' }}
             data={displayNotifications}
             horizontal={false}
-            initialScrollIndex={0}
-            pagingEnabled={false}
+            keyExtractor={({ id }) => id}
+            onEndReached={extendNotifications}
+            onEndReachedThreshold={0.1}
             renderItem={renderNotificationItem}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ alignItems: 'center' }}
             style={{
                 backgroundColor: 'black',
                 height: '100%',
@@ -269,28 +301,28 @@ export default NotificationScreen = ({ navigation, route }) => {
     `
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
-    const myNotifications = useSelector(state => state.myNotifications);
-    const unread = myNotifications.filter(({ seen }) => !seen).length;
-    const unreadText = (unread > 0) ? `(${unread} new)` : '';
+    // const myNotifications = useSelector(state => state.myNotifications);
+    // const unread = myNotifications.filter(({ seen }) => !seen).length;
+    // const unreadText = (unread > 0) ? `(${unread} new)` : '';
 
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
     });
 
-    useEffect(() => {
-        if (unread > 0) markAllNotificationsSeen(reelayDBUser?.sub);
-        setBadgeCountAsync(0);
+    // useEffect(() => {
+    //     if (unread > 0) markAllNotificationsSeen(reelayDBUser?.sub);
+    //     setBadgeCountAsync(0);
 
-        logAmplitudeEventProd('openMyNotifications', { username: reelayDBUser?.username });
-    }, [navigation]);
+    //     logAmplitudeEventProd('openMyNotifications', { username: reelayDBUser?.username });
+    // }, [navigation]);
 
-    if (reelayDBUser?.username === 'be_our_guest') {
-        return <JustShowMeSignupPage navigation={navigation} fullPage={true} />
-    }
+    // if (reelayDBUser?.username === 'be_our_guest') {
+    //     return <JustShowMeSignupPage navigation={navigation} fullPage={true} />
+    // }
 
     return (
         <NotificationScreenContainer>
-            <HeaderWithBackButton navigation={navigation} text={`Activity ${unreadText}`} />
+            <HeaderWithBackButton navigation={navigation} text={`Activity`} />
             <NotificationList navigation={navigation} />
         </NotificationScreenContainer>
     );
