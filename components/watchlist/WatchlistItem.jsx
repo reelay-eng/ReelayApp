@@ -99,12 +99,11 @@ const MarkSeenButton = ({ watchlistItem }) => {
         console.log('mark seen result: ', markSeenResult);
         showMessageToast('Title marked as seen');
 
-        // logAmplitudeEventProd('markWatchlistItemSeen', {
-        //     username: reelayDBUser?.username,
-        //     title: watchlistItem?.title?.display,
-        //     source: 'clubActivityScreen',
-        //     clubName: club?.name,
-        // });
+        logAmplitudeEventProd('markWatchlistItemSeen', {
+            username: reelayDBUser?.username,
+            title: watchlistItem?.title?.display,
+            source: 'watchlist',
+        });
 
         const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
         dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })    
@@ -116,12 +115,11 @@ const MarkSeenButton = ({ watchlistItem }) => {
         console.log('mark unseen result: ', markUnseenResult);
         showMessageToast('Title marked unseen');
 
-        // logAmplitudeEventProd('markWatchlistItemUnseen', {
-        //     username: reelayDBUser?.username,
-        //     title: clubTitle?.title?.display,
-        //     source: 'clubActivityScreen',
-        //     clubName: club?.name,
-        // });
+        logAmplitudeEventProd('markWatchlistItemUnseen', {
+            username: reelayDBUser?.username,
+            title: clubTitle?.title?.display,
+            source: 'watchlist',
+        });
 
         const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
         dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })    

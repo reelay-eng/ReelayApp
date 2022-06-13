@@ -256,7 +256,7 @@ export default ClubAddTitleScreen = ({ navigation, route }) => {
                     username: reelayDBUser?.sub,
                     searchText: newSearchText,
                     searchType: searchType,
-                    source: 'search',
+                    source: 'clubs',
                 });    
             }
         } catch (error) {

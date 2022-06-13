@@ -118,7 +118,7 @@ const EditingPhotoMenuModal = ({ visible, close, setClubPicSource }) => {
 			setClubPicSource(result);	
 			close();
 		} catch (error) {
-			logAmplitudeEventProd('selectClubPhotoError', {
+			logAmplitudeEventProd('clubPicSelectPhotoError', {
 				username: reelayDBUser?.username,
 				error,
 			})
@@ -144,7 +144,7 @@ const EditingPhotoMenuModal = ({ visible, close, setClubPicSource }) => {
 			setClubPicSource(result);	
 			close();
 		} catch (error) {
-			logAmplitudeEventProd('selectClubPhotoError', {
+			logAmplitudeEventProd('clubPicUserCameraError', {
 				username: reelayDBUser?.username,
 				error,
 			})
