@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getGlobalTopics } from '../../api/TopicsApi';
 import TopOfTheWeek from './TopOfTheWeek';
 import { useFocusEffect } from '@react-navigation/native';
+import NoticeOverlay from '../overlay/NoticeOverlay';
 
 const HomeContainer = styled(SafeAreaView)`
     width: 100%;
@@ -34,10 +35,18 @@ const Spacer = styled.View`
 
 const HomeComponent = ({ navigation }) => {
     const dispatch = useDispatch();
-    const { reelayDBUserID } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
+
     const authSession = useSelector(state => state.authSession);
+    const myCreatorStacks = useSelector(state => state.myCreatorStacks);
     const scrollRef = useRef(null);
+
+    const isGuestUser = reelayDBUser?.username === 'be_our_guest';
     const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
+
+    const latestNotice = useSelector(state => state.latestNotice);
+    const latestNoticeDismissed = useSelector(state => state.latestNoticeDismissed);
+    const showNotice = latestNotice && !latestNoticeDismissed;
 
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
@@ -53,7 +62,7 @@ const HomeComponent = ({ navigation }) => {
 
     const onRefresh = async () => {
         setRefreshing(true);
-        const reqUserSub = reelayDBUserID;
+        const reqUserSub = reelayDBUser?.sub;
         const [
             myFollowingLoaded,
             myNotifications,
@@ -66,9 +75,9 @@ const HomeComponent = ({ navigation }) => {
             myStacksOnStreaming,
             myStacksAtFestivals,
         ] = await Promise.all([
-            getFollowing(reelayDBUserID),
-            getAllMyNotifications(reelayDBUserID),
-            getStreamingSubscriptions(reelayDBUserID),
+            getFollowing(reelayDBUser?.sub),
+            getAllMyNotifications(reelayDBUser?.sub),
+            getStreamingSubscriptions(reelayDBUser?.sub),
             getGlobalTopics({ reqUserSub, page: 0 }),
             getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
             getFeed({ reqUserSub, feedSource: 'trending', page: 0 }),
@@ -94,6 +103,16 @@ const HomeComponent = ({ navigation }) => {
     const [refreshing, setRefreshing] = useState(false);
     const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
+    useEffect(() => {
+        if (latestNoticeDismissed) {
+            setTimeout(() => dispatch({ type: 'setLatestNoticeDismissed', payload: false }), 5000);
+        }
+    }, [latestNoticeDismissed]);
+    
+    useEffect(() => {
+        dispatch({ type: 'setLatestNotice', payload: null });
+    }, []);
+
     return (
         <HomeContainer>
             <HomeHeader navigation={navigation} />
@@ -109,6 +128,9 @@ const HomeComponent = ({ navigation }) => {
             </ScrollContainer>
             <BottomBar />
             { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
+            { showNotice && (
+                <NoticeOverlay navigation={navigation} /> 
+            )}
         </HomeContainer>
     )
 }

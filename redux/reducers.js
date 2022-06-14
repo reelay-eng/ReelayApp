@@ -18,6 +18,44 @@ const isSameTitle = (title0, title1) => {
     return (title0.id === title1.id) && (title0.isSeries === title1.isSeries);
 }
 
+export const cognitoSessionReducer = (session) => {
+    const idToken = session.idToken.jwtToken;
+    const accessToken = session.accessToken.jwtToken;
+    const refreshToken = session.refreshToken.token;
+    return { idToken, accessToken, refreshToken };
+}
+
+export const latestNoticeReducer = ({ latestNotice, myClubs, myCreatorStacks, userSub }) => {
+    const isClubOwner = (club) => (userSub === club?.creatorSub);
+    const clubOwnerReducer = (curCount, nextClub) => isClubOwner(nextClub) ? curCount + 1 : curCount;
+    const clubOwnerCount = myClubs.reduce(clubOwnerReducer, 0);
+
+    const showCreateReelayNotice = (myCreatorStacks.length === 0);
+    const showCreateClubNotice = (!showCreateReelayNotice) && (clubOwnerCount === 0);
+
+    if (latestNotice) return latestNotice;
+
+    if (showCreateReelayNotice) {
+        return {
+            actionLabel: 'Create',
+            actionData: {},
+            actionType: 'advanceToCreateScreen',
+            title: `It's summer 🏖️🌞`,
+            description: 'Make a post about your favorite summer movie!',
+        }
+    } else if (showCreateClubNotice) {
+        return {
+            actionLabel: 'Create',
+            actionData: {},
+            actionType: 'advanceToCreateClubScreen',
+            title: `Start a club with your friends`,
+            description: 'Build your watchlists together, share your thoughts, and keep it private.',
+        }
+    } else {
+        return null;
+    }
+}
+
 export const updateClubReducer = (myClubs, updatedClub) => {
     const myClubsFiltered = myClubs.filter((nextClub) => nextClub.id !== updatedClub.id);
     const updatedClubObj = { ...updatedClub };
@@ -27,13 +65,6 @@ export const updateClubReducer = (myClubs, updatedClub) => {
         return lastActivity0.diff(lastActivity1, 'seconds') < 0;
     }
     return [ updatedClubObj, ...myClubsFiltered].sort(sortByLastActivity);
-}
-
-export const cognitoSessionReducer = (session) => {
-    const idToken = session.idToken.jwtToken;
-    const accessToken = session.accessToken.jwtToken;
-    const refreshToken = session.refreshToken.token;
-    return { idToken, accessToken, refreshToken };
 }
 
 export const stacksOnStreamingReducer = ({ stacksOnStreaming, streamingSubscriptions }) => {
