@@ -26,6 +26,7 @@ export const cognitoSessionReducer = (session) => {
 }
 
 export const latestNoticeReducer = ({ latestNotice, myClubs, myCreatorStacks, userSub }) => {
+    if (latestNotice) return latestNotice;
     const isClubOwner = (club) => (userSub === club?.creatorSub);
     const clubOwnerReducer = (curCount, nextClub) => isClubOwner(nextClub) ? curCount + 1 : curCount;
     const clubOwnerCount = myClubs.reduce(clubOwnerReducer, 0);
@@ -33,15 +34,13 @@ export const latestNoticeReducer = ({ latestNotice, myClubs, myCreatorStacks, us
     const showCreateReelayNotice = (myCreatorStacks.length === 0);
     const showCreateClubNotice = (!showCreateReelayNotice) && (clubOwnerCount === 0);
 
-    if (latestNotice) return latestNotice;
-
     if (showCreateReelayNotice) {
         return {
             actionLabel: 'Create',
             actionData: {},
             actionType: 'advanceToCreateScreen',
             title: `It's summer 🏖️🌞`,
-            description: 'Make a post about your favorite summer movie!',
+            description: 'Post a reelay about your favorite summer movie!',
         }
     } else if (showCreateClubNotice) {
         return {
@@ -49,7 +48,7 @@ export const latestNoticeReducer = ({ latestNotice, myClubs, myCreatorStacks, us
             actionData: {},
             actionType: 'advanceToCreateClubScreen',
             title: `Start a club with your friends`,
-            description: 'Build your watchlists together, share your thoughts, and keep it private.',
+            description: 'Share reelays, start topics, and build watchlists privately.',
         }
     } else {
         return null;

@@ -76,7 +76,7 @@ export default NoticeOverlay = ({ navigation }) => {
 
     const advanceToCreateScreen = () => {
         navigation.navigate('Create');
-        dispatch({ type: 'setLatestNoticeDismissed', payload: true });
+        dispatch({ type: 'setLatestNoticeSkipped', payload: true });
         logAmplitudeEventProd('acceptedNoticeCTA', {
             username: reelayDBUser?.sub,
             noticeTitle: title,
@@ -86,7 +86,7 @@ export default NoticeOverlay = ({ navigation }) => {
 
     const advanceToCreateClubScreen = () => {
         navigation.navigate('CreateClubScreen');
-        dispatch({ type: 'setLatestNoticeDismissed', payload: true });
+        dispatch({ type: 'setLatestNoticeSkipped', payload: true });
         logAmplitudeEventProd('acceptedNoticeCTA', {
             username: reelayDBUser?.sub,
             noticeTitle: title,
@@ -95,7 +95,7 @@ export default NoticeOverlay = ({ navigation }) => {
     }
 
     const closeOverlay = () => {
-        dispatch({ type: 'setLatestNoticeDismissed', payload: true });
+        dispatch({ type: 'setLatestNoticeSkipped', payload: true });
         logAmplitudeEventProd('dismissedNoticeCTA', {
             username: reelayDBUser?.sub,
             noticeTitle: title,

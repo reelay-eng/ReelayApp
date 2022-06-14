@@ -21,35 +21,14 @@ import TopOfTheWeek from './TopOfTheWeek';
 import { useFocusEffect } from '@react-navigation/native';
 import NoticeOverlay from '../overlay/NoticeOverlay';
 import Announcement from './Announcement';
-// import ReelayColors from '../../constants/ReelayColors';
+import ReelayColors from '../../constants/ReelayColors';
 
-// import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-// import { faPlay } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
-// const { width } = Dimensions.get('window');
-
-// const AnnouncementBox = styled(View)`
-//     background-color: ${ReelayColors.reelayBlue};
-//     border-radius: 16px;
-//     flex-direction: row;
-//     margin: 12px;
-//     padding: 20px;
-// `
-// const AnnouncementInfoBox = styled(View)`
-//     width: ${width - 96}px;
-// `
-// const AnnouncementButtonBox = styled(TouchableOpacity)`
-//     align-items: center;
-//     justify-content: center;
-//     width: 30px;
-// `
-// const AnnouncementTitleText = styled(ReelayText.H5Bold)`
-//     color: white;
-//     margin-bottom: 8px;
-// `
-// const AnnouncementDescriptionText = styled(ReelayText.Body2)`
-//     color: white;
-// `
+const AnnouncementsContainer = styled(View)`
+    margin-bottom: 10px;
+`
 const BottomBar = styled(View)`
     background-color: black;
     height: 100px;
@@ -74,15 +53,59 @@ const Spacer = styled.View`
 const HomeComponent = ({ navigation }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
-
     const authSession = useSelector(state => state.authSession);
     const scrollRef = useRef(null);
 
     const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
-    const latestAnnouncement = useSelector(state => state.latestAnnouncement);
     const latestNotice = useSelector(state => state.latestNotice);
     const latestNoticeDismissed = useSelector(state => state.latestNoticeDismissed);
-    const showNotice = latestNotice && !latestNoticeDismissed;
+    const latestNoticeSkipped = useSelector(state => state.latestNoticeSkipped);
+    const showNoticeAsOverlay = latestNotice && !latestNoticeSkipped && !latestNoticeDismissed;
+    
+    const Announcements = () => {
+        const latestAnnouncement = useSelector(state => state.latestAnnouncement);
+        const latestAnnouncementDismissed = useSelector(state => state.latestAnnouncementDismissed);
+        const showNoticeAsAnnouncement = latestNotice && latestNoticeSkipped && !latestNoticeDismissed;   
+
+        const advanceToCreateScreen = async () => {
+            navigation.navigate('Create');
+        }
+
+        const advanceToCreateClubScreen = async () => {
+            navigation.navigate('CreateClubScreen');
+        }
+
+        const handleNoticeOnPress = () => {
+            switch (latestNotice?.actionType) {
+                case 'advanceToCreateScreen':
+                    advanceToCreateScreen();
+                    return;
+                case 'advanceToCreateClubScreen':
+                    advanceToCreateClubScreen();
+                    return;
+                default:
+                    return;
+            }
+        }
+
+        return (
+            <AnnouncementsContainer>
+                { !latestAnnouncementDismissed && <Announcement 
+                    announcement={latestAnnouncement}
+                    navigation={navigation} 
+                    onDismiss={() => dispatch({ type: 'setLatestAnnouncementDismissed', payload: true })}
+                /> }
+                { showNoticeAsAnnouncement && <Announcement 
+                    announcement={latestNotice} 
+                    color={ReelayColors.reelayGreen}
+                    icon={<FontAwesomeIcon icon={ faPlus } color='white' size={22} />}
+                    navigation={navigation} 
+                    onDismiss={() => dispatch({ type: 'setLatestNoticeDismissed', payload: true })}
+                    onPress={handleNoticeOnPress}
+                /> }
+            </AnnouncementsContainer>
+        );
+    }
 
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
@@ -139,30 +162,6 @@ const HomeComponent = ({ navigation }) => {
     const [refreshing, setRefreshing] = useState(false);
     const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
-    // const Announcements = ({ navigation }) => {
-    //     if (!latestAnnouncement) return <View />;
-
-    //     const { bodyJSON } = latestAnnouncement;
-    //     const body = bodyJSON ? JSON.parse(bodyJSON) : {};
-    //     body.description = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
-
-    //     return (
-    //         <AnnouncementBox>
-    //             <AnnouncementInfoBox>
-    //                 <AnnouncementTitleText>
-    //                     { latestAnnouncement?.title }
-    //                 </AnnouncementTitleText>
-    //                 <AnnouncementDescriptionText>
-    //                     { body?.description ?? '' }
-    //                 </AnnouncementDescriptionText>
-    //             </AnnouncementInfoBox>
-    //             <AnnouncementButtonBox>
-    //                 <FontAwesomeIcon icon={ faPlay } color='white' size={20} />
-    //             </AnnouncementButtonBox>
-    //         </AnnouncementBox>
-    //     );
-    // }    
-
     useEffect(() => {
         dispatch({ type: 'setLatestNotice', payload: null });
     }, []);
@@ -171,7 +170,7 @@ const HomeComponent = ({ navigation }) => {
         <HomeContainer>
             <HomeHeader navigation={navigation} />
             <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
-                <Announcement navigation={navigation} />
+                <Announcements />
                 <TopOfTheWeek navigation={navigation} />
                 <FriendsAreWatching navigation={navigation} />
                 <GlobalTopics navigation={navigation} />
@@ -182,7 +181,7 @@ const HomeComponent = ({ navigation }) => {
             </ScrollContainer>
             <BottomBar />
             { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
-            { showNotice && <NoticeOverlay navigation={navigation} /> }
+            { showNoticeAsOverlay && <NoticeOverlay navigation={navigation} /> }
         </HomeContainer>
     )
 }

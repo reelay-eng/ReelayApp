@@ -31,6 +31,7 @@ const initialState = {
     latestAnnouncementDismissed: false,
     latestNotice: null,
     latestNoticeDismissed: false,
+    latestNoticeSkipped: false,
     myStacksFollowing: [],
     myStacksGlobal: [],
     myStacksInTheaters: [],
@@ -133,6 +134,8 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, latestNotice };
         case 'setLatestNoticeDismissed':
             return { ...state, latestNoticeDismissed: action.payload }
+        case 'setLatestNoticeSkipped':
+            return { ...state, latestNoticeSkipped: action.payload }
         case 'setMyStacksAtFestivals':
             return { ...state, myStacksAtFestivals: action.payload }    
         case 'setMyStacksFollowing':
@@ -240,6 +243,7 @@ export const mapStateToProps = (state) => ({
     latestAnnouncementDismissed: state.latestAnnouncementDismissed,
     latestNotice: state.latestNotice,
     latestNoticeDismissed: state.latestNoticeDismissed,
+    latestNoticeSkipped: state.latestNoticeSkipped,
     myStacksAtFestivals: state.myStacksAtFestivals,
     myStacksFollowing: state.myStacksFollowing,
     myStacksGlobal: state.myStacksGlobal,
