@@ -56,15 +56,10 @@ export const latestNoticeReducer = ({ latestNotice, myClubs, myCreatorStacks, us
     }
 }
 
-export const updateClubReducer = (myClubs, updatedClub) => {
-    const myClubsFiltered = myClubs.filter((nextClub) => nextClub.id !== updatedClub.id);
-    const updatedClubObj = { ...updatedClub };
-    const sortByLastActivity = (club0, club1) => {
-        const lastActivity0 = moment(club0?.lastActivityAt);
-        const lastActivity1 = moment(club1?.lastActivityAt);
-        return lastActivity0.diff(lastActivity1, 'seconds') < 0;
-    }
-    return [ updatedClubObj, ...myClubsFiltered].sort(sortByLastActivity);
+export const sortByLastActivity = (club0, club1) => {
+    const lastActivity0 = moment(club0?.lastActivityAt);
+    const lastActivity1 = moment(club1?.lastActivityAt);
+    return lastActivity0.diff(lastActivity1, 'seconds') > 0;
 }
 
 export const stacksOnStreamingReducer = ({ stacksOnStreaming, streamingSubscriptions }) => {
@@ -82,6 +77,12 @@ export const stacksOnStreamingReducer = ({ stacksOnStreaming, streamingSubscript
         return reelayStack;
     };
     return stacksOnStreaming.map(bringReelayWithSubscribedVenueToFront);
+}
+
+export const updateClubReducer = (myClubs, updatedClub) => {
+    const myClubsFiltered = myClubs.filter((nextClub) => nextClub.id !== updatedClub.id);
+    const updatedClubObj = { ...updatedClub };
+    return [ updatedClubObj, ...myClubsFiltered].sort(sortByLastActivity);
 }
 
 export const watchlistRecsReducer = (watchlistItems) => {

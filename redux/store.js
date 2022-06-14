@@ -2,6 +2,7 @@ import { createStore } from "redux";
 import { 
     cognitoSessionReducer, 
     latestNoticeReducer,
+    sortByLastActivity,
     stacksOnStreamingReducer, 
     updateClubReducer, 
     watchlistRecsReducer 
@@ -92,7 +93,9 @@ const appReducer = ( state = initialState, action) => {
 
         // CLUBS + WATCHLISTS
         case 'setMyClubs':
-            return { ...state, myClubs: action.payload };
+            const myClubs = action.payload;
+            const myClubsSorted = myClubs.sort(sortByLastActivity);
+            return { ...state, myClubs: myClubsSorted };
         case 'setUpdatedClub':
             const updatedClub = action.payload;
             const updatedMyClubs = updateClubReducer(state.myClubs, updatedClub);
@@ -121,7 +124,7 @@ const appReducer = ( state = initialState, action) => {
                 latestNotice: action.payload,
                 myClubs: state.myClubs,
                 myCreatorStacks: state.myCreatorStacks,
-                userSub: state.reelayDBUser?.sub,
+                userSub: state.reelayDBUserID,
             });
             return { ...state, latestNotice };
         case 'setLatestNoticeDismissed':

@@ -89,8 +89,10 @@ function App() {
     }, [reelayDBUserID]);
 
     useEffect(() => {
-        if (cognitoUser?.attributes?.sub) {
-            setReelayDBUserID(cognitoUser?.attributes?.sub);
+        const userSub = cognitoUser?.attributes?.sub;
+        if (userSub) {
+            setReelayDBUserID(userSub);
+            dispatch({ type: 'setReelayDBUserID', payload: userSub });
         }
     }, [cognitoUser]);
 

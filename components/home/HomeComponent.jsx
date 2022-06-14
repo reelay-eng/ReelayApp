@@ -38,10 +38,8 @@ const HomeComponent = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
 
     const authSession = useSelector(state => state.authSession);
-    const myCreatorStacks = useSelector(state => state.myCreatorStacks);
     const scrollRef = useRef(null);
 
-    const isGuestUser = reelayDBUser?.username === 'be_our_guest';
     const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
 
     const latestNotice = useSelector(state => state.latestNotice);
@@ -102,13 +100,7 @@ const HomeComponent = ({ navigation }) => {
 
     const [refreshing, setRefreshing] = useState(false);
     const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
-
-    useEffect(() => {
-        if (latestNoticeDismissed) {
-            setTimeout(() => dispatch({ type: 'setLatestNoticeDismissed', payload: false }), 5000);
-        }
-    }, [latestNoticeDismissed]);
-    
+        
     useEffect(() => {
         dispatch({ type: 'setLatestNotice', payload: null });
     }, []);
@@ -128,9 +120,7 @@ const HomeComponent = ({ navigation }) => {
             </ScrollContainer>
             <BottomBar />
             { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
-            { showNotice && (
-                <NoticeOverlay navigation={navigation} /> 
-            )}
+            { showNotice && <NoticeOverlay navigation={navigation} /> }
         </HomeContainer>
     )
 }
