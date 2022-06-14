@@ -28,6 +28,7 @@ const initialState = {
     globalTopics: [],
     globalTopicsWithReelays: [],
     latestAnnouncement: null,
+    latestAnnouncementDismissed: false,
     latestNotice: null,
     latestNoticeDismissed: false,
     myStacksFollowing: [],
@@ -119,6 +120,9 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, globalTopics, globalTopicsWithReelays };
         case 'setLatestAnnouncement':
             return { ...state, latestAnnouncement: action.payload };
+        case 'setLatestAnnouncementDismissed': {
+            return { ...state, latestAnnouncementDismissed: action.payload };
+        }
         case 'setLatestNotice':
             const latestNotice = latestNoticeReducer({
                 latestNotice: action.payload,
@@ -233,6 +237,7 @@ export const mapStateToProps = (state) => ({
     globalTopics: state.globalTopics,
     globalTopicsWithReelays: state.globalTopicsWithReelays,
     latestAnnouncement: state.latestAnnouncement,
+    latestAnnouncementDismissed: state.latestAnnouncementDismissed,
     latestNotice: state.latestNotice,
     latestNoticeDismissed: state.latestNoticeDismissed,
     myStacksAtFestivals: state.myStacksAtFestivals,

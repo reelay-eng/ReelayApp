@@ -78,8 +78,8 @@ const HomeHeader = ({ navigation }) => {
         <HeaderContainer>
             <HeaderContainerLeft>
                 <HeaderText>{'reelay'}</HeaderText>
-                { showLatestAnnouncement && <LatestAnnouncementButton navigation={navigation} announcement={latestAnnouncement} /> }
-                { showTutorialButton && <WatchTutorialButton navigation={navigation} /> }
+                {/* { showLatestAnnouncement && <LatestAnnouncementButton navigation={navigation} announcement={latestAnnouncement} /> }
+                { showTutorialButton && <WatchTutorialButton navigation={navigation} /> } */}
             </HeaderContainerLeft>
             <HeaderContainerRight>
                 <IconContainer onPress={advanceToSearchScreen}>

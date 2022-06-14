@@ -3,6 +3,7 @@ import { Keyboard, Pressable, ScrollView, View } from 'react-native';
 import TitleSearchResultItem from './TitleSearchResultItem';
 
 import styled from 'styled-components/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ScreenContainer = styled(Pressable)`
     display: flex;
@@ -16,8 +17,7 @@ const SearchResultContainer = styled(View)`
     padding-bottom: 5px;
 `
 const SearchResultsScrollContainer = styled(ScrollView)`
-    padding-bottom: ${270}px;
-    margin-bottom: ${270}px;
+    margin-bottom: ${props => props.bottomOffset}px;
 `
 
 export default TitleSearchResults = ({ 
@@ -27,6 +27,7 @@ export default TitleSearchResults = ({
     clubID, 
     topicID,
 }) => {
+    const bottomOffset = useSafeAreaInsets().bottom + 16;
     const renderSearchResult = (result) => {
         return (
             <SearchResultContainer key={result?.id}>
@@ -44,7 +45,7 @@ export default TitleSearchResults = ({
     return (
         <ScreenContainer onPress={Keyboard.dismiss}>
             { (searchResults?.length > 0) &&
-                <SearchResultsScrollContainer>
+                <SearchResultsScrollContainer bottomOffset={bottomOffset}>
                     { searchResults.map(renderSearchResult)}
                 </SearchResultsScrollContainer>
             }

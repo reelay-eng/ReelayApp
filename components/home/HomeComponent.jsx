@@ -1,6 +1,8 @@
 import React, { memo, useContext, useEffect, useRef, useState } from 'react';
-import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native'
+import { Dimensions, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
+// import { Icon } from 'react-native-elements';
 import styled from 'styled-components';
+// import * as ReelayText from '../global/Text';
 
 import HomeHeader from './HomeHeader';
 import InTheaters from './InTheaters';
@@ -18,7 +20,43 @@ import { getGlobalTopics } from '../../api/TopicsApi';
 import TopOfTheWeek from './TopOfTheWeek';
 import { useFocusEffect } from '@react-navigation/native';
 import NoticeOverlay from '../overlay/NoticeOverlay';
+import Announcement from './Announcement';
+// import ReelayColors from '../../constants/ReelayColors';
 
+// import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+// import { faPlay } from '@fortawesome/free-solid-svg-icons';
+
+// const { width } = Dimensions.get('window');
+
+// const AnnouncementBox = styled(View)`
+//     background-color: ${ReelayColors.reelayBlue};
+//     border-radius: 16px;
+//     flex-direction: row;
+//     margin: 12px;
+//     padding: 20px;
+// `
+// const AnnouncementInfoBox = styled(View)`
+//     width: ${width - 96}px;
+// `
+// const AnnouncementButtonBox = styled(TouchableOpacity)`
+//     align-items: center;
+//     justify-content: center;
+//     width: 30px;
+// `
+// const AnnouncementTitleText = styled(ReelayText.H5Bold)`
+//     color: white;
+//     margin-bottom: 8px;
+// `
+// const AnnouncementDescriptionText = styled(ReelayText.Body2)`
+//     color: white;
+// `
+const BottomBar = styled(View)`
+    background-color: black;
+    height: 100px;
+    width: 100%;
+    position: absolute;
+    bottom: 0px;
+`
 const HomeContainer = styled(SafeAreaView)`
     width: 100%;
     height: 100%;
@@ -41,7 +79,7 @@ const HomeComponent = ({ navigation }) => {
     const scrollRef = useRef(null);
 
     const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
-
+    const latestAnnouncement = useSelector(state => state.latestAnnouncement);
     const latestNotice = useSelector(state => state.latestNotice);
     const latestNoticeDismissed = useSelector(state => state.latestNoticeDismissed);
     const showNotice = latestNotice && !latestNoticeDismissed;
@@ -100,7 +138,31 @@ const HomeComponent = ({ navigation }) => {
 
     const [refreshing, setRefreshing] = useState(false);
     const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
-        
+
+    // const Announcements = ({ navigation }) => {
+    //     if (!latestAnnouncement) return <View />;
+
+    //     const { bodyJSON } = latestAnnouncement;
+    //     const body = bodyJSON ? JSON.parse(bodyJSON) : {};
+    //     body.description = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+
+    //     return (
+    //         <AnnouncementBox>
+    //             <AnnouncementInfoBox>
+    //                 <AnnouncementTitleText>
+    //                     { latestAnnouncement?.title }
+    //                 </AnnouncementTitleText>
+    //                 <AnnouncementDescriptionText>
+    //                     { body?.description ?? '' }
+    //                 </AnnouncementDescriptionText>
+    //             </AnnouncementInfoBox>
+    //             <AnnouncementButtonBox>
+    //                 <FontAwesomeIcon icon={ faPlay } color='white' size={20} />
+    //             </AnnouncementButtonBox>
+    //         </AnnouncementBox>
+    //     );
+    // }    
+
     useEffect(() => {
         dispatch({ type: 'setLatestNotice', payload: null });
     }, []);
@@ -109,7 +171,7 @@ const HomeComponent = ({ navigation }) => {
         <HomeContainer>
             <HomeHeader navigation={navigation} />
             <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
-                {/* <Announcements /> */}
+                <Announcement navigation={navigation} />
                 <TopOfTheWeek navigation={navigation} />
                 <FriendsAreWatching navigation={navigation} />
                 <GlobalTopics navigation={navigation} />
@@ -124,17 +186,5 @@ const HomeComponent = ({ navigation }) => {
         </HomeContainer>
     )
 }
-
-const Announcements = ({ navigation }) => {
- // fill once we start using
-}
-
-const BottomBar = styled(View)`
-    background-color: black;
-    height: 100px;
-    width: 100%;
-    position: absolute;
-    bottom: 0px;
-`
 
 export default HomeComponent;
