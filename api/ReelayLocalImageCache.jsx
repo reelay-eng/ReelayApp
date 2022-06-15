@@ -14,7 +14,7 @@ const clubPicLocalURI = (clubID) => imgDir + `/clubpic-${clubID}.jpg`;
 const profilePicRemoteURI = (userSub) => `${CLOUDFRONT_BASE_URL}/public/profilepic-${userSub}-current.jpg`;
 const profilePicLocalURI = (userSub) => imgDir + `/profilepic-${userSub}.jpg`;
 
-const titlePosterRemoteURI = (posterPath, size = 185) => `${TMDB_IMAGE_API_BASE_URL}${size}${posterPath}`;
+const titlePosterRemoteURI = (posterPath, size = 500) => `${TMDB_IMAGE_API_BASE_URL}${size}${posterPath}`;
 const titlePosterLocalURI = (posterPath) => imgDir + posterPath;
 
 export const cacheClubPic = async (clubID, useDefaultPic = false) => {

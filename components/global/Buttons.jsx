@@ -1,3 +1,5 @@
+import { faCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import React, { useState } from 'react';
 import { Pressable, View, Text, Image } from 'react-native';
 import styled from 'styled-components/native';
@@ -192,9 +194,9 @@ export const RedPlusButton = ({onPress}) => {
 }
 
 export const ToggleSelector = ({ displayOptions, options, selectedOption, onSelect, color }) => {
-    const BackgroundBox = styled(View)`
+	const BackgroundBox = styled(View)`
 		align-items: center;
-		background-color: #252527;
+		background-color: black;
 		border-radius: 8px;
 		justify-content: flex-start;
 		flex-direction: row;
@@ -208,36 +210,38 @@ export const ToggleSelector = ({ displayOptions, options, selectedOption, onSele
         height: 44px;
         width: ${100 / options.length}%;
     `
-    const ActiveButtonContainer = styled(ButtonContainer)`
-		background-color: ${color ?? ReelayColors.reelayBlue};
-		border-radius: 6px;
-	`;
-    const OptionText = styled(ReelayText.Subtitle2)`
-        color: white;
+    const OptionText = styled(ReelayText.H6)`
+        color: gray;
+		font-size: 18px;
     `
-    const PassiveButtonContainer = styled(ButtonContainer)`
-        background-color: transparent;
-    `
+	const ActiveOptionText = styled(ReelayText.H6)`
+		color: white;
+		font-size: 18px;
+		font-weight: bold;
+		margin-bottom: 2px;
+	`
 
     return (
         <BackgroundBox>
             { options.map((option, index) => {
                 if (option === selectedOption) {
                     return (
-                        <ActiveButtonContainer key={option}>
-							<OptionText>
+                        <ButtonContainer key={option}>
+							<ActiveOptionText>
 								{ (displayOptions && displayOptions[index]) ?? option }
-							</OptionText>
-                        </ActiveButtonContainer>
+							</ActiveOptionText>
+							<FontAwesomeIcon icon={faCircle} color='white' size={4} /> 
+                        </ButtonContainer>
                     );
                 } else {
                     return (
-                        <PassiveButtonContainer key={option}
+                        <ButtonContainer key={option}
                                 onPress={() => onSelect(option)}>
                             <OptionText>
 								{ (displayOptions && displayOptions[index]) ?? option }
 							</OptionText>
-                        </PassiveButtonContainer>
+							<View style={{ height: 6 }} />
+                        </ButtonContainer>
                     );
                 }
             })}

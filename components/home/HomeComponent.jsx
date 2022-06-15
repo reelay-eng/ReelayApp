@@ -1,13 +1,14 @@
-import React, { memo, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, memo, useContext, useEffect, useRef, useState } from 'react';
 import { Dimensions, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components';
 
+import AtFestivals from './AtFestivals';
 import HomeHeader from './HomeHeader';
 import InTheaters from './InTheaters';
 import FriendsAreWatching from './FriendsAreWatching';
-import OnStreaming from './OnStreaming';
-import AtFestivals from './AtFestivals';
 import GlobalTopics from '../topics/GlobalTopics';
+import OnStreaming from './OnStreaming';
+import PeopleToFollow from './PeopleToFollow';
 
 import { getFeed, getFollowing, getLatestAnnouncement, getStreamingSubscriptions } from '../../api/ReelayDBApi';
 import { getAllMyNotifications } from '../../api/NotificationsApi';
@@ -19,6 +20,7 @@ import TopOfTheWeek from './TopOfTheWeek';
 import { useFocusEffect } from '@react-navigation/native';
 import NoticeOverlay from '../overlay/NoticeOverlay';
 import AnnouncementsAndNotices from './AnnouncementsAndNotices';
+import PopularTitles from './PopularTitles';
 
 const BottomBar = styled(View)`
     background-color: black;
@@ -47,6 +49,9 @@ const HomeComponent = ({ navigation }) => {
     const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
     const authSession = useSelector(state => state.authSession);
     const scrollRef = useRef(null);
+
+    const [selectedTab, setSelectedTab] = useState('discover');
+    const tabOptions = ['discover', 'following'];
 
     const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
     const latestNotice = useSelector(state => state.latestNotice);
@@ -111,15 +116,30 @@ const HomeComponent = ({ navigation }) => {
 
     return (
         <HomeContainer>
-            <HomeHeader navigation={navigation} />
+            <HomeHeader 
+                navigation={navigation} 
+                selectedTab={selectedTab} 
+                setSelectedTab={setSelectedTab} 
+                tabOptions={tabOptions} 
+            />
             <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 <AnnouncementsAndNotices navigation={navigation} />
-                <TopOfTheWeek navigation={navigation} />
-                <FriendsAreWatching navigation={navigation} />
-                <GlobalTopics navigation={navigation} />
-                <OnStreaming navigation={navigation} />
-                <InTheaters navigation={navigation} />
-                <AtFestivals navigation={navigation} />
+                { selectedTab === 'discover' && (
+                    <Fragment>
+                        <TopOfTheWeek navigation={navigation} />
+                        <PopularTitles navigation={navigation} />
+                        <GlobalTopics navigation={navigation} /> 
+                        <PeopleToFollow navigation={navigation} /> 
+                        <InTheaters navigation={navigation} /> 
+                        <AtFestivals navigation={navigation} /> 
+                    </Fragment>
+                )}
+                { selectedTab === 'following' && (
+                    <Fragment>
+                        <FriendsAreWatching navigation={navigation} />
+                        <OnStreaming navigation={navigation} />
+                    </Fragment>  
+                )}
                 <Spacer height={80} />
             </ScrollContainer>
             <BottomBar />

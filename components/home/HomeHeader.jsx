@@ -1,15 +1,12 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import * as ReelayText from "../global/Text";
-import { Image, Pressable, TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 
-import ReelayColors from '../../constants/ReelayColors';
-import Constants from 'expo-constants';
-import { getReelay, prepareReelay } from '../../api/ReelayDBApi';
 import { useSelector } from 'react-redux';
-import moment from 'moment';
+import { ToggleSelector } from '../global/Buttons';
 
 const HeaderContainer = styled(View)`
     padding-left: 15px;
@@ -37,94 +34,55 @@ const HeaderText = styled(ReelayText.H4Bold)`
 const IconContainer = styled(TouchableOpacity)`
     margin-left: 12px;
 `
-const TutorialButtonContainer = styled(Pressable)`
-    align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
-    border-radius: 6px;
-    flex-direction: row;
-    margin-left: 12px;
-    height: 38px;
-    padding: 6px;
-`
-const TutorialButtonText = styled(ReelayText.CaptionEmphasized)`
-    margin-top: 2px;
-    margin-left: 6px;
-    color: white;
-`
-const UnreadIconIndicator = styled(View)`
-    background-color: ${ReelayColors.reelayBlue}
-    border-radius: 5px;
-    height: 10px;
-    width: 10px;
-    position: absolute;
-    right: 0px;
-`
 
-const HomeHeader = ({ navigation }) => {
+export default HomeHeader = ({ 
+    navigation,
+    selectedTab,
+    setSelectedTab,
+    tabOptions,
+}) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const latestAnnouncement = useSelector(state => state.latestAnnouncement);
-    const myNotifications = useSelector(state => state.myNotifications);
-    const myFollowing = useSelector(state => state.myFollowing);
-    const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
-    const showLatestAnnouncement = (latestAnnouncement && !latestAnnouncement?.error)
-    const daysSinceSignedUp = moment().diff(moment(reelayDBUser?.createdAt), 'days');
-    const showTutorialButton = (!showLatestAnnouncement) && (myFollowing.length > 0) && (daysSinceSignedUp < 7);
+    const HomeHeaderTop = () => {
+        const myNotifications = useSelector(state => state.myNotifications);
+        const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
+    
+        const advanceToMyNotifications = () => navigation.push('NotificationScreen');
+        const advanceToSearchScreen = () => navigation.push('SearchScreen');
+    
+        return (
+            <HeaderContainer>
+                <HeaderContainerLeft>
+                    <HeaderText>{'reelay'}</HeaderText>
+                </HeaderContainerLeft>
+                <HeaderContainerRight>
+                    <IconContainer onPress={advanceToSearchScreen}>
+                        <Icon type='ionicon' size={27} color={'white'} name='search' />
+                    </IconContainer>
+                    <IconContainer onPress={advanceToMyNotifications}>
+                        <Icon type='ionicon' size={27} color={'white'} name='notifications' />
+                        { hasUnreadNotifications && <UnreadIconIndicator /> }
+                    </IconContainer>
+                </HeaderContainerRight>
+            </HeaderContainer>
+        );
+    };
 
-    const advanceToMyNotifications = () => navigation.push('NotificationScreen');
-    const advanceToSearchScreen = () => navigation.push('SearchScreen');
-
-	return (
-        <HeaderContainer>
-            <HeaderContainerLeft>
-                <HeaderText>{'reelay'}</HeaderText>
-                {/* { showLatestAnnouncement && <LatestAnnouncementButton navigation={navigation} announcement={latestAnnouncement} /> }
-                { showTutorialButton && <WatchTutorialButton navigation={navigation} /> } */}
-            </HeaderContainerLeft>
-            <HeaderContainerRight>
-                <IconContainer onPress={advanceToSearchScreen}>
-                    <Icon type='ionicon' size={27} color={'white'} name='search' />
-                </IconContainer>
-                <IconContainer onPress={advanceToMyNotifications}>
-                    <Icon type='ionicon' size={27} color={'white'} name='notifications' />
-                    { hasUnreadNotifications && <UnreadIconIndicator /> }
-                </IconContainer>
-            </HeaderContainerRight>
-        </HeaderContainer>
-	);
+    const HomeScreenTabSelector = () => {
+        return (
+            <ToggleSelector 
+                displayOptions={tabOptions}
+                options={tabOptions}
+                selectedOption={selectedTab}
+                onSelect={setSelectedTab}
+            />
+        );
+    }    
+    
+    return (
+        <React.Fragment>
+            <HomeHeaderTop navigation={navigation} />
+            <HomeScreenTabSelector />
+        </React.Fragment>
+    )
 };
-
-const LatestAnnouncementButton = ({ navigation, announcement }) => {
-    const { pinnedReelay, title } = announcement;
-
-    const loadAnnouncementVideoScreen = async () => {
-        navigation.push('SingleReelayScreen', { preparedReelay: pinnedReelay });
-    }
-    return (
-        <TutorialButtonContainer onPress={loadAnnouncementVideoScreen}>
-            <TutorialButtonText>{`${title} `}</TutorialButtonText>
-            <IconContainer>
-                <Icon type='ionicon' size={24} color={'white'} name='play-circle' />
-            </IconContainer>
-        </TutorialButtonContainer>
-    );
-}
-
-const WatchTutorialButton = ({ navigation }) => {
-    const loadWelcomeVideoScreen = async () => {
-        const welcomeReelaySub = Constants.manifest.extra.welcomeReelaySub;
-        const welcomeReelay = await getReelay(welcomeReelaySub, 'dev');
-        const preparedReelay = await prepareReelay(welcomeReelay);
-        navigation.push('SingleReelayScreen', { preparedReelay });
-    }
-    return (
-        <TutorialButtonContainer onPress={loadWelcomeVideoScreen}>
-            <TutorialButtonText>{'Welcome '}</TutorialButtonText>
-            <IconContainer>
-                <Icon type='ionicon' size={24} color={'white'} name='play-circle' />
-            </IconContainer>
-        </TutorialButtonContainer>
-    );
-}
-
-export default HomeHeader;
