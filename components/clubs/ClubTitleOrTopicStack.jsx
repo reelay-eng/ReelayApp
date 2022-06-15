@@ -175,7 +175,7 @@ export default ClubTitleOrTopicStack = ({
                 prevReelayID: prevReelay.id,
                 prevReelayCreator: prevReelay.creator.username,
                 prevReelayTitle: prevReelay.title.display,
-                source: 'stack',
+                source: 'clubs',
                 swipeDirection: swipeDirection,
                 username: reelayDBUser?.username,
             }

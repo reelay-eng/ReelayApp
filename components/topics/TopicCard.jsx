@@ -9,8 +9,12 @@ import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
 import TopicDotMenuDrawer from './TopicDotMenuDrawer';
+import ReelayColors from '../../constants/ReelayColors';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
+
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faComments, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 const { height, width } = Dimensions.get('window');
 
@@ -38,7 +42,7 @@ const ContributorRowContainer = styled(View)`
 `
 const CreateReelayButton = styled(TouchableOpacity)`
     align-items: center;
-    background-color: #444950;
+    background-color: #665f6b;
     border-radius: 17px;
     flex-direction: row;
     justify-content: center;
@@ -216,11 +220,17 @@ export default TopicCard = ({ advanceToFeed, clubID, navigation, topic }) => {
 
     return (
         <TopicCardContainer canPress={canPress} onPress={advanceToFeed}>
-            <TopicCardGradient colors={['#252527', '#19242E']} />
+            <TopicCardGradient colors={['#400817', '#19242E']} start={{ x: 0.5, y: 1 }} end={{ x: 0.5, y: -0.5 }} />
             <CreatorLine>
                 <CreatorLineLeft>
+                    { clubID && (
+                        <>
+                            <FontAwesomeIcon icon={ faComments } color='white' size={20} /> 
+                            <View style={{ marginRight: 10 }} />
+                        </>
+                    )}
                     <ProfilePicture user={creator} size={24} />
-                    <CreatorName>{creator.username}</CreatorName>
+                    <CreatorName>{creator.username + ' started'}</CreatorName>
                 </CreatorLineLeft>
                 <DotMenuButton />
             </CreatorLine>

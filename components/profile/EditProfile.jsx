@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from "react";
-import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, TextInput, Keyboard } from "react-native";
+import { Dimensions, Modal, View, Image, Pressable, SafeAreaView, TextInput, Keyboard, TouchableOpacity } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { useFocusEffect } from "@react-navigation/native";
 
@@ -25,6 +25,7 @@ import styled from "styled-components/native";
 import ReelayColors from "../../constants/ReelayColors";
 
 import ReelayIcon from "../../assets/icons/reelay-icon-with-dog-black.png";
+import { Icon } from 'react-native-elements';
 import * as ReelayText from "../global/Text";
 import { HeaderDoneCancel } from '../global/Headers';
 import { logAmplitudeEventProd } from "../utils/EventLogger";
@@ -87,7 +88,7 @@ export default EditProfile = ({ navigation, refreshProfile }) => {
 	});
 
 	const editUsernameOnPress = () => {
-		navigation.push("AccountInfoScreen", { refreshProfile });
+		navigation.push("AccountInfoScreen");
 		dispatch({ type: 'setIsEditingProfile', payload: false });
 	}
 

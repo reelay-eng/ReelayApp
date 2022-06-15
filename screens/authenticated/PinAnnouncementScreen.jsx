@@ -28,6 +28,23 @@ const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 const { width } = Dimensions.get('window');
 
+const DescriptionInputField = styled(TextInput)`
+    border-color: white;
+    border-radius: 4px;
+    border-width: 1px;
+    color: white;
+    font-family: Outfit-Regular;
+    font-size: 16px;
+    font-style: normal;
+    letter-spacing: 0.15px;
+    margin-top: 6px;
+    min-height: 90px;
+    padding: 12px;
+`
+const DescriptionText = styled(ReelayText.H6)`
+    color: ${(props) => props.disabled ? 'black' : 'white'};
+    font-size: 16px;
+`
 const ExplainerContainer = styled(View)`
     align-items: flex-start;
     justify-content: center;
@@ -92,8 +109,9 @@ const TitleText = styled(ReelayText.Subtitle2)`
     color: ${(props) => props.disabled ? 'black' : 'white'};
     font-size: 16px;
 `
+const DESCRIPTION_MAX_LENGTH = 140;
 const TITLE_MIN_LENGTH = 3;
-const TITLE_MAX_LENGTH = 12;
+const TITLE_MAX_LENGTH = 25;
 
 export default function PinAnnouncementScreen({ navigation, route }) {
     const { reelayDBUser } = useContext(AuthContext);
@@ -102,9 +120,12 @@ export default function PinAnnouncementScreen({ navigation, route }) {
     const authSession = useSelector(state => state.authSession);
 
     const dispatch = useDispatch();
+    const descriptionFieldRef = useRef(null);
+    const descriptionTextRef = useRef('');
     const titleFieldRef = useRef(null);
     const titleTextRef = useRef('');
 
+    const changeDescriptionText = (text) => descriptionTextRef.current = text;
     const changeTitleText = (text) => titleTextRef.current = text;
     const focusTitle = () => titleFieldRef?.current && titleFieldRef.current.focus();
 
@@ -128,7 +149,9 @@ export default function PinAnnouncementScreen({ navigation, route }) {
                 reqUserSub: reelayDBUser?.sub,
                 postBody: {
                     expiryAt, 
-                    optionsJSON: JSON.stringify({}),
+                    optionsJSON: JSON.stringify({
+                        description: descriptionTextRef?.current
+                    }),
                     reelaySub: reelay.sub,
                     title: titleTextRef.current,
                     visibility: FEED_VISIBILITY,
@@ -150,6 +173,32 @@ export default function PinAnnouncementScreen({ navigation, route }) {
                 { publishing && <ActivityIndicator/> }
                 { !publishing && <TitleText>{'Pin announcement'}</TitleText> }
             </PinAnnouncementButtonContainer>
+        );
+    }
+
+    const DescriptionInput = () => {
+        return (
+            <SectionContainer>
+                <DescriptionText>{'Description'}</DescriptionText>
+                <TouchableWithoutFeedback onPress={focusTitle}>
+                    <DescriptionInputField 
+                        ref={descriptionFieldRef}
+                        blurOnSubmit={true}
+                        maxLength={DESCRIPTION_MAX_LENGTH}
+                        multiline
+                        numberOfLines={4}
+                        defaultValue={descriptionTextRef.current}
+                        placeholder={"Tell us about the new feature, event, etc."}
+                        placeholderTextColor={'rgba(255,255,255,0.6)'}
+                        onChangeText={changeDescriptionText}
+                        onSubmitEditing={Keyboard.dismiss}
+                        onPressOut={Keyboard.dismiss}
+                        returnKeyLabel="done"
+                        returnKeyType="done"
+                    />
+                </TouchableWithoutFeedback>   
+                <Explainer />
+            </SectionContainer> 
         );
     }
 
@@ -209,6 +258,7 @@ export default function PinAnnouncementScreen({ navigation, route }) {
                 <View style={{ display: 'flex' }}>
                     <Header />
                     <TitleInput />
+                    <DescriptionInput />
                 </View>
                 <SectionContainerBottom>
                     <PinAnnouncementButton />

@@ -11,6 +11,8 @@ import Carousel from 'react-native-snap-carousel';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import { getGlobalTopics } from '../../api/TopicsApi';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faComments, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 const { width } = Dimensions.get('window');
 
@@ -154,7 +156,7 @@ export default GlobalTopics = ({ navigation }) => {
         <GlobalTopicsContainer>
             <HeaderContainer>
                 <HeaderContainerLeft>
-                    <Icon type='ionicon' name='logo-ionic' size={24} color='white' />
+                    <FontAwesomeIcon icon={ faComments } color='white' size={20} />
                     <HeaderText>{'Topics'}</HeaderText>
                 </HeaderContainerLeft>
                 <HeaderContainerRight onPress={advanceToTopicsList}>

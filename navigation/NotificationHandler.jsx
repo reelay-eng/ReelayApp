@@ -141,7 +141,7 @@ const openUserProfileScreen = async (navigation, fromUser) => {
         return;
     }
 
-    if (!data.fromUser) {
+    if (!fromUser) {
         console.log('No from user given');
         return;
     }

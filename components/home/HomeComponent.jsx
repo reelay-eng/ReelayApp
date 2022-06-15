@@ -1,5 +1,5 @@
 import React, { memo, useContext, useEffect, useRef, useState } from 'react';
-import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native'
+import { Dimensions, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components';
 
 import HomeHeader from './HomeHeader';
@@ -17,7 +17,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getGlobalTopics } from '../../api/TopicsApi';
 import TopOfTheWeek from './TopOfTheWeek';
 import { useFocusEffect } from '@react-navigation/native';
+import NoticeOverlay from '../overlay/NoticeOverlay';
+import AnnouncementsAndNotices from './AnnouncementsAndNotices';
 
+const BottomBar = styled(View)`
+    background-color: black;
+    height: 100px;
+    width: 100%;
+    position: absolute;
+    bottom: 0px;
+`
 const HomeContainer = styled(SafeAreaView)`
     width: 100%;
     height: 100%;
@@ -34,11 +43,17 @@ const Spacer = styled.View`
 
 const HomeComponent = ({ navigation }) => {
     const dispatch = useDispatch();
-    const { reelayDBUserID } = useContext(AuthContext);
+    const { reelayDBUser } = useContext(AuthContext);
+    const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
     const authSession = useSelector(state => state.authSession);
     const scrollRef = useRef(null);
-    const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
 
+    const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
+    const latestNotice = useSelector(state => state.latestNotice);
+    const latestNoticeDismissed = useSelector(state => state.latestNoticeDismissed);
+    const latestNoticeSkipped = useSelector(state => state.latestNoticeSkipped);
+    const showNoticeAsOverlay = latestNotice && !latestNoticeSkipped && !latestNoticeDismissed && !isGuestUser;
+    
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
         const unsubscribe = navigation.getParent().addListener('tabPress', e => {
@@ -53,7 +68,7 @@ const HomeComponent = ({ navigation }) => {
 
     const onRefresh = async () => {
         setRefreshing(true);
-        const reqUserSub = reelayDBUserID;
+        const reqUserSub = reelayDBUser?.sub;
         const [
             myFollowingLoaded,
             myNotifications,
@@ -66,9 +81,9 @@ const HomeComponent = ({ navigation }) => {
             myStacksOnStreaming,
             myStacksAtFestivals,
         ] = await Promise.all([
-            getFollowing(reelayDBUserID),
-            getAllMyNotifications(reelayDBUserID),
-            getStreamingSubscriptions(reelayDBUserID),
+            getFollowing(reelayDBUser?.sub),
+            getAllMyNotifications(reelayDBUser?.sub),
+            getStreamingSubscriptions(reelayDBUser?.sub),
             getGlobalTopics({ reqUserSub, page: 0 }),
             getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
             getFeed({ reqUserSub, feedSource: 'trending', page: 0 }),
@@ -98,7 +113,7 @@ const HomeComponent = ({ navigation }) => {
         <HomeContainer>
             <HomeHeader navigation={navigation} />
             <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
-                {/* <Announcements /> */}
+                <AnnouncementsAndNotices navigation={navigation} />
                 <TopOfTheWeek navigation={navigation} />
                 <FriendsAreWatching navigation={navigation} />
                 <GlobalTopics navigation={navigation} />
@@ -109,20 +124,9 @@ const HomeComponent = ({ navigation }) => {
             </ScrollContainer>
             <BottomBar />
             { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
+            { showNoticeAsOverlay && <NoticeOverlay navigation={navigation} /> }
         </HomeContainer>
     )
 }
-
-const Announcements = ({ navigation }) => {
- // fill once we start using
-}
-
-const BottomBar = styled(View)`
-    background-color: black;
-    height: 100px;
-    width: 100%;
-    position: absolute;
-    bottom: 0px;
-`
 
 export default HomeComponent;

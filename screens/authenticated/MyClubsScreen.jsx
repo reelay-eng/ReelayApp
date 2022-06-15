@@ -34,6 +34,8 @@ const ClubGridContainer = styled(View)`
     flex-direction: row;
     flex-wrap: wrap;
     padding: ${GRID_PADDING}px;
+    padding-top: 0px;
+    padding-bottom: 80px;
     width: 100%;
 `
 const ClubTitleText = styled(ReelayText.Body2)`
@@ -42,15 +44,6 @@ const ClubTitleText = styled(ReelayText.Body2)`
     margin-top: 4px;
     width: ${CLUB_BUTTON_SIZE}px;
 `
-// const CreateClubGradient = styled(LinearGradient)`
-//     align-items: center;
-//     border-radius: ${CLUB_BUTTON_SIZE/2}px;
-//     height: ${CLUB_BUTTON_SIZE}px;
-//     justify-content: center;
-//     padding-left: 2px;
-//     padding-top: 2px;
-//     width: ${CLUB_BUTTON_SIZE}px;
-// `
 const HeaderText = styled(ReelayText.H5Emphasized)`
     color: white;
     margin-top: 4px;
@@ -108,18 +101,6 @@ export default MyClubsScreen = ({ navigation, route }) => {
         );
     }    
     
-    // const CreateClubButton = () => {
-    //     const advanceToCreateClub = async () => navigation.push('CreateClubScreen');
-    //     return (
-    //         <ClubButtonPressable onPress={advanceToCreateClub}>
-    //             <CreateClubGradient colors={['#2977EF', '#FF4848']}>
-    //                 <Icon type='ionicon' name='add' size={CLUB_BUTTON_SIZE * 0.6} color='white' />
-    //             </CreateClubGradient>
-    //             <ClubTitleText>{'Create Club'}</ClubTitleText>
-    //         </ClubButtonPressable>
-    //     );
-    // }
-
     const NewClubButton = () => {
         const advanceToCreateClub = async () => navigation.push('CreateClubScreen');
         return (

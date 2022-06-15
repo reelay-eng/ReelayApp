@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { View, Keyboard, Pressable } from "react-native";
 import { Input } from 'react-native-elements';
 import { Button } from '../../components/global/Buttons';
@@ -69,7 +69,7 @@ const BottomButtonsContainer = styled(View)`
     align-items: center;
 `
 
-export default AccountInfo = ({ navigation, refreshProfile }) => {
+export default AccountInfo = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
     const ViewContainer = styled(View)`
@@ -81,6 +81,10 @@ export default AccountInfo = ({ navigation, refreshProfile }) => {
         align-items: center;
     `
 
+    // useEffect(() => {
+	// 	dispatch({ type: 'setIsEditingProfile', payload: false });
+    // }, []);
+
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
     })
@@ -91,14 +95,13 @@ export default AccountInfo = ({ navigation, refreshProfile }) => {
             <AccountInfoWrapper 
                 navigation={navigation} 
                 reelayDBUser={reelayDBUser} 
-                refreshProfile={refreshProfile} 
             />
         </ViewContainer>
     )
 }
 
-const AccountInfoWrapper = ({ navigation, reelayDBUser, refreshProfile }) => {
-    const AccountInfoContainer = styled(View)`
+const AccountInfoWrapper = ({ navigation, reelayDBUser }) => {
+    const AccountInfoContainer = styled(Pressable)`
         width: 90%;
         height: 100%;
         display: flex;
@@ -160,8 +163,8 @@ const AccountInfoWrapper = ({ navigation, reelayDBUser, refreshProfile }) => {
                 newUsername: usernameRef.current.trim(),
             });
 			reelayDBUser.username = usernameRef.current.trim();
+            setSavingInfo(false);
             navigation.goBack();
-            refreshProfile();
 		} else if (!usernameIsValid && initUsername !== usernameRef.current.trim() && usernameRef.current.trim() !== "") {
             setSavingInfo(false);
 			return false;
@@ -175,7 +178,7 @@ const AccountInfoWrapper = ({ navigation, reelayDBUser, refreshProfile }) => {
     }
 
     return (
-        <AccountInfoContainer>
+        <AccountInfoContainer onPress={Keyboard.dismiss}>
             <Divider />
             <AlignmentContainer>
                 <EditUsername usernameRef={usernameRef} usernameInputRef={usernameInputRef} currentFocus={currentFocus} />

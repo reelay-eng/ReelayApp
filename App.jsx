@@ -89,8 +89,10 @@ function App() {
     }, [reelayDBUserID]);
 
     useEffect(() => {
-        if (cognitoUser?.attributes?.sub) {
-            setReelayDBUserID(cognitoUser?.attributes?.sub);
+        const userSub = cognitoUser?.attributes?.sub;
+        if (userSub) {
+            setReelayDBUserID(userSub);
+            dispatch({ type: 'setReelayDBUserID', payload: userSub });
         }
     }, [cognitoUser]);
 
@@ -193,6 +195,16 @@ function App() {
 		}
     }
 
+    const getDismissalHistory = async () => {
+        const [announcementHistoryJSON, noticeHistoryJSON] = await Promise.all([
+            AsyncStorage.getItem('announcement-history-json') ?? '{}',
+            AsyncStorage.getItem('notice-history-json') ?? '{}',
+        ])
+        const announcementHistory = JSON.parse(announcementHistoryJSON);
+        const noticeHistory = JSON.parse(noticeHistoryJSON);
+        return { announcementHistory, noticeHistory };
+    }
+
     const initS3Client = () => {
         try {
             setupURLPolyfill();            
@@ -234,36 +246,37 @@ function App() {
         // make sure to maintain consistent ordering between these arrays
         // when you modify them
         const [
-            reelayDBUserLoaded,
+            donateLinksLoaded,
+            globalTopics,
+            homeFeeds,
+            latestAnnouncement,
+            myClubs,
+            myDismissalHistory,
             myCreatorStacksLoaded,
             myFollowersLoaded,
             myFollowingLoaded,
             myNotificationsLoaded,
             myWatchlistItemsLoaded,
             myStreamingSubscriptions,
-            donateLinksLoaded,
-
-            globalTopics,
-            latestAnnouncement,
-            myClubs,
-            homeFeeds,
+            reelayDBUserLoaded,
         ] = await Promise.all([
-            getRegisteredUser(userSub),
+            getAllDonateLinks(),
+            getGlobalTopics({ reqUserSub, page: 0 }),
+            getHomeFeeds({ reqUserSub, authSession }),
+            getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
+            getClubsMemberOf({ authSession, userSub }),
+            getDismissalHistory(),
             getStacksByCreator(userSub),
             getFollowers(userSub),
             getFollowing(userSub),
             getAllMyNotifications(userSub),
             getWatchlistItems(userSub),
             getStreamingSubscriptions(userSub),
-            getAllDonateLinks(),
-
-            getGlobalTopics({ reqUserSub, page: 0 }),
-            getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
-            getClubsMemberOf({ authSession, userSub }),
-            getHomeFeeds({ reqUserSub, authSession }),
+            getRegisteredUser(userSub),
         ]);
 
         setReelayDBUser(reelayDBUserLoaded);
+        dispatch({ type: 'setReelayDBUser', payload: reelayDBUserLoaded });
         dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
         dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
 
@@ -272,6 +285,7 @@ function App() {
         dispatch({ type: 'setMyWatchlistItems', payload: myWatchlistItemsLoaded });
         dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
+        dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });
         dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
 
         dispatch({ type: 'setGlobalTopics', payload: globalTopics });
@@ -282,9 +296,7 @@ function App() {
         dispatch({ type: 'setMyStacksInTheaters', payload: homeFeeds.theaters });
         dispatch({ type: 'setMyStacksOnStreaming', payload: homeFeeds.streaming });
         dispatch({ type: 'setMyStacksAtFestivals', payload: homeFeeds.festivals });
-        dispatch({ type: 'setTopOfTheWeek', payload: homeFeeds.trending })
-
-        console.log('home feeds: ', Object.keys(homeFeeds));
+        dispatch({ type: 'setTopOfTheWeek', payload: homeFeeds.trending });
         dispatch({ type: 'setIsLoading', payload: false });
     }
 
@@ -334,9 +346,9 @@ function App() {
         return (
             <SafeAreaProvider>
                 <AuthContext.Provider value={authState}>
-                        <StatusBar />
-                        <Navigation colorScheme={colorScheme} />
-                        <Toast config={toastConfig}/>
+                    <StatusBar />
+                    <Navigation colorScheme={colorScheme} />
+                    <Toast config={toastConfig}/>
                 </AuthContext.Provider>
             </SafeAreaProvider>
         );

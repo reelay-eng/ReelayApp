@@ -59,7 +59,6 @@ const ReelayStack = ({
 
     const latestAnnouncement = useSelector(state => state.latestAnnouncement);
     const isPinnedReelay = (viewableReelay?.sub === latestAnnouncement?.pinnedReelay?.sub);
-    console.log('is pinned reelay: ', isPinnedReelay);
 
     const donateObj = donateLinks?.find((donateLinkObj) => {
         const { tmdbTitleID, titleType } = donateLinkObj;
@@ -102,7 +101,7 @@ const ReelayStack = ({
         return (
             <BackButtonContainer isPinned={isPinnedReelay}>
                 <BackButton navigation={navigation} />
-                { latestAnnouncement?.title && <AnnouncementTitle /> }
+                { isPinnedReelay && latestAnnouncement?.title && <AnnouncementTitle /> }
             </BackButtonContainer>
         );
     }
