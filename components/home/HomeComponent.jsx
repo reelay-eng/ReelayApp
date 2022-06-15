@@ -21,6 +21,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import NoticeOverlay from '../overlay/NoticeOverlay';
 import AnnouncementsAndNotices from './AnnouncementsAndNotices';
 import PopularTitles from './PopularTitles';
+import MyClubsSelector from './MyClubsSelector';
 
 const BottomBar = styled(View)`
     background-color: black;
@@ -138,6 +139,7 @@ const HomeComponent = ({ navigation }) => {
                     <Fragment>
                         <FriendsAreWatching navigation={navigation} />
                         <OnStreaming navigation={navigation} />
+                        <MyClubsSelector navigation={navigation} />
                     </Fragment>  
                 )}
                 <Spacer height={80} />

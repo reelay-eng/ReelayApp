@@ -58,9 +58,7 @@ export default PeopleToFollow = ({ navigation }) => {
                 <HeaderText>{'People to follow'}</HeaderText>
             </HeaderContainer>
             <RowContainer horizontal showsHorizontalScrollIndicator={false}>
-                { peopleToFollowList.map((followObj) => {
-                    return renderFollowOption(followObj);
-                })}
+                { peopleToFollowList.map(renderFollowOption)}
             </RowContainer>
         </Fragment>
     )
