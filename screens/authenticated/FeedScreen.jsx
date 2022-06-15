@@ -16,7 +16,6 @@ export default function FeedScreen({ navigation, route }) {
     const forceRefresh = route?.params?.forceRefresh ?? null;
     const pinnedReelay = route?.params?.pinnedReelay ?? null;
     const preloadedStackList = route?.params?.preloadedStackList ?? myStacksGlobal;
-    myStacksGlobal.forEach(stack => console.log('my stacks global: ', stack[0].sub));
 
     console.log('Feed screen is rendering');
 

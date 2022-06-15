@@ -1,5 +1,7 @@
 import { createStore } from "redux";
 import { 
+    announcementDismissalReducer,
+    noticeDismissalReducer,
     cognitoSessionReducer, 
     latestAnnouncementReducer, 
     latestNoticeReducer,
@@ -33,6 +35,7 @@ const initialState = {
     latestNotice: null,
     latestNoticeDismissed: false,
     latestNoticeSkipped: false,
+    myDismissalHistory: {},
     myStacksFollowing: [],
     myStacksGlobal: [],
     myStacksInTheaters: [],
@@ -123,10 +126,15 @@ const appReducer = ( state = initialState, action) => {
         case 'setLatestAnnouncement':
             const latestAnnouncement = latestAnnouncementReducer({ 
                 announcement: action.payload,
+                myDismissalHistory: state.myDismissalHistory,
                 myFollowing: state.myFollowing,
                 reelayDBUser: state.reelayDBUser,
             });
-            return { ...state, latestAnnouncement };
+            const latestAnnouncementNotDismissed = announcementDismissalReducer({
+                announcement: latestAnnouncement,
+                dismissalHistory: state.myDismissalHistory,
+            });
+            return { ...state, latestAnnouncement: latestAnnouncementNotDismissed };
         case 'setLatestAnnouncementDismissed':
             return { ...state, latestAnnouncementDismissed: action.payload };
         case 'setLatestNotice':
@@ -136,11 +144,17 @@ const appReducer = ( state = initialState, action) => {
                 myCreatorStacks: state.myCreatorStacks,
                 userSub: state.reelayDBUserID,
             });
-            return { ...state, latestNotice };
+            const latestNoticeNotDismissed = noticeDismissalReducer({
+                notice: latestNotice,
+                dismissalHistory: state.myDismissalHistory,
+            });
+            return { ...state, latestNotice: latestNoticeNotDismissed };
         case 'setLatestNoticeDismissed':
             return { ...state, latestNoticeDismissed: action.payload }
         case 'setLatestNoticeSkipped':
             return { ...state, latestNoticeSkipped: action.payload }
+        case 'setMyDismissalHistory':
+            return { ...state, myDismissalHistory: action.payload }
         case 'setMyStacksAtFestivals':
             return { ...state, myStacksAtFestivals: action.payload }    
         case 'setMyStacksFollowing':
@@ -249,6 +263,7 @@ export const mapStateToProps = (state) => ({
     latestNotice: state.latestNotice,
     latestNoticeDismissed: state.latestNoticeDismissed,
     latestNoticeSkipped: state.latestNoticeSkipped,
+    myDismissalHistory: state.myDismissalHistory,
     myStacksAtFestivals: state.myStacksAtFestivals,
     myStacksFollowing: state.myStacksFollowing,
     myStacksGlobal: state.myStacksGlobal,

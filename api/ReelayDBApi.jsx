@@ -160,7 +160,6 @@ export const getLatestAnnouncement = async ({ authSession, reqUserSub, page }) =
         console.log(error);
         return null;
     }
-
 }
 
 export const getReportedIssues = async ({ authSession, reqUserSub }) => {

@@ -91,11 +91,9 @@ export default AnnouncementsAndNotices = ({ navigation }) => {
     const dispatch = useDispatch();
     const latestAnnouncement = useSelector(state => state.latestAnnouncement);
     const latestAnnouncementDismissed = useSelector(state => state.latestAnnouncementDismissed);
-
     const latestNotice = useSelector(state => state.latestNotice);
     const latestNoticeDismissed = useSelector(state => state.latestNoticeDismissed);
     const latestNoticeSkipped = useSelector(state => state.latestNoticeSkipped);
-
     const showNoticeAsAnnouncement = latestNotice && latestNoticeSkipped && !latestNoticeDismissed;   
 
     const advanceToCreateScreen = async () => navigation.navigate('Create');
