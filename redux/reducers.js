@@ -45,6 +45,13 @@ export const latestAnnouncementReducer = ({ announcement, myFollowing, reelayDBU
     return null;
 }
 
+export const announcementDismissalReducer = ({ announcement, dismissalHistory }) => {
+    if (!announcement) return null;
+    const announcementEntry = dismissalHistory?.announcementHistory?.[announcement?.id];
+    const isDismissed = (announcementEntry && announcementEntry === 'dismissed');
+    return (isDismissed) ? null : announcement;
+}
+
 export const latestNoticeReducer = ({ latestNotice, myClubs, myCreatorStacks, userSub }) => {
     if (latestNotice) return latestNotice;
     const isClubOwner = (club) => (userSub === club?.creatorSub);
@@ -75,6 +82,14 @@ export const latestNoticeReducer = ({ latestNotice, myClubs, myCreatorStacks, us
     } else {
         return null;
     }
+}
+
+export const noticeDismissalReducer = ({ notice, dismissalHistory }) => {
+    if (!notice) return null;
+    const noticeEntry = dismissalHistory?.noticeHistory?.[notice?.id];
+    const isDismissed = (noticeEntry && noticeEntry === 'dismissed');
+    console.log('notice entry: ', noticeEntry);
+    return (isDismissed) ? null : notice;
 }
 
 export const sortByLastActivity = (club0, club1) => {

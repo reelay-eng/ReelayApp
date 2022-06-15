@@ -220,7 +220,7 @@ export default TopicCard = ({ advanceToFeed, clubID, navigation, topic }) => {
 
     return (
         <TopicCardContainer canPress={canPress} onPress={advanceToFeed}>
-            <TopicCardGradient colors={['#400817', '#19242E']} start={{ x: 0, y: 1.6 }} end={{ x: 0, y: -1.6 }} />
+            <TopicCardGradient colors={['#400817', '#19242E']} start={{ x: 0.5, y: 1 }} end={{ x: 0.5, y: -0.5 }} />
             <CreatorLine>
                 <CreatorLineLeft>
                     { clubID && (

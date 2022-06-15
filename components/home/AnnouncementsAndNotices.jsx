@@ -1,13 +1,10 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Animated, Dimensions, TouchableOpacity, View } from 'react-native';
+import React, { useEffect } from 'react';
+import { Dimensions, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Constants from 'expo-constants';
 import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
 
 import { getReelay, prepareReelay } from '../../api/ReelayDBApi';
-import { AuthContext } from '../../context/AuthContext';
-
 import { useDispatch, useSelector } from 'react-redux';
 import ReelayColors from '../../constants/ReelayColors';
 
@@ -91,11 +88,9 @@ export default AnnouncementsAndNotices = ({ navigation }) => {
     const dispatch = useDispatch();
     const latestAnnouncement = useSelector(state => state.latestAnnouncement);
     const latestAnnouncementDismissed = useSelector(state => state.latestAnnouncementDismissed);
-
     const latestNotice = useSelector(state => state.latestNotice);
     const latestNoticeDismissed = useSelector(state => state.latestNoticeDismissed);
     const latestNoticeSkipped = useSelector(state => state.latestNoticeSkipped);
-
     const showNoticeAsAnnouncement = latestNotice && latestNoticeSkipped && !latestNoticeDismissed;   
 
     const advanceToCreateScreen = async () => navigation.navigate('Create');

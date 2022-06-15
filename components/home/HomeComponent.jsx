@@ -44,6 +44,7 @@ const Spacer = styled.View`
 const HomeComponent = ({ navigation }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
+    const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
     const authSession = useSelector(state => state.authSession);
     const scrollRef = useRef(null);
 
@@ -51,7 +52,7 @@ const HomeComponent = ({ navigation }) => {
     const latestNotice = useSelector(state => state.latestNotice);
     const latestNoticeDismissed = useSelector(state => state.latestNoticeDismissed);
     const latestNoticeSkipped = useSelector(state => state.latestNoticeSkipped);
-    const showNoticeAsOverlay = latestNotice && !latestNoticeSkipped && !latestNoticeDismissed;
+    const showNoticeAsOverlay = latestNotice && !latestNoticeSkipped && !latestNoticeDismissed && !isGuestUser;
     
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });

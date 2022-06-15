@@ -285,7 +285,7 @@ export default ClubTitleCard = ({
 
     return (
         <TitleCardPressable onPress={onPress}>
-            <TitleCardGradient colors={['#252527', '#19242E']} />
+            <TitleCardGradient colors={['#252527', '#19242E']}  start={{ x: 0.5, y: 0.5 }} end={{ x: 0.5, y: 1 }} />
             <CardTopLine />
             <TitleLine />
             { (!clubTitle.reelays.length) && <CardBottomRowNoStacks navigation={navigation} clubTitle={clubTitle} /> }
