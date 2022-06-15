@@ -13,6 +13,9 @@ import { getRuntimeString } from '../utils/TitleRuntime';
 import ClubTitleDotMenuDrawer from './ClubTitleDotMenuDrawer';
 import MarkSeenButton from '../watchlist/MarkSeenButton';
 
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faListCheck } from '@fortawesome/free-solid-svg-icons';
+
 const { height, width } = Dimensions.get('window');
 
 const BottomRowContainer = styled(View)`
@@ -229,8 +232,10 @@ export default ClubTitleCard = ({
         return (
             <CardTopLineContainer>
                 <CardTopLineContainerLeft>
+                    <FontAwesomeIcon icon={ faListCheck } size={20} color='white' />
+                    <View style={{ marginRight: 10 }} />
                     <ProfilePicture user={addedByUser} size={24} />
-                    <AddedByUsername>{`Added by ${addedByUsername}`}</AddedByUsername>
+                    <AddedByUsername>{addedByUsername + ' added'}</AddedByUsername>
                 </CardTopLineContainerLeft>
                 <CardTopLineContainerRight>
                     <MarkSeenButton markedSeen={markedSeen} setMarkedSeen={setMarkedSeen} titleObj={title} />

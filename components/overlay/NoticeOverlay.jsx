@@ -53,6 +53,7 @@ const NoticeInfoBox = styled(View)`
 const NoticeTitleText = styled(ReelayText.H5Bold)`
     padding-top: 16px;
     color: white;
+    line-height: 30px;
     margin-bottom: 12px;
 `
 const OverlayBox = styled(View)`

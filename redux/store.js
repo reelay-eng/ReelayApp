@@ -1,6 +1,7 @@
 import { createStore } from "redux";
 import { 
     cognitoSessionReducer, 
+    latestAnnouncementReducer, 
     latestNoticeReducer,
     sortByLastActivity,
     stacksOnStreamingReducer, 
@@ -120,10 +121,14 @@ const appReducer = ( state = initialState, action) => {
             });
             return { ...state, globalTopics, globalTopicsWithReelays };
         case 'setLatestAnnouncement':
-            return { ...state, latestAnnouncement: action.payload };
-        case 'setLatestAnnouncementDismissed': {
+            const latestAnnouncement = latestAnnouncementReducer({ 
+                announcement: action.payload,
+                myFollowing: state.myFollowing,
+                reelayDBUser: state.reelayDBUser,
+            });
+            return { ...state, latestAnnouncement };
+        case 'setLatestAnnouncementDismissed':
             return { ...state, latestAnnouncementDismissed: action.payload };
-        }
         case 'setLatestNotice':
             const latestNotice = latestNoticeReducer({
                 latestNotice: action.payload,

@@ -44,7 +44,6 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         return (
             <RightCornerContainer>
                 <IconContainer onPress={advanceToMyWatchlist}>
-                    {/* <WatchlistAddedIconSVG size={28} /> */}
                     <FontAwesomeIcon icon={ faListCheck } size={27} color='white' />
                 </IconContainer>
                 <IconContainer onPress={advanceToMyProfileSettings}>

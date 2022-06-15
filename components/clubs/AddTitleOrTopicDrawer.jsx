@@ -12,6 +12,9 @@ import { Icon } from 'react-native-elements';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faComments, faListCheck } from '@fortawesome/free-solid-svg-icons';
+
 const Backdrop = styled(Pressable)`
     background-color: transparent;
     height: 100%;
@@ -73,14 +76,14 @@ export default AddTitleOrTopicDrawer = ({ navigation, club, drawerVisible, setDr
                     <HeaderSpacer />
                     <ContentContainer>
                     <OptionContainerPressable onPress={advanceToAddTitleScreen}>
-                        <Icon type='ionicon' name='add-circle-outline' size={24} color={'white'} />
+                        <FontAwesomeIcon icon={ faListCheck } size={24} color='white' />
                         <IconSpacer />
-                        <OptionText>{`Add title`}</OptionText>
+                        <OptionText>{` Add title`}</OptionText>
                     </OptionContainerPressable>
                     <OptionContainerPressable onPress={advanceToAddTopicScreen}>
-                        <Icon type='ionicon' name='bulb' size={24} color={'white'} />
+                        <FontAwesomeIcon icon={ faComments } color='white' size={24} /> 
                         <IconSpacer />
-                        <OptionText>{`Add topic`}</OptionText>
+                        <OptionText>{` Add topic`}</OptionText>
                     </OptionContainerPressable>
                     </ContentContainer>
                 </DrawerContainer>

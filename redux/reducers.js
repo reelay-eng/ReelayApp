@@ -1,4 +1,5 @@
 import moment from "moment";
+import Constants from 'expo-constants';
 
 function arrayMove(arr, fromIndex, toIndex) {
     // changes original array
@@ -25,6 +26,25 @@ export const cognitoSessionReducer = (session) => {
     return { idToken, accessToken, refreshToken };
 }
 
+export const latestAnnouncementReducer = ({ announcement, myFollowing, reelayDBUser }) => {
+    const showAnnouncement = (announcement && !announcement?.error);
+    if (showAnnouncement) return announcement;
+
+    const daysSinceSignedUp = moment().diff(moment(reelayDBUser?.createdAt), 'days');
+    const showTutorial = (myFollowing.length > 0) && (daysSinceSignedUp < 7);
+
+    if (showTutorial) return {
+        id: 'tutorial-0',
+        actionLabel: 'Welcome',
+        actionData: {},
+        actionType: 'advanceToWelcomeScreen',
+        description: `Watch a quick video about how Reelay works`,
+        reelaySub: Constants.manifest.extra.welcomeReelaySub,
+        title: 'Welcome 😎🎬',
+    }
+    return null;
+}
+
 export const latestNoticeReducer = ({ latestNotice, myClubs, myCreatorStacks, userSub }) => {
     if (latestNotice) return latestNotice;
     const isClubOwner = (club) => (userSub === club?.creatorSub);
@@ -36,6 +56,7 @@ export const latestNoticeReducer = ({ latestNotice, myClubs, myCreatorStacks, us
 
     if (showCreateReelayNotice) {
         return {
+            id: 'create-reelay-summer',
             actionLabel: 'Create',
             actionData: {},
             actionType: 'advanceToCreateScreen',
@@ -44,10 +65,11 @@ export const latestNoticeReducer = ({ latestNotice, myClubs, myCreatorStacks, us
         }
     } else if (showCreateClubNotice) {
         return {
+            id: 'create-club-announce',
             actionLabel: 'Create',
             actionData: {},
             actionType: 'advanceToCreateClubScreen',
-            title: `Start a club with your friends`,
+            title: `Start a club for your friends 📺`,
             description: 'Share reelays, start topics, and build watchlists privately.',
         }
     } else {
