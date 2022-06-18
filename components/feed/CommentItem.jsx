@@ -4,13 +4,13 @@ import { Icon } from 'react-native-elements';
 import { useDispatch, useSelector } from 'react-redux';
 import { isMentionPartType, parseValue } from 'react-native-controlled-mentions';
 import { postCommentLikeToDB, removeCommentLike } from '../../api/ReelayDBApi';
+import { Autolink } from "react-native-autolink";
 
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
 import * as ReelayText from '../global/Text';
 
-import { logAmplitudeEventProd } from '../utils/EventLogger';
 import ProfilePicture from '../global/ProfilePicture';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
@@ -19,6 +19,19 @@ const CommentTextStyled = styled(ReelayText.Body2)`
     padding-right: 10px;
     margin: 0px;
 `;
+const CommentTextPortion = styled(Autolink)`
+    font-family: Outfit-Regular;
+    font-size: 14px;
+    font-style: normal;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+    text-align: left;
+
+    color: white;
+    padding-right: 10px;
+    margin: 0px;
+`;
+
 const CommentTimestampText = styled(ReelayText.Body2)`
     color: #86878b;
 `;
@@ -66,10 +79,9 @@ const CommentTextWithMentions = ({ comment, navigation }) => {
             );
         }
 
+        console.log("this is the text portion of comment:", commentPart.text);
         return (
-            <CommentTextStyled key={index}>
-                {commentPart.text}
-            </CommentTextStyled>
+            <CommentTextPortion key={index} text={commentPart.text} linkStyle={{ color: ReelayColors.reelayBlue }} url />
         );
     }
 
