@@ -10,6 +10,8 @@ import ClubAddTitleScreen from '../screens/authenticated/ClubAddTitleScreen';
 import ClubFeedScreen from '../screens/authenticated/ClubFeedScreen';
 import ClubInfoScreen from '../screens/authenticated/ClubInfoScreen';
 import CreateClubScreen from '../screens/authenticated/CreateClubScreen';
+import DeleteAccountScreen from '../screens/authenticated/DeleteAccountScreen';
+import EditAccountScreen from '../screens/authenticated/EditAccountScreen';
 import EditClubScreen from '../screens/authenticated/EditClubScreen';
 import GeneralSettingsScreen from '../screens/authenticated/GeneralSettingsScreen';
 import HomeScreen from '../screens/authenticated/HomeScreen';
@@ -68,6 +70,8 @@ export const ProfileTabNavigator = () => {
 			<ProfileTabStack.Screen name="GeneralSettingsScreen" component={GeneralSettingsScreen} options={commonOptions} />
 			<ProfileTabStack.Screen name="NotificationSettingsScreen" component={NotificationSettingsScreen} options={commonOptions} />
 			<ProfileTabStack.Screen name="AccountInfoScreen" component={AccountInfoScreen} options={commonOptions} />
+			<ProfileTabStack.Screen name="DeleteAccountScreen" component={DeleteAccountScreen} options={commonOptions} />
+			<ProfileTabStack.Screen name="EditAccountScreen" component={EditAccountScreen} options={commonOptions} />
             <ProfileTabStack.Screen name="AdminReportedIssuesScreen" component={AdminReportedIssuesScreen} options={commonOptions} />
 		</AuthenticatedCommonStack>
 	);
