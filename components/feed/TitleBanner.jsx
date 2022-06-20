@@ -27,7 +27,6 @@ const ActivityText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
     font-size: 12px;
-    margin-left: 8px;
 `
 const ClubActivityPicContainer = styled(View)`
     align-items: center;
@@ -37,14 +36,28 @@ const ClubActivityPicContainer = styled(View)`
 const ClubTitleContainer = styled(View)`
     align-items: center;
     flex-direction: row;
+    width: 100%;
 `
-const ClubTitleText = styled(ReelayText.CaptionEmphasized)`
+const ClubTitleText = styled(ReelayText.Caption)`
+    align-items: center;
     color: white;
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    height: 52px;
+    padding: 6px;
+    padding-left: 0px;
+    padding-right: 0px;
+`
+const DotIconContainer = styled(View)`
+    align-items: center;
+    margin-bottom: -2px;
+    margin-left: 8px;
     margin-right: 8px;
 `
 const ForwardBackButton = styled(TouchableOpacity)`
     align-items: center;
-    border-color: ${props => props.disabled ? 'gray' : 'white'};
+    border-color: ${props => props.disabled ? '#a8a8a8' : 'white'};
     border-radius: 80px;
     border-width: 1px;
     justify-content: center;
@@ -55,7 +68,8 @@ const ForwardBackButton = styled(TouchableOpacity)`
 const ForwardBackContainer = styled(View)`
     align-items: center;
     flex-direction: row;
-    margin-left: 8px;
+    margin-left: -8px;
+    margin-top: 8px;
 `
 const PositionText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -78,12 +92,11 @@ const TitleBannerContainer = styled(Pressable)`
 `
 const TitleInfo = styled(View)`
     align-items: flex-start;
-    flex-direction: column;
     justify-content: center;
-    padding: 5px;
     font-size: 18px;
     display: flex;
     flex: 1;
+    padding: 5px;
 `
 const TitlePosterContainer = styled(View)`
     margin: 5px;
@@ -97,9 +110,8 @@ const TitleTextContainer = styled(View)`
     display: flex;
 `
 const TitleUnderlineContainer = styled(View)`
-    flex-direction: column;
     margin-top: 5px;
-    height: 30px;
+    margin-right: 8px;
     width: 100%;
 `
 const VenueContainer = styled(View)`
@@ -112,7 +124,6 @@ const YearText = styled(ReelayText.CaptionEmphasized)`
 const YearVenueContainer = styled(View)`
     align-items: center;
     flex-direction: row;
-    height: 100%;
 `
 
 export default TitleBanner = ({ 
@@ -162,8 +173,6 @@ export default TitleBanner = ({
         return (
             <ClubActivityPicContainer>
                 <ClubPicture border club={{ id: clubActivity?.clubID }} size={52} />
-                <Spacer />
-                <FontAwesomeIcon icon={faArrowRight} size={16} color='white' />
             </ClubActivityPicContainer>
         )
     }
@@ -179,11 +188,11 @@ export default TitleBanner = ({
         return (
             <ForwardBackContainer>
                 <ForwardBackButton onPress={onTappedOldestSafe} disabled={atOldestReelay}>
-                    <FontAwesomeIcon icon={ faBackwardStep } size={18} color={atOldestReelay ? 'gray' : 'white'} />
+                    <FontAwesomeIcon icon={ faBackwardStep } size={18} color={atOldestReelay ? '#a8a8a8' : 'white'} />
                 </ForwardBackButton>
                 <PositionText>{positionString}</PositionText>
                 <ForwardBackButton onPress={onTappedNewestSafe} disabled={atNewestReelay}>
-                    <FontAwesomeIcon icon={ faForwardStep } size={18} color={atNewestReelay ? 'gray' : 'white'} />
+                    <FontAwesomeIcon icon={ faForwardStep } size={18} color={atNewestReelay ? '#a8a8a8' : 'white'} />
                 </ForwardBackButton>
             </ForwardBackContainer>
         );
@@ -193,10 +202,12 @@ export default TitleBanner = ({
         const showForwardBack = stack?.length > 1 && !clubActivity;
         const showActivity = clubActivity;
         const position = (stack) ? stack.findIndex(reelay => reelay.id === viewableReelay?.id) : -1;
-        const positionString = `${stack.length} reelays`;
 
         const matchClubID = (nextClub) => nextClub?.id === clubActivity?.clubID
         const club = (clubActivity) ? myClubs.find(matchClubID) : null;
+        const positionString = (stack.length > 1)
+                ? `${stack.length} reelays`
+                : 'just added';
 
         return (
             <TitleUnderlineContainer>
@@ -207,16 +218,20 @@ export default TitleBanner = ({
                         </VenueContainer>
                     }
                     { displayYear.length > 0 && !clubActivity && <YearText>{displayYear}</YearText> }
-
-                    { showActivity && (
-                        <ClubTitleContainer>
-                            <ClubTitleText>{club?.name}</ClubTitleText>
-                            <FontAwesomeIcon icon={faCircle} size={6} color='white' />
-                        </ClubTitleContainer>
-                    ) }
-                    { showActivity && <ActivityText>{positionString}</ActivityText> }
-                    { showForwardBack && <ForwardBack position={position} /> }
                 </YearVenueContainer>
+
+                { showActivity && (
+                    <ClubTitleContainer>
+                        <ClubTitleText numberOfLines={2}>
+                            {club?.name}
+                            <DotIconContainer>
+                                <FontAwesomeIcon icon={faCircle} size={6} color='white' />
+                            </DotIconContainer>
+                            {positionString}
+                        </ClubTitleText>
+                    </ClubTitleContainer>
+                ) }
+                { showForwardBack && <ForwardBack position={position} /> }
             </TitleUnderlineContainer>
         );
     }

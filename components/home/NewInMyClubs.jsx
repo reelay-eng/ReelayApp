@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
 import ProfilePicture from '../global/ProfilePicture';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faAsterisk, faCertificate, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import { faAsterisk, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { getClubTitles, getClubTopics } from '../../api/ClubsApi';
 import { AuthContext } from '../../context/AuthContext';
 
@@ -28,9 +28,24 @@ const HeaderText = styled(ReelayText.H5Bold)`
 `
 const RowContainer = styled(ScrollView)`
     padding-left: 15px;
-    padding-top: 15px;
+    padding-top: 8px;
+    padding-bottom: 8px;
     flex-direction: row;
     width: 100%;
+`
+const SeeMoreContainer = styled(TouchableOpacity)`
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 8px;
+    width: 100%;
+`
+const SeeMoreText = styled(ReelayText.CaptionEmphasized)`
+    color: white;
+    font-size: 14px;
+`
+const TitleBannerContainer = styled(View)`
+    margin-top: 6px;
+    margin-bottom: 6px;
 `
 
 const MAX_ACTIVITY_COUNT = 4;
@@ -96,15 +111,16 @@ export default NewInMyClubs = ({ navigation }) => {
         const { id, clubID, activityType, reelays, title } = activity;
         if (activityType === 'title') {
             return (
-                <TitleBanner
-                    key={id}
-                    clubActivity={activity}
-                    navigation={navigation}
-                    onPress={() => advanceToClubActivityScreen(clubID)}
-                    posterWidth={60}
-                    stack={reelays}
-                    titleObj={title}
-                />
+                <TitleBannerContainer key={id}>
+                    <TitleBanner
+                        clubActivity={activity}
+                        navigation={navigation}
+                        onPress={() => advanceToClubActivityScreen(clubID)}
+                        posterWidth={60}
+                        stack={reelays}
+                        titleObj={title}
+                    />
+                </TitleBannerContainer>
             )
         } else if (activityType === 'topic') {
             return <View key={id} />;
@@ -119,6 +135,15 @@ export default NewInMyClubs = ({ navigation }) => {
         return lastActivity0.diff(lastActivity1, 'seconds');
     }
 
+    const SeeMore = () => {
+        return (
+            <SeeMoreContainer>
+                <SeeMoreText>{'See more'}</SeeMoreText>
+                <FontAwesomeIcon icon={faChevronRight} size={16} color='white' />
+            </SeeMoreContainer>
+        );
+    }
+
     useEffect(() => {
         loadAllMyClubActivity();
     }, []);
@@ -131,6 +156,7 @@ export default NewInMyClubs = ({ navigation }) => {
             </HeaderContainer>
             <RowContainer showsVerticalScrollIndicator={false}>
                 { mostRecentActivity.map(renderActivity) }
+                <SeeMore />
             </RowContainer>
         </Fragment>
     )
