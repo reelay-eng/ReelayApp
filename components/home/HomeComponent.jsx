@@ -22,6 +22,9 @@ import NoticeOverlay from '../overlay/NoticeOverlay';
 import AnnouncementsAndNotices from './AnnouncementsAndNotices';
 import PopularTitles from './PopularTitles';
 import MyClubsSelector from './MyClubsSelector';
+import NewInMyClubs from './NewInMyClubs';
+
+import moment from 'moment';
 
 const BottomBar = styled(View)`
     background-color: black;
@@ -51,7 +54,8 @@ const HomeComponent = ({ navigation }) => {
     const authSession = useSelector(state => state.authSession);
     const scrollRef = useRef(null);
 
-    const [selectedTab, setSelectedTab] = useState('discover');
+    const isNewUser = moment().diff(moment(reelayDBUser?.createdAt), 'hours') > 24;
+    const [selectedTab, setSelectedTab] = useState(isNewUser ? 'discover' : 'following');
     const tabOptions = ['discover', 'following'];
 
     const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
@@ -139,6 +143,7 @@ const HomeComponent = ({ navigation }) => {
                     <Fragment>
                         <FriendsAreWatching navigation={navigation} />
                         <OnStreaming navigation={navigation} />
+                        <NewInMyClubs navigation={navigation} />
                         <MyClubsSelector navigation={navigation} />
                     </Fragment>  
                 )}

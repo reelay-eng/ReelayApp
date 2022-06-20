@@ -164,7 +164,7 @@ export default OnStreaming = ({ navigation }) => {
             <HeaderContainer>
                 <HeaderContainerLeft>
                     <Icon type='font-awesome' name='television' size={24} color='white' />
-                    <HeaderText>{'On streaming'}</HeaderText>
+                    <HeaderText>{'My streaming'}</HeaderText>
                 </HeaderContainerLeft>
                 <EditButton />
             </HeaderContainer>

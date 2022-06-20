@@ -1,8 +1,15 @@
 import { createStackNavigator } from '@react-navigation/stack';
 import React, { useContext } from 'react';
 
+import ClubAcceptInviteScreen from '../screens/authenticated/ClubAcceptInviteScreen';
+import ClubActivityScreen from '../screens/authenticated/ClubActivityScreen';
+import ClubAddTitleScreen from '../screens/authenticated/ClubAddTitleScreen';
+import ClubFeedScreen from '../screens/authenticated/ClubFeedScreen';
+import ClubInfoScreen from '../screens/authenticated/ClubInfoScreen';
 import ClubJoinFromLinkScreen from '../screens/authenticated/ClubJoinFromLinkScreen';
+import CreateClubScreen from '../screens/authenticated/CreateClubScreen';
 import CreateTopicScreen from '../screens/authenticated/CreateTopicScreen';
+import EditClubScreen from '../screens/authenticated/EditClubScreen';
 import FeedScreen from '../screens/authenticated/FeedScreen';
 import NotificationScreen from '../screens/authenticated/NotificationScreen';
 import PinAnnouncementScreen from '../screens/authenticated/PinAnnouncementScreen';
@@ -34,7 +41,14 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
         <CommonStack.Navigator initialRouteName={initialRouteName} detachInactiveScreens={false}>
             { children }
             <CommonStack.Screen name='ClubJoinFromLinkScreen' component={ClubJoinFromLinkScreen} options={commonOptions} />
+            <CommonStack.Screen name='ClubActivityScreen' component={ClubActivityScreen} options={commonOptions} />
+            <CommonStack.Screen name='ClubAcceptInviteScreen' component={ClubAcceptInviteScreen} options={commonOptions} />
+            <CommonStack.Screen name='ClubAddTitleScreen' component={ClubAddTitleScreen} options={commonOptions} />
+            <CommonStack.Screen name='ClubFeedScreen' component={ClubFeedScreen} options={commonOptions} />
+            <CommonStack.Screen name='ClubInfoScreen' component={ClubInfoScreen} options={commonOptions} />
+            <CommonStack.Screen name='CreateClubScreen' component={CreateClubScreen} options={commonOptions} />
             <CommonStack.Screen name='CreateTopicScreen' component={CreateTopicScreen} options={commonOptions} />
+            <CommonStack.Screen name='EditClubScreen' component={EditClubScreen} options={commonOptions} />
             <CommonStack.Screen name='FeedScreen' component={FeedScreen} options={commonOptions} />
             <CommonStack.Screen name="NotificationScreen" component={NotificationScreen} options={commonOptions} />
             <CommonStack.Screen name='PinAnnouncementScreen' component={PinAnnouncementScreen} options={commonOptions} />

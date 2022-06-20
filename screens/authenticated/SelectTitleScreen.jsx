@@ -23,7 +23,6 @@ const SearchBarContainer = styled(View)`
 	justify-content: center;
 `;
 const SelectorBarContainer = styled(View)`
-	width: 90%;
 	height: 40px;
 `;
 const TopBarContainer = styled(View)`
@@ -132,15 +131,6 @@ export default SelectTitleScreen = ({ navigation, route }) => {
                 { !topic && <BaseHeader text={"Create a reelay"} /> }
                 { topic && <HeaderWithBackButton navigation={navigation} text={"Add a reelay"} /> }
                 { topic && <TopicLabel /> }
-				<SelectorBarContainer>
-					<ToggleSelector
-						options={["Film", "TV"]}
-						selectedOption={searchType}
-						onSelect={(type) => {
-							setSearchType(type);
-						}}
-					/>
-				</SelectorBarContainer>
 			</TopBarContainer>
 			<SearchBarContainer>
 				<SearchField
@@ -150,6 +140,15 @@ export default SelectTitleScreen = ({ navigation, route }) => {
 					placeholderText="What did you see?"
 				/>
 			</SearchBarContainer>
+            <SelectorBarContainer>
+                <ToggleSelector
+                    options={["Film", "TV"]}
+                    selectedOption={searchType}
+                    onSelect={(type) => {
+                        setSearchType(type);
+                    }}
+                />
+            </SelectorBarContainer>
             { loading && <ActivityIndicator /> }
             { !loading && (
                 <TitleSearchResults

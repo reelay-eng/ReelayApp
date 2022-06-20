@@ -55,7 +55,7 @@ export default PeopleToFollow = ({ navigation }) => {
         <Fragment>
             <HeaderContainer>
                 <FontAwesomeIcon icon={faUserPlus} color='white' size={24} />
-                <HeaderText>{'People to follow'}</HeaderText>
+                <HeaderText>{'Suggested amici'}</HeaderText>
             </HeaderContainer>
             <RowContainer horizontal showsHorizontalScrollIndicator={false}>
                 { peopleToFollowList.map(renderFollowOption)}

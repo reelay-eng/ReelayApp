@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import * as ReelayText from "../global/Text";
-import { TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 
@@ -33,6 +33,14 @@ const HeaderText = styled(ReelayText.H4Bold)`
 `
 const IconContainer = styled(TouchableOpacity)`
     margin-left: 12px;
+`
+const UnreadIconIndicator = styled(SafeAreaView)`
+	background-color: ${ReelayColors.reelayBlue}
+	border-radius: 5px;
+	height: 10px;
+	width: 10px;
+	position: absolute;
+	right: 0px;
 `
 
 export default HomeHeader = ({ 

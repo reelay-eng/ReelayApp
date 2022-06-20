@@ -15,11 +15,33 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { faArrowRight, faCircle, faDotCircle } from "@fortawesome/free-solid-svg-icons";
 import { faForwardStep, faBackwardStep } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
+import ClubPicture from "../global/ClubPicture";
+import ReelayColors from "../../constants/ReelayColors";
 
 const { height, width } = Dimensions.get('window');
 
+const ActivityText = styled(ReelayText.CaptionEmphasized)`
+    color: white;
+    height: 16px;
+    font-size: 12px;
+    margin-left: 8px;
+`
+const ClubActivityPicContainer = styled(View)`
+    align-items: center;
+    justify-content: center;
+    margin: 8px;
+`
+const ClubTitleContainer = styled(View)`
+    align-items: center;
+    flex-direction: row;
+`
+const ClubTitleText = styled(ReelayText.CaptionEmphasized)`
+    color: white;
+    margin-right: 8px;
+`
 const ForwardBackButton = styled(TouchableOpacity)`
     align-items: center;
     border-color: ${props => props.disabled ? 'gray' : 'white'};
@@ -35,10 +57,13 @@ const ForwardBackContainer = styled(View)`
     flex-direction: row;
     margin-left: 8px;
 `
-const StackLengthText = styled(ReelayText.CaptionEmphasized)`
+const PositionText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
     font-size: 12px;
+`
+const Spacer = styled(View)`
+    height: 10px;
 `
 const TitleBannerContainer = styled(Pressable)`
     align-self: center;
@@ -47,7 +72,7 @@ const TitleBannerContainer = styled(Pressable)`
     width: ${width - 20}px;
     justify-content: space-between;
     flex-direction: row;
-    position: absolute;
+    position: ${props => props.absolute ? 'absolute' : 'relative'};
     top: ${props => props.topOffset}px;
     zIndex: 3;
 `
@@ -91,17 +116,20 @@ const YearVenueContainer = styled(View)`
 `
 
 export default TitleBanner = ({ 
+    titleObj,
+    clubActivity=null,
     donateObj=null, 
     navigation=null, 
+    onPress=null,
     onTappedNewest=null,
     onTappedOldest=null,
     posterWidth=60,
     stack=null,
-    titleObj,
     viewableReelay=null, 
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const topOffset = useSafeAreaInsets().top;
+    const myClubs = useSelector(state => state.myClubs);
     const welcomeReelaySub = Constants.manifest.extra.welcomeReelaySub;
     const isWelcomeReelay = viewableReelay && (welcomeReelaySub === viewableReelay?.sub);
     
@@ -121,11 +149,23 @@ export default TitleBanner = ({
         navigation.push('TitleDetailScreen', { titleObj });
 
         logAmplitudeEventProd('openTitleScreen', {
-            reelayID: viewableReelay.id,
-            reelayTitle: viewableReelay.title.display,
+            reelayID: viewableReelay?.id,
+            reelayTitle: titleObj?.display,
             username: reelayDBUser?.username,
             source: 'poster',
         });
+    }
+
+    const ActivityPic = () => {
+        if (!clubActivity) return <View />;
+        
+        return (
+            <ClubActivityPicContainer>
+                <ClubPicture border club={{ id: clubActivity?.clubID }} size={52} />
+                <Spacer />
+                <FontAwesomeIcon icon={faArrowRight} size={16} color='white' />
+            </ClubActivityPicContainer>
+        )
     }
 
     const ForwardBack = ({ position }) => {
@@ -141,7 +181,7 @@ export default TitleBanner = ({
                 <ForwardBackButton onPress={onTappedOldestSafe} disabled={atOldestReelay}>
                     <FontAwesomeIcon icon={ faBackwardStep } size={18} color={atOldestReelay ? 'gray' : 'white'} />
                 </ForwardBackButton>
-                <StackLengthText>{positionString}</StackLengthText>
+                <PositionText>{positionString}</PositionText>
                 <ForwardBackButton onPress={onTappedNewestSafe} disabled={atNewestReelay}>
                     <FontAwesomeIcon icon={ faForwardStep } size={18} color={atNewestReelay ? 'gray' : 'white'} />
                 </ForwardBackButton>
@@ -150,25 +190,42 @@ export default TitleBanner = ({
     }
 
     const TitleUnderline = () => {
-        const showReelayCount = stack?.length > 1;
-        const stackIndex = (stack) ? stack.findIndex(reelay => reelay.id === viewableReelay.id) : -1;
+        const showForwardBack = stack?.length > 1 && !clubActivity;
+        const showActivity = clubActivity;
+        const position = (stack) ? stack.findIndex(reelay => reelay.id === viewableReelay?.id) : -1;
+        const positionString = `${stack.length} reelays`;
+
+        const matchClubID = (nextClub) => nextClub?.id === clubActivity?.clubID
+        const club = (clubActivity) ? myClubs.find(matchClubID) : null;
+
         return (
             <TitleUnderlineContainer>
                 <YearVenueContainer>
                     { viewableReelay?.content?.venue && 
                         <VenueContainer>
-                            <VenueIcon venue={viewableReelay.content.venue} size={20} border={1} />
+                            <VenueIcon venue={viewableReelay?.content?.venue} size={20} border={1} />
                         </VenueContainer>
                     }
-                    { displayYear.length > 0 && <YearText>{displayYear}</YearText> }
-                    { showReelayCount && <ForwardBack position={stackIndex} /> }
+                    { displayYear.length > 0 && !clubActivity && <YearText>{displayYear}</YearText> }
+
+                    { showActivity && (
+                        <ClubTitleContainer>
+                            <ClubTitleText>{club?.name}</ClubTitleText>
+                            <FontAwesomeIcon icon={faCircle} size={6} color='white' />
+                        </ClubTitleContainer>
+                    ) }
+                    { showActivity && <ActivityText>{positionString}</ActivityText> }
+                    { showForwardBack && <ForwardBack position={position} /> }
                 </YearVenueContainer>
             </TitleUnderlineContainer>
         );
     }
 
     return (
-        <TitleBannerContainer topOffset={topOffset}>
+        <TitleBannerContainer 
+            absolute={!!viewableReelay} 
+            onPress={onPress ?? openTitleDetail}
+            topOffset={viewableReelay ? topOffset : 0}>
             <TitlePosterContainer>
                 <TitlePoster title={titleObj} onPress={openTitleDetail} width={posterWidth} />
             </TitlePosterContainer>
@@ -180,8 +237,9 @@ export default TitleBanner = ({
                 </TitleTextContainer>
                 <TitleUnderline />
             </TitleInfo>
-            { !donateObj && <AddToClubsButton titleObj={viewableReelay.title} reelay={viewableReelay} /> }
-            { donateObj && <DonateButton donateObj={donateObj} reelay={viewableReelay} /> }
+            { !donateObj && !clubActivity && <AddToClubsButton titleObj={titleObj} reelay={viewableReelay} /> }
+            { !clubActivity && donateObj && <DonateButton donateObj={donateObj} reelay={viewableReelay} /> }
+            { clubActivity && <ActivityPic /> }
         </TitleBannerContainer>    
     );
 }
