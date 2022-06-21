@@ -3,16 +3,18 @@ import { Pressable, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useDispatch, useSelector } from 'react-redux';
 import { isMentionPartType, parseValue } from 'react-native-controlled-mentions';
-import { postCommentLikeToDB, removeCommentLike } from '../../api/ReelayDBApi';
 import { Autolink } from "react-native-autolink";
+import * as Clipboard from 'expo-clipboard';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+
+import { postCommentLikeToDB, removeCommentLike } from '../../api/ReelayDBApi';
 
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
 import * as ReelayText from '../global/Text';
-
 import ProfilePicture from '../global/ProfilePicture';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { showSuccessToast } from '../utils/toasts';
 
 const CommentTextStyled = styled(ReelayText.Body2)`
     color: white;
@@ -87,7 +89,8 @@ const CommentTextWithMentions = ({ comment, navigation }) => {
     } 
     
     const copyToClipboard = () => {
-        console.log("trying to copy:", commentText)
+        Clipboard.setString(commentText);
+        showSuccessToast('Comment successfully copied!')
     }
 
     return (
