@@ -81,7 +81,7 @@ const Spacer = styled(View)`
 `
 const TitleBannerContainer = styled(Pressable)`
     align-self: center;
-    background: rgba(0, 0, 0, 0.36);
+    background-color: ${props => props.color};
     border-radius: 8px;
     width: ${width - 20}px;
     justify-content: space-between;
@@ -126,8 +126,11 @@ const YearVenueContainer = styled(View)`
     flex-direction: row;
 `
 
+const DEFAULT_BGCOLOR = 'rgba(0, 0, 0, 0.36)';
+
 export default TitleBanner = ({ 
     titleObj,
+    backgroundColor=DEFAULT_BGCOLOR,
     clubActivity=null,
     donateObj=null, 
     navigation=null, 
@@ -239,6 +242,7 @@ export default TitleBanner = ({
     return (
         <TitleBannerContainer 
             absolute={!!viewableReelay} 
+            color={backgroundColor}
             onPress={onPress ?? openTitleDetail}
             topOffset={viewableReelay ? topOffset : 0}>
             <TitlePosterContainer>
