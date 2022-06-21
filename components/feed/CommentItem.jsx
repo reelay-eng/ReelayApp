@@ -59,6 +59,7 @@ const CommentTextWithMentions = ({ comment, navigation }) => {
     const commentPartsWithMentions = parseValue(comment.content, [mentionFollowType]);
     const isMention = (part) => (part.partType && isMentionPartType(part.partType));
     const timestamp = moment(comment.postedAt).fromNow();
+    var commentText = "";
 
     const advanceToMentionProfile = (mentionData) => {
         const mentionUser = {
@@ -71,6 +72,7 @@ const CommentTextWithMentions = ({ comment, navigation }) => {
     }
 
     const renderCommentPart = (commentPart, index) => {
+        commentText += commentPart.text;
         if (isMention(commentPart)) {
             return (
                 <MentionButton key={index} onPress={() => advanceToMentionProfile(commentPart.data)}>
@@ -79,20 +81,25 @@ const CommentTextWithMentions = ({ comment, navigation }) => {
             );
         }
 
-        console.log("this is the text portion of comment:", commentPart.text);
         return (
             <CommentTextPortion key={index} text={commentPart.text} linkStyle={{ color: ReelayColors.reelayBlue }} url />
         );
+    } 
+    
+    const copyToClipboard = () => {
+        console.log("trying to copy:", commentText)
     }
 
     return (
         <React.Fragment>
+            <TouchableOpacity onLongPress={copyToClipboard}>
             <CommentTextStyled>
                 { commentPartsWithMentions.parts.map(renderCommentPart) }
                 <CommentTimestampText>
                     {`  ${timestamp}`}
                 </CommentTimestampText>
             </CommentTextStyled>
+            </TouchableOpacity>
         </React.Fragment>
     )
 }
