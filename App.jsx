@@ -41,7 +41,9 @@ import {
     getStacksByCreator, 
     getStreamingSubscriptions,
     getLatestAnnouncement,
-    getHomeFeeds, 
+    getHomeFeeds,
+    getDiscoverContent,
+    getFollowingContent, 
 } from './api/ReelayDBApi';
 import { getAllMyNotifications } from './api/NotificationsApi';
 import { getWatchlistItems } from './api/WatchlistApi';
@@ -259,6 +261,9 @@ function App() {
             myWatchlistItemsLoaded,
             myStreamingSubscriptions,
             reelayDBUserLoaded,
+
+            myDiscoverFeeds,
+            myFollowingFeeds,
         ] = await Promise.all([
             getAllDonateLinks(),
             getGlobalTopics({ reqUserSub, page: 0 }),
@@ -273,6 +278,9 @@ function App() {
             getWatchlistItems(userSub),
             getStreamingSubscriptions(userSub),
             getRegisteredUser(userSub),
+
+            getDiscoverContent({ authSession, reqUserSub }),
+            getFollowingContent({ authSession, reqUserSub }),
         ]);
 
         setReelayDBUser(reelayDBUserLoaded);
@@ -287,16 +295,27 @@ function App() {
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
         dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });
         dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
-
-        dispatch({ type: 'setGlobalTopics', payload: globalTopics });
         dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
         dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
-        dispatch({ type: 'setMyStacksFollowing', payload: homeFeeds.following });
-        dispatch({ type: 'setMyStacksGlobal', payload: homeFeeds.global })
+
+        // home
+        dispatch({ type: 'setHomeFeeds', payload: homeFeeds });
+        dispatch({ type: 'setMyDiscoverFeeds', payload: myDiscoverFeeds });
+        dispatch({ type: 'setMyFollowingFeeds', payload: myFollowingFeeds });
+
+        // discover
+        dispatch({ type: 'setMyStacksAtFestivals', payload: homeFeeds.festivals });
         dispatch({ type: 'setMyStacksInTheaters', payload: homeFeeds.theaters });
         dispatch({ type: 'setMyStacksOnStreaming', payload: homeFeeds.streaming });
-        dispatch({ type: 'setMyStacksAtFestivals', payload: homeFeeds.festivals });
         dispatch({ type: 'setTopOfTheWeek', payload: homeFeeds.trending });
+
+        // following
+        dispatch({ type: 'setMyStacksFollowing', payload: homeFeeds.following });
+
+        // global most recent
+        dispatch({ type: 'setGlobalTopics', payload: globalTopics });
+        dispatch({ type: 'setMyStacksGlobal', payload: homeFeeds.global })
+
         dispatch({ type: 'setIsLoading', payload: false });
     }
 

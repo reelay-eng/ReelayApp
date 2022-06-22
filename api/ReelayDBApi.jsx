@@ -324,11 +324,46 @@ export const getStacksByCreator = async (creatorSub) => {
 }
 
 // call prepareReelay on every reelay in every stack
-const prepareStacks = async (fetchedStacks) => {
+const prepareStacks = async (fetchedStacks, feedKey = 'none') => {
     const prepareReelaysForStack = async (fetchedReelaysForStack) => {
-        return await Promise.all(fetchedReelaysForStack.map(prepareReelay));
+        if (!!fetchedReelaysForStack.map) {
+            return await Promise.all(fetchedReelaysForStack.map(prepareReelay));
+        } else {
+            console.log('!!no stack!!', feedKey);
+            return [];
+        }
     }
     return await Promise.all(fetchedStacks.map(prepareReelaysForStack));
+}
+
+const prepareHomeContent = async (fetchedContent) => {
+    const preparedContent = {};
+    const prepareFeed = async (feedKey) => {
+        console.log('fetched content key: ', feedKey);
+        switch (feedKey) {
+            case 'festivals':
+            case 'theaters':
+            case 'streaming':
+            case 'popularTitles':
+            case 'popularTopics':
+            case 'topOfTheWeek':
+            case 'global':
+            case 'mostRecent':
+                preparedContent[feedKey] = await prepareStacks(fetchedContent[feedKey]);
+                console.log('fetched stacks length: ', feedKey, fetchedContent[feedKey]?.length);
+                return;
+            case 'creators':
+            case 'activeClubs':
+            case 'inMyClubs':
+                preparedContent[feedKey] = fetchedContent[feedKey];
+                console.log('fetched content length: ', feedKey, fetchedContent[feedKey]?.length);
+                return;
+            default:
+                return;
+        }        
+    }
+    await Promise.all(Object.keys(fetchedContent).map(prepareFeed));
+    return preparedContent;
 }
 
 export const getCommentLikesForReelay = async (reelaySub, reqUserSub) => {
@@ -339,6 +374,30 @@ export const getCommentLikesForReelay = async (reelaySub, reqUserSub) => {
         headers: ReelayAPIHeaders,
     });
     return resultGet;
+}
+
+export const getDiscoverContent = async ({ authSession, reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/home/discover?visibility=${FEED_VISIBILITY}`;
+    const discoverContent = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: { 
+            ...getReelayAuthHeaders(authSession), 
+            requsersub: reqUserSub
+        },
+    });
+    return await prepareHomeContent(discoverContent);
+}
+
+export const getFollowingContent = async ({ authSession, reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/home/following?visibility=${FEED_VISIBILITY}`;
+    const followingContent = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: { 
+            ...getReelayAuthHeaders(authSession), 
+            requsersub: reqUserSub
+        },
+    });
+    return await prepareHomeContent(followingContent);
 }
 
 export const getHomeFeeds = async ({ authSession, reqUserSub }) => {

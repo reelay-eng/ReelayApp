@@ -1,17 +1,12 @@
 import React from "react";
 import { SafeAreaView, ScrollView, View } from 'react-native';
+import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 
 import { HeaderWithBackButton } from "../../components/global/Headers";
-import { TopicBanner } from "../../components/home/NewInMyClubs";
-import TitleBanner from "../../components/feed/TitleBanner";
+import { TitleBanner, TopicBanner } from "../../components/home/NewInMyClubs";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-const BannerContainer = styled(View)`
-    align-items: center;
-    margin-top: 6px;
-    margin-bottom: 6px;
-`
 const ScreenContainer = styled(SafeAreaView)`
     background-color: black;
     height: 100%;
@@ -41,17 +36,13 @@ export default NewInMyClubsScreen = ({ navigation, route }) => {
         const onPress = () => advanceToClubActivityScreen(clubID);
         if (activityType === 'title') {
             return (
-                <BannerContainer key={id}>
-                    <TitleBanner
-                        backgroundColor={'#191919'}
-                        clubActivity={activity}
-                        navigation={navigation}
-                        onPress={onPress}
-                        posterWidth={60}
-                        stack={reelays}
-                        titleObj={title}
-                    />
-                </BannerContainer>
+                <TitleBanner 
+                    key={id} 
+                    clubID={clubID} 
+                    onPress={onPress} 
+                    reelays={reelays} 
+                    titleObj={title} 
+                />
             )
         } else if (activityType === 'topic') {
             return <TopicBanner key={id} onPress={onPress} topic={activity} />;

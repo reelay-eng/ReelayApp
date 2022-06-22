@@ -62,6 +62,7 @@ export default Navigation = () => {
 
     const handleDeepLink = async (event) => {
         const deeplinkURL = Linking.parse(event.url);
+        console.log('event from URL: ', event);
         if (deeplinkURL) {
             setDeeplinkURL(deeplinkURL);
         }
@@ -132,9 +133,11 @@ export default Navigation = () => {
     // I haven't totally figured it out. This is janky, but it gets the
     // job done. 
     useEffect(() => {
+        console.log('index nav use effect called');
         if (deeplinkURL) {
             const navigation = navigationRef?.current;
             const { path } = deeplinkURL;
+            console.log('deeplink URL: ', deeplinkURL);
 
             logAmplitudeEventProd('openedAppFromDeeplink', {
                 username: reelayDBUser?.username,

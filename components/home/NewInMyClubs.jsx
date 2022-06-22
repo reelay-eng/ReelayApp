@@ -5,14 +5,16 @@ import styled from 'styled-components';
 import * as ReelayText from '../../components/global/Text';
 import { useSelector } from 'react-redux';
 import ProfilePicture from '../global/ProfilePicture';
+import Constants from 'expo-constants';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faAsterisk, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { faAsterisk, faChevronRight, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { getClubTitles, getClubTopics } from '../../api/ClubsApi';
 import { AuthContext } from '../../context/AuthContext';
+import TitlePoster from '../global/TitlePoster';
+import { VenueIcon } from '../utils/VenueIcon';
 
 import moment from 'moment';
-import TitleBanner from '../feed/TitleBanner';
 import { showErrorToast } from '../utils/toasts';
 import ClubPicture from '../global/ClubPicture';
 
@@ -22,6 +24,28 @@ const BannerContainer = styled(View)`
     align-items: center;
     margin-top: 6px;
     margin-bottom: 6px;
+`
+const ClubTitleContainer = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    width: 100%;
+`
+const ClubTitleText = styled(ReelayText.Caption)`
+    align-items: center;
+    color: white;
+    display: flex;
+    flex-direction: row;
+    flex: 1;
+    height: 52px;
+    padding: 6px;
+    padding-left: 0px;
+    padding-right: 0px;
+`
+const DotIconContainer = styled(View)`
+    align-items: center;
+    margin-bottom: -2px;
+    margin-left: 8px;
+    margin-right: 8px;
 `
 const HeaderContainer = styled(View)`
     align-items: flex-end;
@@ -51,6 +75,12 @@ const SeeMoreText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     font-size: 14px;
 `
+const TitleInfoContainer = styled(View)`
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    margin-left: 8px;
+`
 const TopicBannerBackground = styled(TouchableOpacity)`
     align-items: center;
     background-color: #191919;
@@ -71,28 +101,105 @@ const TopicDescription = styled(ReelayText.Body2)`
     display: flex;
     flex: 1;
 `
-const TopicTitle = styled(ReelayText.H5Bold)`
+const TitleText = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 16px;
+`
+const TopicTitleText = styled(ReelayText.H5Bold)`
     color: white;
     display: flex;
     flex: 1;
     font-size: 16px;
 `
+const TitleUnderlineContainer = styled(View)`
+    margin-top: 5px;
+    margin-right: 8px;
+    width: 100%;
+`
+const VenueContainer = styled(View)`
+    margin-right: 5px;
+`
+const YearText = styled(ReelayText.CaptionEmphasized)`
+    color: white;
+    height: 16px;
+`
+const YearVenueContainer = styled(View)`
+    align-items: center;
+    flex-direction: row;
+`
 
 const MAX_ACTIVITY_COUNT = 8;
+const WELCOME_REELAY_SUB = Constants.manifest.extra.welcomeReelaySub;
+
+const TitleUnderline = ({ clubID, titleObj, reelays }) => {
+	let displayYear = (titleObj.releaseYear) ? titleObj.releaseYear : '';
+    const reelayObj = reelays?.[0];
+    if (reelayObj?.sub === WELCOME_REELAY_SUB) displayYear = '2022';
+    const positionString = (reelays?.length > 1) 
+            ? `${reelays?.length} reelays` 
+        : (reelays?.length === 1)
+            ? '1 reelay'
+        : 'title added';
+
+    const myClubs = useSelector(state => state.myClubs);
+    const matchClubID = (nextClub) => nextClub?.id === clubID;
+    const club = myClubs.find(matchClubID);
+
+    return (
+        <TitleUnderlineContainer>
+            <YearVenueContainer>
+                { reelayObj?.content?.venue && 
+                    <VenueContainer>
+                        <VenueIcon venue={reelayObj?.content?.venue} size={20} border={1} />
+                    </VenueContainer>
+                }
+                <ClubTitleContainer>
+                    <ClubTitleText numberOfLines={2}>
+                        {club?.name}
+                        <DotIconContainer>
+                            <FontAwesomeIcon icon={faCircle} size={6} color='white' />
+                        </DotIconContainer>
+                        {positionString}
+                    </ClubTitleText>
+                </ClubTitleContainer>
+            </YearVenueContainer>
+        </TitleUnderlineContainer>
+    );
+}
+
+export const TitleBanner = ({ onPress, clubID, titleObj, reelays }) => {
+    let displayTitle = (titleObj.display) ? titleObj.display : 'Title not found'; 
+    const reelayObj = reelays?.[0];
+    if (reelayObj?.sub === WELCOME_REELAY_SUB) displayTitle = 'Welcome to Reelay';
+
+    return (
+        <BannerContainer>
+            <TopicBannerBackground onPress={onPress}>
+                <TitlePoster title={titleObj} width={60} />
+                <TitleInfoContainer>
+                    <TitleText numberOfLines={2}>
+                        {displayTitle}
+                    </TitleText>
+                    <TitleUnderline clubID={clubID} titleObj={titleObj} reelays={reelays} />
+                </TitleInfoContainer>
+                <ClubPicture club={{ id: clubID }} size={52} />
+            </TopicBannerBackground>
+        </BannerContainer>
+    );
+}
 
 export const TopicBanner = ({ onPress, topic }) => {
     return (
         <BannerContainer>
             <TopicBannerBackground onPress={onPress}>
                 <TopicTextContainer>
-                    <TopicTitle numberOfLines={2}>
+                    <TopicTitleText numberOfLines={2}>
                         {topic?.title}
-                    </TopicTitle>
+                    </TopicTitleText>
                     <TopicDescription numberOfLines={2}>
                         {topic?.description}
                     </TopicDescription>
                 </TopicTextContainer>
-
                 <ClubPicture club={{ id: topic?.clubID }} size={52} />
             </TopicBannerBackground>
         </BannerContainer>

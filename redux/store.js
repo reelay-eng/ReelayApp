@@ -30,11 +30,14 @@ const initialState = {
     // HOME SCREEN
     globalTopics: [],
     globalTopicsWithReelays: [],
+    homeFeeds: {},
     latestAnnouncement: null,
     latestAnnouncementDismissed: false,
     latestNotice: null,
     latestNoticeDismissed: false,
     latestNoticeSkipped: false,
+    myDiscoverFeeds: {},
+    myFollowingFeeds: {},
     myDismissalHistory: {},
     myStacksFollowing: [],
     myStacksGlobal: [],
@@ -123,6 +126,8 @@ const appReducer = ( state = initialState, action) => {
                 return topic.reelays.length > 0;
             });
             return { ...state, globalTopics, globalTopicsWithReelays };
+        case 'setHomeFeeds':
+            return { ...state, homeFeeds: action.payload };
         case 'setLatestAnnouncement':
             const latestAnnouncement = latestAnnouncementReducer({ 
                 announcement: action.payload,
@@ -153,6 +158,10 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, latestNoticeDismissed: action.payload }
         case 'setLatestNoticeSkipped':
             return { ...state, latestNoticeSkipped: action.payload }
+        case 'setMyDiscoverFeeds':
+            return { ...state, myDiscoverFeeds: action.payload }    
+        case 'setMyFollowingFeeds':
+            return { ...state, myFollowingFeeds: action.payload }
         case 'setMyDismissalHistory':
             return { ...state, myDismissalHistory: action.payload }
         case 'setMyStacksAtFestivals':
@@ -258,11 +267,14 @@ export const mapStateToProps = (state) => ({
     // HOME SCREEN
     globalTopics: state.globalTopics,
     globalTopicsWithReelays: state.globalTopicsWithReelays,
+    homeFeeds: state.homeFeeds,
     latestAnnouncement: state.latestAnnouncement,
     latestAnnouncementDismissed: state.latestAnnouncementDismissed,
     latestNotice: state.latestNotice,
     latestNoticeDismissed: state.latestNoticeDismissed,
     latestNoticeSkipped: state.latestNoticeSkipped,
+    myDiscoverFeeds: state.myDiscoverFeeds,
+    myFollowingFeeds: state.myFollowingFeeds,
     myDismissalHistory: state.myDismissalHistory,
     myStacksAtFestivals: state.myStacksAtFestivals,
     myStacksFollowing: state.myStacksFollowing,

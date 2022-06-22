@@ -35,14 +35,13 @@ const HeaderText = styled(ReelayText.H5Bold)`
 
 export default PopularTitles = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const myStacksInTheaters = useSelector(state => state.myStacksInTheaters);
-
+    const popularTitleStacks = useSelector(state => state.myStacksInTheaters);
     const goToReelay = (index, titleObj) => {
-		if (myStacksInTheaters.length === 0) return;
+		if (popularTitleStacks.length === 0) return;
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'theaters',
-            preloadedStackList: myStacksInTheaters,
+            preloadedStackList: popularTitleStacks,
 		});
 
 		logAmplitudeEventProd('openTheatersFeed', {
@@ -74,7 +73,7 @@ export default PopularTitles = ({ navigation }) => {
                     index={index} 
                     onPress={() => goToReelay(index, stack[0].title)} 
                     stack={stack} 
-                    length={myStacksInTheaters.length}/>
+                    length={popularTitleStacks.length}/>
             );
         }
 
@@ -82,7 +81,7 @@ export default PopularTitles = ({ navigation }) => {
             <Carousel
                 activeAnimationType={'decay'}
                 activeSlideAlignment={'center'}
-                data={myStacksInTheaters}
+                data={popularTitleStacks}
                 inactiveSlideScale={1}
                 itemWidth={width * 0.9}
                 onBeforeSnapToItem={onBeforeSnapToItem}
@@ -99,7 +98,7 @@ export default PopularTitles = ({ navigation }) => {
                 <FontAwesomeIcon icon={faFireFlameCurved} color='white' size={24} />
                 <HeaderText>{'Popular Titles'}</HeaderText>
             </HeaderContainer>
-            { myStacksInTheaters.length > 0 && <TitlesRow />}
+            { popularTitleStacks.length > 0 && <TitlesRow />}
         </PopularTitlesContainer>
     )
 };
