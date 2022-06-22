@@ -13,7 +13,8 @@ import ReelayColors from '../../constants/ReelayColors';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { useDispatch } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
-import { showErrorToast, showMessageToast } from "../utils/toasts";
+import { showMessageToast } from "../utils/toasts";
+import DeleteAccountDrawer from "./DeleteAccountDrawer";
 import ProfilePicture from "../global/ProfilePicture";
 
 const { width } = Dimensions.get('window');
@@ -48,6 +49,8 @@ const BottomButtonsContainer = styled(View)`
 
 export default DeleteAccount = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const [deleteAccountDrawerVisible, setDeleteAccountDrawerVisible] = useState(false);
+
     const dispatch = useDispatch();
     const ViewContainer = styled(View)`
         width: 100%;
@@ -68,12 +71,20 @@ export default DeleteAccount = ({ navigation }) => {
             <DeleteAccountWrapper 
                 navigation={navigation} 
                 reelayDBUser={reelayDBUser} 
+                setDeleteAccountDrawerVisible={setDeleteAccountDrawerVisible}
             />
+            {deleteAccountDrawerVisible && (
+                <DeleteAccountDrawer 
+                    drawerVisible={deleteAccountDrawerVisible}
+                    setDrawerVisible={setDeleteAccountDrawerVisible}
+                />
+            )
+            }
         </ViewContainer>
     )
 }
 
-const DeleteAccountWrapper = ({ navigation, reelayDBUser }) => {
+const DeleteAccountWrapper = ({ navigation, reelayDBUser, setDeleteAccountDrawerVisible }) => {
     const DeleteAccountContainer = styled(Pressable)`
         width: 90%;
         height: 100%;
@@ -91,18 +102,6 @@ const DeleteAccountWrapper = ({ navigation, reelayDBUser }) => {
         margin-bottom: 15px;
     `
 
-    const [deletingAccount, setDeletingAccount] = useState(false);
-
-    const deleteAccount = async () => {
-        setDeletingAccount(true);
-        // delete account
-        // reroute to log in screen
-        // send toast message
-        showMessageToast("Account successfully deleted!")
-        setDeletingAccount(false);
-        return true;
-    }
-
     const cancelOnPress = () => {
         navigation.pop();
     }
@@ -114,7 +113,7 @@ const DeleteAccountWrapper = ({ navigation, reelayDBUser }) => {
                 <ProfilePicWithInfo user={reelayDBUser}/>
             </AlignmentContainer>
             <BottomButtonsContainer>
-                <DeleteButton deleteAccount={deleteAccount} deletingAccount={deletingAccount} />
+                <DeleteButton setDeleteAccountDrawerVisible={setDeleteAccountDrawerVisible} />
                 <CancelButton cancelOnPress={cancelOnPress} />
             </BottomButtonsContainer>
         </DeleteAccountContainer>
@@ -157,11 +156,11 @@ const ProfilePicWithInfo = ({user}) => {
   );
 };
 
-const DeleteButton = ({deleteAccount, deletingAccount}) => {
+const DeleteButton = ({ setDeleteAccountDrawerVisible }) => {
     // popup modal
 
     const deleteOnPress = () => {
-        console.log("want to delete")
+        setDeleteAccountDrawerVisible(true);
     }
 
     return (
