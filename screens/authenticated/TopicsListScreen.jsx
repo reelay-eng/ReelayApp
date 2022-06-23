@@ -104,15 +104,40 @@ const TopicScrollContainer = styled(ScrollView)`
     width: 100%;
 `
 
-export default TopicsListScreen = ({ navigation }) => {
+export default TopicsListScreen = ({ navigation, route }) => {
+    const source = route.params?.source ?? 'discoverNew';
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
-    const globalTopics = useSelector(state => state.globalTopics);
-    const globalTopicsWithReelays = useSelector(state => state.globalTopicsWithReelays);
-    const searchBarRef = useRef(null);
 
-    const [displayTopics, setDisplayTopics] = useState(globalTopics);
+    const myDiscoverContent = useSelector(state => state.myDiscoverContent);
+    const myFollowingContent = useSelector(state => state.myFollowingContent);
+
+    let initDisplayTopics;
+    let headerText;
+    switch (source) {
+        case 'discoverNew':
+            initDisplayTopics = myDiscoverContent?.newTopics;
+            headerText = 'New topics';
+            break;
+        case 'discoverPopular':
+            initDisplayTopics = myDiscoverContent?.popularTopics;
+            headerText = 'Popular topics';
+            break;
+        case 'followingNew':
+            initDisplayTopics = myFollowingContent?.newTopics;
+            headerText = 'New topics from your friends';
+            break;
+        default:
+            initDisplayTopics = [];
+            break;
+    }
+    
+    const [displayTopics, setDisplayTopics] = useState(initDisplayTopics);
+    const hasReelays = (topic) => topic?.reelays?.length > 0
+    const displayTopicsWithReelays = displayTopics.filter(hasReelays);
+
     const [searching, setSearching] = useState(false);
+    const searchBarRef = useRef(null);
 
     const CreateTopicButton = () => {
         const advanceToCreateTopic = () => navigation.push('CreateTopicScreen');
@@ -130,7 +155,7 @@ export default TopicsListScreen = ({ navigation }) => {
             <HeaderContainer>
                 <HeaderLeftContainer>
                     <BackButton navigation={navigation} />
-                    <HeaderText>{'Active topics'}</HeaderText>
+                    <HeaderText>{headerText}</HeaderText>
                 </HeaderLeftContainer>
                 <SearchTopicsButton />
             </HeaderContainer>
@@ -149,13 +174,11 @@ export default TopicsListScreen = ({ navigation }) => {
     const TopicScroll = () => {
         const renderTopic = (topic, index) => {
             const matchTopic = (nextTopic) => (nextTopic.id === topic.id);
-            const topicFeedIndex = globalTopicsWithReelays.findIndex(matchTopic);
+            const initTopicIndex = displayTopicsWithReelays.findIndex(matchTopic);
         
             const advanceToFeed = () => {
                 if (!topic.reelays?.length) return;
-                navigation.push('TopicsFeedScreen', { 
-                    initTopicIndex: topicFeedIndex,
-                });
+                navigation.push('TopicsFeedScreen', { initTopicIndex, source });
                 
                 logAmplitudeEventProd('openedTopic', {
                     clubID: null,
@@ -186,7 +209,7 @@ export default TopicsListScreen = ({ navigation }) => {
         )
     }
 
-    const resetTopics = () => setDisplayTopics(globalTopics);
+    const resetTopics = () => setDisplayTopics(initDisplayTopics);
     const updateSearchResults = async (searchText) => {
         const topicSearchResults = await searchTopics({ 
             searchText, 

@@ -345,12 +345,20 @@ const prepareHomeContent = async (fetchedContent) => {
             case 'theaters':
             case 'streaming':
             case 'popularTitles':
-            case 'popularTopics':
             case 'topOfTheWeek':
             case 'global':
             case 'mostRecent':
                 preparedContent[feedKey] = await prepareStacks(fetchedContent[feedKey]);
                 console.log('fetched stacks length: ', feedKey, fetchedContent[feedKey]?.length);
+                return;
+            case 'popularTopics':
+            case 'newTopics':
+                const topics = fetchedContent[feedKey];
+                const prepareTopicReelays = async (topic) => {
+                    topic.reelays = await Promise.all(topic.reelays.map(prepareReelay));
+                }
+                await Promise.all(topics.map(prepareTopicReelays));
+                preparedContent[feedKey] = topics;
                 return;
             default:
                 preparedContent[feedKey] = fetchedContent[feedKey];

@@ -9,6 +9,7 @@ export default TopicsFeedScreen = ({ navigation, route }) => {
     `
     const initTopicIndex = route?.params?.initTopicIndex ?? 0;
     const initReelayIndex = route?.params?.initReelayIndex ?? 0;
+    const source = route?.params?.source ?? 'discoverNew';
 
     return (
         <FeedContainer>
@@ -16,6 +17,7 @@ export default TopicsFeedScreen = ({ navigation, route }) => {
                 initTopicIndex={initTopicIndex}
                 initReelayIndex={initReelayIndex}
                 navigation={navigation}
+                source={source}
             />
         </FeedContainer>
     );

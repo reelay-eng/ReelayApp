@@ -6,7 +6,7 @@ import AtFestivals from './AtFestivals';
 import HomeHeader from './HomeHeader';
 import InTheaters from './InTheaters';
 import FriendsAreWatching from './FriendsAreWatching';
-import GlobalTopics from '../topics/GlobalTopics';
+import TopicsCarousel from '../topics/TopicsCarousel';
 import OnStreaming from './OnStreaming';
 import PeopleToFollow from './PeopleToFollow';
 
@@ -86,7 +86,6 @@ const HomeComponent = ({ navigation }) => {
             myFollowingContent,
             myFollowingLoaded,
             myNotifications,
-            myStreamingSubscriptions,
         ] = await Promise.all([
             getGlobalTopics({ reqUserSub, page: 0 }),
             getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
@@ -94,8 +93,11 @@ const HomeComponent = ({ navigation }) => {
             getFollowingContent({ authSession, reqUserSub }),
             getFollowing(reelayDBUser?.sub),
             getAllMyNotifications(reelayDBUser?.sub),
-            getStreamingSubscriptions(reelayDBUser?.sub),
         ]);
+
+        const myClubs = myFollowingContent?.subscribed?.myClubs;
+        const myFollowing = myFollowingContent?.subscribed?.myFollowing;
+        const myStreamingSubscriptions = myFollowingContent?.subscribed?.myStreamingSubscriptions;
         
         dispatch({ type: 'setGlobalTopics', payload: globalTopics });
         dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
@@ -104,6 +106,11 @@ const HomeComponent = ({ navigation }) => {
         dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
         dispatch({ type: 'setMyNotifications', payload: myNotifications });
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
+
+        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
+        dispatch({ type: 'setMyFollowing', payload: myFollowing });
+        dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
+
         setRefreshing(false);
     }
 
@@ -124,7 +131,7 @@ const HomeComponent = ({ navigation }) => {
                     <Fragment>
                         <TopOfTheWeek navigation={navigation} />
                         <PopularTitles navigation={navigation} />
-                        <GlobalTopics navigation={navigation} /> 
+                        <TopicsCarousel navigation={navigation} /> 
                         <PeopleToFollow navigation={navigation} /> 
                         <InTheaters navigation={navigation} /> 
                         <AtFestivals navigation={navigation} /> 

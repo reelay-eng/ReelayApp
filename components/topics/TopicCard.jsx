@@ -132,7 +132,7 @@ const CardBottomRowNoStacks = ({ navigation, clubID, topic }) => {
 const CardBottomRowWithStacks = ({ advanceToFeed, topic }) => {
     const MAX_DISPLAY_CREATORS = 5;
     const myFollowing = useSelector(state => state.myFollowing);
-    const inMyFollowing = (creator) => !!myFollowing.find((nextFollowing) => nextFollowing.sub === creator.sub);
+    const inMyFollowing = (creator) => !!myFollowing.find((followingObj) => followingObj?.creatorSub === creator?.sub);
 
     const getDisplayCreators = () => {
         // list up to five profile pics, first preference towards people you follow

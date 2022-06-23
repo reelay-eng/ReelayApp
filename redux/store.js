@@ -39,6 +39,7 @@ const initialState = {
     myFollowingContent: {},
     myDismissalHistory: {},
     showFestivalsRow: false,
+    topics: {},
 
     // ON REELAYS
     likesVisible: false,
@@ -118,8 +119,6 @@ const appReducer = ( state = initialState, action) => {
                 return topic.reelays.length > 0;
             });
             return { ...state, globalTopics, globalTopicsWithReelays };
-        // case 'setHomeFeeds':
-        //     return { ...state, homeFeeds: action.payload };
         case 'setLatestAnnouncement':
             const latestAnnouncement = latestAnnouncementReducer({ 
                 announcement: action.payload,
@@ -172,6 +171,19 @@ const appReducer = ( state = initialState, action) => {
                 streaming: myStacksOnStreaming,
             };
             return { ...state, myDiscoverContent }
+        case 'setTopics': 
+            const { discoverNew, discoverPopular, followingNew } = action.payload;
+            const nextDiscoverContent = state.myDiscoverContent;
+            const nextFollowingContent = state.myFollowingContent;
+
+            if (discoverNew) nextDiscoverContent.newTopics = discoverNew;
+            if (discoverPopular) nextDiscoverContent.popularTopics = discoverPopular;
+            if (followingNew) nextFollowingContent.newTopics = followingNew;
+            return { 
+                ...state, 
+                myDiscoverContent: nextDiscoverContent, 
+                myFollowingContent: nextFollowingContent 
+            };
         case 'setShowFestivalsRow':
             return { ...state, showFestivalsRow: action.payload }        
 
@@ -268,6 +280,11 @@ export const mapStateToProps = (state) => ({
     myFollowingContent: state.myFollowingContent,
     myDismissalHistory: state.myDismissalHistory,
     showFestivalsRow: state.showFestivalsRow,
+    topics: {
+        discoverNew: state.myDiscoverContent?.newTopics,
+        discoverPopular: state.myDiscoverContent?.popularTopics,
+        followingNew: state.myFollowingContent?.newTopics
+    },
 
     // ON REELAYS
     commentsVisible: state.commentsVisible,

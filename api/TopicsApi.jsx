@@ -1,6 +1,6 @@
 import Constants from 'expo-constants';
 import { fetchResults } from './fetchResults';
-import ReelayAPIHeaders from './ReelayAPIHeaders';
+import ReelayAPIHeaders, { getReelayAuthHeaders } from './ReelayAPIHeaders';
 import { prepareReelay } from './ReelayDBApi';
 
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -72,6 +72,27 @@ export const getGlobalTopics = async ({ page = 0 }) => {
     const preparedTopics = await Promise.all(topicsWithReelays.map(prepareTopicReelays));
     return preparedTopics;
 }
+
+export const getTopics = async ({ authSession, page = 0, reqUserSub, source = 'discoverNew' }) => {
+    console.log('Getting discover popular topics...');
+    const routeGet = `${REELAY_API_BASE_URL}/topics/${source}?page=${page}&visibility=${FEED_VISIBILITY}`;
+    const topicsWithReelays = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            requsersub: reqUserSub,
+        },
+    });
+
+    const prepareTopicReelays = async (topic) => {
+        topic.reelays = await Promise.all(topic.reelays.map(prepareReelay));
+        return topic;
+    }
+
+    const preparedTopics = await Promise.all(topicsWithReelays.map(prepareTopicReelays));
+    return preparedTopics;
+}
+
 
 export const getSingleTopic = async (topicID) => {
     const routeGet = `${REELAY_API_BASE_URL}/topics/topic/${topicID}?visibility=${FEED_VISIBILITY}`;
