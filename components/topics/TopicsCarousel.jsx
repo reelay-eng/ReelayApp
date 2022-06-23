@@ -25,7 +25,6 @@ const CreateTopicButtonContainer = styled(TouchableOpacity)`
     justify-content: center;
     height: 40px;
     margin: 16px;
-    margin-left: 14px;
     width: ${width - 32}px;
 `
 const CreateTopicText = styled(ReelayText.Subtitle2)`
@@ -95,7 +94,7 @@ export default TopicsCarousel = ({ navigation, source = 'discoverNew' }) => {
     const hasReelays = (topic) => topic?.reelays?.length > 0;
     const displayTopicsWithReelays = displayTopics.filter(hasReelays);
 
-    const advanceToTopicsList = () => navigation.push('TopicsListScreen');
+    const advanceToTopicsList = () => navigation.push('TopicsListScreen', { source });
 
     const CreateTopicButton = () => {
         const advanceToCreateTopic = () => {

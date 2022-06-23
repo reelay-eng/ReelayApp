@@ -21,7 +21,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import NoticeOverlay from '../overlay/NoticeOverlay';
 import AnnouncementsAndNotices from './AnnouncementsAndNotices';
 import PopularTitles from './PopularTitles';
-import MyClubsSelector from './MyClubsSelector';
+import ActiveClubs from './ActiveClubs';
 import NewInMyClubs from './NewInMyClubs';
 
 import moment from 'moment';
@@ -127,7 +127,7 @@ const HomeComponent = ({ navigation }) => {
                 { selectedTab === 'discover' && (
                     <Fragment>
                         <TopOfTheWeek navigation={navigation} />
-                        <OnStreaming navigation={navigation} />
+                        <OnStreaming navigation={navigation} source='discover' />
                         <PopularTitles navigation={navigation} />
                         <TopicsCarousel navigation={navigation} source='discoverPopular' /> 
                         <TopicsCarousel navigation={navigation} source='discoverNew' /> 
@@ -139,9 +139,9 @@ const HomeComponent = ({ navigation }) => {
                 { selectedTab === 'following' && (
                     <Fragment>
                         <FriendsAreWatching navigation={navigation} />
-                        <OnStreaming navigation={navigation} />
+                        <OnStreaming navigation={navigation} source='following' />
                         <NewInMyClubs navigation={navigation} />
-                        <MyClubsSelector navigation={navigation} />
+                        <ActiveClubs navigation={navigation} />
                         <TopicsCarousel navigation={navigation} source='followingNew' /> 
                     </Fragment>  
                 )}

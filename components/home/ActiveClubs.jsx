@@ -2,11 +2,14 @@ import React, { Fragment } from 'react';
 import { ScrollView, TouchableOpacity, View } from 'react-native';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
-import * as ReelayText from '../../components/global/Text';
+import * as ReelayText from '../global/Text';
 import { useSelector } from 'react-redux';
 import ClubPicture from '../global/ClubPicture';
 import { ClubsIconSVG } from '../global/SVGs';
 
+const ActiveClubsContainer = styled(View)`
+    margin-bottom: 10px;
+`
 const ClubNameText = styled(ReelayText.Body2)`
     color: white;
     margin-top: 6px;
@@ -35,7 +38,7 @@ const RowContainer = styled(ScrollView)`
     width: 100%;
 `
 
-export default MyClubsSelector = ({ navigation }) => {
+export default ActiveClubs = ({ navigation }) => {
     const myClubs = useSelector(state => state.myClubs);
 
     const renderClubOption = (club) => {
@@ -49,7 +52,7 @@ export default MyClubsSelector = ({ navigation }) => {
     }
 
     return (
-        <Fragment>
+        <ActiveClubsContainer>
             <HeaderContainer>
                 <ClubsIconSVG size={24} />
                 <HeaderText>{'Active clubs'}</HeaderText>
@@ -57,6 +60,6 @@ export default MyClubsSelector = ({ navigation }) => {
             <RowContainer horizontal showsHorizontalScrollIndicator={false}>
                 { myClubs.map(renderClubOption) }
             </RowContainer>
-        </Fragment>
+        </ActiveClubsContainer>
     )
 }

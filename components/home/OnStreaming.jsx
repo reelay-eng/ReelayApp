@@ -78,19 +78,21 @@ const DrawerContainer = styled(View)`
     width: 100%;
 `
 
-export default OnStreaming = ({ navigation }) => {
+export default OnStreaming = ({ navigation, source = 'discover' }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const [refreshing, setRefreshing] = useState(false);
-    const myStacksOnStreaming = useSelector(state => state.myDiscoverContent?.streaming);
+    const myDiscoverStreamingStacks = useSelector(state => state.myDiscoverContent?.streaming);
+    const myFollowingStreamingStacks = useSelector(state => state.myFollowingContent?.streaming);
     const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
+    const myStreamingStacks = (source === 'discover') ? myDiscoverStreamingStacks : myFollowingStreamingStacks;
 
     const goToReelay = (index, titleObj) => {
-		if (!myStacksOnStreaming?.length) return;
+		if (!myStreamingStacks?.length) return;
 
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'streaming',
-            preloadedStackList: myStacksOnStreaming,
+            preloadedStackList: myStreamingStacks,
 		});
 
 		logAmplitudeEventProd('openStreamingFeed', {
@@ -151,9 +153,9 @@ export default OnStreaming = ({ navigation }) => {
     const StreamingRow = () => {
         return (
             <ReelayPreviewRowContainer horizontal showsHorizontalScrollIndicator={false}>
-            { myStacksOnStreaming.map((stack, index) => {
+            { myStreamingStacks.map((stack, index) => {
                 const onPress = () => goToReelay(index, stack[0]?.title);
-                return <StreamingServicesElement key={index} index={index} onPress={onPress} stack={stack} length={myStacksOnStreaming?.length}/>;
+                return <StreamingServicesElement key={index} index={index} onPress={onPress} stack={stack} length={myStreamingStacks?.length}/>;
             })}
             </ReelayPreviewRowContainer>
         );
@@ -164,12 +166,12 @@ export default OnStreaming = ({ navigation }) => {
             <HeaderContainer>
                 <HeaderContainerLeft>
                     <Icon type='font-awesome' name='television' size={24} color='white' />
-                    <HeaderText>{'My streaming'}</HeaderText>
+                    <HeaderText>{'On streaming'}</HeaderText>
                 </HeaderContainerLeft>
                 <EditButton />
             </HeaderContainer>
             { refreshing && <RefreshIndicator /> }
-            { !refreshing && myStacksOnStreaming?.length > 0 && <StreamingRow /> }
+            { !refreshing && myStreamingStacks?.length > 0 && <StreamingRow /> }
         </StreamingServicesContainer>
     )
 };
