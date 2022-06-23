@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Dimensions, View, Keyboard, Pressable, TouchableOpacity } from "react-native";
+import { Dimensions, View, Keyboard, Pressable } from "react-native";
 import { Button } from '../global/Buttons';
 
 // Context
@@ -13,11 +13,8 @@ import ReelayColors from '../../constants/ReelayColors';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { useDispatch } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
-import { showMessageToast } from "../utils/toasts";
 import DeleteAccountDrawer from "./DeleteAccountDrawer";
 import ProfilePicture from "../global/ProfilePicture";
-
-const { width } = Dimensions.get('window');
 
 const AlignmentContainer = styled(View)`
     align-items: center;
@@ -146,10 +143,10 @@ const ProfilePicWithInfo = ({user}) => {
 
             <DeleteInfoContainer>
                 <DeleteInfoText>
-                    {"- This action is irreversible!"}
+                    {"- This action is permanent!"}
                 </DeleteInfoText>
                 <DeleteInfoText>
-                    {"- Include something about what would happen to posts if delete"}
+                    {"- All reelays and clubs you own will be deleted."}
                 </DeleteInfoText>
             </DeleteInfoContainer>
         </>

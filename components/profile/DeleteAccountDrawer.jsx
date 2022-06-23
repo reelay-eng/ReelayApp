@@ -109,7 +109,7 @@ export default DeleteAccountDrawer = ({ navigation, drawerVisible, setDrawerVisi
     const AreYouSurePrompt = () => {
         return (
             <React.Fragment>
-                <PromptText>{`Are you sure you want to delete your account? It will disappear forever all members. Type \'${reelayDBUser.username}\' below to confirm.`}</PromptText>
+                <PromptText>{`Are you sure you want to delete your account? It will disappear forever. Type \'${reelayDBUser.username}\' below to confirm.`}</PromptText>
             </React.Fragment>
         );
     }
