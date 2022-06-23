@@ -80,14 +80,12 @@ const HomeComponent = ({ navigation }) => {
         setRefreshing(true);
         const reqUserSub = reelayDBUser?.sub;
         const [
-            globalTopics,
             latestAnnouncement,
             myDiscoverContent,
             myFollowingContent,
             myFollowingLoaded,
             myNotifications,
         ] = await Promise.all([
-            getGlobalTopics({ reqUserSub, page: 0 }),
             getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
             getDiscoverContent({ authSession, reqUserSub }),
             getFollowingContent({ authSession, reqUserSub }),
@@ -99,7 +97,6 @@ const HomeComponent = ({ navigation }) => {
         const myFollowing = myFollowingContent?.subscribed?.myFollowing;
         const myStreamingSubscriptions = myFollowingContent?.subscribed?.myStreamingSubscriptions;
         
-        dispatch({ type: 'setGlobalTopics', payload: globalTopics });
         dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
         dispatch({ type: 'setMyDiscoverContent', payload: myDiscoverContent });
         dispatch({ type: 'setMyFollowingContent', payload: myFollowingContent });
@@ -130,8 +127,10 @@ const HomeComponent = ({ navigation }) => {
                 { selectedTab === 'discover' && (
                     <Fragment>
                         <TopOfTheWeek navigation={navigation} />
+                        <OnStreaming navigation={navigation} />
                         <PopularTitles navigation={navigation} />
-                        <TopicsCarousel navigation={navigation} /> 
+                        <TopicsCarousel navigation={navigation} source='discoverPopular' /> 
+                        <TopicsCarousel navigation={navigation} source='discoverNew' /> 
                         <PeopleToFollow navigation={navigation} /> 
                         <InTheaters navigation={navigation} /> 
                         <AtFestivals navigation={navigation} /> 
@@ -143,6 +142,7 @@ const HomeComponent = ({ navigation }) => {
                         <OnStreaming navigation={navigation} />
                         <NewInMyClubs navigation={navigation} />
                         <MyClubsSelector navigation={navigation} />
+                        <TopicsCarousel navigation={navigation} source='followingNew' /> 
                     </Fragment>  
                 )}
                 <Spacer height={80} />

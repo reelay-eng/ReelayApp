@@ -150,27 +150,41 @@ const appReducer = ( state = initialState, action) => {
         case 'setLatestNoticeSkipped':
             return { ...state, latestNoticeSkipped: action.payload }
         case 'setMyDiscoverContent':
-            let myDiscoverContent = action.payload;
-            const myStreamingStacks = stacksOnStreamingReducer({
-                stacksOnStreaming: myDiscoverContent?.streaming,
-                streamingSubscriptions: state?.myStreamingSubscriptions,
-            });
-            myDiscoverContent.streaming = myStreamingStacks;
-            return { ...state, myDiscoverContent }    
+            // let myDiscoverContent = action.payload;
+            // const myStreamingStacks = stacksOnStreamingReducer({
+            //     stacksOnStreaming: myDiscoverContent?.streaming,
+            //     streamingSubscriptions: state?.myStreamingSubscriptions,
+            // });
+            // myDiscoverContent.streaming = myStreamingStacks;
+            console.log('my discover content: ', Object.keys(action.payload));
+            console.log('new topics: ', action.payload.newTopics?.length);
+            console.log('popular topics: ', action.payload.popularTopics?.length);
+            console.log('top of the week: ', action.payload.topOfTheWeek?.length);
+            return { ...state, myDiscoverContent: action.payload }    
         case 'setMyFollowingContent':
+            console.log('my following content: ', Object.keys(action.payload));
             return { ...state, myFollowingContent: action.payload }
         case 'setMyDismissalHistory':
             return { ...state, myDismissalHistory: action.payload }
-        case 'setMyStacksOnStreaming':
-            const myStacksOnStreaming = stacksOnStreamingReducer({
-                stacksOnStreaming: action.payload, 
-                streamingSubscriptions: state.myStreamingSubscriptions,
-            });
-            myDiscoverContent = {
-                ...state.myDiscoverContent,
-                streaming: myStacksOnStreaming,
-            };
-            return { ...state, myDiscoverContent }
+        // case 'setMyStacksOnStreaming':
+        //     const myStacksOnStreaming = stacksOnStreamingReducer({
+        //         stacksOnStreaming: action.payload, 
+        //         streamingSubscriptions: state.myStreamingSubscriptions,
+        //     });
+        //     myDiscoverContent = {
+        //         ...state.myDiscoverContent,
+        //         streaming: myStacksOnStreaming,
+        //     };
+        //     return { ...state, myDiscoverContent }
+        case 'setStreamingStacks':
+            let myFollowingContent = state.myFollowingContent;
+            let myDiscoverContent = state.myDiscoverContent;
+            const { discover, following } = action.payload;
+            if (discover) myDiscoverContent.streaming = discover;
+            if (following) myFollowingContent.streaming = following;
+            return { ...state, myFollowingContent, myDiscoverContent };
+        case 'setShowFestivalsRow':
+            return { ...state, showFestivalsRow: action.payload }            
         case 'setTopics': 
             const { discoverNew, discoverPopular, followingNew } = action.payload;
             const nextDiscoverContent = state.myDiscoverContent;
@@ -184,8 +198,6 @@ const appReducer = ( state = initialState, action) => {
                 myDiscoverContent: nextDiscoverContent, 
                 myFollowingContent: nextFollowingContent 
             };
-        case 'setShowFestivalsRow':
-            return { ...state, showFestivalsRow: action.payload }        
 
         // ON REELAYS
         case 'setCommentsVisible':

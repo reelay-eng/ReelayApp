@@ -112,12 +112,22 @@ const IconOptions = ({ setRefreshing }) => {
         setRefreshing(true);
         await selectedVenues.current.map(postIfNewSubscription);
         await myStreamingPlatforms.map(removeIfOldSubscription);
-        const myStacksOnStreaming = await getFeed({ 
+        const myStreamingStacksDiscover = await getFeed({ 
             reqUserSub: reelayDBUser?.sub, 
             feedSource: 'streaming', 
             page: 0,
         });
-        dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });
+        const myStreamingStacksFollowing = await getFeed({ 
+            reqUserSub: reelayDBUser?.sub, 
+            feedSource: 'streaming', 
+            page: 0,
+        });
+
+        const payload = { 
+            discover: myStreamingStacksDiscover, 
+            following: myStreamingStacksFollowing,
+        };
+        dispatch({ type: 'setStreamingStacks', payload });
         setRefreshing(false);
     }
 

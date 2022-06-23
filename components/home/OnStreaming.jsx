@@ -153,7 +153,7 @@ export default OnStreaming = ({ navigation }) => {
             <ReelayPreviewRowContainer horizontal showsHorizontalScrollIndicator={false}>
             { myStacksOnStreaming.map((stack, index) => {
                 const onPress = () => goToReelay(index, stack[0]?.title);
-                return <StreamingServicesElement key={index} index={index} onPress={onPress} stack={stack} length={myStacksOnStreaming.length}/>;
+                return <StreamingServicesElement key={index} index={index} onPress={onPress} stack={stack} length={myStacksOnStreaming?.length}/>;
             })}
             </ReelayPreviewRowContainer>
         );
@@ -169,7 +169,7 @@ export default OnStreaming = ({ navigation }) => {
                 <EditButton />
             </HeaderContainer>
             { refreshing && <RefreshIndicator /> }
-            { !refreshing && myStacksOnStreaming.length > 0 && <StreamingRow /> }
+            { !refreshing && myStacksOnStreaming?.length > 0 && <StreamingRow /> }
         </StreamingServicesContainer>
     )
 };

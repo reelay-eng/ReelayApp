@@ -37,6 +37,10 @@ export default PopularTitles = ({ navigation, tab='discover' }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const popularTitleStacksDiscover = useSelector(state => state.myDiscoverContent?.popularTitles);
     const popularTitleStacksFollowing = useSelector(state => state.myFollowingContent?.popularTitles);
+
+    // console.log('pop titles discover: ', popularTitleStacksDiscover);
+    // console.log('pop titles following: ', popularTitleStacksFollowing);
+
     const popularTitleStacks = (tab === 'following') ? popularTitleStacksFollowing : popularTitleStacksDiscover;
 
     const goToReelay = (index, titleObj) => {
@@ -77,7 +81,7 @@ export default PopularTitles = ({ navigation, tab='discover' }) => {
                     index={index} 
                     onPress={() => goToReelay(index, stack[0].title)} 
                     stack={stack} 
-                    length={popularTitleStacks.length}/>
+                    length={popularTitleStacks?.length}/>
             );
         }
 
@@ -95,12 +99,16 @@ export default PopularTitles = ({ navigation, tab='discover' }) => {
             />
         );
     }
+
+    if (popularTitleStacks.length < 2) {
+        return <View />;
+    }
     
     return (
         <PopularTitlesContainer>
             <HeaderContainer>
                 <FontAwesomeIcon icon={faFireFlameCurved} color='white' size={24} />
-                <HeaderText>{'Popular Titles'}</HeaderText>
+                <HeaderText>{'Popular titles'}</HeaderText>
             </HeaderContainer>
             { popularTitleStacks.length > 0 && <TitlesRow />}
         </PopularTitlesContainer>

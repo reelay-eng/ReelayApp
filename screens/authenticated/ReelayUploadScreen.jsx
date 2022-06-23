@@ -118,7 +118,12 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const myClubs = useSelector(state => state.myClubs);
 
     // get the topic we're (optionally) posting in
-    const globalTopics = useSelector(state => state.globalTopics);
+    const discoverNewTopics = useSelector(state => state.myDiscoverContent?.newTopics);
+    const discoverPopularTopics = useSelector(state => state.myDiscoverContent?.newTopics);
+
+    let discoverTopics = [discoverNewTopics, discoverPopularTopics];
+    const isNotDuplicate = (topic, index) => (index === discoverTopics.findIndex(nextTopic => nextTopic?.id === topic?.id));
+    discoverTopics = discoverTopics.filter(isNotDuplicate);
     
     const uploadRequest = useSelector(state => state.uploadRequest);
     const uploadStage = useSelector(state => state.uploadStage);
@@ -152,7 +157,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             const reelayTopic = (topicID && clubID) 
                 ? reelayClub?.topics?.find(nextTopic => nextTopic.id === topicID)
             : (topicID) 
-                ? globalTopics.find(nextTopic => nextTopic.id === topicID) 
+                ? discoverTopics.find(nextTopic => nextTopic.id === topicID) 
             : null;
     
             const destination = (clubID) ? 'InClub' 

@@ -72,18 +72,25 @@ export default TopicsCarousel = ({ navigation, source = 'discoverNew' }) => {
     const discoverPopularTopics = useSelector(state => state.myDiscoverContent?.popularTopics);
 
     let displayTopics = [];
+    let headerText = 'Topics';
     switch (source) {
         case 'discoverNew':
             displayTopics = discoverNewTopics;
+            headerText = 'New topics';
             break;
         case 'discoverPopular':
             displayTopics = discoverPopularTopics;
+            headerText = 'Popular topics';
             break;
         case 'followingNew':
             displayTopics = followingNewTopics;
+            headerText = 'New topics'
         default:
             break;
     }
+
+    // console.log('discoverNewTopics: ', discoverNewTopics);
+    // console.log('discoverPopularTopics: ', discoverPopularTopics);
 
     const hasReelays = (topic) => topic?.reelays?.length > 0;
     const displayTopicsWithReelays = displayTopics.filter(hasReelays);
@@ -174,14 +181,14 @@ export default TopicsCarousel = ({ navigation, source = 'discoverNew' }) => {
             <HeaderContainer>
                 <HeaderContainerLeft>
                     <FontAwesomeIcon icon={ faComments } color='white' size={20} />
-                    <HeaderText>{'Topics'}</HeaderText>
+                    <HeaderText>{headerText}</HeaderText>
                 </HeaderContainerLeft>
                 <HeaderContainerRight onPress={advanceToTopicsList}>
                     <SeeAllTopicsText>{'See all'}</SeeAllTopicsText>
                 </HeaderContainerRight>
             </HeaderContainer>
             { displayTopics.length > 0 && <TopicsRow /> }
-            <CreateTopicButton />
+            { source !== 'discoverPopular' && <CreateTopicButton /> }
         </TopicsContainer>
     )
 }
