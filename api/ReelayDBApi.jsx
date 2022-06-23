@@ -352,13 +352,9 @@ const prepareHomeContent = async (fetchedContent) => {
                 preparedContent[feedKey] = await prepareStacks(fetchedContent[feedKey]);
                 console.log('fetched stacks length: ', feedKey, fetchedContent[feedKey]?.length);
                 return;
-            case 'creators':
-            case 'activeClubs':
-            case 'inMyClubs':
+            default:
                 preparedContent[feedKey] = fetchedContent[feedKey];
                 console.log('fetched content length: ', feedKey, fetchedContent[feedKey]?.length);
-                return;
-            default:
                 return;
         }        
     }

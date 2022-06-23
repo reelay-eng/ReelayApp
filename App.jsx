@@ -248,37 +248,30 @@ function App() {
         const [
             donateLinksLoaded,
             globalTopics,
-            // homeFeeds,
             latestAnnouncement,
-            myClubs,
+            myDiscoverContent,
+            myFollowingContent,
+
             myDismissalHistory,
             myCreatorStacksLoaded,
             myFollowersLoaded,
-            myFollowingLoaded,
             myNotificationsLoaded,
             myWatchlistItemsLoaded,
-            myStreamingSubscriptions,
             reelayDBUserLoaded,
 
-            myDiscoverContent,
-            myFollowingContent,
         ] = await Promise.all([
             getAllDonateLinks(),
             getGlobalTopics({ reqUserSub, page: 0 }),
-            // getHomeFeeds({ reqUserSub, authSession }),
             getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
-            getClubsMemberOf({ authSession, userSub }),
+            getDiscoverContent({ authSession, reqUserSub }),
+            getFollowingContent({ authSession, reqUserSub }),
+
             getDismissalHistory(),
             getStacksByCreator(userSub),
             getFollowers(userSub),
-            getFollowing(userSub),
             getAllMyNotifications(userSub),
             getWatchlistItems(userSub),
-            getStreamingSubscriptions(userSub),
             getRegisteredUser(userSub),
-
-            getDiscoverContent({ authSession, reqUserSub }),
-            getFollowingContent({ authSession, reqUserSub }),
         ]);
 
         setReelayDBUser(reelayDBUserLoaded);
@@ -286,15 +279,20 @@ function App() {
         dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
         dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
 
-        dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
+        const myClubs = myFollowingContent?.subscribed?.myClubs;
+        const myFollowing = myFollowingContent?.subscribed?.myFollowing;
+        const myStreamingSubscriptions = myFollowingContent?.subscribed?.myStreamingSubscriptions;
+
+        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
+        dispatch({ type: 'setMyFollowing', payload: myFollowing });
+        dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
+
         dispatch({ type: 'setMyNotifications', payload: myNotificationsLoaded });
         dispatch({ type: 'setMyWatchlistItems', payload: myWatchlistItemsLoaded });
         dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
-        dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
         dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });
         dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
         dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
-        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
 
         // home
         dispatch({ type: 'setMyDiscoverContent', payload: myDiscoverContent });
