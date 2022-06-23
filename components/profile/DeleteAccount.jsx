@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { Dimensions, View, Keyboard, Pressable } from "react-native";
+import { View, Keyboard, Pressable } from "react-native";
 import { Button } from '../global/Buttons';
 
 // Context
@@ -154,8 +154,6 @@ const ProfilePicWithInfo = ({user}) => {
 };
 
 const DeleteButton = ({ setDeleteAccountDrawerVisible }) => {
-    // popup modal
-
     const deleteOnPress = () => {
         setDeleteAccountDrawerVisible(true);
     }

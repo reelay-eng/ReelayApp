@@ -81,10 +81,6 @@ export default EditAccount = ({ navigation }) => {
         align-items: center;
     `
 
-    // useEffect(() => {
-	// 	dispatch({ type: 'setIsEditingProfile', payload: false });
-    // }, []);
-
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
     })
