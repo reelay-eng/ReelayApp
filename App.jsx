@@ -32,7 +32,6 @@ import { AuthContext } from './context/AuthContext';
 
 // api imports
 import { 
-    getFeed, 
     getAllDonateLinks, 
     getRegisteredUser, 
     registerPushTokenForUser,
@@ -41,7 +40,6 @@ import {
     getStacksByCreator, 
     getStreamingSubscriptions,
     getLatestAnnouncement,
-    getHomeFeeds,
     getDiscoverContent,
     getFollowingContent, 
 } from './api/ReelayDBApi';
@@ -250,7 +248,7 @@ function App() {
         const [
             donateLinksLoaded,
             globalTopics,
-            homeFeeds,
+            // homeFeeds,
             latestAnnouncement,
             myClubs,
             myDismissalHistory,
@@ -262,12 +260,12 @@ function App() {
             myStreamingSubscriptions,
             reelayDBUserLoaded,
 
-            myDiscoverFeeds,
-            myFollowingFeeds,
+            myDiscoverContent,
+            myFollowingContent,
         ] = await Promise.all([
             getAllDonateLinks(),
             getGlobalTopics({ reqUserSub, page: 0 }),
-            getHomeFeeds({ reqUserSub, authSession }),
+            // getHomeFeeds({ reqUserSub, authSession }),
             getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
             getClubsMemberOf({ authSession, userSub }),
             getDismissalHistory(),
@@ -299,22 +297,9 @@ function App() {
         dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
 
         // home
-        dispatch({ type: 'setHomeFeeds', payload: homeFeeds });
-        dispatch({ type: 'setMyDiscoverFeeds', payload: myDiscoverFeeds });
-        dispatch({ type: 'setMyFollowingFeeds', payload: myFollowingFeeds });
-
-        // discover
-        dispatch({ type: 'setMyStacksAtFestivals', payload: homeFeeds.festivals });
-        dispatch({ type: 'setMyStacksInTheaters', payload: homeFeeds.theaters });
-        dispatch({ type: 'setMyStacksOnStreaming', payload: homeFeeds.streaming });
-        dispatch({ type: 'setTopOfTheWeek', payload: homeFeeds.trending });
-
-        // following
-        dispatch({ type: 'setMyStacksFollowing', payload: homeFeeds.following });
-
-        // global most recent
+        dispatch({ type: 'setMyDiscoverContent', payload: myDiscoverContent });
+        dispatch({ type: 'setMyFollowingContent', payload: myFollowingContent });
         dispatch({ type: 'setGlobalTopics', payload: globalTopics });
-        dispatch({ type: 'setMyStacksGlobal', payload: homeFeeds.global })
 
         dispatch({ type: 'setIsLoading', payload: false });
     }

@@ -30,22 +30,15 @@ const initialState = {
     // HOME SCREEN
     globalTopics: [],
     globalTopicsWithReelays: [],
-    homeFeeds: {},
     latestAnnouncement: null,
     latestAnnouncementDismissed: false,
     latestNotice: null,
     latestNoticeDismissed: false,
     latestNoticeSkipped: false,
-    myDiscoverFeeds: {},
-    myFollowingFeeds: {},
+    myDiscoverContent: {},
+    myFollowingContent: {},
     myDismissalHistory: {},
-    myStacksFollowing: [],
-    myStacksGlobal: [],
-    myStacksInTheaters: [],
-    myStacksOnStreaming: [],
-    myStacksAtFestivals: [],
     showFestivalsRow: false,
-    topOfTheWeek: [],
 
     // ON REELAYS
     likesVisible: false,
@@ -80,7 +73,6 @@ const initialState = {
     uploadProgress: 0,
     uploadRequest: null,
     uploadStage: 'none',
-
 }
 
 const appReducer = ( state = initialState, action) => {
@@ -126,8 +118,8 @@ const appReducer = ( state = initialState, action) => {
                 return topic.reelays.length > 0;
             });
             return { ...state, globalTopics, globalTopicsWithReelays };
-        case 'setHomeFeeds':
-            return { ...state, homeFeeds: action.payload };
+        // case 'setHomeFeeds':
+        //     return { ...state, homeFeeds: action.payload };
         case 'setLatestAnnouncement':
             const latestAnnouncement = latestAnnouncementReducer({ 
                 announcement: action.payload,
@@ -158,30 +150,30 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, latestNoticeDismissed: action.payload }
         case 'setLatestNoticeSkipped':
             return { ...state, latestNoticeSkipped: action.payload }
-        case 'setMyDiscoverFeeds':
-            return { ...state, myDiscoverFeeds: action.payload }    
-        case 'setMyFollowingFeeds':
-            return { ...state, myFollowingFeeds: action.payload }
+        case 'setMyDiscoverContent':
+            let myDiscoverContent = action.payload;
+            const myStreamingStacks = stacksOnStreamingReducer({
+                stacksOnStreaming: myDiscoverContent?.streaming,
+                streamingSubscriptions: state?.myStreamingSubscriptions,
+            });
+            myDiscoverContent.streaming = myStreamingStacks;
+            return { ...state, myDiscoverContent }    
+        case 'setMyFollowingContent':
+            return { ...state, myFollowingContent: action.payload }
         case 'setMyDismissalHistory':
             return { ...state, myDismissalHistory: action.payload }
-        case 'setMyStacksAtFestivals':
-            return { ...state, myStacksAtFestivals: action.payload }    
-        case 'setMyStacksFollowing':
-            return { ...state, myStacksFollowing: action.payload }
-        case 'setMyStacksGlobal':
-            return { ...state, myStacksGlobal: action.payload };
-        case 'setMyStacksInTheaters':
-            return { ...state, myStacksInTheaters: action.payload }
         case 'setMyStacksOnStreaming':
             const myStacksOnStreaming = stacksOnStreamingReducer({
                 stacksOnStreaming: action.payload, 
                 streamingSubscriptions: state.myStreamingSubscriptions,
             });
-            return { ...state, myStacksOnStreaming }
+            myDiscoverContent = {
+                ...state.myDiscoverContent,
+                streaming: myStacksOnStreaming,
+            };
+            return { ...state, myDiscoverContent }
         case 'setShowFestivalsRow':
             return { ...state, showFestivalsRow: action.payload }        
-        case 'setTopOfTheWeek':
-            return { ...state, topOfTheWeek: action.payload }
 
         // ON REELAYS
         case 'setCommentsVisible':
@@ -267,22 +259,15 @@ export const mapStateToProps = (state) => ({
     // HOME SCREEN
     globalTopics: state.globalTopics,
     globalTopicsWithReelays: state.globalTopicsWithReelays,
-    homeFeeds: state.homeFeeds,
     latestAnnouncement: state.latestAnnouncement,
     latestAnnouncementDismissed: state.latestAnnouncementDismissed,
     latestNotice: state.latestNotice,
     latestNoticeDismissed: state.latestNoticeDismissed,
     latestNoticeSkipped: state.latestNoticeSkipped,
-    myDiscoverFeeds: state.myDiscoverFeeds,
-    myFollowingFeeds: state.myFollowingFeeds,
+    myDiscoverContent: state.myDiscoverContent,
+    myFollowingContent: state.myFollowingContent,
     myDismissalHistory: state.myDismissalHistory,
-    myStacksAtFestivals: state.myStacksAtFestivals,
-    myStacksFollowing: state.myStacksFollowing,
-    myStacksGlobal: state.myStacksGlobal,
-    myStacksInTheaters: state.myStacksInTheaters,
-    myStacksOnStreaming: state.myStacksOnStreaming,
     showFestivalsRow: state.showFestivalsRow,
-    topOfTheWeek: state.topOfTheWeek,
 
     // ON REELAYS
     commentsVisible: state.commentsVisible,

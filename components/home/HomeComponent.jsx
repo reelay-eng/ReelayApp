@@ -10,7 +10,7 @@ import GlobalTopics from '../topics/GlobalTopics';
 import OnStreaming from './OnStreaming';
 import PeopleToFollow from './PeopleToFollow';
 
-import { getFeed, getFollowing, getLatestAnnouncement, getStreamingSubscriptions } from '../../api/ReelayDBApi';
+import { getDiscoverContent, getFollowing, getFollowingContent, getLatestAnnouncement, getStreamingSubscriptions } from '../../api/ReelayDBApi';
 import { getAllMyNotifications } from '../../api/NotificationsApi';
 import { AuthContext } from '../../context/AuthContext';
 
@@ -80,39 +80,30 @@ const HomeComponent = ({ navigation }) => {
         setRefreshing(true);
         const reqUserSub = reelayDBUser?.sub;
         const [
+            globalTopics,
+            latestAnnouncement,
+            myDiscoverContent,
+            myFollowingContent,
             myFollowingLoaded,
             myNotifications,
             myStreamingSubscriptions,
-            globalTopics,
-            latestAnnouncement,
-            topOfTheWeek,
-            myStacksFollowing,
-            myStacksInTheaters,
-            myStacksOnStreaming,
-            myStacksAtFestivals,
         ] = await Promise.all([
+            getGlobalTopics({ reqUserSub, page: 0 }),
+            getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
+            getDiscoverContent({ authSession, reqUserSub }),
+            getFollowingContent({ authSession, reqUserSub }),
             getFollowing(reelayDBUser?.sub),
             getAllMyNotifications(reelayDBUser?.sub),
             getStreamingSubscriptions(reelayDBUser?.sub),
-            getGlobalTopics({ reqUserSub, page: 0 }),
-            getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
-            getFeed({ reqUserSub, feedSource: 'trending', page: 0 }),
-            getFeed({ reqUserSub, feedSource: 'following', page: 0 }),
-            getFeed({ reqUserSub, feedSource: 'theaters', page: 0 }),
-            getFeed({ reqUserSub, feedSource: 'streaming', page: 0 }),
-            getFeed({ reqUserSub, feedSource: 'festivals', page: 0 }),
         ]);
         
         dispatch({ type: 'setGlobalTopics', payload: globalTopics });
         dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
-        dispatch({ type: 'setTopOfTheWeek', payload: topOfTheWeek });
+        dispatch({ type: 'setMyDiscoverContent', payload: myDiscoverContent });
+        dispatch({ type: 'setMyFollowingContent', payload: myFollowingContent });
         dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
         dispatch({ type: 'setMyNotifications', payload: myNotifications });
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
-        dispatch({ type: 'setMyStacksFollowing', payload: myStacksFollowing });
-        dispatch({ type: 'setMyStacksInTheaters', payload: myStacksInTheaters });
-        dispatch({ type: 'setMyStacksOnStreaming', payload: myStacksOnStreaming });        
-        dispatch({ type: 'myStacksAtFestivals', payload: myStacksAtFestivals });
         setRefreshing(false);
     }
 

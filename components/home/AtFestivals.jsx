@@ -5,21 +5,61 @@ import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
-import ReelayThumbnail from '../global/ReelayThumbnail';
+
 import SeeMore from '../global/SeeMore';
-import { VenueIcon } from '../utils/VenueIcon';
 import FestivalsPrompt from './FestivalsPrompt';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSelector } from 'react-redux';
 import TitlePoster from '../global/TitlePoster';
 
+const AtFestivalsContainer = styled.View`
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+`
+const FollowingElementContainer = styled(Pressable)`
+    display: flex;
+    width: 120px;
+    margin-right: 12px;
+`
+const FollowingRowContainer = styled.ScrollView`
+    display: flex;
+    padding-left: 15px;
+    padding-top: 15px;
+    flex-direction: row;
+    width: 100%;
+    padding-top: 16px;
+`
+const HeaderContainer = styled(View)`
+    align-items: flex-end;
+    flex-direction: row;
+    margin-left: 15px;
+    margin-top: 15px;
+`
+const HeaderText = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 18px
+    margin-left: 12px;
+`
+const ReelayCount = styled(ReelayText.CaptionEmphasized)`
+    margin-top: 8px;
+    color: white;
+    opacity: 0.5;
+`
+const TitleInfoLine = styled(View)`
+    flex-direction: row;
+    justify-content: space-between;
+`
+const TitleText = styled(ReelayText.H6Emphasized)`
+    font-size: 16px;
+    margin-top: 10px;
+    color: white;
+    opacity: 1;
+`
+
+
 export default AtFestivals = ({ navigation }) => {
-    const AtFestivalsContainer = styled.View`
-        width: 100%;
-        height: auto;
-        display: flex;
-        flex-direction: column;
-    `
     const showFestivalsRow = useSelector(state => state.showFestivalsRow);
     const [showFestivalsPrompt, setShowFestivalsPrompt] = useState(false);
 
@@ -46,26 +86,8 @@ export default AtFestivals = ({ navigation }) => {
 }
 
 const FestivalReelaysRow = ({ navigation }) => {
-    const HeaderContainer = styled(View)`
-        align-items: flex-end;
-        flex-direction: row;
-        margin-left: 15px;
-        margin-top: 15px;
-    `
-    const HeaderText = styled(ReelayText.H5Bold)`
-        color: white;
-        font-size: 18px
-        margin-left: 12px;
-    `
-    const FollowingRowContainer = styled.ScrollView`
-        display: flex;
-        padding-left: 15px;
-        padding-top: 15px;
-        flex-direction: row;
-        width: 100%;
-        padding-top: 16px;
-    `
-    const myStacksAtFestivals = useSelector(state => state.myStacksAtFestivals);
+    const festivalStacks = useSelector(state => state.myDiscoverContent?.festivals);
+
     return (
         <Fragment>
             <HeaderContainer>
@@ -73,14 +95,14 @@ const FestivalReelaysRow = ({ navigation }) => {
                 <HeaderText>{'At festivals'}</HeaderText>
             </HeaderContainer>
             <FollowingRowContainer horizontal showsHorizontalScrollIndicator={false}>
-                { myStacksAtFestivals.map((stack, index) =>  {
+                { festivalStacks.map((stack, index) =>  {
                     return (
                         <FollowingElement
                             key={index}
                             index={index}
                             navigation={navigation}
                             stack={stack}
-                            myStacksAtFestivals={myStacksAtFestivals}
+                            festivalStacks={festivalStacks}
                     />);
                 })}
             </FollowingRowContainer>
@@ -88,33 +110,12 @@ const FestivalReelaysRow = ({ navigation }) => {
     );
 }
 
-const FollowingElementContainer = styled(Pressable)`
-    display: flex;
-    width: 120px;
-    margin-right: 12px;
-`
-const ReelayCount = styled(ReelayText.CaptionEmphasized)`
-    margin-top: 8px;
-    color: white;
-    opacity: 0.5;
-`
-const TitleInfoLine = styled(View)`
-    flex-direction: row;
-    justify-content: space-between;
-`
-const TitleText = styled(ReelayText.H6Emphasized)`
-    font-size: 16px;
-    margin-top: 10px;
-    color: white;
-    opacity: 1;
-`
-
-const FollowingElement = ({ stack, index, navigation, myStacksAtFestivals }) => {
+const FollowingElement = ({ stack, index, navigation, festivalStacks }) => {
     const goToReelay = (index, titleObj) => {
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: 'festivals',
-            preloadedStackList: myStacksAtFestivals,
+            preloadedStackList: festivalStacks,
 		});
 		logAmplitudeEventProd('openFollowingFeed', {
 			username: reelayDBUser?.username,
@@ -126,8 +127,7 @@ const FollowingElement = ({ stack, index, navigation, myStacksAtFestivals }) => 
     const onPress = () => goToReelay(index, stack[0].title);
     const reelayCount = stack?.length;
 
-
-    if (index === myStacksAtFestivals.length-1) {
+    if (index === festivalStacks.length-1) {
         return (
             <FollowingElementContainer>
                 <SeeMore 

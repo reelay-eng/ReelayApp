@@ -8,7 +8,7 @@ export default function FeedScreen({ navigation, route }) {
         flex: 1;
         background-color: black;
     `
-    const myStacksGlobal = useSelector(state => state.myStacksGlobal);
+    const myStacksGlobal = useSelector(state => state.myDiscoverContent?.global);
     // valid feed sources: [global, following, theaters, streaming, festivals]
     const initialFeedSource = route?.params?.initialFeedSource ?? 'global';
     const initialStackPos = route?.params?.initialStackPos ?? 0;

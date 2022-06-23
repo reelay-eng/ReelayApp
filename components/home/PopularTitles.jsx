@@ -33,20 +33,24 @@ const HeaderText = styled(ReelayText.H5Bold)`
     margin-left: 12px;
 `
 
-export default PopularTitles = ({ navigation }) => {
+export default PopularTitles = ({ navigation, tab='discover' }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const popularTitleStacks = useSelector(state => state.myStacksInTheaters);
+    const popularTitleStacksDiscover = useSelector(state => state.myDiscoverContent?.popularTitles);
+    const popularTitleStacksFollowing = useSelector(state => state.myFollowingContent?.popularTitles);
+    const popularTitleStacks = (tab === 'following') ? popularTitleStacksFollowing : popularTitleStacksDiscover;
+
     const goToReelay = (index, titleObj) => {
 		if (popularTitleStacks.length === 0) return;
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
-            initialFeedSource: 'theaters',
+            initialFeedSource: (tab === 'following') ? 'popularTitlesFollowing' : 'popularTitlesDiscover',
             preloadedStackList: popularTitleStacks,
 		});
 
-		logAmplitudeEventProd('openTheatersFeed', {
+		logAmplitudeEventProd('openPopularTitlesFeedd', {
 			username: reelayDBUser?.username,
-            title: titleObj?.display
+            title: titleObj?.display,
+            tab,
 		});
 	};
 

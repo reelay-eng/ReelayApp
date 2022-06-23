@@ -81,7 +81,7 @@ const DrawerContainer = styled(View)`
 export default OnStreaming = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const [refreshing, setRefreshing] = useState(false);
-    const myStacksOnStreaming = useSelector(state => state.myStacksOnStreaming);
+    const myStacksOnStreaming = useSelector(state => state.myDiscoverContent?.streaming);
     const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
 
     const goToReelay = (index, titleObj) => {

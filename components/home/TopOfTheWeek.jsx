@@ -118,7 +118,7 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
 }
 
 export default TopOfTheWeek = ({ navigation }) => {
-    const topOfTheWeek = useSelector(state => state.topOfTheWeek);
+    const topOfTheWeek = useSelector(state => state.myDiscoverContent?.topOfTheWeek);
     if (!topOfTheWeek?.length || topOfTheWeek.length < 3) {
         // just in case
         console.log('Top of the week: not enough to display');
