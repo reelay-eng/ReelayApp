@@ -95,14 +95,14 @@ const CommentTextWithMentions = ({ comment, navigation }) => {
 
     return (
         <React.Fragment>
-            <TouchableOpacity onLongPress={copyToClipboard}>
-            <CommentTextStyled>
-                { commentPartsWithMentions.parts.map(renderCommentPart) }
-                <CommentTimestampText>
-                    {`  ${timestamp}`}
-                </CommentTimestampText>
-            </CommentTextStyled>
-            </TouchableOpacity>
+            <Pressable onLongPress={copyToClipboard}>
+                <CommentTextStyled>
+                    { commentPartsWithMentions.parts.map(renderCommentPart) }
+                    <CommentTimestampText>
+                        {`  ${timestamp}`}
+                    </CommentTimestampText>
+                </CommentTextStyled>
+            </Pressable>
         </React.Fragment>
     )
 }
