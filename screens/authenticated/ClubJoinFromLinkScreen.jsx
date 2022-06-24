@@ -45,6 +45,7 @@ export default ClubJoinFromLinkScreen = ({ navigation, route }) => {
     const joinClubFromInvite = async () => {
         if (!reelayDBUser?.sub) {
             showErrorToast('Ruh roh! Not logged in.');
+            console.log("Not logged in club join from invite");
             navigation.popToTop();
             return;
         }
@@ -57,7 +58,7 @@ export default ClubJoinFromLinkScreen = ({ navigation, route }) => {
         const matchClubOnInvite = (club) => (club.id === clubInvite.clubID);
         const alreadyMemberOfClub = currentMyClubs.find(matchClubOnInvite);
         if (alreadyMemberOfClub) {
-            navigation.popToTop();
+            if (navigation.canGoBack()) navigation.popToTop();
             navigation.navigate('ClubActivityScreen', { 
                 club: alreadyMemberOfClub,
                 promptToInvite: false,

@@ -45,7 +45,7 @@ export default Navigation = () => {
     const navigationRef = useRef();
     const notificationListener = useRef();
     const responseListener = useRef(); 
-    const [deeplinkURL, setDeeplinkURL] = useState(null);
+    // const [deeplinkURL, setDeeplinkURL] = useState(null);
 
     const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
@@ -60,20 +60,20 @@ export default Navigation = () => {
     const setUploadStage = (stage) => dispatch({ type: 'setUploadStage', payload: stage });
     const clearUploadRequest = () => dispatch({ type: 'setUploadRequest', payload: null });
 
-    const handleDeepLink = async (event) => {
-        const deeplinkURL = Linking.parse(event.url);
-        if (deeplinkURL) {
-            setDeeplinkURL(deeplinkURL);
-        }
-    }
+    // const handleDeepLink = async (event) => {
+    //     const deeplinkURL = Linking.parse(event.url);
+    //     if (deeplinkURL) {
+    //         setDeeplinkURL(deeplinkURL);
+    //     }
+    // }
 
-    const initDeeplinkHandlers = async () => {
-        Linking.addEventListener('url', handleDeepLink);
-        const initialURL = await Linking.getInitialURL();
-        if (initialURL) {
-            setDeeplinkURL(Linking.parse(initialURL));
-        }
-    }
+    // const initDeeplinkHandlers = async () => {
+    //     Linking.addEventListener('url', handleDeepLink);
+    //     const initialURL = await Linking.getInitialURL();
+    //     if (initialURL) {
+    //         setDeeplinkURL(Linking.parse(initialURL));
+    //     }
+    // }
     
     const onNotificationReceived = async (notification) => {
         const notificationContent = parseNotificationContent(notification);
@@ -117,57 +117,57 @@ export default Navigation = () => {
     }    
     
     useEffect(() => {
-        initDeeplinkHandlers();
+        // initDeeplinkHandlers();
         notificationListener.current = addNotificationReceivedListener(onNotificationReceived);
         responseListener.current = addNotificationResponseReceivedListener(onNotificationResponseReceived);
 
         return () => {
             removeNotificationSubscription(notificationListener.current);
             removeNotificationSubscription(responseListener.current);
-            Linking.removeEventListener('url');
+            // Linking.removeEventListener('url');
         }
     }, []);
 
     // deeplinks _should_ be handled through LinkingConfiguration, but
     // I haven't totally figured it out. This is janky, but it gets the
     // job done. 
-    useEffect(() => {
-        if (deeplinkURL) {
-            const navigation = navigationRef?.current;
-            const { path } = deeplinkURL;
+    // useEffect(() => {
+    //     if (deeplinkURL) {
+    //         const navigation = navigationRef?.current;
+    //         const { path } = deeplinkURL;
 
-            logAmplitudeEventProd('openedAppFromDeeplink', {
-                username: reelayDBUser?.username,
-                deeplink: JSON.stringify(deeplinkURL),
-                path: path,
-            });
+    //         logAmplitudeEventProd('openedAppFromDeeplink', {
+    //             username: reelayDBUser?.username,
+    //             deeplink: JSON.stringify(deeplinkURL),
+    //             path: path,
+    //         });
 
-            if (path?.startsWith('reelay/')) {
-                const reelaySub = path.substr('reelay/'.length);
-                if (reelaySub) {
-                    navigation.navigate('SingleReelayScreen', { reelaySub });
-                }
-            } else if (path?.startsWith('clubInvite/')) {
-                console.log('club invite found');
-                console.log(deeplinkURL);
+    //         if (path?.startsWith('reelay/')) {
+    //             const reelaySub = path.substr('reelay/'.length);
+    //             if (reelaySub) {
+    //                 navigation.navigate('SingleReelayScreen', { reelaySub });
+    //             }
+    //         } else if (path?.startsWith('clubInvite/')) {
+    //             console.log('club invite found');
+    //             console.log(deeplinkURL);
 
-                if (reelayDBUser?.username === 'be_our_guest') {
-                    dispatch({ type: 'setJustShowMeSignupVisible', payload: true });
-                    return;
-                }
+    //             if (reelayDBUser?.username === 'be_our_guest') {
+    //                 dispatch({ type: 'setJustShowMeSignupVisible', payload: true });
+    //                 return;
+    //             }
                 
-                const inviteCode = path.substr('clubInvite/'.length);
-                if (inviteCode) {
-                    navigation.navigate('ClubJoinFromLinkScreen', { inviteCode });
-                }
-            } else if (path.length === UUID_LENGTH) {
-                // assume it's a reelay sub -- not entirely sure why it's cutting
-                // off 'reelay/' from the front of path, but that's what we're seeing
-                const reelaySub = path;
-                navigation.navigate('SingleReelayScreen', { reelaySub });
-            }
-        }
-    }, [deeplinkURL]);
+    //             const inviteCode = path.substr('clubInvite/'.length);
+    //             if (inviteCode) {
+    //                 navigation.navigate('ClubJoinFromLinkScreen', { inviteCode });
+    //             }
+    //         } else if (path.length === UUID_LENGTH) {
+    //             // assume it's a reelay sub -- not entirely sure why it's cutting
+    //             // off 'reelay/' from the front of path, but that's what we're seeing
+    //             const reelaySub = path;
+    //             navigation.navigate('SingleReelayScreen', { reelaySub });
+    //         }
+    //     }
+    // }, [deeplinkURL]);
 
     // handling reelay uploads here, rather than on the upload screen or
     // entirely in the UploadAPI file, because we need access to redux state

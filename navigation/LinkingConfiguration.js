@@ -11,36 +11,72 @@ const prefix = Linking.createURL('/');
 export default {
 	prefixes: [
 		prefix, 
-		"https://on.reelay.app/*", 
-		"https://invite.reelay.app/*"
+		"https://on.reelay.app", 
+		"https://invite.reelay.app"
 	],
 	config: {
+		// screens: {
+		// 	Authenticated: {
+		// 		screens: {
+		// 			Clubs: {
+		// 				screens: {
+		// 					ClubJoinFromLinkScreen: {
+		// 						path: "/clubInvite/:inviteCode",
+		// 						parse: {
+		// 							inviteCode: (inviteCode) => String(inviteCode),
+		// 						},
+		// 					}
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// }
 		screens: {
 			Authenticated: {
 				screens: {
-					FeedScreen: "FeedScreen",
-					SelectTitleScreen: "SelectTitleScreen",
-					ReelayCameraScreen: "ReelayCameraScreen",
-					ReelayUploadScreen: "ReelayUploadScreen",
-					VenueSelectScreen: "VenueSelectScreen",
-					MyProfileScreen: "MyProfileScreen",
-					ProfileSettingsScreen: "ProfileSettingsScreen",
-					NotificationSettingsScreen: "NotificationSettingsScreen",
-					TMDBCreditScreen: "TMDBCreditScreen",
-					ProfileFeedScreen: "ProfileFeedScreen",
-
-					// used in deeplinks
-					SingleReelayScreen: {
-						path: "/reelay/:reelaySub",
-						parse: {
-							reelaySub: (reelaySub) => String(reelaySub),
-						},
+					Home: {
+						screens: {
+							HomeScreen: 'HomeScreen',
+							// used in deeplinks
+							SingleReelayScreen: {
+								path: "/reelay/:reelaySub",
+								parse: {
+									reelaySub: (reelaySub) => String(reelaySub),
+								},
+							},
+						}
 					},
-					ClubJoinFromLinkScreen: {
-						path: "/clubInvite/:inviteCode",
-						parse: {
-							inviteCode: (inviteCode) => String(inviteCode),
-						},
+					Clubs: {
+						screens: {
+							ClubJoinFromLinkScreen: {
+								path: "/clubInvite/:inviteCode",
+								parse: {
+									inviteCode: (inviteCode) => String(inviteCode),
+								},
+							}
+						}
+					},
+					Create: {
+						screens: {
+							SelectTitleScreen: "SelectTitleScreen",
+							ReelayCameraScreen: "ReelayCameraScreen",
+							ReelayUploadScreen: "ReelayUploadScreen",
+							VenueSelectScreen: "VenueSelectScreen",
+						}
+					},
+					Global: {
+						screens: {
+							FeedScreen: "FeedScreen",
+						}
+					},
+					Profile: {
+						screens: {
+							MyProfileScreen: "MyProfileScreen",
+							ProfileSettingsScreen: "ProfileSettingsScreen",
+							NotificationSettingsScreen: "NotificationSettingsScreen",
+							TMDBCreditScreen: "TMDBCreditScreen",
+							ProfileFeedScreen: "ProfileFeedScreen",
+						}
 					}
 				},
 			},
