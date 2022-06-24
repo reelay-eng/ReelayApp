@@ -86,6 +86,7 @@ export default ClubJoinFromLinkScreen = ({ navigation, route }) => {
 
         console.log('club joining: ', clubJoining);
         console.log('added member: ', addMemberResult);
+        navigation.pop(); // to clear screen from stack so that we can't go back to it
         navigation.push('ClubActivityScreen', { 
             club: clubJoining,
             promptToInvite: false,
