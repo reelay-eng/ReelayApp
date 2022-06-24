@@ -17,8 +17,10 @@ import * as ReelayText from '../../components/global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
 import { useDispatch, useSelector } from 'react-redux';
+import { Auth } from 'aws-amplify';
 import { showErrorToast, showMessageToast } from '../utils/toasts';
 // import { deleteClub } from '../../api/ClubsApi';
+import { deleteAccount } from '../../api/ReelayDBApi';
 
 const { width } = Dimensions.get('window');
 
@@ -90,11 +92,13 @@ const PromptText = styled(ReelayText.Body2)`
 `
 
 export default DeleteAccountDrawer = ({ navigation, drawerVisible, setDrawerVisible }) => {
-    const { reelayDBUser } = useContext(AuthContext);
+    const { reelayDBUser, setReelayDBUserID } = useContext(AuthContext);
 
     const [deleting, setDeleting] = useState(false);
     const confirmDeleteText = useRef('');
     const closeDrawer = () => setDrawerVisible(false);
+    const dispatch = useDispatch();
+    const authSession = useSelector(state => state.authSession);
 
     const onChangeConfirmText = (text) => {
         confirmDeleteText.current = text;
@@ -122,17 +126,27 @@ export default DeleteAccountDrawer = ({ navigation, drawerVisible, setDrawerVisi
                     return;
                 }
                 setDeleting(true);
-                
-                // backend for deleting account
+                console.log("authsession:", authSession)
+                const deleteAccountResult = await deleteAccount(reelayDBUser.sub, authSession);
                 console.log("deleting...", reelayDBUser.username);
 
                 setDeleting(false);
-                // go to log out page:   navigate.navigate(...);
-                showMessageToast(`You\'ve deleted your account`);
-                return true;
+                console.log("delete account results: ",deleteAccountResult)
+
+                if (deleteAccountResult) {
+                    dispatch({ type: 'setSignedIn', payload: false });
+                    setReelayDBUserID(null);
+                    const deleteResult = await Auth.deleteUser();
+                    const signOutResult = await Auth.signOut();
+                    dispatch({ type: 'clearAuthSession', payload: {} });
+
+                    showMessageToast(`You\'ve deleted your account`);
+                    return deleteResult && signOutResult;
+                }
+                return deleteAccountResult;
             } catch (error) {
                 console.log(error);
-                showErrorToast('Ruh roh! Could not disband club. Try again?');
+                showErrorToast('Ruh roh! Could not delete account. Try again?');
                 setDeleting(false);
             }
         }
