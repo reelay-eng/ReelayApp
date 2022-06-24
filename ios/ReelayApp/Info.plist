@@ -11,7 +11,7 @@
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleName</key>
-		<string>$(PRODUCT_NAME)</string>
+		<string>Reelay</string>
 		<key>CFBundlePackageType</key>
 		<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 		<key>CFBundleSignature</key>
@@ -75,9 +75,9 @@
 		<string>ReelayApp</string>
 		<key>CFBundleAllowMixedLocalizations</key>
 		<true/>
-    <key>com.apple.developer.applesignin</key>
-    <array>
-      <string>Default</string>
-    </array>
+		<key>com.apple.developer.applesignin</key>
+		<array>
+			<string>Default</string>
+		</array>
 	</dict>
 </plist>
