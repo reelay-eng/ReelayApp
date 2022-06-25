@@ -1,7 +1,8 @@
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
-import { getReelay, prepareReelay } from "../api/ReelayDBApi";
+import { getReelay, getRegisteredUser, prepareReelay } from "../api/ReelayDBApi";
 import { getSingleTopic } from '../api/TopicsApi';
 import { fetchAnnotatedTitle } from '../api/TMDbApi';
+import { showErrorToast, showMessageToast } from '../components/utils/toasts';
 
 export const handlePushNotificationResponse = async ({ 
     myClubs,
@@ -30,21 +31,41 @@ export const handlePushNotificationResponse = async ({
             await openClubActivityScreen(navigation, data?.club?.id, myClubs);
             return;
         case 'openClubAtReelay':
+            const clubUserResult = await getRegisteredUser(data?.fromUser.sub);
+            if (clubUserResult.username === '[deleted]') {
+                showErrorToast("User doesn't exist!");
+                return;
+            }
             await openClubAtReelay(navigation, data?.reelaySub);
             return;
         case 'openCreateScreen':
             await openCreateScreen(navigation);
             return;
         case 'openSingleReelayScreen':
+            const reelayUserResult = await getRegisteredUser(data?.fromUser.sub);
+            if (reelayUserResult.username === '[deleted]') {
+                showErrorToast("User doesn't exist!");
+                return;
+            }
             await openSingleReelayScreen(navigation, data?.reelaySub);
             return;
         case 'openTitleScreen':
             await openTitleScreen(navigation, data?.titleObj);
             return;    
         case 'openTopicAtReelay':
+            const topicUserResult = await getRegisteredUser(data?.fromUser.sub);
+            if (topicUserResult.username === '[deleted]') {
+                showErrorToast("User doesn't exist!");
+                return;
+            }
             await openTopicAtReelay(navigation, data?.reelaySub);
             return;
         case 'openUserProfileScreen':
+            const userResult = await getRegisteredUser(data?.fromUser.sub);
+            if (userResult.username === '[deleted]') {
+                showErrorToast("User doesn't exist!");
+                return;
+            }
             await openUserProfileScreen(navigation, data?.fromUser);
             return;
         case 'openMyRecs':
@@ -65,8 +86,12 @@ const openClubActivityScreen = async (navigation, clubID, myClubs) => {
         console.log('No club ID given');
         return;
     }
-
     const club = myClubs.find(nextClub => nextClub.id === clubID);
+
+    if (!club) {
+        showErrorToast("Oops! This club does not exist!")
+        return;
+    }
     // allows us to navigate to the ClubActivityScreen
     // ...while returning to MyClubs on navigating back
     navigation.navigate('ClubActivityScreen', { club, promptToInvite: false });

@@ -5,7 +5,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import { AuthContext } from '../../context/AuthContext';
 import { Icon } from 'react-native-elements';
 
-import { followCreator, unfollowCreator } from '../../api/ReelayDBApi';
+import { followCreator, getRegisteredUser, getUserByUsername, unfollowCreator } from '../../api/ReelayDBApi';
 import { notifyCreatorOnFollow } from '../../api/NotificationsApi';
 
 import styled from 'styled-components/native';
@@ -13,6 +13,7 @@ import { Button } from '../global/Buttons';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { useDispatch, useSelector } from 'react-redux';
 import { v4 } from 'uuid';
+import { showErrorToast } from '../utils/toasts';
 
 const { width } = Dimensions.get('window');
 
@@ -44,6 +45,11 @@ export default FollowButton = ({ creator, bar=false, fancy=false, creatorFollows
 	const followOnPress = async () => {
 		if (showMeSignupIfGuest()) return;
 
+		const userResult = await getUserByUsername(creator?.username);
+		if (!userResult) {
+			showErrorToast("Could not follow. User doesn't exist!")
+			return;
+		}
 		// uuidv4 will be replaced by the real uuid next time the app loads
 		// this allows us to still use id as the list key in FollowResults
 		const followObj = {

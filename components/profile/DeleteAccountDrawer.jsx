@@ -126,12 +126,10 @@ export default DeleteAccountDrawer = ({ navigation, drawerVisible, setDrawerVisi
                     return;
                 }
                 setDeleting(true);
-                console.log("authsession:", authSession)
+                
                 const deleteAccountResult = await deleteAccount(reelayDBUser.sub, authSession);
-                console.log("deleting...", reelayDBUser.username);
 
                 setDeleting(false);
-                console.log("delete account results: ",deleteAccountResult)
 
                 if (deleteAccountResult) {
                     dispatch({ type: 'setSignedIn', payload: false });
