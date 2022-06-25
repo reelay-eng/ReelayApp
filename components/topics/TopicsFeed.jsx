@@ -21,19 +21,26 @@ const TopicsFeedContainer = styled(View)`
 `
 export default TopicsFeed = ({ 
     navigation, 
+    preloadedTopics,
     initTopicIndex, 
     initReelayIndex,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
 	const dispatch = useDispatch();
     const feedPager = useRef();
-    const globalTopicsWithReelays = useSelector(state => state.globalTopicsWithReelays);
-    const globalTopicStacks = globalTopicsWithReelays.map(topic => topic.reelays);
 
+    const globalTopicsWithReelays = useSelector(state => state.globalTopicsWithReelays);
+    const displayTopicsWithReelays = (!!preloadedTopics)
+        ? preloadedTopics.filter(topic => topic.reelays.length > 0)
+        : globalTopicsWithReelays;
+
+    const displayTopicStacks = displayTopicsWithReelays.map(topic => topic.reelays);
+    
     const [feedPosition, setFeedPosition] = useState(initTopicIndex);
     const [refreshing, setRefreshing] = useState(false);
 
     const onRefresh = async () => {
+        if (!!preloadedTopics) return;
         try {
             setRefreshing(true);
             const nextGlobalTopics = await getGlobalTopics({ page: 0 });
@@ -51,6 +58,7 @@ export default TopicsFeed = ({
 
     const extendFeed = () => {
         // todo
+        if (!!preloadedTopics) return;
     }
 
     const getItemLayout = (stack, index) => {
@@ -70,7 +78,7 @@ export default TopicsFeed = ({
                 navigation={navigation}
                 onRefresh={onRefresh}
                 stackViewable={stackViewable}
-                topic={globalTopicsWithReelays[index]}
+                topic={displayTopicsWithReelays[index]}
             />
         );
     }
@@ -82,8 +90,8 @@ export default TopicsFeed = ({
             const nextFeedPosition = y / height;
             const swipeDirection = nextFeedPosition < feedPosition ? 'up' : 'down';
             
-            const nextStack = globalTopicStacks[nextFeedPosition];
-            const prevStack = globalTopicStacks[feedPosition];
+            const nextStack = displayTopicStacks[nextFeedPosition];
+            const prevStack = displayTopicStacks[feedPosition];
 
             const logProperties = {
                 nextReelayTitle: nextStack[0].title.display,
@@ -99,10 +107,10 @@ export default TopicsFeed = ({
 
     return (
         <TopicsFeedContainer>
-            {globalTopicStacks.length < 1 && <ActivityIndicator />}
-            {globalTopicStacks.length >= 1 && (
+            {displayTopicStacks.length < 1 && <ActivityIndicator />}
+            {displayTopicStacks.length >= 1 && (
                 <FlatList
-                    data={globalTopicStacks}
+                    data={displayTopicStacks}
                     getItemLayout={getItemLayout}
                     horizontal={false}
                     initialNumToRender={1}
