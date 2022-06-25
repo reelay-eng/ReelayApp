@@ -167,6 +167,7 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, showFestivalsRow: action.payload }            
         case 'setTopics': 
             const { discoverNew, discoverPopular, followingNew } = action.payload;
+            console.log('setting topics: ', action.payload);
             myHomeContent = { ...state.myHomeContent };
             if (!myHomeContent.discover || !myHomeContent.following) {
                 console.log('Invalid home content. Cannot set topics');

@@ -28,15 +28,28 @@ const LeadingIconContainer = styled(Pressable)`
 
 export const toastConfig = {
     success: (props) => (
-        <BaseToast
-        {...props}
-        style={{ borderLeftColor: "pink" }}
-        contentContainerStyle={{ paddingHorizontal: 15 }}
-        text1NumberOfLines={3}
-        text1Style={{
-            fontSize: 15,
-            fontWeight: "400",
-        }}
+        <InfoToast
+            {...props}
+            
+            style={{ 
+                backgroundColor: "#04BD6C",
+                borderLeftColor: "transparent", 
+                borderRadius: 10, 
+                width: 351 
+            }}
+            text1NumberOfLines={3}
+            text1Style={{
+                color: "white",
+                fontFamily: "Outfit-Medium",
+                fontSize: 15,
+                fontStyle: "normal",
+                lineHeight: 20,
+                letterSpacing: 0.5,
+                textAlign: "left",
+            }}
+            text2Style={{
+                fontSize: 12,
+            }}
         />
     ),
     error: (props) => (

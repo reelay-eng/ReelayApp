@@ -21,6 +21,7 @@ const TopicsFeedContainer = styled(View)`
 `
 export default TopicsFeed = ({ 
     navigation, 
+    preloadedTopics,
     initTopicIndex, 
     initReelayIndex,
     source,
@@ -43,6 +44,9 @@ export default TopicsFeed = ({
         case 'followingNew':
             displayTopics = myHomeContent?.following?.newTopics;
             break;
+        case 'search':
+            displayTopics = preloadedTopics;
+            break;
         default:
             displayTopics = [];
             break;
@@ -51,11 +55,12 @@ export default TopicsFeed = ({
     const hasReelays = (topic) => topic?.reelays?.length > 0;
     const displayTopicsWithReelays = displayTopics.filter(hasReelays);
     const displayTopicStacks = displayTopicsWithReelays.map(topic => topic.reelays);
-
+        
     const [feedPosition, setFeedPosition] = useState(initTopicIndex);
     const [refreshing, setRefreshing] = useState(false);
 
     const onRefresh = async () => {
+        if (source === 'search') return;
         try {
             setRefreshing(true);
             const nextTopics = await getTopics({ 
@@ -81,6 +86,7 @@ export default TopicsFeed = ({
     });
 
     const extendFeed = async () => {
+        if (source === 'search') return;
         try {
             page.current += 1;
             const nextTopics = await getTopics({ 

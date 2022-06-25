@@ -136,7 +136,6 @@ const CardBottomRowWithStacks = ({ advanceToFeed, topic }) => {
 
     const getDisplayCreators = () => {
         // list up to five profile pics, first preference towards people you follow
-        console.log('topic reelays: ', topic.reelays);
         const uniqueCreatorEntries = topic.reelays.reduce((creatorEntries, nextReelay) => {
             const nextCreator = { 
                 sub: nextReelay?.creator?.sub,

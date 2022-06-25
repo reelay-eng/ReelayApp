@@ -84,12 +84,15 @@ export const getTopics = async ({ authSession, page = 0, reqUserSub, source = 'd
         },
     });
 
+    console.log('topics with reelays: ', topicsWithReelays?.length);
+
     const prepareTopicReelays = async (topic) => {
         topic.reelays = await Promise.all(topic.reelays.map(prepareReelay));
         return topic;
     }
 
     const preparedTopics = await Promise.all(topicsWithReelays.map(prepareTopicReelays));
+    console.log('prepared topics: ', preparedTopics?.length);
     return preparedTopics;
 }
 

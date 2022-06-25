@@ -177,7 +177,8 @@ export default TopicsListScreen = ({ navigation, route }) => {
         
             const advanceToFeed = () => {
                 if (!topic.reelays?.length) return;
-                navigation.push('TopicsFeedScreen', { initTopicIndex, source });
+                const feedSource = (searching) ? 'search' : source;
+                navigation.push('TopicsFeedScreen', { initTopicIndex, source: feedSource });
                 
                 logAmplitudeEventProd('openedTopic', {
                     clubID: null,

@@ -4,6 +4,8 @@ import AuthenticatedCommonStack from './AuthenticatedCommonStack';
 
 import AccountInfoScreen from '../screens/authenticated/AccountInfoScreen';
 import AdminReportedIssuesScreen from '../screens/authenticated/AdminReportedIssuesScreen';
+import DeleteAccountScreen from '../screens/authenticated/DeleteAccountScreen';
+import EditAccountScreen from '../screens/authenticated/EditAccountScreen';
 import GeneralSettingsScreen from '../screens/authenticated/GeneralSettingsScreen';
 import HomeScreen from '../screens/authenticated/HomeScreen';
 import MyClubsScreen from '../screens/authenticated/MyClubsScreen';
@@ -56,6 +58,8 @@ export const ProfileTabNavigator = () => {
 			<ProfileTabStack.Screen name="GeneralSettingsScreen" component={GeneralSettingsScreen} options={commonOptions} />
 			<ProfileTabStack.Screen name="NotificationSettingsScreen" component={NotificationSettingsScreen} options={commonOptions} />
 			<ProfileTabStack.Screen name="AccountInfoScreen" component={AccountInfoScreen} options={commonOptions} />
+			<ProfileTabStack.Screen name="DeleteAccountScreen" component={DeleteAccountScreen} options={commonOptions} />
+			<ProfileTabStack.Screen name="EditAccountScreen" component={EditAccountScreen} options={commonOptions} />
             <ProfileTabStack.Screen name="AdminReportedIssuesScreen" component={AdminReportedIssuesScreen} options={commonOptions} />
 		</AuthenticatedCommonStack>
 	);

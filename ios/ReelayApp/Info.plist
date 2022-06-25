@@ -11,7 +11,7 @@
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleName</key>
-		<string>$(PRODUCT_NAME)</string>
+		<string>Reelay</string>
 		<key>CFBundlePackageType</key>
 		<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 		<key>CFBundleSignature</key>
@@ -49,9 +49,9 @@
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
 		<key>NSMicrophoneUsageDescription</key>
-		<string>Allow Reelay to access your microphone</string>
+		<string>To record a Reelay, please allow access to your microphone</string>
 		<key>NSCameraUsageDescription</key>
-		<string>Allow Reelay to access your camera</string>
+		<string>To record a Reelay, please allow access to your camera</string>
 		<key>UIUserInterfaceStyle</key>
 		<string>Automatic</string>
 		<key>CFBundleURLTypes</key>
@@ -75,9 +75,9 @@
 		<string>ReelayApp</string>
 		<key>CFBundleAllowMixedLocalizations</key>
 		<true/>
-    <key>com.apple.developer.applesignin</key>
-    <array>
-      <string>Default</string>
-    </array>
+		<key>com.apple.developer.applesignin</key>
+		<array>
+			<string>Default</string>
+		</array>
 	</dict>
 </plist>
