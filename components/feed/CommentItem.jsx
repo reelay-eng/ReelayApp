@@ -3,22 +3,37 @@ import { Pressable, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { useDispatch, useSelector } from 'react-redux';
 import { isMentionPartType, parseValue } from 'react-native-controlled-mentions';
+import { Autolink } from "react-native-autolink";
+import * as Clipboard from 'expo-clipboard';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+
 import { postCommentLikeToDB, removeCommentLike } from '../../api/ReelayDBApi';
 
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import moment from 'moment';
 import * as ReelayText from '../global/Text';
-
-import { logAmplitudeEventProd } from '../utils/EventLogger';
 import ProfilePicture from '../global/ProfilePicture';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { showSuccessToast } from '../utils/toasts';
 
 const CommentTextStyled = styled(ReelayText.Body2)`
     color: white;
     padding-right: 10px;
     margin: 0px;
 `;
+const CommentTextPortion = styled(Autolink)`
+    font-family: Outfit-Regular;
+    font-size: 14px;
+    font-style: normal;
+    line-height: 20px;
+    letter-spacing: 0.25px;
+    text-align: left;
+
+    color: white;
+    padding-right: 10px;
+    margin: 0px;
+`;
+
 const CommentTimestampText = styled(ReelayText.Body2)`
     color: #86878b;
 `;
@@ -46,6 +61,7 @@ const CommentTextWithMentions = ({ comment, navigation }) => {
     const commentPartsWithMentions = parseValue(comment.content, [mentionFollowType]);
     const isMention = (part) => (part.partType && isMentionPartType(part.partType));
     const timestamp = moment(comment.postedAt).fromNow();
+    var commentText = "";
 
     const advanceToMentionProfile = (mentionData) => {
         const mentionUser = {
@@ -58,6 +74,7 @@ const CommentTextWithMentions = ({ comment, navigation }) => {
     }
 
     const renderCommentPart = (commentPart, index) => {
+        commentText += commentPart.text;
         if (isMention(commentPart)) {
             return (
                 <MentionButton key={index} onPress={() => advanceToMentionProfile(commentPart.data)}>
@@ -67,20 +84,25 @@ const CommentTextWithMentions = ({ comment, navigation }) => {
         }
 
         return (
-            <CommentTextStyled key={index}>
-                {commentPart.text}
-            </CommentTextStyled>
+            <CommentTextPortion key={index} text={commentPart.text} linkStyle={{ color: ReelayColors.reelayBlue }} url />
         );
+    } 
+    
+    const copyToClipboard = () => {
+        Clipboard.setString(commentText);
+        showSuccessToast('Comment successfully copied!')
     }
 
     return (
         <React.Fragment>
-            <CommentTextStyled>
-                { commentPartsWithMentions.parts.map(renderCommentPart) }
-                <CommentTimestampText>
-                    {`  ${timestamp}`}
-                </CommentTimestampText>
-            </CommentTextStyled>
+            <Pressable onLongPress={copyToClipboard}>
+                <CommentTextStyled>
+                    { commentPartsWithMentions.parts.map(renderCommentPart) }
+                    <CommentTimestampText>
+                        {`  ${timestamp}`}
+                    </CommentTimestampText>
+                </CommentTextStyled>
+            </Pressable>
         </React.Fragment>
     )
 }
