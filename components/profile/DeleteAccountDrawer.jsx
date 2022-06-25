@@ -16,10 +16,10 @@ import { AuthContext } from '../../context/AuthContext';
 import * as ReelayText from '../../components/global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { useDispatch, useSelector } from 'react-redux';
 import { Auth } from 'aws-amplify';
 import { showErrorToast, showMessageToast } from '../utils/toasts';
-// import { deleteClub } from '../../api/ClubsApi';
 import { deleteAccount } from '../../api/ReelayDBApi';
 
 const { width } = Dimensions.get('window');
@@ -126,7 +126,7 @@ export default DeleteAccountDrawer = ({ navigation, drawerVisible, setDrawerVisi
                     return;
                 }
                 setDeleting(true);
-                
+
                 const deleteAccountResult = await deleteAccount(reelayDBUser.sub, authSession);
 
                 setDeleting(false);
@@ -141,9 +141,20 @@ export default DeleteAccountDrawer = ({ navigation, drawerVisible, setDrawerVisi
                     showMessageToast(`You\'ve deleted your account`);
                     return deleteResult && signOutResult;
                 }
+
+                logAmplitudeEventProd('accountDeleted', {
+                    userSub: reelayDBUser?.sub,
+                    username: reelayDBUser?.username,
+                });
+
                 return deleteAccountResult;
             } catch (error) {
                 console.log(error);
+                logAmplitudeEventProd('deleteAccountError', {
+                    error: error,
+                    userSub: reelayDBUser?.sub,
+                    username: reelayDBUser?.username,
+                });
                 showErrorToast('Ruh roh! Could not delete account. Try again?');
                 setDeleting(false);
             }

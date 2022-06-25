@@ -10,7 +10,6 @@ import styled from "styled-components/native";
 import * as ReelayText from "../global/Text";
 import { HeaderWithBackButton } from "../global/Headers";
 import ReelayColors from '../../constants/ReelayColors';
-import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { useDispatch } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import DeleteAccountDrawer from "./DeleteAccountDrawer";

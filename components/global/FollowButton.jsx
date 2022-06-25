@@ -1,11 +1,10 @@
 import React, { useContext } from 'react';
 import { Dimensions, View } from 'react-native';
-import * as ReelayText from '../global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 import { AuthContext } from '../../context/AuthContext';
 import { Icon } from 'react-native-elements';
 
-import { followCreator, getRegisteredUser, getUserByUsername, unfollowCreator } from '../../api/ReelayDBApi';
+import { followCreator, getRegisteredUser, unfollowCreator } from '../../api/ReelayDBApi';
 import { notifyCreatorOnFollow } from '../../api/NotificationsApi';
 
 import styled from 'styled-components/native';
@@ -45,8 +44,8 @@ export default FollowButton = ({ creator, bar=false, fancy=false, creatorFollows
 	const followOnPress = async () => {
 		if (showMeSignupIfGuest()) return;
 
-		const userResult = await getUserByUsername(creator?.username);
-		if (!userResult) {
+		const userResult = await getRegisteredUser(creator?.sub);
+		if (userResult.username === '[deleted]') {
 			showErrorToast("Could not follow. User doesn't exist!")
 			return;
 		}
