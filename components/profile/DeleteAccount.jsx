@@ -21,9 +21,11 @@ const AlignmentContainer = styled(View)`
     justify-content: space-between;
     width: 100%;
 `
-const DeleteInfoText = styled(ReelayText.Body2)`
+const DeleteInfoText = styled(ReelayText.H6)`
     color: white;
     margin-left: 10px;
+    margin-bottom: 10px;
+    font-size: 16px;
     text-align: left;
 `
 const DeleteInfoContainer = styled(View)`
@@ -128,6 +130,7 @@ const ProfilePicWithInfo = ({user}) => {
     const SectionTitleText = styled(ReelayText.Subtitle1Emphasized)`
         align-self: center;
         color: white;
+        font-size: 20px;
     `;
 
 	return (
@@ -142,10 +145,16 @@ const ProfilePicWithInfo = ({user}) => {
 
             <DeleteInfoContainer>
                 <DeleteInfoText>
-                    {"- This action is permanent!"}
+                    {"Careful! This action is irreversible."}
                 </DeleteInfoText>
                 <DeleteInfoText>
-                    {"- All reelays and clubs you own will be deleted."}
+                    {"All your reelays, comments, likes, follows, and other personal information will be permanently deleted from our records."}
+                </DeleteInfoText>
+                <DeleteInfoText>
+                    {"Posts by others in your clubs and topics will not be deleted."}
+                </DeleteInfoText>
+                <DeleteInfoText>
+                    {"You will be missed, but safely forgotten."}
                 </DeleteInfoText>
             </DeleteInfoContainer>
         </>
@@ -160,7 +169,7 @@ const DeleteButton = ({ setDeleteAccountDrawerVisible }) => {
     return (
         <ButtonContainer>
             <Button
-                text={"Delete"}
+                text={"Continue"}
                 onPress={deleteOnPress}
                 backgroundColor={ReelayColors.reelayRed}
                 fontColor="white"

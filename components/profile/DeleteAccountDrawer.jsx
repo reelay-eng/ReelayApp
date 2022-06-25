@@ -88,7 +88,7 @@ const PromptText = styled(ReelayText.Body2)`
     margin-left: 32px;
     margin-right: 32px;
     color: white;
-    text-align: center;
+    text-align: left;
 `
 
 export default DeleteAccountDrawer = ({ navigation, drawerVisible, setDrawerVisible }) => {
