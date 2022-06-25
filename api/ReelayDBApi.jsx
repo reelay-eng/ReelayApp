@@ -19,6 +19,19 @@ export const followCreator = async (creatorSub, followerSub) => {
     return followResult;
 }
 
+export const deleteAccount = async (userSub, authSession) => {
+    const routeDelete = `${REELAY_API_BASE_URL}/users/sub/${userSub}`;
+    console.log(routeDelete);
+    const deleteAccountResult = await fetchResults(routeDelete, {
+        method: "DELETE",
+        headers: {
+            requsersub: userSub,
+            ...getReelayAuthHeaders(authSession),
+        }
+    });
+    return deleteAccountResult;
+}
+
 export const acceptFollowRequest = async (creatorSub, followerSub) => {
     const routePost = `${REELAY_API_BASE_URL}/follows/accept?creatorSub=${creatorSub}&followerSub=${followerSub}`;
     console.log(routePost);
