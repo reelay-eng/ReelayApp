@@ -12,11 +12,11 @@ import { useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import * as Clipboard from 'expo-clipboard';
 
+const REELAY_WEB_PREFIX = `http://reelay.app`;
+
 export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) => {
     const authSession = useSelector(state => state.authSession);
     const creatorName = creator.username ?? 'User not found';
-
-    const [profileLink, setProfileLink] = useState(null);
 
     const HeadingText = styled(ReelayText.H6Emphasized)`
         color: white;
@@ -81,7 +81,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
                     showErrorToast("There was an error creating this profile link. Please try again.");
                 }
                 else {
-                    const profilePublicURL = profileLink?.deeplinkURI; // TODO: change to HTTPS url
+                    const profilePublicURL = `${REELAY_WEB_PREFIX}/profile/${profileLink?.inviteCode}`;
                     Clipboard.setString(profilePublicURL);
                     showMessageToast('Profile link copied to clipboard');
                 }
