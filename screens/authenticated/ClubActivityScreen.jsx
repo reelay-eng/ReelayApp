@@ -263,7 +263,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 { showProgressBar && (
                     <UploadProgressBar clubID={club.id} mountLocation={'InClub'} onRefresh={onRefresh} />
                 )}
-                { (!refreshing && !club?.titles?.length) && <NoTitlesYetPrompt /> } 
+                { (!refreshing && !club?.titles?.length && !club?.topics?.length) && <NoTitlesYetPrompt /> } 
                 { (clubActivities?.length > 0 ) && clubActivities?.map((activity) => {
                     return <ClubActivity key={activity.id} activity={activity} /> 
                 })}

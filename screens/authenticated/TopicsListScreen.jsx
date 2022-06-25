@@ -149,12 +149,13 @@ export default TopicsListScreen = ({ navigation }) => {
     const TopicScroll = () => {
         const renderTopic = (topic, index) => {
             const matchTopic = (nextTopic) => (nextTopic.id === topic.id);
-            const topicFeedIndex = globalTopicsWithReelays.findIndex(matchTopic);
+            const topicFeedIndex = displayTopics.findIndex(matchTopic);
         
             const advanceToFeed = () => {
                 if (!topic.reelays?.length) return;
                 navigation.push('TopicsFeedScreen', { 
                     initTopicIndex: topicFeedIndex,
+                    preloadedTopics: displayTopics,
                 });
                 
                 logAmplitudeEventProd('openedTopic', {
