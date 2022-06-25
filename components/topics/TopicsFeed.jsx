@@ -27,23 +27,21 @@ export default TopicsFeed = ({
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
+    const myHomeContent = useSelector(state => state.myHomeContent);
     const page = useRef(0);
 	const dispatch = useDispatch();
     const feedPager = useRef();
 
-    const myDiscoverContent = useSelector(state => state.myDiscoverContent);
-    const myFollowingContent = useSelector(state => state.myFollowingContent);
-
     let displayTopics;
     switch (source) {
         case 'discoverNew':
-            displayTopics = myDiscoverContent?.newTopics;
+            displayTopics = myHomeContent?.discover?.newTopics;
             break;
         case 'discoverPopular':
-            displayTopics = myDiscoverContent?.popularTopics;
+            displayTopics = myHomeContent?.discover?.popularTopics;
             break;
         case 'followingNew':
-            displayTopics = myFollowingContent?.newTopics;
+            displayTopics = myHomeContent?.following?.newTopics;
             break;
         default:
             displayTopics = [];

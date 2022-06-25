@@ -86,7 +86,7 @@ export default AtFestivals = ({ navigation }) => {
 }
 
 const FestivalReelaysRow = ({ navigation }) => {
-    const festivalStacks = useSelector(state => state.myDiscoverContent?.festivals);
+    const festivalStacks = useSelector(state => state.myHomeContent?.discover?.festivals);
 
     return (
         <Fragment>

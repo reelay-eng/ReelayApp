@@ -40,8 +40,7 @@ import {
     getStacksByCreator, 
     getStreamingSubscriptions,
     getLatestAnnouncement,
-    getDiscoverContent,
-    getFollowingContent, 
+    getHomeContent,
 } from './api/ReelayDBApi';
 import { getAllMyNotifications } from './api/NotificationsApi';
 import { getWatchlistItems } from './api/WatchlistApi';
@@ -249,8 +248,7 @@ function App() {
             donateLinksLoaded,
             globalTopics,
             latestAnnouncement,
-            myDiscoverContent,
-            myFollowingContent,
+            myHomeContent,
 
             myDismissalHistory,
             myCreatorStacksLoaded,
@@ -258,13 +256,11 @@ function App() {
             myNotificationsLoaded,
             myWatchlistItemsLoaded,
             reelayDBUserLoaded,
-
         ] = await Promise.all([
             getAllDonateLinks(),
             getGlobalTopics({ reqUserSub, page: 0 }),
             getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
-            getDiscoverContent({ authSession, reqUserSub }),
-            getFollowingContent({ authSession, reqUserSub }),
+            getHomeContent({ authSession, reqUserSub }),
 
             getDismissalHistory(),
             getStacksByCreator(userSub),
@@ -279,9 +275,9 @@ function App() {
         dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
         dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
 
-        const myClubs = myFollowingContent?.subscribed?.myClubs;
-        const myFollowing = myFollowingContent?.subscribed?.myFollowing;
-        const myStreamingSubscriptions = myFollowingContent?.subscribed?.myStreamingSubscriptions;
+        const myClubs = myHomeContent?.clubs;
+        const myProfile = myHomeContent?.profile;
+        const { myFollowing, myStreamingSubscriptions } = myProfile;
 
         dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
         dispatch({ type: 'setMyFollowing', payload: myFollowing });
@@ -295,8 +291,7 @@ function App() {
         dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
 
         // home
-        dispatch({ type: 'setMyDiscoverContent', payload: myDiscoverContent });
-        dispatch({ type: 'setMyFollowingContent', payload: myFollowingContent });
+        dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
         dispatch({ type: 'setGlobalTopics', payload: globalTopics });
 
         dispatch({ type: 'setIsLoading', payload: false });

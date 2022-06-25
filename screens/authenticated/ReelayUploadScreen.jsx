@@ -118,8 +118,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const myClubs = useSelector(state => state.myClubs);
 
     // get the topic we're (optionally) posting in
-    const discoverNewTopics = useSelector(state => state.myDiscoverContent?.newTopics);
-    const discoverPopularTopics = useSelector(state => state.myDiscoverContent?.newTopics);
+    const discoverNewTopics = useSelector(state => state.myHomeContent?.discover?.newTopics);
+    const discoverPopularTopics = useSelector(state => state.myHomeContent?.discover?.newTopics);
 
     let discoverTopics = [discoverNewTopics, discoverPopularTopics];
     const isNotDuplicate = (topic, index) => (index === discoverTopics.findIndex(nextTopic => nextTopic?.id === topic?.id));

@@ -117,7 +117,7 @@ export default function CreateTopicScreen({ navigation, route }) {
 
     const club = route?.params?.club;
     const authSession = useSelector(state => state.authSession);
-    const myDiscoverContent = useSelector(state => state.myDiscoverContent);
+    const myHomeContent = useSelector(state => state.myHomeContent);
 
     const refreshClubTopics = async () => {
         if (!club) return;
@@ -207,7 +207,7 @@ export default function CreateTopicScreen({ navigation, route }) {
                     dispatch({ type: 'setUpdatedClub', payload: club });
                 } else {
                     dispatch({ type: 'setTopics', payload: {
-                        discoverNew: [publishResult, ...myDiscoverContent?.newTopics]
+                        discoverNew: [publishResult, ...myHomeContent?.discover?.newTopics]
                     }});
                 }
                 showMessageToast('Topic created!');

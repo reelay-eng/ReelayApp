@@ -35,8 +35,7 @@ const initialState = {
     latestNotice: null,
     latestNoticeDismissed: false,
     latestNoticeSkipped: false,
-    myDiscoverContent: {},
-    myFollowingContent: {},
+    myHomeContent: {},
     myDismissalHistory: {},
     showFestivalsRow: false,
     topics: {},
@@ -149,55 +148,34 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, latestNoticeDismissed: action.payload }
         case 'setLatestNoticeSkipped':
             return { ...state, latestNoticeSkipped: action.payload }
-        case 'setMyDiscoverContent':
-            // let myDiscoverContent = action.payload;
-            // const myStreamingStacks = stacksOnStreamingReducer({
-            //     stacksOnStreaming: myDiscoverContent?.streaming,
-            //     streamingSubscriptions: state?.myStreamingSubscriptions,
-            // });
-            // myDiscoverContent.streaming = myStreamingStacks;
-            console.log('my discover content: ', Object.keys(action.payload));
-            console.log('new topics: ', action.payload.newTopics?.length);
-            console.log('popular topics: ', action.payload.popularTopics?.length);
-            console.log('top of the week: ', action.payload.topOfTheWeek?.length);
-            return { ...state, myDiscoverContent: action.payload }    
-        case 'setMyFollowingContent':
-            console.log('my following content: ', Object.keys(action.payload));
-            return { ...state, myFollowingContent: action.payload }
+        case 'setMyHomeContent':
+            return { ...state, myHomeContent: action.payload }    
         case 'setMyDismissalHistory':
             return { ...state, myDismissalHistory: action.payload }
-        // case 'setMyStacksOnStreaming':
-        //     const myStacksOnStreaming = stacksOnStreamingReducer({
-        //         stacksOnStreaming: action.payload, 
-        //         streamingSubscriptions: state.myStreamingSubscriptions,
-        //     });
-        //     myDiscoverContent = {
-        //         ...state.myDiscoverContent,
-        //         streaming: myStacksOnStreaming,
-        //     };
-        //     return { ...state, myDiscoverContent }
         case 'setStreamingStacks':
-            let myFollowingContent = state.myFollowingContent;
-            let myDiscoverContent = state.myDiscoverContent;
-            const { discover, following } = action.payload;
-            if (discover) myDiscoverContent.streaming = discover;
-            if (following) myFollowingContent.streaming = following;
-            return { ...state, myFollowingContent, myDiscoverContent };
+            let myHomeContent =  { ...state.myHomeContent };
+            if (!myHomeContent.discover || !myHomeContent.following) {
+                console.log('Invalid home content. Cannot set streaming stacks');
+                return state;
+            }
+
+            const { nextDiscover, nextFollowing } = action.payload;
+            if (nextDiscover) myHomeContent.discover.streaming = nextDiscover;
+            if (nextFollowing) myHomeContent.following.streaming = nextFollowing;
+            return { ...state, myHomeContent };
         case 'setShowFestivalsRow':
             return { ...state, showFestivalsRow: action.payload }            
         case 'setTopics': 
             const { discoverNew, discoverPopular, followingNew } = action.payload;
-            const nextDiscoverContent = state.myDiscoverContent;
-            const nextFollowingContent = state.myFollowingContent;
-
-            if (discoverNew) nextDiscoverContent.newTopics = discoverNew;
-            if (discoverPopular) nextDiscoverContent.popularTopics = discoverPopular;
-            if (followingNew) nextFollowingContent.newTopics = followingNew;
-            return { 
-                ...state, 
-                myDiscoverContent: nextDiscoverContent, 
-                myFollowingContent: nextFollowingContent 
-            };
+            myHomeContent = { ...state.myHomeContent };
+            if (!myHomeContent.discover || !myHomeContent.following) {
+                console.log('Invalid home content. Cannot set topics');
+                return state;
+            }
+            if (discoverNew) myHomeContent.discover.newTopics = discoverNew;
+            if (discoverPopular) myHomeContent.discover.popularTopics = discoverPopular;
+            if (followingNew) myHomeContent.following.newTopics = followingNew;
+            return { ...state, myHomeContent };
 
         // ON REELAYS
         case 'setCommentsVisible':
@@ -288,14 +266,13 @@ export const mapStateToProps = (state) => ({
     latestNotice: state.latestNotice,
     latestNoticeDismissed: state.latestNoticeDismissed,
     latestNoticeSkipped: state.latestNoticeSkipped,
-    myDiscoverContent: state.myDiscoverContent,
-    myFollowingContent: state.myFollowingContent,
+    myHomeContent: state.myHomeContent,
     myDismissalHistory: state.myDismissalHistory,
     showFestivalsRow: state.showFestivalsRow,
     topics: {
-        discoverNew: state.myDiscoverContent?.newTopics,
-        discoverPopular: state.myDiscoverContent?.popularTopics,
-        followingNew: state.myFollowingContent?.newTopics
+        discoverNew: state.myHomeContent?.discover?.newTopics,
+        discoverPopular: state.myHomeContent?.discover?.popularTopics,
+        followingNew: state.myHomeContent?.following?.newTopics
     },
 
     // ON REELAYS

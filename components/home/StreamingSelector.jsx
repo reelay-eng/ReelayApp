@@ -124,8 +124,8 @@ const IconOptions = ({ setRefreshing }) => {
         });
 
         const payload = { 
-            discover: myStreamingStacksDiscover, 
-            following: myStreamingStacksFollowing,
+            nextDiscover: myStreamingStacksDiscover, 
+            nextFollowing: myStreamingStacksFollowing,
         };
         dispatch({ type: 'setStreamingStacks', payload });
         setRefreshing(false);

@@ -10,7 +10,7 @@ import TopicsCarousel from '../topics/TopicsCarousel';
 import OnStreaming from './OnStreaming';
 import PeopleToFollow from './PeopleToFollow';
 
-import { getDiscoverContent, getFollowing, getFollowingContent, getLatestAnnouncement, getStreamingSubscriptions } from '../../api/ReelayDBApi';
+import { getFollowing, getHomeContent, getLatestAnnouncement, getStreamingSubscriptions } from '../../api/ReelayDBApi';
 import { getAllMyNotifications } from '../../api/NotificationsApi';
 import { AuthContext } from '../../context/AuthContext';
 
@@ -81,25 +81,22 @@ const HomeComponent = ({ navigation }) => {
         const reqUserSub = reelayDBUser?.sub;
         const [
             latestAnnouncement,
-            myDiscoverContent,
-            myFollowingContent,
+            myHomeContent,
             myFollowingLoaded,
             myNotifications,
         ] = await Promise.all([
             getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
-            getDiscoverContent({ authSession, reqUserSub }),
-            getFollowingContent({ authSession, reqUserSub }),
+            getHomeContent({ authSession, reqUserSub }),
             getFollowing(reelayDBUser?.sub),
             getAllMyNotifications(reelayDBUser?.sub),
         ]);
 
-        const myClubs = myFollowingContent?.subscribed?.myClubs;
-        const myFollowing = myFollowingContent?.subscribed?.myFollowing;
-        const myStreamingSubscriptions = myFollowingContent?.subscribed?.myStreamingSubscriptions;
+        const myClubs = myHomeContent?.clubs;
+        const myFollowing = myHomeContent?.profile?.myFollowing;
+        const myStreamingSubscriptions = myHomeContent?.profile?.myStreamingSubscriptions;
         
         dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
-        dispatch({ type: 'setMyDiscoverContent', payload: myDiscoverContent });
-        dispatch({ type: 'setMyFollowingContent', payload: myFollowingContent });
+        dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
         dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
         dispatch({ type: 'setMyNotifications', payload: myNotifications });
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });

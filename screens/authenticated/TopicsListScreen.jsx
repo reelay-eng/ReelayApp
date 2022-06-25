@@ -109,22 +109,21 @@ export default TopicsListScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
 
-    const myDiscoverContent = useSelector(state => state.myDiscoverContent);
-    const myFollowingContent = useSelector(state => state.myFollowingContent);
+    const myHomeContent = useSelector(state => state.myHomeContent);
 
     let initDisplayTopics;
     let headerText;
     switch (source) {
         case 'discoverNew':
-            initDisplayTopics = myDiscoverContent?.newTopics;
+            initDisplayTopics = myHomeContent?.discover?.newTopics;
             headerText = 'New topics';
             break;
         case 'discoverPopular':
-            initDisplayTopics = myDiscoverContent?.popularTopics;
+            initDisplayTopics = myHomeContent?.discover?.popularTopics;
             headerText = 'Popular topics';
             break;
         case 'followingNew':
-            initDisplayTopics = myFollowingContent?.newTopics;
+            initDisplayTopics = myHomeContent?.following?.newTopics;
             headerText = 'New topics from your friends';
             break;
         default:

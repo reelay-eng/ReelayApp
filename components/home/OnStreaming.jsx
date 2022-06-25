@@ -81,8 +81,8 @@ const DrawerContainer = styled(View)`
 export default OnStreaming = ({ navigation, source = 'discover' }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const [refreshing, setRefreshing] = useState(false);
-    const myDiscoverStreamingStacks = useSelector(state => state.myDiscoverContent?.streaming);
-    const myFollowingStreamingStacks = useSelector(state => state.myFollowingContent?.streaming);
+    const myDiscoverStreamingStacks = useSelector(state => state.myHomeContent?.discover?.streaming);
+    const myFollowingStreamingStacks = useSelector(state => state.myHomeContent?.following?.streaming);
     const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
     const myStreamingStacks = (source === 'discover') ? myDiscoverStreamingStacks : myFollowingStreamingStacks;
 

@@ -66,9 +66,9 @@ export default TopicsCarousel = ({ navigation, source = 'discoverNew' }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const curTopicIndex = useRef(0);
 
-    const followingNewTopics = useSelector(state => state.myFollowingContent?.newTopics);
-    const discoverNewTopics = useSelector(state => state.myDiscoverContent?.newTopics);
-    const discoverPopularTopics = useSelector(state => state.myDiscoverContent?.popularTopics);
+    const followingNewTopics = useSelector(state => state.myHomeContent?.following?.newTopics);
+    const discoverNewTopics = useSelector(state => state.myHomeContent?.discover?.newTopics);
+    const discoverPopularTopics = useSelector(state => state.myHomeContent?.discover?.popularTopics);
 
     let displayTopics = [];
     let headerText = 'Topics';
