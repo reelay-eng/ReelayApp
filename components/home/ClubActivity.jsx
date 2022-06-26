@@ -1,13 +1,8 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { Dimensions, Pressable, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Pressable, View } from 'react-native';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
-import { useSelector } from 'react-redux';
-import ProfilePicture from '../global/ProfilePicture';
-
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faAsterisk, faCertificate, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import ClubPicture from '../global/ClubPicture';
 import { VenueIcon } from '../utils/VenueIcon';
 
@@ -71,7 +66,6 @@ const YearVenueContainer = styled(View)`
 `
 
 export default ClubActivity = ({ navigation, activity }) => {
-
     const { activityType, title, reelays } = activity;
     const displayTitle = (title?.display) ? title.display : 'Title not found'; 
 	const displayYear = (title?.releaseYear) ? title.releaseYear : '';

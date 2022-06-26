@@ -413,6 +413,14 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
             prepareTitlesAndTopics(titles),
             prepareTitlesAndTopics(topics),
         ]);
+        for (const title of preparedTitles) {
+            const { tmdbTitleID, titleType } = title;
+            const annotatedTitle = await fetchAnnotatedTitle(tmdbTitleID, titleType === 'tv');
+            title.title = annotatedTitle;
+        }
+        for (const topic of preparedTopics) {
+            topic.activityType = 'topic';
+        }
         return { ...club, titles: preparedTitles, topics: preparedTopics };    
     };
 
