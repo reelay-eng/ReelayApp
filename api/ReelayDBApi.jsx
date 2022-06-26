@@ -194,7 +194,7 @@ export const getReportedReelayStacks = async () => {
         headers: ReelayAPIHeaders,
     });
 
-    const preparedReportedStacks = await prepareStacks(fetchedReportedStacks);
+    const preparedReportedStacks = await prepareFeed(fetchedReportedStacks);
     return preparedReportedStacks;
 }
 
@@ -302,14 +302,6 @@ export const getStreamingSubscriptions = async (userSub) => {
     return resultGet;
 }
 
-export const getStacksByVenue = async ( venues, page = 0) => {
-    const venueReelays = await getReelaysByVenue(venues, page);
-    if (!venueReelays) return [];
-
-    const preparedStacks = await prepareStacks(venueReelays);
-    return preparedStacks;
-}
-
 export const getStacksByCreator = async (creatorSub) => {
     console.log('Getting stacks by creator');
     const creatorReelays = await getReelaysByCreator(creatorSub);
@@ -337,20 +329,20 @@ export const getStacksByCreator = async (creatorSub) => {
 }
 
 // call prepareReelay on every reelay in every stack
-const prepareStacks = async (fetchedStacks) => {
-    const prepareStack = async (stack) => {
-        // console.log('fetched stack: ', stack.length, Object.keys(stack));
-        return await Promise.all(stack.map(prepareReelay));
+const prepareFeed = async (fetchedStacks) => {
+    const preparedStacks = [];
+    for (const fetchedStack of fetchedStacks) {
+        const preparedStack = await Promise.all(fetchedStack.map(prepareReelay));
+        preparedStacks.push(preparedStack);
     }
-    return await Promise.all(fetchedStacks.map(prepareStack));
+    return preparedStacks;
 }
 
 const prepareTitlesAndTopics = async (titlesAndTopics) => {
-    const prepareTitleOrTopic = async (titleOrTopic) => {
+    for (const titleOrTopic of titlesAndTopics) {
         titleOrTopic.reelays = await Promise.all(titleOrTopic.reelays.map(prepareReelay));
-        return titleOrTopic;
     }
-    return await Promise.all(titlesAndTopics.map(prepareTitleOrTopic));
+    return titlesAndTopics;
 }
 
 export const getCommentLikesForReelay = async (reelaySub, reqUserSub) => {
@@ -387,8 +379,6 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
     ];
 
     const titleAndTopicContentTypes = [
-        'clubTitles', 
-        'clubTopics', 
         'newTopics', 
         'popularTopics',
     ]
@@ -404,38 +394,44 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
         return null;
     }
 
-    const prepareReelayContent = async (content, key='none') => {
-        const isTitleOrTopic = titleAndTopicContentTypes.includes(key);
-        if (isTitleOrTopic) {
-            const titlesAndTopics = await prepareTitlesAndTopics(content);
-            console.log('titles and topics', titlesAndTopics);
-            return titlesAndTopics;
-        } else {
-            return await prepareStacks(content);
-        }
-    }
+    // const prepareAllClubs = async () => await Promise.all(
+    //     clubs.map(prepareClubReelays)
+    // );
 
-    const prepareAllClubs = async () => await Promise.all(
-        clubs.map(prepareClubReelays)
-    );
+    const prepareAllClubs = async () => {
+        const preparedClubs = [];
+        for (const club of clubs) {
+            const preparedClub = await prepareClubReelays(club);
+            preparedClubs.push(preparedClub);
+        }
+        return preparedClubs;
+    }
 
     const prepareClubReelays = async (club) => {
         const { titles, topics } = club;
         const [preparedTitles, preparedTopics] = await Promise.all([
-            prepareReelayContent(titles, 'clubTitles'),
-            prepareReelayContent(topics, 'clubTopics'),
+            prepareTitlesAndTopics(titles),
+            prepareTitlesAndTopics(topics),
         ]);
         return { ...club, titles: preparedTitles, topics: preparedTopics };    
     };
 
     const prepareHomeTabReelays = async (homeTab) => {
-        const prepareContentForKey = async (contentKey) => {
+        const contentKeys = Object.keys(homeTab);
+        const prepareHomeContentForKey = async (contentKey) => {
+            const isTitlesOrTopics = titleAndTopicContentTypes.includes(contentKey);
             const mustPrepareReelays = reelayContentTypes.includes(contentKey);
-            if (mustPrepareReelays) {
-                homeTab[contentKey] = await prepareReelayContent(homeTab[contentKey], contentKey);
+    
+            if (isTitlesOrTopics) {
+                homeTab[contentKey] = await prepareTitlesAndTopics(homeTab[contentKey]);
+            } else if (mustPrepareReelays) {
+                homeTab[contentKey] = await prepareFeed(homeTab[contentKey]);
+            } else {
+                // change nothing
             }
         }
-        await Promise.all(Object.keys(homeTab).map(prepareContentForKey));
+
+        await Promise.all(contentKeys.map(prepareHomeContentForKey));
         return homeTab;
     }
 
@@ -447,11 +443,11 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
     ] = await Promise.all([
         prepareHomeTabReelays(discover),
         prepareHomeTabReelays(following),
-        prepareReelayContent(global, 'global'),
+        prepareFeed(global),
         prepareAllClubs(),
     ]);
 
-    console.log('prepared home screen: ');
+    // console.log('prepared home screen: ');
     // console.log('discover popular: ', discoverPrepared?.popularTitles);
     // console.log('following popular: ', followingPrepared?.popularTitles);
     // console.log('following most recent: ', followingPrepared?.mostRecent);
@@ -483,7 +479,7 @@ export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
         console.log('Found no reelays in feed');
         return null;
     }
-    return await prepareStacks(fetchedStacks);
+    return await prepareFeed(fetchedStacks);
 }
 
 export const getMostRecentReelaysByTitle = async (tmdbTitleID, page = 0) => {

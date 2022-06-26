@@ -61,7 +61,6 @@ export default Navigation = () => {
 
     const handleDeepLink = async (event) => {
         const deeplinkURL = Linking.parse(event.url);
-        console.log('event from URL: ', event);
         if (deeplinkURL) {
             setDeeplinkURL(deeplinkURL);
         }
