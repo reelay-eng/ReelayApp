@@ -106,7 +106,7 @@ export default PosterWithTrailer = ({
 	genres,
 	releaseYear,
 	runtime,
-	isMovie,
+	isSeries,
 }) => {
 	const PosterContainer = styled(View)`
 		height: ${height}px;
@@ -145,7 +145,7 @@ export default PosterWithTrailer = ({
 		return (
 			<TaglineContainer>
 				<TaglineTextContainer>
-					<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}    {isMovie ? runtimeString : null} </TaglineText>
+					<TaglineText>{ReducedGenres?.map((e) => e.name).join(", ")}    {releaseYear}    {isSeries ? null : runtimeString} </TaglineText>
 				</TaglineTextContainer>
 			</TaglineContainer>
 		);

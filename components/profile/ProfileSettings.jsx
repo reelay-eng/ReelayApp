@@ -30,12 +30,6 @@ export const ProfileSettings = ({navigation}) => {
         align-items: center;
         width: 100%;
     `
-    const BottomSettings = styled(SafeAreaView)`
-        align-items: center;
-        bottom: 0px;
-        position: absolute;
-		width: 100%;
-	`
     const { reelayDBUser } = useContext(AuthContext);
     const isAdmin = (reelayDBUser?.role === 'admin');
     const dispatch = useDispatch();
@@ -54,73 +48,69 @@ export const ProfileSettings = ({navigation}) => {
 		<ViewContainer>
 			<HeaderWithBackButton navigation={navigation} text='Settings & Info' />
 			<SettingsContainer>
-				<TopSettings>
+                <SettingEntry
+                    text="Account Information"
+                    iconName="person"
+                    onPress={() => {
+                        navigation.push("AccountInfoScreen");
+                    }}
+                />
+                <SettingEntry
+                    text="App Experience"
+                    iconName="aperture"
+                    onPress={() => {
+                        navigation.push("GeneralSettingsScreen");
+                    }}
+                />
+                <SettingEntry
+                    text="Notifications"
+                    iconName="notifications-outline"
+                    onPress={() => {
+                        navigation.push("NotificationSettingsScreen");
+                    }}
+                />
+                <SettingEntry
+                    text="Privacy Policy"
+                    iconName="clipboard-outline"
+                    onPress={() => {
+                        Linking.openURL("https://www.reelay.app/privacy-policy");
+                    }}
+                />
+                <SettingEntry
+                    text="Report an issue"
+                    iconName="flag-outline"
+                    onPress={() => {
+                        navigation.push('ReportIssueScreen', { viewedContentType: 'profileSettings' });
+                    }}
+                />
+                { isAdmin && (
                     <SettingEntry
-						text="Account Information"
-						iconName="person"
-						onPress={() => {
-							navigation.push("AccountInfoScreen");
-						}}
-					/>
-                    <SettingEntry
-						text="App Experience"
-						iconName="aperture"
-						onPress={() => {
-							navigation.push("GeneralSettingsScreen");
-						}}
-					/>
-                    <SettingEntry
-						text="Notifications"
-						iconName="notifications-outline"
-						onPress={() => {
-							navigation.push("NotificationSettingsScreen");
-						}}
-					/>
-                    <SettingEntry
-						text="Privacy Policy"
-						iconName="clipboard-outline"
-						onPress={() => {
-							Linking.openURL("https://www.reelay.app/privacy-policy");
-						}}
-					/>
-                    <SettingEntry
-                        text="Report an issue"
+                        text="(Admin) See reported issues"
                         iconName="flag-outline"
                         onPress={() => {
-                            navigation.push('ReportIssueScreen', { viewedContentType: 'profileSettings' });
+                            navigation.push('AdminReportedIssuesScreen');
                         }}
-                    />
-                    { isAdmin && (
-                        <SettingEntry
-                            text="(Admin) See reported issues"
-                            iconName="flag-outline"
-                            onPress={() => {
-                                navigation.push('AdminReportedIssuesScreen');
-                            }}
-                        />                    
-                    )}
-					<SettingEntry
-						text="Terms and Conditions"
-						iconName="document-text-outline"
-						onPress={() => {
-							Linking.openURL("https://www.reelay.app/terms-of-use");
-						}}
-					/>
-					<SettingEntry
-						text="TMDB Credit"
-						iconName="server-outline"
-						onPress={() => {
-							navigation.push("TMDBCreditScreen");
-						}}
-					/>
-                    <SettingEntry
-						text="Watch Tutorial"
-						iconName="glasses"
-						onPress={loadWelcomeVideoScreen}
-					/>
-				</TopSettings>
-				<BottomSettings>
-				</BottomSettings>
+                    />                    
+                )}
+                <SettingEntry
+                    text="Terms and Conditions"
+                    iconName="document-text-outline"
+                    onPress={() => {
+                        Linking.openURL("https://www.reelay.app/terms-of-use");
+                    }}
+                />
+                <SettingEntry
+                    text="TMDB Credit"
+                    iconName="server-outline"
+                    onPress={() => {
+                        navigation.push("TMDBCreditScreen");
+                    }}
+                />
+                <SettingEntry
+                    text="Watch Tutorial"
+                    iconName="glasses"
+                    onPress={loadWelcomeVideoScreen}
+                />
 			</SettingsContainer>
             <Logout />
 		</ViewContainer>

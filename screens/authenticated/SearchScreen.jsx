@@ -167,6 +167,8 @@ export default SearchScreen = ({ navigation }) => {
 				<TitleSearchResults
 					navigation={navigation}
 					searchResults={searchResults}
+                    searchText={searchText}
+                    isSeries={(selectedType === 'TV')}
 					source={"search"}
 				/>
 			)}
@@ -174,6 +176,7 @@ export default SearchScreen = ({ navigation }) => {
 				<UserSearchResults
 					navigation={navigation}
 					searchResults={searchResults}
+                    searchText={searchText}
 					source={"search"}
 				/>
 			)}

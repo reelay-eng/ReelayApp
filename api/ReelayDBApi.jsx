@@ -676,13 +676,14 @@ export const removeStreamingSubscription = async (userSub, removeSubscriptionBod
     return resultRemove;
 }
 
-export const searchTitles = async (searchText, isSeries) => {
+export const searchTitles = async (searchText, isSeries, page = 0) => {
     const cleanSearchText = searchText.toLowerCase().replace(/[\u2018\u2019\u201c\u201d/'/"]/g, "");
-    const routeGet = `${REELAY_API_BASE_URL}/search/titles?searchText=${cleanSearchText}&isSeries=${isSeries}`;
+    const routeGet = `${REELAY_API_BASE_URL}/search/titles?searchText=${cleanSearchText}&isSeries=${isSeries}&page=${page}`;
     const resultGet = await fetchResults(routeGet, {
         method: 'GET',
         headers: ReelayAPIHeaders,
     });
+    
     const annotatedResults = await Promise.all(
         resultGet.map(async (tmdbTitleObject) => {
             return await fetchAnnotatedTitle(tmdbTitleObject.id, isSeries);
@@ -691,8 +692,8 @@ export const searchTitles = async (searchText, isSeries) => {
     return annotatedResults;
 }
 
-export const searchUsers = async (searchText) => {
-    const routeGet = `${REELAY_API_BASE_URL}/search/users?searchText=${searchText}`;
+export const searchUsers = async (searchText, page = 0) => {
+    const routeGet = `${REELAY_API_BASE_URL}/search/users?searchText=${searchText}&page=${page}`;
     const resultGet = await fetchResults(routeGet, {
         method: "GET",
         headers: ReelayAPIHeaders,

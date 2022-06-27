@@ -3,11 +3,11 @@
 <plist version="1.0">
 	<dict>
 		<key>CFBundleDevelopmentRegion</key>
-		<string>$(DEVELOPMENT_LANGUAGE)</string>
+		<string>en</string>
 		<key>CFBundleExecutable</key>
 		<string>$(EXECUTABLE_NAME)</string>
 		<key>CFBundleIdentifier</key>
-		<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+		<string>ReelayiOS</string>
 		<key>CFBundleInfoDictionaryVersion</key>
 		<string>6.0</string>
 		<key>CFBundleName</key>
@@ -49,9 +49,9 @@
 		<key>UIViewControllerBasedStatusBarAppearance</key>
 		<false/>
 		<key>NSMicrophoneUsageDescription</key>
-		<string>To record a Reelay, please allow access to your microphone</string>
+		<string>The microphone is active while you record reelays.</string>
 		<key>NSCameraUsageDescription</key>
-		<string>To record a Reelay, please allow access to your camera</string>
+		<string>The camera is active while you record reelays.</string>
 		<key>UIUserInterfaceStyle</key>
 		<string>Automatic</string>
 		<key>CFBundleURLTypes</key>

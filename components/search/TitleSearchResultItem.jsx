@@ -10,14 +10,13 @@ import { getRuntimeString } from '../utils/TitleRuntime';
 import TitlePoster from '../global/TitlePoster';
 
 const ImageContainer = styled(View)`
-    flex: 0.5;
     flex-direction: row;
     align-items: center;
 `
 const PressableContainer = styled(Pressable)`
-    flex: 1;
     flex-direction: row;
-    margin: 10px 10px 10px 20px;
+    margin: 5px;
+    margin-left: 20px;
 `
 const TitleText = styled(ReelayText.Subtitle1Emphasized)`
     color: white
@@ -25,7 +24,8 @@ const TitleText = styled(ReelayText.Subtitle1Emphasized)`
 const TitleLineContainer = styled(View)`
     flex: 1;
     justify-content: center;
-    align-items: flex-start;
+    margin-left: 12px;
+    margin-right: 20px;
 `;
 const ActorText = styled(ReelayText.Subtitle2)`
     color: gray
@@ -85,7 +85,7 @@ export default TitleSearchResultItem = ({ navigation, result, source, clubID, to
         <PressableContainer key={titleObj?.id} onPress={selectResult}>
             <ImageContainer>
                 { titleObj?.posterSource && (
-                    <TitlePoster title={titleObj} width={72} />
+                    <TitlePoster title={titleObj} width={60} />
                 )}
                 { !titleObj.posterSource && <TitleText>{"No Poster Available"}</TitleText>}
             </ImageContainer>
