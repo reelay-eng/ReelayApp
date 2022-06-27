@@ -1,53 +1,61 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Keyboard, Pressable, ScrollView, View } from 'react-native';
 import TitleSearchResultItem from './TitleSearchResultItem';
 
 import styled from 'styled-components/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { searchTitles } from '../../api/ReelayDBApi';
+import { FlatList } from 'react-native-gesture-handler';
 
 const ScreenContainer = styled(Pressable)`
     display: flex;
     flex: 1;
+    padding-bottom: ${props => props.bottomOffset}px;
     width: 100%;
-`
-const SearchResultContainer = styled(View)`
-    border-bottom-color: #505050;
-    border-bottom-width: 0.3px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-`
-const SearchResultsScrollContainer = styled(ScrollView)`
-    margin-bottom: ${props => props.bottomOffset}px;
 `
 
 export default TitleSearchResults = ({ 
-    navigation, 
-    searchResults, 
-    source, 
     clubID, 
+    isSeries,
+    navigation, 
+    searchResults,
+    searchText, 
+    source, 
     topicID,
 }) => {
     const bottomOffset = useSafeAreaInsets().bottom + 16;
-    const renderSearchResult = (result) => {
+    const curPage = useRef(0);
+    const [displayResults, setDisplayResults] = useState(searchResults);
+
+    const onEndReached = async () => {
+        curPage.current += 1;
+        const nextSearchResults = await searchTitles(searchText, isSeries, curPage.current);
+        setDisplayResults([...displayResults, ...nextSearchResults]);
+    }
+
+    const renderSearchResult = ({ item, index }) => {
+        const result = item;
         return (
-            <SearchResultContainer key={result?.id}>
-                <TitleSearchResultItem 
-                    navigation={navigation} 
-                    result={result} 
-                    source={source} 
-                    clubID={clubID}
-                    topicID={topicID}
-                />
-            </SearchResultContainer>
+            <TitleSearchResultItem 
+                key={result?.id}
+                navigation={navigation} 
+                result={result} 
+                source={source} 
+                clubID={clubID}
+                topicID={topicID}
+            />
         );
     }
 
     return (
-        <ScreenContainer onPress={Keyboard.dismiss}>
-            { (searchResults?.length > 0) &&
-                <SearchResultsScrollContainer bottomOffset={bottomOffset}>
-                    { searchResults.map(renderSearchResult)}
-                </SearchResultsScrollContainer>
+        <ScreenContainer onPress={Keyboard.dismiss} bottomOffset={bottomOffset}>
+            { (displayResults?.length > 0) &&
+                <FlatList
+                    data={displayResults}
+                    renderItem={renderSearchResult}
+                    onEndReached={onEndReached}
+                    onEndReachedThreshold={0.9}
+                />
             }
         </ScreenContainer>
     );

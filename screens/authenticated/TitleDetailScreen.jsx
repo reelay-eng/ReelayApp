@@ -70,8 +70,8 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const rating = titleObj?.rating;
 	const releaseYear = titleObj?.releaseYear;
 	const runtime = titleObj?.runtime;
-	const isMovie = titleObj?.isMovie;
-	const titleType = (isMovie ? "film" : "tv");
+	const isSeries = titleObj?.isSeries;
+	const titleType = (isSeries) ? "tv" : "film";
 
 	// hide tab bar
 	const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
@@ -104,7 +104,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 				genres={genres}
 				releaseYear={releaseYear}
 				runtime={runtime}
-				isMovie={isMovie}
+				isSeries={isSeries}
 			/>
 			<Header />
 			<PopularReelaysRow navigation={navigation} titleObj={titleObj} />
