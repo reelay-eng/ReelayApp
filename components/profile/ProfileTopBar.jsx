@@ -18,6 +18,8 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
     const authSession = useSelector(state => state.authSession);
     const creatorName = creator.username ?? 'User not found';
 
+    const validCreatorName = (creator?.username && (creator?.username != "[deleted]"));
+
     const HeadingText = styled(ReelayText.H6Emphasized)`
         color: white;
         padding-left: ${atProfileBase ? 10: 0}px;
@@ -100,7 +102,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         <TopBarContainer>
             { !atProfileBase && <BackButton navigation={navigation} /> }
             <HeadingText>@{creatorName}</HeadingText>
-            <CopyProfileLinkButton />
+            { validCreatorName && <CopyProfileLinkButton />}
             { atProfileBase && <SettingsButtons /> }
         </TopBarContainer>
     );
