@@ -26,40 +26,40 @@
             "bundleIdentifier": "ReelayiOS",
             "infoPlist": {
                 "UIBackgroundModes": [
-                "fetch",
-                "remote-notification"
+                    "fetch",
+                    "remote-notification"
                 ],
                 "LSApplicationQueriesSchemes": [
-                "disneyplus", 
-                "hbomax", 
-                "nflx", 
-                "aiv", 
-                "hulu", 
-                "vhxcriterionchannel", 
-                "com.cbsvideo.app", 
-                "mubi", 
-                "peacock", 
-                "plutotv", 
-                "tubitv", 
-                "youtube", 
-                "shudder", 
-                "crunchyroll", 
-                "fb1519029161670311"
+                    "disneyplus", 
+                    "hbomax", 
+                    "nflx", 
+                    "aiv", 
+                    "hulu", 
+                    "vhxcriterionchannel", 
+                    "com.cbsvideo.app", 
+                    "mubi", 
+                    "peacock", 
+                    "plutotv", 
+                    "tubitv", 
+                    "youtube", 
+                    "shudder", 
+                    "crunchyroll", 
+                    "fb1519029161670311"
                 ],
                 "NSCameraUsageDescription": "The camera is active while you record reelays.",
                 "NSMicrophoneUsageDescription": "The microphone is active while you record reelays."
             }
         },
         "android": {
-        "softwareKeyboardLayoutMode":"pan",
-        "adaptiveIcon": {
-            "foregroundImage": "./assets/images/adaptive-icon.png",
-            "backgroundColor": "#000000"
-        },
-        "package": "com.anthonyreelay.ReelayApp"
-        },
-        "web": {
-        "favicon": "./assets/images/favicon.png"
+            "softwareKeyboardLayoutMode":"pan",
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/images/adaptive-icon.png",
+                "backgroundColor": "#000000"
+            },
+            "package": "com.anthonyreelay.ReelayApp"
+            },
+            "web": {
+            "favicon": "./assets/images/favicon.png"
         },
         "plugins": [[
             "expo-image-picker",
