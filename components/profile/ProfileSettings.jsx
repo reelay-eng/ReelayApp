@@ -93,7 +93,7 @@ export const ProfileSettings = ({navigation}) => {
                     />                    
                 )}
                 <SettingEntry
-                    text="Terms and Conditions - 1.01.13"
+                    text="Terms and Conditions"
                     iconName="document-text-outline"
                     onPress={() => {
                         Linking.openURL("https://www.reelay.app/terms-of-use");

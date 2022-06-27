@@ -155,6 +155,8 @@ export default SelectTitleScreen = ({ navigation, route }) => {
                 <TitleSearchResults
                     navigation={navigation}
                     searchResults={searchResults}
+                    searchText={searchText}
+                    isSeries={(searchType === 'TV')}
                     source={"create"}
                     clubID={clubID ?? null}
                     topicID={topic?.id ?? null}

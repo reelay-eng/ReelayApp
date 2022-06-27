@@ -165,7 +165,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 creatorName: reelayDBUser.username,
                 datastoreSub: uuidv4(), 
                 description: descriptionRef.current,
-                isMovie: titleObj.isMovie,
+                isMovie: !titleObj.isSeries,
                 isSeries: titleObj.isSeries,
                 postedAt: uploadTimestamp,
                 starRating: Math.floor(starRating/2),
