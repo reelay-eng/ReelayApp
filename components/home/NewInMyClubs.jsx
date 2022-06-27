@@ -313,7 +313,7 @@ export default NewInMyClubs = ({ navigation }) => {
         <Fragment>
             <HeaderContainer>
                 <FontAwesomeIcon icon={faAsterisk} color='white' size={24} />
-                <HeaderText>{'New in my clubs'}</HeaderText>
+                <HeaderText>{'My clubs'}</HeaderText>
             </HeaderContainer>
             <RowContainer showsVerticalScrollIndicator={false}>
                 { displayActivity.map(renderActivity) }

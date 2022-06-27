@@ -35,6 +35,7 @@ const HeaderText = styled(ReelayText.H5Bold)`
 
 export default PopularTitles = ({ navigation, tab='discover' }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const headerText = (tab === 'discover') ? 'Popular titles on Reelay' : 'Popular titles with friends';
     const popularTitleStacksDiscover = useSelector(state => state.myHomeContent?.discover?.popularTitles);
     const popularTitleStacksFollowing = useSelector(state => state.myHomeContent?.following?.popularTitles);
     const popularTitleStacks = (tab === 'following') ? popularTitleStacksFollowing : popularTitleStacksDiscover;
@@ -104,7 +105,7 @@ export default PopularTitles = ({ navigation, tab='discover' }) => {
         <PopularTitlesContainer>
             <HeaderContainer>
                 <FontAwesomeIcon icon={faFireFlameCurved} color='white' size={24} />
-                <HeaderText>{'Popular titles'}</HeaderText>
+                <HeaderText>{headerText}</HeaderText>
             </HeaderContainer>
             { popularTitleStacks.length > 0 && <TitlesRow />}
         </PopularTitlesContainer>

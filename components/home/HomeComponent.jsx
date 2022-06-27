@@ -125,7 +125,7 @@ const HomeComponent = ({ navigation }) => {
                     <Fragment>
                         <TopOfTheWeek navigation={navigation} />
                         <OnStreaming navigation={navigation} source='discover' />
-                        <PopularTitles navigation={navigation} />
+                        <PopularTitles navigation={navigation} tab='discover' />
                         <TopicsCarousel navigation={navigation} source='discoverPopular' /> 
                         <TopicsCarousel navigation={navigation} source='discoverNew' /> 
                         <PeopleToFollow navigation={navigation} /> 
@@ -138,6 +138,7 @@ const HomeComponent = ({ navigation }) => {
                         <FriendsAreWatching navigation={navigation} />
                         <OnStreaming navigation={navigation} source='following' />
                         <NewInMyClubs navigation={navigation} />
+                        <PopularTitles navigation={navigation} tab='following' />
                         <ActiveClubs navigation={navigation} />
                         <TopicsCarousel navigation={navigation} source='followingNew' /> 
                     </Fragment>  
