@@ -19,6 +19,13 @@ const isSameTitle = (title0, title1) => {
     return (title0.id === title1.id) && (title0.isSeries === title1.isSeries);
 }
 
+export const announcementDismissalReducer = ({ announcement, dismissalHistory }) => {
+    if (!announcement) return null;
+    const announcementEntry = dismissalHistory?.announcementHistory?.[announcement?.id];
+    const isDismissed = (announcementEntry && announcementEntry === 'dismissed');
+    return (isDismissed) ? null : announcement;
+}
+
 export const cognitoSessionReducer = (session) => {
     const idToken = session.idToken.jwtToken;
     const accessToken = session.accessToken.jwtToken;
@@ -45,11 +52,22 @@ export const latestAnnouncementReducer = ({ announcement, myFollowing, reelayDBU
     return null;
 }
 
-export const announcementDismissalReducer = ({ announcement, dismissalHistory }) => {
-    if (!announcement) return null;
-    const announcementEntry = dismissalHistory?.announcementHistory?.[announcement?.id];
-    const isDismissed = (announcementEntry && announcementEntry === 'dismissed');
-    return (isDismissed) ? null : announcement;
+export const latestClubActivitiesReducer = (myClubs) => {
+    const sortByLastUpdated = (activity0, activity1) => {
+        const lastActivity0 = moment(activity0?.lastUpdatedAt ?? activity0.createdAt);
+        const lastActivity1 = moment(activity1?.lastUpdatedAt ?? activity1.createdAt);
+        return lastActivity1.diff(lastActivity0, 'seconds');
+    }
+
+    const addClubActivities = (activities, club) => {
+        activities.push(...club.titles);
+        activities.push(...club.topics);
+        activities.push(...club.members);
+        return activities;
+    }
+
+    const allClubActivities = myClubs.reduce(addClubActivities, []);
+    return allClubActivities.sort(sortByLastUpdated);
 }
 
 export const latestNoticeReducer = ({ latestNotice, myClubs, myCreatorStacks, userSub }) => {

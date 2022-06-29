@@ -36,9 +36,7 @@ import {
     getRegisteredUser, 
     registerPushTokenForUser,
     getFollowers, 
-    getFollowing, 
     getStacksByCreator, 
-    getStreamingSubscriptions,
     getLatestAnnouncement,
     getHomeContent,
 } from './api/ReelayDBApi';
@@ -55,8 +53,6 @@ import { connect, Provider, useDispatch, useSelector } from 'react-redux';
 import store, { mapStateToProps } from './redux/store';
 import { ensureLocalImageDirExists } from './api/ReelayLocalImageCache';
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
-import { getGlobalTopics } from './api/TopicsApi';
-import { getClubsMemberOf } from './api/ClubsApi';
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png');
 
@@ -246,7 +242,6 @@ function App() {
         // when you modify them
         const [
             donateLinksLoaded,
-            globalTopics,
             latestAnnouncement,
             myHomeContent,
 
@@ -258,7 +253,6 @@ function App() {
             reelayDBUserLoaded,
         ] = await Promise.all([
             getAllDonateLinks(),
-            getGlobalTopics({ reqUserSub, page: 0 }),
             getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
             getHomeContent({ authSession, reqUserSub }),
 
@@ -275,9 +269,8 @@ function App() {
         dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
         dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
 
-        const myClubs = myHomeContent?.clubs;
-        const myProfile = myHomeContent?.profile;
-        const { myFollowing, myStreamingSubscriptions } = myProfile;
+        const myClubs = myHomeContent?.clubs ?? [];
+        const { myFollowing, myStreamingSubscriptions } = myHomeContent?.profile ?? [];
 
         dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
         dispatch({ type: 'setMyFollowing', payload: myFollowing });
@@ -292,8 +285,6 @@ function App() {
 
         // home
         dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
-        dispatch({ type: 'setGlobalTopics', payload: globalTopics });
-
         dispatch({ type: 'setIsLoading', payload: false });
     }
 

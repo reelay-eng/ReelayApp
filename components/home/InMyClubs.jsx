@@ -26,8 +26,7 @@ const BannerContainer = styled(View)`
     margin-bottom: 6px;
 `
 const ClubTitleContainer = styled(View)`
-    align-items: center;
-    flex-direction: row;
+    justify-content: center;
     width: 100%;
 `
 const ClubTitleText = styled(ReelayText.Caption)`
@@ -36,16 +35,10 @@ const ClubTitleText = styled(ReelayText.Caption)`
     display: flex;
     flex-direction: row;
     flex: 1;
-    height: 52px;
-    padding: 6px;
+    font-size: 14px;
+    padding: 4px;
     padding-left: 0px;
     padding-right: 0px;
-`
-const DotIconContainer = styled(View)`
-    align-items: center;
-    margin-bottom: -2px;
-    margin-left: 8px;
-    margin-right: 8px;
 `
 const HeaderContainer = styled(View)`
     align-items: flex-end;
@@ -57,6 +50,18 @@ const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
     margin-left: 12px;
+`
+const OverlineContainer = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    margin-bottom: 4px;
+    margin-left: 4px;
+    width: 100%;
+`
+const OverlineText = styled(ReelayText.CaptionEmphasized)`
+    color: white;
+    height: 16px;
+    margin-left: 6px;
 `
 const RowContainer = styled(ScrollView)`
     padding-left: 15px;
@@ -119,10 +124,6 @@ const TitleUnderlineContainer = styled(View)`
 const VenueContainer = styled(View)`
     margin-right: 5px;
 `
-const YearText = styled(ReelayText.CaptionEmphasized)`
-    color: white;
-    height: 16px;
-`
 const YearVenueContainer = styled(View)`
     align-items: center;
     flex-direction: row;
@@ -131,15 +132,40 @@ const YearVenueContainer = styled(View)`
 const MAX_ACTIVITY_COUNT = 8;
 const WELCOME_REELAY_SUB = Constants.manifest.extra.welcomeReelaySub;
 
-const TitleUnderline = ({ clubID, titleObj, reelays }) => {
-	let displayYear = (titleObj.releaseYear) ? titleObj.releaseYear : '';
+const TitleOverline = ({ activity }) => {
+    const { activityType, reelays, title } = activity;
+    if (reelays.length > 0) {
+        const { creator } = activity.reelays[0];
+        const overlineText = `${creator.username} reelayed`;
+        return (
+            <OverlineContainer>
+                <ProfilePicture user={creator} size={30} />
+                <OverlineText>{overlineText}</OverlineText>
+            </OverlineContainer>
+        );
+    } else {
+        const creator = {
+            sub: activity?.addedByUserSub,
+            username: activity?.addedByUsername,
+        }
+        const overlineText = `${creator.username} added`;
+        return (
+            <OverlineContainer>
+                <ProfilePicture user={creator} size={30} />
+                <OverlineText>{overlineText}</OverlineText>
+            </OverlineContainer>
+        );
+    }
+}
+
+const TitleUnderline = ({ clubID, reelays }) => {
     const reelayObj = reelays?.[0];
     if (reelayObj?.sub === WELCOME_REELAY_SUB) displayYear = '2022';
     const positionString = (reelays?.length > 1) 
             ? `${reelays?.length} reelays` 
         : (reelays?.length === 1)
             ? '1 reelay'
-        : 'title added';
+        : 'Title added';
 
     const myClubs = useSelector(state => state.myClubs);
     const matchClubID = (nextClub) => nextClub?.id === clubID;
@@ -154,13 +180,8 @@ const TitleUnderline = ({ clubID, titleObj, reelays }) => {
                     </VenueContainer>
                 }
                 <ClubTitleContainer>
-                    <ClubTitleText numberOfLines={2}>
-                        {club?.name}
-                        <DotIconContainer>
-                            <FontAwesomeIcon icon={faCircle} size={6} color='white' />
-                        </DotIconContainer>
-                        {positionString}
-                    </ClubTitleText>
+                    <ClubTitleText>{club?.name}</ClubTitleText>
+                    {/* <ClubTitleText>{positionString}</ClubTitleText> */}
                 </ClubTitleContainer>
             </YearVenueContainer>
         </TitleUnderlineContainer>
@@ -177,10 +198,8 @@ export const TitleBanner = ({ onPress, clubID, titleObj, reelays }) => {
             <TopicBannerBackground onPress={onPress}>
                 <TitlePoster title={titleObj} width={60} />
                 <TitleInfoContainer>
-                    <TitleText numberOfLines={2}>
-                        {displayTitle}
-                    </TitleText>
-                    <TitleUnderline clubID={clubID} titleObj={titleObj} reelays={reelays} />
+                    <TitleText numberOfLines={2}>{displayTitle}</TitleText>
+                    <TitleUnderline clubID={clubID} reelays={reelays} />
                 </TitleInfoContainer>
                 <ClubPicture club={{ id: clubID }} size={52} />
             </TopicBannerBackground>
@@ -210,22 +229,23 @@ export default NewInMyClubs = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
     const myClubs = useSelector(state => state.myClubs);
-
-    const [mostRecentActivity, setMostRecentActivity] = useState([]);
+    const myClubActivities = useSelector(state => state.myClubActivities);
 
     const filterActivitiesToUniqueClubs = (nextActivity, index) => {
         const matchClubID = (activity) => (activity?.clubID === nextActivity?.clubID);
-        if (nextActivity?.activityType === 'title') return false;
-        return true;
-        // return sortedClubActivites.findIndex(matchClubID) === index;
+        return myClubActivities.findIndex(matchClubID) === index;
     }    
 
-    const uniqueActivity = mostRecentActivity.filter(filterActivitiesToUniqueClubs);
+    const filterMemberActivities = (nextActivity) => (nextActivity?.activityType !== 'member');
+    const uniqueActivity = myClubActivities.filter(filterActivitiesToUniqueClubs);
     const activityCount = uniqueActivity?.length;
 
     const showAllActivities = activityCount < MAX_ACTIVITY_COUNT;
     const maxDisplayIndex = showAllActivities ? activityCount : MAX_ACTIVITY_COUNT;
-    const displayActivity = mostRecentActivity.filter(filterActivitiesToUniqueClubs).slice(0, maxDisplayIndex);
+    const displayActivity = myClubActivities
+        .filter(filterMemberActivities)
+        .filter(filterActivitiesToUniqueClubs)
+        .slice(0, maxDisplayIndex);
 
     const advanceToClubActivityScreen = (clubID) => {
         const club = myClubs.find(nextClub => nextClub?.id === clubID);
@@ -236,42 +256,16 @@ export default NewInMyClubs = ({ navigation }) => {
         navigation.navigate('ClubActivityScreen', { club });
     }
 
-    const allClubActivities = (activityEntries, nextClub) => {
-        const { titles, topics } = nextClub;
-        return [...activityEntries, ...titles, ...topics ];
-    }
-
-    const loadActivityForClub = async (club) => {
-        const reqOptions = {
-            authSession,
-            clubID: club?.id,
-            page: 0,
-            reqUserSub: reelayDBUser?.sub,
-        }
-        const [titles, topics] = await Promise.all([
-            getClubTitles(reqOptions),
-            getClubTopics(reqOptions),
-        ]);
-        club.titles = titles;
-        club.topics = topics;
-        return club;
-    }
-
-    const loadAllMyClubActivity = async () => {
-        const nextMyClubs = await Promise.all(myClubs.map(loadActivityForClub));
-        const clubActivities = nextMyClubs.reduce(allClubActivities, []);
-        const sortedClubActivites = clubActivities.sort(sortByLastUpdated);
-        setMostRecentActivity(sortedClubActivites);
-    }
-
     const renderActivity = (activity) => {
-        const { id, clubID, activityType, reelays, title } = activity;
+        const { clubID, activityType, reelays, title } = activity;
         const onPress = () => advanceToClubActivityScreen(clubID);
         if (activityType === 'title') {
             return (
-                <BannerContainer key={id}>
+                <BannerContainer key={`${clubID}-${activity?.id}`}>
+                    <TitleOverline activity={activity} />
                     <TitleBanner
                         clubActivity={activity}
+                        clubID={clubID}
                         navigation={navigation}
                         onPress={onPress}
                         posterWidth={60}
@@ -287,15 +281,9 @@ export default NewInMyClubs = ({ navigation }) => {
         }
     }
 
-    const sortByLastUpdated = (activity0, activity1) => {
-        const lastActivity0 = moment(activity0?.lastUpdatedAt);
-        const lastActivity1 = moment(activity1?.lastUpdatedAt);
-        return lastActivity0.diff(lastActivity1, 'seconds');
-    }
-
     const SeeMore = () => {
         const advanceToNewInMyClubsScreen = () => {
-            navigation.push('NewInMyClubsScreen', { mostRecentActivity })
+            navigation.push('NewInMyClubsScreen');
         }
         return (
             <SeeMoreContainer onPress={advanceToNewInMyClubsScreen}>
@@ -305,15 +293,11 @@ export default NewInMyClubs = ({ navigation }) => {
         );
     }
 
-    useEffect(() => {
-        loadAllMyClubActivity();
-    }, []);
-
     return (
         <Fragment>
             <HeaderContainer>
                 <FontAwesomeIcon icon={faAsterisk} color='white' size={24} />
-                <HeaderText>{'My clubs'}</HeaderText>
+                <HeaderText>{'In my clubs'}</HeaderText>
             </HeaderContainer>
             <RowContainer showsVerticalScrollIndicator={false}>
                 { displayActivity.map(renderActivity) }

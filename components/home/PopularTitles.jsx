@@ -56,20 +56,7 @@ export default PopularTitles = ({ navigation, tab='discover' }) => {
 	};
 
     const TitlesRow = () => {
-
-        const onBeforeSnapToItem = async (swipeIndex) => {
-            // const swipeDirection = swipeIndex < curTopicIndex.current ? 'left' : 'right';
-            // const nextTopic = globalTopics[swipeIndex];
-            // const prevTopic = globalTopics[curTopicIndex.current];
-
-            // logAmplitudeEventProd('swipedTopics', {
-            //     nextTopicTitle: nextTopic.title,
-            //     prevReelayTitle: prevTopic.title,
-            //     source: 'global',
-            //     swipeDirection: swipeDirection,
-            //     username: reelayDBUser?.username,
-            // });
-        }
+        const onBeforeSnapToItem = () => {} // todo
         const renderTitleStackElement = ({ item, index }) => {
             const stack = item;
             return (

@@ -8,7 +8,8 @@ import {
     sortByLastActivity,
     stacksOnStreamingReducer, 
     updateClubReducer, 
-    watchlistRecsReducer 
+    watchlistRecsReducer, 
+    latestClubActivitiesReducer
 } from "./reducers";
 
 const initialState = {
@@ -21,6 +22,7 @@ const initialState = {
 
     // CLUBS + WATCHLISTS
     myClubs: [],
+    myClubActivities: [],
     myWatchlistItems: [],
 
     // GLOBAL
@@ -28,8 +30,6 @@ const initialState = {
     tabBarVisible: true,
 
     // HOME SCREEN
-    globalTopics: [],
-    globalTopicsWithReelays: [],
     latestAnnouncement: null,
     latestAnnouncementDismissed: false,
     latestNotice: null,
@@ -96,11 +96,13 @@ const appReducer = ( state = initialState, action) => {
         case 'setMyClubs':
             const myClubs = action.payload;
             const myClubsSorted = myClubs.sort(sortByLastActivity);
-            return { ...state, myClubs: myClubsSorted };
+            let myClubActivities = latestClubActivitiesReducer(myClubs);
+            return { ...state, myClubs: myClubsSorted, myClubActivities };
         case 'setUpdatedClub':
             const updatedClub = action.payload;
             const updatedMyClubs = updateClubReducer(state.myClubs, updatedClub);
-            return { ...state, myClubs: updatedMyClubs };    
+            myClubActivities = latestClubActivitiesReducer(updatedMyClubs);
+            return { ...state, myClubs: updatedMyClubs, myClubActivities };    
         case 'setMyWatchlistItems':
             const myWatchlistItems = watchlistRecsReducer(action.payload);
             return { ...state, myWatchlistItems };    
@@ -112,12 +114,6 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, tabBarVisible: action.payload }        
 
         // HOME SCREEN
-        case 'setGlobalTopics':
-            const globalTopics = action.payload;
-            const globalTopicsWithReelays = globalTopics.filter((topic) => {
-                return topic.reelays.length > 0;
-            });
-            return { ...state, globalTopics, globalTopicsWithReelays };
         case 'setLatestAnnouncement':
             const latestAnnouncement = latestAnnouncementReducer({ 
                 announcement: action.payload,
@@ -252,6 +248,7 @@ export const mapStateToProps = (state) => ({
 
     // CLUBS + WATCHLISTS
     myClubs: state.myClubs,
+    myClubActivities: state.myClubActivities,
     myWatchlistItems: state.myWatchlistItems,
 
     // GLOBAL
@@ -259,8 +256,6 @@ export const mapStateToProps = (state) => ({
     tabBarVisible: state.tabBarVisible,
 
     // HOME SCREEN
-    globalTopics: state.globalTopics,
-    globalTopicsWithReelays: state.globalTopicsWithReelays,
     latestAnnouncement: state.latestAnnouncement,
     latestAnnouncementDismissed: state.latestAnnouncementDismissed,
     latestNotice: state.latestNotice,

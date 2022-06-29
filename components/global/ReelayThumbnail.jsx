@@ -17,8 +17,10 @@ import { generateThumbnail, getThumbnailURI, saveThumbnail } from '../../api/Thu
 import ProfilePicture from './ProfilePicture';
 import { useSelector } from 'react-redux';
 import TitlePoster from './TitlePoster';
+import ClubPicture from './ClubPicture';
 
 export default ReelayThumbnail = ({ 
+	asNewInMyClubs = false,
 	asTopOfTheWeek = false,
 	height = 180, 
 	margin = 6, 
@@ -29,11 +31,11 @@ export default ReelayThumbnail = ({
 	showIcons = true,
 	width = 120,
 }) => {
-	const ICON_SIZE = asTopOfTheWeek ? 24 : 16;
-	const STAR_RATING_ADD_LEFT = asTopOfTheWeek ? 12 : 0;
-	const STAR_SIZE = asTopOfTheWeek ? 16 : 12;
-	const PROFILE_PIC_SIZE = asTopOfTheWeek ? 32 : 24;
-	const USERNAME_TEXT_SIZE = asTopOfTheWeek ? 16 : 12;
+	const ICON_SIZE = asTopOfTheWeek ? 24 : asNewInMyClubs ? 20 : 16;
+	const STAR_RATING_ADD_LEFT = asTopOfTheWeek ? 12 : asNewInMyClubs ? 6 : 0;
+	const STAR_SIZE = asTopOfTheWeek ? 16 : asNewInMyClubs ? 14 : 12;
+	const PROFILE_PIC_SIZE = asTopOfTheWeek ? 32 : asNewInMyClubs ? 28 : 24;
+	const USERNAME_TEXT_SIZE = asTopOfTheWeek ? 16 : asNewInMyClubs ? 14 : 12;
 	const USERNAME_ADD_LEFT = USERNAME_TEXT_SIZE - 7;
 	const POSTER_WIDTH = width / 4;
 
@@ -99,7 +101,7 @@ export default ReelayThumbnail = ({
 	const ThumbnailImage = styled(Image)`
 		border-radius: 8px;
 		height: ${height}px;
-		width: ${width}px;
+		width: 100%;
 	`
 	const UsernameText = styled(ReelayText.Subtitle2)`
         font-size: ${USERNAME_TEXT_SIZE}px;
@@ -177,7 +179,12 @@ export default ReelayThumbnail = ({
     const CreatorLine = ({ username }) => {        
         return (
             <CreatorLineContainer>
-                <ProfilePicture user={reelay?.creator} size={PROFILE_PIC_SIZE} border />
+				{ asNewInMyClubs && (
+					<ClubPicture club={{ id: reelay?.clubID }} size={PROFILE_PIC_SIZE} />
+				)}
+				{ !asNewInMyClubs && (
+					<ProfilePicture user={reelay?.creator} size={PROFILE_PIC_SIZE} border />
+				)}
                 <UsernameText numberOfLines={1}>
                     {`@${username}`}
                 </UsernameText>

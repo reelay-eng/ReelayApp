@@ -394,17 +394,29 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
         return null;
     }
 
-    // const prepareAllClubs = async () => await Promise.all(
-    //     clubs.map(prepareClubReelays)
-    // );
-
     const prepareAllClubs = async () => {
         const preparedClubs = [];
         for (const club of clubs) {
-            const preparedClub = await prepareClubReelays(club);
-            preparedClubs.push(preparedClub);
+            await prepareClubReelays(club);
+            await prepareClubActivities(club);
+            preparedClubs.push(club);
         }
         return preparedClubs;
+    }
+
+    const prepareClubActivities = async (club) => {
+        for (const member of club.members) {
+            member.activityType = 'member';
+        }
+        for (const title of club.titles) {
+            const { tmdbTitleID, titleType } = title;
+            const annotatedTitle = await fetchAnnotatedTitle(tmdbTitleID, titleType === 'tv');
+            title.activityType = 'title';
+            title.title = annotatedTitle;
+        }
+        for (const topic of club.topics) {
+            topic.activityType = 'topic';
+        }
     }
 
     const prepareClubReelays = async (club) => {
@@ -413,15 +425,8 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
             prepareTitlesAndTopics(titles),
             prepareTitlesAndTopics(topics),
         ]);
-        for (const title of preparedTitles) {
-            const { tmdbTitleID, titleType } = title;
-            const annotatedTitle = await fetchAnnotatedTitle(tmdbTitleID, titleType === 'tv');
-            title.title = annotatedTitle;
-        }
-        for (const topic of preparedTopics) {
-            topic.activityType = 'topic';
-        }
-        return { ...club, titles: preparedTitles, topics: preparedTopics };    
+        club.titles = preparedTitles;
+        club.topics = preparedTopics;
     };
 
     const prepareHomeTabReelays = async (homeTab) => {

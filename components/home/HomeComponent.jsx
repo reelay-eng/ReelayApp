@@ -1,5 +1,5 @@
-import React, { Fragment, memo, useContext, useEffect, useRef, useState } from 'react';
-import { Dimensions, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
+import React, { Fragment, useContext, useRef, useState } from 'react';
+import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
 import styled from 'styled-components';
 
 import AtFestivals from './AtFestivals';
@@ -10,21 +10,20 @@ import TopicsCarousel from '../topics/TopicsCarousel';
 import OnStreaming from './OnStreaming';
 import PeopleToFollow from './PeopleToFollow';
 
-import { getFollowing, getHomeContent, getLatestAnnouncement, getStreamingSubscriptions } from '../../api/ReelayDBApi';
+import { getFollowing, getHomeContent, getLatestAnnouncement } from '../../api/ReelayDBApi';
 import { getAllMyNotifications } from '../../api/NotificationsApi';
 import { AuthContext } from '../../context/AuthContext';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { getGlobalTopics } from '../../api/TopicsApi';
 import TopOfTheWeek from './TopOfTheWeek';
 import { useFocusEffect } from '@react-navigation/native';
 import NoticeOverlay from '../overlay/NoticeOverlay';
 import AnnouncementsAndNotices from './AnnouncementsAndNotices';
 import PopularTitles from './PopularTitles';
 import ActiveClubs from './ActiveClubs';
-import NewInMyClubs from './NewInMyClubs';
 
 import moment from 'moment';
+import InMyClubs from './InMyClubs';
 
 const BottomBar = styled(View)`
     background-color: black;
@@ -137,7 +136,7 @@ const HomeComponent = ({ navigation }) => {
                     <Fragment>
                         <FriendsAreWatching navigation={navigation} />
                         <OnStreaming navigation={navigation} source='following' />
-                        <NewInMyClubs navigation={navigation} />
+                        <InMyClubs navigation={navigation} />
                         <PopularTitles navigation={navigation} tab='following' />
                         <ActiveClubs navigation={navigation} />
                         <TopicsCarousel navigation={navigation} source='followingNew' /> 
