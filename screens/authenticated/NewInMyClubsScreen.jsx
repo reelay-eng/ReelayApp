@@ -93,8 +93,6 @@ const TopicIconContainer = styled(View)`
     position: absolute;
     top: 6px;
     left: 6px;
-    border-color: green;
-    border-width: 1px;
 `
 const UnderlineContainer = styled(View)`
     align-items: center;
@@ -107,6 +105,7 @@ const UnderlineContainer = styled(View)`
 
 export default NewInMyClubsScreen = ({ navigation, route }) => {
     const bottomOffset = useSafeAreaInsets().bottom + 20;
+    const myClubs = useSelector(state => state.myClubs);
     const myClubActivities = useSelector(state => state.myClubActivities);
     const filterMemberActivities = (nextActivity) => (nextActivity?.activityType !== 'member');
     const displayActivities = myClubActivities.filter(filterMemberActivities);
@@ -141,7 +140,11 @@ export default NewInMyClubsScreen = ({ navigation, route }) => {
     }
 
     const InMyClubsTitleCard = ({ title }) => {
-        const advanceToClubActivityScreen = () => {}; // todo 
+        const advanceToClubActivityScreen = () => {
+            const club = myClubs.find(next => next.id === title.clubID);
+            navigation.navigate('ClubActivityScreen', { club });
+        };
+
         return (
             <TitleCardContainer onPress={advanceToClubActivityScreen} >
                 <TitlePoster
@@ -153,7 +156,10 @@ export default NewInMyClubsScreen = ({ navigation, route }) => {
     }    
 
     const InMyClubsTopicCard = ({ topic }) => {
-        const advanceToClubActivityScreen = () => {}; // todo 
+        const advanceToClubActivityScreen = () => {
+            const club = myClubs.find(next => next.id === topic.clubID);
+            navigation.navigate('ClubActivityScreen', { club });
+        };
         return (
             <TopicCardContainer key={topic.id} onPress={advanceToClubActivityScreen}>
                 <TopicCardGradient colors={['#400817', '#19242E']} />
@@ -174,7 +180,24 @@ export default NewInMyClubsScreen = ({ navigation, route }) => {
         const hasReelays = reelays?.length > 0;
 
         if (hasReelays) {
-            const advanceToClubActivity = () => {}; // todo
+            const advanceToClubFeedScreen = () => {
+                const club = myClubs.find(next => next.id === activity.clubID);
+
+                const titleOrTopicHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
+                const sortClubTitlesAndTopics = (titleOrTopic0, titleOrTopic1) => {
+                    const lastActivity0 = moment(titleOrTopic0?.lastUpdatedAt);
+                    const lastActivity1 = moment(titleOrTopic1?.lastUpdatedAt);
+                    return lastActivity0.diff(lastActivity1, 'seconds') < 0;
+                }
+            
+                const feedTitlesAndTopics = [...club.titles, ...club.topics]
+                    .sort(sortClubTitlesAndTopics)
+                    .filter(titleOrTopicHasReelays);
+
+                const initFeedIndex = feedTitlesAndTopics.findIndex(next => next.id === activity.id);            
+                navigation.navigate('ClubFeedScreen', { club, initFeedIndex });
+            };
+
             return (
                 <ActivityContainer key={activity.id}>
                     <ReelayThumbnail 
@@ -182,7 +205,7 @@ export default NewInMyClubsScreen = ({ navigation, route }) => {
                         asNewInMyClubs={true}
                         height={REELAY_CARD_HEIGHT}
                         margin={0}
-                        onPress={advanceToClubActivity}
+                        onPress={advanceToClubFeedScreen}
                         reelay={reelays[0]}
                         showPoster={true}
                         showVenue={true}
