@@ -1,308 +1,295 @@
-import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { Dimensions, Image, Pressable, ScrollView, TouchableOpacity, View } from 'react-native';
-import { logAmplitudeEventProd } from '../utils/EventLogger'
-import styled from 'styled-components';
-import * as ReelayText from '../../components/global/Text';
-import { useSelector } from 'react-redux';
-import ProfilePicture from '../global/ProfilePicture';
-import Constants from 'expo-constants';
+import React from "react";
+import { Dimensions, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
+import { LinearGradient } from "expo-linear-gradient";
+import * as ReelayText from '../global/Text';
+import { useSelector } from "react-redux";
+import styled from 'styled-components/native';
 
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faAsterisk, faChevronRight, faCircle } from '@fortawesome/free-solid-svg-icons';
-import { getClubTitles, getClubTopics } from '../../api/ClubsApi';
-import { AuthContext } from '../../context/AuthContext';
-import TitlePoster from '../global/TitlePoster';
-import { VenueIcon } from '../utils/VenueIcon';
+import moment from "moment";
 
-import moment from 'moment';
-import { showErrorToast } from '../utils/toasts';
-import ClubPicture from '../global/ClubPicture';
+import ProfilePicture from "../global/ProfilePicture";
+import ReelayThumbnail from '../global/ReelayThumbnail';
+import TitlePoster from "../global/TitlePoster";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { faChevronRight, faComments } from "@fortawesome/free-solid-svg-icons";
+import { ClubsIconSVG } from "../global/SVGs";
 
 const { width } = Dimensions.get('window');
 
-const BannerContainer = styled(View)`
-    align-items: center;
-    margin-top: 6px;
-    margin-bottom: 6px;
+const ACTIVITY_CARD_MARGIN = 8;
+const ACTIVITY_CARD_WIDTH = (width - ACTIVITY_CARD_MARGIN) / 2;
+const REELAY_CARD_HEIGHT = ACTIVITY_CARD_WIDTH * 2.125;
+const TOPIC_CARD_HEIGHT = ACTIVITY_CARD_WIDTH * 1.25;
+const TITLE_CARD_HEIGHT = ACTIVITY_CARD_WIDTH * 1.5;
+
+const ActivityContainer = styled(View)`
+    margin-bottom: 8px;
+    margin-left: 4px;
+    margin-right: 4px;
 `
-const ClubTitleContainer = styled(View)`
-    justify-content: center;
+const ColumnsContainer = styled(View)`
+    flex-direction: row;
     width: 100%;
 `
-const ClubTitleText = styled(ReelayText.Caption)`
-    align-items: center;
-    color: white;
+const ColumnContainer = styled(View)`
     display: flex;
-    flex-direction: row;
     flex: 1;
-    font-size: 14px;
-    padding: 4px;
-    padding-left: 0px;
-    padding-right: 0px;
-`
-const HeaderContainer = styled(View)`
-    align-items: flex-end;
-    flex-direction: row;
-    margin-left: 15px;
-    margin-top: 15px;
+    width: 50%;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
-    margin-left: 12px;
+    padding: 15px;
 `
-const OverlineContainer = styled(View)`
+const HeaderContainer = styled(View)`
     align-items: center;
     flex-direction: row;
-    margin-bottom: 4px;
-    margin-left: 4px;
-    width: 100%;
+    justify-content: space-between;
+`
+const HeaderContainerLeft = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    margin-left: 15px;
 `
 const OverlineText = styled(ReelayText.CaptionEmphasized)`
     color: white;
-    height: 16px;
-    margin-left: 6px;
-`
-const RowContainer = styled(ScrollView)`
-    padding-left: 15px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-    flex-direction: row;
-    width: 100%;
+    display: flex;
+    flex: 1;
+    padding-left: 6px;
+    padding-right: 6px;
 `
 const SeeMoreContainer = styled(TouchableOpacity)`
+    align-items: center;
     flex-direction: row;
-    justify-content: space-between;
-    padding: 8px;
-    width: 100%;
+    height: 24px;
 `
 const SeeMoreText = styled(ReelayText.CaptionEmphasized)`
     color: white;
-    font-size: 14px;
+    margin-left: 16px;
 `
-const TitleInfoContainer = styled(View)`
+const Spacer = styled(View)`
+    width: 8px;
+`
+const TopicTitleText = styled(ReelayText.H6Emphasized)`
+    color: white;
     display: flex;
-    flex: 1;
-    justify-content: center;
-    margin-left: 8px;
+    font-size: 16px;
+    padding-left: 6px;
+    padding-right: 18px;
 `
-const TopicBannerBackground = styled(TouchableOpacity)`
-    align-items: center;
-    background-color: #191919;
+const TitleCardContainer = styled(TouchableOpacity)`
+`
+const TopicCardContainer = styled(TouchableOpacity)`
     border-radius: 8px;
-    justify-content: space-between;
     flex-direction: row;
-    padding: 6px;
-    width: ${width - 20}px;
-    zIndex: 3;
-`
-const TopicTextContainer = styled(View)`
-    display: flex;
-    flex: 1;
-    padding: 6px;
-`
-const TopicDescription = styled(ReelayText.Body2)`
-    color: white;
-    display: flex;
-    flex: 1;
-`
-const TitleText = styled(ReelayText.H5Bold)`
-    color: white;
-    font-size: 16px;
-`
-const TopicTitleText = styled(ReelayText.H5Bold)`
-    color: white;
-    display: flex;
-    flex: 1;
-    font-size: 16px;
-`
-const TitleUnderlineContainer = styled(View)`
-    margin-top: 5px;
-    margin-right: 8px;
+    height: ${TOPIC_CARD_HEIGHT}px;
     width: 100%;
 `
-const VenueContainer = styled(View)`
-    margin-right: 5px;
+const TopicDescriptionText = styled(ReelayText.CaptionEmphasized)`
+    color: #86878B;
+    display: flex;
+    margin-left: 6px;
+    margin-top: 4px;
 `
-const YearVenueContainer = styled(View)`
-    align-items: center;
+const TopicCardGradient = styled(LinearGradient)`
+    border-radius: 16px;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+`
+const TopicToplineLeftContainer = styled(View)`
+    padding: 6px;
+`
+const TopicToplineRightContainer = styled(View)`
+    flex: 1;
+    padding: 6px;
+    padding-left: 0px;
+`
+const TopicIconContainer = styled(View)`
     flex-direction: row;
+    position: absolute;
+    top: 6px;
+    left: 6px;
+`
+const UnderlineContainer = styled(View)`
+    align-items: center;
+    bottom: 6px;
+    flex-direction: row;
+    padding: 4px;
+    position: absolute;
+    width: 100%;
 `
 
-const MAX_ACTIVITY_COUNT = 8;
-const WELCOME_REELAY_SUB = Constants.manifest.extra.welcomeReelaySub;
+export const ClubActivityCard = ({ activity, navigation }) => {
+    console.log('activity rendering: ', activity);
+    const myClubs = useSelector(state => state.myClubs);
+    const { activityType, reelays } = activity;
+    if (activityType === 'member') return <View key={member?.userSub} />
 
-const TitleOverline = ({ activity }) => {
-    const { activityType, reelays, title } = activity;
-    if (reelays.length > 0) {
-        const { creator } = activity.reelays[0];
-        const overlineText = `${creator.username} reelayed`;
-        return (
-            <OverlineContainer>
-                <ProfilePicture user={creator} size={30} />
-                <OverlineText>{overlineText}</OverlineText>
-            </OverlineContainer>
-        );
-    } else {
-        const creator = {
-            sub: activity?.addedByUserSub,
-            username: activity?.addedByUsername,
-        }
-        const overlineText = `${creator.username} added`;
-        return (
-            <OverlineContainer>
-                <ProfilePicture user={creator} size={30} />
-                <OverlineText>{overlineText}</OverlineText>
-            </OverlineContainer>
-        );
+    const ActivityUnderline = () => {
+        if (reelays.length > 0) {
+            const { creator } = reelays[0];
+            const overlineText = `${creator.username} reelayed`;
+            return (
+                <UnderlineContainer>
+                    <ProfilePicture user={creator} size={30} />
+                    <OverlineText numberOfLines={2}>{overlineText}</OverlineText>
+                </UnderlineContainer>
+            );
+        } else {
+            const creator = {
+                sub: activity?.addedByUserSub ?? activity?.creatorSub,
+                username: activity?.addedByUsername ?? activity?.creatorName,
+            }
+            const overlineText = `${creator.username} added`;
+            return (
+                <UnderlineContainer>
+                    <ProfilePicture user={creator} size={30} />
+                    <OverlineText numberOfLines={2}>{overlineText}</OverlineText>
+                </UnderlineContainer>
+            );
+        }    
     }
-}
 
-const TitleUnderline = ({ clubID, reelays }) => {
-    const reelayObj = reelays?.[0];
-    if (reelayObj?.sub === WELCOME_REELAY_SUB) displayYear = '2022';
-    const positionString = (reelays?.length > 1) 
-            ? `${reelays?.length} reelays` 
-        : (reelays?.length === 1)
-            ? '1 reelay'
-        : 'Title added';
+    const InMyClubsTitleCard = () => {
+        const advanceToClubActivityScreen = () => {
+            const club = myClubs.find(next => next.id === activity.clubID);
+            navigation.navigate('ClubActivityScreen', { club });
+        };
 
-    const myClubs = useSelector(state => state.myClubs);
-    const matchClubID = (nextClub) => nextClub?.id === clubID;
-    const club = myClubs.find(matchClubID);
-
-    return (
-        <TitleUnderlineContainer>
-            <YearVenueContainer>
-                { reelayObj?.content?.venue && 
-                    <VenueContainer>
-                        <VenueIcon venue={reelayObj?.content?.venue} size={20} border={1} />
-                    </VenueContainer>
-                }
-                <ClubTitleContainer>
-                    <ClubTitleText>{club?.name}</ClubTitleText>
-                    {/* <ClubTitleText>{positionString}</ClubTitleText> */}
-                </ClubTitleContainer>
-            </YearVenueContainer>
-        </TitleUnderlineContainer>
-    );
-}
-
-export const TitleBanner = ({ onPress, clubID, titleObj, reelays }) => {
-    let displayTitle = (titleObj.display) ? titleObj.display : 'Title not found'; 
-    const reelayObj = reelays?.[0];
-    if (reelayObj?.sub === WELCOME_REELAY_SUB) displayTitle = 'Welcome to Reelay';
-
-    return (
-        <BannerContainer>
-            <TopicBannerBackground onPress={onPress}>
-                <TitlePoster title={titleObj} width={60} />
-                <TitleInfoContainer>
-                    <TitleText numberOfLines={2}>{displayTitle}</TitleText>
-                    <TitleUnderline clubID={clubID} reelays={reelays} />
-                </TitleInfoContainer>
-                <ClubPicture club={{ id: clubID }} size={52} />
-            </TopicBannerBackground>
-        </BannerContainer>
-    );
-}
-
-export const TopicBanner = ({ onPress, topic }) => {
-    return (
-        <BannerContainer>
-            <TopicBannerBackground onPress={onPress}>
-                <TopicTextContainer>
-                    <TopicTitleText numberOfLines={2}>
-                        {topic?.title}
-                    </TopicTitleText>
-                    <TopicDescription numberOfLines={2}>
-                        {topic?.description}
-                    </TopicDescription>
-                </TopicTextContainer>
-                <ClubPicture club={{ id: topic?.clubID }} size={52} />
-            </TopicBannerBackground>
-        </BannerContainer>
-    );
-}
-
-export default NewInMyClubs = ({ navigation }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-    const authSession = useSelector(state => state.authSession);
-    const myClubs = useSelector(state => state.myClubs);
-    const myClubActivities = useSelector(state => state.myClubActivities);
-
-    const filterActivitiesToUniqueClubs = (nextActivity, index) => {
-        const matchClubID = (activity) => (activity?.clubID === nextActivity?.clubID);
-        return myClubActivities.findIndex(matchClubID) === index;
+        return (
+            <TitleCardContainer onPress={advanceToClubActivityScreen} >
+                <TitlePoster
+                    title={activity.title} 
+                    width={ACTIVITY_CARD_WIDTH - 6} 
+                />
+            </TitleCardContainer>
+        )
     }    
 
-    const filterMemberActivities = (nextActivity) => (nextActivity?.activityType !== 'member');
-    const uniqueActivity = myClubActivities.filter(filterActivitiesToUniqueClubs);
-    const activityCount = uniqueActivity?.length;
-
-    const showAllActivities = activityCount < MAX_ACTIVITY_COUNT;
-    const maxDisplayIndex = showAllActivities ? activityCount : MAX_ACTIVITY_COUNT;
-    const displayActivity = myClubActivities
-        .filter(filterMemberActivities)
-        .filter(filterActivitiesToUniqueClubs)
-        .slice(0, maxDisplayIndex);
-
-    const advanceToClubActivityScreen = (clubID) => {
-        const club = myClubs.find(nextClub => nextClub?.id === clubID);
-        if (!club) {
-            showErrorToast('Ruh roh! Couldn`t load that page. Try again?');
-            return;
-        }
-        navigation.navigate('ClubActivityScreen', { club });
+    const InMyClubsTopicCard = () => {
+        const advanceToClubActivityScreen = () => {
+            const club = myClubs.find(next => next.id === activity.clubID);
+            navigation.navigate('ClubActivityScreen', { club });
+        };
+        return (
+            <TopicCardContainer key={activity.id} onPress={advanceToClubActivityScreen}>
+                <TopicCardGradient colors={['#400817', '#19242E']} />
+                <TopicToplineLeftContainer>
+                    <FontAwesomeIcon icon={faComments} color='white' size={24} />
+                </TopicToplineLeftContainer>
+                <TopicToplineRightContainer>
+                    <TopicTitleText numberOfLines={2}>{activity.title}</TopicTitleText>
+                    <TopicDescriptionText>{activity.description}</TopicDescriptionText>
+                </TopicToplineRightContainer>
+            </TopicCardContainer>
+        )
     }
 
-    const renderActivity = (activity) => {
-        const { clubID, activityType, reelays, title } = activity;
-        const onPress = () => advanceToClubActivityScreen(clubID);
-        if (activityType === 'title') {
-            return (
-                <BannerContainer key={`${clubID}-${activity?.id}`}>
-                    <TitleOverline activity={activity} />
-                    <TitleBanner
-                        clubActivity={activity}
-                        clubID={clubID}
-                        navigation={navigation}
-                        onPress={onPress}
-                        posterWidth={60}
-                        stack={reelays}
-                        titleObj={title}
-                    />
-                </BannerContainer>
-            )
-        } else if (activityType === 'topic') {
-            return <TopicBanner key={id} onPress={onPress} topic={activity} />;
-        } else {
-            return <View key={id} />;
+    const getClubFeedIndex = (club) => {
+        const titleOrTopicHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
+        const sortClubTitlesAndTopics = (titleOrTopic0, titleOrTopic1) => {
+            const lastActivity0 = moment(titleOrTopic0?.lastUpdatedAt);
+            const lastActivity1 = moment(titleOrTopic1?.lastUpdatedAt);
+            return lastActivity0.diff(lastActivity1, 'seconds') < 0;
         }
+    
+        const feedTitlesAndTopics = [...club.titles, ...club.topics]
+            .sort(sortClubTitlesAndTopics)
+            .filter(titleOrTopicHasReelays);
+        return feedTitlesAndTopics.findIndex(next => next.id === activity.id);            
+    }
+
+    const hasReelays = reelays?.length > 0;
+    if (hasReelays) {
+        const advanceToClubFeedScreen = () => {
+            const club = myClubs.find(next => next.id === activity.clubID);
+            const initFeedIndex = getClubFeedIndex(club);
+            navigation.navigate('ClubFeedScreen', { club, initFeedIndex });
+        };
+
+        return (
+            <ActivityContainer key={activity.id}>
+                <ReelayThumbnail 
+                    asTopOfTheWeek={false}
+                    asNewInMyClubs={true}
+                    height={REELAY_CARD_HEIGHT}
+                    margin={0}
+                    onPress={advanceToClubFeedScreen}
+                    reelay={reelays[0]}
+                    showPoster={true}
+                    showVenue={true}
+                    showIcons={true}
+                    width={ACTIVITY_CARD_WIDTH}
+                />
+                { activityType === 'topic' && (
+                    <TopicIconContainer>
+                        <FontAwesomeIcon icon={faComments} color='white' size={24} />
+                    </TopicIconContainer>                    
+                )}
+            </ActivityContainer>
+        );
+    } else if (activityType === 'title') {
+        return (
+            <ActivityContainer key={activity.id}>
+                <InMyClubsTitleCard />
+                <ActivityUnderline />
+            </ActivityContainer>
+        );
+    } else if (activityType === 'topic') {
+        return (
+            <ActivityContainer key={activity.id}>
+                <InMyClubsTopicCard />
+                <ActivityUnderline />
+            </ActivityContainer>
+        );
+    } else {
+        return <View key={activity?.id}/>;
+    }
+}
+
+export default InMyClubs = ({ navigation }) => {
+    const MAX_ACTIVITIES_SHOWN = 6;
+
+    const myClubActivities = useSelector(state => state.myClubActivities);
+    const filterMemberActivities = (nextActivity) => (nextActivity?.activityType !== 'member');
+    const displayActivities = myClubActivities.filter(filterMemberActivities);
+
+    const columnA = displayActivities.filter((activity, index) => (index % 2 === 0) && (index < MAX_ACTIVITIES_SHOWN));
+    const columnB = displayActivities.filter((activity, index) => (index % 2 === 1) && (index < MAX_ACTIVITIES_SHOWN));
+
+    const renderActivity = (activity) => {
+        return <ClubActivityCard activity={activity} navigation={navigation} />
     }
 
     const SeeMore = () => {
-        const advanceToNewInMyClubsScreen = () => {
-            navigation.push('NewInMyClubsScreen');
-        }
+        const advanceToNewInMyClubsScreen = () => navigation.push('NewInMyClubsScreen');
         return (
             <SeeMoreContainer onPress={advanceToNewInMyClubsScreen}>
-                <SeeMoreText>{'See more'}</SeeMoreText>
-                <FontAwesomeIcon icon={faChevronRight} size={16} color='white' />
+                <SeeMoreText>{'See More'}</SeeMoreText>
+                <Spacer />
+                <FontAwesomeIcon icon={faChevronRight} size={12} color='white' />
             </SeeMoreContainer>
-        );
+        )
     }
 
     return (
-        <Fragment>
+        <View>
             <HeaderContainer>
-                <FontAwesomeIcon icon={faAsterisk} color='white' size={24} />
-                <HeaderText>{'In my clubs'}</HeaderText>
+                <HeaderContainerLeft>
+                    <ClubsIconSVG size={24} />
+                    <HeaderText>{'In my clubs'}</HeaderText>
+                </HeaderContainerLeft>
             </HeaderContainer>
-            <RowContainer showsVerticalScrollIndicator={false}>
-                { displayActivity.map(renderActivity) }
-                <SeeMore />
-            </RowContainer>
-        </Fragment>
-    )
+            <ColumnsContainer>
+                <ColumnContainer>
+                    { columnA.map(renderActivity) }
+                </ColumnContainer>
+                <ColumnContainer>
+                    { columnB.map(renderActivity) }
+                </ColumnContainer>
+            </ColumnsContainer>
+            <SeeMore />
+        </View>
+    );
 }
