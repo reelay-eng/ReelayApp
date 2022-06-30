@@ -24,15 +24,16 @@ import ActiveClubs from './ActiveClubs';
 
 import moment from 'moment';
 import InMyClubs from './InMyClubs';
+import { LinearGradient } from 'expo-linear-gradient';
 
-const BottomBar = styled(View)`
-    background-color: black;
-    height: 100px;
+const BottomBar = styled(LinearGradient)`
+    height: 80px;
+    opacity: 0.5;
     width: 100%;
     position: absolute;
     bottom: 0px;
 `
-const HomeContainer = styled(SafeAreaView)`
+const HomeContainer = styled(View)`
     width: 100%;
     height: 100%;
     display: flex;
@@ -112,12 +113,14 @@ const HomeComponent = ({ navigation }) => {
 
     return (
         <HomeContainer>
-            <HomeHeader 
-                navigation={navigation} 
-                selectedTab={selectedTab} 
-                setSelectedTab={setSelectedTab} 
-                tabOptions={tabOptions} 
-            />
+            <SafeAreaView>
+                <HomeHeader 
+                    navigation={navigation} 
+                    selectedTab={selectedTab} 
+                    setSelectedTab={setSelectedTab} 
+                    tabOptions={tabOptions} 
+                />
+                </SafeAreaView>
             <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 <AnnouncementsAndNotices navigation={navigation} />
                 { selectedTab === 'discover' && (
@@ -144,7 +147,10 @@ const HomeComponent = ({ navigation }) => {
                 )}
                 <Spacer height={80} />
             </ScrollContainer>
-            <BottomBar />
+            <BottomBar 
+                colors={["transparent", "#000000"]} 
+                end={{ x: 0.5, y: 2}}
+            />
             { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
             { showNoticeAsOverlay && <NoticeOverlay navigation={navigation} /> }
         </HomeContainer>

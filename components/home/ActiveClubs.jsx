@@ -7,6 +7,8 @@ import { useSelector } from 'react-redux';
 import ClubPicture from '../global/ClubPicture';
 import { ClubsIconSVG } from '../global/SVGs';
 
+import moment from 'moment';
+
 const ActiveClubsContainer = styled(View)`
     margin-bottom: 10px;
 `
@@ -40,7 +42,19 @@ const RowContainer = styled(ScrollView)`
 
 export default ActiveClubs = ({ navigation }) => {
     const myClubs = useSelector(state => state.myClubs);
+    const byMostRecent = (club0, club1) => {
+        try {
+            const lastActivity0 = moment(club0.lastActivityAt);
+            const lastActivity1 = moment(club1.lastActivityAt); 
+            return lastActivity1.diff(lastActivity0, 'seconds');
+        } catch (error) {
+            console.log(error);
+            return 1;
+        }
+    }
 
+    const displayClubs = myClubs.sort(byMostRecent);
+    
     const renderClubOption = (club) => {
         const advanceToClubActivityScreen = () => navigation.navigate('ClubActivityScreen', { club })
         return (
@@ -55,10 +69,10 @@ export default ActiveClubs = ({ navigation }) => {
         <ActiveClubsContainer>
             <HeaderContainer>
                 <ClubsIconSVG size={24} />
-                <HeaderText>{'Active clubs'}</HeaderText>
+                <HeaderText>{'My clubs'}</HeaderText>
             </HeaderContainer>
             <RowContainer horizontal showsHorizontalScrollIndicator={false}>
-                { myClubs.map(renderClubOption) }
+                { displayClubs.map(renderClubOption) }
             </RowContainer>
         </ActiveClubsContainer>
     )

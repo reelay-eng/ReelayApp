@@ -166,7 +166,7 @@ export default OnStreaming = ({ navigation, source = 'discover' }) => {
             <HeaderContainer>
                 <HeaderContainerLeft>
                     <Icon type='font-awesome' name='television' size={24} color='white' />
-                    <HeaderText>{'On streaming'}</HeaderText>
+                    <HeaderText>{(source === 'discover') ? 'On streaming' : 'Friends on streaming'}</HeaderText>
                 </HeaderContainerLeft>
                 <EditButton />
             </HeaderContainer>

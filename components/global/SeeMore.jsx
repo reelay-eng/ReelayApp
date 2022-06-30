@@ -24,8 +24,6 @@ export default SeeMore = ({ reelay, display='thumbnail', onPress, height = 200, 
 		justify-content: center;
         height: ${height}px;
         width: ${width}px;
-		border-color: blue;
-		border-width: 1px;
 	`
     const SeeMoreText = styled(ReelayText.CaptionEmphasized)`
         color: white;

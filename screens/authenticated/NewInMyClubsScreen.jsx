@@ -4,8 +4,9 @@ import styled from 'styled-components/native';
 
 import { HeaderWithBackButton } from "../../components/global/Headers";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { ClubActivityCard } from "../../components/home/InMyClubs";
+import { useFocusEffect } from "@react-navigation/native";
 
 const ColumnsContainer = styled(View)`
     flex-direction: row;
@@ -16,17 +17,15 @@ const ColumnContainer = styled(View)`
     flex: 1;
     width: 50%;
 `
-const ScreenContainer = styled(SafeAreaView)`
+const ScreenContainer = styled(View)`
     background-color: black;
     height: 100%;
     width: 100%;
 `
-const ScrollContainer = styled(ScrollView)`
-    margin-bottom: ${props => props.bottomOffset}px;
-`
 
 export default NewInMyClubsScreen = ({ navigation }) => {
     const bottomOffset = useSafeAreaInsets().bottom + 20;
+    const dispatch = useDispatch();
     const myClubActivities = useSelector(state => state.myClubActivities);
     const filterMemberActivities = (nextActivity) => (nextActivity?.activityType !== 'member');
     const displayActivities = myClubActivities.filter(filterMemberActivities);
@@ -35,13 +34,19 @@ export default NewInMyClubsScreen = ({ navigation }) => {
     const columnB = displayActivities.filter((activity, index) => index % 2 === 1);
 
     const renderActivity = (activity) => {
-        return <ClubActivityCard activity={activity} navigation={navigation} />
+        return <ClubActivityCard key={activity.id} activity={activity} navigation={navigation} />
     }
+
+    useFocusEffect(() => {
+        dispatch({ type: 'setTabBarVisible', payload: false });
+    })
 
     return (
         <ScreenContainer>
-            <HeaderWithBackButton navigation={navigation} text={'New in my clubs'} />
-            <ScrollContainer 
+            <SafeAreaView>
+                <HeaderWithBackButton navigation={navigation} text={'New in my clubs'} />
+            </SafeAreaView>
+            <ScrollView 
                 bottomOffset={bottomOffset} 
                 contentContainerStyle={{ 
                     alignItems: 'center',
@@ -57,7 +62,7 @@ export default NewInMyClubsScreen = ({ navigation }) => {
                         { columnB.map(renderActivity) }
                     </ColumnContainer>
                 </ColumnsContainer>
-            </ScrollContainer>
+            </ScrollView>
         </ScreenContainer>
     )
 }

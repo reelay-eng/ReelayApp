@@ -31,6 +31,7 @@ export default ReelayThumbnail = ({
 	showIcons = true,
 	width = 120,
 }) => {
+	const CREATOR_LINE_BOTTOM = asNewInMyClubs ? 6 : 12;
 	const ICON_SIZE = asTopOfTheWeek ? 24 : asNewInMyClubs ? 20 : 16;
 	const STAR_RATING_ADD_LEFT = asTopOfTheWeek ? 12 : asNewInMyClubs ? 6 : 0;
 	const STAR_SIZE = asTopOfTheWeek ? 16 : asNewInMyClubs ? 14 : 12;
@@ -45,7 +46,7 @@ export default ReelayThumbnail = ({
 
 	const CreatorLineContainer = styled(View)`
         align-items: center;
-		bottom: 12px;
+		bottom: ${CREATOR_LINE_BOTTOM}px;
         flex-direction: row;
         margin-left: 5px;
 		position: absolute;
@@ -104,15 +105,21 @@ export default ReelayThumbnail = ({
 		width: 100%;
 	`
 	const UsernameText = styled(ReelayText.Subtitle2)`
+		line-height: 18px;
         font-size: ${USERNAME_TEXT_SIZE}px;
-		padding: ${USERNAME_ADD_LEFT}px;
+		padding-left: ${USERNAME_ADD_LEFT}px;
+		padding-right: ${USERNAME_ADD_LEFT}px;
 		color: white;
 		flex: 1;
 	`
 	const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
 	const [thumbnailSource, setThumbnailSource] = useState(cloudfrontThumbnailSource);
+	const myClubs = useSelector(state => state.myClubs);
 	const s3Client = useSelector(state => state.s3Client);
 	const starRating = (reelay.starRating ?? 0) + (reelay.starRatingAddHalf ? 0.5 : 0);
+
+	const club = asNewInMyClubs ? (myClubs.find(next => next.id === reelay?.clubID)) : null;
+	const displayName = asNewInMyClubs ? (club?.name) : reelay?.creator?.username;
 
 	const generateAndSaveThumbnail = async () => {
 		console.log('ON ERROR TRIGGERED: ', getThumbnailURI(reelay));
@@ -126,7 +133,7 @@ export default ReelayThumbnail = ({
 		return thumbnailObj;
 	}
 
-	const GradientOverlay = ({ username }) => {
+	const GradientOverlay = () => {
 		return (
 			<React.Fragment>
 				{ !asTopOfTheWeek && (
@@ -152,8 +159,8 @@ export default ReelayThumbnail = ({
 				{ asTopOfTheWeek && <LikeCounter likeCount={reelay.likes.length} /> }
 				<GradientContainer>
 					<ThumbnailGradient colors={["transparent", "#0B1424"]} />
-					{ showIcons && <CreatorLine username={username} /> }
-					{ showIcons && (starRating > 0) && <StarRatingLine /> }
+					{ showIcons && <CreatorLine /> }
+					{ showIcons && !asNewInMyClubs && (starRating > 0) && <StarRatingLine /> }
 				</GradientContainer>
 			</React.Fragment>
 		)
@@ -176,7 +183,7 @@ export default ReelayThumbnail = ({
 		);
 	}
 
-    const CreatorLine = ({ username }) => {        
+    const CreatorLine = () => {        
         return (
             <CreatorLineContainer>
 				{ asNewInMyClubs && (
@@ -185,8 +192,8 @@ export default ReelayThumbnail = ({
 				{ !asNewInMyClubs && (
 					<ProfilePicture user={reelay?.creator} size={PROFILE_PIC_SIZE} border />
 				)}
-                <UsernameText numberOfLines={1}>
-                    {`@${username}`}
+                <UsernameText numberOfLines={2}>
+                    {displayName}
                 </UsernameText>
             </CreatorLineContainer>
         );

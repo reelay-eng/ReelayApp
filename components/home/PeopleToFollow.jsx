@@ -45,7 +45,7 @@ export default PeopleToFollow = ({ navigation }) => {
         const user = { sub: followObj?.creatorSub, username: followObj?.creatorName };
         return (
             <FollowOptionContainer key={user?.sub}>
-                <ProfilePicture navigation={navigation} size={100} user={user} />
+                <ProfilePicture border={true} navigation={navigation} size={100} user={user} />
                 <UsernameText>{user?.username}</UsernameText>
             </FollowOptionContainer>
         )
@@ -55,7 +55,7 @@ export default PeopleToFollow = ({ navigation }) => {
         <Fragment>
             <HeaderContainer>
                 <FontAwesomeIcon icon={faUserPlus} color='white' size={24} />
-                <HeaderText>{'Suggested amici'}</HeaderText>
+                <HeaderText>{'New to follow'}</HeaderText>
             </HeaderContainer>
             <RowContainer horizontal showsHorizontalScrollIndicator={false}>
                 { peopleToFollowList.map(renderFollowOption)}

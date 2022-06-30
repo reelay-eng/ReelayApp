@@ -13,13 +13,11 @@ import { faFireFlameCurved } from '@fortawesome/free-solid-svg-icons';
 import Carousel from 'react-native-snap-carousel';
 
 const { width } = Dimensions.get('window');
+const POSTER_WIDTH = width * 0.8;
+const POSTER_WIDTH_BORDER_RADIUS = Math.min(POSTER_WIDTH / 10, 12);
 
-const PopularTitlesContainer = styled.View`
-    width: 100%;
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 10px;
+const CarouselContainer = styled(View)`
+    margin-left: -10px;
 `
 const HeaderContainer = styled(View)`
     align-items: flex-end;
@@ -32,10 +30,50 @@ const HeaderText = styled(ReelayText.H5Bold)`
     font-size: 18px;
     margin-left: 12px;
 `
+const IconContainer = styled(View)`
+    margin: 10px;
+`
+const PopularTitlesContainer = styled.View`
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+`
+const PopularTitlesElementContainer = styled(Pressable)`
+    margin-top: 10px;
+`
+const ReelayCount = styled(ReelayText.CaptionEmphasized)`
+    margin-top: 8px;
+    color: white;
+    opacity: 0.5;
+`
+const SeeMoreOpacityContainer = styled(View)`
+    background-color: #1a1a1a;
+    border-radius: ${POSTER_WIDTH_BORDER_RADIUS}px;
+    height: 100%;
+    opacity: 0.7;
+    position: absolute;
+    width: ${POSTER_WIDTH}px;
+`
+const SeeMoreTextContainer = styled(View)`
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    position: absolute;
+    width: 100%;
+`
+const SeeMoreText = styled(ReelayText.Body1)`
+    color: white;
+`
+const TitleInfoLine = styled(View)`
+    flex-direction: row;
+    justify-content: space-between;
+`
 
 export default PopularTitles = ({ navigation, tab='discover' }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const headerText = (tab === 'discover') ? 'Popular titles on Reelay' : 'Popular titles with friends';
+    const headerText = (tab === 'discover') ? 'Popular titles' : 'Popular titles with friends';
     const popularTitleStacksDiscover = useSelector(state => state.myHomeContent?.discover?.popularTitles);
     const popularTitleStacksFollowing = useSelector(state => state.myHomeContent?.following?.popularTitles);
     const popularTitleStacks = (tab === 'following') ? popularTitleStacksFollowing : popularTitleStacksDiscover;
@@ -55,12 +93,35 @@ export default PopularTitles = ({ navigation, tab='discover' }) => {
 		});
 	};
 
+    const PopularTitleElement = ({ index, onPress, stack, length }) => {
+        const asSeeMore = index === length - 1;
+        return (
+            <PopularTitlesElementContainer onPress={onPress}>
+                <TitlePoster title={stack[0]?.title} width={POSTER_WIDTH} />
+                { asSeeMore && <SeeMoreOpacityContainer /> }
+                { asSeeMore && (
+                    <SeeMoreTextContainer>
+                        <IconContainer>
+                            <Icon type='ionicon' name='caret-forward-circle' size={24} color='white' />
+                        </IconContainer>
+                        <SeeMoreText>{'See More'}</SeeMoreText>
+                    </SeeMoreTextContainer>
+                )}
+                { !asSeeMore && (
+                    <TitleInfoLine>
+                        <ReelayCount>{`${stack.length} ${(stack.length > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
+                    </TitleInfoLine>
+                )}
+            </PopularTitlesElementContainer>
+        )
+    }
+
     const TitlesRow = () => {
         const onBeforeSnapToItem = () => {} // todo
         const renderTitleStackElement = ({ item, index }) => {
             const stack = item;
             return (
-                <InTheatersElement 
+                <PopularTitleElement 
                     key={index}
                     index={index} 
                     onPress={() => goToReelay(index, stack[0].title)} 
@@ -70,17 +131,19 @@ export default PopularTitles = ({ navigation, tab='discover' }) => {
         }
 
         return (
-            <Carousel
-                activeAnimationType={'decay'}
-                activeSlideAlignment={'center'}
-                data={popularTitleStacks}
-                inactiveSlideScale={1}
-                itemWidth={width * 0.9}
-                onBeforeSnapToItem={onBeforeSnapToItem}
-                renderItem={renderTitleStackElement}
-                sliderHeight={240}
-                sliderWidth={width}
-            />
+            <CarouselContainer>
+                <Carousel
+                    activeAnimationType={'decay'}
+                    activeSlideAlignment={'center'}
+                    data={popularTitleStacks}
+                    inactiveSlideScale={1}
+                    itemWidth={width * 0.85}
+                    onBeforeSnapToItem={onBeforeSnapToItem}
+                    renderItem={renderTitleStackElement}
+                    sliderHeight={240}
+                    sliderWidth={width}
+                />
+            </CarouselContainer>
         );
     }
 
@@ -98,42 +161,3 @@ export default PopularTitles = ({ navigation, tab='discover' }) => {
         </PopularTitlesContainer>
     )
 };
-
-const PopularTitlesElementContainer = styled(Pressable)`
-    margin-top: 10px;
-`
-const ReelayCount = styled(ReelayText.CaptionEmphasized)`
-    margin-top: 8px;
-    color: white;
-    opacity: 0.5;
-`
-const TitleInfoLine = styled(View)`
-    flex-direction: row;
-    justify-content: space-between;
-`
-
-const InTheatersElement = ({ index, onPress, stack, length }) => {
-    const posterWidth = width * 0.8;
-    if (index === length-1) {
-        return (
-        <PopularTitlesElementContainer>
-            <SeeMore 
-                display='poster'
-                height={posterWidth / 1.5} 
-                onPress={onPress} 
-                reelay={stack[0]} 
-                width={posterWidth - 3} 
-            />
-        </PopularTitlesElementContainer>
-        )
-    }
-
-    return (
-        <PopularTitlesElementContainer onPress={onPress}>
-            <TitlePoster title={stack[0]?.title} width={posterWidth} />
-            <TitleInfoLine>
-                <ReelayCount>{`${stack.length} ${(stack.length > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
-            </TitleInfoLine>
-        </PopularTitlesElementContainer>
-    )
-}

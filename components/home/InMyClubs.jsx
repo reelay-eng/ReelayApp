@@ -1,5 +1,6 @@
 import React from "react";
 import { Dimensions, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 import { LinearGradient } from "expo-linear-gradient";
 import * as ReelayText from '../global/Text';
 import { useSelector } from "react-redux";
@@ -13,13 +14,14 @@ import TitlePoster from "../global/TitlePoster";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faChevronRight, faComments } from "@fortawesome/free-solid-svg-icons";
 import { ClubsIconSVG } from "../global/SVGs";
+import ClubPicture from "../global/ClubPicture";
 
 const { width } = Dimensions.get('window');
 
 const ACTIVITY_CARD_MARGIN = 8;
 const ACTIVITY_CARD_WIDTH = (width - ACTIVITY_CARD_MARGIN) / 2;
 const REELAY_CARD_HEIGHT = ACTIVITY_CARD_WIDTH * 2.125;
-const TOPIC_CARD_HEIGHT = ACTIVITY_CARD_WIDTH * 1.25;
+const TOPIC_CARD_HEIGHT = 300; // ACTIVITY_CARD_WIDTH * 1.25;
 const TITLE_CARD_HEIGHT = ACTIVITY_CARD_WIDTH * 1.5;
 
 const ActivityContainer = styled(View)`
@@ -35,6 +37,30 @@ const ColumnContainer = styled(View)`
     display: flex;
     flex: 1;
     width: 50%;
+`
+const CreateClubBackground = styled(View)`
+    background-color: #FFFFFF;
+    border-radius: 17px;
+    height: 32px;
+    opacity: 0.25;
+    position: absolute;
+    width: 125px;
+`
+const CreateClubPressable = styled(TouchableOpacity)`
+    align-items: center;
+    border-radius: 17px;
+    flex-direction: row;
+    justify-content: center;
+    height: 32px;
+    padding-left: 8px;
+    padding-right: 12px;
+    margin-bottom: 20px;
+    width: 125px;
+`
+const CreateClubButtonText = styled(ReelayText.CaptionEmphasized)`
+    color: white;
+    font-size: 12px;
+    line-height: 16px;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
@@ -61,7 +87,9 @@ const OverlineText = styled(ReelayText.CaptionEmphasized)`
 const SeeMoreContainer = styled(TouchableOpacity)`
     align-items: center;
     flex-direction: row;
+    justify-content: flex-end;
     height: 24px;
+    margin-bottom: 16px;
 `
 const SeeMoreText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -70,10 +98,41 @@ const SeeMoreText = styled(ReelayText.CaptionEmphasized)`
 const Spacer = styled(View)`
     width: 8px;
 `
-const TopicTitleText = styled(ReelayText.H6Emphasized)`
+const StartAClubContainer = styled(View)`
+    align-items: center;
+    border-radius: 8px;
+    justify-content: center;
+    margin: 16px;
+`
+const StartAClubContentContainer = styled(View)`
+    padding: 16px;
+    padding-left: 20px;
+    padding-right: 20px;
+`
+const StartAClubCTAContainer = styled(View)`
+    align-items: flex-end;
+    margin-right: 16px;
+    width: 100%;
+`
+const StartAClubGradient = styled(LinearGradient)`
+    border-radius: 8px;
+    height: 100%;
+    position: absolute;
+    width: 100%;
+`
+const StartAClubTitleText = styled(ReelayText.H5Emphasized)`
     color: white;
-    display: flex;
-    font-size: 16px;
+    line-height: 24px;
+    margin-top: 12px;
+    margin-bottom: 6px;
+`
+const StartAClubBodyText = styled(ReelayText.Body2Emphasized)`
+    color: white;
+    margin-bottom: 4px;
+`
+const TopicTitleText = styled(ReelayText.H5Emphasized)`
+    color: white;
+    font-size: 18px;
     padding-left: 6px;
     padding-right: 18px;
 `
@@ -81,15 +140,20 @@ const TitleCardContainer = styled(TouchableOpacity)`
 `
 const TopicCardContainer = styled(TouchableOpacity)`
     border-radius: 8px;
-    flex-direction: row;
     height: ${TOPIC_CARD_HEIGHT}px;
     width: 100%;
 `
 const TopicDescriptionText = styled(ReelayText.CaptionEmphasized)`
     color: #86878B;
-    display: flex;
     margin-left: 6px;
     margin-top: 4px;
+`
+const TitleCardGradient = styled(LinearGradient)`
+    border-radius: 16px;
+    bottom: 0px;
+    height: 120px;
+    position: absolute;
+    width: 100%;
 `
 const TopicCardGradient = styled(LinearGradient)`
     border-radius: 16px;
@@ -98,12 +162,13 @@ const TopicCardGradient = styled(LinearGradient)`
     position: absolute;
 `
 const TopicToplineLeftContainer = styled(View)`
+    align-items: center;
+    margin-top: 10px;
     padding: 6px;
+    width: 100%;
 `
 const TopicToplineRightContainer = styled(View)`
-    flex: 1;
-    padding: 6px;
-    padding-left: 0px;
+    padding: 8px;
 `
 const TopicIconContainer = styled(View)`
     flex-direction: row;
@@ -121,34 +186,19 @@ const UnderlineContainer = styled(View)`
 `
 
 export const ClubActivityCard = ({ activity, navigation }) => {
-    console.log('activity rendering: ', activity);
     const myClubs = useSelector(state => state.myClubs);
+    const club = myClubs.find(next => next.id === activity.clubID);
     const { activityType, reelays } = activity;
     if (activityType === 'member') return <View key={member?.userSub} />
 
     const ActivityUnderline = () => {
-        if (reelays.length > 0) {
-            const { creator } = reelays[0];
-            const overlineText = `${creator.username} reelayed`;
-            return (
-                <UnderlineContainer>
-                    <ProfilePicture user={creator} size={30} />
-                    <OverlineText numberOfLines={2}>{overlineText}</OverlineText>
-                </UnderlineContainer>
-            );
-        } else {
-            const creator = {
-                sub: activity?.addedByUserSub ?? activity?.creatorSub,
-                username: activity?.addedByUsername ?? activity?.creatorName,
-            }
-            const overlineText = `${creator.username} added`;
-            return (
-                <UnderlineContainer>
-                    <ProfilePicture user={creator} size={30} />
-                    <OverlineText numberOfLines={2}>{overlineText}</OverlineText>
-                </UnderlineContainer>
-            );
-        }    
+        const overlineText = club?.name;
+        return (
+            <UnderlineContainer>
+                <ClubPicture club={club} size={30} />
+                <OverlineText numberOfLines={2}>{overlineText}</OverlineText>
+            </UnderlineContainer>
+        );
     }
 
     const InMyClubsTitleCard = () => {
@@ -163,6 +213,7 @@ export const ClubActivityCard = ({ activity, navigation }) => {
                     title={activity.title} 
                     width={ACTIVITY_CARD_WIDTH - 6} 
                 />
+                <TitleCardGradient colors={["transparent", "#1a1a1a"]} />
             </TitleCardContainer>
         )
     }    
@@ -172,14 +223,15 @@ export const ClubActivityCard = ({ activity, navigation }) => {
             const club = myClubs.find(next => next.id === activity.clubID);
             navigation.navigate('ClubActivityScreen', { club });
         };
+
         return (
             <TopicCardContainer key={activity.id} onPress={advanceToClubActivityScreen}>
                 <TopicCardGradient colors={['#400817', '#19242E']} />
                 <TopicToplineLeftContainer>
-                    <FontAwesomeIcon icon={faComments} color='white' size={24} />
+                    <FontAwesomeIcon icon={faComments} color='white' size={48} />
                 </TopicToplineLeftContainer>
                 <TopicToplineRightContainer>
-                    <TopicTitleText numberOfLines={2}>{activity.title}</TopicTitleText>
+                    <TopicTitleText>{activity.title}</TopicTitleText>
                     <TopicDescriptionText>{activity.description}</TopicDescriptionText>
                 </TopicToplineRightContainer>
             </TopicCardContainer>
@@ -248,18 +300,51 @@ export const ClubActivityCard = ({ activity, navigation }) => {
     }
 }
 
+const StartAClubCard = ({ navigation }) => {
+    const START_A_CLUB_TITLE = 'Start a club with friends';
+    const START_A_CLUB_BODY = 'Share reelays together in private. For your roommates, your family, your Marvel team, your Succession obsession.';
+    const START_A_CLUB_BODY1 = 'Share reelays together in private.';
+    const START_A_CLUB_BODY2 = 'For your roommates, your family, your Marvel team, your Succession obsession.';
+
+    const CreateClubButton = () => {
+        const advanceToCreateClub = () => navigation.navigate('CreateClubScreen');
+        return (
+            <CreateClubPressable onPress={advanceToCreateClub}>
+                <CreateClubBackground />
+                <Icon type='ionicon' name='add' color='white' size={20} />
+                <CreateClubButtonText>{'Create a club'}</CreateClubButtonText>
+            </CreateClubPressable>
+        );
+    }
+
+    return (
+        <StartAClubContainer>
+            <StartAClubGradient colors={[ '#FF4848', '#038AFF' ]}/>
+            <StartAClubContentContainer>
+                <StartAClubTitleText>{START_A_CLUB_TITLE}</StartAClubTitleText>
+                <StartAClubBodyText>{START_A_CLUB_BODY1}</StartAClubBodyText>
+                <StartAClubBodyText>{START_A_CLUB_BODY2}</StartAClubBodyText>
+            </StartAClubContentContainer>
+            <StartAClubCTAContainer>
+                <CreateClubButton />
+            </StartAClubCTAContainer>
+        </StartAClubContainer>
+    );
+}
+
 export default InMyClubs = ({ navigation }) => {
     const MAX_ACTIVITIES_SHOWN = 6;
 
     const myClubActivities = useSelector(state => state.myClubActivities);
     const filterMemberActivities = (nextActivity) => (nextActivity?.activityType !== 'member');
     const displayActivities = myClubActivities.filter(filterMemberActivities);
+    const hasDisplayActivities = displayActivities.length > 0;
 
     const columnA = displayActivities.filter((activity, index) => (index % 2 === 0) && (index < MAX_ACTIVITIES_SHOWN));
     const columnB = displayActivities.filter((activity, index) => (index % 2 === 1) && (index < MAX_ACTIVITIES_SHOWN));
 
     const renderActivity = (activity) => {
-        return <ClubActivityCard activity={activity} navigation={navigation} />
+        return <ClubActivityCard key={activity.id} activity={activity} navigation={navigation} />
     }
 
     const SeeMore = () => {
@@ -269,8 +354,13 @@ export default InMyClubs = ({ navigation }) => {
                 <SeeMoreText>{'See More'}</SeeMoreText>
                 <Spacer />
                 <FontAwesomeIcon icon={faChevronRight} size={12} color='white' />
+                <Spacer />
             </SeeMoreContainer>
         )
+    }
+
+    if (!hasDisplayActivities) {
+        return <StartAClubCard navigation={navigation} />
     }
 
     return (

@@ -136,6 +136,19 @@ export default SearchScreen = ({ navigation }) => {
     return (
 		<SearchScreenContainer>
 			<HeaderWithBackButton navigation={navigation} text={"Search"} />
+            <TopBarContainer>
+				<SelectorBarContainer>
+					<ToggleSelector
+                        displayOptions={["Film", "TV", "Users"]}
+						options={["Film", "TV", "Users"]}
+						selectedOption={selectedType}
+						onSelect={(type) => {
+							setSelectedType(type);
+                            if (searchText.length) setLoading(true);
+						}}
+					/>
+				</SelectorBarContainer>
+			</TopBarContainer>
             <SearchBarContainer>
 				<SearchField
 					searchText={searchText}
@@ -150,19 +163,6 @@ export default SearchScreen = ({ navigation }) => {
 					}`}
 				/>
 			</SearchBarContainer>
-			<TopBarContainer>
-				<SelectorBarContainer>
-					<ToggleSelector
-                        displayOptions={["Film", "TV", "Users"]}
-						options={["Film", "TV", "Users"]}
-						selectedOption={selectedType}
-						onSelect={(type) => {
-							setSelectedType(type);
-                            if (searchText.length) setLoading(true);
-						}}
-					/>
-				</SelectorBarContainer>
-			</TopBarContainer>
 			{selectedType !== "Users" && !loading && (
 				<TitleSearchResults
 					navigation={navigation}
