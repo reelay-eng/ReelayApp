@@ -48,7 +48,8 @@ const AddTitleButtonText = styled(ReelayText.Subtitle2)`
 const SelectorBarContainer = styled(View)`
     width: 90%;
     height: 40px;
-    margin-bottom: 16px;
+    margin-top: 8px;
+    margin-bottom: 8px;
 `
 const SearchBarContainer = styled(View)`
     width: 100%;

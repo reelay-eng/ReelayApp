@@ -196,55 +196,53 @@ export const RedPlusButton = ({onPress}) => {
 export const ToggleSelector = ({ displayOptions, options, selectedOption, onSelect, color }) => {
 	const BackgroundBox = styled(View)`
 		align-items: center;
-		background-color: black;
+		background-color: #252527;
 		border-radius: 8px;
-		justify-content: center;
+		justify-content: flex-start;
 		flex-direction: row;
 		height: 48px;
 		padding: 2px;
 		width: 100%;
 	`;
-    const ButtonContainer = styled(Pressable)`
-        align-items: center;
-        justify-content: center;
-        height: 44px;
-        width: ${75 / options.length}%;
-    `
-    const OptionText = styled(ReelayText.H6)`
-        color: gray;
-		font-size: 18px;
-    `
-	const ActiveOptionText = styled(ReelayText.H6)`
+	const ButtonContainer = styled(Pressable)`
+		align-items: center;
+		justify-content: center;
+		height: 44px;
+		width: ${100 / options.length}%;
+	`
+	const ActiveButtonContainer = styled(ButtonContainer)`
+		background-color: ${color ?? ReelayColors.reelayBlue};
+		border-radius: 6px;
+	`;
+	const OptionText = styled(ReelayText.Subtitle2)`
 		color: white;
-		font-size: 18px;
-		font-weight: bold;
-		margin-bottom: 2px;
+	`
+	const PassiveButtonContainer = styled(ButtonContainer)`
+		background-color: transparent;
 	`
 
-    return (
-        <BackgroundBox>
-            { options.map((option, index) => {
-                if (option === selectedOption) {
-                    return (
-                        <ButtonContainer key={option}>
-							<ActiveOptionText>
-								{ (displayOptions && displayOptions[index]) ?? option }
-							</ActiveOptionText>
-							<FontAwesomeIcon icon={faCircle} color='white' size={4} /> 
-                        </ButtonContainer>
-                    );
-                } else {
-                    return (
-                        <ButtonContainer key={option}
-                                onPress={() => onSelect(option)}>
-                            <OptionText>
+	return (
+		<BackgroundBox>
+			{ options.map((option, index) => {
+				if (option === selectedOption) {
+					return (
+						<ActiveButtonContainer key={option}>
+							<OptionText>
 								{ (displayOptions && displayOptions[index]) ?? option }
 							</OptionText>
-							<View style={{ height: 6 }} />
-                        </ButtonContainer>
-                    );
-                }
-            })}
-        </BackgroundBox>
-    );
+						</ActiveButtonContainer>
+					);
+				} else {
+					return (
+						<PassiveButtonContainer key={option}
+								onPress={() => onSelect(option)}>
+							<OptionText>
+								{ (displayOptions && displayOptions[index]) ?? option }
+							</OptionText>
+						</PassiveButtonContainer>
+					);
+				}
+			})}
+		</BackgroundBox>
+	);
 }

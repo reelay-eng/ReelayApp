@@ -1,13 +1,36 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import * as ReelayText from "../global/Text";
-import { SafeAreaView, TouchableOpacity, View } from 'react-native';
+import { Pressable, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { useSelector } from 'react-redux';
-import { ToggleSelector } from '../global/Buttons';
 
+const ActiveOptionText = styled(ReelayText.H6)`
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 2px;
+`
+const BackgroundBox = styled(View)`
+    align-items: center;
+    background-color: black;
+    border-radius: 8px;
+    justify-content: center;
+    flex-direction: row;
+    height: 48px;
+    padding: 2px;
+    width: 100%;
+`
+const ButtonContainer = styled(Pressable)`
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    width: 37.5%;
+`
 const HeaderContainer = styled(View)`
     padding-left: 15px;
     padding-right: 15px;
@@ -33,6 +56,10 @@ const HeaderText = styled(ReelayText.H4Bold)`
 `
 const IconContainer = styled(TouchableOpacity)`
     margin-left: 12px;
+`
+const OptionText = styled(ReelayText.H6)`
+    color: gray;
+    font-size: 18px;
 `
 const UnreadIconIndicator = styled(SafeAreaView)`
 	background-color: ${ReelayColors.reelayBlue}
@@ -78,12 +105,25 @@ export default HomeHeader = ({
 
     const HomeScreenTabSelector = () => {
         return (
-            <ToggleSelector 
-                displayOptions={tabOptions}
-                options={tabOptions}
-                selectedOption={selectedTab}
-                onSelect={setSelectedTab}
-            />
+            <BackgroundBox>
+                { ['discover', 'following'].map(tab => {
+                    if (tab === selectedTab) {
+                        return (
+                            <ButtonContainer key={tab}>
+                                <ActiveOptionText>{tab}</ActiveOptionText>
+                                <FontAwesomeIcon icon={faCircle} color='white' size={4} /> 
+                            </ButtonContainer>
+                        );
+                    } else {
+                        return (
+                            <ButtonContainer key={tab} onPress={() => setSelectedTab(tab)}>
+                                <OptionText>{tab}</OptionText>
+                                <View style={{ height: 6 }} />
+                            </ButtonContainer>
+                        );
+                    }
+                })}
+            </BackgroundBox>
         );
     }    
     

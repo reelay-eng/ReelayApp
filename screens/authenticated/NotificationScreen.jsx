@@ -221,9 +221,7 @@ const NotificationList = ({ navigation }) => {
     const dispatch = useDispatch();
     const myNotifications = useSelector(state => state.myNotifications);
     const unread = myNotifications.filter(({ seen }) => !seen).length;
-
     const nextPage = Math.floor(myNotifications.length / PAGE_SIZE);
-    console.log('next page: ', nextPage, myNotifications.length);
 
     const { reelayDBUser } = useContext(AuthContext);
     const [refreshing, setRefreshing] = useState(false);

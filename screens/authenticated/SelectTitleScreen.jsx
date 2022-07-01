@@ -24,12 +24,13 @@ const SearchBarContainer = styled(View)`
 `;
 const SelectorBarContainer = styled(View)`
 	height: 40px;
+    margin-bottom: 8px;
+    width: 90%;
 `;
 const TopBarContainer = styled(View)`
 	display: flex;
 	align-items: center;
 	width: 100%;
-	margin-bottom: 8px;
 `;
 
 // color is ReelayColors.reelayGreen at reduced opacity
@@ -126,20 +127,12 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     }, [searchResults]);
 
     return (
-		<SafeAreaView style={{ backgroundColor: "black", height: "100%", width: "100%" }}>
+		<SafeAreaView style={{ backgroundColor: "black", alignItems: 'center', height: "100%", width: "100%" }}>
 			<TopBarContainer>
                 { !topic && <BaseHeader text={"Create a reelay"} /> }
                 { topic && <HeaderWithBackButton navigation={navigation} text={"Add a reelay"} /> }
                 { topic && <TopicLabel /> }
 			</TopBarContainer>
-			<SearchBarContainer>
-				<SearchField
-					searchText={searchText}
-                    updateSearchText={setSearchText}
-                    borderRadius={4}
-					placeholderText="What did you see?"
-				/>
-			</SearchBarContainer>
             <SelectorBarContainer>
                 <ToggleSelector
                     options={["Film", "TV"]}
@@ -149,6 +142,14 @@ export default SelectTitleScreen = ({ navigation, route }) => {
                     }}
                 />
             </SelectorBarContainer>
+            <SearchBarContainer>
+				<SearchField
+					searchText={searchText}
+                    updateSearchText={setSearchText}
+                    borderRadius={4}
+					placeholderText="What did you see?"
+				/>
+			</SearchBarContainer>
             { loading && <ActivityIndicator /> }
             { !loading && (
                 <TitleSearchResults
