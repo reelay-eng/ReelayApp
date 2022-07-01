@@ -264,11 +264,6 @@ export const mapStateToProps = (state) => ({
     myHomeContent: state.myHomeContent,
     myDismissalHistory: state.myDismissalHistory,
     showFestivalsRow: state.showFestivalsRow,
-    topics: {
-        discoverNew: state.myHomeContent?.discover?.newTopics,
-        discoverPopular: state.myHomeContent?.discover?.popularTopics,
-        followingNew: state.myHomeContent?.following?.newTopics
-    },
 
     // ON REELAYS
     commentsVisible: state.commentsVisible,

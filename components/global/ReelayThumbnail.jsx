@@ -43,7 +43,6 @@ export default ReelayThumbnail = ({
 	const Spacer = styled(View)`
 		height: ${props => props.height ?? '0'}px;
 	`
-
 	const CreatorLineContainer = styled(View)`
         align-items: center;
 		bottom: ${CREATOR_LINE_BOTTOM}px;
@@ -90,6 +89,7 @@ export default ReelayThumbnail = ({
 	const ThumbnailContainer = styled(View)`
 		justify-content: center;
 		margin: ${margin}px;
+		width: ${width}px;
 	`
 	const ThumbnailGradient = styled(LinearGradient)`
 		border-radius: 6px;
@@ -110,6 +110,7 @@ export default ReelayThumbnail = ({
 		padding-left: ${USERNAME_ADD_LEFT}px;
 		padding-right: ${USERNAME_ADD_LEFT}px;
 		color: white;
+		margin-bottom: 4px;
 		flex: 1;
 	`
 	const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
@@ -192,7 +193,7 @@ export default ReelayThumbnail = ({
 				{ !asNewInMyClubs && (
 					<ProfilePicture user={reelay?.creator} size={PROFILE_PIC_SIZE} border />
 				)}
-                <UsernameText numberOfLines={2}>
+                <UsernameText numberOfLines={asNewInMyClubs ? 2 : 1}>
                     {displayName}
                 </UsernameText>
             </CreatorLineContainer>

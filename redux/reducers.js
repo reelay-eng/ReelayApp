@@ -102,6 +102,38 @@ export const latestNoticeReducer = ({ latestNotice, myClubs, myCreatorStacks, us
     }
 }
 
+
+// max 1 reelay per creator per day
+export const getMyStacksFollowingDaily = ({ myStacksFollowing }) => {
+    const replaceMostRecent = (nextReelay, curReelay) => {
+        // positive: nextReelay is more recent
+        return moment(nextReelay?.createdAt).diff(moment(curReelay?.createdAt), 'seconds') > 0;
+    }
+
+    const creatorDayEntries = {};
+    for (const stack of myStacksFollowing) {
+        for (const nextReelay of stack) {
+            const creatorDayKey = nextReelay?.creator?.sub + moment().dayOfYear().toString();
+            const curReelay = creatorDayEntries[creatorDayKey];
+            if (!curReelay || replaceMostRecent(nextReelay, curReelay)) {
+                creatorDayEntries[creatorDayKey] = nextReelay;
+            }
+        }
+    }    
+
+    const withOnlyDailyEntries = (stack) => {
+        return stack.filter(nextReelay => {
+            const creatorDayKey = nextReelay?.creator?.sub + moment().dayOfYear().toString();
+            const curReelay = creatorDayEntries[creatorDayKey];
+            return curReelay?.sub === nextReelay?.sub;
+        });
+    }
+
+    const hasReelays = (stack) => stack.length > 0;
+    const myStacksFollowingDaily = myStacksFollowing.map(withOnlyDailyEntries).filter(hasReelays);
+    return myStacksFollowingDaily;
+}
+
 export const noticeDismissalReducer = ({ notice, dismissalHistory }) => {
     if (!notice) return null;
     const noticeEntry = dismissalHistory?.noticeHistory?.[notice?.id];
