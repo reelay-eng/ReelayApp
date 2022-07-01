@@ -1,71 +1,69 @@
 {
-  "expo": {
-    "name": "Reelay",
-    "slug": "ReelayApp",
-    "version": "1.01.08",
-    "orientation": "portrait",
-    "icon": "./assets/icons/reelay-icon-with-dog-black.png",
-    "scheme": "reelayapp",
-    "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/images/reelay-splash-with-dog.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#000000"
-    },
-    "updates": {
-      "fallbackToCacheTimeout": 0
-    },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "ios": {
-      "associatedDomains" : [
-        "applinks:on.reelay.app"
-      ],
-      "supportsTablet": true,
-      "bundleIdentifier": "ReelayiOS",
-      "infoPlist": {
-        "UIBackgroundModes": [
-          "fetch",
-          "remote-notification"
+    "expo": {
+        "name": "Reelay",
+        "slug": "ReelayApp",
+        "version": "1.01.15",
+        "orientation": "portrait",
+        "icon": "./assets/icons/reelay-icon-with-dog-black.png",
+        "scheme": "reelayapp",
+        "userInterfaceStyle": "automatic",
+        "splash": {
+            "image": "./assets/images/reelay-splash-with-dog.png",
+            "resizeMode": "contain",
+            "backgroundColor": "#000000"
+        },
+        "updates": {
+            "fallbackToCacheTimeout": 0
+        },
+        "assetBundlePatterns": [
+            "**/*"
         ],
-        "LSApplicationQueriesSchemes": [
-          "disneyplus", 
-          "hbomax", 
-          "nflx", 
-          "aiv", 
-          "hulu", 
-          "vhxcriterionchannel", 
-          "com.cbsvideo.app", 
-          "mubi", 
-          "peacock", 
-          "plutotv", 
-          "tubitv", 
-          "youtube", 
-          "shudder", 
-          "crunchyroll", 
-          "fb1519029161670311"
-        ]
-      }
-    },
-    "android": {
-      "softwareKeyboardLayoutMode":"pan",
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#000000"
-      },
-      "package": "com.anthonyreelay.ReelayApp"
-    },
-    "web": {
-      "favicon": "./assets/images/favicon.png"
-    },
-    "plugins": [
-      [
-			"expo-image-picker",
-			{
-				"photosPermission": "Reelay accesses your photos to help you personalize your posts and profile."
-			}
-		]
-    ]
-  }
+        "ios": {
+            "associatedDomains" : [
+                "applinks:on.reelay.app"
+            ],
+            "supportsTablet": true,
+            "bundleIdentifier": "ReelayiOS",
+            "infoPlist": {
+                "UIBackgroundModes": [
+                    "fetch",
+                    "remote-notification"
+                ],
+                "LSApplicationQueriesSchemes": [
+                    "disneyplus", 
+                    "hbomax", 
+                    "nflx", 
+                    "aiv", 
+                    "hulu", 
+                    "vhxcriterionchannel", 
+                    "com.cbsvideo.app", 
+                    "mubi", 
+                    "peacock", 
+                    "plutotv", 
+                    "tubitv", 
+                    "youtube", 
+                    "shudder", 
+                    "crunchyroll", 
+                    "fb1519029161670311"
+                ],
+                "NSCameraUsageDescription": "The camera is active while you record reelays.",
+                "NSMicrophoneUsageDescription": "The microphone is active while you record reelays."
+            }
+        },
+        "android": {
+            "softwareKeyboardLayoutMode":"pan",
+            "adaptiveIcon": {
+                "foregroundImage": "./assets/images/adaptive-icon.png",
+                "backgroundColor": "#000000"
+            },
+            "package": "com.anthonyreelay.ReelayApp"
+            },
+            "web": {
+            "favicon": "./assets/images/favicon.png"
+        },
+        "plugins": [[
+            "expo-image-picker",
+            { "photosPermission": "Reelay lets you upload videos from your media library as reelays, and upload photos to your profile and clubs." }
+        ]]
+    }
 }

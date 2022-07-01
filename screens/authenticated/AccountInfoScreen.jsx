@@ -2,7 +2,7 @@ import React from 'react';
 import { SafeAreaView } from 'react-native';
 import styled from 'styled-components';
 
-import AccountInfo from '../../components/profile/AccountInfo';
+import { AccountInfo } from '../../components/profile/AccountInfo';
 
 export default AccountInfoScreen = ({ navigation, route }) => {
     const AccountInfoContainer = styled(SafeAreaView)`

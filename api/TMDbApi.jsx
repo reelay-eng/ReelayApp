@@ -6,97 +6,8 @@ const TMDB_API_BASE_URL = Constants.manifest.extra.tmdbApiBaseUrl;
 const TMDB_API_KEY = Constants.manifest.extra.tmdbApiKey;
 const TMDB_IMAGE_API_BASE_URL = Constants.manifest.extra.tmdbImageApiBaseUrl.substr(0,27);
 
-const POPULARITY_WEIGHT = 5;
-const TMDB_SEARCH_RANK_WEIGHT = 10;
-
 const PLACEHOLDER_POSTER_SOURCE = require('../assets/images/reelay-splash-with-dog.png');
 const WELCOME_VIDEO_POSTER_SOURCE = require('../assets/images/welcome-video-poster-with-dog.png');
-
-const matchScoreForTitleSearch = (result) => {
-    const titleToSearch = result.title.toLowerCase().replace(/:/g, '');
-    const searchText = result.searchText.toLowerCase().replace(/:/g, '');
-    const index = titleToSearch.indexOf(searchText);
-
-    const startsWord = (index > 0) && (titleToSearch[index - 1] == ' ');
-    const startsTitle = index == 0;
-
-    return startsWord || startsTitle ? 1 : 0;
-}
-
-const compareSearchResults = (result1, result2) => {
-    const result1MatchScore = matchScoreForTitleSearch(result1);
-    const result2MatchScore = matchScoreForTitleSearch(result2);
-
-    if (result2MatchScore > result1MatchScore) {
-        return 1;
-    }
-    if (result1MatchScore > result2MatchScore) {
-        return -1;
-    }
-
-    if (!result1.popularity) result1.popularity = 0;
-    if (!result2.popularity) result2.popularity = 0;
-
-    const result1Rank = (result1.popularity * POPULARITY_WEIGHT) 
-                            - (result1.tmdbSearchRank * TMDB_SEARCH_RANK_WEIGHT);
-    const result2Rank = (result2.popularity * POPULARITY_WEIGHT) 
-                            - (result2.tmdbSearchRank * TMDB_SEARCH_RANK_WEIGHT);
-
-    return (result2Rank - result1Rank);
-}
-
-const levenshteinDistance = (s, t) => {
-    if (!s.length) return t.length;
-    if (!t.length) return s.length;
-
-    return Math.min(
-        levenshteinDistance(s.substr(1), t) + 1,
-        levenshteinDistance(t.substr(1), s) + 1,
-        levenshteinDistance(s.substr(1), t.substr(1)) + (s[0] !== t[0] ? 1 : 0)
-    ) + 1;
-}
-
-export const searchMovies = async (searchText) => {
-    const query = `${TMDB_API_BASE_URL}/search/movie\?api_key\=${TMDB_API_KEY}&query\=${searchText}`;
-    const results = await fetchResults(query);
-
-    const resultsTagged = (searchText.length > 0 && results.results) 
-        ? results.results.map((result, index) => {
-            return {
-                ...result,
-                isMovie: true,
-                isSeries: false,
-                tmdbSearchRank: index,
-                // search text included here because we can't 
-                // pass it separately into the comparator function
-                searchText: searchText, 
-            }}) 
-        : [];
-
-    const resultsSorted = resultsTagged.sort(compareSearchResults);
-    return resultsSorted;
-}
-
-export const searchSeries = async (searchText) => {
-    const query = `${TMDB_API_BASE_URL}/search/tv\?api_key\=${TMDB_API_KEY}&query\=${searchText}`;
-    const results = await fetchResults(query);
-
-    const resultsTagged = (searchText.length > 0 && results.results) 
-        ? results.results.map((result, index) => {
-            return {
-                ...result,
-                isMovie: false,
-                isSeries: true,
-                tmdbSearchRank: index,
-                searchText: searchText,
-                title: result.name,
-                releaseDate: result.first_air_date,
-            }}) 
-        : [];
-
-    const resultsSorted = resultsTagged.sort(compareSearchResults);
-    return resultsSorted;
-}
 
 export const fetchSeries = async (titleID) => {
     const query = `${TMDB_API_BASE_URL}/tv\/${titleID}\?api_key\=${TMDB_API_KEY}&language=en-US&append_to_response=release_dates`;
@@ -214,7 +125,6 @@ export const fetchAnnotatedTitle = async (titleID, isSeries, isWelcomeReelay = f
         director: getDirector(titleCredits),
         display: isSeries ? tmdbTitleObject.name : tmdbTitleObject.title,
         displayActors: getDisplayActors(titleCredits),
-        isMovie: !isSeries,
         isSeries,
         genres: tmdbTitleObject.genres,
         overview: tmdbTitleObject.overview,
