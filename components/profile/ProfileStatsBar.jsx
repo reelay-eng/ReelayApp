@@ -13,8 +13,9 @@ const BarContainer = styled(View)`
     width: 100%;
 `
 const StatContainer = styled(TouchableOpacity)`
+    display: flex;
+    flex: 1;
     align-items: center;
-    width: 33%;
 `
 const DimensionText = styled(ReelayText.Subtitle2)`
     color: white;

@@ -1,5 +1,5 @@
-import React from 'react';
-import { SafeAreaView, View, Platform, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView, View, TouchableOpacity } from 'react-native';
 import { Icon } from 'react-native-elements';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
@@ -7,9 +7,18 @@ import BackButton from '../utils/BackButton';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faListCheck } from '@fortawesome/free-solid-svg-icons';
+import { createProfileLink } from '../../api/ProfilesApi';
+import { useSelector } from 'react-redux';
+import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
+import * as Clipboard from 'expo-clipboard';
+
+const REELAY_WEB_PREFIX = `https://on.reelay.app`;
 
 export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) => {
+    const authSession = useSelector(state => state.authSession);
     const creatorName = creator.username ?? 'User not found';
+
+    const validCreatorName = (creator?.username && (creator?.username != "[deleted]"));
 
     const HeadingText = styled(ReelayText.H6Emphasized)`
         color: white;
@@ -53,10 +62,47 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         );
     }
 
+    const CopyProfileLinkButton = () => {
+        const [profileLink, setProfileLink] = useState(null);
+        useEffect(() => {
+            const fetchOrCreateProfileLink = async () => {
+                // create or fetch profile link on page load so that copying is quick
+                const profileLink = await createProfileLink({ authSession, userSub: creator?.sub, username: creator?.username });
+                setProfileLink(profileLink);
+            }
+            fetchOrCreateProfileLink();
+            return () => {} // this apparently helps react know that state is done being fiddled with and so it cancels async tasks
+        }, [])
+
+        const copyProfileLink = async () => {
+            try {
+                // first, create the profile link if it doesn't exist in useEffect
+                // then, copy it to clipboard:
+                console.log("PROFILE LINK: ", profileLink);
+                if (profileLink?.error) {
+                    showErrorToast("There was an error creating this profile link. Please try again.");
+                }
+                else {
+                    const profilePublicURL = `${REELAY_WEB_PREFIX}/profile/${profileLink?.inviteCode}`;
+                    Clipboard.setString(profilePublicURL);
+                    showMessageToast('Profile link copied to clipboard');
+                }
+            } catch(e) {
+                console.log(e);
+                showErrorToast('Ruh roh! Couldn\'t copy profile link. Try again!');
+            }
+        }
+
+        return (
+            <Icon onPress={copyProfileLink} type="ionicon" name="link-outline" color="white" size={25} containerStyle={{marginLeft: 15, transform: [{ rotate: '-45deg' }]}} />
+        )
+    }
+
     return (
         <TopBarContainer>
             { !atProfileBase && <BackButton navigation={navigation} /> }
             <HeadingText>@{creatorName}</HeadingText>
+            { validCreatorName && <CopyProfileLinkButton />}
             { atProfileBase && <SettingsButtons /> }
         </TopBarContainer>
     );
