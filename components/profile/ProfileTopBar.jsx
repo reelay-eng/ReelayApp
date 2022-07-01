@@ -12,7 +12,7 @@ import { useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import * as Clipboard from 'expo-clipboard';
 
-const REELAY_WEB_PREFIX = `http://reelay.app`;
+const REELAY_WEB_PREFIX = `https://on.reelay.app`;
 
 export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) => {
     const authSession = useSelector(state => state.authSession);
