@@ -111,6 +111,7 @@ const TopReelays = ({ goToReelay, topReelays }) => {
 								reelay={reelay}
 								showVenue={false}
 								onPress={() => goToReelay(index)}
+								width={120}
 							/>
 						);
 					})}

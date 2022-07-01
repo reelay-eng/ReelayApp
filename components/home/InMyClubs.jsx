@@ -1,5 +1,5 @@
 import React from "react";
-import { Dimensions, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Pressable, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { LinearGradient } from "expo-linear-gradient";
 import * as ReelayText from '../global/Text';
@@ -8,7 +8,6 @@ import styled from 'styled-components/native';
 
 import moment from "moment";
 
-import ProfilePicture from "../global/ProfilePicture";
 import ReelayThumbnail from '../global/ReelayThumbnail';
 import TitlePoster from "../global/TitlePoster";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
@@ -18,7 +17,7 @@ import ClubPicture from "../global/ClubPicture";
 
 const { width } = Dimensions.get('window');
 
-const ACTIVITY_CARD_MARGIN = 8;
+const ACTIVITY_CARD_MARGIN = 16;
 const ACTIVITY_CARD_WIDTH = (width - ACTIVITY_CARD_MARGIN) / 2;
 const REELAY_CARD_HEIGHT = ACTIVITY_CARD_WIDTH * 2.125;
 const TOPIC_CARD_HEIGHT = 300; // ACTIVITY_CARD_WIDTH * 1.25;
@@ -170,11 +169,12 @@ const TopicToplineLeftContainer = styled(View)`
 const TopicToplineRightContainer = styled(View)`
     padding: 8px;
 `
-const TopicIconContainer = styled(View)`
-    flex-direction: row;
+const TopicOverlayContainer = styled(Pressable)`
+    height: 100%;
+    justify-content: flex-end;
+    padding-bottom: 48px;
     position: absolute;
-    top: 6px;
-    left: 6px;
+    width: 100%;
 `
 const UnderlineContainer = styled(View)`
     align-items: center;
@@ -211,14 +211,14 @@ export const ClubActivityCard = ({ activity, navigation }) => {
             <TitleCardContainer onPress={advanceToClubActivityScreen} >
                 <TitlePoster
                     title={activity.title} 
-                    width={ACTIVITY_CARD_WIDTH - 6} 
+                    width={ACTIVITY_CARD_WIDTH} 
                 />
                 <TitleCardGradient colors={["transparent", "#1a1a1a"]} />
             </TitleCardContainer>
         )
     }    
 
-    const InMyClubsTopicCard = () => {
+    const InMyClubsTopicCard = ({ transparent = false }) => {
         const advanceToClubActivityScreen = () => {
             const club = myClubs.find(next => next.id === activity.clubID);
             navigation.navigate('ClubActivityScreen', { club });
@@ -226,7 +226,7 @@ export const ClubActivityCard = ({ activity, navigation }) => {
 
         return (
             <TopicCardContainer key={activity.id} onPress={advanceToClubActivityScreen}>
-                <TopicCardGradient colors={['#400817', '#19242E']} />
+                { !transparent && <TopicCardGradient colors={['#400817', '#19242E']} /> }
                 <TopicToplineLeftContainer>
                     <FontAwesomeIcon icon={faComments} color='white' size={48} />
                 </TopicToplineLeftContainer>
@@ -235,6 +235,15 @@ export const ClubActivityCard = ({ activity, navigation }) => {
                     <TopicDescriptionText>{activity.description}</TopicDescriptionText>
                 </TopicToplineRightContainer>
             </TopicCardContainer>
+        )
+    }
+
+    const TopicCardOverlay = ({ topic }) => {
+        return (
+            <TopicOverlayContainer>
+                <TopicTitleText>{topic.title}</TopicTitleText>
+                { topic?.description?.length > 0 && <TopicDescriptionText numberOfLines={3}>{topic.description}</TopicDescriptionText> }
+            </TopicOverlayContainer>
         )
     }
 
@@ -274,11 +283,7 @@ export const ClubActivityCard = ({ activity, navigation }) => {
                     showIcons={true}
                     width={ACTIVITY_CARD_WIDTH}
                 />
-                { activityType === 'topic' && (
-                    <TopicIconContainer>
-                        <FontAwesomeIcon icon={faComments} color='white' size={24} />
-                    </TopicIconContainer>                    
-                )}
+                { activityType === 'topic' && <TopicCardOverlay topic={activity} /> }
             </ActivityContainer>
         );
     } else if (activityType === 'title') {

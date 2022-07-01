@@ -124,12 +124,12 @@ const HomeComponent = ({ navigation }) => {
                 <AnnouncementsAndNotices navigation={navigation} />
                 { selectedTab === 'discover' && (
                     <Fragment>
-                        <TopOfTheWeek navigation={navigation} />
-                        <OnStreaming navigation={navigation} source='discover' />
                         <PopularTitles navigation={navigation} tab='discover' />
+                        <TopOfTheWeek navigation={navigation} />
                         <TopicsCarousel navigation={navigation} source='discoverPopular' /> 
-                        <TopicsCarousel navigation={navigation} source='discoverNew' /> 
                         <PeopleToFollow navigation={navigation} /> 
+                        <OnStreaming navigation={navigation} source='discover' />
+                        <TopicsCarousel navigation={navigation} source='discoverNew' /> 
                         <InTheaters navigation={navigation} /> 
                         <AtFestivals navigation={navigation} /> 
                     </Fragment>
@@ -137,9 +137,9 @@ const HomeComponent = ({ navigation }) => {
                 { selectedTab === 'following' && (
                     <Fragment>
                         <FriendsAreWatching navigation={navigation} />
+                        <PopularTitles navigation={navigation} tab='following' />
                         <OnStreaming navigation={navigation} source='following' />
                         <InMyClubs navigation={navigation} />
-                        <PopularTitles navigation={navigation} tab='following' />
                         <ActiveClubs navigation={navigation} />
                         <TopicsCarousel navigation={navigation} source='followingNew' /> 
                     </Fragment>  
