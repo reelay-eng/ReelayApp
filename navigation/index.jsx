@@ -156,6 +156,14 @@ export default Navigation = () => {
                 if (inviteCode) {
                     navigation.navigate('ClubJoinFromLinkScreen', { inviteCode });
                 }
+            } else if (path?.startsWith('profile/')) {
+                console.log('profile invite found');
+                console.log(deeplinkURL);
+                
+                const inviteCode = path.substr('profile/'.length);
+                if (inviteCode) {
+                    navigation.navigate('UserProfileFromLinkScreen', { inviteCode });
+                }
             } else if (path.length === UUID_LENGTH) {
                 // assume it's a reelay sub -- not entirely sure why it's cutting
                 // off 'reelay/' from the front of path, but that's what we're seeing

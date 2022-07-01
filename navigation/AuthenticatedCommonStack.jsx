@@ -30,6 +30,7 @@ import TopicsFeedScreen from '../screens/authenticated/TopicsFeedScreen';
 import TopicsListScreen from '../screens/authenticated/TopicsListScreen';
 import WatchlistScreen from '../screens/authenticated/WatchlistScreen';
 import UserFollowScreen from '../screens/authenticated/UserFollowScreen';
+import UserProfileFromLinkScreen from '../screens/authenticated/UserProfileFromLinkScreen';
 import UserProfileScreen from '../screens/authenticated/UserProfileScreen';
 import VenueSelectScreen from '../screens/authenticated/VenueSelectScreen';
 
@@ -65,6 +66,7 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
             <CommonStack.Screen name='TopicsFeedScreen' component={TopicsFeedScreen} options={commonOptions} />
 			<CommonStack.Screen name='TopicsListScreen' component={TopicsListScreen} options={commonOptions} />
             <CommonStack.Screen name='UserProfileScreen' component={UserProfileScreen} options={commonOptions} />
+            <CommonStack.Screen name='UserProfileFromLinkScreen' component={UserProfileFromLinkScreen} options={commonOptions} />
             <CommonStack.Screen name='UserFollowScreen' component={UserFollowScreen} options={commonOptions} />
             <CommonStack.Screen name='SelectTitleScreen' component={SelectTitleScreen} options={commonOptions} />
             <CommonStack.Screen name='VenueSelectScreen' component={VenueSelectScreen} options={commonOptions} />
