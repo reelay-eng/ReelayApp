@@ -10,6 +10,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components/native';
 import UploadProgressBar from '../global/UploadProgressBar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { height, width } = Dimensions.get('window');
 
@@ -32,7 +33,7 @@ const BackButtonPinnedContainer = styled(SafeAreaView)`
     align-items: center;
     flex-direction: row;
     position: absolute;
-    top: ${props => props.isPinned ? 50 : 150}px;
+    top: ${props => props.topOffset}px;
 `
 
 const ReelayFeedContainer = styled(View)`
@@ -61,6 +62,7 @@ const ReelayStack = ({
 
     const latestAnnouncement = useSelector(state => state.latestAnnouncement);
     const isPinnedReelay = (viewableReelay?.sub === latestAnnouncement?.pinnedReelay?.sub);
+    const topOffset = useSafeAreaInsets().top;
 
     const donateObj = donateLinks?.find((donateLinkObj) => {
         const { tmdbTitleID, titleType } = donateLinkObj;
@@ -157,7 +159,7 @@ const ReelayStack = ({
                 windowSize={3}
             />
             { isPinnedReelay && (
-                <BackButtonPinnedContainer>
+                <BackButtonPinnedContainer topOffset={topOffset}>
                     <BackButton navigation={navigation} />
                     { latestAnnouncement?.title && <AnnouncementTitle /> }
                 </BackButtonPinnedContainer>

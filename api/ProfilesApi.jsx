@@ -17,7 +17,7 @@ export const getProfileInviteFromCode = async ({ authSession, inviteCode, reqUse
     return profileInviteResult;
 }
 
-export const createProfileLink = async ({ authSession, username, userSub }) => {
+export const fetchOrCreateProfileLink = async ({ authSession, username, userSub }) => {
     // using the scheme reelayapp://, the statement below creates an unusable triple slash
     // ...doesn't happen on expo
     let deeplinkURI = Linking.createURL(`/profile`);

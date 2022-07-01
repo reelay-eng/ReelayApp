@@ -7,7 +7,7 @@ import BackButton from '../utils/BackButton';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faListCheck } from '@fortawesome/free-solid-svg-icons';
-import { createProfileLink } from '../../api/ProfilesApi';
+import { fetchOrCreateProfileLink } from '../../api/ProfilesApi';
 import { useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import * as Clipboard from 'expo-clipboard';
@@ -64,21 +64,15 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
     }
 
     const CopyProfileLinkButton = () => {
-        const [profileLink, setProfileLink] = useState(null);
-        const fetchOrCreateProfileLink = async () => {
-            // create or fetch profile link on page load so that copying is quick
-            const profileLink = await createProfileLink({ authSession, userSub: creator?.sub, username: creator?.username });
-            setProfileLink(profileLink);
-        }
-        
-        useFocusEffect(() => {
-            fetchOrCreateProfileLink()
-        });
-
         const copyProfileLink = async () => {
             try {
                 // first, create the profile link if it doesn't exist in useEffect
                 // then, copy it to clipboard:
+                const profileLink = await fetchOrCreateProfileLink({ 
+                    authSession, 
+                    userSub: creator?.sub, 
+                    username: creator?.username 
+                });
                 console.log("PROFILE LINK: ", profileLink);
                 if (profileLink?.error) {
                     showErrorToast("There was an error creating this profile link. Please try again.");
