@@ -45,12 +45,8 @@ const UsernameText = styled(ReelayText.Body2)`
 `
 
 export default PeopleToFollow = ({ navigation }) => {
-    // const myFollowing = useSelector(state => state.myFollowing);
-    // const peopleToFollowList = myFollowing.slice(0, 10);
     const discoverCreators = useSelector(state => state.myHomeContent?.discover?.creators);
-
     const renderFollowOption = (followObj) => {
-        console.log('follow obj: ', followObj);
         const sub = followObj?.userSub;
         const { username } = followObj;
         const user = { sub, username };

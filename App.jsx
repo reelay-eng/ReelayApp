@@ -1,5 +1,6 @@
 // react imports
 import React, { useEffect, useRef, useState } from 'react';
+import * as FileSystem from 'expo-file-system';
 import { Image, Text, View, Pressable } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './navigation';
@@ -47,12 +48,13 @@ import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { toastConfig } from './components/utils/ToastConfig';
 import Toast from "react-native-toast-message";
 
-// font imports
+// other imports
 import * as Font from 'expo-font';
 import { connect, Provider, useDispatch, useSelector } from 'react-redux';
 import store, { mapStateToProps } from './redux/store';
-import { ensureLocalImageDirExists } from './api/ReelayLocalImageCache';
+import { ensureLocalImageDirExists, maybeFlushTitleImageCache } from './api/ReelayLocalImageCache';
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
+import moment from 'moment';
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png');
 
@@ -174,6 +176,7 @@ function App() {
         await checkIsNewUser();
         await ensureLocalImageDirExists();
         await ensureLocalTitleDirExists();
+        await maybeFlushTitleImageCache();
     }
 
     const checkIsNewUser = async () => {

@@ -22,6 +22,9 @@ const ScreenContainer = styled(View)`
     height: 100%;
     width: 100%;
 `
+const Spacer = styled(View)`
+    height: 30px;
+`
 
 export default NewInMyClubsScreen = ({ navigation }) => {
     const bottomOffset = useSafeAreaInsets().bottom + 20;
@@ -62,6 +65,7 @@ export default NewInMyClubsScreen = ({ navigation }) => {
                         { columnB.map(renderActivity) }
                     </ColumnContainer>
                 </ColumnsContainer>
+                <Spacer />
             </ScrollView>
         </ScreenContainer>
     )
