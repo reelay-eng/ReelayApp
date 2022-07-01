@@ -9,7 +9,6 @@ const MAX_BORDER_RADIUS = 16;
 const PLACEHOLDER_POSTER_SOURCE = require('../../assets/images/reelay-splash-with-dog.png');
 const WELCOME_VIDEO_POSTER_SOURCE = require('../../assets/images/welcome-video-poster-with-dog.png');
 
-
 export default TitlePoster = memo(({ title, onPress, width = 60 }) => {
     const [loadState, setLoadState] = useState('local');
 	const PosterContainer = (onPress) 

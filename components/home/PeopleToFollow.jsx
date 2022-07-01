@@ -1,5 +1,5 @@
-import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { Image, Pressable, ScrollView, View } from 'react-native';
+import React from 'react';
+import { ScrollView, View } from 'react-native';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../../components/global/Text';
@@ -25,6 +25,9 @@ const HeaderText = styled(ReelayText.H5Bold)`
     font-size: 18px;
     margin-left: 12px;
 `
+const PeopleToFollowContainer = styled(View)`
+    margin-bottom: 10px;
+`
 const RowContainer = styled(ScrollView)`
     display: flex;
     padding-left: 15px;
@@ -38,28 +41,32 @@ const UsernameText = styled(ReelayText.Body2)`
 `
 
 export default PeopleToFollow = ({ navigation }) => {
-    const myFollowing = useSelector(state => state.myFollowing);
-    const peopleToFollowList = myFollowing.slice(0, 10);
+    // const myFollowing = useSelector(state => state.myFollowing);
+    // const peopleToFollowList = myFollowing.slice(0, 10);
+    const discoverCreators = useSelector(state => state.myHomeContent?.discover?.creators);
 
     const renderFollowOption = (followObj) => {
-        const user = { sub: followObj?.creatorSub, username: followObj?.creatorName };
+        console.log('follow obj: ', followObj);
+        const sub = followObj?.userSub;
+        const { username } = followObj;
+        const user = { sub, username };
         return (
-            <FollowOptionContainer key={user?.sub}>
+            <FollowOptionContainer key={sub}>
                 <ProfilePicture border={true} navigation={navigation} size={100} user={user} />
-                <UsernameText>{user?.username}</UsernameText>
+                <UsernameText>{username}</UsernameText>
             </FollowOptionContainer>
         )
     }
 
     return (
-        <Fragment>
+        <PeopleToFollowContainer>
             <HeaderContainer>
                 <FontAwesomeIcon icon={faUserPlus} color='white' size={24} />
                 <HeaderText>{'New to follow'}</HeaderText>
             </HeaderContainer>
             <RowContainer horizontal showsHorizontalScrollIndicator={false}>
-                { peopleToFollowList.map(renderFollowOption)}
+                { discoverCreators.map(renderFollowOption)}
             </RowContainer>
-        </Fragment>
+        </PeopleToFollowContainer>
     )
 }

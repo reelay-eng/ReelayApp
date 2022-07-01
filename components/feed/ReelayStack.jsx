@@ -28,12 +28,13 @@ const AnnouncementText = styled(ReelayText.CaptionEmphasized)`
     margin-right: 6px;
     color: white;
 `
-const BackButtonContainer = styled(SafeAreaView)`
+const BackButtonPinnedContainer = styled(SafeAreaView)`
     align-items: center;
     flex-direction: row;
     position: absolute;
     top: ${props => props.isPinned ? 50 : 150}px;
 `
+
 const ReelayFeedContainer = styled(View)`
     background-color: black;
     height: ${height}px;
@@ -49,6 +50,7 @@ const ReelayStack = ({
 }) => {
     const [stackPosition, setStackPosition] = useState(initialStackPos);
     const { reelayDBUser } = useContext(AuthContext);
+    const atStackTop = (navigation?.getState()?.index === 0);
     const donateLinks = useSelector(state => state.donateLinks);
     const uploadStage = useSelector(state => state.uploadStage);
     
@@ -94,22 +96,9 @@ const ReelayStack = ({
         );
     }
 
-    const renderBackButton = () => {
-        // if it's a pinned reelay, we don't use the title banner
-        // so the y-height of the back button needs to change
-
-        return (
-            <BackButtonContainer isPinned={isPinnedReelay}>
-                <BackButton navigation={navigation} />
-                { isPinnedReelay && latestAnnouncement?.title && <AnnouncementTitle /> }
-            </BackButtonContainer>
-        );
-    }
-
     const renderReelay = ({ item, index }) => {
         const reelay = item;
         const reelayViewable = stackViewable && (index === stackPosition);  
-        const atStackTop = (navigation?.getState()?.index === 0);
         
         return (
             <ReelayFeedContainer key={reelay.id}>
@@ -119,7 +108,6 @@ const ReelayStack = ({
                     reelay={reelay} 
                     viewable={reelayViewable}
                 />
-                { !atStackTop && renderBackButton() }
             </ReelayFeedContainer>
         );
     };
@@ -168,8 +156,15 @@ const ReelayStack = ({
                 pagingEnabled={true} 
                 windowSize={3}
             />
+            { isPinnedReelay && (
+                <BackButtonPinnedContainer>
+                    <BackButton navigation={navigation} />
+                    { latestAnnouncement?.title && <AnnouncementTitle /> }
+                </BackButtonPinnedContainer>
+            )}
             { !isPinnedReelay && (
                 <TitleBanner 
+                    showBackButton={!atStackTop}
                     donateObj={donateObj}
                     navigation={navigation}
                     onTappedNewest={onTappedNewest}

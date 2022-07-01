@@ -20,6 +20,7 @@ import { faForwardStep, faBackwardStep } from "@fortawesome/free-solid-svg-icons
 import { useSelector } from "react-redux";
 import ClubPicture from "../global/ClubPicture";
 import ReelayColors from "../../constants/ReelayColors";
+import BackButton from "../utils/BackButton";
 
 const { height, width } = Dimensions.get('window');
 
@@ -76,8 +77,10 @@ const PositionText = styled(ReelayText.CaptionEmphasized)`
     height: 16px;
     font-size: 12px;
 `
-const Spacer = styled(View)`
-    height: 10px;
+const TitleBannerOuterContainer = styled(View)`
+    margin-left: 10px;
+    position: ${props => props.absolute ? 'absolute' : 'relative'};
+    top: ${props => props.topOffset}px;
 `
 const TitleBannerContainer = styled(Pressable)`
     align-self: center;
@@ -86,8 +89,6 @@ const TitleBannerContainer = styled(Pressable)`
     width: ${width - 20}px;
     justify-content: space-between;
     flex-direction: row;
-    position: ${props => props.absolute ? 'absolute' : 'relative'};
-    top: ${props => props.topOffset}px;
     zIndex: 3;
 `
 const TitleInfo = styled(View)`
@@ -99,6 +100,7 @@ const TitleInfo = styled(View)`
     padding: 5px;
 `
 const TitlePosterContainer = styled(View)`
+    justify-content: center;
     margin: 5px;
 `
 const TitleText = styled(ReelayText.H5Bold)`
@@ -138,6 +140,7 @@ export default TitleBanner = ({
     onTappedNewest=null,
     onTappedOldest=null,
     posterWidth=60,
+    showBackButton=false,
     stack=null,
     viewableReelay=null, 
 }) => {
@@ -240,25 +243,24 @@ export default TitleBanner = ({
     }
 
     return (
-        <TitleBannerContainer 
-            absolute={!!viewableReelay} 
-            color={backgroundColor}
-            onPress={onPress ?? openTitleDetail}
-            topOffset={viewableReelay ? topOffset : 0}>
-            <TitlePosterContainer>
-                <TitlePoster title={titleObj} onPress={openTitleDetail} width={posterWidth} />
-            </TitlePosterContainer>
-            <TitleInfo>
-                <TitleTextContainer>
-                    <TitleText numberOfLines={2} ellipsizeMode={"tail"}>
-                        {displayTitle}
-                    </TitleText>
-                </TitleTextContainer>
-                <TitleUnderline />
-            </TitleInfo>
-            { !donateObj && !clubActivity && <AddToClubsButton titleObj={titleObj} reelay={viewableReelay} /> }
-            { !clubActivity && donateObj && <DonateButton donateObj={donateObj} reelay={viewableReelay} /> }
-            { clubActivity && <ActivityPic /> }
-        </TitleBannerContainer>    
+        <TitleBannerOuterContainer absolute={!!viewableReelay} topOffset={viewableReelay ? topOffset : 0}>
+            <TitleBannerContainer color={backgroundColor} onPress={onPress ?? openTitleDetail}>
+                <TitlePosterContainer>
+                    <TitlePoster title={titleObj} onPress={openTitleDetail} width={posterWidth} />
+                </TitlePosterContainer>
+                <TitleInfo>
+                    <TitleTextContainer>
+                        <TitleText numberOfLines={2} ellipsizeMode={"tail"}>
+                            {displayTitle}
+                        </TitleText>
+                    </TitleTextContainer>
+                    <TitleUnderline />
+                </TitleInfo>
+                { !donateObj && !clubActivity && <AddToClubsButton titleObj={titleObj} reelay={viewableReelay} /> }
+                { !clubActivity && donateObj && <DonateButton donateObj={donateObj} reelay={viewableReelay} /> }
+                { clubActivity && <ActivityPic /> }
+            </TitleBannerContainer>    
+            { showBackButton && <BackButton navigation={navigation} /> }
+        </TitleBannerOuterContainer>
     );
 }
