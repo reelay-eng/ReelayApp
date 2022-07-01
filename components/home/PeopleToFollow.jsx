@@ -31,9 +31,13 @@ const PeopleToFollowContainer = styled(View)`
 const RowContainer = styled(ScrollView)`
     display: flex;
     padding-left: 15px;
+    padding-right: 15px;
     padding-top: 15px;
     flex-direction: row;
     width: 100%;
+`
+const Spacer = styled(View)`
+    width: 15px;
 `
 const UsernameText = styled(ReelayText.Body2)`
     color: white;
@@ -66,6 +70,7 @@ export default PeopleToFollow = ({ navigation }) => {
             </HeaderContainer>
             <RowContainer horizontal showsHorizontalScrollIndicator={false}>
                 { discoverCreators.map(renderFollowOption)}
+                <Spacer />
             </RowContainer>
         </PeopleToFollowContainer>
     )

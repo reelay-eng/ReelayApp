@@ -79,7 +79,7 @@ export default PopularTitles = ({ navigation, tab='discover' }) => {
     const popularTitleStacks = (tab === 'following') ? popularTitleStacksFollowing : popularTitleStacksDiscover;
 
     const goToReelay = (index, titleObj) => {
-		if (popularTitleStacks.length === 0) return;
+		if (popularTitleStacks?.length === 0) return;
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
             initialFeedSource: (tab === 'following') ? 'popularTitlesFollowing' : 'popularTitlesDiscover',
@@ -147,7 +147,7 @@ export default PopularTitles = ({ navigation, tab='discover' }) => {
         );
     }
 
-    if (popularTitleStacks.length < 2) {
+    if (popularTitleStacks?.length < 2) {
         return <View />;
     }
     
@@ -157,7 +157,7 @@ export default PopularTitles = ({ navigation, tab='discover' }) => {
                 <FontAwesomeIcon icon={faFireFlameCurved} color='white' size={24} />
                 <HeaderText>{headerText}</HeaderText>
             </HeaderContainer>
-            { popularTitleStacks.length > 0 && <TitlesRow />}
+            { popularTitleStacks?.length > 0 && <TitlesRow />}
         </PopularTitlesContainer>
     )
 };

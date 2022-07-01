@@ -27,8 +27,7 @@ import InMyClubs from './InMyClubs';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const BottomBar = styled(LinearGradient)`
-    height: 80px;
-    opacity: 0.5;
+    height: 100px;
     width: 100%;
     position: absolute;
     bottom: 0px;
@@ -112,7 +111,7 @@ const HomeComponent = ({ navigation }) => {
     const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
     return (
-        <HomeContainer>
+        <HomeContainer selectedTab={selectedTab}>
             <SafeAreaView>
                 <HomeHeader 
                     navigation={navigation} 
@@ -149,7 +148,8 @@ const HomeComponent = ({ navigation }) => {
             </ScrollContainer>
             <BottomBar 
                 colors={["transparent", "#000000"]} 
-                end={{ x: 0.5, y: 2}}
+                locations={[0.05, 0.95]}
+                end={{ x: 0.5, y: 1}}
             />
             { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
             { showNoticeAsOverlay && <NoticeOverlay navigation={navigation} /> }

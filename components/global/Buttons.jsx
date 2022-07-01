@@ -198,7 +198,7 @@ export const ToggleSelector = ({ displayOptions, options, selectedOption, onSele
 		align-items: center;
 		background-color: black;
 		border-radius: 8px;
-		justify-content: flex-start;
+		justify-content: center;
 		flex-direction: row;
 		height: 48px;
 		padding: 2px;
@@ -208,7 +208,7 @@ export const ToggleSelector = ({ displayOptions, options, selectedOption, onSele
         align-items: center;
         justify-content: center;
         height: 44px;
-        width: ${100 / options.length}%;
+        width: ${75 / options.length}%;
     `
     const OptionText = styled(ReelayText.H6)`
         color: gray;
