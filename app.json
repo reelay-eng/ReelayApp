@@ -2,7 +2,7 @@
     "expo": {
         "name": "Reelay",
         "slug": "ReelayApp",
-        "version": "1.01.18",
+        "version": "1.02.00",
         "orientation": "portrait",
         "icon": "./assets/icons/reelay-icon-with-dog-black.png",
         "scheme": "reelayapp",
