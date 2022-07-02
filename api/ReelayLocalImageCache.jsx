@@ -14,8 +14,8 @@ const clubPicLocalURI = (clubID) => imgDir + `/clubpic-${clubID}.jpg`;
 const profilePicRemoteURI = (userSub) => `${CLOUDFRONT_BASE_URL}/public/profilepic-${userSub}-current.jpg`;
 const profilePicLocalURI = (userSub) => imgDir + `/profilepic-${userSub}.jpg`;
 
-const titlePosterRemoteURI = (posterPath, size = 185) => `${TMDB_IMAGE_API_BASE_URL}${size}${posterPath}`;
-const titlePosterLocalURI = (posterPath) => imgDir + posterPath;
+const titlePosterRemoteURI = (posterPath, size = 500) => `${TMDB_IMAGE_API_BASE_URL}${size}${posterPath}`;
+const titlePosterLocalURI = (posterPath) => imgDir + `/titlepic-${posterPath}`;
 
 export const cacheClubPic = async (clubID, useDefaultPic = false) => {
     const localURI = clubPicLocalURI(clubID);
@@ -43,8 +43,10 @@ export const cacheProfilePic = async (userSub, useDefaultPic = false) => {
 }
 
 const cacheTitlePoster = async (posterPath) => {
-    const localURI = titlePosterLocalURI(posterPath);
-    const remoteURI = titlePosterRemoteURI(posterPath);
+    if (!posterPath) return;
+    const cleanedPosterPath = posterPath.replace('/', '');
+    const localURI = titlePosterLocalURI(cleanedPosterPath);
+    const remoteURI = titlePosterRemoteURI(cleanedPosterPath);
     await FileSystem.downloadAsync(remoteURI, localURI);
 }
 
@@ -124,3 +126,29 @@ export const checkRefreshProfilePic = async (userSub) => {
         console.log(error);
     }
 }
+
+const isFlushableImage = (imageFilename) => {
+    if (imageFilename.includes('clubpic-')) return false;
+    if (imageFilename.includes('profilepic-')) return false;
+    if (imageFilename.includes('titlepic-')) return false;
+    return true;
+}
+
+export const maybeFlushTitleImageCache = async () => {
+    try {
+        const titleImagesLastFlushedAt = await AsyncStorage.getItem('titleImagesLastFlushedAt');
+        if (!titleImagesLastFlushedAt) {
+            // flush title images
+            const dirItems = await FileSystem.readDirectoryAsync(imgDir);
+            dirItems.map(imgFilename => {
+                if (isFlushableImage(imgFilename)) {
+                    FileSystem.deleteAsync(`${imgDir}/${imgFilename}`);
+                }
+            });
+            AsyncStorage.setItem('titleImagesLastFlushedAt', moment().toISOString());
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+

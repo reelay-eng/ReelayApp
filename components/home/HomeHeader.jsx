@@ -1,16 +1,36 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import * as ReelayText from "../global/Text";
-import { Image, Pressable, TouchableOpacity, View } from 'react-native';
+import { Pressable, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faCircle } from '@fortawesome/free-solid-svg-icons';
 
-import ReelayColors from '../../constants/ReelayColors';
-import Constants from 'expo-constants';
-import { getReelay, prepareReelay } from '../../api/ReelayDBApi';
 import { useSelector } from 'react-redux';
-import moment from 'moment';
 
+const ActiveOptionText = styled(ReelayText.H6)`
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 2px;
+`
+const BackgroundBox = styled(View)`
+    align-items: center;
+    background-color: black;
+    border-radius: 8px;
+    justify-content: center;
+    flex-direction: row;
+    height: 48px;
+    padding: 2px;
+    width: 100%;
+`
+const ButtonContainer = styled(Pressable)`
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    width: 37.5%;
+`
 const HeaderContainer = styled(View)`
     padding-left: 15px;
     padding-right: 15px;
@@ -37,94 +57,80 @@ const HeaderText = styled(ReelayText.H4Bold)`
 const IconContainer = styled(TouchableOpacity)`
     margin-left: 12px;
 `
-const TutorialButtonContainer = styled(Pressable)`
-    align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
-    border-radius: 6px;
-    flex-direction: row;
-    margin-left: 12px;
-    height: 38px;
-    padding: 6px;
+const OptionText = styled(ReelayText.H6)`
+    color: gray;
+    font-size: 18px;
 `
-const TutorialButtonText = styled(ReelayText.CaptionEmphasized)`
-    margin-top: 2px;
-    margin-left: 6px;
-    color: white;
-`
-const UnreadIconIndicator = styled(View)`
-    background-color: ${ReelayColors.reelayBlue}
-    border-radius: 5px;
-    height: 10px;
-    width: 10px;
-    position: absolute;
-    right: 0px;
+const UnreadIconIndicator = styled(SafeAreaView)`
+	background-color: ${ReelayColors.reelayBlue}
+	border-radius: 5px;
+	height: 10px;
+	width: 10px;
+	position: absolute;
+	right: 0px;
 `
 
-const HomeHeader = ({ navigation }) => {
+export default HomeHeader = ({ 
+    navigation,
+    selectedTab,
+    setSelectedTab,
+    tabOptions,
+}) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const latestAnnouncement = useSelector(state => state.latestAnnouncement);
-    const myNotifications = useSelector(state => state.myNotifications);
-    const myFollowing = useSelector(state => state.myFollowing);
-    const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
-    const showLatestAnnouncement = (latestAnnouncement && !latestAnnouncement?.error)
-    const daysSinceSignedUp = moment().diff(moment(reelayDBUser?.createdAt), 'days');
-    const showTutorialButton = (!showLatestAnnouncement) && (myFollowing.length > 0) && (daysSinceSignedUp < 7);
+    const HomeHeaderTop = () => {
+        const myNotifications = useSelector(state => state.myNotifications);
+        const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
+    
+        const advanceToMyNotifications = () => navigation.push('NotificationScreen');
+        const advanceToSearchScreen = () => navigation.push('SearchScreen');
+    
+        return (
+            <HeaderContainer>
+                <HeaderContainerLeft>
+                    <HeaderText>{'reelay'}</HeaderText>
+                </HeaderContainerLeft>
+                <HeaderContainerRight>
+                    <IconContainer onPress={advanceToSearchScreen}>
+                        <Icon type='ionicon' size={27} color={'white'} name='search' />
+                    </IconContainer>
+                    <IconContainer onPress={advanceToMyNotifications}>
+                        <Icon type='ionicon' size={27} color={'white'} name='notifications' />
+                        { hasUnreadNotifications && <UnreadIconIndicator /> }
+                    </IconContainer>
+                </HeaderContainerRight>
+            </HeaderContainer>
+        );
+    };
 
-    const advanceToMyNotifications = () => navigation.push('NotificationScreen');
-    const advanceToSearchScreen = () => navigation.push('SearchScreen');
-
-	return (
-        <HeaderContainer>
-            <HeaderContainerLeft>
-                <HeaderText>{'reelay'}</HeaderText>
-                {/* { showLatestAnnouncement && <LatestAnnouncementButton navigation={navigation} announcement={latestAnnouncement} /> }
-                { showTutorialButton && <WatchTutorialButton navigation={navigation} /> } */}
-            </HeaderContainerLeft>
-            <HeaderContainerRight>
-                <IconContainer onPress={advanceToSearchScreen}>
-                    <Icon type='ionicon' size={27} color={'white'} name='search' />
-                </IconContainer>
-                <IconContainer onPress={advanceToMyNotifications}>
-                    <Icon type='ionicon' size={27} color={'white'} name='notifications' />
-                    { hasUnreadNotifications && <UnreadIconIndicator /> }
-                </IconContainer>
-            </HeaderContainerRight>
-        </HeaderContainer>
-	);
+    const HomeScreenTabSelector = () => {
+        return (
+            <BackgroundBox>
+                { ['discover', 'following'].map(tab => {
+                    if (tab === selectedTab) {
+                        return (
+                            <ButtonContainer key={tab}>
+                                <ActiveOptionText>{tab}</ActiveOptionText>
+                                <FontAwesomeIcon icon={faCircle} color='white' size={4} /> 
+                            </ButtonContainer>
+                        );
+                    } else {
+                        return (
+                            <ButtonContainer key={tab} onPress={() => setSelectedTab(tab)}>
+                                <OptionText>{tab}</OptionText>
+                                <View style={{ height: 6 }} />
+                            </ButtonContainer>
+                        );
+                    }
+                })}
+            </BackgroundBox>
+        );
+    }    
+    
+    return (
+        <React.Fragment>
+            <HomeHeaderTop navigation={navigation} />
+            <HomeScreenTabSelector />
+        </React.Fragment>
+    )
 };
-
-const LatestAnnouncementButton = ({ navigation, announcement }) => {
-    const { pinnedReelay, title } = announcement;
-
-    const loadAnnouncementVideoScreen = async () => {
-        navigation.push('SingleReelayScreen', { preparedReelay: pinnedReelay });
-    }
-    return (
-        <TutorialButtonContainer onPress={loadAnnouncementVideoScreen}>
-            <TutorialButtonText>{`${title} `}</TutorialButtonText>
-            <IconContainer>
-                <Icon type='ionicon' size={24} color={'white'} name='play-circle' />
-            </IconContainer>
-        </TutorialButtonContainer>
-    );
-}
-
-const WatchTutorialButton = ({ navigation }) => {
-    const loadWelcomeVideoScreen = async () => {
-        const welcomeReelaySub = Constants.manifest.extra.welcomeReelaySub;
-        const welcomeReelay = await getReelay(welcomeReelaySub, 'dev');
-        const preparedReelay = await prepareReelay(welcomeReelay);
-        navigation.push('SingleReelayScreen', { preparedReelay });
-    }
-    return (
-        <TutorialButtonContainer onPress={loadWelcomeVideoScreen}>
-            <TutorialButtonText>{'Welcome '}</TutorialButtonText>
-            <IconContainer>
-                <Icon type='ionicon' size={24} color={'white'} name='play-circle' />
-            </IconContainer>
-        </TutorialButtonContainer>
-    );
-}
-
-export default HomeHeader;

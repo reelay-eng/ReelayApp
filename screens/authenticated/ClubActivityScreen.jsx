@@ -98,14 +98,20 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const showProgressBar = showProgressBarStages.includes(uploadStage);
 
     const sortClubActivity = (activity0, activity1) => {
-        const lastActivity0 = moment(activity0?.lastUpdatedAt);
-        const lastActivity1 = moment(activity1?.lastUpdatedAt);
+        const lastActivity0 = moment(activity0?.lastUpdatedAt ?? activity0?.createdAt);
+        const lastActivity1 = moment(activity1?.lastUpdatedAt ?? activity0?.createdAt);
         return lastActivity0.diff(lastActivity1, 'seconds') < 0;
     }
+
+    const tagActivityType = (activity, type) => {
+        activity.activityType = type;
+        return activity;
+    }
+
     const clubActivities = [
-        ...club.members,
-        ...club.titles, 
-        ...club.topics
+        ...club.members.map(member => tagActivityType(member, 'member')),
+        ...club.titles.map(title => tagActivityType(title, 'title')), 
+        ...club.topics.map(topic => tagActivityType(topic, 'topic')),
     ].sort(sortClubActivity);
 
     const activityHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
@@ -235,7 +241,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                     />
                 </ActivityContainer>
             );
-        } else if (activityType === 'member'  && activityType?.role !== 'banned') {
+        } else if (activityType === 'member' && activityType?.role !== 'banned') {
             return <ClubAddedMemberCard member={activity} />
         } else {
             return <View />;

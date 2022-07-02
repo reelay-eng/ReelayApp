@@ -41,6 +41,8 @@ export default ClubFeed = ({
         .sort(sortClubTitlesAndTopics)
         .filter(titleOrTopicHasReelays);
 
+    console.log('feed titles and topics length: ', feedTitlesAndTopics.length);
+
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
     });

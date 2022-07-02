@@ -38,7 +38,7 @@ const InTheatersRowContainer = styled.ScrollView`
 const InTheaters = memo(({ navigation }) => {
 
     const { reelayDBUser } = useContext(AuthContext);
-    const myStacksInTheaters = useSelector(state => state.myStacksInTheaters);
+    const myStacksInTheaters = useSelector(state => state.myHomeContent?.discover?.theaters);
 
     const goToReelay = (index, titleObj) => {
 		if (myStacksInTheaters.length === 0) return;

@@ -1,3 +1,5 @@
+import { faCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import React, { useState } from 'react';
 import { Pressable, View, Text, Image } from 'react-native';
 import styled from 'styled-components/native';
@@ -192,7 +194,7 @@ export const RedPlusButton = ({onPress}) => {
 }
 
 export const ToggleSelector = ({ displayOptions, options, selectedOption, onSelect, color }) => {
-    const BackgroundBox = styled(View)`
+	const BackgroundBox = styled(View)`
 		align-items: center;
 		background-color: #252527;
 		border-radius: 8px;
@@ -202,45 +204,45 @@ export const ToggleSelector = ({ displayOptions, options, selectedOption, onSele
 		padding: 2px;
 		width: 100%;
 	`;
-    const ButtonContainer = styled(Pressable)`
-        align-items: center;
-        justify-content: center;
-        height: 44px;
-        width: ${100 / options.length}%;
-    `
-    const ActiveButtonContainer = styled(ButtonContainer)`
+	const ButtonContainer = styled(Pressable)`
+		align-items: center;
+		justify-content: center;
+		height: 44px;
+		width: ${100 / options.length}%;
+	`
+	const ActiveButtonContainer = styled(ButtonContainer)`
 		background-color: ${color ?? ReelayColors.reelayBlue};
 		border-radius: 6px;
 	`;
-    const OptionText = styled(ReelayText.Subtitle2)`
-        color: white;
-    `
-    const PassiveButtonContainer = styled(ButtonContainer)`
-        background-color: transparent;
-    `
+	const OptionText = styled(ReelayText.Subtitle2)`
+		color: white;
+	`
+	const PassiveButtonContainer = styled(ButtonContainer)`
+		background-color: transparent;
+	`
 
-    return (
-        <BackgroundBox>
-            { options.map((option, index) => {
-                if (option === selectedOption) {
-                    return (
-                        <ActiveButtonContainer key={option}>
+	return (
+		<BackgroundBox>
+			{ options.map((option, index) => {
+				if (option === selectedOption) {
+					return (
+						<ActiveButtonContainer key={option}>
 							<OptionText>
 								{ (displayOptions && displayOptions[index]) ?? option }
 							</OptionText>
-                        </ActiveButtonContainer>
-                    );
-                } else {
-                    return (
-                        <PassiveButtonContainer key={option}
-                                onPress={() => onSelect(option)}>
-                            <OptionText>
+						</ActiveButtonContainer>
+					);
+				} else {
+					return (
+						<PassiveButtonContainer key={option}
+								onPress={() => onSelect(option)}>
+							<OptionText>
 								{ (displayOptions && displayOptions[index]) ?? option }
 							</OptionText>
-                        </PassiveButtonContainer>
-                    );
-                }
-            })}
-        </BackgroundBox>
-    );
+						</PassiveButtonContainer>
+					);
+				}
+			})}
+		</BackgroundBox>
+	);
 }

@@ -4,19 +4,13 @@ import AuthenticatedCommonStack from './AuthenticatedCommonStack';
 
 import AccountInfoScreen from '../screens/authenticated/AccountInfoScreen';
 import AdminReportedIssuesScreen from '../screens/authenticated/AdminReportedIssuesScreen';
-import ClubAcceptInviteScreen from '../screens/authenticated/ClubAcceptInviteScreen';
-import ClubActivityScreen from '../screens/authenticated/ClubActivityScreen';
-import ClubAddTitleScreen from '../screens/authenticated/ClubAddTitleScreen';
-import ClubFeedScreen from '../screens/authenticated/ClubFeedScreen';
-import ClubInfoScreen from '../screens/authenticated/ClubInfoScreen';
-import CreateClubScreen from '../screens/authenticated/CreateClubScreen';
 import DeleteAccountScreen from '../screens/authenticated/DeleteAccountScreen';
 import EditAccountScreen from '../screens/authenticated/EditAccountScreen';
-import EditClubScreen from '../screens/authenticated/EditClubScreen';
 import GeneralSettingsScreen from '../screens/authenticated/GeneralSettingsScreen';
 import HomeScreen from '../screens/authenticated/HomeScreen';
 import MyClubsScreen from '../screens/authenticated/MyClubsScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
+import NewInMyClubsScreen from '../screens/authenticated/NewInMyClubsScreen';
 import NotificationSettingsScreen from '../screens/authenticated/NotificationSettingsScreen';
 import ProfileSettingsScreen from '../screens/authenticated/ProfileSettingsScreen';
 import TMDBCreditScreen from '../screens/authenticated/TMDBCreditScreen';
@@ -27,6 +21,7 @@ export const HomeTabNavigator = () => {
 	return (
 		<AuthenticatedCommonStack initialRouteName="HomeScreen">
 			<HomeTabStack.Screen name='HomeScreen' component={HomeScreen} options={commonOptions} />
+			<HomeTabStack.Screen name='NewInMyClubsScreen' component={NewInMyClubsScreen} options={commonOptions} />
 		</AuthenticatedCommonStack>
 	)
 }
@@ -48,13 +43,6 @@ export const ClubsTabNavigator = () => {
                 ...commonOptions,
                 animationEnabled: false,
             }} />
-            <ClubsTabStack.Screen name='ClubActivityScreen' component={ClubActivityScreen} options={commonOptions} />
-            <ClubsTabStack.Screen name='ClubAcceptInviteScreen' component={ClubAcceptInviteScreen} options={commonOptions} />
-            <ClubsTabStack.Screen name='ClubAddTitleScreen' component={ClubAddTitleScreen} options={commonOptions} />
-            <ClubsTabStack.Screen name='ClubFeedScreen' component={ClubFeedScreen} options={commonOptions} />
-            <ClubsTabStack.Screen name='ClubInfoScreen' component={ClubInfoScreen} options={commonOptions} />
-            <ClubsTabStack.Screen name='CreateClubScreen' component={CreateClubScreen} options={commonOptions} />
-            <ClubsTabStack.Screen name='EditClubScreen' component={EditClubScreen} options={commonOptions} />
         </AuthenticatedCommonStack>
     );
 }

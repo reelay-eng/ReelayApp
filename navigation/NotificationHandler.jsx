@@ -87,9 +87,8 @@ const openClubActivityScreen = async (navigation, clubID, myClubs) => {
         return;
     }
     const club = myClubs.find(nextClub => nextClub.id === clubID);
-
     if (!club) {
-        showErrorToast("Oops! This club does not exist!")
+        showErrorToast("Ruh roh! This club does not exist!")
         return;
     }
     // allows us to navigate to the ClubActivityScreen

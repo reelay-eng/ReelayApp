@@ -17,8 +17,10 @@ import { generateThumbnail, getThumbnailURI, saveThumbnail } from '../../api/Thu
 import ProfilePicture from './ProfilePicture';
 import { useSelector } from 'react-redux';
 import TitlePoster from './TitlePoster';
+import ClubPicture from './ClubPicture';
 
 export default ReelayThumbnail = ({ 
+	asNewInMyClubs = false,
 	asTopOfTheWeek = false,
 	height = 180, 
 	margin = 6, 
@@ -29,21 +31,21 @@ export default ReelayThumbnail = ({
 	showIcons = true,
 	width = 120,
 }) => {
-	const ICON_SIZE = asTopOfTheWeek ? 24 : 16;
-	const STAR_RATING_ADD_LEFT = asTopOfTheWeek ? 12 : 0;
-	const STAR_SIZE = asTopOfTheWeek ? 16 : 12;
-	const PROFILE_PIC_SIZE = asTopOfTheWeek ? 32 : 24;
-	const USERNAME_TEXT_SIZE = asTopOfTheWeek ? 16 : 12;
+	const CREATOR_LINE_BOTTOM = asNewInMyClubs ? 6 : 12;
+	const ICON_SIZE = asTopOfTheWeek ? 24 : asNewInMyClubs ? 20 : 16;
+	const STAR_RATING_ADD_LEFT = asTopOfTheWeek ? 12 : asNewInMyClubs ? 6 : 0;
+	const STAR_SIZE = asTopOfTheWeek ? 16 : asNewInMyClubs ? 14 : 12;
+	const PROFILE_PIC_SIZE = asTopOfTheWeek ? 32 : asNewInMyClubs ? 28 : 24;
+	const USERNAME_TEXT_SIZE = asTopOfTheWeek ? 16 : asNewInMyClubs ? 14 : 12;
 	const USERNAME_ADD_LEFT = USERNAME_TEXT_SIZE - 7;
 	const POSTER_WIDTH = width / 4;
 
 	const Spacer = styled(View)`
 		height: ${props => props.height ?? '0'}px;
 	`
-
 	const CreatorLineContainer = styled(View)`
         align-items: center;
-		bottom: 12px;
+		bottom: ${CREATOR_LINE_BOTTOM}px;
         flex-direction: row;
         margin-left: 5px;
 		position: absolute;
@@ -87,6 +89,7 @@ export default ReelayThumbnail = ({
 	const ThumbnailContainer = styled(View)`
 		justify-content: center;
 		margin: ${margin}px;
+		width: ${width}px;
 	`
 	const ThumbnailGradient = styled(LinearGradient)`
 		border-radius: 6px;
@@ -99,18 +102,25 @@ export default ReelayThumbnail = ({
 	const ThumbnailImage = styled(Image)`
 		border-radius: 8px;
 		height: ${height}px;
-		width: ${width}px;
+		width: 100%;
 	`
 	const UsernameText = styled(ReelayText.Subtitle2)`
+		line-height: 18px;
         font-size: ${USERNAME_TEXT_SIZE}px;
-		padding: ${USERNAME_ADD_LEFT}px;
+		padding-left: ${USERNAME_ADD_LEFT}px;
+		padding-right: ${USERNAME_ADD_LEFT}px;
 		color: white;
+		margin-bottom: 4px;
 		flex: 1;
 	`
 	const cloudfrontThumbnailSource = { uri: getThumbnailURI(reelay) };
 	const [thumbnailSource, setThumbnailSource] = useState(cloudfrontThumbnailSource);
+	const myClubs = useSelector(state => state.myClubs);
 	const s3Client = useSelector(state => state.s3Client);
 	const starRating = (reelay.starRating ?? 0) + (reelay.starRatingAddHalf ? 0.5 : 0);
+
+	const club = asNewInMyClubs ? (myClubs.find(next => next.id === reelay?.clubID)) : null;
+	const displayName = asNewInMyClubs ? (club?.name) : reelay?.creator?.username;
 
 	const generateAndSaveThumbnail = async () => {
 		console.log('ON ERROR TRIGGERED: ', getThumbnailURI(reelay));
@@ -124,7 +134,7 @@ export default ReelayThumbnail = ({
 		return thumbnailObj;
 	}
 
-	const GradientOverlay = ({ username }) => {
+	const GradientOverlay = () => {
 		return (
 			<React.Fragment>
 				{ !asTopOfTheWeek && (
@@ -150,8 +160,8 @@ export default ReelayThumbnail = ({
 				{ asTopOfTheWeek && <LikeCounter likeCount={reelay.likes.length} /> }
 				<GradientContainer>
 					<ThumbnailGradient colors={["transparent", "#0B1424"]} />
-					{ showIcons && <CreatorLine username={username} /> }
-					{ showIcons && (starRating > 0) && <StarRatingLine /> }
+					{ showIcons && <CreatorLine /> }
+					{ showIcons && !asNewInMyClubs && (starRating > 0) && <StarRatingLine /> }
 				</GradientContainer>
 			</React.Fragment>
 		)
@@ -174,12 +184,17 @@ export default ReelayThumbnail = ({
 		);
 	}
 
-    const CreatorLine = ({ username }) => {        
+    const CreatorLine = () => {        
         return (
             <CreatorLineContainer>
-                <ProfilePicture user={reelay?.creator} size={PROFILE_PIC_SIZE} border />
-                <UsernameText numberOfLines={1}>
-                    {`@${username}`}
+				{ asNewInMyClubs && (
+					<ClubPicture club={{ id: reelay?.clubID }} size={PROFILE_PIC_SIZE} />
+				)}
+				{ !asNewInMyClubs && (
+					<ProfilePicture user={reelay?.creator} size={PROFILE_PIC_SIZE} border />
+				)}
+                <UsernameText numberOfLines={asNewInMyClubs ? 2 : 1}>
+                    {displayName}
                 </UsernameText>
             </CreatorLineContainer>
         );

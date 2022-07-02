@@ -10,9 +10,8 @@ import ReelayColors from '../../constants/ReelayColors';
 import Carousel from 'react-native-snap-carousel';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
-import { getGlobalTopics } from '../../api/TopicsApi';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faComments, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faBreadSlice, faComments, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 const { width } = Dimensions.get('window');
 
@@ -26,7 +25,6 @@ const CreateTopicButtonContainer = styled(TouchableOpacity)`
     justify-content: center;
     height: 40px;
     margin: 16px;
-    margin-left: 14px;
     width: ${width - 32}px;
 `
 const CreateTopicText = styled(ReelayText.Subtitle2)`
@@ -51,7 +49,7 @@ const HeaderText = styled(ReelayText.H5Bold)`
     font-size: 18px;
     padding: 15px;
 `
-const GlobalTopicsContainer = styled(View)`
+const TopicsContainer = styled(View)`
     width: 100%;
     height: auto;
     display: flex;
@@ -63,13 +61,40 @@ const SeeAllTopicsText = styled(ReelayText.Subtitle2)`
     margin-right: 15px;
 `
 
-export default GlobalTopics = ({ navigation }) => {
+export default TopicsCarousel = ({ navigation, source = 'discoverNew' }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const curTopicIndex = useRef(0);
-    const globalTopics = useSelector(state => state.globalTopics);
-    const globalTopicsWithReelays = useSelector(state => state.globalTopicsWithReelays);
-    const advanceToTopicsList = () => navigation.push('TopicsListScreen');
+
+    const followingNewTopics = useSelector(state => state.myHomeContent?.following?.newTopics);
+    const discoverNewTopics = useSelector(state => state.myHomeContent?.discover?.newTopics);
+    const discoverPopularTopics = useSelector(state => state.myHomeContent?.discover?.popularTopics);
+
+    let displayTopics = [];
+    let headerText = 'Topics';
+    switch (source) {
+        case 'discoverNew':
+            displayTopics = discoverNewTopics;
+            headerText = 'New topics';
+            break;
+        case 'discoverPopular':
+            displayTopics = discoverPopularTopics;
+            headerText = 'Popular topics';
+            break;
+        case 'followingNew':
+            displayTopics = followingNewTopics;
+            headerText = 'New topics'
+        default:
+            break;
+    }
+
+    // console.log('discoverNewTopics: ', discoverNewTopics);
+    // console.log('discoverPopularTopics: ', discoverPopularTopics);
+
+    const hasReelays = (topic) => topic?.reelays?.length > 0;
+    const displayTopicsWithReelays = displayTopics.filter(hasReelays);
+
+    const advanceToTopicsList = () => navigation.push('TopicsListScreen', { source });
 
     const CreateTopicButton = () => {
         const advanceToCreateTopic = () => {
@@ -96,8 +121,8 @@ export default GlobalTopics = ({ navigation }) => {
     const TopicsRow = () => {
         const onBeforeSnapToItem = async (swipeIndex) => {
             const swipeDirection = swipeIndex < curTopicIndex.current ? 'left' : 'right';
-            const nextTopic = globalTopics[swipeIndex];
-            const prevTopic = globalTopics[curTopicIndex.current];
+            const nextTopic = displayTopics[swipeIndex];
+            const prevTopic = displayTopics[curTopicIndex.current];
 
             logAmplitudeEventProd('swipedTopics', {
                 nextTopicTitle: nextTopic.title,
@@ -111,13 +136,11 @@ export default GlobalTopics = ({ navigation }) => {
         const renderTopic = ({ item, index }) => {
             const topic = item;
             const matchTopic = (nextTopic) => (nextTopic.id === topic.id);
-            const topicFeedIndex = globalTopicsWithReelays.findIndex(matchTopic);
+            const initTopicIndex = displayTopicsWithReelays.findIndex(matchTopic);
         
             const advanceToFeed = () => {
                 if (!topic.reelays?.length) return;
-                navigation.push('TopicsFeedScreen', { 
-                    initTopicIndex: topicFeedIndex,
-                });
+                navigation.push('TopicsFeedScreen', { initTopicIndex, source });
                 
                 logAmplitudeEventProd('openedTopic', {
                     clubID: null,
@@ -140,7 +163,7 @@ export default GlobalTopics = ({ navigation }) => {
             <Carousel
                 activeAnimationType={'decay'}
                 activeSlideAlignment={'center'}
-                data={globalTopics}
+                data={displayTopics}
                 inactiveSlideScale={0.95}
                 itemHeight={220}
                 itemWidth={width - 32}
@@ -153,18 +176,18 @@ export default GlobalTopics = ({ navigation }) => {
     }
     
     return (
-        <GlobalTopicsContainer>
+        <TopicsContainer>
             <HeaderContainer>
                 <HeaderContainerLeft>
                     <FontAwesomeIcon icon={ faComments } color='white' size={20} />
-                    <HeaderText>{'Topics'}</HeaderText>
+                    <HeaderText>{headerText}</HeaderText>
                 </HeaderContainerLeft>
                 <HeaderContainerRight onPress={advanceToTopicsList}>
                     <SeeAllTopicsText>{'See all'}</SeeAllTopicsText>
                 </HeaderContainerRight>
             </HeaderContainer>
-            { globalTopics.length > 0 && <TopicsRow /> }
-            <CreateTopicButton />
-        </GlobalTopicsContainer>
+            { displayTopics.length > 0 && <TopicsRow /> }
+            { source !== 'discoverPopular' && <CreateTopicButton /> }
+        </TopicsContainer>
     )
 }

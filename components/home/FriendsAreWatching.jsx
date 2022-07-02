@@ -9,6 +9,8 @@ import ReelayThumbnail from '../global/ReelayThumbnail';
 import SeeMore from '../global/SeeMore';
 import YouDontFollowPrompt from './YouDontFollowPrompt';
 import { useSelector } from 'react-redux';
+import moment from 'moment';
+import { getMyStacksFollowingDaily } from '../../redux/reducers';
 
 const FriendsAreWatching = ({ navigation }) => {
     const FriendsAreWatchingContainer = styled(View)`
@@ -36,19 +38,20 @@ const FriendsAreWatching = ({ navigation }) => {
     `
 
     const myFollowing = useSelector(state => state.myFollowing);
-    const myStacksFollowing = useSelector(state => state.myStacksFollowing);
+    const myStacksFollowing = useSelector(state => state.myHomeContent?.following?.mostRecent);
+    const displayStacks = getMyStacksFollowingDaily({ myStacksFollowing });
 
     return (
         <FriendsAreWatchingContainer>
             { myFollowing.length === 0 && <YouDontFollowPrompt navigation={navigation} />}
-            { myStacksFollowing.length > 0 && myFollowing.length > 0 && (
+            { displayStacks.length > 0 && (
                 <Fragment>
                     <HeaderContainer>
                         <Icon type='ionicon' name='people' size={24} color='white' />
                         <HeaderText>{'Friends are watching'}</HeaderText>
                     </HeaderContainer>
                     <FollowingRowContainer horizontal showsHorizontalScrollIndicator={false}>
-                        { myStacksFollowing.map((stack, index) =>  {
+                        { displayStacks.map((stack, index) =>  {
                             return (
                                 <FollowingElement
                                     key={index}

@@ -131,6 +131,7 @@ export default ClubBanner = ({ club, navigation, showBubbleBath = true, position
     });
 
     const advanceToClubInfoScreen = () => navigation.push('ClubInfoScreen', { club });
+    const advanceToClubActivityScreen = () => navigation.push('ClubActivityScreen', { club });
 
     const BubbleBathLeft = () => {
         return (
@@ -227,7 +228,7 @@ export default ClubBanner = ({ club, navigation, showBubbleBath = true, position
     }
 
     return (
-        <HeaderBackground onPress={advanceToClubInfoScreen} topOffset={topOffset}>
+        <HeaderBackground onPress={advanceToClubActivityScreen} topOffset={topOffset}>
             <BackButtonContainer>
                 <BackButton navigation={navigation} />
             </BackButtonContainer>

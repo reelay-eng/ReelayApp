@@ -1,5 +1,6 @@
 // react imports
 import React, { useEffect, useRef, useState } from 'react';
+import * as FileSystem from 'expo-file-system';
 import { Image, Text, View, Pressable } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './navigation';
@@ -32,16 +33,13 @@ import { AuthContext } from './context/AuthContext';
 
 // api imports
 import { 
-    getFeed, 
     getAllDonateLinks, 
     getRegisteredUser, 
     registerPushTokenForUser,
     getFollowers, 
-    getFollowing, 
     getStacksByCreator, 
-    getStreamingSubscriptions,
     getLatestAnnouncement,
-    getHomeFeeds, 
+    getHomeContent,
 } from './api/ReelayDBApi';
 import { getAllMyNotifications } from './api/NotificationsApi';
 import { getWatchlistItems } from './api/WatchlistApi';
@@ -50,14 +48,13 @@ import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { toastConfig } from './components/utils/ToastConfig';
 import Toast from "react-native-toast-message";
 
-// font imports
+// other imports
 import * as Font from 'expo-font';
 import { connect, Provider, useDispatch, useSelector } from 'react-redux';
 import store, { mapStateToProps } from './redux/store';
-import { ensureLocalImageDirExists } from './api/ReelayLocalImageCache';
+import { ensureLocalImageDirExists, maybeFlushTitleImageCache } from './api/ReelayLocalImageCache';
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
-import { getGlobalTopics } from './api/TopicsApi';
-import { getClubsMemberOf } from './api/ClubsApi';
+import moment from 'moment';
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png');
 
@@ -179,6 +176,7 @@ function App() {
         await checkIsNewUser();
         await ensureLocalImageDirExists();
         await ensureLocalTitleDirExists();
+        await maybeFlushTitleImageCache();
     }
 
     const checkIsNewUser = async () => {
@@ -247,31 +245,25 @@ function App() {
         // when you modify them
         const [
             donateLinksLoaded,
-            globalTopics,
-            homeFeeds,
             latestAnnouncement,
-            myClubs,
+            myHomeContent,
+
             myDismissalHistory,
             myCreatorStacksLoaded,
             myFollowersLoaded,
-            myFollowingLoaded,
             myNotificationsLoaded,
             myWatchlistItemsLoaded,
-            myStreamingSubscriptions,
             reelayDBUserLoaded,
         ] = await Promise.all([
             getAllDonateLinks(),
-            getGlobalTopics({ reqUserSub, page: 0 }),
-            getHomeFeeds({ reqUserSub, authSession }),
             getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
-            getClubsMemberOf({ authSession, userSub }),
+            getHomeContent({ authSession, reqUserSub }),
+
             getDismissalHistory(),
             getStacksByCreator(userSub),
             getFollowers(userSub),
-            getFollowing(userSub),
             getAllMyNotifications(userSub),
             getWatchlistItems(userSub),
-            getStreamingSubscriptions(userSub),
             getRegisteredUser(userSub),
         ]);
 
@@ -280,23 +272,22 @@ function App() {
         dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
         dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
 
-        dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
+        const myClubs = myHomeContent?.clubs ?? [];
+        const { myFollowing, myStreamingSubscriptions } = myHomeContent?.profile ?? [];
+
+        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
+        dispatch({ type: 'setMyFollowing', payload: myFollowing });
+        dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
+
         dispatch({ type: 'setMyNotifications', payload: myNotificationsLoaded });
         dispatch({ type: 'setMyWatchlistItems', payload: myWatchlistItemsLoaded });
         dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
-        dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
         dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });
         dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
-
-        dispatch({ type: 'setGlobalTopics', payload: globalTopics });
         dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
-        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
-        dispatch({ type: 'setMyStacksFollowing', payload: homeFeeds.following });
-        dispatch({ type: 'setMyStacksGlobal', payload: homeFeeds.global })
-        dispatch({ type: 'setMyStacksInTheaters', payload: homeFeeds.theaters });
-        dispatch({ type: 'setMyStacksOnStreaming', payload: homeFeeds.streaming });
-        dispatch({ type: 'setMyStacksAtFestivals', payload: homeFeeds.festivals });
-        dispatch({ type: 'setTopOfTheWeek', payload: homeFeeds.trending });
+
+        // home
+        dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
         dispatch({ type: 'setIsLoading', payload: false });
     }
 

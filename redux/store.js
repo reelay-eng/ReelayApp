@@ -8,7 +8,8 @@ import {
     sortByLastActivity,
     stacksOnStreamingReducer, 
     updateClubReducer, 
-    watchlistRecsReducer 
+    watchlistRecsReducer, 
+    latestClubActivitiesReducer
 } from "./reducers";
 
 const initialState = {
@@ -21,6 +22,7 @@ const initialState = {
 
     // CLUBS + WATCHLISTS
     myClubs: [],
+    myClubActivities: [],
     myWatchlistItems: [],
 
     // GLOBAL
@@ -28,21 +30,15 @@ const initialState = {
     tabBarVisible: true,
 
     // HOME SCREEN
-    globalTopics: [],
-    globalTopicsWithReelays: [],
     latestAnnouncement: null,
     latestAnnouncementDismissed: false,
     latestNotice: null,
     latestNoticeDismissed: false,
     latestNoticeSkipped: false,
+    myHomeContent: {},
     myDismissalHistory: {},
-    myStacksFollowing: [],
-    myStacksGlobal: [],
-    myStacksInTheaters: [],
-    myStacksOnStreaming: [],
-    myStacksAtFestivals: [],
     showFestivalsRow: false,
-    topOfTheWeek: [],
+    topics: {},
 
     // ON REELAYS
     likesVisible: false,
@@ -77,7 +73,6 @@ const initialState = {
     uploadProgress: 0,
     uploadRequest: null,
     uploadStage: 'none',
-
 }
 
 const appReducer = ( state = initialState, action) => {
@@ -101,11 +96,13 @@ const appReducer = ( state = initialState, action) => {
         case 'setMyClubs':
             const myClubs = action.payload;
             const myClubsSorted = myClubs.sort(sortByLastActivity);
-            return { ...state, myClubs: myClubsSorted };
+            let myClubActivities = latestClubActivitiesReducer(myClubs);
+            return { ...state, myClubs: myClubsSorted, myClubActivities };
         case 'setUpdatedClub':
             const updatedClub = action.payload;
             const updatedMyClubs = updateClubReducer(state.myClubs, updatedClub);
-            return { ...state, myClubs: updatedMyClubs };    
+            myClubActivities = latestClubActivitiesReducer(updatedMyClubs);
+            return { ...state, myClubs: updatedMyClubs, myClubActivities };    
         case 'setMyWatchlistItems':
             const myWatchlistItems = watchlistRecsReducer(action.payload);
             return { ...state, myWatchlistItems };    
@@ -117,12 +114,6 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, tabBarVisible: action.payload }        
 
         // HOME SCREEN
-        case 'setGlobalTopics':
-            const globalTopics = action.payload;
-            const globalTopicsWithReelays = globalTopics.filter((topic) => {
-                return topic.reelays.length > 0;
-            });
-            return { ...state, globalTopics, globalTopicsWithReelays };
         case 'setLatestAnnouncement':
             const latestAnnouncement = latestAnnouncementReducer({ 
                 announcement: action.payload,
@@ -153,26 +144,34 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, latestNoticeDismissed: action.payload }
         case 'setLatestNoticeSkipped':
             return { ...state, latestNoticeSkipped: action.payload }
+        case 'setMyHomeContent':
+            return { ...state, myHomeContent: action.payload }    
         case 'setMyDismissalHistory':
             return { ...state, myDismissalHistory: action.payload }
-        case 'setMyStacksAtFestivals':
-            return { ...state, myStacksAtFestivals: action.payload }    
-        case 'setMyStacksFollowing':
-            return { ...state, myStacksFollowing: action.payload }
-        case 'setMyStacksGlobal':
-            return { ...state, myStacksGlobal: action.payload };
-        case 'setMyStacksInTheaters':
-            return { ...state, myStacksInTheaters: action.payload }
-        case 'setMyStacksOnStreaming':
-            const myStacksOnStreaming = stacksOnStreamingReducer({
-                stacksOnStreaming: action.payload, 
-                streamingSubscriptions: state.myStreamingSubscriptions,
-            });
-            return { ...state, myStacksOnStreaming }
+        case 'setStreamingStacks':
+            let myHomeContent =  { ...state.myHomeContent };
+            if (!myHomeContent.discover || !myHomeContent.following) {
+                console.log('Invalid home content. Cannot set streaming stacks');
+                return state;
+            }
+
+            const { nextDiscover, nextFollowing } = action.payload;
+            if (nextDiscover) myHomeContent.discover.streaming = nextDiscover;
+            if (nextFollowing) myHomeContent.following.streaming = nextFollowing;
+            return { ...state, myHomeContent };
         case 'setShowFestivalsRow':
-            return { ...state, showFestivalsRow: action.payload }        
-        case 'setTopOfTheWeek':
-            return { ...state, topOfTheWeek: action.payload }
+            return { ...state, showFestivalsRow: action.payload }            
+        case 'setTopics': 
+            const { discoverNew, discoverPopular, followingNew } = action.payload;
+            myHomeContent = { ...state.myHomeContent };
+            if (!myHomeContent.discover || !myHomeContent.following) {
+                console.log('Invalid home content. Cannot set topics');
+                return state;
+            }
+            if (discoverNew) myHomeContent.discover.newTopics = discoverNew;
+            if (discoverPopular) myHomeContent.discover.popularTopics = discoverPopular;
+            if (followingNew) myHomeContent.following.newTopics = followingNew;
+            return { ...state, myHomeContent };
 
         // ON REELAYS
         case 'setCommentsVisible':
@@ -249,6 +248,7 @@ export const mapStateToProps = (state) => ({
 
     // CLUBS + WATCHLISTS
     myClubs: state.myClubs,
+    myClubActivities: state.myClubActivities,
     myWatchlistItems: state.myWatchlistItems,
 
     // GLOBAL
@@ -256,21 +256,14 @@ export const mapStateToProps = (state) => ({
     tabBarVisible: state.tabBarVisible,
 
     // HOME SCREEN
-    globalTopics: state.globalTopics,
-    globalTopicsWithReelays: state.globalTopicsWithReelays,
     latestAnnouncement: state.latestAnnouncement,
     latestAnnouncementDismissed: state.latestAnnouncementDismissed,
     latestNotice: state.latestNotice,
     latestNoticeDismissed: state.latestNoticeDismissed,
     latestNoticeSkipped: state.latestNoticeSkipped,
+    myHomeContent: state.myHomeContent,
     myDismissalHistory: state.myDismissalHistory,
-    myStacksAtFestivals: state.myStacksAtFestivals,
-    myStacksFollowing: state.myStacksFollowing,
-    myStacksGlobal: state.myStacksGlobal,
-    myStacksInTheaters: state.myStacksInTheaters,
-    myStacksOnStreaming: state.myStacksOnStreaming,
     showFestivalsRow: state.showFestivalsRow,
-    topOfTheWeek: state.topOfTheWeek,
 
     // ON REELAYS
     commentsVisible: state.commentsVisible,

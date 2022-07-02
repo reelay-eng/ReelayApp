@@ -28,11 +28,6 @@ export default SeeMore = ({ reelay, display='thumbnail', onPress, height = 200, 
     const SeeMoreText = styled(ReelayText.CaptionEmphasized)`
         color: white;
     `
-	// const TitlePoster = styled(Image)`
-	// 	width: 120px;
-	// 	height: 180px;
-	// 	border-radius: 8px;
-	// `
 
 	const GradientOverlay = () => {
 		return (
@@ -40,24 +35,23 @@ export default SeeMore = ({ reelay, display='thumbnail', onPress, height = 200, 
 				<GradientContainer>
 				{ display === 'thumbnail' &&
 					<ReelayThumbnail 
-						height={180} 
+						height={height} 
 						margin={0}
 						onPress={onPress} 
 						reelay={reelay} 
 						showIcons={false}
-						width={115} 
+						width={width} 
 					/>
 				}
 				{ display === 'poster' &&
 					<React.Fragment>
-						{/* <TitlePoster source={reelay?.title?.posterSource} /> */}
-						<TitlePoster title={reelay?.title} width={120} />
+						<TitlePoster title={reelay?.title} width={width} />
 						<LinearGradient
 							colors={["transparent", "#0B1424"]}
 							style={{
 								opacity: 1,
-								width: 120,
-								height: 180,
+								width: width,
+								height: height,
 								borderRadius: 6,
 								position: 'absolute',
 							}}

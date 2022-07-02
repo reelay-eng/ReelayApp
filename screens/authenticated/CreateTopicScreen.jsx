@@ -19,7 +19,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { getClubTopics } from '../../api/ClubsApi';
-import { createTopic, getGlobalTopics } from '../../api/TopicsApi';
+import { createTopic, getTopics } from '../../api/TopicsApi';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import TopicAddFirstReelayDrawer from '../../components/topics/TopicAddFirstReelayDrawer';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
@@ -117,7 +117,7 @@ export default function CreateTopicScreen({ navigation, route }) {
 
     const club = route?.params?.club;
     const authSession = useSelector(state => state.authSession);
-    const globalTopics = useSelector(state => state.globalTopics);
+    const myHomeContent = useSelector(state => state.myHomeContent);
 
     const refreshClubTopics = async () => {
         if (!club) return;
@@ -135,16 +135,22 @@ export default function CreateTopicScreen({ navigation, route }) {
         }
     }
 
-    const refreshGlobalTopics = async () => {
+    const refreshDiscoverNewTopics = async () => {
         try {
-            const topics = await getGlobalTopics({ page: 0 });
-            dispatch({ type: 'setGlobalTopics', payload: topics });
+            const topics = await getTopics({
+                authSession,
+                page: 0,
+                reqUserSub: reelayDBUser?.sub,
+                source: 'discoverNew',
+            });
+            const payload = { discoverNew: topics };
+            dispatch({ type: 'setTopics', payload });
         } catch (error) {
             console.log(error);
         }
     }
 
-    const refreshTopics = (club) ? refreshClubTopics : refreshGlobalTopics;
+    const refreshTopics = (club) ? refreshClubTopics : refreshDiscoverNewTopics;
 
     const dispatch = useDispatch();
     const descriptionFieldRef = useRef(null);
@@ -200,7 +206,9 @@ export default function CreateTopicScreen({ navigation, route }) {
                     console.log('new club topics: ', club.topics);
                     dispatch({ type: 'setUpdatedClub', payload: club });
                 } else {
-                    dispatch({ type: 'setGlobalTopics', payload: [publishResult, ...globalTopics ]});
+                    dispatch({ type: 'setTopics', payload: {
+                        discoverNew: [publishResult, ...myHomeContent?.discover?.newTopics]
+                    }});
                 }
                 showMessageToast('Topic created!');
                 setAddFirstReelayDrawerVisible(true);

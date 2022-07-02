@@ -9,7 +9,7 @@ import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import { useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
-import { getGlobalTopics } from '../../api/TopicsApi';
+import { getTopics } from '../../api/TopicsApi';
 
 const { height, width } = Dimensions.get('window');
 
@@ -24,27 +24,56 @@ export default TopicsFeed = ({
     preloadedTopics,
     initTopicIndex, 
     initReelayIndex,
+    source,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const authSession = useSelector(state => state.authSession);
+    const myHomeContent = useSelector(state => state.myHomeContent);
+    const page = useRef(0);
 	const dispatch = useDispatch();
     const feedPager = useRef();
 
-    const globalTopicsWithReelays = useSelector(state => state.globalTopicsWithReelays);
-    const displayTopicsWithReelays = (!!preloadedTopics)
-        ? preloadedTopics.filter(topic => topic.reelays.length > 0)
-        : globalTopicsWithReelays;
+    let displayTopics;
+    switch (source) {
+        case 'discoverNew':
+            displayTopics = myHomeContent?.discover?.newTopics;
+            break;
+        case 'discoverPopular':
+            displayTopics = myHomeContent?.discover?.popularTopics;
+            break;
+        case 'followingNew':
+            displayTopics = myHomeContent?.following?.newTopics;
+            break;
+        case 'search':
+            displayTopics = preloadedTopics;
+            break;
+        default:
+            displayTopics = [];
+            break;
+    }
 
+    const hasReelays = (topic) => topic?.reelays?.length > 0;
+    const displayTopicsWithReelays = displayTopics.filter(hasReelays);
     const displayTopicStacks = displayTopicsWithReelays.map(topic => topic.reelays);
-    
+        
     const [feedPosition, setFeedPosition] = useState(initTopicIndex);
     const [refreshing, setRefreshing] = useState(false);
 
     const onRefresh = async () => {
-        if (!!preloadedTopics) return;
+        if (source === 'search') return;
         try {
             setRefreshing(true);
-            const nextGlobalTopics = await getGlobalTopics({ page: 0 });
-            dispatch({ type: 'setGlobalTopics', payload: nextGlobalTopics });
+            const nextTopics = await getTopics({ 
+                authSession, 
+                page: 0, 
+                reqUserSub: reelayDBUser?.sub, 
+                source,
+            });
+
+            const payload = {};
+            payload[source] = nextTopics;
+            dispatch({ type: 'setTopics', payload });
+
             setRefreshing(false);    
         } catch (error) {
             console.log(error);
@@ -56,9 +85,24 @@ export default TopicsFeed = ({
         dispatch({ type: 'setTabBarVisible', payload: false });
     });
 
-    const extendFeed = () => {
-        // todo
-        if (!!preloadedTopics) return;
+    const extendFeed = async () => {
+        if (source === 'search') return;
+        try {
+            page.current += 1;
+            const nextTopics = await getTopics({ 
+                authSession, 
+                page: page.current, 
+                reqUserSub: reelayDBUser?.sub, 
+                source,
+            });
+
+            const payload = {};
+            payload[source] = [...displayTopics, ...nextTopics];
+            dispatch({ type: 'setTopics', payload });
+
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     const getItemLayout = (stack, index) => {

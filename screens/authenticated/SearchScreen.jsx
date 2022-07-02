@@ -136,7 +136,7 @@ export default SearchScreen = ({ navigation }) => {
     return (
 		<SearchScreenContainer>
 			<HeaderWithBackButton navigation={navigation} text={"Search"} />
-			<TopBarContainer>
+            <TopBarContainer>
 				<SelectorBarContainer>
 					<ToggleSelector
                         displayOptions={["Film", "TV", "Users"]}
@@ -149,7 +149,7 @@ export default SearchScreen = ({ navigation }) => {
 					/>
 				</SelectorBarContainer>
 			</TopBarContainer>
-			<SearchBarContainer>
+            <SearchBarContainer>
 				<SearchField
 					searchText={searchText}
 					updateSearchText={updateSearchText}

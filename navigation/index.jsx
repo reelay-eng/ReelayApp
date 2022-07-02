@@ -49,7 +49,6 @@ export default Navigation = () => {
 
     const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
-    const globalTopics = useSelector(state => state.globalTopics);
     const myClubs = useSelector(state => state.myClubs);
 
     const s3Client = useSelector(state => state.s3Client);
@@ -148,9 +147,6 @@ export default Navigation = () => {
                     navigation.navigate('SingleReelayScreen', { reelaySub });
                 }
             } else if (path?.startsWith('clubInvite/')) {
-                console.log('club invite found');
-                console.log(deeplinkURL);
-
                 if (reelayDBUser?.username === 'be_our_guest') {
                     dispatch({ type: 'setJustShowMeSignupVisible', payload: true });
                     return;

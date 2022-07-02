@@ -7,10 +7,11 @@ import BackButton from '../utils/BackButton';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faListCheck } from '@fortawesome/free-solid-svg-icons';
-import { createProfileLink } from '../../api/ProfilesApi';
+import { fetchOrCreateProfileLink } from '../../api/ProfilesApi';
 import { useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import * as Clipboard from 'expo-clipboard';
+import { useFocusEffect } from '@react-navigation/native';
 
 const REELAY_WEB_PREFIX = `https://on.reelay.app`;
 
@@ -63,21 +64,15 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
     }
 
     const CopyProfileLinkButton = () => {
-        const [profileLink, setProfileLink] = useState(null);
-        useEffect(() => {
-            const fetchOrCreateProfileLink = async () => {
-                // create or fetch profile link on page load so that copying is quick
-                const profileLink = await createProfileLink({ authSession, userSub: creator?.sub, username: creator?.username });
-                setProfileLink(profileLink);
-            }
-            fetchOrCreateProfileLink();
-            return () => {} // this apparently helps react know that state is done being fiddled with and so it cancels async tasks
-        }, [])
-
         const copyProfileLink = async () => {
             try {
                 // first, create the profile link if it doesn't exist in useEffect
                 // then, copy it to clipboard:
+                const profileLink = await fetchOrCreateProfileLink({ 
+                    authSession, 
+                    userSub: creator?.sub, 
+                    username: creator?.username 
+                });
                 console.log("PROFILE LINK: ", profileLink);
                 if (profileLink?.error) {
                     showErrorToast("There was an error creating this profile link. Please try again.");

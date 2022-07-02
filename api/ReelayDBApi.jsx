@@ -194,7 +194,7 @@ export const getReportedReelayStacks = async () => {
         headers: ReelayAPIHeaders,
     });
 
-    const preparedReportedStacks = await prepareStacks(fetchedReportedStacks);
+    const preparedReportedStacks = await prepareFeed(fetchedReportedStacks);
     return preparedReportedStacks;
 }
 
@@ -302,14 +302,6 @@ export const getStreamingSubscriptions = async (userSub) => {
     return resultGet;
 }
 
-export const getStacksByVenue = async ( venues, page = 0) => {
-    const venueReelays = await getReelaysByVenue(venues, page);
-    if (!venueReelays) return [];
-
-    const preparedStacks = await prepareStacks(venueReelays);
-    return preparedStacks;
-}
-
 export const getStacksByCreator = async (creatorSub) => {
     console.log('Getting stacks by creator');
     const creatorReelays = await getReelaysByCreator(creatorSub);
@@ -337,11 +329,20 @@ export const getStacksByCreator = async (creatorSub) => {
 }
 
 // call prepareReelay on every reelay in every stack
-const prepareStacks = async (fetchedStacks) => {
-    const prepareReelaysForStack = async (fetchedReelaysForStack) => {
-        return await Promise.all(fetchedReelaysForStack.map(prepareReelay));
+const prepareFeed = async (fetchedStacks) => {
+    const preparedStacks = [];
+    for (const fetchedStack of fetchedStacks) {
+        const preparedStack = await Promise.all(fetchedStack.map(prepareReelay));
+        preparedStacks.push(preparedStack);
     }
-    return await Promise.all(fetchedStacks.map(prepareReelaysForStack));
+    return preparedStacks;
+}
+
+const prepareTitlesAndTopics = async (titlesAndTopics) => {
+    for (const titleOrTopic of titlesAndTopics) {
+        titleOrTopic.reelays = await Promise.all(titleOrTopic.reelays.map(prepareReelay));
+    }
+    return titlesAndTopics;
 }
 
 export const getCommentLikesForReelay = async (reelaySub, reqUserSub) => {
@@ -354,9 +355,9 @@ export const getCommentLikesForReelay = async (reelaySub, reqUserSub) => {
     return resultGet;
 }
 
-export const getHomeFeeds = async ({ authSession, reqUserSub }) => {
-    const routeGet = `${REELAY_API_BASE_URL}/feed/home?visibility=${FEED_VISIBILITY}`;
-    const fetchedFeeds = await fetchResults(routeGet, {
+export const getHomeContent = async ({ authSession, reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/home?visibility=${FEED_VISIBILITY}`;
+    const homeContent = await fetchResults(routeGet, {
         method: 'GET',
         headers: { 
             ...getReelayAuthHeaders(authSession), 
@@ -364,13 +365,116 @@ export const getHomeFeeds = async ({ authSession, reqUserSub }) => {
         },
     });
 
-    const preparedFeeds = {};
-    await Promise.all(Object.keys(fetchedFeeds).map(async (feedKey) => {
-        preparedFeeds[feedKey] = await prepareStacks(fetchedFeeds[feedKey]);
-        return feedKey;
-    }));
+    const reelayContentTypes = [
+        'clubTitles',
+        'clubTopics',
+        'festivals',
+        'theaters',
+        'streaming',
+        'mostRecent', 
+        'newTopics', 
+        'popularTitles',
+        'popularTopics',
+        'topOfTheWeek',
+    ];
 
-    return preparedFeeds;
+    const titleAndTopicContentTypes = [
+        'newTopics', 
+        'popularTopics',
+    ]
+
+    if (!homeContent) {
+        console.log('Error: no home content');
+        return null;
+    }
+
+    const { discover, following, clubs, global, profile } = homeContent;
+    if (!discover || !following || !clubs || !global || !profile) {
+        console.log('Error: home content missing');
+        return null;
+    }
+
+    const prepareAllClubs = async () => {
+        const preparedClubs = [];
+        for (const club of clubs) {
+            await prepareClubReelays(club);
+            await prepareClubActivities(club);
+            preparedClubs.push(club);
+        }
+        return preparedClubs;
+    }
+
+    const prepareClubActivities = async (club) => {
+        for (const member of club.members) {
+            member.activityType = 'member';
+        }
+        for (const title of club.titles) {
+            const { tmdbTitleID, titleType } = title;
+            const annotatedTitle = await fetchAnnotatedTitle(tmdbTitleID, titleType === 'tv');
+            title.activityType = 'title';
+            title.title = annotatedTitle;
+        }
+        for (const topic of club.topics) {
+            topic.activityType = 'topic';
+        }
+    }
+
+    const prepareClubReelays = async (club) => {
+        const { titles, topics } = club;
+        const [preparedTitles, preparedTopics] = await Promise.all([
+            prepareTitlesAndTopics(titles),
+            prepareTitlesAndTopics(topics),
+        ]);
+        club.titles = preparedTitles;
+        club.topics = preparedTopics;
+    };
+
+    const prepareHomeTabReelays = async (homeTab) => {
+        const contentKeys = Object.keys(homeTab);
+        const prepareHomeContentForKey = async (contentKey) => {
+            const isTitlesOrTopics = titleAndTopicContentTypes.includes(contentKey);
+            const mustPrepareReelays = reelayContentTypes.includes(contentKey);
+    
+            if (isTitlesOrTopics) {
+                homeTab[contentKey] = await prepareTitlesAndTopics(homeTab[contentKey]);
+            } else if (mustPrepareReelays) {
+                homeTab[contentKey] = await prepareFeed(homeTab[contentKey]);
+            } else {
+                // change nothing
+            }
+        }
+
+        await Promise.all(contentKeys.map(prepareHomeContentForKey));
+        return homeTab;
+    }
+
+    const [
+        discoverPrepared,
+        followingPrepared,
+        globalPrepared,
+        clubsPrepared,
+    ] = await Promise.all([
+        prepareHomeTabReelays(discover),
+        prepareHomeTabReelays(following),
+        prepareFeed(global),
+        prepareAllClubs(),
+    ]);
+
+    // console.log('prepared home screen: ');
+    // console.log('discover popular: ', discoverPrepared?.popularTitles);
+    // console.log('following popular: ', followingPrepared?.popularTitles);
+    // console.log('following most recent: ', followingPrepared?.mostRecent);
+    // console.log('global: ', globalPrepared);
+    // console.log('clubs: ', clubsPrepared);
+    // console.log('profile: ', profile);
+    
+    return {
+        discover: discoverPrepared,
+        following: followingPrepared,
+        global: globalPrepared,
+        clubs: clubsPrepared,
+        profile,
+    };
 }
 
 export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
@@ -388,7 +492,7 @@ export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
         console.log('Found no reelays in feed');
         return null;
     }
-    return await prepareStacks(fetchedStacks);
+    return await prepareFeed(fetchedStacks);
 }
 
 export const getMostRecentReelaysByTitle = async (tmdbTitleID, page = 0) => {

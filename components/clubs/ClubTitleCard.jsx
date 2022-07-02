@@ -203,6 +203,7 @@ export default ClubTitleCard = ({
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+
     const { addedByUserSub, addedByUsername, title } = clubTitle;
     const addedByUser = { sub: addedByUserSub, username: addedByUsername };
 
