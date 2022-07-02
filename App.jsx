@@ -269,6 +269,7 @@ function App() {
 
         setReelayDBUser(reelayDBUserLoaded);
         dispatch({ type: 'setReelayDBUser', payload: reelayDBUserLoaded });
+        dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
         dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
         dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
 
@@ -283,11 +284,10 @@ function App() {
         dispatch({ type: 'setMyWatchlistItems', payload: myWatchlistItemsLoaded });
         dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
         dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });
-        dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
         dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
-
-        // home
-        dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
+        dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
+        
+        // TODO: ensure we only fire this only once all others have completed
         dispatch({ type: 'setIsLoading', payload: false });
     }
 

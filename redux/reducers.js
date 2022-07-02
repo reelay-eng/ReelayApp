@@ -104,7 +104,8 @@ export const latestNoticeReducer = ({ latestNotice, myClubs, myCreatorStacks, us
 
 
 // max 1 reelay per creator per day
-export const getMyStacksFollowingDaily = ({ myStacksFollowing }) => {
+export const getMyStacksFollowingDaily = (myStacksFollowing) => {
+    if (!myStacksFollowing) return [];
     const replaceMostRecent = (nextReelay, curReelay) => {
         // positive: nextReelay is more recent
         return moment(nextReelay?.createdAt).diff(moment(curReelay?.createdAt), 'seconds') > 0;

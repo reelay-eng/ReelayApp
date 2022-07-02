@@ -39,7 +39,7 @@ const FriendsAreWatching = ({ navigation }) => {
 
     const myFollowing = useSelector(state => state.myFollowing);
     const myStacksFollowing = useSelector(state => state.myHomeContent?.following?.mostRecent);
-    const displayStacks = getMyStacksFollowingDaily({ myStacksFollowing });
+    const displayStacks = getMyStacksFollowingDaily(myStacksFollowing);
 
     return (
         <FriendsAreWatchingContainer>
