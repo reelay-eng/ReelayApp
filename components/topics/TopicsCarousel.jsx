@@ -74,26 +74,22 @@ export default TopicsCarousel = ({ navigation, source = 'discoverNew' }) => {
     let headerText = 'Topics';
     switch (source) {
         case 'discoverNew':
-            displayTopics = discoverNewTopics;
+            displayTopics = discoverNewTopics ?? [];
             headerText = 'New topics';
             break;
         case 'discoverPopular':
-            displayTopics = discoverPopularTopics;
+            displayTopics = discoverPopularTopics ?? [];
             headerText = 'Popular topics';
             break;
         case 'followingNew':
-            displayTopics = followingNewTopics;
+            displayTopics = followingNewTopics ?? [];
             headerText = 'New topics'
         default:
             break;
     }
 
-    // console.log('discoverNewTopics: ', discoverNewTopics);
-    // console.log('discoverPopularTopics: ', discoverPopularTopics);
-
     const hasReelays = (topic) => topic?.reelays?.length > 0;
     const displayTopicsWithReelays = displayTopics.filter(hasReelays);
-
     const advanceToTopicsList = () => navigation.push('TopicsListScreen', { source });
 
     const CreateTopicButton = () => {
