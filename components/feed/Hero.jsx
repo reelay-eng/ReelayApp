@@ -90,6 +90,8 @@ export default Hero = memo(({ index, navigation, reelay, viewable }) => {
     const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
 	const [expanded, setExpanded] = useState(false);
 
+    console.log('Hero is rendering: ', reelay.creator.username, reelay.title.display);
+
     return (
         <View key={index} style={{ justifyContent: 'flex-end'}}>
             <FeedVideoPlayer reelay={reelay} viewable={viewable} />
