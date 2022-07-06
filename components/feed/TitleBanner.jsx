@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { memo, useContext } from "react";
 import { Dimensions, Pressable, View } from "react-native";
 import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
@@ -130,7 +130,7 @@ const YearVenueContainer = styled(View)`
 
 const DEFAULT_BGCOLOR = 'rgba(0, 0, 0, 0.36)';
 
-export default TitleBanner = ({ 
+const TitleBanner = ({ 
     titleObj,
     backgroundColor=DEFAULT_BGCOLOR,
     clubActivity=null,
@@ -217,15 +217,7 @@ export default TitleBanner = ({
 
         return (
             <TitleUnderlineContainer>
-                <YearVenueContainer>
-                    { viewableReelay?.content?.venue && 
-                        <VenueContainer>
-                            <VenueIcon venue={viewableReelay?.content?.venue} size={20} border={1} />
-                        </VenueContainer>
-                    }
-                    { displayYear.length > 0 && !clubActivity && <YearText>{displayYear}</YearText> }
-                </YearVenueContainer>
-
+                <YearVenueLine />
                 { showActivity && (
                     <ClubTitleContainer>
                         <ClubTitleText numberOfLines={2}>
@@ -241,6 +233,21 @@ export default TitleBanner = ({
             </TitleUnderlineContainer>
         );
     }
+
+    const YearVenueLine = memo(() => {
+        return (
+            <YearVenueContainer>
+                { viewableReelay?.content?.venue && 
+                    <VenueContainer>
+                        <VenueIcon venue={viewableReelay?.content?.venue} size={20} border={1} />
+                    </VenueContainer>
+                }
+                { displayYear.length > 0 && !clubActivity && <YearText>{displayYear}</YearText> }
+            </YearVenueContainer>
+        );
+    }, (prevProps, nextProps) => {
+        return prevProps.venue === nextProps.venue;
+    });
 
     return (
         <TitleBannerOuterContainer absolute={!!viewableReelay} topOffset={viewableReelay ? topOffset : 0}>
@@ -264,3 +271,7 @@ export default TitleBanner = ({
         </TitleBannerOuterContainer>
     );
 }
+
+export default memo(TitleBanner, (prevProps, nextProps) => {
+    return prevProps.titleObj === nextProps.titleObj && prevProps.viewableReelay === nextProps.viewableReelay;
+})

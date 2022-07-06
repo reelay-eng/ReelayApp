@@ -85,14 +85,12 @@ const HeroModals = ({ reelay, navigation }) => {
     );
 }
 
-export default Hero = ({ index, navigation, reelay, viewable }) => {
+export default Hero = memo(({ index, navigation, reelay, viewable }) => {
     const commentsCount = useRef(reelay.comments.length);
     const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
 	const [expanded, setExpanded] = useState(false);
 
-    if (viewable) {
-        console.log('Hero is viewable: ', reelay.creator.username, reelay.title.display);
-    }
+    console.log('Hero is rendering: ', reelay.creator.username, reelay.title.display);
 
     return (
         <View key={index} style={{ justifyContent: 'flex-end'}}>
@@ -106,4 +104,6 @@ export default Hero = ({ index, navigation, reelay, viewable }) => {
             { viewable && <HeroModals reelay={reelay} navigation={navigation} /> }
         </View>
     );
-}
+}, (prepProps, nextProps) => {
+    return prepProps.viewable === nextProps.viewable;
+});

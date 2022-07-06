@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { fetchResults } from './fetchResults';
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
@@ -137,7 +138,7 @@ export const registerForPushNotificationsAsync = async () => {
         });
     }
 
-    if (Constants.isDevice) {
+    if (Device.isDevice) {
         return await getDevicePushToken();
     } else {
         alert('Must use physical device for Push Notifications');
@@ -416,7 +417,7 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
     await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
 }
 
-export const notifyMentionsOnReelayPosted = async ({ clubID = null, creator, reelay }) => {
+export const notifyMentionsOnReelayPosted = async ({ authSession, clubID = null, creator, reelay }) => {
     const descriptionText = reelay.description;
     if (!descriptionText || descriptionText === '') return;
 
