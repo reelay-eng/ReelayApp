@@ -26,10 +26,10 @@ export default PreviewVideoPlayer = ({ isMuted, title, videoURI }) => {
 				progressUpdateIntervalMillis={50}
 				rate={1.0}
 				resizeMode='cover'
-				shouldDuckAndroid={true}
+				// shouldDuckAndroid={true}
 				shouldPlay={playing}
 				source={{ uri: videoURI }}
-				staysActiveInBackground={false}
+				// staysActiveInBackground={false}
 				style={{
 					height: '100%',
 					width: '100%',

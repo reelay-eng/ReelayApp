@@ -17,6 +17,8 @@ target 'ReelayApp' do
     :hermes_enabled => podfile_properties['expo.jsEngine'] == 'hermes'
   )
 
+  pod 'RNAWSCognito', :path => '../node_modules/amazon-cognito-identity-js'
+
 
   # Uncomment to opt-in to using Flipper
   #

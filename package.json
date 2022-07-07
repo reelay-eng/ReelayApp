@@ -2,6 +2,7 @@
   "scripts": {
     "setup": "yarn install && cd ios && pod install && cd .. && amplify pull",
     "start": "export NODE_ENV='production' && expo start",
+    "build": "react-native bundle --entry-file='index.js' --bundle-output='./ios/main.jsbundle' --dev=false --platform='ios'",
     "demo": "echo",
     "dev": "export NODE_ENV='dev' && expo start",
     "devg": "export NODE_ENV='devg' && expo start",
