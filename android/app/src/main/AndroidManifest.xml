@@ -1,9 +1,8 @@
-<manifest 
-    xmlns:android="http://schemas.android.com/apk/res/android" 
-    package="com.reelay.reelayapp" 
-    android:versionCode="1" 
-    android:versionName="1.0.2">
-    ...
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.reelay.reelayapp" android:versionCode="1" android:versionName="1.0.2">
+  <uses-permission android:name="android.permission.CAMERA"/>
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+  <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
   <application android:name="co.app.reelay.MainApplication">
     <activity android:name="co.app.reelay.MainActivity" android:launchMode="singleTask">
       <intent-filter>
@@ -14,9 +13,14 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="reelayapp" />
+        <data android:scheme="reelayapp"/>
         <data android:scheme="com.googleusercontent.apps.75256805031-89iubu60jfrko1lcn1oj2n4lgshdnljf"/>
       </intent-filter>
     </activity>
+    <activity android:name="com.theartofdev.edmodo.cropper.CropImageActivity" android:theme="@style/Base.Theme.AppCompat"/>
   </application>
+  
+    ...
+  
+
 </manifest>
