@@ -251,18 +251,23 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     }
 
     const ReelayCamera = () => {
-        return (
-            <Camera
-                ref={cameraRef}
-                type={cameraType} 
-                style={{ height: '100%', width: '100%', position: 'absolute'}}
-                flashMode={Camera.Constants.FlashMode.auto}
-                onMountError={(error) => {
-                    console.log("camera error", error);
-                }}
-                whiteBalance={Camera.Constants.WhiteBalance.auto} 
-            />
-        );
+        try {
+            return (
+                <Camera
+                    ref={cameraRef}
+                    type={cameraType} 
+                    style={{ height: '100%', width: '100%', position: 'absolute'}}
+                    flashMode={Camera.Constants.FlashMode.auto}
+                    onMountError={(error) => {
+                        console.log("camera error", error);
+                    }}
+                    whiteBalance={Camera.Constants.WhiteBalance.auto} 
+                />
+            );    
+        } catch (error) {
+            console.log(error);
+            return <View />;
+        } 
     }
 
     const VenueIndicator = () => {

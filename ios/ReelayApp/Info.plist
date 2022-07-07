@@ -58,6 +58,8 @@
 	<string>The camera is active while you record reelays.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>The microphone is active while you record reelays.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow reelay to upload videos from your photo library.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>SplashScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>

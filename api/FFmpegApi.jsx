@@ -1,4 +1,13 @@
-import { FFmpegKit, ReturnCode } from 'ffmpeg-kit-react-native';
+let FFmpegKit, ReturnCode;
+import Constants from 'expo-constants';
+
+if (Constants.appOwnership === 'expo') {
+    FFmpegKit = null;
+    ReturnCode = null;
+} else {
+    FFmpegKit = require('ffmpeg-kit-react-native').FFmpegKit;
+    ReturnCode = require('ffmpeg-kit-react-native').ReturnCode;
+}
 
 const parseSessionLogs = async (session) => {
     try {
@@ -17,13 +26,9 @@ const parseSessionLogs = async (session) => {
 const parseFFmpegSession = async (session) => {
     try {
         const returnCode = await session.getReturnCode();
-        // const returnCode = '000';
-
         const sessionID = session.getSessionId();
         const success = ReturnCode.isSuccess(returnCode);
         const cancel = ReturnCode.isCancel(returnCode);
-        // const success = 0;
-        // const cancel = 0;
         const error = !success && !cancel;
     
         const output = await session.getOutput();   
@@ -49,6 +54,8 @@ const parseFFmpegSession = async (session) => {
 }
 
 export const compressVideoForUpload = async (inputURI, crf=24) => {
+    if (!FFmpegKit) return inputURI;
+
     try {
         const filenameEnd = outputURI.indexOf('.mp4');
         const outputURI = `${inputURI.slice(0, filenameEnd)}-ffmpeg.mp4`
