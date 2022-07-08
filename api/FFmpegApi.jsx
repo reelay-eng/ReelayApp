@@ -1,12 +1,15 @@
 let FFmpegKit, ReturnCode;
 import Constants from 'expo-constants';
+import { showErrorToast } from '../components/utils/toasts';
 
-if (Constants.appOwnership === 'expo') {
-    FFmpegKit = null;
-    ReturnCode = null;
-} else {
+export const deviceCanCompress = (Constants.appOwnership !== 'expo');
+
+if (deviceCanCompress) {
     FFmpegKit = require('ffmpeg-kit-react-native').FFmpegKit;
     ReturnCode = require('ffmpeg-kit-react-native').ReturnCode;
+} else {
+    FFmpegKit = null;
+    ReturnCode = null;
 }
 
 const parseSessionLogs = async (session) => {
@@ -54,19 +57,27 @@ const parseFFmpegSession = async (session) => {
 }
 
 export const compressVideoForUpload = async (inputURI, crf=24) => {
-    if (!FFmpegKit) return inputURI;
+    if (!deviceCanCompress) {
+        console.log('skipping video compression');
+        return inputURI;
+    }
+    console.log('starting video compression');
+
 
     try {
         const filenameEnd = outputURI.indexOf('.mp4');
-        const outputURI = `${inputURI.slice(0, filenameEnd)}-ffmpeg.mp4`
+        const outputURI = `${inputURI.slice(0, filenameEnd)}-ffmpeg.mp4`;
+        console.log('input uri: ', inputURI);
+        console.log('output uri: ', outputURI);
 
         // const command = `ffmpeg -i ${inputURI} -vcodec libx264 -acodec aac -crf ${crf} ${outputURI}`;
         const command = `ffmpeg -i ${inputURI} ${outputURI}`;
+
         const session = await FFmpegKit.execute(command);
         return await parseFFmpegSession(session);   
     } catch (error) {
-        console.log('An error occurred. Could not complete video compression.');
+        showErrorToast('An error occurred. Could not complete video compression.');
+        console.log(error);
         return null;
     }
 }
-
