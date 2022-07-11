@@ -71,9 +71,11 @@ export default FollowButton = ({ creator, bar=false, fancy=false, creatorFollows
             return;
         }
 
-        logAmplitudeEventProd('followedUser', {
-            followerName: reelayDBUser?.username,
-            followSub: reelayDBUser?.sub
+        logAmplitudeEventProd('followedCreator', {
+            creatorName: creator?.username,
+			creatorSub: creator?.sub,
+            username: reelayDBUser?.username,
+            userSub: reelayDBUser?.sub,
         });
 
         await notifyCreatorOnFollow({
