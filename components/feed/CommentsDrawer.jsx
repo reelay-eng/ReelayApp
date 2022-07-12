@@ -85,6 +85,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
 
     const commentsVisible = useSelector(state => state.commentsVisible);
+	const commentRefreshListener = useSelector(state => state.commentRefreshListener);
     const dispatch = useDispatch();
 	const likedComments = useRef([]);
 
@@ -92,6 +93,7 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
         console.log('Closing drawer');
         Keyboard.dismiss();
         dispatch({ type: 'setCommentsVisible', payload: false });
+		dispatch({ type: 'setCommentRefreshListener', payload: commentRefreshListener + 1 })
 		
 		likedComments.current.forEach((userSub) => {
 			notifyUserOnCommentLike({ authorSub: userSub, user: reelayDBUser, reelay: reelay });
