@@ -2,12 +2,12 @@ PODS:
   - Amplitude (6.0.0)
   - boost-for-react-native (1.63.0)
   - DoubleConversion (1.1.6)
-  - EXAmplitude (11.1.1):
+  - EXAmplitude (11.2.0):
     - Amplitude (~> 6.0.0)
     - ExpoModulesCore
   - EXAppleAuthentication (4.2.1):
     - ExpoModulesCore
-  - EXApplication (4.0.2):
+  - EXApplication (4.1.0):
     - ExpoModulesCore
   - EXAV (11.2.3):
     - ExpoModulesCore
@@ -15,7 +15,7 @@ PODS:
     - ReactCommon
   - EXCamera (12.1.2):
     - ExpoModulesCore
-  - EXConstants (13.0.2):
+  - EXConstants (13.1.1):
     - ExpoModulesCore
   - EXCrypto (10.1.2):
     - ExpoModulesCore
@@ -25,7 +25,7 @@ PODS:
     - ExpoModulesCore
   - EXFileSystem (13.1.4):
     - ExpoModulesCore
-  - EXFont (10.0.5):
+  - EXFont (10.1.0):
     - ExpoModulesCore
   - EXImageLoader (3.2.0):
     - ExpoModulesCore
@@ -283,19 +283,19 @@ PODS:
     - React-jsi (= 0.64.3)
     - React-perflogger (= 0.64.3)
   - React-jsinspector (0.64.3)
-  - react-native-camera (3.43.6):
+  - react-native-camera (4.2.1):
     - React-Core
-    - react-native-camera/RCT (= 3.43.6)
-    - react-native-camera/RN (= 3.43.6)
-  - react-native-camera/RCT (3.43.6):
+    - react-native-camera/RCT (= 4.2.1)
+    - react-native-camera/RN (= 4.2.1)
+  - react-native-camera/RCT (4.2.1):
     - React-Core
-  - react-native-camera/RN (3.43.6):
+  - react-native-camera/RN (4.2.1):
     - React-Core
   - react-native-get-random-values (1.7.2):
     - React-Core
   - react-native-netinfo (7.1.3):
     - React-Core
-  - react-native-pager-view (5.4.9):
+  - react-native-pager-view (5.4.25):
     - React-Core
   - react-native-safe-area-context (3.3.2):
     - React-Core
@@ -681,17 +681,17 @@ SPEC CHECKSUMS:
   Amplitude: cc34fcd8dfffc3470bc2e05f3a4abb0178f6d963
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
-  EXAmplitude: 114788f58379a84955bd712663be4767a4ae2f5c
+  EXAmplitude: 96d6a3f9c2cff499261fc28c952c03b55f7584f9
   EXAppleAuthentication: 709a807fe7f48ac6986a2ceed206ee6a8baf28df
-  EXApplication: 54fe5bd6268d697771645e8f1aef8b806a65247a
+  EXApplication: d6562af1204162e0ac46d341a7d4e5dc720b33de
   EXAV: 88f61c5af8415715b7ee51f084c1020235b85c56
   EXCamera: 4a0d00d6d1e4703c31a75514d8bc804a2eab27bd
-  EXConstants: 88bf79622fbd9b476c96d8ec57fe97ca44fe8e3c
+  EXConstants: fdbe52259365b6a6faaa5e99a3b82cfa6bc2eb61
   EXCrypto: ab2ba0df3136a5f2407b8c7e70eb498ac20d704f
   EXDevice: aa5e1edbf350481a948c3258b750dd11e6e4579e
   EXErrorRecovery: b0d7582714a2cc896e94a2308a356f94dbf14ef7
   EXFileSystem: 08a3033ac372b6346becf07839e1ccef26fb1058
-  EXFont: 2597c10ac85a69d348d44d7873eccf5a7576ef5e
+  EXFont: 04235cc22e6fef86028feb67db452978dc6f240f
   EXImageLoader: b88e053d760f85a82405b1db2de4abf11978fc9f
   EXImageManipulator: 60d1bf3f1d7709453b1feb38adf8594b7f58710f
   EXJSONUtils: 5ee0d5cf76da70ad86f0be1a41cc70f47d69e06f
@@ -728,10 +728,10 @@ SPEC CHECKSUMS:
   React-jsi: a8b09c29521c798f1783348b37b511ba7b3dbeb3
   React-jsiexecutor: df6abc9fafbecb8e5b7a5fbc5e6d4bd017d594d5
   React-jsinspector: 34e23860273a23695342f58eed3ffd3ba10c31e0
-  react-native-camera: 9e55a09596b8c4e41eb7d4cce7c39826990c3cac
+  react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-get-random-values: 30b3f74ca34e30e2e480de48e4add2706a40ac8f
   react-native-netinfo: 42c0965fca99069b92e3f7360ab2d425985e5104
-  react-native-pager-view: 3ee7d4c7697fb3ef788346e834a60cca97ed8540
+  react-native-pager-view: da490aa1f902c9a5aeecf0909cc975ad0e92e53e
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
   react-native-webview: e89bf2dba26a04cda967814df3ed1be99f291233
   React-perflogger: cc76a4254d19640f1d8ad1c66fdee800414b805c
