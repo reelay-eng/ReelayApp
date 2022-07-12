@@ -1,16 +1,15 @@
 import React, { useContext, useState } from 'react';
-import { ActivityIndicator, Pressable, TouchableOpacity, View } from 'react-native';
-import { Icon, Image } from 'react-native-elements';
+import { Pressable, TouchableOpacity, View } from 'react-native';
+import { Icon } from 'react-native-elements';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from "../global/Text";
 import styled from 'styled-components/native';
 
 import { getRuntimeString } from '../utils/TitleRuntime';
 import TitlePoster from '../global/TitlePoster';
-import { useDispatch, useSelector } from 'react-redux';
-import { showMessageToast } from '../utils/toasts';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 
-import { getWatchlistItems, markWatchlistItemSeen, markWatchlistItemUnseen } from '../../api/WatchlistApi';
+import { markWatchlistItemSeen, markWatchlistItemUnseen } from '../../api/WatchlistApi';
 import { AuthContext } from '../../context/AuthContext';
 
 const CreateReelayButtonContainer = styled(TouchableOpacity)`
@@ -81,10 +80,9 @@ const CreateReelayButton = ({ navigation, watchlistItem }) => {
     );
 }
 
-const MarkSeenButton = ({ watchlistItem }) => {
+const MarkSeenButton = ({ watchlistItem, rerender }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const { title } = watchlistItem;
-    const dispatch = useDispatch();
     const [markedSeen, setMarkedSeen] = useState(watchlistItem.hasSeenTitle);
 
     const updateWatchlistReqBody = { 
@@ -95,34 +93,32 @@ const MarkSeenButton = ({ watchlistItem }) => {
 
     const markSeen = async () => {
         setMarkedSeen(true);
+        watchlistItem.hasSeenTitle = true;
+        rerender();
+
         const markSeenResult = await markWatchlistItemSeen(updateWatchlistReqBody);
         console.log('mark seen result: ', markSeenResult);
-        showMessageToast('Title marked as seen');
 
         logAmplitudeEventProd('markWatchlistItemSeen', {
             username: reelayDBUser?.username,
             title: watchlistItem?.title?.display,
             source: 'watchlist',
-        });
-
-        const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
-        dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })    
+        });    
     }
 
     const markUnseen = async () => {
         setMarkedSeen(false);
+        watchlistItem.hasSeenTitle = false;
+        rerender();
+        
         const markUnseenResult = await markWatchlistItemUnseen(updateWatchlistReqBody);
         console.log('mark unseen result: ', markUnseenResult);
-        showMessageToast('Title marked unseen');
 
         logAmplitudeEventProd('markWatchlistItemUnseen', {
             username: reelayDBUser?.username,
-            title: clubTitle?.title?.display,
+            title: watchlistItem?.title?.display,
             source: 'watchlist',
-        });
-
-        const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
-        dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })    
+        });  
     }
 
     return (
@@ -137,6 +133,12 @@ const MarkSeenButton = ({ watchlistItem }) => {
 
 export default WatchlistItem = ({ navigation, watchlistItem }) => {
     const { title, hasSeenTitle } = watchlistItem;
+
+    const [render, setRender] = useState(false);
+    const rerender = () => {
+        setRender(!render);
+    }
+
     const advanceToTitleScreen = () => navigation.push('TitleDetailScreen', { titleObj: title });
     const runtimeString = getRuntimeString(title?.runtime);
 
@@ -151,7 +153,7 @@ export default WatchlistItem = ({ navigation, watchlistItem }) => {
                 <YearText>{`${title.releaseYear}    ${runtimeString}`}</YearText>
             </TitleLineContainer>
             <RightButtonsContainer>
-                <MarkSeenButton watchlistItem={watchlistItem} />
+                <MarkSeenButton watchlistItem={watchlistItem} rerender={rerender} />
                 { hasSeenTitle && (
                     <CreateReelayButton navigation={navigation} watchlistItem={watchlistItem} />
                 )}
