@@ -19,7 +19,7 @@ import Constants from 'expo-constants';
 import { postReelayToDB, prepareReelay } from './ReelayDBApi';
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 
-import { compressVideoForUpload, deviceCanCompress } from './FFmpegApi';
+// import { compressVideoForUpload, deviceCanCompress } from './FFmpegApi';
 
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
 const UPLOAD_CHUNK_SIZE = 8 * 1024 * 1024; // 5MB
