@@ -48,7 +48,7 @@ PODS:
     - ExpoModulesCore
   - Expo (44.0.6):
     - ExpoModulesCore
-  - ExpoLinearGradient (11.0.3):
+  - ExpoLinearGradient (11.3.0):
     - ExpoModulesCore
   - ExpoModulesCore (0.6.5):
     - React-Core
@@ -678,7 +678,7 @@ SPEC CHECKSUMS:
   EXMediaLibrary: 843669e1d9d38965057830138609ee99ef260cf1
   EXNotifications: a7d582fa800d77f4a75bd22d52e84e2fbcee26df
   Expo: 534e51e607aba8229293297da5585f4b26f50fa1
-  ExpoLinearGradient: fd591c223c81f6779036ed4cef4deb20ecb87c50
+  ExpoLinearGradient: 0debcf7d6cd7fea3050c218544f0db2de9a64f42
   ExpoModulesCore: 32c0ccb47f477d330ee93db72505380adf0de09a
   EXRandom: 1d00fd04d7d874c0c9d1ff87cee59ffe0b638a3d
   EXScreenOrientation: ca9375ec57e5706128062867516da0b03a97ef64
@@ -734,6 +734,6 @@ SPEC CHECKSUMS:
   UMTaskManagerInterface: 3184c93ecc290bd422c6e344badc89b601e9c29b
   Yoga: e6ecf3fa25af9d4c87e94ad7d5d292eedef49749
 
-PODFILE CHECKSUM: 0c3962c690d01e4844c9d5dccf7986753128befb
+PODFILE CHECKSUM: ea90a2a844f14ffd9de771f6ce6212f7eece6e71
 
 COCOAPODS: 1.11.2
