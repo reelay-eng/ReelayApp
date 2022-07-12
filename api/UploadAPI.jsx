@@ -144,10 +144,10 @@ const uploadReelayToS3 = async ({
     videoS3Key,
 }) => {
     try {
-        if (deviceCanCompress) {
-            const parsedSession = await compressVideoForUpload(videoURI);
-            console.log('parsed session: ', Object.keys(parsedSession));
-        }
+        // if (deviceCanCompress) {
+        //     const parsedSession = await compressVideoForUpload(videoURI);
+        //     console.log('parsed session: ', Object.keys(parsedSession));
+        // }
         console.log('beginning s3 upload: ', videoURI, videoS3Key);
         const videoStr = await readAsStringAsync(videoURI, { encoding: EncodingType.Base64 });
         const videoBuffer = Buffer.from(videoStr, 'base64');
