@@ -2,20 +2,21 @@ PODS:
   - Amplitude (6.0.0)
   - boost-for-react-native (1.63.0)
   - DoubleConversion (1.1.6)
-  - EXAmplitude (11.2.0):
+  - EXAmplitude (11.1.1):
     - Amplitude (~> 6.0.0)
     - ExpoModulesCore
-  - EXAppleAuthentication (4.2.1):
+  - EXAppleAuthentication (4.1.0):
     - ExpoModulesCore
-  - EXApplication (4.1.0):
+  - EXApplication (4.0.2):
     - ExpoModulesCore
-  - EXAV (11.2.3):
+  - EXAV (10.2.1):
     - ExpoModulesCore
-    - React-runtimeexecutor
-    - ReactCommon
+    - ReactCommon/turbomodule/core
   - EXCamera (12.1.2):
     - ExpoModulesCore
-  - EXConstants (13.1.1):
+  - EXClipboard (2.1.1):
+    - ExpoModulesCore
+  - EXConstants (13.0.2):
     - ExpoModulesCore
   - EXCrypto (10.1.2):
     - ExpoModulesCore
@@ -25,13 +26,15 @@ PODS:
     - ExpoModulesCore
   - EXFileSystem (13.1.4):
     - ExpoModulesCore
-  - EXFont (10.1.0):
+  - EXFont (10.0.5):
     - ExpoModulesCore
-  - EXImageLoader (3.2.0):
+  - EXImageLoader (3.1.1):
     - ExpoModulesCore
     - React-Core
   - EXImageManipulator (10.2.1):
     - EXImageLoader
+    - ExpoModulesCore
+  - EXImagePicker (12.0.2):
     - ExpoModulesCore
   - EXJSONUtils (0.2.1)
   - EXKeepAwake (10.0.2):
@@ -45,18 +48,14 @@ PODS:
     - ExpoModulesCore
   - Expo (44.0.6):
     - ExpoModulesCore
-  - ExpoClipboard (3.0.1):
-    - ExpoModulesCore
-  - ExpoImagePicker (13.1.1):
-    - ExpoModulesCore
-  - ExpoLinearGradient (11.3.0):
+  - ExpoLinearGradient (11.0.3):
     - ExpoModulesCore
   - ExpoModulesCore (0.6.5):
     - React-Core
     - ReactCommon/turbomodule/core
   - EXRandom (12.1.2):
     - React-Core
-  - EXScreenOrientation (4.2.0):
+  - EXScreenOrientation (4.1.2):
     - ExpoModulesCore
     - React-Core
   - EXSplashScreen (0.14.2):
@@ -295,7 +294,7 @@ PODS:
     - React-Core
   - react-native-netinfo (7.1.3):
     - React-Core
-  - react-native-pager-view (5.4.25):
+  - react-native-pager-view (5.4.9):
     - React-Core
   - react-native-safe-area-context (3.3.2):
     - React-Core
@@ -356,19 +355,6 @@ PODS:
     - ReactCommon/turbomodule/core (= 0.64.3)
   - React-runtimeexecutor (0.64.3):
     - React-jsi (= 0.64.3)
-  - ReactCommon (0.64.3):
-    - ReactCommon/turbomodule (= 0.64.3)
-  - ReactCommon/turbomodule (0.64.3):
-    - DoubleConversion
-    - glog
-    - RCT-Folly (= 2020.01.13.00)
-    - React-callinvoker (= 0.64.3)
-    - React-Core (= 0.64.3)
-    - React-cxxreact (= 0.64.3)
-    - React-jsi (= 0.64.3)
-    - React-perflogger (= 0.64.3)
-    - ReactCommon/turbomodule/core (= 0.64.3)
-    - ReactCommon/turbomodule/samples (= 0.64.3)
   - ReactCommon/turbomodule/core (0.64.3):
     - DoubleConversion
     - glog
@@ -378,16 +364,6 @@ PODS:
     - React-cxxreact (= 0.64.3)
     - React-jsi (= 0.64.3)
     - React-perflogger (= 0.64.3)
-  - ReactCommon/turbomodule/samples (0.64.3):
-    - DoubleConversion
-    - glog
-    - RCT-Folly (= 2020.01.13.00)
-    - React-callinvoker (= 0.64.3)
-    - React-Core (= 0.64.3)
-    - React-cxxreact (= 0.64.3)
-    - React-jsi (= 0.64.3)
-    - React-perflogger (= 0.64.3)
-    - ReactCommon/turbomodule/core (= 0.64.3)
   - RNAWSCognito (5.2.8):
     - React-Core
   - RNCAsyncStorage (1.15.17):
@@ -427,7 +403,7 @@ PODS:
   - RNScreens (3.10.2):
     - React-Core
     - React-RCTImage
-  - RNShare (7.3.7):
+  - RNShare (7.6.4):
     - React-Core
   - RNSVG (12.1.1):
     - React
@@ -444,6 +420,7 @@ DEPENDENCIES:
   - EXApplication (from `../node_modules/expo-application/ios`)
   - EXAV (from `../node_modules/expo-av/ios`)
   - EXCamera (from `../node_modules/expo-camera/ios`)
+  - EXClipboard (from `../node_modules/expo-clipboard/ios`)
   - EXConstants (from `../node_modules/expo-constants/ios`)
   - EXCrypto (from `../node_modules/expo-crypto/ios`)
   - EXDevice (from `../node_modules/expo-device/ios`)
@@ -452,14 +429,13 @@ DEPENDENCIES:
   - EXFont (from `../node_modules/expo-font/ios`)
   - EXImageLoader (from `../node_modules/expo-image-loader/ios`)
   - EXImageManipulator (from `../node_modules/expo-image-manipulator/ios`)
+  - EXImagePicker (from `../node_modules/expo-image-picker/ios`)
   - EXJSONUtils (from `../node_modules/expo-json-utils/ios`)
   - EXKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - EXManifests (from `../node_modules/expo-manifests/ios`)
   - EXMediaLibrary (from `../node_modules/expo-media-library/ios`)
   - EXNotifications (from `../node_modules/expo-notifications/ios`)
   - Expo (from `../node_modules/expo/ios`)
-  - ExpoClipboard (from `../node_modules/expo-clipboard/ios`)
-  - ExpoImagePicker (from `../node_modules/expo-image-picker/ios`)
   - ExpoLinearGradient (from `../node_modules/expo-linear-gradient/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core/ios`)
   - EXRandom (from `../node_modules/expo-random/ios`)
@@ -536,6 +512,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-av/ios"
   EXCamera:
     :path: "../node_modules/expo-camera/ios"
+  EXClipboard:
+    :path: "../node_modules/expo-clipboard/ios"
   EXConstants:
     :path: "../node_modules/expo-constants/ios"
   EXCrypto:
@@ -552,6 +530,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-image-loader/ios"
   EXImageManipulator:
     :path: "../node_modules/expo-image-manipulator/ios"
+  EXImagePicker:
+    :path: "../node_modules/expo-image-picker/ios"
   EXJSONUtils:
     :path: "../node_modules/expo-json-utils/ios"
   EXKeepAwake:
@@ -564,10 +544,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-notifications/ios"
   Expo:
     :path: "../node_modules/expo/ios"
-  ExpoClipboard:
-    :path: "../node_modules/expo-clipboard/ios"
-  ExpoImagePicker:
-    :path: "../node_modules/expo-image-picker/ios"
   ExpoLinearGradient:
     :path: "../node_modules/expo-linear-gradient/ios"
   ExpoModulesCore:
@@ -681,31 +657,31 @@ SPEC CHECKSUMS:
   Amplitude: cc34fcd8dfffc3470bc2e05f3a4abb0178f6d963
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   DoubleConversion: cf9b38bf0b2d048436d9a82ad2abe1404f11e7de
-  EXAmplitude: 96d6a3f9c2cff499261fc28c952c03b55f7584f9
-  EXAppleAuthentication: 709a807fe7f48ac6986a2ceed206ee6a8baf28df
-  EXApplication: d6562af1204162e0ac46d341a7d4e5dc720b33de
-  EXAV: 88f61c5af8415715b7ee51f084c1020235b85c56
+  EXAmplitude: 114788f58379a84955bd712663be4767a4ae2f5c
+  EXAppleAuthentication: 27a4f7dc44a1b510f5af945b58643165ee486d89
+  EXApplication: 54fe5bd6268d697771645e8f1aef8b806a65247a
+  EXAV: b9ed0c201092244c46aa78f907f5c66176bed236
   EXCamera: 4a0d00d6d1e4703c31a75514d8bc804a2eab27bd
-  EXConstants: fdbe52259365b6a6faaa5e99a3b82cfa6bc2eb61
+  EXClipboard: 8123fcda680538bb0e1f4e6511106553e52d3760
+  EXConstants: 88bf79622fbd9b476c96d8ec57fe97ca44fe8e3c
   EXCrypto: ab2ba0df3136a5f2407b8c7e70eb498ac20d704f
   EXDevice: aa5e1edbf350481a948c3258b750dd11e6e4579e
   EXErrorRecovery: b0d7582714a2cc896e94a2308a356f94dbf14ef7
   EXFileSystem: 08a3033ac372b6346becf07839e1ccef26fb1058
-  EXFont: 04235cc22e6fef86028feb67db452978dc6f240f
-  EXImageLoader: b88e053d760f85a82405b1db2de4abf11978fc9f
+  EXFont: 2597c10ac85a69d348d44d7873eccf5a7576ef5e
+  EXImageLoader: 347b72c2ec2df65120ccec40ea65a4c4f24317ff
   EXImageManipulator: 60d1bf3f1d7709453b1feb38adf8594b7f58710f
+  EXImagePicker: bf4d62532cc2bf217edbe4abbb0014e73e079eac
   EXJSONUtils: 5ee0d5cf76da70ad86f0be1a41cc70f47d69e06f
   EXKeepAwake: bf48d7f740a5cd2befed6cf9a49911d385c6c47d
   EXManifests: d3464cd2278f4a19cd80c1aa673231570b534c11
   EXMediaLibrary: 843669e1d9d38965057830138609ee99ef260cf1
   EXNotifications: a7d582fa800d77f4a75bd22d52e84e2fbcee26df
   Expo: 534e51e607aba8229293297da5585f4b26f50fa1
-  ExpoClipboard: e2dda22be0524595a5eeead51665f60729829123
-  ExpoImagePicker: d9d6b4f29db437fc7796f13cee5f133f5b4b5f7c
-  ExpoLinearGradient: 0debcf7d6cd7fea3050c218544f0db2de9a64f42
+  ExpoLinearGradient: fd591c223c81f6779036ed4cef4deb20ecb87c50
   ExpoModulesCore: 32c0ccb47f477d330ee93db72505380adf0de09a
   EXRandom: 1d00fd04d7d874c0c9d1ff87cee59ffe0b638a3d
-  EXScreenOrientation: e3c072fb0add472a3037482ea43ccbade9b88a25
+  EXScreenOrientation: ca9375ec57e5706128062867516da0b03a97ef64
   EXSplashScreen: 21669e598804ee810547dbb6692c8deb5dd8dbf3
   EXStructuredHeaders: 4993087b2010dbcc510f5d92555b36f523425e8d
   EXUpdates: a83e036243b0f6ece53a8c1cb883b6751c88a5f8
@@ -731,7 +707,7 @@ SPEC CHECKSUMS:
   react-native-camera: 3eae183c1d111103963f3dd913b65d01aef8110f
   react-native-get-random-values: 30b3f74ca34e30e2e480de48e4add2706a40ac8f
   react-native-netinfo: 42c0965fca99069b92e3f7360ab2d425985e5104
-  react-native-pager-view: da490aa1f902c9a5aeecf0909cc975ad0e92e53e
+  react-native-pager-view: 3ee7d4c7697fb3ef788346e834a60cca97ed8540
   react-native-safe-area-context: 584dc04881deb49474363f3be89e4ca0e854c057
   react-native-webview: e89bf2dba26a04cda967814df3ed1be99f291233
   React-perflogger: cc76a4254d19640f1d8ad1c66fdee800414b805c
@@ -752,7 +728,7 @@ SPEC CHECKSUMS:
   RNGestureHandler: e1099204721a17a89c81fcd1cc2e92143dc040fb
   RNReanimated: 0e5ef4a7e4e79f84efbe5b40771c31044c51e7d0
   RNScreens: d6da2b9e29cf523832c2542f47bf1287318b1868
-  RNShare: f116bbb04f310c665ca483d0bd1e88cf59b3b334
+  RNShare: 4406f61af043027b695c3a0b8f39e2c2bdacde12
   RNSVG: 551acb6562324b1d52a4e0758f7ca0ec234e278f
   RNVectorIcons: 31cebfcf94e8cf8686eb5303ae0357da64d7a5a4
   UMTaskManagerInterface: 3184c93ecc290bd422c6e344badc89b601e9c29b
