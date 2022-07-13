@@ -269,8 +269,6 @@ export default AddToClubsDrawer = ({
         }
 
         const isAlreadyAdded = club.titles.find(findTitleInClub);
-        console.log(club.name);
-        console.log(club.titles.map(title => title.title.display));
         const iconName = (isAlreadyAdded) ? 'checkmark-done' : 'checkmark';
         const iconColor = (isAlreadyAdded) ? 'gray' : 'white';    
 
@@ -296,6 +294,8 @@ export default AddToClubsDrawer = ({
             })
             return false;
         }    
+
+        if (club.id === reelay.clubID) return <View />;
 
         return (
             <RowContainer backgroundColor={backgroundColor} onPress={markRow}>
