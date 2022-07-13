@@ -93,8 +93,8 @@ export default ClubTitleOrTopicStack = ({
 
     const addReelayBottomOffset = useSafeAreaInsets().bottom;
     const titleBannerTopOffset = (activityType === 'topic')
-        ? 44
-        : 26;
+        ? 48
+        : 40;
 
     const donateLinks = useSelector(state => state.donateLinks);
     const donateObj = donateLinks?.find((donateLinkObj) => {

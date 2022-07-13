@@ -35,6 +35,7 @@ const TopBarContainer = styled(View)`
 
 // color is ReelayColors.reelayGreen at reduced opacity
 const TopicTitleContainer = styled(View)`
+    align-items: center;
     background-color: rgba(4, 189, 108, 0.65);
     border-radius: 40px;
     flex-direction: row;
@@ -42,7 +43,7 @@ const TopicTitleContainer = styled(View)`
     margin-bottom: 24px;
     padding-top: 12px;
     padding-left: 20px;
-    padding-right: 20px;
+    padding-right: 40px;
     padding-bottom: 10px;
     width: 90%;
 `
@@ -51,8 +52,8 @@ const TopicTitleText = styled(ReelayText.H6)`
     display: flex;
     flex-direction: row;
     font-size: 14px;
-    line-height: 16px;
-    margin-left: 4px;
+    line-height: 18px;
+    margin-left: 10px;
 `
 export default SelectTitleScreen = ({ navigation, route }) => {
     const [loading, setLoading] = useState(false);

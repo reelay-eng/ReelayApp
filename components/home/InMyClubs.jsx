@@ -1,5 +1,5 @@
 import React from "react";
-import { Dimensions, Pressable, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Pressable, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { LinearGradient } from "expo-linear-gradient";
 import * as ReelayText from '../global/Text';
@@ -21,7 +21,7 @@ const ACTIVITY_CARD_MARGIN = 16;
 const ACTIVITY_CARD_WIDTH = (width - ACTIVITY_CARD_MARGIN) / 2;
 const REELAY_CARD_HEIGHT = ACTIVITY_CARD_WIDTH * 2.125;
 const TOPIC_CARD_HEIGHT = 300; // ACTIVITY_CARD_WIDTH * 1.25;
-const TITLE_CARD_HEIGHT = ACTIVITY_CARD_WIDTH * 1.5;
+// const TITLE_CARD_HEIGHT = ACTIVITY_CARD_WIDTH * 1.5;
 
 const ActivityContainer = styled(View)`
     margin-bottom: 8px;
@@ -238,9 +238,9 @@ export const ClubActivityCard = ({ activity, navigation }) => {
         )
     }
 
-    const TopicCardOverlay = ({ topic }) => {
+    const TopicCardOverlay = ({ topic, onPress }) => {
         return (
-            <TopicOverlayContainer>
+            <TopicOverlayContainer onPress={onPress}>
                 <TopicTitleText>{topic.title}</TopicTitleText>
                 { topic?.description?.length > 0 && <TopicDescriptionText numberOfLines={3}>{topic.description}</TopicDescriptionText> }
             </TopicOverlayContainer>
@@ -283,7 +283,12 @@ export const ClubActivityCard = ({ activity, navigation }) => {
                     showIcons={true}
                     width={ACTIVITY_CARD_WIDTH}
                 />
-                { activityType === 'topic' && <TopicCardOverlay topic={activity} /> }
+                { activityType === 'topic' && (
+                    <TopicCardOverlay 
+                        onPress={advanceToClubFeedScreen} 
+                        topic={activity} 
+                    />
+                )}
             </ActivityContainer>
         );
     } else if (activityType === 'title') {

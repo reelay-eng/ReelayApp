@@ -1,9 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { 
-    Image,
-    Pressable, 
-    View,
-} from 'react-native';
+import React, { useState } from 'react';
+import { Image, Pressable, View } from 'react-native';
 
 import styled from 'styled-components/native';
 import { LinearGradient } from "expo-linear-gradient";
@@ -24,7 +20,7 @@ export default ReelayThumbnail = ({
 	asTopOfTheWeek = false,
 	height = 180, 
 	margin = 6, 
-	onPress, 
+	onPress = () => {}, 
 	reelay, 
 	showPoster = false,
 	showVenue = true,

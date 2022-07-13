@@ -9,10 +9,7 @@ import BackButton from '../utils/BackButton';
 import ProfilePicture from '../global/ProfilePicture';
 
 const BackButtonContainer = styled(View)`
-    bottom: -6px;
-    left: 6px;
-    justify-content: flex-end;
-    position: absolute;
+    margin-left: 6px;
 `
 const BubbleBathContainer = styled(View)`
     align-items: center;
@@ -77,38 +74,47 @@ const BubbleRightFiveContainer = styled(View)`
     top: 8px;
     left: 48px;
 `
+const BubbleBathHeaderContainer = styled(TouchableOpacity)`
+    align-items: center;
+    justify-content: center;
+`
 const ClubNameText = styled(ReelayText.CaptionEmphasized)`
     color: white;
-    margin-right: 4px;
+    margin-top: 4px;
     margin-bottom: 4px;
 `
-const HeaderBackground = styled(Pressable)`
-    align-items: flex-end;
+const CondensedHeaderContainer = styled(View)`
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 6px;
+`
+const CondensedHeaderSpacer = styled(View)`
+    width: 10px;
+`
+const HeaderBackground = styled(View)`
+    align-items: center;
     background-color: rgba(0,0,0,0.35);
     flex-direction: row;
-    justify-content: center;
+    justify-content: space-between;
     padding-left: 6px;
     padding-right: 16px;
     padding-bottom: 4px;
-    padding-top: ${props => props.topOffset}px;
+    padding-top: ${props => props.topOffset - 10}px;
     position: absolute;
     width: 100%;
 `
-const BubbleBathHeaderContainer = styled(View)`
-    align-items: center;
-    justify-content: center;
-`
-const CondensedHeaderContainer = styled(View)`
-    align-items: center;
-    flex-direction: column;
-    justify-content: center;
-`
 const InfoButtonContainer = styled(TouchableOpacity)`
-    flex-direction: row;
+    height: 100%;
+    justify-content: center;
     margin-left: 5px;
-    position: absolute;
-    right: 16px;
-    bottom: 2px;
+`
+const TopicTitleText = styled(ReelayText.Body2)`
+    color: white;
+    line-height: 16px;
+    display: flex;
+    width: 100%;
 `
 export default ClubBanner = ({ club, navigation, showBubbleBath = true, position = 0, topic = null }) => {
     const topOffset = useSafeAreaInsets().top;
@@ -200,15 +206,19 @@ export default ClubBanner = ({ club, navigation, showBubbleBath = true, position
     const CondensedHeader = () => {
         return (
             <CondensedHeaderContainer>
-                <ClubNameText>{club.name}</ClubNameText>
-                { topic && <ClubNameText>{topic?.title}</ClubNameText> }
+                <View style={{ alignItems: 'center', flexDirection: 'row' }}>
+                    <ClubPicture club={club} size={16} />
+                    <CondensedHeaderSpacer />
+                    <ClubNameText>{club.name}</ClubNameText>
+                </View>
+                { topic && <TopicTitleText>{topic?.title}</TopicTitleText> }
             </CondensedHeaderContainer>
         );
     }
 
     const HeaderWithBubbleBath = () => {
         return (
-            <BubbleBathHeaderContainer>
+            <BubbleBathHeaderContainer onPress={advanceToClubInfoScreen}>
                 <BubbleBathContainer>
                     <BubbleBathLeft />
                     <ClubPicture club={club} size={48} />
@@ -228,7 +238,7 @@ export default ClubBanner = ({ club, navigation, showBubbleBath = true, position
     }
 
     return (
-        <HeaderBackground onPress={advanceToClubActivityScreen} topOffset={topOffset}>
+        <HeaderBackground topOffset={topOffset}>
             <BackButtonContainer>
                 <BackButton navigation={navigation} />
             </BackButtonContainer>

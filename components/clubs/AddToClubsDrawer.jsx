@@ -264,6 +264,7 @@ export default AddToClubsDrawer = ({
 
         const findTitleInClub = (nextClubTitle) => {
             const nextClubTitleKey = `${nextClubTitle.titleType}-${nextClubTitle.tmdbTitleID}`;
+            if (nextClubTitleKey === titleKey) console.log('found!');
             return (nextClubTitleKey === titleKey);
         }
 
@@ -293,6 +294,8 @@ export default AddToClubsDrawer = ({
             })
             return false;
         }    
+
+        if (club.id === reelay.clubID) return <View />;
 
         return (
             <RowContainer backgroundColor={backgroundColor} onPress={markRow}>
