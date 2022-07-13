@@ -1,5 +1,5 @@
 import React, { useContext, useRef, memo, useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { View, Pressable } from 'react-native';
 
 import FeedVideoPlayer from './FeedVideoPlayer';
 import ReelayInfo from './ReelayInfo';
@@ -96,10 +96,15 @@ export default Hero = memo(({ index, navigation, reelay, viewable }) => {
         <View key={index} style={{ justifyContent: 'flex-end'}}>
             <FeedVideoPlayer reelay={reelay} viewable={viewable} />
 
-            {(expanded) && <DescriptionGradient colors={["transparent", "#000000"]} />}
+            {(expanded) && (
+                <DescriptionGradient colors={["transparent", "#000000"]}>
+                    <Pressable style={{width: '100%', height: '100%', position: 'relative' }} onPress={() => setExpanded(false)} />
+                </DescriptionGradient>
+                )
+            }
             <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
 
-            <ReelayInfo navigation={navigation} reelay={reelay} setExpanded={setExpanded} />
+            <ReelayInfo navigation={navigation} reelay={reelay} expanded={expanded} setExpanded={setExpanded} />
             { !isWelcomeVideo && <Sidebar navigation={navigation} reelay={reelay} commentsCount={commentsCount}/> }
             { viewable && <HeroModals reelay={reelay} navigation={navigation} /> }
         </View>
