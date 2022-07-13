@@ -11,14 +11,14 @@
             "ios": {
                 "buildConfiguration": "Debug"
             },
-            "releaseChannel": "reelay-release-dev"
+            "releaseChannel": "1.02.03-dev"
         },
         "preview": {
             "distribution": "internal",
-            "releaseChannel": "reelay-release-preview"
+            "releaseChannel": "1.02.03-internal"
         },
         "production": {
-            "releaseChannel": "reelay-release-prod"
+            "releaseChannel": "1.02.03"
         }
     },
     "submit": {

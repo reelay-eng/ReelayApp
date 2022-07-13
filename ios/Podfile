@@ -1,14 +1,33 @@
-require_relative '../node_modules/react-native/scripts/react_native_pods'
-require_relative '../node_modules/react-native-unimodules/cocoapods.rb'
-require_relative '../node_modules/@react-native-community/cli-platform-ios/native_modules'
+require File.join(File.dirname(`node --print "require.resolve('expo/package.json')"`), "scripts/autolinking")
+require File.join(File.dirname(`node --print "require.resolve('react-native/package.json')"`), "scripts/react_native_pods")
+require File.join(File.dirname(`node --print "require.resolve('@react-native-community/cli-platform-ios/package.json')"`), "native_modules")
 
-platform :ios, '11.0'
+platform :ios, '12.1'
+
+require 'json'
+podfile_properties = JSON.parse(File.read('./Podfile.properties.json')) rescue {}
 
 target 'ReelayApp' do
-  use_unimodules!
+  project 'ReelayApp.xcodeproj'
+  use_expo_modules!
+  post_integrate do |installer|
+    begin
+      expo_patch_react_imports!(installer)
+    rescue => e
+      Pod::UI.warn e
+    end
+  end
+# @generated begin ffmpeg-kit-react-native-import - expo prebuild (DO NOT MODIFY) sync-a79a962553e9fe0961383adf881bd0dada86e29b
+  pod 'ffmpeg-kit-react-native', :subspecs => podfile_properties['ffmpeg-kit-react-native.subspecs'] || [], :podspec => File.join(File.dirname(`node --print "require.resolve('ffmpeg-kit-react-native/package.json')"`), "ffmpeg-kit-react-native.podspec")
+# @generated end ffmpeg-kit-react-native-import
+  pod 'RNAWSCognito', :path => '../node_modules/amazon-cognito-identity-js'
+
   config = use_native_modules!
 
-  use_react_native!(:path => config["reactNativePath"])
+  use_react_native!(
+    :path => config[:reactNativePath],
+    :hermes_enabled => podfile_properties['expo.jsEngine'] == 'hermes'
+  )
 
   # Uncomment to opt-in to using Flipper
   #
@@ -18,4 +37,21 @@ target 'ReelayApp' do
   #     flipper_post_install(installer)
   #   end
   # end
+
+  post_install do |installer|
+    react_native_post_install(installer)
+    
+    # Workaround `Cycle inside FBReactNativeSpec` error for react-native 0.64
+    # Reference: https://github.com/software-mansion/react-native-screens/issues/842#issuecomment-812543933
+    installer.pods_project.targets.each do |target|
+      if (target.name&.eql?('FBReactNativeSpec'))
+        target.build_phases.each do |build_phase|
+          if (build_phase.respond_to?(:name) && build_phase.name.eql?('[CP-User] Generate Specs'))
+            target.build_phases.move(build_phase, 0)
+          end
+        end
+      end
+    end
+  end
+    
 end

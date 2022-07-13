@@ -204,7 +204,7 @@ const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
                     position: "absolute",
                     width: "100%",
                     height: "100%",
-                    borderRadius: `11px`,
+                    borderRadius: 11,
                 }}
             />
         )

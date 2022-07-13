@@ -2,7 +2,7 @@
     "expo": {
         "name": "Reelay",
         "slug": "ReelayApp",
-        "version": "1.02.02",
+        "version": "1.02.03",
         "orientation": "portrait",
         "icon": "./assets/icons/reelay-icon-with-dog-black.png",
         "scheme": "reelayapp",
@@ -61,9 +61,12 @@
             "web": {
             "favicon": "./assets/images/favicon.png"
         },
-        "plugins": [[
-            "expo-image-picker",
-            { "photosPermission": "Reelay lets you upload videos from your media library as reelays, and upload photos to your profile and clubs." }
-        ]]
+        "plugins": [
+            "@config-plugins/ffmpeg-kit-react-native",
+            [
+                "expo-image-picker",
+                { "photosPermission": "Reelay lets you upload videos from your media library as reelays, and upload photos to your profile and clubs." }
+            ]
+        ]
     }
 }
