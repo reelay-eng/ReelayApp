@@ -9,7 +9,7 @@ import styled from 'styled-components/native';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import FollowButton from '../global/FollowButton';
 
-const ReelayInfo = ({ navigation, reelay, setExpanded }) => {
+const ReelayInfo = ({ navigation, reelay, expanded, setExpanded }) => {
 	const InfoView = styled(View)`
 		justify-content: flex-end;
 		position: absolute;
@@ -31,8 +31,9 @@ const ReelayInfo = ({ navigation, reelay, setExpanded }) => {
 	const DescriptionContainer = styled(Pressable)`
 		align-items: center;
 		flex-direction: row;
-		margin-top: 6px;
-		margin-bottom: 6px;
+		padding-top: 8px;
+		padding-bottom: 8px;
+		padding-right: 15px;
 	`
 	const DescriptionText = styled(ReelayText.Caption)`
 		color: white;
@@ -51,7 +52,6 @@ const ReelayInfo = ({ navigation, reelay, setExpanded }) => {
 	const creator = reelay.creator;
 	const description = reelay.description ? reelay.description: "";
 	const mentionType = { trigger: '@' };
-	const [expandDesc, setExpandDesc] = useState(false);
 	const descriptionPartsWithMentions = (description.length > 0) 
 		? parseValue(description, [mentionType]) 
 		: { parts: [] };
@@ -103,9 +103,7 @@ const ReelayInfo = ({ navigation, reelay, setExpanded }) => {
     }
 
 	const expandDescription = () => {
-		const currExpanded = expandDesc;
-		setExpandDesc(!currExpanded);
-		setExpanded(!currExpanded);
+		setExpanded(!expanded);
 	}
 
 	return (
@@ -135,7 +133,7 @@ const ReelayInfo = ({ navigation, reelay, setExpanded }) => {
 
 			{(description.length > 0) && 
 				<DescriptionContainer onPress={expandDescription}>
-					<DescriptionText numberOfLines={(expandDesc) ? 0 : 1} ellipsizeMode='tail'>
+					<DescriptionText numberOfLines={(expanded) ? 0 : 1} ellipsizeMode='tail'>
 						{ descriptionPartsWithMentions.parts.map(renderDescriptionPart) }
 					</DescriptionText>
 				</DescriptionContainer>
@@ -145,5 +143,5 @@ const ReelayInfo = ({ navigation, reelay, setExpanded }) => {
 };
 
 export default memo(ReelayInfo, (prevProps, nextProps) => {
-	return (prevProps.reelay.datastoreSub === nextProps.reelay.datastoreSub);
+	return (prevProps.reelay.datastoreSub === nextProps.reelay.datastoreSub) && (prevProps.expanded === nextProps.expanded);
 });

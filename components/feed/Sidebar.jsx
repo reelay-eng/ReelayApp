@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { Dimensions, Pressable, Text, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { AuthContext } from '../../context/AuthContext';
 
@@ -56,6 +56,8 @@ export default Sidebar = ({ navigation, reelay }) => {
 	`
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 	const dispatch = useDispatch();
+
+	const commentRefreshListener = useSelector(state => state.commentRefreshListener);
 
 	const { reelayDBUser } = useContext(AuthContext);
 

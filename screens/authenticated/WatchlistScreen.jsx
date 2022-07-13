@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Dimensions, SafeAreaView, View } from 'react-native';
+import { Dimensions, SafeAreaView } from 'react-native';
 
 import { HeaderWithBackButton } from '../../components/global/Headers'
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
@@ -57,6 +57,15 @@ export default WatchlistScreen = ({ navigation, route }) => {
 
     // yes this is inefficient but bear with me
     const myUnreelayedWatchlistItems = myWatchlistItems.filter((item) => !findInMyReelays(item));
+
+    // display unseen titles first in watchlist
+    const byHasSeen = (a, b) => {
+        if (a.hasSeenTitle) return 1;
+        if (b.hasSeenTitle) return -1;
+        return 0;
+    }
+    const sortedWatchlistItems = myUnreelayedWatchlistItems.sort(byHasSeen)
+
     const headerText = 'My Watchlist';
 
     return (
@@ -66,7 +75,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
                 category={selectedCategory}
                 navigation={navigation}
                 refresh={refresh}
-                watchlistItems={myUnreelayedWatchlistItems}
+                watchlistItems={sortedWatchlistItems}
             />
 		</WatchlistScreenContainer>
 	);

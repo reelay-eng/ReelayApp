@@ -337,7 +337,7 @@ function App() {
         return (
             <SafeAreaProvider>
                 <AuthContext.Provider value={authState}>
-                    <StatusBar />
+                    <StatusBar style="light" />
                     <Navigation colorScheme={colorScheme} />
                     <Toast config={toastConfig}/>
                 </AuthContext.Provider>
