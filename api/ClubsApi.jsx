@@ -141,6 +141,18 @@ export const editClub = async ({
     return resultPatch;
 }
 
+export const getAllMyClubActivities = async ({ authSession, page = 0, reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/clubs/activities?page=${page}&visibility=${FEED_VISIBILITY}`;
+    const clubActivities = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            requsersub: reqUserSub,
+        },
+    });
+    return clubActivities;
+}
+
 export const getClubInviteFromCode = async ({ authSession, inviteCode, reqUserSub }) => {
     const routeGet = `${REELAY_API_BASE_URL}/clubs/invite/${inviteCode}`;
     const clubInviteResult = await fetchResults(routeGet, {

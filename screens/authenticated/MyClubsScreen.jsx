@@ -15,9 +15,13 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 import ClubPicture from '../../components/global/ClubPicture';
-import { getClubsMemberOf } from '../../api/ClubsApi';
+import { ClubActivityCard } from '../../components/home/InMyClubs';
+import { getClubsMemberOf, getAllMyClubActivities, getClubTitles, getClubTopics, getClubMembers } from '../../api/ClubsApi';
 import { showErrorToast } from '../../components/utils/toasts';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { sortByLastActivity } from '../../redux/reducers';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -27,28 +31,41 @@ const GRID_HALF_MARGIN = 8;
 const GRID_ROW_LENGTH = 3;
 const CLUB_BUTTON_SIZE = (GRID_WIDTH / GRID_ROW_LENGTH) - (2 * GRID_HALF_MARGIN);
 
-const ClubButtonPressable = styled(TouchableOpacity)`
-    align-items: center;
-    padding: ${GRID_HALF_MARGIN}px;
+const ActiveOptionText = styled(ReelayText.H6)`
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 2px;
 `
-const ClubGridContainer = styled(View)`
+const BackgroundBox = styled(View)`
+    align-items: center;
+    background-color: black;
+    border-radius: 8px;
+    justify-content: center;
     flex-direction: row;
-    flex-wrap: wrap;
-    padding: ${GRID_PADDING}px;
-    padding-top: 0px;
-    padding-bottom: 80px;
+    height: 48px;
+    padding: 2px;
     width: 100%;
 `
-const ClubTitleText = styled(ReelayText.Body2)`
-    text-align: center;
-    color: white;
-    margin-top: 4px;
-    width: ${CLUB_BUTTON_SIZE}px;
+const ButtonContainer = styled(TouchableOpacity)`
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    width: 37.5%;
 `
-const HeaderText = styled(ReelayText.H5Emphasized)`
+const ColumnsContainer = styled(View)`
+    flex-direction: row;
+    width: 100%;
+`
+const ColumnContainer = styled(View)`
+    display: flex;
+    flex: 1;
+    width: 50%;
+`
+const HeaderText = styled(ReelayText.H4Bold)`
+    text-align: left;
     color: white;
     margin-top: 4px;
-    text-align: left;
 `
 const MyClubsScreenContainer = styled(SafeAreaView)`
     background-color: black;
@@ -67,41 +84,42 @@ const NewClubButtonPressable = styled(TouchableOpacity)`
     padding-left: 1px;
     width: 32px;
 `
+const OptionText = styled(ReelayText.H6)`
+    color: gray;
+    font-size: 18px;
+`
+const Spacer = styled(View)`
+    height: 30px;
+`
 const TopBarContainer = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
-    padding: 20px;
+    padding: 10px;
+    padding: 10px;
+    padding-top: 0px;
 `
 
 export default MyClubsScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const [refreshing, setRefreshing] = useState(false);
     const authSession = useSelector(state => state.authSession);
-    const myClubs = useSelector(state => state.myClubs);
-    const mySortedClubs = myClubs.sort(sortByLastActivity);
     const dispatch = useDispatch();
+    const bottomOffset = useSafeAreaInsets().bottom;
 
-    const ClubButton = ({ club }) => {
-        const advanceToClubScreen = () => navigation.push('ClubActivityScreen', { club, promptToInvite: false });
-        return (
-            <ClubButtonPressable onPress={advanceToClubScreen}>
-                <ClubPicture club={club} size={CLUB_BUTTON_SIZE} />
-                <ClubTitleText>{club.name}</ClubTitleText>
-            </ClubButtonPressable>
-        );
+    const myClubActivities = useSelector(state => state.myClubActivities);
+    const filterMemberActivities = (nextActivity) => (nextActivity?.activityType !== 'member');
+    const displayActivities = myClubActivities.filter(filterMemberActivities);
+    const columnA = displayActivities.filter((activity, index) => index % 2 === 0);
+    const columnB = displayActivities.filter((activity, index) => index % 2 === 1);
+
+    // const myClubs = useSelector(state => state.myClubs);
+    // const mySortedClubs = myClubs.sort(sortByLastActivity);
+    const [selectedTab, setSelectedTab] = useState('recent activity');
+
+    const renderActivity = (activity) => {
+        return <ClubActivityCard key={activity.id} activity={activity} navigation={navigation} />
     }
-
-    const ClubButtonGrid = ({ children }) => {
-        const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        return (
-            <ScrollView refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
-                <ClubGridContainer>
-                    { children }
-                </ClubGridContainer>
-            </ScrollView>
-        );
-    }    
     
     const NewClubButton = () => {
         const advanceToCreateClub = async () => navigation.push('CreateClubScreen');
@@ -111,27 +129,15 @@ export default MyClubsScreen = ({ navigation, route }) => {
             </NewClubButtonPressable>
         );
     }
-    
-    const MyWatchlistButton = () => {
-        const { reelayDBUser } = useContext(AuthContext);
-        const advanceToMyWatchlist = () => navigation.push('WatchlistScreen');
-        return (
-            <ClubButtonPressable onPress={advanceToMyWatchlist}>
-                <TouchableWithoutFeedback>
-                    <ProfilePicture user={reelayDBUser} size={CLUB_BUTTON_SIZE} />
-                </TouchableWithoutFeedback>
-                <ClubTitleText>{'My Watchlist'}</ClubTitleText>
-            </ClubButtonPressable>
-        );
-    }
 
     const onRefresh = async () => {
         try {
             setRefreshing(true);
-            const nextMyClubs = await getClubsMemberOf({ authSession, userSub: reelayDBUser?.sub });
-            dispatch({ type: 'setMyClubs', payload: nextMyClubs });
-            setRefreshing(false);    
+            const nextMyClubs = await getAllMyClubActivities({ authSession, reqUserSub: reelayDBUser?.sub });
+            // dispatch({ type: 'setMyClubs', payload: nextMyClubs });
+            setRefreshing(false);
         } catch (error) {
+            console.log(error);
             showErrorToast('Ruh roh! Could not refresh clubs. Try again?');
             setRefreshing(false);
         }
@@ -149,19 +155,65 @@ export default MyClubsScreen = ({ navigation, route }) => {
     });
 
     if (reelayDBUser?.username === 'be_our_guest') {
-        return <JustShowMeSignupPage navigation={navigation} headerText='My Clubs' />
+        return <JustShowMeSignupPage navigation={navigation} headerText='clubs' />
     }
+
+    const ActivityColumns = () => {
+        const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+        const scrollStyle = { alignItems: 'center', width: '100%' };
+        return (
+            <ScrollView 
+                bottomOffset={bottomOffset} 
+                contentContainerStyle={scrollStyle}
+                showVerticalScrollIndicator={false}
+                refreshControl={refreshControl}
+            >
+                <ColumnsContainer>
+                    <ColumnContainer>
+                        { columnA.map(renderActivity) }
+                    </ColumnContainer>
+                    <ColumnContainer>
+                        { columnB.map(renderActivity) }
+                    </ColumnContainer>
+                </ColumnsContainer>
+                <Spacer />
+            </ScrollView>
+        );
+    }
+
+    const TabSelector = () => {
+        return (
+            <BackgroundBox>
+                { ['recent activity', 'all my clubs'].map(tab => {
+                    if (tab === selectedTab) {
+                        return (
+                            <ButtonContainer key={tab}>
+                                <ActiveOptionText>{tab}</ActiveOptionText>
+                                <FontAwesomeIcon icon={faCircle} color='white' size={4} /> 
+                            </ButtonContainer>
+                        );
+                    } else {
+                        return (
+                            <ButtonContainer key={tab} onPress={() => setSelectedTab(tab)}>
+                                <OptionText>{tab}</OptionText>
+                                <View style={{ height: 6 }} />
+                            </ButtonContainer>
+                        );
+                    }
+                })}
+            </BackgroundBox>
+        );
+    }    
+
 
     return (
 		<MyClubsScreenContainer>
             <TopBarContainer>
-                <HeaderText>{'My Clubs'}</HeaderText>
+                <HeaderText>{'clubs'}</HeaderText>
                 <NewClubButton />
             </TopBarContainer>
-            <ClubButtonGrid>
-                <MyWatchlistButton />
-                { mySortedClubs.map(club => <ClubButton key={club.id} club={club} />) }
-            </ClubButtonGrid>
+            <TabSelector />
+            <ActivityColumns />
 		</MyClubsScreenContainer>
 	);
 };

@@ -139,8 +139,8 @@ const HomeComponent = ({ navigation }) => {
                         <FriendsAreWatching navigation={navigation} />
                         <PopularTitles navigation={navigation} tab='following' />
                         <OnStreaming navigation={navigation} source='following' />
-                        <InMyClubs navigation={navigation} />
-                        <ActiveClubs navigation={navigation} />
+                        {/* <InMyClubs navigation={navigation} />
+                        <ActiveClubs navigation={navigation} /> */}
                         <TopicsCarousel navigation={navigation} source='followingNew' /> 
                     </Fragment>  
                 )}
