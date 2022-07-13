@@ -35,13 +35,10 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 const INVITE_BASE_URL = Constants.manifest.extra.reelayWebInviteUrl;
 
-const BackButtonContainer = styled(SafeAreaView)`
-    left: -10px;
-    position: absolute;
+const BackButtonContainer = styled(View)`
 `
 const ClubHeaderText = styled(ReelayText.H5Emphasized)`
     color: white;
-    margin-bottom: 10px;
 `
 const ClubDescriptionText = styled(ReelayText.Body2)` 
     color: white;
@@ -118,7 +115,7 @@ const MemberSectionSpacer = styled(View)`
 `
 const ProfileInfoContainer = styled(View)`
     align-items: center;
-    margin-top: 20px;
+    margin-top: 0px;
     margin-bottom: 36px;
 `
 const ProfilePictureContainer = styled(View)`
@@ -169,15 +166,14 @@ const SettingsText = styled(ReelayText.Body1)`
 const SettingsTextContainer = styled(View)`
 `
 const TopBarContainer = styled(View)`
-    align-items: flex-end;
+    align-items: center;
     flex-direction: row;
-    justify-content: center;
-    height: ${(props) => props.headerHeight}px;
+    justify-content: space-between;
+    margin-top: ${(props) => props.topOffset}px;
     width: 100%;
 `
-const TopBarRightContainer = styled(SafeAreaView)`
-    right: 0px;
-    position: absolute;
+const TopBarRightContainer = styled(View)`
+    margin-right: 10px;
 `
 const UsernameText = styled(ReelayText.Subtitle1Emphasized)`
     color: white;
@@ -513,23 +509,21 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     }
     
     const ClubTopBar = () => {
-        const headerHeight = useSafeAreaInsets().top + 72;
+        const topOffset = useSafeAreaInsets().top;
         return (
-            <TopBarContainer headerHeight={headerHeight}>
+            <TopBarContainer topOffset={topOffset}>
+                <BackButton navigation={navigation} />
                 <ClubHeaderText numberOfLines={1}>{club.name}</ClubHeaderText>
-                <BackButtonContainer>
-                    <BackButton navigation={navigation} />
-                </BackButtonContainer>
                 <TopBarRightContainer>
-                <ClubPrivacyRow>
-                    { isClubOwner && <ClubEditButton club={club} navigation={navigation} /> }
-                    { !isClubOwner && (
-                        <React.Fragment>
-                            <ClubPrivacyText>{'Private'}</ClubPrivacyText>
-                            <Icon type='ionicon' name='lock-closed' color='white' size={20} />
-                        </React.Fragment>
-                    )}
-                </ClubPrivacyRow>
+                    <ClubPrivacyRow>
+                        { isClubOwner && <ClubEditButton club={club} navigation={navigation} /> }
+                        { !isClubOwner && (
+                            <React.Fragment>
+                                <ClubPrivacyText>{'Private'}</ClubPrivacyText>
+                                <Icon type='ionicon' name='lock-closed' color='white' size={20} />
+                            </React.Fragment>
+                        )}
+                    </ClubPrivacyRow>
                 </TopBarRightContainer>
             </TopBarContainer>
         );

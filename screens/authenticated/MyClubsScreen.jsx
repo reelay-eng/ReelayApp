@@ -17,6 +17,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import ClubPicture from '../../components/global/ClubPicture';
 import { getClubsMemberOf } from '../../api/ClubsApi';
 import { showErrorToast } from '../../components/utils/toasts';
+import { sortByLastActivity } from '../../redux/reducers';
 
 const { width } = Dimensions.get('window');
 
@@ -78,6 +79,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
     const [refreshing, setRefreshing] = useState(false);
     const authSession = useSelector(state => state.authSession);
     const myClubs = useSelector(state => state.myClubs);
+    const mySortedClubs = myClubs.sort(sortByLastActivity);
     const dispatch = useDispatch();
 
     const ClubButton = ({ club }) => {
@@ -158,7 +160,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
             </TopBarContainer>
             <ClubButtonGrid>
                 <MyWatchlistButton />
-                { myClubs.map(club => <ClubButton key={club.id} club={club} />) }
+                { mySortedClubs.map(club => <ClubButton key={club.id} club={club} />) }
             </ClubButtonGrid>
 		</MyClubsScreenContainer>
 	);

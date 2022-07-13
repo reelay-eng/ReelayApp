@@ -264,10 +264,13 @@ export default AddToClubsDrawer = ({
 
         const findTitleInClub = (nextClubTitle) => {
             const nextClubTitleKey = `${nextClubTitle.titleType}-${nextClubTitle.tmdbTitleID}`;
+            if (nextClubTitleKey === titleKey) console.log('found!');
             return (nextClubTitleKey === titleKey);
         }
 
         const isAlreadyAdded = club.titles.find(findTitleInClub);
+        console.log(club.name);
+        console.log(club.titles.map(title => title.title.display));
         const iconName = (isAlreadyAdded) ? 'checkmark-done' : 'checkmark';
         const iconColor = (isAlreadyAdded) ? 'gray' : 'white';    
 
