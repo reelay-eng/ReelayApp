@@ -7,6 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ClubPicture from '../global/ClubPicture';
 import BackButton from '../utils/BackButton';
 import ProfilePicture from '../global/ProfilePicture';
+import { StainedGlassSVG } from '../global/SVGs';
 
 const BackButtonContainer = styled(View)`
     margin-left: 6px;
@@ -237,6 +238,16 @@ export default ClubBanner = ({ club, navigation, showBubbleBath = true, position
         );
     }
 
+    const StainedGlassButton = () => {
+        const advanceToClubStainedGlassScreen = () => navigation.push('ClubStainedGlassScreen', { club });
+        return (
+            <InfoButtonContainer onPress={advanceToClubStainedGlassScreen} topOffset={infoButtonTopOffset}>
+                {/* <Icon type='ionicon' name='information-circle-outline' size={30} color='white' /> */}
+                <StainedGlassSVG />
+            </InfoButtonContainer>
+        );
+    }
+
     return (
         <HeaderBackground topOffset={topOffset}>
             <BackButtonContainer>
@@ -244,7 +255,8 @@ export default ClubBanner = ({ club, navigation, showBubbleBath = true, position
             </BackButtonContainer>
             { showBubbleBath && <HeaderWithBubbleBath /> }
             { !showBubbleBath && <CondensedHeader /> }
-            <InfoButton />
+            {/* <InfoButton /> */}
+            <StainedGlassButton />
         </HeaderBackground>
     );
 }
