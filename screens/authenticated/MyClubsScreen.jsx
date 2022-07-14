@@ -18,10 +18,12 @@ import { ClubActivityCard } from '../../components/home/InMyClubs';
 import {  getAllMyClubActivities } from '../../api/ClubsApi';
 import { showErrorToast } from '../../components/utils/toasts';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCircle } from '@fortawesome/free-solid-svg-icons';
+import { faCircle, faChevronRight, faListCheck } from '@fortawesome/free-solid-svg-icons';
 import { sortByLastActivity } from '../../redux/reducers';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import ReelayColors from '../../constants/ReelayColors';
+import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
 
 const { width } = Dimensions.get('window');
 
@@ -62,12 +64,22 @@ const ButtonView = styled(TouchableOpacity)`
     height: 44px;
     width: 37.5%;
 `
-const ClubNameText = styled(ReelayText.H6)`
+const ClubNameText = styled(ReelayText.H6Emphasized)`
     color: white;
+    padding-bottom: 2px;
 `
 const ClubDescriptionText = styled(ReelayText.CaptionEmphasized)`
     color: #ffffff;
+    line-height: 18px;
     opacity: 0.5;
+`
+const ClubRowArrowView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    padding: 11px;
+`
+const ClubRowArrowSpacer = styled(View)`
+    width: 5px;
 `
 const ClubRowPressable = styled(TouchableOpacity)`
     align-items: center;
@@ -78,7 +90,10 @@ const ClubRowPressable = styled(TouchableOpacity)`
     width: 100%;
 `
 const ClubRowInfoView = styled(View)`
-    margin-left: 12px;
+    display: flex;
+    flex: 1;
+    padding-left: 12px;
+    padding-right: 12px;
 `
 const ColumnsView = styled(View)`
     flex-direction: row;
@@ -142,8 +157,7 @@ const TopBarView = styled(SafeAreaView)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
-    padding: 10px;
-    padding: 10px;
+    margin: 10px;
     padding-top: 0px;
 `
 
@@ -270,6 +284,22 @@ export default MyClubsScreen = ({ navigation, route }) => {
             );
         }
 
+        const AddClubRow = ({ club }) => {
+            const advanceToCreateClubScreen = () => navigation.push('CreateClubScreen');
+            return (
+                <ClubRowPressable onPress={advanceToCreateClubScreen}>
+                    <Image style={{ height: 64, width: 64 }} source={ReelayIcon} />
+                    <ClubRowInfoView>
+                        <ClubNameText>{'Create a club'}</ClubNameText>
+                        <ClubDescriptionText numberOfLines={2}>{'Make a group for private reelays and invite your friends'}</ClubDescriptionText>
+                    </ClubRowInfoView>
+                    <ClubRowArrowView>
+                        <Icon type='ionicon' name='add-circle-outline' color='white' size={28} />
+                    </ClubRowArrowView>
+                </ClubRowPressable>
+            );
+        }
+
         const ClubRow = ({ club }) => {
             const advanceToClubActivityScreen = () => navigation.push('ClubActivityScreen', { club });
             return (
@@ -277,8 +307,29 @@ export default MyClubsScreen = ({ navigation, route }) => {
                     <ClubPicture club={club} size={64} />
                     <ClubRowInfoView>
                         <ClubNameText>{club?.name}</ClubNameText>
-                        <ClubDescriptionText>{club?.description}</ClubDescriptionText>
+                        <ClubDescriptionText numberOfLines={2}>{club?.description}</ClubDescriptionText>
                     </ClubRowInfoView>
+                    <ClubRowArrowView>
+                        <FontAwesomeIcon icon={faChevronRight} color='white' size={18} />
+                        <ClubRowArrowSpacer />
+                    </ClubRowArrowView>
+                </ClubRowPressable>
+            );
+        }
+
+        const MyWatchlistRow = () => {
+            const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen');
+            return (
+                <ClubRowPressable onPress={advanceToWatchlistScreen}>
+                    <ProfilePicture user={reelayDBUser} size={64} />
+                    <ClubRowInfoView>
+                        <ClubNameText>{'My Watchlist'}</ClubNameText>
+                        <ClubDescriptionText numberOfLines={2}>{'Lorem ipsum dolor'}</ClubDescriptionText>
+                    </ClubRowInfoView>
+                    <ClubRowArrowView>
+                        <FontAwesomeIcon icon={faChevronRight} color='white' size={18} />
+                        <ClubRowArrowSpacer />
+                    </ClubRowArrowView>
                 </ClubRowPressable>
             );
         }
@@ -291,7 +342,9 @@ export default MyClubsScreen = ({ navigation, route }) => {
                     contentContainerStyle={scrollStyle}
                     showsVerticalScrollIndicator={false}
                 >
-                    { mySortedClubs.map(club => <ClubRow club={club} />) }
+                    <AddClubRow />
+                    <MyWatchlistRow />
+                    { mySortedClubs.map(club => <ClubRow club={club} key={club?.id} />) }
                 </ScrollView>
             );
         }
