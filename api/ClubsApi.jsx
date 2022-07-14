@@ -250,6 +250,18 @@ export const removeMemberFromClub = async ({ authSession, clubID, userSub, reqUs
     return resultRemove;
 }
 
+export const searchPublicClubs = async ({ authSession, page = 0, reqUserSub, searchText }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/clubs/search?page=${page}&searchText=${searchText}&visibility=${FEED_VISIBILITY}`;
+    const resultGet = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            requsersub: reqUserSub,
+        },
+    });
+    return resultGet;
+}
+
 export const banMemberFromClub = async ({ authSession, clubID, userSub, reqUserSub }) => {
     const routeRemove = `${REELAY_API_BASE_URL}/clubs/member/${clubID}/ban`;
     const removeBody = { userSub };
