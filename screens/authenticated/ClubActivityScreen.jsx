@@ -34,6 +34,7 @@ import ClubAddedMemberCard from './ClubAddedMemberCard';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 const { height, width } = Dimensions.get('window');
+const MAX_ACTIVITY_INDEX = 25;
 
 const ActivityContainer = styled(View)`
     margin-bottom: 8px;
@@ -82,7 +83,7 @@ const ScrollContainer = styled(ScrollView)`
     padding-bottom: ${(props) => props.bottomOffset}px;
     width: 100%;
 `
-
+ 
 export default ClubActivityScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const { club, promptToInvite, welcomeNewMember } = route.params;
@@ -96,6 +97,8 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const uploadStage = useSelector(state => state.uploadStage);
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
+
+    const filterOldActivities = (activity, index) => index < MAX_ACTIVITY_INDEX;
 
     const sortClubActivity = (activity0, activity1) => {
         const lastActivity0 = moment(activity0?.lastUpdatedAt ?? activity0?.createdAt);
@@ -112,7 +115,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         ...club.members.map(member => tagActivityType(member, 'member')),
         ...club.titles.map(title => tagActivityType(title, 'title')), 
         ...club.topics.map(topic => tagActivityType(topic, 'topic')),
-    ].sort(sortClubActivity);
+    ].sort(sortClubActivity).filter(filterOldActivities);
 
     const activityHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
     const feedTitlesAndTopics = clubActivities.filter(activityHasReelays);
@@ -152,7 +155,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
     useEffect(() => {
-        if (!club.members?.length || !club.titles?.length) {
+        if (!club.members?.length && !club.titles?.length && !club.topics?.length) {
             onRefresh();
         }
         logAmplitudeEventProd('openedClubActivityScreen', {

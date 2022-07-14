@@ -8,6 +8,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { ClubActivityCard } from "../../components/home/InMyClubs";
 import { useFocusEffect } from "@react-navigation/native";
 
+const MAX_ACTIVITY_INDEX = 25;
+
 const ColumnsContainer = styled(View)`
     flex-direction: row;
     width: 100%;
@@ -33,7 +35,11 @@ export default ClubStainedGlassScreen = ({ navigation, route }) => {
     const myClubActivities = useSelector(state => state.myClubActivities);
     const filterMemberActivities = (nextActivity) => (nextActivity?.activityType !== 'member');
     const filterJustThisClub = (nextActivity) => (nextActivity?.clubID === club.id);
-    const displayActivities = myClubActivities.filter(filterMemberActivities).filter(filterJustThisClub);
+    const filterMostRecentActivities = (nextActivity, index) => index < MAX_ACTIVITY_INDEX;
+    const displayActivities = myClubActivities
+        .filter(filterMemberActivities)
+        .filter(filterJustThisClub)
+        .filter(filterMostRecentActivities);
 
     const columnA = displayActivities.filter((activity, index) => index % 2 === 0);
     const columnB = displayActivities.filter((activity, index) => index % 2 === 1);

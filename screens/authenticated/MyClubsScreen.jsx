@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { Dimensions, FlatList, Image, RefreshControl, SafeAreaView, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, RefreshControl, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
@@ -18,22 +18,14 @@ import { ClubActivityCard } from '../../components/home/InMyClubs';
 import {  getAllMyClubActivities } from '../../api/ClubsApi';
 import { showErrorToast } from '../../components/utils/toasts';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCircle, faChevronRight, faListCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCircle, faChevronRight, faSearch, faBell } from '@fortawesome/free-solid-svg-icons';
 import { sortByLastActivity } from '../../redux/reducers';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import ReelayColors from '../../constants/ReelayColors';
 import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
 
-const { width } = Dimensions.get('window');
-
-const ACTIVITY_PAGE_SIZE = 10;
-
-const GRID_PADDING = 16;
-const GRID_WIDTH = width - (2 * GRID_PADDING);
-const GRID_HALF_MARGIN = 8;
-const GRID_ROW_LENGTH = 3;
-const CLUB_BUTTON_SIZE = (GRID_WIDTH / GRID_ROW_LENGTH) - (2 * GRID_HALF_MARGIN);
+const ACTIVITY_PAGE_SIZE = 20;
 
 const ActiveOptionText = styled(ReelayText.H6)`
     color: white;
@@ -134,17 +126,10 @@ const MyClubsScreenView = styled(View)`
     height: 100%;
     width: 100%;
 `
-const NewClubButtonPressable = styled(TouchableOpacity)`
+const TopRightButtonPressable = styled(TouchableOpacity)`
     align-items: center;
-    background-color: black;
-    border-color: white;
-    border-radius: 16px;
-    border-width: 1.4px;
-    height: 32px;
     justify-content: center;
-    margin-right: 4px;
-    padding-left: 1px;
-    width: 32px;
+    margin-right: 10px;
 `
 const OptionText = styled(ReelayText.H6)`
     color: gray;
@@ -160,6 +145,11 @@ const TopBarView = styled(SafeAreaView)`
     margin: 10px;
     padding-top: 0px;
 `
+const TopBarButtonView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    margin-right: -5px;
+`
 
 export default MyClubsScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
@@ -171,9 +161,9 @@ export default MyClubsScreen = ({ navigation, route }) => {
     const bottomOffset = useSafeAreaInsets().bottom;
 
     const myClubActivities = useSelector(state => state.myClubActivities);
-    const filterMemberActivities = (nextActivity, index) => (nextActivity?.activityType !== 'member' && shouldRenderActivity(index));
-    const shouldRenderActivity = (index) => index < (page + 1) * ACTIVITY_PAGE_SIZE;
-    const displayActivities = myClubActivities.filter(filterMemberActivities);
+    const filterMemberActivities = (nextActivity, index) => (nextActivity?.activityType !== 'member');
+    const shouldRenderActivity = (activity, index) => index < (page + 1) * ACTIVITY_PAGE_SIZE;
+    const displayActivities = myClubActivities.filter(filterMemberActivities).filter(shouldRenderActivity);
 
     const columnA = displayActivities.filter((activity, index) => index % 2 === 0);
     const columnB = displayActivities.filter((activity, index) => index % 2 === 1);
@@ -186,15 +176,6 @@ export default MyClubsScreen = ({ navigation, route }) => {
         return <ClubActivityCard key={activity.id} activity={activity} navigation={navigation} />
     }
     
-    const NewClubButton = () => {
-        const advanceToCreateClub = async () => navigation.push('CreateClubScreen');
-        return (
-            <NewClubButtonPressable onPress={advanceToCreateClub}>
-                <Icon type='ionicon' name='add' size={24} color='white' />
-            </NewClubButtonPressable>
-        );
-    }
-
     const onRefresh = async () => {
         try {
             setRefreshing(true);
@@ -223,39 +204,6 @@ export default MyClubsScreen = ({ navigation, route }) => {
         return <JustShowMeSignupPage navigation={navigation} headerText='clubs' />
     }
 
-    const RecentActivity = () => {
-        const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
-        const scrollStyle = { alignItems: 'center', paddingBottom: 210, width: '100%' };
-        return (
-            <ScrollView 
-                bottomOffset={bottomOffset} 
-                contentContainerStyle={scrollStyle}
-                showVerticalScrollIndicator={false}
-                refreshControl={refreshControl}
-            >
-                <ColumnsView>
-                    <ColumnView>
-                        { columnA.map(renderActivity) }
-                    </ColumnView>
-                    <ColumnView>
-                        { columnB.map(renderActivity) }
-                    </ColumnView>
-                </ColumnsView>
-                <Spacer />
-            </ScrollView>
-        );
-    }
-
-    const FilterButton = ({ filter, onPress, selected = false }) => {
-        return (
-            <FilterButtonPressable key={filter} onPress={onPress} selected={selected}>
-                <FilterButtonText>
-                    { filter }
-                </FilterButtonText>
-            </FilterButtonPressable>
-        );
-    }
-
     const AllMyClubs = () => {
         const [selectedFilters, setSelectedFilters] = useState([]);
         const selectOrDeselectFilter = (filter) => {
@@ -278,7 +226,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
                     { filters.map(filter => {
                         const isSelected = selectedFilters.includes(filter);
                         const onPress = () => selectOrDeselectFilter(filter);
-                        return <FilterButton filter={filter} onPress={onPress} selected={isSelected} />
+                        return <FilterButton key={filter} filter={filter} onPress={onPress} selected={isSelected} />
                     })}
                 </FilterButtonRow>
             );
@@ -335,7 +283,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
         }
 
         const MyClubsList = () => {
-            const scrollStyle = { alignItems: 'center', paddingBottom: 300, width: '100%' };
+            const scrollStyle = { alignItems: 'center', paddingBottom: 120, width: '100%' };
             return (
                 <ScrollView
                     bottomOffset={bottomOffset} 
@@ -355,6 +303,58 @@ export default MyClubsScreen = ({ navigation, route }) => {
                 <MyClubsList />
             </Fragment>
         );
+    }
+
+    const FilterButton = ({ filter, onPress, selected = false }) => {
+        return (
+            <FilterButtonPressable key={filter} onPress={onPress} selected={selected}>
+                <FilterButtonText>
+                    { filter }
+                </FilterButtonText>
+            </FilterButtonPressable>
+        );
+    }
+
+    const NotificationButton = () => {
+        const advanceToNotificationScreen = () => navigation.push('NotificationScreen');
+        return (
+            <TopRightButtonPressable onPress={advanceToNotificationScreen}>
+                {/* <FontAwesomeIcon icon={faBell} color='white' size={27} /> */}
+                <Icon type='ionicon' size={27} color={'white'} name='notifications' />
+            </TopRightButtonPressable>
+        )
+    }
+
+    const RecentActivity = () => {
+        const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+        const scrollStyle = { alignItems: 'center', paddingBottom: 120, width: '100%' };
+        return (
+            <ScrollView 
+                bottomOffset={bottomOffset} 
+                contentContainerStyle={scrollStyle}
+                showVerticalScrollIndicator={false}
+                refreshControl={refreshControl}
+            >
+                <ColumnsView>
+                    <ColumnView>
+                        { columnA.map(renderActivity) }
+                    </ColumnView>
+                    <ColumnView>
+                        { columnB.map(renderActivity) }
+                    </ColumnView>
+                </ColumnsView>
+                <Spacer />
+            </ScrollView>
+        );
+    }
+
+    const SearchButton = () => {
+        const advanceToSearchScreen = () => navigation.push('SearchScreen');
+        return (
+            <TopRightButtonPressable onPress={advanceToSearchScreen}>
+                <Icon type='ionicon' size={27} color={'white'} name='search' />
+            </TopRightButtonPressable>
+        )
     }
 
     const TabSelector = () => {
@@ -386,15 +386,14 @@ export default MyClubsScreen = ({ navigation, route }) => {
 		<MyClubsScreenView>
             <TopBarView>
                 <HeaderText>{'clubs'}</HeaderText>
-                <NewClubButton />
+                <TopBarButtonView>
+                    <SearchButton />
+                    <NotificationButton />
+                </TopBarButtonView>
             </TopBarView>
             <TabSelector />
-            <View>
-                { selectedTab === 'recent activity' && <RecentActivity /> }
-                { selectedTab === 'all my clubs' && <AllMyClubs /> }
-                {/* <RecentActivity />
-                <AllMyClubs /> */}
-            </View>
+            { selectedTab === 'recent activity' && <RecentActivity /> }
+            { selectedTab === 'all my clubs' && <AllMyClubs /> }
             <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
 		</MyClubsScreenView>
 	);

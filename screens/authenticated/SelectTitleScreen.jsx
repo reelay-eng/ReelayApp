@@ -16,6 +16,11 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { useFocusEffect } from '@react-navigation/native';
 
+const HeaderText = styled(ReelayText.H4Bold)`
+    text-align: left;
+    color: white;
+    margin-top: 4px;
+`
 const SearchBarContainer = styled(View)`
 	width: 100%;
 	display: flex;
@@ -29,8 +34,8 @@ const SelectorBarContainer = styled(View)`
 `;
 const TopBarContainer = styled(View)`
 	display: flex;
-	align-items: center;
-	width: 100%;
+    margin-bottom: 10px;
+	width: 90%;
 `;
 
 // color is ReelayColors.reelayGreen at reduced opacity
@@ -130,7 +135,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     return (
 		<SafeAreaView style={{ backgroundColor: "black", alignItems: 'center', height: "100%", width: "100%" }}>
 			<TopBarContainer>
-                { !topic && <BaseHeader text={"Create a reelay"} /> }
+                { !topic && <HeaderText>{'create'}</HeaderText> }
                 { topic && <HeaderWithBackButton navigation={navigation} text={"Add a reelay"} /> }
                 { topic && <TopicLabel /> }
 			</TopBarContainer>
