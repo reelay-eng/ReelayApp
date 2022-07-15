@@ -2,6 +2,7 @@ import React, { useContext, useRef, useState } from 'react';
 import { 
     ActivityIndicator, 
     Dimensions, 
+    Image,
     KeyboardAvoidingView, 
     Modal, 
     Pressable, 
@@ -21,6 +22,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { addTitleToClub, getClubMembers } from '../../api/ClubsApi';
 import { showErrorToast, showMessageToast } from '../utils/toasts';
 import ClubPicture from '../global/ClubPicture';
+import DogWithGlasses from '../../assets/images/dog-with-glasses.png';
 import MarkSeenButton from '../watchlist/MarkSeenButton';
 
 import { AddToClubsIconSVG, AddedToClubsIconSVG } from '../global/SVGs';
@@ -28,6 +30,7 @@ import ProfilePicture from '../global/ProfilePicture';
 import { addToMyWatchlist } from '../../api/WatchlistApi';
 import { notifyClubOnTitleAdded } from '../../api/ClubNotifications';
 import { notifyOnAddedToWatchlist } from '../../api/WatchlistNotifications';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
@@ -69,6 +72,28 @@ const ClubRowContainer = styled(View)`
 const ClubNameText = styled(ReelayText.Subtitle1Emphasized)`
     color: ${(props) => (props.isAlreadyAdded) ? 'gray' : 'white' };
 `
+const CreateClubView = styled(View)`
+    align-items: center;
+    border-radius: 8px;
+    height: 248px;
+    width: 100%;
+`
+const CreateClubGradient = styled(LinearGradient)`
+    border-radius: 8px;
+    height: 248px;
+    position: absolute;
+    width: 100%;
+`
+const DogWithGlassesImage = styled(Image)`
+    height: 57px;
+    width: 57px;
+`
+const DogWithGlassesContainer = styled(View)`
+    align-items: center;
+    justify-content: center;
+    margin: 20px;
+    margin-bottom: 10px;
+`
 const DrawerContainer = styled(View)`
     background-color: #1a1a1a;
     border-top-left-radius: 12px;
@@ -94,6 +119,33 @@ const ProfilePictureContainer = styled(View)`
     margin-top: 6px;
     margin-bottom: 6px;
     margin-right: 10px;
+`
+const PromptHeadingText = styled(ReelayText.H4Bold)`
+    color: white;
+    font-size: 24px;
+    line-height: 30px;
+    text-align: center;
+`
+const PromptBodyText = styled(ReelayText.CaptionEmphasized)`
+    color: white;
+    margin: 6px;
+    text-align: center;
+    width: 75%;
+`
+const PromptButtonPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: white;
+    border-radius: 40px;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 8px;
+    padding: 8px;
+    padding-left: 12px;
+    padding-right: 14px;
+`
+const PromptButtonText = styled(ReelayText.CaptionEmphasized)`
+    color: black;
+    margin-left: 4px;
 `
 const RowContainer = styled(Pressable)`
     display: flex;
@@ -248,6 +300,36 @@ export default AddToClubsDrawer = ({
         );
     }
 
+    const CreateClubPrompt = () => {
+        const headingText = 'watchlist too long?';
+        const bodyText1 = 'create a club and separate your watchlist by vibe or audience!';
+        const bodyText2 = `(You don’t need to invite anyone)`;
+
+        const PromptButton = () => {
+            return (
+                <PromptButtonPressable>
+                    <Icon type='ionicon' name='add' color='black' size={20} />
+                    <PromptButtonText>
+                        {'Create a club'}
+                    </PromptButtonText>
+                </PromptButtonPressable>
+            );
+        }
+        
+        return (
+            <CreateClubView>
+                <CreateClubGradient colors={['#FF4848', '#038AFF']} />
+                <DogWithGlassesContainer>
+                    <DogWithGlassesImage source={DogWithGlasses} />
+                </DogWithGlassesContainer>
+                <PromptHeadingText>{headingText}</PromptHeadingText>
+                <PromptBodyText>{bodyText1}</PromptBodyText>
+                <PromptBodyText>{bodyText2}</PromptBodyText>
+                <PromptButton />
+            </CreateClubView>
+        );
+    }
+
     const SelectClubsList = () => {
         return (
             <React.Fragment>
@@ -376,9 +458,11 @@ export default AddToClubsDrawer = ({
                     <Header />
                     <ScrollViewContainer>
                         <SelectMyWatchlistRow />
-                        <SelectClubsList />
+                        { myClubs.length > 1 && <SelectClubsList /> }
+                        { myClubs.length === 0 && <CreateClubPrompt /> }
                     </ScrollViewContainer>
                     <AddTitleButton />
+                    <CreateClubPrompt />
                 </DrawerContainer>
                 </KeyboardAvoidingView>
             </Modal>
