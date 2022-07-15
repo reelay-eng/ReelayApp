@@ -254,9 +254,10 @@ export default ClubBanner = ({ club, navigation, showBubbleBath = true, position
                 <BackButton navigation={navigation} />
             </BackButtonContainer>
             { showBubbleBath && <HeaderWithBubbleBath /> }
+            { showBubbleBath && <StainedGlassButton /> }
+
             { !showBubbleBath && <CondensedHeader /> }
-            {/* <InfoButton /> */}
-            <StainedGlassButton />
+            { !showBubbleBath && <InfoButton /> }
         </HeaderBackground>
     );
 }

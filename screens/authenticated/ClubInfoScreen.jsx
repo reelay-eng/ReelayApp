@@ -459,9 +459,6 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 : 'Open group. Anyone can join';
 
             const switchClubPrivacy = () => {
-                // const nextIsPrivate = !isPrivate;
-                // setIsPrivate(nextIsPrivate);
-                // club.visibility = (nextIsPrivate) ? 'private' : FEED_VISIBILITY;
                 setClubPrivacyDrawerVisible(true);
             }
 
@@ -574,6 +571,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     }
     
     const ClubTopBar = () => {
+        const isPrivate = club.visibility === 'private';
         const topOffset = useSafeAreaInsets().top;
         return (
             <TopBarContainer topOffset={topOffset}>
@@ -583,8 +581,13 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     { isClubOwner && <ClubEditButton club={club} navigation={navigation} /> }
                     { !isClubOwner && (
                         <React.Fragment>
-                            <ClubPrivacyText>{'Private'}</ClubPrivacyText>
-                            <Icon type='ionicon' name='lock-closed' color='white' size={20} />
+                            <ClubPrivacyText>{isPrivate ? 'Private' : 'Public'}</ClubPrivacyText>
+                            { isPrivate && (
+                                <Icon type='ionicon' name='lock-closed' color='white' size={20} />
+                            )}
+                            { !isPrivate && (
+                                <Icon type='ionicon' name='earth' color='white' size={20} />
+                            )}
                         </React.Fragment>
                     )}
                 </ClubPrivacyRow>
