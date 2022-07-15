@@ -8,7 +8,6 @@ import styled from 'styled-components/native';
 import BackButton from '../../components/utils/BackButton';
 import * as ReelayText from '../../components/global/Text';
 import ReelayColors from '../../constants/ReelayColors';
-import ClubPicture from '../../components/global/ClubPicture';
 
 import { Icon } from 'react-native-elements';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -32,30 +31,27 @@ import { useDispatch, useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import BigBubbleBath from '../../components/clubs/BigBubbleBath';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import ChangeClubPrivacyDrawer from '../../components/clubs/ChangeClubPrivacyDrawer';
 
 const INVITE_BASE_URL = Constants.manifest.extra.reelayWebInviteUrl;
+const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
-const BackButtonContainer = styled(View)`
-`
 const ClubHeaderText = styled(ReelayText.H5Emphasized)`
     color: white;
+    margin-top: 4px;
 `
 const ClubDescriptionText = styled(ReelayText.Body2)` 
     color: white;
-    margin-top: 16px;
 `
 const ClubPrivacyRow = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: center;
-    margin-bottom: 12px;
-    width: 100%;
 `
 const ClubPrivacyText = styled(ReelayText.Body2)`
     color: white;
     font-size: 12px;
     margin-right: 4px;
-    padding-top: 4px;
 `
 const EditButton = styled(TouchableOpacity)`
     padding: 4px;
@@ -116,12 +112,15 @@ const MemberSectionSpacer = styled(View)`
 const ProfileInfoContainer = styled(View)`
     align-items: center;
     margin-top: 0px;
-    margin-bottom: 36px;
+    margin-bottom: 25px;
 `
 const ProfilePictureContainer = styled(View)`
     margin-top: 6px;
     margin-bottom: 6px;
     margin-right: 10px;
+`
+const ProfileSpacer = styled(View)`
+    height: 16px;
 `
 const RemoveButtonContainer = styled(TouchableOpacity)`
     align-items: center;
@@ -388,8 +387,9 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     const ClubProfileInfo = () => {
         return (
             <ProfileInfoContainer>
-                {/* <ClubPicture club={club} size={120} /> */}
                 <BigBubbleBath club={club} />
+                <ProfileSpacer />
+                <ClubHeaderText>{club.name}</ClubHeaderText>
                 <ClubDescriptionText>{club.description}</ClubDescriptionText>
             </ProfileInfoContainer>
         );
@@ -446,6 +446,70 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 </SettingsRow>
             );
         }
+
+        const PrivacySettingRow = () => {
+            const [isPrivate, setIsPrivate] = useState(club.visibility === 'private');
+            const [clubPrivacyDrawerVisible, setClubPrivacyDrawerVisible] = useState(false);
+
+            const headingText = (isPrivate)
+                ? 'Private Club'
+                : 'Public Club';
+            const bodyText = (isPrivate)
+                ? 'Closed group. Invite people to the club'
+                : 'Open group. Anyone can join';
+
+            const switchClubPrivacy = () => {
+                // const nextIsPrivate = !isPrivate;
+                // setIsPrivate(nextIsPrivate);
+                // club.visibility = (nextIsPrivate) ? 'private' : FEED_VISIBILITY;
+                setClubPrivacyDrawerVisible(true);
+            }
+
+            const confirmChangePrivacy = async () => {
+                const nextIsPrivate = !isPrivate;
+                setIsPrivate(nextIsPrivate);
+                club.visibility = (nextIsPrivate) ? 'private' : FEED_VISIBILITY;
+                setClubPrivacyDrawerVisible(false);
+
+                const patchResult = await editClub({
+                    authSession,
+                    clubID: club.id,
+                    visibility: club.visibility,
+                    reqUserSub: reelayDBUser?.sub,
+                });   
+                console.log('patched club: ', patchResult);
+                return patchResult; 
+            }
+
+            return (
+                <SettingsRow onPress={switchClubPrivacy}>
+                    <SettingsTextContainer>
+                        <SettingsText>{headingText}</SettingsText>
+                        <SettingsSubtext>{bodyText}</SettingsSubtext>
+                    </SettingsTextContainer>
+                    <Switch 
+                        value={!isPrivate}
+                        onValueChange={switchClubPrivacy}
+                        trackColor={{ 
+                            false: "#39393D", 
+                            true: ReelayColors.reelayGreen,
+                        }}
+                        thumbColor={"#FFFFFF"}
+                        ios_backgroundColor="#39393D"    
+                    />
+                    { clubPrivacyDrawerVisible && (
+                        <ChangeClubPrivacyDrawer
+                            navigation={navigation}
+                            clubID={club.id}
+                            drawerVisible={clubPrivacyDrawerVisible}
+                            setDrawerVisible={setClubPrivacyDrawerVisible}
+                            isPrivate={isPrivate}
+                            confirmChangePrivacy={confirmChangePrivacy}
+                        />
+                    )}
+                </SettingsRow>
+            );
+        }
     
         const ShareClubLinkRow = () => {
             const copyClubLinkToClipboard = async () => {
@@ -496,6 +560,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 { isClubOwner && <AllowMemberInvitesRow />}
                 <AddMembersRow />
                 <ShareClubLinkRow />
+                { isClubOwner && <PrivacySettingRow /> }
                 { inviteDrawerVisible && (
                     <InviteMyFollowsDrawer
                         club={club}
@@ -513,18 +578,16 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         return (
             <TopBarContainer topOffset={topOffset}>
                 <BackButton navigation={navigation} />
-                <ClubHeaderText numberOfLines={1}>{club.name}</ClubHeaderText>
-                <TopBarRightContainer>
-                    <ClubPrivacyRow>
-                        { isClubOwner && <ClubEditButton club={club} navigation={navigation} /> }
-                        { !isClubOwner && (
-                            <React.Fragment>
-                                <ClubPrivacyText>{'Private'}</ClubPrivacyText>
-                                <Icon type='ionicon' name='lock-closed' color='white' size={20} />
-                            </React.Fragment>
-                        )}
-                    </ClubPrivacyRow>
-                </TopBarRightContainer>
+                <ClubHeaderText>{'Club Info'}</ClubHeaderText>
+                <ClubPrivacyRow>
+                    { isClubOwner && <ClubEditButton club={club} navigation={navigation} /> }
+                    { !isClubOwner && (
+                        <React.Fragment>
+                            <ClubPrivacyText>{'Private'}</ClubPrivacyText>
+                            <Icon type='ionicon' name='lock-closed' color='white' size={20} />
+                        </React.Fragment>
+                    )}
+                </ClubPrivacyRow>
             </TopBarContainer>
         );
     }

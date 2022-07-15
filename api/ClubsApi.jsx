@@ -123,12 +123,14 @@ export const editClub = async ({
     description,
     membersCanInvite,
     reqUserSub,
+    visibility,
 }) => {
     const routePatch = `${REELAY_API_BASE_URL}/clubs/${clubID}`;
     const patchBody = {};
     if (name) patchBody.name = name;
     if (description) patchBody.description = description;
     if (membersCanInvite !== undefined) patchBody.membersCanInvite = membersCanInvite;
+    if (visibility) patchBody.visibility = visibility;
 
     const resultPatch = await fetchResults(routePatch, {
         method: 'PATCH',
