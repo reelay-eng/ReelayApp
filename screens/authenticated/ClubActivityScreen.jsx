@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { 
     Dimensions, 
+    FlatList, 
     Modal, 
     Pressable,
     RefreshControl, 
@@ -34,7 +35,7 @@ import ClubAddedMemberCard from './ClubAddedMemberCard';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 const { height, width } = Dimensions.get('window');
-const MAX_ACTIVITY_INDEX = 25;
+const MAX_ACTIVITY_INDEX = 30;
 
 const ActivityContainer = styled(View)`
     margin-bottom: 8px;
@@ -69,18 +70,18 @@ const DescriptionContainer = styled(View)`
     align-items: center;
     background-color: ${ReelayColors.reelayBlack};
     border-radius: 12px;
-    margin-bottom: 12px;
     padding: 8px;
     padding-left: 16px;
     padding-right: 16px;
+    z-index: 5;
 `
 const DescriptionText = styled(ReelayText.Body2)`
     color: white;
 `
-const ScrollContainer = styled(ScrollView)`
-    top: ${(props) => props.topOffset}px;
-    height: ${(props) => height - props.topOffset}px;
-    padding-bottom: ${(props) => props.bottomOffset}px;
+const UploadProgressBarView = styled(View)`
+    align-items: center;
+    position: absolute;
+    top: ${props => props.topOffset}px;
     width: 100%;
 `
  
@@ -101,6 +102,12 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const filterOldActivities = (activity, index) => index < MAX_ACTIVITY_INDEX;
 
     const sortClubActivity = (activity0, activity1) => {
+        const activityType0 = activity0?.activityType;
+        const activityType1 = activity1?.activityType;
+
+        if (activityType0 === 'description') return -1;
+        if (activityType1 === 'description') return 1;
+
         const lastActivity0 = moment(activity0?.lastUpdatedAt ?? activity0?.createdAt);
         const lastActivity1 = moment(activity1?.lastUpdatedAt ?? activity0?.createdAt);
         return lastActivity0.diff(lastActivity1, 'seconds') < 0;
@@ -111,7 +118,9 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         return activity;
     }
 
+    const descActivity = club.description ? [{ activityType: 'description' }] : [];
     const clubActivities = [
+        ...descActivity,
         ...club.members.map(member => tagActivityType(member, 'member')),
         ...club.titles.map(title => tagActivityType(title, 'title')), 
         ...club.topics.map(topic => tagActivityType(topic, 'topic')),
@@ -192,20 +201,38 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         );
     }
 
-    const ClubActivityScroll = ({ children }) => {
+    const ClubActivityList = () => {
+        const renderClubActivity = ({ item, index }) => {
+            const activity = item;
+            const { activityType } = activity;
+            if (activityType === 'description') {
+                return <DescriptionFold key={'description'} />;
+            }
+            return <ClubActivity key={activity.id} activity={activity} />
+        }
+
+        const activityListStyle = { 
+            alignItems: 'center', 
+            paddingTop: bottomOffset + 60, 
+            paddingBottom: topOffset,
+        };
+
+        const keyExtractor = (item) => {
+            return item.activityType === 'description' ? 'description' : item?.id;
+        }
+        
         return (
-            <ScrollContainer 
-                contentContainerStyle={{ 
-                    alignItems: 'center', 
-                    paddingBottom: 210,
-                }}
-                topOffset={topOffset} 
+            <FlatList
                 bottomOffset={bottomOffset}
+                contentContainerStyle={activityListStyle}
+                data={clubActivities}
+                inverted
+                keyExtractor={keyExtractor}
                 refreshControl={refreshControl} 
+                renderItem={renderClubActivity}
                 showsVerticalScrollIndicator={false}
-            >
-                { children }
-            </ScrollContainer>
+                topOffset={topOffset} 
+            />
         )
     }
 
@@ -261,24 +288,19 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         )
     }
 
-    if (welcomeNewMember) {
-        console.log('todo: should welcome new user!')        
-    }
+    const noTitlesYet = (!refreshing && !club?.titles?.length && !club?.topics?.length);
 
     return (
         <ActivityScreenContainer>
-            <ClubActivityScroll>
-                <DescriptionFold />
-                { showProgressBar && (
-                    <UploadProgressBar clubID={club.id} mountLocation={'InClub'} onRefresh={onRefresh} />
-                )}
-                { (!refreshing && !club?.titles?.length && !club?.topics?.length) && <NoTitlesYetPrompt /> } 
-                { (clubActivities?.length > 0 ) && clubActivities?.map((activity) => {
-                    return <ClubActivity key={activity.id} activity={activity} /> 
-                })}
-            </ClubActivityScroll>
+            { noTitlesYet && <NoTitlesYetPrompt /> } 
+            { !noTitlesYet && <ClubActivityList /> }
             <ClubBanner club={club} navigation={navigation} />
             <AddTitleButton />
+            { showProgressBar && (
+                <UploadProgressBarView topOffset={topOffset}>
+                    <UploadProgressBar clubID={club.id} mountLocation={'InClub'} onRefresh={onRefresh} />
+                </UploadProgressBarView>
+            )}
             { inviteDrawerVisible && (
                 <InviteMyFollowsDrawer 
                     club={club}
