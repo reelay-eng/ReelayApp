@@ -28,7 +28,7 @@ const ClubsButtonOuterContainer = styled(Pressable)`
     width: 60px;
 `
 
-export default AddToClubsButton = ({ titleObj, reelay }) => {
+export default AddToClubsButton = ({ navigation, titleObj, reelay }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
@@ -71,6 +71,7 @@ export default AddToClubsButton = ({ titleObj, reelay }) => {
             </ClubsButtonCircleContainer>
             { drawerVisible && (
                 <AddToClubsDrawer 
+                    navigation={navigation}
                     titleObj={titleObj}
                     reelay={reelay}
                     drawerVisible={drawerVisible}

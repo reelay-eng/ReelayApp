@@ -68,6 +68,7 @@ const CheckmarkIconContainer = styled(View)`
 const ClubRowContainer = styled(View)`
     align-items: center;
     flex-direction: row;
+    width: 100%;
 `
 const ClubNameText = styled(ReelayText.Subtitle1Emphasized)`
     color: ${(props) => (props.isAlreadyAdded) ? 'gray' : 'white' };
@@ -76,7 +77,8 @@ const CreateClubView = styled(View)`
     align-items: center;
     border-radius: 8px;
     height: 248px;
-    width: 100%;
+    margin-top: 23px;
+    width: 90%;
 `
 const CreateClubGradient = styled(LinearGradient)`
     border-radius: 8px;
@@ -148,7 +150,6 @@ const PromptButtonText = styled(ReelayText.CaptionEmphasized)`
     margin-left: 4px;
 `
 const RowContainer = styled(Pressable)`
-    display: flex;
     align-items: center;
     background-color: ${(props) => props.backgroundColor};
     flex-direction: row;
@@ -163,6 +164,7 @@ const ScrollViewContainer = styled(ScrollView)`
     margin-bottom: 10px;
 `
 export default AddToClubsDrawer = ({ 
+    navigation,
     titleObj, 
     reelay,
     drawerVisible, 
@@ -305,9 +307,14 @@ export default AddToClubsDrawer = ({
         const bodyText1 = 'create a club and separate your watchlist by vibe or audience!';
         const bodyText2 = `(You don’t need to invite anyone)`;
 
+        const advanceToCreateClubScreen = () => {
+            closeDrawer();
+            navigation.push('CreateClubScreen');
+        }
+
         const PromptButton = () => {
             return (
-                <PromptButtonPressable>
+                <PromptButtonPressable onPress={advanceToCreateClubScreen}>
                     <Icon type='ionicon' name='add' color='black' size={20} />
                     <PromptButtonText>
                         {'Create a club'}
@@ -456,13 +463,12 @@ export default AddToClubsDrawer = ({
                 <Backdrop onPress={closeDrawer}/>
                 <DrawerContainer>
                     <Header />
-                    <ScrollViewContainer>
+                    <ScrollViewContainer contentContainerStyle={{ alignItems: 'center' }}>
                         <SelectMyWatchlistRow />
                         { myClubs.length > 1 && <SelectClubsList /> }
                         { myClubs.length === 0 && <CreateClubPrompt /> }
                     </ScrollViewContainer>
                     <AddTitleButton />
-                    <CreateClubPrompt />
                 </DrawerContainer>
                 </KeyboardAvoidingView>
             </Modal>

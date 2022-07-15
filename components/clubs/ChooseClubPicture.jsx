@@ -65,10 +65,11 @@ const MenuOptionText = styled(ReelayText.H6)`
 const ModalContainer = styled(View)`
     position: absolute;
 `
-const ProfileText = styled(ReelayText.Body2Bold)`
+const AddPhotoText = styled(ReelayText.Body2Bold)`
     color: rgba(0, 165, 253, 1);
+	font-size: 16px;
     text-align: center;
-    padding: 5px;
+    padding: 8px;
 `
 const Spacer = styled(View)`
 	height: 10px;
@@ -79,6 +80,7 @@ export default ChooseClubPicture = ({ clubPicSourceRef }) => {
 	const [isEditingPhoto, setIsEditingPhoto] = useState(false);
 	const startEditPhoto = () => setIsEditingPhoto(true);
 	clubPicSourceRef.current = clubPicSource;
+	const isDefaultPhoto = (clubPicSource == ReelayIcon);
     
     return (
 		<React.Fragment>
@@ -87,7 +89,7 @@ export default ChooseClubPicture = ({ clubPicSourceRef }) => {
 					<ClubImage source={clubPicSource} />
 				</Pressable>
 				<Pressable onPress={startEditPhoto}>
-					<ProfileText>{"Edit Photo"}</ProfileText>
+					<AddPhotoText>{isDefaultPhoto ? "Add Photo" : "Edit Photo"}</AddPhotoText>
 				</Pressable>
 			</EditContainer>
 			{ isEditingPhoto && <EditingPhotoMenuModal

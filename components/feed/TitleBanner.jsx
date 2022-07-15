@@ -263,7 +263,7 @@ const TitleBanner = ({
                     </TitleTextContainer>
                     <TitleUnderline />
                 </TitleInfo>
-                { !donateObj && !clubActivity && <AddToClubsButton titleObj={titleObj} reelay={viewableReelay} /> }
+                { !donateObj && !clubActivity && <AddToClubsButton navigation={navigation} titleObj={titleObj} reelay={viewableReelay} /> }
                 { !clubActivity && donateObj && <DonateButton donateObj={donateObj} reelay={viewableReelay} /> }
                 { clubActivity && <ActivityPic /> }
             </TitleBannerContainer>    
