@@ -64,6 +64,12 @@ const CreateReelayText = styled(ReelayText.CaptionEmphasized)`
 const DescriptionText = styled(ReelayText.CaptionEmphasized)`
     color: #86878B;
 `
+const DividerLine = styled(View)`
+    background-color: rgba(255,255,255,0.1);
+    height: 1px;
+    margin: 10px;
+    width: ${width - 56}px;
+`
 const DotMenuButtonView = styled(TouchableOpacity)`
     padding-right: 4px;
     position: absolute;
@@ -300,6 +306,7 @@ export default ClubTitleCard = ({
                     <TitleCardGradient colors={['#252527', '#19242E']}  start={{ x: 0.5, y: 0.5 }} end={{ x: 0.5, y: 1 }} />
                 }
                 <TitleLine />
+                <DividerLine />
                 { (!clubTitle.reelays.length) && <CardBottomRowNoStacks navigation={navigation} clubTitle={clubTitle} /> }
                 { (clubTitle.reelays.length > 0) && (
                     <CardBottomRowWithStacks advanceToFeed={advanceToFeed} clubTitle={clubTitle} />

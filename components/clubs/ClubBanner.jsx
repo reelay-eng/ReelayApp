@@ -96,7 +96,10 @@ const CondensedHeaderSpacer = styled(View)`
 `
 const HeaderBackground = styled(View)`
     align-items: center;
-    background-color: rgba(0,0,0,0.35);
+    background-color: ${props => props.solid 
+        ? 'rgba(0,0,0,1)' 
+        : 'rgba(0,0,0,0.35)'
+    },
     flex-direction: row;
     justify-content: space-between;
     padding-left: 6px;
@@ -249,7 +252,7 @@ export default ClubBanner = ({ club, navigation, showBubbleBath = true, position
     }
 
     return (
-        <HeaderBackground topOffset={topOffset}>
+        <HeaderBackground solid={showBubbleBath} topOffset={topOffset}>
             <BackButtonContainer>
                 <BackButton navigation={navigation} />
             </BackButtonContainer>
