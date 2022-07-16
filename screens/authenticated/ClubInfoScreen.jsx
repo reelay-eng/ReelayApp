@@ -451,6 +451,8 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             const [isPrivate, setIsPrivate] = useState(club.visibility === 'private');
             const [clubPrivacyDrawerVisible, setClubPrivacyDrawerVisible] = useState(false);
 
+            console.log('club visibility: ', club.visibility);
+
             const headingText = (isPrivate)
                 ? 'Private Club'
                 : 'Public Club';

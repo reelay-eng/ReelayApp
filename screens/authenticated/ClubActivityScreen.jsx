@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { 
+    ActivityIndicator,
     Dimensions, 
     FlatList, 
     Modal, 
@@ -22,7 +23,7 @@ import NoTitlesYetPrompt from '../../components/clubs/NoTitlesYetPrompt';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
-import { getClubMembers, getClubTitles, getClubTopics } from '../../api/ClubsApi';
+import { getClubActivity, getClubMembers, getClubTitles, getClubTopics } from '../../api/ClubsApi';
 import { AuthContext } from '../../context/AuthContext';
 import { showErrorToast } from '../../components/utils/toasts';
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
@@ -33,6 +34,7 @@ import UploadProgressBar from '../../components/global/UploadProgressBar';
 import TopicCard from '../../components/topics/TopicCard';
 import ClubAddedMemberCard from './ClubAddedMemberCard';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import { ClubsIconSVG } from '../../components/global/SVGs';
 
 const { height, width } = Dimensions.get('window');
 const MAX_ACTIVITY_INDEX = 30;
@@ -86,50 +88,13 @@ const UploadProgressBarView = styled(View)`
 `
  
 export default ClubActivityScreen = ({ navigation, route }) => {
+    const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
-    const { club, promptToInvite, welcomeNewMember } = route.params;
+    const { club, promptToInvite } = route.params;
     const authSession = useSelector(state => state.authSession);
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
-
-    const dispatch = useDispatch();
-    const topOffset = useSafeAreaInsets().top + 80;
-    const bottomOffset = useSafeAreaInsets().bottom;
-
-    const uploadStage = useSelector(state => state.uploadStage);
-    const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
-    const showProgressBar = showProgressBarStages.includes(uploadStage);
-
-    const filterOldActivities = (activity, index) => index < MAX_ACTIVITY_INDEX;
-
-    const sortClubActivity = (activity0, activity1) => {
-        const activityType0 = activity0?.activityType;
-        const activityType1 = activity1?.activityType;
-
-        if (activityType0 === 'description') return -1;
-        if (activityType1 === 'description') return 1;
-
-        const lastActivity0 = moment(activity0?.lastUpdatedAt ?? activity0?.createdAt);
-        const lastActivity1 = moment(activity1?.lastUpdatedAt ?? activity0?.createdAt);
-        return lastActivity0.diff(lastActivity1, 'seconds') < 0;
-    }
-
-    const tagActivityType = (activity, type) => {
-        activity.activityType = type;
-        return activity;
-    }
-
-    const descActivity = club.description ? [{ activityType: 'description' }] : [];
-    const clubActivities = [
-        ...descActivity,
-        ...club.members.map(member => tagActivityType(member, 'member')),
-        ...club.titles.map(title => tagActivityType(title, 'title')), 
-        ...club.topics.map(topic => tagActivityType(topic, 'topic')),
-    ].sort(sortClubActivity).filter(filterOldActivities);
-
-    const activityHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
-    const feedTitlesAndTopics = clubActivities.filter(activityHasReelays);
-
     const [refreshing, setRefreshing] = useState(false);
+
     const onRefresh = async () => {
         try { 
             setRefreshing(true);
@@ -150,10 +115,13 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                     reqUserSub: reelayDBUser?.sub,
                 }),
             ]);
+
             club.members = members;
             club.titles = titles;
             club.topics = topics;
+
             dispatch({ type: 'setUpdatedClub', payload: club });
+            console.log('updated club: ', club);
             setRefreshing(false); 
         } catch (error) {
             console.log(error);
@@ -161,12 +129,36 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             setRefreshing(false);
         }
     }
-    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+
+    const topOffset = useSafeAreaInsets().top + 80;
+    const bottomOffset = useSafeAreaInsets().bottom;
+
+    const uploadStage = useSelector(state => state.uploadStage);
+    const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
+    const showProgressBar = showProgressBarStages.includes(uploadStage);
+    const notLoaded = (!club.members?.length && !club.titles?.length && !club.topics?.length);
+
+    const filterOldActivities = (activity, index) => index < MAX_ACTIVITY_INDEX;
+
+    const sortClubActivity = (activity0, activity1) => {
+        const activityType0 = activity0?.activityType;
+        const activityType1 = activity1?.activityType;
+
+        if (activityType0 === 'description') return -1;
+        if (activityType1 === 'description') return 1;
+
+        const lastActivity0 = moment(activity0?.lastUpdatedAt ?? activity0?.createdAt);
+        const lastActivity1 = moment(activity1?.lastUpdatedAt ?? activity0?.createdAt);
+        return lastActivity0.diff(lastActivity1, 'seconds') < 0;
+    }
+
+    const tagActivityType = (activity, type) => {
+        activity.activityType = type;
+        return activity;
+    }
 
     useEffect(() => {
-        if (!club.members?.length && !club.titles?.length && !club.topics?.length) {
-            onRefresh();
-        }
+        if (notLoaded) onRefresh();
         logAmplitudeEventProd('openedClubActivityScreen', {
             username: reelayDBUser?.username,
             userSub: reelayDBUser?.sub,
@@ -178,6 +170,23 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
     });
+
+    const descActivity = club.description ? [{ activityType: 'description' }] : [];
+    const clubActivities = (club.members?.length > 0) 
+        ? [
+            ...descActivity,
+            ...club.members?.map(member => tagActivityType(member, 'member')),
+            ...club.titles?.map(title => tagActivityType(title, 'title')), 
+            ...club.topics?.map(topic => tagActivityType(topic, 'topic')),
+        ].sort(sortClubActivity).filter(filterOldActivities)
+        : [];
+
+    const activityHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
+    const feedTitlesAndTopics = clubActivities.filter(activityHasReelays);
+    const iAmMember = !!club.members?.find(nextMember => nextMember.userSub === reelayDBUser?.sub);
+
+    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+    const noTitlesYet = (!refreshing && !club?.titles?.length && !club?.topics?.length);
 
     const AddTitleButton = () => {
         const [titleOrTopicDrawerVisible, setTitleOrTopicDrawerVisible] = useState(false);
@@ -288,14 +297,28 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         )
     }
 
-    const noTitlesYet = (!refreshing && !club?.titles?.length && !club?.topics?.length);
+    const JoinClubButton = () => {
+        const onPress = () => {}
+        return (
+            <AddTitleButtonOuterContainer 
+                bottomOffset={bottomOffset} 
+                colors={['transparent', 'black']}>
+                <AddTitleButtonContainer onPress={onPress}>
+                    <AddTitleButtonText>{'Join club'}</AddTitleButtonText>
+                </AddTitleButtonContainer>
+            </AddTitleButtonOuterContainer>
+        );
+    }
+
+
 
     return (
         <ActivityScreenContainer>
             { noTitlesYet && <NoTitlesYetPrompt /> } 
             { !noTitlesYet && <ClubActivityList /> }
             <ClubBanner club={club} navigation={navigation} />
-            <AddTitleButton />
+            { iAmMember && <AddTitleButton /> }
+            { !iAmMember && <JoinClubButton /> }
             { showProgressBar && (
                 <UploadProgressBarView topOffset={topOffset}>
                     <UploadProgressBar clubID={club.id} mountLocation={'InClub'} onRefresh={onRefresh} />

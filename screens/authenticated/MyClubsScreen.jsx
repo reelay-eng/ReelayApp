@@ -61,9 +61,15 @@ const ClubNameText = styled(ReelayText.H6Emphasized)`
     padding-bottom: 2px;
 `
 const ClubDescriptionText = styled(ReelayText.CaptionEmphasized)`
-    color: #ffffff;
+    color: white;
     line-height: 18px;
-    opacity: 0.5;
+    opacity: 0.6;
+`
+const ClubMemberCountText = styled(ReelayText.CaptionEmphasized)`
+    color: white;
+    line-height: 18px;
+    margin-top: 4px;
+    opacity: 0.4;
 `
 const ClubRowArrowView = styled(View)`
     align-items: center;
@@ -236,7 +242,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
             const advanceToCreateClubScreen = () => navigation.push('CreateClubScreen');
             return (
                 <ClubRowPressable onPress={advanceToCreateClubScreen}>
-                    <Image style={{ height: 64, width: 64 }} source={ReelayIcon} />
+                    <Image style={{ height: 72, width: 72 }} source={ReelayIcon} />
                     <ClubRowInfoView>
                         <ClubNameText>{'Create a club'}</ClubNameText>
                         <ClubDescriptionText numberOfLines={2}>{'Make a group for private reelays and invite your friends'}</ClubDescriptionText>
@@ -249,13 +255,19 @@ export default MyClubsScreen = ({ navigation, route }) => {
         }
 
         const ClubRow = ({ club }) => {
+            const memberCount = club.memberCount ?? club.members?.length;
+            const memberText = `${memberCount} member${memberCount !== 1 ? 's' : ''}`;
+
             const advanceToClubActivityScreen = () => navigation.push('ClubActivityScreen', { club });
             return (
                 <ClubRowPressable onPress={advanceToClubActivityScreen}>
-                    <ClubPicture club={club} size={64} />
+                    <ClubPicture club={club} size={72} />
                     <ClubRowInfoView>
                         <ClubNameText>{club?.name}</ClubNameText>
-                        <ClubDescriptionText numberOfLines={2}>{club?.description}</ClubDescriptionText>
+                        { club.description?.length > 0 && (
+                            <ClubDescriptionText numberOfLines={2}>{club.description}</ClubDescriptionText>
+                        )}
+                        <ClubMemberCountText>{memberText}</ClubMemberCountText>
                     </ClubRowInfoView>
                     <ClubRowArrowView>
                         <FontAwesomeIcon icon={faChevronRight} color='white' size={18} />
@@ -270,7 +282,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
             return (
                 <ClubRowPressable onPress={advanceToWatchlistScreen}>
                     <View pointerEvents='none'>
-                        <ProfilePicture user={reelayDBUser} size={64} />
+                        <ProfilePicture user={reelayDBUser} size={72} />
                     </View>
                     <ClubRowInfoView>
                         <ClubNameText>{'My Watchlist'}</ClubNameText>
@@ -321,7 +333,6 @@ export default MyClubsScreen = ({ navigation, route }) => {
         const advanceToNotificationScreen = () => navigation.push('NotificationScreen');
         return (
             <TopRightButtonPressable onPress={advanceToNotificationScreen}>
-                {/* <FontAwesomeIcon icon={faBell} color='white' size={27} /> */}
                 <Icon type='ionicon' size={27} color={'white'} name='notifications' />
             </TopRightButtonPressable>
         )

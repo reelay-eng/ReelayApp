@@ -155,6 +155,18 @@ export const getAllMyClubActivities = async ({ authSession, page = 0, reqUserSub
     return clubActivities;
 }
 
+export const getClubActivity = async ({ authSession, clubID, page = 0, reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/clubs/activity/${clubID}?page=${page}&visibility=${FEED_VISIBILITY}`;
+    const resultGet = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            requsersub: reqUserSub,
+        },
+    });
+    return resultGet;
+}
+
 export const getClubInviteFromCode = async ({ authSession, inviteCode, reqUserSub }) => {
     const routeGet = `${REELAY_API_BASE_URL}/clubs/invite/${inviteCode}`;
     const clubInviteResult = await fetchResults(routeGet, {
@@ -183,6 +195,27 @@ export const getClubMembers = async ({ authSession, clubID, reqUserSub }) => {
     return fetchedMembers;
 }
 
+export const getClubsDiscover = async ({ authSession, page = 0, reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/clubs/discover?page=${page}&visibility=${FEED_VISIBILITY}`;
+    console.log('route get: ', routeGet, reqUserSub);
+    const fetchedClubs = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            requsersub: reqUserSub,
+        }
+    });
+
+    console.log('fetched clubs: ', fetchedClubs);
+
+    fetchedClubs.forEach((club) => {
+        if (!club?.members) club.members = [];
+        if (!club?.titles) club.titles = [];
+        if (!club?.topics) club.topics = [];
+    });
+    return fetchedClubs;
+}
+
 export const getClubsMemberOf = async ({ authSession, userSub }) => {
     const routeGet = `${REELAY_API_BASE_URL}/clubs/memberOf/${userSub}`;
     const fetchedClubs = await fetchResults(routeGet, {
@@ -197,7 +230,7 @@ export const getClubsMemberOf = async ({ authSession, userSub }) => {
         if (!club?.members) club.members = [];
         if (!club?.titles) club.titles = [];
         if (!club?.topics) club.topics = [];
-    })
+    });
     return fetchedClubs;
 }
 
@@ -254,14 +287,21 @@ export const removeMemberFromClub = async ({ authSession, clubID, userSub, reqUs
 
 export const searchPublicClubs = async ({ authSession, page = 0, reqUserSub, searchText }) => {
     const routeGet = `${REELAY_API_BASE_URL}/clubs/search?page=${page}&searchText=${searchText}&visibility=${FEED_VISIBILITY}`;
-    const resultGet = await fetchResults(routeGet, {
+    const fetchedClubs = await fetchResults(routeGet, {
         method: 'GET',
         headers: {
             ...getReelayAuthHeaders(authSession),
             requsersub: reqUserSub,
         },
     });
-    return resultGet;
+
+    fetchedClubs.forEach((club) => {
+        if (!club?.members) club.members = [];
+        if (!club?.titles) club.titles = [];
+        if (!club?.topics) club.topics = [];
+    });
+
+    return fetchedClubs;
 }
 
 export const banMemberFromClub = async ({ authSession, clubID, userSub, reqUserSub }) => {
