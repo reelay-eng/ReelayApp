@@ -12,7 +12,12 @@ const ProfileImage = styled(Image)`
     width: ${(props) => props.size}px;
 `
 
-export default ProfilePicture = memo(({ border = null, user, navigation, size = 16 }) => {
+export default ProfilePicture = memo(({ 
+    user, 
+    size = 16, 
+    border = null, 
+    navigation, 
+}) => {
     const userSub = user?.sub ?? user?.attributes?.sub;
     const [loadState, setLoadState] = useState('local');
 

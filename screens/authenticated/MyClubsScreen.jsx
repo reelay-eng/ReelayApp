@@ -269,7 +269,9 @@ export default MyClubsScreen = ({ navigation, route }) => {
             const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen');
             return (
                 <ClubRowPressable onPress={advanceToWatchlistScreen}>
-                    <ProfilePicture user={reelayDBUser} size={64} />
+                    <View pointerEvents='none'>
+                        <ProfilePicture user={reelayDBUser} size={64} />
+                    </View>
                     <ClubRowInfoView>
                         <ClubNameText>{'My Watchlist'}</ClubNameText>
                         <ClubDescriptionText numberOfLines={2}>{'Lorem ipsum dolor'}</ClubDescriptionText>

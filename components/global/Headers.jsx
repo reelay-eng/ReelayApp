@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Pressable } from "react-native";
+import { View, Pressable, TouchableOpacity } from "react-native";
 import { Icon } from "react-native-elements";
 import styled from "styled-components/native";
 import * as ReelayText from "./Text";
@@ -44,7 +44,7 @@ export const HeaderWithBackButton = ({ navigation, text = "Settings" }) => {
 		margin-top: 4px;
 		width: 90%;
 	`;
-	const BackButton = styled(Pressable)`
+	const BackButton = styled(TouchableOpacity)`
 		margin-right: 20px;
 	`;
 	return (
