@@ -131,7 +131,6 @@ const TitleBanner = ({
     navigation=null, 
     onPress=null,
     posterWidth=60,
-    showBackButton=false,
     stack=null,
     viewableReelay=null, 
 }) => {
@@ -233,7 +232,6 @@ const TitleBanner = ({
                 { !clubActivity && donateObj && <DonateButton donateObj={donateObj} reelay={viewableReelay} /> }
                 { clubActivity && <ActivityPic /> }
             </TitleBannerContainer>    
-            { showBackButton && <BackButton navigation={navigation} /> }
         </TitleBannerOuterContainer>
     );
 }

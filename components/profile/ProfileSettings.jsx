@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { Text, View, Pressable, Linking, Dimensions, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Linking, SafeAreaView, TouchableOpacity } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { Auth } from 'aws-amplify';
 import Constants from 'expo-constants';
@@ -26,10 +26,6 @@ export const ProfileSettings = ({navigation}) => {
         justify-content: space-between;
         width: 100%;
     `;
-    const TopSettings = styled(View)`
-        align-items: center;
-        width: 100%;
-    `
     const { reelayDBUser } = useContext(AuthContext);
     const isAdmin = (reelayDBUser?.role === 'admin');
     const dispatch = useDispatch();

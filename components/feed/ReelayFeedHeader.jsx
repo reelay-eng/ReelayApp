@@ -9,6 +9,7 @@ import { faComments, faBackwardStep, faForwardStep, faPipe } from '@fortawesome/
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TextTicker from 'react-native-text-ticker';
 import ClubPicture from '../global/ClubPicture';
+import ProfilePicture from '../global/ProfilePicture';
 
 const ActivityTicker = styled(TextTicker)`
     color: white;
@@ -63,7 +64,9 @@ export default ReelayFeedHeader = ({
     navigation, 
     club = null, 
     topic = null, 
+    feedSource = 'global',
     position,
+    reelay,
     stackLength,
     onTappedOldest,
     onTappedNewest,
@@ -149,7 +152,51 @@ export default ReelayFeedHeader = ({
     }
 
     const GlobalInfo = () => {
-        return <Icon type='ionicon' name='earth' size={21} color='white' />;
+        const getDisplayFeedSource = () => {
+            switch (feedSource) {
+                case 'festivals': return 'At Festivals';
+                case 'following': return 'Friends are watching';
+                case 'global': return 'Global';
+                case 'popularTitlesDiscover': return 'Popular titles';
+                case 'popularTitlesFollowing': return 'Popular titles with friends';
+                case 'profile': return ''; // todo: the user's handle
+                case 'streaming': return 'On Streaming'; 
+                case 'theaters': return 'In Theaters';
+                case 'trending': return 'Top of the Week';
+                default: return 'Whatever';
+            }
+        }
+
+        const getDisplayIcon = () => {
+            switch (feedSource) {
+                case 'festivals': return 'leaf';
+                case 'following': return 'people';
+                case 'global': return 'earth';
+                case 'popularTitlesDiscover': return 'flame';
+                case 'popularTitlesFollowing': return 'earth';
+                case 'profile': return 'person'; // should actually be their profile pic
+                case 'streaming': return 'earth'; // should be different if following
+                case 'theaters': return 'ticket';
+                case 'trending': return 'ribbon';
+                default: return 'earth';
+            }
+        }
+
+        const renderIcon = () => {
+            if (feedSource === 'profile') {
+                return <ProfilePicture user={reelay?.creator} size={30} />
+            } else {
+                return <Icon type='ionicon' name={getDisplayIcon()} size={21} color='white' />
+            }
+        }
+
+        return (
+            <RowView>
+                { renderIcon() }
+                <Spacer />
+                <HeaderText>{getDisplayFeedSource()}</HeaderText>
+            </RowView>
+        );
     }
 
     const TopicInfo = () => {
@@ -187,7 +234,7 @@ export default ReelayFeedHeader = ({
 
     return (
         <FeedHeaderView topOffset={topOffset}>
-            <BackButton navigation={navigation} />
+            { feedSource !== 'global' && <BackButton navigation={navigation} /> }
             <Spacer />
             <RowFlexView>
                 <ActivityInfoBar />

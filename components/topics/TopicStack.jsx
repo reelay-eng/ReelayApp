@@ -7,8 +7,6 @@ import ReelayColors from '../../constants/ReelayColors';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
-import TopicFeedHeader from './TopicFeedHeader';
-import TopicTitleBanner from './TopicTitleBanner';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from 'react-native-elements';
 import { useSelector } from 'react-redux';
@@ -111,16 +109,15 @@ export default TopicStack = ({
                     viewable={reelayViewable}
                 />
                 <BannerContainer offset={topOffset}>
-                <TitleBanner 
-                    donateObj={null}
-                    navigation={navigation}
-                    onTappedNewest={onTappedNewest}
-                    onTappedOldest={onTappedOldest}
-                    stack={stack}
-                    titleObj={reelay?.title}
-                    viewableReelay={reelay}
-                />
-
+                    <TitleBanner 
+                        donateObj={null}
+                        navigation={navigation}
+                        onTappedNewest={onTappedNewest}
+                        onTappedOldest={onTappedOldest}
+                        stack={stack}
+                        titleObj={reelay?.title}
+                        viewableReelay={reelay}
+                    />
                 </BannerContainer>
             </ReelayFeedContainer>
         );
@@ -171,6 +168,7 @@ export default TopicStack = ({
                 windowSize={3}
             />
             <ReelayFeedHeader
+                feedSource='topic'
                 navigation={navigation}
                 topic={topic}
                 position={stackPosition}

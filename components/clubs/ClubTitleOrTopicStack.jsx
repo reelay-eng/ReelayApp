@@ -201,6 +201,7 @@ export default ClubTitleOrTopicStack = ({
             />
             <ReelayFeedHeader 
                 club={club} 
+                feedSource='club'
                 navigation={navigation} 
                 onTappedOldest={onTappedOldest}
                 onTappedNewest={onTappedNewest}
