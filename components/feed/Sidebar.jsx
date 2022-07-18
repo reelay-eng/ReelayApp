@@ -11,6 +11,7 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
 import ReelayColors from '../../constants/ReelayColors';
 import ShareOutButton from './ShareOutButton';
+import AddToClubsButton from '../clubs/AddToClubsButton';
 
 const { height, width } = Dimensions.get('window');
 
@@ -146,6 +147,17 @@ export default Sidebar = ({ navigation, reelay }) => {
 
 	return (
 		<SidebarView>
+			<ButtonContainer>
+				<SidebarButton>
+					<AddToClubsButton
+						navigation={navigation}
+						titleObj={reelay.title}
+						reelay={reelay}
+					/>
+				</SidebarButton>
+				<Count>{''}</Count>
+			</ButtonContainer>
+
 			<ButtonContainer>
 				<SidebarButton 
 					onPress={onLikePress} 

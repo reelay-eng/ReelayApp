@@ -3,11 +3,9 @@ import { Pressable, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
-import { AddToWatchlistIconSVG, ClubsIconSVG, WatchlistAddedIconSVG } from '../global/SVGs';
 import styled from 'styled-components/native';
-import ReelayColors from '../../constants/ReelayColors';
 import { useDispatch, useSelector } from 'react-redux';
-import AddToClubsDrawer from './AddToClubsDrawer';
+import AddToClubsDrawer from '../clubs/AddToClubsDrawer';
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
@@ -31,8 +29,7 @@ const ClubsButtonOuterContainer = styled(Pressable)`
     width: 60px;
 `
 
-
-export default AddToClubsButton = ({ navigation, titleObj, reelay }) => {
+export default AddToStackButton = ({ navigation, titleObj, reelay }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
@@ -70,9 +67,8 @@ export default AddToClubsButton = ({ navigation, titleObj, reelay }) => {
     return (
         <ClubsButtonOuterContainer onPress={openAddToClubsDrawer}>
             <ClubsButtonCircleContainer markedSeen={markedSeen}>
-                {/* { (isAddedToWatchlist || markedSeen) && <FontAwesomeIcon icon={faCheck} color='white' size={22}/> }
-                { (!isAddedToWatchlist && !markedSeen) && <FontAwesomeIcon icon={faAdd} color='white' size={22}/> } */}
-                <ClubsIconSVG size={24} />
+                { (isAddedToWatchlist || markedSeen) && <FontAwesomeIcon icon={faCheck} color='white' size={22}/> }
+                { (!isAddedToWatchlist && !markedSeen) && <FontAwesomeIcon icon={faAdd} color='white' size={22}/> }
             </ClubsButtonCircleContainer>
             { drawerVisible && (
                 <AddToClubsDrawer 

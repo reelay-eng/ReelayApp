@@ -176,11 +176,11 @@ export default TopicStack = ({
                 onTappedNewest={onTappedNewest}
                 onTappedOldest={onTappedOldest}
             />
-            <AddReelayButton 
+            {/* <AddReelayButton 
                 navigation={navigation} 
                 offset={addReelayBottomOffset}
                 topic={topic} 
-            />
+            /> */}
             { showProgressBar && <UploadProgressBar mountLocation={'InTopic'}  /> }
         </ReelayFeedContainer>
     );

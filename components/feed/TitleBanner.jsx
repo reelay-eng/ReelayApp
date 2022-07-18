@@ -19,6 +19,7 @@ import { faCircle } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
 import ClubPicture from "../global/ClubPicture";
 import BackButton from "../utils/BackButton";
+import AddToStackButton from "./AddToStackButton";
 
 const { height, width } = Dimensions.get('window');
 
@@ -228,7 +229,8 @@ const TitleBanner = ({
                     </TitleTextContainer>
                     <TitleUnderline />
                 </TitleInfo>
-                { !donateObj && !clubActivity && <AddToClubsButton navigation={navigation} titleObj={titleObj} reelay={viewableReelay} /> }
+                {/* { !donateObj && !clubActivity && <AddToClubsButton navigation={navigation} titleObj={titleObj} reelay={viewableReelay} /> } */}
+                { !donateObj && !clubActivity && <AddToStackButton navigation={navigation} titleObj={titleObj} reelay={viewableReelay} /> }
                 { !clubActivity && donateObj && <DonateButton donateObj={donateObj} reelay={viewableReelay} /> }
                 { clubActivity && <ActivityPic /> }
             </TitleBannerContainer>    

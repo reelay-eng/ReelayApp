@@ -44,7 +44,7 @@ export default ClubFeed = ({
     console.log('feed titles and topics length: ', feedTitlesAndTopics.length);
 
     useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false });
+        dispatch({ type: 'setTabBarVisible', payload: true });
     });
 
     const extendFeed = () => {
