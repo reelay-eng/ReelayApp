@@ -1,13 +1,8 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { 
-    ActivityIndicator,
     Dimensions, 
     FlatList, 
-    Modal, 
-    Pressable,
     RefreshControl, 
-    ScrollView, 
-    Text, 
     TouchableOpacity, 
     View 
 } from 'react-native';
@@ -23,7 +18,7 @@ import NoTitlesYetPrompt from '../../components/clubs/NoTitlesYetPrompt';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
-import { getClubActivity, getClubMembers, getClubTitles, getClubTopics } from '../../api/ClubsApi';
+import { getClubMembers, getClubTitles, getClubTopics } from '../../api/ClubsApi';
 import { AuthContext } from '../../context/AuthContext';
 import { showErrorToast } from '../../components/utils/toasts';
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
@@ -34,7 +29,6 @@ import UploadProgressBar from '../../components/global/UploadProgressBar';
 import TopicCard from '../../components/topics/TopicCard';
 import ClubAddedMemberCard from './ClubAddedMemberCard';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
-import { ClubsIconSVG } from '../../components/global/SVGs';
 
 const { height, width } = Dimensions.get('window');
 const MAX_ACTIVITY_INDEX = 30;
@@ -72,9 +66,11 @@ const DescriptionContainer = styled(View)`
     align-items: center;
     background-color: ${ReelayColors.reelayBlack};
     border-radius: 12px;
-    padding: 8px;
+    padding: 20px;
     padding-left: 16px;
     padding-right: 16px;
+    border-color: white;
+    border-width: 1px;
     z-index: 5;
 `
 const DescriptionText = styled(ReelayText.Body2)`
@@ -222,8 +218,8 @@ export default ClubActivityScreen = ({ navigation, route }) => {
 
         const activityListStyle = { 
             alignItems: 'center', 
-            paddingTop: bottomOffset + 60, 
-            paddingBottom: topOffset,
+            paddingTop: topOffset, 
+            paddingBottom: bottomOffset + 60,
         };
 
         const keyExtractor = (item) => {
@@ -235,7 +231,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 bottomOffset={bottomOffset}
                 contentContainerStyle={activityListStyle}
                 data={clubActivities}
-                inverted
                 keyExtractor={keyExtractor}
                 refreshControl={refreshControl} 
                 renderItem={renderClubActivity}
