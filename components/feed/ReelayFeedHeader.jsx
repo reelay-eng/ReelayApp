@@ -5,9 +5,10 @@ import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faComments, faBackwardStep, faForwardStep } from '@fortawesome/free-solid-svg-icons';
+import { faComments, faBackwardStep, faForwardStep, faPipe } from '@fortawesome/free-solid-svg-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TextTicker from 'react-native-text-ticker';
+import ClubPicture from '../global/ClubPicture';
 
 const ActivityTicker = styled(TextTicker)`
     color: white;
@@ -68,13 +69,20 @@ export default ReelayFeedHeader = ({
     onTappedNewest,
 }) => {
     const ActivityInfoBar = () => {
-        const scrollDuration = topic?.title?.length * 180;
+        const topicScrollDuration = 60 + topic?.title?.length * 180;
+        const clubScrollDuration = 60 + (club?.name?.length * 180);
+        const dividerScrollDuration = 60;
+        const Divider = () => <HeaderText>{'|'}</HeaderText>;
         if (club && topic) {
             return (
                 <ActivityTicker
                     animationType={'scroll'} 
                     bounce={false} 
-                    duration={scrollDuration} 
+                    duration={
+                        clubScrollDuration + 
+                        dividerScrollDuration +
+                        topicScrollDuration
+                    } 
                     easing={Easing.linear} 
                     loop 
                     marqueeDelay={1000} 
@@ -82,18 +90,33 @@ export default ReelayFeedHeader = ({
                 >
                     <RowView>
                         <ClubInfo />
+                        <Spacer />
+                        <Divider />
+                        <Spacer />
                         <TopicInfo />
                     </RowView>
                 </ActivityTicker>
             );
         } else if (club) {
-            return <ClubInfo />;
+            return (
+                <ActivityTicker
+                    animationType={'scroll'} 
+                    bounce={false} 
+                    duration={clubScrollDuration} 
+                    easing={Easing.linear} 
+                    loop 
+                    marqueeDelay={1000} 
+                    repeatSpacer={25}
+                >
+                    <ClubInfo />
+                </ActivityTicker>
+            );
         } else if (topic) {
             return (
                 <ActivityTicker
                     animationType={'scroll'} 
                     bounce={false} 
-                    duration={scrollDuration} 
+                    duration={topicScrollDuration} 
                     easing={Easing.linear} 
                     loop 
                     marqueeDelay={1000} 
@@ -118,7 +141,9 @@ export default ReelayFeedHeader = ({
     const ClubInfo = () => {
         return (
             <RowView>
-
+                <ClubPicture club={club} size={30} />
+                <Spacer />
+                <HeaderText numberOfLines={1}>{club?.name}</HeaderText>
             </RowView>
         );
     }

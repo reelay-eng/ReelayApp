@@ -66,9 +66,10 @@ const DescriptionContainer = styled(View)`
     align-items: center;
     background-color: ${ReelayColors.reelayBlack};
     border-radius: 12px;
-    padding: 20px;
+    padding: 8px;
     padding-left: 16px;
     padding-right: 16px;
+    margin-bottom: 4px;
     border-color: white;
     border-width: 1px;
     z-index: 5;
