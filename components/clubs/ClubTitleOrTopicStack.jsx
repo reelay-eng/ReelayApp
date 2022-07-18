@@ -13,8 +13,11 @@ import Hero from '../feed/Hero';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from 'react-native-elements';
 import { useDispatch, useSelector } from 'react-redux';
+import ReelayFeedHeader from '../feed/ReelayFeedHeader';
 
 const { height, width } = Dimensions.get('window');
+const TITLE_BANNER_TOP_OFFSET = 48;
+
 
 const AddReelayButtonContainer = styled(TouchableOpacity)`
     align-items: center;
@@ -92,10 +95,6 @@ export default ClubTitleOrTopicStack = ({
     const viewableReelay = stack[stackPosition];
 
     const addReelayBottomOffset = useSafeAreaInsets().bottom;
-    const titleBannerTopOffset = (activityType === 'topic')
-        ? 48
-        : 40;
-
     const donateLinks = useSelector(state => state.donateLinks);
     const donateObj = donateLinks?.find((donateLinkObj) => {
         const { tmdbTitleID, titleType } = donateLinkObj;
@@ -124,7 +123,7 @@ export default ClubTitleOrTopicStack = ({
     const renderTitleBanner = (reelay, activityType) => {
         const posterWidth = (activityType === 'title') ? 60 : 48;
         return (
-            <TitleBannerContainer offset={titleBannerTopOffset}>
+            <TitleBannerContainer offset={TITLE_BANNER_TOP_OFFSET}>
                 <TitleBanner 
                     donateObj={donateObj}
                     navigation={navigation}
@@ -200,11 +199,13 @@ export default ClubTitleOrTopicStack = ({
                 pagingEnabled={true} 
                 windowSize={3}
             />
-            <ClubBanner 
+            <ReelayFeedHeader 
                 club={club} 
                 navigation={navigation} 
-                showBubbleBath={false}
+                onTappedOldest={onTappedOldest}
+                onTappedNewest={onTappedNewest}
                 position={stackPosition}
+                stackLength={reelays?.length}
                 topic={(activityType === 'topic') ? clubTitleOrTopic : null}
             />
             { activityType === 'title' && renderTitleBanner(viewableReelay, activityType) }

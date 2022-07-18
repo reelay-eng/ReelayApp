@@ -1,5 +1,5 @@
 import React, { memo, useContext } from "react";
-import { Dimensions, Pressable, View } from "react-native";
+import { Dimensions, Pressable, SafeAreaView, View } from "react-native";
 import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
 import Constants from 'expo-constants';
@@ -15,20 +15,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faArrowRight, faCircle, faDotCircle } from "@fortawesome/free-solid-svg-icons";
-import { faForwardStep, faBackwardStep } from "@fortawesome/free-solid-svg-icons";
+import { faCircle } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
 import ClubPicture from "../global/ClubPicture";
-import ReelayColors from "../../constants/ReelayColors";
 import BackButton from "../utils/BackButton";
 
 const { height, width } = Dimensions.get('window');
 
-const ActivityText = styled(ReelayText.CaptionEmphasized)`
-    color: white;
-    height: 16px;
-    font-size: 12px;
-`
 const ClubActivityPicContainer = styled(View)`
     align-items: center;
     justify-content: center;
@@ -77,10 +70,10 @@ const PositionText = styled(ReelayText.CaptionEmphasized)`
     height: 16px;
     font-size: 12px;
 `
-const TitleBannerOuterContainer = styled(View)`
+const TitleBannerOuterContainer = styled(SafeAreaView)`
     margin-left: 10px;
     position: ${props => props.absolute ? 'absolute' : 'relative'};
-    top: ${props => props.topOffset}px;
+    top: 20px;
 `
 const TitleBannerContainer = styled(Pressable)`
     align-self: center;
@@ -137,8 +130,6 @@ const TitleBanner = ({
     donateObj=null, 
     navigation=null, 
     onPress=null,
-    onTappedNewest=null,
-    onTappedOldest=null,
     posterWidth=60,
     showBackButton=false,
     stack=null,
@@ -183,32 +174,8 @@ const TitleBanner = ({
         )
     }
 
-    const ForwardBack = ({ position }) => {
-        const atOldestReelay = (position === 0);
-        const atNewestReelay = (position === stack.length - 1);
-        const positionString = `${position + 1}/${stack.length}`;
-
-        const onTappedOldestSafe = () => (onTappedOldest) ? onTappedOldest() : {};
-        const onTappedNewestSafe = () => (onTappedNewest) ? onTappedNewest() : {};
-
-        return (
-            <ForwardBackContainer>
-                <ForwardBackButton onPress={onTappedOldestSafe} disabled={atOldestReelay}>
-                    <FontAwesomeIcon icon={ faBackwardStep } size={18} color={atOldestReelay ? '#a8a8a8' : 'white'} />
-                </ForwardBackButton>
-                <PositionText>{positionString}</PositionText>
-                <ForwardBackButton onPress={onTappedNewestSafe} disabled={atNewestReelay}>
-                    <FontAwesomeIcon icon={ faForwardStep } size={18} color={atNewestReelay ? '#a8a8a8' : 'white'} />
-                </ForwardBackButton>
-            </ForwardBackContainer>
-        );
-    }
-
     const TitleUnderline = () => {
-        const showForwardBack = stack?.length > 1 && !clubActivity;
         const showActivity = clubActivity;
-        const position = (stack) ? stack.findIndex(reelay => reelay.id === viewableReelay?.id) : -1;
-
         const matchClubID = (nextClub) => nextClub?.id === clubActivity?.clubID
         const club = (clubActivity) ? myClubs.find(matchClubID) : null;
         const positionString = (stack.length > 1)
@@ -229,7 +196,6 @@ const TitleBanner = ({
                         </ClubTitleText>
                     </ClubTitleContainer>
                 ) }
-                { showForwardBack && <ForwardBack position={position} /> }
             </TitleUnderlineContainer>
         );
     }

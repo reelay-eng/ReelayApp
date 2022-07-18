@@ -14,6 +14,7 @@ import { Icon } from 'react-native-elements';
 import { useSelector } from 'react-redux';
 import UploadProgressBar from '../global/UploadProgressBar';
 import TitleBanner from '../feed/TitleBanner';
+import ReelayFeedHeader from '../feed/ReelayFeedHeader';
 
 const { height, width } = Dimensions.get('window');
 
@@ -78,6 +79,7 @@ export default TopicStack = ({
     const uploadStage = useSelector(state => state.uploadStage);
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
+    const topOffset = useSafeAreaInsets().top;
 
     const getItemLayout = (data, index) => ({
         length: width, 
@@ -97,7 +99,6 @@ export default TopicStack = ({
     }
 
     const renderReelay = ({ item, index }) => {
-        const headerHeight = 24;
         const reelay = item;
         const reelayViewable = stackViewable && (index === stackPosition);  
         
@@ -109,11 +110,7 @@ export default TopicStack = ({
                     reelay={reelay} 
                     viewable={reelayViewable}
                 />
-                <BannerContainer offset={headerHeight}>
-                    {/* <TopicTitleBanner
-                        navigation={navigation}
-                        reelay={reelay}
-                    /> */}
+                <BannerContainer offset={topOffset}>
                 <TitleBanner 
                     donateObj={null}
                     navigation={navigation}
@@ -173,9 +170,13 @@ export default TopicStack = ({
                 pagingEnabled={true} 
                 windowSize={3}
             />
-            <TopicFeedHeader 
+            <ReelayFeedHeader
                 navigation={navigation}
                 topic={topic}
+                position={stackPosition}
+                stackLength={stack?.length}
+                onTappedNewest={onTappedNewest}
+                onTappedOldest={onTappedOldest}
             />
             <AddReelayButton 
                 navigation={navigation} 
