@@ -24,8 +24,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import ReelayColors from '../../constants/ReelayColors';
 import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
+import Constants from 'expo-constants';
+import moment from 'moment';
 
 const ACTIVITY_PAGE_SIZE = 20;
+const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 const ActiveOptionText = styled(ReelayText.H6)`
     color: white;
@@ -176,7 +179,23 @@ export default MyClubsScreen = ({ navigation, route }) => {
 
     const myClubs = useSelector(state => state.myClubs);
     const mySortedClubs = myClubs.sort(sortByLastActivity);
+
+    const filterPublicClubs = (club) => (club?.visibility === FEED_VISIBILITY);
+    const filterPrivateClubs = (club) => (club?.visibility === 'private');
+    const oneWeekAgo = moment().subtract(7, 'days');
+    const filterLast7Days = (club) => {
+        try {
+            const diff = moment(club?.lastActivityAt).diff(oneWeekAgo);
+            return diff > 0;
+        } catch (error) {
+            // todo: should keep or remove if no activity?
+            return true;
+        };
+    }
+
+    const [displayClubs, setDisplayClubs] = useState(mySortedClubs);
     const [selectedTab, setSelectedTab] = useState('recent activity');
+    const [selectedFilters, setSelectedFilters] = useState(['all']);
 
     const renderActivity = (activity) => {
         return <ClubActivityCard key={activity.id} activity={activity} navigation={navigation} />
@@ -211,19 +230,47 @@ export default MyClubsScreen = ({ navigation, route }) => {
     }
 
     const AllMyClubs = () => {
-        const [selectedFilters, setSelectedFilters] = useState([]);
         const selectOrDeselectFilter = (filter) => {
             const foundFilter = selectedFilters.find(nextFilter => nextFilter === filter);
             if (foundFilter) {
-                setSelectedFilters(selectedFilters.filter(nextFilter => nextFilter !== filter));
+                // remove the filter
+                switch (filter) {
+                    case 'all':
+                        // do nothing
+                        break;
+                    default:
+                        // set as all
+                        setSelectedFilters(['all']);
+                        setDisplayClubs(mySortedClubs);
+                        break;
+                }
             } else {
-                setSelectedFilters([...selectedFilters, filter ]);
+                // add the filter
+                switch (filter) {
+                    case 'all':
+                        setSelectedFilters(['all']);
+                        setDisplayClubs(mySortedClubs);
+                        break;
+                    case 'public':
+                        const publicClubs = mySortedClubs.filter(filterPublicClubs);
+                        setDisplayClubs(publicClubs);
+                        setSelectedFilters(['public']);
+                        break;
+                    case 'private':
+                        const privateClubs = mySortedClubs.filter(filterPrivateClubs);
+                        setDisplayClubs(privateClubs);
+                        setSelectedFilters(['private']);
+                        break;
+                    case 'new activity':
+                        const newActivityClubs = mySortedClubs.filter(filterLast7Days);
+                        setDisplayClubs(newActivityClubs);
+                        setSelectedFilters(['new activity']);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
-
-        useEffect(() => {
-            console.log('selected filters: ', selectedFilters);
-        }, [selectedFilters]);
 
         const MyClubsFilters = () => {
             const filters = ['all', 'public', 'private', 'new activity'];
@@ -306,7 +353,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
                 >
                     <AddClubRow />
                     <MyWatchlistRow />
-                    { mySortedClubs.map(club => <ClubRow club={club} key={club?.id} />) }
+                    { displayClubs.map(club => <ClubRow club={club} key={club?.id} />) }
                 </ScrollView>
             );
         }

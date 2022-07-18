@@ -118,6 +118,7 @@ const TopicOverlineView = styled(View)`
     flex-direction: row;
     margin-top: 8px;
     margin-bottom: 8px;
+    padding-left: 4px;
     width: ${width-32}px;
 `
 const TopicOverlineInfoView = styled(View)`
