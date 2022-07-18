@@ -55,7 +55,7 @@ export default ClubStainedGlassScreen = ({ navigation, route }) => {
     return (
         <ScreenContainer>
             <SafeAreaView>
-                <HeaderWithBackButton navigation={navigation} text={club.name} />
+                <HeaderWithBackButton navigation={navigation} padding={10} text={club.name} />
             </SafeAreaView>
             <ScrollView 
                 bottomOffset={bottomOffset} 

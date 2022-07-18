@@ -4,7 +4,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { useDispatch } from "react-redux";
 import { Icon } from 'react-native-elements';
 
-import { BaseHeader, HeaderWithBackButton } from '../../components/global/Headers';
+import { HeaderWithBackButton } from '../../components/global/Headers';
 import * as ReelayText from '../../components/global/Text';
 import SearchField from '../../components/create-reelay/SearchField';
 import TitleSearchResults from '../../components/search/TitleSearchResults';

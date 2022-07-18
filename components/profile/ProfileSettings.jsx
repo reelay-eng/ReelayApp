@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { Text, View, Pressable, Linking, Dimensions, SafeAreaView } from 'react-native';
+import { Text, View, Pressable, Linking, Dimensions, SafeAreaView, TouchableOpacity } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { Auth } from 'aws-amplify';
 import Constants from 'expo-constants';
@@ -118,7 +118,7 @@ export const ProfileSettings = ({navigation}) => {
 }
 
 const SettingEntry = ({text, iconName, onPress}) => {
-    const Container = styled(Pressable)`
+    const Container = styled(TouchableOpacity)`
         display: flex;
         flex-direction: row;
         justify-content: center;
@@ -195,7 +195,7 @@ const Logout = () => {
         position: absolute;
         width: 100%;
 	`
-    const LogoutButtonContainer = styled(Pressable)`
+    const LogoutButtonContainer = styled(TouchableOpacity)`
         bottom: 0px;
         height: 40px;
         width: 90%;
