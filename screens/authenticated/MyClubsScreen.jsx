@@ -14,7 +14,7 @@ import ProfilePicture from '../../components/global/ProfilePicture';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 import ClubPicture from '../../components/global/ClubPicture';
-import { ClubActivityCard } from '../../components/home/InMyClubs';
+import ClubActivityCard from '../../components/clubs/ClubActivityCard';
 import {  getAllMyClubActivities } from '../../api/ClubsApi';
 import { showErrorToast } from '../../components/utils/toasts';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';

@@ -20,10 +20,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import NoticeOverlay from '../overlay/NoticeOverlay';
 import AnnouncementsAndNotices from './AnnouncementsAndNotices';
 import PopularTitles from './PopularTitles';
-import ActiveClubs from './ActiveClubs';
 
 import moment from 'moment';
-import InMyClubs from './InMyClubs';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const BottomBar = styled(LinearGradient)`
@@ -137,7 +135,7 @@ const HomeComponent = ({ navigation }) => {
                 { selectedTab === 'following' && (
                     <Fragment>
                         <FriendsAreWatching navigation={navigation} />
-                        <PopularTitles navigation={navigation} tab='following' />
+                        {/* <PopularTitles navigation={navigation} tab='following' /> */}
                         <OnStreaming navigation={navigation} source='following' />
                         {/* <InMyClubs navigation={navigation} />
                         <ActiveClubs navigation={navigation} /> */}

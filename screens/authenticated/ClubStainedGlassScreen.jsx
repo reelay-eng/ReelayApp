@@ -5,7 +5,7 @@ import styled from 'styled-components/native';
 import { HeaderWithBackButton } from "../../components/global/Headers";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
-import { ClubActivityCard } from "../../components/home/InMyClubs";
+import ClubActivityCard from "../../components/clubs/ClubActivityCard";
 import { useFocusEffect } from "@react-navigation/native";
 
 const MAX_ACTIVITY_INDEX = 25;
