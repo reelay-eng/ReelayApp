@@ -18,7 +18,7 @@ import NoTitlesYetPrompt from '../../components/clubs/NoTitlesYetPrompt';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
-import { getClubMembers, getClubTitles, getClubTopics } from '../../api/ClubsApi';
+import { addMemberToClub, getClubMembers, getClubTitles, getClubTopics } from '../../api/ClubsApi';
 import { AuthContext } from '../../context/AuthContext';
 import { showErrorToast } from '../../components/utils/toasts';
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
@@ -294,12 +294,35 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     }
 
     const JoinClubButton = () => {
-        const onPress = () => {}
+        const myClubs = useSelector(state => state.myClubs);
+
+        const joinClub = async () => {
+            console.log(reelayDBUser?.sub)
+            const joinClubResult = await addMemberToClub({
+                authSession,
+                clubID: club.id,
+                userSub: reelayDBUser?.sub,
+                username: reelayDBUser?.username,
+                invitedBySub: reelayDBUser?.sub,
+                invitedByUsername: reelayDBUser?.username,
+                role: 'member',
+                clubLinkID: null,
+            });
+
+            if (joinClubResult && !joinClubResult?.error) {
+                club.members.push(joinClubResult);
+                dispatch({ type: 'setMyClubs', payload: [...myClubs, joinClubResult] });
+            }
+
+            console.log('join club result: ', joinClubResult);
+            return joinClubResult;
+        }
+
         return (
             <AddTitleButtonOuterContainer 
                 bottomOffset={bottomOffset} 
                 colors={['transparent', 'black']}>
-                <AddTitleButtonContainer onPress={onPress}>
+                <AddTitleButtonContainer onPress={joinClub}>
                     <AddTitleButtonText>{'Join club'}</AddTitleButtonText>
                 </AddTitleButtonContainer>
             </AddTitleButtonOuterContainer>

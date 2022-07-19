@@ -126,7 +126,6 @@ export default ClubBanner = ({ club, navigation, showBubbleBath = true, position
         ? topOffset + 28 
         : topOffset - 10;
 
-    console.log('club members: ', club.members);
     if (!club.members.length) return <View />;
 
     const bubbleBathLeftMembers = club.members.filter((clubMember, index) => {
