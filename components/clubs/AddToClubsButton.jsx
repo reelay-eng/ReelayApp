@@ -16,7 +16,7 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons';
 const ClubsButtonCircleContainer = styled(View)`
     align-items: center;
     align-self: center;
-    background: ${({ markedSeen }) => (markedSeen) 
+    background: ${({ isAddedToWatchlist }) => (isAddedToWatchlist) 
         ? 'rgba(41, 119, 239, 0.40)'
         : 'rgba(255, 255, 255, 0.20)'
     };
@@ -31,11 +31,11 @@ const ClubsButtonOuterContainer = styled(Pressable)`
     width: 60px;
 `
 
-
 export default AddToClubsButton = ({ navigation, titleObj, reelay }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+    const isMyReelay = reelay?.creator?.sub === reelayDBUser?.sub;
 
     const inWatchlist = myWatchlistItems.find((nextItem) => {
         const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;
@@ -69,7 +69,7 @@ export default AddToClubsButton = ({ navigation, titleObj, reelay }) => {
 
     return (
         <ClubsButtonOuterContainer onPress={openAddToClubsDrawer}>
-            <ClubsButtonCircleContainer markedSeen={markedSeen}>
+            <ClubsButtonCircleContainer isAddedToWatchlist={isAddedToWatchlist && !isMyReelay}>
                 {/* { (isAddedToWatchlist || markedSeen) && <FontAwesomeIcon icon={faCheck} color='white' size={22}/> }
                 { (!isAddedToWatchlist && !markedSeen) && <FontAwesomeIcon icon={faAdd} color='white' size={22}/> } */}
                 <ClubsIconSVG size={24} />

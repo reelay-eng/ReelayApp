@@ -56,7 +56,18 @@ const VenueContainer = styled(View)`
     width: 26px;
 `
 
-export default ProfileHeaderAndInfo = ({ navigation, creator, bioText, websiteText, streamingSubscriptions, reelayCount, followers, following, prevScreen }) => {
+export default ProfileHeaderAndInfo = ({ 
+    navigation, 
+    creator, 
+    streamingSubscriptions, 
+    reelayCount, 
+    followers, 
+    following, 
+}) => {
+    const bioText = creator?.bio ?? '';
+    const websiteText = creator?.website ?? '';
+    const watchlistAddCount = creator?.watchlistAddCount ?? 0;
+
     const fixLink = (link) => {
         if (link.startsWith('https://') || link.startsWith('http://')) {
             return link;
@@ -80,7 +91,7 @@ export default ProfileHeaderAndInfo = ({ navigation, creator, bioText, websiteTe
                         creator={creator}
                         followers={followers}
                         following={following}
-                        prevScreen={prevScreen}
+                        watchlistAddCount={watchlistAddCount}
                     />
                 </StatsBarContainer>
             </HeaderContainer>

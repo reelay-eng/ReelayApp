@@ -178,7 +178,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
 					reelayCount={reelayCount}
 					followers={myFollowers}
 					following={myFollowing}
-					prevScreen={"MyProfileScreen"}
                 />
 				<EditProfileButton />
 				<ProfilePosterGrid creatorStacks={myCreatorStacks} navigation={navigation} />

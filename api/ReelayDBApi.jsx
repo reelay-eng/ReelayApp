@@ -492,6 +492,11 @@ export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
         console.log('Found no reelays in feed');
         return null;
     }
+
+    const filterOldTitlesInTheaters = (fetchedStack) => {
+        
+    }
+
     return await prepareFeed(fetchedStacks);
 }
 
@@ -680,6 +685,7 @@ export const prepareReelay = async (fetchedReelay) => {
         title: titleObj,
         postedDateTime: fetchedReelay.postedAt ?? fetchedReelay.maxPostedAt,
         reportedContent,
+        watchlistAddCount: fetchedReelay?.watchlistAddCount ?? 0,
     };
 }
 
