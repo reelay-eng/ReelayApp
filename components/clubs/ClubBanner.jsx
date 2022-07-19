@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Pressable, TouchableOpacity, View } from 'react-native';
-import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -84,16 +83,6 @@ const ClubNameText = styled(ReelayText.CaptionEmphasized)`
     margin-top: 4px;
     margin-bottom: 4px;
 `
-const CondensedHeaderContainer = styled(View)`
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    justify-content: center;
-    padding-left: 6px;
-`
-const CondensedHeaderSpacer = styled(View)`
-    width: 10px;
-`
 const HeaderBackground = styled(View)`
     align-items: center;
     background-color: ${props => props.solid 
@@ -114,17 +103,13 @@ const InfoButtonContainer = styled(TouchableOpacity)`
     justify-content: center;
     margin-left: 5px;
 `
-const TopicTitleText = styled(ReelayText.Body2)`
-    color: white;
-    line-height: 16px;
-    display: flex;
-    width: 100%;
-`
-export default ClubBanner = ({ club, navigation, showBubbleBath = true, position = 0, topic = null }) => {
+export default ClubBanner = ({ 
+    club, 
+    navigation, 
+    onRefresh,
+}) => {
     const topOffset = useSafeAreaInsets().top;
-    const infoButtonTopOffset = (showBubbleBath) 
-        ? topOffset + 28 
-        : topOffset - 10;
+    const infoButtonTopOffset = topOffset + 28;
 
     if (!club.members.length) return <View />;
 
@@ -142,7 +127,9 @@ export default ClubBanner = ({ club, navigation, showBubbleBath = true, position
         return { sub: clubMember.userSub, username: clubMember.username }
     });
 
-    const advanceToClubInfoScreen = () => navigation.push('ClubInfoScreen', { club });
+    const onRefreshCallback = useCallback(onRefresh, []);
+
+    const advanceToClubInfoScreen = () => navigation.push('ClubInfoScreen', { club, onRefresh: onRefreshCallback });
 
     const BubbleBathLeft = () => {
         return (
@@ -208,19 +195,6 @@ export default ClubBanner = ({ club, navigation, showBubbleBath = true, position
         );
     }
 
-    const CondensedHeader = () => {
-        return (
-            <CondensedHeaderContainer>
-                <View style={{ alignItems: 'center', flexDirection: 'row' }}>
-                    <ClubPicture club={club} size={16} />
-                    <CondensedHeaderSpacer />
-                    <ClubNameText>{club.name}</ClubNameText>
-                </View>
-                { topic && <TopicTitleText>{topic?.title}</TopicTitleText> }
-            </CondensedHeaderContainer>
-        );
-    }
-
     const HeaderWithBubbleBath = () => {
         return (
             <BubbleBathHeaderContainer onPress={advanceToClubInfoScreen}>
@@ -234,34 +208,22 @@ export default ClubBanner = ({ club, navigation, showBubbleBath = true, position
         );
     }
 
-    const InfoButton = () => {
-        return (
-            <InfoButtonContainer onPress={advanceToClubInfoScreen} topOffset={infoButtonTopOffset}>
-                <Icon type='ionicon' name='information-circle-outline' size={30} color='white' />
-            </InfoButtonContainer>
-        );
-    }
-
     const StainedGlassButton = () => {
         const advanceToClubStainedGlassScreen = () => navigation.push('ClubStainedGlassScreen', { club });
         return (
             <InfoButtonContainer onPress={advanceToClubStainedGlassScreen} topOffset={infoButtonTopOffset}>
-                {/* <Icon type='ionicon' name='information-circle-outline' size={30} color='white' /> */}
                 <StainedGlassSVG />
             </InfoButtonContainer>
         );
     }
 
     return (
-        <HeaderBackground solid={showBubbleBath} topOffset={topOffset}>
+        <HeaderBackground solid={true} topOffset={topOffset}>
             <BackButtonContainer>
                 <BackButton navigation={navigation} />
             </BackButtonContainer>
-            { showBubbleBath && <HeaderWithBubbleBath /> }
-            { showBubbleBath && <StainedGlassButton /> }
-
-            { !showBubbleBath && <CondensedHeader /> }
-            { !showBubbleBath && <InfoButton /> }
+            <HeaderWithBubbleBath />
+            <StainedGlassButton />
         </HeaderBackground>
     );
 }

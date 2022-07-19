@@ -29,8 +29,10 @@ import UploadProgressBar from '../../components/global/UploadProgressBar';
 import TopicCard from '../../components/topics/TopicCard';
 import ClubAddedMemberCard from './ClubAddedMemberCard';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import Constants from 'expo-constants';
 
 const { height, width } = Dimensions.get('window');
+const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 const MAX_ACTIVITY_INDEX = 30;
 
 const ActivityContainer = styled(View)`
@@ -117,6 +119,11 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             club.titles = titles;
             club.topics = topics;
 
+            const nextIAmMember = checkIAmMember();
+            if (nextIAmMember !== iAmMember) {
+                setIAmMember(nextIAmMember);
+            }
+
             dispatch({ type: 'setUpdatedClub', payload: club });
             console.log('updated club: ', club);
             setRefreshing(false); 
@@ -180,7 +187,9 @@ export default ClubActivityScreen = ({ navigation, route }) => {
 
     const activityHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
     const feedTitlesAndTopics = clubActivities.filter(activityHasReelays);
-    const iAmMember = !!club.members?.find(nextMember => nextMember.userSub === reelayDBUser?.sub);
+    const checkIAmMember = () => !!club.members?.find(nextMember => nextMember.userSub === reelayDBUser?.sub);
+    const [iAmMember, setIAmMember] = useState(checkIAmMember());
+    const isPublicClub = club.visibility === FEED_VISIBILITY;
 
     const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
     const noTitlesYet = (!refreshing && !club?.titles?.length && !club?.topics?.length);
@@ -311,10 +320,9 @@ export default ClubActivityScreen = ({ navigation, route }) => {
 
             if (joinClubResult && !joinClubResult?.error) {
                 club.members.push(joinClubResult);
-                dispatch({ type: 'setMyClubs', payload: [...myClubs, joinClubResult] });
+                dispatch({ type: 'setMyClubs', payload: [club, ...myClubs] });
+                setIAmMember(true);
             }
-
-            console.log('join club result: ', joinClubResult);
             return joinClubResult;
         }
 
@@ -335,14 +343,18 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         <ActivityScreenContainer>
             { noTitlesYet && <NoTitlesYetPrompt /> } 
             { !noTitlesYet && <ClubActivityList /> }
-            <ClubBanner club={club} navigation={navigation} />
+
+            <ClubBanner club={club} navigation={navigation} onRefresh={onRefresh} />
+
             { iAmMember && <AddTitleButton /> }
-            { !iAmMember && <JoinClubButton /> }
+            { !iAmMember && isPublicClub && <JoinClubButton /> }
+
             { showProgressBar && (
                 <UploadProgressBarView topOffset={topOffset}>
                     <UploadProgressBar clubID={club.id} mountLocation={'InClub'} onRefresh={onRefresh} />
                 </UploadProgressBarView>
             )}
+
             { inviteDrawerVisible && (
                 <InviteMyFollowsDrawer 
                     club={club}

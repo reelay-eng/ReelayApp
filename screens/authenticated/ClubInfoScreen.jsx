@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, RefreshControl, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { ActivityIndicator, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
 import Constants from 'expo-constants';
@@ -18,12 +18,10 @@ import { AuthContext } from '../../context/AuthContext';
 import FollowButton from '../../components/global/FollowButton';
 
 import { 
+    addMemberToClub,
     banMemberFromClub, 
     createDeeplinkPathToClub,
     editClub, 
-    getClubMembers, 
-    getClubTitles, 
-    getClubTopics,
     removeMemberFromClub, 
 } from '../../api/ClubsApi';
 
@@ -73,9 +71,9 @@ const InfoScreenContainer = styled(View)`
     height: 100%;
     width: 100%;
 `
-const LeaveButtonContainer = styled(TouchableOpacity)`
+const JoinButtonContainer = styled(TouchableOpacity)`
     align-items: center;
-    background-color: ${ReelayColors.reelayRed};
+    background-color: ${ReelayColors.reelayBlue};
     border-radius: 8px;
     flex-direction: row;
     justify-content: center;
@@ -84,6 +82,9 @@ const LeaveButtonContainer = styled(TouchableOpacity)`
     margin-top: 40px;
     height: 40px;
     width: 50%;
+`
+const LeaveButtonContainer = styled(JoinButtonContainer)`
+    background-color: ${ReelayColors.reelayRed};
 `
 const MemberEditButton = styled(TouchableOpacity)``
 const MemberInfoContainer = styled(View)`
@@ -184,46 +185,15 @@ const UsernameContainer = styled(View)`
 
 export default ClubInfoScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const { club } = route?.params;
+    const { club, onRefresh } = route?.params;
     const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
     const myClubs = useSelector(state => state.myClubs);
     const isClubOwner = (reelayDBUser?.sub === club.creatorSub);
-
+    const initIsClubMember = !!club.members?.find(nextMember => nextMember.userSub === reelayDBUser?.sub);
+    const [isClubMember, setIsClubMember] = useState(initIsClubMember);
+    const isPublicClub = club?.visibility === FEED_VISIBILITY;
     const bottomOffset = useSafeAreaInsets().bottom;
-    const [refreshing, setRefreshing] = useState(false);
-
-    const onRefresh = async () => {
-        try { 
-            setRefreshing(true);
-            const [members, titles, topics] = await Promise.all([
-                getClubMembers({
-                    authSession,
-                    clubID: club.id, 
-                    reqUserSub: reelayDBUser?.sub,
-                }),
-                getClubTitles({ 
-                    authSession,
-                    clubID: club.id, 
-                    reqUserSub: reelayDBUser?.sub,
-                }),
-                getClubTopics({
-                    authSession,
-                    clubID: club.id, 
-                    reqUserSub: reelayDBUser?.sub,
-                }),
-            ]);
-            club.members = members;
-            club.titles = titles;
-            dispatch({ type: 'setUpdatedClub', payload: club });
-            setRefreshing(false); 
-        } catch (error) {
-            console.log(error);
-            showErrorToast('Ruh roh! Could not load club activity');
-            setRefreshing(false);
-        }
-    }
-    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
     const ClubEditButton = () => {
         const advanceToEditClubScreen = () => navigation.push('EditClubScreen', { club });
@@ -597,6 +567,44 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         );
     }
 
+    const JoinButton = () => {
+        const [leaving, setLeaving] = useState(false);
+
+        const joinClub = async () => {
+            console.log(reelayDBUser?.sub);
+            setIsClubMember(true);
+            
+            const joinClubResult = await addMemberToClub({
+                authSession,
+                clubID: club.id,
+                userSub: reelayDBUser?.sub,
+                username: reelayDBUser?.username,
+                invitedBySub: reelayDBUser?.sub,
+                invitedByUsername: reelayDBUser?.username,
+                role: 'member',
+                clubLinkID: null,
+            });
+
+            if (joinClubResult && !joinClubResult?.error) {
+                club.members.push(joinClubResult);
+                await onRefresh();
+
+                dispatch({ type: 'setMyClubs', payload: [club, ...myClubs] });
+                setIsClubMember(true);
+            }
+            
+            return joinClubResult;
+        }
+
+        return (
+            <JoinButtonContainer onPress={joinClub}>
+                { leaving && <ActivityIndicator /> }
+                { !leaving && <RemoveButtonText>{'Join Club'}</RemoveButtonText> }
+            </JoinButtonContainer>
+        );
+    }
+
+
     const LeaveButton = () => {
         const [leaving, setLeaving] = useState(false);
         const leaveClub = async () => {
@@ -618,10 +626,19 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 });
 
                 console.log(removeResult);
-                navigation.popToTop();
-                const myClubsRemoved = myClubs.filter(nextClub => nextClub.id !== club.id);
-                showMessageToast(`You've left ${club.name}`)
+                const myClubsRemoved = myClubs.filter(nextClub => {
+                    if (nextClub.id === club.id) console.log('filtering out club');
+                    return nextClub.id !== club.id
+                });
+
+                const filterUserFromClub = nextMember => nextMember?.userSub !== reelayDBUser?.sub;
+                club.members = club.members.filter(filterUserFromClub);
+                await onRefresh();
+
+                showMessageToast(`You've left ${club.name}`);
                 dispatch({ type: 'setMyClubs', payload: myClubsRemoved });    
+                setIsClubMember(false);
+
             } catch (error) {
                 console.log(error);
                 showErrorToast('Ruh roh! Could not leave club. Try again?');
@@ -642,14 +659,14 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             <ClubTopBar />
             <ScrollView 
                 contentContainerStyle={{ paddingBottom: bottomOffset }} 
-                refreshControl={refreshControl}
                 showsVerticalScrollIndicator={false}
             >
                 <ClubProfileInfo />
                 { (isClubOwner || club.allowMemberInvites) && <InviteSettings /> }
                 <HorizontalDivider />
                 <ClubMembers />
-                { !isClubOwner && <LeaveButton /> }
+                { !isClubOwner && isClubMember && <LeaveButton /> }
+                { !isClubMember && isPublicClub && <JoinButton /> }
             </ScrollView>
         </InfoScreenContainer>
     );
