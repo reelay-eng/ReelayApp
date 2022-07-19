@@ -133,6 +133,8 @@ export default ClubTitleOrTopicStack = ({
                     stack={stack}
                     titleObj={reelay?.title}
                     viewableReelay={reelay}
+                    club={club}
+                    topic={(activityType === 'topic') ? clubTitleOrTopic : null}
                 />
             </TitleBannerContainer>
         );
@@ -210,14 +212,6 @@ export default ClubTitleOrTopicStack = ({
                 topic={(activityType === 'topic') ? clubTitleOrTopic : null}
             />
             { activityType === 'title' && renderTitleBanner(viewableReelay, activityType) }
-            {/* <AddReelayButton 
-                activityType={activityType}
-                navigation={navigation} 
-                offset={addReelayBottomOffset}
-                clubID={club.id}
-                titleObj={viewableReelay?.title}
-                topicObj={(activityType === 'topic') ? clubTitleOrTopic : null}
-            /> */}
         </ReelayFeedContainer>
     );
 }

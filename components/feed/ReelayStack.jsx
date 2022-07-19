@@ -187,10 +187,12 @@ const ReelayStack = ({
                     />
                     <TitleBannerContainer topOffset={topOffset}>
                         <TitleBanner 
+                            club={null}
                             donateObj={donateObj}
                             navigation={navigation}
                             stack={stack}
                             titleObj={viewableReelay?.title}
+                            topic={null}
                             viewableReelay={viewableReelay}
                         />
                     </TitleBannerContainer>

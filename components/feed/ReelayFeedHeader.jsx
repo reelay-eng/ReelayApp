@@ -159,11 +159,12 @@ export default ReelayFeedHeader = ({
                 case 'global': return 'Global';
                 case 'popularTitlesDiscover': return 'Popular titles';
                 case 'popularTitlesFollowing': return 'Popular titles with friends';
-                case 'profile': return ''; // todo: the user's handle
+                case 'profile': return '';
+                case 'single': return '';
                 case 'streaming': return 'On Streaming'; 
                 case 'theaters': return 'In Theaters';
                 case 'trending': return 'Top of the Week';
-                default: return 'Whatever';
+                default: return '';
             }
         }
 
@@ -175,6 +176,7 @@ export default ReelayFeedHeader = ({
                 case 'popularTitlesDiscover': return 'flame';
                 case 'popularTitlesFollowing': return 'earth';
                 case 'profile': return 'person'; // should actually be their profile pic
+                case 'single': return 'notifications';
                 case 'streaming': return 'earth'; // should be different if following
                 case 'theaters': return 'ticket';
                 case 'trending': return 'ribbon';

@@ -4,7 +4,6 @@ import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
 import Constants from 'expo-constants';
 
-import AddToClubsButton from "../clubs/AddToClubsButton";
 import { VenueIcon } from '../utils/VenueIcon';
 import DonateButton from '../global/DonateButton';
 
@@ -12,65 +11,10 @@ import { logAmplitudeEventProd } from "../utils/EventLogger";
 import styled from 'styled-components/native';
 import TitlePoster from "../global/TitlePoster";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { TouchableOpacity } from "react-native-gesture-handler";
-
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faCircle } from "@fortawesome/free-solid-svg-icons";
-import { useSelector } from "react-redux";
-import ClubPicture from "../global/ClubPicture";
-import BackButton from "../utils/BackButton";
 import AddToStackButton from "./AddToStackButton";
 
 const { height, width } = Dimensions.get('window');
 
-const ClubActivityPicContainer = styled(View)`
-    align-items: center;
-    justify-content: center;
-    margin: 8px;
-`
-const ClubTitleContainer = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    width: 100%;
-`
-const ClubTitleText = styled(ReelayText.Caption)`
-    align-items: center;
-    color: white;
-    display: flex;
-    flex-direction: row;
-    flex: 1;
-    height: 52px;
-    padding: 6px;
-    padding-left: 0px;
-    padding-right: 0px;
-`
-const DotIconContainer = styled(View)`
-    align-items: center;
-    margin-bottom: -2px;
-    margin-left: 8px;
-    margin-right: 8px;
-`
-const ForwardBackButton = styled(TouchableOpacity)`
-    align-items: center;
-    border-color: ${props => props.disabled ? '#a8a8a8' : 'white'};
-    border-radius: 80px;
-    border-width: 1px;
-    justify-content: center;
-    margin-left: 8px;
-    margin-right: 8px;
-    padding: 4px;
-`
-const ForwardBackContainer = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    margin-left: -8px;
-    margin-top: 8px;
-`
-const PositionText = styled(ReelayText.CaptionEmphasized)`
-    color: white;
-    height: 16px;
-    font-size: 12px;
-`
 const TitleBannerOuterContainer = styled(SafeAreaView)`
     margin-left: 10px;
     position: ${props => props.absolute ? 'absolute' : 'relative'};
@@ -125,19 +69,18 @@ const YearVenueContainer = styled(View)`
 const DEFAULT_BGCOLOR = 'rgba(0, 0, 0, 0.36)';
 
 const TitleBanner = ({ 
+    club = null,
     titleObj,
     backgroundColor=DEFAULT_BGCOLOR,
-    clubActivity=null,
     donateObj=null, 
     navigation=null, 
     onPress=null,
     posterWidth=60,
-    stack=null,
+    topic=null,
     viewableReelay=null, 
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const topOffset = useSafeAreaInsets().top;
-    const myClubs = useSelector(state => state.myClubs);
     const welcomeReelaySub = Constants.manifest.extra.welcomeReelaySub;
     const isWelcomeReelay = viewableReelay && (welcomeReelaySub === viewableReelay?.sub);
     
@@ -164,38 +107,10 @@ const TitleBanner = ({
         });
     }
 
-    const ActivityPic = () => {
-        if (!clubActivity) return <View />;
-        
-        return (
-            <ClubActivityPicContainer>
-                <ClubPicture border club={{ id: clubActivity?.clubID }} size={52} />
-            </ClubActivityPicContainer>
-        )
-    }
-
     const TitleUnderline = () => {
-        const showActivity = clubActivity;
-        const matchClubID = (nextClub) => nextClub?.id === clubActivity?.clubID
-        const club = (clubActivity) ? myClubs.find(matchClubID) : null;
-        const positionString = (stack.length > 1)
-                ? `${stack.length} reelays`
-                : 'just added';
-
         return (
             <TitleUnderlineContainer>
                 <YearVenueLine />
-                { showActivity && (
-                    <ClubTitleContainer>
-                        <ClubTitleText numberOfLines={2}>
-                            {club?.name}
-                            <DotIconContainer>
-                                <FontAwesomeIcon icon={faCircle} size={6} color='white' />
-                            </DotIconContainer>
-                            {positionString}
-                        </ClubTitleText>
-                    </ClubTitleContainer>
-                ) }
             </TitleUnderlineContainer>
         );
     }
@@ -208,7 +123,7 @@ const TitleBanner = ({
                         <VenueIcon venue={viewableReelay?.content?.venue} size={20} border={1} />
                     </VenueContainer>
                 }
-                { displayYear.length > 0 && !clubActivity && <YearText>{displayYear}</YearText> }
+                { displayYear.length > 0 && <YearText>{displayYear}</YearText> }
             </YearVenueContainer>
         );
     }, (prevProps, nextProps) => {
@@ -229,10 +144,15 @@ const TitleBanner = ({
                     </TitleTextContainer>
                     <TitleUnderline />
                 </TitleInfo>
-                {/* { !donateObj && !clubActivity && <AddToClubsButton navigation={navigation} titleObj={titleObj} reelay={viewableReelay} /> } */}
-                { !donateObj && !clubActivity && <AddToStackButton navigation={navigation} titleObj={titleObj} reelay={viewableReelay} /> }
-                { !clubActivity && donateObj && <DonateButton donateObj={donateObj} reelay={viewableReelay} /> }
-                { clubActivity && <ActivityPic /> }
+                { !donateObj && (
+                    <AddToStackButton 
+                        navigation={navigation} 
+                        reelay={viewableReelay} 
+                        club={club}
+                        topic={topic}
+                    />
+                )}
+                { donateObj && <DonateButton donateObj={donateObj} reelay={viewableReelay} /> }
             </TitleBannerContainer>    
         </TitleBannerOuterContainer>
     );

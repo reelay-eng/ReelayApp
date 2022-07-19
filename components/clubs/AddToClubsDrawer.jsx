@@ -68,7 +68,8 @@ const CheckmarkIconContainer = styled(View)`
 const ClubRowContainer = styled(View)`
     align-items: center;
     flex-direction: row;
-    width: 100%;
+    display: flex;
+    flex: 1;
 `
 const ClubNameText = styled(ReelayText.Subtitle1Emphasized)`
     color: ${(props) => (props.isAlreadyAdded) ? 'gray' : 'white' };
@@ -153,7 +154,6 @@ const RowContainer = styled(Pressable)`
     align-items: center;
     background-color: ${(props) => props.backgroundColor};
     flex-direction: row;
-    justify-content: space-between;
     padding: 6px;
     padding-left: 20px;
     padding-right: 20px;

@@ -110,12 +110,14 @@ export default TopicStack = ({
                 />
                 <BannerContainer offset={topOffset}>
                     <TitleBanner 
+                        club={null}
                         donateObj={null}
                         navigation={navigation}
                         onTappedNewest={onTappedNewest}
                         onTappedOldest={onTappedOldest}
                         stack={stack}
                         titleObj={reelay?.title}
+                        topic={topic}
                         viewableReelay={reelay}
                     />
                 </BannerContainer>

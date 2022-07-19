@@ -1,11 +1,10 @@
 import React, { useContext, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, TouchableOpacity, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 import styled from 'styled-components/native';
 import { useDispatch, useSelector } from 'react-redux';
-import AddToClubsDrawer from '../clubs/AddToClubsDrawer';
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faAdd } from "@fortawesome/free-solid-svg-icons";
@@ -23,28 +22,33 @@ const ClubsButtonCircleContainer = styled(View)`
     justify-content: center;
     width: 45px;
 `
-const ClubsButtonOuterContainer = styled(Pressable)`
+const ClubsButtonOuterContainer = styled(TouchableOpacity)`
     align-items: flex-end;
     justify-content: center;
     width: 60px;
 `
 
-export default AddToStackButton = ({ navigation, titleObj, reelay }) => {
+export default AddToStackButton = ({ navigation, reelay, club=null, topic=null }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
-    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
 
-    const inWatchlist = myWatchlistItems.find((nextItem) => {
-        const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;
-        const isSeries = (titleType === 'tv');
-        return (tmdbTitleID === titleObj.id) 
-            && (isSeries === titleObj.isSeries)
-            && (hasAcceptedRec === true);
+    const advanceToTitleSelect = () => navigation.push('SelectTitleScreen', {
+        clubID: club?.id ?? null,
+        topic,
+    });
+    const advanceToVenueSelect = () => navigation.push('VenueSelectScreen', { 
+        clubID: club?.id ?? null, 
+        titleObj: reelay?.title,
     });
 
-    const [isAddedToWatchlist, setIsAddedToWatchlist] = useState(inWatchlist);
-    const [markedSeen, setMarkedSeen] = useState(inWatchlist && inWatchlist?.hasSeenTitle);
-    const [drawerVisible, setDrawerVisible] = useState(false);
+    const advanceToCreateReelay = () => {
+        if (showMeSignupIfGuest()) return;
+        if (topic) {
+            advanceToTitleSelect();
+        } else {
+            advanceToVenueSelect();
+        }
+    }
 
     const showMeSignupIfGuest = () => {
 		if (reelayDBUser?.username === 'be_our_guest') {
@@ -54,34 +58,12 @@ export default AddToStackButton = ({ navigation, titleObj, reelay }) => {
 		return false;
 	}
 
-    const openAddToClubsDrawer = () => {
-        if (showMeSignupIfGuest()) return;
-        setDrawerVisible(true);
-        logAmplitudeEventProd('openedAddToClubsDrawer', {
-            username: reelayDBUser?.username,
-            creatorName: reelay?.creator?.username,
-            title: titleObj.display,
-        });
-    }
-
     return (
-        <ClubsButtonOuterContainer onPress={openAddToClubsDrawer}>
-            <ClubsButtonCircleContainer markedSeen={markedSeen}>
-                { (isAddedToWatchlist || markedSeen) && <FontAwesomeIcon icon={faCheck} color='white' size={22}/> }
-                { (!isAddedToWatchlist && !markedSeen) && <FontAwesomeIcon icon={faAdd} color='white' size={22}/> }
+        <ClubsButtonOuterContainer onPress={advanceToCreateReelay}>
+            <ClubsButtonCircleContainer markedSeen={false}>
+                { (false) && <FontAwesomeIcon icon={faCheck} color='white' size={22}/> }
+                { (true) && <FontAwesomeIcon icon={faAdd} color='white' size={22}/> }
             </ClubsButtonCircleContainer>
-            { drawerVisible && (
-                <AddToClubsDrawer 
-                    navigation={navigation}
-                    titleObj={titleObj}
-                    reelay={reelay}
-                    drawerVisible={drawerVisible}
-                    setDrawerVisible={setDrawerVisible}
-                    setIsAddedToWatchlist={setIsAddedToWatchlist}
-                    markedSeen={markedSeen}
-                    setMarkedSeen={setMarkedSeen}
-                />
-            )}
         </ClubsButtonOuterContainer>
     );
 }
