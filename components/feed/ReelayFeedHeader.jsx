@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dimensions, Easing, TouchableOpacity, View } from 'react-native';
+import { Easing, Pressable, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
@@ -53,8 +53,10 @@ const RowView = styled(View)`
     align-items: center;
     flex-direction: row;
 `
-const RowFlexView = styled(RowView)`
+const ActivityInfoPressable = styled(Pressable)`
+    align-items: center;
     display: flex;
+    flex-direction: row;
     flex: 1;
 `
 const Spacer = styled(View)`
@@ -234,13 +236,23 @@ export default ReelayFeedHeader = ({
 
     const topOffset = useSafeAreaInsets().top;
 
+    const advanceToActivityFeed = () => {
+        if (club) {
+            // advance to club feed
+        } else if (topic) {
+            // advance to topic feed
+        } else {
+            // nothing to do
+        }
+    }
+
     return (
         <FeedHeaderView topOffset={topOffset}>
             { feedSource !== 'global' && <BackButton navigation={navigation} /> }
             <Spacer />
-            <RowFlexView>
+            <ActivityInfoPressable onPress={advanceToActivityFeed}>
                 <ActivityInfoBar />
-            </RowFlexView>
+            </ActivityInfoPressable>
             <RowView>
                 <ForwardBack />
             </RowView>

@@ -9,12 +9,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
 import TopicDotMenuDrawer from './TopicDotMenuDrawer';
-import ReelayColors from '../../constants/ReelayColors';
-import { logAmplitudeEventProd } from '../utils/EventLogger';
-import { AuthContext } from '../../context/AuthContext';
-
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faComments, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 const { height, width } = Dimensions.get('window');
 
@@ -75,8 +69,8 @@ const DividerLine = styled(View)`
     width: ${width - 56}px;
 `
 const DotMenuButtonContainer = styled(TouchableOpacity)`
-    padding-left: 4px;
-    padding-right: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
 `
 const PlayReelaysButton = styled(TouchableOpacity)`
     align-items: center;
@@ -106,24 +100,31 @@ const TopicCardGradient = styled(LinearGradient)`
 const TopicCardPressable = styled(TouchableOpacity)`
     background-color: black;
     border-radius: 11px;
-    height: 180px;
+    height: ${props => props.horizontal ? '200px' : 'auto'};
     justify-content: space-between;
     width: ${width-32}px;
 `
 const TopicCardView = styled(View)`
     background-color: black;
     border-radius: 11px;
-    height: 180px;
+    height: ${props => props.horizontal ? '200px' : 'auto'};
     justify-content: space-between;
     width: ${width-32}px;
 `
 const TopicOverlineView = styled(View)`
     align-items: center;
     flex-direction: row;
+    justify-content: space-between;
     margin-top: 8px;
     margin-bottom: 8px;
     padding-left: 4px;
     width: ${width-32}px;
+`
+const TopicOverlineLeftView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    display: flex;
+    flex: 1;
 `
 const TopicOverlineInfoView = styled(View)`
     margin-left: 8px;
@@ -199,7 +200,13 @@ const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
     );
 }
 
-export default TopicCard = ({ advanceToFeed, clubID, navigation, topic }) => {
+export default TopicCard = ({ 
+    advanceToFeed, 
+    clubID, 
+    horizontal = false,
+    navigation, 
+    topic,
+}) => {
     const canPress = (topic.reelays.length > 0);
     const creator = {
         sub: topic.creatorSub,
@@ -226,20 +233,31 @@ export default TopicCard = ({ advanceToFeed, clubID, navigation, topic }) => {
 
     const TopicCardContainer = ({ canPress, children, onPress }) => {
         if (canPress) {
-            return <TopicCardPressable activeOpacity={0.5} onPress={onPress}>{children}</TopicCardPressable>;
+            return (
+                <TopicCardPressable activeOpacity={0.5} horizontal={horizontal} onPress={onPress}>
+                    {children}
+                </TopicCardPressable>
+            );
         } else {
-            return <TopicCardView>{children}</TopicCardView>;
+            return (
+                <TopicCardView horizontal={horizontal}>
+                    {children}
+                </TopicCardView>
+            );
         }
     }
 
     const TopicOverline = () => {
         return (
             <TopicOverlineView>
-                <ProfilePicture user={creator} size={32} />
-                <TopicOverlineInfoView>
-                    <CreatorName>{creator.username}</CreatorName>
-                    <SharedTopicText>{'SHARED A TOPIC'}</SharedTopicText>
-                </TopicOverlineInfoView>
+                <TopicOverlineLeftView>
+                    <ProfilePicture user={creator} size={32} />
+                    <TopicOverlineInfoView>
+                        <CreatorName>{creator.username}</CreatorName>
+                        <SharedTopicText>{'SHARED A TOPIC'}</SharedTopicText>
+                    </TopicOverlineInfoView>
+                </TopicOverlineLeftView>
+                <DotMenuButton />
             </TopicOverlineView>
         );
     }

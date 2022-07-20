@@ -1,14 +1,6 @@
 import moment from "moment";
 import Constants from 'expo-constants';
 
-function arrayMove(arr, fromIndex, toIndex) {
-    // changes original array
-    // slice *would* return a copy
-    var element = arr[fromIndex];
-    arr.splice(fromIndex, 1);
-    arr.splice(toIndex, 0, element);
-}
-
 const byDateUpdated = (watchlistItem0, watchlistItem1) => {
     const dateAdded0 = moment(watchlistItem0.updatedAt);
     const dateAdded1 = moment(watchlistItem1.updatedAt);
@@ -19,18 +11,26 @@ const isSameTitle = (title0, title1) => {
     return (title0.id === title1.id) && (title0.isSeries === title1.isSeries);
 }
 
-export const announcementDismissalReducer = ({ announcement, dismissalHistory }) => {
+export const cognitoSessionReducer = (session) => {
+    const idToken = session.idToken.jwtToken;
+    const accessToken = session.accessToken.jwtToken;
+    const refreshToken = session.refreshToken.token;
+    return { idToken, accessToken, refreshToken };
+}
+
+export const dismissAnnouncementReducer = ({ announcement, dismissalHistory }) => {
     if (!announcement) return null;
     const announcementEntry = dismissalHistory?.announcementHistory?.[announcement?.id];
     const isDismissed = (announcementEntry && announcementEntry === 'dismissed');
     return (isDismissed) ? null : announcement;
 }
 
-export const cognitoSessionReducer = (session) => {
-    const idToken = session.idToken.jwtToken;
-    const accessToken = session.accessToken.jwtToken;
-    const refreshToken = session.refreshToken.token;
-    return { idToken, accessToken, refreshToken };
+export const dismissNoticeReducer = ({ notice, dismissalHistory }) => {
+    if (!notice) return null;
+    const noticeEntry = dismissalHistory?.noticeHistory?.[notice?.id];
+    const isDismissed = (noticeEntry && noticeEntry === 'dismissed');
+    console.log('notice entry: ', noticeEntry);
+    return (isDismissed) ? null : notice;
 }
 
 export const latestAnnouncementReducer = ({ announcement, myFollowing, reelayDBUser }) => {
@@ -135,35 +135,10 @@ export const getMyStacksFollowingDaily = (myStacksFollowing) => {
     return myStacksFollowingDaily;
 }
 
-export const noticeDismissalReducer = ({ notice, dismissalHistory }) => {
-    if (!notice) return null;
-    const noticeEntry = dismissalHistory?.noticeHistory?.[notice?.id];
-    const isDismissed = (noticeEntry && noticeEntry === 'dismissed');
-    console.log('notice entry: ', noticeEntry);
-    return (isDismissed) ? null : notice;
-}
-
 export const sortByLastActivity = (club0, club1) => {
     const lastActivity0 = moment(club0?.lastActivityAt ?? club0?.createdAt);
     const lastActivity1 = moment(club1?.lastActivityAt ?? club1?.createdAt);
     return lastActivity1.diff(lastActivity0, 'seconds') > 0;
-}
-
-export const stacksOnStreamingReducer = ({ stacksOnStreaming, streamingSubscriptions }) => {
-    const subscribedVenues = streamingSubscriptions.map(subscription => subscription.platform);
-    const bringReelayWithSubscribedVenueToFront = (reelayStack) => {
-        const reelayFromSubscribedVenue = (reelay) => {
-            if (!reelay?.content?.venue) return false;
-            return subscribedVenues.includes(reelay.content.venue);
-        }
-        const firstIndexWithSubscribedPlatform = reelayStack.findIndex(reelayFromSubscribedVenue);
-
-        if (firstIndexWithSubscribedPlatform !== -1) {
-            arrayMove(reelayStack, firstIndexWithSubscribedPlatform, 0);
-        }
-        return reelayStack;
-    };
-    return stacksOnStreaming.map(bringReelayWithSubscribedVenueToFront);
 }
 
 export const updateClubReducer = (myClubs, updatedClub) => {

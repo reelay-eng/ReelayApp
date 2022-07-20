@@ -9,7 +9,7 @@ import ProfilePicture from '../global/ProfilePicture';
 import { StainedGlassSVG } from '../global/SVGs';
 
 const BackButtonContainer = styled(View)`
-    margin-left: 6px;
+    margin: 6px;
 `
 const BubbleBathContainer = styled(View)`
     align-items: center;
@@ -101,7 +101,10 @@ const HeaderBackground = styled(View)`
 const InfoButtonContainer = styled(TouchableOpacity)`
     height: 100%;
     justify-content: center;
-    margin-left: 5px;
+    margin: 6px;
+`
+const Spacer = styled(View)`
+    width: 36px;
 `
 export default ClubBanner = ({ 
     club, 
@@ -132,6 +135,7 @@ export default ClubBanner = ({
     }).map((clubMember) => {
         return { sub: clubMember.userSub, username: clubMember.username }
     });
+
     const BubbleBathLeft = () => {
         return (
             <BubbleBathLeftContainer>
@@ -211,6 +215,9 @@ export default ClubBanner = ({
 
     const StainedGlassButton = () => {
         const advanceToClubStainedGlassScreen = () => navigation.push('ClubStainedGlassScreen', { club });
+        const hasClubActivities = (club?.topics?.length + club?.titles?.length) > 0;
+        if (!hasClubActivities) return <InfoButtonContainer />;
+
         return (
             <InfoButtonContainer onPress={advanceToClubStainedGlassScreen} topOffset={infoButtonTopOffset}>
                 <StainedGlassSVG />

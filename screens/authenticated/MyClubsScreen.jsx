@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { FlatList, Image, RefreshControl, SafeAreaView, TouchableOpacity, View } from 'react-native';
+import { RefreshControl, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
@@ -18,16 +18,16 @@ import ClubActivityCard from '../../components/clubs/ClubActivityCard';
 import {  getAllMyClubActivities } from '../../api/ClubsApi';
 import { showErrorToast } from '../../components/utils/toasts';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCircle, faChevronRight, faSearch, faBell } from '@fortawesome/free-solid-svg-icons';
+import { faCircle, faChevronRight, faUsersViewfinder } from '@fortawesome/free-solid-svg-icons';
 import { sortByLastActivity } from '../../redux/reducers';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import ReelayColors from '../../constants/ReelayColors';
-import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
 import Constants from 'expo-constants';
 import moment from 'moment';
 
 const ACTIVITY_PAGE_SIZE = 20;
+const CLUB_PIC_SIZE = 72;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 const ActiveOptionText = styled(ReelayText.H6)`
@@ -52,6 +52,12 @@ const BottomGradient = styled(LinearGradient)`
     opacity: 0.8;
     height: 40px;
     width: 100%;
+`
+const AddClubIconView = styled(View)`
+    align-items: center;
+    justify-content: center;
+    height: ${CLUB_PIC_SIZE}px;
+    width: ${CLUB_PIC_SIZE}px;
 `
 const ButtonView = styled(TouchableOpacity)`
     align-items: center;
@@ -300,7 +306,9 @@ export default MyClubsScreen = ({ navigation, route }) => {
             const advanceToCreateClubScreen = () => navigation.push('CreateClubScreen');
             return (
                 <ClubRowPressable onPress={advanceToCreateClubScreen}>
-                    <Image style={{ height: 72, width: 72 }} source={ReelayIcon} />
+                    <AddClubIconView>
+                        <FontAwesomeIcon icon={faUsersViewfinder} color='white' size={56} />
+                    </AddClubIconView>
                     <ClubRowInfoView>
                         <ClubNameText>{'Create a club'}</ClubNameText>
                         <ClubDescriptionText numberOfLines={2}>{'Make a group for private reelays and invite your friends'}</ClubDescriptionText>
@@ -343,7 +351,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
             
             return (
                 <ClubRowPressable onPress={advanceToClubActivityScreen}>
-                    <ClubPicture club={club} size={72} />
+                    <ClubPicture club={club} size={CLUB_PIC_SIZE} />
                     <ClubRowInfoView>
                         <ClubNameText>{club?.name}</ClubNameText>
                         { club.description?.length > 0 && (
@@ -366,14 +374,18 @@ export default MyClubsScreen = ({ navigation, route }) => {
 
         const MyWatchlistRow = () => {
             const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen');
+            const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+            const watchlistCount = myWatchlistItems.filter(item => item?.hasAcceptedRec)?.length;
+            const watchistText = `${watchlistCount} title${(watchlistCount === 1) ? '' : 's'}`;
+
             return (
                 <ClubRowPressable onPress={advanceToWatchlistScreen}>
                     <View pointerEvents='none'>
-                        <ProfilePicture user={reelayDBUser} size={72} />
+                        <ProfilePicture user={reelayDBUser} size={CLUB_PIC_SIZE} />
                     </View>
                     <ClubRowInfoView>
                         <ClubNameText>{'My Watchlist'}</ClubNameText>
-                        <ClubDescriptionText numberOfLines={2}>{'Lorem ipsum dolor'}</ClubDescriptionText>
+                        <ClubDescriptionText numberOfLines={2}>{watchistText}</ClubDescriptionText>
                     </ClubRowInfoView>
                     <ClubRowArrowView>
                         <FontAwesomeIcon icon={faChevronRight} color='white' size={18} />
@@ -391,8 +403,12 @@ export default MyClubsScreen = ({ navigation, route }) => {
                     contentContainerStyle={scrollStyle}
                     showsVerticalScrollIndicator={false}
                 >
-                    <AddClubRow />
-                    <MyWatchlistRow />
+                    { selectedFilters.includes('all') && (
+                        <Fragment>
+                            <AddClubRow />
+                            <MyWatchlistRow />
+                        </Fragment>
+                    )}
                     { displayClubs.map(club => <ClubRow club={club} key={club?.id} />) }
                 </ScrollView>
             );
