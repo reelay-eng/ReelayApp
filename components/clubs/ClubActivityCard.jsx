@@ -145,7 +145,6 @@ export default ClubActivityCard = ({ activity, navigation }) => {
         return (
             <TopicOverlayContainer onPress={onPress}>
                 <TopicTitleText>{topic.title}</TopicTitleText>
-                { topic?.description?.length > 0 && <TopicDescriptionText numberOfLines={3}>{topic.description}</TopicDescriptionText> }
             </TopicOverlayContainer>
         )
     }

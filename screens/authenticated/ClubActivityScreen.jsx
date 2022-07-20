@@ -56,7 +56,7 @@ const AddTitleButtonOuterContainer = styled(LinearGradient)`
     align-items: center;
     bottom: 0px;
     padding-top: 20px;
-    padding-bottom: ${(props) => props.bottomOffset ?? 0}px;
+    padding-bottom: ${(props) => props.bottomOffset + 56 ?? 56}px;
     position: absolute;
     width: 100%;
 `
@@ -198,7 +198,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     }, []);
 
     useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false });
+        dispatch({ type: 'setTabBarVisible', payload: true });
     });
 
     const descActivity = club.description ? [{ activityType: 'description' }] : [];
@@ -229,7 +229,8 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         return (
             <AddTitleButtonOuterContainer 
                 bottomOffset={bottomOffset} 
-                colors={['transparent', 'black']}>
+                colors={['transparent', 'black']}
+                end={{ x: 0.5, y: 0.5}}>
                 <AddTitleButtonContainer onPress={() => setTitleOrTopicDrawerVisible(true)}>
                     <Icon type='ionicon' name='add-circle-outline' size={16} color='white' />
                     <AddTitleButtonText>{'Add title or topic'}</AddTitleButtonText>
