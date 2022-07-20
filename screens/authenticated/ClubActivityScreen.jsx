@@ -125,7 +125,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             }
 
             dispatch({ type: 'setUpdatedClub', payload: club });
-            console.log('updated club: ', club);
             setRefreshing(false); 
         } catch (error) {
             console.log(error);
@@ -150,6 +149,9 @@ export default ClubActivityScreen = ({ navigation, route }) => {
 
         if (activityType0 === 'description') return -1;
         if (activityType1 === 'description') return 1;
+
+        if (activityType0 === 'noTitlesYet') return -1;
+        if (activityType1 === 'noTitlesYet') return 1;
 
         const lastActivity0 = moment(activity0?.lastUpdatedAt ?? activity0?.createdAt);
         const lastActivity1 = moment(activity1?.lastUpdatedAt ?? activity0?.createdAt);
@@ -176,9 +178,13 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     });
 
     const descActivity = club.description ? [{ activityType: 'description' }] : [];
+    const noTitlesYet = (!refreshing && !club?.titles?.length && !club?.topics?.length);
+
+    const noTitlesYetActivity = noTitlesYet ? [{ activityType: 'noTitlesYet' }] : [];
     const clubActivities = (club.members?.length > 0) 
         ? [
             ...descActivity,
+            ...noTitlesYetActivity,
             ...club.members?.map(member => tagActivityType(member, 'member')),
             ...club.titles?.map(title => tagActivityType(title, 'title')), 
             ...club.topics?.map(topic => tagActivityType(topic, 'topic')),
@@ -192,7 +198,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const isPublicClub = club.visibility === FEED_VISIBILITY;
 
     const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
-    const noTitlesYet = (!refreshing && !club?.titles?.length && !club?.topics?.length);
+    if (noTitlesYet) clubActivities.push({ })
 
     const AddTitleButton = () => {
         const [titleOrTopicDrawerVisible, setTitleOrTopicDrawerVisible] = useState(false);
@@ -222,6 +228,9 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             const { activityType } = activity;
             if (activityType === 'description') {
                 return <DescriptionFold key={'description'} />;
+            }
+            if (activityType === 'noTitlesYet') {
+                return <NoTitlesYetPrompt key={'noTitlesYet'} />
             }
             return <ClubActivity key={activity.id} activity={activity} />
         }
@@ -319,10 +328,10 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             });
 
             if (joinClubResult && !joinClubResult?.error) {
-                club.members.push(joinClubResult);
-                dispatch({ type: 'setMyClubs', payload: [club, ...myClubs] });
                 setIAmMember(true);
             }
+
+            await onRefresh();
             return joinClubResult;
         }
 
@@ -341,9 +350,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
 
     return (
         <ActivityScreenContainer>
-            { noTitlesYet && <NoTitlesYetPrompt /> } 
-            { !noTitlesYet && <ClubActivityList /> }
-
+            <ClubActivityList />
             <ClubBanner club={club} navigation={navigation} onRefresh={onRefresh} />
 
             { iAmMember && <AddTitleButton /> }

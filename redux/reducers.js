@@ -144,8 +144,8 @@ export const noticeDismissalReducer = ({ notice, dismissalHistory }) => {
 }
 
 export const sortByLastActivity = (club0, club1) => {
-    const lastActivity0 = moment(club0?.lastActivityAt);
-    const lastActivity1 = moment(club1?.lastActivityAt);
+    const lastActivity0 = moment(club0?.lastActivityAt ?? club0?.createdAt);
+    const lastActivity1 = moment(club1?.lastActivityAt ?? club1?.createdAt);
     return lastActivity1.diff(lastActivity0, 'seconds') > 0;
 }
 
@@ -167,8 +167,9 @@ export const stacksOnStreamingReducer = ({ stacksOnStreaming, streamingSubscript
 }
 
 export const updateClubReducer = (myClubs, updatedClub) => {
-    const myClubsFiltered = myClubs.filter((nextClub) => nextClub.id !== updatedClub.id);
+    const myClubsFiltered = myClubs.filter(nextClub => nextClub.id !== updatedClub.id);
     const updatedClubObj = { ...updatedClub };
+    updatedClubObj.memberCount = updatedClubObj?.members?.length;
     return [ updatedClubObj, ...myClubsFiltered].sort(sortByLastActivity);
 }
 

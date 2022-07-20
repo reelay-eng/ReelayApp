@@ -20,6 +20,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import NoticeOverlay from '../overlay/NoticeOverlay';
 import AnnouncementsAndNotices from './AnnouncementsAndNotices';
 import PopularTitles from './PopularTitles';
+import DiscoverClubs from './DiscoverClubs';
 
 import moment from 'moment';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -125,6 +126,7 @@ const HomeComponent = ({ navigation }) => {
                         <PopularTitles navigation={navigation} tab='discover' />
                         <TopOfTheWeek navigation={navigation} />
                         <TopicsCarousel navigation={navigation} source='discoverPopular' /> 
+                        <DiscoverClubs navigation={navigation} />
                         <PeopleToFollow navigation={navigation} /> 
                         <OnStreaming navigation={navigation} source='discover' />
                         <TopicsCarousel navigation={navigation} source='discoverNew' /> 

@@ -111,6 +111,12 @@ export default ClubBanner = ({
     const topOffset = useSafeAreaInsets().top;
     const infoButtonTopOffset = topOffset + 28;
 
+    const onRefreshCallback = useCallback(onRefresh, []);
+    const advanceToClubInfoScreen = () => navigation.push('ClubInfoScreen', { 
+        club, 
+        onRefresh: onRefreshCallback,
+    });
+
     if (!club.members.length) return <View />;
 
     const bubbleBathLeftMembers = club.members.filter((clubMember, index) => {
@@ -126,11 +132,6 @@ export default ClubBanner = ({
     }).map((clubMember) => {
         return { sub: clubMember.userSub, username: clubMember.username }
     });
-
-    const onRefreshCallback = useCallback(onRefresh, []);
-
-    const advanceToClubInfoScreen = () => navigation.push('ClubInfoScreen', { club, onRefresh: onRefreshCallback });
-
     const BubbleBathLeft = () => {
         return (
             <BubbleBathLeftContainer>

@@ -32,8 +32,7 @@ export default NoTitlesYetPrompt = () => {
         align-items: center;
         justify-content: center;
         margin: 10px;
-        margin-top: 60px;
-        height: 80%;
+        width: 100%;
     `
 
     return (
