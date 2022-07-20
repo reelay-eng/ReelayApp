@@ -18,7 +18,7 @@ import NoTitlesYetPrompt from '../../components/clubs/NoTitlesYetPrompt';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
-import { addMemberToClub, getClubMembers, getClubTitles, getClubTopics } from '../../api/ClubsApi';
+import { addMemberToClub, getClubMembers, getClubTitles, getClubTopics, markClubActivitySeen } from '../../api/ClubsApi';
 import { AuthContext } from '../../context/AuthContext';
 import { showErrorToast } from '../../components/utils/toasts';
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
@@ -94,6 +94,9 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
     const [refreshing, setRefreshing] = useState(false);
 
+    const matchClubMember = (nextMember) => nextMember?.userSub === reelayDBUser?.sub
+    const clubMember = club.members.find(matchClubMember);
+
     const onRefresh = async () => {
         try { 
             setRefreshing(true);
@@ -118,6 +121,15 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             club.members = members;
             club.titles = titles;
             club.topics = topics;
+
+            if (clubMember?.id) {
+                clubMember.lastActivitySeenAt = moment().toISOString();
+                markClubActivitySeen({ 
+                    authSession, 
+                    clubMemberID: clubMember.id, 
+                    reqUserSub: reelayDBUser?.sub,
+                });
+            }
 
             const nextIAmMember = checkIAmMember();
             if (nextIAmMember !== iAmMember) {
@@ -164,7 +176,19 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     }
 
     useEffect(() => {
-        if (notLoaded) onRefresh();
+        if (notLoaded) {
+            onRefresh();
+        } else {
+            if (clubMember?.id) {
+                clubMember.lastActivitySeenAt = moment().toISOString();
+                markClubActivitySeen({ 
+                    authSession, 
+                    clubMemberID: clubMember.id, 
+                    reqUserSub: reelayDBUser?.sub,
+                });
+            }
+        }
+
         logAmplitudeEventProd('openedClubActivityScreen', {
             username: reelayDBUser?.username,
             userSub: reelayDBUser?.sub,

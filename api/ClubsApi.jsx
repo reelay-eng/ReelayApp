@@ -271,6 +271,19 @@ export const getClubTopics = async ({ authSession, clubID, page = 0, reqUserSub 
     return await Promise.all(topicsWithReelays.map(prepareTopicReelays));
 }
 
+export const markClubActivitySeen = async ({ authSession, clubMemberID, reqUserSub }) => {
+    const routePatch = `${REELAY_API_BASE_URL}/clubs/lastSeenAt/`;
+    const resultPatch = await fetchResults(routePatch, {
+        method: 'PATCH',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            requsersub: reqUserSub,
+        },
+        body: JSON.stringify({ clubMemberID }),
+    });
+    return resultPatch;
+}
+
 export const removeMemberFromClub = async ({ authSession, clubID, userSub, reqUserSub }) => {
     const routeRemove = `${REELAY_API_BASE_URL}/clubs/member/${clubID}`;
     const removeBody = { userSub };

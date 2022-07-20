@@ -96,6 +96,17 @@ const ClubRowInfoView = styled(View)`
     padding-left: 12px;
     padding-right: 12px;
 `
+const ClubRowUnreadView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    padding: 7px;
+`
+const ClubRowUnreadIndicator = styled(View)`
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 10px;
+    height: 10px;
+    width: 10px;
+`
 const ColumnsView = styled(View)`
     flex-direction: row;
     width: 100%;
@@ -304,8 +315,32 @@ export default MyClubsScreen = ({ navigation, route }) => {
         const ClubRow = ({ club }) => {
             const memberCount = club.memberCount ?? club.members?.length;
             const memberText = `${memberCount} member${memberCount !== 1 ? 's' : ''}`;
+            const lastActivityAt = club.lastActivityAt ?? null;
 
-            const advanceToClubActivityScreen = () => navigation.push('ClubActivityScreen', { club });
+            const matchClubMember = (nextMember) => nextMember?.userSub === reelayDBUser?.sub
+            const clubMember = club.members.find(matchClubMember);
+            const lastActivitySeenAt = clubMember?.lastActivitySeenAt ?? null;
+
+            const getInitMarkUnread = () => {
+                if (lastActivityAt && lastActivitySeenAt) {
+                    try {
+                        const dateDiff = moment(lastActivityAt).diff(moment(lastActivitySeenAt), 'seconds');
+                        return (dateDiff > 0);
+                    } catch (error) {
+                        console.log(error);
+                    }    
+                } else {
+                    return false;
+                }
+            }
+
+            const [markUnread, setMarkUnread] = useState(getInitMarkUnread());
+
+            const advanceToClubActivityScreen = () => {
+                if (markUnread) setMarkUnread(false);
+                navigation.push('ClubActivityScreen', { club });
+            }
+            
             return (
                 <ClubRowPressable onPress={advanceToClubActivityScreen}>
                     <ClubPicture club={club} size={72} />
@@ -316,6 +351,11 @@ export default MyClubsScreen = ({ navigation, route }) => {
                         )}
                         <ClubMemberCountText>{memberText}</ClubMemberCountText>
                     </ClubRowInfoView>
+                    { markUnread && (
+                        <ClubRowUnreadView>
+                            <ClubRowUnreadIndicator />
+                        </ClubRowUnreadView>
+                    )}
                     <ClubRowArrowView>
                         <FontAwesomeIcon icon={faChevronRight} color='white' size={18} />
                         <ClubRowArrowSpacer />
