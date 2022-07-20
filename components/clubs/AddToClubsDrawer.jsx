@@ -384,7 +384,7 @@ export default AddToClubsDrawer = ({
             return false;
         }    
 
-        if (club.id === reelay.clubID) return <View />;
+        if (club?.id === reelay?.clubID) return <View />;
 
         return (
             <RowContainer backgroundColor={backgroundColor} onPress={markRow}>
