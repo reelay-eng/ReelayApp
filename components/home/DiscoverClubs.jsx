@@ -10,7 +10,7 @@ import moment from 'moment';
 import { useSelector } from 'react-redux';
 import { AuthContext } from '../../context/AuthContext';
 
-const ActiveClubsContainer = styled(View)`
+const DiscoverClubsContainer = styled(View)`
     margin-bottom: 10px;
 `
 const ClubNameText = styled(ReelayText.Body2)`
@@ -85,7 +85,7 @@ export default PopularClubs = ({ navigation }) => {
     if (!discoverClubs?.length > 0) return <View />;
 
     return (
-        <ActiveClubsContainer>
+        <DiscoverClubsContainer>
             <HeaderContainer>
                 <ClubsIconSVG size={24} />
                 <HeaderText>{'Discover clubs'}</HeaderText>
@@ -93,6 +93,6 @@ export default PopularClubs = ({ navigation }) => {
             <RowContainer horizontal showsHorizontalScrollIndicator={false}>
                 { displayClubs.map(renderClubOption) }
             </RowContainer>
-        </ActiveClubsContainer>
+        </DiscoverClubsContainer>
     )
 }
