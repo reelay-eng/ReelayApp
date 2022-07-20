@@ -222,7 +222,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const isPublicClub = club.visibility === FEED_VISIBILITY;
 
     const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
-    if (noTitlesYet) clubActivities.push({ })
 
     const AddTitleButton = () => {
         const [titleOrTopicDrawerVisible, setTitleOrTopicDrawerVisible] = useState(false);
@@ -263,11 +262,13 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         const activityListStyle = { 
             alignItems: 'center', 
             paddingTop: topOffset, 
-            paddingBottom: bottomOffset + 60,
+            paddingBottom: bottomOffset + 100,
         };
 
         const keyExtractor = (item) => {
-            return item.activityType === 'description' ? 'description' : item?.id;
+            if (item?.activityType === 'description') return 'description';
+            if (item?.activityType === 'noTitlesYet') return 'noTitlesYet';
+            return item?.id;
         }
         
         return (

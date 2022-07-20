@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
@@ -22,6 +22,9 @@ import {
     banMemberFromClub, 
     createDeeplinkPathToClub,
     editClub, 
+    getClubMembers,
+    getClubTitles,
+    getClubTopics,
     removeMemberFromClub, 
 } from '../../api/ClubsApi';
 
@@ -170,6 +173,7 @@ const TopBarContainer = styled(View)`
     flex-direction: row;
     justify-content: space-between;
     margin-top: ${(props) => props.topOffset}px;
+    margin-bottom: 16px;
     width: 100%;
 `
 const TopBarRightContainer = styled(View)`
@@ -185,13 +189,18 @@ const UsernameContainer = styled(View)`
 
 export default ClubInfoScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const { club, onRefresh } = route?.params;
+    const { club } = route?.params;
     const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
+
     const myClubs = useSelector(state => state.myClubs);
     const isClubOwner = (reelayDBUser?.sub === club.creatorSub);
-    const initIsClubMember = !!club.members?.find(nextMember => nextMember.userSub === reelayDBUser?.sub);
-    const [isClubMember, setIsClubMember] = useState(initIsClubMember);
+
+    const matchClubMember = (nextMember) => nextMember?.userSub === reelayDBUser?.sub
+    const initClubMember = club.members?.find(matchClubMember);
+    const [clubMember, setClubMember] = useState(initClubMember);
+    const [refreshing, setRefreshing] = useState(false);
+
     const isPublicClub = club?.visibility === FEED_VISIBILITY;
     const bottomOffset = useSafeAreaInsets().bottom;
 
@@ -568,12 +577,11 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     }
 
     const JoinButton = () => {
-        const [leaving, setLeaving] = useState(false);
+        const [joining, setJoining] = useState(false);
 
         const joinClub = async () => {
-            console.log(reelayDBUser?.sub);
-            setIsClubMember(true);
-            
+            setJoining(true);
+
             const joinClubResult = await addMemberToClub({
                 authSession,
                 clubID: club.id,
@@ -590,16 +598,17 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 await onRefresh();
 
                 dispatch({ type: 'setMyClubs', payload: [club, ...myClubs] });
-                setIsClubMember(true);
+                // setClubMember(joinClubResult);
             }
             
+            setJoining(false);
             return joinClubResult;
         }
 
         return (
             <JoinButtonContainer onPress={joinClub}>
-                { leaving && <ActivityIndicator /> }
-                { !leaving && <RemoveButtonText>{'Join Club'}</RemoveButtonText> }
+                { joining && <ActivityIndicator /> }
+                { !joining && <RemoveButtonText>{'Join Club'}</RemoveButtonText> }
             </JoinButtonContainer>
         );
     }
@@ -637,8 +646,8 @@ export default ClubInfoScreen = ({ navigation, route }) => {
 
                 showMessageToast(`You've left ${club.name}`);
                 dispatch({ type: 'setMyClubs', payload: myClubsRemoved });    
-                setIsClubMember(false);
-
+                setClubMember(null);
+                setLeaving(false);
             } catch (error) {
                 console.log(error);
                 showErrorToast('Ruh roh! Could not leave club. Try again?');
@@ -653,6 +662,55 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             </LeaveButtonContainer>
         );
     }
+
+    const onRefresh = async () => {
+        try { 
+            setRefreshing(true);
+            const [members, titles, topics] = await Promise.all([
+                getClubMembers({
+                    authSession,
+                    clubID: club.id, 
+                    reqUserSub: reelayDBUser?.sub,
+                }),
+                getClubTitles({ 
+                    authSession,
+                    clubID: club.id, 
+                    reqUserSub: reelayDBUser?.sub,
+                }),
+                getClubTopics({
+                    authSession,
+                    clubID: club.id,
+                    reqUserSub: reelayDBUser?.sub,
+                }),
+            ]);
+
+            club.members = members;
+            club.titles = titles;
+            club.topics = topics;
+
+
+            const nextClubMember = club.members.find(matchClubMember);
+            const clubMemberChanged = nextClubMember?.id !== clubMember?.id;
+            if (nextClubMember) {
+                if (clubMemberChanged) setClubMember(nextClubMember);
+                nextClubMember.lastActivitySeenAt = moment().toISOString();
+                markClubActivitySeen({ 
+                    authSession, 
+                    clubMemberID: nextClubMember.id, 
+                    reqUserSub: reelayDBUser?.sub,
+                });
+            } else {
+                if (clubMemberChanged) setClubMember(null);
+            }
+
+            dispatch({ type: 'setUpdatedClub', payload: club });
+            setRefreshing(false); 
+        } catch (error) {
+            console.log(error);
+            showErrorToast('Ruh roh! Could not load club activity');
+            setRefreshing(false);
+        }
+    }
     
     return (
         <InfoScreenContainer>
@@ -661,12 +719,17 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 contentContainerStyle={{ paddingBottom: bottomOffset }} 
                 showsVerticalScrollIndicator={false}
             >
-                <ClubProfileInfo />
-                { (isClubOwner || club.allowMemberInvites) && <InviteSettings /> }
-                <HorizontalDivider />
-                <ClubMembers />
-                { !isClubOwner && isClubMember && <LeaveButton /> }
-                { !isClubMember && isPublicClub && <JoinButton /> }
+                { refreshing && <ActivityIndicator /> }
+                { !refreshing && (
+                    <Fragment>
+                        <ClubProfileInfo />
+                        { (isClubOwner || club.allowMemberInvites) && <InviteSettings /> }
+                        <HorizontalDivider />
+                        <ClubMembers />
+                        { !isClubOwner && clubMember && <LeaveButton /> }
+                        { !clubMember && isPublicClub && <JoinButton /> }
+                    </Fragment>
+                )}
             </ScrollView>
         </InfoScreenContainer>
     );

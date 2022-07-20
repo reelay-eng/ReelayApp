@@ -53,7 +53,11 @@ const RowView = styled(View)`
     align-items: center;
     flex-direction: row;
 `
-const ActivityInfoPressable = styled(Pressable)`
+const RowPressable = styled(TouchableOpacity)`
+    align-items: center;
+    flex-direction: row;
+`
+const ActivityInfoView = styled(View)`
     align-items: center;
     display: flex;
     flex-direction: row;
@@ -127,7 +131,12 @@ export default ReelayFeedHeader = ({
                     marqueeDelay={1000} 
                     repeatSpacer={25}
                 >
-                    <TopicInfo />
+                    <RowView>
+                        <GlobalInfo />
+                        <Divider />
+                        <Spacer />
+                        <TopicInfo />
+                    </RowView>
                 </ActivityTicker>
             );
         } else {
@@ -144,12 +153,19 @@ export default ReelayFeedHeader = ({
     }
 
     const ClubInfo = () => {
+        const advanceToActivityFeed = () => {
+            if (club) {
+                // advance to club feed
+                navigation.push('ClubActivityScreen', { club });
+            }
+        }
+    
         return (
-            <RowView>
+            <RowPressable onPress={advanceToActivityFeed}>
                 <ClubPicture club={club} size={30} />
                 <Spacer />
                 <HeaderText numberOfLines={1}>{club?.name}</HeaderText>
-            </RowView>
+            </RowPressable>
         );
     }
 
@@ -236,23 +252,13 @@ export default ReelayFeedHeader = ({
 
     const topOffset = useSafeAreaInsets().top;
 
-    const advanceToActivityFeed = () => {
-        if (club) {
-            // advance to club feed
-        } else if (topic) {
-            // advance to topic feed
-        } else {
-            // nothing to do
-        }
-    }
-
     return (
         <FeedHeaderView topOffset={topOffset}>
             { feedSource !== 'global' && <BackButton navigation={navigation} /> }
             <Spacer />
-            <ActivityInfoPressable onPress={advanceToActivityFeed}>
+            <ActivityInfoView>
                 <ActivityInfoBar />
-            </ActivityInfoPressable>
+            </ActivityInfoView>
             <RowView>
                 <ForwardBack />
             </RowView>

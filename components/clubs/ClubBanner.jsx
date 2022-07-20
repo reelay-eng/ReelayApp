@@ -113,12 +113,7 @@ export default ClubBanner = ({
 }) => {
     const topOffset = useSafeAreaInsets().top;
     const infoButtonTopOffset = topOffset + 28;
-
-    const onRefreshCallback = useCallback(onRefresh, []);
-    const advanceToClubInfoScreen = () => navigation.push('ClubInfoScreen', { 
-        club, 
-        onRefresh: onRefreshCallback,
-    });
+    const advanceToClubInfoScreen = () => navigation.push('ClubInfoScreen', { club });
 
     if (!club.members.length) return <View />;
 
