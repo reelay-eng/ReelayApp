@@ -441,7 +441,8 @@ export default MyClubsScreen = ({ navigation, route }) => {
         const myClubActivities = useSelector(state => state.myClubActivities);
         const filterMemberActivities = (nextActivity, index) => (nextActivity?.activityType !== 'member');
         const shouldRenderActivity = (activity, index) => index < (page + 1) * ACTIVITY_PAGE_SIZE;
-        const displayActivities = myClubActivities.filter(filterMemberActivities).filter(shouldRenderActivity);
+        const initDisplayActivities = myClubActivities.filter(filterMemberActivities).filter(shouldRenderActivity);;
+        const [displayActivities, setDisplayActivities] = useState(initDisplayActivities);
     
         const columnA = displayActivities.filter((activity, index) => index % 2 === 0);
         const columnB = displayActivities.filter((activity, index) => index % 2 === 1);    
@@ -491,7 +492,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
                     default:
                         // set as all
                         setSelectedFilters(['all']);
-                        setDisplayClubs(mySortedClubs);
+                        setDisplayActivities(initDisplayActivities);
                         break;
                 }
             } else {
@@ -499,22 +500,22 @@ export default MyClubsScreen = ({ navigation, route }) => {
                 switch (filter) {
                     case 'all':
                         setSelectedFilters(['all']);
-                        setDisplayClubs(mySortedClubs);
+                        setDisplayActivities(initDisplayActivities);
                         break;
-                    case 'public':
-                        const publicClubs = mySortedClubs.filter(filterPublicClubs);
-                        setDisplayClubs(publicClubs);
-                        setSelectedFilters(['public']);
+                    case 'reelays':
+                        setSelectedFilters(['reelays']);
+                        const hasReelays = (activity) => activity?.reelays?.length > 0;
+                        setDisplayActivities(initDisplayActivities.filter(hasReelays));
                         break;
-                    case 'private':
-                        const privateClubs = mySortedClubs.filter(filterPrivateClubs);
-                        setDisplayClubs(privateClubs);
-                        setSelectedFilters(['private']);
+                    case 'titles':
+                        const isTitle = (activity) => activity?.activityType === 'title';
+                        setSelectedFilters(['titles']);
+                        setDisplayActivities(initDisplayActivities.filter(isTitle));
                         break;
-                    case 'new activity':
-                        const newActivityClubs = mySortedClubs.filter(filterLast7Days);
-                        setDisplayClubs(newActivityClubs);
-                        setSelectedFilters(['new activity']);
+                    case 'topics':
+                        const isTopic = (activity) => activity?.activityType === 'topic';
+                        setDisplayActivities(initDisplayActivities.filter(isTopic));
+                        setSelectedFilters(['topics']);
                         break;
                     default:
                         break;
