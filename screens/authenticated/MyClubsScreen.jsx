@@ -186,49 +186,23 @@ export default MyClubsScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
     const bottomOffset = useSafeAreaInsets().bottom;
 
-    const myClubActivities = useSelector(state => state.myClubActivities);
-    const filterMemberActivities = (nextActivity, index) => (nextActivity?.activityType !== 'member');
-    const shouldRenderActivity = (activity, index) => index < (page + 1) * ACTIVITY_PAGE_SIZE;
-    const displayActivities = myClubActivities.filter(filterMemberActivities).filter(shouldRenderActivity);
-
-    const columnA = displayActivities.filter((activity, index) => index % 2 === 0);
-    const columnB = displayActivities.filter((activity, index) => index % 2 === 1);
-
-    const myClubs = useSelector(state => state.myClubs);
-    const mySortedClubs = myClubs.sort(sortByLastActivity);
-
-    const filterPublicClubs = (club) => (club?.visibility === FEED_VISIBILITY);
-    const filterPrivateClubs = (club) => (club?.visibility === 'private');
-    const oneWeekAgo = moment().subtract(7, 'days');
-    const filterLast7Days = (club) => {
-        try {
-            const diff = moment(club?.lastActivityAt).diff(oneWeekAgo);
-            return diff > 0;
-        } catch (error) {
-            // todo: should keep or remove if no activity?
-            return true;
-        };
-    }
-
-    const [displayClubs, setDisplayClubs] = useState(mySortedClubs);
     const [selectedTab, setSelectedTab] = useState('recent activity');
-    const [selectedFilters, setSelectedFilters] = useState(['all']);
 
     const renderActivity = (activity) => {
         return <ClubActivityCard key={activity.id} activity={activity} navigation={navigation} />
     }
     
     const onRefresh = async () => {
-        try {
-            setRefreshing(true);
-            const nextMyClubs = await getAllMyClubActivities({ authSession, reqUserSub: reelayDBUser?.sub });
-            // dispatch({ type: 'setMyClubs', payload: nextMyClubs });
-            setRefreshing(false);
-        } catch (error) {
-            console.log(error);
-            showErrorToast('Ruh roh! Could not refresh clubs. Try again?');
-            setRefreshing(false);
-        }
+        // try {
+        //     setRefreshing(true);
+        //     const nextMyClubs = await getAllMyClubActivities({ authSession, reqUserSub: reelayDBUser?.sub });
+        //     dispatch({ type: 'setMyClubs', payload: nextMyClubs });
+        //     setRefreshing(false);
+        // } catch (error) {
+        //     console.log(error);
+        //     showErrorToast('Ruh roh! Could not refresh clubs. Try again?');
+        //     setRefreshing(false);
+        // }
     }
 
     useEffect(() => {
@@ -247,6 +221,24 @@ export default MyClubsScreen = ({ navigation, route }) => {
     }
 
     const AllMyClubs = () => {
+        const myClubs = useSelector(state => state.myClubs);
+        const mySortedClubs = myClubs.sort(sortByLastActivity);
+        const [displayClubs, setDisplayClubs] = useState(mySortedClubs);
+        const [selectedFilters, setSelectedFilters] = useState(['all']);
+
+        const filterPublicClubs = (club) => (club?.visibility === FEED_VISIBILITY);
+        const filterPrivateClubs = (club) => (club?.visibility === 'private');
+        const oneWeekAgo = moment().subtract(7, 'days');
+        const filterLast7Days = (club) => {
+            try {
+                const diff = moment(club?.lastActivityAt).diff(oneWeekAgo);
+                return diff > 0;
+            } catch (error) {
+                // todo: should keep or remove if no activity?
+                return true;
+            };
+        }    
+    
         const selectOrDeselectFilter = (filter) => {
             const foundFilter = selectedFilters.find(nextFilter => nextFilter === filter);
             if (foundFilter) {
@@ -442,25 +434,99 @@ export default MyClubsScreen = ({ navigation, route }) => {
     }
 
     const RecentActivity = () => {
+        const [selectedFilters, setSelectedFilters] = useState(['all']);
         const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
         const scrollStyle = { alignItems: 'center', paddingBottom: 120, width: '100%' };
+
+        const myClubActivities = useSelector(state => state.myClubActivities);
+        const filterMemberActivities = (nextActivity, index) => (nextActivity?.activityType !== 'member');
+        const shouldRenderActivity = (activity, index) => index < (page + 1) * ACTIVITY_PAGE_SIZE;
+        const displayActivities = myClubActivities.filter(filterMemberActivities).filter(shouldRenderActivity);
+    
+        const columnA = displayActivities.filter((activity, index) => index % 2 === 0);
+        const columnB = displayActivities.filter((activity, index) => index % 2 === 1);    
+
+        const ActivityStainedGlass = () => {
+            return (
+                <ScrollView 
+                    bottomOffset={bottomOffset} 
+                    contentContainerStyle={scrollStyle}
+                    showVerticalScrollIndicator={false}
+                    refreshControl={refreshControl}
+                >
+                    <ColumnsView>
+                        <ColumnView>
+                            { columnA.map(renderActivity) }
+                        </ColumnView>
+                        <ColumnView>
+                            { columnB.map(renderActivity) }
+                        </ColumnView>
+                    </ColumnsView>
+                    <Spacer />
+                </ScrollView>
+            )
+        }
+
+        const RecentActivityFilters = () => {
+            const filters = ['all', 'reelays', 'titles', 'topics'];
+            return (
+                <FilterButtonRow>
+                    { filters.map(filter => {
+                        const isSelected = selectedFilters.includes(filter);
+                        const onPress = () => selectOrDeselectFilter(filter);
+                        return <FilterButton key={filter} filter={filter} onPress={onPress} selected={isSelected} />
+                    })}
+                </FilterButtonRow>
+            );
+        }
+
+        const selectOrDeselectFilter = (filter) => {
+            const foundFilter = selectedFilters.find(nextFilter => nextFilter === filter);
+            if (foundFilter) {
+                // remove the filter
+                switch (filter) {
+                    case 'all':
+                        // do nothing
+                        break;
+                    default:
+                        // set as all
+                        setSelectedFilters(['all']);
+                        setDisplayClubs(mySortedClubs);
+                        break;
+                }
+            } else {
+                // add the filter
+                switch (filter) {
+                    case 'all':
+                        setSelectedFilters(['all']);
+                        setDisplayClubs(mySortedClubs);
+                        break;
+                    case 'public':
+                        const publicClubs = mySortedClubs.filter(filterPublicClubs);
+                        setDisplayClubs(publicClubs);
+                        setSelectedFilters(['public']);
+                        break;
+                    case 'private':
+                        const privateClubs = mySortedClubs.filter(filterPrivateClubs);
+                        setDisplayClubs(privateClubs);
+                        setSelectedFilters(['private']);
+                        break;
+                    case 'new activity':
+                        const newActivityClubs = mySortedClubs.filter(filterLast7Days);
+                        setDisplayClubs(newActivityClubs);
+                        setSelectedFilters(['new activity']);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
         return (
-            <ScrollView 
-                bottomOffset={bottomOffset} 
-                contentContainerStyle={scrollStyle}
-                showVerticalScrollIndicator={false}
-                refreshControl={refreshControl}
-            >
-                <ColumnsView>
-                    <ColumnView>
-                        { columnA.map(renderActivity) }
-                    </ColumnView>
-                    <ColumnView>
-                        { columnB.map(renderActivity) }
-                    </ColumnView>
-                </ColumnsView>
-                <Spacer />
-            </ScrollView>
+            <Fragment>
+                <RecentActivityFilters />
+                <ActivityStainedGlass />
+            </Fragment>
         );
     }
 

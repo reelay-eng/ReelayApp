@@ -206,8 +206,6 @@ export const getClubsDiscover = async ({ authSession, page = 0, reqUserSub }) =>
         }
     });
 
-    console.log('fetched clubs: ', fetchedClubs);
-
     fetchedClubs.forEach((club) => {
         if (!club?.members) club.members = [];
         if (!club?.titles) club.titles = [];
