@@ -5,7 +5,7 @@ import { View, Switch, Linking, Pressable } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 
 // API
-import { getMyNotificationSettings, setMyNotificationSettings } from '../../api/NotificationsApi';
+import { getMySettings, updateMySettings } from '../../api/NotificationsApi';
 
 // Styling
 import styled from "styled-components/native";
@@ -36,10 +36,7 @@ export default NotificationSettings = ({ navigation }) => {
 
 const NotificationsSettingsWrapper = ({ reelayDBUser }) => {
     
-    const [notifyAll, setNotifyAll] = useState(true);
-    const [notifyPrompts, setNotifyPrompts] = useState(true);
-    const [notifyReactions, setNotifyReactions] = useState(true);
-    const [notifyTrending, setNotifyTrending] = useState(true);
+    const [notificationSettings, setNotificationSettings] = useState({});
     const componentMounted = useRef(true);
 
     const NotificationSettingsContainer = styled(View)`
@@ -59,22 +56,17 @@ const NotificationsSettingsWrapper = ({ reelayDBUser }) => {
     `;
 
     useEffect(() => {
-       const asyncGetNotificationSettings = async () => {
+        const asyncGetNotificationSettings = async () => {
             const { 
-                settingsNotifyPrompts, 
-                settingsNotifyReactions, 
-                settingsNotifyTrending 
-            } = await getMyNotificationSettings(reelayDBUser);
+                settingsJSON
+            } = await getMySettings(reelayDBUser);
+
+            newSettings = JSON.parse(settingsJSON);
             
-           if (componentMounted.current) {  // no react state updates on unmounted components since this is async setter
-                setNotifyPrompts(settingsNotifyPrompts);
-				setNotifyReactions(settingsNotifyReactions);
-				setNotifyTrending(settingsNotifyTrending);
-				const shouldSetNotifyAll =
-					settingsNotifyPrompts && settingsNotifyReactions && settingsNotifyTrending;
-				setNotifyAll(shouldSetNotifyAll);
+            if (componentMounted.current) {  // no react state updates on unmounted components since this is async setter
+                setNotificationSettings(newSettings);
             }
-       }
+        }
         asyncGetNotificationSettings();
         return () => {
            componentMounted.current = false;

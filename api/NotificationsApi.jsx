@@ -11,6 +11,8 @@ import {
     getRegisteredUser, 
     getUserByUsername, 
 } from './ReelayDBApi';
+
+import { getUserSettings } from "./SettingsApi";
 import { getClubMembers } from './ClubsApi';
 
 const EXPO_NOTIFICATION_URL = Constants.manifest.extra.expoNotificationUrl;
@@ -63,23 +65,6 @@ export const getAllMyNotifications = async (userSub, page = 0) => {
     return parsedNotifications;
 }
 
-export const getMyNotificationSettings = async (user) => {
-    const routeGet = REELAY_API_BASE_URL + `/users/sub/${user?.sub}/settings`;
-    const resultGet = await fetchResults(routeGet, { 
-        method: 'GET',
-        headers: ReelayAPIHeaders,
-    });
-    return resultGet;
-}
-
-export const getUserNotificationSettings = async (userSub) => {
-    const routeGet = REELAY_API_BASE_URL + `/users/sub/${userSub}/settings`;
-    const resultGet = await fetchResults(routeGet, { 
-        method: 'GET',
-        headers: ReelayAPIHeaders,
-    });
-    return resultGet;
-}
 
 export const hideNotification = async (notificationID) => {
     const routeDelete = REELAY_API_BASE_URL + `/notifications/${notificationID}/hide`;
@@ -159,7 +144,7 @@ export const sendPushNotification = async ({
     const reelayDBPostBody = { title, body, data: dataToPush };
     const reelayDBRoutePost = `${REELAY_API_BASE_URL}/notifications/${sendToUserSub}`;
 
-    const { settingsNotifyReactions } = await getUserNotificationSettings(sendToUserSub);
+    const { settingsNotifyReactions } = await getUserSettings(sendToUserSub);
     if (!settingsNotifyReactions) {
         console.log('Creator does not want to receive push notifications');
         return;
@@ -566,14 +551,4 @@ export const notifyTopicCreatorOnReelayPosted = async ({ creator, reelay, topic 
     };
 
     await sendPushNotification({ title, body, data, token, sendToUserSub: topicCreator?.sub });
-}
-
-export const setMyNotificationSettings = async ({ user, notifyPrompts, notifyReactions, notifyTrending }) => {
-    const routePost =  
-        `${REELAY_API_BASE_URL}/users/sub/${user?.sub}/settings?notifyPrompts=${notifyPrompts}&notifyReactions=${notifyReactions}&notifyTrending=${notifyTrending}`;
-    const resultPost = await fetchResults(routePost, { 
-        method: 'POST',
-        headers: ReelayAPIHeaders,
-    });
-    return resultPost;
 }
