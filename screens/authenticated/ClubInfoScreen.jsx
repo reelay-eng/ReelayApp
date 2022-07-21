@@ -40,6 +40,9 @@ import { notifyClubOnPrivacyChanges } from '../../api/ClubNotifications';
 const INVITE_BASE_URL = Constants.manifest.extra.reelayWebInviteUrl;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
+const ChangePrivacyView = styled(View)`
+    margin-left: 16px;
+`
 const ClubHeaderText = styled(ReelayText.H5Emphasized)`
     color: white;
     margin-top: 4px;
@@ -381,6 +384,26 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         const [allowMemberInvites, setAllowMemberInvites] = useState(true);
         const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
         const { reelayDBUser } = useContext(AuthContext);
+
+        const [isPrivate, setIsPrivate] = useState(club?.visibility === 'private');
+
+        const confirmChangePrivacy = async () => {
+            const nextIsPrivate = !isPrivate;
+            setIsPrivate(nextIsPrivate);
+            club.visibility = (nextIsPrivate) ? 'private' : FEED_VISIBILITY;
+            setClubPrivacyDrawerVisible(false);
+
+            const patchResult = await editClub({
+                authSession,
+                clubID: club.id,
+                visibility: club.visibility,
+                reqUserSub: reelayDBUser?.sub,
+            });   
+
+            notifyClubOnPrivacyChanges({ club, nextIsPrivate });
+            console.log('patched club: ', patchResult);
+            return patchResult; 
+        }
     
         const switchAllowMemberInvites = async () => {
             const shouldAllow = !allowMemberInvites;
@@ -429,27 +452,28 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             );
         }
 
-        const PrivacySettingRow = () => {
-            const [isPrivate, setIsPrivate] = useState(club.visibility === 'private');
+        const PrivacySettingRow = ({ isPrivateSetting }) => {
             const [clubPrivacyDrawerVisible, setClubPrivacyDrawerVisible] = useState(false);
+            const isSelected = 
+                (isPrivateSetting && club?.visibility === 'private') ||
+                (!isPrivateSetting && club?.visibility !== 'private');
 
-            console.log('club visibility: ', club.visibility);
-
-            const headingText = (isPrivate)
+            const headingText = (isPrivateSetting)
                 ? 'Private Club'
                 : 'Public Club';
-            const bodyText = (isPrivate)
+
+            const bodyText = (isPrivateSetting)
                 ? 'Closed group. Invite people to the club'
                 : 'Open group. Anyone can join';
 
             const switchClubPrivacy = () => {
+                if (isPrivate === isPrivateSetting) return;
                 setClubPrivacyDrawerVisible(true);
             }
 
             const confirmChangePrivacy = async () => {
-                const nextIsPrivate = !isPrivate;
-                setIsPrivate(nextIsPrivate);
-                club.visibility = (nextIsPrivate) ? 'private' : FEED_VISIBILITY;
+                setIsPrivate(isPrivateSetting);
+                club.visibility = (isPrivateSetting) ? 'private' : FEED_VISIBILITY;
                 setClubPrivacyDrawerVisible(false);
 
                 const patchResult = await editClub({
@@ -459,7 +483,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     reqUserSub: reelayDBUser?.sub,
                 });   
 
-                notifyClubOnPrivacyChanges({ club, nextIsPrivate });
+                notifyClubOnPrivacyChanges({ club, nextIsPrivate: isPrivateSetting });
                 console.log('patched club: ', patchResult);
                 return patchResult; 
             }
@@ -470,23 +494,17 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                         <SettingsText>{headingText}</SettingsText>
                         <SettingsSubtext>{bodyText}</SettingsSubtext>
                     </SettingsTextContainer>
-                    <Switch 
-                        value={!isPrivate}
-                        onValueChange={switchClubPrivacy}
-                        trackColor={{ 
-                            false: "#39393D", 
-                            true: ReelayColors.reelayGreen,
-                        }}
-                        thumbColor={"#FFFFFF"}
-                        ios_backgroundColor="#39393D"    
-                    />
+                    <ChangePrivacyView>
+                        { isSelected && <Icon type='ionicon' name='checkmark-circle' color={ReelayColors.reelayBlue} size={30} />}
+                        { !isSelected && <Icon type='ionicon' name='ellipse-outline' color={'white'} size={30} />}
+                    </ChangePrivacyView>
                     { clubPrivacyDrawerVisible && (
                         <ChangeClubPrivacyDrawer
                             navigation={navigation}
                             clubID={club.id}
                             drawerVisible={clubPrivacyDrawerVisible}
                             setDrawerVisible={setClubPrivacyDrawerVisible}
-                            isPrivate={isPrivate}
+                            isPrivate={!isPrivateSetting}
                             confirmChangePrivacy={confirmChangePrivacy}
                         />
                     )}
@@ -538,12 +556,17 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         }
     
         return (
-            <React.Fragment>
+            <Fragment>
                 <SectionHeaderText>{'Invites'}</SectionHeaderText>
                 { isClubOwner && <AllowMemberInvitesRow />}
                 <AddMembersRow />
                 <ShareClubLinkRow />
-                { isClubOwner && <PrivacySettingRow /> }
+                { isClubOwner && (
+                    <Fragment>
+                        <PrivacySettingRow isPrivateSetting={true} />
+                        <PrivacySettingRow isPrivateSetting={false} /> 
+                    </Fragment>
+                )}
                 { inviteDrawerVisible && (
                     <InviteMyFollowsDrawer
                         club={club}
@@ -552,7 +575,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                         onRefresh={onRefresh}
                     />
                 )}
-            </React.Fragment>
+            </Fragment>
         );
     }
     
