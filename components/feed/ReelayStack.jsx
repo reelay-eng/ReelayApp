@@ -72,7 +72,7 @@ const ReelayStack = ({
 
     const latestAnnouncement = useSelector(state => state.latestAnnouncement);
     const isPinnedReelay = (viewableReelay?.sub === latestAnnouncement?.pinnedReelay?.sub);
-    const topOffset = useSafeAreaInsets().top;
+    const topOffset = useSafeAreaInsets().top + 8;
 
     const donateObj = donateLinks?.find((donateLinkObj) => {
         const { tmdbTitleID, titleType } = donateLinkObj;

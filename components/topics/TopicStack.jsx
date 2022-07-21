@@ -77,7 +77,7 @@ export default TopicStack = ({
     const uploadStage = useSelector(state => state.uploadStage);
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
-    const topOffset = useSafeAreaInsets().top;
+    const topOffset = useSafeAreaInsets().top + 8;
 
     const getItemLayout = (data, index) => ({
         length: width, 

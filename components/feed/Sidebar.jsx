@@ -58,13 +58,11 @@ export default Sidebar = ({ navigation, reelay }) => {
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 	const dispatch = useDispatch();
 
-	const commentRefreshListener = useSelector(state => state.commentRefreshListener);
-
 	const { reelayDBUser } = useContext(AuthContext);
 
-	const isMyReelay = reelay.creator.sub === reelayDBUser?.sub;
 	const commentedByUser = reelay.comments.find(comment => comment.authorName === reelayDBUser?.username);
 	const likedByUser = reelay.likes.find(like => like.username === reelayDBUser?.username);
+	const displayWatchlistAdds = (count) => count > 0 ? `${count}` : ``;
 
 	const onCommentLongPress = async () => {
 		if (showMeSignupIfGuest()) return;
@@ -155,7 +153,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 						reelay={reelay}
 					/>
 				</SidebarButton>
-				{/* <Count>{reelay?.watchlistAddCount}</Count> */}
+				<Count>{displayWatchlistAdds()}</Count>
 			</ButtonContainer>
 
 			<ButtonContainer>

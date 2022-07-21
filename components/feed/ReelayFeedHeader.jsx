@@ -29,7 +29,7 @@ const FeedHeaderView = styled(View)`
     padding-left: 11px;
     padding-right: 11px;
     position: absolute;
-    top: ${props => props.topOffset - 11}px;
+    top: ${props => props.topOffset}px;
 `
 const ForwardBackButton = styled(TouchableOpacity)`
     align-items: center;

@@ -103,9 +103,6 @@ const InfoButtonContainer = styled(TouchableOpacity)`
     justify-content: center;
     margin: 6px;
 `
-const Spacer = styled(View)`
-    width: 36px;
-`
 export default ClubBanner = ({ 
     club, 
     navigation, 

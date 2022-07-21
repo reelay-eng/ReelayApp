@@ -1,23 +1,21 @@
-import React, { useContext, useState, memo, useRef } from 'react';
-import { Dimensions, FlatList, SafeAreaView, TouchableOpacity, View } from 'react-native';
+import React, { useContext, useState, useRef } from 'react';
+import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
-import ClubBanner from './ClubBanner';
 import TitleBanner from '../feed/TitleBanner';
 import Hero from '../feed/Hero';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from 'react-native-elements';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import ReelayFeedHeader from '../feed/ReelayFeedHeader';
 
 const { height, width } = Dimensions.get('window');
-const TITLE_BANNER_TOP_OFFSET = 48;
-
+const TITLE_BANNER_TOP_OFFSET = 56;
 
 const AddReelayButtonContainer = styled(TouchableOpacity)`
     align-items: center;
@@ -94,7 +92,6 @@ export default ClubTitleOrTopicStack = ({
     const stackRef = useRef(null);
     const viewableReelay = stack[stackPosition];
 
-    const addReelayBottomOffset = useSafeAreaInsets().bottom;
     const donateLinks = useSelector(state => state.donateLinks);
     const donateObj = donateLinks?.find((donateLinkObj) => {
         const { tmdbTitleID, titleType } = donateLinkObj;

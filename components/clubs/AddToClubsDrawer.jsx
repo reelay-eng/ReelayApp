@@ -102,7 +102,7 @@ const DrawerContainer = styled(View)`
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
     margin-top: auto;
-    max-height: 70%;
+    max-height: 60%;
     padding-bottom: 80px;
     width: 100%;
 `

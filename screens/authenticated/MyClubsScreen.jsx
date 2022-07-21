@@ -176,6 +176,15 @@ const TopBarButtonView = styled(View)`
     flex-direction: row;
     margin-right: -5px;
 `
+const UnreadIconIndicator = styled(View)`
+	background-color: ${ReelayColors.reelayBlue}
+	border-radius: 5px;
+	height: 10px;
+	width: 10px;
+	position: absolute;
+    top: 0px;
+	right: 0px;
+`
 
 export default MyClubsScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
@@ -426,9 +435,13 @@ export default MyClubsScreen = ({ navigation, route }) => {
 
     const NotificationButton = () => {
         const advanceToNotificationScreen = () => navigation.push('NotificationScreen');
+        const myNotifications = useSelector(state => state.myNotifications);
+        const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
+
         return (
             <TopRightButtonPressable onPress={advanceToNotificationScreen}>
                 <Icon type='ionicon' size={27} color={'white'} name='notifications' />
+                { hasUnreadNotifications && <UnreadIconIndicator /> }
             </TopRightButtonPressable>
         )
     }
