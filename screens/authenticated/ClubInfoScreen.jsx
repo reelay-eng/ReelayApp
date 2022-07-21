@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
 import Constants from 'expo-constants';
 import styled from 'styled-components/native';
+import moment from 'moment';
 
 import BackButton from '../../components/utils/BackButton';
 import * as ReelayText from '../../components/global/Text';
@@ -25,6 +26,7 @@ import {
     getClubMembers,
     getClubTitles,
     getClubTopics,
+    markClubActivitySeen,
     removeMemberFromClub, 
 } from '../../api/ClubsApi';
 
@@ -598,7 +600,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 await onRefresh();
 
                 dispatch({ type: 'setMyClubs', payload: [club, ...myClubs] });
-                // setClubMember(joinClubResult);
+                setClubMember(joinClubResult);
             }
             
             setJoining(false);
