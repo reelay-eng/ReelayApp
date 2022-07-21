@@ -9,6 +9,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { Icon } from 'react-native-elements';
 import ClubPicture from '../global/ClubPicture';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Backdrop = styled(Pressable)`
     background-color: transparent;
@@ -16,14 +17,14 @@ const Backdrop = styled(Pressable)`
     position: absolute;
     width: 100%;
 `
-const ChangeClubPrivacyView = styled(SafeAreaView)`
+const ChangeClubPrivacyView = styled(View)`
     align-items: center;
     justify-content: space-around;
     margin: 10px;
-    padding-top: 36px;
 `
 const BottomContainer = styled(View)`
     align-items: center;
+    margin-bottom: ${props => props.bottomOffset}px;
     width: 100%;
 `
 const ConfirmButton = styled(Pressable)`
@@ -53,11 +54,13 @@ const ExplainOverlineText = styled(ReelayText.Overline)`
 `
 const ExplainHeaderText = styled(ReelayText.H6)`
     color: white;
+    margin-top: 12px;
 `
 const ExplainBodyText = styled(ReelayText.Body2)`
     color: white;
     padding: 10px;
     padding-bottom: 0px;
+    text-align: center;
 `
 const DismissButton = styled(Pressable)`
     align-items: center;
@@ -67,7 +70,7 @@ const DismissButton = styled(Pressable)`
     border-width: 1px;
     height: 48px;
     justify-content: center;
-    margin-bottom: 10px;
+    margin-top: 10px;
     width: 90%;
 `
 const DismissText = styled(ReelayText.CaptionEmphasized)`
@@ -82,13 +85,14 @@ const TopContainer = styled(View)`
     justify-content: center;
     width: 100%;
     margin-bottom: 20px;
+    padding-top: 4px;
 `
 const HeaderLine = styled(View)`
     justify-content: center;
     border-bottom-color: #2d2d2d;
     border-bottom-width: 3px;
     height: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 16px;
     width: 30%;
 `
 
@@ -107,6 +111,7 @@ export default ChangeClubPrivacyDrawer = ({
         ? 'By changing the group to public, anyone can join'
         : 'By changing the group to private, only invited members can join';
 
+    const bottomOffset = useSafeAreaInsets().bottom;
     const closeDrawer = () => setDrawerVisible(false);
 
     const ChangeClubPrivacy = () => {    
@@ -115,17 +120,17 @@ export default ChangeClubPrivacyDrawer = ({
                 <TopContainer>
                     <HeaderLine />
                     <ClubPicture border club={{ id: clubID }} size={64} />
-                    <ExplainOverlineText>{'Are you sure?'}</ExplainOverlineText>
                     <ExplainHeaderText>{headingText}</ExplainHeaderText>
+                    <ExplainOverlineText>{'Are you sure?'}</ExplainOverlineText>
                     <ExplainBodyText>{bodyText}</ExplainBodyText>
                 </TopContainer>
-                <BottomContainer>
-                    <DismissButton onPress={closeDrawer}>
-                        <DismissText>{'Dismiss'}</DismissText>
-                    </DismissButton>
+                <BottomContainer bottomOffset={bottomOffset}>
                     <ConfirmButton onPress={confirmChangePrivacy}>
                         <ConfirmText>{`Switch to ${isPrivate ? 'public' : 'private'}`}</ConfirmText>
                     </ConfirmButton>
+                    <DismissButton onPress={closeDrawer}>
+                        <DismissText>{'Dismiss'}</DismissText>
+                    </DismissButton>
                 </BottomContainer>
             </ChangeClubPrivacyView>
         );

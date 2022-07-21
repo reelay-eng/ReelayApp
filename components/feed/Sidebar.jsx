@@ -155,7 +155,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 						reelay={reelay}
 					/>
 				</SidebarButton>
-				<Count>{reelay?.watchlistAddCount}</Count>
+				{/* <Count>{reelay?.watchlistAddCount}</Count> */}
 			</ButtonContainer>
 
 			<ButtonContainer>

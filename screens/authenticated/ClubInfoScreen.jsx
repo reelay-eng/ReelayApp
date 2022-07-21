@@ -35,6 +35,7 @@ import { showErrorToast, showMessageToast } from '../../components/utils/toasts'
 import BigBubbleBath from '../../components/clubs/BigBubbleBath';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import ChangeClubPrivacyDrawer from '../../components/clubs/ChangeClubPrivacyDrawer';
+import { notifyClubOnPrivacyChanges } from '../../api/ClubNotifications';
 
 const INVITE_BASE_URL = Constants.manifest.extra.reelayWebInviteUrl;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -204,7 +205,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     const [refreshing, setRefreshing] = useState(false);
 
     const isPublicClub = club?.visibility === FEED_VISIBILITY;
-    const bottomOffset = useSafeAreaInsets().bottom;
+    const bottomOffset = useSafeAreaInsets().bottom + 60;
 
     const ClubEditButton = () => {
         const advanceToEditClubScreen = () => navigation.push('EditClubScreen', { club });
@@ -457,6 +458,8 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     visibility: club.visibility,
                     reqUserSub: reelayDBUser?.sub,
                 });   
+
+                notifyClubOnPrivacyChanges({ club, nextIsPrivate });
                 console.log('patched club: ', patchResult);
                 return patchResult; 
             }
