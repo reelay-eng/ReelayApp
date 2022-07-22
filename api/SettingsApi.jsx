@@ -1,9 +1,9 @@
+import Constants from 'expo-constants';
 import { fetchResults } from './fetchResults';
 import ReelayAPIHeaders from './ReelayAPIHeaders';
 
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 
-// any additional settings must be added both here and in the backend's DEFAULT_SETTINGS for them to be recognized.
 const DEFAULT_SETTINGS = {
     // homescreen
     showFilmFestivals: true,
@@ -25,18 +25,7 @@ const DEFAULT_SETTINGS = {
     notifyPostsInOtherTopics: true,
 }
 
-const validateSettings = (settingsObj) => {
-    // helper function to ensure every setting passed in settingsObj is a known setting that we know what to do with
-    const validKeys = Object.keys(DEFAULT_SETTINGS);
-    for(const [key, value] of Object.entries(settingsObj)) {
-        if(!validKeys.includes(key)) {
-            return false;
-        }
-    }
-    return true;
-}
-
-const getNewSettings = (oldSettings, newSettings) => {
+export const getNewSettings = (oldSettings, newSettings) => {
     return { ...DEFAULT_SETTINGS, ...oldSettings, ...newSettings }
 }
 
@@ -58,21 +47,26 @@ export const getUserSettings = async (userSub) => {
     return resultGet;
 }
 
-export const updateMySettings = async ({ user, updateSettings }) => {
-    if (!validateSettings(newSettings)) {
-        return { error: 'Invalid settings' }
-    }
-    oldSettingsJSON = user?.settingsJSON
-    oldSettings = oldSettingsJSON ? JSON.parse(oldSettingsJSON) : {};
+export const shouldNotifyUser = async(userSub, settingKey) => {
+    const settingsResult = await getUserSettings(userSub);
+    if (settingsResult.error) return false;
+    const userSettingsJSON = settingsResult["settingsJSON"];
+    const userSettings = JSON.parse(userSettingsJSON);
+    if (!userSettings["notificationsEnabled"]) return false;
+    return !!userSettings[settingKey];
+}
 
-    newSettings = getNewSettings(oldSettings, updateSettings);
+export const updateMySettings = async ({ mySub, oldSettings, settingsToUpdate }) => {
+    newSettings = getNewSettings(oldSettings, settingsToUpdate);
+    const settingsUpdateBody = { settingsJSON: newSettings }
 
     const routePost =  
-        `${REELAY_API_BASE_URL}/users/sub/${user?.sub}/settings`;
+        `${REELAY_API_BASE_URL}/users/sub/${mySub}/settings`;
     const resultPost = await fetchResults(routePost, { 
         method: 'POST',
         headers: ReelayAPIHeaders,
-        body: { settingsJSON: JSON.stringify(newSettings)}
+        body: JSON.stringify(settingsUpdateBody)
     });
+    console.log(resultPost);
     return resultPost;
 }

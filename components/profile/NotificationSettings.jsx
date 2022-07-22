@@ -1,23 +1,22 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { View, Switch, Linking, Pressable } from 'react-native';
+import { View, ScrollView, Switch, Linking, Pressable } from 'react-native';
 
 // Context
 import { AuthContext } from '../../context/AuthContext';
 
 // API
-import { getMySettings, updateMySettings } from '../../api/NotificationsApi';
+import { updateMySettings } from '../../api/SettingsApi';
 
 // Styling
 import styled from "styled-components/native";
 import * as ReelayText from "../../components/global/Text";
 import { HeaderWithBackButton } from "../global/Headers";
 import ReelayColors from '../../constants/ReelayColors';
+import { useDispatch, useSelector } from 'react-redux';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import { showErrorToast } from '../utils/toasts';
 
-export default NotificationSettings = ({ navigation }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-
-    const ViewContainer = styled(View)`
+const ViewContainer = styled(View)`
         width: 100%;
         height: 100%;
         color: white;
@@ -26,149 +25,309 @@ export default NotificationSettings = ({ navigation }) => {
         align-items: center;
     `
 
+export default NotificationSettings = ({ navigation }) => {
+    const mySettings = useSelector(state => state.mySettings);
+    const { reelayDBUser } = useContext(AuthContext);
+    const mySub = reelayDBUser?.sub;
+
     return (
         <ViewContainer>
             <HeaderWithBackButton navigation={navigation} text="Notification Settings"/>
-            <NotificationsSettingsWrapper reelayDBUser={reelayDBUser}/>
+            <NotificationsSettingsWrapper mySub={mySub} mySettings={mySettings}/>
         </ViewContainer>
     )
 }
 
-const NotificationsSettingsWrapper = ({ reelayDBUser }) => {
-    
-    const [notificationSettings, setNotificationSettings] = useState({});
-    const componentMounted = useRef(true);
+const NotificationSettingsScrollView = styled(ScrollView)`
+    width: 95%;
+    height: 100%;
+`;
+const Divider = styled(View)`
+    border-bottom-width: 1px;
+    border-bottom-color: #2e2e2e;
+    border-style: solid;
+    height: 1px;
+    opacity: 0.7;
+    width: 98%;
+    margin-top: 5px;
+    margin-bottom: 5px;
+`;
 
-    const NotificationSettingsContainer = styled(View)`
-        width: 90%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    `;
-    const Divider = styled(View)`
-        border-bottom-width: 1px;
-        border-bottom-color: #2e2e2e;
-        border-style: solid;
-        height: 1px;
-        opacity: 0.7;
-        width: 98%;
-    `;
+const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
 
-    useEffect(() => {
-        const asyncGetNotificationSettings = async () => {
-            const { 
-                settingsJSON
-            } = await getMySettings(reelayDBUser);
+    const dispatch = useDispatch();
 
-            newSettings = JSON.parse(settingsJSON);
-            
-            if (componentMounted.current) {  // no react state updates on unmounted components since this is async setter
-                setNotificationSettings(newSettings);
-            }
+    const toggleSetting = async (settingToUpdate) => {
+        const oldSetting = !!mySettings[settingToUpdate];
+        const mySettingsToUpdate = { [settingToUpdate]: !oldSetting }
+        const res = await updateMySettings({ mySub, oldSettings: mySettings, settingsToUpdate: mySettingsToUpdate });
+        if (res.error) {
+            console.log(res.error);
+            showErrorToast("Ruh roh! I couldn't update your mySettings. Try again?");
         }
-        asyncGetNotificationSettings();
-        return () => {
-           componentMounted.current = false;
-       }
-    }, [])
-
-    /* 
-    Notification Types:
-    1. All Notifications
-    2. Notify Prompts: nudges by the app to post or check out new reelays
-    3. Notify Reactions: likes and comments on my posts, responses in comment threads
-    4. Notify Trending: posts by people I follow or engage with, new reelays for movies I've reelayed
-    */
-    const allTrue = (p1, p2, p3) => {
-        return (p1 == true && p1 == p2 && p2 == p3);
-    }
-    const toggleNotifyAll = () => {
-        setNotifyAll(!notifyAll);
-        let value = (!notifyAll ? true : false);
-        setNotifyPrompts(value);
-        setNotifyReactions(value);
-        //setNotifyTrending(value);
-
-        // logic for DB updates
-        // setMyNotificationSettings({user, notifyPrompts: value, notifyReactions: value, notifyTrending: value});
-        setMyNotificationSettings({ 
-            user: reelayDBUser, 
-            notifyPrompts: true, 
-            notifyReactions: value, 
-            notifyTrending: true
-        });
-        logAmplitudeEventProd('notificationSettingsAll', {
-            notifyReactions: value,
-            });
+        dispatch({ type: "updateMySettings", payload: mySettingsToUpdate });
 
     }
-    const toggleNotifyPrompts = () => {
-        setNotifyPrompts(!notifyPrompts);
-        setNotifyAll(allTrue(!notifyPrompts, notifyReactions, notifyTrending));
 
-        // logic for DB updates
-        setMyNotificationSettings({ 
-            user: reelayDBUser, 
-            notifyPrompts: !notifyPrompts, 
-            notifyReactions, 
-            notifyTrending
-        });
-
-    }
-    const toggleNotifyReactions = () => {
-        setNotifyReactions(!notifyReactions);
-        setNotifyAll(allTrue(notifyPrompts, !notifyReactions, notifyTrending)); // for all implemented
-
-        // logic for DB updates
-        setMyNotificationSettings({ 
-            user: reelayDBUser, 
-            notifyPrompts, 
-            notifyReactions: !notifyReactions, 
-            notifyTrending
-        });
-    }
-    const toggleNotifyTrending = () => {
-        setNotifyTrending(!notifyTrending);
-        setNotifyAll(allTrue(notifyPrompts, notifyReactions, !notifyTrending));
-        // logic for DB updates
-        setMyNotificationSettings({ 
-            user: reelayDBUser, 
-            notifyPrompts, 
-            notifyReactions, 
-            notifyTrending: !notifyTrending
-        });
+    const notificationsEnabled = !!(mySettings?.notificationsEnabled); // coerce to boolean, so (undefined | false | null) -> false
+    const toggleNotificationsEnabled = async () => {
+        await toggleSetting("notificationsEnabled");
     }
 
     return (
-        <NotificationSettingsContainer>
-            <AllNotificationSetting enabled={notifyAll} toggle={toggleNotifyAll}/>
+        <NotificationSettingsScrollView scrollEnabled={notificationsEnabled} contentContainerStyle={{ alignItems: "center", display: 'flex', flexDirection: 'column' }} scr>
+            <AllowNotificationsSetting enabled={notificationsEnabled} toggle={toggleNotificationsEnabled}/>
             <Divider />
-            <ReactionsNotificationSetting enabled={notifyReactions} toggle={toggleNotifyReactions}/>
-            <PromptNotificationSetting enabled={notifyPrompts} toggle={toggleNotifyPrompts}/>
-            {/* <TrendingNotificationSetting enabled={notifyTrending} toggle={toggleNotifyTrending}/> */}
-        </NotificationSettingsContainer>
+            { notificationsEnabled && (
+                <>
+                    <FollowsNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
+                    <Divider />
+                    <CommentsNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
+                    <Divider />
+                    <LikesNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
+                    <Divider />
+                    <TagsNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
+                    <Divider />
+                    <ReelaysNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
+                </>
+            )}
+        </NotificationSettingsScrollView>
     )
 }
 
-const AllNotificationSetting = ({enabled, toggle}) => {
+const AllowNotificationsSetting = ({ enabled, toggle }) => {
     return (
         <NotificationSetting
-                title="Allow All Notifications" 
-                isToggled={enabled}
-                toggleFunction={toggle}
+            title="Allow Notifications" 
+            isToggled={enabled}
+            toggleFunction={toggle}
         />
     )
 }
 
-const PromptNotificationSetting = ({enabled, toggle}) => {
+const CategoryContainer = styled(View)`
+    width: 100%;
+    margin-top: 15px;
+`
+
+const CategoryHeaderText = styled(ReelayText.H5Bold)`
+    color: white;
+    align-self: flex-start;
+`
+
+const FollowsNotificationCategory = ({ mySettings, toggleSetting }) => {
+    const Follows = () => {
+        const notifyFollows = !!(mySettings?.notifyFollows);
+        const toggleNotifyFollows = async () => {
+            await toggleSetting("notifyFollows");
+        }
+        return (
+            <NotificationSetting
+                    title="Follows" 
+                    subtext="Notify me when a user follows me"
+                    isToggled={notifyFollows}
+                    toggleFunction={toggleNotifyFollows}
+            />
+        )
+    }
+
     return (
-        <NotificationSetting
-                title="Prompts" 
-                subtext="Remind me to check out the app"
-                isToggled={enabled}
-                toggleFunction={toggle}
-        />
+        <CategoryContainer>
+            <CategoryHeaderText>Follows</CategoryHeaderText>
+            <Follows />
+        </CategoryContainer>
+    )
+}
+
+const CommentsNotificationCategory = ({ mySettings, toggleSetting }) => {
+    const CommentsOnMyReelays = () => {
+        const notifyCommentsOnMyReelays = !!(mySettings?.notifyCommentsOnMyReelays);
+        const toggleNotifyCommentsOnMyReelays = async () => {
+            await toggleSetting("notifyCommentsOnMyReelays");
+        }
+        return (
+            <NotificationSetting
+                title="On my reelays" 
+                subtext="Notify me when a user comments on my posts"
+                isToggled={notifyCommentsOnMyReelays}
+                toggleFunction={toggleNotifyCommentsOnMyReelays}
+            />
+        )
+    }
+
+    const CommentsOnOtherReelays = () => {
+        const notifyCommentsOnOtherReelays = !!(mySettings?.notifyCommentsOnOtherReelays);
+        const toggleNotifyCommentsOnOtherReelays = async () => {
+            await toggleSetting("notifyCommentsOnOtherReelays");
+        }
+        return (
+            <NotificationSetting
+                    title="On other reelays" 
+                    subtext="Notify me when a user comments after I do"
+                    isToggled={notifyCommentsOnOtherReelays}
+                    toggleFunction={toggleNotifyCommentsOnOtherReelays}
+            />
+        )
+    }
+
+    return (
+        <CategoryContainer>
+            <CategoryHeaderText>Comments</CategoryHeaderText>
+            <CommentsOnMyReelays />
+            <CommentsOnOtherReelays />
+        </CategoryContainer>
+    )
+}
+
+const LikesNotificationCategory = ({ mySettings, toggleSetting }) => {
+    const LikesOnMyReelays = () => {
+        const notifyLikesOnMyReelays = !!(mySettings?.notifyLikesOnMyReelays);
+        const toggleNotifyLikesOnMyReelays = async () => {
+            await toggleSetting("notifyLikesOnMyReelays");
+        }
+        return (
+            <NotificationSetting
+                title="On my reelays" 
+                subtext="Notify me when a user likes my post"
+                isToggled={notifyLikesOnMyReelays}
+                toggleFunction={toggleNotifyLikesOnMyReelays}
+            />
+        )
+    }
+
+    const LikesOnMyComments = () => {
+        const notifyLikesOnMyComments = !!(mySettings?.notifyLikesOnMyComments);
+        const toggleNotifyLikesOnMyComments = async () => {
+            await toggleSetting("notifyLikesOnMyComments");
+        }
+        return (
+            <NotificationSetting
+                title="On my comments" 
+                subtext="Notify me when a user likes my comment"
+                isToggled={notifyLikesOnMyComments}
+                toggleFunction={toggleNotifyLikesOnMyComments}
+            />
+        )
+    }
+
+    return (
+        <CategoryContainer>
+            <CategoryHeaderText>Likes</CategoryHeaderText>
+            <LikesOnMyReelays />
+            <LikesOnMyComments />
+        </CategoryContainer>
+    )
+}
+
+const TagsNotificationCategory = ({ mySettings, toggleSetting }) => {
+    const TagsInReelays = () => {
+        const notifyTagsInReelays = !!(mySettings?.notifyTagsInReelays);
+        const toggleNotifyTagsInReelays = async () => {
+            await toggleSetting("notifyTagsInReelays");
+        }
+        return (
+            <NotificationSetting
+                title="In reelays" 
+                subtext="Notify me when a user tags me in their post"
+                isToggled={notifyTagsInReelays}
+                toggleFunction={toggleNotifyTagsInReelays}
+            />
+        )
+    }
+
+    const TagsInComments = () => {
+        const notifyTagsInComments = !!(mySettings?.notifyTagsInComments);
+        const toggleNotifyTagsInComments = async () => {
+            await toggleSetting("notifyTagsInComments");
+        }
+        return (
+            <NotificationSetting
+                title="In comments" 
+                subtext="Notify me when a user tags me in a comment"
+                isToggled={notifyTagsInComments}
+                toggleFunction={toggleNotifyTagsInComments}
+            />
+        )
+    }
+
+    return (
+        <CategoryContainer>
+            <CategoryHeaderText>Tags</CategoryHeaderText>
+            <TagsInReelays />
+            <TagsInComments />
+        </CategoryContainer>
+    )
+}
+
+const ReelaysNotificationCategory = ({ mySettings, toggleSetting }) => {
+    const PostsOnMyReelayedTitles = () => {
+        const notifyPostsOnMyReelayedTitles = !!(mySettings?.notifyPostsOnMyReelayedTitles);
+        const toggleNotifyPostsOnMyReelayedTitles = async () => {
+            await toggleSetting("notifyPostsOnMyReelayedTitles");
+        }
+        return (
+            <NotificationSetting
+                title="Posts about titles I reelayed" 
+                subtext="Notify me when a user reelays a title I reelayed"
+                isToggled={notifyPostsOnMyReelayedTitles}
+                toggleFunction={toggleNotifyPostsOnMyReelayedTitles}
+            />
+        )
+    }
+
+    const PostsInMyClubs = () => {
+        const notifyPostsInMyClubs = !!(mySettings?.notifyPostsInMyClubs);
+        const toggleNotifyPostsInMyClubs = async () => {
+            await toggleSetting("notifyPostsInMyClubs");
+        }
+        return (
+            <NotificationSetting
+                title="Posts in my clubs" 
+                subtext="Notify me when a user posts in one of my clubs"
+                isToggled={notifyPostsInMyClubs}
+                toggleFunction={toggleNotifyPostsInMyClubs}
+            />
+        )
+    }
+
+    const PostsInMyTopics = () => {
+        const notifyPostsInMyTopics = !!(mySettings?.notifyPostsInMyTopics);
+        const toggleNotifyPostsInMyTopics = async () => {
+            await toggleSetting("notifyPostsInMyTopics");
+        }
+        return (
+            <NotificationSetting
+                title="Posts in my topics" 
+                subtext="Notify me when a user posts in a topic I created"
+                isToggled={notifyPostsInMyTopics}
+                toggleFunction={toggleNotifyPostsInMyTopics}
+            />
+        )
+    }
+
+    const PostsInOtherTopics = () => {
+        const notifyPostsInOtherTopics = !!(mySettings?.notifyPostsInOtherTopics);
+        const toggleNotifyPostsInOtherTopics = async () => {
+            await toggleSetting("notifyPostsInOtherTopics");
+        }
+        return (
+            <NotificationSetting
+                title="Posts in other topics" 
+                subtext="Notify me when a user posts in a topic I posted in"
+                isToggled={notifyPostsInOtherTopics}
+                toggleFunction={toggleNotifyPostsInOtherTopics}
+            />
+        )
+    }
+
+    return (
+        <CategoryContainer>
+            <CategoryHeaderText>Reelays</CategoryHeaderText>
+            <PostsOnMyReelayedTitles />
+            <PostsInMyClubs />
+            <PostsInMyTopics />
+            <PostsInOtherTopics />
+        </CategoryContainer>
     )
 }
 
@@ -177,17 +336,6 @@ const ReactionsNotificationSetting = ({enabled, toggle}) => {
         <NotificationSetting
                 title="Interactions" 
                 subtext="Notify me when people react to my posts and send me recs"
-                isToggled={enabled}
-                toggleFunction={toggle}
-        />
-    )
-}
-
-const TrendingNotificationSetting = ({enabled, toggle}) => {
-    return (
-        <NotificationSetting
-                title="Trending" 
-                subtext="Notify me when a movie or Reelay is trending"
                 isToggled={enabled}
                 toggleFunction={toggle}
         />
