@@ -4,7 +4,7 @@
     "maxVersion": "1.04.00",
     "pages": [
         {
-            "title": "Now create both private and public clubs",
+            "title": "New - create both private and public clubs",
             "body": "Public clubs are open communities for exchanging recommendations",
             "imgURI": "images/clubv2_part1.png",
             "orientation": "title-body-image"

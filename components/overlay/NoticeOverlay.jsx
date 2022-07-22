@@ -77,37 +77,20 @@ const MultiPageNotice = ({ navigation, pages, images, noticeID }) => {
 
     const onLastPage = (curPage === pages?.length - 1);
     const onFirstPage = (curPage === 0);
-    const { title, body, imgURI } = pages[curPage];
+    const { title, body } = pages[curPage];
     const imageSource = images[curPage];
 
-    const completeNotice = async () => {
+    const dismissNotice = async () => {
         dispatch({ type: 'setLatestNoticeDismissed', payload: true });
         const noticeHistoryJSON = await AsyncStorage.getItem('notice-history-json') ?? '{}';
         const noticeHistory = JSON.parse(noticeHistoryJSON);
         noticeHistory[noticeID] = 'dismissed';
         const saveResult = await AsyncStorage.setItem('notice-history-json', JSON.stringify(noticeHistory));
-        console.log('complete notice: ', saveResult);
         logAmplitudeEventProd('dismissedNoticeCTA', {
             username: reelayDBUser?.sub,
             noticeTitle: title,
         });
-    }
-
-    const onNoticeDismiss = async () => {
-        dispatch({ type: 'setLatestNoticeDismissed', payload: true });
-        const noticeHistoryJSON = await AsyncStorage.getItem('notice-history-json') ?? '{}';
-        const noticeHistory = JSON.parse(noticeHistoryJSON);
-        noticeHistory[latestNotice?.id] = 'dismissed';
-        const saveResult = await AsyncStorage.setItem('notice-history-json', JSON.stringify(noticeHistory));
         return saveResult;
-    }
-
-    const skipNotice = () => {
-        dispatch({ type: 'setLatestNoticeSkipped', payload: true });
-        logAmplitudeEventProd('dismissedNoticeCTA', {
-            username: reelayDBUser?.sub,
-            noticeTitle: title,
-        });
     }
 
     const pageForward = () => {
@@ -133,10 +116,10 @@ const MultiPageNotice = ({ navigation, pages, images, noticeID }) => {
                 <Image source={imageSource} height={50} width={50} />
             </ImageBox>
             <NoticeActions 
-                actionCallback={onLastPage ? completeNotice : pageForward}
+                actionCallback={onLastPage ? dismissNotice : pageForward}
                 actionLabel={onLastPage ? 'Got it' : 'Next'}
-                altActionCallback={onFirstPage ? skipNotice : pageBack}
-                altActionLabel={onFirstPage ? 'Skip' : 'Back'}
+                altActionCallback={onFirstPage ? dismissNotice : pageBack}
+                altActionLabel={onFirstPage ? 'Dismiss' : 'Back'}
             />
         </NoticeCard>
     )
@@ -239,7 +222,7 @@ export default NoticeOverlay = ({ navigation }) => {
                 <MultiPageNotice 
                     images={data?.images}
                     navigation={navigation}
-                    noticeID={latestNotice?.id} 
+                    noticeID={latestNotice?.id}
                     pages={data?.pages}
                 />
             )}

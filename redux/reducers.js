@@ -97,10 +97,11 @@ export const latestNoticeReducer = ({
 
     const versionGuideNoticeEntry = dismissalHistory?.noticeHistory?.[versionGuideID];
     const validVersion = (REELAY_APP_VERSION < maxVersion) && (REELAY_APP_VERSION >= minVersion);
-    const showVersionGuide = validVersion && (!versionGuideNoticeEntry || versionGuideNoticeEntry !== 'dismissed');
-
+    // const showVersionGuide = validVersion && (!versionGuideNoticeEntry || versionGuideNoticeEntry !== 'dismissed');
+    const showVersionGuide = true;
+    
     const showCreateReelayNotice = (myCreatorStacks.length === 0);
-    const showCreateClubNotice = (!showCreateReelayNotice) && (clubOwnerCount === 0);
+    const showCreateClubNotice = (clubOwnerCount === 0);
 
     if (showVersionGuide) {
         return {
