@@ -12,6 +12,8 @@ import {
     latestClubActivitiesReducer
 } from "./reducers";
 
+import { getNewSettings, validateSettings } from '../api/SettingsApi';
+
 const initialState = {
     // AUTHENTICATION
     authSession: {},
@@ -57,6 +59,7 @@ const initialState = {
     myFollowers: [],
     myNotifications: [],
     myStreamingSubscriptions: [],
+    mySettings: {},
 
     // SIGNUP
     isLoading: true,
@@ -204,7 +207,15 @@ const appReducer = ( state = initialState, action) => {
         case 'setMyNotifications':
             return { ...state, myNotifications: action.payload };
         case 'setMyStreamingSubscriptions':
-            return { ...state, myStreamingSubscriptions: action.payload }  
+            return { ...state, myStreamingSubscriptions: action.payload } 
+        case 'setMySettings':
+            return { ...state, mySettings: action.payload }
+        case 'updateMySettings': // payload e.g. { notifyCommentsOnMyReelays: true }
+            const settingsToUpdate = action.payload;
+            const oldMySettings = { ...state.mySettings };
+            const newMySettings = getNewSettings(oldMySettings, settingsToUpdate);
+            return { ...state, mySettings: newMySettings };
+            
             
         // SIGNUP
         case 'setIsLoading':
