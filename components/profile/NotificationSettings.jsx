@@ -1,11 +1,11 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { View, ScrollView, Switch, Linking, Pressable } from 'react-native';
+import { View, ScrollView, Switch, Linking, Pressable, RefreshControl } from 'react-native';
 
 // Context
 import { AuthContext } from '../../context/AuthContext';
 
 // API
-import { updateMySettings } from '../../api/SettingsApi';
+import { getUserSettings, updateMySettings } from '../../api/SettingsApi';
 
 // Styling
 import styled from "styled-components/native";
@@ -56,6 +56,7 @@ const Divider = styled(View)`
 const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
 
     const dispatch = useDispatch();
+    const [refreshing, setRefreshing] = useState(false);
 
     const toggleSetting = async (settingToUpdate) => {
         const oldSetting = !!mySettings[settingToUpdate];
@@ -74,8 +75,19 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
         await toggleSetting("notificationsEnabled");
     }
 
+    const onRefresh = async () => {
+        setRefreshing(true);
+        const mySettingsWrapped = await getUserSettings(mySub);
+        const mySettingsJSON = mySettingsWrapped?.settingsJSON
+        const mySettings = JSON.parse(mySettingsJSON);
+        dispatch({ type: "setMySettings", payload: mySettings });
+        setRefreshing(false);
+    }
+
+    const settingsRefreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+
     return (
-        <NotificationSettingsScrollView scrollEnabled={notificationsEnabled} contentContainerStyle={{ alignItems: "center", display: 'flex', flexDirection: 'column' }} scr>
+        <NotificationSettingsScrollView refreshControl={settingsRefreshControl} scrollEnabled={true} contentContainerStyle={{ alignItems: "center", display: 'flex', flexDirection: 'column' }} scr>
             <AllowNotificationsSetting enabled={notificationsEnabled} toggle={toggleNotificationsEnabled}/>
             <Divider />
             { notificationsEnabled && (

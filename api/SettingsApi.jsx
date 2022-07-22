@@ -29,15 +29,6 @@ export const getNewSettings = (oldSettings, newSettings) => {
     return { ...DEFAULT_SETTINGS, ...oldSettings, ...newSettings }
 }
 
-export const getMySettings = async (user) => {
-    const routeGet = REELAY_API_BASE_URL + `/users/sub/${user?.sub}/settings`;
-    const resultGet = await fetchResults(routeGet, { 
-        method: 'GET',
-        headers: ReelayAPIHeaders,
-    });
-    return resultGet;
-}
-
 export const getUserSettings = async (userSub) => {
     const routeGet = REELAY_API_BASE_URL + `/users/sub/${userSub}/settings`;
     const resultGet = await fetchResults(routeGet, { 
