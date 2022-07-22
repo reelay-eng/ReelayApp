@@ -115,6 +115,7 @@ const appReducer = ( state = initialState, action) => {
         // GLOBAL
         case 'setLatestAppVersion':
             // These two are always set together, and currentAppVersion is never changed
+            if (latestAppVersion < state.currentAppVersion) return;
             const { appUpdateRequired, latestAppVersion } = action.payload;
             return { ...state, appUpdateRequired, latestAppVersion };
         case 'setJustShowMeSignupVisible':
@@ -140,6 +141,7 @@ const appReducer = ( state = initialState, action) => {
         case 'setLatestNotice':
             const latestNotice = latestNoticeReducer({
                 latestNotice: action.payload,
+                dismissalHistory: state.myDismissalHistory,
                 myClubs: state.myClubs,
                 myCreatorStacks: state.myCreatorStacks,
                 userSub: state.reelayDBUserID,

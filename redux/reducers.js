@@ -1,6 +1,15 @@
 import moment from "moment";
 import Constants from 'expo-constants';
 
+const LATEST_VERSION_GUIDE = require('../version/latest-version-guide.json');
+const VERSION_GUIDE_IMG_PATH = '../version/images';
+const LATEST_VERSION_GUIDE_IMAGES = [
+    require(`${VERSION_GUIDE_IMG_PATH}/clubv2_part1.png`),
+    require(`${VERSION_GUIDE_IMG_PATH}/clubv2_part2.png`),
+    require(`${VERSION_GUIDE_IMG_PATH}/clubv2_part3.png`),
+]
+const REELAY_APP_VERSION = Constants.manifest.version;
+
 const byDateUpdated = (watchlistItem0, watchlistItem1) => {
     const dateAdded0 = moment(watchlistItem0.updatedAt);
     const dateAdded1 = moment(watchlistItem1.updatedAt);
@@ -70,32 +79,59 @@ export const latestClubActivitiesReducer = (myClubs) => {
     return allClubActivities.sort(sortByLastUpdated);
 }
 
-export const latestNoticeReducer = ({ latestNotice, myClubs, myCreatorStacks, userSub }) => {
+export const latestNoticeReducer = ({ 
+    dismissalHistory,
+    latestNotice, 
+    myClubs, 
+    myCreatorStacks, 
+    userSub,
+}) => {
     if (latestNotice) return latestNotice;
     const isClubOwner = (club) => (userSub === club?.creatorSub);
     const clubOwnerReducer = (curCount, nextClub) => isClubOwner(nextClub) ? curCount + 1 : curCount;
     const clubOwnerCount = myClubs.reduce(clubOwnerReducer, 0);
 
+    const versionGuideID = LATEST_VERSION_GUIDE?.id;
+    const maxVersion = LATEST_VERSION_GUIDE?.maxVersion;
+    const minVersion = LATEST_VERSION_GUIDE?.minVersion;
+
+    const versionGuideNoticeEntry = dismissalHistory?.noticeHistory?.[versionGuideID];
+    const validVersion = (REELAY_APP_VERSION < maxVersion) && (REELAY_APP_VERSION >= minVersion);
+    const showVersionGuide = validVersion && (!versionGuideNoticeEntry || versionGuideNoticeEntry !== 'dismissed');
+
     const showCreateReelayNotice = (myCreatorStacks.length === 0);
     const showCreateClubNotice = (!showCreateReelayNotice) && (clubOwnerCount === 0);
 
-    if (showCreateReelayNotice) {
+    if (showVersionGuide) {
+        return {
+            id: versionGuideID,
+            noticeType: 'multi-page',
+            data: { 
+                pages: LATEST_VERSION_GUIDE?.pages,
+                images: LATEST_VERSION_GUIDE_IMAGES,
+            },
+        }
+    } else if (showCreateReelayNotice) {
         return {
             id: 'create-reelay-summer',
-            actionLabel: 'Create',
-            actionData: {},
-            actionType: 'advanceToCreateScreen',
-            title: `It's summer 🏖️🌞`,
-            description: 'Post a reelay about your favorite summer movie!',
+            noticeType: 'single-page',
+            data: {
+                actionLabel: 'Create',
+                actionType: 'advanceToCreateScreen',
+                title: `It's summer 🏖️🌞`,
+                body: 'Post a reelay about your favorite summer movie!',    
+            },
         }
     } else if (showCreateClubNotice) {
         return {
             id: 'create-club-announce',
-            actionLabel: 'Create',
-            actionData: {},
-            actionType: 'advanceToCreateClubScreen',
-            title: `Start a club for your friends 📺`,
-            description: 'Share reelays, start topics, and build watchlists privately.',
+            noticeType: 'single-page',
+            data: {
+                actionLabel: 'Create',
+                actionType: 'advanceToCreateClubScreen',
+                title: `Start a club for your friends 📺`,
+                body: 'Share reelays, start topics, and build watchlists privately.',    
+            },
         }
     } else {
         return null;

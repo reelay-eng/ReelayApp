@@ -54,7 +54,6 @@ import { connect, Provider, useDispatch, useSelector } from 'react-redux';
 import store, { mapStateToProps } from './redux/store';
 import { ensureLocalImageDirExists, maybeFlushTitleImageCache } from './api/ReelayLocalImageCache';
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
-import moment from 'moment';
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png');
 

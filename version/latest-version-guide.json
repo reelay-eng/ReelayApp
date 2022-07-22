@@ -1,0 +1,25 @@
+{
+    "id": "version-guide-10300",
+    "minVersion": "1.03.00",
+    "maxVersion": "1.04.00",
+    "pages": [
+        {
+            "title": "Now create both private and public clubs",
+            "body": "Public clubs are open communities for exchanging recommendations",
+            "imgURI": "images/clubv2_part1.png",
+            "orientation": "title-body-image"
+        },
+        {
+            "title": "Explore clubs on the global feed",
+            "body": "Reelays from public clubs and topics now appear in the global feed",
+            "imgURI": "images/clubv2_part2.png",
+            "orientation": "title-image-body"
+        },
+        {
+            "title": "But how do I add titles to my watchlist? To clubs?",
+            "body": "Here's the button for that. We've added a counter to show when people take your rec",
+            "imgURI": "images/clubv2_part3.png",
+            "orientation": "title-image-body-2col"
+        }
+    ]
+}

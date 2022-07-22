@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
-import { AddToWatchlistIconSVG, ClubsIconSVG, WatchlistAddedIconSVG } from '../global/SVGs';
+import { AddedToClubsIconSVG, AddToClubsIconSVG, AddToWatchlistIconSVG, ClubsIconSVG, WatchlistAddedIconSVG } from '../global/SVGs';
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 import { useDispatch, useSelector } from 'react-redux';
@@ -72,7 +72,8 @@ export default AddToClubsButton = ({ navigation, titleObj, reelay }) => {
             <ClubsButtonCircleContainer isAddedToWatchlist={isAddedToWatchlist && !isMyReelay}>
                 {/* { (isAddedToWatchlist || markedSeen) && <FontAwesomeIcon icon={faCheck} color='white' size={22}/> }
                 { (!isAddedToWatchlist && !markedSeen) && <FontAwesomeIcon icon={faAdd} color='white' size={22}/> } */}
-                <ClubsIconSVG size={24} />
+                {/* <ClubsIconSVG size={24} /> */}
+                <AddToClubsIconSVG size={24} />
             </ClubsButtonCircleContainer>
             { drawerVisible && (
                 <AddToClubsDrawer 
