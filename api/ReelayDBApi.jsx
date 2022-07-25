@@ -493,11 +493,18 @@ export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
         return null;
     }
 
-    const filterOldTitlesInTheaters = (fetchedStack) => {
-        
+    const filterOldTheaterTitles = (preparedStack) => {
+        preparedStack.forEach(reelay => {
+            const { releaseDate } = reelay;
+            console.log('title release date: ', releaseDate);
+        })
     }
 
-    return await prepareFeed(fetchedStacks);
+    const preparedFeed = await prepareFeed(fetchedStacks);
+    if (feedSource === 'theaters') {
+        preparedFeed.forEach(filterOldTheaterTitles);
+    }
+    return preparedFeed;
 }
 
 export const getMostRecentReelaysByTitle = async (tmdbTitleID, page = 0) => {

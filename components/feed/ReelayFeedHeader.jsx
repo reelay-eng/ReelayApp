@@ -188,7 +188,7 @@ export default ReelayFeedHeader = ({
 
         const getDisplayIcon = () => {
             switch (feedSource) {
-                case 'festivals': return 'leaf';
+                case 'festivals': return 'pagelines';
                 case 'following': return 'people';
                 case 'global': return 'earth';
                 case 'popularTitlesDiscover': return 'flame';
@@ -202,11 +202,20 @@ export default ReelayFeedHeader = ({
             }
         }
 
+        const getDisplayIconSource = () => {
+            switch (feedSource) {
+                case 'theaters': 
+                case 'festivals':
+                    return 'font-awesome';
+                default: return 'ionicon';
+            }
+        }
+
         const renderIcon = () => {
             if (feedSource === 'profile') {
                 return <ProfilePicture user={reelay?.creator} size={30} />
             } else {
-                return <Icon type='ionicon' name={getDisplayIcon()} size={21} color='white' />
+                return <Icon type={getDisplayIconSource()} name={getDisplayIcon()} size={21} color='white' />
             }
         }
 
@@ -259,9 +268,11 @@ export default ReelayFeedHeader = ({
             <ActivityInfoView>
                 <ActivityInfoBar />
             </ActivityInfoView>
-            <RowView>
-                <ForwardBack />
-            </RowView>
+            { stackLength > 1 && (
+                <RowView>
+                    <ForwardBack />
+                </RowView>
+            )}
         </FeedHeaderView>
     );
 }
