@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { Easing, Pressable, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
@@ -66,91 +66,12 @@ const ActivityInfoView = styled(View)`
 const Spacer = styled(View)`
     width: 10px;
 `
-export default ReelayFeedHeader = ({ 
-    navigation, 
-    club = null, 
-    topic = null, 
-    feedSource = 'global',
-    position,
-    reelay,
-    stackLength,
-    onTappedOldest,
-    onTappedNewest,
-}) => {
-    const ActivityInfoBar = () => {
-        const topicScrollDuration = 60 + topic?.title?.length * 180;
-        const clubScrollDuration = 60 + (club?.name?.length * 180);
-        const dividerScrollDuration = 60;
-        const Divider = () => <HeaderText>{'|'}</HeaderText>;
-        if (club && topic) {
-            return (
-                <ActivityTicker
-                    animationType={'scroll'} 
-                    bounce={false} 
-                    duration={
-                        clubScrollDuration + 
-                        dividerScrollDuration +
-                        topicScrollDuration
-                    } 
-                    easing={Easing.linear} 
-                    loop 
-                    marqueeDelay={1000} 
-                    repeatSpacer={25}
-                >
-                    <RowView>
-                        <ClubInfo />
-                        <Spacer />
-                        <Divider />
-                        <Spacer />
-                        <TopicInfo />
-                    </RowView>
-                </ActivityTicker>
-            );
-        } else if (club) {
-            return (
-                <ActivityTicker
-                    animationType={'scroll'} 
-                    bounce={false} 
-                    duration={clubScrollDuration} 
-                    easing={Easing.linear} 
-                    loop 
-                    marqueeDelay={1000} 
-                    repeatSpacer={25}
-                >
-                    <ClubInfo />
-                </ActivityTicker>
-            );
-        } else if (topic) {
-            return (
-                <ActivityTicker
-                    animationType={'scroll'} 
-                    bounce={false} 
-                    duration={topicScrollDuration} 
-                    easing={Easing.linear} 
-                    loop 
-                    marqueeDelay={1000} 
-                    repeatSpacer={25}
-                >
-                    <RowView>
-                        <GlobalInfo />
-                        <Divider />
-                        <Spacer />
-                        <TopicInfo />
-                    </RowView>
-                </ActivityTicker>
-            );
-        } else {
-            return <GlobalInfo />;
-        }
-    }
 
-    const BackButton = () => {
-        return (
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Icon type='ionicon' name={'arrow-back-outline'} color={'white'} size={30} />
-            </TouchableOpacity>
-        );
-    }
+const ActivityInfoBar = ({ club, feedSource, topic }) => {
+    const topicScrollDuration = 60 + topic?.title?.length * 180;
+    const clubScrollDuration = 60 + (club?.name?.length * 180);
+    const dividerScrollDuration = 60;
+    const Divider = () => <HeaderText>{'|'}</HeaderText>;
 
     const ClubInfo = () => {
         const advanceToActivityFeed = () => {
@@ -177,7 +98,6 @@ export default ReelayFeedHeader = ({
                 case 'global': return '';
                 case 'popularTitlesDiscover': return 'Popular titles';
                 case 'popularTitlesFollowing': return 'Popular titles with friends';
-                case 'profile': return '';
                 case 'single': return '';
                 case 'streaming': return 'On Streaming'; 
                 case 'theaters': return 'In Theaters';
@@ -193,7 +113,6 @@ export default ReelayFeedHeader = ({
                 case 'global': return 'earth';
                 case 'popularTitlesDiscover': return 'flame';
                 case 'popularTitlesFollowing': return 'earth';
-                case 'profile': return 'person'; // should actually be their profile pic
                 case 'single': return 'notifications';
                 case 'streaming': return 'earth'; // should be different if following
                 case 'theaters': return 'ticket';
@@ -211,17 +130,9 @@ export default ReelayFeedHeader = ({
             }
         }
 
-        const renderIcon = () => {
-            if (feedSource === 'profile') {
-                return <ProfilePicture user={reelay?.creator} size={30} />
-            } else {
-                return <Icon type={getDisplayIconSource()} name={getDisplayIcon()} size={21} color='white' />
-            }
-        }
-
         return (
             <RowView>
-                { renderIcon() }
+                <Icon type={getDisplayIconSource()} name={getDisplayIcon()} size={21} color='white' />
                 <Spacer />
                 <HeaderText>{getDisplayFeedSource()}</HeaderText>
             </RowView>
@@ -235,6 +146,95 @@ export default ReelayFeedHeader = ({
                 <Spacer />
                 <HeaderText numberOfLines={1}>{topic?.title}</HeaderText>
             </RowView>
+        );
+    }
+
+    if (club && topic) {
+        return (
+            <ActivityTicker
+                animationType={'scroll'} 
+                bounce={false} 
+                duration={
+                    clubScrollDuration + 
+                    dividerScrollDuration +
+                    topicScrollDuration
+                } 
+                easing={Easing.linear} 
+                loop 
+                marqueeDelay={1000} 
+                repeatSpacer={25}
+            >
+                <RowView>
+                    <ClubInfo />
+                    <Spacer />
+                    <Divider />
+                    <Spacer />
+                    <TopicInfo />
+                </RowView>
+            </ActivityTicker>
+        );
+    } else if (club) {
+        return (
+            <ActivityTicker
+                animationType={'scroll'} 
+                bounce={false} 
+                duration={clubScrollDuration} 
+                easing={Easing.linear} 
+                loop 
+                marqueeDelay={1000} 
+                repeatSpacer={25}
+            >
+                <ClubInfo />
+            </ActivityTicker>
+        );
+    } else if (topic) {
+        return (
+            <ActivityTicker
+                animationType={'scroll'} 
+                bounce={false} 
+                duration={topicScrollDuration} 
+                easing={Easing.linear} 
+                loop 
+                marqueeDelay={1000} 
+                repeatSpacer={25}
+            >
+                <RowView>
+                    <GlobalInfo />
+                    <Divider />
+                    <Spacer />
+                    <TopicInfo />
+                </RowView>
+            </ActivityTicker>
+        );
+    } else {
+        return <GlobalInfo />;
+    }
+}
+
+const ActivityInfoBarMemo = memo(ActivityInfoBar, (thread0, thread1) => {
+    return (
+        thread0.club?.id === thread1.club?.id &&
+        thread0.topic?.id === thread1.topic?.id
+    );
+});
+
+export default ReelayFeedHeader = ({ 
+    navigation, 
+    club = null, 
+    topic = null, 
+    feedSource = 'global',
+    position,
+    reelay,
+    stackLength,
+    onTappedOldest,
+    onTappedNewest,
+}) => {
+
+    const BackButton = () => {
+        return (
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+                <Icon type='ionicon' name={'arrow-back-outline'} color={'white'} size={30} />
+            </TouchableOpacity>
         );
     }
 
@@ -261,12 +261,20 @@ export default ReelayFeedHeader = ({
 
     const topOffset = useSafeAreaInsets().top;
 
+    if (feedSource === 'profile') {
+        return (
+            <RowView>
+                <ProfilePicture user={user} size={30} />
+            </RowView>
+        );
+    }
+
     return (
         <FeedHeaderView topOffset={topOffset}>
             { feedSource !== 'global' && <BackButton navigation={navigation} /> }
             <Spacer />
             <ActivityInfoView>
-                <ActivityInfoBar />
+                <ActivityInfoBarMemo club={club} feedSource={feedSource} topic={topic} />
             </ActivityInfoView>
             { stackLength > 1 && (
                 <RowView>

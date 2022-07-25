@@ -163,6 +163,10 @@ const ReelayStack = ({
         }
     }
 
+    if (stackViewable) {
+        console.log('viewable reelay title: ', viewableReelay?.title?.display);
+    }
+
     return (
         <ReelayFeedContainer>
             <FlatList 
