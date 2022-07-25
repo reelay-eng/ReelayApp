@@ -72,6 +72,17 @@ const ReelayStack = ({
 
     const latestAnnouncement = useSelector(state => state.latestAnnouncement);
     const isPinnedReelay = (viewableReelay?.sub === latestAnnouncement?.pinnedReelay?.sub);
+
+    const clubStub = (viewableReelay?.clubID) ? {
+        id: viewableReelay?.clubID,
+        name: viewableReelay?.clubName,
+    } : null;
+
+    const topicStub = (viewableReelay?.topicID) ? {
+        id: viewableReelay?.topicID,
+        title: viewableReelay?.topicTitle,
+    } : null;
+
     const topOffset = useSafeAreaInsets().top + 8;
 
     const donateObj = donateLinks?.find((donateLinkObj) => {
@@ -178,21 +189,23 @@ const ReelayStack = ({
                 <HeaderContainer>
                     <ReelayFeedHeader 
                         navigation={navigation}
+                        club={clubStub}
                         feedSource={feedSource}
                         position={stackPosition}
                         stackLength={stack?.length}
                         onTappedNewest={onTappedNewest}
                         onTappedOldest={onTappedOldest}
                         reelay={stack[stackPosition]}
+                        topic={topicStub}
                     />
                     <TitleBannerContainer topOffset={topOffset}>
                         <TitleBanner 
-                            club={null}
+                            club={clubStub}
                             donateObj={donateObj}
                             navigation={navigation}
                             stack={stack}
                             titleObj={viewableReelay?.title}
-                            topic={null}
+                            topic={topicStub}
                             viewableReelay={viewableReelay}
                         />
                     </TitleBannerContainer>

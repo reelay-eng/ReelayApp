@@ -174,7 +174,7 @@ export default ReelayFeedHeader = ({
             switch (feedSource) {
                 case 'festivals': return 'At Festivals';
                 case 'following': return 'Friends are watching';
-                case 'global': return 'Global';
+                case 'global': return '';
                 case 'popularTitlesDiscover': return 'Popular titles';
                 case 'popularTitlesFollowing': return 'Popular titles with friends';
                 case 'profile': return '';

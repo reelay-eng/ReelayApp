@@ -68,6 +68,10 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     const [searchResults, setSearchResults] = useState([]);
     const [searchType, setSearchType] = useState('Film');
 
+    /**
+     * Topic obj requires two elements only: { id, title }
+     */
+
     const clubID = route?.params?.clubID;
     const topic = route?.params?.topic;
     const updateCounter = useRef(0);
