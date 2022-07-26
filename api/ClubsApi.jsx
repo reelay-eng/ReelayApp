@@ -197,7 +197,6 @@ export const getClubMembers = async ({ authSession, clubID, reqUserSub }) => {
 
 export const getClubsDiscover = async ({ authSession, page = 0, reqUserSub }) => {
     const routeGet = `${REELAY_API_BASE_URL}/clubs/discover?page=${page}&visibility=${FEED_VISIBILITY}`;
-    console.log('route get: ', routeGet, reqUserSub);
     const fetchedClubs = await fetchResults(routeGet, {
         method: 'GET',
         headers: {

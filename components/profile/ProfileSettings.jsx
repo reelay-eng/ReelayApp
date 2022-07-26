@@ -13,6 +13,9 @@ import { HeaderWithBackButton } from "../global/Headers";
 import { getReelay, prepareReelay, registerPushTokenForUser } from '../../api/ReelayDBApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
+import { compressVideoForUpload } from '../../api/FFmpegApi';
+import { showMessageToast } from '../utils/toasts';
+import { cacheDirectory, downloadAsync } from 'expo-file-system';
 
 export const ProfileSettings = ({navigation}) => {
     const ViewContainer = styled(SafeAreaView)`
@@ -28,6 +31,7 @@ export const ProfileSettings = ({navigation}) => {
     `;
     const { reelayDBUser } = useContext(AuthContext);
     const isAdmin = (reelayDBUser?.role === 'admin');
+    const myCreatorStacks = useSelector(state => state.myCreatorStacks);
     const dispatch = useDispatch();
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
@@ -38,6 +42,18 @@ export const ProfileSettings = ({navigation}) => {
         const welcomeReelay = await getReelay(welcomeReelaySub, 'dev');
         const preparedReelay = await prepareReelay(welcomeReelay);
         navigation.push('SingleReelayScreen', { preparedReelay });
+    }
+
+    const testCompression = async () => {
+        const reelay = myCreatorStacks[2][0];
+        console.log('reelay: ', reelay.content);
+        const videoURI = reelay?.content?.videoURI;
+        showMessageToast(`test compression: ${videoURI}`);
+
+        const localURI = cacheDirectory + 'img/compression-test.mp4';
+        await downloadAsync(videoURI, localURI);
+        const compressedVideo = await compressVideoForUpload(localURI);
+        console.log('compressed video: ', compressedVideo);
     }
 
     return (
@@ -107,6 +123,13 @@ export const ProfileSettings = ({navigation}) => {
                     iconName="glasses"
                     onPress={loadWelcomeVideoScreen}
                 />
+                { isAdmin && (
+                    <SettingEntry
+                        text="Test compression"
+                        iconName="file-tray-full"
+                        onPress={testCompression}
+                    />                    
+                )}
 			</SettingsContainer>
             <Logout />
 		</ViewContainer>

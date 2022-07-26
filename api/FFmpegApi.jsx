@@ -1,5 +1,6 @@
 let FFmpegKit, ReturnCode;
 import Constants from 'expo-constants';
+import { getInfoAsync, deleteAsync } from 'expo-file-system';
 import { showErrorToast } from '../components/utils/toasts';
 
 export const deviceCanCompress = (Constants.appOwnership !== 'expo');
@@ -59,22 +60,32 @@ const parseFFmpegSession = async (session) => {
 export const compressVideoForUpload = async (inputURI, crf=24) => {
     if (!deviceCanCompress) {
         console.log('skipping video compression');
-        return inputURI;
+        return { 
+            outputURI: inputURI,
+            parsedSession: {},
+            error: 'Device cannot compress video' 
+        };
     }
     console.log('starting video compression');
 
-
     try {
-        const filenameEnd = outputURI.indexOf('.mp4');
+        const filenameEnd = inputURI.indexOf('.mp4');
         const outputURI = `${inputURI.slice(0, filenameEnd)}-ffmpeg.mp4`;
-        console.log('input uri: ', inputURI);
-        console.log('output uri: ', outputURI);
+        const existingOutputFileInfo = await getInfoAsync(outputURI);
+        if (existingOutputFileInfo?.exists) {
+            console.log('Deleting existing file: ', outputURI);
+            await deleteAsync(outputURI);
+        }
 
-        // const command = `ffmpeg -i ${inputURI} -vcodec libx264 -acodec aac -crf ${crf} ${outputURI}`;
-        const command = `ffmpeg -i ${inputURI} ${outputURI}`;
-
+        const command = `-i ${inputURI} -vcodec h264 -acodec aac ${outputURI}`;
         const session = await FFmpegKit.execute(command);
-        return await parseFFmpegSession(session);   
+        const parsedSession = await parseFFmpegSession(session);   
+
+        const inputFileInfo = await getInfoAsync(inputURI, { size: true });
+        const outputFileInfo = await getInfoAsync(outputURI, { size: true });
+        console.log('input file info: ', inputFileInfo);
+        console.log('output file info: ', outputFileInfo);
+        return { outputURI, parsedSession, error: false };
     } catch (error) {
         showErrorToast('An error occurred. Could not complete video compression.');
         console.log(error);
