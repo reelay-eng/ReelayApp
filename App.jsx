@@ -271,7 +271,7 @@ function App() {
         dispatch({ type: 'setReelayDBUser', payload: reelayDBUserLoaded });
 
         const mySettingsJSON = reelayDBUserLoaded?.settingsJSON;
-        const mySettings = JSON.parse(mySettingsJSON);
+        const mySettings = JSON.parse(mySettingsJSON) ?? {}; // 
 
         dispatch({ type: 'setMySettings', payload: mySettings })
 
