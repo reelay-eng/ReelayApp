@@ -119,11 +119,12 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
     // get the topic we're (optionally) posting in
     const discoverNewTopics = useSelector(state => state.myHomeContent?.discover?.newTopics);
-    const discoverPopularTopics = useSelector(state => state.myHomeContent?.discover?.newTopics);
+    const discoverPopularTopics = useSelector(state => state.myHomeContent?.discover?.popularTopics);
+    const followingNewTopics = useSelector(state => state.myHomeContent?.following?.newTopics);
 
-    let discoverTopics = [discoverNewTopics, discoverPopularTopics];
-    const isNotDuplicate = (topic, index) => (index === discoverTopics.findIndex(nextTopic => nextTopic?.id === topic?.id));
-    discoverTopics = discoverTopics.filter(isNotDuplicate);
+    const allTopics = [...discoverNewTopics, ...discoverPopularTopics, ...followingNewTopics];
+    const isNotDuplicate = (topic, index) => (index === allTopics.findIndex(nextTopic => nextTopic?.id === topic?.id));
+    const allUniqueTopics = allTopics.filter(isNotDuplicate);
     
     const uploadRequest = useSelector(state => state.uploadRequest);
     const uploadStage = useSelector(state => state.uploadStage);
@@ -157,7 +158,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             const reelayTopic = (topicID && clubID) 
                 ? reelayClub?.topics?.find(nextTopic => nextTopic.id === topicID)
             : (topicID) 
-                ? discoverTopics.find(nextTopic => nextTopic.id === topicID) 
+                ? allUniqueTopics.find(nextTopic => nextTopic.id === topicID) 
             : null;
     
             const destination = (clubID) ? 'InClub' 
