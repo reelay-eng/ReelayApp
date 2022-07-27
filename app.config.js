@@ -1,6 +1,6 @@
 export default ({ config }) => {
     if (!process.env.NODE_ENV) {
-        process.env.NODE_ENV = 'production';
+        process.env.NODE_ENV = 'dev';
         // note: this is what happens in production
     }
 
