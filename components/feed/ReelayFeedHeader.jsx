@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { Fragment, memo } from 'react';
 import { Easing, Pressable, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
@@ -10,6 +10,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TextTicker from 'react-native-text-ticker';
 import ClubPicture from '../global/ClubPicture';
 import ProfilePicture from '../global/ProfilePicture';
+import { LinearGradient } from 'expo-linear-gradient';
+import ReelayColors from '../../constants/ReelayColors';
 
 const ActivityTicker = styled(TextTicker)`
     color: white;
@@ -40,6 +42,11 @@ const ForwardBackButton = styled(TouchableOpacity)`
     margin-left: 8px;
     margin-right: 8px;
     padding: 4px;
+`
+const HeaderGradient = styled(LinearGradient)`
+    height: ${props => props.topOffset + 38}px;
+    position: absolute;
+    width: 100%;
 `
 const HeaderText = styled(ReelayText.Subtitle2)`
     color: white;
@@ -270,17 +277,20 @@ export default ReelayFeedHeader = ({
     }
 
     return (
-        <FeedHeaderView topOffset={topOffset}>
-            { feedSource !== 'global' && <BackButton navigation={navigation} /> }
-            <Spacer />
-            <ActivityInfoView>
-                <ActivityInfoBarMemo club={club} feedSource={feedSource} topic={topic} />
-            </ActivityInfoView>
-            { stackLength > 1 && (
-                <RowView>
-                    <ForwardBack />
-                </RowView>
-            )}
-        </FeedHeaderView>
+        <Fragment>
+            <HeaderGradient colors={[ReelayColors.reelayBlack,'transparent']} topOffset={topOffset} />
+            <FeedHeaderView topOffset={topOffset}>
+                { feedSource !== 'global' && <BackButton navigation={navigation} /> }
+                <Spacer />
+                <ActivityInfoView>
+                    <ActivityInfoBarMemo club={club} feedSource={feedSource} topic={topic} />
+                </ActivityInfoView>
+                { stackLength > 1 && (
+                    <RowView>
+                        <ForwardBack />
+                    </RowView>
+                )}
+            </FeedHeaderView>
+        </Fragment>
     );
 }

@@ -94,7 +94,7 @@ const TitleBanner = ({
     }
     
     const openTitleDetail = async () => {
-        if (!viewableReelay?.title?.display) {
+        if (!titleObj) {
             return;
         }
         navigation.push('TitleDetailScreen', { titleObj });
@@ -158,6 +158,8 @@ const TitleBanner = ({
     );
 }
 
-export default memo(TitleBanner, (prevProps, nextProps) => {
-    return prevProps.titleObj === nextProps.titleObj && prevProps.viewableReelay === nextProps.viewableReelay;
-})
+const areEqual = (prevProps, nextProps) => {
+    return prevProps.titleObj?.id === nextProps.titleObj && prevProps.viewableReelay === nextProps.viewableReelay;
+}
+
+export default memo(TitleBanner, areEqual);

@@ -72,6 +72,7 @@ const ReelayStack = ({
 
     const latestAnnouncement = useSelector(state => state.latestAnnouncement);
     const isPinnedReelay = (viewableReelay?.sub === latestAnnouncement?.pinnedReelay?.sub);
+    const renderBannerOnStack = !viewableReelay?.topicID;
 
     const clubStub = (viewableReelay?.clubID) ? {
         id: viewableReelay?.clubID,
@@ -119,18 +120,34 @@ const ReelayStack = ({
         );
     }
 
+    const renderTitleBanner = (reelay) => {
+        return (
+            <TitleBannerContainer topOffset={topOffset}>
+                <TitleBanner 
+                    club={clubStub}
+                    donateObj={donateObj}
+                    navigation={navigation}
+                    stack={stack}
+                    titleObj={reelay?.title}
+                    topic={topicStub}
+                    viewableReelay={reelay}
+                />
+            </TitleBannerContainer>
+        );
+    }
+
     const renderReelay = ({ item, index }) => {
         const reelay = item;
-        const reelayViewable = stackViewable && (index === stackPosition);  
-        
+        const reelayIsViewable = stackViewable && (index === stackPosition);  
         return (
             <ReelayFeedContainer key={reelay.id}>
                 <Hero 
                     index={index} 
                     navigation={navigation} 
                     reelay={reelay} 
-                    viewable={reelayViewable}
+                    viewable={reelayIsViewable}
                 />
+                { !renderBannerOnStack && renderTitleBanner(reelay) }
             </ReelayFeedContainer>
         );
     };
@@ -167,6 +184,34 @@ const ReelayStack = ({
         console.log('viewable reelay title: ', viewableReelay?.title?.display);
     }
 
+    const renderHeaderAndBanner = () => {
+        return (
+            <HeaderContainer>
+                <ReelayFeedHeader 
+                    navigation={navigation}
+                    club={clubStub}
+                    feedSource={feedSource}
+                    position={stackPosition}
+                    stackLength={stack?.length}
+                    onTappedNewest={onTappedNewest}
+                    onTappedOldest={onTappedOldest}
+                    reelay={stack[stackPosition]}
+                    topic={topicStub}
+                />
+                { renderBannerOnStack && renderTitleBanner(viewableReelay) }
+            </HeaderContainer>
+        );
+    }
+
+    const renderPinnedHeader = () => {
+        return (
+            <BackButtonPinnedContainer topOffset={topOffset}>
+                <BackButton navigation={navigation} />
+                { latestAnnouncement?.title && <AnnouncementTitle /> }
+            </BackButtonPinnedContainer>
+        );
+    }
+
     return (
         <ReelayFeedContainer>
             <FlatList 
@@ -183,38 +228,8 @@ const ReelayStack = ({
                 pagingEnabled={true} 
                 windowSize={3}
             />
-            { isPinnedReelay && (
-                <BackButtonPinnedContainer topOffset={topOffset}>
-                    <BackButton navigation={navigation} />
-                    { latestAnnouncement?.title && <AnnouncementTitle /> }
-                </BackButtonPinnedContainer>
-            )}
-            { !isPinnedReelay && (
-                <HeaderContainer>
-                    <ReelayFeedHeader 
-                        navigation={navigation}
-                        club={clubStub}
-                        feedSource={feedSource}
-                        position={stackPosition}
-                        stackLength={stack?.length}
-                        onTappedNewest={onTappedNewest}
-                        onTappedOldest={onTappedOldest}
-                        reelay={stack[stackPosition]}
-                        topic={topicStub}
-                    />
-                    <TitleBannerContainer topOffset={topOffset}>
-                        <TitleBanner 
-                            club={clubStub}
-                            donateObj={donateObj}
-                            navigation={navigation}
-                            stack={stack}
-                            titleObj={viewableReelay?.title}
-                            topic={topicStub}
-                            viewableReelay={viewableReelay}
-                        />
-                    </TitleBannerContainer>
-                </HeaderContainer>
-            )}
+            { isPinnedReelay && renderPinnedHeader() }
+            { !isPinnedReelay && renderHeaderAndBanner() }
             { showProgressBar && <UploadProgressBar mountLocation={'OnProfile'} onRefresh={onRefresh} /> }
         </ReelayFeedContainer>
     );
