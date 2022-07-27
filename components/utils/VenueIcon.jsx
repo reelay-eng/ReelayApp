@@ -90,7 +90,7 @@ export const getOtherVenues = () => {
     return otherVenues;
 }
 
-export const VenueIcon = memo(({ border = 0, onPress, size = 48, venue }) => {
+const VenueIcon = ({ border = 0, onPress, size = 48, venue }) => {
     const searchItems = [...streamingVenues, ...otherVenues];
     const sourceVenueObject = venue?.length ? searchItems.find(vi => vi.venue === venue) : null;
     const isOther = venue?.length ? otherVenues.map(e => e.venue)?.includes(venue) : null;
@@ -116,6 +116,11 @@ export const VenueIcon = memo(({ border = 0, onPress, size = 48, venue }) => {
         }
         </>
     );
-}, (prevProps, nextProps) => {
+}
+
+const areEqual = (prevProps, nextProps) => {
+    console.log('are equal????', prevProps.venue, nextProps.venue);
     return prevProps.venue === nextProps.venue;
-});
+};
+
+export default memo(VenueIcon, areEqual);

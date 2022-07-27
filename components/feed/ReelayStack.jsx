@@ -1,4 +1,4 @@
-import React, { useContext, useState, memo, useRef, Fragment } from 'react';
+import React, { useContext, useState, memo, useRef, Fragment, useMemo } from 'react';
 import { Dimensions, FlatList, SafeAreaView, View } from 'react-native';
 import BackButton from '../utils/BackButton';
 import Hero from './Hero';
@@ -74,17 +74,21 @@ const ReelayStack = ({
     const isPinnedReelay = (viewableReelay?.sub === latestAnnouncement?.pinnedReelay?.sub);
     const renderBannerOnStack = !viewableReelay?.topicID;
 
-    const clubStub = (viewableReelay?.clubID) ? {
-        id: viewableReelay?.clubID,
-        name: viewableReelay?.clubName,
-    } : null;
-
-    const topicStub = (viewableReelay?.topicID) ? {
-        id: viewableReelay?.topicID,
-        title: viewableReelay?.topicTitle,
-    } : null;
-
     const topOffset = useSafeAreaInsets().top + 8;
+
+    const clubStub = useMemo(() => {
+        return (stack[0]?.clubID) ? {
+            id: stack[0].clubID,
+            name: stack[0].clubName,
+        } :  null;
+    }, [stack]);
+
+    const topicStub = useMemo(() => {
+        return (stack[0]?.topicID) ? {
+            id: stack[0].topicID,
+            title: stack[0].topicTitle,
+        } : null;
+    }, [stack]);
 
     const donateObj = donateLinks?.find((donateLinkObj) => {
         const { tmdbTitleID, titleType } = donateLinkObj;
@@ -130,7 +134,7 @@ const ReelayStack = ({
                     stack={stack}
                     titleObj={reelay?.title}
                     topic={topicStub}
-                    viewableReelay={reelay}
+                    reelay={reelay}
                 />
             </TitleBannerContainer>
         );
@@ -138,7 +142,7 @@ const ReelayStack = ({
 
     const renderReelay = ({ item, index }) => {
         const reelay = item;
-        const reelayIsViewable = stackViewable && (index === stackPosition);  
+        const reelayIsViewable = stackViewable && (index === stackPosition);          
         return (
             <ReelayFeedContainer key={reelay.id}>
                 <Hero 
@@ -180,11 +184,17 @@ const ReelayStack = ({
         }
     }
 
-    if (stackViewable) {
-        console.log('viewable reelay title: ', viewableReelay?.title?.display);
-    }
-
     const renderHeaderAndBanner = () => {
+        const clubStub = (viewableReelay?.clubID) ? {
+            id: viewableReelay?.clubID,
+            name: viewableReelay?.clubName,
+        } : null;
+    
+        const topicStub = (viewableReelay?.topicID) ? {
+            id: viewableReelay?.topicID,
+            title: viewableReelay?.topicTitle,
+        } : null;
+
         return (
             <HeaderContainer>
                 <ReelayFeedHeader 

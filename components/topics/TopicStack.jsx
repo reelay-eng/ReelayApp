@@ -118,7 +118,7 @@ export default TopicStack = ({
                         stack={stack}
                         titleObj={reelay?.title}
                         topic={topic}
-                        viewableReelay={reelay}
+                        reelay={reelay}
                     />
                 </BannerContainer>
             </ReelayFeedContainer>

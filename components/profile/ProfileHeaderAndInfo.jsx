@@ -5,7 +5,7 @@ import { Autolink } from "react-native-autolink";
 
 import ProfileStatsBar from './ProfileStatsBar';
 import * as ReelayText from "../../components/global/Text";
-import { VenueIcon } from '../../components/utils/VenueIcon';
+import VenueIcon from '../../components/utils/VenueIcon';
 
 import styled from 'styled-components/native';
 

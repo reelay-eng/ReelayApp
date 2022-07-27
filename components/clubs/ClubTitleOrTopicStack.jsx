@@ -129,7 +129,7 @@ export default ClubTitleOrTopicStack = ({
                     posterWidth={posterWidth}
                     stack={stack}
                     titleObj={reelay?.title}
-                    viewableReelay={reelay}
+                    reelay={reelay}
                     club={club}
                     topic={(activityType === 'topic') ? clubTitleOrTopic : null}
                 />

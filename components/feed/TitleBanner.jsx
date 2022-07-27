@@ -4,7 +4,7 @@ import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
 import Constants from 'expo-constants';
 
-import { VenueIcon } from '../utils/VenueIcon';
+import VenueIcon from '../utils/VenueIcon';
 import DonateButton from '../global/DonateButton';
 
 import { logAmplitudeEventProd } from "../utils/EventLogger";
@@ -68,6 +68,25 @@ const YearVenueContainer = styled(View)`
 
 const DEFAULT_BGCOLOR = 'rgba(0, 0, 0, 0.36)';
 
+const venuesEqual = (prevProps, nextProps) => {
+    return prevProps.venue === nextProps.venue;
+}
+
+const TitleUnderline = memo(({ venue, displayYear }) => {
+    return (
+        <TitleUnderlineContainer>
+            <YearVenueContainer>
+                { venue && 
+                    <VenueContainer>
+                        <VenueIcon venue={venue} size={20} border={1} />
+                    </VenueContainer>
+                }
+                { displayYear.length > 0 && <YearText>{displayYear}</YearText> }
+            </YearVenueContainer>
+        </TitleUnderlineContainer>
+    );
+}, venuesEqual);
+
 const TitleBanner = ({ 
     club = null,
     titleObj,
@@ -77,12 +96,12 @@ const TitleBanner = ({
     onPress=null,
     posterWidth=60,
     topic=null,
-    viewableReelay=null, 
+    reelay=null, 
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const topOffset = useSafeAreaInsets().top;
     const welcomeReelaySub = Constants.manifest.extra.welcomeReelaySub;
-    const isWelcomeReelay = viewableReelay && (welcomeReelaySub === viewableReelay?.sub);
+    const isWelcomeReelay = reelay && (welcomeReelaySub === reelay?.sub);
     
     // figure out how to do ellipses for displayTitle
     let displayTitle = (titleObj.display) ? titleObj.display : 'Title not found'; 
@@ -100,38 +119,15 @@ const TitleBanner = ({
         navigation.push('TitleDetailScreen', { titleObj });
 
         logAmplitudeEventProd('openTitleScreen', {
-            reelayID: viewableReelay?.id,
+            reelayID: reelay?.id,
             reelayTitle: titleObj?.display,
             username: reelayDBUser?.username,
             source: 'poster',
         });
     }
 
-    const TitleUnderline = () => {
-        return (
-            <TitleUnderlineContainer>
-                <YearVenueLine />
-            </TitleUnderlineContainer>
-        );
-    }
-
-    const YearVenueLine = memo(() => {
-        return (
-            <YearVenueContainer>
-                { viewableReelay?.content?.venue && 
-                    <VenueContainer>
-                        <VenueIcon venue={viewableReelay?.content?.venue} size={20} border={1} />
-                    </VenueContainer>
-                }
-                { displayYear.length > 0 && <YearText>{displayYear}</YearText> }
-            </YearVenueContainer>
-        );
-    }, (prevProps, nextProps) => {
-        return prevProps.venue === nextProps.venue;
-    });
-
     return (
-        <TitleBannerOuterContainer absolute={!!viewableReelay} topOffset={viewableReelay ? topOffset : 0}>
+        <TitleBannerOuterContainer absolute={!!reelay} topOffset={reelay ? topOffset : 0}>
             <TitleBannerContainer color={backgroundColor} onPress={onPress ?? openTitleDetail}>
                 <TitlePosterContainer>
                     <TitlePoster title={titleObj} onPress={openTitleDetail} width={posterWidth} />
@@ -142,24 +138,26 @@ const TitleBanner = ({
                             {displayTitle}
                         </TitleText>
                     </TitleTextContainer>
-                    <TitleUnderline />
+                    <TitleUnderline venue={reelay?.content?.venue} displayYear={displayYear} />
                 </TitleInfo>
                 { !donateObj && (
                     <AddToStackButton 
                         navigation={navigation} 
-                        reelay={viewableReelay} 
+                        reelay={reelay} 
                         club={club}
                         topic={topic}
                     />
                 )}
-                { donateObj && <DonateButton donateObj={donateObj} reelay={viewableReelay} /> }
+                { donateObj && <DonateButton donateObj={donateObj} reelay={reelay} /> }
             </TitleBannerContainer>    
         </TitleBannerOuterContainer>
     );
 }
 
 const areEqual = (prevProps, nextProps) => {
-    return prevProps.titleObj?.id === nextProps.titleObj && prevProps.viewableReelay === nextProps.viewableReelay;
+    const titlesEqual = (prevProps.titleObj?.id === nextProps.titleObj?.id);
+    const reelaysEqual = (prevProps?.reelay?.sub === nextProps?.reelay?.sub);
+    return titlesEqual && reelaysEqual;
 }
 
 export default memo(TitleBanner, areEqual);

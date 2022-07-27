@@ -9,7 +9,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import BackButton from '../../components/utils/BackButton';
-import { VenueIcon } from '../../components/utils/VenueIcon';
+import VenueIcon from '../../components/utils/VenueIcon';
 import styled from 'styled-components/native';
 import { showErrorToast } from '../../components/utils/toasts';
 
