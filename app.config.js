@@ -1,6 +1,6 @@
 export default ({ config }) => {
     if (!process.env.NODE_ENV) {
-        process.env.NODE_ENV = 'production';
+        process.env.NODE_ENV = 'dev';
         // note: this is what happens in production
     }
 
@@ -13,7 +13,7 @@ export default ({ config }) => {
             process.env.NODE_ENV === 'localg') return 'https://reelay-api-dev.loca.lt';
 
         // should be unreachable but just in case
-        return 'https://api-prod.reelay.app';
+        return 'https://api-dev.reelay.app';
     }
 
     const getVisibility = () => {
@@ -25,7 +25,7 @@ export default ({ config }) => {
             process.env.NODE_ENV === 'local') return 'dev';
 
         // should be unreachable but just in case
-        return 'global';
+        return 'dev';
     }
 
     // setting up any constants we need throughout the app

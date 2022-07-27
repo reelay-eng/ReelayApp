@@ -11,14 +11,14 @@
             "ios": {
                 "buildConfiguration": "Debug"
             },
-            "releaseChannel": "1.03.02-dev"
+            "releaseChannel": "1.03.03-dev"
         },
         "preview": {
             "distribution": "internal",
-            "releaseChannel": "1.03.02-internal"
+            "releaseChannel": "1.03.03-internal"
         },
         "production": {
-            "releaseChannel": "1.03.02"
+            "releaseChannel": "1.03.03"
         }
     },
     "submit": {
