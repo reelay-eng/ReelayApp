@@ -12,7 +12,7 @@ import {
     getUserByUsername, 
 } from './ReelayDBApi';
 
-import { getUserSettings } from "./SettingsApi";
+import { getUserSettings, shouldNotifyUser } from "./SettingsApi";
 import { getClubMembers } from './ClubsApi';
 
 const EXPO_NOTIFICATION_URL = Constants.manifest.extra.expoNotificationUrl;
@@ -190,6 +190,12 @@ export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, comme
         return;
     }
 
+    const shouldNotify = await shouldNotifyUser(creatorSub, "notifyCommentsOnMyReelays");
+    if (!shouldNotify) {
+        console.log('Creator does not want to receive comment notifications on their reelays.');
+        return;
+    }
+
     const title = `${author?.username}`;
     const body = `commented on your reelay for ${reelay.title.display}`;
     const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
@@ -218,6 +224,12 @@ export const notifyUserOnCommentLike = async ({ authorSub, user, reelay }) => {
 
     if (!token) {
         console.log('Creator not registered for like notifications');
+        return;
+    }
+
+    const shouldNotify = await shouldNotifyUser(authorSub, "notifyLikesOnMyComments");
+    if (!shouldNotify) {
+        console.log('Creator does not want to receive notifications on comment likes.');
         return;
     }
 
@@ -254,6 +266,12 @@ export const notifyMentionsOnComment = async ({ creator, author, reelay, comment
             
             if (!token) {
                 console.log('Comment author not registered for notifications');
+                return;
+            }
+
+            const shouldNotify = await shouldNotifyUser(notifyMentionedUserSub, "notifyTagsInComments");
+            if (!shouldNotify) {
+                console.log('Creator does not want to receive notifications when tagged in reelays.');
                 return;
             }
         
@@ -298,6 +316,12 @@ export const notifyThreadOnComment = async ({ creator, author, reelay, commentTe
         const token = notifyAuthor?.pushToken;
         if (!token) {
             console.log('Comment author not registered for notifications');
+            return;
+        }
+
+        const shouldNotify = await shouldNotifyUser(notifyAuthor?.sub, "notifyCommentsOnOtherReelays");
+        if (!shouldNotify) {
+            console.log('Creator does not want to receive comment notifications in threads.');
             return;
         }
 
@@ -351,6 +375,12 @@ export const notifyCreatorOnFollow = async ({ creatorSub, follower }) => {
         return;
     }
 
+    const shouldNotify = await shouldNotifyUser(creatorSub, "notifyFollows");
+    if (!shouldNotify) {
+        console.log('Creator does not want to receive follow notifications.');
+        return;
+    }
+
     const title = `${follower.username}`;
     const body = `started following you`;
     const data = {
@@ -385,6 +415,12 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
 
     if (!token) {
         console.log('Creator not registered for like notifications');
+        return;
+    }
+
+    const shouldNotify = await shouldNotifyUser(creatorSub, "notifyLikesOnMyReelays");
+    if (!shouldNotify) {
+        console.log('Creator does not want to receive like notifications on their reelays.');
         return;
     }
 
@@ -434,6 +470,12 @@ export const notifyMentionsOnReelayPosted = async ({ authSession, clubID = null,
             
             if (!token) {
                 console.log('Comment author not registered for notifications');
+                return;
+            }
+
+            const shouldNotify = await shouldNotifyUser(notifyMentionedUserSub, "notifyTagsInReelays");
+            if (!shouldNotify) {
+                console.log('Creator does not want to receive tag notifications on reelays.');
                 return;
             }
                         
@@ -501,7 +543,13 @@ export const notifyOtherCreatorsOnReelayPosted = async ({
         if (recipientIsCreator || recipientMentioned) {
             console.log('No need to send notification to creator');
             return;
-        }    
+        } 
+        
+        const shouldNotify = await shouldNotifyUser(notifyCreator?.sub, "notifyPostsOnMyReelayedTitles");
+        if (!shouldNotify) {
+            console.log('Creator does not want to receive notifications when reelays about same title are posted.');
+            return;
+        }
 
         const alreadyNotified = (reelay) => (notifyCreator.sub === reelay.creator.sub);
         const recipientIndex = notifyReelayStack.findIndex(alreadyNotified);
@@ -532,6 +580,12 @@ export const notifyTopicCreatorOnReelayPosted = async ({ creator, reelay, topic 
     const recipientIsCreator = (creator.sub === topicCreator?.sub);
     if (recipientIsCreator) {
         console.log('No need to send notification to creator');
+        return;
+    }
+
+    const shouldNotify = await shouldNotifyUser(topicCreator?.sub, "notifyPostsInMyTopics");
+    if (!shouldNotify) {
+        console.log('Creator does not want to receive post notifications in their topics');
         return;
     }
 
