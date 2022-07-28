@@ -117,6 +117,5 @@ export const VenueIcon = memo(({ border = 0, onPress, size = 48, venue }) => {
         </>
     );
 }, (prevProps, nextProps) => {
-    console.log('venueee: ', prevProps.venue, nextProps.venue);
     return prevProps.venue === nextProps.venue;
 });
