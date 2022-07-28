@@ -5,13 +5,16 @@ import { showErrorToast } from '../components/utils/toasts';
 
 export const deviceCanCompress = (Constants.appOwnership !== 'expo');
 
-if (deviceCanCompress) {
-    FFmpegKit = require('ffmpeg-kit-react-native').FFmpegKit;
-    ReturnCode = require('ffmpeg-kit-react-native').ReturnCode;
-} else {
-    FFmpegKit = null;
-    ReturnCode = null;
-}
+FFmpegKit = null;
+ReturnCode = null;
+
+// if (deviceCanCompress) {
+//     FFmpegKit = require('ffmpeg-kit-react-native').FFmpegKit;
+//     ReturnCode = require('ffmpeg-kit-react-native').ReturnCode;
+// } else {
+//     FFmpegKit = null;
+//     ReturnCode = null;
+// }
 
 const parseSessionLogs = async (session) => {
     try {
@@ -57,7 +60,7 @@ const parseFFmpegSession = async (session) => {
     }
 }
 
-export const compressVideoForUpload = async (inputURI, crf=24) => {
+export const compressVideoForUpload = async (inputURI) => {
     if (!deviceCanCompress) {
         console.log('skipping video compression');
         return { 
@@ -78,8 +81,8 @@ export const compressVideoForUpload = async (inputURI, crf=24) => {
         }
 
         const command = `-i ${inputURI} -vcodec h264 -acodec aac ${outputURI}`;
-        const session = await FFmpegKit.execute(command);
-        const parsedSession = await parseFFmpegSession(session);   
+        // const session = await FFmpegKit.execute(command);
+        // const parsedSession = await parseFFmpegSession(session);   
 
         const inputFileInfo = await getInfoAsync(inputURI, { size: true });
         const outputFileInfo = await getInfoAsync(outputURI, { size: true });
