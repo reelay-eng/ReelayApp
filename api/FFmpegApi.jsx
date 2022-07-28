@@ -1,6 +1,7 @@
 let FFmpegKit, ReturnCode;
 import Constants from 'expo-constants';
 import { getInfoAsync, deleteAsync } from 'expo-file-system';
+import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 import { showErrorToast } from '../components/utils/toasts';
 
 export const deviceCanCompress = (Constants.appOwnership !== 'expo');
@@ -8,13 +9,15 @@ export const deviceCanCompress = (Constants.appOwnership !== 'expo');
 FFmpegKit = null;
 ReturnCode = null;
 
-// if (deviceCanCompress) {
-//     FFmpegKit = require('ffmpeg-kit-react-native').FFmpegKit;
-//     ReturnCode = require('ffmpeg-kit-react-native').ReturnCode;
-// } else {
-//     FFmpegKit = null;
-//     ReturnCode = null;
-// }
+try {
+    if (deviceCanCompress) {
+        FFmpegKit = require('ffmpeg-kit-react-native').FFmpegKit;
+        ReturnCode = require('ffmpeg-kit-react-native').ReturnCode;
+    }   
+} catch (error) {
+    console.log(error);
+    logAmplitudeEventProd('ffmpegApiError', { error });
+}
 
 const parseSessionLogs = async (session) => {
     try {
@@ -61,7 +64,7 @@ const parseFFmpegSession = async (session) => {
 }
 
 export const compressVideoForUpload = async (inputURI) => {
-    if (!deviceCanCompress) {
+    if (!deviceCanCompress || !FFmpegKit?.execute) {
         console.log('skipping video compression');
         return { 
             outputURI: inputURI,
@@ -81,8 +84,8 @@ export const compressVideoForUpload = async (inputURI) => {
         }
 
         const command = `-i ${inputURI} -vcodec h264 -acodec aac ${outputURI}`;
-        // const session = await FFmpegKit.execute(command);
-        // const parsedSession = await parseFFmpegSession(session);   
+        const session = await FFmpegKit.execute(command);
+        const parsedSession = await parseFFmpegSession(session);   
 
         const inputFileInfo = await getInfoAsync(inputURI, { size: true });
         const outputFileInfo = await getInfoAsync(outputURI, { size: true });
