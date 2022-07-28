@@ -66,6 +66,10 @@ const parseFFmpegSession = async (session) => {
 export const compressVideoForUpload = async (inputURI) => {
     if (!deviceCanCompress || !FFmpegKit?.execute) {
         console.log('skipping video compression');
+        logAmplitudeEventProd('ffmpegApiSkipCompression', {
+            appOwnership: Constants.appOwnership
+        });
+
         return { 
             outputURI: inputURI,
             parsedSession: {},
@@ -78,6 +82,7 @@ export const compressVideoForUpload = async (inputURI) => {
         const filenameEnd = inputURI.indexOf('.mp4');
         const outputURI = `${inputURI.slice(0, filenameEnd)}-ffmpeg.mp4`;
         const existingOutputFileInfo = await getInfoAsync(outputURI);
+        
         if (existingOutputFileInfo?.exists) {
             console.log('Deleting existing file: ', outputURI);
             await deleteAsync(outputURI);
@@ -91,6 +96,12 @@ export const compressVideoForUpload = async (inputURI) => {
         const outputFileInfo = await getInfoAsync(outputURI, { size: true });
         console.log('input file info: ', inputFileInfo);
         console.log('output file info: ', outputFileInfo);
+
+        logAmplitudeEventProd('ffmpegCompressionComplete', {
+            inputFileSize: inputFileInfo?.size,
+            outputFileSize: outputFileInfo?.size,
+        });
+
         return { outputURI, parsedSession, error: false };
     } catch (error) {
         showErrorToast('An error occurred. Could not complete video compression.');
