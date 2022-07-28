@@ -125,7 +125,7 @@ export const ProfileSettings = ({navigation}) => {
                 />
                 { isAdmin && (
                     <SettingEntry
-                        text="Test compression"
+                        text="(Admin) Test Compression"
                         iconName="file-tray-full"
                         onPress={testCompression}
                     />                    

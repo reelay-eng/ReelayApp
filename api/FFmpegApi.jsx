@@ -70,7 +70,6 @@ export const compressVideoForUpload = async (inputURI) => {
 
     try {
         const FFmpegKit = require('ffmpeg-kit-react-native')?.FFmpegKit;
-        logAmplitudeEventProd('ffmpegImportComplete', {});
         const filenameEnd = inputURI.indexOf('.mp4');
         const outputURI = `${inputURI.slice(0, filenameEnd)}-ffmpeg.mp4`;
         const existingOutputFileInfo = await getInfoAsync(outputURI);
@@ -96,7 +95,7 @@ export const compressVideoForUpload = async (inputURI) => {
 
         return { outputURI, parsedSession, error: false };
     } catch (error) {
-        showErrorToast('An error occurred. Could not complete video compression.');
+        showErrorToast(error);
         console.log(error);
         logAmplitudeEventProd('ffmpegApiError', { error });
         return {

@@ -178,7 +178,10 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 strokeWidth={5} 
                 trailColor='transparent'
                 strokeLinecap={'round'}
-                onComplete={() => setIsRecording(false)}>
+                onComplete={() => {
+                    stopVideoRecording();
+                    setIsRecording(false);
+                }}>
                 <RecordButtonCenter activeOpacity={0.7} onPress={onRecordButtonPress} />
             </CountdownCircleTimer>
         )
