@@ -1,23 +1,9 @@
-let FFmpegKit, ReturnCode;
 import Constants from 'expo-constants';
 import { getInfoAsync, deleteAsync } from 'expo-file-system';
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 import { showErrorToast } from '../components/utils/toasts';
 
 export const deviceCanCompress = (Constants.appOwnership !== 'expo');
-
-FFmpegKit = null;
-ReturnCode = null;
-
-try {
-    if (deviceCanCompress) {
-        FFmpegKit = require('ffmpeg-kit-react-native').FFmpegKit;
-        ReturnCode = require('ffmpeg-kit-react-native').ReturnCode;
-    }   
-} catch (error) {
-    console.log(error);
-    logAmplitudeEventProd('ffmpegApiError', { error });
-}
 
 const parseSessionLogs = async (session) => {
     try {
@@ -33,7 +19,10 @@ const parseSessionLogs = async (session) => {
     }
 }
 
-const parseFFmpegSession = async (session) => {
+const parseFFmpegSession = async (session) => {  
+    if (!deviceCanCompress) return;  
+    let ReturnCode = require('ffmpeg-kit-react-native')?.ReturnCode;
+
     try {
         const returnCode = await session.getReturnCode();
         const sessionID = session.getSessionId();
@@ -64,7 +53,7 @@ const parseFFmpegSession = async (session) => {
 }
 
 export const compressVideoForUpload = async (inputURI) => {
-    if (!deviceCanCompress || !FFmpegKit?.execute) {
+    if (!deviceCanCompress) {
         console.log('skipping video compression');
         logAmplitudeEventProd('ffmpegApiSkipCompression', {
             appOwnership: Constants.appOwnership
@@ -76,13 +65,16 @@ export const compressVideoForUpload = async (inputURI) => {
             error: 'Device cannot compress video' 
         };
     }
+
     console.log('starting video compression');
 
     try {
+        const FFmpegKit = require('ffmpeg-kit-react-native')?.FFmpegKit;
+        logAmplitudeEventProd('ffmpegImportComplete', {});
         const filenameEnd = inputURI.indexOf('.mp4');
         const outputURI = `${inputURI.slice(0, filenameEnd)}-ffmpeg.mp4`;
         const existingOutputFileInfo = await getInfoAsync(outputURI);
-        
+
         if (existingOutputFileInfo?.exists) {
             console.log('Deleting existing file: ', outputURI);
             await deleteAsync(outputURI);
@@ -106,6 +98,11 @@ export const compressVideoForUpload = async (inputURI) => {
     } catch (error) {
         showErrorToast('An error occurred. Could not complete video compression.');
         console.log(error);
-        return null;
+        logAmplitudeEventProd('ffmpegApiError', { error });
+        return {
+            outputURI: null,
+            parsedSession: null,
+            error: error,
+        };
     }
 }
