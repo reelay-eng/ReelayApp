@@ -55,7 +55,7 @@ const HeaderText = styled(ReelayText.H4Bold)`
     margin-top: 4px;
 `
 const IconContainer = styled(TouchableOpacity)`
-    margin-left: 12px;
+    margin-left: 10px;
 `
 const OptionText = styled(ReelayText.H6)`
     color: gray;

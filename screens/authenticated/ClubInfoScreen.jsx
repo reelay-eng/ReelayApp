@@ -1,14 +1,14 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, RefreshControl, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
+import React, { Fragment, useContext, useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
 import Constants from 'expo-constants';
 import styled from 'styled-components/native';
+import moment from 'moment';
 
 import BackButton from '../../components/utils/BackButton';
 import * as ReelayText from '../../components/global/Text';
 import ReelayColors from '../../constants/ReelayColors';
-import ClubPicture from '../../components/global/ClubPicture';
 
 import { Icon } from 'react-native-elements';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -19,12 +19,14 @@ import { AuthContext } from '../../context/AuthContext';
 import FollowButton from '../../components/global/FollowButton';
 
 import { 
+    addMemberToClub,
     banMemberFromClub, 
     createDeeplinkPathToClub,
     editClub, 
-    getClubMembers, 
-    getClubTitles, 
+    getClubMembers,
+    getClubTitles,
     getClubTopics,
+    markClubActivitySeen,
     removeMemberFromClub, 
 } from '../../api/ClubsApi';
 
@@ -32,30 +34,31 @@ import { useDispatch, useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import BigBubbleBath from '../../components/clubs/BigBubbleBath';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import ChangeClubPrivacyDrawer from '../../components/clubs/ChangeClubPrivacyDrawer';
+import { notifyClubOnPrivacyChanges } from '../../api/ClubNotifications';
 
 const INVITE_BASE_URL = Constants.manifest.extra.reelayWebInviteUrl;
+const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
-const BackButtonContainer = styled(View)`
+const ChangePrivacyView = styled(View)`
+    margin-left: 16px;
 `
 const ClubHeaderText = styled(ReelayText.H5Emphasized)`
     color: white;
+    margin-top: 4px;
 `
 const ClubDescriptionText = styled(ReelayText.Body2)` 
     color: white;
-    margin-top: 16px;
 `
 const ClubPrivacyRow = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: center;
-    margin-bottom: 12px;
-    width: 100%;
 `
 const ClubPrivacyText = styled(ReelayText.Body2)`
     color: white;
     font-size: 12px;
     margin-right: 4px;
-    padding-top: 4px;
 `
 const EditButton = styled(TouchableOpacity)`
     padding: 4px;
@@ -77,9 +80,9 @@ const InfoScreenContainer = styled(View)`
     height: 100%;
     width: 100%;
 `
-const LeaveButtonContainer = styled(TouchableOpacity)`
+const JoinButtonContainer = styled(TouchableOpacity)`
     align-items: center;
-    background-color: ${ReelayColors.reelayRed};
+    background-color: ${ReelayColors.reelayBlue};
     border-radius: 8px;
     flex-direction: row;
     justify-content: center;
@@ -88,6 +91,9 @@ const LeaveButtonContainer = styled(TouchableOpacity)`
     margin-top: 40px;
     height: 40px;
     width: 50%;
+`
+const LeaveButtonContainer = styled(JoinButtonContainer)`
+    background-color: ${ReelayColors.reelayRed};
 `
 const MemberEditButton = styled(TouchableOpacity)``
 const MemberInfoContainer = styled(View)`
@@ -116,12 +122,15 @@ const MemberSectionSpacer = styled(View)`
 const ProfileInfoContainer = styled(View)`
     align-items: center;
     margin-top: 0px;
-    margin-bottom: 36px;
+    margin-bottom: 25px;
 `
 const ProfilePictureContainer = styled(View)`
     margin-top: 6px;
     margin-bottom: 6px;
     margin-right: 10px;
+`
+const ProfileSpacer = styled(View)`
+    height: 16px;
 `
 const RemoveButtonContainer = styled(TouchableOpacity)`
     align-items: center;
@@ -170,6 +179,7 @@ const TopBarContainer = styled(View)`
     flex-direction: row;
     justify-content: space-between;
     margin-top: ${(props) => props.topOffset}px;
+    margin-bottom: 16px;
     width: 100%;
 `
 const TopBarRightContainer = styled(View)`
@@ -188,43 +198,17 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     const { club } = route?.params;
     const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
+
     const myClubs = useSelector(state => state.myClubs);
     const isClubOwner = (reelayDBUser?.sub === club.creatorSub);
 
-    const bottomOffset = useSafeAreaInsets().bottom;
+    const matchClubMember = (nextMember) => nextMember?.userSub === reelayDBUser?.sub
+    const initClubMember = club.members?.find(matchClubMember);
+    const [clubMember, setClubMember] = useState(initClubMember);
     const [refreshing, setRefreshing] = useState(false);
 
-    const onRefresh = async () => {
-        try { 
-            setRefreshing(true);
-            const [members, titles, topics] = await Promise.all([
-                getClubMembers({
-                    authSession,
-                    clubID: club.id, 
-                    reqUserSub: reelayDBUser?.sub,
-                }),
-                getClubTitles({ 
-                    authSession,
-                    clubID: club.id, 
-                    reqUserSub: reelayDBUser?.sub,
-                }),
-                getClubTopics({
-                    authSession,
-                    clubID: club.id, 
-                    reqUserSub: reelayDBUser?.sub,
-                }),
-            ]);
-            club.members = members;
-            club.titles = titles;
-            dispatch({ type: 'setUpdatedClub', payload: club });
-            setRefreshing(false); 
-        } catch (error) {
-            console.log(error);
-            showErrorToast('Ruh roh! Could not load club activity');
-            setRefreshing(false);
-        }
-    }
-    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+    const isPublicClub = club?.visibility === FEED_VISIBILITY;
+    const bottomOffset = useSafeAreaInsets().bottom + 60;
 
     const ClubEditButton = () => {
         const advanceToEditClubScreen = () => navigation.push('EditClubScreen', { club });
@@ -388,8 +372,9 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     const ClubProfileInfo = () => {
         return (
             <ProfileInfoContainer>
-                {/* <ClubPicture club={club} size={120} /> */}
                 <BigBubbleBath club={club} />
+                <ProfileSpacer />
+                <ClubHeaderText>{club.name}</ClubHeaderText>
                 <ClubDescriptionText>{club.description}</ClubDescriptionText>
             </ProfileInfoContainer>
         );
@@ -399,6 +384,26 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         const [allowMemberInvites, setAllowMemberInvites] = useState(true);
         const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
         const { reelayDBUser } = useContext(AuthContext);
+
+        const [isPrivate, setIsPrivate] = useState(club?.visibility === 'private');
+
+        const confirmChangePrivacy = async () => {
+            const nextIsPrivate = !isPrivate;
+            setIsPrivate(nextIsPrivate);
+            club.visibility = (nextIsPrivate) ? 'private' : FEED_VISIBILITY;
+            setClubPrivacyDrawerVisible(false);
+
+            const patchResult = await editClub({
+                authSession,
+                clubID: club.id,
+                visibility: club.visibility,
+                reqUserSub: reelayDBUser?.sub,
+            });   
+
+            notifyClubOnPrivacyChanges({ club, nextIsPrivate });
+            console.log('patched club: ', patchResult);
+            return patchResult; 
+        }
     
         const switchAllowMemberInvites = async () => {
             const shouldAllow = !allowMemberInvites;
@@ -443,6 +448,66 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     <SettingsRowRightButton>
                         <Icon type='ionicon' name='person-add' color='white' size={24} />
                     </SettingsRowRightButton>
+                </SettingsRow>
+            );
+        }
+
+        const PrivacySettingRow = ({ isPrivateSetting }) => {
+            const [clubPrivacyDrawerVisible, setClubPrivacyDrawerVisible] = useState(false);
+            const isSelected = 
+                (isPrivateSetting && club?.visibility === 'private') ||
+                (!isPrivateSetting && club?.visibility !== 'private');
+
+            const headingText = (isPrivateSetting)
+                ? 'Private Club'
+                : 'Public Club';
+
+            const bodyText = (isPrivateSetting)
+                ? 'Closed group. Invite people to the club'
+                : 'Open group. Anyone can join';
+
+            const switchClubPrivacy = () => {
+                if (isPrivate === isPrivateSetting) return;
+                setClubPrivacyDrawerVisible(true);
+            }
+
+            const confirmChangePrivacy = async () => {
+                setIsPrivate(isPrivateSetting);
+                club.visibility = (isPrivateSetting) ? 'private' : FEED_VISIBILITY;
+                setClubPrivacyDrawerVisible(false);
+
+                const patchResult = await editClub({
+                    authSession,
+                    clubID: club.id,
+                    visibility: club.visibility,
+                    reqUserSub: reelayDBUser?.sub,
+                });   
+
+                notifyClubOnPrivacyChanges({ club, nextIsPrivate: isPrivateSetting });
+                console.log('patched club: ', patchResult);
+                return patchResult; 
+            }
+
+            return (
+                <SettingsRow onPress={switchClubPrivacy}>
+                    <SettingsTextContainer>
+                        <SettingsText>{headingText}</SettingsText>
+                        <SettingsSubtext>{bodyText}</SettingsSubtext>
+                    </SettingsTextContainer>
+                    <ChangePrivacyView>
+                        { isSelected && <Icon type='ionicon' name='checkmark-circle' color={ReelayColors.reelayBlue} size={30} />}
+                        { !isSelected && <Icon type='ionicon' name='ellipse-outline' color={'white'} size={30} />}
+                    </ChangePrivacyView>
+                    { clubPrivacyDrawerVisible && (
+                        <ChangeClubPrivacyDrawer
+                            navigation={navigation}
+                            clubID={club.id}
+                            drawerVisible={clubPrivacyDrawerVisible}
+                            setDrawerVisible={setClubPrivacyDrawerVisible}
+                            isPrivate={!isPrivateSetting}
+                            confirmChangePrivacy={confirmChangePrivacy}
+                        />
+                    )}
                 </SettingsRow>
             );
         }
@@ -491,11 +556,17 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         }
     
         return (
-            <React.Fragment>
+            <Fragment>
                 <SectionHeaderText>{'Invites'}</SectionHeaderText>
                 { isClubOwner && <AllowMemberInvitesRow />}
                 <AddMembersRow />
                 <ShareClubLinkRow />
+                { isClubOwner && (
+                    <Fragment>
+                        <PrivacySettingRow isPrivateSetting={true} />
+                        <PrivacySettingRow isPrivateSetting={false} /> 
+                    </Fragment>
+                )}
                 { inviteDrawerVisible && (
                     <InviteMyFollowsDrawer
                         club={club}
@@ -504,30 +575,72 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                         onRefresh={onRefresh}
                     />
                 )}
-            </React.Fragment>
+            </Fragment>
         );
     }
     
     const ClubTopBar = () => {
+        const isPrivate = club.visibility === 'private';
         const topOffset = useSafeAreaInsets().top;
         return (
             <TopBarContainer topOffset={topOffset}>
                 <BackButton navigation={navigation} />
-                <ClubHeaderText numberOfLines={1}>{club.name}</ClubHeaderText>
-                <TopBarRightContainer>
-                    <ClubPrivacyRow>
-                        { isClubOwner && <ClubEditButton club={club} navigation={navigation} /> }
-                        { !isClubOwner && (
-                            <React.Fragment>
-                                <ClubPrivacyText>{'Private'}</ClubPrivacyText>
+                <ClubHeaderText>{'Club Info'}</ClubHeaderText>
+                <ClubPrivacyRow>
+                    { isClubOwner && <ClubEditButton club={club} navigation={navigation} /> }
+                    { !isClubOwner && (
+                        <React.Fragment>
+                            <ClubPrivacyText>{isPrivate ? 'Private' : 'Public'}</ClubPrivacyText>
+                            { isPrivate && (
                                 <Icon type='ionicon' name='lock-closed' color='white' size={20} />
-                            </React.Fragment>
-                        )}
-                    </ClubPrivacyRow>
-                </TopBarRightContainer>
+                            )}
+                            { !isPrivate && (
+                                <Icon type='ionicon' name='earth' color='white' size={20} />
+                            )}
+                        </React.Fragment>
+                    )}
+                </ClubPrivacyRow>
             </TopBarContainer>
         );
     }
+
+    const JoinButton = () => {
+        const [joining, setJoining] = useState(false);
+
+        const joinClub = async () => {
+            setJoining(true);
+
+            const joinClubResult = await addMemberToClub({
+                authSession,
+                clubID: club.id,
+                userSub: reelayDBUser?.sub,
+                username: reelayDBUser?.username,
+                invitedBySub: reelayDBUser?.sub,
+                invitedByUsername: reelayDBUser?.username,
+                role: 'member',
+                clubLinkID: null,
+            });
+
+            if (joinClubResult && !joinClubResult?.error) {
+                club.members.push(joinClubResult);
+                await onRefresh();
+
+                dispatch({ type: 'setMyClubs', payload: [club, ...myClubs] });
+                setClubMember(joinClubResult);
+            }
+            
+            setJoining(false);
+            return joinClubResult;
+        }
+
+        return (
+            <JoinButtonContainer onPress={joinClub}>
+                { joining && <ActivityIndicator /> }
+                { !joining && <RemoveButtonText>{'Join Club'}</RemoveButtonText> }
+            </JoinButtonContainer>
+        );
+    }
+
 
     const LeaveButton = () => {
         const [leaving, setLeaving] = useState(false);
@@ -550,10 +663,19 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 });
 
                 console.log(removeResult);
-                navigation.popToTop();
-                const myClubsRemoved = myClubs.filter(nextClub => nextClub.id !== club.id);
-                showMessageToast(`You've left ${club.name}`)
+                const myClubsRemoved = myClubs.filter(nextClub => {
+                    if (nextClub.id === club.id) console.log('filtering out club');
+                    return nextClub.id !== club.id
+                });
+
+                const filterUserFromClub = nextMember => nextMember?.userSub !== reelayDBUser?.sub;
+                club.members = club.members.filter(filterUserFromClub);
+                await onRefresh();
+
+                showMessageToast(`You've left ${club.name}`);
                 dispatch({ type: 'setMyClubs', payload: myClubsRemoved });    
+                setClubMember(null);
+                setLeaving(false);
             } catch (error) {
                 console.log(error);
                 showErrorToast('Ruh roh! Could not leave club. Try again?');
@@ -568,20 +690,74 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             </LeaveButtonContainer>
         );
     }
+
+    const onRefresh = async () => {
+        try { 
+            setRefreshing(true);
+            const [members, titles, topics] = await Promise.all([
+                getClubMembers({
+                    authSession,
+                    clubID: club.id, 
+                    reqUserSub: reelayDBUser?.sub,
+                }),
+                getClubTitles({ 
+                    authSession,
+                    clubID: club.id, 
+                    reqUserSub: reelayDBUser?.sub,
+                }),
+                getClubTopics({
+                    authSession,
+                    clubID: club.id,
+                    reqUserSub: reelayDBUser?.sub,
+                }),
+            ]);
+
+            club.members = members;
+            club.titles = titles;
+            club.topics = topics;
+
+
+            const nextClubMember = club.members.find(matchClubMember);
+            const clubMemberChanged = nextClubMember?.id !== clubMember?.id;
+            if (nextClubMember) {
+                if (clubMemberChanged) setClubMember(nextClubMember);
+                nextClubMember.lastActivitySeenAt = moment().toISOString();
+                markClubActivitySeen({ 
+                    authSession, 
+                    clubMemberID: nextClubMember.id, 
+                    reqUserSub: reelayDBUser?.sub,
+                });
+            } else {
+                if (clubMemberChanged) setClubMember(null);
+            }
+
+            dispatch({ type: 'setUpdatedClub', payload: club });
+            setRefreshing(false); 
+        } catch (error) {
+            console.log(error);
+            showErrorToast('Ruh roh! Could not load club activity');
+            setRefreshing(false);
+        }
+    }
     
     return (
         <InfoScreenContainer>
             <ClubTopBar />
             <ScrollView 
                 contentContainerStyle={{ paddingBottom: bottomOffset }} 
-                refreshControl={refreshControl}
                 showsVerticalScrollIndicator={false}
             >
-                <ClubProfileInfo />
-                { (isClubOwner || club.allowMemberInvites) && <InviteSettings /> }
-                <HorizontalDivider />
-                <ClubMembers />
-                { !isClubOwner && <LeaveButton /> }
+                { refreshing && <ActivityIndicator /> }
+                { !refreshing && (
+                    <Fragment>
+                        <ClubProfileInfo />
+                        { (isClubOwner || club.allowMemberInvites) && <InviteSettings /> }
+                        <HorizontalDivider />
+                        <ClubMembers />
+                        { !isClubOwner && clubMember && <LeaveButton /> }
+                        { !clubMember && isPublicClub && <JoinButton /> }
+                    </Fragment>
+                )}
             </ScrollView>
         </InfoScreenContainer>
     );

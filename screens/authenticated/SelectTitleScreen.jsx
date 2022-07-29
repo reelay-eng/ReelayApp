@@ -4,7 +4,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { useDispatch } from "react-redux";
 import { Icon } from 'react-native-elements';
 
-import { BaseHeader, HeaderWithBackButton } from '../../components/global/Headers';
+import { HeaderWithBackButton } from '../../components/global/Headers';
 import * as ReelayText from '../../components/global/Text';
 import SearchField from '../../components/create-reelay/SearchField';
 import TitleSearchResults from '../../components/search/TitleSearchResults';
@@ -15,7 +15,14 @@ import { searchTitles } from '../../api/ReelayDBApi';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { useFocusEffect } from '@react-navigation/native';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faComments } from '@fortawesome/free-solid-svg-icons';
 
+const HeaderText = styled(ReelayText.H4Bold)`
+    text-align: left;
+    color: white;
+    margin-top: 4px;
+`
 const SearchBarContainer = styled(View)`
 	width: 100%;
 	display: flex;
@@ -29,23 +36,23 @@ const SelectorBarContainer = styled(View)`
 `;
 const TopBarContainer = styled(View)`
 	display: flex;
-	align-items: center;
-	width: 100%;
+    margin-bottom: 10px;
+	width: 90%;
 `;
 
 // color is ReelayColors.reelayGreen at reduced opacity
 const TopicTitleContainer = styled(View)`
     align-items: center;
     background-color: rgba(4, 189, 108, 0.65);
-    border-radius: 40px;
+    border-radius: 8px;
     flex-direction: row;
-    margin-top: -8px;
-    margin-bottom: 24px;
+    margin-top: 4px;
+    margin-bottom: 12px;
     padding-top: 12px;
     padding-left: 20px;
-    padding-right: 40px;
-    padding-bottom: 10px;
-    width: 90%;
+    padding-right: 20px;
+    padding-bottom: 12px;
+    width: 100%;
 `
 const TopicTitleText = styled(ReelayText.H6)`
     color: white;
@@ -53,13 +60,17 @@ const TopicTitleText = styled(ReelayText.H6)`
     flex-direction: row;
     font-size: 14px;
     line-height: 18px;
-    margin-left: 10px;
+    margin-left: 16px;
 `
 export default SelectTitleScreen = ({ navigation, route }) => {
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchType, setSearchType] = useState('Film');
+
+    /**
+     * Topic obj requires two elements only: { id, title }
+     */
 
     const clubID = route?.params?.clubID;
     const topic = route?.params?.topic;
@@ -75,8 +86,8 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     const TopicLabel = () => {
         return (
             <TopicTitleContainer>
-                <Icon type='ionicon' name='logo-ionic' size={16} color='white' />
-                <TopicTitleText numberOfLines={2}>{'Topic: '}{topic?.title}</TopicTitleText>
+                <FontAwesomeIcon icon={faComments} size={30} color='white' />
+                <TopicTitleText numberOfLines={2}>{topic?.title}</TopicTitleText>
             </TopicTitleContainer>
         );
     }
@@ -130,7 +141,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     return (
 		<SafeAreaView style={{ backgroundColor: "black", alignItems: 'center', height: "100%", width: "100%" }}>
 			<TopBarContainer>
-                { !topic && <BaseHeader text={"Create a reelay"} /> }
+                { !topic && <HeaderText>{'create'}</HeaderText> }
                 { topic && <HeaderWithBackButton navigation={navigation} text={"Add a reelay"} /> }
                 { topic && <TopicLabel /> }
 			</TopBarContainer>

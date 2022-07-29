@@ -19,7 +19,7 @@ import Constants from 'expo-constants';
 import { postReelayToDB, prepareReelay } from './ReelayDBApi';
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 
-// import { compressVideoForUpload, deviceCanCompress } from './FFmpegApi';
+import { compressVideoForUpload, deviceCanCompress } from './FFmpegApi';
 
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
 const UPLOAD_CHUNK_SIZE = 8 * 1024 * 1024; // 5MB
@@ -144,12 +144,19 @@ const uploadReelayToS3 = async ({
     videoS3Key,
 }) => {
     try {
-        // if (deviceCanCompress) {
-        //     const parsedSession = await compressVideoForUpload(videoURI);
-        //     console.log('parsed session: ', Object.keys(parsedSession));
-        // }
-        console.log('beginning s3 upload: ', videoURI, videoS3Key);
-        const videoStr = await readAsStringAsync(videoURI, { encoding: EncodingType.Base64 });
+        let uploadVideoURI = videoURI;
+        if (deviceCanCompress) {
+            logAmplitudeEventProd('ffmpegCompressionBegun', {
+                videoS3Key,
+            });    
+            const { error, outputURI, parsedSession } = await compressVideoForUpload(videoURI);
+            // console.log('parsed session: ', Object.keys(parsedSession));
+            // console.log('output uri: ', outputURI);
+            if (!error) uploadVideoURI = outputURI;
+        }
+        
+        console.log('beginning s3 upload: ', uploadVideoURI, videoS3Key);
+        const videoStr = await readAsStringAsync(uploadVideoURI, { encoding: EncodingType.Base64 });
         const videoBuffer = Buffer.from(videoStr, 'base64');
         setUploadProgress(0.4);
     

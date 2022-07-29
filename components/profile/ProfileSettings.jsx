@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from 'react';
-import { Text, View, Pressable, Linking, Dimensions, SafeAreaView } from 'react-native';
+import { View, Linking, SafeAreaView, TouchableOpacity } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { Auth } from 'aws-amplify';
 import Constants from 'expo-constants';
@@ -13,6 +13,9 @@ import { HeaderWithBackButton } from "../global/Headers";
 import { getReelay, prepareReelay, registerPushTokenForUser } from '../../api/ReelayDBApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
+import { compressVideoForUpload } from '../../api/FFmpegApi';
+import { showMessageToast } from '../utils/toasts';
+import { cacheDirectory, downloadAsync } from 'expo-file-system';
 
 export const ProfileSettings = ({navigation}) => {
     const ViewContainer = styled(SafeAreaView)`
@@ -26,12 +29,9 @@ export const ProfileSettings = ({navigation}) => {
         justify-content: space-between;
         width: 100%;
     `;
-    const TopSettings = styled(View)`
-        align-items: center;
-        width: 100%;
-    `
     const { reelayDBUser } = useContext(AuthContext);
     const isAdmin = (reelayDBUser?.role === 'admin');
+    const myCreatorStacks = useSelector(state => state.myCreatorStacks);
     const dispatch = useDispatch();
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
@@ -42,6 +42,18 @@ export const ProfileSettings = ({navigation}) => {
         const welcomeReelay = await getReelay(welcomeReelaySub, 'dev');
         const preparedReelay = await prepareReelay(welcomeReelay);
         navigation.push('SingleReelayScreen', { preparedReelay });
+    }
+
+    const testCompression = async () => {
+        const reelay = myCreatorStacks[2][0];
+        console.log('reelay: ', reelay.content);
+        const videoURI = reelay?.content?.videoURI;
+        showMessageToast(`test compression: ${videoURI}`);
+
+        const localURI = cacheDirectory + 'img/compression-test.mp4';
+        await downloadAsync(videoURI, localURI);
+        const compressedVideo = await compressVideoForUpload(localURI);
+        console.log('compressed video: ', compressedVideo);
     }
 
     return (
@@ -111,6 +123,13 @@ export const ProfileSettings = ({navigation}) => {
                     iconName="glasses"
                     onPress={loadWelcomeVideoScreen}
                 />
+                { isAdmin && (
+                    <SettingEntry
+                        text="(Admin) Test Compression"
+                        iconName="file-tray-full"
+                        onPress={testCompression}
+                    />                    
+                )}
 			</SettingsContainer>
             <Logout />
 		</ViewContainer>
@@ -118,7 +137,7 @@ export const ProfileSettings = ({navigation}) => {
 }
 
 const SettingEntry = ({text, iconName, onPress}) => {
-    const Container = styled(Pressable)`
+    const Container = styled(TouchableOpacity)`
         display: flex;
         flex-direction: row;
         justify-content: center;
@@ -195,7 +214,7 @@ const Logout = () => {
         position: absolute;
         width: 100%;
 	`
-    const LogoutButtonContainer = styled(Pressable)`
+    const LogoutButtonContainer = styled(TouchableOpacity)`
         bottom: 0px;
         height: 40px;
         width: 90%;

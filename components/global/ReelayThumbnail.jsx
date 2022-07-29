@@ -7,7 +7,7 @@ import { Video, Audio } from 'expo-av';
 import { Icon } from 'react-native-elements';
 import StarRating from 'react-native-star-rating';
 import * as ReelayText from "../../components/global/Text";
-import { VenueIcon } from '../utils/VenueIcon';
+import VenueIcon from '../utils/VenueIcon';
 import SplashImage from "../../assets/images/reelay-splash-with-dog.png";
 import { generateThumbnail, getThumbnailURI, saveThumbnail } from '../../api/ThumbnailApi';
 import ProfilePicture from './ProfilePicture';

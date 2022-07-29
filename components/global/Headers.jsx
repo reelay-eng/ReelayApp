@@ -1,14 +1,13 @@
 import React from "react";
-import { View, Pressable } from "react-native";
+import { View, Pressable, TouchableOpacity } from "react-native";
 import { Icon } from "react-native-elements";
 import styled from "styled-components/native";
 import * as ReelayText from "./Text";
 import ReelayColors from "../../constants/ReelayColors";
 
-export const BaseHeader = ({ text = "Settings" }) => {
+export const HeaderWithBackButton = ({ navigation, text = "Settings", padding = 20 }) => {
 	const HeaderContainer = styled(View)`
 		width: 100%;
-		padding: 20px;
 		display: flex;
 		flex-direction: row;
 		justify-content: flex-start;
@@ -20,32 +19,8 @@ export const BaseHeader = ({ text = "Settings" }) => {
 		margin-top: 4px;
 		width: 90%;
 	`;
-	return (
-		<>
-			<HeaderContainer>
-				<HeaderText>{text}</HeaderText>
-			</HeaderContainer>
-		</>
-	);
-};
-
-export const HeaderWithBackButton = ({ navigation, text = "Settings" }) => {
-	const HeaderContainer = styled(View)`
-		width: 100%;
-		padding: 20px;
-		display: flex;
-		flex-direction: row;
-		justify-content: flex-start;
-		align-items: center;
-	`;
-	const HeaderText = styled(ReelayText.H5Emphasized)`
-		text-align: left;
-		color: white;
-		margin-top: 4px;
-		width: 90%;
-	`;
-	const BackButton = styled(Pressable)`
-		margin-right: 20px;
+	const BackButton = styled(TouchableOpacity)`
+		padding: ${padding}px;
 	`;
 	return (
 		<>

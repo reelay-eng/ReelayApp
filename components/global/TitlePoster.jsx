@@ -4,12 +4,11 @@ import { getTitlePosterURI } from '../../api/ReelayLocalImageCache';
 
 import styled from 'styled-components/native';
 
-const areEqual = (title1, title2) => title1.id === title2.id;
 const MAX_BORDER_RADIUS = 16;
 const PLACEHOLDER_POSTER_SOURCE = require('../../assets/images/reelay-splash-with-dog.png');
 const WELCOME_VIDEO_POSTER_SOURCE = require('../../assets/images/welcome-video-poster-with-dog.png');
 
-export default TitlePoster = memo(({ title, onPress, width = 60 }) => {
+const TitlePoster = ({ title, onPress, width = 60 }) => {
     const [loadState, setLoadState] = useState('local');
 	const PosterContainer = (onPress) 
         ? styled(Pressable)`
@@ -60,4 +59,10 @@ export default TitlePoster = memo(({ title, onPress, width = 60 }) => {
 			</PosterContainer>
 		</SafeAreaView>
 	);
-}, areEqual);
+};
+
+const areEqual = (title1, title2) => {
+    return title1.id === title2.id;
+}
+
+export default memo(TitlePoster, areEqual);

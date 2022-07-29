@@ -3,6 +3,7 @@ import {
     ActivityIndicator,
     Dimensions,
     Keyboard, 
+    Pressable, 
     SafeAreaView, 
     TextInput, 
     TouchableOpacity,
@@ -30,6 +31,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { createClub } from '../../api/ClubsApi';
 
 const { width } = Dimensions.get('window');
+const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 const CreateClubButtonContainer = styled(TouchableOpacity)`
     align-items: center;
@@ -59,17 +61,6 @@ const HeaderText = styled(ReelayText.H5Emphasized)`
     margin-left: 20px;
     margin-top: 4px;
 `
-const PrivacyIconContainer = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    position: absolute;
-    right: 20px;
-`
-const PrivacyText = styled(ReelayText.Subtitle2)`
-    color: white;
-    font-size: 16px;
-    margin-right: 4px;
-`
 const SectionContainer = styled(View)`
     margin-left: 20px;
     margin-right: 20px;
@@ -78,6 +69,29 @@ const SectionContainer = styled(View)`
 const SectionContainerBottom = styled(SectionContainer)`
     align-items: center;
     bottom: 20px;
+`
+const ClubSettingRowPressable = styled(Pressable)`
+    align-items: center;
+    flex-direction: row;
+    padding: 16px;
+    padding-left: 0px;
+    width: 100%;
+`
+const ClubSettingIconView = styled(View)`
+    margin-right: 16px;
+`
+const ClubSettingInfoView = styled(View)`
+    display: flex;
+    flex: 1;
+`
+const ClubSettingBodyText = styled(ReelayText.Caption)`
+    color: white;
+`
+const ClubSettingHeadingText = styled(ReelayText.Body1)`
+    color: white;
+`
+const ClubSettingSelectedView = styled(View)`
+    margin-left: 16px;
 `
 const TitleInputField = styled(TextInput)`
     border-color: white;
@@ -118,6 +132,7 @@ export default function CreateClubScreen({ navigation, route }) {
     const descriptionTextRef = useRef('');
     const titleFieldRef = useRef(null);
     const titleTextRef = useRef('');
+    const visibilityRef = useRef(FEED_VISIBILITY);
 
     const changeDescriptionText = (text) => descriptionTextRef.current = text;
     const changeTitleText = (text) => titleTextRef.current = text;
@@ -179,15 +194,62 @@ export default function CreateClubScreen({ navigation, route }) {
         );
     }
 
+    const SettingsRow = ({ isSelected, isPrivate, onPress }) => {
+        const headingText = (isPrivate)
+            ? 'Private Club'
+            : 'Public Club';
+        const bodyText = (isPrivate)
+            ? 'Closed group. Invite people to the club'
+            : 'Open group. Anyone can join';
+
+        const renderSettingIcon = () => (isPrivate)
+            ? <Icon type='ionicon' name='lock-closed' color='white' size={27} />
+            : <Icon type='ionicon' name='eye' color='white' size={27} />;
+
+        return (
+            <ClubSettingRowPressable onPress={onPress}>
+                <ClubSettingIconView>
+                    { renderSettingIcon() }
+                </ClubSettingIconView>
+                <ClubSettingInfoView>
+                    <ClubSettingHeadingText>{headingText}</ClubSettingHeadingText>
+                    <ClubSettingBodyText>{bodyText}</ClubSettingBodyText>
+                </ClubSettingInfoView>
+                <ClubSettingSelectedView>
+                    { isSelected && <Icon type='ionicon' name='checkmark-circle' color={ReelayColors.reelayBlue} size={30} />}
+                    { !isSelected && <Icon type='ionicon' name='ellipse-outline' color={'white'} size={30} />}
+                </ClubSettingSelectedView>
+            </ClubSettingRowPressable>
+        );
+    }
+
+    const SettingsInput = () => {
+        const [isPrivate, setIsPrivate] = useState(visibilityRef.current === 'private');
+        const onSelectPrivate = () => {
+            setIsPrivate(true);
+            visibilityRef.current = 'private';
+        }
+        const onSelectPublic = () => {
+            setIsPrivate(false);
+            visibilityRef.current = FEED_VISIBILITY;
+        }
+
+        console.log('visibility ref: ', visibilityRef.current);
+
+        return (
+            <SectionContainer>
+                <TitleText>{'Club Settings'}</TitleText>
+                <SettingsRow isSelected={isPrivate} isPrivate={true} onPress={onSelectPrivate} />
+                <SettingsRow isSelected={!isPrivate} isPrivate={false} onPress={onSelectPublic} />
+            </SectionContainer> 
+        );
+    }
+
     const Header = () => {
         return (
             <HeaderContainer>
                 <BackButton navigation={navigation} />
                 <HeaderText>{'Create a club'}</HeaderText>
-                <PrivacyIconContainer>
-                    <PrivacyText>{'Private'}</PrivacyText>
-                    <Icon type='ionicon' name='lock-closed' color='white' size={20} />
-                </PrivacyIconContainer>
             </HeaderContainer>
         );
     }
@@ -226,7 +288,7 @@ export default function CreateClubScreen({ navigation, route }) {
                 creatorSub: reelayDBUser?.sub,
                 name: titleTextRef.current,
                 description: descriptionTextRef.current,
-                visibility: 'private',
+                visibility: visibilityRef.current ?? 'private',
             }
             const createClubResult = await createClub(clubPostBody);
             if (!createClubResult || createClubResult.error) {
@@ -293,6 +355,7 @@ export default function CreateClubScreen({ navigation, route }) {
                 <ChooseClubPicture clubPicSourceRef={clubPicSourceRef} />
                 <TitleInput />
                 <DescriptionInput />
+                <SettingsInput />
             </View>
             <SectionContainerBottom>
                 <CreateClubButton />

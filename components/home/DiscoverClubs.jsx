@@ -1,15 +1,16 @@
-import React, { Fragment } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ScrollView, TouchableOpacity, View } from 'react-native';
-import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
-import { useSelector } from 'react-redux';
 import ClubPicture from '../global/ClubPicture';
 import { ClubsIconSVG } from '../global/SVGs';
+import { getClubsDiscover } from '../../api/ClubsApi';
 
 import moment from 'moment';
+import { useSelector } from 'react-redux';
+import { AuthContext } from '../../context/AuthContext';
 
-const ActiveClubsContainer = styled(View)`
+const DiscoverClubsContainer = styled(View)`
     margin-bottom: 10px;
 `
 const ClubNameText = styled(ReelayText.Body2)`
@@ -40,8 +41,12 @@ const RowContainer = styled(ScrollView)`
     width: 100%;
 `
 
-export default ActiveClubs = ({ navigation }) => {
-    const myClubs = useSelector(state => state.myClubs);
+export default PopularClubs = ({ navigation }) => {
+    const authSession = useSelector(state => state.authSession);
+    const { reelayDBUser } = useContext(AuthContext);
+    const [discoverClubs, setDiscoverClubs] = useState([]);
+    const displayClubs = discoverClubs.sort(byMostRecent);
+
     const byMostRecent = (club0, club1) => {
         try {
             const lastActivity0 = moment(club0.lastActivityAt);
@@ -53,7 +58,15 @@ export default ActiveClubs = ({ navigation }) => {
         }
     }
 
-    const displayClubs = myClubs.sort(byMostRecent);
+    const loadDiscoverClubs = async () => {
+        if (discoverClubs?.length > 0) return;
+        const nextDiscoverClubs = await getClubsDiscover({
+            authSession,
+            page: 0,
+            reqUserSub: reelayDBUser?.sub,
+        });
+        setDiscoverClubs(nextDiscoverClubs);
+    }
     
     const renderClubOption = (club) => {
         const advanceToClubActivityScreen = () => navigation.navigate('ClubActivityScreen', { club })
@@ -65,15 +78,21 @@ export default ActiveClubs = ({ navigation }) => {
         )
     }
 
+    useEffect(() => {
+        loadDiscoverClubs();
+    }, []);
+
+    if (!discoverClubs?.length > 0) return <View />;
+
     return (
-        <ActiveClubsContainer>
+        <DiscoverClubsContainer>
             <HeaderContainer>
                 <ClubsIconSVG size={24} />
-                <HeaderText>{'My clubs'}</HeaderText>
+                <HeaderText>{'Discover clubs'}</HeaderText>
             </HeaderContainer>
             <RowContainer horizontal showsHorizontalScrollIndicator={false}>
                 { displayClubs.map(renderClubOption) }
             </RowContainer>
-        </ActiveClubsContainer>
+        </DiscoverClubsContainer>
     )
 }

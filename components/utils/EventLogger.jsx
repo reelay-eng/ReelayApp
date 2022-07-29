@@ -4,7 +4,7 @@ import Constants from 'expo-constants';
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 export const logAmplitudeEventProd = async (eventName, options) => {
-    if (FEED_VISIBILITY === 'global') {
+    if (FEED_VISIBILITY === 'global' || FEED_VISIBILITY === 'dev') {
         const optionsNoLocation = {
             ...options,
             disableCity: true,

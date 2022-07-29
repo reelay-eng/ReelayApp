@@ -492,7 +492,19 @@ export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
         console.log('Found no reelays in feed');
         return null;
     }
-    return await prepareFeed(fetchedStacks);
+
+    const filterOldTheaterTitles = (preparedStack) => {
+        preparedStack.forEach(reelay => {
+            const { releaseDate } = reelay;
+            console.log('title release date: ', releaseDate);
+        })
+    }
+
+    const preparedFeed = await prepareFeed(fetchedStacks);
+    if (feedSource === 'theaters') {
+        preparedFeed.forEach(filterOldTheaterTitles);
+    }
+    return preparedFeed;
 }
 
 export const getMostRecentReelaysByTitle = async (tmdbTitleID, page = 0) => {
@@ -661,7 +673,7 @@ export const prepareReelay = async (fetchedReelay) => {
     return {
         id: fetchedReelay.id,
         clubID: fetchedReelay.clubID,
-        topicID: fetchedReelay.topicID,
+        clubName: fetchedReelay?.clubName,
         creator: {
             avatar: '../../assets/images/icon.png',
             sub: fetchedReelay.creatorSub,
@@ -674,12 +686,15 @@ export const prepareReelay = async (fetchedReelay) => {
         comments: sortedComments,
         description: fetchedReelay.description,
         likes: fetchedReelay.likes,
+        postedDateTime: fetchedReelay.postedAt ?? fetchedReelay.maxPostedAt,
+        reportedContent,
         starRating: fetchedReelay.starRating,
         starRatingAddHalf: fetchedReelay.starRatingAddHalf,
         sub: fetchedReelay.datastoreSub,
         title: titleObj,
-        postedDateTime: fetchedReelay.postedAt ?? fetchedReelay.maxPostedAt,
-        reportedContent,
+        topicID: fetchedReelay.topicID,
+        topicTitle: fetchedReelay?.topicTitle,
+        watchlistAddCount: fetchedReelay?.watchlistAddCount ?? 0,
     };
 }
 

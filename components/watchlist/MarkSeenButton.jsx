@@ -22,7 +22,13 @@ const MarkSeenText = styled(ReelayText.CaptionEmphasized)`
     padding-right: 6px;
 `
 
-export default MarkSeenButton = ({ markedSeen, setMarkedSeen, titleObj }) => {
+export default MarkSeenButton = ({ 
+    markedSeen, 
+    setMarkedSeen, 
+    showText=true, 
+    size=30,
+    titleObj,
+}) => {
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
 
@@ -64,9 +70,9 @@ export default MarkSeenButton = ({ markedSeen, setMarkedSeen, titleObj }) => {
 
     return (
         <MarkSeenButtonContainer onPress={(markedSeen) ? markUnseen : markSeen}>
-            <MarkSeenText>{'Seen'}</MarkSeenText>
-            { markedSeen && <Icon type='ionicon' name='checkmark-circle' color={ReelayColors.reelayBlue} size={30} />}
-            { !markedSeen && <Icon type='ionicon' name='ellipse-outline' color={'white'} size={30} />}
+            { showText && <MarkSeenText>{'Seen'}</MarkSeenText> }
+            { markedSeen && <Icon type='ionicon' name='checkmark-circle' color={ReelayColors.reelayBlue} size={size} />}
+            { !markedSeen && <Icon type='ionicon' name='ellipse-outline' color={'white'} size={size} />}
         </MarkSeenButtonContainer>
     );
 }

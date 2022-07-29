@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useCallback } from 'react';
 import { 
     KeyboardAvoidingView, 
     Modal, 
@@ -7,7 +7,6 @@ import {
     TouchableOpacity, 
     View,
 } from 'react-native';
-import { Icon } from 'react-native-elements';
 
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
@@ -16,7 +15,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faComments, faListCheck } from '@fortawesome/free-solid-svg-icons';
 
 const Backdrop = styled(Pressable)`
-    background-color: transparent;
     height: 100%;
     position: absolute;
     width: 100%;
@@ -58,10 +56,12 @@ const OptionText = styled(ReelayText.Body1)`
 
 export default AddTitleOrTopicDrawer = ({ navigation, club, drawerVisible, setDrawerVisible }) => {
     const closeDrawer = () => setDrawerVisible(false);
+
     const advanceToAddTitleScreen = () => {
         closeDrawer();
         navigation.push('ClubAddTitleScreen', { club });
     }
+
     const advanceToAddTopicScreen = () => {
         closeDrawer();
         navigation.push('CreateTopicScreen', { club });

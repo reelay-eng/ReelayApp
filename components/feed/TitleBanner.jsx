@@ -1,86 +1,24 @@
 import React, { memo, useContext } from "react";
-import { Dimensions, Pressable, View } from "react-native";
+import { Dimensions, Pressable, SafeAreaView, View } from "react-native";
 import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
 import Constants from 'expo-constants';
 
-import AddToClubsButton from "../clubs/AddToClubsButton";
-import { VenueIcon } from '../utils/VenueIcon';
+import VenueIcon from '../utils/VenueIcon';
 import DonateButton from '../global/DonateButton';
 
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 import styled from 'styled-components/native';
 import TitlePoster from "../global/TitlePoster";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { TouchableOpacity } from "react-native-gesture-handler";
-
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faArrowRight, faCircle, faDotCircle } from "@fortawesome/free-solid-svg-icons";
-import { faForwardStep, faBackwardStep } from "@fortawesome/free-solid-svg-icons";
-import { useSelector } from "react-redux";
-import ClubPicture from "../global/ClubPicture";
-import ReelayColors from "../../constants/ReelayColors";
-import BackButton from "../utils/BackButton";
+import AddToStackButton from "./AddToStackButton";
 
 const { height, width } = Dimensions.get('window');
 
-const ActivityText = styled(ReelayText.CaptionEmphasized)`
-    color: white;
-    height: 16px;
-    font-size: 12px;
-`
-const ClubActivityPicContainer = styled(View)`
-    align-items: center;
-    justify-content: center;
-    margin: 8px;
-`
-const ClubTitleContainer = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    width: 100%;
-`
-const ClubTitleText = styled(ReelayText.Caption)`
-    align-items: center;
-    color: white;
-    display: flex;
-    flex-direction: row;
-    flex: 1;
-    height: 52px;
-    padding: 6px;
-    padding-left: 0px;
-    padding-right: 0px;
-`
-const DotIconContainer = styled(View)`
-    align-items: center;
-    margin-bottom: -2px;
-    margin-left: 8px;
-    margin-right: 8px;
-`
-const ForwardBackButton = styled(TouchableOpacity)`
-    align-items: center;
-    border-color: ${props => props.disabled ? '#a8a8a8' : 'white'};
-    border-radius: 80px;
-    border-width: 1px;
-    justify-content: center;
-    margin-left: 8px;
-    margin-right: 8px;
-    padding: 4px;
-`
-const ForwardBackContainer = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    margin-left: -8px;
-    margin-top: 8px;
-`
-const PositionText = styled(ReelayText.CaptionEmphasized)`
-    color: white;
-    height: 16px;
-    font-size: 12px;
-`
-const TitleBannerOuterContainer = styled(View)`
+const TitleBannerOuterContainer = styled(SafeAreaView)`
     margin-left: 10px;
     position: ${props => props.absolute ? 'absolute' : 'relative'};
-    top: ${props => props.topOffset}px;
+    top: 20px;
 `
 const TitleBannerContainer = styled(Pressable)`
     align-self: center;
@@ -130,25 +68,40 @@ const YearVenueContainer = styled(View)`
 
 const DEFAULT_BGCOLOR = 'rgba(0, 0, 0, 0.36)';
 
+const venuesEqual = (prevProps, nextProps) => {
+    return prevProps.venue === nextProps.venue;
+}
+
+const TitleUnderline = memo(({ venue, displayYear }) => {
+    return (
+        <TitleUnderlineContainer>
+            <YearVenueContainer>
+                { venue && 
+                    <VenueContainer>
+                        <VenueIcon venue={venue} size={20} border={1} />
+                    </VenueContainer>
+                }
+                { displayYear.length > 0 && <YearText>{displayYear}</YearText> }
+            </YearVenueContainer>
+        </TitleUnderlineContainer>
+    );
+}, venuesEqual);
+
 const TitleBanner = ({ 
+    club = null,
     titleObj,
     backgroundColor=DEFAULT_BGCOLOR,
-    clubActivity=null,
     donateObj=null, 
     navigation=null, 
     onPress=null,
-    onTappedNewest=null,
-    onTappedOldest=null,
     posterWidth=60,
-    showBackButton=false,
-    stack=null,
-    viewableReelay=null, 
+    topic=null,
+    reelay=null, 
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const topOffset = useSafeAreaInsets().top;
-    const myClubs = useSelector(state => state.myClubs);
     const welcomeReelaySub = Constants.manifest.extra.welcomeReelaySub;
-    const isWelcomeReelay = viewableReelay && (welcomeReelaySub === viewableReelay?.sub);
+    const isWelcomeReelay = reelay && (welcomeReelaySub === reelay?.sub);
     
     // figure out how to do ellipses for displayTitle
     let displayTitle = (titleObj.display) ? titleObj.display : 'Title not found'; 
@@ -160,97 +113,21 @@ const TitleBanner = ({
     }
     
     const openTitleDetail = async () => {
-        if (!viewableReelay?.title?.display) {
+        if (!titleObj) {
             return;
         }
         navigation.push('TitleDetailScreen', { titleObj });
 
         logAmplitudeEventProd('openTitleScreen', {
-            reelayID: viewableReelay?.id,
+            reelayID: reelay?.id,
             reelayTitle: titleObj?.display,
             username: reelayDBUser?.username,
             source: 'poster',
         });
     }
 
-    const ActivityPic = () => {
-        if (!clubActivity) return <View />;
-        
-        return (
-            <ClubActivityPicContainer>
-                <ClubPicture border club={{ id: clubActivity?.clubID }} size={52} />
-            </ClubActivityPicContainer>
-        )
-    }
-
-    const ForwardBack = ({ position }) => {
-        const atOldestReelay = (position === 0);
-        const atNewestReelay = (position === stack.length - 1);
-        const positionString = `${position + 1}/${stack.length}`;
-
-        const onTappedOldestSafe = () => (onTappedOldest) ? onTappedOldest() : {};
-        const onTappedNewestSafe = () => (onTappedNewest) ? onTappedNewest() : {};
-
-        return (
-            <ForwardBackContainer>
-                <ForwardBackButton onPress={onTappedOldestSafe} disabled={atOldestReelay}>
-                    <FontAwesomeIcon icon={ faBackwardStep } size={18} color={atOldestReelay ? '#a8a8a8' : 'white'} />
-                </ForwardBackButton>
-                <PositionText>{positionString}</PositionText>
-                <ForwardBackButton onPress={onTappedNewestSafe} disabled={atNewestReelay}>
-                    <FontAwesomeIcon icon={ faForwardStep } size={18} color={atNewestReelay ? '#a8a8a8' : 'white'} />
-                </ForwardBackButton>
-            </ForwardBackContainer>
-        );
-    }
-
-    const TitleUnderline = () => {
-        const showForwardBack = stack?.length > 1 && !clubActivity;
-        const showActivity = clubActivity;
-        const position = (stack) ? stack.findIndex(reelay => reelay.id === viewableReelay?.id) : -1;
-
-        const matchClubID = (nextClub) => nextClub?.id === clubActivity?.clubID
-        const club = (clubActivity) ? myClubs.find(matchClubID) : null;
-        const positionString = (stack.length > 1)
-                ? `${stack.length} reelays`
-                : 'just added';
-
-        return (
-            <TitleUnderlineContainer>
-                <YearVenueLine />
-                { showActivity && (
-                    <ClubTitleContainer>
-                        <ClubTitleText numberOfLines={2}>
-                            {club?.name}
-                            <DotIconContainer>
-                                <FontAwesomeIcon icon={faCircle} size={6} color='white' />
-                            </DotIconContainer>
-                            {positionString}
-                        </ClubTitleText>
-                    </ClubTitleContainer>
-                ) }
-                { showForwardBack && <ForwardBack position={position} /> }
-            </TitleUnderlineContainer>
-        );
-    }
-
-    const YearVenueLine = memo(() => {
-        return (
-            <YearVenueContainer>
-                { viewableReelay?.content?.venue && 
-                    <VenueContainer>
-                        <VenueIcon venue={viewableReelay?.content?.venue} size={20} border={1} />
-                    </VenueContainer>
-                }
-                { displayYear.length > 0 && !clubActivity && <YearText>{displayYear}</YearText> }
-            </YearVenueContainer>
-        );
-    }, (prevProps, nextProps) => {
-        return prevProps.venue === nextProps.venue;
-    });
-
     return (
-        <TitleBannerOuterContainer absolute={!!viewableReelay} topOffset={viewableReelay ? topOffset : 0}>
+        <TitleBannerOuterContainer absolute={!!reelay} topOffset={reelay ? topOffset : 0}>
             <TitleBannerContainer color={backgroundColor} onPress={onPress ?? openTitleDetail}>
                 <TitlePosterContainer>
                     <TitlePoster title={titleObj} onPress={openTitleDetail} width={posterWidth} />
@@ -261,17 +138,26 @@ const TitleBanner = ({
                             {displayTitle}
                         </TitleText>
                     </TitleTextContainer>
-                    <TitleUnderline />
+                    <TitleUnderline venue={reelay?.content?.venue} displayYear={displayYear} />
                 </TitleInfo>
-                { !donateObj && !clubActivity && <AddToClubsButton titleObj={titleObj} reelay={viewableReelay} /> }
-                { !clubActivity && donateObj && <DonateButton donateObj={donateObj} reelay={viewableReelay} /> }
-                { clubActivity && <ActivityPic /> }
+                { !donateObj && (
+                    <AddToStackButton 
+                        navigation={navigation} 
+                        reelay={reelay} 
+                        club={club}
+                        topic={topic}
+                    />
+                )}
+                { donateObj && <DonateButton donateObj={donateObj} reelay={reelay} /> }
             </TitleBannerContainer>    
-            { showBackButton && <BackButton navigation={navigation} /> }
         </TitleBannerOuterContainer>
     );
 }
 
-export default memo(TitleBanner, (prevProps, nextProps) => {
-    return prevProps.titleObj === nextProps.titleObj && prevProps.viewableReelay === nextProps.viewableReelay;
-})
+const areEqual = (prevProps, nextProps) => {
+    const titlesEqual = (prevProps.titleObj?.id === nextProps.titleObj?.id);
+    const reelaysEqual = (prevProps?.reelay?.sub === nextProps?.reelay?.sub);
+    return titlesEqual && reelaysEqual;
+}
+
+export default memo(TitleBanner, areEqual);

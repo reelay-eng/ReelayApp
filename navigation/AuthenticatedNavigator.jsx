@@ -49,9 +49,9 @@ const bottomTabIconStyle = (focused) => {
 };
 
 export default AuthenticatedNavigator = () => {
-	const myNotifications = useSelector(state => state.myNotifications);
+	// const myNotifications = useSelector(state => state.myNotifications);
 	const hasUnseenGlobalReelays = useSelector(state => state.hasUnseenGlobalReelays);
-	const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
+	// const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
 
 	const tabBarVisible = useSelector((state) => state.tabBarVisible)
     const s = StyleSheet.create({
@@ -109,7 +109,7 @@ export default AuthenticatedNavigator = () => {
 								source={HomeIcon}
 								style={bottomTabIconStyle(focused)}
 							/>
-							{ hasUnreadNotifications && <UnreadIconIndicator /> }
+							{/* { hasUnreadNotifications && <UnreadIconIndicator /> } */}
 						</View>
 					),
 				}}

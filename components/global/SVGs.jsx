@@ -55,3 +55,11 @@ export const HelpingHandsSVG = ({ size=24 }) => {
         </Svg>
     );
 }
+
+export const StainedGlassSVG = ({ size=24 }) => {
+    return (
+        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <Path d="M0 2.66667V21.3333C0 22.8 1.18667 24 2.66667 24H10.6667V0H2.66667C1.18667 0 0 1.2 0 2.66667ZM21.3333 0H13.3333V10.6667H24V2.66667C24 1.2 22.8 0 21.3333 0ZM13.3333 24H21.3333C22.8 24 24 22.8 24 21.3333V13.3333H13.3333V24Z" fill="white"/>
+        </Svg>
+    );
+}

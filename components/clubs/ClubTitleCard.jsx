@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { Fragment, useContext, useState } from 'react';
 import { Dimensions, TouchableOpacity, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
@@ -18,23 +18,27 @@ import { faListCheck } from '@fortawesome/free-solid-svg-icons';
 
 const { height, width } = Dimensions.get('window');
 
-const BottomRowContainer = styled(View)`
+const AddedByUsername = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 14px;
+    line-height: 20px;
+`
+const BottomRowView = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
     margin: 16px;
     margin-bottom: 0px;
     bottom: 12px;
-    position: absolute;
     width: ${width - 64}px;
 `
 const BottomRowLeftText = styled(ReelayText.Subtitle2)`
     color: #86878B;
 `
-const ContributorPicContainer = styled(View)`
+const ContributorPicView = styled(View)`
     margin-left: -10px;
 `
-const ContributorRowContainer = styled(View)`
+const ContributorRowView = styled(View)`
     align-items: center;
     flex-direction: row;
     margin-left: 10px;
@@ -57,32 +61,24 @@ const CreateReelayText = styled(ReelayText.CaptionEmphasized)`
     font-size: 12px;
     line-height: 16px;
 `
-const CardTopLineContainer = styled(View)`
-    align-items: flex-start;
-    flex-direction: row;
-    justify-content: space-between;
-    margin: 16px;
-    margin-bottom: 4px;
-`
-const CardTopLineContainerLeft = styled(View)`
-    align-items: center;
-    flex-direction: row;
-`
-const CardTopLineContainerRight = styled(View)`
-    align-items: flex-end;
-`
-const AddedByUsername = styled(ReelayText.CaptionEmphasized)`
-    color: #86878B;
-    margin-left: 8px;
-    padding-top: 4px;
-`
 const DescriptionText = styled(ReelayText.CaptionEmphasized)`
     color: #86878B;
 `
-const DotMenuButtonContainer = styled(TouchableOpacity)`
+const DividerLine = styled(View)`
+    background-color: rgba(255,255,255,0.1);
+    height: 1px;
+    margin: 10px;
+    width: ${width - 56}px;
+`
+const DotMenuButtonView = styled(TouchableOpacity)`
     padding-right: 4px;
     position: absolute;
     top: 32px;
+`
+const MarkSeenView = styled(View)`
+    align-items: flex-end;
+    justify-content: center;
+    padding: 5px;
 `
 const PlayReelaysButton = styled(TouchableOpacity)`
     align-items: center;
@@ -90,23 +86,8 @@ const PlayReelaysButton = styled(TouchableOpacity)`
     flex-direction: row;
     justify-content: center;
 `
-const TitleDetailLine = styled(View)`
-    justify-content: center;
-    margin-left: 8px;
-    width: ${width - 128}px;
-`
-const TitleLineContainer = styled(View)`
-    flex-direction: row;
-    margin-left: 16px;
-    margin-right: 16px;
-    margin-top: 8px;
-    margin-bottom: 8px;
-`
-const TitleText = styled(ReelayText.H6Emphasized)`
+const SharedTitleText = styled(ReelayText.Overline)`
     color: white;
-    display: flex;
-    flex-wrap: wrap;
-    font-size: 18px;
 `
 const TitleCardGradient = styled(LinearGradient)`
     border-radius: 11px;
@@ -115,10 +96,38 @@ const TitleCardGradient = styled(LinearGradient)`
     position: absolute;
 `
 const TitleCardPressable = styled(TouchableOpacity)`
-    background-color: black;
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 11px;
-    height: 200px;
     width: ${width-32}px;
+`
+const TitleCardOuterView = styled(View)`
+    align-items: center;
+`
+const TitleDetailLine = styled(View)`
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    margin-left: 8px;
+`
+const TitleLineView = styled(View)`
+    flex-direction: row;
+    margin: 8px;
+`
+const TitleOverlineView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    width: ${width-32}px;
+`
+const TitleOverlineInfoView = styled(View)`
+    margin-left: 8px;
+`
+const TitleText = styled(ReelayText.H6Emphasized)`
+    color: white;
+    display: flex;
+    flex-wrap: wrap;
+    font-size: 18px;
 `
 
 const CardBottomRowNoStacks = ({ navigation, clubTitle }) => {
@@ -127,13 +136,13 @@ const CardBottomRowNoStacks = ({ navigation, clubTitle }) => {
         titleObj: clubTitle.title, 
     });
     return (
-        <BottomRowContainer>
+        <BottomRowView>
             <BottomRowLeftText>{'0 reelays, be the first!'}</BottomRowLeftText>
             <CreateReelayButton onPress={advanceToCreateReelay}>
                 <Icon type='ionicon' name='add' color='white' size={20} />
                 <CreateReelayText>{'Add Reelay'}</CreateReelayText>
             </CreateReelayButton>
-        </BottomRowContainer>
+        </BottomRowView>
     );
 }
 
@@ -163,7 +172,7 @@ const CardBottomRowWithStacks = ({ advanceToFeed, clubTitle }) => {
     }
     
     return (
-        <BottomRowContainer>
+        <BottomRowView>
             <CreatorProfilePicRow 
                 displayCreators={getDisplayCreators()} 
                 reelayCount={clubTitle.reelays.length} 
@@ -171,7 +180,7 @@ const CardBottomRowWithStacks = ({ advanceToFeed, clubTitle }) => {
             <PlayReelaysButton onPress={advanceToFeed}>
                 <Icon type='ionicon' name='play-circle' color='white' size={30} />
             </PlayReelaysButton>
-        </BottomRowContainer>
+        </BottomRowView>
     );
 }
 
@@ -180,17 +189,17 @@ const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
     const reelayCountText = `${reelayCount} reelay${pluralCount}`;
     const renderProfilePic = (creator) => {
         return (
-            <ContributorPicContainer key={creator?.sub}>
+            <ContributorPicView key={creator?.sub}>
                 <ProfilePicture user={creator} size={24} />
-            </ContributorPicContainer>
+            </ContributorPicView>
         );
     }
     return (
-        <ContributorRowContainer>
+        <ContributorRowView>
             { displayCreators.map(renderProfilePic) }
             <ContributorRowSpacer />
             <BottomRowLeftText>{reelayCountText}</BottomRowLeftText>
-        </ContributorRowContainer>
+        </ContributorRowView>
     );
 }
 
@@ -229,23 +238,6 @@ export default ClubTitleCard = ({
     });
     const onPress = () => (clubTitle.reelays.length) ? advanceToFeed() : advanceToTitleScreen();
 
-    const CardTopLine = () => {
-        return (
-            <CardTopLineContainer>
-                <CardTopLineContainerLeft>
-                    <FontAwesomeIcon icon={ faListCheck } size={20} color='white' />
-                    <View style={{ marginRight: 10 }} />
-                    <ProfilePicture user={addedByUser} size={24} />
-                    <AddedByUsername>{addedByUsername + ' added'}</AddedByUsername>
-                </CardTopLineContainerLeft>
-                <CardTopLineContainerRight>
-                    <MarkSeenButton markedSeen={markedSeen} setMarkedSeen={setMarkedSeen} titleObj={title} />
-                    { dotMenuButtonVisible && <DotMenuButton /> }
-                </CardTopLineContainerRight>
-            </CardTopLineContainer>
-        );
-    }
-
     const DotMenuButton = () => {
         const openDrawer = () => setDotMenuVisible(true);
 
@@ -257,7 +249,7 @@ export default ClubTitleCard = ({
         if (!canDelete) return <View />;
     
         return (
-            <DotMenuButtonContainer onPress={openDrawer}>
+            <DotMenuButtonView onPress={openDrawer}>
                 <Icon type='ionicon' name='ellipsis-horizontal' size={20} color='white' />
                 { dotMenuVisible && (
                     <ClubTitleDotMenuDrawer 
@@ -268,31 +260,58 @@ export default ClubTitleCard = ({
                         onRefresh={onRefresh}
                     />
                 )}
-            </DotMenuButtonContainer>
+            </DotMenuButtonView>
         );
     }
 
     const TitleLine = () => {
         return (
-            <TitleLineContainer>
+            <TitleLineView>
                 <TitlePoster title={title} width={56} />
                 <TitleDetailLine>
                     <TitleText numberOfLines={2}>{title.display}</TitleText>
                     <DescriptionText>{`${releaseYear}    ${runtimeString}`}</DescriptionText>
                 </TitleDetailLine>
-            </TitleLineContainer>
+                <MarkSeenView>
+                    <MarkSeenButton 
+                        markedSeen={markedSeen} 
+                        setMarkedSeen={setMarkedSeen} 
+                        showText={false} 
+                        size={36}
+                        titleObj={title} 
+                    />
+                    {/* { dotMenuButtonVisible && <DotMenuButton /> } */}
+                </MarkSeenView>
+            </TitleLineView>
+        );
+    }
+
+    const TitleOverline = () => {
+        return (
+            <TitleOverlineView>
+                <ProfilePicture user={addedByUser} size={32} />
+                <TitleOverlineInfoView>
+                    <AddedByUsername>{addedByUsername}</AddedByUsername>
+                    <SharedTitleText>{'SHARED A TITLE'}</SharedTitleText>
+                </TitleOverlineInfoView>
+            </TitleOverlineView>
         );
     }
 
     return (
-        <TitleCardPressable onPress={onPress}>
-            <TitleCardGradient colors={['#252527', '#19242E']}  start={{ x: 0.5, y: 0.5 }} end={{ x: 0.5, y: 1 }} />
-            <CardTopLine />
-            <TitleLine />
-            { (!clubTitle.reelays.length) && <CardBottomRowNoStacks navigation={navigation} clubTitle={clubTitle} /> }
-            { (clubTitle.reelays.length > 0) && (
-                <CardBottomRowWithStacks advanceToFeed={advanceToFeed} clubTitle={clubTitle} />
-            )}
-        </TitleCardPressable>
+        <TitleCardOuterView>
+            <TitleOverline />
+            <TitleCardPressable onPress={onPress}>
+                { !markedSeen && 
+                    <TitleCardGradient colors={['#252527', '#19242E']}  start={{ x: 0.5, y: 0.5 }} end={{ x: 0.5, y: 1 }} />
+                }
+                <TitleLine />
+                <DividerLine />
+                { (!clubTitle.reelays.length) && <CardBottomRowNoStacks navigation={navigation} clubTitle={clubTitle} /> }
+                { (clubTitle.reelays.length > 0) && (
+                    <CardBottomRowWithStacks advanceToFeed={advanceToFeed} clubTitle={clubTitle} />
+                )}
+            </TitleCardPressable>
+        </TitleCardOuterView>
     );
 }

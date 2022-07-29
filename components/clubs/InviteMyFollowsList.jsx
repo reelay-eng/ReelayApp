@@ -1,5 +1,5 @@
 import React, { useState, useRef, useContext, useCallback, useEffect } from 'react';
-import { Dimensions, Pressable, View } from 'react-native';
+import { Dimensions, FlatList, Pressable, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
 import ProfilePicture from '../global/ProfilePicture';
@@ -38,7 +38,7 @@ const RowContainer = styled(Pressable)`
     border-bottom-color: #505050;
     border-bottom-width: 0.3px;    
 `
-const ScrollViewContainer = styled(ScrollView)`
+const FollowsList = styled(FlatList)`
     margin-bottom: 10px;
 `
 const SearchFieldContainer = styled(View)`
@@ -179,12 +179,36 @@ export default InviteMyFollowsList = ({ clubMembers, followsToSend, }) => {
             setDisplayFollows(sortedFollows);
         }
     }, []);
+
+    const renderFollowRow = ({ item, index }) => {
+        const followObj = item;
+        const findFollowMarked = (nextFollowObj) => nextFollowObj.followSub === followObj.followSub;
+        const hasMarkedToSend = followsToSend.current.find(findFollowMarked);
+
+        const findFollowInMembers = (member) => member.userSub === followObj.followSub;
+        const isAlreadyMember = clubMembers.find(findFollowInMembers);
+        if (isAlreadyMember && isAlreadyMember?.role === 'banned') {
+            return <View key={followObj.followSub} />
+        }
+
+        return <FollowerRow key={index} 
+            followObj={followObj}
+            hasMarkedToSend={!!hasMarkedToSend}
+            isAlreadyMember={isAlreadyMember}
+            markFollowToSend={markFollowToSend}
+            unmarkFollowToSend={unmarkFollowToSend}
+        />;
+    }
     
     return (
         <React.Fragment>
             <FollowerSearch updateSearch={updateSearch} />
-            <ScrollViewContainer>
-                { displayFollows.map((followObj, index) => {
+            <FollowsList 
+                data={displayFollows}
+                renderItem={renderFollowRow}
+                showVerticalScrollIndicator={false}
+            />
+                {/* { displayFollows.map((followObj, index) => {
                     const findFollowMarked = (nextFollowObj) => nextFollowObj.followSub === followObj.followSub;
                     const hasMarkedToSend = followsToSend.current.find(findFollowMarked);
 
@@ -201,8 +225,7 @@ export default InviteMyFollowsList = ({ clubMembers, followsToSend, }) => {
                         markFollowToSend={markFollowToSend}
                         unmarkFollowToSend={unmarkFollowToSend}
                     />;
-                })}
-            </ScrollViewContainer>
+                })} */}
         </React.Fragment>
     );
 };

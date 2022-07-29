@@ -20,6 +20,24 @@ const notifyClubMember = async ({ title, body, data, clubMember }) => {
     await sendPushNotification({ title, body, data, token, sendToUserSub });
 }
 
+export const notifyClubOnPrivacyChanges = async ({ club, nextIsPrivate = true }) => {
+    const title = `${club?.creatorName}`;
+    const privateOrPublicWord = (nextIsPrivate) ? 'private' : 'public';
+    const body = `took the club ${club?.name} ${privateOrPublicWord}`;
+    const data = {
+        action: 'openClubActivityScreen',
+        club: condensedClubObj(club),
+        notifyType: 'notifyClubOnPrivacyChanges', 
+        fromUser: { sub: club?.creatorSub, username: club?.creatorName },
+    }
+
+    await Promise.all(club.members.map((clubMember) => {
+        if (clubMember?.role === 'banned') return;
+        if (clubMember?.userSub === club?.creatorSub) return;
+        notifyClubMember({ title, body, data, clubMember });
+    }));
+}
+
 export const notifyClubOnTitleAdded = async ({ club, clubTitle, addedByUser }) => {
     const title = `${addedByUser?.username}`;
     const body = `added a new title to ${club.name}: ${clubTitle.title.display}`;
@@ -56,25 +74,6 @@ export const notifyClubOnTopicAdded = async ({ club, topic, addedByUser }) => {
     }));
 }
 
-
-export const notifyNewMemberOnClubInvite = async ({ club, newMember, invitedByUser }) => {
-    const title = `${invitedByUser?.username}`;
-    const body = `added you to a club on reelay: ${club.name}`;
-    const data = {        
-        action: 'openClubActivityScreen',
-        club: condensedClubObj(club),
-        notifyType: 'notifyNewMemberOnClubInvite', 
-        fromUser: { sub: invitedByUser?.sub, username: invitedByUser?.username },
-    };
-
-    const newMemberWithToken = await getRegisteredUser(newMember?.sub);
-    const sendToUserSub = newMember?.sub;
-    const token = newMemberWithToken?.pushToken;
-    if (!token) return;
-
-    await sendPushNotification({ title, body, data, token, sendToUserSub });
-}
-
 export const notifyClubTitleThreadOnNewReelay = async ({ club, clubTitle, creator, reelay }) => {
     const title = `${creator?.username}`;
     const body = `added a new reelay to ${club.name}: ${clubTitle.title.display}`;
@@ -101,6 +100,20 @@ export const notifyClubTitleThreadOnNewReelay = async ({ club, clubTitle, creato
     }));
 }
 
-export const notifyClubTopicThreadOnNewReelay = async ({ club, clubTitle, creator, reelay }) => {
-    // todo
+export const notifyNewMemberOnClubInvite = async ({ club, newMember, invitedByUser }) => {
+    const title = `${invitedByUser?.username}`;
+    const body = `added you to a club on reelay: ${club.name}`;
+    const data = {        
+        action: 'openClubActivityScreen',
+        club: condensedClubObj(club),
+        notifyType: 'notifyNewMemberOnClubInvite', 
+        fromUser: { sub: invitedByUser?.sub, username: invitedByUser?.username },
+    };
+
+    const newMemberWithToken = await getRegisteredUser(newMember?.sub);
+    const sendToUserSub = newMember?.sub;
+    const token = newMemberWithToken?.pushToken;
+    if (!token) return;
+
+    await sendPushNotification({ title, body, data, token, sendToUserSub });
 }

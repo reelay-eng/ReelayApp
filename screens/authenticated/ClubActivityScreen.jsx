@@ -1,11 +1,8 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { 
     Dimensions, 
-    Modal, 
-    Pressable,
+    FlatList, 
     RefreshControl, 
-    ScrollView, 
-    Text, 
     TouchableOpacity, 
     View 
 } from 'react-native';
@@ -21,7 +18,7 @@ import NoTitlesYetPrompt from '../../components/clubs/NoTitlesYetPrompt';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
-import { getClubMembers, getClubTitles, getClubTopics } from '../../api/ClubsApi';
+import { addMemberToClub, getClubMembers, getClubTitles, getClubTopics, markClubActivitySeen } from '../../api/ClubsApi';
 import { AuthContext } from '../../context/AuthContext';
 import { showErrorToast } from '../../components/utils/toasts';
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
@@ -32,8 +29,11 @@ import UploadProgressBar from '../../components/global/UploadProgressBar';
 import TopicCard from '../../components/topics/TopicCard';
 import ClubAddedMemberCard from './ClubAddedMemberCard';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import Constants from 'expo-constants';
 
 const { height, width } = Dimensions.get('window');
+const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
+const MAX_ACTIVITY_INDEX = 30;
 
 const ActivityContainer = styled(View)`
     margin-bottom: 8px;
@@ -56,7 +56,7 @@ const AddTitleButtonOuterContainer = styled(LinearGradient)`
     align-items: center;
     bottom: 0px;
     padding-top: 20px;
-    padding-bottom: ${(props) => props.bottomOffset ?? 0}px;
+    padding-bottom: ${(props) => props.bottomOffset + 56 ?? 56}px;
     position: absolute;
     width: 100%;
 `
@@ -68,56 +68,35 @@ const DescriptionContainer = styled(View)`
     align-items: center;
     background-color: ${ReelayColors.reelayBlack};
     border-radius: 12px;
-    margin-bottom: 12px;
     padding: 8px;
     padding-left: 16px;
     padding-right: 16px;
+    margin-bottom: 4px;
+    border-color: white;
+    border-width: 1px;
+    z-index: 5;
 `
 const DescriptionText = styled(ReelayText.Body2)`
     color: white;
 `
-const ScrollContainer = styled(ScrollView)`
-    top: ${(props) => props.topOffset}px;
-    height: ${(props) => height - props.topOffset}px;
-    padding-bottom: ${(props) => props.bottomOffset}px;
+const UploadProgressBarView = styled(View)`
+    align-items: center;
+    position: absolute;
+    top: ${props => props.topOffset}px;
     width: 100%;
 `
-
+ 
 export default ClubActivityScreen = ({ navigation, route }) => {
+    const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
-    const { club, promptToInvite, welcomeNewMember } = route.params;
+    const { club, promptToInvite } = route.params;
     const authSession = useSelector(state => state.authSession);
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
-
-    const dispatch = useDispatch();
-    const topOffset = useSafeAreaInsets().top + 80;
-    const bottomOffset = useSafeAreaInsets().bottom;
-
-    const uploadStage = useSelector(state => state.uploadStage);
-    const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
-    const showProgressBar = showProgressBarStages.includes(uploadStage);
-
-    const sortClubActivity = (activity0, activity1) => {
-        const lastActivity0 = moment(activity0?.lastUpdatedAt ?? activity0?.createdAt);
-        const lastActivity1 = moment(activity1?.lastUpdatedAt ?? activity0?.createdAt);
-        return lastActivity0.diff(lastActivity1, 'seconds') < 0;
-    }
-
-    const tagActivityType = (activity, type) => {
-        activity.activityType = type;
-        return activity;
-    }
-
-    const clubActivities = [
-        ...club.members.map(member => tagActivityType(member, 'member')),
-        ...club.titles.map(title => tagActivityType(title, 'title')), 
-        ...club.topics.map(topic => tagActivityType(topic, 'topic')),
-    ].sort(sortClubActivity);
-
-    const activityHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
-    const feedTitlesAndTopics = clubActivities.filter(activityHasReelays);
-
     const [refreshing, setRefreshing] = useState(false);
+
+    const matchClubMember = (nextMember) => nextMember?.userSub === reelayDBUser?.sub
+    const clubMember = club.members.find(matchClubMember);
+
     const onRefresh = async () => {
         try { 
             setRefreshing(true);
@@ -138,9 +117,25 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                     reqUserSub: reelayDBUser?.sub,
                 }),
             ]);
+
             club.members = members;
             club.titles = titles;
             club.topics = topics;
+
+            if (clubMember?.id) {
+                clubMember.lastActivitySeenAt = moment().toISOString();
+                markClubActivitySeen({ 
+                    authSession, 
+                    clubMemberID: clubMember.id, 
+                    reqUserSub: reelayDBUser?.sub,
+                });
+            }
+
+            const nextIAmMember = checkIAmMember();
+            if (nextIAmMember !== iAmMember) {
+                setIAmMember(nextIAmMember);
+            }
+
             dispatch({ type: 'setUpdatedClub', payload: club });
             setRefreshing(false); 
         } catch (error) {
@@ -149,12 +144,51 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             setRefreshing(false);
         }
     }
-    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+
+    const topOffset = useSafeAreaInsets().top + 80;
+    const bottomOffset = useSafeAreaInsets().bottom;
+
+    const uploadStage = useSelector(state => state.uploadStage);
+    const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
+    const showProgressBar = showProgressBarStages.includes(uploadStage);
+    const notLoaded = (!club.members?.length && !club.titles?.length && !club.topics?.length);
+
+    const filterOldActivities = (activity, index) => index < MAX_ACTIVITY_INDEX;
+
+    const sortClubActivity = (activity0, activity1) => {
+        const activityType0 = activity0?.activityType;
+        const activityType1 = activity1?.activityType;
+
+        if (activityType0 === 'description') return -1;
+        if (activityType1 === 'description') return 1;
+
+        if (activityType0 === 'noTitlesYet') return -1;
+        if (activityType1 === 'noTitlesYet') return 1;
+
+        const lastActivity0 = moment(activity0?.lastUpdatedAt ?? activity0?.createdAt);
+        const lastActivity1 = moment(activity1?.lastUpdatedAt ?? activity0?.createdAt);
+        return lastActivity0.diff(lastActivity1, 'seconds') < 0;
+    }
+
+    const tagActivityType = (activity, type) => {
+        activity.activityType = type;
+        return activity;
+    }
 
     useEffect(() => {
-        if (!club.members?.length || !club.titles?.length) {
+        if (notLoaded) {
             onRefresh();
+        } else {
+            if (clubMember?.id) {
+                clubMember.lastActivitySeenAt = moment().toISOString();
+                markClubActivitySeen({ 
+                    authSession, 
+                    clubMemberID: clubMember.id, 
+                    reqUserSub: reelayDBUser?.sub,
+                });
+            }
         }
+
         logAmplitudeEventProd('openedClubActivityScreen', {
             username: reelayDBUser?.username,
             userSub: reelayDBUser?.sub,
@@ -164,15 +198,38 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     }, []);
 
     useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false });
+        dispatch({ type: 'setTabBarVisible', payload: true });
     });
+
+    const descActivity = club.description ? [{ activityType: 'description' }] : [];
+    const noTitlesYet = (!refreshing && !club?.titles?.length && !club?.topics?.length);
+
+    const noTitlesYetActivity = noTitlesYet ? [{ activityType: 'noTitlesYet' }] : [];
+    const clubActivities = (club.members?.length > 0) 
+        ? [
+            ...descActivity,
+            ...noTitlesYetActivity,
+            ...club.members?.map(member => tagActivityType(member, 'member')),
+            ...club.titles?.map(title => tagActivityType(title, 'title')), 
+            ...club.topics?.map(topic => tagActivityType(topic, 'topic')),
+        ].sort(sortClubActivity).filter(filterOldActivities)
+        : [];
+
+    const activityHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
+    const feedTitlesAndTopics = clubActivities.filter(activityHasReelays);
+    const checkIAmMember = () => !!club.members?.find(nextMember => nextMember.userSub === reelayDBUser?.sub);
+    const [iAmMember, setIAmMember] = useState(checkIAmMember());
+    const isPublicClub = club.visibility === FEED_VISIBILITY;
+
+    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
     const AddTitleButton = () => {
         const [titleOrTopicDrawerVisible, setTitleOrTopicDrawerVisible] = useState(false);
         return (
             <AddTitleButtonOuterContainer 
                 bottomOffset={bottomOffset} 
-                colors={['transparent', 'black']}>
+                colors={['transparent', 'black']}
+                end={{ x: 0.5, y: 0.5}}>
                 <AddTitleButtonContainer onPress={() => setTitleOrTopicDrawerVisible(true)}>
                     <Icon type='ionicon' name='add-circle-outline' size={16} color='white' />
                     <AddTitleButtonText>{'Add title or topic'}</AddTitleButtonText>
@@ -189,20 +246,42 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         );
     }
 
-    const ClubActivityScroll = ({ children }) => {
+    const ClubActivityList = () => {
+        const renderClubActivity = ({ item, index }) => {
+            const activity = item;
+            const { activityType } = activity;
+            if (activityType === 'description') {
+                return <DescriptionFold key={'description'} />;
+            }
+            if (activityType === 'noTitlesYet') {
+                return <NoTitlesYetPrompt key={'noTitlesYet'} />
+            }
+            return <ClubActivity key={activity.id} activity={activity} />
+        }
+
+        const activityListStyle = { 
+            alignItems: 'center', 
+            paddingTop: topOffset, 
+            paddingBottom: bottomOffset + 100,
+        };
+
+        const keyExtractor = (item) => {
+            if (item?.activityType === 'description') return 'description';
+            if (item?.activityType === 'noTitlesYet') return 'noTitlesYet';
+            return item?.id;
+        }
+        
         return (
-            <ScrollContainer 
-                contentContainerStyle={{ 
-                    alignItems: 'center', 
-                    paddingBottom: 210,
-                }}
-                topOffset={topOffset} 
+            <FlatList
                 bottomOffset={bottomOffset}
+                contentContainerStyle={activityListStyle}
+                data={clubActivities}
+                keyExtractor={keyExtractor}
                 refreshControl={refreshControl} 
+                renderItem={renderClubActivity}
                 showsVerticalScrollIndicator={false}
-            >
-                { children }
-            </ScrollContainer>
+                topOffset={topOffset} 
+            />
         )
     }
 
@@ -258,24 +337,57 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         )
     }
 
-    if (welcomeNewMember) {
-        console.log('todo: should welcome new user!')        
+    const JoinClubButton = () => {
+        const myClubs = useSelector(state => state.myClubs);
+
+        const joinClub = async () => {
+            console.log(reelayDBUser?.sub)
+            const joinClubResult = await addMemberToClub({
+                authSession,
+                clubID: club.id,
+                userSub: reelayDBUser?.sub,
+                username: reelayDBUser?.username,
+                invitedBySub: reelayDBUser?.sub,
+                invitedByUsername: reelayDBUser?.username,
+                role: 'member',
+                clubLinkID: null,
+            });
+
+            if (joinClubResult && !joinClubResult?.error) {
+                setIAmMember(true);
+            }
+
+            await onRefresh();
+            return joinClubResult;
+        }
+
+        return (
+            <AddTitleButtonOuterContainer 
+                bottomOffset={bottomOffset} 
+                colors={['transparent', 'black']}>
+                <AddTitleButtonContainer onPress={joinClub}>
+                    <AddTitleButtonText>{'Join club'}</AddTitleButtonText>
+                </AddTitleButtonContainer>
+            </AddTitleButtonOuterContainer>
+        );
     }
+
+
 
     return (
         <ActivityScreenContainer>
-            <ClubActivityScroll>
-                <DescriptionFold />
-                { showProgressBar && (
+            <ClubActivityList />
+            <ClubBanner club={club} navigation={navigation} onRefresh={onRefresh} />
+
+            { iAmMember && <AddTitleButton /> }
+            { !iAmMember && isPublicClub && <JoinClubButton /> }
+
+            { showProgressBar && (
+                <UploadProgressBarView topOffset={topOffset}>
                     <UploadProgressBar clubID={club.id} mountLocation={'InClub'} onRefresh={onRefresh} />
-                )}
-                { (!refreshing && !club?.titles?.length && !club?.topics?.length) && <NoTitlesYetPrompt /> } 
-                { (clubActivities?.length > 0 ) && clubActivities?.map((activity) => {
-                    return <ClubActivity key={activity.id} activity={activity} /> 
-                })}
-            </ClubActivityScroll>
-            <ClubBanner club={club} navigation={navigation} />
-            <AddTitleButton />
+                </UploadProgressBarView>
+            )}
+
             { inviteDrawerVisible && (
                 <InviteMyFollowsDrawer 
                     club={club}
