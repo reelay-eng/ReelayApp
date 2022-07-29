@@ -74,7 +74,7 @@ const Spacer = styled(View)`
     width: 10px;
 `
 
-const ActivityInfoBar = ({ club, feedSource, topic }) => {
+const ActivityInfoBar = ({ club, feedSource, navigation, topic }) => {
     const topicScrollDuration = 60 + topic?.title?.length * 180;
     const clubScrollDuration = 60 + (club?.name?.length * 180);
     const dividerScrollDuration = 60;
@@ -283,7 +283,7 @@ export default ReelayFeedHeader = ({
                 { feedSource !== 'global' && <BackButton navigation={navigation} /> }
                 <Spacer />
                 <ActivityInfoView>
-                    <ActivityInfoBarMemo club={club} feedSource={feedSource} topic={topic} />
+                    <ActivityInfoBarMemo club={club} feedSource={feedSource} navigation={navigation} topic={topic} />
                 </ActivityInfoView>
                 { stackLength > 1 && (
                     <RowView>

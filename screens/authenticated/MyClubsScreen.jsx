@@ -202,16 +202,16 @@ export default MyClubsScreen = ({ navigation, route }) => {
     }
     
     const onRefresh = async () => {
-        // try {
-        //     setRefreshing(true);
-        //     const nextMyClubs = await getAllMyClubActivities({ authSession, reqUserSub: reelayDBUser?.sub });
-        //     dispatch({ type: 'setMyClubs', payload: nextMyClubs });
-        //     setRefreshing(false);
-        // } catch (error) {
-        //     console.log(error);
-        //     showErrorToast('Ruh roh! Could not refresh clubs. Try again?');
-        //     setRefreshing(false);
-        // }
+        try {
+            setRefreshing(true);
+            const nextMyClubs = await getAllMyClubActivities({ authSession, reqUserSub: reelayDBUser?.sub });
+            dispatch({ type: 'setMyClubs', payload: nextMyClubs });
+            setRefreshing(false);
+        } catch (error) {
+            console.log(error);
+            showErrorToast('Ruh roh! Could not refresh clubs. Try again?');
+            setRefreshing(false);
+        }
     }
 
     useEffect(() => {
