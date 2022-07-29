@@ -7,7 +7,6 @@ const LATEST_VERSION_GUIDE_IMAGES = [
     require(`${VERSION_GUIDE_IMG_PATH}/clubv2_part1.png`),
     require(`${VERSION_GUIDE_IMG_PATH}/clubv2_part2.png`),
 ]
-console.log('LATEST_VERSION_GUIDE_IMAGES')
 const REELAY_APP_VERSION = Constants.manifest.version;
 
 const byDateUpdated = (watchlistItem0, watchlistItem1) => {
