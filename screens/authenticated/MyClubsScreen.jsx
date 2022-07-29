@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { RefreshControl, SafeAreaView, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
@@ -15,8 +15,6 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 import ClubPicture from '../../components/global/ClubPicture';
 import ClubActivityCard from '../../components/clubs/ClubActivityCard';
-import {  getAllMyClubActivities } from '../../api/ClubsApi';
-import { showErrorToast } from '../../components/utils/toasts';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCircle, faChevronRight, faUsersViewfinder } from '@fortawesome/free-solid-svg-icons';
 import { sortByLastActivity } from '../../redux/reducers';
@@ -26,7 +24,6 @@ import ReelayColors from '../../constants/ReelayColors';
 import Constants from 'expo-constants';
 import moment from 'moment';
 
-const ACTIVITY_PAGE_SIZE = 20;
 const CLUB_PIC_SIZE = 72;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
@@ -186,34 +183,17 @@ const UnreadIconIndicator = styled(View)`
 	right: 0px;
 `
 
-export default MyClubsScreen = ({ navigation, route }) => {
+export default MyClubsScreen = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const [refreshing, setRefreshing] = useState(false);
-    const [page, setPage] = useState(0);
 
-    const authSession = useSelector(state => state.authSession);
     const dispatch = useDispatch();
     const bottomOffset = useSafeAreaInsets().bottom;
-
-    const [selectedTab, setSelectedTab] = useState('recent activity');
+    const [selectedTab, setSelectedTab] = useState('all my clubs');
 
     const renderActivity = (activity) => {
         return <ClubActivityCard key={activity.id} activity={activity} navigation={navigation} />
     }
     
-    const onRefresh = async () => {
-        try {
-            setRefreshing(true);
-            const nextMyClubs = await getAllMyClubActivities({ authSession, reqUserSub: reelayDBUser?.sub });
-            dispatch({ type: 'setMyClubs', payload: nextMyClubs });
-            setRefreshing(false);
-        } catch (error) {
-            console.log(error);
-            showErrorToast('Ruh roh! Could not refresh clubs. Try again?');
-            setRefreshing(false);
-        }
-    }
-
     useEffect(() => {
         logAmplitudeEventProd('openedMyClubs', {
             username: reelayDBUser?.username,
@@ -448,13 +428,12 @@ export default MyClubsScreen = ({ navigation, route }) => {
 
     const RecentActivity = () => {
         const [selectedFilters, setSelectedFilters] = useState(['all']);
-        const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
         const scrollStyle = { alignItems: 'center', paddingBottom: 120, width: '100%' };
 
         const myClubActivities = useSelector(state => state.myClubActivities);
         const filterMemberActivities = (nextActivity, index) => (nextActivity?.activityType !== 'member');
-        const shouldRenderActivity = (activity, index) => index < (page + 1) * ACTIVITY_PAGE_SIZE;
-        const initDisplayActivities = myClubActivities.filter(filterMemberActivities).filter(shouldRenderActivity);;
+        const filterToRecentActivities = (nextActivity, index) => index < 20;
+        const initDisplayActivities = myClubActivities.filter(filterMemberActivities).filter(filterToRecentActivities);
         const [displayActivities, setDisplayActivities] = useState(initDisplayActivities);
     
         const columnA = displayActivities.filter((activity, index) => index % 2 === 0);
@@ -466,7 +445,6 @@ export default MyClubsScreen = ({ navigation, route }) => {
                     bottomOffset={bottomOffset} 
                     contentContainerStyle={scrollStyle}
                     showVerticalScrollIndicator={false}
-                    refreshControl={refreshControl}
                 >
                     <ColumnsView>
                         <ColumnView>
@@ -556,7 +534,7 @@ export default MyClubsScreen = ({ navigation, route }) => {
     const TabSelector = () => {
         return (
             <BackgroundView>
-                { ['recent activity', 'all my clubs'].map(tab => {
+                { ['all my clubs', 'recent activity'].map(tab => {
                     if (tab === selectedTab) {
                         return (
                             <ButtonView key={tab}>

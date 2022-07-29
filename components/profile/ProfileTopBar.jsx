@@ -11,7 +11,6 @@ import { fetchOrCreateProfileLink } from '../../api/ProfilesApi';
 import { useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import * as Clipboard from 'expo-clipboard';
-import { useFocusEffect } from '@react-navigation/native';
 
 const REELAY_WEB_PREFIX = `https://on.reelay.app`;
 
@@ -96,7 +95,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
     return (
         <TopBarContainer>
             { !atProfileBase && <BackButton navigation={navigation} /> }
-            <HeadingText>@{creatorName}</HeadingText>
+            <HeadingText>{creatorName}</HeadingText>
             { validCreatorName && <CopyProfileLinkButton />}
             { atProfileBase && <SettingsButtons /> }
         </TopBarContainer>
