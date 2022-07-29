@@ -6,8 +6,8 @@ const VERSION_GUIDE_IMG_PATH = '../version/images';
 const LATEST_VERSION_GUIDE_IMAGES = [
     require(`${VERSION_GUIDE_IMG_PATH}/clubv2_part1.png`),
     require(`${VERSION_GUIDE_IMG_PATH}/clubv2_part2.png`),
-    require(`${VERSION_GUIDE_IMG_PATH}/clubv2_part3.png`),
 ]
+console.log('LATEST_VERSION_GUIDE_IMAGES')
 const REELAY_APP_VERSION = Constants.manifest.version;
 
 const byDateUpdated = (watchlistItem0, watchlistItem1) => {
@@ -97,8 +97,7 @@ export const latestNoticeReducer = ({
 
     const versionGuideNoticeEntry = dismissalHistory?.noticeHistory?.[versionGuideID];
     const validVersion = (REELAY_APP_VERSION < maxVersion) && (REELAY_APP_VERSION >= minVersion);
-    // const showVersionGuide = validVersion && (!versionGuideNoticeEntry || versionGuideNoticeEntry !== 'dismissed');
-    const showVersionGuide = true;
+    const showVersionGuide = validVersion && (!versionGuideNoticeEntry || versionGuideNoticeEntry !== 'dismissed');
     
     const showCreateReelayNotice = (myCreatorStacks.length === 0);
     const showCreateClubNotice = (clubOwnerCount === 0);

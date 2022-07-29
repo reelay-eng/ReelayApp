@@ -4,22 +4,21 @@
     "maxVersion": "1.04.00",
     "pages": [
         {
-            "title": "New - create both private and public clubs",
-            "body": "Public clubs are open communities for exchanging recommendations",
+            "title": "New: create both private and public clubs",
+            "body": "Public clubs are open communities for conversation",
             "imgURI": "images/clubv2_part1.png",
+            "imgHeight": 178,
+            "imgWidth": 258,
             "orientation": "title-body-image"
         },
         {
-            "title": "Explore clubs on the global feed",
-            "body": "Reelays from public clubs and topics now appear in the global feed",
+            "title": "FYI, we swapped two buttons",
+            "body": "This button is now a quick way to create a reelay",
+            "body2": "And this is where you add a title to a watchlist or club",
             "imgURI": "images/clubv2_part2.png",
-            "orientation": "title-image-body"
-        },
-        {
-            "title": "But how do I add titles to my watchlist? To clubs?",
-            "body": "Here's the button for that. We've added a counter to show when people take your rec",
-            "imgURI": "images/clubv2_part3.png",
-            "orientation": "title-image-body-2col"
+            "imgHeight": 271,
+            "imgWidth": 125,
+            "orientation": "title-body1-image-body2"
         }
     ]
 }

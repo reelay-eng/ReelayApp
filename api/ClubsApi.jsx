@@ -155,8 +155,8 @@ export const getAllMyClubActivities = async ({ authSession, page = 0, reqUserSub
     return clubActivities;
 }
 
-export const getClubActivity = async ({ authSession, clubID, page = 0, reqUserSub }) => {
-    const routeGet = `${REELAY_API_BASE_URL}/clubs/activity/${clubID}?page=${page}&visibility=${FEED_VISIBILITY}`;
+export const getClubThreads = async ({ authSession, clubID, page = 0, reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/clubs/threads/${clubID}?page=${page}&visibility=${FEED_VISIBILITY}`;
     const resultGet = await fetchResults(routeGet, {
         method: 'GET',
         headers: {

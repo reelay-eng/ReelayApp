@@ -119,7 +119,6 @@ const VenueIcon = ({ border = 0, onPress, size = 48, venue }) => {
 }
 
 const areEqual = (prevProps, nextProps) => {
-    console.log('are equal????', prevProps.venue, nextProps.venue);
     return prevProps.venue === nextProps.venue;
 };
 
