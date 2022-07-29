@@ -239,8 +239,8 @@ export default ReelayFeedHeader = ({
 
     const BackButton = () => {
         return (
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Icon type='ionicon' name={'arrow-back-outline'} color={'white'} size={30} />
+            <TouchableOpacity onPress={() => navigation.goBack()} style={{ padding: 6 }}>
+                <Icon type='ionicon' name={'arrow-back-outline'} color={'white'} size={24} />
             </TouchableOpacity>
         );
     }
@@ -270,9 +270,12 @@ export default ReelayFeedHeader = ({
 
     if (feedSource === 'profile') {
         return (
-            <RowView>
-                <ProfilePicture user={user} size={30} />
-            </RowView>
+            <FeedHeaderView topOffset={topOffset}>
+                <RowView>
+                    <BackButton navigation={navigation} />
+                    <ProfilePicture user={reelay?.creator} size={24} />
+                </RowView>
+            </FeedHeaderView>
         );
     }
 

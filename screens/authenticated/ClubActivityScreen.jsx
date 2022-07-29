@@ -334,8 +334,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     }
 
     const JoinClubButton = () => {
-        const myClubs = useSelector(state => state.myClubs);
-
         const joinClub = async () => {
             console.log(reelayDBUser?.sub)
             const joinClubResult = await addMemberToClub({
