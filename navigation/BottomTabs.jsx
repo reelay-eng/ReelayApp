@@ -10,7 +10,6 @@ import GeneralSettingsScreen from '../screens/authenticated/GeneralSettingsScree
 import HomeScreen from '../screens/authenticated/HomeScreen';
 import MyClubsScreen from '../screens/authenticated/MyClubsScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
-import NewInMyClubsScreen from '../screens/authenticated/NewInMyClubsScreen';
 import NotificationSettingsScreen from '../screens/authenticated/NotificationSettingsScreen';
 import ProfileSettingsScreen from '../screens/authenticated/ProfileSettingsScreen';
 import TMDBCreditScreen from '../screens/authenticated/TMDBCreditScreen';
@@ -21,7 +20,6 @@ export const HomeTabNavigator = () => {
 	return (
 		<AuthenticatedCommonStack initialRouteName="HomeScreen">
 			<HomeTabStack.Screen name='HomeScreen' component={HomeScreen} options={commonOptions} />
-			<HomeTabStack.Screen name='NewInMyClubsScreen' component={NewInMyClubsScreen} options={commonOptions} />
 		</AuthenticatedCommonStack>
 	)
 }
