@@ -8,6 +8,7 @@ import SearchField from "../../components/create-reelay/SearchField";
 import TitleSearchResults from "../../components/search/TitleSearchResults";
 import UserSearchResults from "../../components/search/UserSearchResults";
 import { ToggleSelector } from '../../components/global/Buttons';
+import ClubSearchResults from "../../components/search/ClubSearchResults";
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
@@ -17,6 +18,7 @@ import { logAmplitudeEventProd } from "../../components/utils/EventLogger";
 
 // API
 import { searchTitles, searchUsers } from "../../api/ReelayDBApi";
+import { searchPublicClubs } from "../../api/ClubsApi";
 
 // Styling
 import styled from "styled-components/native";
@@ -44,15 +46,17 @@ const SearchBarContainer = styled(View)`
     justify-content: center;
 `
 
-export default SearchScreen = ({ navigation }) => {
+export default SearchScreen = ({ navigation, route }) => {
+    const initialSearchType = route?.params?.initialSearchType ?? 'Film';
     const dispatch = useDispatch();
+    const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
     const myFollowing = useSelector(state => state.myFollowing);
 
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState([]);
-    const [selectedType, setSelectedType] = useState("Film");
+    const [selectedType, setSelectedType] = useState(initialSearchType);
     const updateCounter = useRef(0);
 
     useEffect(() => {
@@ -107,9 +111,16 @@ export default SearchScreen = ({ navigation }) => {
                 annotatedResults = await searchTitles(newSearchText, false);
             } else if (searchType === "TV") {
                 annotatedResults = await searchTitles(newSearchText, true);
-            } else {
+            } else if (searchType === "Users") {
                 annotatedResults = await searchUsers(newSearchText);
                 annotatedResults = annotatedResults.sort(sortUserResults);
+            } else if (searchType === "Clubs") {
+                annotatedResults = await searchPublicClubs({ 
+                    authSession,
+                    page: 0,
+                    reqUserSub: reelayDBUser?.sub, 
+                    searchText: newSearchText 
+                });
             }
 
             if (updateCounter.current === counter) {
@@ -139,8 +150,8 @@ export default SearchScreen = ({ navigation }) => {
             <TopBarContainer>
 				<SelectorBarContainer>
 					<ToggleSelector
-                        displayOptions={["Film", "TV", "Users"]}
-						options={["Film", "TV", "Users"]}
+                        displayOptions={["Film", "TV", "Clubs", "Users"]}
+						options={["Film", "TV", "Clubs", "Users"]}
 						selectedOption={selectedType}
 						onSelect={(type) => {
 							setSelectedType(type);
@@ -157,18 +168,28 @@ export default SearchScreen = ({ navigation }) => {
 					placeholderText={`Find ${
 						selectedType === "Film"
 							? "films"
-							: selectedType === "TV"
+                        : selectedType === "TV"
 							? "TV shows"
-							: "people on Reelay"
+                        : selectedType === "Clubs"
+							? "clubs on Reelay"
+                        : "people on Reelay"
 					}`}
 				/>
 			</SearchBarContainer>
-			{selectedType !== "Users" && !loading && (
+			{ (selectedType === "Film" || selectedType === "TV") && !loading && (
 				<TitleSearchResults
 					navigation={navigation}
 					searchResults={searchResults}
                     searchText={searchText}
                     isSeries={(selectedType === 'TV')}
+					source={"search"}
+				/>
+			)}
+            {selectedType === "Clubs" && !loading && (
+				<ClubSearchResults
+					navigation={navigation}
+					searchResults={searchResults}
+                    searchText={searchText}
 					source={"search"}
 				/>
 			)}

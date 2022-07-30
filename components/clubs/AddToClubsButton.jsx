@@ -3,7 +3,7 @@ import { Pressable, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
-import { AddToWatchlistIconSVG, WatchlistAddedIconSVG } from '../global/SVGs';
+import { AddedToClubsIconSVG, AddToClubsIconSVG, AddToWatchlistIconSVG, ClubsIconSVG, WatchlistAddedIconSVG } from '../global/SVGs';
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,7 +16,10 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons';
 const ClubsButtonCircleContainer = styled(View)`
     align-items: center;
     align-self: center;
-    background: ${props => (props.markedSeen) ? ReelayColors.reelayBlue : 'rgba(255, 255, 255, 0.40)'};
+    background: ${({ isAddedToWatchlist }) => (isAddedToWatchlist) 
+        ? 'rgba(41, 119, 239, 0.40)'
+        : 'rgba(255, 255, 255, 0.20)'
+    };
     border-radius: 50px;
     height: 45px;
     justify-content: center;
@@ -28,10 +31,11 @@ const ClubsButtonOuterContainer = styled(Pressable)`
     width: 60px;
 `
 
-export default AddToClubsButton = ({ titleObj, reelay }) => {
+export default AddToClubsButton = ({ navigation, titleObj, reelay }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+    const isMyReelay = reelay?.creator?.sub === reelayDBUser?.sub;
 
     const inWatchlist = myWatchlistItems.find((nextItem) => {
         const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;
@@ -65,12 +69,15 @@ export default AddToClubsButton = ({ titleObj, reelay }) => {
 
     return (
         <ClubsButtonOuterContainer onPress={openAddToClubsDrawer}>
-            <ClubsButtonCircleContainer markedSeen={markedSeen}>
-                { (isAddedToWatchlist || markedSeen) && <FontAwesomeIcon icon={faCheck} color='white' size={22}/> }
-                { (!isAddedToWatchlist && !markedSeen) && <FontAwesomeIcon icon={faAdd} color='white' size={22}/> }
+            <ClubsButtonCircleContainer isAddedToWatchlist={isAddedToWatchlist && !isMyReelay}>
+                {/* { (isAddedToWatchlist || markedSeen) && <FontAwesomeIcon icon={faCheck} color='white' size={22}/> }
+                { (!isAddedToWatchlist && !markedSeen) && <FontAwesomeIcon icon={faAdd} color='white' size={22}/> } */}
+                {/* <ClubsIconSVG size={24} /> */}
+                <AddToClubsIconSVG size={24} />
             </ClubsButtonCircleContainer>
             { drawerVisible && (
                 <AddToClubsDrawer 
+                    navigation={navigation}
                     titleObj={titleObj}
                     reelay={reelay}
                     drawerVisible={drawerVisible}

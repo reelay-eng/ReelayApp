@@ -15,7 +15,7 @@
     "localg": "export NODE_ENV='localg' && expo start",
     "localg-android": "export NODE_ENV='localg' && expo run:android",
     "localg-ios": "export NODE_ENV='localg' && expo run:ios",
-    "start": "expo start --dev-client",
+    "start": "expo start",
     "start-android": "export NODE_ENV='production' && expo run:android",
     "start-ios": "export NODE_ENV='production' && expo run:ios",
     "staging": "export NODE_ENV='staging' && expo start",
@@ -141,5 +141,5 @@
   "private": true,
   "name": "ReelayApp",
   "license": "LicenseRef-LICENSE",
-  "version": "1.02.05"
+  "version": "1.03.08"
 }

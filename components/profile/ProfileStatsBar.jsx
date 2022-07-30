@@ -8,6 +8,7 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import * as ReelayText from '../../components/global/Text';
 
 const BarContainer = styled(View)`
+    align-items: center;
     flex-direction: row;
     justify-content: space-between;
     width: 100%;
@@ -85,6 +86,10 @@ export default ProfileStatsBar = ({
                 <StatText>{ following ? following.length : 0}</StatText>
                 <DimensionText>{"Following"}</DimensionText>
             </StatContainer>
+            {/* <StatContainer>
+                <StatText>{reelayCount}</StatText>
+                <DimensionText>{"Watchlist Adds"}</DimensionText>
+            </StatContainer> */}
         </BarContainer>
     );
 };

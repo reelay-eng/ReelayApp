@@ -29,7 +29,6 @@ export default WatchlistScreen = ({ navigation, route }) => {
 
     const category = route?.params?.category ?? 'My List';
     const refresh = route?.params?.refresh ?? false;
-    const [selectedCategory, setSelectedCategory] = useState(category);
 
     useEffect(() => {
         logAmplitudeEventProd('openMyWatchlist', {
@@ -64,15 +63,13 @@ export default WatchlistScreen = ({ navigation, route }) => {
         if (b.hasSeenTitle) return -1;
         return 0;
     }
-    const sortedWatchlistItems = myUnreelayedWatchlistItems.sort(byHasSeen)
-
-    const headerText = 'My Watchlist';
+    const sortedWatchlistItems = myUnreelayedWatchlistItems.sort(byHasSeen);
 
     return (
 		<WatchlistScreenContainer bottomOffset={bottomOffset}>
-            <HeaderWithBackButton navigation={navigation} text={headerText} />
+            <HeaderWithBackButton navigation={navigation} text={'My Watchlist'} />
             <Watchlist
-                category={selectedCategory}
+                category={category}
                 navigation={navigation}
                 refresh={refresh}
                 watchlistItems={sortedWatchlistItems}

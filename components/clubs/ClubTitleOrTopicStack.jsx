@@ -1,20 +1,21 @@
-import React, { useContext, useState, memo, useRef } from 'react';
-import { Dimensions, FlatList, SafeAreaView, TouchableOpacity, View } from 'react-native';
+import React, { useContext, useState, useRef } from 'react';
+import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
-import ClubBanner from './ClubBanner';
 import TitleBanner from '../feed/TitleBanner';
 import Hero from '../feed/Hero';
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from 'react-native-elements';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
+import ReelayFeedHeader from '../feed/ReelayFeedHeader';
 
 const { height, width } = Dimensions.get('window');
+const TITLE_BANNER_TOP_OFFSET = 56;
 
 const AddReelayButtonContainer = styled(TouchableOpacity)`
     align-items: center;
@@ -91,11 +92,6 @@ export default ClubTitleOrTopicStack = ({
     const stackRef = useRef(null);
     const viewableReelay = stack[stackPosition];
 
-    const addReelayBottomOffset = useSafeAreaInsets().bottom;
-    const titleBannerTopOffset = (activityType === 'topic')
-        ? 48
-        : 40;
-
     const donateLinks = useSelector(state => state.donateLinks);
     const donateObj = donateLinks?.find((donateLinkObj) => {
         const { tmdbTitleID, titleType } = donateLinkObj;
@@ -124,7 +120,7 @@ export default ClubTitleOrTopicStack = ({
     const renderTitleBanner = (reelay, activityType) => {
         const posterWidth = (activityType === 'title') ? 60 : 48;
         return (
-            <TitleBannerContainer offset={titleBannerTopOffset}>
+            <TitleBannerContainer offset={TITLE_BANNER_TOP_OFFSET}>
                 <TitleBanner 
                     donateObj={donateObj}
                     navigation={navigation}
@@ -133,7 +129,9 @@ export default ClubTitleOrTopicStack = ({
                     posterWidth={posterWidth}
                     stack={stack}
                     titleObj={reelay?.title}
-                    viewableReelay={reelay}
+                    reelay={reelay}
+                    club={club}
+                    topic={(activityType === 'topic') ? clubTitleOrTopic : null}
                 />
             </TitleBannerContainer>
         );
@@ -200,22 +198,17 @@ export default ClubTitleOrTopicStack = ({
                 pagingEnabled={true} 
                 windowSize={3}
             />
-            <ClubBanner 
+            <ReelayFeedHeader 
                 club={club} 
+                feedSource='club'
                 navigation={navigation} 
-                showBubbleBath={false}
+                onTappedOldest={onTappedOldest}
+                onTappedNewest={onTappedNewest}
                 position={stackPosition}
+                stackLength={reelays?.length}
                 topic={(activityType === 'topic') ? clubTitleOrTopic : null}
             />
             { activityType === 'title' && renderTitleBanner(viewableReelay, activityType) }
-            <AddReelayButton 
-                activityType={activityType}
-                navigation={navigation} 
-                offset={addReelayBottomOffset}
-                clubID={club.id}
-                titleObj={viewableReelay?.title}
-                topicObj={(activityType === 'topic') ? clubTitleOrTopic : null}
-            />
         </ReelayFeedContainer>
     );
 }

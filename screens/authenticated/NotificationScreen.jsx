@@ -20,6 +20,7 @@ import { setBadgeCountAsync } from 'expo-notifications';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
+import ClubPicture from '../../components/global/ClubPicture';
 
 const ACTIVITY_IMAGE_SIZE = 44;
 
@@ -123,10 +124,10 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         const { notifyType, fromUser } = data;
 
         const profilePicNotifyTypes = [
+            'notifyClubOnPrivacyChanges',
             'notifyClubOnTitleAdded',
             'notifyClubOnTopicAdded',
             'notifyClubTitleThreadOnNewReelay',
-            'notifyClubTopicThreadOnNewReelay',
             'notifyCreatorOnComment',
             'notifyCreatorOnFollow',
             'notifyCreatorOnLike',
@@ -155,12 +156,12 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     }
 
     const renderRightAction = () => {
-        const { notifyType, title, fromUser } = data;
+        const { notifyType, club, title, fromUser } = data;
+        const clubButtonTypes = ['notifyClubOnPrivacyChanges'];
         const followButtonTypes = ['notifyCreatorOnFollow'];
         const posterButtonTypes = [
             'notifyClubOnTitleAdded',
             'notifyClubTitleThreadOnNewReelay',
-            'notifyClubTopicThreadOnNewReelay',
             'notifyCreatorOnComment',
             'notifyCreatorOnLike',
             'notifyMentionedUserOnComment',
@@ -183,6 +184,11 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         if (posterButtonTypes.includes(notifyType)) {
             const posterSource = title?.posterSource;
             return <TitlePoster source={posterSource} />;
+        }
+
+        if (clubButtonTypes.includes(notifyType)) {
+            if (!club?.id) return <View />;
+            return <ClubPicture club={club} size={ACTIVITY_IMAGE_SIZE} />;
         }
 
         return <React.Fragment />

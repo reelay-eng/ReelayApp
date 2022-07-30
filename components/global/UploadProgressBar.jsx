@@ -56,7 +56,7 @@ export default UploadProgressBar = ({ mountLocation, onRefresh }) => {
 
     const indeterminate = (uploadStage === 'upload-ready' || uploadStage === 'refreshing');
     const dispatch = useDispatch();
-    const { top } = useSafeAreaInsets();
+    const topOffset = useSafeAreaInsets().top + 142;
 
     const containerPosition = (mountLocation === 'InClub') 
         ? 'relative' 
@@ -89,15 +89,6 @@ export default UploadProgressBar = ({ mountLocation, onRefresh }) => {
     const progressBarWidth = (uploadStage === 'upload-failed-retry')
         ? width - 132
         : width - 68;
-
-    // todo: can be handled better in location-specific containers
-    const topOffset = (mountLocation === 'OnProfile') 
-            ? (top + 108) 
-        : (mountLocation === 'InTopic')
-            ? (top + 140)
-        : (mountLocation === 'InClub')
-            ? (0)
-        : top;
 
     const uploadIconName = (uploadStage === 'upload-failed-retry') 
         ? 'reload-outline' 

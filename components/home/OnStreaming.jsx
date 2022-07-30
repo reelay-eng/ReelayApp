@@ -4,7 +4,7 @@ import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import StreamingSelector from './StreamingSelector';
 import * as ReelayText from '../global/Text';
-import { VenueIcon } from '../utils/VenueIcon';
+import VenueIcon from '../utils/VenueIcon';
 import SeeMore from '../global/SeeMore';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger'

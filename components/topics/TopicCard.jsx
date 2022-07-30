@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useState } from 'react';
 import { Dimensions, Pressable, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
@@ -9,12 +9,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
 import TopicDotMenuDrawer from './TopicDotMenuDrawer';
-import ReelayColors from '../../constants/ReelayColors';
-import { logAmplitudeEventProd } from '../utils/EventLogger';
-import { AuthContext } from '../../context/AuthContext';
-
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faComments, faSpinner } from '@fortawesome/free-solid-svg-icons';
 
 const { height, width } = Dimensions.get('window');
 
@@ -25,7 +19,6 @@ const BottomRowContainer = styled(View)`
     margin: 16px;
     margin-bottom: 0px;
     bottom: 16px;
-    position: absolute;
     width: ${width - 64}px;
 `
 const BottomRowLeftText = styled(ReelayText.Subtitle2)`
@@ -55,20 +48,10 @@ const CreateReelayText = styled(ReelayText.CaptionEmphasized)`
     font-size: 12px;
     line-height: 16px;
 `
-const CreatorLine = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    justify-content: space-between;
-    margin: 16px;
-`
-const CreatorLineLeft = styled(View)`
-    align-items: center;
-    flex-direction: row;
-`
-const CreatorName = styled(ReelayText.CaptionEmphasized)`
-    color: #86878B;
-    margin-left: 8px;
-    padding-top: 4px;
+const CreatorName = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 14px;
+    line-height: 20px;
 `
 const DescriptionLine = styled(View)`
     margin-left: 16px;
@@ -77,10 +60,17 @@ const DescriptionLine = styled(View)`
 `
 const DescriptionText = styled(ReelayText.CaptionEmphasized)`
     color: #86878B;
+    line-height: 18px;
+`
+const DividerLine = styled(View)`
+    background-color: rgba(255,255,255,0.1);
+    height: 1px;
+    margin: 10px;
+    width: ${width - 56}px;
 `
 const DotMenuButtonContainer = styled(TouchableOpacity)`
-    padding-left: 4px;
-    padding-right: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
 `
 const PlayReelaysButton = styled(TouchableOpacity)`
     align-items: center;
@@ -88,7 +78,11 @@ const PlayReelaysButton = styled(TouchableOpacity)`
     flex-direction: row;
     justify-content: center;
 `
+const SharedTopicText = styled(ReelayText.Overline)`
+    color: white;
+`
 const TitleLine = styled(View)`
+    margin-top: 16px;
     margin-left: 16px;
     margin-right: 16px;
     margin-bottom: 8px;
@@ -106,15 +100,36 @@ const TopicCardGradient = styled(LinearGradient)`
 const TopicCardPressable = styled(TouchableOpacity)`
     background-color: black;
     border-radius: 11px;
-    height: 200px;
+    height: ${props => props.horizontal ? '200px' : 'auto'};
+    justify-content: space-between;
     width: ${width-32}px;
 `
 const TopicCardView = styled(View)`
     background-color: black;
     border-radius: 11px;
-    height: 200px;
+    height: ${props => props.horizontal ? '200px' : 'auto'};
+    justify-content: space-between;
     width: ${width-32}px;
 `
+const TopicOverlineView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    padding-left: 4px;
+    width: ${width-32}px;
+`
+const TopicOverlineLeftView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    display: flex;
+    flex: 1;
+`
+const TopicOverlineInfoView = styled(View)`
+    margin-left: 8px;
+`
+
 
 const CardBottomRowNoStacks = ({ navigation, clubID, topic }) => {
     const advanceToCreateReelay = () => navigation.push('SelectTitleScreen', { clubID, topic });
@@ -185,20 +200,18 @@ const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
     );
 }
 
-export default TopicCard = ({ advanceToFeed, clubID, navigation, topic }) => {
+export default TopicCard = ({ 
+    advanceToFeed, 
+    clubID, 
+    horizontal = false,
+    navigation, 
+    topic,
+}) => {
     const canPress = (topic.reelays.length > 0);
     const creator = {
         sub: topic.creatorSub,
         username: topic.creatorName,
     };
-
-    const TopicCardContainer = ({ canPress, children, onPress }) => {
-        if (canPress) {
-            return <TopicCardPressable activeOpacity={0.5} onPress={onPress}>{children}</TopicCardPressable>;
-        } else {
-            return <TopicCardView>{children}</TopicCardView>;
-        }
-    }
 
     const DotMenuButton = () => {
         const [topicDotMenuVisible, setTopicDotMenuVisible] = useState(false);
@@ -218,38 +231,66 @@ export default TopicCard = ({ advanceToFeed, clubID, navigation, topic }) => {
         );
     }
 
-    return (
-        <TopicCardContainer canPress={canPress} onPress={advanceToFeed}>
-            <TopicCardGradient colors={['#400817', '#19242E']} start={{ x: 0.5, y: 1 }} end={{ x: 0.5, y: -0.5 }} />
-            <CreatorLine>
-                <CreatorLineLeft>
-                    { clubID && (
-                        <>
-                            <FontAwesomeIcon icon={ faComments } color='white' size={20} /> 
-                            <View style={{ marginRight: 10 }} />
-                        </>
-                    )}
-                    <ProfilePicture user={creator} size={24} />
-                    <CreatorName>{creator.username + ' started'}</CreatorName>
-                </CreatorLineLeft>
+    const TopicCardContainer = ({ canPress, children, onPress }) => {
+        if (canPress) {
+            return (
+                <TopicCardPressable activeOpacity={0.5} horizontal={horizontal} onPress={onPress}>
+                    {children}
+                </TopicCardPressable>
+            );
+        } else {
+            return (
+                <TopicCardView horizontal={horizontal}>
+                    {children}
+                </TopicCardView>
+            );
+        }
+    }
+
+    const TopicOverline = () => {
+        return (
+            <TopicOverlineView>
+                <TopicOverlineLeftView>
+                    <ProfilePicture user={creator} size={32} />
+                    <TopicOverlineInfoView>
+                        <CreatorName>{creator.username}</CreatorName>
+                        <SharedTopicText>{'SHARED A TOPIC'}</SharedTopicText>
+                    </TopicOverlineInfoView>
+                </TopicOverlineLeftView>
                 <DotMenuButton />
-            </CreatorLine>
-            <TitleLine>
-                <TitleText numberOfLines={2}>{topic.title}</TitleText>
-            </TitleLine>
-            <DescriptionLine>
-                <DescriptionText numberOfLines={3}>{topic.description}</DescriptionText>
-            </DescriptionLine>
-            { (!topic.reelays.length) && (
-                <CardBottomRowNoStacks 
-                    navigation={navigation} 
-                    clubID={clubID} 
-                    topic={topic} 
-                />
-            )}
-            { (topic.reelays.length > 0) && (
-                <CardBottomRowWithStacks advanceToFeed={advanceToFeed} topic={topic} />
-             )}
-        </TopicCardContainer>
+            </TopicOverlineView>
+        );
+    }
+
+    return (
+        <Fragment>
+            <TopicOverline />
+            <TopicCardContainer canPress={canPress} onPress={advanceToFeed}>
+                <TopicCardGradient colors={['#400817', '#19242E']} start={{ x: 0.5, y: 1 }} end={{ x: 0.5, y: -0.5 }} />
+                <View>
+                    <TitleLine>
+                        <TitleText numberOfLines={2}>{topic.title}</TitleText>
+                    </TitleLine>
+                    { (topic.description.length > 0) && (
+                        <DescriptionLine>
+                            <DescriptionText numberOfLines={3}>{topic.description}</DescriptionText>
+                        </DescriptionLine>
+                    )}
+                </View>
+                <View>
+                    <DividerLine />
+                    { (!topic.reelays.length) && (
+                        <CardBottomRowNoStacks 
+                            navigation={navigation} 
+                            clubID={clubID} 
+                            topic={topic} 
+                        />
+                    )}
+                    { (topic.reelays.length > 0) && (
+                        <CardBottomRowWithStacks advanceToFeed={advanceToFeed} topic={topic} />
+                    )}
+                </View>
+            </TopicCardContainer>
+        </Fragment>
     );
 }

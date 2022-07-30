@@ -7,7 +7,7 @@ import { Video, Audio } from 'expo-av';
 import { Icon } from 'react-native-elements';
 import StarRating from 'react-native-star-rating';
 import * as ReelayText from "../../components/global/Text";
-import { VenueIcon } from '../utils/VenueIcon';
+import VenueIcon from '../utils/VenueIcon';
 import SplashImage from "../../assets/images/reelay-splash-with-dog.png";
 import { generateThumbnail, getThumbnailURI, saveThumbnail } from '../../api/ThumbnailApi';
 import ProfilePicture from './ProfilePicture';
@@ -16,7 +16,8 @@ import TitlePoster from './TitlePoster';
 import ClubPicture from './ClubPicture';
 
 export default ReelayThumbnail = ({ 
-	asNewInMyClubs = false,
+	asAllClubActivity = false,
+	asSingleClubActivity = false,
 	asTopOfTheWeek = false,
 	height = 180, 
 	margin = 6, 
@@ -27,12 +28,14 @@ export default ReelayThumbnail = ({
 	showIcons = true,
 	width = 120,
 }) => {
-	const CREATOR_LINE_BOTTOM = asNewInMyClubs ? 6 : 12;
-	const ICON_SIZE = asTopOfTheWeek ? 24 : asNewInMyClubs ? 20 : 16;
-	const STAR_RATING_ADD_LEFT = asTopOfTheWeek ? 12 : asNewInMyClubs ? 6 : 0;
-	const STAR_SIZE = asTopOfTheWeek ? 16 : asNewInMyClubs ? 14 : 12;
-	const PROFILE_PIC_SIZE = asTopOfTheWeek ? 32 : asNewInMyClubs ? 28 : 24;
-	const USERNAME_TEXT_SIZE = asTopOfTheWeek ? 16 : asNewInMyClubs ? 14 : 12;
+	const asClubActivity = (asAllClubActivity || asSingleClubActivity);
+
+	const CREATOR_LINE_BOTTOM = asClubActivity ? 6 : 12;
+	const ICON_SIZE = asTopOfTheWeek ? 24 : asClubActivity ? 20 : 16;
+	const STAR_RATING_ADD_LEFT = asTopOfTheWeek ? 12 : asClubActivity ? 6 : 0;
+	const STAR_SIZE = asTopOfTheWeek ? 16 : asClubActivity ? 14 : 12;
+	const PROFILE_PIC_SIZE = asTopOfTheWeek ? 32 : asClubActivity ? 28 : 24;
+	const USERNAME_TEXT_SIZE = asTopOfTheWeek ? 16 : asClubActivity ? 14 : 12;
 	const USERNAME_ADD_LEFT = USERNAME_TEXT_SIZE - 7;
 	const POSTER_WIDTH = width / 4;
 
@@ -115,8 +118,8 @@ export default ReelayThumbnail = ({
 	const s3Client = useSelector(state => state.s3Client);
 	const starRating = (reelay.starRating ?? 0) + (reelay.starRatingAddHalf ? 0.5 : 0);
 
-	const club = asNewInMyClubs ? (myClubs.find(next => next.id === reelay?.clubID)) : null;
-	const displayName = asNewInMyClubs ? (club?.name) : reelay?.creator?.username;
+	const club = asClubActivity ? (myClubs.find(next => next.id === reelay?.clubID)) : null;
+	const displayName = asClubActivity ? (club?.name) : reelay?.creator?.username;
 
 	const generateAndSaveThumbnail = async () => {
 		console.log('ON ERROR TRIGGERED: ', getThumbnailURI(reelay));
@@ -157,7 +160,7 @@ export default ReelayThumbnail = ({
 				<GradientContainer>
 					<ThumbnailGradient colors={["transparent", "#0B1424"]} />
 					{ showIcons && <CreatorLine /> }
-					{ showIcons && !asNewInMyClubs && (starRating > 0) && <StarRatingLine /> }
+					{ showIcons && !asClubActivity && (starRating > 0) && <StarRatingLine /> }
 				</GradientContainer>
 			</React.Fragment>
 		)
@@ -183,13 +186,13 @@ export default ReelayThumbnail = ({
     const CreatorLine = () => {        
         return (
             <CreatorLineContainer>
-				{ asNewInMyClubs && (
+				{ asAllClubActivity && (
 					<ClubPicture club={{ id: reelay?.clubID }} size={PROFILE_PIC_SIZE} />
 				)}
-				{ !asNewInMyClubs && (
+				{ !asAllClubActivity && (
 					<ProfilePicture user={reelay?.creator} size={PROFILE_PIC_SIZE} border />
 				)}
-                <UsernameText numberOfLines={asNewInMyClubs ? 2 : 1}>
+                <UsernameText numberOfLines={asAllClubActivity ? 2 : 1}>
                     {displayName}
                 </UsernameText>
             </CreatorLineContainer>

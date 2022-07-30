@@ -1,16 +1,18 @@
 import { createStore } from "redux";
 import { 
-    announcementDismissalReducer,
-    noticeDismissalReducer,
     cognitoSessionReducer, 
-    latestAnnouncementReducer, 
+    dismissAnnouncementReducer,
+    dismissNoticeReducer,
+    latestAnnouncementReducer,
+    latestClubActivitiesReducer,
     latestNoticeReducer,
     sortByLastActivity,
-    stacksOnStreamingReducer, 
     updateClubReducer, 
     watchlistRecsReducer, 
-    latestClubActivitiesReducer
 } from "./reducers";
+
+import Constants from 'expo-constants';
+const REELAY_APP_VERSION = Constants.manifest.version;
 
 const initialState = {
     // AUTHENTICATION
@@ -18,7 +20,7 @@ const initialState = {
     cognitoUser: {},
     reelayDBUser: {},
     reelayDBUserID: null,
-    signedIn: false,
+    signedIn: false, 
 
     // CLUBS + WATCHLISTS
     myClubs: [],
@@ -26,6 +28,9 @@ const initialState = {
     myWatchlistItems: [],
 
     // GLOBAL
+    appUpdateRequired: false,
+    currentAppVersion: REELAY_APP_VERSION,
+    latestAppVersion: REELAY_APP_VERSION,
     justShowMeSignupVisible: false,
     tabBarVisible: true,
 
@@ -43,7 +48,6 @@ const initialState = {
     // ON REELAYS
     likesVisible: false,
     commentsVisible: false,
-    commentRefreshListener: 0,
     currentComment: '',
     donateLinks: [],
     dotMenuVisible: false,
@@ -109,6 +113,11 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, myWatchlistItems };    
 
         // GLOBAL
+        case 'setLatestAppVersion':
+            // These two are always set together, and currentAppVersion is never changed
+            if (latestAppVersion < state.currentAppVersion) return;
+            const { appUpdateRequired, latestAppVersion } = action.payload;
+            return { ...state, appUpdateRequired, latestAppVersion };
         case 'setJustShowMeSignupVisible':
             return { ...state, justShowMeSignupVisible: action.payload }
         case 'setTabBarVisible':
@@ -122,7 +131,7 @@ const appReducer = ( state = initialState, action) => {
                 myFollowing: state.myFollowing,
                 reelayDBUser: state.reelayDBUser,
             });
-            const latestAnnouncementNotDismissed = announcementDismissalReducer({
+            const latestAnnouncementNotDismissed = dismissAnnouncementReducer({
                 announcement: latestAnnouncement,
                 dismissalHistory: state.myDismissalHistory,
             });
@@ -132,11 +141,12 @@ const appReducer = ( state = initialState, action) => {
         case 'setLatestNotice':
             const latestNotice = latestNoticeReducer({
                 latestNotice: action.payload,
+                dismissalHistory: state.myDismissalHistory,
                 myClubs: state.myClubs,
                 myCreatorStacks: state.myCreatorStacks,
                 userSub: state.reelayDBUserID,
             });
-            const latestNoticeNotDismissed = noticeDismissalReducer({
+            const latestNoticeNotDismissed = dismissNoticeReducer({
                 notice: latestNotice,
                 dismissalHistory: state.myDismissalHistory,
             });
@@ -177,8 +187,6 @@ const appReducer = ( state = initialState, action) => {
         // ON REELAYS
         case 'setCommentsVisible':
             return { ...state, commentsVisible: action.payload }
-        case 'setCommentRefreshListener':
-            return { ...state, commentRefreshListener: action.payload }
         case 'setCurrentComment':
             return { ...state, currentComment: action.payload }
         case 'setDonateLinks':
@@ -255,6 +263,9 @@ export const mapStateToProps = (state) => ({
     myWatchlistItems: state.myWatchlistItems,
 
     // GLOBAL
+    appUpdateRequired: state.appUpdateRequired,
+    currentAppVersion: state.currentAppVersion,
+    latestAppVersion: state.latestAppVersion,
     justShowMeSignupVisible: state.justShowMeSignupVisible,
     tabBarVisible: state.tabBarVisible,
 
@@ -270,7 +281,6 @@ export const mapStateToProps = (state) => ({
 
     // ON REELAYS
     commentsVisible: state.commentsVisible,
-    commentRefreshListener: state.commentRefreshListener,
     currentComment: state.currentComment,
     donateLinks: state.donateLinks,
     dotMenuVisible: state.dotMenuVisible,

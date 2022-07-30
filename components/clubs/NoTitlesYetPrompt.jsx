@@ -28,15 +28,15 @@ export default NoTitlesYetPrompt = () => {
         color: white;
         text-align: center;
     `
-    const NoTitlesYetContainer = styled(SafeAreaView)`
+    const NoTitlesYetView = styled(SafeAreaView)`
         align-items: center;
         justify-content: center;
         margin: 10px;
-        margin-top: 60px;
+        width: 100%;
     `
 
     return (
-        <NoTitlesYetContainer>
+        <NoTitlesYetView>
             <DogWithGlassesContainer>
                 <DogWithGlassesImage source={DogWithGlasses} />
             </DogWithGlassesContainer>
@@ -44,6 +44,6 @@ export default NoTitlesYetPrompt = () => {
             <ExplainText>
                 {'Get the club started'}
             </ExplainText>
-        </NoTitlesYetContainer>
+        </NoTitlesYetView>
     );
 }

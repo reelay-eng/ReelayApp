@@ -86,7 +86,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 		return (
 			<HeaderContainer topOffset={headerTopOffset}>
 				<BackButton navigation={navigation} />
-				<AddToClubsButton titleObj={titleObj} />
+				<AddToClubsButton navigation={navigation} titleObj={titleObj} />
 			</HeaderContainer>
 		);
 	}

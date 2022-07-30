@@ -3,7 +3,6 @@ import { Dimensions, TouchableOpacity, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
 
-import { Icon } from 'react-native-elements';
 import TopicCard from './TopicCard';
 import { useDispatch, useSelector } from 'react-redux';
 import ReelayColors from '../../constants/ReelayColors';
@@ -11,7 +10,7 @@ import Carousel from 'react-native-snap-carousel';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faBreadSlice, faComments, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faComments } from '@fortawesome/free-solid-svg-icons';
 
 const { width } = Dimensions.get('window');
 
@@ -149,6 +148,7 @@ export default TopicsCarousel = ({ navigation, source = 'discoverNew' }) => {
                     key={index} 
                     advanceToFeed={advanceToFeed}
                     clubID={null}
+                    horizontal={true}
                     navigation={navigation} 
                     topic={topic} 
                 />

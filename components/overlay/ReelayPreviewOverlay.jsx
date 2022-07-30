@@ -1,6 +1,5 @@
 import React from 'react';
-import { getPosterURL } from '../../api/TMDbApi';
-import { VenueIcon } from '../utils/VenueIcon';
+import VenueIcon from '../utils/VenueIcon';
 
 import { Dimensions, View } from 'react-native';
 import { Image } from 'react-native-elements';

@@ -2,7 +2,7 @@ import { getRegisteredUser } from './ReelayDBApi';
 import { condensedTitleObj, sendPushNotification } from './NotificationsApi';
 
 export const notifyOnAddedToWatchlist = async ({ reelayedByUserSub, addedByUserSub, addedByUsername, watchlistItem }) => {
-    const title = `@${addedByUsername}`;
+    const title = `${addedByUsername}`;
     const body = `added ${watchlistItem?.title?.display} to their watchlist from your reelay`;
     const data = { 
         notifyType: 'notifyOnAddedToWatchlist',

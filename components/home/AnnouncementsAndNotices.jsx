@@ -42,15 +42,19 @@ const AnnouncementTitleText = styled(ReelayText.H5Emphasized)`
     font-size: 20px;
     margin-bottom: 8px;
 `
-const AnnouncementDescriptionText = styled(ReelayText.Body2)`
+const AnnouncementBodyText = styled(ReelayText.Body2)`
     color: white;
 `
 
 const Announcement = ({ announcement, color, icon, navigation, onPress, onDismiss }) => {
     const showAnnouncement = (announcement && !announcement?.error);
     if (!showAnnouncement) return <View />;
-    const { description, optionsJSON, reelaySub, title } = announcement;
+    const { optionsJSON, reelaySub, title } = announcement;
     const options = optionsJSON ? JSON.parse(optionsJSON) : {};
+    
+    // no, i'm not proud of this... we're coalescing the body text of the announcement depending
+    // on its source (version guide, create popup, posted announcements) 
+    const body = (announcement?.body ?? announcement?.description ?? options?.description ?? '');
 
     const advanceToReelay = async () => {
         if (!reelaySub) return;
@@ -69,12 +73,8 @@ const Announcement = ({ announcement, color, icon, navigation, onPress, onDismis
         <SwipeableRow onPress={onDismiss} renderIcon={renderDismissIcon}>
             <AnnouncementBox color={color ?? ReelayColors.reelayBlue} onPress={onPress ?? advanceToReelay}>
                 <AnnouncementInfoBox>
-                    <AnnouncementTitleText>
-                        { title }
-                    </AnnouncementTitleText>
-                    <AnnouncementDescriptionText>
-                        { description ?? options?.description ?? '' }
-                    </AnnouncementDescriptionText>
+                    <AnnouncementTitleText>{title}</AnnouncementTitleText>
+                    <AnnouncementBodyText>{body}</AnnouncementBodyText>
                 </AnnouncementInfoBox>
                 <AnnouncementIconBox>
                     { icon ?? <FontAwesomeIcon icon={ faPlay } color='white' size={20} /> }
@@ -88,16 +88,23 @@ export default AnnouncementsAndNotices = ({ navigation }) => {
     const dispatch = useDispatch();
     const latestAnnouncement = useSelector(state => state.latestAnnouncement);
     const latestAnnouncementDismissed = useSelector(state => state.latestAnnouncementDismissed);
+
     const latestNotice = useSelector(state => state.latestNotice);
     const latestNoticeDismissed = useSelector(state => state.latestNoticeDismissed);
     const latestNoticeSkipped = useSelector(state => state.latestNoticeSkipped);
-    const showNoticeAsAnnouncement = latestNotice && latestNoticeSkipped && !latestNoticeDismissed;   
+
+    const showNoticeAsAnnouncement = (
+        latestNotice && 
+        latestNoticeSkipped && 
+        !latestNoticeDismissed &&
+        latestNotice?.noticeType === 'single-page'
+    );   
 
     const advanceToCreateScreen = async () => navigation.navigate('Create');
     const advanceToCreateClubScreen = async () => navigation.navigate('CreateClubScreen');
 
     const handleNoticeOnPress = () => {
-        switch (latestNotice?.actionType) {
+        switch (latestNotice?.data?.actionType) {
             case 'advanceToCreateScreen':
                 advanceToCreateScreen();
                 return;
@@ -141,7 +148,7 @@ export default AnnouncementsAndNotices = ({ navigation }) => {
                 onDismiss={onAnnouncementDismiss}
             /> }
             { showNoticeAsAnnouncement && <Announcement 
-                announcement={latestNotice} 
+                announcement={latestNotice?.data} 
                 color={ReelayColors.reelayGreen}
                 icon={<FontAwesomeIcon icon={ faPlus } color='white' size={22} />}
                 navigation={navigation} 

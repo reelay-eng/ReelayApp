@@ -124,7 +124,7 @@ export default TopicsListScreen = ({ navigation, route }) => {
             break;
         case 'followingNew':
             initDisplayTopics = myHomeContent?.following?.newTopics;
-            headerText = 'New topics from your friends';
+            headerText = 'Topics by friends';
             break;
         default:
             initDisplayTopics = [];

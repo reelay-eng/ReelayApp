@@ -19,6 +19,18 @@ export default function FeedScreen({ navigation, route }) {
 
     console.log('Feed screen is rendering');
 
+    /**
+     * Current values for initialFeedSource:
+     * festivals
+     * global
+     * following
+     * popularTitlesFollowing
+     * popularTitlesDiscover
+     * streaming
+     * theaters
+     * trending
+     */
+
     return (
         <TransparentContainer>
             <ReelayFeed

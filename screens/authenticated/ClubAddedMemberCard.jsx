@@ -25,14 +25,21 @@ const MemberAddedText = styled(ReelayText.Body2)`
 export default ClubAddedMemberCard = ({ member }) => {
     const timestamp = moment(member.createdAt).fromNow();
     const user = { sub: member?.userSub, username: member?.username };
-    const activityMessage = (member.role === 'owner') 
-        ? `${member.username} created the club  ${timestamp}`
-        : ` ${member.username} was added by ${member.invitedByUsername}  ${timestamp}`;
+
+    const getActivityMessage = () => {
+        if (member.role === 'owner') {
+            return `${member.username} created the club  ${timestamp}`;
+        }
+        if (member.username === member.invitedByUsername) {
+            return `${member.username} joined the club  ${timestamp}`;
+        }
+        return ` ${member.username} was added by ${member.invitedByUsername}  ${timestamp}`;
+    }
 
     return (
         <MemberAddedContainer>
             <ProfilePicture user={user} size={24} />
-            <MemberAddedText>{activityMessage}</MemberAddedText>
+            <MemberAddedText>{getActivityMessage()}</MemberAddedText>
         </MemberAddedContainer>
     );
 }

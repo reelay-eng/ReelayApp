@@ -82,7 +82,7 @@ export default TopicsFeed = ({
     }
 
     useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false });
+        dispatch({ type: 'setTabBarVisible', payload: true });
     });
 
     const extendFeed = async () => {

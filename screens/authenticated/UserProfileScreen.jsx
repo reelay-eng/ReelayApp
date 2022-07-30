@@ -29,17 +29,21 @@ export default UserProfileScreen = ({ navigation, route }) => {
     const { creator } = route.params;
     const { sub, username } = creator; // these are the only fields you need to pass in
 
+    const [creatorInfo, setCreatorInfo] = useState({});
     const [creatorStacks, setCreatorStacks] = useState([]);
     const [creatorFollowers, setCreatorFollowers] = useState([]);
     const [creatorFollowing, setCreatorFollowing] = useState([]);
-    const [bioText, setBioText] = useState("");
-    const [websiteText, setWebsiteText] = useState("")
     const [streamingSubscriptions, setStreamingSubscriptions] = useState([]);
     const [refreshing, setRefreshing] = useState(true);
 
     const { reelayDBUser } = useContext(AuthContext);
 	const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
     const creatorSub = sub ?? '';
+
+    const loadCreatorInfo = async () => {
+        const creatorInfo = await getRegisteredUser(creatorSub);
+        setCreatorInfo(creatorInfo);
+    }
 
     const loadCreatorStacks = async () => {
         const nextCreatorStacks = await getStacksByCreator(creatorSub);
@@ -58,12 +62,6 @@ export default UserProfileScreen = ({ navigation, route }) => {
         setCreatorFollowing(nextFollowing);
     };
 
-    const loadUserInformation = async () => {
-        const creatorInfo = await getRegisteredUser(creatorSub);
-        setBioText(creatorInfo.bio ? creatorInfo.bio : "");
-        setWebsiteText(creatorInfo.website ? creatorInfo.website : "")
-    }
-
     const loadUserStreamingSubscriptions = async () => {
         const subscriptions = await getStreamingSubscriptions(creator.sub);
         setStreamingSubscriptions(subscriptions);
@@ -76,9 +74,9 @@ export default UserProfileScreen = ({ navigation, route }) => {
 
         if (creatorSub.length) {
             await Promise.all([
+                loadCreatorInfo(),
                 loadCreatorStacks(),
                 loadFollows(),
-                loadUserInformation(),
                 loadUserStreamingSubscriptions(),
             ])
         }
@@ -106,14 +104,11 @@ export default UserProfileScreen = ({ navigation, route }) => {
             <ProfileScrollView showsVerticalScrollIndicator={false} refreshControl={refreshControl}>
                 <ProfileHeaderAndInfo 
                     navigation={navigation}
-                    creator={creator} 
-                    bioText={bioText} 
-                    websiteText={websiteText}
+                    creator={{...creator, ...creatorInfo }} 
                     streamingSubscriptions={streamingSubscriptions}
                     reelayCount={reelayCount}
                     followers={creatorFollowers}
                     following={creatorFollowing}
-                    prevScreen={"UserProfileScreen"}
                 />
                 {!isMyProfile && <FollowButtonBar creator={creator} bar /> }
                 <ProfilePosterGrid
