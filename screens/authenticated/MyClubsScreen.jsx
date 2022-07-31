@@ -365,7 +365,6 @@ export default MyClubsScreen = ({ navigation }) => {
                     { selectedFilters.includes('all') && (
                         <Fragment>
                             <AddClubRow />
-                            <MyWatchlistRow />
                         </Fragment>
                     )}
                     { displayClubs.map(club => <ClubRow club={club} key={club?.id} />) }
@@ -384,7 +383,6 @@ export default MyClubsScreen = ({ navigation }) => {
     const EmptyClubs = () => {
         return (
             <Fragment>
-                <MyWatchlistRow />
                 <EmptyClubsCard navigation={navigation} />
             </Fragment>
         );
@@ -397,29 +395,6 @@ export default MyClubsScreen = ({ navigation }) => {
                     { filter }
                 </FilterButtonText>
             </FilterButtonPressable>
-        );
-    }
-
-    const MyWatchlistRow = () => {
-        const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen');
-        const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-        const watchlistCount = myWatchlistItems.filter(item => item?.hasAcceptedRec)?.length;
-        const watchistText = `${watchlistCount} title${(watchlistCount === 1) ? '' : 's'}`;
-
-        return (
-            <ClubRowPressable onPress={advanceToWatchlistScreen}>
-                <View pointerEvents='none'>
-                    <ProfilePicture user={reelayDBUser} size={CLUB_PIC_SIZE} />
-                </View>
-                <ClubRowInfoView>
-                    <ClubNameText>{'My Watchlist'}</ClubNameText>
-                    <ClubDescriptionText numberOfLines={2}>{watchistText}</ClubDescriptionText>
-                </ClubRowInfoView>
-                <ClubRowArrowView>
-                    <FontAwesomeIcon icon={faChevronRight} color='white' size={18} />
-                    <ClubRowArrowSpacer />
-                </ClubRowArrowView>
-            </ClubRowPressable>
         );
     }
 
