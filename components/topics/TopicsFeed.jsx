@@ -10,6 +10,7 @@ import styled from 'styled-components/native';
 import { useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import { getTopics } from '../../api/TopicsApi';
+import moment from 'moment';
 
 const { height, width } = Dimensions.get('window');
 
@@ -33,13 +34,33 @@ export default TopicsFeed = ({
 	const dispatch = useDispatch();
     const feedPager = useRef();
 
+    const getDiscoverTopics = () => {
+        const discoverNewTopics = myHomeContent?.discover?.newTopics;
+        const discoverPopularTopics = myHomeContent?.discover?.popularTopics;
+
+        const sortTopics = (topic0, topic1) => {
+            const topic0LastUpdatedAt = moment(topic0?.lastUpdatedAt);
+            const topic1LastUpdatedAt = moment(topic1?.lastUpdatedAt);
+            return topic1LastUpdatedAt.diff(topic0LastUpdatedAt, 'seconds') > 0;
+        }
+
+        const discoverTopics = [
+            ...discoverNewTopics,
+            ...discoverPopularTopics
+        ].sort(sortTopics);
+    
+        const uniqueTopic = (topic, index) => {
+            const matchTopicID = (nextTopic) => topic?.id === nextTopic?.id;
+            return index === discoverTopics.findIndex(matchTopicID);
+        }
+    
+        return discoverTopics.filter(uniqueTopic);    
+    }
+
     let displayTopics;
     switch (source) {
-        case 'discoverNew':
-            displayTopics = myHomeContent?.discover?.newTopics;
-            break;
-        case 'discoverPopular':
-            displayTopics = myHomeContent?.discover?.popularTopics;
+        case 'discover':
+            displayTopics = getDiscoverTopics();
             break;
         case 'followingNew':
             displayTopics = myHomeContent?.following?.newTopics;

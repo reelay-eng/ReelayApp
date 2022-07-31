@@ -42,8 +42,8 @@ const ScrollContainer = styled(ScrollView)`
     width: 100%;
     height: auto;
 `
-const Spacer = styled.View`
-    height: ${props => props.height + "px" ?? "50px"};
+const Spacer = styled(View)`
+    height: 120px;
 `
 
 const HomeComponent = ({ navigation }) => {
@@ -123,11 +123,11 @@ const HomeComponent = ({ navigation }) => {
                     <Fragment>
                         <PopularTitles navigation={navigation} tab='discover' />
                         <TopOfTheWeek navigation={navigation} />
-                        <TopicsCarousel navigation={navigation} source='discoverPopular' /> 
+                        <TopicsCarousel navigation={navigation} source='discover' /> 
                         <DiscoverClubs navigation={navigation} />
                         <PeopleToFollow navigation={navigation} /> 
                         <OnStreaming navigation={navigation} source='discover' />
-                        <TopicsCarousel navigation={navigation} source='discoverNew' /> 
+                        {/* <TopicsCarousel navigation={navigation} source='discoverNew' />  */}
                         <InTheaters navigation={navigation} /> 
                         <AtFestivals navigation={navigation} /> 
                     </Fragment>
@@ -140,7 +140,7 @@ const HomeComponent = ({ navigation }) => {
                         <TopicsCarousel navigation={navigation} source='followingNew' /> 
                     </Fragment>  
                 )}
-                <Spacer height={80} />
+                <Spacer />
             </ScrollContainer>
             <BottomBar 
                 colors={["transparent", "#000000"]} 

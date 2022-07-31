@@ -2,6 +2,7 @@ import React, { useContext, useRef } from 'react';
 import { Dimensions, TouchableOpacity, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
+import moment from 'moment';
 
 import TopicCard from './TopicCard';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,10 +17,8 @@ const { width } = Dimensions.get('window');
 
 const CreateTopicButtonContainer = styled(TouchableOpacity)`
     align-items: center;
-    background-color: black;
-    border-color: white;
+    background-color: ${ReelayColors.reelayBlue};
     border-radius: 20px;
-    border-width: 1px;
     flex-direction: row;
     justify-content: center;
     height: 40px;
@@ -60,25 +59,43 @@ const SeeAllTopicsText = styled(ReelayText.Subtitle2)`
     margin-right: 15px;
 `
 
-export default TopicsCarousel = ({ navigation, source = 'discoverNew' }) => {
+export default TopicsCarousel = ({ navigation, source = 'discover' }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const curTopicIndex = useRef(0);
 
+    const myHomeContent = useSelector(state => state.myHomeContent);
     const followingNewTopics = useSelector(state => state.myHomeContent?.following?.newTopics);
-    const discoverNewTopics = useSelector(state => state.myHomeContent?.discover?.newTopics);
-    const discoverPopularTopics = useSelector(state => state.myHomeContent?.discover?.popularTopics);
+
+    const getDiscoverTopics = () => {
+        const discoverNewTopics = myHomeContent?.discover?.newTopics;
+        const discoverPopularTopics = myHomeContent?.discover?.popularTopics;
+
+        const sortTopics = (topic0, topic1) => {
+            const topic0LastUpdatedAt = moment(topic0?.lastUpdatedAt);
+            const topic1LastUpdatedAt = moment(topic1?.lastUpdatedAt);
+            return topic1LastUpdatedAt.diff(topic0LastUpdatedAt, 'seconds') > 0;
+        }
+
+        const discoverTopics = [
+            ...discoverNewTopics,
+            ...discoverPopularTopics
+        ].sort(sortTopics);
+    
+        const uniqueTopic = (topic, index) => {
+            const matchTopicID = (nextTopic) => topic?.id === nextTopic?.id;
+            return index === discoverTopics.findIndex(matchTopicID);
+        }
+    
+        return discoverTopics.filter(uniqueTopic);    
+    }
 
     let displayTopics = [];
     let headerText = 'Topics';
     switch (source) {
-        case 'discoverNew':
-            displayTopics = discoverNewTopics ?? [];
-            headerText = 'New topics';
-            break;
-        case 'discoverPopular':
-            displayTopics = discoverPopularTopics ?? [];
-            headerText = 'Popular topics';
+        case 'discover':
+            displayTopics = getDiscoverTopics();
+            headerText = 'Topics';
             break;
         case 'followingNew':
             displayTopics = followingNewTopics ?? [];

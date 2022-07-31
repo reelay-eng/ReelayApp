@@ -26,6 +26,7 @@ const HeaderContainer = styled(View)`
     flex-direction: row;
     margin-left: 8px;
     margin-top: 20px;
+    margin-bottom: 8px;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;

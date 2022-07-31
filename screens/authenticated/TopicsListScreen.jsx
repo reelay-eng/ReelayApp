@@ -19,11 +19,10 @@ import TopicCard from '../../components/topics/TopicCard';
 import ReelayColors from '../../constants/ReelayColors';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { searchTopics } from '../../api/TopicsApi';
-import { useFocusEffect } from '@react-navigation/native';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import moment from 'moment';
+import { HeaderWithBackButton } from '../../components/global/Headers';
 
 const { height, width } = Dimensions.get('window');
 
@@ -105,23 +104,42 @@ const TopicScrollContainer = styled(ScrollView)`
 `
 
 export default TopicsListScreen = ({ navigation, route }) => {
-    const source = route.params?.source ?? 'discoverNew';
+    const source = route.params?.source ?? 'discover';
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
 
     const myHomeContent = useSelector(state => state.myHomeContent);
 
+    const getDiscoverTopics = () => {
+        const discoverNewTopics = myHomeContent?.discover?.newTopics;
+        const discoverPopularTopics = myHomeContent?.discover?.popularTopics;
+
+        const sortTopics = (topic0, topic1) => {
+            const topic0LastUpdatedAt = moment(topic0?.lastUpdatedAt);
+            const topic1LastUpdatedAt = moment(topic1?.lastUpdatedAt);
+            return topic1LastUpdatedAt.diff(topic0LastUpdatedAt, 'seconds') > 0;
+        }
+
+        const discoverTopics = [
+            ...discoverNewTopics,
+            ...discoverPopularTopics
+        ].sort(sortTopics);
+    
+        const uniqueTopic = (topic, index) => {
+            const matchTopicID = (nextTopic) => topic?.id === nextTopic?.id;
+            return index === discoverTopics.findIndex(matchTopicID);
+        }
+    
+        return discoverTopics.filter(uniqueTopic);    
+    }
+
     let initDisplayTopics;
     let headerText;
     switch (source) {
-        case 'discoverNew':
-            initDisplayTopics = myHomeContent?.discover?.newTopics;
-            headerText = 'New topics';
-            break;
-        case 'discoverPopular':
-            initDisplayTopics = myHomeContent?.discover?.popularTopics;
-            headerText = 'Popular topics';
-            break;
+        case 'discover':
+            initDisplayTopics = getDiscoverTopics();
+            headerText = 'Topics';
+            break;    
         case 'followingNew':
             initDisplayTopics = myHomeContent?.following?.newTopics;
             headerText = 'Topics by friends';
@@ -228,7 +246,7 @@ export default TopicsListScreen = ({ navigation, route }) => {
 
     return (
         <ScreenContainer>
-            { !searching && <Header /> }
+            { !searching && <HeaderWithBackButton navigation={navigation} text={headerText} /> }
             { searching && <SearchBar 
                 resetTopics={resetTopics}
                 searchBarRef={searchBarRef}
