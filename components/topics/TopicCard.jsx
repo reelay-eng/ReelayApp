@@ -11,6 +11,10 @@ import { useSelector } from 'react-redux';
 import TopicDotMenuDrawer from './TopicDotMenuDrawer';
 
 const { height, width } = Dimensions.get('window');
+const CARD_WIDTH_CAROUSEL = width - 48;
+const CARD_WIDTH_LIST = width - 32;
+const getTopicCardWidth = (props) => props.horizontal ? CARD_WIDTH_CAROUSEL : CARD_WIDTH_LIST;
+const getBottomRowWidth = (props) => getTopicCardWidth(props) - 32;
 
 const BottomRowContainer = styled(View)`
     align-items: center;
@@ -19,7 +23,7 @@ const BottomRowContainer = styled(View)`
     margin: 16px;
     margin-bottom: 0px;
     bottom: 16px;
-    width: ${width - 64}px;
+    width: ${props => getBottomRowWidth(props)}px;
 `
 const BottomRowLeftText = styled(ReelayText.Subtitle2)`
     margin-left: 8px;
@@ -102,14 +106,14 @@ const TopicCardPressable = styled(TouchableOpacity)`
     border-radius: 11px;
     height: ${props => props.horizontal ? '200px' : 'auto'};
     justify-content: space-between;
-    width: ${width-32}px;
+    width: ${props => getTopicCardWidth(props)}px;
 `
 const TopicCardView = styled(View)`
     background-color: black;
     border-radius: 11px;
     height: ${props => props.horizontal ? '200px' : 'auto'};
     justify-content: space-between;
-    width: ${width-32}px;
+    width: ${props => getTopicCardWidth(props)}px;
 `
 const TopicOverlineView = styled(View)`
     align-items: center;
@@ -118,7 +122,7 @@ const TopicOverlineView = styled(View)`
     margin-top: 8px;
     margin-bottom: 8px;
     padding-left: 4px;
-    width: ${width-32}px;
+    width: ${props => getTopicCardWidth(props)}px;
 `
 const TopicOverlineLeftView = styled(View)`
     align-items: center;
@@ -129,76 +133,6 @@ const TopicOverlineLeftView = styled(View)`
 const TopicOverlineInfoView = styled(View)`
     margin-left: 8px;
 `
-
-
-const CardBottomRowNoStacks = ({ navigation, clubID, topic }) => {
-    const advanceToCreateReelay = () => navigation.push('SelectTitleScreen', { clubID, topic });
-    return (
-        <BottomRowContainer>
-            <BottomRowLeftText>{'0 reelays, be the first!'}</BottomRowLeftText>
-            <CreateReelayButton onPress={advanceToCreateReelay}>
-                <Icon type='ionicon' name='add' color='white' size={20} />
-                <CreateReelayText>{'Add Reelay'}</CreateReelayText>
-            </CreateReelayButton>
-        </BottomRowContainer>
-    );
-}
-
-const CardBottomRowWithStacks = ({ advanceToFeed, topic }) => {
-    const MAX_DISPLAY_CREATORS = 5;
-    const myFollowing = useSelector(state => state.myFollowing);
-    const inMyFollowing = (creator) => !!myFollowing.find((followingObj) => followingObj?.creatorSub === creator?.sub);
-
-    const getDisplayCreators = () => {
-        // list up to five profile pics, first preference towards people you follow
-        const uniqueCreatorEntries = topic.reelays.reduce((creatorEntries, nextReelay) => {
-            const nextCreator = { 
-                sub: nextReelay?.creator?.sub,
-                username: nextReelay?.creator?.username,
-                isFollowing: inMyFollowing(nextReelay?.creator)
-            };
-
-            if (!creatorEntries[nextCreator?.sub]) {
-                creatorEntries[nextCreator?.sub] = nextCreator;
-            }
-            return creatorEntries;
-        }, {});
-
-        const uniqueCreatorList = Object.values(uniqueCreatorEntries);
-        if (uniqueCreatorList.length <= MAX_DISPLAY_CREATORS) return uniqueCreatorList;
-        return uniqueCreatorList.slice(MAX_DISPLAY_CREATORS);
-    }
-    
-    return (
-        <BottomRowContainer>
-            <CreatorProfilePicRow 
-                displayCreators={getDisplayCreators()} 
-                reelayCount={topic.reelays.length} 
-            />
-            <PlayReelaysButton onPress={advanceToFeed}>
-                <Icon type='ionicon' name='play-circle' color='white' size={30} />
-            </PlayReelaysButton>
-        </BottomRowContainer>
-    );
-}
-
-const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
-    const pluralCount = (reelayCount > 1) ? 's' : '';
-    const reelayCountText = `${reelayCount} reelay${pluralCount}`;
-    const renderProfilePic = (creator) => {
-        return (
-            <ContributorPicContainer key={creator?.sub}>
-                <ProfilePicture user={creator} size={24} />
-            </ContributorPicContainer>
-        );
-    }
-    return (
-        <ContributorRowContainer>
-            { displayCreators.map(renderProfilePic) }
-            <BottomRowLeftText>{reelayCountText}</BottomRowLeftText>
-        </ContributorRowContainer>
-    );
-}
 
 export default TopicCard = ({ 
     advanceToFeed, 
@@ -212,6 +146,75 @@ export default TopicCard = ({
         sub: topic.creatorSub,
         username: topic.creatorName,
     };
+
+    const CardBottomRowNoStacks = ({ navigation, clubID, topic }) => {
+        const advanceToCreateReelay = () => navigation.push('SelectTitleScreen', { clubID, topic });
+        return (
+            <BottomRowContainer horizontal={horizontal}>
+                <BottomRowLeftText>{'0 reelays, be the first!'}</BottomRowLeftText>
+                <CreateReelayButton onPress={advanceToCreateReelay}>
+                    <Icon type='ionicon' name='add' color='white' size={20} />
+                    <CreateReelayText>{'Add Reelay'}</CreateReelayText>
+                </CreateReelayButton>
+            </BottomRowContainer>
+        );
+    }  
+    
+    const CardBottomRowWithStacks = ({ advanceToFeed, topic }) => {
+        const MAX_DISPLAY_CREATORS = 5;
+        const myFollowing = useSelector(state => state.myFollowing);
+        const inMyFollowing = (creator) => !!myFollowing.find((followingObj) => followingObj?.creatorSub === creator?.sub);
+    
+        const getDisplayCreators = () => {
+            // list up to five profile pics, first preference towards people you follow
+            const uniqueCreatorEntries = topic.reelays.reduce((creatorEntries, nextReelay) => {
+                const nextCreator = { 
+                    sub: nextReelay?.creator?.sub,
+                    username: nextReelay?.creator?.username,
+                    isFollowing: inMyFollowing(nextReelay?.creator)
+                };
+    
+                if (!creatorEntries[nextCreator?.sub]) {
+                    creatorEntries[nextCreator?.sub] = nextCreator;
+                }
+                return creatorEntries;
+            }, {});
+    
+            const uniqueCreatorList = Object.values(uniqueCreatorEntries);
+            if (uniqueCreatorList.length <= MAX_DISPLAY_CREATORS) return uniqueCreatorList;
+            return uniqueCreatorList.slice(MAX_DISPLAY_CREATORS);
+        }
+        
+        return (
+            <BottomRowContainer horizontal={horizontal}>
+                <CreatorProfilePicRow 
+                    displayCreators={getDisplayCreators()} 
+                    reelayCount={topic.reelays.length} 
+                />
+                <PlayReelaysButton onPress={advanceToFeed}>
+                    <Icon type='ionicon' name='play-circle' color='white' size={30} />
+                </PlayReelaysButton>
+            </BottomRowContainer>
+        );
+    }
+    
+    const CreatorProfilePicRow = ({ displayCreators, reelayCount }) => {
+        const pluralCount = (reelayCount > 1) ? 's' : '';
+        const reelayCountText = `${reelayCount} reelay${pluralCount}`;
+        const renderProfilePic = (creator) => {
+            return (
+                <ContributorPicContainer key={creator?.sub}>
+                    <ProfilePicture user={creator} size={24} />
+                </ContributorPicContainer>
+            );
+        }
+        return (
+            <ContributorRowContainer>
+                { displayCreators.map(renderProfilePic) }
+                <BottomRowLeftText>{reelayCountText}</BottomRowLeftText>
+            </ContributorRowContainer>
+        );
+    }    
 
     const DotMenuButton = () => {
         const [topicDotMenuVisible, setTopicDotMenuVisible] = useState(false);
@@ -249,7 +252,7 @@ export default TopicCard = ({
 
     const TopicOverline = () => {
         return (
-            <TopicOverlineView>
+            <TopicOverlineView horizontal={horizontal}>
                 <TopicOverlineLeftView>
                     <ProfilePicture user={creator} size={32} />
                     <TopicOverlineInfoView>

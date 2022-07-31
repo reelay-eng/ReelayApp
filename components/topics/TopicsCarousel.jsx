@@ -15,6 +15,9 @@ import { faComments } from '@fortawesome/free-solid-svg-icons';
 
 const { width } = Dimensions.get('window');
 
+const CarouselView = styled(View)`
+    margin-left: -30px;
+`
 const CreateTopicButtonContainer = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${ReelayColors.reelayBlue};
@@ -173,18 +176,20 @@ export default TopicsCarousel = ({ navigation, source = 'discover' }) => {
         }
 
         return (
+            <CarouselView>
             <Carousel
                 activeAnimationType={'decay'}
                 activeSlideAlignment={'center'}
                 data={displayTopics}
                 inactiveSlideScale={0.95}
                 itemHeight={220}
-                itemWidth={width - 32}
+                itemWidth={width-48}
                 onBeforeSnapToItem={onBeforeSnapToItem}
                 renderItem={renderTopic}
                 sliderHeight={240}
-                sliderWidth={width}
+                sliderWidth={width+30}
             />
+            </CarouselView>
         );
     }
     

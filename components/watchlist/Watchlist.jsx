@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Pressable, FlatList, RefreshControl, ScrollView, View } from 'react-native';
+import { Pressable, FlatList, RefreshControl, View } from 'react-native';
 
 import styled from 'styled-components/native';
 import WatchlistItem from './WatchlistItem';
