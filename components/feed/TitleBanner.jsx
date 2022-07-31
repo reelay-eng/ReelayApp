@@ -187,7 +187,6 @@ const venuesEqual = (prevProps, nextProps) => {
 }
 
 const TitleUnderline = memo(({ venue, displayYear, runtime }) => {
-    console.log('runtime: ', runtime);
     const runtimeString = runtime ? getRuntimeString(runtime) : '';
     return (
         <TitleUnderlineContainer>

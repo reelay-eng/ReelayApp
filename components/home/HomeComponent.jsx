@@ -24,6 +24,7 @@ import DiscoverClubs from './DiscoverClubs';
 
 import moment from 'moment';
 import { LinearGradient } from 'expo-linear-gradient';
+import MyWatchlistGrid from '../watchlist/MyWatchlistGrid';
 
 const BottomBar = styled(LinearGradient)`
     height: 100px;
@@ -53,8 +54,8 @@ const HomeComponent = ({ navigation }) => {
     const scrollRef = useRef(null);
 
     const isNewUser = moment().diff(moment(reelayDBUser?.createdAt), 'hours') > 24;
-    const [selectedTab, setSelectedTab] = useState(isNewUser ? 'discover' : 'following');
-    const tabOptions = ['discover', 'following'];
+    const [selectedTab, setSelectedTab] = useState(isNewUser ? 'discover' : 'my stuff');
+    const tabOptions = ['discover', 'my stuff'];
 
     const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
     const latestNotice = useSelector(state => state.latestNotice);
@@ -80,12 +81,10 @@ const HomeComponent = ({ navigation }) => {
         const [
             latestAnnouncement,
             myHomeContent,
-            myFollowingLoaded,
             myNotifications,
         ] = await Promise.all([
             getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
             getHomeContent({ authSession, reqUserSub }),
-            getFollowing(reelayDBUser?.sub),
             getAllMyNotifications(reelayDBUser?.sub),
         ]);
 
@@ -95,7 +94,6 @@ const HomeComponent = ({ navigation }) => {
         
         dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
         dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
-        dispatch({ type: 'setMyFollowing', payload: myFollowingLoaded });
         dispatch({ type: 'setMyNotifications', payload: myNotifications });
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
 
@@ -134,10 +132,10 @@ const HomeComponent = ({ navigation }) => {
                         <AtFestivals navigation={navigation} /> 
                     </Fragment>
                 )}
-                { selectedTab === 'following' && (
+                { selectedTab === 'my stuff' && (
                     <Fragment>
+                        <MyWatchlistGrid navigation={navigation} />
                         <FriendsAreWatching navigation={navigation} />
-                        {/* <PopularTitles navigation={navigation} tab='following' /> */}
                         <OnStreaming navigation={navigation} source='following' />
                         <TopicsCarousel navigation={navigation} source='followingNew' /> 
                     </Fragment>  
