@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { Dimensions, TouchableOpacity, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
@@ -50,6 +50,7 @@ const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
     padding: 15px;
+    padding-left: 0px;
 `
 const TopicsContainer = styled(View)`
     width: 100%;
@@ -62,26 +63,28 @@ const SeeAllTopicsText = styled(ReelayText.Subtitle2)`
     color: ${ReelayColors.reelayBlue};
     margin-right: 15px;
 `
+const Spacer = styled(View)`
+    width: 15px;
+`
 
-export default TopicsCarousel = ({ navigation, source = 'discover', creatorSub = null }) => {
+export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnProfile = null }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const curTopicIndex = useRef(0);
 
     const myHomeContent = useSelector(state => state.myHomeContent);
     const followingNewTopics = useSelector(state => state.myHomeContent?.following?.newTopics);
-    const [profileTopics, setProfileTopics] = useState([]);
+    const [topicsOnProfile, setTopicsOnProfile] = useState([]);
 
     const loadTopicsByCreator = async () => {
-        if (source === 'profile' && creatorSub) {
+        if (source === 'profile' && creatorOnProfile?.sub) {
             const topicsByCreator = await getTopicsByCreator({ 
-                creatorSub, 
+                creatorSub: creatorOnProfile?.sub, 
                 reqUserSub: reelayDBUser?.sub, 
                 page: 0 
             });
-            console.log(topicsByCreator);
             if (topicsByCreator && topicsByCreator?.length) {
-                setProfileTopics(topicsByCreator);
+                setTopicsOnProfile(topicsByCreator);
             }
         }
     }
@@ -114,7 +117,7 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorSub =
     }
 
     let displayTopics = [];
-    let headerText = "Topics I\'ve created";
+    let headerText = "Topics";
     switch (source) {
         case 'discover':
             displayTopics = getDiscoverTopics();
@@ -125,8 +128,8 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorSub =
             headerText = 'New topics'
             break;
         case 'profile':
-            displayTopics = profileTopics ?? [];
-            headerText = 'Topics';
+            displayTopics = topicsOnProfile ?? [];
+            headerText = 'Topics I\'ve created';
             break;
         default:
             break;
@@ -134,7 +137,11 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorSub =
 
     const hasReelays = (topic) => topic?.reelays?.length > 0;
     const displayTopicsWithReelays = displayTopics.filter(hasReelays);
-    const advanceToTopicsList = () => navigation.push('TopicsListScreen', { source });
+    const advanceToTopicsList = () => navigation.push('TopicsListScreen', { 
+        source, 
+        creatorOnProfile, 
+        topicsOnProfile,
+    });
 
     const CreateTopicButton = () => {
         const advanceToCreateTopic = () => {
@@ -155,6 +162,29 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorSub =
                     {'Start a new topic'}
                 </CreateTopicText>
             </CreateTopicButtonContainer>
+        );
+    }
+
+    const Header = () => {
+        return (
+            <HeaderContainer>
+                <HeaderContainerLeft>
+                    { source !== 'profile' && <TopicIcon /> }
+                    <HeaderText>{headerText}</HeaderText>
+                </HeaderContainerLeft>
+                <HeaderContainerRight onPress={advanceToTopicsList}>
+                    <SeeAllTopicsText>{'See all'}</SeeAllTopicsText>
+                </HeaderContainerRight>
+            </HeaderContainer>
+        );
+    }
+
+    const TopicIcon = () => {
+        return (
+            <Fragment>
+                <FontAwesomeIcon icon={ faComments } color='white' size={20} />
+                <Spacer />
+            </Fragment>
         );
     }
 
@@ -180,7 +210,12 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorSub =
         
             const advanceToFeed = () => {
                 if (!topic.reelays?.length) return;
-                navigation.push('TopicsFeedScreen', { initTopicIndex, source });
+                navigation.push('TopicsFeedScreen', { 
+                    initTopicIndex, 
+                    source,
+                    creatorOnProfile, 
+                    topicsOnProfile,
+                });
                 
                 logAmplitudeEventProd('openedTopic', {
                     clubID: null,
@@ -195,6 +230,9 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorSub =
                     clubID={null}
                     horizontal={true}
                     navigation={navigation} 
+                    creatorOnProfile={creatorOnProfile}
+                    topicsOnProfile={topicsOnProfile}
+                    source={source}
                     topic={topic} 
                 />
             );
@@ -202,39 +240,31 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorSub =
 
         return (
             <CarouselView>
-            <Carousel
-                activeAnimationType={'decay'}
-                activeSlideAlignment={'center'}
-                data={displayTopics}
-                inactiveSlideScale={0.95}
-                itemHeight={220}
-                itemWidth={width-48}
-                onBeforeSnapToItem={onBeforeSnapToItem}
-                renderItem={renderTopic}
-                sliderHeight={240}
-                sliderWidth={width+30}
-            />
+                <Carousel
+                    activeAnimationType={'decay'}
+                    activeSlideAlignment={'center'}
+                    data={displayTopics}
+                    inactiveSlideScale={0.95}
+                    itemHeight={220}
+                    itemWidth={width-48}
+                    onBeforeSnapToItem={onBeforeSnapToItem}
+                    renderItem={renderTopic}
+                    sliderHeight={240}
+                    sliderWidth={width+30}
+                />
             </CarouselView>
         );
     }
 
-    if (source === 'profile' && profileTopics?.length === 0) {
+    if (source === 'profile' && topicsOnProfile?.length === 0) {
         return <View />;
     }
     
     return (
         <TopicsContainer>
-            <HeaderContainer>
-                <HeaderContainerLeft>
-                    <FontAwesomeIcon icon={ faComments } color='white' size={20} />
-                    <HeaderText>{headerText}</HeaderText>
-                </HeaderContainerLeft>
-                <HeaderContainerRight onPress={advanceToTopicsList}>
-                    <SeeAllTopicsText>{'See all'}</SeeAllTopicsText>
-                </HeaderContainerRight>
-            </HeaderContainer>
+            <Header />
             { displayTopics.length > 0 && <TopicsRow /> }
-            { source !== 'discoverPopular' && <CreateTopicButton /> }
+            { source !== 'profile' && <CreateTopicButton /> }
         </TopicsContainer>
     )
 }

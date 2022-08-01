@@ -108,7 +108,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
             <ProfileScrollView showsVerticalScrollIndicator={false} refreshControl={refreshControl}>
                 <ProfileHeaderAndInfo 
                     navigation={navigation}
-                    creator={{...creator, ...creatorInfo }} 
+                    creator={{ ...creator, ...creatorInfo }} 
                     streamingSubscriptions={streamingSubscriptions}
                     reelayCount={reelayCount}
                     followers={creatorFollowers}
@@ -116,7 +116,7 @@ export default UserProfileScreen = ({ navigation, route }) => {
                 />
                 {!isMyProfile && <FollowButtonBar creator={creator} bar /> }
                 <Spacer />
-                <TopicsCarousel navigation={navigation} source='profile' creatorSub={creator?.sub} />
+                <TopicsCarousel navigation={navigation} source='profile' creatorOnProfile={creator} />
                 <Spacer />
                 <ProfilePosterGrid
                     creatorStacks={creatorStacks}

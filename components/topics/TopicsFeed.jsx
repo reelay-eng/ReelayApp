@@ -9,7 +9,7 @@ import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import { useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
-import { getTopics } from '../../api/TopicsApi';
+import { getTopics, getTopicsByCreator } from '../../api/TopicsApi';
 import moment from 'moment';
 
 const { height, width } = Dimensions.get('window');
@@ -26,6 +26,8 @@ export default TopicsFeed = ({
     initTopicIndex, 
     initReelayIndex,
     source,
+    creatorOnProfile=null,
+    topicsOnProfile=null,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
@@ -68,6 +70,9 @@ export default TopicsFeed = ({
         case 'search':
             displayTopics = preloadedTopics;
             break;
+        case 'profile':
+            displayTopics = topicsOnProfile;
+            break;
         default:
             displayTopics = [];
             break;
@@ -82,14 +87,21 @@ export default TopicsFeed = ({
 
     const onRefresh = async () => {
         if (source === 'search') return;
+        
         try {
             setRefreshing(true);
-            const nextTopics = await getTopics({ 
-                authSession, 
-                page: 0, 
-                reqUserSub: reelayDBUser?.sub, 
-                source,
-            });
+            const nextTopics = (source === 'profile') 
+                ? await getTopicsByCreator({
+                    creatorSub: creatorOnProfile?.sub,
+                    reqUserSub: reelayDBUser?.sub,
+                    page: 0,
+                })
+                : await getTopics({ 
+                    authSession, 
+                    page: 0, 
+                    reqUserSub: reelayDBUser?.sub, 
+                    source,
+                });
 
             const payload = {};
             payload[source] = nextTopics;
@@ -110,12 +122,18 @@ export default TopicsFeed = ({
         if (source === 'search') return;
         try {
             page.current += 1;
-            const nextTopics = await getTopics({ 
-                authSession, 
-                page: page.current, 
-                reqUserSub: reelayDBUser?.sub, 
-                source,
-            });
+            const nextTopics = (source === 'profile')
+                ? await getTopicsByCreator({
+                    creatorSub: creatorOnProfile?.sub,
+                    reqUserSub: reelayDBUser?.sub,
+                    page: 0,
+                })
+                : await getTopics({ 
+                    authSession, 
+                    page: page.current, 
+                    reqUserSub: reelayDBUser?.sub, 
+                    source,
+                });
 
             const payload = {};
             payload[source] = [...displayTopics, ...nextTopics];

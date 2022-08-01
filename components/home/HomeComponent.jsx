@@ -127,7 +127,6 @@ const HomeComponent = ({ navigation }) => {
                         <DiscoverClubs navigation={navigation} />
                         <PeopleToFollow navigation={navigation} /> 
                         <OnStreaming navigation={navigation} source='discover' />
-                        {/* <TopicsCarousel navigation={navigation} source='discoverNew' />  */}
                         <InTheaters navigation={navigation} /> 
                         <AtFestivals navigation={navigation} /> 
                     </Fragment>

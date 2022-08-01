@@ -139,6 +139,7 @@ export default TopicCard = ({
     clubID, 
     horizontal = false,
     navigation, 
+    source = 'discover',
     topic,
 }) => {
     const canPress = (topic.reelays.length > 0);
@@ -195,6 +196,39 @@ export default TopicCard = ({
                     <Icon type='ionicon' name='play-circle' color='white' size={30} />
                 </PlayReelaysButton>
             </BottomRowContainer>
+        );
+    }
+
+    const ContentAboveDivider = () => {
+        return (
+            <View>
+                <TitleLine>
+                    <TitleText numberOfLines={2}>{topic.title}</TitleText>
+                </TitleLine>
+                { (topic.description.length > 0) && (
+                    <DescriptionLine>
+                        <DescriptionText numberOfLines={3}>{topic.description}</DescriptionText>
+                    </DescriptionLine>
+                )}
+            </View>
+        );
+    }
+
+    const ContentBelowDivider = () => {
+        return (
+            <View>
+                <DividerLine />
+                { (!topic.reelays.length) && (
+                    <CardBottomRowNoStacks 
+                        navigation={navigation} 
+                        clubID={clubID} 
+                        topic={topic} 
+                    />
+                )}
+                { (topic.reelays.length > 0) && (
+                    <CardBottomRowWithStacks advanceToFeed={advanceToFeed} topic={topic} />
+                )}
+            </View>
         );
     }
     
@@ -267,32 +301,11 @@ export default TopicCard = ({
 
     return (
         <Fragment>
-            <TopicOverline />
+            { source !== 'profile' && <TopicOverline /> }
             <TopicCardContainer canPress={canPress} onPress={advanceToFeed}>
                 <TopicCardGradient colors={['#400817', '#19242E']} start={{ x: 0.5, y: 1 }} end={{ x: 0.5, y: -0.5 }} />
-                <View>
-                    <TitleLine>
-                        <TitleText numberOfLines={2}>{topic.title}</TitleText>
-                    </TitleLine>
-                    { (topic.description.length > 0) && (
-                        <DescriptionLine>
-                            <DescriptionText numberOfLines={3}>{topic.description}</DescriptionText>
-                        </DescriptionLine>
-                    )}
-                </View>
-                <View>
-                    <DividerLine />
-                    { (!topic.reelays.length) && (
-                        <CardBottomRowNoStacks 
-                            navigation={navigation} 
-                            clubID={clubID} 
-                            topic={topic} 
-                        />
-                    )}
-                    { (topic.reelays.length > 0) && (
-                        <CardBottomRowWithStacks advanceToFeed={advanceToFeed} topic={topic} />
-                    )}
-                </View>
+                <ContentAboveDivider />
+                <ContentBelowDivider />
             </TopicCardContainer>
         </Fragment>
     );

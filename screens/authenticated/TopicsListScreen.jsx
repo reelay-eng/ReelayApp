@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { 
     Dimensions,
     Keyboard, 
@@ -23,6 +23,7 @@ import { searchTopics } from '../../api/TopicsApi';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import moment from 'moment';
 import { HeaderWithBackButton } from '../../components/global/Headers';
+import ProfilePicture from '../../components/global/ProfilePicture';
 
 const { height, width } = Dimensions.get('window');
 
@@ -56,7 +57,6 @@ const HeaderLeftContainer = styled(View)`
 `
 const HeaderText = styled(ReelayText.H5Emphasized)`
     color: white;
-    margin-left: 20px;
     margin-top: 4px;
 `
 const SearchButtonContainer = styled(TouchableOpacity)`
@@ -94,6 +94,9 @@ const SearchInputContainer = styled(View)`
     padding-right: 6px;
     width: ${width - 32}px;
 `
+const Spacer = styled(View)`
+    width: 8px;
+`
 const TopicCardContainer = styled(View)`
     margin-bottom: 18px;
 `
@@ -105,6 +108,8 @@ const TopicScrollContainer = styled(ScrollView)`
 
 export default TopicsListScreen = ({ navigation, route }) => {
     const source = route.params?.source ?? 'discover';
+    const creatorOnProfile = route.params?.creatorOnProfile ?? null;
+    const topicsOnProfile = route.params?.topicsOnProfile ?? [];
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
 
@@ -135,6 +140,7 @@ export default TopicsListScreen = ({ navigation, route }) => {
 
     let initDisplayTopics;
     let headerText;
+
     switch (source) {
         case 'discover':
             initDisplayTopics = getDiscoverTopics();
@@ -143,6 +149,10 @@ export default TopicsListScreen = ({ navigation, route }) => {
         case 'followingNew':
             initDisplayTopics = myHomeContent?.following?.newTopics;
             headerText = 'Topics by friends';
+            break;
+        case 'profile':
+            initDisplayTopics = topicsOnProfile;
+            headerText = `${creatorOnProfile?.username}'s topics`;
             break;
         default:
             initDisplayTopics = [];
@@ -172,6 +182,12 @@ export default TopicsListScreen = ({ navigation, route }) => {
             <HeaderContainer>
                 <HeaderLeftContainer>
                     <BackButton navigation={navigation} />
+                    { creatorOnProfile && (
+                        <Fragment>
+                            <ProfilePicture user={creatorOnProfile} size={30} />
+                            <Spacer />
+                        </Fragment>
+                    )}
                     <HeaderText>{headerText}</HeaderText>
                 </HeaderLeftContainer>
                 <SearchTopicsButton />
@@ -211,6 +227,7 @@ export default TopicsListScreen = ({ navigation, route }) => {
                         advanceToFeed={advanceToFeed}
                         clubID={null}
                         navigation={navigation} 
+                        source={source}
                         topic={topic} 
                     />
                 </TopicCardContainer>
@@ -246,7 +263,7 @@ export default TopicsListScreen = ({ navigation, route }) => {
 
     return (
         <ScreenContainer>
-            { !searching && <HeaderWithBackButton navigation={navigation} text={headerText} /> }
+            { !searching && <Header /> }
             { searching && <SearchBar 
                 resetTopics={resetTopics}
                 searchBarRef={searchBarRef}

@@ -108,7 +108,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     useEffect(() => {
         if (!isEditingProfile) {
-            console.log('profile render count: ', renderCount + 1);
             setRenderCount(renderCount + 1);
         }
     }, [isEditingProfile]);
@@ -210,7 +209,11 @@ export default MyProfileScreen = ({ navigation, route }) => {
 				<EditProfileButton />
                 <SeeMyWatchlistButton />
                 <Spacer />
-                <TopicsCarousel navigation={navigation} source='profile' creatorSub={reelayDBUser?.sub} />
+                <TopicsCarousel 
+                    creatorOnProfile={reelayDBUser} 
+                    navigation={navigation} 
+                    source='profile' 
+                />
                 <Spacer />
                 <ProfilePosterGrid creatorStacks={myCreatorStacks} navigation={navigation} />
 			</ProfileScrollView>
