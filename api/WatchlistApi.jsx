@@ -18,7 +18,7 @@ const checkForErrors = ({ reqUserSub, tmdbTitleID, titleType }) => {
 const prepareWatchlistItem = async (fetchedWatchlistItem) => {
     const { tmdbTitleID, titleType } = fetchedWatchlistItem;
     const isSeries = (titleType === 'tv');
-    const titleObj = await fetchAnnotatedTitle(tmdbTitleID, isSeries);
+    const titleObj = await fetchAnnotatedTitle({ tmdbTitleID, isSeries });
     return {
         ...fetchedWatchlistItem,
         title: titleObj,

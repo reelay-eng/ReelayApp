@@ -5,7 +5,7 @@ import { getTitlePosterURI } from '../../api/ReelayLocalImageCache';
 import styled from 'styled-components/native';
 
 const MAX_BORDER_RADIUS = 16;
-const PLACEHOLDER_POSTER_SOURCE = require('../../assets/images/reelay-splash-with-dog.png');
+const PLACEHOLDER_POSTER_SOURCE = require('../../assets/images/reelay-splash-with-dog-black.png');
 const WELCOME_VIDEO_POSTER_SOURCE = require('../../assets/images/welcome-video-poster-with-dog.png');
 
 const TitlePoster = ({ title, onPress, width = 60 }) => {

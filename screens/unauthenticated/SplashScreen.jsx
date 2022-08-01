@@ -1,5 +1,5 @@
 import React from 'react';
-import ReelaySplash from "../../assets/images/reelay-splash-with-dog.png";
+import ReelaySplash from "../../assets/images/reelay-splash-with-dog-black.png";
 import styled from 'styled-components';
 import { View, ImageBackground } from 'react-native';
 

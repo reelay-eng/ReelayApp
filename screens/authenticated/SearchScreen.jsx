@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useState, useRef, Fragment } from "react";
 import { ActivityIndicator, SafeAreaView, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -23,6 +23,7 @@ import { searchPublicClubs } from "../../api/ClubsApi";
 // Styling
 import styled from "styled-components/native";
 import { useFocusEffect } from "@react-navigation/native";
+import { fetchPopularMovies, fetchPopularSeries } from "../../api/TMDbApi";
 
 const SearchScreenContainer = styled(SafeAreaView)`
     background-color: black;
@@ -47,17 +48,27 @@ const SearchBarContainer = styled(View)`
 `
 
 export default SearchScreen = ({ navigation, route }) => {
-    const initialSearchType = route?.params?.initialSearchType ?? 'Film';
     const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
-    const myFollowing = useSelector(state => state.myFollowing);
 
+    const searchTypes = ['Film', 'TV', 'Clubs', 'Users'];
+    const getDefaultSuggestions = () => searchTypes.reduce((suggestions, nextType) => {
+        suggestions[nextType] = [];
+        return suggestions;
+    }, {});
+
+    const [defaultSuggestions, setDefaultSuggestions] = useState(getDefaultSuggestions);
+    const initialSearchType = route?.params?.initialSearchType ?? 'Film';
     const [loading, setLoading] = useState(false);
+    const myFollowing = useSelector(state => state.myFollowing);
+    
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [selectedType, setSelectedType] = useState(initialSearchType);
+    const [showSuggestions, setShowSuggestions] = useState(true);
     const updateCounter = useRef(0);
+
 
     useEffect(() => {
         updateCounter.current += 1;
@@ -72,6 +83,11 @@ export default SearchScreen = ({ navigation, route }) => {
     }, [searchResults]);
 
     useEffect(() => {
+        if (!['Film', 'TV'].includes(selectedType)) return;
+        loadPopularTitles();
+    }, [selectedType]);
+
+    useEffect(() => {
         logAmplitudeEventProd('openSearchScreen', {
             username: reelayDBUser?.username,
             userSub: reelayDBUser?.sub,
@@ -82,6 +98,26 @@ export default SearchScreen = ({ navigation, route }) => {
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
     });
+
+    const loadPopularTitles = async () => {
+        if (!['Film', 'TV'].includes(selectedType)) return;
+        switch (selectedType) {
+            case 'Film':
+                const popularFilms = await fetchPopularMovies();
+                console.log('popular films: ', popularFilms);
+                defaultSuggestions['Film'] = popularFilms;
+                setDefaultSuggestions(defaultSuggestions);
+                return;
+            case 'TV':
+                const popularSeries = await fetchPopularSeries();
+                console.log('popular series: ', popularSeries);
+                defaultSuggestions['TV'] = popularSeries;
+                setDefaultSuggestions(defaultSuggestions);
+                return;
+            default:
+                return;
+        }
+    }
 
     const sortUserResults = (userA, userB) => {
         if (userA.username === reelayDBUser.username)   return -1;
@@ -102,6 +138,7 @@ export default SearchScreen = ({ navigation, route }) => {
     const updateSearch = async (newSearchText, searchType, counter) => {
         if (!newSearchText || newSearchText === undefined || newSearchText === '') {            
             setSearchResults([]);
+            if (!showSuggestions) setShowSuggestions(true);
             return;
         }
         try {
@@ -125,6 +162,7 @@ export default SearchScreen = ({ navigation, route }) => {
 
             if (updateCounter.current === counter) {
                 setSearchResults(annotatedResults);
+                if (showSuggestions) setShowSuggestions(false);
                 logAmplitudeEventProd('search', {
                     username: reelayDBUser?.sub,
                     searchText: newSearchText,
@@ -141,6 +179,38 @@ export default SearchScreen = ({ navigation, route }) => {
         if (newSearchText !== searchText) {
             setSearchText(newSearchText);
         }
+    }
+
+    const SearchResults = () => {
+        return (
+            <Fragment>
+                { (selectedType === "Film" || selectedType === "TV") && (
+                    <TitleSearchResults
+                        navigation={navigation}
+                        searchResults={searchResults}
+                        searchText={searchText}
+                        isSeries={(selectedType === 'TV')}
+                        source={"search"}
+                    />
+                )}
+                {selectedType === "Clubs" && (
+                    <ClubSearchResults
+                        navigation={navigation}
+                        searchResults={searchResults}
+                        searchText={searchText}
+                        source={"search"}
+                    />
+                )}
+                {selectedType === "Users" && (
+                    <UserSearchResults
+                        navigation={navigation}
+                        searchResults={searchResults}
+                        searchText={searchText}
+                        source={"search"}
+                    />
+                )}
+            </Fragment>
+        );
     }
 
 
@@ -176,31 +246,7 @@ export default SearchScreen = ({ navigation, route }) => {
 					}`}
 				/>
 			</SearchBarContainer>
-			{ (selectedType === "Film" || selectedType === "TV") && !loading && (
-				<TitleSearchResults
-					navigation={navigation}
-					searchResults={searchResults}
-                    searchText={searchText}
-                    isSeries={(selectedType === 'TV')}
-					source={"search"}
-				/>
-			)}
-            {selectedType === "Clubs" && !loading && (
-				<ClubSearchResults
-					navigation={navigation}
-					searchResults={searchResults}
-                    searchText={searchText}
-					source={"search"}
-				/>
-			)}
-			{selectedType === "Users" && !loading && (
-				<UserSearchResults
-					navigation={navigation}
-					searchResults={searchResults}
-                    searchText={searchText}
-					source={"search"}
-				/>
-			)}
+			{ !loading && !showSuggestions && <SearchResults /> }
             { loading && <ActivityIndicator /> }
 		</SearchScreenContainer>
 	);

@@ -8,7 +8,7 @@
         "scheme": "reelayapp",
         "userInterfaceStyle": "automatic",
         "splash": {
-            "image": "./assets/images/reelay-splash-with-dog.png",
+            "image": "./assets/images/reelay-splash-with-dog-black.png",
             "resizeMode": "cover",
             "backgroundColor": "#000000"
         },

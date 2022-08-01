@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import ReelaySplash from "../../assets/images/reelay-splash-with-dog.png";
+import ReelaySplash from "../../assets/images/reelay-splash-with-dog-black.png";
 import styled from 'styled-components';
 import { Dimensions, View, ImageBackground } from 'react-native';
 import * as ReelayText from '../../components/global/Text';

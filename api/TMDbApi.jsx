@@ -6,7 +6,7 @@ const TMDB_API_BASE_URL = Constants.manifest.extra.tmdbApiBaseUrl;
 const TMDB_API_KEY = Constants.manifest.extra.tmdbApiKey;
 const TMDB_IMAGE_API_BASE_URL = Constants.manifest.extra.tmdbImageApiBaseUrl.substr(0,27);
 
-const PLACEHOLDER_POSTER_SOURCE = require('../assets/images/reelay-splash-with-dog.png');
+const PLACEHOLDER_POSTER_SOURCE = require('../assets/images/reelay-splash-with-dog-black.png');
 const WELCOME_VIDEO_POSTER_SOURCE = require('../assets/images/welcome-video-poster-with-dog.png');
 
 export const fetchSeries = async (titleID) => {
@@ -65,10 +65,10 @@ export const fetchMovieTrailerURI = async (titleID) => {
     }
 }
 
-export const fetchSeriesTrailerURI = async(titleID) => {
+export const fetchSeriesTrailerURI = async (titleID) => {
     try {
         const query = `${TMDB_API_BASE_URL}/tv\/${titleID}/videos\?api_key\=${TMDB_API_KEY}`;
-        const videoResults = (await fetchResults(query)).results;
+        const videoResults = (await fetchResults(query))?.results ?? [];
         if (videoResults.length == 0) return null;
         const youtubeTrailer = videoResults.find((video) => { 
             return video.site && video.site == 'YouTube' && video.type && video.type == 'Trailer' && video.key;
@@ -80,34 +80,78 @@ export const fetchSeriesTrailerURI = async(titleID) => {
     }
 }
 
-export const fetchAnnotatedTitle = async (titleID, isSeries, isWelcomeReelay = false) => {
-    if (!titleID) return null;
+export const fetchPopularMovies = async (page = 0) => {
+    try {
+        // NB: TMDB starts their incrementing at 1, not 0
+        const routeGet = `${TMDB_API_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}&page=${page + 1}`;
+        const tmdbResponse = await fetchResults(routeGet, { method: 'GET' });
+        const popularTitles = tmdbResponse?.results ?? [];
+
+        const annotateMovie = async (titleObj) => await fetchAnnotatedTitle({ 
+            tmdbTitleID: titleObj?.id,
+            isSeries: false,
+            loadedTitleObj: titleObj,
+        });
+
+        console.log('popular titles: ', popularTitles);
+
+        return await Promise.all(popularTitles.map(annotateMovie));
+    } catch (error) {
+        console.log(error);
+        return [];
+    }
+}
+
+export const fetchPopularSeries = async (page = 0) => {
+    try {
+        // NB: TMDB starts their incrementing at 1, not 0
+        const routeGet = `${TMDB_API_BASE_URL}/tv/popular?api_key=${TMDB_API_KEY}&page=${page + 1}`;
+        const tmdbResponse = await fetchResults(routeGet, { method: 'GET' });
+        const popularTitles = tmdbResponse?.results ?? [];
+
+        const annotateSeries = async (titleObj) => await fetchAnnotatedTitle({ 
+            tmdbTitleID: titleObj?.id,
+            isSeries: true,
+            loadedTitleObj: titleObj,
+        });
+
+        return await Promise.all(popularTitles.map(annotateSeries));
+    } catch (error) {
+        console.log(error);
+        return [];
+    }
+}
+
+export const fetchAnnotatedTitle = async ({ tmdbTitleID, isSeries, isWelcomeReelay=false, loadedTitleObj=null }) => {
+    if (!tmdbTitleID) return null;
     const titleType = (isSeries) ? 'tv' : 'film';
-    const cachedTitle = await fetchAnnotatedTitleFromCache(titleID, titleType);
+    const cachedTitle = await fetchAnnotatedTitleFromCache(tmdbTitleID, titleType);
     if (cachedTitle) return cachedTitle;
 
-    const tmdbTitleObject = isSeries 
-        ? await fetchSeries(titleID)
-        : await fetchMovie(titleID);
+    const fetchTitleObj = async () => (isSeries) 
+        ? await fetchSeries(tmdbTitleID) 
+        : await fetchMovie(tmdbTitleID);
+    const tmdbTitleObject = loadedTitleObj ?? await fetchTitleObj(); 
 
     const titleCredits = isSeries
-        ? await fetchSeriesCredits(titleID)
-        : await fetchMovieCredits(titleID);
+        ? await fetchSeriesCredits(tmdbTitleID)
+        : await fetchMovieCredits(tmdbTitleID);
 
     const trailerURI = isSeries
-        ? await fetchSeriesTrailerURI(titleID)
-        : await fetchMovieTrailerURI(titleID);
+        ? await fetchSeriesTrailerURI(tmdbTitleID)
+        : await fetchMovieTrailerURI(tmdbTitleID);
 
     
     let posterSource = PLACEHOLDER_POSTER_SOURCE;
     if (tmdbTitleObject?.poster_path) {
         posterSource = { uri: getPosterURL(tmdbTitleObject?.poster_path, 185) };
     }
+
     if (isWelcomeReelay) {
         posterSource = WELCOME_VIDEO_POSTER_SOURCE;
     }
 
-    const releaseDate = isSeries ? tmdbTitleObject.first_air_date : tmdbTitleObject.release_date;
+    const releaseDate = isSeries ? tmdbTitleObject?.first_air_date : tmdbTitleObject?.release_date;
     const releaseYear = (releaseDate?.length >= 4) ? (releaseDate.slice(0, 4)) : '';
     
     const rating_object_array = tmdbTitleObject?.release_dates?.results;

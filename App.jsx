@@ -55,7 +55,7 @@ import store, { mapStateToProps } from './redux/store';
 import { ensureLocalImageDirExists, maybeFlushTitleImageCache } from './api/ReelayLocalImageCache';
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
 
-const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png');
+const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog-black.png');
 
 function App() {
     const colorScheme = useColorScheme();

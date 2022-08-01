@@ -410,7 +410,7 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
         }
         for (const title of club.titles) {
             const { tmdbTitleID, titleType } = title;
-            const annotatedTitle = await fetchAnnotatedTitle(tmdbTitleID, titleType === 'tv');
+            const annotatedTitle = await fetchAnnotatedTitle({ tmdbTitleID, isSeries: titleType === 'tv' });
             title.activityType = 'title';
             title.title = annotatedTitle;
         }
@@ -644,12 +644,10 @@ export const postStreamingSubscriptionToDB = async (userSub, streamingSubscripti
 
 export const prepareReelay = async (fetchedReelay) => {
     const isWelcomeReelay = (fetchedReelay.datastoreSub === WELCOME_REELAY_SUB);
-    const titleObj = await fetchAnnotatedTitle(
-        fetchedReelay.tmdbTitleID, 
-        fetchedReelay.isSeries,
-        isWelcomeReelay
-    );
+    const { tmdbTitleID, isSeries } = fetchedReelay;
+    const titleObj = await fetchAnnotatedTitle({ tmdbTitleID, isSeries, isWelcomeReelay });
     const videoURIObject = getVideoURIObject(fetchedReelay);
+
     const sortCommentsByPostedDate = (comment1, comment2) => {
         try {
             const diff = Date.parse(comment1.postedAt) - Date.parse(comment2.postedAt);
@@ -805,7 +803,7 @@ export const searchTitles = async (searchText, isSeries, page = 0) => {
     
     const annotatedResults = await Promise.all(
         resultGet.map(async (tmdbTitleObject) => {
-            return await fetchAnnotatedTitle(tmdbTitleObject.id, isSeries);
+            return await fetchAnnotatedTitle({ tmdbTitleID: tmdbTitleObject.id, isSeries });
         })
     );
     return annotatedResults;
