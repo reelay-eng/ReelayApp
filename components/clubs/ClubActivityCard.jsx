@@ -83,7 +83,8 @@ const UnderlineContainer = styled(View)`
     align-items: center;
     bottom: 6px;
     flex-direction: row;
-    padding: 4px;
+    padding: 6px;
+    padding-bottom: 0px;
     position: absolute;
     width: 100%;
 `
@@ -95,11 +96,10 @@ export default ClubActivityCard = ({ activity, navigation }) => {
     if (activityType === 'member') return <View key={member?.userSub} />
 
     const ActivityUnderline = () => {
-        const overlineText = club?.name;
         return (
             <UnderlineContainer>
                 <ClubPicture club={club} size={30} />
-                <OverlineText numberOfLines={2}>{overlineText}</OverlineText>
+                <OverlineText numberOfLines={2}>{club?.name}</OverlineText>
             </UnderlineContainer>
         );
     }
@@ -175,7 +175,8 @@ export default ClubActivityCard = ({ activity, navigation }) => {
             <ActivityContainer key={activity.id}>
                 <ReelayThumbnail 
                     asTopOfTheWeek={false}
-                    asNewInMyClubs={true}
+                    asAllClubActivity={false}
+                    asSingleClubActivity={true}
                     height={REELAY_CARD_HEIGHT}
                     margin={0}
                     onPress={advanceToClubFeedScreen}

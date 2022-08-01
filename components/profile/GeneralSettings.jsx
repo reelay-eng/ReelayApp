@@ -28,7 +28,7 @@ export default GeneralSettings = ({ navigation }) => {
 
     return (
         <ViewContainer>
-            <HeaderWithBackButton navigation={navigation} text="General Settings"/>
+            <HeaderWithBackButton navigation={navigation} text="App Experience"/>
             <GeneralSettingsWrapper reelayDBUser={reelayDBUser}/>
         </ViewContainer>
     )

@@ -74,7 +74,7 @@ const Spacer = styled(View)`
     width: 10px;
 `
 
-const ActivityInfoBar = ({ club, feedSource, topic }) => {
+const ActivityInfoBar = ({ club, feedSource, navigation, topic }) => {
     const topicScrollDuration = 60 + topic?.title?.length * 180;
     const clubScrollDuration = 60 + (club?.name?.length * 180);
     const dividerScrollDuration = 60;
@@ -239,8 +239,8 @@ export default ReelayFeedHeader = ({
 
     const BackButton = () => {
         return (
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Icon type='ionicon' name={'arrow-back-outline'} color={'white'} size={30} />
+            <TouchableOpacity onPress={() => navigation.goBack()} style={{ padding: 6 }}>
+                <Icon type='ionicon' name={'arrow-back-outline'} color={'white'} size={24} />
             </TouchableOpacity>
         );
     }
@@ -270,9 +270,12 @@ export default ReelayFeedHeader = ({
 
     if (feedSource === 'profile') {
         return (
-            <RowView>
-                <ProfilePicture user={user} size={30} />
-            </RowView>
+            <FeedHeaderView topOffset={topOffset}>
+                <RowView>
+                    <BackButton navigation={navigation} />
+                    <ProfilePicture user={reelay?.creator} size={24} />
+                </RowView>
+            </FeedHeaderView>
         );
     }
 
@@ -283,7 +286,7 @@ export default ReelayFeedHeader = ({
                 { feedSource !== 'global' && <BackButton navigation={navigation} /> }
                 <Spacer />
                 <ActivityInfoView>
-                    <ActivityInfoBarMemo club={club} feedSource={feedSource} topic={topic} />
+                    <ActivityInfoBarMemo club={club} feedSource={feedSource} navigation={navigation} topic={topic} />
                 </ActivityInfoView>
                 { stackLength > 1 && (
                     <RowView>

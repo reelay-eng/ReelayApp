@@ -33,7 +33,6 @@ import Constants from 'expo-constants';
 
 const { height, width } = Dimensions.get('window');
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
-const MAX_ACTIVITY_INDEX = 30;
 
 const ActivityContainer = styled(View)`
     margin-bottom: 8px;
@@ -94,7 +93,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
     const [refreshing, setRefreshing] = useState(false);
 
-    const matchClubMember = (nextMember) => nextMember?.userSub === reelayDBUser?.sub
+    const matchClubMember = (nextMember) => nextMember?.userSub === reelayDBUser?.sub;
     const clubMember = club.members.find(matchClubMember);
 
     const onRefresh = async () => {
@@ -153,8 +152,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const showProgressBar = showProgressBarStages.includes(uploadStage);
     const notLoaded = (!club.members?.length && !club.titles?.length && !club.topics?.length);
 
-    const filterOldActivities = (activity, index) => index < MAX_ACTIVITY_INDEX;
-
     const sortClubActivity = (activity0, activity1) => {
         const activityType0 = activity0?.activityType;
         const activityType1 = activity1?.activityType;
@@ -212,8 +209,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             ...club.members?.map(member => tagActivityType(member, 'member')),
             ...club.titles?.map(title => tagActivityType(title, 'title')), 
             ...club.topics?.map(topic => tagActivityType(topic, 'topic')),
-        ].sort(sortClubActivity).filter(filterOldActivities)
-        : [];
+        ].sort(sortClubActivity) : [];
 
     const activityHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
     const feedTitlesAndTopics = clubActivities.filter(activityHasReelays);
@@ -338,8 +334,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     }
 
     const JoinClubButton = () => {
-        const myClubs = useSelector(state => state.myClubs);
-
         const joinClub = async () => {
             console.log(reelayDBUser?.sub)
             const joinClubResult = await addMemberToClub({

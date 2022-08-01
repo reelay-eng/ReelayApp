@@ -30,7 +30,13 @@ const ButtonText = styled(ReelayText.CaptionEmphasized)`
 `
 const ImageBox = styled(View)`
     align-items: center;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
+`
+const ImageAndTextRowView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    padding-left: 30px;
+    padding-right: 30px;
     width: 100%;
 `
 const NoticeActionRow = styled(View)`
@@ -53,13 +59,16 @@ const NoticeCardGradient = styled(LinearGradient)`
 `
 const NoticeBodyText = styled(ReelayText.Body2)`
     color: ${props => props.bodyTextColor};
+    display: flex;
+    flex: 1;
 `
 const NoticeInfoBox = styled(View)`
     padding: 30px;
+    padding-top: 25px;
+    padding-bottom: 16px;
 `
 const NoticeTitleText = styled(ReelayText.H5Bold)`
     color: white;
-    line-height: 30px;
     margin-bottom: 12px;
 `
 const OverlayBox = styled(View)`
@@ -69,6 +78,9 @@ const OverlayBox = styled(View)`
     position: absolute;
     width: 100%;
 `
+const Spacer = styled(View)`
+    width: 12px;
+`
 
 const MultiPageNotice = ({ navigation, pages, images, noticeID }) => {
     const { reelayDBUser } = useContext(AuthContext);
@@ -77,7 +89,7 @@ const MultiPageNotice = ({ navigation, pages, images, noticeID }) => {
 
     const onLastPage = (curPage === pages?.length - 1);
     const onFirstPage = (curPage === 0);
-    const { title, body } = pages[curPage];
+    const { title, body, body2, imgHeight, imgWidth, orientation } = pages[curPage];
     const imageSource = images[curPage];
 
     const dismissNotice = async () => {
@@ -100,6 +112,7 @@ const MultiPageNotice = ({ navigation, pages, images, noticeID }) => {
             setCurPage(curPage + 1);
         }
     }
+
     const pageBack = () => {
         if (onFirstPage) {
             // ignore
@@ -108,13 +121,37 @@ const MultiPageNotice = ({ navigation, pages, images, noticeID }) => {
         }
     }
 
+    const ImageSection = () => {
+        if (orientation === 'title-body-image') {
+            return (
+                <ImageBox>
+                    <Image style={{ height: imgHeight, width: imgWidth }} source={imageSource} resizeMode='cover' />
+                </ImageBox>
+            );
+        }
+
+        if (orientation === 'title-body1-image-body2') {
+            return (
+                <ImageAndTextRowView>
+                    <ImageBox>
+                        <Image style={{ height: imgHeight, width: imgWidth }} source={imageSource} resizeMode='cover' />
+                    </ImageBox>
+                    <Spacer />
+                    <NoticeBodyText bodyTextColor={'white'} numberOfLines={3}>
+                        {body2}
+                    </NoticeBodyText>
+                </ImageAndTextRowView>
+            );
+        }
+
+        return <View />;
+    }
+
     return (
         <NoticeCard>
             <NoticeCardGradient colors={['#FF4848', '#038AFF']} />
             <NoticeInfo title={title} body={body} bodyTextColor={'white'} />
-            <ImageBox>
-                <Image source={imageSource} height={50} width={50} />
-            </ImageBox>
+            <ImageSection />
             <NoticeActions 
                 actionCallback={onLastPage ? dismissNotice : pageForward}
                 actionLabel={onLastPage ? 'Got it' : 'Next'}
