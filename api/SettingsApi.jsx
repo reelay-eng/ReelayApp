@@ -41,6 +41,7 @@ export const getUserSettings = async (userSub) => {
 export const shouldNotifyUser = async(userSub, settingKey) => {
     const settingsResult = await getUserSettings(userSub);
     if (settingsResult.error) return false;
+    const userSettingsJSON = settingsResult["settingsJSON"];
     const userSettings = JSON.parse(userSettingsJSON);
     if (!userSettings["notificationsEnabled"]) return false;
     return !!userSettings[settingKey];
