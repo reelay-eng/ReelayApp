@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { Dimensions, TouchableOpacity, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
@@ -12,6 +12,7 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faComments } from '@fortawesome/free-solid-svg-icons';
+import { getTopicsByCreator } from '../../api/TopicsApi';
 
 const { width } = Dimensions.get('window');
 
@@ -62,13 +63,32 @@ const SeeAllTopicsText = styled(ReelayText.Subtitle2)`
     margin-right: 15px;
 `
 
-export default TopicsCarousel = ({ navigation, source = 'discover' }) => {
+export default TopicsCarousel = ({ navigation, source = 'discover', creatorSub = null }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const curTopicIndex = useRef(0);
 
     const myHomeContent = useSelector(state => state.myHomeContent);
     const followingNewTopics = useSelector(state => state.myHomeContent?.following?.newTopics);
+    const [profileTopics, setProfileTopics] = useState([]);
+
+    const loadTopicsByCreator = async () => {
+        if (source === 'profile' && creatorSub) {
+            const topicsByCreator = await getTopicsByCreator({ 
+                creatorSub, 
+                reqUserSub: reelayDBUser?.sub, 
+                page: 0 
+            });
+            console.log(topicsByCreator);
+            if (topicsByCreator && topicsByCreator?.length) {
+                setProfileTopics(topicsByCreator);
+            }
+        }
+    }
+
+    useEffect(() => {
+        loadTopicsByCreator();
+    }, []);
 
     const getDiscoverTopics = () => {
         const discoverNewTopics = myHomeContent?.discover?.newTopics;
@@ -94,7 +114,7 @@ export default TopicsCarousel = ({ navigation, source = 'discover' }) => {
     }
 
     let displayTopics = [];
-    let headerText = 'Topics';
+    let headerText = "Topics I\'ve created";
     switch (source) {
         case 'discover':
             displayTopics = getDiscoverTopics();
@@ -103,6 +123,11 @@ export default TopicsCarousel = ({ navigation, source = 'discover' }) => {
         case 'followingNew':
             displayTopics = followingNewTopics ?? [];
             headerText = 'New topics'
+            break;
+        case 'profile':
+            displayTopics = profileTopics ?? [];
+            headerText = 'Topics';
+            break;
         default:
             break;
     }
@@ -191,6 +216,10 @@ export default TopicsCarousel = ({ navigation, source = 'discover' }) => {
             />
             </CarouselView>
         );
+    }
+
+    if (source === 'profile' && profileTopics?.length === 0) {
+        return <View />;
     }
     
     return (

@@ -19,9 +19,9 @@ import { getAllMyNotifications } from '../../api/NotificationsApi';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
 import EditProfile from "../../components/profile/EditProfile";
-import { BWButton } from "../../components/global/Buttons";
 import ProfileHeaderAndInfo from '../../components/profile/ProfileHeaderAndInfo';
 import * as ReelayText from '../../components/global/Text';
+import TopicsCarousel from '../../components/topics/TopicsCarousel';
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
@@ -51,8 +51,10 @@ const EditProfileText = styled(ReelayText.Body2)`
 `
 const MyWatchlistPressable = styled(TouchableOpacity)`
     align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
+    background-color: black;
+    border-color: white;
     border-radius: 20px;
+    border-width: 1px;
     height: 40px;
     justify-content: center;
     margin: 16px;
@@ -208,7 +210,9 @@ export default MyProfileScreen = ({ navigation, route }) => {
 				<EditProfileButton />
                 <SeeMyWatchlistButton />
                 <Spacer />
-				<ProfilePosterGrid creatorStacks={myCreatorStacks} navigation={navigation} />
+                <TopicsCarousel navigation={navigation} source='profile' creatorSub={reelayDBUser?.sub} />
+                <Spacer />
+                <ProfilePosterGrid creatorStacks={myCreatorStacks} navigation={navigation} />
 			</ProfileScrollView>
 		</ProfileScreenContainer>
 	);
