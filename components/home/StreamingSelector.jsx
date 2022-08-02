@@ -7,12 +7,33 @@ import * as ReelayText from '../global/Text';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getStreamingVenues } from '../utils/VenueIcon';
 import { BWButton } from '../global/Buttons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 
 import { getFeed, postStreamingSubscriptionToDB, removeStreamingSubscription } from '../../api/ReelayDBApi';
 import { useDispatch, useSelector } from 'react-redux';
 import ReelayColors from '../../constants/ReelayColors';
+import { ScrollView } from 'react-native-gesture-handler';
 
-const StreamingServicesContainer = styled.View`
+const IconOptionsGridContainer = styled(View)`
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 20px;
+    width: 100%;
+`
+const SeeMorePressable = styled(TouchableOpacity)`
+    align-items: center;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    width: 100%;
+`
+const SeeMoreText = styled(ReelayText.Body2)`
+    color: white;
+    padding-bottom: 6px;
+`
+const StreamingServicesContainer = styled(View)`
     width: 100%;
     height: auto;
     display: flex;
@@ -25,61 +46,20 @@ const StreamingServicesHeader = styled(ReelayText.H5Bold)`
     padding-left: 15px;
     padding-top: 15px;
 `
-const VenueSaveButtonContainer = styled.View`
+const VenueSaveButtonContainer = styled(View)`
     margin-top: 10px;
     width: 88%;
     height: 40px;
 `
 
-export default StreamingSelector = ({ setRefreshing }) => {
-    return (
-        <StreamingServicesContainer>
-            <StreamingServicesHeader>{'Where do you stream?'}</StreamingServicesHeader>
-            <IconOptions setRefreshing={setRefreshing} />
-        </StreamingServicesContainer>
-    )
-}
-
-const IconOptionsContainer = styled.View`
-    align-items: center;
-    justify-content: center;
-    flex-direction: row;
-    flex-wrap: wrap;
-    margin-top: 20px;
-    width: 100%;
-`
-const IconList = memo(({ onTapVenue, initSelectedVenues }) => {
-    const streamingVenues = getStreamingVenues();
-    return (
-        <IconOptionsContainer>
-            {streamingVenues.map((venueObj) => {
-                const venue = venueObj.venue;
-                const matchVenue = (selectedVenue) => (venue === selectedVenue);
-                const initSelected = !!initSelectedVenues.find(matchVenue);
-                return (
-                    <VenueBadge 
-                        key={venue}
-                        initSelected={initSelected}
-                        onTapVenue={onTapVenue}
-                        searchVenues={streamingVenues} 
-                        venue={venue} 
-                    />
-                );
-            })}
-        </IconOptionsContainer>
-    )
-});
-
 const IconOptions = ({ setRefreshing }) => {
-    const IconOptionsContainer = styled(View)`
-        align-items: center;
-        justify-content: center;
-    `
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
-    const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
+    const [expanded, setExpanded] = useState(false);
+    const streamingVenues = getStreamingVenues(expanded);
 
     // todo: consistent naming (platform or venue?)
+    const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
     const myStreamingPlatforms = myStreamingSubscriptions.map(({ platform }) => platform);
     const selectedVenues = useRef(myStreamingPlatforms);
     const [saveDisabled, setSaveDisabled] = useState(false);
@@ -149,13 +129,50 @@ const IconOptions = ({ setRefreshing }) => {
         }
     }
 
+    const scrollStyle = {
+        alignItems: 'center', 
+        justifyContent: 'center',
+        paddingBottom: 20, 
+    }
+
+    const IconList = ({ onTapVenue, initSelectedVenues }) => {
+        return (
+            <IconOptionsGridContainer>
+                { streamingVenues.map((venueObj) => {
+                    const venue = venueObj.venue;
+                    const matchVenue = (selectedVenue) => (venue === selectedVenue);
+                    const initSelected = !!initSelectedVenues.find(matchVenue);
+                    return (
+                        <VenueBadge 
+                            key={venue}
+                            initSelected={initSelected}
+                            onTapVenue={onTapVenue}
+                            searchVenues={streamingVenues} 
+                            venue={venue} 
+                        />
+                    );
+                })}
+            </IconOptionsGridContainer>
+        )
+    };
+
+    const SeeMore = () => {
+        return (
+            <SeeMorePressable onPress={() => setExpanded(true)}>
+                <SeeMoreText>{'see more'}</SeeMoreText>
+                <FontAwesomeIcon icon={faChevronDown} color='white' size={24} />
+            </SeeMorePressable>
+        )
+    }   
+    
     return (
-        <IconOptionsContainer>
+        <ScrollView contentContainerStyle={scrollStyle}>
             <IconList initSelectedVenues={myStreamingPlatforms} onTapVenue={onTapVenue} />
+            { !expanded && <SeeMore /> }
             <VenueSaveButtonContainer>
                 <BWButton disabled={saveDisabled} text="Save" onPress={onSave} />
             </VenueSaveButtonContainer>
-        </IconOptionsContainer>
+        </ScrollView>
     );
 }
 
@@ -217,3 +234,12 @@ const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
         </TouchableVenue>
     );
 };
+
+export default StreamingSelector = ({ setRefreshing }) => {
+    return (
+        <StreamingServicesContainer>
+            <StreamingServicesHeader>{'Where do you stream?'}</StreamingServicesHeader>
+            <IconOptions setRefreshing={setRefreshing} />
+        </StreamingServicesContainer>
+    )
+}

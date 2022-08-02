@@ -1,5 +1,5 @@
-import React, { useContext, useEffect } from 'react';
-import { Alert, Pressable, SafeAreaView, ScrollView, View, Linking, Image } from 'react-native';
+import React, { Fragment, useContext, useEffect, useState } from 'react';
+import { Alert, Pressable, SafeAreaView, ScrollView, View, Linking, Image, TouchableOpacity } from 'react-native';
 import { Camera } from 'expo-camera';
 import { getStreamingVenues, getOtherVenues } from '../../components/utils/VenueIcon';
 
@@ -15,36 +15,114 @@ import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 import { useDispatch, useSelector } from 'react-redux';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
+
+const FlexContainer = styled(View)`
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+`
+const IconContainer = styled(View)`
+    margin: 4px;
+`
+const IconGradient = styled(LinearGradient)`
+    borderRadius: 11px;
+    flex: 1;
+    height: 100%;
+    opacity: 1;
+    position: absolute;
+    width: 100%;
+`
+const IconOptionsContainer = styled(View)`
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    margin-bottom: 16px;
+    width: 100%;
+`
+const OtherVenueImageContainer = styled(View)`
+    height: 30px;
+    width: 30px;
+    margin: 5px;
+`
+const OtherVenueImage = styled(Image)`
+    height: 100%;
+    width: 100%;
+    resizeMode: contain;
+`
+const OtherVenueSubtext = styled(ReelayText.CaptionEmphasized)`
+    color: white;
+    padding: 5px;
+    text-align: center;
+`
+const PressableVenue = styled(Pressable)`
+    width: 80px;
+    height: 93px;
+    border-radius: 11px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+`
+const PrimaryVenueImage = styled(Image)`
+    height: 42px;
+    width: 42px;
+    border-radius: 21px;
+    border-width: 1px;
+    border-color: white;
+`
+const ScreenContainer = styled(SafeAreaView)`
+    height: 100%;
+    width: 100%;
+    background-color: black;
+`
+const SeeMorePressable = styled(TouchableOpacity)`
+    align-items: center;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    width: 100%;
+`
+const SeeMoreText = styled(ReelayText.Body2)`
+    color: white;
+    padding-bottom: 6px;
+`
+const SkipContainer = styled(View)`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    width: 100%;
+`
+const SkipButtonContainer = styled(View)`
+    margin-top: 16px;
+    height: 40px;
+    width: 90%;
+`
 
 export default VenueSelectScreen = ({ navigation, route }) => {
     const titleObj = route.params?.titleObj;
     const topicID = route.params?.topicID ?? null;
     const clubID = route.params?.clubID ?? null;
 
-    console.log('on venue select: ', topicID, clubID);
-
-    const streamingVenues = getStreamingVenues();
-    const otherVenues = getOtherVenues();
-    const searchVenues = [...streamingVenues, ...otherVenues];
-
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
-    const myClubs = useSelector(state => state.myClubs);
 
+    const [expanded, setExpanded] = useState(false);
+    const streamingVenues = getStreamingVenues(expanded);
+    const otherVenues = getOtherVenues();
+    const searchVenues = [...streamingVenues, ...otherVenues];
+    
     if (reelayDBUser?.username === 'be_our_guest') {
         return <JustShowMeSignupPage navigation={navigation} showBackButton={true} />
     }
     
-    const ScreenOuterContainer = styled(View)`
-        height: 100%;
-        width: 100%;
-        background-color: black;
-    `
-    const ScreenInnerContainer = styled(SafeAreaView)`
-        height: 100%;
-        width: 100%;
-        background-color: black;
-    `
 
     const getCameraPermissions = async () => {
         const { status } = await Camera.requestCameraPermissionsAsync();
@@ -70,33 +148,21 @@ export default VenueSelectScreen = ({ navigation, route }) => {
 
 
     const IconOptions = () => {
-        const IconContainer = styled(View)`
-            margin: 4px;
-        `
-        const IconOptionsContainer = styled(View)`
-            align-items: center;
-            justify-content: center;
-            flex: 1;
-            flex-direction: row;
-            flex-wrap: wrap;
-            margin-top: 20px;
-            width: 100%;
-        `
         return (
 			<IconOptionsContainer>
-				{streamingVenues.map((venueObj) => {
-					const venue = venueObj.venue;
-					return (
-						<IconContainer key={venue}>
-							<VenueBadge venue={venue} />
-						</IconContainer>
-					);
-				})}
-				{otherVenues.map((venueObj) => {
+                { otherVenues.map((venueObj) => {
 					const venue = venueObj.venue;
 					return (
                         <IconContainer key={venue}>
                             <VenueBadge venue={venue} subtext={venueObj.text} />
+						</IconContainer>
+					);
+				})}
+				{ streamingVenues.map((venueObj) => {
+					const venue = venueObj.venue;
+					return (
+						<IconContainer key={venue}>
+							<VenueBadge venue={venue} />
 						</IconContainer>
 					);
 				})}
@@ -105,16 +171,6 @@ export default VenueSelectScreen = ({ navigation, route }) => {
     }
 
     const SkipButton = () => {
-        const SkipContainer = styled(View)`
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 40px;
-            width: 100%;
-        `
-        const SkipButtonContainer = styled(View)`
-            width: 90%;
-        `
         return (
 			<SkipContainer>
 				<SkipButtonContainer>
@@ -122,6 +178,15 @@ export default VenueSelectScreen = ({ navigation, route }) => {
 				</SkipButtonContainer>
 			</SkipContainer>
 		);
+    }
+
+    const SeeMore = () => {
+        return (
+            <SeeMorePressable onPress={() => setExpanded(true)}>
+                <SeeMoreText>{'see more'}</SeeMoreText>
+                <FontAwesomeIcon icon={faChevronDown} color='white' size={24} />
+            </SeeMorePressable>
+        )
     }
 
     const alertCameraAccess = async () => {
@@ -139,84 +204,31 @@ export default VenueSelectScreen = ({ navigation, route }) => {
     }
 
     const VenueBadge = ({venue, subtext=""}) => {
-        const source = venue.length ? searchVenues.find((vi) => vi.venue === venue).source : null;
-		const PressableVenue = styled(Pressable)`
-			width: 80px;
-			height: 93px;
-			border-radius: 11px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: ${ReelayColors.reelayBlue};
-		`;
+        const matchVenue = (vi) => vi.venue === venue;
+        const source = venue.length ? searchVenues.find(matchVenue)?.source : null;
 
-		const PrimaryVenueImage = styled(Image)`
-			height: 42px;
-			width: 42px;
-			border-radius: 21px;
-			border-width: 1px;
-            border-color: white;
-		`;
-        const OtherVenueImageContainer = styled(View)`
-            height: 30px;
-            width: 30px;
-            margin: 5px;
-        `
-        const OtherVenueImage = styled(Image)`
-            height: 100%;
-            width: 100%;
-            resizeMode: contain;
-        `
-        const OtherVenueSubtext = styled(ReelayText.CaptionEmphasized)`
-            color: white;
-            padding: 5px;
-            text-align: center;
-        `
+        if (!source) return <View />
+
 		return (
-			<>
-                {source && (
-					<PressableVenue onPress={() => advancetoCameraScreen(venue)}>
-						{({ pressed }) => (
-							<>
-								{!pressed && (
-									<LinearGradient
-										colors={["#272525", "#19242E"]}
-										style={{
-											flex: 1,
-											opacity: 1,
-											position: "absolute",
-											width: "100%",
-											height: "100%",
-											borderRadius: 11,
-										}}
-									/>
-								)}
-								{subtext.length > 0 && (
-									<>
-										<OtherVenueImageContainer>
-											<OtherVenueImage source={source} />
-										</OtherVenueImageContainer>
-										<OtherVenueSubtext>{subtext}</OtherVenueSubtext>
-									</>
-								)}
-								{!(subtext.length > 0) && <PrimaryVenueImage source={source} />}
-							</>
-						)}
-					</PressableVenue>
-				)}
-			</>
-		);
+            <PressableVenue onPress={() => advancetoCameraScreen(venue)}>
+                {({ pressed }) => (
+                    <Fragment>
+                        { !pressed && <IconGradient colors={["#272525", "#19242E"]} /> }
+                        {subtext.length > 0 && (
+                            <Fragment>
+                                <OtherVenueImageContainer>
+                                    <OtherVenueImage source={source} />
+                                </OtherVenueImageContainer>
+                                <OtherVenueSubtext>{subtext}</OtherVenueSubtext>
+                            </Fragment>
+                        )}
+                        {!(subtext.length > 0) && <PrimaryVenueImage source={source} />}
+                    </Fragment>
+                )}
+            </PressableVenue>
+        );
     };
     
-    const FlexContainer = styled(View)`
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        width: 100%;
-        justify-content: space-between;
-        align-items: center;
-    `
-
     useEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
         dispatch({ type: 'setUploadStage', payload: 'none' });
@@ -225,16 +237,15 @@ export default VenueSelectScreen = ({ navigation, route }) => {
     }, []);
 
     return (
-		<ScreenOuterContainer>
-			<ScreenInnerContainer>
-				<ScrollView>
-					<HeaderWithBackButton navigation={navigation} text={`Where did you see it?`} />
-					<FlexContainer>
-						<IconOptions />
-						<SkipButton />
-					</FlexContainer>
-				</ScrollView>
-			</ScreenInnerContainer>
-		</ScreenOuterContainer>
+		<ScreenContainer>
+            <HeaderWithBackButton navigation={navigation} text={`Where did you see it?`} />
+            <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
+                <FlexContainer>
+                    <IconOptions />
+                    { !expanded && <SeeMore /> }
+                    <SkipButton />
+                </FlexContainer>
+            </ScrollView>
+		</ScreenContainer>
 	);
 }
