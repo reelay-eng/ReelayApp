@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { Fragment, memo } from 'react';
 import { Pressable } from 'react-native';
 import { Image } from 'react-native-elements';
 import styled from 'styled-components/native';
@@ -30,7 +30,16 @@ const iconTheaters = require(ICON_PATH + 'cinemas.png');
 const iconTubi = require(ICON_PATH + 'tubi.jpeg');
 const iconYouTube = require(ICON_PATH + 'youtube.png');
 
-
+const VenueImage = styled(Image)`
+    border-radius: ${props => props.size}px;
+    height: ${props => props.size}px;
+    width: ${props => props.size}px;
+`
+const IconPressable = styled(Pressable)`
+    border-color: ${props => (props.venue === 'other') ? 'blue' : 'white'};
+    border-radius: ${props => props.radius}px;
+    border-width: ${props => props.border}px;
+`
 
 // When adding a new venue, be sure to add it in back end if it should be selectable as a preferred streaming service.
 export const streamingVenues = [
@@ -97,24 +106,14 @@ const VenueIcon = ({ border = 0, onPress, size = 48, venue }) => {
     const source = isOther ? sourceVenueObject?.oldSource : sourceVenueObject?.source;
     const radius = (size / 2) + (border ? 4 : 0);
     
-    const IconPressable = styled(Pressable)`
-        border-radius: ${radius}px;
-        border-width: ${border}px;
-        border-color: ${venue === 'other' ? 'blue' : 'white'};
-    `
     return (
-        <>
-        {
-            source && 
-            (
-                <IconPressable onPress={onPress}>
-                <Image source={source} style={{ 
-                    height: size, width: size, borderRadius: size / 2
-                }} />
+        <Fragment>
+            { source && (
+                <IconPressable border={border} onPress={onPress} radius={radius} venue={venue}>
+                    <VenueImage size={size} source={source} />
                 </IconPressable>
-            )
-        }
-        </>
+            )}
+        </Fragment>
     );
 }
 

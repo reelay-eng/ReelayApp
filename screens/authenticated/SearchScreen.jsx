@@ -62,7 +62,7 @@ export default SearchScreen = ({ navigation, route }) => {
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [selectedType, setSelectedType] = useState(initialSearchType);
-    const [showSuggestions, setShowSuggestions] = useState(true);
+    const showSuggestions = ['Film', 'TV'].includes(selectedType);
 
     const suggestedMovieResults = useSelector(state => state.suggestedMovieResults);
     const suggestedSeriesResults = useSelector(state => state.suggestedSeriesResults);
@@ -146,7 +146,6 @@ export default SearchScreen = ({ navigation, route }) => {
     const updateSearch = async (newSearchText, searchType, counter) => {
         if (!newSearchText || newSearchText === undefined || newSearchText === '') {            
             setSearchResults([]);
-            if (!showSuggestions) setShowSuggestions(true);
             return;
         }
         try {
@@ -170,7 +169,6 @@ export default SearchScreen = ({ navigation, route }) => {
 
             if (updateCounter.current === counter) {
                 setSearchResults(annotatedResults);
-                if (showSuggestions) setShowSuggestions(false);
                 logAmplitudeEventProd('search', {
                     username: reelayDBUser?.sub,
                     searchText: newSearchText,

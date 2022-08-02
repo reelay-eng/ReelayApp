@@ -360,13 +360,14 @@ function App() {
     } else {
         return (
             <SplashContainer>
-                <SafeAreaProvider>
-                    <AuthContext.Provider value={authState}>
-                        <StatusBar style="light" />
-                        <Navigation colorScheme={colorScheme} />
-                        <Toast config={toastConfig}/>
-                    </AuthContext.Provider>
-                </SafeAreaProvider>
+                <LoadingContainer>
+                    <ActivityIndicator />
+                </LoadingContainer>
+                <AuthContext.Provider value={authState}>
+                    <StatusBar style="light" />
+                    <Navigation colorScheme={colorScheme} />
+                    <Toast config={toastConfig}/>
+                </AuthContext.Provider>
             </SplashContainer>
         );
     }
