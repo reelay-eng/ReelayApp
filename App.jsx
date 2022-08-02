@@ -1,7 +1,7 @@
 // react imports
 import React, { useEffect, useRef, useState } from 'react';
 import * as FileSystem from 'expo-file-system';
-import { Image, Text, View, Pressable } from 'react-native';
+import { ActivityIndicator, Image, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './navigation';
 import styled from 'styled-components/native';
@@ -54,6 +54,26 @@ import { connect, Provider, useDispatch, useSelector } from 'react-redux';
 import store, { mapStateToProps } from './redux/store';
 import { ensureLocalImageDirExists, maybeFlushTitleImageCache } from './api/ReelayLocalImageCache';
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
+import { fetchPopularMovies, fetchPopularSeries } from './api/TMDbApi';
+
+const LoadingContainer = styled(View)`
+    align-items: center;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
+    position: absolute;
+`
+const SplashContainer = styled(View)`
+    background-color: black;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+`
+const SplashImage = styled(Image)`
+    height: 100%;
+    width: 100%;
+    position: absolute;
+`
 
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog-black.png');
 
@@ -242,52 +262,64 @@ function App() {
         const reqUserSub = userSub;
         // make sure to maintain consistent ordering between these arrays
         // when you modify them
+
+        // initial load
         const [
-            donateLinksLoaded,
             latestAnnouncement,
-            myHomeContent,
-
             myDismissalHistory,
-            myCreatorStacksLoaded,
-            myFollowersLoaded,
-            myNotificationsLoaded,
-            myWatchlistItemsLoaded,
-            reelayDBUserLoaded,
+            myHomeContent,
+            reelayDBUserLoaded
         ] = await Promise.all([
-            getAllDonateLinks(),
             getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
-            getHomeContent({ authSession, reqUserSub }),
-
             getDismissalHistory(),
-            getStacksByCreator(userSub),
-            getFollowers(userSub),
-            getAllMyNotifications(userSub),
-            getWatchlistItems(userSub),
+            getHomeContent({ authSession, reqUserSub }),
             getRegisteredUser(userSub),
         ]);
-
-        setReelayDBUser(reelayDBUserLoaded);
-        dispatch({ type: 'setReelayDBUser', payload: reelayDBUserLoaded });
-        dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
-        dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
-        dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
 
         const myClubs = myHomeContent?.clubs ?? [];
         const { myFollowing, myStreamingSubscriptions } = myHomeContent?.profile ?? [];
 
+        setReelayDBUser(reelayDBUserLoaded);
+        dispatch({ type: 'setReelayDBUser', payload: reelayDBUserLoaded });
+        dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
+        dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });
+        dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
         dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
         dispatch({ type: 'setMyFollowing', payload: myFollowing });
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
+        dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
+        dispatch({ type: 'setIsLoading', payload: false });
 
+        // deferred load
+        const [
+            donateLinksLoaded,
+            myCreatorStacksLoaded,
+            myFollowersLoaded,
+            myNotificationsLoaded,
+            myWatchlistItemsLoaded,
+            suggestedMovies,
+            suggestedSeries,
+        ] = await Promise.all([
+            getAllDonateLinks(),
+            getStacksByCreator(userSub),
+            getFollowers(userSub),
+            getAllMyNotifications(userSub),
+            getWatchlistItems(userSub),
+            fetchPopularMovies(),
+            fetchPopularSeries(),
+        ])
+
+        dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
+        dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
+        dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
         dispatch({ type: 'setMyNotifications', payload: myNotificationsLoaded });
         dispatch({ type: 'setMyWatchlistItems', payload: myWatchlistItemsLoaded });
-        dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
-        dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });
-        dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
-        dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
-        
-        // TODO: ensure we only fire this only once all others have completed
-        dispatch({ type: 'setIsLoading', payload: false });
+
+        const suggestedMovieResults = { titles: suggestedMovies, nextPage: 1 };
+        const suggestedSeriesResults = { titles: suggestedSeries, nextPage: 1 };
+
+        dispatch({ type: 'setSuggestedMovieResults', payload: suggestedMovieResults });
+        dispatch({ type: 'setSuggestedSeriesResults', payload: suggestedSeriesResults });
     }
 
     const registerMyPushToken = async () => {
@@ -316,31 +348,26 @@ function App() {
     }
 
     if (isLoading) {
-        const SplashContainer = styled(View)`
-            height: 100%;
-            width: 100%;
-            position: absolute;
-        `
-        const SplashImage = styled(Image)`
-            height: 100%;
-            width: 100%;
-            position: absolute;
-        `
         return (
             <SplashContainer>
                 <SplashImage source={SPLASH_IMAGE_SOURCE} />
+                <LoadingContainer>
+                    <ActivityIndicator />
+                </LoadingContainer>
             </SplashContainer>
         );
 
     } else {
         return (
-            <SafeAreaProvider>
-                <AuthContext.Provider value={authState}>
-                    <StatusBar style="light" />
-                    <Navigation colorScheme={colorScheme} />
-                    <Toast config={toastConfig}/>
-                </AuthContext.Provider>
-            </SafeAreaProvider>
+            <SplashContainer>
+                <SafeAreaProvider>
+                    <AuthContext.Provider value={authState}>
+                        <StatusBar style="light" />
+                        <Navigation colorScheme={colorScheme} />
+                        <Toast config={toastConfig}/>
+                    </AuthContext.Provider>
+                </SafeAreaProvider>
+            </SplashContainer>
         );
     }
 }

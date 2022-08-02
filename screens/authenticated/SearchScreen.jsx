@@ -2,13 +2,14 @@ import React, { useContext, useEffect, useState, useRef, Fragment } from "react"
 import { ActivityIndicator, SafeAreaView, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
-//Components
+// Components
 import { HeaderWithBackButton } from '../../components/global/Headers'
 import SearchField from "../../components/create-reelay/SearchField";
 import TitleSearchResults from "../../components/search/TitleSearchResults";
 import UserSearchResults from "../../components/search/UserSearchResults";
 import { ToggleSelector } from '../../components/global/Buttons';
 import ClubSearchResults from "../../components/search/ClubSearchResults";
+import SuggestedTitlesGrid from "../../components/search/SuggestedTitlesGrid";
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
@@ -46,29 +47,31 @@ const SearchBarContainer = styled(View)`
     align-items: center;
     justify-content: center;
 `
+const MAX_SUGGESTION_PAGE = 9; // multiple of 3 gives us a full bottom row
 
 export default SearchScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
 
-    const searchTypes = ['Film', 'TV', 'Clubs', 'Users'];
-    const getDefaultSuggestions = () => searchTypes.reduce((suggestions, nextType) => {
-        suggestions[nextType] = [];
-        return suggestions;
-    }, {});
-
-    const [defaultSuggestions, setDefaultSuggestions] = useState(getDefaultSuggestions);
     const initialSearchType = route?.params?.initialSearchType ?? 'Film';
     const [loading, setLoading] = useState(false);
     const myFollowing = useSelector(state => state.myFollowing);
+
     
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [selectedType, setSelectedType] = useState(initialSearchType);
     const [showSuggestions, setShowSuggestions] = useState(true);
-    const updateCounter = useRef(0);
 
+    const suggestedMovieResults = useSelector(state => state.suggestedMovieResults);
+    const suggestedSeriesResults = useSelector(state => state.suggestedSeriesResults);
+    
+    const suggestedTitles = (selectedType === 'TV') 
+        ? suggestedSeriesResults?.titles 
+        : suggestedMovieResults?.titles;
+
+    const updateCounter = useRef(0);
 
     useEffect(() => {
         updateCounter.current += 1;
@@ -83,11 +86,6 @@ export default SearchScreen = ({ navigation, route }) => {
     }, [searchResults]);
 
     useEffect(() => {
-        if (!['Film', 'TV'].includes(selectedType)) return;
-        loadPopularTitles();
-    }, [selectedType]);
-
-    useEffect(() => {
         logAmplitudeEventProd('openSearchScreen', {
             username: reelayDBUser?.username,
             userSub: reelayDBUser?.sub,
@@ -99,20 +97,30 @@ export default SearchScreen = ({ navigation, route }) => {
         dispatch({ type: 'setTabBarVisible', payload: true });
     });
 
-    const loadPopularTitles = async () => {
+    const extendSuggestedTitles = async () => {
         if (!['Film', 'TV'].includes(selectedType)) return;
+        const { titles, nextPage } = (selectedType === 'TV') 
+            ? suggestedSeriesResults 
+            : suggestedMovieResults;
+
+        if (nextPage > MAX_SUGGESTION_PAGE) return;
+
         switch (selectedType) {
             case 'Film':
-                const popularFilms = await fetchPopularMovies();
-                console.log('popular films: ', popularFilms);
-                defaultSuggestions['Film'] = popularFilms;
-                setDefaultSuggestions(defaultSuggestions);
+                const nextMovieTitles = await fetchPopularMovies(nextPage);
+                const nextSuggestedMovieResults = {
+                    titles: [...titles, ...nextMovieTitles],
+                    nextPage: nextPage + 1,
+                }
+                dispatch({ type: 'setSuggestedMovieResults', payload: nextSuggestedMovieResults });
                 return;
             case 'TV':
-                const popularSeries = await fetchPopularSeries();
-                console.log('popular series: ', popularSeries);
-                defaultSuggestions['TV'] = popularSeries;
-                setDefaultSuggestions(defaultSuggestions);
+                const nextSeriesTitles = await fetchPopularSeries(nextPage);
+                const nextSuggestedSeriesResults = {
+                    titles: [...titles, ...nextSeriesTitles],
+                    nextPage: nextPage + 1,
+                }
+                dispatch({ type: 'setSuggestedSeriesResults', payload: nextSuggestedSeriesResults });
                 return;
             default:
                 return;
@@ -247,6 +255,13 @@ export default SearchScreen = ({ navigation, route }) => {
 				/>
 			</SearchBarContainer>
 			{ !loading && !showSuggestions && <SearchResults /> }
+            { !loading && showSuggestions && (
+                <SuggestedTitlesGrid 
+                    navigation={navigation} 
+                    extendSuggestedTitles={extendSuggestedTitles} 
+                    suggestedTitles={suggestedTitles} 
+                /> 
+            )}
             { loading && <ActivityIndicator /> }
 		</SearchScreenContainer>
 	);

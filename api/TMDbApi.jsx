@@ -82,8 +82,9 @@ export const fetchSeriesTrailerURI = async (titleID) => {
 
 export const fetchPopularMovies = async (page = 0) => {
     try {
+        console.log('fetching popular movies, page: ', page);
         // NB: TMDB starts their incrementing at 1, not 0
-        const routeGet = `${TMDB_API_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}&page=${page + 1}`;
+        const routeGet = `${TMDB_API_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}&page=${page + 1}&region=US`;
         const tmdbResponse = await fetchResults(routeGet, { method: 'GET' });
         const popularTitles = tmdbResponse?.results ?? [];
 
@@ -92,8 +93,6 @@ export const fetchPopularMovies = async (page = 0) => {
             isSeries: false,
             loadedTitleObj: titleObj,
         });
-
-        console.log('popular titles: ', popularTitles);
 
         return await Promise.all(popularTitles.map(annotateMovie));
     } catch (error) {
@@ -104,8 +103,11 @@ export const fetchPopularMovies = async (page = 0) => {
 
 export const fetchPopularSeries = async (page = 0) => {
     try {
+        console.log('fetching popular series, page: ', page);
         // NB: TMDB starts their incrementing at 1, not 0
+        // default sorts by popularity desc
         const routeGet = `${TMDB_API_BASE_URL}/tv/popular?api_key=${TMDB_API_KEY}&page=${page + 1}`;
+        // const routeGet = `${TMDB_API_BASE_URL}/discover/tv?api_key=${TMDB_API_KEY}&language=en-US&page=${page + 1}&timezone=America%2FNew_York&with_status=0|2`
         const tmdbResponse = await fetchResults(routeGet, { method: 'GET' });
         const popularTitles = tmdbResponse?.results ?? [];
 
