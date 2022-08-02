@@ -5,7 +5,7 @@ import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faComments, faBackwardStep, faForwardStep, faPipe } from '@fortawesome/free-solid-svg-icons';
+import { faComments, faBackwardStep, faForwardStep, faPipe, faEarthAmericas, faTicket, faLeaf } from '@fortawesome/free-solid-svg-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TextTicker from 'react-native-text-ticker';
 import ClubPicture from '../global/ClubPicture';
@@ -109,22 +109,26 @@ const ActivityInfoBar = ({ club, feedSource, navigation, topic }) => {
                 case 'streaming': return 'On Streaming'; 
                 case 'theaters': return 'In Theaters';
                 case 'trending': return 'Top of the Week';
-                default: return '';
+                default: 
+                    return '';
             }
         }
 
         const getDisplayIcon = () => {
             switch (feedSource) {
-                case 'festivals': return 'pagelines';
+                case 'festivals': return faLeaf;
                 case 'following': return 'people';
-                case 'global': return 'earth';
+                case 'global': return faEarthAmericas;
                 case 'popularTitlesDiscover': return 'flame';
-                case 'popularTitlesFollowing': return 'earth';
+                case 'popularTitlesFollowing': return 'flame';
+                case 'profile': return 'earth';
                 case 'single': return 'notifications';
-                case 'streaming': return 'earth'; // should be different if following
-                case 'theaters': return 'ticket';
+                case 'streaming': return faEarthAmericas; // should be different if following
+                case 'topic': return faEarthAmericas;
+                case 'theaters': return faTicket;
                 case 'trending': return 'ribbon';
-                default: return 'earth';
+                default: 
+                    return 'earth';
             }
         }
 
@@ -132,18 +136,29 @@ const ActivityInfoBar = ({ club, feedSource, navigation, topic }) => {
             switch (feedSource) {
                 case 'theaters': 
                 case 'festivals':
+                case 'global':
+                case 'streaming':
+                case 'topic':
                     return 'font-awesome';
-                default: return 'ionicon';
+                default: 
+                    return 'ionicon';
             }
         }
 
+        const iconSource = getDisplayIconSource();
+
         return (
             <RowView>
-                <Icon type={getDisplayIconSource()} name={getDisplayIcon()} size={21} color='white' />
+                { iconSource === 'font-awesome' && (
+                    <FontAwesomeIcon icon={getDisplayIcon()} size={21} color='white' />
+                )}
+                { iconSource === 'ionicon' && (
+                    <Icon type={getDisplayIconSource()} name={getDisplayIcon()} size={21} color='white' />
+                )}
                 <Spacer />
                 <HeaderText>{getDisplayFeedSource()}</HeaderText>
             </RowView>
-        );
+        );    
     }
 
     const TopicInfo = () => {

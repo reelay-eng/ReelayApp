@@ -10,8 +10,7 @@ import styled from 'styled-components/native';
 import { useSelector } from "react-redux";
 
 import { LinearGradient } from 'expo-linear-gradient';
-import { Image, StyleSheet, SafeAreaView, View } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { StyleSheet, SafeAreaView, View } from 'react-native';
 
 import { 
 	HomeTabNavigator, 
@@ -21,15 +20,29 @@ import {
 	ClubsTabNavigator
 } from './BottomTabs';
 
-import HomeIcon from '../assets/icons/navbar/home-icon.png';
-import ProfileIcon from '../assets/icons/navbar/profile-icon.png';
 import { ClubsIconSVG } from '../components/global/SVGs';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faCirclePlus, faCircleUser, faEarthAmericas, faHouse } from '@fortawesome/free-solid-svg-icons';
  
 const BottomTab = createBottomTabNavigator();
-const BOTTOM_TAB_ICON_SIZE = 24;
 const TAB_BAR_ACTIVE_OPACITY = 1;
 const TAB_BAR_INACTIVE_OPACITY = 0.8;
 
+const IconFocusView = styled(View)`
+	align-items: center;
+	border-radius: 24px;
+	background-color: ${props => props.focused ? 'black' : 'transparent'};
+	justify-content: center;
+	opacity: ${props => props.focused ? 1 : 0.8};
+`
+const IconFocusIndicator = styled(View)`
+	top: 48px;
+	border-radius: 4px;
+	background-color: rgba(255,255,255,1);
+	height: 4px;
+	position: absolute;
+	width: 4px;
+`
 const UnreadIconIndicator = styled(SafeAreaView)`
 	background-color: ${ReelayColors.reelayBlue}
 	border-radius: 5px;
@@ -38,21 +51,9 @@ const UnreadIconIndicator = styled(SafeAreaView)`
 	position: absolute;
 	right: 0px;
 `
-const bottomTabIconStyle = (focused) => {
-	return {
-		opacity: (focused)
-			? TAB_BAR_ACTIVE_OPACITY
-			: TAB_BAR_INACTIVE_OPACITY,
-		width: BOTTOM_TAB_ICON_SIZE,
-		height: BOTTOM_TAB_ICON_SIZE,
-	};
-};
 
 export default AuthenticatedNavigator = () => {
-	// const myNotifications = useSelector(state => state.myNotifications);
 	const hasUnseenGlobalReelays = useSelector(state => state.hasUnseenGlobalReelays);
-	// const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
-
 	const tabBarVisible = useSelector((state) => state.tabBarVisible)
     const s = StyleSheet.create({
 		gradient: {
@@ -104,13 +105,10 @@ export default AuthenticatedNavigator = () => {
 				component={HomeTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<View>
-							<Image
-								source={HomeIcon}
-								style={bottomTabIconStyle(focused)}
-							/>
-							{/* { hasUnreadNotifications && <UnreadIconIndicator /> } */}
-						</View>
+						<IconFocusView focused={focused}>
+							<FontAwesomeIcon icon={faHouse} color='white' size={24} />
+							{ focused && <IconFocusIndicator /> }
+						</IconFocusView>
 					),
 				}}
 			/>
@@ -119,7 +117,10 @@ export default AuthenticatedNavigator = () => {
 				component={ClubsTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<ClubsIconSVG size={24} />
+						<IconFocusView focused={focused}>
+							<ClubsIconSVG />
+							{ focused && <IconFocusIndicator /> }
+						</IconFocusView>
 					),
 				}}
 			/>
@@ -128,8 +129,10 @@ export default AuthenticatedNavigator = () => {
 				component={CreateReelayTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						// note: this is intentionally oversized
-						<Icon type='ionicon' name='add-circle' color='white' size={33} />
+						<IconFocusView focused={focused}>
+							<FontAwesomeIcon icon={faCirclePlus} size={27} color='white' />
+							{ focused && <IconFocusIndicator /> }
+						</IconFocusView>
 					),
 				}}
 			/>
@@ -139,7 +142,10 @@ export default AuthenticatedNavigator = () => {
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<View>
-							<Icon type='ionicon' name='earth' size={24} color='white' />
+							<IconFocusView focused={focused}>
+								<FontAwesomeIcon icon={faEarthAmericas} size={24} color='white' />
+								{ focused && <IconFocusIndicator /> }
+							</IconFocusView>
 							{hasUnseenGlobalReelays && <UnreadIconIndicator /> }
 						</View>
 					),
@@ -150,10 +156,10 @@ export default AuthenticatedNavigator = () => {
 				component={ProfileTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<Image
-							source={ProfileIcon}
-							style={bottomTabIconStyle(focused)}
-						/>
+						<IconFocusView focused={focused}>
+							<FontAwesomeIcon icon={faCircleUser} color='white' size={24} />
+							{ focused && <IconFocusIndicator /> }
+						</IconFocusView>
 					),
 				}}
 			/>

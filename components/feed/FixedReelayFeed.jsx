@@ -29,8 +29,6 @@ const FixedReelayFeed = ({ navigation,
     const [feedPosition, setFeedPosition] = useState(initialFeedPos);
     const [stackList, setStackList] = useState([]);
 
-    console.log('feed position: ', feedPosition);
-
     useEffect(() => {
         const stackEmpty = !stackList.length;
         if (!stackEmpty && !forceRefresh) {
@@ -70,7 +68,7 @@ const FixedReelayFeed = ({ navigation,
     const onFeedSwiped = async (e) => {
         const { x, y } = e.nativeEvent.contentOffset;
         const nextFeedPosition = Math.round(y / height);
-        if (nextFeedPosition === selectedFeedPosition) return;
+        if (nextFeedPosition === feedPosition) return;
 
         const swipeDirection = nextFeedPosition < feedPosition ? 'up' : 'down';
         const nextStack = stackList[nextFeedPosition];
