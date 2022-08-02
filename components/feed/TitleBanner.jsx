@@ -14,9 +14,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AddToStackButton from "./AddToStackButton";
 import { Icon } from "react-native-elements";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faChevronDown, faClapperboard, faPlay, faStar } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faClapperboard, faPlay, faStar } from "@fortawesome/free-solid-svg-icons";
 import { getRuntimeString } from "../utils/TitleRuntime";
 import { LinearGradient } from 'expo-linear-gradient';
+import ReelayColors from "../../constants/ReelayColors";
 
 const { height, width } = Dimensions.get('window');
 
@@ -79,12 +80,20 @@ const RuntimeText = styled(ReelayText.CaptionEmphasized)`
     height: 16px;
     margin-left: 12px;
 `
-const TitleBannerRow = styled(View)`
+const SeeMorePressable = styled(TouchableOpacity)`
+    padding-left: 8px;
+`
+const SeeMoreText = styled(ReelayText.CaptionEmphasized)`
+    color: ${ReelayColors.reelayBlue};
+    font-size: 14px;
+    line-height: 16px;
+`
+const TitleBannerRow = styled(Pressable)`
     align-items: flex-start;
     flex-direction: row;
     justify-content: space-between;
 `
-const TitleBannerBackground = styled(Pressable)`
+const TitleBannerBackground = styled(View)`
     align-items: center;
     background-color: ${props => props.color};
     border-radius: 8px;
@@ -93,7 +102,7 @@ const TitleBannerBackground = styled(Pressable)`
     width: ${width - 20}px;
     zIndex: 3;
 `
-const TitleInfo = styled(Pressable)`
+const TitleInfoPressable = styled(Pressable)`
     align-items: flex-start;
     justify-content: center;
     font-size: 18px;
@@ -192,7 +201,6 @@ const TitleBanner = ({
     backgroundColor=DEFAULT_BGCOLOR,
     donateObj=null, 
     navigation=null, 
-    onPress=null,
     posterWidth=60,
     topic=null,
     reelay=null, 
@@ -227,62 +235,88 @@ const TitleBanner = ({
     }
 
     const ExpandableInfo = () => {
-        if (!expanded) {
-            return (
-                <ExpandableView>
-                    <FontAwesomeIcon icon={faChevronDown} color='white' size={16} />
-                </ExpandableView>
-            );
-        } else {
-            return <View />
-        }
+        return (
+            <ExpandableView>
+                <FontAwesomeIcon icon={expanded ?  faChevronUp : faChevronDown} color='white' size={16} />
+            </ExpandableView>
+        );
+    }
+
+    const ExpandedInfo = () => {
+        return (
+            <Pressable onPress={() => setExpanded(false)}>
+                <ExpandedGradient 
+                    colors={['transparent', '#000000']} 
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 2 }}
+                />
+                <ExpandedInfoView>
+                    <DirectorLine directorName={titleObj?.director?.name} />
+                    <ActorLine actorName0={titleObj?.displayActors[0]?.name} actorName1={titleObj?.displayActors[1]?.name} />
+                    <OverviewText>{titleObj?.overview}</OverviewText>
+                    <SeeMoreButton />
+                </ExpandedInfoView>
+            </Pressable>
+        );
+    }
+
+    const Poster = () => {
+        return (
+            <TitlePosterContainer>
+                <TitlePoster title={titleObj} onPress={openTitleDetail} width={posterWidth} />
+            </TitlePosterContainer>
+        );
+    }
+
+    const SeeMoreButton = () => {
+        return (
+            <SeeMorePressable onPress={openTitleDetail}>
+                <SeeMoreText>{'See more'}</SeeMoreText>
+            </SeeMorePressable>
+        );
+    }
+
+    const TitleInfo = () => {
+        return (
+            <TitleInfoPressable onPress={() => setExpanded(!expanded)}>
+                <TitleTextContainer>
+                    <TitleText numberOfLines={2} ellipsizeMode={"tail"}>
+                        {displayTitle}
+                    </TitleText>
+                </TitleTextContainer>
+                <TitleUnderline 
+                    displayYear={displayYear} 
+                    runtime={titleObj?.runtime}
+                    venue={reelay?.content?.venue} 
+                />
+                <ExpandableInfo />
+            </TitleInfoPressable>
+        );
+    }
+
+    const RightCTAButton = () => {
+        if (donateObj) return <DonateButton donateObj={donateObj} reelay={reelay} />;
+
+        return (
+            <AddToStackButtonContainer>
+                <AddToStackButton 
+                    navigation={navigation} 
+                    reelay={reelay} 
+                    club={club}
+                    topic={topic}
+                />
+            </AddToStackButtonContainer>
+        );
     }
 
     return (
-        <TitleBannerBackground color={backgroundColor} onPress={onPress ?? openTitleDetail}>
-            <TitleBannerRow>
-                <TitlePosterContainer>
-                    <TitlePoster title={titleObj} onPress={openTitleDetail} width={posterWidth} />
-                </TitlePosterContainer>
-                <TitleInfo onPress={() => setExpanded(!expanded)}>
-                    <TitleTextContainer>
-                        <TitleText numberOfLines={2} ellipsizeMode={"tail"}>
-                            {displayTitle}
-                        </TitleText>
-                    </TitleTextContainer>
-                    <TitleUnderline 
-                        displayYear={displayYear} 
-                        runtime={titleObj?.runtime}
-                        venue={reelay?.content?.venue} 
-                    />
-                    <ExpandableInfo />
-                </TitleInfo>
-                { !donateObj && (
-                    <AddToStackButtonContainer>
-                        <AddToStackButton 
-                            navigation={navigation} 
-                            reelay={reelay} 
-                            club={club}
-                            topic={topic}
-                        />
-                    </AddToStackButtonContainer>
-                )}
-                { donateObj && <DonateButton donateObj={donateObj} reelay={reelay} /> }
+        <TitleBannerBackground color={backgroundColor}>
+            <TitleBannerRow onPress={() => setExpanded(!expanded)}>
+                <Poster />
+                <TitleInfo />
+                <RightCTAButton />
             </TitleBannerRow>    
-            { expanded && (
-                <Fragment>
-                    <ExpandedGradient 
-                        colors={['transparent', '#000000']} 
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 0, y: 2 }}
-                    />
-                    <ExpandedInfoView onPress={() => setExpanded(false)}>
-                        <DirectorLine directorName={titleObj?.director?.name} />
-                        <ActorLine actorName0={titleObj?.displayActors[0]?.name} actorName1={titleObj?.displayActors[1]?.name} />
-                        <OverviewText>{titleObj?.overview}</OverviewText>
-                    </ExpandedInfoView>
-                </Fragment>
-            )}
+            { expanded && <ExpandedInfo /> }
         </TitleBannerBackground>
     );
 }
