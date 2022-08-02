@@ -124,7 +124,7 @@ const TopicOverlineView = styled(View)`
     padding-left: 4px;
     width: ${props => getTopicCardWidth(props)}px;
 `
-const TopicOverlineLeftView = styled(View)`
+const TopicOverlineLeftPressable = styled(TouchableOpacity)`
     align-items: center;
     flex-direction: row;
     display: flex;
@@ -285,15 +285,16 @@ export default TopicCard = ({
     }
 
     const TopicOverline = () => {
+        const advanceToCreatorProfileScreen = () => navigation.push('UserProfileScreen', { creator });
         return (
             <TopicOverlineView horizontal={horizontal}>
-                <TopicOverlineLeftView>
+                <TopicOverlineLeftPressable onPress={advanceToCreatorProfileScreen}>
                     <ProfilePicture user={creator} size={32} />
                     <TopicOverlineInfoView>
                         <CreatorName>{creator.username}</CreatorName>
                         <SharedTopicText>{'SHARED A TOPIC'}</SharedTopicText>
                     </TopicOverlineInfoView>
-                </TopicOverlineLeftView>
+                </TopicOverlineLeftPressable>
                 <DotMenuButton />
             </TopicOverlineView>
         );
