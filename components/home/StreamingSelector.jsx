@@ -15,6 +15,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import ReelayColors from '../../constants/ReelayColors';
 import { ScrollView } from 'react-native-gesture-handler';
 
+const BodyText = styled(ReelayText.Body2)`
+    color: white;
+`
+const HeaderText = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 18px;
+`
+const HeaderView = styled(View)`
+    padding: 24px;
+    padding-bottom: 0px;
+`
 const IconOptionsGridContainer = styled(View)`
     align-items: center;
     justify-content: center;
@@ -39,12 +50,6 @@ const StreamingServicesContainer = styled(View)`
     display: flex;
     flex-direction: column;
     margin-bottom: 20px;
-`
-const StreamingServicesHeader = styled(ReelayText.H5Bold)`
-    color: white;
-    font-size: 18px;
-    padding-left: 15px;
-    padding-top: 15px;
 `
 const VenueSaveButtonContainer = styled(View)`
     margin-top: 10px;
@@ -238,7 +243,10 @@ const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
 export default StreamingSelector = ({ setRefreshing }) => {
     return (
         <StreamingServicesContainer>
-            <StreamingServicesHeader>{'Where do you stream?'}</StreamingServicesHeader>
+            <HeaderView>
+                <HeaderText>{'Where do you stream?'}</HeaderText>
+                <BodyText numberOfLines={2}>{'Select everywhere you stream for a more personalized feed.'}</BodyText>
+            </HeaderView>
             <IconOptions setRefreshing={setRefreshing} />
         </StreamingServicesContainer>
     )

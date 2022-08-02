@@ -16,6 +16,7 @@ import { Icon } from "react-native-elements";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faChevronDown, faClapperboard, faPlay, faStar } from "@fortawesome/free-solid-svg-icons";
 import { getRuntimeString } from "../utils/TitleRuntime";
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { height, width } = Dimensions.get('window');
 
@@ -26,11 +27,10 @@ const AddToStackButtonContainer = styled(View)`
 `
 const ArtistBadgeView = styled(View)`
     align-items: center;
-    background-color: rgba(255,255,255,0.25);
     border-radius: 8px;
     justify-content: center;
-    margin-left: 8px;
-    padding: 8px;
+    margin-right: 8px;
+    padding: 4px;
     display: flex;
     flex-direction: row;
 `
@@ -44,22 +44,31 @@ const ArtistText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
 `
-const AllArtistsView = styled(Pressable)`
+const ExpandedGradient = styled(LinearGradient)`
+    border-radius: 8px;
+    height: 100%;
+    position: absolute;
+    width: 100%;
+    margin: 6px;
+    margin-top: 0px;
+    padding: 12px;
+    padding-top: 0px;
+`
+const ExpandedInfoView = styled(Pressable)`
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: flex-start;
+    margin: 6px;
+    margin-top: 0px;
     padding: 12px;
     padding-top: 0px;
-    width: 100%;
+    width: ${width - 32}px;
 `
 const ExpandableView = styled(View)`
     align-items: center;
     justify-content: center;
     margin-top: 8px;
     width: 100%;
-`
-const OverviewSpacer = styled(View)`
-    height: 8px;
 `
 const OverviewText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -76,6 +85,7 @@ const TitleBannerRow = styled(View)`
     justify-content: space-between;
 `
 const TitleBannerBackground = styled(Pressable)`
+    align-items: center;
     background-color: ${props => props.color};
     border-radius: 8px;
     margin-left: 10px;
@@ -112,18 +122,6 @@ const TitleUnderlineContainer = styled(View)`
 const VenueContainer = styled(View)`
     margin-right: 5px;
 `
-const WatchTrailerPressable = styled(TouchableOpacity)`
-    align-items: center;
-    background-color: rgba(4, 189, 108, 0.5);
-    border-radius: 8px;
-    justify-content: center;
-    margin-left: 8px;
-    margin-right: 8px;
-    padding: 8px;
-    display: flex;
-    flex-direction: row;
-    width: 125px;
-`
 const YearText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
@@ -135,14 +133,22 @@ const YearVenueContainer = styled(View)`
 
 const DEFAULT_BGCOLOR = 'rgba(0, 0, 0, 0.36)';
 
-const ActorLine = ({ actorName }) => {
-    if (!actorName) return <View />;
+const ActorLine = ({ actorName0, actorName1 }) => {
+    if (!actorName0) return <View />;
     return (
         <ArtistRow>
             <FontAwesomeIcon icon={faStar} color='white' size={18} />
             <ArtistBadgeView>
-                <ArtistText>{actorName}</ArtistText>
+                <ArtistText>{actorName0}</ArtistText>
             </ArtistBadgeView>
+            { actorName1 && (
+                <Fragment>
+                    <FontAwesomeIcon icon={faStar} color='white' size={18} />
+                    <ArtistBadgeView>
+                        <ArtistText>{actorName1}</ArtistText>
+                    </ArtistBadgeView>
+                </Fragment>
+            )}
         </ArtistRow>
     );
 }
@@ -155,29 +161,6 @@ const DirectorLine = ({ directorName }) => {
             <ArtistBadgeView>
                 <ArtistText>{directorName}</ArtistText>
             </ArtistBadgeView>
-        </ArtistRow>
-    );
-}
-
-const WatchTrailerButton = ({ navigation, title }) => {
-    if (!title?.trailerURI) return <View />;
-    
-    const advanceToWatchTrailer = () => {
-        navigation.push("TitleTrailerScreen", {
-			trailerURI: title?.trailerURI,
-		});
-		logAmplitudeEventProd("watchTrailer", {
-			title: title?.display,
-			source: "poster",
-		});
-    }
-
-    return (
-        <ArtistRow>
-            <FontAwesomeIcon icon={faPlay} color='white' size={18} />
-            <WatchTrailerPressable onPress={advanceToWatchTrailer}>
-                <ArtistText>{'Watch Trailer'}</ArtistText>
-            </WatchTrailerPressable>
         </ArtistRow>
     );
 }
@@ -287,13 +270,18 @@ const TitleBanner = ({
                 { donateObj && <DonateButton donateObj={donateObj} reelay={reelay} /> }
             </TitleBannerRow>    
             { expanded && (
-                <AllArtistsView onPress={() => setExpanded(false)}>
-                    <OverviewText>{titleObj?.overview}</OverviewText>
-                    <ActorLine actorName={titleObj?.displayActors[0]?.name} />
-                    <ActorLine actorName={titleObj?.displayActors[1]?.name} />
-                    <DirectorLine directorName={titleObj?.director?.name} />
-                    <WatchTrailerButton navigation={navigation} title={titleObj} />
-                </AllArtistsView>
+                <Fragment>
+                    <ExpandedGradient 
+                        colors={['transparent', '#000000']} 
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 0, y: 2 }}
+                    />
+                    <ExpandedInfoView onPress={() => setExpanded(false)}>
+                        <DirectorLine directorName={titleObj?.director?.name} />
+                        <ActorLine actorName0={titleObj?.displayActors[0]?.name} actorName1={titleObj?.displayActors[1]?.name} />
+                        <OverviewText>{titleObj?.overview}</OverviewText>
+                    </ExpandedInfoView>
+                </Fragment>
             )}
         </TitleBannerBackground>
     );

@@ -1,35 +1,41 @@
 import * as React from 'react';
 import Svg, { Circle, Line, Rect, Path } from 'react-native-svg';
+import { SvgXml } from 'react-native-svg';
 
-export const AddToClubsIconSVG = ({ size = 24 }) => {
-    return (
-        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <Path d="M20 7.5H4C2.89543 7.5 2 8.39543 2 9.5V20.5C2 21.6046 2.89543 22.5 4 22.5H20C21.1046 22.5 22 21.6046 22 20.5V9.5C22 8.39543 21.1046 7.5 20 7.5Z" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <Path d="M17 1.5L12 6.5L7 1.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <Line x1="12" y1="18.5" x2="12" y2="11.5" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <Line x1="8.5" y1="15" x2="15.5" y2="15" stroke="white" stroke-width="2" stroke-linecap="round"/>
-        </Svg>
-    );
+export const AddToClubsIconSVG = () => {
+    const xmlString = `
+        <svg width="24" height="26" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M13 12.7354C13 12.1831 12.5523 11.7354 12 11.7354C11.4477 11.7354 11 12.1831 11 12.7354V15.4861H8.25C7.69772 15.4861 7.25 15.9338 7.25 16.4861C7.25 17.0384 7.69772 17.4861 8.25 17.4861H11V20.2373C11 20.7896 11.4477 21.2373 12 21.2373C12.5523 21.2373 13 20.7896 13 20.2373V17.4861H15.7484C16.3007 17.4861 16.7484 17.0384 16.7484 16.4861C16.7484 15.9338 16.3007 15.4861 15.7484 15.4861H13V12.7354ZM7.06583 0.444539C6.48292 -0.144105 5.53318 -0.148749 4.94454 0.434166C4.3559 1.01708 4.35125 1.96682 4.93417 2.55546L9.6547 7.32239H2.4C1.07452 7.32239 0 8.40746 0 9.74597V23.0757C0 24.4142 1.07452 25.4993 2.4 25.4993H21.6C22.9255 25.4993 24 24.4142 24 23.0757V9.74597C24 8.40746 22.9255 7.32239 21.6 7.32239H14.3453L19.0658 2.55546C19.6488 1.96682 19.6441 1.01708 19.0555 0.434166C18.4668 -0.148749 17.5171 -0.144105 16.9342 0.444539L12 5.4272L7.06583 0.444539Z" fill="white"/>
+        </svg>
+    `
+    return <SvgXml xml={xmlString} />;
 }
 
-export const AddedToClubsIconSVG = ({ size = 24 }) => {
-    return (
-        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <Path d="M20 7.5H4C2.89543 7.5 2 8.39543 2 9.5V20.5C2 21.6046 2.89543 22.5 4 22.5H20C21.1046 22.5 22 21.6046 22 20.5V9.5C22 8.39543 21.1046 7.5 20 7.5Z" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <Path d="M17 1.5L12 6.5L7 1.5" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <Line x1="17.071" y1="12.4142" x2="11.4142" y2="18.0711" stroke="white" stroke-width="2" stroke-linecap="round"/>
-            <Line x1="11.3358" y1="18" x2="8.75" y2="15.4142" stroke="white" stroke-width="2" stroke-linecap="round"/>
-        </Svg>
-    );
+export const AddedToClubsIconSVG = () => {
+    const xmlString = `
+        <svg width="24" height="26" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M4.94454 0.434166C5.53318 -0.148749 6.48292 -0.144105 7.06583 0.444539L12 5.4272L16.9342 0.444539C17.5171 -0.144105 18.4668 -0.148749 19.0555 0.434166C19.6441 1.01708 19.6488 1.96682 19.0658 2.55546L14.3453 7.32239H21.6C22.9255 7.32239 24 8.40746 24 9.74597V23.0757C24 24.4142 22.9255 25.4993 21.6 25.4993H2.4C1.07452 25.4993 0 24.4142 0 23.0757V9.74597C0 8.40746 1.07452 7.32239 2.4 7.32239H9.6547L4.93417 2.55546C4.35125 1.96682 4.3559 1.01708 4.94454 0.434166ZM17.2354 12.4228C16.828 12.0564 16.2016 12.0863 15.8309 12.4897L10.504 18.2876L8.16725 15.8364C7.79564 15.4466 7.18141 15.423 6.78095 15.7831C6.35656 16.1647 6.33923 16.8243 6.74298 17.2277L9.77926 20.2612C10.1767 20.6583 10.8231 20.6502 11.2104 20.2433L17.291 13.8552C17.6793 13.4473 17.6541 12.7993 17.2354 12.4228Z" fill="white"/>
+        </svg>
+    `
+    return <SvgXml xml={xmlString} />;
 }
 
-export const ClubsIconSVG = ({ size = 24 }) => {
-    return (
-        <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <Path d="M20 7.5H4C2.89543 7.5 2 8.39543 2 9.5V20.5C2 21.6046 2.89543 22.5 4 22.5H20C21.1046 22.5 22 21.6046 22 20.5V9.5C22 8.39543 21.1046 7.5 20 7.5Z" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <Path d="M17 1.5L12 6.5L7 1.5" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-        </Svg>
-    );
+export const ClubsIconSVG = () => {
+    const xmlString = `
+        <svg width="24" height="26" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M7.06583 0.444539C6.48292 -0.144105 5.53318 -0.148749 4.94454 0.434166C4.3559 1.01708 4.35125 1.96682 4.93417 2.55546L9.6547 7.32239H2.4C1.07452 7.32239 0 8.40746 0 9.74597V23.0757C0 24.4142 1.07452 25.4993 2.4 25.4993H21.6C22.9255 25.4993 24 24.4142 24 23.0757V9.74597C24 8.40746 22.9255 7.32239 21.6 7.32239H14.3453L19.0658 2.55546C19.6488 1.96682 19.6441 1.01708 19.0555 0.434166C18.4668 -0.148749 17.5171 -0.144105 16.9342 0.444539L12 5.4272L7.06583 0.444539Z" fill="white"/>
+        </svg>
+    `
+    return <SvgXml xml={xmlString} />;
+}
+
+export const ClubsIcon2SVG = () => {
+    const xmlString = `
+        <svg width="24" height="26" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M7.06583 0.444539C6.48292 -0.144105 5.53318 -0.148749 4.94454 0.434166C4.3559 1.01708 4.35125 1.96682 4.93417 2.55546L9.6547 7.32239H2.4C1.07452 7.32239 0 8.40746 0 9.74597V23.0757C0 24.4142 1.07452 25.4993 2.4 25.4993H21.6C22.9255 25.4993 24 24.4142 24 23.0757V9.74597C24 8.40746 22.9255 7.32239 21.6 7.32239H14.3453L19.0658 2.55546C19.6488 1.96682 19.6441 1.01708 19.0555 0.434166C18.4668 -0.148749 17.5171 -0.144105 16.9342 0.444539L12 5.4272L7.06583 0.444539ZM3 22.4993V10.3224H21V22.4993H3Z" fill="white"/>
+        </svg>
+    `
+    return <SvgXml xml={xmlString} />;
 }
 
 export const AddToWatchlistIconSVG = ({ size=24 }) => {

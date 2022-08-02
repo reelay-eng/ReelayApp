@@ -6,7 +6,7 @@ import styled from 'styled-components/native';
 import BackButton from '../utils/BackButton';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faArrowUpFromBracket, faGear, faGears, faLink, faListCheck } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpFromBracket, faGear } from '@fortawesome/free-solid-svg-icons';
 import { fetchOrCreateProfileLink } from '../../api/ProfilesApi';
 import { useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
@@ -25,7 +25,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         padding-left: ${atProfileBase ? 10: 0}px;
     `
     const IconContainer = styled(TouchableOpacity)`
-        margin-left: 12px;
+        margin-left: 16px;
     `
     // should line up with home header
     const RightCornerContainer = styled(View)`
@@ -75,7 +75,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         const CopyProfileLinkButton = () => {
             return (
                 <IconContainer onPress={copyProfileLink}>
-                    <FontAwesomeIcon icon={faLink} size={26} color='white' />
+                    <FontAwesomeIcon icon={faArrowUpFromBracket} size={24} color='white' />
                 </IconContainer>
             );
         }
