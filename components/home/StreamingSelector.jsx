@@ -34,6 +34,13 @@ const IconOptionsGridContainer = styled(View)`
     margin-top: 20px;
     width: 100%;
 `
+const PrimaryVenueImage = styled.Image`
+    height: 42px;
+    width: 42px;
+    border-radius: 21px;
+    border-width: 1px;
+    border-color: white;
+`
 const SeeMorePressable = styled(TouchableOpacity)`
     align-items: center;
     padding-top: 16px;
@@ -51,10 +58,33 @@ const StreamingServicesContainer = styled(View)`
     flex-direction: column;
     margin-bottom: 20px;
 `
+const TouchableVenue = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${props => props.selected ? ReelayColors.reelayBlue : "transparent"};
+    border-radius: 11px;
+    height: 93px;
+    justify-content: center;
+    margin: 4px;
+    width: 80px;
+`
+const VenueGradient = styled(LinearGradient)`
+    border-radius: 11px;
+    flex: 1;
+    height: 100%;
+    opacity: 1;
+    position: absolute;
+    width: 100%;
+`
 const VenueSaveButtonContainer = styled(View)`
     margin-top: 10px;
     width: 88%;
     height: 40px;
+`
+const VenueText = styled(ReelayText.Body2)`
+    color: white;
+    font-size: 13px;
+    line-height: 15px;
+    padding-top: 6px;
 `
 
 const IconOptions = ({ setRefreshing }) => {
@@ -137,28 +167,31 @@ const IconOptions = ({ setRefreshing }) => {
     const scrollStyle = {
         alignItems: 'center', 
         justifyContent: 'center',
-        paddingBottom: 20, 
+        paddingBottom: 120, 
     }
 
-    const IconList = ({ onTapVenue, initSelectedVenues }) => {
+    const StreamingVenueGrid = ({ onTapVenue, initSelectedVenues }) => {
+        const renderStreamingVenue = (venueObj) => {
+            const { venue, display } = venueObj;
+            const matchVenue = (selectedVenue) => (venue === selectedVenue);
+            const initSelected = !!initSelectedVenues.find(matchVenue);
+            return (
+                <VenueBadge 
+                    key={venue}
+                    displayName={display}
+                    initSelected={initSelected}
+                    onTapVenue={onTapVenue}
+                    searchVenues={streamingVenues} 
+                    venue={venue} 
+                />
+            );
+        }
+
         return (
             <IconOptionsGridContainer>
-                { streamingVenues.map((venueObj) => {
-                    const venue = venueObj.venue;
-                    const matchVenue = (selectedVenue) => (venue === selectedVenue);
-                    const initSelected = !!initSelectedVenues.find(matchVenue);
-                    return (
-                        <VenueBadge 
-                            key={venue}
-                            initSelected={initSelected}
-                            onTapVenue={onTapVenue}
-                            searchVenues={streamingVenues} 
-                            venue={venue} 
-                        />
-                    );
-                })}
+                { streamingVenues.map(renderStreamingVenue) }
             </IconOptionsGridContainer>
-        )
+        );
     };
 
     const SeeMore = () => {
@@ -172,7 +205,7 @@ const IconOptions = ({ setRefreshing }) => {
     
     return (
         <ScrollView contentContainerStyle={scrollStyle}>
-            <IconList initSelectedVenues={myStreamingPlatforms} onTapVenue={onTapVenue} />
+            <StreamingVenueGrid initSelectedVenues={myStreamingPlatforms} onTapVenue={onTapVenue} />
             { !expanded && <SeeMore /> }
             <VenueSaveButtonContainer>
                 <BWButton disabled={saveDisabled} text="Save" onPress={onSave} />
@@ -181,61 +214,30 @@ const IconOptions = ({ setRefreshing }) => {
     );
 }
 
-const VenueBadge = ({ venue, searchVenues, initSelected, onTapVenue }) => {
+const VenueBadge = ({ displayName, initSelected, onTapVenue, searchVenues, venue }) => {
     const [selected, setSelected] = useState(initSelected);
     const iconSource = venue.length ? searchVenues.find((vi) => vi.venue === venue).source : null;
     if (!iconSource) return <Fragment />;
-
-    const TouchableVenue = styled(TouchableOpacity)`
-        align-items: center;
-        background-color: ${props => props.selected ? ReelayColors.reelayBlue : "transparent"};
-        border-radius: 11px;
-        height: 93px;
-        justify-content: center;
-        margin: 4px;
-        width: 80px;
-    `
-    const PrimaryVenueImage = styled.Image`
-        height: 42px;
-        width: 42px;
-        border-radius: 21px;
-        border-width: 1px;
-        border-color: white;
-    `
-
-    const onPress = () => {
-        onTapVenue(venue, !selected); 
-        setSelected(!selected);
-    };
 
     const VenueImage = memo(({ source }) => {
         return <PrimaryVenueImage source={source} />
     }, (prevProps, nextProps) => {
         return prevProps.source === nextProps.source;
     });
-
-    const VenueGradient = () => {
-        const GRADIENT_START_COLOR = "#272525"
-        const GRADIENT_END_COLOR = "#19242E"
-        return (
-            <LinearGradient
-                colors={[GRADIENT_START_COLOR, GRADIENT_END_COLOR]}
-                style={{
-                    flex: 1,
-                    opacity: 1,
-                    position: "absolute",
-                    width: "100%",
-                    height: "100%",
-                    borderRadius: 11,
-                }}
-            />
-        )
+    
+    const onPress = () => {
+        onTapVenue(venue, !selected); 
+        setSelected(!selected);
     };
+
+    const GRADIENT_START_COLOR = "#272525"
+    const GRADIENT_END_COLOR = "#19242E"
 
     return (
         <TouchableVenue onPress={onPress} selected={selected} activeOpacity={0.6}>
-            { !selected && <VenueGradient /> }
+            { !selected && <VenueGradient colors={[GRADIENT_START_COLOR, GRADIENT_END_COLOR]} /> }
             <VenueImage source={iconSource} />
+            <VenueText numberOfLines={2}>{displayName}</VenueText>
         </TouchableVenue>
     );
 };

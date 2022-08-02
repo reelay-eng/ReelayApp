@@ -31,9 +31,7 @@ const IconContainer = styled(View)`
 `
 const IconGradient = styled(LinearGradient)`
     borderRadius: 11px;
-    flex: 1;
     height: 100%;
-    opacity: 1;
     position: absolute;
     width: 100%;
 `
@@ -57,9 +55,10 @@ const OtherVenueImage = styled(Image)`
     width: 100%;
     resizeMode: contain;
 `
-const OtherVenueSubtext = styled(ReelayText.CaptionEmphasized)`
+const DisplayText = styled(ReelayText.Body2Emphasized)`
     color: white;
-    padding: 5px;
+    font-size: 13px;
+    margin-top: 6px;
     text-align: center;
 `
 const PressableVenue = styled(Pressable)`
@@ -69,7 +68,7 @@ const PressableVenue = styled(Pressable)`
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
+    background-color: black;
 `
 const PrimaryVenueImage = styled(Image)`
     height: 42px;
@@ -151,18 +150,18 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         return (
 			<IconOptionsContainer>
                 { otherVenues.map((venueObj) => {
-					const venue = venueObj.venue;
+					const { venue, text } = venueObj;
 					return (
                         <IconContainer key={venue}>
-                            <VenueBadge venue={venue} subtext={venueObj.text} />
+                            <VenueBadge venue={venue} isStreamingVenue={false} display={text} />
 						</IconContainer>
 					);
 				})}
 				{ streamingVenues.map((venueObj) => {
-					const venue = venueObj.venue;
+					const { display, venue } = venueObj;
 					return (
 						<IconContainer key={venue}>
-							<VenueBadge venue={venue} />
+							<VenueBadge venue={venue} isStreamingVenue={true} display={display} />
 						</IconContainer>
 					);
 				})}
@@ -203,30 +202,31 @@ export default VenueSelectScreen = ({ navigation, route }) => {
         );        
     }
 
-    const VenueBadge = ({venue, subtext=""}) => {
+    const VenueBadge = ({ venue, display, isStreamingVenue = true }) => {
         const matchVenue = (vi) => vi.venue === venue;
         const source = venue.length ? searchVenues.find(matchVenue)?.source : null;
 
-        if (!source) return <View />
+        if (!source) return <View />;
 
-		return (
-            <PressableVenue onPress={() => advancetoCameraScreen(venue)}>
-                {({ pressed }) => (
-                    <Fragment>
-                        { !pressed && <IconGradient colors={["#272525", "#19242E"]} /> }
-                        {subtext.length > 0 && (
-                            <Fragment>
-                                <OtherVenueImageContainer>
-                                    <OtherVenueImage source={source} />
-                                </OtherVenueImageContainer>
-                                <OtherVenueSubtext>{subtext}</OtherVenueSubtext>
-                            </Fragment>
-                        )}
-                        {!(subtext.length > 0) && <PrimaryVenueImage source={source} />}
-                    </Fragment>
-                )}
-            </PressableVenue>
-        );
+        if (isStreamingVenue) {
+            return (
+                <PressableVenue onPress={() => advancetoCameraScreen(venue)}>
+                    <IconGradient colors={["#272525", "#19242E"]} />
+                    <PrimaryVenueImage source={source} />
+                    <DisplayText>{display}</DisplayText>
+                </PressableVenue>
+            );
+        } else {
+            return (
+                <PressableVenue onPress={() => advancetoCameraScreen(venue)}>
+                    <IconGradient colors={["#272525", "#19242E"]} />
+                    <OtherVenueImageContainer>
+                        <OtherVenueImage source={source} />
+                    </OtherVenueImageContainer>
+                    <DisplayText>{display}</DisplayText>
+                </PressableVenue>
+            );
+        }
     };
     
     useEffect(() => {

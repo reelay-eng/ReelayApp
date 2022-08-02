@@ -36,7 +36,7 @@ const iconShudder = require(ICON_PATH + 'shudder.png');
 const iconStarz = require(ICON_PATH + 'starz.png');;
 const iconTheaters = require(ICON_PATH + 'cinemas.png');
 const iconTubi = require(ICON_PATH + 'tubi.jpeg');
-const iconVudu = require(ICON_PATH + 'vudu.png');;
+const iconVudu = require(ICON_PATH + 'vudu.jpeg');;
 const iconYouTube = require(ICON_PATH + 'youtube.png');
 
 // const iconKanopy = require(ICON_PATH + 'kanopy.png');
@@ -54,35 +54,35 @@ const IconPressable = styled(Pressable)`
 
 // When adding a new venue, be sure to add it in back end if it should be selectable as a preferred streaming service.
 export const streamingVenues = [
-    { source: iconNetflix, venue: 'netflix', deeplink: "nflx://", tmdbProviderID: 8 },
-    { source: iconHBO, venue: 'hbomax', deeplink: "hbomax://", tmdbProviderID: 384 },
-    { source: iconAppleTV, venue: 'appletv', deeplink: "https://tv.apple.com", tmdbProviderID: 2 },
-    { source: iconDisney, venue: 'disney', deeplink: "disneyplus://", tmdbProviderID: 337 },
+    { display: 'Netflix', source: iconNetflix, venue: 'netflix', deeplink: "nflx://", tmdbProviderID: 8 },
+    { display: 'HBO Max', source: iconHBO, venue: 'hbomax', deeplink: "hbomax://", tmdbProviderID: 384 },
+    { display: 'Apple TV+', source: iconAppleTV, venue: 'appletv', deeplink: "https://tv.apple.com", tmdbProviderID: 2 },
+    { display: 'Disney+', source: iconDisney, venue: 'disney', deeplink: "disneyplus://", tmdbProviderID: 337 },
 
-    { source: iconAmazon, venue: 'amazon', deeplink: "aiv://", tmdbProviderID: 119 },
-    { source: iconHulu, venue: 'hulu', deeplink: "hulu://", tmdbProviderID: 15 },
-    { source: iconCriterion, venue: 'criterion', deeplink: "vhxcriterionchannel://", tmdbProviderID: 258 },
-    { source: iconMubi, venue: 'mubi', deeplink: "mubi://",tmdbProviderID: 11 },
+    { display: 'Prime Video', source: iconAmazon, venue: 'amazon', deeplink: "aiv://", tmdbProviderID: 119 },
+    { display: 'Hulu', source: iconHulu, venue: 'hulu', deeplink: "hulu://", tmdbProviderID: 15 },
+    { display: 'Criterion', source: iconCriterion, venue: 'criterion', deeplink: "vhxcriterionchannel://", tmdbProviderID: 258 },
+    { display: 'Mubi', source: iconMubi, venue: 'mubi', deeplink: "mubi://",tmdbProviderID: 11 },
 
-    { source: iconPeacock, venue: 'peacock', deeplink: "peacock://", tmdbProviderID: 387 },
-    { source: iconParamount, venue: 'paramount', deeplink: "com.cbsvideo.app://", tmdbProviderID: 531 },
-    { source: iconCrackle, venue: 'crackle', deeplink: "", tmdbProviderID: 0 }, // TODO
-    { source: iconYouTube, venue: 'youtube', deeplink: "youtube://", tmdbProviderID: 192 },
+    { display: 'Peacock', source: iconPeacock, venue: 'peacock', deeplink: "peacock://", tmdbProviderID: 387 },
+    { display: 'Paramount', source: iconParamount, venue: 'paramount', deeplink: "com.cbsvideo.app://", tmdbProviderID: 531 },
+    { display: 'Crackle', source: iconCrackle, venue: 'crackle', deeplink: "", tmdbProviderID: 0 }, // TODO
+    { display: 'YouTube', source: iconYouTube, venue: 'youtube', deeplink: "youtube://", tmdbProviderID: 192 },
     
-    { source: iconPlutoTV, venue: 'plutotv', deeplink: "plutotv://", tmdbProviderID: 0 },
-    { source: iconTubi, venue: 'tubi', deeplink: "tubitv://", tmdbProviderID: 0 },
-    { source: iconRoku, venue: 'roku', deeplink: "", tmdbProviderID: 0 },
-    { source: iconStarz, venue: 'starz', deeplink: "", tmdbProviderID: 0},
+    { display: 'Pluto TV', source: iconPlutoTV, venue: 'plutotv', deeplink: "plutotv://", tmdbProviderID: 0 },
+    { display: 'Tubi', source: iconTubi, venue: 'tubi', deeplink: "tubitv://", tmdbProviderID: 0 },
+    { display: 'Roku', source: iconRoku, venue: 'roku', deeplink: "", tmdbProviderID: 0 },
+    { display: 'Starz', source: iconStarz, venue: 'starz', deeplink: "", tmdbProviderID: 0},
 
-    { source: iconFubo, venue: 'fubo', deeplink: "plutotv://", tmdbProviderID: 0 },
-    { source: iconVudu, venue: 'vudu', deeplink: "tubitv://", tmdbProviderID: 0 },
-    { source: iconDiscovery, venue: 'discovery', deeplink: "", tmdbProviderID: 0 },
-    { source: iconShowtime, venue: 'showtime', deeplink: "", tmdbProviderID: 0},
+    { display: 'Fubo', source: iconFubo, venue: 'fubo', deeplink: "plutotv://", tmdbProviderID: 0 },
+    { display: 'Vudu', source: iconVudu, venue: 'vudu', deeplink: "tubitv://", tmdbProviderID: 0 },
+    { display: 'Discovery+', source: iconDiscovery, venue: 'discovery', deeplink: "", tmdbProviderID: 0 },
+    { display: 'Showtime', source: iconShowtime, venue: 'showtime', deeplink: "", tmdbProviderID: 0},
     
-    { source: iconCrunchyroll, venue: 'crunchyroll', deeplink: "crunchyroll://", tmdbProviderID: 0 },
-    { source: iconShudder, venue: 'shudder', deeplink: "shudder://", tmdbProviderID: 0 },
-    { source: iconPhilo, venue: 'philo', deeplink: "crunchyroll://", tmdbProviderID: 0 },
-    { source: iconFreevee, venue: 'freevee', deeplink: "shudder://", tmdbProviderID: 0 },
+    { display: 'Crunchyroll', source: iconCrunchyroll, venue: 'crunchyroll', deeplink: "crunchyroll://", tmdbProviderID: 0 },
+    { display: 'Shudder', source: iconShudder, venue: 'shudder', deeplink: "shudder://", tmdbProviderID: 0 },
+    { display: 'Philo', source: iconPhilo, venue: 'philo', deeplink: "crunchyroll://", tmdbProviderID: 0 },
+    { display: 'FreeVee', source: iconFreevee, venue: 'freevee', deeplink: "shudder://", tmdbProviderID: 0 },
     // { source: iconKanopy, venue: 'kanopy', deeplink: "fb1519029161670311://", tmdbProviderID: 0 },
 ];
 

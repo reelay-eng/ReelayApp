@@ -31,7 +31,7 @@ const TAB_BAR_INACTIVE_OPACITY = 0.8;
 const IconFocusView = styled(View)`
 	align-items: center;
 	border-radius: 24px;
-	background-color: ${props => props.focused ? 'black' : 'transparent'};
+	background-color: transparent;
 	justify-content: center;
 	opacity: ${props => props.focused ? 1 : 0.8};
 `
