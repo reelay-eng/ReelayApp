@@ -51,10 +51,8 @@ const EditProfileText = styled(ReelayText.Body2)`
 `
 const MyWatchlistPressable = styled(TouchableOpacity)`
     align-items: center;
-    background-color: black;
-    border-color: white;
+    background-color: ${ReelayColors.reelayBlue};
     border-radius: 20px;
-    border-width: 1px;
     height: 40px;
     justify-content: center;
     margin: 16px;
