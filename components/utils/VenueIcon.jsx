@@ -59,7 +59,7 @@ export const streamingVenues = [
     { display: 'Apple TV+', source: iconAppleTV, venue: 'appletv', deeplink: "https://tv.apple.com", tmdbProviderID: 2 },
     { display: 'Disney+', source: iconDisney, venue: 'disney', deeplink: "disneyplus://", tmdbProviderID: 337 },
 
-    { display: 'Prime Video', source: iconAmazon, venue: 'amazon', deeplink: "aiv://", tmdbProviderID: 119 },
+    { display: 'Amazon', source: iconAmazon, venue: 'amazon', deeplink: "aiv://", tmdbProviderID: 119 },
     { display: 'Hulu', source: iconHulu, venue: 'hulu', deeplink: "hulu://", tmdbProviderID: 15 },
     { display: 'Criterion', source: iconCriterion, venue: 'criterion', deeplink: "vhxcriterionchannel://", tmdbProviderID: 258 },
     { display: 'Mubi', source: iconMubi, venue: 'mubi', deeplink: "mubi://",tmdbProviderID: 11 },
@@ -87,12 +87,6 @@ export const streamingVenues = [
 ];
 
 export const otherVenues = [
-	{
-		source: iconFestivals,
-		oldSource: iconOldFestivals,
-		text: "At a film festival",
-		venue: "festivals",
-	},
     {
         source: iconTheaters,
         oldSource: iconOldTheaters,
@@ -105,6 +99,12 @@ export const otherVenues = [
         text: 'Home video',
         venue: "homevideo"
     },
+    {
+		source: iconFestivals,
+		oldSource: iconOldFestivals,
+		text: "At a film festival",
+		venue: "festivals",
+	},
     {
         source: iconOther,
         oldSource: iconOldOther,

@@ -30,7 +30,13 @@ const PosterGridContainer = styled(View)`
     width: ${GRID_WIDTH}px;
 `
 
-export default SuggestedTitlesGrid = ({ navigation, selectedType }) => {
+export default SuggestedTitlesGrid = ({ 
+    navigation, 
+    selectedType, 
+    source='search',
+    clubID=null,
+    topicID=null,
+}) => {
     const dispatch = useDispatch();
     const scrollRef = useRef(null);
     const suggestedMovieResults = useSelector(state => state.suggestedMovieResults);
@@ -81,15 +87,17 @@ export default SuggestedTitlesGrid = ({ navigation, selectedType }) => {
     const renderTitlePoster = ({ item, index }) => {
         const titleObj = item;
         const advanceToTitleScreen = () => navigation.push('TitleDetailScreen', { titleObj });
+        const advanceToSelectVenue = () => navigation.push('VenueSelectScreen', { titleObj, clubID, topicID });
+        const onPress = (source === 'search') ? advanceToTitleScreen : advanceToSelectVenue;
         return (
             <PosterContainer key={titleObj?.id}>
-                <TitlePoster title={titleObj} onPress={advanceToTitleScreen} width={POSTER_WIDTH} />
+                <TitlePoster title={titleObj} onPress={onPress} width={POSTER_WIDTH} />
             </PosterContainer>
         );
     }
 
     useEffect(() => {
-        if (scrollRef.current) {
+        if (scrollRef.current && suggestedTitles?.length > 0) {
             scrollRef.current.scrollToIndex({ animated: false, index: 0 });
         }
     }, [selectedType]);

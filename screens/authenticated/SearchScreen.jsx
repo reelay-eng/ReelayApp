@@ -24,7 +24,6 @@ import { searchPublicClubs } from "../../api/ClubsApi";
 // Styling
 import styled from "styled-components/native";
 import { useFocusEffect } from "@react-navigation/native";
-import { fetchPopularMovies, fetchPopularSeries } from "../../api/TMDbApi";
 
 const SearchScreenContainer = styled(SafeAreaView)`
     background-color: black;
@@ -60,8 +59,9 @@ export default SearchScreen = ({ navigation, route }) => {
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [selectedType, setSelectedType] = useState(initialSearchType);
-    const showSuggestions = ['Film', 'TV'].includes(selectedType);    
 
+    const searchTextEmpty = (!searchText || searchText === undefined || searchText === '');
+    const showSuggestions = ['Film', 'TV'].includes(selectedType) && searchTextEmpty;
     const updateCounter = useRef(0);
 
     useEffect(() => {
@@ -223,6 +223,7 @@ export default SearchScreen = ({ navigation, route }) => {
                 <SuggestedTitlesGrid 
                     navigation={navigation} 
                     selectedType={selectedType}
+                    source='search'
                 /> 
             )}
             { loading && <ActivityIndicator /> }
