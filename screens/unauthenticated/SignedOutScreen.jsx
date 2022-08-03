@@ -78,7 +78,7 @@ export default SignedOutScreen = ({ navigation, route }) => {
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                 />
-                <ButtonText color='white'>{'Sign up in seconds'}</ButtonText>
+                <ButtonText color='white'>{'Sign up'}</ButtonText>
             </ButtonPressable>
         </ButtonContainer>
     );

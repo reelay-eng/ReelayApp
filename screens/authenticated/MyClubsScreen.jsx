@@ -305,7 +305,8 @@ export default MyClubsScreen = ({ navigation }) => {
                         <ClubDescriptionText numberOfLines={2}>{'Make a group for private reelays and invite your friends'}</ClubDescriptionText>
                     </ClubRowInfoView>
                     <ClubRowArrowView>
-                        <Icon type='ionicon' name='add-circle-outline' color='white' size={28} />
+                        <FontAwesomeIcon icon={faChevronRight} color='white' size={18} />
+                        <ClubRowArrowSpacer />
                     </ClubRowArrowView>
                 </ClubRowPressable>
             );

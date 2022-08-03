@@ -96,16 +96,6 @@ const CreateClubPressable = styled(TouchableOpacity)`
     margin-bottom: 12px;
     width: 240px;
 `
-const DogWithGlassesImage = styled(Image)`
-    height: 57px;
-    width: 57px;
-`
-const DogWithGlassesContainer = styled(View)`
-    align-items: center;
-    justify-content: center;
-    margin: 20px;
-    margin-bottom: 10px;
-`
 const DrawerContainer = styled(View)`
     background-color: #1a1a1a;
     border-top-left-radius: 12px;
@@ -124,7 +114,7 @@ const HeaderContainer = styled(View)`
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
-    font-size: 24px;
+    font-size: 20px;
 `
 const ModalContainer = styled(View)`
     position: absolute;
@@ -136,7 +126,7 @@ const ProfilePictureContainer = styled(View)`
 `
 const PromptHeadingText = styled(ReelayText.H4Bold)`
     color: white;
-    font-size: 20px;
+    font-size: 18px;
     line-height: 30px;
     text-align: center;
 `
@@ -181,10 +171,19 @@ export default AddToClubsDrawer = ({
     const closeDrawer = () => setDrawerVisible(false);
     const [addingTitle, setAddingTitle] = useState(false);
 
+    const matchWatchlistItem = (nextWatchlistItem) => {
+        if (!nextWatchlistItem.hasAcceptedRec) return false;
+        const { titleType, tmdbTitleID } = nextWatchlistItem;
+        const watchlistItemTitleKey = `${titleType}-${tmdbTitleID}`;
+        return (watchlistItemTitleKey === titleKey);
+    }
+
+    const isAlreadyAdded = myWatchlistItems.find(matchWatchlistItem);
+
     const Header = () => {
         return (
             <HeaderContainer>
-                <HeaderText>{'Add to watchlist'}</HeaderText>
+                <HeaderText>{ isAlreadyAdded ? 'Added to my watchlist' : 'Add to watchlist'}</HeaderText>
                 <MarkSeenButton markedSeen={markedSeen} setMarkedSeen={setMarkedSeen} titleObj={titleObj} />
             </HeaderContainer>
         );
@@ -365,6 +364,7 @@ export default AddToClubsDrawer = ({
         const backgroundColor = '#1a1a1a';
 
         const addToWatchlistWrapper = async () => {
+            if (isAlreadyAdded) return;
             setIsAddedToWatchlist(true);
             const addToWatchlistResult = await addToMyWatchlist({
                 authSession,
@@ -395,14 +395,6 @@ export default AddToClubsDrawer = ({
             showMessageToast(`Added ${titleObj.display} to your watchlist`);
         }
 
-        const matchWatchlistItem = (nextWatchlistItem) => {
-            if (!nextWatchlistItem.hasAcceptedRec) return false;
-            const { titleType, tmdbTitleID } = nextWatchlistItem;
-            const watchlistItemTitleKey = `${titleType}-${tmdbTitleID}`;
-            return (watchlistItemTitleKey === titleKey);
-        }
-
-        const isAlreadyAdded = myWatchlistItems.find(matchWatchlistItem);
         const iconName = (isAlreadyAdded) ? 'checkmark-done' : 'checkmark';
         const iconColor = (isAlreadyAdded) ? 'gray' : 'white';    
 
@@ -438,9 +430,9 @@ export default AddToClubsDrawer = ({
                     <ScrollViewContainer contentContainerStyle={{ alignItems: 'center' }}>
                         <AddToMyWatchlistRow />
                         { myClubs.length > 1 && <SelectClubsList /> }
-                        { myClubs.length > 1 && <AddTitleButton /> }
-                        { myClubs.length === 0 && <CreateClubPrompt /> }
                     </ScrollViewContainer>
+                    { myClubs.length > 1 && <AddTitleButton /> }
+                    { myClubs.length === 0 && <CreateClubPrompt /> }
                 </DrawerContainer>
                 </KeyboardAvoidingView>
             </Modal>

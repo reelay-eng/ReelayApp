@@ -98,7 +98,7 @@ export default EmptyWatchlistCard = ({ navigation }) => {
 
     const AddFromSearchButton = () => {
         return (
-            <AddFromSearchPressable onPress={() => navigation.push('SearchScreen')}>
+            <AddFromSearchPressable onPress={() => navigation.push('SearchScreen', { addToWatchlist: true })}>
                 <AddFromSearchText>{'Search for titles'}</AddFromSearchText>
             </AddFromSearchPressable>
         );

@@ -4,7 +4,6 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components/native';
 import TitlePoster from '../global/TitlePoster';
 import * as ReelayText from '../global/Text';
-import EmptyWatchlistPrompt from '../home/EmptyWatchlistPrompt';
 
 const { width } = Dimensions.get('window');
 

@@ -129,7 +129,7 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
             break;
         case 'profile':
             displayTopics = topicsOnProfile ?? [];
-            headerText = 'Topics I\'ve created';
+            headerText = 'Topics started';
             break;
         default:
             break;
