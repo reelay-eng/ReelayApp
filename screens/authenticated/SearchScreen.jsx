@@ -47,7 +47,6 @@ const SearchBarContainer = styled(View)`
     align-items: center;
     justify-content: center;
 `
-const MAX_SUGGESTION_PAGE = 9; // multiple of 3 gives us a full bottom row
 
 export default SearchScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
@@ -58,18 +57,10 @@ export default SearchScreen = ({ navigation, route }) => {
     const [loading, setLoading] = useState(false);
     const myFollowing = useSelector(state => state.myFollowing);
 
-    
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [selectedType, setSelectedType] = useState(initialSearchType);
-    const showSuggestions = ['Film', 'TV'].includes(selectedType);
-
-    const suggestedMovieResults = useSelector(state => state.suggestedMovieResults);
-    const suggestedSeriesResults = useSelector(state => state.suggestedSeriesResults);
-    
-    const suggestedTitles = (selectedType === 'TV') 
-        ? suggestedSeriesResults?.titles 
-        : suggestedMovieResults?.titles;
+    const showSuggestions = ['Film', 'TV'].includes(selectedType);    
 
     const updateCounter = useRef(0);
 
@@ -97,36 +88,6 @@ export default SearchScreen = ({ navigation, route }) => {
         dispatch({ type: 'setTabBarVisible', payload: true });
     });
 
-    const extendSuggestedTitles = async () => {
-        if (!['Film', 'TV'].includes(selectedType)) return;
-        const { titles, nextPage } = (selectedType === 'TV') 
-            ? suggestedSeriesResults 
-            : suggestedMovieResults;
-
-        if (nextPage > MAX_SUGGESTION_PAGE) return;
-
-        switch (selectedType) {
-            case 'Film':
-                const nextMovieTitles = await fetchPopularMovies(nextPage);
-                const nextSuggestedMovieResults = {
-                    titles: [...titles, ...nextMovieTitles],
-                    nextPage: nextPage + 1,
-                }
-                dispatch({ type: 'setSuggestedMovieResults', payload: nextSuggestedMovieResults });
-                return;
-            case 'TV':
-                const nextSeriesTitles = await fetchPopularSeries(nextPage);
-                const nextSuggestedSeriesResults = {
-                    titles: [...titles, ...nextSeriesTitles],
-                    nextPage: nextPage + 1,
-                }
-                dispatch({ type: 'setSuggestedSeriesResults', payload: nextSuggestedSeriesResults });
-                return;
-            default:
-                return;
-        }
-    }
-
     const sortUserResults = (userA, userB) => {
         if (userA.username === reelayDBUser.username)   return -1;
         if (userB.username === reelayDBUser.username)   return 1;
@@ -140,7 +101,6 @@ export default SearchScreen = ({ navigation, route }) => {
             return (userA.username > userB.username) ? 1 : -1;
         }
         return (followingUserA) ? -1 : 1;
-
     }
 
     const updateSearch = async (newSearchText, searchType, counter) => {
@@ -219,23 +179,29 @@ export default SearchScreen = ({ navigation, route }) => {
         );
     }
 
+    const TopBar = () => {
+        return (
+            <TopBarContainer>
+                <SelectorBarContainer>
+                    <ToggleSelector
+                        displayOptions={["Film", "TV", "Clubs", "Users"]}
+                        options={["Film", "TV", "Clubs", "Users"]}
+                        selectedOption={selectedType}
+                        onSelect={(type) => {
+                            setSelectedType(type);
+                            if (searchText.length) setLoading(true);
+                        }}
+                    />
+                </SelectorBarContainer>
+            </TopBarContainer>
+        );
+    }
+
 
     return (
 		<SearchScreenContainer>
 			<HeaderWithBackButton navigation={navigation} text={"Search"} />
-            <TopBarContainer>
-				<SelectorBarContainer>
-					<ToggleSelector
-                        displayOptions={["Film", "TV", "Clubs", "Users"]}
-						options={["Film", "TV", "Clubs", "Users"]}
-						selectedOption={selectedType}
-						onSelect={(type) => {
-							setSelectedType(type);
-                            if (searchText.length) setLoading(true);
-						}}
-					/>
-				</SelectorBarContainer>
-			</TopBarContainer>
+            <TopBar />
             <SearchBarContainer>
 				<SearchField
 					searchText={searchText}
@@ -256,8 +222,7 @@ export default SearchScreen = ({ navigation, route }) => {
             { !loading && showSuggestions && (
                 <SuggestedTitlesGrid 
                     navigation={navigation} 
-                    extendSuggestedTitles={extendSuggestedTitles} 
-                    suggestedTitles={suggestedTitles} 
+                    selectedType={selectedType}
                 /> 
             )}
             { loading && <ActivityIndicator /> }

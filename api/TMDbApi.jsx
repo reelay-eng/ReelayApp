@@ -10,29 +10,29 @@ const PLACEHOLDER_POSTER_SOURCE = require('../assets/images/reelay-splash-with-d
 const WELCOME_VIDEO_POSTER_SOURCE = require('../assets/images/welcome-video-poster-with-dog.png');
 
 export const fetchSeries = async (titleID) => {
-    const query = `${TMDB_API_BASE_URL}/tv\/${titleID}\?api_key\=${TMDB_API_KEY}&language=en-US&append_to_response=release_dates`;
+    const query = `${TMDB_API_BASE_URL}/tv/${titleID}?api_key=${TMDB_API_KEY}&language=en-US&append_to_response=release_dates`;
     return await fetchResults(query);
 }
 
 export const fetchSeriesCredits = async (titleID) => {
-    const query = `${TMDB_API_BASE_URL}/tv\/${titleID}/credits\?api_key\=${TMDB_API_KEY}`;
+    const query = `${TMDB_API_BASE_URL}/tv/${titleID}/credits?api_key=${TMDB_API_KEY}`;
     return await fetchResults(query);
 }
 
 export const fetchMovie = async (titleID) => {
-    const query = `${TMDB_API_BASE_URL}/movie\/${titleID}\?api_key\=${TMDB_API_KEY}&language=en-US&append_to_response=release_dates`;
+    const query = `${TMDB_API_BASE_URL}/movie/${titleID}?api_key=${TMDB_API_KEY}&language=en-US&append_to_response=release_dates`;
     const result = await fetchResults(query);
     return result;
 }
 
 export const fetchMovieCredits = async (titleID) => {
-    const query = `${TMDB_API_BASE_URL}/movie\/${titleID}/credits\?api_key\=${TMDB_API_KEY}`;
+    const query = `${TMDB_API_BASE_URL}/movie/${titleID}/credits?api_key=${TMDB_API_KEY}`;
     return await fetchResults(query);
 }
 
 export const fetchMovieProviders = async (titleID) => {
     try {
-        const query = `${TMDB_API_BASE_URL}/movie\/${titleID}/watch/providers\?api_key\=${TMDB_API_KEY}`;
+        const query = `${TMDB_API_BASE_URL}/movie/${titleID}/watch/providers?api_key=${TMDB_API_KEY}`;
         const queryResponse = await fetchResults(query);
         if (!queryResponse || !queryResponse.results || queryResponse.results.length === 0) {
             return null;
@@ -48,7 +48,7 @@ export const fetchMovieProviders = async (titleID) => {
 
 export const fetchMovieTrailerURI = async (titleID) => {
     try {
-        const query = `${TMDB_API_BASE_URL}/movie\/${titleID}/videos\?api_key\=${TMDB_API_KEY}`;
+        const query = `${TMDB_API_BASE_URL}/movie/${titleID}/videos?api_key=${TMDB_API_KEY}`;
         const queryResponse = await fetchResults(query);
         if (!queryResponse || !queryResponse.results || queryResponse.results.length === 0) {
             return null;
@@ -67,7 +67,7 @@ export const fetchMovieTrailerURI = async (titleID) => {
 
 export const fetchSeriesTrailerURI = async (titleID) => {
     try {
-        const query = `${TMDB_API_BASE_URL}/tv\/${titleID}/videos\?api_key\=${TMDB_API_KEY}`;
+        const query = `${TMDB_API_BASE_URL}/tv/${titleID}/videos?api_key=${TMDB_API_KEY}`;
         const videoResults = (await fetchResults(query))?.results ?? [];
         if (videoResults.length == 0) return null;
         const youtubeTrailer = videoResults.find((video) => { 
@@ -82,9 +82,10 @@ export const fetchSeriesTrailerURI = async (titleID) => {
 
 export const fetchPopularMovies = async (page = 0) => {
     try {
-        console.log('fetching popular movies, page: ', page);
         // NB: TMDB starts their incrementing at 1, not 0
-        const routeGet = `${TMDB_API_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}&page=${page + 1}&region=US`;
+        const queryParams = `api_key=${TMDB_API_KEY}&language=en-US&page=${page + 1}&vote_count.gte=500`;
+        // const routeGet = `${TMDB_API_BASE_URL}/movie/popular?api_key=${TMDB_API_KEY}&page=${page + 1}&region=US`;
+        const routeGet = `${TMDB_API_BASE_URL}/discover/movie?${queryParams}`;
         const tmdbResponse = await fetchResults(routeGet, { method: 'GET' });
         const popularTitles = tmdbResponse?.results ?? [];
 
@@ -103,11 +104,10 @@ export const fetchPopularMovies = async (page = 0) => {
 
 export const fetchPopularSeries = async (page = 0) => {
     try {
-        console.log('fetching popular series, page: ', page);
         // NB: TMDB starts their incrementing at 1, not 0
         // default sorts by popularity desc
-        const routeGet = `${TMDB_API_BASE_URL}/tv/popular?api_key=${TMDB_API_KEY}&page=${page + 1}`;
-        // const routeGet = `${TMDB_API_BASE_URL}/discover/tv?api_key=${TMDB_API_KEY}&language=en-US&page=${page + 1}&timezone=America%2FNew_York&with_status=0|2`
+        const queryParams = `api_key=${TMDB_API_KEY}&language=en-US&page=${page + 1}&vote_count.gte=500`;
+        const routeGet = `${TMDB_API_BASE_URL}/discover/tv?${queryParams}`;
         const tmdbResponse = await fetchResults(routeGet, { method: 'GET' });
         const popularTitles = tmdbResponse?.results ?? [];
 
