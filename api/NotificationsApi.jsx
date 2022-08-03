@@ -515,16 +515,20 @@ export const notifyOtherCreatorsOnReelayPosted = async ({
 }) => {
     let notifyReelayStack;
     let action;
+    let settingToCheck;
 
     if (topic) {
         notifyReelayStack = topic.reelays;
         action = 'openTopicAtReelay';
+        settingToCheck = "notifyPostsInOtherTopics";
     } else if (clubTitle) {
         notifyReelayStack = clubTitle.reelays;
         action = 'openClubActivityScreen';
+        settingToCheck = "notifyPostsInMyClubs";
     } else {
         notifyReelayStack = await getMostRecentReelaysByTitle(reelay.title.id);
         action = 'openSingleReelayScreen';
+        settingToCheck = "notifyPostsOnMyReelayedTitles";
     }
 
     console.log('notify reelay stack: ', notifyReelayStack);
@@ -545,9 +549,9 @@ export const notifyOtherCreatorsOnReelayPosted = async ({
             return;
         } 
         
-        const shouldNotify = await shouldNotifyUser(notifyCreator?.sub, "notifyPostsOnMyReelayedTitles");
+        const shouldNotify = await shouldNotifyUser(notifyCreator?.sub, settingToCheck);
         if (!shouldNotify) {
-            console.log('Creator does not want to receive notifications when reelays about same title are posted.');
+            console.log(`Creator does not want to receive notifications for ${settingToCheck}`);
             return;
         }
 
@@ -559,7 +563,7 @@ export const notifyOtherCreatorsOnReelayPosted = async ({
         }
         const title = (topic) ? `${creator.username}` : `${reelay.title.display}`;
         const body = (topic) ? `added to the topic: ${topic.title}` : `new reelay by ${creator.username}`; // add name for topic
-        console.log("sending notifcation to ", notifyCreator)
+        console.log("sending notification to ", notifyCreator)
         const data = { 
             notifyType: 'notifyOtherCreatorsOnReelayPosted',
             action,
