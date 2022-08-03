@@ -37,10 +37,10 @@ const { width } = Dimensions.get('window');
 const AddTitleButtonContainer = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${ReelayColors.reelayBlue};
-    border-radius: 20px;
+    border-radius: 24px;
     flex-direction: row;
     justify-content: center;
-    height: 40px;
+    height: 48px;
     width: ${width - 32}px;
 `
 const AddTitleButtonOuterContainer = styled(View)`
@@ -82,10 +82,21 @@ const CreateClubView = styled(View)`
     width: 90%;
 `
 const CreateClubGradient = styled(LinearGradient)`
-    border-radius: 8px;
-    height: 248px;
+    border-radius: 24px;
+    height: 100%;
     position: absolute;
     width: 100%;
+`
+const CreateClubPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: rgba(255,255,255,0.25);
+    border-radius: 24px;
+    height: 48px;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    width: 240px;
 `
 const DogWithGlassesImage = styled(Image)`
     height: 57px;
@@ -111,9 +122,11 @@ const HeaderContainer = styled(View)`
     flex-direction: row;
     justify-content: space-between;
     padding: 20px;
+    padding-bottom: 10px;
 `
-const HeaderText = styled(ReelayText.CaptionEmphasized)`
+const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
+    font-size: 20px;
 `
 const ModalContainer = styled(View)`
     position: absolute;
@@ -129,26 +142,8 @@ const PromptHeadingText = styled(ReelayText.H4Bold)`
     line-height: 30px;
     text-align: center;
 `
-const PromptBodyText = styled(ReelayText.CaptionEmphasized)`
-    color: white;
-    margin: 6px;
-    text-align: center;
-    width: 75%;
-`
-const PromptButtonPressable = styled(TouchableOpacity)`
-    align-items: center;
-    background-color: white;
-    border-radius: 40px;
-    flex-direction: row;
-    justify-content: center;
-    margin-top: 8px;
-    padding: 8px;
-    padding-left: 12px;
-    padding-right: 14px;
-`
 const PromptButtonText = styled(ReelayText.CaptionEmphasized)`
-    color: black;
-    margin-left: 4px;
+    color: white;
 `
 const RowContainer = styled(Pressable)`
     align-items: center;
@@ -191,7 +186,7 @@ export default AddToClubsDrawer = ({
     const Header = () => {
         return (
             <HeaderContainer>
-                <HeaderText>{'Add to a club'}</HeaderText>
+                <HeaderText>{'Add to watchlist'}</HeaderText>
                 <MarkSeenButton markedSeen={markedSeen} setMarkedSeen={setMarkedSeen} titleObj={titleObj} />
             </HeaderContainer>
         );
@@ -312,27 +307,28 @@ export default AddToClubsDrawer = ({
             navigation.push('CreateClubScreen');
         }
 
-        const PromptButton = () => {
+        const CreateClubButton = () => {
             return (
-                <PromptButtonPressable onPress={advanceToCreateClubScreen}>
-                    <Icon type='ionicon' name='add' color='black' size={20} />
-                    <PromptButtonText>
-                        {'Create a club'}
-                    </PromptButtonText>
-                </PromptButtonPressable>
+                <CreateClubPressable onPress={advanceToCreateClubScreen}>
+                    <CreateClubGradient 
+                        colors={[ReelayColors.reelayBlue, ReelayColors.reelayRed]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                    />
+                    <PromptButtonText>{'Create a club'}</PromptButtonText>
+                </CreateClubPressable>
             );
         }
         
         return (
             <CreateClubView>
-                <CreateClubGradient colors={['#FF4848', '#038AFF']} />
                 <DogWithGlassesContainer>
                     <DogWithGlassesImage source={DogWithGlasses} />
                 </DogWithGlassesContainer>
                 <PromptHeadingText>{headingText}</PromptHeadingText>
-                <PromptBodyText>{bodyText1}</PromptBodyText>
-                <PromptBodyText>{bodyText2}</PromptBodyText>
-                <PromptButton />
+                {/* <PromptBodyText>{bodyText1}</PromptBodyText>
+                <PromptBodyText>{bodyText2}</PromptBodyText> */}
+                <CreateClubButton />
             </CreateClubView>
         );
     }

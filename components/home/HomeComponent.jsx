@@ -53,8 +53,7 @@ const HomeComponent = ({ navigation }) => {
     const authSession = useSelector(state => state.authSession);
     const scrollRef = useRef(null);
 
-    const isNewUser = moment().diff(moment(reelayDBUser?.createdAt), 'hours') > 24;
-    const [selectedTab, setSelectedTab] = useState(isNewUser ? 'discover' : 'my stuff');
+    const [selectedTab, setSelectedTab] = useState('discover');
     const tabOptions = ['discover', 'my stuff'];
 
     const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);

@@ -52,9 +52,12 @@ export default SearchScreen = ({ navigation, route }) => {
     const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
 
+    const addToWatchlist = route?.params?.addToWatchlist ?? false;
     const initialSearchType = route?.params?.initialSearchType ?? 'Film';
     const [loading, setLoading] = useState(false);
+
     const myFollowing = useSelector(state => state.myFollowing);
+    const tabOptions = addToWatchlist ? ['Film', 'TV'] : ['Film', 'TV', 'Clubs', 'Users'];
 
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState([]);
@@ -104,10 +107,11 @@ export default SearchScreen = ({ navigation, route }) => {
     }
 
     const updateSearch = async (newSearchText, searchType, counter) => {
-        if (!newSearchText || newSearchText === undefined || newSearchText === '') {            
+        if (searchTextEmpty) {            
             setSearchResults([]);
             return;
         }
+
         try {
             setLoading(true);
             let annotatedResults;
@@ -184,8 +188,8 @@ export default SearchScreen = ({ navigation, route }) => {
             <TopBarContainer>
                 <SelectorBarContainer>
                     <ToggleSelector
-                        displayOptions={["Film", "TV", "Clubs", "Users"]}
-                        options={["Film", "TV", "Clubs", "Users"]}
+                        displayOptions={tabOptions}
+                        options={tabOptions}
                         selectedOption={selectedType}
                         onSelect={(type) => {
                             setSelectedType(type);
@@ -200,7 +204,10 @@ export default SearchScreen = ({ navigation, route }) => {
 
     return (
 		<SearchScreenContainer>
-			<HeaderWithBackButton navigation={navigation} text={"Search"} />
+			<HeaderWithBackButton 
+                navigation={navigation} 
+                text={addToWatchlist ? 'Add to watchlist' : 'Search'} 
+            />
             <TopBar />
             <SearchBarContainer>
 				<SearchField

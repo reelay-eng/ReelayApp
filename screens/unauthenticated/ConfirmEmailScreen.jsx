@@ -12,6 +12,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
 import { useDispatch } from 'react-redux';
+import { HeaderWithBackButton } from '../../components/global/Headers';
 
 const AuthInput = styled(Input)`
     color: white;
@@ -124,7 +125,7 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
 				/>
 				<CTAButtonContainer>
 					<Button
-						text="Confirm your email"
+						text="Complete signup"
 						onPress={confirmEmail}
 						backgroundColor={ReelayColors.reelayBlue}
 						fontColor="white"

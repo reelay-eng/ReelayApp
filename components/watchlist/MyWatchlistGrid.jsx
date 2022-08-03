@@ -4,9 +4,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components/native';
 import TitlePoster from '../global/TitlePoster';
 import * as ReelayText from '../global/Text';
-
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faListCheck } from '@fortawesome/free-solid-svg-icons';
+import EmptyWatchlistPrompt from '../home/EmptyWatchlistPrompt';
 
 const { width } = Dimensions.get('window');
 
@@ -116,6 +114,11 @@ export default MyWatchlistGrid = ({ navigation }) => {
                 <TitlePoster title={title} onPress={advanceToTitleScreen} width={POSTER_WIDTH} />
             </PosterContainer>
         );
+    }
+
+
+    if (displayWatchlistItems?.length === 0) {
+        return <View />
     }
 
     return (

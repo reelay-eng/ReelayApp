@@ -70,6 +70,11 @@ const ErrorText = styled(ReelayText.Body1)`
     text-align: left;
     padding: 20px;
 `
+const FullScreenBlackContainer = styled(SafeAreaView)`
+    background-color: ${ReelayColors.reelayBlack};
+    height: 100%;
+    width: 100%;
+`;
 const ForgotPasswordContainer = styled(View)`
     flex-direction: row;
     align-items: center;
@@ -90,11 +95,6 @@ const SignInButtonContainer = styled(View)`
 
 
 export const KeyboardHidingBlackContainer = ({ children }) => {
-    const FullScreenBlackContainer = styled(SafeAreaView)`
-        background-color: ${ReelayColors.reelayBlack};
-        height: 100%;
-        width: 100%;
-    `;
     return ( 
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <FullScreenBlackContainer>

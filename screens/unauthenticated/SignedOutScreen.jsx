@@ -45,7 +45,7 @@ const ButtonPressable = styled(TouchableOpacity)`
 `
 const ButtonText = styled(ReelayText.Body2Emphasized)`
     color: ${props => props.color ?? ReelayColors.reelayBlue};
-    font-size: ${props => props.fontSize ?? 14}px;
+    font-size: ${props => props.fontSize ?? 15}px;
 `
 const LoadingContainer = styled(View)`
     position: absolute;
@@ -64,9 +64,9 @@ const Spacer = styled(View)`
 `
 
 export default SignedOutScreen = ({ navigation, route }) => {
-    const autoSignInAsGuest = route?.params?.autoSignInAsGuest ?? false;
+    // const autoSignInAsGuest = route?.params?.autoSignInAsGuest ?? false;
     const { setCognitoUser } = useContext(AuthContext);
-    const [signingInJustShowMe, setSigningInJustShowMe] = useState(autoSignInAsGuest);
+    const [signingInJustShowMe, setSigningInJustShowMe] = useState(false);
     const signUpFromGuest = useSelector(state => state.signUpFromGuest);
     const dispatch = useDispatch();
 
@@ -78,7 +78,7 @@ export default SignedOutScreen = ({ navigation, route }) => {
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                 />
-                <ButtonText color='white'>{'Sign up'}</ButtonText>
+                <ButtonText color='white'>{'Sign up in seconds'}</ButtonText>
             </ButtonPressable>
         </ButtonContainer>
     );
@@ -94,7 +94,7 @@ export default SignedOutScreen = ({ navigation, route }) => {
     const JustShowMeButton = () => (
 		<ButtonContainer>
             <ButtonPressable backgroundColor='white' onPress={justShowMeLogin}>
-                <ButtonText>{'Just show me the app'}</ButtonText>
+                <ButtonText color='black'>{'Just show me the app'}</ButtonText>
             </ButtonPressable>
 		</ButtonContainer>
 	);
@@ -110,7 +110,6 @@ export default SignedOutScreen = ({ navigation, route }) => {
                 },
             };
             setCognitoUser(guestCognitoUser);
-            console.log('Just show me completing: ', guestCognitoUser);
         } catch (error) {
             console.log(error);
             showErrorToast('Oh no! We couldn\'t guest you in. Try again or contact support@reelay.app');
@@ -118,9 +117,9 @@ export default SignedOutScreen = ({ navigation, route }) => {
         }
     }
 
-    useEffect(() => {
-        if (autoSignInAsGuest) justShowMeLogin();
-    }, []);
+    // useEffect(() => {
+    //     if (autoSignInAsGuest) justShowMeLogin();
+    // }, []);
 
     useEffect(() => {
         if (signUpFromGuest) {

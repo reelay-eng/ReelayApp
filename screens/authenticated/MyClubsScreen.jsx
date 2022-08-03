@@ -24,6 +24,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import Constants from 'expo-constants';
 import moment from 'moment';
 import EmptyClubsCard from '../../components/clubs/EmptyClubsCard';
+import EmptyClubActivityCard from '../../components/clubs/EmptyClubActivityCard';
 
 const CLUB_PIC_SIZE = 72;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -120,6 +121,13 @@ const ColumnView = styled(View)`
     flex: 1;
     width: 50%;
 `
+const EmptyClubsView = styled(View)`
+    align-items: center;
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    width: 100%;
+`
 const FilterButtonPressable = styled(TouchableOpacity)`
     background-color: ${props => props.selected 
         ? ReelayColors.reelayBlue 
@@ -187,6 +195,7 @@ const UnreadIconIndicator = styled(View)`
 export default MyClubsScreen = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const myClubs = useSelector(state => state.myClubs);
+    const myClubActivities = useSelector(state => state.myClubActivities);
 
     const dispatch = useDispatch();
     const bottomOffset = useSafeAreaInsets().bottom;
@@ -380,11 +389,19 @@ export default MyClubsScreen = ({ navigation }) => {
         );
     }
 
+    const EmptyActivity = () => {
+        return (
+            <EmptyClubsView>
+                <EmptyClubActivityCard navigation={navigation} />
+            </EmptyClubsView>
+        );
+    }
+
     const EmptyClubs = () => {
         return (
-            <Fragment>
+            <EmptyClubsView>
                 <EmptyClubsCard navigation={navigation} />
-            </Fragment>
+            </EmptyClubsView>
         );
     }
 
@@ -415,7 +432,6 @@ export default MyClubsScreen = ({ navigation }) => {
         const [selectedFilters, setSelectedFilters] = useState(['all']);
         const scrollStyle = { alignItems: 'center', paddingBottom: 120, width: '100%' };
 
-        const myClubActivities = useSelector(state => state.myClubActivities);
         const filterMemberActivities = (nextActivity, index) => (nextActivity?.activityType !== 'member');
         const filterToRecentActivities = (nextActivity, index) => index < 20;
         const initDisplayActivities = myClubActivities.filter(filterMemberActivities).filter(filterToRecentActivities);
@@ -551,7 +567,8 @@ export default MyClubsScreen = ({ navigation }) => {
                 </TopBarButtonView>
             </TopBarView>
             <TabSelector />
-            { selectedTab === 'recent activity' && <RecentActivity /> }
+            { selectedTab === 'recent activity' && (myClubActivities?.length > 0) && <RecentActivity /> }
+            { selectedTab === 'recent activity' && (myClubActivities?.length === 0) && <EmptyActivity /> }
             { selectedTab === 'all my clubs' && (myClubs?.length > 0) && <AllMyClubs /> }
             { selectedTab === 'all my clubs' && (myClubs?.length === 0) && <EmptyClubs /> }
             <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />

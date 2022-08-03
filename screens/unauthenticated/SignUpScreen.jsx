@@ -13,6 +13,7 @@ import constraints from '../../components/utils/EmailValidationConstraints';
 import { Button } from '../../components/global/Buttons';
 import SocialLoginBar from '../../components/auth/SocialLoginBar';
 import { registerUser } from '../../api/ReelayDBApi';
+import { HeaderWithBackButton } from '../../components/global/Headers';
 
 const AuthInput = styled(Input)`
     color: white;
@@ -88,6 +89,9 @@ const SignUpDisclosure = styled(ReelayText.Caption)`
     color: white;
     text-align: center;
     width: 80%;
+`
+const Spacer = styled(View)`
+    height: 20%;
 `
 
 export default SignUpScreen = ({ navigation, route }) => {
@@ -239,7 +243,7 @@ export default SignUpScreen = ({ navigation, route }) => {
                     /> */}
 					<SignUpButtonContainer>
 						<Button
-							text="Sign Up"
+							text="Continue (1/3)"
 							onPress={advanceToCreateUsername}
 							backgroundColor={ReelayColors.reelayBlue}
 							fontColor="white"
@@ -261,57 +265,11 @@ export default SignUpScreen = ({ navigation, route }) => {
 		);
     }
 
-    const TopBar = () => {
-        const Container = styled(View)`
-            width: 100%;
-            height: 20%;
-            flex-direction: row;
-            justify-content: center;
-        `
-        const TopBarContainer = styled(View)`
-            width: 85%;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            margin-bottom: 10px;
-        `
-        const BackButtonContainer = styled(View)`
-            margin-left: -10px;
-            margin-bottom: 50px;
-		`;
-
-        const TextContainer = styled(View)`
-            align-items: center;
-        `
-        const HeaderText = styled(ReelayText.H5Emphasized)`
-            color: white;
-            margin-bottom: 4px;
-        `
-        const SublineText = styled(ReelayText.Caption)`
-            color: white;
-        `
-
-        return (
-			<Container>
-				<TopBarContainer>
-					<BackButtonContainer>
-						<BackButton navigation={navigation} />
-					</BackButtonContainer>
-					<TextContainer>
-						<HeaderText>
-                            { !signingUp && 'Sign up in seconds' }
-                            { signingUp && 'Getting ready...' }
-                        </HeaderText>
-					</TextContainer>
-				</TopBarContainer>
-			</Container>
-		);
-    }
-
     return (
         <KeyboardHidingBlackContainer>
-            <TopBar />
-            <KeyboardAvoidingView behavior='padding' style={{flex: 1, height: "80%"}}>
+            <HeaderWithBackButton navigation={navigation} text={signingUp ? 'Getting ready...' : 'Sign up in seconds' } />
+            <Spacer />
+            <KeyboardAvoidingView behavior='padding' style={{flex: 1 }}>
                 { !signingUp && <SignUpInputs /> }
                 { signingUp && <ActivityIndicator /> }
             </KeyboardAvoidingView>

@@ -5,40 +5,47 @@ import { Icon } from 'react-native-elements';
 import * as ReelayText from '../global/Text';
 import { LinearGradient } from 'expo-linear-gradient';
 import styled from 'styled-components/native';
+import { ClubsIconSVG } from '../global/SVGs';
 
 const { height, width } = Dimensions.get('window');
 
 const CreateClubPressable = styled(TouchableOpacity)`
     align-items: center;
     background-color: rgba(255,255,255,0.25);
-    border-radius: 16px;
-    height: 32px;
+    border-radius: 24px;
+    height: 48px;
     flex-direction: row;
     justify-content: center;
     margin-bottom: 12px;
-    width: 140px;
+    width: 200px;
 `
-const CreateClubText = styled(ReelayText.Body2Bold)`
+const CreateClubText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     display: flex;
+    font-size: 16px;
+    line-height: 20px;
     text-align: center;
 `
 const EmptyClubsGradient = styled(LinearGradient)`
-    border-radius: 8px;
+    border-radius: 16px;
     height: 100%;
     position: absolute;
     width: 100%;
 `
 const EmptyClubsView = styled(View)`
     align-items: center;
+    display: flex;
+    justify-content: center;
     margin-left: 16px;
     margin-right: 16px;
     margin-top: 24px;
+    margin-bottom: 100px;
     width: ${width - 32}px;
 `
 const SectionBody = styled(ReelayText.Body2)`
     color: white;
     display: flex;
+    margin-top: 4px;
     margin-bottom: 12px;
     text-align: center;
 `
@@ -70,7 +77,6 @@ export default EmptyClubsCard = ({ navigation }) => {
 
         return (
             <CreateClubPressable onPress={advanceToCreateClubScreen}>
-                <Icon type='ionicon' name='add' color='white' size={20} />
                 <CreateClubText>{'Create a Club'}</CreateClubText>
             </CreateClubPressable>
         );
@@ -80,9 +86,10 @@ export default EmptyClubsCard = ({ navigation }) => {
         <EmptyClubsView>
             <EmptyClubsGradient colors={['#FF4848', '#038AFF']} />
             <TopAndBottomSpacer />
+            <ClubsIconSVG enlarge={true} sizeRatio={0.1} />
             <SectionView>
                 <SectionHeader numberOfLines={3}>
-                    {'Clubs can be private or public'}
+                    {'Clubs can be public\n or private'}
                 </SectionHeader>
                 <SectionBody numberOfLines={3}>
                     {'Talk in private with friends, or build communities around genres, shows, etc.'}
@@ -94,7 +101,7 @@ export default EmptyClubsCard = ({ navigation }) => {
                     {'Invite friends'}
                 </SectionHeader>
                 <SectionBody numberOfLines={3}>
-                    {'Build shared watchlists'}
+                    {'Build shared watchlists with a\nsmaller group'}
                 </SectionBody>
             </SectionView>
             <SectionView>
@@ -102,7 +109,7 @@ export default EmptyClubsCard = ({ navigation }) => {
                     {'Or keep it solo'}
                 </SectionHeader>
                 <SectionBody numberOfLines={3}>
-                    {'Use as your personal film diary'}
+                    {'Make a club for your film diary'}
                 </SectionBody>
             </SectionView>
             <CreateClubButton />
