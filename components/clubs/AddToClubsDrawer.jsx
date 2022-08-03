@@ -22,7 +22,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { addTitleToClub, getClubMembers } from '../../api/ClubsApi';
 import { showErrorToast, showMessageToast } from '../utils/toasts';
 import ClubPicture from '../global/ClubPicture';
-import DogWithGlasses from '../../assets/images/dog-with-glasses.png';
 import MarkSeenButton from '../watchlist/MarkSeenButton';
 
 import { AddToClubsIconSVG, AddedToClubsIconSVG } from '../global/SVGs';
@@ -45,8 +44,7 @@ const AddTitleButtonContainer = styled(TouchableOpacity)`
 `
 const AddTitleButtonOuterContainer = styled(View)`
     align-items: center;
-    bottom: ${(props) => props.bottomOffset ?? 0}px;
-    position: absolute;
+    margin-top: 20px;
     width: 100%;
 `
 const AddTitleButtonText = styled(ReelayText.Subtitle2)`
@@ -77,9 +75,9 @@ const ClubNameText = styled(ReelayText.Subtitle1Emphasized)`
 const CreateClubView = styled(View)`
     align-items: center;
     border-radius: 8px;
-    height: 248px;
+    justify-content: center;
     margin-top: 23px;
-    width: 90%;
+    width: 100%;
 `
 const CreateClubGradient = styled(LinearGradient)`
     border-radius: 24px;
@@ -114,7 +112,7 @@ const DrawerContainer = styled(View)`
     border-top-right-radius: 12px;
     margin-top: auto;
     max-height: 60%;
-    padding-bottom: 80px;
+    padding-bottom: ${props => props.bottomOffset}px;
     width: 100%;
 `
 const HeaderContainer = styled(View)`
@@ -126,7 +124,7 @@ const HeaderContainer = styled(View)`
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
-    font-size: 20px;
+    font-size: 24px;
 `
 const ModalContainer = styled(View)`
     position: absolute;
@@ -138,7 +136,7 @@ const ProfilePictureContainer = styled(View)`
 `
 const PromptHeadingText = styled(ReelayText.H4Bold)`
     color: white;
-    font-size: 24px;
+    font-size: 20px;
     line-height: 30px;
     text-align: center;
 `
@@ -230,44 +228,11 @@ export default AddToClubsDrawer = ({
             return addTitleResult;
         }
 
-        const addToWatchlistWrapper = async () => {
-            setIsAddedToWatchlist(true);
-            const addToWatchlistResult = await addToMyWatchlist({
-                authSession,
-                reqUserSub: reelayDBUser?.sub,
-                reelaySub: reelay?.sub,
-                creatorName: reelay?.creator?.username,
-                tmdbTitleID: titleObj.id,
-                titleType: titleObj.titleType,
-            });
-            const nextWatchlistItems = [addToWatchlistResult, ...myWatchlistItems];
-
-            // todo: should also be conditional based on user settings
-            if (reelay?.creator) {
-                notifyOnAddedToWatchlist({
-                    reelayedByUserSub: reelay?.creator?.sub,
-                    addedByUserSub: reelayDBUser?.sub,
-                    addedByUsername: reelayDBUser?.username,
-                    watchlistItem: addToWatchlistResult,
-                });    
-            }
-
-            logAmplitudeEventProd('addToMyWatchlist', {
-                title: titleObj?.display,
-                username: reelayDBUser?.username,
-                userSub: reelayDBUser?.sub,
-            });
-            dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
-        }
-
         const addTitleToAllSelectedClubs = async () => {
             try {
                 if (addingTitle) return;
                 setAddingTitle(true);
                 const addTitleResults = await Promise.all(clubsToSend.current.map(addToClubWrapper))
-                if (sendToWatchlist.current) {
-                    addToWatchlistWrapper();
-                }
                 setAddingTitle(false);
                 const clubsWord = (addTitleResults.length > 1) ? 'clubs' : 'club';
                 if (addTitleResults.length > 1) {
@@ -298,10 +263,7 @@ export default AddToClubsDrawer = ({
     }
 
     const CreateClubPrompt = () => {
-        const headingText = 'watchlist too long?';
-        const bodyText1 = 'create a club and separate your watchlist by vibe or audience!';
-        const bodyText2 = `(You don’t need to invite anyone)`;
-
+        const headingText = 'Watchlist too long?';
         const advanceToCreateClubScreen = () => {
             closeDrawer();
             navigation.push('CreateClubScreen');
@@ -315,19 +277,14 @@ export default AddToClubsDrawer = ({
                         start={{ x: 0, y: 0 }}
                         end={{ x: 1, y: 0 }}
                     />
-                    <PromptButtonText>{'Create a club'}</PromptButtonText>
+                    <PromptButtonText>{'Start a club'}</PromptButtonText>
                 </CreateClubPressable>
             );
         }
         
         return (
             <CreateClubView>
-                <DogWithGlassesContainer>
-                    <DogWithGlassesImage source={DogWithGlasses} />
-                </DogWithGlassesContainer>
                 <PromptHeadingText>{headingText}</PromptHeadingText>
-                {/* <PromptBodyText>{bodyText1}</PromptBodyText>
-                <PromptBodyText>{bodyText2}</PromptBodyText> */}
                 <CreateClubButton />
             </CreateClubView>
         );
@@ -404,9 +361,39 @@ export default AddToClubsDrawer = ({
         );
     }
 
-    const SelectMyWatchlistRow = () => {
-        const [rowHighlighted, setRowHighlighted] = useState(false);
-        const backgroundColor = (rowHighlighted) ? ReelayColors.reelayBlue : '#1a1a1a';
+    const AddToMyWatchlistRow = () => {
+        const backgroundColor = '#1a1a1a';
+
+        const addToWatchlistWrapper = async () => {
+            setIsAddedToWatchlist(true);
+            const addToWatchlistResult = await addToMyWatchlist({
+                authSession,
+                reqUserSub: reelayDBUser?.sub,
+                reelaySub: reelay?.sub,
+                creatorName: reelay?.creator?.username,
+                tmdbTitleID: titleObj.id,
+                titleType: titleObj.titleType,
+            });
+            const nextWatchlistItems = [addToWatchlistResult, ...myWatchlistItems];
+
+            // todo: should also be conditional based on user settings
+            if (reelay?.creator) {
+                notifyOnAddedToWatchlist({
+                    reelayedByUserSub: reelay?.creator?.sub,
+                    addedByUserSub: reelayDBUser?.sub,
+                    addedByUsername: reelayDBUser?.username,
+                    watchlistItem: addToWatchlistResult,
+                });    
+            }
+
+            logAmplitudeEventProd('addToMyWatchlist', {
+                title: titleObj?.display,
+                username: reelayDBUser?.username,
+                userSub: reelayDBUser?.sub,
+            });
+            dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
+            showMessageToast(`Added ${titleObj.display} to your watchlist`);
+        }
 
         const matchWatchlistItem = (nextWatchlistItem) => {
             if (!nextWatchlistItem.hasAcceptedRec) return false;
@@ -419,31 +406,20 @@ export default AddToClubsDrawer = ({
         const iconName = (isAlreadyAdded) ? 'checkmark-done' : 'checkmark';
         const iconColor = (isAlreadyAdded) ? 'gray' : 'white';    
 
-        const markRow = () => {
-            if (isAlreadyAdded) return;
-            if (rowHighlighted) {
-                sendToWatchlist.current = false;
-                setRowHighlighted(false);
-            } else {
-                sendToWatchlist.current = true;
-                setRowHighlighted(true);
-            }    
-        }
-
         return (
-            <RowContainer backgroundColor={backgroundColor} onPress={markRow}>
+            <RowContainer backgroundColor={backgroundColor} onPress={addToWatchlistWrapper}>
                 <ClubRowContainer>
                     <ProfilePictureContainer>
                         <ProfilePicture user={reelayDBUser} size={32} />
                     </ProfilePictureContainer>
                     <ClubNameText isAlreadyAdded={isAlreadyAdded}>{'My Watchlist'}</ClubNameText>
                 </ClubRowContainer>
-                { (rowHighlighted || isAlreadyAdded) && (
+                { (isAlreadyAdded) && (
                     <CheckmarkIconContainer>
                         <Icon type='ionicon' name={iconName} size={30} color={iconColor} />
                     </CheckmarkIconContainer>                        
                 )}
-                {(!rowHighlighted && !isAlreadyAdded) && (
+                {(!isAlreadyAdded) && (
                     <CheckmarkIconContainer>
                         <AddToClubsIconSVG size={30} />
                     </CheckmarkIconContainer>
@@ -457,14 +433,14 @@ export default AddToClubsDrawer = ({
             <Modal animationType='slide' transparent={true} visible={drawerVisible}>
             <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
                 <Backdrop onPress={closeDrawer}/>
-                <DrawerContainer>
+                <DrawerContainer bottomOffset={bottomOffset}>
                     <Header />
                     <ScrollViewContainer contentContainerStyle={{ alignItems: 'center' }}>
-                        <SelectMyWatchlistRow />
+                        <AddToMyWatchlistRow />
                         { myClubs.length > 1 && <SelectClubsList /> }
+                        { myClubs.length > 1 && <AddTitleButton /> }
                         { myClubs.length === 0 && <CreateClubPrompt /> }
                     </ScrollViewContainer>
-                    <AddTitleButton />
                 </DrawerContainer>
                 </KeyboardAvoidingView>
             </Modal>

@@ -52,6 +52,7 @@ const SectionBody = styled(ReelayText.Body2)`
 const SectionHeader = styled(ReelayText.H5Bold)`
     color: white;
     display: flex;
+    line-height: 28px;
     text-align: center;
 `
 const SectionSpacer = styled(View)`
@@ -89,7 +90,7 @@ export default EmptyClubsCard = ({ navigation }) => {
             <ClubsIconSVG enlarge={true} sizeRatio={0.1} />
             <SectionView>
                 <SectionHeader numberOfLines={3}>
-                    {'Clubs can be public\n or private'}
+                    {'Go public or private'}
                 </SectionHeader>
                 <SectionBody numberOfLines={3}>
                     {'Talk in private with friends, or build communities around genres, shows, etc.'}

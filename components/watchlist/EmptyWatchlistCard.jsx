@@ -57,6 +57,7 @@ const EmptyWatchlistOuterView = styled(View)`
 `
 const SectionHeader = styled(ReelayText.H5Bold)`
     color: white;
+    line-height: 28px;
     margin-bottom: 20px;
     padding: 20px;
     text-align: center;
