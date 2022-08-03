@@ -144,12 +144,6 @@ export const sendPushNotification = async ({
     const reelayDBPostBody = { title, body, data: dataToPush };
     const reelayDBRoutePost = `${REELAY_API_BASE_URL}/notifications/${sendToUserSub}`;
 
-    const { settingsNotifyReactions } = await getUserSettings(sendToUserSub);
-    if (!settingsNotifyReactions) {
-        console.log('Creator does not want to receive push notifications');
-        return;
-    }
-
     const postResult = await fetchResults(reelayDBRoutePost, {
         method: 'POST',
         headers: ReelayAPIHeaders,
