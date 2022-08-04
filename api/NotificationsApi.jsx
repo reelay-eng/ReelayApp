@@ -11,6 +11,8 @@ import {
     getRegisteredUser, 
     getUserByUsername, 
 } from './ReelayDBApi';
+
+import { getUserSettings, shouldNotifyUser } from "./SettingsApi";
 import { getClubMembers } from './ClubsApi';
 
 const EXPO_NOTIFICATION_URL = Constants.manifest.extra.expoNotificationUrl;
@@ -63,23 +65,6 @@ export const getAllMyNotifications = async (userSub, page = 0) => {
     return parsedNotifications;
 }
 
-export const getMyNotificationSettings = async (user) => {
-    const routeGet = REELAY_API_BASE_URL + `/users/sub/${user?.sub}/settings`;
-    const resultGet = await fetchResults(routeGet, { 
-        method: 'GET',
-        headers: ReelayAPIHeaders,
-    });
-    return resultGet;
-}
-
-export const getUserNotificationSettings = async (userSub) => {
-    const routeGet = REELAY_API_BASE_URL + `/users/sub/${userSub}/settings`;
-    const resultGet = await fetchResults(routeGet, { 
-        method: 'GET',
-        headers: ReelayAPIHeaders,
-    });
-    return resultGet;
-}
 
 export const hideNotification = async (notificationID) => {
     const routeDelete = REELAY_API_BASE_URL + `/notifications/${notificationID}/hide`;
@@ -159,12 +144,6 @@ export const sendPushNotification = async ({
     const reelayDBPostBody = { title, body, data: dataToPush };
     const reelayDBRoutePost = `${REELAY_API_BASE_URL}/notifications/${sendToUserSub}`;
 
-    const { settingsNotifyReactions } = await getUserNotificationSettings(sendToUserSub);
-    if (!settingsNotifyReactions) {
-        console.log('Creator does not want to receive push notifications');
-        return;
-    }
-
     const postResult = await fetchResults(reelayDBRoutePost, {
         method: 'POST',
         headers: ReelayAPIHeaders,
@@ -205,6 +184,12 @@ export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, comme
         return;
     }
 
+    const shouldNotify = await shouldNotifyUser(creatorSub, "notifyCommentsOnMyReelays");
+    if (!shouldNotify) {
+        console.log('Creator does not want to receive comment notifications on their reelays.');
+        return;
+    }
+
     const title = `${author?.username}`;
     const body = `commented on your reelay for ${reelay.title.display}`;
     const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
@@ -233,6 +218,12 @@ export const notifyUserOnCommentLike = async ({ authorSub, user, reelay }) => {
 
     if (!token) {
         console.log('Creator not registered for like notifications');
+        return;
+    }
+
+    const shouldNotify = await shouldNotifyUser(authorSub, "notifyLikesOnMyComments");
+    if (!shouldNotify) {
+        console.log('Creator does not want to receive notifications on comment likes.');
         return;
     }
 
@@ -269,6 +260,12 @@ export const notifyMentionsOnComment = async ({ creator, author, reelay, comment
             
             if (!token) {
                 console.log('Comment author not registered for notifications');
+                return;
+            }
+
+            const shouldNotify = await shouldNotifyUser(notifyMentionedUserSub, "notifyTagsInComments");
+            if (!shouldNotify) {
+                console.log('Creator does not want to receive notifications when tagged in reelays.');
                 return;
             }
         
@@ -313,6 +310,12 @@ export const notifyThreadOnComment = async ({ creator, author, reelay, commentTe
         const token = notifyAuthor?.pushToken;
         if (!token) {
             console.log('Comment author not registered for notifications');
+            return;
+        }
+
+        const shouldNotify = await shouldNotifyUser(notifyAuthor?.sub, "notifyCommentsOnOtherReelays");
+        if (!shouldNotify) {
+            console.log('Creator does not want to receive comment notifications in threads.');
             return;
         }
 
@@ -366,6 +369,12 @@ export const notifyCreatorOnFollow = async ({ creatorSub, follower }) => {
         return;
     }
 
+    const shouldNotify = await shouldNotifyUser(creatorSub, "notifyFollows");
+    if (!shouldNotify) {
+        console.log('Creator does not want to receive follow notifications.');
+        return;
+    }
+
     const title = `${follower.username}`;
     const body = `started following you`;
     const data = {
@@ -400,6 +409,12 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
 
     if (!token) {
         console.log('Creator not registered for like notifications');
+        return;
+    }
+
+    const shouldNotify = await shouldNotifyUser(creatorSub, "notifyLikesOnMyReelays");
+    if (!shouldNotify) {
+        console.log('Creator does not want to receive like notifications on their reelays.');
         return;
     }
 
@@ -451,6 +466,12 @@ export const notifyMentionsOnReelayPosted = async ({ authSession, clubID = null,
                 console.log('Comment author not registered for notifications');
                 return;
             }
+
+            const shouldNotify = await shouldNotifyUser(notifyMentionedUserSub, "notifyTagsInReelays");
+            if (!shouldNotify) {
+                console.log('Creator does not want to receive tag notifications on reelays.');
+                return;
+            }
                         
             const title = `${creator.username}`;
             const body = `tagged you in their reelay for ${reelay.title.display}`;
@@ -488,16 +509,20 @@ export const notifyOtherCreatorsOnReelayPosted = async ({
 }) => {
     let notifyReelayStack;
     let action;
+    let settingToCheck;
 
     if (topic) {
         notifyReelayStack = topic.reelays;
         action = 'openTopicAtReelay';
+        settingToCheck = "notifyPostsInOtherTopics";
     } else if (clubTitle) {
         notifyReelayStack = clubTitle.reelays;
         action = 'openClubActivityScreen';
+        settingToCheck = "notifyPostsInMyClubs";
     } else {
         notifyReelayStack = await getMostRecentReelaysByTitle(reelay.title.id);
         action = 'openSingleReelayScreen';
+        settingToCheck = "notifyPostsOnMyReelayedTitles";
     }
 
     console.log('notify reelay stack: ', notifyReelayStack);
@@ -516,7 +541,13 @@ export const notifyOtherCreatorsOnReelayPosted = async ({
         if (recipientIsCreator || recipientMentioned) {
             console.log('No need to send notification to creator');
             return;
-        }    
+        } 
+        
+        const shouldNotify = await shouldNotifyUser(notifyCreator?.sub, settingToCheck);
+        if (!shouldNotify) {
+            console.log(`Creator does not want to receive notifications for ${settingToCheck}`);
+            return;
+        }
 
         const alreadyNotified = (reelay) => (notifyCreator.sub === reelay.creator.sub);
         const recipientIndex = notifyReelayStack.findIndex(alreadyNotified);
@@ -526,7 +557,7 @@ export const notifyOtherCreatorsOnReelayPosted = async ({
         }
         const title = (topic) ? `${creator.username}` : `${reelay.title.display}`;
         const body = (topic) ? `added to the topic: ${topic.title}` : `new reelay by ${creator.username}`; // add name for topic
-        console.log("sending notifcation to ", notifyCreator)
+        console.log("sending notification to ", notifyCreator)
         const data = { 
             notifyType: 'notifyOtherCreatorsOnReelayPosted',
             action,
@@ -550,6 +581,12 @@ export const notifyTopicCreatorOnReelayPosted = async ({ creator, reelay, topic 
         return;
     }
 
+    const shouldNotify = await shouldNotifyUser(topicCreator?.sub, "notifyPostsInMyTopics");
+    if (!shouldNotify) {
+        console.log('Creator does not want to receive post notifications in their topics');
+        return;
+    }
+
     if (!token) {
         console.log('Creator not registered for like notifications');
         return;
@@ -566,14 +603,4 @@ export const notifyTopicCreatorOnReelayPosted = async ({ creator, reelay, topic 
     };
 
     await sendPushNotification({ title, body, data, token, sendToUserSub: topicCreator?.sub });
-}
-
-export const setMyNotificationSettings = async ({ user, notifyPrompts, notifyReactions, notifyTrending }) => {
-    const routePost =  
-        `${REELAY_API_BASE_URL}/users/sub/${user?.sub}/settings?notifyPrompts=${notifyPrompts}&notifyReactions=${notifyReactions}&notifyTrending=${notifyTrending}`;
-    const resultPost = await fetchResults(routePost, { 
-        method: 'POST',
-        headers: ReelayAPIHeaders,
-    });
-    return resultPost;
 }

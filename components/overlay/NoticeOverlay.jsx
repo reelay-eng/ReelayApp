@@ -34,13 +34,6 @@ const ImageBox = styled(View)`
     align-items: center;
     margin-bottom: 16px;
 `
-const ImageAndTextRowView = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    padding-left: 30px;
-    padding-right: 30px;
-    width: 100%;
-`
 const NoticeActionRow = styled(View)`
     align-items: center;
     flex-direction: row;
@@ -68,6 +61,7 @@ const NoticeInfoBox = styled(View)`
 `
 const NoticeTitleText = styled(ReelayText.H5Bold)`
     color: white;
+    line-height: 28px;
     margin-bottom: 6px;
 `
 const OverlayBox = styled(View)`
@@ -241,6 +235,7 @@ const SinglePageNotice = ({ navigation, noticeData }) => {
                 actionLabel={actionLabel}
                 altActionCallback={skipNotice}
                 altActionLabel={'Skip'}
+                onLastPage={true}
             />
         </NoticeCard>
     );

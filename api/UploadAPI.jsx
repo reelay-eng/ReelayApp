@@ -10,6 +10,7 @@ import {
 } from '@aws-sdk/client-s3';
 
 import {
+    notifyClubMembersOnReelayPosted,
     notifyOtherCreatorsOnReelayPosted, 
     notifyMentionsOnReelayPosted,
     notifyTopicCreatorOnReelayPosted,

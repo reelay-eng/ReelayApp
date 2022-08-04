@@ -145,7 +145,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     }
 
     const topOffset = useSafeAreaInsets().top + 80;
-    const bottomOffset = useSafeAreaInsets().bottom;
+    const bottomOffset = useSafeAreaInsets().bottom + 20;
 
     const uploadStage = useSelector(state => state.uploadStage);
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
