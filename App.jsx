@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './navigation';
 import styled from 'styled-components/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Reactotron from 'reactotron-react-native';
 
 // aws imports
 import { Amplify, Auth, Storage } from 'aws-amplify';
@@ -191,6 +192,16 @@ function App() {
                 shouldSetBadge: false,
             }),
         });
+
+        if (process.env.NODE_ENV !== 'production') {
+            // from https://github.com/infinitered/reactotron/blob/master/docs/quick-start-react-native.md
+            Reactotron
+                .setAsyncStorageHandler(AsyncStorage) // AsyncStorage would either come from `react-native` or `@react-native-community/async-storage` depending on where you get it from
+                .configure() // controls connection & communication settings
+                .useReactNative() // add all built-in react native plugins
+                .connect() // let's connect!
+        }
+
         await loadFonts();
         await checkIsNewUser();
         await ensureLocalImageDirExists();
