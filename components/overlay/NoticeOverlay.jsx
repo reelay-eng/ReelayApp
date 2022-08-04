@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Image, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, Modal, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
@@ -8,6 +8,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
+import { StreamingSelectorGrid } from '../home/StreamingSelector';
 
 const Backdrop = styled(View)`
     align-items: center;
@@ -24,6 +25,7 @@ const ButtonBox = styled(TouchableOpacity)`
     border-radius: 12px;
     justify-content: center;
     padding: 18px;
+    margin-right: 14px;
 `
 const ButtonText = styled(ReelayText.CaptionEmphasized)`
     color: ${props => props.color};
@@ -44,11 +46,9 @@ const NoticeActionRow = styled(View)`
     flex-direction: row;
     justify-content: space-between;
     padding: 16px;
-    padding-top: 0px;
 `
 const NoticeCard = styled(View)`
     border-radius: 30px;
-    position: absolute;
     width: 320px;
 `
 const NoticeCardGradient = styled(LinearGradient)`
@@ -59,17 +59,16 @@ const NoticeCardGradient = styled(LinearGradient)`
 `
 const NoticeBodyText = styled(ReelayText.Body2)`
     color: ${props => props.bodyTextColor};
-    display: flex;
-    flex: 1;
 `
 const NoticeInfoBox = styled(View)`
-    padding: 30px;
-    padding-top: 25px;
-    padding-bottom: 16px;
+    padding-top: 24px;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-bottom: 12px;
 `
 const NoticeTitleText = styled(ReelayText.H5Bold)`
     color: white;
-    margin-bottom: 12px;
+    margin-bottom: 6px;
 `
 const OverlayBox = styled(View)`
     align-items: center;
@@ -89,7 +88,7 @@ const MultiPageNotice = ({ navigation, pages, images, noticeID }) => {
 
     const onLastPage = (curPage === pages?.length - 1);
     const onFirstPage = (curPage === 0);
-    const { title, body, body2, imgHeight, imgWidth, orientation } = pages[curPage];
+    const { title, body, body2, imgHeight, imgWidth, orientation, newStreamingVenues } = pages[curPage];
     const imageSource = images[curPage];
 
     const dismissNotice = async () => {
@@ -121,7 +120,7 @@ const MultiPageNotice = ({ navigation, pages, images, noticeID }) => {
         }
     }
 
-    const ImageSection = () => {
+    const ContentSection = () => {
         if (orientation === 'title-body-image') {
             return (
                 <ImageBox>
@@ -130,17 +129,12 @@ const MultiPageNotice = ({ navigation, pages, images, noticeID }) => {
             );
         }
 
-        if (orientation === 'title-body1-image-body2') {
+        if (orientation === 'streaming-selector') {
             return (
-                <ImageAndTextRowView>
-                    <ImageBox>
-                        <Image style={{ height: imgHeight, width: imgWidth }} source={imageSource} resizeMode='cover' />
-                    </ImageBox>
-                    <Spacer />
-                    <NoticeBodyText bodyTextColor={'white'} numberOfLines={3}>
-                        {body2}
-                    </NoticeBodyText>
-                </ImageAndTextRowView>
+                <StreamingSelectorGrid
+                    setRefreshing={() => {}} 
+                    venueList={newStreamingVenues} 
+                />
             );
         }
 
@@ -151,31 +145,39 @@ const MultiPageNotice = ({ navigation, pages, images, noticeID }) => {
         <NoticeCard>
             <NoticeCardGradient colors={['#FF4848', '#038AFF']} />
             <NoticeInfo title={title} body={body} bodyTextColor={'white'} />
-            <ImageSection />
+            <ContentSection />
             <NoticeActions 
                 actionCallback={onLastPage ? dismissNotice : pageForward}
                 actionLabel={onLastPage ? 'Got it' : 'Next'}
                 altActionCallback={onFirstPage ? dismissNotice : pageBack}
                 altActionLabel={onFirstPage ? 'Dismiss' : 'Back'}
+                onLastPage={onLastPage}
             />
         </NoticeCard>
     )
 }
 
-const NoticeActions = ({ actionCallback, actionLabel, altActionCallback, altActionLabel }) => {
+const NoticeActions = ({ 
+    actionCallback, 
+    actionLabel, 
+    altActionCallback, 
+    altActionLabel, 
+    onLastPage,
+}) => {
     return (
         <NoticeActionRow>
             <ButtonBox color='transparent' onPress={altActionCallback}>
                 <ButtonText color='white'>{altActionLabel}</ButtonText>
             </ButtonBox>
-            <ButtonBox color='white' onPress={actionCallback}>
-                <ButtonText color={ReelayColors.reelayBlue}>{actionLabel}</ButtonText>
+            <ButtonBox color={onLastPage ? 'white' : 'transparent'} onPress={actionCallback}>
+                <ButtonText color={onLastPage ? ReelayColors.reelayBlue : 'white'}>{actionLabel}</ButtonText>
             </ButtonBox>
         </NoticeActionRow>
     );
 }
 
 const NoticeInfo = ({ title, body, bodyTextColor='gray' }) => {
+    console.log('body: ', body);
     return (
         <NoticeInfoBox>
             <NoticeTitleText>{title}</NoticeTitleText>

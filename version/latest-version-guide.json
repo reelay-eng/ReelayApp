@@ -1,24 +1,37 @@
 {
-    "id": "version-guide-10300",
-    "minVersion": "1.03.00",
-    "maxVersion": "1.04.00",
+    "id": "version-guide-10400",
+    "minVersion": "1.04.00",
+    "maxVersion": "1.05.00",
     "pages": [
         {
-            "title": "New: create both private and public clubs",
-            "body": "Public clubs are open communities for conversation",
-            "imgURI": "images/clubv2_part1.png",
-            "imgHeight": 178,
-            "imgWidth": 258,
-            "orientation": "title-body-image"
+            "title": "New streaming services added!",
+            "body": "Select the ones you’d like to see in your On Streaming feed",
+            "orientation": "streaming-selector",
+            "newStreamingVenues": [
+                "crackle",
+                "plutotv",
+                "roku",
+
+                "starz",
+                "fubo",
+                "vudu",
+
+                "discovery",
+                "showtime",
+                "philo",
+
+                "freevee",
+                "crunchyroll",
+                "shudder"            
+            ]
         },
         {
-            "title": "FYI, we swapped two buttons",
-            "body": "This button is now a quick way to create a reelay",
-            "body2": "And this is where you add a title to a watchlist or club",
+            "title": "Review your notification settings",
+            "body": "Turn notifications on/off from Profile -> Settings ",
             "imgURI": "images/clubv2_part2.png",
             "imgHeight": 271,
             "imgWidth": 125,
-            "orientation": "title-body1-image-body2"
+            "orientation": "title-body-image"
         }
     ]
 }

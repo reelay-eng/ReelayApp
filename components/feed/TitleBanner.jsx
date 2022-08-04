@@ -50,10 +50,6 @@ const ExpandedGradient = styled(LinearGradient)`
     height: 100%;
     position: absolute;
     width: 100%;
-    margin: 6px;
-    margin-top: 0px;
-    padding: 12px;
-    padding-top: 0px;
 `
 const ExpandedInfoView = styled(Pressable)`
     flex-direction: row;
