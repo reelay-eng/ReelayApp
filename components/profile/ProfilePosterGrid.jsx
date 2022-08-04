@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Dimensions, Image, Pressable, View } from 'react-native';
 import StarRating from 'react-native-star-rating';
 import styled from 'styled-components/native';
 import TitlePoster from '../global/TitlePoster';
 import { LinearGradient } from "expo-linear-gradient";
 import ReelayColors from '../../constants/ReelayColors';
+import * as ReelayText from '../global/Text';
 
 const { width } = Dimensions.get('window');
 
@@ -16,6 +17,21 @@ const POSTER_ROW_LENGTH = 4;
 const POSTER_WIDTH = (GRID_WIDTH / POSTER_ROW_LENGTH) - (2 * POSTER_HALF_MARGIN);
 const POSTER_HEIGHT = 1.5 * POSTER_WIDTH;
 
+const HeaderContainer = styled(View)`
+    align-items: flex-end;
+    flex-direction: row;
+    margin-left: 8px;
+`
+const HeaderText = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 18px;
+    margin-left: 12px;
+`
+const InvisiblePosterContainer = styled(View)`
+    height: ${POSTER_HEIGHT}px;
+    width: ${POSTER_WIDTH}px;
+    margin: ${POSTER_HALF_MARGIN}px;
+`
 const PosterContainer = styled(View)`
     align-items: center;
     margin: ${POSTER_HALF_MARGIN}px;
@@ -36,11 +52,6 @@ const StarRatingContainer = styled(View)`
     bottom: 8px;
     position: absolute;
 `
-const InvisiblePosterContainer = styled(View)`
-    height: ${POSTER_HEIGHT}px;
-    width: ${POSTER_WIDTH}px;
-    margin: ${POSTER_HALF_MARGIN}px;
-`
 export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
     if (!creatorStacks.length) {
         return <View />;
@@ -51,6 +62,14 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
         // it's a hacky solution for now
         return (
             <InvisiblePosterContainer />
+        );
+    }
+
+    const SectionHeader = () => {
+        return (
+            <HeaderContainer>
+                <HeaderText>{'Reelays'}</HeaderText>
+            </HeaderContainer>
         );
     }
 
@@ -83,7 +102,6 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
 
         return (
             <PosterContainer key={stack[0].title.id}>
-                {/* <PosterImage source={stack[0].title.posterSource} /> */}
                 <TitlePoster title={stack[0].title} onPress={viewProfileFeed} width={POSTER_WIDTH} />
                 { starRating > 0 && (
                 <>
@@ -105,11 +123,14 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
     }
 
     return (
-        <PosterGridContainer>
-            { creatorStacks.map(renderStack) }
-            <AfterImage />
-            <AfterImage />
-            <AfterImage />
-        </PosterGridContainer>
+        <Fragment>
+            <SectionHeader />
+            <PosterGridContainer>
+                { creatorStacks.map(renderStack) }
+                <AfterImage />
+                <AfterImage />
+                <AfterImage />
+            </PosterGridContainer>
+        </Fragment>
     );
 }

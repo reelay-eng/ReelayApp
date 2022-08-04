@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Image, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
@@ -8,6 +8,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
+import { StreamingSelectorGrid } from '../home/StreamingSelector';
 
 const Backdrop = styled(View)`
     align-items: center;
@@ -24,6 +25,7 @@ const ButtonBox = styled(TouchableOpacity)`
     border-radius: 12px;
     justify-content: center;
     padding: 18px;
+    margin-right: 14px;
 `
 const ButtonText = styled(ReelayText.CaptionEmphasized)`
     color: ${props => props.color};
@@ -32,23 +34,14 @@ const ImageBox = styled(View)`
     align-items: center;
     margin-bottom: 16px;
 `
-const ImageAndTextRowView = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    padding-left: 30px;
-    padding-right: 30px;
-    width: 100%;
-`
 const NoticeActionRow = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
     padding: 16px;
-    padding-top: 0px;
 `
 const NoticeCard = styled(View)`
     border-radius: 30px;
-    position: absolute;
     width: 320px;
 `
 const NoticeCardGradient = styled(LinearGradient)`
@@ -59,17 +52,17 @@ const NoticeCardGradient = styled(LinearGradient)`
 `
 const NoticeBodyText = styled(ReelayText.Body2)`
     color: ${props => props.bodyTextColor};
-    display: flex;
-    flex: 1;
 `
 const NoticeInfoBox = styled(View)`
-    padding: 30px;
-    padding-top: 25px;
-    padding-bottom: 16px;
+    padding-top: 24px;
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-bottom: 12px;
 `
 const NoticeTitleText = styled(ReelayText.H5Bold)`
     color: white;
-    margin-bottom: 12px;
+    line-height: 28px;
+    margin-bottom: 6px;
 `
 const OverlayBox = styled(View)`
     align-items: center;
@@ -78,32 +71,12 @@ const OverlayBox = styled(View)`
     position: absolute;
     width: 100%;
 `
-const Spacer = styled(View)`
-    width: 12px;
-`
 
-const MultiPageNotice = ({ navigation, pages, images, noticeID }) => {
-    const { reelayDBUser } = useContext(AuthContext);
+const MultiPageNotice = ({ navigation, dismissNotice, pages, images }) => {
     const [curPage, setCurPage] = useState(0);
-    const dispatch = useDispatch();
-
     const onLastPage = (curPage === pages?.length - 1);
     const onFirstPage = (curPage === 0);
-    const { title, body, body2, imgHeight, imgWidth, orientation } = pages[curPage];
-    const imageSource = images[curPage];
-
-    const dismissNotice = async () => {
-        dispatch({ type: 'setLatestNoticeDismissed', payload: true });
-        const noticeHistoryJSON = await AsyncStorage.getItem('notice-history-json') ?? '{}';
-        const noticeHistory = JSON.parse(noticeHistoryJSON);
-        noticeHistory[noticeID] = 'dismissed';
-        const saveResult = await AsyncStorage.setItem('notice-history-json', JSON.stringify(noticeHistory));
-        logAmplitudeEventProd('dismissedNoticeCTA', {
-            username: reelayDBUser?.sub,
-            noticeTitle: title,
-        });
-        return saveResult;
-    }
+    const { title, body, imgHeight, imgWidth, orientation, newStreamingVenues } = pages[curPage];
 
     const pageForward = () => {
         if (curPage === pages?.length - 1) {
@@ -121,27 +94,18 @@ const MultiPageNotice = ({ navigation, pages, images, noticeID }) => {
         }
     }
 
-    const ImageSection = () => {
+    const ContentSection = () => {
         if (orientation === 'title-body-image') {
+            const imageSource = images[curPage];
             return (
                 <ImageBox>
-                    <Image style={{ height: imgHeight, width: imgWidth }} source={imageSource} resizeMode='cover' />
+                    <Image style={{ borderRadius: 12, height: imgHeight, width: imgWidth }} source={imageSource} resizeMode='cover' />
                 </ImageBox>
             );
         }
 
-        if (orientation === 'title-body1-image-body2') {
-            return (
-                <ImageAndTextRowView>
-                    <ImageBox>
-                        <Image style={{ height: imgHeight, width: imgWidth }} source={imageSource} resizeMode='cover' />
-                    </ImageBox>
-                    <Spacer />
-                    <NoticeBodyText bodyTextColor={'white'} numberOfLines={3}>
-                        {body2}
-                    </NoticeBodyText>
-                </ImageAndTextRowView>
-            );
+        if (orientation === 'streaming-selector') {
+            return <StreamingSelectorGrid setRefreshing={() => {}} venueList={newStreamingVenues} />;
         }
 
         return <View />;
@@ -151,31 +115,39 @@ const MultiPageNotice = ({ navigation, pages, images, noticeID }) => {
         <NoticeCard>
             <NoticeCardGradient colors={['#FF4848', '#038AFF']} />
             <NoticeInfo title={title} body={body} bodyTextColor={'white'} />
-            <ImageSection />
+            <ContentSection />
             <NoticeActions 
                 actionCallback={onLastPage ? dismissNotice : pageForward}
                 actionLabel={onLastPage ? 'Got it' : 'Next'}
                 altActionCallback={onFirstPage ? dismissNotice : pageBack}
                 altActionLabel={onFirstPage ? 'Dismiss' : 'Back'}
+                onLastPage={onLastPage}
             />
         </NoticeCard>
     )
 }
 
-const NoticeActions = ({ actionCallback, actionLabel, altActionCallback, altActionLabel }) => {
+const NoticeActions = ({ 
+    actionCallback, 
+    actionLabel, 
+    altActionCallback, 
+    altActionLabel, 
+    onLastPage,
+}) => {
     return (
         <NoticeActionRow>
             <ButtonBox color='transparent' onPress={altActionCallback}>
                 <ButtonText color='white'>{altActionLabel}</ButtonText>
             </ButtonBox>
-            <ButtonBox color='white' onPress={actionCallback}>
-                <ButtonText color={ReelayColors.reelayBlue}>{actionLabel}</ButtonText>
+            <ButtonBox color={onLastPage ? 'white' : 'transparent'} onPress={actionCallback}>
+                <ButtonText color={onLastPage ? ReelayColors.reelayBlue : 'white'}>{actionLabel}</ButtonText>
             </ButtonBox>
         </NoticeActionRow>
     );
 }
 
 const NoticeInfo = ({ title, body, bodyTextColor='gray' }) => {
+    console.log('body: ', body);
     return (
         <NoticeInfoBox>
             <NoticeTitleText>{title}</NoticeTitleText>
@@ -184,7 +156,7 @@ const NoticeInfo = ({ title, body, bodyTextColor='gray' }) => {
     );
 }
 
-const SinglePageNotice = ({ navigation, noticeData }) => {
+const SinglePageNotice = ({ dismissNotice, navigation, noticeData }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const { actionLabel, actionType, title, body } = noticeData;
     const dispatch = useDispatch();
@@ -224,6 +196,7 @@ const SinglePageNotice = ({ navigation, noticeData }) => {
 
     const skipNotice = () => {
         dispatch({ type: 'setLatestNoticeSkipped', payload: true });
+        dismissNotice();
         logAmplitudeEventProd('dismissedNoticeCTA', {
             username: reelayDBUser?.sub,
             noticeTitle: title,
@@ -239,24 +212,41 @@ const SinglePageNotice = ({ navigation, noticeData }) => {
                 actionLabel={actionLabel}
                 altActionCallback={skipNotice}
                 altActionLabel={'Skip'}
+                onLastPage={true}
             />
         </NoticeCard>
     );
 }
 
 export default NoticeOverlay = ({ navigation }) => {
+    const dispatch = useDispatch();
+    const { reelayDBUser } = useContext(AuthContext);
     const latestNotice = useSelector(state => state.latestNotice);
     const latestNoticeDismissed = useSelector(state => state.latestNoticeDismissed);
 
     const showNotice = latestNotice && !latestNoticeDismissed;
     if (!showNotice) return <View />;
     const { noticeType, data } = latestNotice;
+
+    const dismissNotice = async () => {
+        dispatch({ type: 'setLatestNoticeDismissed', payload: true });
+        const noticeHistoryJSON = await AsyncStorage.getItem('notice-history-json') ?? '{}';
+        const noticeHistory = JSON.parse(noticeHistoryJSON);
+        noticeHistory[latestNotice?.id] = 'dismissed';
+        const saveResult = await AsyncStorage.setItem('notice-history-json', JSON.stringify(noticeHistory));
+        logAmplitudeEventProd('dismissedNoticeCTA', {
+            username: reelayDBUser?.sub,
+            noticeID: latestNotice?.id,
+        });
+        return saveResult;
+    }
     
     return (
         <OverlayBox>
             <Backdrop />
             { noticeType === 'multi-page' && (
                 <MultiPageNotice 
+                    dismissNotice={dismissNotice}
                     images={data?.images}
                     navigation={navigation}
                     noticeID={latestNotice?.id}
@@ -265,6 +255,7 @@ export default NoticeOverlay = ({ navigation }) => {
             )}
             { noticeType === 'single-page' && (
                 <SinglePageNotice 
+                    dismissNotice={dismissNotice}
                     navigation={navigation} 
                     noticeData={data} 
                 /> 

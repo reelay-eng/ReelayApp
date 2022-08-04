@@ -8,6 +8,8 @@ import { showErrorToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { getRuntimeString } from '../utils/TitleRuntime';
 import TitlePoster from '../global/TitlePoster';
+import { AddToClubsIconSVG } from '../global/SVGs';
+import AddToClubsButton from '../clubs/AddToClubsButton';
 
 const ImageContainer = styled(View)`
     flex-direction: row;
@@ -94,6 +96,7 @@ export default TitleSearchResultItem = ({ navigation, result, source, clubID, to
                 <YearText>{`${releaseYear}    ${runtimeString}`}</YearText>
                 <ActorText>{actors}</ActorText>
             </TitleLineContainer>
+            <AddToClubsButton navigation={navigation} showCircle={false} titleObj={titleObj} />
         </PressableContainer>
     );
 };

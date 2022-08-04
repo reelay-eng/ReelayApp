@@ -1,7 +1,7 @@
 import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import React, { useState } from 'react';
-import { Pressable, View, Text, Image } from 'react-native';
+import { Pressable, View, Text, Image, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from './Text';
@@ -12,6 +12,41 @@ const ButtonPressable = styled(Pressable)`
     width: 100%;
     height: 100%;
 `
+const BackgroundBox = styled(View)`
+	align-items: center;
+	background-color: #252527;
+	border-radius: 8px;
+	justify-content: flex-start;
+	flex-direction: row;
+	height: 48px;
+	padding: 2px;
+	width: 100%;
+`;
+const TabButtonContainer = styled(TouchableOpacity)`
+	align-items: center;
+	justify-content: center;
+	height: 44px;
+	width: ${props => 100 / props.numOptions}%;
+`
+const ActiveTabButtonContainer = styled(TabButtonContainer)`
+	background-color: ${props => props.color ?? ReelayColors.reelayBlue};
+	border-radius: 6px;
+`;
+const OptionText = styled(ReelayText.Subtitle2)`
+	color: white;
+`
+const PassiveTabButtonContainer = styled(TabButtonContainer)`
+	background-color: transparent;
+`
+const IconBox = styled(Pressable)`
+width: 100%;
+height: 100%;
+`
+const IconImage = styled(Image)`
+width: 100%;
+height: 100%;
+`
+
 
 const ButtonBox = styled(View)`
     width: 100%;
@@ -178,14 +213,6 @@ export const BWButton = ({
 );
 
 export const RedPlusButton = ({onPress}) => {
-    const IconBox = styled(Pressable)`
-        width: 100%;
-        height: 100%;
-    `
-    const IconImage = styled(Image)`
-        width: 100%;
-        height: 100%;
-    `
     return (
         <IconBox onPress={onPress}>
             <IconImage source={RedAddIcon} />
@@ -194,52 +221,24 @@ export const RedPlusButton = ({onPress}) => {
 }
 
 export const ToggleSelector = ({ displayOptions, options, selectedOption, onSelect, color }) => {
-	const BackgroundBox = styled(View)`
-		align-items: center;
-		background-color: #252527;
-		border-radius: 8px;
-		justify-content: flex-start;
-		flex-direction: row;
-		height: 48px;
-		padding: 2px;
-		width: 100%;
-	`;
-	const ButtonContainer = styled(Pressable)`
-		align-items: center;
-		justify-content: center;
-		height: 44px;
-		width: ${100 / options.length}%;
-	`
-	const ActiveButtonContainer = styled(ButtonContainer)`
-		background-color: ${color ?? ReelayColors.reelayBlue};
-		border-radius: 6px;
-	`;
-	const OptionText = styled(ReelayText.Subtitle2)`
-		color: white;
-	`
-	const PassiveButtonContainer = styled(ButtonContainer)`
-		background-color: transparent;
-	`
-
 	return (
 		<BackgroundBox>
 			{ options.map((option, index) => {
 				if (option === selectedOption) {
 					return (
-						<ActiveButtonContainer key={option}>
+						<ActiveTabButtonContainer key={option} color={color} numOptions={options.length}>
 							<OptionText>
 								{ (displayOptions && displayOptions[index]) ?? option }
 							</OptionText>
-						</ActiveButtonContainer>
+						</ActiveTabButtonContainer>
 					);
 				} else {
 					return (
-						<PassiveButtonContainer key={option}
-								onPress={() => onSelect(option)}>
+						<PassiveTabButtonContainer key={option} numOptions={options.length} onPress={() => onSelect(option)}>
 							<OptionText>
 								{ (displayOptions && displayOptions[index]) ?? option }
 							</OptionText>
-						</PassiveButtonContainer>
+						</PassiveTabButtonContainer>
 					);
 				}
 			})}

@@ -7,10 +7,12 @@ export default TopicsFeedScreen = ({ navigation, route }) => {
         flex: 1;
         background-color: black;
     `
-    const initTopicIndex = route?.params?.initTopicIndex ?? 0;
-    const initReelayIndex = route?.params?.initReelayIndex ?? 0;
-    const preloadedTopics = route?.params?.preloadedTopics ?? null;
-    const source = route?.params?.source ?? 'discoverNew';
+    const initTopicIndex = route.params?.initTopicIndex ?? 0;
+    const initReelayIndex = route.params?.initReelayIndex ?? 0;
+    const preloadedTopics = route.params?.preloadedTopics ?? null;
+    const creatorOnProfile = route.params?.creatorOnProfile ?? null;
+    const topicsOnProfile = route.params?.topicsOnProfile ?? null;
+    const source = route.params?.source ?? 'discoverNew';
 
     return (
         <FeedContainer>
@@ -20,6 +22,8 @@ export default TopicsFeedScreen = ({ navigation, route }) => {
                 navigation={navigation}
                 preloadedTopics={preloadedTopics}
                 source={source}
+                creatorOnProfile={creatorOnProfile}
+                topicsOnProfile={topicsOnProfile}
             />
         </FeedContainer>
     );

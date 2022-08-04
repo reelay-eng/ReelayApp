@@ -61,7 +61,7 @@ export const getGlobalTopics = async ({ page = 0 }) => {
     const routeGet = `${REELAY_API_BASE_URL}/topics?page=${page}&visibility=${FEED_VISIBILITY}`;
     const topicsWithReelays = await fetchResults(routeGet, {
         method: 'GET',
-        headers: ReelayAPIHeaders,
+        headers: { ...ReelayAPIHeaders, requsersub: reqUserSub },
     });
 
     const prepareTopicReelays = async (topic) => {
@@ -71,6 +71,17 @@ export const getGlobalTopics = async ({ page = 0 }) => {
 
     const preparedTopics = await Promise.all(topicsWithReelays.map(prepareTopicReelays));
     return preparedTopics;
+}
+
+export const getSingleTopic = async (topicID) => {
+    const routeGet = `${REELAY_API_BASE_URL}/topics/topic/${topicID}?visibility=${FEED_VISIBILITY}`;
+    const topicWithReelays = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: { ...ReelayAPIHeaders, requsersub: reqUserSub },
+    });
+
+    topicWithReelays.reelays = await Promise.all(topicWithReelays.reelays.map(prepareReelay));
+    return await topicWithReelays;
 }
 
 export const getTopics = async ({ authSession, page = 0, reqUserSub, source = 'discoverNew' }) => {
@@ -93,15 +104,19 @@ export const getTopics = async ({ authSession, page = 0, reqUserSub, source = 'd
     return preparedTopics;
 }
 
-
-export const getSingleTopic = async (topicID) => {
-    const routeGet = `${REELAY_API_BASE_URL}/topics/topic/${topicID}?visibility=${FEED_VISIBILITY}`;
+export const getTopicsByCreator = async ({ creatorSub, reqUserSub, page = 0 }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/topics/byCreator/${creatorSub}?page=${page}&visibility=${FEED_VISIBILITY}`;
     const topicWithReelays = await fetchResults(routeGet, {
         method: 'GET',
-        headers: ReelayAPIHeaders,
+        headers: { ...ReelayAPIHeaders, requsersub: reqUserSub },
     });
 
-    topicWithReelays.reelays = await Promise.all(topicWithReelays.reelays.map(prepareReelay));
+    const prepareTopicReelays = async (topic) => {
+        topic.reelays = await Promise.all(topic.reelays.map(prepareReelay));
+        return topic;
+    }
+
+    topicWithReelays.reelays = await Promise.all(topicWithReelays.map(prepareTopicReelays));
     return await topicWithReelays;
 }
 
@@ -110,10 +125,7 @@ export const removeTopic = async ({ reqUserSub, topicID }) => {
     const deleteBody = { topicID };
     const resultDelete = await fetchResults(routeDelete, {
         method: 'DELETE',
-        headers: {
-            ...ReelayAPIHeaders,
-            reqUserSub,
-        },
+        headers: { ...ReelayAPIHeaders, requsersub: reqUserSub },
         body: JSON.stringify(deleteBody),
     });
     return resultDelete;

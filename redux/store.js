@@ -64,6 +64,10 @@ const initialState = {
     myStreamingSubscriptions: [],
     mySettings: {},
 
+    // SEARCH
+    suggestedMovieResults: { titles: [], nextPage: 0 },
+    suggestedSeriesResults: { titles: [], nextPage: 0 },
+
     // SIGNUP
     isLoading: true,
     isReturningUser: false,
@@ -204,16 +208,24 @@ const appReducer = ( state = initialState, action) => {
         case 'setIsEditingProfile':
             return { ...state, isEditingProfile: action.payload }    
         case 'setMyCreatorStacks':
-            return { ...state, myCreatorStacks: action.payload };
+            return { ...state, myCreatorStacks: action.payload }
         case 'setMyFollowing':
-            return { ...state, myFollowing: action.payload };
+            return { ...state, myFollowing: action.payload }
         case 'setMyFollowers':
-            return { ...state, myFollowers: action.payload };
+            return { ...state, myFollowers: action.payload }
         case 'setFollowRequests': // unused
             return { ...state, followRequests: action.payload }    
         case 'setMyNotifications':
-            return { ...state, myNotifications: action.payload };
+            return { ...state, myNotifications: action.payload }
         case 'setMyStreamingSubscriptions':
+            return { ...state, myStreamingSubscriptions: action.payload }
+
+        // SEARCH
+        case 'setSuggestedMovieResults':
+            return { ...state, suggestedMovieResults: action.payload }
+        case 'setSuggestedSeriesResults':
+            return { ...state, suggestedSeriesResults: action.payload }
+
             return { ...state, myStreamingSubscriptions: action.payload } 
         case 'setMySettings':
             return { ...state, mySettings: action.payload }
@@ -306,6 +318,10 @@ export const mapStateToProps = (state) => ({
     myNotifications: state.myNotifications,
     myPreferences: state.myPreferences,
     myStreamingSubscriptions: state.myStreamingSubscriptions,
+
+    // SEARCH
+    suggestedMovieResults: state.suggestedMovieResults,
+    suggestedSeriesResults: state.suggestedSeriesResults,
 
     // SIGNUP
     isLoading: state.isLoading,

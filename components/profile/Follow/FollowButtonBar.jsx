@@ -4,9 +4,10 @@ import styled from 'styled-components/native';
 import FollowButton from '../../global/FollowButton';
 
 const FollowContainer = styled(View)`
-    width: 100%;
-    display: flex;
     align-items: center;
+    margin: 16px;
+    margin-top: 8px;
+    margin-bottom: 8px;
 `;
 
 export default FollowButtonBar = ({ creator }) => {

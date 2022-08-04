@@ -1,7 +1,7 @@
 // react imports
 import React, { useEffect, useRef, useState } from 'react';
 import * as FileSystem from 'expo-file-system';
-import { Image, Text, View, Pressable } from 'react-native';
+import { ActivityIndicator, Image, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './navigation';
 import styled from 'styled-components/native';
@@ -54,8 +54,28 @@ import { connect, Provider, useDispatch, useSelector } from 'react-redux';
 import store, { mapStateToProps } from './redux/store';
 import { ensureLocalImageDirExists, maybeFlushTitleImageCache } from './api/ReelayLocalImageCache';
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
+import { fetchPopularMovies, fetchPopularSeries } from './api/TMDbApi';
 
-const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog.png');
+const LoadingContainer = styled(View)`
+    align-items: center;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
+    position: absolute;
+`
+const SplashContainer = styled(View)`
+    background-color: black;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+`
+const SplashImage = styled(Image)`
+    height: 100%;
+    width: 100%;
+    position: absolute;
+`
+
+const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog-black.png');
 
 function App() {
     const colorScheme = useColorScheme();
@@ -242,58 +262,75 @@ function App() {
         const reqUserSub = userSub;
         // make sure to maintain consistent ordering between these arrays
         // when you modify them
+
+        // initial load
+        const [
+            myHomeContent,
+            reelayDBUserLoaded
+        ] = await Promise.all([
+            getHomeContent({ authSession, reqUserSub }),
+            getRegisteredUser(userSub),
+        ]);
+
+        const myClubs = myHomeContent?.clubs ?? [];
+        const { myFollowing, myStreamingSubscriptions } = myHomeContent?.profile ?? [];
+        const mySettingsJSON = reelayDBUserLoaded?.settingsJSON;
+        const mySettings = JSON.parse(mySettingsJSON) ?? {}; // 
+
+        setReelayDBUser(reelayDBUserLoaded);
+        dispatch({ type: 'setReelayDBUser', payload: reelayDBUserLoaded });
+        dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
+        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
+        dispatch({ type: 'setMyFollowing', payload: myFollowing });
+        dispatch({ type: 'setMySettings', payload: mySettings })
+        dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
+        dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
+        dispatch({ type: 'setIsLoading', payload: false });
+
+        // deferred load
         const [
             donateLinksLoaded,
-            latestAnnouncement,
-            myHomeContent,
-
-            myDismissalHistory,
             myCreatorStacksLoaded,
             myFollowersLoaded,
             myNotificationsLoaded,
             myWatchlistItemsLoaded,
-            reelayDBUserLoaded,
+            suggestedMovies,
+            suggestedSeries,
         ] = await Promise.all([
             getAllDonateLinks(),
-            getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
-            getHomeContent({ authSession, reqUserSub }),
-
-            getDismissalHistory(),
             getStacksByCreator(userSub),
             getFollowers(userSub),
             getAllMyNotifications(userSub),
             getWatchlistItems(userSub),
-            getRegisteredUser(userSub),
-        ]);
+            fetchPopularMovies(),
+            fetchPopularSeries(),
+        ])
 
-        setReelayDBUser(reelayDBUserLoaded);
-        dispatch({ type: 'setReelayDBUser', payload: reelayDBUserLoaded });
-
-        const mySettingsJSON = reelayDBUserLoaded?.settingsJSON;
-        const mySettings = JSON.parse(mySettingsJSON) ?? {}; // 
-
-        dispatch({ type: 'setMySettings', payload: mySettings })
-
-        dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
-        dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
+        dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
         dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
-
-        const myClubs = myHomeContent?.clubs ?? [];
-        const { myFollowing, myStreamingSubscriptions } = myHomeContent?.profile ?? [];
-
-        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
-        dispatch({ type: 'setMyFollowing', payload: myFollowing });
-        dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
-
+        dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
         dispatch({ type: 'setMyNotifications', payload: myNotificationsLoaded });
         dispatch({ type: 'setMyWatchlistItems', payload: myWatchlistItemsLoaded });
-        dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
-        dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });
+
+        const suggestedMovieResults = { titles: suggestedMovies, nextPage: 1 };
+        const suggestedSeriesResults = { titles: suggestedSeries, nextPage: 1 };
+
+        dispatch({ type: 'setSuggestedMovieResults', payload: suggestedMovieResults });
+        dispatch({ type: 'setSuggestedSeriesResults', payload: suggestedSeriesResults });
+
+        // deferred load part 2
+        const [
+            latestAnnouncement,
+            myDismissalHistory,
+        ] = await Promise.all([
+            getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
+            getDismissalHistory(),
+        ]);
+
         dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
-        dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
-        
-        // TODO: ensure we only fire this only once all others have completed
-        dispatch({ type: 'setIsLoading', payload: false });
+        dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });
+        // triggers the reducer to create the latest notice from already-loaded app data
+        dispatch({ type: 'setLatestNotice', payload: null }); 
     }
 
     const registerMyPushToken = async () => {
@@ -322,31 +359,27 @@ function App() {
     }
 
     if (isLoading) {
-        const SplashContainer = styled(View)`
-            height: 100%;
-            width: 100%;
-            position: absolute;
-        `
-        const SplashImage = styled(Image)`
-            height: 100%;
-            width: 100%;
-            position: absolute;
-        `
         return (
             <SplashContainer>
                 <SplashImage source={SPLASH_IMAGE_SOURCE} />
+                <LoadingContainer>
+                    <ActivityIndicator />
+                </LoadingContainer>
             </SplashContainer>
         );
 
     } else {
         return (
-            <SafeAreaProvider>
+            <SplashContainer>
+                <LoadingContainer>
+                    <ActivityIndicator />
+                </LoadingContainer>
                 <AuthContext.Provider value={authState}>
                     <StatusBar style="light" />
                     <Navigation colorScheme={colorScheme} />
                     <Toast config={toastConfig}/>
                 </AuthContext.Provider>
-            </SafeAreaProvider>
+            </SplashContainer>
         );
     }
 }

@@ -29,8 +29,6 @@ const FixedReelayFeed = ({ navigation,
     const [feedPosition, setFeedPosition] = useState(initialFeedPos);
     const [stackList, setStackList] = useState([]);
 
-    console.log('feed position: ', feedPosition);
-
     useEffect(() => {
         const stackEmpty = !stackList.length;
         if (!stackEmpty && !forceRefresh) {
@@ -69,24 +67,22 @@ const FixedReelayFeed = ({ navigation,
 
     const onFeedSwiped = async (e) => {
         const { x, y } = e.nativeEvent.contentOffset;
+        const nextFeedPosition = Math.round(y / height);
+        if (nextFeedPosition === feedPosition) return;
 
-        if (y % height === 0) {
-            const nextFeedPosition = y / height;
-            const swipeDirection = nextFeedPosition < feedPosition ? 'up' : 'down';
-            
-            const nextStack = stackList[nextFeedPosition];
-            const prevStack = stackList[feedPosition];
+        const swipeDirection = nextFeedPosition < feedPosition ? 'up' : 'down';
+        const nextStack = stackList[nextFeedPosition];
+        const prevStack = stackList[feedPosition];
 
-            const logProperties = {
-                nextReelayTitle: nextStack[0].title.display,
-                prevReelayTitle: prevStack[0].title.display,
-                source: 'fixedStack',
-                swipeDirection: swipeDirection,
-                username: reelayDBUser?.username,
-            }
-            logAmplitudeEventProd('swipedFeed', logProperties);
-            setFeedPosition(nextFeedPosition);
+        const logProperties = {
+            nextReelayTitle: nextStack[0].title.display,
+            prevReelayTitle: prevStack[0].title.display,
+            source: 'fixedStack',
+            swipeDirection: swipeDirection,
+            username: reelayDBUser?.username,
         }
+        logAmplitudeEventProd('swipedFeed', logProperties);
+        setFeedPosition(nextFeedPosition);
     }
 
     return (

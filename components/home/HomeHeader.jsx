@@ -106,7 +106,7 @@ export default HomeHeader = ({
     const HomeScreenTabSelector = () => {
         return (
             <BackgroundBox>
-                { ['discover', 'following'].map(tab => {
+                { ['discover', 'my stuff'].map(tab => {
                     if (tab === selectedTab) {
                         return (
                             <ButtonContainer key={tab}>

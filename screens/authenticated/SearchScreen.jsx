@@ -1,14 +1,15 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, { useContext, useEffect, useState, useRef, Fragment } from "react";
 import { ActivityIndicator, SafeAreaView, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
-//Components
+// Components
 import { HeaderWithBackButton } from '../../components/global/Headers'
 import SearchField from "../../components/create-reelay/SearchField";
 import TitleSearchResults from "../../components/search/TitleSearchResults";
 import UserSearchResults from "../../components/search/UserSearchResults";
 import { ToggleSelector } from '../../components/global/Buttons';
 import ClubSearchResults from "../../components/search/ClubSearchResults";
+import SuggestedTitlesGrid from "../../components/search/SuggestedTitlesGrid";
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
@@ -47,16 +48,23 @@ const SearchBarContainer = styled(View)`
 `
 
 export default SearchScreen = ({ navigation, route }) => {
-    const initialSearchType = route?.params?.initialSearchType ?? 'Film';
     const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
-    const myFollowing = useSelector(state => state.myFollowing);
 
+    const addToWatchlist = route?.params?.addToWatchlist ?? false;
+    const initialSearchType = route?.params?.initialSearchType ?? 'Film';
     const [loading, setLoading] = useState(false);
+
+    const myFollowing = useSelector(state => state.myFollowing);
+    const tabOptions = addToWatchlist ? ['Film', 'TV'] : ['Film', 'TV', 'Clubs', 'Users'];
+
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [selectedType, setSelectedType] = useState(initialSearchType);
+
+    const searchTextEmpty = (!searchText || searchText === undefined || searchText === '');
+    const showSuggestions = ['Film', 'TV'].includes(selectedType) && searchTextEmpty;
     const updateCounter = useRef(0);
 
     useEffect(() => {
@@ -96,14 +104,14 @@ export default SearchScreen = ({ navigation, route }) => {
             return (userA.username > userB.username) ? 1 : -1;
         }
         return (followingUserA) ? -1 : 1;
-
     }
 
     const updateSearch = async (newSearchText, searchType, counter) => {
-        if (!newSearchText || newSearchText === undefined || newSearchText === '') {            
+        if (searchTextEmpty) {            
             setSearchResults([]);
             return;
         }
+
         try {
             setLoading(true);
             let annotatedResults;
@@ -143,23 +151,64 @@ export default SearchScreen = ({ navigation, route }) => {
         }
     }
 
+    const SearchResults = () => {
+        return (
+            <Fragment>
+                { (selectedType === "Film" || selectedType === "TV") && (
+                    <TitleSearchResults
+                        navigation={navigation}
+                        searchResults={searchResults}
+                        searchText={searchText}
+                        isSeries={(selectedType === 'TV')}
+                        source={"search"}
+                    />
+                )}
+                {selectedType === "Clubs" && (
+                    <ClubSearchResults
+                        navigation={navigation}
+                        searchResults={searchResults}
+                        searchText={searchText}
+                        source={"search"}
+                    />
+                )}
+                {selectedType === "Users" && (
+                    <UserSearchResults
+                        navigation={navigation}
+                        searchResults={searchResults}
+                        searchText={searchText}
+                        source={"search"}
+                    />
+                )}
+            </Fragment>
+        );
+    }
+
+    const TopBar = () => {
+        return (
+            <TopBarContainer>
+                <SelectorBarContainer>
+                    <ToggleSelector
+                        displayOptions={tabOptions}
+                        options={tabOptions}
+                        selectedOption={selectedType}
+                        onSelect={(type) => {
+                            setSelectedType(type);
+                            if (searchText.length) setLoading(true);
+                        }}
+                    />
+                </SelectorBarContainer>
+            </TopBarContainer>
+        );
+    }
+
 
     return (
 		<SearchScreenContainer>
-			<HeaderWithBackButton navigation={navigation} text={"Search"} />
-            <TopBarContainer>
-				<SelectorBarContainer>
-					<ToggleSelector
-                        displayOptions={["Film", "TV", "Clubs", "Users"]}
-						options={["Film", "TV", "Clubs", "Users"]}
-						selectedOption={selectedType}
-						onSelect={(type) => {
-							setSelectedType(type);
-                            if (searchText.length) setLoading(true);
-						}}
-					/>
-				</SelectorBarContainer>
-			</TopBarContainer>
+			<HeaderWithBackButton 
+                navigation={navigation} 
+                text={addToWatchlist ? 'Add to watchlist' : 'Search'} 
+            />
+            <TopBar />
             <SearchBarContainer>
 				<SearchField
 					searchText={searchText}
@@ -176,31 +225,14 @@ export default SearchScreen = ({ navigation, route }) => {
 					}`}
 				/>
 			</SearchBarContainer>
-			{ (selectedType === "Film" || selectedType === "TV") && !loading && (
-				<TitleSearchResults
-					navigation={navigation}
-					searchResults={searchResults}
-                    searchText={searchText}
-                    isSeries={(selectedType === 'TV')}
-					source={"search"}
-				/>
-			)}
-            {selectedType === "Clubs" && !loading && (
-				<ClubSearchResults
-					navigation={navigation}
-					searchResults={searchResults}
-                    searchText={searchText}
-					source={"search"}
-				/>
-			)}
-			{selectedType === "Users" && !loading && (
-				<UserSearchResults
-					navigation={navigation}
-					searchResults={searchResults}
-                    searchText={searchText}
-					source={"search"}
-				/>
-			)}
+			{ !loading && !showSuggestions && <SearchResults /> }
+            { !loading && showSuggestions && (
+                <SuggestedTitlesGrid 
+                    navigation={navigation} 
+                    selectedType={selectedType}
+                    source='search'
+                /> 
+            )}
             { loading && <ActivityIndicator /> }
 		</SearchScreenContainer>
 	);

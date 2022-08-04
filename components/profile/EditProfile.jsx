@@ -10,22 +10,13 @@ import { manipulateAsync } from "expo-image-manipulator";
 
 // Upload imports
 import { Buffer } from "buffer";
-import {
-	PutObjectCommand,
-} from "@aws-sdk/client-s3";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 
-// DB
 import { updateProfilePic, updateUserBio, updateUserWebsite } from "../../api/ReelayDBApi";
-
-// Context
 import { AuthContext } from "../../context/AuthContext";
 
-// Styling
 import styled from "styled-components/native";
 import ReelayColors from "../../constants/ReelayColors";
-
-import ReelayIcon from "../../assets/icons/reelay-icon-with-dog-black.png";
-import { Icon } from 'react-native-elements';
 import * as ReelayText from "../global/Text";
 import { HeaderDoneCancel } from '../global/Headers';
 import { logAmplitudeEventProd } from "../utils/EventLogger";
@@ -111,8 +102,9 @@ export default EditProfile = ({ navigation, refreshProfile }) => {
 	const saveInfo = async () => {
 		reelayDBUser.bio = bioRef.current.trim() === "" ? null : bioRef.current;
 		const bioUpdatedSuccessfully = await updateUserBio(reelayDBUser.sub, reelayDBUser.bio);
-		reelayDBUser.website =
-			websiteRef.current.trim() === "" ? null : websiteRef.current;
+		reelayDBUser.website = (websiteRef.current.trim() === '') 
+			? null 
+			: websiteRef.current;
 		const websiteUpdatedSuccessfully = await updateUserWebsite(reelayDBUser.sub, reelayDBUser.website);
 		return (bioUpdatedSuccessfully && websiteUpdatedSuccessfully);
 	}

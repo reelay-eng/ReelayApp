@@ -130,14 +130,15 @@ const openTitleScreen = async (navigation, titleObj) => {
         return;
     }
 
-    if (!titleObj?.id || !titleObj.titleType) {
+    const tmdbTitleID = titleObj.id;
+    const titleType = titleObj?.titleType;
+
+    if (!tmdbTitleID || !titleType) {
         console.log('Invalid title type');
         return;
     }
 
-    const tmdbTitleID = titleObj.id;
-    const titleType = titleObj.titleType === 'isSeries';
-    const annotatedTitle = await fetchAnnotatedTitle(tmdbTitleID, titleType);
+    const annotatedTitle = await fetchAnnotatedTitle({ tmdbTitleID, isSeries: titleType === 'tv' });
     navigation.navigate('TitleDetailScreen', { titleObj: annotatedTitle });
 }
 

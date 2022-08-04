@@ -1,16 +1,24 @@
 import React, { useContext, useEffect, useState } from "react";
-import { ActivityIndicator, Image, ImageBackground, View } from "react-native";
+import { ActivityIndicator, Image, ImageBackground, TouchableOpacity, View } from "react-native";
 import { Button } from '../../components/global/Buttons';
 import ReelayColors from "../../constants/ReelayColors";
+import * as ReelayText from '../../components/global/Text';
+import { LinearGradient } from "expo-linear-gradient";
 import styled from "styled-components/native";
 
-import ReelaySplashBackground from "../../assets/images/reelay-splash-background.png";
-import ReelayLogoText from "../../assets/images/reelay-logo-text-with-dog.png";
+import ReelaySplashBackground from "../../assets/images/reelay-splash-with-dog-black.png";
 
 import { AuthContext } from "../../context/AuthContext";
 import { showErrorToast } from "../../components/utils/toasts";
 import { useDispatch, useSelector } from "react-redux";
 
+const ButtonContainer = styled(View)`
+    align-items: center;
+	height: 56px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    width: 100%;
+`
 const ButtonsFlexContainer = styled(View)`
     position: absolute;
     height: 100%;
@@ -21,15 +29,23 @@ const ButtonsFlexContainer = styled(View)`
     justify-content: flex-end;
     align-items: center;
 `
-const ButtonContainer = styled(View)`
-	width: 90%;
-	height: 56px;
-    margin-top: 8px;
-    margin-bottom: 8px;
-`
-const Container = styled(View)`
-    width: 100%;
+const ButtonGradient = styled(LinearGradient)`
+    border-radius: 30px;
     height: 100%;
+    position: absolute;
+    width: 100%;
+`
+const ButtonPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${props => props.backgroundColor ?? 'black'};
+    border-radius: 30px;
+    height: 60px;
+    justify-content: center;
+    width: 100%;
+`
+const ButtonText = styled(ReelayText.Body2Emphasized)`
+    color: ${props => props.color ?? ReelayColors.reelayBlue};
+    font-size: ${props => props.fontSize ?? 15}px;
 `
 const LoadingContainer = styled(View)`
     position: absolute;
@@ -43,59 +59,43 @@ const ReelayBackground = styled(ImageBackground)`
     height: 100%;
     width: 100%;
 `
-const ReelayLogoContainer = styled(View)`
-    position: absolute;
-    height: 70%;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+const Spacer = styled(View)`
+    height: 40px;
 `
 
 export default SignedOutScreen = ({ navigation, route }) => {
-    const autoSignInAsGuest = route?.params?.autoSignInAsGuest ?? false;
+    // const autoSignInAsGuest = route?.params?.autoSignInAsGuest ?? false;
     const { setCognitoUser } = useContext(AuthContext);
-    const [signingInJustShowMe, setSigningInJustShowMe] = useState(autoSignInAsGuest);
+    const [signingInJustShowMe, setSigningInJustShowMe] = useState(false);
     const signUpFromGuest = useSelector(state => state.signUpFromGuest);
     const dispatch = useDispatch();
 
     const SignUpButton = () => (
         <ButtonContainer>
-            <Button
-                text="Sign Up"
-                onPress={() => navigation.push('SignUpScreen')}
-                backgroundColor={'rgba(41, 119, 239, 0.9)'}
-                pressedColor="#DCDCDC"
-                fontColor={'white'}
-                borderRadius="60px"
-            />
+            <ButtonPressable onPress={() => navigation.push('SignUpScreen')}>
+                <ButtonGradient 
+                    colors={[ReelayColors.reelayBlue, ReelayColors.reelayRed]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                />
+                <ButtonText color='white'>{'Sign up'}</ButtonText>
+            </ButtonPressable>
         </ButtonContainer>
     );
 
     const LogInButton = () => (
 		<ButtonContainer>
-			<Button
-				text="Log In"
-				onPress={() => navigation.push('SignInScreen')}
-                backgroundColor="white"
-                pressedColor="#DCDCDC"
-                fontColor={ReelayColors.reelayBlue}
-                borderRadius="60px"
-			/>
+            <ButtonPressable backgroundColor='transparent' onPress={() => navigation.push('SignInScreen')}>
+                <ButtonText fontSize={16}>{'Log in'}</ButtonText>
+            </ButtonPressable>
 		</ButtonContainer>
 	);
 
     const JustShowMeButton = () => (
 		<ButtonContainer>
-			<Button
-				text="Just show me the app"
-				onPress={justShowMeLogin}
-				backgroundColor="transparent"
-				pressedColor="rgba(0, 0, 0, 0.05)"
-				fontColor="white"
-				borderRadius="60px"
-				border="solid 1px white"
-			/>
+            <ButtonPressable backgroundColor='white' onPress={justShowMeLogin}>
+                <ButtonText color='black'>{'Just show me the app'}</ButtonText>
+            </ButtonPressable>
 		</ButtonContainer>
 	);
     
@@ -110,7 +110,6 @@ export default SignedOutScreen = ({ navigation, route }) => {
                 },
             };
             setCognitoUser(guestCognitoUser);
-            console.log('Just show me completing: ', guestCognitoUser);
         } catch (error) {
             console.log(error);
             showErrorToast('Oh no! We couldn\'t guest you in. Try again or contact support@reelay.app');
@@ -118,9 +117,9 @@ export default SignedOutScreen = ({ navigation, route }) => {
         }
     }
 
-    useEffect(() => {
-        if (autoSignInAsGuest) justShowMeLogin();
-    }, []);
+    // useEffect(() => {
+    //     if (autoSignInAsGuest) justShowMeLogin();
+    // }, []);
 
     useEffect(() => {
         if (signUpFromGuest) {
@@ -130,26 +129,22 @@ export default SignedOutScreen = ({ navigation, route }) => {
     });
 
     return (
-        <Container>
-            <ReelayBackground source={ReelaySplashBackground} resizeMode="cover">
-                <ReelayLogoContainer>
-                    <Image source={ReelayLogoText} style={{width: 200, height: 200}} />
-                </ReelayLogoContainer>
-                { signingInJustShowMe && (
-                    <LoadingContainer>
-                    <ActivityIndicator color={'white'} /> 
-                    </LoadingContainer>
-                )}
-                { !signingInJustShowMe && (
-                    <ButtonsFlexContainer>
-                        <SignUpButton />
-                        <LogInButton />
-                        <JustShowMeButton />
-                    </ButtonsFlexContainer>
-                )}
-            </ReelayBackground>
-        </Container>
-    )
+        <ReelayBackground source={ReelaySplashBackground} resizeMode="cover">
+            { signingInJustShowMe && (
+                <LoadingContainer>
+                <ActivityIndicator color={'white'} /> 
+                </LoadingContainer>
+            )}
+            { !signingInJustShowMe && (
+                <ButtonsFlexContainer>
+                    <LogInButton />
+                    <Spacer />
+                    <SignUpButton />
+                    <JustShowMeButton />
+                </ButtonsFlexContainer>
+            )}
+        </ReelayBackground>
+)
 }
 
 

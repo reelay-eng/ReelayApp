@@ -3,6 +3,7 @@ import { Dimensions, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
+import Constants from 'expo-constants';
 
 import { getReelay, prepareReelay } from '../../api/ReelayDBApi';
 import { useDispatch, useSelector } from 'react-redux';
@@ -45,6 +46,8 @@ const AnnouncementTitleText = styled(ReelayText.H5Emphasized)`
 const AnnouncementBodyText = styled(ReelayText.Body2)`
     color: white;
 `
+const WELCOME_REELAY_SUB = Constants.manifest.extra.welcomeReelaySub;
+const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 const Announcement = ({ announcement, color, icon, navigation, onPress, onDismiss }) => {
     const showAnnouncement = (announcement && !announcement?.error);
@@ -58,9 +61,14 @@ const Announcement = ({ announcement, color, icon, navigation, onPress, onDismis
 
     const advanceToReelay = async () => {
         if (!reelaySub) return;
-        const fetchedReelay = await getReelay(reelaySub);
+        const isWelcomeReelay = (reelaySub === WELCOME_REELAY_SUB);
+        const fetchedReelay = (isWelcomeReelay) 
+            ? await getReelay(reelaySub, 'dev') 
+            : await getReelay(reelaySub, FEED_VISIBILITY);
+
         const preparedReelay = await prepareReelay(fetchedReelay);
         if (preparedReelay && !preparedReelay?.error) {
+            console.log('prepared reelay: ', preparedReelay);
             navigation.push('SingleReelayScreen', { preparedReelay });
         } else {
             showErrorToast('Ruh roh! Couldn\'t open the tutorial video. Try again?');
@@ -88,12 +96,14 @@ export default AnnouncementsAndNotices = ({ navigation }) => {
     const dispatch = useDispatch();
     const latestAnnouncement = useSelector(state => state.latestAnnouncement);
     const latestAnnouncementDismissed = useSelector(state => state.latestAnnouncementDismissed);
+    const showLatestAnnouncement = (latestAnnouncement && !latestAnnouncementDismissed);
 
     const latestNotice = useSelector(state => state.latestNotice);
     const latestNoticeDismissed = useSelector(state => state.latestNoticeDismissed);
     const latestNoticeSkipped = useSelector(state => state.latestNoticeSkipped);
 
     const showNoticeAsAnnouncement = (
+        !showLatestAnnouncement && 
         latestNotice && 
         latestNoticeSkipped && 
         !latestNoticeDismissed &&
@@ -134,15 +144,15 @@ export default AnnouncementsAndNotices = ({ navigation }) => {
         return saveResult;
     }
 
-    useEffect(() => {
-        // triggers reducer to set defaults if these values are null
-        dispatch({ type: 'setLatestNotice', payload: latestNotice });
-        dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
-    }, []);
+    // useEffect(() => {
+    //     // triggers reducer to set defaults if these values are null
+    //     dispatch({ type: 'setLatestNotice', payload: latestNotice });
+    //     dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
+    // }, []);
 
     return (
         <AllAnnouncementsBox>
-            { !latestAnnouncementDismissed && <Announcement 
+            { showLatestAnnouncement && <Announcement 
                 announcement={latestAnnouncement}
                 navigation={navigation} 
                 onDismiss={onAnnouncementDismiss}

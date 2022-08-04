@@ -6,7 +6,7 @@ import styled from 'styled-components/native';
 import BackButton from '../utils/BackButton';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faListCheck } from '@fortawesome/free-solid-svg-icons';
+import { faArrowUpFromBracket, faGear } from '@fortawesome/free-solid-svg-icons';
 import { fetchOrCreateProfileLink } from '../../api/ProfilesApi';
 import { useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
@@ -25,7 +25,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         padding-left: ${atProfileBase ? 10: 0}px;
     `
     const IconContainer = styled(TouchableOpacity)`
-        margin-left: 12px;
+        margin-left: 16px;
     `
     // should line up with home header
     const RightCornerContainer = styled(View)`
@@ -46,23 +46,8 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         shadow-offset: 8px;
         shadow-radius: 2px;
     `
-    const SettingsButtons = () => {
-        const advanceToMyWatchlist = () => navigation.push('WatchlistScreen');
+    const RightCornerButtons = () => {
         const advanceToMyProfileSettings = () => navigation.push('ProfileSettingsScreen');
-
-        return (
-            <RightCornerContainer>
-                <IconContainer onPress={advanceToMyWatchlist}>
-                    <FontAwesomeIcon icon={ faListCheck } size={27} color='white' />
-                </IconContainer>
-                <IconContainer onPress={advanceToMyProfileSettings}>
-                    <Icon type='ionicon' size={27} color={'white'} name='settings-outline' />
-                </IconContainer>
-            </RightCornerContainer>
-        );
-    }
-
-    const CopyProfileLinkButton = () => {
         const copyProfileLink = async () => {
             try {
                 // first, create the profile link if it doesn't exist in useEffect
@@ -87,17 +72,35 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
             }
         }
 
+        const CopyProfileLinkButton = () => {
+            return (
+                <IconContainer onPress={copyProfileLink}>
+                    <FontAwesomeIcon icon={faArrowUpFromBracket} size={24} color='white' />
+                </IconContainer>
+            );
+        }
+
+        const SettingsButton = () => {
+            return (
+                <IconContainer onPress={advanceToMyProfileSettings}>
+                    <FontAwesomeIcon icon={faGear} size={24} color='white' />
+                </IconContainer>
+            );
+        }
+
         return (
-            <Icon onPress={copyProfileLink} type="ionicon" name="link-outline" color="white" size={25} containerStyle={{marginLeft: 15, transform: [{ rotate: '-45deg' }]}} />
-        )
+            <RightCornerContainer>
+                { validCreatorName && <CopyProfileLinkButton />}
+                { atProfileBase && <SettingsButton /> }
+            </RightCornerContainer>
+        );
     }
 
     return (
         <TopBarContainer>
             { !atProfileBase && <BackButton navigation={navigation} /> }
             <HeadingText>{creatorName}</HeadingText>
-            { validCreatorName && <CopyProfileLinkButton />}
-            { atProfileBase && <SettingsButtons /> }
+            <RightCornerButtons />
         </TopBarContainer>
     );
 }
