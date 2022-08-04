@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Dimensions, Image, Modal, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Image, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
@@ -71,32 +71,13 @@ const OverlayBox = styled(View)`
     position: absolute;
     width: 100%;
 `
-const Spacer = styled(View)`
-    width: 12px;
-`
 
-const MultiPageNotice = ({ navigation, pages, images, noticeID }) => {
-    const { reelayDBUser } = useContext(AuthContext);
+const MultiPageNotice = ({ navigation, dismissNotice, pages, images }) => {
     const [curPage, setCurPage] = useState(0);
-    const dispatch = useDispatch();
-
     const onLastPage = (curPage === pages?.length - 1);
     const onFirstPage = (curPage === 0);
-    const { title, body, body2, imgHeight, imgWidth, orientation, newStreamingVenues } = pages[curPage];
+    const { title, body, imgHeight, imgWidth, orientation, newStreamingVenues } = pages[curPage];
     const imageSource = images[curPage];
-
-    const dismissNotice = async () => {
-        dispatch({ type: 'setLatestNoticeDismissed', payload: true });
-        const noticeHistoryJSON = await AsyncStorage.getItem('notice-history-json') ?? '{}';
-        const noticeHistory = JSON.parse(noticeHistoryJSON);
-        noticeHistory[noticeID] = 'dismissed';
-        const saveResult = await AsyncStorage.setItem('notice-history-json', JSON.stringify(noticeHistory));
-        logAmplitudeEventProd('dismissedNoticeCTA', {
-            username: reelayDBUser?.sub,
-            noticeTitle: title,
-        });
-        return saveResult;
-    }
 
     const pageForward = () => {
         if (curPage === pages?.length - 1) {
@@ -124,12 +105,7 @@ const MultiPageNotice = ({ navigation, pages, images, noticeID }) => {
         }
 
         if (orientation === 'streaming-selector') {
-            return (
-                <StreamingSelectorGrid
-                    setRefreshing={() => {}} 
-                    venueList={newStreamingVenues} 
-                />
-            );
+            return <StreamingSelectorGrid setRefreshing={() => {}} venueList={newStreamingVenues} />;
         }
 
         return <View />;
@@ -180,7 +156,7 @@ const NoticeInfo = ({ title, body, bodyTextColor='gray' }) => {
     );
 }
 
-const SinglePageNotice = ({ navigation, noticeData }) => {
+const SinglePageNotice = ({ dismissNotice, navigation, noticeData }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const { actionLabel, actionType, title, body } = noticeData;
     const dispatch = useDispatch();
@@ -220,6 +196,7 @@ const SinglePageNotice = ({ navigation, noticeData }) => {
 
     const skipNotice = () => {
         dispatch({ type: 'setLatestNoticeSkipped', payload: true });
+        dismissNotice();
         logAmplitudeEventProd('dismissedNoticeCTA', {
             username: reelayDBUser?.sub,
             noticeTitle: title,
@@ -242,18 +219,34 @@ const SinglePageNotice = ({ navigation, noticeData }) => {
 }
 
 export default NoticeOverlay = ({ navigation }) => {
+    const dispatch = useDispatch();
+    const { reelayDBUser } = useContext(AuthContext);
     const latestNotice = useSelector(state => state.latestNotice);
     const latestNoticeDismissed = useSelector(state => state.latestNoticeDismissed);
 
     const showNotice = latestNotice && !latestNoticeDismissed;
     if (!showNotice) return <View />;
     const { noticeType, data } = latestNotice;
+
+    const dismissNotice = async () => {
+        dispatch({ type: 'setLatestNoticeDismissed', payload: true });
+        const noticeHistoryJSON = await AsyncStorage.getItem('notice-history-json') ?? '{}';
+        const noticeHistory = JSON.parse(noticeHistoryJSON);
+        noticeHistory[latestNotice?.id] = 'dismissed';
+        const saveResult = await AsyncStorage.setItem('notice-history-json', JSON.stringify(noticeHistory));
+        logAmplitudeEventProd('dismissedNoticeCTA', {
+            username: reelayDBUser?.sub,
+            noticeID: latestNotice?.id,
+        });
+        return saveResult;
+    }
     
     return (
         <OverlayBox>
             <Backdrop />
             { noticeType === 'multi-page' && (
                 <MultiPageNotice 
+                    dismissNotice={dismissNotice}
                     images={data?.images}
                     navigation={navigation}
                     noticeID={latestNotice?.id}
@@ -262,6 +255,7 @@ export default NoticeOverlay = ({ navigation }) => {
             )}
             { noticeType === 'single-page' && (
                 <SinglePageNotice 
+                    dismissNotice={dismissNotice}
                     navigation={navigation} 
                     noticeData={data} 
                 /> 

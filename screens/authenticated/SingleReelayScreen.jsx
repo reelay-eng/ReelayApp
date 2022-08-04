@@ -21,7 +21,9 @@ const TitleFeedContainer = styled(View)`
 `
 
 export default SingleReelayScreen = ({ navigation, route }) => {
-    const { preparedReelay, reelaySub } = route.params;
+    const preparedReelay = route.params?.preparedReelay;
+    const reelaySub = route.params?.reelaySub ?? preparedReelay?.sub;
+    
     const dispatch = useDispatch();
     const [singleReelay, setSingleReelay] = useState(preparedReelay);
 

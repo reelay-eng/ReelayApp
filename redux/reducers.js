@@ -46,7 +46,7 @@ export const latestAnnouncementReducer = ({ announcement, myFollowing, reelayDBU
     if (showAnnouncement) return announcement;
 
     const daysSinceSignedUp = moment().diff(moment(reelayDBUser?.createdAt), 'days');
-    const showTutorial = (myFollowing.length > 0) && (daysSinceSignedUp < 7);
+    const showTutorial = daysSinceSignedUp < 7;
 
     if (showTutorial) return {
         id: 'tutorial-0',
