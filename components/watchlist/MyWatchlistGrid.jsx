@@ -59,7 +59,7 @@ const SeeMyWatchlistText = styled(ReelayText.Body2)`
     color: white;
 `
 const Spacer = styled(View)`
-    height: 6px;
+    height: 12px;
 `
 
 export default MyWatchlistGrid = ({ navigation }) => {
