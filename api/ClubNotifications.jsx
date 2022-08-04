@@ -1,6 +1,7 @@
 import { getClubMembers } from './ClubsApi';
 import { condensedTitleObj, sendPushNotification } from './NotificationsApi';
 import { getRegisteredUser } from './ReelayDBApi';
+import { shouldNotifyUser } from "./SettingsApi";
 
 const condensedClubObj = ({ id, name }) => {
     return { id, name };
@@ -11,6 +12,11 @@ const condensedTopicObj = ({ id, title, description }) => {
 };
 
 const notifyClubMember = async ({ title, body, data, clubMember }) => {
+    const shouldNotify = await shouldNotifyUser(clubMember?.userSub, "notifyPostsInMyClubs");
+    if (!shouldNotify) {
+        console.log(`Creator does not want to receive notifications for notifyPostsInMyClubs`);
+        return;
+    }
     console.log('notifying club member: ', clubMember, data);
     const clubMemberWithToken = await getRegisteredUser(clubMember?.userSub);
     const sendToUserSub = clubMember?.userSub;

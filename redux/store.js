@@ -11,6 +11,7 @@ import {
     watchlistRecsReducer, 
 } from "./reducers";
 
+import { getNewSettings } from '../api/SettingsApi';
 import Constants from 'expo-constants';
 const REELAY_APP_VERSION = Constants.manifest.version;
 
@@ -61,6 +62,7 @@ const initialState = {
     myFollowers: [],
     myNotifications: [],
     myStreamingSubscriptions: [],
+    mySettings: {},
 
     // SIGNUP
     isLoading: true,
@@ -212,7 +214,15 @@ const appReducer = ( state = initialState, action) => {
         case 'setMyNotifications':
             return { ...state, myNotifications: action.payload };
         case 'setMyStreamingSubscriptions':
-            return { ...state, myStreamingSubscriptions: action.payload }  
+            return { ...state, myStreamingSubscriptions: action.payload } 
+        case 'setMySettings':
+            return { ...state, mySettings: action.payload }
+        case 'updateMySettings': // payload e.g. { notifyCommentsOnMyReelays: true }
+            const settingsToUpdate = action.payload;
+            const oldMySettings = { ...state.mySettings };
+            const newMySettings = getNewSettings(oldMySettings, settingsToUpdate);
+            return { ...state, mySettings: newMySettings };
+            
             
         // SIGNUP
         case 'setIsLoading':

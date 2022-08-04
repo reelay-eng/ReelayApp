@@ -268,6 +268,12 @@ function App() {
 
         setReelayDBUser(reelayDBUserLoaded);
         dispatch({ type: 'setReelayDBUser', payload: reelayDBUserLoaded });
+
+        const mySettingsJSON = reelayDBUserLoaded?.settingsJSON;
+        const mySettings = JSON.parse(mySettingsJSON) ?? {}; // 
+
+        dispatch({ type: 'setMySettings', payload: mySettings })
+
         dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
         dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
         dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
