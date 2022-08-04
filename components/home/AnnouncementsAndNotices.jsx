@@ -54,8 +54,6 @@ const Announcement = ({ announcement, color, icon, navigation, onPress, onDismis
     if (!showAnnouncement) return <View />;
     const { optionsJSON, reelaySub, title } = announcement;
     const options = optionsJSON ? JSON.parse(optionsJSON) : {};
-
-    console.log('reelay sub: ', reelaySub);
     
     // no, i'm not proud of this... we're coalescing the body text of the announcement depending
     // on its source (version guide, create popup, posted announcements) 
@@ -67,7 +65,7 @@ const Announcement = ({ announcement, color, icon, navigation, onPress, onDismis
         const fetchedReelay = (isWelcomeReelay) 
             ? await getReelay(reelaySub, 'dev') 
             : await getReelay(reelaySub, FEED_VISIBILITY);
-            
+
         const preparedReelay = await prepareReelay(fetchedReelay);
         if (preparedReelay && !preparedReelay?.error) {
             console.log('prepared reelay: ', preparedReelay);

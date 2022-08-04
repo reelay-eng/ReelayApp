@@ -4,8 +4,8 @@ import Constants from 'expo-constants';
 const LATEST_VERSION_GUIDE = require('../version/latest-version-guide.json');
 const VERSION_GUIDE_IMG_PATH = '../version/images';
 const LATEST_VERSION_GUIDE_IMAGES = [
-    require(`${VERSION_GUIDE_IMG_PATH}/clubv2_part1.png`),
-    require(`${VERSION_GUIDE_IMG_PATH}/clubv2_part2.png`),
+    null,
+    require(`${VERSION_GUIDE_IMG_PATH}/notification-settings-guide.png`),
 ]
 const REELAY_APP_VERSION = Constants.manifest.version;
 
@@ -37,7 +37,6 @@ export const dismissNoticeReducer = ({ notice, dismissalHistory }) => {
     if (!notice) return null;
     const noticeEntry = dismissalHistory?.noticeHistory?.[notice?.id];
     const isDismissed = (noticeEntry && noticeEntry === 'dismissed');
-    console.log('notice entry: ', noticeEntry);
     return (isDismissed) ? null : notice;
 }
 

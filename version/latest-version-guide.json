@@ -28,9 +28,9 @@
         {
             "title": "Review your notification settings",
             "body": "Turn notifications on/off from Profile -> Settings ",
-            "imgURI": "images/clubv2_part2.png",
+            "imgURI": "images/notification-settings-guide.png",
             "imgHeight": 271,
-            "imgWidth": 125,
+            "imgWidth": 271,
             "orientation": "title-body-image"
         }
     ]

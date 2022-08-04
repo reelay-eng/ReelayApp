@@ -77,7 +77,6 @@ const MultiPageNotice = ({ navigation, dismissNotice, pages, images }) => {
     const onLastPage = (curPage === pages?.length - 1);
     const onFirstPage = (curPage === 0);
     const { title, body, imgHeight, imgWidth, orientation, newStreamingVenues } = pages[curPage];
-    const imageSource = images[curPage];
 
     const pageForward = () => {
         if (curPage === pages?.length - 1) {
@@ -97,9 +96,10 @@ const MultiPageNotice = ({ navigation, dismissNotice, pages, images }) => {
 
     const ContentSection = () => {
         if (orientation === 'title-body-image') {
+            const imageSource = images[curPage];
             return (
                 <ImageBox>
-                    <Image style={{ height: imgHeight, width: imgWidth }} source={imageSource} resizeMode='cover' />
+                    <Image style={{ borderRadius: 12, height: imgHeight, width: imgWidth }} source={imageSource} resizeMode='cover' />
                 </ImageBox>
             );
         }
