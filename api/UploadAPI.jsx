@@ -21,7 +21,9 @@ import { postReelayToDB, prepareReelay } from './ReelayDBApi';
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 
 import { compressVideoForUpload, deviceCanCompress } from './FFmpegApi';
+import * as FileSystem from 'expo-file-system'
 
+const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
 const UPLOAD_CHUNK_SIZE = 8 * 1024 * 1024; // 5MB
 
@@ -51,6 +53,16 @@ export const uploadReelay = async ({
 
         setUploadStage('preparing-upload');
         setUploadProgress(0.2);
+
+        const appServerUploadResult = await uploadReelayToAppServer({
+            setUploadProgress,
+            setUploadStage,
+            videoURI,
+            videoS3Key
+        });
+
+        setUploadProgress(0.7);
+        return appServerUploadResult;
     
         const s3UploadResult = await uploadReelayToS3({ 
             s3Client, 
@@ -135,6 +147,26 @@ const sendNotificationsOnUpload = async ({ authSession, preparedReelay, reelayCl
             topic: reelayTopic,
         });
     }
+}
+
+const uploadReelayToAppServer = async ({ videoURI, videoS3Key }) => {
+    try {
+        const uploadOptions = {
+            fieldName: 'reelay-video',
+            httpMethod: 'POST',
+            uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+        };
+
+        const uploadFromLocalURI = `${FileSystem.cacheDirectory}upload/${videoS3Key}`;
+        await FileSystem.copyAsync({ from: videoURI, to: uploadFromLocalURI });
+
+        const routePost = `${REELAY_API_BASE_URL}/uploads/multipart`;
+        const response = await FileSystem.uploadAsync(routePost, videoURI, uploadOptions);
+        console.log(JSON.stringify(response));
+        return response;
+    } catch(error) {
+        console.log(error)
+    }      
 }
 
 const uploadReelayToS3 = async ({ 
