@@ -12,7 +12,7 @@ import { Video } from "expo-av";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../../context/AuthContext';
 
-import SplashBackground from "../../assets/images/reelay-newuser-background.png";
+import SplashBackground from "../../assets/images/reelay-splash-with-dog-black.png";
 import ReelayLogoText from "../../assets/images/reelay-logo-text-with-dog.png";
 import StockPhotoGroup from "../../assets/images/Onboarding/Stock-reelay-onboarding.png";
 import TrailerPhoto from "../../assets/images/Onboarding/Trailers-reelay-onboarding.png";
@@ -29,40 +29,34 @@ const CenteredContainer = styled(View)`
 	height: 100%;
     justify-content: center;
     align-items: center;
-`;
-
-const ReelayBackground = styled(ImageBackground)`
-	width: 100%;
-	height: 50%;
-    position: absolute;
-    justify-content: center;
-    align-items: center;
-`;
-const BlackContainer = styled(View)`
-	width: 100%;
-	height: 50%;
+`
+const ReelayBackground = styled(View)`
+	align-items: center;
 	background-color: black;
-`;
-
+	height: 50%;
+	justify-content: center;
+    position: absolute;
+	width: 100%;
+`
 const CarouselContainer = styled(View)`
 	height: 50%;
 	width: 100%;
 	flex-direction: column;
 	align-items: center;
-`;
+`
 const HalfCarouselContainer = styled(View)`
 	height: 25%;
 	width: 100%;
 	flex-direction: column;
 	align-items: center;
-`;
+`
 const CarouselTextContainer = styled(View)`
 	height: 60%;
 	width: 90%;
 	flex-direction: column;
 	align-items: center;
     margin-top: 54px;
-`;
+`
 const CarouselTitle = styled(ReelayText.H4)`
     color: white;
     text-align: center;
@@ -140,7 +134,8 @@ const CarouselComponent = ({navigation}) => {
     const handleFinishedOnboarding = () => {
         AsyncStorage.setItem('isReturningUser', '1');
 		dispatch({ type: 'setIsReturningUser', payload: true });
-        navigation.push('SignedOutScreen', { autoSignInAsGuest: true });
+        // navigation.push('SignedOutScreen', { autoSignInAsGuest: true });
+		navigation.push('SignedOutScreen');
     }
 
     const handleGoToNextItem = () => {

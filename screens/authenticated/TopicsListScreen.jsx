@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { 
     Dimensions,
     Keyboard, 
@@ -19,11 +19,11 @@ import TopicCard from '../../components/topics/TopicCard';
 import ReelayColors from '../../constants/ReelayColors';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { searchTopics } from '../../api/TopicsApi';
-import { useFocusEffect } from '@react-navigation/native';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import moment from 'moment';
+import { HeaderWithBackButton } from '../../components/global/Headers';
+import ProfilePicture from '../../components/global/ProfilePicture';
 
 const { height, width } = Dimensions.get('window');
 
@@ -57,7 +57,6 @@ const HeaderLeftContainer = styled(View)`
 `
 const HeaderText = styled(ReelayText.H5Emphasized)`
     color: white;
-    margin-left: 20px;
     margin-top: 4px;
 `
 const SearchButtonContainer = styled(TouchableOpacity)`
@@ -95,6 +94,9 @@ const SearchInputContainer = styled(View)`
     padding-right: 6px;
     width: ${width - 32}px;
 `
+const Spacer = styled(View)`
+    width: 8px;
+`
 const TopicCardContainer = styled(View)`
     margin-bottom: 18px;
 `
@@ -105,26 +107,52 @@ const TopicScrollContainer = styled(ScrollView)`
 `
 
 export default TopicsListScreen = ({ navigation, route }) => {
-    const source = route.params?.source ?? 'discoverNew';
+    const source = route.params?.source ?? 'discover';
+    const creatorOnProfile = route.params?.creatorOnProfile ?? null;
+    const topicsOnProfile = route.params?.topicsOnProfile ?? [];
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
 
     const myHomeContent = useSelector(state => state.myHomeContent);
 
+    const getDiscoverTopics = () => {
+        const discoverNewTopics = myHomeContent?.discover?.newTopics;
+        const discoverPopularTopics = myHomeContent?.discover?.popularTopics;
+
+        const sortTopics = (topic0, topic1) => {
+            const topic0LastUpdatedAt = moment(topic0?.lastUpdatedAt);
+            const topic1LastUpdatedAt = moment(topic1?.lastUpdatedAt);
+            return topic1LastUpdatedAt.diff(topic0LastUpdatedAt, 'seconds') > 0;
+        }
+
+        const discoverTopics = [
+            ...discoverNewTopics,
+            ...discoverPopularTopics
+        ].sort(sortTopics);
+    
+        const uniqueTopic = (topic, index) => {
+            const matchTopicID = (nextTopic) => topic?.id === nextTopic?.id;
+            return index === discoverTopics.findIndex(matchTopicID);
+        }
+    
+        return discoverTopics.filter(uniqueTopic);    
+    }
+
     let initDisplayTopics;
     let headerText;
+
     switch (source) {
-        case 'discoverNew':
-            initDisplayTopics = myHomeContent?.discover?.newTopics;
-            headerText = 'New topics';
-            break;
-        case 'discoverPopular':
-            initDisplayTopics = myHomeContent?.discover?.popularTopics;
-            headerText = 'Popular topics';
-            break;
+        case 'discover':
+            initDisplayTopics = getDiscoverTopics();
+            headerText = 'Topics';
+            break;    
         case 'followingNew':
             initDisplayTopics = myHomeContent?.following?.newTopics;
             headerText = 'Topics by friends';
+            break;
+        case 'profile':
+            initDisplayTopics = topicsOnProfile;
+            headerText = `${creatorOnProfile?.username}'s topics`;
             break;
         default:
             initDisplayTopics = [];
@@ -154,6 +182,12 @@ export default TopicsListScreen = ({ navigation, route }) => {
             <HeaderContainer>
                 <HeaderLeftContainer>
                     <BackButton navigation={navigation} />
+                    { creatorOnProfile && (
+                        <Fragment>
+                            <ProfilePicture user={creatorOnProfile} size={30} />
+                            <Spacer />
+                        </Fragment>
+                    )}
                     <HeaderText>{headerText}</HeaderText>
                 </HeaderLeftContainer>
                 <SearchTopicsButton />
@@ -193,6 +227,7 @@ export default TopicsListScreen = ({ navigation, route }) => {
                         advanceToFeed={advanceToFeed}
                         clubID={null}
                         navigation={navigation} 
+                        source={source}
                         topic={topic} 
                     />
                 </TopicCardContainer>

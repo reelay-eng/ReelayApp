@@ -194,24 +194,23 @@ const ReelayFeed = ({ navigation,
 
     const onFeedSwiped = async (e) => {
         const { x, y } = e.nativeEvent.contentOffset;
+        const nextFeedPosition = Math.round(y / height);
 
-        if (y % height === 0) {
-            const nextFeedPosition = y / height;
-            const swipeDirection = nextFeedPosition < selectedFeedPosition ? 'up' : 'down';
-            
-            const nextStack = selectedStackList[nextFeedPosition];
-            const prevStack = selectedStackList[selectedFeedPosition];
+        if (nextFeedPosition === selectedFeedPosition) return;
+        const swipeDirection = nextFeedPosition < selectedFeedPosition ? 'up' : 'down';
+        
+        const nextStack = selectedStackList[nextFeedPosition];
+        const prevStack = selectedStackList[selectedFeedPosition];
 
-            const logProperties = {
-                nextReelayTitle: nextStack[0].title.display,
-                prevReelayTitle: prevStack[0].title.display,
-                source: feedSource,
-                swipeDirection: swipeDirection,
-                username: reelayDBUser?.username,
-            }
-            logAmplitudeEventProd('swipedFeed', logProperties);
-            setSelectedFeedPosition(nextFeedPosition);
+        const logProperties = {
+            nextReelayTitle: nextStack[0].title.display,
+            prevReelayTitle: prevStack[0].title.display,
+            source: feedSource,
+            swipeDirection: swipeDirection,
+            username: reelayDBUser?.username,
         }
+        logAmplitudeEventProd('swipedFeed', logProperties);
+        setSelectedFeedPosition(nextFeedPosition);
     }
 
     return (

@@ -175,6 +175,7 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
                     password: password,
                     attributes: { email: email.toLowerCase() },
                 }); 
+
                 const dbResult = await registerUser({
                     email: email.toLowerCase(),
                     username: username,
@@ -215,7 +216,7 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
                 </TopContainer>
 				<SignupButtonContainer>
 					<Button
-						text={signingIn ? "Beaming you in..." : "Complete sign up"}
+						text={signingIn ? "Registering..." : "Continue (2/3)"}
 						onPress={completeSignUp}
 						disabled={signingIn || !usernameHasValidForm}
 						backgroundColor={ReelayColors.reelayBlue}

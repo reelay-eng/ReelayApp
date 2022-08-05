@@ -77,7 +77,7 @@ const ReportedTopic = ({ navigation, topic }) => {
     const userReports = JSON.parse(topic.userReportsJSON);
     return (
         <TopicCardContainer key={topic.id}>
-            <TopicCard navigaton={navigation} topic={topic} />
+            <TopicCard navigaton={navigation} source='reported' topic={topic} />
             { userReports.map(({ policyViolationCode, reportedAt }) => {
                 return <PolicyViolationTicket 
                     key={reportedAt}

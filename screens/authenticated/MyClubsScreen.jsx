@@ -23,6 +23,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ReelayColors from '../../constants/ReelayColors';
 import Constants from 'expo-constants';
 import moment from 'moment';
+import EmptyClubsCard from '../../components/clubs/EmptyClubsCard';
+import EmptyClubActivityCard from '../../components/clubs/EmptyClubActivityCard';
 
 const CLUB_PIC_SIZE = 72;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -119,6 +121,13 @@ const ColumnView = styled(View)`
     flex: 1;
     width: 50%;
 `
+const EmptyClubsView = styled(View)`
+    align-items: center;
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    width: 100%;
+`
 const FilterButtonPressable = styled(TouchableOpacity)`
     background-color: ${props => props.selected 
         ? ReelayColors.reelayBlue 
@@ -185,6 +194,8 @@ const UnreadIconIndicator = styled(View)`
 
 export default MyClubsScreen = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const myClubs = useSelector(state => state.myClubs);
+    const myClubActivities = useSelector(state => state.myClubActivities);
 
     const dispatch = useDispatch();
     const bottomOffset = useSafeAreaInsets().bottom;
@@ -206,11 +217,10 @@ export default MyClubsScreen = ({ navigation }) => {
     });
 
     if (reelayDBUser?.username === 'be_our_guest') {
-        return <JustShowMeSignupPage navigation={navigation} headerText='clubs' />
+        return <JustShowMeSignupPage navigation={navigation} headerText='My Clubs' />
     }
 
     const AllMyClubs = () => {
-        const myClubs = useSelector(state => state.myClubs);
         const mySortedClubs = myClubs.sort(sortByLastActivity);
         const [displayClubs, setDisplayClubs] = useState(mySortedClubs);
         const [selectedFilters, setSelectedFilters] = useState(['all']);
@@ -295,7 +305,8 @@ export default MyClubsScreen = ({ navigation }) => {
                         <ClubDescriptionText numberOfLines={2}>{'Make a group for private reelays and invite your friends'}</ClubDescriptionText>
                     </ClubRowInfoView>
                     <ClubRowArrowView>
-                        <Icon type='ionicon' name='add-circle-outline' color='white' size={28} />
+                        <FontAwesomeIcon icon={faChevronRight} color='white' size={18} />
+                        <ClubRowArrowSpacer />
                     </ClubRowArrowView>
                 </ClubRowPressable>
             );
@@ -353,29 +364,6 @@ export default MyClubsScreen = ({ navigation }) => {
             );
         }
 
-        const MyWatchlistRow = () => {
-            const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen');
-            const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-            const watchlistCount = myWatchlistItems.filter(item => item?.hasAcceptedRec)?.length;
-            const watchistText = `${watchlistCount} title${(watchlistCount === 1) ? '' : 's'}`;
-
-            return (
-                <ClubRowPressable onPress={advanceToWatchlistScreen}>
-                    <View pointerEvents='none'>
-                        <ProfilePicture user={reelayDBUser} size={CLUB_PIC_SIZE} />
-                    </View>
-                    <ClubRowInfoView>
-                        <ClubNameText>{'My Watchlist'}</ClubNameText>
-                        <ClubDescriptionText numberOfLines={2}>{watchistText}</ClubDescriptionText>
-                    </ClubRowInfoView>
-                    <ClubRowArrowView>
-                        <FontAwesomeIcon icon={faChevronRight} color='white' size={18} />
-                        <ClubRowArrowSpacer />
-                    </ClubRowArrowView>
-                </ClubRowPressable>
-            );
-        }
-
         const MyClubsList = () => {
             const scrollStyle = { alignItems: 'center', paddingBottom: 120, width: '100%' };
             return (
@@ -387,7 +375,6 @@ export default MyClubsScreen = ({ navigation }) => {
                     { selectedFilters.includes('all') && (
                         <Fragment>
                             <AddClubRow />
-                            <MyWatchlistRow />
                         </Fragment>
                     )}
                     { displayClubs.map(club => <ClubRow club={club} key={club?.id} />) }
@@ -400,6 +387,22 @@ export default MyClubsScreen = ({ navigation }) => {
                 <MyClubsFilters />
                 <MyClubsList />
             </Fragment>
+        );
+    }
+
+    const EmptyActivity = () => {
+        return (
+            <EmptyClubsView>
+                <EmptyClubActivityCard navigation={navigation} />
+            </EmptyClubsView>
+        );
+    }
+
+    const EmptyClubs = () => {
+        return (
+            <EmptyClubsView>
+                <EmptyClubsCard navigation={navigation} />
+            </EmptyClubsView>
         );
     }
 
@@ -430,7 +433,6 @@ export default MyClubsScreen = ({ navigation }) => {
         const [selectedFilters, setSelectedFilters] = useState(['all']);
         const scrollStyle = { alignItems: 'center', paddingBottom: 120, width: '100%' };
 
-        const myClubActivities = useSelector(state => state.myClubActivities);
         const filterMemberActivities = (nextActivity, index) => (nextActivity?.activityType !== 'member');
         const filterToRecentActivities = (nextActivity, index) => index < 20;
         const initDisplayActivities = myClubActivities.filter(filterMemberActivities).filter(filterToRecentActivities);
@@ -566,8 +568,10 @@ export default MyClubsScreen = ({ navigation }) => {
                 </TopBarButtonView>
             </TopBarView>
             <TabSelector />
-            { selectedTab === 'recent activity' && <RecentActivity /> }
-            { selectedTab === 'all my clubs' && <AllMyClubs /> }
+            { selectedTab === 'recent activity' && (myClubActivities?.length > 0) && <RecentActivity /> }
+            { selectedTab === 'recent activity' && (myClubActivities?.length === 0) && <EmptyActivity /> }
+            { selectedTab === 'all my clubs' && (myClubs?.length > 0) && <AllMyClubs /> }
+            { selectedTab === 'all my clubs' && (myClubs?.length === 0) && <EmptyClubs /> }
             <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
 		</MyClubsScreenView>
 	);

@@ -156,30 +156,25 @@ export default ClubTitleOrTopicStack = ({
 
     const onStackSwiped = (e) => {
         const { x, y } = e.nativeEvent.contentOffset;
+        const nextStackPosition = Math.round(x / width);
+        if (stackPosition === nextStackPosition) return;
 
-        if (x % width === 0) {
-            const nextStackPosition = x / width;
-            if (stackPosition === nextStackPosition) {
-                return;
-            }
-
-            const swipeDirection = nextStackPosition < stackPosition ? 'left' : 'right';
-            const nextReelay = stack[nextStackPosition];
-            const prevReelay = stack[stackPosition];
-            const logProperties = {
-                nextReelayID: nextReelay.id,
-                nextReelayCreator: nextReelay.creator.username,
-                nextReelayTitle: nextReelay.title.display,
-                prevReelayID: prevReelay.id,
-                prevReelayCreator: prevReelay.creator.username,
-                prevReelayTitle: prevReelay.title.display,
-                source: 'clubs',
-                swipeDirection: swipeDirection,
-                username: reelayDBUser?.username,
-            }
-            logAmplitudeEventProd('swipedFeed', logProperties);
-            setStackPosition(nextStackPosition);
+        const swipeDirection = nextStackPosition < stackPosition ? 'left' : 'right';
+        const nextReelay = stack[nextStackPosition];
+        const prevReelay = stack[stackPosition];
+        const logProperties = {
+            nextReelayID: nextReelay.id,
+            nextReelayCreator: nextReelay.creator.username,
+            nextReelayTitle: nextReelay.title.display,
+            prevReelayID: prevReelay.id,
+            prevReelayCreator: prevReelay.creator.username,
+            prevReelayTitle: prevReelay.title.display,
+            source: 'clubs',
+            swipeDirection: swipeDirection,
+            username: reelayDBUser?.username,
         }
+        logAmplitudeEventProd('swipedFeed', logProperties);
+        setStackPosition(nextStackPosition);
     }
 
     return (

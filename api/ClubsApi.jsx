@@ -61,7 +61,7 @@ export const addTitleToClub = async ({
         },
         body: JSON.stringify(postBody),
     });
-    const annotatedTitle = await fetchAnnotatedTitle(tmdbTitleID, titleType === 'tv');
+    const annotatedTitle = await fetchAnnotatedTitle({ tmdbTitleID, isSeries: titleType === 'tv' });
     return { ...addClubTitleResult, title: annotatedTitle, reelays: [] };
 }
 
@@ -243,7 +243,7 @@ export const getClubTitles = async ({ authSession, clubID, page = 0, reqUserSub 
 
     const annotatedClubTitles = await Promise.all(clubTitles.map(async (clubTitle) => {
         const { tmdbTitleID, titleType } = clubTitle;
-        const annotatedTitle = await fetchAnnotatedTitle(tmdbTitleID, titleType === 'tv');
+        const annotatedTitle = await fetchAnnotatedTitle({ tmdbTitleID, isSeries: titleType === 'tv' });
         const preparedReelays = await Promise.all(clubTitle.reelays.map(prepareReelay));
         return { ...clubTitle, activityType: 'title', title: annotatedTitle, reelays: preparedReelays };
     }));

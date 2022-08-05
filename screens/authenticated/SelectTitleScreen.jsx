@@ -17,6 +17,7 @@ import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { useFocusEffect } from '@react-navigation/native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faComments } from '@fortawesome/free-solid-svg-icons';
+import SuggestedTitlesGrid from '../../components/search/SuggestedTitlesGrid';
 
 const HeaderText = styled(ReelayText.H4Bold)`
     text-align: left;
@@ -61,12 +62,14 @@ const TopicTitleText = styled(ReelayText.H6)`
     font-size: 14px;
     line-height: 18px;
     margin-left: 16px;
+    margin-right: 16px;
 `
 export default SelectTitleScreen = ({ navigation, route }) => {
     const [loading, setLoading] = useState(false);
     const [searchText, setSearchText] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchType, setSearchType] = useState('Film');
+    const searchTextEmpty = (!searchText || searchText === undefined || searchText === '');
 
     /**
      * Topic obj requires two elements only: { id, title }
@@ -163,7 +166,16 @@ export default SelectTitleScreen = ({ navigation, route }) => {
 				/>
 			</SearchBarContainer>
             { loading && <ActivityIndicator /> }
-            { !loading && (
+            { !loading && searchTextEmpty && (
+                <SuggestedTitlesGrid
+                    navigation={navigation}
+                    selectedType={searchType}
+                    source='create'
+                    clubID={clubID ?? null}
+                    topicID={topic?.id ?? null}
+                />
+            )}
+            { !loading && !searchTextEmpty && (
                 <TitleSearchResults
                     navigation={navigation}
                     searchResults={searchResults}

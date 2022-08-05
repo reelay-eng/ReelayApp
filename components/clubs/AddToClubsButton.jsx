@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, TouchableOpacity, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
@@ -16,34 +16,40 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons';
 const ClubsButtonCircleContainer = styled(View)`
     align-items: center;
     align-self: center;
-    background: ${({ isAddedToWatchlist }) => (isAddedToWatchlist) 
-        ? 'rgba(41, 119, 239, 0.40)'
-        : 'rgba(255, 255, 255, 0.20)'
-    };
+    background: ${({ 
+        isAddedToWatchlist, 
+        showCircle 
+    }) => {
+        if (!showCircle) return 'transparent';
+        return (isAddedToWatchlist) 
+            ? 'rgba(41, 119, 239, 0.40)'
+            : 'rgba(255, 255, 255, 0.20)'
+    }};
     border-radius: 50px;
     height: 45px;
     justify-content: center;
     width: 45px;
 `
-const ClubsButtonOuterContainer = styled(Pressable)`
+const ClubsButtonOuterContainer = styled(TouchableOpacity)`
     align-items: flex-end;
     justify-content: center;
     width: 60px;
 `
 
-export default AddToClubsButton = ({ navigation, titleObj, reelay }) => {
+export default AddToClubsButton = ({ navigation, showCircle=true, titleObj, reelay }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const isMyReelay = reelay?.creator?.sub === reelayDBUser?.sub;
 
-    const inWatchlist = myWatchlistItems.find((nextItem) => {
+    const inWatchlistIndex = myWatchlistItems.findIndex((nextItem) => {
         const { tmdbTitleID, titleType, hasAcceptedRec } = nextItem;
         const isSeries = (titleType === 'tv');
         return (tmdbTitleID === titleObj.id) 
             && (isSeries === titleObj.isSeries)
             && (hasAcceptedRec === true);
     });
+    const inWatchlist = inWatchlistIndex !== -1;
 
     const [isAddedToWatchlist, setIsAddedToWatchlist] = useState(inWatchlist);
     const [markedSeen, setMarkedSeen] = useState(inWatchlist && inWatchlist?.hasSeenTitle);
@@ -69,11 +75,12 @@ export default AddToClubsButton = ({ navigation, titleObj, reelay }) => {
 
     return (
         <ClubsButtonOuterContainer onPress={openAddToClubsDrawer}>
-            <ClubsButtonCircleContainer isAddedToWatchlist={isAddedToWatchlist && !isMyReelay}>
-                {/* { (isAddedToWatchlist || markedSeen) && <FontAwesomeIcon icon={faCheck} color='white' size={22}/> }
-                { (!isAddedToWatchlist && !markedSeen) && <FontAwesomeIcon icon={faAdd} color='white' size={22}/> } */}
-                {/* <ClubsIconSVG size={24} /> */}
-                <AddToClubsIconSVG size={24} />
+            <ClubsButtonCircleContainer 
+                isAddedToWatchlist={isAddedToWatchlist && !isMyReelay}
+                showCircle={showCircle}
+            >
+                { (isAddedToWatchlist || markedSeen) && <AddedToClubsIconSVG /> }
+                { (!isAddedToWatchlist && !markedSeen) && <AddToClubsIconSVG /> }
             </ClubsButtonCircleContainer>
             { drawerVisible && (
                 <AddToClubsDrawer 

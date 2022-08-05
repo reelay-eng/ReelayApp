@@ -10,6 +10,7 @@ import JustShowMeSignupDrawer from '../../components/global/JustShowMeSignupDraw
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
 import ProfileHeaderAndInfo from '../../components/profile/ProfileHeaderAndInfo';
+import TopicsCarousel from '../../components/topics/TopicsCarousel';
 
 import { AuthContext } from '../../context/AuthContext';
 
@@ -23,6 +24,9 @@ const ProfileScreenContainer = styled(SafeAreaView)`
 `
 const ProfileScrollView = styled(ScrollView)`
     margin-bottom: 60px;
+`
+const Spacer = styled(View)`
+    height: 12px;
 `
 
 export default UserProfileScreen = ({ navigation, route }) => {
@@ -104,13 +108,16 @@ export default UserProfileScreen = ({ navigation, route }) => {
             <ProfileScrollView showsVerticalScrollIndicator={false} refreshControl={refreshControl}>
                 <ProfileHeaderAndInfo 
                     navigation={navigation}
-                    creator={{...creator, ...creatorInfo }} 
+                    creator={{ ...creator, ...creatorInfo }} 
                     streamingSubscriptions={streamingSubscriptions}
                     reelayCount={reelayCount}
                     followers={creatorFollowers}
                     following={creatorFollowing}
                 />
                 {!isMyProfile && <FollowButtonBar creator={creator} bar /> }
+                <Spacer />
+                <TopicsCarousel navigation={navigation} source='profile' creatorOnProfile={creator} />
+                <Spacer />
                 <ProfilePosterGrid
                     creatorStacks={creatorStacks}
                     navigation={navigation}

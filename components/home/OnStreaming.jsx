@@ -75,6 +75,7 @@ const DrawerContainer = styled(View)`
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
     margin-top: auto;
+    max-height: 70%;
     width: 100%;
 `
 

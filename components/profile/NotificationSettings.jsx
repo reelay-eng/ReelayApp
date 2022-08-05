@@ -16,6 +16,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { showErrorToast } from '../utils/toasts';
 
+const Spacer = styled(View)`
+    height: 16px;
+`
 const ViewContainer = styled(View)`
         width: 100%;
         height: 100%;
@@ -33,6 +36,7 @@ export default NotificationSettings = ({ navigation }) => {
     return (
         <ViewContainer>
             <HeaderWithBackButton navigation={navigation} text="Notification Settings"/>
+            <Spacer />
             <NotificationsSettingsWrapper mySub={mySub} mySettings={mySettings}/>
         </ViewContainer>
     )
@@ -112,7 +116,7 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
 const AllowNotificationsSetting = ({ enabled, toggle }) => {
     return (
         <NotificationSetting
-            title="Allow Notifications" 
+            title="Allow all notifications" 
             isToggled={enabled}
             toggleFunction={toggle}
         />
@@ -125,8 +129,10 @@ const CategoryContainer = styled(View)`
 `
 
 const CategoryHeaderText = styled(ReelayText.H5Bold)`
-    color: white;
     align-self: flex-start;
+    color: white;
+    font-size: 18px;
+    padding-bottom: 8px;
 `
 
 const FollowsNotificationCategory = ({ mySettings, toggleSetting }) => {
@@ -137,8 +143,8 @@ const FollowsNotificationCategory = ({ mySettings, toggleSetting }) => {
         }
         return (
             <NotificationSetting
-                    title="Follows" 
-                    subtext="Notify me when a user follows me"
+                    title="On new followers" 
+                    subtext="Notify me when people follow me"
                     isToggled={notifyFollows}
                     toggleFunction={toggleNotifyFollows}
             />
@@ -162,7 +168,7 @@ const CommentsNotificationCategory = ({ mySettings, toggleSetting }) => {
         return (
             <NotificationSetting
                 title="On my reelays" 
-                subtext="Notify me when a user comments on my posts"
+                subtext="Notify me when people comment on my posts"
                 isToggled={notifyCommentsOnMyReelays}
                 toggleFunction={toggleNotifyCommentsOnMyReelays}
             />
@@ -177,7 +183,7 @@ const CommentsNotificationCategory = ({ mySettings, toggleSetting }) => {
         return (
             <NotificationSetting
                     title="On other reelays" 
-                    subtext="Notify me when a user comments after I do"
+                    subtext="Notify me when people comment after I do"
                     isToggled={notifyCommentsOnOtherReelays}
                     toggleFunction={toggleNotifyCommentsOnOtherReelays}
             />
@@ -202,7 +208,7 @@ const LikesNotificationCategory = ({ mySettings, toggleSetting }) => {
         return (
             <NotificationSetting
                 title="On my reelays" 
-                subtext="Notify me when a user likes my post"
+                subtext="Notify me when people like my post"
                 isToggled={notifyLikesOnMyReelays}
                 toggleFunction={toggleNotifyLikesOnMyReelays}
             />
@@ -217,7 +223,7 @@ const LikesNotificationCategory = ({ mySettings, toggleSetting }) => {
         return (
             <NotificationSetting
                 title="On my comments" 
-                subtext="Notify me when a user likes my comment"
+                subtext="Notify me when people like my comments"
                 isToggled={notifyLikesOnMyComments}
                 toggleFunction={toggleNotifyLikesOnMyComments}
             />
@@ -242,7 +248,7 @@ const TagsNotificationCategory = ({ mySettings, toggleSetting }) => {
         return (
             <NotificationSetting
                 title="In reelays" 
-                subtext="Notify me when a user tags me in their post"
+                subtext="Notify me when people tag me in their posts"
                 isToggled={notifyTagsInReelays}
                 toggleFunction={toggleNotifyTagsInReelays}
             />
@@ -257,7 +263,7 @@ const TagsNotificationCategory = ({ mySettings, toggleSetting }) => {
         return (
             <NotificationSetting
                 title="In comments" 
-                subtext="Notify me when a user tags me in a comment"
+                subtext="Notify me when people tag me in comments"
                 isToggled={notifyTagsInComments}
                 toggleFunction={toggleNotifyTagsInComments}
             />
@@ -282,7 +288,7 @@ const ReelaysNotificationCategory = ({ mySettings, toggleSetting }) => {
         return (
             <NotificationSetting
                 title="Posts about titles I reelayed" 
-                subtext="Notify me when a user reelays a title I reelayed"
+                subtext="Notify me when other people reelay a title after I do"
                 isToggled={notifyPostsOnMyReelayedTitles}
                 toggleFunction={toggleNotifyPostsOnMyReelayedTitles}
             />
@@ -297,7 +303,7 @@ const ReelaysNotificationCategory = ({ mySettings, toggleSetting }) => {
         return (
             <NotificationSetting
                 title="Posts in my clubs" 
-                subtext="Notify me when a user posts in one of my clubs"
+                subtext="Notify me when other people post in one of my clubs"
                 isToggled={notifyPostsInMyClubs}
                 toggleFunction={toggleNotifyPostsInMyClubs}
             />
@@ -312,7 +318,7 @@ const ReelaysNotificationCategory = ({ mySettings, toggleSetting }) => {
         return (
             <NotificationSetting
                 title="Posts in my topics" 
-                subtext="Notify me when a user posts in a topic I created"
+                subtext="Notify me when other people post in a topic I created"
                 isToggled={notifyPostsInMyTopics}
                 toggleFunction={toggleNotifyPostsInMyTopics}
             />
@@ -327,7 +333,7 @@ const ReelaysNotificationCategory = ({ mySettings, toggleSetting }) => {
         return (
             <NotificationSetting
                 title="Posts in other topics" 
-                subtext="Notify me when a user posts in a topic I posted in"
+                subtext="Notify me when other people post in a topic after I do"
                 isToggled={notifyPostsInOtherTopics}
                 toggleFunction={toggleNotifyPostsInOtherTopics}
             />
@@ -394,7 +400,7 @@ const NotificationSetting = ({title, subtext, isToggled, toggleFunction}) => {
         padding: 5px;
     `;
     const FirstColumn = styled(Pressable)`
-        width: 80%;
+        width: 70%;
         display: flex;
         flex-direction: column;
         justify-content: space-evenly;
@@ -402,10 +408,10 @@ const NotificationSetting = ({title, subtext, isToggled, toggleFunction}) => {
         padding: 5px;
     `;
     const SecondColumn = styled(View)`
-        width: 20%;
+        width: 30%;
         display: flex;
         justify-content: center;
-        align-items: center;
+        align-items: flex-end;
     `;
     const NotificationSettingText = styled(ReelayText.Body1)`
         text-align: center;

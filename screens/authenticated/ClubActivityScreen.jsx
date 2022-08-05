@@ -312,6 +312,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                         advanceToFeed={advanceToFeed}
                         clubID={club.id}
                         navigation={navigation} 
+                        source={'clubs'}
                         topic={clubTopic} 
                     />
                 </ActivityContainer>

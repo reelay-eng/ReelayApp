@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Dimensions, RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
+import { Dimensions, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 
 // Logging
@@ -19,8 +19,9 @@ import { getAllMyNotifications } from '../../api/NotificationsApi';
 import ProfilePosterGrid from '../../components/profile/ProfilePosterGrid';
 import ProfileTopBar from '../../components/profile/ProfileTopBar';
 import EditProfile from "../../components/profile/EditProfile";
-import { BWButton } from "../../components/global/Buttons";
 import ProfileHeaderAndInfo from '../../components/profile/ProfileHeaderAndInfo';
+import * as ReelayText from '../../components/global/Text';
+import TopicsCarousel from '../../components/topics/TopicsCarousel';
 
 // Context
 import { AuthContext } from "../../context/AuthContext";
@@ -29,19 +30,52 @@ import { useDispatch, useSelector } from 'react-redux';
 // Styling
 import styled from 'styled-components/native';
 import { useFocusEffect } from '@react-navigation/native';
+import ReelayColors from '../../constants/ReelayColors';
 
 const { width } = Dimensions.get('window');
 
-export default MyProfileScreen = ({ navigation, route }) => {
-    const ProfileScreenContainer = styled(SafeAreaView)`
-        background-color: black;
-        height: 100%;
-        width: 100%;
-    `;
-    const ProfileScrollView = styled(ScrollView)`
-        margin-bottom: 60px;
-    `;
+const EditProfileButtonPressable = styled(TouchableOpacity)`
+    align-items: center;
+    border-color: white;
+    border-radius: 20px;
+    border-width: 1px;
+    height: 40px;
+    justify-content: center;
+    margin: 16px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    width: ${width - 32}px;
+`
+const EditProfileText = styled(ReelayText.Body2)`
+    color: white;
+`
+const MyWatchlistPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 20px;
+    height: 40px;
+    justify-content: center;
+    margin: 16px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    width: ${width - 32}px;
+`
+const MyWatchlistText = styled(ReelayText.Body2)`
+    color: white;
+`
+const ProfileScreenContainer = styled(SafeAreaView)`
+    background-color: black;
+    height: 100%;
+    width: 100%;
+`
+const ProfileScrollView = styled(ScrollView)`
+    margin-bottom: 60px;
+`
+const Spacer = styled(View)`
+    height: 12px;
+`
 
+export default MyProfileScreen = ({ navigation, route }) => {
     const [refreshing, setRefreshing] = useState(false);
 	const { reelayDBUser } = useContext(AuthContext); 
 
@@ -72,7 +106,6 @@ export default MyProfileScreen = ({ navigation, route }) => {
 
     useEffect(() => {
         if (!isEditingProfile) {
-            console.log('profile render count: ', renderCount + 1);
             setRenderCount(renderCount + 1);
         }
     }, [isEditingProfile]);
@@ -138,30 +171,22 @@ export default MyProfileScreen = ({ navigation, route }) => {
     const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
     const EditProfileButton = () => {
-        const Container = styled(View)`
-			width: 100%;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-            margin-bottom: 8px;
-		`;
-        const EditProfileButtonContainer = styled(View)`
-            width: ${width - 32}px;
-            height: 40px;
-        `
-
         return (
-			<Container>
-				<EditProfileButtonContainer>
-					<BWButton
-						text="Edit Profile"
-						onPress={() => {
-                            dispatch({ type: 'setIsEditingProfile', payload: true });
-						}}
-					/>
-				</EditProfileButtonContainer>
-			</Container>
+            <EditProfileButtonPressable onPress={() => {
+                dispatch({ type: 'setIsEditingProfile', payload: true });
+            }}>
+                <EditProfileText>{'Edit profile'}</EditProfileText>
+            </EditProfileButtonPressable>
 		);
+    }
+
+    const SeeMyWatchlistButton = () => {
+        const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen');
+        return (
+            <MyWatchlistPressable onPress={advanceToWatchlistScreen}>
+                <MyWatchlistText>{'My watchlist'}</MyWatchlistText>
+            </MyWatchlistPressable>
+        );
     }
 
     return (
@@ -180,7 +205,15 @@ export default MyProfileScreen = ({ navigation, route }) => {
 					following={myFollowing}
                 />
 				<EditProfileButton />
-				<ProfilePosterGrid creatorStacks={myCreatorStacks} navigation={navigation} />
+                <SeeMyWatchlistButton />
+                <Spacer />
+                <TopicsCarousel 
+                    creatorOnProfile={reelayDBUser} 
+                    navigation={navigation} 
+                    source='profile' 
+                />
+                <Spacer />
+                <ProfilePosterGrid creatorStacks={myCreatorStacks} navigation={navigation} />
 			</ProfileScrollView>
 		</ProfileScreenContainer>
 	);
