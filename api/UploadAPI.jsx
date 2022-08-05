@@ -148,9 +148,6 @@ const uploadReelayToS3 = async ({
         let uploadVideoURI = videoURI;
 
         if (deviceCanCompress) {
-            logAmplitudeEventProd('ffmpegCompressionBegun', {
-                videoS3Key,
-            });    
             const { error, outputURI, parsedSession } = await compressVideoForUpload(videoURI);
             // console.log('parsed session: ', Object.keys(parsedSession));
             // console.log('output uri: ', outputURI);

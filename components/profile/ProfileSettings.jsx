@@ -52,7 +52,8 @@ export const ProfileSettings = ({navigation}) => {
 
         const localURI = cacheDirectory + 'img/compression-test.mp4';
         await downloadAsync(videoURI, localURI);
-        const compressedVideo = await compressVideoForUpload(localURI);
+        const { outputURI, parsedSession, error } = await compressVideoForUpload(localURI);
+        showMessageToast(`compression complete, error? `, error);
         console.log('compressed video: ', compressedVideo);
     }
 
