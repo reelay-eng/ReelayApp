@@ -66,8 +66,6 @@ export const compressVideoForUpload = async (inputURI) => {
         };
     }
 
-    console.log('starting video compression');
-
     try {
         const FFmpegKit = require('ffmpeg-kit-react-native')?.FFmpegKit;
         const filenameEnd = inputURI.indexOf('.mp4');
@@ -76,11 +74,20 @@ export const compressVideoForUpload = async (inputURI) => {
 
         if (existingOutputFileInfo?.exists) {
             console.log('Deleting existing file: ', outputURI);
-            await deleteAsync(outputURI);
+            await deleteAsync(outputURI);        
         }
 
-        const command = `-i ${inputURI} -vcodec h264 -acodec aac ${outputURI}`;
+
+        const command = `-i ${inputURI} -vcodec libx264 -acodec copy -preset slow -crf 18 ${outputURI}`;
+        logAmplitudeEventProd('ffmpegCompressionBegun', {
+            inputURI, command,
+        });
+
         const session = await FFmpegKit.execute(command);
+
+        logAmplitudeEventProd('ffmpegCompressionExecuted', {
+            session,
+        });
         const parsedSession = await parseFFmpegSession(session);   
 
         const inputFileInfo = await getInfoAsync(inputURI, { size: true });
@@ -91,6 +98,7 @@ export const compressVideoForUpload = async (inputURI) => {
         logAmplitudeEventProd('ffmpegCompressionComplete', {
             inputFileSize: inputFileInfo?.size,
             outputFileSize: outputFileInfo?.size,
+            parsedSession: parsedSession,
         });
 
         return { outputURI, parsedSession, error: false };
