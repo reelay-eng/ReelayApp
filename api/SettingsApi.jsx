@@ -12,17 +12,25 @@ const DEFAULT_SETTINGS = {
 
     // notifications
     notificationsEnabled: true,
+    // comments
     notifyCommentsOnMyReelays: true,
     notifyCommentsOnOtherReelays: true,
+    // follows
     notifyFollows: true,
+    // likes
     notifyLikesOnMyReelays: true,
     notifyLikesOnMyComments: true,
+    // tags
     notifyTagsInReelays: true,
     notifyTagsInComments: true,
+    // posts
     notifyPostsOnMyReelayedTitles: true,
     notifyPostsInMyClubs: true,
     notifyPostsInMyTopics: true,
     notifyPostsInOtherTopics: true,
+    // watchlist recommendations
+    notifyCreatorRecommendationTaken: true,
+    notifyMyRecommendationTaken: true
 }
 
 export const getNewSettings = (oldSettings, newSettings) => {
