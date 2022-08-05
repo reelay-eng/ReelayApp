@@ -101,6 +101,8 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
                     <TagsNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
                     <Divider />
                     <ReelaysNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
+                    <Divider />
+                    <WatchlistsNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
                 </>
             )}
         </NotificationSettingsScrollView>
@@ -343,14 +345,43 @@ const ReelaysNotificationCategory = ({ mySettings, toggleSetting }) => {
     )
 }
 
-const ReactionsNotificationSetting = ({enabled, toggle}) => {
+const WatchlistsNotificationCategory = ({ mySettings, toggleSetting }) => {
+    const WatchlistsCreatorRecommendationTaken = () => {
+        const notifyCreatorRecommendationTaken = !!(mySettings?.notifyCreatorRecommendationTaken);
+        const toggleNotifyCreatorRecommendationTaken = async () => {
+            await toggleSetting("notifyCreatorRecommendationTaken");
+        }
+        return (
+            <NotificationSetting
+                    title="When I take a recommendation" 
+                    subtext="Notify creators when I add titles to my watchlist from their reelays"
+                    isToggled={notifyCreatorRecommendationTaken}
+                    toggleFunction={toggleNotifyCreatorRecommendationTaken}
+            />
+        )
+    }
+
+    const WatchlistsMyRecommendationTaken = () => {
+        const notifyMyRecommendationTaken = !!(mySettings?.notifyMyRecommendationTaken);
+        const toggleNotifyMyRecommendationTaken = async () => {
+            await toggleSetting("notifyMyRecommendationTaken");
+        }
+        return (
+            <NotificationSetting
+                    title="When people take my recommendation" 
+                    subtext="Notify me when people add titles to their watchlist from my reelays"
+                    isToggled={notifyMyRecommendationTaken}
+                    toggleFunction={toggleNotifyMyRecommendationTaken}
+            />
+        )
+    }
+
     return (
-        <NotificationSetting
-                title="Interactions" 
-                subtext="Notify me when people react to my posts and send me recs"
-                isToggled={enabled}
-                toggleFunction={toggle}
-        />
+        <CategoryContainer>
+            <CategoryHeaderText>Watchlists</CategoryHeaderText>
+            <WatchlistsCreatorRecommendationTaken />
+            <WatchlistsMyRecommendationTaken />
+        </CategoryContainer>
     )
 }
 
