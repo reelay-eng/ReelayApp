@@ -180,7 +180,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
             setDrawerState('remove-reelay-confirm');
         }
         
-        const optionText = (isMyReelay) ? 'Delete Reelay' : '(Admin) Delete Reelay'
+        const optionText = (isMyReelay) ? 'Remove Reelay' : '(Admin) Remove Reelay'
 
         return (
             <OptionContainerPressable onPress={onPress}>
@@ -195,7 +195,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         const onPress = async () => {
             const removeResult = await removeReelay(reelay);
             console.log(removeResult);
-            showMessageToast('This reelay has been deleted');
+            showMessageToast('This reelay has been removed');
             setDrawerState('remove-reelay-complete');
 
             logAmplitudeEventProd('removeReelay', {
@@ -210,7 +210,7 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
         return (
             <ContentContainer>
-                <Prompt text={'Are you sure you want to delete this reelay?'} />
+                <Prompt text={'Are you sure you want to remove this reelay?'} />
                 <OptionContainerPressable onPress={onPress}>
                     <Icon type='ionicon' name='remove-circle' size={20} color={'white'} />
                     <IconSpacer />
