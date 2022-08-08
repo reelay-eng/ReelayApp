@@ -24,7 +24,9 @@ const ButtonBox = styled(TouchableOpacity)`
     background-color: ${props => props.color};
     border-radius: 12px;
     justify-content: center;
-    padding: 18px;
+    padding: 8px;
+    padding-left: 18px;
+    padding-right: 18px;
     margin-right: 14px;
 `
 const ButtonText = styled(ReelayText.CaptionEmphasized)`
@@ -151,7 +153,7 @@ const NoticeInfo = ({ title, body, bodyTextColor='gray' }) => {
     return (
         <NoticeInfoBox>
             <NoticeTitleText>{title}</NoticeTitleText>
-            <NoticeBodyText bodyTextColor={bodyTextColor}>{body}</NoticeBodyText>
+            {/* <NoticeBodyText bodyTextColor={bodyTextColor}>{body}</NoticeBodyText> */}
         </NoticeInfoBox>
     );
 }
