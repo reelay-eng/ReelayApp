@@ -6,7 +6,7 @@ import * as ReelayText from '../global/Text';
 
 const { height } = Dimensions.get('window');
 
-export default NoTitlesYetPrompt = () => {
+export default NoTitlesYetPrompt = ({ onLayout }) => {
     const DogWithGlassesImage = styled(Image)`
         height: 100px;
         width: 100px;
@@ -35,8 +35,9 @@ export default NoTitlesYetPrompt = () => {
         width: 100%;
     `
 
+    const onLayoutCallback = (onLayout) ? onLayout : () => {};
     return (
-        <NoTitlesYetView>
+        <NoTitlesYetView onLayout={onLayoutCallback}>
             <DogWithGlassesContainer>
                 <DogWithGlassesImage source={DogWithGlasses} />
             </DogWithGlassesContainer>

@@ -149,11 +149,10 @@ const NoticeActions = ({
 }
 
 const NoticeInfo = ({ title, body, bodyTextColor='gray' }) => {
-    console.log('body: ', body);
     return (
         <NoticeInfoBox>
             <NoticeTitleText>{title}</NoticeTitleText>
-            {/* <NoticeBodyText bodyTextColor={bodyTextColor}>{body}</NoticeBodyText> */}
+            { body?.length && <NoticeBodyText bodyTextColor={bodyTextColor}>{body}</NoticeBodyText> }
         </NoticeInfoBox>
     );
 }

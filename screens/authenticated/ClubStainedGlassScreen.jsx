@@ -11,6 +11,7 @@ import BackButton from "../../components/utils/BackButton";
 import * as ReelayText from '../../components/global/Text';
 import ClubPicture from "../../components/global/ClubPicture";
 import { Icon } from 'react-native-elements';
+import { FlatList } from "react-native-gesture-handler";
 
 const MAX_ACTIVITY_INDEX = 25;
 
@@ -58,13 +59,59 @@ export default ClubStainedGlassScreen = ({ navigation, route }) => {
     const filterMemberActivities = (nextActivity) => (nextActivity?.activityType !== 'member');
     const filterJustThisClub = (nextActivity) => (nextActivity?.clubID === club.id);
     const filterMostRecentActivities = (nextActivity, index) => index < MAX_ACTIVITY_INDEX;
+
     const displayActivities = myClubActivities
         .filter(filterMemberActivities)
         .filter(filterJustThisClub)
         .filter(filterMostRecentActivities);
 
-    const columnA = displayActivities.filter((activity, index) => index % 2 === 0);
-    const columnB = displayActivities.filter((activity, index) => index % 2 === 1);
+    const activitiesColumnA = displayActivities.filter((item, index) => index % 2 === 0);
+    const activitiesColumnB = displayActivities.filter((item, index) => index % 2 === 1);
+
+    const itemHeightsColumnA = [];
+    const itemHeightsColumnB = [];
+
+    const getItemLayout = (item, index) => {
+        const accumulate = (sum, next) => sum + next;
+        const isColumnA = (index % 2 === 0);
+
+        const getCachedItemHeight = (isColumnA) => {
+            return (isColumnA) ? itemHeightsColumnA[index] : itemHeightsColumnB[index];
+        }
+
+        const length = getCachedItemHeight() ?? 0;
+
+        const offset = (isColumnA) 
+            ? itemHeightsColumnA.slice(0, index).reduce(accumulate, 0)
+            : itemHeightsColumnB.slice(0, index).reduce(accumulate, 0);
+
+        const itemLayout = { length, offset, index };
+        return itemLayout;
+    }
+
+    const renderActivity = ({ item, index }) => {
+        const activity = item;
+        const isColumnA = (index % 2 === 0);
+        const onLayout = ({ nativeEvent }) => (isColumnA) 
+            ? itemHeightsColumnA[index] = nativeEvent?.layout?.height
+            : itemHeightsColumnB[index] = nativeEvent?.layout?.height;
+        return <ClubActivityCard key={activity.id} activity={activity} navigation={navigation} onLayout={onLayout} />
+    }
+
+
+    const ActivityColumn = ({ isColumnA }) => {
+        return (
+            <ColumnContainer>
+                <FlatList
+                    bottomOffset={bottomOffset}
+                    data={isColumnA ? activitiesColumnA : activitiesColumnB}
+                    getItemLayout={getItemLayout}
+                    renderItem={renderActivity}
+                    showVerticalScrollIndicator={false}
+                />
+            </ColumnContainer>
+        );
+    }
 
     const AddTitleOrTopicButton = () => {
         const [titleOrTopicDrawerVisible, setTitleOrTopicDrawerVisible] = useState(false);
@@ -81,10 +128,6 @@ export default ClubStainedGlassScreen = ({ navigation, route }) => {
                 )}
             </AddTitleOrTopicPressable>
         );
-    }
-
-    const renderActivity = (activity) => {
-        return <ClubActivityCard key={activity.id} activity={activity} navigation={navigation} />
     }
 
     useFocusEffect(() => {
@@ -110,12 +153,8 @@ export default ClubStainedGlassScreen = ({ navigation, route }) => {
                 showVerticalScrollIndicator={false}
             >
                 <ColumnsContainer>
-                    <ColumnContainer>
-                        { columnA.map(renderActivity) }
-                    </ColumnContainer>
-                    <ColumnContainer>
-                        { columnB.map(renderActivity) }
-                    </ColumnContainer>
+                    <ActivityColumn isColumnA={true} />
+                    <ActivityColumn isColumnA={false} />
                 </ColumnsContainer>
                 <Spacer />
             </ScrollView>

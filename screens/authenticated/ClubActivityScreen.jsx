@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { memo, useContext, useEffect, useRef, useState } from 'react';
 import { 
     Dimensions, 
     FlatList, 
@@ -32,6 +32,7 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import Constants from 'expo-constants';
 
 const { height, width } = Dimensions.get('window');
+const ACTIVITY_PAGE_SIZE = 20;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 const ActivityContainer = styled(View)`
@@ -84,17 +85,164 @@ const UploadProgressBarView = styled(View)`
     top: ${props => props.topOffset}px;
     width: 100%;
 `
+
+const ClubActivity = ({ activity, club, feedIndex, navigation, onLayout }) => {
+    const { activityType } = activity;
+    const advanceToFeed = () => {
+        if (feedIndex === -1) return;
+        navigation.push('ClubFeedScreen', { club, initFeedIndex: feedIndex });   
+    }
+
+    if (activityType === 'title') {
+        const clubTitle = activity;
+        return (
+            <ActivityContainer onLayout={onLayout}>
+                <ClubTitleCard 
+                    key={clubTitle.id} 
+                    advanceToFeed={advanceToFeed}
+                    club={club}
+                    clubTitle={clubTitle} 
+                    navigation={navigation} 
+                    onRefresh={onRefresh}
+                />
+            </ActivityContainer>
+        );    
+    } else if (activityType === 'topic') {
+        const clubTopic = activity;
+        return (
+            <ActivityContainer onLayout={onLayout}>
+                <TopicCard 
+                    advanceToFeed={advanceToFeed}
+                    clubID={club.id}
+                    navigation={navigation} 
+                    source={'clubs'}
+                    topic={clubTopic} 
+                />
+            </ActivityContainer>
+        );
+    } else if (activityType === 'member' && activityType?.role !== 'banned') {
+        return <ClubAddedMemberCard member={activity} />
+    } else {
+        return <View />;
+    }
+}
+
+const DescriptionFold = ({ onLayout }) => {
+    return (
+        <DescriptionContainer onLayout={onLayout}>
+            <DescriptionText>
+                { club.description }
+            </DescriptionText>
+        </DescriptionContainer>
+    )
+}
+
+
+const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
+    const topOffset = useSafeAreaInsets().top + 80;
+    const bottomOffset = useSafeAreaInsets().bottom + 20;
+
+    const activityListStyle = { 
+        alignItems: 'center', 
+        paddingTop: topOffset, 
+        paddingBottom: bottomOffset + 100,
+    };
+
+    const itemHeights = useRef([]);
+    const [maxDisplayPage, setMaxDisplayPage] = useState(0);
+    const maxDisplayIndex = (maxDisplayPage + 1) * ACTIVITY_PAGE_SIZE;
+
+    const filterJustThisClub = (nextActivity) => (nextActivity?.clubID === club.id);
+    const filterDisplayActivities = (nextActivity, index) => index < maxDisplayIndex;
+
+    const allMyClubActivities = useSelector(state => state.myClubActivities);
+    const clubActivities = allMyClubActivities.filter(filterJustThisClub);
+    const displayActivities = useRef(clubActivities.filter(filterDisplayActivities));
+
+    const activityHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
+    const feedTitlesAndTopics = clubActivities.filter(activityHasReelays);
+    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+
+    const onEndReached = () => {
+        const nextMaxDisplayIndex = (maxDisplayPage + 2) * ACTIVITY_PAGE_SIZE;
+        const filterNextDisplayActivities = (nextActivity, index) => index < nextMaxDisplayIndex;
+        if (clubActivities?.length === displayActivities.current?.length) return; 
+        displayActivities.current = clubActivities.filter(filterNextDisplayActivities);
+        setMaxDisplayPage(maxDisplayPage + 1);
+    }
+
+    const keyExtractor = (item) => {
+        if (item?.activityType === 'description') return 'description';
+        if (item?.activityType === 'noTitlesYet') return 'noTitlesYet';
+        return item?.id;
+    }
+
+    const renderClubActivity = ({ item, index }) => {
+        const activity = item;
+        const { activityType } = activity;
+        const onLayout = ({ nativeEvent }) => {
+            console.log('rendering club activity at index: ', index, nativeEvent?.layout?.height);
+            itemHeights.current[index] = nativeEvent?.layout?.height;
+        }
+
+        const matchFeedTitleOrTopic = (nextTitleOrTopic) => (activity.id === nextTitleOrTopic.id);
+        const initFeedIndex = feedTitlesAndTopics.findIndex(matchFeedTitleOrTopic);    
+
+        if (activityType === 'description') {
+            return <DescriptionFold key={'description'} onLayout={onLayout} />;
+        }
+        if (activityType === 'noTitlesYet') {
+            return <NoTitlesYetPrompt key={'noTitlesYet'} onLayout={onLayout} />
+        }
+
+        return (
+            <ClubActivity key={activity.id} 
+                activity={activity} 
+                club={club}
+                feedIndex={initFeedIndex} 
+                navigation={navigation}
+                onLayout={onLayout} 
+            />
+        );    
+    };
+
+    const getItemLayout = (item, index) => {
+        const length = itemHeights.current[index] ?? 0;
+        const accumulate = (sum, next) => sum + next;
+        const offset = itemHeights.current.slice(0, index).reduce(accumulate, 0);
+        return { length, offset, index };
+    }
+
+    return (
+        <FlatList
+            bottomOffset={bottomOffset}
+            contentContainerStyle={activityListStyle}
+            data={displayActivities.current}
+            getItemLayout={getItemLayout}
+            keyExtractor={keyExtractor}
+            onEndReached={onEndReached}
+            onEndReachedThreshold={0.9}
+            refreshControl={refreshControl} 
+            renderItem={renderClubActivity}
+            showsVerticalScrollIndicator={false}
+            topOffset={topOffset} 
+        />
+    )
+}
+
  
 export default ClubActivityScreen = ({ navigation, route }) => {
-    const dispatch = useDispatch();
+    const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
     const { club, promptToInvite } = route.params;
-    const authSession = useSelector(state => state.authSession);
+
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
     const [refreshing, setRefreshing] = useState(false);
 
     const matchClubMember = (nextMember) => nextMember?.userSub === reelayDBUser?.sub;
+
     const clubMember = club.members.find(matchClubMember);
+    const dispatch = useDispatch();
 
     const onRefresh = async () => {
         try { 
@@ -152,37 +300,13 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const showProgressBar = showProgressBarStages.includes(uploadStage);
     const notLoaded = (!club.members?.length && !club.titles?.length && !club.topics?.length);
 
-    const sortClubActivity = (activity0, activity1) => {
-        const activityType0 = activity0?.activityType;
-        const activityType1 = activity1?.activityType;
-
-        if (activityType0 === 'description') return -1;
-        if (activityType1 === 'description') return 1;
-
-        if (activityType0 === 'noTitlesYet') return -1;
-        if (activityType1 === 'noTitlesYet') return 1;
-
-        const lastActivity0 = moment(activity0?.lastUpdatedAt ?? activity0?.createdAt);
-        const lastActivity1 = moment(activity1?.lastUpdatedAt ?? activity0?.createdAt);
-        return lastActivity0.diff(lastActivity1, 'seconds') < 0;
-    }
-
-    const tagActivityType = (activity, type) => {
-        activity.activityType = type;
-        return activity;
-    }
-
     useEffect(() => {
         if (notLoaded) {
             onRefresh();
         } else {
             if (clubMember?.id) {
                 clubMember.lastActivitySeenAt = moment().toISOString();
-                markClubActivitySeen({ 
-                    authSession, 
-                    clubMemberID: clubMember.id, 
-                    reqUserSub: reelayDBUser?.sub,
-                });
+                markClubActivitySeen({ authSession, clubMemberID: clubMember.id, reqUserSub: reelayDBUser?.sub });
             }
         }
 
@@ -198,26 +322,9 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         dispatch({ type: 'setTabBarVisible', payload: true });
     });
 
-    const descActivity = club.description ? [{ activityType: 'description' }] : [];
-    const noTitlesYet = (!refreshing && !club?.titles?.length && !club?.topics?.length);
-
-    const noTitlesYetActivity = noTitlesYet ? [{ activityType: 'noTitlesYet' }] : [];
-    const clubActivities = (club.members?.length > 0) 
-        ? [
-            ...descActivity,
-            ...noTitlesYetActivity,
-            ...club.members?.map(member => tagActivityType(member, 'member')),
-            ...club.titles?.map(title => tagActivityType(title, 'title')), 
-            ...club.topics?.map(topic => tagActivityType(topic, 'topic')),
-        ].sort(sortClubActivity) : [];
-
-    const activityHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
-    const feedTitlesAndTopics = clubActivities.filter(activityHasReelays);
     const checkIAmMember = () => !!club.members?.find(nextMember => nextMember.userSub === reelayDBUser?.sub);
     const [iAmMember, setIAmMember] = useState(checkIAmMember());
     const isPublicClub = club.visibility === FEED_VISIBILITY;
-
-    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
     const AddTitleButton = () => {
         const [titleOrTopicDrawerVisible, setTitleOrTopicDrawerVisible] = useState(false);
@@ -240,98 +347,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 )}
             </AddTitleButtonOuterContainer>
         );
-    }
-
-    const ClubActivityList = () => {
-        const renderClubActivity = ({ item, index }) => {
-            const activity = item;
-            const { activityType } = activity;
-            if (activityType === 'description') {
-                return <DescriptionFold key={'description'} />;
-            }
-            if (activityType === 'noTitlesYet') {
-                return <NoTitlesYetPrompt key={'noTitlesYet'} />
-            }
-            return <ClubActivity key={activity.id} activity={activity} />
-        }
-
-        const activityListStyle = { 
-            alignItems: 'center', 
-            paddingTop: topOffset, 
-            paddingBottom: bottomOffset + 100,
-        };
-
-        const keyExtractor = (item) => {
-            if (item?.activityType === 'description') return 'description';
-            if (item?.activityType === 'noTitlesYet') return 'noTitlesYet';
-            return item?.id;
-        }
-        
-        return (
-            <FlatList
-                bottomOffset={bottomOffset}
-                contentContainerStyle={activityListStyle}
-                data={clubActivities}
-                keyExtractor={keyExtractor}
-                refreshControl={refreshControl} 
-                renderItem={renderClubActivity}
-                showsVerticalScrollIndicator={false}
-                topOffset={topOffset} 
-            />
-        )
-    }
-
-    const ClubActivity = ({ activity }) => {
-        const { activityType } = activity;
-        const matchFeedTitleOrTopic = (nextTitleOrTopic) => (activity.id === nextTitleOrTopic.id);
-        const initFeedIndex = feedTitlesAndTopics.findIndex(matchFeedTitleOrTopic);
-        const advanceToFeed = () => {
-            if (initFeedIndex === -1) return;
-            navigation.push('ClubFeedScreen', { club, initFeedIndex });   
-        }
-
-        if (activityType === 'title') {
-            const clubTitle = activity;
-            return (
-                <ActivityContainer>
-                    <ClubTitleCard 
-                        key={clubTitle.id} 
-                        advanceToFeed={advanceToFeed}
-                        club={club}
-                        clubTitle={clubTitle} 
-                        navigation={navigation} 
-                        onRefresh={onRefresh}
-                    />
-                </ActivityContainer>
-            );    
-        } else if (activityType === 'topic') {
-            const clubTopic = activity;
-            return (
-                <ActivityContainer>
-                    <TopicCard 
-                        advanceToFeed={advanceToFeed}
-                        clubID={club.id}
-                        navigation={navigation} 
-                        source={'clubs'}
-                        topic={clubTopic} 
-                    />
-                </ActivityContainer>
-            );
-        } else if (activityType === 'member' && activityType?.role !== 'banned') {
-            return <ClubAddedMemberCard member={activity} />
-        } else {
-            return <View />;
-        }
-    }
-
-    const DescriptionFold = () => {
-        return (
-            <DescriptionContainer>
-                <DescriptionText>
-                    { club.description }
-                </DescriptionText>
-            </DescriptionContainer>
-        )
     }
 
     const JoinClubButton = () => {
@@ -367,12 +382,10 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         );
     }
 
-
-
     return (
         <ActivityScreenContainer>
-            <ClubActivityList />
-            <ClubBanner club={club} navigation={navigation} onRefresh={onRefresh} />
+            <ClubActivityList club={club} navigation={navigation} onRefresh={onRefresh} refreshing={refreshing} />
+            <ClubBanner club={club} navigation={navigation} />
 
             { iAmMember && <AddTitleButton /> }
             { !iAmMember && isPublicClub && <JoinClubButton /> }

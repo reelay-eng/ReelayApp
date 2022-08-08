@@ -5,7 +5,7 @@
     "pages": [
         {
             "title": "New streaming services added!",
-            "body": "Select the ones you’d like to see in your On Streaming feed",
+            "body": "",
             "orientation": "streaming-selector",
             "newStreamingVenues": [
                 "crackle",

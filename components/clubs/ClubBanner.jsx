@@ -103,11 +103,7 @@ const InfoButtonContainer = styled(TouchableOpacity)`
     justify-content: center;
     margin: 6px;
 `
-export default ClubBanner = ({ 
-    club, 
-    navigation, 
-    onRefresh,
-}) => {
+export default ClubBanner = ({ club, navigation }) => {
     const topOffset = useSafeAreaInsets().top;
     const infoButtonTopOffset = topOffset + 28;
     const advanceToClubInfoScreen = () => navigation.push('ClubInfoScreen', { club });
