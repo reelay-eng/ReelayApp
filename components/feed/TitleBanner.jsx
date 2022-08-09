@@ -74,7 +74,7 @@ const OverviewText = styled(ReelayText.CaptionEmphasized)`
 const RuntimeText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
-    margin-left: 12px;
+    margin-right: 10px;
 `
 const SeeMorePressable = styled(TouchableOpacity)`
     padding-left: 8px;
@@ -83,6 +83,9 @@ const SeeMoreText = styled(ReelayText.CaptionEmphasized)`
     color: ${ReelayColors.reelayBlue};
     font-size: 14px;
     line-height: 16px;
+`
+const Spacer = styled(View)`
+    width: 10px;
 `
 const TitleBannerRow = styled(Pressable)`
     align-items: flex-start;
@@ -130,6 +133,7 @@ const VenueContainer = styled(View)`
 const YearText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
+    margin-right: 10px;
 `
 const YearVenueContainer = styled(View)`
     align-items: center;
@@ -174,7 +178,7 @@ const venuesEqual = (prevProps, nextProps) => {
     return prevProps.venue === nextProps.venue;
 }
 
-const TitleUnderline = memo(({ venue, displayYear, runtime }) => {
+const TitleUnderline = memo(({ venue, displayYear, expanded, runtime }) => {
     const runtimeString = runtime ? getRuntimeString(runtime) : '';
     return (
         <TitleUnderlineContainer>
@@ -185,7 +189,8 @@ const TitleUnderline = memo(({ venue, displayYear, runtime }) => {
                     </VenueContainer>
                 }
                 { displayYear?.length > 0 && <YearText>{displayYear}</YearText> }
-                <RuntimeText>{runtimeString}</RuntimeText>
+                { runtimeString?.length > 0 && <RuntimeText>{runtimeString}</RuntimeText> }
+                <FontAwesomeIcon icon={expanded ?  faChevronUp : faChevronDown} color='white' size={16} />
             </YearVenueContainer>
         </TitleUnderlineContainer>
     );
@@ -282,10 +287,10 @@ const TitleBanner = ({
                 </TitleTextContainer>
                 <TitleUnderline 
                     displayYear={displayYear} 
+                    expanded={expanded}
                     runtime={titleObj?.runtime}
                     venue={reelay?.content?.venue} 
                 />
-                <ExpandableInfo />
             </TitleInfoPressable>
         );
     }

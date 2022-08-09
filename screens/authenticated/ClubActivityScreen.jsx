@@ -86,7 +86,7 @@ const UploadProgressBarView = styled(View)`
     width: 100%;
 `
 
-const ClubActivity = ({ activity, club, feedIndex, navigation, onLayout }) => {
+const ClubActivity = ({ activity, club, feedIndex, navigation, onLayout, onRefresh }) => {
     const { activityType } = activity;
     const advanceToFeed = () => {
         if (feedIndex === -1) return;
@@ -202,6 +202,7 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
                 feedIndex={initFeedIndex} 
                 navigation={navigation}
                 onLayout={onLayout} 
+                onRefresh={onRefresh}
             />
         );    
     };

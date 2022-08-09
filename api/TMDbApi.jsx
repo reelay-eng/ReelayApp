@@ -143,7 +143,6 @@ export const fetchAnnotatedTitle = async ({ tmdbTitleID, isSeries, isWelcomeReel
         ? await fetchSeriesTrailerURI(tmdbTitleID)
         : await fetchMovieTrailerURI(tmdbTitleID);
 
-    
     let posterSource = PLACEHOLDER_POSTER_SOURCE;
     if (tmdbTitleObject?.poster_path) {
         posterSource = { uri: getPosterURL(tmdbTitleObject?.poster_path, 185) };
