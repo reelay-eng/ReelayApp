@@ -152,7 +152,7 @@ const NoticeInfo = ({ title, body, bodyTextColor='gray' }) => {
     return (
         <NoticeInfoBox>
             <NoticeTitleText>{title}</NoticeTitleText>
-            { body?.length && <NoticeBodyText bodyTextColor={bodyTextColor}>{body}</NoticeBodyText> }
+            { (body?.length > 0) && <NoticeBodyText bodyTextColor={bodyTextColor}>{body}</NoticeBodyText> }
         </NoticeInfoBox>
     );
 }

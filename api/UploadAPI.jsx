@@ -1,4 +1,5 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 
 import {
     notifyClubMembersOnReelayPosted,
@@ -39,6 +40,7 @@ export const uploadReelay = async ({
             inClub: !!reelayDBBody?.clubID,
         });
 
+        activateKeepAwake();
         setUploadStage('preparing-upload');
         setUploadProgress(0.2);
     
@@ -53,6 +55,7 @@ export const uploadReelay = async ({
         if (!s3UploadResult) {
             setUploadStage('upload-failed-retry');
             setUploadProgress(1.0);
+            deactivateKeepAwake();
             return;
         }
 
@@ -88,10 +91,13 @@ export const uploadReelay = async ({
             reelayClubTitle, 
             reelayTopic
         };
+
+        deactivateKeepAwake();
         return publishObj;
     } catch (error) {
         setUploadProgress(0.0);
         setUploadStage('upload-failed-retry');
+        deactivateKeepAwake();
         
         logAmplitudeEventProd('uploadFailed', {
             username: creatorName,
