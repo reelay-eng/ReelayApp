@@ -84,7 +84,7 @@ export const getSingleTopic = async (topicID) => {
     return await topicWithReelays;
 }
 
-export const getTopics = async ({ authSession, page = 0, reqUserSub, source = 'discoverNew' }) => {
+export const getTopics = async ({ authSession, page = 0, reqUserSub, source = 'discover' }) => {
     console.log('Getting discover popular topics...');
     const routeGet = `${REELAY_API_BASE_URL}/topics/${source}?page=${page}&visibility=${FEED_VISIBILITY}`;
     const topicsWithReelays = await fetchResults(routeGet, {

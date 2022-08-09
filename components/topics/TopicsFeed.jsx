@@ -31,41 +31,21 @@ export default TopicsFeed = ({
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
-    const myHomeContent = useSelector(state => state.myHomeContent);
+
+    const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
+    const followingTopics = useSelector(state => state.myHomeContent?.following?.topics);
+
     const page = useRef(0);
 	const dispatch = useDispatch();
     const feedPager = useRef();
 
-    const getDiscoverTopics = () => {
-        const discoverNewTopics = myHomeContent?.discover?.newTopics;
-        const discoverPopularTopics = myHomeContent?.discover?.popularTopics;
-
-        const sortTopics = (topic0, topic1) => {
-            const topic0LastUpdatedAt = moment(topic0?.lastUpdatedAt);
-            const topic1LastUpdatedAt = moment(topic1?.lastUpdatedAt);
-            return topic1LastUpdatedAt.diff(topic0LastUpdatedAt, 'seconds') > 0;
-        }
-
-        const discoverTopics = [
-            ...discoverNewTopics,
-            ...discoverPopularTopics
-        ].sort(sortTopics);
-    
-        const uniqueTopic = (topic, index) => {
-            const matchTopicID = (nextTopic) => topic?.id === nextTopic?.id;
-            return index === discoverTopics.findIndex(matchTopicID);
-        }
-    
-        return discoverTopics.filter(uniqueTopic);    
-    }
-
     let displayTopics;
     switch (source) {
         case 'discover':
-            displayTopics = getDiscoverTopics();
+            displayTopics = discoverTopics ?? [];
             break;
-        case 'followingNew':
-            displayTopics = myHomeContent?.following?.newTopics;
+        case 'following':
+            displayTopics = followingTopics ?? [];
             break;
         case 'search':
             displayTopics = preloadedTopics;

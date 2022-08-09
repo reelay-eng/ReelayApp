@@ -135,7 +135,7 @@ const HomeComponent = ({ navigation }) => {
                         <MyWatchlistGrid navigation={navigation} />
                         <FriendsAreWatching navigation={navigation} />
                         <OnStreaming navigation={navigation} source='following' />
-                        <TopicsCarousel navigation={navigation} source='followingNew' /> 
+                        <TopicsCarousel navigation={navigation} source='following' /> 
                     </Fragment>  
                 )}
                 <Spacer />

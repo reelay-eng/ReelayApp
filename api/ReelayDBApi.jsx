@@ -372,16 +372,10 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
         'theaters',
         'streaming',
         'mostRecent', 
-        'newTopics', 
+        'topics', 
         'popularTitles',
-        'popularTopics',
         'topOfTheWeek',
     ];
-
-    const titleAndTopicContentTypes = [
-        'newTopics', 
-        'popularTopics',
-    ]
 
     if (!homeContent) {
         console.log('Error: no home content');
@@ -432,10 +426,9 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
     const prepareHomeTabReelays = async (homeTab) => {
         const contentKeys = Object.keys(homeTab);
         const prepareHomeContentForKey = async (contentKey) => {
-            const isTitlesOrTopics = titleAndTopicContentTypes.includes(contentKey);
             const mustPrepareReelays = reelayContentTypes.includes(contentKey);
-    
-            if (isTitlesOrTopics) {
+
+            if (contentKey === 'topics') {
                 homeTab[contentKey] = await prepareTitlesAndTopics(homeTab[contentKey]);
             } else if (mustPrepareReelays) {
                 homeTab[contentKey] = await prepareFeed(homeTab[contentKey]);
@@ -459,14 +452,6 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
         prepareFeed(global),
         prepareAllClubs(),
     ]);
-
-    // console.log('prepared home screen: ');
-    // console.log('discover popular: ', discoverPrepared?.popularTitles);
-    // console.log('following popular: ', followingPrepared?.popularTitles);
-    // console.log('following most recent: ', followingPrepared?.mostRecent);
-    // console.log('global: ', globalPrepared);
-    // console.log('clubs: ', clubsPrepared);
-    // console.log('profile: ', profile);
     
     return {
         discover: discoverPrepared,

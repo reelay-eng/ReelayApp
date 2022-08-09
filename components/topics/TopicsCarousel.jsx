@@ -72,8 +72,8 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
     const { reelayDBUser } = useContext(AuthContext);
     const curTopicIndex = useRef(0);
 
-    const myHomeContent = useSelector(state => state.myHomeContent);
-    const followingNewTopics = useSelector(state => state.myHomeContent?.following?.newTopics);
+    const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
+    const followingTopics = useSelector(state => state.myHomeContent?.following?.topics);
     const [topicsOnProfile, setTopicsOnProfile] = useState([]);
 
     const loadTopicsByCreator = async () => {
@@ -93,38 +93,15 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
         loadTopicsByCreator();
     }, []);
 
-    const getDiscoverTopics = () => {
-        const discoverNewTopics = myHomeContent?.discover?.newTopics;
-        const discoverPopularTopics = myHomeContent?.discover?.popularTopics;
-
-        const sortTopics = (topic0, topic1) => {
-            const topic0LastUpdatedAt = moment(topic0?.lastUpdatedAt);
-            const topic1LastUpdatedAt = moment(topic1?.lastUpdatedAt);
-            return topic1LastUpdatedAt.diff(topic0LastUpdatedAt, 'seconds') > 0;
-        }
-
-        const discoverTopics = [
-            ...discoverNewTopics,
-            ...discoverPopularTopics
-        ].sort(sortTopics);
-    
-        const uniqueTopic = (topic, index) => {
-            const matchTopicID = (nextTopic) => topic?.id === nextTopic?.id;
-            return index === discoverTopics.findIndex(matchTopicID);
-        }
-    
-        return discoverTopics.filter(uniqueTopic);    
-    }
-
     let displayTopics = [];
     let headerText = "Topics";
     switch (source) {
         case 'discover':
-            displayTopics = getDiscoverTopics();
+            displayTopics = discoverTopics ?? [];
             headerText = 'Topics';
             break;
-        case 'followingNew':
-            displayTopics = followingNewTopics ?? [];
+        case 'following':
+            displayTopics = followingTopics ?? [];
             headerText = 'New topics'
             break;
         case 'profile':

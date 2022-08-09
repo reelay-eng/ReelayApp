@@ -118,11 +118,10 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     const myClubs = useSelector(state => state.myClubs);
 
     // get the topic we're (optionally) posting in
-    const discoverNewTopics = useSelector(state => state.myHomeContent?.discover?.newTopics);
-    const discoverPopularTopics = useSelector(state => state.myHomeContent?.discover?.popularTopics);
-    const followingNewTopics = useSelector(state => state.myHomeContent?.following?.newTopics);
+    const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
+    const followingTopics =useSelector(state => state.myHomeContent?.following?.topics);
 
-    const allTopics = [...discoverNewTopics, ...discoverPopularTopics, ...followingNewTopics];
+    const allTopics = [...discoverTopics, ...followingTopics];
     const isNotDuplicate = (topic, index) => (index === allTopics.findIndex(nextTopic => nextTopic?.id === topic?.id));
     const allUniqueTopics = allTopics.filter(isNotDuplicate);
     
@@ -289,6 +288,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
 
     const UploadBottomRow = () => {
         return (
+            <KeyboardAvoidingView behavior='position'>
             <UploadBottomArea onPress={Keyboard.dismiss}>
                 { pleaseBePatientShouldDisplay && uploadStarted && <PleaseBePatientPrompt /> }
                 { !uploadStarted && (
@@ -302,6 +302,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                     <UploadButton />
                 </UploadBottomBar>
             </UploadBottomArea>
+            </KeyboardAvoidingView>
         )
     }
 
@@ -354,9 +355,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         <UploadScreenContainer>
             <PreviewVideoPlayer isMuted={previewIsMuted} title={titleObj} videoURI={videoURI} />
             <HeaderWithPoster />
-            <KeyboardAvoidingView behavior='position'>
-                <UploadBottomRow />
-            </KeyboardAvoidingView>
+            <UploadBottomRow />
             { confirmRetakeDrawerVisible && (
                 <ConfirmRetakeDrawer 
                     navigation={navigation} titleObj={titleObj} 
