@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
+import { FlashList } from "@shopify/flash-list";
+import Constants from 'expo-constants';
 
 import { AuthContext } from '../../context/AuthContext';
 import BackButton from '../../components/utils/BackButton';
@@ -25,6 +27,7 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import ProfilePicture from '../../components/global/ProfilePicture';
 
 const { height, width } = Dimensions.get('window');
+const canUseFlashList = (Constants.appOwnership !== 'expo');
 
 const CloseButtonContainer = styled(TouchableOpacity)`
     width: 32px;
@@ -220,12 +223,12 @@ const TopicScroll = ({
         }
     }
 
-    const getItemLayout = (item, index) => {
-        const length = itemHeights.current[index] ?? 0;
-        const accumulate = (sum, next) => sum + next;
-        const offset = itemHeights.current.slice(0, index).reduce(accumulate, 0);
-        return { length, offset, index };
-    }
+    // const getItemLayout = (item, index) => {
+    //     const length = itemHeights.current[index] ?? 0;
+    //     const accumulate = (sum, next) => sum + next;
+    //     const offset = itemHeights.current.slice(0, index).reduce(accumulate, 0);
+    //     return { length, offset, index };
+    // }
 
     const resetTopics = () => setDisplayTopics(initDisplayTopics);
     
@@ -251,7 +254,7 @@ const TopicScroll = ({
         }    
 
         return (
-            <TopicCardContainer key={topic.id} onLayout={onLayout}>
+            <TopicCardContainer onLayout={onLayout}>
                 <TopicCard 
                     advanceToFeed={advanceToFeed}
                     clubID={null}
@@ -286,14 +289,27 @@ const TopicScroll = ({
                 setSearching={setSearching} 
                 updateSearchResults={updateSearchResults}
             /> }
-            <FlatList
-                contentContainerStyle={topicScrollStyle}
-                data={displayTopics}
-                // getItemLayout={getItemLayout}
-                onEndReached={extendScroll}
-                onEndReachedThreshold={0.9}
-                renderItem={renderTopic}
-            />
+            { canUseFlashList && (
+                <FlashList
+                    contentContainerStyle={topicScrollStyle}
+                    data={displayTopics}
+                    estimatedItemSize={180}
+                    onEndReached={extendScroll}
+                    onEndReachedThreshold={0.9}
+                    renderItem={renderTopic}
+                />
+            )}
+            { !canUseFlashList && (
+                <FlatList
+                    contentContainerStyle={topicScrollStyle}
+                    data={displayTopics}
+                    keyExtractor={topic => String(topic.id)}
+                    // getItemLayout={getItemLayout}
+                    onEndReached={extendScroll}
+                    onEndReachedThreshold={0.9}
+                    renderItem={renderTopic}
+                />
+            )}
         </View>
     )
 }
