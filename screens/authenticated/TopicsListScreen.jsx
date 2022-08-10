@@ -67,6 +67,7 @@ const SearchButtonContainer = styled(TouchableOpacity)`
 const ScreenContainer = styled(SafeAreaView)`
     background-color: black;
     justify-content: space-between;
+    padding: 16px;
     height: 100%;
     width: 100%;
 `
@@ -101,11 +102,6 @@ const Spacer = styled(View)`
 `
 const TopicCardContainer = styled(View)`
     margin-bottom: 18px;
-`
-const TopicScrollContainer = styled(ScrollView)`
-    padding-left: 15px;
-    padding-bottom: 80px;
-    width: 100%;
 `
 
 const SearchBar = ({ resetTopics, searchBarRef, setSearching, updateSearchResults }) => {
@@ -266,12 +262,6 @@ const TopicScroll = ({
         );
     }
 
-    const topicScrollStyle = {
-        paddingLeft: 15,
-        paddingBottom: 80,
-        width: '100%',    
-    }
-
     const updateSearchResults = async () => {
         const topicSearchResults = await searchTopics({ 
             searchText, 
@@ -282,7 +272,7 @@ const TopicScroll = ({
     }
 
     return (
-        <View>
+        <View style={{ alignItems: 'center', width: '100%' }}>
             { searching && <SearchBar 
                 resetTopics={resetTopics}
                 searchBarRef={searchBarRef}
@@ -291,7 +281,6 @@ const TopicScroll = ({
             /> }
             { canUseFlashList && (
                 <FlashList
-                    contentContainerStyle={topicScrollStyle}
                     data={displayTopics}
                     estimatedItemSize={180}
                     onEndReached={extendScroll}
@@ -301,7 +290,6 @@ const TopicScroll = ({
             )}
             { !canUseFlashList && (
                 <FlatList
-                    contentContainerStyle={topicScrollStyle}
                     data={displayTopics}
                     keyExtractor={topic => String(topic.id)}
                     // getItemLayout={getItemLayout}
