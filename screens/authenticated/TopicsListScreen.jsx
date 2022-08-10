@@ -101,7 +101,8 @@ const Spacer = styled(View)`
     width: 8px;
 `
 const TopicCardContainer = styled(View)`
-    margin-bottom: 18px;
+    margin: 16px;
+    margin-bottom: 0px;
 `
 
 const SearchBar = ({ resetTopics, searchBarRef, searchTextRef, setSearching, updateSearchResults }) => {
@@ -153,7 +154,7 @@ const TopicScroll = ({
     const [displayTopics, setDisplayTopics] = useState(initDisplayTopics);
     const [extending, setExtending] = useState(false);
     const [nextPage, setNextPage] = useState(initNextPage);
-    const itemHeights = useRef([]);
+    // const itemHeights = useRef([]);
     const searchTextRef = useRef('');
     const searchCounter = useRef(0);
     const searchBarRef = useRef(null);
@@ -216,12 +217,12 @@ const TopicScroll = ({
             });
         }
 
-        const onLayout = ({ nativeEvent }) => {
-            itemHeights.current[index] = nativeEvent?.layout?.height;
-        }    
+        // const onLayout = ({ nativeEvent }) => {
+        //     itemHeights.current[index] = nativeEvent?.layout?.height;
+        // }    
 
         return (
-            <TopicCardContainer onLayout={onLayout}>
+            <TopicCardContainer>
                 <TopicCard 
                     advanceToFeed={advanceToFeed}
                     clubID={null}
