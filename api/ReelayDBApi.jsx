@@ -339,6 +339,7 @@ const prepareFeed = async (fetchedStacks) => {
 }
 
 const prepareTitlesAndTopics = async (titlesAndTopics) => {
+    console.log('titles and topics length: ', titlesAndTopics?.length);
     for (const titleOrTopic of titlesAndTopics) {
         titleOrTopic.reelays = await Promise.all(titleOrTopic.reelays.map(prepareReelay));
     }
@@ -429,7 +430,8 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
             const mustPrepareReelays = reelayContentTypes.includes(contentKey);
 
             if (contentKey === 'topics') {
-                homeTab[contentKey] = await prepareTitlesAndTopics(homeTab[contentKey]);
+                const topics =  homeTab['topics'] ?? homeTab['newTopics'];
+                homeTab['topics'] = await prepareTitlesAndTopics(topics);
             } else if (mustPrepareReelays) {
                 homeTab[contentKey] = await prepareFeed(homeTab[contentKey]);
             } else {
@@ -478,17 +480,7 @@ export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
         return null;
     }
 
-    const filterOldTheaterTitles = (preparedStack) => {
-        preparedStack.forEach(reelay => {
-            const { releaseDate } = reelay;
-            console.log('title release date: ', releaseDate);
-        })
-    }
-
     const preparedFeed = await prepareFeed(fetchedStacks);
-    if (feedSource === 'theaters') {
-        preparedFeed.forEach(filterOldTheaterTitles);
-    }
     return preparedFeed;
 }
 

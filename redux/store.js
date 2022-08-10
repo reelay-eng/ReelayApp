@@ -44,7 +44,6 @@ const initialState = {
     myHomeContent: {},
     myDismissalHistory: {},
     showFestivalsRow: false,
-    topics: {},
 
     // ON REELAYS
     likesVisible: false,
@@ -179,15 +178,21 @@ const appReducer = ( state = initialState, action) => {
         case 'setShowFestivalsRow':
             return { ...state, showFestivalsRow: action.payload }            
         case 'setTopics': 
-            const { discover, following } = action.payload;
+            const { discover, following, nextPage } = action.payload;
             myHomeContent = { ...state.myHomeContent };
             if (!myHomeContent.discover || !myHomeContent.following) {
                 console.log('Invalid home content. Cannot set topics');
                 return state;
             }
 
-            if (discover) myHomeContent.discover.topics = discover;
-            if (following) myHomeContent.following.topics = following;
+            if (discover) {
+                myHomeContent.discover.topics = discover;
+                myHomeContent.discover.topicsNextPage = nextPage;
+            }
+            if (following) {
+                myHomeContent.following.topics = following;
+                myHomeContent.following.topicsNextPage = nextPage;
+            }
             return { ...state, myHomeContent };
 
         // ON REELAYS

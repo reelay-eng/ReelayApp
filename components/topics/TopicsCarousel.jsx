@@ -102,6 +102,7 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
             break;
         case 'following':
             displayTopics = followingTopics ?? [];
+            console.log('following topics: ', followingTopics);
             headerText = 'New topics'
             break;
         case 'profile':

@@ -26,35 +26,42 @@ export default TopicsFeed = ({
     initTopicIndex, 
     initReelayIndex,
     source,
-    creatorOnProfile=null,
-    topicsOnProfile=null,
+    creatorOnProfile,
+    topicsOnProfile,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
 
-    const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
+    const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics) ?? [];
     const followingTopics = useSelector(state => state.myHomeContent?.following?.topics);
 
-    const page = useRef(0);
+    const discoverTopicsNextPage = useSelector(state => state.myHomeContent?.discover?.topicsNextPage) ?? 0;
+    const followingTopicsNextPage = useSelector(state => state.myHomeContent?.following?.topicsNextPage) ?? 0;
+
 	const dispatch = useDispatch();
     const feedPager = useRef();
 
-    let displayTopics;
+    let displayTopics, nextPage;
     switch (source) {
         case 'discover':
             displayTopics = discoverTopics ?? [];
+            nextPage = discoverTopicsNextPage;
             break;
         case 'following':
             displayTopics = followingTopics ?? [];
+            nextPage = followingTopicsNextPage;
             break;
         case 'search':
-            displayTopics = preloadedTopics;
+            displayTopics = preloadedTopics ?? [];
+            nextPage = 1;
             break;
         case 'profile':
-            displayTopics = topicsOnProfile;
+            displayTopics = topicsOnProfile ?? [];
+            nextPage = 1;
             break;
         default:
             displayTopics = [];
+            nextPage = 1;
             break;
     }
 
@@ -83,7 +90,7 @@ export default TopicsFeed = ({
                     source,
                 });
 
-            const payload = {};
+            const payload = { nextPage: 1 };
             payload[source] = nextTopics;
             dispatch({ type: 'setTopics', payload });
 
@@ -106,7 +113,7 @@ export default TopicsFeed = ({
                 ? await getTopicsByCreator({
                     creatorSub: creatorOnProfile?.sub,
                     reqUserSub: reelayDBUser?.sub,
-                    page: 0,
+                    page: page.current,
                 })
                 : await getTopics({ 
                     authSession, 
@@ -115,7 +122,7 @@ export default TopicsFeed = ({
                     source,
                 });
 
-            const payload = {};
+            const payload = { nextPage: page.current + 1 };
             payload[source] = [...displayTopics, ...nextTopics];
             dispatch({ type: 'setTopics', payload });
 

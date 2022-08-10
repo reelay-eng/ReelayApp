@@ -180,8 +180,8 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
     const renderClubActivity = ({ item, index }) => {
         const activity = item;
         const { activityType } = activity;
+        
         const onLayout = ({ nativeEvent }) => {
-            console.log('rendering club activity at index: ', index, nativeEvent?.layout?.height);
             itemHeights.current[index] = nativeEvent?.layout?.height;
         }
 

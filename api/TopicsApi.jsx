@@ -85,9 +85,9 @@ export const getSingleTopic = async (topicID) => {
 }
 
 export const getTopics = async ({ authSession, page = 0, reqUserSub, source = 'discover' }) => {
-    console.log('Getting discover popular topics...');
     const routeGet = `${REELAY_API_BASE_URL}/topics/${source}?page=${page}&visibility=${FEED_VISIBILITY}`;
-    const topicsWithReelays = await fetchResults(routeGet, {
+    console.log('topics route get: ', routeGet);
+    const fetchedTopics = await fetchResults(routeGet, {
         method: 'GET',
         headers: {
             ...getReelayAuthHeaders(authSession),
@@ -99,8 +99,7 @@ export const getTopics = async ({ authSession, page = 0, reqUserSub, source = 'd
         topic.reelays = await Promise.all(topic.reelays.map(prepareReelay));
         return topic;
     }
-
-    const preparedTopics = await Promise.all(topicsWithReelays.map(prepareTopicReelays));
+    const preparedTopics = await Promise.all(fetchedTopics.map(prepareTopicReelays));
     return preparedTopics;
 }
 

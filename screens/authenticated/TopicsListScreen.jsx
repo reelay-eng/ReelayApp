@@ -1,6 +1,7 @@
 import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { 
     Dimensions,
+    FlatList,
     Keyboard, 
     Pressable, 
     SafeAreaView, 
@@ -19,7 +20,7 @@ import TopicCard from '../../components/topics/TopicCard';
 import ReelayColors from '../../constants/ReelayColors';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { searchTopics } from '../../api/TopicsApi';
+import { getTopics, getTopicsByCreator, searchTopics } from '../../api/TopicsApi';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import moment from 'moment';
 import { HeaderWithBackButton } from '../../components/global/Headers';
@@ -116,24 +117,30 @@ export default TopicsListScreen = ({ navigation, route }) => {
     const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
     const followingTopics = useSelector(state => state.myHomeContent?.following?.topics);
 
-    let initDisplayTopics;
-    let headerText;
+    const discoverTopicsNextPage = useSelector(state => state.myHomeContent?.discover?.topicsNextPage) ?? 1;
+    const followingTopicsNextPage = useSelector(state => state.myHomeContent?.following?.topicsNextPage) ?? 1;
 
+    let headerText, initDisplayTopics, nextPage;
     switch (source) {
         case 'discover':
-            initDisplayTopics = discoverTopics ?? [];
             headerText = 'Topics';
+            initDisplayTopics = discoverTopics ?? [];
+            nextPage = discoverTopicsNextPage ?? 1;
             break;    
         case 'following':
-            initDisplayTopics = followingTopics ?? [];
             headerText = 'Topics by friends';
+            initDisplayTopics = followingTopics ?? [];
+            nextPage = followingTopicsNextPage ?? 1;
             break;
         case 'profile':
-            initDisplayTopics = topicsOnProfile;
             headerText = `${creatorOnProfile?.username}'s topics`;
+            initDisplayTopics = topicsOnProfile;
+            nextPage = 1;
             break;
         default:
+            headerText = '';
             initDisplayTopics = [];
+            nextPage = 1;
             break;
     }
     
@@ -183,7 +190,50 @@ export default TopicsListScreen = ({ navigation, route }) => {
     }
 
     const TopicScroll = () => {
-        const renderTopic = (topic, index) => {
+        const authSession = useSelector(state => state.authSession);
+        const itemHeights = useRef([]);
+
+        const extendScroll = async () => {
+            if (source === 'search') return;
+            try {
+                let nextTopics = [];
+                if (source === 'profile') {
+                    nextTopics = await getTopicsByCreator({
+                        creatorSub: creatorOnProfile?.sub,
+                        reqUserSub: reelayDBUser?.sub,
+                        page: nextPage,
+                    });
+                } else {
+                    nextTopics = await getTopics({ 
+                        authSession, 
+                        page: nextPage, 
+                        reqUserSub: reelayDBUser?.sub, 
+                        source,
+                    });
+                }
+
+                console.log('next topic ids: ', nextTopics.map(topic => topic.id));
+
+                const payload = { nextPage: nextPage + 1 };
+                const nextDisplayTopics = [ ...displayTopics, ...nextTopics ];
+                payload[source] = nextDisplayTopics;
+                setDisplayTopics(nextDisplayTopics);
+                dispatch({ type: 'setTopics', payload });
+    
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        const getItemLayout = (item, index) => {
+            const length = itemHeights.current[index] ?? 0;
+            const accumulate = (sum, next) => sum + next;
+            const offset = itemHeights.current.slice(0, index).reduce(accumulate, 0);
+            return { length, offset, index };
+        }
+        
+        const renderTopic = ({ item, index }) => {
+            const topic = item;
             const matchTopic = (nextTopic) => (nextTopic.id === topic.id);
             const initTopicIndex = displayTopicsWithReelays.findIndex(matchTopic);
         
@@ -199,8 +249,12 @@ export default TopicsListScreen = ({ navigation, route }) => {
                 });
             }
 
+            const onLayout = ({ nativeEvent }) => {
+                itemHeights.current[index] = nativeEvent?.layout?.height;
+            }    
+
             return (
-                <TopicCardContainer key={topic.id} >
+                <TopicCardContainer key={topic.id} onLayout={onLayout}>
                     <TopicCard 
                         advanceToFeed={advanceToFeed}
                         clubID={null}
@@ -212,17 +266,25 @@ export default TopicsListScreen = ({ navigation, route }) => {
             );
         }
 
+        const topicScrollStyle = {
+            paddingLeft: 15,
+            paddingBottom: 80,
+            width: '100%',    
+        }
+
         return (
-            <TopicScrollContainer 
-                showsVerticalScrollIndicator={false}
-                onEndReached={() => console.log('end reached')}
-            >
-                { displayTopics.map(renderTopic) }
-            </TopicScrollContainer>
+            <FlatList
+                contentContainerStyle={topicScrollStyle}
+                data={displayTopics}
+                getItemLayout={getItemLayout}
+                onEndReached={extendScroll}
+                onEndReachedThreshold={0.9}
+                renderItem={renderTopic}
+            />
         )
     }
 
-    const resetTopics = () => setDisplayTopics(initDisplayTopics);
+    const resetTopics = () =>  {} // setDisplayTopics(initDisplayTopics);
     const updateSearchResults = async (searchText) => {
         const topicSearchResults = await searchTopics({ 
             searchText, 
