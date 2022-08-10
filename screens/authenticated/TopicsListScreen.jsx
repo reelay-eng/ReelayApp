@@ -22,8 +22,6 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { getTopics, getTopicsByCreator, searchTopics } from '../../api/TopicsApi';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
-import moment from 'moment';
-import { HeaderWithBackButton } from '../../components/global/Headers';
 import ProfilePicture from '../../components/global/ProfilePicture';
 
 const { height, width } = Dimensions.get('window');
@@ -148,6 +146,7 @@ const TopicScroll = ({
     setSearching,
     source = 'discover',
 }) => {
+    const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
     const searchBarRef = useRef(null);
@@ -290,7 +289,7 @@ const TopicScroll = ({
             <FlatList
                 contentContainerStyle={topicScrollStyle}
                 data={displayTopics}
-                getItemLayout={getItemLayout}
+                // getItemLayout={getItemLayout}
                 onEndReached={extendScroll}
                 onEndReachedThreshold={0.9}
                 renderItem={renderTopic}
