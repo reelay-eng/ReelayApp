@@ -339,7 +339,6 @@ const prepareFeed = async (fetchedStacks) => {
 }
 
 const prepareTitlesAndTopics = async (titlesAndTopics) => {
-    console.log('titles and topics length: ', titlesAndTopics?.length);
     for (const titleOrTopic of titlesAndTopics) {
         titleOrTopic.reelays = await Promise.all(titleOrTopic.reelays.map(prepareReelay));
     }

@@ -104,15 +104,14 @@ const TopicCardContainer = styled(View)`
     margin-bottom: 18px;
 `
 
-const SearchBar = ({ resetTopics, searchBarRef, setSearching, updateSearchResults }) => {
-    const searchTextRef = useRef('');
+const SearchBar = ({ resetTopics, searchBarRef, searchTextRef, setSearching, updateSearchResults }) => {
     const onClose = () => {
         setSearching(false);
         resetTopics();
     }
     const updateSearch = (newSearchText) => {
         searchTextRef.current = newSearchText;
-        updateSearchResults(newSearchText);
+        updateSearchResults();
     }
     useEffect(() => searchBarRef.current.focus(), []);
 
@@ -140,55 +139,32 @@ const SearchBar = ({ resetTopics, searchBarRef, setSearching, updateSearchResult
 
 const TopicScroll = ({ 
     creatorOnProfile,
+    initDisplayTopics,
+    initNextPage,
     navigation,
     searching,
     setSearching,
     source = 'discover',
 }) => {
-    const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
+    const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
-    const searchBarRef = useRef(null);
 
-    const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
-    const followingTopics = useSelector(state => state.myHomeContent?.following?.topics);
-
-    const discoverTopicsNextPage = useSelector(state => state.myHomeContent?.discover?.topicsNextPage) ?? 1;
-    const followingTopicsNextPage = useSelector(state => state.myHomeContent?.following?.topicsNextPage) ?? 1;
-
-    let initDisplayTopics, nextPage;
-    switch (source) {
-        case 'discover':
-            initDisplayTopics = discoverTopics ?? [];
-            nextPage = discoverTopicsNextPage ?? 1;
-            break;    
-        case 'following':
-            initDisplayTopics = followingTopics ?? [];
-            nextPage = followingTopicsNextPage ?? 1;
-            break;
-        case 'profile':
-            initDisplayTopics = topicsOnProfile;
-            nextPage = 1;
-            break;
-        case 'search':
-            initDisplayTopics = searchResults;
-            nextPage = 1;
-            break;
-        default:
-            initDisplayTopics = [];
-            nextPage = 1;
-            break;
-    }
-    
     const [displayTopics, setDisplayTopics] = useState(initDisplayTopics);
+    const [extending, setExtending] = useState(false);
+    const [nextPage, setNextPage] = useState(initNextPage);
+    const itemHeights = useRef([]);
+    const searchTextRef = useRef('');
+    const searchCounter = useRef(0);
+    const searchBarRef = useRef(null);
+    
     const hasReelays = (topic) => topic?.reelays?.length > 0
     const displayTopicsWithReelays = displayTopics.filter(hasReelays);
-    const itemHeights = useRef([]);
 
     const extendScroll = async () => {
-        if (source === 'search') return; // todo
-
+        if (searching || extending) return;
         try {
+            setExtending(true);
             let nextTopics = [];
             if (source === 'profile') {
                 nextTopics = await getTopicsByCreator({
@@ -205,12 +181,14 @@ const TopicScroll = ({
                 });
             }
 
-            console.log('next topic ids: ', nextTopics.map(topic => topic.id));
+            if (nextTopics?.length === 0) return;
 
             const payload = { nextPage: nextPage + 1 };
             const nextDisplayTopics = [ ...displayTopics, ...nextTopics ];
             setDisplayTopics(nextDisplayTopics);
-            if (source === 'profile') return;
+            setNextPage(nextPage + 1);
+            setExtending(false);
+            if (source === 'profile' || source === 'search' || searching) return;
 
             payload[source] = nextDisplayTopics;
             dispatch({ type: 'setTopics', payload });
@@ -218,13 +196,6 @@ const TopicScroll = ({
             console.log(error);
         }
     }
-
-    // const getItemLayout = (item, index) => {
-    //     const length = itemHeights.current[index] ?? 0;
-    //     const accumulate = (sum, next) => sum + next;
-    //     const offset = itemHeights.current.slice(0, index).reduce(accumulate, 0);
-    //     return { length, offset, index };
-    // }
 
     const resetTopics = () => setDisplayTopics(initDisplayTopics);
     
@@ -263,23 +234,32 @@ const TopicScroll = ({
     }
 
     const updateSearchResults = async () => {
+        if (searchTextRef.current?.length === 0) {
+            setDisplayTopics(initDisplayTopics);
+        }
+        
+        const currentSearchCounter = ++searchCounter.current;
         const topicSearchResults = await searchTopics({ 
-            searchText, 
-            page, 
+            searchText: searchTextRef.current, 
+            page: 0, 
             reqUserSub: reelayDBUser?.sub,
         });
-        setDisplayTopics(topicSearchResults);
+
+        if (currentSearchCounter === searchCounter.current) {
+            setDisplayTopics(topicSearchResults);
+        }
     }
 
-    return (
-        <View style={{ alignItems: 'center', width: '100%' }}>
-            { searching && <SearchBar 
-                resetTopics={resetTopics}
-                searchBarRef={searchBarRef}
-                setSearching={setSearching} 
-                updateSearchResults={updateSearchResults}
-            /> }
-            { canUseFlashList && (
+    if (canUseFlashList) {
+        return (
+            <Fragment>
+                { searching && <SearchBar 
+                    resetTopics={resetTopics}
+                    searchBarRef={searchBarRef}
+                    searchTextRef={searchTextRef}
+                    setSearching={setSearching} 
+                    updateSearchResults={updateSearchResults}
+                /> }
                 <FlashList
                     data={displayTopics}
                     estimatedItemSize={180}
@@ -288,18 +268,28 @@ const TopicScroll = ({
                     renderItem={renderTopic}
                     showsVerticalScrollIndicator={false}
                 />
-            )}
-            { !canUseFlashList && (
-                <FlatList
-                    data={displayTopics}
-                    keyExtractor={topic => String(topic.id)}
-                    // getItemLayout={getItemLayout}
-                    onEndReached={extendScroll}
-                    onEndReachedThreshold={0.9}
-                    renderItem={renderTopic}
-                    showsVerticalScrollIndicator={false}
-                />
-            )}
+            </Fragment>
+        );
+    }
+
+    return (
+        <View style={{ alignItems: 'center', width: '100%' }}>
+            { searching && <SearchBar 
+                resetTopics={resetTopics}
+                searchBarRef={searchBarRef}
+                searchTextRef={searchTextRef}
+                setSearching={setSearching} 
+                updateSearchResults={updateSearchResults}
+            /> }
+            <FlatList
+                data={displayTopics}
+                keyExtractor={topic => String(topic.id)}
+                // getItemLayout={getItemLayout}
+                onEndReached={extendScroll}
+                onEndReachedThreshold={0.9}
+                renderItem={renderTopic}
+                showsVerticalScrollIndicator={false}
+            />
         </View>
     )
 }
@@ -311,22 +301,38 @@ export default TopicsListScreen = ({ navigation, route }) => {
     const creatorOnProfile = route.params?.creatorOnProfile ?? null;
     const dispatch = useDispatch();
 
-    let headerText;
+    const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
+    const followingTopics = useSelector(state => state.myHomeContent?.following?.topics);
+
+    const discoverTopicsNextPage = useSelector(state => state.myHomeContent?.discover?.topicsNextPage) ?? 1;
+    const followingTopicsNextPage = useSelector(state => state.myHomeContent?.following?.topicsNextPage) ?? 1;
+
+    let headerText, initDisplayTopics, initNextPage;
     switch (source) {
         case 'discover':
             headerText = 'Topics';
+            initDisplayTopics = discoverTopics ?? [];
+            initNextPage = discoverTopicsNextPage ?? 1;
             break;    
         case 'following':
             headerText = 'Topics by friends';
+            initDisplayTopics = followingTopics ?? [];
+            initNextPage = followingTopicsNextPage ?? 1;
             break;
         case 'profile':
             headerText = `${creatorOnProfile?.username}'s topics`;
+            initDisplayTopics = topicsOnProfile;
+            initNextPage = 1;
             break;
         case 'search':
-            headerText = `Search topics: ${searchText}`;
+            headerText = `Search topics`;
+            initDisplayTopics = searchResults;
+            initNextPage = 1;
             break;
         default:
             headerText = '';
+            initDisplayTopics = [];
+            initNextPage = 1;
             break;
     }
 
@@ -381,6 +387,8 @@ export default TopicsListScreen = ({ navigation, route }) => {
             { !searching && <Header /> }
             <TopicScroll 
                 creatorOnProfile={creatorOnProfile}
+                initDisplayTopics={initDisplayTopics}
+                initNextPage={initNextPage}
                 navigation={navigation}
                 searching={searching} 
                 setSearching={setSearching}
