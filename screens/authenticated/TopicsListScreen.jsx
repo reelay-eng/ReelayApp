@@ -274,7 +274,7 @@ const TopicScroll = ({
     }
 
     return (
-        <View style={{ alignItems: 'center', width: '100%' }}>
+        <View style={{ alignItems: 'center', height: '100%', width: '100%' }}>
             { searching && <SearchBar 
                 resetTopics={resetTopics}
                 searchBarRef={searchBarRef}
@@ -300,6 +300,7 @@ export default TopicsListScreen = ({ navigation, route }) => {
     const source = route.params?.source ?? 'discover';
 
     const creatorOnProfile = route.params?.creatorOnProfile ?? null;
+    const topicsOnProfile = route.params?.topicsOnProfile ?? null;
     const dispatch = useDispatch();
 
     const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
@@ -377,10 +378,7 @@ export default TopicsListScreen = ({ navigation, route }) => {
 
 
     useEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false });
-        return () => {
-            dispatch({ type: 'setTabBarVisible', payload: true });
-        }
+        dispatch({ type: 'setTabBarVisible', payload: true });
     }, []);
 
     return (
