@@ -286,6 +286,7 @@ const TopicScroll = ({
                     onEndReached={extendScroll}
                     onEndReachedThreshold={0.9}
                     renderItem={renderTopic}
+                    showsVerticalScrollIndicator={false}
                 />
             )}
             { !canUseFlashList && (
@@ -296,6 +297,7 @@ const TopicScroll = ({
                     onEndReached={extendScroll}
                     onEndReachedThreshold={0.9}
                     renderItem={renderTopic}
+                    showsVerticalScrollIndicator={false}
                 />
             )}
         </View>
