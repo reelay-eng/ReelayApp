@@ -148,12 +148,9 @@ PODS:
     - React-Core (= 0.64.3)
     - React-jsi (= 0.64.3)
     - ReactCommon/turbomodule/core (= 0.64.3)
-  - ffmpeg-kit-ios-https (4.5.1)
-  - ffmpeg-kit-react-native (4.5.2):
-    - ffmpeg-kit-react-native/https (= 4.5.2)
-    - React-Core
-  - ffmpeg-kit-react-native/https (4.5.2):
-    - ffmpeg-kit-ios-https (= 4.5.1)
+  - ffmpeg-kit-ios-full-gpl (4.5.1)
+  - ffmpeg-kit-react-native/full-gpl (4.5.2):
+    - ffmpeg-kit-ios-full-gpl (= 4.5.1)
     - React-Core
   - glog (0.3.5)
   - RCT-Folly (2020.01.13.00):
@@ -521,7 +518,7 @@ DEPENDENCIES:
   - EXWebBrowser (from `../node_modules/expo-web-browser/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
   - FBReactNativeSpec (from `../node_modules/react-native/React/FBReactNativeSpec`)
-  - ffmpeg-kit-react-native (from `../node_modules/ffmpeg-kit-react-native`)
+  - ffmpeg-kit-react-native/full-gpl (from `/Users/anthony/Projects/ReelayApp/node_modules/ffmpeg-kit-react-native/ffmpeg-kit-react-native.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTRequired (from `../node_modules/react-native/Libraries/RCTRequired`)
@@ -571,7 +568,7 @@ SPEC REPOS:
   trunk:
     - Amplitude
     - boost-for-react-native
-    - ffmpeg-kit-ios-https
+    - ffmpeg-kit-ios-full-gpl
 
 EXTERNAL SOURCES:
   DoubleConversion:
@@ -651,7 +648,7 @@ EXTERNAL SOURCES:
   FBReactNativeSpec:
     :path: "../node_modules/react-native/React/FBReactNativeSpec"
   ffmpeg-kit-react-native:
-    :path: "../node_modules/ffmpeg-kit-react-native"
+    :podspec: "/Users/anthony/Projects/ReelayApp/node_modules/ffmpeg-kit-react-native/ffmpeg-kit-react-native.podspec"
   glog:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   RCT-Folly:
@@ -778,7 +775,7 @@ SPEC CHECKSUMS:
   EXWebBrowser: f1573262c5de753987ed526c630076eda130804d
   FBLazyVector: c71c5917ec0ad2de41d5d06a5855f6d5eda06971
   FBReactNativeSpec: ce96b4f8670ba093c8a45a3e25bc7f7a5e43a4a8
-  ffmpeg-kit-ios-https: cec24d405b511e4f274980d8a9c751d384f89558
+  ffmpeg-kit-ios-full-gpl: 9eb5c2e17ba5dea1b1b83cff35b54918b683b67f
   ffmpeg-kit-react-native: bc3c900af9f761b6fe30906ee1bd98000c79f9c9
   glog: 73c2498ac6884b13ede40eda8228cb1eee9d9d62
   RCT-Folly: ec7a233ccc97cc556cf7237f0db1ff65b986f27c

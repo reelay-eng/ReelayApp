@@ -78,7 +78,7 @@ export const compressVideoForUpload = async (inputURI) => {
         }
 
 
-        const command = `-i ${inputURI} -vcodec libx264 -acodec copy -preset slow -crf 18 ${outputURI}`;
+        const command = `-i ${inputURI} -vcodec libx264 -acodec copy -preset slow -crf 28 ${outputURI}`;
         logAmplitudeEventProd('ffmpegCompressionBegun', {
             inputURI, command,
         });
