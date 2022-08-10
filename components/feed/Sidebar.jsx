@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { Dimensions, Pressable, Text, View } from 'react-native';
+import { Dimensions, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,6 +12,8 @@ import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
 import ReelayColors from '../../constants/ReelayColors';
 import ShareOutButton from './ShareOutButton';
 import AddToClubsButton from '../clubs/AddToClubsButton';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faCommentDots, faEllipsis, faHeart } from '@fortawesome/free-solid-svg-icons';
 
 const { height, width } = Dimensions.get('window');
 
@@ -36,19 +38,19 @@ export default Sidebar = ({ navigation, reelay }) => {
 		align-items: center;
 		align-self: flex-end;
 		position: absolute;
-		bottom: ${height / 6}px;
+		bottom: 100px;
 	`
-	const SidebarButton = styled(Pressable)`
+	const SidebarButton = styled(TouchableOpacity)`
 		align-items: center;
 		background: ${({ addHighlight }) => (addHighlight) 
 			? 'rgba(41, 119, 239, 0.40)'
 			: 'rgba(255, 255, 255, 0.20)'
 		};
 		border-radius: 50px;
-		height: 44px;
+		height: ${props => props.dot ? 36 : 44}px;
 		justify-content: center;
 		margin-top: 8px;
-		width: 44px;
+		width: ${props => props.dot ? 36 : 44}px;
 		box-shadow: 0px 1px 1px rgba(0,0,0,0.7);
 	`
 	const ButtonContainer = styled(View)`
@@ -160,11 +162,10 @@ export default Sidebar = ({ navigation, reelay }) => {
 				<SidebarButton 
 					onPress={onLikePress} 
 					onLongPress={onLikeLongPress}>
-					<Icon
-						type="ionicon"
-						name="heart"
-						color={likedByUser ? ReelayColors.reelayRed : "white"}
-						size={ICON_SIZE}
+					<FontAwesomeIcon 
+						icon={faHeart} 
+						color={likedByUser ? ReelayColors.reelayRed : "white"} 
+						size={ICON_SIZE} 
 					/>
 				</SidebarButton>
 				<Count>{reelay.likes.length}</Count>
@@ -175,11 +176,10 @@ export default Sidebar = ({ navigation, reelay }) => {
 					addHighlight={commentedByUser}
 					onPress={onCommentPress} 
 					onLongPress={onCommentLongPress}>
-					<Icon
-						type="ionicon"
-						name="chatbubble-ellipses"
-						color={'white'}
-						size={ICON_SIZE}
+					<FontAwesomeIcon 
+						icon={faCommentDots} 
+						color={likedByUser ? ReelayColors.reelayRed : "white"} 
+						size={ICON_SIZE} 
 					/>
 				</SidebarButton>
 				<Count>{reelay.comments.length}</Count>
@@ -193,13 +193,8 @@ export default Sidebar = ({ navigation, reelay }) => {
 			</ButtonContainer>
 
 			<ButtonContainer>
-				<SidebarButton onPress={onDotMenuPress}>
-					<Icon 
-						type='ionicon' 
-						name={'ellipsis-horizontal'} 
-						color={'white'}
-						size={DOT_ICON_SIZE} 
-					/>
+				<SidebarButton onPress={onDotMenuPress} dot={true}>
+					<FontAwesomeIcon icon={faEllipsis} color='white' size={DOT_ICON_SIZE} />
 				</SidebarButton>
 			</ButtonContainer>
 		</SidebarView>

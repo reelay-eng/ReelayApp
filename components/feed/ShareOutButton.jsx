@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
-import { Pressable, Share } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Share, TouchableOpacity } from 'react-native';
 import Constants from 'expo-constants';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -37,9 +36,8 @@ export default ShareOutButton = ({ reelay }) => {
     }
 
     return (
-        <Pressable onPress={shareReelay}>
-            {/* <Icon type='ionicon' name='arrow-redo' color='white' size={ICON_SIZE} /> */}
+        <TouchableOpacity onPress={shareReelay}>
             <FontAwesomeIcon icon={faArrowUpFromBracket} size={24} color='white' />
-        </Pressable>
+        </TouchableOpacity>
     );
 }
