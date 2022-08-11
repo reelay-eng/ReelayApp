@@ -19,7 +19,7 @@ import { AuthContext } from '../../context/AuthContext';
 import FollowButton from '../../components/global/FollowButton';
 
 import { 
-    addMemberToClub,
+    inviteMemberToClub,
     banMemberFromClub, 
     createDeeplinkPathToClub,
     editClub, 
@@ -221,8 +221,9 @@ export default ClubInfoScreen = ({ navigation, route }) => {
 
     const ClubMembers = () => {
         const [isEditing, setIsEditing] = useState(false);
+        const shouldCountMember = (member) => (member?.hasAcceptedInvite && member.role !== 'banned');
         const memberCount = club.members.reduce((count, member) => {
-            return (member.role === 'banned') ? count : count + 1;
+            return (shouldCountMember(member)) ? count + 1 : count;
         }, 0);
         
         const EditMembersButton = () => {
@@ -244,7 +245,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 </SectionRow>
                 <MemberSectionSpacer />
                 { club.members.map((member) => {
-                    if (member.role === 'banned') return <View key={member.userSub} />;
+                    if (!shouldCountMember(member)) return <View key={member.userSub} />;
                     return (
                         <ClubMemberRow 
                             key={member.userSub} 
@@ -438,11 +439,11 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             );
         }
     
-        const AddMembersRow = () => {
+        const InviteMembersRow = () => {
             return (
                 <SettingsRow onPress={() => setInviteDrawerVisible(true)}>
                     <SettingsTextContainer>
-                        <SettingsText>{'Add Members'}</SettingsText>
+                        <SettingsText>{'Invite Members'}</SettingsText>
                         <SettingsSubtext>{'Invite more people to the club'}</SettingsSubtext>
                     </SettingsTextContainer>
                     <SettingsRowRightButton>
@@ -559,7 +560,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             <Fragment>
                 <SectionHeaderText>{'Invites'}</SectionHeaderText>
                 { isClubOwner && <AllowMemberInvitesRow />}
-                <AddMembersRow />
+                <InviteMembersRow />
                 <ShareClubLinkRow />
                 { isClubOwner && (
                     <Fragment>
@@ -609,8 +610,8 @@ export default ClubInfoScreen = ({ navigation, route }) => {
 
         const joinClub = async () => {
             setJoining(true);
-
-            const joinClubResult = await addMemberToClub({
+            // inviting yourself => auto-accept invite
+            const joinClubResult = await inviteMemberToClub({
                 authSession,
                 clubID: club.id,
                 userSub: reelayDBUser?.sub,
@@ -670,10 +671,12 @@ export default ClubInfoScreen = ({ navigation, route }) => {
 
                 const filterUserFromClub = nextMember => nextMember?.userSub !== reelayDBUser?.sub;
                 club.members = club.members.filter(filterUserFromClub);
+
+                dispatch({ type: 'setMyClubs', payload: myClubsRemoved });    
+                navigation.popToTop();
+                showMessageToast(`You've left ${club.name}`);
                 await onRefresh();
 
-                showMessageToast(`You've left ${club.name}`);
-                dispatch({ type: 'setMyClubs', payload: myClubsRemoved });    
                 setClubMember(null);
                 setLeaving(false);
             } catch (error) {

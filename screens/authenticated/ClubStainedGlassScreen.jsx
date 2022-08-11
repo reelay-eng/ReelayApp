@@ -107,7 +107,7 @@ export default ClubStainedGlassScreen = ({ navigation, route }) => {
                     data={isColumnA ? activitiesColumnA : activitiesColumnB}
                     getItemLayout={getItemLayout}
                     renderItem={renderActivity}
-                    showVerticalScrollIndicator={false}
+                    showsVerticalScrollIndicator={false}
                 />
             </ColumnContainer>
         );
@@ -150,7 +150,7 @@ export default ClubStainedGlassScreen = ({ navigation, route }) => {
                     alignItems: 'center',
                     width: '100%',
                 }}
-                showVerticalScrollIndicator={false}
+                showsVerticalScrollIndicator={false}
             >
                 <ColumnsContainer>
                     <ActivityColumn isColumnA={true} />

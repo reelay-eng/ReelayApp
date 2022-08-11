@@ -18,7 +18,7 @@ import styled from 'styled-components/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import InviteMyFollowsList from './InviteMyFollowsList';
-import { addMemberToClub } from '../../api/ClubsApi';
+import { inviteMemberToClub } from '../../api/ClubsApi';
 import { showErrorToast, showMessageToast } from '../utils/toasts';
 import { notifyNewMemberOnClubInvite } from '../../api/ClubNotifications';
 
@@ -87,8 +87,8 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
     }
 
     const SendInvitesButton = () => {
-        const addInvitee = async (followObj) => {
-            const addMemberResult = await addMemberToClub({
+        const sendInvite = async (followObj) => {
+            const inviteMemberResult = await inviteMemberToClub({
                 authSession,
                 clubID: club.id,
                 userSub: followObj.followSub,
@@ -108,7 +108,7 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
                 },
             });
 
-            logAmplitudeEventProd('addedMemberToClub', {
+            logAmplitudeEventProd('inviteMemberToClub', {
                 invitedByUsername: reelayDBUser?.username,
                 invitedByUserSub: reelayDBUser?.sub,
                 newMemberUsername: followObj?.followName,
@@ -117,17 +117,17 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
                 clubID: club?.id,
             });
             
-            return addMemberResult;
+            return inviteMemberResult;
         }
 
-        const addInviteesToClub = async () => {
+        const sendAllInvites = async () => {
             try {
                 if (sendingInvites) return;
                 setSendingInvites(true);
-                const inviteResults = await Promise.all(followsToSend.current.map(addInvitee));
+                const inviteResults = await Promise.all(followsToSend.current.map(sendInvite));
                 setSendingInvites(false);
                 const peopleWord = (inviteResults.length > 1) ? 'people' : 'person';
-                showMessageToast(`Added ${inviteResults.length} ${peopleWord} to ${club.name}`);
+                showMessageToast(`Invited ${inviteResults.length} ${peopleWord} to ${club.name}`);
                 onRefresh();
                 closeDrawer();
             } catch (error) {
@@ -139,7 +139,7 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
 
         return (
             <SendInvitesButtonOuterContainer bottomOffset={bottomOffset}>
-                <SendInvitesButtonContainer onPress={addInviteesToClub}>
+                <SendInvitesButtonContainer onPress={sendAllInvites}>
                     { sendingInvites && <ActivityIndicator /> }
                     { !sendingInvites && (
                         <React.Fragment>

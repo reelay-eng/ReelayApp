@@ -1,5 +1,6 @@
-import React, { memo, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, memo, useContext, useEffect, useRef, useState } from 'react';
 import { 
+    ActivityIndicator,
     Dimensions, 
     FlatList, 
     RefreshControl, 
@@ -18,7 +19,7 @@ import NoTitlesYetPrompt from '../../components/clubs/NoTitlesYetPrompt';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
-import { addMemberToClub, getClubMembers, getClubTitles, getClubTopics, markClubActivitySeen } from '../../api/ClubsApi';
+import { inviteMemberToClub, getClubMembers, getClubTitles, getClubTopics, markClubActivitySeen, acceptInviteToClub, rejectInviteFromClub } from '../../api/ClubsApi';
 import { AuthContext } from '../../context/AuthContext';
 import { showErrorToast } from '../../components/utils/toasts';
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
@@ -35,15 +36,32 @@ const { height, width } = Dimensions.get('window');
 const ACTIVITY_PAGE_SIZE = 20;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
-const ActivityContainer = styled(View)`
+
+const AcceptRejectInviteRowView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    width: ${width - 32}px;
+`
+const AcceptInvitePressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 20px;
+    display: flex;
+    flex: 0.7;
+    flex-direction: row;
+    justify-content: center;
+    height: 40px;
+`
+const ActivityView = styled(View)`
     margin-bottom: 8px;
 `
-const ActivityScreenContainer = styled(View)`
+const ActivityScreenView = styled(View)`
     background-color: black;
     height: 100%;
     width: 100%;
 `
-const AddTitleButtonContainer = styled(TouchableOpacity)`
+const AddTitleButtonView = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${ReelayColors.reelayBlue};
     border-radius: 20px;
@@ -52,7 +70,7 @@ const AddTitleButtonContainer = styled(TouchableOpacity)`
     height: 40px;
     width: ${width - 32}px;
 `
-const AddTitleButtonOuterContainer = styled(LinearGradient)`
+const AddTitleButtonOuterView = styled(LinearGradient)`
     align-items: center;
     bottom: 0px;
     padding-top: 20px;
@@ -64,7 +82,7 @@ const AddTitleButtonText = styled(ReelayText.Subtitle2)`
     color: white;
     margin-left: 4px;
 `
-const DescriptionContainer = styled(View)`
+const DescriptionView = styled(View)`
     align-items: center;
     background-color: ${ReelayColors.reelayBlack};
     border-radius: 12px;
@@ -78,6 +96,16 @@ const DescriptionContainer = styled(View)`
 `
 const DescriptionText = styled(ReelayText.Body2)`
     color: white;
+`
+const RejectInvitePressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayRed};
+    border-radius: 20px;
+    display: flex;
+    flex: 0.3;
+    flex-direction: row;
+    justify-content: center;
+    height: 40px;
 `
 const UploadProgressBarView = styled(View)`
     align-items: center;
@@ -96,7 +124,7 @@ const ClubActivity = ({ activity, club, feedIndex, navigation, onLayout, onRefre
     if (activityType === 'title') {
         const clubTitle = activity;
         return (
-            <ActivityContainer onLayout={onLayout}>
+            <ActivityView onLayout={onLayout}>
                 <ClubTitleCard 
                     key={clubTitle.id} 
                     advanceToFeed={advanceToFeed}
@@ -105,12 +133,12 @@ const ClubActivity = ({ activity, club, feedIndex, navigation, onLayout, onRefre
                     navigation={navigation} 
                     onRefresh={onRefresh}
                 />
-            </ActivityContainer>
+            </ActivityView>
         );    
     } else if (activityType === 'topic') {
         const clubTopic = activity;
         return (
-            <ActivityContainer onLayout={onLayout}>
+            <ActivityView onLayout={onLayout}>
                 <TopicCard 
                     advanceToFeed={advanceToFeed}
                     clubID={club.id}
@@ -118,7 +146,7 @@ const ClubActivity = ({ activity, club, feedIndex, navigation, onLayout, onRefre
                     source={'clubs'}
                     topic={clubTopic} 
                 />
-            </ActivityContainer>
+            </ActivityView>
         );
     } else if (activityType === 'member' && activityType?.role !== 'banned') {
         return <ClubAddedMemberCard member={activity} />
@@ -129,11 +157,11 @@ const ClubActivity = ({ activity, club, feedIndex, navigation, onLayout, onRefre
 
 const DescriptionFold = ({ onLayout }) => {
     return (
-        <DescriptionContainer onLayout={onLayout}>
+        <DescriptionView onLayout={onLayout}>
             <DescriptionText>
                 { club.description }
             </DescriptionText>
-        </DescriptionContainer>
+        </DescriptionView>
     )
 }
 
@@ -234,6 +262,7 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
  
 export default ClubActivityScreen = ({ navigation, route }) => {
     const authSession = useSelector(state => state.authSession);
+    const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const { club, promptToInvite } = route.params;
 
@@ -241,9 +270,17 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const [refreshing, setRefreshing] = useState(false);
 
     const matchClubMember = (nextMember) => nextMember?.userSub === reelayDBUser?.sub;
-
     const clubMember = club.members.find(matchClubMember);
-    const dispatch = useDispatch();
+    const clubMemberHasJoined = clubMember?.hasAcceptedInvite;
+    const isPublicClub = (club.visibility === FEED_VISIBILITY);
+
+    const topOffset = useSafeAreaInsets().top + 80;
+    const bottomOffset = useSafeAreaInsets().bottom + 20;
+
+    const uploadStage = useSelector(state => state.uploadStage);
+    const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
+    const showProgressBar = showProgressBarStages.includes(uploadStage);
+    const notLoaded = (!club.members?.length && !club.titles?.length && !club.topics?.length);
 
     const onRefresh = async () => {
         try { 
@@ -279,11 +316,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 });
             }
 
-            const nextIAmMember = checkIAmMember();
-            if (nextIAmMember !== iAmMember) {
-                setIAmMember(nextIAmMember);
-            }
-
             dispatch({ type: 'setUpdatedClub', payload: club });
             setRefreshing(false); 
         } catch (error) {
@@ -292,14 +324,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             setRefreshing(false);
         }
     }
-
-    const topOffset = useSafeAreaInsets().top + 80;
-    const bottomOffset = useSafeAreaInsets().bottom + 20;
-
-    const uploadStage = useSelector(state => state.uploadStage);
-    const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
-    const showProgressBar = showProgressBarStages.includes(uploadStage);
-    const notLoaded = (!club.members?.length && !club.titles?.length && !club.topics?.length);
 
     useEffect(() => {
         if (notLoaded) {
@@ -323,21 +347,76 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         dispatch({ type: 'setTabBarVisible', payload: true });
     });
 
-    const checkIAmMember = () => !!club.members?.find(nextMember => nextMember.userSub === reelayDBUser?.sub);
-    const [iAmMember, setIAmMember] = useState(checkIAmMember());
-    const isPublicClub = club.visibility === FEED_VISIBILITY;
+    const AcceptInviteButton = ({ setLoading }) => {
+        const acceptInvite = async () => {
+            setLoading(true);
+            const acceptResult = await acceptInviteToClub({
+                authSession,
+                clubMemberID: clubMember?.id,
+                reqUserSub: reelayDBUser?.sub,
+            });
+            console.log('accept invite result: ', acceptResult);
+            await onRefresh();
+            setLoading(false);
+        }
+
+        return (
+            <AcceptInvitePressable onPress={acceptInvite}>
+                <AddTitleButtonText>{'Accept invite'}</AddTitleButtonText>
+            </AcceptInvitePressable>
+        );
+    }
+
+    const RejectInviteButton = ({ setLoading }) => {
+        const rejectInvite = async () => {
+            setLoading(true);
+            const rejectResult = await rejectInviteFromClub({
+                authSession,
+                clubMemberID: clubMember?.id,
+                reqUserSub: reelayDBUser?.sub,
+            });
+            console.log('accept invite result: ', rejectResult);
+            await onRefresh();
+            if (!isPublicClub) navigation.popToTop();
+            setLoading(false);
+        }
+
+        return (
+            <RejectInvitePressable onPress={rejectInvite}>
+                <AddTitleButtonText>{'Reject'}</AddTitleButtonText>
+            </RejectInvitePressable>
+        );
+    }
+
+    const AcceptRejectInviteRow = () => {
+        const [loading, setLoading] = useState(false);
+        if (loading) {
+            return (
+                <AcceptRejectInviteRowView>
+                    <ActivityIndicator />
+                </AcceptRejectInviteRowView>
+            );
+        } else {
+            return (
+                <AcceptRejectInviteRowView>
+                    <RejectInviteButton setLoading={setLoading} />
+                    <AcceptInviteButton setLoading={setLoading} />
+                </AcceptRejectInviteRowView>
+            );    
+        }
+    }
 
     const AddTitleButton = () => {
         const [titleOrTopicDrawerVisible, setTitleOrTopicDrawerVisible] = useState(false);
         return (
-            <AddTitleButtonOuterContainer 
+            <AddTitleButtonOuterView 
                 bottomOffset={bottomOffset} 
                 colors={['transparent', 'black']}
                 end={{ x: 0.5, y: 0.5}}>
-                <AddTitleButtonContainer onPress={() => setTitleOrTopicDrawerVisible(true)}>
+                <AddTitleButtonView onPress={() => setTitleOrTopicDrawerVisible(true)}>
                     <Icon type='ionicon' name='add-circle-outline' size={16} color='white' />
                     <AddTitleButtonText>{'Add title or topic'}</AddTitleButtonText>
-                </AddTitleButtonContainer>
+                </AddTitleButtonView>
                 { titleOrTopicDrawerVisible && (
                     <AddTitleOrTopicDrawer
                         club={club}
@@ -346,14 +425,14 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                         setDrawerVisible={setTitleOrTopicDrawerVisible}
                     />
                 )}
-            </AddTitleButtonOuterContainer>
+            </AddTitleButtonOuterView>
         );
     }
 
     const JoinClubButton = () => {
         const joinClub = async () => {
-            console.log(reelayDBUser?.sub)
-            const joinClubResult = await addMemberToClub({
+            // inviting yourself => auto-accept invite
+            const joinClubResult = await inviteMemberToClub({
                 authSession,
                 clubID: club.id,
                 userSub: reelayDBUser?.sub,
@@ -364,32 +443,29 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 clubLinkID: null,
             });
 
-            if (joinClubResult && !joinClubResult?.error) {
-                setIAmMember(true);
-            }
-
+            console.log(joinClubResult);
             await onRefresh();
-            return joinClubResult;
         }
 
         return (
-            <AddTitleButtonOuterContainer 
+            <AddTitleButtonOuterView 
                 bottomOffset={bottomOffset} 
                 colors={['transparent', 'black']}>
-                <AddTitleButtonContainer onPress={joinClub}>
+                <AddTitleButtonView onPress={joinClub}>
                     <AddTitleButtonText>{'Join club'}</AddTitleButtonText>
-                </AddTitleButtonContainer>
-            </AddTitleButtonOuterContainer>
+                </AddTitleButtonView>
+            </AddTitleButtonOuterView>
         );
     }
 
     return (
-        <ActivityScreenContainer>
+        <ActivityScreenView>
             <ClubActivityList club={club} navigation={navigation} onRefresh={onRefresh} refreshing={refreshing} />
             <ClubBanner club={club} navigation={navigation} />
 
-            { iAmMember && <AddTitleButton /> }
-            { !iAmMember && isPublicClub && <JoinClubButton /> }
+            { clubMember && clubMemberHasJoined && <AddTitleButton /> }
+            { clubMember && !clubMemberHasJoined && <AcceptRejectInviteRow /> }
+            { !clubMember && isPublicClub && <JoinClubButton /> }
 
             { showProgressBar && (
                 <UploadProgressBarView topOffset={topOffset}>
@@ -405,6 +481,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                     onRefresh={onRefresh}
                 />
             )}
-        </ActivityScreenContainer>
+        </ActivityScreenView>
     );
 }
