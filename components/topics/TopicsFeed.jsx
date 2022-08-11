@@ -38,6 +38,7 @@ export default TopicsFeed = ({
     const discoverTopicsNextPage = useSelector(state => state.myHomeContent?.discover?.topicsNextPage) ?? 0;
     const followingTopicsNextPage = useSelector(state => state.myHomeContent?.following?.topicsNextPage) ?? 0;
 
+    const page = useRef(0);
 	const dispatch = useDispatch();
     const feedPager = useRef();
 

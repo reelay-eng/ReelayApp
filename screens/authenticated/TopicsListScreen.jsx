@@ -378,7 +378,8 @@ export default TopicsListScreen = ({ navigation, route }) => {
 
 
     useEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: true });
+        const showTabBar = (source === 'profile');
+        dispatch({ type: 'setTabBarVisible', payload: showTabBar });
     }, []);
 
     return (

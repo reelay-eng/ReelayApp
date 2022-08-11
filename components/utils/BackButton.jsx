@@ -1,19 +1,24 @@
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import styled from 'styled-components/native';
 
-export default BackButton = ({ navigation, iconType='arrow-back-outline' }) => {
-    const BackButtonContainer = styled(Pressable)`
-        height: 30px;
-        width: 30px;
-        margin: 10px;
-    `
-
+const BackButtonContainer = styled(TouchableOpacity)`
+    height: 40px;
+    width: 40px;
+    padding: 10px;
+`
+export default BackButton = ({ navigation }) => {
+    const goBack = () => {
+        if (navigation) navigation.goBack();
+    }
+    
     return (
         <View>
-            <BackButtonContainer onPress={() => { navigation.goBack() }}>
-                <Icon type='ionicon' name={iconType} color={'white'} size={30} />
+            <BackButtonContainer onPress={goBack}>
+                <FontAwesomeIcon icon={faArrowLeft} color='white' size={20} />
             </BackButtonContainer>
         </View>
     );

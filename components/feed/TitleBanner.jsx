@@ -61,12 +61,6 @@ const ExpandedInfoView = styled(Pressable)`
     padding-top: 0px;
     width: ${width - 32}px;
 `
-const ExpandableView = styled(View)`
-    align-items: center;
-    justify-content: center;
-    margin-top: 8px;
-    width: 100%;
-`
 const OverviewText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     padding: 8px;
@@ -174,27 +168,27 @@ const DirectorLine = ({ directorName }) => {
     );
 }
 
-const venuesEqual = (prevProps, nextProps) => {
-    return prevProps.venue === nextProps.venue;
+const VenueIndicator = ({ venue }) => {
+    return (
+        <VenueContainer>
+            <VenueIcon venue={venue} size={20} border={1} />
+        </VenueContainer>
+    )
 }
 
-const TitleUnderline = memo(({ venue, displayYear, expanded, runtime }) => {
+const TitleUnderline = ({ venue, displayYear, expanded, runtime }) => {
     const runtimeString = runtime ? getRuntimeString(runtime) : '';
     return (
         <TitleUnderlineContainer>
             <YearVenueContainer>
-                { venue && 
-                    <VenueContainer>
-                        <VenueIcon venue={venue} size={20} border={1} />
-                    </VenueContainer>
-                }
+                { venue && <VenueIndicator venue={venue} /> }
                 { displayYear?.length > 0 && <YearText>{displayYear}</YearText> }
                 { runtimeString?.length > 0 && <RuntimeText>{runtimeString}</RuntimeText> }
                 <FontAwesomeIcon icon={expanded ?  faChevronUp : faChevronDown} color='white' size={16} />
             </YearVenueContainer>
         </TitleUnderlineContainer>
     );
-}, venuesEqual);
+};
 
 const TitleBanner = ({ 
     club = null,
@@ -202,9 +196,11 @@ const TitleBanner = ({
     backgroundColor=DEFAULT_BGCOLOR,
     donateObj=null, 
     navigation=null, 
+    onCameraScreen=false,
     posterWidth=60,
     topic=null,
     reelay=null, 
+    venue=null,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const [expanded, setExpanded] = useState(false);
@@ -222,9 +218,7 @@ const TitleBanner = ({
     }
     
     const openTitleDetail = async () => {
-        if (!titleObj) {
-            return;
-        }
+        if (!titleObj || !navigation) return;
         navigation.push('TitleDetailScreen', { titleObj });
 
         logAmplitudeEventProd('openTitleScreen', {
@@ -233,14 +227,6 @@ const TitleBanner = ({
             username: reelayDBUser?.username,
             source: 'poster',
         });
-    }
-
-    const ExpandableInfo = () => {
-        return (
-            <ExpandableView>
-                <FontAwesomeIcon icon={expanded ?  faChevronUp : faChevronDown} color='white' size={16} />
-            </ExpandableView>
-        );
     }
 
     const ExpandedInfo = () => {
@@ -289,7 +275,7 @@ const TitleBanner = ({
                     displayYear={displayYear} 
                     expanded={expanded}
                     runtime={titleObj?.runtime}
-                    venue={reelay?.content?.venue} 
+                    venue={reelay?.content?.venue ?? venue} 
                 />
             </TitleInfoPressable>
         );
@@ -315,7 +301,7 @@ const TitleBanner = ({
             <TitleBannerRow onPress={() => setExpanded(!expanded)}>
                 <Poster />
                 <TitleInfo />
-                <RightCTAButton />
+                { !onCameraScreen && <RightCTAButton /> }
             </TitleBannerRow>    
             { expanded && <ExpandedInfo /> }
         </TitleBannerBackground>
@@ -325,7 +311,7 @@ const TitleBanner = ({
 const areEqual = (prevProps, nextProps) => {
     const titlesEqual = (prevProps.titleObj?.id === nextProps.titleObj?.id);
     const reelaysEqual = (prevProps?.reelay?.sub === nextProps?.reelay?.sub);
-    return titlesEqual && reelaysEqual;
+    return titlesEqual && reelaysEqual ;
 }
 
 export default memo(TitleBanner, areEqual);
