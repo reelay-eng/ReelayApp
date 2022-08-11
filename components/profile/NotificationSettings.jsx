@@ -107,6 +107,8 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
                     <ReelaysNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
                     <Divider />
                     <WatchlistsNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
+                    <Divider />
+                    <InvitesNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
                 </>
             )}
         </NotificationSettingsScrollView>
@@ -359,7 +361,7 @@ const WatchlistsNotificationCategory = ({ mySettings, toggleSetting }) => {
         }
         return (
             <NotificationSetting
-                    title="When I take a recommendation" 
+                    title="When I take a rec" 
                     subtext="Notify creators when I add titles to my watchlist from their reelays"
                     isToggled={notifyCreatorRecommendationTaken}
                     toggleFunction={toggleNotifyCreatorRecommendationTaken}
@@ -374,7 +376,7 @@ const WatchlistsNotificationCategory = ({ mySettings, toggleSetting }) => {
         }
         return (
             <NotificationSetting
-                    title="When people take my recommendation" 
+                    title="When people take my rec" 
                     subtext="Notify me when people add titles to their watchlist from my reelays"
                     isToggled={notifyMyRecommendationTaken}
                     toggleFunction={toggleNotifyMyRecommendationTaken}
@@ -387,6 +389,30 @@ const WatchlistsNotificationCategory = ({ mySettings, toggleSetting }) => {
             <CategoryHeaderText>Watchlists</CategoryHeaderText>
             <WatchlistsCreatorRecommendationTaken />
             <WatchlistsMyRecommendationTaken />
+        </CategoryContainer>
+    )
+}
+
+const InvitesNotificationCategory = ({ mySettings, toggleSetting }) => {
+    const ClubInvites = () => {
+        const notifyClubInvites = !!(mySettings?.notifyClubInvites);
+        const toggleNotifyClubInvites = async () => {
+            await toggleSetting("notifyClubInvites");
+        }
+        return (
+            <NotificationSetting
+                    title="Clubs" 
+                    subtext="Notify me when someone invites me to a club."
+                    isToggled={notifyClubInvites}
+                    toggleFunction={toggleNotifyClubInvites}
+            />
+        )
+    }
+
+    return (
+        <CategoryContainer>
+            <CategoryHeaderText>Invites</CategoryHeaderText>
+            <ClubInvites />
         </CategoryContainer>
     )
 }

@@ -30,7 +30,9 @@ const DEFAULT_SETTINGS = {
     notifyPostsInOtherTopics: true,
     // watchlist recommendations
     notifyCreatorRecommendationTaken: true,
-    notifyMyRecommendationTaken: true
+    notifyMyRecommendationTaken: true,
+    // invites
+    notifyClubInvites: true,
 }
 
 export const getNewSettings = (oldSettings, newSettings) => {

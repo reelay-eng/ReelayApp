@@ -1,5 +1,5 @@
 import { getClubMembers } from './ClubsApi';
-import { condensedTitleObj, sendPushNotification } from './NotificationsApi';
+import { condensedTitleObj, sendNotification } from './NotificationsApi';
 import { getRegisteredUser } from './ReelayDBApi';
 import { shouldNotifyUser } from "./SettingsApi";
 
@@ -12,18 +12,14 @@ const condensedTopicObj = ({ id, title, description }) => {
 };
 
 const notifyClubMember = async ({ title, body, data, clubMember }) => {
-    const shouldNotify = await shouldNotifyUser(clubMember?.userSub, "notifyPostsInMyClubs");
-    if (!shouldNotify) {
-        console.log(`Creator does not want to receive notifications for notifyPostsInMyClubs`);
-        return;
-    }
+    const shouldSendPushNotification = await shouldNotifyUser(clubMember?.userSub, "notifyPostsInMyClubs");
     console.log('notifying club member: ', clubMember, data);
     const clubMemberWithToken = await getRegisteredUser(clubMember?.userSub);
     const sendToUserSub = clubMember?.userSub;
     const token = clubMemberWithToken?.pushToken;
     if (!token) return;
     console.log('notified');
-    await sendPushNotification({ title, body, data, token, sendToUserSub });
+    await sendNotification({ title, body, data, token, sendToUserSub, shouldSendPushNotification });
 }
 
 export const notifyClubOnPrivacyChanges = async ({ club, nextIsPrivate = true }) => {
@@ -96,7 +92,8 @@ export const notifyClubTitleThreadOnNewReelay = async ({ club, clubTitle, creato
         const sendToUserSub = threadMember?.sub;
         const token = threadMemberWithToken?.pushToken;
         if (!token) return;
-        await sendPushNotification({ title, body, data, token, sendToUserSub });
+        const shouldSendPushNotification = await shouldNotifyUser(sendToUserSub, "notifyPostsInMyClubs");
+        await sendNotification({ title, body, data, token, sendToUserSub, shouldSendPushNotification });
     }
 
     await Promise.all(clubTitle.reelays.map((reelay) => {
@@ -121,5 +118,5 @@ export const notifyNewMemberOnClubInvite = async ({ club, newMember, invitedByUs
     const token = newMemberWithToken?.pushToken;
     if (!token) return;
 
-    await sendPushNotification({ title, body, data, token, sendToUserSub });
+    await sendNotification({ title, body, data, token, sendToUserSub });
 }
