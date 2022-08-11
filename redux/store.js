@@ -49,6 +49,7 @@ const initialState = {
     // ON REELAYS
     likesVisible: false,
     commentsVisible: false,
+    commentRefreshListener: 0,
     currentComment: '',
     donateLinks: [],
     dotMenuVisible: false,
@@ -193,6 +194,8 @@ const appReducer = ( state = initialState, action) => {
         // ON REELAYS
         case 'setCommentsVisible':
             return { ...state, commentsVisible: action.payload }
+        case 'setCommentRefreshListener':
+            return { ...state, commentRefreshListener: action.payload }
         case 'setCurrentComment':
             return { ...state, currentComment: action.payload }
         case 'setDonateLinks':
@@ -303,6 +306,7 @@ export const mapStateToProps = (state) => ({
 
     // ON REELAYS
     commentsVisible: state.commentsVisible,
+    commentRefreshListener: state.commentRefreshListener,
     currentComment: state.currentComment,
     donateLinks: state.donateLinks,
     dotMenuVisible: state.dotMenuVisible,
