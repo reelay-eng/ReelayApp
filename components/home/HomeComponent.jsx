@@ -61,9 +61,12 @@ const HomeComponent = ({ navigation }) => {
     const latestNoticeDismissed = useSelector(state => state.latestNoticeDismissed);
     const latestNoticeSkipped = useSelector(state => state.latestNoticeSkipped);
     const showNoticeAsOverlay = latestNotice && !latestNoticeSkipped && !latestNoticeDismissed && !isGuestUser;
+
+    useFocusEffect(React.useCallback(() => {
+        dispatch({ type: 'setTabBarVisible', payload: !showNoticeAsOverlay });
+    }, [showNoticeAsOverlay]))
     
     useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: true });
         const unsubscribe = navigation.getParent().addListener('tabPress', e => {
             e.preventDefault();
             if (scrollRef.current) {
