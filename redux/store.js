@@ -30,8 +30,11 @@ const initialState = {
 
     // GLOBAL
     appUpdateRequired: false,
+    appUpdateRecommended: false,
+    appUpdateIgnored: false,
     currentAppVersion: REELAY_APP_VERSION,
-    latestAppVersion: REELAY_APP_VERSION,
+    recommendedAppVersion: null,
+    requiredAppVersion: null,
     justShowMeSignupVisible: false,
     tabBarVisible: true,
 
@@ -120,11 +123,13 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, myWatchlistItems };    
 
         // GLOBAL
-        case 'setLatestAppVersion':
-            // These two are always set together, and currentAppVersion is never changed
-            if (latestAppVersion < state.currentAppVersion) return;
-            const { appUpdateRequired, latestAppVersion } = action.payload;
-            return { ...state, appUpdateRequired, latestAppVersion };
+        case 'setAppVersionInfo':
+            const { minVersionRequired, recommendedVersion } = action.payload;
+            if (minVersionRequired > state.currentAppVersion) return { ...state, appUpdateRequired: true, recommendedAppVersion: recommendedVersion, requiredAppVersion: minVersionRequired };
+            else if (recommendedVersion > state.currentAppVersion) return { ...state, appUpdateRecommended: true, recommendedAppVersion: recommendedVersion, requiredAppVersion: minVersionRequired };
+            return { ...state, recommendedAppVersion: recommendedVersion, requiredAppVersion: minVersionRequired };
+        case 'setAppUpdateIgnored':
+            return { ...state, appUpdateIgnored: action.payload };
         case 'setJustShowMeSignupVisible':
             return { ...state, justShowMeSignupVisible: action.payload }
         case 'setTabBarVisible':
@@ -289,8 +294,11 @@ export const mapStateToProps = (state) => ({
 
     // GLOBAL
     appUpdateRequired: state.appUpdateRequired,
+    appUpdateRecommended: state.appUpdateRecommended,
+    appUpdateIgnored: state.appUpdateIgnored,
     currentAppVersion: state.currentAppVersion,
-    latestAppVersion: state.latestAppVersion,
+    recommendedAppVersion: state.recommendedAppVersion,
+    requiredAppVersion: state.requiredAppVersion,
     justShowMeSignupVisible: state.justShowMeSignupVisible,
     tabBarVisible: state.tabBarVisible,
 
