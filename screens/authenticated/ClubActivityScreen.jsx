@@ -38,7 +38,6 @@ const { height, width } = Dimensions.get('window');
 const ACTIVITY_PAGE_SIZE = 20;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
-
 const AcceptRejectInviteRowView = styled(View)`
     align-items: center;
     flex-direction: row;
@@ -50,7 +49,7 @@ const AcceptInvitePressable = styled(TouchableOpacity)`
     background-color: ${ReelayColors.reelayBlue};
     border-radius: 20px;
     display: flex;
-    flex: 0.75;
+    flex: 0.45;
     flex-direction: row;
     justify-content: center;
     height: 40px;
@@ -73,19 +72,34 @@ const AddTitleButtonView = styled(TouchableOpacity)`
     height: 40px;
     width: ${width - 32}px;
 `
+const AddTitleButtonText = styled(ReelayText.Subtitle2)`
+    color: white;
+    margin-left: 4px;
+`
 const BottomButtonOuterView = styled(LinearGradient)`
     align-items: center;
     bottom: 0px;
     flex-direction: row;
     justify-content: space-around;
     padding-top: 20px;
-    padding-bottom: ${(props) => props.bottomOffset + 56 ?? 56}px;
+    padding-bottom: ${(props) => props.bottomOffset + 44}px;
     position: absolute;
     width: 100%;
 `
-const AddTitleButtonText = styled(ReelayText.Subtitle2)`
-    color: white;
-    margin-left: 4px;
+const InviteFoldOuterView = styled(View)`
+    align-items: center;
+    background-color: black;
+    justify-content: space-around;
+    position: absolute;
+    padding: 16px;
+    top: ${props => props.topOffset}px;
+    width: 100%;
+`
+const InviteFoldButtonRow = styled(View)`
+    flex-direction: row;
+    justify-content: space-around;
+    margin-top: 12px;
+    width: 100%;
 `
 const DescriptionView = styled(View)`
     align-items: center;
@@ -102,12 +116,15 @@ const DescriptionView = styled(View)`
 const DescriptionText = styled(ReelayText.Body2)`
     color: white;
 `
+const InviteText = styled(ReelayText.Overline)`
+    color: white;
+`
 const RejectInvitePressable = styled(TouchableOpacity)`
     align-items: center;
     background-color: gray;
     border-radius: 20px;
     display: flex;
-    flex: 0.2;
+    flex: 0.45;
     flex-direction: row;
     justify-content: center;
     height: 40px;
@@ -171,6 +188,89 @@ const DescriptionFold = ({ onLayout }) => {
     )
 }
 
+const InviteFold = ({ clubMember, navigation, isPublicClub, onRefresh }) => {
+    const authSession = useSelector(state => state.authSession);
+    const [loading, setLoading] = useState(false);
+    const { reelayDBUser } = useContext(AuthContext);
+    const topOffset = useSafeAreaInsets().top + 60;
+
+    const AcceptInviteButton = () => {
+        const acceptInvite = async () => {
+            setLoading(true);
+            const acceptResult = await acceptInviteToClub({
+                authSession,
+                clubMemberID: clubMember?.id,
+                reqUserSub: reelayDBUser?.sub,
+            });
+            console.log('accept invite result: ', acceptResult);
+            await onRefresh();
+            setLoading(false);
+        }
+
+        return (
+            <AcceptInvitePressable onPress={acceptInvite}>
+                <InviteText>{'Accept'}</InviteText>
+            </AcceptInvitePressable>
+        );
+    }
+
+    const AcceptRejectInviteRow = () => {
+        return (
+            <InviteFoldOuterView topOffset={topOffset} >
+                <Invitation />
+                <InviteFoldButtonRow>
+                    <RejectInviteButton />
+                    <AcceptInviteButton />
+                </InviteFoldButtonRow>
+            </InviteFoldOuterView>
+        );    
+    }
+
+    const Invitation = () => {
+        const inviteText = `${clubMember?.invitedByUsername} invited you to join`;
+        return (
+            <Fragment>
+                <InviteText>{inviteText}</InviteText>
+            </Fragment>
+        )
+    }
+
+    const RejectInviteButton = () => {
+        const rejectInvite = async () => {
+            setLoading(true);
+            const rejectResult = await rejectInviteFromClub({
+                authSession,
+                clubMemberID: clubMember?.id,
+                reqUserSub: reelayDBUser?.sub,
+            });
+            console.log('reject invite result: ', rejectResult);
+            await onRefresh();
+            if (!isPublicClub) navigation.popToTop();
+            setLoading(false);
+        }
+
+        return (
+            <RejectInvitePressable onPress={rejectInvite}>
+                <InviteText>{'Ignore'}</InviteText>
+            </RejectInvitePressable>
+        );
+    }
+
+    const LoadingIndicator = () => {
+        return (
+            <AcceptRejectInviteRowView>
+                <ActivityIndicator />
+            </AcceptRejectInviteRowView>
+        );
+    }
+
+    if (loading) {
+        return <LoadingIndicator />
+    } else {
+        return <AcceptRejectInviteRow />;    
+    }
+
+}
 
 const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
     const topOffset = useSafeAreaInsets().top + 80;
@@ -353,69 +453,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         dispatch({ type: 'setTabBarVisible', payload: true });
     });
 
-    const AcceptInviteButton = ({ setLoading }) => {
-        const acceptInvite = async () => {
-            setLoading(true);
-            const acceptResult = await acceptInviteToClub({
-                authSession,
-                clubMemberID: clubMember?.id,
-                reqUserSub: reelayDBUser?.sub,
-            });
-            console.log('accept invite result: ', acceptResult);
-            await onRefresh();
-            setLoading(false);
-        }
-
-        return (
-            <AcceptInvitePressable onPress={acceptInvite}>
-                <AddTitleButtonText>{'Accept invite'}</AddTitleButtonText>
-            </AcceptInvitePressable>
-        );
-    }
-
-    const RejectInviteButton = ({ setLoading }) => {
-        const rejectInvite = async () => {
-            setLoading(true);
-            const rejectResult = await rejectInviteFromClub({
-                authSession,
-                clubMemberID: clubMember?.id,
-                reqUserSub: reelayDBUser?.sub,
-            });
-            console.log('accept invite result: ', rejectResult);
-            await onRefresh();
-            if (!isPublicClub) navigation.popToTop();
-            setLoading(false);
-        }
-
-        return (
-            <RejectInvitePressable onPress={rejectInvite}>
-                <AddTitleButtonText>{'Ignore'}</AddTitleButtonText>
-                {/* <FontAwesomeIcon icon={faXmark} color='white' size={20} /> */}
-            </RejectInvitePressable>
-        );
-    }
-
-    const AcceptRejectInviteRow = () => {
-        const [loading, setLoading] = useState(false);
-        if (loading) {
-            return (
-                <AcceptRejectInviteRowView>
-                    <ActivityIndicator />
-                </AcceptRejectInviteRowView>
-            );
-        } else {
-            return (
-                <BottomButtonOuterView
-                    bottomOffset={bottomOffset} 
-                    colors={['transparent', 'black']}
-                    end={{ x: 0.5, y: 0.5}}>
-                    <RejectInviteButton setLoading={setLoading} />
-                    <AcceptInviteButton setLoading={setLoading} />
-                </BottomButtonOuterView>
-            );    
-        }
-    }
-
     const AddTitleButton = () => {
         const [titleOrTopicDrawerVisible, setTitleOrTopicDrawerVisible] = useState(false);
         return (
@@ -473,9 +510,16 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             <ClubActivityList club={club} navigation={navigation} onRefresh={onRefresh} refreshing={refreshing} />
             <ClubBanner club={club} navigation={navigation} />
 
-            { clubMember && clubMemberHasJoined && <AddTitleButton /> }
-            { clubMember && !clubMemberHasJoined && <AcceptRejectInviteRow /> }
             { !clubMember && isPublicClub && <JoinClubButton /> }
+            { clubMember && clubMemberHasJoined && <AddTitleButton /> }
+            { clubMember && !clubMemberHasJoined && (
+                <InviteFold 
+                    clubMember={clubMember} 
+                    isPublicClub={isPublicClub} 
+                    navigation={navigation} 
+                    onRefresh={onRefresh} 
+                />
+            )}
 
             { showProgressBar && (
                 <UploadProgressBarView topOffset={topOffset}>

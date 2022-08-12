@@ -20,10 +20,10 @@ export const acceptInviteToClub = async ({ authSession, clubMemberID, reqUserSub
     return resultPatch;
 }
 
-export const rejectInviteFromClub = async () => {
+export const rejectInviteFromClub = async ({ authSession, clubMemberID, reqUserSub }) => {
     const routeDelete = `${REELAY_API_BASE_URL}/clubs/rejectInvite/${clubMemberID}`;
     const resultDelete = await fetchResults(routeDelete, {
-        method: 'PATCH',
+        method: 'DELETE',
         headers: {
             ...getReelayAuthHeaders(authSession),
             requsersub: reqUserSub,
