@@ -228,6 +228,12 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         const memberCount = club.members.reduce((count, member) => {
             return (shouldCountMember(member)) ? count + 1 : count;
         }, 0);
+
+        const sortedMembers = club.members.sort((member0, member1) => {
+            const member0AddedAt = moment(member0?.createdAt);
+            const member1AddedAt = moment(member1?.createdAt);
+            return member1AddedAt.diff(member0AddedAt, 'seconds') > 0;
+        });
         
         const EditMembersButton = () => {
             const onPress = () => setIsEditing(!isEditing);
@@ -247,7 +253,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     { isClubOwner && <EditMembersButton />}                
                 </SectionRow>
                 <MemberSectionSpacer />
-                { club.members.map((member) => {
+                { sortedMembers.map((member) => {
                     const isInvitedByMe = (member?.invitedBySub === reelayDBUser?.sub);
                     const inviteAccepted = member?.hasAcceptedInvite;
 
