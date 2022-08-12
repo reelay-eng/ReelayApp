@@ -100,6 +100,9 @@ const MemberInfoContainer = styled(View)`
     align-items: center;
     flex-direction: row;
 `
+const MemberInvitedText = styled(ReelayText.Overline)`
+    color: white;
+`
 const MemberRightButtonContainer = styled(View)`
     flex-direction: row;
     position: absolute;
@@ -245,21 +248,29 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 </SectionRow>
                 <MemberSectionSpacer />
                 { club.members.map((member) => {
-                    if (!shouldCountMember(member)) return <View key={member.userSub} />;
-                    return (
-                        <ClubMemberRow 
-                            key={member.userSub} 
-                            isEditing={isEditing}
-                            member={member} 
-                            navigation={navigation} 
-                        /> 
-                    )
+                    const isInvitedByMe = (member?.invitedBySub === reelayDBUser?.sub);
+                    const inviteAccepted = member?.hasAcceptedInvite;
+
+                    if (member.role === 'banned') {
+                        return <View key={member.userSub} />;
+                    } else if (!inviteAccepted && !isInvitedByMe) {
+                        return <View key={member.userSub} />;
+                    } else {
+                        return (
+                            <ClubMemberRow 
+                                key={member.userSub} 
+                                isEditing={isEditing}
+                                inviteAccepted={inviteAccepted}
+                                member={member} 
+                            /> 
+                        )    
+                    };
                 })}
             </React.Fragment>
         );
     }
     
-    const ClubMemberRow = ({ isEditing, member }) => {
+    const ClubMemberRow = ({ isEditing, inviteAccepted, member }) => {
         const { username, userSub } = member;
         const user = { username, sub: userSub };
         const isMyUser = (userSub === reelayDBUser?.sub);
@@ -361,11 +372,18 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                         <UsernameText>{username}</UsernameText>
                     </UsernameContainer>
                 </MemberInfoContainer>
-                <MemberRightButtonContainer>
-                    { !isEditing && !isMyUser && <FollowButton creator={user} /> }
-                    { isEditing && <BanButton /> }
-                    { isEditing && <RemoveButton /> }
-                </MemberRightButtonContainer>
+                { inviteAccepted && (
+                    <MemberRightButtonContainer>
+                        { !isEditing && !isMyUser && <FollowButton creator={user} /> }
+                        { isEditing && <BanButton /> }
+                        { isEditing && <RemoveButton /> }
+                    </MemberRightButtonContainer>
+                )}
+                { !inviteAccepted && (
+                    <MemberRightButtonContainer>
+                        <MemberInvitedText>{'Invited'}</MemberInvitedText>
+                    </MemberRightButtonContainer>
+                )}
             </MemberRowContainer>
         )
     }

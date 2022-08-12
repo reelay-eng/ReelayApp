@@ -31,6 +31,8 @@ import TopicCard from '../../components/topics/TopicCard';
 import ClubAddedMemberCard from './ClubAddedMemberCard';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import Constants from 'expo-constants';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 const { height, width } = Dimensions.get('window');
 const ACTIVITY_PAGE_SIZE = 20;
@@ -48,10 +50,11 @@ const AcceptInvitePressable = styled(TouchableOpacity)`
     background-color: ${ReelayColors.reelayBlue};
     border-radius: 20px;
     display: flex;
-    flex: 0.7;
+    flex: 0.75;
     flex-direction: row;
     justify-content: center;
     height: 40px;
+    margin-right: 16px;
 `
 const ActivityView = styled(View)`
     margin-bottom: 8px;
@@ -70,9 +73,11 @@ const AddTitleButtonView = styled(TouchableOpacity)`
     height: 40px;
     width: ${width - 32}px;
 `
-const AddTitleButtonOuterView = styled(LinearGradient)`
+const BottomButtonOuterView = styled(LinearGradient)`
     align-items: center;
     bottom: 0px;
+    flex-direction: row;
+    justify-content: space-around;
     padding-top: 20px;
     padding-bottom: ${(props) => props.bottomOffset + 56 ?? 56}px;
     position: absolute;
@@ -99,13 +104,14 @@ const DescriptionText = styled(ReelayText.Body2)`
 `
 const RejectInvitePressable = styled(TouchableOpacity)`
     align-items: center;
-    background-color: ${ReelayColors.reelayRed};
+    background-color: gray;
     border-radius: 20px;
     display: flex;
-    flex: 0.3;
+    flex: 0.2;
     flex-direction: row;
     justify-content: center;
     height: 40px;
+    margin-left: 16px;
 `
 const UploadProgressBarView = styled(View)`
     align-items: center;
@@ -383,7 +389,8 @@ export default ClubActivityScreen = ({ navigation, route }) => {
 
         return (
             <RejectInvitePressable onPress={rejectInvite}>
-                <AddTitleButtonText>{'Reject'}</AddTitleButtonText>
+                <AddTitleButtonText>{'Ignore'}</AddTitleButtonText>
+                {/* <FontAwesomeIcon icon={faXmark} color='white' size={20} /> */}
             </RejectInvitePressable>
         );
     }
@@ -398,10 +405,13 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             );
         } else {
             return (
-                <AcceptRejectInviteRowView>
+                <BottomButtonOuterView
+                    bottomOffset={bottomOffset} 
+                    colors={['transparent', 'black']}
+                    end={{ x: 0.5, y: 0.5}}>
                     <RejectInviteButton setLoading={setLoading} />
                     <AcceptInviteButton setLoading={setLoading} />
-                </AcceptRejectInviteRowView>
+                </BottomButtonOuterView>
             );    
         }
     }
@@ -409,7 +419,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const AddTitleButton = () => {
         const [titleOrTopicDrawerVisible, setTitleOrTopicDrawerVisible] = useState(false);
         return (
-            <AddTitleButtonOuterView 
+            <BottomButtonOuterView 
                 bottomOffset={bottomOffset} 
                 colors={['transparent', 'black']}
                 end={{ x: 0.5, y: 0.5}}>
@@ -425,7 +435,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                         setDrawerVisible={setTitleOrTopicDrawerVisible}
                     />
                 )}
-            </AddTitleButtonOuterView>
+            </BottomButtonOuterView>
         );
     }
 
@@ -448,13 +458,13 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         }
 
         return (
-            <AddTitleButtonOuterView 
+            <BottomButtonOuterView 
                 bottomOffset={bottomOffset} 
                 colors={['transparent', 'black']}>
                 <AddTitleButtonView onPress={joinClub}>
                     <AddTitleButtonText>{'Join club'}</AddTitleButtonText>
                 </AddTitleButtonView>
-            </AddTitleButtonOuterView>
+            </BottomButtonOuterView>
         );
     }
 
