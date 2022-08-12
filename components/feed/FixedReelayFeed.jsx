@@ -1,11 +1,10 @@
 import React, { useContext, useEffect, useState, useRef, memo } from 'react';
-import { Dimensions, FlatList, View } from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, View } from 'react-native';
 import ReelayStack from './ReelayStack';
 
 import { AuthContext } from '../../context/AuthContext';
 
 import styled from 'styled-components/native';
-import { ActivityIndicator } from 'react-native-paper';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 const { height, width } = Dimensions.get('window');
 
