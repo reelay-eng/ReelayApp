@@ -1,4 +1,4 @@
-import { logEventWithPropertiesAsync } from 'expo-analytics-amplitude';
+import { Amplitude } from '@amplitude/react-native';
 import Constants from 'expo-constants';
 
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -12,6 +12,6 @@ export const logAmplitudeEventProd = async (eventName, options) => {
             disableDMA: true,
             disableIPAddress: true,
         }
-        await logEventWithPropertiesAsync(eventName, optionsNoLocation);
+        await Amplitude.getInstance().logEvent(eventName, optionsNoLocation);
     }
 }

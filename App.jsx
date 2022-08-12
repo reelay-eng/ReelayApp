@@ -24,10 +24,12 @@ import 'react-native-get-random-values';
 // expo and amplitude imports
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
-import * as Amplitude from 'expo-analytics-amplitude';
+import { Amplitude, Identify } from '@amplitude/react-native';
+
 import { logAmplitudeEventProd } from './components/utils/EventLogger';
 import { StatusBar } from 'expo-status-bar';
 import useColorScheme from './hooks/useColorScheme';
+import { InterruptionModeIOS, InterruptionModeAndroid } from 'expo-av';
 
 // context imports
 import { AuthContext } from './context/AuthContext';
@@ -164,9 +166,8 @@ function App() {
     }
 
     const initServices = async () => {
-        Amplitude.initializeAsync(
-            Constants.manifest.extra.amplitudeApiKey
-        );
+        const ampInstance = Amplitude.getInstance();
+        ampInstance.init(Constants.manifest.extra.amplitudeApiKey);
 
         Amplify.configure({
             ...AWSExports,
@@ -181,8 +182,8 @@ function App() {
         
         Audio.setAudioModeAsync({
             playsInSilentModeIOS: true,
-            interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
-            interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+            interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+            interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
         });
         
         Notifications.setNotificationHandler({
