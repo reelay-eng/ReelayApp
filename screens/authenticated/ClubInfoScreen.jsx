@@ -19,7 +19,7 @@ import { AuthContext } from '../../context/AuthContext';
 import FollowButton from '../../components/global/FollowButton';
 
 import { 
-    addMemberToClub,
+    inviteMemberToClub,
     banMemberFromClub, 
     createDeeplinkPathToClub,
     editClub, 
@@ -99,6 +99,9 @@ const MemberEditButton = styled(TouchableOpacity)``
 const MemberInfoContainer = styled(View)`
     align-items: center;
     flex-direction: row;
+`
+const MemberInvitedText = styled(ReelayText.Overline)`
+    color: white;
 `
 const MemberRightButtonContainer = styled(View)`
     flex-direction: row;
@@ -221,9 +224,16 @@ export default ClubInfoScreen = ({ navigation, route }) => {
 
     const ClubMembers = () => {
         const [isEditing, setIsEditing] = useState(false);
+        const shouldCountMember = (member) => (member?.hasAcceptedInvite && member.role !== 'banned');
         const memberCount = club.members.reduce((count, member) => {
-            return (member.role === 'banned') ? count : count + 1;
+            return (shouldCountMember(member)) ? count + 1 : count;
         }, 0);
+
+        const sortedMembers = club.members.sort((member0, member1) => {
+            const member0AddedAt = moment(member0?.createdAt);
+            const member1AddedAt = moment(member1?.createdAt);
+            return member1AddedAt.diff(member0AddedAt, 'seconds') > 0;
+        });
         
         const EditMembersButton = () => {
             const onPress = () => setIsEditing(!isEditing);
@@ -243,22 +253,30 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     { isClubOwner && <EditMembersButton />}                
                 </SectionRow>
                 <MemberSectionSpacer />
-                { club.members.map((member) => {
-                    if (member.role === 'banned') return <View key={member.userSub} />;
-                    return (
-                        <ClubMemberRow 
-                            key={member.userSub} 
-                            isEditing={isEditing}
-                            member={member} 
-                            navigation={navigation} 
-                        /> 
-                    )
+                { sortedMembers.map((member) => {
+                    const isInvitedByMe = (member?.invitedBySub === reelayDBUser?.sub);
+                    const inviteAccepted = member?.hasAcceptedInvite;
+
+                    if (member.role === 'banned') {
+                        return <View key={member.userSub} />;
+                    } else if (!inviteAccepted && !isInvitedByMe) {
+                        return <View key={member.userSub} />;
+                    } else {
+                        return (
+                            <ClubMemberRow 
+                                key={member.userSub} 
+                                isEditing={isEditing}
+                                inviteAccepted={inviteAccepted}
+                                member={member} 
+                            /> 
+                        )    
+                    };
                 })}
             </React.Fragment>
         );
     }
     
-    const ClubMemberRow = ({ isEditing, member }) => {
+    const ClubMemberRow = ({ isEditing, inviteAccepted, member }) => {
         const { username, userSub } = member;
         const user = { username, sub: userSub };
         const isMyUser = (userSub === reelayDBUser?.sub);
@@ -360,11 +378,18 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                         <UsernameText>{username}</UsernameText>
                     </UsernameContainer>
                 </MemberInfoContainer>
-                <MemberRightButtonContainer>
-                    { !isEditing && !isMyUser && <FollowButton creator={user} /> }
-                    { isEditing && <BanButton /> }
-                    { isEditing && <RemoveButton /> }
-                </MemberRightButtonContainer>
+                { inviteAccepted && (
+                    <MemberRightButtonContainer>
+                        { !isEditing && !isMyUser && <FollowButton creator={user} /> }
+                        { isEditing && <BanButton /> }
+                        { isEditing && <RemoveButton /> }
+                    </MemberRightButtonContainer>
+                )}
+                { !inviteAccepted && (
+                    <MemberRightButtonContainer>
+                        <MemberInvitedText>{'Invited'}</MemberInvitedText>
+                    </MemberRightButtonContainer>
+                )}
             </MemberRowContainer>
         )
     }
@@ -438,11 +463,11 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             );
         }
     
-        const AddMembersRow = () => {
+        const InviteMembersRow = () => {
             return (
                 <SettingsRow onPress={() => setInviteDrawerVisible(true)}>
                     <SettingsTextContainer>
-                        <SettingsText>{'Add Members'}</SettingsText>
+                        <SettingsText>{'Invite Members'}</SettingsText>
                         <SettingsSubtext>{'Invite more people to the club'}</SettingsSubtext>
                     </SettingsTextContainer>
                     <SettingsRowRightButton>
@@ -559,7 +584,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             <Fragment>
                 <SectionHeaderText>{'Invites'}</SectionHeaderText>
                 { isClubOwner && <AllowMemberInvitesRow />}
-                <AddMembersRow />
+                <InviteMembersRow />
                 <ShareClubLinkRow />
                 { isClubOwner && (
                     <Fragment>
@@ -609,8 +634,8 @@ export default ClubInfoScreen = ({ navigation, route }) => {
 
         const joinClub = async () => {
             setJoining(true);
-
-            const joinClubResult = await addMemberToClub({
+            // inviting yourself => auto-accept invite
+            const joinClubResult = await inviteMemberToClub({
                 authSession,
                 clubID: club.id,
                 userSub: reelayDBUser?.sub,
@@ -670,10 +695,12 @@ export default ClubInfoScreen = ({ navigation, route }) => {
 
                 const filterUserFromClub = nextMember => nextMember?.userSub !== reelayDBUser?.sub;
                 club.members = club.members.filter(filterUserFromClub);
+
+                dispatch({ type: 'setMyClubs', payload: myClubsRemoved });    
+                navigation.popToTop();
+                showMessageToast(`You've left ${club.name}`);
                 await onRefresh();
 
-                showMessageToast(`You've left ${club.name}`);
-                dispatch({ type: 'setMyClubs', payload: myClubsRemoved });    
                 setClubMember(null);
                 setLeaving(false);
             } catch (error) {

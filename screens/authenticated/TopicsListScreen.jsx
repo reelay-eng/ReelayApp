@@ -1,6 +1,7 @@
 import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { 
     Dimensions,
+    FlatList,
     Keyboard, 
     Pressable, 
     SafeAreaView, 
@@ -11,6 +12,8 @@ import {
 } from 'react-native';
 import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
+import { FlashList } from "@shopify/flash-list";
+import Constants from 'expo-constants';
 
 import { AuthContext } from '../../context/AuthContext';
 import BackButton from '../../components/utils/BackButton';
@@ -19,13 +22,12 @@ import TopicCard from '../../components/topics/TopicCard';
 import ReelayColors from '../../constants/ReelayColors';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { searchTopics } from '../../api/TopicsApi';
+import { getTopics, getTopicsByCreator, searchTopics } from '../../api/TopicsApi';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
-import moment from 'moment';
-import { HeaderWithBackButton } from '../../components/global/Headers';
 import ProfilePicture from '../../components/global/ProfilePicture';
 
 const { height, width } = Dimensions.get('window');
+const canUseFlashList = (Constants.appOwnership !== 'expo');
 
 const CloseButtonContainer = styled(TouchableOpacity)`
     width: 32px;
@@ -65,6 +67,7 @@ const SearchButtonContainer = styled(TouchableOpacity)`
 const ScreenContainer = styled(SafeAreaView)`
     background-color: black;
     justify-content: space-between;
+    padding: 16px;
     height: 100%;
     width: 100%;
 `
@@ -98,73 +101,242 @@ const Spacer = styled(View)`
     width: 8px;
 `
 const TopicCardContainer = styled(View)`
-    margin-bottom: 18px;
-`
-const TopicScrollContainer = styled(ScrollView)`
-    padding-left: 15px;
-    padding-bottom: 80px;
-    width: 100%;
+    margin: 16px;
+    margin-bottom: 0px;
 `
 
-export default TopicsListScreen = ({ navigation, route }) => {
-    const source = route.params?.source ?? 'discover';
-    const creatorOnProfile = route.params?.creatorOnProfile ?? null;
-    const topicsOnProfile = route.params?.topicsOnProfile ?? [];
-    const { reelayDBUser } = useContext(AuthContext);
+const SearchBar = ({ resetTopics, searchBarRef, searchTextRef, setSearching, updateSearchResults }) => {
+    const onClose = () => {
+        setSearching(false);
+        resetTopics();
+    }
+    const updateSearch = (newSearchText) => {
+        searchTextRef.current = newSearchText;
+        updateSearchResults();
+    }
+    useEffect(() => searchBarRef.current.focus(), []);
+
+    return (
+        <SearchInputContainer>
+            <SearchIconContainer>
+                <Icon type='ionicon' name='search' color='white' size={24} />
+            </SearchIconContainer>
+            <SearchInput
+                ref={searchBarRef}
+                defaultValue={searchTextRef.current}
+                placeholder={"Search for topics"}
+                placeholderTextColor={'rgba(255,255,255,0.6)'}
+                onChangeText={updateSearch}
+                onPressOut={Keyboard.dismiss}
+                returnKeyLabel="return"
+                returnKeyType="default"
+            />
+            <CloseButtonContainer onPress={onClose}>
+                <Icon type='ionicon' name='close' color='white' size={24} />
+            </CloseButtonContainer>
+        </SearchInputContainer>
+    );
+}
+
+const TopicScroll = ({ 
+    creatorOnProfile,
+    initDisplayTopics,
+    initNextPage,
+    navigation,
+    searching,
+    setSearching,
+    source = 'discover',
+}) => {
+    const authSession = useSelector(state => state.authSession);
     const dispatch = useDispatch();
+    const { reelayDBUser } = useContext(AuthContext);
 
-    const myHomeContent = useSelector(state => state.myHomeContent);
-
-    const getDiscoverTopics = () => {
-        const discoverNewTopics = myHomeContent?.discover?.newTopics;
-        const discoverPopularTopics = myHomeContent?.discover?.popularTopics;
-
-        const sortTopics = (topic0, topic1) => {
-            const topic0LastUpdatedAt = moment(topic0?.lastUpdatedAt);
-            const topic1LastUpdatedAt = moment(topic1?.lastUpdatedAt);
-            return topic1LastUpdatedAt.diff(topic0LastUpdatedAt, 'seconds') > 0;
-        }
-
-        const discoverTopics = [
-            ...discoverNewTopics,
-            ...discoverPopularTopics
-        ].sort(sortTopics);
-    
-        const uniqueTopic = (topic, index) => {
-            const matchTopicID = (nextTopic) => topic?.id === nextTopic?.id;
-            return index === discoverTopics.findIndex(matchTopicID);
-        }
-    
-        return discoverTopics.filter(uniqueTopic);    
-    }
-
-    let initDisplayTopics;
-    let headerText;
-
-    switch (source) {
-        case 'discover':
-            initDisplayTopics = getDiscoverTopics();
-            headerText = 'Topics';
-            break;    
-        case 'followingNew':
-            initDisplayTopics = myHomeContent?.following?.newTopics;
-            headerText = 'Topics by friends';
-            break;
-        case 'profile':
-            initDisplayTopics = topicsOnProfile;
-            headerText = `${creatorOnProfile?.username}'s topics`;
-            break;
-        default:
-            initDisplayTopics = [];
-            break;
-    }
-    
     const [displayTopics, setDisplayTopics] = useState(initDisplayTopics);
+    const [extending, setExtending] = useState(false);
+    const [nextPage, setNextPage] = useState(initNextPage);
+    // const itemHeights = useRef([]);
+    const searchTextRef = useRef('');
+    const searchCounter = useRef(0);
+    const searchBarRef = useRef(null);
+    
     const hasReelays = (topic) => topic?.reelays?.length > 0
     const displayTopicsWithReelays = displayTopics.filter(hasReelays);
 
+    const extendScroll = async () => {
+        if (searching || extending) return;
+        try {
+            setExtending(true);
+            let nextTopics = [];
+            if (source === 'profile') {
+                nextTopics = await getTopicsByCreator({
+                    creatorSub: creatorOnProfile?.sub,
+                    reqUserSub: reelayDBUser?.sub,
+                    page: nextPage,
+                });
+            } else {
+                nextTopics = await getTopics({ 
+                    authSession, 
+                    page: nextPage, 
+                    reqUserSub: reelayDBUser?.sub, 
+                    source,
+                });
+            }
+
+            if (nextTopics?.length === 0) return;
+
+            const payload = { nextPage: nextPage + 1 };
+            const nextDisplayTopics = [ ...displayTopics, ...nextTopics ];
+            setDisplayTopics(nextDisplayTopics);
+            setNextPage(nextPage + 1);
+            setExtending(false);
+            if (source === 'profile' || source === 'search' || searching) return;
+
+            payload[source] = nextDisplayTopics;
+            dispatch({ type: 'setTopics', payload });
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const resetTopics = () => setDisplayTopics(initDisplayTopics);
+    
+    const renderTopic = ({ item, index }) => {
+        const topic = item;
+        const matchTopic = (nextTopic) => (nextTopic.id === topic.id);
+        const initTopicIndex = displayTopicsWithReelays.findIndex(matchTopic);
+    
+        const advanceToFeed = () => {
+            if (!topic.reelays?.length) return;
+            const feedSource = (searching) ? 'search' : source;
+            navigation.push('TopicsFeedScreen', { initTopicIndex, source: feedSource });
+            
+            logAmplitudeEventProd('openedTopic', {
+                clubID: null,
+                title: topic.title,
+                username: reelayDBUser?.username,
+            });
+        }
+
+        // const onLayout = ({ nativeEvent }) => {
+        //     itemHeights.current[index] = nativeEvent?.layout?.height;
+        // }    
+
+        return (
+            <TopicCardContainer>
+                <TopicCard 
+                    advanceToFeed={advanceToFeed}
+                    clubID={null}
+                    navigation={navigation} 
+                    source={source}
+                    topic={topic} 
+                />
+            </TopicCardContainer>
+        );
+    }
+
+    const updateSearchResults = async () => {
+        if (searchTextRef.current?.length === 0) {
+            setDisplayTopics(initDisplayTopics);
+        }
+        
+        const currentSearchCounter = ++searchCounter.current;
+        const topicSearchResults = await searchTopics({ 
+            searchText: searchTextRef.current, 
+            page: 0, 
+            reqUserSub: reelayDBUser?.sub,
+        });
+
+        if (currentSearchCounter === searchCounter.current) {
+            setDisplayTopics(topicSearchResults);
+        }
+    }
+
+    if (canUseFlashList) {
+        return (
+            <Fragment>
+                { searching && <SearchBar 
+                    resetTopics={resetTopics}
+                    searchBarRef={searchBarRef}
+                    searchTextRef={searchTextRef}
+                    setSearching={setSearching} 
+                    updateSearchResults={updateSearchResults}
+                /> }
+                <FlashList
+                    data={displayTopics}
+                    estimatedItemSize={180}
+                    onEndReached={extendScroll}
+                    onEndReachedThreshold={0.9}
+                    renderItem={renderTopic}
+                    showsVerticalScrollIndicator={false}
+                />
+            </Fragment>
+        );
+    }
+
+    return (
+        <View style={{ alignItems: 'center', height: '100%', width: '100%' }}>
+            { searching && <SearchBar 
+                resetTopics={resetTopics}
+                searchBarRef={searchBarRef}
+                searchTextRef={searchTextRef}
+                setSearching={setSearching} 
+                updateSearchResults={updateSearchResults}
+            /> }
+            <FlatList
+                data={displayTopics}
+                keyExtractor={topic => String(topic.id)}
+                // getItemLayout={getItemLayout}
+                onEndReached={extendScroll}
+                onEndReachedThreshold={0.9}
+                renderItem={renderTopic}
+                showsVerticalScrollIndicator={false}
+            />
+        </View>
+    )
+}
+
+export default TopicsListScreen = ({ navigation, route }) => {
     const [searching, setSearching] = useState(false);
-    const searchBarRef = useRef(null);
+    const source = route.params?.source ?? 'discover';
+
+    const creatorOnProfile = route.params?.creatorOnProfile ?? null;
+    const topicsOnProfile = route.params?.topicsOnProfile ?? null;
+    const dispatch = useDispatch();
+
+    const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
+    const followingTopics = useSelector(state => state.myHomeContent?.following?.topics);
+
+    const discoverTopicsNextPage = useSelector(state => state.myHomeContent?.discover?.topicsNextPage) ?? 1;
+    const followingTopicsNextPage = useSelector(state => state.myHomeContent?.following?.topicsNextPage) ?? 1;
+
+    let headerText, initDisplayTopics, initNextPage;
+    switch (source) {
+        case 'discover':
+            headerText = 'Topics';
+            initDisplayTopics = discoverTopics ?? [];
+            initNextPage = discoverTopicsNextPage ?? 1;
+            break;    
+        case 'following':
+            headerText = 'Topics by friends';
+            initDisplayTopics = followingTopics ?? [];
+            initNextPage = followingTopicsNextPage ?? 1;
+            break;
+        case 'profile':
+            headerText = `${creatorOnProfile?.username}'s topics`;
+            initDisplayTopics = topicsOnProfile;
+            initNextPage = 1;
+            break;
+        case 'search':
+            headerText = `Search topics`;
+            initDisplayTopics = searchResults;
+            initNextPage = 1;
+            break;
+        default:
+            headerText = '';
+            initDisplayTopics = [];
+            initNextPage = 1;
+            break;
+    }
 
     const CreateTopicButton = () => {
         const advanceToCreateTopic = () => navigation.push('CreateTopicScreen');
@@ -204,108 +376,26 @@ export default TopicsListScreen = ({ navigation, route }) => {
         )
     }
 
-    const TopicScroll = () => {
-        const renderTopic = (topic, index) => {
-            const matchTopic = (nextTopic) => (nextTopic.id === topic.id);
-            const initTopicIndex = displayTopicsWithReelays.findIndex(matchTopic);
-        
-            const advanceToFeed = () => {
-                if (!topic.reelays?.length) return;
-                const feedSource = (searching) ? 'search' : source;
-                navigation.push('TopicsFeedScreen', { initTopicIndex, source: feedSource });
-                
-                logAmplitudeEventProd('openedTopic', {
-                    clubID: null,
-                    title: topic.title,
-                    username: reelayDBUser?.username,
-                });
-            }
-
-            return (
-                <TopicCardContainer key={topic.id} >
-                    <TopicCard 
-                        advanceToFeed={advanceToFeed}
-                        clubID={null}
-                        navigation={navigation} 
-                        source={source}
-                        topic={topic} 
-                    />
-                </TopicCardContainer>
-            );
-        }
-
-        return (
-            <TopicScrollContainer 
-                showsVerticalScrollIndicator={false}
-                onEndReached={() => console.log('end reached')}
-            >
-                { displayTopics.map(renderTopic) }
-            </TopicScrollContainer>
-        )
-    }
-
-    const resetTopics = () => setDisplayTopics(initDisplayTopics);
-    const updateSearchResults = async (searchText) => {
-        const topicSearchResults = await searchTopics({ 
-            searchText, 
-            page: 0, 
-            reqUserSub: reelayDBUser?.sub,
-        });
-        setDisplayTopics(topicSearchResults);
-    }
 
     useEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false });
-        return () => {
-            dispatch({ type: 'setTabBarVisible', payload: true });
-        }
+        const showTabBar = (source === 'profile');
+        dispatch({ type: 'setTabBarVisible', payload: showTabBar });
     }, []);
 
     return (
         <ScreenContainer>
             { !searching && <Header /> }
-            { searching && <SearchBar 
-                resetTopics={resetTopics}
-                searchBarRef={searchBarRef}
-                setSearching={setSearching} 
-                updateSearchResults={updateSearchResults}
-            /> }
-            <TopicScroll />
+            <TopicScroll 
+                creatorOnProfile={creatorOnProfile}
+                initDisplayTopics={initDisplayTopics}
+                initNextPage={initNextPage}
+                navigation={navigation}
+                searching={searching} 
+                setSearching={setSearching}
+                source={source}
+            />
             <CreateTopicButton />
         </ScreenContainer>
     );
 }
 
-const SearchBar = ({ resetTopics, searchBarRef, setSearching, updateSearchResults }) => {
-    const searchTextRef = useRef('');
-    const onClose = () => {
-        setSearching(false);
-        resetTopics();
-    }
-    const updateSearch = (newSearchText) => {
-        searchTextRef.current = newSearchText;
-        updateSearchResults(newSearchText);
-    }
-    useEffect(() => searchBarRef.current.focus(), []);
-
-    return (
-        <SearchInputContainer>
-            <SearchIconContainer>
-                <Icon type='ionicon' name='search' color='white' size={24} />
-            </SearchIconContainer>
-            <SearchInput
-                ref={searchBarRef}
-                defaultValue={searchTextRef.current}
-                placeholder={"Search for topics"}
-                placeholderTextColor={'rgba(255,255,255,0.6)'}
-                onChangeText={updateSearch}
-                onPressOut={Keyboard.dismiss}
-                returnKeyLabel="return"
-                returnKeyType="default"
-            />
-            <CloseButtonContainer onPress={onClose}>
-                <Icon type='ionicon' name='close' color='white' size={24} />
-            </CloseButtonContainer>
-        </SearchInputContainer>
-    );
-}

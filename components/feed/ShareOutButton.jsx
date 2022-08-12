@@ -1,9 +1,11 @@
 import React, { useContext } from 'react';
-import { Pressable, Share } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Share, TouchableOpacity } from 'react-native';
 import Constants from 'expo-constants';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faArrowUpFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { createDeeplinkPathToReelay } from '../../api/ReelayDBApi';
 
 const ICON_SIZE = 20;
@@ -34,8 +36,8 @@ export default ShareOutButton = ({ reelay }) => {
     }
 
     return (
-        <Pressable onPress={shareReelay}>
-            <Icon type='ionicon' name='arrow-redo' color='white' size={ICON_SIZE} />
-        </Pressable>
+        <TouchableOpacity onPress={shareReelay}>
+            <FontAwesomeIcon icon={faArrowUpFromBracket} size={24} color='white' />
+        </TouchableOpacity>
     );
 }

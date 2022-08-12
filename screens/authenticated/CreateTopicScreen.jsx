@@ -143,22 +143,22 @@ export default function CreateTopicScreen({ navigation, route }) {
         }
     }
 
-    const refreshDiscoverNewTopics = async () => {
+    const refreshDiscoverTopics = async () => {
         try {
             const topics = await getTopics({
                 authSession,
                 page: 0,
                 reqUserSub: reelayDBUser?.sub,
-                source: 'discoverNew',
+                source: 'discover',
             });
-            const payload = { discoverNew: topics };
+            const payload = { discover: topics };
             dispatch({ type: 'setTopics', payload });
         } catch (error) {
             console.log(error);
         }
     }
 
-    const refreshTopics = (club) ? refreshClubTopics : refreshDiscoverNewTopics;
+    const refreshTopics = (club) ? refreshClubTopics : refreshDiscoverTopics;
 
     const dispatch = useDispatch();
     const descriptionFieldRef = useRef(null);
@@ -218,7 +218,7 @@ export default function CreateTopicScreen({ navigation, route }) {
                     dispatch({ type: 'setUpdatedClub', payload: club });
                 } else {
                     dispatch({ type: 'setTopics', payload: {
-                        discoverNew: [publishResult, ...myHomeContent?.discover?.newTopics]
+                        discover: [publishResult, ...myHomeContent?.discover?.topics]
                     }});
                 }
                 showMessageToast('Topic created!');

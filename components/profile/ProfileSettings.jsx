@@ -30,8 +30,8 @@ export const ProfileSettings = ({navigation}) => {
         width: 100%;
     `;
     const { reelayDBUser } = useContext(AuthContext);
+    const globalStacks = useSelector(state => state.myHomeContent?.global);
     const isAdmin = (reelayDBUser?.role === 'admin');
-    const myCreatorStacks = useSelector(state => state.myCreatorStacks);
     const dispatch = useDispatch();
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
@@ -45,16 +45,14 @@ export const ProfileSettings = ({navigation}) => {
     }
 
     const testCompression = async () => {
-        const reelay = myCreatorStacks[2][0];
+        const reelay = globalStacks[0][0];
         console.log('reelay: ', reelay.content);
         const videoURI = reelay?.content?.videoURI;
-        showMessageToast(`test compression: ${videoURI}`);
-
         const localURI = cacheDirectory + 'img/compression-test.mp4';
         await downloadAsync(videoURI, localURI);
         const { outputURI, parsedSession, error } = await compressVideoForUpload(localURI);
-        showMessageToast(`compression complete, error? `, error);
-        console.log('compressed video: ', compressedVideo);
+        console.log('compressed video: ', outputURI, error);
+        reelay.content.videoURI = outputURI;
     }
 
     return (

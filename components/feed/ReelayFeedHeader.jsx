@@ -1,11 +1,11 @@
 import React, { Fragment, memo } from 'react';
-import { Easing, Pressable, TouchableOpacity, View } from 'react-native';
+import { Easing, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faComments, faBackwardStep, faForwardStep, faPipe, faEarthAmericas, faTicket, faLeaf } from '@fortawesome/free-solid-svg-icons';
+import { faComments, faBackwardStep, faForwardStep, faEarthAmericas, faTicket, faLeaf } from '@fortawesome/free-solid-svg-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TextTicker from 'react-native-text-ticker';
 import ClubPicture from '../global/ClubPicture';
@@ -299,7 +299,6 @@ export default ReelayFeedHeader = ({
             <HeaderGradient colors={[ReelayColors.reelayBlack,'transparent']} topOffset={topOffset} />
             <FeedHeaderView topOffset={topOffset}>
                 { feedSource !== 'global' && <BackButton navigation={navigation} /> }
-                <Spacer />
                 <ActivityInfoView>
                     <ActivityInfoBarMemo club={club} feedSource={feedSource} navigation={navigation} topic={topic} />
                 </ActivityInfoView>

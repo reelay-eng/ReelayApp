@@ -1,5 +1,5 @@
 {
   "expo.jsEngine": "jsc",
   "ios.deploymentTarget": "12.1",
-  "ffmpeg-kit-react-native.subspecs": []
+  "ffmpeg-kit-react-native.subspecs": ["full-gpl"]
 }

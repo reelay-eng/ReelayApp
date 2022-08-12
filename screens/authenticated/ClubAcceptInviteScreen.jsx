@@ -1,17 +1,15 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { ActivityIndicator, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Constants from 'expo-constants';
 import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 import BackButton from '../../components/utils/BackButton';
 import * as ReelayText from '../../components/global/Text';
-import ReelayColors from '../../constants/ReelayColors';
 import ClubPicture from '../../components/global/ClubPicture';
 
 import { AuthContext } from '../../context/AuthContext';
-import { addMemberToClub, getClubInviteFromCode } from '../../api/ClubsApi';
+import { getClubInviteFromCode } from '../../api/ClubsApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import { LinearGradient } from 'expo-linear-gradient';

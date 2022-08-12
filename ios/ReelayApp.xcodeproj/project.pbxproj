@@ -281,6 +281,8 @@
 				"${PODS_ROOT}/../../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf",
 				"${PODS_ROOT}/../../node_modules/react-native-vector-icons/Fonts/Zocial.ttf",
 				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/AccessibilityResources.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/expo-dev-launcher/EXDevLauncher.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/expo-dev-menu/EXDevMenu.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
@@ -304,6 +306,8 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/SimpleLineIcons.ttf",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Zocial.ttf",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/AccessibilityResources.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EXDevLauncher.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/EXDevMenu.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -317,14 +321,14 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-ReelayApp/Pods-ReelayApp-frameworks.sh",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-https/ffmpegkit.framework/ffmpegkit",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-https/libavcodec.framework/libavcodec",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-https/libavdevice.framework/libavdevice",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-https/libavfilter.framework/libavfilter",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-https/libavformat.framework/libavformat",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-https/libavutil.framework/libavutil",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-https/libswresample.framework/libswresample",
-				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-https/libswscale.framework/libswscale",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-full-gpl/ffmpegkit.framework/ffmpegkit",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-full-gpl/libavcodec.framework/libavcodec",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-full-gpl/libavdevice.framework/libavdevice",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-full-gpl/libavfilter.framework/libavfilter",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-full-gpl/libavformat.framework/libavformat",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-full-gpl/libavutil.framework/libavutil",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-full-gpl/libswresample.framework/libswresample",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-full-gpl/libswscale.framework/libswscale",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -409,7 +413,7 @@
 				INFOPLIST_FILE = ReelayApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.04.04;
+				MARKETING_VERSION = 1.04.07;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -441,7 +445,7 @@
 				INFOPLIST_FILE = ReelayApp/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 12.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				MARKETING_VERSION = 1.04.04;
+				MARKETING_VERSION = 1.04.07;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

@@ -26,55 +26,43 @@ export default TopicsFeed = ({
     initTopicIndex, 
     initReelayIndex,
     source,
-    creatorOnProfile=null,
-    topicsOnProfile=null,
+    creatorOnProfile,
+    topicsOnProfile,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
-    const myHomeContent = useSelector(state => state.myHomeContent);
+
+    const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics) ?? [];
+    const followingTopics = useSelector(state => state.myHomeContent?.following?.topics);
+
+    const discoverTopicsNextPage = useSelector(state => state.myHomeContent?.discover?.topicsNextPage) ?? 0;
+    const followingTopicsNextPage = useSelector(state => state.myHomeContent?.following?.topicsNextPage) ?? 0;
+
     const page = useRef(0);
 	const dispatch = useDispatch();
     const feedPager = useRef();
 
-    const getDiscoverTopics = () => {
-        const discoverNewTopics = myHomeContent?.discover?.newTopics;
-        const discoverPopularTopics = myHomeContent?.discover?.popularTopics;
-
-        const sortTopics = (topic0, topic1) => {
-            const topic0LastUpdatedAt = moment(topic0?.lastUpdatedAt);
-            const topic1LastUpdatedAt = moment(topic1?.lastUpdatedAt);
-            return topic1LastUpdatedAt.diff(topic0LastUpdatedAt, 'seconds') > 0;
-        }
-
-        const discoverTopics = [
-            ...discoverNewTopics,
-            ...discoverPopularTopics
-        ].sort(sortTopics);
-    
-        const uniqueTopic = (topic, index) => {
-            const matchTopicID = (nextTopic) => topic?.id === nextTopic?.id;
-            return index === discoverTopics.findIndex(matchTopicID);
-        }
-    
-        return discoverTopics.filter(uniqueTopic);    
-    }
-
-    let displayTopics;
+    let displayTopics, nextPage;
     switch (source) {
         case 'discover':
-            displayTopics = getDiscoverTopics();
+            displayTopics = discoverTopics ?? [];
+            nextPage = discoverTopicsNextPage;
             break;
-        case 'followingNew':
-            displayTopics = myHomeContent?.following?.newTopics;
+        case 'following':
+            displayTopics = followingTopics ?? [];
+            nextPage = followingTopicsNextPage;
             break;
         case 'search':
-            displayTopics = preloadedTopics;
+            displayTopics = preloadedTopics ?? [];
+            nextPage = 1;
             break;
         case 'profile':
-            displayTopics = topicsOnProfile;
+            displayTopics = topicsOnProfile ?? [];
+            nextPage = 1;
             break;
         default:
             displayTopics = [];
+            nextPage = 1;
             break;
     }
 
@@ -103,7 +91,7 @@ export default TopicsFeed = ({
                     source,
                 });
 
-            const payload = {};
+            const payload = { nextPage: 1 };
             payload[source] = nextTopics;
             dispatch({ type: 'setTopics', payload });
 
@@ -126,7 +114,7 @@ export default TopicsFeed = ({
                 ? await getTopicsByCreator({
                     creatorSub: creatorOnProfile?.sub,
                     reqUserSub: reelayDBUser?.sub,
-                    page: 0,
+                    page: page.current,
                 })
                 : await getTopics({ 
                     authSession, 
@@ -135,7 +123,7 @@ export default TopicsFeed = ({
                     source,
                 });
 
-            const payload = {};
+            const payload = { nextPage: page.current + 1 };
             payload[source] = [...displayTopics, ...nextTopics];
             dispatch({ type: 'setTopics', payload });
 

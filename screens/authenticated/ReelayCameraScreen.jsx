@@ -15,6 +15,7 @@ import { showErrorToast } from '../../components/utils/toasts';
 
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import TitlePoster from '../../components/global/TitlePoster';
+import TitleBanner from '../../components/feed/TitleBanner';
 
 const { height, width } = Dimensions.get('window');
 const captureSize = Math.floor(height * 0.07);
@@ -228,6 +229,10 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             height: 100%;
             width: 100%;
         `
+        const TitleBannerContainer = styled(SafeAreaView)`
+            position: absolute;
+            top: 75px;
+        `
         const TopLeftContainer = styled(SafeAreaView)`
             position: absolute;
             left: 10px;
@@ -244,10 +249,13 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 <TopLeftContainer>
                     <BackButton navigation={navigation}/>
                 </TopLeftContainer>
-                <TopRightContainer>
+                {/* <TopRightContainer>
                     <TitlePoster title={titleObj} width={80} />
                     <VenueIndicator />
-                </TopRightContainer>
+                </TopRightContainer> */}
+                <TitleBannerContainer>
+                    <TitleBanner titleObj={titleObj} onCameraScreen={true} venue={venue} />
+                </TitleBannerContainer>
                 <RecordInterface />
             </OverlayContainer>
         );

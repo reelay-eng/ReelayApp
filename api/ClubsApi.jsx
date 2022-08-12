@@ -8,7 +8,33 @@ import { fetchAnnotatedTitle } from './TMDbApi';
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 
-export const addMemberToClub = async ({
+export const acceptInviteToClub = async ({ authSession, clubMemberID, reqUserSub }) => {
+    const routePatch = `${REELAY_API_BASE_URL}/clubs/acceptInvite/${clubMemberID}`;
+    const resultPatch = await fetchResults(routePatch, {
+        method: 'PATCH',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            requsersub: reqUserSub,
+        },
+    });
+    return resultPatch;
+}
+
+export const rejectInviteFromClub = async ({ authSession, clubMemberID, reqUserSub }) => {
+    const routeDelete = `${REELAY_API_BASE_URL}/clubs/rejectInvite/${clubMemberID}`;
+    const resultDelete = await fetchResults(routeDelete, {
+        method: 'DELETE',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            requsersub: reqUserSub,
+        },
+    });
+    return resultDelete;
+}
+
+// if invitedBySub === userSub, the server mark the member as having accepted
+// their own invite
+export const inviteMemberToClub = async ({
     authSession,
     clubID,
     userSub,

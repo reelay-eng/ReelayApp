@@ -1,15 +1,12 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ActivityIndicator, View } from 'react-native';
 import styled from 'styled-components/native';
 
 
 import { AuthContext } from '../../context/AuthContext';
-import { addMemberToClub, getClubInviteFromCode, getClubsMemberOf } from '../../api/ClubsApi';
+import { acceptInviteToClub, getClubInviteFromCode, getClubsMemberOf, inviteMemberToClub } from '../../api/ClubsApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
-import { LinearGradient } from 'expo-linear-gradient';
-import ProfilePicture from '../../components/global/ProfilePicture';
 import JustShowMeSignupDrawer from '../../components/global/JustShowMeSignupDrawer';
 
 const LoadingContainer = styled(View)`
@@ -65,7 +62,7 @@ export default ClubJoinFromLinkScreen = ({ navigation, route }) => {
             return;
         }
 
-        const addMemberResult = await addMemberToClub({
+        const addMemberResult = await inviteMemberToClub({
             authSession,
             clubID: clubInvite?.clubID,
             userSub: reelayDBUser?.sub,
@@ -75,6 +72,17 @@ export default ClubJoinFromLinkScreen = ({ navigation, route }) => {
             invitedByUsername: clubInvite?.invitedByUsername,
             clubLinkID: clubInvite?.clubLinkID,
         });
+
+        console.log('add member result: ', addMemberResult);
+
+        const acceptInviteResult = await acceptInviteToClub({
+            authSession,
+            clubMemberID: addMemberResult?.id,
+            reqUserSub: reelayDBUser?.sub,
+            selfInvite: true,
+        });
+
+        console.log('accept invite result: ', acceptInviteResult);
 
         const nextMyClubs = await getClubsMemberOf({
             authSession,

@@ -126,7 +126,6 @@ export const registerForPushNotificationsAsync = async () => {
     if (Device.isDevice) {
         return await getDevicePushToken();
     } else {
-        alert('Must use physical device for Push Notifications');
         return null;
     }
 }; 
