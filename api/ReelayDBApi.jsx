@@ -365,6 +365,11 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
         },
     });
 
+    const versionInfo = {
+        minVersionRequired: homeContent?.minVersionRequired,
+        recommendedVersion: homeContent?.recommendedVersion
+    }
+
     const reelayContentTypes = [
         'clubTitles',
         'clubTopics',
@@ -460,6 +465,7 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
         global: globalPrepared,
         clubs: clubsPrepared,
         profile,
+        versionInfo
     };
 }
 

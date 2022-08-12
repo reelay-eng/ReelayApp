@@ -287,6 +287,7 @@ function App() {
         const { myFollowing, myStreamingSubscriptions } = myHomeContent?.profile ?? [];
         const mySettingsJSON = reelayDBUserLoaded?.settingsJSON;
         const mySettings = JSON.parse(mySettingsJSON) ?? {}; // 
+        const versionInfo = myHomeContent?.versionInfo;
 
         setReelayDBUser(reelayDBUserLoaded);
         dispatch({ type: 'setReelayDBUser', payload: reelayDBUserLoaded });
@@ -297,6 +298,7 @@ function App() {
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
         dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
         dispatch({ type: 'setIsLoading', payload: false });
+        dispatch({ type: 'setAppVersionInfo', payload: versionInfo })
 
         // deferred load
         const [

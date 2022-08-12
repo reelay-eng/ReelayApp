@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Dimensions, Image, TouchableOpacity, View } from 'react-native';
+import { Pressable, Image, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
@@ -10,7 +10,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { StreamingSelectorGrid } from '../home/StreamingSelector';
 
-const Backdrop = styled(View)`
+const Backdrop = styled(Pressable)`
     align-items: center;
     background-color: black;
     height: 100%;
@@ -244,7 +244,7 @@ export default NoticeOverlay = ({ navigation }) => {
     
     return (
         <OverlayBox>
-            <Backdrop />
+            <Backdrop onPress={dismissNotice}/>
             { noticeType === 'multi-page' && (
                 <MultiPageNotice 
                     dismissNotice={dismissNotice}

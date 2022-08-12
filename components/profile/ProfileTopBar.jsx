@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, TouchableOpacity } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { SafeAreaView, View, TouchableOpacity, Share } from 'react-native';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 import BackButton from '../utils/BackButton';
@@ -9,16 +8,32 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faArrowUpFromBracket, faGear } from '@fortawesome/free-solid-svg-icons';
 import { fetchOrCreateProfileLink } from '../../api/ProfilesApi';
 import { useSelector } from 'react-redux';
-import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
-import * as Clipboard from 'expo-clipboard';
+import { showErrorToast } from '../../components/utils/toasts';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 const REELAY_WEB_PREFIX = `https://on.reelay.app`;
 
 export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) => {
     const authSession = useSelector(state => state.authSession);
     const creatorName = creator.username ?? 'User not found';
-
     const validCreatorName = (creator?.username && (creator?.username != "[deleted]"));
+
+    const [profileLink, setProfileLink] = useState("");
+
+    useEffect(() => {
+        const fetchProfileLink = async () => {
+            const profileLink = await fetchOrCreateProfileLink({ 
+                authSession, 
+                userSub: creator?.sub, 
+                username: creator?.username 
+            });
+            setProfileLink(profileLink);
+            console.log("PROFILE LINK: ", profileLink);
+        }
+        if (validCreatorName) {
+            fetchProfileLink();
+        }
+    }, [])
 
     const HeadingText = styled(ReelayText.H6Emphasized)`
         color: white;
@@ -48,33 +63,38 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
     `
     const RightCornerButtons = () => {
         const advanceToMyProfileSettings = () => navigation.push('ProfileSettingsScreen');
-        const copyProfileLink = async () => {
+        const shareProfileLink = async () => {
             try {
                 // first, create the profile link if it doesn't exist in useEffect
                 // then, copy it to clipboard:
-                const profileLink = await fetchOrCreateProfileLink({ 
-                    authSession, 
-                    userSub: creator?.sub, 
-                    username: creator?.username 
-                });
-                console.log("PROFILE LINK: ", profileLink);
                 if (profileLink?.error) {
                     showErrorToast("There was an error creating this profile link. Please try again.");
                 }
                 else {
-                    const profilePublicURL = `${REELAY_WEB_PREFIX}/profile/${profileLink?.inviteCode}`;
-                    Clipboard.setString(profilePublicURL);
-                    showMessageToast('Profile link copied to clipboard');
+                    // now open share out drawer
+                    const content = {
+                        url: `${REELAY_WEB_PREFIX}/profile/${profileLink?.inviteCode}`,
+                        title: `${creator?.username} on Reelay`,
+                    };
+                    const options = {};
+                    const sharedAction = await Share.share(content, options);
+                    logAmplitudeEventProd('openedShareDrawer', {
+                        username: creator?.username,
+                        title: `${creator?.username} on Reelay`,
+                        source: 'shareProfileLinkButton',
+                    });
+                    console.log(sharedAction);
                 }
             } catch(e) {
                 console.log(e);
-                showErrorToast('Ruh roh! Couldn\'t copy profile link. Try again!');
+                showErrorToast('Ruh roh! Couldn\'t share profile link. Try again!');
+                console.log("Error in share profile link. Registered profile link: ", profileLink);
             }
         }
 
-        const CopyProfileLinkButton = () => {
+        const ShareProfileLinkButton = () => {
             return (
-                <IconContainer onPress={copyProfileLink}>
+                <IconContainer onPress={shareProfileLink}>
                     <FontAwesomeIcon icon={faArrowUpFromBracket} size={24} color='white' />
                 </IconContainer>
             );
@@ -90,7 +110,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
 
         return (
             <RightCornerContainer>
-                { validCreatorName && <CopyProfileLinkButton />}
+                { validCreatorName && <ShareProfileLinkButton />}
                 { atProfileBase && <SettingsButton /> }
             </RightCornerContainer>
         );

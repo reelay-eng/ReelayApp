@@ -17,6 +17,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
 import TopOfTheWeek from './TopOfTheWeek';
 import { useFocusEffect } from '@react-navigation/native';
+import AppUpdateOverlay from '../overlay/AppUpdateOverlay';
 import NoticeOverlay from '../overlay/NoticeOverlay';
 import AnnouncementsAndNotices from './AnnouncementsAndNotices';
 import PopularTitles from './PopularTitles';
@@ -25,6 +26,7 @@ import DiscoverClubs from './DiscoverClubs';
 import moment from 'moment';
 import { LinearGradient } from 'expo-linear-gradient';
 import MyWatchlistGrid from '../watchlist/MyWatchlistGrid';
+import Constants from 'expo-constants';
 
 const BottomBar = styled(LinearGradient)`
     height: 100px;
@@ -61,9 +63,18 @@ const HomeComponent = ({ navigation }) => {
     const latestNoticeDismissed = useSelector(state => state.latestNoticeDismissed);
     const latestNoticeSkipped = useSelector(state => state.latestNoticeSkipped);
     const showNoticeAsOverlay = latestNotice && !latestNoticeSkipped && !latestNoticeDismissed && !isGuestUser;
+
+    const appUpdateRequired = useSelector(state => state.appUpdateRequired);
+    const appUpdateRecommended = useSelector(state => state.appUpdateRecommended);
+    const appUpdateIgnored = useSelector(state => state.appUpdateIgnored);
+    const showAppUpdatePopup = (appUpdateRequired || appUpdateRecommended) && !appUpdateIgnored;
+    const showTabBar = !(showNoticeAsOverlay || showAppUpdatePopup)
+
+    useFocusEffect(React.useCallback(() => {
+        dispatch({ type: 'setTabBarVisible', payload: showTabBar });
+    }, [showTabBar]))
     
     useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: true });
         const unsubscribe = navigation.getParent().addListener('tabPress', e => {
             e.preventDefault();
             if (scrollRef.current) {
@@ -115,7 +126,7 @@ const HomeComponent = ({ navigation }) => {
                     setSelectedTab={setSelectedTab} 
                     tabOptions={tabOptions} 
                 />
-                </SafeAreaView>
+            </SafeAreaView>
             <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 <AnnouncementsAndNotices navigation={navigation} />
                 { selectedTab === 'discover' && (
@@ -147,6 +158,7 @@ const HomeComponent = ({ navigation }) => {
             />
             { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
             { showNoticeAsOverlay && <NoticeOverlay navigation={navigation} /> }
+            { showAppUpdatePopup && <AppUpdateOverlay />}
         </HomeContainer>
     )
 }

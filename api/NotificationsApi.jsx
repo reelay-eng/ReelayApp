@@ -131,13 +131,14 @@ export const registerForPushNotificationsAsync = async () => {
 }; 
 
 // We probably shouldn't let these have default values...
-export const sendPushNotification = async ({
+export const sendNotification = async ({
     body='', 
     data={},
     sendToUserSub,
     sound='default',
     title='You have a notification from Reelay', 
-    token, 
+    token,
+    shouldSendPushNotification=true
 }) => {
     const dataToPush = { ...data, 'content-available': 1 };
     const reelayDBPostBody = { title, body, data: dataToPush };
@@ -149,22 +150,24 @@ export const sendPushNotification = async ({
         body: JSON.stringify(reelayDBPostBody),
     });
 
-    const expoMessage = { body, data: dataToPush, sound, title, to: token };
-    const expoResponse = await fetchResults(EXPO_NOTIFICATION_URL, {
-        method: 'POST',
-        headers: {
-            Accept: 'application/json',
-            'Accept-encoding': 'gzip, deflate',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(expoMessage),
-    });
+    if (shouldSendPushNotification) {
+        const expoMessage = { body, data: dataToPush, sound, title, to: token };
+        const expoResponse = await fetchResults(EXPO_NOTIFICATION_URL, {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json',
+                'Accept-encoding': 'gzip, deflate',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(expoMessage),
+        });
 
-    if (expoResponse?.data?.error) {
-        console.log(expoResponse.data.error);
+        if (expoResponse?.data?.error) {
+            console.log(expoResponse.data.error);
+        }
+        return expoResponse;
     }
-
-    return expoResponse;
+    return postResult;
 }
 
 export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, commentText, mentionedUsers }) => {
@@ -183,12 +186,7 @@ export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, comme
         return;
     }
 
-    const shouldNotify = await shouldNotifyUser(creatorSub, "notifyCommentsOnMyReelays");
-    if (!shouldNotify) {
-        console.log('Creator does not want to receive comment notifications on their reelays.');
-        return;
-    }
-
+    const shouldSendPushNotification = await shouldNotifyUser(creatorSub, "notifyCommentsOnMyReelays");
     const title = `${author?.username}`;
     const body = `commented on your reelay for ${reelay.title.display}`;
     const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
@@ -201,7 +199,7 @@ export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, comme
         fromUser: { sub: author?.sub, username: author?.username },
     };
 
-    await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
+    await sendNotification({ title, body, data, token, sendToUserSub: creatorSub, shouldSendPushNotification });
 }
 
 export const notifyUserOnCommentLike = async ({ authorSub, user, reelay }) => {
@@ -220,11 +218,7 @@ export const notifyUserOnCommentLike = async ({ authorSub, user, reelay }) => {
         return;
     }
 
-    const shouldNotify = await shouldNotifyUser(authorSub, "notifyLikesOnMyComments");
-    if (!shouldNotify) {
-        console.log('Creator does not want to receive notifications on comment likes.');
-        return;
-    }
+    const shouldSendPushNotification = await shouldNotifyUser(authorSub, "notifyLikesOnMyComments");
 
     let creatorDirectObject = `${creator.username}'s`;
     if (creator.username === user?.username) creatorDirectObject = 'their';
@@ -241,7 +235,7 @@ export const notifyUserOnCommentLike = async ({ authorSub, user, reelay }) => {
         fromUser: { sub: user?.sub, username: user?.username },
     };
 
-    await sendPushNotification({ title, body, data, token, sendToUserSub: authorSub });
+    await sendNotification({ title, body, data, token, sendToUserSub: authorSub, shouldSendPushNotification });
 }
 
 export const notifyMentionsOnComment = async ({ creator, author, reelay, commentText }) => {
@@ -262,11 +256,7 @@ export const notifyMentionsOnComment = async ({ creator, author, reelay, comment
                 return;
             }
 
-            const shouldNotify = await shouldNotifyUser(notifyMentionedUserSub, "notifyTagsInComments");
-            if (!shouldNotify) {
-                console.log('Creator does not want to receive notifications when tagged in reelays.');
-                return;
-            }
+            const shouldSendPushNotification = await shouldNotifyUser(notifyMentionedUserSub, "notifyTagsInComments");
         
             let creatorDirectObject = `${creator.username}'s`;
             if (creator.username === author.username) creatorDirectObject = 'their';
@@ -286,7 +276,7 @@ export const notifyMentionsOnComment = async ({ creator, author, reelay, comment
 
             mentionedUsers.push(notifyMentionedUserSub);
 
-            await sendPushNotification({ title, body, data, token, sendToUserSub: notifyMentionedUser?.sub });
+            await sendNotification({ title, body, data, token, sendToUserSub: notifyMentionedUser?.sub, shouldSendPushNotification });
             logAmplitudeEventProd('userMentionedInCommnet', {
                 mentionedUsername: notifyMentionedUser.username,
                 authorUsername: author.username,
@@ -312,11 +302,7 @@ export const notifyThreadOnComment = async ({ creator, author, reelay, commentTe
             return;
         }
 
-        const shouldNotify = await shouldNotifyUser(notifyAuthor?.sub, "notifyCommentsOnOtherReelays");
-        if (!shouldNotify) {
-            console.log('Creator does not want to receive comment notifications in threads.');
-            return;
-        }
+        const shouldSendPushNotification = await shouldNotifyUser(notifyAuthor?.sub, "notifyCommentsOnOtherReelays");
 
         const recipientIsAuthor = (notifyAuthor?.sub === author?.sub);
         const recipientMentioned = mentionedUsers && mentionedUsers.includes(notifyAuthor.sub);
@@ -355,7 +341,7 @@ export const notifyThreadOnComment = async ({ creator, author, reelay, commentTe
             fromUser: { sub: author.sub, username: author.username },
         };
 
-        await sendPushNotification({ title, body, data, token, sendToUserSub: notifyAuthor?.sub });    
+        await sendNotification({ title, body, data, token, sendToUserSub: notifyAuthor?.sub, shouldSendPushNotification });    
     });
 }
 ///
@@ -368,11 +354,7 @@ export const notifyCreatorOnFollow = async ({ creatorSub, follower }) => {
         return;
     }
 
-    const shouldNotify = await shouldNotifyUser(creatorSub, "notifyFollows");
-    if (!shouldNotify) {
-        console.log('Creator does not want to receive follow notifications.');
-        return;
-    }
+    const shouldSendPushNotification = await shouldNotifyUser(creatorSub, "notifyFollows");
 
     const title = `${follower.username}`;
     const body = `started following you`;
@@ -383,7 +365,7 @@ export const notifyCreatorOnFollow = async ({ creatorSub, follower }) => {
         // here, the alt action is to follow, and we can get that
         // from the type 
     };
-    await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
+    await sendNotification({ title, body, data, token, sendToUserSub: creatorSub, shouldSendPushNotification });
 };
 
 export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
@@ -402,7 +384,7 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
             notifyType: 'loveYourself',
         };
     
-        await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
+        await sendNotification({ title, body, data, token, sendToUserSub: creatorSub, shouldSendPushNotification: true });
         return;
     }
 
@@ -411,11 +393,7 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
         return;
     }
 
-    const shouldNotify = await shouldNotifyUser(creatorSub, "notifyLikesOnMyReelays");
-    if (!shouldNotify) {
-        console.log('Creator does not want to receive like notifications on their reelays.');
-        return;
-    }
+    const shouldSendPushNotification = await shouldNotifyUser(creatorSub, "notifyLikesOnMyReelays");
 
     const title = `${user?.username}`;
     const body = `liked your reelay for ${reelay.title.display}`;
@@ -428,7 +406,7 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
         fromUser: { sub: user?.sub, username: user?.username },
     };
 
-    await sendPushNotification({ title, body, data, token, sendToUserSub: creatorSub });
+    await sendNotification({ title, body, data, token, sendToUserSub: creatorSub, shouldSendPushNotification });
 }
 
 export const notifyMentionsOnReelayPosted = async ({ authSession, clubID = null, creator, reelay }) => {
@@ -466,11 +444,7 @@ export const notifyMentionsOnReelayPosted = async ({ authSession, clubID = null,
                 return;
             }
 
-            const shouldNotify = await shouldNotifyUser(notifyMentionedUserSub, "notifyTagsInReelays");
-            if (!shouldNotify) {
-                console.log('Creator does not want to receive tag notifications on reelays.');
-                return;
-            }
+            const shouldSendPushNotification = await shouldNotifyUser(notifyMentionedUserSub, "notifyTagsInReelays");
                         
             const title = `${creator.username}`;
             const body = `tagged you in their reelay for ${reelay.title.display}`;
@@ -486,7 +460,7 @@ export const notifyMentionsOnReelayPosted = async ({ authSession, clubID = null,
 
             mentionedUsers.push(notifyMentionedUser.sub);
 
-            await sendPushNotification({ title, body, data, token, sendToUserSub: notifyMentionedUser?.sub });
+            await sendNotification({ title, body, data, token, sendToUserSub: notifyMentionedUser?.sub, shouldSendPushNotification });
             logAmplitudeEventProd('userMentionedInReelay', {
                 mentionedUsername: notifyMentionedUser.username,
                 creatorUsername: creator.username,
@@ -542,11 +516,7 @@ export const notifyOtherCreatorsOnReelayPosted = async ({
             return;
         } 
         
-        const shouldNotify = await shouldNotifyUser(notifyCreator?.sub, settingToCheck);
-        if (!shouldNotify) {
-            console.log(`Creator does not want to receive notifications for ${settingToCheck}`);
-            return;
-        }
+        const shouldSendPushNotification = await shouldNotifyUser(notifyCreator?.sub, settingToCheck);
 
         const alreadyNotified = (reelay) => (notifyCreator.sub === reelay.creator.sub);
         const recipientIndex = notifyReelayStack.findIndex(alreadyNotified);
@@ -566,7 +536,7 @@ export const notifyOtherCreatorsOnReelayPosted = async ({
             fromUser: { sub: creator?.sub, username: creator?.username },
         };
 
-        await sendPushNotification({ title, body, data, token, sendToUserSub: notifyReelay.creator.sub });    
+        await sendNotification({ title, body, data, token, sendToUserSub: notifyReelay.creator.sub, shouldSendPushNotification });    
     })
 }
 
@@ -580,11 +550,7 @@ export const notifyTopicCreatorOnReelayPosted = async ({ creator, reelay, topic 
         return;
     }
 
-    const shouldNotify = await shouldNotifyUser(topicCreator?.sub, "notifyPostsInMyTopics");
-    if (!shouldNotify) {
-        console.log('Creator does not want to receive post notifications in their topics');
-        return;
-    }
+    const shouldSendPushNotification = await shouldNotifyUser(topicCreator?.sub, "notifyPostsInMyTopics");
 
     if (!token) {
         console.log('Creator not registered for like notifications');
@@ -601,5 +567,5 @@ export const notifyTopicCreatorOnReelayPosted = async ({ creator, reelay, topic 
         fromUser: creator,
     };
 
-    await sendPushNotification({ title, body, data, token, sendToUserSub: topicCreator?.sub });
+    await sendNotification({ title, body, data, token, sendToUserSub: topicCreator?.sub, shouldSendPushNotification });
 }

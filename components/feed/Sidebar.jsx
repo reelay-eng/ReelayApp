@@ -60,6 +60,8 @@ export default Sidebar = ({ navigation, reelay }) => {
 	const [likeUpdateCounter, setLikeUpdateCounter] = useState(0);
 	const dispatch = useDispatch();
 
+	const commentRefreshListener = useSelector(state => state.commentRefreshListener);
+
 	const { reelayDBUser } = useContext(AuthContext);
 
 	const commentedByUser = reelay.comments.find(comment => comment.authorName === reelayDBUser?.username);
