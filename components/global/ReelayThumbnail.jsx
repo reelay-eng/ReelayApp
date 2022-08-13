@@ -5,7 +5,7 @@ import styled from 'styled-components/native';
 import { LinearGradient } from "expo-linear-gradient";
 import { Video, Audio } from 'expo-av';
 import { Icon } from 'react-native-elements';
-import StarRating from 'react-native-star-rating';
+import StarRating from './StarRating';
 import * as ReelayText from "../../components/global/Text";
 import VenueIcon from '../utils/VenueIcon';
 import SplashImage from "../../assets/images/reelay-splash-with-dog-black.png";
@@ -171,10 +171,6 @@ export default ReelayThumbnail = ({
 			<StarRatingContainer>
 				<StarRating 
 					disabled={true}
-					emptyStarColor={'#c4c4c4'}
-					maxStars={5}
-					fullStarColor={'white'}
-					halfStarEnabled={true}
 					rating={starRating}
 					starSize={STAR_SIZE}
 					starStyle={{ paddingRight: 2 }}

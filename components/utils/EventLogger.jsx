@@ -12,6 +12,6 @@ export const logAmplitudeEventProd = async (eventName, options) => {
             disableDMA: true,
             disableIPAddress: true,
         }
-        await Amplitude.getInstance().logEvent(eventName, optionsNoLocation);
+        await Amplitude.getInstance('amp-reelay').logEvent(eventName, optionsNoLocation);
     }
 }

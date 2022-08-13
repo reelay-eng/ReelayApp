@@ -1,10 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
-import StarRating from 'react-native-star-rating';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { Dimensions, SafeAreaView, Pressable, TextInput, View } from 'react-native';
+import { Dimensions, SafeAreaView, Pressable, View } from 'react-native';
 import * as ReelayText from '../global/Text';
+import StarRating from '../global/StarRating';
 import TextInputWithMentions from '../feed/TextInputWithMentions';
 import styled from 'styled-components/native';
 
@@ -68,6 +68,17 @@ export default UploadDescriptionAndStarRating = ({ starCountRef, descriptionRef 
         <InfoContainer>
             { (starCountRef.current === 0) && <RatingText>{"Want to rate it?"}</RatingText> }
             <StarRatingContainer>
+                {/* <StarRating 
+                    disabled={false}
+                    emptyStarColor={'#c4c4c4'}
+                    maxStars={5}
+                    fullStarColor={'white'}
+                    halfStarEnabled={true}
+                    rating={starCountRef.current}
+                    selectedStar={onStarRatingPress}
+                    starSize={30}
+                    starStyle={{ paddingRight: 8 }}
+                /> */}
                 <StarRating 
                     disabled={false}
                     emptyStarColor={'#c4c4c4'}

@@ -2,7 +2,7 @@ import React, { memo, useContext, useState } from 'react';
 import { Pressable, TouchableOpacity, Text, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import ProfilePicture from '../global/ProfilePicture';
-import StarRating from 'react-native-star-rating';
+import StarRating from '../global/StarRating';
 import { isMentionPartType, parseValue } from 'react-native-controlled-mentions';
 
 import styled from 'styled-components/native';
@@ -121,10 +121,6 @@ const ReelayInfo = ({ navigation, reelay, expanded, setExpanded }) => {
 			{(starRating>0) && <StarRatingContainer>
 				<StarRating 
 					disabled={true}
-					emptyStarColor={'#c4c4c4'}
-					maxStars={5}
-					fullStarColor={'white'}
-					halfStarEnabled={true}
 					rating={starRating}
 					starSize={20}
 					starStyle={{ paddingRight: 4 }}

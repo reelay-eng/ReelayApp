@@ -166,7 +166,7 @@ function App() {
     }
 
     const initServices = async () => {
-        const ampInstance = Amplitude.getInstance();
+        const ampInstance = Amplitude.getInstance('amp-reelay');
         ampInstance.init(Constants.manifest.extra.amplitudeApiKey);
 
         Amplify.configure({

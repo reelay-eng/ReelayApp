@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { Dimensions, Image, Pressable, View } from 'react-native';
-import StarRating from 'react-native-star-rating';
+import StarRating from '../global/StarRating';
 import styled from 'styled-components/native';
 import TitlePoster from '../global/TitlePoster';
 import { LinearGradient } from "expo-linear-gradient";
@@ -78,10 +78,6 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
 			<StarRatingContainer>
 				<StarRating 
 					disabled={true}
-					emptyStarColor={'#c4c4c4'}
-					maxStars={5}
-					fullStarColor={'white'}
-					halfStarEnabled={true}
 					rating={rating}
 					starSize={10}
 					starStyle={{ paddingRight: 2 }}
