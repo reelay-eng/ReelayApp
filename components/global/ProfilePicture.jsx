@@ -3,6 +3,10 @@ import { ActivityIndicator, Image, Pressable } from 'react-native';
 import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
 import styled from 'styled-components/native';
 import { cacheProfilePic, checkRefreshProfilePic, getProfilePicURI } from '../../api/ReelayLocalImageCache';
+import Constants from 'expo-constants';
+import FastImage from 'react-native-fast-image'
+
+const canUseFastImage = (Constants.appOwnership !== 'expo');
 
 const ProfileImage = styled(Image)`
     border-color: white;
@@ -18,7 +22,33 @@ export default ProfilePicture = memo(({
     border = null, 
     navigation, 
 }) => {
+    const advanceToProfileScreen = () => {
+        if (navigation) {
+            navigation.push('UserProfileScreen', { creator: user });
+        }
+    }
+
     const userSub = user?.sub ?? user?.attributes?.sub;
+    const source = {
+        uri: getProfilePicURI(userSub, false),
+        priority: FastImage.priority.normal,
+    }
+
+    const style = {
+        width: size, 
+        height: size,
+        borderColor: 'white',
+        borderWidth: border ? 1 : 0,
+    };
+    
+    if (canUseFastImage) {
+        return (
+            <Pressable onPress={advanceToProfileScreen}>
+                <FastImage source={source} style={style} />
+            </Pressable>
+        );    
+    }
+
     const [loadState, setLoadState] = useState('local');
 
     const getProfilePicSource = () => {
@@ -52,11 +82,7 @@ export default ProfilePicture = memo(({
     }
 
     return (
-        <Pressable onPress={() => {
-            if (navigation) {
-                navigation.push('UserProfileScreen', { creator: user });
-            }
-        }}>
+        <Pressable onPress={advanceToProfileScreen}>
             { (loadState === 'default') && 
                 <ProfileImage border size={size} source={ReelayIcon} /> 
             }
