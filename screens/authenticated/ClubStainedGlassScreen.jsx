@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pressable, SafeAreaView, ScrollView, View } from 'react-native';
+import { FlatList, Pressable, SafeAreaView, ScrollView, View } from 'react-native';
 import styled from 'styled-components/native';
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -11,7 +11,6 @@ import BackButton from "../../components/utils/BackButton";
 import * as ReelayText from '../../components/global/Text';
 import ClubPicture from "../../components/global/ClubPicture";
 import { Icon } from 'react-native-elements';
-import { FlatList } from "react-native-gesture-handler";
 
 const MAX_ACTIVITY_INDEX = 25;
 
@@ -95,7 +94,7 @@ export default ClubStainedGlassScreen = ({ navigation, route }) => {
         const onLayout = ({ nativeEvent }) => (isColumnA) 
             ? itemHeightsColumnA[index] = nativeEvent?.layout?.height
             : itemHeightsColumnB[index] = nativeEvent?.layout?.height;
-        return <ClubActivityCard key={activity.id} activity={activity} navigation={navigation} onLayout={onLayout} />
+        return <ClubActivityCard activity={activity} navigation={navigation} onLayout={onLayout} />
     }
 
 
@@ -106,6 +105,7 @@ export default ClubStainedGlassScreen = ({ navigation, route }) => {
                     bottomOffset={bottomOffset}
                     data={isColumnA ? activitiesColumnA : activitiesColumnB}
                     getItemLayout={getItemLayout}
+                    keyExtractor={activity => activity?.id}
                     renderItem={renderActivity}
                     showsVerticalScrollIndicator={false}
                 />

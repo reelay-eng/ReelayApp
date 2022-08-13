@@ -14,6 +14,10 @@ import ProfilePicture from './ProfilePicture';
 import { useSelector } from 'react-redux';
 import TitlePoster from './TitlePoster';
 import ClubPicture from './ClubPicture';
+import FastImage from 'react-native-fast-image';
+import Constants from 'expo-constants';
+
+const canUseFastImage = (Constants.appOwnership !== 'expo');
 
 export default ReelayThumbnail = ({ 
 	asAllClubActivity = false,
@@ -76,7 +80,6 @@ export default ReelayThumbnail = ({
 		margin-bottom: 6px;
 		margin-left: ${35 + STAR_RATING_ADD_LEFT}px;
 	`
-
 	const TopRightContainer = styled(View)`
 		position: absolute;
 		top: 4px;
@@ -98,7 +101,7 @@ export default ReelayThumbnail = ({
 		height: 100%;
 		width: 100%;
 	`
-	const ThumbnailImage = styled(Image)`
+	const ThumbnailImage = styled(canUseFastImage ? FastImage : Image)`
 		border-radius: 8px;
 		height: ${height}px;
 		width: 100%;

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Pressable, FlatList, RefreshControl, View } from 'react-native';
+import { Pressable, RefreshControl, View } from 'react-native';
 
 import styled from 'styled-components/native';
 import WatchlistItem from './WatchlistItem';
@@ -58,16 +58,6 @@ export default Watchlist = ({ navigation, refresh, watchlistItems }) => {
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 showsVerticalScrollIndicator={false}
             />
-            {/* <FlatList 
-                data={watchlistItems}
-                horizontal={false}
-                keyboardShouldPersistTaps={"handled"}
-                keyExtractor={item => String(item.id)}
-                pagingEnabled={false}
-                renderItem={renderWatchlistItem}
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-                showsVerticalScrollIndicator={false}
-            /> */}
         </View>
     );
 }

@@ -6,6 +6,7 @@ import styled from 'styled-components/native';
 import TitlePoster from '../global/TitlePoster';
 
 import { fetchPopularMovies, fetchPopularSeries } from '../../api/TMDbApi';
+import { FlashList } from '@shopify/flash-list';
 
 const { width } = Dimensions.get('window');
 
@@ -21,6 +22,8 @@ const POSTER_HEIGHT_WITH_MARGIN = (POSTER_WIDTH * 1.5) + (2 * POSTER_HALF_MARGIN
 const PosterContainer = styled(View)`
     align-items: center;
     margin: ${POSTER_HALF_MARGIN}px;
+    height: ${POSTER_WIDTH * 1.5}px;
+    width: ${POSTER_WIDTH}px;
 `
 const PosterGridContainer = styled(View)`
     justify-content: center;
@@ -90,7 +93,7 @@ export default SuggestedTitlesGrid = ({
         const advanceToSelectVenue = () => navigation.push('VenueSelectScreen', { titleObj, clubID, topicID });
         const onPress = (source === 'search') ? advanceToTitleScreen : advanceToSelectVenue;
         return (
-            <PosterContainer key={titleObj?.id}>
+            <PosterContainer>
                 <TitlePoster title={titleObj} onPress={onPress} width={POSTER_WIDTH} />
             </PosterContainer>
         );
@@ -105,12 +108,13 @@ export default SuggestedTitlesGrid = ({
     return (
             <PosterGridContainer>
                 <FlatList
-                    numColumns={POSTER_ROW_LENGTH}
+                    // numColumns={POSTER_ROW_LENGTH}
                     data={suggestedTitles}
+                    estimatedItemSize={POSTER_HEIGHT_WITH_MARGIN}
+                    keyExtractor={titleObj => titleObj?.id}
                     ref={scrollRef}
                     renderItem={renderTitlePoster}
                     getItemLayout={getItemLayout}
-                    contentContainerStyle={{ paddingBottom: 260 }}
                     onEndReached={extendSuggestedTitles}
                 />
             </PosterGridContainer>

@@ -31,8 +31,7 @@ import TopicCard from '../../components/topics/TopicCard';
 import ClubAddedMemberCard from './ClubAddedMemberCard';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import Constants from 'expo-constants';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { FlashList } from '@shopify/flash-list';
 
 const { height, width } = Dimensions.get('window');
 const ACTIVITY_PAGE_SIZE = 20;
@@ -349,10 +348,9 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
     }
 
     return (
-        <FlatList
-            bottomOffset={bottomOffset}
-            contentContainerStyle={activityListStyle}
+        <FlashList
             data={displayActivities.current}
+            estimatedItemSize={200}
             getItemLayout={getItemLayout}
             keyExtractor={keyExtractor}
             onEndReached={onEndReached}
@@ -360,7 +358,6 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
             refreshControl={refreshControl} 
             renderItem={renderClubActivity}
             showsVerticalScrollIndicator={false}
-            topOffset={topOffset} 
         />
     )
 }

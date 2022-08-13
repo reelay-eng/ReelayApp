@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, FlatList, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
 import Constants from 'expo-constants';
@@ -36,6 +36,7 @@ import BigBubbleBath from '../../components/clubs/BigBubbleBath';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import ChangeClubPrivacyDrawer from '../../components/clubs/ChangeClubPrivacyDrawer';
 import { notifyClubOnPrivacyChanges } from '../../api/ClubNotifications';
+import { FlashList } from '@shopify/flash-list';
 
 const INVITE_BASE_URL = Constants.manifest.extra.reelayWebInviteUrl;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -245,6 +246,26 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 </MemberEditButton>
             )
         }
+
+        const renderMemberRow = ({ item, index }) => {
+            const isInvitedByMe = (member?.invitedBySub === reelayDBUser?.sub);
+            const inviteAccepted = member?.hasAcceptedInvite;
+
+            if (member.role === 'banned') {
+                return <View key={member.userSub} />;
+            } else if (!inviteAccepted && !isInvitedByMe) {
+                return <View key={member.userSub} />;
+            } else {
+                return (
+                    <ClubMemberRow 
+                        key={member.userSub} 
+                        isEditing={isEditing}
+                        inviteAccepted={inviteAccepted}
+                        member={member} 
+                    /> 
+                )    
+            };
+        }
     
         return (
             <React.Fragment>
@@ -253,25 +274,13 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     { isClubOwner && <EditMembersButton />}                
                 </SectionRow>
                 <MemberSectionSpacer />
-                { sortedMembers.map((member) => {
-                    const isInvitedByMe = (member?.invitedBySub === reelayDBUser?.sub);
-                    const inviteAccepted = member?.hasAcceptedInvite;
-
-                    if (member.role === 'banned') {
-                        return <View key={member.userSub} />;
-                    } else if (!inviteAccepted && !isInvitedByMe) {
-                        return <View key={member.userSub} />;
-                    } else {
-                        return (
-                            <ClubMemberRow 
-                                key={member.userSub} 
-                                isEditing={isEditing}
-                                inviteAccepted={inviteAccepted}
-                                member={member} 
-                            /> 
-                        )    
-                    };
-                })}
+                <FlatList
+                    data={sortedMembers}
+                    estimatedItemSize={60}
+                    keyExtractor={member => member?.id}
+                    renderItem={renderMemberRow}
+                    showsVerticalScrollIndicator={false}
+                />
             </React.Fragment>
         );
     }

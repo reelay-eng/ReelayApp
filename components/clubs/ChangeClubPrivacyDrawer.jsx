@@ -1,13 +1,9 @@
-import React, { Fragment, useContext, useEffect } from 'react';
-import { Dimensions, Image, Modal, Pressable, SafeAreaView, View } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
+import React from 'react';
+import { Modal, Pressable, View } from 'react-native';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 
-import { AuthContext } from '../../context/AuthContext';
-import { logAmplitudeEventProd } from '../utils/EventLogger';
-import { Icon } from 'react-native-elements';
 import ClubPicture from '../global/ClubPicture';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
