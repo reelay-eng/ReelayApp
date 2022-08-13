@@ -1,11 +1,8 @@
 import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { 
     Dimensions,
-    FlatList,
     Keyboard, 
-    Pressable, 
     SafeAreaView, 
-    ScrollView,
     TextInput, 
     TouchableOpacity,
     View,
@@ -27,7 +24,6 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import ProfilePicture from '../../components/global/ProfilePicture';
 
 const { height, width } = Dimensions.get('window');
-const canUseFlashList = (Constants.appOwnership !== 'expo');
 
 const CloseButtonContainer = styled(TouchableOpacity)`
     width: 32px;
@@ -154,7 +150,7 @@ const TopicScroll = ({
     const [displayTopics, setDisplayTopics] = useState(initDisplayTopics);
     const [extending, setExtending] = useState(false);
     const [nextPage, setNextPage] = useState(initNextPage);
-    // const itemHeights = useRef([]);
+
     const searchTextRef = useRef('');
     const searchCounter = useRef(0);
     const searchBarRef = useRef(null);
@@ -217,10 +213,6 @@ const TopicScroll = ({
             });
         }
 
-        // const onLayout = ({ nativeEvent }) => {
-        //     itemHeights.current[index] = nativeEvent?.layout?.height;
-        // }    
-
         return (
             <TopicCardContainer>
                 <TopicCard 
@@ -251,30 +243,8 @@ const TopicScroll = ({
         }
     }
 
-    if (canUseFlashList) {
-        return (
-            <Fragment>
-                { searching && <SearchBar 
-                    resetTopics={resetTopics}
-                    searchBarRef={searchBarRef}
-                    searchTextRef={searchTextRef}
-                    setSearching={setSearching} 
-                    updateSearchResults={updateSearchResults}
-                /> }
-                <FlashList
-                    data={displayTopics}
-                    estimatedItemSize={180}
-                    onEndReached={extendScroll}
-                    onEndReachedThreshold={0.9}
-                    renderItem={renderTopic}
-                    showsVerticalScrollIndicator={false}
-                />
-            </Fragment>
-        );
-    }
-
     return (
-        <View style={{ alignItems: 'center', height: '100%', width: '100%' }}>
+        <Fragment>
             { searching && <SearchBar 
                 resetTopics={resetTopics}
                 searchBarRef={searchBarRef}
@@ -282,17 +252,16 @@ const TopicScroll = ({
                 setSearching={setSearching} 
                 updateSearchResults={updateSearchResults}
             /> }
-            <FlatList
+            <FlashList
                 data={displayTopics}
-                keyExtractor={topic => String(topic.id)}
-                // getItemLayout={getItemLayout}
+                estimatedItemSize={180}
                 onEndReached={extendScroll}
                 onEndReachedThreshold={0.9}
                 renderItem={renderTopic}
                 showsVerticalScrollIndicator={false}
             />
-        </View>
-    )
+        </Fragment>
+    );
 }
 
 export default TopicsListScreen = ({ navigation, route }) => {

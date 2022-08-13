@@ -28,7 +28,6 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
                 username: creator?.username 
             });
             setProfileLink(profileLink);
-            console.log("PROFILE LINK: ", profileLink);
         }
         if (validCreatorName) {
             fetchProfileLink();

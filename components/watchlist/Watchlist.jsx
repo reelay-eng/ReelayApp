@@ -7,6 +7,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { getWatchlistItems } from '../../api/WatchlistApi';
 import WatchlistSwipeableRow from './WatchlistSwipeableRow';
 import { useDispatch } from 'react-redux';
+import { FlashList } from '@shopify/flash-list';
 
 export default Watchlist = ({ navigation, refresh, watchlistItems }) => {
     const WatchlistItemContainer = styled(Pressable)`
@@ -48,7 +49,16 @@ export default Watchlist = ({ navigation, refresh, watchlistItems }) => {
 
     return (
         <View style={{ height: '100%' }}>
-            <FlatList 
+            <FlashList
+                data={watchlistItems}
+                estimatedItemSize={100}
+                keyboardShouldPersistTaps={"handled"}
+                keyExtractor={item => String(item.id)}
+                renderItem={renderWatchlistItem}
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                showsVerticalScrollIndicator={false}
+            />
+            {/* <FlatList 
                 data={watchlistItems}
                 horizontal={false}
                 keyboardShouldPersistTaps={"handled"}
@@ -57,7 +67,7 @@ export default Watchlist = ({ navigation, refresh, watchlistItems }) => {
                 renderItem={renderWatchlistItem}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 showsVerticalScrollIndicator={false}
-            />
+            /> */}
         </View>
     );
 }
