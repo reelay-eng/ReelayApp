@@ -117,7 +117,6 @@ export default PopularTitles = ({ navigation, tab='discover' }) => {
     }
 
     const TitlesRow = () => {
-        const onBeforeSnapToItem = () => {} // todo
         const renderTitleStackElement = ({ item, index }) => {
             const stack = item;
             return (
@@ -133,12 +132,10 @@ export default PopularTitles = ({ navigation, tab='discover' }) => {
         return (
             <CarouselContainer>
                 <Carousel
-                    activeAnimationType={'decay'}
                     activeSlideAlignment={'center'}
                     data={popularTitleStacks}
                     inactiveSlideScale={1}
                     itemWidth={width * 0.85}
-                    onBeforeSnapToItem={onBeforeSnapToItem}
                     renderItem={renderTitleStackElement}
                     sliderHeight={240}
                     sliderWidth={width}

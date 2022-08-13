@@ -136,7 +136,9 @@
     "typescript": "^4.6.3"
   },
   "resolutions": {
-    "expo-clipboard": "~2.1.0"
+    "expo-clipboard": "~2.1.0",
+    "@expo/prebuild-config": "^5.0.1",
+    "@expo/config-plugins": "^5.0.0"
   },
   "private": true,
   "name": "ReelayApp",

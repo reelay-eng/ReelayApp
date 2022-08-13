@@ -78,6 +78,7 @@ const SplashImage = styled(Image)`
     position: absolute;
 `
 
+const canUseNativeModules = Constants.appOwnership !== 'expo';
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog-black.png');
 
 function App() {
@@ -166,8 +167,10 @@ function App() {
     }
 
     const initServices = async () => {
-        const ampInstance = Amplitude.getInstance('amp-reelay');
-        ampInstance.init(Constants.manifest.extra.amplitudeApiKey);
+        if (canUseNativeModules) {
+            const ampInstance = Amplitude.getInstance('amp-reelay');
+            ampInstance.init(Constants.manifest.extra.amplitudeApiKey);    
+        }
 
         Amplify.configure({
             ...AWSExports,

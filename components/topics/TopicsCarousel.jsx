@@ -167,20 +167,6 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
     }
 
     const TopicsRow = () => {
-        const onBeforeSnapToItem = async (swipeIndex) => {
-            const swipeDirection = swipeIndex < curTopicIndex.current ? 'left' : 'right';
-            const nextTopic = displayTopics[swipeIndex];
-            const prevTopic = displayTopics[curTopicIndex.current];
-
-            logAmplitudeEventProd('swipedTopics', {
-                nextTopicTitle: nextTopic.title,
-                prevReelayTitle: prevTopic.title,
-                source: 'global',
-                swipeDirection: swipeDirection,
-                username: reelayDBUser?.username,
-            });
-        }
-
         const renderTopic = ({ item, index }) => {
             const topic = item;
             const matchTopic = (nextTopic) => (nextTopic.id === topic.id);
@@ -219,13 +205,11 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
         return (
             <CarouselView>
                 <Carousel
-                    activeAnimationType={'decay'}
                     activeSlideAlignment={'center'}
                     data={displayTopics}
                     inactiveSlideScale={0.95}
                     itemHeight={220}
                     itemWidth={width-48}
-                    onBeforeSnapToItem={onBeforeSnapToItem}
                     renderItem={renderTopic}
                     sliderHeight={240}
                     sliderWidth={width+30}

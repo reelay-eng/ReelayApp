@@ -1,10 +1,11 @@
 import { Amplitude } from '@amplitude/react-native';
 import Constants from 'expo-constants';
 
+const canUseNativeModules = Constants.appOwnership !== 'expo';
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 export const logAmplitudeEventProd = async (eventName, options) => {
-    if (FEED_VISIBILITY === 'global') {
+    if (FEED_VISIBILITY === 'global' && canUseNativeModules) {
         const optionsNoLocation = {
             ...options,
             disableCity: true,
