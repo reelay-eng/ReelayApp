@@ -185,7 +185,7 @@ export default TopicsFeed = ({
                     getItemLayout={getItemLayout}
                     horizontal={false}
                     initialNumToRender={1}
-                    initialScrollIndex={feedPosition}
+                    initialScrollIndex={initTopicIndex}
                     keyboardShouldPersistTaps={"handled"}
                     keyExtractor={(stack) => `${stack[0].title.id}-${stack[0].sub}`}
                     maxToRenderPerBatch={1}

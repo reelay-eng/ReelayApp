@@ -123,7 +123,7 @@ export default Navigation = () => {
         return () => {
             removeNotificationSubscription(notificationListener.current);
             removeNotificationSubscription(responseListener.current);
-            Linking.removeEventListener('url');
+            // Linking.removeEventListener('url');
         }
     }, []);
 
