@@ -6,6 +6,7 @@ import TitlePoster from '../global/TitlePoster';
 import { LinearGradient } from "expo-linear-gradient";
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../global/Text';
+import { FlashList } from '@shopify/flash-list';
 
 const { width } = Dimensions.get('window');
 
@@ -18,28 +19,28 @@ const POSTER_WIDTH = (GRID_WIDTH / POSTER_ROW_LENGTH) - (2 * POSTER_HALF_MARGIN)
 const POSTER_HEIGHT = 1.5 * POSTER_WIDTH;
 
 const HeaderContainer = styled(View)`
-    align-items: flex-end;
     flex-direction: row;
-    margin-left: 8px;
+    margin-left: -${GRID_SIDE_MARGIN / 2}px;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
     margin-left: 12px;
 `
-const InvisiblePosterContainer = styled(View)`
-    height: ${POSTER_HEIGHT}px;
-    width: ${POSTER_WIDTH}px;
-    margin: ${POSTER_HALF_MARGIN}px;
-`
 const PosterContainer = styled(View)`
     align-items: center;
     margin: ${POSTER_HALF_MARGIN}px;
 `
-const PosterGridContainer = styled(View)`
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
+const PosterGradient = styled(LinearGradient)`
+    border-radius: 6px;
+    height: ${POSTER_HEIGHT / 2}px;
+    opacity: 0.85;
+    position: absolute;
+    top: ${POSTER_HEIGHT / 2}px;
+    width: ${POSTER_WIDTH}px;
+`
+const PosterGridView = styled(View)`
+    min-height: ${POSTER_HEIGHT}px;
     margin-top: 4px;
     margin-left: ${GRID_SIDE_MARGIN}px;
     margin-right: ${GRID_SIDE_MARGIN}px;
@@ -55,14 +56,6 @@ const StarRatingContainer = styled(View)`
 export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
     if (!creatorStacks.length) {
         return <View />;
-    }
-
-    const AfterImage = () => {
-        // afterimages are invisible views that keep the grid aligned. 
-        // it's a hacky solution for now
-        return (
-            <InvisiblePosterContainer />
-        );
     }
 
     const SectionHeader = () => {
@@ -86,7 +79,10 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
 		);
 	}
 
-    const renderStack = (stack, index) => {
+    const renderPoster = ({ item, index }) => {
+        const stack = item;
+        const starRating = (stack[0].starRating ?? 0) + (stack[0].starRatingAddHalf ? 0.5 : 0);
+
         const viewProfileFeed = () => {
             navigation.push('ProfileFeedScreen', { 
                 initialFeedPos: index, 
@@ -94,39 +90,31 @@ export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
             });
         }
 
-        const starRating = (stack[0].starRating ?? 0) + (stack[0].starRatingAddHalf ? 0.5 : 0);
-
         return (
             <PosterContainer key={stack[0].title.id}>
                 <TitlePoster title={stack[0].title} onPress={viewProfileFeed} width={POSTER_WIDTH} />
                 { starRating > 0 && (
-                <>
-                    <LinearGradient
-                        colors={["transparent", ReelayColors.reelayBlack]}
-                        style={{
-                            opacity: 0.85,
-                            width: POSTER_WIDTH,
-                            height: POSTER_HEIGHT/2,
-                            borderRadius: 6,
-                            position: 'absolute',
-                            top: POSTER_HEIGHT/2,
-                        }}
-                    />
-                    <StarRatingLine rating={starRating} />
-                </>) }
+                    <Fragment>
+                        <PosterGradient colors={["transparent", ReelayColors.reelayBlack]} />
+                        <StarRatingLine rating={starRating} />
+                    </Fragment>
+                )}
             </PosterContainer>
         );
+
     }
 
     return (
-        <Fragment>
+        <PosterGridView>
             <SectionHeader />
-            <PosterGridContainer>
-                { creatorStacks.map(renderStack) }
-                <AfterImage />
-                <AfterImage />
-                <AfterImage />
-            </PosterGridContainer>
-        </Fragment>
+            <FlashList
+                data={creatorStacks}
+                estimatedItemSize={POSTER_HEIGHT}
+                keyExtractor={stack => String(stack[0]?.sub)}
+                numColumns={POSTER_ROW_LENGTH}
+                renderItem={renderPoster}
+                showsVerticalScrollIndicator={false}
+            />
+        </PosterGridView>
     );
 }

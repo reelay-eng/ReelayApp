@@ -27,7 +27,6 @@ const UserSearchResults = ({ navigation, searchResults, searchText }) => {
         console.log('on end reached: ', curPage.current + 1);
         curPage.current += 1;
         const nextSearchResults = await searchUsers(searchText, curPage.current);
-        console.log('next search results: ', nextSearchResults);
         setDisplayResults([...displayResults, ...nextSearchResults]);
     }
 
