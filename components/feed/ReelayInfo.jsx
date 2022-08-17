@@ -47,7 +47,6 @@ const ReelayInfo = ({ navigation, reelay, expanded, setExpanded }) => {
 		margin-top: 8px;
 		flex-direction: row;
 		align-items: center;
-		width: 10%;
 	`
 	const creator = reelay.creator;
 	const description = reelay.description ? reelay.description: "";

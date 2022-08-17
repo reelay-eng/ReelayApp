@@ -1,10 +1,14 @@
-import React, { useState, memo } from 'react';
+import React, { useState } from 'react';
 import { ActivityIndicator, Image, Pressable, View } from 'react-native';
+import Constants from 'expo-constants';
 import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
 import styled from 'styled-components/native';
 import { cacheClubPic, checkRefreshClubPic, getClubPicURI } from '../../api/ReelayLocalImageCache';
+import FastImage from 'react-native-fast-image';
 
-const ProfileImage = styled(Image)`
+const CAN_USE_FAST_IMAGE = (Constants.appOwnership !== 'expo');
+
+const ProfileImage = styled(CAN_USE_FAST_IMAGE ? FastImage: Image)`
     border-color: white;
     border-radius: ${(props) => props.size/2}px;
     border-width: ${(props) => (props.border) ? 1 : 0}px;

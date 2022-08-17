@@ -8,13 +8,16 @@ const faStarOutline = require('@fortawesome/free-regular-svg-icons').faStar;
 
 const StarPressableHalf = styled(Pressable)`
     height: 100%;
-    position: absolute;
+    padding-left: ${props => props.onLeftSide ? 4 : 0}px;
+    padding-right: ${props => props.onLeftSide ? 0 : 4}px;
     width: 50%;
 `
 const StarPressablesRow = styled(View)`
     align-items: center;
-    justify-content: center;
     flex-direction: row;
+    height: ${props => props.starSize}px;
+    width: ${props => props.starSize}px;
+    position: absolute;
 `
 const StarRatingRow = styled(View)`
     align-items: center;
@@ -39,11 +42,13 @@ export default StarRating = ({
 
         const onPressLeftHalf = () => {
             if (disabled) return;
+            console.log('pressing left half: ', index);
             onStarRatingPress(index + 0.5);
         }
 
         const onPressRightHalf = () => {
             if (disabled) return;
+            console.log('pressing right half: ', index);
             onStarRatingPress(index + 1);
         }
 
@@ -54,9 +59,9 @@ export default StarRating = ({
                 { isFullStar && <FontAwesomeIcon icon={faStar} color={starIconColor} size={starSize} /> }
                 { isHalfStar && <FontAwesomeIcon icon={faStarHalfStroke} color={starIconColor} size={starSize} /> }
                 { isEmptyStar && <FontAwesomeIcon icon={faStarOutline} color={starIconColor} size={starSize} /> }
-                <StarPressablesRow>
-                    <StarPressableHalf onPress={onPressLeftHalf} />
-                    <StarPressableHalf onPress={onPressRightHalf} />
+                <StarPressablesRow starSize={starSize}>
+                    <StarPressableHalf onPress={onPressLeftHalf} onLeftSide={true} />
+                    <StarPressableHalf onPress={onPressRightHalf} onLeftSide={false} />
                 </StarPressablesRow>
             </View>
         );

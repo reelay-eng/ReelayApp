@@ -180,7 +180,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 					onLongPress={onCommentLongPress}>
 					<FontAwesomeIcon 
 						icon={faCommentDots} 
-						color={likedByUser ? ReelayColors.reelayRed : "white"} 
+						color={commentedByUser ? ReelayColors.reelayRed : "white"} 
 						size={ICON_SIZE} 
 					/>
 				</SidebarButton>

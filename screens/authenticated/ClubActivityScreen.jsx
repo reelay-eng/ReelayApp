@@ -1,8 +1,7 @@
-import React, { Fragment, memo, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { 
     ActivityIndicator,
     Dimensions, 
-    FlatList, 
     RefreshControl, 
     TouchableOpacity, 
     View 
@@ -53,6 +52,12 @@ const AcceptInvitePressable = styled(TouchableOpacity)`
     justify-content: center;
     height: 40px;
     margin-right: 16px;
+`
+const ActivityBottomSpacer = styled(View)`
+    height: ${props => props.bottomOffset + 100}px;
+`
+const ActivityTopSpacer = styled(View)`
+    height: ${props => props.topOffset}px;
 `
 const ActivityView = styled(View)`
     margin-bottom: 8px;
@@ -136,7 +141,7 @@ const UploadProgressBarView = styled(View)`
     width: 100%;
 `
 
-const ClubActivity = ({ activity, club, feedIndex, navigation, onLayout, onRefresh }) => {
+const ClubActivity = ({ activity, club, feedIndex, navigation, onRefresh }) => {
     const { activityType } = activity;
     const advanceToFeed = () => {
         if (feedIndex === -1) return;
@@ -146,7 +151,7 @@ const ClubActivity = ({ activity, club, feedIndex, navigation, onLayout, onRefre
     if (activityType === 'title') {
         const clubTitle = activity;
         return (
-            <ActivityView onLayout={onLayout}>
+            <ActivityView>
                 <ClubTitleCard 
                     key={clubTitle.id} 
                     advanceToFeed={advanceToFeed}
@@ -160,7 +165,7 @@ const ClubActivity = ({ activity, club, feedIndex, navigation, onLayout, onRefre
     } else if (activityType === 'topic') {
         const clubTopic = activity;
         return (
-            <ActivityView onLayout={onLayout}>
+            <ActivityView>
                 <TopicCard 
                     advanceToFeed={advanceToFeed}
                     clubID={club.id}
@@ -177,9 +182,9 @@ const ClubActivity = ({ activity, club, feedIndex, navigation, onLayout, onRefre
     }
 }
 
-const DescriptionFold = ({ onLayout }) => {
+const DescriptionFold = () => {
     return (
-        <DescriptionView onLayout={onLayout}>
+        <DescriptionView>
             <DescriptionText>
                 { club.description }
             </DescriptionText>
@@ -272,15 +277,6 @@ const InviteFold = ({ clubMember, navigation, isPublicClub, onRefresh }) => {
 }
 
 const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
-    const topOffset = useSafeAreaInsets().top + 80;
-    const bottomOffset = useSafeAreaInsets().bottom + 20;
-
-    const activityListStyle = { 
-        alignItems: 'center', 
-        paddingTop: topOffset, 
-        paddingBottom: bottomOffset + 100,
-    };
-
     const itemHeights = useRef([]);
     const [maxDisplayPage, setMaxDisplayPage] = useState(0);
     const maxDisplayIndex = (maxDisplayPage + 1) * ACTIVITY_PAGE_SIZE;
@@ -314,27 +310,22 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
         const activity = item;
         const { activityType } = activity;
         
-        const onLayout = ({ nativeEvent }) => {
-            itemHeights.current[index] = nativeEvent?.layout?.height;
-        }
-
         const matchFeedTitleOrTopic = (nextTitleOrTopic) => (activity.id === nextTitleOrTopic.id);
         const initFeedIndex = feedTitlesAndTopics.findIndex(matchFeedTitleOrTopic);    
 
         if (activityType === 'description') {
-            return <DescriptionFold key={'description'} onLayout={onLayout} />;
+            return <DescriptionFold key={'description'} />;
         }
         if (activityType === 'noTitlesYet') {
-            return <NoTitlesYetPrompt key={'noTitlesYet'} onLayout={onLayout} />
+            return <NoTitlesYetPrompt key={'noTitlesYet'} />
         }
 
         return (
-            <ClubActivity key={activity.id} 
+            <ClubActivity 
                 activity={activity} 
                 club={club}
                 feedIndex={initFeedIndex} 
                 navigation={navigation}
-                onLayout={onLayout} 
                 onRefresh={onRefresh}
             />
         );    
@@ -361,7 +352,6 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
         />
     )
 }
-
  
 export default ClubActivityScreen = ({ navigation, route }) => {
     const authSession = useSelector(state => state.authSession);
@@ -504,7 +494,9 @@ export default ClubActivityScreen = ({ navigation, route }) => {
 
     return (
         <ActivityScreenView>
+            <ActivityTopSpacer topOffset={topOffset} />
             <ClubActivityList club={club} navigation={navigation} onRefresh={onRefresh} refreshing={refreshing} />
+            <ActivityBottomSpacer bottomOffset={bottomOffset} />
             <ClubBanner club={club} navigation={navigation} />
 
             { !clubMember && isPublicClub && <JoinClubButton /> }

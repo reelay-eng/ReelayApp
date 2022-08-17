@@ -6,7 +6,7 @@ import { cacheProfilePic, checkRefreshProfilePic, getProfilePicURI } from '../..
 import Constants from 'expo-constants';
 import FastImage from 'react-native-fast-image'
 
-const canUseFastImage = (Constants.appOwnership !== 'expo');
+const CAN_USE_FAST_IMAGE = (Constants.appOwnership !== 'expo');
 
 const ProfileImage = styled(Image)`
     border-color: white;
@@ -41,7 +41,7 @@ export default ProfilePicture = memo(({
         borderWidth: border ? 1 : 0,
     };
     
-    if (canUseFastImage) {
+    if (CAN_USE_FAST_IMAGE) {
         return (
             <Pressable onPress={advanceToProfileScreen}>
                 <FastImage source={source} style={style} />

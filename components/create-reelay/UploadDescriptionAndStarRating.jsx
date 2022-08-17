@@ -68,25 +68,11 @@ export default UploadDescriptionAndStarRating = ({ starCountRef, descriptionRef 
         <InfoContainer>
             { (starCountRef.current === 0) && <RatingText>{"Want to rate it?"}</RatingText> }
             <StarRatingContainer>
-                {/* <StarRating 
-                    disabled={false}
-                    emptyStarColor={'#c4c4c4'}
-                    maxStars={5}
-                    fullStarColor={'white'}
-                    halfStarEnabled={true}
-                    rating={starCountRef.current}
-                    selectedStar={onStarRatingPress}
-                    starSize={30}
-                    starStyle={{ paddingRight: 8 }}
-                /> */}
                 <StarRating 
                     disabled={false}
-                    emptyStarColor={'#c4c4c4'}
-                    maxStars={5}
-                    fullStarColor={'white'}
-                    halfStarEnabled={true}
+                    numStars={starCountRef.current}
+                    onStarRatingPress={onStarRatingPress}
                     rating={starCountRef.current}
-                    selectedStar={onStarRatingPress}
                     starSize={30}
                     starStyle={{ paddingRight: 8 }}
                 />

@@ -200,7 +200,7 @@ export default ReelayFeed = ({ navigation,
             data={reelayThreads}
             getItemLayout={getItemLayout}
             horizontal={false}
-            initialNumToRender={1}
+            initialNumToRender={2}
             initialScrollIndex={initialFeedPos}
             keyboardShouldPersistTaps={"handled"}
             keyExtractor={(stack) => `${stack[0].title.id}-${stack[0].sub}`}

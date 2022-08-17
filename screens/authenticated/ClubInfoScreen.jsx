@@ -51,6 +51,9 @@ const ClubHeaderText = styled(ReelayText.H5Emphasized)`
 const ClubDescriptionText = styled(ReelayText.Body2)` 
     color: white;
 `
+const ClubInfoContainer = styled(View)`
+    align-items: center;
+`
 const ClubPrivacyRow = styled(View)`
     align-items: center;
     flex-direction: row;
@@ -70,7 +73,6 @@ const EditButtonText = styled(ReelayText.Body2)`
 const HorizontalDivider = styled(View)`
     border-color: rgba(255,255,255,0.5);
     border-width: 0.2px;
-    margin-bottom: 24px;
     height: 1px;
     width: 100%;
 `
@@ -87,9 +89,8 @@ const JoinButtonContainer = styled(TouchableOpacity)`
     border-radius: 8px;
     flex-direction: row;
     justify-content: center;
-    margin-left: 25%;
-    margin-right: 25%;
-    margin-top: 40px;
+    margin-top: 24px;
+    margin-bottom: 24px;
     height: 40px;
     width: 50%;
 `
@@ -103,6 +104,9 @@ const MemberInfoContainer = styled(View)`
 `
 const MemberInvitedText = styled(ReelayText.Overline)`
     color: white;
+`
+const MemberListView = styled(View)`
+    width: 100%;
 `
 const MemberRightButtonContainer = styled(View)`
     flex-direction: row;
@@ -118,7 +122,7 @@ const MemberRowContainer = styled(TouchableOpacity)`
     padding-top: 6px;
     padding-bottom: 6px;
     border-bottom-color: #505050;
-    border-bottom-width: 0.0px;    
+    border-bottom-width: 0.0px;   
 `
 const MemberSectionSpacer = styled(View)`
     height: 12px;
@@ -186,9 +190,6 @@ const TopBarContainer = styled(View)`
     margin-bottom: 16px;
     width: 100%;
 `
-const TopBarRightContainer = styled(View)`
-    margin-right: 10px;
-`
 const UsernameText = styled(ReelayText.Subtitle1Emphasized)`
     color: white;
 `
@@ -248,6 +249,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         }
 
         const renderMemberRow = ({ item, index }) => {
+            const member = item;
             const isInvitedByMe = (member?.invitedBySub === reelayDBUser?.sub);
             const inviteAccepted = member?.hasAcceptedInvite;
 
@@ -268,7 +270,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         }
     
         return (
-            <React.Fragment>
+            <MemberListView>
                 <SectionRow>
                     <SectionHeaderText>{`Members  (${memberCount})`}</SectionHeaderText>
                     { isClubOwner && <EditMembersButton />}                
@@ -281,7 +283,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     renderItem={renderMemberRow}
                     showsVerticalScrollIndicator={false}
                 />
-            </React.Fragment>
+            </MemberListView>
         );
     }
     
@@ -785,14 +787,14 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             >
                 { refreshing && <ActivityIndicator /> }
                 { !refreshing && (
-                    <Fragment>
+                    <ClubInfoContainer>
                         <ClubProfileInfo />
                         { (isClubOwner || club.allowMemberInvites) && <InviteSettings /> }
                         <HorizontalDivider />
-                        <ClubMembers />
                         { !isClubOwner && clubMember && <LeaveButton /> }
                         { !clubMember && isPublicClub && <JoinButton /> }
-                    </Fragment>
+                        <ClubMembers />
+                    </ClubInfoContainer>
                 )}
             </ScrollView>
         </InfoScreenContainer>

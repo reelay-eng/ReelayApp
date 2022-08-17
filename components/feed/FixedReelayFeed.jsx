@@ -92,11 +92,11 @@ const FixedReelayFeed = ({ navigation,
                     data={stackList}
                     getItemLayout={getItemLayout}
                     horizontal={false}
-                    initialNumToRender={1}
+                    initialNumToRender={2}
                     initialScrollIndex={initialFeedPos}
                     keyboardShouldPersistTaps={"handled"}
                     keyExtractor={stack => String(stack[0].title.id)}
-                    maxToRenderPerBatch={1}
+                    maxToRenderPerBatch={2}
                     onScroll={onFeedSwiped}
                     pagingEnabled={true}
                     ref={feedPager}

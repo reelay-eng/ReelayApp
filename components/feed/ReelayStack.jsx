@@ -222,11 +222,11 @@ const ReelayStack = ({
             <FlatList 
                 data={stack} 
                 horizontal={true} 
-                initialNumToRender={1}
+                initialNumToRender={2}
                 initialScrollIndex={initialStackPos}
                 getItemLayout={getItemLayout}
                 keyboardShouldPersistTaps={"handled"}
-                maxToRenderPerBatch={3}
+                maxToRenderPerBatch={2}
                 ref={stackRef}
                 renderItem={renderReelay} 
                 onScroll={onStackSwiped} 

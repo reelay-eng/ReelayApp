@@ -108,7 +108,7 @@ export default SuggestedTitlesGrid = ({
     return (
             <PosterGridContainer>
                 <FlatList
-                    // numColumns={POSTER_ROW_LENGTH}
+                    numColumns={POSTER_ROW_LENGTH}
                     data={suggestedTitles}
                     estimatedItemSize={POSTER_HEIGHT_WITH_MARGIN}
                     keyExtractor={titleObj => titleObj?.id}

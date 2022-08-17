@@ -1,8 +1,6 @@
 // react imports
 import React, { useEffect, useRef, useState } from 'react';
-import * as FileSystem from 'expo-file-system';
 import { ActivityIndicator, Image, View } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './navigation';
 import styled from 'styled-components/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -58,6 +56,7 @@ import store, { mapStateToProps } from './redux/store';
 import { ensureLocalImageDirExists, maybeFlushTitleImageCache } from './api/ReelayLocalImageCache';
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
 import { fetchPopularMovies, fetchPopularSeries } from './api/TMDbApi';
+import moment from 'moment';
 
 const LoadingContainer = styled(View)`
     align-items: center;
@@ -206,6 +205,25 @@ function App() {
                 .connect() // let's connect!
         }
 
+        moment.updateLocale("en", {
+            relativeTime: {
+                future: "in %s",
+                past: "%s",
+                s: "just now",
+                ss: "%ss",
+                m: "1m",
+                mm: "%dm",
+                h: "1h",
+                hh: "%dh",
+                d: "1d",
+                dd: "%dd",
+                M: "1mo",
+                MM: "%dmo",
+                y: "1y",
+                yy: "%dY",
+            },
+        });
+            
         await loadFonts();
         await checkIsNewUser();
         await ensureLocalImageDirExists();
