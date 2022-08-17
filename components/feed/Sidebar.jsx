@@ -1,6 +1,5 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Dimensions, Pressable, Text, TouchableOpacity, View } from 'react-native';
-import { Icon } from 'react-native-elements';
+import React, { useContext, useState } from 'react';
+import { Text, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -13,9 +12,8 @@ import ReelayColors from '../../constants/ReelayColors';
 import ShareOutButton from './ShareOutButton';
 import AddToClubsButton from '../clubs/AddToClubsButton';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCommentDots, faEllipsis, faHeart } from '@fortawesome/free-solid-svg-icons';
-
-const { height, width } = Dimensions.get('window');
+import { faEllipsis, faHeart } from '@fortawesome/free-solid-svg-icons';
+import { CommentIconSVG } from '../global/SVGs';
 
 export default Sidebar = ({ navigation, reelay }) => {
 	const ICON_SIZE = 24;
@@ -178,11 +176,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 					addHighlight={commentedByUser}
 					onPress={onCommentPress} 
 					onLongPress={onCommentLongPress}>
-					<FontAwesomeIcon 
-						icon={faCommentDots} 
-						color={commentedByUser ? ReelayColors.reelayRed : "white"} 
-						size={ICON_SIZE} 
-					/>
+					<CommentIconSVG color={commentedByUser ? ReelayColors.reelayRed : "white"} />
 				</SidebarButton>
 				<Count>{reelay.comments.length}</Count>
 			</ButtonContainer>
