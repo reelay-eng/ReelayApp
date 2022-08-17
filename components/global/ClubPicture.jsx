@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ActivityIndicator, Image, Pressable, View } from 'react-native';
+import { ActivityIndicator, Image, View } from 'react-native';
 import Constants from 'expo-constants';
 import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
 import styled from 'styled-components/native';

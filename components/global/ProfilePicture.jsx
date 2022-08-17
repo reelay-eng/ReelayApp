@@ -38,6 +38,7 @@ export default ProfilePicture = memo(({
         width: size, 
         height: size,
         borderColor: 'white',
+        borderRadius: size / 2,
         borderWidth: border ? 1 : 0,
     };
     
