@@ -4,11 +4,9 @@ import Constants from 'expo-constants';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faArrowUpFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { createDeeplinkPathToReelay } from '../../api/ReelayDBApi';
+import { ShareOutSVG } from '../global/SVGs';
 
-const ICON_SIZE = 20;
 const REELAY_WEB_BASE_URL = Constants.manifest.extra.reelayWebBaseUrl;
 
 export default ShareOutButton = ({ reelay }) => {
@@ -37,7 +35,7 @@ export default ShareOutButton = ({ reelay }) => {
 
     return (
         <TouchableOpacity onPress={shareReelay}>
-            <FontAwesomeIcon icon={faArrowUpFromBracket} size={24} color='white' />
+            <ShareOutSVG />
         </TouchableOpacity>
     );
 }
