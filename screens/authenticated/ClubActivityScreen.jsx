@@ -60,6 +60,7 @@ const ActivityTopSpacer = styled(View)`
     height: ${props => props.topOffset}px;
 `
 const ActivityView = styled(View)`
+    margin-left: ${props => props.activityType === 'topic' ? 16 : 0}px;
     margin-bottom: 8px;
 `
 const ActivityScreenView = styled(View)`
@@ -151,7 +152,7 @@ const ClubActivity = ({ activity, club, feedIndex, navigation, onRefresh }) => {
     if (activityType === 'title') {
         const clubTitle = activity;
         return (
-            <ActivityView>
+            <ActivityView activityType={activityType}>
                 <ClubTitleCard 
                     key={clubTitle.id} 
                     advanceToFeed={advanceToFeed}
@@ -165,7 +166,7 @@ const ClubActivity = ({ activity, club, feedIndex, navigation, onRefresh }) => {
     } else if (activityType === 'topic') {
         const clubTopic = activity;
         return (
-            <ActivityView>
+            <ActivityView activityType={activityType}>
                 <TopicCard 
                     advanceToFeed={advanceToFeed}
                     clubID={club.id}

@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getTopics, getTopicsByCreator, searchTopics } from '../../api/TopicsApi';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import ProfilePicture from '../../components/global/ProfilePicture';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get('window');
 
@@ -110,6 +111,7 @@ const SearchBar = ({ resetTopics, searchBarRef, searchTextRef, setSearching, upd
         searchTextRef.current = newSearchText;
         updateSearchResults();
     }
+
     useEffect(() => searchBarRef.current.focus(), []);
 
     return (
@@ -307,6 +309,11 @@ export default TopicsListScreen = ({ navigation, route }) => {
             break;
     }
 
+    useFocusEffect(() => {
+        const showTabBar = (source === 'profile');
+        dispatch({ type: 'setTabBarVisible', payload: showTabBar });
+    });
+
     const CreateTopicButton = () => {
         const advanceToCreateTopic = () => navigation.push('CreateTopicScreen');
         return (
@@ -344,12 +351,6 @@ export default TopicsListScreen = ({ navigation, route }) => {
             </SearchButtonContainer>
         )
     }
-
-
-    useEffect(() => {
-        const showTabBar = (source === 'profile');
-        dispatch({ type: 'setTabBarVisible', payload: showTabBar });
-    }, []);
 
     return (
         <ScreenContainer>

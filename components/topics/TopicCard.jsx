@@ -1,5 +1,5 @@
-import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { Dimensions, Pressable, View } from 'react-native';
+import React, { Fragment, useState } from 'react';
+import { Dimensions, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
 
@@ -13,6 +13,7 @@ import TopicDotMenuDrawer from './TopicDotMenuDrawer';
 const { height, width } = Dimensions.get('window');
 const CARD_WIDTH_CAROUSEL = width - 48;
 const CARD_WIDTH_LIST = width - 32;
+
 const getTopicCardWidth = (props) => props.horizontal ? CARD_WIDTH_CAROUSEL : CARD_WIDTH_LIST;
 const getBottomRowWidth = (props) => getTopicCardWidth(props) - 32;
 
