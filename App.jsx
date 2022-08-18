@@ -292,6 +292,7 @@ function App() {
     }
 
     const loadMyProfile = async (userSub) => {
+        console.log('beginning load my profile');
         const reqUserSub = userSub;
         // make sure to maintain consistent ordering between these arrays
         // when you modify them
@@ -311,6 +312,8 @@ function App() {
         const mySettings = JSON.parse(mySettingsJSON) ?? {}; // 
         const versionInfo = myHomeContent?.versionInfo;
 
+        console.log('loaded first set of profile data');
+
         setReelayDBUser(reelayDBUserLoaded);
         dispatch({ type: 'setReelayDBUser', payload: reelayDBUserLoaded });
         dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
@@ -321,6 +324,8 @@ function App() {
         dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
         dispatch({ type: 'setIsLoading', payload: false });
         dispatch({ type: 'setAppVersionInfo', payload: versionInfo })
+
+        console.log('dispatched first set of profile data');
 
         // deferred load
         const [
@@ -341,6 +346,8 @@ function App() {
             fetchPopularSeries(),
         ])
 
+        console.log('loaded second set of profile data');
+
         dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
         dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
         dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
@@ -353,6 +360,8 @@ function App() {
         dispatch({ type: 'setSuggestedMovieResults', payload: suggestedMovieResults });
         dispatch({ type: 'setSuggestedSeriesResults', payload: suggestedSeriesResults });
 
+        console.log('dispatched second set of profile data');
+
         // deferred load part 2
         const [
             latestAnnouncement,
@@ -362,10 +371,14 @@ function App() {
             getDismissalHistory(),
         ]);
 
+        console.log('loaded third set of profile data');
+
         dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
         dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });
         // triggers the reducer to create the latest notice from already-loaded app data
         dispatch({ type: 'setLatestNotice', payload: null }); 
+
+        console.log('dispatched third set of profile data');
     }
 
     const registerMyPushToken = async () => {

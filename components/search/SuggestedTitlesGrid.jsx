@@ -1,12 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { Dimensions, View } from 'react-native';
-import { FlatList } from 'react-native-gesture-handler';
+import { Dimensions, FlatList, SafeAreaView, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components/native';
 import TitlePoster from '../global/TitlePoster';
 
 import { fetchPopularMovies, fetchPopularSeries } from '../../api/TMDbApi';
-import { FlashList } from '@shopify/flash-list';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -25,11 +24,14 @@ const PosterContainer = styled(View)`
     height: ${POSTER_WIDTH * 1.5}px;
     width: ${POSTER_WIDTH}px;
 `
-const PosterGridContainer = styled(View)`
+const PosterGridContainer = styled(SafeAreaView)`
+    display: flex;
+    flex: 1;
     justify-content: center;
-    margin-top: 4px;
     margin-left: ${GRID_SIDE_MARGIN}px;
     margin-right: ${GRID_SIDE_MARGIN}px;
+    margin-bottom: 60px;
+    min-height: ${POSTER_HEIGHT_WITH_MARGIN}px;
     width: ${GRID_WIDTH}px;
 `
 
@@ -41,6 +43,7 @@ export default SuggestedTitlesGrid = ({
     topicID=null,
 }) => {
     const dispatch = useDispatch();
+    const bottomOffset = useSafeAreaInsets().bottom;
     const scrollRef = useRef(null);
     const suggestedMovieResults = useSelector(state => state.suggestedMovieResults);
     const suggestedSeriesResults = useSelector(state => state.suggestedSeriesResults);
@@ -78,14 +81,6 @@ export default SuggestedTitlesGrid = ({
                 return;
         }
     }
-
-    const getItemLayout = (item, index) => {
-        return {
-            length: POSTER_HEIGHT_WITH_MARGIN,
-            offset: POSTER_HEIGHT_WITH_MARGIN * index,
-            index,
-        }
-    }
     
     const renderTitlePoster = ({ item, index }) => {
         const titleObj = item;
@@ -99,6 +94,14 @@ export default SuggestedTitlesGrid = ({
         );
     }
 
+    const getItemLayout = (item, index) => {
+        return {
+            length: POSTER_HEIGHT_WITH_MARGIN,
+            offset: index * POSTER_HEIGHT_WITH_MARGIN,
+            index,
+        }
+    }
+
     useEffect(() => {
         if (scrollRef.current && suggestedTitles?.length > 0) {
             scrollRef.current.scrollToIndex({ animated: false, index: 0 });
@@ -106,17 +109,17 @@ export default SuggestedTitlesGrid = ({
     }, [selectedType]);
 
     return (
-            <PosterGridContainer>
-                <FlatList
-                    numColumns={POSTER_ROW_LENGTH}
-                    data={suggestedTitles}
-                    estimatedItemSize={POSTER_HEIGHT_WITH_MARGIN}
-                    keyExtractor={titleObj => titleObj?.id}
-                    ref={scrollRef}
-                    renderItem={renderTitlePoster}
-                    getItemLayout={getItemLayout}
-                    onEndReached={extendSuggestedTitles}
-                />
-            </PosterGridContainer>
+        <PosterGridContainer bottomOffset={bottomOffset}>
+            <FlatList
+                data={suggestedTitles}
+                estimatedItemSize={POSTER_HEIGHT_WITH_MARGIN}
+                getItemLayout={getItemLayout}
+                keyExtractor={titleObj => titleObj?.id}
+                numColumns={POSTER_ROW_LENGTH}
+                ref={scrollRef}
+                renderItem={renderTitlePoster}
+                onEndReached={extendSuggestedTitles}
+            />
+        </PosterGridContainer>
     );
 }
