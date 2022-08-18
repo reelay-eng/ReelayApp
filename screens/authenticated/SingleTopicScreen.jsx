@@ -1,11 +1,13 @@
 import { useFocusEffect } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { RefreshControl, ScrollView } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { getSingleTopic } from '../../api/TopicsApi';
+import { AuthContext } from '../../context/AuthContext';
 
 export default SingleTopicScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
+    const { reelayDBUser } = useContext(AuthContext);
     const initTopic = route?.params?.topic;
     const initReelayIndex = route?.params?.initReelayIndex;
     const showTabBarOnReturn = route?.params?.showTabBarOnReturn ?? true;
@@ -24,7 +26,7 @@ export default SingleTopicScreen = ({ navigation, route }) => {
 
     const onRefresh = async () => {
         setRefreshing(true);
-        const refreshedTopic = await getSingleTopic(topic.id);
+        const refreshedTopic = await getSingleTopic(topic.id, reelayDBUser?.sub);
         setTopic(refreshedTopic);
         setRefreshing(false);
     }
