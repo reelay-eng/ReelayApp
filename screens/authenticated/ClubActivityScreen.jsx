@@ -282,11 +282,19 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
     const [maxDisplayPage, setMaxDisplayPage] = useState(0);
     const maxDisplayIndex = (maxDisplayPage + 1) * ACTIVITY_PAGE_SIZE;
 
-    const filterJustThisClub = (nextActivity) => (nextActivity?.clubID === club.id);
     const filterDisplayActivities = (nextActivity, index) => index < maxDisplayIndex;
+    const sortByLastUpdated = (activity0, activity1) => {
+        const lastActivity0 = moment(activity0?.lastUpdatedAt ?? activity0.createdAt);
+        const lastActivity1 = moment(activity1?.lastUpdatedAt ?? activity1.createdAt);
+        return lastActivity1.diff(lastActivity0, 'seconds');
+    }
 
-    const allMyClubActivities = useSelector(state => state.myClubActivities);
-    const clubActivities = allMyClubActivities.filter(filterJustThisClub);
+    const clubActivities = [
+        ...club.titles,
+        ...club.topics,
+        ...club.members,
+    ].sort(sortByLastUpdated);
+
     const displayActivities = useRef(clubActivities.filter(filterDisplayActivities));
 
     const activityHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
@@ -337,6 +345,10 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
         const accumulate = (sum, next) => sum + next;
         const offset = itemHeights.current.slice(0, index).reduce(accumulate, 0);
         return { length, offset, index };
+    }
+
+    if (refreshing) {
+        return <ActivityIndicator />
     }
 
     return (
