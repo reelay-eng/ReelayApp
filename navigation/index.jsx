@@ -123,7 +123,7 @@ export default Navigation = () => {
         return () => {
             removeNotificationSubscription(notificationListener.current);
             removeNotificationSubscription(responseListener.current);
-            Linking.removeEventListener('url');
+            // Linking.removeEventListener('url');
         }
     }, []);
 
@@ -164,7 +164,7 @@ export default Navigation = () => {
                 if (inviteCode) {
                     navigation.navigate('UserProfileFromLinkScreen', { inviteCode });
                 }
-            } else if (path.length === UUID_LENGTH) {
+            } else if (path?.length === UUID_LENGTH) {
                 // assume it's a reelay sub -- not entirely sure why it's cutting
                 // off 'reelay/' from the front of path, but that's what we're seeing
                 const reelaySub = path;

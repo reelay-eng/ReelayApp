@@ -163,8 +163,8 @@ export default PostDestinationDrawer = ({ publishReelay, drawerVisible, setDrawe
                         showsVerticalScrollIndicator={false}>
                         <SelectMyProfileRow />
                         <SelectClubsList />
-                        <PostButton />
                     </ScrollView>
+                    <PostButton />
                 </DrawerContainer>
             </KeyboardAvoidingView>
             </Modal>

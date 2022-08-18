@@ -73,7 +73,7 @@ export const getGlobalTopics = async ({ page = 0 }) => {
     return preparedTopics;
 }
 
-export const getSingleTopic = async (topicID) => {
+export const getSingleTopic = async (topicID, reqUserSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/topics/topic/${topicID}?visibility=${FEED_VISIBILITY}`;
     const topicWithReelays = await fetchResults(routeGet, {
         method: 'GET',

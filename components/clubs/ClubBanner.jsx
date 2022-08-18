@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react';
-import { Pressable, TouchableOpacity, View } from 'react-native';
+import React from 'react';
+import { TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

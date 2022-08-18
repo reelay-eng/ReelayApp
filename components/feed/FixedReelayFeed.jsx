@@ -1,11 +1,10 @@
 import React, { useContext, useEffect, useState, useRef, memo } from 'react';
-import { Dimensions, FlatList, View } from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, View } from 'react-native';
 import ReelayStack from './ReelayStack';
 
 import { AuthContext } from '../../context/AuthContext';
 
 import styled from 'styled-components/native';
-import { ActivityIndicator } from 'react-native-paper';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 const { height, width } = Dimensions.get('window');
 
@@ -93,11 +92,11 @@ const FixedReelayFeed = ({ navigation,
                     data={stackList}
                     getItemLayout={getItemLayout}
                     horizontal={false}
-                    initialNumToRender={1}
+                    initialNumToRender={2}
                     initialScrollIndex={initialFeedPos}
                     keyboardShouldPersistTaps={"handled"}
                     keyExtractor={stack => String(stack[0].title.id)}
-                    maxToRenderPerBatch={1}
+                    maxToRenderPerBatch={2}
                     onScroll={onFeedSwiped}
                     pagingEnabled={true}
                     ref={feedPager}

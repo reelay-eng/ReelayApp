@@ -5,11 +5,12 @@ import styled from 'styled-components/native';
 import BackButton from '../utils/BackButton';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faArrowUpFromBracket, faGear } from '@fortawesome/free-solid-svg-icons';
+import { faGear } from '@fortawesome/free-solid-svg-icons';
 import { fetchOrCreateProfileLink } from '../../api/ProfilesApi';
 import { useSelector } from 'react-redux';
 import { showErrorToast } from '../../components/utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import { ShareOutSVG } from '../global/SVGs';
 
 const REELAY_WEB_PREFIX = `https://on.reelay.app`;
 
@@ -28,7 +29,6 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
                 username: creator?.username 
             });
             setProfileLink(profileLink);
-            console.log("PROFILE LINK: ", profileLink);
         }
         if (validCreatorName) {
             fetchProfileLink();
@@ -95,7 +95,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         const ShareProfileLinkButton = () => {
             return (
                 <IconContainer onPress={shareProfileLink}>
-                    <FontAwesomeIcon icon={faArrowUpFromBracket} size={24} color='white' />
+                    <ShareOutSVG />
                 </IconContainer>
             );
         }

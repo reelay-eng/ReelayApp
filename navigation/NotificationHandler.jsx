@@ -31,7 +31,7 @@ export const handlePushNotificationResponse = async ({
             await openClubActivityScreen(navigation, data?.club?.id, myClubs);
             return;
         case 'openClubAtReelay':
-            const clubUserResult = await getRegisteredUser(data?.fromUser.sub);
+            const clubUserResult = await getRegisteredUser(data?.fromUser?.sub);
             if (clubUserResult.username === '[deleted]') {
                 showErrorToast("User doesn't exist!");
                 return;
@@ -42,7 +42,7 @@ export const handlePushNotificationResponse = async ({
             await openCreateScreen(navigation);
             return;
         case 'openSingleReelayScreen':
-            const reelayUserResult = await getRegisteredUser(data?.fromUser.sub);
+            const reelayUserResult = await getRegisteredUser(data?.fromUser?.sub);
             if (reelayUserResult.username === '[deleted]') {
                 showErrorToast("User doesn't exist!");
                 return;
@@ -53,15 +53,15 @@ export const handlePushNotificationResponse = async ({
             await openTitleScreen(navigation, data?.titleObj);
             return;    
         case 'openTopicAtReelay':
-            const topicUserResult = await getRegisteredUser(data?.fromUser.sub);
+            const topicUserResult = await getRegisteredUser(data?.fromUser?.sub);
             if (topicUserResult.username === '[deleted]') {
                 showErrorToast("User doesn't exist!");
                 return;
             }
-            await openTopicAtReelay(navigation, data?.reelaySub);
+            await openTopicAtReelay(navigation, data?.reelaySub, data?.fromUser?.sub);
             return;
         case 'openUserProfileScreen':
-            const userResult = await getRegisteredUser(data?.fromUser.sub);
+            const userResult = await getRegisteredUser(data?.fromUser?.sub);
             if (userResult.username === '[deleted]') {
                 showErrorToast("User doesn't exist!");
                 return;
@@ -142,7 +142,7 @@ const openTitleScreen = async (navigation, titleObj) => {
     navigation.navigate('TitleDetailScreen', { titleObj: annotatedTitle });
 }
 
-const openTopicAtReelay = async (navigation, reelaySub) => {
+const openTopicAtReelay = async (navigation, reelaySub, reqUserSub) => {
     if (!navigation) {
         console.log('No navigation ref')
         return;
@@ -150,7 +150,7 @@ const openTopicAtReelay = async (navigation, reelaySub) => {
 
     const singleReelay = await getReelay(reelaySub);
     const findReelayInTopic = (nextReelay) => nextReelay?.sub === reelaySub;
-    const fetchedTopicWithReelays = await getSingleTopic(singleReelay.topicID);
+    const fetchedTopicWithReelays = await getSingleTopic(singleReelay.topicID, reqUserSub);
     if (!fetchedTopicWithReelays?.reelays?.length) return;
 
     let reelayIndex = fetchedTopicWithReelays.reelays.findIndex(findReelayInTopic);

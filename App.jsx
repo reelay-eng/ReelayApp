@@ -1,8 +1,6 @@
 // react imports
 import React, { useEffect, useRef, useState } from 'react';
-import * as FileSystem from 'expo-file-system';
 import { ActivityIndicator, Image, View } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 import Navigation from './navigation';
 import styled from 'styled-components/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -24,10 +22,12 @@ import 'react-native-get-random-values';
 // expo and amplitude imports
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
-import * as Amplitude from 'expo-analytics-amplitude';
+import { Amplitude, Identify } from '@amplitude/react-native';
+
 import { logAmplitudeEventProd } from './components/utils/EventLogger';
 import { StatusBar } from 'expo-status-bar';
 import useColorScheme from './hooks/useColorScheme';
+import { InterruptionModeIOS, InterruptionModeAndroid } from 'expo-av';
 
 // context imports
 import { AuthContext } from './context/AuthContext';
@@ -56,6 +56,7 @@ import store, { mapStateToProps } from './redux/store';
 import { ensureLocalImageDirExists, maybeFlushTitleImageCache } from './api/ReelayLocalImageCache';
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
 import { fetchPopularMovies, fetchPopularSeries } from './api/TMDbApi';
+import moment from 'moment';
 
 const LoadingContainer = styled(View)`
     align-items: center;
@@ -76,6 +77,7 @@ const SplashImage = styled(Image)`
     position: absolute;
 `
 
+const canUseNativeModules = Constants.appOwnership !== 'expo';
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog-black.png');
 
 function App() {
@@ -164,9 +166,10 @@ function App() {
     }
 
     const initServices = async () => {
-        Amplitude.initializeAsync(
-            Constants.manifest.extra.amplitudeApiKey
-        );
+        if (canUseNativeModules) {
+            const ampInstance = Amplitude.getInstance('amp-reelay');
+            ampInstance.init(Constants.manifest.extra.amplitudeApiKey);    
+        }
 
         Amplify.configure({
             ...AWSExports,
@@ -181,8 +184,8 @@ function App() {
         
         Audio.setAudioModeAsync({
             playsInSilentModeIOS: true,
-            interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
-            interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+            interruptionModeIOS: InterruptionModeIOS.DoNotMix,
+            interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
         });
         
         Notifications.setNotificationHandler({
@@ -202,6 +205,25 @@ function App() {
                 .connect() // let's connect!
         }
 
+        moment.updateLocale("en", {
+            relativeTime: {
+                future: "in %s",
+                past: "%s",
+                s: "just now",
+                ss: "%ss",
+                m: "1m",
+                mm: "%dm",
+                h: "1h",
+                hh: "%dh",
+                d: "1d",
+                dd: "%dd",
+                M: "1mo",
+                MM: "%dmo",
+                y: "1y",
+                yy: "%dY",
+            },
+        });
+            
         await loadFonts();
         await checkIsNewUser();
         await ensureLocalImageDirExists();
@@ -270,6 +292,7 @@ function App() {
     }
 
     const loadMyProfile = async (userSub) => {
+        console.log('beginning load my profile');
         const reqUserSub = userSub;
         // make sure to maintain consistent ordering between these arrays
         // when you modify them
@@ -289,6 +312,8 @@ function App() {
         const mySettings = JSON.parse(mySettingsJSON) ?? {}; // 
         const versionInfo = myHomeContent?.versionInfo;
 
+        console.log('loaded first set of profile data');
+
         setReelayDBUser(reelayDBUserLoaded);
         dispatch({ type: 'setReelayDBUser', payload: reelayDBUserLoaded });
         dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
@@ -299,6 +324,8 @@ function App() {
         dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
         dispatch({ type: 'setIsLoading', payload: false });
         dispatch({ type: 'setAppVersionInfo', payload: versionInfo })
+
+        console.log('dispatched first set of profile data');
 
         // deferred load
         const [
@@ -319,6 +346,8 @@ function App() {
             fetchPopularSeries(),
         ])
 
+        console.log('loaded second set of profile data');
+
         dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
         dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
         dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
@@ -331,6 +360,8 @@ function App() {
         dispatch({ type: 'setSuggestedMovieResults', payload: suggestedMovieResults });
         dispatch({ type: 'setSuggestedSeriesResults', payload: suggestedSeriesResults });
 
+        console.log('dispatched second set of profile data');
+
         // deferred load part 2
         const [
             latestAnnouncement,
@@ -340,10 +371,14 @@ function App() {
             getDismissalHistory(),
         ]);
 
+        console.log('loaded third set of profile data');
+
         dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
         dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });
         // triggers the reducer to create the latest notice from already-loaded app data
         dispatch({ type: 'setLatestNotice', payload: null }); 
+
+        console.log('dispatched third set of profile data');
     }
 
     const registerMyPushToken = async () => {

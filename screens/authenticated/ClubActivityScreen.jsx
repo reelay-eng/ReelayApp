@@ -1,8 +1,7 @@
-import React, { Fragment, memo, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { 
     ActivityIndicator,
     Dimensions, 
-    FlatList, 
     RefreshControl, 
     TouchableOpacity, 
     View 
@@ -31,8 +30,7 @@ import TopicCard from '../../components/topics/TopicCard';
 import ClubAddedMemberCard from './ClubAddedMemberCard';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import Constants from 'expo-constants';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import { FlashList } from '@shopify/flash-list';
 
 const { height, width } = Dimensions.get('window');
 const ACTIVITY_PAGE_SIZE = 20;
@@ -55,7 +53,14 @@ const AcceptInvitePressable = styled(TouchableOpacity)`
     height: 40px;
     margin-right: 16px;
 `
+const ActivityBottomSpacer = styled(View)`
+    height: ${props => props.bottomOffset + 100}px;
+`
+const ActivityTopSpacer = styled(View)`
+    height: ${props => props.topOffset}px;
+`
 const ActivityView = styled(View)`
+    margin-left: ${props => props.activityType === 'topic' ? 16 : 0}px;
     margin-bottom: 8px;
 `
 const ActivityScreenView = styled(View)`
@@ -137,7 +142,7 @@ const UploadProgressBarView = styled(View)`
     width: 100%;
 `
 
-const ClubActivity = ({ activity, club, feedIndex, navigation, onLayout, onRefresh }) => {
+const ClubActivity = ({ activity, club, feedIndex, navigation, onRefresh }) => {
     const { activityType } = activity;
     const advanceToFeed = () => {
         if (feedIndex === -1) return;
@@ -147,7 +152,7 @@ const ClubActivity = ({ activity, club, feedIndex, navigation, onLayout, onRefre
     if (activityType === 'title') {
         const clubTitle = activity;
         return (
-            <ActivityView onLayout={onLayout}>
+            <ActivityView activityType={activityType}>
                 <ClubTitleCard 
                     key={clubTitle.id} 
                     advanceToFeed={advanceToFeed}
@@ -161,7 +166,7 @@ const ClubActivity = ({ activity, club, feedIndex, navigation, onLayout, onRefre
     } else if (activityType === 'topic') {
         const clubTopic = activity;
         return (
-            <ActivityView onLayout={onLayout}>
+            <ActivityView activityType={activityType}>
                 <TopicCard 
                     advanceToFeed={advanceToFeed}
                     clubID={club.id}
@@ -178,9 +183,9 @@ const ClubActivity = ({ activity, club, feedIndex, navigation, onLayout, onRefre
     }
 }
 
-const DescriptionFold = ({ onLayout }) => {
+const DescriptionFold = () => {
     return (
-        <DescriptionView onLayout={onLayout}>
+        <DescriptionView>
             <DescriptionText>
                 { club.description }
             </DescriptionText>
@@ -273,24 +278,23 @@ const InviteFold = ({ clubMember, navigation, isPublicClub, onRefresh }) => {
 }
 
 const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
-    const topOffset = useSafeAreaInsets().top + 80;
-    const bottomOffset = useSafeAreaInsets().bottom + 20;
-
-    const activityListStyle = { 
-        alignItems: 'center', 
-        paddingTop: topOffset, 
-        paddingBottom: bottomOffset + 100,
-    };
-
     const itemHeights = useRef([]);
     const [maxDisplayPage, setMaxDisplayPage] = useState(0);
     const maxDisplayIndex = (maxDisplayPage + 1) * ACTIVITY_PAGE_SIZE;
 
-    const filterJustThisClub = (nextActivity) => (nextActivity?.clubID === club.id);
     const filterDisplayActivities = (nextActivity, index) => index < maxDisplayIndex;
+    const sortByLastUpdated = (activity0, activity1) => {
+        const lastActivity0 = moment(activity0?.lastUpdatedAt ?? activity0.createdAt);
+        const lastActivity1 = moment(activity1?.lastUpdatedAt ?? activity1.createdAt);
+        return lastActivity1.diff(lastActivity0, 'seconds');
+    }
 
-    const allMyClubActivities = useSelector(state => state.myClubActivities);
-    const clubActivities = allMyClubActivities.filter(filterJustThisClub);
+    const clubActivities = [
+        ...club.titles,
+        ...club.topics,
+        ...club.members,
+    ].sort(sortByLastUpdated);
+
     const displayActivities = useRef(clubActivities.filter(filterDisplayActivities));
 
     const activityHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
@@ -315,27 +319,22 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
         const activity = item;
         const { activityType } = activity;
         
-        const onLayout = ({ nativeEvent }) => {
-            itemHeights.current[index] = nativeEvent?.layout?.height;
-        }
-
         const matchFeedTitleOrTopic = (nextTitleOrTopic) => (activity.id === nextTitleOrTopic.id);
         const initFeedIndex = feedTitlesAndTopics.findIndex(matchFeedTitleOrTopic);    
 
         if (activityType === 'description') {
-            return <DescriptionFold key={'description'} onLayout={onLayout} />;
+            return <DescriptionFold key={'description'} />;
         }
         if (activityType === 'noTitlesYet') {
-            return <NoTitlesYetPrompt key={'noTitlesYet'} onLayout={onLayout} />
+            return <NoTitlesYetPrompt key={'noTitlesYet'} />
         }
 
         return (
-            <ClubActivity key={activity.id} 
+            <ClubActivity 
                 activity={activity} 
                 club={club}
                 feedIndex={initFeedIndex} 
                 navigation={navigation}
-                onLayout={onLayout} 
                 onRefresh={onRefresh}
             />
         );    
@@ -348,11 +347,14 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
         return { length, offset, index };
     }
 
+    if (refreshing) {
+        return <ActivityIndicator />
+    }
+
     return (
-        <FlatList
-            bottomOffset={bottomOffset}
-            contentContainerStyle={activityListStyle}
+        <FlashList
             data={displayActivities.current}
+            estimatedItemSize={200}
             getItemLayout={getItemLayout}
             keyExtractor={keyExtractor}
             onEndReached={onEndReached}
@@ -360,11 +362,9 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
             refreshControl={refreshControl} 
             renderItem={renderClubActivity}
             showsVerticalScrollIndicator={false}
-            topOffset={topOffset} 
         />
     )
 }
-
  
 export default ClubActivityScreen = ({ navigation, route }) => {
     const authSession = useSelector(state => state.authSession);
@@ -507,7 +507,9 @@ export default ClubActivityScreen = ({ navigation, route }) => {
 
     return (
         <ActivityScreenView>
+            <ActivityTopSpacer topOffset={topOffset} />
             <ClubActivityList club={club} navigation={navigation} onRefresh={onRefresh} refreshing={refreshing} />
+            <ActivityBottomSpacer bottomOffset={bottomOffset} />
             <ClubBanner club={club} navigation={navigation} />
 
             { !clubMember && isPublicClub && <JoinClubButton /> }

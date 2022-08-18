@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { ScrollView, View } from 'react-native';
+import { FlatList, View } from 'react-native';
 
 import { getMostRecentReelaysByTitle } from "../../api/ReelayDBApi";
 import ReelayThumbnail from '../global/ReelayThumbnail';
@@ -85,13 +85,6 @@ const TopReelays = ({ goToReelay, topReelays }) => {
 		width: 95%;
 		left: 5%;
 	`;
-	const ThumbnailScrollContainer = styled(View)`
-		align-items: center;
-		flex-direction: row;
-		justify-content: flex-start;
-		height: 220px;
-		width: 100%;
-	`;
 	const TopReelaysHeader = styled(ReelayText.H5Emphasized)`
 		padding: 10px;
 		color: white;
@@ -99,24 +92,29 @@ const TopReelays = ({ goToReelay, topReelays }) => {
 
 	// TODO: move scroll view into a flatlist
 
+	const renderReelayThumbnail = ({ item, index }) => {
+		const reelay = item;
+		return (
+			<ReelayThumbnail
+				reelay={reelay}
+				showVenue={false}
+				onPress={() => goToReelay(index)}
+				width={120}
+			/>
+		);
+	}
+
 	return (
 		<TopReelaysContainer>
 			<TopReelaysHeader>{`Top Reviews`}</TopReelaysHeader>
-			<ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-				<ThumbnailScrollContainer>
-					{ topReelays.map((reelay, index) => {
-						return (
-							<ReelayThumbnail
-								key={reelay.id}
-								reelay={reelay}
-								showVenue={false}
-								onPress={() => goToReelay(index)}
-								width={120}
-							/>
-						);
-					})}
-				</ThumbnailScrollContainer>
-			</ScrollView>
+			<FlatList
+				data={topReelays}
+				estimatedItemSize={120}
+				horizontal={true}
+				keyExtractor={reelay => reelay?.id}
+				renderItem={renderReelayThumbnail}
+				showsHorizontalScrollIndicator={false}
+			/>
 		</TopReelaysContainer>
 	);
 };

@@ -16,7 +16,7 @@ import {
 } from "../../api/ReelayUserApi";
 import { getUserByEmail } from "../../api/ReelayDBApi";
 import { makeRedirectUri } from "expo-auth-session";
-import { logEventWithPropertiesAsync } from "expo-analytics-amplitude";
+import { logAmplitudeEventProd } from "../utils/EventLogger";
 
 const ButtonRowContainer = styled(View)`
     align-items: center;
@@ -94,7 +94,7 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
                 appleOrGoogleCascadingSignIn({ method: 'apple', email, fullName, appleUserID: user });    
             } catch (error) {
                 console.log(error);
-                logEventWithPropertiesAsync('appleSignInError', { error });
+                logAmplitudeEventProd('appleSignInError', { error });
             }
         }
 

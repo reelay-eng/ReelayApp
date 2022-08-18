@@ -234,7 +234,7 @@ const CarouselComponent = ({navigation}) => {
 				data={CarouselJsonItems}
 				sliderWidth={width}
 				itemWidth={width}
-				onBeforeSnapToItem={(index) => {
+				onSnapToItem={(index) => {
 					setActiveDotIndex(index);
 				}}
             />

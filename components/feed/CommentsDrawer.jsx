@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState, memo} from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { 
     Dimensions,
     Keyboard, 
@@ -7,14 +7,12 @@ import {
     Pressable, 
     ScrollView, 
     View,
-    Image,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
-import moment from 'moment';
 import Constants from 'expo-constants';
 import { BWButton } from '../global/Buttons';
 import * as ReelayText from '../global/Text';
@@ -27,7 +25,7 @@ import {
 } from '../../api/NotificationsApi';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
-import { getRegisteredUser, getUserByUsername, postCommentLikeToDB, postCommentToDB, removeCommentLike } from '../../api/ReelayDBApi';
+import { postCommentToDB } from '../../api/ReelayDBApi';
 
 import CommentItem from './CommentItem';
 import TextInputWithMentions from './TextInputWithMentions';
@@ -36,25 +34,6 @@ import { notifyUserOnCommentLike } from '../../api/NotificationsApi';
 
 const { height, width } = Dimensions.get('window');
 const COMMENT_TEXT_INPUT_WIDTH = width - 146;
-
-moment.updateLocale("en", {
-	relativeTime: {
-		future: "in %s",
-		past: "%s",
-		s: "just now",
-		ss: "%ss",
-		m: "1m",
-		mm: "%dm",
-		h: "1h",
-		hh: "%dh",
-		d: "1d",
-		dd: "%dd",
-		M: "1mo",
-		MM: "%dmo",
-		y: "1y",
-		yy: "%dY",
-	},
-});
 
 const CommentInputContainer = styled(View)`
 	align-items: flex-end;

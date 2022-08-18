@@ -108,11 +108,11 @@ export default ClubFeed = ({
                     data={feedTitlesAndTopics}
                     getItemLayout={getItemLayout}
                     horizontal={false}
-                    initialNumToRender={1}
-                    initialScrollIndex={feedPosition}
+                    initialNumToRender={2}
+                    initialScrollIndex={initFeedIndex}
                     keyboardShouldPersistTaps={"handled"}
                     // keyExtractor={(stack) => `${stack[0].title.id}-${stack[0].sub}`}
-                    maxToRenderPerBatch={1}
+                    maxToRenderPerBatch={2}
                     onEndReached={extendFeed}
                     onRefresh={refreshFeed}
                     onScroll={onFeedSwiped}

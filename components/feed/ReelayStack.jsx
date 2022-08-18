@@ -222,7 +222,7 @@ const ReelayStack = ({
             <FlatList 
                 data={stack} 
                 horizontal={true} 
-                initialNumToRender={1}
+                initialNumToRender={2}
                 initialScrollIndex={initialStackPos}
                 getItemLayout={getItemLayout}
                 keyboardShouldPersistTaps={"handled"}

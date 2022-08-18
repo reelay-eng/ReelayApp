@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Image, FlatList, TouchableOpacity, RefreshControl, SafeAreaView, View } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { Image, TouchableOpacity, RefreshControl, SafeAreaView, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
 import { AuthContext } from '../../context/AuthContext';
@@ -15,12 +15,11 @@ import * as ReelayText from '../../components/global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 import { markNotificationActivated, markAllNotificationsSeen, getAllMyNotifications } from '../../api/NotificationsApi';
 import styled from 'styled-components/native';
-import { ReelayedByLine } from '../../components/watchlist/RecPills';
 import { setBadgeCountAsync } from 'expo-notifications';
-import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import ClubPicture from '../../components/global/ClubPicture';
+import { FlashList } from '@shopify/flash-list';
 
 const ACTIVITY_IMAGE_SIZE = 44;
 
@@ -277,22 +276,15 @@ const NotificationList = ({ navigation }) => {
     }, [navigation]);
 
     return (
-        <FlatList 
-            contentContainerStyle={{ alignItems: 'center' }}
+        <FlashList
             data={displayNotifications}
-            horizontal={false}
+            estimatedItemSize={64}
             keyExtractor={({ id }) => id}
             onEndReached={extendNotifications}
             onEndReachedThreshold={0.1}
             renderItem={renderNotificationItem}
             refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             showsVerticalScrollIndicator={false}
-            style={{
-                backgroundColor: 'black',
-                height: '100%',
-                width: '100%',
-                marginBottom: 50,
-            }}
         />
     );
 }
@@ -304,25 +296,10 @@ export default NotificationScreen = ({ navigation, route }) => {
         width: 100%;
     `
     const dispatch = useDispatch();
-    const { reelayDBUser } = useContext(AuthContext);
-    // const myNotifications = useSelector(state => state.myNotifications);
-    // const unread = myNotifications.filter(({ seen }) => !seen).length;
-    // const unreadText = (unread > 0) ? `(${unread} new)` : '';
 
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
     });
-
-    // useEffect(() => {
-    //     if (unread > 0) markAllNotificationsSeen(reelayDBUser?.sub);
-    //     setBadgeCountAsync(0);
-
-    //     logAmplitudeEventProd('openMyNotifications', { username: reelayDBUser?.username });
-    // }, [navigation]);
-
-    // if (reelayDBUser?.username === 'be_our_guest') {
-    //     return <JustShowMeSignupPage navigation={navigation} fullPage={true} />
-    // }
 
     return (
         <NotificationScreenContainer>

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Pressable, FlatList, RefreshControl, View } from 'react-native';
+import { Pressable, RefreshControl, View } from 'react-native';
 
 import styled from 'styled-components/native';
 import WatchlistItem from './WatchlistItem';
@@ -7,6 +7,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { getWatchlistItems } from '../../api/WatchlistApi';
 import WatchlistSwipeableRow from './WatchlistSwipeableRow';
 import { useDispatch } from 'react-redux';
+import { FlashList } from '@shopify/flash-list';
 
 export default Watchlist = ({ navigation, refresh, watchlistItems }) => {
     const WatchlistItemContainer = styled(Pressable)`
@@ -48,12 +49,11 @@ export default Watchlist = ({ navigation, refresh, watchlistItems }) => {
 
     return (
         <View style={{ height: '100%' }}>
-            <FlatList 
+            <FlashList
                 data={watchlistItems}
-                horizontal={false}
+                estimatedItemSize={100}
                 keyboardShouldPersistTaps={"handled"}
                 keyExtractor={item => String(item.id)}
-                pagingEnabled={false}
                 renderItem={renderWatchlistItem}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 showsVerticalScrollIndicator={false}

@@ -1,11 +1,11 @@
 import React, { useEffect, useRef } from 'react';
-import { Dimensions, View } from 'react-native';
-import { FlatList } from 'react-native-gesture-handler';
+import { Dimensions, FlatList, SafeAreaView, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components/native';
 import TitlePoster from '../global/TitlePoster';
 
 import { fetchPopularMovies, fetchPopularSeries } from '../../api/TMDbApi';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -21,12 +21,17 @@ const POSTER_HEIGHT_WITH_MARGIN = (POSTER_WIDTH * 1.5) + (2 * POSTER_HALF_MARGIN
 const PosterContainer = styled(View)`
     align-items: center;
     margin: ${POSTER_HALF_MARGIN}px;
+    height: ${POSTER_WIDTH * 1.5}px;
+    width: ${POSTER_WIDTH}px;
 `
-const PosterGridContainer = styled(View)`
+const PosterGridContainer = styled(SafeAreaView)`
+    display: flex;
+    flex: 1;
     justify-content: center;
-    margin-top: 4px;
     margin-left: ${GRID_SIDE_MARGIN}px;
     margin-right: ${GRID_SIDE_MARGIN}px;
+    margin-bottom: 60px;
+    min-height: ${POSTER_HEIGHT_WITH_MARGIN}px;
     width: ${GRID_WIDTH}px;
 `
 
@@ -38,6 +43,7 @@ export default SuggestedTitlesGrid = ({
     topicID=null,
 }) => {
     const dispatch = useDispatch();
+    const bottomOffset = useSafeAreaInsets().bottom;
     const scrollRef = useRef(null);
     const suggestedMovieResults = useSelector(state => state.suggestedMovieResults);
     const suggestedSeriesResults = useSelector(state => state.suggestedSeriesResults);
@@ -75,14 +81,6 @@ export default SuggestedTitlesGrid = ({
                 return;
         }
     }
-
-    const getItemLayout = (item, index) => {
-        return {
-            length: POSTER_HEIGHT_WITH_MARGIN,
-            offset: POSTER_HEIGHT_WITH_MARGIN * index,
-            index,
-        }
-    }
     
     const renderTitlePoster = ({ item, index }) => {
         const titleObj = item;
@@ -90,10 +88,18 @@ export default SuggestedTitlesGrid = ({
         const advanceToSelectVenue = () => navigation.push('VenueSelectScreen', { titleObj, clubID, topicID });
         const onPress = (source === 'search') ? advanceToTitleScreen : advanceToSelectVenue;
         return (
-            <PosterContainer key={titleObj?.id}>
+            <PosterContainer>
                 <TitlePoster title={titleObj} onPress={onPress} width={POSTER_WIDTH} />
             </PosterContainer>
         );
+    }
+
+    const getItemLayout = (item, index) => {
+        return {
+            length: POSTER_HEIGHT_WITH_MARGIN,
+            offset: index * POSTER_HEIGHT_WITH_MARGIN,
+            index,
+        }
     }
 
     useEffect(() => {
@@ -103,16 +109,17 @@ export default SuggestedTitlesGrid = ({
     }, [selectedType]);
 
     return (
-            <PosterGridContainer>
-                <FlatList
-                    numColumns={POSTER_ROW_LENGTH}
-                    data={suggestedTitles}
-                    ref={scrollRef}
-                    renderItem={renderTitlePoster}
-                    getItemLayout={getItemLayout}
-                    contentContainerStyle={{ paddingBottom: 260 }}
-                    onEndReached={extendSuggestedTitles}
-                />
-            </PosterGridContainer>
+        <PosterGridContainer bottomOffset={bottomOffset}>
+            <FlatList
+                data={suggestedTitles}
+                estimatedItemSize={POSTER_HEIGHT_WITH_MARGIN}
+                getItemLayout={getItemLayout}
+                keyExtractor={titleObj => titleObj?.id}
+                numColumns={POSTER_ROW_LENGTH}
+                ref={scrollRef}
+                renderItem={renderTitlePoster}
+                onEndReached={extendSuggestedTitles}
+            />
+        </PosterGridContainer>
     );
 }

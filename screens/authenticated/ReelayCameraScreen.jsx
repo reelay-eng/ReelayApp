@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { useDispatch } from 'react-redux';
 
-import { Camera, CameraRecordingOptions } from 'expo-camera';
+import { Camera } from 'expo-camera';
 import { Dimensions, View, SafeAreaView, Pressable} from 'react-native';
 import { Image, Icon } from 'react-native-elements';
 import * as ImagePicker from 'expo-image-picker';
