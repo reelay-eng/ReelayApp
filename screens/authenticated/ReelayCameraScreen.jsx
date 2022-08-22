@@ -21,7 +21,7 @@ const { height, width } = Dimensions.get('window');
 const captureSize = Math.floor(height * 0.07);
 const ringSize = captureSize + 20;
 
-const MAX_VIDEO_DURATION_SEC = 60;
+const MAX_VIDEO_DURATION_SEC = 30;
 const MAX_VIDEO_DURATION_MILLIS = 1000 * MAX_VIDEO_DURATION_SEC;
 
 export default ReelayCameraScreen = ({ navigation, route }) => {
