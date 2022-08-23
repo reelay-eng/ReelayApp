@@ -7,11 +7,16 @@ import ConfirmRetakeDrawer from '../../components/create-reelay/ConfirmRetakeDra
 import Constants from 'expo-constants';
 import PreviewVideoPlayer from '../../components/create-reelay/PreviewVideoPlayer';
 import PostDestinationDrawer from '../../components/clubs/PostDestinationDrawer';
-import TitlePoster from '../../components/global/TitlePoster';
 
-import { Pressable, View, Keyboard, KeyboardAvoidingView, ActivityIndicator, Dimensions, SafeAreaView } from 'react-native';
+import { 
+    ActivityIndicator, 
+    Keyboard, 
+    KeyboardAvoidingView, 
+    Pressable, 
+    SafeAreaView,
+    View, 
+} from 'react-native';
 import * as ReelayText from '../../components/global/Text';
-import { Icon } from 'react-native-elements';
 import TitleBanner from '../../components/feed/TitleBanner';
 
 import styled from 'styled-components/native';
@@ -23,23 +28,7 @@ import { addTitleToClub, getClubTitles } from '../../api/ClubsApi';
 import { showErrorToast } from '../../components/utils/toasts';
 
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
-const { width } = Dimensions.get('window');
 
-const BackButtonContainer = styled(Pressable)`
-    margin-top: 40px;
-    margin-right: 20px;
-`
-const HeaderContainer = styled(View)`
-    align-items: flex-start;
-    flex-direction: row;
-    padding: 20px;
-    width: ${width}px;
-`
-const TitlePosterContainer = styled(View)`
-    position: absolute;
-    top: 40px;
-    right: 20px;
-`
 const UploadButtonPressable = styled(Pressable)`
     background-color: ${props => props.color}
     border-radius: 24px;
