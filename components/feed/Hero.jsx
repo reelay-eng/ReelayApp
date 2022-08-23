@@ -1,5 +1,5 @@
 import React, { useContext, useRef, memo, useEffect, useState } from 'react';
-import { View, Pressable } from 'react-native';
+import { View } from 'react-native';
 
 import FeedVideoPlayer from './FeedVideoPlayer';
 import ReelayInfo from './ReelayInfo';
@@ -17,12 +17,6 @@ import { getCommentLikesForReelay } from '../../api/ReelayDBApi';
 import { useFocusEffect } from '@react-navigation/native';
 import styled from 'styled-components/native';
 
-const DescriptionGradient = styled(LinearGradient)`
-    position: absolute;
-    opacity: 0.7;
-    height: 100%;
-    width: 100%;
-`
 const BottomGradient = styled(LinearGradient)`
     position: absolute;
     bottom: 0px;
@@ -88,7 +82,6 @@ const HeroModals = ({ reelay, navigation }) => {
 export default Hero = memo(({ index, navigation, reelay, viewable }) => {
     const commentsCount = useRef(reelay.comments.length);
     const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
-	const [expanded, setExpanded] = useState(false);
 
     console.log('Hero is rendering: ', reelay.creator.username, reelay.title.display);
 
@@ -96,15 +89,9 @@ export default Hero = memo(({ index, navigation, reelay, viewable }) => {
         <View key={index} style={{ justifyContent: 'flex-end'}}>
             <FeedVideoPlayer reelay={reelay} viewable={viewable} />
 
-            {(expanded) && (
-                <DescriptionGradient colors={["transparent", "#000000"]}>
-                    <Pressable style={{width: '100%', height: '100%', position: 'relative' }} onPress={() => setExpanded(false)} />
-                </DescriptionGradient>
-                )
-            }
             <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
 
-            <ReelayInfo navigation={navigation} reelay={reelay} expanded={expanded} setExpanded={setExpanded} />
+            <ReelayInfo navigation={navigation} reelay={reelay} />
             { !isWelcomeVideo && <Sidebar navigation={navigation} reelay={reelay} commentsCount={commentsCount}/> }
             { viewable && <HeroModals reelay={reelay} navigation={navigation} /> }
         </View>
