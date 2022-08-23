@@ -1,7 +1,7 @@
 import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import React, { useState } from 'react';
-import { Pressable, View, Text, Image, TouchableOpacity } from 'react-native';
+import { LayoutAnimation, Pressable, View, Text, Image, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from './Text';
@@ -221,6 +221,16 @@ export const RedPlusButton = ({onPress}) => {
 }
 
 export const ToggleSelector = ({ displayOptions, options, selectedOption, onSelect, color }) => {
+	const onPress = (option) => {
+		LayoutAnimation.configureNext(
+			LayoutAnimation.create(
+				200,
+				LayoutAnimation.Types.easeOut,
+				LayoutAnimation.Properties.scaleXY
+			)
+		);
+		onSelect(option);
+	}
 	return (
 		<BackgroundBox>
 			{ options.map((option, index) => {
@@ -234,7 +244,7 @@ export const ToggleSelector = ({ displayOptions, options, selectedOption, onSele
 					);
 				} else {
 					return (
-						<PassiveTabButtonContainer key={option} numOptions={options.length} onPress={() => onSelect(option)}>
+						<PassiveTabButtonContainer key={option} numOptions={options.length} onPress={() => onPress(option)}>
 							<OptionText>
 								{ (displayOptions && displayOptions[index]) ?? option }
 							</OptionText>
