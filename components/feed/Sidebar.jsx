@@ -15,6 +15,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEllipsis, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { CommentIconSVG } from '../global/SVGs';
 
+import * as Haptics from 'expo-haptics';
+
 export default Sidebar = ({ navigation, reelay }) => {
 	const ICON_SIZE = 24;
 	const DOT_ICON_SIZE = 18;
@@ -109,6 +111,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 
 		const onLikePress = async () => {
 			if (showMeSignupIfGuest()) return;
+			Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
 	
 			if (likedByUser) {
 				const unlikeBody = {
