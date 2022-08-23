@@ -1,5 +1,5 @@
-import React, { useContext, useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import React, { useContext, useState, useRef } from 'react';
+import { Animated, Text, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -14,6 +14,8 @@ import AddToClubsButton from '../clubs/AddToClubsButton';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEllipsis, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { CommentIconSVG } from '../global/SVGs';
+
+import * as Haptics from 'expo-haptics';
 
 export default Sidebar = ({ navigation, reelay }) => {
 	const ICON_SIZE = 24;
@@ -91,58 +93,108 @@ export default Sidebar = ({ navigation, reelay }) => {
 		return false;
 	}
 
-	const onLikePress = async () => {
-		if (showMeSignupIfGuest()) return;
+	const likeAnimScale = useRef(new Animated.Value(1)).current;
 
-		if (likedByUser) {
-			const unlikeBody = {
-				creatorName: reelay.creator.username,
-				username: reelayDBUser?.username,
-				reelaySub: reelay.sub,
-			}
-			reelay.likes = reelay.likes.filter(likes => likes.username !== reelayDBUser?.username);
-			setLikeUpdateCounter(likeUpdateCounter + 1);
-		
-			const postResult = await removeLike(unlikeBody, reelay.sub);
-			console.log(postResult);
-			logAmplitudeEventProd('unlikedReelay', {
-				user: reelayDBUser.username,
-				creator: reelay.creator.username,
-				title: reelay.title.display,
-				reelayID: reelay.id,
-			});
-			console.log('unlikedReelay', {
-				user: reelayDBUser?.username,
-				creator: reelay.creator.username,
-				title: reelay.title.display,
-				reelayID: reelay.id,
-			});
-		} else {
-			const likeBody = {
-				creatorName: reelay.creator.username,
-				username: reelayDBUser?.username,
-				postedAt: new Date().toISOString(),
-
-				// for frontend purpose only, not used on backend:
-				userSub: reelayDBUser?.sub,
-			}
-			reelay.likes.push(likeBody);
-			setLikeUpdateCounter(likeUpdateCounter + 1);		
-
-			const postResult = await postLikeToDB(likeBody, reelay.sub);
-			console.log(postResult);
-			notifyCreatorOnLike({ 
-				creatorSub: reelay.creator.sub,
-				user: reelayDBUser,
-				reelay: reelay,
-			});
-			logAmplitudeEventProd('likedReelay', {
-				user: reelayDBUser?.username,
-				creator: reelay.creator.username,
-				title: reelay.title.display,
-				reelayID: reelay.id,
-			});
+	const LikeButton = () => {
+		const animateLike = () => {
+			Animated.stagger(300, [
+				Animated.spring(likeAnimScale, {
+					toValue: 100,
+					useNativeDriver: false,
+				}),
+				Animated.spring(likeAnimScale, {
+					toValue: 1,
+					useNativeDriver: false,
+				}),
+			]).start()
 		}
+
+		const onLikePress = async () => {
+			if (showMeSignupIfGuest()) return;
+			Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+	
+			if (likedByUser) {
+				const unlikeBody = {
+					creatorName: reelay.creator.username,
+					username: reelayDBUser?.username,
+					reelaySub: reelay.sub,
+				}
+				reelay.likes = reelay.likes.filter(likes => likes.username !== reelayDBUser?.username);
+				setLikeUpdateCounter(likeUpdateCounter + 1);
+			
+				const postResult = await removeLike(unlikeBody, reelay.sub);
+				console.log(postResult);
+				logAmplitudeEventProd('unlikedReelay', {
+					user: reelayDBUser.username,
+					creator: reelay.creator.username,
+					title: reelay.title.display,
+					reelayID: reelay.id,
+				});
+				console.log('unlikedReelay', {
+					user: reelayDBUser?.username,
+					creator: reelay.creator.username,
+					title: reelay.title.display,
+					reelayID: reelay.id,
+				});
+			} else {
+				animateLike();
+				const likeBody = {
+					creatorName: reelay.creator.username,
+					username: reelayDBUser?.username,
+					postedAt: new Date().toISOString(),
+	
+					// for frontend purpose only, not used on backend:
+					userSub: reelayDBUser?.sub,
+				}
+				reelay.likes.push(likeBody);
+				setLikeUpdateCounter(likeUpdateCounter + 1);		
+	
+				const postResult = await postLikeToDB(likeBody, reelay.sub);
+				console.log(postResult);
+				notifyCreatorOnLike({ 
+					creatorSub: reelay.creator.sub,
+					user: reelayDBUser,
+					reelay: reelay,
+				});
+				logAmplitudeEventProd('likedReelay', {
+					user: reelayDBUser?.username,
+					creator: reelay.creator.username,
+					title: reelay.title.display,
+					reelayID: reelay.id,
+				});
+			}
+		}
+
+		return (
+			<ButtonContainer>
+				<SidebarButton 
+					onPress={onLikePress} 
+					onLongPress={onLikeLongPress}>
+					<Animated.View 
+						style={{ 
+							transform: [{ 
+								scale: likeAnimScale.interpolate({
+										inputRange: [1, 100],
+										outputRange: [1, 1.7]
+									}) 
+							}, {
+								rotate: likeAnimScale.interpolate({
+									inputRange: [1, 100],
+									outputRange: ["0deg", "10deg"]
+								})
+							}]
+					}}>
+						<FontAwesomeIcon 
+							icon={faHeart} 
+							color={likedByUser ? ReelayColors.reelayRed : "white"} 
+							size={ICON_SIZE} 
+						/>
+					</Animated.View>
+				</SidebarButton>
+				<Count>{reelay.likes.length}</Count>
+			</ButtonContainer>
+		)
+
 	}
 
 	return (
@@ -158,18 +210,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 				<Count>{displayWatchlistAdds()}</Count>
 			</ButtonContainer>
 
-			<ButtonContainer>
-				<SidebarButton 
-					onPress={onLikePress} 
-					onLongPress={onLikeLongPress}>
-					<FontAwesomeIcon 
-						icon={faHeart} 
-						color={likedByUser ? ReelayColors.reelayRed : "white"} 
-						size={ICON_SIZE} 
-					/>
-				</SidebarButton>
-				<Count>{reelay.likes.length}</Count>
-			</ButtonContainer>
+			<LikeButton />
 
 			<ButtonContainer>
 				<SidebarButton 

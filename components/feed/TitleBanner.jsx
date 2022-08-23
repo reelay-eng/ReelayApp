@@ -1,5 +1,5 @@
-import React, { Fragment, memo, useContext, useState } from "react";
-import { Dimensions, Pressable, SafeAreaView, TouchableOpacity, View } from "react-native";
+import React, { Fragment, memo, useContext, useState, useRef } from "react";
+import { LayoutAnimation, Dimensions, Pressable, SafeAreaView, TouchableOpacity, View, StyleSheet } from "react-native";
 import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
 import Constants from 'expo-constants';
@@ -216,6 +216,17 @@ const TitleBanner = ({
         displayTitle = 'Welcome to Reelay';
         displayYear = '2022';
     }
+
+    const onClickExpand = () => {
+        LayoutAnimation.configureNext(
+            LayoutAnimation.create(
+                200,
+                LayoutAnimation.Types.keyboard,
+                LayoutAnimation.Properties.opacity
+            )
+        )
+        setExpanded(!expanded);
+    }
     
     const openTitleDetail = async () => {
         if (!titleObj || !navigation) return;
@@ -231,7 +242,7 @@ const TitleBanner = ({
 
     const ExpandedInfo = () => {
         return (
-            <Pressable onPress={() => setExpanded(false)}>
+            <Pressable onPress={onClickExpand}>
                 <ExpandedGradient 
                     colors={['transparent', '#000000']} 
                     start={{ x: 0, y: 0 }}
@@ -265,7 +276,7 @@ const TitleBanner = ({
 
     const TitleInfo = () => {
         return (
-            <TitleInfoPressable onPress={() => setExpanded(!expanded)}>
+            <TitleInfoPressable onPress={onClickExpand}>
                 <TitleTextContainer>
                     <TitleText numberOfLines={2} ellipsizeMode={"tail"}>
                         {displayTitle}
@@ -298,7 +309,7 @@ const TitleBanner = ({
 
     return (
         <TitleBannerBackground color={backgroundColor}>
-            <TitleBannerRow onPress={() => setExpanded(!expanded)}>
+            <TitleBannerRow onPress={onClickExpand}>
                 <Poster />
                 <TitleInfo />
                 { !onCameraScreen && <RightCTAButton /> }
