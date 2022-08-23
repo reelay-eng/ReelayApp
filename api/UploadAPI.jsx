@@ -25,7 +25,7 @@ const PROGRESS_POST_S3_UPLOAD = 0.9;
 const PROGRESS_COMPLETE_OR_FAILED = 1.0;
 
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
-const S3_UPLOAD_PART_SIZE = 8 * 1024 * 1024; // in bytes
+const S3_UPLOAD_PART_SIZE = 10 * 1024 * 1024; // in bytes
 const S3_UPLOAD_QUEUE_SIZE = 3;
 
 const getS3Instance = async () => {

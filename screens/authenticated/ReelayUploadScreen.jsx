@@ -9,9 +9,10 @@ import PreviewVideoPlayer from '../../components/create-reelay/PreviewVideoPlaye
 import PostDestinationDrawer from '../../components/clubs/PostDestinationDrawer';
 import TitlePoster from '../../components/global/TitlePoster';
 
-import { Pressable, View, Keyboard, KeyboardAvoidingView, ActivityIndicator, Dimensions } from 'react-native';
+import { Pressable, View, Keyboard, KeyboardAvoidingView, ActivityIndicator, Dimensions, SafeAreaView } from 'react-native';
 import * as ReelayText from '../../components/global/Text';
 import { Icon } from 'react-native-elements';
+import TitleBanner from '../../components/feed/TitleBanner';
 
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
@@ -33,16 +34,6 @@ const HeaderContainer = styled(View)`
     flex-direction: row;
     padding: 20px;
     width: ${width}px;
-`
-const PatientContainer = styled(View)`
-    background-color: rgba(0,0,0,0.35);
-    border-radius: 16px;
-    margin: 10px;
-    margin-bottom: 0px;
-    padding: 12px;
-`
-const PatientText = styled(ReelayText.Subtitle1)`
-    color: white;
 `
 const TitlePosterContainer = styled(View)`
     position: absolute;
@@ -110,8 +101,6 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
  
     const descriptionRef = useRef('');
     const starCountRef = useRef(0);
-    const pleaseBePatientShouldDisplay = (recordingLengthSeconds > 15);
-
     console.log('recording length seconds: ', recordingLengthSeconds);
 
     // get the club we're (optionally) posting in
@@ -262,35 +251,31 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     }
 
     const HeaderWithPoster = () => {
+        const TitleBannerContainer = styled(SafeAreaView)`
+            position: absolute;
+            top: 75px;
+        `
+        const TopLeftContainer = styled(SafeAreaView)`
+            position: absolute;
+            left: 10px;
+            top: 10px;
+        `
         return (
-            <>
-                <HeaderContainer>
-                    <BackButtonContainer onPress={() => setConfirmRetakeDrawerVisible(true)}>
-                        <Icon type="ionicon" name="arrow-back-outline" color="white" size={24} />
-                    </BackButtonContainer>
-                    <TitlePosterContainer>
-                        <TitlePoster title={titleObj} width={80} />
-                    </TitlePosterContainer>
-                </HeaderContainer>
-            </>
+            <View>
+                <TopLeftContainer>
+                    <BackButton navigation={navigation}/>
+                </TopLeftContainer>
+                <TitleBannerContainer>
+                    <TitleBanner titleObj={titleObj} onCameraScreen={true} venue={venue} />
+                </TitleBannerContainer>
+            </View>
         );
     };
-
-    const PleaseBePatientPrompt = () => {
-        return (
-            <PatientContainer>
-                <PatientText>
-                    {'Longer videos can take a little while to process. Thanks for being patient!'}
-                </PatientText>
-            </PatientContainer>
-        )
-    }
 
     const UploadBottomRow = () => {
         return (
             <KeyboardAvoidingView behavior='position'>
             <UploadBottomArea onPress={Keyboard.dismiss}>
-                { pleaseBePatientShouldDisplay && uploadStarted && <PleaseBePatientPrompt /> }
                 { !uploadStarted && (
                     <UploadDescriptionAndStarRating 
                         starCountRef={starCountRef}
