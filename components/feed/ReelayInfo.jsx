@@ -1,5 +1,5 @@
 import React, { memo, useContext, useState } from 'react';
-import { Pressable, TouchableOpacity, Text, View } from 'react-native';
+import { LayoutAnimation, Pressable, TouchableOpacity, Text, View, Dimensions } from 'react-native';
 import * as ReelayText from '../global/Text';
 import ProfilePicture from '../global/ProfilePicture';
 import StarRating from '../global/StarRating';
@@ -9,8 +9,9 @@ import styled from 'styled-components/native';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import FollowButton from '../global/FollowButton';
 
-const ReelayInfo = ({ navigation, reelay, expanded, setExpanded }) => {
-	const InfoView = styled(View)`
+import { LinearGradient } from "expo-linear-gradient";
+
+const InfoView = styled(View)`
 		justify-content: flex-end;
 		position: absolute;
 		bottom: 86px;
@@ -20,6 +21,7 @@ const ReelayInfo = ({ navigation, reelay, expanded, setExpanded }) => {
 	const PostInfo = styled(View)`
 		flex-direction: row;
 		align-items: center;
+		z-index: 100;
 	`
 	const ProfilePicContainer = styled(View)`
 		margin-right: 8px;
@@ -28,26 +30,14 @@ const ReelayInfo = ({ navigation, reelay, expanded, setExpanded }) => {
 		color: white;
 		margin-right: 8px;
 	`
-	const DescriptionContainer = styled(Pressable)`
-		align-items: center;
-		flex-direction: row;
-		padding-top: 8px;
-		padding-bottom: 8px;
-		padding-right: 15px;
-	`
-	const DescriptionText = styled(ReelayText.Caption)`
-		color: white;
-		line-height: 20px;
-	`
-	const MentionButton = styled(TouchableOpacity)`
-		position: relative;
-		margin-bottom: -3px;
-	`
 	const StarRatingContainer = styled(View)`
 		margin-top: 8px;
 		flex-direction: row;
 		align-items: center;
+		z-index: 90;
 	`
+
+const ReelayInfo = ({ navigation, reelay }) => {
 	const creator = reelay.creator;
 	const description = reelay.description ? reelay.description: "";
 	const mentionType = { trigger: '@' };
@@ -55,16 +45,7 @@ const ReelayInfo = ({ navigation, reelay, expanded, setExpanded }) => {
 		? parseValue(description, [mentionType]) 
 		: { parts: [] };
 		
-	const isMention = (part) => (part.partType && isMentionPartType(part.partType));
 	const starRating = reelay.starRating + (reelay.starRatingAddHalf ? 0.5 : 0);
-
-    const advanceToMentionProfile = (mentionData) => {
-        const mentionUser = {
-            sub: mentionData.id,
-            username: mentionData.name,
-        }
-        navigation.push('UserProfileScreen', { creator: mentionUser });
-    }
 
 	const goToProfile = () => {
 		navigation.push('UserProfileScreen', { creator });
@@ -73,41 +54,11 @@ const ReelayInfo = ({ navigation, reelay, expanded, setExpanded }) => {
 			reelayId: reelay.id,
 			source: 'reelayInfo',
 		});
-	}
-
-	const MentionTextStyle = {
-		alignItems: 'flex-end',
-		color: ReelayColors.reelayBlue,
-		fontFamily: "Outfit-Regular",
-		fontSize: 14,
-		fontStyle: "normal",
-		letterSpacing: 0.25,
-		lineHeight: 20
 	}	
-
-	const renderDescriptionPart = (descriptionPart, index) => {
-        if (isMention(descriptionPart)) {
-            return (
-                <MentionButton key={index} onPress={() => advanceToMentionProfile(descriptionPart.data)}>
-                    <Text style={MentionTextStyle}>{descriptionPart.text}</Text>
-                </MentionButton>
-            );
-        }
-
-        return (
-            <DescriptionText key={index}>
-                {descriptionPart.text}
-            </DescriptionText>
-        );
-    }
-
-	const expandDescription = () => {
-		setExpanded(!expanded);
-	}
 
 	return (
 		<InfoView>
-			<Pressable onPress={goToProfile}>
+			<Pressable style={{zIndex: 100}} onPress={goToProfile}>
 				<PostInfo>
 					<ProfilePicContainer>
 						<ProfilePicture navigation={navigation} border circle user={creator} size={30} />
@@ -127,15 +78,110 @@ const ReelayInfo = ({ navigation, reelay, expanded, setExpanded }) => {
 			</StarRatingContainer>}
 
 			{(description.length > 0) && 
-				<DescriptionContainer onPress={expandDescription}>
-					<DescriptionText numberOfLines={(expanded) ? 0 : 1} ellipsizeMode='tail'>
-						{ descriptionPartsWithMentions.parts.map(renderDescriptionPart) }
-					</DescriptionText>
-				</DescriptionContainer>
+				<Description descriptionPartsWithMentions={descriptionPartsWithMentions} />
 			}
 		</InfoView>
 	);
 };
+
+const DescriptionContainer = styled(Pressable)`
+	align-items: center;
+	flex-direction: row;
+	padding-top: 8px;
+	padding-bottom: 8px;
+	padding-right: 15px;
+	z-index: 1;
+`
+const DescriptionText = styled(ReelayText.Caption)`
+	color: white;
+	line-height: 20px;
+`
+const MentionButton = styled(TouchableOpacity)`
+	position: relative;
+	margin-bottom: -3px;
+`
+
+const Description = ({ descriptionPartsWithMentions }) => {
+	const [expanded, setExpanded] = useState(false);
+	const [componentDimensions, setComponentDimensions] = useState({});
+	const expandDescription = () => {
+		LayoutAnimation.configureNext(
+            LayoutAnimation.create(
+                100,
+                LayoutAnimation.Types.keyboard,
+                LayoutAnimation.Properties.scaleY
+            )
+        );
+		setExpanded(prev => !prev)
+	}
+
+	const isMention = (part) => (part.partType && isMentionPartType(part.partType));
+
+	const advanceToMentionProfile = (mentionData) => {
+        const mentionUser = {
+            sub: mentionData.id,
+            username: mentionData.name,
+        }
+        navigation.push('UserProfileScreen', { creator: mentionUser });
+    }
+
+	const MentionTextStyle = {
+		alignItems: 'flex-end',
+		color: ReelayColors.reelayBlue,
+		fontFamily: "Outfit-Regular",
+		fontSize: 14,
+		fontStyle: "normal",
+		letterSpacing: 0.25,
+		lineHeight: 20
+	}
+
+	const renderDescriptionPart = (descriptionPart, index) => {
+        if (isMention(descriptionPart)) {
+            return (
+                <MentionButton key={index} onPress={() => advanceToMentionProfile(descriptionPart.data)}>
+                    <Text style={MentionTextStyle}>{descriptionPart.text}</Text>
+                </MentionButton>
+            );
+        }
+
+        return (
+            <DescriptionText key={index}>
+                {descriptionPart.text}
+            </DescriptionText>
+        );
+    }
+
+	const gradientWidth = Dimensions.get('window').width;
+	const gradientHeight = componentDimensions.height + 200;
+
+	const DescriptionGradient = styled(LinearGradient)`
+		position: absolute;
+		margin-top: auto;
+		left: -15px;
+		opacity: 0.5;
+		height: ${gradientHeight}px;
+		width: ${gradientWidth}px;
+	`
+
+	const onLayout = (event) => {
+		const {height, width} = event.nativeEvent.layout;
+		setComponentDimensions({height, width});
+	}
+
+	return (
+		<DescriptionContainer onPress={expandDescription} onLayout={onLayout}>
+			{(expanded) && (
+                <DescriptionGradient colors={["transparent", "#000000", "transparent"]}>
+                    <Pressable style={{width: '100%', height: '100%', position: 'relative' }} onPress={() => setExpanded(false)} />
+                </DescriptionGradient>
+                )
+            }
+			<DescriptionText numberOfLines={(expanded) ? 0 : 1} ellipsizeMode='tail'>
+				{ descriptionPartsWithMentions.parts.map(renderDescriptionPart) }
+			</DescriptionText>
+		</DescriptionContainer>
+	)
+}
 
 export default memo(ReelayInfo, (prevProps, nextProps) => {
 	return (prevProps.reelay.datastoreSub === nextProps.reelay.datastoreSub) && (prevProps.expanded === nextProps.expanded);
