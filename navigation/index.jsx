@@ -188,14 +188,7 @@ export default Navigation = () => {
             uploadRequest.setUploadProgress = setUploadProgress;
             uploadRequest.setUploadStage = setUploadStage;
             uploadRequest.clearUploadRequest = clearUploadRequest;
-            const publishedReelay = await uploadReelay(uploadRequest);    
-            console.log('published reelay: ', publishedReelay);
-
-            // setTimeout(() => {
-            //     console.log('set timeout triggered');
-            //     setUploadProgress(0.0);
-            //     clearUploadRequest();
-            // }, 3000);    
+            await uploadReelay(uploadRequest);    
         } catch (error) {
             return { error };
         }

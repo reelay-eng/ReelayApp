@@ -3,7 +3,7 @@ import { getInfoAsync, deleteAsync } from 'expo-file-system';
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 import { showErrorToast } from '../components/utils/toasts';
 
-export const deviceCanCompress = (Constants.appOwnership !== 'expo');
+export const DEVICE_CAN_COMPRESS = (Constants.appOwnership !== 'expo');
 
 const parseSessionLogs = async (session) => {
     try {
@@ -20,7 +20,7 @@ const parseSessionLogs = async (session) => {
 }
 
 const parseFFmpegSession = async (session) => {  
-    if (!deviceCanCompress) return;  
+    if (!DEVICE_CAN_COMPRESS) return;  
     let ReturnCode = require('ffmpeg-kit-react-native')?.ReturnCode;
 
     try {
@@ -53,7 +53,7 @@ const parseFFmpegSession = async (session) => {
 }
 
 export const compressVideoForUpload = async (inputURI) => {
-    if (!deviceCanCompress) {
+    if (!DEVICE_CAN_COMPRESS) {
         console.log('skipping video compression');
         logAmplitudeEventProd('ffmpegApiSkipCompression', {
             appOwnership: Constants.appOwnership
@@ -78,7 +78,7 @@ export const compressVideoForUpload = async (inputURI) => {
         }
 
 
-        const command = `-i ${inputURI} -vcodec libx264 -b:v 1000k -acodec copy -preset ultrafast -crf 28 ${outputURI}`;
+        const command = `-i ${inputURI} -vcodec libx264 -b:v 1000k -acodec copy -preset ultrafast -crf 25 ${outputURI}`;
         logAmplitudeEventProd('ffmpegCompressionBegun', {
             inputURI, command,
         });
