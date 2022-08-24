@@ -80,9 +80,11 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                     allowsEditing: true,
                     quality: 1,
                 });
+
                 if (!selectedVideo || !selectedVideo.uri || selectedVideo.cancelled) return;
                 if (selectedVideo.duration > MAX_VIDEO_DURATION_MILLIS) {
-                    showErrorToast('You can only upload 15 second videos or shorter');
+                    const maxDurationMessage = `Ruh roh! You can only upload ${MAX_VIDEO_DURATION_SEC} second videos or shorter`
+                    showErrorToast(maxDurationMessage);
                     return;
                 }
 
