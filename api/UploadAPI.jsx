@@ -1,10 +1,11 @@
-import { S3 } from 'aws-sdk';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
+import { 
+    CreateMultipartUploadCommand, 
+    CompleteMultipartUploadCommand, 
+    ListPartsCommand, 
+    PutObjectCommand, 
+    UploadPartCommand, 
+} from '@aws-sdk/client-s3';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
-import AWSExports from '../src/aws-exports';
-
-import { CognitoIdentityClient } from "@aws-sdk/client-cognito-identity";
-import { fromCognitoIdentityPool } from "@aws-sdk/credential-provider-cognito-identity";
 
 import {
     notifyClubMembersOnReelayPosted,
@@ -18,6 +19,7 @@ import { postReelayToDB, prepareReelay } from './ReelayDBApi';
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 
 import { compressVideoForUpload, DEVICE_CAN_COMPRESS } from './FFmpegApi';
+import * as Haptics from 'expo-haptics';
 
 const PROGRESS_PRE_COMPRESSION = 0.05;
 const PROGRESS_PRE_S3_UPLOAD = 0.15;
@@ -35,20 +37,31 @@ const RANDOM_TICK_MS_RANGE = 2000;
 
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
 const S3_UPLOAD_PART_SIZE = 10 * 1024 * 1024; // in bytes
-const S3_UPLOAD_QUEUE_SIZE = 3;
 
-const getS3Instance = async () => {
-    const getCredentials = fromCognitoIdentityPool({
-        client: new CognitoIdentityClient({ 
-            region: AWSExports.aws_cognito_region 
-        }),
-        identityPoolId: AWSExports.aws_cognito_identity_pool_id,
+const sendNotificationsOnUpload = async ({ authSession, preparedReelay, reelayClubTitle, reelayTopic }) => {
+    const { creator } = preparedReelay;
+    const mentionedUsers = await notifyMentionsOnReelayPosted({
+        authSession,
+        clubID: (reelayClubTitle) ? reelayClubTitle?.clubID : null,
+        creator,
+        reelay: preparedReelay,
     });
 
-    const credentials = await getCredentials();
-    const region = AWSExports.aws_project_region;
-    console.log('s3 credentials: ', credentials);
-    return new S3({ credentials, region });
+    notifyOtherCreatorsOnReelayPosted({
+        creator,
+        reelay: preparedReelay,
+        clubTitle: reelayClubTitle ?? null,
+        topic: reelayTopic ?? null,
+        mentionedUsers: mentionedUsers,
+    });    
+
+    if (reelayTopic) {
+        notifyTopicCreatorOnReelayPosted({
+            creator,
+            reelay: preparedReelay,
+            topic: reelayTopic,
+        });
+    }
 }
 
 export const uploadReelay = async ({ 
@@ -102,10 +115,11 @@ export const uploadReelay = async ({
             const publishedReelay = await postReelayToDB(reelayDBBody);
             setUploadProgress(PROGRESS_COMPLETE_OR_FAILED);
             setUploadStage('upload-complete');
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         
             console.log('Saved Reelay to DB: ', publishedReelay);
             console.log('Upload dialog complete.');
-        
+
             logAmplitudeEventProd('publishReelayComplete', {
                 username: creatorName,
                 userSub: creatorSub,
@@ -136,15 +150,15 @@ export const uploadReelay = async ({
         const videoFetched = await fetch(uploadVideoURI);
         const videoBlob = await videoFetched.blob();
 
-        setUploadProgress(PROGRESS_PRE_S3_UPLOAD);
-        setUploadStage('uploading');
-
-        const uploadCommand = new PutObjectCommand({
+        const uploadParams = {
             Bucket: S3_UPLOAD_BUCKET,
             Key: `public/${videoS3Key}`,
             ContentType: 'video/mp4',
             Body: videoBlob,    
-        });
+        }
+
+        setUploadProgress(PROGRESS_PRE_S3_UPLOAD);
+        setUploadStage('uploading');
 
         let displayBytesUploaded = 0;
         let shouldUpdateProgress = true;
@@ -159,6 +173,7 @@ export const uploadReelay = async ({
                 displayBytesUploaded += displayBytesThisTick;
                 const progressRatio = displayBytesUploaded / videoBlob.size;
                 const progress = PROGRESS_PRE_S3_UPLOAD + (progressRatio * PROGRESS_S3_UPLOAD_RANGE);
+                if (progressRatio >= 1) shouldUpdateProgress = false;
 
                 console.log('next upload progress: ', progress);
                 setUploadProgress(progress);
@@ -167,31 +182,19 @@ export const uploadReelay = async ({
         }
 
         updateProgress();
-        await s3Client.send(uploadCommand);
+        let uploadCompleteStatus;
+        if (videoBlob.size > S3_UPLOAD_PART_SIZE) {
+            uploadCompleteStatus = await uploadReelayToS3MultiPart(s3Client, uploadParams);
+        } else {
+            uploadCompleteStatus = await uploadReelayToS3SinglePart(s3Client, uploadParams);
+        }
+
         shouldUpdateProgress = false;
-        onUploadComplete();
-
-        // const s3Instance = await getS3Instance();
-        // const upload = new S3.ManagedUpload({
-        //     params: {
-                // Bucket: S3_UPLOAD_BUCKET,
-                // Key: `public/${videoS3Key}`,
-                // ContentType: 'video/mp4',
-                // Body: videoBlob,    
-        //     },
-        //     partSize: S3_UPLOAD_PART_SIZE,
-        //     queueSize: S3_UPLOAD_QUEUE_SIZE,
-        //     service: s3Instance,
-        // });
-
-        // const onUploadProgress = ({ loaded, total }) => {
-        //     const progressRatio = loaded / total;
-        //     const progress = PROGRESS_PRE_S3_UPLOAD + (progressRatio * PROGRESS_S3_UPLOAD_RANGE);
-        //     setUploadProgress(progress);
-        // }
-
-        // upload.send(onUploadComplete);
-        // upload.on('httpUploadProgress', onUploadProgress);
+        if (uploadCompleteStatus?.error) {
+            onUploadFailed();
+        } else {
+            onUploadComplete();
+        }
 
     } catch (error) {
         console.log('upload failed in try catch: ', error);
@@ -199,28 +202,59 @@ export const uploadReelay = async ({
     }
 }
 
-const sendNotificationsOnUpload = async ({ authSession, preparedReelay, reelayClubTitle, reelayTopic }) => {
-    const { creator } = preparedReelay;
-    const mentionedUsers = await notifyMentionsOnReelayPosted({
-        authSession,
-        clubID: (reelayClubTitle) ? reelayClubTitle?.clubID : null,
-        creator,
-        reelay: preparedReelay,
-    });
+const uploadReelayToS3SinglePart = async (s3Client, uploadParams) => {
+    try {
+        const uploadCommand = new PutObjectCommand(uploadParams);
+        const uploadCompleteStatus = await s3Client.send(uploadCommand);
+        return uploadCompleteStatus;    
+    } catch (error) {
+        console.log(error);
+        return { error };
+    }
+}
 
-    notifyOtherCreatorsOnReelayPosted({
-        creator,
-        reelay: preparedReelay,
-        clubTitle: reelayClubTitle ?? null,
-        topic: reelayTopic ?? null,
-        mentionedUsers: mentionedUsers,
-    });    
+const uploadReelayToS3MultiPart = async (s3Client, uploadParams) => {
+    try {
+        const { Body, Bucket, ContentType, Key } = uploadParams;
+        const numParts = Math.floor(Body.size / S3_UPLOAD_PART_SIZE);
+        const partNumberRange = Array.from(Array(numParts), (empty, index) => index);
+    
+        const { UploadId } = await s3Client.send(new CreateMultipartUploadCommand(uploadParams));
+        console.log('Completed create multipart upload command');
 
-    if (reelayTopic) {
-        notifyTopicCreatorOnReelayPosted({
-            creator,
-            reelay: preparedReelay,
-            topic: reelayTopic,
+        const videoBufferParts = partNumberRange.map((partNumber) => {
+            console.log('start slicing video buffer #', partNumber);
+            const byteBegin = partNumber * S3_UPLOAD_PART_SIZE;
+            const byteEnd = (partNumber === numParts - 1)
+                ? Body.size
+                : byteBegin + S3_UPLOAD_PART_SIZE;
+            const slice = Body.slice(byteBegin, byteEnd);
+            console.log('finish slicing video buffer #', partNumber);
+            return slice;
         });
+
+        await Promise.all(partNumberRange.map(async (partNumber) => {
+            console.log('start upload part #', partNumber);
+            const uploadCommand = new UploadPartCommand({
+                Bucket,
+                Key,
+                ContentType,
+                Body: videoBufferParts[partNumber],
+                PartNumber: partNumber + 1, // part numbers must be between 1 and 10,000
+                UploadId,
+            });
+            const uploadPartResult = await s3Client.send(uploadCommand);
+            console.log('complete upload part #', partNumber);
+            return uploadPartResult;
+        }));
+        
+        const uploadParts = await s3Client.send(new ListPartsCommand({ Bucket, Key, UploadId }));
+        const uploadCompleteStatus = await s3Client.send(new CompleteMultipartUploadCommand({
+            Bucket, Key, UploadId, MultipartUpload: uploadParts,
+        }));
+        return uploadCompleteStatus;
+    } catch (error) {
+        console.log(error);
+        return { error };
     }
 }
