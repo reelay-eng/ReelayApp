@@ -19,9 +19,6 @@ const { height, width } = Dimensions.get('window');
 const captureSize = Math.floor(height * 0.07);
 const ringSize = captureSize + 20;
 
-const MAX_VIDEO_DURATION_SEC = 60;
-const MAX_VIDEO_DURATION_MILLIS = 1000 * MAX_VIDEO_DURATION_SEC;
-
 export default ReelayCameraScreen = ({ navigation, route }) => {
     const { reelayDBUser} = useContext(AuthContext);
     const { titleObj, venue } = route.params;
@@ -34,6 +31,9 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const recordingLength = useRef(0);
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const [retakeCounter, setRetakeCounter] = useState(0);
+
+    const MAX_VIDEO_DURATION_SEC = topicID ? 60 : 30;
+    const MAX_VIDEO_DURATION_MILLIS = 1000 * MAX_VIDEO_DURATION_SEC;
 
     const pushToUploadScreen = async (videoURI) => {
         if (!videoURI) {
