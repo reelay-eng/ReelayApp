@@ -217,7 +217,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 					addHighlight={commentedByUser}
 					onPress={onCommentPress} 
 					onLongPress={onCommentLongPress}>
-					<CommentIconSVG color={commentedByUser ? ReelayColors.reelayRed : "white"} />
+					<CommentIconSVG color={'white'} />
 				</SidebarButton>
 				<Count>{reelay.comments.length}</Count>
 			</ButtonContainer>
