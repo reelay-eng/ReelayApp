@@ -61,7 +61,7 @@ const DisplayText = styled(ReelayText.Body2Emphasized)`
     margin-top: 6px;
     text-align: center;
 `
-const PressableVenue = styled(Pressable)`
+const PressableVenue = styled(TouchableOpacity)`
     width: 80px;
     height: 93px;
     border-radius: 11px;
