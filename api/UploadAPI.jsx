@@ -1,4 +1,5 @@
 import { S3 } from 'aws-sdk';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 import AWSExports from '../src/aws-exports';
 
@@ -23,6 +24,14 @@ const PROGRESS_PRE_S3_UPLOAD = 0.15;
 const PROGRESS_S3_UPLOAD_RANGE = 0.75;
 const PROGRESS_POST_S3_UPLOAD = 0.9;
 const PROGRESS_COMPLETE_OR_FAILED = 1.0;
+
+// random progress between 256kb and 1MB
+const RANDOM_TICK_MIN_BYTES = 256 * 1024;
+const RANDOM_TICK_BYTES_RANGE = 768 * 1024;
+
+// random tick between 0.5 and 2.5 seconds
+const RANDOM_TICK_MIN_MS = 250;
+const RANDOM_TICK_MS_RANGE = 2000;
 
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
 const S3_UPLOAD_PART_SIZE = 10 * 1024 * 1024; // in bytes
@@ -130,27 +139,59 @@ export const uploadReelay = async ({
         setUploadProgress(PROGRESS_PRE_S3_UPLOAD);
         setUploadStage('uploading');
 
-        const s3Instance = await getS3Instance();
-        const upload = new S3.ManagedUpload({
-            params: {
-                Bucket: S3_UPLOAD_BUCKET,
-                Key: `public/${videoS3Key}`,
-                ContentType: 'video/mp4',
-                Body: videoBlob,    
-            },
-            partSize: S3_UPLOAD_PART_SIZE,
-            queueSize: S3_UPLOAD_QUEUE_SIZE,
-            service: s3Instance,
+        const uploadCommand = new PutObjectCommand({
+            Bucket: S3_UPLOAD_BUCKET,
+            Key: `public/${videoS3Key}`,
+            ContentType: 'video/mp4',
+            Body: videoBlob,    
         });
 
-        const onUploadProgress = ({ loaded, total }) => {
-            const progressRatio = loaded / total;
-            const progress = PROGRESS_PRE_S3_UPLOAD + (progressRatio * PROGRESS_S3_UPLOAD_RANGE);
-            setUploadProgress(progress);
+        let displayBytesUploaded = 0;
+        let shouldUpdateProgress = true;
+        const updateProgress = () => {
+            if (shouldUpdateProgress) {
+                const progressMultipleThisTick = Math.random();
+                const displayBytesThisTick = progressMultipleThisTick * RANDOM_TICK_BYTES_RANGE + RANDOM_TICK_MIN_BYTES;
+                const nextTickDuration = progressMultipleThisTick * RANDOM_TICK_MS_RANGE + RANDOM_TICK_MIN_MS;
+                console.log('bytes this tick: ', displayBytesThisTick);
+                console.log('tick duration: ', )
+
+                displayBytesUploaded += displayBytesThisTick;
+                const progressRatio = displayBytesUploaded / videoBlob.size;
+                const progress = PROGRESS_PRE_S3_UPLOAD + (progressRatio * PROGRESS_S3_UPLOAD_RANGE);
+
+                console.log('next upload progress: ', progress);
+                setUploadProgress(progress);
+                setTimeout(updateProgress, nextTickDuration);
+            }
         }
 
-        upload.send(onUploadComplete);
-        upload.on('httpUploadProgress', onUploadProgress);
+        updateProgress();
+        await s3Client.send(uploadCommand);
+        shouldUpdateProgress = false;
+        onUploadComplete();
+
+        // const s3Instance = await getS3Instance();
+        // const upload = new S3.ManagedUpload({
+        //     params: {
+                // Bucket: S3_UPLOAD_BUCKET,
+                // Key: `public/${videoS3Key}`,
+                // ContentType: 'video/mp4',
+                // Body: videoBlob,    
+        //     },
+        //     partSize: S3_UPLOAD_PART_SIZE,
+        //     queueSize: S3_UPLOAD_QUEUE_SIZE,
+        //     service: s3Instance,
+        // });
+
+        // const onUploadProgress = ({ loaded, total }) => {
+        //     const progressRatio = loaded / total;
+        //     const progress = PROGRESS_PRE_S3_UPLOAD + (progressRatio * PROGRESS_S3_UPLOAD_RANGE);
+        //     setUploadProgress(progress);
+        // }
+
+        // upload.send(onUploadComplete);
+        // upload.on('httpUploadProgress', onUploadProgress);
 
     } catch (error) {
         console.log('upload failed in try catch: ', error);
