@@ -48,12 +48,25 @@ const SearchBarContainer = styled(View)`
 `
 
 export default SearchScreen = ({ navigation, route }) => {
+    const addToWatchlist = route?.params?.addToWatchlist ?? false;
+    const initialSearchType = route?.params?.initialSearchType ?? 'Film';
+
+
+    return (
+		<SearchScreenContainer>
+			<HeaderWithBackButton 
+                navigation={navigation} 
+                text={addToWatchlist ? 'Add to watchlist' : 'Search'} 
+            />
+            <SearchBarWithResults navigation={navigation} initialSearchType={initialSearchType} addToWatchlist={addToWatchlist}/>
+		</SearchScreenContainer>
+	);
+};
+
+const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist }) => {
     const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
-
-    const addToWatchlist = route?.params?.addToWatchlist ?? false;
-    const initialSearchType = route?.params?.initialSearchType ?? 'Film';
     const [loading, setLoading] = useState(false);
 
     const myFollowing = useSelector(state => state.myFollowing);
@@ -201,31 +214,26 @@ export default SearchScreen = ({ navigation, route }) => {
         );
     }
 
-
     return (
-		<SearchScreenContainer>
-			<HeaderWithBackButton 
-                navigation={navigation} 
-                text={addToWatchlist ? 'Add to watchlist' : 'Search'} 
-            />
+        <React.Fragment>
             <TopBar />
             <SearchBarContainer>
-				<SearchField
-					searchText={searchText}
-					updateSearchText={updateSearchText}
-					borderRadius={4}
-					placeholderText={`Find ${
-						selectedType === "Film"
-							? "films"
-                        : selectedType === "TV"
-							? "TV shows"
-                        : selectedType === "Clubs"
-							? "clubs on Reelay"
-                        : "people on Reelay"
-					}`}
-				/>
-			</SearchBarContainer>
-			{ !loading && !showSuggestions && <SearchResults /> }
+                    <SearchField
+                        searchText={searchText}
+                        updateSearchText={updateSearchText}
+                        borderRadius={4}
+                        placeholderText={`Find ${
+                            selectedType === "Film"
+                                ? "films"
+                            : selectedType === "TV"
+                                ? "TV shows"
+                            : selectedType === "Clubs"
+                                ? "clubs on Reelay"
+                            : "people on Reelay"
+                        }`}
+                    />
+            </SearchBarContainer>
+            { !loading && !showSuggestions && <SearchResults /> }
             { !loading && showSuggestions && (
                 <SuggestedTitlesGrid 
                     navigation={navigation} 
@@ -234,6 +242,6 @@ export default SearchScreen = ({ navigation, route }) => {
                 /> 
             )}
             { loading && <ActivityIndicator /> }
-		</SearchScreenContainer>
-	);
-};
+        </React.Fragment>
+    )
+}
