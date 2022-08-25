@@ -1,4 +1,5 @@
 import Toast from "react-native-toast-message";
+import * as Haptics from 'expo-haptics';
 
 const showSuccessToast = async (message, position = 'top') => {
     Toast.show({
@@ -9,6 +10,7 @@ const showSuccessToast = async (message, position = 'top') => {
         bottomOffset: 80, // should eventually change with tabbarvisible?
         topOffset: 70, // should eventually change with tabbarvisible?
     });
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 }
 
 const showMessageToast = async (message, position = 'top') => {
@@ -20,6 +22,7 @@ const showMessageToast = async (message, position = 'top') => {
         bottomOffset: 80, // should eventually change with tabbarvisible?
         topOffset: 70, // should eventually change with tabbarvisible?
     });
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 }
 
 const showErrorToast = async (message, position = 'top') => {
@@ -30,6 +33,7 @@ const showErrorToast = async (message, position = 'top') => {
         bottomOffset: 80, 
         topOffset: 70,
     });
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
 }
 
 export { showSuccessToast, showMessageToast, showErrorToast };

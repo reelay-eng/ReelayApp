@@ -2,28 +2,16 @@
   "scripts": {
     "setup": "yarn install && npx expo install && cd ios && pod install && cd .. && amplify pull",
     "bundle": "react-native bundle --entry-file='index.js' --bundle-output='./ios/main.jsbundle' --dev=false --platform='ios'",
-    "demo": "echo",
     "dev": "export NODE_ENV=dev && npx expo start",
-    "dev-android": "export NODE_ENV=dev && npx expo run:android",
-    "dev-ios": "export NODE_ENV=dev && npx expo run:ios",
+    "dev-client": "export NODE_ENV=dev && npx expo start --dev-client",
     "devg": "export NODE_ENV=devg && npx expo start",
-    "devg-android": "export NODE_ENV=devg && npx expo run:android",
-    "devg-ios": "export NODE_ENV=devg && npx expo run:ios",
+    "dev-client:devg": "export NODE_ENV=devg && npx expo start --dev-client",
     "local": "export NODE_ENV=local && npx expo start",
-    "local-android": "export NODE_ENV=local && npx expo run:android",
-    "local-ios": "export NODE_ENV=local && npx expo run:ios",
+    "dev-client:local": "export NODE_ENV=local && npx expo start --dev-client",
     "localg": "export NODE_ENV=localg && npx expo start",
-    "localg-android": "export NODE_ENV=localg && npx expo run:android",
-    "localg-ios": "export NODE_ENV=localg && npx expo run:ios",
+    "dev-client:localg": "export NODE_ENV=localg && npx expo start --dev-client",
     "start": "expo start",
-    "start-android": "export NODE_ENV=production && npx expo run:android",
-    "start-ios": "export NODE_ENV=production && npx expo run:ios",
-    "staging": "export NODE_ENV=staging && npx expo start",
-    "web": "npx expo start --web",
-    "eject": "npx expo eject",
-    "test": "npx jest --watchAll",
-    "android": "npx expo run:android",
-    "ios": "npx expo run:ios"
+    "dev-client:prod": "export NODE_ENV=production && npx expo start --dev-client"
   },
   "jest": {
     "preset": "jest-expo"
