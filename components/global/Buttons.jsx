@@ -221,37 +221,46 @@ export const RedPlusButton = ({onPress}) => {
 }
 
 export const ToggleSelector = ({ displayOptions, options, selectedOption, onSelect, color }) => {
-	const onPress = (option) => {
-		LayoutAnimation.configureNext(
-			LayoutAnimation.create(
-				200,
-				LayoutAnimation.Types.easeOut,
-				LayoutAnimation.Properties.scaleXY
-			)
-		);
-		onSelect(option);
+	const ToggleSelectorOptions = ({ displayOptions, options, selectedOption, onSelect, color }) => {
+		const onPress = (option) => {
+			LayoutAnimation.configureNext(
+				LayoutAnimation.create(
+					250,
+					LayoutAnimation.Types.easeOut,
+					LayoutAnimation.Properties.opacity
+				)
+			);
+			onSelect(option);
+		}
+		return (
+			<>
+				{ options.map((option, index) => {
+					if (option === selectedOption) {
+						return (
+							<ActiveTabButtonContainer key={option} color={color} numOptions={options.length}>
+								<OptionText>
+									{ (displayOptions && displayOptions[index]) ?? option }
+								</OptionText>
+							</ActiveTabButtonContainer>
+						);
+					} else {
+						return (
+							<PassiveTabButtonContainer key={option} numOptions={options.length} onPress={() => onPress(option)}>
+								<OptionText>
+									{ (displayOptions && displayOptions[index]) ?? option }
+								</OptionText>
+							</PassiveTabButtonContainer>
+						);
+					}
+				})}
+			</>
+		)
 	}
+
+
 	return (
 		<BackgroundBox>
-			{ options.map((option, index) => {
-				if (option === selectedOption) {
-					return (
-						<ActiveTabButtonContainer key={option} color={color} numOptions={options.length}>
-							<OptionText>
-								{ (displayOptions && displayOptions[index]) ?? option }
-							</OptionText>
-						</ActiveTabButtonContainer>
-					);
-				} else {
-					return (
-						<PassiveTabButtonContainer key={option} numOptions={options.length} onPress={() => onPress(option)}>
-							<OptionText>
-								{ (displayOptions && displayOptions[index]) ?? option }
-							</OptionText>
-						</PassiveTabButtonContainer>
-					);
-				}
-			})}
+			<ToggleSelectorOptions displayOptions={displayOptions} options={options} selectedOption={selectedOption} onSelect={onSelect} color={color} />
 		</BackgroundBox>
 	);
 }
