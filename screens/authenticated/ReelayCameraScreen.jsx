@@ -10,6 +10,7 @@ import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import BackButton from '../../components/utils/BackButton';
 import styled from 'styled-components/native';
 import { showErrorToast } from '../../components/utils/toasts';
+import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import TitleBanner from '../../components/feed/TitleBanner';
@@ -17,9 +18,6 @@ import TitleBanner from '../../components/feed/TitleBanner';
 const { height, width } = Dimensions.get('window');
 const captureSize = Math.floor(height * 0.07);
 const ringSize = captureSize + 20;
-
-const MAX_VIDEO_DURATION_SEC = 30;
-const MAX_VIDEO_DURATION_MILLIS = 1000 * MAX_VIDEO_DURATION_SEC;
 
 export default ReelayCameraScreen = ({ navigation, route }) => {
     const { reelayDBUser} = useContext(AuthContext);
@@ -33,6 +31,9 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const recordingLength = useRef(0);
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const [retakeCounter, setRetakeCounter] = useState(0);
+
+    const MAX_VIDEO_DURATION_SEC = topicID ? 60 : 30;
+    const MAX_VIDEO_DURATION_MILLIS = 1000 * MAX_VIDEO_DURATION_SEC;
 
     const pushToUploadScreen = async (videoURI) => {
         if (!videoURI) {
@@ -129,10 +130,12 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             if (cameraRef.current) {
                 try {
                     startCameraTimer();
+                    activateKeepAwake();
                     const videoRecording = await cameraRef.current.recordAsync({
                         // quality: Camera.Constants.VideoQuality['1080p'],
                         codec: Camera.Constants.VideoCodec.H264,
                     });
+                    deactivateKeepAwake();
                     clearInterval(intervalIDRef?.current);
                     console.log('video recording complete');
                     if (videoRecording?.uri) {
