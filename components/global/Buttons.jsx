@@ -1,9 +1,10 @@
 import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import React, { useState } from 'react';
-import { LayoutAnimation, Pressable, View, Text, Image, TouchableOpacity } from 'react-native';
+import { Pressable, View, Text, Image, TouchableOpacity } from 'react-native';
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
+import { animate } from '../../hooks/animations';
 import * as ReelayText from './Text';
 
 const RedAddIcon = require('../../assets/icons/red_add_icon.png');
@@ -223,13 +224,7 @@ export const RedPlusButton = ({onPress}) => {
 export const ToggleSelector = ({ displayOptions, options, selectedOption, onSelect, color }) => {
 	const ToggleSelectorOptions = ({ displayOptions, options, selectedOption, onSelect, color }) => {
 		const onPress = (option) => {
-			LayoutAnimation.configureNext(
-				LayoutAnimation.create(
-					250,
-					LayoutAnimation.Types.easeOut,
-					LayoutAnimation.Properties.opacity
-				)
-			);
+			animate(250, "easeOut");
 			onSelect(option);
 		}
 		return (

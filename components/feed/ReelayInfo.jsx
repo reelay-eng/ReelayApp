@@ -1,5 +1,5 @@
 import React, { memo, useContext, useState } from 'react';
-import { LayoutAnimation, Pressable, TouchableOpacity, Text, View, Dimensions } from 'react-native';
+import { Pressable, TouchableOpacity, Text, View, Dimensions } from 'react-native';
 import * as ReelayText from '../global/Text';
 import ProfilePicture from '../global/ProfilePicture';
 import StarRating from '../global/StarRating';
@@ -10,6 +10,8 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import FollowButton from '../global/FollowButton';
 
 import { LinearGradient } from "expo-linear-gradient";
+
+import { animate } from "../../hooks/animations";
 
 const InfoView = styled(View)`
 		justify-content: flex-end;
@@ -105,13 +107,7 @@ const Description = ({ descriptionPartsWithMentions }) => {
 	const [expanded, setExpanded] = useState(false);
 	const [componentDimensions, setComponentDimensions] = useState({});
 	const expandDescription = () => {
-		LayoutAnimation.configureNext(
-            LayoutAnimation.create(
-                100,
-                LayoutAnimation.Types.keyboard,
-                LayoutAnimation.Properties.scaleY
-            )
-        );
+		animate(100, "linear", "opacity")
 		setExpanded(prev => !prev)
 	}
 
