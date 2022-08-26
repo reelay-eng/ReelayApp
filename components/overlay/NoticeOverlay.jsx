@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Pressable, Image, TouchableOpacity, View } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ReelayText from '../global/Text';
@@ -9,6 +9,7 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { StreamingSelectorGrid } from '../home/StreamingSelector';
+import { animate, animateCustom } from "../../hooks/animations";
 
 const Backdrop = styled(Pressable)`
     align-items: center;
@@ -84,6 +85,7 @@ const MultiPageNotice = ({ navigation, dismissNotice, pages, images }) => {
         if (curPage === pages?.length - 1) {
             // dismiss all
         } else {
+            animate(300, "easeOut")
             setCurPage(curPage + 1);
         }
     }
@@ -92,6 +94,7 @@ const MultiPageNotice = ({ navigation, dismissNotice, pages, images }) => {
         if (onFirstPage) {
             // ignore
         } else {
+            animate(300, "easeOut");
             setCurPage(curPage - 1);
         }
     }
@@ -229,7 +232,18 @@ export default NoticeOverlay = ({ navigation }) => {
     if (!showNotice) return <View />;
     const { noticeType, data } = latestNotice;
 
+    useEffect(() => {
+        animate(400);
+    }, [])
+
     const dismissNotice = async () => {
+        animateCustom({
+            delete: {
+                duration: 400,
+                property: 'opacity',
+                type: 'linear'
+            }
+        });
         dispatch({ type: 'setLatestNoticeDismissed', payload: true });
         const noticeHistoryJSON = await AsyncStorage.getItem('notice-history-json') ?? '{}';
         const noticeHistory = JSON.parse(noticeHistoryJSON);

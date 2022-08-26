@@ -6,6 +6,7 @@ import { ActionButton, BWButton } from '../../components/global/Buttons';
 import ReelayLogoText from "../../assets/images/reelay-logo-text-with-dog.png";
 import * as ReelayText from "../../components/global/Text";
 import * as Linking from "expo-linking";
+import { animateCustom } from '../../hooks/animations';
 
 
 const Container = styled(View)`
@@ -16,7 +17,7 @@ const Container = styled(View)`
     align-items: center;
 `
 
-const Backdrop = styled(Pressable)`
+const Backdrop = styled(View)`
     align-items: center;
     background-color: black;
     height: 100%;
@@ -73,6 +74,13 @@ export default AppUpdateOverlay = () => {
     const appUpdateRequired = useSelector(state => state.appUpdateRequired);
     const appUpdateVersion = useSelector(state => state.recommendedAppVersion);
     const ignoreAppUpdate = () => {
+        animateCustom({
+            delete: {
+                duration: 300,
+                type: 'easeOut',
+                property: 'opacity',
+            }
+        });
         dispatch({type: 'setAppUpdateIgnored', payload: true});
     }
     const IgnoreButton = () => {
@@ -94,7 +102,7 @@ export default AppUpdateOverlay = () => {
         : "A new version of reelay is available. ";
     return (
         <Container>
-            <Backdrop onPress={() => {}}/>
+            <Backdrop/>
             <AppUpdateContainer>
                 <ReelayLogo source={ReelayLogoText} resizeMode="contain"/>
                 <Description>
