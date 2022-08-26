@@ -35,9 +35,9 @@ const ProgressContainer = styled(View)`
     background-color: rgba(0,0,0,0.36);
     border-radius: 8px;
     flex-direction: row;
-    left: ${props => props.left}px;
+    left: 10px;
     padding: 8px;
-    position: ${props => props.position ?? 'absolute'};
+    position: absolute;
     top: ${props => props.topOffset}px;
 `
 const ProgressText = styled(ReelayText.CaptionEmphasized)`
@@ -56,15 +56,9 @@ export default UploadProgressBar = ({ mountLocation, onRefresh }) => {
 
     const indeterminate = (uploadStage === 'upload-ready' || uploadStage === 'refreshing');
     const dispatch = useDispatch();
-    const topOffset = useSafeAreaInsets().top + 142;
-
-    const containerPosition = (mountLocation === 'InClub') 
-        ? 'relative' 
-        : 'absolute';
-
-    const containerLeft = (mountLocation === 'InClub') 
-        ? 0
-        : 10;
+    const topOffset = (mountLocation === 'InClub') 
+        ? useSafeAreaInsets().top + 82
+        : useSafeAreaInsets().top + 142;
 
     const downloadIconName = (downloadStage === 'download-ready')
             ? 'download-outline'
@@ -148,11 +142,7 @@ export default UploadProgressBar = ({ mountLocation, onRefresh }) => {
     }, [uploadStage]);
 
     return (
-        <ProgressContainer 
-            left={containerLeft}
-            position={containerPosition} 
-            topOffset={topOffset} 
-        >
+        <ProgressContainer topOffset={topOffset}>
             <IconContainer onPress={setRetryUpload}>
                 <Icon type='ionicon' name={uploadIconName} color='white' size={24} />
             </IconContainer>
