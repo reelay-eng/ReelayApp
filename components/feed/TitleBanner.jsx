@@ -1,5 +1,5 @@
 import React, { Fragment, memo, useContext, useState, useRef } from "react";
-import { LayoutAnimation, Dimensions, Pressable, SafeAreaView, TouchableOpacity, View, StyleSheet } from "react-native";
+import { Dimensions, Pressable, SafeAreaView, TouchableOpacity, View, StyleSheet } from "react-native";
 import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
 import Constants from 'expo-constants';
@@ -18,6 +18,7 @@ import { faChevronDown, faChevronUp, faClapperboard, faPlay, faStar } from "@for
 import { getRuntimeString } from "../utils/TitleRuntime";
 import { LinearGradient } from 'expo-linear-gradient';
 import ReelayColors from "../../constants/ReelayColors";
+import { animate } from "../../hooks/animations";
 
 const { height, width } = Dimensions.get('window');
 
@@ -218,13 +219,7 @@ const TitleBanner = ({
     }
 
     const onClickExpand = () => {
-        LayoutAnimation.configureNext(
-            LayoutAnimation.create(
-                200,
-                LayoutAnimation.Types.keyboard,
-                LayoutAnimation.Properties.opacity
-            )
-        )
+        animate(200);
         setExpanded(!expanded);
     }
     
