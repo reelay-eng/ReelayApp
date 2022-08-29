@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useRef, useState, memo } from 'react';
 import { 
     ActivityIndicator,
     Dimensions, 
@@ -134,12 +134,6 @@ const RejectInvitePressable = styled(TouchableOpacity)`
     justify-content: center;
     height: 40px;
     margin-left: 16px;
-`
-const UploadProgressBarView = styled(View)`
-    align-items: center;
-    position: absolute;
-    top: ${props => props.topOffset}px;
-    width: 100%;
 `
 
 const ClubActivity = ({ activity, club, feedIndex, navigation, onRefresh }) => {
@@ -524,9 +518,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             )}
 
             { showProgressBar && (
-                <UploadProgressBarView topOffset={topOffset}>
-                    <UploadProgressBar clubID={club.id} mountLocation={'InClub'} onRefresh={onRefresh} />
-                </UploadProgressBarView>
+                <UploadProgressBar clubID={club.id} mountLocation={'InClub'} onRefresh={onRefresh} />
             )}
 
             { inviteDrawerVisible && (
