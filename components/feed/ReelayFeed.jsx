@@ -18,7 +18,7 @@ export default ReelayFeed = ({ navigation,
     initialStackPos = 0,
     initialFeedPos = 0,
     forceRefresh = false, 
-    initialFeedSource = 'global',
+    initialFeedSource = 'discover',
     initStackList = [],
     preloadedStackList = null,
     pinnedReelay = null,
@@ -40,16 +40,16 @@ export default ReelayFeed = ({ navigation,
     }, []);
 
     useEffect(() => {
-        if (feedSource === 'global' && nextPage.current === 1) {
-            checkForUnseenGlobalReelays();
+        if (feedSource === 'discover' && nextPage.current === 1) {
+            checkDiscoverForUnseenReelays();
         }
     }, [reelayThreads]);
 
     useFocusEffect(useCallback(() => {
         dispatch({ type: 'setTabBarVisible', payload: true }); // to ensure tab bar is always here
-        if (initialFeedSource === 'global') {
-            AsyncStorage.setItem('lastOnGlobalFeed', new Date().toISOString());
-            dispatch({ type: 'setHasUnseenGlobalReelays', payload: false });
+        if (initialFeedSource === 'discover') {
+            AsyncStorage.setItem('lastOnDiscoverFeed', new Date().toISOString());
+            dispatch({ type: 'setDiscoverHasUnseenReelays', payload: false });
 
             const unsubscribe = navigation.getParent().addListener('tabPress', e => {
                 e.preventDefault();
@@ -59,12 +59,12 @@ export default ReelayFeed = ({ navigation,
         }
     }));
 
-    const checkForUnseenGlobalReelays = async () => {
+    const checkDiscoverForUnseenReelays = async () => {
         try {
             const lastReelayPostTime = reelayThreads[0][0].postedDateTime;
-            const lastOnGlobal = await AsyncStorage.getItem('lastOnGlobalFeed');
-            const hasUnseenGlobalReelays = lastOnGlobal ? (lastOnGlobal < lastReelayPostTime) : true;
-            dispatch({ type: 'setHasUnseenGlobalReelays', payload: hasUnseenGlobalReelays });    
+            const lastOnDiscover = await AsyncStorage.getItem('lastOnDiscoverFeed');
+            const hasUnseenReelays = lastOnDiscover ? (lastOnDiscover < lastReelayPostTime) : true;
+            dispatch({ type: 'setDiscoverHasUnseenReelays', payload: hasUnseenReelays });    
         } catch (error) {
             console.log(error);
             return;
@@ -120,7 +120,7 @@ export default ReelayFeed = ({ navigation,
             console.log('feed positioning to 0');
             // feedPager.current.setPage(0);
             setFeedPosition(0);
-            if (feedSource === "global") {
+            if (feedSource === "discover") {
                 logAmplitudeEventProd('openHomeFeed', {
                     'source': feedSource,
                     username: reelayDBUser?.sub,

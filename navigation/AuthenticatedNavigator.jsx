@@ -53,7 +53,7 @@ const UnreadIconIndicator = styled(SafeAreaView)`
 `
 
 export default AuthenticatedNavigator = () => {
-	const hasUnseenGlobalReelays = useSelector(state => state.hasUnseenGlobalReelays);
+	const hasUnseenReelays = useSelector(state => state.discoverHasUnseenReelays);
 	const tabBarVisible = useSelector((state) => state.tabBarVisible)
     const s = StyleSheet.create({
 		gradient: {
@@ -122,7 +122,7 @@ export default AuthenticatedNavigator = () => {
 								<FontAwesomeIcon icon={faCompass} size={24} color='white' />
 								{ focused && <IconFocusIndicator /> }
 							</IconFocusView>
-							{hasUnseenGlobalReelays && <UnreadIconIndicator /> }
+							{ hasUnseenReelays && <UnreadIconIndicator /> }
 						</View>
 					),
 				}}

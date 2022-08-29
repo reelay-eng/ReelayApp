@@ -102,7 +102,7 @@ const ActivityInfoBar = ({ club, feedSource, navigation, topic }) => {
             switch (feedSource) {
                 case 'festivals': return 'At Festivals';
                 case 'following': return 'Friends are watching';
-                case 'global': return '';
+                case 'discover': return '';
                 case 'popularTitlesDiscover': return 'Popular titles';
                 case 'popularTitlesFollowing': return 'Popular titles with friends';
                 case 'single': return '';
@@ -118,7 +118,7 @@ const ActivityInfoBar = ({ club, feedSource, navigation, topic }) => {
             switch (feedSource) {
                 case 'festivals': return faLeaf;
                 case 'following': return 'people';
-                case 'global': return faEarthAmericas;
+                case 'discover': return faEarthAmericas;
                 case 'popularTitlesDiscover': return 'flame';
                 case 'popularTitlesFollowing': return 'flame';
                 case 'profile': return 'earth';
@@ -136,7 +136,7 @@ const ActivityInfoBar = ({ club, feedSource, navigation, topic }) => {
             switch (feedSource) {
                 case 'theaters': 
                 case 'festivals':
-                case 'global':
+                case 'discover':
                 case 'streaming':
                 case 'topic':
                     return 'font-awesome';
@@ -244,7 +244,7 @@ export default ReelayFeedHeader = ({
     navigation, 
     club = null, 
     topic = null, 
-    feedSource = 'global',
+    feedSource = 'discover',
     position,
     reelay,
     stackLength,
@@ -298,7 +298,7 @@ export default ReelayFeedHeader = ({
         <Fragment>
             <HeaderGradient colors={[ReelayColors.reelayBlack,'transparent']} topOffset={topOffset} />
             <FeedHeaderView topOffset={topOffset}>
-                { feedSource !== 'global' && <BackButton navigation={navigation} /> }
+                { feedSource !== 'discover' && <BackButton navigation={navigation} /> }
                 <ActivityInfoView>
                     <ActivityInfoBarMemo club={club} feedSource={feedSource} navigation={navigation} topic={topic} />
                 </ActivityInfoView>

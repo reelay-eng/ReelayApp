@@ -53,9 +53,9 @@ const initialState = {
     commentsVisible: false,
     commentRefreshListener: 0,
     currentComment: '',
+    discoverHasUnseenReelays: true,
     donateLinks: [],
     dotMenuVisible: false,
-    hasUnseenGlobalReelays: true,
 
     // PROFILE
     isEditingProfile: false,
@@ -107,6 +107,7 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, signedIn: action.payload }
 
         // CLUBS + WATCHLISTS
+
         case 'setMyClubs':
             const myClubs = action.payload;
             const myClubsSorted = myClubs.sort(sortByLastActivity);
@@ -212,8 +213,8 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, donateLinks: action.payload }        
         case 'setDotMenuVisible':
             return { ...state, dotMenuVisible: action.payload }
-        case 'setHasUnseenGlobalReelays':
-            return { ...state, hasUnseenGlobalReelays: action.payload }
+        case 'setDiscoverHasUnseenReelays':
+            return { ...state, discoverHasUnseenReelays: action.payload }
         case 'setLikesVisible':
             return { ...state, likesVisible: action.payload }    
 
@@ -321,9 +322,9 @@ export const mapStateToProps = (state) => ({
     commentsVisible: state.commentsVisible,
     commentRefreshListener: state.commentRefreshListener,
     currentComment: state.currentComment,
+    discoverHasUnseenReelays: state.discoverHasUnseenReelays,
     donateLinks: state.donateLinks,
     dotMenuVisible: state.dotMenuVisible,
-    hasUnseenGlobalReelays: state.hasUnseenGlobalReelays,
     likesVisible: state.likesVisible,
 
     // PROFILE
