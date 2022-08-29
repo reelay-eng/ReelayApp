@@ -96,25 +96,84 @@ const YearText = styled(ReelayText.Subtitle2)`
 
 export default ClubAddTitleScreen = ({ navigation, route }) => {
     const { club } = route.params;
-    const { reelayDBUser } = useContext(AuthContext);
-    const authSession = useSelector(state => state.authSession);
-
-    const topOffset = useSafeAreaInsets().top + 80;
-    const bottomOffset = useSafeAreaInsets().bottom;
     const dispatch = useDispatch();
 
+    useFocusEffect(() => {
+        dispatch({ type: 'setTabBarVisible', payload: false });
+    });
+
+    return (
+        <React.Fragment>
+        <ClubBanner club={club} navigation={navigation} />
+        <ClubAddTitleSearch club={club} navigation={navigation} />
+        </React.Fragment>
+    );
+}
+
+const ClubAddTitleSearch = ({ club, navigation }) => {
+    const topOffset = useSafeAreaInsets().top + 80;
     const [loading, setLoading] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
     const [searchText, setSearchText] = useState('');
 
     const [selectedTitle, setSelectedTitle] = useState(null);
     const [selectedType, setSelectedType] = useState("Film");
+    const dispatch = useDispatch();
 
+    const { reelayDBUser } = useContext(AuthContext);
+    const authSession = useSelector(state => state.authSession);
+
+    const bottomOffset = useSafeAreaInsets().bottom;
     const updateCounter = useRef(0);
 
-    useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false });
-    });
+    useEffect(() => {
+        updateSearchDeferred(searchText);
+    }, [selectedType]);
+
+    useEffect(() => {
+        setLoading(false);
+    }, [searchResults]);
+
+    const updateSearch = async (newSearchText, searchType, counter) => {
+        try {
+            if (!newSearchText || newSearchText === '') {            
+                setSearchResults([]);
+                return;
+            }    
+            if (updateCounter.current === counter) {
+                setLoading(true);
+                const annotatedResults = await searchTitles(newSearchText, searchType === 'TV');
+                setSearchResults(annotatedResults);
+                logAmplitudeEventProd('search', {
+                    username: reelayDBUser?.sub,
+                    searchText: newSearchText,
+                    searchType: searchType,
+                    source: 'clubs',
+                });    
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const updateSearchDeferred = (newSearchText) => {
+        updateCounter.current += 1;
+        const nextUpdateCounter = updateCounter.current;
+        setSelectedTitle(null);
+        setTimeout(() => {
+            updateSearch(newSearchText, selectedType, nextUpdateCounter);
+        }, 200);
+    }
+
+    const updateSearchText = async (newSearchText) => {
+        if (newSearchText !== searchText.current) {
+            setSearchText(newSearchText);
+            updateSearchDeferred(newSearchText);
+        };
+    }
+
+    const placeholderText = `Search for ${(selectedType === "Film") ? "films" : "TV shows"}`;
+
 
     const AddTitleButton = () => {
         const [uploading, setUploading] = useState(false);
@@ -243,70 +302,20 @@ export default ClubAddTitleScreen = ({ navigation, route }) => {
         );
     }
 
-    const updateSearch = async (newSearchText, searchType, counter) => {
-        try {
-            if (!newSearchText || newSearchText === '') {            
-                setSearchResults([]);
-                return;
-            }    
-            if (updateCounter.current === counter) {
-                setLoading(true);
-                const annotatedResults = await searchTitles(newSearchText, searchType === 'TV');
-                setSearchResults(annotatedResults);
-                logAmplitudeEventProd('search', {
-                    username: reelayDBUser?.sub,
-                    searchText: newSearchText,
-                    searchType: searchType,
-                    source: 'clubs',
-                });    
-            }
-        } catch (error) {
-            console.log(error);
-        }
-    };
-
-    const updateSearchDeferred = (newSearchText) => {
-        updateCounter.current += 1;
-        const nextUpdateCounter = updateCounter.current;
-        setSelectedTitle(null);
-        setTimeout(() => {
-            updateSearch(newSearchText, selectedType, nextUpdateCounter);
-        }, 200);
-    }
-
-    const updateSearchText = async (newSearchText) => {
-        if (newSearchText !== searchText.current) {
-            setSearchText(newSearchText);
-            updateSearchDeferred(newSearchText);
-        };
-    }
-
-    useEffect(() => {
-        updateSearchDeferred(searchText);
-    }, [selectedType]);
-
-    useEffect(() => {
-        setLoading(false);
-    }, [searchResults]);
-
-    const placeholderText = `Search for ${(selectedType === "Film") ? "films" : "TV shows"}`;
 
     return (
-        <React.Fragment>
-        <ClubBanner club={club} navigation={navigation} />
         <SearchScreenContainer topOffset={topOffset}>
             <SelectorBar />
             <SearchBarContainer>
-				<SearchField
-					searchText={searchText}
-					updateSearchText={updateSearchText}
-					borderRadius={4}
-					placeholderText={placeholderText}
-				/>
-			</SearchBarContainer>
+                <SearchField
+                    searchText={searchText}
+                    updateSearchText={updateSearchText}
+                    borderRadius={4}
+                    placeholderText={placeholderText}
+                />
+            </SearchBarContainer>
             <SearchResults />
             { selectedTitle && <AddTitleButton /> }
         </SearchScreenContainer>
-        </React.Fragment>
-    );
+    )
 }

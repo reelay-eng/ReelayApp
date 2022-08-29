@@ -10,7 +10,7 @@ import TopicsCarousel from '../topics/TopicsCarousel';
 import OnStreaming from './OnStreaming';
 import PeopleToFollow from './PeopleToFollow';
 
-import { getFollowing, getHomeContent, getLatestAnnouncement } from '../../api/ReelayDBApi';
+import { getHomeContent, getLatestAnnouncement } from '../../api/ReelayDBApi';
 import { getAllMyNotifications } from '../../api/NotificationsApi';
 import { AuthContext } from '../../context/AuthContext';
 
@@ -23,10 +23,8 @@ import AnnouncementsAndNotices from './AnnouncementsAndNotices';
 import PopularTitles from './PopularTitles';
 import DiscoverClubs from './DiscoverClubs';
 
-import moment from 'moment';
 import { LinearGradient } from 'expo-linear-gradient';
 import MyWatchlistGrid from '../watchlist/MyWatchlistGrid';
-import Constants from 'expo-constants';
 
 const BottomBar = styled(LinearGradient)`
     height: 100px;
@@ -51,28 +49,11 @@ const Spacer = styled(View)`
 const HomeComponent = ({ navigation }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
-    const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
     const authSession = useSelector(state => state.authSession);
     const scrollRef = useRef(null);
 
     const [selectedTab, setSelectedTab] = useState('discover');
     const tabOptions = ['discover', 'my stuff'];
-
-    const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
-    const latestNotice = useSelector(state => state.latestNotice);
-    const latestNoticeDismissed = useSelector(state => state.latestNoticeDismissed);
-    const latestNoticeSkipped = useSelector(state => state.latestNoticeSkipped);
-    const showNoticeAsOverlay = latestNotice && !latestNoticeSkipped && !latestNoticeDismissed && !isGuestUser;
-
-    const appUpdateRequired = useSelector(state => state.appUpdateRequired);
-    const appUpdateRecommended = useSelector(state => state.appUpdateRecommended);
-    const appUpdateIgnored = useSelector(state => state.appUpdateIgnored);
-    const showAppUpdatePopup = (appUpdateRequired || appUpdateRecommended) && !appUpdateIgnored;
-    const showTabBar = !(showNoticeAsOverlay || showAppUpdatePopup)
-
-    useFocusEffect(React.useCallback(() => {
-        dispatch({ type: 'setTabBarVisible', payload: showTabBar });
-    }, [showTabBar]))
     
     useFocusEffect(() => {
         const unsubscribe = navigation.getParent().addListener('tabPress', e => {
@@ -156,10 +137,37 @@ const HomeComponent = ({ navigation }) => {
                 locations={[0.05, 0.95]}
                 end={{ x: 0.5, y: 1}}
             />
+            <NoticesAndAnnouncements navigation={navigation}/>
+        </HomeContainer>
+    )
+}
+
+const NoticesAndAnnouncements = ({ navigation }) => {
+    const dispatch = useDispatch();
+    const { reelayDBUser } = useContext(AuthContext);
+    const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
+
+    const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
+    const latestNotice = useSelector(state => state.latestNotice);
+    const latestNoticeDismissed = useSelector(state => state.latestNoticeDismissed);
+    const latestNoticeSkipped = useSelector(state => state.latestNoticeSkipped);
+    const showNoticeAsOverlay = latestNotice && !latestNoticeSkipped && !latestNoticeDismissed && !isGuestUser;
+
+    const appUpdateRequired = useSelector(state => state.appUpdateRequired);
+    const appUpdateRecommended = useSelector(state => state.appUpdateRecommended);
+    const appUpdateIgnored = useSelector(state => state.appUpdateIgnored);
+    const showAppUpdatePopup = (appUpdateRequired || appUpdateRecommended) && !appUpdateIgnored;
+    const showTabBar = !(showNoticeAsOverlay || showAppUpdatePopup)
+
+    useFocusEffect(React.useCallback(() => {
+        dispatch({ type: 'setTabBarVisible', payload: showTabBar });
+    }, [showTabBar]))
+    return (
+        <React.Fragment>
             { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
             { showNoticeAsOverlay && <NoticeOverlay navigation={navigation} /> }
             { showAppUpdatePopup && <AppUpdateOverlay />}
-        </HomeContainer>
+        </React.Fragment>
     )
 }
 
