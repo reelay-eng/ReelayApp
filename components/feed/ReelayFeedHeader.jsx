@@ -13,7 +13,6 @@ const DiscoveryBarView = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
-    padding: 6px;
     position: absolute;
     top: ${props => props.topOffset}px;
     width: 100%;
@@ -22,13 +21,12 @@ const DiscoveryBarLeftView = styled(View)`
     align-items: center;
     flex-direction: row;
     margin-top: 12px;
-    width: 50%;
+    padding-left: 6px;
 `
 const DiscoveryBarRightView = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: flex-end;
-    width: 50%;
 `
 const ExpandFiltersPressable = styled(TouchableOpacity)`
     align-items: center;
@@ -40,7 +38,40 @@ const ExpandFiltersPressable = styled(TouchableOpacity)`
     width: 34px;
 `
 const ExpandWhenPressable = styled(TouchableOpacity)`
-    margin-left: 10px;
+    align-items: center;
+    flex-direction: row;
+`
+const FilterBarView = styled(View)`
+    background-color: black;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 12px;
+    padding-top: 0px;
+    position: absolute;
+    top: ${props => props.topOffset + 50}px;
+    width: 100%;
+`
+const FilterPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${props => props.selected 
+        ? ReelayColors.reelayBlue 
+        : '#333333' 
+    };
+    border-color: #79747E;
+    border-radius: 8px;
+    border-width: ${props => props.allFilters ? 1 : 0}px;
+    height: 28px;
+    justify-content: center;
+    margin-right: 8px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+`
+const FilterText = styled(ReelayText.Subtitle2)`
+    color: white;
 `
 const HeaderFill = styled(View)`
     background-color: black;
@@ -50,8 +81,8 @@ const HeaderFill = styled(View)`
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
-    font-size: 20px;
-    line-height: 20px;
+    font-size: 24px;
+    line-height: 24px;
 `
 const FeedHeaderView = styled(SafeAreaView)`
     position: absolute;
@@ -67,6 +98,9 @@ const ResetFiltersText = styled(ReelayText.CaptionEmphasized)`
     font-size: 16px;
     line-height: 24px;
 `
+const HeaderLeftSpacer = styled(View)`
+    width: 10px;
+`
 const WhenOptionPressable = styled(TouchableOpacity)`
     padding-left: 30px;
     padding-right: 30px;
@@ -75,6 +109,7 @@ const WhenOptionPressable = styled(TouchableOpacity)`
 `
 const WhenOptionText = styled(ReelayText.Body2)`
     color: white;
+    font-size: 16px;
     text-align: right;
 `
 const WhenOptionsView = styled(View)`
@@ -82,12 +117,16 @@ const WhenOptionsView = styled(View)`
     border-bottom-left-radius: 14px;
     border-bottom-right-radius: 14px;
     padding: 4px;
-    top: ${props => props.topOffset}px;
-    width: 200px;
+    position: absolute;
+    top: ${props => props.topOffset - 20}px;
+    width: 100%;
 `
 
 export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
     const topOffset = useSafeAreaInsets().top;
+    const [showFilters, setShowFilters] = useState(false);
+    const [selectedFilters, setSelectedFilters] = useState({});
+    const expandFilters = () => setShowFilters(!showFilters);
 
     const getDisplayFeedSource = () => {
         switch (feedSource) {
@@ -95,19 +134,33 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
             case 'following': return 'friends are watching';
             case 'discover': return 'discover';
             case 'popularTitlesDiscover': return 'popular titles';
-            case 'popularTitlesFollowing': return 'popular titles with friends';
+            case 'popularTitlesFollowing': return 'popular titles';
             case 'single': return '';
             case 'streaming': return 'on streaming'; 
+            case 'topics': return 'topics';
             case 'theaters': return 'in theaters';
-            case 'trending': return 'top of the Week';
+            case 'trending': return 'top of the week';
             default: 
                 return '';
         }
     }
 
+    const getDisplayFilters = () => {
+        return [
+            { category: 'all', option: 'unselect_all', display: 'all' },
+            { category: 'community', option: 'following', display: 'friends' },
+            { category: 'popularityAndRating', option: 'highly_rated', display: 'highly-rated' },
+            { category: 'titleType', option: 'film', display: 'movie' },
+            { category: 'titleType', option: 'tv', display: 'TV' },
+            { category: 'venue', option: 'on_my_streaming', display: 'on my streaming' },
+            { category: 'venue', option: 'theaters', display: 'in theaters' },
+            { category: 'all', option: 'see_all_filters', display: 'all filters' },
+        ]
+    }
+
     const BackButton = () => {
         return (
-            <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 6 }}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
                 <FontAwesomeIcon icon={faArrowLeft} size={20} color='white' />
             </TouchableOpacity>
         );
@@ -115,13 +168,13 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
 
     const DiscoveryBar = () => {
         const [showWhenOptions, setShowWhenOptions] = useState(false);
+        const expandWhen = () => setShowWhenOptions(!showWhenOptions);
 
-        const ExpandWhenButton = () => {
-            const expandWhen = () => setShowWhenOptions(!showWhenOptions);
+        const DiscoverHeader = () => {
             return (
-                <ExpandWhenPressable onPress={expandWhen}>
-                    <FontAwesomeIcon icon={faChevronDown} color='white' size={14} />
-                </ExpandWhenPressable>
+                <DiscoveryBarLeftView>
+                    <HeaderText>{'discover'}</HeaderText>
+                </DiscoveryBarLeftView>
             );
         }
 
@@ -144,32 +197,68 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
                 </WhenOptionsView>
             );
         }
+
+        const WhenableHeader = () => {
+            return (
+                <DiscoveryBarLeftView>
+                    <BackButton />
+                    <ExpandWhenPressable onPress={expandWhen}>
+                        <HeaderLeftSpacer />
+                        <HeaderText>{getDisplayFeedSource()}</HeaderText>
+                        <HeaderLeftSpacer />
+                        <FontAwesomeIcon icon={faChevronDown} color='white' size={14} />
+                    </ExpandWhenPressable>
+                    { showWhenOptions && <WhenOptions/> }
+                </DiscoveryBarLeftView>
+            );
+        }
     
         return (
             <Fragment>
                 <DiscoveryBarView topOffset={topOffset}>
-                    <DiscoveryBarLeftView>
-                        { feedSource !== 'discover' && <BackButton /> }
-                        <HeaderText>{getDisplayFeedSource()}</HeaderText>
-                        { feedSource !== 'discover' && <ExpandWhenButton /> }
-                    </DiscoveryBarLeftView>
+                    { feedSource === 'discover' && <DiscoverHeader /> }
+                    { feedSource !== 'discover' && <WhenableHeader /> }
                     <DiscoveryBarRightView>
                         <ResetFiltersButton />
                         <ExpandFiltersButton />
                     </DiscoveryBarRightView>
                 </DiscoveryBarView>
-                { showWhenOptions && <WhenOptions/> }
             </Fragment>
         )
     }
 
     const ExpandFiltersButton = () => {
-        const expandFilters = () => {};
         return (
             <ExpandFiltersPressable onPress={expandFilters}>
                 <FiltersSVG />
             </ExpandFiltersPressable>
         );
+    }
+
+    const FilterBar = () => {
+        const renderFilter = (filter) => {
+            return <FilterOption filter={filter} selected={false} setSelected={() => {}} />
+        }
+
+        return (
+            <FilterBarView topOffset={topOffset}>
+                { getDisplayFilters().map(renderFilter) }
+            </FilterBarView>
+        );
+    }
+
+    const FilterOption = ({ filter, selected, setSelected }) => {
+        console.log('filter: ', filter);
+        const { category, option, display } = filter;
+        const selectOrUnselectFilter = () => {
+            setSelected(!selected);
+            // todo
+        }
+        return (
+            <FilterPressable key={display} onPress={selectOrUnselectFilter}>
+                <FilterText>{display}</FilterText>
+            </FilterPressable>
+        )
     }
 
     const ResetFiltersButton = () => {
@@ -184,6 +273,7 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
     return (
         <FeedHeaderView>
             <HeaderFill topOffset={topOffset} />
+            { showFilters && <FilterBar /> }
             <DiscoveryBar />
         </FeedHeaderView>
     );

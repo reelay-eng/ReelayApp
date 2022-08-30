@@ -211,7 +211,7 @@ export default TopicsFeed = ({
                 />
             )}
             <ReelayFeedHeader 
-                feedSource='topic'
+                feedSource='topics'
                 navigation={navigation}
             />
         </TopicsFeedContainer>

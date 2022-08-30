@@ -48,7 +48,7 @@ export default SingleTopicScreen = ({ navigation, route }) => {
                 stackViewable={true}
             />
             <ReelayFeedHeader
-                feedSource='topic'
+                feedSource='topics'
                 navigation={navigation}
             />
         </ScrollView>
