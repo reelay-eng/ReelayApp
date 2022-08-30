@@ -80,7 +80,7 @@ const ReelayInfo = ({ navigation, reelay }) => {
 			</StarRatingContainer>}
 
 			{(description.length > 0) && 
-				<Description descriptionPartsWithMentions={descriptionPartsWithMentions} />
+				<Description descriptionPartsWithMentions={descriptionPartsWithMentions} navigation={navigation} />
 			}
 		</InfoView>
 	);
@@ -103,7 +103,7 @@ const MentionButton = styled(TouchableOpacity)`
 	margin-bottom: -3px;
 `
 
-const Description = ({ descriptionPartsWithMentions }) => {
+const Description = ({ descriptionPartsWithMentions, navigation }) => {
 	const [expanded, setExpanded] = useState(false);
 	const [componentDimensions, setComponentDimensions] = useState({});
 	const expandDescription = () => {
@@ -131,13 +131,15 @@ const Description = ({ descriptionPartsWithMentions }) => {
 		lineHeight: 20
 	}
 
-	const renderDescriptionPart = (descriptionPart, index) => {
+	const renderDescriptionPart = ({ descriptionPart, index }) => {
         if (isMention(descriptionPart)) {
-            return (
-                <MentionButton key={index} onPress={() => advanceToMentionProfile(descriptionPart.data)}>
-                    <Text style={MentionTextStyle}>{descriptionPart.text}</Text>
-                </MentionButton>
-            );
+            if (expanded || (descriptionPart.position.end < 50)) { // Forgive me father, for I have sinned.
+				return (
+					<MentionButton key={index} onPress={() => advanceToMentionProfile(descriptionPart.data)}>
+						<Text style={MentionTextStyle}>{descriptionPart.text}</Text>
+					</MentionButton>
+				);
+			}
         }
 
         return (
@@ -173,12 +175,14 @@ const Description = ({ descriptionPartsWithMentions }) => {
                 )
             }
 			<DescriptionText numberOfLines={(expanded) ? 0 : 1} ellipsizeMode='tail'>
-				{ descriptionPartsWithMentions.parts.map(renderDescriptionPart) }
+				{ descriptionPartsWithMentions.parts.map((descriptionPart, index) => {
+					return renderDescriptionPart({ descriptionPart, index })
+				}) }
 			</DescriptionText>
 		</DescriptionContainer>
 	)
 }
 
 export default memo(ReelayInfo, (prevProps, nextProps) => {
-	return (prevProps.reelay.datastoreSub === nextProps.reelay.datastoreSub) && (prevProps.expanded === nextProps.expanded);
+	return (prevProps.reelay.datastoreSub === nextProps.reelay.datastoreSub);
 });
