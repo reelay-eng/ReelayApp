@@ -59,7 +59,7 @@ const FilterPressable = styled(TouchableOpacity)`
     };
     border-color: #79747E;
     border-radius: 8px;
-    border-width: ${props => props.allFilters ? 1 : 0}px;
+    border-width: ${props => props.allFilters ? 1.4 : 0}px;
     height: 28px;
     justify-content: center;
     margin-right: 8px;
@@ -68,7 +68,6 @@ const FilterPressable = styled(TouchableOpacity)`
     padding-left: 8px;
     padding-right: 8px;
     padding-top: 2px;
-    padding-bottom: 2px;
 `
 const FilterText = styled(ReelayText.Subtitle2)`
     color: white;
@@ -125,7 +124,7 @@ const WhenOptionsView = styled(View)`
 export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
     const topOffset = useSafeAreaInsets().top;
     const [showFilters, setShowFilters] = useState(false);
-    const [selectedFilters, setSelectedFilters] = useState({});
+    const [selectedFilters, setSelectedFilters] = useState([]);
     const expandFilters = () => setShowFilters(!showFilters);
 
     const getDisplayFeedSource = () => {
@@ -156,6 +155,35 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
             { category: 'venue', option: 'theaters', display: 'in theaters' },
             { category: 'all', option: 'see_all_filters', display: 'all filters' },
         ]
+    }
+
+    const isFilterSelected = (filter) => {
+        const matchFilter = (nextFilter) => (nextFilter.display === filter.display);
+        return selectedFilters.find(matchFilter);
+    }
+
+    const onSelectOrUnselectFilter = (filter) => {
+        const isSelecting = !isFilterSelected(filter);
+        const isResetOption = (filter.option === 'unselect_all');
+        const removeResetOption = (nextFilter) => (nextFilter.option !== 'unselect_all')
+        if (isResetOption) {
+            resetFilters();
+            return;
+        }
+
+        if (isSelecting) {
+            const nextSelectedFilters = [...selectedFilters, filter].filter(removeResetOption);
+            setSelectedFilters(nextSelectedFilters);
+        } else {
+            const removeFilter = (nextFilter) => (nextFilter.display !== filter.display);
+            const nextSelectedFilters = selectedFilters.filter(removeFilter);
+            setSelectedFilters(nextSelectedFilters);
+        }
+    }
+
+    const resetFilters = () => {
+        const resetFilter = { category: 'all', option: 'unselect_all', display: 'all' };
+        setSelectedFilters([resetFilter]);
     }
 
     const BackButton = () => {
@@ -247,22 +275,28 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
         );
     }
 
-    const FilterOption = ({ filter, selected, setSelected }) => {
-        console.log('filter: ', filter);
+    const FilterOption = ({ filter }) => {
         const { category, option, display } = filter;
-        const selectOrUnselectFilter = () => {
-            setSelected(!selected);
-            // todo
+        const isSelected = isFilterSelected(filter);
+        const isAllFiltersOption = (option === 'see_all_filters');
+        const advanceToAllFiltersScreen = () => {}
+
+        const onPress = () => {
+            if (isAllFiltersOption) {
+                advanceToAllFiltersScreen();
+            } else {
+                onSelectOrUnselectFilter(filter);
+            }
         }
+
         return (
-            <FilterPressable key={display} onPress={selectOrUnselectFilter}>
+            <FilterPressable key={display} selected={isSelected} allFilters={isAllFiltersOption} onPress={onPress}>
                 <FilterText>{display}</FilterText>
             </FilterPressable>
         )
     }
 
     const ResetFiltersButton = () => {
-        const resetFilters = () => {};
         return (
             <ResetFiltersPressable onPress={resetFilters}>
                 <ResetFiltersText>{'reset'}</ResetFiltersText>
