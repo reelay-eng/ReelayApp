@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { Fragment, useState } from 'react';
 import { SafeAreaView, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FiltersSVG } from '../global/SVGs';
 import ReelayColors from '../../constants/ReelayColors';
@@ -39,15 +39,8 @@ const ExpandFiltersPressable = styled(TouchableOpacity)`
     margin-left: 16px;
     width: 34px;
 `
-const ResetFiltersPressable = styled(TouchableOpacity)`
-    align-items: center;
-    justify-content: center;
-    padding-top: 6px;
-`
-const ResetFiltersText = styled(ReelayText.CaptionEmphasized)`
-    color: ${ReelayColors.reelayBlue};
-    font-size: 16px;
-    line-height: 24px;
+const ExpandWhenPressable = styled(TouchableOpacity)`
+    margin-left: 10px;
 `
 const HeaderFill = styled(View)`
     background-color: black;
@@ -63,6 +56,34 @@ const HeaderText = styled(ReelayText.H5Bold)`
 const FeedHeaderView = styled(SafeAreaView)`
     position: absolute;
     width: 100%;
+`
+const ResetFiltersPressable = styled(TouchableOpacity)`
+    align-items: center;
+    justify-content: center;
+    padding-top: 6px;
+`
+const ResetFiltersText = styled(ReelayText.CaptionEmphasized)`
+    color: ${ReelayColors.reelayBlue};
+    font-size: 16px;
+    line-height: 24px;
+`
+const WhenOptionPressable = styled(TouchableOpacity)`
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+`
+const WhenOptionText = styled(ReelayText.Body2)`
+    color: white;
+    text-align: right;
+`
+const WhenOptionsView = styled(View)`
+    background-color: black;
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+    padding: 4px;
+    top: ${props => props.topOffset}px;
+    width: 200px;
 `
 
 export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
@@ -93,17 +114,52 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
     }
 
     const DiscoveryBar = () => {
+        const [showWhenOptions, setShowWhenOptions] = useState(false);
+
+        const ExpandWhenButton = () => {
+            const expandWhen = () => setShowWhenOptions(!showWhenOptions);
+            return (
+                <ExpandWhenPressable onPress={expandWhen}>
+                    <FontAwesomeIcon icon={faChevronDown} color='white' size={14} />
+                </ExpandWhenPressable>
+            );
+        }
+
+        const WhenOption = ({ option, optionDisplay }) => {
+            const setWhenFilter = () => {}
+            return (
+                <WhenOptionPressable>
+                    <WhenOptionText>{optionDisplay}</WhenOptionText>
+                </WhenOptionPressable>
+            );
+        }
+
+        const WhenOptions = () => {
+            return (
+                <WhenOptionsView topOffset={topOffset}>
+                    <WhenOption option='mostRecent' optionDisplay={'most recent'} />
+                    <WhenOption option='thisWeek' optionDisplay={'this week'} />
+                    <WhenOption option='thisMonth' optionDisplay={'this month'} />
+                    <WhenOption option='allTime' optionDisplay={'all time'} />
+                </WhenOptionsView>
+            );
+        }
+    
         return (
-            <DiscoveryBarView topOffset={topOffset}>
-                <DiscoveryBarLeftView>
-                    { feedSource !== 'discover' && <BackButton /> }
-                    <HeaderText>{getDisplayFeedSource()}</HeaderText>
-                </DiscoveryBarLeftView>
-                <DiscoveryBarRightView>
-                    <ResetFiltersButton />
-                    <ExpandFiltersButton />
-                </DiscoveryBarRightView>
-            </DiscoveryBarView>
+            <Fragment>
+                <DiscoveryBarView topOffset={topOffset}>
+                    <DiscoveryBarLeftView>
+                        { feedSource !== 'discover' && <BackButton /> }
+                        <HeaderText>{getDisplayFeedSource()}</HeaderText>
+                        { feedSource !== 'discover' && <ExpandWhenButton /> }
+                    </DiscoveryBarLeftView>
+                    <DiscoveryBarRightView>
+                        <ResetFiltersButton />
+                        <ExpandFiltersButton />
+                    </DiscoveryBarRightView>
+                </DiscoveryBarView>
+                { showWhenOptions && <WhenOptions/> }
+            </Fragment>
         )
     }
 
