@@ -9,6 +9,7 @@ import { AuthContext } from '../../context/AuthContext';
 import moment from 'moment';
 import styled from 'styled-components/native';
 import { useFocusEffect } from '@react-navigation/native';
+import ReelayFeedHeader from '../feed/ReelayFeedHeader';
 
 const { height, width } = Dimensions.get('window');
 
@@ -68,7 +69,7 @@ export default ClubFeed = ({
         const stackViewable = (index === feedPosition);
         const initialStackPos = (index === initFeedIndex) ? initStackIndex : 0;
 
-        return <ClubTitleOrTopicStack
+        return <ClubTitleOrTopicStack 
             key={clubTitleOrTopic.id}
             club={club}
             clubTitleOrTopic={clubTitleOrTopic}
@@ -129,6 +130,10 @@ export default ClubFeed = ({
                     windowSize={3}
                 />
             )}
+            <ReelayFeedHeader
+                feedSource='club'
+                navigation={navigation}
+            />
         </ClubFeedContainer>
     );
 }

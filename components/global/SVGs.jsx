@@ -58,6 +58,30 @@ export const CommentIconSVG = ({ color='white' }) => {
     return <SvgXml xml={xmlString} />
 }
 
+export const FiltersSVG = () => {
+    const xmlString = `
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_1798_119748)">
+                <path d="M18.6502 17.8H12.7002" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9.29961 17.8H3.34961" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M18.65 11H11" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7.59961 11H3.34961" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M18.6494 4.19995H14.3994" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M10.9996 4.19995L3.34961 4.19995" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12.7002 20.3499V15.2499" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M7.59961 13.55V8.45005" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14.3994 6.75V1.65" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <defs>
+                <clipPath id="clip0_1798_119748">
+                    <rect width="20.4" height="20.4" fill="white" transform="translate(0.799805 21.2) rotate(-90)"/>
+                </clipPath>
+            </defs>
+        </svg>        
+    `
+    return <SvgXml xml={xmlString} />
+}
+
 export const HelpingHandsSVG = ({ size=24 }) => {
     return (
         <Svg width={size} height={size} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

@@ -9,13 +9,11 @@ import styled from 'styled-components/native';
 import TitleBanner from '../feed/TitleBanner';
 import Hero from '../feed/Hero';
 
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon } from 'react-native-elements';
 import { useSelector } from 'react-redux';
-import ReelayFeedHeader from '../feed/ReelayFeedHeader';
 
 const { height, width } = Dimensions.get('window');
-const TITLE_BANNER_TOP_OFFSET = 56;
+const TITLE_BANNER_TOP_OFFSET = 68;
 
 const AddReelayButtonContainer = styled(TouchableOpacity)`
     align-items: center;
@@ -192,16 +190,6 @@ export default ClubTitleOrTopicStack = ({
                 onScroll={onStackSwiped} 
                 pagingEnabled={true} 
                 windowSize={3}
-            />
-            <ReelayFeedHeader 
-                club={club} 
-                feedSource='club'
-                navigation={navigation} 
-                onTappedOldest={onTappedOldest}
-                onTappedNewest={onTappedNewest}
-                position={stackPosition}
-                stackLength={reelays?.length}
-                topic={(activityType === 'topic') ? clubTitleOrTopic : null}
             />
             { activityType === 'title' && renderTitleBanner(viewableReelay, activityType) }
         </ReelayFeedContainer>

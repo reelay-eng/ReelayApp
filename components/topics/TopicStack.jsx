@@ -12,7 +12,6 @@ import { Icon } from 'react-native-elements';
 import { useSelector } from 'react-redux';
 import UploadProgressBar from '../global/UploadProgressBar';
 import TitleBanner from '../feed/TitleBanner';
-import ReelayFeedHeader from '../feed/ReelayFeedHeader';
 
 const { height, width } = Dimensions.get('window');
 
@@ -76,7 +75,7 @@ export default TopicStack = ({
     const uploadStage = useSelector(state => state.uploadStage);
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
-    const topOffset = useSafeAreaInsets().top + 8;
+    const topOffset = useSafeAreaInsets().top + 28;
 
     const getItemLayout = (data, index) => ({
         length: width, 
@@ -162,15 +161,6 @@ export default TopicStack = ({
                 onScroll={onStackSwiped} 
                 pagingEnabled={true} 
                 windowSize={3}
-            />
-            <ReelayFeedHeader
-                feedSource='topic'
-                navigation={navigation}
-                topic={topic}
-                position={stackPosition}
-                stackLength={stack?.length}
-                onTappedNewest={onTappedNewest}
-                onTappedOldest={onTappedOldest}
             />
             {/* <AddReelayButton 
                 navigation={navigation} 

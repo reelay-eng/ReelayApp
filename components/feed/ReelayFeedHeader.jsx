@@ -1,313 +1,134 @@
-import React, { Fragment, memo } from 'react';
-import { Easing, TouchableOpacity, View } from 'react-native';
-import { Icon } from 'react-native-elements';
+import React from 'react';
+import { SafeAreaView, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faComments, faBackwardStep, faForwardStep, faEarthAmericas, faTicket, faLeaf } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import TextTicker from 'react-native-text-ticker';
-import ClubPicture from '../global/ClubPicture';
-import ProfilePicture from '../global/ProfilePicture';
-import { LinearGradient } from 'expo-linear-gradient';
+import { FiltersSVG } from '../global/SVGs';
 import ReelayColors from '../../constants/ReelayColors';
 
-const ActivityTicker = styled(TextTicker)`
-    color: white;
-    display: flex;
-    font-family: Outfit-Regular;
-    font-size: 16px;
-    font-style: normal;
-    line-height: 20px;
-    letter-spacing: 0.15px;
-    margin-top: 4px;
-    text-align: center;
-`
-const FeedHeaderView = styled(View)`
+const DiscoveryBarView = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
-    padding-left: 11px;
-    padding-right: 11px;
+    padding: 6px;
     position: absolute;
     top: ${props => props.topOffset}px;
+    width: 100%;
 `
-const ForwardBackButton = styled(TouchableOpacity)`
+const DiscoveryBarLeftView = styled(View)`
     align-items: center;
-    border-color: ${props => props.disabled ? '#a8a8a8' : 'white'};
-    border-radius: 80px;
-    border-width: 1px;
-    justify-content: center;
-    margin-left: 8px;
-    margin-right: 8px;
-    padding: 4px;
+    flex-direction: row;
+    margin-top: 12px;
+    width: 50%;
 `
-const HeaderGradient = styled(LinearGradient)`
-    height: ${props => props.topOffset + 38}px;
+const DiscoveryBarRightView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: flex-end;
+    width: 50%;
+`
+const ExpandFiltersPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: #333333;
+    border-radius: 17px;
+    height: 34px;
+    justify-content: center;
+    margin-left: 16px;
+    width: 34px;
+`
+const ResetFiltersPressable = styled(TouchableOpacity)`
+    align-items: center;
+    justify-content: center;
+    padding-top: 6px;
+`
+const ResetFiltersText = styled(ReelayText.CaptionEmphasized)`
+    color: ${ReelayColors.reelayBlue};
+    font-size: 16px;
+    line-height: 24px;
+`
+const HeaderFill = styled(View)`
+    background-color: black;
+    height: ${props => props.topOffset + 50}px;
     position: absolute;
     width: 100%;
 `
-const HeaderText = styled(ReelayText.Subtitle2)`
+const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
+    font-size: 20px;
+    line-height: 20px;
 `
-const PositionText = styled(ReelayText.CaptionEmphasized)`
-    color: white;
-    height: 16px;
-    font-size: 12px;
-`
-const RowView = styled(View)`
-    align-items: center;
-    flex-direction: row;
-`
-const RowPressable = styled(TouchableOpacity)`
-    align-items: center;
-    flex-direction: row;
-`
-const ActivityInfoView = styled(View)`
-    align-items: center;
-    display: flex;
-    flex-direction: row;
-    flex: 1;
-`
-const Spacer = styled(View)`
-    width: 10px;
+const FeedHeaderView = styled(SafeAreaView)`
+    position: absolute;
+    width: 100%;
 `
 
-const ActivityInfoBar = ({ club, feedSource, navigation, topic }) => {
-    const topicScrollDuration = 60 + topic?.title?.length * 180;
-    const clubScrollDuration = 60 + (club?.name?.length * 180);
-    const dividerScrollDuration = 60;
-    const Divider = () => <HeaderText>{'|'}</HeaderText>;
+export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
+    const topOffset = useSafeAreaInsets().top;
 
-    const ClubInfo = () => {
-        const advanceToActivityFeed = () => {
-            if (club) {
-                // advance to club feed
-                navigation.push('ClubActivityScreen', { club });
-            }
+    const getDisplayFeedSource = () => {
+        switch (feedSource) {
+            case 'festivals': return 'at festivals';
+            case 'following': return 'friends are watching';
+            case 'discover': return 'discover';
+            case 'popularTitlesDiscover': return 'popular titles';
+            case 'popularTitlesFollowing': return 'popular titles with friends';
+            case 'single': return '';
+            case 'streaming': return 'on streaming'; 
+            case 'theaters': return 'in theaters';
+            case 'trending': return 'top of the Week';
+            default: 
+                return '';
         }
-    
-        return (
-            <RowPressable onPress={advanceToActivityFeed}>
-                <ClubPicture club={club} size={30} />
-                <Spacer />
-                <HeaderText numberOfLines={1}>{club?.name}</HeaderText>
-            </RowPressable>
-        );
     }
-
-    const GlobalInfo = () => {
-        const getDisplayFeedSource = () => {
-            switch (feedSource) {
-                case 'festivals': return 'At Festivals';
-                case 'following': return 'Friends are watching';
-                case 'discover': return '';
-                case 'popularTitlesDiscover': return 'Popular titles';
-                case 'popularTitlesFollowing': return 'Popular titles with friends';
-                case 'single': return '';
-                case 'streaming': return 'On Streaming'; 
-                case 'theaters': return 'In Theaters';
-                case 'trending': return 'Top of the Week';
-                default: 
-                    return '';
-            }
-        }
-
-        const getDisplayIcon = () => {
-            switch (feedSource) {
-                case 'festivals': return faLeaf;
-                case 'following': return 'people';
-                case 'discover': return faEarthAmericas;
-                case 'popularTitlesDiscover': return 'flame';
-                case 'popularTitlesFollowing': return 'flame';
-                case 'profile': return 'earth';
-                case 'single': return 'notifications';
-                case 'streaming': return faEarthAmericas; // should be different if following
-                case 'topic': return faEarthAmericas;
-                case 'theaters': return faTicket;
-                case 'trending': return 'ribbon';
-                default: 
-                    return 'earth';
-            }
-        }
-
-        const getDisplayIconSource = () => {
-            switch (feedSource) {
-                case 'theaters': 
-                case 'festivals':
-                case 'discover':
-                case 'streaming':
-                case 'topic':
-                    return 'font-awesome';
-                default: 
-                    return 'ionicon';
-            }
-        }
-
-        const iconSource = getDisplayIconSource();
-
-        return (
-            <RowView>
-                { iconSource === 'font-awesome' && (
-                    <FontAwesomeIcon icon={getDisplayIcon()} size={21} color='white' />
-                )}
-                { iconSource === 'ionicon' && (
-                    <Icon type={getDisplayIconSource()} name={getDisplayIcon()} size={21} color='white' />
-                )}
-                <Spacer />
-                <HeaderText>{getDisplayFeedSource()}</HeaderText>
-            </RowView>
-        );    
-    }
-
-    const TopicInfo = () => {
-        return (
-            <RowView>
-                <FontAwesomeIcon icon={ faComments } color='white' size={21} />
-                <Spacer />
-                <HeaderText numberOfLines={1}>{topic?.title}</HeaderText>
-            </RowView>
-        );
-    }
-
-    if (club && topic) {
-        return (
-            <ActivityTicker
-                animationType={'scroll'} 
-                bounce={false} 
-                duration={
-                    clubScrollDuration + 
-                    dividerScrollDuration +
-                    topicScrollDuration
-                } 
-                easing={Easing.linear} 
-                loop 
-                marqueeDelay={1000} 
-                repeatSpacer={25}
-            >
-                <RowView>
-                    <ClubInfo />
-                    <Spacer />
-                    <Divider />
-                    <Spacer />
-                    <TopicInfo />
-                </RowView>
-            </ActivityTicker>
-        );
-    } else if (club) {
-        return (
-            <ActivityTicker
-                animationType={'scroll'} 
-                bounce={false} 
-                duration={clubScrollDuration} 
-                easing={Easing.linear} 
-                loop 
-                marqueeDelay={1000} 
-                repeatSpacer={25}
-            >
-                <ClubInfo />
-            </ActivityTicker>
-        );
-    } else if (topic) {
-        return (
-            <ActivityTicker
-                animationType={'scroll'} 
-                bounce={false} 
-                duration={topicScrollDuration} 
-                easing={Easing.linear} 
-                loop 
-                marqueeDelay={1000} 
-                repeatSpacer={25}
-            >
-                <RowView>
-                    <GlobalInfo />
-                    <Divider />
-                    <Spacer />
-                    <TopicInfo />
-                </RowView>
-            </ActivityTicker>
-        );
-    } else {
-        return <GlobalInfo />;
-    }
-}
-
-const ActivityInfoBarMemo = memo(ActivityInfoBar, (thread0, thread1) => {
-    return (
-        thread0.club?.id === thread1.club?.id &&
-        thread0.topic?.id === thread1.topic?.id
-    );
-});
-
-export default ReelayFeedHeader = ({ 
-    navigation, 
-    club = null, 
-    topic = null, 
-    feedSource = 'discover',
-    position,
-    reelay,
-    stackLength,
-    onTappedOldest,
-    onTappedNewest,
-}) => {
 
     const BackButton = () => {
         return (
-            <TouchableOpacity onPress={() => navigation.goBack()} style={{ padding: 6 }}>
-                <Icon type='ionicon' name={'arrow-back-outline'} color={'white'} size={24} />
+            <TouchableOpacity onPress={() => navigation.goBack()} style={{ paddingRight: 6 }}>
+                <FontAwesomeIcon icon={faArrowLeft} size={20} color='white' />
             </TouchableOpacity>
         );
     }
 
-    const ForwardBack = () => {
-        const atOldestReelay = (position === 0);
-        const atNewestReelay = (position === stackLength - 1);
-        const positionString = `${position + 1}/${stackLength}`;
-
-        const onTappedOldestSafe = () => (onTappedOldest) ? onTappedOldest() : {};
-        const onTappedNewestSafe = () => (onTappedNewest) ? onTappedNewest() : {};
-
+    const DiscoveryBar = () => {
         return (
-            <RowView>
-                <ForwardBackButton onPress={onTappedOldestSafe} disabled={atOldestReelay}>
-                    <FontAwesomeIcon icon={ faBackwardStep } size={18} color={atOldestReelay ? '#a8a8a8' : 'white'} />
-                </ForwardBackButton>
-                <PositionText>{positionString}</PositionText>
-                <ForwardBackButton onPress={onTappedNewestSafe} disabled={atNewestReelay}>
-                    <FontAwesomeIcon icon={ faForwardStep } size={18} color={atNewestReelay ? '#a8a8a8' : 'white'} />
-                </ForwardBackButton>
-            </RowView>
+            <DiscoveryBarView topOffset={topOffset}>
+                <DiscoveryBarLeftView>
+                    { feedSource !== 'discover' && <BackButton /> }
+                    <HeaderText>{getDisplayFeedSource()}</HeaderText>
+                </DiscoveryBarLeftView>
+                <DiscoveryBarRightView>
+                    <ResetFiltersButton />
+                    <ExpandFiltersButton />
+                </DiscoveryBarRightView>
+            </DiscoveryBarView>
+        )
+    }
+
+    const ExpandFiltersButton = () => {
+        const expandFilters = () => {};
+        return (
+            <ExpandFiltersPressable onPress={expandFilters}>
+                <FiltersSVG />
+            </ExpandFiltersPressable>
         );
     }
 
-    const topOffset = useSafeAreaInsets().top;
-
-    if (feedSource === 'profile') {
+    const ResetFiltersButton = () => {
+        const resetFilters = () => {};
         return (
-            <FeedHeaderView topOffset={topOffset}>
-                <RowView>
-                    <BackButton navigation={navigation} />
-                    <ProfilePicture user={reelay?.creator} size={24} />
-                </RowView>
-            </FeedHeaderView>
+            <ResetFiltersPressable onPress={resetFilters}>
+                <ResetFiltersText>{'reset'}</ResetFiltersText>
+            </ResetFiltersPressable>
         );
     }
 
     return (
-        <Fragment>
-            <HeaderGradient colors={[ReelayColors.reelayBlack,'transparent']} topOffset={topOffset} />
-            <FeedHeaderView topOffset={topOffset}>
-                { feedSource !== 'discover' && <BackButton navigation={navigation} /> }
-                <ActivityInfoView>
-                    <ActivityInfoBarMemo club={club} feedSource={feedSource} navigation={navigation} topic={topic} />
-                </ActivityInfoView>
-                { stackLength > 1 && (
-                    <RowView>
-                        <ForwardBack />
-                    </RowView>
-                )}
-            </FeedHeaderView>
-        </Fragment>
+        <FeedHeaderView>
+            <HeaderFill topOffset={topOffset} />
+            <DiscoveryBar />
+        </FeedHeaderView>
     );
 }

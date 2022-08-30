@@ -6,6 +6,7 @@ import { AuthContext } from '../../context/AuthContext';
 
 import styled from 'styled-components/native';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import ReelayFeedHeader from './ReelayFeedHeader';
 const { height, width } = Dimensions.get('window');
 
 const ReelayFeedContainer = styled(View)`
@@ -110,6 +111,10 @@ const FixedReelayFeed = ({ navigation,
                     windowSize={3}
                 />
             }
+            <ReelayFeedHeader 
+                feedSource={feedSource}
+                navigation={navigation}
+            />
         </ReelayFeedContainer>
     );
 }

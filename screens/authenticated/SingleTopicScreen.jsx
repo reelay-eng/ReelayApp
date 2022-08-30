@@ -3,6 +3,7 @@ import React, { useContext, useState } from 'react';
 import { RefreshControl, ScrollView } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { getSingleTopic } from '../../api/TopicsApi';
+import ReelayFeedHeader from '../../components/feed/ReelayFeedHeader';
 import { AuthContext } from '../../context/AuthContext';
 
 export default SingleTopicScreen = ({ navigation, route }) => {
@@ -39,15 +40,16 @@ export default SingleTopicScreen = ({ navigation, route }) => {
     );
 
     return (
-        <ScrollView 
-            refreshControl={refreshControl} 
-            showsVerticalScrollIndicator={false}
-        >
+        <ScrollView refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
             <TopicStack 
                 initialStackPos={initReelayIndex}
                 navigation={navigation}
                 topic={topic}
                 stackViewable={true}
+            />
+            <ReelayFeedHeader
+                feedSource='topic'
+                navigation={navigation}
             />
         </ScrollView>
     );

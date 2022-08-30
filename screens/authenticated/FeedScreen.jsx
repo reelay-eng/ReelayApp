@@ -12,7 +12,7 @@ export default function FeedScreen({ navigation, route }) {
     const preloadedStackList = route?.params?.preloadedStackList ?? myStacksGlobal;
 
     return (
-        <ReelayFeed
+        <ReelayFeed 
             forceRefresh={forceRefresh}
             initialFeedSource={initialFeedSource}
             initialStackPos={initialStackPos}

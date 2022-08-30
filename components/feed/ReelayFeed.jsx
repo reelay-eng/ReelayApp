@@ -1,5 +1,5 @@
-import React, { useCallback, useContext, useEffect, useState, useRef } from 'react';
-import { ActivityIndicator, Dimensions, FlatList } from 'react-native';
+import React, { Fragment, useCallback, useContext, useEffect, useState, useRef } from 'react';
+import { ActivityIndicator, Dimensions, FlatList, View } from 'react-native';
 import { useDispatch, useSelector } from "react-redux";
 import ReelayStack from './ReelayStack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -10,9 +10,15 @@ import { getFeed } from '../../api/ReelayDBApi';
 
 import { showMessageToast } from '../utils/toasts';
 import { useFocusEffect } from '@react-navigation/core';
+import ReelayFeedHeader from './ReelayFeedHeader';
+import styled from 'styled-components/native';
 
 const { height, width } = Dimensions.get('window');
 
+const FeedView = styled(View)`
+    height: 100%;
+    width: 100%;
+`
 
 export default ReelayFeed = ({ navigation, 
     initialStackPos = 0,
@@ -196,24 +202,30 @@ export default ReelayFeed = ({ navigation,
     }
 
     return (
-        <FlatList
-            data={reelayThreads}
-            getItemLayout={getItemLayout}
-            horizontal={false}
-            initialNumToRender={2}
-            initialScrollIndex={initialFeedPos}
-            keyboardShouldPersistTaps={"handled"}
-            keyExtractor={(stack) => `${stack[0].title.id}-${stack[0].sub}`}
-            maxToRenderPerBatch={2}
-            onEndReached={extendFeed}
-            onRefresh={refreshFeed}
-            onScroll={onFeedSwiped}
-            pagingEnabled={true}
-            refreshing={refreshing}
-            ref={feedPager}
-            renderItem={renderStack}
-            showsVerticalScrollIndicator={false}
-            windowSize={3}
-        />
+        <FeedView>
+            <FlatList
+                data={reelayThreads}
+                getItemLayout={getItemLayout}
+                horizontal={false}
+                initialNumToRender={2}
+                initialScrollIndex={initialFeedPos}
+                keyboardShouldPersistTaps={"handled"}
+                keyExtractor={(stack) => `${stack[0].title.id}-${stack[0].sub}`}
+                maxToRenderPerBatch={2}
+                onEndReached={extendFeed}
+                onRefresh={refreshFeed}
+                onScroll={onFeedSwiped}
+                pagingEnabled={true}
+                refreshing={refreshing}
+                ref={feedPager}
+                renderItem={renderStack}
+                showsVerticalScrollIndicator={false}
+                windowSize={3}
+            />
+            <ReelayFeedHeader 
+                feedSource={feedSource}
+                navigation={navigation}
+            />
+        </FeedView>
     );
 }
