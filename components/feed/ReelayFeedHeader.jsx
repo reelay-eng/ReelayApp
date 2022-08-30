@@ -4,7 +4,7 @@ import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faArrowLeft, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faChevronDown, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FiltersSVG } from '../global/SVGs';
 import ReelayColors from '../../constants/ReelayColors';
@@ -30,7 +30,7 @@ const DiscoveryBarRightView = styled(View)`
 `
 const ExpandFiltersPressable = styled(TouchableOpacity)`
     align-items: center;
-    background-color: #333333;
+    background-color: ${props => props.showFilters ? 'black' : '#333333' };
     border-radius: 17px;
     height: 34px;
     justify-content: center;
@@ -121,10 +121,11 @@ const WhenOptionsView = styled(View)`
     width: 100%;
 `
 
-export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
+export default ReelayFeedHeader = ({ navigation, feedSource = 'discover', isFullScreen = false }) => {
     const topOffset = useSafeAreaInsets().top;
+    const resetFilter = { category: 'all', option: 'unselect_all', display: 'all' };
     const [showFilters, setShowFilters] = useState(false);
-    const [selectedFilters, setSelectedFilters] = useState([]);
+    const [selectedFilters, setSelectedFilters] = useState([resetFilter]);
     const expandFilters = () => setShowFilters(!showFilters);
 
     const getDisplayFeedSource = () => {
@@ -182,8 +183,8 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
     }
 
     const resetFilters = () => {
-        const resetFilter = { category: 'all', option: 'unselect_all', display: 'all' };
         setSelectedFilters([resetFilter]);
+        // todo
     }
 
     const BackButton = () => {
@@ -202,6 +203,16 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
             return (
                 <DiscoveryBarLeftView>
                     <HeaderText>{'discover'}</HeaderText>
+                </DiscoveryBarLeftView>
+            );
+        }
+
+        const FullScreenHeader = () => {
+            return (
+                <DiscoveryBarLeftView>
+                    <BackButton />
+                    <HeaderLeftSpacer />
+                    <HeaderText>{getDisplayFeedSource()}</HeaderText>
                 </DiscoveryBarLeftView>
             );
         }
@@ -244,12 +255,15 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
         return (
             <Fragment>
                 <DiscoveryBarView topOffset={topOffset}>
-                    { feedSource === 'discover' && <DiscoverHeader /> }
-                    { feedSource !== 'discover' && <WhenableHeader /> }
-                    <DiscoveryBarRightView>
-                        <ResetFiltersButton />
-                        <ExpandFiltersButton />
-                    </DiscoveryBarRightView>
+                    { isFullScreen && <FullScreenHeader /> }
+                    { !isFullScreen && feedSource === 'discover' && <DiscoverHeader /> }
+                    { !isFullScreen && feedSource !== 'discover' && <WhenableHeader /> }
+                    { !isFullScreen && (
+                        <DiscoveryBarRightView>
+                            { !showFilters && <ResetFiltersButton /> }
+                            <ExpandFiltersButton />
+                        </DiscoveryBarRightView>                    
+                    )}
                 </DiscoveryBarView>
             </Fragment>
         )
@@ -257,15 +271,16 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
 
     const ExpandFiltersButton = () => {
         return (
-            <ExpandFiltersPressable onPress={expandFilters}>
-                <FiltersSVG />
+            <ExpandFiltersPressable onPress={expandFilters} showFilters={showFilters}>
+                { !showFilters && <FiltersSVG /> }
+                { showFilters && <FontAwesomeIcon icon={faXmark} color='white' size={30} /> }
             </ExpandFiltersPressable>
         );
     }
 
     const FilterBar = () => {
         const renderFilter = (filter) => {
-            return <FilterOption filter={filter} selected={false} setSelected={() => {}} />
+            return <FilterOption key={filter.option} filter={filter} selected={false} setSelected={() => {}} />
         }
 
         return (
@@ -279,7 +294,7 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
         const { category, option, display } = filter;
         const isSelected = isFilterSelected(filter);
         const isAllFiltersOption = (option === 'see_all_filters');
-        const advanceToAllFiltersScreen = () => {}
+        const advanceToAllFiltersScreen = () => navigation.push('FeedFiltersScreen', { feedSource });
 
         const onPress = () => {
             if (isAllFiltersOption) {
@@ -290,7 +305,7 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover' }) => {
         }
 
         return (
-            <FilterPressable key={display} selected={isSelected} allFilters={isAllFiltersOption} onPress={onPress}>
+            <FilterPressable selected={isSelected} allFilters={isAllFiltersOption} onPress={onPress}>
                 <FilterText>{display}</FilterText>
             </FilterPressable>
         )
