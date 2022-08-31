@@ -4,7 +4,7 @@ import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faArrowLeft, faChevronDown, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faArrowRight, faChevronDown, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FiltersSVG } from '../global/SVGs';
 import ReelayColors from '../../constants/ReelayColors';
@@ -57,9 +57,8 @@ const FilterPressable = styled(TouchableOpacity)`
         ? ReelayColors.reelayBlue 
         : '#333333' 
     };
-    border-color: #79747E;
     border-radius: 8px;
-    border-width: ${props => props.allFilters ? 1.4 : 0}px;
+    flex-direction: row;
     height: 28px;
     justify-content: center;
     margin-right: 8px;
@@ -148,13 +147,13 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover', isFull
     const getDisplayFilters = () => {
         return [
             { category: 'all', option: 'unselect_all', display: 'all' },
-            { category: 'community', option: 'following', display: 'friends' },
+            { category: 'community', option: 'following', display: 'following' },
             { category: 'popularityAndRating', option: 'highly_rated', display: 'highly-rated' },
-            { category: 'titleType', option: 'film', display: 'movie' },
+            { category: 'titleType', option: 'film', display: 'movies' },
             { category: 'titleType', option: 'tv', display: 'TV' },
             { category: 'venue', option: 'on_my_streaming', display: 'on my streaming' },
             { category: 'venue', option: 'theaters', display: 'in theaters' },
-            { category: 'all', option: 'see_all_filters', display: 'all filters' },
+            { category: 'all', option: 'see_all_filters', display: 'see all ' },
         ]
     }
 
@@ -307,6 +306,7 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover', isFull
         return (
             <FilterPressable selected={isSelected} allFilters={isAllFiltersOption} onPress={onPress}>
                 <FilterText>{display}</FilterText>
+                { isAllFiltersOption && <FontAwesomeIcon icon={faArrowRight} size={14} color='white' /> }
             </FilterPressable>
         )
     }

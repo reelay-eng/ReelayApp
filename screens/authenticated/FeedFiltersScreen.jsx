@@ -3,7 +3,12 @@ import { ScrollView, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
+
+import { LinearGradient } from "expo-linear-gradient";
 import ReelayFeedHeader from "../../components/feed/ReelayFeedHeader";
+import ReelayColors from "../../constants/ReelayColors";
+import { useFocusEffect } from "@react-navigation/native";
+import { useDispatch } from "react-redux";
 
 const FILTER_MAPPINGS = {
     'Type': [
@@ -103,6 +108,14 @@ const FILTER_MAPPINGS = {
     ],
 }
 
+const BottomGradient = styled(LinearGradient)`
+    position: absolute;
+    bottom: 0px;
+    opacity: 0.8;
+    height: 172px;
+    width: 100%;
+`
+
 const CategoryHeader = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
@@ -143,17 +156,37 @@ const FilterText = styled(ReelayText.Subtitle2)`
 const FilterScrollView = styled(ScrollView)`
     top: ${props => props.topOffset}px;
 `
-
 const ScreenView = styled(View)`
+    align-items: center;
     background-color: black;
     height: 100%;
     width: 100%;
 `
+const SearchBarPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 20px;
+    bottom: ${props => props.bottomOffset}px;
+    flex-direction: row;
+    height: 40px;
+    justify-content: center;
+    position: absolute;
+    width: 90%;
+`
+const SearchBarText = styled(ReelayText.Overline)`
+    color: white;
+`
 
 export default FeedFiltersScreen = ({ navigation, route }) => {
+    const dispatch = useDispatch();
     const feedSource = route?.params?.feedSource;
     const filterCategories = Object.keys(FILTER_MAPPINGS);
     const topOffset = useSafeAreaInsets().top + 60;
+    const bottomOffset = useSafeAreaInsets().bottom + 54;
+
+    useFocusEffect(() => {
+        dispatch({ type: 'setTabBarVisible', payload: true });
+    });
 
     const FilterCategory = ({ category }) => {
         const filterOptions = FILTER_MAPPINGS[category];
@@ -177,8 +210,27 @@ export default FeedFiltersScreen = ({ navigation, route }) => {
         );
     }
 
-    const SearchButton = () => {
+    const FilterList = () => {
+        return (
+            <FilterScrollView 
+                contentContainerStyle={{ paddingBottom: 240 }}
+                showsVerticalScrollIndicator={false} 
+                topOffset={topOffset}
+            >
+                { filterCategories.map(category => {
+                    return <FilterCategory key={category} category={category} /> 
+                })}
+            </FilterScrollView>
+        );
+    }
 
+    const SearchButton = () => {
+        const applyFilters = () => {}
+        return (
+            <SearchBarPressable bottomOffset={bottomOffset} onPress={applyFilters}>
+                <SearchBarText>{'Apply'}</SearchBarText>
+            </SearchBarPressable>
+        );
     }
 
     return (
@@ -188,15 +240,9 @@ export default FeedFiltersScreen = ({ navigation, route }) => {
                 navigation={navigation}
                 isFullScreen={true}
             />
-            <FilterScrollView 
-                contentContainerStyle={{ paddingBottom: 200 }}
-                showsVerticalScrollIndicator={false} 
-                topOffset={topOffset}
-            >
-                { filterCategories.map(category => {
-                    return <FilterCategory key={category} category={category} /> 
-                })}
-            </FilterScrollView>
+            <FilterList />
+            <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
+            <SearchButton />
         </ScreenView>
     )
 }
