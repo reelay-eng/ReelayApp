@@ -16,12 +16,14 @@ const ReelayFeedContainer = styled(View)`
     width: ${width}px;
 `
 
-const FixedReelayFeed = ({ navigation, 
+const FixedReelayFeed = ({ 
+    headerDisplayText,
     initialFeedPos = 0,
     initialStackPos = 0,
     feedSource,
     fixedStackList = [],
     forceRefresh = false, 
+    navigation,
 }) => {
 
     const feedPager = useRef();
@@ -85,6 +87,8 @@ const FixedReelayFeed = ({ navigation,
         setFeedPosition(nextFeedPosition);
     }
 
+    console.log('display text ', headerDisplayText);
+
     return (
         <ReelayFeedContainer>
             { stackList.length < 1 && <ActivityIndicator /> }
@@ -112,6 +116,7 @@ const FixedReelayFeed = ({ navigation,
                 />
             }
             <ReelayFeedHeader 
+                displayText={headerDisplayText ?? null}
                 feedSource={feedSource}
                 navigation={navigation}
             />

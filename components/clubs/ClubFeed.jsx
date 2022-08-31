@@ -131,6 +131,7 @@ export default ClubFeed = ({
                 />
             )}
             <ReelayFeedHeader
+                displayText={club.name}
                 feedSource='club'
                 navigation={navigation}
             />

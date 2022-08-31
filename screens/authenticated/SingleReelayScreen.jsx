@@ -22,6 +22,7 @@ const TitleFeedContainer = styled(View)`
 
 export default SingleReelayScreen = ({ navigation, route }) => {
     const preparedReelay = route.params?.preparedReelay;
+    const creatorName = preparedReelay?.creator?.username;
     const reelaySub = route.params?.reelaySub ?? preparedReelay?.sub;
     
     const dispatch = useDispatch();
@@ -52,6 +53,7 @@ export default SingleReelayScreen = ({ navigation, route }) => {
     return (
         <TitleFeedContainer>
             <FixedReelayFeed 
+                headerDisplayText={creatorName}
                 fixedStackList={[[singleReelay]]} 
                 feedSource='single'
                 initialStackPos={0} 

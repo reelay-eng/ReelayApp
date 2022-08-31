@@ -119,7 +119,7 @@ const WhenOptionsView = styled(View)`
     width: 100%;
 `
 
-export default ReelayFeedHeader = ({ navigation, feedSource = 'discover', isFullScreen = false }) => {
+export default ReelayFeedHeader = ({ navigation, displayText, feedSource = 'discover', isFullScreen = false }) => {
     const topOffset = useSafeAreaInsets().top;
     const resetFilter = { category: 'all', option: 'unselect_all', display: 'all' };
     const [showFilters, setShowFilters] = useState(false);
@@ -137,7 +137,23 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover', isFull
     const noFiltersSelected = (selectedFilters.length === 1 && isResetOption(selectedFilters[0]));
     const showFilterActionButton = (!noFiltersSelected || !showFilters);
 
-    const getDisplayFeedSource = () => {
+    // todo: these will certainly change with the new home screen
+    const whenableFeedSources = [
+        'club', 
+        'festivals',
+        'following',
+        'popularTitlesDiscover',
+        'popularTitlesFollowing',
+        'streaming',
+        'topics',
+        'theaters',
+        'trending',
+    ]
+
+    const headerIsWhenable = whenableFeedSources.includes(feedSource);
+
+    const getDisplayText = () => {
+        if (displayText) return displayText;
         switch (feedSource) {
             case 'club': return 'club';
             case 'festivals': return 'at festivals';
@@ -147,6 +163,7 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover', isFull
             case 'popularTitlesFollowing': return 'popular titles';
             case 'single': return '';
             case 'streaming': return 'on streaming'; 
+            case 'title': return 'top reelays';
             case 'topics': return 'topics';
             case 'theaters': return 'in theaters';
             case 'trending': return 'top of the week';
@@ -205,15 +222,9 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover', isFull
         );
     }
 
-    const DiscoveryBar = () => {
-        const DiscoverHeader = () => {
-            return (
-                <DiscoveryBarLeftView>
-                    <HeaderText>{'discover'}</HeaderText>
-                </DiscoveryBarLeftView>
-            );
-        }
+    // todo: single, title, profile
 
+    const DiscoveryBar = () => {
         const FullScreenHeader = () => {
             return (
                 <DiscoveryBarLeftView>
@@ -222,6 +233,24 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover', isFull
                     <HeaderText>{'apply filters'}</HeaderText>
                 </DiscoveryBarLeftView>
             );
+        }
+
+        const NonWhenableHeader = () => {
+            if (feedSource === 'discover') {
+                return (
+                    <DiscoveryBarLeftView>
+                        <HeaderText>{'discover'}</HeaderText>
+                    </DiscoveryBarLeftView>
+                );    
+            }
+
+            return (
+                <DiscoveryBarLeftView>
+                    <BackButton />
+                    <HeaderLeftSpacer />
+                    <HeaderText>{getDisplayText()}</HeaderText>
+                </DiscoveryBarLeftView>
+            )
         }
 
         const WhenOption = ({ option, optionDisplay }) => {
@@ -250,7 +279,7 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover', isFull
                     <BackButton />
                     <ExpandWhenPressable onPress={expandWhen}>
                         <HeaderLeftSpacer />
-                        <HeaderText>{getDisplayFeedSource()}</HeaderText>
+                        <HeaderText>{getDisplayText()}</HeaderText>
                         <HeaderLeftSpacer />
                         <FontAwesomeIcon icon={faChevronDown} color='white' size={14} />
                     </ExpandWhenPressable>
@@ -263,8 +292,8 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover', isFull
             <Fragment>
                 <DiscoveryBarView onPress={closeAllFilters} topOffset={topOffset}>
                     { isFullScreen && <FullScreenHeader /> }
-                    { !isFullScreen && feedSource === 'discover' && <DiscoverHeader /> }
-                    { !isFullScreen && feedSource !== 'discover' && <WhenableHeader /> }
+                    { !isFullScreen && !headerIsWhenable && <NonWhenableHeader /> }
+                    { !isFullScreen && headerIsWhenable && <WhenableHeader /> }
                     { !isFullScreen && (
                         <DiscoveryBarRightView>
                             { showFilterActionButton && <FilterActionButton /> }
