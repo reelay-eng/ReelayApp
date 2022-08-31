@@ -12,28 +12,10 @@ import { Icon } from 'react-native-elements';
 import { useSelector } from 'react-redux';
 import UploadProgressBar from '../global/UploadProgressBar';
 import TitleBanner from '../feed/TitleBanner';
+import TopicBanner from './TopicBanner';
 
 const { height, width } = Dimensions.get('window');
 
-const AddReelayButtonContainer = styled(TouchableOpacity)`
-    align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
-    border-radius: 20px;
-    flex-direction: row;
-    justify-content: center;
-    height: 40px;
-    width: ${width - 32}px;
-`
-const AddReelayButtonOuterContainer = styled(View)`
-    align-items: center;
-    bottom: ${(props) => props.offset ?? 0}px;
-    position: absolute;
-    width: 100%;
-`
-const AddReelayButtonText = styled(ReelayText.Subtitle2)`
-    color: white;
-    margin-left: 4px;
-`
 const BannerContainer = styled(View)`
     top: ${(props) => props.offset}px;
     align-items: center;
@@ -42,23 +24,11 @@ const BannerContainer = styled(View)`
     width: 100%;
 `
 const ReelayFeedContainer = styled(View)`
+    align-items: center;
     background-color: black;
     height: ${height}px;
     width: ${width}px;
 `
-const AddReelayButton = ({ navigation, offset, topic }) => {
-    const advanceToCreateTopic = () => navigation.push('SelectTitleScreen', { topic });
-    return (
-        <AddReelayButtonOuterContainer offset={offset}>
-        <AddReelayButtonContainer onPress={advanceToCreateTopic}>
-            <Icon type='ionicon' name='add-circle-outline' size={16} color='white' />
-            <AddReelayButtonText>
-                {'Add a reelay'}
-            </AddReelayButtonText>
-        </AddReelayButtonContainer>
-        </AddReelayButtonOuterContainer>
-    );
-}
 
 export default TopicStack = ({ 
     initialStackPos = 0,
@@ -71,6 +41,7 @@ export default TopicStack = ({
     const stack = topic.reelays;
     const [stackPosition, setStackPosition] = useState(initialStackPos);
 
+    const viewableReelay = stack[stackPosition];
     const stackRef = useRef(null);
     const uploadStage = useSelector(state => state.uploadStage);
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
@@ -82,17 +53,6 @@ export default TopicStack = ({
         offset: width * index, index,
         index: index,
     });
-
-    const onTappedOldest = () => {
-        setStackPosition(0);
-        stackRef?.current?.scrollToIndex({ animated: false, index: 0 });
-    }
-
-    const onTappedNewest = () => {
-        const nextPosition = topic?.reelays?.length - 1;
-        setStackPosition(nextPosition);
-        stackRef?.current?.scrollToIndex({ animated: false, index: nextPosition });
-    }
 
     const renderReelay = ({ item, index }) => {
         const reelay = item;
@@ -106,19 +66,6 @@ export default TopicStack = ({
                     reelay={reelay} 
                     viewable={reelayViewable}
                 />
-                <BannerContainer offset={topOffset}>
-                    <TitleBanner 
-                        club={null}
-                        donateObj={null}
-                        navigation={navigation}
-                        onTappedNewest={onTappedNewest}
-                        onTappedOldest={onTappedOldest}
-                        stack={stack}
-                        titleObj={reelay?.title}
-                        topic={topic}
-                        reelay={reelay}
-                    />
-                </BannerContainer>
             </ReelayFeedContainer>
         );
     };
@@ -162,11 +109,15 @@ export default TopicStack = ({
                 pagingEnabled={true} 
                 windowSize={3}
             />
-            {/* <AddReelayButton 
-                navigation={navigation} 
-                offset={addReelayBottomOffset}
-                topic={topic} 
-            /> */}
+            <BannerContainer offset={topOffset}>
+                <TopicBanner  
+                    club={null}
+                    navigation={navigation}
+                    reelay={viewableReelay}
+                    titleObj={viewableReelay?.title}
+                    topic={topic}
+                />
+            </BannerContainer>
             { showProgressBar && <UploadProgressBar mountLocation={'InTopic'}  /> }
         </ReelayFeedContainer>
     );

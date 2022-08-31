@@ -43,7 +43,7 @@ const FILTER_MAPPINGS = {
     'Popularity & Rating': [
         { option: 'popular', display: 'popular' },
         { option: 'deep_cut', display: 'deep cut' },
-        { option: 'hidden_gem', display: 'hidden grem' },
+        { option: 'hidden_gem', display: 'hidden gem' },
         { option: 'highly_rated', display: 'highly rated' },
         { option: 'poorly_rated', display: 'poorly rated' },
         { option: 'controversial', display: 'controversial' },
