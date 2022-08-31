@@ -50,7 +50,7 @@ const TopicBannerRow = styled(Pressable)`
 `
 const TopicBannerBackground = styled(View)`
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.36);
+    background-color: rgba(0, 0, 0, 0.44);
     border-radius: 8px;
     top: 20px;
     width: ${width - 20}px;
@@ -172,7 +172,6 @@ const TopicBanner = ({
             </ExpandArrowView>
         );
     }
-
 
     const ExpandedInfo = () => {
         return (

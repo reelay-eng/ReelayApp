@@ -165,25 +165,26 @@ export default Sidebar = ({ navigation, reelay }) => {
 			}
 		}
 
+		const likeAnimationStyle = {
+			transform: [{ 
+				scale: likeAnimScale.interpolate({
+						inputRange: [1, 100],
+						outputRange: [1, 1.7]
+					}) 
+			}, {
+				rotate: likeAnimScale.interpolate({
+					inputRange: [1, 100],
+					outputRange: ["0deg", "10deg"]
+				})
+			}]
+		}
+
 		return (
 			<ButtonContainer>
 				<SidebarButton 
 					onPress={onLikePress} 
 					onLongPress={onLikeLongPress}>
-					<Animated.View 
-						style={{ 
-							transform: [{ 
-								scale: likeAnimScale.interpolate({
-										inputRange: [1, 100],
-										outputRange: [1, 1.7]
-									}) 
-							}, {
-								rotate: likeAnimScale.interpolate({
-									inputRange: [1, 100],
-									outputRange: ["0deg", "10deg"]
-								})
-							}]
-					}}>
+					<Animated.View style={likeAnimationStyle}>
 						<FontAwesomeIcon 
 							icon={faHeart} 
 							color={likedByUser ? ReelayColors.reelayRed : "white"} 
@@ -199,17 +200,6 @@ export default Sidebar = ({ navigation, reelay }) => {
 
 	return (
 		<SidebarView>
-			<ButtonContainer>
-				<SidebarButton>
-					<AddToClubsButton
-						navigation={navigation}
-						titleObj={reelay.title}
-						reelay={reelay}
-					/>
-				</SidebarButton>
-				<Count>{displayWatchlistAdds()}</Count>
-			</ButtonContainer>
-
 			<LikeButton />
 
 			<ButtonContainer>
