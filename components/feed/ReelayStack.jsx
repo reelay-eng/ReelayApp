@@ -1,4 +1,4 @@
-import React, { useContext, useState, memo, useRef, Fragment, useMemo } from 'react';
+import React, { useContext, useState, memo, useRef, Fragment, useMemo, useEffect } from 'react';
 import { Dimensions, FlatList, SafeAreaView, View } from 'react-native';
 import BackButton from '../utils/BackButton';
 import Hero from './Hero';
@@ -7,11 +7,11 @@ import * as ReelayText from '../global/Text';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components/native';
 import UploadProgressBar from '../global/UploadProgressBar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import ReelayFeedHeader from './ReelayFeedHeader';
+import StackPositionBar from './StackPositionBar';
 
 const { height, width } = Dimensions.get('window');
 
@@ -202,6 +202,9 @@ const ReelayStack = ({
             />
             { isPinnedReelay && renderPinnedHeader() }
             { !isPinnedReelay && renderBannerOnStack && renderTitleBanner(viewableReelay) }
+            { !isPinnedReelay && (stack.length > 1) && (
+                <StackPositionBar stackLength={stack?.length} stackPosition={stackPosition} stackViewable={stackViewable} /> 
+            )}
             { showProgressBar && <UploadProgressBar mountLocation={'OnProfile'} onRefresh={onRefresh} /> }
         </ReelayFeedContainer>
     );
