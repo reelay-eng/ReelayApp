@@ -1,7 +1,5 @@
 import React, { useContext, useState, useRef } from 'react';
 import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
-import * as ReelayText from '../global/Text';
-import ReelayColors from '../../constants/ReelayColors';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
@@ -9,31 +7,12 @@ import styled from 'styled-components/native';
 import TitleBanner from '../feed/TitleBanner';
 import Hero from '../feed/Hero';
 
-import { Icon } from 'react-native-elements';
 import { useSelector } from 'react-redux';
+import TopicBanner from '../topics/TopicBanner';
 
 const { height, width } = Dimensions.get('window');
 const TITLE_BANNER_TOP_OFFSET = 68;
 
-const AddReelayButtonContainer = styled(TouchableOpacity)`
-    align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
-    border-radius: 20px;
-    flex-direction: row;
-    justify-content: center;
-    height: 40px;
-    width: ${width - 32}px;
-`
-const AddReelayButtonOuterContainer = styled(View)`
-    align-items: center;
-    bottom: ${(props) => props.offset ?? 0}px;
-    position: absolute;
-    width: 100%;
-`
-const AddReelayButtonText = styled(ReelayText.Subtitle2)`
-    color: white;
-    margin-left: 4px;
-`
 const TitleBannerContainer = styled(View)`
     top: ${(props) => props.offset}px;
     align-items: center;
@@ -46,35 +25,6 @@ const ReelayFeedContainer = styled(View)`
     height: ${height}px;
     width: ${width}px;
 `
-const AddReelayButton = ({ 
-    activityType,
-    clubID, 
-    navigation, 
-    offset, 
-    titleObj, 
-    topicObj,
-}) => {
-    const advanceToTitleSelect = () => navigation.push('SelectTitleScreen', {
-        clubID,
-        topic: topicObj,
-    });
-    const advanceToVenueSelect = () => navigation.push('VenueSelectScreen', { 
-        clubID, 
-        titleObj,
-    });
-    const advanceToCreateReelay = (activityType === 'topic') 
-        ? advanceToTitleSelect 
-        : advanceToVenueSelect;
-
-    return (
-        <AddReelayButtonOuterContainer offset={offset}>
-        <AddReelayButtonContainer onPress={advanceToCreateReelay}>
-            <Icon type='ionicon' name='add-circle-outline' size={16} color='white' />
-            <AddReelayButtonText>{'Add a reelay'}</AddReelayButtonText>
-        </AddReelayButtonContainer>
-        </AddReelayButtonOuterContainer>
-    );
-}
 
 export default ClubTitleOrTopicStack = ({ 
     club, 
@@ -104,32 +54,30 @@ export default ClubTitleOrTopicStack = ({
         index: index,
     });
 
-    const onTappedOldest = () => {
-        setStackPosition(0);
-        stackRef?.current?.scrollToIndex({ animated: false, index: 0 });
-    }
-
-    const onTappedNewest = () => {
-        const nextPosition = reelays?.length - 1;
-        setStackPosition(nextPosition);
-        stackRef?.current?.scrollToIndex({ animated: false, index: nextPosition });
-    }
-
-    const renderTitleBanner = (reelay, activityType) => {
-        const posterWidth = (activityType === 'title') ? 60 : 48;
+    const renderTitleBanner = (reelay) => {
         return (
             <TitleBannerContainer offset={TITLE_BANNER_TOP_OFFSET}>
                 <TitleBanner 
+                    club={club}
                     donateObj={donateObj}
                     navigation={navigation}
-                    onTappedNewest={onTappedNewest}
-                    onTappedOldest={onTappedOldest}    
-                    posterWidth={posterWidth}
-                    stack={stack}
-                    titleObj={reelay?.title}
                     reelay={reelay}
+                    titleObj={reelay?.title}
+                    topic={null}
+                />
+            </TitleBannerContainer>
+        );
+    }
+
+    const renderTopicBanner = (reelay) => {
+        return (
+            <TitleBannerContainer offset={TITLE_BANNER_TOP_OFFSET}>
+                <TopicBanner
                     club={club}
-                    topic={(activityType === 'topic') ? clubTitleOrTopic : null}
+                    navigation={navigation}
+                    reelay={reelay}
+                    titleObj={reelay?.title}
+                    topic={clubTitleOrTopic}
                 />
             </TitleBannerContainer>
         );
@@ -147,7 +95,6 @@ export default ClubTitleOrTopicStack = ({
                     reelay={reelay} 
                     viewable={reelayViewable}
                 />
-                { activityType === 'topic' && renderTitleBanner(reelay, activityType) }
             </ReelayFeedContainer>
         );
     };
@@ -161,10 +108,8 @@ export default ClubTitleOrTopicStack = ({
         const nextReelay = stack[nextStackPosition];
         const prevReelay = stack[stackPosition];
         const logProperties = {
-            nextReelayID: nextReelay.id,
             nextReelayCreator: nextReelay.creator.username,
             nextReelayTitle: nextReelay.title.display,
-            prevReelayID: prevReelay.id,
             prevReelayCreator: prevReelay.creator.username,
             prevReelayTitle: prevReelay.title.display,
             source: 'clubs',
@@ -191,7 +136,8 @@ export default ClubTitleOrTopicStack = ({
                 pagingEnabled={true} 
                 windowSize={3}
             />
-            { activityType === 'title' && renderTitleBanner(viewableReelay, activityType) }
+            { activityType === 'title' && renderTitleBanner(viewableReelay) }
+            { activityType === 'topic' && renderTopicBanner(viewableReelay) }
         </ReelayFeedContainer>
     );
 }

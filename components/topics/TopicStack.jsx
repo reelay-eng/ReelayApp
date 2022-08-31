@@ -79,10 +79,8 @@ export default TopicStack = ({
         const nextReelay = stack[nextStackPosition];
         const prevReelay = stack[stackPosition];
         const logProperties = {
-            nextReelayID: nextReelay.id,
             nextReelayCreator: nextReelay.creator.username,
             nextReelayTitle: nextReelay.title.display,
-            prevReelayID: prevReelay.id,
             prevReelayCreator: prevReelay.creator.username,
             prevReelayTitle: prevReelay.title.display,
             source: 'stack',

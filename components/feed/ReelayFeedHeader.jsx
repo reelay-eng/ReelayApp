@@ -100,7 +100,6 @@ const HeaderLeftSpacer = styled(View)`
     width: 10px;
 `
 const WhenOptionPressable = styled(TouchableOpacity)`
-    padding-left: 30px;
     padding-right: 30px;
     padding-top: 7px;
     padding-bottom: 7px;
@@ -140,6 +139,7 @@ export default ReelayFeedHeader = ({ navigation, feedSource = 'discover', isFull
 
     const getDisplayFeedSource = () => {
         switch (feedSource) {
+            case 'club': return 'club';
             case 'festivals': return 'at festivals';
             case 'following': return 'friends are watching';
             case 'discover': return 'discover';

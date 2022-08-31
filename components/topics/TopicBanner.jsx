@@ -18,12 +18,8 @@ import { animate } from "../../hooks/animations";
 
 const { width } = Dimensions.get('window');
 
-// a collapsed (!expanded) banner is 100px in height
-// the add to stack button is 45px
-const AddToClubsButtonContainer = styled(View)`
-`
-const AddToStackButtonContainer = styled(View)`
-    top: 10px;
+const BannerTopSpacer = styled(View)`
+    height: 22px;
 `
 const ExpandArrowView = styled(Pressable)`
     align-items: center;
@@ -65,7 +61,6 @@ const TopicIconContainer = styled(View)`
     justify-content: center;
     height: 100%;
     padding: 10px;
-    top: 10px;
 `
 const TitleInfoPressable = styled(Pressable)`
     align-items: flex-start;
@@ -84,7 +79,6 @@ const TitleText = styled(ReelayText.H5Bold)`
     font-size: 18px;
 `
 const TitleTextContainer = styled(View)`
-    margin-top: 10px;
     justify-content: center;
     display: flex;
 `
@@ -92,7 +86,6 @@ const TopicTitleText = styled(ReelayText.Subtitle1Emphasized)`
     color: white;
 `
 const TopicTitleView = styled(View)`
-    align-items: center;
     justify-content: center;
     display: flex;
     flex: 1;
@@ -153,26 +146,22 @@ const TopicBanner = ({
 
     const AddToStack = () => {
         return (
-            <AddToStackButtonContainer>
-                <AddToStackButton 
-                    navigation={navigation} 
-                    reelay={reelay} 
-                    club={club}
-                    topic={topic}
-                />
-            </AddToStackButtonContainer>
+            <AddToStackButton 
+                navigation={navigation} 
+                reelay={reelay} 
+                club={club}
+                topic={topic}
+            />
         );
     }
 
     const AddToClubs = () => {
         return (
-            <AddToClubsButtonContainer>
-                <AddToClubsButton
-                    navigation={navigation}
-                    titleObj={reelay?.title}
-                    reelay={reelay}
-                />
-            </AddToClubsButtonContainer>
+            <AddToClubsButton
+                navigation={navigation}
+                titleObj={reelay?.title}
+                reelay={reelay}
+            />
         );
     }
 
@@ -263,6 +252,7 @@ const TopicBanner = ({
 
     return (
         <TopicBannerBackground>
+            <BannerTopSpacer />
             <TopicBannerRow onPress={onClickExpand}>
                 <TopicIcon />
                 <TopicTitle />
