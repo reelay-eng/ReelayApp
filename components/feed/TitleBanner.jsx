@@ -23,7 +23,6 @@ const { height, width } = Dimensions.get('window');
 // a collapsed (!expanded) banner is 100px in height
 // the add to stack button is 45px
 const AddToClubsButtonContainer = styled(View)`
-    height: 100%;
     justify-content: center;
 `
 const ArtistBadgeView = styled(View)`
@@ -45,8 +44,11 @@ const ArtistText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
 `
-const ExpandArrowSpacer = styled(View)`
+const ExpandArrowVisibleSpacer = styled(View)`
     height: 8px;
+`
+const ExpandArrowInvisibleSpacer = styled(View)`
+    height: 30px;
 `
 const ExpandArrowView = styled(Pressable)`
     align-items: center;
@@ -81,7 +83,6 @@ const SeeMoreText = styled(ReelayText.CaptionEmphasized)`
     line-height: 16px;
 `
 const TitleBannerRow = styled(Pressable)`
-    align-items: flex-start;
     flex-direction: row;
     justify-content: space-between;
 `
@@ -103,7 +104,6 @@ const TitleInfoPressable = styled(Pressable)`
     padding: 5px;
 `
 const TitlePosterContainer = styled(View)`
-    height: 100%;
     justify-content: center;
     padding: 5px;
 `
@@ -260,8 +260,9 @@ const TitleBanner = ({
                     runtime={titleObj?.runtime}
                     venue={reelay?.content?.venue ?? venue} 
                 />
-                { !expanded && <ExpandArrowSpacer /> }
+                { !expanded && <ExpandArrowVisibleSpacer /> }
                 { !expanded && <ExpandArrow /> }
+                { expanded && <ExpandArrowInvisibleSpacer /> }
             </TitleInfoPressable>
         );
     }
