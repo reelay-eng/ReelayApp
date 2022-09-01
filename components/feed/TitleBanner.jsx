@@ -110,6 +110,9 @@ const TitlePosterContainer = styled(View)`
 const TitleText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
+    text-shadow-color: rgba(0, 0, 0, 0.5);
+    text-shadow-offset: 1px 1px;
+    text-shadow-radius: 1px;
 `
 const TitleTextContainer = styled(View)`
     margin-top: 10px;

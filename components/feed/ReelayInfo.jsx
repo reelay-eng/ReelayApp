@@ -33,6 +33,9 @@ const DescriptionContainer = styled(Pressable)`
 const DescriptionText = styled(ReelayText.Caption)`
 	color: white;
 	line-height: 20px;
+	text-shadow-color: rgba(0, 0, 0, 0.5);
+    text-shadow-offset: 1px 1px;
+    text-shadow-radius: 1px;
 `
 const InfoView = styled(View)`
 	bottom: 86px;
@@ -52,7 +55,10 @@ const MentionTextStyle = {
 	fontSize: 14,
 	fontStyle: "normal",
 	letterSpacing: 0.25,
-	lineHeight: 20
+	lineHeight: 20,
+	textShadowColor: 'rgba(0, 0, 0, 0.5)',
+	textShadowOffset: { width: 1, height: 1 },
+	textShadowRadius: 1,
 }
 
 const StarRatingContainer = styled(View)`
@@ -64,6 +70,9 @@ const StarRatingContainer = styled(View)`
 const UsernameText = styled(ReelayText.Subtitle1Emphasized)`
 	color: white;
 	margin-right: 8px;
+	text-shadow-color: rgba(0, 0, 0, 0.5);
+    text-shadow-offset: 1px 1px;
+    text-shadow-radius: 1px;
 `
 
 const ReelayInfo = ({ clubStub, feedSource, navigation, reelay }) => {

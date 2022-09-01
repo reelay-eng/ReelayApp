@@ -32,7 +32,7 @@ const FILTER_MAPPINGS = {
     ],
     'Watchlist': [
         { option: 'on_my_watchlist', display: 'on my watchlist' },
-        { option: 'on_friends_watchlists', display: "on my friends' watchlists'" },
+        { option: 'on_friends_watchlists', display: "on my friends' watchlists" },
         { option: 'marked_seen', display: 'marked as seen' },
         { option: 'marked_unseen', display: 'marked as unseen' },
     ],
