@@ -79,7 +79,7 @@ const HeroModals = ({ reelay, navigation }) => {
     );
 }
 
-export default Hero = memo(({ index, navigation, reelay, viewable }) => {
+export default Hero = memo(({ clubStub, feedSource, index, navigation, reelay, viewable }) => {
     const commentsCount = useRef(reelay.comments.length);
     const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
 
@@ -91,7 +91,7 @@ export default Hero = memo(({ index, navigation, reelay, viewable }) => {
 
             <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
 
-            <ReelayInfo navigation={navigation} reelay={reelay} />
+            <ReelayInfo clubStub={clubStub} feedSource={feedSource} navigation={navigation} reelay={reelay} />
             { !isWelcomeVideo && <Sidebar navigation={navigation} reelay={reelay} commentsCount={commentsCount}/> }
             { viewable && <HeroModals reelay={reelay} navigation={navigation} /> }
         </View>

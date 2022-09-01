@@ -99,17 +99,6 @@ const ReelayStack = ({
         index: index,
     });
 
-    const onTappedOldest = () => {
-        setStackPosition(0);
-        stackRef?.current?.scrollToIndex({ animated: false, index: 0 });
-    }
-
-    const onTappedNewest = () => {
-        const nextPosition = stack?.length - 1;
-        setStackPosition(nextPosition);
-        stackRef?.current?.scrollToIndex({ animated: false, index: nextPosition });
-    }
-
     const AnnouncementTitle = () => {
         return (
             <AnnouncementTitleContainer>
@@ -142,7 +131,9 @@ const ReelayStack = ({
         return (
             <ReelayFeedContainer key={reelay.id}>
                 <Hero 
+                    clubStub={clubStub}
                     index={index} 
+                    feedSource={feedSource}
                     navigation={navigation} 
                     reelay={reelay} 
                     viewable={reelayIsViewable}
