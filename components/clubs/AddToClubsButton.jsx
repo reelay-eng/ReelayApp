@@ -1,17 +1,12 @@
 import React, { useContext, useState } from 'react';
-import { Pressable, TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
-import { AddedToClubsIconSVG, AddToClubsIconSVG, AddToWatchlistIconSVG, ClubsIconSVG, WatchlistAddedIconSVG } from '../global/SVGs';
+import { AddedToClubsIconSVG, AddToClubsIconSVG } from '../global/SVGs';
 import styled from 'styled-components/native';
-import ReelayColors from '../../constants/ReelayColors';
 import { useDispatch, useSelector } from 'react-redux';
 import AddToClubsDrawer from './AddToClubsDrawer';
-
-import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faAdd } from "@fortawesome/free-solid-svg-icons";
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
 const ClubsButtonCircleContainer = styled(View)`
     align-items: center;

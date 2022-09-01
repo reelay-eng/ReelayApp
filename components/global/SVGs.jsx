@@ -28,6 +28,29 @@ export const AddToWatchlistIconSVG = ({ size=24 }) => {
     );
 }
 
+export const AddedToWatchlistGiantIconSVG = () => {
+    const xmlString = `
+    <svg width="87" height="92" viewBox="0 0 87 92" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g filter="url(#filter0_d_1800_121566)">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M21.985 1.43268C23.5548 -0.121761 26.0874 -0.109378 27.6418 1.46034L45.4996 19.4936L63.3574 1.46034C64.9118 -0.109378 67.4445 -0.121761 69.0142 1.43268C70.5839 2.98712 70.5963 5.51975 69.0418 7.08947L51.9377 24.3617H78.6196C83.1925 24.3617 86.8996 28.1052 86.8996 32.7231V78.7106C86.8996 83.3285 83.1925 87.072 78.6196 87.072H12.3796C7.80669 87.072 4.09961 83.3285 4.09961 78.7106V32.7231C4.09961 28.1052 7.80669 24.3617 12.3796 24.3617H39.0616L21.9574 7.08947C20.4029 5.51975 20.4153 2.98712 21.985 1.43268ZM63.932 42.3316C62.7453 41.2854 60.9402 41.3791 59.8682 42.5425L40.3385 63.7369L31.1253 54.1038C30.0509 52.9804 28.2813 52.905 27.1153 53.933C25.8608 55.0389 25.8004 56.9742 26.9834 58.1562L36.7147 67.8788C38.7017 69.8641 41.9337 69.8235 43.8703 67.789L64.1154 46.5202C65.2534 45.3247 65.1701 43.423 63.932 42.3316Z" fill="white"/>
+        </g>
+        <defs>
+            <filter id="filter0_d_1800_121566" x="0.0996094" y="0.274902" width="86.8008" height="90.7971" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+                <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+                <feOffset dx="-2" dy="2"/>
+                <feGaussianBlur stdDeviation="1"/>
+                <feComposite in2="hardAlpha" operator="out"/>
+                <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.5 0"/>
+                <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_1800_121566"/>
+                <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_1800_121566" result="shape"/>
+            </filter>
+        </defs>
+    </svg>
+    `
+    return <SvgXml xml={xmlString} />;
+}
+
 export const ClubsIcon2SVG = () => {
     const xmlString = `
         <svg width="24" height="26" viewBox="0 0 24 26" fill="none" xmlns="http://www.w3.org/2000/svg">
