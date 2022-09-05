@@ -110,26 +110,14 @@ const HomeComponent = ({ navigation }) => {
             </SafeAreaView>
             <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 <AnnouncementsAndNotices navigation={navigation} />
-                { selectedTab === 'discover' && (
-                    <Fragment>
-                        <PopularTitles navigation={navigation} tab='discover' />
-                        <TopOfTheWeek navigation={navigation} />
-                        <TopicsCarousel navigation={navigation} source='discover' /> 
-                        <DiscoverClubs navigation={navigation} />
-                        <PeopleToFollow navigation={navigation} /> 
-                        <OnStreaming navigation={navigation} source='discover' />
-                        <InTheaters navigation={navigation} /> 
-                        <AtFestivals navigation={navigation} /> 
-                    </Fragment>
-                )}
-                { selectedTab === 'my stuff' && (
-                    <Fragment>
-                        <MyWatchlistGrid navigation={navigation} />
-                        <FriendsAreWatching navigation={navigation} />
-                        <OnStreaming navigation={navigation} source='following' />
-                        <TopicsCarousel navigation={navigation} source='following' /> 
-                    </Fragment>  
-                )}
+                <PopularTitles navigation={navigation} tab='discover' />
+                <TopOfTheWeek navigation={navigation} />
+                <TopicsCarousel navigation={navigation} source='discover' /> 
+                <FriendsAreWatching navigation={navigation} />
+                <DiscoverClubs navigation={navigation} />
+                <OnStreaming navigation={navigation} source='discover' />
+                <InTheaters navigation={navigation} /> 
+                <MyWatchlistGrid navigation={navigation} />
                 <Spacer />
             </ScrollContainer>
             <BottomBar 

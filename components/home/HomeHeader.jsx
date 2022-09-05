@@ -128,9 +128,6 @@ export default HomeHeader = ({
     }    
     
     return (
-        <React.Fragment>
-            <HomeHeaderTop navigation={navigation} />
-            <HomeScreenTabSelector />
-        </React.Fragment>
+        <HomeHeaderTop navigation={navigation} />
     )
 };

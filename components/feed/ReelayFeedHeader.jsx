@@ -150,7 +150,7 @@ export default ReelayFeedHeader = ({ navigation, displayText, feedSource = 'disc
         'trending',
     ]
 
-    const headerIsWhenable = whenableFeedSources.includes(feedSource);
+    const headerIsWhenable = false; // whenableFeedSources.includes(feedSource);
 
     const getDisplayText = () => {
         if (displayText) return displayText;
@@ -294,12 +294,12 @@ export default ReelayFeedHeader = ({ navigation, displayText, feedSource = 'disc
                     { isFullScreen && <FullScreenHeader /> }
                     { !isFullScreen && !headerIsWhenable && <NonWhenableHeader /> }
                     { !isFullScreen && headerIsWhenable && <WhenableHeader /> }
-                    { !isFullScreen && (
+                    {/* { !isFullScreen && (
                         <DiscoveryBarRightView>
                             { showFilterActionButton && <FilterActionButton /> }
                             <ExpandFiltersButton />
                         </DiscoveryBarRightView>                    
-                    )}
+                    )} */}
                 </DiscoveryBarView>
             </Fragment>
         )
