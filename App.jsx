@@ -328,11 +328,11 @@ function App() {
         dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });
         dispatch({ type: 'setLatestNotice', payload: null }); 
         // triggers the reducer to create the latest notice from already-loaded app data
-        dispatch({ type: 'setIsLoading', payload: false });
 
         dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
         dispatch({ type: 'setMySettings', payload: mySettings })
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
+        dispatch({ type: 'setIsLoading', payload: false });
 
         console.log('dispatched first set of profile data');
 

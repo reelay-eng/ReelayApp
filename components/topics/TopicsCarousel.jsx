@@ -21,15 +21,17 @@ const CarouselView = styled(View)`
 `
 const CreateTopicButtonContainer = styled(TouchableOpacity)`
     align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
+    background-color: black;
+    border-color: white;
     border-radius: 20px;
+    border-width: 1px;
     flex-direction: row;
     justify-content: center;
     height: 40px;
     margin: 16px;
     width: ${width - 32}px;
 `
-const CreateTopicText = styled(ReelayText.Subtitle2)`
+const CreateTopicText = styled(ReelayText.Overline)`
     color: white;
 `
 const HeaderContainer = styled(View)`
@@ -54,9 +56,6 @@ const HeaderText = styled(ReelayText.H5Bold)`
 `
 const TopicsContainer = styled(View)`
     width: 100%;
-    height: auto;
-    display: flex;
-    flex-direction: column;
     margin-bottom: 10px;
 `
 const SeeAllTopicsText = styled(ReelayText.Subtitle2)`
@@ -207,10 +206,10 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
                     activeSlideAlignment={'center'}
                     data={displayTopics}
                     inactiveSlideScale={0.95}
-                    itemHeight={220}
+                    itemHeight={480}
                     itemWidth={width-48}
                     renderItem={renderTopic}
-                    sliderHeight={240}
+                    sliderHeight={480}
                     sliderWidth={width+30}
                 />
             </CarouselView>

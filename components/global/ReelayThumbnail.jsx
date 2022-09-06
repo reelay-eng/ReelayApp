@@ -145,9 +145,7 @@ export default ReelayThumbnail = ({
 						source={thumbnailSource} 
 					/>
 				)}
-				{ asTopOfTheWeek && (
-					<MutedVideoPlayer />
-				)}
+				{ asTopOfTheWeek && <MutedVideoPlayer /> }
 				{ showIcons && 
 					<TopRightContainer>
 						{ showPoster && (
@@ -215,10 +213,8 @@ export default ReelayThumbnail = ({
 					isMuted={true}
 					rate={1.0}
 					resizeMode='cover'
-					// shouldDuckAndroid={true}
 					shouldPlay={true}
 					source={{ uri: reelay.content.videoURI }}
-					// staysActiveInBackground={false}
 					style={{
 						height: height,
 						width: width,

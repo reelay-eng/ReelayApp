@@ -40,7 +40,7 @@ const CreateTopicButtonContainer = styled(TouchableOpacity)`
     margin-left: 14px;
     width: ${width - 32}px;
 `
-const CreateTopicText = styled(ReelayText.Subtitle2)`
+const CreateTopicText = styled(ReelayText.Overline)`
     color: white;
 `
 const HeaderContainer = styled(View)`
