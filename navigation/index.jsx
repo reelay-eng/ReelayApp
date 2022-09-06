@@ -49,6 +49,7 @@ export default Navigation = () => {
 
     const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
+    const emptyGlobalTopics = useSelector(state => state.emptyGlobalTopics);
     const myClubs = useSelector(state => state.myClubs);
 
     const s3Client = useSelector(state => state.s3Client);
@@ -189,6 +190,14 @@ export default Navigation = () => {
             uploadRequest.setUploadStage = setUploadStage;
             uploadRequest.clearUploadRequest = clearUploadRequest;
             await uploadReelay(uploadRequest);    
+            if (uploadRequest.reelayTopic) {
+                const removeTopic = (nextTopic) => (nextTopic.id !== uploadRequest.reelayTopic.id);
+                const nextEmptyGlobalTopics = emptyGlobalTopics.filter(removeTopic);
+                if (nextEmptyGlobalTopics.length !== emptyGlobalTopics.length) {
+                    dispatch({ type: 'setEmptyGlobalTopics', payload: nextEmptyGlobalTopics });
+                }
+            }
+
         } catch (error) {
             return { error };
         }

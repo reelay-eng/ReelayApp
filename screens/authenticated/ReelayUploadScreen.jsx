@@ -289,8 +289,11 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 ? 'Post to Profile'
             : 'Next';
         const buttonText = (uploadStarted) ? 'Preparing...   ' : postDestinationText;
-        const buttonColor = (uploadStarted) ? 'white' : ReelayColors.reelayBlue;
         const buttonTextColor = (uploadStarted) ? 'black' : 'white';
+        
+        let buttonColor = ReelayColors.reelayBlue;
+        if (topicID) buttonColor = ReelayColors.reelayPurple;
+        if (uploadStarted) buttonColor = 'white';
 
         return (
             <UploadButtonPressable color={buttonColor} onPress={confirmPostDestination}>

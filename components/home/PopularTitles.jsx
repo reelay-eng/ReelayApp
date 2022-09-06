@@ -71,25 +71,22 @@ const TitleInfoLine = styled(View)`
     justify-content: space-between;
 `
 
-export default PopularTitles = ({ navigation, tab='discover' }) => {
+export default PopularTitles = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const headerText = (tab === 'discover') ? 'Popular titles' : 'Popular titles with friends';
-    const popularTitleStacksDiscover = useSelector(state => state.myHomeContent?.discover?.popularTitles);
-    const popularTitleStacksFollowing = useSelector(state => state.myHomeContent?.following?.popularTitles);
-    const popularTitleStacks = (tab === 'following') ? popularTitleStacksFollowing : popularTitleStacksDiscover;
+    const headerText = 'Popular titles';
+    const popularTitleStacks = useSelector(state => state.myHomeContent?.discover?.popularTitles);
 
     const goToReelay = (index, titleObj) => {
 		if (popularTitleStacks?.length === 0) return;
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
-            initialFeedSource: (tab === 'following') ? 'popularTitlesFollowing' : 'popularTitlesDiscover',
+            initialFeedSource: 'popularTitlesDiscover',
             preloadedStackList: popularTitleStacks,
 		});
 
 		logAmplitudeEventProd('openPopularTitlesFeedd', {
 			username: reelayDBUser?.username,
             title: titleObj?.display,
-            tab,
 		});
 	};
 

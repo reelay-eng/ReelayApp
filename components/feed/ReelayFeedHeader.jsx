@@ -157,7 +157,7 @@ export default ReelayFeedHeader = ({ navigation, displayText, feedSource = 'disc
         switch (feedSource) {
             case 'club': return 'club';
             case 'festivals': return 'at festivals';
-            case 'following': return 'friends are watching';
+            case 'following': return 'following';
             case 'discover': return 'discover';
             case 'popularTitlesDiscover': return 'popular titles';
             case 'popularTitlesFollowing': return 'popular titles';

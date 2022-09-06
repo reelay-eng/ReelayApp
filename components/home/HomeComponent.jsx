@@ -109,8 +109,8 @@ const HomeComponent = ({ navigation }) => {
             <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 <AnnouncementsAndNotices navigation={navigation} />
                 <PopularTitles navigation={navigation} tab='discover' />
-                <TopOfTheWeek navigation={navigation} />
                 <TopicsCarousel navigation={navigation} source='discover' /> 
+                <TopOfTheWeek navigation={navigation} />
                 <FriendsAreWatching navigation={navigation} />
                 <DiscoverClubs navigation={navigation} />
                 <OnStreaming navigation={navigation} source='discover' />

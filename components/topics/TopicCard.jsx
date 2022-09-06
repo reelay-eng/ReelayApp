@@ -9,6 +9,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
 import TopicDotMenuDrawer from './TopicDotMenuDrawer';
+import ReelayColors from '../../constants/ReelayColors';
 
 const { height, width } = Dimensions.get('window');
 const CARD_WIDTH_CAROUSEL = width - 48;
@@ -305,7 +306,7 @@ export default TopicCard = ({
         <Fragment>
             { source !== 'profile' && <TopicOverline /> }
             <TopicCardContainer canPress={canPress} onPress={advanceToFeed}>
-                <TopicCardGradient colors={['#400817', '#19242E']} start={{ x: 0.5, y: 1 }} end={{ x: 0.5, y: -0.5 }} />
+                <TopicCardGradient colors={['#3D2F52', ReelayColors.reelayPurple]} start={{ x: 0.5, y: 1 }} end={{ x: 0.5, y: -0.5 }} />
                 <ContentAboveDivider />
                 <ContentBelowDivider />
             </TopicCardContainer>

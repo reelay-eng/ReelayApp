@@ -18,6 +18,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faComments } from '@fortawesome/free-solid-svg-icons';
 import SuggestedTitlesGrid from '../../components/search/SuggestedTitlesGrid';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const HeaderText = styled(ReelayText.H4Bold)`
     text-align: left;
@@ -44,7 +45,7 @@ const TopBarContainer = styled(View)`
 // color is ReelayColors.reelayGreen at reduced opacity
 const TopicTitleContainer = styled(View)`
     align-items: center;
-    background-color: rgba(4, 189, 108, 0.65);
+    background-color: #421C79;
     border-radius: 8px;
     flex-direction: row;
     margin-top: 4px;
@@ -54,6 +55,7 @@ const TopicTitleContainer = styled(View)`
     padding-right: 20px;
     padding-bottom: 12px;
     width: 100%;
+    border: 1px solid #421C79;
 `
 const TopicTitleText = styled(ReelayText.H6)`
     color: white;

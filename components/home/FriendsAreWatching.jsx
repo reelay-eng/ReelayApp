@@ -48,7 +48,7 @@ const FriendsAreWatching = ({ navigation }) => {
                 <Fragment>
                     <HeaderContainer>
                         <Icon type='ionicon' name='people' size={24} color='white' />
-                        <HeaderText>{'Friends are watching'}</HeaderText>
+                        <HeaderText>{'Following'}</HeaderText>
                     </HeaderContainer>
                     <FollowingRowContainer horizontal showsHorizontalScrollIndicator={false}>
                         { displayStacks.map((stack, index) =>  {

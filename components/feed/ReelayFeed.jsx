@@ -15,7 +15,7 @@ import styled from 'styled-components/native';
 import EmptyTopic from './EmptyTopic';
 
 const { height, width } = Dimensions.get('window');
-const WEAVE_EMPTY_TOPIC_INDEX = 7;
+const WEAVE_EMPTY_TOPIC_INDEX = 10;
 
 const FeedView = styled(View)`
     height: 100%;
@@ -47,7 +47,7 @@ export default ReelayFeed = ({ navigation,
         const { curWovenThreads } = curWovenThreadsObj;
         curWovenThreads.push(nextThread);
         if (index % WEAVE_EMPTY_TOPIC_INDEX === 0 && index !== 0) {
-            const nextEmptyTopicIndex = Math.floor(index / WEAVE_EMPTY_TOPIC_INDEX);
+            const nextEmptyTopicIndex = Math.floor(index / WEAVE_EMPTY_TOPIC_INDEX) - 1;
             const hasMoreEmptyTopics = (emptyGlobalTopics.length > nextEmptyTopicIndex);
             if (!hasMoreEmptyTopics) return curWovenThreadsObj;
 

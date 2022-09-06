@@ -101,7 +101,7 @@ const ActivityInfoBar = ({ club, feedSource, navigation, topic }) => {
         const getDisplayFeedSource = () => {
             switch (feedSource) {
                 case 'festivals': return 'At Festivals';
-                case 'following': return 'Friends are watching';
+                case 'following': return 'Following';
                 case 'discover': return '';
                 case 'popularTitlesDiscover': return 'Popular titles';
                 case 'popularTitlesFollowing': return 'Popular titles with friends';
