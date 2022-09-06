@@ -12,8 +12,10 @@ import { showMessageToast } from '../utils/toasts';
 import { useFocusEffect } from '@react-navigation/core';
 import ReelayFeedHeader from './ReelayFeedHeader';
 import styled from 'styled-components/native';
+import EmptyTopic from './EmptyTopic';
 
 const { height, width } = Dimensions.get('window');
+const WEAVE_EMPTY_TOPIC_INDEX = 7;
 
 const FeedView = styled(View)`
     height: 100%;
@@ -25,7 +27,6 @@ export default ReelayFeed = ({ navigation,
     initialFeedPos = 0,
     forceRefresh = false, 
     initialFeedSource = 'discover',
-    initStackList = [],
     preloadedStackList = null,
     pinnedReelay = null,
 }) => {
@@ -37,9 +38,24 @@ export default ReelayFeed = ({ navigation,
 
     const feedSource = initialFeedSource;
     const [feedPosition, setFeedPosition] = useState(initialFeedPos);
-    const [reelayThreads, setReelayThreads] = useState(preloadedStackList ?? initStackList);
+    const [reelayThreads, setReelayThreads] = useState(preloadedStackList ?? []);
     const [refreshing, setRefreshing] = useState(false);
     const stackEmpty = (!reelayThreads.length) || (pinnedReelay && reelayThreads.length === 1);
+
+    const emptyGlobalTopics = useSelector(state => state.emptyGlobalTopics);
+    const wovenReelayThreads = reelayThreads.reduce((curWovenThreadsObj, nextThread, index) => {
+        const { curWovenThreads } = curWovenThreadsObj;
+        curWovenThreads.push(nextThread);
+        if (index % WEAVE_EMPTY_TOPIC_INDEX === 0 && index !== 0) {
+            const nextEmptyTopicIndex = Math.floor(index / WEAVE_EMPTY_TOPIC_INDEX);
+            const hasMoreEmptyTopics = (emptyGlobalTopics.length > nextEmptyTopicIndex);
+            if (!hasMoreEmptyTopics) return curWovenThreadsObj;
+
+            const nextEmptyTopic = emptyGlobalTopics[nextEmptyTopicIndex];
+            curWovenThreads.push(nextEmptyTopic);
+        }
+        return curWovenThreadsObj;
+    }, { curWovenThreads: [] }).curWovenThreads;
 
     useEffect(() => {
         loadSelectedFeed();
@@ -91,18 +107,18 @@ export default ReelayFeed = ({ navigation,
         const fetchedStacks = await getFeed({ feedSource: feedSource, reqUserSub: reelayDBUser?.sub, page });
 
         // probably don't need to create this every time, but we want to avoid unnecessary state
-        const titleIDEntries = {};
-        const addToTitleEntries = (reelayStack) => titleIDEntries[reelayStack[0].title.id] = 1;
-        reelayThreads.forEach(addToTitleEntries);
+        // const titleIDEntries = {};
+        // const addToTitleEntries = (reelayStack) => titleIDEntries[reelayStack[0].title.id] = 1;
+        // reelayThreads.forEach(addToTitleEntries);
 
-        const notAlreadyInStack = (fetchedStack) => {
-            const alreadyInStack = titleIDEntries[fetchedStack[0].title.id];
-            if (alreadyInStack) console.log('Filtering stack ', fetchedStack[0].title.id);
-            return !alreadyInStack;
-        }
+        // const notAlreadyInStack = (fetchedStack) => {
+        //     const alreadyInStack = titleIDEntries[fetchedStack[0].title.id];
+        //     if (alreadyInStack) console.log('Filtering stack ', fetchedStack[0].title.id);
+        //     return !alreadyInStack;
+        // }
 
-        const filteredStacks = fetchedStacks.filter(notAlreadyInStack);
-        const newStackList = [...reelayThreads, ...filteredStacks];
+        // const filteredStacks = fetchedStacks.filter(notAlreadyInStack);
+        const newStackList = [...reelayThreads, ...fetchedStacks];
         nextPage.current = page + 1;
 
         setReelayThreads(newStackList);
@@ -164,6 +180,10 @@ export default ReelayFeed = ({ navigation,
         const stack = item;
         const stackViewable = (index === feedPosition);
 
+        if (stack.isEmptyTopic) {
+            return <EmptyTopic navigation={navigation} topic={stack} />
+        }
+
         return (
             <ReelayStack 
                 feedSource={feedSource}
@@ -183,12 +203,12 @@ export default ReelayFeed = ({ navigation,
         if (nextFeedPosition === feedPosition) return;
         const swipeDirection = nextFeedPosition < feedPosition ? 'up' : 'down';
         
-        const nextStack = reelayThreads[nextFeedPosition];
-        const prevStack = reelayThreads[feedPosition];
+        const nextStack = wovenReelayThreads[nextFeedPosition];
+        const prevStack = wovenReelayThreads[feedPosition];
 
         const logProperties = {
-            nextReelayTitle: nextStack[0].title.display,
-            prevReelayTitle: prevStack[0].title.display,
+            nextReelayTitle: nextStack[0]?.title?.display ?? nextStack?.title,
+            prevReelayTitle: prevStack[0]?.title?.display ?? prevStack?.title,
             source: feedSource,
             swipeDirection: swipeDirection,
             username: reelayDBUser?.username,
@@ -204,13 +224,13 @@ export default ReelayFeed = ({ navigation,
     return (
         <FeedView>
             <FlatList
-                data={reelayThreads}
+                data={wovenReelayThreads}
                 getItemLayout={getItemLayout}
                 horizontal={false}
                 initialNumToRender={2}
                 initialScrollIndex={initialFeedPos}
                 keyboardShouldPersistTaps={"handled"}
-                keyExtractor={(stack) => `${stack[0].title.id}-${stack[0].sub}`}
+                keyExtractor={(stack) => `${stack[0]?.id ?? stack?.id}`}
                 maxToRenderPerBatch={2}
                 onEndReached={extendFeed}
                 onRefresh={refreshFeed}

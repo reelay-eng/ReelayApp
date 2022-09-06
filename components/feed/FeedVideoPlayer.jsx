@@ -101,7 +101,7 @@ export default function FeedVideoPlayer({ reelay, viewable }) {
 	const [playPauseVisible, setPlayPauseVisible] = useState(false);
 	const [showWatchlistIcon, setShowWatchlistIcon] = useState(false);
 
-	const shouldPlay = viewable && focused && finishedLoading && !paused;
+	const shouldPlay = viewable && focused && !paused;
 	const tapCounter = useRef(0);
 
 	useEffect(() => {
@@ -177,9 +177,17 @@ export default function FeedVideoPlayer({ reelay, viewable }) {
 	}
 
 	const onPlaybackStatusUpdate = (playbackStatus) => {
+		if (!finishedLoading) {
+			if (viewable) {
+				console.log(`NOT finished loading: ${reelay.creator.username} ${reelay.title.display}`)
+			}
+		}
 		if (!finishedLoading && playbackStatus?.isLoaded) {
 			setFinishedLoading(true);
-		}
+			if (viewable) {
+				console.log(`finished loading: ${reelay.creator.username} ${reelay.title.display}`)
+			}
+		} 
 		if (playbackStatus?.didJustFinish && viewable) {
 			logAmplitudeEventProd('watchedFullReelay', {
 				reelayID: reelay.id,

@@ -57,6 +57,7 @@ import { ensureLocalImageDirExists, maybeFlushTitleImageCache } from './api/Reel
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
 import { fetchPopularMovies, fetchPopularSeries } from './api/TMDbApi';
 import moment from 'moment';
+import { getEmptyGlobalTopics } from './api/FeedApi';
 
 const LoadingContainer = styled(View)`
     align-items: center;
@@ -299,9 +300,13 @@ function App() {
 
         // initial load
         const [
+            latestAnnouncement,
+            myDismissalHistory,
             myHomeContent,
             reelayDBUserLoaded
         ] = await Promise.all([
+            getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
+            getDismissalHistory(),
             getHomeContent({ authSession, reqUserSub }),
             getRegisteredUser(userSub),
         ]);
@@ -317,19 +322,24 @@ function App() {
         setReelayDBUser(reelayDBUserLoaded);
         dispatch({ type: 'setReelayDBUser', payload: reelayDBUserLoaded });
         dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
-        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
         dispatch({ type: 'setMyFollowing', payload: myFollowing });
+        dispatch({ type: 'setAppVersionInfo', payload: versionInfo })
+        dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
+        dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });
+        dispatch({ type: 'setLatestNotice', payload: null }); 
+        // triggers the reducer to create the latest notice from already-loaded app data
+        dispatch({ type: 'setIsLoading', payload: false });
+
+        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
         dispatch({ type: 'setMySettings', payload: mySettings })
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
-        dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
-        dispatch({ type: 'setIsLoading', payload: false });
-        dispatch({ type: 'setAppVersionInfo', payload: versionInfo })
 
         console.log('dispatched first set of profile data');
 
         // deferred load
         const [
             donateLinksLoaded,
+            emptyGlobalTopics,
             myCreatorStacksLoaded,
             myFollowersLoaded,
             myNotificationsLoaded,
@@ -338,6 +348,7 @@ function App() {
             suggestedSeries,
         ] = await Promise.all([
             getAllDonateLinks(),
+            getEmptyGlobalTopics({ authSession, page: 0, reqUserSub: userSub }),
             getStacksByCreator(userSub),
             getFollowers(userSub),
             getAllMyNotifications(userSub),
@@ -349,6 +360,7 @@ function App() {
         console.log('loaded second set of profile data');
 
         dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
+        dispatch({ type: 'setEmptyGlobalTopics', payload: emptyGlobalTopics });
         dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
         dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
         dispatch({ type: 'setMyNotifications', payload: myNotificationsLoaded });
@@ -361,24 +373,6 @@ function App() {
         dispatch({ type: 'setSuggestedSeriesResults', payload: suggestedSeriesResults });
 
         console.log('dispatched second set of profile data');
-
-        // deferred load part 2
-        const [
-            latestAnnouncement,
-            myDismissalHistory,
-        ] = await Promise.all([
-            getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
-            getDismissalHistory(),
-        ]);
-
-        console.log('loaded third set of profile data');
-
-        dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
-        dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });
-        // triggers the reducer to create the latest notice from already-loaded app data
-        dispatch({ type: 'setLatestNotice', payload: null }); 
-
-        console.log('dispatched third set of profile data');
     }
 
     const registerMyPushToken = async () => {

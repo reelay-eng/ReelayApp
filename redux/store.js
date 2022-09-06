@@ -28,6 +28,29 @@ const initialState = {
     myClubActivities: [],
     myWatchlistItems: [],
 
+    // FEEDS
+    discoverMostRecent: {
+        content: [],
+        filters: {},
+        nextPage: 0,
+    },
+    discoverThisWeek: {
+        content: [],
+        filters: {},
+        nextPage: 0,
+    },
+    discoverThisMonth: {
+        content: [],
+        filters: {},
+        nextPage: 0,
+    },
+    discoverAllTime: {
+        content: [],
+        filters: {},
+        nextPage: 0,
+    },
+    emptyGlobalTopics: [],
+
     // GLOBAL
     appUpdateRequired: false,
     appUpdateRecommended: false,
@@ -107,7 +130,6 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, signedIn: action.payload }
 
         // CLUBS + WATCHLISTS
-
         case 'setMyClubs':
             const myClubs = action.payload;
             const myClubsSorted = myClubs.sort(sortByLastActivity);
@@ -121,6 +143,19 @@ const appReducer = ( state = initialState, action) => {
         case 'setMyWatchlistItems':
             const myWatchlistItems = watchlistRecsReducer(action.payload);
             return { ...state, myWatchlistItems };    
+
+
+        // FEEDS (migrating stuff over here in 1.05)
+        case 'setDiscoverMostRecent':
+            return { ...state, discoverMostRecent: action.payload };
+        case 'setDiscoverThisWeek':
+            return { ...state, discoverThisWeek: action.payload };
+        case 'setDiscoverThisMonth':
+            return { ...state, discoverThisMonth: action.payload };
+        case 'setDiscoverAllTime':
+            return { ...state, discoverAllTime: action.payload };
+        case 'setEmptyGlobalTopics':
+            return { ...state, emptyGlobalTopics: action.payload };
 
         // GLOBAL
         case 'setAppVersionInfo':
@@ -168,11 +203,19 @@ const appReducer = ( state = initialState, action) => {
         case 'setLatestNoticeSkipped':
             return { ...state, latestNoticeSkipped: action.payload }
         case 'setMyHomeContent':
-            return { ...state, myHomeContent: action.payload }    
+            // also setting discover most recent here for now
+            // holdover until we migrate entirely to the new discover feed
+            let myHomeContent = action.payload;
+            const discoverMostRecent = {
+                content: myHomeContent.global,
+                filters: {},
+                nextPage: 1,
+            };
+            return { ...state, discoverMostRecent, myHomeContent }
         case 'setMyDismissalHistory':
             return { ...state, myDismissalHistory: action.payload }
         case 'setStreamingStacks':
-            let myHomeContent =  { ...state.myHomeContent };
+            myHomeContent =  { ...state.myHomeContent };
             if (!myHomeContent.discover || !myHomeContent.following) {
                 console.log('Invalid home content. Cannot set streaming stacks');
                 return state;
@@ -297,6 +340,9 @@ export const mapStateToProps = (state) => ({
     myClubs: state.myClubs,
     myClubActivities: state.myClubActivities,
     myWatchlistItems: state.myWatchlistItems,
+
+    // FEEDS
+    emptyGlobalTopics: state.emptyGlobalTopics,
 
     // GLOBAL
     appUpdateRequired: state.appUpdateRequired,

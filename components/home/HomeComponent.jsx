@@ -2,13 +2,11 @@ import React, { Fragment, useContext, useRef, useState } from 'react';
 import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
 import styled from 'styled-components';
 
-import AtFestivals from './AtFestivals';
 import HomeHeader from './HomeHeader';
 import InTheaters from './InTheaters';
 import FriendsAreWatching from './FriendsAreWatching';
 import TopicsCarousel from '../topics/TopicsCarousel';
 import OnStreaming from './OnStreaming';
-import PeopleToFollow from './PeopleToFollow';
 
 import { getHomeContent, getLatestAnnouncement } from '../../api/ReelayDBApi';
 import { getAllMyNotifications } from '../../api/NotificationsApi';
