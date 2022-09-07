@@ -30,7 +30,7 @@ export default StackPositionBar = ({ stackLength, stackPosition, stackViewable }
     const leftOffset = stackPosition * pillWidth;
 
     useEffect(() => {
-        animate(10, 'linear', 'scaleX');
+        animate(10, 'linear', 'opacity');
     }, [stackPosition]);
 
     if (!stackViewable) return <View />

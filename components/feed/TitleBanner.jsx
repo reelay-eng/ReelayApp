@@ -143,7 +143,6 @@ const TitleBanner = ({
     navigation=null, 
     onCameraScreen=false,
     titleObj,
-    topic=null,
     reelay=null, 
     venue=null,
 }) => {

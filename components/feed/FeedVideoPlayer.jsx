@@ -1,5 +1,5 @@
 import React, { memo, useContext, useEffect, useRef, useState } from 'react';
-import { Dimensions, Pressable, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Pressable, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { Video, Audio } from 'expo-av'
@@ -35,6 +35,13 @@ const IconPressable = styled(Pressable)`
 	height: ${PLAY_PAUSE_ICON_SIZE}px;
 	width: ${PLAY_PAUSE_ICON_SIZE}px;
 	zIndex: 3;
+`
+const LoadingBackdrop = styled(View)`
+	align-items: center;
+	height: ${height}px;
+	justify-content: center;
+	position: absolute;
+	width: ${width}px;
 `
 const PopperView = styled(View)`
 	align-items: center;
@@ -177,11 +184,6 @@ export default function FeedVideoPlayer({ reelay, viewable }) {
 	}
 
 	const onPlaybackStatusUpdate = (playbackStatus) => {
-		if (!finishedLoading) {
-			if (viewable) {
-				console.log(`NOT finished loading: ${reelay.creator.username} ${reelay.title.display}`)
-			}
-		}
 		if (!finishedLoading && playbackStatus?.isLoaded) {
 			setFinishedLoading(true);
 			if (viewable) {
@@ -247,6 +249,9 @@ export default function FeedVideoPlayer({ reelay, viewable }) {
 
 	return (
 		<TappableOverlay onPress={onTap}>
+			<LoadingBackdrop>
+				<ActivityIndicator />
+			</LoadingBackdrop>
 			<ReelayVideo 
 				onPlaybackStatusUpdate={onPlaybackStatusUpdate}
 				shouldPlay={shouldPlay} 

@@ -10,7 +10,6 @@ import styled from 'styled-components/native';
 import { useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import { getTopics, getTopicsByCreator } from '../../api/TopicsApi';
-import moment from 'moment';
 import ReelayFeedHeader from '../feed/ReelayFeedHeader';
 
 const { height, width } = Dimensions.get('window');

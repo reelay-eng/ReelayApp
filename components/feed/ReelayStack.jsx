@@ -12,6 +12,7 @@ import styled from 'styled-components/native';
 import UploadProgressBar from '../global/UploadProgressBar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import StackPositionBar from './StackPositionBar';
+import TopicBanner from '../topics/TopicBanner';
 
 const { height, width } = Dimensions.get('window');
 
@@ -37,12 +38,20 @@ const BackButtonPinnedContainer = styled(SafeAreaView)`
     top: ${props => props.topOffset}px;
 `
 const ReelayFeedContainer = styled(View)`
+    align-items: center;
     background-color: black;
     height: ${height}px;
     width: ${width}px;
 `
 const TitleBannerContainer = styled(View)`
     margin-top: 10px;
+    position: absolute;
+    top: ${props => props.topOffset}px;
+    width: 100%;
+`
+const TopicBannerContainer = styled(View)`
+    margin-top: 10px;
+    left: 10px;
     position: absolute;
     top: ${props => props.topOffset}px;
     width: 100%;
@@ -116,12 +125,24 @@ const ReelayStack = ({
                     club={clubStub}
                     donateObj={donateObj}
                     navigation={navigation}
-                    stack={stack}
                     titleObj={reelay?.title}
-                    topic={topicStub}
                     reelay={reelay}
                 />
             </TitleBannerContainer>
+        );
+    }
+
+    const renderTopicBanner = (reelay) => {
+        return (
+            <TopicBannerContainer topOffset={topOffset}>
+                <TopicBanner
+                    club={clubStub}
+                    navigation={navigation}
+                    titleObj={reelay?.title}
+                    topic={topicStub}
+                    reelay={reelay}
+                />                    
+            </TopicBannerContainer>
         );
     }
 
@@ -138,7 +159,7 @@ const ReelayStack = ({
                     reelay={reelay} 
                     viewable={reelayIsViewable}
                 />
-                { !renderBannerOnStack && renderTitleBanner(reelay) }
+                { !renderBannerOnStack && renderTopicBanner(reelay) }
             </ReelayFeedContainer>
         );
     };

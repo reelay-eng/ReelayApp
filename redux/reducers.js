@@ -8,7 +8,6 @@ const LATEST_VERSION_GUIDE_IMAGES = [
     require(`${VERSION_GUIDE_IMG_PATH}/notification-settings-guide.png`),
 ]
 const REELAY_APP_VERSION = Constants.manifest.version;
-const WEAVE_EMPTY_GLOBAL_TOPICS_INTERVAL = 8;
 
 const byDateUpdated = (watchlistItem0, watchlistItem1) => {
     const dateAdded0 = moment(watchlistItem0.updatedAt);
@@ -39,10 +38,6 @@ export const dismissNoticeReducer = ({ notice, dismissalHistory }) => {
     const noticeEntry = dismissalHistory?.noticeHistory?.[notice?.id];
     const isDismissed = (noticeEntry && noticeEntry === 'dismissed');
     return (isDismissed) ? null : notice;
-}
-
-export const emptyGlobalTopicsReducer = ({ discoverMostRecentContent, emptyGlobalTopics }) => {
-    // todo
 }
 
 export const latestAnnouncementReducer = ({ announcement, myFollowing, reelayDBUser }) => {

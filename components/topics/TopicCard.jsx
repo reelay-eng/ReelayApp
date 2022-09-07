@@ -114,6 +114,7 @@ const ContentNoReelaysIconView = styled(View)`
     width: ${props => getContentRowWidth(props)}px;
 `
 const ContentWithReelaysSectionView = styled(View)`
+    align-items: center;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -129,7 +130,11 @@ const ContentWithReelaysPosterGridView = styled(View)`
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
-    height: ${props => getThumbnailWidth(props) * 1.5}px;
+    height: ${props => props.hasTwoTitles 
+        ? getPosterWidth(props) * 1.5
+        : getThumbnailWidth(props) * 1.5
+    }px;
+    padding-top: 4px;
     width: 50%;
 `
 const ContentWithReelaysThumbnailView = styled(View)`
@@ -291,6 +296,8 @@ export default TopicCard = ({
                 });
 
                 const displayTitles = reelaysWithDistinctTitles.filter((reelay, index) => index < 4);
+                const hasOneTitle = (displayTitles.length === 1);
+                const hasTwoTitles = (displayTitles.length === 2);
 
                 return (
                     <ContentWithReelaysSectionView horizontal={horizontal}>
@@ -302,17 +309,27 @@ export default TopicCard = ({
                                 width={thumbnailWidth}
                             />
                         </ContentWithReelaysThumbnailView>
-                        <ContentWithReelaysPosterGridView horizontal={horizontal}>
+                        <ContentWithReelaysPosterGridView 
+                            hasTwoTitles={hasTwoTitles} 
+                            horizontal={horizontal}
+                        >
                             { displayTitles.map(reelay => {
-                                return <TopicTitlePoster key={reelay.sub} reelay={reelay} />
+                                return (
+                                    <TopicTitlePoster 
+                                        key={reelay.sub} 
+                                        doubleSize={hasOneTitle} 
+                                        reelay={reelay} 
+                                    />
+                                );
                             })}
                         </ContentWithReelaysPosterGridView>
                     </ContentWithReelaysSectionView>
                 );
             }
 
-            const TopicTitlePoster = ({ reelay }) => {
-                const posterWidth = getPosterWidth({ horizontal });
+            const TopicTitlePoster = ({ reelay, doubleSize }) => {
+                let posterWidth = getPosterWidth({ horizontal });
+                if (doubleSize) posterWidth *= 2;
                 if (!reelay?.title) {
                     console.log('reelay no title: ', reelay);
                     return <View />

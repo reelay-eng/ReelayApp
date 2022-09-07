@@ -1,6 +1,6 @@
 // react imports
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, View } from 'react-native';
+import { ActivityIndicator, Image, LogBox, View } from 'react-native';
 import Navigation from './navigation';
 import styled from 'styled-components/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -188,6 +188,8 @@ function App() {
             interruptionModeIOS: InterruptionModeIOS.DoNotMix,
             interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
         });
+
+        LogBox.ignoreLogs(['Could not find image file']);
         
         Notifications.setNotificationHandler({
             handleNotification: async () => ({
