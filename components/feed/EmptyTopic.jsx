@@ -2,6 +2,7 @@ import { faComments } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { Dimensions, TouchableOpacity, View } from 'react-native';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import { TopicsGiantIconSVG } from '../global/SVGs';
 
 import React from 'react';
 import * as ReelayText from '../global/Text';
@@ -70,7 +71,7 @@ export default EmptyTopic = ({ navigation, topic }) => {
     const TopicIcon = () => {
         return (
             <TopicIconView>
-                <FontAwesomeIcon icon={faComments} size={140} color='white' />
+                <TopicsGiantIconSVG />
             </TopicIconView>
         );
     }

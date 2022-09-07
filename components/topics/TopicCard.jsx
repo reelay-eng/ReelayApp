@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faComments, faPlus } from '@fortawesome/free-solid-svg-icons';
 import ReelayThumbnail from '../global/ReelayThumbnail';
 import TitlePoster from '../global/TitlePoster';
+import { TopicsGiantIconSVG } from '../global/SVGs';
 
 const { height, width } = Dimensions.get('window');
 const CARD_WIDTH_CAROUSEL = width - 48;
@@ -263,7 +264,8 @@ export default TopicCard = ({
                         <TopicDescription />
                     </ContentNoReelaysSectionView>
                     <ContentNoReelaysIconView>
-                        <FontAwesomeIcon icon={faComments} size={140} color='white' />
+                        {/* <FontAwesomeIcon icon={faComments} size={140} color='white' /> */}
+                        <TopicsGiantIconSVG />
                     </ContentNoReelaysIconView>
                 </Fragment>
             )

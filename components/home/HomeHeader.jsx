@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { useSelector } from 'react-redux';
+import { NotificationIconSVG, SearchIconSVG } from '../global/SVGs';
 
 const ActiveOptionText = styled(ReelayText.H6)`
     color: white;
@@ -74,7 +75,6 @@ export default HomeHeader = ({
     navigation,
     selectedTab,
     setSelectedTab,
-    tabOptions,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
 
@@ -92,10 +92,12 @@ export default HomeHeader = ({
                 </HeaderContainerLeft>
                 <HeaderContainerRight>
                     <IconContainer onPress={advanceToSearchScreen}>
-                        <Icon type='ionicon' size={27} color={'white'} name='search' />
+                        {/* <Icon type='ionicon' size={27} color={'white'} name='search' /> */}
+                        <SearchIconSVG />
                     </IconContainer>
                     <IconContainer onPress={advanceToMyNotifications}>
-                        <Icon type='ionicon' size={27} color={'white'} name='notifications' />
+                        {/* <Icon type='ionicon' size={27} color={'white'} name='notifications' /> */}
+                        <NotificationIconSVG />
                         { hasUnreadNotifications && <UnreadIconIndicator /> }
                     </IconContainer>
                 </HeaderContainerRight>

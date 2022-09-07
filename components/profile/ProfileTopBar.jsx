@@ -40,7 +40,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         padding-left: ${atProfileBase ? 10: 0}px;
     `
     const IconContainer = styled(TouchableOpacity)`
-        margin-left: 16px;
+        margin-left: 12px;
     `
     // should line up with home header
     const RightCornerContainer = styled(View)`
