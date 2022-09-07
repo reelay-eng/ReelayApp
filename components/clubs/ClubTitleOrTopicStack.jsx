@@ -11,12 +11,18 @@ import { useSelector } from 'react-redux';
 import TopicBanner from '../topics/TopicBanner';
 
 const { height, width } = Dimensions.get('window');
-const TITLE_BANNER_TOP_OFFSET = 68;
+const TITLE_BANNER_TOP_OFFSET = 54;
 
 const TitleBannerContainer = styled(View)`
     top: ${(props) => props.offset}px;
     align-items: center;
-    margin-top: 10px;
+    margin-left: -5px;
+    position: absolute;
+    width: 100%;
+`
+const TopicBannerContainer = styled(View)`
+    top: ${(props) => props.offset}px;
+    align-items: center;
     position: absolute;
     width: 100%;
 `
@@ -71,7 +77,7 @@ export default ClubTitleOrTopicStack = ({
 
     const renderTopicBanner = (reelay) => {
         return (
-            <TitleBannerContainer offset={TITLE_BANNER_TOP_OFFSET}>
+            <TopicBannerContainer offset={TITLE_BANNER_TOP_OFFSET}>
                 <TopicBanner
                     club={club}
                     navigation={navigation}
@@ -79,7 +85,7 @@ export default ClubTitleOrTopicStack = ({
                     titleObj={reelay?.title}
                     topic={clubTitleOrTopic}
                 />
-            </TitleBannerContainer>
+            </TopicBannerContainer>
         );
     }
 
