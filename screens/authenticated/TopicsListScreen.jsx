@@ -200,9 +200,9 @@ const TopicScroll = ({
         const matchTopic = (nextTopic) => (nextTopic.id === topic.id);
         const initTopicIndex = displayTopics.findIndex(matchTopic);
     
-        const advanceToFeed = () => {
+        const advanceToFeed = (initReelayIndex = 0) => {
             const feedSource = (searching) ? 'search' : source;
-            navigation.push('TopicsFeedScreen', { initTopicIndex, source: feedSource });
+            navigation.push('TopicsFeedScreen', { initReelayIndex, initTopicIndex, source: feedSource });
             
             logAmplitudeEventProd('openedTopic', {
                 clubID: null,

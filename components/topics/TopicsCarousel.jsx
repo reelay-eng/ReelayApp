@@ -169,8 +169,9 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
             const matchTopic = (nextTopic) => (nextTopic.id === topic.id);
             const initTopicIndex = displayTopics.findIndex(matchTopic);
         
-            const advanceToFeed = () => {
+            const advanceToFeed = (initReelayIndex = 0) => {
                 navigation.push('TopicsFeedScreen', { 
+                    initReelayIndex,
                     initTopicIndex, 
                     source,
                     creatorOnProfile, 

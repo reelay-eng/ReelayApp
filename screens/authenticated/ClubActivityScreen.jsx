@@ -138,9 +138,9 @@ const RejectInvitePressable = styled(TouchableOpacity)`
 
 const ClubActivity = ({ activity, club, feedIndex, navigation, onRefresh }) => {
     const { activityType } = activity;
-    const advanceToFeed = () => {
+    const advanceToFeed = (initReelayIndex = 0) => {
         if (feedIndex === -1) return;
-        navigation.push('ClubFeedScreen', { club, initFeedIndex: feedIndex });   
+        navigation.push('ClubFeedScreen', { club, initReelayIndex, initFeedIndex: feedIndex });   
     }
 
     if (activityType === 'title') {
