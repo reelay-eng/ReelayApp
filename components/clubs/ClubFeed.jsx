@@ -10,6 +10,7 @@ import moment from 'moment';
 import styled from 'styled-components/native';
 import { useFocusEffect } from '@react-navigation/native';
 import ReelayFeedHeader from '../feed/ReelayFeedHeader';
+import EmptyTopic from '../feed/EmptyTopic';
 
 const { height, width } = Dimensions.get('window');
 
@@ -31,18 +32,33 @@ export default ClubFeed = ({
     const [feedPosition, setFeedPosition] = useState(initFeedIndex);
     const [refreshing, setRefreshing] = useState(false);
     
-    const titleOrTopicHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
+    const removeEmptyTitles = (titleOrTopic) => {
+        return (titleOrTopic.activityType === 'topic' || titleOrTopic?.reelays?.length > 0);
+    }
+
     const sortClubTitlesAndTopics = (titleOrTopic0, titleOrTopic1) => {
         const lastActivity0 = moment(titleOrTopic0?.lastUpdatedAt);
         const lastActivity1 = moment(titleOrTopic1?.lastUpdatedAt);
         return lastActivity0.diff(lastActivity1, 'seconds') < 0;
     }
 
+    const tagEmptyTopics = (titleOrTopic) => {
+        if (titleOrTopic.activityType === 'topic' && titleOrTopic?.reelays?.length === 0) {
+            titleOrTopic.isEmptyTopic = true;
+            titleOrTopic.creator = {
+                sub: titleOrTopic.creatorSub,
+                username: titleOrTopic.creatorName,
+            }    
+        } else {
+            titleOrTopic.isEmptyTopic = false;
+        }
+        return titleOrTopic;
+    }
+
     const feedTitlesAndTopics = [...club.titles, ...club.topics]
         .sort(sortClubTitlesAndTopics)
-        .filter(titleOrTopicHasReelays);
-
-    console.log('feed titles and topics length: ', feedTitlesAndTopics.length);
+        .filter(removeEmptyTitles)
+        .map(tagEmptyTopics);
 
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
@@ -69,6 +85,10 @@ export default ClubFeed = ({
         const stackViewable = (index === feedPosition);
         const initialStackPos = (index === initFeedIndex) ? initStackIndex : 0;
 
+        if (clubTitleOrTopic.isEmptyTopic) {
+            return <EmptyTopic navigation={navigation} topic={clubTitleOrTopic} />;
+        }
+
         return <ClubTitleOrTopicStack 
             key={clubTitleOrTopic.id}
             club={club}
@@ -90,8 +110,8 @@ export default ClubFeed = ({
             const prevTitleOrTopic = feedTitlesAndTopics[feedPosition];
 
             const logProperties = {
-                nextReelayTitle: nextTitleOrTopic.reelays[0].title.display,
-                prevReelayTitle: prevTitleOrTopic.reelays[0].title.display,
+                nextReelayTitle: nextTitleOrTopic?.reelays?.[0]?.title?.display,
+                prevReelayTitle: prevTitleOrTopic?.reelays?.[0]?.title?.display,
                 source: 'clubs',
                 swipeDirection: swipeDirection,
                 username: reelayDBUser?.username,
@@ -112,7 +132,6 @@ export default ClubFeed = ({
                     initialNumToRender={2}
                     initialScrollIndex={initFeedIndex}
                     keyboardShouldPersistTaps={"handled"}
-                    // keyExtractor={(stack) => `${stack[0].title.id}-${stack[0].sub}`}
                     maxToRenderPerBatch={2}
                     onEndReached={extendFeed}
                     onRefresh={refreshFeed}

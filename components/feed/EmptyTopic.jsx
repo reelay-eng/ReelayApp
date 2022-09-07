@@ -85,7 +85,7 @@ export default EmptyTopic = ({ navigation, topic }) => {
 
     return (
         <TopicView>
-            <TopicGradient colors={['#421C79', '#865EE500']} />
+            <TopicGradient colors={[ReelayColors.reelayPurple, '#865EE500']} />
             <TopicCenterView>
                 <TopicIcon />
                 <TopicTitle />

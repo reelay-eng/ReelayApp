@@ -157,9 +157,6 @@ const TopicScroll = ({
     const searchCounter = useRef(0);
     const searchBarRef = useRef(null);
     
-    const hasReelays = (topic) => topic?.reelays?.length > 0
-    const displayTopicsWithReelays = displayTopics.filter(hasReelays);
-
     const extendScroll = async () => {
         if (searching || extending) return;
         try {
@@ -201,10 +198,9 @@ const TopicScroll = ({
     const renderTopic = ({ item, index }) => {
         const topic = item;
         const matchTopic = (nextTopic) => (nextTopic.id === topic.id);
-        const initTopicIndex = displayTopicsWithReelays.findIndex(matchTopic);
+        const initTopicIndex = displayTopics.findIndex(matchTopic);
     
         const advanceToFeed = () => {
-            if (!topic.reelays?.length) return;
             const feedSource = (searching) ? 'search' : source;
             navigation.push('TopicsFeedScreen', { initTopicIndex, source: feedSource });
             

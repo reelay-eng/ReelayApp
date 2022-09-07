@@ -291,8 +291,10 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
 
     const displayActivities = useRef(clubActivities.filter(filterDisplayActivities));
 
-    const activityHasReelays = (titleOrTopic) => (titleOrTopic?.reelays?.length > 0);
-    const feedTitlesAndTopics = clubActivities.filter(activityHasReelays);
+    const activityCanRenderOnFeed = (titleOrTopic) => {
+        return (titleOrTopic.activityType === 'topic' || titleOrTopic?.reelays?.length > 0);
+    }
+    const feedTitlesAndTopics = clubActivities.filter(activityCanRenderOnFeed);
     const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
 
     const onEndReached = () => {
@@ -362,6 +364,7 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
  
 export default ClubActivityScreen = ({ navigation, route }) => {
     const authSession = useSelector(state => state.authSession);
+
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const { club, promptToInvite } = route.params;

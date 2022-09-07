@@ -168,14 +168,6 @@ const TopicCardPressable = styled(TouchableOpacity)`
     justify-content: space-between;
     width: ${props => getTopicCardWidth(props)}px;
 `
-const TopicCardView = styled(View)`
-    align-items: center;
-    background-color: black;
-    border-radius: 11px;
-    height: ${props => props.horizontal ? '480px' : 'auto'};
-    justify-content: space-between;
-    width: ${props => getTopicCardWidth(props)}px;
-`
 const TopicOverlineView = styled(View)`
     align-items: center;
     flex-direction: row;
@@ -204,7 +196,6 @@ export default TopicCard = ({
     topic,
 }) => {
     const advanceToCreateReelay = () => navigation.push('SelectTitleScreen', { clubID, topic });
-    const canPress = (topic.reelays.length > 0);
     const creator = {
         sub: topic.creatorSub,
         username: topic.creatorName,
@@ -417,30 +408,6 @@ export default TopicCard = ({
         );
     }    
 
-    const TopicCardContainer = ({ canPress, children, onPress }) => {
-        if (canPress) {
-            return (
-                <TopicCardPressable activeOpacity={0.5} horizontal={horizontal} onPress={onPress}>
-                    {children}
-                </TopicCardPressable>
-            );
-        } else {
-            return (
-                <TopicCardView horizontal={horizontal}>
-                    {children}
-                </TopicCardView>
-            );
-        }
-    }
-
-    const TopicIcon = () => {
-        return (
-            <TopicIconView>
-                <FontAwesomeIcon icon={faComments} size={140} color='white' />
-            </TopicIconView>
-        );
-    }
-
     const TopicOverline = () => {
         const advanceToCreatorProfileScreen = () => navigation.push('UserProfileScreen', { creator });
 
@@ -479,11 +446,11 @@ export default TopicCard = ({
     return (
         <Fragment>
             { source !== 'profile' && <TopicOverline /> }
-            <TopicCardContainer canPress={canPress} onPress={advanceToFeed}>
+            <TopicCardPressable horizontal={horizontal} onPress={advanceToFeed}>
                 <TopicCardGradient colors={['#3D2F52', ReelayColors.reelayPurple]} start={{ x: 0.5, y: 1 }} end={{ x: 0.5, y: -0.5 }} />
                 <ContentAboveDivider />
                 <ContentBelowDivider />
-            </TopicCardContainer>
+            </TopicCardPressable>
         </Fragment>
     );
 }

@@ -112,7 +112,6 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
     }
 
     const hasReelays = (topic) => topic?.reelays?.length > 0;
-    const displayTopicsWithReelays = displayTopics.filter(hasReelays);
     const advanceToTopicsList = () => navigation.push('TopicsListScreen', { 
         source, 
         creatorOnProfile, 
@@ -168,10 +167,9 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
         const renderTopic = ({ item, index }) => {
             const topic = item;
             const matchTopic = (nextTopic) => (nextTopic.id === topic.id);
-            const initTopicIndex = displayTopicsWithReelays.findIndex(matchTopic);
+            const initTopicIndex = displayTopics.findIndex(matchTopic);
         
             const advanceToFeed = () => {
-                if (!topic.reelays?.length) return;
                 navigation.push('TopicsFeedScreen', { 
                     initTopicIndex, 
                     source,
