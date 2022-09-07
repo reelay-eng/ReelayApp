@@ -335,7 +335,6 @@ export default TopicCard = ({
                     <ContentWithReelaysSectionView horizontal={horizontal}>
                         <ContentWithReelaysThumbnailView>
                             <ReelayThumbnail
-                                // asTopOfTheWeek={true}
                                 height={thumbnailHeight}
                                 margin={0}
                                 onPress={thumbnailOnPress}

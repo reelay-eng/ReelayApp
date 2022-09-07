@@ -1,17 +1,23 @@
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useContext, useState } from 'react';
 import { RefreshControl, ScrollView } from 'react-native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { getSingleTopic } from '../../api/TopicsApi';
+import EmptyTopic from '../../components/feed/EmptyTopic';
 import ReelayFeedHeader from '../../components/feed/ReelayFeedHeader';
 import { AuthContext } from '../../context/AuthContext';
 
 export default SingleTopicScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
+    const uploadStage = useSelector(state => state.uploadStage);
+
     const initTopic = route?.params?.topic;
     const initReelayIndex = route?.params?.initReelayIndex;
     const showTabBarOnReturn = route?.params?.showTabBarOnReturn ?? true;
+
+    const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
+    const showProgressBar = showProgressBarStages.includes(uploadStage);
 
     const [topic, setTopic] = useState(initTopic);
     const [refreshing, setRefreshing] = useState(false);
@@ -39,6 +45,19 @@ export default SingleTopicScreen = ({ navigation, route }) => {
         />
     );
 
+    if (topic.reelays?.length === 0) {
+        return (
+            <ScrollView refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
+                <EmptyTopic navigation={navigation} topic={topic} />
+                <ReelayFeedHeader
+                    feedSource='topics'
+                    navigation={navigation}
+                />
+                { showProgressBar && <UploadProgressBar mountLocation={'InTopic'} onRefresh={onRefresh} /> }
+            </ScrollView>
+        )
+    }
+
     return (
         <ScrollView refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
             <TopicStack 
@@ -51,6 +70,7 @@ export default SingleTopicScreen = ({ navigation, route }) => {
                 feedSource='topics'
                 navigation={navigation}
             />
+            { showProgressBar && <UploadProgressBar mountLocation={'InTopic'} onRefresh={onRefresh} /> }
         </ScrollView>
     );
 }

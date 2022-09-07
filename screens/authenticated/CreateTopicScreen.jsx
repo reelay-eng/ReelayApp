@@ -265,7 +265,6 @@ export default function CreateTopicScreen({ navigation, route }) {
                         placeholder={"Go on..."}
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
                         onChangeText={changeDescriptionText}
-                        onPressOut={Keyboard.dismiss()}
                         returnKeyLabel="done"
                         returnKeyType="done"
                     />
@@ -300,7 +299,6 @@ export default function CreateTopicScreen({ navigation, route }) {
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
                         onChangeText={changeTitleText}
                         onSubmitEditing={Keyboard.dismiss}
-                        onPressOut={Keyboard.dismiss}
                         returnKeyLabel="done"
                         returnKeyType="done"
                     />

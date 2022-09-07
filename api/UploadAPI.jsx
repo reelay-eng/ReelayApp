@@ -20,7 +20,7 @@ import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 
 import { compressVideoForUpload, DEVICE_CAN_COMPRESS } from './FFmpegApi';
 import * as Haptics from 'expo-haptics';
-import { generateThumbnail } from './ThumbnailApi';
+import { generateThumbnail, saveThumbnail } from './ThumbnailApi';
 
 const PROGRESS_PRE_COMPRESSION = 0.05;
 const PROGRESS_PRE_S3_UPLOAD = 0.15;
@@ -138,7 +138,9 @@ export const uploadReelay = async ({
                 reelayTopic 
             });
 
-            await generateThumbnail(preparedReelay);
+            const reelayWithLocalURI = { content: { videoURI: uploadVideoURI }};
+            const thumbnailObj = await generateThumbnail(reelayWithLocalURI);
+            await saveThumbnail(preparedReelay, s3Client, thumbnailObj);
             deactivateKeepAwake();    
         };
     
