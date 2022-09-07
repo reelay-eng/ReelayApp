@@ -24,10 +24,11 @@ const PositionPill = styled(View)`
 const { width } = Dimensions.get('window');
 
 export default StackPositionBar = ({ stackLength, stackPosition, stackViewable }) => {
+    const stackStepLength = width / stackLength;
     const topOffset = useSafeAreaInsets().top + 46;
     const viewableStackLength = Math.min(stackLength, 10);
     const pillWidth = width / viewableStackLength;
-    const leftOffset = stackPosition * pillWidth;
+    const leftOffset = stackPosition * stackStepLength;
 
     useEffect(() => {
         animate(10, 'linear', 'opacity');
