@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Pressable, View, Text, Image } from "react-native";
+import React from "react";
+import { Animated, Text, StyleSheet } from "react-native";
 import styled from "styled-components/native";
 
 const fontWeights = {
@@ -199,3 +199,34 @@ export const Overline = styled(Text)`
 	text-align: left;
 	text-transform: uppercase;
 `;
+
+export const AnimatedText = ({ children: value, style, ...rest }) => {
+    const [localValue, setLocalValue] = React.useState(null);
+    const fadeAnim = React.useRef(new Animated.Value(1)).current;
+  
+    const fadeIn = React.useCallback(
+      (fn) => Animated.timing(fadeAnim, { toValue: 1, useNativeDriver: true }).start(fn),
+      [fadeAnim],
+    );
+    const fadeOut = React.useCallback(
+      (fn) => Animated.timing(fadeAnim, { toValue: 0, useNativeDriver: true }).start(fn),
+      [fadeAnim],
+    );
+    const ease = React.useCallback(
+      () => fadeOut(() => fadeIn(setLocalValue(value))),
+      [value, fadeIn, fadeOut],
+    );
+  
+    React.useEffect(() => {
+      if (!localValue) { setLocalValue(value); return; }
+      ease();
+    }, [value, ease]);
+  
+    if (!localValue) { return null; }
+  
+    return (
+      <Animated.Text style={StyleSheet.flatten([style, { opacity: fadeAnim }])} {...rest}>
+        {localValue}
+      </Animated.Text>
+    );
+  }

@@ -82,8 +82,7 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
                     asTopOfTheWeek={true}
                     height={MAJOR_REELAY_HEIGHT} 
                     margin={0}
-                    onPress={() => goToReelay(0)} 
-                    showLikes={true}
+                    onPress={() => goToReelay(0)}
                     showPoster={true}
                     reelay={topOfTheWeek[0][0]} 
                     width={MAJOR_REELAY_WIDTH} 
@@ -94,8 +93,7 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
                     <ReelayThumbnail 
                         height={MINOR_REELAY_HEIGHT} 
                         margin={0}
-                        onPress={() => goToReelay(1)} 
-                        showLikes={true}
+                        onPress={() => goToReelay(1)}
                         showPoster={true}
                         reelay={topOfTheWeek[1][0]} 
                         width={MINOR_REELAY_WIDTH} 
@@ -105,8 +103,7 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
                     <ReelayThumbnail 
                         height={MINOR_REELAY_HEIGHT} 
                         margin={0}
-                        onPress={() => goToReelay(2)} 
-                        showLikes={true}
+                        onPress={() => goToReelay(2)}
                         showPoster={true}
                         reelay={topOfTheWeek[2][0]} 
                         width={MINOR_REELAY_WIDTH} 
