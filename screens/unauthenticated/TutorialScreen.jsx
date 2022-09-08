@@ -1,18 +1,26 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from "react"
 import {
+    ActivityIndicator,
 	Image,
     ImageBackground,
 	View,
     Dimensions,
     ScrollView, 
     SafeAreaView,
-    TouchableOpacity
+    Modal,
+    TouchableOpacity,
+    KeyboardAvoidingView,
+    Pressable
 } from "react-native";
 
 import { AnimatedText } from "../../components/global/Text";
+import * as ReelayText from "../../components/global/Text";
+import { Icon } from "react-native-elements";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch } from "react-redux";
 
 import styled from "styled-components"
-
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Video } from 'expo-av'
 
 import { AddToClubsIconSVG } from '../../components/global/SVGs';
@@ -24,6 +32,11 @@ import Minions from "../../assets/images/Onboarding/Posters/P2.png"
 import StrangerThings from "../../assets/images/Onboarding/Posters/P3.png"
 import IronMan2 from "../../assets/images/Onboarding/Posters/P4.png"
 import SpiderMan from "../../assets/images/Onboarding/Posters/P5.png"
+
+import HorrorPodcast from "../../assets/images/Onboarding/ClubDrawer/80sHorrorPodcast.png";
+import A24FanClub from "../../assets/images/Onboarding/ClubDrawer/A24FanClub.png";
+import MyWatchlist from "../../assets/images/Onboarding/ClubDrawer/MyWatchlist.png";
+import SecretFamilyGroup from "../../assets/images/Onboarding/ClubDrawer/SecretFamilyGroup.png";
 
 import PressThisArrow from "../../assets/images/Onboarding/PressThisArrow.png";
 
@@ -37,6 +50,7 @@ const AutoPlayReelays = [
 
 import { LinearGradient } from "expo-linear-gradient";
 import { animate, animateCustom } from "../../hooks/animations";
+import ReelayColors from "../../constants/ReelayColors";
 
 const windowWidth = Dimensions.get('window').width;
 const windowHeight = Dimensions.get('window').height;
@@ -55,12 +69,7 @@ const Container = styled(View)`
 	height: 100%;
 `;
 
-const SafeAreaContainer = styled(SafeAreaView)`
-    width: 100%;
-    height: 100%;
-`
-
-const IntroScreen = ({ navigation }) => {
+const TutorialScreen = ({ navigation }) => {
     return (
         <Container>
             <Tutorial navigation={navigation} />
@@ -238,11 +247,189 @@ const TutorialFooter = ({ children, arrow=null }) => {
     )
 }
 
+const ClubRowContainer = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    display: flex;
+    flex: 1;
+`
+const ClubNameText = styled(ReelayText.Subtitle1Emphasized)`
+    color: white;
+`
+const DrawerContainer = styled(View)`
+    background-color: #1a1a1a;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    margin-top: auto;
+    max-height: 60%;
+    padding-bottom: ${props => props.bottomOffset}px;
+    width: 100%;
+`
+const ModalContainer = styled(View)`
+    position: absolute;
+`
+const RowContainer = styled(Pressable)`
+    align-items: center;
+    background-color: ${(props) => props.backgroundColor};
+    flex-direction: row;
+    padding: 6px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-bottom-color: #505050;
+    border-bottom-width: 0.3px;    
+`
+const ClubsContainer = styled(View)`
+    margin-bottom: 10px;
+    align-items: center;
+`
+const ProfileImage = styled(Image)`
+    border-color: white;
+    border-radius: ${(props) => props.size/2}px;
+    border-width: ${(props) => (props.border) ? 1 : 0}px;
+    height: ${(props) => props.size}px;
+    width: ${(props) => props.size}px;
+`
+
+const AddTitleButtonContainer = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${props => props.disabled ? ReelayColors.reelayBlack : ReelayColors.reelayBlue};
+    border-radius: 24px;
+    flex-direction: row;
+    justify-content: center;
+    opacity: ${props => props.disabled ? "0.8" : "1"};
+    border: ${props => props.disabled ? "solid 1px gray" : "none"};
+    height: 48px;
+    width: ${windowWidth - 32}px;
+`
+const AddTitleButtonOuterContainer = styled(View)`
+    align-items: center;
+    margin-top: 20px;
+    width: 100%;
+`
+const AddTitleButtonText = styled(ReelayText.Subtitle2)`
+    color: white;
+    margin-left: 4px;
+`
+
+const AddTitleButton = ({ bottomOffset, onPress, disabled }) => {
+    return (
+        <AddTitleButtonOuterContainer bottomOffset={bottomOffset}>
+            <AddTitleButtonContainer onPress={onPress} disabled={disabled}>
+                <React.Fragment>
+                    <Icon type='ionicon' name='bookmark' size={16} color='white' />                 
+                    <AddTitleButtonText>{'Add title to continue'}</AddTitleButtonText>   
+                </React.Fragment>
+            </AddTitleButtonContainer>
+        </AddTitleButtonOuterContainer>
+    );
+}
+
+const CheckmarkIconContainer = styled(View)`
+align-items: center;
+justify-content: center;
+height: 30px;
+width: 30px;
+`
+const ProfilePictureContainer = styled(View)`
+    margin-top: 6px;
+    margin-bottom: 6px;
+    margin-right: 10px;
+`
+
+const ClubRow = ({ name, image, anySelected, setAnySelected }) => {
+    const [selected, setSelected] = useState(false);
+
+    const onPress = () => {
+        if (!selected && !anySelected) setAnySelected(true);
+        setSelected(prev => !prev);
+    }
+
+    return (
+        <RowContainer 
+            backgroundColor={selected ? ReelayColors.reelayBlue : "#1a1a1a"} 
+            onPress={onPress}>
+            <ClubRowContainer>
+                <ProfilePictureContainer>
+                    <ProfileImage 
+                        border={true}
+                        size={32}
+                        source={image}
+                        PlaceholderContent={<ActivityIndicator />}
+                    />
+                </ProfilePictureContainer>
+                <ClubNameText>{name}</ClubNameText>
+            </ClubRowContainer>
+            { selected && (
+                <CheckmarkIconContainer>
+                    <Icon type='ionicon' name={"checkmark-done"} size={30} color="white" />
+                </CheckmarkIconContainer>                        
+            )}
+            { !selected && (
+                <CheckmarkIconContainer>
+                    <AddToClubsIconSVG size={30} />
+                </CheckmarkIconContainer>
+            )}
+
+        </RowContainer>
+    )
+}
+
+const HeaderContainer = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 20px;
+    padding-bottom: 10px;
+`
+const HeaderText = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 20px;
+`
+
+const Header = () => {
+    return (
+        <HeaderContainer>
+            <HeaderText>
+                My Clubs
+            </HeaderText>
+        </HeaderContainer>
+    )
+}
+
+const AddToClubDrawer = ({ drawerIsOpen, onFinish }) => {
+    const bottomOffset = useSafeAreaInsets().bottom;
+    const [anySelected, setAnySelected] = useState(false);
+
+    const ClubItems = [
+        { name: "My Watchlist", image: MyWatchlist },
+        { name: "Secret Family Group", image: SecretFamilyGroup },
+        { name: "A24 Fan Club", image: A24FanClub },
+        { name: "The 80s Horror Podcast", image: HorrorPodcast },
+    ]
+
+    return (
+        <ModalContainer>
+            <Modal animationType='slide' transparent={true} visible={drawerIsOpen}>
+                <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
+                <DrawerContainer bottomOffset={bottomOffset}>
+                    <Header />
+                    <ClubsContainer>
+                        { ClubItems.map(( { name, image }, index) => (
+                            <ClubRow name={name} image={image} key={index} anySelected={anySelected} setAnySelected={setAnySelected}/>
+                        ))}
+                    </ClubsContainer>
+                    <AddTitleButton disabled={!anySelected} bottomOffset={bottomOffset} onPress={onFinish}/>
+                </DrawerContainer>
+                </KeyboardAvoidingView>
+            </Modal>
+        </ModalContainer>
+    )
+}
+
 const AddToWatchlistContainer = styled(View)`
     position: absolute;
     width: 100%;
     height: 100%;
-    border: solid 1px purple;
     justify-content: center;
     align-items: center;
 `
@@ -267,10 +454,8 @@ const WatchlistPoster = styled(ImageBackground)`
     align-items: center;
 `
 
-
-
-
-const Tutorial = () => {
+const Tutorial = ({ navigation }) => {
+    const dispatch = useDispatch();
 
     const [BigText, setBigText] = useState("On Reelay we talk about movies and TV shows.")
     const [SmallText, setSmallText] = useState("Scroll down")
@@ -286,6 +471,14 @@ const Tutorial = () => {
     useLayoutEffect(() => {
         animate(1000);
     }, [])
+
+    const onScrollVertical = (e) => {
+        let paddingToBottom = 150;
+        paddingToBottom += e.nativeEvent.layoutMeasurement.height;
+        if(e.nativeEvent.contentOffset.y >= e.nativeEvent.contentSize.height - paddingToBottom) {
+          if (!hasScrolledDown) ScrollDown();
+        }
+    }
 
     const ScrollDown = () => {
         animateCustom({
@@ -330,12 +523,20 @@ const Tutorial = () => {
         setDrawerIsOpen(true);
     }
 
+    const handleFinishedOnboarding = () => {
+        setDrawerIsOpen(false);
+        AsyncStorage.setItem('isReturningUser', '1');
+		dispatch({ type: 'setIsReturningUser', payload: true });
+		navigation.navigate('SignedOutScreen');
+    }
+
 
     return (
         <>
             <VerticalScrollContainer
                 decelerationRate={0}
-                onScrollBeginDrag={ScrollDown}
+                onScroll={onScrollVertical}
+                scrollEventThrottle={1}
                 bounces={false}
                 scrollEnabled={!hasScrolledDown}
                 ref={verticalScrollRef}
@@ -371,6 +572,7 @@ const Tutorial = () => {
                             <Arrow source={PressThisArrow} resizeMode={"contain"}/>
                         </ArrowContainer>
                     }
+                    <AddToClubDrawer drawerIsOpen={drawerIsOpen} setDrawerIsOpen={setDrawerIsOpen} onFinish={handleFinishedOnboarding}/>
                     
                 </AddToWatchlistContainer>
             )}
@@ -379,4 +581,4 @@ const Tutorial = () => {
     )
 }
 
-export default IntroScreen;
+export default TutorialScreen;
