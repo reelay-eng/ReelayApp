@@ -63,7 +63,7 @@ const NewTopicPressable = styled(TouchableOpacity)`
     border-radius: 8px;
     border-width: 1px;
     height: 30px;
-    margin-right: 12px;
+    margin-right: 16px;
     padding-left: 12px;
     padding-right: 12px;
     justify-content: center;
@@ -330,7 +330,7 @@ export default TopicsListScreen = ({ navigation, route }) => {
                 </HeaderLeftContainer>
                 <HeaderRightContainer>
                     <NewTopicButton />
-                    <SearchTopicsButton />
+                    {/* <SearchTopicsButton /> */}
                 </HeaderRightContainer>
             </HeaderContainer>
         );
