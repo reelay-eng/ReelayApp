@@ -53,13 +53,13 @@
         "android": {
             "softwareKeyboardLayoutMode":"pan",
             "adaptiveIcon": {
-                "foregroundImage": "./assets/images/adaptive-icon.png",
+                "foregroundImage": "./assets/images/reelay-logo-text-with-dog.png",
                 "backgroundColor": "#000000"
             },
             "package": "com.anthonyreelay.ReelayApp"
             },
             "web": {
-            "favicon": "./assets/images/favicon.png"
+            "favicon": "./assets/images/dog-with-glasses.png"
         },
         "plugins": [
             "@config-plugins/ffmpeg-kit-react-native",

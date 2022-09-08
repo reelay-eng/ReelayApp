@@ -14,7 +14,6 @@ import styled from 'styled-components/native';
 
 // Components
 import { Icon } from "react-native-elements";
-import AppleTVAd from '../../components/titlePage/AppleTVAd';
 import MovieInformation from '../../components/titlePage/MovieInformation';
 import PopularReelaysRow from '../../components/titlePage/PopularReelaysRow';
 import PosterWithTrailer from '../../components/titlePage/PosterWithTrailer';
