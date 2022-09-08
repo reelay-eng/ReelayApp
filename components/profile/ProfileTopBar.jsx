@@ -35,7 +35,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         }
     }, [])
 
-    const HeadingText = styled(ReelayText.H6Emphasized)`
+    const HeadingText = styled(ReelayText.H5Bold)`
         color: white;
         padding-left: ${atProfileBase ? 10: 0}px;
     `

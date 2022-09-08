@@ -23,40 +23,53 @@ import { getTopics, getTopicsByCreator, searchTopics } from '../../api/TopicsApi
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import ProfilePicture from '../../components/global/ProfilePicture';
 import { useFocusEffect } from '@react-navigation/native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { height, width } = Dimensions.get('window');
 
+const BottomGradient = styled(LinearGradient)`
+    position: absolute;
+    bottom: 0px;
+    opacity: 0.8;
+    height: 172px;
+    width: 100%;
+`
 const CloseButtonContainer = styled(TouchableOpacity)`
     width: 32px;
-`
-const CreateTopicButtonContainer = styled(TouchableOpacity)`
-    align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
-    border-radius: 20px;
-    flex-direction: row;
-    justify-content: center;
-    height: 40px;
-    margin: 16px;
-    margin-left: 14px;
-    width: ${width - 32}px;
-`
-const CreateTopicText = styled(ReelayText.Overline)`
-    color: white;
 `
 const HeaderContainer = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
     margin-left: 10px;
-    margin-bottom: 16px;
+    margin-bottom: 10px;
 `
 const HeaderLeftContainer = styled(View)`
     align-items: center;
     flex-direction: row;
 `
-const HeaderText = styled(ReelayText.H5Emphasized)`
+const HeaderRightContainer = styled(View)`
+    align-items: center;
+    flex-direction: row;
+`
+const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     margin-top: 4px;
+`
+const NewTopicPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: #1a1a1a;
+    border-color: white;
+    border-radius: 8px;
+    border-width: 1px;
+    height: 30px;
+    margin-right: 12px;
+    padding-left: 12px;
+    padding-right: 12px;
+    justify-content: center;
+`
+const NewTopicText = styled(ReelayText.Overline)`
+    color: white;
 `
 const SearchButtonContainer = styled(TouchableOpacity)`
     margin-right: 20px;
@@ -76,20 +89,21 @@ const SearchInput = styled(TextInput)`
     font-size: 16px;
     font-style: normal;
     letter-spacing: 0.15px;
-    padding: 12px;
+    padding: 8px;
 `
 const SearchIconContainer = styled(View)`
     width: 32px;
 `
 const SearchInputContainer = styled(View)`
+    align-items: center;
     border-color: white;
     border-radius: 6px;
     border-width: 1px;
-    align-items: center;
     display: flex;
     flex-direction: row;
     margin: 16px;
     margin-top: 4px;
+    margin-bottom: 8px;
     padding-left: 6px;
     padding-right: 6px;
     width: ${width - 32}px;
@@ -271,10 +285,7 @@ export default TopicsListScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
 
     const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
-    const followingTopics = useSelector(state => state.myHomeContent?.following?.topics);
-
     const discoverTopicsNextPage = useSelector(state => state.myHomeContent?.discover?.topicsNextPage) ?? 1;
-    const followingTopicsNextPage = useSelector(state => state.myHomeContent?.following?.topicsNextPage) ?? 1;
 
     let headerText, initDisplayTopics, initNextPage;
     switch (source) {
@@ -283,11 +294,6 @@ export default TopicsListScreen = ({ navigation, route }) => {
             initDisplayTopics = discoverTopics ?? [];
             initNextPage = discoverTopicsNextPage ?? 1;
             break;    
-        case 'following':
-            headerText = 'Topics by friends';
-            initDisplayTopics = followingTopics ?? [];
-            initNextPage = followingTopicsNextPage ?? 1;
-            break;
         case 'profile':
             headerText = `${creatorOnProfile?.username}'s topics`;
             initDisplayTopics = topicsOnProfile;
@@ -306,20 +312,8 @@ export default TopicsListScreen = ({ navigation, route }) => {
     }
 
     useFocusEffect(() => {
-        const showTabBar = (source === 'profile');
-        dispatch({ type: 'setTabBarVisible', payload: showTabBar });
+        dispatch({ type: 'setTabBarVisible', payload: true });
     });
-
-    const CreateTopicButton = () => {
-        const advanceToCreateTopic = () => navigation.push('CreateTopicScreen');
-        return (
-            <CreateTopicButtonContainer onPress={advanceToCreateTopic}>
-                <CreateTopicText>
-                    {'Start a new topic'}
-                </CreateTopicText>
-            </CreateTopicButtonContainer>
-        );
-    }
 
     const Header = () => {
         return (
@@ -334,8 +328,20 @@ export default TopicsListScreen = ({ navigation, route }) => {
                     )}
                     <HeaderText>{headerText}</HeaderText>
                 </HeaderLeftContainer>
-                <SearchTopicsButton />
+                <HeaderRightContainer>
+                    <NewTopicButton />
+                    <SearchTopicsButton />
+                </HeaderRightContainer>
             </HeaderContainer>
+        );
+    }
+
+    const NewTopicButton = () => {
+        const advanceToCreateTopic = () => navigation.push('CreateTopicScreen');
+        return (
+            <NewTopicPressable onPress={advanceToCreateTopic}>
+                <NewTopicText>{'New topic'}</NewTopicText>
+            </NewTopicPressable>
         );
     }
 
@@ -360,7 +366,7 @@ export default TopicsListScreen = ({ navigation, route }) => {
                 setSearching={setSearching}
                 source={source}
             />
-            <CreateTopicButton />
+            <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
         </ScreenContainer>
     );
 }

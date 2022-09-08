@@ -116,6 +116,9 @@ export default TopicStack = ({
                     topic={topic}
                 />
             </BannerContainer>
+            { (stack.length > 1) && (
+                <StackPositionBar stackLength={stack?.length} stackPosition={stackPosition} stackViewable={stackViewable} /> 
+            )}
             { showProgressBar && <UploadProgressBar mountLocation={'InTopic'}  /> }
         </ReelayFeedContainer>
     );

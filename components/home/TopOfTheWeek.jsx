@@ -32,7 +32,6 @@ const HeaderContainer = styled(View)`
 const HeaderContainerLeft = styled(View)`
     align-items: center;
     flex-direction: row;
-    margin-left: 15px;
 `
 const TopOfTheWeekContainer = styled(View)`
     width: 100%;
@@ -129,7 +128,6 @@ export default TopOfTheWeek = ({ navigation }) => {
         <TopOfTheWeekContainer>
             <HeaderContainer>
                 <HeaderContainerLeft>
-                    <Icon type='ionicon' name='ribbon' size={24} color='white' />
                     <HeaderText>{'Top of the week'}</HeaderText>
                 </HeaderContainerLeft>
             </HeaderContainer>

@@ -8,9 +8,7 @@ import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import styled from 'styled-components/native';
 import * as ReelayText from '../../components/global/Text';
-import { Icon } from 'react-native-elements';
 import { useDispatch, useSelector } from 'react-redux';
-import ProfilePicture from '../../components/global/ProfilePicture';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 import ClubPicture from '../../components/global/ClubPicture';
@@ -25,6 +23,7 @@ import Constants from 'expo-constants';
 import moment from 'moment';
 import EmptyClubsCard from '../../components/clubs/EmptyClubsCard';
 import EmptyClubActivityCard from '../../components/clubs/EmptyClubActivityCard';
+import { NotificationIconSVG, SearchIconSVG } from '../../components/global/SVGs';
 
 const CLUB_PIC_SIZE = 72;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -423,7 +422,7 @@ export default MyClubsScreen = ({ navigation }) => {
 
         return (
             <TopRightButtonPressable onPress={advanceToNotificationScreen}>
-                <Icon type='ionicon' size={27} color={'white'} name='notifications' />
+                <NotificationIconSVG />
                 { hasUnreadNotifications && <UnreadIconIndicator /> }
             </TopRightButtonPressable>
         )
@@ -528,7 +527,8 @@ export default MyClubsScreen = ({ navigation }) => {
         const advanceToSearchScreen = () => navigation.push('SearchScreen', { initialSearchType: 'Clubs' });
         return (
             <TopRightButtonPressable onPress={advanceToSearchScreen}>
-                <Icon type='ionicon' size={27} color={'white'} name='search' />
+                {/* <Icon type='ionicon' size={27} color={'white'} name='search' /> */}
+                <SearchIconSVG />
             </TopRightButtonPressable>
         )
     }
@@ -567,7 +567,7 @@ export default MyClubsScreen = ({ navigation }) => {
                     <NotificationButton />
                 </TopBarButtonView>
             </TopBarView>
-            <TabSelector />
+            {/* <TabSelector /> */}
             { selectedTab === 'recent activity' && (myClubActivities?.length > 0) && <RecentActivity /> }
             { selectedTab === 'recent activity' && (myClubActivities?.length === 0) && <EmptyActivity /> }
             { selectedTab === 'all my clubs' && (myClubs?.length > 0) && <AllMyClubs /> }

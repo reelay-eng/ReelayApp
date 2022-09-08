@@ -169,24 +169,22 @@ export default TopicsFeed = ({
 
     const onFeedSwiped = async (e) => {
         const { x, y } = e.nativeEvent.contentOffset;
+        const nextFeedPosition = Math.round(y / height);
+        if (feedPosition === nextFeedPosition) return;
 
-        if (y % height === 0) {
-            const nextFeedPosition = y / height;
-            const swipeDirection = nextFeedPosition < feedPosition ? 'up' : 'down';
-            
-            const nextTopic = displayTopics[nextFeedPosition];
-            const prevTopic = displayTopics[feedPosition];
+        const swipeDirection = nextFeedPosition < feedPosition ? 'up' : 'down';        
+        const nextTopic = displayTopics[nextFeedPosition];
+        const prevTopic = displayTopics[feedPosition];
 
-            const logProperties = {
-                nextTopic: nextTopic?.title,
-                prevReelayTitle: prevTopic?.title,
-                source: 'topics',
-                swipeDirection: swipeDirection,
-                username: reelayDBUser?.username,
-            }
-            logAmplitudeEventProd('swipedFeed', logProperties);
-            setFeedPosition(nextFeedPosition);
+        const logProperties = {
+            nextTopic: nextTopic?.title,
+            prevReelayTitle: prevTopic?.title,
+            source: 'topics',
+            swipeDirection: swipeDirection,
+            username: reelayDBUser?.username,
         }
+        logAmplitudeEventProd('swipedFeed', logProperties);
+        setFeedPosition(nextFeedPosition);
     }
 
     return (

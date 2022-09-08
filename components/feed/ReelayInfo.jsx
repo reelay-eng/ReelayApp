@@ -96,7 +96,7 @@ const ReelayInfo = ({ clubStub, feedSource, navigation, reelay }) => {
 			<Pressable style={{zIndex: 100}} onPress={goToClub}>
 				<ClubOrProfileLineView>
 					<ClubOrProfilePicContainer>
-						<ClubPicture navigation={navigation} club={clubStub} size={30} />
+						<ClubPicture border club={clubStub} navigation={navigation} size={30} />
 					</ClubOrProfilePicContainer>
 					<UsernameText>{clubStub?.name}</UsernameText>
 				</ClubOrProfileLineView>

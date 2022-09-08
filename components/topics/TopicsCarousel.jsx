@@ -2,7 +2,6 @@ import React, { Fragment, useContext, useEffect, useRef, useState } from 'react'
 import { Dimensions, TouchableOpacity, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
-import moment from 'moment';
 
 import TopicCard from './TopicCard';
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,7 +16,7 @@ import { getTopicsByCreator } from '../../api/TopicsApi';
 const { width } = Dimensions.get('window');
 
 const CarouselView = styled(View)`
-    margin-left: -30px;
+    margin-left: -24px;
 `
 const CreateTopicButtonContainer = styled(TouchableOpacity)`
     align-items: center;
@@ -69,7 +68,6 @@ const Spacer = styled(View)`
 export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnProfile = null }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
-    const curTopicIndex = useRef(0);
 
     const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
     const followingTopics = useSelector(state => state.myHomeContent?.following?.topics);
@@ -111,7 +109,6 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
             break;
     }
 
-    const hasReelays = (topic) => topic?.reelays?.length > 0;
     const advanceToTopicsList = () => navigation.push('TopicsListScreen', { 
         source, 
         creatorOnProfile, 
@@ -144,22 +141,12 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
         return (
             <HeaderContainer>
                 <HeaderContainerLeft>
-                    { source !== 'profile' && <TopicIcon /> }
                     <HeaderText>{headerText}</HeaderText>
                 </HeaderContainerLeft>
                 <HeaderContainerRight onPress={advanceToTopicsList}>
                     <SeeAllTopicsText>{'See all'}</SeeAllTopicsText>
                 </HeaderContainerRight>
             </HeaderContainer>
-        );
-    }
-
-    const TopicIcon = () => {
-        return (
-            <Fragment>
-                <FontAwesomeIcon icon={ faComments } color='white' size={20} />
-                <Spacer />
-            </Fragment>
         );
     }
 

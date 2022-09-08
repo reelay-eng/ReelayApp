@@ -1,15 +1,12 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
-import { Dimensions, Image, Pressable, View } from 'react-native';
+import React, { useContext } from 'react';
+import { Dimensions, Pressable, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../../components/global/Text';
-import SeeMore from '../global/SeeMore';
 import { useSelector } from 'react-redux';
 import TitlePoster from '../global/TitlePoster';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faFireFlameCurved } from '@fortawesome/free-solid-svg-icons';
 import Carousel from 'react-native-snap-carousel';
 
 const { width } = Dimensions.get('window');
@@ -28,7 +25,6 @@ const HeaderContainer = styled(View)`
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
-    margin-left: 12px;
 `
 const IconContainer = styled(View)`
     margin: 10px;
@@ -148,7 +144,6 @@ export default PopularTitles = ({ navigation }) => {
     return (
         <PopularTitlesContainer>
             <HeaderContainer>
-                <FontAwesomeIcon icon={faFireFlameCurved} color='white' size={24} />
                 <HeaderText>{headerText}</HeaderText>
             </HeaderContainer>
             { popularTitleStacks?.length > 0 && <TitlesRow />}
