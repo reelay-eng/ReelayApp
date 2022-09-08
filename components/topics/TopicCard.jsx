@@ -9,26 +9,77 @@ import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useSelector } from 'react-redux';
 import TopicDotMenuDrawer from './TopicDotMenuDrawer';
+import ReelayColors from '../../constants/ReelayColors';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faComments, faPlus } from '@fortawesome/free-solid-svg-icons';
+import ReelayThumbnail from '../global/ReelayThumbnail';
+import TitlePoster from '../global/TitlePoster';
+import { TopicsGiantIconSVG } from '../global/SVGs';
 
 const { height, width } = Dimensions.get('window');
 const CARD_WIDTH_CAROUSEL = width - 48;
 const CARD_WIDTH_LIST = width - 32;
 
 const getTopicCardWidth = (props) => props.horizontal ? CARD_WIDTH_CAROUSEL : CARD_WIDTH_LIST;
-const getBottomRowWidth = (props) => getTopicCardWidth(props) - 32;
+const getContentRowWidth = (props) => getTopicCardWidth(props) - 24;
+const getThumbnailWidth = (props) => (getTopicCardWidth(props) - 32) / 2;
+const getThumbnailHeight = (props) => (getThumbnailWidth(props) * 1.5) + (props?.horizontal ? 10 : 0);
+const getPosterWidth = (props) => (getThumbnailWidth(props) - 8) / 2;
 
-const BottomRowContainer = styled(View)`
+const AddReelayToTopicPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 20px;
+    height: 40px;
+    justify-content: center;
+    margin-top: 16px;
+    width: 40px;
+`
+const BottomRowContainer = styled(TouchableOpacity)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
     margin: 16px;
-    margin-bottom: 0px;
+    margin-top: 24px;
+    margin-bottom: 8px;
     bottom: 16px;
-    width: ${props => getBottomRowWidth(props)}px;
+    width: ${props => getContentRowWidth(props)}px;
+`
+const BottomRowContainerNoReelays = styled(BottomRowContainer)`
+    justify-content: center;
 `
 const BottomRowLeftText = styled(ReelayText.Subtitle2)`
     margin-left: 8px;
     color: #86878B;
+`
+const ContentNoReelaysSectionView = styled(View)`
+    justify-content: flex-start;
+    margin-top: 8px;
+    width: ${props => getContentRowWidth(props)}px;
+`
+const ContentNoReelaysIconView = styled(View)`
+    align-items: center;
+    height: 160px;
+    justify-content: center;
+    width: ${props => getContentRowWidth(props)}px;
+`
+const ContentWithReelaysSectionView = styled(View)`
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 8px;
+    width: ${props => getContentRowWidth(props)}px;
+`
+const ContentWithReelaysPosterGridView = styled(View)`
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 50%;
+`
+const ContentWithReelaysThumbnailView = styled(View)`
+    height: ${props => getThumbnailWidth(props) * 1.5}px;
 `
 const ContributorPicContainer = styled(View)`
     margin-left: -10px;
@@ -38,28 +89,12 @@ const ContributorRowContainer = styled(View)`
     flex-direction: row;
     margin-left: 10px;
 `
-const CreateReelayButton = styled(TouchableOpacity)`
-    align-items: center;
-    background-color: #665f6b;
-    border-radius: 17px;
-    flex-direction: row;
-    justify-content: center;
-    height: 30px;
-    padding-left: 8px;
-    padding-right: 12px;
-`
-const CreateReelayText = styled(ReelayText.CaptionEmphasized)`
-    color: white;
-    font-size: 12px;
-    line-height: 16px;
-`
 const CreatorName = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 14px;
     line-height: 20px;
 `
 const DescriptionLine = styled(View)`
-    margin-left: 16px;
     margin-right: 16px;
     margin-bottom: 9px;
 `
@@ -77,7 +112,7 @@ const DotMenuButtonContainer = styled(TouchableOpacity)`
     padding-left: 8px;
     padding-right: 8px;
 `
-const PlayReelaysButton = styled(TouchableOpacity)`
+const PlayReelaysIconView = styled(View)`
     align-items: center;
     border-radius: 17px;
     flex-direction: row;
@@ -86,11 +121,31 @@ const PlayReelaysButton = styled(TouchableOpacity)`
 const SharedTopicText = styled(ReelayText.Overline)`
     color: white;
 `
+const Spacer = styled(View)`
+    width: 10px;
+`
+const StartConvoButton = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 18px;
+    flex-direction: row;
+    justify-content: center;
+    height: 36px;
+    width: ${props => getContentRowWidth(props) - 32}px;
+`
+const StartConvoText = styled(ReelayText.Overline)`
+    color: white;
+`
 const TitleLine = styled(View)`
+    display: flex;
+    flex-direction: row;
     margin-top: 16px;
-    margin-left: 16px;
     margin-right: 16px;
     margin-bottom: 8px;
+`
+const TitlePosterView = styled(View)`
+    margin-bottom: 4px;
+    margin-right: 4px;
 `
 const TitleText = styled(ReelayText.H6Emphasized)`
     color: white;
@@ -102,17 +157,11 @@ const TopicCardGradient = styled(LinearGradient)`
     width: 100%;
     position: absolute;
 `
-const TopicCardPressable = styled(TouchableOpacity)`
-    background-color: black;
-    border-radius: 11px;
-    height: ${props => props.horizontal ? '200px' : 'auto'};
-    justify-content: space-between;
-    width: ${props => getTopicCardWidth(props)}px;
-`
 const TopicCardView = styled(View)`
+    align-items: center;
     background-color: black;
     border-radius: 11px;
-    height: ${props => props.horizontal ? '200px' : 'auto'};
+    height: ${props => props.horizontal ? '480px' : 'auto'};
     justify-content: space-between;
     width: ${props => getTopicCardWidth(props)}px;
 `
@@ -143,26 +192,24 @@ export default TopicCard = ({
     source = 'discover',
     topic,
 }) => {
-    const canPress = (topic.reelays.length > 0);
+    const advanceToCreateReelay = () => navigation.push('SelectTitleScreen', { clubID, topic });
     const creator = {
         sub: topic.creatorSub,
         username: topic.creatorName,
     };
+    const topicHasReelays = (topic.reelays.length > 0);
 
-    const CardBottomRowNoStacks = ({ navigation, clubID, topic }) => {
-        const advanceToCreateReelay = () => navigation.push('SelectTitleScreen', { clubID, topic });
+    const CardBottomRowNoReelays = () => {
         return (
-            <BottomRowContainer horizontal={horizontal}>
-                <BottomRowLeftText>{'0 reelays, be the first!'}</BottomRowLeftText>
-                <CreateReelayButton onPress={advanceToCreateReelay}>
-                    <Icon type='ionicon' name='add' color='white' size={20} />
-                    <CreateReelayText>{'Add Reelay'}</CreateReelayText>
-                </CreateReelayButton>
-            </BottomRowContainer>
+            <BottomRowContainerNoReelays horizontal={horizontal}>
+                <StartConvoButton horizontal={horizontal} onPress={advanceToCreateReelay}>
+                    <StartConvoText>{'Start the conversation'}</StartConvoText>
+                </StartConvoButton>
+            </BottomRowContainerNoReelays>
         );
     }  
     
-    const CardBottomRowWithStacks = ({ advanceToFeed, topic }) => {
+    const CardBottomRowWithReelays = () => {
         const MAX_DISPLAY_CREATORS = 5;
         const myFollowing = useSelector(state => state.myFollowing);
         const inMyFollowing = (creator) => !!myFollowing.find((followingObj) => followingObj?.creatorSub === creator?.sub);
@@ -188,47 +235,177 @@ export default TopicCard = ({
         }
         
         return (
-            <BottomRowContainer horizontal={horizontal}>
+            <BottomRowContainer horizontal={horizontal} onPress={advanceToFeed}>
                 <CreatorProfilePicRow 
                     displayCreators={getDisplayCreators()} 
                     reelayCount={topic.reelays.length} 
                 />
-                <PlayReelaysButton onPress={advanceToFeed}>
+                <PlayReelaysIconView>
                     <Icon type='ionicon' name='play-circle' color='white' size={30} />
-                </PlayReelaysButton>
+                </PlayReelaysIconView>
             </BottomRowContainer>
         );
     }
 
     const ContentAboveDivider = () => {
-        return (
-            <View>
-                <TitleLine>
-                    <TitleText numberOfLines={2}>{topic.title}</TitleText>
-                </TitleLine>
-                { (topic.description.length > 0) && (
+        const AddReelayToTopicButton = () => {
+            return (
+                <AddReelayToTopicPressable onPress={advanceToCreateReelay}>
+                    <FontAwesomeIcon icon={faPlus} size={20} color='white' />
+                </AddReelayToTopicPressable>
+            );
+        }
+
+        const ContentNoReelays = () => {
+            return (
+                <Fragment>
+                    <ContentNoReelaysSectionView horizontal={horizontal}>
+                        <TopicTitle />
+                        <TopicDescription />
+                    </ContentNoReelaysSectionView>
+                    <ContentNoReelaysIconView>
+                        {/* <FontAwesomeIcon icon={faComments} size={140} color='white' /> */}
+                        <TopicsGiantIconSVG />
+                    </ContentNoReelaysIconView>
+                </Fragment>
+            )
+        };
+
+        const ContentWithReelays = () => {
+
+            const TitleSection = () => {
+                return (
+                    <ContentWithReelaysSectionView horizontal={horizontal}>
+                        <View style={{ flex: 1 }}>
+                            <TouchableOpacity onPress={advanceToFeed}>
+                                <TopicTitle />
+                                <TopicDescription />
+                            </TouchableOpacity>
+                        </View>
+                        <AddReelayToTopicButton />
+                    </ContentWithReelaysSectionView>
+                );
+            }
+            
+            const TopicTitlePoster = ({ reelay, doubleSize }) => {
+                const matchTitle = (nextReelay) => (nextReelay.title.id === reelay.title.id);
+                const topicIndex = topic.reelays.findIndex(matchTitle);
+                const onPress = () => advanceToFeed(topicIndex);
+
+                let posterWidth = getPosterWidth({ horizontal });
+                if (doubleSize) posterWidth *= 2;
+                if (!reelay?.title) {
+                    console.log('reelay no title: ', reelay);
+                    return <View />
+                }
+
+                return (
+                    <TitlePosterView>
+                        <TitlePoster onPress={onPress} title={reelay?.title} width={posterWidth} />
+                    </TitlePosterView>
+                )
+            }
+
+            const MediaSection = () => {                
+                const reelaysWithDistinctTitles = topic.reelays.filter((reelay, index) => {
+                    const matchTitle = (nextReelay) => (nextReelay.title.id === reelay.title.id);
+                    return topic.reelays.findIndex(matchTitle) === index;
+                });
+
+                const displayTitles = reelaysWithDistinctTitles.filter((reelay, index) => index < 4);
+                const hasOneTitle = (displayTitles.length === 1);
+                const hasTwoTitles = (displayTitles.length === 2);
+
+                let mostPopularReelay = null;
+                let mostPopularReelayScore = -1;
+                let mostPopularReelayIndex = 0;
+                for (const reelayIndex of topic.reelays.keys()) {
+                    const reelay = topic.reelays[reelayIndex];
+                    const reelayScore = reelay.likes.length + reelay.comments.length;
+                    if (reelayScore > mostPopularReelayScore) {
+                        mostPopularReelay = reelay;
+                        mostPopularReelayScore = reelayScore;
+                        mostPopularReelayIndex = reelayIndex;
+                    }
+                }
+
+                const thumbnailOnPress = () => advanceToFeed(mostPopularReelayIndex);
+                const thumbnailWidth = getThumbnailWidth({ horizontal });
+                const thumbnailHeight = getThumbnailHeight({ horizontal });
+
+                return (
+                    <ContentWithReelaysSectionView horizontal={horizontal}>
+                        <ContentWithReelaysThumbnailView>
+                            <ReelayThumbnail
+                                height={thumbnailHeight}
+                                margin={0}
+                                onPress={thumbnailOnPress}
+                                reelay={mostPopularReelay}
+                                showLikes={true}
+                                showVenue={false}
+                                width={thumbnailWidth}
+                            />
+                        </ContentWithReelaysThumbnailView>
+                        <Spacer />
+                        <ContentWithReelaysPosterGridView 
+                            hasTwoTitles={hasTwoTitles} 
+                            horizontal={horizontal}
+                        >
+                            { displayTitles.map(reelay => {
+                                return (
+                                    <TopicTitlePoster 
+                                        key={reelay.sub} 
+                                        doubleSize={hasOneTitle} 
+                                        reelay={reelay} 
+                                    />
+                                );
+                            })}
+                        </ContentWithReelaysPosterGridView>
+                    </ContentWithReelaysSectionView>
+                );
+            }
+
+            return (
+                <Fragment>
+                    <TitleSection />
+                    <MediaSection />
+                </Fragment>
+            );
+        }
+
+        const TopicDescription = () => {
+            if (topic.description.length > 0) {
+                return (
                     <DescriptionLine>
                         <DescriptionText numberOfLines={3}>{topic.description}</DescriptionText>
                     </DescriptionLine>
-                )}
-            </View>
-        );
+                );
+            } else {
+                return <View />;
+            }
+        }
+
+        const TopicTitle = () => {
+            return (
+                <TitleLine>
+                    <TitleText numberOfLines={2}>{topic.title}</TitleText>
+                </TitleLine>
+            );
+        }
+
+        if (topicHasReelays) {
+            return <ContentWithReelays />;
+        } else {
+            return <ContentNoReelays />;
+        }
     }
 
     const ContentBelowDivider = () => {
         return (
             <View>
                 <DividerLine />
-                { (!topic.reelays.length) && (
-                    <CardBottomRowNoStacks 
-                        navigation={navigation} 
-                        clubID={clubID} 
-                        topic={topic} 
-                    />
-                )}
-                { (topic.reelays.length > 0) && (
-                    <CardBottomRowWithStacks advanceToFeed={advanceToFeed} topic={topic} />
-                )}
+                { (!topicHasReelays) && <CardBottomRowNoReelays /> }
+                { (topicHasReelays) && <CardBottomRowWithReelays /> }
             </View>
         );
     }
@@ -251,42 +428,27 @@ export default TopicCard = ({
         );
     }    
 
-    const DotMenuButton = () => {
-        const [topicDotMenuVisible, setTopicDotMenuVisible] = useState(false);
-        const openDrawer = () => setTopicDotMenuVisible(true);
-        return (
-            <DotMenuButtonContainer onPress={openDrawer}>
-                <Icon type='ionicon' name='ellipsis-horizontal' size={20} color='white' />
-                { topicDotMenuVisible && (
-                    <TopicDotMenuDrawer 
-                        navigation={navigation}
-                        topic={topic}
-                        drawerVisible={topicDotMenuVisible}
-                        setDrawerVisible={setTopicDotMenuVisible}
-                    />
-                )}
-            </DotMenuButtonContainer>
-        );
-    }
-
-    const TopicCardContainer = ({ canPress, children, onPress }) => {
-        if (canPress) {
-            return (
-                <TopicCardPressable activeOpacity={0.5} horizontal={horizontal} onPress={onPress}>
-                    {children}
-                </TopicCardPressable>
-            );
-        } else {
-            return (
-                <TopicCardView horizontal={horizontal}>
-                    {children}
-                </TopicCardView>
-            );
-        }
-    }
-
     const TopicOverline = () => {
         const advanceToCreatorProfileScreen = () => navigation.push('UserProfileScreen', { creator });
+
+        const DotMenuButton = () => {
+            const [topicDotMenuVisible, setTopicDotMenuVisible] = useState(false);
+            const openDrawer = () => setTopicDotMenuVisible(true);
+            return (
+                <DotMenuButtonContainer onPress={openDrawer}>
+                    <Icon type='ionicon' name='ellipsis-horizontal' size={20} color='white' />
+                    { topicDotMenuVisible && (
+                        <TopicDotMenuDrawer 
+                            navigation={navigation}
+                            topic={topic}
+                            drawerVisible={topicDotMenuVisible}
+                            setDrawerVisible={setTopicDotMenuVisible}
+                        />
+                    )}
+                </DotMenuButtonContainer>
+            );
+        }    
+
         return (
             <TopicOverlineView horizontal={horizontal}>
                 <TopicOverlineLeftPressable onPress={advanceToCreatorProfileScreen}>
@@ -304,11 +466,11 @@ export default TopicCard = ({
     return (
         <Fragment>
             { source !== 'profile' && <TopicOverline /> }
-            <TopicCardContainer canPress={canPress} onPress={advanceToFeed}>
-                <TopicCardGradient colors={['#400817', '#19242E']} start={{ x: 0.5, y: 1 }} end={{ x: 0.5, y: -0.5 }} />
+            <TopicCardView horizontal={horizontal} onPress={advanceToFeed}>
+                <TopicCardGradient colors={['#3D2F52', ReelayColors.reelayPurple]} start={{ x: 0.5, y: 1 }} end={{ x: 0.5, y: -0.5 }} />
                 <ContentAboveDivider />
                 <ContentBelowDivider />
-            </TopicCardContainer>
+            </TopicCardView>
         </Fragment>
     );
 }

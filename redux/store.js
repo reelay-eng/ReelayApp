@@ -28,6 +28,29 @@ const initialState = {
     myClubActivities: [],
     myWatchlistItems: [],
 
+    // FEEDS
+    discoverMostRecent: {
+        content: [],
+        filters: {},
+        nextPage: 0,
+    },
+    discoverThisWeek: {
+        content: [],
+        filters: {},
+        nextPage: 0,
+    },
+    discoverThisMonth: {
+        content: [],
+        filters: {},
+        nextPage: 0,
+    },
+    discoverAllTime: {
+        content: [],
+        filters: {},
+        nextPage: 0,
+    },
+    emptyGlobalTopics: [],
+
     // GLOBAL
     appUpdateRequired: false,
     appUpdateRecommended: false,
@@ -53,9 +76,9 @@ const initialState = {
     commentsVisible: false,
     commentRefreshListener: 0,
     currentComment: '',
+    discoverHasUnseenReelays: true,
     donateLinks: [],
     dotMenuVisible: false,
-    hasUnseenGlobalReelays: true,
 
     // PROFILE
     isEditingProfile: false,
@@ -121,6 +144,19 @@ const appReducer = ( state = initialState, action) => {
             const myWatchlistItems = watchlistRecsReducer(action.payload);
             return { ...state, myWatchlistItems };    
 
+
+        // FEEDS (migrating stuff over here in 1.05)
+        case 'setDiscoverMostRecent':
+            return { ...state, discoverMostRecent: action.payload };
+        case 'setDiscoverThisWeek':
+            return { ...state, discoverThisWeek: action.payload };
+        case 'setDiscoverThisMonth':
+            return { ...state, discoverThisMonth: action.payload };
+        case 'setDiscoverAllTime':
+            return { ...state, discoverAllTime: action.payload };
+        case 'setEmptyGlobalTopics':
+            return { ...state, emptyGlobalTopics: action.payload };
+
         // GLOBAL
         case 'setAppVersionInfo':
             const { minVersionRequired, recommendedVersion } = action.payload;
@@ -167,11 +203,19 @@ const appReducer = ( state = initialState, action) => {
         case 'setLatestNoticeSkipped':
             return { ...state, latestNoticeSkipped: action.payload }
         case 'setMyHomeContent':
-            return { ...state, myHomeContent: action.payload }    
+            // also setting discover most recent here for now
+            // holdover until we migrate entirely to the new discover feed
+            let myHomeContent = action.payload;
+            const discoverMostRecent = {
+                content: myHomeContent.global,
+                filters: {},
+                nextPage: 1,
+            };
+            return { ...state, discoverMostRecent, myHomeContent }
         case 'setMyDismissalHistory':
             return { ...state, myDismissalHistory: action.payload }
         case 'setStreamingStacks':
-            let myHomeContent =  { ...state.myHomeContent };
+            myHomeContent =  { ...state.myHomeContent };
             if (!myHomeContent.discover || !myHomeContent.following) {
                 console.log('Invalid home content. Cannot set streaming stacks');
                 return state;
@@ -212,8 +256,8 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, donateLinks: action.payload }        
         case 'setDotMenuVisible':
             return { ...state, dotMenuVisible: action.payload }
-        case 'setHasUnseenGlobalReelays':
-            return { ...state, hasUnseenGlobalReelays: action.payload }
+        case 'setDiscoverHasUnseenReelays':
+            return { ...state, discoverHasUnseenReelays: action.payload }
         case 'setLikesVisible':
             return { ...state, likesVisible: action.payload }    
 
@@ -297,6 +341,9 @@ export const mapStateToProps = (state) => ({
     myClubActivities: state.myClubActivities,
     myWatchlistItems: state.myWatchlistItems,
 
+    // FEEDS
+    emptyGlobalTopics: state.emptyGlobalTopics,
+
     // GLOBAL
     appUpdateRequired: state.appUpdateRequired,
     appUpdateRecommended: state.appUpdateRecommended,
@@ -321,9 +368,9 @@ export const mapStateToProps = (state) => ({
     commentsVisible: state.commentsVisible,
     commentRefreshListener: state.commentRefreshListener,
     currentComment: state.currentComment,
+    discoverHasUnseenReelays: state.discoverHasUnseenReelays,
     donateLinks: state.donateLinks,
     dotMenuVisible: state.dotMenuVisible,
-    hasUnseenGlobalReelays: state.hasUnseenGlobalReelays,
     likesVisible: state.likesVisible,
 
     // PROFILE

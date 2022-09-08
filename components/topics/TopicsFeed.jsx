@@ -10,7 +10,8 @@ import styled from 'styled-components/native';
 import { useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import { getTopics, getTopicsByCreator } from '../../api/TopicsApi';
-import moment from 'moment';
+import ReelayFeedHeader from '../feed/ReelayFeedHeader';
+import EmptyTopic from '../feed/EmptyTopic';
 
 const { height, width } = Dimensions.get('window');
 
@@ -33,10 +34,7 @@ export default TopicsFeed = ({
     const authSession = useSelector(state => state.authSession);
 
     const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics) ?? [];
-    const followingTopics = useSelector(state => state.myHomeContent?.following?.topics);
-
     const discoverTopicsNextPage = useSelector(state => state.myHomeContent?.discover?.topicsNextPage) ?? 0;
-    const followingTopicsNextPage = useSelector(state => state.myHomeContent?.following?.topicsNextPage) ?? 0;
 
     const page = useRef(0);
 	const dispatch = useDispatch();
@@ -47,10 +45,6 @@ export default TopicsFeed = ({
         case 'discover':
             displayTopics = discoverTopics ?? [];
             nextPage = discoverTopicsNextPage;
-            break;
-        case 'following':
-            displayTopics = followingTopics ?? [];
-            nextPage = followingTopicsNextPage;
             break;
         case 'search':
             displayTopics = preloadedTopics ?? [];
@@ -66,10 +60,23 @@ export default TopicsFeed = ({
             break;
     }
 
-    const hasReelays = (topic) => topic?.reelays?.length > 0;
-    const displayTopicsWithReelays = displayTopics.filter(hasReelays);
-    const displayTopicStacks = displayTopicsWithReelays.map(topic => topic.reelays);
-        
+    const tagEmptyTopics = (topic) => {
+        if (topic?.reelays?.length === 0) {
+            topic.isEmptyTopic = true;
+            topic.creator = {
+                sub: topic.creatorSub,
+                username: topic.creatorName,
+            }    
+        } else {
+            topic.isEmptyTopic = false;
+        }
+        return topic;
+    }
+
+    for (const topic of displayTopics) {
+        tagEmptyTopics(topic);
+    }
+
     const [feedPosition, setFeedPosition] = useState(initTopicIndex);
     const [refreshing, setRefreshing] = useState(false);
 
@@ -141,53 +148,57 @@ export default TopicsFeed = ({
     }
 
     const renderStack = ({ item, index }) => {
+        const topic = item;
         const stackViewable = (index === feedPosition);
         const initialStackPos = (index === initTopicIndex) ? initReelayIndex : 0;
+
+        if (topic.isEmptyTopic) {
+            return <EmptyTopic navigation={navigation} topic={topic} />;
+        }
+
         return (
             <TopicStack 
                 initialStackPos={initialStackPos}
                 navigation={navigation}
                 onRefresh={onRefresh}
                 stackViewable={stackViewable}
-                topic={displayTopicsWithReelays[index]}
+                topic={topic}
             />
         );
     }
 
     const onFeedSwiped = async (e) => {
         const { x, y } = e.nativeEvent.contentOffset;
+        const nextFeedPosition = Math.round(y / height);
+        if (feedPosition === nextFeedPosition) return;
 
-        if (y % height === 0) {
-            const nextFeedPosition = y / height;
-            const swipeDirection = nextFeedPosition < feedPosition ? 'up' : 'down';
-            
-            const nextStack = displayTopicStacks[nextFeedPosition];
-            const prevStack = displayTopicStacks[feedPosition];
+        const swipeDirection = nextFeedPosition < feedPosition ? 'up' : 'down';        
+        const nextTopic = displayTopics[nextFeedPosition];
+        const prevTopic = displayTopics[feedPosition];
 
-            const logProperties = {
-                nextReelayTitle: nextStack[0].title.display,
-                prevReelayTitle: prevStack[0].title.display,
-                source: 'topics',
-                swipeDirection: swipeDirection,
-                username: reelayDBUser?.username,
-            }
-            logAmplitudeEventProd('swipedFeed', logProperties);
-            setFeedPosition(nextFeedPosition);
+        const logProperties = {
+            nextTopic: nextTopic?.title,
+            prevReelayTitle: prevTopic?.title,
+            source: 'topics',
+            swipeDirection: swipeDirection,
+            username: reelayDBUser?.username,
         }
+        logAmplitudeEventProd('swipedFeed', logProperties);
+        setFeedPosition(nextFeedPosition);
     }
 
     return (
         <TopicsFeedContainer>
-            {displayTopicStacks.length < 1 && <ActivityIndicator />}
-            {displayTopicStacks.length >= 1 && (
+            {displayTopics.length < 1 && <ActivityIndicator />}
+            {displayTopics.length >= 1 && (
                 <FlatList
-                    data={displayTopicStacks}
+                    data={displayTopics}
                     getItemLayout={getItemLayout}
                     horizontal={false}
                     initialNumToRender={2}
                     initialScrollIndex={initTopicIndex}
                     keyboardShouldPersistTaps={"handled"}
-                    keyExtractor={(stack) => `${stack[0].title.id}-${stack[0].sub}`}
+                    keyExtractor={(stack) => `${stack?.[0]?.sub ?? stack?.id}`}
                     maxToRenderPerBatch={2}
                     onEndReached={extendFeed}
                     onRefresh={onRefresh}
@@ -209,6 +220,10 @@ export default TopicsFeed = ({
                     windowSize={3}
                 />
             )}
+            <ReelayFeedHeader 
+                feedSource='topics'
+                navigation={navigation}
+            />
         </TopicsFeedContainer>
     );
 }

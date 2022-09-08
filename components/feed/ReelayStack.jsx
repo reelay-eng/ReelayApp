@@ -1,4 +1,4 @@
-import React, { useContext, useState, memo, useRef, Fragment, useMemo } from 'react';
+import React, { useContext, useState, memo, useRef, Fragment, useMemo, useEffect } from 'react';
 import { Dimensions, FlatList, SafeAreaView, View } from 'react-native';
 import BackButton from '../utils/BackButton';
 import Hero from './Hero';
@@ -7,11 +7,12 @@ import * as ReelayText from '../global/Text';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components/native';
 import UploadProgressBar from '../global/UploadProgressBar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import ReelayFeedHeader from './ReelayFeedHeader';
+import StackPositionBar from './StackPositionBar';
+import TopicBanner from '../topics/TopicBanner';
 
 const { height, width } = Dimensions.get('window');
 
@@ -36,17 +37,21 @@ const BackButtonPinnedContainer = styled(SafeAreaView)`
     position: absolute;
     top: ${props => props.topOffset}px;
 `
-const HeaderContainer = styled(View)`
-    position: absolute;
-    width: 100%;
-`
 const ReelayFeedContainer = styled(View)`
+    align-items: center;
     background-color: black;
     height: ${height}px;
     width: ${width}px;
 `
 const TitleBannerContainer = styled(View)`
     margin-top: 10px;
+    position: absolute;
+    top: ${props => props.topOffset}px;
+    width: 100%;
+`
+const TopicBannerContainer = styled(View)`
+    margin-top: 10px;
+    left: 10px;
     position: absolute;
     top: ${props => props.topOffset}px;
     width: 100%;
@@ -72,9 +77,9 @@ const ReelayStack = ({
 
     const latestAnnouncement = useSelector(state => state.latestAnnouncement);
     const isPinnedReelay = (viewableReelay?.sub === latestAnnouncement?.pinnedReelay?.sub);
-    const renderBannerOnStack = !viewableReelay?.topicID;
+    const renderBannerOnStack = feedSource !== 'discover' || !viewableReelay?.topicID;
 
-    const topOffset = useSafeAreaInsets().top + 8;
+    const topOffset = useSafeAreaInsets().top + 26;
 
     const clubStub = useMemo(() => {
         return (stack[0]?.clubID) ? {
@@ -103,17 +108,6 @@ const ReelayStack = ({
         index: index,
     });
 
-    const onTappedOldest = () => {
-        setStackPosition(0);
-        stackRef?.current?.scrollToIndex({ animated: false, index: 0 });
-    }
-
-    const onTappedNewest = () => {
-        const nextPosition = stack?.length - 1;
-        setStackPosition(nextPosition);
-        stackRef?.current?.scrollToIndex({ animated: false, index: nextPosition });
-    }
-
     const AnnouncementTitle = () => {
         return (
             <AnnouncementTitleContainer>
@@ -131,12 +125,24 @@ const ReelayStack = ({
                     club={clubStub}
                     donateObj={donateObj}
                     navigation={navigation}
-                    stack={stack}
                     titleObj={reelay?.title}
-                    topic={topicStub}
                     reelay={reelay}
                 />
             </TitleBannerContainer>
+        );
+    }
+
+    const renderTopicBanner = (reelay) => {
+        return (
+            <TopicBannerContainer topOffset={topOffset}>
+                <TopicBanner
+                    club={clubStub}
+                    navigation={navigation}
+                    titleObj={reelay?.title}
+                    topic={topicStub}
+                    reelay={reelay}
+                />                    
+            </TopicBannerContainer>
         );
     }
 
@@ -146,12 +152,14 @@ const ReelayStack = ({
         return (
             <ReelayFeedContainer key={reelay.id}>
                 <Hero 
+                    clubStub={clubStub}
                     index={index} 
+                    feedSource={feedSource}
                     navigation={navigation} 
                     reelay={reelay} 
                     viewable={reelayIsViewable}
                 />
-                { !renderBannerOnStack && renderTitleBanner(reelay) }
+                { !renderBannerOnStack && renderTopicBanner(reelay) }
             </ReelayFeedContainer>
         );
     };
@@ -165,10 +173,8 @@ const ReelayStack = ({
         const nextReelay = stack[nextStackPosition];
         const prevReelay = stack[stackPosition];
         const logProperties = {
-            nextReelayID: nextReelay.id,
             nextReelayCreator: nextReelay.creator.username,
             nextReelayTitle: nextReelay.title.display,
-            prevReelayID: prevReelay.id,
             prevReelayCreator: prevReelay.creator.username,
             prevReelayTitle: prevReelay.title.display,
             source: 'stack',
@@ -177,35 +183,6 @@ const ReelayStack = ({
         }
         logAmplitudeEventProd('swipedFeed', logProperties);
         setStackPosition(nextStackPosition);
-    }
-
-    const renderHeaderAndBanner = () => {
-        const clubStub = (viewableReelay?.clubID) ? {
-            id: viewableReelay?.clubID,
-            name: viewableReelay?.clubName,
-        } : null;
-    
-        const topicStub = (viewableReelay?.topicID) ? {
-            id: viewableReelay?.topicID,
-            title: viewableReelay?.topicTitle,
-        } : null;
-
-        return (
-            <HeaderContainer>
-                <ReelayFeedHeader 
-                    navigation={navigation}
-                    club={clubStub}
-                    feedSource={feedSource}
-                    position={stackPosition}
-                    stackLength={stack?.length}
-                    onTappedNewest={onTappedNewest}
-                    onTappedOldest={onTappedOldest}
-                    reelay={stack[stackPosition]}
-                    topic={topicStub}
-                />
-                { renderBannerOnStack && renderTitleBanner(viewableReelay) }
-            </HeaderContainer>
-        );
     }
 
     const renderPinnedHeader = () => {
@@ -234,7 +211,10 @@ const ReelayStack = ({
                 windowSize={3}
             />
             { isPinnedReelay && renderPinnedHeader() }
-            { !isPinnedReelay && renderHeaderAndBanner() }
+            { !isPinnedReelay && renderBannerOnStack && renderTitleBanner(viewableReelay) }
+            { !isPinnedReelay && (stack.length > 1) && (
+                <StackPositionBar stackLength={stack?.length} stackPosition={stackPosition} stackViewable={stackViewable} /> 
+            )}
             { showProgressBar && <UploadProgressBar mountLocation={'OnProfile'} onRefresh={onRefresh} /> }
         </ReelayFeedContainer>
     );

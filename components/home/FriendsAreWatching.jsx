@@ -21,7 +21,6 @@ const FriendsAreWatching = ({ navigation }) => {
     const HeaderContainer = styled(View)`
         align-items: flex-end;
         flex-direction: row;
-        margin-left: 15px;
         margin-top: 5px;
     `
     const HeaderText = styled(ReelayText.H5Bold)`
@@ -47,8 +46,7 @@ const FriendsAreWatching = ({ navigation }) => {
             { displayStacks.length > 0 && (
                 <Fragment>
                     <HeaderContainer>
-                        <Icon type='ionicon' name='people' size={24} color='white' />
-                        <HeaderText>{'Friends are watching'}</HeaderText>
+                        <HeaderText>{'Following'}</HeaderText>
                     </HeaderContainer>
                     <FollowingRowContainer horizontal showsHorizontalScrollIndicator={false}>
                         { displayStacks.map((stack, index) =>  {

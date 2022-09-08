@@ -3,4 +3,5 @@ export default ReelayColors = {
 	reelayRed: "#fe4747",
 	reelayBlue: "#2977ef",
 	reelayGreen: '#04BD6C',
+	reelayPurple: '#421C79',
 };

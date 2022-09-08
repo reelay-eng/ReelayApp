@@ -1,6 +1,6 @@
 // react imports
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Image, View } from 'react-native';
+import { ActivityIndicator, Image, LogBox, View } from 'react-native';
 import Navigation from './navigation';
 import styled from 'styled-components/native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -57,6 +57,7 @@ import { ensureLocalImageDirExists, maybeFlushTitleImageCache } from './api/Reel
 import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
 import { fetchPopularMovies, fetchPopularSeries } from './api/TMDbApi';
 import moment from 'moment';
+import { getEmptyGlobalTopics } from './api/FeedApi';
 
 const LoadingContainer = styled(View)`
     align-items: center;
@@ -127,7 +128,6 @@ function App() {
         let tryCredentials, tryCognitoUser, tryVerifySocialAuth;
         try {
             tryCredentials = await Auth.currentUserCredentials();
-            Auth.currentSession();
             if (tryCredentials?.authenticated) {
                 // use cognito to sign in the user
                 tryCognitoUser = await Auth.currentAuthenticatedUser();
@@ -187,6 +187,8 @@ function App() {
             interruptionModeIOS: InterruptionModeIOS.DoNotMix,
             interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
         });
+
+        LogBox.ignoreLogs(['Could not find image file']);
         
         Notifications.setNotificationHandler({
             handleNotification: async () => ({
@@ -299,9 +301,13 @@ function App() {
 
         // initial load
         const [
+            latestAnnouncement,
+            myDismissalHistory,
             myHomeContent,
             reelayDBUserLoaded
         ] = await Promise.all([
+            getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
+            getDismissalHistory(),
             getHomeContent({ authSession, reqUserSub }),
             getRegisteredUser(userSub),
         ]);
@@ -317,19 +323,24 @@ function App() {
         setReelayDBUser(reelayDBUserLoaded);
         dispatch({ type: 'setReelayDBUser', payload: reelayDBUserLoaded });
         dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
-        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
         dispatch({ type: 'setMyFollowing', payload: myFollowing });
+        dispatch({ type: 'setAppVersionInfo', payload: versionInfo })
+        dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
+        dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });
+        dispatch({ type: 'setLatestNotice', payload: null }); 
+        // triggers the reducer to create the latest notice from already-loaded app data
+
+        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
         dispatch({ type: 'setMySettings', payload: mySettings })
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
-        dispatch({ type: 'setShowFestivalsRow', payload: reelayDBUserLoaded?.settingsShowFilmFestivals })
         dispatch({ type: 'setIsLoading', payload: false });
-        dispatch({ type: 'setAppVersionInfo', payload: versionInfo })
 
         console.log('dispatched first set of profile data');
 
         // deferred load
         const [
             donateLinksLoaded,
+            emptyGlobalTopics,
             myCreatorStacksLoaded,
             myFollowersLoaded,
             myNotificationsLoaded,
@@ -338,6 +349,7 @@ function App() {
             suggestedSeries,
         ] = await Promise.all([
             getAllDonateLinks(),
+            getEmptyGlobalTopics({ authSession, page: 0, reqUserSub: userSub }),
             getStacksByCreator(userSub),
             getFollowers(userSub),
             getAllMyNotifications(userSub),
@@ -349,6 +361,7 @@ function App() {
         console.log('loaded second set of profile data');
 
         dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
+        dispatch({ type: 'setEmptyGlobalTopics', payload: emptyGlobalTopics });
         dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
         dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
         dispatch({ type: 'setMyNotifications', payload: myNotificationsLoaded });
@@ -361,24 +374,6 @@ function App() {
         dispatch({ type: 'setSuggestedSeriesResults', payload: suggestedSeriesResults });
 
         console.log('dispatched second set of profile data');
-
-        // deferred load part 2
-        const [
-            latestAnnouncement,
-            myDismissalHistory,
-        ] = await Promise.all([
-            getLatestAnnouncement({ authSession, reqUserSub, page: 0 }),
-            getDismissalHistory(),
-        ]);
-
-        console.log('loaded third set of profile data');
-
-        dispatch({ type: 'setLatestAnnouncement', payload: latestAnnouncement });
-        dispatch({ type: 'setMyDismissalHistory', payload: myDismissalHistory });
-        // triggers the reducer to create the latest notice from already-loaded app data
-        dispatch({ type: 'setLatestNotice', payload: null }); 
-
-        console.log('dispatched third set of profile data');
     }
 
     const registerMyPushToken = async () => {

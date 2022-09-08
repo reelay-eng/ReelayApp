@@ -6,20 +6,21 @@ import styled from 'styled-components/native';
 
 export default ProfileFeedScreen = ({ navigation, route }) => {
     const { initialFeedPos, stackList } = route.params;
+    const creatorName = stackList?.[0]?.[0]?.creator?.username;
     const ProfileFeedContainer = styled(View)`
         height: 100%;
         width: 100%;
         background-color: black;
     `
-    console.log('Rendering profile feed screen');
 
     return (
         <ProfileFeedContainer>
             <FixedReelayFeed 
-                navigation={navigation} 
+                headerDisplayText={creatorName}
                 initialFeedPos={initialFeedPos} 
                 feedSource='profile'
                 fixedStackList={stackList} 
+                navigation={navigation} 
             />
         </ProfileFeedContainer>
     );

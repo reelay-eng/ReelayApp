@@ -1,5 +1,5 @@
 import React, { memo, useState } from 'react';
-import { ActivityIndicator, Image, View, SafeAreaView, Pressable } from 'react-native';
+import { ActivityIndicator, Image, View, SafeAreaView, TouchableOpacity } from 'react-native';
 import { getTitlePosterURI } from '../../api/ReelayLocalImageCache';
 import FastImage from 'react-native-fast-image';
 import styled from 'styled-components/native';
@@ -22,7 +22,7 @@ const TitlePoster = ({ title, onPress, width = 60 }) => {
     }
 
 	const PosterContainer = (onPress) 
-        ? styled(Pressable)`
+        ? styled(TouchableOpacity)`
             z-index: 3;
         `
         : styled(View)`

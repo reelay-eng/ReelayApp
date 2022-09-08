@@ -13,9 +13,6 @@ import { HeaderWithBackButton } from "../global/Headers";
 import { getReelay, prepareReelay, registerPushTokenForUser } from '../../api/ReelayDBApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
-import { compressVideoForUpload } from '../../api/FFmpegApi';
-import { showMessageToast } from '../utils/toasts';
-import { cacheDirectory, downloadAsync } from 'expo-file-system';
 
 export const ProfileSettings = ({navigation}) => {
     const ViewContainer = styled(SafeAreaView)`
@@ -30,7 +27,6 @@ export const ProfileSettings = ({navigation}) => {
         width: 100%;
     `;
     const { reelayDBUser } = useContext(AuthContext);
-    const globalStacks = useSelector(state => state.myHomeContent?.global);
     const isAdmin = (reelayDBUser?.role === 'admin');
     const dispatch = useDispatch();
     useFocusEffect(() => {
@@ -42,17 +38,6 @@ export const ProfileSettings = ({navigation}) => {
         const welcomeReelay = await getReelay(welcomeReelaySub, 'dev');
         const preparedReelay = await prepareReelay(welcomeReelay);
         navigation.push('SingleReelayScreen', { preparedReelay });
-    }
-
-    const testCompression = async () => {
-        const reelay = globalStacks[0][0];
-        console.log('reelay: ', reelay.content);
-        const videoURI = reelay?.content?.videoURI;
-        const localURI = cacheDirectory + 'img/compression-test.mp4';
-        await downloadAsync(videoURI, localURI);
-        const { outputURI, parsedSession, error } = await compressVideoForUpload(localURI);
-        console.log('compressed video: ', outputURI, error);
-        reelay.content.videoURI = outputURI;
     }
 
     return (
@@ -122,13 +107,6 @@ export const ProfileSettings = ({navigation}) => {
                     iconName="glasses"
                     onPress={loadWelcomeVideoScreen}
                 />
-                { isAdmin && (
-                    <SettingEntry
-                        text="(Admin) Test Compression"
-                        iconName="file-tray-full"
-                        onPress={testCompression}
-                    />                    
-                )}
 			</SettingsContainer>
             <Logout />
 		</ViewContainer>

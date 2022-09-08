@@ -12,84 +12,20 @@ import FollowButton from '../global/FollowButton';
 import { LinearGradient } from "expo-linear-gradient";
 
 import { animate } from "../../hooks/animations";
+import ClubPicture from '../global/ClubPicture';
 
-const InfoView = styled(View)`
-		justify-content: flex-end;
-		position: absolute;
-		bottom: 86px;
-		margin-left: 15px;
-		width: 80%;
-	`
-	const PostInfo = styled(View)`
-		flex-direction: row;
-		align-items: center;
-		z-index: 100;
-	`
-	const ProfilePicContainer = styled(View)`
-		margin-right: 8px;
-	`
-	const Username = styled(ReelayText.Subtitle1Emphasized)`
-		color: white;
-		margin-right: 8px;
-	`
-	const StarRatingContainer = styled(View)`
-		margin-top: 8px;
-		flex-direction: row;
-		align-items: center;
-		z-index: 90;
-	`
-
-const ReelayInfo = ({ navigation, reelay }) => {
-	const creator = reelay.creator;
-	const description = reelay.description ? reelay.description: "";
-	const mentionType = { trigger: '@' };
-	const descriptionPartsWithMentions = (description.length > 0) 
-		? parseValue(description, [mentionType]) 
-		: { parts: [] };
-		
-	const starRating = reelay.starRating + (reelay.starRatingAddHalf ? 0.5 : 0);
-
-	const goToProfile = () => {
-		navigation.push('UserProfileScreen', { creator });
-		logAmplitudeEventProd('viewProfile', { 
-			creator: creator.username,
-			reelayId: reelay.id,
-			source: 'reelayInfo',
-		});
-	}	
-
-	return (
-		<InfoView>
-			<Pressable style={{zIndex: 100}} onPress={goToProfile}>
-				<PostInfo>
-					<ProfilePicContainer>
-						<ProfilePicture navigation={navigation} border circle user={creator} size={30} />
-					</ProfilePicContainer>
-					<Username>@{creator?.username}</Username>
-					<FollowButton creator={creator} />
-				</PostInfo>
-			</Pressable>
-
-			{(starRating>0) && <StarRatingContainer>
-				<StarRating 
-					disabled={true}
-					rating={starRating}
-					starSize={20}
-					starStyle={{ paddingRight: 4 }}
-				/>
-			</StarRatingContainer>}
-
-			{(description.length > 0) && 
-				<Description descriptionPartsWithMentions={descriptionPartsWithMentions} />
-			}
-		</InfoView>
-	);
-};
-
+const ClubOrProfilePicContainer = styled(View)`
+	margin-right: 8px;
+`
+const ClubOrProfileLineView = styled(View)`
+	align-items: center;
+	flex-direction: row;
+	margin-bottom: 8px;
+	z-index: 100;
+`
 const DescriptionContainer = styled(Pressable)`
 	align-items: center;
 	flex-direction: row;
-	padding-top: 8px;
 	padding-bottom: 8px;
 	padding-right: 15px;
 	z-index: 1;
@@ -97,13 +33,128 @@ const DescriptionContainer = styled(Pressable)`
 const DescriptionText = styled(ReelayText.Caption)`
 	color: white;
 	line-height: 20px;
+	text-shadow-color: rgba(0, 0, 0, 0.5);
+    text-shadow-offset: 1px 1px;
+    text-shadow-radius: 1px;
+`
+const InfoView = styled(View)`
+	bottom: 86px;
+	justify-content: flex-end;
+	margin-left: 15px;
+	position: absolute;
+	width: 80%;
 `
 const MentionButton = styled(TouchableOpacity)`
 	position: relative;
 	margin-bottom: -3px;
 `
+const MentionTextStyle = {
+	alignItems: 'flex-end',
+	color: ReelayColors.reelayBlue,
+	fontFamily: "Outfit-Regular",
+	fontSize: 14,
+	fontStyle: "normal",
+	letterSpacing: 0.25,
+	lineHeight: 20,
+	textShadowColor: 'rgba(0, 0, 0, 0.5)',
+	textShadowOffset: { width: 1, height: 1 },
+	textShadowRadius: 1,
+}
 
-const Description = ({ descriptionPartsWithMentions }) => {
+const StarRatingContainer = styled(View)`
+	align-items: center;
+	flex-direction: row;
+	padding-bottom: 8px;
+	z-index: 90;
+`
+const UsernameText = styled(ReelayText.Subtitle1Emphasized)`
+	color: white;
+	margin-right: 8px;
+	text-shadow-color: rgba(0, 0, 0, 0.5);
+    text-shadow-offset: 1px 1px;
+    text-shadow-radius: 1px;
+`
+
+const ReelayInfo = ({ clubStub, feedSource, navigation, reelay }) => {
+	const creator = reelay.creator;
+	const description = reelay.description ? reelay.description: "";
+	const mentionType = { trigger: '@' };
+	const descriptionPartsWithMentions = (description.length > 0) 
+		? parseValue(description, [mentionType]) 
+		: { parts: [] };
+	
+	const showClubLine = (clubStub && feedSource === 'discover');
+	const starRating = reelay.starRating + (reelay.starRatingAddHalf ? 0.5 : 0);
+
+	const ClubLine = () => {
+		// todo: add join button ?
+		const goToClub = () => { 
+			// todo: after refactoring all the club state, screens, and components
+		}	
+
+		return (
+			<Pressable style={{zIndex: 100}} onPress={goToClub}>
+				<ClubOrProfileLineView>
+					<ClubOrProfilePicContainer>
+						<ClubPicture border club={clubStub} navigation={navigation} size={30} />
+					</ClubOrProfilePicContainer>
+					<UsernameText>{clubStub?.name}</UsernameText>
+				</ClubOrProfileLineView>
+			</Pressable>
+		);
+	}
+
+	const CreatorLine = () => {
+		const goToProfile = () => {
+			navigation.push('UserProfileScreen', { creator });
+			logAmplitudeEventProd('viewProfile', { 
+				creator: creator.username,
+				reelayId: reelay.id,
+				source: 'reelayInfo',
+			});
+		}	
+	
+		return (
+			<Pressable style={{zIndex: 100}} onPress={goToProfile}>
+				<ClubOrProfileLineView>
+					{ !showClubLine && (
+						<ClubOrProfilePicContainer>
+							<ProfilePicture navigation={navigation} border circle user={creator} size={30} />
+						</ClubOrProfilePicContainer>
+					)}
+					<UsernameText>{creator?.username}</UsernameText>
+					<FollowButton creator={creator} />
+				</ClubOrProfileLineView>
+			</Pressable>
+		);
+	}
+
+	const StarRatingLine = () => {
+		return (
+			<StarRatingContainer>
+				<StarRating 
+					disabled={true}
+					rating={starRating}
+					starSize={20}
+					starStyle={{ paddingRight: 4 }}
+				/>
+			</StarRatingContainer>
+		);
+	}
+
+	return (
+		<InfoView>
+			{ showClubLine && <ClubLine /> }
+			<CreatorLine />
+			{ (starRating > 0) && <StarRatingLine /> }
+			{ (description.length > 0) && 
+				<Description partsWithMentions={descriptionPartsWithMentions} />
+			}
+		</InfoView>
+	);
+};
+
+const Description = ({ partsWithMentions }) => {
 	const [expanded, setExpanded] = useState(false);
 	const [componentDimensions, setComponentDimensions] = useState({});
 	const expandDescription = () => {
@@ -120,16 +171,6 @@ const Description = ({ descriptionPartsWithMentions }) => {
         }
         navigation.push('UserProfileScreen', { creator: mentionUser });
     }
-
-	const MentionTextStyle = {
-		alignItems: 'flex-end',
-		color: ReelayColors.reelayBlue,
-		fontFamily: "Outfit-Regular",
-		fontSize: 14,
-		fontStyle: "normal",
-		letterSpacing: 0.25,
-		lineHeight: 20
-	}
 
 	const renderDescriptionPart = (descriptionPart, index) => {
         if (isMention(descriptionPart)) {
@@ -173,12 +214,13 @@ const Description = ({ descriptionPartsWithMentions }) => {
                 )
             }
 			<DescriptionText numberOfLines={(expanded) ? 0 : 1} ellipsizeMode='tail'>
-				{ descriptionPartsWithMentions.parts.map(renderDescriptionPart) }
+				{ partsWithMentions.parts.map(renderDescriptionPart) }
 			</DescriptionText>
 		</DescriptionContainer>
 	)
 }
 
 export default memo(ReelayInfo, (prevProps, nextProps) => {
-	return (prevProps.reelay.datastoreSub === nextProps.reelay.datastoreSub) && (prevProps.expanded === nextProps.expanded);
+	return (prevProps.reelay.datastoreSub === nextProps.reelay.datastoreSub) 
+		&& (prevProps.expanded === nextProps.expanded);
 });

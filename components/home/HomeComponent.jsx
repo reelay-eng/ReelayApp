@@ -2,13 +2,11 @@ import React, { Fragment, useContext, useRef, useState } from 'react';
 import { RefreshControl, SafeAreaView, ScrollView, View } from 'react-native';
 import styled from 'styled-components';
 
-import AtFestivals from './AtFestivals';
 import HomeHeader from './HomeHeader';
 import InTheaters from './InTheaters';
 import FriendsAreWatching from './FriendsAreWatching';
 import TopicsCarousel from '../topics/TopicsCarousel';
 import OnStreaming from './OnStreaming';
-import PeopleToFollow from './PeopleToFollow';
 
 import { getHomeContent, getLatestAnnouncement } from '../../api/ReelayDBApi';
 import { getAllMyNotifications } from '../../api/NotificationsApi';
@@ -110,26 +108,14 @@ const HomeComponent = ({ navigation }) => {
             </SafeAreaView>
             <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 <AnnouncementsAndNotices navigation={navigation} />
-                { selectedTab === 'discover' && (
-                    <Fragment>
-                        <PopularTitles navigation={navigation} tab='discover' />
-                        <TopOfTheWeek navigation={navigation} />
-                        <TopicsCarousel navigation={navigation} source='discover' /> 
-                        <DiscoverClubs navigation={navigation} />
-                        <PeopleToFollow navigation={navigation} /> 
-                        <OnStreaming navigation={navigation} source='discover' />
-                        <InTheaters navigation={navigation} /> 
-                        <AtFestivals navigation={navigation} /> 
-                    </Fragment>
-                )}
-                { selectedTab === 'my stuff' && (
-                    <Fragment>
-                        <MyWatchlistGrid navigation={navigation} />
-                        <FriendsAreWatching navigation={navigation} />
-                        <OnStreaming navigation={navigation} source='following' />
-                        <TopicsCarousel navigation={navigation} source='following' /> 
-                    </Fragment>  
-                )}
+                <PopularTitles navigation={navigation} tab='discover' />
+                <TopicsCarousel navigation={navigation} source='discover' /> 
+                <TopOfTheWeek navigation={navigation} />
+                <FriendsAreWatching navigation={navigation} />
+                <DiscoverClubs navigation={navigation} />
+                <OnStreaming navigation={navigation} source='discover' />
+                <InTheaters navigation={navigation} /> 
+                <MyWatchlistGrid navigation={navigation} />
                 <Spacer />
             </ScrollContainer>
             <BottomBar 

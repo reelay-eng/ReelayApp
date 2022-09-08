@@ -46,7 +46,7 @@ const EditProfileButtonPressable = styled(TouchableOpacity)`
     margin-bottom: 8px;
     width: ${width - 32}px;
 `
-const EditProfileText = styled(ReelayText.Body2)`
+const EditProfileText = styled(ReelayText.Overline)`
     color: white;
 `
 const MyWatchlistPressable = styled(TouchableOpacity)`
@@ -60,7 +60,7 @@ const MyWatchlistPressable = styled(TouchableOpacity)`
     margin-bottom: 8px;
     width: ${width - 32}px;
 `
-const MyWatchlistText = styled(ReelayText.Body2)`
+const MyWatchlistText = styled(ReelayText.Overline)`
     color: white;
 `
 const ProfileScreenContainer = styled(SafeAreaView)`

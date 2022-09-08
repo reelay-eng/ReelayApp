@@ -1,313 +1,380 @@
-import React, { Fragment, memo } from 'react';
-import { Easing, TouchableOpacity, View } from 'react-native';
-import { Icon } from 'react-native-elements';
+import React, { Fragment, useState } from 'react';
+import { Pressable, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faComments, faBackwardStep, faForwardStep, faEarthAmericas, faTicket, faLeaf } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faArrowRight, faChevronDown, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import TextTicker from 'react-native-text-ticker';
-import ClubPicture from '../global/ClubPicture';
-import ProfilePicture from '../global/ProfilePicture';
-import { LinearGradient } from 'expo-linear-gradient';
+import { FiltersSVG } from '../global/SVGs';
 import ReelayColors from '../../constants/ReelayColors';
 
-const ActivityTicker = styled(TextTicker)`
-    color: white;
-    display: flex;
-    font-family: Outfit-Regular;
-    font-size: 16px;
-    font-style: normal;
-    line-height: 20px;
-    letter-spacing: 0.15px;
-    margin-top: 4px;
-    text-align: center;
-`
-const FeedHeaderView = styled(View)`
+const DiscoveryBarView = styled(Pressable)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
-    padding-left: 11px;
-    padding-right: 11px;
     position: absolute;
     top: ${props => props.topOffset}px;
+    width: 100%;
 `
-const ForwardBackButton = styled(TouchableOpacity)`
+const DiscoveryBarLeftView = styled(View)`
     align-items: center;
-    border-color: ${props => props.disabled ? '#a8a8a8' : 'white'};
-    border-radius: 80px;
-    border-width: 1px;
-    justify-content: center;
-    margin-left: 8px;
-    margin-right: 8px;
-    padding: 4px;
+    flex-direction: row;
+    margin-top: 12px;
+    padding-left: 6px;
 `
-const HeaderGradient = styled(LinearGradient)`
-    height: ${props => props.topOffset + 38}px;
+const DiscoveryBarRightView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: flex-end;
+`
+const ExpandFiltersPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${props => props.showFilters ? 'black' : '#333333'};
+    border-radius: 17px;
+    height: 34px;
+    justify-content: center;
+    margin-left: 16px;
+    width: 34px;
+`
+const ExpandWhenPressable = styled(TouchableOpacity)`
+    align-items: center;
+    flex-direction: row;
+`
+const FilterBarView = styled(View)`
+    background-color: black;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 12px;
+    padding-top: 0px;
+    position: absolute;
+    top: ${props => props.topOffset + 46}px;
+    width: 100%;
+`
+const FilterPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${props => props.selected 
+        ? ReelayColors.reelayBlue 
+        : '#333333' 
+    };
+    border-radius: 8px;
+    flex-direction: row;
+    height: 28px;
+    justify-content: center;
+    margin-right: 8px;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-top: 2px;
+`
+const FilterText = styled(ReelayText.Subtitle2)`
+    color: white;
+`
+const HeaderFill = styled(View)`
+    background-color: black;
+    height: ${props => props.topOffset + 46}px;
     position: absolute;
     width: 100%;
 `
-const HeaderText = styled(ReelayText.Subtitle2)`
+const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
+    font-size: 24px;
+    line-height: 24px;
 `
-const PositionText = styled(ReelayText.CaptionEmphasized)`
-    color: white;
-    height: 16px;
-    font-size: 12px;
+const FeedHeaderView = styled(SafeAreaView)`
+    position: absolute;
+    width: 100%;
 `
-const RowView = styled(View)`
+const ResetFiltersPressable = styled(TouchableOpacity)`
     align-items: center;
-    flex-direction: row;
+    justify-content: center;
+    padding-top: 6px;
 `
-const RowPressable = styled(TouchableOpacity)`
-    align-items: center;
-    flex-direction: row;
+const ResetFiltersText = styled(ReelayText.CaptionEmphasized)`
+    color: ${ReelayColors.reelayBlue};
+    font-size: 16px;
+    line-height: 24px;
 `
-const ActivityInfoView = styled(View)`
-    align-items: center;
-    display: flex;
-    flex-direction: row;
-    flex: 1;
-`
-const Spacer = styled(View)`
+const HeaderLeftSpacer = styled(View)`
     width: 10px;
 `
+const WhenOptionPressable = styled(TouchableOpacity)`
+    padding-right: 30px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+`
+const WhenOptionText = styled(ReelayText.Body2)`
+    color: white;
+    font-size: 16px;
+    text-align: right;
+`
+const WhenOptionsView = styled(View)`
+    background-color: black;
+    border-bottom-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+    padding: 4px;
+    position: absolute;
+    top: ${props => props.topOffset - 20}px;
+    width: 100%;
+`
 
-const ActivityInfoBar = ({ club, feedSource, navigation, topic }) => {
-    const topicScrollDuration = 60 + topic?.title?.length * 180;
-    const clubScrollDuration = 60 + (club?.name?.length * 180);
-    const dividerScrollDuration = 60;
-    const Divider = () => <HeaderText>{'|'}</HeaderText>;
+export default ReelayFeedHeader = ({ navigation, displayText, feedSource = 'discover', isFullScreen = false }) => {
+    const topOffset = useSafeAreaInsets().top;
+    const resetFilter = { category: 'all', option: 'unselect_all', display: 'all' };
+    const [showFilters, setShowFilters] = useState(false);
+    const [selectedFilters, setSelectedFilters] = useState([resetFilter]);
 
-    const ClubInfo = () => {
-        const advanceToActivityFeed = () => {
-            if (club) {
-                // advance to club feed
-                navigation.push('ClubActivityScreen', { club });
-            }
+    const [showWhenOptions, setShowWhenOptions] = useState(false);
+    const expandWhen = () => setShowWhenOptions(!showWhenOptions);
+
+    const closeAllFilters = () => {
+        setShowFilters(false);
+        setShowWhenOptions(false);
+    }
+    const expandFilters = () => setShowFilters(!showFilters);
+    const isResetOption = (filter) => (filter.option === 'unselect_all');
+    const noFiltersSelected = (selectedFilters.length === 1 && isResetOption(selectedFilters[0]));
+    const showFilterActionButton = (!noFiltersSelected || !showFilters);
+
+    // todo: these will certainly change with the new home screen
+    const whenableFeedSources = [
+        'club', 
+        'festivals',
+        'following',
+        'popularTitlesDiscover',
+        'popularTitlesFollowing',
+        'streaming',
+        'topics',
+        'theaters',
+        'trending',
+    ]
+
+    const headerIsWhenable = false; // whenableFeedSources.includes(feedSource);
+
+    const getDisplayText = () => {
+        if (displayText) return displayText;
+        switch (feedSource) {
+            case 'club': return 'club';
+            case 'festivals': return 'at festivals';
+            case 'following': return 'following';
+            case 'discover': return 'discover';
+            case 'popularTitlesDiscover': return 'popular titles';
+            case 'popularTitlesFollowing': return 'popular titles';
+            case 'single': return '';
+            case 'streaming': return 'on streaming'; 
+            case 'title': return 'top reelays';
+            case 'topics': return 'topics';
+            case 'theaters': return 'in theaters';
+            case 'trending': return 'top of the week';
+            default: 
+                return '';
         }
-    
-        return (
-            <RowPressable onPress={advanceToActivityFeed}>
-                <ClubPicture club={club} size={30} />
-                <Spacer />
-                <HeaderText numberOfLines={1}>{club?.name}</HeaderText>
-            </RowPressable>
-        );
     }
 
-    const GlobalInfo = () => {
-        const getDisplayFeedSource = () => {
-            switch (feedSource) {
-                case 'festivals': return 'At Festivals';
-                case 'following': return 'Friends are watching';
-                case 'global': return '';
-                case 'popularTitlesDiscover': return 'Popular titles';
-                case 'popularTitlesFollowing': return 'Popular titles with friends';
-                case 'single': return '';
-                case 'streaming': return 'On Streaming'; 
-                case 'theaters': return 'In Theaters';
-                case 'trending': return 'Top of the Week';
-                default: 
-                    return '';
-            }
-        }
-
-        const getDisplayIcon = () => {
-            switch (feedSource) {
-                case 'festivals': return faLeaf;
-                case 'following': return 'people';
-                case 'global': return faEarthAmericas;
-                case 'popularTitlesDiscover': return 'flame';
-                case 'popularTitlesFollowing': return 'flame';
-                case 'profile': return 'earth';
-                case 'single': return 'notifications';
-                case 'streaming': return faEarthAmericas; // should be different if following
-                case 'topic': return faEarthAmericas;
-                case 'theaters': return faTicket;
-                case 'trending': return 'ribbon';
-                default: 
-                    return 'earth';
-            }
-        }
-
-        const getDisplayIconSource = () => {
-            switch (feedSource) {
-                case 'theaters': 
-                case 'festivals':
-                case 'global':
-                case 'streaming':
-                case 'topic':
-                    return 'font-awesome';
-                default: 
-                    return 'ionicon';
-            }
-        }
-
-        const iconSource = getDisplayIconSource();
-
-        return (
-            <RowView>
-                { iconSource === 'font-awesome' && (
-                    <FontAwesomeIcon icon={getDisplayIcon()} size={21} color='white' />
-                )}
-                { iconSource === 'ionicon' && (
-                    <Icon type={getDisplayIconSource()} name={getDisplayIcon()} size={21} color='white' />
-                )}
-                <Spacer />
-                <HeaderText>{getDisplayFeedSource()}</HeaderText>
-            </RowView>
-        );    
+    const getDisplayFilters = () => {
+        return [
+            { category: 'all', option: 'unselect_all', display: 'all' },
+            { category: 'community', option: 'following', display: 'following' },
+            { category: 'popularityAndRating', option: 'highly_rated', display: 'highly-rated' },
+            { category: 'titleType', option: 'film', display: 'movies' },
+            { category: 'titleType', option: 'tv', display: 'TV' },
+            { category: 'venue', option: 'on_my_streaming', display: 'on my streaming' },
+            { category: 'venue', option: 'theaters', display: 'in theaters' },
+            { category: 'all', option: 'see_all_filters', display: 'see all ' },
+        ]
     }
 
-    const TopicInfo = () => {
-        return (
-            <RowView>
-                <FontAwesomeIcon icon={ faComments } color='white' size={21} />
-                <Spacer />
-                <HeaderText numberOfLines={1}>{topic?.title}</HeaderText>
-            </RowView>
-        );
+    const isFilterSelected = (filter) => {
+        const matchFilter = (nextFilter) => (nextFilter.display === filter.display);
+        return selectedFilters.find(matchFilter);
     }
 
-    if (club && topic) {
-        return (
-            <ActivityTicker
-                animationType={'scroll'} 
-                bounce={false} 
-                duration={
-                    clubScrollDuration + 
-                    dividerScrollDuration +
-                    topicScrollDuration
-                } 
-                easing={Easing.linear} 
-                loop 
-                marqueeDelay={1000} 
-                repeatSpacer={25}
-            >
-                <RowView>
-                    <ClubInfo />
-                    <Spacer />
-                    <Divider />
-                    <Spacer />
-                    <TopicInfo />
-                </RowView>
-            </ActivityTicker>
-        );
-    } else if (club) {
-        return (
-            <ActivityTicker
-                animationType={'scroll'} 
-                bounce={false} 
-                duration={clubScrollDuration} 
-                easing={Easing.linear} 
-                loop 
-                marqueeDelay={1000} 
-                repeatSpacer={25}
-            >
-                <ClubInfo />
-            </ActivityTicker>
-        );
-    } else if (topic) {
-        return (
-            <ActivityTicker
-                animationType={'scroll'} 
-                bounce={false} 
-                duration={topicScrollDuration} 
-                easing={Easing.linear} 
-                loop 
-                marqueeDelay={1000} 
-                repeatSpacer={25}
-            >
-                <RowView>
-                    <GlobalInfo />
-                    <Divider />
-                    <Spacer />
-                    <TopicInfo />
-                </RowView>
-            </ActivityTicker>
-        );
-    } else {
-        return <GlobalInfo />;
+    const onSelectOrUnselectFilter = (filter) => {
+        const isSelecting = !isFilterSelected(filter);
+        const isResetOption = (filter.option === 'unselect_all');
+        const removeResetOption = (nextFilter) => (nextFilter.option !== 'unselect_all')
+        if (isResetOption) {
+            resetFilters();
+            return;
+        }
+
+        if (isSelecting) {
+            const nextSelectedFilters = [...selectedFilters, filter].filter(removeResetOption);
+            setSelectedFilters(nextSelectedFilters);
+        } else {
+            const removeFilter = (nextFilter) => (nextFilter.display !== filter.display);
+            const nextSelectedFilters = selectedFilters.filter(removeFilter);
+            setSelectedFilters(nextSelectedFilters);
+        }
     }
-}
 
-const ActivityInfoBarMemo = memo(ActivityInfoBar, (thread0, thread1) => {
-    return (
-        thread0.club?.id === thread1.club?.id &&
-        thread0.topic?.id === thread1.topic?.id
-    );
-});
-
-export default ReelayFeedHeader = ({ 
-    navigation, 
-    club = null, 
-    topic = null, 
-    feedSource = 'global',
-    position,
-    reelay,
-    stackLength,
-    onTappedOldest,
-    onTappedNewest,
-}) => {
+    const resetFilters = () => {
+        setSelectedFilters([resetFilter]);
+        // todo
+    }
 
     const BackButton = () => {
         return (
-            <TouchableOpacity onPress={() => navigation.goBack()} style={{ padding: 6 }}>
-                <Icon type='ionicon' name={'arrow-back-outline'} color={'white'} size={24} />
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+                <FontAwesomeIcon icon={faArrowLeft} size={20} color='white' />
             </TouchableOpacity>
         );
     }
 
-    const ForwardBack = () => {
-        const atOldestReelay = (position === 0);
-        const atNewestReelay = (position === stackLength - 1);
-        const positionString = `${position + 1}/${stackLength}`;
+    // todo: single, title, profile
 
-        const onTappedOldestSafe = () => (onTappedOldest) ? onTappedOldest() : {};
-        const onTappedNewestSafe = () => (onTappedNewest) ? onTappedNewest() : {};
+    const DiscoveryBar = () => {
+        const FullScreenHeader = () => {
+            return (
+                <DiscoveryBarLeftView>
+                    <BackButton />
+                    <HeaderLeftSpacer />
+                    <HeaderText>{'apply filters'}</HeaderText>
+                </DiscoveryBarLeftView>
+            );
+        }
 
+        const NonWhenableHeader = () => {
+            if (feedSource === 'discover') {
+                return (
+                    <DiscoveryBarLeftView>
+                        <HeaderText>{'discover'}</HeaderText>
+                    </DiscoveryBarLeftView>
+                );    
+            }
+
+            return (
+                <DiscoveryBarLeftView>
+                    <BackButton />
+                    <HeaderLeftSpacer />
+                    <HeaderText>{getDisplayText()}</HeaderText>
+                </DiscoveryBarLeftView>
+            )
+        }
+
+        const WhenOption = ({ option, optionDisplay }) => {
+            const setWhenFilter = () => {}
+            return (
+                <WhenOptionPressable>
+                    <WhenOptionText>{optionDisplay}</WhenOptionText>
+                </WhenOptionPressable>
+            );
+        }
+
+        const WhenOptions = () => {
+            return (
+                <WhenOptionsView topOffset={topOffset}>
+                    <WhenOption option='mostRecent' optionDisplay={'most recent'} />
+                    <WhenOption option='thisWeek' optionDisplay={'this week'} />
+                    <WhenOption option='thisMonth' optionDisplay={'this month'} />
+                    <WhenOption option='allTime' optionDisplay={'all time'} />
+                </WhenOptionsView>
+            );
+        }
+
+        const WhenableHeader = () => {
+            return (
+                <DiscoveryBarLeftView>
+                    <BackButton />
+                    <ExpandWhenPressable onPress={expandWhen}>
+                        <HeaderLeftSpacer />
+                        <HeaderText>{getDisplayText()}</HeaderText>
+                        <HeaderLeftSpacer />
+                        <FontAwesomeIcon icon={faChevronDown} color='white' size={14} />
+                    </ExpandWhenPressable>
+                    { showWhenOptions && <WhenOptions/> }
+                </DiscoveryBarLeftView>
+            );
+        }
+    
         return (
-            <RowView>
-                <ForwardBackButton onPress={onTappedOldestSafe} disabled={atOldestReelay}>
-                    <FontAwesomeIcon icon={ faBackwardStep } size={18} color={atOldestReelay ? '#a8a8a8' : 'white'} />
-                </ForwardBackButton>
-                <PositionText>{positionString}</PositionText>
-                <ForwardBackButton onPress={onTappedNewestSafe} disabled={atNewestReelay}>
-                    <FontAwesomeIcon icon={ faForwardStep } size={18} color={atNewestReelay ? '#a8a8a8' : 'white'} />
-                </ForwardBackButton>
-            </RowView>
+            <Fragment>
+                <DiscoveryBarView onPress={closeAllFilters} topOffset={topOffset}>
+                    { isFullScreen && <FullScreenHeader /> }
+                    { !isFullScreen && !headerIsWhenable && <NonWhenableHeader /> }
+                    { !isFullScreen && headerIsWhenable && <WhenableHeader /> }
+                    {/* { !isFullScreen && (
+                        <DiscoveryBarRightView>
+                            { showFilterActionButton && <FilterActionButton /> }
+                            <ExpandFiltersButton />
+                        </DiscoveryBarRightView>                    
+                    )} */}
+                </DiscoveryBarView>
+            </Fragment>
+        )
+    }
+
+    const ExpandFiltersButton = () => {
+        return (
+            <ExpandFiltersPressable onPress={expandFilters} showFilters={showFilters}>
+                { !showFilters && <FiltersSVG /> }
+                { showFilters && <FontAwesomeIcon icon={faXmark} color='white' size={24} /> }
+            </ExpandFiltersPressable>
         );
     }
 
-    const topOffset = useSafeAreaInsets().top;
+    const FilterBar = () => {
+        const renderFilter = (filter) => {
+            return <FilterOption key={filter.option} filter={filter} selected={false} setSelected={() => {}} />
+        }
 
-    if (feedSource === 'profile') {
         return (
-            <FeedHeaderView topOffset={topOffset}>
-                <RowView>
-                    <BackButton navigation={navigation} />
-                    <ProfilePicture user={reelay?.creator} size={24} />
-                </RowView>
-            </FeedHeaderView>
+            <FilterBarView topOffset={topOffset}>
+                { getDisplayFilters().map(renderFilter) }
+            </FilterBarView>
+        );
+    }
+
+    const FilterOption = ({ filter }) => {
+        const { category, option, display } = filter;
+        const isSelected = isFilterSelected(filter);
+        const isAllFiltersOption = (option === 'see_all_filters');
+        const advanceToAllFiltersScreen = () => navigation.push('FeedFiltersScreen', { feedSource });
+
+        const onPress = () => {
+            if (isAllFiltersOption) {
+                advanceToAllFiltersScreen();
+            } else {
+                onSelectOrUnselectFilter(filter);
+            }
+        }
+
+        return (
+            <FilterPressable selected={isSelected} allFilters={isAllFiltersOption} onPress={onPress}>
+                <FilterText>{display}</FilterText>
+                { isAllFiltersOption && <FontAwesomeIcon icon={faArrowRight} size={14} color='white' /> }
+            </FilterPressable>
+        )
+    }
+
+    const FilterActionButton = () => {
+        const filterCount = selectedFilters.length;
+
+        const getActionText = () => {
+            if (noFiltersSelected) return 'all';
+            if (!showFilters) return `${filterCount}x`;
+            return 'reset';
+        }
+
+        const getAction = () => {
+            if (!showFilters) return expandFilters;
+            if (noFiltersSelected) return () => {};
+            return resetFilters;
+        }
+
+        return (
+            <ResetFiltersPressable onPress={getAction()}>
+                <ResetFiltersText>{getActionText()}</ResetFiltersText>
+            </ResetFiltersPressable>
         );
     }
 
     return (
-        <Fragment>
-            <HeaderGradient colors={[ReelayColors.reelayBlack,'transparent']} topOffset={topOffset} />
-            <FeedHeaderView topOffset={topOffset}>
-                { feedSource !== 'global' && <BackButton navigation={navigation} /> }
-                <ActivityInfoView>
-                    <ActivityInfoBarMemo club={club} feedSource={feedSource} navigation={navigation} topic={topic} />
-                </ActivityInfoView>
-                { stackLength > 1 && (
-                    <RowView>
-                        <ForwardBack />
-                    </RowView>
-                )}
-            </FeedHeaderView>
-        </Fragment>
+        <FeedHeaderView>
+            <HeaderFill topOffset={topOffset} />
+            { showFilters && <FilterBar /> }
+            <DiscoveryBar />
+        </FeedHeaderView>
     );
 }

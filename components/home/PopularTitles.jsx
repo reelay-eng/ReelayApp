@@ -1,15 +1,12 @@
-import React, { memo, useContext, useEffect, useState } from 'react';
-import { Dimensions, Image, Pressable, View } from 'react-native';
+import React, { useContext } from 'react';
+import { Dimensions, Pressable, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../../components/global/Text';
-import SeeMore from '../global/SeeMore';
 import { useSelector } from 'react-redux';
 import TitlePoster from '../global/TitlePoster';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faFireFlameCurved } from '@fortawesome/free-solid-svg-icons';
 import Carousel from 'react-native-snap-carousel';
 
 const { width } = Dimensions.get('window');
@@ -28,7 +25,6 @@ const HeaderContainer = styled(View)`
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
-    margin-left: 12px;
 `
 const IconContainer = styled(View)`
     margin: 10px;
@@ -71,25 +67,22 @@ const TitleInfoLine = styled(View)`
     justify-content: space-between;
 `
 
-export default PopularTitles = ({ navigation, tab='discover' }) => {
+export default PopularTitles = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const headerText = (tab === 'discover') ? 'Popular titles' : 'Popular titles with friends';
-    const popularTitleStacksDiscover = useSelector(state => state.myHomeContent?.discover?.popularTitles);
-    const popularTitleStacksFollowing = useSelector(state => state.myHomeContent?.following?.popularTitles);
-    const popularTitleStacks = (tab === 'following') ? popularTitleStacksFollowing : popularTitleStacksDiscover;
+    const headerText = 'Popular titles';
+    const popularTitleStacks = useSelector(state => state.myHomeContent?.discover?.popularTitles);
 
     const goToReelay = (index, titleObj) => {
 		if (popularTitleStacks?.length === 0) return;
 		navigation.push("FeedScreen", {
 			initialFeedPos: index,
-            initialFeedSource: (tab === 'following') ? 'popularTitlesFollowing' : 'popularTitlesDiscover',
+            initialFeedSource: 'popularTitlesDiscover',
             preloadedStackList: popularTitleStacks,
 		});
 
 		logAmplitudeEventProd('openPopularTitlesFeedd', {
 			username: reelayDBUser?.username,
             title: titleObj?.display,
-            tab,
 		});
 	};
 
@@ -151,7 +144,6 @@ export default PopularTitles = ({ navigation, tab='discover' }) => {
     return (
         <PopularTitlesContainer>
             <HeaderContainer>
-                <FontAwesomeIcon icon={faFireFlameCurved} color='white' size={24} />
                 <HeaderText>{headerText}</HeaderText>
             </HeaderContainer>
             { popularTitleStacks?.length > 0 && <TitlesRow />}

@@ -6,6 +6,7 @@ import { AuthContext } from '../../context/AuthContext';
 
 import styled from 'styled-components/native';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import ReelayFeedHeader from './ReelayFeedHeader';
 const { height, width } = Dimensions.get('window');
 
 const ReelayFeedContainer = styled(View)`
@@ -15,12 +16,14 @@ const ReelayFeedContainer = styled(View)`
     width: ${width}px;
 `
 
-const FixedReelayFeed = ({ navigation, 
+const FixedReelayFeed = ({ 
+    headerDisplayText,
     initialFeedPos = 0,
     initialStackPos = 0,
     feedSource,
     fixedStackList = [],
     forceRefresh = false, 
+    navigation,
 }) => {
 
     const feedPager = useRef();
@@ -84,6 +87,8 @@ const FixedReelayFeed = ({ navigation,
         setFeedPosition(nextFeedPosition);
     }
 
+    console.log('display text ', headerDisplayText);
+
     return (
         <ReelayFeedContainer>
             { stackList.length < 1 && <ActivityIndicator /> }
@@ -110,6 +115,11 @@ const FixedReelayFeed = ({ navigation,
                     windowSize={3}
                 />
             }
+            <ReelayFeedHeader 
+                displayText={headerDisplayText ?? null}
+                feedSource={feedSource}
+                navigation={navigation}
+            />
         </ReelayFeedContainer>
     );
 }
