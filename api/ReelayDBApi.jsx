@@ -339,6 +339,7 @@ const prepareFeed = async (fetchedStacks) => {
 }
 
 const prepareTitlesAndTopics = async (titlesAndTopics) => {
+    if (!titlesAndTopics) return;
     for (const titleOrTopic of titlesAndTopics) {
         titleOrTopic.reelays = await Promise.all(titleOrTopic.reelays.map(prepareReelay));
     }
@@ -373,7 +374,6 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
     const reelayContentTypes = [
         'clubTitles',
         'clubTopics',
-        'festivals',
         'theaters',
         'streaming',
         'mostRecent', 
@@ -431,7 +431,9 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
     const prepareHomeTabReelays = async (homeTab) => {
         const contentKeys = Object.keys(homeTab);
         const prepareHomeContentForKey = async (contentKey) => {
-            const mustPrepareReelays = reelayContentTypes.includes(contentKey);
+            const mustPrepareReelays = (
+                reelayContentTypes.includes(contentKey) && homeTab[contentKey]
+            );
 
             if (contentKey === 'topics') {
                 const topics =  homeTab['topics'] ?? homeTab['newTopics'];

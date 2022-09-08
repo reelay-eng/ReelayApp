@@ -265,7 +265,7 @@ const TitleBanner = ({
     const SeeMoreButton = () => {
         return (
             <SeeMorePressable onPress={openTitleDetail}>
-                <SeeMoreText>{'See more'}</SeeMoreText>
+                <SeeMoreText>{'See more...'}</SeeMoreText>
             </SeeMorePressable>
         );
     }
