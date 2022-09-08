@@ -77,7 +77,7 @@ const ReelayStack = ({
 
     const latestAnnouncement = useSelector(state => state.latestAnnouncement);
     const isPinnedReelay = (viewableReelay?.sub === latestAnnouncement?.pinnedReelay?.sub);
-    const renderBannerOnStack = !viewableReelay?.topicID;
+    const renderBannerOnStack = feedSource !== 'discover' || !viewableReelay?.topicID;
 
     const topOffset = useSafeAreaInsets().top + 26;
 

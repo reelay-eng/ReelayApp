@@ -9,9 +9,10 @@ import Hero from '../feed/Hero';
 
 import { useSelector } from 'react-redux';
 import TopicBanner from '../topics/TopicBanner';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import StackPositionBar from '../feed/StackPositionBar';
 
 const { height, width } = Dimensions.get('window');
-const TITLE_BANNER_TOP_OFFSET = 54;
 
 const TitleBannerContainer = styled(View)`
     top: ${(props) => props.offset}px;
@@ -41,6 +42,7 @@ export default ClubTitleOrTopicStack = ({
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const { activityType, reelays } = clubTitleOrTopic;
+    const topOffset = useSafeAreaInsets().top + 36;
     const stack = reelays;
     const [stackPosition, setStackPosition] = useState(initialStackPos);
     const stackRef = useRef(null);
@@ -62,7 +64,7 @@ export default ClubTitleOrTopicStack = ({
 
     const renderTitleBanner = (reelay) => {
         return (
-            <TitleBannerContainer offset={TITLE_BANNER_TOP_OFFSET}>
+            <TitleBannerContainer offset={topOffset}>
                 <TitleBanner 
                     club={club}
                     donateObj={donateObj}
@@ -77,7 +79,7 @@ export default ClubTitleOrTopicStack = ({
 
     const renderTopicBanner = (reelay) => {
         return (
-            <TopicBannerContainer offset={TITLE_BANNER_TOP_OFFSET}>
+            <TopicBannerContainer offset={topOffset}>
                 <TopicBanner
                     club={club}
                     navigation={navigation}
@@ -144,6 +146,9 @@ export default ClubTitleOrTopicStack = ({
             />
             { activityType === 'title' && renderTitleBanner(viewableReelay) }
             { activityType === 'topic' && renderTopicBanner(viewableReelay) }
+            { (stack.length > 1) && (
+                <StackPositionBar stackLength={stack?.length} stackPosition={stackPosition} stackViewable={stackViewable} /> 
+            )}
         </ReelayFeedContainer>
     );
 }

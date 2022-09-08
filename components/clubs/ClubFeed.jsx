@@ -101,24 +101,22 @@ export default ClubFeed = ({
 
     const onFeedSwiped = async (e) => {
         const { x, y } = e.nativeEvent.contentOffset;
+        const nextFeedPosition = Math.round(y / height);
+        if (feedPosition === nextFeedPosition) return;
 
-        if (y % height === 0) {
-            const nextFeedPosition = y / height;
-            const swipeDirection = nextFeedPosition < feedPosition ? 'up' : 'down';
-            
-            const nextTitleOrTopic = feedTitlesAndTopics[nextFeedPosition];
-            const prevTitleOrTopic = feedTitlesAndTopics[feedPosition];
+        const swipeDirection = nextFeedPosition < feedPosition ? 'up' : 'down';
+        const nextTitleOrTopic = feedTitlesAndTopics[nextFeedPosition];
+        const prevTitleOrTopic = feedTitlesAndTopics[feedPosition];
 
-            const logProperties = {
-                nextReelayTitle: nextTitleOrTopic?.reelays?.[0]?.title?.display,
-                prevReelayTitle: prevTitleOrTopic?.reelays?.[0]?.title?.display,
-                source: 'clubs',
-                swipeDirection: swipeDirection,
-                username: reelayDBUser?.username,
-            }
-            logAmplitudeEventProd('swipedFeed', logProperties);
-            setFeedPosition(nextFeedPosition);
+        const logProperties = {
+            nextReelayTitle: nextTitleOrTopic?.reelays?.[0]?.title?.display,
+            prevReelayTitle: prevTitleOrTopic?.reelays?.[0]?.title?.display,
+            source: 'clubs',
+            swipeDirection: swipeDirection,
+            username: reelayDBUser?.username,
         }
+        logAmplitudeEventProd('swipedFeed', logProperties);
+        setFeedPosition(nextFeedPosition);
     }
 
     return (

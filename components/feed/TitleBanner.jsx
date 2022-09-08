@@ -53,6 +53,8 @@ const ExpandArrowInvisibleSpacer = styled(View)`
 const ExpandArrowView = styled(Pressable)`
     align-items: center;
     padding-bottom: 6px;
+    position: ${props => props.expanded ? 'relative' : 'absolute'};
+    bottom: 10px;
     width: 100%;
 `
 const ExpandedInfoView = styled(Pressable)`
@@ -61,8 +63,6 @@ const ExpandedInfoView = styled(Pressable)`
     justify-content: flex-start;
     margin: 6px;
     margin-top: 0px;
-    padding: 12px;
-    padding-top: 0px;
     width: ${width - 32}px;
 `
 const OverviewText = styled(ReelayText.CaptionEmphasized)`
@@ -72,7 +72,16 @@ const OverviewText = styled(ReelayText.CaptionEmphasized)`
 const RuntimeText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
-    margin-right: 10px;
+`
+const RuntimeView = styled(View)`
+    background-color: gray;
+    border-radius: 8px;
+    padding: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+    position: absolute;
+    right: 0px;
+    top: 10px;
 `
 const SeeMorePressable = styled(TouchableOpacity)`
     padding-left: 8px;
@@ -115,7 +124,6 @@ const TitleText = styled(ReelayText.H5Bold)`
     text-shadow-radius: 1px;
 `
 const TitleTextContainer = styled(View)`
-    margin-top: 10px;
     justify-content: center;
     display: flex;
 `
@@ -156,6 +164,7 @@ const TitleBanner = ({
     let displayTitle = (titleObj.display) ? titleObj.display : 'Title not found'; 
 	let displayYear = (titleObj.releaseYear) ? titleObj.releaseYear : '';
     const runtime = titleObj?.runtime;
+    const runtimeString = runtime ? getRuntimeString(runtime) : '';
 
     if (isWelcomeReelay) {
         displayTitle = 'Welcome to Reelay';
@@ -213,7 +222,7 @@ const TitleBanner = ({
 
     const ExpandArrow = () => {
         return (
-            <ExpandArrowView onPress={onClickExpand}>
+            <ExpandArrowView expanded={expanded} onPress={onClickExpand}>
                 <FontAwesomeIcon icon={expanded ?  faChevronUp : faChevronDown} color='white' size={16} />
             </ExpandArrowView>
         );
@@ -227,6 +236,7 @@ const TitleBanner = ({
                     <ActorLine actorName0={titleObj?.displayActors[0]?.name} actorName1={titleObj?.displayActors[1]?.name} />
                     <OverviewText>{titleObj?.overview}</OverviewText>
                     <SeeMoreButton />
+                    <RuntimePill />
                 </ExpandedInfoView>
             </Pressable>
         );
@@ -238,6 +248,18 @@ const TitleBanner = ({
                 <TitlePoster title={titleObj} onPress={openTitleDetail} width={60} />
             </TitlePosterContainer>
         );
+    }
+
+    const RuntimePill = () => {
+        if (runtimeString.length > 0) {
+            return (
+                <RuntimeView>
+                    <RuntimeText>{runtimeString}</RuntimeText>
+                </RuntimeView>
+            )
+        } else {
+            return <View />
+        }
     }
 
     const SeeMoreButton = () => {
@@ -262,9 +284,7 @@ const TitleBanner = ({
                     runtime={titleObj?.runtime}
                     venue={reelay?.content?.venue ?? venue} 
                 />
-                { !expanded && <ExpandArrowVisibleSpacer /> }
                 { !expanded && <ExpandArrow /> }
-                { expanded && <ExpandArrowInvisibleSpacer /> }
             </TitleInfoPressable>
         );
     }
@@ -285,13 +305,11 @@ const TitleBanner = ({
     }
     
     const TitleUnderline = ({ venue }) => {
-        const runtimeString = runtime ? getRuntimeString(runtime) : '';
         return (
             <TitleUnderlineContainer>
                 <YearVenueContainer>
                     { venue && <VenueIndicator venue={venue} /> }
                     { displayYear?.length > 0 && <YearText>{displayYear}</YearText> }
-                    { runtimeString?.length > 0 && <RuntimeText>{runtimeString}</RuntimeText> }
                 </YearVenueContainer>
             </TitleUnderlineContainer>
         );

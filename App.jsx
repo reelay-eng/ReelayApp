@@ -128,7 +128,6 @@ function App() {
         let tryCredentials, tryCognitoUser, tryVerifySocialAuth;
         try {
             tryCredentials = await Auth.currentUserCredentials();
-            Auth.currentSession();
             if (tryCredentials?.authenticated) {
                 // use cognito to sign in the user
                 tryCognitoUser = await Auth.currentAuthenticatedUser();
