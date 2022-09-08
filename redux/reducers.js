@@ -95,10 +95,11 @@ export const latestNoticeReducer = ({
 
     const versionGuideNoticeEntry = dismissalHistory?.noticeHistory?.[versionGuideID];
     const validVersion = (REELAY_APP_VERSION < maxVersion) && (REELAY_APP_VERSION >= minVersion);
-    const showVersionGuide = validVersion && (!versionGuideNoticeEntry || versionGuideNoticeEntry !== 'dismissed');
     
-    const showCreateReelayNotice = (myCreatorStacks.length === 0);
-    const showCreateClubNotice = (clubOwnerCount === 0);
+    // holding off for version 1.05.00
+    const showVersionGuide = false; // validVersion && (!versionGuideNoticeEntry || versionGuideNoticeEntry !== 'dismissed');
+    const showCreateReelayNotice = false; // (myCreatorStacks.length === 0);
+    const showCreateClubNotice = false; // (clubOwnerCount === 0);
 
     if (showVersionGuide) {
         return {

@@ -44,17 +44,11 @@ const ArtistText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
 `
-const ExpandArrowVisibleSpacer = styled(View)`
-    height: 8px;
-`
-const ExpandArrowInvisibleSpacer = styled(View)`
-    height: 30px;
-`
 const ExpandArrowView = styled(Pressable)`
     align-items: center;
     padding-bottom: 6px;
     position: ${props => props.expanded ? 'relative' : 'absolute'};
-    bottom: 10px;
+    bottom: 0px;
     width: 100%;
 `
 const ExpandedInfoView = styled(Pressable)`
@@ -80,16 +74,19 @@ const RuntimeView = styled(View)`
     padding-left: 8px;
     padding-right: 8px;
     position: absolute;
-    right: 0px;
+    right: 2px;
     top: 10px;
 `
 const SeeMorePressable = styled(TouchableOpacity)`
     padding-left: 8px;
 `
-const SeeMoreText = styled(ReelayText.CaptionEmphasized)`
+const SeeMoreText = styled(ReelayText.H5Bold)`
     color: ${ReelayColors.reelayBlue};
     font-size: 14px;
     line-height: 16px;
+    text-shadow-color: rgba(0, 0, 0, 0.5);
+    text-shadow-offset: 1px 1px;
+    text-shadow-radius: 1px;
 `
 const TitleBannerRow = styled(Pressable)`
     flex-direction: row;
