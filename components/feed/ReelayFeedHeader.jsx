@@ -156,6 +156,7 @@ export default ReelayFeedHeader = ({ navigation, displayText, feedSource = 'disc
         if (displayText) return displayText;
         switch (feedSource) {
             case 'club': return 'club';
+            case 'camera': return 'record';
             case 'festivals': return 'at festivals';
             case 'following': return 'following';
             case 'discover': return 'discover';
@@ -167,6 +168,7 @@ export default ReelayFeedHeader = ({ navigation, displayText, feedSource = 'disc
             case 'topics': return 'topics';
             case 'theaters': return 'in theaters';
             case 'trending': return 'top of the week';
+            case 'upload': return 'preview';
             default: 
                 return '';
         }

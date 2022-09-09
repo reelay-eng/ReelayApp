@@ -77,7 +77,7 @@ const ReelayStack = ({
 
     const latestAnnouncement = useSelector(state => state.latestAnnouncement);
     const isPinnedReelay = (viewableReelay?.sub === latestAnnouncement?.pinnedReelay?.sub);
-    const renderBannerOnStack = feedSource !== 'discover' || !viewableReelay?.topicID;
+    const shouldRenderTopicBanner = (feedSource === 'discover' && viewableReelay?.topicID);
 
     const topOffset = useSafeAreaInsets().top + 26;
 
@@ -159,7 +159,6 @@ const ReelayStack = ({
                     reelay={reelay} 
                     viewable={reelayIsViewable}
                 />
-                { !renderBannerOnStack && renderTopicBanner(reelay) }
             </ReelayFeedContainer>
         );
     };
@@ -211,7 +210,8 @@ const ReelayStack = ({
                 windowSize={3}
             />
             { isPinnedReelay && renderPinnedHeader() }
-            { !isPinnedReelay && renderBannerOnStack && renderTitleBanner(viewableReelay) }
+            { !isPinnedReelay && !shouldRenderTopicBanner && renderTitleBanner(viewableReelay) }
+            { !isPinnedReelay && shouldRenderTopicBanner && renderTopicBanner(viewableReelay) }
             { !isPinnedReelay && (stack.length > 1) && (
                 <StackPositionBar stackLength={stack?.length} stackPosition={stackPosition} stackViewable={stackViewable} /> 
             )}

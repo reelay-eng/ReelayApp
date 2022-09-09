@@ -230,7 +230,7 @@ export default ReelayFeed = ({ navigation,
                 initialNumToRender={2}
                 initialScrollIndex={initialFeedPos}
                 keyboardShouldPersistTaps={"handled"}
-                keyExtractor={(stack) => `${stack[0]?.sub ?? stack?.id}`}
+                keyExtractor={(stack) => `${stack?.[0]?.sub ?? stack?.id}`}
                 maxToRenderPerBatch={2}
                 onEndReached={extendFeed}
                 onRefresh={refreshFeed}

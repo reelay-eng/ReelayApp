@@ -12,7 +12,8 @@ import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faComments, faListCheck } from '@fortawesome/free-solid-svg-icons';
+import { faListCheck } from '@fortawesome/free-solid-svg-icons';
+import { TopicsSmallIconSVG } from '../global/SVGs';
 
 const Backdrop = styled(Pressable)`
     height: 100%;
@@ -81,7 +82,7 @@ export default AddTitleOrTopicDrawer = ({ navigation, club, drawerVisible, setDr
                         <OptionText>{` Add title`}</OptionText>
                     </OptionContainerPressable>
                     <OptionContainerPressable onPress={advanceToAddTopicScreen}>
-                        <FontAwesomeIcon icon={ faComments } color='white' size={24} /> 
+                        <TopicsSmallIconSVG />
                         <IconSpacer />
                         <OptionText>{` Add topic`}</OptionText>
                     </OptionContainerPressable>

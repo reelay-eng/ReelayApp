@@ -9,8 +9,6 @@ import ReelayColors from '../../constants/ReelayColors';
 import Carousel from 'react-native-snap-carousel';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faComments } from '@fortawesome/free-solid-svg-icons';
 import { getTopicsByCreator } from '../../api/TopicsApi';
 
 const { width } = Dimensions.get('window');

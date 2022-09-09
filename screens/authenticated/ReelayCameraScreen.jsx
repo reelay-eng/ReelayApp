@@ -14,10 +14,56 @@ import { activateKeepAwake, deactivateKeepAwake } from 'expo-keep-awake';
 
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import TitleBanner from '../../components/feed/TitleBanner';
+import ReelayFeedHeader from '../../components/feed/ReelayFeedHeader';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { height, width } = Dimensions.get('window');
-const captureSize = Math.floor(height * 0.07);
-const ringSize = captureSize + 20;
+const CAPTURE_SIZE = Math.floor(height * 0.07);
+const RECORD_COLOR = '#cb2d26';  
+const RING_SIZE = CAPTURE_SIZE + 20;
+
+const CameraContainer = styled(Pressable)`
+    height: 100%;
+    position: absolute;
+    width: 100%;
+`
+const FlipCameraButtonContainer = styled(Pressable)`
+    align-self: center;
+    bottom: ${0.25 * RING_SIZE}px;
+    left: ${width / 2 - RING_SIZE}px;
+    position: absolute;
+`
+const IconContainer = styled(Pressable)`
+    height: 36px;
+    width: 36px;
+`
+const MediaLibraryContainer = styled(SafeAreaView)`
+    bottom: ${0.25 * RING_SIZE}px;
+    position: absolute;
+    left: ${-1 * RING_SIZE}px;
+` 
+const OverlayContainer = styled(View)`
+    position: absolute;
+    zIndex: 2;
+    height: 100%;
+    width: 100%;
+`
+const RecordButtonCenter = styled(Pressable)`
+    background-color: ${RECORD_COLOR};
+    border-radius: ${Math.floor(CAPTURE_SIZE / 2)}px;
+    height: ${CAPTURE_SIZE}px;
+    width: ${CAPTURE_SIZE}px;
+`
+const RecordContainer = styled(SafeAreaView)`
+    align-self: center;
+    bottom: 80px;
+    left: ${(width - RING_SIZE) / 2}px;
+    position: absolute;
+`
+const TitleBannerContainer = styled(View)`
+    position: absolute;
+    top: ${props => props.topOffset + 36}px;
+`
 
 export default ReelayCameraScreen = ({ navigation, route }) => {
     const { reelayDBUser} = useContext(AuthContext);
@@ -29,6 +75,8 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const cameraRef = useRef(null);
     const intervalIDRef = useRef(null);
     const recordingLength = useRef(0);
+    const topOffset = useSafeAreaInsets().top;
+
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const [retakeCounter, setRetakeCounter] = useState(0);
 
@@ -61,16 +109,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     
     const MediaLibraryPicker = () => {
         // these positions are eyeballed
-        const MediaLibraryContainer = styled(SafeAreaView)`
-            position: absolute;
-            left: ${-1 * ringSize}px;
-            bottom: ${0.25 * ringSize}px;
-        ` 
-        const IconContainer = styled(Pressable)`
-            height: 36px;
-            width: 36px;
-        `
-
         const onPress = async () => {
             let { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
             console.log(status);
@@ -107,15 +145,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     }
 
     const RecordButton = ({ isRecording, setIsRecording }) => {
-        const RECORD_COLOR = '#cb2d26';
-
-        const RecordButtonCenter = styled(Pressable)`
-            background-color: ${RECORD_COLOR};
-            height: ${captureSize}px;
-            width: ${captureSize}px;
-            border-radius: ${Math.floor(captureSize / 2)}px;
-        `
-        
         const onRecordButtonPress = () => {
             if (isRecording) {
                 stopVideoRecording();
@@ -132,7 +161,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                     startCameraTimer();
                     activateKeepAwake();
                     const videoRecording = await cameraRef.current.recordAsync({
-                        // quality: Camera.Constants.VideoQuality['1080p'],
                         codec: Camera.Constants.VideoCodec.H264,
                     });
                     deactivateKeepAwake();
@@ -176,7 +204,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 duration={MAX_VIDEO_DURATION_SEC} 
                 isPlaying={isRecording} 
                 key={retakeCounter} // this resets the timer on a retake
-                size={ringSize} 
+                size={RING_SIZE} 
                 strokeWidth={5} 
                 trailColor='transparent'
                 strokeLinecap={'round'}
@@ -190,13 +218,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     }
 
     const FlipCameraButton = () => {
-        const FlipCameraButtonContainer = styled(Pressable)`
-            position: absolute;
-            left: ${width / 2 - ringSize}px;
-            bottom: ${0.25 * ringSize}px;
-            align-self: center;
-        `
-
         return (
             <FlipCameraButtonContainer onPress={flipCamera}>
                 <Icon type='ionicon' name='sync-outline' color={'white'} size={36} />
@@ -206,13 +227,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
 
     const RecordInterface = () => {
         const [isRecording, setIsRecording] = useState(false);
-
-        const RecordContainer = styled(SafeAreaView)`
-            position: absolute;
-            left: ${(width - ringSize) / 2}px;
-            bottom: 80px;
-            align-self: center;
-        `
 
         return (
             <RecordContainer>
@@ -224,29 +238,10 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     }
 
     const RecordOverlay = () => {
-
-        const OverlayContainer = styled(View)`
-            position: absolute;
-            zIndex: 2;
-            height: 100%;
-            width: 100%;
-        `
-        const TitleBannerContainer = styled(SafeAreaView)`
-            position: absolute;
-            top: 75px;
-        `
-        const TopLeftContainer = styled(SafeAreaView)`
-            position: absolute;
-            left: 10px;
-            top: 10px;
-        `
-
         return (
             <OverlayContainer>
-                <TopLeftContainer>
-                    <BackButton navigation={navigation}/>
-                </TopLeftContainer>
-                <TitleBannerContainer>
+                <ReelayFeedHeader navigation={navigation} feedSource={'camera'} />
+                <TitleBannerContainer topOffset={topOffset}>
                     <TitleBanner titleObj={titleObj} onCameraScreen={true} venue={venue} />
                 </TitleBannerContainer>
                 <RecordInterface />
@@ -255,30 +250,27 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     }
 
     const ReelayCamera = () => {
+        const cameraStyle = { height: '100%', width: '100%', position: 'absolute' };
+        const flashMode = Camera.Constants.FlashMode.auto;
+        const onMountError = (error) => console.log("camera error", error);
+        const whiteBalance = Camera.Constants.WhiteBalance.auto;
+
         try {
             return (
-                <Camera
+                <Camera 
+                    flashMode={flashMode} 
+                    onMountError={onMountError} 
                     ref={cameraRef}
+                    style={cameraStyle} 
                     type={cameraType} 
-                    style={{ height: '100%', width: '100%', position: 'absolute'}}
-                    flashMode={Camera.Constants.FlashMode.auto}
-                    onMountError={(error) => {
-                        console.log("camera error", error);
-                    }}
-                    whiteBalance={Camera.Constants.WhiteBalance.auto} 
+                    whiteBalance={whiteBalance} 
                 />
-            );    
+            ); 
         } catch (error) {
             console.log(error);
             return <View />;
         } 
     }
-
-    const CameraContainer = styled(Pressable)`
-        position: absolute;
-        height: 100%;
-        width: 100%;
-    `
 
     let tapCount = 0;
     const resetDoubleTap = () => tapCount = 0;
