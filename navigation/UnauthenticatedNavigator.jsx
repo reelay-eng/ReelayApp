@@ -7,7 +7,7 @@ import ChooseUsernameScreen from '../screens/unauthenticated/ChooseUsernameScree
 import ConfirmEmailScreen from '../screens/unauthenticated/ConfirmEmailScreen';
 import ForgotPasswordScreen from '../screens/unauthenticated/ForgotPasswordScreen';
 import ForgotPasswordSubmitScreen from '../screens/unauthenticated/ForgotPasswordSubmitScreen';
-import NewUserScreen from '../screens/unauthenticated/NewUserScreen';
+import TutorialScreen from '../screens/unauthenticated/TutorialScreen';
 import SignedOutScreen from '../screens/unauthenticated/SignedOutScreen';
 import SignInScreen from '../screens/unauthenticated/SignInScreen';
 import SignUpScreen from '../screens/unauthenticated/SignUpScreen';
@@ -17,18 +17,16 @@ import { useSelector } from 'react-redux';
 const AuthenticationStack = createStackNavigator();
 
 export default UnauthenticatedNavigator = () => {
-    // const initialRoute = isReturningUser ? "SignedOutScreen":"NewUserScreen"
     const isReturningUser = useSelector(state => state.isReturningUser)
-    let initialRoute = 'NewUserScreen';
-    if (isReturningUser) initialRoute = 'SignedOutScreen';
+    const initialRoute = isReturningUser ? "SignedOutScreen":"TutorialScreen"
   return (
     <AuthenticationStack.Navigator
-        initialRouteName={isReturningUser ? "SignedOutScreen":"NewUserScreen"}
+        initialRouteName={initialRoute}
         detachInactiveScreens={false}
       >
         <AuthenticationStack.Screen
-            name="NewUserScreen"
-            component={NewUserScreen}
+            name="TutorialScreen"
+            component={TutorialScreen}
             options={{
                 headerShown: false,
             }}

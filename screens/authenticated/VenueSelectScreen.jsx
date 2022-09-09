@@ -17,6 +17,7 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { useDispatch, useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { animate } from '../../hooks/animations';
 
 const FlexContainer = styled(View)`
     display: flex;
@@ -147,24 +148,40 @@ export default VenueSelectScreen = ({ navigation, route }) => {
 
 
     const IconOptions = () => {
+
+        const OtherVenues = () => {
+            return (
+                <>
+                    { otherVenues.map((venueObj) => {
+                        const { venue, text } = venueObj;
+                        return (
+                            <IconContainer key={venue}>
+                                <VenueBadgeMemo venue={venue} isStreamingVenue={false} display={text} />
+                            </IconContainer>
+                        );
+                    })}
+                </>
+            )
+        }
+
+        const StreamingVenues = () => {
+            return (
+                <>
+                    { streamingVenues.map((venueObj) => {
+                        const { display, venue } = venueObj;
+                        return (
+                            <IconContainer key={venue}>
+                                <VenueBadgeMemo venue={venue} isStreamingVenue={true} display={display} />
+                            </IconContainer>
+                        );
+                    })}
+                </>
+            )
+        }
         return (
 			<IconOptionsContainer>
-                { otherVenues.map((venueObj) => {
-					const { venue, text } = venueObj;
-					return (
-                        <IconContainer key={venue}>
-                            <VenueBadge venue={venue} isStreamingVenue={false} display={text} />
-						</IconContainer>
-					);
-				})}
-				{ streamingVenues.map((venueObj) => {
-					const { display, venue } = venueObj;
-					return (
-						<IconContainer key={venue}>
-							<VenueBadge venue={venue} isStreamingVenue={true} display={display} />
-						</IconContainer>
-					);
-				})}
+                <OtherVenues />
+                <StreamingVenues />
 			</IconOptionsContainer>
 		);
     }
@@ -181,7 +198,10 @@ export default VenueSelectScreen = ({ navigation, route }) => {
 
     const SeeMore = () => {
         return (
-            <SeeMorePressable onPress={() => setExpanded(true)}>
+            <SeeMorePressable onPress={() => {
+                animate(200, "linear", "opacity");
+                setExpanded(true)
+            }}>
                 <SeeMoreText>{'see more'}</SeeMoreText>
                 <FontAwesomeIcon icon={faChevronDown} color='white' size={24} />
             </SeeMorePressable>
@@ -228,6 +248,10 @@ export default VenueSelectScreen = ({ navigation, route }) => {
             );
         }
     };
+
+    const VenueBadgeMemo = React.memo(VenueBadge, (prevProps, nextProps) => {
+        return prevProps.venue === nextProps.venue && prevProps.display === nextProps.display;
+    });
     
     useEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });

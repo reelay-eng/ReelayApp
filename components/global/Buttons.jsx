@@ -7,8 +7,6 @@ import ReelayColors from '../../constants/ReelayColors';
 import { animate } from '../../hooks/animations';
 import * as ReelayText from './Text';
 
-const RedAddIcon = require('../../assets/icons/red_add_icon.png');
-
 const ButtonPressable = styled(Pressable)`
     width: 100%;
     height: 100%;
@@ -35,18 +33,10 @@ const ActiveTabButtonContainer = styled(TabButtonContainer)`
 `;
 const OptionText = styled(ReelayText.Subtitle2)`
 	color: white;
-`
+`;
 const PassiveTabButtonContainer = styled(TabButtonContainer)`
 	background-color: transparent;
-`
-const IconBox = styled(Pressable)`
-width: 100%;
-height: 100%;
-`
-const IconImage = styled(Image)`
-width: 100%;
-height: 100%;
-`
+`;
 
 
 const ButtonBox = styled(View)`
@@ -212,14 +202,6 @@ export const BWButton = ({
 		border={white ? "solid 1px #000000" : "solid 1px white"}
 	/>
 );
-
-export const RedPlusButton = ({onPress}) => {
-    return (
-        <IconBox onPress={onPress}>
-            <IconImage source={RedAddIcon} />
-        </IconBox>
-    )
-}
 
 export const ToggleSelector = ({ displayOptions, options, selectedOption, onSelect, color }) => {
 	const ToggleSelectorOptions = ({ displayOptions, options, selectedOption, onSelect, color }) => {

@@ -174,11 +174,13 @@ const Description = ({ partsWithMentions }) => {
 
 	const renderDescriptionPart = (descriptionPart, index) => {
         if (isMention(descriptionPart)) {
-            return (
-                <MentionButton key={index} onPress={() => advanceToMentionProfile(descriptionPart.data)}>
-                    <Text style={MentionTextStyle}>{descriptionPart.text}</Text>
-                </MentionButton>
-            );
+            if (expanded || (descriptionPart.position.end < 50)) { // Forgive me father, for I have sinned.
+				return (
+					<MentionButton key={index} onPress={() => advanceToMentionProfile(descriptionPart.data)}>
+						<Text style={MentionTextStyle}>{descriptionPart.text}</Text>
+					</MentionButton>
+				);
+			}
         }
 
         return (
