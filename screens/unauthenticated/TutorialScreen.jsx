@@ -33,10 +33,7 @@ import StrangerThings from "../../assets/images/Onboarding/Posters/P3.png"
 import IronMan2 from "../../assets/images/Onboarding/Posters/P4.png"
 import SpiderMan from "../../assets/images/Onboarding/Posters/P5.png"
 
-import HorrorPodcast from "../../assets/images/Onboarding/ClubDrawer/80sHorrorPodcast.png";
-import A24FanClub from "../../assets/images/Onboarding/ClubDrawer/A24FanClub.png";
 import MyWatchlist from "../../assets/images/Onboarding/ClubDrawer/MyWatchlist.png";
-import SecretFamilyGroup from "../../assets/images/Onboarding/ClubDrawer/SecretFamilyGroup.png";
 
 import PressThisArrow from "../../assets/images/Onboarding/PressThisArrow.png";
 
