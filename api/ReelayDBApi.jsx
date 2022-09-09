@@ -372,13 +372,11 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
     }
 
     const reelayContentTypes = [
-        'clubTitles',
-        'clubTopics',
-        'theaters',
-        'streaming',
         'mostRecent', 
-        'topics', 
         'popularTitles',
+        'streaming',
+        'theaters',
+        'topics', 
         'topOfTheWeek',
     ];
 
@@ -387,46 +385,11 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
         return null;
     }
 
-    const { discover, following, clubs, global, profile } = homeContent;
-    if (!discover || !following || !clubs || !global || !profile) {
+    const { discover, following, global, profile } = homeContent;
+    if (!discover || !following || !global || !profile) {
         console.log('Error: home content missing');
         return null;
     }
-
-    const prepareAllClubs = async () => {
-        const preparedClubs = [];
-        for (const club of clubs) {
-            await prepareClubReelays(club);
-            await prepareClubActivities(club);
-            preparedClubs.push(club);
-        }
-        return preparedClubs;
-    }
-
-    const prepareClubActivities = async (club) => {
-        for (const member of club.members) {
-            member.activityType = 'member';
-        }
-        for (const title of club.titles) {
-            const { tmdbTitleID, titleType } = title;
-            const annotatedTitle = await fetchAnnotatedTitle({ tmdbTitleID, isSeries: titleType === 'tv' });
-            title.activityType = 'title';
-            title.title = annotatedTitle;
-        }
-        for (const topic of club.topics) {
-            topic.activityType = 'topic';
-        }
-    }
-
-    const prepareClubReelays = async (club) => {
-        const { titles, topics } = club;
-        const [preparedTitles, preparedTopics] = await Promise.all([
-            prepareTitlesAndTopics(titles),
-            prepareTitlesAndTopics(topics),
-        ]);
-        club.titles = preparedTitles;
-        club.topics = preparedTopics;
-    };
 
     const prepareHomeTabReelays = async (homeTab) => {
         const contentKeys = Object.keys(homeTab);
@@ -453,19 +416,16 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
         discoverPrepared,
         followingPrepared,
         globalPrepared,
-        clubsPrepared,
     ] = await Promise.all([
         prepareHomeTabReelays(discover),
         prepareHomeTabReelays(following),
         prepareFeed(global),
-        prepareAllClubs(),
     ]);
     
     return {
         discover: discoverPrepared,
         following: followingPrepared,
         global: globalPrepared,
-        clubs: clubsPrepared,
         profile,
         versionInfo
     };
@@ -680,7 +640,6 @@ export const prepareReelay = async (fetchedReelay) => {
         title: titleObj,
         topicID: fetchedReelay.topicID,
         topicTitle: fetchedReelay?.topicTitle,
-        watchlistAddCount: fetchedReelay?.watchlistAddCount ?? 0,
     };
 }
 

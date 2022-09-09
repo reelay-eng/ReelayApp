@@ -58,6 +58,7 @@ import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
 import { fetchPopularMovies, fetchPopularSeries } from './api/TMDbApi';
 import moment from 'moment';
 import { getEmptyGlobalTopics } from './api/FeedApi';
+import { getAllClubsFollowing } from './api/ClubsApi';
 
 const LoadingContainer = styled(View)`
     align-items: center;
@@ -312,7 +313,6 @@ function App() {
             getRegisteredUser(userSub),
         ]);
 
-        const myClubs = myHomeContent?.clubs ?? [];
         const { myFollowing, myStreamingSubscriptions } = myHomeContent?.profile ?? [];
         const mySettingsJSON = reelayDBUserLoaded?.settingsJSON;
         const mySettings = JSON.parse(mySettingsJSON) ?? {}; // 
@@ -330,7 +330,6 @@ function App() {
         dispatch({ type: 'setLatestNotice', payload: null }); 
         // triggers the reducer to create the latest notice from already-loaded app data
 
-        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
         dispatch({ type: 'setMySettings', payload: mySettings })
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
         dispatch({ type: 'setIsLoading', payload: false });
@@ -339,7 +338,6 @@ function App() {
 
         // deferred load
         const [
-            donateLinksLoaded,
             emptyGlobalTopics,
             myCreatorStacksLoaded,
             myFollowersLoaded,
@@ -348,7 +346,6 @@ function App() {
             suggestedMovies,
             suggestedSeries,
         ] = await Promise.all([
-            getAllDonateLinks(),
             getEmptyGlobalTopics({ authSession, page: 0, reqUserSub: userSub }),
             getStacksByCreator(userSub),
             getFollowers(userSub),
@@ -360,7 +357,6 @@ function App() {
 
         console.log('loaded second set of profile data');
 
-        dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
         dispatch({ type: 'setEmptyGlobalTopics', payload: emptyGlobalTopics });
         dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
         dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
@@ -373,6 +369,16 @@ function App() {
         dispatch({ type: 'setSuggestedMovieResults', payload: suggestedMovieResults });
         dispatch({ type: 'setSuggestedSeriesResults', payload: suggestedSeriesResults });
 
+        const [
+            donateLinksLoaded,
+            myClubs,
+        ] = await Promise.all([
+            getAllDonateLinks(),
+            getAllClubsFollowing({ authSession, reqUserSub: userSub }),
+        ])
+
+        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
+        dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
         console.log('dispatched second set of profile data');
     }
 
