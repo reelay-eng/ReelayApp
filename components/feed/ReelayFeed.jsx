@@ -107,18 +107,18 @@ export default ReelayFeed = ({ navigation,
         const fetchedStacks = await getFeed({ feedSource: feedSource, reqUserSub: reelayDBUser?.sub, page });
 
         // probably don't need to create this every time, but we want to avoid unnecessary state
-        // const titleIDEntries = {};
-        // const addToTitleEntries = (reelayStack) => titleIDEntries[reelayStack[0].title.id] = 1;
-        // reelayThreads.forEach(addToTitleEntries);
+        const titleIDEntries = {};
+        const addToTitleEntries = (reelayStack) => titleIDEntries[reelayStack[0].title.id] = 1;
+        reelayThreads.forEach(addToTitleEntries);
 
-        // const notAlreadyInStack = (fetchedStack) => {
-        //     const alreadyInStack = titleIDEntries[fetchedStack[0].title.id];
-        //     if (alreadyInStack) console.log('Filtering stack ', fetchedStack[0].title.id);
-        //     return !alreadyInStack;
-        // }
+        const notAlreadyInStack = (fetchedStack) => {
+            const alreadyInStack = titleIDEntries[fetchedStack[0].title.id];
+            if (alreadyInStack) console.log('Filtering stack ', fetchedStack[0].title.id);
+            return !alreadyInStack;
+        }
 
-        // const filteredStacks = fetchedStacks.filter(notAlreadyInStack);
-        const newStackList = [...reelayThreads, ...fetchedStacks];
+        const filteredStacks = fetchedStacks.filter(notAlreadyInStack);
+        const newStackList = [...reelayThreads, ...filteredStacks];
         nextPage.current = page + 1;
 
         setReelayThreads(newStackList);
