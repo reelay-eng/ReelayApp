@@ -117,7 +117,6 @@ export const checkRefreshProfilePic = async (userSub) => {
         const localURI = profilePicLocalURI(userSub);
         const lastUpdatedCacheAt = await AsyncStorage.getItem(localURI);
         if (!lastUpdatedCacheAt) {
-            console.log('profile pic for ', userSub, ': no record in cache');
             cacheProfilePic(userSub);
             return;
         };

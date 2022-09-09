@@ -12,6 +12,7 @@ import TitlePoster from "../global/TitlePoster";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faComments } from "@fortawesome/free-solid-svg-icons";
 import ClubPicture from "../global/ClubPicture";
+import ReelayColors from "../../constants/ReelayColors";
 
 const { width } = Dimensions.get('window');
 
@@ -129,7 +130,7 @@ export default ClubActivityCard = ({ activity, navigation }) => {
 
         return (
             <TopicCardContainer key={activity.id} onPress={advanceToClubActivityScreen}>
-                { !transparent && <TopicCardGradient colors={['#400817', '#19242E']} /> }
+                { !transparent && <TopicCardGradient colors={[ReelayColors.reelayPurple, '#19242E']} /> }
                 <TopicToplineLeftContainer>
                     <FontAwesomeIcon icon={faComments} color='white' size={48} />
                 </TopicToplineLeftContainer>

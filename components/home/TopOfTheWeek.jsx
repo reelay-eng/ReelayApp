@@ -32,7 +32,6 @@ const HeaderContainer = styled(View)`
 const HeaderContainerLeft = styled(View)`
     align-items: center;
     flex-direction: row;
-    margin-left: 15px;
 `
 const TopOfTheWeekContainer = styled(View)`
     width: 100%;
@@ -93,7 +92,8 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
                     <ReelayThumbnail 
                         height={MINOR_REELAY_HEIGHT} 
                         margin={0}
-                        onPress={() => goToReelay(1)}
+                        onPress={() => goToReelay(1)} 
+                        showLikes={false}
                         showPoster={true}
                         reelay={topOfTheWeek[1][0]} 
                         width={MINOR_REELAY_WIDTH} 
@@ -103,7 +103,8 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
                     <ReelayThumbnail 
                         height={MINOR_REELAY_HEIGHT} 
                         margin={0}
-                        onPress={() => goToReelay(2)}
+                        onPress={() => goToReelay(2)} 
+                        showLikes={false}
                         showPoster={true}
                         reelay={topOfTheWeek[2][0]} 
                         width={MINOR_REELAY_WIDTH} 
@@ -126,7 +127,6 @@ export default TopOfTheWeek = ({ navigation }) => {
         <TopOfTheWeekContainer>
             <HeaderContainer>
                 <HeaderContainerLeft>
-                    <Icon type='ionicon' name='ribbon' size={24} color='white' />
                     <HeaderText>{'Top of the week'}</HeaderText>
                 </HeaderContainerLeft>
             </HeaderContainer>

@@ -339,6 +339,7 @@ const prepareFeed = async (fetchedStacks) => {
 }
 
 const prepareTitlesAndTopics = async (titlesAndTopics) => {
+    if (!titlesAndTopics) return;
     for (const titleOrTopic of titlesAndTopics) {
         titleOrTopic.reelays = await Promise.all(titleOrTopic.reelays.map(prepareReelay));
     }
@@ -373,7 +374,6 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
     const reelayContentTypes = [
         'clubTitles',
         'clubTopics',
-        'festivals',
         'theaters',
         'streaming',
         'mostRecent', 
@@ -431,7 +431,9 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
     const prepareHomeTabReelays = async (homeTab) => {
         const contentKeys = Object.keys(homeTab);
         const prepareHomeContentForKey = async (contentKey) => {
-            const mustPrepareReelays = reelayContentTypes.includes(contentKey);
+            const mustPrepareReelays = (
+                reelayContentTypes.includes(contentKey) && homeTab[contentKey]
+            );
 
             if (contentKey === 'topics') {
                 const topics =  homeTab['topics'] ?? homeTab['newTopics'];
@@ -471,7 +473,11 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
 
 export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
     console.log(`Getting most recent ${feedSource} reelays...`);
-    const routeGet = `${REELAY_API_BASE_URL}/feed/${feedSource}?page=${page}&visibility=${FEED_VISIBILITY}`;
+    // some kludge we'll sort out later in the discovery integration
+    // changing frontend refs from 'global' to 'discover'
+    const routeGet = (feedSource === 'discover') 
+        ? `${REELAY_API_BASE_URL}/feed/global?page=${page}&visibility=${FEED_VISIBILITY}`
+        : `${REELAY_API_BASE_URL}/feed/${feedSource}?page=${page}&visibility=${FEED_VISIBILITY}`
     let fetchedStacks = await fetchResults(routeGet, { 
         method: 'GET',
         headers: {

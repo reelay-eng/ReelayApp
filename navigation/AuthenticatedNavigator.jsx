@@ -20,9 +20,9 @@ import {
 	ClubsTabNavigator
 } from './BottomTabs';
 
-import { ClubsIconSVG } from '../components/global/SVGs';
+import { ClubsIcon2SVG, ClubsIconSVG } from '../components/global/SVGs';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCirclePlus, faCircleUser, faEarthAmericas, faHouse } from '@fortawesome/free-solid-svg-icons';
+import { faCirclePlus, faCircleUser, faCompass, faEarthAmericas, faHouse } from '@fortawesome/free-solid-svg-icons';
  
 const BottomTab = createBottomTabNavigator();
 const TAB_BAR_ACTIVE_OPACITY = 1;
@@ -53,7 +53,7 @@ const UnreadIconIndicator = styled(SafeAreaView)`
 `
 
 export default AuthenticatedNavigator = () => {
-	const hasUnseenGlobalReelays = useSelector(state => state.hasUnseenGlobalReelays);
+	const hasUnseenReelays = useSelector(state => state.discoverHasUnseenReelays);
 	const tabBarVisible = useSelector((state) => state.tabBarVisible)
     const s = StyleSheet.create({
 		gradient: {
@@ -113,14 +113,17 @@ export default AuthenticatedNavigator = () => {
 				}}
 			/>
 			<BottomTab.Screen
-				name="Clubs"
-				component={ClubsTabNavigator}
+				name="Discover"
+				component={FeedTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<IconFocusView focused={focused}>
-							<ClubsIconSVG />
-							{ focused && <IconFocusIndicator /> }
-						</IconFocusView>
+						<View>
+							<IconFocusView focused={focused}>
+								<FontAwesomeIcon icon={faCompass} size={24} color='white' />
+								{ focused && <IconFocusIndicator /> }
+							</IconFocusView>
+							{ hasUnseenReelays && <UnreadIconIndicator /> }
+						</View>
 					),
 				}}
 			/>
@@ -137,17 +140,14 @@ export default AuthenticatedNavigator = () => {
 				}}
 			/>
 			<BottomTab.Screen
-				name="Global"
-				component={FeedTabNavigator}
+				name="Clubs"
+				component={ClubsTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<View>
-							<IconFocusView focused={focused}>
-								<FontAwesomeIcon icon={faEarthAmericas} size={24} color='white' />
-								{ focused && <IconFocusIndicator /> }
-							</IconFocusView>
-							{hasUnseenGlobalReelays && <UnreadIconIndicator /> }
-						</View>
+						<IconFocusView focused={focused}>
+							<ClubsIcon2SVG />
+							{ focused && <IconFocusIndicator /> }
+						</IconFocusView>
 					),
 				}}
 			/>

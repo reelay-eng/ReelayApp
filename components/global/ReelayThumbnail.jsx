@@ -27,9 +27,10 @@ export default ReelayThumbnail = ({
 	margin = 6, 
 	onPress = () => {}, 
 	reelay, 
+	showIcons = true,
+	showLikes = false,
 	showPoster = false,
 	showVenue = true,
-	showIcons = true,
 	width = 120,
 }) => {
 	const asClubActivity = (asAllClubActivity || asSingleClubActivity);
@@ -145,9 +146,7 @@ export default ReelayThumbnail = ({
 						source={thumbnailSource} 
 					/>
 				)}
-				{ asTopOfTheWeek && (
-					<MutedVideoPlayer />
-				)}
+				{ asTopOfTheWeek && <MutedVideoPlayer /> }
 				{ showIcons && 
 					<TopRightContainer>
 						{ showPoster && (
@@ -159,7 +158,7 @@ export default ReelayThumbnail = ({
 						{ showVenue && <VenueIcon venue={reelay?.content?.venue} size={ICON_SIZE} border={1} /> }
 					</TopRightContainer>			
 				}
-				{ asTopOfTheWeek && <LikeCounter likeCount={reelay.likes.length} /> }
+				{ showLikes && <LikeCounter likeCount={reelay.likes.length} /> }
 				<GradientContainer>
 					<ThumbnailGradient colors={["transparent", "#0B1424"]} />
 					{ showIcons && <CreatorLine /> }
@@ -207,7 +206,7 @@ export default ReelayThumbnail = ({
 		);
 	}
 
-	const MutedVideoPlayer = () => {
+	const MutedVideoPlayer = () => {		
 		return (
 			<React.Fragment>
 				<Video
@@ -215,10 +214,8 @@ export default ReelayThumbnail = ({
 					isMuted={true}
 					rate={1.0}
 					resizeMode='cover'
-					// shouldDuckAndroid={true}
 					shouldPlay={true}
 					source={{ uri: reelay.content.videoURI }}
-					// staysActiveInBackground={false}
 					style={{
 						height: height,
 						width: width,

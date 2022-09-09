@@ -55,7 +55,7 @@ const SeeMyWatchlistPressable = styled(TouchableOpacity)`
     margin-bottom: 8px;
     width: ${width - 32}px;
 `
-const SeeMyWatchlistText = styled(ReelayText.Body2)`
+const SeeMyWatchlistText = styled(ReelayText.Overline)`
     color: white;
 `
 const Spacer = styled(View)`

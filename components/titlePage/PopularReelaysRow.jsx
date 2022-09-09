@@ -1,13 +1,40 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import { FlatList, View } from 'react-native';
+import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
 
 import { getMostRecentReelaysByTitle } from "../../api/ReelayDBApi";
 import ReelayThumbnail from '../global/ReelayThumbnail';
 import styled from 'styled-components/native';
 import * as ReelayText from "../../components/global/Text";
-import { BWButton } from "../../components/global/Buttons";
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+
+const { width } = Dimensions.get('window');
+
+const Container = styled(View)`
+	width: 100%;
+`
+const SeeAllReviewsPressable = styled(TouchableOpacity)`
+	align-items: center;
+	background-color: black
+	border-color: white;
+	border-radius: 20px;
+	border-width: 1px;
+	height: 40px;
+	justify-content: center;
+	margin: 24px;
+	width: ${width - 48}px;
+`
+const SeeAllReviewsText = styled(ReelayText.Overline)`
+	color: white;
+`
+const TopReelaysContainer = styled(View)`
+	width: 95%;
+	left: 5%;
+`
+const TopReelaysHeader = styled(ReelayText.H5Emphasized)`
+	padding: 10px;
+	color: white;
+`
 
 export default PopularReelaysRow = ({ navigation, titleObj }) => {
     const { reelayDBUser } = useContext(AuthContext);
@@ -46,50 +73,18 @@ export default PopularReelaysRow = ({ navigation, titleObj }) => {
 			});
 	};
 
-	const Container = styled(View)`
-		width: 100%;
-	`;
-	const ButtonContainer = styled(View)`
-		margin-top: 10px;
-		margin-bottom: 20px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	`;
-	const ButtonSizer = styled(View)`
-		width: 84%;
-		height: 40px;
-	`
-
 	if (topReelays.length > 0) return (
 		<Container>
 			<TopReelays goToReelay={goToReelay} topReelays={topReelays} />
-			<ButtonContainer>
-				<ButtonSizer>
-					<BWButton
-						text={"See all reviews"}
-						fontSize={"28px"}
-						onPress={() => {
-							goToReelay(0);
-						}}
-					/>
-				</ButtonSizer>
-			</ButtonContainer>
+			<SeeAllReviewsPressable onPress={() => goToReelay(0)}>
+				<SeeAllReviewsText>{'See all reviews'}</SeeAllReviewsText>
+			</SeeAllReviewsPressable>
 		</Container>
 	);
 	else return null;
 };
 
 const TopReelays = ({ goToReelay, topReelays }) => {
-	const TopReelaysContainer = styled(View)`
-		width: 95%;
-		left: 5%;
-	`;
-	const TopReelaysHeader = styled(ReelayText.H5Emphasized)`
-		padding: 10px;
-		color: white;
-	`;
-
 	// TODO: move scroll view into a flatlist
 
 	const renderReelayThumbnail = ({ item, index }) => {

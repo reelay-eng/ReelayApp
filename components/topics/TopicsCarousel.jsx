@@ -2,7 +2,6 @@ import React, { Fragment, useContext, useEffect, useRef, useState } from 'react'
 import { Dimensions, TouchableOpacity, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
-import moment from 'moment';
 
 import TopicCard from './TopicCard';
 import { useDispatch, useSelector } from 'react-redux';
@@ -17,19 +16,21 @@ import { getTopicsByCreator } from '../../api/TopicsApi';
 const { width } = Dimensions.get('window');
 
 const CarouselView = styled(View)`
-    margin-left: -30px;
+    margin-left: -24px;
 `
 const CreateTopicButtonContainer = styled(TouchableOpacity)`
     align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
+    background-color: black;
+    border-color: white;
     border-radius: 20px;
+    border-width: 1px;
     flex-direction: row;
     justify-content: center;
     height: 40px;
     margin: 16px;
     width: ${width - 32}px;
 `
-const CreateTopicText = styled(ReelayText.Subtitle2)`
+const CreateTopicText = styled(ReelayText.Overline)`
     color: white;
 `
 const HeaderContainer = styled(View)`
@@ -54,9 +55,6 @@ const HeaderText = styled(ReelayText.H5Bold)`
 `
 const TopicsContainer = styled(View)`
     width: 100%;
-    height: auto;
-    display: flex;
-    flex-direction: column;
     margin-bottom: 10px;
 `
 const SeeAllTopicsText = styled(ReelayText.Subtitle2)`
@@ -70,7 +68,6 @@ const Spacer = styled(View)`
 export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnProfile = null }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
-    const curTopicIndex = useRef(0);
 
     const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
     const followingTopics = useSelector(state => state.myHomeContent?.following?.topics);
@@ -112,8 +109,6 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
             break;
     }
 
-    const hasReelays = (topic) => topic?.reelays?.length > 0;
-    const displayTopicsWithReelays = displayTopics.filter(hasReelays);
     const advanceToTopicsList = () => navigation.push('TopicsListScreen', { 
         source, 
         creatorOnProfile, 
@@ -146,7 +141,6 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
         return (
             <HeaderContainer>
                 <HeaderContainerLeft>
-                    { source !== 'profile' && <TopicIcon /> }
                     <HeaderText>{headerText}</HeaderText>
                 </HeaderContainerLeft>
                 <HeaderContainerRight onPress={advanceToTopicsList}>
@@ -156,24 +150,15 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
         );
     }
 
-    const TopicIcon = () => {
-        return (
-            <Fragment>
-                <FontAwesomeIcon icon={ faComments } color='white' size={20} />
-                <Spacer />
-            </Fragment>
-        );
-    }
-
     const TopicsRow = () => {
         const renderTopic = ({ item, index }) => {
             const topic = item;
             const matchTopic = (nextTopic) => (nextTopic.id === topic.id);
-            const initTopicIndex = displayTopicsWithReelays.findIndex(matchTopic);
+            const initTopicIndex = displayTopics.findIndex(matchTopic);
         
-            const advanceToFeed = () => {
-                if (!topic.reelays?.length) return;
+            const advanceToFeed = (initReelayIndex = 0) => {
                 navigation.push('TopicsFeedScreen', { 
+                    initReelayIndex,
                     initTopicIndex, 
                     source,
                     creatorOnProfile, 
@@ -207,10 +192,10 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
                     activeSlideAlignment={'center'}
                     data={displayTopics}
                     inactiveSlideScale={0.95}
-                    itemHeight={220}
+                    itemHeight={480}
                     itemWidth={width-48}
                     renderItem={renderTopic}
-                    sliderHeight={240}
+                    sliderHeight={480}
                     sliderWidth={width+30}
                 />
             </CarouselView>

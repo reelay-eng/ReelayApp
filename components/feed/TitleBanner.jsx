@@ -1,31 +1,29 @@
-import React, { Fragment, memo, useContext, useState, useRef } from "react";
-import { Dimensions, Pressable, SafeAreaView, TouchableOpacity, View, StyleSheet } from "react-native";
-import * as ReelayText from '../global/Text';
+import React, { Fragment, memo, useContext, useState } from "react";
+import { Dimensions, Pressable, TouchableOpacity, View } from "react-native";
 import { AuthContext } from "../../context/AuthContext";
 import Constants from 'expo-constants';
 
-import VenueIcon from '../utils/VenueIcon';
+import AddToClubsButton from "../clubs/AddToClubsButton";
 import DonateButton from '../global/DonateButton';
+import ReelayColors from "../../constants/ReelayColors";
+import * as ReelayText from '../global/Text';
+import TitlePoster from "../global/TitlePoster";
+import VenueIcon from '../utils/VenueIcon';
 
 import { logAmplitudeEventProd } from "../utils/EventLogger";
-import styled from 'styled-components/native';
-import TitlePoster from "../global/TitlePoster";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import AddToStackButton from "./AddToStackButton";
-import { Icon } from "react-native-elements";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faChevronDown, faChevronUp, faClapperboard, faPlay, faStar } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp, faClapperboard, faStar } from "@fortawesome/free-solid-svg-icons";
 import { getRuntimeString } from "../utils/TitleRuntime";
-import { LinearGradient } from 'expo-linear-gradient';
-import ReelayColors from "../../constants/ReelayColors";
 import { animate } from "../../hooks/animations";
+import styled from 'styled-components/native';
 
 const { height, width } = Dimensions.get('window');
 
 // a collapsed (!expanded) banner is 100px in height
 // the add to stack button is 45px
-const AddToStackButtonContainer = styled(View)`
-    top: 27.5px;
+const AddToClubsButtonContainer = styled(View)`
+    justify-content: center;
 `
 const ArtistBadgeView = styled(View)`
     align-items: center;
@@ -46,10 +44,11 @@ const ArtistText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
 `
-const ExpandedGradient = styled(LinearGradient)`
-    border-radius: 8px;
-    height: 100%;
-    position: absolute;
+const ExpandArrowView = styled(Pressable)`
+    align-items: center;
+    padding-bottom: 6px;
+    position: ${props => props.expanded ? 'relative' : 'absolute'};
+    bottom: 0px;
     width: 100%;
 `
 const ExpandedInfoView = styled(Pressable)`
@@ -58,8 +57,6 @@ const ExpandedInfoView = styled(Pressable)`
     justify-content: flex-start;
     margin: 6px;
     margin-top: 0px;
-    padding: 12px;
-    padding-top: 0px;
     width: ${width - 32}px;
 `
 const OverviewText = styled(ReelayText.CaptionEmphasized)`
@@ -69,27 +66,35 @@ const OverviewText = styled(ReelayText.CaptionEmphasized)`
 const RuntimeText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
-    margin-right: 10px;
+`
+const RuntimeView = styled(View)`
+    background-color: gray;
+    border-radius: 8px;
+    padding: 4px;
+    padding-left: 8px;
+    padding-right: 8px;
+    position: absolute;
+    right: 2px;
+    top: 10px;
 `
 const SeeMorePressable = styled(TouchableOpacity)`
     padding-left: 8px;
 `
-const SeeMoreText = styled(ReelayText.CaptionEmphasized)`
+const SeeMoreText = styled(ReelayText.H5Bold)`
     color: ${ReelayColors.reelayBlue};
     font-size: 14px;
     line-height: 16px;
-`
-const Spacer = styled(View)`
-    width: 10px;
+    text-shadow-color: rgba(0, 0, 0, 0.5);
+    text-shadow-offset: 1px 1px;
+    text-shadow-radius: 1px;
 `
 const TitleBannerRow = styled(Pressable)`
-    align-items: flex-start;
     flex-direction: row;
     justify-content: space-between;
 `
 const TitleBannerBackground = styled(View)`
     align-items: center;
-    background-color: ${props => props.color};
+    background-color: rgba(0, 0, 0, 0.44);
     border-radius: 8px;
     margin-left: 10px;
     top: 20px;
@@ -106,14 +111,16 @@ const TitleInfoPressable = styled(Pressable)`
 `
 const TitlePosterContainer = styled(View)`
     justify-content: center;
-    margin: 5px;
+    padding: 5px;
 `
 const TitleText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
+    text-shadow-color: rgba(0, 0, 0, 0.5);
+    text-shadow-offset: 1px 1px;
+    text-shadow-radius: 1px;
 `
 const TitleTextContainer = styled(View)`
-    margin-top: 10px;
     justify-content: center;
     display: flex;
 `
@@ -135,71 +142,12 @@ const YearVenueContainer = styled(View)`
     flex-direction: row;
 `
 
-const DEFAULT_BGCOLOR = 'rgba(0, 0, 0, 0.36)';
-
-const ActorLine = ({ actorName0, actorName1 }) => {
-    if (!actorName0) return <View />;
-    return (
-        <ArtistRow>
-            <FontAwesomeIcon icon={faStar} color='white' size={18} />
-            <ArtistBadgeView>
-                <ArtistText>{actorName0}</ArtistText>
-            </ArtistBadgeView>
-            { actorName1 && (
-                <Fragment>
-                    <FontAwesomeIcon icon={faStar} color='white' size={18} />
-                    <ArtistBadgeView>
-                        <ArtistText>{actorName1}</ArtistText>
-                    </ArtistBadgeView>
-                </Fragment>
-            )}
-        </ArtistRow>
-    );
-}
-
-const DirectorLine = ({ directorName }) => {
-    if (!directorName) return <View />;
-    return (
-        <ArtistRow>
-            <FontAwesomeIcon icon={faClapperboard} color='white' size={18} />
-            <ArtistBadgeView>
-                <ArtistText>{directorName}</ArtistText>
-            </ArtistBadgeView>
-        </ArtistRow>
-    );
-}
-
-const VenueIndicator = ({ venue }) => {
-    return (
-        <VenueContainer>
-            <VenueIcon venue={venue} size={20} border={1} />
-        </VenueContainer>
-    )
-}
-
-const TitleUnderline = ({ venue, displayYear, expanded, runtime }) => {
-    const runtimeString = runtime ? getRuntimeString(runtime) : '';
-    return (
-        <TitleUnderlineContainer>
-            <YearVenueContainer>
-                { venue && <VenueIndicator venue={venue} /> }
-                { displayYear?.length > 0 && <YearText>{displayYear}</YearText> }
-                { runtimeString?.length > 0 && <RuntimeText>{runtimeString}</RuntimeText> }
-                <FontAwesomeIcon icon={expanded ?  faChevronUp : faChevronDown} color='white' size={16} />
-            </YearVenueContainer>
-        </TitleUnderlineContainer>
-    );
-};
-
 const TitleBanner = ({ 
     club = null,
-    titleObj,
-    backgroundColor=DEFAULT_BGCOLOR,
     donateObj=null, 
     navigation=null, 
     onCameraScreen=false,
-    posterWidth=60,
-    topic=null,
+    titleObj,
     reelay=null, 
     venue=null,
 }) => {
@@ -212,6 +160,8 @@ const TitleBanner = ({
     // figure out how to do ellipses for displayTitle
     let displayTitle = (titleObj.display) ? titleObj.display : 'Title not found'; 
 	let displayYear = (titleObj.releaseYear) ? titleObj.releaseYear : '';
+    const runtime = titleObj?.runtime;
+    const runtimeString = runtime ? getRuntimeString(runtime) : '';
 
     if (isWelcomeReelay) {
         displayTitle = 'Welcome to Reelay';
@@ -235,19 +185,55 @@ const TitleBanner = ({
         });
     }
 
+    const ActorLine = ({ actorName0, actorName1 }) => {
+        if (!actorName0) return <View />;
+        return (
+            <ArtistRow>
+                <FontAwesomeIcon icon={faStar} color='white' size={18} />
+                <ArtistBadgeView>
+                    <ArtistText>{actorName0}</ArtistText>
+                </ArtistBadgeView>
+                { actorName1 && (
+                    <Fragment>
+                        <FontAwesomeIcon icon={faStar} color='white' size={18} />
+                        <ArtistBadgeView>
+                            <ArtistText>{actorName1}</ArtistText>
+                        </ArtistBadgeView>
+                    </Fragment>
+                )}
+            </ArtistRow>
+        );
+    }
+    
+    const DirectorLine = ({ directorName }) => {
+        if (!directorName) return <View />;
+        return (
+            <ArtistRow>
+                <FontAwesomeIcon icon={faClapperboard} color='white' size={18} />
+                <ArtistBadgeView>
+                    <ArtistText>{directorName}</ArtistText>
+                </ArtistBadgeView>
+            </ArtistRow>
+        );
+    }    
+
+    const ExpandArrow = () => {
+        return (
+            <ExpandArrowView expanded={expanded} onPress={onClickExpand}>
+                <FontAwesomeIcon icon={expanded ?  faChevronUp : faChevronDown} color='white' size={16} />
+            </ExpandArrowView>
+        );
+    }
+
     const ExpandedInfo = () => {
         return (
             <Pressable onPress={onClickExpand}>
-                <ExpandedGradient 
-                    colors={['transparent', '#000000']} 
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 0, y: 2 }}
-                />
                 <ExpandedInfoView>
                     <DirectorLine directorName={titleObj?.director?.name} />
                     <ActorLine actorName0={titleObj?.displayActors[0]?.name} actorName1={titleObj?.displayActors[1]?.name} />
                     <OverviewText>{titleObj?.overview}</OverviewText>
                     <SeeMoreButton />
+                    <RuntimePill />
                 </ExpandedInfoView>
             </Pressable>
         );
@@ -256,15 +242,27 @@ const TitleBanner = ({
     const Poster = () => {
         return (
             <TitlePosterContainer>
-                <TitlePoster title={titleObj} onPress={openTitleDetail} width={posterWidth} />
+                <TitlePoster title={titleObj} onPress={openTitleDetail} width={60} />
             </TitlePosterContainer>
         );
+    }
+
+    const RuntimePill = () => {
+        if (runtimeString.length > 0) {
+            return (
+                <RuntimeView>
+                    <RuntimeText>{runtimeString}</RuntimeText>
+                </RuntimeView>
+            )
+        } else {
+            return <View />
+        }
     }
 
     const SeeMoreButton = () => {
         return (
             <SeeMorePressable onPress={openTitleDetail}>
-                <SeeMoreText>{'See more'}</SeeMoreText>
+                <SeeMoreText>{'See more...'}</SeeMoreText>
             </SeeMorePressable>
         );
     }
@@ -283,33 +281,54 @@ const TitleBanner = ({
                     runtime={titleObj?.runtime}
                     venue={reelay?.content?.venue ?? venue} 
                 />
+                { !expanded && <ExpandArrow /> }
             </TitleInfoPressable>
         );
     }
 
-    const RightCTAButton = () => {
+    const AddToClubs = () => {
         if (donateObj) return <DonateButton donateObj={donateObj} reelay={reelay} />;
 
         return (
-            <AddToStackButtonContainer>
-                <AddToStackButton 
-                    navigation={navigation} 
-                    reelay={reelay} 
+            <AddToClubsButtonContainer>
+                <AddToClubsButton
                     club={club}
-                    topic={topic}
+                    navigation={navigation}
+                    reelay={reelay}
+                    titleObj={reelay?.title}
                 />
-            </AddToStackButtonContainer>
+            </AddToClubsButtonContainer>
         );
+    }
+    
+    const TitleUnderline = ({ venue }) => {
+        return (
+            <TitleUnderlineContainer>
+                <YearVenueContainer>
+                    { venue && <VenueIndicator venue={venue} /> }
+                    { displayYear?.length > 0 && <YearText>{displayYear}</YearText> }
+                </YearVenueContainer>
+            </TitleUnderlineContainer>
+        );
+    };    
+
+    const VenueIndicator = ({ venue }) => {
+        return (
+            <VenueContainer>
+                <VenueIcon venue={venue} size={20} border={1} />
+            </VenueContainer>
+        )
     }
 
     return (
-        <TitleBannerBackground color={backgroundColor}>
+        <TitleBannerBackground>
             <TitleBannerRow onPress={onClickExpand}>
                 <Poster />
                 <TitleInfo />
-                { !onCameraScreen && <RightCTAButton /> }
+                { !onCameraScreen && <AddToClubs /> }
             </TitleBannerRow>    
             { expanded && <ExpandedInfo /> }
+            { expanded && <ExpandArrow /> }
         </TitleBannerBackground>
     );
 }

@@ -18,7 +18,7 @@ export const getThumbnailS3Key = (reelay) => {
 }
 
 export const generateThumbnail = async (reelay) => {
-    const tryTimecodesMillis = [5000, 3000, 1000, 100];
+    const tryTimecodesMillis = [3000, 1000, 100];
     let timecodeIndex = 0;
     while (timecodeIndex < tryTimecodesMillis.length) {
         try {

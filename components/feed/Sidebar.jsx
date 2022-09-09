@@ -38,7 +38,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 		align-items: center;
 		align-self: flex-end;
 		position: absolute;
-		bottom: 100px;
+		bottom: 95px;
 	`
 	const SidebarButton = styled(TouchableOpacity)`
 		align-items: center;
@@ -47,10 +47,10 @@ export default Sidebar = ({ navigation, reelay }) => {
 			: 'rgba(255, 255, 255, 0.20)'
 		};
 		border-radius: 50px;
-		height: ${props => props.dot ? 36 : 44}px;
+		height: 44px;
 		justify-content: center;
 		margin-top: 8px;
-		width: ${props => props.dot ? 36 : 44}px;
+		width: 44px;
 		box-shadow: 0px 1px 1px rgba(0,0,0,0.7);
 	`
 	const ButtonContainer = styled(View)`
@@ -165,25 +165,26 @@ export default Sidebar = ({ navigation, reelay }) => {
 			}
 		}
 
+		const likeAnimationStyle = {
+			transform: [{ 
+				scale: likeAnimScale.interpolate({
+						inputRange: [1, 100],
+						outputRange: [1, 1.7]
+					}) 
+			}, {
+				rotate: likeAnimScale.interpolate({
+					inputRange: [1, 100],
+					outputRange: ["0deg", "10deg"]
+				})
+			}]
+		}
+
 		return (
 			<ButtonContainer>
 				<SidebarButton 
 					onPress={onLikePress} 
 					onLongPress={onLikeLongPress}>
-					<Animated.View 
-						style={{ 
-							transform: [{ 
-								scale: likeAnimScale.interpolate({
-										inputRange: [1, 100],
-										outputRange: [1, 1.7]
-									}) 
-							}, {
-								rotate: likeAnimScale.interpolate({
-									inputRange: [1, 100],
-									outputRange: ["0deg", "10deg"]
-								})
-							}]
-					}}>
+					<Animated.View style={likeAnimationStyle}>
 						<FontAwesomeIcon 
 							icon={faHeart} 
 							color={likedByUser ? ReelayColors.reelayRed : "white"} 
@@ -199,17 +200,6 @@ export default Sidebar = ({ navigation, reelay }) => {
 
 	return (
 		<SidebarView>
-			<ButtonContainer>
-				<SidebarButton>
-					<AddToClubsButton
-						navigation={navigation}
-						titleObj={reelay.title}
-						reelay={reelay}
-					/>
-				</SidebarButton>
-				<Count>{displayWatchlistAdds()}</Count>
-			</ButtonContainer>
-
 			<LikeButton />
 
 			<ButtonContainer>
@@ -230,7 +220,7 @@ export default Sidebar = ({ navigation, reelay }) => {
 			</ButtonContainer>
 
 			<ButtonContainer>
-				<SidebarButton onPress={onDotMenuPress} dot={true}>
+				<SidebarButton onPress={onDotMenuPress}>
 					<FontAwesomeIcon icon={faEllipsis} color='white' size={DOT_ICON_SIZE} />
 				</SidebarButton>
 			</ButtonContainer>

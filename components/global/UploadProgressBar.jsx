@@ -56,9 +56,11 @@ export default UploadProgressBar = ({ mountLocation, onRefresh }) => {
 
     const indeterminate = (uploadStage === 'upload-ready' || uploadStage === 'refreshing');
     const dispatch = useDispatch();
+
+    const safeAreaTop = useSafeAreaInsets().top;
     const topOffset = (mountLocation === 'InClub') 
-        ? useSafeAreaInsets().top + 82
-        : useSafeAreaInsets().top + 142;
+        ? safeAreaTop + 82 
+        : safeAreaTop + 168;
 
     const downloadIconName = (downloadStage === 'download-ready')
             ? 'download-outline'
@@ -113,10 +115,6 @@ export default UploadProgressBar = ({ mountLocation, onRefresh }) => {
     const setRetryUpload = () => {
         if (uploadStage !== 'upload-failed-retry') return;
         dispatch({ type: 'setUploadStage', payload: 'upload-ready' });
-    }
-
-    if (uploadRequest?.destination !== mountLocation) {
-        return <View />;
     }
 
     const checkForRefresh = async () => {

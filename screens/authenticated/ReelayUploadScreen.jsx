@@ -281,16 +281,19 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     }
 
     const UploadButton = () => {
-        const postDestinationText = (clubID)
-                ? 'Post to Club'
-            : (topicID)
+        const postDestinationText = (topicID)
                 ? 'Post to Topic'
+            : (clubID)
+                ? 'Post to Club'
             : (myClubs.length === 0)
                 ? 'Post to Profile'
             : 'Next';
         const buttonText = (uploadStarted) ? 'Preparing...   ' : postDestinationText;
-        const buttonColor = (uploadStarted) ? 'white' : ReelayColors.reelayBlue;
         const buttonTextColor = (uploadStarted) ? 'black' : 'white';
+
+        let buttonColor = ReelayColors.reelayBlue;
+        if (topicID) buttonColor = ReelayColors.reelayPurple;
+        if (uploadStarted) buttonColor = 'white';
 
         return (
             <UploadButtonPressable color={buttonColor} onPress={confirmPostDestination}>
@@ -314,13 +317,8 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             const { reelayClub, reelayTopic } = uploadRequest;
             if (reelayClub) {
                 navigation.navigate('ClubActivityScreen', { club: reelayClub });
-            } else if (reelayTopic) {
-                navigation.navigate('SingleTopicScreen', {
-                    initReelayIndex: 0,
-                    topic: reelayTopic,
-                });
             } else {
-                navigation.navigate('Global');
+                navigation.navigate('Discover');
             }
         }
     }, [uploadStage])
