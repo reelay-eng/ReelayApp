@@ -533,7 +533,7 @@ const Tutorial = ({ navigation }) => {
     }
 
     const ScrollRight = () => {
-        setBigText("Add titles to your watchlist or to a club.");
+        setBigText("From any reelay add a title to your watchlist.");
         setSmallText("Press this icon");
         animateCustom({
             create: {
