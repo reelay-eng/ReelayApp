@@ -17,6 +17,8 @@ import { getRuntimeString } from "../utils/TitleRuntime";
 import { animate } from "../../hooks/animations";
 import { TopicsBannerIconSVG } from "../global/SVGs";
 
+import { BlurView } from 'expo-blur'
+
 const { width } = Dimensions.get('window');
 
 const BannerTopSpacer = styled(View)`
@@ -51,11 +53,11 @@ const TopicBannerRow = styled(Pressable)`
 `
 const TopicBannerBackground = styled(View)`
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.44);
     border-radius: 8px;
     top: 20px;
     width: ${width - 20}px;
     zIndex: 3;
+    overflow: hidden;
 `
 const TopicIconContainer = styled(View)`
     align-items: center;
@@ -78,7 +80,7 @@ const TitlePosterContainer = styled(View)`
 const TitleText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
-    text-shadow-color: rgba(0, 0, 0, 0.5);
+    text-shadow-color: rgba(0, 0, 0, 0.4);
     text-shadow-offset: 1px 1px;
     text-shadow-radius: 1px;
 `
@@ -258,14 +260,16 @@ const TopicBanner = ({
 
     return (
         <TopicBannerBackground>
-            <BannerTopSpacer />
-            <TopicBannerRow onPress={onClickExpand}>
-                <TopicIcon />
-                <TopicTitle />
-                { !onCameraScreen && <AddToStack /> }
-            </TopicBannerRow>    
-            { expanded && <ExpandedInfo /> }
-            <ExpandArrow />
+            <BlurView intensity={25} tint='dark' style={{ alignItems: 'center', width: '100%'}}>
+                <BannerTopSpacer />
+                <TopicBannerRow onPress={onClickExpand}>
+                    <TopicIcon />
+                    <TopicTitle />
+                    { !onCameraScreen && <AddToStack /> }
+                </TopicBannerRow>    
+                { expanded && <ExpandedInfo /> }
+                <ExpandArrow />
+            </BlurView>
         </TopicBannerBackground>
     );
 }
