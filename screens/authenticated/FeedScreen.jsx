@@ -3,18 +3,17 @@ import ReelayFeed from '../../components/feed/ReelayFeed';
 import { useSelector } from 'react-redux';
 
 export default function FeedScreen({ navigation, route }) {
-    const myStacksGlobal = useSelector(state => state.myHomeContent?.global);
-    const initialFeedSource = route?.params?.initialFeedSource ?? 'discover';
+    const feedSource = route?.params?.feedSource ?? 'discover';
     const initialStackPos = route?.params?.initialStackPos ?? 0;
     const initialFeedPos = route?.params?.initialFeedPos ?? 0;
     const forceRefresh = route?.params?.forceRefresh ?? null;
     const pinnedReelay = route?.params?.pinnedReelay ?? null;
-    const preloadedStackList = route?.params?.preloadedStackList ?? myStacksGlobal;
+    const preloadedStackList = route?.params?.preloadedStackList ?? [];
 
     return (
         <ReelayFeed 
             forceRefresh={forceRefresh}
-            initialFeedSource={initialFeedSource}
+            feedSource={feedSource}
             initialStackPos={initialStackPos}
             initialFeedPos={initialFeedPos}
             navigation={navigation}

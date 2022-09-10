@@ -431,7 +431,7 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
     };
 }
 
-export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
+export const getFeed = async ({ authSession, reqUserSub, feedSource, page = 0 }) => {
     console.log(`Getting most recent ${feedSource} reelays...`);
     // some kludge we'll sort out later in the discovery integration
     // changing frontend refs from 'global' to 'discover'
@@ -441,7 +441,7 @@ export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
     let fetchedStacks = await fetchResults(routeGet, { 
         method: 'GET',
         headers: {
-            ...ReelayAPIHeaders,
+            ...getReelayAuthHeaders(authSession),
             requsersub: reqUserSub,
         }, 
     });

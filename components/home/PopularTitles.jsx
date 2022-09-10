@@ -75,12 +75,12 @@ export default PopularTitles = ({ navigation }) => {
     const goToReelay = (index, titleObj) => {
 		if (popularTitleStacks?.length === 0) return;
 		navigation.push("FeedScreen", {
+            feedSource: 'popularTitlesDiscover',
 			initialFeedPos: index,
-            initialFeedSource: 'popularTitlesDiscover',
             preloadedStackList: popularTitleStacks,
 		});
 
-		logAmplitudeEventProd('openPopularTitlesFeedd', {
+		logAmplitudeEventProd('openPopularTitlesFeed', {
 			username: reelayDBUser?.username,
             title: titleObj?.display,
 		});

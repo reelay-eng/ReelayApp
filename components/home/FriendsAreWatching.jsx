@@ -80,8 +80,8 @@ const TitleText = styled(ReelayText.H6Emphasized)`
 const FollowingElement = ({ stack, index, navigation, myStacksFollowing }) => {
     const goToReelay = (index, titleObj) => {
 		navigation.push("FeedScreen", {
+            feedSource: 'following',
 			initialFeedPos: index,
-            initialFeedSource: 'following',
             preloadedStackList: myStacksFollowing,
 		});
 		logAmplitudeEventProd('openFollowingFeed', {

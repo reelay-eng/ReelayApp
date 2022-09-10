@@ -113,8 +113,8 @@ const FestivalReelaysRow = ({ navigation }) => {
 const FollowingElement = ({ stack, index, navigation, festivalStacks }) => {
     const goToReelay = (index, titleObj) => {
 		navigation.push("FeedScreen", {
+            feedSource: 'festivals',
 			initialFeedPos: index,
-            initialFeedSource: 'festivals',
             preloadedStackList: festivalStacks,
 		});
 		logAmplitudeEventProd('openFollowingFeed', {

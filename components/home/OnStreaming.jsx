@@ -91,8 +91,8 @@ export default OnStreaming = ({ navigation, source = 'discover' }) => {
 		if (!myStreamingStacks?.length) return;
 
 		navigation.push("FeedScreen", {
+            feedSource: 'streaming',
 			initialFeedPos: index,
-            initialFeedSource: 'streaming',
             preloadedStackList: myStreamingStacks,
 		});
 

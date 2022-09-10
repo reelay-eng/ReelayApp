@@ -42,8 +42,8 @@ const InTheaters = memo(({ navigation }) => {
     const goToReelay = (index, titleObj) => {
 		if (myStacksInTheaters.length === 0) return;
 		navigation.push("FeedScreen", {
+            feedSource: 'theaters',
 			initialFeedPos: index,
-            initialFeedSource: 'theaters',
             preloadedStackList: myStacksInTheaters,
 		});
 

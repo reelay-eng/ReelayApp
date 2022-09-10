@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Pressable, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
@@ -37,7 +37,7 @@ const ExpandFiltersPressable = styled(TouchableOpacity)`
     margin-left: 16px;
     width: 34px;
 `
-const ExpandWhenPressable = styled(TouchableOpacity)`
+const ExpandSortPressable = styled(TouchableOpacity)`
     align-items: center;
     flex-direction: row;
 `
@@ -99,58 +99,63 @@ const ResetFiltersText = styled(ReelayText.CaptionEmphasized)`
 const HeaderLeftSpacer = styled(View)`
     width: 10px;
 `
-const WhenOptionPressable = styled(TouchableOpacity)`
+const SortOptionPressable = styled(TouchableOpacity)`
     padding-right: 30px;
     padding-top: 7px;
     padding-bottom: 7px;
 `
-const WhenOptionText = styled(ReelayText.Body2)`
-    color: white;
+const SortOptionText = styled(ReelayText.Body2)`
+    color: ${props => props.selected ? 'white' : 'gray'};
     font-size: 16px;
     text-align: right;
 `
-const WhenOptionsView = styled(View)`
+const SortOptionsView = styled(View)`
     background-color: black;
-    border-bottom-left-radius: 14px;
     border-bottom-right-radius: 14px;
     padding: 4px;
     position: absolute;
     top: ${props => props.topOffset - 20}px;
-    width: 100%;
+    width: 150px;
 `
 
-export default ReelayFeedHeader = ({ navigation, displayText, feedSource = 'discover', isFullScreen = false }) => {
+const SORT_OPTION_TEXT = {
+    mostRecent: 'most recent',
+    thisWeek: 'this week',
+    thisMonth: 'this month',
+    allTime: 'all time',
+}
+
+export default ReelayFeedHeader = ({ 
+    displayText, 
+    feedSource = 'discover', 
+    isFullScreen = false,
+    navigation, 
+    sortMethod = 'mostRecent',
+    setSortMethod
+}) => {
     const topOffset = useSafeAreaInsets().top;
     const resetFilter = { category: 'all', option: 'unselect_all', display: 'all' };
+
     const [showFilters, setShowFilters] = useState(false);
     const [selectedFilters, setSelectedFilters] = useState([resetFilter]);
+    const [showSortOptions, setShowSortOptions] = useState(false);
 
-    const [showWhenOptions, setShowWhenOptions] = useState(false);
-    const expandWhen = () => setShowWhenOptions(!showWhenOptions);
+    const expandSort = () => setShowSortOptions(!showSortOptions);
 
     const closeAllFilters = () => {
         setShowFilters(false);
-        setShowWhenOptions(false);
+        setShowSortOptions(false);
     }
+
     const expandFilters = () => setShowFilters(!showFilters);
     const isResetOption = (filter) => (filter.option === 'unselect_all');
     const noFiltersSelected = (selectedFilters.length === 1 && isResetOption(selectedFilters[0]));
     const showFilterActionButton = (!noFiltersSelected || !showFilters);
 
     // todo: these will certainly change with the new home screen
-    const whenableFeedSources = [
-        'club', 
-        'festivals',
-        'following',
-        'popularTitlesDiscover',
-        'popularTitlesFollowing',
-        'streaming',
-        'topics',
-        'theaters',
-        'trending',
-    ]
+    const sortableFeedSources = [ 'discover' ];
 
-    const headerIsWhenable = false; // whenableFeedSources.includes(feedSource);
+    const headerIsSortable = sortableFeedSources.includes(feedSource);
 
     const getDisplayText = () => {
         if (displayText) return displayText;
@@ -159,10 +164,10 @@ export default ReelayFeedHeader = ({ navigation, displayText, feedSource = 'disc
             case 'camera': return 'record';
             case 'festivals': return 'at festivals';
             case 'following': return 'following';
-            case 'discover': return 'discover';
+            case 'discover': return SORT_OPTION_TEXT[sortMethod];
             case 'popularTitlesDiscover': return 'popular titles';
             case 'popularTitlesFollowing': return 'popular titles';
-            case 'single': return '';
+            case 'single': return 'reelay';
             case 'streaming': return 'on streaming'; 
             case 'title': return 'top reelays';
             case 'topics': return 'topics';
@@ -237,7 +242,7 @@ export default ReelayFeedHeader = ({ navigation, displayText, feedSource = 'disc
             );
         }
 
-        const NonWhenableHeader = () => {
+        const NonSortableHeader = () => {
             if (feedSource === 'discover') {
                 return (
                     <DiscoveryBarLeftView>
@@ -255,37 +260,46 @@ export default ReelayFeedHeader = ({ navigation, displayText, feedSource = 'disc
             )
         }
 
-        const WhenOption = ({ option, optionDisplay }) => {
-            const setWhenFilter = () => {}
+        const SortOption = ({ option, optionDisplay }) => {
+            const displayText = SORT_OPTION_TEXT[option];
+            const isSelected = (sortMethod === option);
+            const setSortFilter = () => {
+                setSortMethod(option);
+                closeAllFilters();
+            }
             return (
-                <WhenOptionPressable>
-                    <WhenOptionText>{optionDisplay}</WhenOptionText>
-                </WhenOptionPressable>
+                <SortOptionPressable onPress={setSortFilter}>
+                    <SortOptionText selected={isSelected}>{displayText}</SortOptionText>
+                </SortOptionPressable>
             );
         }
 
-        const WhenOptions = () => {
+        const SortOptions = () => {
+            if (!showSortOptions) {
+                return <View />
+            }
+
             return (
-                <WhenOptionsView topOffset={topOffset}>
-                    <WhenOption option='mostRecent' optionDisplay={'most recent'} />
-                    <WhenOption option='thisWeek' optionDisplay={'this week'} />
-                    <WhenOption option='thisMonth' optionDisplay={'this month'} />
-                    <WhenOption option='allTime' optionDisplay={'all time'} />
-                </WhenOptionsView>
+                <SortOptionsView topOffset={topOffset}>
+                    <SortOption option='mostRecent' optionDisplay={'most recent'} />
+                    <SortOption option='thisWeek' optionDisplay={'this week'} />
+                    <SortOption option='thisMonth' optionDisplay={'this month'} />
+                    <SortOption option='allTime' optionDisplay={'all time'} />
+                </SortOptionsView>
             );
         }
 
-        const WhenableHeader = () => {
+        const SortableHeader = () => {
             return (
                 <DiscoveryBarLeftView>
                     <BackButton />
-                    <ExpandWhenPressable onPress={expandWhen}>
+                    <ExpandSortPressable onPress={expandSort}>
                         <HeaderLeftSpacer />
                         <HeaderText>{getDisplayText()}</HeaderText>
                         <HeaderLeftSpacer />
                         <FontAwesomeIcon icon={faChevronDown} color='white' size={14} />
-                    </ExpandWhenPressable>
-                    { showWhenOptions && <WhenOptions/> }
+                    </ExpandSortPressable>
+                    <SortOptions />
                 </DiscoveryBarLeftView>
             );
         }
@@ -294,8 +308,8 @@ export default ReelayFeedHeader = ({ navigation, displayText, feedSource = 'disc
             <Fragment>
                 <DiscoveryBarView onPress={closeAllFilters} topOffset={topOffset}>
                     { isFullScreen && <FullScreenHeader /> }
-                    { !isFullScreen && !headerIsWhenable && <NonWhenableHeader /> }
-                    { !isFullScreen && headerIsWhenable && <WhenableHeader /> }
+                    { !isFullScreen && !headerIsSortable && <NonSortableHeader /> }
+                    { !isFullScreen && headerIsSortable && <SortableHeader /> }
                     {/* { !isFullScreen && (
                         <DiscoveryBarRightView>
                             { showFilterActionButton && <FilterActionButton /> }

@@ -78,8 +78,8 @@ export default EmptyWatchlistCard = ({ navigation }) => {
     const AddFromReelaysButton = () => {
         const advanceToBrowseReelays = () => {
             navigation.push("FeedScreen", {
+                feedSource: 'trending',
                 initialFeedPos: 0,
-                initialFeedSource: 'trending',
                 preloadedStackList: topOfTheWeek,
             });    
         }
