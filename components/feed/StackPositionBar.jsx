@@ -1,10 +1,8 @@
-import { useFocusEffect } from '@react-navigation/native';
 import React, { useEffect } from 'react';
 import { Dimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components/native';
-import { animate } from '../../hooks/animations';
+import { animateCustom } from '../../hooks/animations';
 
 const StackBarView = styled(View)`
     background-color: #555555;
@@ -31,7 +29,12 @@ export default StackPositionBar = ({ stackLength, stackPosition, stackViewable }
     const leftOffset = stackPosition * stackStepLength;
 
     useEffect(() => {
-        animate(10, 'linear', 'opacity');
+        animateCustom({
+            update: {
+                duration: 100,
+                type: 'linear'
+            }
+        });
     }, [stackPosition]);
 
     if (!stackViewable) return <View />

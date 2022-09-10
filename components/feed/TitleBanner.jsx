@@ -18,6 +18,8 @@ import { getRuntimeString } from "../utils/TitleRuntime";
 import { animate } from "../../hooks/animations";
 import styled from 'styled-components/native';
 
+import { BlurView } from 'expo-blur'
+
 const { height, width } = Dimensions.get('window');
 
 // a collapsed (!expanded) banner is 100px in height
@@ -65,27 +67,25 @@ const OverviewText = styled(ReelayText.CaptionEmphasized)`
 `
 const RuntimeText = styled(ReelayText.CaptionEmphasized)`
     color: white;
-    height: 16px;
+    text-align: center;
 `
 const RuntimeView = styled(View)`
-    background-color: gray;
+    background-color: rgba(10, 10, 10, 0.7);
     border-radius: 8px;
-    padding: 4px;
-    padding-left: 8px;
-    padding-right: 8px;
+    padding: 4px 8px 4px 8px; 
     position: absolute;
     right: 2px;
-    top: 10px;
+    top: -20px;
 `
 const SeeMorePressable = styled(TouchableOpacity)`
-    padding-left: 8px;
+    padding: 0px 8px 0px 8px;
 `
 const SeeMoreText = styled(ReelayText.H5Bold)`
     color: ${ReelayColors.reelayBlue};
     font-size: 14px;
     line-height: 16px;
-    text-shadow-color: rgba(0, 0, 0, 0.5);
-    text-shadow-offset: 1px 1px;
+    text-shadow-color: rgba(0, 0, 0, 0.4);
+    text-shadow-offset: 0px 1px;
     text-shadow-radius: 1px;
 `
 const TitleBannerRow = styled(Pressable)`
@@ -94,12 +94,12 @@ const TitleBannerRow = styled(Pressable)`
 `
 const TitleBannerBackground = styled(View)`
     align-items: center;
-    background-color: rgba(0, 0, 0, 0.44);
     border-radius: 8px;
     margin-left: 10px;
     top: 20px;
     width: ${width - 20}px;
     zIndex: 3;
+    overflow: hidden;
 `
 const TitleInfoPressable = styled(Pressable)`
     align-items: flex-start;
@@ -255,7 +255,7 @@ const TitleBanner = ({
                 </RuntimeView>
             )
         } else {
-            return <View />
+            return <></>
         }
     }
 
@@ -322,13 +322,15 @@ const TitleBanner = ({
 
     return (
         <TitleBannerBackground>
-            <TitleBannerRow onPress={onClickExpand}>
-                <Poster />
-                <TitleInfo />
-                { !onCameraScreen && <AddToClubs /> }
-            </TitleBannerRow>    
-            { expanded && <ExpandedInfo /> }
-            { expanded && <ExpandArrow /> }
+            <BlurView intensity={25} tint='dark' style={{ alignItems: 'center', width: '100%'}}>
+                <TitleBannerRow onPress={onClickExpand}>
+                    <Poster />
+                    <TitleInfo />
+                    { !onCameraScreen && <AddToClubs /> }
+                </TitleBannerRow>    
+                { expanded && <ExpandedInfo /> }
+                { expanded && <ExpandArrow /> }
+            </BlurView>
         </TitleBannerBackground>
     );
 }
