@@ -1,6 +1,5 @@
 import React, { Fragment, useContext } from 'react';
 import { Image, Pressable, ScrollView, View, Text } from 'react-native';
-import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
@@ -9,8 +8,6 @@ import ReelayThumbnail from '../global/ReelayThumbnail';
 import SeeMore from '../global/SeeMore';
 import YouDontFollowPrompt from './YouDontFollowPrompt';
 import { useSelector } from 'react-redux';
-import moment from 'moment';
-import { getMyStacksFollowingDaily } from '../../redux/reducers';
 
 const FriendsAreWatching = ({ navigation }) => {
     const FriendsAreWatchingContainer = styled(View)`
@@ -37,26 +34,25 @@ const FriendsAreWatching = ({ navigation }) => {
     `
 
     const myFollowing = useSelector(state => state.myFollowing);
-    const myStacksFollowing = useSelector(state => state.myHomeContent?.following?.mostRecent);
-    const displayStacks = getMyStacksFollowingDaily(myStacksFollowing);
+    const homeFollowingFeed = useSelector(state => state.homeFollowingFeed?.content);
 
     return (
         <FriendsAreWatchingContainer>
             { myFollowing.length === 0 && <YouDontFollowPrompt navigation={navigation} />}
-            { displayStacks.length > 0 && (
+            { homeFollowingFeed.length > 0 && (
                 <Fragment>
                     <HeaderContainer>
                         <HeaderText>{'Following'}</HeaderText>
                     </HeaderContainer>
                     <FollowingRowContainer horizontal showsHorizontalScrollIndicator={false}>
-                        { displayStacks.map((stack, index) =>  {
+                        { homeFollowingFeed.map((stack, index) =>  {
                             return (
                                 <FollowingElement
                                     key={index}
                                     index={index}
                                     navigation={navigation}
                                     stack={stack}
-                                    myStacksFollowing={myStacksFollowing}
+                                    homeFollowingFeed={homeFollowingFeed}
                             />);
                         })}
                     </FollowingRowContainer>
@@ -77,12 +73,12 @@ const TitleText = styled(ReelayText.H6Emphasized)`
     opacity: 1;
 `
 
-const FollowingElement = ({ stack, index, navigation, myStacksFollowing }) => {
+const FollowingElement = ({ stack, index, navigation, homeFollowingFeed }) => {
     const goToReelay = (index, titleObj) => {
 		navigation.push("FeedScreen", {
             feedSource: 'following',
 			initialFeedPos: index,
-            preloadedStackList: myStacksFollowing,
+            preloadedStackList: homeFollowingFeed,
 		});
 		logAmplitudeEventProd('openFollowingFeed', {
 			username: reelayDBUser?.username,
@@ -93,7 +89,7 @@ const FollowingElement = ({ stack, index, navigation, myStacksFollowing }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const onPress = () => goToReelay(index, stack[0].title);
 
-    if (index === myStacksFollowing.length-1) {
+    if (index === homeFollowingFeed.length-1) {
         return (
             <FollowingElementContainer>
                 <SeeMore 

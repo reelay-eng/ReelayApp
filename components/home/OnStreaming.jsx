@@ -82,18 +82,16 @@ const DrawerContainer = styled(View)`
 export default OnStreaming = ({ navigation, source = 'discover' }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const [refreshing, setRefreshing] = useState(false);
-    const myDiscoverStreamingStacks = useSelector(state => state.myHomeContent?.discover?.streaming);
-    const myFollowingStreamingStacks = useSelector(state => state.myHomeContent?.following?.streaming);
+    const homeOnStreamingFeed = useSelector(state => state.homeOnStreamingFeed?.content);
     const myStreamingSubscriptions = useSelector(state => state.myStreamingSubscriptions);
-    const myStreamingStacks = (source === 'discover') ? myDiscoverStreamingStacks : myFollowingStreamingStacks;
 
     const goToReelay = (index, titleObj) => {
-		if (!myStreamingStacks?.length) return;
+		if (!homeOnStreamingFeed?.length) return;
 
 		navigation.push("FeedScreen", {
             feedSource: 'streaming',
 			initialFeedPos: index,
-            preloadedStackList: myStreamingStacks,
+            preloadedStackList: homeOnStreamingFeed,
 		});
 
 		logAmplitudeEventProd('openStreamingFeed', {
@@ -154,9 +152,9 @@ export default OnStreaming = ({ navigation, source = 'discover' }) => {
     const StreamingRow = () => {
         return (
             <ReelayPreviewRowContainer horizontal showsHorizontalScrollIndicator={false}>
-            { myStreamingStacks.map((stack, index) => {
+            { homeOnStreamingFeed.map((stack, index) => {
                 const onPress = () => goToReelay(index, stack[0]?.title);
-                return <StreamingServicesElement key={index} index={index} onPress={onPress} stack={stack} length={myStreamingStacks?.length}/>;
+                return <StreamingServicesElement key={index} index={index} onPress={onPress} stack={stack} length={homeOnStreamingFeed?.length}/>;
             })}
             </ReelayPreviewRowContainer>
         );
@@ -172,7 +170,7 @@ export default OnStreaming = ({ navigation, source = 'discover' }) => {
                 <EditButton />
             </HeaderContainer>
             { refreshing && <RefreshIndicator /> }
-            { !refreshing && myStreamingStacks?.length > 0 && <StreamingRow /> }
+            { !refreshing && homeOnStreamingFeed?.length > 0 && <StreamingRow /> }
         </StreamingServicesContainer>
     )
 };

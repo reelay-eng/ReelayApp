@@ -41,6 +41,7 @@ import {
     getStacksByCreator, 
     getLatestAnnouncement,
     getHomeContent,
+    getFeed,
 } from './api/ReelayDBApi';
 import { getAllMyNotifications } from './api/NotificationsApi';
 import { getWatchlistItems } from './api/WatchlistApi';
@@ -59,6 +60,7 @@ import { fetchPopularMovies, fetchPopularSeries } from './api/TMDbApi';
 import moment from 'moment';
 import { getEmptyGlobalTopics } from './api/FeedApi';
 import { getAllClubsFollowing } from './api/ClubsApi';
+import { getTopics } from './api/TopicsApi';
 
 const LoadingContainer = styled(View)`
     align-items: center;
@@ -335,6 +337,41 @@ function App() {
         dispatch({ type: 'setIsLoading', payload: false });
 
         console.log('dispatched first set of profile data');
+
+        const [
+            homeFollowingFeed,
+            homeInTheatersFeed,
+            homeOnStreamingFeed,
+            homeTopOfTheWeekFeed,
+            // homeTopicsFeed,
+        ] = await Promise.all([
+            getFeed({ authSession, reqUserSub, feedSource: 'following', page: 0 }),
+            getFeed({ authSession, reqUserSub, feedSource: 'theaters', page: 0 }),
+            getFeed({ authSession, reqUserSub, feedSource: 'streaming', page: 0 }),
+            getFeed({ authSession, reqUserSub, feedSource: 'trending', page: 0 }),
+            // getTopics({ authSession, reqUserSub, source: 'discover', page: 0 }),
+        ]);
+
+        dispatch({ type: 'setHomeFollowingFeed', payload: {
+            content: homeFollowingFeed,
+            nextPage: 1,
+        }});
+        dispatch({ type: 'setHomeInTheatersFeed', payload: {
+            content: homeInTheatersFeed,
+            nextPage: 1,
+        }});
+        dispatch({ type: 'setHomeOnStreamingFeed', payload: {
+            content: homeOnStreamingFeed,
+            nextPage: 1,
+        }});
+        dispatch({ type: 'setHomeTopOfTheWeekFeed', payload: {
+            content: homeTopOfTheWeekFeed,
+            nextPage: 1,
+        }});
+        // dispatch({ type: 'setHomeTopicsFeed', payload: {
+        //     content: homeTopicsFeed,
+        //     nextPage: 1,
+        // }});
 
         // deferred load
         const [

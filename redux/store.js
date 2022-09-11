@@ -51,6 +51,28 @@ const initialState = {
     },
     emptyGlobalTopics: [],
 
+    homeFollowingFeed: {
+        content: [],
+        nextPage: 0,
+    },
+    homeInTheatersFeed: {
+        content: [],
+        nextPage: 0,
+    },
+    homeOnStreamingFeed: {
+        content: [],
+        nextPage: 0,
+    },
+    homeTopOfTheWeekFeed: {
+        content: [],
+        nextPage: 0,
+    },
+    homeTopicsFeed: {
+        content: [],
+        nextPage: 0,
+    },
+
+
     // GLOBAL
     appUpdateRequired: false,
     appUpdateRecommended: false,
@@ -156,6 +178,17 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, discoverAllTime: action.payload };
         case 'setEmptyGlobalTopics':
             return { ...state, emptyGlobalTopics: action.payload };
+
+        case 'setHomeFollowingFeed':
+            return { ...state, homeFollowingFeed: action.payload };
+        case 'setHomeInTheatersFeed':
+            return { ...state, homeInTheatersFeed: action.payload };
+        case 'setHomeOnStreamingFeed':
+            return { ...state, homeOnStreamingFeed: action.payload };
+        case 'setHomeTopicsFeed':
+            return { ...state, homeTopicsFeed: action.payload };
+        case 'setHomeTopOfTheWeekFeed':
+            return { ...state, homeTopOfTheWeekFeed: action.payload };
 
         // GLOBAL
         case 'setAppVersionInfo':
@@ -342,7 +375,17 @@ export const mapStateToProps = (state) => ({
     myWatchlistItems: state.myWatchlistItems,
 
     // FEEDS
+    discoverAllTime: state.discoverAllTime,
+    discoverMostRecent: state.discoverMostRecent,
+    discoverThisMonth: state.discoverThisMonth,
+    discoverThisWeek: state.discoverThisWeek,
     emptyGlobalTopics: state.emptyGlobalTopics,
+    
+    homeFollowingFeed: state.homeFollowingFeed,
+    homeInTheatersFeed: state.homeInTheatersFeed,
+    homeOnStreamingFeed: state.homeOnStreamingFeed,
+    homeTopOfTheWeekFeed: state.homeTopOfTheWeekFeed,
+    homeTopicsFeed: state.homeTopicsFeed,
 
     // GLOBAL
     appUpdateRequired: state.appUpdateRequired,

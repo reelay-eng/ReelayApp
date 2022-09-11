@@ -56,23 +56,6 @@ export const editTopic = async ({
     return resultPatch;
 }
 
-export const getGlobalTopics = async ({ page = 0 }) => {
-    console.log('Getting global topics...');
-    const routeGet = `${REELAY_API_BASE_URL}/topics?page=${page}&visibility=${FEED_VISIBILITY}`;
-    const topicsWithReelays = await fetchResults(routeGet, {
-        method: 'GET',
-        headers: { ...ReelayAPIHeaders, requsersub: reqUserSub },
-    });
-
-    const prepareTopicReelays = async (topic) => {
-        topic.reelays = await Promise.all(topic.reelays.map(prepareReelay));
-        return topic;
-    }
-
-    const preparedTopics = await Promise.all(topicsWithReelays.map(prepareTopicReelays));
-    return preparedTopics;
-}
-
 export const getSingleTopic = async (topicID, reqUserSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/topics/topic/${topicID}?visibility=${FEED_VISIBILITY}`;
     const topicWithReelays = await fetchResults(routeGet, {

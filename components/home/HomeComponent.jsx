@@ -77,7 +77,6 @@ const HomeComponent = ({ navigation }) => {
             getAllMyNotifications(reelayDBUser?.sub),
         ]);
 
-        const myClubs = myHomeContent?.clubs;
         const myFollowing = myHomeContent?.profile?.myFollowing;
         const myStreamingSubscriptions = myHomeContent?.profile?.myStreamingSubscriptions;
         
@@ -85,10 +84,10 @@ const HomeComponent = ({ navigation }) => {
         dispatch({ type: 'setMyHomeContent', payload: myHomeContent });
         dispatch({ type: 'setMyNotifications', payload: myNotifications });
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
-
-        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
         dispatch({ type: 'setMyFollowing', payload: myFollowing });
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
+
+        // TODO: update for home screen state changes
 
         setRefreshing(false);
     }
