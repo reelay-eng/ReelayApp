@@ -8,7 +8,7 @@ import FriendsAreWatching from './FriendsAreWatching';
 import TopicsCarousel from '../topics/TopicsCarousel';
 import OnStreaming from './OnStreaming';
 
-import { getHomeContent, getLatestAnnouncement } from '../../api/ReelayDBApi';
+import { getFeed, getHomeContent, getLatestAnnouncement } from '../../api/ReelayDBApi';
 import { getAllMyNotifications } from '../../api/NotificationsApi';
 import { AuthContext } from '../../context/AuthContext';
 
@@ -57,7 +57,7 @@ const HomeComponent = ({ navigation }) => {
         const unsubscribe = navigation.getParent().addListener('tabPress', e => {
             e.preventDefault();
             if (scrollRef.current) {
-                scrollRef.current.scrollTo({ y: 0, animated: true });
+                scrollRef.current.scrollTo({ y: 0, animated: false });
                 onRefresh();
             }
         });
@@ -87,9 +87,37 @@ const HomeComponent = ({ navigation }) => {
         dispatch({ type: 'setMyFollowing', payload: myFollowing });
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
 
-        // TODO: update for home screen state changes
-
         setRefreshing(false);
+
+        // deferred load
+        const [
+            homeFollowingFeed,
+            homeInTheatersFeed,
+            homeOnStreamingFeed,
+            homeTopOfTheWeekFeed,
+        ] = await Promise.all([
+            getFeed({ authSession, feedSource: 'following', reqUserSub, page: 0 }),
+            getFeed({ authSession, feedSource: 'theaters', reqUserSub, page: 0 }),
+            getFeed({ authSession, feedSource: 'streaming', reqUserSub, page: 0 }),
+            getFeed({ authSession, feedSource: 'trending', reqUserSub, page: 0 }),
+        ]);
+
+        dispatch({ type: 'setHomeFollowingFeed', payload: {
+            content: homeFollowingFeed,
+            nextPage: 1,
+        }});
+        dispatch({ type: 'setHomeInTheatersFeed', payload: {
+            content: homeInTheatersFeed,
+            nextPage: 1,
+        }});
+        dispatch({ type: 'setHomeOnStreamingFeed', payload: {
+            content: homeOnStreamingFeed,
+            nextPage: 1,
+        }});
+        dispatch({ type: 'setHomeTopOfTheWeekFeed', payload: {
+            content: homeTopOfTheWeekFeed,
+            nextPage: 1,
+        }});
     }
 
     const [refreshing, setRefreshing] = useState(false);
