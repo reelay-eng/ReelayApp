@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import { Platform, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 import styled from "styled-components/native";
 import { Icon } from "react-native-elements";
 import Constants from "expo-constants";

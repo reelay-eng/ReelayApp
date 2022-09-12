@@ -4,6 +4,9 @@
     },
     "build": {
         "development": {
+            "cache": {
+                "key": "invalidate"
+            },
             "distribution": "internal",
             "android": {
                 "gradleCommand": ":app:assembleDebug"
@@ -14,10 +17,16 @@
             "releaseChannel": "1.05.01-dev"
         },
         "preview": {
+            "cache": {
+                "key": "invalidate"
+            },
             "distribution": "internal",
             "releaseChannel": "1.05.01-internal"
         },
         "production": {
+            "cache": {
+                "key": "invalidate"
+            },
             "releaseChannel": "1.05.01"
         }
     },

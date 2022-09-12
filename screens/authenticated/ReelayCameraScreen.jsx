@@ -15,13 +15,14 @@ import ReelayFeedHeader from '../../components/feed/ReelayFeedHeader';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCameraRotate, faPhotoVideo } from '@fortawesome/free-solid-svg-icons';
+import { faCameraRotate, faPhotoVideo, faStop } from '@fortawesome/free-solid-svg-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { animate } from '../../hooks/animations';
 
 const { height, width } = Dimensions.get('window');
 const CAPTURE_SIZE = Math.floor(height * 0.07);
 const MEDIA_FLIP_ICON_SIZE = 36;
+const RING_ROTATE_INTERVAL_MS = 10000;
 
 const CameraContainer = styled(Pressable)`
     height: 100%;
@@ -31,12 +32,12 @@ const CameraContainer = styled(Pressable)`
 const FlipCameraButtonContainer = styled(TouchableOpacity)`
     bottom: 100px;
     position: absolute;
-    left: ${width / 2 - MEDIA_FLIP_ICON_SIZE - 80}px;
+    left: ${width / 2 + 80}px;
 `
 const MediaLibraryContainer = styled(View)`
     bottom: 100px;
     position: absolute;
-    left: ${width / 2 + 80}px;
+    left: ${width / 2 - MEDIA_FLIP_ICON_SIZE - 80}px;
 ` 
 const OverlayContainer = styled(View)`
     position: absolute;
@@ -48,12 +49,12 @@ const RecordButtonFadeCircle = styled(View)`
     bottom: -18px;
     background-color: white;
     border-radius: ${CAPTURE_SIZE}px;
-    height: ${CAPTURE_SIZE + 36}px;
+    height: ${CAPTURE_SIZE + 12}px;
     justify-content: center;
     left: -18px;
     opacity: 0.5;
     position: absolute;
-    width: ${CAPTURE_SIZE + 36}px;
+    width: ${CAPTURE_SIZE + 12}px;
 `
 const RecordButtonOuterCircle = styled(TouchableOpacity)`
     align-items: center;
@@ -64,12 +65,12 @@ const RecordButtonOuterCircle = styled(TouchableOpacity)`
     width: ${CAPTURE_SIZE}px;
 `
 const RecordButtonOuterRing = styled(LinearGradient)`
-    bottom: -6px;
+    bottom: 84px;
     background-color: white;
     border-radius: ${CAPTURE_SIZE}px;
     height: ${CAPTURE_SIZE + 12}px;
     justify-content: center;
-    left: -6px;
+    left: ${(width - CAPTURE_SIZE) / 2 - 6}px;
     position: absolute;
     width: ${CAPTURE_SIZE + 12}px;
 `
@@ -224,16 +225,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 console.log('stop recording complete');            
             }
         };  
-
-        const FadeCircle = () => {
-            useEffect(() => {
-                animate('250', 'linear', 'scaleXY');
-                return () => animate('250', 'linear', 'scaleXY');
-            }, []);
-            return (
-                <RecordButtonFadeCircle />
-            );
-        }
         
         const RecordProgress = () => {    
             const [forceRender, setForceRender] = useState(0);
@@ -243,6 +234,12 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             const renderMoment = moment();
             const timeSinceStarted = renderMoment.diff(recordStartMoment.current, 'ms');
             const progressRatio = timeSinceStarted / MAX_VIDEO_DURATION_MILLIS;
+
+            const rotationInRadians = (timeSinceStarted * 2 * Math.PI / RING_ROTATE_INTERVAL_MS);
+            const outerRingXStart = (Math.cos(rotationInRadians) + 1) / 2;
+            const outerRingYStart = (Math.sin(rotationInRadians) + 1) / 2;
+            const outerRingXEnd = 1 - outerRingXStart;
+            const outerRingYEnd = 1 - outerRingYStart;
 
             if (progressRatio >= 1.0) {
                 stopVideoRecording();
@@ -263,19 +260,24 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             return (
                 <Fragment>
                     <RecordProgressCurrentView progressRatio={progressRatio} topOffset={topOffset} />
+                    <RecordButtonOuterRing 
+                        colors={['#0789FD', '#FF4848']} 
+                        start={{ x: outerRingXStart, y: outerRingYStart }}
+                        end={{ x: outerRingXEnd, y: outerRingYEnd }}
+                    />
                 </Fragment>
             )
         }
         
         return (
             <Fragment>
-                <RecordButtonContainer>
-                    { isRecording && <FadeCircle /> }
-                    <RecordButtonOuterRing colors={['#0789FD', '#FF4848']} />
-                    <RecordButtonOuterCircle activeOpacity={0.7} onPress={onRecordButtonPress} />
-                </RecordButtonContainer>
                 <RecordProgressMaxView topOffset={topOffset} />
                 <RecordProgress />
+                <RecordButtonContainer>
+                    <RecordButtonOuterCircle activeOpacity={0.7} onPress={onRecordButtonPress}>
+                        { isRecording && <FontAwesomeIcon icon={faStop} size={24} color='black' /> }
+                    </RecordButtonOuterCircle>
+                </RecordButtonContainer>
             </Fragment>
         )
     }
@@ -299,9 +301,9 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
 
         return (
             <RecordView>
-                { showControls && <MediaLibraryPicker /> }
-                <RecordButton isRecording={isRecording} setIsRecording={setIsRecording} />
                 { showControls && <FlipCameraButton /> }
+                <RecordButton isRecording={isRecording} setIsRecording={setIsRecording} />
+                { showControls && <MediaLibraryPicker /> }
             </RecordView>
         );
     }

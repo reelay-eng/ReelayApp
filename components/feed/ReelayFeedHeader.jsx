@@ -81,6 +81,8 @@ const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 24px;
     line-height: 24px;
+    text-align: right;
+    width: 133px;
 `
 const FeedHeaderView = styled(SafeAreaView)`
     position: absolute;
@@ -124,7 +126,7 @@ const SortOptionsView = styled(View)`
     padding: 4px;
     position: absolute;
     top: ${props => props.topOffset - 20}px;
-    width: 165px;
+    width: 183px;
 `
 
 const SORT_OPTION_TEXT = {
@@ -143,6 +145,7 @@ export default ReelayFeedHeader = ({
     setSortMethod
 }) => {
     const topOffset = useSafeAreaInsets().top;
+    const canGoBack = navigation.getState().index > 0;
     const resetFilter = { category: 'all', option: 'unselect_all', display: 'all' };
 
     const [showFilters, setShowFilters] = useState(false);
@@ -302,7 +305,7 @@ export default ReelayFeedHeader = ({
         const SortableHeader = () => {
             return (
                 <DiscoveryBarLeftView>
-                    <BackButton />
+                    { canGoBack && <BackButton /> }
                     <ExpandSortPressable onPress={expandSort}>
                         <HeaderLeftSpacer />
                         <HeaderText>{getDisplayText()}</HeaderText>
