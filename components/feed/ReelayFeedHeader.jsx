@@ -99,6 +99,15 @@ const ResetFiltersText = styled(ReelayText.CaptionEmphasized)`
 const HeaderLeftSpacer = styled(View)`
     width: 10px;
 `
+const SortOptionSelectedCircle = styled(View)`
+    background-color: white;
+    border-radius: 5px;
+    height: 7px;
+    position: absolute;
+    top: 14px;
+    right: 10px;
+    width: 7px;
+`
 const SortOptionPressable = styled(TouchableOpacity)`
     padding-right: 30px;
     padding-top: 7px;
@@ -106,7 +115,7 @@ const SortOptionPressable = styled(TouchableOpacity)`
 `
 const SortOptionText = styled(ReelayText.Body2)`
     color: ${props => props.selected ? 'white' : 'gray'};
-    font-size: 16px;
+    font-size: 17px;
     text-align: right;
 `
 const SortOptionsView = styled(View)`
@@ -115,7 +124,7 @@ const SortOptionsView = styled(View)`
     padding: 4px;
     position: absolute;
     top: ${props => props.topOffset - 20}px;
-    width: 150px;
+    width: 165px;
 `
 
 const SORT_OPTION_TEXT = {
@@ -270,6 +279,7 @@ export default ReelayFeedHeader = ({
             return (
                 <SortOptionPressable onPress={setSortFilter}>
                     <SortOptionText selected={isSelected}>{displayText}</SortOptionText>
+                    { isSelected && <SortOptionSelectedCircle /> }
                 </SortOptionPressable>
             );
         }

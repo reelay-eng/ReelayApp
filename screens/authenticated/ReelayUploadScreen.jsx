@@ -72,7 +72,6 @@ const TitleBannerContainer = styled(View)`
 export default ReelayUploadScreen = ({ navigation, route }) => {
     const { 
         clubID, 
-        recordingLengthSeconds, 
         titleObj, 
         topicID, 
         videoURI, 
