@@ -95,7 +95,7 @@ export default ReelayFeed = ({ navigation,
             feedPager.current.scrollToOffset({
                 offset: 0, animated: false,
             });
-            refreshFeed({ shouldShowMessageToast: false });
+            refreshFeed(false);
         }
     }, [sortMethod]);
 
@@ -131,14 +131,14 @@ export default ReelayFeed = ({ navigation,
         }
     }
 
-    const loadSelectedFeed = async () => {
-        console.log("loading", feedSource, " feed....");
-        if (!stackEmpty && !forceRefresh) {
-          console.log("feed already loaded");
-          return;
-        }
-        await extendFeed();
-    }
+    // const loadSelectedFeed = async () => {
+    //     console.log("loading", feedSource, " feed....");
+    //     if (!stackEmpty && !forceRefresh) {
+    //       console.log("feed already loaded");
+    //       return;
+    //     }
+    //     await extendFeed();
+    // }
 
     const extendFeed = async () => {
         const page = (feedSource === 'discover')
@@ -216,8 +216,7 @@ export default ReelayFeed = ({ navigation,
         }
     };
 
-    const refreshFeed = async ({ shouldShowMessageToast = true }) => {
-        console.log('REFRESHING FEED'); 
+    const refreshFeed = async (shouldShowMessageToast = true) => {
         logAmplitudeEventProd('refreshFeed', {
             'source': feedSource,
         });    
