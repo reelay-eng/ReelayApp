@@ -186,7 +186,7 @@ const TutorialHeaderTextStyle = {
     color: 'white',
     fontSize: ScaleSize(38),
     lineHeight: ScaleSize(44),
-    fontWeight: 600,
+    fontWeight: '600',
     textAlign: 'center'
 }
 
