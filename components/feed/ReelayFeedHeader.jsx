@@ -81,6 +81,11 @@ const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 24px;
     line-height: 24px;
+`
+const HeaderTextSortable = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 24px;
+    line-height: 24px;
     text-align: right;
     width: 133px;
 `
@@ -133,7 +138,7 @@ const SORT_OPTION_TEXT = {
     mostRecent: 'most recent',
     thisWeek: 'this week',
     thisMonth: 'this month',
-    allTime: 'all time',
+    allTime: 'top all time',
 }
 
 export default ReelayFeedHeader = ({ 
@@ -166,7 +171,6 @@ export default ReelayFeedHeader = ({
 
     // todo: these will certainly change with the new home screen
     const sortableFeedSources = [ 'discover' ];
-
     const headerIsSortable = sortableFeedSources.includes(feedSource);
 
     const getDisplayText = () => {
@@ -255,14 +259,6 @@ export default ReelayFeedHeader = ({
         }
 
         const NonSortableHeader = () => {
-            if (feedSource === 'discover') {
-                return (
-                    <DiscoveryBarLeftView>
-                        <HeaderText>{'discover'}</HeaderText>
-                    </DiscoveryBarLeftView>
-                );    
-            }
-
             return (
                 <DiscoveryBarLeftView>
                     <BackButton />
@@ -308,7 +304,7 @@ export default ReelayFeedHeader = ({
                     { canGoBack && <BackButton /> }
                     <ExpandSortPressable onPress={expandSort}>
                         <HeaderLeftSpacer />
-                        <HeaderText>{getDisplayText()}</HeaderText>
+                        <HeaderTextSortable>{getDisplayText()}</HeaderTextSortable>
                         <HeaderLeftSpacer />
                         <FontAwesomeIcon icon={faChevronDown} color='white' size={14} />
                     </ExpandSortPressable>
