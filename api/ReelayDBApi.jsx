@@ -831,18 +831,6 @@ export const updateUserBio = async (userSub, bio) => {
     return resultPatch;
 };
 
-export const updateUserFestivalPreference = async (userSub, showFestivalsRow) => {
-    const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}/settings?showFilmFestivals=${showFestivalsRow}`;
-    const resultPatch = await fetchResults(routePatch, {
-        method: "PATCH",
-        headers: {
-            ...ReelayAPIHeaders,
-            requsersub: userSub,
-        },
-    });
-    return resultPatch;
-};
-
 export const updateProfilePic = async (sub, photoURI) => {
     const routePatch = `${REELAY_API_BASE_URL}/users/sub/${sub}/profilepic`;
     const updateBody = {

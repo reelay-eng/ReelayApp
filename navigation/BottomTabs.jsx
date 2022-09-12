@@ -6,7 +6,6 @@ import AccountInfoScreen from '../screens/authenticated/AccountInfoScreen';
 import AdminReportedIssuesScreen from '../screens/authenticated/AdminReportedIssuesScreen';
 import DeleteAccountScreen from '../screens/authenticated/DeleteAccountScreen';
 import EditAccountScreen from '../screens/authenticated/EditAccountScreen';
-import GeneralSettingsScreen from '../screens/authenticated/GeneralSettingsScreen';
 import HomeScreen from '../screens/authenticated/HomeScreen';
 import MyClubsScreen from '../screens/authenticated/MyClubsScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
@@ -53,7 +52,6 @@ export const ProfileTabNavigator = () => {
 			<ProfileTabStack.Screen name="MyProfileScreen" component={MyProfileScreen} options={commonOptions} />
 			<ProfileTabStack.Screen name="ProfileSettingsScreen" component={ProfileSettingsScreen} options={commonOptions} />
 			<ProfileTabStack.Screen name="TMDBCreditScreen" component={TMDBCreditScreen} options={commonOptions} />
-			<ProfileTabStack.Screen name="GeneralSettingsScreen" component={GeneralSettingsScreen} options={commonOptions} />
 			<ProfileTabStack.Screen name="NotificationSettingsScreen" component={NotificationSettingsScreen} options={commonOptions} />
 			<ProfileTabStack.Screen name="AccountInfoScreen" component={AccountInfoScreen} options={commonOptions} />
 			<ProfileTabStack.Screen name="DeleteAccountScreen" component={DeleteAccountScreen} options={commonOptions} />

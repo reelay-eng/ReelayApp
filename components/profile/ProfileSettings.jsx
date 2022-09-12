@@ -52,13 +52,6 @@ export const ProfileSettings = ({navigation}) => {
                     }}
                 />
                 <SettingEntry
-                    text="App Experience"
-                    iconName="aperture"
-                    onPress={() => {
-                        navigation.push("GeneralSettingsScreen");
-                    }}
-                />
-                <SettingEntry
                     text="Notifications"
                     iconName="notifications-outline"
                     onPress={() => {

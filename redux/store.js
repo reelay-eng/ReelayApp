@@ -241,19 +241,6 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, discoverMostRecent, myHomeContent }
         case 'setMyDismissalHistory':
             return { ...state, myDismissalHistory: action.payload }
-        case 'setStreamingStacks':
-            myHomeContent =  { ...state.myHomeContent };
-            if (!myHomeContent.discover || !myHomeContent.following) {
-                console.log('Invalid home content. Cannot set streaming stacks');
-                return state;
-            }
-
-            const { nextDiscover, nextFollowing } = action.payload;
-            if (nextDiscover) myHomeContent.discover.streaming = nextDiscover;
-            if (nextFollowing) myHomeContent.following.streaming = nextFollowing;
-            return { ...state, myHomeContent };
-        case 'setShowFestivalsRow':
-            return { ...state, showFestivalsRow: action.payload }            
         case 'setTopics': 
             const { discover, following, nextPage } = action.payload;
             myHomeContent = { ...state.myHomeContent };

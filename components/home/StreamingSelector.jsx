@@ -101,6 +101,7 @@ const VenueText = styled(ReelayText.Body2)`
 `
 
 export const StreamingSelectorGrid = ({ venueList = [], setRefreshing }) => {
+    const authSession = useSelector(state => state.authSession);
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const hasVenueList = (venueList?.length > 0);
@@ -145,22 +146,17 @@ export const StreamingSelectorGrid = ({ venueList = [], setRefreshing }) => {
         setRefreshing(true);
         await selectedVenues.current.map(postIfNewSubscription);
         await myStreamingPlatforms.map(removeIfOldSubscription);
-        const myStreamingStacksDiscover = await getFeed({ 
+        const homeOnStreamingFeed = await getFeed({ 
+            authSession,
             reqUserSub: reelayDBUser?.sub, 
             feedSource: 'streaming', 
             page: 0,
         });
-        const myStreamingStacksFollowing = await getFeed({ 
-            reqUserSub: reelayDBUser?.sub, 
-            feedSource: 'streaming', 
-            page: 0,
-        });
-
         const payload = { 
-            nextDiscover: myStreamingStacksDiscover, 
-            nextFollowing: myStreamingStacksFollowing,
+            content: homeOnStreamingFeed, 
+            nextPage: 1,
         };
-        dispatch({ type: 'setStreamingStacks', payload });
+        dispatch({ type: 'setHomeOnStreamingFeed', payload });
         setRefreshing(false);
     }
 
