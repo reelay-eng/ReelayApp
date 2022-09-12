@@ -2,7 +2,7 @@ import React, { Fragment, useContext, useEffect, useRef, useState } from 'react'
 import { AuthContext } from '../../context/AuthContext';
 
 import { Camera } from 'expo-camera';
-import { Dimensions, View, SafeAreaView, Pressable} from 'react-native';
+import { Dimensions, View, SafeAreaView, Pressable, TouchableOpacity} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 
 import styled from 'styled-components/native';
@@ -28,7 +28,7 @@ const CameraContainer = styled(Pressable)`
     position: absolute;
     width: 100%;
 `
-const FlipCameraButtonContainer = styled(Pressable)`
+const FlipCameraButtonContainer = styled(TouchableOpacity)`
     bottom: 100px;
     position: absolute;
     left: ${width / 2 - MEDIA_FLIP_ICON_SIZE - 80}px;
@@ -55,7 +55,7 @@ const RecordButtonFadeCircle = styled(View)`
     position: absolute;
     width: ${CAPTURE_SIZE + 36}px;
 `
-const RecordButtonOuterCircle = styled(Pressable)`
+const RecordButtonOuterCircle = styled(TouchableOpacity)`
     align-items: center;
     background-color: white;
     border-radius: ${Math.floor(CAPTURE_SIZE / 2)}px;
@@ -168,9 +168,9 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
 
         return (
             <MediaLibraryContainer>
-                <Pressable onPress={onPress}>
+                <TouchableOpacity onPress={onPress}>
                     <FontAwesomeIcon icon={faPhotoVideo} color='white' size={MEDIA_FLIP_ICON_SIZE} />
-                </Pressable>
+                </TouchableOpacity>
             </MediaLibraryContainer>
         );
     }
@@ -246,7 +246,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
 
             if (progressRatio >= 1.0) {
                 stopVideoRecording();
-                clearInterval(intervalIDRef?.current);
                 setIsRecording(false);
             }
                 
@@ -255,7 +254,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                     intervalIDRef.current = setInterval(() => {
                         updateCounter.current+= 1;
                         setForceRender(updateCounter.current);
-                    }, 50);        
+                    }, 25);        
                 } else {
                     clearInterval(intervalIDRef?.current);
                 }
@@ -263,7 +262,6 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
 
             return (
                 <Fragment>
-                    <RecordProgressMaxView topOffset={topOffset} />
                     <RecordProgressCurrentView progressRatio={progressRatio} topOffset={topOffset} />
                 </Fragment>
             )
@@ -276,6 +274,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                     <RecordButtonOuterRing colors={['#0789FD', '#FF4848']} />
                     <RecordButtonOuterCircle activeOpacity={0.7} onPress={onRecordButtonPress} />
                 </RecordButtonContainer>
+                <RecordProgressMaxView topOffset={topOffset} />
                 <RecordProgress />
             </Fragment>
         )
