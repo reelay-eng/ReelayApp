@@ -17,7 +17,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
-    "@amplitude/react-native": "^2.13.0",
+    "@amplitude/react-native": "^2.15.0",
     "@aws-sdk/client-cognito-identity": "^3.43.0",
     "@aws-sdk/client-s3": "^3.44.0",
     "@aws-sdk/credential-provider-cognito-identity": "^3.43.0",

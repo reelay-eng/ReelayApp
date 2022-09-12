@@ -1,8 +1,8 @@
 PODS:
-  - Amplitude (8.10.0):
+  - Amplitude (8.13.0):
     - AnalyticsConnector (~> 1.0.0)
-  - amplitude-react-native (2.13.0):
-    - Amplitude (= 8.10.0)
+  - amplitude-react-native (2.15.0):
+    - Amplitude (= 8.13.0)
     - React-Core
   - AnalyticsConnector (1.0.0)
   - ASN1Decoder (1.8.0)
@@ -817,8 +817,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  Amplitude: 2904f346250510b9e19a4e2262017bcf1d4368f9
-  amplitude-react-native: 985b13211d36cf03131289fb10e0e23bed98a409
+  Amplitude: 0a239d682bc9ec1eb7a7b318af2541130ecd4bd3
+  amplitude-react-native: 810f45fee51acc0d40e11f7248bc7c0e5dc9a673
   AnalyticsConnector: 4c386d5972ac9da86e22d668564dbbac97558754
   ASN1Decoder: 6110fdeacfdb41559b1481457a1645be716610aa
   boost: a7c83b31436843459a1961bfd74b96033dc77234
