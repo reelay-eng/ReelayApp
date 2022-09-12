@@ -191,7 +191,10 @@ function App() {
             interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
         });
 
-        LogBox.ignoreLogs(['Could not find image file']);
+        LogBox.ignoreLogs([
+            'Could not find image file',
+            'Constants\.platform\.ios\.model'
+        ]);
         
         Notifications.setNotificationHandler({
             handleNotification: async () => ({
@@ -343,13 +346,11 @@ function App() {
             homeInTheatersFeed,
             homeOnStreamingFeed,
             homeTopOfTheWeekFeed,
-            // homeTopicsFeed,
         ] = await Promise.all([
             getFeed({ authSession, reqUserSub, feedSource: 'following', page: 0 }),
             getFeed({ authSession, reqUserSub, feedSource: 'theaters', page: 0 }),
             getFeed({ authSession, reqUserSub, feedSource: 'streaming', page: 0 }),
             getFeed({ authSession, reqUserSub, feedSource: 'trending', page: 0 }),
-            // getTopics({ authSession, reqUserSub, source: 'discover', page: 0 }),
         ]);
 
         dispatch({ type: 'setHomeFollowingFeed', payload: {
@@ -368,10 +369,6 @@ function App() {
             content: homeTopOfTheWeekFeed,
             nextPage: 1,
         }});
-        // dispatch({ type: 'setHomeTopicsFeed', payload: {
-        //     content: homeTopicsFeed,
-        //     nextPage: 1,
-        // }});
 
         // deferred load
         const [
