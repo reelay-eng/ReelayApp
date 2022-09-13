@@ -12,9 +12,10 @@ import AddToStackButton from "../feed/AddToStackButton";
 import VenueIcon from '../utils/VenueIcon';
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faChevronDown, faChevronUp, faComments } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import { getRuntimeString } from "../utils/TitleRuntime";
 import { animate } from "../../hooks/animations";
+import { TopicsBannerIconSVG } from "../global/SVGs";
 
 import { BlurView } from 'expo-blur'
 
@@ -222,7 +223,7 @@ const TopicBanner = ({
     const TopicIcon = () => {
         return (
             <TopicIconContainer>
-                <FontAwesomeIcon icon={faComments} size={40} color='white' />
+                <TopicsBannerIconSVG />
             </TopicIconContainer>
         );
     }

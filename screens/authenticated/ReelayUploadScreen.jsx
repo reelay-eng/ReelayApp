@@ -26,6 +26,8 @@ import UploadDescriptionAndStarRating from '../../components/create-reelay/Uploa
 import { useFocusEffect } from '@react-navigation/native';
 import { addTitleToClub, getClubTitles } from '../../api/ClubsApi';
 import { showErrorToast } from '../../components/utils/toasts';
+import ReelayFeedHeader from '../../components/feed/ReelayFeedHeader';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
 
@@ -62,18 +64,14 @@ const UploadScreenContainer = styled(View)`
     background-color: black;
     justify-content: space-between;
 `
-const WhereAmIPostingContainer = styled(View)`
-    background-color: rgba(0,0,0,0.35);
-    border-radius: 16px;
-    margin: 10px;
-    margin-bottom: 0px;
-    padding: 12px;
+const TitleBannerContainer = styled(View)`
+    position: absolute;
+    top: ${props => props.topOffset + 36}px;
 `
 
 export default ReelayUploadScreen = ({ navigation, route }) => {
     const { 
         clubID, 
-        recordingLengthSeconds, 
         titleObj, 
         topicID, 
         videoURI, 
@@ -90,19 +88,13 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
  
     const descriptionRef = useRef('');
     const starCountRef = useRef(0);
-    console.log('recording length seconds: ', recordingLengthSeconds);
+    const topOffset = useSafeAreaInsets().top;
 
     // get the club we're (optionally) posting in
     const myClubs = useSelector(state => state.myClubs);
 
     // get the topic we're (optionally) posting in
-    const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
-    const followingTopics =useSelector(state => state.myHomeContent?.following?.topics);
-
-    const allTopics = [...discoverTopics, ...followingTopics];
-    const isNotDuplicate = (topic, index) => (index === allTopics.findIndex(nextTopic => nextTopic?.id === topic?.id));
-    const allUniqueTopics = allTopics.filter(isNotDuplicate);
-    
+    const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);    
     const uploadRequest = useSelector(state => state.uploadRequest);
     const uploadStage = useSelector(state => state.uploadStage);
     const uploadStartedStages = ['check-club-title', 'upload-ready', 'preparing-upload', 'uploading'];
@@ -135,7 +127,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             const reelayTopic = (topicID && clubID) 
                 ? reelayClub?.topics?.find(nextTopic => nextTopic.id === topicID)
             : (topicID) 
-                ? allUniqueTopics.find(nextTopic => nextTopic.id === topicID) 
+                ? discoverTopics.find(nextTopic => nextTopic.id === topicID) 
             : null;
     
             const destination = (clubID) ? 'InClub' 
@@ -240,21 +232,10 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     }
 
     const HeaderWithPoster = () => {
-        const TitleBannerContainer = styled(SafeAreaView)`
-            position: absolute;
-            top: 75px;
-        `
-        const TopLeftContainer = styled(SafeAreaView)`
-            position: absolute;
-            left: 10px;
-            top: 10px;
-        `
         return (
             <View>
-                <TopLeftContainer>
-                    <BackButton navigation={navigation}/>
-                </TopLeftContainer>
-                <TitleBannerContainer>
+                <ReelayFeedHeader feedSource={'upload'} navigation={navigation} />
+                <TitleBannerContainer topOffset={topOffset}>
                     <TitleBanner titleObj={titleObj} onCameraScreen={true} venue={venue} />
                 </TitleBannerContainer>
             </View>

@@ -4,6 +4,9 @@
     },
     "build": {
         "development": {
+            "cache": {
+                "key": "invalidate"
+            },
             "distribution": "internal",
             "android": {
                 "gradleCommand": ":app:assembleDebug"
@@ -11,14 +14,20 @@
             "ios": {
                 "buildConfiguration": "Debug"
             },
-            "releaseChannel": "1.05.00-dev"
+            "releaseChannel": "1.05.01-dev"
         },
         "preview": {
+            "cache": {
+                "key": "invalidate"
+            },
             "distribution": "internal",
-            "releaseChannel": "1.05.00-internal"
+            "releaseChannel": "1.05.01-internal"
         },
         "production": {
-            "releaseChannel": "1.05.00"
+            "cache": {
+                "key": "invalidate"
+            },
+            "releaseChannel": "1.05.01"
         }
     },
     "submit": {

@@ -372,13 +372,11 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
     }
 
     const reelayContentTypes = [
-        'clubTitles',
-        'clubTopics',
-        'theaters',
-        'streaming',
         'mostRecent', 
-        'topics', 
         'popularTitles',
+        'streaming',
+        'theaters',
+        'topics', 
         'topOfTheWeek',
     ];
 
@@ -387,46 +385,11 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
         return null;
     }
 
-    const { discover, following, clubs, global, profile } = homeContent;
-    if (!discover || !following || !clubs || !global || !profile) {
+    const { discover, following, global, profile } = homeContent;
+    if (!discover || !following || !global || !profile) {
         console.log('Error: home content missing');
         return null;
     }
-
-    const prepareAllClubs = async () => {
-        const preparedClubs = [];
-        for (const club of clubs) {
-            await prepareClubReelays(club);
-            await prepareClubActivities(club);
-            preparedClubs.push(club);
-        }
-        return preparedClubs;
-    }
-
-    const prepareClubActivities = async (club) => {
-        for (const member of club.members) {
-            member.activityType = 'member';
-        }
-        for (const title of club.titles) {
-            const { tmdbTitleID, titleType } = title;
-            const annotatedTitle = await fetchAnnotatedTitle({ tmdbTitleID, isSeries: titleType === 'tv' });
-            title.activityType = 'title';
-            title.title = annotatedTitle;
-        }
-        for (const topic of club.topics) {
-            topic.activityType = 'topic';
-        }
-    }
-
-    const prepareClubReelays = async (club) => {
-        const { titles, topics } = club;
-        const [preparedTitles, preparedTopics] = await Promise.all([
-            prepareTitlesAndTopics(titles),
-            prepareTitlesAndTopics(topics),
-        ]);
-        club.titles = preparedTitles;
-        club.topics = preparedTopics;
-    };
 
     const prepareHomeTabReelays = async (homeTab) => {
         const contentKeys = Object.keys(homeTab);
@@ -453,25 +416,22 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
         discoverPrepared,
         followingPrepared,
         globalPrepared,
-        clubsPrepared,
     ] = await Promise.all([
         prepareHomeTabReelays(discover),
         prepareHomeTabReelays(following),
         prepareFeed(global),
-        prepareAllClubs(),
     ]);
     
     return {
         discover: discoverPrepared,
         following: followingPrepared,
         global: globalPrepared,
-        clubs: clubsPrepared,
         profile,
         versionInfo
     };
 }
 
-export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
+export const getFeed = async ({ authSession, reqUserSub, feedSource, page = 0 }) => {
     console.log(`Getting most recent ${feedSource} reelays...`);
     // some kludge we'll sort out later in the discovery integration
     // changing frontend refs from 'global' to 'discover'
@@ -481,7 +441,7 @@ export const getFeed = async ({ reqUserSub, feedSource, page = 0 }) => {
     let fetchedStacks = await fetchResults(routeGet, { 
         method: 'GET',
         headers: {
-            ...ReelayAPIHeaders,
+            ...getReelayAuthHeaders(authSession),
             requsersub: reqUserSub,
         }, 
     });
@@ -680,7 +640,6 @@ export const prepareReelay = async (fetchedReelay) => {
         title: titleObj,
         topicID: fetchedReelay.topicID,
         topicTitle: fetchedReelay?.topicTitle,
-        watchlistAddCount: fetchedReelay?.watchlistAddCount ?? 0,
     };
 }
 
@@ -868,18 +827,6 @@ export const updateUserBio = async (userSub, bio) => {
             requsersub: userSub,
         },
         body: JSON.stringify(updateBody),
-    });
-    return resultPatch;
-};
-
-export const updateUserFestivalPreference = async (userSub, showFestivalsRow) => {
-    const routePatch = `${REELAY_API_BASE_URL}/users/sub/${userSub}/settings?showFilmFestivals=${showFestivalsRow}`;
-    const resultPatch = await fetchResults(routePatch, {
-        method: "PATCH",
-        headers: {
-            ...ReelayAPIHeaders,
-            requsersub: userSub,
-        },
     });
     return resultPatch;
 };

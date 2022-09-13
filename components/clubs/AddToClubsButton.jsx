@@ -46,7 +46,6 @@ export default AddToClubsButton = ({ navigation, showCircle=true, titleObj, reel
     });
     const inWatchlist = inWatchlistIndex !== -1;
 
-    const [isAddedToWatchlist, setIsAddedToWatchlist] = useState(inWatchlist);
     const [markedSeen, setMarkedSeen] = useState(inWatchlist && inWatchlist?.hasSeenTitle);
     const [drawerVisible, setDrawerVisible] = useState(false);
 
@@ -71,11 +70,11 @@ export default AddToClubsButton = ({ navigation, showCircle=true, titleObj, reel
     return (
         <ClubsButtonOuterContainer onPress={openAddToClubsDrawer}>
             <ClubsButtonCircleContainer 
-                isAddedToWatchlist={isAddedToWatchlist && !isMyReelay}
+                isAddedToWatchlist={inWatchlist && !isMyReelay}
                 showCircle={showCircle}
             >
-                { (isAddedToWatchlist || markedSeen) && <AddedToClubsIconSVG /> }
-                { (!isAddedToWatchlist && !markedSeen) && <AddToClubsIconSVG /> }
+                { (inWatchlist || markedSeen) && <AddedToClubsIconSVG /> }
+                { (!inWatchlist && !markedSeen) && <AddToClubsIconSVG /> }
             </ClubsButtonCircleContainer>
             { drawerVisible && (
                 <AddToClubsDrawer 
@@ -84,7 +83,6 @@ export default AddToClubsButton = ({ navigation, showCircle=true, titleObj, reel
                     reelay={reelay}
                     drawerVisible={drawerVisible}
                     setDrawerVisible={setDrawerVisible}
-                    setIsAddedToWatchlist={setIsAddedToWatchlist}
                     markedSeen={markedSeen}
                     setMarkedSeen={setMarkedSeen}
                 />

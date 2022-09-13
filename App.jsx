@@ -41,6 +41,7 @@ import {
     getStacksByCreator, 
     getLatestAnnouncement,
     getHomeContent,
+    getFeed,
 } from './api/ReelayDBApi';
 import { getAllMyNotifications } from './api/NotificationsApi';
 import { getWatchlistItems } from './api/WatchlistApi';
@@ -58,6 +59,8 @@ import { ensureLocalTitleDirExists } from './api/ReelayLocalTitleCache';
 import { fetchPopularMovies, fetchPopularSeries } from './api/TMDbApi';
 import moment from 'moment';
 import { getEmptyGlobalTopics } from './api/FeedApi';
+import { getAllClubsFollowing } from './api/ClubsApi';
+import { getTopics } from './api/TopicsApi';
 
 const LoadingContainer = styled(View)`
     align-items: center;
@@ -105,8 +108,8 @@ function App() {
      */
 
     useEffect(() => {
-        if (reelayDBUserID) loadMyProfile(reelayDBUserID);
-    }, [reelayDBUserID]);
+        if (reelayDBUserID && authSession?.accessToken) loadMyProfile(reelayDBUserID);
+    }, [reelayDBUserID, authSession]);
 
     useEffect(() => {
         const userSub = cognitoUser?.attributes?.sub;
@@ -188,7 +191,10 @@ function App() {
             interruptionModeAndroid: InterruptionModeAndroid.DoNotMix,
         });
 
-        LogBox.ignoreLogs(['Could not find image file']);
+        LogBox.ignoreLogs([
+            'Could not find image file',
+            'Constants\.platform\.ios\.model'
+        ]);
         
         Notifications.setNotificationHandler({
             handleNotification: async () => ({
@@ -312,7 +318,6 @@ function App() {
             getRegisteredUser(userSub),
         ]);
 
-        const myClubs = myHomeContent?.clubs ?? [];
         const { myFollowing, myStreamingSubscriptions } = myHomeContent?.profile ?? [];
         const mySettingsJSON = reelayDBUserLoaded?.settingsJSON;
         const mySettings = JSON.parse(mySettingsJSON) ?? {}; // 
@@ -330,16 +335,43 @@ function App() {
         dispatch({ type: 'setLatestNotice', payload: null }); 
         // triggers the reducer to create the latest notice from already-loaded app data
 
-        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
         dispatch({ type: 'setMySettings', payload: mySettings })
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
         dispatch({ type: 'setIsLoading', payload: false });
 
         console.log('dispatched first set of profile data');
 
+        const [
+            homeFollowingFeed,
+            homeInTheatersFeed,
+            homeOnStreamingFeed,
+            homeTopOfTheWeekFeed,
+        ] = await Promise.all([
+            getFeed({ authSession, reqUserSub, feedSource: 'following', page: 0 }),
+            getFeed({ authSession, reqUserSub, feedSource: 'theaters', page: 0 }),
+            getFeed({ authSession, reqUserSub, feedSource: 'streaming', page: 0 }),
+            getFeed({ authSession, reqUserSub, feedSource: 'trending', page: 0 }),
+        ]);
+
+        dispatch({ type: 'setHomeFollowingFeed', payload: {
+            content: homeFollowingFeed,
+            nextPage: 1,
+        }});
+        dispatch({ type: 'setHomeInTheatersFeed', payload: {
+            content: homeInTheatersFeed,
+            nextPage: 1,
+        }});
+        dispatch({ type: 'setHomeOnStreamingFeed', payload: {
+            content: homeOnStreamingFeed,
+            nextPage: 1,
+        }});
+        dispatch({ type: 'setHomeTopOfTheWeekFeed', payload: {
+            content: homeTopOfTheWeekFeed,
+            nextPage: 1,
+        }});
+
         // deferred load
         const [
-            donateLinksLoaded,
             emptyGlobalTopics,
             myCreatorStacksLoaded,
             myFollowersLoaded,
@@ -348,7 +380,6 @@ function App() {
             suggestedMovies,
             suggestedSeries,
         ] = await Promise.all([
-            getAllDonateLinks(),
             getEmptyGlobalTopics({ authSession, page: 0, reqUserSub: userSub }),
             getStacksByCreator(userSub),
             getFollowers(userSub),
@@ -360,7 +391,6 @@ function App() {
 
         console.log('loaded second set of profile data');
 
-        dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
         dispatch({ type: 'setEmptyGlobalTopics', payload: emptyGlobalTopics });
         dispatch({ type: 'setMyCreatorStacks', payload: myCreatorStacksLoaded });
         dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
@@ -373,6 +403,16 @@ function App() {
         dispatch({ type: 'setSuggestedMovieResults', payload: suggestedMovieResults });
         dispatch({ type: 'setSuggestedSeriesResults', payload: suggestedSeriesResults });
 
+        const [
+            donateLinksLoaded,
+            myClubs,
+        ] = await Promise.all([
+            getAllDonateLinks(),
+            getAllClubsFollowing({ authSession, reqUserSub: userSub }),
+        ])
+
+        dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
+        dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
         console.log('dispatched second set of profile data');
     }
 

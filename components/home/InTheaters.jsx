@@ -37,14 +37,14 @@ const InTheatersRowContainer = styled.ScrollView`
 
 const InTheaters = memo(({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const myStacksInTheaters = useSelector(state => state.myHomeContent?.discover?.theaters) ?? [];
+    const homeInTheatersFeed = useSelector(state => state.homeInTheatersFeed?.content) ?? [];
 
     const goToReelay = (index, titleObj) => {
-		if (myStacksInTheaters.length === 0) return;
+		if (homeInTheatersFeed.length === 0) return;
 		navigation.push("FeedScreen", {
+            feedSource: 'theaters',
 			initialFeedPos: index,
-            initialFeedSource: 'theaters',
-            preloadedStackList: myStacksInTheaters,
+            preloadedStackList: homeInTheatersFeed,
 		});
 
 		logAmplitudeEventProd('openTheatersFeed', {
@@ -59,16 +59,16 @@ const InTheaters = memo(({ navigation }) => {
                 <Icon type='font-awesome' name='ticket' size={24} color='white' />
                 <HeaderText>{'In theaters'}</HeaderText>
             </HeaderContainer>
-            { myStacksInTheaters.length > 0 && (
+            { homeInTheatersFeed.length > 0 && (
                 <InTheatersRowContainer horizontal showsHorizontalScrollIndicator={false}>
-                    { myStacksInTheaters.map((stack, index) => {
+                    { homeInTheatersFeed.map((stack, index) => {
                         return (
                             <InTheatersElement 
                                 key={index}
                                 index={index} 
                                 onPress={() => goToReelay(index, stack[0].title)} 
                                 stack={stack} 
-                                length={myStacksInTheaters.length}/>
+                                length={homeInTheatersFeed.length}/>
                         )
                     })}
                 </InTheatersRowContainer>
