@@ -22,7 +22,7 @@ import { animate } from '../../hooks/animations';
 const { height, width } = Dimensions.get('window');
 const CAPTURE_SIZE = Math.floor(height * 0.07);
 const MEDIA_FLIP_ICON_SIZE = 36;
-const RING_ROTATE_INTERVAL_MS = 10000;
+const RING_ROTATE_INTERVAL_MS = 6000;
 
 const CameraContainer = styled(Pressable)`
     height: 100%;

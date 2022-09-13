@@ -108,8 +108,8 @@ function App() {
      */
 
     useEffect(() => {
-        if (reelayDBUserID) loadMyProfile(reelayDBUserID);
-    }, [reelayDBUserID]);
+        if (reelayDBUserID && authSession?.accessToken) loadMyProfile(reelayDBUserID);
+    }, [reelayDBUserID, authSession]);
 
     useEffect(() => {
         const userSub = cognitoUser?.attributes?.sub;
