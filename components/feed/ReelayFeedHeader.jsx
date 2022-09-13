@@ -210,10 +210,9 @@ export default ReelayFeedHeader = ({
     selectedFilters = [],
     setSelectedFilters = () => {},
 }) => {
-    const dispatch = useDispatch();
+    // const dispatch = useDispatch();
     const canGoBack = navigation.getState().index > 0;
     const filterCategories = Object.keys(FilterMappings);
-    const resetFilter = { category: 'all', option: 'reset', display: 'all' };
     const topOffset = useSafeAreaInsets().top;
     const bottomOffset = useSafeAreaInsets().bottom;
 
@@ -227,8 +226,7 @@ export default ReelayFeedHeader = ({
         setShowAllFilters(false);
     }
 
-    const isResetOption = (filter) => (filter.option === 'reset');
-    const noFiltersSelected = (selectedFilters.length === 1 && isResetOption(selectedFilters[0]));
+    const noFiltersSelected = (selectedFilters.length === 0);
     const showFilterActionButton = (!noFiltersSelected || !showFilterBar);
 
     // todo: these will certainly change with the new home screen
@@ -258,32 +256,54 @@ export default ReelayFeedHeader = ({
     }
 
     const isFilterSelected = (filter) => {
-        const matchFilter = (nextFilter) => (nextFilter.display === filter.display);
+        const { category, option } = filter;
+        if (option === 'reset') {
+            if (category === 'all') return noFiltersSelected;
+            for (const nextFilter of selectedFilters) {
+                if (nextFilter.category === category) return false;
+            }
+            return true;
+        }
+
+        const matchFilter = (nextFilter) => (
+            nextFilter.category === filter.category && 
+            nextFilter.option === filter.option
+        );
         return selectedFilters.find(matchFilter);
     }
 
     const onSelectOrUnselectFilter = (filter) => {
+        const { category, option } = filter;
         const isSelecting = !isFilterSelected(filter);
-        const isResetOption = (filter.option === 'reset');
-        const removeResetOption = (nextFilter) => (nextFilter.option !== 'reset')
+        const isResetOption = (option === 'reset');
+
+        const removeFilter = (nextFilter) => (
+            nextFilter.category !== category || 
+            nextFilter.option !== option
+        );
+
         if (isResetOption) {
-            resetFilters();
+            resetFilters(category);
             return;
         }
 
         if (isSelecting) {
-            const nextSelectedFilters = [...selectedFilters, filter].filter(removeResetOption);
+            const nextSelectedFilters = [...selectedFilters, filter];
             setSelectedFilters(nextSelectedFilters);
         } else {
-            const removeFilter = (nextFilter) => (nextFilter.display !== filter.display);
             const nextSelectedFilters = selectedFilters.filter(removeFilter);
             setSelectedFilters(nextSelectedFilters);
         }
     }
 
-    const resetFilters = () => {
-        setSelectedFilters([resetFilter]);
-        // todo
+    const resetFilters = (category) => {
+        if (category === 'all') {
+            setSelectedFilters([]);
+            return;
+        }
+
+        const removeCategoryFilters = (nextFilter) => (nextFilter.category !== category);
+        setSelectedFilters(selectedFilters.filter(removeCategoryFilters));
     }
 
     const BackButton = () => {
@@ -395,10 +415,7 @@ export default ReelayFeedHeader = ({
     }
 
     const FilterBar = () => {
-        const renderFilter = (filter) => {
-            return <FilterOption key={filter.option} filter={filter} selected={false} setSelected={() => {}} />
-        }
-
+        const renderFilter = (filter) => <FilterOption key={filter.option} filter={filter} />;
         return (
             <FilterBarView topOffset={topOffset}>
                 { getTopFilters(selectedFilters).map(renderFilter) }
@@ -408,11 +425,13 @@ export default ReelayFeedHeader = ({
 
     const FilterCategory = ({ category }) => {
         const filterOptions = FilterMappings[category];
+        const renderFilter = (filter) => <FilterOption key={filter.option} filter={filter} />;
+
         return (
             <CategoryView>
                 <CategoryHeader>{category}</CategoryHeader>
                 <CategoryOptionsView>
-                    { filterOptions.map(filter => <FilterOption key={filter.option} filter={filter} /> )}
+                    { filterOptions.map(renderFilter)}
                 </CategoryOptionsView>
             </CategoryView>
         );

@@ -60,10 +60,9 @@ export default ReelayFeed = ({ navigation,
 
     const [feedPosition, setFeedPosition] = useState(initialFeedPos);
     const [refreshing, setRefreshing] = useState(false);
-    const resetFilter = { category: 'all', option: 'reset', display: 'all' };
 
     const [sortMethod, setSortMethod] = useState('mostRecent');
-    const [selectedFilters, setSelectedFilters] = useState([resetFilter]);
+    const [selectedFilters, setSelectedFilters] = useState();
 
     const isFirstRender = useRef(true);
     const initNextPage = (feedSource === 'discover') ? sortedThreadData[sortMethod].nextPage: 1;
