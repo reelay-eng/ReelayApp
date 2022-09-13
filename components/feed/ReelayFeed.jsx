@@ -40,6 +40,9 @@ export default ReelayFeed = ({ navigation,
     const feedPager = useRef();
     const { reelayDBUser } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
+    const myStreamingVenues = useSelector(state => state.myStreamingSubscriptions)
+        .map(subscription => subscription.platform);
+
 	const dispatch = useDispatch();
 
     const discoverMostRecent = useSelector(state => state.discoverMostRecent);
@@ -56,7 +59,10 @@ export default ReelayFeed = ({ navigation,
 
     const [feedPosition, setFeedPosition] = useState(initialFeedPos);
     const [refreshing, setRefreshing] = useState(false);
+    const resetFilter = { category: 'all', option: 'reset', display: 'all' };
+
     const [sortMethod, setSortMethod] = useState('mostRecent');
+    const [selectedFilters, setSelectedFilters] = useState([resetFilter]);
 
     const isFirstRender = useRef(true);
     const initNextPage = (feedSource === 'discover') ? sortedThreadData[sortMethod].nextPage: 1;
@@ -67,7 +73,6 @@ export default ReelayFeed = ({ navigation,
         : preloadedStackList;
 
     const [reelayThreads, setReelayThreads] = useState(initReelayThreads);
-    const stackEmpty = (!reelayThreads.length) || (pinnedReelay && reelayThreads.length === 1);
 
     const emptyGlobalTopics = useSelector(state => state.emptyGlobalTopics);
     const wovenReelayThreads = reelayThreads.reduce((curWovenThreadsObj, nextThread, index) => {
@@ -97,13 +102,7 @@ export default ReelayFeed = ({ navigation,
             });
             refreshFeed(false);
         }
-    }, [sortMethod]);
-
-    // useEffect(() => {
-    //     if (feedSource === 'discover' && nextPage.current === 1) {
-    //         checkDiscoverForUnseenReelays();
-    //     }
-    // }, [reelayThreads]);
+    }, [sortMethod, selectedFilters]);
 
     useFocusEffect(useCallback(() => {
         dispatch({ type: 'setTabBarVisible', payload: true }); // to ensure tab bar is always here
@@ -131,14 +130,27 @@ export default ReelayFeed = ({ navigation,
         }
     }
 
-    // const loadSelectedFeed = async () => {
-    //     console.log("loading", feedSource, " feed....");
-    //     if (!stackEmpty && !forceRefresh) {
-    //       console.log("feed already loaded");
-    //       return;
-    //     }
-    //     await extendFeed();
-    // }
+    const coalesceFiltersForAPI = () => {
+        return selectedFilters.reduce((reqFilters, nextFilter) => {
+            const { category, option } = nextFilter;
+            if (option === 'reset') return reqFilters;
+            if (option === 'on_my_streaming') {
+                if (reqFilters[category]) {
+                    reqFilters[category].push(...myStreamingVenues);
+                } else {
+                    reqFilters[category] = myStreamingVenues;
+                }
+                return reqFilters;
+            }
+
+            if (reqFilters[category]) {
+                reqFilters[category].push(option);
+            } else {
+                reqFilters[category] = [option];
+            }
+            return reqFilters;
+        }, {});
+    }
 
     const extendFeed = async () => {
         const page = (feedSource === 'discover')
@@ -334,6 +346,8 @@ export default ReelayFeed = ({ navigation,
             <ReelayFeedHeader 
                 feedSource={feedSource}
                 navigation={navigation}
+                selectedFilters={selectedFilters}
+                setSelectedFilters={setSelectedFilters}
                 sortMethod={sortMethod}
                 setSortMethod={setSortMethod}
             />
