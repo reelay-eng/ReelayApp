@@ -1,16 +1,4 @@
-import React from "react";
-import { ScrollView, TouchableOpacity, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import * as ReelayText from '../../components/global/Text';
-import styled from 'styled-components/native';
-
-import { LinearGradient } from "expo-linear-gradient";
-import ReelayFeedHeader from "../../components/feed/ReelayFeedHeader";
-import ReelayColors from "../../constants/ReelayColors";
-import { useFocusEffect } from "@react-navigation/native";
-import { useDispatch } from "react-redux";
-
-const FILTER_MAPPINGS = {
+export const FilterMappings = {
     'Type': [
         { category: 'titleType', option: 'reset', display: 'all' },
         { category: 'titleType', option: 'film', display: 'movie' },
@@ -85,7 +73,6 @@ const FILTER_MAPPINGS = {
     'Genre': [
         { category: 'keywords', option: 'reset', display: 'all' },
         { category: 'keywords', option: 'Action', display: 'Action' },
-        { category: 'keywords', option: 'Action & Adventure', display: 'Action & Adventure' },
         { category: 'keywords', option: 'Adventure', display: 'Adventure' },
         { category: 'keywords', option: 'Animation', display: 'Animation' },
         { category: 'keywords', option: 'Comedy', display: 'Comedy' },
@@ -102,152 +89,73 @@ const FILTER_MAPPINGS = {
         { category: 'keywords', option: 'Reality', display: 'Reality' },
         { category: 'keywords', option: 'Romance', display: 'Romance' },
         { category: 'keywords', option: 'Science Fiction', display: 'Science Fiction' },
-        { category: 'keywords', option: 'Sci-Fi & Fantasy', display: 'Sci-Fi & Fantasy' },
         { category: 'keywords', option: 'Soap', display: 'Soap' },
         { category: 'keywords', option: 'Talk', display: 'Talk' },
         { category: 'keywords', option: 'Thriller', display: 'Thriller' },
         { category: 'keywords', option: 'TV Movie', display: 'TV Movie' },
         { category: 'keywords', option: 'War', display: 'War' },
-        { category: 'keywords', option: 'War & Politics', display: 'War & Politics' },
         { category: 'keywords', option: 'Western', display: 'Western' },
     ],
 }
 
-const BottomGradient = styled(LinearGradient)`
-    position: absolute;
-    bottom: 0px;
-    opacity: 0.8;
-    height: 172px;
-    width: 100%;
-`
+export const coalesceFiltersForAPI = (selectedFilters) => {
+    return selectedFilters.reduce((reqFilters, nextFilter) => {
+        const { category, option } = nextFilter;
+        const optionsToAdd = [];
 
-const CategoryHeader = styled(ReelayText.H5Bold)`
-    color: white;
-    font-size: 18px;
-    line-height: 24px;
-    margin-left: 12px;
-`
-const CategoryView = styled(View)`
+        switch (option) {
+            case 'reset':
+                break;
+            // streaming options
+            case 'on_my_streaming':
+                optionsToAdd.push(...myStreamingVenues);
+                break;
+            case 'on_other_streaming':
+                const allStreamingVenues = streamingVenues.map(platform => platform.venue);
+                const removeMyStreaming = (nextVenue) => myStreamingVenues.findIndex(nextVenue) === -1;
+                const otherStreamingVenues = allStreamingVenues.filter(removeMyStreaming);
+                optionsToAdd.push(...otherStreamingVenues);
+                break;
+            // genre options
+            case 'Action':
+                optionsToAdd.push('Action', 'Action & Adventure');
+                break;
+            case 'Adventure':
+                optionsToAdd.push('Adventure', 'Action & Adventure');
+                break;
+            case 'Fantasy':
+                optionsToAdd.push('Fantasy', 'Sci-Fi & Fantasy');
+                break;    
+            case 'Science Fiction':
+                optionsToAdd.push('Science Fiction', 'Sci-Fi & Fantasy');
+                break;
+            case 'War':
+            case 'War & Politics':
+                optionsToAdd.push('War', 'War & Politics');
+                break;    
+            default:
+                optionsToAdd.push(option);
+                break;
+        }
 
-`
-const CategoryOptionsView = styled(View)`
-    background-color: black;
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 12px;
-    width: 100%;
-`
-const FilterPressable = styled(TouchableOpacity)`
-    align-items: center;
-    background-color: ${props => props.selected 
-        ? ReelayColors.reelayBlue 
-        : '#333333' 
-    };
-    border-color: #79747E;
-    border-radius: 8px;
-    border-width: ${props => props.allFilters ? 1.4 : 0}px;
-    height: 28px;
-    justify-content: center;
-    margin-right: 8px;
-    margin-top: 6px;
-    margin-bottom: 6px;
-    padding-left: 8px;
-    padding-right: 8px;
-    padding-top: 2px;
-`
-const FilterText = styled(ReelayText.Subtitle2)`
-    color: white;
-`
-const FilterScrollView = styled(ScrollView)`
-    top: ${props => props.topOffset}px;
-`
-const ScreenView = styled(View)`
-    align-items: center;
-    background-color: black;
-    height: 100%;
-    width: 100%;
-`
-const SearchBarPressable = styled(TouchableOpacity)`
-    align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
-    border-radius: 20px;
-    bottom: ${props => props.bottomOffset}px;
-    flex-direction: row;
-    height: 40px;
-    justify-content: center;
-    position: absolute;
-    width: 90%;
-`
-const SearchBarText = styled(ReelayText.Overline)`
-    color: white;
-`
+        if (reqFilters[category]) {
+            reqFilters[category].push(...optionsToAdd);
+        } else {
+            reqFilters[category] = optionsToAdd;
+        }
+        return reqFilters;
+    }, {});
+}
 
-export default FeedFiltersScreen = ({ navigation, route }) => {
-    const dispatch = useDispatch();
-    const feedSource = route?.params?.feedSource;
-    const filterCategories = Object.keys(FILTER_MAPPINGS);
-    const topOffset = useSafeAreaInsets().top + 60;
-    const bottomOffset = useSafeAreaInsets().bottom + 54;
-
-    useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: true });
-    });
-
-    const FilterCategory = ({ category }) => {
-        const filterOptions = FILTER_MAPPINGS[category];
-        return (
-            <CategoryView>
-                <CategoryHeader>{category}</CategoryHeader>
-                <CategoryOptionsView>
-                    { filterOptions.map(filter => <FilterOption key={filter.option} filter={filter} /> )}
-                </CategoryOptionsView>
-            </CategoryView>
-        );
-    }
-
-    const FilterOption = ({ filter }) => {
-        const onPress = () => {}
-        const selected = false;
-        return (
-            <FilterPressable onPress={onPress} selected={selected}>
-                <FilterText>{filter.display}</FilterText>
-            </FilterPressable>
-        );
-    }
-
-    const FilterList = () => {
-        return (
-            <FilterScrollView 
-                contentContainerStyle={{ paddingBottom: 240 }}
-                showsVerticalScrollIndicator={false} 
-                topOffset={topOffset}
-            >
-                { filterCategories.map(category => {
-                    return <FilterCategory key={category} category={category} /> 
-                })}
-            </FilterScrollView>
-        );
-    }
-
-    const SearchButton = () => {
-        const applyFilters = () => {}
-        return (
-            <SearchBarPressable bottomOffset={bottomOffset} onPress={applyFilters}>
-                <SearchBarText>{'Apply'}</SearchBarText>
-            </SearchBarPressable>
-        );
-    }
-
-    return (
-        <ScreenView>
-            <ReelayFeedHeader
-                feedSource={feedSource} 
-                navigation={navigation}
-                isFullScreen={true}
-            />
-            <FilterList />
-            <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
-            <SearchButton />
-        </ScreenView>
-    )
+export const getTopFilters = (selectedFilters) => {
+    return [
+        { category: 'all', option: 'reset', display: 'all' },
+        { category: 'community', option: 'following', display: 'following' },
+        { category: 'popularityAndRating', option: 'highly_rated', display: 'highly-rated' },
+        { category: 'titleType', option: 'film', display: 'movies' },
+        { category: 'titleType', option: 'tv', display: 'TV' },
+        { category: 'venue', option: 'on_my_streaming', display: 'on my streaming' },
+        { category: 'venue', option: 'theaters', display: 'in theaters' },
+        { category: 'all', option: 'see_all_filters', display: 'show all' },
+    ]
 }

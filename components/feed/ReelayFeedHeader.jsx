@@ -1,14 +1,47 @@
-import React, { Fragment, useState } from 'react';
-import { Pressable, SafeAreaView, TouchableOpacity, View } from 'react-native';
+import React, { Fragment, useEffect, useState } from 'react';
+import { Dimensions, Pressable, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faArrowLeft, faArrowRight, faChevronDown, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faArrowLeft, faArrowRight, faChevronDown, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FiltersSVG } from '../global/SVGs';
 import ReelayColors from '../../constants/ReelayColors';
+import { ScrollView } from 'react-native-gesture-handler';
+import { FilterMappings, getTopFilters } from '../utils/FilterMappings';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useDispatch } from 'react-redux';
 
+const { height, width } = Dimensions.get('window');
+
+const AllFiltersView = styled(View)`
+    align-items: center;
+    background-color: black;
+    width: ${width}px;
+`
+const BottomGradient = styled(LinearGradient)`
+    position: absolute;
+    bottom: -100px;
+    opacity: 0.8;
+    height: 172px;
+    width: 100%;
+`
+const CategoryHeader = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 18px;
+    line-height: 24px;
+    margin-left: 12px;
+`
+const CategoryView = styled(View)`
+`
+const CategoryOptionsView = styled(View)`
+    background-color: black;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 12px;
+    width: 100%;
+`
 const DiscoveryBarView = styled(Pressable)`
     align-items: center;
     flex-direction: row;
@@ -30,7 +63,7 @@ const DiscoveryBarRightView = styled(View)`
 `
 const ExpandFiltersPressable = styled(TouchableOpacity)`
     align-items: center;
-    background-color: ${props => props.showFilterBar ? 'black' : '#333333'};
+    background-color: ${props => props.showFilters ? 'black' : '#333333'};
     border-radius: 17px;
     height: 34px;
     justify-content: center;
@@ -69,6 +102,11 @@ const FilterPressable = styled(TouchableOpacity)`
     padding-right: 8px;
     padding-top: 2px;
 `
+const FilterScrollView = styled(ScrollView)`
+    background-color: black;
+    height: ${height-80}px;
+    top: ${props => props.topOffset - 4}px;
+`
 const FilterText = styled(ReelayText.Subtitle2)`
     color: white;
 `
@@ -94,6 +132,12 @@ const FeedHeaderView = styled(SafeAreaView)`
     position: absolute;
     width: 100%;
 `
+const FilterListBottomSpacer = styled(View)`
+    height: 180px;
+`
+const FilterListTopSpacer = styled(View)`
+    height: 16px;
+`
 const ResetFiltersPressable = styled(TouchableOpacity)`
     align-items: center;
     justify-content: center;
@@ -106,6 +150,20 @@ const ResetFiltersText = styled(ReelayText.CaptionEmphasized)`
 `
 const HeaderLeftSpacer = styled(View)`
     width: 10px;
+`
+const SearchBarPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 20px;
+    bottom: ${props => props.bottomOffset + 24}px;
+    flex-direction: row;
+    height: 40px;
+    justify-content: center;
+    position: absolute;
+    width: 90%;
+`
+const SearchBarText = styled(ReelayText.Overline)`
+    color: white;
 `
 const SortOptionSelectedCircle = styled(View)`
     background-color: white;
@@ -152,21 +210,23 @@ export default ReelayFeedHeader = ({
     selectedFilters = [],
     setSelectedFilters = () => {},
 }) => {
-    console.log('selected filters: ', selectedFilters);
-
-    const topOffset = useSafeAreaInsets().top;
+    const dispatch = useDispatch();
     const canGoBack = navigation.getState().index > 0;
+    const filterCategories = Object.keys(FilterMappings);
     const resetFilter = { category: 'all', option: 'reset', display: 'all' };
+    const topOffset = useSafeAreaInsets().top;
+    const bottomOffset = useSafeAreaInsets().bottom;
 
     const [showFilterBar, setShowFilterBar] = useState(false);
+    const [showAllFilters, setShowAllFilters] = useState(false);
     const [showSortOptions, setShowSortOptions] = useState(false);
 
     const closeAllFilters = () => {
         setShowFilterBar(false);
         setShowSortOptions(false);
+        setShowAllFilters(false);
     }
 
-    const expandFilters = () => setShowFilterBar(!showFilterBar);
     const isResetOption = (filter) => (filter.option === 'reset');
     const noFiltersSelected = (selectedFilters.length === 1 && isResetOption(selectedFilters[0]));
     const showFilterActionButton = (!noFiltersSelected || !showFilterBar);
@@ -195,19 +255,6 @@ export default ReelayFeedHeader = ({
             default: 
                 return '';
         }
-    }
-
-    const getDisplayFilters = () => {
-        return [
-            { category: 'all', option: 'reset', display: 'all' },
-            { category: 'community', option: 'following', display: 'following' },
-            { category: 'popularityAndRating', option: 'highly_rated', display: 'highly-rated' },
-            { category: 'titleType', option: 'film', display: 'movies' },
-            { category: 'titleType', option: 'tv', display: 'TV' },
-            { category: 'venue', option: 'on_my_streaming', display: 'on my streaming' },
-            { category: 'venue', option: 'theaters', display: 'in theaters' },
-            { category: 'all', option: 'see_all_filters', display: 'see all ' },
-        ]
     }
 
     const isFilterSelected = (filter) => {
@@ -334,9 +381,15 @@ export default ReelayFeedHeader = ({
 
     const ExpandFiltersButton = () => {
         return (
-            <ExpandFiltersPressable onPress={expandFilters} showFilterBar={showFilterBar}>
-                { !showFilterBar && <FiltersSVG /> }
-                { showFilterBar && <FontAwesomeIcon icon={faXmark} color='white' size={24} /> }
+            <ExpandFiltersPressable onPress={() => {
+                if (showAllFilters) {
+                    setShowAllFilters(false);
+                } else {
+                    setShowFilterBar(!showFilterBar);
+                }
+            }} showFilters={showFilterBar || showAllFilters}>
+                { !showFilterBar && !showAllFilters && <FiltersSVG /> }
+                { (showFilterBar || showAllFilters) && <FontAwesomeIcon icon={faXmark} color='white' size={24} /> }
             </ExpandFiltersPressable>
         );
     }
@@ -348,8 +401,40 @@ export default ReelayFeedHeader = ({
 
         return (
             <FilterBarView topOffset={topOffset}>
-                { getDisplayFilters().map(renderFilter) }
+                { getTopFilters(selectedFilters).map(renderFilter) }
             </FilterBarView>
+        );
+    }
+
+    const FilterCategory = ({ category }) => {
+        const filterOptions = FilterMappings[category];
+        return (
+            <CategoryView>
+                <CategoryHeader>{category}</CategoryHeader>
+                <CategoryOptionsView>
+                    { filterOptions.map(filter => <FilterOption key={filter.option} filter={filter} /> )}
+                </CategoryOptionsView>
+            </CategoryView>
+        );
+    }
+
+    const FilterList = () => {
+        return (
+            <AllFiltersView>
+                <FilterScrollView showsVerticalScrollIndicator={false} topOffset={topOffset}>
+                    <FilterListTopSpacer />
+                    { filterCategories.map(category => {
+                        return <FilterCategory key={category} category={category} /> 
+                    })}
+                    <FilterListBottomSpacer />
+                </FilterScrollView>
+                <BottomGradient 
+                    colors={["transparent", "#0d0d0d"]} 
+                    start={{ x: -1, y: 0.5 }}
+                    end={{ x: 1, y: 0.5 }}
+                />
+                <SearchButton />
+            </AllFiltersView>
         );
     }
 
@@ -357,12 +442,12 @@ export default ReelayFeedHeader = ({
         const { category, option, display } = filter;
         const isSelected = isFilterSelected(filter);
         const isAllFiltersOption = (option === 'see_all_filters');
-        const advanceToAllFiltersScreen = () => navigation.push('FeedFiltersScreen', { feedSource });
 
         const onPress = () => {
             if (isAllFiltersOption) {
                 setShowFilterBar(false);
-                advanceToAllFiltersScreen();
+                setShowAllFilters(true);
+                // advanceToAllFiltersScreen();
             } else {
                 onSelectOrUnselectFilter(filter);
             }
@@ -371,7 +456,7 @@ export default ReelayFeedHeader = ({
         return (
             <FilterPressable selected={isSelected} allFilters={isAllFiltersOption} onPress={onPress}>
                 <FilterText>{display}</FilterText>
-                { isAllFiltersOption && <FontAwesomeIcon icon={faArrowRight} size={14} color='white' /> }
+                { isAllFiltersOption && <FontAwesomeIcon icon={faArrowDown} size={14} color='white' /> }
             </FilterPressable>
         )
     }
@@ -386,7 +471,7 @@ export default ReelayFeedHeader = ({
         }
 
         const getAction = () => {
-            if (!showFilterBar) return expandFilters;
+            if (!showFilterBar) return () => setShowFilterBar(!showFilterBar);
             if (noFiltersSelected) return () => {};
             return resetFilters;
         }
@@ -398,10 +483,20 @@ export default ReelayFeedHeader = ({
         );
     }
 
+    const SearchButton = () => {
+        const applyFilters = () => {}
+        return (
+            <SearchBarPressable bottomOffset={bottomOffset} onPress={applyFilters}>
+                <SearchBarText>{'Apply'}</SearchBarText>
+            </SearchBarPressable>
+        );
+    }
+
     return (
         <FeedHeaderView>
             <HeaderFill topOffset={topOffset} />
             { showFilterBar && <FilterBar /> }
+            { showAllFilters && <FilterList /> }
             <DiscoveryBar />
         </FeedHeaderView>
     );

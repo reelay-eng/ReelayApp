@@ -12,7 +12,6 @@ import CreateClubScreen from '../screens/authenticated/CreateClubScreen';
 import CreateTopicScreen from '../screens/authenticated/CreateTopicScreen';
 import EditClubScreen from '../screens/authenticated/EditClubScreen';
 import FeedScreen from '../screens/authenticated/FeedScreen';
-import FeedFiltersScreen from '../screens/authenticated/FeedFiltersScreen';
 import NotificationScreen from '../screens/authenticated/NotificationScreen';
 import PinAnnouncementScreen from '../screens/authenticated/PinAnnouncementScreen';
 import ProfileFeedScreen from '../screens/authenticated/ProfileFeedScreen';
@@ -54,7 +53,6 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
             <CommonStack.Screen name='CreateTopicScreen' component={CreateTopicScreen} options={commonOptions} />
             <CommonStack.Screen name='EditClubScreen' component={EditClubScreen} options={commonOptions} />
             <CommonStack.Screen name='FeedScreen' component={FeedScreen} options={commonOptions} />
-            <CommonStack.Screen name='FeedFiltersScreen' component={FeedFiltersScreen} options={commonOptions} />
             <CommonStack.Screen name="NotificationScreen" component={NotificationScreen} options={commonOptions} />
             <CommonStack.Screen name='PinAnnouncementScreen' component={PinAnnouncementScreen} options={commonOptions} />
             <CommonStack.Screen name='ProfileFeedScreen' component={ProfileFeedScreen} options={commonOptions} />

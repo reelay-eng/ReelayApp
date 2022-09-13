@@ -14,6 +14,7 @@ import ReelayFeedHeader from './ReelayFeedHeader';
 import styled from 'styled-components/native';
 import EmptyTopic from './EmptyTopic';
 import { getDiscoverFeed } from '../../api/FeedApi';
+import { streamingVenues } from '../utils/VenueIcon';
 
 const { height, width } = Dimensions.get('window');
 const WEAVE_EMPTY_TOPIC_INDEX = 10;
@@ -128,28 +129,6 @@ export default ReelayFeed = ({ navigation,
             console.log(error);
             return;
         }
-    }
-
-    const coalesceFiltersForAPI = () => {
-        return selectedFilters.reduce((reqFilters, nextFilter) => {
-            const { category, option } = nextFilter;
-            if (option === 'reset') return reqFilters;
-            if (option === 'on_my_streaming') {
-                if (reqFilters[category]) {
-                    reqFilters[category].push(...myStreamingVenues);
-                } else {
-                    reqFilters[category] = myStreamingVenues;
-                }
-                return reqFilters;
-            }
-
-            if (reqFilters[category]) {
-                reqFilters[category].push(option);
-            } else {
-                reqFilters[category] = [option];
-            }
-            return reqFilters;
-        }, {});
     }
 
     const extendFeed = async () => {
