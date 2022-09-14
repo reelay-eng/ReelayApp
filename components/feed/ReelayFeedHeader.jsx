@@ -233,7 +233,7 @@ export default ReelayFeedHeader = ({
         setSelectedFilters(nextSelectedFilters);
     }
 
-    const resetFilters = (category) => {
+    const resetFilters = (category = 'all') => {
         if (category === 'all') {
             setSelectedFilters([]);
             return;
@@ -364,7 +364,7 @@ export default ReelayFeedHeader = ({
         const getAction = () => {
             if (!showFilterBar) return () => setShowFilterBar(!showFilterBar);
             if (noFiltersSelected) return () => {};
-            return resetFilters;
+            return () => resetFilters('all');
         }
 
         return (

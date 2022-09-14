@@ -1,10 +1,8 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Dimensions, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ReelayColors from '../../constants/ReelayColors';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -87,78 +85,117 @@ const SearchBarText = styled(ReelayText.Overline)`
 `
 
 export default AllFeedFilters = ({ closeAllFiltersList, selectedFilters, setSelectedFilters }) => {
-    const filterCategories = Object.keys(FilterMappings);
-    const topOffset = useSafeAreaInsets().top;
+    const allSelectedFiltersRef = useRef(selectedFilters);
     const bottomOffset = useSafeAreaInsets().bottom;
-    const [allSelectedFilters, setAllSelectedFilters] = useState(selectedFilters);
+    const topOffset = useSafeAreaInsets().top;
 
-    const isFilterSelected = (filter) => {
-        const { category, option } = filter;
-        if (option === 'reset') {
-            for (const nextFilter of allSelectedFilters) {
-                if (nextFilter.category === category) return false;
+    const AllFilterCategories = () => {
+        const filterCategories = Object.keys(FilterMappings);
+        const [allSelectedFilters, setAllSelectedFilters] = useState(selectedFilters);
+    
+        const isFilterSelected = (filter) => {
+            const { category, option } = filter;
+            if (option === 'reset') {
+                for (const nextFilter of allSelectedFilters) {
+                    if (nextFilter.category === category) return false;
+                }
+                return true;
             }
-            return true;
+    
+            const matchFilter = (nextFilter) => (
+                nextFilter.category === filter.category && 
+                nextFilter.option === filter.option
+            );
+    
+            return allSelectedFilters.find(matchFilter);
         }
-
-        const matchFilter = (nextFilter) => (
-            nextFilter.category === filter.category && 
-            nextFilter.option === filter.option
-        );
-
-        return allSelectedFilters.find(matchFilter);
-    }
-
-    const onSelectOrUnselectFilter = (filter) => {
-        const { category, option } = filter;
-        const isSelecting = !isFilterSelected(filter);
-        const isResetOption = (option === 'reset');
-
-        const removeFilter = (nextFilter) => (
-            nextFilter.category !== category || 
-            nextFilter.option !== option
-        );
-
-        if (isResetOption) {
-            resetFilters(category);
-            return;
+    
+        const onSelectOrUnselectFilter = (filter) => {
+            const { category, option } = filter;
+            const isSelecting = !isFilterSelected(filter);
+            const isResetOption = (option === 'reset');
+    
+            const removeFilter = (nextFilter) => (
+                nextFilter.category !== category || 
+                nextFilter.option !== option
+            );
+    
+            if (isResetOption) {
+                resetFilters(category);
+                return;
+            }
+    
+            const nextSelectedFilters = (isSelecting)
+                ? [...allSelectedFilters, filter]
+                : allSelectedFilters.filter(removeFilter);
+    
+            allSelectedFiltersRef.current = nextSelectedFilters;
+            setAllSelectedFilters(nextSelectedFilters);
         }
+    
+        const resetFilters = (category) => {
+            const removeCategoryFilters = (nextFilter) => (nextFilter.category !== category);
+            const nextSelectedFilters = allSelectedFilters.filter(removeCategoryFilters);
+            allSelectedFiltersRef.current = nextSelectedFilters;
+            setAllSelectedFilters(nextSelectedFilters);
+        }
+    
+        const FilterCategory = ({ category }) => {
+            const filterOptions = FilterMappings[category];
+            const renderFilter = (filter) => <FilterOption key={filter.option} filter={filter} />;
+    
+            return (
+                <CategoryView>
+                    <CategoryHeader>{category}</CategoryHeader>
+                    <CategoryOptionsView>
+                        { filterOptions.map(renderFilter)}
+                    </CategoryOptionsView>
+                </CategoryView>
+            );
+        }    
 
-        const nextSelectedFilters = (isSelecting)
-            ? [...allSelectedFilters, filter]
-            : allSelectedFilters.filter(removeFilter);
-
-        setAllSelectedFilters(nextSelectedFilters);
-    }
-
-    const resetFilters = (category) => {
-        const removeCategoryFilters = (nextFilter) => (nextFilter.category !== category);
-        const nextSelectedFilters = allSelectedFilters.filter(removeCategoryFilters);
-        setAllSelectedFilters(nextSelectedFilters);
-    }
-
-    const FilterCategory = ({ category }) => {
-        const filterOptions = FilterMappings[category];
-        const renderFilter = (filter) => <FilterOption key={filter.option} filter={filter} />;
-
+        const FilterOption = ({ filter }) => {
+            const { category, option, display } = filter;
+            const isSelected = isFilterSelected(filter);
+            const onPress = () => onSelectOrUnselectFilter(filter);
+    
+            return (
+                <FilterPressable selected={isSelected} onPress={onPress}>
+                    <FilterText>{display}</FilterText>
+                </FilterPressable>
+            )
+        }
+    
         return (
-            <CategoryView>
-                <CategoryHeader>{category}</CategoryHeader>
-                <CategoryOptionsView>
-                    { filterOptions.map(renderFilter)}
-                </CategoryOptionsView>
-            </CategoryView>
+            <View>
+                { filterCategories.map(category => {
+                    return <FilterCategory key={category} category={category} /> 
+                })}
+                {/* <SearchButton /> */}
+            </View>
         );
     }
+
 
     const FilterList = () => {
+
+        const SearchButton = () => {
+            const applyFilters = () => {
+                setSelectedFilters(allSelectedFiltersRef.current);
+                closeAllFiltersList();
+            }
+            return (
+                <SearchBarPressable bottomOffset={bottomOffset} onPress={applyFilters}>
+                    <SearchBarText>{'Apply'}</SearchBarText>
+                </SearchBarPressable>
+            );
+        }
+
         return (
             <AllFiltersView>
                 <FilterScrollView showsVerticalScrollIndicator={false} topOffset={topOffset}>
                     <FilterListTopSpacer />
-                    { filterCategories.map(category => {
-                        return <FilterCategory key={category} category={category} /> 
-                    })}
+                    <AllFilterCategories />
                     <FilterListBottomSpacer />
                 </FilterScrollView>
                 <BottomGradient 
@@ -168,30 +205,6 @@ export default AllFeedFilters = ({ closeAllFiltersList, selectedFilters, setSele
                 />
                 <SearchButton />
             </AllFiltersView>
-        );
-    }
-
-    const FilterOption = ({ filter }) => {
-        const { category, option, display } = filter;
-        const isSelected = isFilterSelected(filter);
-        const onPress = () => onSelectOrUnselectFilter(filter);
-
-        return (
-            <FilterPressable selected={isSelected} onPress={onPress}>
-                <FilterText>{display}</FilterText>
-            </FilterPressable>
-        )
-    }
-
-    const SearchButton = () => {
-        const applyFilters = () => {
-            setSelectedFilters(allSelectedFilters);
-            closeAllFiltersList();
-        }
-        return (
-            <SearchBarPressable bottomOffset={bottomOffset} onPress={applyFilters}>
-                <SearchBarText>{'Apply'}</SearchBarText>
-            </SearchBarPressable>
         );
     }
 

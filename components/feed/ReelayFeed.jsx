@@ -15,6 +15,7 @@ import styled from 'styled-components/native';
 import EmptyTopic from './EmptyTopic';
 import { getDiscoverFeed } from '../../api/FeedApi';
 import { streamingVenues } from '../utils/VenueIcon';
+import { coalesceFiltersForAPI } from '../utils/FilterMappings';
 
 const { height, width } = Dimensions.get('window');
 const WEAVE_EMPTY_TOPIC_INDEX = 10;
@@ -136,8 +137,18 @@ export default ReelayFeed = ({ navigation,
             : nextPage.current;
 
         const fetchedThreads = (feedSource === 'discover') 
-            ? await getDiscoverFeed({ authSession, filters: {}, page, reqUserSub: reelayDBUser?.sub })
-            : await getFeed({ authSession, feedSource, page, reqUserSub: reelayDBUser?.sub });
+            ? await getDiscoverFeed({ 
+                authSession, 
+                filters: coalesceFiltersForAPI(selectedFilters, myStreamingVenues), 
+                page, 
+                reqUserSub: reelayDBUser?.sub,
+            })
+            : await getFeed({ 
+                authSession, 
+                feedSource, 
+                page, 
+                reqUserSub: reelayDBUser?.sub, 
+            });
 
         // probably don't need to create this every time, but we want to avoid unnecessary state
         const titleIDEntries = {};
@@ -214,7 +225,7 @@ export default ReelayFeed = ({ navigation,
         const fetchedThreads = (feedSource === 'discover')
             ? await getDiscoverFeed({ 
                 authSession, 
-                filters: {}, 
+                filters: coalesceFiltersForAPI(selectedFilters, myStreamingVenues), 
                 page: 0, 
                 reqUserSub: reelayDBUser?.sub, 
                 sortMethod,

@@ -1,3 +1,5 @@
+const MAX_DISPLAY_TOP_FILTERS = 6;
+
 export const FilterMappings = {
     'Type': [
         { category: 'titleType', option: 'reset', display: 'all' },
@@ -24,8 +26,8 @@ export const FilterMappings = {
         { category: 'watchlist', option: 'reset', display: 'all' },
         { category: 'watchlist', option: 'on_my_watchlist', display: 'on my watchlist' },
         { category: 'watchlist', option: 'on_friends_watchlists', display: "on my friends' watchlists" },
-        { category: 'watchlist', option: 'marked_seen', display: 'marked as seen' },
-        { category: 'watchlist', option: 'marked_unseen', display: 'marked as unseen' },
+        { category: 'watchlist', option: 'marked_seen', display: 'marked seen' },
+        { category: 'watchlist', option: 'marked_unseen', display: 'not marked seen' },
     ],
     'Friends & Communities': [
         { category: 'community', option: 'reset', display: 'all' },
@@ -98,7 +100,7 @@ export const FilterMappings = {
     ],
 }
 
-export const coalesceFiltersForAPI = (selectedFilters) => {
+export const coalesceFiltersForAPI = (selectedFilters, myStreamingVenues) => {
     return selectedFilters.reduce((reqFilters, nextFilter) => {
         const { category, option } = nextFilter;
         const optionsToAdd = [];
@@ -148,14 +150,35 @@ export const coalesceFiltersForAPI = (selectedFilters) => {
 }
 
 export const getTopFilters = (selectedFilters) => {
-    return [
-        { category: 'all', option: 'reset', display: 'all' },
+    const topFilters = [
         { category: 'community', option: 'following', display: 'following' },
         { category: 'popularityAndRating', option: 'highly_rated', display: 'highly-rated' },
         { category: 'titleType', option: 'film', display: 'movies' },
         { category: 'titleType', option: 'tv', display: 'TV' },
         { category: 'venue', option: 'on_my_streaming', display: 'on my streaming' },
         { category: 'venue', option: 'theaters', display: 'in theaters' },
-        { category: 'all', option: 'see_all_filters', display: 'show all' },
-    ]
+    ];
+
+    const notInSelectedFilters = (nextTopFilter) => {
+        const matchSelectedFilter = (nextSelectedFilter) => {
+            return (
+                nextTopFilter.category === nextSelectedFilter.category &&
+                nextTopFilter.option === nextSelectedFilter.option
+            );
+        }
+        return selectedFilters.findIndex(matchSelectedFilter) === -1;
+    }
+
+    // get up to 6 selected filters
+    // if room, get remaining unselected top filters
+    const topFiltersUnselected = topFilters.filter(notInSelectedFilters);;
+    const displaySelectedFilters = [...selectedFilters, ...topFiltersUnselected]
+        .slice(0, MAX_DISPLAY_TOP_FILTERS);
+
+    const displayFilters = [
+        { category: 'all', option: 'reset', display: 'all' },
+        ...displaySelectedFilters,
+        { category: 'all', option: 'see_all_filters', display: 'show all ' },
+    ];
+    return displayFilters;
 }
