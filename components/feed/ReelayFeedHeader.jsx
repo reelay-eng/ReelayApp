@@ -96,7 +96,6 @@ const HeaderTextSortable = styled(ReelayText.H5Bold)`
     font-size: 24px;
     line-height: 24px;
     text-align: right;
-    width: 133px;
 `
 const FeedHeaderView = styled(SafeAreaView)`
     position: absolute;
@@ -140,7 +139,7 @@ const SortOptionsView = styled(View)`
     padding: 4px;
     position: absolute;
     top: ${props => props.topOffset - 20}px;
-    width: 183px;
+    width: 110%;
 `
 
 const SORT_OPTION_TEXT = {
