@@ -14,8 +14,8 @@ import ReelayFeedHeader from './ReelayFeedHeader';
 import styled from 'styled-components/native';
 import EmptyTopic from './EmptyTopic';
 import { getDiscoverFeed } from '../../api/FeedApi';
-import { streamingVenues } from '../utils/VenueIcon';
 import { coalesceFiltersForAPI } from '../utils/FilterMappings';
+import NoResults from './NoResults';
 
 const { height, width } = Dimensions.get('window');
 const WEAVE_EMPTY_TOPIC_INDEX = 10;
@@ -34,7 +34,6 @@ const RefreshView = styled(View)`
 export default ReelayFeed = ({ navigation, 
     initialStackPos = 0,
     initialFeedPos = 0,
-    forceRefresh = false, 
     feedSource = 'discover',
     preloadedStackList = [],
     pinnedReelay = null,
@@ -98,9 +97,11 @@ export default ReelayFeed = ({ navigation,
             isFirstRender.current = false;
         } else {
             setFeedPosition(0);
-            feedPager.current.scrollToOffset({
-                offset: 0, animated: false,
-            });
+            if (feedPager?.current) {
+                feedPager.current.scrollToOffset({
+                    offset: 0, animated: false,
+                });    
+            }
             refreshFeed(false);
         }
     }, [sortMethod, selectedFilters]);
@@ -300,12 +301,35 @@ export default ReelayFeed = ({ navigation,
         setFeedPosition(nextFeedPosition);
     }
 
+    const RefreshIndicator = () => {
+        return (
+            <RefreshView>
+                <ActivityIndicator />
+            </RefreshView>
+        );
+    }
+
     if (reelayThreads.length < 1) {
-        return <ActivityIndicator />;
+        return (
+            <FeedView>
+                {/* { selectedFilters.length > 0 && <NoResults /> } */}
+                { selectedFilters.length === 0 && <ActivityIndicator /> } 
+                <ReelayFeedHeader 
+                    feedSource={feedSource}
+                    hasResults={false}
+                    navigation={navigation}
+                    selectedFilters={selectedFilters}
+                    setSelectedFilters={setSelectedFilters}
+                    sortMethod={sortMethod}
+                    setSortMethod={setSortMethod}
+                />
+            </FeedView>
+        )
     }
 
     return (
         <FeedView>
+            { refreshing && <RefreshIndicator /> }
             { !refreshing && (
                 <FlatList
                     data={wovenReelayThreads}
@@ -327,13 +351,9 @@ export default ReelayFeed = ({ navigation,
                     windowSize={3}
                 />
             )}
-            { refreshing && (
-                <RefreshView>
-                    <ActivityIndicator />
-                </RefreshView>
-            )}
             <ReelayFeedHeader 
                 feedSource={feedSource}
+                hasResults={true}
                 navigation={navigation}
                 selectedFilters={selectedFilters}
                 setSelectedFilters={setSelectedFilters}

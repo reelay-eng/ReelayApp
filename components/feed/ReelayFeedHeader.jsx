@@ -10,6 +10,7 @@ import { FiltersSVG } from '../global/SVGs';
 import ReelayColors from '../../constants/ReelayColors';
 import { FilterMappings, getTopFilters } from '../utils/FilterMappings';
 import AllFeedFilters from './AllFeedFilters';
+import NoResults from './NoResults';
 
 const { height, width } = Dimensions.get('window');
 
@@ -152,6 +153,7 @@ const SORT_OPTION_TEXT = {
 export default ReelayFeedHeader = ({ 
     displayText, 
     feedSource = 'discover', 
+    hasResults = true,
     navigation, 
     sortMethod = 'mostRecent',
     setSortMethod = () => {},
@@ -406,6 +408,7 @@ export default ReelayFeedHeader = ({
                     setSelectedFilters={setSelectedFilters} 
                 /> 
             )}
+            { !hasResults && <NoResults resetFilters={resetFilters} /> }
             <DiscoveryBar />
         </FeedHeaderView>
     );

@@ -27,7 +27,7 @@ export const FilterMappings = {
     'Watchlist': [
         { category: 'watchlist', option: 'reset', display: 'all' },
         { category: 'watchlist', option: 'on_my_watchlist', display: 'on my watchlist' },
-        { category: 'watchlist', option: 'on_friends_watchlists', display: "on my friends' watchlists" },
+        // { category: 'watchlist', option: 'on_friends_watchlists', display: "on my friends' watchlists" },
         { category: 'watchlist', option: 'marked_seen', display: 'marked seen' },
         { category: 'watchlist', option: 'marked_unseen', display: 'not marked seen' },
     ],
