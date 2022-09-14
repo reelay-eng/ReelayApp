@@ -1,3 +1,5 @@
+import { streamingVenues } from "./VenueIcon";
+
 const MAX_DISPLAY_TOP_FILTERS = 6;
 
 export const FilterMappings = {
@@ -29,11 +31,11 @@ export const FilterMappings = {
         { category: 'watchlist', option: 'marked_seen', display: 'marked seen' },
         { category: 'watchlist', option: 'marked_unseen', display: 'not marked seen' },
     ],
-    'Friends & Communities': [
-        { category: 'community', option: 'reset', display: 'all' },
-        { category: 'community', option: 'following', display: 'my friends' },
-        { category: 'community', option: 'in_my_clubs', display: 'my clubs' },
-    ],
+    // 'Friends & Communities': [
+    //     { category: 'community', option: 'reset', display: 'all' },
+    //     { category: 'community', option: 'following', display: 'my friends' },
+    //     { category: 'community', option: 'in_my_clubs', display: 'my clubs' },
+    // ],
     'Popularity & Rating': [
         { category: 'popularityAndRating', option: 'reset', display: 'all' },
         { category: 'popularityAndRating', option: 'popular', display: 'popular' },
@@ -101,6 +103,7 @@ export const FilterMappings = {
 }
 
 export const coalesceFiltersForAPI = (selectedFilters, myStreamingVenues) => {
+    if (!selectedFilters) return {};
     return selectedFilters.reduce((reqFilters, nextFilter) => {
         const { category, option } = nextFilter;
         const optionsToAdd = [];
@@ -171,9 +174,10 @@ export const getTopFilters = (selectedFilters) => {
 
     // get up to 6 selected filters
     // if room, get remaining unselected top filters
-    const topFiltersUnselected = topFilters.filter(notInSelectedFilters);;
+    const topFiltersUnselected = topFilters.filter(notInSelectedFilters);
+    const displayFilterCount = Math.max(MAX_DISPLAY_TOP_FILTERS, selectedFilters?.length);
     const displaySelectedFilters = [...selectedFilters, ...topFiltersUnselected]
-        .slice(0, MAX_DISPLAY_TOP_FILTERS);
+        .slice(0, displayFilterCount);
 
     const displayFilters = [
         { category: 'all', option: 'reset', display: 'all' },

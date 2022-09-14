@@ -75,7 +75,7 @@ const RuntimeView = styled(View)`
     padding: 4px 8px 4px 8px; 
     position: absolute;
     right: 2px;
-    top: -20px;
+    top: 10px;
 `
 const SeeMorePressable = styled(TouchableOpacity)`
     padding: 0px 8px 0px 8px;

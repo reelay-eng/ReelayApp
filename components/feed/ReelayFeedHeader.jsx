@@ -45,13 +45,16 @@ const ExpandSortPressable = styled(TouchableOpacity)`
     align-items: center;
     flex-direction: row;
 `
+const FilterBarBackdrop = styled(Pressable)`
+    height: ${height}px;
+    position: absolute;
+    width: ${width}px;
+`
 const FilterBarView = styled(View)`
     background-color: black;
     flex-direction: row;
     flex-wrap: wrap;
     padding: 12px;
-    padding-top: 0px;
-    padding-bottom: 24px;
     position: absolute;
     top: ${props => props.topOffset + 46}px;
     width: 100%;
@@ -149,7 +152,6 @@ const SORT_OPTION_TEXT = {
 export default ReelayFeedHeader = ({ 
     displayText, 
     feedSource = 'discover', 
-    isFullScreen = false,
     navigation, 
     sortMethod = 'mostRecent',
     setSortMethod = () => {},
@@ -252,19 +254,7 @@ export default ReelayFeedHeader = ({
         );
     }
 
-    // todo: single, title, profile
-
     const DiscoveryBar = () => {
-        const FullScreenHeader = () => {
-            return (
-                <DiscoveryBarLeftView>
-                    <BackButton />
-                    <HeaderLeftSpacer />
-                    <HeaderText>{'apply filters'}</HeaderText>
-                </DiscoveryBarLeftView>
-            );
-        }
-
         const NonSortableHeader = () => {
             return (
                 <DiscoveryBarLeftView>
@@ -323,10 +313,9 @@ export default ReelayFeedHeader = ({
         return (
             <Fragment>
                 <DiscoveryBarView onPress={closeAllMenus} topOffset={topOffset}>
-                    { isFullScreen && <FullScreenHeader /> }
-                    { !isFullScreen && !headerIsSortable && <NonSortableHeader /> }
-                    { !isFullScreen && headerIsSortable && <SortableHeader /> }
-                    { !isFullScreen && (feedSource === 'discover') && (
+                    { !headerIsSortable && <NonSortableHeader /> }
+                    { headerIsSortable && <SortableHeader /> }
+                    { (feedSource === 'discover') && (
                         <DiscoveryBarRightView>
                             { showFilterActionButton && <FilterActionButton /> }
                             <ExpandFiltersButton />
@@ -378,6 +367,7 @@ export default ReelayFeedHeader = ({
         const renderFilter = (filter) => <FilterOption key={filter.option} filter={filter} />;
         return (
             <FilterBarView topOffset={topOffset}>
+                <FilterBarBackdrop onPress={closeAllMenus} />
                 { getTopFilters(selectedFilters).map(renderFilter) }
             </FilterBarView>
         );
@@ -392,7 +382,6 @@ export default ReelayFeedHeader = ({
             if (isAllFiltersOption) {
                 setShowFilterBar(false);
                 setShowAllFilters(true);
-                // advanceToAllFiltersScreen();
             } else {
                 onSelectOrUnselectFilter(filter);
             }
