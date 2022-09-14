@@ -4,8 +4,9 @@ import { useSelector } from 'react-redux';
 
 export default function FeedScreen({ navigation, route }) {
     const feedSource = route?.params?.feedSource ?? 'discover';
-    const initialStackPos = route?.params?.initialStackPos ?? 0;
+    const initialFeedFilters = route?.params?.initialFeedFilters ?? [];
     const initialFeedPos = route?.params?.initialFeedPos ?? 0;
+    const initialStackPos = route?.params?.initialStackPos ?? 0;
     const forceRefresh = route?.params?.forceRefresh ?? null;
     const pinnedReelay = route?.params?.pinnedReelay ?? null;
     const preloadedStackList = route?.params?.preloadedStackList ?? [];
@@ -14,8 +15,9 @@ export default function FeedScreen({ navigation, route }) {
         <ReelayFeed 
             forceRefresh={forceRefresh}
             feedSource={feedSource}
-            initialStackPos={initialStackPos}
+            initialFeedFilters={initialFeedFilters}
             initialFeedPos={initialFeedPos}
+            initialStackPos={initialStackPos}
             navigation={navigation}
             pinnedReelay={pinnedReelay}
             preloadedStackList={preloadedStackList}

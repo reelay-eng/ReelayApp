@@ -171,7 +171,6 @@ export default AllFeedFilters = ({ closeAllFiltersList, selectedFilters, setSele
                 { filterCategories.map(category => {
                     return <FilterCategory key={category} category={category} /> 
                 })}
-                {/* <SearchButton /> */}
             </View>
         );
     }

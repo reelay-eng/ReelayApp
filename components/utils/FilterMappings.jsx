@@ -39,8 +39,8 @@ export const FilterMappings = {
     'Popularity & Rating': [
         { category: 'popularityAndRating', option: 'reset', display: 'all' },
         { category: 'popularityAndRating', option: 'popular', display: 'popular' },
-        { category: 'popularityAndRating', option: 'deep_cut', display: 'deep cut' },
-        { category: 'popularityAndRating', option: 'hidden_gem', display: 'hidden gem' },
+        { category: 'popularityAndRating', option: 'deep_cut', display: 'deep cuts' },
+        { category: 'popularityAndRating', option: 'hidden_gem', display: 'hidden gems' },
         { category: 'popularityAndRating', option: 'highly_rated', display: 'highly rated' },
         { category: 'popularityAndRating', option: 'poorly_rated', display: 'poorly rated' },
         { category: 'popularityAndRating', option: 'controversial', display: 'controversial' },
@@ -150,6 +150,23 @@ export const coalesceFiltersForAPI = (selectedFilters, myStreamingVenues) => {
         }
         return reqFilters;
     }, {});
+}
+
+export const getHomeFilters = () => {
+    return [
+        { category: 'popularityAndRating', option: 'highly_rated', display: 'highly-rated' },
+        { category: 'titleType', option: 'film', display: 'movies' },
+        { category: 'titleType', option: 'tv', display: 'TV' },
+        { category: 'runtime', option: 'lt_90', display: '<90min' },
+        { category: 'venue', option: 'on_my_streaming', display: 'on my streaming' },
+        { category: 'venue', option: 'theaters', display: 'in theaters' },
+        { category: 'community', option: 'in_my_clubs', display: 'in my clubs' },
+        { category: 'popularityAndRating', option: 'hidden_gem', display: 'hidden gems' },
+        { category: 'keywords', option: 'Documentary', display: 'documentary' },
+        { category: 'language', option: 'non_english', display: 'non-english' },
+        { category: 'decade', option: 'in_2000s', display: '2000s' },
+        { category: 'decade', option: 'in_1990s', display: '1990s' },
+    ];
 }
 
 export const getTopFilters = (selectedFilters) => {

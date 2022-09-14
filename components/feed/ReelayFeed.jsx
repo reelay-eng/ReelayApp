@@ -15,7 +15,6 @@ import styled from 'styled-components/native';
 import EmptyTopic from './EmptyTopic';
 import { getDiscoverFeed } from '../../api/FeedApi';
 import { coalesceFiltersForAPI } from '../utils/FilterMappings';
-import NoResults from './NoResults';
 
 const { height, width } = Dimensions.get('window');
 const WEAVE_EMPTY_TOPIC_INDEX = 10;
@@ -32,19 +31,19 @@ const RefreshView = styled(View)`
 `
 
 export default ReelayFeed = ({ navigation, 
-    initialStackPos = 0,
+    initialFeedFilters = [],
     initialFeedPos = 0,
+    initialStackPos = 0,
     feedSource = 'discover',
     preloadedStackList = [],
     pinnedReelay = null,
 }) => {
+    const dispatch = useDispatch();
     const feedPager = useRef();
     const { reelayDBUser } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
     const myStreamingVenues = useSelector(state => state.myStreamingSubscriptions)
         .map(subscription => subscription.platform);
-
-	const dispatch = useDispatch();
 
     const discoverMostRecent = useSelector(state => state.discoverMostRecent);
     const discoverThisWeek = useSelector(state => state.discoverThisWeek);
@@ -62,7 +61,7 @@ export default ReelayFeed = ({ navigation,
     const [refreshing, setRefreshing] = useState(false);
 
     const [sortMethod, setSortMethod] = useState('mostRecent');
-    const [selectedFilters, setSelectedFilters] = useState();
+    const [selectedFilters, setSelectedFilters] = useState(initialFeedFilters);
 
     const isFirstRender = useRef(true);
     const initNextPage = (feedSource === 'discover') ? sortedThreadData[sortMethod].nextPage: 1;
@@ -93,7 +92,10 @@ export default ReelayFeed = ({ navigation,
         if (isFirstRender.current) {
             if (feedSource === 'discover' && nextPage.current === 1) {
                 checkDiscoverForUnseenReelays();
-            }    
+            }
+            if (feedSource === 'discover' && initialFeedFilters.length > 0) {
+                refreshFeed(false);
+            }
             isFirstRender.current = false;
         } else {
             setFeedPosition(0);
