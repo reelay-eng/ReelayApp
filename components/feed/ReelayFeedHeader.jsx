@@ -32,6 +32,7 @@ const DiscoveryBarRightView = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: flex-end;
+    padding-right: 6px;
 `
 const ExpandFiltersPressable = styled(TouchableOpacity)`
     align-items: center;
