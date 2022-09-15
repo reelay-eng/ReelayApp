@@ -169,16 +169,36 @@ export const editClub = async ({
     return resultPatch;
 }
 
-export const getAllMyClubActivities = async ({ authSession, page = 0, reqUserSub }) => {
-    const routeGet = `${REELAY_API_BASE_URL}/clubs/activities?page=${page}&visibility=${FEED_VISIBILITY}`;
-    const clubActivities = await fetchResults(routeGet, {
+export const getAllClubsFollowing = async ({ authSession, reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/clubs/following?visibility=${FEED_VISIBILITY}`;
+    const clubsWithActivities = await fetchResults(routeGet, {
         method: 'GET',
         headers: {
             ...getReelayAuthHeaders(authSession),
             requsersub: reqUserSub,
         },
     });
-    return clubActivities;
+
+    const prepareClubActivities = async (club) => {
+        club.titles = await Promise.all(club.titles.map(prepareClubTitle));
+        club.topics = await Promise.all(club.topics.map(prepareClubTopic));
+    }
+
+    const prepareClubTitle = async (clubTitle) => {
+        const { tmdbTitleID, titleType } = clubTitle;
+        const annotatedTitle = await fetchAnnotatedTitle({ tmdbTitleID, isSeries: titleType === 'tv' });
+        clubTitle.title = annotatedTitle;
+        clubTitle.reelays = await Promise.all(clubTitle.reelays.map(prepareReelay));
+        return clubTitle;
+    }
+
+    const prepareClubTopic = async (clubTopic) => {
+        clubTopic.reelays = await Promise.all(clubTopic.reelays.map(prepareReelay));
+        return clubTopic;
+    }
+
+    await Promise.all(clubsWithActivities.map(prepareClubActivities));
+    return clubsWithActivities;
 }
 
 export const getClubThreads = async ({ authSession, clubID, page = 0, reqUserSub }) => {

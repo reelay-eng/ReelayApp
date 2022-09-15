@@ -63,8 +63,8 @@ const ThreeReelays = ({ navigation, topOfTheWeek }) => {
 		if (!topOfTheWeek?.length) return;
 
 		navigation.push("FeedScreen", {
+            feedSource: 'trending',
 			initialFeedPos: index,
-            initialFeedSource: 'trending',
             preloadedStackList: topOfTheWeek,
 		});
 

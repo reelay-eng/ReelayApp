@@ -1,5 +1,3 @@
-import { faComments } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { Dimensions, TouchableOpacity, View } from 'react-native';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { TopicsGiantIconSVG } from '../global/SVGs';

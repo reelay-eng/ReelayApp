@@ -11,7 +11,7 @@ import { useSelector } from 'react-redux';
 import TopicDotMenuDrawer from './TopicDotMenuDrawer';
 import ReelayColors from '../../constants/ReelayColors';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faComments, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import ReelayThumbnail from '../global/ReelayThumbnail';
 import TitlePoster from '../global/TitlePoster';
 import { TopicsGiantIconSVG } from '../global/SVGs';
@@ -264,7 +264,6 @@ export default TopicCard = ({
                         <TopicDescription />
                     </ContentNoReelaysSectionView>
                     <ContentNoReelaysIconView>
-                        {/* <FontAwesomeIcon icon={faComments} size={140} color='white' /> */}
                         <TopicsGiantIconSVG />
                     </ContentNoReelaysIconView>
                 </Fragment>

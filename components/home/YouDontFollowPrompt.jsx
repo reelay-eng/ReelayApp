@@ -64,7 +64,7 @@ export default YouDontFollowPrompt = ({ navigation }) => {
         const welcomeReelay = await getReelay(welcomeReelaySub, 'dev');
         const preparedReelay = await prepareReelay(welcomeReelay);
         navigation.push("FeedScreen", {
-            initialRouteName: 'global',
+            initialRouteName: 'discover',
             initialFeedPos: 0,
             pinnedReelay: preparedReelay,
         });

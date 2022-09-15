@@ -51,6 +51,24 @@ const initialState = {
     },
     emptyGlobalTopics: [],
 
+    homeFollowingFeed: {
+        content: [],
+        nextPage: 0,
+    },
+    homeInTheatersFeed: {
+        content: [],
+        nextPage: 0,
+    },
+    homeOnStreamingFeed: {
+        content: [],
+        nextPage: 0,
+    },
+    homeTopOfTheWeekFeed: {
+        content: [],
+        nextPage: 0,
+    },
+
+
     // GLOBAL
     appUpdateRequired: false,
     appUpdateRecommended: false,
@@ -157,6 +175,15 @@ const appReducer = ( state = initialState, action) => {
         case 'setEmptyGlobalTopics':
             return { ...state, emptyGlobalTopics: action.payload };
 
+        case 'setHomeFollowingFeed':
+            return { ...state, homeFollowingFeed: action.payload };
+        case 'setHomeInTheatersFeed':
+            return { ...state, homeInTheatersFeed: action.payload };
+        case 'setHomeOnStreamingFeed':
+            return { ...state, homeOnStreamingFeed: action.payload };
+        case 'setHomeTopOfTheWeekFeed':
+            return { ...state, homeTopOfTheWeekFeed: action.payload };
+
         // GLOBAL
         case 'setAppVersionInfo':
             const { minVersionRequired, recommendedVersion } = action.payload;
@@ -214,19 +241,6 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, discoverMostRecent, myHomeContent }
         case 'setMyDismissalHistory':
             return { ...state, myDismissalHistory: action.payload }
-        case 'setStreamingStacks':
-            myHomeContent =  { ...state.myHomeContent };
-            if (!myHomeContent.discover || !myHomeContent.following) {
-                console.log('Invalid home content. Cannot set streaming stacks');
-                return state;
-            }
-
-            const { nextDiscover, nextFollowing } = action.payload;
-            if (nextDiscover) myHomeContent.discover.streaming = nextDiscover;
-            if (nextFollowing) myHomeContent.following.streaming = nextFollowing;
-            return { ...state, myHomeContent };
-        case 'setShowFestivalsRow':
-            return { ...state, showFestivalsRow: action.payload }            
         case 'setTopics': 
             const { discover, following, nextPage } = action.payload;
             myHomeContent = { ...state.myHomeContent };
@@ -342,7 +356,16 @@ export const mapStateToProps = (state) => ({
     myWatchlistItems: state.myWatchlistItems,
 
     // FEEDS
+    discoverAllTime: state.discoverAllTime,
+    discoverMostRecent: state.discoverMostRecent,
+    discoverThisMonth: state.discoverThisMonth,
+    discoverThisWeek: state.discoverThisWeek,
     emptyGlobalTopics: state.emptyGlobalTopics,
+
+    homeFollowingFeed: state.homeFollowingFeed,
+    homeInTheatersFeed: state.homeInTheatersFeed,
+    homeOnStreamingFeed: state.homeOnStreamingFeed,
+    homeTopOfTheWeekFeed: state.homeTopOfTheWeekFeed,
 
     // GLOBAL
     appUpdateRequired: state.appUpdateRequired,

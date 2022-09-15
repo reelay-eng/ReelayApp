@@ -24,7 +24,7 @@ import { showErrorToast, showMessageToast } from '../utils/toasts';
 import ClubPicture from '../global/ClubPicture';
 import MarkSeenButton from '../watchlist/MarkSeenButton';
 
-import { AddToClubsIconSVG, AddedToClubsIconSVG } from '../global/SVGs';
+import { AddToClubsIconSVG } from '../global/SVGs';
 import ProfilePicture from '../global/ProfilePicture';
 import { addToMyWatchlist } from '../../api/WatchlistApi';
 import { notifyClubOnTitleAdded } from '../../api/ClubNotifications';
@@ -152,7 +152,6 @@ export default AddToClubsDrawer = ({
     reelay,
     drawerVisible, 
     setDrawerVisible, 
-    setIsAddedToWatchlist,
     markedSeen,
     setMarkedSeen,
 }) => {
@@ -364,7 +363,6 @@ export default AddToClubsDrawer = ({
 
         const addToWatchlistWrapper = async () => {
             if (isAlreadyAdded) return;
-            setIsAddedToWatchlist(true);
             const addToWatchlistResult = await addToMyWatchlist({
                 authSession,
                 reqUserSub: reelayDBUser?.sub,

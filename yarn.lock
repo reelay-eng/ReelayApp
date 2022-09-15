@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@amplitude/react-native@^2.13.0":
-  version "2.13.0"
-  resolved "https://registry.yarnpkg.com/@amplitude/react-native/-/react-native-2.13.0.tgz#4d7a87d6c7fd5c7146e01a87fdcfab1499ece9f1"
-  integrity sha512-uoSkEyDePAifJCPhQn3LiU1mIhZPRoFExuUqJaUndJ/hsf7tpaLCAZMJTos4F1yQBHXlKuZCVSz96QxFPLibMg==
+"@amplitude/react-native@^2.15.0":
+  version "2.15.0"
+  resolved "https://registry.yarnpkg.com/@amplitude/react-native/-/react-native-2.15.0.tgz#1f19ade6fa24d024e9e085990931a429d872e5e0"
+  integrity sha512-nIqj5d5nQAvhgihnYehC6IB/4dShLn38+Oh8oga759fi1iaYn2LECgCo+/8IzKkekg2uO7OAuuzVwfwipOrTlw==
 
 "@ampproject/remapping@^2.1.0":
   version "2.2.0"
@@ -8596,6 +8596,14 @@ expo-constants@~13.2.0, expo-constants@~13.2.2, expo-constants@~13.2.3:
     "@expo/config" "~7.0.0"
     uuid "^3.3.2"
 
+expo-constants@~13.2.4:
+  version "13.2.4"
+  resolved "https://registry.yarnpkg.com/expo-constants/-/expo-constants-13.2.4.tgz#eab4a553f074b2c60ad7a158d3b82e3484a94606"
+  integrity sha512-Zobau8EuTk2GgafwkfGnWM6CmSLB7X8qnQXVuXe0nd3v92hfQUmRWGhJwH88uxXj3LrfqctM6PaJ8taG1vxfBw==
+  dependencies:
+    "@expo/config" "~7.0.0"
+    uuid "^3.3.2"
+
 expo-crypto@~11.0.0:
   version "11.0.0"
   resolved "https://registry.yarnpkg.com/expo-crypto/-/expo-crypto-11.0.0.tgz#e434ebede6bae20f5a5cf7d7ea99d41e7b67690e"
@@ -8794,10 +8802,10 @@ expo-screen-orientation@~4.3.0:
   dependencies:
     "@expo/config-plugins" "~5.0.0"
 
-expo-splash-screen@~0.16.1:
-  version "0.16.1"
-  resolved "https://registry.yarnpkg.com/expo-splash-screen/-/expo-splash-screen-0.16.1.tgz#d1e34a37d1e050831eea4988fbf7e75c166b4dc3"
-  integrity sha512-R3EUV5OM4RO+tb5XHgx9TNjaKCpHULo2CrIPbfZGnIdef3MeQucg4dNGw+Kiub9oKGPeExQfwtWqW+VXZqa0vg==
+expo-splash-screen@~0.16.2:
+  version "0.16.2"
+  resolved "https://registry.yarnpkg.com/expo-splash-screen/-/expo-splash-screen-0.16.2.tgz#38ecba9fc9fc2234ee38bcb818d8c88cd83cff9e"
+  integrity sha512-AHSRyGwu58WNt8shW5g/4cQ9e9IzUwNTC/WGWxshHCwgbWIJmHLvK3+D45MTmzGWteOoTI8oV7KSQKBNJSTiyw==
   dependencies:
     "@expo/configure-splash-screen" "^0.6.0"
     "@expo/prebuild-config" "~5.0.0"

@@ -9,8 +9,6 @@ import ReelayColors from '../../constants/ReelayColors';
 import Carousel from 'react-native-snap-carousel';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faComments } from '@fortawesome/free-solid-svg-icons';
 import { getTopicsByCreator } from '../../api/TopicsApi';
 
 const { width } = Dimensions.get('window');
@@ -70,7 +68,6 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
     const { reelayDBUser } = useContext(AuthContext);
 
     const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
-    const followingTopics = useSelector(state => state.myHomeContent?.following?.topics);
     const [topicsOnProfile, setTopicsOnProfile] = useState([]);
 
     const loadTopicsByCreator = async () => {
@@ -96,10 +93,6 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
         case 'discover':
             displayTopics = discoverTopics ?? [];
             headerText = 'Topics';
-            break;
-        case 'following':
-            displayTopics = followingTopics ?? [];
-            headerText = 'New topics'
             break;
         case 'profile':
             displayTopics = topicsOnProfile ?? [];

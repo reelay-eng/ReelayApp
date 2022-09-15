@@ -15,10 +15,8 @@ import { searchTitles } from '../../api/ReelayDBApi';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { useFocusEffect } from '@react-navigation/native';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faComments } from '@fortawesome/free-solid-svg-icons';
 import SuggestedTitlesGrid from '../../components/search/SuggestedTitlesGrid';
-import { LinearGradient } from 'expo-linear-gradient';
+import { TopicsBannerIconSVG } from '../../components/global/SVGs';
 
 const HeaderText = styled(ReelayText.H4Bold)`
     text-align: left;
@@ -91,7 +89,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     const TopicLabel = () => {
         return (
             <TopicTitleContainer>
-                <FontAwesomeIcon icon={faComments} size={30} color='white' />
+                <TopicsBannerIconSVG />
                 <TopicTitleText numberOfLines={2}>{topic?.title}</TopicTitleText>
             </TopicTitleContainer>
         );

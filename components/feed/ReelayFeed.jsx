@@ -13,6 +13,7 @@ import { useFocusEffect } from '@react-navigation/core';
 import ReelayFeedHeader from './ReelayFeedHeader';
 import styled from 'styled-components/native';
 import EmptyTopic from './EmptyTopic';
+import { getDiscoverFeed } from '../../api/FeedApi';
 
 const { height, width } = Dimensions.get('window');
 const WEAVE_EMPTY_TOPIC_INDEX = 10;
@@ -21,25 +22,51 @@ const FeedView = styled(View)`
     height: 100%;
     width: 100%;
 `
+const RefreshView = styled(View)`
+    align-items: center;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
+`
 
 export default ReelayFeed = ({ navigation, 
     initialStackPos = 0,
     initialFeedPos = 0,
     forceRefresh = false, 
-    initialFeedSource = 'discover',
-    preloadedStackList = null,
+    feedSource = 'discover',
+    preloadedStackList = [],
     pinnedReelay = null,
 }) => {
     const feedPager = useRef();
-    const nextPage = useRef(preloadedStackList?.length ? 1 : 0);
-
     const { reelayDBUser } = useContext(AuthContext);
+    const authSession = useSelector(state => state.authSession);
 	const dispatch = useDispatch();
 
-    const feedSource = initialFeedSource;
+    const discoverMostRecent = useSelector(state => state.discoverMostRecent);
+    const discoverThisWeek = useSelector(state => state.discoverThisWeek);
+    const discoverThisMonth = useSelector(state => state.discoverThisMonth);
+    const discoverAllTime = useSelector(state => state.discoverAllTime);
+
+    const sortedThreadData = {
+        mostRecent: discoverMostRecent,
+        thisWeek: discoverThisWeek,
+        thisMonth: discoverThisMonth,
+        allTime: discoverAllTime,
+    }
+
     const [feedPosition, setFeedPosition] = useState(initialFeedPos);
-    const [reelayThreads, setReelayThreads] = useState(preloadedStackList ?? []);
     const [refreshing, setRefreshing] = useState(false);
+    const [sortMethod, setSortMethod] = useState('mostRecent');
+
+    const isFirstRender = useRef(true);
+    const initNextPage = (feedSource === 'discover') ? sortedThreadData[sortMethod].nextPage: 1;
+    const nextPage = useRef(initNextPage);
+
+    const initReelayThreads = (feedSource === 'discover') 
+        ? sortedThreadData[sortMethod].content
+        : preloadedStackList;
+
+    const [reelayThreads, setReelayThreads] = useState(initReelayThreads);
     const stackEmpty = (!reelayThreads.length) || (pinnedReelay && reelayThreads.length === 1);
 
     const emptyGlobalTopics = useSelector(state => state.emptyGlobalTopics);
@@ -58,18 +85,29 @@ export default ReelayFeed = ({ navigation,
     }, { curWovenThreads: [] }).curWovenThreads;
 
     useEffect(() => {
-        loadSelectedFeed();
-    }, []);
-
-    useEffect(() => {
-        if (feedSource === 'discover' && nextPage.current === 1) {
-            checkDiscoverForUnseenReelays();
+        if (isFirstRender.current) {
+            if (feedSource === 'discover' && nextPage.current === 1) {
+                checkDiscoverForUnseenReelays();
+            }    
+            isFirstRender.current = false;
+        } else {
+            setFeedPosition(0);
+            feedPager.current.scrollToOffset({
+                offset: 0, animated: false,
+            });
+            refreshFeed(false);
         }
-    }, [reelayThreads]);
+    }, [sortMethod]);
+
+    // useEffect(() => {
+    //     if (feedSource === 'discover' && nextPage.current === 1) {
+    //         checkDiscoverForUnseenReelays();
+    //     }
+    // }, [reelayThreads]);
 
     useFocusEffect(useCallback(() => {
         dispatch({ type: 'setTabBarVisible', payload: true }); // to ensure tab bar is always here
-        if (initialFeedSource === 'discover') {
+        if (feedSource === 'discover') {
             AsyncStorage.setItem('lastOnDiscoverFeed', new Date().toISOString());
             dispatch({ type: 'setDiscoverHasUnseenReelays', payload: false });
 
@@ -93,36 +131,56 @@ export default ReelayFeed = ({ navigation,
         }
     }
 
-    const loadSelectedFeed = async () => {
-        console.log("loading", feedSource, " feed....");
-        if (!stackEmpty && !forceRefresh) {
-          console.log("feed already loaded");
-          return;
-        }
-        await extendFeed();
-    }
+    // const loadSelectedFeed = async () => {
+    //     console.log("loading", feedSource, " feed....");
+    //     if (!stackEmpty && !forceRefresh) {
+    //       console.log("feed already loaded");
+    //       return;
+    //     }
+    //     await extendFeed();
+    // }
 
     const extendFeed = async () => {
-        const page = nextPage.current;
-        const fetchedStacks = await getFeed({ feedSource: feedSource, reqUserSub: reelayDBUser?.sub, page });
+        const page = (feedSource === 'discover')
+            ? discoverMostRecent.nextPage
+            : nextPage.current;
+
+        const fetchedThreads = (feedSource === 'discover') 
+            ? await getDiscoverFeed({ authSession, filters: {}, page, reqUserSub: reelayDBUser?.sub })
+            : await getFeed({ authSession, feedSource, page, reqUserSub: reelayDBUser?.sub });
 
         // probably don't need to create this every time, but we want to avoid unnecessary state
-        // const titleIDEntries = {};
-        // const addToTitleEntries = (reelayStack) => titleIDEntries[reelayStack[0].title.id] = 1;
-        // reelayThreads.forEach(addToTitleEntries);
+        const titleIDEntries = {};
+        const addToTitleEntries = (fetchedThread) => titleIDEntries[fetchedThread[0].title.id] = 1;
+        reelayThreads.forEach(addToTitleEntries);
 
-        // const notAlreadyInStack = (fetchedStack) => {
-        //     const alreadyInStack = titleIDEntries[fetchedStack[0].title.id];
-        //     if (alreadyInStack) console.log('Filtering stack ', fetchedStack[0].title.id);
-        //     return !alreadyInStack;
-        // }
+        const notAlreadyInStack = (fetchedThread) => {
+            const alreadyInStack = titleIDEntries[fetchedThread[0].title.id];
+            if (alreadyInStack) console.log('Filtering stack ', fetchedThread[0].title.id);
+            return !alreadyInStack;
+        }
 
-        // const filteredStacks = fetchedStacks.filter(notAlreadyInStack);
-        const newStackList = [...reelayThreads, ...fetchedStacks];
+        const filteredThreads = fetchedThreads.filter(notAlreadyInStack);
+        const allThreads = [...reelayThreads, ...filteredThreads];
+
+        if (feedSource === 'discover') {
+            let dispatchAction = 'setDiscoverMostRecent';
+            if (sortMethod === 'thisWeek') dispatchAction = 'setDiscoverThisWeek';
+            if (sortMethod === 'thisMonth') dispatchAction = 'setDiscoverThisMonth';
+            if (sortMethod === 'allTime') dispatchAction = 'setDiscoverAllTime';
+
+            const payload = {
+                content: allThreads,
+                filters: {},
+                nextPage: page + 1,
+            }
+            console.log('dispatching payload with threads: ', allThreads.length);
+            dispatch({ type: dispatchAction, payload });
+        }
+
         nextPage.current = page + 1;
-
-        setReelayThreads(newStackList);
-        return fetchedStacks;
+        setReelayThreads(allThreads);
+        return allThreads;
     }
 
     const getItemLayout = (stack, index) => {
@@ -158,22 +216,46 @@ export default ReelayFeed = ({ navigation,
         }
     };
 
-    const refreshFeed = async () => {
-        console.log('REFRESHING FEED'); 
+    const refreshFeed = async (shouldShowMessageToast = true) => {
         logAmplitudeEventProd('refreshFeed', {
             'source': feedSource,
         });    
         setRefreshing(true);
-        const fetchedStacks = await getFeed({ 
-            feedSource: feedSource, 
-            reqUserSub: reelayDBUser?.sub, 
-            page: 0 
-        });
+        const fetchedThreads = (feedSource === 'discover')
+            ? await getDiscoverFeed({ 
+                authSession, 
+                filters: {}, 
+                page: 0, 
+                reqUserSub: reelayDBUser?.sub, 
+                sortMethod,
+            })
+            : await getFeed({ 
+                feedSource: feedSource, 
+                reqUserSub: reelayDBUser?.sub, 
+                page: 0 
+            });
 
-        setReelayThreads(fetchedStacks);
-        nextPage.current = 1;
+        if (feedSource === 'discover') {
+            let dispatchAction = 'setDiscoverMostRecent';
+            if (sortMethod === 'thisWeek') dispatchAction = 'setDiscoverThisWeek';
+            if (sortMethod === 'thisMonth') dispatchAction = 'setDiscoverThisMonth';
+            if (sortMethod === 'allTime') dispatchAction = 'setDiscoverAllTime';
+
+            const payload = {
+                content: fetchedThreads,
+                filters: {},
+                nextPage: 1,
+            }
+            dispatch({ type: dispatchAction, payload });
+        }
+
+        nextPage.current = 1;    
+        setReelayThreads(fetchedThreads);
         setRefreshing(false);
-        showMessageToast('You\'re at the top', 'top');
+        
+        if (shouldShowMessageToast) {
+            showMessageToast('You\'re at the top', 'top');
+        }
     }
 
     const renderStack = ({ item, index }) => {
@@ -223,28 +305,37 @@ export default ReelayFeed = ({ navigation,
 
     return (
         <FeedView>
-            <FlatList
-                data={wovenReelayThreads}
-                getItemLayout={getItemLayout}
-                horizontal={false}
-                initialNumToRender={2}
-                initialScrollIndex={initialFeedPos}
-                keyboardShouldPersistTaps={"handled"}
-                keyExtractor={(stack) => `${stack[0]?.sub ?? stack?.id}`}
-                maxToRenderPerBatch={2}
-                onEndReached={extendFeed}
-                onRefresh={refreshFeed}
-                onScroll={onFeedSwiped}
-                pagingEnabled={true}
-                refreshing={refreshing}
-                ref={feedPager}
-                renderItem={renderStack}
-                showsVerticalScrollIndicator={false}
-                windowSize={3}
-            />
+            { !refreshing && (
+                <FlatList
+                    data={wovenReelayThreads}
+                    getItemLayout={getItemLayout}
+                    horizontal={false}
+                    initialNumToRender={2}
+                    initialScrollIndex={initialFeedPos}
+                    keyboardShouldPersistTaps={"handled"}
+                    keyExtractor={(stack) => `${stack?.[0]?.sub ?? stack?.id}`}
+                    maxToRenderPerBatch={2}
+                    onEndReached={extendFeed}
+                    onRefresh={refreshFeed}
+                    onScroll={onFeedSwiped}
+                    pagingEnabled={true}
+                    refreshing={refreshing}
+                    ref={feedPager}
+                    renderItem={renderStack}
+                    showsVerticalScrollIndicator={false}
+                    windowSize={3}
+                />
+            )}
+            { refreshing && (
+                <RefreshView>
+                    <ActivityIndicator />
+                </RefreshView>
+            )}
             <ReelayFeedHeader 
                 feedSource={feedSource}
                 navigation={navigation}
+                sortMethod={sortMethod}
+                setSortMethod={setSortMethod}
             />
         </FeedView>
     );

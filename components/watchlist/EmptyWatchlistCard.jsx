@@ -73,13 +73,13 @@ const TopAndBottomSpacer = styled(View)`
 `
 
 export default EmptyWatchlistCard = ({ navigation }) => {
-    const topOfTheWeek = useSelector(state => state.myHomeContent?.discover?.topOfTheWeek);
+    const topOfTheWeek = useSelector(state => state.homeTopOfTheWeekFeed?.content);
 
     const AddFromReelaysButton = () => {
         const advanceToBrowseReelays = () => {
             navigation.push("FeedScreen", {
+                feedSource: 'trending',
                 initialFeedPos: 0,
-                initialFeedSource: 'trending',
                 preloadedStackList: topOfTheWeek,
             });    
         }
