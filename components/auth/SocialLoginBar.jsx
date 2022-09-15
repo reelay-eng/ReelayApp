@@ -18,6 +18,15 @@ import { getUserByEmail } from "../../api/ReelayDBApi";
 import { makeRedirectUri } from "expo-auth-session";
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 
+import * as WebBrowser from 'expo-web-browser';
+WebBrowser.maybeCompleteAuthSession();
+
+const iosURLScheme = Constants.manifest.extra.googleiOSURLScheme;
+
+const redirectUri = makeRedirectUri({
+    native: `${iosURLScheme}:/`
+});
+
 const ButtonRowContainer = styled(View)`
     align-items: center;
     flex-direction: row;
@@ -59,17 +68,17 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
             console.log('Auth account found: ', authAccountMatch);
             const { reelayDBUserID } = authAccountMatch;
             setReelayDBUserID(reelayDBUserID);
-            saveAndRegisterSocialAuthToken(reelayDBUserID);
+            await saveAndRegisterSocialAuthToken(reelayDBUserID);
         } else {
             // social login not registered
             const existingUser = await getUserByEmail(email);
             if (existingUser?.sub) {
                 // user completed initial sign up through cognito
                 setReelayDBUserID(existingUser?.sub);
-                saveAndRegisterSocialAuthToken(existingUser?.sub);
+                await saveAndRegisterSocialAuthToken(existingUser?.sub);
                 // link the social auth account 
                 // apple will only give us an email address the first time we signin with apple
-                registerSocialAuthAccount({ method, email, fullName, appleUserID, googleUserID });
+                await registerSocialAuthAccount({ method, email, fullName, appleUserID, googleUserID });
                 console.log('Existing user signed in');
             } else {
                 console.log('Totally new user');
@@ -108,11 +117,11 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
     const GoogleAuthButton = () => {
         const expoClientId = Constants.manifest.extra.googleExpoClientId;
         const iosClientId = Constants.manifest.extra.googleiOSClientId;
-        const iosURLScheme = Constants.manifest.extra.googleiOSURLScheme;
 
         const [request, response, promptAsync] = Google.useAuthRequest({ 
             expoClientId, 
             iosClientId, 
+            redirectUri
         });        
         const onSignInResponse = async () => {
             const accessToken = response?.authentication?.accessToken;
