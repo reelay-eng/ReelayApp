@@ -3,7 +3,7 @@ import { Dimensions, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import ReelayColors from '../../constants/ReelayColors';
 import { ScrollView } from 'react-native-gesture-handler';
 import { FilterMappings } from '../utils/FilterMappings';
@@ -11,7 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 const { height, width } = Dimensions.get('window');
 
-const AllFiltersView = styled(View)`
+const AllFiltersView = styled(SafeAreaView)`
     align-items: center;
     background-color: black;
     width: ${width}px;
@@ -58,7 +58,6 @@ const FilterPressable = styled(TouchableOpacity)`
 const FilterScrollView = styled(ScrollView)`
     background-color: black;
     height: ${height-80}px;
-    top: ${props => props.topOffset - 4}px;
 `
 const FilterText = styled(ReelayText.Subtitle2)`
     color: white;
@@ -73,11 +72,14 @@ const SearchBarPressable = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${ReelayColors.reelayBlue};
     border-radius: 20px;
-    bottom: ${props => props.bottomOffset + 24}px;
+    bottom: ${props => props.bottomOffset + 100}px;
     flex-direction: row;
     height: 40px;
     justify-content: center;
     position: absolute;
+    shadow-offset: 4px 4px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
     width: 90%;
 `
 const SearchBarText = styled(ReelayText.Overline)`

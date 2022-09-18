@@ -33,7 +33,7 @@ export const FilterMappings = {
     ],
     'Friends & Communities': [
         { category: 'community', option: 'reset', display: 'all' },
-        // { category: 'community', option: 'following', display: 'my friends' },
+        { category: 'community', option: 'following', display: 'my friends' },
         { category: 'community', option: 'in_my_clubs', display: 'in my clubs' },
     ],
     'Popularity & Rating': [
@@ -171,8 +171,7 @@ export const getHomeFilters = () => {
 
 export const getTopFilters = (selectedFilters) => {
     const topFilters = [
-        // { category: 'community', option: 'following', display: 'following' },
-        { category: 'community', option: 'in_my_clubs', display: 'in my clubs' },
+        { category: 'community', option: 'following', display: 'following' },
         { category: 'popularityAndRating', option: 'highly_rated', display: 'highly-rated' },
         { category: 'titleType', option: 'film', display: 'movies' },
         { category: 'titleType', option: 'tv', display: 'TV' },
