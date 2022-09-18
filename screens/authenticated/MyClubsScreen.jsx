@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { SafeAreaView, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
@@ -22,28 +22,28 @@ import ReelayColors from '../../constants/ReelayColors';
 import Constants from 'expo-constants';
 import moment from 'moment';
 import EmptyClubsCard from '../../components/clubs/EmptyClubsCard';
-import EmptyClubActivityCard from '../../components/clubs/EmptyClubActivityCard';
+// import EmptyClubActivityCard from '../../components/clubs/EmptyClubActivityCard';
 import { NotificationIconSVG, SearchIconSVG } from '../../components/global/SVGs';
 
 const CLUB_PIC_SIZE = 72;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
-const ActiveOptionText = styled(ReelayText.H6)`
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 2px;
-`
-const BackgroundView = styled(View)`
-    align-items: center;
-    background-color: black;
-    border-radius: 8px;
-    justify-content: center;
-    flex-direction: row;
-    height: 48px;
-    padding: 2px;
-    width: 100%;
-`
+// const ActiveOptionText = styled(ReelayText.H6)`
+//     color: white;
+//     font-size: 18px;
+//     font-weight: bold;
+//     margin-bottom: 2px;
+// `
+// const BackgroundView = styled(View)`
+//     align-items: center;
+//     background-color: black;
+//     border-radius: 8px;
+//     justify-content: center;
+//     flex-direction: row;
+//     height: 48px;
+//     padding: 2px;
+//     width: 100%;
+// `
 const BottomGradient = styled(LinearGradient)`
     position: absolute;
     bottom: 0px;
@@ -57,12 +57,12 @@ const AddClubIconView = styled(View)`
     height: ${CLUB_PIC_SIZE}px;
     width: ${CLUB_PIC_SIZE}px;
 `
-const ButtonView = styled(TouchableOpacity)`
-    align-items: center;
-    justify-content: center;
-    height: 44px;
-    width: 37.5%;
-`
+// const ButtonView = styled(TouchableOpacity)`
+//     align-items: center;
+//     justify-content: center;
+//     height: 44px;
+//     width: 37.5%;
+// `
 const ClubNameText = styled(ReelayText.H6Emphasized)`
     color: white;
     padding-bottom: 2px;
@@ -111,15 +111,15 @@ const ClubRowUnreadIndicator = styled(View)`
     height: 10px;
     width: 10px;
 `
-const ColumnsView = styled(View)`
-    flex-direction: row;
-    width: 100%;
-`
-const ColumnView = styled(View)`
-    display: flex;
-    flex: 1;
-    width: 50%;
-`
+// const ColumnsView = styled(View)`
+//     flex-direction: row;
+//     width: 100%;
+// `
+// const ColumnView = styled(View)`
+//     display: flex;
+//     flex: 1;
+//     width: 50%;
+// `
 const EmptyClubsView = styled(View)`
     align-items: center;
     display: flex;
@@ -157,18 +157,22 @@ const MyClubsScreenView = styled(View)`
     height: 100%;
     width: 100%;
 `
+const RefreshView = styled(MyClubsScreenView)`
+    align-items: center;
+    justify-content: center;
+`
 const TopRightButtonPressable = styled(TouchableOpacity)`
     align-items: center;
     justify-content: center;
     margin-right: 10px;
 `
-const OptionText = styled(ReelayText.H6)`
-    color: gray;
-    font-size: 18px;
-`
-const Spacer = styled(View)`
-    height: 30px;
-`
+// const OptionText = styled(ReelayText.H6)`
+//     color: gray;
+//     font-size: 18px;
+// `
+// const Spacer = styled(View)`
+//     height: 30px;
+// `
 const TopBarView = styled(SafeAreaView)`
     align-items: center;
     flex-direction: row;
@@ -194,15 +198,16 @@ const UnreadIconIndicator = styled(View)`
 export default MyClubsScreen = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const myClubs = useSelector(state => state.myClubs);
-    const myClubActivities = useSelector(state => state.myClubActivities);
+    const currentAppLoadStage = useSelector(state => state.currentAppLoadStage);
+    // const myClubActivities = useSelector(state => state.myClubActivities);
 
     const dispatch = useDispatch();
     const bottomOffset = useSafeAreaInsets().bottom;
     const [selectedTab, setSelectedTab] = useState('all my clubs');
 
-    const renderActivity = (activity) => {
-        return <ClubActivityCard key={activity.id} activity={activity} navigation={navigation} />
-    }
+    // const renderActivity = (activity) => {
+    //     return <ClubActivityCard key={activity.id} activity={activity} navigation={navigation} />
+    // }
     
     useEffect(() => {
         logAmplitudeEventProd('openedMyClubs', {
@@ -389,13 +394,13 @@ export default MyClubsScreen = ({ navigation }) => {
         );
     }
 
-    const EmptyActivity = () => {
-        return (
-            <EmptyClubsView>
-                <EmptyClubActivityCard navigation={navigation} />
-            </EmptyClubsView>
-        );
-    }
+    // const EmptyActivity = () => {
+    //     return (
+    //         <EmptyClubsView>
+    //             <EmptyClubActivityCard navigation={navigation} />
+    //         </EmptyClubsView>
+    //     );
+    // }
 
     const EmptyClubs = () => {
         return (
@@ -428,100 +433,100 @@ export default MyClubsScreen = ({ navigation }) => {
         )
     }
 
-    const RecentActivity = () => {
-        const [selectedFilters, setSelectedFilters] = useState(['all']);
-        const scrollStyle = { alignItems: 'center', paddingBottom: 120, width: '100%' };
+    // const RecentActivity = () => {
+    //     const [selectedFilters, setSelectedFilters] = useState(['all']);
+    //     const scrollStyle = { alignItems: 'center', paddingBottom: 120, width: '100%' };
 
-        const filterMemberActivities = (nextActivity, index) => (nextActivity?.activityType !== 'member');
-        const filterToRecentActivities = (nextActivity, index) => index < 20;
-        const initDisplayActivities = myClubActivities.filter(filterMemberActivities).filter(filterToRecentActivities);
-        const [displayActivities, setDisplayActivities] = useState(initDisplayActivities);
+    //     const filterMemberActivities = (nextActivity, index) => (nextActivity?.activityType !== 'member');
+    //     const filterToRecentActivities = (nextActivity, index) => index < 20;
+    //     const initDisplayActivities = myClubActivities.filter(filterMemberActivities).filter(filterToRecentActivities);
+    //     const [displayActivities, setDisplayActivities] = useState(initDisplayActivities);
     
-        const columnA = displayActivities.filter((activity, index) => index % 2 === 0);
-        const columnB = displayActivities.filter((activity, index) => index % 2 === 1);    
+    //     const columnA = displayActivities.filter((activity, index) => index % 2 === 0);
+    //     const columnB = displayActivities.filter((activity, index) => index % 2 === 1);    
 
-        const ActivityStainedGlass = () => {
-            return (
-                <ScrollView 
-                    bottomOffset={bottomOffset} 
-                    contentContainerStyle={scrollStyle}
-                    showVerticalScrollIndicator={false}
-                >
-                    <ColumnsView>
-                        <ColumnView>
-                            { columnA.map(renderActivity) }
-                        </ColumnView>
-                        <ColumnView>
-                            { columnB.map(renderActivity) }
-                        </ColumnView>
-                    </ColumnsView>
-                    <Spacer />
-                </ScrollView>
-            )
-        }
+    //     const ActivityStainedGlass = () => {
+    //         return (
+    //             <ScrollView 
+    //                 bottomOffset={bottomOffset} 
+    //                 contentContainerStyle={scrollStyle}
+    //                 showVerticalScrollIndicator={false}
+    //             >
+    //                 <ColumnsView>
+    //                     <ColumnView>
+    //                         { columnA.map(renderActivity) }
+    //                     </ColumnView>
+    //                     <ColumnView>
+    //                         { columnB.map(renderActivity) }
+    //                     </ColumnView>
+    //                 </ColumnsView>
+    //                 <Spacer />
+    //             </ScrollView>
+    //         )
+    //     }
 
-        const RecentActivityFilters = () => {
-            const filters = ['all', 'reelays', 'titles', 'topics'];
-            return (
-                <FilterButtonRow>
-                    { filters.map(filter => {
-                        const isSelected = selectedFilters.includes(filter);
-                        const onPress = () => selectOrDeselectFilter(filter);
-                        return <FilterButton key={filter} filter={filter} onPress={onPress} selected={isSelected} />
-                    })}
-                </FilterButtonRow>
-            );
-        }
+    //     const RecentActivityFilters = () => {
+    //         const filters = ['all', 'reelays', 'titles', 'topics'];
+    //         return (
+    //             <FilterButtonRow>
+    //                 { filters.map(filter => {
+    //                     const isSelected = selectedFilters.includes(filter);
+    //                     const onPress = () => selectOrDeselectFilter(filter);
+    //                     return <FilterButton key={filter} filter={filter} onPress={onPress} selected={isSelected} />
+    //                 })}
+    //             </FilterButtonRow>
+    //         );
+    //     }
 
-        const selectOrDeselectFilter = (filter) => {
-            const foundFilter = selectedFilters.find(nextFilter => nextFilter === filter);
-            if (foundFilter) {
-                // remove the filter
-                switch (filter) {
-                    case 'all':
-                        // do nothing
-                        break;
-                    default:
-                        // set as all
-                        setSelectedFilters(['all']);
-                        setDisplayActivities(initDisplayActivities);
-                        break;
-                }
-            } else {
-                // add the filter
-                switch (filter) {
-                    case 'all':
-                        setSelectedFilters(['all']);
-                        setDisplayActivities(initDisplayActivities);
-                        break;
-                    case 'reelays':
-                        setSelectedFilters(['reelays']);
-                        const hasReelays = (activity) => activity?.reelays?.length > 0;
-                        setDisplayActivities(initDisplayActivities.filter(hasReelays));
-                        break;
-                    case 'titles':
-                        const isTitle = (activity) => activity?.activityType === 'title';
-                        setSelectedFilters(['titles']);
-                        setDisplayActivities(initDisplayActivities.filter(isTitle));
-                        break;
-                    case 'topics':
-                        const isTopic = (activity) => activity?.activityType === 'topic';
-                        setDisplayActivities(initDisplayActivities.filter(isTopic));
-                        setSelectedFilters(['topics']);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
+    //     const selectOrDeselectFilter = (filter) => {
+    //         const foundFilter = selectedFilters.find(nextFilter => nextFilter === filter);
+    //         if (foundFilter) {
+    //             // remove the filter
+    //             switch (filter) {
+    //                 case 'all':
+    //                     // do nothing
+    //                     break;
+    //                 default:
+    //                     // set as all
+    //                     setSelectedFilters(['all']);
+    //                     setDisplayActivities(initDisplayActivities);
+    //                     break;
+    //             }
+    //         } else {
+    //             // add the filter
+    //             switch (filter) {
+    //                 case 'all':
+    //                     setSelectedFilters(['all']);
+    //                     setDisplayActivities(initDisplayActivities);
+    //                     break;
+    //                 case 'reelays':
+    //                     setSelectedFilters(['reelays']);
+    //                     const hasReelays = (activity) => activity?.reelays?.length > 0;
+    //                     setDisplayActivities(initDisplayActivities.filter(hasReelays));
+    //                     break;
+    //                 case 'titles':
+    //                     const isTitle = (activity) => activity?.activityType === 'title';
+    //                     setSelectedFilters(['titles']);
+    //                     setDisplayActivities(initDisplayActivities.filter(isTitle));
+    //                     break;
+    //                 case 'topics':
+    //                     const isTopic = (activity) => activity?.activityType === 'topic';
+    //                     setDisplayActivities(initDisplayActivities.filter(isTopic));
+    //                     setSelectedFilters(['topics']);
+    //                     break;
+    //                 default:
+    //                     break;
+    //             }
+    //         }
+    //     }
 
-        return (
-            <Fragment>
-                <RecentActivityFilters />
-                <ActivityStainedGlass />
-            </Fragment>
-        );
-    }
+    //     return (
+    //         <Fragment>
+    //             <RecentActivityFilters />
+    //             <ActivityStainedGlass />
+    //         </Fragment>
+    //     );
+    // }
 
     const SearchButton = () => {
         const advanceToSearchScreen = () => navigation.push('SearchScreen', { initialSearchType: 'Clubs' });
@@ -533,30 +538,37 @@ export default MyClubsScreen = ({ navigation }) => {
         )
     }
 
-    const TabSelector = () => {
-        return (
-            <BackgroundView>
-                { ['all my clubs', 'recent activity'].map(tab => {
-                    if (tab === selectedTab) {
-                        return (
-                            <ButtonView key={tab}>
-                                <ActiveOptionText>{tab}</ActiveOptionText>
-                                <FontAwesomeIcon icon={faCircle} color='white' size={4} /> 
-                            </ButtonView>
-                        );
-                    } else {
-                        return (
-                            <ButtonView key={tab} onPress={() => setSelectedTab(tab)}>
-                                <OptionText>{tab}</OptionText>
-                                <View style={{ height: 6 }} />
-                            </ButtonView>
-                        );
-                    }
-                })}
-            </BackgroundView>
-        );
-    }    
+    // const TabSelector = () => {
+    //     return (
+    //         <BackgroundView>
+    //             { ['all my clubs', 'recent activity'].map(tab => {
+    //                 if (tab === selectedTab) {
+    //                     return (
+    //                         <ButtonView key={tab}>
+    //                             <ActiveOptionText>{tab}</ActiveOptionText>
+    //                             <FontAwesomeIcon icon={faCircle} color='white' size={4} /> 
+    //                         </ButtonView>
+    //                     );
+    //                 } else {
+    //                     return (
+    //                         <ButtonView key={tab} onPress={() => setSelectedTab(tab)}>
+    //                             <OptionText>{tab}</OptionText>
+    //                             <View style={{ height: 6 }} />
+    //                         </ButtonView>
+    //                     );
+    //                 }
+    //             })}
+    //         </BackgroundView>
+    //     );
+    // }    
 
+    if (currentAppLoadStage < 4) {
+        return (
+            <RefreshView>
+                <ActivityIndicator />
+            </RefreshView>
+        );
+    }
 
     return (
 		<MyClubsScreenView>
@@ -568,8 +580,8 @@ export default MyClubsScreen = ({ navigation }) => {
                 </TopBarButtonView>
             </TopBarView>
             {/* <TabSelector /> */}
-            { selectedTab === 'recent activity' && (myClubActivities?.length > 0) && <RecentActivity /> }
-            { selectedTab === 'recent activity' && (myClubActivities?.length === 0) && <EmptyActivity /> }
+            {/* { selectedTab === 'recent activity' && (myClubActivities?.length > 0) && <RecentActivity /> }
+            { selectedTab === 'recent activity' && (myClubActivities?.length === 0) && <EmptyActivity /> } */}
             { selectedTab === 'all my clubs' && (myClubs?.length > 0) && <AllMyClubs /> }
             { selectedTab === 'all my clubs' && (myClubs?.length === 0) && <EmptyClubs /> }
             <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />

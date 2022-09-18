@@ -338,6 +338,7 @@ function App() {
         dispatch({ type: 'setMySettings', payload: mySettings })
         dispatch({ type: 'setMyStreamingSubscriptions', payload: myStreamingSubscriptions });
         dispatch({ type: 'setIsLoading', payload: false });
+        dispatch({ type: 'setCurrentAppLoadStage', payload: 1 });
 
         console.log('dispatched first set of profile data');
 
@@ -369,6 +370,7 @@ function App() {
             content: homeTopOfTheWeekFeed,
             nextPage: 1,
         }});
+        dispatch({ type: 'setCurrentAppLoadStage', payload: 2 });
 
         // deferred load
         const [
@@ -402,6 +404,7 @@ function App() {
 
         dispatch({ type: 'setSuggestedMovieResults', payload: suggestedMovieResults });
         dispatch({ type: 'setSuggestedSeriesResults', payload: suggestedSeriesResults });
+        dispatch({ type: 'setCurrentAppLoadStage', payload: 3 });
 
         const [
             donateLinksLoaded,
@@ -413,6 +416,7 @@ function App() {
 
         dispatch({ type: 'setMyClubs', payload: myClubs ?? [] });
         dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
+        dispatch({ type: 'setCurrentAppLoadStage', payload: 4 });
         console.log('dispatched second set of profile data');
     }
 
