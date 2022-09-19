@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Dimensions, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 
 // Logging
@@ -71,6 +71,10 @@ const ProfileScreenContainer = styled(SafeAreaView)`
 const ProfileScrollView = styled(ScrollView)`
     margin-bottom: 60px;
 `
+const RefreshView = styled(ProfileScreenContainer)`
+    align-items: center;
+    justify-content: center;
+`
 const Spacer = styled(View)`
     height: 12px;
 `
@@ -78,6 +82,7 @@ const Spacer = styled(View)`
 export default MyProfileScreen = ({ navigation, route }) => {
     const [refreshing, setRefreshing] = useState(false);
 	const { reelayDBUser } = useContext(AuthContext); 
+    const currentAppLoadStage = useSelector(state => state.currentAppLoadStage);
 
     const isEditingProfile = useSelector(state => state.isEditingProfile);
     const refreshOnUpload = useSelector(state => state.refreshOnUpload);
@@ -187,6 +192,14 @@ export default MyProfileScreen = ({ navigation, route }) => {
                 <MyWatchlistText>{'My watchlist'}</MyWatchlistText>
             </MyWatchlistPressable>
         );
+    }
+
+    if (currentAppLoadStage < 3) {
+        return (
+            <RefreshView>
+                <ActivityIndicator />
+            </RefreshView>
+        )
     }
 
     return (
