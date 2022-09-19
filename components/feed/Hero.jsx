@@ -16,6 +16,8 @@ import Constants from 'expo-constants';
 import { getCommentLikesForReelay } from '../../api/ReelayDBApi';
 import { useFocusEffect } from '@react-navigation/native';
 import styled from 'styled-components/native';
+import FeedTrailerDrawer from './FeedTrailerDrawer';
+import { animate } from '../../hooks/animations';
 
 const BottomGradient = styled(LinearGradient)`
     position: absolute;
@@ -31,6 +33,7 @@ const HeroModals = ({ reelay, navigation }) => {
     const commentsVisible = useSelector(state => state.commentsVisible);
     const dotMenuVisible = useSelector(state => state.dotMenuVisible);
     const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
+    const trailerVisible = (useSelector(state => state.reelayWithVisibleTrailer) === reelay);
     const { reelayDBUser } = useContext(AuthContext);
 
     useFocusEffect(() => {
@@ -75,6 +78,7 @@ const HeroModals = ({ reelay, navigation }) => {
             { commentsVisible && <CommentsDrawer reelay={reelay} navigation={navigation} /> }
             { dotMenuVisible && <Reelay3DotDrawer reelay={reelay} navigation={navigation} /> }
             { justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
+            { trailerVisible && <FeedTrailerDrawer reelay={reelay} /> }
         </React.Fragment>
     );
 }

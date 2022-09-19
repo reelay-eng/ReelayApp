@@ -247,8 +247,12 @@ export default function FeedVideoPlayer({ reelay, viewable }) {
 		}
 	}
 
+	const onLongPress = () => {
+		dispatch({ type: 'setReelayWithVisibleTrailer', payload: reelay });
+	}
+
 	return (
-		<TappableOverlay onPress={onTap}>
+		<TappableOverlay onPress={onTap} onLongPress={onLongPress}>
 			<LoadingBackdrop>
 				<ActivityIndicator />
 			</LoadingBackdrop>
