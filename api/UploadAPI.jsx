@@ -49,6 +49,7 @@ const sendNotificationsOnUpload = async ({ authSession, preparedReelay, reelayCl
     });
 
     notifyOtherCreatorsOnReelayPosted({
+        authSession,
         creator,
         reelay: preparedReelay,
         clubTitle: reelayClubTitle ?? null,

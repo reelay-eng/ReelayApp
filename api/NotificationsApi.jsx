@@ -7,7 +7,7 @@ import { isMentionPartType, parseValue } from 'react-native-controlled-mentions'
 import ReelayAPIHeaders from './ReelayAPIHeaders';
 
 import { 
-    getMostRecentReelaysByTitle,
+    getReelaysByTitleKey,
     getRegisteredUser, 
     getUserByUsername, 
 } from './ReelayDBApi';
@@ -474,6 +474,7 @@ export const notifyMentionsOnReelayPosted = async ({ authSession, clubID = null,
 }
 
 export const notifyOtherCreatorsOnReelayPosted = async ({ 
+    authSession,
     creator, 
     reelay, 
     topic = null,
@@ -483,6 +484,7 @@ export const notifyOtherCreatorsOnReelayPosted = async ({
     let notifyReelayStack;
     let action;
     let settingToCheck;
+    let titleKey = reelay.titleKey;
 
     if (topic) {
         notifyReelayStack = topic.reelays;
@@ -493,7 +495,11 @@ export const notifyOtherCreatorsOnReelayPosted = async ({
         action = 'openClubActivityScreen';
         settingToCheck = "notifyPostsInMyClubs";
     } else {
-        notifyReelayStack = await getMostRecentReelaysByTitle(reelay.title.id);
+        notifyReelayStack = await getReelaysByTitleKey({ 
+            authSession,
+            reqUserSub: creator?.sub,
+            titleKey,
+        });
         action = 'openSingleReelayScreen';
         settingToCheck = "notifyPostsOnMyReelayedTitles";
     }

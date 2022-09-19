@@ -455,11 +455,14 @@ export const getFeed = async ({ authSession, reqUserSub, feedSource, page = 0 })
     return preparedFeed;
 }
 
-export const getMostRecentReelaysByTitle = async (tmdbTitleID, page = 0) => {
-    const routeGet = `${REELAY_API_BASE_URL}/reelays/${tmdbTitleID}?page=${page}&visibility=${FEED_VISIBILITY}`;
+export const getReelaysByTitleKey = async ({ authSession, reqUserSub, titleKey }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/reelays/title?titleKey=${titleKey}&visibility=${FEED_VISIBILITY}`;
     const fetchedReelays = await fetchResults(routeGet, { 
         method: 'GET',
-        headers: ReelayAPIHeaders,
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            requsersub: reqUserSub,
+        }
     });
     if (!fetchedReelays) {
         console.log('Found no reelays in feed');
@@ -467,7 +470,6 @@ export const getMostRecentReelaysByTitle = async (tmdbTitleID, page = 0) => {
     }
     const preparedReelays = await Promise.all(fetchedReelays.map(prepareReelay));
     return preparedReelays;
-
 }
 
 export const getRegisteredUser = async (userSub) => {
@@ -638,6 +640,8 @@ export const prepareReelay = async (fetchedReelay) => {
         starRatingAddHalf: fetchedReelay.starRatingAddHalf,
         sub: fetchedReelay.datastoreSub,
         title: titleObj,
+        titleKey: fetchedReelay.titleKey,
+        titleType: fetchedReelay.titleType,
         topicID: fetchedReelay.topicID,
         topicTitle: fetchedReelay?.topicTitle,
     };
