@@ -212,7 +212,10 @@ export default TopicCard = ({
     const CardBottomRowWithReelays = () => {
         const MAX_DISPLAY_CREATORS = 5;
         const myFollowing = useSelector(state => state.myFollowing);
-        const inMyFollowing = (creator) => !!myFollowing.find((followingObj) => followingObj?.creatorSub === creator?.sub);
+        const inMyFollowing = (creator) => {
+            if (!myFollowing) return false;
+            return !!myFollowing.find((followingObj) => followingObj?.creatorSub === creator?.sub);
+        }
     
         const getDisplayCreators = () => {
             // list up to five profile pics, first preference towards people you follow

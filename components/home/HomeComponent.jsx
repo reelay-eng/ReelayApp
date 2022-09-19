@@ -23,6 +23,7 @@ import DiscoverClubs from './DiscoverClubs';
 
 import { LinearGradient } from 'expo-linear-gradient';
 import MyWatchlistGrid from '../watchlist/MyWatchlistGrid';
+import DiscoverSearch from './DiscoverSearch';
 
 const BottomBar = styled(LinearGradient)`
     height: 100px;
@@ -143,6 +144,7 @@ const HomeComponent = ({ navigation }) => {
                 <OnStreaming navigation={navigation} source='discover' />
                 <InTheaters navigation={navigation} /> 
                 <MyWatchlistGrid navigation={navigation} />
+                <DiscoverSearch navigation={navigation} />
                 <Spacer />
             </ScrollContainer>
             <BottomBar 

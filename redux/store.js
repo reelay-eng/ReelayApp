@@ -73,6 +73,7 @@ const initialState = {
     appUpdateRequired: false,
     appUpdateRecommended: false,
     appUpdateIgnored: false,
+    currentAppLoadStage: 0,
     currentAppVersion: REELAY_APP_VERSION,
     recommendedAppVersion: null,
     requiredAppVersion: null,
@@ -192,6 +193,8 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, recommendedAppVersion: recommendedVersion, requiredAppVersion: minVersionRequired };
         case 'setAppUpdateIgnored':
             return { ...state, appUpdateIgnored: action.payload };
+        case 'setCurrentAppLoadStage':
+            return { ...state, currentAppLoadStage: action.payload };
         case 'setJustShowMeSignupVisible':
             return { ...state, justShowMeSignupVisible: action.payload }
         case 'setTabBarVisible':
@@ -371,6 +374,7 @@ export const mapStateToProps = (state) => ({
     appUpdateRequired: state.appUpdateRequired,
     appUpdateRecommended: state.appUpdateRecommended,
     appUpdateIgnored: state.appUpdateIgnored,
+    currentAppLoadStage: state.currentAppLoadStage,
     currentAppVersion: state.currentAppVersion,
     recommendedAppVersion: state.recommendedAppVersion,
     requiredAppVersion: state.requiredAppVersion,

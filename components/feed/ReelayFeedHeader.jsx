@@ -1,13 +1,18 @@
-import React, { Fragment, useEffect, useState } from 'react';
-import { Pressable, SafeAreaView, TouchableOpacity, View } from 'react-native';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
+import { Dimensions, Pressable, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faArrowLeft, faArrowRight, faChevronDown, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faArrowDown, faArrowLeft, faChevronDown, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FiltersSVG } from '../global/SVGs';
 import ReelayColors from '../../constants/ReelayColors';
+import { FilterMappings, getTopFilters } from '../utils/FilterMappings';
+import AllFeedFilters from './AllFeedFilters';
+import NoResults from './NoResults';
+
+const { height, width } = Dimensions.get('window');
 
 const DiscoveryBarView = styled(Pressable)`
     align-items: center;
@@ -27,6 +32,7 @@ const DiscoveryBarRightView = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: flex-end;
+    padding-right: 6px;
 `
 const ExpandFiltersPressable = styled(TouchableOpacity)`
     align-items: center;
@@ -41,12 +47,16 @@ const ExpandSortPressable = styled(TouchableOpacity)`
     align-items: center;
     flex-direction: row;
 `
+const FilterBarBackdrop = styled(Pressable)`
+    height: ${height}px;
+    position: absolute;
+    width: ${width}px;
+`
 const FilterBarView = styled(View)`
     background-color: black;
     flex-direction: row;
     flex-wrap: wrap;
     padding: 12px;
-    padding-top: 0px;
     position: absolute;
     top: ${props => props.topOffset + 46}px;
     width: 100%;
@@ -87,7 +97,6 @@ const HeaderTextSortable = styled(ReelayText.H5Bold)`
     font-size: 24px;
     line-height: 24px;
     text-align: right;
-    width: 133px;
 `
 const FeedHeaderView = styled(SafeAreaView)`
     position: absolute;
@@ -131,7 +140,7 @@ const SortOptionsView = styled(View)`
     padding: 4px;
     position: absolute;
     top: ${props => props.topOffset - 20}px;
-    width: 183px;
+    width: 110%;
 `
 
 const SORT_OPTION_TEXT = {
@@ -144,30 +153,29 @@ const SORT_OPTION_TEXT = {
 export default ReelayFeedHeader = ({ 
     displayText, 
     feedSource = 'discover', 
-    isFullScreen = false,
+    hasResults = true,
     navigation, 
     sortMethod = 'mostRecent',
-    setSortMethod
+    setSortMethod = () => {},
+    selectedFilters = [],
+    setSelectedFilters = () => {},
 }) => {
-    const topOffset = useSafeAreaInsets().top;
     const canGoBack = navigation.getState().index > 0;
-    const resetFilter = { category: 'all', option: 'unselect_all', display: 'all' };
+    const topOffset = useSafeAreaInsets().top;
 
-    const [showFilters, setShowFilters] = useState(false);
-    const [selectedFilters, setSelectedFilters] = useState([resetFilter]);
+    const [showFilterBar, setShowFilterBar] = useState(false);
+    const [showAllFilters, setShowAllFilters] = useState(false);
     const [showSortOptions, setShowSortOptions] = useState(false);
 
-    const expandSort = () => setShowSortOptions(!showSortOptions);
-
-    const closeAllFilters = () => {
-        setShowFilters(false);
+    const closeAllMenus = () => {
+        setShowFilterBar(false);
         setShowSortOptions(false);
+        setShowAllFilters(false);
     }
 
-    const expandFilters = () => setShowFilters(!showFilters);
-    const isResetOption = (filter) => (filter.option === 'unselect_all');
-    const noFiltersSelected = (selectedFilters.length === 1 && isResetOption(selectedFilters[0]));
-    const showFilterActionButton = (!noFiltersSelected || !showFilters);
+    const closeAllFiltersList = () => setShowAllFilters(false);
+    const noFiltersSelected = (selectedFilters.length === 0);
+    const showFilterActionButton = (!noFiltersSelected || !showFilterBar);
 
     // todo: these will certainly change with the new home screen
     const sortableFeedSources = [ 'discover' ];
@@ -195,46 +203,49 @@ export default ReelayFeedHeader = ({
         }
     }
 
-    const getDisplayFilters = () => {
-        return [
-            { category: 'all', option: 'unselect_all', display: 'all' },
-            { category: 'community', option: 'following', display: 'following' },
-            { category: 'popularityAndRating', option: 'highly_rated', display: 'highly-rated' },
-            { category: 'titleType', option: 'film', display: 'movies' },
-            { category: 'titleType', option: 'tv', display: 'TV' },
-            { category: 'venue', option: 'on_my_streaming', display: 'on my streaming' },
-            { category: 'venue', option: 'theaters', display: 'in theaters' },
-            { category: 'all', option: 'see_all_filters', display: 'see all ' },
-        ]
-    }
-
     const isFilterSelected = (filter) => {
-        const matchFilter = (nextFilter) => (nextFilter.display === filter.display);
+        const { category, option } = filter;
+        if (option === 'reset') return noFiltersSelected;
+
+        const matchFilter = (nextFilter) => (
+            nextFilter.category === filter.category && 
+            nextFilter.option === filter.option
+        );
+
         return selectedFilters.find(matchFilter);
     }
 
     const onSelectOrUnselectFilter = (filter) => {
+        const { category, option } = filter;
         const isSelecting = !isFilterSelected(filter);
-        const isResetOption = (filter.option === 'unselect_all');
-        const removeResetOption = (nextFilter) => (nextFilter.option !== 'unselect_all')
+        const isResetOption = (option === 'reset');
+
+        const removeFilter = (nextFilter) => (
+            nextFilter.category !== category || 
+            nextFilter.option !== option
+        );
+
         if (isResetOption) {
-            resetFilters();
+            resetFilters(category);
             return;
         }
 
-        if (isSelecting) {
-            const nextSelectedFilters = [...selectedFilters, filter].filter(removeResetOption);
-            setSelectedFilters(nextSelectedFilters);
-        } else {
-            const removeFilter = (nextFilter) => (nextFilter.display !== filter.display);
-            const nextSelectedFilters = selectedFilters.filter(removeFilter);
-            setSelectedFilters(nextSelectedFilters);
-        }
+        const nextSelectedFilters = (isSelecting)
+            ? [...selectedFilters, filter]
+            : selectedFilters.filter(removeFilter);
+
+        setSelectedFilters(nextSelectedFilters);
     }
 
-    const resetFilters = () => {
-        setSelectedFilters([resetFilter]);
-        // todo
+    const resetFilters = (category = 'all') => {
+        if (category === 'all') {
+            setSelectedFilters([]);
+            return;
+        }
+
+        const removeCategoryFilters = (nextFilter) => (nextFilter.category !== category);
+        const nextSelectedFilters = selectedFilters.filter(removeCategoryFilters);
+        setSelectedFilters(nextSelectedFilters);
     }
 
     const BackButton = () => {
@@ -245,19 +256,7 @@ export default ReelayFeedHeader = ({
         );
     }
 
-    // todo: single, title, profile
-
     const DiscoveryBar = () => {
-        const FullScreenHeader = () => {
-            return (
-                <DiscoveryBarLeftView>
-                    <BackButton />
-                    <HeaderLeftSpacer />
-                    <HeaderText>{'apply filters'}</HeaderText>
-                </DiscoveryBarLeftView>
-            );
-        }
-
         const NonSortableHeader = () => {
             return (
                 <DiscoveryBarLeftView>
@@ -273,7 +272,7 @@ export default ReelayFeedHeader = ({
             const isSelected = (sortMethod === option);
             const setSortFilter = () => {
                 setSortMethod(option);
-                closeAllFilters();
+                closeAllMenus();
             }
             return (
                 <SortOptionPressable onPress={setSortFilter}>
@@ -302,7 +301,7 @@ export default ReelayFeedHeader = ({
             return (
                 <DiscoveryBarLeftView>
                     { canGoBack && <BackButton /> }
-                    <ExpandSortPressable onPress={expandSort}>
+                    <ExpandSortPressable onPress={() => setShowSortOptions(!showSortOptions)}>
                         <HeaderLeftSpacer />
                         <HeaderTextSortable>{getDisplayText()}</HeaderTextSortable>
                         <HeaderLeftSpacer />
@@ -315,16 +314,15 @@ export default ReelayFeedHeader = ({
     
         return (
             <Fragment>
-                <DiscoveryBarView onPress={closeAllFilters} topOffset={topOffset}>
-                    { isFullScreen && <FullScreenHeader /> }
-                    { !isFullScreen && !headerIsSortable && <NonSortableHeader /> }
-                    { !isFullScreen && headerIsSortable && <SortableHeader /> }
-                    {/* { !isFullScreen && (
+                <DiscoveryBarView onPress={closeAllMenus} topOffset={topOffset}>
+                    { !headerIsSortable && <NonSortableHeader /> }
+                    { headerIsSortable && <SortableHeader /> }
+                    { (feedSource === 'discover') && (
                         <DiscoveryBarRightView>
                             { showFilterActionButton && <FilterActionButton /> }
                             <ExpandFiltersButton />
                         </DiscoveryBarRightView>                    
-                    )} */}
+                    )}
                 </DiscoveryBarView>
             </Fragment>
         )
@@ -332,45 +330,17 @@ export default ReelayFeedHeader = ({
 
     const ExpandFiltersButton = () => {
         return (
-            <ExpandFiltersPressable onPress={expandFilters} showFilters={showFilters}>
-                { !showFilters && <FiltersSVG /> }
-                { showFilters && <FontAwesomeIcon icon={faXmark} color='white' size={24} /> }
+            <ExpandFiltersPressable onPress={() => {
+                if (showAllFilters) {
+                    setShowAllFilters(false);
+                } else {
+                    setShowFilterBar(!showFilterBar);
+                }
+            }} showFilters={showFilterBar || showAllFilters}>
+                { !showFilterBar && !showAllFilters && <FiltersSVG /> }
+                { (showFilterBar || showAllFilters) && <FontAwesomeIcon icon={faXmark} color='white' size={24} /> }
             </ExpandFiltersPressable>
         );
-    }
-
-    const FilterBar = () => {
-        const renderFilter = (filter) => {
-            return <FilterOption key={filter.option} filter={filter} selected={false} setSelected={() => {}} />
-        }
-
-        return (
-            <FilterBarView topOffset={topOffset}>
-                { getDisplayFilters().map(renderFilter) }
-            </FilterBarView>
-        );
-    }
-
-    const FilterOption = ({ filter }) => {
-        const { category, option, display } = filter;
-        const isSelected = isFilterSelected(filter);
-        const isAllFiltersOption = (option === 'see_all_filters');
-        const advanceToAllFiltersScreen = () => navigation.push('FeedFiltersScreen', { feedSource });
-
-        const onPress = () => {
-            if (isAllFiltersOption) {
-                advanceToAllFiltersScreen();
-            } else {
-                onSelectOrUnselectFilter(filter);
-            }
-        }
-
-        return (
-            <FilterPressable selected={isSelected} allFilters={isAllFiltersOption} onPress={onPress}>
-                <FilterText>{display}</FilterText>
-                { isAllFiltersOption && <FontAwesomeIcon icon={faArrowRight} size={14} color='white' /> }
-            </FilterPressable>
-        )
     }
 
     const FilterActionButton = () => {
@@ -378,14 +348,14 @@ export default ReelayFeedHeader = ({
 
         const getActionText = () => {
             if (noFiltersSelected) return 'all';
-            if (!showFilters) return `${filterCount}x`;
+            if (!showFilterBar) return `${filterCount}x`;
             return 'reset';
         }
 
         const getAction = () => {
-            if (!showFilters) return expandFilters;
+            if (!showFilterBar) return () => setShowFilterBar(!showFilterBar);
             if (noFiltersSelected) return () => {};
-            return resetFilters;
+            return () => resetFilters('all');
         }
 
         return (
@@ -395,10 +365,50 @@ export default ReelayFeedHeader = ({
         );
     }
 
+    const FilterBar = () => {
+        const renderFilter = (filter) => <FilterOption key={filter.option} filter={filter} />;
+        return (
+            <FilterBarView topOffset={topOffset}>
+                <FilterBarBackdrop onPress={closeAllMenus} />
+                { getTopFilters(selectedFilters).map(renderFilter) }
+            </FilterBarView>
+        );
+    }
+
+    const FilterOption = ({ filter }) => {
+        const { category, option, display } = filter;
+        const isSelected = isFilterSelected(filter);
+        const isAllFiltersOption = (option === 'see_all_filters');
+
+        const onPress = () => {
+            if (isAllFiltersOption) {
+                setShowFilterBar(false);
+                setShowAllFilters(true);
+            } else {
+                onSelectOrUnselectFilter(filter);
+            }
+        }
+
+        return (
+            <FilterPressable selected={isSelected} allFilters={isAllFiltersOption} onPress={onPress}>
+                <FilterText>{display}</FilterText>
+                { isAllFiltersOption && <FontAwesomeIcon icon={faArrowDown} size={14} color='white' /> }
+            </FilterPressable>
+        )
+    }
+
     return (
         <FeedHeaderView>
             <HeaderFill topOffset={topOffset} />
-            { showFilters && <FilterBar /> }
+            { showFilterBar && <FilterBar /> }
+            { showAllFilters && (
+                <AllFeedFilters 
+                    closeAllFiltersList={closeAllFiltersList}
+                    selectedFilters={selectedFilters} 
+                    setSelectedFilters={setSelectedFilters} 
+                /> 
+            )}
+            { !hasResults && <NoResults resetFilters={resetFilters} /> }
             <DiscoveryBar />
         </FeedHeaderView>
     );

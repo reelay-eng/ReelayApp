@@ -70,7 +70,7 @@ export default MyWatchlistGrid = ({ navigation }) => {
     const SectionHeader = () => {
         return (
             <HeaderContainer>
-                <HeaderText>{'My Watchlist'}</HeaderText>
+                <HeaderText>{'My watchlist'}</HeaderText>
             </HeaderContainer>
         );
     }
