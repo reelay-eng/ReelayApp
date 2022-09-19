@@ -14,6 +14,7 @@ import ReelayFeedHeader from './ReelayFeedHeader';
 import styled from 'styled-components/native';
 import EmptyTopic from './EmptyTopic';
 import { getDiscoverFeed } from '../../api/FeedApi';
+import { coalesceFiltersForAPI } from '../utils/FilterMappings';
 
 const { height, width } = Dimensions.get('window');
 const WEAVE_EMPTY_TOPIC_INDEX = 10;
@@ -30,17 +31,19 @@ const RefreshView = styled(View)`
 `
 
 export default ReelayFeed = ({ navigation, 
-    initialStackPos = 0,
+    initialFeedFilters = [],
     initialFeedPos = 0,
-    forceRefresh = false, 
+    initialStackPos = 0,
     feedSource = 'discover',
     preloadedStackList = [],
     pinnedReelay = null,
 }) => {
+    const dispatch = useDispatch();
     const feedPager = useRef();
     const { reelayDBUser } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
-	const dispatch = useDispatch();
+    const myStreamingVenues = useSelector(state => state.myStreamingSubscriptions)
+        .map(subscription => subscription.platform);
 
     const discoverMostRecent = useSelector(state => state.discoverMostRecent);
     const discoverThisWeek = useSelector(state => state.discoverThisWeek);
@@ -56,7 +59,9 @@ export default ReelayFeed = ({ navigation,
 
     const [feedPosition, setFeedPosition] = useState(initialFeedPos);
     const [refreshing, setRefreshing] = useState(false);
+
     const [sortMethod, setSortMethod] = useState('mostRecent');
+    const [selectedFilters, setSelectedFilters] = useState(initialFeedFilters);
 
     const isFirstRender = useRef(true);
     const initNextPage = (feedSource === 'discover') ? sortedThreadData[sortMethod].nextPage: 1;
@@ -67,7 +72,6 @@ export default ReelayFeed = ({ navigation,
         : preloadedStackList;
 
     const [reelayThreads, setReelayThreads] = useState(initReelayThreads);
-    const stackEmpty = (!reelayThreads.length) || (pinnedReelay && reelayThreads.length === 1);
 
     const emptyGlobalTopics = useSelector(state => state.emptyGlobalTopics);
     const wovenReelayThreads = reelayThreads.reduce((curWovenThreadsObj, nextThread, index) => {
@@ -88,22 +92,21 @@ export default ReelayFeed = ({ navigation,
         if (isFirstRender.current) {
             if (feedSource === 'discover' && nextPage.current === 1) {
                 checkDiscoverForUnseenReelays();
-            }    
+            }
+            if (feedSource === 'discover' && initialFeedFilters.length > 0) {
+                refreshFeed(false);
+            }
             isFirstRender.current = false;
         } else {
             setFeedPosition(0);
-            feedPager.current.scrollToOffset({
-                offset: 0, animated: false,
-            });
+            if (feedPager?.current) {
+                feedPager.current.scrollToOffset({
+                    offset: 0, animated: false,
+                });    
+            }
             refreshFeed(false);
         }
-    }, [sortMethod]);
-
-    // useEffect(() => {
-    //     if (feedSource === 'discover' && nextPage.current === 1) {
-    //         checkDiscoverForUnseenReelays();
-    //     }
-    // }, [reelayThreads]);
+    }, [sortMethod, selectedFilters]);
 
     useFocusEffect(useCallback(() => {
         dispatch({ type: 'setTabBarVisible', payload: true }); // to ensure tab bar is always here
@@ -131,23 +134,24 @@ export default ReelayFeed = ({ navigation,
         }
     }
 
-    // const loadSelectedFeed = async () => {
-    //     console.log("loading", feedSource, " feed....");
-    //     if (!stackEmpty && !forceRefresh) {
-    //       console.log("feed already loaded");
-    //       return;
-    //     }
-    //     await extendFeed();
-    // }
-
     const extendFeed = async () => {
         const page = (feedSource === 'discover')
             ? discoverMostRecent.nextPage
             : nextPage.current;
 
         const fetchedThreads = (feedSource === 'discover') 
-            ? await getDiscoverFeed({ authSession, filters: {}, page, reqUserSub: reelayDBUser?.sub })
-            : await getFeed({ authSession, feedSource, page, reqUserSub: reelayDBUser?.sub });
+            ? await getDiscoverFeed({ 
+                authSession, 
+                filters: coalesceFiltersForAPI(selectedFilters, myStreamingVenues), 
+                page, 
+                reqUserSub: reelayDBUser?.sub,
+            })
+            : await getFeed({ 
+                authSession, 
+                feedSource, 
+                page, 
+                reqUserSub: reelayDBUser?.sub, 
+            });
 
         // probably don't need to create this every time, but we want to avoid unnecessary state
         const titleIDEntries = {};
@@ -224,7 +228,7 @@ export default ReelayFeed = ({ navigation,
         const fetchedThreads = (feedSource === 'discover')
             ? await getDiscoverFeed({ 
                 authSession, 
-                filters: {}, 
+                filters: coalesceFiltersForAPI(selectedFilters, myStreamingVenues), 
                 page: 0, 
                 reqUserSub: reelayDBUser?.sub, 
                 sortMethod,
@@ -299,12 +303,35 @@ export default ReelayFeed = ({ navigation,
         setFeedPosition(nextFeedPosition);
     }
 
+    const RefreshIndicator = () => {
+        return (
+            <RefreshView>
+                <ActivityIndicator />
+            </RefreshView>
+        );
+    }
+
     if (reelayThreads.length < 1) {
-        return <ActivityIndicator />;
+        return (
+            <FeedView>
+                {/* { selectedFilters.length > 0 && <NoResults /> } */}
+                { selectedFilters.length === 0 && <ActivityIndicator /> } 
+                <ReelayFeedHeader 
+                    feedSource={feedSource}
+                    hasResults={false}
+                    navigation={navigation}
+                    selectedFilters={selectedFilters}
+                    setSelectedFilters={setSelectedFilters}
+                    sortMethod={sortMethod}
+                    setSortMethod={setSortMethod}
+                />
+            </FeedView>
+        )
     }
 
     return (
         <FeedView>
+            { refreshing && <RefreshIndicator /> }
             { !refreshing && (
                 <FlatList
                     data={wovenReelayThreads}
@@ -326,14 +353,12 @@ export default ReelayFeed = ({ navigation,
                     windowSize={3}
                 />
             )}
-            { refreshing && (
-                <RefreshView>
-                    <ActivityIndicator />
-                </RefreshView>
-            )}
             <ReelayFeedHeader 
                 feedSource={feedSource}
+                hasResults={true}
                 navigation={navigation}
+                selectedFilters={selectedFilters}
+                setSelectedFilters={setSelectedFilters}
                 sortMethod={sortMethod}
                 setSortMethod={setSortMethod}
             />

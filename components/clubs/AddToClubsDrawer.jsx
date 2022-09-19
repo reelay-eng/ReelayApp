@@ -177,12 +177,14 @@ export default AddToClubsDrawer = ({
         return (watchlistItemTitleKey === titleKey);
     }
 
-    const isAlreadyAdded = myWatchlistItems.find(matchWatchlistItem);
+    const isAlreadyAddedToWatchlist = myWatchlistItems.find(matchWatchlistItem);
 
     const Header = () => {
         return (
             <HeaderContainer>
-                <HeaderText>{ isAlreadyAdded ? 'Added to my watchlist' : 'Add to watchlist'}</HeaderText>
+                <HeaderText>
+                    { isAlreadyAddedToWatchlist ? 'Added to my watchlist' : 'Add to watchlist' }
+                </HeaderText>
                 <MarkSeenButton markedSeen={markedSeen} setMarkedSeen={setMarkedSeen} titleObj={titleObj} />
             </HeaderContainer>
         );
@@ -230,20 +232,53 @@ export default AddToClubsDrawer = ({
             try {
                 if (addingTitle) return;
                 setAddingTitle(true);
-                const addTitleResults = await Promise.all(clubsToSend.current.map(addToClubWrapper))
+                const addTitleResults = await Promise.all(clubsToSend.current.map(addToClubWrapper));
+                if (sendToWatchlist.current) await addToWatchlistWrapper();
                 setAddingTitle(false);
                 const clubsWord = (addTitleResults.length > 1) ? 'clubs' : 'club';
-                if (addTitleResults.length > 1) {
+                if (addTitleResults?.length > 0) {
                     showMessageToast(`Added ${titleObj.display} to ${addTitleResults.length} ${clubsWord}`);
                 } else if (sendToWatchlist.current) {
                     showMessageToast(`Added ${titleObj.display} to your watchlist`);
                 }
+                
             } catch (error) {
                 console.log(error);
                 showErrorToast('Ruh roh! Couldn\'t add to clubs. Try again?');
                 setAddingTitle(false);
             }
         } 
+
+        const addToWatchlistWrapper = async () => {
+            if (isAlreadyAddedToWatchlist) return;
+            const addToWatchlistResult = await addToMyWatchlist({
+                authSession,
+                reqUserSub: reelayDBUser?.sub,
+                reelaySub: reelay?.sub,
+                creatorName: reelay?.creator?.username,
+                tmdbTitleID: titleObj.id,
+                titleType: titleObj.titleType,
+            });
+            const nextWatchlistItems = [addToWatchlistResult, ...myWatchlistItems];
+
+            // todo: should also be conditional based on user settings
+            if (reelay?.creator) {
+                notifyOnAddedToWatchlist({
+                    reelayedByUserSub: reelay?.creator?.sub,
+                    addedByUserSub: reelayDBUser?.sub,
+                    addedByUsername: reelayDBUser?.username,
+                    watchlistItem: addToWatchlistResult,
+                });    
+            }
+
+            logAmplitudeEventProd('addToMyWatchlist', {
+                title: titleObj?.display,
+                username: reelayDBUser?.username,
+                userSub: reelayDBUser?.sub,
+            });
+            dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
+            // showMessageToast(`Added ${titleObj.display} to your watchlist`);
+        }
 
         return (
             <AddTitleButtonOuterContainer bottomOffset={bottomOffset}>
@@ -307,12 +342,12 @@ export default AddToClubsDrawer = ({
             return (nextClubTitleKey === titleKey);
         }
 
-        const isAlreadyAdded = club.titles.find(findTitleInClub);
-        const iconName = (isAlreadyAdded) ? 'checkmark-done' : 'checkmark';
-        const iconColor = (isAlreadyAdded) ? 'gray' : 'white';    
+        const isAlreadyAddedToClub = club.titles.find(findTitleInClub);
+        const iconName = (isAlreadyAddedToClub) ? 'checkmark-done' : 'checkmark';
+        const iconColor = (isAlreadyAddedToClub) ? 'gray' : 'white';    
 
         const markRow = () => {
-            if (isAlreadyAdded) return;
+            if (isAlreadyAddedToClub) return;
             if (rowHighlighted) {
                 unmarkClubToSend(club);
                 setRowHighlighted(false);
@@ -342,14 +377,14 @@ export default AddToClubsDrawer = ({
                     <ProfilePictureContainer>
                         <ClubPicture club={club} size={32} />
                     </ProfilePictureContainer>
-                    <ClubNameText isAlreadyAdded={isAlreadyAdded}>{club.name}</ClubNameText>
+                    <ClubNameText isAlreadyAdded={isAlreadyAddedToClub}>{club.name}</ClubNameText>
                 </ClubRowContainer>
-                { (rowHighlighted || isAlreadyAdded) && (
+                { (rowHighlighted || isAlreadyAddedToClub) && (
                     <CheckmarkIconContainer>
                         <Icon type='ionicon' name={iconName} size={30} color={iconColor} />
                     </CheckmarkIconContainer>                        
                 )}
-                {(!rowHighlighted && !isAlreadyAdded) && (
+                {(!rowHighlighted && !isAlreadyAddedToClub) && (
                     <CheckmarkIconContainer>
                         <AddToClubsIconSVG size={30} />
                     </CheckmarkIconContainer>
@@ -359,56 +394,37 @@ export default AddToClubsDrawer = ({
     }
 
     const AddToMyWatchlistRow = () => {
-        const backgroundColor = '#1a1a1a';
+        const [rowHighlighted, setRowHighlighted] = useState(sendToWatchlist.current);
+        const backgroundColor = (rowHighlighted) ? ReelayColors.reelayBlue : '#1a1a1a';
 
-        const addToWatchlistWrapper = async () => {
-            if (isAlreadyAdded) return;
-            const addToWatchlistResult = await addToMyWatchlist({
-                authSession,
-                reqUserSub: reelayDBUser?.sub,
-                reelaySub: reelay?.sub,
-                creatorName: reelay?.creator?.username,
-                tmdbTitleID: titleObj.id,
-                titleType: titleObj.titleType,
-            });
-            const nextWatchlistItems = [addToWatchlistResult, ...myWatchlistItems];
-
-            // todo: should also be conditional based on user settings
-            if (reelay?.creator) {
-                notifyOnAddedToWatchlist({
-                    reelayedByUserSub: reelay?.creator?.sub,
-                    addedByUserSub: reelayDBUser?.sub,
-                    addedByUsername: reelayDBUser?.username,
-                    watchlistItem: addToWatchlistResult,
-                });    
+        const markSendToWatchlist = () => {
+            if (isAlreadyAddedToWatchlist) return;
+            if (sendToWatchlist.current) {
+                sendToWatchlist.current = false;
+                setRowHighlighted(false);
+            } else {
+                sendToWatchlist.current = true;
+                setRowHighlighted(true);
             }
-
-            logAmplitudeEventProd('addToMyWatchlist', {
-                title: titleObj?.display,
-                username: reelayDBUser?.username,
-                userSub: reelayDBUser?.sub,
-            });
-            dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
-            showMessageToast(`Added ${titleObj.display} to your watchlist`);
         }
 
-        const iconName = (isAlreadyAdded) ? 'checkmark-done' : 'checkmark';
-        const iconColor = (isAlreadyAdded) ? 'gray' : 'white';    
+        const iconName = (isAlreadyAddedToWatchlist) ? 'checkmark-done' : 'checkmark';
+        const iconColor = (isAlreadyAddedToWatchlist) ? 'gray' : 'white';    
 
         return (
-            <RowContainer backgroundColor={backgroundColor} onPress={addToWatchlistWrapper}>
+            <RowContainer backgroundColor={backgroundColor} onPress={markSendToWatchlist}>
                 <ClubRowContainer>
                     <ProfilePictureContainer>
                         <ProfilePicture user={reelayDBUser} size={32} />
                     </ProfilePictureContainer>
-                    <ClubNameText isAlreadyAdded={isAlreadyAdded}>{'My Watchlist'}</ClubNameText>
+                    <ClubNameText isAlreadyAdded={isAlreadyAddedToWatchlist}>{'My Watchlist'}</ClubNameText>
                 </ClubRowContainer>
-                { (isAlreadyAdded) && (
+                { (rowHighlighted || isAlreadyAddedToWatchlist) && (
                     <CheckmarkIconContainer>
                         <Icon type='ionicon' name={iconName} size={30} color={iconColor} />
                     </CheckmarkIconContainer>                        
                 )}
-                {(!isAlreadyAdded) && (
+                {(!rowHighlighted && !isAlreadyAddedToWatchlist) && (
                     <CheckmarkIconContainer>
                         <AddToClubsIconSVG size={30} />
                     </CheckmarkIconContainer>

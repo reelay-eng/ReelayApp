@@ -9,18 +9,19 @@ import WatchlistSwipeableRow from './WatchlistSwipeableRow';
 import { useDispatch } from 'react-redux';
 import { FlashList } from '@shopify/flash-list';
 
+const WatchlistItemContainer = styled(Pressable)`
+    background-color: #1c1c1c;
+    border-color: #2d2d2d;
+    border-radius: 8px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    border-width: 0.3px;
+    margin: 6px;
+    margin-left: 12px;
+    margin-right: 12px;
+`
+
 export default Watchlist = ({ navigation, refresh, watchlistItems }) => {
-    const WatchlistItemContainer = styled(Pressable)`
-        background-color: #1c1c1c;
-        border-color: #2d2d2d;
-        border-radius: 8px;
-        border-top-right-radius: 20px;
-        border-bottom-right-radius: 20px;
-        border-width: 0.3px;
-        margin: 6px;
-        margin-left: 12px;
-        margin-right: 12px;
-    `
     const dispatch = useDispatch();
     const [refreshing, setRefreshing] = useState(false);
     const { reelayDBUser } = useContext(AuthContext);
