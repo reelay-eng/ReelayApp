@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { ActivityIndicator, Image, ImageBackground, TouchableOpacity, View } from "react-native";
+import { Auth } from "aws-amplify";
 import { Button } from '../../components/global/Buttons';
 import ReelayColors from "../../constants/ReelayColors";
 import * as ReelayText from '../../components/global/Text';
@@ -142,14 +143,10 @@ export default SignedOutScreen = ({ navigation, route }) => {
     const justShowMeLogin = async () => {
         try {
             setSigningInJustShowMe(true);
-            const guestCognitoUser = {
-                username: 'be_our_guest',
-                attributes: {
-                    sub: '1cc34e07-36b3-49b8-afc8-f39f827a7600',
-                    email: 'support@reelay.app',
-                },
-            };
+            const guestCognitoUser = await Auth.signIn('be_our_guest', 'candelabra');                 
+            const cognitoSession = await Auth.currentSession();
             setCognitoUser(guestCognitoUser);
+            dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });
         } catch (error) {
             console.log(error);
             showErrorToast('Oh no! We couldn\'t guest you in. Try again or contact support@reelay.app');
