@@ -1,13 +1,16 @@
 import React, { useContext, useEffect } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, View, TouchableOpacity, Text, Image } from "react-native";
 import styled from "styled-components/native";
 import { Icon } from "react-native-elements";
 import Constants from "expo-constants";
 
 import * as Google from 'expo-auth-session/providers/google';
 import * as Apple  from 'expo-apple-authentication';
+import * as ReelayText from "../global/Text";
 import { fetchResults } from "../../api/fetchResults";
 import { AuthContext } from "../../context/AuthContext";
+
+import GoogleImage from "../../assets/icons/social/google.png";
 
 import { useDispatch } from 'react-redux';
 
@@ -24,32 +27,35 @@ import * as WebBrowser from 'expo-web-browser';
 WebBrowser.maybeCompleteAuthSession();
 
 const iosURLScheme = Constants.manifest.extra.googleiOSURLScheme;
-
 const redirectUri = makeRedirectUri({
     native: `${iosURLScheme}:/`
 });
 
-const ButtonRowContainer = styled(View)`
+const ButtonPressable = styled(TouchableOpacity)`
     align-items: center;
+    background-color: ${props => props.backgroundColor ?? 'black'};
+    border-radius: 10px;
+    border: solid 1px white;
+    height: 100%;
+    justify-content: center;
     flex-direction: row;
-    justify-content: center;
+    width: 100%;
 `
-const SocialLoginContainer = styled(View)`
+const ButtonContainer = styled(View)`
     align-items: center;
-    justify-content: flex-end;
-    margin: 20px;
+	height: 56px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    width: 100%;
 `
-const SocialAuthButton = styled(Pressable)`
-    align-items: center;
-    background-color: #222528;
-    border-radius: 16px;
-    height: 108px;
-    justify-content: center;
-    margin: 8px;
-    width: 108px;
+const ButtonText = styled(Text)`
+    font-family: Outfit-Medium;
+    color: ${props => props.color ?? ReelayColors.reelayBlue};
+    font-size: 18px;
+    margin-left: 10px;
 `
 
-export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
+export default SocialLoginBar = ({ navigation }) => {
     const dispatch = useDispatch();
     try {
     const { setReelayDBUserID } = useContext(AuthContext);
@@ -108,8 +114,6 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
                         Apple.AppleAuthenticationScope.EMAIL,
                     ]
                 });
-    
-                setSigningIn(true); 
                 const { email, fullName, user, identityToken, authorizationCode } = credentials;
                 appleOrGoogleCascadingSignIn({ 
                     authSession: { 
@@ -129,9 +133,12 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
         }
 
         return (
-            <SocialAuthButton onPress={signInWithApple}>
-                <Icon type='ionicon' name='logo-apple' color='white' size={33} />
-            </SocialAuthButton>
+            <ButtonContainer>
+                <ButtonPressable backgroundColor='black' onPress={signInWithApple} activeOpacity={0.8}>
+                    <Icon type='ionicon' name='logo-apple' color='white' size={24} />
+                    <ButtonText color='white'>{'Sign in with Apple'}</ButtonText>
+                </ButtonPressable>
+            </ButtonContainer>
         );
     }
 
@@ -152,8 +159,6 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
                 console.log('No access token');
                 return;
             }
-
-            setSigningIn(true); 
             const googleUserQuery = `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${accessToken}`;
             const googleUserObj = await fetchResults(googleUserQuery, { method: 'GET' });
             
@@ -182,23 +187,23 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
         }, [response]);
 
         return (
-            <SocialAuthButton onPress={signInWithGoogle}>
-                <Icon type='ionicon' name='logo-google' color='white' size={30} />
-            </SocialAuthButton>
+            <ButtonContainer>
+                <ButtonPressable backgroundColor='white' onPress={signInWithGoogle} activeOpacity={0.8}>
+                    <Image source={GoogleImage} style={{ width: 24, height: 24 }} resizeMode="contain" />
+                    <ButtonText color='rgba(0, 0, 0, 0.54)'>{'Sign in with Google'}</ButtonText>
+                </ButtonPressable>
+            </ButtonContainer>
         );
     }
 
     return (
-        <SocialLoginContainer>
-            <ButtonRowContainer>
-                <AppleAuthButton />
-                <GoogleAuthButton />
-            </ButtonRowContainer>
-        </SocialLoginContainer>
+        <>
+            <GoogleAuthButton />
+            <AppleAuthButton />
+        </>
     )    
     } catch (error) {
         console.log(error);
-        logEventWithPropertiesAsync('socialLoginError', { error });
         return <React.Fragment />
     }
 }
