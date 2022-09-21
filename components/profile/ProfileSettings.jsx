@@ -13,6 +13,7 @@ import { HeaderWithBackButton } from "../global/Headers";
 import { getReelay, prepareReelay, registerPushTokenForUser } from '../../api/ReelayDBApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
+import { deregisterSocialAuthToken } from '../../api/ReelayUserApi';
 
 export const ProfileSettings = ({navigation}) => {
     const ViewContainer = styled(SafeAreaView)`
@@ -150,6 +151,7 @@ const Logout = () => {
         reelayDBUserID,
         setReelayDBUserID,
     } = useContext(AuthContext);
+    const authSession = useSelector(state => state.authSession);
     const signUpFromGuest = useSelector(state => state.signUpFromGuest);
     const dispatch = useDispatch();
 
@@ -166,11 +168,18 @@ const Logout = () => {
             }
             dispatch({ type: 'setSignedIn', payload: false });
             setReelayDBUserID(null);
-            const signOutResult = await Auth.signOut();
+
+            if (authSession?.method === 'cognito') {
+                const signOutResult = await Auth.signOut();
+                console.log(signOutResult);
+            } else {
+                const signOutResult = await deregisterSocialAuthToken();
+                console.log(signOutResult);
+            }
+
             dispatch({ type: 'clearAuthSession', payload: {} });
             registerPushTokenForUser(reelayDBUserID, null); 
             // todo: deregister cognito user
-            console.log(signOutResult);
         } catch (error) {
             console.log(error);
         }

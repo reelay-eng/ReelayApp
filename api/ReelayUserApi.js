@@ -79,6 +79,7 @@ export const deregisterSocialAuthToken = async () => {
         const authTokenJSON = await AsyncStorage.getItem('mySocialAuthToken');
         if (!authTokenJSON) return { error: 'No local social auth token' };
 
+        await AsyncStorage.removeItem('mySocialAuthToken');
         const routeDelete = `${REELAY_API_BASE_URL}/socialAuth/deregisterToken`;
         const resultDelete = await fetchResults(routeDelete, {
             method: 'DELETE',

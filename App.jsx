@@ -60,12 +60,7 @@ import { fetchPopularMovies, fetchPopularSeries } from './api/TMDbApi';
 import moment from 'moment';
 import { getEmptyGlobalTopics } from './api/FeedApi';
 import { getAllClubsFollowing } from './api/ClubsApi';
-import { getTopics } from './api/TopicsApi';
 import { verifySocialAuthToken } from './api/ReelayUserApi';
-<<<<<<< Updated upstream
-=======
-import { getReelayAPIKey, verifySocialAuthToken } from './api/ReelayUserApi';
->>>>>>> Stashed changes
 
 const LoadingContainer = styled(View)`
     align-items: center;

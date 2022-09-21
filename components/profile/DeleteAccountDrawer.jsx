@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Auth } from 'aws-amplify';
 import { showErrorToast, showMessageToast, showSuccessToast } from '../utils/toasts';
 import { deleteAccount } from '../../api/ReelayDBApi';
+import { deregisterSocialAuthToken } from '../../api/ReelayUserApi';
 
 const { width } = Dimensions.get('window');
 
@@ -126,21 +127,27 @@ export default DeleteAccountDrawer = ({ navigation, drawerVisible, setDrawerVisi
                     return;
                 }
                 setDeleting(true);
-
                 const deleteAccountResult = await deleteAccount(reelayDBUser.sub, authSession);
-
-                setDeleting(false);
 
                 if (deleteAccountResult) {
                     dispatch({ type: 'setSignedIn', payload: false });
                     setReelayDBUserID(null);
                     const deleteResult = await Auth.deleteUser();
-                    const signOutResult = await Auth.signOut();
-                    dispatch({ type: 'clearAuthSession', payload: {} });
 
+                    if (authSession?.method === 'cognito') {
+                        const signOutResult = await Auth.signOut();
+                        console.log(signOutResult);
+                    } else {
+                        const signOutResult = await deregisterSocialAuthToken();
+                        console.log(signOutResult);
+                    }        
+                    
+                    dispatch({ type: 'clearAuthSession', payload: {} });
                     showSuccessToast(`You\'ve deleted your account`);
                     return deleteResult && signOutResult;
                 }
+
+                setDeleting(false);
 
                 logAmplitudeEventProd('accountDeleted', {
                     userSub: reelayDBUser?.sub,
