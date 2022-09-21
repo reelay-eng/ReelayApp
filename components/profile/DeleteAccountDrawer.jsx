@@ -19,7 +19,7 @@ import styled from 'styled-components/native';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { useDispatch, useSelector } from 'react-redux';
 import { Auth } from 'aws-amplify';
-import { showErrorToast, showMessageToast } from '../utils/toasts';
+import { showErrorToast, showMessageToast, showSuccessToast } from '../utils/toasts';
 import { deleteAccount } from '../../api/ReelayDBApi';
 
 const { width } = Dimensions.get('window');
@@ -138,7 +138,7 @@ export default DeleteAccountDrawer = ({ navigation, drawerVisible, setDrawerVisi
                     const signOutResult = await Auth.signOut();
                     dispatch({ type: 'clearAuthSession', payload: {} });
 
-                    showMessageToast(`You\'ve deleted your account`);
+                    showSuccessToast(`You\'ve deleted your account`);
                     return deleteResult && signOutResult;
                 }
 
@@ -149,13 +149,25 @@ export default DeleteAccountDrawer = ({ navigation, drawerVisible, setDrawerVisi
 
                 return deleteAccountResult;
             } catch (error) {
-                console.log(error);
-                logAmplitudeEventProd('deleteAccountError', {
-                    error: error,
-                    userSub: reelayDBUser?.sub,
-                    username: reelayDBUser?.username,
-                });
-                showErrorToast('Ruh roh! Could not delete account. Try again?');
+                const isNoCurrentUserError = error.toString().includes("No current user.");
+                if (isNoCurrentUserError) {
+                    showSuccessToast(`You\'ve deleted your account`);
+                    logAmplitudeEventProd('accountDeleted', {
+                        userSub: reelayDBUser?.sub,
+                        username: reelayDBUser?.username,
+                    });
+                }
+                else {
+                    console.log("Account deleted error: ", error);
+                    showErrorToast("Ruh roh! Couldn't delete your account. Try again?");
+                    logAmplitudeEventProd('accountDeleted', {
+                        error: error,
+                        userSub: reelayDBUser?.sub,
+                        username: reelayDBUser?.username,
+                    });
+
+                }
+                
                 setDeleting(false);
             }
         }

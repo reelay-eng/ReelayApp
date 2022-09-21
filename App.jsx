@@ -108,6 +108,7 @@ function App() {
      */
 
     useEffect(() => {
+        console.log('sign in use effect being called: ', reelayDBUserID, authSession?.accessToken);
         if (reelayDBUserID && authSession?.accessToken) loadMyProfile(reelayDBUserID);
     }, [reelayDBUserID, authSession]);
 

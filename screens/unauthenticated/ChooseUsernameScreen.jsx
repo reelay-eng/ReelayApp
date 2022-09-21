@@ -166,9 +166,8 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
                 const { reelayDBUserID } = authAccountObj;
                 const completeSignUpResult = await registerUser({ email, username, sub: reelayDBUserID });
     
-                saveAndRegisterSocialAuthToken(reelayDBUserID);
-                setSigningIn(false);
-                setReelayDBUserID(reelayDBUserID);    
+                setReelayDBUserID(reelayDBUserID);
+                await saveAndRegisterSocialAuthToken(reelayDBUserID);
             } else if (method === 'cognito') {
                 const signUpResult = await Auth.signUp({
                     username: username,

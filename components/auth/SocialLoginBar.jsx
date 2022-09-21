@@ -9,6 +9,8 @@ import * as Apple  from 'expo-apple-authentication';
 import { fetchResults } from "../../api/fetchResults";
 import { AuthContext } from "../../context/AuthContext";
 
+import { useDispatch } from 'react-redux';
+
 import { 
     matchSocialAuthAccount, 
     registerSocialAuthAccount, 
@@ -48,10 +50,12 @@ const SocialAuthButton = styled(Pressable)`
 `
 
 export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
+    const dispatch = useDispatch();
     try {
     const { setReelayDBUserID } = useContext(AuthContext);
 
     const appleOrGoogleCascadingSignIn = async ({
+        authSession,
         method, 
         email, 
         fullName, 
@@ -62,6 +66,13 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
             method, 
             value: (method === 'apple') ? appleUserID : googleUserID,
         });
+
+        if (method === 'apple') {
+            dispatch({ type: 'setAuthSessionFromApple', payload: authSession }); 
+        }
+        else if (method === 'google') {
+            dispatch({ type: 'setAuthSessionFromGoogle', payload: authSession });
+        }
 
         if (authAccountMatch && !authAccountMatch?.error) {
             // this social login is registered
@@ -99,8 +110,18 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
                 });
     
                 setSigningIn(true); 
-                const { email, fullName, user } = credentials;
-                appleOrGoogleCascadingSignIn({ method: 'apple', email, fullName, appleUserID: user });    
+                const { email, fullName, user, identityToken, authorizationCode } = credentials;
+                appleOrGoogleCascadingSignIn({ 
+                    authSession: { 
+                        accessToken: authorizationCode,
+                        idToken: identityToken,
+                        refreshToken: authorizationCode,
+                    },
+                    appleUserID: user,
+                    email, 
+                    fullName, 
+                    method: 'apple', 
+                });    
             } catch (error) {
                 console.log(error);
                 logAmplitudeEventProd('appleSignInError', { error });
@@ -125,7 +146,9 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
         });        
         const onSignInResponse = async () => {
             const accessToken = response?.authentication?.accessToken;
-            if (!accessToken) {
+            const idToken = response?.authentication?.idToken;
+            const refreshToken = response?.authentication?.refreshToken;
+            if (response?.type == 'error' || !accessToken) { // otherwise it's 'success'
                 console.log('No access token');
                 return;
             }
@@ -133,7 +156,7 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
             setSigningIn(true); 
             const googleUserQuery = `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${accessToken}`;
             const googleUserObj = await fetchResults(googleUserQuery, { method: 'GET' });
-
+            
             console.log('Google user obj: ', googleUserObj);
             const googleUserID = googleUserObj?.id;
             const email = googleUserObj?.email;
@@ -141,7 +164,13 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
                 familyName: googleUserObj?.family_name,
                 givenName: googleUserObj?.given_name,
             };
-            appleOrGoogleCascadingSignIn({ method: 'google', email, fullName, googleUserID });
+            appleOrGoogleCascadingSignIn({ 
+                authSession: { accessToken, idToken, refreshToken },
+                email, 
+                fullName, 
+                googleUserID, 
+                method: 'google', 
+            });
         }
 
         const signInWithGoogle = async () => {

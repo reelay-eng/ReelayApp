@@ -19,11 +19,21 @@ const isSameTitle = (title0, title1) => {
     return (title0.id === title1.id) && (title0.isSeries === title1.isSeries);
 }
 
+export const appleSessionReducer = (session) => {
+    const { idToken, accessToken, refreshToken } = session;
+    return { idToken, accessToken, refreshToken, method: 'apple' };
+}
+
 export const cognitoSessionReducer = (session) => {
     const idToken = session.idToken.jwtToken;
     const accessToken = session.accessToken.jwtToken;
     const refreshToken = session.refreshToken.token;
-    return { idToken, accessToken, refreshToken };
+    return { idToken, accessToken, refreshToken, method: 'cognito' };
+}
+
+export const googleSessionReducer = (session) => {
+    const { idToken, accessToken, refreshToken } = session;
+    return { idToken, accessToken, refreshToken, method: 'google' };
 }
 
 export const dismissAnnouncementReducer = ({ announcement, dismissalHistory }) => {

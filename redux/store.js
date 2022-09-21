@@ -1,6 +1,8 @@
 import { createStore } from "redux";
 import { 
+    appleSessionReducer,
     cognitoSessionReducer, 
+    googleSessionReducer,
     dismissAnnouncementReducer,
     dismissNoticeReducer,
     latestAnnouncementReducer,
@@ -136,9 +138,15 @@ const appReducer = ( state = initialState, action) => {
         // AUTHENTICATION
         case 'clearAuthSession':
             return { ...state, authSession: {}, };
-        case 'setAuthSessionFromCognito':
-            const authSession = cognitoSessionReducer(action.payload);
+        case 'setAuthSessionFromApple':
+            let authSession = appleSessionReducer(action.payload);
             return { ...state, authSession };
+        case 'setAuthSessionFromCognito':
+            authSession = cognitoSessionReducer(action.payload);
+            return { ...state, authSession };
+        case 'setAuthSessionFromGoogle':
+            authSession = googleSessionReducer(action.payload);
+            return { ...state, authSession };            
         case 'setCognitoUser':
             return { ...state, cognitoUser: action.payload }
         case 'setReelayDBUser':
