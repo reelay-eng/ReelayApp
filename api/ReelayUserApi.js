@@ -92,11 +92,8 @@ export const deregisterSocialAuthToken = async () => {
     }
 }
 
-export const verifySocialAuthToken = async () => {
-    try {
-        const authTokenJSON = await AsyncStorage.getItem('mySocialAuthToken');
-        if (!authTokenJSON) return { error: 'No local social auth token' };
-    
+export const verifySocialAuthToken = async (authTokenJSON) => {
+    try {    
         const routeVerify = `${REELAY_API_BASE_URL}/socialAuth/verifyToken`
         const resultVerify = await fetchResults(routeVerify, {
             method: 'POST',

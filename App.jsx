@@ -61,6 +61,11 @@ import moment from 'moment';
 import { getEmptyGlobalTopics } from './api/FeedApi';
 import { getAllClubsFollowing } from './api/ClubsApi';
 import { getTopics } from './api/TopicsApi';
+import { verifySocialAuthToken } from './api/ReelayUserApi';
+<<<<<<< Updated upstream
+=======
+import { getReelayAPIKey, verifySocialAuthToken } from './api/ReelayUserApi';
+>>>>>>> Stashed changes
 
 const LoadingContainer = styled(View)`
     align-items: center;
@@ -139,12 +144,21 @@ function App() {
 
                 const signUpFromGuest = (tryCognitoUser?.username === 'be_our_guest');
                 dispatch({ type: 'setSignUpFromGuest', payload: signUpFromGuest });
-
-                if (!signUpFromGuest) {
-                    const cognitoSession = await Auth.currentSession();
-                    dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });    
+                
+                const cognitoSession = await Auth.currentSession();
+                dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });    
+            }  else {
+                // try using a social auth token to sign in the user
+                const authTokenJSON = await AsyncStorage.getItem('mySocialAuthToken');
+                if (authTokenJSON) {
+                    const { reelayDBUserID, token } = JSON.parse(authTokenJSON);
+                    tryVerifySocialAuth = await verifySocialAuthToken(authTokenJSON);
+                    if (tryVerifySocialAuth?.success) {
+                        console.log('Auto authentication from social login successful');
+                        setReelayDBUserID(reelayDBUserID);
+                    }
                 }
-            } 
+            }
             logAmplitudeEventProd('authenticationComplete', {
                 hasValidCredentials: tryCredentials?.authenticated,
                 username: tryCognitoUser?.attributes?.sub,
