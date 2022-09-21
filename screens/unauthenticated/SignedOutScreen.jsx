@@ -101,7 +101,7 @@ const BarHeader = () => {
 const Spacer = styled(View)`
     height: ${props => props.height ?? "40px"};
 `
-const SignUpIsVisible = false && process.env.NODE_ENV !== 'production';
+const SignUpIsVisible = process.env.NODE_ENV !== 'production';
 
 export default SignedOutScreen = ({ navigation, route }) => {
     // const autoSignInAsGuest = route?.params?.autoSignInAsGuest ?? false;
