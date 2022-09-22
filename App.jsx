@@ -144,10 +144,15 @@ function App() {
                 dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });    
             }  else {
                 // try using a social auth token to sign in the user
-                const reelayDBUserID = await verifySocialAuthSession();
-                if (reelayDBUserID) {
+                const authSession = await verifySocialAuthSession();
+                if (authSession && authSession?.reelayDBUserID) {
                     console.log('Auto authentication from social login successful');
-                    setReelayDBUserID(reelayDBUserID);
+                    setReelayDBUserID(authSession.reelayDBUserID);
+                    dispatch({ type: 'setReelayDBUserID', payload: authSession.reelayDBUserID });
+                    const dispatchType = (authSession.method === 'apple')
+                        ? 'setAuthSessionFromApple'
+                        : 'setAuthSessionFromGoogle';
+                    dispatch({ type: dispatchType, payload: authSession });    
                 }
             }
             logAmplitudeEventProd('authenticationComplete', {

@@ -68,12 +68,13 @@ export const saveAndRegisterSocialAuthSession = async ({ authSession, method, re
             refreshtoken: authSession.refreshToken,
             requsersub: reelayDBUserID,
         }
+
         const routePost = `${REELAY_API_BASE_URL}/authSession/`;
         const resultPost = await fetchResults(routePost, {
             method: 'POST',
             headers,
         });
-        console.log('Register social auth token result: ', resultPost);
+        console.log('Register social auth session result: ', resultPost);
         return resultPost;    
     } catch (error) {
         return { error };
@@ -99,7 +100,7 @@ export const deregisterSocialAuthSession = async ({ authSession, reelayDBUserID 
             method: 'DELETE',
             headers,
         });
-        console.log('Deregister social auth token result: ', resultDelete);
+        console.log('Deregister social auth session result: ', resultDelete);
         return resultDelete;
     } catch (error) {
         return { error };
@@ -127,9 +128,9 @@ export const verifySocialAuthSession = async () => {
         });
         console.log('Verify social auth session result: ', resultVerify);
         if (resultVerify?.success) {
-            return authSession.reelayDBUserID;
+            return authSession;
         } else {
-            await deregisterSocialAuthSession({ authSession, reelayDBUserID });
+            await deregisterSocialAuthSession({ authSession, reelayDBUserID: authSession.reelayDBUserID });
             return null;
         }
     } catch (error) {
