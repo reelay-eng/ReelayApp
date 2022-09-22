@@ -25,14 +25,14 @@ const ButtonPressable = styled(TouchableOpacity)`
 `
 const ButtonContainer = styled(View)`
     align-items: center;
-	height: 56px;
+	height: 48px;
     margin-top: 8px;
     margin-bottom: 8px;
     width: 100%;
 `
 const ButtonsFlexContainer = styled(View)`
     height: 85%;
-    width: 95%;
+    width: 90%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -52,7 +52,7 @@ const ButtonText = styled(ReelayText.Body2Emphasized)`
 
 const ButtonOverlineText = styled(ReelayText.Overline)`
     color: ${props => props.color ?? ReelayColors.reelayBlue};
-    font-size: 13px;
+    font-size: 15px;
 `
 
 const LoadingContainer = styled(View)`
@@ -102,12 +102,40 @@ const BarHeader = () => {
 const Spacer = styled(View)`
     height: ${props => props.height ?? "40px"};
 `
-const SignUpIsVisible = process.env.NODE_ENV !== 'production';
+const SignUpIsVisible = false && process.env.NODE_ENV !== 'production';
+
+const SigningInOuterContainer = styled(View)`
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+`
+const SigningInContainer = styled(View)`
+    background-color: #0d0d0d;
+    border-radius: 20px;
+    width: 80%;
+    justify-content: center;
+    align-items: center;
+`
+const SigningInIndicator = () => {
+    return (
+        <SigningInOuterContainer>
+            <SigningInContainer>
+                <ButtonText color='white' style={{fontSize: 20, lineHeight: 24}}>Logging you in</ButtonText>
+                <Spacer height='15%' />
+                <ActivityIndicator size="large" color='white' />
+            </SigningInContainer>
+        </SigningInOuterContainer>
+    )
+}
 
 export default SignedOutScreen = ({ navigation, route }) => {
     // const autoSignInAsGuest = route?.params?.autoSignInAsGuest ?? false;
     const { setCognitoUser } = useContext(AuthContext);
     const [signingInJustShowMe, setSigningInJustShowMe] = useState(false);
+    const [signingInSocial, setSigningInSocial] = useState(false);
     const signUpFromGuest = useSelector(state => state.signUpFromGuest);
     const dispatch = useDispatch();
 
@@ -179,6 +207,7 @@ export default SignedOutScreen = ({ navigation, route }) => {
                         <Spacer height="10%" />
                         <SocialLoginBar 
                             navigation={navigation}
+                            setSigningIn={setSigningInSocial}
                         />
                         <Spacer height='20px' />
                         <BarHeader />
@@ -189,6 +218,7 @@ export default SignedOutScreen = ({ navigation, route }) => {
                     <LogInButton />
                 </>
             )}
+            { signingInSocial && <SigningInIndicator />}
         </Container>
 )
 }

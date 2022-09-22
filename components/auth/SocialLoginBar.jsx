@@ -23,6 +23,7 @@ import { makeRedirectUri } from "expo-auth-session";
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 
 import * as WebBrowser from 'expo-web-browser';
+import ReelayColors from "../../constants/ReelayColors";
 WebBrowser.maybeCompleteAuthSession();
 
 const iosURLScheme = Constants.manifest.extra.googleiOSURLScheme;
@@ -34,7 +35,6 @@ const ButtonPressable = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${props => props.backgroundColor ?? 'black'};
     border-radius: 10px;
-    border: solid 1px white;
     height: 100%;
     justify-content: center;
     flex-direction: row;
@@ -42,7 +42,7 @@ const ButtonPressable = styled(TouchableOpacity)`
 `
 const ButtonContainer = styled(View)`
     align-items: center;
-	height: 56px;
+	height: 48px;
     margin-top: 8px;
     margin-bottom: 8px;
     width: 100%;
@@ -50,11 +50,11 @@ const ButtonContainer = styled(View)`
 const ButtonText = styled(Text)`
     font-family: Outfit-Medium;
     color: ${props => props.color ?? ReelayColors.reelayBlue};
-    font-size: 18px;
+    font-size: 22px;
     margin-left: 10px;
 `
 
-export default SocialLoginBar = ({ navigation }) => {
+export default SocialLoginBar = ({ navigation, setSigningIn }) => {
     const dispatch = useDispatch();
     try {
     const { setReelayDBUserID } = useContext(AuthContext);
@@ -67,6 +67,7 @@ export default SocialLoginBar = ({ navigation }) => {
         appleUserID, 
         googleUserID 
     }) => {
+        setSigningIn(true);
         const authAccountMatch = await matchSocialAuthAccount({ 
             method, 
             value: (method === 'apple') ? appleUserID : googleUserID,
@@ -133,10 +134,13 @@ export default SocialLoginBar = ({ navigation }) => {
 
         return (
             <ButtonContainer>
-                <ButtonPressable backgroundColor='black' onPress={signInWithApple} activeOpacity={0.8}>
-                    <Icon type='ionicon' name='logo-apple' color='white' size={24} />
-                    <ButtonText color='white'>{'Sign in with Apple'}</ButtonText>
-                </ButtonPressable>
+                <Apple.AppleAuthenticationButton
+                    buttonType={Apple.AppleAuthenticationButtonType.SIGN_IN}
+                    buttonStyle={Apple.AppleAuthenticationButtonStyle.WHITE}
+                    style={{ width: '100%', height: 48 }}
+                    cornerRadius={10}
+                    onPress={signInWithApple}
+                />
             </ButtonContainer>
         );
     }
@@ -187,9 +191,9 @@ export default SocialLoginBar = ({ navigation }) => {
 
         return (
             <ButtonContainer>
-                <ButtonPressable backgroundColor='white' onPress={signInWithGoogle} activeOpacity={0.8}>
+                <ButtonPressable backgroundColor={ReelayColors.reelayBlue} onPress={signInWithGoogle} activeOpacity={0.8}>
                     <Image source={GoogleImage} style={{ width: 24, height: 24 }} resizeMode="contain" />
-                    <ButtonText color='rgba(0, 0, 0, 0.54)'>{'Sign in with Google'}</ButtonText>
+                    <ButtonText color='white'>{'Sign in with Google'}</ButtonText>
                 </ButtonPressable>
             </ButtonContainer>
         );
