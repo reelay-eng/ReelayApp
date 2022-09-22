@@ -60,7 +60,7 @@ import { fetchPopularMovies, fetchPopularSeries } from './api/TMDbApi';
 import moment from 'moment';
 import { getEmptyGlobalTopics } from './api/FeedApi';
 import { getAllClubsFollowing } from './api/ClubsApi';
-import { verifySocialAuthToken } from './api/ReelayUserApi';
+import { verifySocialAuthSession } from './api/ReelayUserApi';
 
 const LoadingContainer = styled(View)`
     align-items: center;
@@ -144,14 +144,10 @@ function App() {
                 dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });    
             }  else {
                 // try using a social auth token to sign in the user
-                const authTokenJSON = await AsyncStorage.getItem('mySocialAuthToken');
-                if (authTokenJSON) {
-                    const { reelayDBUserID, token } = JSON.parse(authTokenJSON);
-                    tryVerifySocialAuth = await verifySocialAuthToken(authTokenJSON);
-                    if (tryVerifySocialAuth?.success) {
-                        console.log('Auto authentication from social login successful');
-                        setReelayDBUserID(reelayDBUserID);
-                    }
+                const reelayDBUserID = await verifySocialAuthSession();
+                if (reelayDBUserID) {
+                    console.log('Auto authentication from social login successful');
+                    setReelayDBUserID(reelayDBUserID);
                 }
             }
             logAmplitudeEventProd('authenticationComplete', {

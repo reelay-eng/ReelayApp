@@ -1,9 +1,9 @@
 import { getUserByEmail } from './ReelayDBApi';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { fetchResults } from './fetchResults';
 import { v4 } from 'uuid';
 import ReelayAPIHeaders from './ReelayAPIHeaders';
+import * as SecureStore from 'expo-secure-store';
 
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 
@@ -55,17 +55,23 @@ export const registerSocialAuthAccount = async ({ method, email, fullName, googl
     }
 }
 
-export const saveAndRegisterSocialAuthToken = async (reelayDBUserID) => {
+export const saveAndRegisterSocialAuthSession = async ({ authSession, method, reelayDBUserID }) => {
     try {
-        const token = v4();
-        const authTokenJSON = JSON.stringify({ reelayDBUserID, token });
-        await AsyncStorage.setItem('mySocialAuthToken', authTokenJSON);
+        const token = JSON.stringify({ ...authSession, method, reelayDBUserID });
+        const storeAuthSessionResult = await SecureStore.setItemAsync('socialAuthSession', token);
+        console.log(storeAuthSessionResult);
 
-        const routePost = `${REELAY_API_BASE_URL}/socialAuth/registerToken`;
+        const headers = {
+            accesstoken: authSession.accessToken,
+            idtoken: authSession.idToken,
+            method,
+            refreshtoken: authSession.refreshToken,
+            requsersub: reelayDBUserID,
+        }
+        const routePost = `${REELAY_API_BASE_URL}/authSession/`;
         const resultPost = await fetchResults(routePost, {
             method: 'POST',
-            headers: ReelayAPIHeaders,
-            body: authTokenJSON,
+            headers,
         });
         console.log('Register social auth token result: ', resultPost);
         return resultPost;    
@@ -74,17 +80,24 @@ export const saveAndRegisterSocialAuthToken = async (reelayDBUserID) => {
     }
 }
 
-export const deregisterSocialAuthToken = async () => {
+export const deregisterSocialAuthSession = async ({ authSession, reelayDBUserID }) => {
     try {
-        const authTokenJSON = await AsyncStorage.getItem('mySocialAuthToken');
-        if (!authTokenJSON) return { error: 'No local social auth token' };
+        const authSessionJSON = await SecureStore.getItemAsync('socialAuthSession');
+        if (!authSessionJSON) return { error: 'No local social auth session' };
+        await SecureStore.deleteItemAsync('socialAuthSession');
 
-        await AsyncStorage.removeItem('mySocialAuthToken');
-        const routeDelete = `${REELAY_API_BASE_URL}/socialAuth/deregisterToken`;
+        const headers = {
+            accesstoken: authSession.accessToken,
+            idtoken: authSession.idToken,
+            method: authSession.method,
+            refreshtoken: authSession.refreshToken,
+            requsersub: reelayDBUserID,
+        }
+
+        const routeDelete = `${REELAY_API_BASE_URL}/authSession/`;
         const resultDelete = await fetchResults(routeDelete, {
             method: 'DELETE',
-            headers: ReelayAPIHeaders,
-            body: authTokenJSON,
+            headers,
         });
         console.log('Deregister social auth token result: ', resultDelete);
         return resultDelete;
@@ -93,17 +106,34 @@ export const deregisterSocialAuthToken = async () => {
     }
 }
 
-export const verifySocialAuthToken = async (authTokenJSON) => {
+export const verifySocialAuthSession = async () => {
     try {    
-        const routeVerify = `${REELAY_API_BASE_URL}/socialAuth/verifyToken`
+        const authSessionJSON = await SecureStore.getItemAsync('socialAuthSession');
+        if (!authSessionJSON) return null;
+
+        const authSession = JSON.parse(authSessionJSON);
+        const headers = {
+            accesstoken: authSession.accessToken,
+            idtoken: authSession.idToken,
+            method: authSession.method,
+            refreshtoken: authSession.refreshToken,
+            requsersub: authSession.reelayDBUserID,
+        }
+
+        const routeVerify = `${REELAY_API_BASE_URL}/authSession/`
         const resultVerify = await fetchResults(routeVerify, {
-            method: 'POST',
-            headers: ReelayAPIHeaders,
-            body: authTokenJSON
+            method: 'GET',
+            headers,
         });
-        console.log('Verify social auth token result: ', resultVerify);
-        return resultVerify;
+        console.log('Verify social auth session result: ', resultVerify);
+        if (resultVerify?.success) {
+            return authSession.reelayDBUserID;
+        } else {
+            await deregisterSocialAuthSession({ authSession, reelayDBUserID });
+            return null;
+        }
     } catch (error) {
-        return { error };
+        console.log(error);
+        return null;
     }
 }

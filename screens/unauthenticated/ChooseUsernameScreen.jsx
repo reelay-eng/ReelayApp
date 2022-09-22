@@ -18,7 +18,7 @@ import {
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
-import { registerSocialAuthAccount, saveAndRegisterSocialAuthToken } from '../../api/ReelayUserApi';
+import { registerSocialAuthAccount, saveAndRegisterSocialAuthSession } from '../../api/ReelayUserApi';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { showErrorToast } from '../../components/utils/toasts';
 import { checkUsername } from '../../components/utils/ValidUsernameCheck';
@@ -117,6 +117,7 @@ export const KeyboardHidingBlackContainer = ({ children }) => {
 };
 
 export default ChooseUsernameScreen = ({ navigation, route }) => {    
+    const authSession = route?.params?.authSession;
     const { method, email, fullName, googleUserID, appleUserID, password } = route?.params;
     const [signingIn, setSigningIn] = useState(false);
     const { setReelayDBUserID } = useContext(AuthContext);
@@ -165,9 +166,10 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
                 const authAccountObj = await registerSocialAuthAccount({ method, email, fullName, googleUserID, appleUserID });    
                 const { reelayDBUserID } = authAccountObj;
                 const completeSignUpResult = await registerUser({ email, username, sub: reelayDBUserID });
+                console.log('complete signup result: ', completeSignUpResult);
     
                 setReelayDBUserID(reelayDBUserID);
-                await saveAndRegisterSocialAuthToken(reelayDBUserID);
+                await saveAndRegisterSocialAuthSession({ authSession, method, reelayDBUserID });
             } else if (method === 'cognito') {
                 const signUpResult = await Auth.signUp({
                     username: username,

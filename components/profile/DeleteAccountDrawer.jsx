@@ -20,8 +20,8 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { useDispatch, useSelector } from 'react-redux';
 import { Auth } from 'aws-amplify';
 import { showErrorToast, showMessageToast, showSuccessToast } from '../utils/toasts';
-import { deleteAccount } from '../../api/ReelayDBApi';
-import { deregisterSocialAuthToken } from '../../api/ReelayUserApi';
+import { deleteAccount, registerPushTokenForUser } from '../../api/ReelayDBApi';
+import { deregisterSocialAuthSession } from '../../api/ReelayUserApi';
 
 const { width } = Dimensions.get('window');
 
@@ -93,7 +93,7 @@ const PromptText = styled(ReelayText.Body2)`
 `
 
 export default DeleteAccountDrawer = ({ navigation, drawerVisible, setDrawerVisible }) => {
-    const { reelayDBUser, setReelayDBUserID } = useContext(AuthContext);
+    const { reelayDBUser, reelayDBUserID, setReelayDBUserID } = useContext(AuthContext);
 
     const [deleting, setDeleting] = useState(false);
     const confirmDeleteText = useRef('');
@@ -131,18 +131,23 @@ export default DeleteAccountDrawer = ({ navigation, drawerVisible, setDrawerVisi
 
                 if (deleteAccountResult) {
                     dispatch({ type: 'setSignedIn', payload: false });
-                    setReelayDBUserID(null);
                     const deleteResult = await Auth.deleteUser();
 
                     if (authSession?.method === 'cognito') {
                         const signOutResult = await Auth.signOut();
                         console.log(signOutResult);
                     } else {
-                        const signOutResult = await deregisterSocialAuthToken();
+                        const signOutResult = await deregisterSocialAuthSession({
+                            authSession,
+                            reelayDBUserID,
+                        });
                         console.log(signOutResult);
                     }        
                     
+                    await registerPushTokenForUser(reelayDBUserID, null);
                     dispatch({ type: 'clearAuthSession', payload: {} });
+                    setReelayDBUserID(null);
+
                     showSuccessToast(`You\'ve deleted your account`);
                     return deleteResult && signOutResult;
                 }

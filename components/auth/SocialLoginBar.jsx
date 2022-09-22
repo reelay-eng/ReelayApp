@@ -6,7 +6,6 @@ import Constants from "expo-constants";
 
 import * as Google from 'expo-auth-session/providers/google';
 import * as Apple  from 'expo-apple-authentication';
-import * as ReelayText from "../global/Text";
 import { fetchResults } from "../../api/fetchResults";
 import { AuthContext } from "../../context/AuthContext";
 
@@ -17,7 +16,7 @@ import { useDispatch } from 'react-redux';
 import { 
     matchSocialAuthAccount, 
     registerSocialAuthAccount, 
-    saveAndRegisterSocialAuthToken,
+    saveAndRegisterSocialAuthSession, 
 } from "../../api/ReelayUserApi";
 import { getUserByEmail } from "../../api/ReelayDBApi";
 import { makeRedirectUri } from "expo-auth-session";
@@ -85,14 +84,14 @@ export default SocialLoginBar = ({ navigation }) => {
             console.log('Auth account found: ', authAccountMatch);
             const { reelayDBUserID } = authAccountMatch;
             setReelayDBUserID(reelayDBUserID);
-            await saveAndRegisterSocialAuthToken(reelayDBUserID);
+            await saveAndRegisterSocialAuthSession({ authSession, method, reelayDBUserID });
         } else {
             // social login not registered
             const existingUser = await getUserByEmail(email);
             if (existingUser?.sub) {
                 // user completed initial sign up through cognito
                 setReelayDBUserID(existingUser?.sub);
-                await saveAndRegisterSocialAuthToken(existingUser?.sub);
+                await saveAndRegisterSocialAuthSession({ authSession, method, reelayDBUserID: existingUser?.sub });
                 // link the social auth account 
                 // apple will only give us an email address the first time we signin with apple
                 await registerSocialAuthAccount({ method, email, fullName, appleUserID, googleUserID });
@@ -100,7 +99,7 @@ export default SocialLoginBar = ({ navigation }) => {
             } else {
                 console.log('Totally new user');
                 // totally new user w/o cognito -- needs a username before completing signup
-                navigation.push('ChooseUsernameScreen', { method, email, fullName, appleUserID, googleUserID });
+                navigation.push('ChooseUsernameScreen', { authSession, method, email, fullName, appleUserID, googleUserID });
             }
         }
     }
@@ -119,7 +118,7 @@ export default SocialLoginBar = ({ navigation }) => {
                     authSession: { 
                         accessToken: authorizationCode,
                         idToken: identityToken,
-                        refreshToken: authorizationCode,
+                        refreshToken: user,
                     },
                     appleUserID: user,
                     email, 
