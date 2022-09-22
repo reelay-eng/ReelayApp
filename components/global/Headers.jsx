@@ -6,7 +6,9 @@ import * as ReelayText from "./Text";
 import ReelayColors from "../../constants/ReelayColors";
 
 const BackButtonPressable = styled(TouchableOpacity)`
-	margin-right: 6px;
+	margin-top: -6px;
+	margin-bottom: -6px;
+	padding: 6px;
 `
 const HeaderView = styled(View)`
 	align-items: center;

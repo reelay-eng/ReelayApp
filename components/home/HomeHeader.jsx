@@ -57,7 +57,10 @@ const HeaderText = styled(ReelayText.H5Bold)`
     text-align: left;
 `
 const IconContainer = styled(TouchableOpacity)`
-    margin-left: 10px;
+    margin-top: -10px;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-bottom: 10px;
 `
 const OptionText = styled(ReelayText.H6)`
     color: gray;
@@ -93,11 +96,9 @@ export default HomeHeader = ({
                 </HeaderContainerLeft>
                 <HeaderContainerRight>
                     <IconContainer onPress={advanceToSearchScreen}>
-                        {/* <Icon type='ionicon' size={27} color={'white'} name='search' /> */}
                         <SearchIconSVG />
                     </IconContainer>
                     <IconContainer onPress={advanceToMyNotifications}>
-                        {/* <Icon type='ionicon' size={27} color={'white'} name='notifications' /> */}
                         <NotificationIconSVG />
                         { hasUnreadNotifications && <UnreadIconIndicator /> }
                     </IconContainer>
