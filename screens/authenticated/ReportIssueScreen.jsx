@@ -9,11 +9,11 @@ import { useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../../components/utils/toasts';
 import ReelayColors from '../../constants/ReelayColors';
 import { Icon } from 'react-native-elements';
-import BackButton from '../../components/utils/BackButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { validate } from 'validate.js';
 import constraints from '../../components/utils/EmailValidationConstraints';
+import { HeaderWithBackButton } from '../../components/global/Headers';
 
 const { width } = Dimensions.get('window');
 
@@ -45,17 +45,6 @@ const EmailTextInputBox = styled(View)`
     padding-left: 6px;
     padding-bottom: 6px;
     width: ${width - 64}px;
-`
-const HeaderBox = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    padding-left: 16px;
-    padding-right: 16px;
-    padding-bottom: 24px;
-    width: 100%;
-`
-const HeaderText = styled(ReelayText.H6)`
-    color: white;
 `
 const InputLabelBox = styled(View)`
     align-items: center;
@@ -173,15 +162,6 @@ export default ReportIssueScreen = ({ navigation, route }) => {
         );
     }
 
-    const Header = () => {
-        return (
-            <HeaderBox>
-                <BackButton navigation={navigation} />
-                <HeaderText>{'Report an issue'}</HeaderText>
-            </HeaderBox>
-        );
-    }
-
     const LeaveBlank = () => {
         return <View>
             <LeaveBlankText>{`Leave blank if you don't want us to contact you`}</LeaveBlankText>
@@ -271,7 +251,8 @@ export default ReportIssueScreen = ({ navigation, route }) => {
 
     return (
         <FullscreenBox onPress={Keyboard.dismiss} topOffset={topOffset}>
-            <Header />
+            <HeaderWithBackButton navigation={navigation} text={'report an issue'} />
+            <Spacer />
             <ScrollView showsVerticalScrollIndicator={false}>
                 <KeyboardAvoidingView behavior="padding" style={{ alignItems: 'center', width: '100%'}}>
                     <EmailInput />

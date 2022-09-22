@@ -42,7 +42,7 @@ export const ProfileSettings = ({navigation}) => {
 
     return (
 		<ViewContainer>
-			<HeaderWithBackButton navigation={navigation} text='Settings & Info' />
+			<HeaderWithBackButton navigation={navigation} text='settings & info' />
 			<SettingsContainer>
                 <SettingEntry
                     text="Account Information"

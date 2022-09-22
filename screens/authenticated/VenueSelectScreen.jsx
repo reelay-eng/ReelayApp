@@ -79,9 +79,9 @@ const PrimaryVenueImage = styled(Image)`
     border-color: white;
 `
 const ScreenContainer = styled(SafeAreaView)`
+    background-color: black;
     height: 100%;
     width: 100%;
-    background-color: black;
 `
 const SeeMorePressable = styled(TouchableOpacity)`
     align-items: center;
@@ -104,6 +104,9 @@ const SkipButtonContainer = styled(View)`
     margin-top: 16px;
     height: 40px;
     width: 90%;
+`
+const Spacer = styled(View)`
+    height: 12px;
 `
 
 export default VenueSelectScreen = ({ navigation, route }) => {
@@ -262,7 +265,8 @@ export default VenueSelectScreen = ({ navigation, route }) => {
 
     return (
 		<ScreenContainer>
-            <HeaderWithBackButton navigation={navigation} text={`Where did you see it?`} />
+            <Spacer />
+            <HeaderWithBackButton navigation={navigation} text={`where did you see it?`} />
             <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
                 <FlexContainer>
                     <IconOptions />

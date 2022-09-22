@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
-const GRID_SIDE_MARGIN = 16;
+const GRID_SIDE_MARGIN = 12;
 const GRID_WIDTH = width - (2 * GRID_SIDE_MARGIN);
 const MAX_SUGGESTION_PAGE = 9; // multiple of 3 gives us a full bottom row
 

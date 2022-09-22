@@ -114,10 +114,10 @@ const FilterButtonRow = styled(View)`
     flex-direction: row;
     margin: 16px;
 `
-const HeaderText = styled(ReelayText.H4Bold)`
+const HeaderText = styled(ReelayText.H5Bold)`
     text-align: left;
     color: white;
-    margin-top: 4px;
+    margin-top: 8px;
 `
 const MyClubsScreenView = styled(View)`
     background-color: black;
@@ -137,7 +137,7 @@ const TopBarView = styled(SafeAreaView)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
-    margin: 10px;
+    margin: 12px;
     padding-top: 0px;
 `
 const TopBarButtonView = styled(View)`

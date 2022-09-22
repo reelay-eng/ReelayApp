@@ -25,8 +25,7 @@ const DiscoveryBarView = styled(Pressable)`
 const DiscoveryBarLeftView = styled(View)`
     align-items: center;
     flex-direction: row;
-    margin-top: 12px;
-    padding-left: 6px;
+    margin-top: 6px;
 `
 const DiscoveryBarRightView = styled(View)`
     align-items: center;
