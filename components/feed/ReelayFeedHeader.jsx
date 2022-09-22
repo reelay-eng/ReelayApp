@@ -26,6 +26,7 @@ const DiscoveryBarLeftView = styled(View)`
     align-items: center;
     flex-direction: row;
     margin-top: 6px;
+    margin-left: 1px;
 `
 const DiscoveryBarRightView = styled(View)`
     align-items: center;

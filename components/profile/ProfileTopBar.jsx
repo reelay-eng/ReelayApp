@@ -54,7 +54,7 @@ export default ProfileTopBar = ({ creator, navigation, atProfileBase = false }) 
         align-items: center;
         flex-direction: row;
         height: 40px;
-        margin-left: 4px;
+        margin-left: 3px;
         margin-right: 10px;
         margin-bottom: 8px;
         shadow-color: white;
