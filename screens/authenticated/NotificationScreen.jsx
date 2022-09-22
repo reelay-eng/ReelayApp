@@ -303,7 +303,7 @@ export default NotificationScreen = ({ navigation, route }) => {
 
     return (
         <NotificationScreenContainer>
-            <HeaderWithBackButton navigation={navigation} text={`Activity`} />
+            <HeaderWithBackButton navigation={navigation} text={'notifications'} />
             <NotificationList navigation={navigation} />
         </NotificationScreenContainer>
     );

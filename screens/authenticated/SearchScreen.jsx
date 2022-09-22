@@ -25,26 +25,26 @@ import { searchPublicClubs } from "../../api/ClubsApi";
 import styled from "styled-components/native";
 import { useFocusEffect } from "@react-navigation/native";
 
-const SearchScreenContainer = styled(SafeAreaView)`
+const SearchScreenView = styled(SafeAreaView)`
     background-color: black;
     height: 100%;
     width: 100%;
 `
-const TopBarContainer = styled(View)`
-    display: flex;
-    align-items: center;
-    width: 100%;
-    margin-bottom: 8px;
-`
-const SelectorBarContainer = styled(View)`
-    width: 90%;
+const SelectorBarView = styled(View)`
     height: 40px;
+    width: 95%;
 `
-const SearchBarContainer = styled(View)`
-    width: 100%;
-    display: flex;
+const SearchBarView = styled(View)`
     align-items: center;
     justify-content: center;
+    padding-left: 2px;
+    padding-right: 2px;
+    width: 100%;
+`
+const TopBarView = styled(View)`
+    align-items: center;
+    margin-bottom: 8px;
+    width: 100%;
 `
 
 export default SearchScreen = ({ navigation, route }) => {
@@ -53,13 +53,13 @@ export default SearchScreen = ({ navigation, route }) => {
 
 
     return (
-		<SearchScreenContainer>
+		<SearchScreenView>
 			<HeaderWithBackButton 
                 navigation={navigation} 
-                text={addToWatchlist ? 'Add to watchlist' : 'Search'} 
+                text={addToWatchlist ? 'Add to watchlist' : 'search'} 
             />
             <SearchBarWithResults navigation={navigation} initialSearchType={initialSearchType} addToWatchlist={addToWatchlist}/>
-		</SearchScreenContainer>
+		</SearchScreenView>
 	);
 };
 
@@ -198,8 +198,8 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist })
 
     const TopBar = () => {
         return (
-            <TopBarContainer>
-                <SelectorBarContainer>
+            <TopBarView>
+                <SelectorBarView>
                     <ToggleSelector
                         displayOptions={tabOptions}
                         options={tabOptions}
@@ -209,30 +209,30 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist })
                             if (searchText.length) setLoading(true);
                         }}
                     />
-                </SelectorBarContainer>
-            </TopBarContainer>
+                </SelectorBarView>
+            </TopBarView>
         );
     }
 
     return (
         <React.Fragment>
             <TopBar />
-            <SearchBarContainer>
-                    <SearchField
-                        searchText={searchText}
-                        updateSearchText={updateSearchText}
-                        borderRadius={4}
-                        placeholderText={`Find ${
-                            selectedType === "Film"
-                                ? "films"
-                            : selectedType === "TV"
-                                ? "TV shows"
-                            : selectedType === "Clubs"
-                                ? "clubs on Reelay"
-                            : "people on Reelay"
-                        }`}
-                    />
-            </SearchBarContainer>
+            <SearchBarView>
+                <SearchField
+                    searchText={searchText}
+                    updateSearchText={updateSearchText}
+                    borderRadius={4}
+                    placeholderText={`Find ${
+                        selectedType === "Film"
+                            ? "films"
+                        : selectedType === "TV"
+                            ? "TV shows"
+                        : selectedType === "Clubs"
+                            ? "clubs on Reelay"
+                        : "people on Reelay"
+                    }`}
+                />
+            </SearchBarView>
             { !loading && !showSuggestions && <SearchResults /> }
             { !loading && showSuggestions && (
                 <SuggestedTitlesGrid 

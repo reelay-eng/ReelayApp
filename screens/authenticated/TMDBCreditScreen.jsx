@@ -18,6 +18,9 @@ export default TMDBCreditScreen = ({ navigation, route }) => {
         align-items: center;
         margin-top: 40px;
     `
+	const Spacer = styled(View)`
+		height: 20px;
+	`
     const TMDBCreditContainer = styled(View)`
 		width: 80%;
 		height: 40%;
@@ -32,6 +35,7 @@ export default TMDBCreditScreen = ({ navigation, route }) => {
     return (
 		<TMDBScreenContainer>
 			<HeaderWithBackButton navigation={navigation} text="TMDB Credit" />
+			<Spacer />
 			<ContentContainer>
 				<TMDBCreditContainer>
                     <TMDBTitle style={{marginBottom: 30}}>

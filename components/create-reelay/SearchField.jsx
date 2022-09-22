@@ -4,7 +4,7 @@ import { Input, Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 const SearchFieldContainer = styled(SafeAreaView)`
-	width: 95%;
+	width: 100%;
 `
 
 export default SearchField = ({ 

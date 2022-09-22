@@ -35,7 +35,7 @@ export default NotificationSettings = ({ navigation }) => {
 
     return (
         <ViewContainer>
-            <HeaderWithBackButton navigation={navigation} text="Notification Settings"/>
+            <HeaderWithBackButton navigation={navigation} text="notification settings"/>
             <Spacer />
             <NotificationsSettingsWrapper mySub={mySub} mySettings={mySettings}/>
         </ViewContainer>

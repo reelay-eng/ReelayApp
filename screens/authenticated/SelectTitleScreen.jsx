@@ -18,26 +18,32 @@ import { useFocusEffect } from '@react-navigation/native';
 import SuggestedTitlesGrid from '../../components/search/SuggestedTitlesGrid';
 import { TopicsBannerIconSVG } from '../../components/global/SVGs';
 
-const HeaderText = styled(ReelayText.H4Bold)`
-    text-align: left;
+const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
-    margin-top: 4px;
+    margin-top: 8px;
+    font-size: 24px;
+    line-height: 24px;
+    text-align: left;
 `
 const SearchBarContainer = styled(View)`
-	width: 100%;
-	display: flex;
 	align-items: center;
 	justify-content: center;
+    padding-left: 3px;
+    padding-right: 3px;
+    width: 100%;
 `;
 const SelectorBarContainer = styled(View)`
 	height: 40px;
     margin-bottom: 8px;
-    width: 90%;
+    padding-left: 12px;
+    padding-right: 12px;
+    width: 100%;
 `;
 const TopBarContainer = styled(View)`
-	display: flex;
-    margin-bottom: 10px;
-	width: 90%;
+    margin-bottom: 12px;
+    padding-left: 12px;
+    padding-right: 12px;
+	width: 100%;
 `;
 
 // color is ReelayColors.reelayGreen at reduced opacity

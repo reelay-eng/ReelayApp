@@ -87,7 +87,7 @@ export default EditAccount = ({ navigation }) => {
 
     return (
         <ViewContainer>
-            <HeaderWithBackButton navigation={navigation} text="Edit Account"/>
+            <HeaderWithBackButton navigation={navigation} text="edit account"/>
             <EditAccountWrapper 
                 navigation={navigation} 
                 reelayDBUser={reelayDBUser} 
