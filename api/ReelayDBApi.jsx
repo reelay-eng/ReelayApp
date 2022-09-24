@@ -467,7 +467,24 @@ export const getMostRecentReelaysByTitle = async (tmdbTitleID, page = 0) => {
     }
     const preparedReelays = await Promise.all(fetchedReelays.map(prepareReelay));
     return preparedReelays;
+}
 
+export const getReelaysForTitleKey = async ({ authSession, reqUserSub, titleKey }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/reelays/title?titleKey=${titleKey}&visibility=${visibility}`;
+    const fetchedReelays = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: { 
+            ...getReelayAuthHeaders(authSession), 
+            requsersub: reqUserSub
+        }
+    });
+    if (!fetchedReelays) {
+        console.log('Found no reelays in feed');
+        return null;
+    }
+
+    const preparedTitleThread = await Promise.all(fetchedReelays.map(prepareReelay));
+    return preparedTitleThread;
 }
 
 export const getRegisteredUser = async (userSub) => {

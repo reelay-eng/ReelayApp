@@ -90,6 +90,7 @@ export default Navigation = () => {
         const { notification, actionIdentifier, userText } = notificationResponse;
         const notificationContent = parseNotificationContent(notification);
         handlePushNotificationResponse({ 
+            authSession,
             myClubs,
             navigation: navigationRef?.current, 
             notificationContent,

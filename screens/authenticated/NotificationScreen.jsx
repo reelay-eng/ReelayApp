@@ -96,6 +96,8 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
 
     const { id, title, body, data, createdAt, seen } = notificationContent;
     const { reelayDBUser } = useContext(AuthContext);
+
+    const authSession = useSelector(state => state.authSession);
     const myClubs = useSelector(state => state.myClubs);
     const [pressed, setPressed] = useState(false);
     const timestamp = moment(createdAt).fromNow();
@@ -196,6 +198,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     const onPress = async () => {
         markNotificationActivated(id);
         handlePushNotificationResponse({ 
+            authSession,
             myClubs,
             navigation,
             notificationContent, 

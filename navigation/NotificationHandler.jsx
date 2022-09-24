@@ -5,6 +5,7 @@ import { fetchAnnotatedTitle } from '../api/TMDbApi';
 import { showErrorToast, showMessageToast } from '../components/utils/toasts';
 
 export const handlePushNotificationResponse = async ({ 
+    authSession,
     myClubs,
     navigation, 
     notificationContent, 
@@ -49,9 +50,12 @@ export const handlePushNotificationResponse = async ({
             }
             await openSingleReelayScreen(navigation, data?.reelaySub);
             return;
-        case 'openTitleScreen':
-            await openTitleScreen(navigation, data?.titleObj);
+        case 'openTitleThreadScreen':
+            await openTitleThreadScreen(navigation, data?.titleKey);
             return;    
+        case 'openTopicThreadScreen':
+            await openTopicThreadScreen(navigation, data?.topicID);
+            return;        
         case 'openTopicAtReelay':
             const topicUserResult = await getRegisteredUser(data?.fromUser?.sub);
             if (topicUserResult.username === '[deleted]') {
@@ -124,22 +128,34 @@ const openSingleReelayScreen = async (navigation, reelaySub) => {
     navigation.navigate('SingleReelayScreen', { preparedReelay })
 }
 
-const openTitleScreen = async (navigation, titleObj) => {
+const openTitleThreadScreen = async (navigation, titleKey) => {
     if (!navigation) {
         console.log('No navigation ref');
         return;
     }
 
-    const tmdbTitleID = titleObj.id;
-    const titleType = titleObj?.titleType;
+    const titleThread = await getReelaysForTitleKey({ authSession, reqUserSub: reelayDBUser?.sub, titleKey });
+    navigation.navigate('TitleFeedScreen', {
+        initialStackPos: 0,
+        fixedStackList: [titleThread],
+    });
+}
 
-    if (!tmdbTitleID || !titleType) {
-        console.log('Invalid title type');
+const openTopicThreadScreen = async (navigation, topicID) => {
+    if (!navigation) {
+        console.log('No navigation ref');
         return;
     }
+    const topicThread = await getSingleTopic({ 
+        authSession, 
+        reqUserSub: reelayDBUser?.sub,
+        topicID 
+    });
 
-    const annotatedTitle = await fetchAnnotatedTitle({ tmdbTitleID, isSeries: titleType === 'tv' });
-    navigation.navigate('TitleDetailScreen', { titleObj: annotatedTitle });
+    navigation.navigate('SingleTopicScreen', {
+        initReelayIndex: 0,
+        topic: topicThread,
+    });  
 }
 
 const openTopicAtReelay = async (navigation, reelaySub, reqUserSub) => {
@@ -150,9 +166,13 @@ const openTopicAtReelay = async (navigation, reelaySub, reqUserSub) => {
 
     const singleReelay = await getReelay(reelaySub);
     const findReelayInTopic = (nextReelay) => nextReelay?.sub === reelaySub;
-    const fetchedTopicWithReelays = await getSingleTopic(singleReelay.topicID, reqUserSub);
-    if (!fetchedTopicWithReelays?.reelays?.length) return;
+    const fetchedTopicWithReelays = await getSingleTopic({ 
+        authSession, 
+        reqUserSub,
+        topicID: singleReelay.topicID, 
+    });
 
+    if (!fetchedTopicWithReelays?.reelays?.length) return;
     let reelayIndex = fetchedTopicWithReelays.reelays.findIndex(findReelayInTopic);
     navigation.navigate('SingleTopicScreen', {
         initReelayIndex: reelayIndex,

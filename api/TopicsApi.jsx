@@ -56,11 +56,14 @@ export const editTopic = async ({
     return resultPatch;
 }
 
-export const getSingleTopic = async (topicID, reqUserSub) => {
+export const getSingleTopic = async ({ authSession, reqUserSub, topicID }) => {
     const routeGet = `${REELAY_API_BASE_URL}/topics/topic/${topicID}?visibility=${FEED_VISIBILITY}`;
     const topicWithReelays = await fetchResults(routeGet, {
         method: 'GET',
-        headers: { ...ReelayAPIHeaders, requsersub: reqUserSub },
+        headers: { 
+            ...getReelayAuthHeaders(authSession), 
+            requsersub: reqUserSub,
+        },
     });
 
     topicWithReelays.reelays = await Promise.all(topicWithReelays.reelays.map(prepareReelay));
