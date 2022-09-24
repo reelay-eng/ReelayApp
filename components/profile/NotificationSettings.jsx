@@ -189,9 +189,12 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
         
     const CommentsNotificationCategory = ({ mySettings, toggleSetting }) => {
         const CommentsOnMyReelays = () => {
-            const notifyCommentsOnMyReelays =  getSetting('notifyCommentsOnMyReelays');
+            const [notifyCommentsOnMyReelays, setNotifyCommmentsOnMyReelays] = useState(
+                getSetting('notifyCommentsOnMyReelays')
+            );
             const toggleNotifyCommentsOnMyReelays = async () => {
-                await toggleSetting("notifyCommentsOnMyReelays");
+                setNotifyCommmentsOnMyReelays(!notifyCommentsOnMyReelays);
+                toggleSetting("notifyCommentsOnMyReelays");
             }
             return (
                 <NotificationSetting
@@ -204,9 +207,12 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
         }
     
         const CommentsOnOtherReelays = () => {
-            const notifyCommentsOnOtherReelays = getSetting('notifyCommentsOnOtherReelays');
+            const [notifyCommentsOnOtherReelays, setNotifyCommentsOnOtherReelays] = useState(
+                getSetting('notifyCommentsOnOtherReelays')
+            );
             const toggleNotifyCommentsOnOtherReelays = async () => {
-                await toggleSetting("notifyCommentsOnOtherReelays");
+                setNotifyCommentsOnOtherReelays(!notifyCommentsOnOtherReelays);
+                toggleSetting("notifyCommentsOnOtherReelays");
             }
             return (
                 <NotificationSetting
@@ -229,9 +235,10 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
 
     const FollowsNotificationCategory = ({ mySettings, toggleSetting }) => {
         const Follows = () => {
-            const notifyFollows =  getSetting('notifyFollows');
+            const [notifyFollows, setNotifyFollows] = useState(getSetting('notifyFollows'));
             const toggleNotifyFollows = async () => {
-                await toggleSetting('notifyFollows');
+                setNotifyFollows(!notifyFollows);
+                toggleSetting('notifyFollows');
             }
             return (
                 <NotificationSetting
@@ -253,16 +260,17 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
 
     const InvitesNotificationCategory = ({ mySettings, toggleSetting }) => {
         const ClubInvites = () => {
-            const notifyClubInvites = getSetting('notifyClubInvites');
+            const [notifyClubInvites, setNotifyClubInvites] = useState(getSetting('notifyClubInvites'));
             const toggleNotifyClubInvites = async () => {
-                await toggleSetting("notifyClubInvites");
+                setNotifyClubInvites(!notifyClubInvites);
+                toggleSetting("notifyClubInvites");
             }
             return (
                 <NotificationSetting
-                        title="Clubs" 
-                        subtext="Notify me when someone invites me to a club."
-                        isToggled={notifyClubInvites}
-                        toggleFunction={toggleNotifyClubInvites}
+                    title="Clubs" 
+                    subtext="Notify me when someone invites me to a club."
+                    isToggled={notifyClubInvites}
+                    toggleFunction={toggleNotifyClubInvites}
                 />
             )
         }
@@ -277,9 +285,12 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
     
     const LikesNotificationCategory = ({ mySettings, toggleSetting }) => {
         const LikesOnMyReelays = () => {
-            const notifyLikesOnMyReelays = getSetting('notifyLikesOnMyReelays');
+            const [notifyLikesOnMyReelays, setNotifyLikesOnMyReelays] = useState(
+                getSetting('notifyLikesOnMyReelays')
+            );
             const toggleNotifyLikesOnMyReelays = async () => {
-                await toggleSetting("notifyLikesOnMyReelays");
+                setNotifyLikesOnMyReelays(!notifyLikesOnMyReelays);
+                toggleSetting("notifyLikesOnMyReelays");
             }
             return (
                 <NotificationSetting
@@ -292,9 +303,12 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
         }
     
         const LikesOnMyComments = () => {
-            const notifyLikesOnMyComments = getSetting('notifyLikesOnMyComments');
+            const [notifyLikesOnMyComments, setNotifyLikesOnMyComments] = useState(
+                getSetting('notifyLikesOnMyComments')
+            );
             const toggleNotifyLikesOnMyComments = async () => {
-                await toggleSetting("notifyLikesOnMyComments");
+                setNotifyLikesOnMyComments(!notifyLikesOnMyComments);
+                toggleSetting("notifyLikesOnMyComments");
             }
             return (
                 <NotificationSetting
@@ -317,9 +331,12 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
             
     const ReelaysNotificationCategory = ({ mySettings, toggleSetting }) => {
         const PostsOnMyReelayedTitles = () => {
-            const notifyPostsOnMyReelayedTitles = getSetting('notifyPostsOnMyReelayedTitles');
+            const [notifyPostsOnMyReelayedTitles, setNotifyPostsOnMyReelayedTitles] = useState(
+                getSetting('notifyPostsOnMyReelayedTitles')
+            );
             const toggleNotifyPostsOnMyReelayedTitles = async () => {
-                await toggleSetting("notifyPostsOnMyReelayedTitles");
+                setNotifyPostsOnMyReelayedTitles(!notifyPostsOnMyReelayedTitles);
+                toggleSetting("notifyPostsOnMyReelayedTitles");
             }
             return (
                 <NotificationSetting
@@ -332,9 +349,12 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
         }
     
         const PostsInMyClubs = () => {
-            const notifyPostsInMyClubs = getSetting('notifyPostsInMyClubs');
+            const [notifyPostsInMyClubs, setNotifyPostsInMyClubs] = useState(
+                getSetting('notifyPostsInMyClubs')
+            );
             const toggleNotifyPostsInMyClubs = async () => {
-                await toggleSetting("notifyPostsInMyClubs");
+                setNotifyPostsInMyClubs(!notifyPostsInMyClubs);
+                toggleSetting("notifyPostsInMyClubs");
             }
             return (
                 <NotificationSetting
@@ -347,9 +367,12 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
         }
     
         const PostsInMyFollowing = () => {
-            const notifyPostsInMyFollowing = getSetting('notifyPostsInMyFollowing');
+            const [notifyPostsInMyFollowing, setNotifyPostsInMyFollowing] = useState(
+                getSetting('notifyPostsInMyFollowing')
+            );
             const toggleNotifyPostsInMyFollowing = async () => {
-                await toggleSetting("notifyPostsInMyFollowing");
+                setNotifyPostsInMyFollowing(!notifyPostsInMyFollowing);
+                toggleSetting("notifyPostsInMyFollowing");
             }
             return (
                 <NotificationSetting
@@ -362,9 +385,12 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
         }
     
         const PostsInMyTopics = () => {
-            const notifyPostsInMyTopics = getSetting('notifyPostsInMyTopics');
+            const [notifyPostsInMyTopics, setNotifyPostsInMyTopics] = useState(
+                getSetting('notifyPostsInMyTopics')
+            );
             const toggleNotifyPostsInMyTopics = async () => {
-                await toggleSetting("notifyPostsInMyTopics");
+                setNotifyPostsInMyTopics(!notifyPostsInMyTopics);
+                toggleSetting("notifyPostsInMyTopics");
             }
             return (
                 <NotificationSetting
@@ -377,9 +403,12 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
         }
     
         const PostsInOtherTopics = () => {
-            const notifyPostsInOtherTopics = getSetting('notifyPostsInOtherTopics');
+            const [notifyPostsInOtherTopics, setNotifyPostsInOtherTopics] = useState(
+                getSetting('notifyPostsInOtherTopics')
+            );
             const toggleNotifyPostsInOtherTopics = async () => {
-                await toggleSetting("notifyPostsInOtherTopics");
+                setNotifyPostsInOtherTopics(!notifyPostsInOtherTopics);
+                toggleSetting("notifyPostsInOtherTopics");
             }
             return (
                 <NotificationSetting
@@ -405,9 +434,12 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
 
     const TagsNotificationCategory = ({ mySettings, toggleSetting }) => {
         const TagsInReelays = () => {
-            const notifyTagsInReelays = getSetting('notifyTagsInReelays');
+            const [notifyTagsInReelays, setNotifyTagsInReelays] = useState(
+                getSetting('notifyTagsInReelays')
+            );
             const toggleNotifyTagsInReelays = async () => {
-                await toggleSetting("notifyTagsInReelays");
+                setNotifyTagsInReelays(!notifyTagsInReelays);
+                toggleSetting("notifyTagsInReelays");
             }
             return (
                 <NotificationSetting
@@ -420,9 +452,12 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
         }
     
         const TagsInComments = () => {
-            const notifyTagsInComments = getSetting('notifyTagsInComments');
+            const [notifyTagsInComments, setNotifyTagsInComments] = useState(
+                getSetting('notifyTagsInComments')
+            );
             const toggleNotifyTagsInComments = async () => {
-                await toggleSetting("notifyTagsInComments");
+                setNotifyTagsInComments(!notifyTagsInComments);
+                toggleSetting("notifyTagsInComments");
             }
             return (
                 <NotificationSetting
@@ -445,9 +480,12 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
 
     const TrendingNotificationCategory = ({ mySettings, toggleSetting }) => {
         const TrendingTitles = () => {
-            const notifyTrendingTitles = getSetting('notifyTrendingTitles');
+            const [notifyTrendingTitles, setNotifyTrendingTitles] = useState(
+                getSetting('notifyTrendingTitles')
+            );
             const toggleNotifyTrendingTitles = async () => {
-                await toggleSetting("notifyTrendingTitles");
+                setNotifyTrendingTitles(!notifyTrendingTitles);
+                toggleSetting("notifyTrendingTitles");
             }
             return (
                 <NotificationSetting
@@ -460,9 +498,12 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
         }
     
         const TrendingTopics = () => {
-            const notifyTrendingTopics = getSetting('notifyTrendingTopics');
+            const [notifyTrendingTopics, setNotifyTrendingTopics] = useState(
+                getSetting('notifyTrendingTopics')
+            );
             const toggleNotifyTrendingTopics = async () => {
-                await toggleSetting("notifyTrendingTopics");
+                setNotifyTrendingTopics(!notifyTrendingTopics);
+                toggleSetting("notifyTrendingTopics");
             }
             return (
                 <NotificationSetting
@@ -485,54 +526,66 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
     
     const WatchlistsNotificationCategory = ({ mySettings, toggleSetting }) => {
         const WatchlistsCreatorRecommendationTaken = () => {
-            const notifyCreatorRecommendationTaken = getSetting('notifyCreatorRecommendationTaken');
+            const [notifyCreatorRecommendationTaken, setNotifyCreatorRecommendationTaken] = useState(
+                getSetting('notifyCreatorRecommendationTaken')
+            );
             const toggleNotifyCreatorRecommendationTaken = async () => {
-                await toggleSetting("notifyCreatorRecommendationTaken");
+                setNotifyCreatorRecommendationTaken(!notifyCreatorRecommendationTaken);
+                toggleSetting("notifyCreatorRecommendationTaken");
             }
             return (
                 <NotificationSetting
-                        title="When I take a rec" 
-                        subtext="Notify creators when I add titles to my watchlist from their reelays"
-                        isToggled={notifyCreatorRecommendationTaken}
-                        toggleFunction={toggleNotifyCreatorRecommendationTaken}
+                    title="When I take a rec" 
+                    subtext="Notify creators when I add titles to my watchlist from their reelays"
+                    isToggled={notifyCreatorRecommendationTaken}
+                    toggleFunction={toggleNotifyCreatorRecommendationTaken}
                 />
             )
         }
     
         const WatchlistsMyRecommendationTaken = () => {
-            const notifyMyRecommendationTaken = getSetting('notifyMyRecommendationTaken'); 
+            const [notifyMyRecommendationTaken, setNotifyMyRecommendationTaken] = useState(
+                getSetting('notifyMyRecommendationTaken')
+            );
             const toggleNotifyMyRecommendationTaken = async () => {
-                await toggleSetting("notifyMyRecommendationTaken");
+                setNotifyMyRecommendationTaken(!notifyMyRecommendationTaken);
+                toggleSetting("notifyMyRecommendationTaken");
             }
             return (
                 <NotificationSetting
-                        title="When people take my rec" 
-                        subtext="Notify me when people add titles to their watchlist from my reelays"
-                        isToggled={notifyMyRecommendationTaken}
-                        toggleFunction={toggleNotifyMyRecommendationTaken}
+                    title="When people take my rec" 
+                    subtext="Notify me when people add titles to their watchlist from my reelays"
+                    isToggled={notifyMyRecommendationTaken}
+                    toggleFunction={toggleNotifyMyRecommendationTaken}
                 />
             )
         }
 
         const WatchlistReminders = () => {
-            const notifyWatchlistReminders = getSetting('notifyWatchlistReminders'); 
+            const [notifyWatchlistReminders, setNotifyWatchlistReminders] = useState(
+                getSetting('notifyWatchlistReminders')
+            );
             const toggleNotifyWatchlistReminders = async () => {
-                await toggleSetting("notifyWatchlistTitlesNowAvailable");
+                setNotifyWatchlistReminders(!notifyWatchlistReminders);
+                toggleSetting("notifyWatchlistTitlesNowAvailable");
             }
             return (
                 <NotificationSetting
-                        title="Remind me to reelay"
-                        subtext="Notify me after a few days if I've added something my watchlist, but haven't reelayed it yet"
-                        isToggled={notifyWatchlistReminders}
-                        toggleFunction={toggleNotifyWatchlistReminders}
+                    title="Remind me to reelay"
+                    subtext="Notify me after a few days if I've added something my watchlist, but haven't reelayed it yet"
+                    isToggled={notifyWatchlistReminders}
+                    toggleFunction={toggleNotifyWatchlistReminders}
                 />
             )
         }
 
         const WatchlistTitleNowAvailable = () => {
-            const notifyWatchlistTitlesNowAvailable = getSetting('notifyWatchlistTitlesNowAvailable'); 
+            const [notifyWatchlistTitlesNowAvailable, setNotifyWatchlistTitlesNowAvailable] = useState(
+                getSetting('notifyWatchlistTitlesNowAvailable')
+            );
             const toggleNotifyWatchlistTitlesNowAvailable = async () => {
-                await toggleSetting("notifyWatchlistTitlesNowAvailable");
+                setNotifyWatchlistTitlesNowAvailable(!notifyWatchlistTitlesNowAvailable);
+                toggleSetting("notifyWatchlistTitlesNowAvailable");
             }
             return (
                 <NotificationSetting
