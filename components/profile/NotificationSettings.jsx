@@ -67,29 +67,56 @@ export default NotificationSettings = ({ navigation }) => {
 }
 
 const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
-
     const dispatch = useDispatch();
     const [refreshing, setRefreshing] = useState(false);
+
+    const allNotifyTypes = [
+        'notifyCommentsOnMyReelays',
+        'notifyCommentsOnOtherReelays',
+        'notifyFollows',
+        'notifyClubInvites',
+        'notifyLikesOnMyComments',
+        'notifyLikesOnMyReelays',
+        'notifyPostsOnMyReelayedTitles',
+        'notifyPostsInMyClubs',
+        'notifyPostsInMyFollowing',
+        'notifyPostsInMyTopics',
+        'notifyPostsInOtherTopics',
+        'notifyTagsInReelays',
+        'notifyTagsInComments',
+        'notifyTrendingTitles',
+        'notifyTrendingTopics',
+        'notifyCreatorRecommendationTaken',
+        'notifyMyRecommendationTaken',
+    ]
 
     const getSetting = (settingToUpdate) => {
         return mySettings[settingToUpdate] ?? true;
     }
 
-    const toggleSetting = async (settingToUpdate) => {
-        const oldSetting = getSetting(settingToUpdate);
-        const mySettingsToUpdate = { [settingToUpdate]: !oldSetting }
-        const res = await updateMySettings({ mySub, oldSettings: mySettings, settingsToUpdate: mySettingsToUpdate });
-        if (res.error) {
-            console.log(res.error);
+    const toggleAllNotificationSettings = async (isEnabled) => {
+        const settingsToUpdate = {};
+        for (const notifyType of allNotifyTypes) {
+            settingsToUpdate[notifyType] = isEnabled;
+        }
+
+        const dbResult = await updateMySettings({ mySub, oldSettings: mySettings, settingsToUpdate });
+        if (dbResult.error) {
+            console.log(dbResult.error);
             showErrorToast("Ruh roh! I couldn't update your mySettings. Try again?");
         }
-        dispatch({ type: "updateMySettings", payload: mySettingsToUpdate });
-
+        dispatch({ type: "updateMySettings", payload: settingsToUpdate });
     }
 
-    const notificationsEnabled = getSetting('notificationsEnabled');
-        const toggleNotificationsEnabled = async () => {
-        await toggleSetting("notificationsEnabled");
+    const toggleSetting = async (settingToUpdate) => {
+        const oldSetting = getSetting(settingToUpdate);
+        const settingsToUpdate = { [settingToUpdate]: !oldSetting }
+        const dbResult = await updateMySettings({ mySub, oldSettings: mySettings, settingsToUpdate });
+        if (dbResult.error) {
+            console.log(dbResult.error);
+            showErrorToast("Ruh roh! I couldn't update your mySettings. Try again?");
+        }
+        dispatch({ type: "updateMySettings", payload: settingsToUpdate });
     }
 
     const onRefresh = async () => {
@@ -101,13 +128,62 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
         setRefreshing(false);
     }
 
-    const AllowNotificationsSetting = ({ enabled, toggle }) => {
+    const AllNotificationsCategory = () => {
+        const AllowAllNotifications = () => {
+            const areAllNotificationsAllowed = () => {
+                for (const notifySetting of allNotifyTypes) {
+                    if (!mySettings[notifySetting]) return false;
+                }
+                return true;
+            }       
+
+            const [areAllAllowed, setAreAllAllowed] = useState(areAllNotificationsAllowed());
+            const isEnabledNextToggle = !areAllAllowed;
+            return (
+                <NotificationSetting
+                    title="Allow all notifications" 
+                    subtext="Keep me tuned in"
+                    isToggled={areAllAllowed}
+                    toggleFunction={() => {
+                        setAreAllAllowed(!areAllAllowed);
+                        toggleAllNotificationSettings(isEnabledNextToggle);
+                    }}
+                />
+            )
+        }
+
+        const DisableAllNotifications = () => {
+            const areAllNotificationsDisabled = () => {
+                for (const notifySetting of allNotifyTypes) {
+                    if (mySettings[notifySetting]) {
+                        console.log('notify setting is true: ', notifySetting);
+                        return false;
+                    }
+                }
+                return true;
+            }       
+            
+            const [areAllDisabled, setAreAllDisabled] = useState(areAllNotificationsDisabled());
+            const isEnabledNextToggle = areAllDisabled;
+            return (
+                <NotificationSetting
+                    title="Disable all notifications" 
+                    subtext="Peace & quiet please"
+                    isToggled={areAllDisabled}
+                    toggleFunction={() => {
+                        setAreAllDisabled(!areAllDisabled);
+                        toggleAllNotificationSettings(isEnabledNextToggle);
+                    }}
+                />
+            )
+        }
+
         return (
-            <NotificationSetting
-                title="Allow all notifications" 
-                isToggled={enabled}
-                toggleFunction={toggle}
-            />
+            <CategoryContainer>
+                <CategoryHeaderText>All Notifications</CategoryHeaderText>
+                <AllowAllNotifications />
+                <DisableAllNotifications />
+            </CategoryContainer>
         )
     }
         
@@ -375,7 +451,7 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
             }
             return (
                 <NotificationSetting
-                    title="Titles" 
+                    title="Popular titles" 
                     subtext="Notify me when a title gets popular on the app"
                     isToggled={notifyTrendingTitles}
                     toggleFunction={toggleNotifyTrendingTitles}
@@ -390,7 +466,7 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
             }
             return (
                 <NotificationSetting
-                    title="Topics" 
+                    title="Popular topics" 
                     subtext="Notify me when a topic gets popular on the app"
                     isToggled={notifyTrendingTopics}
                     toggleFunction={toggleNotifyTrendingTopics}
@@ -437,10 +513,42 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
                 />
             )
         }
+
+        const WatchlistReminders = () => {
+            const notifyWatchlistReminders = getSetting('notifyWatchlistReminders'); 
+            const toggleNotifyWatchlistReminders = async () => {
+                await toggleSetting("notifyWatchlistTitlesNowAvailable");
+            }
+            return (
+                <NotificationSetting
+                        title="Remind me to reelay"
+                        subtext="Notify me after a few days if I've added something my watchlist, but haven't reelayed it yet"
+                        isToggled={notifyWatchlistReminders}
+                        toggleFunction={toggleNotifyWatchlistReminders}
+                />
+            )
+        }
+
+        const WatchlistTitleNowAvailable = () => {
+            const notifyWatchlistTitlesNowAvailable = getSetting('notifyWatchlistTitlesNowAvailable'); 
+            const toggleNotifyWatchlistTitlesNowAvailable = async () => {
+                await toggleSetting("notifyWatchlistTitlesNowAvailable");
+            }
+            return (
+                <NotificationSetting
+                        title="On new releases" 
+                        subtext="Notify me when a title I've added gets a release"
+                        isToggled={notifyWatchlistTitlesNowAvailable}
+                        toggleFunction={toggleNotifyWatchlistTitlesNowAvailable}
+                />
+            )
+        }
     
         return (
             <CategoryContainer>
                 <CategoryHeaderText>Watchlists</CategoryHeaderText>
+                <WatchlistTitleNowAvailable />
+                <WatchlistReminders />
                 <WatchlistsCreatorRecommendationTaken />
                 <WatchlistsMyRecommendationTaken />
             </CategoryContainer>
@@ -450,27 +558,25 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
     const settingsRefreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
     return (
         <NotificationSettingsScrollView refreshControl={settingsRefreshControl} scrollEnabled={true} contentContainerStyle={{ alignItems: "center", display: 'flex', flexDirection: 'column' }} scr>
-            <AllowNotificationsSetting enabled={notificationsEnabled} toggle={toggleNotificationsEnabled}/>
+            <AllNotificationsCategory />
             <Divider />
-            { notificationsEnabled && (
-                <>
-                    <CommentsNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
-                    <Divider />
-                    <FollowsNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
-                    <Divider />
-                    <InvitesNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
-                    <Divider />
-                    <LikesNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
-                    <Divider />
-                    <ReelaysNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
-                    <Divider />
-                    <TagsNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
-                    <Divider />
-                    <TrendingNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
-                    <Divider />
-                    <WatchlistsNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
-                </>
-            )}
+            <>
+                <CommentsNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
+                <Divider />
+                <FollowsNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
+                <Divider />
+                <InvitesNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
+                <Divider />
+                <LikesNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
+                <Divider />
+                <ReelaysNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
+                <Divider />
+                <TagsNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
+                <Divider />
+                <TrendingNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
+                <Divider />
+                <WatchlistsNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
+            </>
         </NotificationSettingsScrollView>
     )
 }
