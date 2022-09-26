@@ -58,7 +58,7 @@ export const shouldNotifyUser = async(userSub, settingKey) => {
 }
 
 export const updateMySettings = async ({ mySub, oldSettings, settingsToUpdate }) => {
-    newSettings = getNewSettings(oldSettings, settingsToUpdate);
+    const newSettings = getNewSettings(oldSettings, settingsToUpdate);
     const settingsUpdateBody = { settingsJSON: newSettings }
 
     const routePost =  

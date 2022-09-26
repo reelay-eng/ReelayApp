@@ -66,6 +66,8 @@ export const getSingleTopic = async ({ authSession, reqUserSub, topicID }) => {
         },
     });
 
+    console.log('fetched topic with reelays: ', topicWithReelays);
+
     topicWithReelays.reelays = await Promise.all(topicWithReelays.reelays.map(prepareReelay));
     return await topicWithReelays;
 }
