@@ -123,7 +123,6 @@ function App() {
     useEffect(() => {
         if (reelayDBUser?.sub) {
             dispatch({ type: 'setSignedIn', payload: true });
-            registerMyPushToken();
         }
     }, [reelayDBUser]);
 
@@ -135,13 +134,16 @@ function App() {
             if (tryCredentials?.authenticated) {
                 // use cognito to sign in the user
                 tryCognitoUser = await Auth.currentAuthenticatedUser();
-                setCognitoUser(tryCognitoUser);
-
                 const signUpFromGuest = (tryCognitoUser?.username === 'be_our_guest');
-                dispatch({ type: 'setSignUpFromGuest', payload: signUpFromGuest });
-                
+                if (signUpFromGuest) {
+                    Auth.signOut();
+                    dispatch({ type: 'setIsLoading', payload: false });
+                    return;
+                }
+
+                setCognitoUser(tryCognitoUser);
                 const cognitoSession = await Auth.currentSession();
-                dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });    
+                dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });        
             }  else {
                 // try using a social auth token to sign in the user
                 const authSession = await verifySocialAuthSession();
@@ -153,6 +155,7 @@ function App() {
                         ? 'setAuthSessionFromApple'
                         : 'setAuthSessionFromGoogle';
                     dispatch({ type: dispatchType, payload: authSession });    
+                    tryVerifySocialAuth = { success: true };
                 }
             }
             logAmplitudeEventProd('authenticationComplete', {
@@ -429,6 +432,10 @@ function App() {
         dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
         dispatch({ type: 'setCurrentAppLoadStage', payload: 4 });
         console.log('dispatched second set of profile data');
+
+        if (!reelayDBUserLoaded?.pushToken) {
+            registerMyPushToken();
+        }
     }
 
     const registerMyPushToken = async () => {

@@ -111,7 +111,6 @@ const Logout = () => {
         setReelayDBUserID,
     } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
-    const signUpFromGuest = useSelector(state => state.signUpFromGuest);
     const dispatch = useDispatch();
 
     const signOut = async () => {
@@ -122,11 +121,7 @@ const Logout = () => {
                 email: reelayDBUser?.email,
             });
     
-            if (signUpFromGuest) {
-                dispatch({ type: 'setSignUpFromGuest', payload: false });
-            }
             dispatch({ type: 'setSignedIn', payload: false });
-
             if (authSession?.method === 'cognito') {
                 const signOutResult = await Auth.signOut();
                 console.log(signOutResult);

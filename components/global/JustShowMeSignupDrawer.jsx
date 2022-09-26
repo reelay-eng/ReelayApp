@@ -110,7 +110,6 @@ const JustShowMeSignup = () => {
                 email: reelayDBUser?.email,
             });
     
-            dispatch({ type: 'setSignUpFromGuest', payload: true });
             dispatch({ type: 'setJustShowMeSignupVisible', payload: false });
             dispatch({ type: 'setSignedIn', payload: false });
             setReelayDBUserID(null);
@@ -133,10 +132,10 @@ const JustShowMeSignup = () => {
                 </TopContainer>
                 <BottomContainer>
                     <KeepBrowsingButton onPress={closeDrawer}>
-                        <KeepBrowsingText>{'Keep Browsing'}</KeepBrowsingText>
+                        <KeepBrowsingText>{'Keep browsing'}</KeepBrowsingText>
                     </KeepBrowsingButton>
                     <SignUpButton onPress={goToSignUp}>
-                        <SignUpText>{'Sign up'}</SignUpText>
+                        <SignUpText>{'Sign up or log in'}</SignUpText>
                     </SignUpButton>
                 </BottomContainer>
             </JustShowMeContainer>

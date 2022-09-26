@@ -52,7 +52,7 @@ const ButtonText = styled(ReelayText.Body2Emphasized)`
 
 const ButtonOverlineText = styled(ReelayText.Overline)`
     color: ${props => props.color ?? ReelayColors.reelayBlue};
-    font-size: 15px;
+    font-size: 13px;
 `
 
 const LoadingContainer = styled(View)`
@@ -102,7 +102,7 @@ const BarHeader = () => {
 const Spacer = styled(View)`
     height: ${props => props.height ?? "40px"};
 `
-const SignUpIsVisible = false && process.env.NODE_ENV !== 'production';
+const DevSignUpIsVisible = process.env.NODE_ENV !== 'production';
 
 const SigningInOuterContainer = styled(View)`
     position: absolute;
@@ -136,8 +136,8 @@ export default SignedOutScreen = ({ navigation, route }) => {
     const { setCognitoUser } = useContext(AuthContext);
     const [signingInJustShowMe, setSigningInJustShowMe] = useState(false);
     const [signingInSocial, setSigningInSocial] = useState(false);
-    const signUpFromGuest = useSelector(state => state.signUpFromGuest);
     const dispatch = useDispatch();
+
 
     const SignUpButton = () => (
         <ButtonContainer>
@@ -160,8 +160,8 @@ export default SignedOutScreen = ({ navigation, route }) => {
             <ButtonPressable onPress={justShowMeLogin} activeOpacity={0.8}>
                 <ButtonGradient 
                     colors={[ReelayColors.reelayBlue, ReelayColors.reelayRed]}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 0 }}
+                    start={{ x: 1, y: 0 }}
+                    end={{ x: 0, y: 1 }}
                 />
                 <ButtonOverlineText color='white'>{'Just show me the app'}</ButtonOverlineText>
             </ButtonPressable>
@@ -182,17 +182,6 @@ export default SignedOutScreen = ({ navigation, route }) => {
         }
     }
 
-    // useEffect(() => {
-    //     if (autoSignInAsGuest) justShowMeLogin();
-    // }, []);
-
-    useEffect(() => {
-        if (signUpFromGuest) {
-            navigation.push('SignUpScreen');
-            dispatch({ type: 'setSignUpFromGuest', payload: false });
-        }
-    });
-
     return (
         <Container>
             { signingInJustShowMe && (
@@ -212,7 +201,7 @@ export default SignedOutScreen = ({ navigation, route }) => {
                         <Spacer height='20px' />
                         <BarHeader />
                         <Spacer height='20px' />
-                        { SignUpIsVisible && <SignUpButton /> }
+                        { DevSignUpIsVisible && <SignUpButton /> }
                         <JustShowMeButton />
                     </ButtonsFlexContainer>
                     <LogInButton />

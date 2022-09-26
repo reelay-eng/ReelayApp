@@ -54,18 +54,18 @@ export const latestAnnouncementReducer = ({ announcement, myFollowing, reelayDBU
     const showAnnouncement = (announcement && !announcement?.error);
     if (showAnnouncement) return announcement;
 
-    const daysSinceSignedUp = moment().diff(moment(reelayDBUser?.createdAt), 'days');
-    const showTutorial = daysSinceSignedUp < 7;
+    // const daysSinceSignedUp = moment().diff(moment(reelayDBUser?.createdAt), 'days');
+    // const showTutorial = daysSinceSignedUp < 7;
 
-    if (showTutorial) return {
-        id: 'tutorial-0',
-        actionLabel: 'Welcome',
-        actionData: {},
-        actionType: 'advanceToWelcomeScreen',
-        description: `Watch a quick video about how Reelay works`,
-        reelaySub: Constants.manifest.extra.welcomeReelaySub,
-        title: 'Welcome 😎🎬',
-    }
+    // if (showTutorial) return {
+    //     id: 'tutorial-0',
+    //     actionLabel: 'Welcome',
+    //     actionData: {},
+    //     actionType: 'advanceToWelcomeScreen',
+    //     description: `Watch a quick video about how Reelay works`,
+    //     reelaySub: Constants.manifest.extra.welcomeReelaySub,
+    //     title: 'Welcome 😎🎬',
+    // }
     return null;
 }
 

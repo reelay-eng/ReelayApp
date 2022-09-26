@@ -16,7 +16,6 @@ export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Ree
         reelayDBUser,
         setReelayDBUserID,
     } = useContext(AuthContext);
-    const signUpFromGuest = useSelector(state => state.signUpFromGuest)
     const dispatch = useDispatch();
 
     const BottomContainer = styled(View)`
@@ -50,19 +49,6 @@ export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Ree
         height: 100%;
         margin: 10px;
     `
-    const ExitButton = styled(Pressable)`
-        align-items: center;
-        background-color: white;
-        border-radius: 60px;
-        height: 48px;
-        justify-content: center;
-        margin-top: 10px;
-        width: 90%;
-    `
-    const ExitText = styled(ReelayText.CaptionEmphasized)`
-        color: black;
-        text-align: center;
-    `
     const SignUpButton = styled(Pressable)`
         align-items: center;
         background-color: ${ReelayColors.reelayBlue};
@@ -89,31 +75,12 @@ export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Ree
                 email: reelayDBUser?.email,
             });
     
-            if (!signUpFromGuest) dispatch({ type: 'setSignUpFromGuest', payload: true });
             const signOutResult = await Auth.signOut();
             dispatch({ type: 'setSignedIn', payload: false });
             dispatch({ type: 'clearAuthSession', payload: {} });
             setReelayDBUserID(null);
             // todo: deregister for push tokens
             // todo: deregister cognito user
-            console.log(signOutResult);
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
-    const exitGuestAccount = async () => {
-        try {
-            logAmplitudeEventProd('guestExit', {
-                username: reelayDBUser?.username,
-                email: reelayDBUser?.email,
-            });
-    
-            if (signUpFromGuest) dispatch({ type: 'setSignUpFromGuest', payload: false });
-            const signOutResult = await Auth.signOut();
-            dispatch({ type: 'setSignedIn', payload: false });
-            dispatch({ type: 'clearAuthSession', payload: {} });
-            setReelayDBUserID(null);
             console.log(signOutResult);
         } catch (error) {
             console.log(error);
@@ -134,13 +101,8 @@ export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Ree
                 </TopContainer>
                 <BottomContainer>
                     <SignUpButton onPress={goToSignUp}>
-                        <SignUpText>{'Sign up'}</SignUpText>
+                        <SignUpText>{'Sign up or log in'}</SignUpText>
                     </SignUpButton>
-                    { fullPage && (
-                        <ExitButton onPress={exitGuestAccount}>
-                            <ExitText>{'Log in'}</ExitText>
-                        </ExitButton>
-                    )}
                 </BottomContainer>
             </JustShowMeContainer>
         </View>

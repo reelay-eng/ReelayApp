@@ -50,7 +50,7 @@ const ButtonContainer = styled(View)`
 const ButtonText = styled(Text)`
     font-family: Outfit-Medium;
     color: ${props => props.color ?? ReelayColors.reelayBlue};
-    font-size: 22px;
+    font-size: 18px;
     margin-left: 10px;
 `
 
