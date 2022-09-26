@@ -1,28 +1,28 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, FlatList, Pressable, RefreshControl, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, Modal, Pressable, RefreshControl, TouchableOpacity, View } from 'react-native';
 
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
-import WatchlistItem from './WatchlistItem';
 import { AuthContext } from '../../context/AuthContext';
-import { getWatchlistItems } from '../../api/WatchlistApi';
-import WatchlistSwipeableRow from './WatchlistSwipeableRow';
+import { getWatchlistItems, removeFromMyWatchlist } from '../../api/WatchlistApi';
 import { useDispatch, useSelector } from 'react-redux';
-import { FlashList } from '@shopify/flash-list';
 import TitlePoster from '../global/TitlePoster';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faClapperboard, faPlay, faPlayCircle, faStar } from '@fortawesome/free-solid-svg-icons';
+import { faClapperboard, faStar } from '@fortawesome/free-solid-svg-icons';
 import { getReelaysByTitleKey } from '../../api/ReelayDBApi';
-import { animate } from '../../hooks/animations';
 import VenueIcon, { streamingVenues } from '../utils/VenueIcon';
-import SeenOn from '../titlePage/SeenOn';
+import YoutubeVideoEmbed from '../utils/YouTubeVideoEmbed';
+
 import * as Linking from 'expo-linking';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
-import { showErrorToast  } from '../utils/toasts';
+import { showErrorToast, showMessageToast  } from '../utils/toasts';
+import MarkSeenButton from './MarkSeenButton';
+import { LinearGradient } from 'expo-linear-gradient';
+import ReelayColors from '../../constants/ReelayColors';
 
 const { height, width } = Dimensions.get('window');
 const CARD_SIDE_MARGIN = 6;
-const EXPAND_VIEW_OPPOSITE_OFFSET = -1 * (width / 2);
+const TRAILER_HEIGHT = width * 0.55;
 const WATCHLIST_CARD_WIDTH = (width / 2) - (CARD_SIDE_MARGIN * 2);
 
 const ArtistBadgeView = styled(View)`
@@ -43,20 +43,39 @@ const ArtistText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
 `
-const ExpandedView = styled(View)`
-    background-color: #1c1c1c;
-    border-radius: 12px;
-    height: ${props => props.loading ? `${WATCHLIST_CARD_WIDTH * 1.5}px` : 'auto'};
-    margin-left: ${props => props.onLeftSide ? 0 : EXPAND_VIEW_OPPOSITE_OFFSET}px;
-    margin-top: 12px;
-    margin-bottom: 12px;
-    width: ${width - (2 * CARD_SIDE_MARGIN)}px;
-    z-index: ${props => props.expanded ? 10 : 0};
+const Backdrop = styled(Pressable)`
+    background-color: transparent;
+    height: 100%;
+    position: absolute;
+    width: 100%;
+`
+const DrawerContainer = styled(View)`
+    background-color: #1a1a1a;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    height: ${props => props.loading ? '10%' : 'auto'};
+    margin-top: auto;
+    max-height: 80%;
+    padding-bottom: 30px;
+    width: 100%;
 `
 const InfoView = styled(View)`
     justify-content: space-between;
     width: 100%;
     padding: 16px;
+`
+const MarkSeenOnPosterView = styled(View)`
+    position: absolute;
+    right: 6px;
+    top: 6px;
+`
+const ModalContainer = styled(View)`
+    position: absolute;
+`
+const NoTrailerText = styled(ReelayText.H6Emphasized)`
+    color: white;
+    text-align: center;
+    width: 80%;
 `
 const OverviewText = styled(ReelayText.Body2)`
     color: white;
@@ -66,6 +85,18 @@ const RefreshView = styled(View)`
     height: 100%;
     justify-content: center;
     width: 100%;
+`
+const RemoveItemPressable = styled(TouchableOpacity)`
+    padding: 6px;
+`
+const RemoveItemRow = styled(View)`
+    align-items: center;
+    justify-content: center;
+    margin-top: 18px;
+    width: 100%;
+`
+const RemoveItemText = styled(ReelayText.Body2)`
+    color: ${ReelayColors.reelayBlue};
 `
 const RuntimeText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -81,34 +112,64 @@ const RuntimeView = styled(View)`
 `
 const SeeReelaysPressable = styled(TouchableOpacity)`
     align-items: center;
-    border-color: white;
+    background-color: ${props => props.hasReelays 
+        ? 'black' 
+        : ReelayColors.reelayBlue
+    };
+    border-color: ${props => props.hasReelays 
+        ? 'white' 
+        : ReelayColors.reelayBlue
+    };
     border-radius: 20px;
     border-width: 1px;
     height: 40px;
     flex-direction: row;
     justify-content: center;
-    margin-top: 12px;
+    margin-top: 24px;
     padding-left: 12px;
     padding-right: 12px;
 `
 const SeeReelaysText = styled(ReelayText.Overline)`
     color: white;
 `
+const TrailerPlayerView = styled(View)`
+    align-items: center;
+    background-color: black;
+    height: ${TRAILER_HEIGHT}px;
+    justify-content: center;
+    width: 100%;
+`
 const WatchlistCardView = styled(Pressable)`
     border-radius: 12px;
     margin: ${CARD_SIDE_MARGIN}px;
     width: ${WATCHLIST_CARD_WIDTH}px;
-    z-index: ${props => props.expanded ? 10 : 0};
+`
+const VenueBadgeGradient = styled(LinearGradient)`
+    height: 60px;
+    width: 60px;
+    opacity: 1;
+    padding: 11px;
+    position: absolute;
+    border-radius: 11px;
 `
 const VenueBadgePressable = styled(TouchableOpacity)`
-    padding-right: 12px;
+    border-radius: 8px;
+    margin-right: 6px;
+    padding: 11px;
 `
-const VenueView = styled(View)`
-    height: 40px;
+const VenueRowView = styled(View)`
+    align-items: center;
     flex-direction: row;
-    margin-bottom: 12px;
+    justify-content: space-between;
     width: 100%;
 `
+const VenueView = styled(View)`
+    flex-direction: row;
+    margin-bottom: 12px;
+`
+
+const GRADIENT_START_COLOR = "#272525"
+const GRADIENT_END_COLOR = "#19242E"
 
 const ActorLine = ({ actorName0, actorName1 }) => {
     if (!actorName0) return <View />;
@@ -142,17 +203,57 @@ const DirectorLine = ({ directorName }) => {
     );
 }    
 
-const WatchlistCard = ({ item, index, navigation }) => {
+const WatchlistCard = ({ watchlistItem, setExpandedTitle }) => {
+    const [markedSeen, setMarkedSeen] = useState(watchlistItem?.hasSeenTitle);
+    return (
+        <WatchlistCardView onPress={() => setExpandedTitle(watchlistItem)}>
+            <TitlePoster title={watchlistItem.title} width={WATCHLIST_CARD_WIDTH} />
+            { markedSeen && (
+                <MarkSeenOnPosterView>
+                    <MarkSeenButton
+                        markedSeen={markedSeen}
+                        setMarkedSeen={setMarkedSeen}
+                        showText={false}
+                        titleObj={watchlistItem?.title}
+                    />
+                </MarkSeenOnPosterView>
+            )}
+        </WatchlistCardView>
+    );
+}
+
+const ExpandedTitleDrawer = ({ navigation, onRefresh, expandedTitle, setExpandedTitle }) => {
     const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
-    const [expanded, setExpanded] = useState(false);
     const [loading, setLoading] = useState(false);
     const [fetchedReelays, setFetchedReelays] = useState([]);
 
-    const titleObj = item.title;
+    const titleObj = expandedTitle.title;
     const titleType = titleObj?.isSeries ? 'tv' : 'film';
     const tmdbTitleID = titleObj?.id;
     const titleKey = `${titleType}-${tmdbTitleID}`;
+
+    const advanceToSeeReelays = async () => {
+        setExpandedTitle(null);
+        if (fetchedReelays?.length > 0) {
+            navigation.push("TitleFeedScreen", {
+                initialStackPos: 0,
+                fixedStackList: [fetchedReelays],
+            });        
+        }
+    }
+
+    const advanceToCreateReelay = () => {
+        navigation.push('VenueSelectScreen', { 
+            clubID: null,
+            topicID: null,
+            titleObj: titleObj, 
+        });
+    }
+
+    const advanceToTitleScreen = () => {
+        navigation.push('TitleDetailScreen', { titleObj });
+    }
 
     const getDisplayVenues = () => {
         const venues = fetchedReelays.map(reelay => reelay.content.venue);
@@ -161,20 +262,6 @@ const WatchlistCard = ({ item, index, navigation }) => {
             return venues.indexOf(nextVenue) === index;
         }
         return venues.filter(removeDuplicates);
-    }
-
-    const advanceToTitleScreen = () => navigation.push('TitleDetailScreen', { titleObj });
-    const displayVenues = getDisplayVenues();
-    const onPress = () => setExpanded(!expanded);
-    const onLeftSide = (index % 2 === 0);
-
-    const advanceToSeeReelays = async () => {
-        if (fetchedReelays?.length > 0) {
-            navigation.push("TitleFeedScreen", {
-                initialStackPos: 0,
-                fixedStackList: [fetchedReelays],
-            });        
-        }
     }
 
     const loadReelays = async () => {
@@ -189,121 +276,188 @@ const WatchlistCard = ({ item, index, navigation }) => {
     }
 
     useEffect(() => {
-        if (expanded && fetchedReelays.length === 0) {
+        if (fetchedReelays.length === 0) {
             loadReelays();
         }
-    }, [expanded]);
+    }, []);
 
-    const ExpandedCard = () => {
-        useEffect(() => {
-            animate(300, 'keyboard', 'opacity');
-            return () => animate(300, 'keyboard', 'opacity');
-        }, [expanded]);
+    const ReelaysLine = () => {
+        const hasReelays = (fetchedReelays.length > 0);
 
-        const ReelaysLine = () => {
+        if (!hasReelays) {
             return (
-                <SeeReelaysPressable onPress={advanceToSeeReelays}>
-                    <SeeReelaysText>{`See reelays (${fetchedReelays.length})`}</SeeReelaysText>
+                <SeeReelaysPressable hasReelays={hasReelays} onPress={advanceToCreateReelay}>
+                    <SeeReelaysText>{`Be the first to reelay`}</SeeReelaysText>
                 </SeeReelaysPressable>
-            );    
-        }
-
-        const TitleInfo = () => {
-            return (
-                <InfoView>
-                    <VenueInfo />
-                    <OverviewText>{titleObj.overview}</OverviewText>
-                    <DirectorLine directorName={titleObj?.director?.name} />
-                    <ActorLine actorName0={titleObj?.displayActors[0]?.name} actorName1={titleObj?.displayActors[1]?.name} />
-                    <ReelaysLine />
-                </InfoView>
-            );
-        }
-
-        const VenueButton = ({ venue }) => {
-            const source = streamingVenues.find((venueObj) => venueObj.venue === venue)?.source;
-            const deeplinkURL = (venue === 'theaters')
-                ? `https://google.com/search?q=${encodeURIComponent(titleObj.display + ' showtimes near me')}`
-                : streamingVenues.find((venueObj) => venueObj.venue === venue)?.deeplink;
-
-            const attemptOpenDeeplinkURL = async () => {
-                if (deeplinkURL) {
-                    try {
-                        if (await Linking.canOpenURL(deeplinkURL)) {
-                            logAmplitudeEventProd("seenOnStreamingAppOpened", {
-                                titleType,
-                                tmdbTitleID,
-                                venue,
-                                source,
-                                deeplinkURL
-                            });
-                            await Linking.openURL(deeplinkURL);
-                        }
-                        else {
-                            showErrorToast("You must first install that app.");
-                            logAmplitudeEventProd("seenOnStreamingAppNotInstalled", {
-                                titleType,
-                                tmdbTitleID,
-                                venue,
-                                source,
-                                deeplinkURL
-                            });
-                        }
-                    }
-                    catch(e) {
-                        showErrorToast("Something went wrong.");
-                        logAmplitudeEventProd("seenOnStreamingAppError", {
-                            titleType,
-                            tmdbTitleID,
-                            venue,
-                            source,
-                            deeplinkURL
-                        });
-                        console.log(e);
-                    }    
-                }
-            }
-
-            return (
-                <VenueBadgePressable onPress={() => console.log('what: ', venue)}>
-                    <VenueIcon onPress={attemptOpenDeeplinkURL} venue={venue} size={40} />
-                </VenueBadgePressable>
-            )
-        }
-
-        const VenueInfo = () => {
-            if (displayVenues?.length === 0) return <View />;
-            return (
-                <VenueView>
-                    { displayVenues.map(venue => <VenueButton key={venue} venue={venue} /> )}
-                </VenueView>
             )
         }
 
         return (
-            <ExpandedView loading={loading} onLeftSide={onLeftSide}>
-                { !loading && (
-                    <TitleInfo />
-                )}
-                { loading && (
-                    <RefreshView>
-                        <ActivityIndicator />
-                    </RefreshView>
-                )}
-            </ExpandedView>
+            <SeeReelaysPressable hasReelays={hasReelays} onPress={advanceToSeeReelays}>
+                <SeeReelaysText>{`See reelays (${fetchedReelays.length})`}</SeeReelaysText>
+            </SeeReelaysPressable>
+        );    
+    }
+
+    const RemoveFromWatchlistLine = () => {
+        const onPress = async () => {
+            await removeFromMyWatchlist({ 
+                reqUserSub: reelayDBUser?.sub,
+                tmdbTitleID: expandedTitle?.tmdbTitleID,
+                titleType: expandedTitle?.titleType,
+            });
+
+            showMessageToast('Removed from your watchlist');
+            logAmplitudeEventProd('removeItemFromWatchlist', {
+                username: reelayDBUser?.username,
+                title: titleObj.display,
+                source: 'watchlist',
+            });    
+            setExpandedTitle(null);
+            onRefresh();
+        }
+
+        return (
+            <RemoveItemRow>
+                <RemoveItemPressable onPress={onPress}>
+                    <RemoveItemText>{`Remove from my watchlist`}</RemoveItemText>
+                </RemoveItemPressable>
+            </RemoveItemRow>
+        );    
+    }
+
+    const TitleInfo = () => {
+        return (
+            <InfoView>
+                <TrailerPlayer titleDisplay={titleObj?.display} trailerURI={titleObj?.trailerURI} />
+                <VenueInfo />
+                <OverviewText numberOfLines={8}>{titleObj.overview}</OverviewText>
+                <DirectorLine directorName={titleObj?.director?.name} />
+                <ActorLine actorName0={titleObj?.displayActors[0]?.name} actorName1={titleObj?.displayActors[1]?.name} />
+                <ReelaysLine />
+                <RemoveFromWatchlistLine />
+            </InfoView>
+        );
+    }
+
+    const VenueInfo = () => {
+        const [markedSeen, setMarkedSeen] = useState(expandedTitle?.hasSeenTitle);
+        const displayVenues = getDisplayVenues();
+        if (displayVenues?.length === 0) return <View />;
+        return (
+            <VenueRowView>
+                <VenueView>
+                    { displayVenues.map(venue => {
+                        return (
+                            <VenueButton key={venue} 
+                                titleDisplay={titleObj?.display} 
+                                titleKey={titleKey} 
+                                venue={venue} 
+                            />
+                        ); 
+                    })}
+                </VenueView>
+                <MarkSeenButton 
+                    markedSeen={markedSeen} 
+                    setMarkedSeen={setMarkedSeen} 
+                    showText={true}
+                    titleObj={expandedTitle.title}
+                />
+            </VenueRowView>
+        )
+    }
+
+    return (
+        <ModalContainer>
+            <Modal animationType='slide' transparent={true} visible={true}>
+                <Backdrop onPress={() => setExpandedTitle(null)} />
+                <DrawerContainer loading={loading}>
+                    { !loading && <TitleInfo /> }
+                    { loading && (
+                        <RefreshView>
+                            <ActivityIndicator />
+                        </RefreshView>
+                    )}
+                </DrawerContainer>
+            </Modal>
+        </ModalContainer>
+    );
+}
+
+const TrailerPlayer = ({ titleDisplay, trailerURI }) => {
+    if (!trailerURI) {
+        return (
+            <TrailerPlayerView>
+                <NoTrailerText>{`We don't have a trailer for ${titleDisplay} :(`}</NoTrailerText>
+            </TrailerPlayerView>
         );
     }
 
     return (
-        <WatchlistCardView expanded={expanded} onPress={onPress}>
-            <TitlePoster title={item.title} width={WATCHLIST_CARD_WIDTH} />
-            { expanded && <ExpandedCard /> }
-        </WatchlistCardView>
+        <Fragment>
+            {/* <TrailerLoadingView>
+                <ActivityIndicator />
+            </TrailerLoadingView> */}
+            <YoutubeVideoEmbed 
+                borderRadius={12}
+                height={TRAILER_HEIGHT} 
+                youtubeVideoID={trailerURI} 
+            />
+        </Fragment>
     );
+}
+
+const VenueButton = ({ titleKey, titleDisplay, venue }) => {
+    const source = streamingVenues.find((venueObj) => venueObj.venue === venue)?.source;
+    const deeplinkURL = (venue === 'theaters')
+        ? `https://google.com/search?q=${encodeURIComponent(titleDisplay + ' showtimes near me')}`
+        : streamingVenues.find((venueObj) => venueObj.venue === venue)?.deeplink;
+
+    const attemptOpenDeeplinkURL = async () => {
+        if (deeplinkURL) {
+            try {
+                if (await Linking.canOpenURL(deeplinkURL)) {
+                    logAmplitudeEventProd("seenOnStreamingAppOpened", {
+                        titleKey,
+                        venue,
+                        source,
+                        deeplinkURL
+                    });
+                    await Linking.openURL(deeplinkURL);
+                }
+                else {
+                    showErrorToast("You must first install that app.");
+                    logAmplitudeEventProd("seenOnStreamingAppNotInstalled", {
+                        titleKey,
+                        venue,
+                        source,
+                        deeplinkURL
+                    });
+                }
+            } catch(error) {
+                showErrorToast("Something went wrong.");
+                logAmplitudeEventProd("seenOnStreamingAppError", {
+                    titleKey,
+                    venue,
+                    source,
+                    deeplinkURL
+                });
+                console.log(error);
+            }    
+        }
+    }
+
+    return (
+        <VenueBadgePressable onPress={attemptOpenDeeplinkURL}>
+            <VenueBadgeGradient colors={[GRADIENT_START_COLOR, GRADIENT_END_COLOR]} />
+            <VenueIcon onPress={attemptOpenDeeplinkURL} venue={venue} size={40} />
+        </VenueBadgePressable>
+    )
 }
 
 export default Watchlist = ({ navigation, refresh, watchlistItems }) => {
     const dispatch = useDispatch();
+    const [expandedTitle, setExpandedTitle] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
     const { reelayDBUser } = useContext(AuthContext);
 
@@ -318,8 +472,8 @@ export default Watchlist = ({ navigation, refresh, watchlistItems }) => {
         if (refresh) onRefresh();
     }, []);
 
-    const renderWatchlistItem = ({ item, index }) => {    
-        return <WatchlistCard item={item} index={index} navigation={navigation} />;
+    const renderWatchlistItem = ({ item, index }) => {   
+        return <WatchlistCard watchlistItem={item} setExpandedTitle={setExpandedTitle} />;
     }
 
     return (
@@ -329,11 +483,19 @@ export default Watchlist = ({ navigation, refresh, watchlistItems }) => {
                 numColumns={2}
                 estimatedItemSize={100}
                 keyboardShouldPersistTaps={"handled"}
-                keyExtractor={item => String(item.id)}
+                keyExtractor={item => item.id}
                 renderItem={renderWatchlistItem}
                 refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
                 showsVerticalScrollIndicator={false}
             />
+            { expandedTitle && (
+                <ExpandedTitleDrawer 
+                    expandedTitle={expandedTitle} 
+                    navigation={navigation}
+                    onRefresh={onRefresh}
+                    setExpandedTitle={setExpandedTitle} 
+                /> 
+            )}
         </View>
     );
 }

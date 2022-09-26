@@ -18,9 +18,9 @@ import ReelayColors from '../../constants/ReelayColors';
 const { height, width } = Dimensions.get('window');
 
 const AddToWatchlistPressable = styled(TouchableOpacity)`
-    top: ${props => props.topOffset}px;
     position: absolute;
     right: 24px;
+    top: ${props => props.topOffset}px;
 `
 const AddToWatchlistText = styled(ReelayText.Body2Bold)`
     color: ${ReelayColors.reelayBlue};
@@ -69,17 +69,9 @@ export default WatchlistScreen = ({ navigation, route }) => {
     // yes this is inefficient but bear with me
     const myUnreelayedWatchlistItems = myWatchlistItems.filter((item) => !findInMyReelays(item));
 
-    // display unseen titles first in watchlist
-    const byHasSeen = (a, b) => {
-        if (a.hasSeenTitle) return 1;
-        if (b.hasSeenTitle) return -1;
-        return 0;
-    }
-    const sortedWatchlistItems = myUnreelayedWatchlistItems.sort(byHasSeen);
-
     const AddToWatchlistButton = () => {
         const onPress = () => navigation.push('SearchScreen', { addToWatchlist: true });
-        const topOffset = useSafeAreaInsets().top + 24;
+        const topOffset = useSafeAreaInsets().top + 8;
         return (
             <AddToWatchlistPressable onPress={onPress} topOffset={topOffset}>
                 <AddToWatchlistText>{'Add'}</AddToWatchlistText>
@@ -90,16 +82,16 @@ export default WatchlistScreen = ({ navigation, route }) => {
     return (
 		<WatchlistScreenContainer bottomOffset={bottomOffset}>
             <HeaderWithBackButton navigation={navigation} text={'My Watchlist'} />
-            { sortedWatchlistItems.length > 0 && <AddToWatchlistButton /> }
-            { sortedWatchlistItems.length > 0 && (
+            { myUnreelayedWatchlistItems.length > 0 && <AddToWatchlistButton /> }
+            { myUnreelayedWatchlistItems.length > 0 && (
                 <Watchlist
                     category={category}
                     navigation={navigation}
                     refresh={refresh}
-                    watchlistItems={sortedWatchlistItems}
+                    watchlistItems={myUnreelayedWatchlistItems}
                 />
             )}
-            { sortedWatchlistItems.length === 0 && (
+            { myUnreelayedWatchlistItems.length === 0 && (
                 <EmptyWatchlistCard navigation={navigation} />
             )}
 		</WatchlistScreenContainer>
