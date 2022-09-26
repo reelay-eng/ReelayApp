@@ -13,7 +13,7 @@ import { NotificationIconSVG, SearchIconSVG } from '../global/SVGs';
 const HeaderContainer = styled(View)`
     padding-left: 12px;
     padding-right: 15px;
-    padding-bottom: 6px;
+    padding-bottom: 10px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;

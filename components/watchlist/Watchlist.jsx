@@ -19,6 +19,7 @@ import { showErrorToast, showMessageToast  } from '../utils/toasts';
 import MarkSeenButton from './MarkSeenButton';
 import { LinearGradient } from 'expo-linear-gradient';
 import ReelayColors from '../../constants/ReelayColors';
+import { getRuntimeString } from '../utils/TitleRuntime';
 
 const { height, width } = Dimensions.get('window');
 const CARD_SIDE_MARGIN = 6;
@@ -64,6 +65,11 @@ const InfoView = styled(View)`
     width: 100%;
     padding: 16px;
 `
+const MarkSeenAndRuntimeView = styled(View)`
+    align-items: flex-end;
+    height: 72px;
+    justify-content: space-between;
+`
 const MarkSeenOnPosterView = styled(View)`
     position: absolute;
     right: 6px;
@@ -105,10 +111,10 @@ const RuntimeText = styled(ReelayText.CaptionEmphasized)`
 const RuntimeView = styled(View)`
     background-color: rgba(10, 10, 10, 0.7);
     border-radius: 8px;
+    margin-top: 6px;
+    margin-bottom: 6px;
     padding: 4px 8px 4px 8px; 
-    position: absolute;
     right: 2px;
-    top: 10px;
 `
 const SeeReelaysPressable = styled(TouchableOpacity)`
     align-items: center;
@@ -144,6 +150,9 @@ const WatchlistCardView = styled(Pressable)`
     margin: ${CARD_SIDE_MARGIN}px;
     width: ${WATCHLIST_CARD_WIDTH}px;
 `
+const WatchlistView = styled(View)`
+    height: 100%;
+`
 const VenueBadgeGradient = styled(LinearGradient)`
     height: 60px;
     width: 60px;
@@ -157,15 +166,16 @@ const VenueBadgePressable = styled(TouchableOpacity)`
     margin-right: 6px;
     padding: 11px;
 `
-const VenueRowView = styled(View)`
+const UnderTrailerRowView = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
+    padding-top: 6px;
+    padding-bottom: 6px;
     width: 100%;
 `
 const VenueView = styled(View)`
     flex-direction: row;
-    margin-bottom: 12px;
 `
 
 const GRADIENT_START_COLOR = "#272525"
@@ -244,6 +254,7 @@ const ExpandedTitleDrawer = ({ navigation, onRefresh, expandedTitle, setExpanded
     }
 
     const advanceToCreateReelay = () => {
+        setExpandedTitle(null);
         navigation.push('VenueSelectScreen', { 
             clubID: null,
             topicID: null,
@@ -280,6 +291,24 @@ const ExpandedTitleDrawer = ({ navigation, onRefresh, expandedTitle, setExpanded
             loadReelays();
         }
     }, []);
+
+    const MarkSeenAndRuntime = () => {
+        const [markedSeen, setMarkedSeen] = useState(expandedTitle?.hasSeenTitle);
+        const runtimeString = getRuntimeString(titleObj?.runtime);
+        return (
+            <MarkSeenAndRuntimeView>
+                <MarkSeenButton 
+                    markedSeen={markedSeen} 
+                    setMarkedSeen={setMarkedSeen} 
+                    showText={true}
+                    titleObj={expandedTitle.title}
+                />
+                <RuntimeView>
+                    <RuntimeText>{runtimeString}</RuntimeText>
+                </RuntimeView>
+            </MarkSeenAndRuntimeView>
+        );
+    }
 
     const ReelaysLine = () => {
         const hasReelays = (fetchedReelays.length > 0);
@@ -330,7 +359,7 @@ const ExpandedTitleDrawer = ({ navigation, onRefresh, expandedTitle, setExpanded
         return (
             <InfoView>
                 <TrailerPlayer titleDisplay={titleObj?.display} trailerURI={titleObj?.trailerURI} />
-                <VenueInfo />
+                <UnderTrailerRow />
                 <OverviewText numberOfLines={8}>{titleObj.overview}</OverviewText>
                 <DirectorLine directorName={titleObj?.director?.name} />
                 <ActorLine actorName0={titleObj?.displayActors[0]?.name} actorName1={titleObj?.displayActors[1]?.name} />
@@ -340,31 +369,32 @@ const ExpandedTitleDrawer = ({ navigation, onRefresh, expandedTitle, setExpanded
         );
     }
 
+    const UnderTrailerRow = () => {
+        return (
+            <UnderTrailerRowView>
+                <VenueInfo />
+                <MarkSeenAndRuntime />
+            </UnderTrailerRowView>
+        );
+    }
+
     const VenueInfo = () => {
-        const [markedSeen, setMarkedSeen] = useState(expandedTitle?.hasSeenTitle);
         const displayVenues = getDisplayVenues();
         if (displayVenues?.length === 0) return <View />;
+
         return (
-            <VenueRowView>
-                <VenueView>
-                    { displayVenues.map(venue => {
-                        return (
-                            <VenueButton key={venue} 
-                                titleDisplay={titleObj?.display} 
-                                titleKey={titleKey} 
-                                venue={venue} 
-                            />
-                        ); 
-                    })}
-                </VenueView>
-                <MarkSeenButton 
-                    markedSeen={markedSeen} 
-                    setMarkedSeen={setMarkedSeen} 
-                    showText={true}
-                    titleObj={expandedTitle.title}
-                />
-            </VenueRowView>
-        )
+            <VenueView>
+                { displayVenues.map(venue => {
+                    return (
+                        <VenueButton key={venue} 
+                            titleDisplay={titleObj?.display} 
+                            titleKey={titleKey} 
+                            venue={venue} 
+                        />
+                    ); 
+                })}
+            </VenueView>
+        );
     }
 
     return (
@@ -455,7 +485,7 @@ const VenueButton = ({ titleKey, titleDisplay, venue }) => {
     )
 }
 
-export default Watchlist = ({ navigation, refresh, watchlistItems }) => {
+export default Watchlist = ({ navigation, watchlistItems }) => {
     const dispatch = useDispatch();
     const [expandedTitle, setExpandedTitle] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
@@ -468,16 +498,12 @@ export default Watchlist = ({ navigation, refresh, watchlistItems }) => {
         setRefreshing(false);
     }
 
-    useEffect(() => {
-        if (refresh) onRefresh();
-    }, []);
-
     const renderWatchlistItem = ({ item, index }) => {   
         return <WatchlistCard watchlistItem={item} setExpandedTitle={setExpandedTitle} />;
     }
 
     return (
-        <View style={{ height: '100%' }}>
+        <WatchlistView>
             <FlatList
                 data={watchlistItems}
                 numColumns={2}
@@ -496,6 +522,6 @@ export default Watchlist = ({ navigation, refresh, watchlistItems }) => {
                     setExpandedTitle={setExpandedTitle} 
                 /> 
             )}
-        </View>
+        </WatchlistView>
     );
 }
