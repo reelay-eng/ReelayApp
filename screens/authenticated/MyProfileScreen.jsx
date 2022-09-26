@@ -189,7 +189,7 @@ export default MyProfileScreen = ({ navigation, route }) => {
         const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen');
         return (
             <MyWatchlistPressable onPress={advanceToWatchlistScreen}>
-                <MyWatchlistText>{'My watchlist'}</MyWatchlistText>
+                <MyWatchlistText>{'See my watchlist'}</MyWatchlistText>
             </MyWatchlistPressable>
         );
     }
