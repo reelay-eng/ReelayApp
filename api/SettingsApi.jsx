@@ -11,7 +11,7 @@ const DEFAULT_SETTINGS = {
     showHashtags: true,
 
     // notifications
-    notificationsEnabled: true,
+    notificationsEnabled: true, // deprecated in 1.05.07
     // comments
     notifyCommentsOnMyReelays: true,
     notifyCommentsOnOtherReelays: true,
@@ -53,7 +53,6 @@ export const shouldNotifyUser = async(userSub, settingKey) => {
     if (settingsResult.error) return false;
     const userSettingsJSON = settingsResult["settingsJSON"];
     const userSettings = JSON.parse(userSettingsJSON);
-    if (!userSettings?.["notificationsEnabled"]) return false;
     return !!userSettings[settingKey];
 }
 

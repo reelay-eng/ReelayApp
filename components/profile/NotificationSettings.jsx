@@ -88,6 +88,8 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
         'notifyTrendingTopics',
         'notifyCreatorRecommendationTaken',
         'notifyMyRecommendationTaken',
+        'notifyWatchlistReminders',
+        'notifyWatchlistTitlesNowAvailable',
     ]
 
     const getSetting = (settingToUpdate) => {
