@@ -71,9 +71,8 @@ const DividerLine = styled(View)`
     width: ${width - 56}px;
 `
 const DotMenuButtonView = styled(TouchableOpacity)`
-    padding-right: 4px;
+    right: 8px;
     position: absolute;
-    top: 32px;
 `
 const MarkSeenView = styled(View)`
     align-items: flex-end;
@@ -280,7 +279,6 @@ export default ClubTitleCard = ({
                         size={36}
                         titleObj={title} 
                     />
-                    {/* { dotMenuButtonVisible && <DotMenuButton /> } */}
                 </MarkSeenView>
             </TitleLineView>
         );
@@ -294,6 +292,7 @@ export default ClubTitleCard = ({
                     <AddedByUsername>{addedByUsername}</AddedByUsername>
                     <SharedTitleText>{'SHARED A TITLE'}</SharedTitleText>
                 </TitleOverlineInfoView>
+                { dotMenuButtonVisible && <DotMenuButton /> }
             </TitleOverlineView>
         );
     }

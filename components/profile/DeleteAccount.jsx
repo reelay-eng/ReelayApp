@@ -65,7 +65,7 @@ export default DeleteAccount = ({ navigation }) => {
 
     return (
         <ViewContainer>
-            <HeaderWithBackButton navigation={navigation} text="Delete Account"/>
+            <HeaderWithBackButton navigation={navigation} text="delete account"/>
             <DeleteAccountWrapper 
                 navigation={navigation} 
                 reelayDBUser={reelayDBUser} 

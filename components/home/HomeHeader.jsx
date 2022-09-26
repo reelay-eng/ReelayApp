@@ -33,9 +33,8 @@ const ButtonContainer = styled(Pressable)`
     width: 37.5%;
 `
 const HeaderContainer = styled(View)`
-    padding-left: 15px;
+    padding-left: 12px;
     padding-right: 15px;
-    padding-bottom: 10px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -50,13 +49,18 @@ const HeaderContainerRight = styled(View)`
     display: flex;
     flex-direction: row;
 `
-const HeaderText = styled(ReelayText.H4Bold)`
-    text-align: left;
+const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
-    margin-top: 4px;
+    font-size: 28px;
+    line-height: 28px;
+    margin-top: 6px;
+    text-align: left;
 `
 const IconContainer = styled(TouchableOpacity)`
-    margin-left: 10px;
+    margin-top: -10px;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-bottom: 10px;
 `
 const OptionText = styled(ReelayText.H6)`
     color: gray;
@@ -92,11 +96,9 @@ export default HomeHeader = ({
                 </HeaderContainerLeft>
                 <HeaderContainerRight>
                     <IconContainer onPress={advanceToSearchScreen}>
-                        {/* <Icon type='ionicon' size={27} color={'white'} name='search' /> */}
                         <SearchIconSVG />
                     </IconContainer>
                     <IconContainer onPress={advanceToMyNotifications}>
-                        {/* <Icon type='ionicon' size={27} color={'white'} name='notifications' /> */}
                         <NotificationIconSVG />
                         { hasUnreadNotifications && <UnreadIconIndicator /> }
                     </IconContainer>

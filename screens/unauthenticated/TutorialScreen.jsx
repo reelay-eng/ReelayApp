@@ -27,19 +27,19 @@ import { AddToClubsIconSVG, AddedToClubsIconSVG } from '../../components/global/
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faChevronDown, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
-import HouseOfTheDragon from "../../assets/images/Onboarding/Posters/P1.png"
-import Minions from "../../assets/images/Onboarding/Posters/P2.png"
-import StrangerThings from "../../assets/images/Onboarding/Posters/P3.png"
-import IronMan2 from "../../assets/images/Onboarding/Posters/P4.png"
-import SpiderMan from "../../assets/images/Onboarding/Posters/P5.png"
+import P1 from "../../assets/images/Onboarding/Posters/P1.png"
+import P2 from "../../assets/images/Onboarding/Posters/P2.png"
+import P3 from "../../assets/images/Onboarding/Posters/P3.png"
+import P4 from "../../assets/images/Onboarding/Posters/P4.png"
+import P5 from "../../assets/images/Onboarding/Posters/P5.png"
 
 import MyWatchlist from "../../assets/images/Onboarding/ClubDrawer/MyWatchlist.png";
 
 import PressThisArrow from "../../assets/images/Onboarding/PressThisArrow.png";
 
 const AutoPlayReelays = [
-    "https://di92fpd9s7eko.cloudfront.net/public/reelayvid-4bfcc6be-862e-465a-b7a8-319d9aa13848-1660834785614.mp4", 
-    "https://di92fpd9s7eko.cloudfront.net/public/reelayvid-c4bc0193-346b-4731-a9bb-508c6ca86324-1643926225077.mp4",
+    "https://di92fpd9s7eko.cloudfront.net/public/reelayvid-09cad7f0-3838-465a-b33e-78a6662e8797-1663606398746.mp4", 
+    "https://di92fpd9s7eko.cloudfront.net/public/reelayvid-c4bc0193-346b-4731-a9bb-508c6ca86324-1652107830662.mp4",
     "https://di92fpd9s7eko.cloudfront.net/public/reelayvid-a5addf82-69d6-4451-a6fe-f0ae4583294b-1655095439429.mp4",
     "https://di92fpd9s7eko.cloudfront.net/public/reelayvid-3d302546-d078-455e-a0aa-559a976aac6b-1657398858236.mp4",
     "https://di92fpd9s7eko.cloudfront.net/public/reelayvid-7e30c085-1539-43ae-aa99-536aaa439990-1643612341197.mp4"
@@ -114,7 +114,7 @@ const MutedVideoPlayer = ({ source }) => {
                 borderRadius: 16,
                 marginLeft: 5,
             }}
-            posterSource={IronMan2}
+            posterSource={P4}
             isLooping
             isMuted={true}
             rate={1.0}
@@ -439,7 +439,7 @@ const WatchlistPosterBackground = styled(ImageBackground)`
 
 const WatchlistPoster = ({ source, onPress, children, pressDisabled }) => {
     return (
-        <TouchableOpacity activeOpacity={0.7} onPress={onPress} disabled={pressDisabled} style={{width: 'auto', height: 'auto', bottom: '10%'}}>
+        <TouchableOpacity activeOpacity={0.7} onPress={onPress} disabled={pressDisabled} style={{width: 'auto', height: 'auto', bottom: '10%', overflow: 'hidden', borderRadius: 12}}>
             <WatchlistPosterBackground source={source}>
                 {children}
             </WatchlistPosterBackground>
@@ -559,7 +559,7 @@ const Tutorial = ({ navigation }) => {
     const finishAddingToWatchlist = () => {
         setDrawerIsOpen(false);
         setAddedToWatchlist(true);
-        setBigText("We'll let you figure the rest out yourself.");
+        setBigText("We'll let you figure the rest out yourself!");
         setSmallText("");
     }
 
@@ -581,11 +581,11 @@ const Tutorial = ({ navigation }) => {
                 ref={verticalScrollRef}
             >
                 <PostersContainer>
-                    { hasScrolledRight ? <PosterFake /> : <PosterImage source={HouseOfTheDragon} /> }
-                    { hasScrolledRight ? <PosterFake /> : <PosterImage source={Minions} /> }
-                    { hasScrolledRight ? <PosterFake /> : <PosterImage source={StrangerThings} /> }
-                    <HorizontalReelayList scrollRef={horizontalScrollRef} onScrollRight={ScrollRight} sources={[IronMan2, ...AutoPlayReelays, ""]} scrollEnabled={!hasScrolledRight} />
-                    { hasScrolledRight ? <PosterFake /> : <PosterImage source={SpiderMan} /> }
+                    { hasScrolledRight ? <PosterFake /> : <PosterImage source={P1} /> }
+                    { hasScrolledRight ? <PosterFake /> : <PosterImage source={P2} /> }
+                    { hasScrolledRight ? <PosterFake /> : <PosterImage source={P3} /> }
+                    <HorizontalReelayList scrollRef={horizontalScrollRef} onScrollRight={ScrollRight} sources={[P4, ...AutoPlayReelays, ""]} scrollEnabled={!hasScrolledRight} />
+                    { hasScrolledRight ? <PosterFake /> : <PosterImage source={P5} /> }
                 </PostersContainer>
             </VerticalScrollContainer>
             <ContentContainer pointerEvents="none">
@@ -598,7 +598,7 @@ const Tutorial = ({ navigation }) => {
             </ContentContainer>
             { hasScrolledRight && (
                 <AddToWatchlistContainer>
-                    <WatchlistPoster source={IronMan2} onPress={OpenAddToWatchlistDrawer} pressDisabled={addedToWatchlist}>
+                    <WatchlistPoster source={P4} onPress={OpenAddToWatchlistDrawer} pressDisabled={addedToWatchlist}>
                         <View style={{position: 'absolute', width: '100%', height: '100%', backgroundColor: 'black', opacity: 0.4, borderRadius: 10}} />
                         <View style={{transform: [
                             { scale: 1.2 }

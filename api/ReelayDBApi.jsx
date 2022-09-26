@@ -472,6 +472,24 @@ export const getReelaysByTitleKey = async ({ authSession, reqUserSub, titleKey }
     return preparedReelays;
 }
 
+export const getReelaysForTitleKey = async ({ authSession, reqUserSub, titleKey }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/reelays/title?titleKey=${titleKey}&visibility=${FEED_VISIBILITY}`;
+    const fetchedReelays = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: { 
+            ...getReelayAuthHeaders(authSession), 
+            requsersub: reqUserSub
+        }
+    });
+    if (!fetchedReelays) {
+        console.log('Found no reelays in feed');
+        return [];
+    }
+
+    const preparedTitleThread = await Promise.all(fetchedReelays.map(prepareReelay));
+    return preparedTitleThread;
+}
+
 export const getRegisteredUser = async (userSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/users/sub/${userSub}`;
     const resultGet = await fetchResults(routeGet, { 
