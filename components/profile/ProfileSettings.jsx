@@ -45,6 +45,13 @@ export const ProfileSettings = ({navigation}) => {
 			<HeaderWithBackButton navigation={navigation} text='settings' />
 			<SettingsContainer>
                 <SettingEntry
+                    text="House Rules"
+                    iconName="heart"
+                    onPress={() => {
+                        navigation.push("HouseRulesScreen");
+                    }}                    
+                />
+                <SettingEntry
                     text="Manage Account"
                     iconName="person"
                     onPress={() => {
