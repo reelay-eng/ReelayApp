@@ -10,31 +10,10 @@ import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { useSelector } from 'react-redux';
 import { NotificationIconSVG, SearchIconSVG } from '../global/SVGs';
 
-const ActiveOptionText = styled(ReelayText.H6)`
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 2px;
-`
-const BackgroundBox = styled(View)`
-    align-items: center;
-    background-color: black;
-    border-radius: 8px;
-    justify-content: center;
-    flex-direction: row;
-    height: 48px;
-    padding: 2px;
-    width: 100%;
-`
-const ButtonContainer = styled(Pressable)`
-    align-items: center;
-    justify-content: center;
-    height: 44px;
-    width: 37.5%;
-`
 const HeaderContainer = styled(View)`
     padding-left: 12px;
     padding-right: 15px;
+    padding-bottom: 10px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -62,10 +41,6 @@ const IconContainer = styled(TouchableOpacity)`
     padding-left: 10px;
     padding-bottom: 10px;
 `
-const OptionText = styled(ReelayText.H6)`
-    color: gray;
-    font-size: 18px;
-`
 const UnreadIconIndicator = styled(SafeAreaView)`
 	background-color: ${ReelayColors.reelayBlue}
 	border-radius: 5px;
@@ -75,13 +50,7 @@ const UnreadIconIndicator = styled(SafeAreaView)`
 	right: 0px;
 `
 
-export default HomeHeader = ({ 
-    navigation,
-    selectedTab,
-    setSelectedTab,
-}) => {
-    const { reelayDBUser } = useContext(AuthContext);
-
+export default HomeHeader = ({ navigation }) => {
     const HomeHeaderTop = () => {
         const myNotifications = useSelector(state => state.myNotifications);
         const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
@@ -106,30 +75,6 @@ export default HomeHeader = ({
             </HeaderContainer>
         );
     };
-
-    const HomeScreenTabSelector = () => {
-        return (
-            <BackgroundBox>
-                { ['discover', 'my stuff'].map(tab => {
-                    if (tab === selectedTab) {
-                        return (
-                            <ButtonContainer key={tab}>
-                                <ActiveOptionText>{tab}</ActiveOptionText>
-                                <FontAwesomeIcon icon={faCircle} color='white' size={4} /> 
-                            </ButtonContainer>
-                        );
-                    } else {
-                        return (
-                            <ButtonContainer key={tab} onPress={() => setSelectedTab(tab)}>
-                                <OptionText>{tab}</OptionText>
-                                <View style={{ height: 6 }} />
-                            </ButtonContainer>
-                        );
-                    }
-                })}
-            </BackgroundBox>
-        );
-    }    
     
     return (
         <HomeHeaderTop navigation={navigation} />
