@@ -117,7 +117,7 @@ export default DiscoverSearch = ({ navigation }) => {
 
         return (
             <SearchBarPressable fade={selectedFilters.length === 0} onPress={applyFilters}>
-                <SearchBarText>{'Search Reelays'}</SearchBarText>
+                <SearchBarText>{'Browse Reelays'}</SearchBarText>
             </SearchBarPressable>
         );
     }
