@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components/native';
 import TitlePoster from '../global/TitlePoster';
 import * as ReelayText from '../global/Text';
+import ReelayColors from '../../constants/ReelayColors';
 
 const { width } = Dimensions.get('window');
 
@@ -45,9 +46,8 @@ const PosterGridContainer = styled(View)`
 `
 const SeeMyWatchlistPressable = styled(TouchableOpacity)`
     align-items: center;
-    border-color: white;
+    background-color: ${ReelayColors.reelayBlue};
     border-radius: 20px;
-    border-width: 1px;
     height: 40px;
     justify-content: center;
     margin: 16px;

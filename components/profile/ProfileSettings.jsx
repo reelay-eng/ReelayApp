@@ -43,10 +43,10 @@ export const ProfileSettings = ({navigation}) => {
 
     return (
 		<ViewContainer>
-			<HeaderWithBackButton navigation={navigation} text='Settings & Info' />
+			<HeaderWithBackButton navigation={navigation} text='settings' />
 			<SettingsContainer>
                 <SettingEntry
-                    text="Account Information"
+                    text="Manage Account"
                     iconName="person"
                     onPress={() => {
                         navigation.push("AccountInfoScreen");

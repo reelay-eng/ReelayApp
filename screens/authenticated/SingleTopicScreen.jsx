@@ -11,6 +11,7 @@ export default SingleTopicScreen = ({ navigation, route }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const uploadStage = useSelector(state => state.uploadStage);
+    const authSession = useSelector(state => state.authSession);
 
     const initTopic = route?.params?.topic;
     const initReelayIndex = route?.params?.initReelayIndex;
@@ -33,7 +34,11 @@ export default SingleTopicScreen = ({ navigation, route }) => {
 
     const onRefresh = async () => {
         setRefreshing(true);
-        const refreshedTopic = await getSingleTopic(topic.id, reelayDBUser?.sub);
+        const refreshedTopic = await getSingleTopic({ 
+            authSession,
+            reqUserSub: reelayDBUser?.sub,
+            topicID: topic.id, 
+        });
         setTopic(refreshedTopic);
         setRefreshing(false);
     }

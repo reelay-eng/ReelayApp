@@ -11,23 +11,10 @@ import { faAdd } from "@fortawesome/free-solid-svg-icons";
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import ReelayColors from '../../constants/ReelayColors';
 
-const userSubIsEven = (userSub) => {
-    const userSubAsInt = parseInt(userSub, 16);
-    return userSubAsInt % 2 === 0;
-}
-
-const getAddToStackButtonColor = (markedSeen, userSub) => {
-    if (userSubIsEven(userSub)) {
-        return (markedSeen) ? 'rgba(41, 119, 239, 0.40)' : 'rgba(255, 255, 255, 0.20)';
-    } else {
-        return ReelayColors.reelayBlue;
-    }
-}
-
 const ClubsButtonCircleContainer = styled(View)`
     align-items: center;
     align-self: center;
-    background: ${props => getAddToStackButtonColor(props.markedSeen, props.userSub)};
+    background: ${ReelayColors.reelayBlue};
     border-radius: 50px;
     height: 45px;
     justify-content: center;
@@ -61,9 +48,6 @@ export default AddToStackButton = ({ navigation, reelay, club=null, topic=null }
         }
 
         logAmplitudeEventProd('pressedAddReelayButton', {
-            buttonColor: userSubIsEven(reelayDBUser?.sub) 
-                ? 'white' 
-                : ReelayColors.reelayBlue,
             creatorName: reelay?.creator?.username,
             creatorSub: reelay?.creator?.sub,
             username: reelayDBUser?.username,

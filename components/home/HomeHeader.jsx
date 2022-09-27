@@ -10,30 +10,8 @@ import { faCircle } from '@fortawesome/free-solid-svg-icons';
 import { useSelector } from 'react-redux';
 import { NotificationIconSVG, SearchIconSVG } from '../global/SVGs';
 
-const ActiveOptionText = styled(ReelayText.H6)`
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 2px;
-`
-const BackgroundBox = styled(View)`
-    align-items: center;
-    background-color: black;
-    border-radius: 8px;
-    justify-content: center;
-    flex-direction: row;
-    height: 48px;
-    padding: 2px;
-    width: 100%;
-`
-const ButtonContainer = styled(Pressable)`
-    align-items: center;
-    justify-content: center;
-    height: 44px;
-    width: 37.5%;
-`
 const HeaderContainer = styled(View)`
-    padding-left: 15px;
+    padding-left: 12px;
     padding-right: 15px;
     padding-bottom: 10px;
     display: flex;
@@ -50,17 +28,18 @@ const HeaderContainerRight = styled(View)`
     display: flex;
     flex-direction: row;
 `
-const HeaderText = styled(ReelayText.H4Bold)`
-    text-align: left;
+const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
-    margin-top: 4px;
+    font-size: 28px;
+    line-height: 28px;
+    margin-top: 6px;
+    text-align: left;
 `
 const IconContainer = styled(TouchableOpacity)`
-    margin-left: 10px;
-`
-const OptionText = styled(ReelayText.H6)`
-    color: gray;
-    font-size: 18px;
+    margin-top: -10px;
+    padding-top: 10px;
+    padding-left: 10px;
+    padding-bottom: 10px;
 `
 const UnreadIconIndicator = styled(SafeAreaView)`
 	background-color: ${ReelayColors.reelayBlue}
@@ -71,13 +50,7 @@ const UnreadIconIndicator = styled(SafeAreaView)`
 	right: 0px;
 `
 
-export default HomeHeader = ({ 
-    navigation,
-    selectedTab,
-    setSelectedTab,
-}) => {
-    const { reelayDBUser } = useContext(AuthContext);
-
+export default HomeHeader = ({ navigation }) => {
     const HomeHeaderTop = () => {
         const myNotifications = useSelector(state => state.myNotifications);
         const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
@@ -92,11 +65,9 @@ export default HomeHeader = ({
                 </HeaderContainerLeft>
                 <HeaderContainerRight>
                     <IconContainer onPress={advanceToSearchScreen}>
-                        {/* <Icon type='ionicon' size={27} color={'white'} name='search' /> */}
                         <SearchIconSVG />
                     </IconContainer>
                     <IconContainer onPress={advanceToMyNotifications}>
-                        {/* <Icon type='ionicon' size={27} color={'white'} name='notifications' /> */}
                         <NotificationIconSVG />
                         { hasUnreadNotifications && <UnreadIconIndicator /> }
                     </IconContainer>
@@ -104,30 +75,6 @@ export default HomeHeader = ({
             </HeaderContainer>
         );
     };
-
-    const HomeScreenTabSelector = () => {
-        return (
-            <BackgroundBox>
-                { ['discover', 'my stuff'].map(tab => {
-                    if (tab === selectedTab) {
-                        return (
-                            <ButtonContainer key={tab}>
-                                <ActiveOptionText>{tab}</ActiveOptionText>
-                                <FontAwesomeIcon icon={faCircle} color='white' size={4} /> 
-                            </ButtonContainer>
-                        );
-                    } else {
-                        return (
-                            <ButtonContainer key={tab} onPress={() => setSelectedTab(tab)}>
-                                <OptionText>{tab}</OptionText>
-                                <View style={{ height: 6 }} />
-                            </ButtonContainer>
-                        );
-                    }
-                })}
-            </BackgroundBox>
-        );
-    }    
     
     return (
         <HomeHeaderTop navigation={navigation} />

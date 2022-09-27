@@ -100,6 +100,7 @@ const initialState = {
     discoverHasUnseenReelays: true,
     donateLinks: [],
     dotMenuVisible: false,
+    reelayWithVisibleTrailer: null,
 
     // PROFILE
     isEditingProfile: false,
@@ -284,6 +285,8 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, discoverHasUnseenReelays: action.payload }
         case 'setLikesVisible':
             return { ...state, likesVisible: action.payload }    
+        case 'setReelayWithVisibleTrailer':
+            return { ...state, reelayWithVisibleTrailer: action.payload }
 
         // PROFILE
         case 'setIsEditingProfile':
@@ -404,6 +407,7 @@ export const mapStateToProps = (state) => ({
     donateLinks: state.donateLinks,
     dotMenuVisible: state.dotMenuVisible,
     likesVisible: state.likesVisible,
+    reelayWithVisibleTrailer: state.reelayWithVisibleTrailer,
 
     // PROFILE
     isEditingProfile: state.isEditingProfile,

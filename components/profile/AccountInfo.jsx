@@ -43,7 +43,7 @@ export const AccountInfo = ({navigation}) => {
 
     return (
 		<ViewContainer>
-			<HeaderWithBackButton navigation={navigation} text='Account' />
+			<HeaderWithBackButton navigation={navigation} text='manage account' />
 			<SettingsContainer>
 				<TopSettings>
                     <AccountSettingEntry

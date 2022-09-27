@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
 import { Dimensions, FlatList, TouchableOpacity, View } from 'react-native';
 
-import { getMostRecentReelaysByTitle } from "../../api/ReelayDBApi";
+import { getReelaysByTitleKey } from "../../api/ReelayDBApi";
 import ReelayThumbnail from '../global/ReelayThumbnail';
 import styled from 'styled-components/native';
 import * as ReelayText from "../../components/global/Text";
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import { useSelector } from 'react-redux';
 
 const { width } = Dimensions.get('window');
 
@@ -38,8 +39,12 @@ const TopReelaysHeader = styled(ReelayText.H5Emphasized)`
 
 export default PopularReelaysRow = ({ navigation, titleObj }) => {
     const { reelayDBUser } = useContext(AuthContext);
+	const authSession = useSelector(state => state.authSession);
 	const [topReelays, setTopReelays] = useState([]);
 	const componentMounted = useRef(true);
+	const titleType = titleObj?.isSeries ? 'tv' : 'film';
+	const tmdbTitleID = titleObj?.id;
+	const titleKey = `${titleType}-${tmdbTitleID}`;
 
 	const byReelayPopularity = (reelay1, reelay2) => {
 		const reelay1Score = reelay1.likes.length + reelay1.comments.length;
@@ -48,7 +53,11 @@ export default PopularReelaysRow = ({ navigation, titleObj }) => {
 	};
 
 	const fetchTopReelays = async () => {
-		const mostRecentReelays = await getMostRecentReelaysByTitle(titleObj.id);
+		const mostRecentReelays = await getReelaysByTitleKey({
+			authSession,
+			reqUserSub: reelayDBUser?.sub,
+			titleKey,
+		});
 		if (mostRecentReelays?.length && componentMounted.current) {
 			const nextTopReelays = mostRecentReelays.sort(byReelayPopularity);
 			setTopReelays(nextTopReelays);

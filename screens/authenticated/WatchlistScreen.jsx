@@ -14,33 +14,39 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as ReelayText from '../../components/global/Text';
 import EmptyWatchlistCard from '../../components/watchlist/EmptyWatchlistCard';
 import ReelayColors from '../../constants/ReelayColors';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { height, width } = Dimensions.get('window');
 
 const AddToWatchlistPressable = styled(TouchableOpacity)`
-    top: ${props => props.topOffset}px;
     position: absolute;
     right: 24px;
+    top: 10px;
 `
 const AddToWatchlistText = styled(ReelayText.Body2Bold)`
     color: ${ReelayColors.reelayBlue};
 `
-const WatchlistScreenContainer = styled(SafeAreaView)`
+const BottomGradient = styled(LinearGradient)`
+    position: absolute;
+    bottom: 0px;
+    opacity: 0.8;
+    height: 172px;
+    width: 100%;
+`
+const WatchlistScreenContainer = styled(View)`
     background-color: black;
-    height: ${props => height - props.bottomOffset - 120}px;
+    height: ${props => height - props.topOffset}px;
+    top: ${props => props.topOffset}px;
     width: 100%;
 `
 
 export default WatchlistScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
-    const bottomOffset = useSafeAreaInsets().bottom;
+    const topOffset = useSafeAreaInsets().top;
 
     const myCreatorStacks = useSelector(state => state.myCreatorStacks);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-
-    const category = route?.params?.category ?? 'My List';
-    const refresh = route?.params?.refresh ?? false;
 
     useEffect(() => {
         logAmplitudeEventProd('openMyWatchlist', {
@@ -69,17 +75,9 @@ export default WatchlistScreen = ({ navigation, route }) => {
     // yes this is inefficient but bear with me
     const myUnreelayedWatchlistItems = myWatchlistItems.filter((item) => !findInMyReelays(item));
 
-    // display unseen titles first in watchlist
-    const byHasSeen = (a, b) => {
-        if (a.hasSeenTitle) return 1;
-        if (b.hasSeenTitle) return -1;
-        return 0;
-    }
-    const sortedWatchlistItems = myUnreelayedWatchlistItems.sort(byHasSeen);
-
     const AddToWatchlistButton = () => {
         const onPress = () => navigation.push('SearchScreen', { addToWatchlist: true });
-        const topOffset = useSafeAreaInsets().top + 24;
+        const topOffset = useSafeAreaInsets().top + 8;
         return (
             <AddToWatchlistPressable onPress={onPress} topOffset={topOffset}>
                 <AddToWatchlistText>{'Add'}</AddToWatchlistText>
@@ -88,20 +86,19 @@ export default WatchlistScreen = ({ navigation, route }) => {
     }
 
     return (
-		<WatchlistScreenContainer bottomOffset={bottomOffset}>
-            <HeaderWithBackButton navigation={navigation} text={'My Watchlist'} />
-            { sortedWatchlistItems.length > 0 && <AddToWatchlistButton /> }
-            { sortedWatchlistItems.length > 0 && (
+		<WatchlistScreenContainer topOffset={topOffset}>
+            <HeaderWithBackButton navigation={navigation} text={'My watchlist'} />
+            { myUnreelayedWatchlistItems.length > 0 && <AddToWatchlistButton /> }
+            { myUnreelayedWatchlistItems.length > 0 && (
                 <Watchlist
-                    category={category}
                     navigation={navigation}
-                    refresh={refresh}
-                    watchlistItems={sortedWatchlistItems}
+                    watchlistItems={myUnreelayedWatchlistItems}
                 />
             )}
-            { sortedWatchlistItems.length === 0 && (
+            { myUnreelayedWatchlistItems.length === 0 && (
                 <EmptyWatchlistCard navigation={navigation} />
             )}
+            <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
 		</WatchlistScreenContainer>
 	);
 };

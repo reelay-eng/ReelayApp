@@ -20,6 +20,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import ClubPicture from '../../components/global/ClubPicture';
 import { FlashList } from '@shopify/flash-list';
+import { TopicsBannerIconSVG } from '../../components/global/SVGs';
 
 const ACTIVITY_IMAGE_SIZE = 44;
 
@@ -96,6 +97,8 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
 
     const { id, title, body, data, createdAt, seen } = notificationContent;
     const { reelayDBUser } = useContext(AuthContext);
+
+    const authSession = useSelector(state => state.authSession);
     const myClubs = useSelector(state => state.myClubs);
     const [pressed, setPressed] = useState(false);
     const timestamp = moment(createdAt).fromNow();
@@ -120,7 +123,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
     }
 
     const renderNotificationPic = () => {
-        const { notifyType, fromUser } = data;
+        const { notifyType, fromUser, titleKey, topicID, posterURI } = data;
 
         const profilePicNotifyTypes = [
             'notifyClubOnPrivacyChanges',
@@ -138,6 +141,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
             'notifyOnReelayedRec',
             'notifyOnSendRec',
             'notifyOtherCreatorsOnReelayPosted',
+            'notifyPostsInMyFollowing',
             'notifyThreadOnComment',
             'notifyTopicCreatorOnReelayPosted',
             'notifyUserOnCommentLike',
@@ -151,11 +155,20 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
             return <Icon type='ionicon' name='heart' size={ACTIVITY_IMAGE_SIZE} color={'red'} />
         }
 
+        if (notifyType === 'notifyTrendingTitles' && posterURI) {
+            const posterSource = { uri: posterURI };
+            return <TitlePoster source={posterSource} />;
+        }
+
+        if (notifyType === 'notifyTrendingTopics') {
+            return <TopicsBannerIconSVG />;
+        }
+
         return <React.Fragment />        
     }
 
     const renderRightAction = () => {
-        const { notifyType, club, title, fromUser } = data;
+        const { notifyType, club, title, titleKey, topicID, fromUser, posterURI } = data;
         const clubButtonTypes = ['notifyClubOnPrivacyChanges'];
         const followButtonTypes = ['notifyCreatorOnFollow'];
         const posterButtonTypes = [
@@ -181,7 +194,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         }
 
         if (posterButtonTypes.includes(notifyType)) {
-            const posterSource = title?.posterSource;
+            const posterSource = title?.posterSource ?? { uri: posterURI };
             return <TitlePoster source={posterSource} />;
         }
 
@@ -190,12 +203,22 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
             return <ClubPicture club={club} size={ACTIVITY_IMAGE_SIZE} />;
         }
 
+        if (notifyType === 'notifyPostsInMyFollowing') {
+            if (titleKey && posterURI) {
+                const posterSource = { uri: posterURI };
+                return <TitlePoster source={posterSource} />;
+            } else if (topicID) {
+                return <TopicsBannerIconSVG />
+            }
+        }
+
         return <React.Fragment />
     }
 
     const onPress = async () => {
         markNotificationActivated(id);
         handlePushNotificationResponse({ 
+            authSession,
             myClubs,
             navigation,
             notificationContent, 
@@ -303,7 +326,7 @@ export default NotificationScreen = ({ navigation, route }) => {
 
     return (
         <NotificationScreenContainer>
-            <HeaderWithBackButton navigation={navigation} text={`Activity`} />
+            <HeaderWithBackButton navigation={navigation} text={'notifications'} />
             <NotificationList navigation={navigation} />
         </NotificationScreenContainer>
     );
