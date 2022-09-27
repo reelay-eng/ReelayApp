@@ -174,7 +174,6 @@ export default function CreateClubScreen({ navigation, route }) {
         return (
             <SectionContainer>
                 <TitleText>{'Description'}</TitleText>
-                <TouchableWithoutFeedback onPress={focusDescription}>
                     <DescriptionInputField 
                         ref={descriptionFieldRef}
                         blurOnSubmit={true}
@@ -189,7 +188,6 @@ export default function CreateClubScreen({ navigation, route }) {
                         returnKeyLabel="done"
                         returnKeyType="done"
                     />
-                </TouchableWithoutFeedback>   
             </SectionContainer> 
         );
     }
@@ -258,7 +256,6 @@ export default function CreateClubScreen({ navigation, route }) {
         return (
             <SectionContainer>
                 <TitleText>{'Title'}</TitleText>
-                <TouchableWithoutFeedback onPress={focusTitle}>
                     <TitleInputField 
                         ref={titleFieldRef}
                         blurOnSubmit={true}
@@ -274,7 +271,6 @@ export default function CreateClubScreen({ navigation, route }) {
                         returnKeyLabel="done"
                         returnKeyType="done"
                     />
-                </TouchableWithoutFeedback>   
             </SectionContainer> 
         );
     }

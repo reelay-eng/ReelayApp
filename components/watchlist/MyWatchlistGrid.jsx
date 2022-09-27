@@ -1,10 +1,13 @@
-import React, { Fragment } from 'react';
-import { Dimensions, TouchableOpacity, View } from 'react-native';
-import { useSelector } from 'react-redux';
+import React, { Fragment, useContext, useState } from 'react';
+import { ActivityIndicator, Dimensions, TouchableOpacity, View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components/native';
 import TitlePoster from '../global/TitlePoster';
 import * as ReelayText from '../global/Text';
 import ReelayColors from '../../constants/ReelayColors';
+import ExpandedTitleDrawer from './ExpandedTitleDrawer';
+import { getWatchlistItems } from '../../api/WatchlistApi';
+import { AuthContext } from '../../context/AuthContext';
 
 const { width } = Dimensions.get('window');
 
@@ -44,6 +47,12 @@ const PosterGridContainer = styled(View)`
     margin-right: ${GRID_SIDE_MARGIN}px;
     width: ${GRID_WIDTH}px;
 `
+const RefreshView = styled(View)`
+    align-items: center;
+    height: ${(POSTER_HEIGHT + POSTER_HALF_MARGIN) * 3}px;
+    justify-content: center;
+    width: ${GRID_WIDTH}px;
+`
 const SeeMyWatchlistPressable = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${ReelayColors.reelayBlue};
@@ -63,6 +72,11 @@ const Spacer = styled(View)`
 `
 
 export default MyWatchlistGrid = ({ navigation }) => {
+    const dispatch = useDispatch();
+    const { reelayDBUser } = useContext(AuthContext);
+    const [expandedTitle, setExpandedTitle] = useState(null);
+    const [refreshing, setRefreshing] = useState(false);
+
     const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen');
     const myCreatorStacks = useSelector(state => state.myCreatorStacks);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
@@ -104,20 +118,36 @@ export default MyWatchlistGrid = ({ navigation }) => {
 
     const inDisplayRange = (watchlistItem, index) => index < POSTER_INDEX_CUTOFF;
     const displayWatchlistItems = myUnreelayedWatchlistItems.sort(byHasSeen).filter(inDisplayRange);
+
+    const onRefresh = async () => {
+        setRefreshing(true);
+        const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
+        dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })
+        setRefreshing(false);
+    }
     
     const renderTitlePoster = (item, index) => {
         const title = item?.title;
-        const advanceToTitleScreen = () => navigation.push('TitleDetailScreen', { titleObj: title });
         return (
             <PosterContainer key={title.id}>
-                <TitlePoster title={title} onPress={advanceToTitleScreen} width={POSTER_WIDTH} />
+                <TitlePoster title={title} onPress={() => setExpandedTitle(item)} width={POSTER_WIDTH} />
             </PosterContainer>
         );
     }
 
-
     if (displayWatchlistItems?.length === 0) {
         return <View />
+    }
+
+    if (refreshing) {
+        return (
+            <Fragment>
+                <SectionHeader />
+                <RefreshView>
+                    <ActivityIndicator />
+                </RefreshView>
+            </Fragment>
+        )
     }
 
     return (
@@ -128,6 +158,14 @@ export default MyWatchlistGrid = ({ navigation }) => {
             </PosterGridContainer>
             <Spacer />
             <SeeMyWatchlistButton />
+            { expandedTitle && (
+                <ExpandedTitleDrawer 
+                    expandedTitle={expandedTitle} 
+                    navigation={navigation}
+                    onRefresh={onRefresh}
+                    setExpandedTitle={setExpandedTitle} 
+                /> 
+            )}
         </Fragment>
     );
 }
