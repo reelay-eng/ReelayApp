@@ -207,7 +207,7 @@ export default SignedOutScreen = ({ navigation, route }) => {
                     <LogInButton />
                 </>
             )}
-            { signingInSocial && <SigningInIndicator />}
+            { (signingInSocial || signingInJustShowMe) && <SigningInIndicator />}
         </Container>
 )
 }

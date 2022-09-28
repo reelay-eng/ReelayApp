@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useEffect } from 'react';
-import { Image, Pressable, SafeAreaView, View } from 'react-native';
+import { Image, Pressable, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import DogWithGlasses from '../../assets/images/dog-with-glasses.png';
 import styled from 'styled-components/native';
 import * as ReelayText from './Text';
@@ -49,7 +49,7 @@ export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Ree
         height: 100%;
         margin: 10px;
     `
-    const SignUpButton = styled(Pressable)`
+    const SignUpButton = styled(TouchableOpacity)`
         align-items: center;
         background-color: ${ReelayColors.reelayBlue};
         border-radius: 60px;
@@ -101,7 +101,7 @@ export default JustShowMeSignupPage = ({ fullPage = true, headerText = 'Join Ree
                 </TopContainer>
                 <BottomContainer>
                     <SignUpButton onPress={goToSignUp}>
-                        <SignUpText>{'Sign up or log in'}</SignUpText>
+                        <SignUpText>{'Continue'}</SignUpText>
                     </SignUpButton>
                 </BottomContainer>
             </JustShowMeContainer>
