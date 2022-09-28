@@ -103,6 +103,7 @@ export default SocialLoginBar = ({ navigation, setSigningIn }) => {
                 navigation.push('ChooseUsernameScreen', { authSession, method, email, fullName, appleUserID, googleUserID });
             }
         }
+        setSigningIn(false);
     }
 
     const AppleAuthButton = () => {

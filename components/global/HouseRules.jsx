@@ -40,11 +40,9 @@ export default HouseRules = () => {
     }
 
     return (
-        <View>
+        <ScrollView contentContainerStyle={{ height: 900 }} showsVerticalScrollIndicator={false}>
             <HeaderText>{'House rules 🧐'}</HeaderText>
-            <ScrollView contentContainerStyle={{ height: 960 }}>
-                { ruleTextParts.map(renderRule)}
-            </ScrollView>
-        </View>
+            { ruleTextParts.map(renderRule)}
+        </ScrollView>
     );
 }

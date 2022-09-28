@@ -123,7 +123,7 @@ const SigningInIndicator = () => {
     return (
         <SigningInOuterContainer>
             <SigningInContainer>
-                <ButtonText color='white' style={{fontSize: 20, lineHeight: 24}}>Logging you in</ButtonText>
+                <ButtonText color='white' style={{fontSize: 20, lineHeight: 24}}>Just a moment</ButtonText>
                 <Spacer height='15%' />
                 <ActivityIndicator size="large" color='white' />
             </SigningInContainer>
