@@ -89,7 +89,7 @@ const ScreenView = styled(View)`
     width: 100%;
 `
 const Spacer = styled(View)`
-    height: ${props => props.topOffset}px;
+    height: ${props => props.height}px;
 `
 const TouchableVenue = styled(TouchableOpacity)`
     align-items: center;
@@ -140,9 +140,10 @@ export default SelectMyStreamingScreen = ({ navigation, route }) => {
     const bottomOffset = useSafeAreaInsets().bottom;
     const topOffset = useSafeAreaInsets().top + 16;
 
-    const expanded = true;
-    const streamingVenues = getStreamingVenues(expanded);
     const selectedVenues = useRef([]);
+    const streamingVenues = getStreamingVenues(true);
+    const streamingSorter = (option0, option1) => (option1.venue > option0.venue) ? -1 : 1
+    streamingVenues.sort(streamingSorter);
 
     const continueSignUp = async () => {
         navigation.push('OnboardHouseRulesScreen', {
@@ -212,17 +213,18 @@ export default SelectMyStreamingScreen = ({ navigation, route }) => {
                 <IconOptionsGridContainer>
                     { streamingVenues.map(renderStreamingVenue) }
                 </IconOptionsGridContainer>
-                <Spacer topOffset={48} />
+                <Spacer height={48} />
             </ScrollView>
         );
     };
 
     return (
         <ScreenView>
-            <Spacer topOffset={topOffset} />
+            <Spacer height={topOffset} />
             <HeaderWithBackButton navigation={navigation} text={username} />
+            <Spacer height={24} />
             <ProgressDots />
-            <Spacer topOffset={20} />
+            <Spacer height={30} />
             <StreamingSelector />
             
             <BottomGradient colors={["transparent", "#0d0d0d"]} start={{ x: 0, y: 0}} end={{ x: 0, y: 1 }} />

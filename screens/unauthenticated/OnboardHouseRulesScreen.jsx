@@ -7,7 +7,7 @@ import HouseRules from '../../components/global/HouseRules';
 import { HeaderWithBackButton } from '../../components/global/Headers';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
-import { registerUser, searchUsers } from '../../api/ReelayDBApi';
+import { postStreamingSubscriptionToDB, registerUser, searchUsers } from '../../api/ReelayDBApi';
 import { showErrorToast } from '../../components/utils/toasts';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { registerSocialAuthAccount, saveAndRegisterSocialAuthSession } from '../../api/ReelayUserApi';
@@ -34,9 +34,9 @@ const JoinText = styled(ReelayText.Overline)`
 const JoinWrapper = styled(View)`
     align-items: center;
     background-color: black;
-    bottom: ${props => props.bottomOffset}px;
+    bottom: 0px;
     padding-top: 12px;
-    padding-bottom: 12px;
+    padding-bottom: ${props => props.bottomOffset + 12}px;
     position: absolute;
     width: 100%;
 `
@@ -59,7 +59,7 @@ const ScreenView = styled(View)`
     width: 100%;
 `
 const Spacer = styled(View)`
-    height: ${props => props.topOffset}px;
+    height: ${props => props.height}px;
 `
 
 const ProgressDots = () => {
@@ -84,6 +84,8 @@ export default OnboardHouseRulesScreen = ({ navigation, route }) => {
         selectedVenues, 
         username,
     } = route?.params;
+
+    console.log('selected venues: ', selectedVenues);
 
     const { setReelayDBUserID } = useContext(AuthContext);
     const [signingIn, setSigningIn] = useState(false);
@@ -129,6 +131,7 @@ export default OnboardHouseRulesScreen = ({ navigation, route }) => {
             username,
             email: email.toLowerCase(), 
             password,
+            selectedVenues,
         });
     }
 
@@ -144,6 +147,7 @@ export default OnboardHouseRulesScreen = ({ navigation, route }) => {
         const completeSignUpResult = await registerUser({ email, username, sub: reelayDBUserID });
         console.log('complete signup result: ', completeSignUpResult);
 
+        await registerStreamingServices(reelayDBUserID);
         setReelayDBUserID(reelayDBUserID);
         await saveAndRegisterSocialAuthSession({ authSession, method, reelayDBUserID });
     }
@@ -164,12 +168,22 @@ export default OnboardHouseRulesScreen = ({ navigation, route }) => {
         }
     }
 
+    const registerStreamingServices = async (reelayDBUserID) => {
+        const registerSubscription = async (venue) => {
+            await postStreamingSubscriptionToDB(reelayDBUserID, {
+                platform: venue,
+            });
+        }
+        await Promise.all(selectedVenues.map(registerSubscription));
+    }
+
     return (
         <ScreenView>
-            <Spacer topOffset={topOffset} />
+            <Spacer height={topOffset} />
             <HeaderWithBackButton navigation={navigation} text={'back'} />
+            <Spacer height={24} />
             <ProgressDots />
-            <Spacer topOffset={20} />
+            <Spacer height={36} />
 
             <HouseRulesWrapper>
                 <HouseRules />

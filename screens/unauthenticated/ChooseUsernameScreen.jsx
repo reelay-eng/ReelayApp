@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Dimensions, Keyboard, KeyboardAvoidingView, Pressable, TextInput, TouchableOpacity, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
@@ -29,10 +29,10 @@ const ContinueText = styled(ReelayText.Overline)`
     color: black;
     font-size: 12px;
 `
-const ContinueWrapper = styled(View)`
+const ContinueWrapper = styled(KeyboardAvoidingView)`
     align-items: center;
     background-color: black;
-    bottom: 0px;
+    bottom: 24px;
     padding-top: 12px;
     padding-bottom: ${props => props.bottomOffset + 12}px;
     position: absolute;
@@ -48,16 +48,13 @@ const KeyboardDismisser = styled(Pressable)`
     flex: 1;
 `
 const UsernameTextInput = styled(TextInput)`
-    color: ${props => props.default ? 'gray' : 'white'};
+    color: white;
     font-family: Outfit-Bold;
     font-size: 28px;
     font-style: bold;
     letter-spacing: 0.15px;
     line-height: 36px;
     padding: 24px;
-`
-const UsernameText = styled(ReelayText.H5Bold)`
-    color: ${props => props.default ? 'gray' : 'white'};
 `
 const ProgressDot = styled(View)`
     background-color: ${props => props.completed ? ReelayColors.reelayBlue : 'gray'};
@@ -78,7 +75,7 @@ const ScreenView = styled(View)`
     width: 100%;
 `
 const Spacer = styled(View)`
-    height: ${props => props.topOffset}px;
+    height: ${props => props.height}px;
 `
 
 const ProgressDots = () => {
@@ -146,19 +143,28 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
 
     const UsernameInput = () => {
         const [inputUsername, setInputUsername] = useState(inputUsernameRef.current);
+        const inputFieldRef = useRef(null);
 
         const changeInputUsername = async (nextInputUsername) => {
             inputUsernameRef.current = nextInputUsername;
             setInputUsername(nextInputUsername);
         }
 
+        useEffect(() => {
+            if (inputFieldRef?.current && inputUsername === '') {
+                inputFieldRef.current.focus();
+            }
+        }, []);
+
         return (
             <InputView>
                 <UsernameTextInput
                     autoComplete='none'
                     autoCapitalize="none"
-                    placeholder={"Enter username"}
                     onChangeText={changeInputUsername}
+                    placeholder={"Enter username"}
+                    placeholderTextColor={'#9D9D9D'}
+                    ref={inputFieldRef}
                     textContentType='username'
                     value={inputUsername}
                 />
@@ -169,10 +175,11 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
     return (
         <KeyboardDismisser onPress={Keyboard.dismiss}>
             <ScreenView>
-                <Spacer topOffset={topOffset} />
+                <Spacer height={topOffset} />
                 <HeaderWithBackButton navigation={navigation} text={'sign up'} />
+                <Spacer height={24} />
                 <ProgressDots />
-                <Spacer topOffset={topOffset + 60} />
+                <Spacer height={144} />
                 <UsernameInput />
                 
                 <ContinueWrapper behavior='padding' bottomOffset={bottomOffset}>
@@ -180,8 +187,8 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
                         { !isCheckingUsername && <ContinueText>{'Continue'}</ContinueText> }
                         { isCheckingUsername && <ActivityIndicator /> }
                     </ContinuePressable>
+                    <View style={{ height: 24 }} />
                 </ContinueWrapper>
-                <View style={{ height: 24 }} />
             </ScreenView>
         </KeyboardDismisser>
     );

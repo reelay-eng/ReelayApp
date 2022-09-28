@@ -135,7 +135,7 @@ export default SocialLoginBar = ({ navigation, setSigningIn }) => {
         return (
             <ButtonContainer>
                 <Apple.AppleAuthenticationButton
-                    buttonType={Apple.AppleAuthenticationButtonType.SIGN_IN}
+                    buttonType={Apple.AppleAuthenticationButtonType.CONTINUE}
                     buttonStyle={Apple.AppleAuthenticationButtonStyle.WHITE}
                     style={{ width: '100%', height: 48 }}
                     cornerRadius={10}
@@ -193,7 +193,7 @@ export default SocialLoginBar = ({ navigation, setSigningIn }) => {
             <ButtonContainer>
                 <ButtonPressable backgroundColor={ReelayColors.reelayBlue} onPress={signInWithGoogle} activeOpacity={0.8}>
                     <Image source={GoogleImage} style={{ width: 24, height: 24 }} resizeMode="contain" />
-                    <ButtonText color='white'>{'Sign in with Google'}</ButtonText>
+                    <ButtonText color='white'>{'Continue with Google'}</ButtonText>
                 </ButtonPressable>
             </ButtonContainer>
         );
