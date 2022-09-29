@@ -438,6 +438,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
 
         socket.on('chatMessageSent', ({ message }) => {
             console.log('chat message received: ', message);
+            setChatMessages([message, ...chatMessages]);
         });
 
         return socket;

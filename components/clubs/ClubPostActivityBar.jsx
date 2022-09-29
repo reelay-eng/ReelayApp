@@ -105,10 +105,12 @@ const PostMessageButtonText = styled(ReelayText.Body2Emphasized)`
 
 const ChatMessageBox = ({ bottomOffset, expanded, messageRef, onFocus, onPostMessage }) => {
     const inputFieldRef = useRef(null);
+    const [messageText, setMessageText] = useState(messageRef?.text ?? '');
 
     const onChangeText = (nextMessageText) => {
         if (messageRef?.current) {
             messageRef.current.text = nextMessageText;
+            setMessageText(nextMessageText);
         }
     }
 
@@ -117,7 +119,10 @@ const ChatMessageBox = ({ bottomOffset, expanded, messageRef, onFocus, onPostMes
             <PostMessageButtonPressable 
                     bottomOffset={bottomOffset} 
                     expanded={expanded} 
-                    onPress={onPostMessage}>
+                    onPress={() => {
+                        onPostMessage();
+                        setMessageText('');
+                    }}>
                 <PostMessageButtonText>
                     {'Post'}
                 </PostMessageButtonText>
@@ -128,7 +133,7 @@ const ChatMessageBox = ({ bottomOffset, expanded, messageRef, onFocus, onPostMes
     return (
         <Fragment>
             <ChatMessageTextInput 
-                defaultValue={messageRef.current?.text ?? ''}
+                defaultValue={messageText}
                 multiline={true}
                 onFocus={onFocus}
                 onChangeText={onChangeText}
