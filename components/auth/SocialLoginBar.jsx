@@ -34,7 +34,7 @@ const redirectUri = makeRedirectUri({
 const ButtonPressable = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${props => props.backgroundColor ?? 'black'};
-    border-radius: 10px;
+    border-radius: 24px;
     height: 100%;
     justify-content: center;
     flex-direction: row;
@@ -139,7 +139,7 @@ export default SocialLoginBar = ({ navigation, setSigningIn }) => {
                     buttonType={Apple.AppleAuthenticationButtonType.CONTINUE}
                     buttonStyle={Apple.AppleAuthenticationButtonStyle.WHITE}
                     style={{ width: '100%', height: 48 }}
-                    cornerRadius={10}
+                    cornerRadius={24}
                     onPress={signInWithApple}
                 />
             </ButtonContainer>

@@ -18,7 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 const ButtonPressable = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${props => props.backgroundColor ?? 'black'};
-    border-radius: 10px;
+    border-radius: 24px;
     height: 100%;
     justify-content: center;
     width: 100%;
@@ -39,7 +39,7 @@ const ButtonsFlexContainer = styled(View)`
     align-items: center;
 `
 const ButtonGradient = styled(LinearGradient)`
-    border-radius: 10px;
+    border-radius: 24px;
     height: 100%;
     position: absolute;
     width: 100%;
