@@ -170,7 +170,7 @@ const TopicOverlineView = styled(View)`
     flex-direction: row;
     justify-content: space-between;
     margin-top: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     padding-left: 4px;
     width: ${props => getTopicCardWidth(props)}px;
 `

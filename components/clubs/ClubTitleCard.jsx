@@ -116,7 +116,7 @@ const TitleOverlineView = styled(View)`
     align-items: center;
     flex-direction: row;
     margin-top: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     width: ${width-32}px;
 `
 const TitleOverlineInfoView = styled(View)`

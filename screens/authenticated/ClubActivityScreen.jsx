@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect, useRef, useState, memo } from 'react';
+import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { 
     ActivityIndicator,
     Dimensions, 
@@ -6,25 +6,24 @@ import {
     TouchableOpacity, 
     View 
 } from 'react-native';
-import { Icon } from 'react-native-elements';
+
 import * as ReelayText from '../../components/global/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import moment from 'moment';
 
 import ClubBanner from '../../components/clubs/ClubBanner';
+import ClubChatMessage from '../../components/clubs/ClubChatMessage';
 import ClubTitleCard from '../../components/clubs/ClubTitleCard';
 import NoTitlesYetPrompt from '../../components/clubs/NoTitlesYetPrompt';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
-import { inviteMemberToClub, getClubMembers, getClubTitles, getClubTopics, markClubActivitySeen, acceptInviteToClub, rejectInviteFromClub } from '../../api/ClubsApi';
 import { AuthContext } from '../../context/AuthContext';
 import { showErrorToast } from '../../components/utils/toasts';
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
 import { LinearGradient } from 'expo-linear-gradient';
 import ReelayColors from '../../constants/ReelayColors';
-import AddTitleOrTopicDrawer from '../../components/clubs/AddTitleOrTopicDrawer';
 import UploadProgressBar from '../../components/global/UploadProgressBar';
 import TopicCard from '../../components/topics/TopicCard';
 import ClubAddedMemberCard from './ClubAddedMemberCard';
@@ -33,6 +32,17 @@ import Constants from 'expo-constants';
 import { FlashList } from '@shopify/flash-list';
 
 import { io } from 'socket.io-client';
+import ClubPostActivityBar from '../../components/clubs/ClubPostActivityBar';
+
+import { 
+    inviteMemberToClub, 
+    getClubMembers, 
+    getClubTitles, 
+    getClubTopics, 
+    markClubActivitySeen, 
+    acceptInviteToClub, 
+    rejectInviteFromClub, 
+} from '../../api/ClubsApi';
 
 const { height, width } = Dimensions.get('window');
 const ACTIVITY_PAGE_SIZE = 20;
@@ -71,44 +81,6 @@ const ActivityScreenView = styled(View)`
     height: 100%;
     width: 100%;
 `
-const AddTitleButtonView = styled(TouchableOpacity)`
-    align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
-    border-radius: 20px;
-    flex-direction: row;
-    justify-content: center;
-    height: 40px;
-    width: ${width - 32}px;
-`
-const AddTitleButtonText = styled(ReelayText.Subtitle2)`
-    color: white;
-    margin-left: 4px;
-`
-const BottomButtonOuterView = styled(LinearGradient)`
-    align-items: center;
-    bottom: 0px;
-    flex-direction: row;
-    justify-content: space-around;
-    padding-top: 20px;
-    padding-bottom: ${(props) => props.bottomOffset + 44}px;
-    position: absolute;
-    width: 100%;
-`
-const InviteFoldOuterView = styled(View)`
-    align-items: center;
-    background-color: black;
-    justify-content: space-around;
-    position: absolute;
-    padding: 16px;
-    top: ${props => props.topOffset}px;
-    width: 100%;
-`
-const InviteFoldButtonRow = styled(View)`
-    flex-direction: row;
-    justify-content: space-around;
-    margin-top: 12px;
-    width: 100%;
-`
 const DescriptionView = styled(View)`
     align-items: center;
     background-color: ${ReelayColors.reelayBlack};
@@ -124,8 +96,46 @@ const DescriptionView = styled(View)`
 const DescriptionText = styled(ReelayText.Body2)`
     color: white;
 `
+const InviteFoldButtonRow = styled(View)`
+    flex-direction: row;
+    justify-content: space-around;
+    margin-top: 12px;
+    width: 100%;
+`
+const InviteFoldOuterView = styled(View)`
+    align-items: center;
+    background-color: black;
+    justify-content: space-around;
+    position: absolute;
+    padding: 16px;
+    top: ${props => props.topOffset}px;
+    width: 100%;
+`
 const InviteText = styled(ReelayText.Overline)`
     color: white;
+`
+const JoinClubButtonText = styled(ReelayText.Subtitle2)`
+    color: white;
+    margin-left: 4px;
+`
+const JoinClubButtonView = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 20px;
+    flex-direction: row;
+    justify-content: center;
+    height: 40px;
+    width: ${width - 32}px;
+`
+const JoinClubOuterView = styled(LinearGradient)`
+    align-items: center;
+    bottom: 0px;
+    flex-direction: row;
+    justify-content: space-around;
+    padding-top: 20px;
+    padding-bottom: ${(props) => props.bottomOffset + 44}px;
+    position: absolute;
+    width: 100%;
 `
 const RejectInvitePressable = styled(TouchableOpacity)`
     align-items: center;
@@ -274,7 +284,7 @@ const InviteFold = ({ clubMember, navigation, isPublicClub, onRefresh }) => {
 
 }
 
-const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
+const ClubActivityList = ({ club, chatMessages, navigation, onRefresh, refreshing }) => {
     const itemHeights = useRef([]);
     const [maxDisplayPage, setMaxDisplayPage] = useState(0);
     const maxDisplayIndex = (maxDisplayPage + 1) * ACTIVITY_PAGE_SIZE;
@@ -286,14 +296,18 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
         return lastActivity1.diff(lastActivity0, 'seconds');
     }
 
+    for (const chatMessage of chatMessages) {
+        chatMessage.activityType = 'message';
+    }
+
     const clubActivities = [
         ...club.titles,
         ...club.topics,
         ...club.members,
+        ...chatMessages,
     ].sort(sortByLastUpdated);
 
-    const displayActivities = useRef(clubActivities.filter(filterDisplayActivities));
-
+    const displayActivities = clubActivities.filter(filterDisplayActivities);
     const activityCanRenderOnFeed = (titleOrTopic) => {
         return (titleOrTopic.activityType === 'topic' || titleOrTopic?.reelays?.length > 0);
     }
@@ -303,8 +317,8 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
     const onEndReached = () => {
         const nextMaxDisplayIndex = (maxDisplayPage + 2) * ACTIVITY_PAGE_SIZE;
         const filterNextDisplayActivities = (nextActivity, index) => index < nextMaxDisplayIndex;
-        if (clubActivities?.length === displayActivities.current?.length) return; 
-        displayActivities.current = clubActivities.filter(filterNextDisplayActivities);
+        if (clubActivities?.length === displayActivities?.length) return; 
+        displayActivities = clubActivities.filter(filterNextDisplayActivities);
         setMaxDisplayPage(maxDisplayPage + 1);
     }
 
@@ -324,6 +338,11 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
         if (activityType === 'description') {
             return <DescriptionFold key={'description'} />;
         }
+
+        if (activityType === 'message') {
+            return <ClubChatMessage key={activity?.id} message={activity} />
+        }
+
         if (activityType === 'noTitlesYet') {
             return <NoTitlesYetPrompt key={'noTitlesYet'} />
         }
@@ -352,9 +371,10 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
 
     return (
         <FlashList
-            data={displayActivities.current}
+            data={displayActivities}
             estimatedItemSize={200}
             getItemLayout={getItemLayout}
+            inverted={true}
             keyExtractor={keyExtractor}
             onEndReached={onEndReached}
             onEndReachedThreshold={0.9}
@@ -373,6 +393,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const { club, promptToInvite } = route.params;
 
+    const [chatMessages, setChatMessages] = useState([]);
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
     const [refreshing, setRefreshing] = useState(false);
 
@@ -412,6 +433,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         socket.on('chatMessagesLoaded', ({ messages, page }) => {
             console.log('event received: messages loaded');
             console.log('chat messages loaded: ', messages);
+            setChatMessages(messages);
         })
 
         socket.on('chatMessageSent', ({ message }) => {
@@ -505,29 +527,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         dispatch({ type: 'setTabBarVisible', payload: true });
     });
 
-    const AddTitleButton = () => {
-        const [titleOrTopicDrawerVisible, setTitleOrTopicDrawerVisible] = useState(false);
-        return (
-            <BottomButtonOuterView 
-                bottomOffset={bottomOffset} 
-                colors={['transparent', 'black']}
-                end={{ x: 0.5, y: 0.5}}>
-                <AddTitleButtonView onPress={() => setTitleOrTopicDrawerVisible(true)}>
-                    <Icon type='ionicon' name='add-circle-outline' size={16} color='white' />
-                    <AddTitleButtonText>{'Add title or topic'}</AddTitleButtonText>
-                </AddTitleButtonView>
-                { titleOrTopicDrawerVisible && (
-                    <AddTitleOrTopicDrawer
-                        club={club}
-                        navigation={navigation}
-                        drawerVisible={titleOrTopicDrawerVisible}
-                        setDrawerVisible={setTitleOrTopicDrawerVisible}
-                    />
-                )}
-            </BottomButtonOuterView>
-        );
-    }
-
     const JoinClubButton = () => {
         const joinClub = async () => {
             // inviting yourself => auto-accept invite
@@ -547,25 +546,33 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         }
 
         return (
-            <BottomButtonOuterView 
+            <JoinClubOuterView 
                 bottomOffset={bottomOffset} 
                 colors={['transparent', 'black']}>
-                <AddTitleButtonView onPress={joinClub}>
-                    <AddTitleButtonText>{'Join club'}</AddTitleButtonText>
-                </AddTitleButtonView>
-            </BottomButtonOuterView>
+                <JoinClubButtonView onPress={joinClub}>
+                    <JoinClubButtonText>{'Join club'}</JoinClubButtonText>
+                </JoinClubButtonView>
+            </JoinClubOuterView>
         );
     }
 
     return (
         <ActivityScreenView>
             <ActivityTopSpacer topOffset={topOffset} />
-            <ClubActivityList club={club} navigation={navigation} onRefresh={onRefresh} refreshing={refreshing} />
+            <ClubActivityList 
+                club={club} 
+                chatMessages={chatMessages}
+                navigation={navigation} 
+                onRefresh={onRefresh} 
+                refreshing={refreshing} 
+            />
             <ActivityBottomSpacer bottomOffset={bottomOffset} />
             <ClubBanner club={club} navigation={navigation} />
 
             { !clubMember && isPublicClub && <JoinClubButton /> }
-            { clubMember && clubMemberHasJoined && <AddTitleButton /> }
+            { clubMember && clubMemberHasJoined && (
+                <ClubPostActivityBar club={club} navigation={navigation} socketRef={socketRef} />
+            )}
             { clubMember && !clubMemberHasJoined && (
                 <InviteFold 
                     clubMember={clubMember} 
