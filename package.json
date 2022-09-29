@@ -116,6 +116,7 @@
     "redux-devtools-extension": "^2.13.9",
     "redux-thunk": "^2.3.0",
     "rn-bottom-drawer": "^1.4.3",
+    "socket.io-client": "^4.5.2",
     "styled-components": "^5.3.0",
     "uuid": "^8.3.2",
     "validate.js": "^0.13.1",

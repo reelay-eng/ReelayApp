@@ -32,8 +32,11 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import Constants from 'expo-constants';
 import { FlashList } from '@shopify/flash-list';
 
+import { io } from 'socket.io-client';
+
 const { height, width } = Dimensions.get('window');
 const ACTIVITY_PAGE_SIZE = 20;
+const CHAT_BASE_URL = Constants.manifest.extra.reelayChatBaseUrl;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
 const AcceptRejectInviteRowView = styled(View)`
@@ -364,6 +367,7 @@ const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
  
 export default ClubActivityScreen = ({ navigation, route }) => {
     const authSession = useSelector(state => state.authSession);
+    const socketRef = useRef(null);
 
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
@@ -384,6 +388,54 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
     const notLoaded = (!club.members?.length && !club.titles?.length && !club.topics?.length);
+
+    const initClubsChat = async () => {
+        const socket = io(CHAT_BASE_URL);
+        socketRef.current = socket;
+
+        socket.on('connect', () => {
+            console.log('socket initialized: ', socket.id);
+            socket.emit('joinChat', {
+                authSession, 
+                clubID: club?.id, 
+                username: reelayDBUser?.username, 
+                userSub: reelayDBUser?.sub,
+                visibility: FEED_VISIBILITY,
+            });
+        });
+
+        socket.on('activeUsersInChatUpdated', ({ activeUsersInChat }) => {
+            console.log('event received: active users');
+            console.log('active users in chat: ', activeUsersInChat);
+        });
+
+        socket.on('chatMessagesLoaded', ({ messages, page }) => {
+            console.log('event received: messages loaded');
+            console.log('chat messages loaded: ', messages);
+        })
+
+        socket.on('chatMessageSent', ({ message }) => {
+            console.log('chat message received: ', message);
+        });
+
+        return socket;
+    }
+
+    const closeClubsChat = () => {
+        if (!socketRef.current) {
+            console.log('error closing clubs chat: could not find socket ref');
+            return;
+        }
+
+        const socket = socketRef.current;
+        socket.emit('leaveChat', {
+            authSession, 
+            clubID: club?.id, 
+            userSub: reelayDBUser?.sub,
+        });
+        socket.close();
+        socketRef.current = null;
+    }
 
     const onRefresh = async () => {
         try { 
@@ -430,12 +482,13 @@ export default ClubActivityScreen = ({ navigation, route }) => {
 
     useEffect(() => {
         if (notLoaded) {
-            onRefresh();
+            onRefresh().then(() => initClubsChat());
         } else {
             if (clubMember?.id) {
                 clubMember.lastActivitySeenAt = moment().toISOString();
                 markClubActivitySeen({ authSession, clubMemberID: clubMember.id, reqUserSub: reelayDBUser?.sub });
             }
+            initClubsChat();
         }
 
         logAmplitudeEventProd('openedClubActivityScreen', {
@@ -444,6 +497,8 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             clubID: club?.id,
             club: club?.name,
         });
+
+        return () => closeClubsChat();
     }, []);
 
     useFocusEffect(() => {
