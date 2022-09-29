@@ -14,7 +14,8 @@ const AuthorText = styled(ReelayText.H5Bold)`
     line-height: 20px;
 `
 const ChatMessageOuterView = styled(View)`
-    align-items: center;
+    padding-left: 16px;
+    padding-right: 16px;
 `
 const DotMenuButtonView = styled(TouchableOpacity)`
     right: 8px;

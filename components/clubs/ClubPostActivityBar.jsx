@@ -189,7 +189,7 @@ export default ClubPostActivityBar = ({ club, navigation, socketRef }) => {
     }
 
     return (
-        <ChatMessageAvoidingView behavior="padding" style={{ flex: 1 }}>
+        <Fragment>
             { messageBoxExpanded && (
                 <Backdrop onPress={() => {
                     Keyboard.dismiss();
@@ -217,6 +217,6 @@ export default ClubPostActivityBar = ({ club, navigation, socketRef }) => {
                     />
                 )}
             </PostBarOuterView>
-        </ChatMessageAvoidingView>
+        </Fragment>
     );
 }

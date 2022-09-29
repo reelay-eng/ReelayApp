@@ -2,6 +2,7 @@ import React, { Fragment, useContext, useEffect, useRef, useState } from 'react'
 import { 
     ActivityIndicator,
     Dimensions, 
+    KeyboardAvoidingView, 
     RefreshControl, 
     TouchableOpacity, 
     View 
@@ -43,6 +44,7 @@ import {
     acceptInviteToClub, 
     rejectInviteFromClub, 
 } from '../../api/ClubsApi';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const { height, width } = Dimensions.get('window');
 const ACTIVITY_PAGE_SIZE = 20;
@@ -67,7 +69,11 @@ const AcceptInvitePressable = styled(TouchableOpacity)`
     margin-right: 16px;
 `
 const ActivityBottomSpacer = styled(View)`
-    height: ${props => props.bottomOffset + 100}px;
+    height: ${props => props.bottomOffset}px;
+`
+const ActivityListView = styled(View)`
+    height: 100%;
+    width: 100%;
 `
 const ActivityTopSpacer = styled(View)`
     height: ${props => props.topOffset}px;
@@ -365,10 +371,6 @@ const ClubActivityList = ({ club, chatMessages, navigation, onRefresh, refreshin
         return { length, offset, index };
     }
 
-    if (refreshing) {
-        return <ActivityIndicator />
-    }
-
     return (
         <FlashList
             data={displayActivities}
@@ -432,8 +434,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         });
 
         socket.on('chatMessagesLoaded', ({ messages, page }) => {
-            console.log('event received: messages loaded');
-            console.log('chat messages loaded: ', messages);
+            console.log(`event received: ${messages?.length} messages loaded`);
             chatMessagesRef.current = messages;
             setChatMessages(messages);
         })
@@ -564,6 +565,8 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     }
 
     return (
+        <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
+
         <ActivityScreenView>
             <ActivityTopSpacer topOffset={topOffset} />
             <ClubActivityList 
@@ -573,7 +576,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 onRefresh={onRefresh} 
                 refreshing={refreshing} 
             />
-            <ActivityBottomSpacer bottomOffset={bottomOffset} />
             <ClubBanner club={club} navigation={navigation} />
 
             { !clubMember && isPublicClub && <JoinClubButton /> }
@@ -602,5 +604,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 />
             )}
         </ActivityScreenView>
+        </KeyboardAvoidingView>
+
     );
 }
