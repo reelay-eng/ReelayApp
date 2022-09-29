@@ -307,7 +307,7 @@ const ClubActivityList = ({ club, chatMessages, navigation, onRefresh, refreshin
         ...chatMessages,
     ].sort(sortByLastUpdated);
 
-    const displayActivities = clubActivities.filter(filterDisplayActivities);
+    let displayActivities = clubActivities.filter(filterDisplayActivities);
     const activityCanRenderOnFeed = (titleOrTopic) => {
         return (titleOrTopic.activityType === 'topic' || titleOrTopic?.reelays?.length > 0);
     }
@@ -387,6 +387,7 @@ const ClubActivityList = ({ club, chatMessages, navigation, onRefresh, refreshin
  
 export default ClubActivityScreen = ({ navigation, route }) => {
     const authSession = useSelector(state => state.authSession);
+    const chatMessagesRef = useRef([]);
     const socketRef = useRef(null);
 
     const dispatch = useDispatch();
@@ -433,12 +434,17 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         socket.on('chatMessagesLoaded', ({ messages, page }) => {
             console.log('event received: messages loaded');
             console.log('chat messages loaded: ', messages);
+            chatMessagesRef.current = messages;
             setChatMessages(messages);
         })
 
         socket.on('chatMessageSent', ({ message }) => {
+            const currentMessages = chatMessagesRef.current;
             console.log('chat message received: ', message);
-            setChatMessages([message, ...chatMessages]);
+            const nextMessages = [message, ...currentMessages];
+            chatMessagesRef.current = nextMessages;
+            console.log(`next message length: ${nextMessages?.length}`);
+            setChatMessages(nextMessages);
         });
 
         return socket;
