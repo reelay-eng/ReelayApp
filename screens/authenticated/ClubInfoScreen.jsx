@@ -74,6 +74,7 @@ const HorizontalDivider = styled(View)`
     border-color: rgba(255,255,255,0.5);
     border-width: 0.2px;
     height: 1px;
+    margin-bottom: 24px;
     width: 100%;
 `
 const InfoScreenView = styled(View)`
@@ -92,7 +93,7 @@ const JoinButtonView = styled(TouchableOpacity)`
     border-radius: 8px;
     flex-direction: row;
     justify-content: center;
-    margin-top: 24px;
+    margin-top: 0px;
     margin-bottom: 24px;
     height: 40px;
     width: 50%;

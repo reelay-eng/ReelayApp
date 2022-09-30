@@ -13,6 +13,15 @@ const AuthorText = styled(ReelayText.H5Bold)`
     font-size: 14px;
     line-height: 20px;
 `
+const ChatMessageBodyView = styled(View)`
+    margin-left: 12px;
+`
+const ChatMessageView = styled(View)`
+    flex-direction: row;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    width: ${width-32}px;
+`
 const ChatMessageOuterView = styled(View)`
     padding-left: 16px;
     padding-right: 16px;
@@ -21,29 +30,25 @@ const DotMenuButtonView = styled(TouchableOpacity)`
     right: 8px;
     position: absolute;
 `
-const OverlineTopRowView = styled(View)`
+const MessageText = styled(ReelayText.Body2)`
+    color: white;
+    line-height: 20px;
+`
+const MessageTextView = styled(View)`
+    width: ${width - 80}px;
+`
+const OverlineView = styled(View)`
     align-items: flex-end;
     flex-direction: row;
     margin-bottom: 4px;
 `
-const PostedMessageText = styled(ReelayText.Body2)`
-    color: white;
-    line-height: 20px;
+const ProfilePictureView = styled(View)`
+    margin-top: 6px;
 `
 const TimestampText = styled(ReelayText.Body2)`
     color: #9D9D9D;
     font-size: 12px;
     line-height: 14px;
-`
-const TitleOverlineView = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    margin-top: 8px;
-    margin-bottom: 8px;
-    width: ${width-32}px;
-`
-const TitleOverlineInfoView = styled(View)`
-    margin-left: 8px;
 `
 const TopRowSpacer = styled(View)`
     width: 6px;
@@ -60,33 +65,37 @@ const DotMenuButton = ({ message }) => {
     );
 }
 
-const ChatMessageOverline = ({ message }) => {
+export default ClubChatMessage = ({ message }) => {
+    const timestampString = moment(message?.createdAt).format("hh:mm A");
     const author = { 
         username: message?.username,
         sub: message?.userSub,
     }
-    const timestampString = moment(message?.createdAt).format("hh:mm A");
 
-    return (
-        <TitleOverlineView>
-            <ProfilePicture user={author} size={32} />
-            <TitleOverlineInfoView>
-                <OverlineTopRowView>
+    const ChatMessageBody = () => {
+        return (
+            <ChatMessageBodyView>
+                <OverlineView>
                     <AuthorText>{author?.username}</AuthorText>
                     <TopRowSpacer />
                     <TimestampText>{timestampString}</TimestampText>
-                </OverlineTopRowView>
-                <PostedMessageText>{message?.text ?? ''}</PostedMessageText>
-            </TitleOverlineInfoView>
-            {/* <DotMenuButton message={message} /> */}
-        </TitleOverlineView>
-    );
-}
+                </OverlineView>
+                <MessageTextView>
+                    <MessageText>{message?.text ?? ''}</MessageText>
+                </MessageTextView>
+            </ChatMessageBodyView>
+        );
+    }
 
-export default ClubChatMessage = ({ message }) => {
     return (
         <ChatMessageOuterView>
-            <ChatMessageOverline message={message} />
+            <ChatMessageView>
+                <ProfilePictureView>
+                    <ProfilePicture user={author} size={32} />
+                </ProfilePictureView>
+                <ChatMessageBody />
+                {/* <DotMenuButton message={message} /> */}
+            </ChatMessageView>
         </ChatMessageOuterView>
-    )
+    );
 }

@@ -45,6 +45,7 @@ import {
     rejectInviteFromClub, 
 } from '../../api/ClubsApi';
 import { ScrollView } from 'react-native-gesture-handler';
+import ActiveUsersInChatBar from '../../components/clubs/ActiveUsersInChatBar';
 
 const { height, width } = Dimensions.get('window');
 const ACTIVITY_PAGE_SIZE = 20;
@@ -396,6 +397,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const { club, promptToInvite } = route.params;
 
+    const [activeUsersInChat, setActiveUsersInChat] = useState([]);
     const [chatMessages, setChatMessages] = useState([]);
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
     const [refreshing, setRefreshing] = useState(false);
@@ -431,6 +433,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         socket.on('activeUsersInChatUpdated', ({ activeUsersInChat }) => {
             console.log('event received: active users');
             console.log('active users in chat: ', activeUsersInChat);
+            setActiveUsersInChat(activeUsersInChat);
         });
 
         socket.on('chatMessagesLoaded', ({ messages, page }) => {
@@ -576,6 +579,8 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 onRefresh={onRefresh} 
                 refreshing={refreshing} 
             />
+
+            <ActiveUsersInChatBar activeUsersInChat={activeUsersInChat} navigation={navigation}  />
             <ClubBanner club={club} navigation={navigation} />
 
             { !clubMember && isPublicClub && <JoinClubButton /> }
@@ -605,6 +610,5 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             )}
         </ActivityScreenView>
         </KeyboardAvoidingView>
-
     );
 }
