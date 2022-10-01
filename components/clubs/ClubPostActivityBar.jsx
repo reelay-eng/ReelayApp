@@ -14,24 +14,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import moment from 'moment';
 
-import ClubBanner from './ClubBanner';
-import ClubTitleCard from './ClubTitleCard';
-import NoTitlesYetPrompt from './NoTitlesYetPrompt';
-
 import { useDispatch, useSelector } from 'react-redux';
-import { useFocusEffect } from '@react-navigation/native';
-import { inviteMemberToClub, getClubMembers, getClubTitles, getClubTopics, markClubActivitySeen, acceptInviteToClub, rejectInviteFromClub } from '../../api/ClubsApi';
 import { AuthContext } from '../../context/AuthContext';
 import { showErrorToast } from '../utils/toasts';
-import InviteMyFollowsDrawer from './InviteMyFollowsDrawer';
 import { LinearGradient } from 'expo-linear-gradient';
 import ReelayColors from '../../constants/ReelayColors';
 import AddTitleOrTopicDrawer from './AddTitleOrTopicDrawer';
-import UploadProgressBar from '../global/UploadProgressBar';
-import TopicCard from '../topics/TopicCard';
-import { logAmplitudeEventProd } from '../utils/EventLogger';
-import Constants from 'expo-constants';
-import { FlashList } from '@shopify/flash-list';
 
 import { io } from 'socket.io-client';
 import { TextInput } from 'react-native-gesture-handler';
@@ -39,6 +27,9 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 
 const { height, width } = Dimensions.get('window');
+
+const LAST_TYPING_MAX_SECONDS = 15;
+const LAST_TYPING_UPDATE_SECONDS = 10;
 
 const AddTitleOrTopicButtonPressable = styled(TouchableOpacity)`
     align-items: center;
@@ -49,18 +40,6 @@ const AddTitleOrTopicButtonPressable = styled(TouchableOpacity)`
     height: 40px;
     justify-content: center;
     width: 40px;
-`
-const Backdrop = styled(Pressable)`
-    bottom: 0px;
-    height: ${height}px;
-    position: absolute;
-    width: ${width}px;
-`
-const ChatMessageAvoidingView = styled(KeyboardAvoidingView)`
-    align-items: center;
-    bottom: 0px;
-    position: absolute;
-    width: 100%;
 `
 const ChatMessageTextInput = styled(TextInput)`
     align-items: center;
@@ -77,9 +56,9 @@ const ChatMessageTextInput = styled(TextInput)`
     justify-content: flex-end;
     letter-spacing: 0.15px;
     padding-left: 16px;
+    padding-right: 60px;
     padding-top: 8px;
     padding-bottom: 8px;
-    padding-right: 60px;
     width: ${width - 84}px;
 `
 const PostBarOuterView = styled(LinearGradient)`
@@ -89,11 +68,11 @@ const PostBarOuterView = styled(LinearGradient)`
     padding-left: 16px;
     padding-right: 16px;
     padding-top: 20px;
-    padding-bottom: ${props => (props.expanded) ? 16 : props.bottomOffset}px;
+    padding-bottom: 16px;
     width: 100%;
 `
 const PostMessageButtonPressable = styled(TouchableOpacity)`
-    bottom: ${props => (props.expanded) ? 26 : props.bottomOffset + 10}px;
+    bottom: 26px;
     position: absolute;
     right: 88px;
 `
@@ -102,49 +81,6 @@ const PostMessageButtonText = styled(ReelayText.Body2Emphasized)`
     font-size: 16px;
     line-height: 20px;
 `
-
-const ChatMessageBox = ({ bottomOffset, expanded, messageRef, onFocus, onPostMessage }) => {
-    const inputFieldRef = useRef(null);
-    const [messageText, setMessageText] = useState(messageRef?.text ?? '');
-
-    const onChangeText = (nextMessageText) => {
-        if (messageRef?.current) {
-            messageRef.current.text = nextMessageText;
-            setMessageText(nextMessageText);
-        }
-    }
-
-    const PostButton = () => {
-        return (
-            <PostMessageButtonPressable 
-                    bottomOffset={bottomOffset} 
-                    expanded={expanded} 
-                    onPress={() => {
-                        onPostMessage();
-                        setMessageText('');
-                    }}>
-                <PostMessageButtonText>
-                    {'Post'}
-                </PostMessageButtonText>
-            </PostMessageButtonPressable>
-        );
-    }
-
-    return (
-        <Fragment>
-            <ChatMessageTextInput 
-                defaultValue={messageText}
-                multiline={true}
-                onFocus={onFocus}
-                onChangeText={onChangeText}
-                placeholder={'Say something...'}
-                placeholderTextColor={"gray"}
-                ref={inputFieldRef}
-            />
-            <PostButton />
-        </Fragment>
-    );
-}
 
 const AddTitleOrTopicButton = ({ onPress }) => {
     return (
@@ -158,10 +94,7 @@ export default ClubPostActivityBar = ({ club, navigation, socketRef }) => {
     const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
     const bottomOffset = useSafeAreaInsets().bottom + 64;
-    const [messageBoxExpanded, setMessageBoxExpanded] = useState(false);
     const [titleOrTopicDrawerVisible, setTitleOrTopicDrawerVisible] = useState(false);
-
-    Keyboard.addListener('keyboardWillShow', () => setMessageBoxExpanded(true));
 
     const messageRef = useRef({
         mediaURI: null,
@@ -174,49 +107,134 @@ export default ClubPostActivityBar = ({ club, navigation, socketRef }) => {
         return (messageRef.current?.text.length > 0);
     }
 
-    const onPostMessage = async () => {
-        if (!isValidMessage()) {
-            showErrorToast('Can\'t post an empty message');
-            return;
+    const ChatMessageBox = () => {
+        const inputFieldRef = useRef(null);
+        const lastTypingAtRef = useRef(null);
+        const [messageText, setMessageText] = useState(messageRef?.text ?? '');
+
+        const checkEmitStartTypingInChat = () => {
+            const lastTypingMoment = lastTypingAtRef.current;
+            const shouldEmitTypingUpdate = (!lastTypingMoment) || (
+                moment().diff(lastTypingMoment, 'seconds') > LAST_TYPING_UPDATE_SECONDS
+            );
+
+            if (shouldEmitTypingUpdate) {
+                const socket = socketRef.current;
+                socket.emit('startTypingInChat', { 
+                    authSession,
+                    clubID: club?.id, 
+                    userSub: reelayDBUser?.sub,
+                });
+
+                setTimeout(() => {
+                    checkEmitStopTypingInChat();
+                }, (LAST_TYPING_MAX_SECONDS * 1000));
+            }
         }
-        const socket = socketRef.current;
-        socket.emit('sendMessageToChat', {
-            authSession,
-            clubID: club?.id,
-            userSub: reelayDBUser?.sub,
-            message: messageRef.current,
-        })
+
+        const checkEmitStopTypingInChat = () => {
+            const lastTypingMoment = lastTypingAtRef.current;
+            const secondsSinceTyping = moment().diff(lastTypingMoment, 'seconds');
+            if (secondsSinceTyping > LAST_TYPING_MAX_SECONDS) {
+                socket.emit('stopTypingInChat', { 
+                    authSession,
+                    clubID: club?.id, 
+                    userSub: reelayDBUser?.sub,
+                });
+            }
+        }
+
+        const emitStayActive = () => {
+            if (!socketRef.current) {
+                console.log('error closing clubs chat: could not find socket ref');
+                return;
+            }
+    
+            const socket = socketRef.current;
+            socket.emit('stayActive', {
+                authSession, 
+                clubID: club?.id, 
+                userSub: reelayDBUser?.sub,
+            });
+        }    
+    
+        const onChangeText = (nextMessageText) => {
+            if (messageRef?.current) {
+                messageRef.current.text = nextMessageText;
+                setMessageText(nextMessageText);
+            }
+            checkEmitStartTypingInChat();
+            lastTypingAtRef.current = moment();
+        }
+    
+        const onPostMessage = async () => {
+            if (!isValidMessage()) {
+                showErrorToast('Can\'t post an empty message');
+                return;
+            }
+            const socket = socketRef.current;
+            socket.emit('sendMessageToChat', {
+                authSession,
+                clubID: club?.id,
+                userSub: reelayDBUser?.sub,
+                message: messageRef.current,
+            });
+        }
+        
+        const PostButton = () => {
+            return (
+                <PostMessageButtonPressable 
+                        bottomOffset={bottomOffset} 
+                        onPress={() => {
+                            onPostMessage();
+                            setMessageText('');
+                        }}>
+                    <PostMessageButtonText>
+                        {'Post'}
+                    </PostMessageButtonText>
+                </PostMessageButtonPressable>
+            );
+        }
+    
+        return (
+            <Fragment>
+                <ChatMessageTextInput 
+                    defaultValue={messageText}
+                    multiline={true}
+                    onChangeText={onChangeText}
+                    onFocus={emitStayActive}
+                    placeholder={'Say something...'}
+                    placeholderTextColor={"gray"}
+                    ref={inputFieldRef}
+                />
+                <PostButton />
+            </Fragment>
+        );
+    }    
+
+    const PostActivityBar = () => {
+        return (
+            <PostBarOuterView 
+                    bottomOffset={bottomOffset} 
+                    colors={['transparent', 'black']} 
+                    end={{ x: 0.5, y: 0.5}}>
+                <ChatMessageBox />
+                <AddTitleOrTopicButton onPress={() => setTitleOrTopicDrawerVisible(true)} />
+            </PostBarOuterView>
+        );
     }
 
     return (
         <Fragment>
-            { messageBoxExpanded && (
-                <Backdrop onPress={() => {
-                    Keyboard.dismiss();
-                    setTimeout(() => setMessageBoxExpanded(false), 60);
-                }} />
-            )}
-            <PostBarOuterView 
-                    bottomOffset={bottomOffset} 
-                    colors={['transparent', 'black']} 
-                    end={{ x: 0.5, y: 0.5}}
-                    expanded={messageBoxExpanded}>
-                <ChatMessageBox 
-                    bottomOffset={bottomOffset}
-                    expanded={messageBoxExpanded}
-                    messageRef={messageRef} 
-                    onPostMessage={onPostMessage}
+            <PostActivityBar />
+            { titleOrTopicDrawerVisible && (
+                <AddTitleOrTopicDrawer
+                    club={club}
+                    navigation={navigation}
+                    drawerVisible={titleOrTopicDrawerVisible}
+                    setDrawerVisible={setTitleOrTopicDrawerVisible}
                 />
-                <AddTitleOrTopicButton onPress={() => setTitleOrTopicDrawerVisible(true)} />
-                { titleOrTopicDrawerVisible && (
-                    <AddTitleOrTopicDrawer
-                        club={club}
-                        navigation={navigation}
-                        drawerVisible={titleOrTopicDrawerVisible}
-                        setDrawerVisible={setTitleOrTopicDrawerVisible}
-                    />
-                )}
-            </PostBarOuterView>
+            )}
         </Fragment>
     );
 }

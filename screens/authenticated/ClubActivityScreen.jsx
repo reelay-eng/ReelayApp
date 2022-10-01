@@ -291,8 +291,16 @@ const InviteFold = ({ clubMember, navigation, isPublicClub, onRefresh }) => {
 
 }
 
-const ClubActivityList = ({ club, chatMessages, navigation, onRefresh, refreshing }) => {
+const ClubActivityList = ({ 
+    activeUsersInChatRef, 
+    club, 
+    chatMessagesRef, 
+    navigation, 
+    onRefresh, 
+    refreshing, 
+}) => {
     const itemHeights = useRef([]);
+    const [chatMessageCount, setChatMessageCount] = useState(chatMessagesRef?.current?.length);
     const [maxDisplayPage, setMaxDisplayPage] = useState(0);
     const maxDisplayIndex = (maxDisplayPage + 1) * ACTIVITY_PAGE_SIZE;
 
@@ -303,7 +311,7 @@ const ClubActivityList = ({ club, chatMessages, navigation, onRefresh, refreshin
         return lastActivity1.diff(lastActivity0, 'seconds');
     }
 
-    for (const chatMessage of chatMessages) {
+    for (const chatMessage of chatMessagesRef?.current) {
         chatMessage.activityType = 'message';
     }
 
@@ -311,7 +319,7 @@ const ClubActivityList = ({ club, chatMessages, navigation, onRefresh, refreshin
         ...club.titles,
         ...club.topics,
         ...club.members,
-        ...chatMessages,
+        ...chatMessagesRef.current,
     ].sort(sortByLastUpdated);
 
     let displayActivities = clubActivities.filter(filterDisplayActivities);
@@ -372,24 +380,41 @@ const ClubActivityList = ({ club, chatMessages, navigation, onRefresh, refreshin
         return { length, offset, index };
     }
 
+    const updateChatActivity = () => {
+        if (chatMessagesRef?.current?.length !== chatMessageCount) {
+            setChatMessageCount(chatMessagesRef?.current?.length);
+        }
+    }
+
+    useEffect(() => {
+        setInterval(() => {
+            updateChatActivity();
+        }, 250);
+        
+    }, []);
+
     return (
-        <FlashList
-            data={displayActivities}
-            estimatedItemSize={200}
-            getItemLayout={getItemLayout}
-            inverted={true}
-            keyExtractor={keyExtractor}
-            onEndReached={onEndReached}
-            onEndReachedThreshold={0.9}
-            refreshControl={refreshControl} 
-            renderItem={renderClubActivity}
-            showsVerticalScrollIndicator={false}
-        />
+        <Fragment>
+            <ActiveUsersInChatBar activeUsersInChatRef={activeUsersInChatRef} navigation={navigation}  />
+            <FlashList
+                data={displayActivities}
+                estimatedItemSize={200}
+                getItemLayout={getItemLayout}
+                inverted={true}
+                keyExtractor={keyExtractor}
+                onEndReached={onEndReached}
+                onEndReachedThreshold={0.9}
+                refreshControl={refreshControl} 
+                renderItem={renderClubActivity}
+                showsVerticalScrollIndicator={false}
+            />
+        </Fragment>
     )
 }
  
 export default ClubActivityScreen = ({ navigation, route }) => {
     const authSession = useSelector(state => state.authSession);
+    const activeUsersInChatRef = useRef({});
     const chatMessagesRef = useRef([]);
     const socketRef = useRef(null);
 
@@ -397,8 +422,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const { club, promptToInvite } = route.params;
 
-    const [activeUsersInChat, setActiveUsersInChat] = useState([]);
-    const [chatMessages, setChatMessages] = useState([]);
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
     const [refreshing, setRefreshing] = useState(false);
 
@@ -433,13 +456,12 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         socket.on('activeUsersInChatUpdated', ({ activeUsersInChat }) => {
             console.log('event received: active users');
             console.log('active users in chat: ', activeUsersInChat);
-            setActiveUsersInChat(activeUsersInChat);
+            activeUsersInChatRef.current = activeUsersInChat;
         });
 
         socket.on('chatMessagesLoaded', ({ messages, page }) => {
             console.log(`event received: ${messages?.length} messages loaded`);
             chatMessagesRef.current = messages;
-            setChatMessages(messages);
         })
 
         socket.on('chatMessageSent', ({ message }) => {
@@ -448,7 +470,50 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             const nextMessages = [message, ...currentMessages];
             chatMessagesRef.current = nextMessages;
             console.log(`next message length: ${nextMessages?.length}`);
-            setChatMessages(nextMessages);
+
+            const userEntry = activeUsersInChatRef?.current?.[message?.userSub];
+            if (!userEntry) {
+                console.log('error on chatMessageSent: could not find user entry');
+                return;
+            }
+            userEntry.isTyping = false;
+        });
+
+        socket.on('userIsActive', ({ userSub }) => {
+            console.log('received userIsActive: ', userSub);
+            const userEntry = activeUsersInChatRef?.current?.[userSub];
+            if (!userEntry) {
+                console.log('error on userIsActive: could not find user entry');
+                return;
+            }
+            userEntry.lastActive = moment();
+        })
+
+        socket.on('userStartedTyping', ({ userSub }) => {
+            console.log('received userStartedTyping: ', userSub);
+            const userEntry = activeUsersInChatRef?.current?.[userSub];
+            if (!userEntry) {
+                console.log('error on userStartedTyping: could not find user entry');
+                return;
+            }
+
+            if (!userEntry.isTyping) {
+                userEntry.lastActive = moment();
+                userEntry.isTyping = true;
+            }
+        });
+
+        socket.on('userStoppedTyping', ({ userSub }) => {
+            console.log('received userStoppedTyping: ', userSub);
+            const userEntry = activeUsersInChatRef?.current?.[userSub];
+            if (!userEntry) {
+                console.log('error on userStoppedTyping: could not find user entry');
+                return;
+            }
+
+            if (userEntry.isTyping) {
+                userEntry.isTyping = false;
+            }
         });
 
         return socket;
@@ -568,47 +633,50 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     }
 
     return (
-        <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
-
         <ActivityScreenView>
-            <ActivityTopSpacer topOffset={topOffset} />
-            <ClubActivityList 
-                club={club} 
-                chatMessages={chatMessages}
-                navigation={navigation} 
-                onRefresh={onRefresh} 
-                refreshing={refreshing} 
-            />
-
-            <ActiveUsersInChatBar activeUsersInChat={activeUsersInChat} navigation={navigation}  />
-            <ClubBanner club={club} navigation={navigation} />
-
-            { !clubMember && isPublicClub && <JoinClubButton /> }
-            { clubMember && clubMemberHasJoined && (
-                <ClubPostActivityBar club={club} navigation={navigation} socketRef={socketRef} />
-            )}
-            { clubMember && !clubMemberHasJoined && (
-                <InviteFold 
-                    clubMember={clubMember} 
-                    isPublicClub={isPublicClub} 
+            <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
+                <ActivityTopSpacer topOffset={topOffset} />
+                <ClubActivityList 
+                    activeUsersInChatRef={activeUsersInChatRef}
+                    club={club} 
+                    chatMessagesRef={chatMessagesRef}
                     navigation={navigation} 
                     onRefresh={onRefresh} 
+                    refreshing={refreshing} 
                 />
-            )}
 
-            { showProgressBar && (
-                <UploadProgressBar clubID={club.id} mountLocation={'InClub'} onRefresh={onRefresh} />
-            )}
+                <ClubBanner club={club} navigation={navigation} />
+                { !clubMember && isPublicClub && <JoinClubButton /> }
+                { clubMember && clubMemberHasJoined && (
+                    <ClubPostActivityBar 
+                        club={club} 
+                        navigation={navigation} 
+                        socketRef={socketRef} 
+                    />
+                )}
+                { clubMember && !clubMemberHasJoined && (
+                    <InviteFold 
+                        clubMember={clubMember} 
+                        isPublicClub={isPublicClub} 
+                        navigation={navigation} 
+                        onRefresh={onRefresh} 
+                    />
+                )}
 
-            { inviteDrawerVisible && (
-                <InviteMyFollowsDrawer 
-                    club={club}
-                    drawerVisible={inviteDrawerVisible}
-                    setDrawerVisible={setInviteDrawerVisible}
-                    onRefresh={onRefresh}
-                />
-            )}
+                { showProgressBar && (
+                    <UploadProgressBar clubID={club.id} mountLocation={'InClub'} onRefresh={onRefresh} />
+                )}
+
+                { inviteDrawerVisible && (
+                    <InviteMyFollowsDrawer 
+                        club={club}
+                        drawerVisible={inviteDrawerVisible}
+                        setDrawerVisible={setInviteDrawerVisible}
+                        onRefresh={onRefresh}
+                    />
+                )}
+            </KeyboardAvoidingView>
+            <View style={{ height: bottomOffset + 44 }} />
         </ActivityScreenView>
-        </KeyboardAvoidingView>
     );
 }

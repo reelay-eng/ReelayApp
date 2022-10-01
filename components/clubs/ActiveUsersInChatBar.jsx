@@ -8,6 +8,7 @@ import moment from 'moment';
 import ReelayColors from '../../constants/ReelayColors';
 import { AuthContext } from '../../context/AuthContext';
 
+const LAST_ACTIVE_MAX_SECONDS = 180;
 
 const BarView = styled(View)`
     background-color: #E9E9E9;
@@ -33,9 +34,17 @@ const ProfilePicRowView = styled(View)`
     justify-content: flex-end;
 `
 
-export default ActiveUsersInChatBar = ({ activeUsersInChat, navigation }) => {
+export default ActiveUsersInChatBar = ({ activeUsersInChatRef, navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const otherUsersInChatCount = activeUsersInChat?.length - 1;
+    const [activeUsersInChat, setActiveUsersInChat] = useState(activeUsersInChatRef?.current);
+
+    const displayUsersInChat = Object.entries(activeUsersInChat).filter(userInChat => {
+        const lastActiveMoment = moment(userInChat?.lastActive);
+        const secondsSinceActive = moment().diff(lastActiveMoment, 'seconds');
+        return secondsSinceActive < LAST_ACTIVE_MAX_SECONDS;
+    })
+
+    const otherUsersInChatCount = displayUsersInChat?.length - 1;
     const otherUsersActive = otherUsersInChatCount > 0;
     const usersPlural = otherUsersInChatCount > 1;
 
@@ -44,7 +53,7 @@ export default ActiveUsersInChatBar = ({ activeUsersInChat, navigation }) => {
     const ProfilePicRow = () => {
         return (
             <ProfilePicRowView>
-                { activeUsersInChat.map(activeUser => {
+                { displayUsersInChat.map(activeUser => {
                     const picUserObj = {
                         sub: activeUser?.userSub,
                         username: activeUser?.username,
@@ -60,6 +69,21 @@ export default ActiveUsersInChatBar = ({ activeUsersInChat, navigation }) => {
             </ProfilePicRowView>
         );
     }
+
+    useEffect(() => {
+        setInterval(() => {
+            try {
+                const refString = JSON.stringify(activeUsersInChatRef?.current);
+                const stateString = JSON.stringify(activeUsersInChat);
+                if (refString !== stateString) {
+                    setActiveUsersInChat(activeUsersInChatRef?.current);
+                }    
+            } catch (error) {
+                console.log('error in updating active users in chat bar');
+                console.log(error);
+            }
+        }, 500);
+    }, []);
 
     return (
         <BarView>
