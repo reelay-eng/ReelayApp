@@ -38,7 +38,7 @@ export default ActiveUsersInChatBar = ({ activeUsersInChatRef, navigation }) => 
     const { reelayDBUser } = useContext(AuthContext);
     const [activeUsersInChat, setActiveUsersInChat] = useState(activeUsersInChatRef?.current);
 
-    const displayUsersInChat = Object.entries(activeUsersInChat).filter(userInChat => {
+    const displayUsersInChat = Object.values(activeUsersInChat).filter(userInChat => {
         const lastActiveMoment = moment(userInChat?.lastActive);
         const secondsSinceActive = moment().diff(lastActiveMoment, 'seconds');
         return secondsSinceActive < LAST_ACTIVE_MAX_SECONDS;
@@ -47,8 +47,6 @@ export default ActiveUsersInChatBar = ({ activeUsersInChatRef, navigation }) => 
     const otherUsersInChatCount = displayUsersInChat?.length - 1;
     const otherUsersActive = otherUsersInChatCount > 0;
     const usersPlural = otherUsersInChatCount > 1;
-
-    if (!otherUsersActive) return <View />;
 
     const ProfilePicRow = () => {
         return (
@@ -84,6 +82,8 @@ export default ActiveUsersInChatBar = ({ activeUsersInChatRef, navigation }) => 
             }
         }, 500);
     }, []);
+
+    if (!otherUsersActive) return <View />;
 
     return (
         <BarView>

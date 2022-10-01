@@ -395,7 +395,6 @@ const ClubActivityList = ({
 
     return (
         <Fragment>
-            <ActiveUsersInChatBar activeUsersInChatRef={activeUsersInChatRef} navigation={navigation}  />
             <FlashList
                 data={displayActivities}
                 estimatedItemSize={200}
@@ -407,6 +406,10 @@ const ClubActivityList = ({
                 refreshControl={refreshControl} 
                 renderItem={renderClubActivity}
                 showsVerticalScrollIndicator={false}
+            />
+            <ActiveUsersInChatBar 
+                activeUsersInChatRef={activeUsersInChatRef} 
+                navigation={navigation}  
             />
         </Fragment>
     )
