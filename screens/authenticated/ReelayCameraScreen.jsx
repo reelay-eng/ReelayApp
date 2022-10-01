@@ -119,7 +119,9 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const [retakeCounter, setRetakeCounter] = useState(0);
 
-    const MAX_MEDIA_VIDEO_DURATION_SEC = 60;
+    const canUploadLongAssVideos = ['admin', 'supercreator'].includes(reelayDBUser?.role);
+
+    const MAX_MEDIA_VIDEO_DURATION_SEC = (canUploadLongAssVideos) ? 180 : 60;
     const MAX_MEDIA_VIDEO_DURATION_MILLIS = 1000 * MAX_MEDIA_VIDEO_DURATION_SEC;
 
     const MAX_CAMERA_VIDEO_DURATION_SEC = topicID ? 60 : 30;
