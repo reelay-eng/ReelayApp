@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from "react";
-import { Pressable, View } from "react-native";
+import { Pressable, View, TouchableOpacity, Text, Image } from "react-native";
 import styled from "styled-components/native";
 import { Icon } from "react-native-elements";
 import Constants from "expo-constants";
@@ -9,74 +9,101 @@ import * as Apple  from 'expo-apple-authentication';
 import { fetchResults } from "../../api/fetchResults";
 import { AuthContext } from "../../context/AuthContext";
 
+import GoogleImage from "../../assets/icons/social/google.png";
+
+import { useDispatch } from 'react-redux';
+
 import { 
     matchSocialAuthAccount, 
     registerSocialAuthAccount, 
-    saveAndRegisterSocialAuthToken,
+    saveAndRegisterSocialAuthSession, 
 } from "../../api/ReelayUserApi";
 import { getUserByEmail } from "../../api/ReelayDBApi";
 import { makeRedirectUri } from "expo-auth-session";
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 
-const ButtonRowContainer = styled(View)`
+import * as WebBrowser from 'expo-web-browser';
+import ReelayColors from "../../constants/ReelayColors";
+WebBrowser.maybeCompleteAuthSession();
+
+const iosURLScheme = Constants.manifest.extra.googleiOSURLScheme;
+const redirectUri = makeRedirectUri({
+    native: `${iosURLScheme}:/`
+});
+
+const ButtonPressable = styled(TouchableOpacity)`
     align-items: center;
+    background-color: ${props => props.backgroundColor ?? 'black'};
+    border-radius: 24px;
+    height: 100%;
+    justify-content: center;
     flex-direction: row;
-    justify-content: center;
+    width: 100%;
 `
-const SocialLoginContainer = styled(View)`
+const ButtonContainer = styled(View)`
     align-items: center;
-    justify-content: flex-end;
-    margin: 20px;
+	height: 48px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+    width: 100%;
 `
-const SocialAuthButton = styled(Pressable)`
-    align-items: center;
-    background-color: #222528;
-    border-radius: 16px;
-    height: 108px;
-    justify-content: center;
-    margin: 8px;
-    width: 108px;
+const ButtonText = styled(Text)`
+    font-family: Outfit-Medium;
+    color: ${props => props.color ?? ReelayColors.reelayBlue};
+    font-size: 18px;
+    margin-left: 10px;
 `
 
-export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
+export default SocialLoginBar = ({ navigation, setSigningIn }) => {
+    const dispatch = useDispatch();
     try {
     const { setReelayDBUserID } = useContext(AuthContext);
 
     const appleOrGoogleCascadingSignIn = async ({
+        authSession,
         method, 
         email, 
         fullName, 
         appleUserID, 
         googleUserID 
     }) => {
+        setSigningIn(true);
         const authAccountMatch = await matchSocialAuthAccount({ 
             method, 
             value: (method === 'apple') ? appleUserID : googleUserID,
         });
+
+        if (method === 'apple') {
+            dispatch({ type: 'setAuthSessionFromApple', payload: authSession }); 
+        }
+        else if (method === 'google') {
+            dispatch({ type: 'setAuthSessionFromGoogle', payload: authSession });
+        }
 
         if (authAccountMatch && !authAccountMatch?.error) {
             // this social login is registered
             console.log('Auth account found: ', authAccountMatch);
             const { reelayDBUserID } = authAccountMatch;
             setReelayDBUserID(reelayDBUserID);
-            saveAndRegisterSocialAuthToken(reelayDBUserID);
+            await saveAndRegisterSocialAuthSession({ authSession, method, reelayDBUserID });
         } else {
             // social login not registered
             const existingUser = await getUserByEmail(email);
             if (existingUser?.sub) {
                 // user completed initial sign up through cognito
                 setReelayDBUserID(existingUser?.sub);
-                saveAndRegisterSocialAuthToken(existingUser?.sub);
+                await saveAndRegisterSocialAuthSession({ authSession, method, reelayDBUserID: existingUser?.sub });
                 // link the social auth account 
                 // apple will only give us an email address the first time we signin with apple
-                registerSocialAuthAccount({ method, email, fullName, appleUserID, googleUserID });
+                await registerSocialAuthAccount({ method, email, fullName, appleUserID, googleUserID });
                 console.log('Existing user signed in');
             } else {
                 console.log('Totally new user');
                 // totally new user w/o cognito -- needs a username before completing signup
-                navigation.push('ChooseUsernameScreen', { method, email, fullName, appleUserID, googleUserID });
+                navigation.push('ChooseUsernameScreen', { authSession, method, email, fullName, appleUserID, googleUserID });
             }
         }
+        setSigningIn(false);
     }
 
     const AppleAuthButton = () => {
@@ -88,10 +115,18 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
                         Apple.AppleAuthenticationScope.EMAIL,
                     ]
                 });
-    
-                setSigningIn(true); 
-                const { email, fullName, user } = credentials;
-                appleOrGoogleCascadingSignIn({ method: 'apple', email, fullName, appleUserID: user });    
+                const { email, fullName, user, identityToken, authorizationCode } = credentials;
+                appleOrGoogleCascadingSignIn({ 
+                    authSession: { 
+                        accessToken: authorizationCode,
+                        idToken: identityToken,
+                        refreshToken: user,
+                    },
+                    appleUserID: user,
+                    email, 
+                    fullName, 
+                    method: 'apple', 
+                });    
             } catch (error) {
                 console.log(error);
                 logAmplitudeEventProd('appleSignInError', { error });
@@ -99,32 +134,38 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
         }
 
         return (
-            <SocialAuthButton onPress={signInWithApple}>
-                <Icon type='ionicon' name='logo-apple' color='white' size={33} />
-            </SocialAuthButton>
+            <ButtonContainer>
+                <Apple.AppleAuthenticationButton
+                    buttonType={Apple.AppleAuthenticationButtonType.CONTINUE}
+                    buttonStyle={Apple.AppleAuthenticationButtonStyle.WHITE}
+                    style={{ width: '100%', height: 48 }}
+                    cornerRadius={24}
+                    onPress={signInWithApple}
+                />
+            </ButtonContainer>
         );
     }
 
     const GoogleAuthButton = () => {
         const expoClientId = Constants.manifest.extra.googleExpoClientId;
         const iosClientId = Constants.manifest.extra.googleiOSClientId;
-        const iosURLScheme = Constants.manifest.extra.googleiOSURLScheme;
 
         const [request, response, promptAsync] = Google.useAuthRequest({ 
             expoClientId, 
             iosClientId, 
+            redirectUri
         });        
         const onSignInResponse = async () => {
             const accessToken = response?.authentication?.accessToken;
-            if (!accessToken) {
+            const idToken = response?.authentication?.idToken;
+            const refreshToken = response?.authentication?.refreshToken;
+            if (response?.type == 'error' || !accessToken) { // otherwise it's 'success'
                 console.log('No access token');
                 return;
             }
-
-            setSigningIn(true); 
             const googleUserQuery = `https://www.googleapis.com/oauth2/v1/userinfo?access_token=${accessToken}`;
             const googleUserObj = await fetchResults(googleUserQuery, { method: 'GET' });
-
+            
             console.log('Google user obj: ', googleUserObj);
             const googleUserID = googleUserObj?.id;
             const email = googleUserObj?.email;
@@ -132,7 +173,13 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
                 familyName: googleUserObj?.family_name,
                 givenName: googleUserObj?.given_name,
             };
-            appleOrGoogleCascadingSignIn({ method: 'google', email, fullName, googleUserID });
+            appleOrGoogleCascadingSignIn({ 
+                authSession: { accessToken, idToken, refreshToken },
+                email, 
+                fullName, 
+                googleUserID, 
+                method: 'google', 
+            });
         }
 
         const signInWithGoogle = async () => {
@@ -144,23 +191,23 @@ export default SocialLoginBar = ({ navigation, signingIn, setSigningIn }) => {
         }, [response]);
 
         return (
-            <SocialAuthButton onPress={signInWithGoogle}>
-                <Icon type='ionicon' name='logo-google' color='white' size={30} />
-            </SocialAuthButton>
+            <ButtonContainer>
+                <ButtonPressable backgroundColor={ReelayColors.reelayBlue} onPress={signInWithGoogle} activeOpacity={0.8}>
+                    <Image source={GoogleImage} style={{ width: 24, height: 24 }} resizeMode="contain" />
+                    <ButtonText color='white'>{'Continue with Google'}</ButtonText>
+                </ButtonPressable>
+            </ButtonContainer>
         );
     }
 
     return (
-        <SocialLoginContainer>
-            <ButtonRowContainer>
-                <AppleAuthButton />
-                <GoogleAuthButton />
-            </ButtonRowContainer>
-        </SocialLoginContainer>
+        <>
+            <GoogleAuthButton />
+            <AppleAuthButton />
+        </>
     )    
     } catch (error) {
         console.log(error);
-        logEventWithPropertiesAsync('socialLoginError', { error });
         return <React.Fragment />
     }
 }

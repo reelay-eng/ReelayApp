@@ -68,9 +68,10 @@
     "expo-notifications": "~0.16.1",
     "expo-random": "~12.3.0",
     "expo-screen-orientation": "~4.3.0",
+    "expo-secure-store": "^11.3.0",
     "expo-splash-screen": "~0.16.2",
     "expo-status-bar": "~1.4.0",
-    "expo-updates": "~0.14.5",
+    "expo-updates": "~0.14.6",
     "expo-video-thumbnails": "~6.4.0",
     "expo-web-browser": "~11.0.0",
     "ffmpeg-kit-react-native": "^4.5.2",
@@ -84,7 +85,7 @@
     "react": "18.0.0",
     "react-dom": "18.0.0",
     "react-is": "^17.0.2",
-    "react-native": "0.69.5",
+    "react-native": "0.69.6",
     "react-native-autolink": "^4.0.0",
     "react-native-camera": "^4.2.1",
     "react-native-controlled-mentions": "^2.2.5",
@@ -135,5 +136,5 @@
   "private": true,
   "name": "ReelayApp",
   "license": "LicenseRef-LICENSE",
-  "version": "1.05.08"
+  "version": "1.05.09"
 }

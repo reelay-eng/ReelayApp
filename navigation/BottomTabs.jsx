@@ -7,6 +7,7 @@ import AdminReportedIssuesScreen from '../screens/authenticated/AdminReportedIss
 import DeleteAccountScreen from '../screens/authenticated/DeleteAccountScreen';
 import EditAccountScreen from '../screens/authenticated/EditAccountScreen';
 import HomeScreen from '../screens/authenticated/HomeScreen';
+import HouseRulesScreen from '../screens/authenticated/HouseRulesScreen';
 import MyClubsScreen from '../screens/authenticated/MyClubsScreen';
 import MyProfileScreen from '../screens/authenticated/MyProfileScreen';
 import NotificationSettingsScreen from '../screens/authenticated/NotificationSettingsScreen';
@@ -49,6 +50,7 @@ export const ProfileTabNavigator = () => {
     const commonOptions = { headerShown: false };
     return (
 		<AuthenticatedCommonStack initialRouteName="MyProfileScreen">
+            <ProfileTabStack.Screen name="HouseRulesScreen" component={HouseRulesScreen} options={commonOptions} />
 			<ProfileTabStack.Screen name="MyProfileScreen" component={MyProfileScreen} options={commonOptions} />
 			<ProfileTabStack.Screen name="ProfileSettingsScreen" component={ProfileSettingsScreen} options={commonOptions} />
 			<ProfileTabStack.Screen name="TMDBCreditScreen" component={TMDBCreditScreen} options={commonOptions} />

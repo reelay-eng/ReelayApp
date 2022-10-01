@@ -138,12 +138,12 @@ const HomeComponent = ({ navigation }) => {
                 <AnnouncementsAndNotices navigation={navigation} />
                 <PopularTitles navigation={navigation} tab='discover' />
                 <TopicsCarousel navigation={navigation} source='discover' /> 
+                <MyWatchlistGrid navigation={navigation} />
                 <TopOfTheWeek navigation={navigation} />
                 <FriendsAreWatching navigation={navigation} />
                 <DiscoverClubs navigation={navigation} />
                 <OnStreaming navigation={navigation} source='discover' />
                 <InTheaters navigation={navigation} /> 
-                <MyWatchlistGrid navigation={navigation} />
                 <DiscoverSearch navigation={navigation} />
                 <Spacer />
             </ScrollContainer>

@@ -1,5 +1,5 @@
 import React, { useState, memo } from 'react';
-import { ActivityIndicator, Image, Pressable } from 'react-native';
+import { ActivityIndicator, Image, Pressable, View } from 'react-native';
 import ReelayIcon from '../../assets/icons/reelay-icon-with-dog-black.png'
 import styled from 'styled-components/native';
 import { cacheProfilePic, checkRefreshProfilePic, getProfilePicURI } from '../../api/ReelayLocalImageCache';
@@ -8,6 +8,9 @@ import FastImage from 'react-native-fast-image'
 
 const CAN_USE_FAST_IMAGE = (Constants.appOwnership !== 'expo');
 
+const DefaultProfileImageView = styled(View)`
+    position: absolute;
+`
 const ProfileImage = styled(Image)`
     border-color: white;
     border-radius: ${(props) => props.size/2}px;
@@ -45,6 +48,9 @@ export default ProfilePicture = memo(({
     if (CAN_USE_FAST_IMAGE) {
         return (
             <Pressable onPress={advanceToProfileScreen}>
+                <DefaultProfileImageView>
+                    <FastImage source={ReelayIcon} style={style} />
+                </DefaultProfileImageView>
                 <FastImage source={source} style={style} />
             </Pressable>
         );    

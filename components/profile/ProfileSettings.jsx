@@ -13,6 +13,7 @@ import { HeaderWithBackButton } from "../global/Headers";
 import { getReelay, prepareReelay, registerPushTokenForUser } from '../../api/ReelayDBApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
+import { deregisterSocialAuthSession } from '../../api/ReelayUserApi';
 
 export const ProfileSettings = ({navigation}) => {
     const ViewContainer = styled(SafeAreaView)`
@@ -44,6 +45,13 @@ export const ProfileSettings = ({navigation}) => {
 		<ViewContainer>
 			<HeaderWithBackButton navigation={navigation} text='settings' />
 			<SettingsContainer>
+                <SettingEntry
+                    text="House Rules"
+                    iconName="heart"
+                    onPress={() => {
+                        navigation.push("HouseRulesScreen");
+                    }}                    
+                />
                 <SettingEntry
                     text="Manage Account"
                     iconName="person"
@@ -150,7 +158,7 @@ const Logout = () => {
         reelayDBUserID,
         setReelayDBUserID,
     } = useContext(AuthContext);
-    const signUpFromGuest = useSelector(state => state.signUpFromGuest);
+    const authSession = useSelector(state => state.authSession);
     const dispatch = useDispatch();
 
     const signOut = async () => {
@@ -161,16 +169,22 @@ const Logout = () => {
                 email: reelayDBUser?.email,
             });
     
-            if (signUpFromGuest) {
-                dispatch({ type: 'setSignUpFromGuest', payload: false });
-            }
             dispatch({ type: 'setSignedIn', payload: false });
-            setReelayDBUserID(null);
-            const signOutResult = await Auth.signOut();
+            if (authSession?.method === 'cognito') {
+                const signOutResult = await Auth.signOut();
+                console.log(signOutResult);
+            } else {
+                const signOutResult = await deregisterSocialAuthSession({
+                    authSession,
+                    reelayDBUserID,
+                });
+                console.log(signOutResult);
+            }
+
+            await registerPushTokenForUser(reelayDBUserID, null); 
             dispatch({ type: 'clearAuthSession', payload: {} });
-            registerPushTokenForUser(reelayDBUserID, null); 
+            setReelayDBUserID(null);
             // todo: deregister cognito user
-            console.log(signOutResult);
         } catch (error) {
             console.log(error);
         }

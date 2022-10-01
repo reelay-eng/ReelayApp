@@ -19,8 +19,9 @@ import styled from 'styled-components/native';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { useDispatch, useSelector } from 'react-redux';
 import { Auth } from 'aws-amplify';
-import { showErrorToast, showMessageToast } from '../utils/toasts';
-import { deleteAccount } from '../../api/ReelayDBApi';
+import { showErrorToast, showMessageToast, showSuccessToast } from '../utils/toasts';
+import { deleteAccount, registerPushTokenForUser } from '../../api/ReelayDBApi';
+import { deregisterSocialAuthSession } from '../../api/ReelayUserApi';
 
 const { width } = Dimensions.get('window');
 
@@ -92,7 +93,7 @@ const PromptText = styled(ReelayText.Body2)`
 `
 
 export default DeleteAccountDrawer = ({ navigation, drawerVisible, setDrawerVisible }) => {
-    const { reelayDBUser, setReelayDBUserID } = useContext(AuthContext);
+    const { reelayDBUser, reelayDBUserID, setReelayDBUserID } = useContext(AuthContext);
 
     const [deleting, setDeleting] = useState(false);
     const confirmDeleteText = useRef('');
@@ -126,21 +127,32 @@ export default DeleteAccountDrawer = ({ navigation, drawerVisible, setDrawerVisi
                     return;
                 }
                 setDeleting(true);
-
                 const deleteAccountResult = await deleteAccount(reelayDBUser.sub, authSession);
-
-                setDeleting(false);
 
                 if (deleteAccountResult) {
                     dispatch({ type: 'setSignedIn', payload: false });
-                    setReelayDBUserID(null);
                     const deleteResult = await Auth.deleteUser();
-                    const signOutResult = await Auth.signOut();
-                    dispatch({ type: 'clearAuthSession', payload: {} });
 
-                    showMessageToast(`You\'ve deleted your account`);
+                    if (authSession?.method === 'cognito') {
+                        const signOutResult = await Auth.signOut();
+                        console.log(signOutResult);
+                    } else {
+                        const signOutResult = await deregisterSocialAuthSession({
+                            authSession,
+                            reelayDBUserID,
+                        });
+                        console.log(signOutResult);
+                    }        
+                    
+                    await registerPushTokenForUser(reelayDBUserID, null);
+                    dispatch({ type: 'clearAuthSession', payload: {} });
+                    setReelayDBUserID(null);
+
+                    showSuccessToast(`You\'ve deleted your account`);
                     return deleteResult && signOutResult;
                 }
+
+                setDeleting(false);
 
                 logAmplitudeEventProd('accountDeleted', {
                     userSub: reelayDBUser?.sub,
@@ -149,13 +161,25 @@ export default DeleteAccountDrawer = ({ navigation, drawerVisible, setDrawerVisi
 
                 return deleteAccountResult;
             } catch (error) {
-                console.log(error);
-                logAmplitudeEventProd('deleteAccountError', {
-                    error: error,
-                    userSub: reelayDBUser?.sub,
-                    username: reelayDBUser?.username,
-                });
-                showErrorToast('Ruh roh! Could not delete account. Try again?');
+                const isNoCurrentUserError = error.toString().includes("No current user.");
+                if (isNoCurrentUserError) {
+                    showSuccessToast(`You\'ve deleted your account`);
+                    logAmplitudeEventProd('accountDeleted', {
+                        userSub: reelayDBUser?.sub,
+                        username: reelayDBUser?.username,
+                    });
+                }
+                else {
+                    console.log("Account deleted error: ", error);
+                    showErrorToast("Ruh roh! Couldn't delete your account. Try again?");
+                    logAmplitudeEventProd('accountDeleted', {
+                        error: error,
+                        userSub: reelayDBUser?.sub,
+                        username: reelayDBUser?.username,
+                    });
+
+                }
+                
                 setDeleting(false);
             }
         }

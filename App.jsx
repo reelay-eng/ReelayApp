@@ -60,7 +60,7 @@ import { fetchPopularMovies, fetchPopularSeries } from './api/TMDbApi';
 import moment from 'moment';
 import { getEmptyGlobalTopics } from './api/FeedApi';
 import { getAllClubsFollowing } from './api/ClubsApi';
-import { getTopics } from './api/TopicsApi';
+import { verifySocialAuthSession } from './api/ReelayUserApi';
 
 const LoadingContainer = styled(View)`
     align-items: center;
@@ -108,6 +108,7 @@ function App() {
      */
 
     useEffect(() => {
+        console.log('sign in use effect being called: ', reelayDBUserID, authSession?.accessToken);
         if (reelayDBUserID && authSession?.accessToken) loadMyProfile(reelayDBUserID);
     }, [reelayDBUserID, authSession]);
 
@@ -122,7 +123,6 @@ function App() {
     useEffect(() => {
         if (reelayDBUser?.sub) {
             dispatch({ type: 'setSignedIn', payload: true });
-            registerMyPushToken();
         }
     }, [reelayDBUser]);
 
@@ -134,16 +134,30 @@ function App() {
             if (tryCredentials?.authenticated) {
                 // use cognito to sign in the user
                 tryCognitoUser = await Auth.currentAuthenticatedUser();
-                setCognitoUser(tryCognitoUser);
-
                 const signUpFromGuest = (tryCognitoUser?.username === 'be_our_guest');
-                dispatch({ type: 'setSignUpFromGuest', payload: signUpFromGuest });
-
-                if (!signUpFromGuest) {
-                    const cognitoSession = await Auth.currentSession();
-                    dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });    
+                if (signUpFromGuest) {
+                    Auth.signOut();
+                    dispatch({ type: 'setIsLoading', payload: false });
+                    return;
                 }
-            } 
+
+                setCognitoUser(tryCognitoUser);
+                const cognitoSession = await Auth.currentSession();
+                dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });        
+            }  else {
+                // try using a social auth token to sign in the user
+                const authSession = await verifySocialAuthSession();
+                if (authSession && authSession?.reelayDBUserID) {
+                    console.log('Auto authentication from social login successful');
+                    setReelayDBUserID(authSession.reelayDBUserID);
+                    dispatch({ type: 'setReelayDBUserID', payload: authSession.reelayDBUserID });
+                    const dispatchType = (authSession.method === 'apple')
+                        ? 'setAuthSessionFromApple'
+                        : 'setAuthSessionFromGoogle';
+                    dispatch({ type: dispatchType, payload: authSession });    
+                    tryVerifySocialAuth = { success: true };
+                }
+            }
             logAmplitudeEventProd('authenticationComplete', {
                 hasValidCredentials: tryCredentials?.authenticated,
                 username: tryCognitoUser?.attributes?.sub,
@@ -418,6 +432,10 @@ function App() {
         dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
         dispatch({ type: 'setCurrentAppLoadStage', payload: 4 });
         console.log('dispatched second set of profile data');
+
+        if (!reelayDBUserLoaded?.pushToken) {
+            registerMyPushToken();
+        }
     }
 
     const registerMyPushToken = async () => {
