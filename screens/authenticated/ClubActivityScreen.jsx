@@ -51,6 +51,7 @@ const { height, width } = Dimensions.get('window');
 const ACTIVITY_PAGE_SIZE = 20;
 const CHAT_BASE_URL = Constants.manifest.extra.reelayChatBaseUrl;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
+const LAST_TYPING_MAX_SECONDS = 10;
 
 const AcceptRejectInviteRowView = styled(View)`
     align-items: center;
@@ -68,13 +69,6 @@ const AcceptInvitePressable = styled(TouchableOpacity)`
     justify-content: center;
     height: 40px;
     margin-right: 16px;
-`
-const ActivityBottomSpacer = styled(View)`
-    height: ${props => props.bottomOffset}px;
-`
-const ActivityListView = styled(View)`
-    height: 100%;
-    width: 100%;
 `
 const ActivityTopSpacer = styled(View)`
     height: ${props => props.topOffset}px;
@@ -155,6 +149,10 @@ const RejectInvitePressable = styled(TouchableOpacity)`
     height: 40px;
     margin-left: 16px;
 `
+
+const TypingActivity = ({ activeUser }) => {
+    return <DescriptionText>{`${activeUser.username} is typing`}</DescriptionText>;
+}
 
 const ClubActivity = ({ activity, club, feedIndex, navigation, onRefresh }) => {
     const { activityType } = activity;
@@ -300,15 +298,47 @@ const ClubActivityList = ({
     refreshing, 
 }) => {
     const itemHeights = useRef([]);
+    const [usersTyping, setUsersTyping] = useState([]);
+    const usersTypingRef = useRef(usersTyping);
+
     const [chatMessageCount, setChatMessageCount] = useState(chatMessagesRef?.current?.length);
     const [maxDisplayPage, setMaxDisplayPage] = useState(0);
     const maxDisplayIndex = (maxDisplayPage + 1) * ACTIVITY_PAGE_SIZE;
 
     const filterDisplayActivities = (nextActivity, index) => index < maxDisplayIndex;
     const sortByLastUpdated = (activity0, activity1) => {
+        if (activity0.activityType === 'typing') return -1;
+        if (activity1.activityType === 'typing') return 1;
         const lastActivity0 = moment(activity0?.lastUpdatedAt ?? activity0.createdAt);
         const lastActivity1 = moment(activity1?.lastUpdatedAt ?? activity1.createdAt);
         return lastActivity1.diff(lastActivity0, 'seconds');
+    }
+
+    const getItemLayout = (item, index) => {
+        const length = itemHeights.current[index] ?? 0;
+        const accumulate = (sum, next) => sum + next;
+        const offset = itemHeights.current.slice(0, index).reduce(accumulate, 0);
+        return { length, offset, index };
+    }
+
+    const getUsersTyping = () => {
+        const now = moment();
+        const usersTypingEntries = {};
+        for (const activeUser of Object.values(activeUsersInChatRef?.current)) {
+            if (!activeUser?.lastTypingAt) continue;
+            const secondsSinceTyping = now.diff(activeUser.lastTypingAt, 'seconds');
+            if (secondsSinceTyping < LAST_TYPING_MAX_SECONDS) {
+                usersTypingEntries[activeUser?.userSub] = { 
+                    ...activeUser, 
+                    activityType: 'typing' 
+                };
+            }
+        }
+        return Object.values(usersTypingEntries).sort(sortUsersTyping);
+    }
+
+    const sortUsersTyping = (typingUser0, typingUser1) => {
+        return typingUser0?.lastTypingAt - typingUser1?.lastTypingAt;
     }
 
     for (const chatMessage of chatMessagesRef?.current) {
@@ -316,6 +346,7 @@ const ClubActivityList = ({
     }
 
     const clubActivities = [
+        ...usersTyping,
         ...club.titles,
         ...club.topics,
         ...club.members,
@@ -340,6 +371,7 @@ const ClubActivityList = ({
     const keyExtractor = (item) => {
         if (item?.activityType === 'description') return 'description';
         if (item?.activityType === 'noTitlesYet') return 'noTitlesYet';
+        if (item?.activityType === 'typing') return item?.userSub;
         return item?.id;
     }
 
@@ -362,6 +394,10 @@ const ClubActivityList = ({
             return <NoTitlesYetPrompt key={'noTitlesYet'} />
         }
 
+        if (activityType === 'typing') {
+            return <TypingActivity key={activity?.userSub} activeUser={activity} />
+        }
+
         return (
             <ClubActivity 
                 activity={activity} 
@@ -373,24 +409,37 @@ const ClubActivityList = ({
         );    
     };
 
-    const getItemLayout = (item, index) => {
-        const length = itemHeights.current[index] ?? 0;
-        const accumulate = (sum, next) => sum + next;
-        const offset = itemHeights.current.slice(0, index).reduce(accumulate, 0);
-        return { length, offset, index };
-    }
-
     const updateChatActivity = () => {
         if (chatMessagesRef?.current?.length !== chatMessageCount) {
             setChatMessageCount(chatMessagesRef?.current?.length);
         }
     }
 
+    const updateTypingActivity = () => {
+        try {
+            const nextUsersTyping = getUsersTyping();
+            const stateString = JSON.stringify(usersTypingRef.current);
+            const nextStateString = JSON.stringify(nextUsersTyping);
+
+            if (nextStateString !== stateString) {
+                usersTypingRef.current = nextUsersTyping;
+                setUsersTyping(nextUsersTyping);
+            }
+        } catch (error) {
+            console.log('error updating typing activity');
+            console.log(error);
+        }
+    }
+
     useEffect(() => {
-        setInterval(() => {
+        const chatActivityInterval = setInterval(() => {
             updateChatActivity();
+            updateTypingActivity();
         }, 250);
-        
+
+        return () => {
+            clearInterval(chatActivityInterval);
+        }
     }, []);
 
     return (
@@ -489,20 +538,31 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 console.log('error on userIsActive: could not find user entry');
                 return;
             }
-            userEntry.lastActive = moment();
-        })
+            userEntry.lastActiveAt = moment();
+        });
 
-        socket.on('userStartedTyping', ({ userSub }) => {
-            console.log('received userStartedTyping: ', userSub);
+        socket.on('userIsInactive', ({ userSub}) => {
+            console.log('received userIsInactive: ', userSub);
             const userEntry = activeUsersInChatRef?.current?.[userSub];
             if (!userEntry) {
-                console.log('error on userStartedTyping: could not find user entry');
+                console.log('error on userIsActive: could not find user entry');
+                return;
+            }
+        });
+
+        socket.on('userIsTyping', ({ userSub }) => {
+            console.log('received userIsTyping: ', userSub);
+            const userEntry = activeUsersInChatRef?.current?.[userSub];
+            if (!userEntry) {
+                console.log('error on userIsTyping: could not find user entry');
                 return;
             }
 
             if (!userEntry.isTyping) {
-                userEntry.lastActive = moment();
+                const now = moment();
                 userEntry.isTyping = true;
+                userEntry.lastActiveAt = now;
+                userEntry.lastTypingAt = now;
             }
         });
 

@@ -39,7 +39,7 @@ export default ActiveUsersInChatBar = ({ activeUsersInChatRef, navigation }) => 
     const [activeUsersInChat, setActiveUsersInChat] = useState(activeUsersInChatRef?.current);
 
     const displayUsersInChat = Object.values(activeUsersInChat).filter(userInChat => {
-        const lastActiveMoment = moment(userInChat?.lastActive);
+        const lastActiveMoment = moment(userInChat?.lastActiveAt);
         const secondsSinceActive = moment().diff(lastActiveMoment, 'seconds');
         return secondsSinceActive < LAST_ACTIVE_MAX_SECONDS;
     })

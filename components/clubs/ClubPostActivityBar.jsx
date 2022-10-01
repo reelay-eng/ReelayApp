@@ -28,8 +28,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 
 const { height, width } = Dimensions.get('window');
 
-const LAST_TYPING_MAX_SECONDS = 15;
-const LAST_TYPING_UPDATE_SECONDS = 10;
+const LAST_TYPING_UPDATE_SECONDS = 5;
 
 const AddTitleOrTopicButtonPressable = styled(TouchableOpacity)`
     align-items: center;
@@ -112,7 +111,7 @@ export default ClubPostActivityBar = ({ club, navigation, socketRef }) => {
         const lastTypingAtRef = useRef(null);
         const [messageText, setMessageText] = useState(messageRef?.text ?? '');
 
-        const checkEmitStartTypingInChat = () => {
+        const checkEmitTypingInChat = () => {
             const lastTypingMoment = lastTypingAtRef.current;
             const shouldEmitTypingUpdate = (!lastTypingMoment) || (
                 moment().diff(lastTypingMoment, 'seconds') > LAST_TYPING_UPDATE_SECONDS
@@ -120,23 +119,7 @@ export default ClubPostActivityBar = ({ club, navigation, socketRef }) => {
 
             if (shouldEmitTypingUpdate) {
                 const socket = socketRef.current;
-                socket.emit('startTypingInChat', { 
-                    authSession,
-                    clubID: club?.id, 
-                    userSub: reelayDBUser?.sub,
-                });
-
-                setTimeout(() => {
-                    checkEmitStopTypingInChat();
-                }, (LAST_TYPING_MAX_SECONDS * 1000));
-            }
-        }
-
-        const checkEmitStopTypingInChat = () => {
-            const lastTypingMoment = lastTypingAtRef.current;
-            const secondsSinceTyping = moment().diff(lastTypingMoment, 'seconds');
-            if (secondsSinceTyping > LAST_TYPING_MAX_SECONDS) {
-                socket.emit('stopTypingInChat', { 
+                socket.emit('typingInChat', { 
                     authSession,
                     clubID: club?.id, 
                     userSub: reelayDBUser?.sub,
@@ -163,7 +146,7 @@ export default ClubPostActivityBar = ({ club, navigation, socketRef }) => {
                 messageRef.current.text = nextMessageText;
                 setMessageText(nextMessageText);
             }
-            checkEmitStartTypingInChat();
+            checkEmitTypingInChat();
             lastTypingAtRef.current = moment();
         }
     
