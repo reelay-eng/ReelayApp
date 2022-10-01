@@ -140,7 +140,7 @@ export default AuthenticatedNavigator = () => {
 				}}
 			/>
 			<BottomTab.Screen
-				name="Clubs"
+				name="Chats"
 				component={ClubsTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (

@@ -78,7 +78,7 @@ export default EmptyClubsCard = ({ navigation }) => {
 
         return (
             <CreateClubPressable onPress={advanceToCreateClubScreen}>
-                <CreateClubText>{'Create a Club'}</CreateClubText>
+                <CreateClubText>{'Start a Chat'}</CreateClubText>
             </CreateClubPressable>
         );
     }
@@ -110,7 +110,7 @@ export default EmptyClubsCard = ({ navigation }) => {
                     {'Or keep it solo'}
                 </SectionHeader>
                 <SectionBody numberOfLines={3}>
-                    {'Make a club for your film diary'}
+                    {'Make a group for your film diary'}
                 </SectionBody>
             </SectionView>
             <CreateClubButton />

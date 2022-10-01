@@ -259,8 +259,8 @@ export default MyClubsScreen = ({ navigation }) => {
                         <FontAwesomeIcon icon={faUsersViewfinder} color='white' size={56} />
                     </AddClubIconView>
                     <ClubRowInfoView>
-                        <ClubNameText>{'Create a club'}</ClubNameText>
-                        <ClubDescriptionText numberOfLines={2}>{'Make a group for private reelays and invite your friends'}</ClubDescriptionText>
+                        <ClubNameText>{'Start a new chat'}</ClubNameText>
+                        <ClubDescriptionText numberOfLines={2}>{'Invite friends. Make group watchlists. Chat with text or reelays'}</ClubDescriptionText>
                     </ClubRowInfoView>
                     <ClubRowArrowView>
                         <FontAwesomeIcon icon={faChevronRight} color='white' size={18} />
@@ -400,7 +400,7 @@ export default MyClubsScreen = ({ navigation }) => {
     return (
 		<MyClubsScreenView>
             <TopBarView>
-                <HeaderText>{'clubs'}</HeaderText>
+                <HeaderText>{'chats'}</HeaderText>
                 <TopBarButtonView>
                     <SearchButton />
                     <NotificationButton />

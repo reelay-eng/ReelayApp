@@ -136,8 +136,6 @@ export default function CreateClubScreen({ navigation, route }) {
 
     const changeDescriptionText = (text) => descriptionTextRef.current = text;
     const changeTitleText = (text) => titleTextRef.current = text;
-    const focusDescription = () => descriptionFieldRef?.current && descriptionFieldRef.current.focus();
-    const focusTitle = () => titleFieldRef?.current && titleFieldRef.current.focus();
 
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: false });
@@ -165,7 +163,7 @@ export default function CreateClubScreen({ navigation, route }) {
         return (
             <CreateClubButtonContainer onPress={onPress}>
                 { publishing && <ActivityIndicator/> }
-                { !publishing && <TitleText>{'Create club'}</TitleText> }
+                { !publishing && <TitleText>{'Create chat'}</TitleText> }
             </CreateClubButtonContainer>
         );
     }
@@ -174,30 +172,29 @@ export default function CreateClubScreen({ navigation, route }) {
         return (
             <SectionContainer>
                 <TitleText>{'Description'}</TitleText>
-                    <DescriptionInputField 
-                        ref={descriptionFieldRef}
-                        blurOnSubmit={true}
-                        maxLength={DESCRIPTION_MAX_LENGTH}
-                        multiline
-                        numberOfLines={3}
-                        defaultValue={descriptionTextRef.current}
-                        placeholder={"Who's the club for?"}
-                        placeholderTextColor={'rgba(255,255,255,0.6)'}
-                        onChangeText={changeDescriptionText}
-                        onPressOut={Keyboard.dismiss()}
-                        returnKeyLabel="done"
-                        returnKeyType="done"
-                    />
+                <DescriptionInputField 
+                    ref={descriptionFieldRef}
+                    blurOnSubmit={true}
+                    maxLength={DESCRIPTION_MAX_LENGTH}
+                    multiline
+                    numberOfLines={3}
+                    defaultValue={descriptionTextRef.current}
+                    placeholder={"Who's it for?"}
+                    placeholderTextColor={'rgba(255,255,255,0.6)'}
+                    onChangeText={changeDescriptionText}
+                    returnKeyLabel="done"
+                    returnKeyType="done"
+                />
             </SectionContainer> 
         );
     }
 
     const SettingsRow = ({ isSelected, isPrivate, onPress }) => {
         const headingText = (isPrivate)
-            ? 'Private Club'
-            : 'Public Club';
+            ? 'Private Chat'
+            : 'Public Chat';
         const bodyText = (isPrivate)
-            ? 'Closed group. Invite people to the club'
+            ? 'Closed group. Invite people to the chat'
             : 'Open group. Anyone can join';
 
         const renderSettingIcon = () => (isPrivate)
@@ -236,7 +233,7 @@ export default function CreateClubScreen({ navigation, route }) {
 
         return (
             <SectionContainer>
-                <TitleText>{'Club Settings'}</TitleText>
+                <TitleText>{'Chat Settings'}</TitleText>
                 <SettingsRow isSelected={isPrivate} isPrivate={true} onPress={onSelectPrivate} />
                 <SettingsRow isSelected={!isPrivate} isPrivate={false} onPress={onSelectPublic} />
             </SectionContainer> 
@@ -247,7 +244,7 @@ export default function CreateClubScreen({ navigation, route }) {
         return (
             <HeaderContainer>
                 <BackButton navigation={navigation} />
-                <HeaderText>{'Create a club'}</HeaderText>
+                <HeaderText>{'Start a new chat'}</HeaderText>
             </HeaderContainer>
         );
     }
@@ -256,21 +253,19 @@ export default function CreateClubScreen({ navigation, route }) {
         return (
             <SectionContainer>
                 <TitleText>{'Title'}</TitleText>
-                    <TitleInputField 
-                        ref={titleFieldRef}
-                        blurOnSubmit={true}
-                        maxLength={TITLE_MAX_LENGTH}
-                        multiline
-                        numberOfLines={2}
-                        defaultValue={titleTextRef.current}
-                        placeholder={"Give this club a name"}
-                        placeholderTextColor={'rgba(255,255,255,0.6)'}
-                        onChangeText={changeTitleText}
-                        onSubmitEditing={Keyboard.dismiss}
-                        onPressOut={Keyboard.dismiss}
-                        returnKeyLabel="done"
-                        returnKeyType="done"
-                    />
+                <TitleInputField 
+                    ref={titleFieldRef}
+                    blurOnSubmit={true}
+                    maxLength={TITLE_MAX_LENGTH}
+                    multiline
+                    numberOfLines={2}
+                    defaultValue={titleTextRef.current}
+                    placeholder={"Give this group chat a name"}
+                    placeholderTextColor={'rgba(255,255,255,0.6)'}
+                    onChangeText={changeTitleText}
+                    returnKeyLabel="done"
+                    returnKeyType="done"
+                />
             </SectionContainer> 
         );
     }
@@ -288,8 +283,8 @@ export default function CreateClubScreen({ navigation, route }) {
             }
             const createClubResult = await createClub(clubPostBody);
             if (!createClubResult || createClubResult.error) {
-                showErrorToast('Ruh roh! Could not create club. Try again?');
-                return { error: 'Could not create club' };
+                showErrorToast('Ruh roh! Could not create chat. Try again?');
+                return { error: 'Could not create chat' };
             }
             const { club } = createClubResult;
             const clubID = club?.id;
@@ -309,7 +304,7 @@ export default function CreateClubScreen({ navigation, route }) {
             return club;
         } catch (error) {
             console.log(error);
-            showErrorToast('Ruh roh! Could not create club. Please try again.');
+            showErrorToast('Ruh roh! Could not create chat. Please try again.');
             setPublishing(false);
             return null;
         }
@@ -345,18 +340,18 @@ export default function CreateClubScreen({ navigation, route }) {
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <CreateScreenContainer>
-            <View>
-                <Header />
-                <ChooseClubPicture clubPicSourceRef={clubPicSourceRef} />
-                <TitleInput />
-                <DescriptionInput />
-                <SettingsInput />
-            </View>
-            <SectionContainerBottom>
-                <CreateClubButton />
-            </SectionContainerBottom>
-        </CreateScreenContainer>
+            <CreateScreenContainer>
+                <View>
+                    <Header />
+                    <ChooseClubPicture clubPicSourceRef={clubPicSourceRef} />
+                    <TitleInput />
+                    <DescriptionInput />
+                    <SettingsInput />
+                </View>
+                <SectionContainerBottom>
+                    <CreateClubButton />
+                </SectionContainerBottom>
+            </CreateScreenContainer>
         </TouchableWithoutFeedback>
     );
 };

@@ -144,7 +144,7 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
                     { !sendingInvites && (
                         <React.Fragment>
                             <Icon type='ionicon' name='paper-plane' size={16} color='white' />
-                            <SendInvitesButtonText>{'Invite to club'}</SendInvitesButtonText>                    
+                            <SendInvitesButtonText>{'Invite to group chat'}</SendInvitesButtonText>                    
                         </React.Fragment>
                     )}
                 </SendInvitesButtonContainer>

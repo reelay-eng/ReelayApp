@@ -152,7 +152,7 @@ export default ClubPostActivityBar = ({ club, navigation, socketRef }) => {
     
         const onPostMessage = async () => {
             if (!isValidMessage()) {
-                showErrorToast('Can\'t post an empty message');
+                showErrorToast('Ruh roh! Can\'t post an empty message');
                 return;
             }
             const socket = socketRef.current;
@@ -162,6 +162,11 @@ export default ClubPostActivityBar = ({ club, navigation, socketRef }) => {
                 userSub: reelayDBUser?.sub,
                 message: messageRef.current,
             });
+            messageRef.current = {
+                mediaURI: null,
+                mediaType: null,
+                text: '',        
+            }
         }
         
         const PostButton = () => {

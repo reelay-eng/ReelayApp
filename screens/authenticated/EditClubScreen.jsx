@@ -166,10 +166,9 @@ export default function EditClubScreen({ navigation, route }) {
                         multiline
                         numberOfLines={3}
                         defaultValue={descriptionTextRef.current}
-                        placeholder={"Who's the club for?"}
+                        placeholder={"Who's it for?"}
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
                         onChangeText={changeDescriptionText}
-                        onPressOut={Keyboard.dismiss()}
                         returnKeyLabel="done"
                         returnKeyType="done"
                     />
@@ -268,8 +267,6 @@ export default function EditClubScreen({ navigation, route }) {
                         placeholder={"Give this club a name"}
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
                         onChangeText={changeTitleText}
-                        onSubmitEditing={Keyboard.dismiss}
-                        onPressOut={Keyboard.dismiss}
                         returnKeyLabel="done"
                         returnKeyType="done"
                     />
@@ -284,7 +281,7 @@ export default function EditClubScreen({ navigation, route }) {
                 <BackButtonContainer>
                     <BackButton navigation={navigation} />
                 </BackButtonContainer>
-                <TopBarText>{'Edit club info'}</TopBarText>
+                <TopBarText>{'Edit chat details'}</TopBarText>
             </TopBarContainer>
         );
     }

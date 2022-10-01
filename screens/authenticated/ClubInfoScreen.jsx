@@ -12,7 +12,7 @@ import ReelayColors from '../../constants/ReelayColors';
 
 import { Icon } from 'react-native-elements';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faLink } from '@fortawesome/free-solid-svg-icons';
+import { faEarthAmerica, faLink, faLock } from '@fortawesome/free-solid-svg-icons';
 
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
 import { AuthContext } from '../../context/AuthContext';
@@ -37,6 +37,7 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import ChangeClubPrivacyDrawer from '../../components/clubs/ChangeClubPrivacyDrawer';
 import { notifyClubOnPrivacyChanges } from '../../api/ClubNotifications';
 import { FlashList } from '@shopify/flash-list';
+import { HeaderWithBackButton } from '../../components/global/Headers';
 
 const INVITE_BASE_URL = Constants.manifest.extra.reelayWebInviteUrl;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -58,11 +59,14 @@ const ClubPrivacyRow = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: center;
+    position: absolute;
+    top: 4px;
 `
 const ClubPrivacyText = styled(ReelayText.Body2)`
     color: white;
-    font-size: 12px;
-    margin-right: 4px;
+    font-size: 14px;
+    margin-top: 4px;
+    margin-right: 6px;
 `
 const EditButton = styled(TouchableOpacity)`
     padding: 4px;
@@ -189,7 +193,7 @@ const SettingsTextView = styled(View)`
 const TopBarView = styled(View)`
     align-items: center;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: flex-end;
     margin-top: ${(props) => props.topOffset}px;
     margin-bottom: 16px;
     width: 100%;
@@ -446,7 +450,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 <SettingsRow onPress={switchAllowMemberInvites}>
                     <SettingsTextView>
                         <SettingsText>{'Open Invite'}</SettingsText>
-                        <SettingsSubtext>{'Members can invite other members'}</SettingsSubtext>
+                        <SettingsSubtext>{'People in the chat can invite others'}</SettingsSubtext>
                     </SettingsTextView>
                     <Switch 
                         value={allowMemberInvites}
@@ -467,7 +471,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 <SettingsRow onPress={() => setInviteDrawerVisible(true)}>
                     <SettingsTextView>
                         <SettingsText>{'Invite Members'}</SettingsText>
-                        <SettingsSubtext>{'Invite more people to the club'}</SettingsSubtext>
+                        <SettingsSubtext>{'Invite more people to the chat'}</SettingsSubtext>
                     </SettingsTextView>
                     <SettingsRowRightButton>
                         <Icon type='ionicon' name='person-add' color='white' size={24} />
@@ -483,11 +487,11 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 (!isPrivateSetting && club?.visibility !== 'private');
 
             const headingText = (isPrivateSetting)
-                ? 'Private Club'
-                : 'Public Club';
+                ? 'Private Chat'
+                : 'Public Chat';
 
             const bodyText = (isPrivateSetting)
-                ? 'Closed group. Invite people to the club'
+                ? 'Closed group. Invite people to the chat'
                 : 'Open group. Anyone can join';
 
             const switchClubPrivacy = () => {
@@ -570,7 +574,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 <SettingsRow onPress={copyClubLinkToClipboard}>
                     <SettingsTextView>
                         <SettingsText>{'Send Link'}</SettingsText>
-                        <SettingsSubtext>{'Share the club link'}</SettingsSubtext>
+                        <SettingsSubtext>{'Share the chat link'}</SettingsSubtext>
                     </SettingsTextView>
                     <SettingsRowRightButton>
                         <FontAwesomeIcon icon={ faLink } size={24} color='white' />
@@ -608,18 +612,17 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         const topOffset = useSafeAreaInsets().top;
         return (
             <TopBarView topOffset={topOffset}>
-                <BackButton navigation={navigation} />
-                <ClubHeaderText>{'Club Info'}</ClubHeaderText>
+                <HeaderWithBackButton navigation={navigation} text={'chat details'} />
                 <ClubPrivacyRow>
                     { isClubOwner && <ClubEditButton club={club} navigation={navigation} /> }
                     { !isClubOwner && (
                         <React.Fragment>
                             <ClubPrivacyText>{isPrivate ? 'Private' : 'Public'}</ClubPrivacyText>
                             { isPrivate && (
-                                <Icon type='ionicon' name='lock-closed' color='white' size={20} />
+                                <FontAwesomeIcon icon={faLock} color='white' size={20} />
                             )}
                             { !isPrivate && (
-                                <Icon type='ionicon' name='earth' color='white' size={20} />
+                                <FontAwesomeIcon icon={faEarthAmerica} color='white' size={20} />
                             )}
                         </React.Fragment>
                     )}
