@@ -21,6 +21,7 @@ import { animate } from '../../hooks/animations';
 
 const { height, width } = Dimensions.get('window');
 const CAPTURE_SIZE = Math.floor(height * 0.07);
+
 const MEDIA_FLIP_ICON_SIZE = 36;
 const RING_ROTATE_INTERVAL_MS = 6000;
 
@@ -118,8 +119,13 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const [cameraType, setCameraType] = useState(Camera.Constants.Type.front);
     const [retakeCounter, setRetakeCounter] = useState(0);
 
-    const MAX_VIDEO_DURATION_SEC = topicID ? 60 : 30;
-    const MAX_VIDEO_DURATION_MILLIS = 1000 * MAX_VIDEO_DURATION_SEC;
+    const canUploadLongAssVideos = ['admin', 'supercreator'].includes(reelayDBUser?.role);
+
+    const MAX_MEDIA_VIDEO_DURATION_SEC = (canUploadLongAssVideos) ? 180 : 60;
+    const MAX_MEDIA_VIDEO_DURATION_MILLIS = 1000 * MAX_MEDIA_VIDEO_DURATION_SEC;
+
+    const MAX_CAMERA_VIDEO_DURATION_SEC = topicID ? 60 : 30;
+    const MAX_CAMERA_VIDEO_DURATION_MILLIS = 1000 * MAX_CAMERA_VIDEO_DURATION_SEC;
 
     const pushToUploadScreen = async (videoURI) => {
         if (!videoURI) {
@@ -154,8 +160,8 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                 });
 
                 if (!selectedVideo || !selectedVideo.uri || selectedVideo.cancelled) return;
-                if (selectedVideo.duration > MAX_VIDEO_DURATION_MILLIS) {
-                    const maxDurationMessage = `Ruh roh! You can only upload ${MAX_VIDEO_DURATION_SEC} second videos or shorter`
+                if (selectedVideo.duration > MAX_MEDIA_VIDEO_DURATION_MILLIS) {
+                    const maxDurationMessage = `Ruh roh! You can only upload ${MAX_MEDIA_VIDEO_DURATION_SEC} second videos or shorter from media`
                     showErrorToast(maxDurationMessage);
                     return;
                 }
@@ -233,7 +239,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             
             const renderMoment = moment();
             const timeSinceStarted = renderMoment.diff(recordStartMoment.current, 'ms');
-            const progressRatio = timeSinceStarted / MAX_VIDEO_DURATION_MILLIS;
+            const progressRatio = timeSinceStarted / MAX_CAMERA_VIDEO_DURATION_MILLIS;
 
             const rotationInRadians = (timeSinceStarted * 2 * Math.PI / RING_ROTATE_INTERVAL_MS);
             const outerRingXStart = (Math.cos(rotationInRadians) + 1) / 2;
