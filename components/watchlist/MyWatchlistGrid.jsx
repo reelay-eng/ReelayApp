@@ -26,7 +26,6 @@ const HeaderContainer = styled(View)`
     align-items: flex-end;
     flex-direction: row;
     margin-left: 8px;
-    margin-top: 20px;
     margin-bottom: 8px;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
@@ -61,7 +60,7 @@ const SeeMyWatchlistPressable = styled(TouchableOpacity)`
     justify-content: center;
     margin: 16px;
     margin-top: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 20px;
     width: ${width - 32}px;
 `
 const SeeMyWatchlistText = styled(ReelayText.Overline)`

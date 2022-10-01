@@ -14,7 +14,6 @@ import { getInputUsername } from '../../components/utils/usernameOrEmail';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
-import SocialLoginBar from '../../components/auth/SocialLoginBar';
 import { useDispatch, useSelector } from 'react-redux';
 import { getUserByUsername } from '../../api/ReelayDBApi';
 
@@ -281,11 +280,6 @@ export default SignInScreen = ({ navigation, route }) => {
 					<ForgotPassword />
 				</InputContainer>
                 <BottomButtonsContainer>
-                    {/* <SocialLoginBar 
-                        navigation={navigation} 
-                        signingIn={signingIn} 
-                        setSigningIn={setSigningIn} 
-                    /> */}
                     <SignInButtonContainer>
                         <Button
                             text={signingIn ? "Logging in..." : "Log in"}

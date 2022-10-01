@@ -1,8 +1,10 @@
 import React from 'react';
-import { View } from 'react-native';
+import { Dimensions, View } from 'react-native';
 import * as ReelayText from './Text';
 import styled from 'styled-components/native';
 import { ScrollView } from 'react-native-gesture-handler';
+
+const { height } = Dimensions.get('window');
 
 const HeaderText = styled(ReelayText.H4Bold)`
     color: white;
@@ -38,11 +40,9 @@ export default HouseRules = () => {
     }
 
     return (
-        <View>
+        <ScrollView contentContainerStyle={{ height: 900 }} showsVerticalScrollIndicator={false}>
             <HeaderText>{'House rules 🧐'}</HeaderText>
-            <ScrollView>
-                { ruleTextParts.map(renderRule)}
-            </ScrollView>
-        </View>
+            { ruleTextParts.map(renderRule)}
+        </ScrollView>
     );
 }

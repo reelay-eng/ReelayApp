@@ -13,6 +13,7 @@ import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
 import { useDispatch } from 'react-redux';
 import { HeaderWithBackButton } from '../../components/global/Headers';
+import { postStreamingSubscriptionToDB } from '../../api/ReelayDBApi';
 
 const AuthInput = styled(Input)`
     color: white;
@@ -73,7 +74,7 @@ const TopBarContainer = styled(View)`
 `
 
 export default ConfirmEmailScreen = ({ navigation, route }) => {
-    const { username, email, password } = route.params;
+    const { username, email, password, selectedVenues } = route.params;
     const { setCognitoUser } = useContext(AuthContext);
     const [confirming, setConfirming] = useState(false);
     const dispatch = useDispatch();
@@ -88,6 +89,8 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
                 const signUpResult = await Auth.confirmSignUp(username, confirmationCode);
                 const newCognitoUser = await Auth.signIn(username, password);
                 const cognitoSession = await Auth.currentSession();
+
+                await registerStreamingServices(newCognitoUser?.attributes?.sub);
                 dispatch({ type: 'setAuthSessionFromCognito', payload: cognitoSession });
                 setCognitoUser(newCognitoUser);
             } catch (error) {
@@ -97,6 +100,16 @@ export default ConfirmEmailScreen = ({ navigation, route }) => {
                 return { error };
             }
         }
+
+        const registerStreamingServices = async (reelayDBUserID) => {
+            const registerSubscription = async (venue) => {
+                await postStreamingSubscriptionToDB(reelayDBUserID, {
+                    platform: venue,
+                });
+            }
+            await Promise.all(selectedVenues.map(registerSubscription));
+        }
+        
     
         const resendConfirmationCode = async () => {
             console.log('Attempting to resend confirmation code');

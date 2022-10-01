@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useEffect } from 'react';
-import { Image, Modal, Pressable, SafeAreaView, View } from 'react-native';
+import { Image, Modal, Pressable, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import DogWithGlasses from '../../assets/images/dog-with-glasses.png';
 import styled from 'styled-components/native';
@@ -85,7 +85,7 @@ const JustShowMeSignup = () => {
         color: black;
         text-align: center;
     `
-    const SignUpButton = styled(Pressable)`
+    const SignUpButton = styled(TouchableOpacity)`
         align-items: center;
         background-color: ${ReelayColors.reelayBlue};
         border-radius: 60px;
@@ -110,7 +110,6 @@ const JustShowMeSignup = () => {
                 email: reelayDBUser?.email,
             });
     
-            dispatch({ type: 'setSignUpFromGuest', payload: true });
             dispatch({ type: 'setJustShowMeSignupVisible', payload: false });
             dispatch({ type: 'setSignedIn', payload: false });
             setReelayDBUserID(null);
@@ -133,10 +132,10 @@ const JustShowMeSignup = () => {
                 </TopContainer>
                 <BottomContainer>
                     <KeepBrowsingButton onPress={closeDrawer}>
-                        <KeepBrowsingText>{'Keep Browsing'}</KeepBrowsingText>
+                        <KeepBrowsingText>{'Keep browsing'}</KeepBrowsingText>
                     </KeepBrowsingButton>
                     <SignUpButton onPress={goToSignUp}>
-                        <SignUpText>{'Sign up'}</SignUpText>
+                        <SignUpText>{'Continue'}</SignUpText>
                     </SignUpButton>
                 </BottomContainer>
             </JustShowMeContainer>

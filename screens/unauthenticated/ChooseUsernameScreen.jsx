@@ -1,262 +1,195 @@
-import React, { useContext, useState } from 'react';
-import { Input } from 'react-native-elements';
-import { Button } from '../../components/global/Buttons';
-import BackButton from '../../components/utils/BackButton';
-import { registerUser, searchUsers } from '../../api/ReelayDBApi';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Dimensions, Keyboard, KeyboardAvoidingView, Pressable, TextInput, TouchableOpacity, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
-import { Auth } from 'aws-amplify';
-
-import { 
-    ActivityIndicator,
-    Keyboard, 
-    KeyboardAvoidingView, 
-    SafeAreaView, 
-    TouchableWithoutFeedback, 
-    View, 
-} from 'react-native';
-
+import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
-import styled from 'styled-components/native';
-import { registerSocialAuthAccount, saveAndRegisterSocialAuthToken } from '../../api/ReelayUserApi';
+import { HeaderWithBackButton } from '../../components/global/Headers';
+
+import { Auth } from 'aws-amplify';
+import { checkUsername } from '../../components/utils/ValidUsernameCheck';
+import { registerUser, searchUsers } from '../../api/ReelayDBApi';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { registerSocialAuthAccount, saveAndRegisterSocialAuthSession } from '../../api/ReelayUserApi';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { showErrorToast } from '../../components/utils/toasts';
-import { checkUsername } from '../../components/utils/ValidUsernameCheck';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
-const FullScreenBlackContainer = styled(SafeAreaView)`
-    background-color: ${ReelayColors.reelayBlack};
-    height: 100%;
-    width: 100%;
-`
-const AuthInput = styled(Input)`
-    color: white;
-    font-family: Outfit-Regular;
-    font-size: 16px;
-    font-style: normal;
-    letter-spacing: 0.15px;
-    margin-left: 8px;
-`
-const AuthInputContainerStyle = {
-    marginBottom: -5,
-    width: "100%",
-};
-const AuthInputAtIconStyle = {
-    color: "white",
-    name: "at",
-    type: "ionicon",
-    size: 20,
-};
-const AlignmentContainer = styled(View)`
-    width: 100%;
-    height: 100%;
-    flex-direction: column;
+const { height, width } = Dimensions.get('window');
+
+const ContinuePressable = styled(TouchableOpacity)`
     align-items: center;
-    justify-content: space-between;
-`
-const TopContainer = styled(View)`
-    align-items: center;
+    background-color: white;
+    border-radius: 24px;
+    height: 48px;
     justify-content: center;
+    width: ${width - 16}px;
+`
+const ContinueText = styled(ReelayText.Overline)`
+    color: black;
+    font-size: 12px;
+`
+const ContinueWrapper = styled(KeyboardAvoidingView)`
+    align-items: center;
+    background-color: black;
+    bottom: 24px;
+    padding-top: 12px;
+    padding-bottom: ${props => props.bottomOffset + 12}px;
+    position: absolute;
     width: 100%;
 `
-const InputContainer = styled(View)`
-    flex-direction: column;
-    margin-bottom: 30px;
-    width: 90%;
-`;
-const InstructionText = styled(ReelayText.Body2)`
+const InputView = styled(View)`
+    align-items: center;
+    height: 84px;
+    width: 100%;
+`
+const KeyboardDismisser = styled(Pressable)`
+    display: flex;
+    flex: 1;
+`
+const UsernameTextInput = styled(TextInput)`
     color: white;
-    margin-left: 10px;
-    text-align: left;
+    font-family: Outfit-Bold;
+    font-size: 28px;
+    font-style: bold;
+    letter-spacing: 0.15px;
+    line-height: 36px;
+    padding: 24px;
 `
-const InstructionContainer = styled(View)`
-    align-items: flex-start;
-    width: 90%;
+const ProgressDot = styled(View)`
+    background-color: ${props => props.completed ? ReelayColors.reelayBlue : 'gray'};
+    border-radius: 4px;
+    height: 8px;
+    margin: 4px;
+    width: 8px;
 `
-const SignupButtonContainer = styled(View)`
-    margin-bottom: 40px;
-    height: 56px;
-    width: 95%;
-`
-const Container = styled(View)`
-    width: 100%;
-    height: 20%;
+const ProgressDotsView = styled(View)`
+    align-items: center;
     flex-direction: row;
     justify-content: center;
-    margin-bottom: 20px;
+    width: 100%;
 `
-const TopBarContainer = styled(View)`
-    width: 85%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    margin-bottom: 10px;
+const ScreenView = styled(View)`
+    background-color: black;
+    height: 100%;
+    width: 100%;
 `
-const BackButtonContainer = styled(View)`
-    margin-left: -10px;
-    margin-bottom: 50px;
-`
-const TextContainer = styled(View)`
-    margin-bottom: 20px;
-`
-const HeaderText = styled(ReelayText.H5Bold)`
-    color: white;
-    margin-bottom: 10px;
-`
-const SublineText = styled(ReelayText.Caption)`
-    color: white;
+const Spacer = styled(View)`
+    height: ${props => props.height}px;
 `
 
-export const KeyboardHidingBlackContainer = ({ children }) => {
-    return ( 
-        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <FullScreenBlackContainer>
-                {children}
-            </FullScreenBlackContainer>
-        </TouchableWithoutFeedback>
-    )
-};
+const ProgressDots = () => {
+    return (
+        <ProgressDotsView>
+            <ProgressDot completed={true} />
+            <ProgressDot completed={false} />
+            <ProgressDot completed={false} />
+        </ProgressDotsView>
+    );
+}
 
-export default ChooseUsernameScreen = ({ navigation, route }) => {    
-    const { method, email, fullName, googleUserID, appleUserID, password } = route?.params;
-    const [signingIn, setSigningIn] = useState(false);
+export default ChooseUsernameScreen = ({ navigation, route }) => {
+    const bottomOffset = useSafeAreaInsets().bottom;
+    const topOffset = useSafeAreaInsets().top + 16;
+
+    const { authSession, method, email, fullName, googleUserID, appleUserID, password } = route?.params;
+    const [isCheckingUsername, setIsCheckingUsername] = useState(false);
     const { setReelayDBUserID } = useContext(AuthContext);
-    
-    const UsernameInput = () => {
-        const [inputText, setInputText] = useState('');
-        const usernameHasValidForm = checkUsername(inputText);
 
-        const changeInputText = async (inputUsername) => {
-            setInputText(inputUsername);
+    const inputUsernameRef = useRef('');
+
+    const continueSignUp = async () => {
+        setIsCheckingUsername(true);
+        const canSignUp = await isUsernameValid();
+        if (!canSignUp) {
+            setIsCheckingUsername(false);
+            return;
         }
+        setIsCheckingUsername(false);
 
-        const isUsernameValid = async (username) => {
-            if (!usernameHasValidForm) {
-                showErrorToast('Ruh roh! Username has an invalid format. See instructions below');
-                return false;
-            }
-            const partialMatchingUsers = await searchUsers(username);
-            if (partialMatchingUsers?.error) {
-                return false;
-            }
-
-            const usernamesMatch = (userObj) => (userObj.username === username);
-            const fullMatchIndex = await partialMatchingUsers.findIndex(usernamesMatch);
-            if (fullMatchIndex === -1) {
-                return true;
-            } else {
-                showErrorToast('That username is already taken');
-                return false;
-            }
-        }
-
-        const completeSignUp = async () => {
-            const username = inputText;
-            setSigningIn(true);
-            const canSignUp = await isUsernameValid(username);
-            if (!canSignUp) {
-                setSigningIn(false);
-                return;
-            }
-
-            logAmplitudeEventProd('signUp', { email, username });
-            console.log('Signing up...');
-
-            if (method === 'apple' || method === 'google') {
-                const authAccountObj = await registerSocialAuthAccount({ method, email, fullName, googleUserID, appleUserID });    
-                const { reelayDBUserID } = authAccountObj;
-                const completeSignUpResult = await registerUser({ email, username, sub: reelayDBUserID });
-    
-                saveAndRegisterSocialAuthToken(reelayDBUserID);
-                setSigningIn(false);
-                setReelayDBUserID(reelayDBUserID);    
-            } else if (method === 'cognito') {
-                const signUpResult = await Auth.signUp({
-                    username: username,
-                    password: password,
-                    attributes: { email: email.toLowerCase() },
-                }); 
-
-                const dbResult = await registerUser({
-                    email: email.toLowerCase(),
-                    username: username,
-                    sub: signUpResult?.userSub,
-                });
-
-                navigation.push('ConfirmEmailScreen', { 
-                    username,
-                    email: email.toLowerCase(), 
-                    password,
-                });
-            } else {
-                console.log('No valid signup method specified');
-            }
-        }
-        
-        return (
-			<AlignmentContainer>
-                <TopContainer>
-                    <InputContainer>
-                        <AuthInput
-                            autoComplete='none'
-                            autoCapitalize="none"
-                            containerStyle={AuthInputContainerStyle}
-                            leftIcon={AuthInputAtIconStyle}
-                            placeholder={"lukeskywalker"}
-                            onChangeText={changeInputText}
-                            textContentType='username'
-                            value={inputText}
-                        />
-                    </InputContainer>
-                    <InstructionContainer>
-                        <InstructionText>
-                            {'Usernames must be between 4 and 16 characters, \
-                                alphanumeric, and start with letters. Separators .+_- are okay'}
-                        </InstructionText>
-                    </InstructionContainer>
-                </TopContainer>
-				<SignupButtonContainer>
-					<Button
-						text={signingIn ? "Registering..." : "Continue (2/3)"}
-						onPress={completeSignUp}
-						disabled={signingIn || !usernameHasValidForm}
-						backgroundColor={ReelayColors.reelayBlue}
-						fontColor="white"
-						borderRadius="26px"
-					/>
-				</SignupButtonContainer>
-			</AlignmentContainer>
-		);
+        navigation.push('SelectMyStreamingScreen', {
+            appleUserID,
+            authSession,
+            email,
+            fullName,
+            googleUserID,
+            method,
+            password,
+            username: inputUsernameRef.current,
+        });
     }
 
-    const TopBar = () => {
-		return (
-			<Container>
-				<TopBarContainer>
-					<BackButtonContainer>
-						<BackButton navigation={navigation} />
-					</BackButtonContainer>
-					<TextContainer>
-						<HeaderText>
-                            { !signingIn && 'Select a username'}
-                            { signingIn && 'Getting you setup...'}
-                        </HeaderText>
-						<SublineText>
-                            { !signingIn && 'What should we call you?'}
-                            { signingIn && 'Just a moment'}
-                        </SublineText>
-					</TextContainer>
-				</TopBarContainer>
-			</Container>
-		);
-	};
+    const isUsernameValid = async () => {
+        const usernameToCheck = inputUsernameRef.current;
+        const usernameHasValidForm = checkUsername(usernameToCheck);
+        if (!usernameHasValidForm) {
+            showErrorToast('Ruh roh! Username has an invalid format. See instructions below');
+            return false;
+        }
+        const partialMatchingUsers = await searchUsers(usernameToCheck);
+        if (partialMatchingUsers?.error) {
+            return false;
+        }
+
+        const usernamesMatch = (userObj) => (userObj.username === usernameToCheck);
+        const fullMatchIndex = await partialMatchingUsers.findIndex(usernamesMatch);
+        if (fullMatchIndex === -1) {
+            return true;
+        } else {
+            showErrorToast('Ruh roh! That username is already taken');
+            return false;
+        }
+    }
+
+    const UsernameInput = () => {
+        const [inputUsername, setInputUsername] = useState(inputUsernameRef.current);
+        const inputFieldRef = useRef(null);
+
+        const changeInputUsername = async (nextInputUsername) => {
+            inputUsernameRef.current = nextInputUsername;
+            setInputUsername(nextInputUsername);
+        }
+
+        useEffect(() => {
+            if (inputFieldRef?.current && inputUsername === '') {
+                inputFieldRef.current.focus();
+            }
+        }, []);
+
+        return (
+            <InputView>
+                <UsernameTextInput
+                    autoComplete='none'
+                    autoCapitalize="none"
+                    onChangeText={changeInputUsername}
+                    placeholder={"Enter username"}
+                    placeholderTextColor={'#9D9D9D'}
+                    ref={inputFieldRef}
+                    textContentType='username'
+                    value={inputUsername}
+                />
+            </InputView>
+        );
+    }
 
     return (
-        <KeyboardHidingBlackContainer>
-            <TopBar />
-            <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
-                { !signingIn && <UsernameInput /> }
-                { signingIn && <ActivityIndicator /> }
-            </KeyboardAvoidingView>
-        </KeyboardHidingBlackContainer>
+        <KeyboardDismisser onPress={Keyboard.dismiss}>
+            <ScreenView>
+                <Spacer height={topOffset} />
+                <HeaderWithBackButton navigation={navigation} text={'sign up'} />
+                <Spacer height={24} />
+                <ProgressDots />
+                <Spacer height={144} />
+                <UsernameInput />
+                
+                <ContinueWrapper behavior='padding' bottomOffset={bottomOffset}>
+                    <ContinuePressable onPress={continueSignUp} disabled={isCheckingUsername}>
+                        { !isCheckingUsername && <ContinueText>{'Continue'}</ContinueText> }
+                        { isCheckingUsername && <ActivityIndicator /> }
+                    </ContinuePressable>
+                    <View style={{ height: 24 }} />
+                </ContinueWrapper>
+            </ScreenView>
+        </KeyboardDismisser>
     );
 }

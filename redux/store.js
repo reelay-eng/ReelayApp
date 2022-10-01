@@ -1,6 +1,8 @@
 import { createStore } from "redux";
 import { 
+    appleSessionReducer,
     cognitoSessionReducer, 
+    googleSessionReducer,
     dismissAnnouncementReducer,
     dismissNoticeReducer,
     latestAnnouncementReducer,
@@ -121,7 +123,6 @@ const initialState = {
     loginPasswordInputText: '',
     loginUsernameInputText: '',
     passwordLoginError: '',
-    signedUpFromGuest: false,
     usernameLoginError: '',
 
     // UPLOAD
@@ -137,9 +138,15 @@ const appReducer = ( state = initialState, action) => {
         // AUTHENTICATION
         case 'clearAuthSession':
             return { ...state, authSession: {}, };
-        case 'setAuthSessionFromCognito':
-            const authSession = cognitoSessionReducer(action.payload);
+        case 'setAuthSessionFromApple':
+            let authSession = appleSessionReducer(action.payload);
             return { ...state, authSession };
+        case 'setAuthSessionFromCognito':
+            authSession = cognitoSessionReducer(action.payload);
+            return { ...state, authSession };
+        case 'setAuthSessionFromGoogle':
+            authSession = googleSessionReducer(action.payload);
+            return { ...state, authSession };            
         case 'setCognitoUser':
             return { ...state, cognitoUser: action.payload }
         case 'setReelayDBUser':
@@ -326,8 +333,6 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, loginPasswordInputText: action.payload }
         case 'setPasswordLoginError':
             return { ...state, passwordLoginError: action.payload }    
-        case 'setSignUpFromGuest':
-            return { ...state, signUpFromGuest: action.payload }            
         case 'setUsernameLoginError':
             return { ...state, usernameLoginError: action.payload }
 
@@ -425,7 +430,6 @@ export const mapStateToProps = (state) => ({
     loginPasswordInputText: state.loginPasswordInputText,
     loginUsernameInputText: state.loginUsernameInputText,
     passwordLoginError: state.passwordLoginError,
-    signUpFromGuest: state.signUpFromGuest,
     usernameLoginError: state.usernameLoginError,
 
     // UPLOAD
