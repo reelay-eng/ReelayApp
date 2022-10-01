@@ -271,7 +271,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 console.log('error on chatMessageSent: could not find user entry');
                 return;
             }
-            userEntry.isTyping = false;
         });
 
         socket.on('userIsActive', ({ userSub }) => {
@@ -301,25 +300,9 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 return;
             }
 
-            if (!userEntry.isTyping) {
-                const now = moment();
-                userEntry.isTyping = true;
-                userEntry.lastActiveAt = now;
-                userEntry.lastTypingAt = now;
-            }
-        });
-
-        socket.on('userStoppedTyping', ({ userSub }) => {
-            console.log('received userStoppedTyping: ', userSub);
-            const userEntry = activeUsersInChatRef?.current?.[userSub];
-            if (!userEntry) {
-                console.log('error on userStoppedTyping: could not find user entry');
-                return;
-            }
-
-            if (userEntry.isTyping) {
-                userEntry.isTyping = false;
-            }
+            const now = moment();
+            userEntry.lastActiveAt = now;
+            userEntry.lastTypingAt = now;
         });
 
         return socket;
