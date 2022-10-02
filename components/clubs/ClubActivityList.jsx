@@ -116,6 +116,7 @@ export default ClubActivityList = ({
     activeUsersInChatRef, 
     club, 
     chatMessagesRef, 
+    loadChatMessageHistory,
     navigation, 
     onRefresh, 
     refreshing, 
@@ -166,8 +167,12 @@ export default ClubActivityList = ({
         return typingUser0?.lastTypingAt - typingUser1?.lastTypingAt;
     }
 
-    for (const chatMessage of chatMessagesRef?.current) {
+    const chatMessagesLastIndex = chatMessagesRef?.current?.length - 1;
+    for (const chatMessageIndex in chatMessagesRef?.current) {
+        const chatMessage = chatMessagesRef?.current[chatMessageIndex];
         chatMessage.activityType = 'message';
+        // note that this only works with a == comparator, not ===
+        chatMessage.isOldestMessage = (chatMessageIndex == chatMessagesLastIndex);
     }
 
     const clubActivities = [
@@ -212,7 +217,13 @@ export default ClubActivityList = ({
         }
 
         if (activityType === 'message') {
-            return <ClubChatMessage key={activity?.id} message={activity} />
+            return (
+                <ClubChatMessage 
+                    key={activity?.id} 
+                    message={activity} 
+                    loadChatMessageHistory={loadChatMessageHistory} 
+                />
+            );
         }
 
         if (activityType === 'noTitlesYet') {

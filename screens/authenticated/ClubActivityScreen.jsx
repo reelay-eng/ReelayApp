@@ -43,6 +43,7 @@ import {
 const { height, width } = Dimensions.get('window');
 const CHAT_BASE_URL = Constants.manifest.extra.reelayChatBaseUrl;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
+const LAST_TYPING_MAX_SECONDS = 10;
 
 const AcceptRejectInviteRowView = styled(View)`
     align-items: center;
@@ -211,6 +212,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const authSession = useSelector(state => state.authSession);
     const activeUsersInChatRef = useRef({});
     const chatMessagesRef = useRef([]);
+    const chatMessagesNextPageRef = useRef(0);
     const socketRef = useRef(null);
 
     const dispatch = useDispatch();
@@ -256,7 +258,13 @@ export default ClubActivityScreen = ({ navigation, route }) => {
 
         socket.on('chatMessagesLoaded', ({ messages, page }) => {
             console.log(`event received: ${messages?.length} messages loaded`);
-            chatMessagesRef.current = messages;
+            // TODO: ensure no duplicates
+            if (page === chatMessagesNextPageRef?.current) {
+                chatMessagesRef.current.push(...messages);
+                chatMessagesNextPageRef.current += 1;
+            } else {
+                console.log('bad page: ', page, chatMessagesNextPageRef?.current);
+            }
         })
 
         socket.on('chatMessageSent', ({ message }) => {
@@ -271,6 +279,9 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 console.log('error on chatMessageSent: could not find user entry');
                 return;
             }
+
+            // hack to stop typing once a message is sent
+            userEntry.lastTypingAt = moment().subtract(LAST_TYPING_MAX_SECONDS, 'seconds');
         });
 
         socket.on('userIsActive', ({ userSub }) => {
@@ -323,6 +334,23 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         socket.close();
         socketRef.current = null;
     }
+
+    const loadChatMessageHistory = async () => {
+        if (!socketRef.current) {
+            console.log('error closing clubs chat: could not find socket ref');
+            return;
+        }
+
+        const socket = socketRef.current;
+        socket.emit('loadMessageHistory', {
+            authSession, 
+            clubID: club?.id, 
+            page: chatMessagesNextPageRef?.current,
+            userSub: reelayDBUser?.sub,
+            visibility: FEED_VISIBILITY,
+        });
+        console.log('emitted load message history');
+    }   
 
     const onRefresh = async () => {
         try { 
@@ -429,6 +457,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                     activeUsersInChatRef={activeUsersInChatRef}
                     club={club} 
                     chatMessagesRef={chatMessagesRef}
+                    loadChatMessageHistory={loadChatMessageHistory}
                     navigation={navigation} 
                     onRefresh={onRefresh} 
                     refreshing={refreshing} 

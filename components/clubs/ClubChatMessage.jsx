@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Dimensions, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import ProfilePicture from '../global/ProfilePicture';
@@ -65,7 +65,7 @@ const DotMenuButton = ({ message }) => {
     );
 }
 
-export default ClubChatMessage = ({ message }) => {
+export default ClubChatMessage = ({ message, loadChatMessageHistory }) => {
     const timestampString = moment(message?.createdAt).format("hh:mm A");
     const author = { 
         username: message?.username,
@@ -86,6 +86,13 @@ export default ClubChatMessage = ({ message }) => {
             </ChatMessageBodyView>
         );
     }
+
+    useEffect(() => {
+        if (message?.isOldestMessage) {
+            console.log('rendering oldest message: ', message.text); 
+            loadChatMessageHistory();
+        }
+    }, []);
 
     return (
         <ChatMessageOuterView>
