@@ -6,8 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ClubPicture from '../global/ClubPicture';
 import BackButton from '../utils/BackButton';
 import ProfilePicture from '../global/ProfilePicture';
-import { FiltersSVG, NotificationIconSVG, StainedGlassSVG } from '../global/SVGs';
-import ClubNotificationSettingsDrawer from './ClubNotificationSettingsDrawer';
+import { FiltersSVG, StainedGlassSVG } from '../global/SVGs';
 
 const BackButtonContainer = styled(View)`
     margin: 6px;
@@ -78,7 +77,6 @@ const BubbleRightFiveContainer = styled(View)`
 const BubbleBathHeaderContainer = styled(TouchableOpacity)`
     align-items: center;
     justify-content: center;
-    padding-left: 40px;
 `
 const ClubNameText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -225,16 +223,6 @@ export default ClubBanner = ({ club, navigation }) => {
         );
     }
 
-    const HeaderRightButtons = () => {
-        return (
-            <HeaderRightButtonsView>
-                <NotificationDrawerButton />
-                <ButtonSpacer />
-                <ActivityFiltersButton />
-            </HeaderRightButtonsView>
-        );
-    }
-
     const StainedGlassButton = () => {
         const advanceToClubStainedGlassScreen = () => navigation.push('ClubStainedGlassScreen', { club });
         const hasClubActivities = (club?.topics?.length + club?.titles?.length) > 0;
@@ -247,28 +235,13 @@ export default ClubBanner = ({ club, navigation }) => {
         );
     }
 
-    const NotificationDrawerButton = () => {
-        const [showNotificationSettingsDrawer, setShowNotificationSettingsDrawer] = useState(false);
-        const openDrawer = () => setShowNotificationSettingsDrawer(true);
-        const closeDrawer = () => setShowNotificationSettingsDrawer(false);
-
-        return (
-            <BannerButtonPressable onPress={openDrawer} topOffset={infoButtonTopOffset}>
-                <NotificationIconSVG />
-                { showNotificationSettingsDrawer && (
-                    <ClubNotificationSettingsDrawer club={club} navigation={navigation} closeDrawer={closeDrawer} />
-                )}
-            </BannerButtonPressable>
-        );
-    }
-
     return (
         <HeaderBackground solid={true} topOffset={topOffset}>
             <BackButtonContainer>
                 <BackButton navigation={navigation} />
             </BackButtonContainer>
             <HeaderWithBubbleBath />
-            <HeaderRightButtons />
+            <ActivityFiltersButton />
         </HeaderBackground>
     );
 }

@@ -55,6 +55,11 @@ const AllMembersCard = styled(View)`
 const ChangePrivacyView = styled(View)`
     margin-left: 16px;
 `
+const ClubHeaderInfoView = styled(View)`
+    align-items: center;
+    padding: 16px;
+    padding-bottom: 32px;
+`
 const ClubHeaderRow = styled(View)`
     align-items: center;
     flex-direction: row;
@@ -150,10 +155,14 @@ const MemberRowView = styled(TouchableOpacity)`
 const MemberSectionSpacer = styled(View)`
     height: 12px;
 `
-const ProfileInfoView = styled(View)`
-    align-items: center;
+const NotificationSettingsView = styled(View)`
+    border-color: #1c1c1c;
+    border-bottom-color: black;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-width: 2px;
     padding: 16px;
-    padding-bottom: 32px;
+    width: ${width + 6}px;
 `
 const ProfilePictureView = styled(View)`
     margin-top: 6px;
@@ -199,6 +208,7 @@ const SettingsRowRightButton = styled(View)`
 `
 const SettingsSubtext = styled(ReelayText.Body1)`
     color: rgba(255,255,255,0.7);
+    width: ${width - 100}px;
 `
 const SettingsText = styled(ReelayText.Body1)`
     color: white;
@@ -294,21 +304,24 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         }
     
         return (
-            <MemberListView>
-                <SectionRow>
-                    <SectionHeaderText>{`Members  (${memberCount})`}</SectionHeaderText>
-                    { isClubOwner && <EditMembersButton />}    
-                </SectionRow>
-                <MemberSectionSpacer />
-                <FlatList
-                    data={sortedMembers}
-                    estimatedItemSize={60}
-                    keyExtractor={member => member?.id}
-                    renderItem={renderMemberRow}
-                    showsVerticalScrollIndicator={false}
-                />
-                { !isClubOwner && clubMember && <LeaveButton /> }
-            </MemberListView>
+            <AllMembersCard>
+                { !canShareClubLink && <PrivacyIndicator /> }
+                <MemberListView>
+                    <SectionRow>
+                        <SectionHeaderText>{`Members  (${memberCount})`}</SectionHeaderText>
+                        { isClubOwner && <EditMembersButton />}    
+                    </SectionRow>
+                    <MemberSectionSpacer />
+                    <FlatList
+                        data={sortedMembers}
+                        estimatedItemSize={60}
+                        keyExtractor={member => member?.id}
+                        renderItem={renderMemberRow}
+                        showsVerticalScrollIndicator={false}
+                    />
+                    { !isClubOwner && clubMember && <LeaveButton /> }
+                </MemberListView>
+            </AllMembersCard>
         );
     }
     
@@ -430,9 +443,9 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         )
     }
     
-    const ClubProfileInfo = () => {
+    const ClubHeaderInfo = () => {
         return (
-            <ProfileInfoView>
+            <ClubHeaderInfoView>
                 <BigBubbleBath club={club} />
                 <ProfileSpacer />
                 <ClubHeaderRow>
@@ -441,7 +454,95 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 </ClubHeaderRow>
                 <ClubDescriptionText>{club.description}</ClubDescriptionText>
                 { !clubMember && isPublicClub && <JoinButton /> }
-            </ProfileInfoView>
+            </ClubHeaderInfoView>
+        );
+    }
+
+    const ClubTopBar = () => {
+        const topOffset = useSafeAreaInsets().top;
+        return (
+            <TopBarView topOffset={topOffset}>
+                <HeaderWithBackButton navigation={navigation} text={'chat details'} />
+            </TopBarView>
+        );
+    }
+
+    const NotificationSettings = () => {
+        const [allowNotifyMessages, setAllowNotifyMessages] = useState(true);
+        const [allowNotifyPosts, setAllowNotifyPosts] = useState(true);
+    
+        const switchAllowNotifyMessages = async () => {
+            const shouldAllow = !allowNotifyMessages;
+            setAllowNotifyMessages(shouldAllow);
+            // const patchResult = await editClub({
+            //     authSession,
+            //     clubID: club.id,
+            //     membersCanInvite: shouldAllow,
+            //     reqUserSub: reelayDBUser?.sub,
+            // });
+            // console.log(patchResult);
+        }
+    
+        const switchAllowNotifyPosts = async () => {
+            const shouldAllow = !allowNotifyPosts;
+            setAllowNotifyPosts(shouldAllow);
+            // const patchResult = await editClub({
+            //     authSession,
+            //     clubID: club.id,
+            //     membersCanInvite: shouldAllow,
+            //     reqUserSub: reelayDBUser?.sub,
+            // });
+            // console.log(patchResult);
+        }
+    
+        const AllowNotifyMessagesSetting = () => {
+            return (
+                <SettingsRow onPress={switchAllowNotifyMessages}>
+                    <SettingsTextView>
+                        <SettingsText>{'Allow message notifications'}</SettingsText>
+                        <SettingsSubtext>{'Get notified when conversations happen in this chat'}</SettingsSubtext>
+                    </SettingsTextView>
+                    <Switch 
+                        value={allowNotifyMessages}
+                        onValueChange={switchAllowNotifyMessages}
+                        trackColor={{ 
+                            false: "#39393D", 
+                            true: ReelayColors.reelayGreen,
+                        }}
+                        thumbColor={"#FFFFFF"}
+                        ios_backgroundColor="#39393D"    
+                    />
+                </SettingsRow>
+            );
+        }
+    
+        const AllowNotifyPostsSetting = () => {
+            return (
+                <SettingsRow onPress={switchAllowNotifyPosts}>
+                    <SettingsTextView>
+                        <SettingsText>{'Allow post notifications'}</SettingsText>
+                        <SettingsSubtext>{'Get notified when reelays are posted in this chat'}</SettingsSubtext>
+                    </SettingsTextView>
+                    <Switch 
+                        value={allowNotifyPosts}
+                        onValueChange={switchAllowNotifyPosts}
+                        trackColor={{ 
+                            false: "#39393D", 
+                            true: ReelayColors.reelayGreen,
+                        }}
+                        thumbColor={"#FFFFFF"}
+                        ios_backgroundColor="#39393D"    
+                    />
+                </SettingsRow>
+            );
+        }
+    
+        return (
+            <NotificationSettingsView>
+                <SectionHeaderText>{'Notifications'}</SectionHeaderText>
+                <AllowNotifyMessagesSetting />
+                <AllowNotifyPostsSetting />
+            </NotificationSettingsView>
         );
     }
     
@@ -627,15 +728,6 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         );
     }
     
-    const ClubTopBar = () => {
-        const topOffset = useSafeAreaInsets().top;
-        return (
-            <TopBarView topOffset={topOffset}>
-                <HeaderWithBackButton navigation={navigation} text={'chat details'} />
-            </TopBarView>
-        );
-    }
-
     const JoinButton = () => {
         const [joining, setJoining] = useState(false);
 
@@ -799,12 +891,10 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 { refreshing && <ActivityIndicator /> }
                 { !refreshing && (
                     <ClubInfoView>
-                        <ClubProfileInfo />
+                        <ClubHeaderInfo />
                         { canShareClubLink && <InviteSettings /> }
-                        <AllMembersCard>
-                            { !canShareClubLink && <PrivacyIndicator /> }
-                            <ClubMembers />
-                        </AllMembersCard>
+                        { clubMember && <NotificationSettings /> }
+                        <ClubMembers />
                     </ClubInfoView>
                 )}
             </ScrollView>
