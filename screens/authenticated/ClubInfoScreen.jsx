@@ -446,7 +446,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     }
     
     const InviteSettings = () => {
-        const [allowMemberInvites, setAllowMemberInvites] = useState(true);
+        const [allowMemberInvites, setAllowMemberInvites] = useState(club.allowMemberInvites);
         const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
         const { reelayDBUser } = useContext(AuthContext);
 

@@ -25,8 +25,8 @@ const HeaderContainerLeft = styled(View)`
     flex-direction: row;
 `;
 const HeaderContainerRight = styled(View)`
-    display: flex;
     flex-direction: row;
+    top: 8px;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
@@ -47,6 +47,7 @@ const UnreadIconIndicator = styled(SafeAreaView)`
 	height: 10px;
 	width: 10px;
 	position: absolute;
+    top: 6px;
 	right: 0px;
 `
 

@@ -143,7 +143,8 @@ const TopBarView = styled(SafeAreaView)`
 const TopBarButtonView = styled(View)`
     align-items: center;
     flex-direction: row;
-    margin-right: -5px;
+    margin-right: -7px;
+    margin-top: 7px;
 `
 const UnreadIconIndicator = styled(View)`
 	background-color: ${ReelayColors.reelayBlue}
