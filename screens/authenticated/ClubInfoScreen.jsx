@@ -1,18 +1,17 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
 import Constants from 'expo-constants';
 import styled from 'styled-components/native';
 import moment from 'moment';
 
-import BackButton from '../../components/utils/BackButton';
 import * as ReelayText from '../../components/global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 
 import { Icon } from 'react-native-elements';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faEarthAmerica, faLink, faLock } from '@fortawesome/free-solid-svg-icons';
+import { faEarthAmerica, faLink, faLock, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
 import { AuthContext } from '../../context/AuthContext';
@@ -36,14 +35,29 @@ import BigBubbleBath from '../../components/clubs/BigBubbleBath';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import ChangeClubPrivacyDrawer from '../../components/clubs/ChangeClubPrivacyDrawer';
 import { notifyClubOnPrivacyChanges } from '../../api/ClubNotifications';
-import { FlashList } from '@shopify/flash-list';
 import { HeaderWithBackButton } from '../../components/global/Headers';
 
 const INVITE_BASE_URL = Constants.manifest.extra.reelayWebInviteUrl;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
+const { width } = Dimensions.get('window');
+
+const AllMembersCard = styled(View)`
+    background-color: black;
+    border-color: #1c1c1c;
+    border-bottom-color: black;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-width: 2px;
+    padding: 16px;
+    width: ${width + 6}px;
+`
 const ChangePrivacyView = styled(View)`
     margin-left: 16px;
+`
+const ClubHeaderRow = styled(View)`
+    align-items: center;
+    flex-direction: row;
 `
 const ClubHeaderText = styled(ReelayText.H5Emphasized)`
     color: white;
@@ -51,59 +65,61 @@ const ClubHeaderText = styled(ReelayText.H5Emphasized)`
 `
 const ClubDescriptionText = styled(ReelayText.Body2)` 
     color: white;
+    margin-top: 10px;
 `
 const ClubInfoView = styled(View)`
     align-items: center;
+    padding-top: 16px;
 `
 const ClubPrivacyRow = styled(View)`
     align-items: center;
     flex-direction: row;
-    justify-content: center;
-    position: absolute;
-    top: 4px;
+    padding-top: 12px;
+    padding-bottom: 24px;
 `
-const ClubPrivacyText = styled(ReelayText.Body2)`
+const ClubPrivacyText = styled(ReelayText.CaptionEmphasized)`
     color: white;
-    font-size: 14px;
     margin-top: 4px;
-    margin-right: 6px;
+    margin-left: 6px;
 `
-const EditButton = styled(TouchableOpacity)`
-    padding: 4px;
+const EditButtonPressable = styled(TouchableOpacity)`
+    padding: 10px;
 `
 const EditButtonText = styled(ReelayText.Body2)`
     color: ${ReelayColors.reelayBlue};
 `
-const HorizontalDivider = styled(View)`
-    border-color: rgba(255,255,255,0.5);
-    border-width: 0.2px;
-    height: 1px;
-    margin-bottom: 24px;
-    width: 100%;
-`
 const InfoScreenView = styled(View)`
     background-color: black;
-    padding-left: 16px;
-    padding-right: 16px;
     height: 100%;
     width: 100%;
 `
 const InviteSettingsView = styled(View)`
-    width: 100%;
+    border-color: #1c1c1c;
+    border-bottom-color: black;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-width: 2px;
+    padding: 16px;
+    width: ${width + 6}px;
 `
 const JoinButtonView = styled(TouchableOpacity)`
     align-items: center;
+    align-self: center;
     background-color: ${ReelayColors.reelayBlue};
-    border-radius: 8px;
+    border-radius: 24px;
     flex-direction: row;
     justify-content: center;
-    margin-top: 0px;
-    margin-bottom: 24px;
-    height: 40px;
-    width: 50%;
+    margin-top: 24px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    width: ${width / 2}px;
 `
-const LeaveButtonView = styled(JoinButtonView)`
-    background-color: ${ReelayColors.reelayRed};
+const LeaveButtonText = styled(ReelayText.Body2)`
+    color: ${ReelayColors.reelayBlue};
+`
+const LeaveButtonView = styled(TouchableOpacity)`
+    align-self: center;
+    margin-top: 24px;
 `
 const MemberEditButton = styled(TouchableOpacity)``
 const MemberInfoView = styled(View)`
@@ -124,7 +140,6 @@ const MemberRightButtonView = styled(View)`
 const MemberRowView = styled(TouchableOpacity)`
     display: flex;
     align-items: center;
-    background-color: black;
     flex-direction: row;
     justify-content: space-between;
     padding-top: 6px;
@@ -137,8 +152,8 @@ const MemberSectionSpacer = styled(View)`
 `
 const ProfileInfoView = styled(View)`
     align-items: center;
-    margin-top: 0px;
-    margin-bottom: 25px;
+    padding: 16px;
+    padding-bottom: 32px;
 `
 const ProfilePictureView = styled(View)`
     margin-top: 6px;
@@ -195,7 +210,6 @@ const TopBarView = styled(View)`
     flex-direction: row;
     justify-content: flex-end;
     margin-top: ${(props) => props.topOffset}px;
-    margin-bottom: 16px;
     width: 100%;
 `
 const UsernameText = styled(ReelayText.Subtitle1Emphasized)`
@@ -228,9 +242,9 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     const ClubEditButton = () => {
         const advanceToEditClubScreen = () => navigation.push('EditClubScreen', { club });
         return (
-            <EditButton onPress={advanceToEditClubScreen}>
-                <EditButtonText>{'Edit'}</EditButtonText>
-            </EditButton>
+            <EditButtonPressable onPress={advanceToEditClubScreen}>
+                <FontAwesomeIcon icon={faPenToSquare} color='white' size={20} />
+            </EditButtonPressable>
         );
     }
 
@@ -283,7 +297,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             <MemberListView>
                 <SectionRow>
                     <SectionHeaderText>{`Members  (${memberCount})`}</SectionHeaderText>
-                    { isClubOwner && <EditMembersButton />}                
+                    { isClubOwner && <EditMembersButton />}    
                 </SectionRow>
                 <MemberSectionSpacer />
                 <FlatList
@@ -293,6 +307,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     renderItem={renderMemberRow}
                     showsVerticalScrollIndicator={false}
                 />
+                { !isClubOwner && clubMember && <LeaveButton /> }
             </MemberListView>
         );
     }
@@ -334,7 +349,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     showMessageToast(`You've banned ${username} from ${club.name}`);
                 } catch (error) {
                     console.log(error);
-                    showErrorToast('Ruh roh! Could not leave club. Try again?');
+                    showErrorToast('Ruh roh! Could not ban member. Try again?');
                     setBanning(false);
                 }
             }
@@ -375,7 +390,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     showMessageToast(`You've removed ${username} from ${club.name}`);
                 } catch (error) {
                     console.log(error);
-                    showErrorToast('Ruh roh! Could not leave club. Try again?');
+                    showErrorToast('Ruh roh! Could not remove member. Try again?');
                     setRemoving(false);
                 }
             }
@@ -420,8 +435,12 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             <ProfileInfoView>
                 <BigBubbleBath club={club} />
                 <ProfileSpacer />
-                <ClubHeaderText>{club.name}</ClubHeaderText>
+                <ClubHeaderRow>
+                    <ClubHeaderText>{club.name}</ClubHeaderText>
+                    { isClubOwner && <ClubEditButton club={club} navigation={navigation} /> }
+                </ClubHeaderRow>
                 <ClubDescriptionText>{club.description}</ClubDescriptionText>
+                { !clubMember && isPublicClub && <JoinButton /> }
             </ProfileInfoView>
         );
     }
@@ -585,6 +604,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     
         return (
             <InviteSettingsView>
+                <PrivacyIndicator isPrivate={isPrivate}/>
                 <SectionHeaderText>{'Invites'}</SectionHeaderText>
                 { isClubOwner && <AllowMemberInvitesRow /> }
                 { canInviteMembers && <InviteMembersRow /> }
@@ -608,25 +628,10 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     }
     
     const ClubTopBar = () => {
-        const isPrivate = club.visibility === 'private';
         const topOffset = useSafeAreaInsets().top;
         return (
             <TopBarView topOffset={topOffset}>
                 <HeaderWithBackButton navigation={navigation} text={'chat details'} />
-                <ClubPrivacyRow>
-                    { isClubOwner && <ClubEditButton club={club} navigation={navigation} /> }
-                    { !isClubOwner && (
-                        <React.Fragment>
-                            <ClubPrivacyText>{isPrivate ? 'Private' : 'Public'}</ClubPrivacyText>
-                            { isPrivate && (
-                                <FontAwesomeIcon icon={faLock} color='white' size={20} />
-                            )}
-                            { !isPrivate && (
-                                <FontAwesomeIcon icon={faEarthAmerica} color='white' size={20} />
-                            )}
-                        </React.Fragment>
-                    )}
-                </ClubPrivacyRow>
             </TopBarView>
         );
     }
@@ -663,7 +668,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         return (
             <JoinButtonView onPress={joinClub}>
                 { joining && <ActivityIndicator /> }
-                { !joining && <RemoveButtonText>{'Join Club'}</RemoveButtonText> }
+                { !joining && <RemoveButtonText>{'Join Chat'}</RemoveButtonText> }
             </JoinButtonView>
         );
     }
@@ -707,7 +712,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 setLeaving(false);
             } catch (error) {
                 console.log(error);
-                showErrorToast('Ruh roh! Could not leave club. Try again?');
+                showErrorToast('Ruh roh! Could not leave chat. Try again?');
                 setLeaving(false);
             }
         }
@@ -715,8 +720,23 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         return (
             <LeaveButtonView onPress={leaveClub}>
                 { leaving && <ActivityIndicator /> }
-                { !leaving && <RemoveButtonText>{'Leave Club'}</RemoveButtonText> }
+                { !leaving && <LeaveButtonText>{'Leave Chat Group'}</LeaveButtonText> }
             </LeaveButtonView>
+        );
+    }
+
+    const PrivacyIndicator = ({ isPrivate }) => {
+        const displayIsPrivate = isPrivate ?? (club?.visibility === 'private');
+        return (
+            <ClubPrivacyRow>
+                { displayIsPrivate && (
+                    <FontAwesomeIcon icon={faLock} color='white' size={20} />
+                )}
+                { !displayIsPrivate && (
+                    <FontAwesomeIcon icon={faEarthAmerica} color='white' size={20} />
+                )}
+                <ClubPrivacyText>{displayIsPrivate ? 'Private' : 'Public'}</ClubPrivacyText>
+            </ClubPrivacyRow>
         );
     }
 
@@ -781,10 +801,10 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     <ClubInfoView>
                         <ClubProfileInfo />
                         { canShareClubLink && <InviteSettings /> }
-                        <HorizontalDivider />
-                        { !isClubOwner && clubMember && <LeaveButton /> }
-                        { !clubMember && isPublicClub && <JoinButton /> }
-                        <ClubMembers />
+                        <AllMembersCard>
+                            { !canShareClubLink && <PrivacyIndicator /> }
+                            <ClubMembers />
+                        </AllMembersCard>
                     </ClubInfoView>
                 )}
             </ScrollView>

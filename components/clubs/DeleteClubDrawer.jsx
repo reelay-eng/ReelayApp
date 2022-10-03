@@ -20,6 +20,8 @@ import styled from 'styled-components/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { showErrorToast, showMessageToast } from '../utils/toasts';
 import { deleteClub } from '../../api/ClubsApi';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 const { width } = Dimensions.get('window');
 
@@ -32,7 +34,7 @@ const Backdrop = styled(Pressable)`
 const ConfirmDeleteButtonContainer = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${ReelayColors.reelayRed};
-    border-radius: 8px;
+    border-radius: 20px;
     flex-direction: row;
     justify-content: center;
     height: 40px;
@@ -40,7 +42,7 @@ const ConfirmDeleteButtonContainer = styled(TouchableOpacity)`
 `
 const ConfirmDeleteButtonText = styled(ReelayText.Subtitle2)`
     color: white;
-    margin-left: 4px;
+    margin-left: 8px;
 `
 const ConfirmTextInput = styled(TextInput)`
     color: white;
@@ -114,7 +116,8 @@ export default DeleteClubDrawer = ({ club, navigation, drawerVisible, setDrawerV
     const AreYouSurePrompt = () => {
         return (
             <React.Fragment>
-                <PromptText>{`Are you sure you want to disband ${club.name}? It will disappear for all members. Type \'disband\' below to confirm.`}</PromptText>
+                <PromptText>{`Are you sure you want to disband ${club.name}?`}</PromptText>
+                <PromptText>{`The chat will disappear for all members. Type \'disband\' below to confirm.`}</PromptText>
             </React.Fragment>
         );
     }
@@ -139,11 +142,11 @@ export default DeleteClubDrawer = ({ club, navigation, drawerVisible, setDrawerV
                 setDeleting(false);
                 navigation.popToTop();
                 // todo: notify users
-                showMessageToast(`You\'ve disbanded the club ${club.name}`);
+                showMessageToast(`You\'ve disbanded the chat ${club.name}`);
                 return deleteClubResult;
             } catch (error) {
                 console.log(error);
-                showErrorToast('Ruh roh! Could not disband club. Try again?');
+                showErrorToast('Ruh roh! Could not disband chat. Try again?');
                 setDeleting(false);
             }
         }
@@ -152,8 +155,8 @@ export default DeleteClubDrawer = ({ club, navigation, drawerVisible, setDrawerV
                 { deleting && <ActivityIndicator /> }
                 { !deleting && (
                     <React.Fragment>
-                        <Icon type='ionicon' name='trash' size={16} color='white' />
-                        <ConfirmDeleteButtonText>{'Disband club for everyone'}</ConfirmDeleteButtonText>                    
+                        <FontAwesomeIcon icon={faTrash} color='white' size={20} />
+                        <ConfirmDeleteButtonText>{'Disband chat for everyone'}</ConfirmDeleteButtonText>                    
                     </React.Fragment>
                 )}
             </ConfirmDeleteButtonContainer>

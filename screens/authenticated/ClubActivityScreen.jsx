@@ -88,7 +88,7 @@ const InviteFoldOuterView = styled(View)`
 const InviteText = styled(ReelayText.Overline)`
     color: white;
 `
-const JoinClubButtonText = styled(ReelayText.Subtitle2)`
+const JoinClubButtonText = styled(ReelayText.Overline)`
     color: white;
     margin-left: 4px;
 `
@@ -107,7 +107,6 @@ const JoinClubOuterView = styled(LinearGradient)`
     flex-direction: row;
     justify-content: space-around;
     padding-top: 20px;
-    padding-bottom: ${(props) => props.bottomOffset + 44}px;
     position: absolute;
     width: 100%;
 `
@@ -294,15 +293,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             userEntry.lastActiveAt = moment();
         });
 
-        socket.on('userIsInactive', ({ userSub}) => {
-            console.log('received userIsInactive: ', userSub);
-            const userEntry = activeUsersInChatRef?.current?.[userSub];
-            if (!userEntry) {
-                console.log('error on userIsActive: could not find user entry');
-                return;
-            }
-        });
-
         socket.on('userIsTyping', ({ userSub }) => {
             console.log('received userIsTyping: ', userSub);
             const userEntry = activeUsersInChatRef?.current?.[userSub];
@@ -443,7 +433,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 bottomOffset={bottomOffset} 
                 colors={['transparent', 'black']}>
                 <JoinClubButtonView onPress={joinClub}>
-                    <JoinClubButtonText>{'Join club'}</JoinClubButtonText>
+                    <JoinClubButtonText>{'Join chat'}</JoinClubButtonText>
                 </JoinClubButtonView>
             </JoinClubOuterView>
         );

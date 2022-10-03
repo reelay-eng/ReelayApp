@@ -272,10 +272,7 @@ export default ClubActivityList = ({
             updateChatActivity();
             updateTypingActivity();
         }, 250);
-
-        return () => {
-            clearInterval(chatActivityInterval);
-        }
+        return () => clearInterval(chatActivityInterval);
     }, []);
 
     return (

@@ -36,17 +36,22 @@ const ProfilePicRowView = styled(View)`
 
 export default ActiveUsersInChatBar = ({ activeUsersInChatRef, navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const [activeUsersInChat, setActiveUsersInChat] = useState(activeUsersInChatRef?.current);
 
-    const displayUsersInChat = Object.values(activeUsersInChat).filter(userInChat => {
-        const lastActiveMoment = moment(userInChat?.lastActiveAt);
-        const secondsSinceActive = moment().diff(lastActiveMoment, 'seconds');
-        return secondsSinceActive < LAST_ACTIVE_MAX_SECONDS;
-    })
+    const getDisplayUsersInChat = () => {
+        const activeUsersInChat = Object.values(activeUsersInChatRef?.current);
+        const displayUsersInChat = activeUsersInChat.filter(userInChat => {
+            const lastActiveMoment = moment(userInChat?.lastActiveAt);
+            const secondsSinceActive = moment().diff(lastActiveMoment, 'seconds');
+            return secondsSinceActive < LAST_ACTIVE_MAX_SECONDS;
+        });
+        return displayUsersInChat;    
+    }
 
+    const [displayUsersInChat, setDisplayUsersInChat] = useState(getDisplayUsersInChat());
     const otherUsersInChatCount = displayUsersInChat?.length - 1;
     const otherUsersActive = otherUsersInChatCount > 0;
-    const usersPlural = otherUsersInChatCount > 1;
+
+    // todo: only display up to 5 profile pics
 
     const ProfilePicRow = () => {
         return (
@@ -68,19 +73,23 @@ export default ActiveUsersInChatBar = ({ activeUsersInChatRef, navigation }) => 
         );
     }
 
+    const updateActiveUsersInChat = () => {
+        try {
+            const nextDisplayUsersInChat = getDisplayUsersInChat();
+            const refString = JSON.stringify(nextDisplayUsersInChat);
+            const stateString = JSON.stringify(displayUsersInChat);
+            if (refString !== stateString) {
+                setDisplayUsersInChat(nextDisplayUsersInChat);
+            }    
+        } catch (error) {
+            console.log('error in updating active users in chat bar');
+            console.log(error);
+        }
+    }
+
     useEffect(() => {
-        setInterval(() => {
-            try {
-                const refString = JSON.stringify(activeUsersInChatRef?.current);
-                const stateString = JSON.stringify(activeUsersInChat);
-                if (refString !== stateString) {
-                    setActiveUsersInChat(activeUsersInChatRef?.current);
-                }    
-            } catch (error) {
-                console.log('error in updating active users in chat bar');
-                console.log(error);
-            }
-        }, 500);
+        const activeUsersInterval = setInterval(() => updateActiveUsersInChat(), 250);
+        return () => clearInterval(activeUsersInterval);
     }, []);
 
     if (!otherUsersActive) return <View />;
