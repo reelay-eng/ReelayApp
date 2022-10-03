@@ -12,9 +12,7 @@ import TitlePoster from '../global/TitlePoster';
 import { getRuntimeString } from '../utils/TitleRuntime';
 import ClubTitleDotMenuDrawer from './ClubTitleDotMenuDrawer';
 import MarkSeenButton from '../watchlist/MarkSeenButton';
-
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faListCheck } from '@fortawesome/free-solid-svg-icons';
+import ReelayThumbnail from '../global/ReelayThumbnail';
 
 const { height, width } = Dimensions.get('window');
 
@@ -79,6 +77,28 @@ const MarkSeenView = styled(View)`
     justify-content: center;
     padding: 5px;
 `
+const MediaSectionView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    padding-left: 12px;
+    padding-right: 12px;
+`
+const MediaSectionSpacer = styled(View)`
+    width: 10px;
+`
+const MediaThumbnailView = styled(View)`
+    margin: 2px;
+    shadow-offset: 4px 4px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
+`
+const MediaThumbnailGridView = styled(View)`
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 50%;
+`
 const PlayReelaysButton = styled(TouchableOpacity)`
     align-items: center;
     border-radius: 17px;
@@ -91,7 +111,7 @@ const SharedTitleText = styled(ReelayText.Overline)`
 const TitleCardGradient = styled(LinearGradient)`
     border-radius: 11px;
     height: 100%;
-    width: 100%;
+    width: ${width-32}px;
     position: absolute;
 `
 const TitleCardPressable = styled(TouchableOpacity)`
@@ -122,12 +142,22 @@ const TitleOverlineView = styled(View)`
 const TitleOverlineInfoView = styled(View)`
     margin-left: 8px;
 `
+const TitlePosterView = styled(View)`
+    shadow-offset: 4px 4px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
+`
 const TitleText = styled(ReelayText.H6Emphasized)`
     color: white;
     display: flex;
     flex-wrap: wrap;
     font-size: 18px;
 `
+
+const CARD_WIDTH = width - 32;
+const TITLE_POSTER_WIDTH = (CARD_WIDTH - 32) / 2;
+const THUMBNAIL_WIDTH = (TITLE_POSTER_WIDTH - 8) / 2;
+const THUMBNAIL_HEIGHT = THUMBNAIL_WIDTH * 1.5;
 
 const CardBottomRowNoStacks = ({ navigation, clubTitle }) => {
     const advanceToCreateReelay = () => navigation.push('VenueSelectScreen', { 
@@ -208,6 +238,7 @@ export default ClubTitleCard = ({
     clubTitle, 
     navigation, 
     onRefresh,
+    setExpandedTitle,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
@@ -263,10 +294,57 @@ export default ClubTitleCard = ({
         );
     }
 
+    const MediaSection = () => {
+        const displayReelays = clubTitle.reelays.filter((reelay, index) => index < 4);
+        const hasOneTitle = (displayReelays.length === 1);
+
+        const thisThumbnailHeight = (hasOneTitle) ? THUMBNAIL_HEIGHT * 2 : THUMBNAIL_HEIGHT;
+        const thisThumbnailWidth = (hasOneTitle) ? THUMBNAIL_WIDTH * 2 : THUMBNAIL_WIDTH;
+
+        const openExpandedTitleDrawer = () => {
+            const expandedTitle = inWatchlist ?? {
+                title,
+                canAddToWatchlist: true,
+            };
+            setExpandedTitle(expandedTitle);
+        }
+
+        return (
+            <MediaSectionView>
+                <TitlePosterView>
+                    <TitlePoster 
+                        onPress={openExpandedTitleDrawer} 
+                        title={title} 
+                        width={TITLE_POSTER_WIDTH} 
+                    />
+                </TitlePosterView>
+                <MediaSectionSpacer />
+                <MediaThumbnailGridView>
+                    { displayReelays.map((reelay, index) => {
+                        const thumbnailOnPress = () => advanceToFeed(index);
+                        return (
+                            <MediaThumbnailView key={reelay?.id}>
+                                <ReelayThumbnail
+                                    height={thisThumbnailHeight}
+                                    margin={0}
+                                    onPress={thumbnailOnPress}
+                                    reelay={reelay}
+                                    showIcons={false}
+                                    showLikes={false}
+                                    showVenue={false}
+                                    width={thisThumbnailWidth}
+                                />
+                            </MediaThumbnailView>
+                        );
+                    })}
+                </MediaThumbnailGridView>
+            </MediaSectionView>
+        );
+    }
+
     const TitleLine = () => {
         return (
             <TitleLineView>
-                <TitlePoster title={title} width={56} />
                 <TitleDetailLine>
                     <TitleText numberOfLines={2}>{title.display}</TitleText>
                     <DescriptionText>{`${releaseYear}    ${runtimeString}`}</DescriptionText>
@@ -305,6 +383,7 @@ export default ClubTitleCard = ({
                     <TitleCardGradient colors={['#252527', '#19242E']}  start={{ x: 0.5, y: 0.5 }} end={{ x: 0.5, y: 1 }} />
                 }
                 <TitleLine />
+                <MediaSection />
                 <DividerLine />
                 { (!clubTitle.reelays.length) && <CardBottomRowNoStacks navigation={navigation} clubTitle={clubTitle} /> }
                 { (clubTitle.reelays.length > 0) && (

@@ -1,14 +1,5 @@
 import React, { Fragment, useContext, useEffect, useRef, useState, memo } from 'react';
-import { 
-    ActivityIndicator,
-    Dimensions, 
-    Keyboard, 
-    KeyboardAvoidingView, 
-    Pressable, 
-    TouchableOpacity, 
-    View 
-} from 'react-native';
-import { Icon } from 'react-native-elements';
+import { Dimensions, TouchableOpacity } from 'react-native';
 import * as ReelayText from '../global/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
@@ -21,7 +12,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import ReelayColors from '../../constants/ReelayColors';
 import AddTitleOrTopicDrawer from './AddTitleOrTopicDrawer';
 
-import { io } from 'socket.io-client';
 import { TextInput } from 'react-native-gesture-handler';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
@@ -89,7 +79,7 @@ const AddTitleOrTopicButton = ({ onPress }) => {
     );
 }
 
-export default ClubPostActivityBar = ({ club, navigation, socketRef }) => {
+export default ClubPostActivityBar = ({ club, navigation, scrollRef, socketRef }) => {
     const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
     const bottomOffset = useSafeAreaInsets().bottom + 64;
@@ -149,6 +139,13 @@ export default ClubPostActivityBar = ({ club, navigation, socketRef }) => {
             checkEmitTypingInChat();
             lastTypingAtRef.current = moment();
         }
+
+        const onFocus = () => {
+            if (scrollRef?.current) {
+                scrollRef.current.scrollToOffset(0);
+            }
+            emitStayActive();
+        }
     
         const onPostMessage = async () => {
             if (!isValidMessage()) {
@@ -190,7 +187,7 @@ export default ClubPostActivityBar = ({ club, navigation, socketRef }) => {
                     defaultValue={messageText}
                     multiline={true}
                     onChangeText={onChangeText}
-                    onFocus={emitStayActive}
+                    onFocus={onFocus}
                     placeholder={'Say something...'}
                     placeholderTextColor={"gray"}
                     ref={inputFieldRef}

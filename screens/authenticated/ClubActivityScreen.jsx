@@ -212,6 +212,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const activeUsersInChatRef = useRef({});
     const chatMessagesRef = useRef([]);
     const chatMessagesNextPageRef = useRef(0);
+    const scrollRef = useRef(null);
     const socketRef = useRef(null);
 
     const dispatch = useDispatch();
@@ -451,6 +452,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                     navigation={navigation} 
                     onRefresh={onRefresh} 
                     refreshing={refreshing} 
+                    scrollRef={scrollRef}
                 />
 
                 <ClubBanner club={club} navigation={navigation} />
@@ -459,6 +461,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                     <ClubPostActivityBar 
                         club={club} 
                         navigation={navigation} 
+                        scrollRef={scrollRef}
                         socketRef={socketRef} 
                     />
                 )}

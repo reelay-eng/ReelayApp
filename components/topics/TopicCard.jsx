@@ -80,6 +80,9 @@ const ContentWithReelaysPosterGridView = styled(View)`
 `
 const ContentWithReelaysThumbnailView = styled(View)`
     height: ${props => getThumbnailWidth(props) * 1.5}px;
+    shadow-offset: 4px 4px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
 `
 const ContributorPicContainer = styled(View)`
     margin-left: -10px;
@@ -146,6 +149,9 @@ const TitleLine = styled(View)`
 const TitlePosterView = styled(View)`
     margin-bottom: 4px;
     margin-right: 4px;
+    shadow-offset: 4px 4px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
 `
 const TitleText = styled(ReelayText.H6Emphasized)`
     color: white;
@@ -316,7 +322,6 @@ export default TopicCard = ({
 
                 const displayTitles = reelaysWithDistinctTitles.filter((reelay, index) => index < 4);
                 const hasOneTitle = (displayTitles.length === 1);
-                const hasTwoTitles = (displayTitles.length === 2);
 
                 let mostPopularReelay = null;
                 let mostPopularReelayScore = -1;
@@ -349,10 +354,7 @@ export default TopicCard = ({
                             />
                         </ContentWithReelaysThumbnailView>
                         <Spacer />
-                        <ContentWithReelaysPosterGridView 
-                            hasTwoTitles={hasTwoTitles} 
-                            horizontal={horizontal}
-                        >
+                        <ContentWithReelaysPosterGridView>
                             { displayTitles.map(reelay => {
                                 return (
                                     <TopicTitlePoster 

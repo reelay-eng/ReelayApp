@@ -14,6 +14,7 @@ import moment from 'moment';
 import ActiveUsersInChatBar from './ActiveUsersInChatBar';
 import ClubChatMessage from './ClubChatMessage';
 import ClubTitleCard from './ClubTitleCard';
+import ExpandedTitleDrawer from '../watchlist/ExpandedTitleDrawer';
 import NoTitlesYetPrompt from './NoTitlesYetPrompt';
 
 import * as ReelayText from '../global/Text';
@@ -52,7 +53,7 @@ const TypingActivityView = styled(View)`
     padding-left: 16px;
     padding-right: 16px;
 `
-const ClubActivity = ({ activity, club, feedIndex, navigation, onRefresh }) => {
+const ClubActivity = ({ activity, club, feedIndex, navigation, onRefresh, setExpandedTitle }) => {
     const { activityType } = activity;
     const advanceToFeed = (initReelayIndex = 0) => {
         if (feedIndex === -1) return;
@@ -70,6 +71,7 @@ const ClubActivity = ({ activity, club, feedIndex, navigation, onRefresh }) => {
                     clubTitle={clubTitle} 
                     navigation={navigation} 
                     onRefresh={onRefresh}
+                    setExpandedTitle={setExpandedTitle}
                 />
             </ActivityView>
         );    
@@ -120,6 +122,7 @@ export default ClubActivityList = ({
     navigation, 
     onRefresh, 
     refreshing, 
+    scrollRef
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const itemHeights = useRef([]);
@@ -127,6 +130,7 @@ export default ClubActivityList = ({
     const usersTypingRef = useRef(usersTyping);
 
     const [chatMessageCount, setChatMessageCount] = useState(chatMessagesRef?.current?.length);
+    const [expandedTitle, setExpandedTitle] = useState(null);
     const [maxDisplayPage, setMaxDisplayPage] = useState(0);
     const maxDisplayIndex = (maxDisplayPage + 1) * ACTIVITY_PAGE_SIZE;
 
@@ -179,7 +183,6 @@ export default ClubActivityList = ({
         ...usersTyping,
         ...club.titles,
         ...club.topics,
-        ...club.members,
         ...chatMessagesRef.current,
     ].sort(sortByLastUpdated);
 
@@ -241,6 +244,7 @@ export default ClubActivityList = ({
                 feedIndex={initFeedIndex} 
                 navigation={navigation}
                 onRefresh={onRefresh}
+                setExpandedTitle={setExpandedTitle}
             />
         );    
     };
@@ -285,6 +289,7 @@ export default ClubActivityList = ({
                 keyExtractor={keyExtractor}
                 onEndReached={onEndReached}
                 onEndReachedThreshold={0.9}
+                ref={scrollRef}
                 refreshControl={refreshControl} 
                 renderItem={renderClubActivity}
                 showsVerticalScrollIndicator={false}
@@ -293,6 +298,15 @@ export default ClubActivityList = ({
                 activeUsersInChatRef={activeUsersInChatRef} 
                 navigation={navigation}  
             />
+            { expandedTitle && (
+                <ExpandedTitleDrawer 
+                    expandedTitle={expandedTitle} 
+                    navigation={navigation}
+                    onRefresh={() => {}}
+                    setExpandedTitle={setExpandedTitle} 
+                    source='clubs'
+                /> 
+            )}
         </Fragment>
     )
 }
