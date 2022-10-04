@@ -14,20 +14,20 @@
             "ios": {
                 "buildConfiguration": "Debug"
             },
-            "releaseChannel": "1.05.11-dev"
+            "releaseChannel": "1.05.12-dev"
         },
         "preview": {
             "cache": {
                 "key": "invalidate"
             },
             "distribution": "internal",
-            "releaseChannel": "1.05.11-internal"
+            "releaseChannel": "1.05.12-internal"
         },
         "production": {
             "cache": {
                 "key": "invalidate"
             },
-            "releaseChannel": "1.05.11"
+            "releaseChannel": "1.05.12"
         }
     },
     "submit": {
