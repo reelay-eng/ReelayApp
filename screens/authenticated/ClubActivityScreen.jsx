@@ -221,6 +221,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
 
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
     const [refreshing, setRefreshing] = useState(false);
+    const [showChatMessages, setShowChatMessages] = useState(true);
 
     const matchClubMember = (nextMember) => nextMember?.userSub === reelayDBUser?.sub;
     const clubMember = club.members.find(matchClubMember);
@@ -453,9 +454,14 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                     onRefresh={onRefresh} 
                     refreshing={refreshing} 
                     scrollRef={scrollRef}
+                    showChatMessages={showChatMessages}
                 />
-
-                <ClubBanner club={club} navigation={navigation} />
+                <ClubBanner 
+                    club={club} 
+                    navigation={navigation} 
+                    showChatMessages={showChatMessages}
+                    setShowChatMessages={setShowChatMessages}
+                />
                 { !clubMember && isPublicClub && <JoinClubButton /> }
                 { clubMember && clubMemberHasJoined && (
                     <ClubPostActivityBar 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TouchableOpacity, View } from 'react-native';
+import { Switch, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,9 +7,20 @@ import ClubPicture from '../global/ClubPicture';
 import BackButton from '../utils/BackButton';
 import ProfilePicture from '../global/ProfilePicture';
 import { FiltersSVG, StainedGlassSVG } from '../global/SVGs';
+import ReelayColors from '../../constants/ReelayColors';
 
 const BackButtonContainer = styled(View)`
     margin: 6px;
+`
+const BannerButtonPressable = styled(TouchableOpacity)`
+    justify-content: center;
+    padding: 6px;
+`
+const BannerRowView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
 `
 const BubbleBathContainer = styled(View)`
     align-items: center;
@@ -78,19 +89,25 @@ const BubbleBathHeaderContainer = styled(TouchableOpacity)`
     align-items: center;
     justify-content: center;
 `
+const ChatMessagesSettingView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-top: 6px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+    width: 100%;
+`
+const ChatMessagesSettingText = styled(ReelayText.Body1)`
+    color: white;
+`
 const ClubNameText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     margin-top: 4px;
     margin-bottom: 4px;
 `
 const HeaderBackground = styled(View)`
-    align-items: center;
-    background-color: ${props => props.solid 
-        ? 'rgba(0,0,0,1)' 
-        : 'rgba(0,0,0,0.35)'
-    },
-    flex-direction: row;
-    justify-content: space-between;
+    background-color: rgba(0,0,0,1);
     padding-left: 6px;
     padding-right: 16px;
     padding-bottom: 4px;
@@ -98,27 +115,23 @@ const HeaderBackground = styled(View)`
     position: absolute;
     width: 100%;
 `
-const HeaderRightButtonsView = styled(View)`
-    flex-direction: row;
-`
-const BannerButtonPressable = styled(TouchableOpacity)`
-    justify-content: center;
-    padding: 6px;
-`
 const FilterButtonPressable = styled(TouchableOpacity)`
     background-color: ${props => props.showFilters ? 'black' : '#333333'};
     border-radius: 24px;
     justify-content: center;
     padding: 8px;
 `
-const ButtonSpacer = styled(View)`
-    width: 6px;
-`
 
-export default ClubBanner = ({ club, navigation }) => {
-    const topOffset = useSafeAreaInsets().top;
-    const infoButtonTopOffset = topOffset + 28;
+export default ClubBanner = ({ 
+    club, 
+    navigation,
+    showChatMessages,
+    setShowChatMessages,
+}) => {
     const advanceToClubInfoScreen = () => navigation.push('ClubInfoScreen', { club });
+    const infoButtonTopOffset = topOffset + 28;
+    const [showActivityFilters, setShowActivityFilters] = useState(false);
+    const topOffset = useSafeAreaInsets().top;
 
     if (!club.members.length) return <View />;
 
@@ -137,8 +150,6 @@ export default ClubBanner = ({ club, navigation }) => {
     });
 
     const ActivityFiltersButton = () => {
-        const [showActivityFilters, setShowActivityFilters] = useState(false);
-
         return (
             <FilterButtonPressable onPress={() => setShowActivityFilters(!showActivityFilters)}>
                 <FiltersSVG />
@@ -235,13 +246,34 @@ export default ClubBanner = ({ club, navigation }) => {
         );
     }
 
+    const ChatMessagesSetting = () => {
+        return (
+            <ChatMessagesSettingView>
+                <ChatMessagesSettingText>{'show chat messages'}</ChatMessagesSettingText>
+                <Switch 
+                    value={showChatMessages}
+                    onValueChange={() => setShowChatMessages(!showChatMessages)}
+                    trackColor={{ 
+                        false: "#39393D", 
+                        true: ReelayColors.reelayGreen,
+                    }}
+                    thumbColor={"#FFFFFF"}
+                    ios_backgroundColor="#39393D"    
+                />
+            </ChatMessagesSettingView>
+        );
+    }
+
     return (
         <HeaderBackground solid={true} topOffset={topOffset}>
-            <BackButtonContainer>
-                <BackButton navigation={navigation} />
-            </BackButtonContainer>
-            <HeaderWithBubbleBath />
-            <ActivityFiltersButton />
+            <BannerRowView>
+                <BackButtonContainer>
+                    <BackButton navigation={navigation} />
+                </BackButtonContainer>
+                <HeaderWithBubbleBath />
+                <ActivityFiltersButton />
+            </BannerRowView>
+            { showActivityFilters && <ChatMessagesSetting /> }
         </HeaderBackground>
     );
 }

@@ -122,7 +122,8 @@ export default ClubActivityList = ({
     navigation, 
     onRefresh, 
     refreshing, 
-    scrollRef
+    scrollRef,
+    showChatMessages,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const itemHeights = useRef([]);
@@ -171,6 +172,7 @@ export default ClubActivityList = ({
         return typingUser0?.lastTypingAt - typingUser1?.lastTypingAt;
     }
 
+    const displayChatMessages = (showChatMessages) ? chatMessagesRef?.current : [];
     const chatMessagesLastIndex = chatMessagesRef?.current?.length - 1;
     for (const chatMessageIndex in chatMessagesRef?.current) {
         const chatMessage = chatMessagesRef?.current[chatMessageIndex];
@@ -178,12 +180,12 @@ export default ClubActivityList = ({
         // note that this only works with a == comparator, not ===
         chatMessage.isOldestMessage = (chatMessageIndex == chatMessagesLastIndex);
     }
-
+    
     const clubActivities = [
         ...usersTyping,
         ...club.titles,
         ...club.topics,
-        ...chatMessagesRef.current,
+        ...displayChatMessages,
     ].sort(sortByLastUpdated);
 
     let displayActivities = clubActivities.filter(filterDisplayActivities);
