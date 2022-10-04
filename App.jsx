@@ -123,6 +123,10 @@ function App() {
     useEffect(() => {
         if (reelayDBUser?.sub) {
             dispatch({ type: 'setSignedIn', payload: true });
+            console.log('reelay db user: ', reelayDBUser);
+            if (!reelayDBUser?.pushToken || reelayDBUser?.pushToken == 'null') {
+                registerMyPushToken();
+            }
         }
     }, [reelayDBUser]);
 
@@ -432,16 +436,13 @@ function App() {
         dispatch({ type: 'setDonateLinks', payload: donateLinksLoaded });
         dispatch({ type: 'setCurrentAppLoadStage', payload: 4 });
         console.log('dispatched second set of profile data');
-
-        if (!reelayDBUserLoaded?.pushToken) {
-            registerMyPushToken();
-        }
     }
 
     const registerMyPushToken = async () => {
         try {
             if (reelayDBUser?.username === 'be_our_guest') return;
             const devicePushToken = await registerForPushNotificationsAsync();
+            console.log('device push token: ', devicePushToken);
             if (!devicePushToken) return;
 
             if (!reelayDBUser.pushToken || reelayDBUser.pushToken !== devicePushToken) {
