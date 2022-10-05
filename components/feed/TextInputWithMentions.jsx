@@ -1,5 +1,5 @@
-import React, { useContext } from 'react';
-import { Pressable, View } from 'react-native';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { MentionInput } from 'react-native-controlled-mentions'
 
@@ -8,6 +8,7 @@ import styled from 'styled-components/native';
 import ProfilePicture from '../global/ProfilePicture';
 import * as ReelayText from '../global/Text';
 import ReelayColors from '../../constants/ReelayColors';
+import { searchUsers } from '../../api/ReelayDBApi';
 
 const MAX_COMMENT_LENGTH = 300;
 const MAX_SUGGESTIONS = 6;
@@ -21,16 +22,20 @@ const MentionTextStyle = {
     letterSpacing: 0.25,
 }
 
+const Spacer = styled(View)`
+    height: 24px;
+`
 const SuggestionContainer = styled(View)`
     background-color: #1a1a1a;
     border-bottom-right-radius: 20px;
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
-    border-color: rgba(255,255,255, 0.8);
-    border-width: 1px;
     bottom: 40px;
-    margin-left: 8px;
+    left: 8px;
     position: absolute;
+    shadow-offset: 4px 4px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
     width: 300px;
     zIndex: 5;
 `
@@ -43,34 +48,6 @@ const SuggestionUsernameText = styled(ReelayText.Body2)`
     color: white;
     margin-left: 8px;
 `
-const getFollowSuggestions = (myFollowers, myFollowing, reelayDBUser) => {
-    const iAmFollowing = (followObj) => (followObj.followerName === reelayDBUser?.username);
-    const getFollowName = (followObj) => iAmFollowing(followObj) ? followObj.creatorName : followObj.followerName;
-    const getFollowSub = (followObj) => iAmFollowing(followObj) ? followObj.creatorSub : followObj.followerSub;
-    const sortByFollowName = (followObj0, followObj1) => (followObj0.followName > followObj1.followName);
-
-    const allFollowsConcat = [...myFollowers, ...myFollowing].map((followObj) => {
-        // allows us to treat the object the same whether it's a creator or a follower
-        return {
-            followName: getFollowName(followObj),
-            followSub: getFollowSub(followObj),
-        }
-    });
-
-    const allFollowsUnique = (allFollowsConcat.filter((followObj, index) => {
-        const prevFollowIndex = allFollowsConcat.slice(0, index).findIndex((prevFollowObj) => {
-            return (followObj.followName === prevFollowObj.followName);
-        });
-        return (prevFollowIndex === -1);
-    })).sort(sortByFollowName);
-
-    const suggestions = allFollowsUnique.map((followObj) => {
-        const { followSub, followName } = followObj;
-        return { id: followSub, name: followName };
-    });
-
-    return suggestions;
-}
 
 export default TextInputWithMentions = ({ 
     commentText, 
@@ -80,10 +57,9 @@ export default TextInputWithMentions = ({
     scrollViewRef,
     boxWidth,
 }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-    const myFollowers = useSelector(state => state.myFollowers);
-    const myFollowing = useSelector(state => state.myFollowing);
-    const suggestions = getFollowSuggestions(myFollowers, myFollowing, reelayDBUser);
+    const searchUsersQueryRef = useRef(0);
+    const suggestedUsersRef = useRef([]);
+    const [suggestedUsers, setSuggestedUsers] = useState([]);
 
     let TextInputStyle = {
         alignSelf: "center",
@@ -115,36 +91,44 @@ export default TextInputWithMentions = ({
         }
     }
 
+    const updateSuggestions = async (keyword) => {
+        searchUsersQueryRef.current += 1;
+        const curQuery = searchUsersQueryRef?.current;
+        const suggestedUsers = await searchUsers(keyword);
+        if (curQuery === searchUsersQueryRef.current) {
+            suggestedUsersRef.current = suggestedUsers;
+        }
+    }
+
     const renderSuggestions = ({ keyword, onSuggestionPress }) => {
         if (!keyword) return <View />;
+        updateSuggestions(keyword);
 
-        const matchOnKeyword = (suggestion) => {
-            const usernameToMatch = suggestion.name.toLocaleLowerCase();
-            const keywordToMatch = keyword.toLocaleLowerCase();
-            return usernameToMatch.includes(keywordToMatch);
-        }
-
-        const renderSuggestionItem = (suggestion) => {
-            const onPress = () => onSuggestionPress(suggestion);
-            const mentionUser = {
-                sub: suggestion.id,
-                username: suggestion.name,
+        const renderSuggestionItem = (suggestedUser) => {
+            const onPressUser = {
+                id: suggestedUser?.sub,
+                name: suggestedUser?.username,
             }
+            const onPress = () => onSuggestionPress(onPressUser);
             return (
-                <SuggestionItem key={suggestion.name} onPress={onPress}>
-                    <ProfilePicture size={32} user={mentionUser} />
-                    <SuggestionUsernameText>@{suggestion.name}</SuggestionUsernameText>
+                <SuggestionItem key={suggestedUser.sub} onPress={onPress}>
+                    <ProfilePicture size={32} user={suggestedUser} />
+                    <SuggestionUsernameText>{suggestedUser.username}</SuggestionUsernameText>
                 </SuggestionItem>
             );
         }    
-      
+
+        if (suggestedUsers?.length === 0) {
+            return (
+                <SuggestionContainer>
+                    <Spacer />
+                </SuggestionContainer>
+            )
+        }
+
         return (
             <SuggestionContainer>
-                { suggestions
-                    .filter(matchOnKeyword)
-                    .map(renderSuggestionItem)
-                    .slice(0, MAX_SUGGESTIONS)
-                }
+                { suggestedUsers.map(renderSuggestionItem).slice(0, MAX_SUGGESTIONS) }
             </SuggestionContainer>
         );
     };
@@ -154,6 +138,17 @@ export default TextInputWithMentions = ({
         renderSuggestions,
         textStyle: MentionTextStyle,
     };
+
+    useEffect(() => {
+        const suggestionsInterval = setInterval(() => {
+            const stateSuggestions = JSON.stringify(suggestedUsers);
+            const refSuggestions = JSON.stringify(suggestedUsersRef?.current);
+            if (stateSuggestions !== refSuggestions) {
+                setSuggestedUsers(suggestedUsersRef?.current);
+            };
+        }, 250);
+        return () => clearInterval(suggestionsInterval)
+    }, []);
 
     return (
         <MentionInput

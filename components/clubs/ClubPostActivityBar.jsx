@@ -15,6 +15,7 @@ import AddTitleOrTopicDrawer from './AddTitleOrTopicDrawer';
 import { TextInput } from 'react-native-gesture-handler';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import TextInputWithMentions from '../feed/TextInputWithMentions';
 
 const { height, width } = Dimensions.get('window');
 
@@ -193,6 +194,14 @@ export default ClubPostActivityBar = ({ club, navigation, scrollRef, socketRef }
                     placeholderTextColor={"gray"}
                     ref={inputFieldRef}
                 />
+                {/* <TextInputWithMentions
+                    commentText={messageText}
+                    inputRef={inputFieldRef} 
+                    placeholder={'Say something...'}
+                    setCommentText={onChangeText} 
+                    scrollViewRef={scrollRef}
+                    boxWidth={width - 84}                  
+                /> */}
                 <PostButton />
             </Fragment>
         );

@@ -54,7 +54,7 @@ const UploadBottomBar = styled(View)`
     flex-direction: row;
     justify-content: space-between;
     margin-top: 24px;
-    margin-bottom: 40px;
+    margin-bottom: 24px;
     margin-left: 2px;
     margin-right: 2px;
 `
