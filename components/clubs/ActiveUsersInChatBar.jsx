@@ -11,7 +11,7 @@ import { AuthContext } from '../../context/AuthContext';
 const LAST_ACTIVE_MAX_SECONDS = 180;
 
 const BarView = styled(View)`
-    background-color: #E9E9E9;
+    background-color: #1a1a1a;
     border-bottom-left-radius: 16px;
     border-bottom-right-radius: 16px;
     flex-direction: row;
@@ -24,11 +24,12 @@ const BarView = styled(View)`
     width: 100%;
 `
 const OnlineNowText = styled(ReelayText.Body2)`
-    color: black;
+    color: rgba(255,255,255,0.8);
     margin-top: 4px;
 `
 const ProfilePicView = styled(View)`
     margin-left: 2px;
+    margin-top: 4px;
 `
 const ProfilePicRowView = styled(View)`
     flex-direction: row;

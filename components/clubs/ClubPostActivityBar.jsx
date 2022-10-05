@@ -23,20 +23,16 @@ const LAST_TYPING_UPDATE_SECONDS = 5;
 
 const AddTitleOrTopicButtonPressable = styled(TouchableOpacity)`
     align-items: center;
-    background-color: black;
-    border-color: white;
+    background-color: rgba(255,255,255,0.1);
     border-radius: 20px;
-    border-width: 1px;
-    height: 40px;
+    height: 36px;
     justify-content: center;
-    width: 40px;
+    width: 36px;
 `
 const ChatMessageTextInput = styled(TextInput)`
     align-items: center;
-    background-color: black;
-    border-color: white;
+    background-color: #1a1a1a;
     border-radius: 24px;
-    border-width: 1px;
     color: white;
     flex-direction: row;
     font-family: Outfit-Regular;
@@ -49,22 +45,22 @@ const ChatMessageTextInput = styled(TextInput)`
     padding-right: 60px;
     padding-top: 8px;
     padding-bottom: 8px;
-    width: ${width - 84}px;
+    width: ${width - 74}px;
 `
 const PostBarOuterView = styled(LinearGradient)`
     align-items: flex-end;
     flex-direction: row;
     justify-content: space-between;
-    padding-left: 16px;
+    padding-left: 14px;
     padding-right: 16px;
     padding-top: 20px;
     padding-bottom: 16px;
     width: 100%;
 `
 const PostMessageButtonPressable = styled(TouchableOpacity)`
-    bottom: 26px;
+    bottom: 24px;
     position: absolute;
-    right: 88px;
+    right: 32px;
 `
 const PostMessageButtonText = styled(ReelayText.Body2Emphasized)`
     color: ${ReelayColors.reelayBlue};
@@ -213,8 +209,8 @@ export default ClubPostActivityBar = ({ club, navigation, scrollRef, socketRef }
                     bottomOffset={bottomOffset} 
                     colors={['transparent', 'black']} 
                     end={{ x: 0.5, y: 0.5}}>
-                <ChatMessageBox />
                 <AddTitleOrTopicButton onPress={() => setTitleOrTopicDrawerVisible(true)} />
+                <ChatMessageBox />
             </PostBarOuterView>
         );
     }

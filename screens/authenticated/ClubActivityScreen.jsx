@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 
 import * as ReelayText from '../../components/global/Text';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import moment from 'moment';
 
@@ -39,6 +39,7 @@ import {
     acceptInviteToClub, 
     rejectInviteFromClub, 
 } from '../../api/ClubsApi';
+import { HeaderWithBackButton } from '../../components/global/Headers';
 
 const { height, width } = Dimensions.get('window');
 const CHAT_BASE_URL = Constants.manifest.extra.reelayChatBaseUrl;
@@ -63,7 +64,7 @@ const AcceptInvitePressable = styled(TouchableOpacity)`
     margin-right: 16px;
 `
 const ActivityTopSpacer = styled(View)`
-    height: ${props => props.topOffset}px;
+    height: ${props => props.topOffset + 80}px;
 `
 const ActivityScreenView = styled(View)`
     background-color: black;
@@ -108,6 +109,17 @@ const JoinClubOuterView = styled(LinearGradient)`
     justify-content: space-around;
     padding-top: 20px;
     position: absolute;
+    width: 100%;
+`
+const RefreshHeaderView = styled(View)`
+    top: ${props => props.topOffset}px;
+    position: absolute;
+`
+const RefreshScreenView = styled(View)`
+    align-items: center;
+    background-color: black;
+    height: 100%;
+    justify-content: center;
     width: 100%;
 `
 const RejectInvitePressable = styled(TouchableOpacity)`
@@ -217,7 +229,15 @@ export default ClubActivityScreen = ({ navigation, route }) => {
 
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
-    const { club, promptToInvite } = route.params;
+    const club = route.params?.club ?? { 
+        id: route.params?.clubID,
+        name: route.params?.clubName,
+        members: [],
+        titles: [],
+        topics: [],
+        visibility: 'private',
+    };
+    const promptToInvite = route.params?.promptToInvite;
 
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
     const [refreshing, setRefreshing] = useState(false);
@@ -228,7 +248,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const clubMemberHasJoined = clubMember?.hasAcceptedInvite;
     const isPublicClub = (club.visibility === FEED_VISIBILITY);
 
-    const topOffset = useSafeAreaInsets().top + 80;
+    const topOffset = useSafeAreaInsets().top;
     const bottomOffset = useSafeAreaInsets().bottom + 20;
 
     const uploadStage = useSelector(state => state.uploadStage);
@@ -438,6 +458,17 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                     <JoinClubButtonText>{'Join chat'}</JoinClubButtonText>
                 </JoinClubButtonView>
             </JoinClubOuterView>
+        );
+    }
+
+    if (notLoaded) {
+        return (
+            <RefreshScreenView>
+                <RefreshHeaderView topOffset={topOffset}>
+                    <HeaderWithBackButton navigation={navigation} text={club?.name} />
+                </RefreshHeaderView>
+                <ActivityIndicator />
+            </RefreshScreenView>
         );
     }
 

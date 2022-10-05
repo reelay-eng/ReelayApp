@@ -27,24 +27,20 @@ export const handlePushNotificationResponse = async ({
         body,
     });
 
-    const openClubActivityScreen = async (clubID, myClubs) => {
+    const openClubActivityScreen = async ({ club, myClubs }) => {
         if (!navigation) {
             console.log('No navigation ref')
             return;
         }
     
-        if (!clubID) {
-            console.log('No club ID given');
-            return;
-        }
-        const club = myClubs.find(nextClub => nextClub.id === clubID);
-        if (!club) {
-            showErrorToast("Ruh roh! This club does not exist!")
-            return;
+        const loadedClub = myClubs.find(nextClub => nextClub.id === club?.id);
+        if (loadedClub) {
+            navigation.navigate('ClubActivityScreen', { club: loadedClub, promptToInvite: false });
+        } else {
+            navigation.navigate('ClubActivityScreen', { club, promptToInvite: false  });
         }
         // allows us to navigate to the ClubActivityScreen
         // ...while returning to MyClubs on navigating back
-        navigation.navigate('ClubActivityScreen', { club, promptToInvite: false });
     }
     
     const openClubAtReelay = async (reelaySub) => {
@@ -166,7 +162,7 @@ export const handlePushNotificationResponse = async ({
 
     switch (action) {
         case 'openClubActivityScreen':
-            await openClubActivityScreen(data?.club?.id, myClubs);
+            await openClubActivityScreen({ club: data?.club, myClubs });
             return;
         case 'openClubAtReelay':
             const clubUserResult = await getRegisteredUser(data?.fromUser?.sub);
