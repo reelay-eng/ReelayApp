@@ -397,6 +397,63 @@ export const removeTitleFromClub = async ({
     return resultRemove;
 }
 
+export const updateNotifyChatMentions = async ({ 
+    authSession, 
+    clubID, 
+    notifyChatMentions,
+    reqUserSub, 
+}) => {
+    const routePatch = `${REELAY_API_BASE_URL}/clubs/notifyChatMentions`;
+    const resultPatch = await fetchResults(routePatch, {
+        method: 'PATCH',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            requsersub: reqUserSub,
+        },
+        body: JSON.stringify({ clubID, notifyChatMentions }),
+    });
+    console.log('updateNotifyChatMentions: ', resultPatch);
+    return resultPatch;
+}
+
+export const updateNotifyChatMessages = async ({ 
+    authSession, 
+    clubID, 
+    notifyChatMessages,
+    reqUserSub, 
+}) => {
+    const routePatch = `${REELAY_API_BASE_URL}/clubs/notifyChatMessages`;
+    const resultPatch = await fetchResults(routePatch, {
+        method: 'PATCH',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            requsersub: reqUserSub,
+        },
+        body: JSON.stringify({ clubID, notifyChatMessages }),
+    });
+    console.log('updateNotifyChatMessages: ', resultPatch);
+    return resultPatch;
+}
+
+export const updateNotifyPostedReelays = async ({ 
+    authSession, 
+    clubID, 
+    notifyPostedReelays,
+    reqUserSub, 
+}) => {
+    const routePatch = `${REELAY_API_BASE_URL}/clubs/notifyPostedReelays`;
+    const resultPatch = await fetchResults(routePatch, {
+        method: 'PATCH',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            requsersub: reqUserSub,
+        },
+        body: JSON.stringify({ clubID, notifyPostedReelays }),
+    });
+    console.log('updateNotifyPostedReelays: ', resultPatch);
+    return resultPatch;
+}
+
 export const deleteClub = async ({ authSession, clubID, reqUserSub }) => {
     const routeRemove = `${REELAY_API_BASE_URL}/clubs/club/${clubID}`;
     const resultRemove = await fetchResults(routeRemove, {

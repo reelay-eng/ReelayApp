@@ -26,7 +26,9 @@ import {
     getClubTitles,
     getClubTopics,
     markClubActivitySeen,
-    removeMemberFromClub, 
+    removeMemberFromClub,
+    updateNotifyChatMessages,
+    updateNotifyPostedReelays, 
 } from '../../api/ClubsApi';
 
 import { useDispatch, useSelector } from 'react-redux';
@@ -474,25 +476,23 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         const switchAllowNotifyMessages = async () => {
             const shouldAllow = !allowNotifyMessages;
             setAllowNotifyMessages(shouldAllow);
-            // const patchResult = await editClub({
-            //     authSession,
-            //     clubID: club.id,
-            //     membersCanInvite: shouldAllow,
-            //     reqUserSub: reelayDBUser?.sub,
-            // });
-            // console.log(patchResult);
+            const patchResult = await updateNotifyChatMessages({
+                authSession,
+                clubID: club.id,
+                notifyChatMessages: shouldAllow,
+                reqUserSub: reelayDBUser?.sub,
+            });
         }
     
         const switchAllowNotifyPosts = async () => {
             const shouldAllow = !allowNotifyPosts;
             setAllowNotifyPosts(shouldAllow);
-            // const patchResult = await editClub({
-            //     authSession,
-            //     clubID: club.id,
-            //     membersCanInvite: shouldAllow,
-            //     reqUserSub: reelayDBUser?.sub,
-            // });
-            // console.log(patchResult);
+            const patchResult = await updateNotifyPostedReelays({
+                authSession,
+                clubID: club.id,
+                notifyPostedReelays: shouldAllow,
+                reqUserSub: reelayDBUser?.sub,
+            });
         }
     
         const AllowNotifyMessagesSetting = () => {
