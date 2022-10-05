@@ -25,6 +25,7 @@ const BarView = styled(View)`
 `
 const OnlineNowText = styled(ReelayText.Body2)`
     color: black;
+    margin-top: 4px;
 `
 const ProfilePicView = styled(View)`
     margin-left: 2px;

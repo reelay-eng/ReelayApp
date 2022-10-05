@@ -261,12 +261,15 @@ export default ClubTitleCard = ({
             && (isSeries === title.isSeries)
             && (hasAcceptedRec === true);
     });
+    
+    const expandedTitle = inWatchlist ?? {
+        title,
+        canAddToWatchlist: true,
+    };
 
     const [markedSeen, setMarkedSeen] = useState(inWatchlist && inWatchlist?.hasSeenTitle);
-    const advanceToTitleScreen = () => navigation.push('TitleDetailScreen', { 
-        titleObj: clubTitle?.title 
-    });
-    const onPress = () => (clubTitle.reelays.length) ? advanceToFeed() : advanceToTitleScreen();
+    const openExpandedTitleDrawer = () => setExpandedTitle(expandedTitle);
+    const onPress = () => (clubTitle.reelays.length) ? advanceToFeed() : openExpandedTitleDrawer();
 
     const DotMenuButton = () => {
         const openDrawer = () => setDotMenuVisible(true);
@@ -300,14 +303,6 @@ export default ClubTitleCard = ({
 
         const thisThumbnailHeight = (hasOneTitle) ? THUMBNAIL_HEIGHT * 2 : THUMBNAIL_HEIGHT;
         const thisThumbnailWidth = (hasOneTitle) ? THUMBNAIL_WIDTH * 2 : THUMBNAIL_WIDTH;
-
-        const openExpandedTitleDrawer = () => {
-            const expandedTitle = inWatchlist ?? {
-                title,
-                canAddToWatchlist: true,
-            };
-            setExpandedTitle(expandedTitle);
-        }
 
         return (
             <MediaSectionView>

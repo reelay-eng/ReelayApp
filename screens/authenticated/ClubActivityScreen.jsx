@@ -493,7 +493,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                     />
                 )}
             </KeyboardAvoidingView>
-            <View style={{ height: bottomOffset + 44 }} />
+            <View style={{ height: bottomOffset + 28 }} />
         </ActivityScreenView>
     );
 }

@@ -55,9 +55,9 @@ const TypingActivityView = styled(View)`
 `
 const ClubActivity = ({ activity, club, feedIndex, navigation, onRefresh, setExpandedTitle }) => {
     const { activityType } = activity;
-    const advanceToFeed = (initReelayIndex = 0) => {
+    const advanceToFeed = (initStackIndex = 0) => {
         if (feedIndex === -1) return;
-        navigation.push('ClubFeedScreen', { club, initReelayIndex, initFeedIndex: feedIndex });   
+        navigation.push('ClubFeedScreen', { club, initStackIndex, initFeedIndex: feedIndex });   
     }
 
     if (activityType === 'title') {

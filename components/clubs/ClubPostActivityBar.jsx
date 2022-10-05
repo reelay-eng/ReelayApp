@@ -156,8 +156,9 @@ export default ClubPostActivityBar = ({ club, navigation, scrollRef, socketRef }
             socket.emit('sendMessageToChat', {
                 authSession,
                 clubID: club?.id,
-                userSub: reelayDBUser?.sub,
+                clubName: club?.name,
                 message: messageRef.current,
+                userSub: reelayDBUser?.sub,
             });
             messageRef.current = {
                 mediaURI: null,

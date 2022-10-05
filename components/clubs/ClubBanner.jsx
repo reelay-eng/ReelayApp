@@ -8,6 +8,8 @@ import BackButton from '../utils/BackButton';
 import ProfilePicture from '../global/ProfilePicture';
 import { FiltersSVG, StainedGlassSVG } from '../global/SVGs';
 import ReelayColors from '../../constants/ReelayColors';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 
 const BackButtonContainer = styled(View)`
     margin: 6px;
@@ -103,7 +105,12 @@ const ChatMessagesSettingText = styled(ReelayText.Body1)`
 `
 const ClubNameText = styled(ReelayText.CaptionEmphasized)`
     color: white;
-    margin-top: 4px;
+    margin-right: 6px;
+`
+const ClubNameView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    margin-top: 10px;
     margin-bottom: 4px;
 `
 const HeaderBackground = styled(View)`
@@ -229,7 +236,10 @@ export default ClubBanner = ({
                     <ClubPicture club={club} size={48} />
                     <BubbleBathRight />
                 </BubbleBathContainer>
-                <ClubNameText>{club.name}</ClubNameText>
+                <ClubNameView>
+                    <ClubNameText>{club.name}</ClubNameText>
+                    <FontAwesomeIcon icon={faCircleInfo} color='white' size={14} />
+                </ClubNameView>
             </BubbleBathHeaderContainer>
         );
     }
