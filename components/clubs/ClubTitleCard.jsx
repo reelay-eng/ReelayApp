@@ -13,6 +13,7 @@ import { getRuntimeString } from '../utils/TitleRuntime';
 import ClubTitleDotMenuDrawer from './ClubTitleDotMenuDrawer';
 import MarkSeenButton from '../watchlist/MarkSeenButton';
 import ReelayThumbnail from '../global/ReelayThumbnail';
+import { ReviewIconSmallSVG } from '../global/SVGs';
 
 const { height, width } = Dimensions.get('window');
 
@@ -129,8 +130,10 @@ const TitleDetailLine = styled(View)`
     margin-left: 8px;
 `
 const TitleLineView = styled(View)`
+    align-items: center;
     flex-direction: row;
     margin: 8px;
+    padding-left: 6px;
 `
 const TitleOverlineView = styled(View)`
     align-items: center;
@@ -340,6 +343,7 @@ export default ClubTitleCard = ({
     const TitleLine = () => {
         return (
             <TitleLineView>
+                <ReviewIconSmallSVG />
                 <TitleDetailLine>
                     <TitleText numberOfLines={2}>{title.display}</TitleText>
                     <DescriptionText>{`${releaseYear}    ${runtimeString}`}</DescriptionText>
