@@ -60,7 +60,7 @@ const SeeAllTopicsText = styled(ReelayText.Subtitle2)`
     margin-right: 15px;
 `
 const Spacer = styled(View)`
-    width: 15px;
+    height: 16px;
 `
 
 export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnProfile = null }) => {
@@ -203,7 +203,7 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
         <TopicsContainer>
             <Header />
             { displayTopics.length > 0 && <TopicsRow /> }
-            { source !== 'profile' && <CreateTopicButton /> }
+            { source !== 'profile' && <Spacer /> }
         </TopicsContainer>
     )
 }

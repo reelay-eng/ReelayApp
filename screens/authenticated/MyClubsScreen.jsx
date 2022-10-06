@@ -21,7 +21,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import Constants from 'expo-constants';
 import moment from 'moment';
 import EmptyClubsCard from '../../components/clubs/EmptyClubsCard';
-import { ChatsIconSVG, NotificationIconSVG, SearchIconSVG } from '../../components/global/SVGs';
+import { NotificationIconSVG, SearchIconSVG } from '../../components/global/SVGs';
 
 const CLUB_PIC_SIZE = 72;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -47,8 +47,8 @@ const AddClubRowPressable = styled(TouchableOpacity)`
     padding-top: 12px;
     padding-bottom: 12px;
     margin: 16px;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: 8px;
+    margin-bottom: 16px;
     width: 100%;
 `
 const ClubNameText = styled(ReelayText.H6Emphasized)`
