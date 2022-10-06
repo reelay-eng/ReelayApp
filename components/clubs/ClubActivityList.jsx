@@ -225,8 +225,9 @@ export default ClubActivityList = ({
             return (
                 <ClubChatMessage 
                     key={activity?.id} 
-                    message={activity} 
                     loadChatMessageHistory={loadChatMessageHistory} 
+                    message={activity} 
+                    navigation={navigation}
                 />
             );
         }

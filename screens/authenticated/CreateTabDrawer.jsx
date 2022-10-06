@@ -1,6 +1,5 @@
 import React, { useContext, useRef, useState } from 'react';
 import { Dimensions, Modal, Pressable, TouchableOpacity, View } from 'react-native';
-import { useDispatch } from 'react-redux';
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
