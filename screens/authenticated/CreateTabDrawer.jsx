@@ -7,6 +7,7 @@ import * as ReelayText from '../../components/global/Text';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ChatsIconSVG, ReviewIconSVG, TopicsIconSVG } from '../../components/global/SVGs';
 
 const { height, width } = Dimensions.get('window');
 
@@ -63,7 +64,7 @@ const DrawerHeaderView = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
-    padding: 10px;
+    padding-top: 10px;
     padding-left: 16px;
     padding-right: 16px;
 `
@@ -96,7 +97,9 @@ export default CreateTabDrawer = ({ closeDrawer, navigation }) => {
         }
         return (
             <CreateOptionView>
-                <CreateChatPressable onPress={advanceToCreateChat} />
+                <CreateChatPressable onPress={advanceToCreateChat}>
+                    <ChatsIconSVG />
+                </CreateChatPressable>
                 <CreateOptionText>{'chat'}</CreateOptionText>
             </CreateOptionView>
         )
@@ -109,7 +112,9 @@ export default CreateTabDrawer = ({ closeDrawer, navigation }) => {
         }
         return (
             <CreateOptionView>
-                <CreateReviewPressable onPress={advanceToCreateReview} />
+                <CreateReviewPressable onPress={advanceToCreateReview}>
+                    <ReviewIconSVG />
+                </CreateReviewPressable>
                 <CreateOptionText>{'review'}</CreateOptionText>
             </CreateOptionView>
         )
@@ -122,7 +127,9 @@ export default CreateTabDrawer = ({ closeDrawer, navigation }) => {
         }
         return (
             <CreateOptionView>
-                <CreateTopicPressable onPress={advanceToCreateTopic} />
+                <CreateTopicPressable onPress={advanceToCreateTopic}>
+                    <TopicsIconSVG />
+                </CreateTopicPressable>
                 <CreateOptionText>{'topic'}</CreateOptionText>
             </CreateOptionView>
         )

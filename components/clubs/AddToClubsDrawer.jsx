@@ -2,7 +2,6 @@ import React, { useContext, useRef, useState } from 'react';
 import { 
     ActivityIndicator, 
     Dimensions, 
-    Image,
     KeyboardAvoidingView, 
     Modal, 
     Pressable, 
@@ -24,7 +23,7 @@ import { showErrorToast, showMessageToast } from '../utils/toasts';
 import ClubPicture from '../global/ClubPicture';
 import MarkSeenButton from '../watchlist/MarkSeenButton';
 
-import { AddToClubsIconSVG } from '../global/SVGs';
+import { AddToClubsIconSVG, ChatsTabIconSVG } from '../global/SVGs';
 import ProfilePicture from '../global/ProfilePicture';
 import { addToMyWatchlist } from '../../api/WatchlistApi';
 import { notifyClubOnTitleAdded } from '../../api/ClubNotifications';
@@ -386,7 +385,7 @@ export default AddToClubsDrawer = ({
                 )}
                 {(!rowHighlighted && !isAlreadyAddedToClub) && (
                     <CheckmarkIconContainer>
-                        <AddToClubsIconSVG size={30} />
+                        <ChatsTabIconSVG />
                     </CheckmarkIconContainer>
                 )}
             </RowContainer>

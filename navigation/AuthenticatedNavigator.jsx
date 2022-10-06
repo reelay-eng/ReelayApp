@@ -19,7 +19,7 @@ import {
 	ClubsTabNavigator
 } from './BottomTabs';
 
-import { ClubsIconSolidSVG, ClubsIconSVG } from '../components/global/SVGs';
+import { ChatsTabIconSVG } from '../components/global/SVGs';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCirclePlus, faCircleUser, faCompass, faHouse } from '@fortawesome/free-solid-svg-icons';
 import CreateTabDrawer from '../screens/authenticated/CreateTabDrawer';
@@ -159,7 +159,7 @@ export default AuthenticatedNavigator = () => {
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<IconFocusView focused={focused}>
-							<ClubsIconSolidSVG />
+							<ChatsTabIconSVG />
 							{ focused && <IconFocusIndicator /> }
 						</IconFocusView>
 					),

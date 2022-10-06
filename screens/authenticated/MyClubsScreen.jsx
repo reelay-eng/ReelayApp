@@ -21,7 +21,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import Constants from 'expo-constants';
 import moment from 'moment';
 import EmptyClubsCard from '../../components/clubs/EmptyClubsCard';
-import { NotificationIconSVG, SearchIconSVG } from '../../components/global/SVGs';
+import { ChatsIconSVG, NotificationIconSVG, SearchIconSVG } from '../../components/global/SVGs';
 
 const CLUB_PIC_SIZE = 72;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -257,7 +257,8 @@ export default MyClubsScreen = ({ navigation }) => {
             return (
                 <ClubRowPressable onPress={advanceToCreateClubScreen}>
                     <AddClubIconView>
-                        <FontAwesomeIcon icon={faUsersViewfinder} color='white' size={56} />
+                        {/* <FontAwesomeIcon icon={faUsersViewfinder} color='white' size={56} /> */}
+                        <ChatsIconSVG />
                     </AddClubIconView>
                     <ClubRowInfoView>
                         <ClubNameText>{'Start a new chat'}</ClubNameText>

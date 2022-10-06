@@ -6,6 +6,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
+import { ChatsIconSVG, ReviewIconSVG, TopicsIconSVG } from '../../components/global/SVGs';
 
 const { height, width } = Dimensions.get('window');
 
@@ -82,7 +83,9 @@ export default CreateScreen = ({ navigation }) => {
         const advanceToCreateChat = () => navigation.push('CreateClubScreen');
         return (
             <CreateOptionView>
-                <CreateChatPressable onPress={advanceToCreateChat} />
+                <CreateChatPressable onPress={advanceToCreateChat}>
+                    <ChatsIconSVG />
+                </CreateChatPressable>
                 <CreateOptionText>{'chat'}</CreateOptionText>
             </CreateOptionView>
         )
@@ -92,7 +95,9 @@ export default CreateScreen = ({ navigation }) => {
         const advanceToCreateReview = () => navigation.push('SelectTitleScreen');
         return (
             <CreateOptionView>
-                <CreateReviewPressable onPress={advanceToCreateReview} />
+                <CreateReviewPressable onPress={advanceToCreateReview}>
+                    <ReviewIconSVG />
+                </CreateReviewPressable>
                 <CreateOptionText>{'review'}</CreateOptionText>
             </CreateOptionView>
         )
@@ -102,7 +107,9 @@ export default CreateScreen = ({ navigation }) => {
         const advanceToCreateTopic = () => navigation.push('CreateTopicScreen');
         return (
             <CreateOptionView>
-                <CreateTopicPressable onPress={advanceToCreateTopic} />
+                <CreateTopicPressable onPress={advanceToCreateTopic}>
+                    <TopicsIconSVG />
+                </CreateTopicPressable>
                 <CreateOptionText>{'topic'}</CreateOptionText>
             </CreateOptionView>
         )

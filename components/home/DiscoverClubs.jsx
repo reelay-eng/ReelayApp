@@ -3,7 +3,7 @@ import { ScrollView, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
 import ClubPicture from '../global/ClubPicture';
-import { ClubsIconSVG } from '../global/SVGs';
+import { ChatsIconSVG } from '../global/SVGs';
 import { getClubsDiscover } from '../../api/ClubsApi';
 
 import moment from 'moment';
@@ -87,7 +87,7 @@ export default PopularClubs = ({ navigation }) => {
     return (
         <DiscoverClubsContainer>
             <HeaderContainer>
-                <ClubsIconSVG size={24} />
+                <ChatsIconSVG size={24} />
                 <HeaderText>{'Discover clubs'}</HeaderText>
             </HeaderContainer>
             <RowContainer horizontal showsHorizontalScrollIndicator={false}>

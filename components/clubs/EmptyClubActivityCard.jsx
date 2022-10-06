@@ -3,7 +3,7 @@ import { Dimensions, View } from 'react-native';
 
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
-import { ClubsIconSVG } from '../global/SVGs';
+import { ChatsIconSVG } from '../global/SVGs';
 
 const { height, width } = Dimensions.get('window');
 
@@ -38,7 +38,7 @@ export default EmptyClubActivityCard = () => {
     return (
         <EmptyClubsView>
             <TopAndBottomSpacer />
-            <ClubsIconSVG enlarge={true} sizeRatio={0.2} />
+            <ChatsIconSVG />
             <SectionView>
                 <SectionHeader numberOfLines={3}>
                     {'No recent activity'}

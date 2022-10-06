@@ -5,7 +5,7 @@ import { Icon } from 'react-native-elements';
 import * as ReelayText from '../global/Text';
 import { LinearGradient } from 'expo-linear-gradient';
 import styled from 'styled-components/native';
-import { ClubsIconSVG } from '../global/SVGs';
+import { ChatsIconSVG } from '../global/SVGs';
 
 const { height, width } = Dimensions.get('window');
 
@@ -87,7 +87,7 @@ export default EmptyClubsCard = ({ navigation }) => {
         <EmptyClubsView>
             <EmptyClubsGradient colors={['#FF4848', '#038AFF']} />
             <TopAndBottomSpacer />
-            <ClubsIconSVG enlarge={true} sizeRatio={0.1} />
+            <ChatsIconSVG />
             <SectionView>
                 <SectionHeader numberOfLines={3}>
                     {'Go public or private'}
