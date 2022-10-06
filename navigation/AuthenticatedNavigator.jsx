@@ -4,8 +4,7 @@
  */
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
-import React, { useContext } from 'react';
+import React, { Fragment, useState, useRef } from 'react';
 import styled from 'styled-components/native';
 import { useSelector } from "react-redux";
 
@@ -22,7 +21,8 @@ import {
 
 import { ClubsIconSolidSVG, ClubsIconSVG } from '../components/global/SVGs';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCirclePlus, faCircleUser, faCompass, faEarthAmericas, faHouse } from '@fortawesome/free-solid-svg-icons';
+import { faCirclePlus, faCircleUser, faCompass, faHouse } from '@fortawesome/free-solid-svg-icons';
+import CreateTabDrawer from '../screens/authenticated/CreateTabDrawer';
  
 const BottomTab = createBottomTabNavigator();
 const TAB_BAR_ACTIVE_OPACITY = 1;
@@ -53,8 +53,10 @@ const UnreadIconIndicator = styled(SafeAreaView)`
 `
 
 export default AuthenticatedNavigator = () => {
+	const [createDrawerOpen, setCreateDrawerOpen] = useState(false);
+	const navigationRef = useRef(null);
 	const hasUnseenReelays = useSelector(state => state.discoverHasUnseenReelays);
-	const tabBarVisible = useSelector((state) => state.tabBarVisible)
+	const tabBarVisible = useSelector((state) => state.tabBarVisible);
     const s = StyleSheet.create({
 		gradient: {
 			flex: 1,
@@ -130,12 +132,24 @@ export default AuthenticatedNavigator = () => {
 			<BottomTab.Screen
 				name="Create"
 				component={CreateReelayTabNavigator}
+				listeners={({ navigation }) => ({
+					tabPress: (event) => {
+						event.preventDefault();
+						navigationRef.current = navigation;
+						setCreateDrawerOpen(true);
+					}
+				})}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<IconFocusView focused={focused}>
-							<FontAwesomeIcon icon={faCirclePlus} size={27} color='white' />
-							{ focused && <IconFocusIndicator /> }
-						</IconFocusView>
+						<Fragment>
+							{ createDrawerOpen && (
+								<CreateTabDrawer navigation={navigationRef?.current} closeDrawer={() => setCreateDrawerOpen(false)} />
+							)}
+							<IconFocusView focused={focused}>
+								<FontAwesomeIcon icon={faCirclePlus} size={27} color='white' />
+								{ focused && <IconFocusIndicator /> }
+							</IconFocusView>
+						</Fragment>
 					),
 				}}
 			/>

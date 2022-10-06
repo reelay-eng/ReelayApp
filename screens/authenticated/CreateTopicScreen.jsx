@@ -27,6 +27,7 @@ import TopicAddFirstReelayDrawer from '../../components/topics/TopicAddFirstReel
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { notifyClubOnTopicAdded } from '../../api/ClubNotifications';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { HeaderWithBackButton } from '../../components/global/Headers';
 
 const { width } = Dimensions.get('window');
 
@@ -76,9 +77,6 @@ const CreateScreenContainer = styled(SafeAreaView)`
     width: 100%;
 `
 const HeaderContainer = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    margin-left: 10px;
     margin-bottom: 16px;
 `
 const HeaderText = styled(ReelayText.H6Emphasized)`
@@ -277,8 +275,7 @@ export default function CreateTopicScreen({ navigation, route }) {
         if (club) return <ClubHeader />
         return (
             <HeaderContainer>
-                <BackButton navigation={navigation} />
-                <HeaderText>{'Start a new topic'}</HeaderText>
+                <HeaderWithBackButton navigation={navigation} text={'start a new topic'} />
             </HeaderContainer>
         );
     }

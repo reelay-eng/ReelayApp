@@ -41,7 +41,6 @@ const SelectorBarContainer = styled(View)`
 `;
 const TopBarContainer = styled(View)`
     margin-bottom: 12px;
-    padding-left: 12px;
     padding-right: 12px;
 	width: 100%;
 `;
@@ -150,8 +149,8 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     return (
 		<SafeAreaView style={{ backgroundColor: "black", alignItems: 'center', height: "100%", width: "100%" }}>
 			<TopBarContainer>
-                { !topic && <HeaderText>{'create'}</HeaderText> }
-                { topic && <HeaderWithBackButton navigation={navigation} text={"Add a reelay"} /> }
+                { !topic && <HeaderWithBackButton navigation={navigation} text={"what did you see?"} /> }
+                { topic && <HeaderWithBackButton navigation={navigation} text={"add a reelay"} /> }
                 { topic && <TopicLabel /> }
 			</TopBarContainer>
             <SelectorBarContainer>
@@ -168,7 +167,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
 					searchText={searchText}
                     updateSearchText={setSearchText}
                     borderRadius={4}
-					placeholderText="What did you see?"
+					placeholderText={(searchType === 'TV') ? "Search TV shows..." : "Search films..."}
 				/>
 			</SearchBarContainer>
             { loading && <ActivityIndicator /> }

@@ -29,6 +29,7 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { Buffer } from "buffer";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { createClub } from '../../api/ClubsApi';
+import { HeaderWithBackButton } from '../../components/global/Headers';
 
 const { width } = Dimensions.get('window');
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -51,9 +52,6 @@ const CreateScreenContainer = styled(SafeAreaView)`
     width: 100%;
 `
 const HeaderContainer = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    margin-left: 10px;
     margin-bottom: 16px;
 `
 const HeaderText = styled(ReelayText.H5Emphasized)`
@@ -229,8 +227,6 @@ export default function CreateClubScreen({ navigation, route }) {
             visibilityRef.current = FEED_VISIBILITY;
         }
 
-        console.log('visibility ref: ', visibilityRef.current);
-
         return (
             <SectionContainer>
                 <TitleText>{'Chat Settings'}</TitleText>
@@ -243,8 +239,7 @@ export default function CreateClubScreen({ navigation, route }) {
     const Header = () => {
         return (
             <HeaderContainer>
-                <BackButton navigation={navigation} />
-                <HeaderText>{'Start a new chat'}</HeaderText>
+                <HeaderWithBackButton navigation={navigation} text={'start a new chat'} />
             </HeaderContainer>
         );
     }

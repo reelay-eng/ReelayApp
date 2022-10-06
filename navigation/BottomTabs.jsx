@@ -4,6 +4,7 @@ import AuthenticatedCommonStack from './AuthenticatedCommonStack';
 
 import AccountInfoScreen from '../screens/authenticated/AccountInfoScreen';
 import AdminReportedIssuesScreen from '../screens/authenticated/AdminReportedIssuesScreen';
+import CreateScreen from '../screens/authenticated/CreateScreen';
 import DeleteAccountScreen from '../screens/authenticated/DeleteAccountScreen';
 import EditAccountScreen from '../screens/authenticated/EditAccountScreen';
 import HomeScreen from '../screens/authenticated/HomeScreen';
@@ -29,7 +30,13 @@ export const FeedTabNavigator = () => {
 }
 
 export const CreateReelayTabNavigator = () => {
-    return <AuthenticatedCommonStack initialRouteName='SelectTitleScreen' />;
+    const CreateTabStack = createStackNavigator();
+    const commonOptions = { headerShown: false };
+    return (
+        <AuthenticatedCommonStack initialRouteName='CreateScreen'>
+            <CreateTabStack.Screen name="CreateScreen" component={CreateScreen} options={commonOptions} />
+        </AuthenticatedCommonStack>
+    );
 }
 
 export const ClubsTabNavigator = () => {
