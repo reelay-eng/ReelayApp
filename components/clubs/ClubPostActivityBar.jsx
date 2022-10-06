@@ -14,7 +14,7 @@ import AddTitleOrTopicDrawer from './AddTitleOrTopicDrawer';
 import { TextInput } from 'react-native-gesture-handler';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { MentionInput } from 'react-native-controlled-mentions';
+import { isMentionPartType, MentionInput, parseValue } from 'react-native-controlled-mentions';
 
 const { height, width } = Dimensions.get('window');
 
@@ -199,26 +199,6 @@ export default ClubPostActivityBar = ({ club, navigation, scrollRef, socketRef }
             emitStayActive();
         }
     
-        const onPostMessage = async () => {
-            if (!isValidMessage()) {
-                showErrorToast('Ruh roh! Can\'t post an empty message');
-                return;
-            }
-            const socket = socketRef.current;
-            socket.emit('sendMessageToChat', {
-                authSession,
-                clubID: club?.id,
-                clubName: club?.name,
-                message: messageRef.current,
-                userSub: reelayDBUser?.sub,
-            });
-            messageRef.current = {
-                mediaURI: null,
-                mediaType: null,
-                text: '',        
-            }
-        }
-
         const renderSuggestions = ({ keyword, onSuggestionPress }) => {
             if (!keyword) return <View />;
     
@@ -260,6 +240,50 @@ export default ClubPostActivityBar = ({ club, navigation, scrollRef, socketRef }
             renderSuggestions,
             textStyle: MentionTextStyle,
         };    
+
+        const getAnnotatedMessage = () => {
+            const messagePartsWithMentions = parseValue(messageRef?.current?.text, [mentionChatMemberType]);
+            const mentionedUsers = [];
+            const isMention = (part) => (part.partType && isMentionPartType(part.partType));
+            for (const messagePart of messagePartsWithMentions.parts) {
+                if (isMention(messagePart)) {
+                    const mentionUser = {
+                        sub: messagePart.data?.id,
+                        username: messagePart?.data.name,
+                    };
+                    mentionedUsers.push(mentionUser);
+                }
+            }
+
+            const annotatedMessage = {
+                ...messageRef?.current,
+                mentionedUsers,
+                plaintext: messagePartsWithMentions.plainText,
+            };
+            console.log('annotated message: ', annotatedMessage);
+            return annotatedMessage;
+        }    
+
+        const onPostMessage = async () => {
+            if (!isValidMessage()) {
+                showErrorToast('Ruh roh! Can\'t post an empty message');
+                return;
+            }
+
+            const socket = socketRef.current;
+            socket.emit('sendMessageToChat', {
+                authSession,
+                clubID: club?.id,
+                clubName: club?.name,
+                message: getAnnotatedMessage(),
+                userSub: reelayDBUser?.sub,
+            });
+            messageRef.current = {
+                mediaURI: null,
+                mediaType: null,
+                text: '',        
+            }
+        }
 
         const PostButton = () => {
             return (

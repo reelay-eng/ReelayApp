@@ -36,9 +36,23 @@ const DotMenuButtonView = styled(TouchableOpacity)`
     right: 8px;
     position: absolute;
 `
-const MessageText = styled(ReelayText.Body2)`
-    color: white;
+const MentionButton = styled(TouchableOpacity)`
+    margin-top: -2px;
+`
+const MessageTextPortion = styled(Autolink)`
+    font-family: Outfit-Regular;
+    font-size: 16px;
+    font-style: normal;
     line-height: 20px;
+    letter-spacing: 0.15px;
+    text-align: left;
+
+    color: white;
+    padding-right: 10px;
+    margin: 0px;
+`
+const MessageTextStyled = styled(ReelayText.Body2)`
+    color: white;
 `
 const MessageTextView = styled(View)`
     width: ${width - 80}px;
@@ -58,25 +72,6 @@ const TimestampText = styled(ReelayText.Body2)`
 `
 const TopRowSpacer = styled(View)`
     width: 6px;
-`
-const MessageTextStyled = styled(ReelayText.Body2)`
-    color: white;
-`;
-const MessageTextPortion = styled(Autolink)`
-    font-family: Outfit-Regular;
-    font-size: 16px;
-    font-style: normal;
-    line-height: 20px;
-    letter-spacing: 0.15px;
-    text-align: left;
-
-    color: white;
-    padding-right: 10px;
-    margin: 0px;
-`;
-
-const MentionButton = styled(TouchableOpacity)`
-    margin-top: -2px;
 `
 const MentionTextStyle = {
     color: ReelayColors.reelayBlue,
@@ -118,7 +113,6 @@ const MessageTextWithMentions = ({ message, navigation }) => {
 
     const renderMessagePart = (messagePart, index) => {
         messageText += messagePart.text;
-        console.log('message part data: ', messagePart.data);
         if (isMention(messagePart)) {
             return (
                 <MentionButton key={index} onPress={() => advanceToMentionProfile(messagePart.data)}>
@@ -160,8 +154,6 @@ export default ClubChatMessage = ({ loadChatMessageHistory, message, navigation 
         sub: message?.userSub,
     }
 
-    console.log('author', author);
-
     const ChatMessageBody = () => {
         return (
             <ChatMessageBodyView>
@@ -171,7 +163,6 @@ export default ClubChatMessage = ({ loadChatMessageHistory, message, navigation 
                     <TimestampText>{timestampString}</TimestampText>
                 </OverlineView>
                 <MessageTextView>
-                    {/* <MessageText>{message?.text ?? ''}</MessageText> */}
                     <MessageTextWithMentions message={message} navigation={navigation} />
                 </MessageTextView>
             </ChatMessageBodyView>
