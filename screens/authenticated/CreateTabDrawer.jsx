@@ -42,7 +42,7 @@ const CreateReviewPressable = styled(CreateOptionPressable)`
     background-color: ${ReelayColors.reelayBlue};
 `
 const CreateTopicPressable = styled(CreateOptionPressable)`
-    background-color: ${ReelayColors.reelayPurple};
+    background-color: #8348D7;
 `
 const CreateOptionsRowView = styled(View)`
     align-items: center;

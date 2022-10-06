@@ -21,7 +21,7 @@ import {
 
 import { ChatsTabIconSVG } from '../components/global/SVGs';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCirclePlus, faCircleUser, faCompass, faHouse } from '@fortawesome/free-solid-svg-icons';
+import { faCirclePlus, faCircleUser, faCompass, faHouse, faUsers } from '@fortawesome/free-solid-svg-icons';
 import CreateTabDrawer from '../screens/authenticated/CreateTabDrawer';
  
 const BottomTab = createBottomTabNavigator();
@@ -33,7 +33,7 @@ const IconFocusView = styled(View)`
 	border-radius: 24px;
 	background-color: transparent;
 	justify-content: center;
-	opacity: ${props => props.focused ? 1 : 0.8};
+	opacity: 1;
 `
 const IconFocusIndicator = styled(View)`
 	top: 48px;
@@ -108,7 +108,7 @@ export default AuthenticatedNavigator = () => {
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<IconFocusView focused={focused}>
-							<FontAwesomeIcon icon={faHouse} color='white' size={24} />
+							<FontAwesomeIcon icon={faHouse} color={focused ? 'white' : '#D4D4D4'} size={24} />
 							{ focused && <IconFocusIndicator /> }
 						</IconFocusView>
 					),
@@ -121,7 +121,7 @@ export default AuthenticatedNavigator = () => {
 					tabBarIcon: ({ focused }) => (
 						<View>
 							<IconFocusView focused={focused}>
-								<FontAwesomeIcon icon={faCompass} size={24} color='white' />
+								<FontAwesomeIcon icon={faCompass} size={24} color={focused ? 'white' : '#D4D4D4'} />
 								{ focused && <IconFocusIndicator /> }
 							</IconFocusView>
 							{ hasUnseenReelays && <UnreadIconIndicator /> }
@@ -146,7 +146,7 @@ export default AuthenticatedNavigator = () => {
 								<CreateTabDrawer navigation={navigationRef?.current} closeDrawer={() => setCreateDrawerOpen(false)} />
 							)}
 							<IconFocusView focused={focused}>
-								<FontAwesomeIcon icon={faCirclePlus} size={27} color='white' />
+								<FontAwesomeIcon icon={faCirclePlus} size={27} color={focused ? 'white' : '#D4D4D4'} />
 								{ focused && <IconFocusIndicator /> }
 							</IconFocusView>
 						</Fragment>
@@ -159,7 +159,7 @@ export default AuthenticatedNavigator = () => {
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<IconFocusView focused={focused}>
-							<ChatsTabIconSVG />
+							<FontAwesomeIcon icon={faUsers} color={focused ? 'white' : '#D4D4D4'} size={30} />
 							{ focused && <IconFocusIndicator /> }
 						</IconFocusView>
 					),
@@ -171,7 +171,7 @@ export default AuthenticatedNavigator = () => {
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<IconFocusView focused={focused}>
-							<FontAwesomeIcon icon={faCircleUser} color='white' size={24} />
+							<FontAwesomeIcon icon={faCircleUser} color={focused ? 'white' : '#D4D4D4'} size={24} />
 							{ focused && <IconFocusIndicator /> }
 						</IconFocusView>
 					),
