@@ -37,13 +37,13 @@ const DotMenuButtonView = styled(TouchableOpacity)`
     position: absolute;
 `
 const MentionButton = styled(TouchableOpacity)`
-    margin-top: -2px;
+    margin-top: -3px;
 `
 const MessageTextPortion = styled(Autolink)`
     font-family: Outfit-Regular;
     font-size: 16px;
     font-style: normal;
-    line-height: 20px;
+    line-height: 24px;
     letter-spacing: 0.15px;
     text-align: left;
 
@@ -79,7 +79,7 @@ const MentionTextStyle = {
     fontSize: 16,
     fontStyle: 'normal',
     letterSpacing: 0.15,
-    lineHeight: 20,
+    lineHeight: 24,
 }
 
 const DotMenuButton = ({ message }) => {

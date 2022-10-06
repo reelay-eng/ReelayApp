@@ -28,7 +28,8 @@ import {
     markClubActivitySeen,
     removeMemberFromClub,
     updateNotifyChatMessages,
-    updateNotifyPostedReelays, 
+    updateNotifyChatMentions, 
+    updateNotifyPostedReelays,
 } from '../../api/ClubsApi';
 
 import { useDispatch, useSelector } from 'react-redux';
@@ -471,6 +472,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
 
     const NotificationSettings = () => {
         const [allowNotifyMessages, setAllowNotifyMessages] = useState(true);
+        const [allowNotifyMentions, setAllowNotifyMentions] = useState(true);
         const [allowNotifyPosts, setAllowNotifyPosts] = useState(true);
     
         const switchAllowNotifyMessages = async () => {
@@ -480,6 +482,17 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 authSession,
                 clubID: club.id,
                 notifyChatMessages: shouldAllow,
+                reqUserSub: reelayDBUser?.sub,
+            });
+        }
+
+        const switchAllowNotifyMentions = async () => {
+            const shouldAllow = !allowNotifyMentions;
+            setAllowNotifyMentions(shouldAllow);
+            const patchResult = await updateNotifyChatMentions({
+                authSession,
+                clubID: club.id,
+                notifyChatMentions: shouldAllow,
                 reqUserSub: reelayDBUser?.sub,
             });
         }
@@ -505,6 +518,27 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     <Switch 
                         value={allowNotifyMessages}
                         onValueChange={switchAllowNotifyMessages}
+                        trackColor={{ 
+                            false: "#39393D", 
+                            true: ReelayColors.reelayGreen,
+                        }}
+                        thumbColor={"#FFFFFF"}
+                        ios_backgroundColor="#39393D"    
+                    />
+                </SettingsRow>
+            );
+        }
+
+        const AllowNotifyMentionsSetting = () => {
+            return (
+                <SettingsRow onPress={switchAllowNotifyMentions}>
+                    <SettingsTextView>
+                        <SettingsText>{'Allow notifications on mention'}</SettingsText>
+                        <SettingsSubtext>{'Get notified when you\'re directly mentioned in the chat'}</SettingsSubtext>
+                    </SettingsTextView>
+                    <Switch 
+                        value={allowNotifyMentions}
+                        onValueChange={switchAllowNotifyMentions}
                         trackColor={{ 
                             false: "#39393D", 
                             true: ReelayColors.reelayGreen,
@@ -541,6 +575,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
             <NotificationSettingsView>
                 <SectionHeaderText>{'Notifications'}</SectionHeaderText>
                 <AllowNotifyMessagesSetting />
+                <AllowNotifyMentionsSetting />
                 <AllowNotifyPostsSetting />
             </NotificationSettingsView>
         );
