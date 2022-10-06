@@ -54,13 +54,13 @@ const BottomRowLeftText = styled(ReelayText.Subtitle2)`
 `
 const ContentNoReelaysSectionView = styled(View)`
     justify-content: flex-start;
-    margin-top: 8px;
     width: ${props => getContentRowWidth(props)}px;
 `
 const ContentNoReelaysIconView = styled(View)`
     align-items: center;
     height: 160px;
     justify-content: center;
+    margin-top: 24px;
     width: ${props => getContentRowWidth(props)}px;
 `
 const ContentWithReelaysSectionView = styled(View)`
@@ -268,13 +268,13 @@ export default TopicCard = ({
         const ContentNoReelays = () => {
             return (
                 <Fragment>
+                    <ContentNoReelaysIconView>
+                        <TopicsGiantIconSVG />
+                    </ContentNoReelaysIconView>
                     <ContentNoReelaysSectionView horizontal={horizontal}>
                         <TopicTitle />
                         <TopicDescription />
                     </ContentNoReelaysSectionView>
-                    <ContentNoReelaysIconView>
-                        <TopicsGiantIconSVG />
-                    </ContentNoReelaysIconView>
                 </Fragment>
             )
         };

@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { 
     ActivityIndicator,
     Dimensions,
@@ -12,13 +12,10 @@ import {
 import styled from 'styled-components/native';
 
 import { AuthContext } from '../../context/AuthContext';
-import BackButton from '../../components/utils/BackButton';
 import * as ReelayText from '../../components/global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-
-import ClubBanner from '../../components/clubs/ClubBanner';
 
 import { getClubTopics } from '../../api/ClubsApi';
 import { createTopic, getTopics } from '../../api/TopicsApi';
@@ -26,39 +23,10 @@ import { showErrorToast, showMessageToast } from '../../components/utils/toasts'
 import TopicAddFirstReelayDrawer from '../../components/topics/TopicAddFirstReelayDrawer';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { notifyClubOnTopicAdded } from '../../api/ClubNotifications';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HeaderWithBackButton } from '../../components/global/Headers';
 
 const { width } = Dimensions.get('window');
 
-// color is ReelayColors.reelayGreen at reduced opacity
-const ClubTitleContainer = styled(View)`
-    align-items: center;
-    background-color: rgba(4, 189, 108, 0.65);
-    border-radius: 12px;
-    border-top-left-radius: 0px;
-    border-bottom-left-radius: 0px;
-    flex-direction: row;
-    margin: 20px;
-    margin-left: 0px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    padding-top: 12px;
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-bottom: 10px;
-`
-const ClubTitleText = styled(ReelayText.H6)`
-    color: white;
-    flex-direction: row;
-    font-size: 14px;
-    line-height: 16px;
-    margin-left: 4px;
-`
-const ClubBannerContainer = styled(View)`
-    height: ${props => props.topOffset}px;
-    bottom: ${props => props.topOffset}px;
-`
 const CreateTopicButtonContainer = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${(props) => props.disabled 
@@ -70,6 +38,10 @@ const CreateTopicButtonContainer = styled(TouchableOpacity)`
     height: 40px;
     width: ${width - 56}px;
 `
+const CreateTopicText = styled(ReelayText.Overline)`
+    color: white;
+    font-size: 12px;
+`
 const CreateScreenContainer = styled(SafeAreaView)`
     background-color: black;
     justify-content: space-between;
@@ -78,11 +50,6 @@ const CreateScreenContainer = styled(SafeAreaView)`
 `
 const HeaderContainer = styled(View)`
     margin-bottom: 16px;
-`
-const HeaderText = styled(ReelayText.H6Emphasized)`
-    color: white;
-    margin-left: 20px;
-    margin-top: 4px;
 `
 const TitleInputField = styled(TextInput)`
     border-color: white;
@@ -123,7 +90,6 @@ export default function CreateTopicScreen({ navigation, route }) {
     const club = route?.params?.club ?? null;
     const authSession = useSelector(state => state.authSession);
     const myHomeContent = useSelector(state => state.myHomeContent);
-    const topOffset = useSafeAreaInsets().top;
 
     const refreshClubTopics = async () => {
         if (!club) return;
@@ -169,17 +135,6 @@ export default function CreateTopicScreen({ navigation, route }) {
     const changeTitleText = (text) => titleTextRef.current = text;
     const focusDescription = () => descriptionFieldRef?.current && descriptionFieldRef.current.focus();
     const focusTitle = () => titleFieldRef?.current && titleFieldRef.current.focus();
-
-    const ClubHeader = () => {
-        return (
-            <Fragment>
-                <ClubBannerContainer topOffset={topOffset}>
-                    <ClubBanner club={club} navigation={navigation} />
-                </ClubBannerContainer>
-                <View style={{ height: 20 }} />
-            </Fragment>
-        )
-    }
 
     const CreateTopicButton = () => {
         const [publishing, setPublishing] = useState(false);
@@ -243,7 +198,7 @@ export default function CreateTopicScreen({ navigation, route }) {
         return (
             <CreateTopicButtonContainer onPress={onPress}>
                 { publishing && <ActivityIndicator/> }
-                { !publishing && <TitleText>{'Create topic'}</TitleText> }
+                { !publishing && <CreateTopicText>{'create topic'}</CreateTopicText> }
             </CreateTopicButtonContainer>
         );
     }
@@ -272,10 +227,10 @@ export default function CreateTopicScreen({ navigation, route }) {
     }
 
     const Header = () => {
-        if (club) return <ClubHeader />
+        const headerText = (club) ? club?.name : 'start a new topic';
         return (
             <HeaderContainer>
-                <HeaderWithBackButton navigation={navigation} text={'start a new topic'} />
+                <HeaderWithBackButton navigation={navigation} text={headerText} />
             </HeaderContainer>
         );
     }

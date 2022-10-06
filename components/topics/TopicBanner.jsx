@@ -15,7 +15,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import { getRuntimeString } from "../utils/TitleRuntime";
 import { animate } from "../../hooks/animations";
-import { TopicsBannerIconSVG } from "../global/SVGs";
+import { TopicsBannerIconSVG, TopicsIconSVG } from "../global/SVGs";
 
 import { BlurView } from 'expo-blur'
 

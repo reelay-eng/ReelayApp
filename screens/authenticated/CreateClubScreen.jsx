@@ -14,7 +14,6 @@ import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 import { AuthContext } from '../../context/AuthContext';
-import BackButton from '../../components/utils/BackButton';
 import * as ReelayText from '../../components/global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 import Constants from 'expo-constants';
@@ -30,10 +29,16 @@ import { Buffer } from "buffer";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { createClub } from '../../api/ClubsApi';
 import { HeaderWithBackButton } from '../../components/global/Headers';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faEarthAmericas, faLock } from '@fortawesome/free-solid-svg-icons';
 
 const { width } = Dimensions.get('window');
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
+const CreateChatText = styled(ReelayText.Overline)`
+    color: white;
+    font-size: 12px;
+`
 const CreateClubButtonContainer = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${(props) => props.disabled 
@@ -53,11 +58,6 @@ const CreateScreenContainer = styled(SafeAreaView)`
 `
 const HeaderContainer = styled(View)`
     margin-bottom: 16px;
-`
-const HeaderText = styled(ReelayText.H5Emphasized)`
-    color: white;
-    margin-left: 20px;
-    margin-top: 4px;
 `
 const SectionContainer = styled(View)`
     margin-left: 20px;
@@ -161,7 +161,7 @@ export default function CreateClubScreen({ navigation, route }) {
         return (
             <CreateClubButtonContainer onPress={onPress}>
                 { publishing && <ActivityIndicator/> }
-                { !publishing && <TitleText>{'Create chat'}</TitleText> }
+                { !publishing && <CreateChatText>{'start the chat'}</CreateChatText> }
             </CreateClubButtonContainer>
         );
     }
@@ -196,8 +196,8 @@ export default function CreateClubScreen({ navigation, route }) {
             : 'Open group. Anyone can join';
 
         const renderSettingIcon = () => (isPrivate)
-            ? <Icon type='ionicon' name='lock-closed' color='white' size={27} />
-            : <Icon type='ionicon' name='eye' color='white' size={27} />;
+            ? <FontAwesomeIcon icon={faLock} color='white' size={27} />
+            : <FontAwesomeIcon icon={faEarthAmericas} color='white' size={27} />
 
         return (
             <ClubSettingRowPressable onPress={onPress}>

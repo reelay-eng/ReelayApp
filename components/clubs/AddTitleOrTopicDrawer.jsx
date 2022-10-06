@@ -104,14 +104,14 @@ export default AddTitleOrTopicDrawer = ({ navigation, club, drawerVisible, setDr
     const CreateReviewButton = () => {
         const advanceToAddTitleScreen = () => {
             closeDrawer();
-            navigation.push('ClubAddTitleScreen', { club });
+            navigation.push('SelectTitleScreen', { clubID: club?.id });
         }    
         return (
             <CreateOptionView>
                 <CreateReviewPressable onPress={advanceToAddTitleScreen}>
                     <ReviewIconSVG />
                 </CreateReviewPressable>
-                <CreateOptionText>{'title'}</CreateOptionText>
+                <CreateOptionText>{'review'}</CreateOptionText>
             </CreateOptionView>
         )
     }
