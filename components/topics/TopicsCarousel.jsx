@@ -185,10 +185,10 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
                     activeSlideAlignment={'center'}
                     data={displayTopics}
                     inactiveSlideScale={0.95}
-                    itemHeight={480}
+                    itemHeight={440}
                     itemWidth={width-48}
                     renderItem={renderTopic}
-                    sliderHeight={480}
+                    sliderHeight={440}
                     sliderWidth={width+30}
                 />
             </CarouselView>

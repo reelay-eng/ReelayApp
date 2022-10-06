@@ -13,7 +13,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 import ClubPicture from '../../components/global/ClubPicture';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faChevronRight, faUsersViewfinder } from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { sortByLastActivity } from '../../redux/reducers';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -38,6 +38,18 @@ const AddClubIconView = styled(View)`
     justify-content: center;
     height: ${CLUB_PIC_SIZE}px;
     width: ${CLUB_PIC_SIZE}px;
+`
+const AddClubRowPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 16px;
+    flex-direction: row;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    margin: 16px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 100%;
 `
 const ClubNameText = styled(ReelayText.H6Emphasized)`
     color: white;
@@ -255,20 +267,19 @@ export default MyClubsScreen = ({ navigation }) => {
         const AddClubRow = ({ club }) => {
             const advanceToCreateClubScreen = () => navigation.push('CreateClubScreen');
             return (
-                <ClubRowPressable onPress={advanceToCreateClubScreen}>
+                <AddClubRowPressable onPress={advanceToCreateClubScreen}>
                     <AddClubIconView>
-                        {/* <FontAwesomeIcon icon={faUsersViewfinder} color='white' size={56} /> */}
-                        <ChatsIconSVG />
+                        <FontAwesomeIcon icon={faUsers} color='white' size={36} />
                     </AddClubIconView>
                     <ClubRowInfoView>
                         <ClubNameText>{'Start a new chat'}</ClubNameText>
-                        <ClubDescriptionText numberOfLines={2}>{'Invite friends. Make group watchlists. Chat with text or reelays'}</ClubDescriptionText>
+                        <ClubDescriptionText>{'Invite friends. Make group watchlists. Chat in real time.'}</ClubDescriptionText>
                     </ClubRowInfoView>
                     <ClubRowArrowView>
                         <FontAwesomeIcon icon={faChevronRight} color='white' size={18} />
                         <ClubRowArrowSpacer />
                     </ClubRowArrowView>
-                </ClubRowPressable>
+                </AddClubRowPressable>
             );
         }
 

@@ -14,9 +14,20 @@ import ClubTitleDotMenuDrawer from './ClubTitleDotMenuDrawer';
 import MarkSeenButton from '../watchlist/MarkSeenButton';
 import ReelayThumbnail from '../global/ReelayThumbnail';
 import { ReviewIconSmallSVG } from '../global/SVGs';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 
 const { height, width } = Dimensions.get('window');
 
+const AddReelayToTopicPressable = styled(TouchableOpacity)`
+    align-items: center;
+    align-self: flex-start;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 20px;
+    height: 36px;
+    justify-content: center;
+    width: 36px;
+`
 const AddedByUsername = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 14px;
@@ -83,6 +94,7 @@ const MediaSectionView = styled(View)`
     flex-direction: row;
     padding-left: 12px;
     padding-right: 12px;
+    padding-bottom: 8px;
 `
 const MediaSectionSpacer = styled(View)`
     width: 10px;
@@ -341,6 +353,10 @@ export default ClubTitleCard = ({
     }
 
     const TitleLine = () => {
+        const advanceToCreateReelay = () => navigation.push('VenueSelectScreen', { 
+            clubID: clubTitle.clubID,
+            titleObj: clubTitle.title, 
+        });
         return (
             <TitleLineView>
                 <ReviewIconSmallSVG />
@@ -349,13 +365,16 @@ export default ClubTitleCard = ({
                     <DescriptionText>{`${releaseYear}    ${runtimeString}`}</DescriptionText>
                 </TitleDetailLine>
                 <MarkSeenView>
-                    <MarkSeenButton 
+                    <AddReelayToTopicPressable onPress={advanceToCreateReelay}>
+                        <FontAwesomeIcon icon={faPlus} size={20} color='white' />
+                    </AddReelayToTopicPressable>
+                    {/* <MarkSeenButton 
                         markedSeen={markedSeen} 
                         setMarkedSeen={setMarkedSeen} 
                         showText={false} 
                         size={36}
                         titleObj={title} 
-                    />
+                    /> */}
                 </MarkSeenView>
             </TitleLineView>
         );
@@ -383,7 +402,6 @@ export default ClubTitleCard = ({
                 }
                 <TitleLine />
                 <MediaSection />
-                <DividerLine />
                 { (!clubTitle.reelays.length) && <CardBottomRowNoStacks navigation={navigation} clubTitle={clubTitle} /> }
                 { (clubTitle.reelays.length > 0) && (
                     <CardBottomRowWithStacks advanceToFeed={advanceToFeed} clubTitle={clubTitle} />

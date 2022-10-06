@@ -107,7 +107,7 @@ const DescriptionLine = styled(View)`
     margin-bottom: 9px;
 `
 const DescriptionText = styled(ReelayText.CaptionEmphasized)`
-    color: #86878B;
+    color: #C8C8C8;
     line-height: 18px;
 `
 const DividerLine = styled(View)`
@@ -170,7 +170,7 @@ const TopicCardView = styled(View)`
     align-items: center;
     background-color: black;
     border-radius: 11px;
-    height: ${props => props.horizontal ? '480px' : 'auto'};
+    height: ${props => props.horizontal ? '440px' : 'auto'};
     justify-content: space-between;
     width: ${props => getTopicCardWidth(props)}px;
 `
