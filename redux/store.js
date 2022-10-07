@@ -29,6 +29,7 @@ const initialState = {
     myClubs: [],
     myClubActivities: [],
     myWatchlistItems: [],
+    newTopicCreatedInClub: null,
 
     // FEEDS
     discoverMostRecent: {
@@ -170,6 +171,8 @@ const appReducer = ( state = initialState, action) => {
         case 'setMyWatchlistItems':
             const myWatchlistItems = watchlistRecsReducer(action.payload);
             return { ...state, myWatchlistItems };    
+        case 'setNewTopicCreatedInClub':
+            return { ...state, newTopicCreatedInClub: action.payload }
 
 
         // FEEDS (migrating stuff over here in 1.05)
@@ -365,6 +368,7 @@ export const mapStateToProps = (state) => ({
     myClubs: state.myClubs,
     myClubActivities: state.myClubActivities,
     myWatchlistItems: state.myWatchlistItems,
+    newTopicCreatedInClub: state.newTopicCreatedInClub,
 
     // FEEDS
     discoverAllTime: state.discoverAllTime,

@@ -167,14 +167,14 @@ export default function CreateTopicScreen({ navigation, route }) {
 
                 if (club) {
                     club.topics = [publishResult, ...club.topics];
-                    console.log('new club topics: ', club.topics);
                     dispatch({ type: 'setUpdatedClub', payload: club });
+                    dispatch({ type: 'setNewTopicCreatedInClub', payload: publishResult });
                 } else {
                     dispatch({ type: 'setTopics', payload: {
                         discover: [publishResult, ...myHomeContent?.discover?.topics]
                     }});
                 }
-                showMessageToast('Topic created!');
+                showMessageToast('Topic created');
                 setAddFirstReelayDrawerVisible(true);
 
                 logAmplitudeEventProd('createdTopic', {

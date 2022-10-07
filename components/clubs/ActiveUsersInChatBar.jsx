@@ -7,6 +7,7 @@ import styled from 'styled-components/native';
 import moment from 'moment';
 import ReelayColors from '../../constants/ReelayColors';
 import { AuthContext } from '../../context/AuthContext';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const LAST_ACTIVE_MAX_SECONDS = 180;
 
@@ -20,16 +21,15 @@ const BarView = styled(View)`
     padding-left: 16px;
     padding-right: 16px;
     position: absolute;
-    top: 116px;
+    top: ${props => props.topOffset + 76}px;
     width: 100%;
 `
 const OnlineNowText = styled(ReelayText.Body2)`
     color: rgba(255,255,255,0.8);
-    margin-top: 4px;
+    margin-top: 2px;
 `
 const ProfilePicView = styled(View)`
     margin-left: 2px;
-    margin-top: 4px;
 `
 const ProfilePicRowView = styled(View)`
     flex-direction: row;
@@ -38,6 +38,7 @@ const ProfilePicRowView = styled(View)`
 
 export default ActiveUsersInChatBar = ({ activeUsersInChatRef, navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const topOffset = useSafeAreaInsets().top;
 
     const getDisplayUsersInChat = () => {
         const activeUsersInChat = Object.values(activeUsersInChatRef?.current);
@@ -97,7 +98,7 @@ export default ActiveUsersInChatBar = ({ activeUsersInChatRef, navigation }) => 
     if (!otherUsersActive) return <View />;
 
     return (
-        <BarView>
+        <BarView topOffset={topOffset}>
             <OnlineNowText>{'In the chat now'}</OnlineNowText>
             <ProfilePicRow />
         </BarView>

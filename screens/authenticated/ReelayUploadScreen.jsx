@@ -14,6 +14,7 @@ import {
     KeyboardAvoidingView, 
     Pressable, 
     SafeAreaView,
+    TouchableOpacity,
     View, 
 } from 'react-native';
 import * as ReelayText from '../../components/global/Text';
@@ -31,7 +32,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const UPLOAD_VISIBILITY = Constants.manifest.extra.uploadVisibility;
 
-const UploadButtonPressable = styled(Pressable)`
+const UploadButtonPressable = styled(TouchableOpacity)`
     background-color: ${props => props.color}
     border-radius: 24px;
     flex-direction: row;
@@ -271,10 +272,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             : 'Next';
         const buttonText = (uploadStarted) ? 'Preparing...   ' : postDestinationText;
         const buttonTextColor = (uploadStarted) ? 'black' : 'white';
-
-        let buttonColor = ReelayColors.reelayBlue;
-        if (topicID) buttonColor = ReelayColors.reelayPurple;
-        if (uploadStarted) buttonColor = 'white';
+        const buttonColor = (uploadStarted) ? 'white' : ReelayColors.reelayBlue;
 
         return (
             <UploadButtonPressable color={buttonColor} onPress={confirmPostDestination}>

@@ -66,6 +66,7 @@ const ContentNoReelaysIconView = styled(View)`
     width: ${props => getContentRowWidth(props)}px;
 `
 const ContentWithReelaysSectionView = styled(View)`
+    align-items: center;
     display: flex;
     flex-direction: row;
     justify-content: space-between;

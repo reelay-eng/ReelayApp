@@ -251,6 +251,8 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const topOffset = useSafeAreaInsets().top;
     const bottomOffset = useSafeAreaInsets().bottom + 20;
 
+    const newTopicCreatedInClub = useSelector(state => state.newTopicCreatedInClub);
+    const uploadRequest = useSelector(state => state.uploadRequest);
     const uploadStage = useSelector(state => state.uploadStage);
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
@@ -304,6 +306,10 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             // hack to stop typing once a message is sent
             userEntry.lastTypingAt = moment().subtract(LAST_TYPING_MAX_SECONDS, 'seconds');
         });
+
+        socket.on('shouldRefreshClubActivity', () => {
+            onRefresh();
+        });;
 
         socket.on('userIsActive', ({ userSub }) => {
             console.log('received userIsActive: ', userSub);
@@ -427,6 +433,34 @@ export default ClubActivityScreen = ({ navigation, route }) => {
 
         return () => closeClubsChat();
     }, []);
+
+    useEffect(() => {
+        console.log('upload use effect called');
+        if (uploadStage === 'upload-complete') {
+            const uploadInClub = (uploadRequest?.reelayClub?.id === club.id);
+            console.log('can upload in club? ', uploadInClub);
+            if (uploadInClub && socketRef?.current) {
+                socketRef?.current.emit('addReelayToChat', {
+                    authSession,
+                    clubID: club.id,
+                    reelay: uploadRequest?.reelayDBBody,
+                    userSub: reelayDBUser?.sub,
+                });
+            }
+        }
+    }, [uploadStage]);
+
+    useEffect(() => {
+        if (newTopicCreatedInClub && newTopicCreatedInClub?.clubID === club.id) {
+            socketRef?.current.emit('addTopicToChat', {
+                authSession,
+                clubID: club.id,
+                topic: newTopicCreatedInClub,
+                userSub: reelayDBUser?.sub,
+            });
+            dispatch({ type: 'setNewTopicCreatedInClub', payload: null });
+        }
+    }, [newTopicCreatedInClub]);
 
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
