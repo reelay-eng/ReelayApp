@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React from 'react';
 import { Dimensions, TouchableOpacity, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components/native';
@@ -6,7 +6,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import { ChatsIconSVG, ReviewIconSVG, TopicsIconSVG } from '../../components/global/SVGs';
+import { ReviewIconSVG, TopicsIconSVG } from '../../components/global/SVGs';
 
 const { height, width } = Dimensions.get('window');
 
