@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
@@ -22,6 +22,8 @@ import Constants from 'expo-constants';
 import moment from 'moment';
 import EmptyClubsCard from '../../components/clubs/EmptyClubsCard';
 import { NotificationIconSVG, SearchIconSVG } from '../../components/global/SVGs';
+
+const { height, width } = Dimensions.get('window');
 
 const CLUB_PIC_SIZE = 72;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -46,9 +48,8 @@ const AddClubRowPressable = styled(TouchableOpacity)`
     flex-direction: row;
     padding-top: 12px;
     padding-bottom: 12px;
-    margin: 16px;
+    margin: 12px;
     margin-top: 8px;
-    margin-bottom: 16px;
     width: 100%;
 `
 const ClubNameText = styled(ReelayText.H6Emphasized)`
@@ -77,7 +78,7 @@ const ClubRowArrowSpacer = styled(View)`
 const ClubRowPressable = styled(TouchableOpacity)`
     align-items: center;
     flex-direction: row;
-    margin: 16px;
+    margin: 12px;
     margin-top: 10px;
     margin-bottom: 10px;
     width: 100%;
@@ -124,7 +125,7 @@ const FilterButtonText = styled(ReelayText.Subtitle2)`
 const FilterButtonRow = styled(View)`
     align-items: center;
     flex-direction: row;
-    margin: 16px;
+    margin: 12px;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     text-align: left;
@@ -336,7 +337,11 @@ export default MyClubsScreen = ({ navigation }) => {
         }
 
         const MyClubsList = () => {
-            const scrollStyle = { alignItems: 'center', paddingBottom: 120, width: '100%' };
+            const scrollStyle = { 
+                
+                paddingBottom: 120, 
+                width: width - 24,
+            };
             return (
                 <ScrollView
                     bottomOffset={bottomOffset} 

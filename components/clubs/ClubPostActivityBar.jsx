@@ -18,7 +18,7 @@ import { isMentionPartType, MentionInput, parseValue } from 'react-native-contro
 
 const { height, width } = Dimensions.get('window');
 
-const LAST_TYPING_UPDATE_SECONDS = 5;
+const LAST_TYPING_UPDATE_SECONDS = 4;
 const MAX_COMMENT_LENGTH = 300;
 const MAX_SUGGESTIONS = 6;
 
@@ -155,18 +155,19 @@ export default ClubPostActivityBar = ({ club, navigation, scrollRef, socketRef }
 
         const checkEmitTypingInChat = () => {
             const lastTypingMoment = lastTypingAtRef.current;
-            const shouldEmitTypingUpdate = (!lastTypingMoment) || (
-                moment().diff(lastTypingMoment, 'seconds') > LAST_TYPING_UPDATE_SECONDS
-            );
-
-            if (shouldEmitTypingUpdate) {
-                const socket = socketRef.current;
-                socket.emit('typingInChat', { 
-                    authSession,
-                    clubID: club?.id, 
-                    userSub: reelayDBUser?.sub,
-                });
+            if (lastTypingMoment) {
+                const secondsSinceTyping = moment().diff(lastTypingMoment, 'seconds');
+                console.log('seconds since typing: ', secondsSinceTyping);
+                if (secondsSinceTyping < LAST_TYPING_UPDATE_SECONDS) return;
             }
+
+            const socket = socketRef.current;
+            socket.emit('typingInChat', { 
+                authSession,
+                clubID: club?.id, 
+                userSub: reelayDBUser?.sub,
+            });
+            lastTypingAtRef.current = moment();
         }
 
         const emitStayActive = () => {
@@ -189,7 +190,6 @@ export default ClubPostActivityBar = ({ club, navigation, scrollRef, socketRef }
                 setMessageText(nextMessageText);
             }
             checkEmitTypingInChat();
-            lastTypingAtRef.current = moment();
         }
 
         const onFocus = () => {
