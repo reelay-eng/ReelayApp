@@ -11,14 +11,17 @@ import { ChatsIconSVG, ReviewIconSVG, TopicsIconSVG } from '../../components/glo
 const { height, width } = Dimensions.get('window');
 
 const BUTTON_MARGIN_WIDTH = 10;
-const BUTTON_SIZE = (width - (BUTTON_MARGIN_WIDTH * 5)) / 3;
+const BUTTON_WIDTH = (width - (BUTTON_MARGIN_WIDTH * 4)) / 2;
 
+const CenterSpacer = styled(View)`
+    width: ${BUTTON_MARGIN_WIDTH}px;
+`
 const CreateOptionPressable = styled(TouchableOpacity)`
     align-items: center;
     border-radius: 12px;
-    height: ${BUTTON_SIZE}px;
+    height: ${BUTTON_WIDTH * 0.67}px;
     justify-content: center;
-    width: ${BUTTON_SIZE}px;
+    width: ${BUTTON_WIDTH}px;
 `
 const CreateOptionText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -26,9 +29,6 @@ const CreateOptionText = styled(ReelayText.CaptionEmphasized)`
 `
 const CreateOptionView = styled(View)`
     align-items: center;
-`
-const CreateChatPressable = styled(CreateOptionPressable)`
-    background-color: ${ReelayColors.reelayGreen};
 `
 const CreateReviewPressable = styled(CreateOptionPressable)`
     background-color: ${ReelayColors.reelayBlue};
@@ -39,7 +39,7 @@ const CreateTopicPressable = styled(CreateOptionPressable)`
 const CreateOptionsRowView = styled(View)`
     align-items: center;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: center;
     padding: ${BUTTON_MARGIN_WIDTH}px;
 `
 const CreateScreenView = styled(View)`
@@ -63,8 +63,8 @@ const HeaderText = styled(ReelayText.H5Bold)`
 	margin-top: 2px;
 	text-align: left;
 `
-const Spacer = styled(View)`
-    height: 100px;
+const HeaderSpacer = styled(View)`
+    height: 200px;
 `
 
 export default CreateScreen = ({ navigation }) => {
@@ -76,18 +76,6 @@ export default CreateScreen = ({ navigation }) => {
             <HeaderView topOffset={topOffset}>
                 <HeaderText>{'create'}</HeaderText>
             </HeaderView>
-        )
-    }
-
-    const CreateChatButton = () => {
-        const advanceToCreateChat = () => navigation.push('CreateClubScreen');
-        return (
-            <CreateOptionView>
-                <CreateChatPressable onPress={advanceToCreateChat}>
-                    <ChatsIconSVG />
-                </CreateChatPressable>
-                <CreateOptionText>{'chat'}</CreateOptionText>
-            </CreateOptionView>
         )
     }
 
@@ -122,11 +110,11 @@ export default CreateScreen = ({ navigation }) => {
     return (
         <CreateScreenView>
             <Header />
-            <Spacer />
+            <HeaderSpacer />
             <CreateOptionsRowView>
                 <CreateReviewButton />
+                <CenterSpacer />
                 <CreateTopicButton />
-                <CreateChatButton />
             </CreateOptionsRowView>
         </CreateScreenView>
     );

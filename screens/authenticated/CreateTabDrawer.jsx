@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React from 'react';
 import { Dimensions, Modal, Pressable, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
@@ -6,12 +6,12 @@ import * as ReelayText from '../../components/global/Text';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChatsIconSVG, ReviewIconSVG, TopicsIconSVG } from '../../components/global/SVGs';
+import { ReviewIconSVG, TopicsIconSVG } from '../../components/global/SVGs';
 
 const { height, width } = Dimensions.get('window');
 
 const BUTTON_MARGIN_WIDTH = 10;
-const BUTTON_SIZE = (width - (BUTTON_MARGIN_WIDTH * 5)) / 3;
+const BUTTON_WIDTH = (width - (BUTTON_MARGIN_WIDTH * 4)) / 2;
 
 const Backdrop = styled(Pressable)`
     height: 100%;
@@ -24,9 +24,9 @@ const CloseDrawerButton = styled(TouchableOpacity)`
 const CreateOptionPressable = styled(TouchableOpacity)`
     align-items: center;
     border-radius: 12px;
-    height: ${BUTTON_SIZE}px;
+    height: ${BUTTON_WIDTH * 0.67}px;
     justify-content: center;
-    width: ${BUTTON_SIZE}px;
+    width: ${BUTTON_WIDTH}px;
 `
 const CreateOptionText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -34,9 +34,6 @@ const CreateOptionText = styled(ReelayText.CaptionEmphasized)`
 `
 const CreateOptionView = styled(View)`
     align-items: center;
-`
-const CreateChatPressable = styled(CreateOptionPressable)`
-    background-color: ${ReelayColors.reelayGreen};
 `
 const CreateReviewPressable = styled(CreateOptionPressable)`
     background-color: ${ReelayColors.reelayBlue};
@@ -47,7 +44,7 @@ const CreateTopicPressable = styled(CreateOptionPressable)`
 const CreateOptionsRowView = styled(View)`
     align-items: center;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: center;
     padding: ${BUTTON_MARGIN_WIDTH}px;
 `
 const DrawerView = styled(View)`
@@ -73,6 +70,9 @@ const HeaderText = styled(ReelayText.H6)`
 const LeftSpacer = styled(View)`
     width: 40px;
 `
+const CenterSpacer = styled(View)`
+    width: ${BUTTON_MARGIN_WIDTH}px;
+`
 
 export default CreateTabDrawer = ({ closeDrawer, navigation }) => {
     const bottomOffset = useSafeAreaInsets().bottom;
@@ -86,21 +86,6 @@ export default CreateTabDrawer = ({ closeDrawer, navigation }) => {
                     <FontAwesomeIcon icon={faXmark} size={20} color='white' />
                 </CloseDrawerButton>
             </DrawerHeaderView>
-        )
-    }
-
-    const CreateChatButton = () => {
-        const advanceToCreateChat = () => {
-            closeDrawer();
-            navigation.navigate('Create', { screen: 'CreateClubScreen' });
-        }
-        return (
-            <CreateOptionView>
-                <CreateChatPressable onPress={advanceToCreateChat}>
-                    <ChatsIconSVG />
-                </CreateChatPressable>
-                <CreateOptionText>{'chat'}</CreateOptionText>
-            </CreateOptionView>
         )
     }
 
@@ -141,8 +126,8 @@ export default CreateTabDrawer = ({ closeDrawer, navigation }) => {
                 <DrawerHeader />
                 <CreateOptionsRowView>
                     <CreateReviewButton />
+                    <CenterSpacer />
                     <CreateTopicButton />
-                    <CreateChatButton />
                 </CreateOptionsRowView>
             </DrawerView>
         </Modal>

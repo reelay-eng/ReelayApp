@@ -19,7 +19,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const { height, width } = Dimensions.get('window');
 
 const BUTTON_MARGIN_WIDTH = 10;
-const BUTTON_SIZE = (width - (BUTTON_MARGIN_WIDTH * 5)) / 3;
+const BUTTON_WIDTH = (width - (BUTTON_MARGIN_WIDTH * 4)) / 2;
 
 const Backdrop = styled(Pressable)`
     height: 100%;
@@ -32,9 +32,9 @@ const CloseDrawerButton = styled(TouchableOpacity)`
 const CreateOptionPressable = styled(TouchableOpacity)`
     align-items: center;
     border-radius: 12px;
-    height: ${BUTTON_SIZE}px;
+    height: ${BUTTON_WIDTH * 0.67}px;
     justify-content: center;
-    width: ${BUTTON_SIZE}px;
+    width: ${BUTTON_WIDTH}px;
 `
 const CreateOptionText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -94,7 +94,7 @@ const ModalContainer = styled(View)`
     position: absolute;
 `
 const OptionsSpacer = styled(View)`
-    width: ${BUTTON_MARGIN_WIDTH * 2}px;
+    width: ${BUTTON_MARGIN_WIDTH}px;
 `
 
 export default AddTitleOrTopicDrawer = ({ navigation, club, drawerVisible, setDrawerVisible }) => {
