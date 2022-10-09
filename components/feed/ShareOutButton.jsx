@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Share, TouchableOpacity } from 'react-native';
 import Constants from 'expo-constants';
 import { AuthContext } from '../../context/AuthContext';
@@ -6,11 +6,14 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 import { createDeeplinkPathToReelay } from '../../api/ReelayDBApi';
 import { ShareOutSVG } from '../global/SVGs';
+import ShareReelayDrawer from './ShareReelayDrawer';
 
 const REELAY_WEB_BASE_URL = Constants.manifest.extra.reelayWebBaseUrl;
 
 export default ShareOutButton = ({ reelay }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const [shareDrawerOpen, setShareDrawerOpen] = useState(false);
+    const closeDrawer = () => setShareDrawerOpen(false);
     // you should already have this reelay in the Seen section of your watchlist,
     // since you made a reelay about it
 
@@ -34,8 +37,11 @@ export default ShareOutButton = ({ reelay }) => {
     }
 
     return (
-        <TouchableOpacity onPress={shareReelay}>
+        <TouchableOpacity onPress={() => setShareDrawerOpen(true)}>
             <ShareOutSVG />
+            { shareDrawerOpen && (
+                <ShareReelayDrawer closeDrawer={closeDrawer} reelay={reelay} />
+            )}
         </TouchableOpacity>
     );
 }

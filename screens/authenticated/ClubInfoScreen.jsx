@@ -708,8 +708,9 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     console.log(clubLinkObj);
                     if (clubLinkObj?.inviteCode && !clubLinkObj?.error) {
                         const copyLink = INVITE_BASE_URL + clubLinkObj.inviteCode;
-                        Clipboard.setString(copyLink);
-                        showMessageToast('Invite link copied to clipboard!');
+                        Clipboard.setStringAsync(copyLink).then(onfulfilled => {
+                            showMessageToast('Invite link copied to clipboard!');
+                        });
                     }
 
                     logAmplitudeEventProd('copyClubInviteLink', {
