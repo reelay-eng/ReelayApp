@@ -17,6 +17,8 @@ import { ShareOutSVG } from '../global/SVGs';
 import { showMessageToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
+const CAN_USE_RN_SHARE = (Constants.appOwnership !== 'expo');
+
 const { height, width } = Dimensions.get('window');
 
 const BUTTON_MARGIN_WIDTH = 10;
@@ -149,10 +151,22 @@ export default ShareReelayDrawer = ({ closeDrawer, reelay }) => {
     }
 
     const ShareToInstaStoryButton = () => {
-        const copyLink = () => {}
+        const shareToInstagram = async () => {
+            if (!CAN_USE_RN_SHARE) return;
+            const RN_SHARE = require('react-native-share');
+            const shareResult = await RN_SHARE.default.shareSingle({
+                title: `${reelayDBUser?.username} on ${reelay.title.display}`,
+                message: 'share hot takes on Reelay',
+                url: url,
+                social: RN_SHARE.Social.InstagramStories,
+                type: 'video/mp4',
+            });
+            console.log('share result: ', shareResult);
+        }
+        
         return (
             <ShareOptionView>
-                <ShareOptionPressable onPress={copyLink}>
+                <ShareOptionPressable onPress={shareToInstagram}>
                     <FontAwesomeIcon icon={faCamera} color='white' size={30} />
                 </ShareOptionPressable>
                 <ShareOptionText>{'Insta story'}</ShareOptionText>
