@@ -1,19 +1,24 @@
-import React, { useState, useRef, useContext, useCallback, useEffect } from 'react';
-import { Dimensions, FlatList, Pressable, TouchableOpacity, View } from 'react-native';
+import React, { useState, useRef, useContext, useCallback, useEffect, Fragment } from 'react';
+import { Dimensions, FlatList, Keyboard, KeyboardAvoidingView, Pressable, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
+import { SceneMap, TabBar, TabView } from 'react-native-tab-view';
 
 import ProfilePicture from '../global/ProfilePicture';
-import SearchField from '../create-reelay/SearchField';
 import { AuthContext } from '../../context/AuthContext';
 
+import * as Haptics from 'expo-haptics';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
 import { useSelector } from 'react-redux';
 import ReelayColors from '../../constants/ReelayColors';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faMagnifyingGlass, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { TextInput } from 'react-native-gesture-handler';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const { width } = Dimensions.get('window');
+const { height, width } = Dimensions.get('window');
 
-const CheckmarkIconContainer = styled(View)`
+const CheckmarkIconView = styled(View)`
     align-items: center;
     justify-content: center;
     height: 33px;
@@ -26,29 +31,39 @@ const CheckmarkIconWhiteFill = styled(View)`
     position: absolute;
     width: 20px;
 `
-const DisplayFollowsToSendView = styled(View)`
-    flex-direction: row;
-    flex-wrap: wrap;
-    width: 100%;  
-`
-const FollowPillView = styled(View)`
-    align-items: center;
-    background-color: #1a1a1a;
-    border-radius: 8px;
-    flex-direction: row;
-    margin-right: 8px;
-    margin-bottom: 8px;
-    padding: 8px;
-`
 const FollowsList = styled(FlatList)`
     margin-bottom: 10px;
 `
-const ProfilePictureContainer = styled(View)`
+const HeaderSearchRow = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-right: 10px;
+    width: 100%;
+`
+const HeaderText = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 28px;
+    line-height: 36px;
+    padding: 12px;
+`
+const NoOneInvitedYetPrompt = styled(View)`
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+    top: 20px;
+    width: 100%;
+`
+const NoOneInvitedYetText = styled(ReelayText.Subtitle1Emphasized)`
+    color: white;
+    text-align: center;
+`
+const ProfilePictureView = styled(View)`
     margin-top: 6px;
     margin-bottom: 6px;
     margin-right: 10px;
 `
-const RowContainer = styled(TouchableOpacity)`
+const RowView = styled(TouchableOpacity)`
     display: flex;
     align-items: center;
     background-color: black;
@@ -58,32 +73,59 @@ const RowContainer = styled(TouchableOpacity)`
     padding-left: 12px;
     padding-right: 12px;
 `
-const SearchFieldContainer = styled(View)`
-    width: 100%;
+const SearchIconPressable = styled(TouchableOpacity)`
+    padding: 6px;
 `
-const UserInfoContainer = styled(View)`
+const Spacer = styled(View)`
+    height: 24px;
+`
+const TabLabelText = styled(ReelayText.CaptionEmphasized)`
+    color: white;
+    font-size: 16px;
+`
+const UserInfoView = styled(View)`
     flex-direction: row;
 `
 const UsernameText = styled(ReelayText.Subtitle1Emphasized)`
     color: ${(props) => (props.isAlreadyMember) ? 'gray' : 'white' };
 `
-const UsernameContainer = styled(View)`
+const UsernameView = styled(View)`
     align-items: flex-start;
     justify-content: center;
 `
 
+const SearchInputStyle = {
+    alignItems: 'center',
+    backgroundColor: '#1a1a1a',
+    borderRadius: 24,
+    color: 'white',
+    display: 'flex',
+    flex: 1,
+    flexDirection: 'row',
+    fontFamily: 'Outfit-Regular',
+    fontSize: 16,
+    fontStyle: 'normal',
+    justifyContent: 'flex-end',
+    letterSpacing: 0.15,
+    marginTop: 8,
+    marginBottom: 8,
+    marginRight: 12,
+    paddingLeft: 16,
+    paddingRight: 60,
+    paddingTop: 12,
+    paddingBottom: 12,
+}
+
 const FollowerRow = ({ 
     clubMembers, 
-    displayFollowsToSend, 
-    setDisplayFollowsToSend, 
     followObj, 
-    followsToSend,
+    hasMarkedToSend,
+    markFollowToSend,
+    unmarkFollowToSend,
 }) => {
     const { followSub, followName } = followObj;
     const creator = { sub: followSub, username: followName };
 
-    const findFollowMarked = (nextFollowObj) => nextFollowObj.followSub === followObj.followSub;
-    const hasMarkedToSend = followsToSend.current.find(findFollowMarked);
     const [rowHighlighted, setRowHighlighted] = useState(hasMarkedToSend);
 
     const backgroundColor = 'black';
@@ -96,20 +138,6 @@ const FollowerRow = ({
         return <View key={followSub} />
     }
     
-    const markFollowToSend = () => {
-        followsToSend.current.push(followObj);
-        setDisplayFollowsToSend([...followsToSend.current]);
-        return true;
-    };
-
-    const unmarkFollowToSend = () => {
-        followsToSend.current = followsToSend.current.filter((nextFollowObj) => {
-            return followObj.followSub !== nextFollowObj.followSub;
-        });
-        setDisplayFollowsToSend([...followsToSend.current]);
-        return false; // isMarked
-    };
-
     const markRow = () => {
         if (isAlreadyMember) return;
         if (rowHighlighted) {
@@ -122,72 +150,78 @@ const FollowerRow = ({
     }
 
     return (
-        <RowContainer backgroundColor={backgroundColor} onPress={markRow}>
-            <UserInfoContainer>
-                <ProfilePictureContainer>
+        <RowView backgroundColor={backgroundColor} onPress={markRow}>
+            <UserInfoView>
+                <ProfilePictureView>
                     <ProfilePicture user={creator} size={32} />
-                </ProfilePictureContainer>
-                <UsernameContainer>
+                </ProfilePictureView>
+                <UsernameView>
                     <UsernameText isAlreadyMember={isAlreadyMember}>{followName}</UsernameText>
-                </UsernameContainer>
-            </UserInfoContainer>
+                </UsernameView>
+            </UserInfoView>
             { (rowHighlighted || isAlreadyMember) && (
-                <CheckmarkIconContainer>
+                <CheckmarkIconView>
                     { !isAlreadyMember && <CheckmarkIconWhiteFill /> }
                     <Icon type='ionicon' name={iconName} size={33} color={iconColor} />
-                </CheckmarkIconContainer>                        
+                </CheckmarkIconView>                        
             )}
             {(!rowHighlighted && !isAlreadyMember) && (
-                <CheckmarkIconContainer>
+                <CheckmarkIconView>
                     <Icon type='ionicon' name={'ellipse-outline'} size={33} color={'gray'} />
-                </CheckmarkIconContainer>
+                </CheckmarkIconView>
             )}
-        </RowContainer>
+        </RowView>
     )
 }
 
-const FollowerSearch = ({ updateSearch }) => {
-    const [searchText, setSearchText] = useState('');
+const HeaderFollowerSearch = ({ searchText, updateSearchText }) => {
+    const [showSearchBar, setShowSearchBar] = useState(false);
+    const searchFieldRef = useRef(null);
 
-    const updateSearchText = (newSearchText) => {
-        if (searchText !== newSearchText) {
-            setSearchText(newSearchText);
-            updateSearch(newSearchText);
+    const searchIconOnPress = () => {
+        if (showSearchBar) {
+            if (searchText?.length > 0) {
+                updateSearchText('');
+            } else {
+                setShowSearchBar(false);
+            }
+        } else {
+            setShowSearchBar(true)
         }
     }
-    return (
-        <SearchFieldContainer>
-            <SearchField
-                borderRadius={4}
-                searchText={searchText}
-                updateSearchText={updateSearchText}
-                placeholderText={`Search followers and following...`} />
-        </SearchFieldContainer>
-    );
-}
 
-const DisplayFollowsToSend = ({ displayFollowsToSend, setDisplayFollowsToSend, followsToSend }) => {
+    useEffect(() => {
+        if (showSearchBar && searchFieldRef?.current) {
+            searchFieldRef.current?.focus();
+        }
+    }, [showSearchBar]);
+
     return (
-        <DisplayFollowsToSendView>
-            { displayFollowsToSend.map(followObj => {
-                const { followSub, followName } = followObj;
-                const user = { sub: followSub, username: followName };
-                return (
-                    <FollowPillView key={followSub}>
-                        <ProfilePicture user={user} />
-                        <UsernameText isAlreadyMember={false}>{followName}</UsernameText>
-                    </FollowPillView>
-                );
-            })}
-        </DisplayFollowsToSendView>
+        <HeaderSearchRow>
+            { !showSearchBar && <HeaderText>{'Invite friends'}</HeaderText> }
+            { showSearchBar && (
+                <TextInput 
+                    ref={searchFieldRef}
+                    placeholder={'Search following...'}
+                    placeholderTextColor={'gray'}
+                    onChangeText={updateSearchText}
+                    style={SearchInputStyle} 
+                    value={searchText}
+                />
+            )}
+            <SearchIconPressable onPress={searchIconOnPress}>
+                <FontAwesomeIcon icon={showSearchBar ? faXmark : faMagnifyingGlass} size={24} color='white' />
+            </SearchIconPressable>
+        </HeaderSearchRow>
     );
 }
 
 export default InviteMyFollowsList = ({ clubMembers, followsToSend }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const bottomOffset = useSafeAreaInsets().bottom;
     const myFollowers = useSelector(state => state.myFollowers);
     const myFollowing = useSelector(state => state.myFollowing);
-    const sortByFollowName = (followObj0, followObj1) => (followObj0.followName > followObj1.followName);
+    const sortByFollowName = (followObj0, followObj1) => (followObj0.cleanedFollowName > followObj1.cleanedFollowName);
 
     const getMyFollows = () => {
         const iAmFollowing = (followObj) => (followObj.followerName === reelayDBUser?.username);
@@ -217,48 +251,178 @@ export default InviteMyFollowsList = ({ clubMembers, followsToSend }) => {
     }
 
     const allFollowsUnique = useRef(getMyFollows());
-    const [displayFollows, setDisplayFollows] = useState(allFollowsUnique?.current);
-    const [displayFollowsToSend, setDisplayFollowsToSend] = useState(followsToSend?.current);
+    const displayFollowsRef = useRef(allFollowsUnique?.current);
+    const updateSearchCountRef = useRef(0);
+
+    const [searchText, setSearchText] = useState('');
+    const [tabIndex, setTabIndex] = useState(0);
+    const tabRoutes = [
+        { key: 'all', title: 'All' },
+        { key: 'invites', title: 'Invites' }
+    ];
+
+    const renderFollowRow = ({ item, index }) => {
+        const followObj = item;
+        const findFollowMarked = (nextFollowObj) => nextFollowObj.followSub === followObj.followSub;
+        const hasMarkedToSend = followsToSend.current.find(findFollowMarked);
+
+        return(
+            <FollowerRow key={index} 
+                clubMembers={clubMembers} 
+                followObj={followObj} 
+                hasMarkedToSend={hasMarkedToSend}
+                markFollowToSend={markFollowToSend}
+                unmarkFollowToSend={unmarkFollowToSend}
+            />
+        );
+    }
 
     const updateSearch = useCallback(async (newSearchText) => {
         if (!newSearchText.length) {
-            setDisplayFollows(allFollowsUnique?.current);
+            displayFollowsRef.current = allFollowsUnique?.current;
         } else {
             const cleanedSearchText = newSearchText.toLowerCase();
             const matchSearchText = (followObj) => (followObj.cleanedFollowName.startsWith(cleanedSearchText));
             const filteredFollows = allFollowsUnique?.current.filter(matchSearchText);        
             const sortedFollows = filteredFollows.sort(sortByFollowName);
-            setDisplayFollows(sortedFollows);
+            displayFollowsRef.current = sortedFollows;
         }
+        updateSearchCountRef.current += 1;
     }, []);
 
-    const renderFollowRow = ({ item, index }) => {
-        const followObj = item;
-        return(
-            <FollowerRow key={index} 
-                clubMembers={clubMembers} 
-                displayFollowsToSend={displayFollowsToSend}
-                setDisplayFollowsToSend={setDisplayFollowsToSend}
-                followObj={followObj} 
-                followsToSend={followsToSend} 
-            />
+    const updateSearchText = (newSearchText) => {
+        if (searchText !== newSearchText) {
+            setSearchText(newSearchText);
+            updateSearch(newSearchText);
+        }
+    }
+
+    const markFollowToSend = (followObj) => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        followsToSend.current.push(followObj);
+        updateSearchText('');
+    }
+
+    const unmarkFollowToSend = (followObj) => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        followsToSend.current = followsToSend.current.filter((nextFollowObj) => {
+            return followObj.followSub !== nextFollowObj.followSub;
+        });
+        if (followsToSend.current.length === 0 && tabIndex === 1) {
+            setTabIndex(0);
+        }
+    }
+
+    const AllFollowsTab = () => {
+        const [displayFollows, setDisplayFollows] = useState(displayFollowsRef?.current);
+        const [updateSearchCount, setUpdateSearchCount] = useState(updateSearchCountRef?.current);
+
+        useEffect(() => {
+            const displayInterval = setInterval(() => {
+                if (updateSearchCount !== updateSearchCountRef?.current) {
+                    setDisplayFollows(displayFollowsRef.current);
+                    setUpdateSearchCount(updateSearchCountRef?.current);
+                }
+            }, 200);
+            return () => clearInterval(displayInterval);
+        }, [updateSearchCount]);
+
+        return (
+            <Fragment>
+                <FollowsList 
+                    contentContainerStyle={{ paddingTop: 12, paddingBottom: bottomOffset + 40, width: '100%' }}
+                    data={displayFollows}
+                    onScroll={Keyboard.dismiss}
+                    renderItem={renderFollowRow}
+                    showVerticalScrollIndicator={false}
+                />
+            </Fragment>
         );
     }
-    
-    return (
-        <React.Fragment>
-            <DisplayFollowsToSend 
-                displayFollowsToSend={displayFollowsToSend}
-                setDisplayFollowsToSend={setDisplayFollowsToSend}     
-                followsToSend={followsToSend}       
-            />
-            <FollowerSearch updateSearch={updateSearch} />
+
+    const InvitesTab = () => {
+        const [displayFollowsToSend, setDisplayFollowsToSend] = useState(followsToSend?.current);
+
+        useEffect(() => {
+            const inviteCountInterval = setInterval(() => {
+                const stateString = JSON.stringify(displayFollowsToSend);
+                const refString = JSON.stringify(followsToSend?.current);
+                if (stateString !== refString) {
+                    setDisplayFollowsToSend(followsToSend?.current);
+                }
+            }, 200);
+            return () => clearInterval(inviteCountInterval);
+        }, [displayFollowsToSend]);
+
+        if (displayFollowsToSend.length === 0) {
+            return (
+                <NoOneInvitedYetPrompt>
+                    <NoOneInvitedYetText>{'Add people from your following'}</NoOneInvitedYetText>
+                    <Spacer />
+                    <NoOneInvitedYetText>{'You can share an external invite link once you\'ve started the chat'}</NoOneInvitedYetText>
+                </NoOneInvitedYetPrompt>
+            )
+        }
+
+        return (
             <FollowsList 
-                contentContainerStyle={{ width: '100%' }}
-                data={displayFollows}
+                contentContainerStyle={{ marginTop: 12, width: '100%' }}
+                data={displayFollowsToSend}
                 renderItem={renderFollowRow}
                 showVerticalScrollIndicator={false}
             />
-        </React.Fragment>
+        );
+    }
+
+    const InvitesTabLabel = ({ route, focused, color }) => {
+        const [inviteCount, setInviteCount] = useState(followsToSend?.current?.length);
+        const showInviteCount = (route.title === 'Invites' && inviteCount > 0);
+        const labelText = (showInviteCount) ? `${route.title} (${inviteCount})` : route.title;
+
+        useEffect(() => {
+            const inviteCountInterval = setInterval(() => {
+                const refFollowCount = followsToSend?.current?.length;
+                if (inviteCount !== refFollowCount) {
+                    setInviteCount(refFollowCount);
+                }
+            }, 200);
+            return () => clearInterval(inviteCountInterval);
+        }, [inviteCount]);
+
+        return <TabLabelText>{labelText}</TabLabelText>;
+    }
+
+    const renderTabLabel = ({ route, focused, color }) => {
+        return <InvitesTabLabel route={route} focused={focused} color={color} />
+    }
+
+    const renderTabBar = (props) => {
+        return (
+            <TabBar {...props} 
+                indicatorStyle={{ backgroundColor: 'white', borderRadius: 4, height: 4 }}
+                indicatorContainerStyle={{ backgroundColor: 'black' }} 
+                renderLabel={renderTabLabel}
+            />
+        );
+    }
+
+    const renderScene = SceneMap({
+        all: AllFollowsTab,
+        invites: InvitesTab,
+    })
+    
+    return (
+        <KeyboardAvoidingView behavior='padding'>
+            <HeaderFollowerSearch searchText={searchText} updateSearchText={updateSearchText} />
+            <View style={{ height: height - 200, width: '100%' }}>
+                <TabView 
+                    initialLayout={{ width: width }}
+                    navigationState={{ index: tabIndex, routes: tabRoutes }} 
+                    onIndexChange={setTabIndex}
+                    renderScene={renderScene}
+                    renderTabBar={renderTabBar}
+                />
+            </View>
+        </KeyboardAvoidingView>
     );
 };

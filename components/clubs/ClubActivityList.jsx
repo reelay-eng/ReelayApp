@@ -284,19 +284,24 @@ export default ClubActivityList = ({
 
     return (
         <Fragment>
-            <FlashList
-                data={displayActivities}
-                estimatedItemSize={200}
-                getItemLayout={getItemLayout}
-                inverted={true}
-                keyExtractor={keyExtractor}
-                onEndReached={onEndReached}
-                onEndReachedThreshold={0.9}
-                ref={scrollRef}
-                refreshControl={refreshControl} 
-                renderItem={renderClubActivity}
-                showsVerticalScrollIndicator={false}
-            />
+            { (displayActivities?.length > 0) && (
+                <FlashList
+                    data={displayActivities}
+                    estimatedItemSize={200}
+                    getItemLayout={getItemLayout}
+                    inverted={true}
+                    keyExtractor={keyExtractor}
+                    onEndReached={onEndReached}
+                    onEndReachedThreshold={0.9}
+                    ref={scrollRef}
+                    refreshControl={refreshControl} 
+                    renderItem={renderClubActivity}
+                    showsVerticalScrollIndicator={false}
+                />                    
+            )}
+            { (displayActivities?.length === 0) && (
+                <InviteToChatExternalPrompt club={club} navigation={navigation} />
+            )}
             <ActiveUsersInChatBar 
                 activeUsersInChatRef={activeUsersInChatRef} 
                 navigation={navigation}  

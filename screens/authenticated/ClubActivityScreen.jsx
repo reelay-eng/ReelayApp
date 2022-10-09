@@ -40,6 +40,7 @@ import {
     rejectInviteFromClub, 
 } from '../../api/ClubsApi';
 import { HeaderWithBackButton } from '../../components/global/Headers';
+import InviteToChatExternalPrompt from '../../components/clubs/InviteToChatExternalPrompt';
 
 const { height, width } = Dimensions.get('window');
 const CHAT_BASE_URL = Constants.manifest.extra.reelayChatBaseUrl;
@@ -114,6 +115,7 @@ const JoinClubOuterView = styled(LinearGradient)`
 const RefreshHeaderView = styled(View)`
     top: ${props => props.topOffset}px;
     position: absolute;
+    width: 100%;
 `
 const RefreshScreenView = styled(View)`
     align-items: center;
@@ -229,6 +231,8 @@ export default ClubActivityScreen = ({ navigation, route }) => {
 
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
+
+    const promptToInvite = route.params?.promptToInvite;
     const club = route.params?.club ?? { 
         id: route.params?.clubID,
         name: route.params?.clubName,
@@ -237,8 +241,9 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         topics: [],
         visibility: 'private',
     };
-    const promptToInvite = route.params?.promptToInvite;
 
+    const clubPostsLoaded = (club.members?.length > 0);
+    const [chatMessagesLoaded, setChatMessagesLoaded] = useState(false);
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
     const [refreshing, setRefreshing] = useState(false);
     const [showChatMessages, setShowChatMessages] = useState(true);
@@ -256,7 +261,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const uploadStage = useSelector(state => state.uploadStage);
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
-    const notLoaded = (!club.members?.length && !club.titles?.length && !club.topics?.length);
 
     const initClubsChat = async () => {
         const socket = io(CHAT_BASE_URL);
@@ -288,6 +292,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             } else {
                 console.log('bad page: ', page, chatMessagesNextPageRef?.current);
             }
+            if (!chatMessagesLoaded) setChatMessagesLoaded(true);
         })
 
         socket.on('chatMessageSent', ({ message }) => {
@@ -295,7 +300,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             console.log('chat message received: ', message);
             const nextMessages = [message, ...currentMessages];
             chatMessagesRef.current = nextMessages;
-            console.log(`next message length: ${nextMessages?.length}`);
 
             const userEntry = activeUsersInChatRef?.current?.[message?.userSub];
             if (!userEntry) {
@@ -414,7 +418,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     }
 
     useEffect(() => {
-        if (notLoaded) {
+        if (!clubPostsLoaded) {
             onRefresh().then(() => initClubsChat());
         } else {
             if (clubMember?.id) {
@@ -435,7 +439,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     }, []);
 
     useEffect(() => {
-        console.log('upload use effect called');
         if (uploadStage === 'upload-complete') {
             const uploadInClub = (uploadRequest?.reelayClub?.id === club.id);
             console.log('can upload in club? ', uploadInClub);
@@ -495,7 +498,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         );
     }
 
-    if (notLoaded) {
+    if (!clubPostsLoaded || !chatMessagesLoaded) {
         return (
             <RefreshScreenView>
                 <RefreshHeaderView topOffset={topOffset}>

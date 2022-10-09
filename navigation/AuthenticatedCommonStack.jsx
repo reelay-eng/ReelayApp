@@ -10,6 +10,7 @@ import ClubJoinFromLinkScreen from '../screens/authenticated/ClubJoinFromLinkScr
 import ClubStainedGlassScreen from '../screens/authenticated/ClubStainedGlassScreen';
 import CreateClubScreen from '../screens/authenticated/CreateClubScreen';
 import CreateClubPart2Screen from '../screens/authenticated/CreateClubPart2Screen';
+import CreateClubPart3Screen from '../screens/authenticated/CreateClubPart3Screen';
 import CreateTopicScreen from '../screens/authenticated/CreateTopicScreen';
 import EditClubScreen from '../screens/authenticated/EditClubScreen';
 import FeedScreen from '../screens/authenticated/FeedScreen';
@@ -52,6 +53,7 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
             <CommonStack.Screen name='ClubStainedGlassScreen' component={ClubStainedGlassScreen} options={commonOptions} />
             <CommonStack.Screen name='CreateClubScreen' component={CreateClubScreen} options={commonOptions} />
             <CommonStack.Screen name='CreateClubPart2Screen' component={CreateClubPart2Screen} options={commonOptions} />
+            <CommonStack.Screen name='CreateClubPart3Screen' component={CreateClubPart3Screen} options={commonOptions} />
             <CommonStack.Screen name='CreateTopicScreen' component={CreateTopicScreen} options={commonOptions} />
             <CommonStack.Screen name='EditClubScreen' component={EditClubScreen} options={commonOptions} />
             <CommonStack.Screen name='FeedScreen' component={FeedScreen} options={commonOptions} />

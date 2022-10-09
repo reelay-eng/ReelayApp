@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react';
-import { Dimensions, Pressable, SafeAreaView, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { Dimensions, KeyboardAvoidingView, Pressable, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 
 import * as ReelayText from '../../components/global/Text';
@@ -23,21 +23,22 @@ const BottomGradient = styled(LinearGradient)`
 `
 const ContinueButtonView = styled(TouchableOpacity)`
     align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
+    background-color: ${props => props.saySkip ? 'white' : ReelayColors.reelayBlue};
     border-radius: 40px;
     justify-content: center;
     height: 40px;
+    margin-bottom: 12px;
     width: ${width - 56}px;
 `
-const ContinueButtonOuterView = styled(View)`
+const ContinueButtonOuterView = styled(KeyboardAvoidingView)`
     align-items: center;
-    bottom: 0px;
+    bottom: 20px;
     padding-bottom: ${props => props.bottomOffset}px;
     position: absolute;
     width: 100%;
 `
 const ContinueText = styled(ReelayText.CaptionEmphasized)`
-    color: white;
+    color: ${props => props.saySkip ? 'black' : 'white'};
     font-size: 15px;
 `
 const CreateScreenView = styled(SafeAreaView)`
@@ -46,12 +47,6 @@ const CreateScreenView = styled(SafeAreaView)`
     height: 100%;
     width: 100%;
 `
-const HeaderText = styled(ReelayText.H5Bold)`
-    color: white;
-    font-size: 28px;
-    line-height: 36px;
-    padding: 12px;
-`
 const HeaderView = styled(View)`
     margin-bottom: 16px;
 `
@@ -59,9 +54,6 @@ const SectionView = styled(View)`
     margin-left: 12px;
     margin-right: 12px;
     margin-top: 16px;
-`
-const Spacer = styled(View)`
-    height: 24px;
 `
 
 export default CreateClubPart2Screen = ({ navigation, route }) => {
@@ -75,18 +67,30 @@ export default CreateClubPart2Screen = ({ navigation, route }) => {
     });
 
     const ContinueButton = () => {
+        const [numFollowsToSend, setNumFollowsToSend] = useState(followsToSend?.current?.length);
+        const saySkip = (numFollowsToSend === 0);
+
         const onPress = () => {
-            navigation.push('CreateClubPart2Screen', { 
+            navigation.push('CreateClubPart3Screen', { 
                 clubVisibility, 
                 followsToSend: followsToSend?.current,
             });
         }
 
+        useEffect(() => {
+            const numFollowsInterval = setInterval(() => {
+                if (numFollowsToSend !== followsToSend?.current?.length) {
+                    setNumFollowsToSend(followsToSend?.current?.length);
+                }
+            }, 200);
+            return () => clearInterval(numFollowsInterval);
+        }, [numFollowsToSend]);
+
         return (
-            <ContinueButtonOuterView bottomOffset={bottomOffset}>
+            <ContinueButtonOuterView behavior='padding' bottomOffset={bottomOffset}>
                 <BottomGradient bottomOffset={bottomOffset} colors={["transparent", "#0d0d0d"]} />
-                <ContinueButtonView onPress={onPress}>
-                    <ContinueText>{'Continue'}</ContinueText>
+                <ContinueButtonView onPress={onPress} saySkip={saySkip}>
+                    <ContinueText saySkip={saySkip}>{(saySkip) ? 'Skip' : 'Continue'}</ContinueText>
                 </ContinueButtonView>
             </ContinueButtonOuterView>
         );
@@ -95,7 +99,6 @@ export default CreateClubPart2Screen = ({ navigation, route }) => {
     const InviteFollowsPrompt = () => {
         return (
             <SectionView>
-                <HeaderText>{'Invite friends'}</HeaderText>
                 <InviteMyFollowsList clubMembers={[]} followsToSend={followsToSend} />
             </SectionView> 
         );
@@ -104,7 +107,7 @@ export default CreateClubPart2Screen = ({ navigation, route }) => {
     const Header = () => {
         return (
             <HeaderView>
-                <HeaderWithBackButton navigation={navigation} text={'start a new chat'} />
+                <HeaderWithBackButton navigation={navigation} text={'new chat'} />
             </HeaderView>
         );
     }

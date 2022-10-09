@@ -269,9 +269,9 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         }, 0);
 
         const sortedMembers = club.members.sort((member0, member1) => {
-            const member0AddedAt = moment(member0?.createdAt);
-            const member1AddedAt = moment(member1?.createdAt);
-            return member1AddedAt.diff(member0AddedAt, 'seconds') > 0;
+            if (!member0.hasAcceptedInvite && member1.hasAcceptedInvite) return 1;
+            if (member0.hasAcceptedInvite && !member1.hasAcceptedInvite) return -1;
+            return member1.username < member0.username;
         });
         
         const EditMembersButton = () => {

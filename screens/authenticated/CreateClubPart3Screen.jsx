@@ -3,14 +3,12 @@ import {
     ActivityIndicator,
     Dimensions,
     Keyboard, 
-    Pressable, 
     SafeAreaView, 
     TextInput, 
     TouchableOpacity,
     TouchableWithoutFeedback, 
     View,
 } from 'react-native';
-import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 import { AuthContext } from '../../context/AuthContext';
@@ -27,19 +25,18 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 
 import { Buffer } from "buffer";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { createClub } from '../../api/ClubsApi';
+import { createClub, inviteMemberToClub } from '../../api/ClubsApi';
+import { notifyNewMemberOnClubInvite } from '../../api/ClubNotifications';
 import { HeaderWithBackButton } from '../../components/global/Headers';
+import { faEarthAmericas, faLock, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faEarthAmericas, faLock } from '@fortawesome/free-solid-svg-icons';
 
 const { width } = Dimensions.get('window');
-const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
-const CreateChatText = styled(ReelayText.Overline)`
+const CreateChatText = styled(ReelayText.CaptionEmphasized)`
     color: white;
-    font-size: 12px;
 `
-const CreateClubButtonContainer = styled(TouchableOpacity)`
+const CreateClubButtonView = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${(props) => props.disabled 
         ? 'white' 
@@ -50,74 +47,83 @@ const CreateClubButtonContainer = styled(TouchableOpacity)`
     height: 40px;
     width: ${width - 56}px;
 `
-const CreateScreenContainer = styled(SafeAreaView)`
+const CreateScreenView = styled(SafeAreaView)`
     background-color: black;
     justify-content: space-between;
     height: 100%;
     width: 100%;
 `
-const HeaderContainer = styled(View)`
+const FinishPromptText = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 28px;
+    line-height: 36px;
+`
+const HeaderView = styled(View)`
     margin-bottom: 16px;
 `
-const SectionContainer = styled(View)`
+const PublicOrPrivateRowView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: center;
+    width: 50%;
+`
+const PublicOrPrivateText = styled(ReelayText.Body1)`
+    color: white;
+    margin-left: 10px;
+`
+const ReviewSelectionsRow = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 36px;
+    width: 100%;
+`
+const SectionView = styled(View)`
     margin-left: 20px;
     margin-right: 20px;
     margin-top: 16px;
 `
-const SectionContainerBottom = styled(SectionContainer)`
+const SectionViewBottom = styled(SectionView)`
     align-items: center;
     bottom: 20px;
 `
-const ClubSettingRowPressable = styled(Pressable)`
-    align-items: center;
-    flex-direction: row;
-    padding: 16px;
-    padding-left: 0px;
-    width: 100%;
-`
-const ClubSettingIconView = styled(View)`
-    margin-right: 16px;
-`
-const ClubSettingInfoView = styled(View)`
-    display: flex;
-    flex: 1;
-`
-const ClubSettingBodyText = styled(ReelayText.Caption)`
-    color: white;
-`
-const ClubSettingHeadingText = styled(ReelayText.Body1)`
-    color: white;
-`
-const ClubSettingSelectedView = styled(View)`
-    margin-left: 16px;
-`
 const TitleInputField = styled(TextInput)`
-    border-color: white;
-    border-radius: 4px;
+    background-color: #1a1a1a;
+    border-radius: 32px;
     border-width: 1px;
     color: white;
     font-family: Outfit-Regular;
-    font-size: 16px;
+    font-size: 18px;
     font-style: normal;
     letter-spacing: 0.15px;
     margin-top: 6px;
-    padding: 12px;
+    padding: 16px;
+    padding-left: 20px;
+    padding-right: 20px;
 `
 const TitleText = styled(ReelayText.Subtitle2)`
     color: ${(props) => props.disabled ? 'black' : 'white'};
     font-size: 16px;
 `
 const DescriptionInputField = styled(TitleInputField)`
-    height: 90px;
 `
+const Spacer = styled(View)`
+    height: 12px;
+`
+const SpacerBig = styled(View)`
+    height: 48px;
+`
+
 const TITLE_MIN_LENGTH = 6;
 const TITLE_MAX_LENGTH = 25;
 const DESCRIPTION_MAX_LENGTH = 75;
 
 const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
-const CLOUDFRONT_BASE_URL = Constants.manifest.extra.cloudfrontBaseUrl;
 
-export default function CreateClubScreen({ navigation, route }) {
+export default CreateClubPart3Screen = ({ navigation, route }) => {
+    const { clubVisibility, followsToSend } = route.params;
     const { reelayDBUser } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
     const myClubs = useSelector(state => state.myClubs);
@@ -130,7 +136,6 @@ export default function CreateClubScreen({ navigation, route }) {
     const descriptionTextRef = useRef('');
     const titleFieldRef = useRef(null);
     const titleTextRef = useRef('');
-    const visibilityRef = useRef(FEED_VISIBILITY);
 
     const changeDescriptionText = (text) => descriptionTextRef.current = text;
     const changeTitleText = (text) => titleTextRef.current = text;
@@ -142,6 +147,12 @@ export default function CreateClubScreen({ navigation, route }) {
     const CreateClubButton = () => {
         const onPress = async () => {
             if (publishing) return;
+
+            if (titleTextRef.current.length < TITLE_MIN_LENGTH) {
+                titleFieldRef.current.focus();
+                return;
+            }
+
             const club = await publishClub();
             if (club && !club?.error) {
                 logAmplitudeEventProd('clubCreated', {
@@ -152,24 +163,23 @@ export default function CreateClubScreen({ navigation, route }) {
                 console.log('new club obj: ', club);
                 // advance to invite screen
                 navigation.popToTop();
-                navigation.push('ClubActivityScreen', { club, promptToInvite: true });
+                navigation.push('ClubActivityScreen', { club, promptToInvite: false });
             } else {
                 console.log('could not create club obj');
             }
         };
 
         return (
-            <CreateClubButtonContainer onPress={onPress}>
+            <CreateClubButtonView onPress={onPress}>
                 { publishing && <ActivityIndicator/> }
-                { !publishing && <CreateChatText>{'start the chat'}</CreateChatText> }
-            </CreateClubButtonContainer>
+                { !publishing && <CreateChatText>{'Start the chat'}</CreateChatText> }
+            </CreateClubButtonView>
         );
     }
 
     const DescriptionInput = () => {
         return (
-            <SectionContainer>
-                <TitleText>{'Description'}</TitleText>
+            <SectionView>
                 <DescriptionInputField 
                     ref={descriptionFieldRef}
                     blurOnSubmit={true}
@@ -177,77 +187,65 @@ export default function CreateClubScreen({ navigation, route }) {
                     multiline
                     numberOfLines={3}
                     defaultValue={descriptionTextRef.current}
-                    placeholder={"Who's it for?"}
+                    placeholder={"Description (optional)"}
                     placeholderTextColor={'rgba(255,255,255,0.6)'}
                     onChangeText={changeDescriptionText}
                     returnKeyLabel="done"
                     returnKeyType="done"
                 />
-            </SectionContainer> 
+            </SectionView> 
         );
     }
 
-    const SettingsRow = ({ isSelected, isPrivate, onPress }) => {
-        const headingText = (isPrivate)
-            ? 'Private Chat'
-            : 'Public Chat';
-        const bodyText = (isPrivate)
-            ? 'Closed group. Invite people to the chat'
-            : 'Open group. Anyone can join';
-
-        const renderSettingIcon = () => (isPrivate)
-            ? <FontAwesomeIcon icon={faLock} color='white' size={27} />
-            : <FontAwesomeIcon icon={faEarthAmericas} color='white' size={27} />
-
+    const FinishPrompt = () => {
         return (
-            <ClubSettingRowPressable onPress={onPress}>
-                <ClubSettingIconView>
-                    { renderSettingIcon() }
-                </ClubSettingIconView>
-                <ClubSettingInfoView>
-                    <ClubSettingHeadingText>{headingText}</ClubSettingHeadingText>
-                    <ClubSettingBodyText>{bodyText}</ClubSettingBodyText>
-                </ClubSettingInfoView>
-                <ClubSettingSelectedView>
-                    { isSelected && <Icon type='ionicon' name='checkmark-circle' color={ReelayColors.reelayBlue} size={30} />}
-                    { !isSelected && <Icon type='ionicon' name='ellipse-outline' color={'white'} size={30} />}
-                </ClubSettingSelectedView>
-            </ClubSettingRowPressable>
-        );
-    }
-
-    const SettingsInput = () => {
-        const [isPrivate, setIsPrivate] = useState(visibilityRef.current === 'private');
-        const onSelectPrivate = () => {
-            setIsPrivate(true);
-            visibilityRef.current = 'private';
-        }
-        const onSelectPublic = () => {
-            setIsPrivate(false);
-            visibilityRef.current = FEED_VISIBILITY;
-        }
-
-        return (
-            <SectionContainer>
-                <TitleText>{'Chat Settings'}</TitleText>
-                <SettingsRow isSelected={isPrivate} isPrivate={true} onPress={onSelectPrivate} />
-                <SettingsRow isSelected={!isPrivate} isPrivate={false} onPress={onSelectPublic} />
-            </SectionContainer> 
+            <SectionView>
+                <Spacer />
+                <FinishPromptText>{'Finish setup'}</FinishPromptText>
+            </SectionView>
         );
     }
 
     const Header = () => {
         return (
-            <HeaderContainer>
-                <HeaderWithBackButton navigation={navigation} text={'start a new chat'} />
-            </HeaderContainer>
+            <HeaderView>
+                <HeaderWithBackButton navigation={navigation} text={'new chat'} />
+            </HeaderView>
+        );
+    }
+
+    const PublicOrPrivateRow = ({ isPrivate }) => {
+        const headingText = (isPrivate) ? 'Private Chat' : 'Public Chat';
+        const renderSettingIcon = () => (isPrivate)
+            ? <FontAwesomeIcon icon={faLock} color='white' size={27} />
+            : <FontAwesomeIcon icon={faEarthAmericas} color='white' size={27} />
+
+        return (
+            <PublicOrPrivateRowView>
+                { renderSettingIcon() }
+                <PublicOrPrivateText>{headingText}</PublicOrPrivateText>
+            </PublicOrPrivateRowView>
+        );
+    }
+
+    const ReviewInvitesRow = () => {
+        const inviteCount = followsToSend?.length;
+        if (inviteCount === 0) return <View />;
+
+        const invitesPlural = (inviteCount > 1) ? 's' : '';
+        const invitesText = `${inviteCount} invite${invitesPlural}`;
+        
+        return (
+            <PublicOrPrivateRowView>
+                <FontAwesomeIcon icon={faUserPlus} color='white' size={27} />
+                <PublicOrPrivateText>{invitesText}</PublicOrPrivateText>
+            </PublicOrPrivateRowView>
         );
     }
 
     const TitleInput = () => {
         return (
-            <SectionContainer>
-                <TitleText>{'Title'}</TitleText>
+            <SectionView>
                 <TitleInputField 
                     ref={titleFieldRef}
                     blurOnSubmit={true}
@@ -255,13 +253,13 @@ export default function CreateClubScreen({ navigation, route }) {
                     multiline
                     numberOfLines={2}
                     defaultValue={titleTextRef.current}
-                    placeholder={"Give this group chat a name"}
+                    placeholder={"Title (required)"}
                     placeholderTextColor={'rgba(255,255,255,0.6)'}
                     onChangeText={changeTitleText}
                     returnKeyLabel="done"
                     returnKeyType="done"
                 />
-            </SectionContainer> 
+            </SectionView> 
         );
     }
 
@@ -274,7 +272,7 @@ export default function CreateClubScreen({ navigation, route }) {
                 creatorSub: reelayDBUser?.sub,
                 name: titleTextRef.current,
                 description: descriptionTextRef.current,
-                visibility: visibilityRef.current ?? 'private',
+                visibility: clubVisibility,
             }
             const createClubResult = await createClub(clubPostBody);
             if (!createClubResult || createClubResult.error) {
@@ -294,7 +292,7 @@ export default function CreateClubScreen({ navigation, route }) {
                 // todo: handle failed upload
             }
             dispatch({ type: 'setMyClubs', payload: [club, ...myClubs] });
-            console.log(club);
+            await sendAllInvites(club);
             setPublishing(false);
             return club;
         } catch (error) {
@@ -304,6 +302,50 @@ export default function CreateClubScreen({ navigation, route }) {
             return null;
         }
     }
+
+    const sendAllInvites = async (club) => {
+        try {
+            const sendInvite = async (followObj) => {
+                const inviteMemberResult = await inviteMemberToClub({
+                    authSession,
+                    clubID: club.id,
+                    userSub: followObj.followSub,
+                    username: followObj.followName,
+                    role: 'member',
+                    invitedBySub: reelayDBUser?.sub,
+                    invitedByUsername: reelayDBUser?.username,
+                    clubLinkID: null,
+                });
+        
+                notifyNewMemberOnClubInvite({
+                    club,
+                    invitedByUser: reelayDBUser,
+                    newMember: {
+                        sub: followObj.followSub,
+                        username: followObj.followName,
+                    },
+                });
+        
+                logAmplitudeEventProd('inviteMemberToClub', {
+                    invitedByUsername: reelayDBUser?.username,
+                    invitedByUserSub: reelayDBUser?.sub,
+                    newMemberUsername: followObj?.followName,
+                    newMemberUserSub: followObj?.followSub,
+                    club: club?.name,
+                    clubID: club?.id,
+                });
+                
+                return inviteMemberResult;
+            }        
+
+            const inviteResults = await Promise.all(followsToSend.map(sendInvite));
+            const peopleWord = (inviteResults.length > 1) ? 'people' : 'person';
+            showMessageToast(`Invited ${inviteResults.length} ${peopleWord} to ${club.name}`);
+        } catch (error) {
+            console.log(error);
+            showErrorToast('Ruh roh! Couldn\'t send invites. Try again?');
+        }
+    } 
 
     const uploadClubPicToS3 = async (clubID, photoURI) => {
         const resizedPhoto = await resizeImage(photoURI);
@@ -333,20 +375,29 @@ export default function CreateClubScreen({ navigation, route }) {
 		return resizeResult;
 	}
 
+    useEffect(() => {
+        if (titleFieldRef?.current) titleFieldRef.current.focus();
+    }, []);
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <CreateScreenContainer>
+            <CreateScreenView>
                 <View>
                     <Header />
+                    <FinishPrompt />
+                    <SpacerBig />
                     <ChooseClubPicture clubPicSourceRef={clubPicSourceRef} />
                     <TitleInput />
                     <DescriptionInput />
-                    <SettingsInput />
+                    <ReviewSelectionsRow>
+                        <PublicOrPrivateRow isPrivate={clubVisibility === 'private'} />
+                        <ReviewInvitesRow />
+                    </ReviewSelectionsRow>
                 </View>
-                <SectionContainerBottom>
+                <SectionViewBottom>
                     <CreateClubButton />
-                </SectionContainerBottom>
-            </CreateScreenContainer>
+                </SectionViewBottom>
+            </CreateScreenView>
         </TouchableWithoutFeedback>
     );
 };

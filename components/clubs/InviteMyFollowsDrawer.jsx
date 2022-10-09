@@ -31,21 +31,21 @@ const Backdrop = styled(Pressable)`
     width: 100%;
 `
 const DrawerContainer = styled(View)`
-    background-color: #1a1a1a;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
+    background-color: black;
+    border-color: #1c1c1c;
+    border-bottom-color: black;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-width: 2px;
+    padding: 16px;
     margin-top: auto;
     max-height: 70%;
     padding-bottom: 80px;
-    width: 100%;
 `
 const HeaderContainer = styled(View)`
     align-items: center;
     padding: 12px;
     padding-bottom: 0px;
-`
-const HeaderText = styled(ReelayText.CaptionEmphasized)`
-    color: white;
 `
 const ModalContainer = styled(View)`
     position: absolute;
@@ -81,7 +81,6 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
     const Header = () => {
         return (
             <HeaderContainer>
-                <HeaderText>{'Invite your friends'}</HeaderText>
             </HeaderContainer>
         );
     }
@@ -158,8 +157,7 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
             <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
                 <Backdrop onPress={closeDrawer}/>
                 <DrawerContainer>
-                    <Header />
-                        <InviteMyFollowsList clubMembers={club.members} followsToSend={followsToSend} />
+                    <InviteMyFollowsList clubMembers={club.members} followsToSend={followsToSend} />
                     <SendInvitesButton />
                 </DrawerContainer>
                 </KeyboardAvoidingView>

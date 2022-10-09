@@ -157,7 +157,6 @@ export default ClubPostActivityBar = ({ club, navigation, scrollRef, socketRef }
             const lastTypingMoment = lastTypingAtRef.current;
             if (lastTypingMoment) {
                 const secondsSinceTyping = moment().diff(lastTypingMoment, 'seconds');
-                console.log('seconds since typing: ', secondsSinceTyping);
                 if (secondsSinceTyping < LAST_TYPING_UPDATE_SECONDS) return;
             }
 
