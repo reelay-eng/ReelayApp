@@ -140,6 +140,7 @@ const StartConvoButton = styled(TouchableOpacity)`
     flex-direction: row;
     justify-content: center;
     height: 36px;
+    margin-bottom: 10px;
     width: ${props => getContentRowWidth(props) - 32}px;
 `
 const StartConvoText = styled(ReelayText.Overline)`
