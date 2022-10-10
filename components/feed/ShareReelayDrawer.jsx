@@ -16,6 +16,7 @@ import { faCamera, faLink, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { ShareOutSVG } from '../global/SVGs';
 import { showMessageToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import { cacheDirectory, downloadAsync, getInfoAsync, makeDirectoryAsync } from 'expo-file-system';
 
 const CAN_USE_RN_SHARE = (Constants.appOwnership !== 'expo');
 
@@ -153,17 +154,36 @@ export default ShareReelayDrawer = ({ closeDrawer, reelay }) => {
     const ShareToInstaStoryButton = () => {
         const shareToInstagram = async () => {
             if (!CAN_USE_RN_SHARE) return;
+
+            const videoDir = cacheDirectory + 'vid';
+            const dirInfo = await getInfoAsync(videoDir);
+            if (!dirInfo.exists) {
+                console.log("Image directory doesn't exist, creating...");
+                await makeDirectoryAsync(videoDir, { intermediates: true });
+            }
+
+            console.log('remote uri: ', reelay?.content);
+            const localVideoURI = videoDir + '/' + reelay?.sub;
+            console.log('local uri: ', localVideoURI);
+            const localVideo = await downloadAsync(reelay?.content?.videoURI, localVideoURI);
+            console.log(localVideo);
+
             const RN_SHARE = require('react-native-share');
             const shareResult = await RN_SHARE.default.shareSingle({
-                title: `${reelayDBUser?.username} on ${reelay.title.display}`,
-                message: 'share hot takes on Reelay',
+                // title: `${reelayDBUser?.username} on ${reelay.title.display}`,
+                // message: 'share hot takes on Reelay',
+                // url: url,
+                // social: RN_SHARE.Social.InstagramStories,
+                // type: 'video/mp4',
+                attributionURL: url,
+                backgroundVideo: localVideo?.uri,
                 url: url,
                 social: RN_SHARE.Social.InstagramStories,
                 type: 'video/mp4',
             });
             console.log('share result: ', shareResult);
         }
-        
+
         return (
             <ShareOptionView>
                 <ShareOptionPressable onPress={shareToInstagram}>
