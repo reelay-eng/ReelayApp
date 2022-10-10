@@ -170,11 +170,6 @@ export default ShareReelayDrawer = ({ closeDrawer, reelay }) => {
 
             const RN_SHARE = require('react-native-share');
             const shareResult = await RN_SHARE.default.shareSingle({
-                // title: `${reelayDBUser?.username} on ${reelay.title.display}`,
-                // message: 'share hot takes on Reelay',
-                // url: url,
-                // social: RN_SHARE.Social.InstagramStories,
-                // type: 'video/mp4',
                 attributionURL: url,
                 backgroundVideo: localVideo?.uri,
                 url: url,
