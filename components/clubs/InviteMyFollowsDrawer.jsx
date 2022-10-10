@@ -42,11 +42,6 @@ const DrawerContainer = styled(View)`
     max-height: 70%;
     padding-bottom: 80px;
 `
-const HeaderContainer = styled(View)`
-    align-items: center;
-    padding: 12px;
-    padding-bottom: 0px;
-`
 const ModalContainer = styled(View)`
     position: absolute;
 `
@@ -77,13 +72,6 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
     const bottomOffset = useSafeAreaInsets().bottom;
     const closeDrawer = () => setDrawerVisible(false);
     const [sendingInvites, setSendingInvites] = useState(false);
-
-    const Header = () => {
-        return (
-            <HeaderContainer>
-            </HeaderContainer>
-        );
-    }
 
     const SendInvitesButton = () => {
         const sendInvite = async (followObj) => {

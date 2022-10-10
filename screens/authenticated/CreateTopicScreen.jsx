@@ -24,6 +24,7 @@ import TopicAddFirstReelayDrawer from '../../components/topics/TopicAddFirstReel
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { notifyClubOnTopicAdded } from '../../api/ClubNotifications';
 import { HeaderWithBackButton } from '../../components/global/Headers';
+import { TopicsBannerIconSVG, TopicsGiantIconSVG, TopicsIconSVG } from '../../components/global/SVGs';
 
 const { width } = Dimensions.get('window');
 
@@ -38,9 +39,9 @@ const CreateTopicButtonContainer = styled(TouchableOpacity)`
     height: 40px;
     width: ${width - 56}px;
 `
-const CreateTopicText = styled(ReelayText.Overline)`
+const CreateTopicText = styled(ReelayText.CaptionEmphasized)`
     color: white;
-    font-size: 12px;
+    font-size: 16px;
 `
 const CreateScreenContainer = styled(SafeAreaView)`
     background-color: black;
@@ -52,19 +53,35 @@ const HeaderContainer = styled(View)`
     margin-bottom: 16px;
 `
 const TitleInputField = styled(TextInput)`
-    border-color: white;
-    border-radius: 4px;
-    border-width: 1px;
+    background-color: #1a1a1a;
+    border-radius: 32px;
     color: white;
     font-family: Outfit-Regular;
-    font-size: 16px;
+    font-size: 18px;
     font-style: normal;
     letter-spacing: 0.15px;
     margin-top: 6px;
-    padding: 12px;
+    padding: 16px;
+    padding-left: 20px;
+    padding-right: 20px;
 `
 const DescriptionInputField = styled(TitleInputField)`
-    height: 90px;
+`
+const PromptText = styled(ReelayText.H5Bold)`
+    color: white;
+    display: flex;
+    flex: 1;
+    font-size: 24px;
+    line-height: 32px;
+    margin-left: 12px;
+`
+const PromptView = styled(View)`
+    align-items: flex-end;
+    flex-direction: row;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 40px;
+    margin-bottom: 12px;
 `
 const SectionContainer = styled(View)`
     margin-left: 20px;
@@ -198,7 +215,7 @@ export default function CreateTopicScreen({ navigation, route }) {
         return (
             <CreateTopicButtonContainer onPress={onPress}>
                 { publishing && <ActivityIndicator/> }
-                { !publishing && <CreateTopicText>{'create topic'}</CreateTopicText> }
+                { !publishing && <CreateTopicText>{'Create topic'}</CreateTopicText> }
             </CreateTopicButtonContainer>
         );
     }
@@ -206,7 +223,6 @@ export default function CreateTopicScreen({ navigation, route }) {
     const DescriptionInput = () => {
         return (
             <SectionContainer>
-                <TitleText>{'Description'}</TitleText>
                 <TouchableWithoutFeedback onPress={focusDescription}>
                     <DescriptionInputField 
                         ref={descriptionFieldRef}
@@ -215,7 +231,7 @@ export default function CreateTopicScreen({ navigation, route }) {
                         multiline
                         numberOfLines={3}
                         defaultValue={descriptionTextRef.current}
-                        placeholder={"Go on..."}
+                        placeholder={"Description (optional)"}
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
                         onChangeText={changeDescriptionText}
                         returnKeyLabel="done"
@@ -238,7 +254,6 @@ export default function CreateTopicScreen({ navigation, route }) {
     const TitleInput = () => {
         return (
             <SectionContainer>
-                <TitleText>{'Prompt'}</TitleText>
                 <TouchableWithoutFeedback onPress={focusTitle}>
                     <TitleInputField 
                         ref={titleFieldRef}
@@ -247,7 +262,7 @@ export default function CreateTopicScreen({ navigation, route }) {
                         multiline
                         numberOfLines={2}
                         defaultValue={titleTextRef.current}
-                        placeholder={"What should people reelay?"}
+                        placeholder={"Title (required)"}
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
                         onChangeText={changeTitleText}
                         onSubmitEditing={Keyboard.dismiss}
@@ -266,11 +281,21 @@ export default function CreateTopicScreen({ navigation, route }) {
         }
     });
 
+    const CreatePrompt = () => {
+        return (
+            <PromptView>
+                <TopicsBannerIconSVG />
+                <PromptText>{'What should people reelay?'}</PromptText>
+            </PromptView> 
+        );
+    }
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <CreateScreenContainer>
                 <View style={{ display: 'flex' }}>
                     <Header />
+                    <CreatePrompt />
                     <TitleInput />
                     <DescriptionInput />
                 </View>
