@@ -50,13 +50,6 @@ const CreateClubButtonView = styled(TouchableOpacity)`
     height: 40px;
     width: ${width - 56}px;
 `
-const CreateScreenView = styled(SafeAreaView)`
-    background-color: black;
-    display: flex;
-    flex: 1;
-    justify-content: space-between;
-    width: 100%;
-`
 const FinishPromptText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 28px;
@@ -91,7 +84,7 @@ const SectionView = styled(View)`
 `
 const SectionViewBottom = styled(SectionView)`
     align-items: center;
-    bottom: 20px;
+    padding-top: 24px;
 `
 const TitleInputField = styled(TextInput)`
     background-color: #1a1a1a;
@@ -104,8 +97,6 @@ const TitleInputField = styled(TextInput)`
     letter-spacing: 0.15px;
     margin-top: 6px;
     padding: 16px;
-    padding-left: 20px;
-    padding-right: 20px;
 `
 const TitleText = styled(ReelayText.Subtitle2)`
     color: ${(props) => props.disabled ? 'black' : 'white'};
@@ -129,7 +120,9 @@ const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
 export default CreateClubPart3Screen = ({ navigation, route }) => {
     const { clubVisibility, followsToSend } = route.params;
     const { reelayDBUser } = useContext(AuthContext);
+
     const authSession = useSelector(state => state.authSession);
+    const bottomOffset = useSafeAreaInsets().bottom;
     const myClubs = useSelector(state => state.myClubs);
     const s3Client = useSelector(state => state.s3Client);
     const [publishing, setPublishing] = useState(false);
@@ -380,16 +373,16 @@ export default CreateClubPart3Screen = ({ navigation, route }) => {
 		return resizeResult;
 	}
 
-    useEffect(() => {
-        if (titleFieldRef?.current) titleFieldRef.current.focus();
-    }, []);
+    // useEffect(() => {
+    //     if (titleFieldRef?.current) titleFieldRef.current.focus();
+    // }, []);
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <KeyboardAvoidingView behavior='padding' style={{ 
                 top: topOffset, flex: 1, justifyContent: 'flex-end' 
             }}>
-                <View>
+                <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
                     <Header />
                         <FinishPrompt />
                         <SpacerBig />
@@ -400,11 +393,11 @@ export default CreateClubPart3Screen = ({ navigation, route }) => {
                             <PublicOrPrivateRow isPrivate={clubVisibility === 'private'} />
                             <ReviewInvitesRow />
                         </ReviewSelectionsRow>
-                </View>
+                        <SectionViewBottom bottomOffset={bottomOffset}>
+                            <CreateClubButton />
+                        </SectionViewBottom>
+                </ScrollView>
                 <View style={{ flex: 1 }} />
-                <SectionViewBottom>
-                    <CreateClubButton />
-                </SectionViewBottom>
             </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
     );

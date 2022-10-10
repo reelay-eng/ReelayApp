@@ -258,7 +258,7 @@ export default InviteMyFollowsList = ({ clubMembers, followsToSend }) => {
     const [tabIndex, setTabIndex] = useState(0);
     const tabRoutes = [
         { key: 'all', title: 'All' },
-        { key: 'invites', title: 'Ready to Invite' }
+        { key: 'invites', title: 'Selected' }
     ];
 
     const renderFollowRow = ({ item, index }) => {
@@ -376,7 +376,7 @@ export default InviteMyFollowsList = ({ clubMembers, followsToSend }) => {
 
     const InvitesTabLabel = ({ route, focused, color }) => {
         const [inviteCount, setInviteCount] = useState(followsToSend?.current?.length);
-        const showInviteCount = (route.title === 'Ready to Invite' && inviteCount > 0);
+        const showInviteCount = (route.title === 'Selected' && inviteCount > 0);
         const labelText = (showInviteCount) ? `${route.title} (${inviteCount})` : route.title;
 
         useEffect(() => {

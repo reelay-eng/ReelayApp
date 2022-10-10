@@ -76,7 +76,7 @@ const PromptText = styled(ReelayText.H5Bold)`
     margin-left: 12px;
 `
 const PromptView = styled(View)`
-    align-items: flex-end;
+    align-items: center;
     flex-direction: row;
     margin-left: 20px;
     margin-right: 20px;
