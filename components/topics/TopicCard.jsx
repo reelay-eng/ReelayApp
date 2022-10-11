@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment } from 'react';
 import { Dimensions, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
@@ -7,14 +7,13 @@ import ProfilePicture from '../global/ProfilePicture';
 import { Icon } from 'react-native-elements';
 import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import TopicDotMenuDrawer from './TopicDotMenuDrawer';
 import ReelayColors from '../../constants/ReelayColors';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import ReelayThumbnail from '../global/ReelayThumbnail';
 import TitlePoster from '../global/TitlePoster';
-import { TopicsBannerIconSVG, TopicsCardIconSmallSVG, TopicsGiantIconSVG } from '../global/SVGs';
+import { TopicsCardIconSmallSVG, TopicsGiantIconSVG } from '../global/SVGs';
 
 const { height, width } = Dimensions.get('window');
 const CARD_WIDTH_CAROUSEL = width - 48;
@@ -140,6 +139,7 @@ const StartConvoButton = styled(TouchableOpacity)`
     flex-direction: row;
     justify-content: center;
     height: 36px;
+    margin-bottom: 10px;
     width: ${props => getContentRowWidth(props) - 32}px;
 `
 const StartConvoText = styled(ReelayText.Overline)`
@@ -440,19 +440,17 @@ export default TopicCard = ({
         const advanceToCreatorProfileScreen = () => navigation.push('UserProfileScreen', { creator });
 
         const DotMenuButton = () => {
-            const [topicDotMenuVisible, setTopicDotMenuVisible] = useState(false);
-            const openDrawer = () => setTopicDotMenuVisible(true);
+            const dispatch = useDispatch();
+            const openedActivityDotMenu = useSelector(state => state.openedActivityDotMenu);
+            const topicDotMenuVisible = (openedActivityDotMenu && openedActivityDotMenu?.id === topic?.id);
+            const openDrawer = () => {
+                dispatch({ type: 'setOpenedActivityDotMenu', payload: topic });
+            }
+
             return (
                 <DotMenuButtonContainer onPress={openDrawer}>
                     <Icon type='ionicon' name='ellipsis-horizontal' size={20} color='white' />
-                    { topicDotMenuVisible && (
-                        <TopicDotMenuDrawer 
-                            navigation={navigation}
-                            topic={topic}
-                            drawerVisible={topicDotMenuVisible}
-                            setDrawerVisible={setTopicDotMenuVisible}
-                        />
-                    )}
+                    { topicDotMenuVisible && <TopicDotMenuDrawer navigation={navigation} topic={topic} /> }
                 </DotMenuButtonContainer>
             );
         }    

@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { Dimensions, TouchableOpacity, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
@@ -11,7 +11,6 @@ import { AuthContext } from '../../context/AuthContext';
 import TitlePoster from '../global/TitlePoster';
 import { getRuntimeString } from '../utils/TitleRuntime';
 import ClubTitleDotMenuDrawer from './ClubTitleDotMenuDrawer';
-import MarkSeenButton from '../watchlist/MarkSeenButton';
 import ReelayThumbnail from '../global/ReelayThumbnail';
 import { ReviewIconSmallSVG } from '../global/SVGs';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -74,17 +73,11 @@ const CreateReelayText = styled(ReelayText.CaptionEmphasized)`
 const DescriptionText = styled(ReelayText.CaptionEmphasized)`
     color: #86878B;
 `
-const DividerLine = styled(View)`
-    background-color: rgba(255,255,255,0.1);
-    height: 1px;
-    margin: 10px;
-    width: ${width - 56}px;
-`
 const DotMenuButtonView = styled(TouchableOpacity)`
     right: 8px;
     position: absolute;
 `
-const MarkSeenView = styled(View)`
+const AddReelayButtonView = styled(View)`
     align-items: flex-end;
     justify-content: center;
     padding: 5px;
@@ -282,31 +275,28 @@ export default ClubTitleCard = ({
         canAddToWatchlist: true,
     };
 
-    const [markedSeen, setMarkedSeen] = useState(inWatchlist && inWatchlist?.hasSeenTitle);
     const openExpandedTitleDrawer = () => setExpandedTitle(expandedTitle);
     const onPress = () => (clubTitle.reelays.length) ? advanceToFeed() : openExpandedTitleDrawer();
 
     const DotMenuButton = () => {
-        const openDrawer = () => setDotMenuVisible(true);
+        const dispatch = useDispatch();
+        const openedActivityDotMenu = useSelector(state => state.openedActivityDotMenu);
+        const titleDotMenuVisible = (openedActivityDotMenu && openedActivityDotMenu?.id === clubTitle?.id);
+        const openDrawer = () => {
+            dispatch({ type: 'setOpenedActivityDotMenu', payload: clubTitle });
+        }
 
         const addedByMe = (clubTitle.addedByUserSub === reelayDBUser?.sub);
         const isAdmin = (reelayDBUser?.role === 'admin');
         const canDelete = (clubTitle.reelays.length === 0) && (addedByMe || isAdmin);
-        const [dotMenuVisible, setDotMenuVisible] = useState(false);
 
         if (!canDelete) return <View />;
     
         return (
             <DotMenuButtonView onPress={openDrawer}>
                 <Icon type='ionicon' name='ellipsis-horizontal' size={20} color='white' />
-                { dotMenuVisible && (
-                    <ClubTitleDotMenuDrawer 
-                        navigation={navigation}
-                        clubTitle={clubTitle}
-                        drawerVisible={dotMenuVisible}
-                        setDrawerVisible={setDotMenuVisible}
-                        onRefresh={onRefresh}
-                    />
+                { titleDotMenuVisible && (
+                    <ClubTitleDotMenuDrawer clubTitle={clubTitle} onRefresh={onRefresh} />
                 )}
             </DotMenuButtonView>
         );
@@ -364,18 +354,11 @@ export default ClubTitleCard = ({
                     <TitleText numberOfLines={2}>{title.display}</TitleText>
                     <DescriptionText>{`${releaseYear}    ${runtimeString}`}</DescriptionText>
                 </TitleDetailLine>
-                <MarkSeenView>
+                <AddReelayButtonView>
                     <AddReelayToTopicPressable onPress={advanceToCreateReelay}>
                         <FontAwesomeIcon icon={faPlus} size={20} color='white' />
                     </AddReelayToTopicPressable>
-                    {/* <MarkSeenButton 
-                        markedSeen={markedSeen} 
-                        setMarkedSeen={setMarkedSeen} 
-                        showText={false} 
-                        size={36}
-                        titleObj={title} 
-                    /> */}
-                </MarkSeenView>
+                </AddReelayButtonView>
             </TitleLineView>
         );
     }
@@ -397,9 +380,6 @@ export default ClubTitleCard = ({
         <TitleCardOuterView>
             <TitleOverline />
             <TitleCardPressable onPress={onPress}>
-                { !markedSeen && 
-                    <TitleCardGradient colors={['#252527', '#19242E']}  start={{ x: 0.5, y: 0.5 }} end={{ x: 0.5, y: 1 }} />
-                }
                 <TitleLine />
                 <MediaSection />
                 { (!clubTitle.reelays.length) && <CardBottomRowNoStacks navigation={navigation} clubTitle={clubTitle} /> }

@@ -328,10 +328,12 @@ export default TopicsListScreen = ({ navigation, route }) => {
                     )}
                     <HeaderText>{headerText}</HeaderText>
                 </HeaderLeftContainer>
-                <HeaderRightContainer>
-                    <NewTopicButton />
-                    {/* <SearchTopicsButton /> */}
-                </HeaderRightContainer>
+                { source !== 'profile' && (
+                    <HeaderRightContainer>
+                        <NewTopicButton />
+                        {/* <SearchTopicsButton /> */}
+                    </HeaderRightContainer>
+                )}
             </HeaderContainer>
         );
     }

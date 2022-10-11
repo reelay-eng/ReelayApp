@@ -201,10 +201,11 @@ const HeaderFollowerSearch = ({ searchText, updateSearchText }) => {
             { !showSearchBar && <HeaderText>{'Invite friends'}</HeaderText> }
             { showSearchBar && (
                 <TextInput 
-                    ref={searchFieldRef}
+                    onChangeText={updateSearchText}
                     placeholder={'Search following...'}
                     placeholderTextColor={'gray'}
-                    onChangeText={updateSearchText}
+                    ref={searchFieldRef}
+                    returnKeyType='done'
                     style={SearchInputStyle} 
                     value={searchText}
                 />
@@ -258,7 +259,7 @@ export default InviteMyFollowsList = ({ clubMembers, followsToSend }) => {
     const [tabIndex, setTabIndex] = useState(0);
     const tabRoutes = [
         { key: 'all', title: 'All' },
-        { key: 'invites', title: 'Invites' }
+        { key: 'invites', title: 'Selected' }
     ];
 
     const renderFollowRow = ({ item, index }) => {
@@ -330,7 +331,7 @@ export default InviteMyFollowsList = ({ clubMembers, followsToSend }) => {
         return (
             <Fragment>
                 <FollowsList 
-                    contentContainerStyle={{ paddingTop: 12, paddingBottom: bottomOffset + 40, width: '100%' }}
+                    contentContainerStyle={{ paddingTop: 12, paddingBottom: 300, width: '100%' }}
                     data={displayFollows}
                     onScroll={Keyboard.dismiss}
                     renderItem={renderFollowRow}
@@ -376,7 +377,7 @@ export default InviteMyFollowsList = ({ clubMembers, followsToSend }) => {
 
     const InvitesTabLabel = ({ route, focused, color }) => {
         const [inviteCount, setInviteCount] = useState(followsToSend?.current?.length);
-        const showInviteCount = (route.title === 'Invites' && inviteCount > 0);
+        const showInviteCount = (route.title === 'Selected' && inviteCount > 0);
         const labelText = (showInviteCount) ? `${route.title} (${inviteCount})` : route.title;
 
         useEffect(() => {

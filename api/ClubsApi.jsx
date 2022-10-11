@@ -142,6 +142,19 @@ export const createDeeplinkPathToClub = async ({ authSession, clubID, invitedByU
     return dbResult;
 }
 
+export const deleteReportedChatMessage = async (reportingUserSub, reportedMessage) => {
+    const message = { ...reportedMessage, id: reportedMessage?.messageID };
+    const routeDelete = `${REELAY_API_BASE_URL}/reported-content/chats`;
+    const deleteChatMessageResult = await fetchResults(routeDelete, {
+        body: JSON.stringify({ message }),
+        method: 'DELETE',
+        headers: { ...ReelayAPIHeaders, requsersub: reportingUserSub },
+    });
+
+    console.log(deleteChatMessageResult);
+    return deleteChatMessageResult;
+}
+
 export const editClub = async ({
     authSession,
     clubID,
@@ -314,6 +327,18 @@ export const getClubTopics = async ({ authSession, clubID, page = 0, reqUserSub 
     return await Promise.all(topicsWithReelays.map(prepareTopicReelays));
 }
 
+export const getReportedChatMessages = async ({ authSession, reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/reported-content/chats`;
+    const reportedChatMessages = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            reqUserSub,
+        },
+    })
+    return reportedChatMessages;
+}
+
 export const markClubActivitySeen = async ({ authSession, clubMemberID, reqUserSub }) => {
     const routePatch = `${REELAY_API_BASE_URL}/clubs/lastSeenAt/`;
     const resultPatch = await fetchResults(routePatch, {
@@ -339,6 +364,18 @@ export const removeMemberFromClub = async ({ authSession, clubID, userSub, reqUs
         body: JSON.stringify(removeBody),
     });
     return resultRemove;
+}
+
+export const reportChatMessage = async (reportingUserSub, reportReq) => {
+    const routePost = `${REELAY_API_BASE_URL}/reported-content/chats`;
+    const reportChatMessageResult = await fetchResults(routePost, {
+        body: JSON.stringify(reportReq),
+        method: 'POST',
+        headers: { ...ReelayAPIHeaders, requsersub: reportingUserSub },
+    });
+
+    console.log(reportChatMessageResult);
+    return reportChatMessageResult;
 }
 
 export const searchPublicClubs = async ({ authSession, page = 0, reqUserSub, searchText }) => {

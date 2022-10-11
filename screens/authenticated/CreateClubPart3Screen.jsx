@@ -3,6 +3,7 @@ import {
     ActivityIndicator,
     Dimensions,
     Keyboard, 
+    KeyboardAvoidingView, 
     SafeAreaView, 
     TextInput, 
     TouchableOpacity,
@@ -30,6 +31,8 @@ import { notifyNewMemberOnClubInvite } from '../../api/ClubNotifications';
 import { HeaderWithBackButton } from '../../components/global/Headers';
 import { faEarthAmericas, faLock, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { ScrollView } from 'react-native-gesture-handler';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -46,12 +49,6 @@ const CreateClubButtonView = styled(TouchableOpacity)`
     justify-content: center;
     height: 40px;
     width: ${width - 56}px;
-`
-const CreateScreenView = styled(SafeAreaView)`
-    background-color: black;
-    justify-content: space-between;
-    height: 100%;
-    width: 100%;
 `
 const FinishPromptText = styled(ReelayText.H5Bold)`
     color: white;
@@ -87,7 +84,7 @@ const SectionView = styled(View)`
 `
 const SectionViewBottom = styled(SectionView)`
     align-items: center;
-    bottom: 20px;
+    padding-top: 24px;
 `
 const TitleInputField = styled(TextInput)`
     background-color: #1a1a1a;
@@ -95,13 +92,11 @@ const TitleInputField = styled(TextInput)`
     border-width: 1px;
     color: white;
     font-family: Outfit-Regular;
-    font-size: 18px;
+    font-size: 18x;
     font-style: normal;
     letter-spacing: 0.15px;
     margin-top: 6px;
     padding: 16px;
-    padding-left: 20px;
-    padding-right: 20px;
 `
 const TitleText = styled(ReelayText.Subtitle2)`
     color: ${(props) => props.disabled ? 'black' : 'white'};
@@ -125,7 +120,9 @@ const S3_UPLOAD_BUCKET = Constants.manifest.extra.reelayS3UploadBucket;
 export default CreateClubPart3Screen = ({ navigation, route }) => {
     const { clubVisibility, followsToSend } = route.params;
     const { reelayDBUser } = useContext(AuthContext);
+
     const authSession = useSelector(state => state.authSession);
+    const bottomOffset = useSafeAreaInsets().bottom;
     const myClubs = useSelector(state => state.myClubs);
     const s3Client = useSelector(state => state.s3Client);
     const [publishing, setPublishing] = useState(false);
@@ -136,6 +133,7 @@ export default CreateClubPart3Screen = ({ navigation, route }) => {
     const descriptionTextRef = useRef('');
     const titleFieldRef = useRef(null);
     const titleTextRef = useRef('');
+    const topOffset = useSafeAreaInsets().top;
 
     const changeDescriptionText = (text) => descriptionTextRef.current = text;
     const changeTitleText = (text) => titleTextRef.current = text;
@@ -375,29 +373,32 @@ export default CreateClubPart3Screen = ({ navigation, route }) => {
 		return resizeResult;
 	}
 
-    useEffect(() => {
-        if (titleFieldRef?.current) titleFieldRef.current.focus();
-    }, []);
+    // useEffect(() => {
+    //     if (titleFieldRef?.current) titleFieldRef.current.focus();
+    // }, []);
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <CreateScreenView>
-                <View>
+            <KeyboardAvoidingView behavior='padding' style={{ 
+                top: topOffset, flex: 1, justifyContent: 'flex-end' 
+            }}>
+                <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
                     <Header />
-                    <FinishPrompt />
-                    <SpacerBig />
-                    <ChooseClubPicture clubPicSourceRef={clubPicSourceRef} />
-                    <TitleInput />
-                    <DescriptionInput />
-                    <ReviewSelectionsRow>
-                        <PublicOrPrivateRow isPrivate={clubVisibility === 'private'} />
-                        <ReviewInvitesRow />
-                    </ReviewSelectionsRow>
-                </View>
-                <SectionViewBottom>
-                    <CreateClubButton />
-                </SectionViewBottom>
-            </CreateScreenView>
+                        <FinishPrompt />
+                        <SpacerBig />
+                        <ChooseClubPicture clubPicSourceRef={clubPicSourceRef} />
+                        <TitleInput />
+                        <DescriptionInput />
+                        <ReviewSelectionsRow>
+                            <PublicOrPrivateRow isPrivate={clubVisibility === 'private'} />
+                            <ReviewInvitesRow />
+                        </ReviewSelectionsRow>
+                        <SectionViewBottom bottomOffset={bottomOffset}>
+                            <CreateClubButton />
+                        </SectionViewBottom>
+                </ScrollView>
+                <View style={{ flex: 1 }} />
+            </KeyboardAvoidingView>
         </TouchableWithoutFeedback>
     );
 };

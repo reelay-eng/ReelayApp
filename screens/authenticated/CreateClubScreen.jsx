@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { HeaderWithBackButton } from '../../components/global/Headers';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEarthAmericas, faLock } from '@fortawesome/free-solid-svg-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -71,13 +72,14 @@ const SectionView = styled(View)`
 `
 const SectionViewBottom = styled(SectionView)`
     align-items: center;
-    bottom: 20px;
+    bottom: ${props => props.bottomOffset + 50}px;;
 `
 const Spacer = styled(View)`
     height: 24px;
 `
 
 export default CreateClubScreen = ({ navigation, route }) => {
+    const bottomOffset = useSafeAreaInsets().bottom;
     const dispatch = useDispatch();
     const visibilityRef = useRef('private');
 
@@ -162,7 +164,7 @@ export default CreateClubScreen = ({ navigation, route }) => {
                 <Spacer />
                 <PublicOrPrivatePrompt />
             </View>
-            <SectionViewBottom>
+            <SectionViewBottom bottomOffset={bottomOffset}>
                 <ContinueButton />
             </SectionViewBottom>
         </CreateScreenView>

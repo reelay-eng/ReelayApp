@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Switch, TouchableOpacity, View } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,16 +7,29 @@ import ClubPicture from '../global/ClubPicture';
 import BackButton from '../utils/BackButton';
 import ProfilePicture from '../global/ProfilePicture';
 import { FiltersSVG, StainedGlassSVG } from '../global/SVGs';
-import ReelayColors from '../../constants/ReelayColors';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import { faCircleInfo, faUserPlus } from '@fortawesome/free-solid-svg-icons';
+import ReelayColors from '../../constants/ReelayColors';
+import AddTitleOrTopicDrawer from './AddTitleOrTopicDrawer';
+import { AuthContext } from '../../context/AuthContext';
+import InviteMyFollowsDrawer from './InviteMyFollowsDrawer';
 
+const AddActivityText = styled(ReelayText.Body1)`
+    color: ${ReelayColors.reelayBlue};
+`
 const BackButtonContainer = styled(View)`
     margin: 6px;
 `
 const BannerButtonPressable = styled(TouchableOpacity)`
+    background-color: ${props => props.background ? '#d4d4d4' : 'transparent'};
+    border-radius: 30px;
     justify-content: center;
     padding: 6px;
+    margin-left: 4px;
+`
+const BannerRightButtonsView = styled(View)`
+    align-items: center;
+    flex-direction: row;
 `
 const BannerRowView = styled(View)`
     align-items: center;
@@ -90,18 +103,7 @@ const BubbleRightFiveContainer = styled(View)`
 const BubbleBathHeaderContainer = styled(TouchableOpacity)`
     align-items: center;
     justify-content: center;
-`
-const ChatMessagesSettingView = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    justify-content: space-between;
-    padding-top: 6px;
-    padding-bottom: 10px;
-    padding-left: 10px;
-    width: 100%;
-`
-const ChatMessagesSettingText = styled(ReelayText.Body1)`
-    color: white;
+    margin-left: ${props => props.showInviteButton ? 36 : 0}px;
 `
 const ClubNameText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -122,22 +124,17 @@ const HeaderBackground = styled(View)`
     position: absolute;
     width: 100%;
 `
-const FilterButtonPressable = styled(TouchableOpacity)`
-    background-color: ${props => props.showFilters ? 'black' : '#333333'};
-    border-radius: 24px;
-    justify-content: center;
-    padding: 8px;
-`
-
-export default ClubBanner = ({ 
-    club, 
-    navigation,
-    showChatMessages,
-    setShowChatMessages,
-}) => {
+export default ClubBanner = ({ club, navigation, source = 'activity' }) => {
+    const { reelayDBUser } = useContext(AuthContext);
+    const [showAddActivityDrawer, setShowAddActivityDrawer] = useState(false);
     const advanceToClubInfoScreen = () => navigation.push('ClubInfoScreen', { club });
+
+    const clubHasMediaActivities = (club?.titles?.length > 0 || club?.topics?.length > 0);
     const infoButtonTopOffset = topOffset + 28;
-    const [showActivityFilters, setShowActivityFilters] = useState(false);
+    const isClubOwner = (reelayDBUser?.sub === club.creatorSub);
+
+    const showAddActivityButton = (source === 'media' || !clubHasMediaActivities);
+    const showInviteButton = (source === 'activity' && (isClubOwner || club.membersCanInvite));
     const topOffset = useSafeAreaInsets().top;
 
     if (!club.members.length) return <View />;
@@ -156,11 +153,20 @@ export default ClubBanner = ({
         return { sub: clubMember.userSub, username: clubMember.username }
     });
 
-    const ActivityFiltersButton = () => {
+    const AddActivityButton = () => {
+        const openDrawer = () => setShowAddActivityDrawer(true);
         return (
-            <FilterButtonPressable onPress={() => setShowActivityFilters(!showActivityFilters)}>
-                <FiltersSVG />
-            </FilterButtonPressable>
+            <BannerButtonPressable onPress={openDrawer} topOffset={infoButtonTopOffset}>
+                <AddActivityText>{'Add'}</AddActivityText>
+                { showAddActivityDrawer && (
+                    <AddTitleOrTopicDrawer
+                        club={club}
+                        navigation={navigation}
+                        drawerVisible={showAddActivityDrawer}
+                        setDrawerVisible={setShowAddActivityDrawer}
+                    />
+                )}
+            </BannerButtonPressable>
         );
     }
 
@@ -230,7 +236,7 @@ export default ClubBanner = ({
 
     const HeaderWithBubbleBath = () => {
         return (
-            <BubbleBathHeaderContainer onPress={advanceToClubInfoScreen}>
+            <BubbleBathHeaderContainer showInviteButton={showInviteButton} onPress={advanceToClubInfoScreen}>
                 <BubbleBathContainer>
                     <BubbleBathLeft />
                     <ClubPicture club={club} size={48} />
@@ -244,33 +250,34 @@ export default ClubBanner = ({
         );
     }
 
-    const StainedGlassButton = () => {
-        const advanceToClubStainedGlassScreen = () => navigation.push('ClubStainedGlassScreen', { club });
-        const hasClubActivities = (club?.topics?.length + club?.titles?.length) > 0;
-        if (!hasClubActivities) return <BannerButtonPressable />;
+    const InviteButton = () => {
+        const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
+        const openDrawer = () => setInviteDrawerVisible(true);
+        const closeDrawer = () => setInviteDrawerVisible(false);
 
         return (
-            <BannerButtonPressable onPress={advanceToClubStainedGlassScreen} topOffset={infoButtonTopOffset}>
-                <StainedGlassSVG />
+            <BannerButtonPressable background={true} onPress={openDrawer} topOffset={infoButtonTopOffset}>
+                <FontAwesomeIcon icon={faUserPlus} color='black' size={20} />
+                { inviteDrawerVisible && (
+                    <InviteMyFollowsDrawer
+                        club={club}
+                        closeDrawer={closeDrawer}
+                        onRefresh={() => {}} // todo
+                    />
+                )}
             </BannerButtonPressable>
         );
     }
 
-    const ChatMessagesSetting = () => {
+    const MediaButton = () => {
+        const advanceToClubMediaScreen = () => navigation.push('ClubMediaScreen', { club });
+        const hasClubActivities = (club?.topics?.length + club?.titles?.length) > 0;
+        if (!hasClubActivities) return <BannerButtonPressable />;
+
         return (
-            <ChatMessagesSettingView>
-                <ChatMessagesSettingText>{'show chat messages'}</ChatMessagesSettingText>
-                <Switch 
-                    value={showChatMessages}
-                    onValueChange={() => setShowChatMessages(!showChatMessages)}
-                    trackColor={{ 
-                        false: "#39393D", 
-                        true: ReelayColors.reelayGreen,
-                    }}
-                    thumbColor={"#FFFFFF"}
-                    ios_backgroundColor="#39393D"    
-                />
-            </ChatMessagesSettingView>
+            <BannerButtonPressable onPress={advanceToClubMediaScreen} topOffset={infoButtonTopOffset}>
+                <StainedGlassSVG />
+            </BannerButtonPressable>
         );
     }
 
@@ -281,9 +288,12 @@ export default ClubBanner = ({
                     <BackButton navigation={navigation} />
                 </BackButtonContainer>
                 <HeaderWithBubbleBath />
-                <ActivityFiltersButton />
+                <BannerRightButtonsView>
+                { showInviteButton && <InviteButton /> }
+                { !showAddActivityButton && <MediaButton /> }
+                { showAddActivityButton && <AddActivityButton /> }
+                </BannerRightButtonsView>
             </BannerRowView>
-            { showActivityFilters && <ChatMessagesSetting /> }
         </HeaderBackground>
     );
 }

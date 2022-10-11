@@ -82,6 +82,15 @@ export const ProfileSettings = ({navigation}) => {
                 />
                 { isAdmin && (
                     <SettingEntry
+                        text="(Admin) See reported chats"
+                        iconName="flag-outline"
+                        onPress={() => {
+                            navigation.push('ReportedChatMessagesScreen');
+                        }}
+                    />                    
+                )}
+                { isAdmin && (
+                    <SettingEntry
                         text="(Admin) See reported issues"
                         iconName="flag-outline"
                         onPress={() => {

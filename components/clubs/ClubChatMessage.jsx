@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { Dimensions, Pressable, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import ProfilePicture from '../global/ProfilePicture';
@@ -11,6 +11,8 @@ import { isMentionPartType, parseValue } from 'react-native-controlled-mentions'
 import * as Clipboard from 'expo-clipboard';
 import Autolink from 'react-native-autolink';
 import { showSuccessToast } from '../utils/toasts';
+import { useDispatch, useSelector } from 'react-redux';
+import ChatMessage3DotDrawer from './ChatMessage3DotDrawer';
 
 const { height, width } = Dimensions.get('window');
 
@@ -20,7 +22,10 @@ const AuthorText = styled(ReelayText.H5Bold)`
     line-height: 20px;
 `
 const ChatMessageBodyView = styled(View)`
+    display: flex;
+    flex: 1;
     margin-left: 12px;
+    margin-right: 12px;
 `
 const ChatMessageView = styled(View)`
     flex-direction: row;
@@ -33,17 +38,17 @@ const ChatMessageOuterView = styled(View)`
     padding-right: 16px;
 `
 const DotMenuButtonView = styled(TouchableOpacity)`
-    right: 8px;
-    position: absolute;
+    justify-content: center;
+    padding-right: 6px;
 `
 const MentionButton = styled(TouchableOpacity)`
-    margin-top: -3px;
+    justify-content: flex-end;
+    margin-bottom: -2px;
 `
 const MessageTextPortion = styled(Autolink)`
     font-family: Outfit-Regular;
-    font-size: 16px;
+    font-size: 14px;
     font-style: normal;
-    line-height: 24px;
     letter-spacing: 0.15px;
     text-align: left;
 
@@ -52,10 +57,14 @@ const MessageTextPortion = styled(Autolink)`
     margin: 0px;
 `
 const MessageTextStyled = styled(ReelayText.Body2)`
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
     color: white;
+    font-size: 14px;
 `
 const MessageTextView = styled(View)`
-    width: ${width - 80}px;
+    width: ${width - 116}px;
 `
 const OverlineView = styled(View)`
     align-items: flex-end;
@@ -76,24 +85,28 @@ const TopRowSpacer = styled(View)`
 const MentionTextStyle = {
     color: ReelayColors.reelayBlue,
     fontFamily: "Outfit-Regular",
-    fontSize: 16,
+    fontSize: 14,
     fontStyle: 'normal',
     letterSpacing: 0.15,
-    lineHeight: 24,
 }
 
-const DotMenuButton = ({ message }) => {
-    const [dotMenuVisible, setDotMenuVisible] = useState(false);
-    const openDrawer = () => setDotMenuVisible(true);
+const DotMenuButton = ({ message, navigation, socketRef }) => {
+    const dispatch = useDispatch();
+    const openedActivityDotMenu = useSelector(state => state.openedActivityDotMenu);
+    const dotMenuVisible = (openedActivityDotMenu && openedActivityDotMenu?.id === message?.id);
+    const openDrawer = () => {
+        dispatch({ type: 'setOpenedActivityDotMenu', payload: message });
+    }
     return (
         <DotMenuButtonView onPress={openDrawer}>
-            <Icon type='ionicon' name='ellipsis-vertical' size={20} color='white' />
-            { dotMenuVisible && ( <View /> )}
+            <Icon type='ionicon' name='ellipsis-horizontal' size={20} color='white' />
+            { dotMenuVisible && <ChatMessage3DotDrawer message={message} navigation={navigation} socketRef={socketRef} /> }
         </DotMenuButtonView>
     );
 }
 
 const MessageTextWithMentions = ({ message, navigation }) => {
+    const linkStyle = { color: ReelayColors.reelayBlue };
     const mentionFollowType = {
         trigger: '@',
         textStyle: MentionTextStyle
@@ -113,20 +126,24 @@ const MessageTextWithMentions = ({ message, navigation }) => {
 
     const renderMessagePart = (messagePart, index) => {
         messageText += messagePart.text;
+
+        // adding a space in front of mentions at the start of the message
+        // fixes an alignment issue: without it, the mention element moves off
+        // the baseline. i haven't figured it out yet, so apologies for the hack
         if (isMention(messagePart)) {
+            const alignmentHackText = (index === 0) ? ' ' : '';
             return (
-                <MentionButton key={index} onPress={() => advanceToMentionProfile(messagePart.data)}>
-                    <Text style={[MentionTextStyle, {bottom: 0, marginBottom: 0}]}>{messagePart.text}</Text>
-                </MentionButton>
+                <Fragment key={index}>
+                    <MessageTextPortion text={alignmentHackText} linkStyle={linkStyle} url />
+                    <MentionButton onPress={() => advanceToMentionProfile(messagePart.data)}>
+                        <Text style={[MentionTextStyle]}>{messagePart.text}</Text>
+                    </MentionButton>
+                </Fragment>
             );
         }
 
         return (
-            <MessageTextPortion key={index} 
-                text={messagePart.text} 
-                linkStyle={{ color: ReelayColors.reelayBlue }} 
-                url 
-            />
+            <MessageTextPortion key={index} text={messagePart.text} linkStyle={linkStyle} url />
         );
     } 
     
@@ -147,7 +164,7 @@ const MessageTextWithMentions = ({ message, navigation }) => {
     )
 }
 
-export default ClubChatMessage = ({ loadChatMessageHistory, message, navigation }) => {
+export default ClubChatMessage = ({ loadChatMessageHistory, message, navigation, socketRef }) => {
     const timestampString = moment(message?.createdAt).format("hh:mm A");
     const author = { 
         username: message?.username,
@@ -183,7 +200,7 @@ export default ClubChatMessage = ({ loadChatMessageHistory, message, navigation 
                     <ProfilePicture user={author} size={32} />
                 </ProfilePictureView>
                 <ChatMessageBody />
-                {/* <DotMenuButton message={message} /> */}
+                <DotMenuButton message={message} navigation={navigation} socketRef={socketRef} />
             </ChatMessageView>
         </ChatMessageOuterView>
     );
