@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, SafeAreaView, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
@@ -13,7 +13,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 import ClubPicture from '../../components/global/ClubPicture';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faChevronRight, faUsersViewfinder } from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { sortByLastActivity } from '../../redux/reducers';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -22,6 +22,8 @@ import Constants from 'expo-constants';
 import moment from 'moment';
 import EmptyClubsCard from '../../components/clubs/EmptyClubsCard';
 import { NotificationIconSVG, SearchIconSVG } from '../../components/global/SVGs';
+
+const { height, width } = Dimensions.get('window');
 
 const CLUB_PIC_SIZE = 72;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -38,6 +40,17 @@ const AddClubIconView = styled(View)`
     justify-content: center;
     height: ${CLUB_PIC_SIZE}px;
     width: ${CLUB_PIC_SIZE}px;
+`
+const AddClubRowPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 16px;
+    flex-direction: row;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    margin: 12px;
+    margin-top: 8px;
+    width: 100%;
 `
 const ClubNameText = styled(ReelayText.H6Emphasized)`
     color: white;
@@ -65,7 +78,7 @@ const ClubRowArrowSpacer = styled(View)`
 const ClubRowPressable = styled(TouchableOpacity)`
     align-items: center;
     flex-direction: row;
-    margin: 16px;
+    margin: 12px;
     margin-top: 10px;
     margin-bottom: 10px;
     width: 100%;
@@ -112,7 +125,7 @@ const FilterButtonText = styled(ReelayText.Subtitle2)`
 const FilterButtonRow = styled(View)`
     align-items: center;
     flex-direction: row;
-    margin: 16px;
+    margin: 12px;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     text-align: left;
@@ -143,7 +156,8 @@ const TopBarView = styled(SafeAreaView)`
 const TopBarButtonView = styled(View)`
     align-items: center;
     flex-direction: row;
-    margin-right: -5px;
+    margin-right: -7px;
+    margin-top: 7px;
 `
 const UnreadIconIndicator = styled(View)`
 	background-color: ${ReelayColors.reelayBlue}
@@ -254,19 +268,19 @@ export default MyClubsScreen = ({ navigation }) => {
         const AddClubRow = ({ club }) => {
             const advanceToCreateClubScreen = () => navigation.push('CreateClubScreen');
             return (
-                <ClubRowPressable onPress={advanceToCreateClubScreen}>
+                <AddClubRowPressable onPress={advanceToCreateClubScreen}>
                     <AddClubIconView>
-                        <FontAwesomeIcon icon={faUsersViewfinder} color='white' size={56} />
+                        <FontAwesomeIcon icon={faUsers} color='white' size={36} />
                     </AddClubIconView>
                     <ClubRowInfoView>
-                        <ClubNameText>{'Create a club'}</ClubNameText>
-                        <ClubDescriptionText numberOfLines={2}>{'Make a group for private reelays and invite your friends'}</ClubDescriptionText>
+                        <ClubNameText>{'Start a new chat'}</ClubNameText>
+                        <ClubDescriptionText>{'Invite friends. Make group watchlists. Chat in real time.'}</ClubDescriptionText>
                     </ClubRowInfoView>
                     <ClubRowArrowView>
                         <FontAwesomeIcon icon={faChevronRight} color='white' size={18} />
                         <ClubRowArrowSpacer />
                     </ClubRowArrowView>
-                </ClubRowPressable>
+                </AddClubRowPressable>
             );
         }
 
@@ -323,7 +337,11 @@ export default MyClubsScreen = ({ navigation }) => {
         }
 
         const MyClubsList = () => {
-            const scrollStyle = { alignItems: 'center', paddingBottom: 120, width: '100%' };
+            const scrollStyle = { 
+                
+                paddingBottom: 120, 
+                width: width - 24,
+            };
             return (
                 <ScrollView
                     bottomOffset={bottomOffset} 
@@ -400,7 +418,7 @@ export default MyClubsScreen = ({ navigation }) => {
     return (
 		<MyClubsScreenView>
             <TopBarView>
-                <HeaderText>{'clubs'}</HeaderText>
+                <HeaderText>{'chats'}</HeaderText>
                 <TopBarButtonView>
                     <SearchButton />
                     <NotificationButton />

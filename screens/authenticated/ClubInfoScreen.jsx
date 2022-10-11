@@ -1,18 +1,17 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, FlatList, ScrollView, Switch, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Clipboard from 'expo-clipboard';
 import Constants from 'expo-constants';
 import styled from 'styled-components/native';
 import moment from 'moment';
 
-import BackButton from '../../components/utils/BackButton';
 import * as ReelayText from '../../components/global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 
 import { Icon } from 'react-native-elements';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faLink } from '@fortawesome/free-solid-svg-icons';
+import { faEarthAmerica, faLink, faLock, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 
 import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
 import { AuthContext } from '../../context/AuthContext';
@@ -27,7 +26,10 @@ import {
     getClubTitles,
     getClubTopics,
     markClubActivitySeen,
-    removeMemberFromClub, 
+    removeMemberFromClub,
+    updateNotifyChatMessages,
+    updateNotifyChatMentions, 
+    updateNotifyPostedReelays,
 } from '../../api/ClubsApi';
 
 import { useDispatch, useSelector } from 'react-redux';
@@ -36,13 +38,34 @@ import BigBubbleBath from '../../components/clubs/BigBubbleBath';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import ChangeClubPrivacyDrawer from '../../components/clubs/ChangeClubPrivacyDrawer';
 import { notifyClubOnPrivacyChanges } from '../../api/ClubNotifications';
-import { FlashList } from '@shopify/flash-list';
+import { HeaderWithBackButton } from '../../components/global/Headers';
 
 const INVITE_BASE_URL = Constants.manifest.extra.reelayWebInviteUrl;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
+const { width } = Dimensions.get('window');
+
+const AllMembersCard = styled(View)`
+    background-color: black;
+    border-color: #1c1c1c;
+    border-bottom-color: black;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-width: 2px;
+    padding: 16px;
+    width: ${width + 6}px;
+`
 const ChangePrivacyView = styled(View)`
     margin-left: 16px;
+`
+const ClubHeaderInfoView = styled(View)`
+    align-items: center;
+    padding: 16px;
+    padding-bottom: 32px;
+`
+const ClubHeaderRow = styled(View)`
+    align-items: center;
+    flex-direction: row;
 `
 const ClubHeaderText = styled(ReelayText.H5Emphasized)`
     color: white;
@@ -50,55 +73,61 @@ const ClubHeaderText = styled(ReelayText.H5Emphasized)`
 `
 const ClubDescriptionText = styled(ReelayText.Body2)` 
     color: white;
+    margin-top: 10px;
 `
 const ClubInfoView = styled(View)`
     align-items: center;
+    padding-top: 16px;
 `
 const ClubPrivacyRow = styled(View)`
     align-items: center;
     flex-direction: row;
-    justify-content: center;
+    padding-top: 12px;
+    padding-bottom: 24px;
 `
-const ClubPrivacyText = styled(ReelayText.Body2)`
+const ClubPrivacyText = styled(ReelayText.CaptionEmphasized)`
     color: white;
-    font-size: 12px;
-    margin-right: 4px;
+    margin-top: 4px;
+    margin-left: 6px;
 `
-const EditButton = styled(TouchableOpacity)`
-    padding: 4px;
+const EditButtonPressable = styled(TouchableOpacity)`
+    padding: 10px;
 `
 const EditButtonText = styled(ReelayText.Body2)`
     color: ${ReelayColors.reelayBlue};
 `
-const HorizontalDivider = styled(View)`
-    border-color: rgba(255,255,255,0.5);
-    border-width: 0.2px;
-    height: 1px;
-    width: 100%;
-`
 const InfoScreenView = styled(View)`
     background-color: black;
-    padding-left: 16px;
-    padding-right: 16px;
     height: 100%;
     width: 100%;
 `
 const InviteSettingsView = styled(View)`
-    width: 100%;
+    border-color: #1c1c1c;
+    border-bottom-color: black;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-width: 2px;
+    padding: 16px;
+    width: ${width + 6}px;
 `
 const JoinButtonView = styled(TouchableOpacity)`
     align-items: center;
+    align-self: center;
     background-color: ${ReelayColors.reelayBlue};
-    border-radius: 8px;
+    border-radius: 24px;
     flex-direction: row;
     justify-content: center;
     margin-top: 24px;
-    margin-bottom: 24px;
-    height: 40px;
-    width: 50%;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    width: ${width / 2}px;
 `
-const LeaveButtonView = styled(JoinButtonView)`
-    background-color: ${ReelayColors.reelayRed};
+const LeaveButtonText = styled(ReelayText.Body2)`
+    color: ${ReelayColors.reelayBlue};
+`
+const LeaveButtonView = styled(TouchableOpacity)`
+    align-self: center;
+    margin-top: 24px;
 `
 const MemberEditButton = styled(TouchableOpacity)``
 const MemberInfoView = styled(View)`
@@ -119,7 +148,6 @@ const MemberRightButtonView = styled(View)`
 const MemberRowView = styled(TouchableOpacity)`
     display: flex;
     align-items: center;
-    background-color: black;
     flex-direction: row;
     justify-content: space-between;
     padding-top: 6px;
@@ -130,10 +158,14 @@ const MemberRowView = styled(TouchableOpacity)`
 const MemberSectionSpacer = styled(View)`
     height: 12px;
 `
-const ProfileInfoView = styled(View)`
-    align-items: center;
-    margin-top: 0px;
-    margin-bottom: 25px;
+const NotificationSettingsView = styled(View)`
+    border-color: #1c1c1c;
+    border-bottom-color: black;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-width: 2px;
+    padding: 16px;
+    width: ${width + 6}px;
 `
 const ProfilePictureView = styled(View)`
     margin-top: 6px;
@@ -179,6 +211,7 @@ const SettingsRowRightButton = styled(View)`
 `
 const SettingsSubtext = styled(ReelayText.Body1)`
     color: rgba(255,255,255,0.7);
+    width: ${width - 100}px;
 `
 const SettingsText = styled(ReelayText.Body1)`
     color: white;
@@ -188,9 +221,8 @@ const SettingsTextView = styled(View)`
 const TopBarView = styled(View)`
     align-items: center;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: flex-end;
     margin-top: ${(props) => props.topOffset}px;
-    margin-bottom: 16px;
     width: 100%;
 `
 const UsernameText = styled(ReelayText.Subtitle1Emphasized)`
@@ -217,15 +249,15 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     const [refreshing, setRefreshing] = useState(false);
 
     const isPublicClub = (club?.visibility === FEED_VISIBILITY);
-    const canInviteMembers = (isClubOwner || club.allowMemberInvites);
+    const canInviteMembers = (isClubOwner || club.membersCanInvite);
     const canShareClubLink = (canInviteMembers || isPublicClub);
 
     const ClubEditButton = () => {
         const advanceToEditClubScreen = () => navigation.push('EditClubScreen', { club });
         return (
-            <EditButton onPress={advanceToEditClubScreen}>
-                <EditButtonText>{'Edit'}</EditButtonText>
-            </EditButton>
+            <EditButtonPressable onPress={advanceToEditClubScreen}>
+                <FontAwesomeIcon icon={faPenToSquare} color='white' size={20} />
+            </EditButtonPressable>
         );
     }
 
@@ -237,9 +269,9 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         }, 0);
 
         const sortedMembers = club.members.sort((member0, member1) => {
-            const member0AddedAt = moment(member0?.createdAt);
-            const member1AddedAt = moment(member1?.createdAt);
-            return member1AddedAt.diff(member0AddedAt, 'seconds') > 0;
+            if (!member0.hasAcceptedInvite && member1.hasAcceptedInvite) return 1;
+            if (member0.hasAcceptedInvite && !member1.hasAcceptedInvite) return -1;
+            return member1.username < member0.username;
         });
         
         const EditMembersButton = () => {
@@ -275,20 +307,24 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         }
     
         return (
-            <MemberListView>
-                <SectionRow>
-                    <SectionHeaderText>{`Members  (${memberCount})`}</SectionHeaderText>
-                    { isClubOwner && <EditMembersButton />}                
-                </SectionRow>
-                <MemberSectionSpacer />
-                <FlatList
-                    data={sortedMembers}
-                    estimatedItemSize={60}
-                    keyExtractor={member => member?.id}
-                    renderItem={renderMemberRow}
-                    showsVerticalScrollIndicator={false}
-                />
-            </MemberListView>
+            <AllMembersCard>
+                { !canShareClubLink && <PrivacyIndicator /> }
+                <MemberListView>
+                    <SectionRow>
+                        <SectionHeaderText>{`Members  (${memberCount})`}</SectionHeaderText>
+                        { isClubOwner && <EditMembersButton />}    
+                    </SectionRow>
+                    <MemberSectionSpacer />
+                    <FlatList
+                        data={sortedMembers}
+                        estimatedItemSize={60}
+                        keyExtractor={member => member?.id}
+                        renderItem={renderMemberRow}
+                        showsVerticalScrollIndicator={false}
+                    />
+                    { !isClubOwner && clubMember && <LeaveButton /> }
+                </MemberListView>
+            </AllMembersCard>
         );
     }
     
@@ -329,7 +365,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     showMessageToast(`You've banned ${username} from ${club.name}`);
                 } catch (error) {
                     console.log(error);
-                    showErrorToast('Ruh roh! Could not leave club. Try again?');
+                    showErrorToast('Ruh roh! Could not ban member. Try again?');
                     setBanning(false);
                 }
             }
@@ -370,7 +406,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                     showMessageToast(`You've removed ${username} from ${club.name}`);
                 } catch (error) {
                     console.log(error);
-                    showErrorToast('Ruh roh! Could not leave club. Try again?');
+                    showErrorToast('Ruh roh! Could not remove member. Try again?');
                     setRemoving(false);
                 }
             }
@@ -410,24 +446,148 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         )
     }
     
-    const ClubProfileInfo = () => {
+    const ClubHeaderInfo = () => {
         return (
-            <ProfileInfoView>
+            <ClubHeaderInfoView>
                 <BigBubbleBath club={club} />
                 <ProfileSpacer />
-                <ClubHeaderText>{club.name}</ClubHeaderText>
+                <ClubHeaderRow>
+                    <ClubHeaderText>{club.name}</ClubHeaderText>
+                    { isClubOwner && <ClubEditButton club={club} navigation={navigation} /> }
+                </ClubHeaderRow>
                 <ClubDescriptionText>{club.description}</ClubDescriptionText>
-            </ProfileInfoView>
+                { !clubMember && isPublicClub && <JoinButton /> }
+            </ClubHeaderInfoView>
+        );
+    }
+
+    const ClubTopBar = () => {
+        const topOffset = useSafeAreaInsets().top;
+        return (
+            <TopBarView topOffset={topOffset}>
+                <HeaderWithBackButton navigation={navigation} text={'chat details'} />
+            </TopBarView>
+        );
+    }
+
+    const NotificationSettings = () => {
+        const [allowNotifyMessages, setAllowNotifyMessages] = useState(true);
+        const [allowNotifyMentions, setAllowNotifyMentions] = useState(true);
+        const [allowNotifyPosts, setAllowNotifyPosts] = useState(true);
+    
+        const switchAllowNotifyMessages = async () => {
+            const shouldAllow = !allowNotifyMessages;
+            setAllowNotifyMessages(shouldAllow);
+            const patchResult = await updateNotifyChatMessages({
+                authSession,
+                clubID: club.id,
+                notifyChatMessages: shouldAllow,
+                reqUserSub: reelayDBUser?.sub,
+            });
+        }
+
+        const switchAllowNotifyMentions = async () => {
+            const shouldAllow = !allowNotifyMentions;
+            setAllowNotifyMentions(shouldAllow);
+            const patchResult = await updateNotifyChatMentions({
+                authSession,
+                clubID: club.id,
+                notifyChatMentions: shouldAllow,
+                reqUserSub: reelayDBUser?.sub,
+            });
+        }
+    
+        const switchAllowNotifyPosts = async () => {
+            const shouldAllow = !allowNotifyPosts;
+            setAllowNotifyPosts(shouldAllow);
+            const patchResult = await updateNotifyPostedReelays({
+                authSession,
+                clubID: club.id,
+                notifyPostedReelays: shouldAllow,
+                reqUserSub: reelayDBUser?.sub,
+            });
+        }
+    
+        const AllowNotifyMessagesSetting = () => {
+            return (
+                <SettingsRow onPress={switchAllowNotifyMessages}>
+                    <SettingsTextView>
+                        <SettingsText>{'Allow message notifications'}</SettingsText>
+                        <SettingsSubtext>{'Get notified when conversations happen in this chat'}</SettingsSubtext>
+                    </SettingsTextView>
+                    <Switch 
+                        value={allowNotifyMessages}
+                        onValueChange={switchAllowNotifyMessages}
+                        trackColor={{ 
+                            false: "#39393D", 
+                            true: ReelayColors.reelayGreen,
+                        }}
+                        thumbColor={"#FFFFFF"}
+                        ios_backgroundColor="#39393D"    
+                    />
+                </SettingsRow>
+            );
+        }
+
+        const AllowNotifyMentionsSetting = () => {
+            return (
+                <SettingsRow onPress={switchAllowNotifyMentions}>
+                    <SettingsTextView>
+                        <SettingsText>{'Allow notifications on mention'}</SettingsText>
+                        <SettingsSubtext>{'Get notified when you\'re directly mentioned in the chat'}</SettingsSubtext>
+                    </SettingsTextView>
+                    <Switch 
+                        value={allowNotifyMentions}
+                        onValueChange={switchAllowNotifyMentions}
+                        trackColor={{ 
+                            false: "#39393D", 
+                            true: ReelayColors.reelayGreen,
+                        }}
+                        thumbColor={"#FFFFFF"}
+                        ios_backgroundColor="#39393D"    
+                    />
+                </SettingsRow>
+            );
+        }
+    
+        const AllowNotifyPostsSetting = () => {
+            return (
+                <SettingsRow onPress={switchAllowNotifyPosts}>
+                    <SettingsTextView>
+                        <SettingsText>{'Allow post notifications'}</SettingsText>
+                        <SettingsSubtext>{'Get notified when reelays are posted in this chat'}</SettingsSubtext>
+                    </SettingsTextView>
+                    <Switch 
+                        value={allowNotifyPosts}
+                        onValueChange={switchAllowNotifyPosts}
+                        trackColor={{ 
+                            false: "#39393D", 
+                            true: ReelayColors.reelayGreen,
+                        }}
+                        thumbColor={"#FFFFFF"}
+                        ios_backgroundColor="#39393D"    
+                    />
+                </SettingsRow>
+            );
+        }
+    
+        return (
+            <NotificationSettingsView>
+                <SectionHeaderText>{'Notifications'}</SectionHeaderText>
+                <AllowNotifyMessagesSetting />
+                <AllowNotifyMentionsSetting />
+                <AllowNotifyPostsSetting />
+            </NotificationSettingsView>
         );
     }
     
     const InviteSettings = () => {
-        const [allowMemberInvites, setAllowMemberInvites] = useState(true);
-        const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
         const { reelayDBUser } = useContext(AuthContext);
-
+        const [allowMemberInvites, setAllowMemberInvites] = useState(club.membersCanInvite);
+        const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
         const [isPrivate, setIsPrivate] = useState(club?.visibility === 'private');
-    
+        const closeInviteDrawer = () => setInviteDrawerVisible(false);
+
         const switchAllowMemberInvites = async () => {
             const shouldAllow = !allowMemberInvites;
             setAllowMemberInvites(shouldAllow);
@@ -445,7 +605,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 <SettingsRow onPress={switchAllowMemberInvites}>
                     <SettingsTextView>
                         <SettingsText>{'Open Invite'}</SettingsText>
-                        <SettingsSubtext>{'Members can invite other members'}</SettingsSubtext>
+                        <SettingsSubtext>{'People in the chat can invite others'}</SettingsSubtext>
                     </SettingsTextView>
                     <Switch 
                         value={allowMemberInvites}
@@ -466,7 +626,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 <SettingsRow onPress={() => setInviteDrawerVisible(true)}>
                     <SettingsTextView>
                         <SettingsText>{'Invite Members'}</SettingsText>
-                        <SettingsSubtext>{'Invite more people to the club'}</SettingsSubtext>
+                        <SettingsSubtext>{'Invite more people to the chat'}</SettingsSubtext>
                     </SettingsTextView>
                     <SettingsRowRightButton>
                         <Icon type='ionicon' name='person-add' color='white' size={24} />
@@ -482,11 +642,11 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 (!isPrivateSetting && club?.visibility !== 'private');
 
             const headingText = (isPrivateSetting)
-                ? 'Private Club'
-                : 'Public Club';
+                ? 'Private Chat'
+                : 'Public Chat';
 
             const bodyText = (isPrivateSetting)
-                ? 'Closed group. Invite people to the club'
+                ? 'Closed group. Invite people to the chat'
                 : 'Open group. Anyone can join';
 
             const switchClubPrivacy = () => {
@@ -569,7 +729,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 <SettingsRow onPress={copyClubLinkToClipboard}>
                     <SettingsTextView>
                         <SettingsText>{'Send Link'}</SettingsText>
-                        <SettingsSubtext>{'Share the club link'}</SettingsSubtext>
+                        <SettingsSubtext>{'Share the chat link'}</SettingsSubtext>
                     </SettingsTextView>
                     <SettingsRowRightButton>
                         <FontAwesomeIcon icon={ faLink } size={24} color='white' />
@@ -580,6 +740,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     
         return (
             <InviteSettingsView>
+                <PrivacyIndicator isPrivate={isPrivate}/>
                 <SectionHeaderText>{'Invites'}</SectionHeaderText>
                 { isClubOwner && <AllowMemberInvitesRow /> }
                 { canInviteMembers && <InviteMembersRow /> }
@@ -593,8 +754,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 { inviteDrawerVisible && (
                     <InviteMyFollowsDrawer
                         club={club}
-                        drawerVisible={inviteDrawerVisible}
-                        setDrawerVisible={setInviteDrawerVisible}
+                        closeDrawer={closeInviteDrawer}
                         onRefresh={onRefresh}
                     />
                 )}
@@ -602,31 +762,6 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         );
     }
     
-    const ClubTopBar = () => {
-        const isPrivate = club.visibility === 'private';
-        const topOffset = useSafeAreaInsets().top;
-        return (
-            <TopBarView topOffset={topOffset}>
-                <BackButton navigation={navigation} />
-                <ClubHeaderText>{'Club Info'}</ClubHeaderText>
-                <ClubPrivacyRow>
-                    { isClubOwner && <ClubEditButton club={club} navigation={navigation} /> }
-                    { !isClubOwner && (
-                        <React.Fragment>
-                            <ClubPrivacyText>{isPrivate ? 'Private' : 'Public'}</ClubPrivacyText>
-                            { isPrivate && (
-                                <Icon type='ionicon' name='lock-closed' color='white' size={20} />
-                            )}
-                            { !isPrivate && (
-                                <Icon type='ionicon' name='earth' color='white' size={20} />
-                            )}
-                        </React.Fragment>
-                    )}
-                </ClubPrivacyRow>
-            </TopBarView>
-        );
-    }
-
     const JoinButton = () => {
         const [joining, setJoining] = useState(false);
 
@@ -659,7 +794,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         return (
             <JoinButtonView onPress={joinClub}>
                 { joining && <ActivityIndicator /> }
-                { !joining && <RemoveButtonText>{'Join Club'}</RemoveButtonText> }
+                { !joining && <RemoveButtonText>{'Join Chat'}</RemoveButtonText> }
             </JoinButtonView>
         );
     }
@@ -703,7 +838,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 setLeaving(false);
             } catch (error) {
                 console.log(error);
-                showErrorToast('Ruh roh! Could not leave club. Try again?');
+                showErrorToast('Ruh roh! Could not leave chat. Try again?');
                 setLeaving(false);
             }
         }
@@ -711,8 +846,23 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         return (
             <LeaveButtonView onPress={leaveClub}>
                 { leaving && <ActivityIndicator /> }
-                { !leaving && <RemoveButtonText>{'Leave Club'}</RemoveButtonText> }
+                { !leaving && <LeaveButtonText>{'Leave Chat Group'}</LeaveButtonText> }
             </LeaveButtonView>
+        );
+    }
+
+    const PrivacyIndicator = ({ isPrivate }) => {
+        const displayIsPrivate = isPrivate ?? (club?.visibility === 'private');
+        return (
+            <ClubPrivacyRow>
+                { displayIsPrivate && (
+                    <FontAwesomeIcon icon={faLock} color='white' size={20} />
+                )}
+                { !displayIsPrivate && (
+                    <FontAwesomeIcon icon={faEarthAmerica} color='white' size={20} />
+                )}
+                <ClubPrivacyText>{displayIsPrivate ? 'Private' : 'Public'}</ClubPrivacyText>
+            </ClubPrivacyRow>
         );
     }
 
@@ -775,11 +925,9 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 { refreshing && <ActivityIndicator /> }
                 { !refreshing && (
                     <ClubInfoView>
-                        <ClubProfileInfo />
+                        <ClubHeaderInfo />
                         { canShareClubLink && <InviteSettings /> }
-                        <HorizontalDivider />
-                        { !isClubOwner && clubMember && <LeaveButton /> }
-                        { !clubMember && isPublicClub && <JoinButton /> }
+                        { clubMember && <NotificationSettings /> }
                         <ClubMembers />
                     </ClubInfoView>
                 )}

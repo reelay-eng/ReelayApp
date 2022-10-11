@@ -18,14 +18,13 @@ const notifyClubMember = async ({ title, body, data, clubMember }) => {
     const sendToUserSub = clubMember?.userSub;
     const token = clubMemberWithToken?.pushToken;
     if (!token) return;
-    console.log('notified');
     await sendNotification({ title, body, data, token, sendToUserSub, shouldSendPushNotification });
 }
 
 export const notifyClubOnPrivacyChanges = async ({ club, nextIsPrivate = true }) => {
     const title = `${club?.creatorName}`;
     const privateOrPublicWord = (nextIsPrivate) ? 'private' : 'public';
-    const body = `took the club ${club?.name} ${privateOrPublicWord}`;
+    const body = `took the chat ${club?.name} ${privateOrPublicWord}`;
     const data = {
         action: 'openClubActivityScreen',
         club: condensedClubObj(club),
@@ -105,7 +104,7 @@ export const notifyClubTitleThreadOnNewReelay = async ({ club, clubTitle, creato
 
 export const notifyNewMemberOnClubInvite = async ({ club, newMember, invitedByUser }) => {
     const title = `${invitedByUser?.username}`;
-    const body = `added you to a club on reelay: ${club.name}`;
+    const body = `invited you to a chat on reelay: ${club.name}`;
     const data = {        
         action: 'openClubActivityScreen',
         club: condensedClubObj(club),

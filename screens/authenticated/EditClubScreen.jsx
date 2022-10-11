@@ -26,25 +26,30 @@ import ClubPicture from '../../components/global/ClubPicture';
 import DeleteClubDrawer from '../../components/clubs/DeleteClubDrawer';
 import EditClubPictureDrawer from '../../components/clubs/EditClubPictureDrawer';
 import { Icon } from 'react-native-elements';
+import { HeaderWithBackButton } from '../../components/global/Headers';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faBan } from '@fortawesome/free-solid-svg-icons';
 
 const { width } = Dimensions.get('window');
 
-const BackButtonContainer = styled(SafeAreaView)`
-    left: 0px;
-    position: absolute;
-`
 const ClubPictureContainer = styled(View)`
     align-items: center;
     justify-content: center;
 `
 const DeleteClubButtonContainer = styled(TouchableOpacity)`
-    align-items: flex-end;
+    align-items: center;
+    align-self: center;
     flex-direction: row;
-    height: 72px;
-    justify-content: flex-end;
-    position: absolute;
-    right: 20px;
-    padding-bottom: 12px;
+    justify-content: center;
+    margin: 32px;
+    height: 40px;
+    width: 50%;
+`
+const DeleteClubButtonText = styled(ReelayText.Body2)`
+    color: white;
+    margin-left: 8px;
+`
+const EditFieldsView = styled(View)`
 `
 const EditPictureText = styled(ReelayText.Body2)`
     color: ${ReelayColors.reelayBlue};
@@ -74,6 +79,9 @@ const SaveButtonContainer = styled(TouchableOpacity)`
     height: 40px;
     width: ${width - 56}px;
 `
+const SaveButtonText = styled(ReelayText.Overline)`
+    color: white;
+`
 const SectionContainer = styled(View)`
     margin-left: 20px;
     margin-right: 20px;
@@ -102,13 +110,7 @@ const TitleInputField = styled(TextInput)`
 const TopBarContainer = styled(View)`
     align-items: flex-end;
     flex-direction: row;
-    height: 72px;
     justify-content: center;
-    margin-bottom: 16px;
-`
-const TopBarText = styled(ReelayText.H5Emphasized)`
-    color: white;
-    margin-bottom: 10px;
 `
 const DescriptionInputField = styled(TitleInputField)`
     height: 90px;
@@ -149,7 +151,8 @@ export default function EditClubScreen({ navigation, route }) {
         }
         return (
             <DeleteClubButtonContainer onPress={openConfirmDeleteDrawer}>
-                <Icon type='ionicon' name='trash' color='white' size={24} />
+                <FontAwesomeIcon icon={faBan} color='white' size={20} />
+                <DeleteClubButtonText>{'Disband chat group'}</DeleteClubButtonText>
             </DeleteClubButtonContainer>
         );
     }
@@ -166,10 +169,9 @@ export default function EditClubScreen({ navigation, route }) {
                         multiline
                         numberOfLines={3}
                         defaultValue={descriptionTextRef.current}
-                        placeholder={"Who's the club for?"}
+                        placeholder={"Who's it for?"}
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
                         onChangeText={changeDescriptionText}
-                        onPressOut={Keyboard.dismiss()}
                         returnKeyLabel="done"
                         returnKeyType="done"
                     />
@@ -199,15 +201,16 @@ export default function EditClubScreen({ navigation, route }) {
         }
     }
 
-    const Header = () => {
+    const EditFields = () => {
         return (
-            <View>
+            <EditFieldsView>
                 <TopBar />
+                <View style={{ height: 24 }} />
                 <EditableClubPic />
                 <TitleInput />
                 <DescriptionInput />
                 <DeleteClubButton />
-            </View>
+            </EditFieldsView>
         )
     }
 
@@ -248,7 +251,7 @@ export default function EditClubScreen({ navigation, route }) {
         return (
             <SaveButtonContainer onPress={onPress}>
                 { publishing && <ActivityIndicator/> }
-                { !publishing && <TitleText>{'Save changes'}</TitleText> }
+                { !publishing && <SaveButtonText>{'Save changes'}</SaveButtonText> }
             </SaveButtonContainer>
         );
     }
@@ -268,8 +271,6 @@ export default function EditClubScreen({ navigation, route }) {
                         placeholder={"Give this club a name"}
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
                         onChangeText={changeTitleText}
-                        onSubmitEditing={Keyboard.dismiss}
-                        onPressOut={Keyboard.dismiss}
                         returnKeyLabel="done"
                         returnKeyType="done"
                     />
@@ -281,10 +282,7 @@ export default function EditClubScreen({ navigation, route }) {
     const TopBar = () => {
         return (
             <TopBarContainer>
-                <BackButtonContainer>
-                    <BackButton navigation={navigation} />
-                </BackButtonContainer>
-                <TopBarText>{'Edit club info'}</TopBarText>
+                <HeaderWithBackButton navigation={navigation} text={'edit chat details'} />
             </TopBarContainer>
         );
     }
@@ -292,7 +290,7 @@ export default function EditClubScreen({ navigation, route }) {
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <EditScreenContainer>
-                <Header />
+                <EditFields />
                 <SectionContainerBottom>
                     <SaveButton />
                 </SectionContainerBottom>

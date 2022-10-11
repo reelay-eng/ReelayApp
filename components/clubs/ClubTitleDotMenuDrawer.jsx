@@ -10,10 +10,57 @@ import * as ReelayText from '../global/Text';
 import { showMessageToast } from '../utils/toasts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { removeTitleFromClub } from '../../api/ClubsApi';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
+const Backdrop = styled(Pressable)`
+    background-color: transparent;
+    height: 100%;
+    position: absolute;
+    width: 100%;
+`
+const CloseButtonView = styled(Pressable)`
+    align-self: flex-end;
+    height: 16px;
+`
+const ContentView = styled(View)`
+    padding-left: 24px;
+    padding-right: 24px;
+    width: 100%;
+`
+const DrawerView = styled(View)`
+    background-color: #1a1a1a;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    height: auto;
+    margin-top: auto;
+    max-height: 70%;
+    padding-bottom: ${props => props.bottomOffset}px;
+    width: 100%;
+`
+const HeaderView = styled(View)`
+    justify-content: center;
+    margin-left: 12px;
+    margin-right: 20px;
+    margin-bottom: 5px;
+`
+const IconSpacer = styled(View)`
+    width: 8px;
+`
+const ModalView = styled(View)`
+    position: absolute;
+`
+const OptionViewPressable = styled(TouchableOpacity)`
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 20px;
+    color: #2977EF;
+`
+const OptionText = styled(ReelayText.Body2)`
+    color: white;
+`
 
-const TitleDrawerContents = ({ clubTitle, onRefresh, setDrawerVisible }) => {
+const TitleDrawerContents = ({ closeDrawer, clubTitle, onRefresh }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const [drawerState, setDrawerState] = useState('options');
     const authSession = useSelector(state => state.authSession);
@@ -23,59 +70,17 @@ const TitleDrawerContents = ({ clubTitle, onRefresh, setDrawerVisible }) => {
     const canDelete = (clubTitle.reelays.length === 0) && (addedByMe || isAdmin);
     const bottomOffset = useSafeAreaInsets().bottom + 15;
     
-    const ContentContainer = styled(View)`
-        padding-left: 24px;
-        padding-right: 24px;
-        width: 100%;
-    `
-    const DrawerContainer = styled(View)`
-        background-color: #1a1a1a;
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
-        height: auto;
-        margin-top: auto;
-        max-height: 70%;
-        padding-bottom: ${bottomOffset}px;
-        width: 100%;
-    `
-    const IconSpacer = styled(View)`
-        width: 8px;
-    `
-    const OptionContainerPressable = styled(TouchableOpacity)`
-        flex-direction: row;
-        align-items: center;
-        justify-content: flex-start;
-        margin-top: 20px;
-        color: #2977EF;
-    `
-    const OptionText = styled(ReelayText.Body2)`
-        color: white;
-    `
-    const closeDrawer = () => {
-        setDrawerVisible(false);
-    };
 
     const Header = () => {
-        const HeaderContainer = styled(View)`
-            justify-content: center;
-            margin-left: 12px;
-            margin-right: 20px;
-            margin-bottom: 5px;
-        `
-        const CloseButtonContainer = styled(Pressable)`
-            align-self: flex-end;
-            height: 16px;
-        `		
-
         return (
-            <HeaderContainer>
-                <CloseButtonContainer onPress={closeDrawer} />
-            </HeaderContainer>
+            <HeaderView>
+                <CloseButtonView onPress={closeDrawer} />
+            </HeaderView>
         );
     }
 
     const Prompt = ({ text }) => {
-        const PromptContainer = styled(View)`
+        const PromptView = styled(View)`
             align-items: flex-start;
         `
         const PromptText = styled(ReelayText.Subtitle1Emphasized)`
@@ -83,9 +88,9 @@ const TitleDrawerContents = ({ clubTitle, onRefresh, setDrawerVisible }) => {
             padding-top: 8px;
         `
         return (
-            <PromptContainer>
+            <PromptView>
                 <PromptText>{text}</PromptText>
-            </PromptContainer>
+            </PromptView>
         );
     }
 
@@ -97,11 +102,11 @@ const TitleDrawerContents = ({ clubTitle, onRefresh, setDrawerVisible }) => {
         const optionText = (addedByMe) ? 'Remove Title' : '(Admin) Remove Title'
 
         return (
-            <OptionContainerPressable onPress={onPress}>
+            <OptionViewPressable onPress={onPress}>
                 <Icon type='ionicon' name='trash' size={20} color={'white'} />
                 <IconSpacer />
                 <OptionText>{optionText}</OptionText>
-            </OptionContainerPressable>
+            </OptionViewPressable>
         );
     }
 
@@ -129,14 +134,14 @@ const TitleDrawerContents = ({ clubTitle, onRefresh, setDrawerVisible }) => {
         }
 
         return (
-            <ContentContainer>
+            <ContentView>
                 <Prompt text={'Are you sure you want to remove this title?'} />
-                <OptionContainerPressable onPress={onPress}>
+                <OptionViewPressable onPress={onPress}>
                     <Icon type='ionicon' name='remove-circle' size={20} color={'white'} />
                     <IconSpacer />
                     <OptionText>{`Yes, remove`}</OptionText>
-                </OptionContainerPressable>
-            </ContentContainer>
+                </OptionViewPressable>
+            </ContentView>
         );
     }
 
@@ -144,57 +149,41 @@ const TitleDrawerContents = ({ clubTitle, onRefresh, setDrawerVisible }) => {
         const removeTitleMessage = 'You have removed this title for everyone';
         
         return (
-            <ContentContainer>
+            <ContentView>
                 <Prompt text={removeTitleMessage} />
-            </ContentContainer>
+            </ContentView>
         );
     }
 
     const DotMenuOptions = () => {
         return (
-            <ContentContainer>
+            <ContentView>
                 { (canDelete) && <RemoveTitleOption /> }
-            </ContentContainer>
+            </ContentView>
         );
     }
 
     return (
-            <DrawerContainer>
+            <DrawerView bottomOffset={bottomOffset}>
                 <Header />
                 { drawerState === 'options' && <DotMenuOptions /> }
                 { drawerState === 'remove-title-confirm' && <RemoveTitleConfirm /> }
                 { drawerState === 'remove-title-complete' && <RemoveTitleComplete /> }
-            </DrawerContainer>
-    );}
-
-export default ClubTitleDotMenuDrawer = ({ 
-    navigation, 
-    clubTitle, 
-    drawerVisible, 
-    setDrawerVisible, 
-    onRefresh,
-}) => {
-    const ModalContainer = styled(View)`
-        position: absolute;
-    `
-    const Backdrop = styled(Pressable)`
-        background-color: transparent;
-        height: 100%;
-        position: absolute;
-        width: 100%;
-    `
-    const closeDrawer = () => setDrawerVisible(false);
-    return (
-        <ModalContainer>
-            <Modal animationType='slide' transparent={true} visible={drawerVisible}>
-                <Backdrop onPress={closeDrawer}/>
-                <TitleDrawerContents 
-                    clubTitle={clubTitle} 
-                    onRefresh={onRefresh}
-                    setDrawerVisible={setDrawerVisible} 
-                />
-            </Modal>
-        </ModalContainer>
+            </DrawerView>
     );
+}
 
+export default ClubTitleDotMenuDrawer = ({ clubTitle, onRefresh }) => {
+    const dispatch = useDispatch();
+    const closeDrawer = () => {
+        dispatch({ type: 'setOpenedActivityDotMenu', payload: null })  
+    }
+    return (
+        <ModalView>
+            <Modal animationType='slide' transparent={true} visible={true}>
+                <Backdrop onPress={closeDrawer}/>
+                <TitleDrawerContents closeDrawer={closeDrawer} clubTitle={clubTitle} onRefresh={onRefresh} />
+            </Modal>
+        </ModalView>
+    );
 }

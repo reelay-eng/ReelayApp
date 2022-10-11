@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment } from 'react';
 import { Dimensions, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
@@ -7,14 +7,13 @@ import ProfilePicture from '../global/ProfilePicture';
 import { Icon } from 'react-native-elements';
 import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import TopicDotMenuDrawer from './TopicDotMenuDrawer';
 import ReelayColors from '../../constants/ReelayColors';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import ReelayThumbnail from '../global/ReelayThumbnail';
 import TitlePoster from '../global/TitlePoster';
-import { TopicsGiantIconSVG } from '../global/SVGs';
+import { TopicsCardIconSmallSVG, TopicsGiantIconSVG } from '../global/SVGs';
 
 const { height, width } = Dimensions.get('window');
 const CARD_WIDTH_CAROUSEL = width - 48;
@@ -28,12 +27,12 @@ const getPosterWidth = (props) => (getThumbnailWidth(props) - 8) / 2;
 
 const AddReelayToTopicPressable = styled(TouchableOpacity)`
     align-items: center;
+    align-self: flex-start;
     background-color: ${ReelayColors.reelayBlue};
     border-radius: 20px;
-    height: 40px;
+    height: 36px;
     justify-content: center;
-    margin-top: 16px;
-    width: 40px;
+    width: 36px;
 `
 const BottomRowContainer = styled(TouchableOpacity)`
     align-items: center;
@@ -41,8 +40,8 @@ const BottomRowContainer = styled(TouchableOpacity)`
     justify-content: space-between;
     margin: 16px;
     margin-top: 24px;
-    margin-bottom: 8px;
-    bottom: 16px;
+    margin-bottom: 0px;
+    bottom: 12px;
     width: ${props => getContentRowWidth(props)}px;
 `
 const BottomRowContainerNoReelays = styled(BottomRowContainer)`
@@ -53,14 +52,16 @@ const BottomRowLeftText = styled(ReelayText.Subtitle2)`
     color: #86878B;
 `
 const ContentNoReelaysSectionView = styled(View)`
+    padding: 12px;
+    padding-bottom: 8px;
     justify-content: flex-start;
-    margin-top: 8px;
     width: ${props => getContentRowWidth(props)}px;
 `
 const ContentNoReelaysIconView = styled(View)`
     align-items: center;
     height: 160px;
     justify-content: center;
+    margin-top: 24px;
     width: ${props => getContentRowWidth(props)}px;
 `
 const ContentWithReelaysSectionView = styled(View)`
@@ -68,7 +69,7 @@ const ContentWithReelaysSectionView = styled(View)`
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    margin-top: 8px;
+    margin-top: 12px;
     width: ${props => getContentRowWidth(props)}px;
 `
 const ContentWithReelaysPosterGridView = styled(View)`
@@ -78,8 +79,15 @@ const ContentWithReelaysPosterGridView = styled(View)`
     justify-content: center;
     width: 50%;
 `
+const ContentWithReelaysTitleAndDescriptionLine = styled(View)`
+    flex: 1;
+    padding-left: 12px;
+`
 const ContentWithReelaysThumbnailView = styled(View)`
     height: ${props => getThumbnailWidth(props) * 1.5}px;
+    shadow-offset: 4px 4px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
 `
 const ContributorPicContainer = styled(View)`
     margin-left: -10px;
@@ -99,7 +107,7 @@ const DescriptionLine = styled(View)`
     margin-bottom: 9px;
 `
 const DescriptionText = styled(ReelayText.CaptionEmphasized)`
-    color: #86878B;
+    color: #C8C8C8;
     line-height: 18px;
 `
 const DividerLine = styled(View)`
@@ -131,6 +139,7 @@ const StartConvoButton = styled(TouchableOpacity)`
     flex-direction: row;
     justify-content: center;
     height: 36px;
+    margin-bottom: 10px;
     width: ${props => getContentRowWidth(props) - 32}px;
 `
 const StartConvoText = styled(ReelayText.Overline)`
@@ -139,17 +148,18 @@ const StartConvoText = styled(ReelayText.Overline)`
 const TitleLine = styled(View)`
     display: flex;
     flex-direction: row;
-    margin-top: 16px;
-    margin-right: 16px;
-    margin-bottom: 8px;
+    margin-right: 12px;
 `
 const TitlePosterView = styled(View)`
     margin-bottom: 4px;
     margin-right: 4px;
+    shadow-offset: 4px 4px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
 `
 const TitleText = styled(ReelayText.H6Emphasized)`
     color: white;
-    font-size: 18px;
+    font-size: 16px;
 `
 const TopicCardGradient = styled(LinearGradient)`
     border-radius: 11px;
@@ -161,7 +171,7 @@ const TopicCardView = styled(View)`
     align-items: center;
     background-color: black;
     border-radius: 11px;
-    height: ${props => props.horizontal ? '480px' : 'auto'};
+    height: ${props => props.horizontal ? '440px' : 'auto'};
     justify-content: space-between;
     width: ${props => getTopicCardWidth(props)}px;
 `
@@ -170,7 +180,7 @@ const TopicOverlineView = styled(View)`
     flex-direction: row;
     justify-content: space-between;
     margin-top: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     padding-left: 4px;
     width: ${props => getTopicCardWidth(props)}px;
 `
@@ -262,13 +272,13 @@ export default TopicCard = ({
         const ContentNoReelays = () => {
             return (
                 <Fragment>
+                    <ContentNoReelaysIconView>
+                        <TopicsGiantIconSVG />
+                    </ContentNoReelaysIconView>
                     <ContentNoReelaysSectionView horizontal={horizontal}>
                         <TopicTitle />
                         <TopicDescription />
                     </ContentNoReelaysSectionView>
-                    <ContentNoReelaysIconView>
-                        <TopicsGiantIconSVG />
-                    </ContentNoReelaysIconView>
                 </Fragment>
             )
         };
@@ -278,12 +288,13 @@ export default TopicCard = ({
             const TitleSection = () => {
                 return (
                     <ContentWithReelaysSectionView horizontal={horizontal}>
-                        <View style={{ flex: 1 }}>
+                        <TopicsCardIconSmallSVG />
+                        <ContentWithReelaysTitleAndDescriptionLine>
                             <TouchableOpacity onPress={advanceToFeed}>
                                 <TopicTitle />
                                 <TopicDescription />
                             </TouchableOpacity>
-                        </View>
+                        </ContentWithReelaysTitleAndDescriptionLine>
                         <AddReelayToTopicButton />
                     </ContentWithReelaysSectionView>
                 );
@@ -316,7 +327,6 @@ export default TopicCard = ({
 
                 const displayTitles = reelaysWithDistinctTitles.filter((reelay, index) => index < 4);
                 const hasOneTitle = (displayTitles.length === 1);
-                const hasTwoTitles = (displayTitles.length === 2);
 
                 let mostPopularReelay = null;
                 let mostPopularReelayScore = -1;
@@ -349,10 +359,7 @@ export default TopicCard = ({
                             />
                         </ContentWithReelaysThumbnailView>
                         <Spacer />
-                        <ContentWithReelaysPosterGridView 
-                            hasTwoTitles={hasTwoTitles} 
-                            horizontal={horizontal}
-                        >
+                        <ContentWithReelaysPosterGridView>
                             { displayTitles.map(reelay => {
                                 return (
                                     <TopicTitlePoster 
@@ -390,7 +397,7 @@ export default TopicCard = ({
         const TopicTitle = () => {
             return (
                 <TitleLine>
-                    <TitleText numberOfLines={2}>{topic.title}</TitleText>
+                    <TitleText>{topic.title}</TitleText>
                 </TitleLine>
             );
         }
@@ -405,7 +412,6 @@ export default TopicCard = ({
     const ContentBelowDivider = () => {
         return (
             <View>
-                <DividerLine />
                 { (!topicHasReelays) && <CardBottomRowNoReelays /> }
                 { (topicHasReelays) && <CardBottomRowWithReelays /> }
             </View>
@@ -434,19 +440,17 @@ export default TopicCard = ({
         const advanceToCreatorProfileScreen = () => navigation.push('UserProfileScreen', { creator });
 
         const DotMenuButton = () => {
-            const [topicDotMenuVisible, setTopicDotMenuVisible] = useState(false);
-            const openDrawer = () => setTopicDotMenuVisible(true);
+            const dispatch = useDispatch();
+            const openedActivityDotMenu = useSelector(state => state.openedActivityDotMenu);
+            const topicDotMenuVisible = (openedActivityDotMenu && openedActivityDotMenu?.id === topic?.id);
+            const openDrawer = () => {
+                dispatch({ type: 'setOpenedActivityDotMenu', payload: topic });
+            }
+
             return (
                 <DotMenuButtonContainer onPress={openDrawer}>
                     <Icon type='ionicon' name='ellipsis-horizontal' size={20} color='white' />
-                    { topicDotMenuVisible && (
-                        <TopicDotMenuDrawer 
-                            navigation={navigation}
-                            topic={topic}
-                            drawerVisible={topicDotMenuVisible}
-                            setDrawerVisible={setTopicDotMenuVisible}
-                        />
-                    )}
+                    { topicDotMenuVisible && <TopicDotMenuDrawer navigation={navigation} topic={topic} /> }
                 </DotMenuButtonContainer>
             );
         }    

@@ -1,20 +1,12 @@
-import React, { useCallback } from 'react';
-import { 
-    Dimensions,
-    KeyboardAvoidingView, 
-    Modal, 
-    Pressable, 
-    SafeAreaView, 
-    TouchableOpacity, 
-    View,
-} from 'react-native';
-
-import * as ReelayText from '../../components/global/Text';
+import React from 'react';
+import { Dimensions, Modal, Pressable, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
-import { ReviewIconSVG, TopicsIconSVG } from '../global/SVGs';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import ReelayColors from '../../constants/ReelayColors';
+import * as ReelayText from '../../components/global/Text';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ReviewIconSVG, TopicsIconSVG } from '../../components/global/SVGs';
 
 const { height, width } = Dimensions.get('window');
 
@@ -78,37 +70,33 @@ const HeaderText = styled(ReelayText.H6)`
 const LeftSpacer = styled(View)`
     width: 40px;
 `
-const DrawerContainer = styled(SafeAreaView)`
-    background-color: #1a1a1a;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    margin-top: auto;
-    max-height: 70%;
-    width: 100%;
-`
-const HeaderSpacer = styled(View)`
-    align-items: center;
-    height: 12px;
-`
-const ModalContainer = styled(View)`
-    position: absolute;
-`
-const OptionsSpacer = styled(View)`
+const CenterSpacer = styled(View)`
     width: ${BUTTON_MARGIN_WIDTH}px;
 `
 
-export default AddTitleOrTopicDrawer = ({ navigation, club, drawerVisible, setDrawerVisible }) => {
+export default CreateTabDrawer = ({ closeDrawer, navigation }) => {
     const bottomOffset = useSafeAreaInsets().bottom;
-    const closeDrawer = () => setDrawerVisible(false);
+
+    const DrawerHeader = () => {
+        return (
+            <DrawerHeaderView>
+                <LeftSpacer />
+                <HeaderText>{'Create'}</HeaderText>
+                <CloseDrawerButton onPress={closeDrawer}>
+                    <FontAwesomeIcon icon={faXmark} size={20} color='white' />
+                </CloseDrawerButton>
+            </DrawerHeaderView>
+        )
+    }
 
     const CreateReviewButton = () => {
-        const advanceToAddTitleScreen = () => {
+        const advanceToCreateReview = () => {
             closeDrawer();
-            navigation.push('SelectTitleScreen', { clubID: club?.id });
-        }    
+            navigation.navigate('Create', { screen: 'SelectTitleScreen' });
+        }
         return (
             <CreateOptionView>
-                <CreateReviewPressable onPress={advanceToAddTitleScreen}>
+                <CreateReviewPressable onPress={advanceToCreateReview}>
                     <ReviewIconSVG />
                 </CreateReviewPressable>
                 <CreateOptionText>{'review'}</CreateOptionText>
@@ -117,13 +105,13 @@ export default AddTitleOrTopicDrawer = ({ navigation, club, drawerVisible, setDr
     }
 
     const CreateTopicButton = () => {
-        const advanceToAddTopicScreen = () => {
+        const advanceToCreateTopic = () => {
             closeDrawer();
-            navigation.push('CreateTopicScreen', { club });
+            navigation.navigate('Create', { screen: 'CreateTopicScreen' });
         }
         return (
             <CreateOptionView>
-                <CreateTopicPressable onPress={advanceToAddTopicScreen}>
+                <CreateTopicPressable onPress={advanceToCreateTopic}>
                     <TopicsIconSVG />
                 </CreateTopicPressable>
                 <CreateOptionText>{'topic'}</CreateOptionText>
@@ -131,33 +119,17 @@ export default AddTitleOrTopicDrawer = ({ navigation, club, drawerVisible, setDr
         )
     }
 
-    const DrawerHeader = () => {
-        return (
-            <DrawerHeaderView>
-                <LeftSpacer />
-                <HeaderText>{`Add to ${club?.name}`}</HeaderText>
-                <CloseDrawerButton onPress={closeDrawer}>
-                    <FontAwesomeIcon icon={faXmark} size={20} color='white' />
-                </CloseDrawerButton>
-            </DrawerHeaderView>
-        )
-    }
-
     return (
-        <ModalContainer>
-            <Modal animationType='slide' transparent={true} visible={drawerVisible}>
-            <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
-                <Backdrop onPress={closeDrawer}/>
-                <DrawerView bottomOffset={bottomOffset}>
-                    <DrawerHeader />
-                    <CreateOptionsRowView>
-                        <CreateReviewButton />
-                        <OptionsSpacer />
-                        <CreateTopicButton />
-                    </CreateOptionsRowView>
-                </DrawerView>
-                </KeyboardAvoidingView>
-            </Modal>
-        </ModalContainer>
-    );
+        <Modal animationType='slide' transparent={true} visible={true}>
+            <Backdrop onPress={closeDrawer} />
+            <DrawerView bottomOffset={bottomOffset}>
+                <DrawerHeader />
+                <CreateOptionsRowView>
+                    <CreateReviewButton />
+                    <CenterSpacer />
+                    <CreateTopicButton />
+                </CreateOptionsRowView>
+            </DrawerView>
+        </Modal>
+    )
 }

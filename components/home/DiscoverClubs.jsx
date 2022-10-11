@@ -3,12 +3,14 @@ import { ScrollView, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components';
 import * as ReelayText from '../global/Text';
 import ClubPicture from '../global/ClubPicture';
-import { ClubsIconSVG } from '../global/SVGs';
+import { ChatsIconSVG } from '../global/SVGs';
 import { getClubsDiscover } from '../../api/ClubsApi';
 
 import moment from 'moment';
 import { useSelector } from 'react-redux';
 import { AuthContext } from '../../context/AuthContext';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faUsers } from '@fortawesome/free-solid-svg-icons';
 
 const DiscoverClubsContainer = styled(View)`
     margin-bottom: 10px;
@@ -87,10 +89,10 @@ export default PopularClubs = ({ navigation }) => {
     return (
         <DiscoverClubsContainer>
             <HeaderContainer>
-                <ClubsIconSVG size={24} />
-                <HeaderText>{'Discover clubs'}</HeaderText>
+                <FontAwesomeIcon icon={faUsers} size={27} color='white' />
+                <HeaderText>{'Public chat groups'}</HeaderText>
             </HeaderContainer>
-            <RowContainer horizontal showsHorizontalScrollIndicator={false}>
+            <RowContainer contentContainerStyle={{ paddingRight: 40 }} horizontal showsHorizontalScrollIndicator={false}>
                 { displayClubs.map(renderClubOption) }
             </RowContainer>
         </DiscoverClubsContainer>

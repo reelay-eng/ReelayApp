@@ -155,7 +155,7 @@ export default BigBubbleBath = ({ club }) => {
         <BubbleBathHeaderContainer>
             <BubbleBathContainer>
                 <BubbleBathLeft />
-                <ClubPicture border club={club} size={120} />
+                <ClubPicture club={club} size={120} />
                 <BubbleBathRight />
             </BubbleBathContainer>
         </BubbleBathHeaderContainer>

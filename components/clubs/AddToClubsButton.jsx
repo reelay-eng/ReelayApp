@@ -7,6 +7,9 @@ import { AddedToClubsIconSVG, AddToClubsIconSVG } from '../global/SVGs';
 import styled from 'styled-components/native';
 import { useDispatch, useSelector } from 'react-redux';
 import AddToClubsDrawer from './AddToClubsDrawer';
+import { addToMyWatchlist } from '../../api/WatchlistApi';
+import { notifyOnAddedToWatchlist } from '../../api/WatchlistNotifications';
+import { showMessageToast } from '../utils/toasts';
 
 const ClubsButtonCircleContainer = styled(View)`
     align-items: center;
@@ -56,6 +59,37 @@ export default AddToClubsButton = ({ navigation, showCircle=true, titleObj, reel
 		}
 		return false;
 	}
+    
+    const onPress = async () => {
+        const addToWatchlistResult = await addToMyWatchlist({
+            reqUserSub: reelayDBUser?.sub,
+            reelaySub: reelay?.sub,
+            creatorName: reelay?.creator?.username,
+            tmdbTitleID: reelay?.title?.id,
+            titleType: reelay?.title?.titleType,
+        });
+
+        const nextWatchlistItems = [addToWatchlistResult, ...myWatchlistItems];
+
+        // todo: should also be conditional based on user settings
+        if (reelay?.creator) {
+            notifyOnAddedToWatchlist({
+                reelayedByUserSub: reelay?.creator?.sub,
+                addedByUserSub: reelayDBUser?.sub,
+                addedByUsername: reelayDBUser?.username,
+                watchlistItem: addToWatchlistResult,
+            });    
+        }
+
+        logAmplitudeEventProd('addToMyWatchlist', {
+            title: titleObj?.display,
+            username: reelayDBUser?.username,
+            userSub: reelayDBUser?.sub,
+        });
+
+        dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
+        showMessageToast(`Added ${titleObj.display} to your watchlist`);
+    }
 
     const openAddToClubsDrawer = () => {
         if (showMeSignupIfGuest()) return;
@@ -68,7 +102,7 @@ export default AddToClubsButton = ({ navigation, showCircle=true, titleObj, reel
     }
 
     return (
-        <ClubsButtonOuterContainer onPress={openAddToClubsDrawer}>
+        <ClubsButtonOuterContainer onPress={(onPress)}>
             <ClubsButtonCircleContainer 
                 isAddedToWatchlist={inWatchlist && !isMyReelay}
                 showCircle={showCircle}

@@ -1,7 +1,7 @@
 import React, { useContext, useState, memo} from 'react';
 import { Modal, View, Text, Pressable, ScrollView } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { blockCreator, removeAnnouncement, removeReelay, reportReelay, suspendAccount } from '../../api/ReelayDBApi';
+import { blockCreator, suspendAccount } from '../../api/ReelayDBApi';
 
 import { AuthContext } from '../../context/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,22 +10,17 @@ import styled from 'styled-components/native';
 
 import * as ReelayText from '../global/Text';
 import { showMessageToast } from '../utils/toasts';
-import DownloadButton from '../create-reelay/DownloadButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faThumbtack } from '@fortawesome/free-solid-svg-icons';
+import { deleteReportedChatMessage, reportChatMessage } from '../../api/ClubsApi';
 
 const ContentPolicy  = require('../../constants/ContentPolicy.json');
 
-const ReelayDotMenuContents = ({ reelay, navigation }) => {
+const MessageDotMenuContents = ({ message, navigation, socketRef }) => {
     const { reelayDBUser } = useContext(AuthContext);
 
     const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
-    const latestAnnouncement = useSelector(state => state.latestAnnouncement);
-    const isMyReelay = (reelayDBUser?.sub === reelay.creator.sub); 
-    const isLatestAnnouncement = (reelay?.sub === latestAnnouncement?.reelaySub);
+    const isMyMessage = (reelayDBUser?.sub === message?.userSub); 
 
     const [drawerState, setDrawerState] = useState('options');
     const [selectedPolicy, setSelectedPolicy] = useState({});
@@ -35,13 +30,6 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         padding-left: 24px;
         padding-right: 24px;
         width: 100%;
-    `
-    const DownloadContainer = styled(View)`
-        align-items: flex-end;
-        justify-content: flex-end;
-        position: absolute;
-        bottom: -20px;
-        right: 36px;
     `
     const DrawerContainer = styled(View)`
         background-color: #1a1a1a;
@@ -91,17 +79,17 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
     const BlockCreatorConfirm = () => {
         const onPress = async () => {
-            const blockCreatorResult = await blockCreator(reelay.creator.sub, reelayDBUser?.sub);
+            const blockCreatorResult = await blockCreator(message?.userSub, reelayDBUser?.sub);
             console.log(blockCreatorResult);
             setDrawerState('block-creator-complete');
 
             logAmplitudeEventProd('blockCreator', {
                 username: reelayDBUser?.username,
                 userSub: reelayDBUser?.sub,
-                creatorName: reelay.creator.username,
-                creatorSub: reelay.creator.sub,
-                reelaySub: reelay.sub,
-                title: reelay.title.display,
+                creatorName: message?.username,
+                creatorSub: message?.userSub,
+                clubID: message?.clubID,
+                messageID: message?.id,
             });
         }
 
@@ -137,29 +125,6 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         return <HeaderContainer />;
     }
 
-    const PinAnnouncementOption = () => {
-        const advanceToPinScreen = async () => {
-            closeDrawer();
-            navigation.push('PinAnnouncementScreen', { reelay });
-        }
-
-        const onPress = () => (isLatestAnnouncement) 
-            ? setDrawerState('unpin-confirm') 
-            : advanceToPinScreen();
-
-        const optionText = (isLatestAnnouncement)
-            ? '(Admin) Unpin from announcements'
-            : '(Admin) Pin as announcement';
-        
-        return (
-            <OptionContainerPressable onPress={onPress}>
-                <FontAwesomeIcon icon={faThumbtack} color='white' size={20}/>
-                <IconSpacer />
-                <OptionText>{optionText}</OptionText>
-            </OptionContainerPressable>
-        );
-    }
-
     const Prompt = ({ text }) => {
         const PromptContainer = styled(View)`
             align-items: flex-start;
@@ -175,12 +140,12 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         );
     }
 
-    const RemoveReelayOption = () => {
+    const DeleteMessageOption = () => {
         const onPress = async () => {
-            setDrawerState('remove-reelay-confirm');
+            setDrawerState('delete-message-confirm');
         }
         
-        const optionText = (isMyReelay) ? 'Remove Reelay' : '(Admin) Remove Reelay'
+        const optionText = (isMyMessage) ? 'Delete Message' : '(Admin) Delete Message'
 
         return (
             <OptionContainerPressable onPress={onPress}>
@@ -191,41 +156,51 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         );
     }
 
-    const RemoveReelayConfirm = () => {
+    const DeleteMessageConfirm = () => {
         const onPress = async () => {
-            const removeResult = await removeReelay(reelay);
-            console.log(removeResult);
-            showMessageToast('This reelay has been removed');
-            setDrawerState('remove-reelay-complete');
+            const socket = socketRef?.current;
+            if (socket) {
+                socket.emit('deleteMessageInChat', {
+                    authSession,
+                    clubID: message?.clubID,
+                    message: message,
+                    userSub: reelayDBUser?.sub,
+                });
+            } else {
+                // from reported message screen
+                const deleteResult = await deleteReportedChatMessage(reelayDBUser?.sub, message);
+                console.log('delete chat message result: ', deleteResult);
+            }
+            showMessageToast('This message has been deleted');
+            setDrawerState('delete-message-complete');
 
-            logAmplitudeEventProd('removeReelay', {
+            logAmplitudeEventProd('deleteChatMessage', {
                 username: reelayDBUser?.username,
                 userSub: reelayDBUser?.sub,
-                creatorName: reelay.creator.username,
-                creatorSub: reelay.creator.sub,
-                reelaySub: reelay.sub,
-                title: reelay.title.display,
+                authorName: message?.username,
+                authorSub: message?.userSub,
+                messageID: message?.id,
             });
         }
 
         return (
             <ContentContainer>
-                <Prompt text={'Are you sure you want to remove this reelay?'} />
+                <Prompt text={'Are you sure you want to delete this message?'} />
                 <OptionContainerPressable onPress={onPress}>
                     <Icon type='ionicon' name='remove-circle' size={20} color={'white'} />
                     <IconSpacer />
-                    <OptionText>{`Yes, remove`}</OptionText>
+                    <OptionText>{`Yes, delete`}</OptionText>
                 </OptionContainerPressable>
             </ContentContainer>
         );
     }
 
-    const RemoveReelayComplete = () => {
-        const removeReelayMessage = 'You have removed this reelay for everyone';
+    const DeleteMessageComplete = () => {
+        const deleteMessage = 'You have deleted this message for everyone';
         
         return (
             <ContentContainer>
-                <Prompt text={removeReelayMessage} />
+                <Prompt text={deleteMessage} />
             </ContentContainer>
         );
     }
@@ -277,24 +252,24 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
     const ReportContentSubmit = () => {
         const { statement, exampleList } = selectedPolicy;
         const onPress = async () => {
-            const reportReelayResult = await reportReelay(reelayDBUser?.sub, {
-                creatorSub: reelay.creator.sub, 
-                creatorName: reelay.creator.username,
+            const reportMessageResult = await reportChatMessage(reelayDBUser?.sub, {
+                authorSub: message?.userSub, 
+                authorName: message?.username,
                 policyViolationCode: selectedPolicy.id, 
-                reelaySub: reelay.sub,
+                clubID: message?.clubID,
+                clubName: message?.clubName,
+                messageID: message?.id,
             });
 
-            console.log('report reelay result: ', reportReelayResult);
+            console.log('report message result: ', reportMessageResult);
             setDrawerState('report-content-complete');
 
-            logAmplitudeEventProd('reportReelay', {
-                username: reelayDBUser?.username,
-                userSub: reelayDBUser?.sub,
-                creatorName: reelay.creator.username,
-                creatorSub: reelay.creator.sub,
-                reelaySub: reelay.sub,
-                title: reelay.title.display,
-                violationCode: selectedPolicy.id,
+            logAmplitudeEventProd('reportChatMessage', {
+                authorSub: message?.userSub, 
+                authorName: message?.username,
+                policyViolationCode: selectedPolicy.id, 
+                messageID: message?.id,
+                messageText: message?.text,
             });
         }
 
@@ -320,11 +295,11 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
     }
 
     const ReportContentComplete = () => {
-        const removeReelayMessage = 'You have reported this reelay. Reelay moderators are notified, and will review this content within 24 hours. Please reach out to support@reelay.app for more.';
+        const reportMessage = 'You have reported this message. Reelay moderators are notified, and will review this content within 24 hours. Please reach out to support@reelay.app for more.';
         
         return (
             <ContentContainer>
-                <Prompt text={removeReelayMessage} />
+                <Prompt text={reportMessage} />
             </ContentContainer>
         );
     }
@@ -345,17 +320,15 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
 
     const SuspendAccountConfirm = () => {
         const onPress = async () => {
-            const suspendAccountResult = await suspendAccount(reelay.creator.sub, reelayDBUser?.sub);
+            const suspendAccountResult = await suspendAccount(message?.userSub, reelayDBUser?.sub);
             console.log(suspendAccountResult);
             setDrawerState('suspend-account-complete');
 
             logAmplitudeEventProd('suspendAccount', {
                 username: reelayDBUser?.username,
                 userSub: reelayDBUser?.sub,
-                creatorName: reelay.creator.username,
-                creatorSub: reelay.creator.sub,
-                reelaySub: reelay.sub,
-                title: reelay.title.display,
+                authorSub: message?.userSub, 
+                authorName: message?.username,
             });
         }
 
@@ -380,42 +353,10 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
         );
     }
 
-    const UnpinAnnouncementConfirm = () => {
-        const onPress = async () => {
-            const unpinResult = await removeAnnouncement({
-                announcementID: latestAnnouncement?.id,
-                authSession,
-                reqUserSub: reelayDBUser?.sub,
-            });
-            console.log(unpinResult);
-            setDrawerState('unpin-complete');
-        }
-
-        return (
-            <ContentContainer>
-                <Prompt text={'Are you sure you want to unpin this announcement?'} />
-                <OptionContainerPressable onPress={onPress}>
-                    <Icon type='ionicon' name='remove-circle' size={20} color={'white'} />
-                    <IconSpacer />
-                    <OptionText>{`Yes, unpin`}</OptionText>
-                </OptionContainerPressable>
-            </ContentContainer>
-        );
-    }
-
-    const UnpinAnnouncementComplete = () => {
-        const unpinReelayMessage = 'You have unpinned this reelay.';
-        return (
-            <ContentContainer>
-                <Prompt text={unpinReelayMessage} />
-            </ContentContainer>
-        );
-    }
-
     const ViewReportedContentFeedOption = () => {
         const onPress = () => {
             closeDrawer();
-            navigation.push('ReportedReelaysFeedScreen');
+            navigation.push('ReportedChatMessagesScreen');
         }
 
         return (
@@ -430,28 +371,12 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
     const DotMenuOptions = () => {
         return (
             <ContentContainer>
-                { !isMyReelay && <ReportContentOption /> }
-                { !isMyReelay && <BlockCreatorOption /> }
-                { (reelayDBUser?.role === 'admin') && <PinAnnouncementOption /> }
-                { (reelayDBUser?.role === 'admin' || isMyReelay) && <RemoveReelayOption /> }
-                { (reelayDBUser?.role === 'admin') && !isMyReelay && <SuspendAccountOption /> }
+                { !isMyMessage && <ReportContentOption /> }
+                { !isMyMessage && <BlockCreatorOption /> }
+                { (reelayDBUser?.role === 'admin' || isMyMessage) && <DeleteMessageOption /> }
+                { (reelayDBUser?.role === 'admin') && !isMyMessage && <SuspendAccountOption /> }
                 { (reelayDBUser?.role === 'admin') && <ViewReportedContentFeedOption /> }
-                <DownloadOption />
             </ContentContainer>
-        );
-    }
-
-    const DownloadOption = () => {
-        return (
-            <DownloadContainer>
-                <DownloadButton 
-                    height={48}
-                    width={48}
-                    titleObj={reelay.title} 
-                    videoURI={reelay.content.videoURI} 
-                    uploadedReelay={reelay}
-                />
-            </DownloadContainer>
         );
     }
 
@@ -461,23 +386,22 @@ const ReelayDotMenuContents = ({ reelay, navigation }) => {
                 { drawerState === 'options' && <DotMenuOptions /> }
                 { drawerState === 'block-creator-confirm' && <BlockCreatorConfirm /> }
                 { drawerState === 'block-creator-complete' && <BlockCreatorComplete /> }
-                { drawerState === 'remove-reelay-confirm' && <RemoveReelayConfirm /> }
-                { drawerState === 'remove-reelay-complete' && <RemoveReelayComplete /> }
+                { drawerState === 'delete-message-confirm' && <DeleteMessageConfirm /> }
+                { drawerState === 'delete-message-complete' && <DeleteMessageComplete /> }
                 { drawerState === 'report-content-select-violation' && <ReportContentSelectViolation /> }
                 { drawerState === 'report-content-submit' && <ReportContentSubmit /> }
                 { drawerState === 'report-content-complete' && <ReportContentComplete /> }
                 { drawerState === 'suspend-account-confirm' && <SuspendAccountConfirm /> }
                 { drawerState === 'suspend-account-complete' && <SuspendAccountComplete /> }
-                { drawerState === 'unpin-confirm' && <UnpinAnnouncementConfirm /> }
-                { drawerState === 'unpin-complete' && <UnpinAnnouncementComplete /> }
             </DrawerContainer>
     );
 }
 
-const Reelay3DotDrawer = ({ reelay, navigation }) => {
-    const dotMenuVisible = useSelector(state => state.dotMenuVisible);
+const ChatMessage3DotDrawer = ({ message, navigation, socketRef }) => {
     const dispatch = useDispatch();
-    const closeDrawer = () => dispatch({ type: 'setDotMenuVisible', payload: false });
+    const closeDrawer = () => {
+        dispatch({ type: 'setOpenedActivityDotMenu', payload: null });
+    }
 
     const ModalContainer = styled(View)`
         position: absolute;
@@ -491,17 +415,13 @@ const Reelay3DotDrawer = ({ reelay, navigation }) => {
 
     return (
         <ModalContainer>
-            <Modal animationType='slide' transparent={true} visible={dotMenuVisible}>
+            <Modal animationType='slide' transparent={true} visible={true}>
                 <Backdrop onPress={closeDrawer}/>
-                <ReelayDotMenuContents reelay={reelay} navigation={navigation} />
+                <MessageDotMenuContents message={message} navigation={navigation} socketRef={socketRef} />
             </Modal>
         </ModalContainer>
     );
 
 }
 
-const areEqual = (prevDrawerProps, nextDrawerProps) => {
-    return true;
-}
-
-export default memo(Reelay3DotDrawer, (areEqual));
+export default ChatMessage3DotDrawer;

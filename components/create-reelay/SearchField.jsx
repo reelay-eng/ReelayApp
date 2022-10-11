@@ -36,7 +36,7 @@ export default SearchField = ({
 					paddingLeft: 10,
 					paddingTop: clearIcon ? 2 : 6,
 					paddingBottom: clearIcon ? 2 : 6,
-					paddingRight: 10,
+					paddingRight: 4,
 					backgroundColor: "#393939",
 					borderRadius: borderRadius,
 					justifyContent: 'center',

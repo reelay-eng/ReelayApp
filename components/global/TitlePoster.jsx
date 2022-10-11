@@ -17,7 +17,7 @@ const TitlePoster = ({ title, onPress, width = 60 }) => {
     const style = { borderRadius, height, width };
 
     const source = {
-        uri: getTitlePosterURI(title.posterPath, false),
+        uri: getTitlePosterURI(title?.posterPath, false),
         priority: FastImage.priority.normal,
     }
 
@@ -46,12 +46,12 @@ const TitlePoster = ({ title, onPress, width = 60 }) => {
     const [loadState, setLoadState] = useState('local');
 
     const getTitlePosterSource = () => {
-        if (title.posterSource === PLACEHOLDER_POSTER_SOURCE) return PLACEHOLDER_POSTER_SOURCE;
-        if (title.posterSource === WELCOME_VIDEO_POSTER_SOURCE) return WELCOME_VIDEO_POSTER_SOURCE;
+        if (title?.posterSource === PLACEHOLDER_POSTER_SOURCE) return PLACEHOLDER_POSTER_SOURCE;
+        if (title?.posterSource === WELCOME_VIDEO_POSTER_SOURCE) return WELCOME_VIDEO_POSTER_SOURCE;
         if (loadState === 'local') {
-            return { uri: getTitlePosterURI(title.posterPath, true) };
+            return { uri: getTitlePosterURI(title?.posterPath, true) };
         } else if (loadState === 'remote') {
-            return { uri: getTitlePosterURI(title.posterPath, false) };
+            return { uri: getTitlePosterURI(title?.posterPath, false) };
         } else {
             return PLACEHOLDER_POSTER_SOURCE;
         }

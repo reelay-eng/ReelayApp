@@ -1,40 +1,51 @@
-import React, { Fragment, useContext, useEffect, useRef, useState, memo } from 'react';
+import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { 
     ActivityIndicator,
     Dimensions, 
+    KeyboardAvoidingView, 
     RefreshControl, 
     TouchableOpacity, 
     View 
 } from 'react-native';
-import { Icon } from 'react-native-elements';
+
 import * as ReelayText from '../../components/global/Text';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import moment from 'moment';
 
+import ClubActivityList from '../../components/clubs/ClubActivityList';
 import ClubBanner from '../../components/clubs/ClubBanner';
-import ClubTitleCard from '../../components/clubs/ClubTitleCard';
-import NoTitlesYetPrompt from '../../components/clubs/NoTitlesYetPrompt';
+import ClubPostActivityBar from '../../components/clubs/ClubPostActivityBar';
+import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
-import { inviteMemberToClub, getClubMembers, getClubTitles, getClubTopics, markClubActivitySeen, acceptInviteToClub, rejectInviteFromClub } from '../../api/ClubsApi';
 import { AuthContext } from '../../context/AuthContext';
 import { showErrorToast } from '../../components/utils/toasts';
-import InviteMyFollowsDrawer from '../../components/clubs/InviteMyFollowsDrawer';
 import { LinearGradient } from 'expo-linear-gradient';
 import ReelayColors from '../../constants/ReelayColors';
-import AddTitleOrTopicDrawer from '../../components/clubs/AddTitleOrTopicDrawer';
 import UploadProgressBar from '../../components/global/UploadProgressBar';
-import TopicCard from '../../components/topics/TopicCard';
-import ClubAddedMemberCard from './ClubAddedMemberCard';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import Constants from 'expo-constants';
-import { FlashList } from '@shopify/flash-list';
+
+import { io } from 'socket.io-client';
+
+import { 
+    inviteMemberToClub, 
+    getClubMembers, 
+    getClubTitles, 
+    getClubTopics, 
+    markClubActivitySeen, 
+    acceptInviteToClub, 
+    rejectInviteFromClub, 
+} from '../../api/ClubsApi';
+import { HeaderWithBackButton } from '../../components/global/Headers';
+import InviteToChatExternalPrompt from '../../components/clubs/InviteToChatExternalPrompt';
 
 const { height, width } = Dimensions.get('window');
-const ACTIVITY_PAGE_SIZE = 20;
+const CHAT_BASE_URL = Constants.manifest.extra.reelayChatBaseUrl;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
+const LAST_TYPING_MAX_SECONDS = 10;
 
 const AcceptRejectInviteRowView = styled(View)`
     align-items: center;
@@ -53,42 +64,18 @@ const AcceptInvitePressable = styled(TouchableOpacity)`
     height: 40px;
     margin-right: 16px;
 `
-const ActivityBottomSpacer = styled(View)`
-    height: ${props => props.bottomOffset + 100}px;
-`
 const ActivityTopSpacer = styled(View)`
-    height: ${props => props.topOffset}px;
-`
-const ActivityView = styled(View)`
-    margin-left: ${props => props.activityType === 'topic' ? 16 : 0}px;
-    margin-bottom: 8px;
+    height: ${props => props.topOffset + 80}px;
 `
 const ActivityScreenView = styled(View)`
     background-color: black;
     height: 100%;
     width: 100%;
 `
-const AddTitleButtonView = styled(TouchableOpacity)`
-    align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
-    border-radius: 20px;
-    flex-direction: row;
-    justify-content: center;
-    height: 40px;
-    width: ${width - 32}px;
-`
-const AddTitleButtonText = styled(ReelayText.Subtitle2)`
-    color: white;
-    margin-left: 4px;
-`
-const BottomButtonOuterView = styled(LinearGradient)`
-    align-items: center;
-    bottom: 0px;
+const InviteFoldButtonRow = styled(View)`
     flex-direction: row;
     justify-content: space-around;
-    padding-top: 20px;
-    padding-bottom: ${(props) => props.bottomOffset + 44}px;
-    position: absolute;
+    margin-top: 12px;
     width: 100%;
 `
 const InviteFoldOuterView = styled(View)`
@@ -100,29 +87,42 @@ const InviteFoldOuterView = styled(View)`
     top: ${props => props.topOffset}px;
     width: 100%;
 `
-const InviteFoldButtonRow = styled(View)`
-    flex-direction: row;
-    justify-content: space-around;
-    margin-top: 12px;
-    width: 100%;
-`
-const DescriptionView = styled(View)`
-    align-items: center;
-    background-color: ${ReelayColors.reelayBlack};
-    border-radius: 12px;
-    padding: 8px;
-    padding-left: 16px;
-    padding-right: 16px;
-    margin-bottom: 4px;
-    border-color: white;
-    border-width: 1px;
-    z-index: 5;
-`
-const DescriptionText = styled(ReelayText.Body2)`
-    color: white;
-`
 const InviteText = styled(ReelayText.Overline)`
     color: white;
+`
+const JoinClubButtonText = styled(ReelayText.Overline)`
+    color: white;
+    margin-left: 4px;
+`
+const JoinClubButtonView = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 20px;
+    flex-direction: row;
+    justify-content: center;
+    height: 40px;
+    width: ${width - 32}px;
+`
+const JoinClubOuterView = styled(LinearGradient)`
+    align-items: center;
+    bottom: 0px;
+    flex-direction: row;
+    justify-content: space-around;
+    padding-top: 20px;
+    position: absolute;
+    width: 100%;
+`
+const RefreshHeaderView = styled(View)`
+    top: ${props => props.topOffset}px;
+    position: absolute;
+    width: 100%;
+`
+const RefreshScreenView = styled(View)`
+    align-items: center;
+    background-color: black;
+    height: 100%;
+    justify-content: center;
+    width: 100%;
 `
 const RejectInvitePressable = styled(TouchableOpacity)`
     align-items: center;
@@ -135,57 +135,6 @@ const RejectInvitePressable = styled(TouchableOpacity)`
     height: 40px;
     margin-left: 16px;
 `
-
-const ClubActivity = ({ activity, club, feedIndex, navigation, onRefresh }) => {
-    const { activityType } = activity;
-    const advanceToFeed = (initReelayIndex = 0) => {
-        if (feedIndex === -1) return;
-        navigation.push('ClubFeedScreen', { club, initReelayIndex, initFeedIndex: feedIndex });   
-    }
-
-    if (activityType === 'title') {
-        const clubTitle = activity;
-        return (
-            <ActivityView activityType={activityType}>
-                <ClubTitleCard 
-                    key={clubTitle.id} 
-                    advanceToFeed={advanceToFeed}
-                    club={club}
-                    clubTitle={clubTitle} 
-                    navigation={navigation} 
-                    onRefresh={onRefresh}
-                />
-            </ActivityView>
-        );    
-    } else if (activityType === 'topic') {
-        const clubTopic = activity;
-        return (
-            <ActivityView activityType={activityType}>
-                <TopicCard 
-                    advanceToFeed={advanceToFeed}
-                    clubID={club.id}
-                    navigation={navigation} 
-                    source={'clubs'}
-                    topic={clubTopic} 
-                />
-            </ActivityView>
-        );
-    } else if (activityType === 'member' && activityType?.role !== 'banned') {
-        return <ClubAddedMemberCard member={activity} />
-    } else {
-        return <View />;
-    }
-}
-
-const DescriptionFold = () => {
-    return (
-        <DescriptionView>
-            <DescriptionText>
-                { club.description }
-            </DescriptionText>
-        </DescriptionView>
-    )
-}
 
 const InviteFold = ({ clubMember, navigation, isPublicClub, onRefresh }) => {
     const authSession = useSelector(state => state.authSession);
@@ -271,119 +220,160 @@ const InviteFold = ({ clubMember, navigation, isPublicClub, onRefresh }) => {
 
 }
 
-const ClubActivityList = ({ club, navigation, onRefresh, refreshing }) => {
-    const itemHeights = useRef([]);
-    const [maxDisplayPage, setMaxDisplayPage] = useState(0);
-    const maxDisplayIndex = (maxDisplayPage + 1) * ACTIVITY_PAGE_SIZE;
-
-    const filterDisplayActivities = (nextActivity, index) => index < maxDisplayIndex;
-    const sortByLastUpdated = (activity0, activity1) => {
-        const lastActivity0 = moment(activity0?.lastUpdatedAt ?? activity0.createdAt);
-        const lastActivity1 = moment(activity1?.lastUpdatedAt ?? activity1.createdAt);
-        return lastActivity1.diff(lastActivity0, 'seconds');
-    }
-
-    const clubActivities = [
-        ...club.titles,
-        ...club.topics,
-        ...club.members,
-    ].sort(sortByLastUpdated);
-
-    const displayActivities = useRef(clubActivities.filter(filterDisplayActivities));
-
-    const activityCanRenderOnFeed = (titleOrTopic) => {
-        return (titleOrTopic.activityType === 'topic' || titleOrTopic?.reelays?.length > 0);
-    }
-    const feedTitlesAndTopics = clubActivities.filter(activityCanRenderOnFeed);
-    const refreshControl = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
-
-    const onEndReached = () => {
-        const nextMaxDisplayIndex = (maxDisplayPage + 2) * ACTIVITY_PAGE_SIZE;
-        const filterNextDisplayActivities = (nextActivity, index) => index < nextMaxDisplayIndex;
-        if (clubActivities?.length === displayActivities.current?.length) return; 
-        displayActivities.current = clubActivities.filter(filterNextDisplayActivities);
-        setMaxDisplayPage(maxDisplayPage + 1);
-    }
-
-    const keyExtractor = (item) => {
-        if (item?.activityType === 'description') return 'description';
-        if (item?.activityType === 'noTitlesYet') return 'noTitlesYet';
-        return item?.id;
-    }
-
-    const renderClubActivity = ({ item, index }) => {
-        const activity = item;
-        const { activityType } = activity;
-        
-        const matchFeedTitleOrTopic = (nextTitleOrTopic) => (activity.id === nextTitleOrTopic.id);
-        const initFeedIndex = feedTitlesAndTopics.findIndex(matchFeedTitleOrTopic);    
-
-        if (activityType === 'description') {
-            return <DescriptionFold key={'description'} />;
-        }
-        if (activityType === 'noTitlesYet') {
-            return <NoTitlesYetPrompt key={'noTitlesYet'} />
-        }
-
-        return (
-            <ClubActivity 
-                activity={activity} 
-                club={club}
-                feedIndex={initFeedIndex} 
-                navigation={navigation}
-                onRefresh={onRefresh}
-            />
-        );    
-    };
-
-    const getItemLayout = (item, index) => {
-        const length = itemHeights.current[index] ?? 0;
-        const accumulate = (sum, next) => sum + next;
-        const offset = itemHeights.current.slice(0, index).reduce(accumulate, 0);
-        return { length, offset, index };
-    }
-
-    if (refreshing) {
-        return <ActivityIndicator />
-    }
-
-    return (
-        <FlashList
-            data={displayActivities.current}
-            estimatedItemSize={200}
-            getItemLayout={getItemLayout}
-            keyExtractor={keyExtractor}
-            onEndReached={onEndReached}
-            onEndReachedThreshold={0.9}
-            refreshControl={refreshControl} 
-            renderItem={renderClubActivity}
-            showsVerticalScrollIndicator={false}
-        />
-    )
-}
  
 export default ClubActivityScreen = ({ navigation, route }) => {
     const authSession = useSelector(state => state.authSession);
+    const activeUsersInChatRef = useRef({});
+    const chatMessagesRef = useRef([]);
+    const chatMessagesNextPageRef = useRef(0);
+    const scrollRef = useRef(null);
+    const socketRef = useRef(null);
 
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
-    const { club, promptToInvite } = route.params;
 
+    const promptToInvite = route.params?.promptToInvite;
+    const club = route.params?.club ?? { 
+        id: route.params?.clubID,
+        name: route.params?.clubName,
+        members: [],
+        titles: [],
+        topics: [],
+        visibility: 'private',
+    };
+
+    const clubPostsLoaded = (club.members?.length > 0);
+    const [chatMessagesLoaded, setChatMessagesLoaded] = useState(false);
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
     const [refreshing, setRefreshing] = useState(false);
+    const [showChatMessages, setShowChatMessages] = useState(true);
 
+    const closeInviteDrawer = () => setInviteDrawerVisible(false);
     const matchClubMember = (nextMember) => nextMember?.userSub === reelayDBUser?.sub;
     const clubMember = club.members.find(matchClubMember);
     const clubMemberHasJoined = clubMember?.hasAcceptedInvite;
     const isPublicClub = (club.visibility === FEED_VISIBILITY);
 
-    const topOffset = useSafeAreaInsets().top + 80;
+    const topOffset = useSafeAreaInsets().top;
     const bottomOffset = useSafeAreaInsets().bottom + 20;
 
+    const newTopicCreatedInClub = useSelector(state => state.newTopicCreatedInClub);
+    const uploadRequest = useSelector(state => state.uploadRequest);
     const uploadStage = useSelector(state => state.uploadStage);
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
-    const notLoaded = (!club.members?.length && !club.titles?.length && !club.topics?.length);
+
+    const initClubsChat = async () => {
+        const socket = io(CHAT_BASE_URL);
+        socketRef.current = socket;
+
+        socket.on('connect', () => {
+            console.log('socket initialized: ', socket.id);
+            socket.emit('joinChat', {
+                authSession, 
+                clubID: club?.id, 
+                username: reelayDBUser?.username, 
+                userSub: reelayDBUser?.sub,
+                visibility: FEED_VISIBILITY,
+            });
+        });
+
+        socket.on('activeUsersInChatUpdated', ({ activeUsersInChat }) => {
+            console.log('event received: active users');
+            console.log('active users in chat: ', activeUsersInChat);
+            activeUsersInChatRef.current = activeUsersInChat;
+        });
+
+        socket.on('chatMessagesLoaded', ({ messages, page }) => {
+            console.log(`event received: ${messages?.length} messages loaded`);
+            // TODO: ensure no duplicates
+            if (page === chatMessagesNextPageRef?.current) {
+                chatMessagesRef.current.push(...messages);
+                chatMessagesNextPageRef.current += 1;
+            } else {
+                console.log('bad page: ', page, chatMessagesNextPageRef?.current);
+            }
+            if (!chatMessagesLoaded) setChatMessagesLoaded(true);
+        })
+
+        socket.on('chatMessageSent', ({ message }) => {
+            const currentMessages = chatMessagesRef.current;
+            console.log('chat message received: ', message);
+            const nextMessages = [message, ...currentMessages];
+            chatMessagesRef.current = nextMessages;
+
+            const userEntry = activeUsersInChatRef?.current?.[message?.userSub];
+            if (!userEntry) {
+                console.log('error on chatMessageSent: could not find user entry');
+                return;
+            }
+
+            // hack to stop typing once a message is sent
+            userEntry.lastTypingAt = moment().subtract(LAST_TYPING_MAX_SECONDS, 'seconds');
+        });
+
+        socket.on('shouldRefreshClubActivity', () => {
+            onRefresh();
+        });;
+
+        socket.on('userIsActive', ({ userSub }) => {
+            console.log('received userIsActive: ', userSub);
+            const userEntry = activeUsersInChatRef?.current?.[userSub];
+            if (!userEntry) {
+                console.log('error on userIsActive: could not find user entry');
+                return;
+            }
+            userEntry.lastActiveAt = moment();
+        });
+
+        socket.on('userIsTyping', ({ userSub }) => {
+            console.log('received userIsTyping: ', userSub);
+            const userEntry = activeUsersInChatRef?.current?.[userSub];
+            if (!userEntry) {
+                console.log('error on userIsTyping: could not find user entry');
+                return;
+            }
+
+            const now = moment();
+            userEntry.lastActiveAt = now;
+            userEntry.lastTypingAt = now;
+        });
+
+        return socket;
+    }
+
+    const closeClubsChat = () => {
+        if (!socketRef.current) {
+            console.log('error closing clubs chat: could not find socket ref');
+            return;
+        }
+
+        const socket = socketRef.current;
+        socket.emit('leaveChat', {
+            authSession, 
+            clubID: club?.id, 
+            userSub: reelayDBUser?.sub,
+        });
+        socket.close();
+        socketRef.current = null;
+    }
+
+    const loadChatMessageHistory = async () => {
+        if (!socketRef.current) {
+            console.log('error closing clubs chat: could not find socket ref');
+            return;
+        }
+
+        const socket = socketRef.current;
+        socket.emit('loadMessageHistory', {
+            authSession, 
+            clubID: club?.id, 
+            page: chatMessagesNextPageRef?.current,
+            userSub: reelayDBUser?.sub,
+            visibility: FEED_VISIBILITY,
+        });
+        console.log('emitted load message history');
+    }   
 
     const onRefresh = async () => {
         try { 
@@ -429,13 +419,14 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     }
 
     useEffect(() => {
-        if (notLoaded) {
-            onRefresh();
+        if (!clubPostsLoaded) {
+            onRefresh().then(() => initClubsChat());
         } else {
             if (clubMember?.id) {
                 clubMember.lastActivitySeenAt = moment().toISOString();
                 markClubActivitySeen({ authSession, clubMemberID: clubMember.id, reqUserSub: reelayDBUser?.sub });
             }
+            initClubsChat();
         }
 
         logAmplitudeEventProd('openedClubActivityScreen', {
@@ -444,34 +435,40 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             clubID: club?.id,
             club: club?.name,
         });
+
+        return () => closeClubsChat();
     }, []);
+
+    useEffect(() => {
+        if (uploadStage === 'upload-complete') {
+            const uploadInClub = (uploadRequest?.reelayClub?.id === club.id);
+            console.log('can upload in club? ', uploadInClub);
+            if (uploadInClub && socketRef?.current) {
+                socketRef?.current.emit('addReelayToChat', {
+                    authSession,
+                    clubID: club.id,
+                    reelay: uploadRequest?.reelayDBBody,
+                    userSub: reelayDBUser?.sub,
+                });
+            }
+        }
+    }, [uploadStage]);
+
+    useEffect(() => {
+        if (newTopicCreatedInClub && newTopicCreatedInClub?.clubID === club.id) {
+            socketRef?.current.emit('addTopicToChat', {
+                authSession,
+                clubID: club.id,
+                topic: newTopicCreatedInClub,
+                userSub: reelayDBUser?.sub,
+            });
+            dispatch({ type: 'setNewTopicCreatedInClub', payload: null });
+        }
+    }, [newTopicCreatedInClub]);
 
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
     });
-
-    const AddTitleButton = () => {
-        const [titleOrTopicDrawerVisible, setTitleOrTopicDrawerVisible] = useState(false);
-        return (
-            <BottomButtonOuterView 
-                bottomOffset={bottomOffset} 
-                colors={['transparent', 'black']}
-                end={{ x: 0.5, y: 0.5}}>
-                <AddTitleButtonView onPress={() => setTitleOrTopicDrawerVisible(true)}>
-                    <Icon type='ionicon' name='add-circle-outline' size={16} color='white' />
-                    <AddTitleButtonText>{'Add title or topic'}</AddTitleButtonText>
-                </AddTitleButtonView>
-                { titleOrTopicDrawerVisible && (
-                    <AddTitleOrTopicDrawer
-                        club={club}
-                        navigation={navigation}
-                        drawerVisible={titleOrTopicDrawerVisible}
-                        setDrawerVisible={setTitleOrTopicDrawerVisible}
-                    />
-                )}
-            </BottomButtonOuterView>
-        );
-    }
 
     const JoinClubButton = () => {
         const joinClub = async () => {
@@ -492,46 +489,80 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         }
 
         return (
-            <BottomButtonOuterView 
+            <JoinClubOuterView 
                 bottomOffset={bottomOffset} 
                 colors={['transparent', 'black']}>
-                <AddTitleButtonView onPress={joinClub}>
-                    <AddTitleButtonText>{'Join club'}</AddTitleButtonText>
-                </AddTitleButtonView>
-            </BottomButtonOuterView>
+                <JoinClubButtonView onPress={joinClub}>
+                    <JoinClubButtonText>{'Join chat'}</JoinClubButtonText>
+                </JoinClubButtonView>
+            </JoinClubOuterView>
+        );
+    }
+
+    if (!clubPostsLoaded || !chatMessagesLoaded) {
+        return (
+            <RefreshScreenView>
+                <RefreshHeaderView topOffset={topOffset}>
+                    <HeaderWithBackButton navigation={navigation} text={club?.name} />
+                </RefreshHeaderView>
+                <ActivityIndicator />
+            </RefreshScreenView>
         );
     }
 
     return (
         <ActivityScreenView>
-            <ActivityTopSpacer topOffset={topOffset} />
-            <ClubActivityList club={club} navigation={navigation} onRefresh={onRefresh} refreshing={refreshing} />
-            <ActivityBottomSpacer bottomOffset={bottomOffset} />
-            <ClubBanner club={club} navigation={navigation} />
-
-            { !clubMember && isPublicClub && <JoinClubButton /> }
-            { clubMember && clubMemberHasJoined && <AddTitleButton /> }
-            { clubMember && !clubMemberHasJoined && (
-                <InviteFold 
-                    clubMember={clubMember} 
-                    isPublicClub={isPublicClub} 
+            <KeyboardAvoidingView behavior='padding' style={{flex: 1}}>
+                <ActivityTopSpacer topOffset={topOffset} />
+                <ClubActivityList 
+                    activeUsersInChatRef={activeUsersInChatRef}
+                    club={club} 
+                    chatMessagesRef={chatMessagesRef}
+                    loadChatMessageHistory={loadChatMessageHistory}
                     navigation={navigation} 
                     onRefresh={onRefresh} 
+                    refreshing={refreshing} 
+                    scrollRef={scrollRef}
+                    showChatMessages={showChatMessages}
+                    socketRef={socketRef}
                 />
-            )}
-
-            { showProgressBar && (
-                <UploadProgressBar clubID={club.id} mountLocation={'InClub'} onRefresh={onRefresh} />
-            )}
-
-            { inviteDrawerVisible && (
-                <InviteMyFollowsDrawer 
-                    club={club}
-                    drawerVisible={inviteDrawerVisible}
-                    setDrawerVisible={setInviteDrawerVisible}
-                    onRefresh={onRefresh}
+                <ClubBanner 
+                    club={club} 
+                    navigation={navigation} 
+                    showChatMessages={showChatMessages}
+                    setShowChatMessages={setShowChatMessages}
                 />
-            )}
+                { !clubMember && isPublicClub && <JoinClubButton /> }
+                { clubMember && clubMemberHasJoined && (
+                    <ClubPostActivityBar 
+                        club={club} 
+                        navigation={navigation} 
+                        scrollRef={scrollRef}
+                        socketRef={socketRef} 
+                    />
+                )}
+                { clubMember && !clubMemberHasJoined && (
+                    <InviteFold 
+                        clubMember={clubMember} 
+                        isPublicClub={isPublicClub} 
+                        navigation={navigation} 
+                        onRefresh={onRefresh} 
+                    />
+                )}
+
+                { showProgressBar && (
+                    <UploadProgressBar clubID={club.id} mountLocation={'InClub'} onRefresh={onRefresh} />
+                )}
+
+                { inviteDrawerVisible && (
+                    <InviteMyFollowsDrawer 
+                        club={club}
+                        closeDrawer={closeInviteDrawer}
+                        onRefresh={onRefresh}
+                    />
+                )}
+            </KeyboardAvoidingView>
+            <View style={{ height: bottomOffset + 28 }} />
         </ActivityScreenView>
     );
 }

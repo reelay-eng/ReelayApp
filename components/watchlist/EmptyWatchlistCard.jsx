@@ -3,7 +3,7 @@ import { Dimensions, TouchableOpacity, View } from 'react-native';
 
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
-import { ClubsIconSVG } from '../global/SVGs';
+import { ChatsIconSVG } from '../global/SVGs';
 import ReelayColors from '../../constants/ReelayColors';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSelector } from 'react-redux';
@@ -108,7 +108,7 @@ export default EmptyWatchlistCard = ({ navigation }) => {
         <EmptyWatchlistOuterView>
             <EmptyWatchlistView>
                 <TopAndBottomSpacer />
-                <ClubsIconSVG enlarge={true} sizeRatio={0.15} />
+                <ChatsIconSVG enlarge={true} sizeRatio={0.15} />
                 <SectionHeader numberOfLines={3}>
                     {'Add some titles to your watchlist'}
                 </SectionHeader>

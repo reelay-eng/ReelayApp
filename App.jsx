@@ -108,7 +108,6 @@ function App() {
      */
 
     useEffect(() => {
-        console.log('sign in use effect being called: ', reelayDBUserID, authSession?.accessToken);
         if (reelayDBUserID && authSession?.accessToken) loadMyProfile(reelayDBUserID);
     }, [reelayDBUserID, authSession]);
 
@@ -123,7 +122,6 @@ function App() {
     useEffect(() => {
         if (reelayDBUser?.sub) {
             dispatch({ type: 'setSignedIn', payload: true });
-            console.log('reelay db user: ', reelayDBUser);
             if (!reelayDBUser?.pushToken || reelayDBUser?.pushToken == 'null') {
                 registerMyPushToken();
             }

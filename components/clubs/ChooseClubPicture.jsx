@@ -14,6 +14,9 @@ import ReelayColors from "../../constants/ReelayColors";
 
 import * as ReelayText from "../global/Text";
 import { logAmplitudeEventProd } from "../utils/EventLogger";
+import { LinearGradient } from "expo-linear-gradient";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { faCamera } from "@fortawesome/free-solid-svg-icons";
 
 const Backdrop = styled(Pressable)`
     background-color: transparent;
@@ -22,12 +25,18 @@ const Backdrop = styled(Pressable)`
     width: 100%;
 `
 const ClubImage = styled(Image)`
-    border-radius: 60px;
-    height: 120px;
-    width: 120px;
-    border-width: 2px;
-    border-color: white;
-    margin-bottom: 5px;
+    border-radius: 80px;
+    height: 160px;
+	margin-bottom: 5px;
+    width: 160px;
+`
+const DefaultClubImage = styled(LinearGradient)`
+	align-items: center;
+	border-radius: 80px;
+	height: 160px;
+	justify-content: center;
+	margin-bottom: 5px;
+	width: 160px;
 `
 const EditContainer = styled(View)`
     display: flex;
@@ -69,27 +78,39 @@ const AddPhotoText = styled(ReelayText.Body2Bold)`
     color: rgba(0, 165, 253, 1);
 	font-size: 16px;
     text-align: center;
-    padding: 8px;
+    padding-top: 8px;
 `
 const Spacer = styled(View)`
 	height: 10px;
 `
 
 export default ChooseClubPicture = ({ clubPicSourceRef }) => {
-	const [clubPicSource, setClubPicSource] = useState(ReelayIcon);
+	const [clubPicSource, setClubPicSource] = useState(null);
 	const [isEditingPhoto, setIsEditingPhoto] = useState(false);
 	const startEditPhoto = () => setIsEditingPhoto(true);
+
+	const addPhotoPromptText = (clubPicSource) ? 'Edit Photo' : 'Add photo (optional)';
 	clubPicSourceRef.current = clubPicSource;
-	const isDefaultPhoto = (clubPicSource == ReelayIcon);
+
+	const ClubPicturePreview = () => {
+		return (
+			<Pressable onPress={startEditPhoto}>
+				{ !clubPicSource && (
+					<DefaultClubImage colors={['#FF4848', '#038AFF']} start={{ x: 0, y: 1 }} end={{ x: 1, y: 0 }}>
+						<FontAwesomeIcon icon={faCamera} color='white' size={30} />
+					</DefaultClubImage>
+				)}
+				{ clubPicSource && <ClubImage source={clubPicSource} /> }
+			</Pressable>
+		);
+	}
     
     return (
 		<React.Fragment>
 			<EditContainer>
+				<ClubPicturePreview />
 				<Pressable onPress={startEditPhoto}>
-					<ClubImage source={clubPicSource} />
-				</Pressable>
-				<Pressable onPress={startEditPhoto}>
-					<AddPhotoText>{isDefaultPhoto ? "Add Photo" : "Edit Photo"}</AddPhotoText>
+					<AddPhotoText>{addPhotoPromptText}</AddPhotoText>
 				</Pressable>
 			</EditContainer>
 			{ isEditingPhoto && <EditingPhotoMenuModal

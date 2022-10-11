@@ -126,6 +126,7 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
         const { notifyType, fromUser, titleKey, topicID, posterURI } = data;
 
         const profilePicNotifyTypes = [
+            'notifyClubOnMessageSent',
             'notifyClubOnPrivacyChanges',
             'notifyClubOnTitleAdded',
             'notifyClubOnTopicAdded',
@@ -169,7 +170,10 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
 
     const renderRightAction = () => {
         const { notifyType, club, title, titleKey, topicID, fromUser, posterURI } = data;
-        const clubButtonTypes = ['notifyClubOnPrivacyChanges'];
+        const clubButtonTypes = [
+            'notifyClubOnMessageSent',
+            'notifyClubOnPrivacyChanges',
+        ];
         const followButtonTypes = ['notifyCreatorOnFollow'];
         const posterButtonTypes = [
             'notifyClubOnTitleAdded',

@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import { 
     ActivityIndicator,
     Dimensions,
@@ -12,13 +12,10 @@ import {
 import styled from 'styled-components/native';
 
 import { AuthContext } from '../../context/AuthContext';
-import BackButton from '../../components/utils/BackButton';
 import * as ReelayText from '../../components/global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-
-import ClubBanner from '../../components/clubs/ClubBanner';
 
 import { getClubTopics } from '../../api/ClubsApi';
 import { createTopic, getTopics } from '../../api/TopicsApi';
@@ -26,38 +23,12 @@ import { showErrorToast, showMessageToast } from '../../components/utils/toasts'
 import TopicAddFirstReelayDrawer from '../../components/topics/TopicAddFirstReelayDrawer';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { notifyClubOnTopicAdded } from '../../api/ClubNotifications';
+import { HeaderWithBackButton } from '../../components/global/Headers';
+import { TopicsBannerIconSVG } from '../../components/global/SVGs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
-// color is ReelayColors.reelayGreen at reduced opacity
-const ClubTitleContainer = styled(View)`
-    align-items: center;
-    background-color: rgba(4, 189, 108, 0.65);
-    border-radius: 12px;
-    border-top-left-radius: 0px;
-    border-bottom-left-radius: 0px;
-    flex-direction: row;
-    margin: 20px;
-    margin-left: 0px;
-    margin-top: 0px;
-    margin-bottom: 0px;
-    padding-top: 12px;
-    padding-left: 20px;
-    padding-right: 20px;
-    padding-bottom: 10px;
-`
-const ClubTitleText = styled(ReelayText.H6)`
-    color: white;
-    flex-direction: row;
-    font-size: 14px;
-    line-height: 16px;
-    margin-left: 4px;
-`
-const ClubBannerContainer = styled(View)`
-    height: ${props => props.topOffset}px;
-    bottom: ${props => props.topOffset}px;
-`
 const CreateTopicButtonContainer = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${(props) => props.disabled 
@@ -69,6 +40,10 @@ const CreateTopicButtonContainer = styled(TouchableOpacity)`
     height: 40px;
     width: ${width - 56}px;
 `
+const CreateTopicText = styled(ReelayText.CaptionEmphasized)`
+    color: white;
+    font-size: 16px;
+`
 const CreateScreenContainer = styled(SafeAreaView)`
     background-color: black;
     justify-content: space-between;
@@ -76,30 +51,38 @@ const CreateScreenContainer = styled(SafeAreaView)`
     width: 100%;
 `
 const HeaderContainer = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    margin-left: 10px;
     margin-bottom: 16px;
 `
-const HeaderText = styled(ReelayText.H6Emphasized)`
-    color: white;
-    margin-left: 20px;
-    margin-top: 4px;
-`
 const TitleInputField = styled(TextInput)`
-    border-color: white;
-    border-radius: 4px;
-    border-width: 1px;
+    background-color: #1a1a1a;
+    border-radius: 32px;
     color: white;
     font-family: Outfit-Regular;
-    font-size: 16px;
+    font-size: 18px;
     font-style: normal;
     letter-spacing: 0.15px;
     margin-top: 6px;
-    padding: 12px;
+    padding: 16px;
+    padding-left: 20px;
+    padding-right: 20px;
 `
 const DescriptionInputField = styled(TitleInputField)`
-    height: 90px;
+`
+const PromptText = styled(ReelayText.H5Bold)`
+    color: white;
+    display: flex;
+    flex: 1;
+    font-size: 24px;
+    line-height: 32px;
+    margin-left: 12px;
+`
+const PromptView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-top: 40px;
+    margin-bottom: 12px;
 `
 const SectionContainer = styled(View)`
     margin-left: 20px;
@@ -108,24 +91,20 @@ const SectionContainer = styled(View)`
 `
 const SectionContainerBottom = styled(SectionContainer)`
     align-items: center;
-    bottom: 20px;
-`
-const TitleText = styled(ReelayText.Subtitle2)`
-    color: ${(props) => props.disabled ? 'black' : 'white'};
-    font-size: 16px;
+    bottom: ${props => props.bottomOffset + 50}px;
 `
 const TITLE_MIN_LENGTH = 6;
 const TITLE_MAX_LENGTH = 70;
 const DESCRIPTION_MAX_LENGTH = 140;
 
-export default function CreateTopicScreen({ navigation, route }) {
+export default CreateTopicScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const [addFirstReelayDrawerVisible, setAddFirstReelayDrawerVisible] = useState(false);
 
-    const club = route?.params?.club ?? null;
     const authSession = useSelector(state => state.authSession);
+    const bottomOffset = useSafeAreaInsets().bottom;
+    const club = route?.params?.club ?? null;
     const myHomeContent = useSelector(state => state.myHomeContent);
-    const topOffset = useSafeAreaInsets().top;
 
     const refreshClubTopics = async () => {
         if (!club) return;
@@ -172,17 +151,6 @@ export default function CreateTopicScreen({ navigation, route }) {
     const focusDescription = () => descriptionFieldRef?.current && descriptionFieldRef.current.focus();
     const focusTitle = () => titleFieldRef?.current && titleFieldRef.current.focus();
 
-    const ClubHeader = () => {
-        return (
-            <Fragment>
-                <ClubBannerContainer topOffset={topOffset}>
-                    <ClubBanner club={club} navigation={navigation} />
-                </ClubBannerContainer>
-                <View style={{ height: 20 }} />
-            </Fragment>
-        )
-    }
-
     const CreateTopicButton = () => {
         const [publishing, setPublishing] = useState(false);
         const onPress = async () => {
@@ -214,14 +182,14 @@ export default function CreateTopicScreen({ navigation, route }) {
 
                 if (club) {
                     club.topics = [publishResult, ...club.topics];
-                    console.log('new club topics: ', club.topics);
                     dispatch({ type: 'setUpdatedClub', payload: club });
+                    dispatch({ type: 'setNewTopicCreatedInClub', payload: publishResult });
                 } else {
                     dispatch({ type: 'setTopics', payload: {
                         discover: [publishResult, ...myHomeContent?.discover?.topics]
                     }});
                 }
-                showMessageToast('Topic created!');
+                showMessageToast('Topic created');
                 setAddFirstReelayDrawerVisible(true);
 
                 logAmplitudeEventProd('createdTopic', {
@@ -245,7 +213,7 @@ export default function CreateTopicScreen({ navigation, route }) {
         return (
             <CreateTopicButtonContainer onPress={onPress}>
                 { publishing && <ActivityIndicator/> }
-                { !publishing && <TitleText>{'Create topic'}</TitleText> }
+                { !publishing && <CreateTopicText>{'Create topic'}</CreateTopicText> }
             </CreateTopicButtonContainer>
         );
     }
@@ -253,7 +221,6 @@ export default function CreateTopicScreen({ navigation, route }) {
     const DescriptionInput = () => {
         return (
             <SectionContainer>
-                <TitleText>{'Description'}</TitleText>
                 <TouchableWithoutFeedback onPress={focusDescription}>
                     <DescriptionInputField 
                         ref={descriptionFieldRef}
@@ -262,7 +229,7 @@ export default function CreateTopicScreen({ navigation, route }) {
                         multiline
                         numberOfLines={3}
                         defaultValue={descriptionTextRef.current}
-                        placeholder={"Go on..."}
+                        placeholder={"Description (optional)"}
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
                         onChangeText={changeDescriptionText}
                         returnKeyLabel="done"
@@ -274,11 +241,10 @@ export default function CreateTopicScreen({ navigation, route }) {
     }
 
     const Header = () => {
-        if (club) return <ClubHeader />
+        const headerText = (club) ? club?.name : 'start a new topic';
         return (
             <HeaderContainer>
-                <BackButton navigation={navigation} />
-                <HeaderText>{'Start a new topic'}</HeaderText>
+                <HeaderWithBackButton navigation={navigation} text={headerText} />
             </HeaderContainer>
         );
     }
@@ -286,7 +252,6 @@ export default function CreateTopicScreen({ navigation, route }) {
     const TitleInput = () => {
         return (
             <SectionContainer>
-                <TitleText>{'Prompt'}</TitleText>
                 <TouchableWithoutFeedback onPress={focusTitle}>
                     <TitleInputField 
                         ref={titleFieldRef}
@@ -295,7 +260,7 @@ export default function CreateTopicScreen({ navigation, route }) {
                         multiline
                         numberOfLines={2}
                         defaultValue={titleTextRef.current}
-                        placeholder={"What should people reelay?"}
+                        placeholder={"Title (required)"}
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
                         onChangeText={changeTitleText}
                         onSubmitEditing={Keyboard.dismiss}
@@ -314,15 +279,25 @@ export default function CreateTopicScreen({ navigation, route }) {
         }
     });
 
+    const CreatePrompt = () => {
+        return (
+            <PromptView>
+                <TopicsBannerIconSVG />
+                <PromptText>{'What should people reelay?'}</PromptText>
+            </PromptView> 
+        );
+    }
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <CreateScreenContainer>
                 <View style={{ display: 'flex' }}>
                     <Header />
+                    <CreatePrompt />
                     <TitleInput />
                     <DescriptionInput />
                 </View>
-                <SectionContainerBottom>
+                <SectionContainerBottom bottomOffset={bottomOffset}>
                     <CreateTopicButton />
                 </SectionContainerBottom>
                 { addFirstReelayDrawerVisible && (

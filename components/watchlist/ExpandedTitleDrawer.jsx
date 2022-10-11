@@ -4,7 +4,7 @@ import { ActivityIndicator, Dimensions, Modal, Pressable, TouchableOpacity, View
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 import { AuthContext } from '../../context/AuthContext';
-import { getWatchlistItems, removeFromMyWatchlist } from '../../api/WatchlistApi';
+import { addToMyWatchlist, getWatchlistItems, removeFromMyWatchlist } from '../../api/WatchlistApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faClapperboard, faStar } from '@fortawesome/free-solid-svg-icons';
@@ -25,6 +25,19 @@ const CARD_SIDE_MARGIN = 6;
 const TRAILER_HEIGHT = width * 0.55;
 const WATCHLIST_CARD_WIDTH = (width / 2) - (CARD_SIDE_MARGIN * 2);
 
+const AddToWatchlistPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-color: ${ReelayColors.reelayBlue};
+    border-radius: 20px;
+    border-width: 1px;
+    height: 40px;
+    flex-direction: row;
+    justify-content: center;
+    margin-top: 24px;
+    padding-left: 12px;
+    padding-right: 12px;
+`
 const ArtistBadgeView = styled(View)`
     align-items: center;
     border-radius: 8px;
@@ -284,8 +297,15 @@ const VenueButton = ({ titleKey, titleDisplay, venue }) => {
     )
 }
 
-export default ExpandedTitleDrawer = ({ navigation, onRefresh, expandedTitle, setExpandedTitle }) => {
+export default ExpandedTitleDrawer = ({ 
+    navigation, 
+    onRefresh, 
+    expandedTitle, 
+    setExpandedTitle,
+    source = 'watchlist',
+}) => {
     const authSession = useSelector(state => state.authSession);
+    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const { reelayDBUser } = useContext(AuthContext);
     const [loading, setLoading] = useState(false);
     const [fetchedReelays, setFetchedReelays] = useState([]);
@@ -294,6 +314,12 @@ export default ExpandedTitleDrawer = ({ navigation, onRefresh, expandedTitle, se
     const titleType = titleObj?.isSeries ? 'tv' : 'film';
     const tmdbTitleID = titleObj?.id;
     const titleKey = `${titleType}-${tmdbTitleID}`;
+
+    const inWatchlist = myWatchlistItems.find((nextItem) => {
+        return (tmdbTitleID === nextItem?.tmdbTitleID) 
+            && (titleType === nextItem?.titleType)
+            && (nextItem?.hasAcceptedRec === true);
+    });
 
     const advanceToSeeReelays = async () => {
         setExpandedTitle(null);
@@ -340,6 +366,31 @@ export default ExpandedTitleDrawer = ({ navigation, onRefresh, expandedTitle, se
         }
     }, []);
 
+    const AddToWatchlistLine = () => {
+        const onPress = async () => {
+            await addToMyWatchlist({ 
+                creatorName: null,
+                reelaySub: null,
+                reqUserSub: reelayDBUser?.sub,
+                tmdbTitleID: titleObj?.tmdbTitleID,
+                titleType: expandedTitle?.titleType,
+            });
+
+            showMessageToast('Added to your watchlist');
+            logAmplitudeEventProd('addToMyWatchlist', {
+                title: titleObj.display,
+                username: reelayDBUser?.username,
+                source: source,
+            });    
+        }
+
+        return (
+            <AddToWatchlistPressable hasReelays={true} onPress={onPress}>
+                <SeeReelaysText>{`Add to my watchlist`}</SeeReelaysText>
+            </AddToWatchlistPressable>
+        );
+    }
+
     const MarkSeenAndRuntime = () => {
         const [markedSeen, setMarkedSeen] = useState(expandedTitle?.hasSeenTitle);
         const runtimeString = getRuntimeString(titleObj?.runtime);
@@ -380,7 +431,7 @@ export default ExpandedTitleDrawer = ({ navigation, onRefresh, expandedTitle, se
         const onPress = async () => {
             await removeFromMyWatchlist({ 
                 reqUserSub: reelayDBUser?.sub,
-                tmdbTitleID: expandedTitle?.tmdbTitleID,
+                tmdbTitleID: titleObj?.tmdbTitleID,
                 titleType: expandedTitle?.titleType,
             });
 
@@ -408,11 +459,12 @@ export default ExpandedTitleDrawer = ({ navigation, onRefresh, expandedTitle, se
             <InfoView>
                 <TrailerPlayer titleDisplay={titleObj?.display} trailerURI={titleObj?.trailerURI} />
                 <UnderTrailerRow />
-                <OverviewText numberOfLines={8}>{titleObj.overview}</OverviewText>
+                <OverviewText numberOfLines={6}>{titleObj.overview}</OverviewText>
                 <DirectorLine directorName={titleObj?.director?.name} />
                 <ActorLine actorName0={titleObj?.displayActors[0]?.name} actorName1={titleObj?.displayActors[1]?.name} />
-                <ReelaysLine />
-                <RemoveFromWatchlistLine />
+                { source === 'watchlist' && <ReelaysLine /> }
+                { !inWatchlist && <AddToWatchlistLine /> }
+                { inWatchlist && <RemoveFromWatchlistLine /> }
             </InfoView>
         );
     }

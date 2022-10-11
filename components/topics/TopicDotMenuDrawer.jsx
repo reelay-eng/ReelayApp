@@ -12,10 +12,11 @@ import * as ReelayText from '../global/Text';
 import { showMessageToast } from '../utils/toasts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { removeTopic, reportTopic } from '../../api/TopicsApi';
+import { useDispatch } from 'react-redux';
 
 const ContentPolicy  = require('../../constants/ContentPolicy.json');
 
-const TopicDrawerContents = ({ navigation, setDrawerVisible, topic }) => {
+const TopicDrawerContents = ({ closeDrawer, navigation, topic }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const [drawerState, setDrawerState] = useState('options');
     const isMyTopic = (topic.creatorSub === reelayDBUser?.sub);
@@ -56,10 +57,6 @@ const TopicDrawerContents = ({ navigation, setDrawerVisible, topic }) => {
     const OptionText = styled(ReelayText.Body2)`
         color: white;
     `
-    const closeDrawer = () => {
-        setDrawerVisible(false);
-    };
-
     const BlockCreatorOption = () => {
         const onPress = async () => {
             setDrawerState('block-creator-confirm');
@@ -400,7 +397,8 @@ const TopicDrawerContents = ({ navigation, setDrawerVisible, topic }) => {
             </DrawerContainer>
     );}
 
-export default TopicDotMenuDrawer = ({ topic, navigation, drawerVisible, setDrawerVisible }) => {
+export default TopicDotMenuDrawer = ({ navigation, topic }) => {
+    const dispatch = useDispatch();
     const ModalContainer = styled(View)`
         position: absolute;
     `
@@ -410,14 +408,17 @@ export default TopicDotMenuDrawer = ({ topic, navigation, drawerVisible, setDraw
         position: absolute;
         width: 100%;
     `
-    const closeDrawer = () => setDrawerVisible(false);
+    const closeDrawer = () => {
+        dispatch({ type: 'setOpenedActivityDotMenu', payload: null });
+    };
+
     return (
         <ModalContainer>
-            <Modal animationType='slide' transparent={true} visible={drawerVisible}>
+            <Modal animationType='slide' transparent={true} visible={true}>
                 <Backdrop onPress={closeDrawer}/>
                 <TopicDrawerContents 
+                    closeDrawer={closeDrawer}
                     navigation={navigation} 
-                    setDrawerVisible={setDrawerVisible} 
                     topic={topic} 
                 />
             </Modal>

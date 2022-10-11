@@ -8,7 +8,6 @@ import { showErrorToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { getRuntimeString } from '../utils/TitleRuntime';
 import TitlePoster from '../global/TitlePoster';
-import { AddToClubsIconSVG } from '../global/SVGs';
 import AddToClubsButton from '../clubs/AddToClubsButton';
 
 const ImageContainer = styled(View)`

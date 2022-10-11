@@ -5,7 +5,7 @@ import { Icon } from 'react-native-elements';
 import * as ReelayText from '../global/Text';
 import { LinearGradient } from 'expo-linear-gradient';
 import styled from 'styled-components/native';
-import { ClubsIconSVG } from '../global/SVGs';
+import { ChatsIconSVG } from '../global/SVGs';
 
 const { height, width } = Dimensions.get('window');
 
@@ -78,7 +78,7 @@ export default EmptyClubsCard = ({ navigation }) => {
 
         return (
             <CreateClubPressable onPress={advanceToCreateClubScreen}>
-                <CreateClubText>{'Create a Club'}</CreateClubText>
+                <CreateClubText>{'Start a Chat'}</CreateClubText>
             </CreateClubPressable>
         );
     }
@@ -87,7 +87,7 @@ export default EmptyClubsCard = ({ navigation }) => {
         <EmptyClubsView>
             <EmptyClubsGradient colors={['#FF4848', '#038AFF']} />
             <TopAndBottomSpacer />
-            <ClubsIconSVG enlarge={true} sizeRatio={0.1} />
+            <ChatsIconSVG />
             <SectionView>
                 <SectionHeader numberOfLines={3}>
                     {'Go public or private'}
@@ -110,7 +110,7 @@ export default EmptyClubsCard = ({ navigation }) => {
                     {'Or keep it solo'}
                 </SectionHeader>
                 <SectionBody numberOfLines={3}>
-                    {'Make a club for your film diary'}
+                    {'Make a group for your film diary'}
                 </SectionBody>
             </SectionView>
             <CreateClubButton />

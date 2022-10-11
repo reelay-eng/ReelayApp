@@ -11,14 +11,25 @@ import BackButton from "../../components/utils/BackButton";
 import * as ReelayText from '../../components/global/Text';
 import ClubPicture from "../../components/global/ClubPicture";
 import { Icon } from 'react-native-elements';
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import ReelayColors from "../../constants/ReelayColors";
 
 const MAX_ACTIVITY_INDEX = 25;
 
 const AddTitleOrTopicPressable = styled(Pressable)`
     align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 20px;
     justify-content: center;
-    margin: 6px;
+    height: 36px;
+    width: 36px;
+    margin: 10px;
     margin-right: 4px;
+    padding: 6px;
+`
+const AddTitleOrTopicText = styled(ReelayText.Overline)`
+    color: white;
 `
 const ColumnsContainer = styled(View)`
     flex-direction: row;
@@ -117,7 +128,7 @@ export default ClubStainedGlassScreen = ({ navigation, route }) => {
         const [titleOrTopicDrawerVisible, setTitleOrTopicDrawerVisible] = useState(false);
         return (
             <AddTitleOrTopicPressable onPress={() => setTitleOrTopicDrawerVisible(true)}>
-                <Icon type='ionicon' name='add-circle' color='white' size={40} />
+                <FontAwesomeIcon icon={faPlus} color='white' size={20} />
                 { titleOrTopicDrawerVisible && (
                     <AddTitleOrTopicDrawer
                         club={club}

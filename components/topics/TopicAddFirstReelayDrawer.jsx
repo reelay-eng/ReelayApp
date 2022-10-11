@@ -118,7 +118,7 @@ const TopicAddFirstReelay = ({ navigation, setDrawerVisible, refreshTopics, topi
     const dispatch = useDispatch();
     const goBack = () => {
         setDrawerVisible(false);
-        navigation.goBack();
+        navigation.navigate('Home');
         if (refreshTopics) refreshTopics();
     }
 
@@ -133,7 +133,6 @@ const TopicAddFirstReelay = ({ navigation, setDrawerVisible, refreshTopics, topi
 	const advanceToCreateReelay = () => {
 		if (showMeSignupIfGuest()) return;
         setDrawerVisible(false);
-        navigation.goBack();
         navigation.navigate('SelectTitleScreen', { topic, clubID: topic?.clubID });
         
 		logAmplitudeEventProd('advanceToCreateReelay', {

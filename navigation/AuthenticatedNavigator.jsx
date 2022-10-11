@@ -4,8 +4,7 @@
  */
 
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
-import React, { useContext } from 'react';
+import React, { Fragment, useState, useRef } from 'react';
 import styled from 'styled-components/native';
 import { useSelector } from "react-redux";
 
@@ -20,9 +19,10 @@ import {
 	ClubsTabNavigator
 } from './BottomTabs';
 
-import { ClubsIconSolidSVG, ClubsIconSVG } from '../components/global/SVGs';
+import { ChatsTabIconSVG } from '../components/global/SVGs';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCirclePlus, faCircleUser, faCompass, faEarthAmericas, faHouse } from '@fortawesome/free-solid-svg-icons';
+import { faCirclePlus, faCircleUser, faCompass, faHouse, faUsers } from '@fortawesome/free-solid-svg-icons';
+import CreateTabDrawer from '../screens/authenticated/CreateTabDrawer';
  
 const BottomTab = createBottomTabNavigator();
 const TAB_BAR_ACTIVE_OPACITY = 1;
@@ -33,7 +33,7 @@ const IconFocusView = styled(View)`
 	border-radius: 24px;
 	background-color: transparent;
 	justify-content: center;
-	opacity: ${props => props.focused ? 1 : 0.8};
+	opacity: 1;
 `
 const IconFocusIndicator = styled(View)`
 	top: 48px;
@@ -53,8 +53,10 @@ const UnreadIconIndicator = styled(SafeAreaView)`
 `
 
 export default AuthenticatedNavigator = () => {
+	const [createDrawerOpen, setCreateDrawerOpen] = useState(false);
+	const navigationRef = useRef(null);
 	const hasUnseenReelays = useSelector(state => state.discoverHasUnseenReelays);
-	const tabBarVisible = useSelector((state) => state.tabBarVisible)
+	const tabBarVisible = useSelector((state) => state.tabBarVisible);
     const s = StyleSheet.create({
 		gradient: {
 			flex: 1,
@@ -81,12 +83,10 @@ export default AuthenticatedNavigator = () => {
 				},
 				headerShown: false,
 				tabBarStyle: {
+					justifyContent: 'flex-end',
 					position: "absolute",
 					borderTopWidth: 0,
-					paddingTop: 20,
-					height: 100,
 					elevation: 0,
-					display: tabBarVisible ? "flex" : "none",
 					paddingLeft: 10,
 					paddingRight: 10,
 				},
@@ -106,7 +106,7 @@ export default AuthenticatedNavigator = () => {
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<IconFocusView focused={focused}>
-							<FontAwesomeIcon icon={faHouse} color='white' size={24} />
+							<FontAwesomeIcon icon={faHouse} color={focused ? 'white' : '#D4D4D4'} size={24} />
 							{ focused && <IconFocusIndicator /> }
 						</IconFocusView>
 					),
@@ -119,7 +119,7 @@ export default AuthenticatedNavigator = () => {
 					tabBarIcon: ({ focused }) => (
 						<View>
 							<IconFocusView focused={focused}>
-								<FontAwesomeIcon icon={faCompass} size={24} color='white' />
+								<FontAwesomeIcon icon={faCompass} size={24} color={focused ? 'white' : '#D4D4D4'} />
 								{ focused && <IconFocusIndicator /> }
 							</IconFocusView>
 							{ hasUnseenReelays && <UnreadIconIndicator /> }
@@ -130,22 +130,34 @@ export default AuthenticatedNavigator = () => {
 			<BottomTab.Screen
 				name="Create"
 				component={CreateReelayTabNavigator}
+				listeners={({ navigation }) => ({
+					tabPress: (event) => {
+						event.preventDefault();
+						navigationRef.current = navigation;
+						setCreateDrawerOpen(true);
+					}
+				})}
 				options={{
 					tabBarIcon: ({ focused }) => (
-						<IconFocusView focused={focused}>
-							<FontAwesomeIcon icon={faCirclePlus} size={27} color='white' />
-							{ focused && <IconFocusIndicator /> }
-						</IconFocusView>
+						<Fragment>
+							{ createDrawerOpen && (
+								<CreateTabDrawer navigation={navigationRef?.current} closeDrawer={() => setCreateDrawerOpen(false)} />
+							)}
+							<IconFocusView focused={focused}>
+								<FontAwesomeIcon icon={faCirclePlus} size={27} color={focused ? 'white' : '#D4D4D4'} />
+								{ focused && <IconFocusIndicator /> }
+							</IconFocusView>
+						</Fragment>
 					),
 				}}
 			/>
 			<BottomTab.Screen
-				name="Clubs"
+				name="Chats"
 				component={ClubsTabNavigator}
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<IconFocusView focused={focused}>
-							<ClubsIconSolidSVG />
+							<FontAwesomeIcon icon={faUsers} color={focused ? 'white' : '#D4D4D4'} size={30} />
 							{ focused && <IconFocusIndicator /> }
 						</IconFocusView>
 					),
@@ -157,7 +169,7 @@ export default AuthenticatedNavigator = () => {
 				options={{
 					tabBarIcon: ({ focused }) => (
 						<IconFocusView focused={focused}>
-							<FontAwesomeIcon icon={faCircleUser} color='white' size={24} />
+							<FontAwesomeIcon icon={faCircleUser} color={focused ? 'white' : '#D4D4D4'} size={24} />
 							{ focused && <IconFocusIndicator /> }
 						</IconFocusView>
 					),
