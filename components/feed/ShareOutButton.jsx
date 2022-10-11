@@ -10,7 +10,7 @@ import ShareReelayDrawer from './ShareReelayDrawer';
 
 const REELAY_WEB_BASE_URL = Constants.manifest.extra.reelayWebBaseUrl;
 
-export default ShareOutButton = ({ reelay }) => {
+export default ShareOutButton = ({ navigation, reelay }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const [shareDrawerOpen, setShareDrawerOpen] = useState(false);
     const closeDrawer = () => setShareDrawerOpen(false);
@@ -40,7 +40,7 @@ export default ShareOutButton = ({ reelay }) => {
         <TouchableOpacity onPress={() => setShareDrawerOpen(true)}>
             <ShareOutSVG />
             { shareDrawerOpen && (
-                <ShareReelayDrawer closeDrawer={closeDrawer} reelay={reelay} />
+                <ShareReelayDrawer closeDrawer={closeDrawer} navigation={navigation} reelay={reelay} />
             )}
         </TouchableOpacity>
     );

@@ -17,8 +17,10 @@ import { ShareOutSVG } from '../global/SVGs';
 import { showMessageToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { cacheDirectory, downloadAsync, getInfoAsync, makeDirectoryAsync } from 'expo-file-system';
+import * as ViewShot from 'react-native-view-shot';
 
 const CAN_USE_RN_SHARE = (Constants.appOwnership !== 'expo');
+
 
 const { height, width } = Dimensions.get('window');
 
@@ -83,7 +85,7 @@ const ShareOptionsRowView = styled(View)`
 `
 
 
-export default ShareReelayDrawer = ({ closeDrawer, reelay }) => {
+export default ShareReelayDrawer = ({ closeDrawer, navigation, reelay }) => {
     const bottomOffset = useSafeAreaInsets().bottom;
     const [deeplinkObj, setDeeplinkObj] = useState(null);
     const { reelayDBUser } = useContext(AuthContext);
@@ -152,6 +154,11 @@ export default ShareReelayDrawer = ({ closeDrawer, reelay }) => {
     }
 
     const ShareToInstaStoryButton = () => {
+        const openShareInstaStoryScreen = () => {
+            closeDrawer();
+            navigation.push('ShareInstaStoryScreen', { reelay });
+        }
+
         const shareToInstagram = async () => {
             if (!CAN_USE_RN_SHARE) return;
 
@@ -181,7 +188,7 @@ export default ShareReelayDrawer = ({ closeDrawer, reelay }) => {
 
         return (
             <ShareOptionView>
-                <ShareOptionPressable onPress={shareToInstagram}>
+                <ShareOptionPressable onPress={openShareInstaStoryScreen}>
                     <FontAwesomeIcon icon={faCamera} color='white' size={30} />
                 </ShareOptionPressable>
                 <ShareOptionText>{'Insta story'}</ShareOptionText>
