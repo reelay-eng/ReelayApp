@@ -257,10 +257,11 @@ const MessageDotMenuContents = ({ message, navigation, socketRef }) => {
                 authorName: message?.username,
                 policyViolationCode: selectedPolicy.id, 
                 clubID: message?.clubID,
+                clubName: message?.clubName,
                 messageID: message?.id,
             });
 
-            console.log('report message result: ', reportMessageResult?.error);
+            console.log('report message result: ', reportMessageResult);
             setDrawerState('report-content-complete');
 
             logAmplitudeEventProd('reportChatMessage', {
