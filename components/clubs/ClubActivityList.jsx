@@ -124,6 +124,7 @@ export default ClubActivityList = ({
     refreshing, 
     scrollRef,
     showChatMessages,
+    socketRef,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const itemHeights = useRef([]);
@@ -228,6 +229,7 @@ export default ClubActivityList = ({
                     loadChatMessageHistory={loadChatMessageHistory} 
                     message={activity} 
                     navigation={navigation}
+                    socketRef={socketRef}
                 />
             );
         }

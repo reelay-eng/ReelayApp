@@ -524,6 +524,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                     refreshing={refreshing} 
                     scrollRef={scrollRef}
                     showChatMessages={showChatMessages}
+                    socketRef={socketRef}
                 />
                 <ClubBanner 
                     club={club} 

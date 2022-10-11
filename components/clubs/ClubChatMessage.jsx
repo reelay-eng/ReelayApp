@@ -11,6 +11,8 @@ import { isMentionPartType, parseValue } from 'react-native-controlled-mentions'
 import * as Clipboard from 'expo-clipboard';
 import Autolink from 'react-native-autolink';
 import { showSuccessToast } from '../utils/toasts';
+import { useDispatch, useSelector } from 'react-redux';
+import ChatMessage3DotDrawer from './ChatMessage3DotDrawer';
 
 const { height, width } = Dimensions.get('window');
 
@@ -88,13 +90,17 @@ const MentionTextStyle = {
     letterSpacing: 0.15,
 }
 
-const DotMenuButton = ({ message }) => {
-    const [dotMenuVisible, setDotMenuVisible] = useState(false);
-    const openDrawer = () => setDotMenuVisible(true);
+const DotMenuButton = ({ message, navigation, socketRef }) => {
+    const dispatch = useDispatch();
+    const openedActivityDotMenu = useSelector(state => state.openedActivityDotMenu);
+    const dotMenuVisible = (openedActivityDotMenu && openedActivityDotMenu?.id === message?.id);
+    const openDrawer = () => {
+        dispatch({ type: 'setOpenedActivityDotMenu', payload: message });
+    }
     return (
         <DotMenuButtonView onPress={openDrawer}>
             <Icon type='ionicon' name='ellipsis-horizontal' size={20} color='white' />
-            { dotMenuVisible && ( <View /> )}
+            { dotMenuVisible && <ChatMessage3DotDrawer message={message} navigation={navigation} socketRef={socketRef} /> }
         </DotMenuButtonView>
     );
 }
@@ -158,7 +164,7 @@ const MessageTextWithMentions = ({ message, navigation }) => {
     )
 }
 
-export default ClubChatMessage = ({ loadChatMessageHistory, message, navigation }) => {
+export default ClubChatMessage = ({ loadChatMessageHistory, message, navigation, socketRef }) => {
     const timestampString = moment(message?.createdAt).format("hh:mm A");
     const author = { 
         username: message?.username,
@@ -194,7 +200,7 @@ export default ClubChatMessage = ({ loadChatMessageHistory, message, navigation 
                     <ProfilePicture user={author} size={32} />
                 </ProfilePictureView>
                 <ChatMessageBody />
-                <DotMenuButton message={message} />
+                <DotMenuButton message={message} navigation={navigation} socketRef={socketRef} />
             </ChatMessageView>
         </ChatMessageOuterView>
     );
