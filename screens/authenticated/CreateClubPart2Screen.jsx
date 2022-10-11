@@ -18,7 +18,8 @@ const BottomGradient = styled(LinearGradient)`
     position: absolute;
     bottom: 0px;
     opacity: 0.8;
-    height: ${props => props.bottomOffset + 40}px;
+    height: ${props => props.bottomOffset + 80}px;
+    top: ${0}px;
     width: 100%;
 `
 const ContinueButtonView = styled(TouchableOpacity)`
@@ -27,12 +28,11 @@ const ContinueButtonView = styled(TouchableOpacity)`
     border-radius: 40px;
     justify-content: center;
     height: 40px;
-    margin-bottom: 12px;
     width: ${width - 56}px;
 `
 const ContinueButtonOuterView = styled(KeyboardAvoidingView)`
     align-items: center;
-    bottom: 20px;
+    bottom: ${props => props.bottomOffset + 50}px;
     padding-bottom: ${props => props.bottomOffset}px;
     position: absolute;
     width: 100%;
@@ -88,7 +88,12 @@ export default CreateClubPart2Screen = ({ navigation, route }) => {
 
         return (
             <ContinueButtonOuterView behavior='padding' bottomOffset={bottomOffset}>
-                <BottomGradient bottomOffset={bottomOffset} colors={["transparent", "#0d0d0d"]} />
+                <BottomGradient 
+                    bottomOffset={bottomOffset} 
+                    colors={["transparent", "#0d0d0d"]} 
+                    start={{ x: 0, y: -1}}
+                    end={{ x: 0, y: 0 }}
+                />
                 <ContinueButtonView onPress={onPress} saySkip={saySkip}>
                     <ContinueText saySkip={saySkip}>{(saySkip) ? 'Skip' : 'Continue'}</ContinueText>
                 </ContinueButtonView>

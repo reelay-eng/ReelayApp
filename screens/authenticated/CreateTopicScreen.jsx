@@ -24,7 +24,8 @@ import TopicAddFirstReelayDrawer from '../../components/topics/TopicAddFirstReel
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { notifyClubOnTopicAdded } from '../../api/ClubNotifications';
 import { HeaderWithBackButton } from '../../components/global/Headers';
-import { TopicsBannerIconSVG, TopicsGiantIconSVG, TopicsIconSVG } from '../../components/global/SVGs';
+import { TopicsBannerIconSVG } from '../../components/global/SVGs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -90,22 +91,19 @@ const SectionContainer = styled(View)`
 `
 const SectionContainerBottom = styled(SectionContainer)`
     align-items: center;
-    bottom: 20px;
-`
-const TitleText = styled(ReelayText.Subtitle2)`
-    color: ${(props) => props.disabled ? 'black' : 'white'};
-    font-size: 16px;
+    bottom: ${props => props.bottomOffset + 50}px;
 `
 const TITLE_MIN_LENGTH = 6;
 const TITLE_MAX_LENGTH = 70;
 const DESCRIPTION_MAX_LENGTH = 140;
 
-export default function CreateTopicScreen({ navigation, route }) {
+export default CreateTopicScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const [addFirstReelayDrawerVisible, setAddFirstReelayDrawerVisible] = useState(false);
 
-    const club = route?.params?.club ?? null;
     const authSession = useSelector(state => state.authSession);
+    const bottomOffset = useSafeAreaInsets().bottom;
+    const club = route?.params?.club ?? null;
     const myHomeContent = useSelector(state => state.myHomeContent);
 
     const refreshClubTopics = async () => {
@@ -299,7 +297,7 @@ export default function CreateTopicScreen({ navigation, route }) {
                     <TitleInput />
                     <DescriptionInput />
                 </View>
-                <SectionContainerBottom>
+                <SectionContainerBottom bottomOffset={bottomOffset}>
                     <CreateTopicButton />
                 </SectionContainerBottom>
                 { addFirstReelayDrawerVisible && (

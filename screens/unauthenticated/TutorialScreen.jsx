@@ -526,7 +526,7 @@ const Tutorial = ({ navigation }) => {
                 type: "linear"  
             }
         });
-        setBigText("Scroll sideways to get more opinions on the same title.");
+        setBigText("Scroll sideways to get more takes on the same title.");
         setSmallText("Scroll Right");
         setHasScrolledDown(true);
         verticalScrollRef.current.scrollTo({ y: 660 })

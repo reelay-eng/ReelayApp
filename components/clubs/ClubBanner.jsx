@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
@@ -8,9 +8,10 @@ import BackButton from '../utils/BackButton';
 import ProfilePicture from '../global/ProfilePicture';
 import { FiltersSVG, StainedGlassSVG } from '../global/SVGs';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import { faCircleInfo, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import ReelayColors from '../../constants/ReelayColors';
 import AddTitleOrTopicDrawer from './AddTitleOrTopicDrawer';
+import { AuthContext } from '../../context/AuthContext';
 
 const AddActivityText = styled(ReelayText.Body1)`
     color: ${ReelayColors.reelayBlue};
@@ -19,8 +20,14 @@ const BackButtonContainer = styled(View)`
     margin: 6px;
 `
 const BannerButtonPressable = styled(TouchableOpacity)`
+    background-color: ${props => props.background ? '#333333' : 'transparent'};
+    border-radius: 30px;
     justify-content: center;
-    padding: 6px;
+    padding: 8px;
+`
+const BannerRightButtonsView = styled(View)`
+    align-items: center;
+    flex-direction: row;
 `
 const BannerRowView = styled(View)`
     align-items: center;
@@ -94,6 +101,7 @@ const BubbleRightFiveContainer = styled(View)`
 const BubbleBathHeaderContainer = styled(TouchableOpacity)`
     align-items: center;
     justify-content: center;
+    margin-left: ${props => props.showInviteButton ? 34 : 0}px;
 `
 const ClubNameText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -115,12 +123,16 @@ const HeaderBackground = styled(View)`
     width: 100%;
 `
 export default ClubBanner = ({ club, navigation, source = 'activity' }) => {
+    const { reelayDBUser } = useContext(AuthContext);
     const [showAddActivityDrawer, setShowAddActivityDrawer] = useState(false);
     const advanceToClubInfoScreen = () => navigation.push('ClubInfoScreen', { club });
 
     const clubHasMediaActivities = (club?.titles?.length > 0 || club?.topics?.length > 0);
     const infoButtonTopOffset = topOffset + 28;
+    const isClubOwner = (reelayDBUser?.sub === club.creatorSub);
+
     const showAddActivityButton = (source === 'media' || !clubHasMediaActivities);
+    const showInviteButton = (source === 'activity' && (isClubOwner || club.allowMemberInvites));
     const topOffset = useSafeAreaInsets().top;
 
     if (!club.members.length) return <View />;
@@ -155,7 +167,6 @@ export default ClubBanner = ({ club, navigation, source = 'activity' }) => {
             </BannerButtonPressable>
         );
     }
-
 
     const BubbleBathLeft = () => {
         return (
@@ -235,7 +246,7 @@ export default ClubBanner = ({ club, navigation, source = 'activity' }) => {
 
     const HeaderWithBubbleBath = () => {
         return (
-            <BubbleBathHeaderContainer onPress={advanceToClubInfoScreen}>
+            <BubbleBathHeaderContainer showInviteButton={showInviteButton} onPress={advanceToClubInfoScreen}>
                 <BubbleBathContainer>
                     <BubbleBathLeft />
                     <ClubPicture club={club} size={48} />
@@ -249,6 +260,14 @@ export default ClubBanner = ({ club, navigation, source = 'activity' }) => {
         );
     }
 
+    const InviteButton = () => {
+        return (
+            <BannerButtonPressable background={true} onPress={() => {}} topOffset={infoButtonTopOffset}>
+                <FontAwesomeIcon icon={faUserPlus} color='white' size={20} />
+            </BannerButtonPressable>
+        );
+    }
+
     return (
         <HeaderBackground solid={true} topOffset={topOffset}>
             <BannerRowView>
@@ -256,8 +275,11 @@ export default ClubBanner = ({ club, navigation, source = 'activity' }) => {
                     <BackButton navigation={navigation} />
                 </BackButtonContainer>
                 <HeaderWithBubbleBath />
+                <BannerRightButtonsView>
+                { showInviteButton && <InviteButton /> }
                 { !showAddActivityButton && <ClubMediaButton /> }
                 { showAddActivityButton && <AddActivityButton /> }
+                </BannerRightButtonsView>
             </BannerRowView>
         </HeaderBackground>
     );

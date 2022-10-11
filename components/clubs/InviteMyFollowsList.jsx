@@ -201,10 +201,11 @@ const HeaderFollowerSearch = ({ searchText, updateSearchText }) => {
             { !showSearchBar && <HeaderText>{'Invite friends'}</HeaderText> }
             { showSearchBar && (
                 <TextInput 
-                    ref={searchFieldRef}
+                    onChangeText={updateSearchText}
                     placeholder={'Search following...'}
                     placeholderTextColor={'gray'}
-                    onChangeText={updateSearchText}
+                    ref={searchFieldRef}
+                    returnKeyType='done'
                     style={SearchInputStyle} 
                     value={searchText}
                 />
