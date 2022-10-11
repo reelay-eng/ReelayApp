@@ -12,6 +12,7 @@ import { faCircleInfo, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import ReelayColors from '../../constants/ReelayColors';
 import AddTitleOrTopicDrawer from './AddTitleOrTopicDrawer';
 import { AuthContext } from '../../context/AuthContext';
+import InviteMyFollowsDrawer from './InviteMyFollowsDrawer';
 
 const AddActivityText = styled(ReelayText.Body1)`
     color: ${ReelayColors.reelayBlue};
@@ -20,10 +21,11 @@ const BackButtonContainer = styled(View)`
     margin: 6px;
 `
 const BannerButtonPressable = styled(TouchableOpacity)`
-    background-color: ${props => props.background ? '#333333' : 'transparent'};
+    background-color: ${props => props.background ? '#d4d4d4' : 'transparent'};
     border-radius: 30px;
     justify-content: center;
-    padding: 8px;
+    padding: 6px;
+    margin-left: 4px;
 `
 const BannerRightButtonsView = styled(View)`
     align-items: center;
@@ -101,7 +103,7 @@ const BubbleRightFiveContainer = styled(View)`
 const BubbleBathHeaderContainer = styled(TouchableOpacity)`
     align-items: center;
     justify-content: center;
-    margin-left: ${props => props.showInviteButton ? 34 : 0}px;
+    margin-left: ${props => props.showInviteButton ? 36 : 0}px;
 `
 const ClubNameText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -132,7 +134,7 @@ export default ClubBanner = ({ club, navigation, source = 'activity' }) => {
     const isClubOwner = (reelayDBUser?.sub === club.creatorSub);
 
     const showAddActivityButton = (source === 'media' || !clubHasMediaActivities);
-    const showInviteButton = (source === 'activity' && (isClubOwner || club.allowMemberInvites));
+    const showInviteButton = (source === 'activity' && (isClubOwner || club.membersCanInvite));
     const topOffset = useSafeAreaInsets().top;
 
     if (!club.members.length) return <View />;
@@ -232,18 +234,6 @@ export default ClubBanner = ({ club, navigation, source = 'activity' }) => {
         );
     }
 
-    const ClubMediaButton = () => {
-        const advanceToClubMediaScreen = () => navigation.push('ClubMediaScreen', { club });
-        const hasClubActivities = (club?.topics?.length + club?.titles?.length) > 0;
-        if (!hasClubActivities) return <BannerButtonPressable />;
-
-        return (
-            <BannerButtonPressable onPress={advanceToClubMediaScreen} topOffset={infoButtonTopOffset}>
-                <StainedGlassSVG />
-            </BannerButtonPressable>
-        );
-    }
-
     const HeaderWithBubbleBath = () => {
         return (
             <BubbleBathHeaderContainer showInviteButton={showInviteButton} onPress={advanceToClubInfoScreen}>
@@ -261,9 +251,32 @@ export default ClubBanner = ({ club, navigation, source = 'activity' }) => {
     }
 
     const InviteButton = () => {
+        const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
+        const openDrawer = () => setInviteDrawerVisible(true);
+        const closeDrawer = () => setInviteDrawerVisible(false);
+
         return (
-            <BannerButtonPressable background={true} onPress={() => {}} topOffset={infoButtonTopOffset}>
-                <FontAwesomeIcon icon={faUserPlus} color='white' size={20} />
+            <BannerButtonPressable background={true} onPress={openDrawer} topOffset={infoButtonTopOffset}>
+                <FontAwesomeIcon icon={faUserPlus} color='black' size={20} />
+                { inviteDrawerVisible && (
+                    <InviteMyFollowsDrawer
+                        club={club}
+                        closeDrawer={closeDrawer}
+                        onRefresh={() => {}} // todo
+                    />
+                )}
+            </BannerButtonPressable>
+        );
+    }
+
+    const MediaButton = () => {
+        const advanceToClubMediaScreen = () => navigation.push('ClubMediaScreen', { club });
+        const hasClubActivities = (club?.topics?.length + club?.titles?.length) > 0;
+        if (!hasClubActivities) return <BannerButtonPressable />;
+
+        return (
+            <BannerButtonPressable onPress={advanceToClubMediaScreen} topOffset={infoButtonTopOffset}>
+                <StainedGlassSVG />
             </BannerButtonPressable>
         );
     }
@@ -277,7 +290,7 @@ export default ClubBanner = ({ club, navigation, source = 'activity' }) => {
                 <HeaderWithBubbleBath />
                 <BannerRightButtonsView>
                 { showInviteButton && <InviteButton /> }
-                { !showAddActivityButton && <ClubMediaButton /> }
+                { !showAddActivityButton && <MediaButton /> }
                 { showAddActivityButton && <AddActivityButton /> }
                 </BannerRightButtonsView>
             </BannerRowView>

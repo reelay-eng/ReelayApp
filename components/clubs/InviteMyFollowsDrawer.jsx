@@ -55,6 +55,7 @@ const SendInvitesButtonContainer = styled(TouchableOpacity)`
     width: ${width - 32}px;
 `
 const SendInvitesButtonOuterContainer = styled(View)`
+align-self: center;
     align-items: center;
     bottom: ${(props) => props.bottomOffset ?? 0}px;
     position: absolute;
@@ -65,12 +66,11 @@ const SendInvitesButtonText = styled(ReelayText.Subtitle2)`
     margin-left: 4px;
 `
 
-export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible, onRefresh }) => {
+export default InviteMyFollowsDrawer = ({ club, closeDrawer, onRefresh }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
     const followsToSend = useRef([]);
     const bottomOffset = useSafeAreaInsets().bottom;
-    const closeDrawer = () => setDrawerVisible(false);
     const [sendingInvites, setSendingInvites] = useState(false);
 
     const SendInvitesButton = () => {
@@ -131,7 +131,7 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
                     { !sendingInvites && (
                         <React.Fragment>
                             <Icon type='ionicon' name='paper-plane' size={16} color='white' />
-                            <SendInvitesButtonText>{'Invite to group chat'}</SendInvitesButtonText>                    
+                            <SendInvitesButtonText>{'Send invites'}</SendInvitesButtonText>                    
                         </React.Fragment>
                     )}
                 </SendInvitesButtonContainer>
@@ -141,7 +141,7 @@ export default InviteMyFollowsDrawer = ({ club, drawerVisible, setDrawerVisible,
 
     return (
         <ModalContainer>
-            <Modal animationType='slide' transparent={true} visible={drawerVisible}>
+            <Modal animationType='slide' transparent={true} visible={true}>
             <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
                 <Backdrop onPress={closeDrawer}/>
                 <DrawerContainer>

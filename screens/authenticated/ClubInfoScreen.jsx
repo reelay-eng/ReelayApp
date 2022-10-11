@@ -249,7 +249,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     const [refreshing, setRefreshing] = useState(false);
 
     const isPublicClub = (club?.visibility === FEED_VISIBILITY);
-    const canInviteMembers = (isClubOwner || club.allowMemberInvites);
+    const canInviteMembers = (isClubOwner || club.membersCanInvite);
     const canShareClubLink = (canInviteMembers || isPublicClub);
 
     const ClubEditButton = () => {
@@ -582,12 +582,12 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     }
     
     const InviteSettings = () => {
-        const [allowMemberInvites, setAllowMemberInvites] = useState(club.allowMemberInvites);
-        const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
         const { reelayDBUser } = useContext(AuthContext);
-
+        const [allowMemberInvites, setAllowMemberInvites] = useState(club.membersCanInvite);
+        const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
         const [isPrivate, setIsPrivate] = useState(club?.visibility === 'private');
-    
+        const closeInviteDrawer = () => setInviteDrawerVisible(false);
+
         const switchAllowMemberInvites = async () => {
             const shouldAllow = !allowMemberInvites;
             setAllowMemberInvites(shouldAllow);
@@ -754,8 +754,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 { inviteDrawerVisible && (
                     <InviteMyFollowsDrawer
                         club={club}
-                        drawerVisible={inviteDrawerVisible}
-                        setDrawerVisible={setInviteDrawerVisible}
+                        closeDrawer={closeInviteDrawer}
                         onRefresh={onRefresh}
                     />
                 )}

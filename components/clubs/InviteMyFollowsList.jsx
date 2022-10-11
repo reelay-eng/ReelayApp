@@ -331,7 +331,7 @@ export default InviteMyFollowsList = ({ clubMembers, followsToSend }) => {
         return (
             <Fragment>
                 <FollowsList 
-                    contentContainerStyle={{ paddingTop: 12, paddingBottom: bottomOffset + 40, width: '100%' }}
+                    contentContainerStyle={{ paddingTop: 12, paddingBottom: 300, width: '100%' }}
                     data={displayFollows}
                     onScroll={Keyboard.dismiss}
                     renderItem={renderFollowRow}
