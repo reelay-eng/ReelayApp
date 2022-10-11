@@ -86,6 +86,7 @@ export default AuthenticatedNavigator = () => {
 					justifyContent: 'flex-end',
 					position: "absolute",
 					borderTopWidth: 0,
+					display: tabBarVisible ? "flex" : "none",
 					elevation: 0,
 					paddingLeft: 10,
 					paddingRight: 10,
