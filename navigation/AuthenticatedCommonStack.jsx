@@ -26,7 +26,8 @@ import ReportedTopicsFeedScreen from '../screens/authenticated/ReportedTopicsFee
 import ReportIssueScreen from '../screens/authenticated/ReportIssueScreen';
 import SearchScreen from '../screens/authenticated/SearchScreen';
 import SelectTitleScreen from '../screens/authenticated/SelectTitleScreen';
-import ShareInstaStoryScreen from '../screens/authenticated/ShareInstaStoryScreen';
+import InstaStoryClubScreen from '../screens/authenticated/InstaStoryClubScreen';
+import InstaStoryReelayScreen from '../screens/authenticated/InstaStoryReelayScreen';
 import SingleReelayScreen from '../screens/authenticated/SingleReelayScreen';
 import SingleTopicScreen from '../screens/authenticated/SingleTopicScreen';
 import TitleDetailScreen from '../screens/authenticated/TitleDetailScreen';
@@ -61,6 +62,8 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
             <CommonStack.Screen name='CreateTopicScreen' component={CreateTopicScreen} options={commonOptions} />
             <CommonStack.Screen name='EditClubScreen' component={EditClubScreen} options={commonOptions} />
             <CommonStack.Screen name='FeedScreen' component={FeedScreen} options={commonOptions} />
+            <CommonStack.Screen name='InstaStoryClubScreen' component={InstaStoryClubScreen} options={commonOptions} />
+            <CommonStack.Screen name='InstaStoryReelayScreen' component={InstaStoryReelayScreen} options={commonOptions} />
             <CommonStack.Screen name="NotificationScreen" component={NotificationScreen} options={commonOptions} />
             <CommonStack.Screen name='PinAnnouncementScreen' component={PinAnnouncementScreen} options={commonOptions} />
             <CommonStack.Screen name='ProfileFeedScreen' component={ProfileFeedScreen} options={commonOptions} />
@@ -69,7 +72,6 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
             <CommonStack.Screen name='ReportedTopicsFeedScreen' component={ReportedTopicsFeedScreen} options={commonOptions} />
             <CommonStack.Screen name='ReportIssueScreen' component={ReportIssueScreen} options={commonOptions} />
             <CommonStack.Screen name='SearchScreen' component={SearchScreen} options={commonOptions} />
-            <CommonStack.Screen name='ShareInstaStoryScreen' component={ShareInstaStoryScreen} options={commonOptions} />
             <CommonStack.Screen name='SingleReelayScreen' component={SingleReelayScreen} options={commonOptions} />
             <CommonStack.Screen name='SingleTopicScreen' component={SingleTopicScreen} options={commonOptions} />
             <CommonStack.Screen name='TitleDetailScreen' component={TitleDetailScreen} options={commonOptions} />

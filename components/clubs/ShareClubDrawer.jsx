@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { Dimensions, Modal, Pressable, Share, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Modal, Pressable, Share, TouchableOpacity, View } from 'react-native';
 
 import Constants from 'expo-constants';
 import * as Clipboard from 'expo-clipboard';
@@ -8,19 +8,20 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 // import Share from 'react-native-share';
 import styled from 'styled-components/native';
-import { createDeeplinkPathToReelay } from '../../api/ReelayDBApi';
 import { AuthContext } from '../../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCamera, faLink, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { ShareOutSVG } from '../global/SVGs';
 import { showMessageToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import { createDeeplinkPathToClub } from '../../api/ClubsApi';
+import { useSelector } from 'react-redux';
 
 const { height, width } = Dimensions.get('window');
 
 const BUTTON_MARGIN_WIDTH = 10;
 const BUTTON_WIDTH = (width - (BUTTON_MARGIN_WIDTH * 5)) / 3;
-const REELAY_WEB_BASE_URL = Constants.manifest.extra.reelayWebBaseUrl;
+const INVITE_BASE_URL = Constants.manifest.extra.reelayWebInviteUrl;
 
 const Backdrop = styled(Pressable)`
     background-color: transparent;
@@ -93,21 +94,29 @@ const ShareOptionIconPad = styled(View)`
     height: 25px;
 `
 
-
-export default ShareReelayDrawer = ({ closeDrawer, navigation, reelay }) => {
+export default ShareClubDrawer = ({ closeDrawer, club, navigation }) => {
+    const authSession = useSelector(state => state.authSession);
     const bottomOffset = useSafeAreaInsets().bottom;
-    const [deeplinkObj, setDeeplinkObj] = useState(null);
+    const [clubLink, setClubLink] = useState(null);
     const { reelayDBUser } = useContext(AuthContext);
 
-    const url = (deeplinkObj) ? REELAY_WEB_BASE_URL + deeplinkObj?.publicPath : '';
+    const createOrLoadClubLink = async () => {
+        const clubLinkObj = await createDeeplinkPathToClub({
+            authSession,
+            clubID: club.id,
+            invitedByUserSub: reelayDBUser?.sub,
+            invitedByUsername: reelayDBUser?.username,
+        });
 
-    const createOrLoadDeeplinkObj = async () => {
-        const deeplinkObj = await createDeeplinkPathToReelay(reelayDBUser?.sub, reelayDBUser?.username, reelay?.sub);
-        setDeeplinkObj(deeplinkObj);
+        if (clubLinkObj?.inviteCode && !clubLinkObj?.error) {
+            const clubLink = INVITE_BASE_URL + clubLinkObj.inviteCode;
+            setClubLink(clubLink);
+        }
+
     }
 
     useEffect(() => {
-        createOrLoadDeeplinkObj();
+        createOrLoadClubLink();
     }, []);
 
     const DrawerHeader = () => {
@@ -124,8 +133,8 @@ export default ShareReelayDrawer = ({ closeDrawer, navigation, reelay }) => {
 
     const CopyLinkButton = () => {
         const copyLink = () => {
-            Clipboard.setStringAsync(url).then(onfulfilled => {
-                showMessageToast('Shareable link copied to clipboard');
+            Clipboard.setStringAsync(clubLink).then(onfulfilled => {
+                showMessageToast('Invite link copied to clipboard');
             });
         }
 
@@ -143,21 +152,21 @@ export default ShareReelayDrawer = ({ closeDrawer, navigation, reelay }) => {
     }
 
     const ShareOutButton = () => {
-        const shareReelay = async () => {
-            const title = `${reelay?.creator?.username} on ${reelay?.title?.display}`;
-            const content = { title, url };
+        const shareClub = async () => {
+            const title = `Join ${club?.name} on Reelay`;
+            const content = { title, url: clubLink };
             const options = {};
             const sharedAction = await Share.share(content, options);
             logAmplitudeEventProd('openedShareDrawer', {
                 username: reelayDBUser?.username,
-                title: reelay.title.display,
+                club: club?.name,
                 source: 'shareOutButton',
             });    
         }
 
         return (
             <ShareOptionView>
-                <ShareOptionPressable onPress={shareReelay}>
+                <ShareOptionPressable onPress={shareClub}>
                     <ShareOutSVG />
                     <ShareOptionIconPad />
                     <ShareOptionTextView>
@@ -171,7 +180,7 @@ export default ShareReelayDrawer = ({ closeDrawer, navigation, reelay }) => {
     const ShareToInstaStoryButton = () => {
         const openShareInstaStoryScreen = () => {
             closeDrawer();
-            navigation.push('InstaStoryReelayScreen', { reelay, url });
+            navigation.push('InstaStoryClubScreen', { club, url: clubLink });
         }
 
         return (
@@ -194,7 +203,7 @@ export default ShareReelayDrawer = ({ closeDrawer, navigation, reelay }) => {
             <DrawerView bottomOffset={bottomOffset}>
                 <DrawerHeader />
                 <ShareOptionsRowView>
-                    { deeplinkObj && (
+                    { clubLink && (
                         <Fragment>
                             <CopyLinkButton />
                             <ShareOutButton />

@@ -100,7 +100,7 @@ const INSTA_STORY_WIDTH = 1080;
 const VIDEO_PLAYER_HEIGHT_RATIO = 0.62;
 const VIDEO_PLAYER_WIDTH_RATIO = 0.55;
 
-export default InstaStoryScreen = ({ navigation, route }) => {
+export default InstaStoryReelayScreen = ({ navigation, route }) => {
     const capturedBackplateURI = useRef(null);
     const capturedOverlayURI = useRef(null);
     const localReelayVideoURI = useRef(null);
