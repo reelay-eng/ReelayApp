@@ -125,19 +125,20 @@ export const compositeReviewForInstagramStories = async ({ inputURIs, offsets })
      * 5. Return to sender
      */
 
-    if (!DEVICE_CAN_USE_FFMPEG) return localVideoURI;
+    if (!DEVICE_CAN_USE_FFMPEG) return inputURIs?.videoURI;
     try {
+        const FFmpegKit = require('ffmpeg-kit-react-native')?.FFmpegKit;
         const { backplateURI, videoURI, overlayURI } = inputURIs;
-        const filenameEnd = videoURI.indexOf('.mp4');
-        const outputVideoURI = `${videoURI.slice(0, filenameEnd)}-insta-story.mp4`;
-        const command = `-i ${backplateURI} -i ${videoURI} -filter_complex "[0:v][1:v] overlay=${offsets.left}:${offsets.top}" ${outputVideoURI}`;
+        const outputVideoURI = `${videoURI}-insta-story.mp4`;
+        console.log('output video URI: ', outputVideoURI);
+        const command = `-i ${backplateURI} -i ${videoURI} -filter_complex "[1:v] scale=720:-1 [scl], [0:v][scl] overlay=${offsets.left}:${offsets.top}" ${outputVideoURI}`;
 
         const session = await FFmpegKit.execute(command);
         const parsedSession = await parseFFmpegSession(session); 
         console.log('parsed session: ', parsedSession);  
         const outputFileInfo = await getInfoAsync(outputVideoURI, { size: true });
         console.log('output file info: ', outputFileInfo);
-        return outputVideoURI;
+        return outputFileInfo?.uri;
     } catch (error) {
         console.log(error);
         logAmplitudeEventProd('ffmpegApiError', { error });

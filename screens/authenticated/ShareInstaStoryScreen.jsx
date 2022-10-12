@@ -1,16 +1,13 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Constants from 'expo-constants';
-import { LinearGradient } from 'expo-linear-gradient';
 import { ActivityIndicator, Dimensions, Image, PixelRatio, View } from 'react-native';
 import { Video } from 'expo-av';
 import { cacheDirectory, downloadAsync, getInfoAsync, makeDirectoryAsync } from 'expo-file-system';
 import ViewShot, { captureRef } from 'react-native-view-shot';
-import FastImage from 'react-native-fast-image';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 
 import InstaStoryBackground from '../../assets/images/shareOut/insta-stories-gradient-background.png';
-import { HeaderWithBackButton } from '../../components/global/Headers';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
@@ -104,11 +101,14 @@ const VIDEO_PLAYER_HEIGHT_RATIO = 0.62;
 const VIDEO_PLAYER_WIDTH_RATIO = 0.55;
 
 export default InstaStoryScreen = ({ navigation, route }) => {
-    const [capturedBackplateURI, setCapturedBackplateURI] = useState(null);
-    const [capturedOverlayURI, setCapturedOverlayURI] = useState(null);
+    const capturedBackplateURI = useRef(null);
+    const capturedOverlayURI = useRef(null);
+    const localReelayVideoURI = useRef(null);
 
     const dispatch = useDispatch();
     const reelay = route?.params?.reelay;
+    const url = route?.params?.url;
+
     const backplateRef = useRef(null);
     const overlayRef = useRef(null);
     const topOffset = useSafeAreaInsets().top;
@@ -132,17 +132,15 @@ export default InstaStoryScreen = ({ navigation, route }) => {
         console.log('local uri: ', localVideoURI);
         const localVideo = await downloadAsync(reelay?.content?.videoURI, localVideoURI);
         console.log('local video: ', localVideo);
-        return localVideo?.uri;
+        localReelayVideoURI.current = localVideo?.uri;
     }
 
     const shareToInstagram = async () => {
         if (!CAN_USE_RN_SHARE) return;
-
-        const localVideoURI = await downloadReelayVideo();
         const inputURIs = {
-            backplateURI: capturedBackplateURI,
-            overlayURI: capturedOverlayURI,
-            videoURI: localVideoURI,
+            backplateURI: capturedBackplateURI.current.replace('/private', 'file:///'),
+            overlayURI: capturedOverlayURI.current.replace('/private', 'file:///'),
+            videoURI: localReelayVideoURI.current,
         }
 
         const offsets = {
@@ -157,7 +155,7 @@ export default InstaStoryScreen = ({ navigation, route }) => {
         const RN_SHARE = require('react-native-share');
         const shareResult = await RN_SHARE.default.shareSingle({
             attributionURL: url,
-            backgroundVideo: compositeVideoURI?.uri,
+            backgroundVideo: compositeVideoURI,
             url: url,
             social: RN_SHARE.Social.InstagramStories,
             type: 'video/mp4',
@@ -167,10 +165,10 @@ export default InstaStoryScreen = ({ navigation, route }) => {
 
     const StoryBackplate = () => {
         const onImageLoad = useCallback(() => {
-            if (capturedBackplateURI) return;
+            console.log('backplate loaded')
             backplateRef.current.capture().then(uri => {
                 console.log('backplate ref uri: ', uri);
-                setCapturedBackplateURI(uri);
+                capturedBackplateURI.current = uri;
             })
         }, []);
 
@@ -195,17 +193,28 @@ export default InstaStoryScreen = ({ navigation, route }) => {
         const starRating = reelay.starRating + (reelay.starRatingAddHalf ? 0.5 : 0);
 
         const onImageLoad = useCallback(() => {
-            if (capturedOverlayURI) return;
+            console.log('overlay loaded');
             overlayRef.current.capture().then(uri => {
                 console.log('overlay ref uri: ', uri);
-                setCapturedOverlayURI(uri);
+                capturedOverlayURI.current = uri;
             });
+        }, []);
+
+        const onCapture = useCallback(uri => {
+            capturedOverlayURI.current = uri;
+            // console.log('overlay loaded');
+            // overlayRef.current.capture().then(uri => {
+            //     console.log('overlay ref uri: ', uri);
+                // capturedOverlayURI.current = uri;
+            // });
         }, []);
 
         return (
             <StoryVideoOverlayView 
+                captureMode='mount'
+                onCapture={onCapture}
                 height={videoLayoutHeight} 
-                ref={overlayRef}
+                // ref={overlayRef}
                 width={videoLayoutWidth}
             >
                 <TitlePoster onLoad={onImageLoad} title={reelay?.title} width={videoLayoutWidth / 4} />
@@ -276,10 +285,23 @@ export default InstaStoryScreen = ({ navigation, route }) => {
     });
 
     useEffect(() => {
-        if (capturedBackplateURI && capturedOverlayURI) {
-            shareToInstagram();
-        }
-    }, [capturedBackplateURI, capturedOverlayURI]);
+        // if (capturedBackplateURI && capturedOverlayURI) {
+            // console.log('sharing to insta starting...');
+        //     shareToInstagram();
+        // }
+        const captureRefInterval = setInterval(() => {
+            if (capturedBackplateURI.current && 
+                capturedOverlayURI.current && 
+                localReelayVideoURI.current
+            ) {
+                console.log('sharing to insta starting...');
+                clearInterval(captureRefInterval);
+                shareToInstagram();
+            }
+        }, 250);
+        downloadReelayVideo();
+        return () => clearInterval(captureRefInterval);
+    }, []);
 
     return (
         <ScreenView>

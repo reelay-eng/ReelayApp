@@ -177,7 +177,7 @@ export default ShareReelayDrawer = ({ closeDrawer, navigation, reelay }) => {
     const ShareToInstaStoryButton = () => {
         const openShareInstaStoryScreen = () => {
             closeDrawer();
-            navigation.push('ShareInstaStoryScreen', { reelay });
+            navigation.push('ShareInstaStoryScreen', { reelay, url });
         }
 
         const shareToInstagram = async () => {

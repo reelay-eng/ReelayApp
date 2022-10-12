@@ -71,7 +71,7 @@ const TitlePoster = ({ onLoad = () => {}, title, onPress, width = 60 }) => {
                 if (onPress) onPress();
             }}>
 				{ <PosterImage 
-                    onLoad={onLoad}
+                    onLoadEnd={onLoad}
                     source={getTitlePosterSource()}
                     PlaceholderContent={<ActivityIndicator />}
                     onError={onLoadError}
