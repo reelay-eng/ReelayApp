@@ -161,6 +161,7 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
             type: 'video/mp4',
         });
         console.log('share result: ', shareResult);
+        navigation.goBack();
     }
 
     const StoryBackplate = () => {
@@ -202,11 +203,6 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
 
         const onCapture = useCallback(uri => {
             capturedOverlayURI.current = uri;
-            // console.log('overlay loaded');
-            // overlayRef.current.capture().then(uri => {
-            //     console.log('overlay ref uri: ', uri);
-                // capturedOverlayURI.current = uri;
-            // });
         }, []);
 
         return (
@@ -285,10 +281,6 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
     });
 
     useEffect(() => {
-        // if (capturedBackplateURI && capturedOverlayURI) {
-            // console.log('sharing to insta starting...');
-        //     shareToInstagram();
-        // }
         const captureRefInterval = setInterval(() => {
             if (capturedBackplateURI.current && 
                 capturedOverlayURI.current && 

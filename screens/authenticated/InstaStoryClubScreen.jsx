@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Constants from 'expo-constants';
+import * as Clipboard from 'expo-clipboard';
 import { ActivityIndicator, Dimensions, Image, PixelRatio, View } from 'react-native';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import * as ReelayText from '../../components/global/Text';
@@ -13,6 +14,7 @@ import BackButton from '../../components/utils/BackButton';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
 import ClubPicture from '../../components/global/ClubPicture';
+import { showMessageToast } from '../../components/utils/toasts';
 
 const { height, width } = Dimensions.get('window');
 
@@ -100,6 +102,7 @@ export default InstaStoryClubScreen = ({ navigation, route }) => {
             type: 'image/png',
         });
         console.log('share result: ', shareResult);
+        navigation.goBack();
     }
 
     const StoryOverlay = () => {
@@ -150,7 +153,10 @@ export default InstaStoryClubScreen = ({ navigation, route }) => {
             if (storyShareableURI.current) {
                 console.log('sharing to insta starting...');
                 clearInterval(captureRefInterval);
-                shareToInstagram();
+                Clipboard.setStringAsync(url).then(() => {
+                    showMessageToast('Invite link copied to clipboard');
+                    setTimeout(shareToInstagram, 1000);
+                })
             }
         }, 250);
         return () => clearInterval(captureRefInterval);
