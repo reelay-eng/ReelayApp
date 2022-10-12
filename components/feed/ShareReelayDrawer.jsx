@@ -39,40 +39,51 @@ const CloseDrawerButton = styled(TouchableOpacity)`
     padding: 10px;
 `
 const DrawerView = styled(View)`
-    background-color: black;
+    background-color: #1a1a1a;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
     height: auto;
     margin-top: auto;
     max-height: 70%;
-    padding-top: 18px;
-    padding-bottom: ${props => props.bottomOffset + 56}px;
+    padding-top: 8px;
+    padding-bottom: ${props => props.bottomOffset + 12}px;
     width: 100%;
 `
 const DrawerHeaderView = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
-    padding-top: 10px;
     padding-left: 16px;
     padding-right: 16px;
 `
 const HeaderText = styled(ReelayText.H6)`
     color: white;
+    font-size: 18px;
 `
 const LeftSpacer = styled(View)`
     width: 40px;
 `
 const ShareOptionPressable = styled(TouchableOpacity)`
     align-items: center;
+    background-color: #222529;
     border-radius: 12px;
-    height: ${BUTTON_WIDTH * 0.67}px;
+    height: ${BUTTON_WIDTH}px;
     justify-content: center;
+    margin: ${BUTTON_MARGIN_WIDTH / 2}px;
     width: ${BUTTON_WIDTH}px;
 `
 const ShareOptionText = styled(ReelayText.CaptionEmphasized)`
     color: white;
+    font-size: 14px;
     margin-top: 10px;
+    margin-bottom: 12px;
+`
+const ShareOptionTextView = styled(View)`
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+    position: absolute;
+    width: 100%;
 `
 const ShareOptionView = styled(View)`
     align-items: center;
@@ -81,7 +92,11 @@ const ShareOptionsRowView = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: center;
-    padding: ${BUTTON_MARGIN_WIDTH}px;
+    padding-left: ${BUTTON_MARGIN_WIDTH}px;
+    padding-right: ${BUTTON_MARGIN_WIDTH}px;
+`
+const ShareOptionIconPad = styled(View)`
+    height: 25px;
 `
 
 
@@ -124,8 +139,11 @@ export default ShareReelayDrawer = ({ closeDrawer, navigation, reelay }) => {
             <ShareOptionView>
                 <ShareOptionPressable onPress={copyLink}>
                     <FontAwesomeIcon icon={faLink} color='white' size={30} />
+                    <ShareOptionIconPad />
+                    <ShareOptionTextView>
+                        <ShareOptionText>{'Copy link'}</ShareOptionText>
+                    </ShareOptionTextView>
                 </ShareOptionPressable>
-                <ShareOptionText>{'Copy link'}</ShareOptionText>
             </ShareOptionView>
         )
     }
@@ -147,8 +165,11 @@ export default ShareReelayDrawer = ({ closeDrawer, navigation, reelay }) => {
             <ShareOptionView>
                 <ShareOptionPressable onPress={shareReelay}>
                     <ShareOutSVG />
+                    <ShareOptionIconPad />
+                    <ShareOptionTextView>
+                        <ShareOptionText>{'Share'}</ShareOptionText>
+                    </ShareOptionTextView>
                 </ShareOptionPressable>
-                <ShareOptionText>{'Share'}</ShareOptionText>
             </ShareOptionView>
         )
     }
@@ -190,8 +211,11 @@ export default ShareReelayDrawer = ({ closeDrawer, navigation, reelay }) => {
             <ShareOptionView>
                 <ShareOptionPressable onPress={openShareInstaStoryScreen}>
                     <FontAwesomeIcon icon={faCamera} color='white' size={30} />
+                    <ShareOptionIconPad />
+                    <ShareOptionTextView>
+                        <ShareOptionText>{'Insta story'}</ShareOptionText>
+                    </ShareOptionTextView>
                 </ShareOptionPressable>
-                <ShareOptionText>{'Insta story'}</ShareOptionText>
             </ShareOptionView>
         )
     }

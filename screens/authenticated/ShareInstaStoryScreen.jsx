@@ -14,7 +14,7 @@ import { HeaderWithBackButton } from '../../components/global/Headers';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
-import { ReviewIconSVG } from '../../components/global/SVGs';
+import { ReviewIconSVG, TopicsBannerIconSVG } from '../../components/global/SVGs';
 import BackButton from '../../components/utils/BackButton';
 import TitlePoster from '../../components/global/TitlePoster';
 import StarRating from '../../components/global/StarRating';
@@ -86,14 +86,16 @@ const StoryBackplateView = styled(ViewShot)`
 `
 const StoryHeaderInfoView = styled(View)`
     align-items: center;
-    top: 24px;
+    top: 18px;
     position: absolute;
-    width: 100%;
+    width: 80%;
 `
 const TitleText = styled(ReelayText.H5Bold)`
     color: white;
-    font-size: 20px;
-    margin-top: 12px;
+    font-size: 18px;
+    line-height: 24px;
+    margin-top: 6px;
+    text-align: center;
 `
 const CAN_USE_RN_SHARE = (Constants.appOwnership !== 'expo');
 const INSTA_STORY_HEIGHT = 1920;
@@ -208,7 +210,7 @@ export default InstaStoryScreen = ({ navigation, route }) => {
             >
                 <TitlePoster onLoad={onImageLoad} title={reelay?.title} width={videoLayoutWidth / 4} />
                 <CreatorLine>
-                    <ProfilePicture user={reelay.creator} size={30} />
+                    <ProfilePicture border user={reelay.creator} size={30} />
                     <CreatorText>{reelay.creator.username}</CreatorText>
                 </CreatorLine>
                 { starRating > 0 && (
@@ -226,16 +228,24 @@ export default InstaStoryScreen = ({ navigation, route }) => {
     }
 
     const StoryHeaderInfo = () => {
-        return (
-            <StoryHeaderInfoView topOffset={topOffset}>
-                <ReviewIconSVG />
-                <TitleText>{reelay.title.display}</TitleText>
-            </StoryHeaderInfoView>
-        );
+        if (reelay?.topicID) {
+            return (
+                <StoryHeaderInfoView topOffset={topOffset}>
+                    <TopicsBannerIconSVG />
+                    <TitleText numberOfLines={2}>{reelay?.topicTitle}</TitleText>
+                </StoryHeaderInfoView>
+            );    
+        } else {
+            return (
+                <StoryHeaderInfoView topOffset={topOffset}>
+                    <ReviewIconSVG />
+                    <TitleText numberOfLines={2}>{reelay.title.display}</TitleText>
+                </StoryHeaderInfoView>
+            );    
+        }
     }
 
     const StoryVideo = () => {
-        console.log('heights: ', backplateLayoutHeight, videoLayoutHeight, (backplateLayoutHeight - videoLayoutHeight) / 2);
         const storyVideoStyle = {
             borderRadius: 16,
             top: ((backplateLayoutHeight - videoLayoutHeight) / 2),
