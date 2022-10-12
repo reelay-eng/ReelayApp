@@ -91,7 +91,7 @@ export default Hero = memo(({ clubStub, feedSource, index, navigation, reelay, v
 
     return (
         <View key={index} style={{ justifyContent: 'flex-end'}}>
-            <FeedVideoPlayer reelay={reelay} viewable={viewable} />
+            <FeedVideoPlayer navigation={navigation} reelay={reelay} viewable={viewable} />
 
             <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
 
