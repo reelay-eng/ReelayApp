@@ -7,7 +7,6 @@ import { ToggleSelector } from "../../components/global/Buttons";
 import TitlePoster from "../../components/global/TitlePoster";
 import ClubBanner from "../../components/clubs/ClubBanner";
 import moment from "moment";
-import { showMessageToast } from "../../components/utils/toasts";
 import TopicCard from "../../components/topics/TopicCard";
 
 const { width } = Dimensions.get('window');
@@ -17,6 +16,8 @@ const TITLE_CARD_WIDTH = (width / 3) - (2 * TITLE_CARD_SIDE_MARGIN);
 const TOGGLE_BAR_WIDTH = width - (2 * TITLE_CARD_SIDE_MARGIN);
 
 const MediaListView = styled(View)`
+    align-items: flex-start;
+    width: 100%;
 `
 const ScreenView = styled(View)`
     align-items: center;
@@ -58,9 +59,6 @@ export default ClubMediaScreen = ({ navigation, route }) => {
         .sort(sortClubTitlesAndTopics)
         .filter(removeEmptyTitles);
 
-    const sortedTitles = feedTitlesAndTopics.filter(activity => activity.activityType === 'title');
-    const sortedTopics = feedTitlesAndTopics.filter(activity => activity.activityType === 'topic');
-
     const getClubFeedIndex = (activity) => {
         const matchActivity = (nextActivity) => nextActivity.id === activity.id
         return feedTitlesAndTopics.findIndex(matchActivity);            
@@ -70,20 +68,24 @@ export default ClubMediaScreen = ({ navigation, route }) => {
         const renderTitlePoster = ({ item, index }) => {
             const clubTitle = item;
             const clubFeedIndex = getClubFeedIndex(clubTitle);
-            console.log('club feed index: ', clubFeedIndex, clubTitle?.title?.display);
+
             const advanceToClubFeedScreen = () => {
-                if (clubFeedIndex === -1) {
-                    showMessageToast(`No reelays posted for ${clubTitle?.title?.display}`);
-                    return;
-                }
                 navigation.push('ClubFeedScreen', {
                     club,
                     initFeedIndex: clubFeedIndex,
                 });
             }
 
+            const advanceToTitlePage = () => {
+                navigation.push('TitleDetailScreen', { titleObj: clubTitle?.title });
+            }
+
+            const onPress = (clubFeedIndex === -1) 
+                ? advanceToTitlePage 
+                : advanceToClubFeedScreen;
+
             return (
-                <TitleCardView onPress={advanceToClubFeedScreen}>
+                <TitleCardView onPress={onPress}>
                     <TitlePoster title={clubTitle.title} width={TITLE_CARD_WIDTH} />
                 </TitleCardView>    
             )
@@ -93,7 +95,7 @@ export default ClubMediaScreen = ({ navigation, route }) => {
             <MediaListView>
                 <FlatList
                     contentContainerStyle={{ paddingBottom: 300 }}
-                    data={sortedTitles ?? []}
+                    data={club.titles ?? []}
                     estimatedItemSize={TITLE_CARD_WIDTH * 1.5}
                     keyExtractor={(item) => item?.id}
                     numColumns={3}
@@ -134,7 +136,7 @@ export default ClubMediaScreen = ({ navigation, route }) => {
             <MediaListView>
                 <FlatList
                     contentContainerStyle={{ paddingBottom: 300 }}
-                    data={sortedTopics ?? []}
+                    data={club.topics ?? []}
                     estimatedItemSize={400}
                     keyExtractor={(item) => item?.id}
                     renderItem={renderTopicCard}

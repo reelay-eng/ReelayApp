@@ -73,14 +73,18 @@ const BubbleRightFiveContainer = styled(View)`
 `
 
 export default BigBubbleBath = ({ club }) => {
-    const bubbleBathLeftMembers = club.members.filter((clubMember, index) => {
+    const displayClubMembers = club.members.filter(member => {
+        return (member?.role !== 'banned' && member?.hasAcceptedInvite);
+    });
+
+    const bubbleBathLeftMembers = displayClubMembers.filter((clubMember, index) => {
         if (index >= 10) return false;
         return (index % 2 === 0);
     }).map((clubMember) => {
         return { sub: clubMember.userSub, username: clubMember.username } 
     });
 
-    const bubbleBathRightMembers = club.members.filter((clubMember, index) => {
+    const bubbleBathRightMembers = displayClubMembers.filter((clubMember, index) => {
         if (index >= 10) return false;
         return (index % 2 === 1);
     }).map((clubMember) => {

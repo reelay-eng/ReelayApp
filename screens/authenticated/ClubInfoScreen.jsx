@@ -245,13 +245,16 @@ export default ClubInfoScreen = ({ navigation, route }) => {
     const myClubs = useSelector(state => state.myClubs);
     const isClubOwner = (reelayDBUser?.sub === club.creatorSub);
 
-    const matchClubMember = (nextMember) => nextMember?.userSub === reelayDBUser?.sub
+    const matchClubMember = (nextMember) => {
+        if (nextMember?.role === 'banned' || !nextMember?.hasAcceptedInvite) return false; 
+        return (nextMember?.userSub === reelayDBUser?.sub);
+    }
     const initClubMember = club.members?.find(matchClubMember);
     const [clubMember, setClubMember] = useState(initClubMember);
     const [refreshing, setRefreshing] = useState(false);
 
     const isPublicClub = (club?.visibility === FEED_VISIBILITY);
-    const canInviteMembers = (isClubOwner || club.membersCanInvite);
+    const canInviteMembers = clubMember && (isClubOwner || club.membersCanInvite);
     const canShareClubLink = (canInviteMembers || isPublicClub);
 
     const ClubEditButton = () => {
