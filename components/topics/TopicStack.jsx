@@ -1,17 +1,13 @@
-import React, { useContext, useState, memo, useRef } from 'react';
-import { Dimensions, FlatList, SafeAreaView, TouchableOpacity, View } from 'react-native';
+import React, { useContext, useState, useRef } from 'react';
+import { Dimensions, FlatList, View } from 'react-native';
 import Hero from '../feed/Hero';
-import * as ReelayText from '../global/Text';
-import ReelayColors from '../../constants/ReelayColors';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import styled from 'styled-components/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Icon } from 'react-native-elements';
 import { useSelector } from 'react-redux';
 import UploadProgressBar from '../global/UploadProgressBar';
-import TitleBanner from '../feed/TitleBanner';
 import TopicBanner from './TopicBanner';
 
 const { height, width } = Dimensions.get('window');

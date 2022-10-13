@@ -82,9 +82,8 @@ const InviteFoldOuterView = styled(View)`
     align-items: center;
     background-color: black;
     justify-content: space-around;
-    position: absolute;
     padding: 16px;
-    top: ${props => props.topOffset}px;
+    bottom: 0px;
     width: 100%;
 `
 const InviteText = styled(ReelayText.Overline)`
@@ -140,7 +139,6 @@ const InviteFold = ({ clubMember, navigation, isPublicClub, onRefresh }) => {
     const authSession = useSelector(state => state.authSession);
     const [loading, setLoading] = useState(false);
     const { reelayDBUser } = useContext(AuthContext);
-    const topOffset = useSafeAreaInsets().top + 60;
 
     const AcceptInviteButton = () => {
         const acceptInvite = async () => {
@@ -164,7 +162,7 @@ const InviteFold = ({ clubMember, navigation, isPublicClub, onRefresh }) => {
 
     const AcceptRejectInviteRow = () => {
         return (
-            <InviteFoldOuterView topOffset={topOffset} >
+            <InviteFoldOuterView>
                 <Invitation />
                 <InviteFoldButtonRow>
                     <RejectInviteButton />
