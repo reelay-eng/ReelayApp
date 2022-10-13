@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Constants from 'expo-constants';
+import * as Clipboard from 'expo-clipboard';
 import { ActivityIndicator, Dimensions, Image, PixelRatio, View } from 'react-native';
 import { Video } from 'expo-av';
 import { cacheDirectory, downloadAsync, getInfoAsync, makeDirectoryAsync } from 'expo-file-system';
@@ -18,6 +19,7 @@ import StarRating from '../../components/global/StarRating';
 import ProfilePicture from '../../components/global/ProfilePicture';
 import ReelayColors from '../../constants/ReelayColors';
 import { compositeReviewForInstagramStories } from '../../api/FFmpegApi';
+import { showMessageToast } from '../../components/utils/toasts';
 
 const { height, width } = Dimensions.get('window');
 
@@ -51,7 +53,22 @@ const HeaderView = styled(View)`
     position: absolute;
     width: 100%;
 `
-const StarRatingLine = styled(View)`
+const ProgressText = styled(ReelayText.Body1)`
+    color: black;
+    font-size: 16px;
+    margin-right: 8px;
+`
+const ProgressView = styled(View)`
+    align-items: center;
+    background-color: #d4d4d4;
+    border-radius: 12px;
+    bottom: ${props => props.bottomOffset + 20}px;
+    flex-direction: row;
+    justify-content: center;
+    padding: 12px;
+    position: absolute;
+`
+const StarRatingLineView = styled(View)`
     bottom: 48px;
     left: 12px;
     position: absolute;
@@ -104,6 +121,7 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
     const capturedBackplateURI = useRef(null);
     const capturedOverlayURI = useRef(null);
     const localReelayVideoURI = useRef(null);
+    const progressRef = useRef('downloading');
 
     const dispatch = useDispatch();
     const reelay = route?.params?.reelay;
@@ -127,11 +145,8 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
             await makeDirectoryAsync(videoDir, { intermediates: true });
         }
 
-        console.log('remote uri: ', reelay?.content);
         const localVideoURI = videoDir + '/' + reelay?.sub;
-        console.log('local uri: ', localVideoURI);
         const localVideo = await downloadAsync(reelay?.content?.videoURI, localVideoURI);
-        console.log('local video: ', localVideo);
         localReelayVideoURI.current = localVideo?.uri;
     }
 
@@ -148,20 +163,51 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
             left:  (backplateLayoutWidth - videoLayoutWidth) * (pixelRatio / 2),
         }
 
+        progressRef.current = 'compositing';
         const compositeVideoURI = await compositeReviewForInstagramStories({
             inputURIs, offsets
         });
 
-        const RN_SHARE = require('react-native-share');
-        const shareResult = await RN_SHARE.default.shareSingle({
-            attributionURL: url,
-            backgroundVideo: compositeVideoURI,
-            url: url,
-            social: RN_SHARE.Social.InstagramStories,
-            type: 'video/mp4',
+        progressRef.current = 'sharing';
+        Clipboard.setStringAsync(url).then(() => {
+            showMessageToast('Reelay link copied to clipboard');
+            setTimeout(async () => {
+                const RN_SHARE = require('react-native-share');
+                const shareResult = await RN_SHARE.default.shareSingle({
+                    attributionURL: url,
+                    backgroundVideo: compositeVideoURI,
+                    url: url,
+                    social: RN_SHARE.Social.InstagramStories,
+                    type: 'video/mp4',
+                });
+                console.log('share result: ', shareResult);
+                navigation.goBack();        
+            }, 1000);
         });
-        console.log('share result: ', shareResult);
-        navigation.goBack();
+    }
+
+    const ProgressIndicator = () => {
+        const bottomOffset = useSafeAreaInsets().bottom;
+        const [progress, setProgress] = useState(progressRef.current);
+        const getProgressText = () => {
+            if (progress === 'downloading') return 'Downloading reelay...';
+            if (progress === 'compositing') return 'Converting reelay to story...';
+            return 'Sharing to Instagram...';
+        }
+        useEffect(() => {
+            const progressInterval = setInterval(() => {
+                if (progressRef.current !== progress) {
+                    setProgress(progressRef.current);
+                }
+            }, 250);    
+        }, [progress]);
+
+        return (
+            <ProgressView bottomOffset={bottomOffset}>
+                <ProgressText>{getProgressText()}</ProgressText>
+                <ActivityIndicator />
+            </ProgressView>
+        );
     }
 
     const StoryBackplate = () => {
@@ -205,12 +251,24 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
             capturedOverlayURI.current = uri;
         }, []);
 
+        const StarRatingLine = () => {
+            return (
+                <StarRatingLineView>
+                    <StarRating
+                        disabled={true}
+                        rating={starRating}
+                        starSize={20}
+                        starStyle={{ paddingRight: 4 }}
+                    />
+                </StarRatingLineView>
+            );
+        }
+
         return (
             <StoryVideoOverlayView 
                 captureMode='mount'
                 onCapture={onCapture}
                 height={videoLayoutHeight} 
-                // ref={overlayRef}
                 width={videoLayoutWidth}
             >
                 <TitlePoster onLoad={onImageLoad} title={reelay?.title} width={videoLayoutWidth / 4} />
@@ -218,16 +276,7 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
                     <ProfilePicture border user={reelay.creator} size={30} />
                     <CreatorText>{reelay.creator.username}</CreatorText>
                 </CreatorLine>
-                { starRating > 0 && (
-                    <StarRatingLine>
-                        <StarRating
-                            disabled={true}
-                            rating={starRating}
-                            starSize={20}
-                            starStyle={{ paddingRight: 4 }}
-                        />
-                    </StarRatingLine>
-                )}
+                { starRating > 0 && <StarRatingLine /> }
             </StoryVideoOverlayView>
         );
     }
@@ -261,17 +310,16 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
         }
         return (
             <StoryBackplateView height={backplateLayoutHeight} width={backplateLayoutWidth}>
-            <Video
-                isLooping={true}
-                isMuted={false}
-                resizeMode='cover'
-                shouldPlay={true}
-                source={{ uri: reelay?.content?.videoURI }}
-                style={storyVideoStyle}
-                useNativeControls={false}
-                volume={1.0}    
-            />
-
+                <Video
+                    isLooping={true}
+                    isMuted={false}
+                    resizeMode='cover'
+                    shouldPlay={true}
+                    source={{ uri: reelay?.content?.videoURI }}
+                    style={storyVideoStyle}
+                    useNativeControls={false}
+                    volume={1.0}    
+                />
             </StoryBackplateView>
         );
     }
@@ -322,6 +370,7 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
             <HeaderView topOffset={topOffset}>
                 <BackButton navigation={navigation} text={'insta story'} />
             </HeaderView>
+            <ProgressIndicator />
         </ScreenView>
     )
 }

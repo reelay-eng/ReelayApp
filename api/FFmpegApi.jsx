@@ -131,7 +131,12 @@ export const compositeReviewForInstagramStories = async ({ inputURIs, offsets })
         const { backplateURI, videoURI, overlayURI } = inputURIs;
         const outputVideoURI = `${videoURI}-insta-story.mp4`;
         console.log('output video URI: ', outputVideoURI);
-        const command = `-i ${backplateURI} -i ${videoURI} -filter_complex "[1:v] scale=720:-1 [scl], [0:v][scl] overlay=${offsets.left}:${offsets.top}" ${outputVideoURI}`;
+        const BORDER_RADIUS = 20;
+        const command = `-i ${backplateURI} -i ${videoURI} -filter_complex \
+            "[1:v] scale=600:1240:force_original_aspect_ratio=decrease,pad=600:1240:(ow-iw)/2:(oh-ih)/2 [scl], \
+            [scl] format=yuva420p,geq=lum='p(X,Y)':a='if(gt(abs(W/2-X),W/2-${BORDER_RADIUS})*gt(abs(H/2-Y),H/2-${BORDER_RADIUS}),if(lte(hypot(${BORDER_RADIUS}-(W/2-abs(W/2-X)),${BORDER_RADIUS}-(H/2-abs(H/2-Y))),${BORDER_RADIUS}),255,0),255)'[rounded], \
+            [0:v][rounded] overlay=${offsets.left}:${offsets.top}" \
+            ${outputVideoURI}`;
 
         const session = await FFmpegKit.execute(command);
         const parsedSession = await parseFFmpegSession(session); 
