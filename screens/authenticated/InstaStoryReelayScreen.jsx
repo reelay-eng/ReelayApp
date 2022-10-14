@@ -108,14 +108,14 @@ const TitleText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
     line-height: 24px;
-    margin-top: 6px;
     text-align: center;
 `
 const CAN_USE_RN_SHARE = (Constants.appOwnership !== 'expo');
 const INSTA_STORY_HEIGHT = 1920;
 const INSTA_STORY_WIDTH = 1080;
-const VIDEO_PLAYER_HEIGHT_RATIO = 0.62;
-const VIDEO_PLAYER_WIDTH_RATIO = 0.55;
+
+const VIDEO_PLAYER_HEIGHT = 1260;
+const VIDEO_PLAYER_WIDTH = 600;
 
 export default InstaStoryReelayScreen = ({ navigation, route }) => {
     const capturedBackplateURI = useRef(null);
@@ -131,11 +131,11 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
     const overlayRef = useRef(null);
     const topOffset = useSafeAreaInsets().top;
 
-    const pixelRatio = PixelRatio.get();
-    const backplateLayoutHeight = INSTA_STORY_HEIGHT / pixelRatio;
-    const backplateLayoutWidth = INSTA_STORY_WIDTH / pixelRatio;
-    const videoLayoutHeight = backplateLayoutHeight * VIDEO_PLAYER_HEIGHT_RATIO;
-    const videoLayoutWidth = backplateLayoutWidth * VIDEO_PLAYER_WIDTH_RATIO;
+    const PIXEL_RATIO = PixelRatio.get();
+    const backplateLayoutHeight = INSTA_STORY_HEIGHT / PIXEL_RATIO;
+    const backplateLayoutWidth = INSTA_STORY_WIDTH / PIXEL_RATIO;
+    const videoLayoutHeight = VIDEO_PLAYER_HEIGHT / PIXEL_RATIO; 
+    const videoLayoutWidth = VIDEO_PLAYER_WIDTH / PIXEL_RATIO; 
 
     const downloadReelayVideo = async () => {
         const videoDir = cacheDirectory + 'vid';
@@ -159,8 +159,8 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
         }
 
         const offsets = {
-            top: (backplateLayoutHeight - videoLayoutHeight) * (pixelRatio / 2),
-            left:  (backplateLayoutWidth - videoLayoutWidth) * (pixelRatio / 2),
+            top: (backplateLayoutHeight - videoLayoutHeight) * (PIXEL_RATIO / 2),
+            left:  (backplateLayoutWidth - videoLayoutWidth) * (PIXEL_RATIO / 2),
         }
 
         progressRef.current = 'compositing';

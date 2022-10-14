@@ -132,12 +132,23 @@ export const compositeReviewForInstagramStories = async ({ inputURIs, offsets })
         const outputVideoURI = `${videoURI}-insta-story.mp4`;
         console.log('output video URI: ', outputVideoURI);
         const BORDER_RADIUS = 20;
-        const command = `-i ${backplateURI} -i ${videoURI} -filter_complex \
+
+        /**
+         * Commands in order:
+         * 1. Scale original video to 600x1240 with black bar letterboxing
+         * 2. Round the edges of the scaled video
+         * 3. Overlay the scaled, rounded video onto the background image
+         * 4. Overlay the title poster, creator info, and star rating
+         */
+
+        const command = `-i ${backplateURI} -i ${videoURI} -i ${overlayURI} -filter_complex \
             "[1:v] scale=600:1240:force_original_aspect_ratio=decrease,pad=600:1240:(ow-iw)/2:(oh-ih)/2 [scl], \
             [scl] format=yuva420p,geq=lum='p(X,Y)':a='if(gt(abs(W/2-X),W/2-${BORDER_RADIUS})*gt(abs(H/2-Y),H/2-${BORDER_RADIUS}),if(lte(hypot(${BORDER_RADIUS}-(W/2-abs(W/2-X)),${BORDER_RADIUS}-(H/2-abs(H/2-Y))),${BORDER_RADIUS}),255,0),255)'[rounded], \
-            [0:v][rounded] overlay=${offsets.left}:${offsets.top}" \
+            [0:v][rounded] overlay=${offsets.left}:${offsets.top + 10} [penult], \
+            [penult][2:v] overlay=${offsets.left}:${offsets.top}" \
             ${outputVideoURI}`;
 
+        
         const session = await FFmpegKit.execute(command);
         const parsedSession = await parseFFmpegSession(session); 
         console.log('parsed session: ', parsedSession);  
