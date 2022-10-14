@@ -18,7 +18,7 @@ import Constants from 'expo-constants';
 import { postReelayToDB, prepareReelay } from './ReelayDBApi';
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 
-import { compressVideoForUpload, DEVICE_CAN_COMPRESS } from './FFmpegApi';
+import { compressVideoForUpload, DEVICE_CAN_USE_FFMPEG } from './FFmpegApi';
 import * as Haptics from 'expo-haptics';
 import { generateThumbnail, saveThumbnail } from './ThumbnailApi';
 
@@ -146,7 +146,7 @@ export const uploadReelay = async ({
         };
     
         let uploadVideoURI = videoURI;
-        if (DEVICE_CAN_COMPRESS) {
+        if (DEVICE_CAN_USE_FFMPEG) {
             const { error, outputURI, parsedSession } = await compressVideoForUpload(videoURI);
             if (!error) uploadVideoURI = outputURI;
         }

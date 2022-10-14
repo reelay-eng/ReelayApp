@@ -11,7 +11,7 @@ const MAX_BORDER_RADIUS = 16;
 const PLACEHOLDER_POSTER_SOURCE = require('../../assets/images/reelay-splash-with-dog-black.png');
 const WELCOME_VIDEO_POSTER_SOURCE = require('../../assets/images/welcome-video-poster-with-dog.png');
 
-const TitlePoster = ({ title, onPress, width = 60 }) => {
+const TitlePoster = ({ onLoad = () => {}, title, onPress, width = 60 }) => {
     const borderRadius = Math.min(width / 10, MAX_BORDER_RADIUS);
     const height = width * 1.5;
     const style = { borderRadius, height, width };
@@ -71,6 +71,7 @@ const TitlePoster = ({ title, onPress, width = 60 }) => {
                 if (onPress) onPress();
             }}>
 				{ <PosterImage 
+                    onLoadEnd={onLoad}
                     source={getTitlePosterSource()}
                     PlaceholderContent={<ActivityIndicator />}
                     onError={onLoadError}

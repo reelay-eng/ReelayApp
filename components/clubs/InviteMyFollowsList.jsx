@@ -15,6 +15,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faMagnifyingGlass, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { TextInput } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ShareOutSVG } from '../global/SVGs';
 
 const { height, width } = Dimensions.get('window');
 
@@ -33,6 +34,10 @@ const CheckmarkIconWhiteFill = styled(View)`
 `
 const FollowsList = styled(FlatList)`
     margin-bottom: 10px;
+`
+const HeaderSearchButtons = styled(View)`
+    align-items: center;
+    flex-direction: row;
 `
 const HeaderSearchRow = styled(View)`
     align-items: center;
@@ -75,6 +80,9 @@ const RowView = styled(TouchableOpacity)`
 `
 const SearchIconPressable = styled(TouchableOpacity)`
     padding: 6px;
+`
+const ShareIconPressable = styled(SearchIconPressable)`
+    margin-right: 6px;
 `
 const Spacer = styled(View)`
     height: 24px;
@@ -174,7 +182,7 @@ const FollowerRow = ({
     )
 }
 
-const HeaderFollowerSearch = ({ searchText, updateSearchText }) => {
+const HeaderFollowerSearch = ({ onShareOut, searchText, updateSearchText }) => {
     const [showSearchBar, setShowSearchBar] = useState(false);
     const searchFieldRef = useRef(null);
 
@@ -210,14 +218,21 @@ const HeaderFollowerSearch = ({ searchText, updateSearchText }) => {
                     value={searchText}
                 />
             )}
-            <SearchIconPressable onPress={searchIconOnPress}>
-                <FontAwesomeIcon icon={showSearchBar ? faXmark : faMagnifyingGlass} size={24} color='white' />
-            </SearchIconPressable>
+            <HeaderSearchButtons>
+                { (onShareOut && !showSearchBar) && (
+                    <ShareIconPressable onPress={onShareOut}>
+                        <ShareOutSVG />
+                    </ShareIconPressable>
+                )}
+                <SearchIconPressable onPress={searchIconOnPress}>
+                    <FontAwesomeIcon icon={showSearchBar ? faXmark : faMagnifyingGlass} size={24} color='white' />
+                </SearchIconPressable>
+            </HeaderSearchButtons>
         </HeaderSearchRow>
     );
 }
 
-export default InviteMyFollowsList = ({ clubMembers, followsToSend }) => {
+export default InviteMyFollowsList = ({ clubMembers, followsToSend, onShareOut }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const bottomOffset = useSafeAreaInsets().bottom;
     const myFollowers = useSelector(state => state.myFollowers);
@@ -414,7 +429,7 @@ export default InviteMyFollowsList = ({ clubMembers, followsToSend }) => {
     
     return (
         <KeyboardAvoidingView behavior='padding'>
-            <HeaderFollowerSearch searchText={searchText} updateSearchText={updateSearchText} />
+            <HeaderFollowerSearch onShareOut={onShareOut} searchText={searchText} updateSearchText={updateSearchText} />
             <View style={{ height: height - 200, width: '100%' }}>
                 <TabView 
                     initialLayout={{ width: width }}

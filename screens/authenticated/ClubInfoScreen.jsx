@@ -39,6 +39,8 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import ChangeClubPrivacyDrawer from '../../components/clubs/ChangeClubPrivacyDrawer';
 import { notifyClubOnPrivacyChanges } from '../../api/ClubNotifications';
 import { HeaderWithBackButton } from '../../components/global/Headers';
+import ShareClubDrawer from '../../components/clubs/ShareClubDrawer';
+import { ShareOutSVG } from '../../components/global/SVGs';
 
 const INVITE_BASE_URL = Constants.manifest.extra.reelayWebInviteUrl;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -699,44 +701,53 @@ export default ClubInfoScreen = ({ navigation, route }) => {
         }
     
         const ShareClubLinkRow = () => {
-            const copyClubLinkToClipboard = async () => {
-                try {
-                    const clubLinkObj = await createDeeplinkPathToClub({
-                        authSession,
-                        clubID: club.id,
-                        invitedByUserSub: reelayDBUser?.sub,
-                        invitedByUsername: reelayDBUser?.username,
-                    });
+            const [shareDrawerOpen, setShareDrawerOpen] = useState(false);
+            const closeDrawer = () => setShareDrawerOpen(false);
+        
+            // const copyClubLinkToClipboard = async () => {
+            //     try {
+            //         const clubLinkObj = await createDeeplinkPathToClub({
+            //             authSession,
+            //             clubID: club.id,
+            //             invitedByUserSub: reelayDBUser?.sub,
+            //             invitedByUsername: reelayDBUser?.username,
+            //         });
 
-                    console.log(clubLinkObj);
-                    if (clubLinkObj?.inviteCode && !clubLinkObj?.error) {
-                        const copyLink = INVITE_BASE_URL + clubLinkObj.inviteCode;
-                        Clipboard.setString(copyLink);
-                        showMessageToast('Invite link copied to clipboard!');
-                    }
+            //         console.log(clubLinkObj);
+            //         if (clubLinkObj?.inviteCode && !clubLinkObj?.error) {
+            //             const copyLink = INVITE_BASE_URL + clubLinkObj.inviteCode;
+            //             Clipboard.setStringAsync(copyLink).then(onfulfilled => {
+            //                 showMessageToast('Invite link copied to clipboard!');
+            //             });
+            //         }
 
-                    logAmplitudeEventProd('copyClubInviteLink', {
-                        username: reelayDBUser?.username,
-                        userSub: reelayDBUser?.sub,
-                        clubID: club?.id,
-                        club: club?.name,
-                        inviteCode: clubLinkObj?.inviteCode,
-                    });
+            //         logAmplitudeEventProd('copyClubInviteLink', {
+            //             username: reelayDBUser?.username,
+            //             userSub: reelayDBUser?.sub,
+            //             clubID: club?.id,
+            //             club: club?.name,
+            //             inviteCode: clubLinkObj?.inviteCode,
+            //         });
 
-                } catch (error) {
-                    console.log(error);
-                    showErrorToast('Ruh roh! Couldn\'t copy the club link. Try again?');
-                }                
-            }
+            //     } catch (error) {
+            //         console.log(error);
+            //         showErrorToast('Ruh roh! Couldn\'t copy the club link. Try again?');
+            //     }                
+            // }
+
             return (
-                <SettingsRow onPress={copyClubLinkToClipboard}>
+                <SettingsRow onPress={() => setShareDrawerOpen(true)}>
                     <SettingsTextView>
-                        <SettingsText>{'Send Link'}</SettingsText>
-                        <SettingsSubtext>{'Share the chat link'}</SettingsSubtext>
+                        <SettingsText>{'Share out'}</SettingsText>
+                        <SettingsSubtext>{'Share the chat link outside the app'}</SettingsSubtext>
                     </SettingsTextView>
                     <SettingsRowRightButton>
-                        <FontAwesomeIcon icon={ faLink } size={24} color='white' />
+                        <ShareOutSVG />
+                        {/* <FontAwesomeIcon icon={ faLink } size={24} color='white' /> */}
                     </SettingsRowRightButton>
+                    { shareDrawerOpen && (
+                        <ShareClubDrawer club={club} closeDrawer={closeDrawer} navigation={navigation} />
+                    )}
                 </SettingsRow>
             );
         }
