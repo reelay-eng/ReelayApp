@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, Modal, Pressable, Share, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Modal, Pressable, Share, TouchableOpacity, View } from 'react-native';
 
 import Constants from 'expo-constants';
 import * as Clipboard from 'expo-clipboard';
@@ -10,12 +10,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import { AuthContext } from '../../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCamera, faLink, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faLink, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { ShareOutSVG } from '../global/SVGs';
 import { showMessageToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { createDeeplinkPathToClub } from '../../api/ClubsApi';
 import { useSelector } from 'react-redux';
+import { faInstagram } from '@fortawesome/free-brands-svg-icons';
 
 const { height, width } = Dimensions.get('window');
 
@@ -123,7 +124,7 @@ export default ShareClubDrawer = ({ closeDrawer, club, navigation }) => {
         return (
             <DrawerHeaderView>
                 <LeftSpacer />
-                <HeaderText>{'Share'}</HeaderText>
+                <HeaderText>{'Share club'}</HeaderText>
                 <CloseDrawerButton onPress={closeDrawer}>
                     <FontAwesomeIcon icon={faXmark} size={20} color='white' />
                 </CloseDrawerButton>
@@ -186,7 +187,7 @@ export default ShareClubDrawer = ({ closeDrawer, club, navigation }) => {
         return (
             <ShareOptionView>
                 <ShareOptionPressable onPress={openShareInstaStoryScreen}>
-                    <FontAwesomeIcon icon={faCamera} color='white' size={30} />
+                    <FontAwesomeIcon icon={faInstagram} color='white' size={30} />
                     <ShareOptionIconPad />
                     <ShareOptionTextView>
                         <ShareOptionText>{'Insta story'}</ShareOptionText>
@@ -196,6 +197,7 @@ export default ShareClubDrawer = ({ closeDrawer, club, navigation }) => {
         )
     }
 
+    console.log('rendering share drawer');
 
     return (
         <Modal animationType='slide' transparent={true} visible={true}>

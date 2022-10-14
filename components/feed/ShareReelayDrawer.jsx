@@ -11,7 +11,8 @@ import styled from 'styled-components/native';
 import { createDeeplinkPathToReelay } from '../../api/ReelayDBApi';
 import { AuthContext } from '../../context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faCamera, faLink, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faLink, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faInstagram } from '@fortawesome/free-brands-svg-icons';
 import { ShareOutSVG } from '../global/SVGs';
 import { showMessageToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -114,7 +115,7 @@ export default ShareReelayDrawer = ({ closeDrawer, navigation, reelay }) => {
         return (
             <DrawerHeaderView>
                 <LeftSpacer />
-                <HeaderText>{'Share'}</HeaderText>
+                <HeaderText>{'Share reelay'}</HeaderText>
                 <CloseDrawerButton onPress={closeDrawer}>
                     <FontAwesomeIcon icon={faXmark} size={20} color='white' />
                 </CloseDrawerButton>
@@ -177,7 +178,7 @@ export default ShareReelayDrawer = ({ closeDrawer, navigation, reelay }) => {
         return (
             <ShareOptionView>
                 <ShareOptionPressable onPress={openShareInstaStoryScreen}>
-                    <FontAwesomeIcon icon={faCamera} color='white' size={30} />
+                    <FontAwesomeIcon icon={faInstagram} color='white' size={30} />
                     <ShareOptionIconPad />
                     <ShareOptionTextView>
                         <ShareOptionText>{'Insta story'}</ShareOptionText>

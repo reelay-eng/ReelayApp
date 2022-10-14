@@ -21,6 +21,7 @@ import InviteMyFollowsList from './InviteMyFollowsList';
 import { inviteMemberToClub } from '../../api/ClubsApi';
 import { showErrorToast, showMessageToast } from '../utils/toasts';
 import { notifyNewMemberOnClubInvite } from '../../api/ClubNotifications';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
@@ -28,6 +29,12 @@ const Backdrop = styled(Pressable)`
     background-color: transparent;
     height: 100%;
     position: absolute;
+    width: 100%;
+`
+const BottomGradient = styled(LinearGradient)`
+    position: absolute;
+    bottom: -10px;
+    height: ${props => props.bottomOffset + 40}px;
     width: 100%;
 `
 const DrawerContainer = styled(View)`
@@ -55,9 +62,10 @@ const SendInvitesButtonContainer = styled(TouchableOpacity)`
     width: ${width - 32}px;
 `
 const SendInvitesButtonOuterContainer = styled(View)`
-align-self: center;
+    align-self: center;
     align-items: center;
-    bottom: ${(props) => props.bottomOffset ?? 0}px;
+    bottom: 0px;
+    padding-bottom: ${(props) => props.bottomOffset ?? 0}px;
     position: absolute;
     width: 100%;
 `
@@ -66,7 +74,7 @@ const SendInvitesButtonText = styled(ReelayText.Subtitle2)`
     margin-left: 4px;
 `
 
-export default InviteMyFollowsDrawer = ({ club, closeDrawer, onRefresh }) => {
+export default InviteMyFollowsDrawer = ({ club, closeDrawer, onRefresh, onShareOut }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
     const followsToSend = useRef([]);
@@ -126,6 +134,12 @@ export default InviteMyFollowsDrawer = ({ club, closeDrawer, onRefresh }) => {
 
         return (
             <SendInvitesButtonOuterContainer bottomOffset={bottomOffset}>
+                <BottomGradient 
+                    bottomOffset={bottomOffset} 
+                    colors={['transparent', 'black']} 
+                    start={{ x: 0, y: -1 }} 
+                    end={{ x: 0, y: 1 }} 
+                />
                 <SendInvitesButtonContainer onPress={sendAllInvites}>
                     { sendingInvites && <ActivityIndicator /> }
                     { !sendingInvites && (
@@ -145,7 +159,11 @@ export default InviteMyFollowsDrawer = ({ club, closeDrawer, onRefresh }) => {
             <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
                 <Backdrop onPress={closeDrawer}/>
                 <DrawerContainer>
-                    <InviteMyFollowsList clubMembers={club.members} followsToSend={followsToSend} />
+                    <InviteMyFollowsList 
+                        clubMembers={club.members} 
+                        followsToSend={followsToSend} 
+                        onShareOut={onShareOut}
+                    />
                     <SendInvitesButton />
                 </DrawerContainer>
                 </KeyboardAvoidingView>

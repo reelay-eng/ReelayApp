@@ -13,6 +13,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import AddTitleOrTopicDrawer from './AddTitleOrTopicDrawer';
 import { AuthContext } from '../../context/AuthContext';
 import InviteMyFollowsDrawer from './InviteMyFollowsDrawer';
+import ShareClubDrawer from './ShareClubDrawer';
 
 const AddActivityText = styled(ReelayText.Body1)`
     color: ${ReelayColors.reelayBlue};
@@ -21,11 +22,9 @@ const BackButtonContainer = styled(View)`
     margin: 6px;
 `
 const BannerButtonPressable = styled(TouchableOpacity)`
-    background-color: ${props => props.background ? '#d4d4d4' : 'transparent'};
-    border-radius: 30px;
+    border-radius: 10px;
     justify-content: center;
     padding: 6px;
-    margin-left: 4px;
 `
 const BannerRightButtonsView = styled(View)`
     align-items: center;
@@ -255,18 +254,33 @@ export default ClubBanner = ({ club, navigation, source = 'activity' }) => {
     }
 
     const InviteButton = () => {
-        const [inviteDrawerVisible, setInviteDrawerVisible] = useState(false);
-        const openDrawer = () => setInviteDrawerVisible(true);
-        const closeDrawer = () => setInviteDrawerVisible(false);
+        const [currentDrawer, setCurrentDrawer] = useState('none');
+        const openInviteDrawer = () => setCurrentDrawer('invite');
+        const openShareDrawer = () => setCurrentDrawer('share');
+        const closeDrawer = () => setCurrentDrawer('none');
+
+        // for some reason, the modal drawer breaks if there isn't some pause between these events
+        const onShareOut = () => {
+            setCurrentDrawer('none');
+            setTimeout(openShareDrawer, 300);
+        }
 
         return (
-            <BannerButtonPressable background={true} onPress={openDrawer} topOffset={infoButtonTopOffset}>
-                <FontAwesomeIcon icon={faUserPlus} color='black' size={20} />
-                { inviteDrawerVisible && (
+            <BannerButtonPressable background={true} onPress={openInviteDrawer} topOffset={infoButtonTopOffset}>
+                <FontAwesomeIcon icon={faUserPlus} color='white' size={24} />
+                { (currentDrawer === 'share') && (
+                    <ShareClubDrawer
+                        club={club}
+                        navigation={navigation}
+                        closeDrawer={closeDrawer}
+                    />
+                )}
+                { (currentDrawer === 'invite') && (
                     <InviteMyFollowsDrawer
                         club={club}
                         closeDrawer={closeDrawer}
                         onRefresh={() => {}} // todo
+                        onShareOut={onShareOut}
                     />
                 )}
             </BannerButtonPressable>
