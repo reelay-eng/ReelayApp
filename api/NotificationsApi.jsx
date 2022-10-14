@@ -530,8 +530,19 @@ export const notifyOtherCreatorsOnReelayPosted = async ({
             console.log('Recipient already notified');
             return;
         }
-        const title = (topic) ? `${creator.username}` : `${reelay.title.display}`;
-        const body = (topic) ? `added to the topic: ${topic.title}` : `new reelay by ${creator.username}`; // add name for topic
+
+        if (topic && notifyCreator.sub === topic?.creatorSub) {
+            console.log('No need to notify topic creator twice');
+            return;
+        }
+
+        const title = (topic)
+            ? `${creator.username}` 
+            : `${reelay.title.display}`;
+        const body = (topic) 
+            ? `added to the topic: ${topic.title}` 
+            : `new reelay by ${creator.username}`; // add name for topic
+
         console.log("sending notification to ", notifyCreator)
         const data = { 
             notifyType: 'notifyOtherCreatorsOnReelayPosted',

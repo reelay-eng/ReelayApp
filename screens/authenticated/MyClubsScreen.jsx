@@ -285,12 +285,15 @@ export default MyClubsScreen = ({ navigation }) => {
         }
 
         const ClubRow = ({ club }) => {
-            const memberCount = club.memberCount ?? club.members?.length;
+            const countableClubMembers = club.members.filter(member => {
+                return (member?.role !== 'banned' && member?.hasAcceptedInvite);
+            })
+            const memberCount = countableClubMembers?.length;
             const memberText = `${memberCount} member${memberCount !== 1 ? 's' : ''}`;
             const lastActivityAt = club.lastActivityAt ?? null;
 
             const matchClubMember = (nextMember) => nextMember?.userSub === reelayDBUser?.sub
-            const clubMember = club.members.find(matchClubMember);
+            const clubMember = countableClubMembers.find(matchClubMember);
             const lastActivitySeenAt = clubMember?.lastActivitySeenAt ?? null;
 
             const getInitMarkUnread = () => {
