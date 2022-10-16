@@ -4,8 +4,6 @@ import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 import { showErrorToast } from '../components/utils/toasts';
 
 export const DEVICE_CAN_USE_FFMPEG = (Constants.appOwnership !== 'expo');
-const INSTA_STORY_HEIGHT = 1920
-const INSTA_STORY_WIDTH = 1080;
 
 const parseSessionLogs = async (session) => {
     try {
@@ -116,7 +114,7 @@ export const compressVideoForUpload = async (inputURI) => {
     }
 }
 
-export const compositeReviewForInstagramStories = async ({ inputURIs, offsets }) => {
+export const compositeReviewForInstagramStories = async ({ inputURIs, offsets, videoRes }) => {
     /**
      * 1. Crop video to proper dimensions
      * 2. Paste reelay on premade background
@@ -129,6 +127,7 @@ export const compositeReviewForInstagramStories = async ({ inputURIs, offsets })
     try {
         const FFmpegKit = require('ffmpeg-kit-react-native')?.FFmpegKit;
         const { backplateURI, videoURI, overlayURI } = inputURIs;
+        const { height, width } = videoRes;
         const outputVideoURI = `${videoURI}-insta-story.mp4`;
         console.log('output video URI: ', outputVideoURI);
         const BORDER_RADIUS = 20;
@@ -142,7 +141,7 @@ export const compositeReviewForInstagramStories = async ({ inputURIs, offsets })
          */
 
         const command = `-i ${backplateURI} -i ${videoURI} -i ${overlayURI} -filter_complex \
-            "[1:v] scale=600:1240:force_original_aspect_ratio=decrease,pad=600:1240:(ow-iw)/2:(oh-ih)/2 [scl], \
+            "[1:v] scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2 [scl], \
             [scl] format=yuva420p,geq=lum='p(X,Y)':a='if(gt(abs(W/2-X),W/2-${BORDER_RADIUS})*gt(abs(H/2-Y),H/2-${BORDER_RADIUS}),if(lte(hypot(${BORDER_RADIUS}-(W/2-abs(W/2-X)),${BORDER_RADIUS}-(H/2-abs(H/2-Y))),${BORDER_RADIUS}),255,0),255)'[rounded], \
             [0:v][rounded] overlay=${offsets.left}:${offsets.top + 10} [penult], \
             [penult][2:v] overlay=${offsets.left}:${offsets.top}" \
@@ -158,6 +157,6 @@ export const compositeReviewForInstagramStories = async ({ inputURIs, offsets })
     } catch (error) {
         console.log(error);
         logAmplitudeEventProd('ffmpegApiError', { error });
-        return localVideoURI;
+        return inputURIs?.videoURI;
     }
 }
