@@ -7,7 +7,7 @@ import { AddedToClubsIconSVG, AddToClubsIconSVG } from '../global/SVGs';
 import styled from 'styled-components/native';
 import { useDispatch, useSelector } from 'react-redux';
 import AddToClubsDrawer from './AddToClubsDrawer';
-import { addToMyWatchlist } from '../../api/WatchlistApi';
+import { addToMyWatchlist, removeFromMyWatchlist } from '../../api/WatchlistApi';
 import { notifyOnAddedToWatchlist } from '../../api/WatchlistNotifications';
 import { showMessageToast } from '../utils/toasts';
 
@@ -59,8 +59,8 @@ export default AddToClubsButton = ({ navigation, showCircle=true, titleObj, reel
 		}
 		return false;
 	}
-    
-    const onPress = async () => {
+
+    const addToWatchlistOnPress = async () => {
         const addToWatchlistResult = await addToMyWatchlist({
             reqUserSub: reelayDBUser?.sub,
             reelaySub: reelay?.sub,
@@ -91,14 +91,39 @@ export default AddToClubsButton = ({ navigation, showCircle=true, titleObj, reel
         showMessageToast(`Added ${titleObj.display} to your watchlist`);
     }
 
-    const openAddToClubsDrawer = () => {
-        if (showMeSignupIfGuest()) return;
-        setDrawerVisible(true);
-        logAmplitudeEventProd('openedAddToClubsDrawer', {
-            username: reelayDBUser?.username,
-            creatorName: reelay?.creator?.username,
-            title: titleObj.display,
+    const removeFromWatchlistOnPress = async () => {
+        const removeFromWatchlistResult = await removeFromMyWatchlist({
+            reqUserSub: reelayDBUser?.sub,
+            tmdbTitleID: reelay?.title?.id,
+            titleType: reelay?.title?.titleType,
         });
+
+        console.log('remove from watchlist result: ', removeFromWatchlistResult);
+
+        const nextWatchlistItems = myWatchlistItems.filter(nextItem => {
+            const matchTitleID = (nextItem?.tmdbTitleID === reelay?.title?.id);
+            const matchTitleType = (nextItem?.titleType === reelay?.title?.titleType);
+            return !(matchTitleID && matchTitleType);
+        })
+
+
+        logAmplitudeEventProd('removeItemFromWatchlist', {
+            username: reelayDBUser?.username,
+            title: reelay?.title?.display,
+            source: 'feed',
+        });    
+
+        dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
+        showMessageToast(`Removed ${titleObj.display} from your watchlist`);
+    }
+    
+    const onPress = async () => {
+        if (showMeSignupIfGuest()) return;
+        if (inWatchlist) {
+            removeFromWatchlistOnPress();
+        } else {
+            addToWatchlistOnPress();
+        }
     }
 
     return (
