@@ -161,16 +161,12 @@ const TitleText = styled(ReelayText.H6Emphasized)`
     color: white;
     font-size: 16px;
 `
-const TopicCardGradient = styled(LinearGradient)`
-    border-radius: 11px;
-    height: 100%;
-    width: 100%;
-    position: absolute;
-`
 const TopicCardView = styled(View)`
     align-items: center;
-    background-color: black;
+    background-color: #121212;
+    border-color: rgba(255,255,255,0.5);
     border-radius: 11px;
+    border-width: 1px;
     height: ${props => props.horizontal ? '440px' : 'auto'};
     justify-content: space-between;
     width: ${props => getTopicCardWidth(props)}px;
@@ -473,7 +469,6 @@ export default TopicCard = ({
         <Fragment>
             { source !== 'profile' && <TopicOverline /> }
             <TopicCardView horizontal={horizontal} onPress={advanceToFeed}>
-                <TopicCardGradient colors={['#3D2F52', ReelayColors.reelayPurple]} start={{ x: 0.5, y: 1 }} end={{ x: 0.5, y: -0.5 }} />
                 <ContentAboveDivider />
                 <ContentBelowDivider />
             </TopicCardView>

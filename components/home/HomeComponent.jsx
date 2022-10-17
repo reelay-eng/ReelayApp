@@ -24,6 +24,7 @@ import DiscoverClubs from './DiscoverClubs';
 import { LinearGradient } from 'expo-linear-gradient';
 import MyWatchlistGrid from '../watchlist/MyWatchlistGrid';
 import DiscoverSearch from './DiscoverSearch';
+import RecommendedForYou from './RecommendedForYou';
 
 const BottomBar = styled(LinearGradient)`
     height: 100px;
@@ -136,10 +137,11 @@ const HomeComponent = ({ navigation }) => {
             </SafeAreaView>
             <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 <AnnouncementsAndNotices navigation={navigation} />
-                <PopularTitles navigation={navigation} tab='discover' />
+                <RecommendedForYou navigation={navigation} />
+                <PopularTitles navigation={navigation} />
+                <TopOfTheWeek navigation={navigation} />
                 <TopicsCarousel navigation={navigation} source='discover' /> 
                 <MyWatchlistGrid navigation={navigation} />
-                <TopOfTheWeek navigation={navigation} />
                 <FriendsAreWatching navigation={navigation} />
                 <DiscoverClubs navigation={navigation} />
                 <OnStreaming navigation={navigation} source='discover' />
