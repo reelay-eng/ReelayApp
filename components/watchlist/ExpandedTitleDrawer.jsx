@@ -429,11 +429,13 @@ export default ExpandedTitleDrawer = ({
 
     const RemoveFromWatchlistLine = () => {
         const onPress = async () => {
-            await removeFromMyWatchlist({ 
+            const removeResult = await removeFromMyWatchlist({ 
                 reqUserSub: reelayDBUser?.sub,
-                tmdbTitleID: titleObj?.tmdbTitleID,
-                titleType: expandedTitle?.titleType,
+                tmdbTitleID: titleObj?.id,
+                titleType: titleObj?.titleType,
             });
+
+            console.log('remove from watchlist result: ', removeResult);
 
             showMessageToast('Removed from your watchlist');
             logAmplitudeEventProd('removeItemFromWatchlist', {

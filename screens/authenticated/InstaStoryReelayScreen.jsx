@@ -114,8 +114,8 @@ const CAN_USE_RN_SHARE = (Constants.appOwnership !== 'expo');
 const INSTA_STORY_HEIGHT = 1920;
 const INSTA_STORY_WIDTH = 1080;
 
-const VIDEO_PLAYER_HEIGHT = 1260;
-const VIDEO_PLAYER_WIDTH = 600;
+const VIDEO_PLAYER_HEIGHT = 1280;
+const VIDEO_PLAYER_WIDTH = 720;
 
 export default InstaStoryReelayScreen = ({ navigation, route }) => {
     const capturedBackplateURI = useRef(null);
@@ -162,10 +162,15 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
             top: (backplateLayoutHeight - videoLayoutHeight) * (PIXEL_RATIO / 2),
             left:  (backplateLayoutWidth - videoLayoutWidth) * (PIXEL_RATIO / 2),
         }
+        
+        const videoRes = {
+            height: VIDEO_PLAYER_HEIGHT,
+            width: VIDEO_PLAYER_WIDTH,
+        }
 
         progressRef.current = 'compositing';
         const compositeVideoURI = await compositeReviewForInstagramStories({
-            inputURIs, offsets
+            inputURIs, offsets, videoRes
         });
 
         progressRef.current = 'sharing';
