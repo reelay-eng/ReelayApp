@@ -16,42 +16,33 @@ const { width } = Dimensions.get('window');
 const CarouselView = styled(View)`
     margin-left: -24px;
 `
-const CreateTopicButtonContainer = styled(TouchableOpacity)`
-    align-items: center;
-    background-color: black;
-    border-color: white;
-    border-radius: 20px;
-    border-width: 1px;
-    flex-direction: row;
-    justify-content: center;
-    height: 40px;
-    margin: 16px;
-    width: ${width - 32}px;
-`
-const CreateTopicText = styled(ReelayText.Overline)`
-    color: white;
-`
-const HeaderContainer = styled(View)`
+const HeaderView = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
+    margin-top: 15px;
 `
-const HeaderContainerLeft = styled(View)`
-    align-items: center;
-    flex-direction: row;
+const HeaderViewLeft = styled(View)`
+    display: flex;
+    flex: 1;
     margin-left: 15px;
+    margin-right: 15px;
 `
-const HeaderContainerRight = styled(TouchableOpacity)`
+const HeaderViewRight = styled(TouchableOpacity)`
     align-items: center;
     flex-direction: row;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
-    padding: 15px;
-    padding-left: 0px;
 `
-const TopicsContainer = styled(View)`
+const HeaderSubText = styled(ReelayText.Body2Emphasized)`
+    color: white;
+    line-height: 20px;
+    margin-top: 8px;
+    margin-bottom: 8px;
+`
+const TopicsView = styled(View)`
     width: 100%;
     margin-bottom: 10px;
 `
@@ -88,11 +79,11 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
     }, []);
 
     let displayTopics = [];
-    let headerText = "Topics";
+    let headerText = "Social";
     switch (source) {
         case 'discover':
             displayTopics = discoverTopics ?? [];
-            headerText = 'Topics';
+            headerText = 'Social';
             break;
         case 'profile':
             displayTopics = topicsOnProfile ?? [];
@@ -108,38 +99,17 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
         topicsOnProfile,
     });
 
-    const CreateTopicButton = () => {
-        const advanceToCreateTopic = () => {
-            if (showMeSignupIfGuest()) return;
-            navigation.push('CreateTopicScreen');
-        }
-
-        const showMeSignupIfGuest = () => {
-            if (reelayDBUser?.username === 'be_our_guest') {
-                dispatch({ type: 'setJustShowMeSignupVisible', payload: true })
-                return true;
-            }
-            return false;
-        }    
-        return (
-            <CreateTopicButtonContainer onPress={advanceToCreateTopic}>
-                <CreateTopicText>
-                    {'Start a new topic'}
-                </CreateTopicText>
-            </CreateTopicButtonContainer>
-        );
-    }
-
     const Header = () => {
         return (
-            <HeaderContainer>
-                <HeaderContainerLeft>
+            <HeaderView>
+                <HeaderViewLeft>
                     <HeaderText>{headerText}</HeaderText>
-                </HeaderContainerLeft>
-                <HeaderContainerRight onPress={advanceToTopicsList}>
+                    <HeaderSubText>{'People are adding their thoughts to these topics'}</HeaderSubText>
+                </HeaderViewLeft>
+                <HeaderViewRight onPress={advanceToTopicsList}>
                     <SeeAllTopicsText>{'See all'}</SeeAllTopicsText>
-                </HeaderContainerRight>
-            </HeaderContainer>
+                </HeaderViewRight>
+            </HeaderView>
         );
     }
 
@@ -200,10 +170,10 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
     }
     
     return (
-        <TopicsContainer>
+        <TopicsView>
             <Header />
             { displayTopics.length > 0 && <TopicsRow /> }
             { source !== 'profile' && <Spacer /> }
-        </TopicsContainer>
+        </TopicsView>
     )
 }

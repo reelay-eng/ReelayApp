@@ -51,6 +51,7 @@ const TopicTitleView = styled(View)`
     width: 60%;
 `
 const TopicView = styled(View)`
+    background-color: #121212;
     justify-content: center;
     height: ${height}px;
     width: 100%;
@@ -84,7 +85,7 @@ export default EmptyTopic = ({ navigation, topic }) => {
 
     return (
         <TopicView>
-            <TopicGradient colors={[ReelayColors.reelayPurple, '#865EE500']} />
+            {/* <TopicGradient colors={[ReelayColors.reelayPurple, '#865EE500']} /> */}
             <TopicCenterView>
                 <TopicIcon />
                 <TopicTitle />

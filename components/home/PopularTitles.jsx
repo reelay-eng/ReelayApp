@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Dimensions, Pressable, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
@@ -7,15 +7,10 @@ import styled from 'styled-components';
 import * as ReelayText from '../../components/global/Text';
 import { useSelector } from 'react-redux';
 import TitlePoster from '../global/TitlePoster';
-import Carousel from 'react-native-snap-carousel';
 
-const { width } = Dimensions.get('window');
-const POSTER_WIDTH = width * 0.8;
+const POSTER_WIDTH = 95;
 const POSTER_WIDTH_BORDER_RADIUS = Math.min(POSTER_WIDTH / 10, 12);
 
-const CarouselContainer = styled(View)`
-    margin-left: -10px;
-`
 const HeaderContainer = styled(View)`
     align-items: flex-end;
     flex-direction: row;
@@ -43,6 +38,7 @@ const PopularTitlesContainer = styled.View`
 `
 const PopularTitlesElementContainer = styled(Pressable)`
     margin-top: 10px;
+    margin-right: 10px;
 `
 const ReelayCount = styled(ReelayText.CaptionEmphasized)`
     margin-top: 8px;
@@ -71,10 +67,15 @@ const TitleInfoLine = styled(View)`
     flex-direction: row;
     justify-content: space-between;
 `
+const TitleRowContainer = styled(ScrollView)`
+    display: flex;
+    flex-direction: row;
+    padding-left: 15px;
+    width: 100%;
+`
 
 export default PopularTitles = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const headerText = 'Popular titles';
     const popularTitleStacks = useSelector(state => state.myHomeContent?.discover?.popularTitles);
 
     const goToReelay = (index, titleObj) => {
@@ -115,7 +116,7 @@ export default PopularTitles = ({ navigation }) => {
     }
 
     const TitlesRow = () => {
-        const renderTitleStackElement = ({ item, index }) => {
+        const renderTitleStackElement = (item, index) => {
             const stack = item;
             return (
                 <PopularTitleElement 
@@ -123,23 +124,16 @@ export default PopularTitles = ({ navigation }) => {
                     index={index} 
                     onPress={() => goToReelay(index, stack[0].title)} 
                     stack={stack} 
-                    length={popularTitleStacks?.length}/>
+                    length={popularTitleStacks?.length}
+                />
             );
         }
 
         return (
-            <CarouselContainer>
-                <Carousel
-                    activeSlideAlignment={'center'}
-                    data={popularTitleStacks}
-                    inactiveSlideScale={1}
-                    itemWidth={width * 0.85}
-                    renderItem={renderTitleStackElement}
-                    sliderHeight={240}
-                    sliderWidth={width}
-                />
-            </CarouselContainer>
-        );
+            <TitleRowContainer horizontal showsHorizontalScrollIndicator={false}>
+                { popularTitleStacks.map(renderTitleStackElement)}
+            </TitleRowContainer>
+        )
     }
 
     if (popularTitleStacks?.length < 2) {
@@ -149,7 +143,7 @@ export default PopularTitles = ({ navigation }) => {
     return (
         <PopularTitlesContainer>
             <HeaderContainer>
-                {/* <HeaderText>{headerText}</HeaderText> */}
+                {/* <HeaderText>{'Popular titles'}</HeaderText> */}
                 <HeaderSubText>{'Most people are talking about'}</HeaderSubText>
             </HeaderContainer>
             { popularTitleStacks?.length > 0 && <TitlesRow />}
