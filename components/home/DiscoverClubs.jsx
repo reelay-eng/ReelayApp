@@ -45,7 +45,6 @@ const HeaderSubText = styled(ReelayText.Body2Emphasized)`
 `
 const RowContainer = styled(ScrollView)`
     display: flex;
-    padding-left: 15px;
     padding-top: 15px;
     flex-direction: row;
     width: 100%;

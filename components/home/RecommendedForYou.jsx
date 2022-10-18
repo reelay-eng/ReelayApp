@@ -149,7 +149,7 @@ export default RecommendedForYou = ({ navigation }) => {
         <RecommendedTitlesView>
             <HeaderView>
                 <HeaderText>{headerText}</HeaderText>
-                <HeaderSubText>{'Users you follow are loving these titles you haven’t seen'}</HeaderSubText>
+                <HeaderSubText>{'People you follow are recommending these titles you haven’t seen'}</HeaderSubText>
             </HeaderView>
             { recommendedStacks?.length > 0 && <TitlesRow />}
         </RecommendedTitlesView>

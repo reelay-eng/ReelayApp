@@ -61,7 +61,7 @@ const ContentNoReelaysIconView = styled(View)`
     align-items: center;
     height: 160px;
     justify-content: center;
-    margin-top: 24px;
+    margin-top: 36px;
     width: ${props => getContentRowWidth(props)}px;
 `
 const ContentWithReelaysSectionView = styled(View)`
@@ -95,7 +95,7 @@ const ContributorPicContainer = styled(View)`
 const ContributorRowContainer = styled(View)`
     align-items: center;
     flex-direction: row;
-    margin-left: 10px;
+    margin-left: 14px;
 `
 const CreatorName = styled(ReelayText.H5Bold)`
     color: white;
@@ -113,8 +113,8 @@ const DescriptionText = styled(ReelayText.CaptionEmphasized)`
 const DividerLine = styled(View)`
     background-color: rgba(255,255,255,0.1);
     height: 1px;
-    margin: 10px;
-    width: ${width - 56}px;
+    margin-top: 10px;
+    width: ${width - 72}px;
 `
 const DotMenuButtonContainer = styled(TouchableOpacity)`
     padding-left: 8px;
@@ -280,7 +280,6 @@ export default TopicCard = ({
         };
 
         const ContentWithReelays = () => {
-
             const TitleSection = () => {
                 return (
                     <ContentWithReelaysSectionView horizontal={horizontal}>
@@ -291,7 +290,7 @@ export default TopicCard = ({
                                 <TopicDescription />
                             </TouchableOpacity>
                         </ContentWithReelaysTitleAndDescriptionLine>
-                        <AddReelayToTopicButton />
+                        {/* <AddReelayToTopicButton /> */}
                     </ContentWithReelaysSectionView>
                 );
             }
@@ -407,7 +406,8 @@ export default TopicCard = ({
 
     const ContentBelowDivider = () => {
         return (
-            <View>
+            <View style={{ alignItems: 'center' }}>
+                <DividerLine />
                 { (!topicHasReelays) && <CardBottomRowNoReelays /> }
                 { (topicHasReelays) && <CardBottomRowWithReelays /> }
             </View>
