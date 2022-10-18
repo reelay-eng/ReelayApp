@@ -446,7 +446,7 @@ export default TopicCard = ({
 
     return (
         <Fragment>
-            { source !== 'profile' && <TopicOverline /> }
+            { !horizontal && <TopicOverline /> }
             <TopicCardView horizontal={horizontal} onPress={advanceToFeed}>
                 <ContentAboveDivider />
                 <ContentBelowDivider />

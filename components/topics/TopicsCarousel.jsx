@@ -40,7 +40,7 @@ const HeaderSubText = styled(ReelayText.Body2Emphasized)`
     color: white;
     line-height: 20px;
     margin-top: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 16px;
 `
 const TopicsView = styled(View)`
     width: 100%;

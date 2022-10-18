@@ -18,7 +18,6 @@ const CarouselView = styled(View)`
 `
 const HeaderView = styled(View)`
     margin-left: 15px;
-    margin-top: 15px;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
@@ -37,7 +36,7 @@ const RecommendedTitlesView = styled.View`
     height: auto;
     display: flex;
     flex-direction: column;
-    margin-bottom: 10px;
+    margin-bottom: 24px;
 `
 const RecElementView = styled(Pressable)`
     margin-top: 10px;

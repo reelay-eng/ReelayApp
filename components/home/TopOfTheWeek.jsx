@@ -131,7 +131,7 @@ export default TopOfTheWeek = ({ navigation }) => {
             <HeaderContainer>
                 <HeaderContainerLeft>
                     <HeaderText>{'Trending'}</HeaderText>
-                    <HeaderSubText>{'Check out what videos are getting reactions this week. It’s a great way to discover users whose taste you like'}</HeaderSubText>
+                    <HeaderSubText>{'Check out reelays getting lots of reactions this week. Find people on the app who match your taste'}</HeaderSubText>
                 </HeaderContainerLeft>
             </HeaderContainer>
             <ThreeReelays navigation={navigation} topOfTheWeek={topOfTheWeek} />

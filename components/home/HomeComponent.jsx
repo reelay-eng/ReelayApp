@@ -143,9 +143,9 @@ const HomeComponent = ({ navigation }) => {
                 <TopicsCarousel navigation={navigation} source='discover' /> 
                 <MyWatchlistGrid navigation={navigation} />
                 <DiscoverClubs navigation={navigation} />
-                {/* <FriendsAreWatching navigation={navigation} />
+                {/* <FriendsAreWatching navigation={navigation} /> */}
                 <OnStreaming navigation={navigation} source='discover' />
-                <InTheaters navigation={navigation} />  */}
+                {/* <InTheaters navigation={navigation} />  */}
                 <DiscoverSearch navigation={navigation} />
                 <Spacer />
             </ScrollContainer>

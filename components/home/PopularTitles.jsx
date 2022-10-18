@@ -15,7 +15,6 @@ const HeaderContainer = styled(View)`
     align-items: flex-end;
     flex-direction: row;
     margin-left: 15px;
-    margin-top: 15px;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
@@ -29,12 +28,12 @@ const HeaderSubText = styled(ReelayText.Body2Emphasized)`
 const IconContainer = styled(View)`
     margin: 10px;
 `
-const PopularTitlesContainer = styled.View`
+const PopularTitlesContainer = styled(View)`
     width: 100%;
     height: auto;
     display: flex;
     flex-direction: column;
-    margin-bottom: 10px;
+    margin-bottom: 18px;
 `
 const PopularTitlesElementContainer = styled(Pressable)`
     margin-top: 10px;
@@ -144,7 +143,7 @@ export default PopularTitles = ({ navigation }) => {
         <PopularTitlesContainer>
             <HeaderContainer>
                 {/* <HeaderText>{'Popular titles'}</HeaderText> */}
-                <HeaderSubText>{'Most people are talking about'}</HeaderSubText>
+                <HeaderSubText>{'People are talking most about these titles'}</HeaderSubText>
             </HeaderContainer>
             { popularTitleStacks?.length > 0 && <TitlesRow />}
         </PopularTitlesContainer>
