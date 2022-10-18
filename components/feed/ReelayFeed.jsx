@@ -49,6 +49,7 @@ export default ReelayFeed = ({ navigation,
     const discoverThisWeek = useSelector(state => state.discoverThisWeek);
     const discoverThisMonth = useSelector(state => state.discoverThisMonth);
     const discoverAllTime = useSelector(state => state.discoverAllTime);
+    const emptyGlobalTopics = useSelector(state => state.emptyGlobalTopics);
 
     const sortedThreadData = {
         mostRecent: discoverMostRecent,
@@ -73,20 +74,26 @@ export default ReelayFeed = ({ navigation,
 
     const [reelayThreads, setReelayThreads] = useState(initReelayThreads);
 
-    const emptyGlobalTopics = useSelector(state => state.emptyGlobalTopics);
-    const wovenReelayThreads = reelayThreads.reduce((curWovenThreadsObj, nextThread, index) => {
-        const { curWovenThreads } = curWovenThreadsObj;
-        curWovenThreads.push(nextThread);
-        if (index % WEAVE_EMPTY_TOPIC_INDEX === 0 && index !== 0) {
-            const nextEmptyTopicIndex = Math.floor(index / WEAVE_EMPTY_TOPIC_INDEX) - 1;
-            const hasMoreEmptyTopics = (emptyGlobalTopics.length > nextEmptyTopicIndex);
-            if (!hasMoreEmptyTopics) return curWovenThreadsObj;
+    const getThreadsWovenWithEmptyTopics = () => {
+        const wovenReelayThreads = reelayThreads.reduce((curWovenThreadsObj, nextThread, index) => {
+            const { curWovenThreads } = curWovenThreadsObj;
+            curWovenThreads.push(nextThread);
+            if (index % WEAVE_EMPTY_TOPIC_INDEX === 0 && index !== 0) {
+                const nextEmptyTopicIndex = Math.floor(index / WEAVE_EMPTY_TOPIC_INDEX) - 1;
+                const hasMoreEmptyTopics = (emptyGlobalTopics.length > nextEmptyTopicIndex);
+                if (!hasMoreEmptyTopics) return curWovenThreadsObj;
+    
+                const nextEmptyTopic = emptyGlobalTopics[nextEmptyTopicIndex];
+                curWovenThreads.push(nextEmptyTopic);
+            }
+            return curWovenThreadsObj;
+        }, { curWovenThreads: [] }).curWovenThreads;
+        return wovenReelayThreads;    
+    }
 
-            const nextEmptyTopic = emptyGlobalTopics[nextEmptyTopicIndex];
-            curWovenThreads.push(nextEmptyTopic);
-        }
-        return curWovenThreadsObj;
-    }, { curWovenThreads: [] }).curWovenThreads;
+    const displayReelayThreads = (feedSource === 'discover') 
+        ? getThreadsWovenWithEmptyTopics() 
+        : reelayThreads;
 
     useEffect(() => {
         if (isFirstRender.current) {
@@ -289,8 +296,8 @@ export default ReelayFeed = ({ navigation,
         if (nextFeedPosition === feedPosition) return;
         const swipeDirection = nextFeedPosition < feedPosition ? 'up' : 'down';
         
-        const nextStack = wovenReelayThreads[nextFeedPosition];
-        const prevStack = wovenReelayThreads[feedPosition];
+        const nextStack = displayReelayThreads[nextFeedPosition];
+        const prevStack = displayReelayThreads[feedPosition];
 
         const logProperties = {
             nextReelayTitle: nextStack[0]?.title?.display ?? nextStack?.title,
@@ -334,7 +341,7 @@ export default ReelayFeed = ({ navigation,
             { refreshing && <RefreshIndicator /> }
             { !refreshing && (
                 <FlatList
-                    data={wovenReelayThreads}
+                    data={displayReelayThreads}
                     getItemLayout={getItemLayout}
                     horizontal={false}
                     initialNumToRender={2}

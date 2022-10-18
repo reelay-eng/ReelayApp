@@ -5,13 +5,10 @@ import styled from 'styled-components/native';
 
 import ProfilePicture from '../global/ProfilePicture';
 import { Icon } from 'react-native-elements';
-import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useDispatch, useSelector } from 'react-redux';
 import TopicDotMenuDrawer from './TopicDotMenuDrawer';
 import ReelayColors from '../../constants/ReelayColors';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import TitlePoster from '../global/TitlePoster';
 import { TopicsCardIconSmallSVG, TopicsGiantIconSVG } from '../global/SVGs';
 
@@ -25,15 +22,6 @@ const getThumbnailWidth = (props) => (getTopicCardWidth(props) - 32) / 2;
 const getThumbnailHeight = (props) => (getThumbnailWidth(props) * 1.5) + (props?.horizontal ? 10 : 0);
 const getPosterWidth = (props) => (getThumbnailWidth(props) - 8) / 2;
 
-const AddReelayToTopicPressable = styled(TouchableOpacity)`
-    align-items: center;
-    align-self: flex-start;
-    background-color: ${ReelayColors.reelayBlue};
-    border-radius: 20px;
-    height: 36px;
-    justify-content: center;
-    width: 36px;
-`
 const BottomRowContainer = styled(TouchableOpacity)`
     align-items: center;
     flex-direction: row;
@@ -257,14 +245,6 @@ export default TopicCard = ({
     }
 
     const ContentAboveDivider = () => {
-        const AddReelayToTopicButton = () => {
-            return (
-                <AddReelayToTopicPressable onPress={advanceToCreateReelay}>
-                    <FontAwesomeIcon icon={faPlus} size={20} color='white' />
-                </AddReelayToTopicPressable>
-            );
-        }
-
         const ContentNoReelays = () => {
             return (
                 <Fragment>
@@ -290,7 +270,6 @@ export default TopicCard = ({
                                 <TopicDescription />
                             </TouchableOpacity>
                         </ContentWithReelaysTitleAndDescriptionLine>
-                        {/* <AddReelayToTopicButton /> */}
                     </ContentWithReelaysSectionView>
                 );
             }
