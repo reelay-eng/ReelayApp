@@ -374,6 +374,7 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
     const reelayContentTypes = [
         'mostRecent', 
         'popularTitles',
+        'recommendedTitles',
         'streaming',
         'theaters',
         'topics', 

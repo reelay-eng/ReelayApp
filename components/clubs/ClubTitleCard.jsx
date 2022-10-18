@@ -13,20 +13,8 @@ import { getRuntimeString } from '../utils/TitleRuntime';
 import ClubTitleDotMenuDrawer from './ClubTitleDotMenuDrawer';
 import ReelayThumbnail from '../global/ReelayThumbnail';
 import { ReviewIconSmallSVG } from '../global/SVGs';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-
 const { height, width } = Dimensions.get('window');
 
-const AddReelayToTopicPressable = styled(TouchableOpacity)`
-    align-items: center;
-    align-self: flex-start;
-    background-color: ${ReelayColors.reelayBlue};
-    border-radius: 20px;
-    height: 36px;
-    justify-content: center;
-    width: 36px;
-`
 const AddedByUsername = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 14px;
@@ -76,11 +64,6 @@ const DescriptionText = styled(ReelayText.CaptionEmphasized)`
 const DotMenuButtonView = styled(TouchableOpacity)`
     right: 8px;
     position: absolute;
-`
-const AddReelayButtonView = styled(View)`
-    align-items: flex-end;
-    justify-content: center;
-    padding: 5px;
 `
 const MediaSectionView = styled(View)`
     align-items: center;
@@ -343,10 +326,6 @@ export default ClubTitleCard = ({
     }
 
     const TitleLine = () => {
-        const advanceToCreateReelay = () => navigation.push('VenueSelectScreen', { 
-            clubID: clubTitle.clubID,
-            titleObj: clubTitle.title, 
-        });
         return (
             <TitleLineView>
                 <ReviewIconSmallSVG />
@@ -354,11 +333,6 @@ export default ClubTitleCard = ({
                     <TitleText numberOfLines={2}>{title.display}</TitleText>
                     <DescriptionText>{`${releaseYear}    ${runtimeString}`}</DescriptionText>
                 </TitleDetailLine>
-                <AddReelayButtonView>
-                    <AddReelayToTopicPressable onPress={advanceToCreateReelay}>
-                        <FontAwesomeIcon icon={faPlus} size={20} color='white' />
-                    </AddReelayToTopicPressable>
-                </AddReelayButtonView>
             </TitleLineView>
         );
     }

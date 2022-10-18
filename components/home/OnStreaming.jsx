@@ -43,7 +43,6 @@ const StreamingServicesContainer = styled(View)`
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
-    padding: 15px;
 `
 const HeaderContainer = styled(View)`
     align-items: center;
@@ -164,7 +163,7 @@ export default OnStreaming = ({ navigation, source = 'discover' }) => {
         <StreamingServicesContainer>
             <HeaderContainer>
                 <HeaderContainerLeft>
-                    <Icon type='font-awesome' name='television' size={24} color='white' />
+                    {/* <Icon type='font-awesome' name='television' size={24} color='white' /> */}
                     <HeaderText>{(source === 'discover') ? 'On streaming' : 'Friends are streaming'}</HeaderText>
                 </HeaderContainerLeft>
                 <EditButton />

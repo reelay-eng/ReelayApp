@@ -191,6 +191,7 @@ export default ReelayFeedHeader = ({
             case 'discover': return SORT_OPTION_TEXT[sortMethod];
             case 'popularTitlesDiscover': return 'popular titles';
             case 'popularTitlesFollowing': return 'popular titles';
+            case 'recommendedTitles': return 'recommended';
             case 'single': return 'reelay';
             case 'streaming': return 'on streaming'; 
             case 'title': return 'top reelays';

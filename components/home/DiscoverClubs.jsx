@@ -17,11 +17,14 @@ const DiscoverClubsContainer = styled(View)`
 `
 const ClubNameText = styled(ReelayText.Body2)`
     color: white;
+    display: flex;
+    flex-direction: row;
     margin-top: 6px;
+    text-align: center;
 `
 const OptionContainer = styled(TouchableOpacity)`
     align-items: center;
-    height: 120px;
+    width: 120px;
     margin: 6px;
 `
 const HeaderContainer = styled(View)`
@@ -35,9 +38,13 @@ const HeaderText = styled(ReelayText.H5Bold)`
     font-size: 18px;
     margin-left: 12px;
 `
+const HeaderSubText = styled(ReelayText.Body2Emphasized)`
+    color: white;
+    line-height: 20px;
+    margin-top: 8px;
+`
 const RowContainer = styled(ScrollView)`
     display: flex;
-    padding-left: 15px;
     padding-top: 15px;
     flex-direction: row;
     width: 100%;
@@ -74,8 +81,8 @@ export default PopularClubs = ({ navigation }) => {
         const advanceToClubActivityScreen = () => navigation.navigate('ClubActivityScreen', { club })
         return (
             <OptionContainer key={club?.id} onPress={advanceToClubActivityScreen}>
-                <ClubPicture navigation={navigation} size={100} club={club} />
-                <ClubNameText>{club?.name}</ClubNameText>
+                <ClubPicture border navigation={navigation} size={100} club={club} />
+                <ClubNameText numberOfLines={2}>{club?.name}</ClubNameText>
             </OptionContainer>
         )
     }
@@ -89,8 +96,9 @@ export default PopularClubs = ({ navigation }) => {
     return (
         <DiscoverClubsContainer>
             <HeaderContainer>
-                <FontAwesomeIcon icon={faUsers} size={27} color='white' />
-                <HeaderText>{'Public chat groups'}</HeaderText>
+                {/* <FontAwesomeIcon icon={faUsers} size={27} color='white' />
+                <HeaderText>{'Public chat groups'}</HeaderText> */}
+                <HeaderSubText>{'We think your contribution would be appreciated in these public chats'}</HeaderSubText>
             </HeaderContainer>
             <RowContainer contentContainerStyle={{ paddingRight: 40 }} horizontal showsHorizontalScrollIndicator={false}>
                 { displayClubs.map(renderClubOption) }

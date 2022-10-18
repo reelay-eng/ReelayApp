@@ -21,8 +21,11 @@ const MINOR_REELAY_WIDTH = MINOR_REELAY_HEIGHT / 1.5;
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
-    padding: 15px;
-    padding-left: 15px;
+`
+const HeaderSubText = styled(ReelayText.Body2Emphasized)`
+    color: white;
+    line-height: 20px;
+    margin-top: 8px;
 `
 const HeaderContainer = styled(View)`
     align-items: center;
@@ -30,8 +33,7 @@ const HeaderContainer = styled(View)`
     justify-content: space-between;
 `
 const HeaderContainerLeft = styled(View)`
-    align-items: center;
-    flex-direction: row;
+    padding: 15px;
 `
 const TopOfTheWeekContainer = styled(View)`
     width: 100%;
@@ -128,7 +130,8 @@ export default TopOfTheWeek = ({ navigation }) => {
         <TopOfTheWeekContainer>
             <HeaderContainer>
                 <HeaderContainerLeft>
-                    <HeaderText>{'Top of the week'}</HeaderText>
+                    <HeaderText>{'Trending'}</HeaderText>
+                    <HeaderSubText>{'Check out reelays getting lots of reactions this week. Find people on the app who match your taste'}</HeaderSubText>
                 </HeaderContainerLeft>
             </HeaderContainer>
             <ThreeReelays navigation={navigation} topOfTheWeek={topOfTheWeek} />

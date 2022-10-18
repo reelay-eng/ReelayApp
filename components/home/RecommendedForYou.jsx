@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Dimensions, Pressable, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
@@ -7,13 +7,16 @@ import styled from 'styled-components';
 import * as ReelayText from '../../components/global/Text';
 import { useSelector } from 'react-redux';
 import TitlePoster from '../global/TitlePoster';
+import Carousel from 'react-native-snap-carousel';
 
-const POSTER_WIDTH = 95;
+const { width } = Dimensions.get('window');
+const POSTER_WIDTH = 180;
 const POSTER_WIDTH_BORDER_RADIUS = Math.min(POSTER_WIDTH / 10, 12);
 
-const HeaderContainer = styled(View)`
-    align-items: flex-end;
-    flex-direction: row;
+const CarouselView = styled(View)`
+    margin-left: 16px;
+`
+const HeaderView = styled(View)`
     margin-left: 15px;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
@@ -25,26 +28,25 @@ const HeaderSubText = styled(ReelayText.Body2Emphasized)`
     line-height: 20px;
     margin-top: 8px;
 `
-const IconContainer = styled(View)`
+const IconView = styled(View)`
     margin: 10px;
 `
-const PopularTitlesContainer = styled(View)`
+const RecommendedTitlesView = styled.View`
     width: 100%;
     height: auto;
     display: flex;
     flex-direction: column;
-    margin-bottom: 18px;
+    margin-bottom: 24px;
 `
-const PopularTitlesElementContainer = styled(Pressable)`
+const RecElementView = styled(Pressable)`
     margin-top: 10px;
-    margin-right: 10px;
 `
 const ReelayCount = styled(ReelayText.CaptionEmphasized)`
     margin-top: 8px;
     color: white;
     opacity: 0.5;
 `
-const SeeMoreOpacityContainer = styled(View)`
+const SeeMoreOpacityView = styled(View)`
     background-color: #1a1a1a;
     border-radius: ${POSTER_WIDTH_BORDER_RADIUS}px;
     height: 100%;
@@ -52,7 +54,7 @@ const SeeMoreOpacityContainer = styled(View)`
     position: absolute;
     width: ${POSTER_WIDTH}px;
 `
-const SeeMoreTextContainer = styled(View)`
+const SeeMoreTextView = styled(View)`
     align-items: center;
     justify-content: center;
     height: 100%;
@@ -66,23 +68,18 @@ const TitleInfoLine = styled(View)`
     flex-direction: row;
     justify-content: space-between;
 `
-const TitleRowContainer = styled(ScrollView)`
-    display: flex;
-    flex-direction: row;
-    padding-left: 15px;
-    width: 100%;
-`
 
-export default PopularTitles = ({ navigation }) => {
+export default RecommendedForYou = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const popularTitleStacks = useSelector(state => state.myHomeContent?.discover?.popularTitles);
+    const headerText = 'Recommended for you';
+    const recommendedStacks = useSelector(state => state.myHomeContent?.discover?.recommendedTitles);
 
     const goToReelay = (index, titleObj) => {
-		if (popularTitleStacks?.length === 0) return;
+		if (recommendedStacks?.length === 0) return;
 		navigation.push("FeedScreen", {
-            feedSource: 'popularTitlesDiscover',
+            feedSource: 'recommendedTitles',
 			initialFeedPos: index,
-            preloadedStackList: popularTitleStacks,
+            preloadedStackList: recommendedStacks,
 		});
 
 		logAmplitudeEventProd('openPopularTitlesFeed', {
@@ -91,61 +88,69 @@ export default PopularTitles = ({ navigation }) => {
 		});
 	};
 
-    const PopularTitleElement = ({ index, onPress, stack, length }) => {
+    const RecTitleElement = ({ index, onPress, stack, length }) => {
         const asSeeMore = index === length - 1;
         return (
-            <PopularTitlesElementContainer onPress={onPress}>
+            <RecElementView onPress={onPress}>
                 <TitlePoster title={stack[0]?.title} width={POSTER_WIDTH} />
-                { asSeeMore && <SeeMoreOpacityContainer /> }
+                { asSeeMore && <SeeMoreOpacityView /> }
                 { asSeeMore && (
-                    <SeeMoreTextContainer>
-                        <IconContainer>
+                    <SeeMoreTextView>
+                        <IconView>
                             <Icon type='ionicon' name='caret-forward-circle' size={24} color='white' />
-                        </IconContainer>
+                        </IconView>
                         <SeeMoreText>{'See More'}</SeeMoreText>
-                    </SeeMoreTextContainer>
+                    </SeeMoreTextView>
                 )}
                 { !asSeeMore && (
                     <TitleInfoLine>
                         <ReelayCount>{`${stack.length} ${(stack.length > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
                     </TitleInfoLine>
                 )}
-            </PopularTitlesElementContainer>
+            </RecElementView>
         )
     }
 
     const TitlesRow = () => {
-        const renderTitleStackElement = (item, index) => {
+        const renderTitleStackElement = ({ item, index }) => {
             const stack = item;
             return (
-                <PopularTitleElement 
+                <RecTitleElement 
                     key={index}
                     index={index} 
                     onPress={() => goToReelay(index, stack[0].title)} 
                     stack={stack} 
-                    length={popularTitleStacks?.length}
+                    length={recommendedStacks?.length}
                 />
             );
         }
 
         return (
-            <TitleRowContainer horizontal showsHorizontalScrollIndicator={false}>
-                { popularTitleStacks.map(renderTitleStackElement)}
-            </TitleRowContainer>
-        )
+            <CarouselView>
+                <Carousel
+                    activeSlideAlignment={'start'}
+                    data={recommendedStacks}
+                    inactiveSlideScale={1}
+                    itemWidth={POSTER_WIDTH * 1.1}
+                    renderItem={renderTitleStackElement}
+                    sliderHeight={240}
+                    sliderWidth={width}
+                />
+            </CarouselView>
+        );
     }
 
-    if (popularTitleStacks?.length < 2) {
+    if (recommendedStacks?.length < 2) {
         return <View />;
     }
     
     return (
-        <PopularTitlesContainer>
-            <HeaderContainer>
-                {/* <HeaderText>{'Popular titles'}</HeaderText> */}
-                <HeaderSubText>{'People are talking most about these titles'}</HeaderSubText>
-            </HeaderContainer>
-            { popularTitleStacks?.length > 0 && <TitlesRow />}
-        </PopularTitlesContainer>
+        <RecommendedTitlesView>
+            <HeaderView>
+                <HeaderText>{headerText}</HeaderText>
+                <HeaderSubText>{'People you follow are recommending these titles you haven’t seen'}</HeaderSubText>
+            </HeaderView>
+            { recommendedStacks?.length > 0 && <TitlesRow />}
+        </RecommendedTitlesView>
     )
 };
