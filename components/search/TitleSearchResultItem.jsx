@@ -8,7 +8,7 @@ import { showErrorToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { getRuntimeString } from '../utils/TitleRuntime';
 import TitlePoster from '../global/TitlePoster';
-import AddToClubsButton from '../clubs/AddToClubsButton';
+import AddToWatchlistButton from '../watchlist/AddToWatchlistButton';
 
 const ImageContainer = styled(View)`
     flex-direction: row;
@@ -95,7 +95,7 @@ export default TitleSearchResultItem = ({ navigation, result, source, clubID, to
                 <YearText>{`${releaseYear}    ${runtimeString}`}</YearText>
                 <ActorText>{actors}</ActorText>
             </TitleLineContainer>
-            <AddToClubsButton navigation={navigation} showCircle={false} titleObj={titleObj} />
+            <AddToWatchlistButton navigation={navigation} showCircle={false} titleObj={titleObj} />
         </PressableContainer>
     );
 };

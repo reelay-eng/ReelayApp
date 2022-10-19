@@ -13,7 +13,7 @@ import { Icon } from 'react-native-elements';
 
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
-import * as ReelayText from '../../components/global/Text';
+import * as ReelayText from '../global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 import styled from 'styled-components/native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -145,7 +145,7 @@ const RowContainer = styled(Pressable)`
 const ScrollViewContainer = styled(ScrollView)`
     margin-bottom: 10px;
 `
-export default AddToClubsDrawer = ({ 
+export default AddToWatchlistDrawer = ({ 
     navigation,
     titleObj, 
     reelay,
@@ -276,7 +276,7 @@ export default AddToClubsDrawer = ({
                 userSub: reelayDBUser?.sub,
             });
             dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
-            // showMessageToast(`Added ${titleObj.display} to your watchlist`);
+            showMessageToast(`Added ${titleObj.display} to your watchlist`);
         }
 
         return (

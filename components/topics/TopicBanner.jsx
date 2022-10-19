@@ -7,7 +7,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 import styled from 'styled-components/native';
 import TitlePoster from "../global/TitlePoster";
-import AddToClubsButton from "../clubs/AddToClubsButton";
+import AddToWatchlistButton from "../watchlist/AddToWatchlistButton";
 import AddToStackButton from "../feed/AddToStackButton";
 import VenueIcon from '../utils/VenueIcon';
 
@@ -166,7 +166,7 @@ const TopicBanner = ({
 
     const AddToClubs = () => {
         return (
-            <AddToClubsButton
+            <AddToWatchlistButton
                 navigation={navigation}
                 titleObj={reelay?.title}
                 reelay={reelay}

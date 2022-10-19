@@ -10,7 +10,6 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { postLikeToDB, removeLike } from '../../api/ReelayDBApi';
 import ReelayColors from '../../constants/ReelayColors';
 import ShareOutButton from './ShareOutButton';
-import AddToClubsButton from '../clubs/AddToClubsButton';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEllipsis, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { CommentIconSVG } from '../global/SVGs';

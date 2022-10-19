@@ -22,7 +22,7 @@ import { changeSize } from '../../api/TMDbApi';
 
 import BackButton from '../../components/utils/BackButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import AddToClubsButton from '../../components/clubs/AddToClubsButton';
+import AddToWatchlistButton from '../../components/watchlist/AddToWatchlistButton';
 import SeenOn from '../../components/titlePage/SeenOn';
 
 const BottomBackButtonContainer = styled(View)`
@@ -85,7 +85,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 		return (
 			<HeaderContainer topOffset={headerTopOffset}>
 				<BackButton navigation={navigation} />
-				<AddToClubsButton navigation={navigation} titleObj={titleObj} />
+				<AddToWatchlistButton navigation={navigation} titleObj={titleObj} />
 			</HeaderContainer>
 		);
 	}

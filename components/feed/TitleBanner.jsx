@@ -3,7 +3,7 @@ import { Dimensions, Pressable, TouchableOpacity, View } from "react-native";
 import { AuthContext } from "../../context/AuthContext";
 import Constants from 'expo-constants';
 
-import AddToClubsButton from "../clubs/AddToClubsButton";
+import AddToWatchlistButton from "../watchlist/AddToWatchlistButton";
 import DonateButton from '../global/DonateButton';
 import ReelayColors from "../../constants/ReelayColors";
 import * as ReelayText from '../global/Text';
@@ -24,7 +24,7 @@ const { height, width } = Dimensions.get('window');
 
 // a collapsed (!expanded) banner is 100px in height
 // the add to stack button is 45px
-const AddToClubsButtonContainer = styled(View)`
+const AddToWatchlistButtonContainer = styled(View)`
     justify-content: center;
 `
 const ArtistBadgeView = styled(View)`
@@ -286,18 +286,18 @@ const TitleBanner = ({
         );
     }
 
-    const AddToClubs = () => {
+    const AddToWatchlist = () => {
         if (donateObj) return <DonateButton donateObj={donateObj} reelay={reelay} />;
 
         return (
-            <AddToClubsButtonContainer>
-                <AddToClubsButton
+            <AddToWatchlistButtonContainer>
+                <AddToWatchlistButton
                     club={club}
                     navigation={navigation}
                     reelay={reelay}
                     titleObj={reelay?.title}
                 />
-            </AddToClubsButtonContainer>
+            </AddToWatchlistButtonContainer>
         );
     }
     
@@ -326,7 +326,7 @@ const TitleBanner = ({
                 <TitleBannerRow onPress={onClickExpand}>
                     <Poster />
                     <TitleInfo />
-                    { !onCameraScreen && <AddToClubs /> }
+                    { !onCameraScreen && <AddToWatchlist /> }
                 </TitleBannerRow>    
                 { expanded && <ExpandedInfo /> }
                 { expanded && <ExpandArrow /> }
