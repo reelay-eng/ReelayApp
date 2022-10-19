@@ -375,6 +375,7 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
         'mostRecent', 
         'popularTitles',
         'recommendedTitles',
+        'recommendedTitlesNoFollowing',
         'streaming',
         'theaters',
         'topics', 

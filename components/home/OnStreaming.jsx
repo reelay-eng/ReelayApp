@@ -1,6 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { ActivityIndicator, Image, Modal, Pressable, ScrollView, View } from 'react-native';
-import { Icon } from 'react-native-elements';
+import { ActivityIndicator, Image, Modal, Pressable, ScrollView, TouchableOpacity, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import StreamingSelector from './StreamingSelector';
 import * as ReelayText from '../global/Text';
@@ -13,8 +12,10 @@ import ReelayColors from '../../constants/ReelayColors';
 import { useSelector } from 'react-redux';
 import TitlePoster from '../global/TitlePoster';
 
-const EditStreamingServicesButton = styled(Pressable)`
+const EditStreamingServicesButton = styled(TouchableOpacity)`
     padding: 15px;
+    padding-top: 5px;
+    height: 100%;
 `
 const EditText = styled(ReelayText.Caption)`
     color: ${ReelayColors.reelayBlue};
@@ -44,15 +45,20 @@ const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
 `
+const HeaderSubText = styled(ReelayText.Body2Emphasized)`
+    color: white;
+    line-height: 20px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+`
 const HeaderContainer = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
 `
 const HeaderContainerLeft = styled(View)`
-    align-items: center;
-    flex-direction: row;
     margin-left: 15px;
+    margin-bottom: 15px;
 `
 const TitleInfoLine = styled(View)`
     flex-direction: row;
@@ -163,8 +169,8 @@ export default OnStreaming = ({ navigation, source = 'discover' }) => {
         <StreamingServicesContainer>
             <HeaderContainer>
                 <HeaderContainerLeft>
-                    {/* <Icon type='font-awesome' name='television' size={24} color='white' /> */}
-                    <HeaderText>{(source === 'discover') ? 'On streaming' : 'Friends are streaming'}</HeaderText>
+                    <HeaderText>{'On streaming'}</HeaderText>
+                    <HeaderSubText>{'The latest from your streaming platforms'}</HeaderSubText>
                 </HeaderContainerLeft>
                 <EditButton />
             </HeaderContainer>

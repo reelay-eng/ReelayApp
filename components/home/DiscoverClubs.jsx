@@ -13,7 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
 
 const DiscoverClubsContainer = styled(View)`
-    margin-bottom: 10px;
+    margin-bottom: 18px;
 `
 const ClubNameText = styled(ReelayText.Body2)`
     color: white;
@@ -28,15 +28,12 @@ const OptionContainer = styled(TouchableOpacity)`
     margin: 6px;
 `
 const HeaderContainer = styled(View)`
-    align-items: flex-end;
-    flex-direction: row;
     margin-left: 15px;
     margin-top: 15px;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
-    margin-left: 12px;
 `
 const HeaderSubText = styled(ReelayText.Body2Emphasized)`
     color: white;
@@ -96,9 +93,9 @@ export default PopularClubs = ({ navigation }) => {
     return (
         <DiscoverClubsContainer>
             <HeaderContainer>
-                {/* <FontAwesomeIcon icon={faUsers} size={27} color='white' />
-                <HeaderText>{'Public chat groups'}</HeaderText> */}
-                <HeaderSubText>{'We think your contribution would be appreciated in these public chats'}</HeaderSubText>
+                {/* <FontAwesomeIcon icon={faUsers} size={27} color='white' /> */}
+                <HeaderText>{'Chats'}</HeaderText>
+                <HeaderSubText>{'Hang out in these niche communities'}</HeaderSubText>
             </HeaderContainer>
             <RowContainer contentContainerStyle={{ paddingRight: 40 }} horizontal showsHorizontalScrollIndicator={false}>
                 { displayClubs.map(renderClubOption) }

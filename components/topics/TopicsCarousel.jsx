@@ -104,7 +104,7 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
             <HeaderView>
                 <HeaderViewLeft>
                     <HeaderText>{headerText}</HeaderText>
-                    <HeaderSubText>{'People are adding their thoughts to these topics'}</HeaderSubText>
+                    <HeaderSubText>{'The latest conversations and debates'}</HeaderSubText>
                 </HeaderViewLeft>
                 <HeaderViewRight onPress={advanceToTopicsList}>
                     <SeeAllTopicsText>{'See all'}</SeeAllTopicsText>

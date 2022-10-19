@@ -70,7 +70,7 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist })
     const [loading, setLoading] = useState(false);
 
     const myFollowing = useSelector(state => state.myFollowing);
-    const tabOptions = addToWatchlist ? ['Film', 'TV'] : ['Film', 'TV', 'Clubs', 'Users'];
+    const tabOptions = addToWatchlist ? ['Film', 'TV'] : ['Film', 'TV', 'Chats', 'Users'];
 
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState([]);
@@ -135,7 +135,7 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist })
             } else if (searchType === "Users") {
                 annotatedResults = await searchUsers(newSearchText);
                 annotatedResults = annotatedResults.sort(sortUserResults);
-            } else if (searchType === "Clubs") {
+            } else if (searchType === "Chats") {
                 annotatedResults = await searchPublicClubs({ 
                     authSession,
                     page: 0,
@@ -176,7 +176,7 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist })
                         source={"search"}
                     />
                 )}
-                {selectedType === "Clubs" && (
+                {selectedType === "Chats" && (
                     <ClubSearchResults
                         navigation={navigation}
                         searchResults={searchResults}
@@ -227,8 +227,8 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist })
                             ? "films"
                         : selectedType === "TV"
                             ? "TV shows"
-                        : selectedType === "Clubs"
-                            ? "clubs on Reelay"
+                        : selectedType === "Chats"
+                            ? "chats on Reelay"
                         : "people on Reelay"
                     }`}
                 />
