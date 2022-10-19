@@ -71,15 +71,24 @@ const TitleInfoLine = styled(View)`
 
 export default RecommendedForYou = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const headerText = 'Recommended for you';
     const recommendedStacks = useSelector(state => state.myHomeContent?.discover?.recommendedTitles);
+    const recommendedStacksNoFollowing = useSelector(state => state.myHomeContent?.discover?.recommendedTitlesNoFollowing);
+
+    const useNoFollowing = (recommendedStacks?.length === 0);
+    const feedSource = (useNoFollowing) ? 'recommendedTitlesNoFollowing' : 'recommendedTitles';
+    const headerText = (useNoFollowing) ? 'Recommended for you' : 'Recommended for you';
+    const headerSubtext = (useNoFollowing) ? 'Here’s what people are raving about' : 'People you follow recommend these titles';
+
+    const displayStacks = (useNoFollowing)
+        ? recommendedStacksNoFollowing
+        : recommendedStacks;
 
     const goToReelay = (index, titleObj) => {
-		if (recommendedStacks?.length === 0) return;
+		if (displayStacks?.length === 0) return;
 		navigation.push("FeedScreen", {
-            feedSource: 'recommendedTitles',
+            feedSource: feedSource,
 			initialFeedPos: index,
-            preloadedStackList: recommendedStacks,
+            preloadedStackList: displayStacks,
 		});
 
 		logAmplitudeEventProd('openPopularTitlesFeed', {
@@ -120,7 +129,7 @@ export default RecommendedForYou = ({ navigation }) => {
                     index={index} 
                     onPress={() => goToReelay(index, stack[0].title)} 
                     stack={stack} 
-                    length={recommendedStacks?.length}
+                    length={displayStacks?.length}
                 />
             );
         }
@@ -129,7 +138,7 @@ export default RecommendedForYou = ({ navigation }) => {
             <CarouselView>
                 <Carousel
                     activeSlideAlignment={'start'}
-                    data={recommendedStacks}
+                    data={displayStacks}
                     inactiveSlideScale={1}
                     itemWidth={POSTER_WIDTH * 1.1}
                     renderItem={renderTitleStackElement}
@@ -140,7 +149,7 @@ export default RecommendedForYou = ({ navigation }) => {
         );
     }
 
-    if (recommendedStacks?.length < 2) {
+    if (displayStacks?.length === 0) {
         return <View />;
     }
     
@@ -148,9 +157,9 @@ export default RecommendedForYou = ({ navigation }) => {
         <RecommendedTitlesView>
             <HeaderView>
                 <HeaderText>{headerText}</HeaderText>
-                <HeaderSubText>{'People you follow recommend these titles'}</HeaderSubText>
+                <HeaderSubText>{headerSubtext}</HeaderSubText>
             </HeaderView>
-            { recommendedStacks?.length > 0 && <TitlesRow />}
+            { displayStacks?.length > 0 && <TitlesRow />}
         </RecommendedTitlesView>
     )
 };
