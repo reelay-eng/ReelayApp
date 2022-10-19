@@ -35,7 +35,7 @@ const YearText = styled(ReelayText.Subtitle2)`
     color: gray
 `
 
-export default TitleSearchResultItem = ({ navigation, result, source, clubID, topicID }) => {
+export default TitleSearchResultItem = ({ navigation, result, source, clubID, game, topicID }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const titleObj = result;
 
@@ -59,7 +59,7 @@ export default TitleSearchResultItem = ({ navigation, result, source, clubID, to
             logAmplitudeEventProd('advanceToCreateReelay', {
                 username: reelayDBUser?.username,
                 title: title,
-                source: 'TitleSearchResult',
+                source: 'createReelay',
             });
         } else if (source && source === 'search') {
             navigation.push('TitleDetailScreen', { 
@@ -71,6 +71,13 @@ export default TitleSearchResultItem = ({ navigation, result, source, clubID, to
                 title: title,
                 source: 'search',
             }); 
+
+        } else if (source && source === 'createGuessingGame') {
+            navigation.push('CreateGuessingGameCluesScreen', { game, clubID });
+            logAmplitudeEventProd('advanceToCreateGuessingGameCluesScreen', {
+                username: reelayDBUser?.username,
+                title: title,
+            });
         } else {
             showErrorToast('Error selecting result. Please reach out to the Reelay team.');
             logAmplitudeEventProd('selectSearchResultError', {

@@ -10,7 +10,7 @@ import { FiltersSVG, StainedGlassSVG } from '../global/SVGs';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCircleInfo, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import ReelayColors from '../../constants/ReelayColors';
-import AddTitleOrTopicDrawer from './AddTitleOrTopicDrawer';
+import AddToClubsDrawer from './AddToClubsDrawer';
 import { AuthContext } from '../../context/AuthContext';
 import InviteMyFollowsDrawer from './InviteMyFollowsDrawer';
 import ShareClubDrawer from './ShareClubDrawer';
@@ -162,7 +162,7 @@ export default ClubBanner = ({ club, navigation, source = 'activity' }) => {
             <BannerButtonPressable onPress={openDrawer} topOffset={infoButtonTopOffset}>
                 <AddActivityText>{'Add'}</AddActivityText>
                 { showAddActivityDrawer && (
-                    <AddTitleOrTopicDrawer
+                    <AddToClubsDrawer
                         club={club}
                         navigation={navigation}
                         drawerVisible={showAddActivityDrawer}

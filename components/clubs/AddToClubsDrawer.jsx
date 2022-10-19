@@ -1,17 +1,16 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { 
     Dimensions,
     KeyboardAvoidingView, 
     Modal, 
     Pressable, 
-    SafeAreaView, 
     TouchableOpacity, 
     View,
 } from 'react-native';
 
-import * as ReelayText from '../../components/global/Text';
+import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
-import { ReviewIconSVG, TopicsIconSVG } from '../global/SVGs';
+import { GamesIconSVG, ReviewIconSVG, TopicsIconSVG } from '../global/SVGs';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,7 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const { height, width } = Dimensions.get('window');
 
 const BUTTON_MARGIN_WIDTH = 10;
-const BUTTON_WIDTH = (width - (BUTTON_MARGIN_WIDTH * 4)) / 2;
+const BUTTON_WIDTH = (width - (BUTTON_MARGIN_WIDTH * 5)) / 3;
 
 const Backdrop = styled(Pressable)`
     height: 100%;
@@ -32,7 +31,7 @@ const CloseDrawerButton = styled(TouchableOpacity)`
 const CreateOptionPressable = styled(TouchableOpacity)`
     align-items: center;
     border-radius: 12px;
-    height: ${BUTTON_WIDTH * 0.67}px;
+    height: ${BUTTON_WIDTH}px;
     justify-content: center;
     width: ${BUTTON_WIDTH}px;
 `
@@ -42,6 +41,9 @@ const CreateOptionText = styled(ReelayText.CaptionEmphasized)`
 `
 const CreateOptionView = styled(View)`
     align-items: center;
+`
+const CreateGuessingGamePressable = styled(CreateOptionPressable)`
+    background-color: ${ReelayColors.reelayRed};
 `
 const CreateReviewPressable = styled(CreateOptionPressable)`
     background-color: ${ReelayColors.reelayBlue};
@@ -78,18 +80,6 @@ const HeaderText = styled(ReelayText.H6)`
 const LeftSpacer = styled(View)`
     width: 40px;
 `
-const DrawerContainer = styled(SafeAreaView)`
-    background-color: #1a1a1a;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
-    margin-top: auto;
-    max-height: 70%;
-    width: 100%;
-`
-const HeaderSpacer = styled(View)`
-    align-items: center;
-    height: 12px;
-`
 const ModalContainer = styled(View)`
     position: absolute;
 `
@@ -97,9 +87,27 @@ const OptionsSpacer = styled(View)`
     width: ${BUTTON_MARGIN_WIDTH}px;
 `
 
-export default AddTitleOrTopicDrawer = ({ navigation, club, drawerVisible, setDrawerVisible }) => {
+export default AddToClubsDrawer = ({ navigation, club, drawerVisible, setDrawerVisible }) => {
     const bottomOffset = useSafeAreaInsets().bottom;
     const closeDrawer = () => setDrawerVisible(false);
+
+    const CreateGuessingGameButton = () => {
+        const advanceToCreateGuessingGame = () => {
+            closeDrawer();
+            navigation.navigate('Create', { 
+                screen: 'CreateGuessingGameScreen',
+                params: { club: { name: club?.name, id: club?.id }},
+            });
+        }
+        return (
+            <CreateOptionView>
+                <CreateGuessingGamePressable onPress={advanceToCreateGuessingGame}>
+                    <GamesIconSVG />
+                </CreateGuessingGamePressable>
+                <CreateOptionText>{'game'}</CreateOptionText>
+            </CreateOptionView>
+        )
+    }
 
     const CreateReviewButton = () => {
         const advanceToAddTitleScreen = () => {
@@ -154,6 +162,8 @@ export default AddTitleOrTopicDrawer = ({ navigation, club, drawerVisible, setDr
                         <CreateReviewButton />
                         <OptionsSpacer />
                         <CreateTopicButton />
+                        <OptionsSpacer />
+                        <CreateGuessingGameButton />
                     </CreateOptionsRowView>
                 </DrawerView>
                 </KeyboardAvoidingView>

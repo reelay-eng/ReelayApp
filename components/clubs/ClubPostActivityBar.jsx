@@ -1,17 +1,16 @@
-import React, { Fragment, useContext, useEffect, useRef, useState, memo } from 'react';
+import React, { Fragment, useContext, useRef, useState } from 'react';
 import { Dimensions, TouchableOpacity, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import styled from 'styled-components/native';
 import moment from 'moment';
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { AuthContext } from '../../context/AuthContext';
 import { showErrorToast } from '../utils/toasts';
 import ReelayColors from '../../constants/ReelayColors';
-import AddTitleOrTopicDrawer from './AddTitleOrTopicDrawer';
+import AddToClubsDrawer from './AddToClubsDrawer';
 
-import { TextInput } from 'react-native-gesture-handler';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { isMentionPartType, MentionInput, parseValue } from 'react-native-controlled-mentions';
@@ -22,31 +21,13 @@ const LAST_TYPING_UPDATE_SECONDS = 4;
 const MAX_COMMENT_LENGTH = 300;
 const MAX_SUGGESTIONS = 6;
 
-const AddTitleOrTopicButtonPressable = styled(TouchableOpacity)`
+const AddToClubsButtonPressable = styled(TouchableOpacity)`
     align-items: center;
     background-color: rgba(255,255,255,0.1);
     border-radius: 20px;
     height: 36px;
     justify-content: center;
     width: 36px;
-`
-const ChatMessageTextInput = styled(TextInput)`
-    align-items: center;
-    background-color: #1a1a1a;
-    border-radius: 24px;
-    color: white;
-    flex-direction: row;
-    font-family: Outfit-Regular;
-    font-size: 16px;
-    font-style: normal;
-    height: auto;
-    justify-content: flex-end;
-    letter-spacing: 0.15px;
-    padding-left: 16px;
-    padding-right: 60px;
-    padding-top: 8px;
-    padding-bottom: 8px;
-    width: ${width - 74}px;
 `
 const PostBarOuterView = styled(View)`
     align-items: flex-end;
@@ -123,11 +104,11 @@ const MentionTextStyle = {
     letterSpacing: 0.15,
 }
 
-const AddTitleOrTopicButton = ({ onPress }) => {
+const AddToClubsButton = ({ onPress }) => {
     return (
-        <AddTitleOrTopicButtonPressable onPress={onPress}>
+        <AddToClubsButtonPressable onPress={onPress}>
             <FontAwesomeIcon icon={faPlus} size={20} color='white' />
-        </AddTitleOrTopicButtonPressable>
+        </AddToClubsButtonPressable>
     );
 }
 
@@ -323,7 +304,7 @@ export default ClubPostActivityBar = ({ club, navigation, scrollRef, socketRef }
         return (
             <PostBarOuterView
                     bottomOffset={bottomOffset}> 
-                <AddTitleOrTopicButton onPress={() => setTitleOrTopicDrawerVisible(true)} />
+                <AddToClubsButton onPress={() => setTitleOrTopicDrawerVisible(true)} />
                 <ChatMessageBox />
             </PostBarOuterView>
         );
@@ -333,7 +314,7 @@ export default ClubPostActivityBar = ({ club, navigation, scrollRef, socketRef }
         <Fragment>
             <PostActivityBar />
             { titleOrTopicDrawerVisible && (
-                <AddTitleOrTopicDrawer
+                <AddToClubsDrawer
                     club={club}
                     navigation={navigation}
                     drawerVisible={titleOrTopicDrawerVisible}

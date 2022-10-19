@@ -4,7 +4,7 @@ import styled from 'styled-components/native';
 
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDispatch, useSelector } from "react-redux";
-import AddTitleOrTopicDrawer from '../../components/clubs/AddTitleOrTopicDrawer';
+import AddToClubsDrawer from '../../components/clubs/AddToClubsDrawer';
 import ClubActivityCard from "../../components/clubs/ClubActivityCard";
 import { useFocusEffect } from "@react-navigation/native";
 import BackButton from "../../components/utils/BackButton";
@@ -17,7 +17,7 @@ import ReelayColors from "../../constants/ReelayColors";
 
 const MAX_ACTIVITY_INDEX = 25;
 
-const AddTitleOrTopicPressable = styled(Pressable)`
+const AddToClubsPressable = styled(Pressable)`
     align-items: center;
     background-color: ${ReelayColors.reelayBlue};
     border-radius: 20px;
@@ -28,7 +28,7 @@ const AddTitleOrTopicPressable = styled(Pressable)`
     margin-right: 4px;
     padding: 6px;
 `
-const AddTitleOrTopicText = styled(ReelayText.Overline)`
+const AddToClubsText = styled(ReelayText.Overline)`
     color: white;
 `
 const ColumnsContainer = styled(View)`
@@ -124,20 +124,20 @@ export default ClubStainedGlassScreen = ({ navigation, route }) => {
         );
     }
 
-    const AddTitleOrTopicButton = () => {
+    const AddToClubsButton = () => {
         const [titleOrTopicDrawerVisible, setTitleOrTopicDrawerVisible] = useState(false);
         return (
-            <AddTitleOrTopicPressable onPress={() => setTitleOrTopicDrawerVisible(true)}>
+            <AddToClubsPressable onPress={() => setTitleOrTopicDrawerVisible(true)}>
                 <FontAwesomeIcon icon={faPlus} color='white' size={20} />
                 { titleOrTopicDrawerVisible && (
-                    <AddTitleOrTopicDrawer
+                    <AddToClubsDrawer
                         club={club}
                         navigation={navigation}
                         drawerVisible={titleOrTopicDrawerVisible}
                         setDrawerVisible={setTitleOrTopicDrawerVisible}
                     />
                 )}
-            </AddTitleOrTopicPressable>
+            </AddToClubsPressable>
         );
     }
 
@@ -153,7 +153,7 @@ export default ClubStainedGlassScreen = ({ navigation, route }) => {
                     <ClubPicture club={club} size={30} />
                     <HeaderText>{club?.name}</HeaderText>
                 </HeaderRowLeft>
-                <AddTitleOrTopicButton />
+                <AddToClubsButton />
             </HeaderRow>
             <ScrollView 
                 bottomOffset={bottomOffset} 

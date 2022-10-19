@@ -14,10 +14,10 @@ import { AuthContext } from '../../context/AuthContext';
 import * as ReelayText from '../../components/global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 import { useFocusEffect } from '@react-navigation/native';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import { HeaderWithBackButton } from '../../components/global/Headers';
-import { TopicsBannerIconSVG } from '../../components/global/SVGs';
+import { GamesIconSVG } from '../../components/global/SVGs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
@@ -30,9 +30,9 @@ const ContinueButtonPressable = styled(TouchableOpacity)`
     height: 40px;
     width: ${width - 56}px;
 `
-const ContinueText = styled(ReelayText.CaptionEmphasized)`
+const ContinueText = styled(ReelayText.Overline)`
     color: white;
-    font-size: 16px;
+    font-size: 12px;
 `
 const CreateScreenContainer = styled(SafeAreaView)`
     background-color: black;
@@ -81,6 +81,7 @@ const SectionContainerBottom = styled(SectionContainer)`
     align-items: center;
     bottom: ${props => props.bottomOffset + 50}px;
 `
+const TITLE_MIN_LENGTH = 10;
 const TITLE_MAX_LENGTH = 140;
 
 export default CreateGuessingGameScreen = ({ navigation, route }) => {
@@ -103,13 +104,13 @@ export default CreateGuessingGameScreen = ({ navigation, route }) => {
         }
         return (
             <ContinueButtonPressable onPress={advanceToSelectCorrectGuessScreen}>
-                <ContinueText>{'Create topic'}</ContinueText>
+                <ContinueText>{'Continue'}</ContinueText>
             </ContinueButtonPressable>
         );
     }
 
     const Header = () => {
-        const headerText = (club) ? club?.name : 'start a new topic';
+        const headerText = (club) ? club?.name : 'start a guessing game';
         return (
             <HeaderContainer>
                 <HeaderWithBackButton navigation={navigation} text={headerText} />
@@ -126,9 +127,8 @@ export default CreateGuessingGameScreen = ({ navigation, route }) => {
                         blurOnSubmit={true}
                         maxLength={TITLE_MAX_LENGTH}
                         multiline
-                        numberOfLines={2}
                         defaultValue={titleTextRef.current}
-                        placeholder={"Title (required)"}
+                        placeholder={"What terrible netflix movie was like..."}
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
                         onChangeText={changeTitleText}
                         onSubmitEditing={Keyboard.dismiss}
@@ -147,7 +147,7 @@ export default CreateGuessingGameScreen = ({ navigation, route }) => {
     const CreatePrompt = () => {
         return (
             <PromptView>
-                <TopicsBannerIconSVG />
+                <GamesIconSVG />
                 <PromptText>{'Write a prompt for your game'}</PromptText>
             </PromptView> 
         );

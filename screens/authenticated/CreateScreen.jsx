@@ -84,8 +84,7 @@ export default CreateScreen = ({ navigation }) => {
 
     const CreateGuessingGameButton = () => {
         const advanceToCreateGuessingGame = () => {
-            closeDrawer();
-            navigation.navigate('Create', { screen: 'CreateGuessingGameScreen' });
+            navigation.push('CreateGuessingGameScreen');
         }
         return (
             <CreateOptionView>
