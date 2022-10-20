@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { 
     Dimensions,
     Keyboard, 
@@ -24,28 +24,29 @@ const { width } = Dimensions.get('window');
 
 const ContinueButtonPressable = styled(TouchableOpacity)`
     align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
+    background-color: ${props => props.disabled ? 'white' : ReelayColors.reelayBlue};
     border-radius: 40px;
     justify-content: center;
     height: 40px;
     width: ${width - 56}px;
 `
 const ContinueText = styled(ReelayText.Overline)`
-    color: white;
+    color: ${props => props.disabled ? 'gray' : 'white'};;
     font-size: 12px;
 `
-const CreateScreenContainer = styled(SafeAreaView)`
+const CreateScreenView = styled(View)`
     background-color: black;
     justify-content: space-between;
     height: 100%;
     width: 100%;
 `
-const HeaderContainer = styled(View)`
+const HeaderView = styled(View)`
+    top: ${props => props.topOffset}px;
     margin-bottom: 16px;
 `
 const TitleInputField = styled(TextInput)`
     background-color: #1a1a1a;
-    border-radius: 32px;
+    border-radius: 16px;
     color: white;
     font-family: Outfit-Regular;
     font-size: 18px;
@@ -62,7 +63,6 @@ const PromptText = styled(ReelayText.H5Bold)`
     flex: 1;
     font-size: 24px;
     line-height: 32px;
-    margin-left: 12px;
 `
 const PromptView = styled(View)`
     align-items: center;
@@ -72,20 +72,21 @@ const PromptView = styled(View)`
     margin-top: 40px;
     margin-bottom: 12px;
 `
-const SectionContainer = styled(View)`
+const SectionView = styled(View)`
     margin-left: 20px;
     margin-right: 20px;
     margin-top: 16px;
 `
-const SectionContainerBottom = styled(SectionContainer)`
+const SectionViewBottom = styled(SectionView)`
     align-items: center;
-    bottom: ${props => props.bottomOffset + 50}px;
+    bottom: ${props => props.bottomOffset}px;
 `
-const TITLE_MIN_LENGTH = 10;
-const TITLE_MAX_LENGTH = 140;
+const GAME_TITLE_MIN_LENGTH = 10;
+const GAME_TITLE_MAX_LENGTH = 140;
 
 export default CreateGuessingGameScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const topOffset = useSafeAreaInsets().top;
     const bottomOffset = useSafeAreaInsets().bottom;
     const club = route?.params?.club ?? null;
 
@@ -93,13 +94,12 @@ export default CreateGuessingGameScreen = ({ navigation, route }) => {
     const titleFieldRef = useRef(null);
     const titleTextRef = useRef('');
 
-    const changeTitleText = (text) => titleTextRef.current = text;
     const focusTitle = () => titleFieldRef?.current && titleFieldRef.current.focus();
 
     const ContinueButton = () => {
         const advanceToSelectCorrectGuessScreen = () => {
             navigation.push('SelectCorrectGuessScreen', {
-                title: titleTextRef.current
+                gameTitle: titleTextRef.current
             })
         }
         return (
@@ -110,22 +110,25 @@ export default CreateGuessingGameScreen = ({ navigation, route }) => {
     }
 
     const Header = () => {
-        const headerText = (club) ? club?.name : 'start a guessing game';
+        const headerText = (club) ? club?.name : 'back';
         return (
-            <HeaderContainer>
+            <HeaderView topOffset={topOffset}>
                 <HeaderWithBackButton navigation={navigation} text={headerText} />
-            </HeaderContainer>
+            </HeaderView>
         );
     }
 
     const TitleInput = () => {
+        const changeTitleText = (text) => {
+            titleTextRef.current = text;
+        }    
         return (
-            <SectionContainer>
+            <SectionView>
                 <TouchableWithoutFeedback onPress={focusTitle}>
                     <TitleInputField 
                         ref={titleFieldRef}
                         blurOnSubmit={true}
-                        maxLength={TITLE_MAX_LENGTH}
+                        maxLength={GAME_TITLE_MAX_LENGTH}
                         multiline
                         defaultValue={titleTextRef.current}
                         placeholder={"What terrible netflix movie was like..."}
@@ -136,7 +139,7 @@ export default CreateGuessingGameScreen = ({ navigation, route }) => {
                         returnKeyType="done"
                     />
                 </TouchableWithoutFeedback>   
-            </SectionContainer> 
+            </SectionView> 
         );
     }
 
@@ -147,24 +150,24 @@ export default CreateGuessingGameScreen = ({ navigation, route }) => {
     const CreatePrompt = () => {
         return (
             <PromptView>
-                <GamesIconSVG />
-                <PromptText>{'Write a prompt for your game'}</PromptText>
+                {/* <GamesIconSVG /> */}
+                <PromptText>{'Write a prompt for your guessing game'}</PromptText>
             </PromptView> 
         );
     }
 
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <CreateScreenContainer>
+            <CreateScreenView>
                 <View style={{ display: 'flex' }}>
                     <Header />
                     <CreatePrompt />
                     <TitleInput />
                 </View>
-                <SectionContainerBottom bottomOffset={bottomOffset}>
+                <SectionViewBottom bottomOffset={bottomOffset}>
                     <ContinueButton />
-                </SectionContainerBottom>
-            </CreateScreenContainer>
+                </SectionViewBottom>
+            </CreateScreenView>
         </TouchableWithoutFeedback>
     );
 };

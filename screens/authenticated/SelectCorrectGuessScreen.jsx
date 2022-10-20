@@ -15,6 +15,18 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { useFocusEffect } from '@react-navigation/native';
 
+const HeaderText = styled(ReelayText.H5Bold)`
+    color: white;
+    padding-left: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    width: 100%;
+`
+const HeaderView = styled(View)`
+    margin-top: 32px;
+    margin-bottom: 16px;
+    width: 100%;
+`
 const SearchBarContainer = styled(View)`
 	align-items: center;
 	justify-content: center;
@@ -47,7 +59,7 @@ export default SelectCorrectGuessScreen = ({ navigation, route }) => {
      */
 
     const clubID = route?.params?.clubID;
-    const title = route?.params?.title;
+    const gameTitle = route?.params?.gameTitle;
     const updateCounter = useRef(0);
 
     const { reelayDBUser } = useContext(AuthContext);
@@ -100,8 +112,11 @@ export default SelectCorrectGuessScreen = ({ navigation, route }) => {
     return (
 		<SafeAreaView style={{ backgroundColor: "black", alignItems: 'center', height: "100%", width: "100%" }}>
 			<TopBarContainer>
-               <HeaderWithBackButton navigation={navigation} text={"create guessing game"} />
+               <HeaderWithBackButton navigation={navigation} text={"guessing game"} />
 			</TopBarContainer>
+            <HeaderView>
+                <HeaderText>{'What\'s the correct answer?'}</HeaderText>
+            </HeaderView>
             <SelectorBarContainer>
                 <ToggleSelector
                     options={["Film", "TV"]}
@@ -128,7 +143,7 @@ export default SelectCorrectGuessScreen = ({ navigation, route }) => {
                     isSeries={(searchType === 'TV')}
                     source={"createGuessingGame"}
                     clubID={clubID ?? null}
-                    game={{ title }}
+                    game={{ gameTitle }}
                 />
             )}
 		</SafeAreaView>

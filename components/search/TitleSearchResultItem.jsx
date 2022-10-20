@@ -73,7 +73,10 @@ export default TitleSearchResultItem = ({ navigation, result, source, clubID, ga
             }); 
 
         } else if (source && source === 'createGuessingGame') {
-            navigation.push('CreateGuessingGameCluesScreen', { game, clubID });
+            navigation.push('CreateGuessingGameCluesScreen', { 
+                clubID,
+                game: { ...game, correctTitleObj: titleObj }, 
+            });
             logAmplitudeEventProd('advanceToCreateGuessingGameCluesScreen', {
                 username: reelayDBUser?.username,
                 title: title,
@@ -102,7 +105,9 @@ export default TitleSearchResultItem = ({ navigation, result, source, clubID, ga
                 <YearText>{`${releaseYear}    ${runtimeString}`}</YearText>
                 <ActorText>{actors}</ActorText>
             </TitleLineContainer>
-            <AddToWatchlistButton navigation={navigation} showCircle={false} titleObj={titleObj} />
+            { source === 'search' && (
+                <AddToWatchlistButton navigation={navigation} showCircle={false} titleObj={titleObj} />
+            )}
         </PressableContainer>
     );
 };
