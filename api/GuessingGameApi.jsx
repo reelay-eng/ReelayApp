@@ -53,8 +53,26 @@ export const createDraftGuessingGame = async ({
     return createDraftGuessingGameResult;
 }
 
-export const getGuessingGames = async ({ authSession, page = 0, reqUserSub }) => {
-    const routeGet = `${REELAY_API_BASE_URL}/guessingGame?page=${page}&visibility=${FEED_VISIBILITY}`;
+export const getMyDraftGuessingGames = async ({ authSession, reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/guessingGame/draft?page=${page}`;
+    const fetchedGames = await fetchResults(routeGet, {
+        method: 'GET',
+        headers: {
+            ...getReelayAuthHeaders(authSession),
+            requsersub: reqUserSub,
+        },
+    });
+
+    const prepareGameReelays = async (guessingGame) => {
+        guessingGame.reelays = await Promise.all(guessingGame.reelays.map(prepareReelay));
+        return guessingGame;
+    }
+    const preparedGames = await Promise.all(fetchedGames.map(prepareGameReelays));
+    return preparedGames;
+}
+
+export const getPublishedGuessingGames = async ({ authSession, page = 0, reqUserSub }) => {
+    const routeGet = `${REELAY_API_BASE_URL}/guessingGame/published?page=${page}&visibility=${FEED_VISIBILITY}`;
     const fetchedGames = await fetchResults(routeGet, {
         method: 'GET',
         headers: {
