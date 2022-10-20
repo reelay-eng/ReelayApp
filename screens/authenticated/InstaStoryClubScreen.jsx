@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Constants from 'expo-constants';
 import * as Clipboard from 'expo-clipboard';
 import { ActivityIndicator, Dimensions, Image, PixelRatio, View } from 'react-native';
@@ -15,6 +15,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
 import ClubPicture from '../../components/global/ClubPicture';
 import { showMessageToast } from '../../components/utils/toasts';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import { AuthContext } from '../../context/AuthContext';
 
 const { height, width } = Dimensions.get('window');
 
@@ -77,6 +79,7 @@ const INSTA_STORY_HEIGHT = 1920;
 const INSTA_STORY_WIDTH = 1080;
 
 export default InstaStoryClubScreen = ({ navigation, route }) => {
+    const { reelayDBUser } = useContext(AuthContext);
     const storyShareableRef = useRef(null);
     const storyShareableURI = useRef(null);
 
@@ -102,6 +105,10 @@ export default InstaStoryClubScreen = ({ navigation, route }) => {
             type: 'image/png',
         });
         console.log('share result: ', shareResult);
+        logAmplitudeEventProd('shareClubToInstaComplete', {
+            club: club?.name,
+            sharedBy: reelayDBUser?.username
+        });
         navigation.goBack();
     }
 
@@ -159,6 +166,10 @@ export default InstaStoryClubScreen = ({ navigation, route }) => {
                 })
             }
         }, 250);
+        logAmplitudeEventProd('shareClubToInstaStarted', {
+            club: club?.name,
+            sharedBy: reelayDBUser?.username
+        });
         return () => clearInterval(captureRefInterval);
     }, []);
 
