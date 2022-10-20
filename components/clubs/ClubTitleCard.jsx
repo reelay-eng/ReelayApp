@@ -197,7 +197,7 @@ const CardBottomRowWithStacks = ({ advanceToFeed, clubTitle }) => {
                 displayCreators={getDisplayCreators()} 
                 reelayCount={clubTitle.reelays.length} 
             />
-            <PlayReelaysButton onPress={advanceToFeed}>
+            <PlayReelaysButton onPress={() => advanceToFeed()}>
                 <Icon type='ionicon' name='play-circle' color='white' size={30} />
             </PlayReelaysButton>
         </BottomRowView>
@@ -358,7 +358,7 @@ export default ClubTitleCard = ({
                 <MediaSection />
                 { (!clubTitle.reelays.length) && <CardBottomRowNoStacks navigation={navigation} clubTitle={clubTitle} /> }
                 { (clubTitle.reelays.length > 0) && (
-                    <CardBottomRowWithStacks advanceToFeed={advanceToFeed} clubTitle={clubTitle} />
+                    <CardBottomRowWithStacks advanceToFeed={() => advanceToFeed()} clubTitle={clubTitle} />
                 )}
             </TitleCardPressable>
         </TitleCardOuterView>
