@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Constants from 'expo-constants';
 import * as Clipboard from 'expo-clipboard';
 import { ActivityIndicator, Dimensions, Image, PixelRatio, View } from 'react-native';
@@ -20,16 +20,11 @@ import ProfilePicture from '../../components/global/ProfilePicture';
 import ReelayColors from '../../constants/ReelayColors';
 import { compositeReviewForInstagramStories } from '../../api/FFmpegApi';
 import { showMessageToast } from '../../components/utils/toasts';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+import { AuthContext } from '../../context/AuthContext';
 
 const { height, width } = Dimensions.get('window');
 
-const CapturedView = styled(View)`
-    align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
-    height: 100%;
-    justify-content: center;
-    width: 100%;
-`
 const CreatorLine = styled(View)`
     align-items: center;
     bottom: 12px;
@@ -100,7 +95,7 @@ const StoryBackplateView = styled(ViewShot)`
 `
 const StoryHeaderInfoView = styled(View)`
     align-items: center;
-    top: 18px;
+    top: 1px;
     position: absolute;
     width: 80%;
 `
@@ -118,6 +113,7 @@ const VIDEO_PLAYER_HEIGHT = 1280;
 const VIDEO_PLAYER_WIDTH = 720;
 
 export default InstaStoryReelayScreen = ({ navigation, route }) => {
+    const { reelayDBUser } = useContext(AuthContext);
     const capturedBackplateURI = useRef(null);
     const capturedOverlayURI = useRef(null);
     const localReelayVideoURI = useRef(null);
@@ -188,6 +184,12 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
                 console.log('share result: ', shareResult);
                 navigation.goBack();        
             }, 1000);
+        });
+        
+        logAmplitudeEventProd('shareReelayToInstaComplete', {
+            title: reelay?.display?.title,
+            creator: reelay?.creator?.username,
+            sharedBy: reelayDBUser?.username
         });
     }
 
@@ -345,6 +347,11 @@ export default InstaStoryReelayScreen = ({ navigation, route }) => {
             }
         }, 250);
         downloadReelayVideo();
+        logAmplitudeEventProd('shareReelayToInstaStarted', {
+            title: reelay?.display?.title,
+            creator: reelay?.creator?.username,
+            sharedBy: reelayDBUser?.username
+        });
         return () => clearInterval(captureRefInterval);
     }, []);
 
