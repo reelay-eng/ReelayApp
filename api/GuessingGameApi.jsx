@@ -2,18 +2,43 @@ import Constants from 'expo-constants';
 import { fetchResults } from './fetchResults';
 import { getReelayAuthHeaders } from './ReelayAPIHeaders';
 import { prepareReelay } from './ReelayDBApi';
+import { fetchAnnotatedTitle } from './TMDbApi';
 
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 
+const parseTitleKey = (titleKey) => {
+    const hyphenIndex = titleKey.indexOf('-');
+    if (hyphenIndex === -1) {
+        return { tmdbTitleID: -1, isSeries: false };
+    }
+    const titleType = titleKey.slice(0, hyphenIndex);
+    const titleIDString = titleKey.slice(hyphenIndex + 1);
+    const tmdbTitleID = Number(titleIDString);
+    const isSeries = (titleType === 'tv');
+    return { tmdbTitleID, isSeries };
+
+}
+
 const prepareGame = async (guessingGame) => {
     try {
         guessingGame.details = JSON.parse(guessingGame?.detailsJSON);
+        const { tmdbTitleID, isSeries } = parseTitleKey(guessingGame.details?.correctTitleKey);
+
+        if (tmdbTitleID === -1) {
+            guessingGame.details = { error: 'Could not parse details JSON'};
+            guessingGame.reelays = [];
+            return guessingGame;
+        }
+
+        guessingGame.correctTitleObj = await fetchAnnotatedTitle({ tmdbTitleID, isSeries });
         guessingGame.reelays = await Promise.all(guessingGame.reelays.map(prepareReelay));
     } catch (error) {
+        console.log('prepare game error: ', error);
         guessingGame.details = { error: 'Could not parse details JSON'};
         guessingGame.reelays = [];
     }
+    console.log('prepared game: ', guessingGame);
     return guessingGame;
 }
 

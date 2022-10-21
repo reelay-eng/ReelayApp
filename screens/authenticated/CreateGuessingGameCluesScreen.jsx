@@ -118,9 +118,17 @@ const YearText = styled(ReelayText.Subtitle2)`
 export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
     const topOffset = useSafeAreaInsets().top;
     const bottomOffset = useSafeAreaInsets().bottom;
+    const game = route?.params?.game;
+    const correctTitleObj = game?.correctTitleObj;
+    const gameTitle = game?.title;
 
-    const gameTitle = route?.params?.gameTitle;
-    const correctTitleObj = route?.params?.correctTitleObj;
+    const getGameDetails = () => {
+        try {
+            return JSON.parse(game?.detailsJSON);
+        } catch (error){
+            return { error: 'Could not parse details JSON' };
+        }
+    }
 
     const title = correctTitleObj?.display;
     const actors = correctTitleObj?.displayActors?.map(actor => actor.name)
@@ -130,7 +138,7 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
 
 
     const releaseYear = (correctTitleObj?.releaseDate && correctTitleObj?.releaseDate.length >= 4) 
-        ? correctTitleObj.releaseDate.slice(0,4) : '';
+        ? correctTitleObj?.releaseDate.slice(0,4) : '';
     const runtimeString = getRuntimeString(correctTitleObj?.runtime);
 
     const [clues, setClues] = useState([null]);
@@ -186,7 +194,7 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
                     { correctTitleObj?.posterSource && (
                         <TitlePoster title={correctTitleObj} width={60} />
                     )}
-                    { !correctTitleObj.posterSource && <TitleText>{"No Poster Available"}</TitleText>}
+                    { !correctTitleObj?.posterSource && <TitleText>{"No Poster Available"}</TitleText>}
                 </ImageContainer>
                 <TitleInfoView>
                     <TitleText>{title}</TitleText>

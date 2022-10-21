@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { 
+    ActivityIndicator,
     Dimensions,
     Keyboard, 
     SafeAreaView, 
@@ -14,13 +15,15 @@ import { AuthContext } from '../../context/AuthContext';
 import * as ReelayText from '../../components/global/Text';
 import ReelayColors from '../../constants/ReelayColors';
 import { useFocusEffect } from '@react-navigation/native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { HeaderWithBackButton } from '../../components/global/Headers';
 import { GamesIconSVG } from '../../components/global/SVGs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import TitlePoster from '../../components/global/TitlePoster';
 import { getRuntimeString } from '../../components/utils/TitleRuntime';
+import { postGuessingGameDraft } from '../../api/GuessingGameApi';
+import { showErrorToast } from '../../components/utils/toasts';
 
 const { width } = Dimensions.get('window');
 
@@ -107,14 +110,16 @@ const TitleLineView = styled(View)`
 const YearText = styled(ReelayText.Subtitle2)`
     color: gray
 `
-const GAME_TITLE_MIN_LENGTH = 10;
+const GAME_TITLE_MIN_LENGTH = 15;
 const GAME_TITLE_MAX_LENGTH = 140;
 
 export default CreateGuessingGameScreen = ({ navigation, route }) => {
+    const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
+    const [isSaving, setIsSaving] = useState(false);
     const topOffset = useSafeAreaInsets().top;
     const bottomOffset = useSafeAreaInsets().bottom;
-    const club = route?.params?.club ?? null;
+    const clubID = route?.params?.clubID ?? null;
     const correctTitleObj = route?.params?.correctTitleObj;
 
     const dispatch = useDispatch();
@@ -134,24 +139,65 @@ export default CreateGuessingGameScreen = ({ navigation, route }) => {
     const focusTitle = () => titleFieldRef?.current && titleFieldRef.current.focus();
 
     const ContinueButton = () => {
-        const advanceToSelectCorrectGuessScreen = () => {
+        const isValidTitle = () => (titleTextRef.current.length >= GAME_TITLE_MIN_LENGTH);
+
+        const onPress = async () => {
+            if (!isValidTitle()) {
+                showErrorToast(`Ruh roh! Your prompt needs to be at least ${GAME_TITLE_MIN_LENGTH} characters`);
+                return;
+            }
+            setIsSaving(true);
+            const titleKey = `${correctTitleObj?.titleType}-${correctTitleObj?.id}`;
+            const postBody = {
+                reqUserSub: reelayDBUser?.sub,
+                clubID,
+                correctTitleKey: titleKey,
+                creatorName: reelayDBUser?.username,
+                title: titleTextRef.current,
+            }
+
+            console.log('correct title: ', correctTitleObj);
+            const saveDraftResult = await postGuessingGameDraft({
+                authSession,
+                reqUserSub: reelayDBUser?.sub,
+                clubID,
+                correctTitleKey: titleKey,
+                creatorName: reelayDBUser?.username,
+                title: titleTextRef.current,
+            });
+
+            console.log('save draft result: ', saveDraftResult);
+            if (saveDraftResult?.error) {
+                showErrorToast(`Ruh roh! Could not save a draft of your guessing game. Try again?`);
+                return;
+            }
+
             navigation.push('CreateGuessingGameCluesScreen', {
-                gameTitle: titleTextRef.current,
-                correctTitleObj,
-            })
+                game: { 
+                    ...saveDraftResult, 
+                    details: {
+                        correctTitleKey: titleKey,
+                        clueOrder: [],
+                    },
+                    correctTitleObj,
+                },
+            });
+
+            setIsSaving(false);
         }
+
         return (
-            <ContinueButtonPressable onPress={advanceToSelectCorrectGuessScreen}>
-                <ContinueText>{'Continue'}</ContinueText>
+            <ContinueButtonPressable onPress={onPress}>
+                { isSaving && <ActivityIndicator /> }
+                { !isSaving && <ContinueText>{'Continue'}</ContinueText> }
             </ContinueButtonPressable>
         );
     }
 
     const Header = () => {
-        const headerText = (club) ? club?.name : 'back';
         return (
             <HeaderView topOffset={topOffset}>
-                <HeaderWithBackButton navigation={navigation} text={headerText} />
+                <HeaderWithBackButton navigation={navigation} text={'back'} />
             </HeaderView>
         );
     }
