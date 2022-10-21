@@ -63,10 +63,10 @@ export default AddToClubsButton = ({ navigation, showCircle=true, titleObj, reel
     const addToWatchlistOnPress = async () => {
         const addToWatchlistResult = await addToMyWatchlist({
             reqUserSub: reelayDBUser?.sub,
-            reelaySub: reelay?.sub,
-            creatorName: reelay?.creator?.username,
-            tmdbTitleID: reelay?.title?.id,
-            titleType: reelay?.title?.titleType,
+            reelaySub: reelay?.sub ?? null,
+            creatorName: reelay?.creator?.username ?? null,
+            tmdbTitleID: titleObj?.id,
+            titleType: titleObj?.titleType,
         });
 
         const nextWatchlistItems = [addToWatchlistResult, ...myWatchlistItems];
@@ -94,22 +94,22 @@ export default AddToClubsButton = ({ navigation, showCircle=true, titleObj, reel
     const removeFromWatchlistOnPress = async () => {
         const removeFromWatchlistResult = await removeFromMyWatchlist({
             reqUserSub: reelayDBUser?.sub,
-            tmdbTitleID: reelay?.title?.id,
-            titleType: reelay?.title?.titleType,
+            tmdbTitleID: titleObj?.id,
+            titleType: titleObj?.titleType,
         });
 
         console.log('remove from watchlist result: ', removeFromWatchlistResult);
 
         const nextWatchlistItems = myWatchlistItems.filter(nextItem => {
-            const matchTitleID = (nextItem?.tmdbTitleID === reelay?.title?.id);
-            const matchTitleType = (nextItem?.titleType === reelay?.title?.titleType);
+            const matchTitleID = (nextItem?.tmdbTitleID === titleObj?.id);
+            const matchTitleType = (nextItem?.titleType === titleObj?.titleType);
             return !(matchTitleID && matchTitleType);
         })
 
 
         logAmplitudeEventProd('removeItemFromWatchlist', {
             username: reelayDBUser?.username,
-            title: reelay?.title?.display,
+            title: titleObj?.display,
             source: 'feed',
         });    
 

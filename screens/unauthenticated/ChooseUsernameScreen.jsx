@@ -131,7 +131,11 @@ export default ChooseUsernameScreen = ({ navigation, route }) => {
             return false;
         }
 
-        const usernamesMatch = (userObj) => (userObj.username === usernameToCheck);
+        const usernamesMatch = (userObj) => {
+            const matchUsernameUpper = userObj.username.toUpperCase();
+            const checkUsernameUpper = usernameToCheck.toUpperCase();
+            return (checkUsernameUpper === matchUsernameUpper);
+        }
         const fullMatchIndex = await partialMatchingUsers.findIndex(usernamesMatch);
         if (fullMatchIndex === -1) {
             return true;

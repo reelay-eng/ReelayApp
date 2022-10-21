@@ -45,6 +45,14 @@ const FilterPressable = styled(TouchableOpacity)`
 const FilterText = styled(ReelayText.Subtitle2)`
     color: white;
 `
+const HeaderSubText = styled(ReelayText.Body2Emphasized)`
+    color: white;
+    line-height: 20px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    text-align: left;
+    width: 100%;
+`
 const SearchBarPressable = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${props => props.fade 
@@ -125,6 +133,7 @@ export default DiscoverSearch = ({ navigation }) => {
     return (
         <CategoryView>
             <CategoryHeader>{'Discover'}</CategoryHeader>
+            <HeaderSubText>{'Find something that’s just right'}</HeaderSubText>
             <CategoryOptionsView>
                 { filterOptions.map(renderFilter)}
             </CategoryOptionsView>

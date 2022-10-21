@@ -444,7 +444,6 @@ const WatchlistPoster = ({ source, onPress, children, pressDisabled }) => {
                 {children}
             </WatchlistPosterBackground>
         </TouchableOpacity>
-
     )
 }
 
@@ -533,8 +532,8 @@ const Tutorial = ({ navigation }) => {
     }
 
     const ScrollRight = () => {
-        setBigText("From any reelay add a title to your watchlist.");
-        setSmallText("Press this icon");
+        setBigText("Add a title to your watchlist from any reelay.");
+        setSmallText("");
         animateCustom({
             create: {
                 duration: 1000,
@@ -606,15 +605,15 @@ const Tutorial = ({ navigation }) => {
                             { addedToWatchlist ? <AddedToClubsIconSVG width={46} height={33} /> : <AddToClubsIconSVG width={46} height={33}/> }
                         </View>
                     </WatchlistPoster>
-                    { (!drawerIsOpen && !addedToWatchlist) && 
+                    {/* { (!drawerIsOpen && !addedToWatchlist) && 
                         <ArrowContainer>
                             <Arrow source={PressThisArrow} resizeMode={"contain"}/>
                         </ArrowContainer>
                     }
-                    <AddToWatchlistDrawer drawerIsOpen={drawerIsOpen} setDrawerIsOpen={setDrawerIsOpen} onFinish={finishAddingToWatchlist}/>
+                    <AddToWatchlistDrawer drawerIsOpen={drawerIsOpen} setDrawerIsOpen={setDrawerIsOpen} onFinish={finishAddingToWatchlist}/> */}
                 </AddToWatchlistContainer>
             )}
-            { addedToWatchlist && <FinishButton bottomOffset={bottomOffset} onPress={handleFinishedOnboarding} /> }
+            { hasScrolledRight && <FinishButton bottomOffset={bottomOffset} onPress={handleFinishedOnboarding} /> }
             
         </>
     )

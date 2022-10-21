@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Dimensions, View } from 'react-native';
+import { Dimensions, Pressable, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
 
@@ -52,7 +52,7 @@ const ContentNoReelaysIconView = styled(View)`
     margin-top: 36px;
     width: ${props => getContentRowWidth(props)}px;
 `
-const ContentWithReelaysSectionView = styled(View)`
+const ContentWithReelaysSectionView = styled(TouchableOpacity)`
     align-items: center;
     display: flex;
     flex-direction: row;
@@ -149,7 +149,7 @@ const TitleText = styled(ReelayText.H6Emphasized)`
     color: white;
     font-size: 16px;
 `
-const TopicCardView = styled(View)`
+const TopicCardPressable = styled(Pressable)`
     align-items: center;
     background-color: #121212;
     border-color: rgba(255,255,255,0.5);
@@ -232,7 +232,7 @@ export default TopicCard = ({
         }
         
         return (
-            <BottomRowContainer horizontal={horizontal} onPress={advanceToFeed}>
+            <BottomRowContainer horizontal={horizontal} onPress={() => {}}>
                 <CreatorProfilePicRow 
                     displayCreators={getDisplayCreators()} 
                     reelayCount={topic.reelays.length} 
@@ -265,10 +265,10 @@ export default TopicCard = ({
                     <ContentWithReelaysSectionView horizontal={horizontal}>
                         <TopicsCardIconSmallSVG />
                         <ContentWithReelaysTitleAndDescriptionLine>
-                            <TouchableOpacity onPress={advanceToFeed}>
+                            <View>
                                 <TopicTitle />
                                 <TopicDescription />
-                            </TouchableOpacity>
+                            </View>
                         </ContentWithReelaysTitleAndDescriptionLine>
                     </ContentWithReelaysSectionView>
                 );
@@ -447,10 +447,10 @@ export default TopicCard = ({
     return (
         <Fragment>
             { !horizontal && <TopicOverline /> }
-            <TopicCardView horizontal={horizontal} onPress={advanceToFeed}>
+            <TopicCardPressable horizontal={horizontal} onPress={() => advanceToFeed(0)}>
                 <ContentAboveDivider />
                 <ContentBelowDivider />
-            </TopicCardView>
+            </TopicCardPressable>
         </Fragment>
     );
 }

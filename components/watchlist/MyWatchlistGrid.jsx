@@ -23,15 +23,18 @@ const ROW_COUNT = 3;
 const POSTER_INDEX_CUTOFF = ROW_COUNT * POSTER_ROW_LENGTH;
 
 const HeaderContainer = styled(View)`
-    align-items: flex-end;
-    flex-direction: row;
-    margin-left: 8px;
+    margin-top: 4px;
+    margin-left: 16px;
     margin-bottom: 8px;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
-    margin-left: 12px;
+`
+const HeaderSubText = styled(ReelayText.Body2Emphasized)`
+    color: white;
+    line-height: 20px;
+    margin-top: 8px;
 `
 const PosterContainer = styled(View)`
     align-items: center;
@@ -84,6 +87,7 @@ export default MyWatchlistGrid = ({ navigation }) => {
         return (
             <HeaderContainer>
                 <HeaderText>{'My watchlist'}</HeaderText>
+                <HeaderSubText>{'It\'s showtime'}</HeaderSubText>
             </HeaderContainer>
         );
     }
