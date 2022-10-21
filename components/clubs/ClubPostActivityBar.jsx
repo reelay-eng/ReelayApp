@@ -14,6 +14,7 @@ import AddToClubsDrawer from './AddToClubsDrawer';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { isMentionPartType, MentionInput, parseValue } from 'react-native-controlled-mentions';
+import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 const { height, width } = Dimensions.get('window');
 
@@ -250,19 +251,28 @@ export default ClubPostActivityBar = ({ club, navigation, scrollRef, socketRef }
                 return;
             }
 
+            const annotatedMessage = getAnnotatedMessage();
             const socket = socketRef.current;
             socket.emit('sendMessageToChat', {
                 authSession,
                 clubID: club?.id,
                 clubName: club?.name,
-                message: getAnnotatedMessage(),
+                message: annotatedMessage,
                 userSub: reelayDBUser?.sub,
             });
+
+            logAmplitudeEventProd('sentMessageInChat', {
+                clubName: club?.name,
+                username: reelayDBUser?.username,
+                message: annotatedMessage.plaintext,
+            });
+
             messageRef.current = {
                 mediaURI: null,
                 mediaType: null,
                 text: '',        
             }
+
         }
 
         const PostButton = () => {
