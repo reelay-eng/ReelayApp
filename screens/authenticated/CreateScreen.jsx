@@ -84,7 +84,7 @@ export default CreateScreen = ({ navigation }) => {
 
     const CreateGuessingGameButton = () => {
         const advanceToCreateGuessingGame = () => {
-            navigation.push('CreateGuessingGameScreen');
+            navigation.push('SelectCorrectGuessScreen');
         }
         return (
             <CreateOptionView>

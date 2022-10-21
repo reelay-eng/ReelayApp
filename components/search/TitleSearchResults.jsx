@@ -16,7 +16,6 @@ const ScreenContainer = styled(Pressable)`
 
 export default TitleSearchResults = ({ 
     clubID, 
-    game,
     isSeries,
     navigation, 
     searchResults,
@@ -43,7 +42,6 @@ export default TitleSearchResults = ({
                 result={result} 
                 source={source} 
                 clubID={clubID}
-                game={game}
                 topicID={topicID}
             />
         );

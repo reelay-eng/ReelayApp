@@ -119,8 +119,8 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
     const topOffset = useSafeAreaInsets().top;
     const bottomOffset = useSafeAreaInsets().bottom;
 
-    const gameTitle = route?.params?.game?.gameTitle;
-    const correctTitleObj = route?.params?.game?.correctTitleObj;
+    const gameTitle = route?.params?.gameTitle;
+    const correctTitleObj = route?.params?.correctTitleObj;
 
     const title = correctTitleObj?.display;
     const actors = correctTitleObj?.displayActors?.map(actor => actor.name)

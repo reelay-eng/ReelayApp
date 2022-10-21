@@ -95,7 +95,7 @@ export default CreateTabDrawer = ({ closeDrawer, navigation }) => {
     const CreateGuessingGameButton = () => {
         const advanceToCreateGuessingGame = () => {
             closeDrawer();
-            navigation.navigate('Create', { screen: 'CreateGuessingGameScreen' });
+            navigation.navigate('Create', { screen: 'SelectCorrectGuessScreen' });
         }
         return (
             <CreateOptionView>

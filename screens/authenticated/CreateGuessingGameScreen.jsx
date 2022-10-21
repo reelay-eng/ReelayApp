@@ -19,9 +19,14 @@ import { useDispatch } from 'react-redux';
 import { HeaderWithBackButton } from '../../components/global/Headers';
 import { GamesIconSVG } from '../../components/global/SVGs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import TitlePoster from '../../components/global/TitlePoster';
+import { getRuntimeString } from '../../components/utils/TitleRuntime';
 
 const { width } = Dimensions.get('window');
 
+const ActorText = styled(ReelayText.Subtitle2)`
+    color: gray
+`
 const ContinueButtonPressable = styled(TouchableOpacity)`
     align-items: center;
     background-color: ${props => props.disabled ? 'white' : ReelayColors.reelayBlue};
@@ -43,6 +48,10 @@ const CreateScreenView = styled(View)`
 const HeaderView = styled(View)`
     top: ${props => props.topOffset}px;
     margin-bottom: 16px;
+`
+const ImageContainer = styled(View)`
+    flex-direction: row;
+    align-items: center;
 `
 const TitleInputField = styled(TextInput)`
     background-color: #1a1a1a;
@@ -73,13 +82,30 @@ const PromptView = styled(View)`
     margin-bottom: 12px;
 `
 const SectionView = styled(View)`
-    margin-left: 20px;
-    margin-right: 20px;
+    margin-left: 12px;
+    margin-right: 12px;
     margin-top: 16px;
 `
 const SectionViewBottom = styled(SectionView)`
     align-items: center;
     bottom: ${props => props.bottomOffset}px;
+`
+const TitleText = styled(ReelayText.Subtitle1Emphasized)`
+    color: white
+`
+const TitleInfoView = styled(View)`
+    margin-left: 12px;
+    margin-right: 20px;
+`
+const TitleLineView = styled(View)`
+    flex-direction: row;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-top: 4px;
+    width: 100%;
+`
+const YearText = styled(ReelayText.Subtitle2)`
+    color: gray
 `
 const GAME_TITLE_MIN_LENGTH = 10;
 const GAME_TITLE_MAX_LENGTH = 140;
@@ -89,17 +115,29 @@ export default CreateGuessingGameScreen = ({ navigation, route }) => {
     const topOffset = useSafeAreaInsets().top;
     const bottomOffset = useSafeAreaInsets().bottom;
     const club = route?.params?.club ?? null;
+    const correctTitleObj = route?.params?.correctTitleObj;
 
     const dispatch = useDispatch();
     const titleFieldRef = useRef(null);
     const titleTextRef = useRef('');
 
+    const actors = correctTitleObj?.displayActors?.map(actor => actor.name)
+            .filter((actor) => actor !== undefined)
+            .join(", ") 
+        ?? [];
+
+
+    const releaseYear = (correctTitleObj?.releaseDate && correctTitleObj?.releaseDate.length >= 4) 
+        ? correctTitleObj.releaseDate.slice(0,4) : '';
+    const runtimeString = getRuntimeString(correctTitleObj?.runtime);
+
     const focusTitle = () => titleFieldRef?.current && titleFieldRef.current.focus();
 
     const ContinueButton = () => {
         const advanceToSelectCorrectGuessScreen = () => {
-            navigation.push('SelectCorrectGuessScreen', {
-                gameTitle: titleTextRef.current
+            navigation.push('CreateGuessingGameCluesScreen', {
+                gameTitle: titleTextRef.current,
+                correctTitleObj,
             })
         }
         return (
@@ -156,12 +194,31 @@ export default CreateGuessingGameScreen = ({ navigation, route }) => {
         );
     }
 
+    const CorrectTitleLine = () => {
+        return (
+            <TitleLineView>
+                <ImageContainer>
+                    { correctTitleObj?.posterSource && (
+                        <TitlePoster title={correctTitleObj} width={60} />
+                    )}
+                    { !correctTitleObj.posterSource && <TitleText>{"No Poster Available"}</TitleText>}
+                </ImageContainer>
+                <TitleInfoView>
+                    <TitleText>{correctTitleObj?.display}</TitleText>
+                    <YearText>{`${releaseYear}    ${runtimeString}`}</YearText>
+                    <ActorText>{actors}</ActorText>
+                </TitleInfoView>
+            </TitleLineView>
+        );
+    }
+
     return (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <CreateScreenView>
                 <View style={{ display: 'flex' }}>
                     <Header />
                     <CreatePrompt />
+                    <CorrectTitleLine />
                     <TitleInput />
                 </View>
                 <SectionViewBottom bottomOffset={bottomOffset}>

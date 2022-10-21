@@ -15,16 +15,22 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { useFocusEffect } from '@react-navigation/native';
 
+const HeaderSubText = styled(ReelayText.Body1)`
+    color: white;
+    line-height: 20px;
+    margin-top: 8px;
+    margin-bottom: -12px;
+`
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
-    padding-left: 12px;
-    padding-bottom: 12px;
+    font-size: 20px;
+    margin-bottom: 4px;
     text-align: left;
     width: 100%;
 `
 const HeaderView = styled(View)`
-    margin-top: 32px;
     margin-bottom: 16px;
+    padding: 12px;
     width: 100%;
 `
 const SearchBarContainer = styled(View)`
@@ -33,19 +39,22 @@ const SearchBarContainer = styled(View)`
     padding-left: 3px;
     padding-right: 3px;
     width: 100%;
-`;
+`
 const SelectorBarContainer = styled(View)`
 	height: 40px;
     margin-bottom: 8px;
     padding-left: 12px;
     padding-right: 12px;
     width: 100%;
-`;
+`
+const Spacer = styled(View)`
+    height: 16px;
+`
 const TopBarContainer = styled(View)`
     margin-bottom: 12px;
     padding-right: 12px;
 	width: 100%;
-`;
+`
 
 export default SelectCorrectGuessScreen = ({ navigation, route }) => {
     const [loading, setLoading] = useState(false);
@@ -59,7 +68,6 @@ export default SelectCorrectGuessScreen = ({ navigation, route }) => {
      */
 
     const clubID = route?.params?.clubID;
-    const gameTitle = route?.params?.gameTitle;
     const updateCounter = useRef(0);
 
     const { reelayDBUser } = useContext(AuthContext);
@@ -115,7 +123,10 @@ export default SelectCorrectGuessScreen = ({ navigation, route }) => {
                <HeaderWithBackButton navigation={navigation} text={"guessing game"} />
 			</TopBarContainer>
             <HeaderView>
-                <HeaderText>{'What\'s the correct answer?'}</HeaderText>
+                <HeaderText>{'How it works'}</HeaderText>
+                <HeaderSubText>{'Leave up to 6 reelays as clues for players to guess the right title.'}</HeaderSubText>
+                <Spacer />
+                <HeaderSubText>{'Select the correct answer below:'}</HeaderSubText>
             </HeaderView>
             <SelectorBarContainer>
                 <ToggleSelector
@@ -143,7 +154,6 @@ export default SelectCorrectGuessScreen = ({ navigation, route }) => {
                     isSeries={(searchType === 'TV')}
                     source={"createGuessingGame"}
                     clubID={clubID ?? null}
-                    game={{ gameTitle }}
                 />
             )}
 		</SafeAreaView>

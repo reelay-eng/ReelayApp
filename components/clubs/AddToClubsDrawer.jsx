@@ -95,7 +95,7 @@ export default AddToClubsDrawer = ({ navigation, club, drawerVisible, setDrawerV
         const advanceToCreateGuessingGame = () => {
             closeDrawer();
             navigation.navigate('Create', { 
-                screen: 'CreateGuessingGameScreen',
+                screen: 'SelectCorrectGuessScreen',
                 params: { club: { name: club?.name, id: club?.id }},
             });
         }
