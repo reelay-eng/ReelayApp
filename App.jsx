@@ -24,7 +24,7 @@ import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import { Amplitude, Identify } from '@amplitude/react-native';
 
-import { logAmplitudeEventProd } from './components/utils/EventLogger';
+import { logAmplitudeEventProd, identifyUser, initMixpanel } from './components/utils/EventLogger';
 import { StatusBar } from 'expo-status-bar';
 import useColorScheme from './hooks/useColorScheme';
 import { InterruptionModeIOS, InterruptionModeAndroid } from 'expo-av';
@@ -187,7 +187,8 @@ function App() {
     const initServices = async () => {
         if (canUseNativeModules) {
             const ampInstance = Amplitude.getInstance('amp-reelay');
-            ampInstance.init(Constants.manifest.extra.amplitudeApiKey);    
+            ampInstance.init(Constants.manifest.extra.amplitudeApiKey); 
+            initMixpanel(Constants.manifest.extra.mixpanelProjectToken);   
         }
 
         Amplify.configure({
@@ -317,6 +318,9 @@ function App() {
 
     const loadMyProfile = async (userSub) => {
         console.log('beginning load my profile');
+
+        // proceed with loading profile
+
         const reqUserSub = userSub;
         // make sure to maintain consistent ordering between these arrays
         // when you modify them
@@ -340,6 +344,9 @@ function App() {
         const versionInfo = myHomeContent?.versionInfo;
 
         console.log('loaded first set of profile data');
+
+        // set mixpanel info here
+        identifyUser({ userSub: reelayDBUserLoaded?.sub, username: reelayDBUserLoaded?.username });
 
         setReelayDBUser(reelayDBUserLoaded);
         dispatch({ type: 'setReelayDBUser', payload: reelayDBUserLoaded });
