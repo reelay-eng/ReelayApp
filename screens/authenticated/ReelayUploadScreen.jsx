@@ -73,6 +73,7 @@ const TitleBannerContainer = styled(View)`
 export default ReelayUploadScreen = ({ navigation, route }) => {
     const { 
         clubID, 
+        draftGame,
         titleObj, 
         topicID, 
         videoURI, 
@@ -150,7 +151,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 topicID: topicID ?? null,
                 venue: venue,
                 videoS3Key: videoS3Key,
-                visibility: UPLOAD_VISIBILITY,
+                visibility: (draftGame) ? 'draft' : UPLOAD_VISIBILITY,
             }
     
             const uploadRequest = {
@@ -293,7 +294,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         // so we don't want to navigate away until we're done with that part
         if (uploadStage === 'uploading') {
             navigation.popToTop();
-            const { reelayClub, reelayTopic } = uploadRequest;
+            const { reelayClub } = uploadRequest;
             if (reelayClub) {
                 navigation.navigate('ClubActivityScreen', { club: reelayClub });
             } else {

@@ -107,7 +107,7 @@ const TitleInfoView = styled(View)`
 const TitleLineView = styled(View)`
     flex-direction: row;
     padding-left: 16px;
-    padding-right: 16px;
+    padding-right: 48px;
     padding-top: 4px;
     width: 100%;
 `
@@ -172,7 +172,9 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
 
     const ClueReelayRow = ({ item, index, drag, isActive }) => {
         const advanceToCreateReelayScreen = () => navigation.push('ReelayCameraScreen', {
-            titleObj: correctTitleObj
+            draftGame: game,
+            topicID: game?.id,
+            titleObj: correctTitleObj,
         })
 
         const reelay = item;
