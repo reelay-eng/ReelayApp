@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext, useRef } from 'react';
-import { SafeAreaView, View } from 'react-native';
+import { Dimensions, SafeAreaView, View } from 'react-native';
 
 import BackButton from '../../components/utils/BackButton';
 import SearchField from '../../components/create-reelay/SearchField';
@@ -12,6 +12,8 @@ import { getFollowers, getFollowing } from '../../api/ReelayDBApi';
 import ReelayColors from '../../constants/ReelayColors';
 import { useSelector } from 'react-redux';
 import { AuthContext } from '../../context/AuthContext';
+
+const { width } = Dimensions.get('window');
 
 const BackButtonContainer = styled(View)`
     margin-right: 10px;
@@ -28,8 +30,8 @@ const SearchScreenContainer = styled(SafeAreaView)`
 `
 const SelectorBarContainer = styled(View)`
     margin-top: 10px;
-    margin-left: 15px;
-    margin-right: 15px;
+    margin-left: 12px;
+    width: ${width - 24}px;
 `
 const TopBarContainer = styled(View)`
     width: 100%;
