@@ -319,9 +319,11 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
             <OverlayContainer>
                 <RecordInterface />
                 <ReelayFeedHeader navigation={navigation} feedSource={'camera'} />
-                <TitleBannerContainer topOffset={topOffset}>
-                    <TitleBanner titleObj={titleObj} onCameraScreen={true} venue={venue} />
-                </TitleBannerContainer>
+                {(!!titleObj?.id) && (
+                    <TitleBannerContainer topOffset={topOffset}>
+                        <TitleBanner titleObj={titleObj} onCameraScreen={true} venue={venue} />
+                    </TitleBannerContainer>
+                )}
             </OverlayContainer>
         );
     }

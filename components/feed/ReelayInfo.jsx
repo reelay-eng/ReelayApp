@@ -90,6 +90,7 @@ const ReelayInfo = ({ clubStub, feedSource, navigation, reelay }) => {
 		// todo: add join button ?
 		const goToClub = () => { 
 			// todo: after refactoring all the club state, screens, and components
+			navigation.push('ClubActivityScreen', { clubID: clubStub?.id, clubName: clubStub?.name })
 		}	
 
 		return (
@@ -222,7 +223,4 @@ const Description = ({ partsWithMentions }) => {
 	)
 }
 
-export default memo(ReelayInfo, (prevProps, nextProps) => {
-	return (prevProps.reelay.datastoreSub === nextProps.reelay.datastoreSub) 
-		&& (prevProps.expanded === nextProps.expanded);
-});
+export default ReelayInfo;

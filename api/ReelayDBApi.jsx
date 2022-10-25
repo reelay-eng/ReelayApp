@@ -562,13 +562,18 @@ export const postAnnouncement = async ({ authSession, reqUserSub, postBody }) =>
 }
 
 export const postReelayToDB = async (reelayBody) => {
-    const routePost = `${REELAY_API_BASE_URL}/reelays/sub`;
-    const resultPost = await fetchResults(routePost, {
-        method: 'POST',
-        body: JSON.stringify(reelayBody),
-        headers: ReelayAPIHeaders,
-    });
-    return resultPost;
+    console.log('posting reelay: ', reelayBody);
+    try {
+        const routePost = `${REELAY_API_BASE_URL}/reelays/sub`;
+        const resultPost = await fetchResults(routePost, {
+            method: 'POST',
+            body: JSON.stringify(reelayBody),
+            headers: ReelayAPIHeaders,
+        });
+        return resultPost;    
+    } catch (error) {
+        console.log('error: ', error);
+    }
 }
 
 export const postCommentToDB = async (commentBody, reelaySub) => {

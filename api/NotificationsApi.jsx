@@ -538,7 +538,7 @@ export const notifyOtherCreatorsOnReelayPosted = async ({
 
         const title = (topic)
             ? `${creator.username}` 
-            : `${reelay.title.display}`;
+            : `${reelay?.title?.display}`;
         const body = (topic) 
             ? `added to the topic: ${topic.title}` 
             : `new reelay by ${creator.username}`; // add name for topic

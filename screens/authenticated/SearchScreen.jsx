@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState, useRef, Fragment } from "react";
-import { ActivityIndicator, SafeAreaView, View } from "react-native";
+import { ActivityIndicator, Dimensions, SafeAreaView, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
 // Components
@@ -25,6 +25,8 @@ import { searchPublicClubs } from "../../api/ClubsApi";
 import styled from "styled-components/native";
 import { useFocusEffect } from "@react-navigation/native";
 
+const { width } = Dimensions.get('window');
+
 const SearchScreenView = styled(SafeAreaView)`
     background-color: black;
     height: 100%;
@@ -32,7 +34,7 @@ const SearchScreenView = styled(SafeAreaView)`
 `
 const SelectorBarView = styled(View)`
     height: 40px;
-    width: 95%;
+    width: ${width - 24}px;
 `
 const SearchBarView = styled(View)`
     align-items: center;

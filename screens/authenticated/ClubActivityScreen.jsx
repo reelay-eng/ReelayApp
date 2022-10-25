@@ -37,7 +37,8 @@ import {
     getClubTopics, 
     markClubActivitySeen, 
     acceptInviteToClub, 
-    rejectInviteFromClub, 
+    rejectInviteFromClub,
+    getClubSettings, 
 } from '../../api/ClubsApi';
 import { HeaderWithBackButton } from '../../components/global/Headers';
 import InviteToChatExternalPrompt from '../../components/clubs/InviteToChatExternalPrompt';
@@ -231,7 +232,7 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
 
     const promptToInvite = route.params?.promptToInvite;
-    const club = route.params?.club ?? { 
+    const initClub = route.params?.club ?? { 
         id: route.params?.clubID,
         name: route.params?.clubName,
         members: [],
@@ -240,10 +241,12 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         visibility: 'private',
     };
 
-    const clubPostsLoaded = (club.members?.length > 0);
+    const initRefreshing = (initClub?.members?.length == 0);
+
+    const [club, setClub] = useState(initClub);
     const [chatMessagesLoaded, setChatMessagesLoaded] = useState(false);
     const [inviteDrawerVisible, setInviteDrawerVisible] = useState(promptToInvite);
-    const [refreshing, setRefreshing] = useState(false);
+    const [refreshing, setRefreshing] = useState(initRefreshing);
     const [showChatMessages, setShowChatMessages] = useState(true);
 
     const closeInviteDrawer = () => setInviteDrawerVisible(false);
@@ -376,7 +379,13 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     const onRefresh = async () => {
         try { 
             setRefreshing(true);
-            const [members, titles, topics] = await Promise.all([
+            console.log('refreshing');
+            const [clubObj, members, titles, topics] = await Promise.all([
+                getClubSettings({
+                    authSession,
+                    clubID: club.id,
+                    reqUserSub: reelayDBUser?.sub,
+                }),
                 getClubMembers({
                     authSession,
                     clubID: club.id, 
@@ -394,9 +403,12 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                 }),
             ]);
 
-            club.members = members;
-            club.titles = titles;
-            club.topics = topics;
+            console.log('club settings: ', clubObj);
+
+            const nextClub = clubObj;
+            nextClub.members = members;
+            nextClub.titles = titles;
+            nextClub.topics = topics;
 
             if (clubMember?.id) {
                 clubMember.lastActivitySeenAt = moment().toISOString();
@@ -406,8 +418,8 @@ export default ClubActivityScreen = ({ navigation, route }) => {
                     reqUserSub: reelayDBUser?.sub,
                 });
             }
-
-            dispatch({ type: 'setUpdatedClub', payload: club });
+            setClub({ ...club, ...nextClub });
+            dispatch({ type: 'setUpdatedClub', payload: nextClub });
             setRefreshing(false); 
         } catch (error) {
             console.log(error);
@@ -417,7 +429,8 @@ export default ClubActivityScreen = ({ navigation, route }) => {
     }
 
     useEffect(() => {
-        if (!clubPostsLoaded) {
+        console.log('refreshing? ', refreshing);
+        if (refreshing) {
             onRefresh().then(() => initClubsChat());
         } else {
             if (clubMember?.id) {
@@ -497,7 +510,9 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         );
     }
 
-    if (!clubPostsLoaded || !chatMessagesLoaded) {
+    console.log('RERENDERING ACTIVITY SCREEN');
+
+    if (refreshing || !chatMessagesLoaded) {
         return (
             <RefreshScreenView>
                 <RefreshHeaderView topOffset={topOffset}>

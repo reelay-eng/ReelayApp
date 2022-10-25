@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { SafeAreaView, View, Pressable, Text, ActivityIndicator } from 'react-native';
+import { SafeAreaView, View, Pressable, Text, ActivityIndicator, TouchableOpacity, Dimensions } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { useDispatch } from "react-redux";
 import { Icon } from 'react-native-elements';
@@ -17,6 +17,10 @@ import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { useFocusEffect } from '@react-navigation/native';
 import SuggestedTitlesGrid from '../../components/search/SuggestedTitlesGrid';
 import { TopicsBannerIconSVG } from '../../components/global/SVGs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { EmptyTitleObject } from '../../api/TMDbApi';
+
+const { width } = Dimensions.get('window');
 
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
@@ -43,22 +47,33 @@ const TopBarContainer = styled(View)`
     margin-bottom: 12px;
     padding-right: 12px;
 	width: 100%;
-`;
+`
 
-// color is ReelayColors.reelayGreen at reduced opacity
+const TopicSkipText = styled(ReelayText.H6Emphasized)`
+    color: black;
+    font-size: 14px;
+`
+const TopicSkipPressable = styled(TouchableOpacity)`
+    background-color: #rgba(255,255,255,0.9);
+    border-radius: 20px;
+    padding: 4px 20px 4px 20px
+    position: absolute;
+    top: 4px;
+    right: 10px;
+`
+
 const TopicTitleContainer = styled(View)`
     align-items: center;
     background-color: #421C79;
-    border-radius: 8px;
+    border-radius: 0px;
     flex-direction: row;
     margin-top: 4px;
-    margin-bottom: 12px;
+    margin-bottom: 4px;
     padding-top: 12px;
     padding-left: 20px;
     padding-right: 20px;
     padding-bottom: 12px;
-    width: 100%;
-    border: 1px solid #421C79;
+    width:100%;
 `
 const TopicTitleText = styled(ReelayText.H6)`
     color: white;
@@ -89,6 +104,24 @@ export default SelectTitleScreen = ({ navigation, route }) => {
 
     if (reelayDBUser?.username === 'be_our_guest') {
         return <JustShowMeSignupPage navigation={navigation} headerText={'Make a Reelay'} />
+    }
+
+    const TopicSkipButton = () => {
+        const topOffset = useSafeAreaInsets().top;
+
+        const skipToCameraScreen = () => {
+            navigation.push('ReelayCameraScreen', { 
+                titleObj: EmptyTitleObject, 
+                venue: '', 
+                topicID: topic?.id, 
+                clubID,
+            });    
+        };
+        return (
+            <TopicSkipPressable onPress={skipToCameraScreen} topOffset={topOffset}>
+                <TopicSkipText>{'Skip'}</TopicSkipText>
+            </TopicSkipPressable>
+        )
     }
 
     const TopicLabel = () => {
@@ -152,6 +185,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
                 { !topic && <HeaderWithBackButton navigation={navigation} text={"what did you see?"} /> }
                 { topic && <HeaderWithBackButton navigation={navigation} text={"add a reelay"} /> }
                 { topic && <TopicLabel /> }
+                { topic && <TopicSkipButton /> }
 			</TopBarContainer>
             <SelectorBarContainer>
                 <ToggleSelector

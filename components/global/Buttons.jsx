@@ -13,7 +13,7 @@ const ButtonPressable = styled(Pressable)`
 `
 const BackgroundBox = styled(View)`
 	align-items: center;
-	background-color: #252527;
+	background-color: #121212;
 	border-radius: 8px;
 	justify-content: flex-start;
 	flex-direction: row;

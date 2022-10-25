@@ -236,9 +236,11 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         return (
             <View>
                 <ReelayFeedHeader feedSource={'upload'} navigation={navigation} />
-                <TitleBannerContainer topOffset={topOffset}>
-                    <TitleBanner titleObj={titleObj} onCameraScreen={true} venue={venue} />
-                </TitleBannerContainer>
+                { (!!titleObj?.id) && (
+                    <TitleBannerContainer topOffset={topOffset}>
+                        <TitleBanner titleObj={titleObj} onCameraScreen={true} venue={venue} />
+                    </TitleBannerContainer>
+                )}
             </View>
         );
     };
@@ -249,6 +251,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
             <UploadBottomArea onPress={Keyboard.dismiss}>
                 { !uploadStarted && (
                     <UploadDescriptionAndStarRating 
+                        showStarRating={!!titleObj?.id}
                         starCountRef={starCountRef}
                         descriptionRef={descriptionRef}
                     />
