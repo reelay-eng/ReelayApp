@@ -81,12 +81,9 @@ const ReelayStack = ({
 
     const topOffset = useSafeAreaInsets().top + 26;
 
-    const clubStub = useMemo(() => {
-        return (stack[0]?.clubID) ? {
-            id: stack[0].clubID,
-            name: stack[0].clubName,
-        } :  null;
-    }, [stack]);
+    const getClubStub = (reelay) => (reelay?.clubID) 
+        ? { id: reelay.clubID, name: reelay.clubName } 
+        : null;
 
     const topicStub = useMemo(() => {
         return (stack[0]?.topicID) ? {
@@ -119,6 +116,7 @@ const ReelayStack = ({
     }
 
     const renderTitleBanner = (reelay) => {
+        const clubStub = getClubStub(reelay);
         return (
             <TitleBannerContainer topOffset={topOffset}>
                 <TitleBanner 
@@ -133,6 +131,7 @@ const ReelayStack = ({
     }
 
     const renderTopicBanner = (reelay) => {
+        const clubStub = getClubStub(reelay);
         return (
             <TopicBannerContainer topOffset={topOffset}>
                 <TopicBanner
@@ -149,10 +148,7 @@ const ReelayStack = ({
     const renderReelay = ({ item, index }) => {
         const reelay = item;
         const reelayIsViewable = stackViewable && (index === stackPosition);  
-        
-        const clubStub = (reelay?.clubID) ?
-            { id: reelay.clubID, name: reelay.clubName } 
-            :  null;
+        const clubStub = getClubStub(reelay);
     
         return (
             <ReelayFeedContainer key={reelay.id}>

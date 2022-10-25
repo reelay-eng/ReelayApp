@@ -90,6 +90,7 @@ const ReelayInfo = ({ clubStub, feedSource, navigation, reelay }) => {
 		// todo: add join button ?
 		const goToClub = () => { 
 			// todo: after refactoring all the club state, screens, and components
+			navigation.push('ClubActivityScreen', { clubID: clubStub?.id, clubName: clubStub?.name })
 		}	
 
 		return (
