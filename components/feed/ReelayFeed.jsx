@@ -152,6 +152,7 @@ export default ReelayFeed = ({ navigation,
                 filters: coalesceFiltersForAPI(selectedFilters, myStreamingVenues), 
                 page, 
                 reqUserSub: reelayDBUser?.sub,
+                sortMethod,
             })
             : await getFeed({ 
                 authSession, 
@@ -162,7 +163,11 @@ export default ReelayFeed = ({ navigation,
 
         // probably don't need to create this every time, but we want to avoid unnecessary state
         const titleIDEntries = {};
-        const addToTitleEntries = (fetchedThread) => titleIDEntries[fetchedThread[0].title.id] = 1;
+        const addToTitleEntries = (fetchedThread) => {
+            const reelay = fetchedThread[0];
+            if (reelay?.topicID) return;
+            titleIDEntries[reelay?.title?.id] = 1;
+        }
         reelayThreads.forEach(addToTitleEntries);
 
         const notAlreadyInStack = (fetchedThread) => {
