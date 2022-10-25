@@ -52,6 +52,9 @@ export default ({ config }) => {
         googleiOSClientId: '75256805031-e5kol9tf5rqneejhl882e9986p0fu5gi.apps.googleusercontent.com',
         googleiOSURLScheme: 'com.googleusercontent.apps.75256805031-e5kol9tf5rqneejhl882e9986p0fu5gi',
 
+        mixpanelProjectID: '2497297',
+        mixpanelProjectToken: '67fe41ffea33a824eb7e50269c388869',
+
         reelayApiBaseUrl: getReelayAPIBaseURL(),
         reelayChatBaseUrl: getReelayChatBaseURL(),
         reelayWebBaseUrl: 'https://on.reelay.app',

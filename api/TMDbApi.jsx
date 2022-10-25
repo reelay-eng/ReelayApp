@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import moment from 'moment';
 import { fetchResults } from './fetchResults';
 import { cacheAnnotatedTitle, fetchAnnotatedTitleFromCache } from './ReelayLocalTitleCache';
 
@@ -8,6 +9,26 @@ const TMDB_IMAGE_API_BASE_URL = Constants.manifest.extra.tmdbImageApiBaseUrl.sub
 
 const PLACEHOLDER_POSTER_SOURCE = require('../assets/images/reelay-splash-with-dog-black.png');
 const WELCOME_VIDEO_POSTER_SOURCE = require('../assets/images/welcome-video-poster-with-dog.png');
+
+export const EmptyTitleObject = {
+    id: 0,
+    director: '',
+    display: '',
+    displayActors: [],
+    isSeries: false,
+    genres: [],
+    overview: '',
+    posterPath: null,
+    posterSource: PLACEHOLDER_POSTER_SOURCE,
+    releaseDate: '1992-03-04',
+    releaseYear: '1992',
+    tagline: '',
+    titleType: 'film',
+    titleKey: 'film-0',
+    trailerURI: null,
+    rating: 0,
+    runtime: 1,
+}
 
 export const fetchSeries = async (titleID) => {
     const query = `${TMDB_API_BASE_URL}/tv/${titleID}?api_key=${TMDB_API_KEY}&language=en-US&append_to_response=release_dates`;
@@ -125,7 +146,8 @@ export const fetchPopularSeries = async (page = 0) => {
 }
 
 export const fetchAnnotatedTitle = async ({ tmdbTitleID, isSeries, isWelcomeReelay=false, loadedTitleObj=null }) => {
-    if (!tmdbTitleID) return null;
+    if (!tmdbTitleID) return EmptyTitleObject;
+
     const titleType = (isSeries) ? 'tv' : 'film';
     const cachedTitle = await fetchAnnotatedTitleFromCache(tmdbTitleID, titleType);
     if (cachedTitle) return cachedTitle;
@@ -178,6 +200,7 @@ export const fetchAnnotatedTitle = async ({ tmdbTitleID, isSeries, isWelcomeReel
         releaseDate,
         releaseYear,
         tagline: tmdbTitleObject.tagline,
+        titleKey: `${titleType}-${tmdbTitleObject.id}`,
         titleType,
         trailerURI,
         rating,
