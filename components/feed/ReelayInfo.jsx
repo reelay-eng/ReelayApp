@@ -222,7 +222,4 @@ const Description = ({ partsWithMentions }) => {
 	)
 }
 
-export default memo(ReelayInfo, (prevProps, nextProps) => {
-	return (prevProps.reelay.datastoreSub === nextProps.reelay.datastoreSub) 
-		&& (prevProps.expanded === nextProps.expanded);
-});
+export default ReelayInfo;

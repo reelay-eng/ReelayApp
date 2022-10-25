@@ -33,11 +33,26 @@ const HeaderTextLight = styled(ReelayText.H5)`
 	text-align: left;
 `
 
-export const HeaderWithBackButton = ({ navigation, text = "Settings", light=false }) => {
+export const HeaderWithBackButton = ({ 
+	shouldDoubleBack = false,
+	navigation, 
+	text = "Settings", 
+	light=false 
+}) => {
+
+	const singleBack = () => navigation.goBack();
+	const doubleBack = () => { 
+		// for handy use with transitional loading screen on previous page
+		singleBack(); 
+		singleBack();
+	}
+
+	const onPress = (shouldDoubleBack) ? doubleBack : singleBack;
+
 	return (
 		<>
 			<HeaderView>
-				<BackButtonPressable onPress={() => navigation.goBack()}>
+				<BackButtonPressable onPress={onPress}>
 					<Icon type="ionicon" name="arrow-back-outline" color="white" size={24} />
 				</BackButtonPressable>
 				{ light && <HeaderTextLight>{text}</HeaderTextLight> }

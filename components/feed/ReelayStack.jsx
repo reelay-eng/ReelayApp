@@ -148,7 +148,12 @@ const ReelayStack = ({
 
     const renderReelay = ({ item, index }) => {
         const reelay = item;
-        const reelayIsViewable = stackViewable && (index === stackPosition);          
+        const reelayIsViewable = stackViewable && (index === stackPosition);  
+        
+        const clubStub = (reelay?.clubID) ?
+            { id: reelay.clubID, name: reelay.clubName } 
+            :  null;
+    
         return (
             <ReelayFeedContainer key={reelay.id}>
                 <Hero 
