@@ -22,7 +22,7 @@ import { BlurView } from 'expo-blur'
 const { width } = Dimensions.get('window');
 
 const BannerTopSpacer = styled(View)`
-    height: 22px;
+    height: ${props => props.allowExpand ? 22 : 12}px;
 `
 const ExpandArrowView = styled(Pressable)`
     align-items: center;
@@ -130,6 +130,7 @@ const TopicBanner = ({
     const { reelayDBUser } = useContext(AuthContext);
     const [expanded, setExpanded] = useState(false);
     
+    const allowExpand = (titleObj?.titleKey !== 'film-0');
     // figure out how to do ellipses for displayTitle
     const displayTitle = (titleObj.display) ? titleObj.display : 'Title not found'; 
 	const displayYear = (titleObj.releaseYear) ? titleObj.releaseYear : '';
@@ -137,6 +138,9 @@ const TopicBanner = ({
     const venue = reelay?.content?.venue;
 
     const onClickExpand = () => {
+        if (!allowExpand) {
+            return;
+        }
         animate(200);
         setExpanded(!expanded);
     }
@@ -175,6 +179,7 @@ const TopicBanner = ({
     }
 
     const ExpandArrow = () => {
+        if (!allowExpand) return <ExpandArrowView />
         return (
             <ExpandArrowView onPress={onClickExpand}>
                 <FontAwesomeIcon icon={expanded ?  faChevronUp : faChevronDown} color='white' size={16} />
@@ -261,7 +266,7 @@ const TopicBanner = ({
     return (
         <TopicBannerBackground>
             <BlurView intensity={25} tint='dark' style={{ alignItems: 'center', width: '100%'}}>
-                <BannerTopSpacer />
+                <BannerTopSpacer allowExpand={allowExpand} />
                 <TopicBannerRow onPress={onClickExpand}>
                     <TopicIcon />
                     <TopicTitle />

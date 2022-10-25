@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { Fragment, useRef, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -52,7 +52,7 @@ const StarRatingContainer = styled(View)`
     margin-bottom: 12px;
 `
 
-export default UploadDescriptionAndStarRating = ({ starCountRef, descriptionRef }) => {
+export default UploadDescriptionAndStarRating = ({ showStarRating = true, starCountRef, descriptionRef }) => {
     const [renderCount, setRenderCount] = useState(0);
 
     const onStarRatingPress = (rating) => {
@@ -64,24 +64,36 @@ export default UploadDescriptionAndStarRating = ({ starCountRef, descriptionRef 
         setRenderCount(renderCount + 1);
     }
 
+    const StarRatingLine = () => {
+        const ClearRatingButton = () => {
+            return (
+                <ClearRatingContainer onPress={onClearRatingPress}>
+                    <ClearRatingText>{"Clear"}</ClearRatingText>
+                </ClearRatingContainer>                        
+            );
+        }
+
+        return (
+            <Fragment>
+                { (starCountRef.current === 0) && <RatingText>{"Want to rate it?"}</RatingText> }
+                <StarRatingContainer>
+                    <StarRating 
+                        disabled={false}
+                        numStars={starCountRef.current}
+                        onStarRatingPress={onStarRatingPress}
+                        rating={starCountRef.current}
+                        starSize={30}
+                        starStyle={{ paddingRight: 8 }}
+                    />
+                    { (starCountRef.current > 0) && <ClearRatingButton /> }
+                </StarRatingContainer>
+            </Fragment>
+        );
+    }
+
     return (
         <InfoContainer>
-            { (starCountRef.current === 0) && <RatingText>{"Want to rate it?"}</RatingText> }
-            <StarRatingContainer>
-                <StarRating 
-                    disabled={false}
-                    numStars={starCountRef.current}
-                    onStarRatingPress={onStarRatingPress}
-                    rating={starCountRef.current}
-                    starSize={30}
-                    starStyle={{ paddingRight: 8 }}
-                />
-                { (starCountRef.current > 0) && 
-                    <ClearRatingContainer onPress={onClearRatingPress}>
-                        <ClearRatingText>{"Clear"}</ClearRatingText>
-                    </ClearRatingContainer>                        
-                }
-            </StarRatingContainer>
+            { showStarRating && <StarRatingLine /> }
             <EditDescription descriptionRef={descriptionRef} />
         </InfoContainer>
     );
