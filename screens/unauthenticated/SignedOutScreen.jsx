@@ -14,6 +14,7 @@ import ReelayLogoText from "../../assets/images/reelay-logo-text-with-dog.png"
 import { AuthContext } from "../../context/AuthContext";
 import { showErrorToast } from "../../components/utils/toasts";
 import { useDispatch, useSelector } from "react-redux";
+import ModalMenu from "../../components/global/ModalMenu";
 
 const ButtonPressable = styled(TouchableOpacity)`
     align-items: center;
@@ -134,23 +135,16 @@ const SigningInIndicator = () => {
 export default SignedOutScreen = ({ navigation, route }) => {
     // const autoSignInAsGuest = route?.params?.autoSignInAsGuest ?? false;
     const { setCognitoUser } = useContext(AuthContext);
+    const [passwordMenuVisible, setPasswordMenuVisible] = useState(false);
     const [signingInJustShowMe, setSigningInJustShowMe] = useState(false);
     const [signingInSocial, setSigningInSocial] = useState(false);
     const dispatch = useDispatch();
 
 
-    const SignUpButton = () => (
-        <ButtonContainer>
-            <ButtonPressable backgroundColor={ReelayColors.reelayGreen} onPress={() => navigation.push('SignUpScreen')}>
-                <ButtonText color='white'>{'[Dev] – Sign up'}</ButtonText>
-            </ButtonPressable>
-        </ButtonContainer>
-    );
-
     const LogInButton = () => (
 		<ButtonContainer>
-            <ButtonPressable backgroundColor='transparent' activeOpacity={0.7} onPress={() => navigation.push('SignInScreen')}>
-                <ButtonText fontSize="17px">{'I already have a password'}</ButtonText>
+            <ButtonPressable backgroundColor='transparent' activeOpacity={0.7} onPress={() => setPasswordMenuVisible(true)}>
+                <ButtonText fontSize="17px">{'Use a password'}</ButtonText>
             </ButtonPressable>
 		</ButtonContainer>
 	);
@@ -182,6 +176,16 @@ export default SignedOutScreen = ({ navigation, route }) => {
         }
     }
 
+    const closePasswordMenu = () => setPasswordMenuVisible(false);
+    const signUpWithPassword = () => {
+        closePasswordMenu();
+        navigation.push('SignUpScreen');
+    }
+    const signInWithPassword = () => {
+        closePasswordMenu();
+        navigation.push('SignInScreen');
+    }
+
     return (
         <Container>
             { signingInJustShowMe && (
@@ -201,10 +205,18 @@ export default SignedOutScreen = ({ navigation, route }) => {
                         <Spacer height='20px' />
                         <BarHeader />
                         <Spacer height='20px' />
-                        { DevSignUpIsVisible && <SignUpButton /> }
                         <JustShowMeButton />
                     </ButtonsFlexContainer>
-                    <LogInButton />
+                    { !passwordMenuVisible && <LogInButton /> }
+                    { passwordMenuVisible && (
+                        <ModalMenu
+                            closeMenu={closePasswordMenu}
+                            menuOptions={[
+                                { text: 'Sign up with password', action: signUpWithPassword},
+                                { text: 'I already have a password', action: signInWithPassword},
+                            ]}
+                        />
+                    )}
                 </>
             )}
             { (signingInSocial || signingInJustShowMe) && <SigningInIndicator />}
