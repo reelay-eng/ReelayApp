@@ -11,10 +11,10 @@ import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatli
 import ReelayColors from "../../constants/ReelayColors";
 import { LogBox } from 'react-native';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faChevronCircleRight, faChevronRight, faPlay, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { faPlay, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
 import UploadProgressBar from "../../components/global/UploadProgressBar";
-import { getMyDraftGuessingGames, patchGuessingGameDetails } from "../../api/GuessingGameApi";
+import { getGameDetails, getMyDraftGuessingGames, patchGuessingGameDetails } from "../../api/GuessingGameApi";
 import { AuthContext } from "../../context/AuthContext";
 import ReelayThumbnail from "../../components/global/ReelayThumbnail";
 
@@ -58,7 +58,7 @@ const ClueReelayIndexView = styled(View)`
     margin-right: 12px;
     width: 24px;
 `
-const ClueReelayRowPressable = styled(TouchableWithoutFeedback)`
+const ClueReelayRowPressable = styled(TouchableOpacity)`
     align-items: center;
     flex-direction: row;
     height: 82px;
@@ -148,6 +148,7 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
 
     const authSession = useSelector(state => state.authSession);
     const topOffset = useSafeAreaInsets().top;
+    const clueOrder = game?.clueOrder;
     const correctTitleObj = game?.correctTitleObj;
     const gameTitle = game?.title;
 
@@ -166,12 +167,12 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
         ? correctTitleObj?.releaseDate.slice(0,4) : '';
     const runtimeString = getRuntimeString(correctTitleObj?.runtime);
 
-    const getGameDetails = () => {
-        try {
-            return JSON.parse(game?.detailsJSON);
-        } catch (error){
-            return { error: 'Could not parse details JSON' };
-        }
+    const advanceToGamePreview = (index = 0) => {
+        navigation.push('FeedScreen', {
+            feedSource: 'guessingGamePreview',
+            initialStackPos: index,
+            preloadedStackList: [game?.reelays ?? []]
+        });
     }
 
     const onRefresh = async () => {
@@ -191,7 +192,7 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
             return;
         }
         setClues(data);
-        const prevGameDetails = getGameDetails();
+        const prevGameDetails = getGameDetails(game);
         prevGameDetails.clueOrder = [];
         const gameDetails = clues.reduce((curGameDetails, nextClue) => {
             console.log('game details: ', curGameDetails);
@@ -261,7 +262,10 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
         })
 
         const reelay = item;
-        const onPress = (reelay) ? () => {} : advanceToCreateReelayScreen;
+        const onPress = (reelay) 
+            ? () => advanceToGamePreview(index)
+            : advanceToCreateReelayScreen;
+
         return (
             <ClueReelayRowPressable delayLongPress={100} onPress={onPress} onLongPress={drag} disabled={isActive}>
                 <ClueReelayIndexView>
@@ -303,7 +307,7 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
                     <HeaderSubText>{'Add reelays to help people guess the title. Players get one guess for each reelay they see.'}</HeaderSubText>
                     <HeaderSubText>{'Press and hold to reorder.'}</HeaderSubText>
                 </CluesHeaderView>
-                <PreviewButtonPressable>
+                <PreviewButtonPressable onPress={() => advanceToGamePreview(0)}>
                     <PreviewButtonText>{'preview'}</PreviewButtonText>
                     <FontAwesomeIcon icon={faPlay} color='black' size={12} />
                 </PreviewButtonPressable>

@@ -42,6 +42,14 @@ const prepareGame = async (guessingGame) => {
     return guessingGame;
 }
 
+export const getGameDetails = (game) => {
+    try {
+        return JSON.parse(game?.detailsJSON);
+    } catch (error){
+        return { error: 'Could not parse details JSON' };
+    }
+}
+
 export const getMyDraftGuessingGames = async ({ authSession, reqUserSub }) => {
     const routeGet = `${REELAY_API_BASE_URL}/guessingGame/drafts`;
     const fetchedGames = await fetchResults(routeGet, {
