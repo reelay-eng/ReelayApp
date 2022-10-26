@@ -11,7 +11,7 @@ import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatli
 import ReelayColors from "../../constants/ReelayColors";
 import { LogBox } from 'react-native';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faPlay, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { faEllipsisVertical, faPlay, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
 import UploadProgressBar from "../../components/global/UploadProgressBar";
 import { getGameDetails, getMyDraftGuessingGames, patchGuessingGameDetails } from "../../api/GuessingGameApi";
@@ -37,6 +37,7 @@ const ClueReelayDescriptionText = styled(ReelayText.Body1)`
     flex-direction: row;
     font-size: 14px;
     padding: 12px;
+    padding-left: 0px;
     text-align: left;
 `
 const ClueReelayDescriptionView = styled(View)`
@@ -75,6 +76,12 @@ const CluesHeaderView = styled(View)`
 const CluesSectionView = styled(View)`
     padding: 16px;
     padding-top: 20px;
+`
+const DotMenuPressable = styled(TouchableOpacity)`
+    align-items: center;
+    height: 100%;
+    justify-content: center;
+    padding: 12px;
 `
 const GameTitleText = styled(ReelayText.Body1)`
     color: white;
@@ -234,6 +241,9 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
         } else {
             return (
                 <ClueReelayDescriptionView isActive={isActive} backgroundColor={backgroundColor}>
+                    <DotMenuPressable>
+                        <FontAwesomeIcon icon={faEllipsisVertical} color='white' size={24} />
+                    </DotMenuPressable>
                     <ClueReelayDescriptionText>{reelay?.description}</ClueReelayDescriptionText>
                     <ReelayThumbnail
                         asTopOfTheWeek={false}
