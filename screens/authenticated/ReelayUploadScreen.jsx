@@ -72,12 +72,12 @@ const TitleBannerContainer = styled(View)`
 
 export default ReelayUploadScreen = ({ navigation, route }) => {
     const { 
-        clubID, 
-        draftGame,
+        clubID = null, 
+        draftGame = null,
         titleObj, 
-        topicID, 
-        videoURI, 
-        venue,
+        topicID = null, 
+        videoURI = null, 
+        venue = '',
     } = route.params;
 
     const { reelayDBUser } = useContext(AuthContext);
@@ -126,12 +126,19 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     
             // the destination drawer cannot post directly into a topic, so
             // if topicID is populated, this clubID must have been passed as a param
-            const reelayTopic = (topicID && clubID) 
-                ? reelayClub?.topics?.find(nextTopic => nextTopic.id === topicID)
-            : (topicID) 
-                ? discoverTopics.find(nextTopic => nextTopic.id === topicID) 
-            : null;
-    
+
+            const getReelayTopic = () => {
+                if (topicID && draftGame) {
+                    return draftGame;
+                } else if (topicID && clubID) {
+                    return reelayClub?.topics?.find(nextTopic => nextTopic.id === topicID);
+                } else if (topicID) {
+                    return discoverTopics.find(nextTopic => nextTopic.id === topicID);
+                }
+                return null;
+            }
+
+            const reelayTopic = getReelayTopic();    
             const destination = (clubID) ? 'InClub' 
                 : (topicID) ? 'InTopic' 
                 : 'OnProfile';
@@ -151,7 +158,7 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
                 topicID: topicID ?? null,
                 venue: venue,
                 videoS3Key: videoS3Key,
-                visibility: (draftGame) ? 'draft' : UPLOAD_VISIBILITY,
+                visibility: (!!draftGame) ? 'draft' : UPLOAD_VISIBILITY,
             }
     
             const uploadRequest = {
@@ -247,12 +254,13 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     };
 
     const UploadBottomRow = () => {
+        const showStarRating = !!titleObj?.id && !draftGame;
         return (
             <KeyboardAvoidingView behavior='position'>
             <UploadBottomArea onPress={Keyboard.dismiss}>
                 { !uploadStarted && (
                     <UploadDescriptionAndStarRating 
-                        showStarRating={!!titleObj?.id}
+                        showStarRating={showStarRating}
                         starCountRef={starCountRef}
                         descriptionRef={descriptionRef}
                     />
@@ -267,13 +275,15 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
     }
 
     const UploadButton = () => {
-        const postDestinationText = (topicID)
-                ? 'Post to Topic'
-            : (clubID)
-                ? 'Post to Club'
-            : (myClubs.length === 0)
-                ? 'Post to Profile'
-            : 'Next';
+        const getPostDestinationText = () => {
+            if (draftGame) return 'Upload Clue';
+            if (topicID) return 'Post to Topic';
+            if (clubID) return 'Post to Club';
+            if (myClubs.length === 0) return 'Post to Profile';
+            return 'Next';
+        }
+
+        const postDestinationText = getPostDestinationText();
         const buttonText = (uploadStarted) ? 'Preparing...   ' : postDestinationText;
         const buttonTextColor = (uploadStarted) ? 'black' : 'white';
         const buttonColor = (uploadStarted) ? 'white' : ReelayColors.reelayBlue;
@@ -297,9 +307,11 @@ export default ReelayUploadScreen = ({ navigation, route }) => {
         // so we don't want to navigate away until we're done with that part
         if (uploadStage === 'uploading') {
             navigation.popToTop();
-            const { reelayClub } = uploadRequest;
+            const { reelayClub, reelayTopic } = uploadRequest;
             if (reelayClub) {
                 navigation.navigate('ClubActivityScreen', { club: reelayClub });
+            } else if (draftGame) {
+                navigation.navigate('CreateGuessingGameCluesScreen', { game: draftGame })
             } else {
                 navigation.navigate('Discover');
             }

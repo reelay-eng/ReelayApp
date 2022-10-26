@@ -21,6 +21,7 @@ import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 import { compressVideoForUpload, DEVICE_CAN_USE_FFMPEG } from './FFmpegApi';
 import * as Haptics from 'expo-haptics';
 import { generateThumbnail, saveThumbnail } from './ThumbnailApi';
+import { postGuessingGameClue } from './GuessingGameApi';
 
 const PROGRESS_PRE_COMPRESSION = 0.05;
 const PROGRESS_PRE_S3_UPLOAD = 0.15;
@@ -79,7 +80,7 @@ export const uploadReelay = async ({
     videoURI, 
     videoS3Key, 
 }) => {
-    const { creatorName, creatorSub } = reelayDBBody;
+    const { creatorName, creatorSub, datastoreSub } = reelayDBBody;
 
     try {
         logAmplitudeEventProd('publishReelayStarted', {
@@ -115,6 +116,15 @@ export const uploadReelay = async ({
             setUploadProgress(PROGRESS_POST_S3_UPLOAD);
         
             const publishedReelay = await postReelayToDB(reelayDBBody);
+            if (reelayTopic?.topicType === 'guessingGame') {
+                const postClueResult = await postGuessingGameClue({
+                    authSession, 
+                    reelaySub: datastoreSub,
+                    reqUserSub: creatorSub,
+                    topicID: reelayDBBody?.topicID ?? null,
+                });
+                console.log('post clue result: ', postClueResult);
+            }
             setUploadProgress(PROGRESS_COMPLETE_OR_FAILED);
             setUploadStage('upload-complete');
             Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);

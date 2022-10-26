@@ -58,9 +58,14 @@ export default UploadProgressBar = ({ mountLocation, onRefresh }) => {
     const dispatch = useDispatch();
 
     const safeAreaTop = useSafeAreaInsets().top;
-    const topOffset = (mountLocation === 'InClub') 
-        ? safeAreaTop + 82 
-        : safeAreaTop + 168;
+
+    const getTopOffset = () => {
+        if (mountLocation === 'InClub') return safeAreaTop + 82;
+        if (mountLocation === 'InClueBuilder') return safeAreaTop;
+        return safeAreaTop + 168;
+    }
+
+    const topOffset = getTopOffset();
 
     const downloadIconName = (downloadStage === 'download-ready')
             ? 'download-outline'

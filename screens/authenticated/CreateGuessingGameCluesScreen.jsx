@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Dimensions, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ReelayText from '../../components/global/Text';
@@ -11,7 +11,12 @@ import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatli
 import ReelayColors from "../../constants/ReelayColors";
 import { LogBox } from 'react-native';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { faChevronCircleRight, faChevronRight, faPlay, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { useSelector } from "react-redux";
+import UploadProgressBar from "../../components/global/UploadProgressBar";
+import { getMyDraftGuessingGames, patchGuessingGameDetails } from "../../api/GuessingGameApi";
+import { AuthContext } from "../../context/AuthContext";
+import ReelayThumbnail from "../../components/global/ReelayThumbnail";
 
 const { width } = Dimensions.get('window');
 
@@ -30,6 +35,8 @@ const ClueReelayDescriptionText = styled(ReelayText.Body1)`
     color: white;
     flex: 1;
     flex-direction: row;
+    font-size: 14px;
+    padding: 12px;
     text-align: left;
 `
 const ClueReelayDescriptionView = styled(View)`
@@ -73,9 +80,9 @@ const GameTitleText = styled(ReelayText.Body1)`
     color: white;
 `
 const GameTitleView = styled(View)`
+    background-color: #1d1d1d;
     border-color: rgba(255,255,255,0.5);
     border-radius: 8px;
-    border-width: 1px;
     padding: 16px;
     margin: 16px;
     width: ${width - 32}px;
@@ -93,6 +100,23 @@ const HeaderSubText = styled(ReelayText.Body2Emphasized)`
 const ImageContainer = styled(View)`
     flex-direction: row;
     align-items: center;
+`
+const PreviewButtonPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: white;
+    border-radius: 20px;
+    justify-content: center;
+    flex-direction: row;
+    margin: 12px;
+    margin-top: 0px;
+    margin-bottom: 24px;
+    padding: 8px;
+    width: 108px;
+`
+const PreviewButtonText = styled(ReelayText.Overline)`
+    color: black;
+    font-size: 12px;
+    margin-right: 8px;
 `
 const ScreenView = styled(View)`
     top: ${props => props.topOffset}px;
@@ -116,19 +140,20 @@ const YearText = styled(ReelayText.Subtitle2)`
 `
 
 export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
+    const initialGame = route?.params?.game;
+
+    const [game, setGame] = useState(initialGame);
+    const [clues, setClues] = useState([...initialGame.reelays, null]);
+    const { reelayDBUser } = useContext(AuthContext);
+
+    const authSession = useSelector(state => state.authSession);
     const topOffset = useSafeAreaInsets().top;
-    const bottomOffset = useSafeAreaInsets().bottom;
-    const game = route?.params?.game;
     const correctTitleObj = game?.correctTitleObj;
     const gameTitle = game?.title;
 
-    const getGameDetails = () => {
-        try {
-            return JSON.parse(game?.detailsJSON);
-        } catch (error){
-            return { error: 'Could not parse details JSON' };
-        }
-    }
+    const uploadStage = useSelector(state => state.uploadStage);
+    const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
+    const showProgressBar = showProgressBarStages.includes(uploadStage);
 
     const title = correctTitleObj?.display;
     const actors = correctTitleObj?.displayActors?.map(actor => actor.name)
@@ -141,13 +166,57 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
         ? correctTitleObj?.releaseDate.slice(0,4) : '';
     const runtimeString = getRuntimeString(correctTitleObj?.runtime);
 
-    const [clues, setClues] = useState([null]);
+    const getGameDetails = () => {
+        try {
+            return JSON.parse(game?.detailsJSON);
+        } catch (error){
+            return { error: 'Could not parse details JSON' };
+        }
+    }
+
+    const onRefresh = async () => {
+        const myDraftGuessingGames = await getMyDraftGuessingGames({
+            authSession,
+            reqUserSub: reelayDBUser?.sub,
+        });
+        const matchedGame = myDraftGuessingGames.find(nextGame => nextGame?.id === game.id);
+        if (matchedGame) setGame(matchedGame);
+    }
+
+    const setNextCluesFromDrag = async ({ data }) => {
+        const curLastItem = clues?.[clues?.length - 1];
+        const nextLastItem = data?.[data?.length - 1];
+        if (!curLastItem && !!nextLastItem) {
+            // cannot move last item (add a clue)
+            return;
+        }
+        setClues(data);
+        const prevGameDetails = getGameDetails();
+        prevGameDetails.clueOrder = [];
+        const gameDetails = clues.reduce((curGameDetails, nextClue) => {
+            console.log('game details: ', curGameDetails);
+            if (!nextClue) return curGameDetails;
+
+            const reelaySub = nextClue?.sub;
+            curGameDetails.clueOrder.push(reelaySub);
+            return curGameDetails;
+        }, prevGameDetails);
+        const nextDetailsJSON = JSON.stringify(gameDetails);
+        const patchResult = await patchGuessingGameDetails({
+            authSession,
+            reqUserSub: reelayDBUser?.sub,
+            detailsJSON: nextDetailsJSON,
+            topicID: game?.id,
+        });
+
+        console.log('patch next clues from drag: ', patchResult);
+    }
 
     useEffect(() => {
         LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
     }, []);
 
-    const ClueReelayDescription = ({ isActive, reelay = null }) => {
+    const ClueReelayDescription = ({ isActive, onPress = () => {}, reelay = null }) => {
         const backgroundColor = (isActive) 
             ? ReelayColors.reelayBlue
             : (!!reelay) ? '#252527' : 'black';
@@ -164,7 +233,20 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
         } else {
             return (
                 <ClueReelayDescriptionView isActive={isActive} backgroundColor={backgroundColor}>
-    
+                    <ClueReelayDescriptionText>{reelay?.description}</ClueReelayDescriptionText>
+                    <ReelayThumbnail
+                        asTopOfTheWeek={false}
+                        asAllClubActivity={false}
+                        asSingleClubActivity={true}
+                        height={80}
+                        margin={0}
+                        onPress={onPress}
+                        reelay={reelay}
+                        showPoster={false}
+                        showVenue={false}
+                        showIcons={false}
+                        width={54}                        
+                    />
                 </ClueReelayDescriptionView>
             );    
         }
@@ -181,11 +263,11 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
         const reelay = item;
         const onPress = (reelay) ? () => {} : advanceToCreateReelayScreen;
         return (
-            <ClueReelayRowPressable delayLongPress={250} onPress={onPress} onLongPress={drag} disabled={isActive}>
+            <ClueReelayRowPressable delayLongPress={100} onPress={onPress} onLongPress={drag} disabled={isActive}>
                 <ClueReelayIndexView>
                     <ClueReelayIndexText>{index + 1}</ClueReelayIndexText>
                 </ClueReelayIndexView>
-                <ClueReelayDescription isActive={isActive} />
+                <ClueReelayDescription isActive={isActive} onPress={onPress} reelay={reelay} />
             </ClueReelayRowPressable>
         );
     }
@@ -221,6 +303,10 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
                     <HeaderSubText>{'Add reelays to help people guess the title. Players get one guess for each reelay they see.'}</HeaderSubText>
                     <HeaderSubText>{'Press and hold to reorder.'}</HeaderSubText>
                 </CluesHeaderView>
+                <PreviewButtonPressable>
+                    <PreviewButtonText>{'preview'}</PreviewButtonText>
+                    <FontAwesomeIcon icon={faPlay} color='black' size={12} />
+                </PreviewButtonPressable>
             </View>
         );
     }
@@ -238,10 +324,11 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
                 ListFooterComponent={ComponentBelowList}
                 data={clues}
                 keyExtractor={(item, index) => (!!item) ? item?.id : index}
-                onDragEnd={({ data }) => setClues(data)}
+                onDragEnd={setNextCluesFromDrag}
                 renderItem={(props) => <ClueReelayRow { ...props } /> }                
                 showsVerticalScrollIndicator={false}
             />
+            { showProgressBar && <UploadProgressBar mountLocation={'InClueBuilder'} onRefresh={onRefresh} /> }
         </ScreenView>
     )
 }
