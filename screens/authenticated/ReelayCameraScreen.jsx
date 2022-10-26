@@ -110,6 +110,8 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
     const { reelayDBUser} = useContext(AuthContext);
     const { titleObj, venue } = route.params;
 
+    console.log('venue: ', venue);
+
     const topicID = route.params?.topicID ?? null;
     const clubID = route.params?.clubID ?? null;
     const draftGame = route?.params?.draftGame ?? null;

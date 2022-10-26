@@ -175,6 +175,7 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
             draftGame: game,
             topicID: game?.id,
             titleObj: correctTitleObj,
+            venue: '',
         })
 
         const reelay = item;

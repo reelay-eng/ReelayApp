@@ -38,6 +38,7 @@ target 'ReelayApp' do
   pod 'RNAWSCognito', :path => '../node_modules/amazon-cognito-identity-js'
   pod 'RNShare', :path => '../node_modules/react-native-share'
   pod 'FBReactNativeSpec', :path => "../node_modules/react-native/React/FBReactNativeSpec"
+  pod 'MixpanelReactNative', :path => "../node_modules/mixpanel-react-native"
 
   config = use_native_modules!
 
