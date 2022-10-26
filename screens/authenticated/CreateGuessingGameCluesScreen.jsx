@@ -175,11 +175,16 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
     const runtimeString = getRuntimeString(correctTitleObj?.runtime);
 
     const advanceToGamePreview = (index = 0) => {
-        navigation.push('FeedScreen', {
-            feedSource: 'guessingGamePreview',
+        navigation.push('SingleGuessingGameScreen', {
             initialStackPos: index,
-            preloadedStackList: [game?.reelays ?? []]
-        });
+            guessingGame: game,
+            isPreview: true,
+        })
+        // navigation.push('FeedScreen', {
+        //     feedSource: 'guessingGamePreview',
+        //     initialStackPos: index,
+        //     preloadedStackList: [game?.reelays ?? []]
+        // });
     }
 
     const onRefresh = async () => {

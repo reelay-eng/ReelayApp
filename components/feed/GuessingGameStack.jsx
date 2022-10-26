@@ -24,13 +24,7 @@ const ReelayFeedContainer = styled(View)`
     height: ${height}px;
     width: ${width}px;
 `
-const TitleBannerContainer = styled(View)`
-    margin-top: 10px;
-    position: absolute;
-    top: ${props => props.topOffset}px;
-    width: 100%;
-`
-const TopicBannerContainer = styled(View)`
+const GameBannerView = styled(View)`
     margin-top: 10px;
     left: 10px;
     position: absolute;
@@ -40,7 +34,6 @@ const TopicBannerContainer = styled(View)`
 
 export const GuessingGameStack = ({ 
     initialStackPos = 0,
-    feedSource,
     guessingGame,
     isPreview = false,
     navigation,
@@ -61,11 +54,20 @@ export const GuessingGameStack = ({
 
     const [myGuesses, setMyGuesses] = useState(initMyGuesses);
 
+    const isGameComplete = () => {
+        if (myGuesses.length === clueOrder.length) return true;
+        for (const guess of myGuesses) {
+            if (guess.isCorrect) return true;
+        }
+        return false;
+    }
+
     const stack = guessingGame?.reelays ?? [];
     const lastVisibleIndex = myGuesses?.length;
     const firstLockedIndex = lastVisibleIndex + 1;
-    const displayStack = stack.slice(0, firstLockedIndex);
-
+    const displayStack = (isGameComplete()) 
+        ? stack 
+        : stack.slice(0, firstLockedIndex);
 
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
@@ -107,7 +109,7 @@ export const GuessingGameStack = ({
                 <Hero 
                     clubStub={clubStub}
                     index={index} 
-                    feedSource={feedSource}
+                    feedSource={'guessingGame'}
                     navigation={navigation} 
                     reelay={reelay} 
                     viewable={reelayIsViewable}
@@ -157,15 +159,17 @@ export const GuessingGameStack = ({
                 pagingEnabled={true} 
                 windowSize={3}
             />
-            <TopicBannerContainer topOffset={topOffset}>
+            <GameBannerView topOffset={topOffset}>
                 <GuessingGameBanner
-                    club={clubStub}
+                    club={getClubStub(viewableReelay)}
+                    myGuesses={myGuesses}
+                    setMyGuesses={setMyGuesses}
                     navigation={navigation}
                     titleObj={viewableReelay?.title}
                     topic={topicStub}
                     reelay={viewableReelay}
                 />                    
-            </TopicBannerContainer>
+            </GameBannerView>
             { (stack.length > 1) && (
                 <StackPositionBar stackLength={stack?.length} stackPosition={stackPosition} stackViewable={stackViewable} /> 
             )}

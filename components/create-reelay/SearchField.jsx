@@ -10,10 +10,10 @@ const SearchFieldContainer = styled(SafeAreaView)`
 `
 
 export default SearchField = ({ 
+	backgroundColor = '#121212',
     searchText, 
     updateSearchText, 
     placeholderText = 'Search',
-    borderRadius = 36,
     clearIcon = true,
 }) => {
 
@@ -37,7 +37,7 @@ export default SearchField = ({
 		paddingTop: clearIcon ? 2 : 6,
 		paddingBottom: clearIcon ? 2 : 6,
 		paddingRight: 4,
-		backgroundColor: "#121212",
+		backgroundColor,
 		borderRadius: 6,
 		justifyContent: 'center',
 		width: '100%',

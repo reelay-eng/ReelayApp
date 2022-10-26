@@ -35,7 +35,7 @@ const YearText = styled(ReelayText.Subtitle2)`
     color: gray
 `
 
-export default TitleSearchResultItem = ({ navigation, result, source, clubID, topicID }) => {
+export default TitleSearchResultItem = ({ navigation, onGuessTitle, result, source, clubID, topicID }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const titleObj = result;
 
@@ -77,6 +77,9 @@ export default TitleSearchResultItem = ({ navigation, result, source, clubID, to
                 clubID,
                 correctTitleObj: titleObj,
             });
+        } else if (source && source === 'guessTitle') {
+            // todo
+            onGuessTitle(titleObj);
         } else {
             showErrorToast('Error selecting result. Please reach out to the Reelay team.');
             logAmplitudeEventProd('selectSearchResultError', {

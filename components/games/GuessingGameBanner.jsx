@@ -1,4 +1,4 @@
-import React, { memo, useContext, useState } from "react";
+import React, { Fragment, memo, useContext, useEffect, useRef, useState } from "react";
 import { Dimensions, Pressable, View } from "react-native";
 import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
@@ -14,9 +14,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import { getRuntimeString } from "../utils/TitleRuntime";
 import { animate } from "../../hooks/animations";
-import { TopicsBannerIconSVG, TopicsIconSVG } from "../global/SVGs";
+import { GamesIconSVG, TopicsBannerIconSVG, TopicsIconSVG } from "../global/SVGs";
 
 import { BlurView } from 'expo-blur'
+import SearchField from "../create-reelay/SearchField";
+import { searchTitles } from "../../api/ReelayDBApi";
+import TitleSearchResults from "../search/TitleSearchResults";
 
 const { width } = Dimensions.get('window');
 
@@ -58,7 +61,7 @@ const TopicBannerBackground = styled(View)`
     zIndex: 3;
     overflow: hidden;
 `
-const TopicIconContainer = styled(View)`
+const GamesIconView = styled(View)`
     align-items: center;
     justify-content: center;
     height: 100%;
@@ -120,6 +123,8 @@ const YearVenueContainer = styled(View)`
 
 const GuessingGameBanner = ({ 
     club = null,
+    myGuesses,
+    setMyGuesses,
     navigation=null, 
     onCameraScreen=false,
     reelay=null, 
@@ -154,17 +159,6 @@ const GuessingGameBanner = ({
             username: reelayDBUser?.username,
             source: 'poster',
         });
-    }
-
-    const AddToStack = () => {
-        return (
-            <AddToStackButton 
-                navigation={navigation} 
-                reelay={reelay} 
-                club={club}
-                topic={topic}
-            />
-        );
     }
 
     const AddToClubs = () => {
@@ -224,12 +218,86 @@ const GuessingGameBanner = ({
         );
     }
 
-    const TopicIcon = () => {
+    const GamesIcon = () => {
         return (
-            <TopicIconContainer>
-                <TopicsBannerIconSVG />
-            </TopicIconContainer>
+            <GamesIconView>
+                <GamesIconSVG />
+            </GamesIconView>
         );
+    }
+
+    const Guesser = () => {
+        const isSeries = false;
+        const correctTitleKey = reelay?.titleKey;
+        console.log('correct title key: ', correctTitleKey);
+        const [loading, setLoading] = useState(false);
+        const [searchText, setSearchText] = useState('');
+        const [searchResults, setSearchResults] = useState([]);
+        const updateCounter = useRef(0);
+
+        const updateSearch = async (newSearchText, counter) => {
+            if (searchText.length === 0) {            
+                setSearchResults([]);
+                return;
+            }
+    
+            try {
+                setLoading(true);
+                const annotatedResults = await searchTitles(newSearchText, isSeries);
+                if (updateCounter.current === counter) {
+                    setSearchResults(annotatedResults);
+                }
+            } catch (error) {
+                console.log(error);
+            }    
+        }
+
+        const onGuessTitle = (guessedTitleObj) => {
+            const guessedTitleKey = `${guessedTitleObj.titleType}-${guessedTitleObj?.id}`
+            console.log('guessed title: ', guessedTitleKey);
+
+            const isCorrect = (guessedTitleKey === correctTitleKey);
+            const nextGuess = {
+                clueIndex: 0,
+                guessedTitleKey,
+                isCorrect,
+                reelaySub: reelay?.sub,
+                topicID: topic?.id,
+                userSub: reelayDBUser?.sub,
+                visibility: 'draft',
+            }
+            setMyGuesses([...myGuesses, nextGuess]);
+        }
+
+        useEffect(() => {
+            updateCounter.current += 1;
+            const nextUpdateCounter = updateCounter.current;
+
+            setTimeout(() => {
+                updateSearch(searchText, nextUpdateCounter);
+            }, 200);    
+        }, [searchText]);
+
+        return (
+            <Fragment>
+                <SearchField
+                    backgroundColor="rgba(0,0,0,0.4)"
+                    placeholderText="You have 6 guesses remaining"
+                    searchText={searchText}
+                    updateSearchText={setSearchText}
+                />
+                { searchResults.length > 1 && (
+                    <TitleSearchResults
+                        navigation={navigation}
+                        searchResults={searchResults}
+                        searchText={searchText}
+                        isSeries={isSeries}
+                        source={"guessTitle"}
+                        onGuessTitle={onGuessTitle}
+                    />
+                )}
+            </Fragment>
+        )
     }
 
     const TopicTitle = () => {
@@ -267,21 +335,20 @@ const GuessingGameBanner = ({
             <BlurView intensity={25} tint='dark' style={{ alignItems: 'center', width: '100%'}}>
                 <BannerTopSpacer allowExpand={allowExpand} />
                 <TopicBannerRow onPress={onClickExpand}>
-                    <TopicIcon />
+                    <GamesIcon />
                     <TopicTitle />
-                    { !onCameraScreen && <AddToStack /> }
-                </TopicBannerRow>    
-                { expanded && <ExpandedInfo /> }
-                <ExpandArrow />
+                </TopicBannerRow>   
+                <Guesser /> 
+                {/* <SearchField
+                    placeholderText="You have 6 guesses remaining"
+                    searchText={'You have 6 guesses remaining'}
+                    updateSearchText={updateSearchText}
+                /> */}
+                {/* { expanded && <ExpandedInfo /> } */}
+                {/* <ExpandArrow /> */}
             </BlurView>
         </TopicBannerBackground>
     );
-}
-
-const areEqual = (prevProps, nextProps) => {
-    const titlesEqual = (prevProps.titleObj?.id === nextProps.titleObj?.id);
-    const reelaysEqual = (prevProps?.reelay?.sub === nextProps?.reelay?.sub);
-    return titlesEqual && reelaysEqual ;
 }
 
 export default GuessingGameBanner;
