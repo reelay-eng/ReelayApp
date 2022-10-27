@@ -78,7 +78,8 @@ export const GuessingGameStack = ({
 
     const checkAdvanceToNewClue = () => {
         if (stackPosition < lastVisibleIndex) {
-            stackRef.current.scrollToEnd();
+            // stackRef.current.scrollToIndex(lastVisibleIndex);
+            // setStackPosition(lastVisibleIndex);
         }
     }
 
@@ -161,6 +162,7 @@ export const GuessingGameStack = ({
             />
             <GameBannerView topOffset={topOffset}>
                 <GuessingGameBanner
+                    clueIndex={stackPosition}
                     club={getClubStub(viewableReelay)}
                     myGuesses={myGuesses}
                     setMyGuesses={setMyGuesses}

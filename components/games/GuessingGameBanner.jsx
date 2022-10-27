@@ -1,5 +1,5 @@
 import React, { Fragment, memo, useContext, useEffect, useRef, useState } from "react";
-import { Dimensions, Pressable, View } from "react-native";
+import { Dimensions, FlatList, Pressable, View } from "react-native";
 import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
 
@@ -11,7 +11,7 @@ import AddToStackButton from "../feed/AddToStackButton";
 import VenueIcon from '../utils/VenueIcon';
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
+import { faCheckCircle, faChevronDown, faChevronUp, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
 import { getRuntimeString } from "../utils/TitleRuntime";
 import { animate } from "../../hooks/animations";
 import { GamesIconSVG, TopicsBannerIconSVG, TopicsIconSVG } from "../global/SVGs";
@@ -20,6 +20,7 @@ import { BlurView } from 'expo-blur'
 import SearchField from "../create-reelay/SearchField";
 import { searchTitles } from "../../api/ReelayDBApi";
 import TitleSearchResults from "../search/TitleSearchResults";
+import ReelayColors from "../../constants/ReelayColors";
 
 const { width } = Dimensions.get('window');
 
@@ -31,23 +32,17 @@ const ExpandArrowView = styled(Pressable)`
     padding-bottom: 6px;
     width: 100%;
 `
-const ExpandedInfoView = styled(Pressable)`
-    align-items: center;
-    flex-direction: row;
-    flex-wrap: wrap;
-    margin: 6px;
-    margin-top: 0px;
-    padding: 12px;
-    padding-top: 10px;
-    padding-bottom: 0px;
-    width: ${width}px;
-`
 const RuntimeText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
     margin-right: 10px;
 `
-const TopicBannerRow = styled(Pressable)`
+const TitleBannerRow = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+`
+const TopicBannerRow = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
@@ -67,6 +62,34 @@ const GamesIconView = styled(View)`
     height: 100%;
     padding: 10px;
 `
+const GuessIconView = styled(View)`
+    align-items: center;
+    background-color: rgba(255,255,255,0.9);
+    border-radius: 100px;
+    justify-content: center;
+    margin: 10px;
+`
+const GuessMarkerView = styled(View)`
+    background-color: ${props => props.isCorrect 
+        ? ReelayColors.reelayGreen 
+        : (props.isGuessed) 
+            ? ReelayColors.reelayRed : 'gray'
+    };
+    border-color: rgba(255,255,255,0.5);
+    border-radius: 12px;
+    border-width: ${props => props.viewable ? 1 : 0}px;
+    height: 12px;
+    margin: 8px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    width: 12px;
+`
+const GuessMarkerRowView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+`
 const TitleInfoPressable = styled(Pressable)`
     align-items: flex-start;
     justify-content: center;
@@ -77,7 +100,7 @@ const TitleInfoPressable = styled(Pressable)`
 `
 const TitlePosterContainer = styled(View)`
     justify-content: center;
-    margin: 5px;
+    margin: 8px;
 `
 const TitleText = styled(ReelayText.H5Bold)`
     color: white;
@@ -121,8 +144,68 @@ const YearVenueContainer = styled(View)`
     flex-direction: row;
 `
 
+const ImageContainer = styled(View)`
+    flex-direction: row;
+    align-items: center;
+`
+const PressableContainer = styled(Pressable)`
+    flex-direction: row;
+    margin: 5px;
+    margin-left: 20px;
+`
+const TitleLineContainer = styled(View)`
+    flex: 1;
+    justify-content: center;
+    margin-left: 12px;
+    margin-right: 20px;
+`;
+const ActorText = styled(ReelayText.Subtitle2)`
+    color: gray
+`
+
+
+const SearchResults = ({ onGuessTitle, searchResults }) => {
+    const displayResults = searchResults.slice(0,4);
+
+    const GuessOption = ({ titleObj }) => {
+        const title = titleObj?.display;
+        const actors = titleObj?.displayActors?.map(actor => actor.name)
+                .filter((actor) => actor !== undefined)
+                .join(", ") 
+            ?? [];
+    
+    
+        const releaseYear = (titleObj?.releaseDate && titleObj?.releaseDate.length >= 4) 
+            ? titleObj.releaseDate.slice(0,4) : '';
+        const runtimeString = getRuntimeString(titleObj?.runtime);
+    
+        return (
+            <PressableContainer key={titleObj?.id} onPress={() => onGuessTitle(titleObj)}>
+                <ImageContainer>
+                    { titleObj?.posterSource && (
+                        <TitlePoster title={titleObj} width={60} />
+                    )}
+                    { !titleObj.posterSource && <TitleText>{"No Poster Available"}</TitleText>}
+                </ImageContainer>
+                <TitleLineContainer>
+                    <TitleText>{title}</TitleText>
+                    <YearText>{`${releaseYear}    ${runtimeString}`}</YearText>
+                    <ActorText>{actors}</ActorText>
+                </TitleLineContainer>
+            </PressableContainer>
+        );
+    }    
+
+    const renderItem = ({ item, index }) => {
+        return <GuessOption titleObj={item} onGuessTitle={onGuessTitle} />
+    }
+
+    return <FlatList data={displayResults} renderItem={renderItem} />;
+}
+
 const GuessingGameBanner = ({ 
     club = null,
+    clueIndex = 0,
     myGuesses,
     setMyGuesses,
     navigation=null, 
@@ -133,10 +216,12 @@ const GuessingGameBanner = ({
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const [expanded, setExpanded] = useState(false);
-    
+
     const allowExpand = (titleObj?.titleKey !== 'film-0');
     // figure out how to do ellipses for displayTitle
     const displayTitle = (titleObj.display) ? titleObj.display : 'Title not found'; 
+    const guessesLeft = (6 - myGuesses?.length);
+    const guessesPlural = (guessesLeft > 1) ? 'es' : 0;
 	const displayYear = (titleObj.releaseYear) ? titleObj.releaseYear : '';
     const runtime = titleObj?.runtime;
     const venue = reelay?.content?.venue;
@@ -180,29 +265,48 @@ const GuessingGameBanner = ({
         );
     }
 
-    const ExpandedInfo = () => {
+    const GuessResult = () => {
+        if (clueIndex >= myGuesses?.length) return <View />;
+        console.log('clue index: ', clueIndex, myGuesses?.length);
+        const guessObj = myGuesses[clueIndex];
+        console.log('guess obj: ', guessObj);
+        const guessedTitleObj = guessObj?.guessedTitleObj;
+
+        console.log('guessed title obj: ', guessedTitleObj);
+
+        const guessIcon = guessObj?.isCorrect 
+            ? faCheckCircle 
+            : faXmarkCircle;
+        const guessIconColor = guessObj?.isCorrect 
+            ? ReelayColors.reelayGreen 
+            : ReelayColors.reelayRed;
+
         return (
-            <Pressable onPress={onClickExpand}>
-                <ExpandedInfoView>
-                    <Poster />
-                    <TitleInfo />
-                    { !onCameraScreen && <AddToClubs /> }
-                </ExpandedInfoView>
-            </Pressable>
-        );
+            <TitleBannerRow>
+                <Poster guessedTitleObj={guessedTitleObj} />
+                <TitleInfo guessedTitleObj={guessedTitleObj} />
+                <GuessIconView>
+                    <FontAwesomeIcon icon={guessIcon} color={guessIconColor} size={27} />
+                </GuessIconView>
+            </TitleBannerRow>
+        )
     }
 
-    const Poster = () => {
+    const Poster = ({ guessedTitleObj }) => {
         return (
             <TitlePosterContainer>
-                <TitlePoster title={titleObj} onPress={openTitleDetail} width={56} />
+                <TitlePoster title={guessedTitleObj} width={36} />
             </TitlePosterContainer>
         );
     }
 
-    const TitleInfo = () => {
+    const TitleInfo = ({ guessedTitleObj }) => {
+        const displayTitle = guessedTitleObj?.display;
+        const displayYear = (guessedTitleObj?.releaseDate && guessedTitleObj?.releaseDate.length >= 4) 
+            ? titleObj.releaseDate.slice(0,4) : '';
+
         return (
-            <TitleInfoPressable onPress={onClickExpand}>
+            <TitleInfoPressable>
                 <TitleTextContainer>
                     <TitleText numberOfLines={2} ellipsizeMode={"tail"}>
                         {displayTitle}
@@ -211,7 +315,7 @@ const GuessingGameBanner = ({
                 <Underline 
                     displayYear={displayYear} 
                     expanded={expanded}
-                    runtime={titleObj?.runtime}
+                    runtime={guessedTitleObj?.runtime}
                     venue={venue} 
                 />
             </TitleInfoPressable>
@@ -258,8 +362,9 @@ const GuessingGameBanner = ({
 
             const isCorrect = (guessedTitleKey === correctTitleKey);
             const nextGuess = {
-                clueIndex: 0,
+                clueIndex,
                 guessedTitleKey,
+                guessedTitleObj,
                 isCorrect,
                 reelaySub: reelay?.sub,
                 topicID: topic?.id,
@@ -279,24 +384,43 @@ const GuessingGameBanner = ({
         }, [searchText]);
 
         return (
-            <Fragment>
+            <View style={{ width: '100%'}}>
                 <SearchField
                     backgroundColor="rgba(0,0,0,0.4)"
-                    placeholderText="You have 6 guesses remaining"
+                    placeholderText={`You have ${guessesLeft} guess${guessesPlural} remaining`}
                     searchText={searchText}
                     updateSearchText={setSearchText}
                 />
                 { searchResults.length > 1 && (
-                    <TitleSearchResults
-                        navigation={navigation}
+                    <SearchResults
                         searchResults={searchResults}
-                        searchText={searchText}
-                        isSeries={isSeries}
-                        source={"guessTitle"}
                         onGuessTitle={onGuessTitle}
                     />
                 )}
-            </Fragment>
+            </View>
+        )
+    }
+
+    const GuessMarkers = () => {
+
+        const renderGuessMarker = (guess, index) => {
+            const isCorrect = guess?.isCorrect;
+            const reelaySub = guess?.reelaySub;
+            const viewable = (reelaySub === reelay?.sub);
+            console.log('viewable?: ', viewable, reelaySub, reelay?.sub);
+            return (
+                <GuessMarkerView key={index} isCorrect={isCorrect} isGuessed={true} viewable={viewable} />
+            );
+        };
+        // if (myGuesses?.length === 0) return <View />;
+        console.log('guesses: ', myGuesses);
+        return (
+            <GuessMarkerRowView>
+                { myGuesses.map(renderGuessMarker) }
+                { guessesLeft > 0 && (
+                    <GuessMarkerView isCorrect={false} isGuessed={false} viewable={true} />
+                )}
+            </GuessMarkerRowView>
         )
     }
 
@@ -308,7 +432,7 @@ const GuessingGameBanner = ({
         );
     }
 
-    const Underline = () => {
+    const Underline = ({ displayYear, runtime, venue }) => {
         const runtimeString = runtime ? getRuntimeString(runtime) : '';
         return (
             <UnderlineContainer>
@@ -321,7 +445,7 @@ const GuessingGameBanner = ({
         );
     };
 
-    const VenueIndicator = () => {
+    const VenueIndicator = ({ venue }) => {
         return (
             <VenueContainer>
                 <VenueIcon venue={venue} size={20} border={1} />
@@ -330,6 +454,7 @@ const GuessingGameBanner = ({
     }
         
 
+    const showGuessResult = (clueIndex < myGuesses?.length);
     return (
         <TopicBannerBackground>
             <BlurView intensity={25} tint='dark' style={{ alignItems: 'center', width: '100%'}}>
@@ -338,12 +463,9 @@ const GuessingGameBanner = ({
                     <GamesIcon />
                     <TopicTitle />
                 </TopicBannerRow>   
-                <Guesser /> 
-                {/* <SearchField
-                    placeholderText="You have 6 guesses remaining"
-                    searchText={'You have 6 guesses remaining'}
-                    updateSearchText={updateSearchText}
-                /> */}
+                <GuessMarkers />
+                { showGuessResult && <GuessResult /> }
+                { !showGuessResult && <Guesser /> }
                 {/* { expanded && <ExpandedInfo /> } */}
                 {/* <ExpandArrow /> */}
             </BlurView>

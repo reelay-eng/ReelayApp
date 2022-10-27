@@ -38,7 +38,6 @@ const prepareGame = async (guessingGame) => {
         guessingGame.details = { error: 'Could not parse details JSON'};
         guessingGame.reelays = [];
     }
-    console.log('prepared game: ', guessingGame);
     return guessingGame;
 }
 
