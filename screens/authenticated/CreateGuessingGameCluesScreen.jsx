@@ -18,6 +18,7 @@ import { getGameDetails, getMyDraftGuessingGames, patchGuessingGameDetails } fro
 import { AuthContext } from "../../context/AuthContext";
 import ReelayThumbnail from "../../components/global/ReelayThumbnail";
 import DeleteGuessingGameDrawer from "../../components/games/DeleteGuessingGameDrawer";
+import DeleteGuessingGameClueDrawer from "../../components/games/DeleteGuessingGameClueDrawer";
 
 const { width } = Dimensions.get('window');
 
@@ -31,7 +32,7 @@ const AddReelayButtonView = styled(View)`
     padding-left: 16px;
     padding-right: 16px;
 `
-const ClueReelayDescriptionText = styled(ReelayText.Body1)`
+const ClueBarText = styled(ReelayText.Body1)`
     align-items: flex-end;
     color: white;
     flex: 1;
@@ -41,7 +42,7 @@ const ClueReelayDescriptionText = styled(ReelayText.Body1)`
     padding-left: 0px;
     text-align: left;
 `
-const ClueReelayDescriptionView = styled(View)`
+const ClueBarView = styled(View)`
     align-items: center;
     background-color: ${props => props.backgroundColor};
     border-radius: 10px;
@@ -208,23 +209,26 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
     }
 
     const setNextCluesFromDrag = async ({ data }) => {
+        const nextClues = data;
         const curLastItem = clues?.[clues?.length - 1];
-        const nextLastItem = data?.[data?.length - 1];
+        const nextLastItem = nextClues?.[nextClues?.length - 1];
         if (!curLastItem && !!nextLastItem) {
             // cannot move last item (add a clue)
             return;
         }
-        setClues(data);
+        setClues(nextClues);
         const prevGameDetails = getGameDetails(game);
         prevGameDetails.clueOrder = [];
-        const gameDetails = clues.reduce((curGameDetails, nextClue) => {
-            console.log('game details: ', curGameDetails);
-            if (!nextClue) return curGameDetails;
 
+
+        const gameDetails = nextClues.reduce((curGameDetails, nextClue) => {
+            if (!nextClue) return curGameDetails;
             const reelaySub = nextClue?.sub;
             curGameDetails.clueOrder.push(reelaySub);
             return curGameDetails;
         }, prevGameDetails);
+
+
         const nextDetailsJSON = JSON.stringify(gameDetails);
         const patchResult = await patchGuessingGameDetails({
             authSession,
@@ -232,35 +236,34 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
             detailsJSON: nextDetailsJSON,
             topicID: game?.id,
         });
-
-        console.log('patch next clues from drag: ', patchResult);
     }
 
     useEffect(() => {
         LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
     }, []);
 
-    const ClueReelayDescription = ({ isActive, onPress = () => {}, reelay = null }) => {
+    const ClueBar = ({ isActive, onPress = () => {}, reelay = null }) => {
+        const [clueDrawerOpen, setClueDrawerOpen] = useState(false);
         const backgroundColor = (isActive) 
             ? ReelayColors.reelayBlue
             : (!!reelay) ? '#252527' : 'black';
 
         if (!reelay) {
             return (
-                <ClueReelayDescriptionView isActive={isActive} backgroundColor={backgroundColor}>
-                    <ClueReelayDescriptionText>{'Add a video clue...'}</ClueReelayDescriptionText>
+                <ClueBarView isActive={isActive} backgroundColor={backgroundColor}>
+                    <ClueBarText>{'Add a video clue...'}</ClueBarText>
                     <AddReelayButtonView>
                         <FontAwesomeIcon icon={faPlusCircle} size={30} color='white' />
                     </AddReelayButtonView>
-                </ClueReelayDescriptionView>
+                </ClueBarView>
             );    
         } else {
             return (
-                <ClueReelayDescriptionView isActive={isActive} backgroundColor={backgroundColor}>
-                    <DotMenuPressable>
+                <ClueBarView isActive={isActive} backgroundColor={backgroundColor}>
+                    <DotMenuPressable onPress={() => setClueDrawerOpen(true)}>
                         <FontAwesomeIcon icon={faEllipsisVertical} color='white' size={24} />
                     </DotMenuPressable>
-                    <ClueReelayDescriptionText>{reelay?.description}</ClueReelayDescriptionText>
+                    <ClueBarText>{reelay?.description}</ClueBarText>
                     <ReelayThumbnail
                         asTopOfTheWeek={false}
                         asAllClubActivity={false}
@@ -274,7 +277,15 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
                         showIcons={false}
                         width={54}                        
                     />
-                </ClueReelayDescriptionView>
+                    { clueDrawerOpen && (
+                        <DeleteGuessingGameClueDrawer
+                            closeDrawer={() => setClueDrawerOpen(false)}
+                            guessingGame={game}
+                            navigation={navigation}
+                            reelay={reelay}
+                        />
+                    )}
+                </ClueBarView>
             );    
         }
     }
@@ -297,7 +308,7 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
                 <ClueReelayIndexView>
                     <ClueReelayIndexText>{index + 1}</ClueReelayIndexText>
                 </ClueReelayIndexView>
-                <ClueReelayDescription isActive={isActive} onPress={onPress} reelay={reelay} />
+                <ClueBar isActive={isActive} onPress={onPress} reelay={reelay} />
             </ClueReelayRowPressable>
         );
     }
