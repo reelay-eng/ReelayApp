@@ -269,9 +269,9 @@ export default ReelayFeed = ({ navigation,
         setReelayThreads(fetchedThreads);
         setRefreshing(false);
         
-        if (shouldShowMessageToast) {
-            showMessageToast('You\'re at the top', 'top');
-        }
+        // if (shouldShowMessageToast) {
+        //     showMessageToast('You\'re at the top', 'top');
+        // }
     }
 
     const renderStack = ({ item, index }) => {

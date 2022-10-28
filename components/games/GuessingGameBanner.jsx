@@ -24,37 +24,11 @@ import ReelayColors from "../../constants/ReelayColors";
 
 const { width } = Dimensions.get('window');
 
+const ActorText = styled(ReelayText.Subtitle2)`
+    color: gray
+`
 const BannerTopSpacer = styled(View)`
     height: ${props => props.allowExpand ? 22 : 12}px;
-`
-const ExpandArrowView = styled(Pressable)`
-    align-items: center;
-    padding-bottom: 6px;
-    width: 100%;
-`
-const RuntimeText = styled(ReelayText.CaptionEmphasized)`
-    color: white;
-    height: 16px;
-    margin-right: 10px;
-`
-const TitleBannerRow = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    justify-content: space-between;
-`
-const TopicBannerRow = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    justify-content: space-between;
-    height: 60px;
-`
-const TopicBannerBackground = styled(View)`
-    align-items: center;
-    border-radius: 8px;
-    top: 20px;
-    width: ${width - 20}px;
-    zIndex: 3;
-    overflow: hidden;
 `
 const GamesIconView = styled(View)`
     align-items: center;
@@ -86,6 +60,25 @@ const GuessMarkerRowView = styled(View)`
     justify-content: center;
     width: 100%;
 `
+const ImageContainer = styled(View)`
+    flex-direction: row;
+    align-items: center;
+`
+const PressableContainer = styled(Pressable)`
+    flex-direction: row;
+    margin: 5px;
+    margin-left: 20px;
+`
+const RuntimeText = styled(ReelayText.CaptionEmphasized)`
+    color: white;
+    height: 16px;
+    margin-right: 10px;
+`
+const TitleBannerRow = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+`
 const TitleInfoPressable = styled(Pressable)`
     align-items: flex-start;
     justify-content: center;
@@ -93,6 +86,12 @@ const TitleInfoPressable = styled(Pressable)`
     display: flex;
     flex: 1;
     padding: 5px;
+`
+const TitleLineContainer = styled(View)`
+    flex: 1;
+    justify-content: center;
+    margin-left: 12px;
+    margin-right: 20px;
 `
 const TitlePosterContainer = styled(View)`
     justify-content: center;
@@ -108,6 +107,20 @@ const TitleText = styled(ReelayText.H5Bold)`
 const TitleTextContainer = styled(View)`
     justify-content: center;
     display: flex;
+`
+const TopicBannerRow = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 60px;
+`
+const TopicBannerBackground = styled(View)`
+    align-items: center;
+    border-radius: 8px;
+    top: 20px;
+    width: ${width - 20}px;
+    zIndex: 3;
+    overflow: hidden;
 `
 const TopicTitleText = styled(ReelayText.Subtitle1Emphasized)`
     color: white;
@@ -139,26 +152,6 @@ const YearVenueContainer = styled(View)`
     align-items: center;
     flex-direction: row;
 `
-
-const ImageContainer = styled(View)`
-    flex-direction: row;
-    align-items: center;
-`
-const PressableContainer = styled(Pressable)`
-    flex-direction: row;
-    margin: 5px;
-    margin-left: 20px;
-`
-const TitleLineContainer = styled(View)`
-    flex: 1;
-    justify-content: center;
-    margin-left: 12px;
-    margin-right: 20px;
-`;
-const ActorText = styled(ReelayText.Subtitle2)`
-    color: gray
-`
-
 
 const SearchResults = ({ onGuessTitle, searchResults }) => {
     const displayResults = searchResults.slice(0,4);
@@ -203,6 +196,7 @@ const GuessingGameBanner = ({
     club = null,
     clueIndex = 0,
     clueOrder = [],
+    isUnlocked = false,
     myGuesses,
     setMyGuesses,
     navigation=null, 
@@ -400,12 +394,12 @@ const GuessingGameBanner = ({
 
         const gameOver = isGameComplete();
         const unansweredColor = gameOver ? ReelayColors.reelayGreen : 'gray';
-        const guessesLeftKeys = gameOver ? [...Array(guessesLeft).keys()] : [];
+        const guessesLeftKeys = [...Array(guessesLeft).keys()];
 
         return (
             <GuessMarkerRowView>
                 { myGuesses.map(renderGuessMarker) }
-                { gameOver && guessesLeftKeys.map(key => (
+                { guessesLeftKeys.map(key => (
                     <GuessMarkerView 
                         key={key} 
                         color={unansweredColor} 
@@ -414,14 +408,14 @@ const GuessingGameBanner = ({
                         viewable={true} 
                     />
                 ))}
-                { !gameOver && (
+                {/* { (!gameOver && !isUnlocked) && (
                     <GuessMarkerView 
                         color={unansweredColor} 
                         isCorrect={false} 
                         isGuessed={false} 
                         viewable={true} 
                     />
-                )}
+                )} */}
             </GuessMarkerRowView>
         )
     }

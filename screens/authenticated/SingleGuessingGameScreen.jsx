@@ -10,6 +10,7 @@ export default SingleGuessingGameScreen = ({ navigation, route }) => {
     const initialStackPos = route?.params?.initialStackPos ?? 0;
     const guessingGame = route?.params?.guessingGame ?? null;
     const isPreview = route?.params?.isPreview;
+    const isUnlocked = route?.params?.isUnlocked;
     const feedSource = (isPreview) ? 'guessingGamePreview' : 'guessingGame';
     const onRefresh = () => {};
 
@@ -25,6 +26,7 @@ export default SingleGuessingGameScreen = ({ navigation, route }) => {
                 initialStackPos={initialStackPos}
                 guessingGame={guessingGame}
                 isPreview={isPreview}
+                isUnlocked={isUnlocked}
                 navigation={navigation}
                 onRefresh={onRefresh}
                 stackViewable={true}

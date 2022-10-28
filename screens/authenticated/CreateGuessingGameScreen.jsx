@@ -180,6 +180,7 @@ export default CreateGuessingGameScreen = ({ navigation, route }) => {
                         clueOrder: [],
                     },
                     correctTitleObj,
+                    reelays: [],
                 },
             });
 

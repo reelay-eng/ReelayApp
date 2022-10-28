@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { Fragment, useContext, useEffect, useState } from "react";
 import { Dimensions, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ReelayText from '../../components/global/Text';
@@ -11,12 +11,13 @@ import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatli
 import ReelayColors from "../../constants/ReelayColors";
 import { LogBox } from 'react-native';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faEllipsisVertical, faPlay, faPlusCircle } from "@fortawesome/free-solid-svg-icons";
+import { faEllipsisVertical, faPlay, faPlusCircle, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { useSelector } from "react-redux";
 import UploadProgressBar from "../../components/global/UploadProgressBar";
 import { getGameDetails, getMyDraftGuessingGames, patchGuessingGameDetails } from "../../api/GuessingGameApi";
 import { AuthContext } from "../../context/AuthContext";
 import ReelayThumbnail from "../../components/global/ReelayThumbnail";
+import DeleteGuessingGameDrawer from "../../components/games/DeleteGuessingGameDrawer";
 
 const { width } = Dimensions.get('window');
 
@@ -76,6 +77,11 @@ const CluesHeaderView = styled(View)`
 const CluesSectionView = styled(View)`
     padding: 16px;
     padding-top: 20px;
+`
+const DeleteDraftPressable = styled(TouchableOpacity)`
+    position: absolute;
+    padding: 10px;
+    right: 10px;
 `
 const DotMenuPressable = styled(TouchableOpacity)`
     align-items: center;
@@ -146,11 +152,17 @@ const YearText = styled(ReelayText.Subtitle2)`
     color: gray
 `
 
+const getDisplayClues = (nextClues) => {
+    const hasMaxClues = (nextClues?.length < 6);
+    return (hasMaxClues) ? [...nextClues, null] : nextClues;
+}
+
 export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
     const initialGame = route?.params?.game;
+    const initialClues = getDisplayClues(initialGame?.reelays ?? []);
 
     const [game, setGame] = useState(initialGame);
-    const [clues, setClues] = useState([...initialGame.reelays, null]);
+    const [clues, setClues] = useState(initialClues);
     const { reelayDBUser } = useContext(AuthContext);
 
     const authSession = useSelector(state => state.authSession);
@@ -174,17 +186,13 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
         ? correctTitleObj?.releaseDate.slice(0,4) : '';
     const runtimeString = getRuntimeString(correctTitleObj?.runtime);
 
-    const advanceToGamePreview = (index = 0) => {
+    const advanceToGamePreview = (index = 0, isUnlocked = false) => {
         navigation.push('SingleGuessingGameScreen', {
             initialStackPos: index,
             guessingGame: game,
             isPreview: true,
+            isUnlocked,
         })
-        // navigation.push('FeedScreen', {
-        //     feedSource: 'guessingGamePreview',
-        //     initialStackPos: index,
-        //     preloadedStackList: [game?.reelays ?? []]
-        // });
     }
 
     const onRefresh = async () => {
@@ -193,7 +201,10 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
             reqUserSub: reelayDBUser?.sub,
         });
         const matchedGame = myDraftGuessingGames.find(nextGame => nextGame?.id === game.id);
-        if (matchedGame) setGame(matchedGame);
+        if (matchedGame) {
+            setGame(matchedGame);
+            setClues(getDisplayClues(matchedGame.reelays));
+        }
     }
 
     const setNextCluesFromDrag = async ({ data }) => {
@@ -278,7 +289,7 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
 
         const reelay = item;
         const onPress = (reelay) 
-            ? () => advanceToGamePreview(index)
+            ? () => advanceToGamePreview(index, true)
             : advanceToCreateReelayScreen;
 
         return (
@@ -313,6 +324,7 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
         return (
             <View>
                 <HeaderWithBackButton navigation={navigation} text={'guessing game'} />
+                <DeleteDraftButton />
                 <GameTitleView>
                     <GameTitleText>{gameTitle}</GameTitleText>
                 </GameTitleView>
@@ -333,6 +345,25 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
     const ComponentBelowList = () => {
         return (
             <View style={{ height: 200 }} />
+        )
+    }
+
+    const DeleteDraftButton = () => {
+        const [drawerVisible, setDrawerVisible] = useState(false);
+
+        return (
+            <Fragment>
+                <DeleteDraftPressable onPress={() => setDrawerVisible(true)}>
+                    <FontAwesomeIcon icon={faTrash} color='white' size={20} />
+                </DeleteDraftPressable>
+                { drawerVisible && (
+                    <DeleteGuessingGameDrawer
+                        closeDrawer={() => setDrawerVisible(false)}
+                        guessingGame={game}
+                        navigation={navigation}
+                    />
+                )}
+            </Fragment>
         )
     }
 

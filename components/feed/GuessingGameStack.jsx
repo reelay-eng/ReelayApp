@@ -36,6 +36,7 @@ export const GuessingGameStack = ({
     initialStackPos = 0,
     guessingGame,
     isPreview = false,
+    isUnlocked = false,
     navigation,
     onRefresh,
     stackViewable,
@@ -62,13 +63,12 @@ export const GuessingGameStack = ({
         return false;
     }
 
+    const gameOver = isGameComplete();
     const stack = guessingGame?.reelays ?? [];
     const lastVisibleIndex = myGuesses?.length;
     const firstLockedIndex = lastVisibleIndex + 1;
-    const displayStack = (isGameComplete()) 
-        ? stack 
-        : stack.slice(0, firstLockedIndex);
 
+    const displayStack = (gameOver || isUnlocked) ? stack : stack.slice(0, firstLockedIndex);
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
     const stackRef = useRef(null);
@@ -170,6 +170,7 @@ export const GuessingGameStack = ({
                     club={getClubStub(viewableReelay)}
                     clueIndex={stackPosition}
                     clueOrder={clueOrder}
+                    isUnlocked={isUnlocked}
                     myGuesses={myGuesses}
                     setMyGuesses={setMyGuesses}
                     navigation={navigation}
