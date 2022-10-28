@@ -18,6 +18,7 @@ import { BlurView } from 'expo-blur'
 import SearchField from "../create-reelay/SearchField";
 import { searchTitles } from "../../api/ReelayDBApi";
 import ReelayColors from "../../constants/ReelayColors";
+import { getGameDetails } from "../../api/GuessingGameApi";
 
 const { width } = Dimensions.get('window');
 
@@ -70,6 +71,9 @@ const RuntimeText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
     margin-right: 10px;
+`
+const Spacer = styled(View)`
+    height: 16px;
 `
 const TitleBannerRow = styled(View)`
     align-items: center;
@@ -193,7 +197,6 @@ const SearchResults = ({ onGuessTitle, searchResults }) => {
 const GuessingGameBanner = ({ 
     club = null,
     clueIndex = 0,
-    clueOrder = [],
     guessingGame,
     isUnlocked = false,
     myGuesses,
@@ -207,41 +210,59 @@ const GuessingGameBanner = ({
     const [expanded, setExpanded] = useState(false);
 
     const allowExpand = (titleObj?.titleKey !== 'film-0');
+    const gameDetails = guessingGame?.details; // getGameDetails(guessingGame);
+    const isGameCreator = (reelayDBUser?.sub === guessingGame?.creatorSub);
     // figure out how to do ellipses for displayTitle
-    const guessesLeft = (clueOrder?.length - myGuesses?.length);
+    const guessesLeft = (gameDetails?.clueOrder?.length - myGuesses?.length);
     const guessesPlural = (guessesLeft > 1) ? 'es' : '';
     const venue = reelay?.content?.venue;
 
     const isGameComplete = () => {
-        if (myGuesses.length === clueOrder.length) return true;
+        if (isUnlocked || guessesLeft === 0) return true;
         for (const guess of myGuesses) {
             if (guess.isCorrect) return true;
         }
         return false;
     }
 
+    const gameOver = isGameComplete();
+
     const onClickExpand = () => {
-        if (!allowExpand) {
-            return;
-        }
+        if (!gameOver) return;
         animate(200);
         setExpanded(!expanded);
     }
+
+    // const ExpandedInfo = () => {
+    //     return (
+    //         <Pressable onPress={onClickExpand}>
+    //             <ExpandedInfoView>
+    //                 <Poster />
+    //                 <TitleInfo />
+    //                 { !onCameraScreen && <AddToClubs /> }
+    //             </ExpandedInfoView>
+    //         </Pressable>
+    //     );
+    // }
+
+    const GamesIcon = () => {
+        return (
+            <GamesIconView>
+                <GamesIconSVG />
+            </GamesIconView>
+        );
+    }
     
     const GuessResult = () => {
-
         const fillEmptyGuessesCorrect = () => {
             const correctGuess = myGuesses[myGuesses.length - 1];
             const filledGuesses = [...myGuesses];
-            for (let ii = 0; ii < guessesLeft; ii++) {
+            for (let ii = 0; ii <= guessesLeft; ii++) {
                 filledGuesses.push(correctGuess);
             }
             return filledGuesses;
         }
-        const displayGuesses = isGameComplete() 
-            ? fillEmptyGuessesCorrect() 
-            : myGuesses;
-
+        const displayGuesses = gameOver ? fillEmptyGuessesCorrect() : myGuesses;
         const guessObj = displayGuesses[clueIndex];
         const guessedTitleObj = guessObj?.guessedTitleObj;
 
@@ -261,44 +282,6 @@ const GuessingGameBanner = ({
                 </GuessIconView>
             </TitleBannerRow>
         )
-    }
-
-    const Poster = ({ guessedTitleObj }) => {
-        return (
-            <TitlePosterContainer>
-                <TitlePoster title={guessedTitleObj} width={36} />
-            </TitlePosterContainer>
-        );
-    }
-
-    const TitleInfo = ({ guessedTitleObj }) => {
-        const displayTitle = guessedTitleObj?.display;
-        const displayYear = (guessedTitleObj?.releaseDate && guessedTitleObj?.releaseDate.length >= 4) 
-            ? titleObj.releaseDate.slice(0,4) : '';
-
-        return (
-            <TitleInfoPressable>
-                <TitleTextContainer>
-                    <TitleText numberOfLines={2} ellipsizeMode={"tail"}>
-                        {displayTitle}
-                    </TitleText>
-                </TitleTextContainer>
-                <Underline 
-                    displayYear={displayYear} 
-                    expanded={expanded}
-                    runtime={guessedTitleObj?.runtime}
-                    venue={venue} 
-                />
-            </TitleInfoPressable>
-        );
-    }
-
-    const GamesIcon = () => {
-        return (
-            <GamesIconView>
-                <GamesIconSVG />
-            </GamesIconView>
-        );
     }
 
     const Guesser = () => {
@@ -392,24 +375,52 @@ const GuessingGameBanner = ({
             );
         };
 
-        const gameOver = isGameComplete();
         const unansweredColor = gameOver ? ReelayColors.reelayGreen : 'gray';
-        const guessesLeftKeys = [...Array(guessesLeft).keys()];
 
         return (
             <GuessMarkerRowView>
                 { myGuesses.map(renderGuessMarker) }
-                { guessesLeftKeys.map(key => (
+                { (guessesLeft > 0 && !gameOver) && (
                     <GuessMarkerView 
-                        key={key} 
+                        key={'unanswered'} 
                         color={unansweredColor} 
                         isCorrect={false} 
                         isGuessed={false} 
                         viewable={true} 
                     />
-                ))}
+                )}
             </GuessMarkerRowView>
         )
+    }
+
+    const Poster = ({ guessedTitleObj }) => {
+        return (
+            <TitlePosterContainer>
+                <TitlePoster title={guessedTitleObj} width={36} />
+            </TitlePosterContainer>
+        );
+    }
+
+    const TitleInfo = ({ guessedTitleObj }) => {
+        const displayTitle = guessedTitleObj?.display;
+        const displayYear = (guessedTitleObj?.releaseDate && guessedTitleObj?.releaseDate.length >= 4) 
+            ? titleObj.releaseDate.slice(0,4) : '';
+
+        return (
+            <TitleInfoPressable>
+                <TitleTextContainer>
+                    <TitleText numberOfLines={2} ellipsizeMode={"tail"}>
+                        {displayTitle}
+                    </TitleText>
+                </TitleTextContainer>
+                <Underline 
+                    displayYear={displayYear} 
+                    expanded={expanded}
+                    runtime={guessedTitleObj?.runtime}
+                    venue={venue} 
+                />
+            </TitleInfoPressable>
+        );
     }
 
     const TopicTitle = () => {
@@ -442,7 +453,8 @@ const GuessingGameBanner = ({
     }
         
 
-    const showGuessResult = (clueIndex < myGuesses?.length || isGameComplete());
+    const showGuessResult = ((clueIndex < myGuesses?.length) || gameOver);
+
     return (
         <TopicBannerBackground>
             <BlurView intensity={25} tint='dark' style={{ alignItems: 'center', width: '100%'}}>
@@ -452,7 +464,8 @@ const GuessingGameBanner = ({
                     <TopicTitle />
                 </TopicBannerRow>   
                 <GuessMarkers />
-                { showGuessResult && <GuessResult /> }
+                { showGuessResult && !isGameCreator && <GuessResult /> }
+                { showGuessResult && isGameCreator && <Spacer /> }
                 { !showGuessResult && <Guesser /> }
             </BlurView>
         </TopicBannerBackground>

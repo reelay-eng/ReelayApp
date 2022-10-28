@@ -45,6 +45,7 @@ export const GuessingGameStack = ({
 
     const gameDetails = getGameDetails(guessingGame);
     const clueOrder = gameDetails?.clueOrder ?? [];
+    console.log('game details: ', gameDetails);
     const correctTitleKey = gameDetails?.correctTitleKey ?? 'film-0';
 
     const initMyGuesses = (isPreview) 
@@ -172,7 +173,6 @@ export const GuessingGameStack = ({
                 <GuessingGameBanner
                     club={getClubStub(viewableReelay)}
                     clueIndex={stackPosition}
-                    clueOrder={clueOrder}
                     guessingGame={guessingGame}
                     isUnlocked={isUnlocked}
                     myGuesses={myGuesses}

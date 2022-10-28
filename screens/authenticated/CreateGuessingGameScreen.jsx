@@ -148,15 +148,6 @@ export default CreateGuessingGameScreen = ({ navigation, route }) => {
             }
             setIsSaving(true);
             const titleKey = `${correctTitleObj?.titleType}-${correctTitleObj?.id}`;
-            const postBody = {
-                reqUserSub: reelayDBUser?.sub,
-                clubID,
-                correctTitleKey: titleKey,
-                creatorName: reelayDBUser?.username,
-                title: titleTextRef.current,
-            }
-
-            console.log('correct title: ', correctTitleObj);
             const saveDraftResult = await postGuessingGameDraft({
                 authSession,
                 reqUserSub: reelayDBUser?.sub,

@@ -9,6 +9,19 @@ const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 const WELCOME_REELAY_SUB = Constants.manifest.extra.welcomeReelaySub;
 
+export const parseTitleKey = (titleKey) => {
+    const hyphenIndex = titleKey.indexOf('-');
+    if (hyphenIndex === -1) {
+        return { tmdbTitleID: -1, isSeries: false };
+    }
+    const titleType = titleKey.slice(0, hyphenIndex);
+    const titleIDString = titleKey.slice(hyphenIndex + 1);
+    const tmdbTitleID = Number(titleIDString);
+    const isSeries = (titleType === 'tv');
+    return { tmdbTitleID, isSeries };
+
+}
+
 export const followCreator = async (creatorSub, followerSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/follows?creatorSub=${creatorSub}&followerSub=${followerSub}`;
     console.log(routeGet);
@@ -338,6 +351,11 @@ const prepareFeed = async (fetchedStacks) => {
     return preparedStacks;
 }
 
+const prepareGuessingGames = async (guessingGames) => {
+    if (!guessingGames) return;
+    return await Promise.all(guessingGames.map(prepareGuessingGame));
+}
+
 const prepareTitlesAndTopics = async (titlesAndTopics) => {
     if (!titlesAndTopics) return;
     for (const titleOrTopic of titlesAndTopics) {
@@ -401,7 +419,9 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
                 reelayContentTypes.includes(contentKey) && category[contentKey]
             );
 
-            if (['guessingGames', 'topics'].includes(contentKey)) {
+            if (contentKey === 'guessingGames') {
+                category[contentKey] = await prepareGuessingGames(category[contentKey]);
+            } else if (contentKey === 'topics') {
                 category[contentKey] = await prepareTitlesAndTopics(category[contentKey]);
             } else if (mustPrepareReelays) {
                 category[contentKey] = await prepareFeed(category[contentKey]);
@@ -615,6 +635,29 @@ export const postStreamingSubscriptionToDB = async (userSub, streamingSubscripti
         headers: ReelayAPIHeaders,
     });
     return resultPost;
+}
+
+export const prepareGuessingGame = async (guessingGame) => {
+    try {
+        guessingGame.details = JSON.parse(guessingGame?.detailsJSON);
+        const { tmdbTitleID, isSeries } = parseTitleKey(guessingGame.details?.correctTitleKey);
+        // console.log('tmdb is', tmdbTitleID, isSeries);
+
+        if (tmdbTitleID === -1) {
+            guessingGame.details = { error: 'Could not parse details JSON'};
+            guessingGame.reelays = [];
+            return guessingGame;
+        }
+
+        guessingGame.correctTitleObj = await fetchAnnotatedTitle({ tmdbTitleID, isSeries });
+        guessingGame.reelays = await Promise.all(guessingGame.reelays.map(prepareReelay));
+        // console.log('correct title obj: ', guessingGame.correctTitleObj)
+    } catch (error) {
+        console.log('prepare game error: ', error);
+        guessingGame.details = { error: 'Could not parse details JSON'};
+        guessingGame.reelays = [];
+    }
+    return guessingGame;
 }
 
 export const prepareReelay = async (fetchedReelay) => {
