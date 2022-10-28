@@ -45,13 +45,9 @@ export const GuessingGameStack = ({
 
     const gameDetails = getGameDetails(guessingGame);
     const clueOrder = gameDetails?.clueOrder ?? [];
-    console.log('game details: ', gameDetails);
     const correctTitleKey = gameDetails?.correctTitleKey ?? 'film-0';
 
-    const initMyGuesses = (isPreview) 
-        ? [] 
-        : guessingGame?.myGuesses ?? [];
-
+    const initMyGuesses = (isPreview) ? [] : guessingGame?.myGuesses ?? [];
     const [myGuesses, setMyGuesses] = useState(initMyGuesses);
     const isGameComplete = () => {
         if (myGuesses.length === clueOrder.length) return true;

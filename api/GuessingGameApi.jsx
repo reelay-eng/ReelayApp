@@ -8,7 +8,6 @@ const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 
 export const getGameDetails = (game) => {
     try {
-        console.log('parsing: ', game);
         return JSON.parse(game?.detailsJSON);
     } catch (error){
         return { error: 'Could not parse details JSON' };
@@ -121,7 +120,7 @@ export const postGuessingGameGuess = async ({
     reelaySub,
     topicID,
 }) => {
-    const routePost = `${REELAY_API_BASE_URL}/guessingGame/draft`;
+    const routePost = `${REELAY_API_BASE_URL}/guessingGame/guess`;
     const postBody = { 
         clueIndex, 
         guessedTitleKey,

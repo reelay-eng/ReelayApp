@@ -8,11 +8,12 @@ import * as ReelayText from '../../components/global/Text';
 import { useSelector } from 'react-redux';
 import TitlePoster from '../global/TitlePoster';
 import Carousel from 'react-native-snap-carousel';
-import { GamesIconSVG } from '../global/SVGs';
+import { GamesIconSmallSVG, GamesIconSVG } from '../global/SVGs';
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
 import ReelayColors from '../../constants/ReelayColors';
+import { faCheckCircle, faXmarkCircle } from '@fortawesome/free-regular-svg-icons';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = 192;
@@ -30,7 +31,7 @@ const BottomButtonText = styled(ReelayText.CaptionEmphasized)`
 const BottomHideRevealPressable = styled(TouchableOpacity)`
     align-items: center;
     border-radius: 20px;
-    background-color: white;
+    background-color: #d4d4d4;
     justify-content: center;
     height: 30px;
     width: 72px;
@@ -38,7 +39,10 @@ const BottomHideRevealPressable = styled(TouchableOpacity)`
 const BottomReplayPressable = styled(TouchableOpacity)`
     align-items: center;
     border-radius: 20px;
-    background-color: ${ReelayColors.reelayBlue};
+    background-color: ${props => props.wide 
+        ? ReelayColors.reelayBlue
+        : ReelayColors.reelayGreen
+    };
     justify-content: center;
     height: 30px;
     width: ${props => props.wide ? 160 : 72}px;
@@ -135,14 +139,17 @@ export default GuessingGames = ({ navigation }) => {
         const canRevealPoster = (correctTitleObj && (hasCompletedGame || isGameCreator));
 
         const [isUnlocked, setIsUnlocked] = useState(false);
-        const replayGame = () => advanceToGuessingGame({ game, isPreview: true, isUnlocked: false });
+        const replayGame = () => {
+            if (canRevealPoster) setIsUnlocked(false);
+            advanceToGuessingGame({ game, isPreview: true, isUnlocked: false });
+        }
 
         const tapHideReveal = () => {
             if (canRevealPoster) setIsUnlocked(!isUnlocked);
         }
 
         const tapOnPoster = () => {
-            advanceToGuessingGame({ game, isPreview: canRevealPoster, isUnlocked });
+            advanceToGuessingGame({ game, isPreview: false, isUnlocked });
         }
 
         let timestamp = `${daysAgo} days ago`;
@@ -152,7 +159,7 @@ export default GuessingGames = ({ navigation }) => {
         return (
             <GameElementView onPress={tapOnPoster}>
                 <GameElementHeaderView>
-                    <GamesIconSVG />
+                    <GamesIconSmallSVG />
                     <TimestampText>{timestamp}</TimestampText>
                 </GameElementHeaderView>
                 <GameDescriptionView>
@@ -160,11 +167,16 @@ export default GuessingGames = ({ navigation }) => {
                 </GameDescriptionView>
                 <AbovePosterSpacer />
                 { isUnlocked && <TitlePoster onPress={tapOnPoster} title={correctTitleObj} width={160} /> }
-                { !isUnlocked && <UnrevealedPoster hasWonGame={hasWonGame} hasCompletedGame={hasCompletedGame} canRevealPoster={canRevealPoster} onPress={tapOnPoster} /> }
+                { !isUnlocked && <UnrevealedPoster 
+                    canRevealPoster={canRevealPoster} 
+                    hasCompletedGame={hasCompletedGame} 
+                    hasWonGame={hasWonGame} 
+                    onPress={tapOnPoster} 
+                />}
                 { canRevealPoster && (
                     <BottomButtonRowView>
                         <BottomHideRevealPressable onPress={tapHideReveal}>
-                            <BottomButtonText color='black'>{(isUnlocked) ? 'Hide' : 'Reveal'}</BottomButtonText>
+                            <BottomButtonText color='black'>{(isUnlocked) ? 'Hide' : 'Show'}</BottomButtonText>
                         </BottomHideRevealPressable>
                         <BottomReplayPressable onPress={replayGame}>
                             <BottomButtonText color='white'>{'Replay'}</BottomButtonText>
@@ -203,12 +215,26 @@ export default GuessingGames = ({ navigation }) => {
         );
     }
 
-    const UnrevealedPoster = ({ canRevealPoster, onPress }) => {
+    const UnrevealedPoster = ({ canRevealPoster, hasCompletedGame, hasWonGame, onPress }) => {
         if (canRevealPoster) {
+            const getIcon = () => {
+                if (hasWonGame) return faCheckCircle;
+                if (hasCompletedGame) return faXmarkCircle;
+                return faEye;
+            }
+
+            const getText = () => {
+                if (hasWonGame) return 'You won!';
+                if (hasCompletedGame) return 'You lost :(';
+                return '';
+            }
+
+            const icon = getIcon();
+
             return (
                 <UnrevealedPosterView onPress={onPress}>
-                    <FontAwesomeIcon icon={faEye} color='white' size={64} />
-                    <RevealText>{'Reveal answer'}</RevealText>
+                    <FontAwesomeIcon icon={getIcon()} color='white' size={64} />
+                    <RevealText>{getText()}</RevealText>
                 </UnrevealedPosterView>
             );    
         } else {

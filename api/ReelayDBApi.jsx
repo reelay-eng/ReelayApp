@@ -651,7 +651,13 @@ export const prepareGuessingGame = async (guessingGame) => {
 
         guessingGame.correctTitleObj = await fetchAnnotatedTitle({ tmdbTitleID, isSeries });
         guessingGame.reelays = await Promise.all(guessingGame.reelays.map(prepareReelay));
-        // console.log('correct title obj: ', guessingGame.correctTitleObj)
+
+        if (!guessingGame?.myGuesses) guessingGame.myGuesses = [];
+        for (const guess of guessingGame.myGuesses) {
+            const guessedTitleKey = guess?.guessedTitleKey;
+            const { tmdbTitleID, isSeries } = parseTitleKey(guessedTitleKey)
+            guess.guessedTitleObj = await fetchAnnotatedTitle({ tmdbTitleID, isSeries });
+        }
     } catch (error) {
         console.log('prepare game error: ', error);
         guessingGame.details = { error: 'Could not parse details JSON'};

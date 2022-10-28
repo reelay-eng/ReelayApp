@@ -18,7 +18,8 @@ import { BlurView } from 'expo-blur'
 import SearchField from "../create-reelay/SearchField";
 import { searchTitles } from "../../api/ReelayDBApi";
 import ReelayColors from "../../constants/ReelayColors";
-import { getGameDetails } from "../../api/GuessingGameApi";
+import { getGameDetails, postGuessingGameGuess } from "../../api/GuessingGameApi";
+import { useSelector } from "react-redux";
 
 const { width } = Dimensions.get('window');
 
@@ -206,6 +207,7 @@ const GuessingGameBanner = ({
     titleObj,
     topic=null,
 }) => {
+    const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
     const [expanded, setExpanded] = useState(false);
 
@@ -263,6 +265,7 @@ const GuessingGameBanner = ({
             return filledGuesses;
         }
         const displayGuesses = gameOver ? fillEmptyGuessesCorrect() : myGuesses;
+        console.log('display guesses: ', displayGuesses);
         const guessObj = displayGuesses[clueIndex];
         const guessedTitleObj = guessObj?.guessedTitleObj;
 
@@ -309,7 +312,7 @@ const GuessingGameBanner = ({
             }    
         }
 
-        const onGuessTitle = (guessedTitleObj) => {
+        const onGuessTitle = async (guessedTitleObj) => {
             const guessedTitleKey = `${guessedTitleObj.titleType}-${guessedTitleObj?.id}`
             const isCorrect = (guessedTitleKey === correctTitleKey);
             const nextGuess = {
@@ -324,6 +327,19 @@ const GuessingGameBanner = ({
             }
 
             setMyGuesses([...myGuesses, nextGuess]);
+
+            const postBody = {
+                authSession,
+                reqUserSub: reelayDBUser?.sub,
+                clueIndex,
+                guessedTitleKey,
+                reelaySub: reelay?.sub,
+                topicID: guessingGame?.id,
+            }
+            console.log(postBody);
+
+            const postGuessResult = await postGuessingGameGuess(postBody);
+            console.log('guess result: ', postGuessResult);
         }
 
         useEffect(() => {
