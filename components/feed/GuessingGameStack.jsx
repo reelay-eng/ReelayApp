@@ -49,7 +49,7 @@ export const GuessingGameStack = ({
 
     const initMyGuesses = (isPreview) 
         ? [] 
-        : game?.myGuesses ?? [];
+        : guessingGame?.myGuesses ?? [];
 
     const [myGuesses, setMyGuesses] = useState(initMyGuesses);
     const isGameComplete = () => {

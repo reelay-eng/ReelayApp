@@ -372,6 +372,7 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
     }
 
     const reelayContentTypes = [
+        'guessingGames',
         'mostRecent', 
         'popularTitles',
         'recommendedTitles',
@@ -393,25 +394,24 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
         return null;
     }
 
-    const prepareHomeTabReelays = async (homeTab) => {
-        const contentKeys = Object.keys(homeTab);
+    const prepareHomeReelaysByCategory = async (category) => {
+        const contentKeys = Object.keys(category);
         const prepareHomeContentForKey = async (contentKey) => {
             const mustPrepareReelays = (
-                reelayContentTypes.includes(contentKey) && homeTab[contentKey]
+                reelayContentTypes.includes(contentKey) && category[contentKey]
             );
 
-            if (contentKey === 'topics') {
-                const topics =  homeTab['topics'] ?? homeTab['newTopics'];
-                homeTab['topics'] = await prepareTitlesAndTopics(topics);
+            if (['guessingGames', 'topics'].includes(contentKey)) {
+                category[contentKey] = await prepareTitlesAndTopics(category[contentKey]);
             } else if (mustPrepareReelays) {
-                homeTab[contentKey] = await prepareFeed(homeTab[contentKey]);
+                category[contentKey] = await prepareFeed(category[contentKey]);
             } else {
                 // change nothing
             }
         }
 
         await Promise.all(contentKeys.map(prepareHomeContentForKey));
-        return homeTab;
+        return category;
     }
 
     const [
@@ -419,8 +419,8 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
         followingPrepared,
         globalPrepared,
     ] = await Promise.all([
-        prepareHomeTabReelays(discover),
-        prepareHomeTabReelays(following),
+        prepareHomeReelaysByCategory(discover),
+        prepareHomeReelaysByCategory(following),
         prepareFeed(global),
     ]);
     
