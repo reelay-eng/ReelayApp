@@ -1,4 +1,4 @@
-import React, { Fragment, memo, useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Dimensions, FlatList, Pressable, View } from "react-native";
 import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
@@ -6,20 +6,17 @@ import { AuthContext } from "../../context/AuthContext";
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 import styled from 'styled-components/native';
 import TitlePoster from "../global/TitlePoster";
-import AddToWatchlistButton from "../watchlist/AddToWatchlistButton";
-import AddToStackButton from "../feed/AddToStackButton";
 import VenueIcon from '../utils/VenueIcon';
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faCheckCircle, faChevronDown, faChevronUp, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
+import { faCheckCircle, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
 import { getRuntimeString } from "../utils/TitleRuntime";
 import { animate } from "../../hooks/animations";
-import { GamesIconSVG, TopicsBannerIconSVG, TopicsIconSVG } from "../global/SVGs";
+import { GamesIconSVG } from "../global/SVGs";
 
 import { BlurView } from 'expo-blur'
 import SearchField from "../create-reelay/SearchField";
 import { searchTitles } from "../../api/ReelayDBApi";
-import TitleSearchResults from "../search/TitleSearchResults";
 import ReelayColors from "../../constants/ReelayColors";
 
 const { width } = Dimensions.get('window');
@@ -96,6 +93,7 @@ const TitleLineContainer = styled(View)`
 const TitlePosterContainer = styled(View)`
     justify-content: center;
     margin: 8px;
+    margin-top: 12px;
 `
 const TitleText = styled(ReelayText.H5Bold)`
     color: white;
@@ -196,6 +194,7 @@ const GuessingGameBanner = ({
     club = null,
     clueIndex = 0,
     clueOrder = [],
+    guessingGame,
     isUnlocked = false,
     myGuesses,
     setMyGuesses,
@@ -340,6 +339,7 @@ const GuessingGameBanner = ({
                 userSub: reelayDBUser?.sub,
                 visibility: 'draft',
             }
+
             setMyGuesses([...myGuesses, nextGuess]);
         }
 
@@ -408,14 +408,6 @@ const GuessingGameBanner = ({
                         viewable={true} 
                     />
                 ))}
-                {/* { (!gameOver && !isUnlocked) && (
-                    <GuessMarkerView 
-                        color={unansweredColor} 
-                        isCorrect={false} 
-                        isGuessed={false} 
-                        viewable={true} 
-                    />
-                )} */}
             </GuessMarkerRowView>
         )
     }
@@ -462,8 +454,6 @@ const GuessingGameBanner = ({
                 <GuessMarkers />
                 { showGuessResult && <GuessResult /> }
                 { !showGuessResult && <Guesser /> }
-                {/* { expanded && <ExpandedInfo /> } */}
-                {/* <ExpandArrow /> */}
             </BlurView>
         </TopicBannerBackground>
     );

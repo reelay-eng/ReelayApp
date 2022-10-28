@@ -1,9 +1,6 @@
 import React, { useContext, useState, memo, useRef, Fragment, useMemo, useEffect } from 'react';
-import { Dimensions, FlatList, SafeAreaView, View } from 'react-native';
-import BackButton from '../utils/BackButton';
+import { Dimensions, FlatList, View } from 'react-native';
 import Hero from './Hero';
-import TitleBanner from './TitleBanner';
-import * as ReelayText from '../global/Text';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
@@ -12,9 +9,10 @@ import styled from 'styled-components/native';
 import UploadProgressBar from '../global/UploadProgressBar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import StackPositionBar from './StackPositionBar';
-import TopicBanner from '../topics/TopicBanner';
 import { getGameDetails } from '../../api/GuessingGameApi';
 import GuessingGameBanner from '../games/GuessingGameBanner';
+import ShareGuessingGameModal from '../games/ShareGuessingGameModal';
+
 
 const { height, width } = Dimensions.get('window');
 
@@ -54,7 +52,6 @@ export const GuessingGameStack = ({
         : game?.myGuesses ?? [];
 
     const [myGuesses, setMyGuesses] = useState(initMyGuesses);
-
     const isGameComplete = () => {
         if (myGuesses.length === clueOrder.length) return true;
         for (const guess of myGuesses) {
@@ -64,6 +61,8 @@ export const GuessingGameStack = ({
     }
 
     const gameOver = isGameComplete();
+    const [shareOutViewable, setShareOutViewable] = useState(gameOver);
+
     const stack = guessingGame?.reelays ?? [];
     const lastVisibleIndex = myGuesses?.length;
     const firstLockedIndex = lastVisibleIndex + 1;
@@ -149,6 +148,10 @@ export const GuessingGameStack = ({
         checkAdvanceToNewClue();
     }, [myGuesses]);
 
+    useEffect(() => {
+        if (gameOver) setShareOutViewable(true);
+    }, [gameOver]);
+
     return (
         <ReelayFeedContainer>
             <FlatList 
@@ -170,6 +173,7 @@ export const GuessingGameStack = ({
                     club={getClubStub(viewableReelay)}
                     clueIndex={stackPosition}
                     clueOrder={clueOrder}
+                    guessingGame={guessingGame}
                     isUnlocked={isUnlocked}
                     myGuesses={myGuesses}
                     setMyGuesses={setMyGuesses}
@@ -181,6 +185,14 @@ export const GuessingGameStack = ({
             </GameBannerView>
             { (stack.length > 1) && (
                 <StackPositionBar stackLength={stack?.length} stackPosition={stackPosition} stackViewable={stackViewable} /> 
+            )}
+            {shareOutViewable && (
+                <ShareGuessingGameModal
+                    clueOrder={clueOrder}
+                    closeModal={() => setShareOutViewable(false)}
+                    guessingGame={guessingGame}
+                    myGuesses={myGuesses}
+                />
             )}
             { showProgressBar && <UploadProgressBar mountLocation={'OnProfile'} onRefresh={onRefresh} /> }
         </ReelayFeedContainer>

@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useEffect, useState } from "react";
-import { Dimensions, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Dimensions, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as ReelayText from '../../components/global/Text';
 import { HeaderWithBackButton } from "../../components/global/Headers";
@@ -12,13 +12,15 @@ import ReelayColors from "../../constants/ReelayColors";
 import { LogBox } from 'react-native';
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faEllipsisVertical, faPlay, faPlusCircle, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import UploadProgressBar from "../../components/global/UploadProgressBar";
-import { getGameDetails, getMyDraftGuessingGames, patchGuessingGameDetails } from "../../api/GuessingGameApi";
+import { getGameDetails, getMyDraftGuessingGames, patchGuessingGameDetails, publishGuessingGame } from "../../api/GuessingGameApi";
 import { AuthContext } from "../../context/AuthContext";
 import ReelayThumbnail from "../../components/global/ReelayThumbnail";
 import DeleteGuessingGameDrawer from "../../components/games/DeleteGuessingGameDrawer";
 import DeleteGuessingGameClueDrawer from "../../components/games/DeleteGuessingGameClueDrawer";
+import { useFocusEffect } from "@react-navigation/native";
+import { showMessageToast } from "../../components/utils/toasts";
 
 const { width } = Dimensions.get('window');
 
@@ -132,6 +134,21 @@ const PreviewButtonText = styled(ReelayText.Overline)`
     font-size: 12px;
     margin-right: 8px;
 `
+const PublishButtonOuterView = styled(View)`
+    align-items: center;
+    width: 100%;
+`
+const PublishButtonPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: ${ReelayColors.reelayBlue};
+    border-radius: 20px;
+    height: 40px;
+    justify-content: center;
+    width: 90%;
+`
+const PublishButtonText = styled(ReelayText.CaptionEmphasized)`
+    color: white;
+`
 const ScreenView = styled(View)`
     top: ${props => props.topOffset}px;
 `
@@ -159,6 +176,7 @@ const getDisplayClues = (nextClues) => {
 }
 
 export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
+    const dispatch = useDispatch();
     const initialGame = route?.params?.game;
     const initialClues = getDisplayClues(initialGame?.reelays ?? []);
 
@@ -168,6 +186,7 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
 
     const authSession = useSelector(state => state.authSession);
     const topOffset = useSafeAreaInsets().top;
+    const bottomOffset = useSafeAreaInsets().bottom;
     const clueOrder = game?.clueOrder;
     const correctTitleObj = game?.correctTitleObj;
     const gameTitle = game?.title;
@@ -237,6 +256,10 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
             topicID: game?.id,
         });
     }
+
+    useFocusEffect(() => {
+        dispatch({ type: 'setTabBarVisible', payload: false });
+    })
 
     useEffect(() => {
         LogBox.ignoreLogs(['VirtualizedLists should never be nested']);
@@ -355,7 +378,9 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
 
     const ComponentBelowList = () => {
         return (
-            <View style={{ height: 200 }} />
+            <Fragment>
+                <PublishButton />
+            </Fragment>
         )
     }
 
@@ -378,6 +403,32 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
         )
     }
 
+    const PublishButton = () => {
+        const [publishing, setPublishing] = useState(false);
+        const publishGame = async () => {
+            setPublishing(true);
+            const publishResult = await publishGuessingGame({
+                authSession,
+                reqUserSub: reelayDBUser?.sub,
+                topicID: game?.id,
+            });
+
+            console.log('publish result: ', publishResult);
+            showMessageToast('Guessing game published');
+            navigation.popToTop();
+            navigation.navigate('Home');
+            setPublishing(false);
+        }
+        return (
+            <PublishButtonOuterView>
+                <PublishButtonPressable onPress={publishGame}>
+                    { publishing && <ActivityIndicator /> }
+                    { !publishing && <PublishButtonText>{'Publish guessing game'}</PublishButtonText> }
+                </PublishButtonPressable>
+            </PublishButtonOuterView>
+        );
+    }
+
     return (
         <ScreenView topOffset={topOffset}>
             <DraggableFlatList
@@ -388,6 +439,7 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
                 onDragEnd={setNextCluesFromDrag}
                 renderItem={(props) => <ClueReelayRow { ...props } /> }                
                 showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: bottomOffset + 100 }}
             />
             { showProgressBar && <UploadProgressBar mountLocation={'InClueBuilder'} onRefresh={onRefresh} /> }
         </ScreenView>
