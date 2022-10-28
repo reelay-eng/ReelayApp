@@ -76,10 +76,12 @@ export const GuessingGameStack = ({
 
     const topOffset = useSafeAreaInsets().top + 26;
 
-    const checkAdvanceToNewClue = () => {
-        if (stackPosition < lastVisibleIndex) {
-            // stackRef.current.scrollToIndex(lastVisibleIndex);
-            // setStackPosition(lastVisibleIndex);
+    const checkAdvanceToNewClue = async () => {
+        const gameOver = isGameComplete();
+        if (stackPosition < lastVisibleIndex && !gameOver) {
+            setTimeout(() => {
+                stackRef.current.scrollToOffset({ offset: width * lastVisibleIndex });    
+            }, 450);
         }
     }
 
@@ -94,11 +96,13 @@ export const GuessingGameStack = ({
         } : null;
     }, [stack]);
 
-    const getItemLayout = (data, index) => ({
-        length: width, 
-        offset: width * index, index,
-        index: index,
-    });
+    const getItemLayout = (data, index) => {
+        return {
+            length: width, 
+            offset: width * index, index,
+            index: index,
+        }
+    };
 
     const renderReelay = ({ item, index }) => {
         const reelay = item;
@@ -113,6 +117,7 @@ export const GuessingGameStack = ({
                     feedSource={'guessingGame'}
                     navigation={navigation} 
                     reelay={reelay} 
+                    showSidebar={isGameComplete()}
                     viewable={reelayIsViewable}
                 />
             </ReelayFeedContainer>
@@ -128,10 +133,10 @@ export const GuessingGameStack = ({
         const nextReelay = displayStack[nextStackPosition];
         const prevReelay = displayStack[stackPosition];
         const logProperties = {
-            nextReelayCreator: nextReelay.creator?.username,
-            nextReelayTitle: nextReelay.title.display,
-            prevReelayCreator: prevReelay.creator.username,
-            prevReelayTitle: prevReelay.title.display,
+            nextReelayCreator: nextReelay?.creator?.username,
+            nextReelayTitle: nextReelay?.title.display,
+            prevReelayCreator: prevReelay?.creator.username,
+            prevReelayTitle: prevReelay?.title.display,
             source: 'stack',
             swipeDirection: swipeDirection,
             username: reelayDBUser?.username,
@@ -154,7 +159,7 @@ export const GuessingGameStack = ({
                 getItemLayout={getItemLayout}
                 keyboardShouldPersistTaps={"handled"}
                 maxToRenderPerBatch={2}
-                ref={stackRef}
+                ref={ref => stackRef.current = ref }
                 renderItem={renderReelay} 
                 onScroll={onStackSwiped} 
                 pagingEnabled={true} 
@@ -162,8 +167,9 @@ export const GuessingGameStack = ({
             />
             <GameBannerView topOffset={topOffset}>
                 <GuessingGameBanner
-                    clueIndex={stackPosition}
                     club={getClubStub(viewableReelay)}
+                    clueIndex={stackPosition}
+                    clueOrder={clueOrder}
                     myGuesses={myGuesses}
                     setMyGuesses={setMyGuesses}
                     navigation={navigation}

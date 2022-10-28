@@ -173,10 +173,10 @@ const ReelayStack = ({
         const nextReelay = stack[nextStackPosition];
         const prevReelay = stack[stackPosition];
         const logProperties = {
-            nextReelayCreator: nextReelay.creator?.username,
-            nextReelayTitle: nextReelay.title.display,
-            prevReelayCreator: prevReelay.creator.username,
-            prevReelayTitle: prevReelay.title.display,
+            nextReelayCreator: nextReelay?.creator?.username,
+            nextReelayTitle: nextReelay?.title.display,
+            prevReelayCreator: prevReelay?.creator.username,
+            prevReelayTitle: prevReelay?.title.display,
             source: 'stack',
             swipeDirection: swipeDirection,
             username: reelayDBUser?.username,

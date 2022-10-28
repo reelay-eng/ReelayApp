@@ -70,11 +70,7 @@ const GuessIconView = styled(View)`
     margin: 10px;
 `
 const GuessMarkerView = styled(View)`
-    background-color: ${props => props.isCorrect 
-        ? ReelayColors.reelayGreen 
-        : (props.isGuessed) 
-            ? ReelayColors.reelayRed : 'gray'
-    };
+    background-color: ${props => props.color};
     border-color: rgba(255,255,255,0.5);
     border-radius: 12px;
     border-width: ${props => props.viewable ? 1 : 0}px;
@@ -206,10 +202,10 @@ const SearchResults = ({ onGuessTitle, searchResults }) => {
 const GuessingGameBanner = ({ 
     club = null,
     clueIndex = 0,
+    clueOrder = [],
     myGuesses,
     setMyGuesses,
     navigation=null, 
-    onCameraScreen=false,
     reelay=null, 
     titleObj,
     topic=null,
@@ -219,12 +215,17 @@ const GuessingGameBanner = ({
 
     const allowExpand = (titleObj?.titleKey !== 'film-0');
     // figure out how to do ellipses for displayTitle
-    const displayTitle = (titleObj.display) ? titleObj.display : 'Title not found'; 
-    const guessesLeft = (6 - myGuesses?.length);
-    const guessesPlural = (guessesLeft > 1) ? 'es' : 0;
-	const displayYear = (titleObj.releaseYear) ? titleObj.releaseYear : '';
-    const runtime = titleObj?.runtime;
+    const guessesLeft = (clueOrder?.length - myGuesses?.length);
+    const guessesPlural = (guessesLeft > 1) ? 'es' : '';
     const venue = reelay?.content?.venue;
+
+    const isGameComplete = () => {
+        if (myGuesses.length === clueOrder.length) return true;
+        for (const guess of myGuesses) {
+            if (guess.isCorrect) return true;
+        }
+        return false;
+    }
 
     const onClickExpand = () => {
         if (!allowExpand) {
@@ -234,45 +235,22 @@ const GuessingGameBanner = ({
         setExpanded(!expanded);
     }
     
-    const openTitleDetail = async () => {
-        if (!titleObj || !navigation) return;
-        navigation.push('TitleDetailScreen', { titleObj });
-
-        logAmplitudeEventProd('openTitleScreen', {
-            reelayID: reelay?.id,
-            reelayTitle: titleObj?.display,
-            username: reelayDBUser?.username,
-            source: 'poster',
-        });
-    }
-
-    const AddToClubs = () => {
-        return (
-            <AddToWatchlistButton
-                navigation={navigation}
-                titleObj={reelay?.title}
-                reelay={reelay}
-            />
-        );
-    }
-
-    const ExpandArrow = () => {
-        if (!allowExpand) return <ExpandArrowView />
-        return (
-            <ExpandArrowView onPress={onClickExpand}>
-                <FontAwesomeIcon icon={expanded ?  faChevronUp : faChevronDown} color='white' size={16} />
-            </ExpandArrowView>
-        );
-    }
-
     const GuessResult = () => {
-        if (clueIndex >= myGuesses?.length) return <View />;
-        console.log('clue index: ', clueIndex, myGuesses?.length);
-        const guessObj = myGuesses[clueIndex];
-        console.log('guess obj: ', guessObj);
-        const guessedTitleObj = guessObj?.guessedTitleObj;
 
-        console.log('guessed title obj: ', guessedTitleObj);
+        const fillEmptyGuessesCorrect = () => {
+            const correctGuess = myGuesses[myGuesses.length - 1];
+            const filledGuesses = [...myGuesses];
+            for (let ii = 0; ii < guessesLeft; ii++) {
+                filledGuesses.push(correctGuess);
+            }
+            return filledGuesses;
+        }
+        const displayGuesses = isGameComplete() 
+            ? fillEmptyGuessesCorrect() 
+            : myGuesses;
+
+        const guessObj = displayGuesses[clueIndex];
+        const guessedTitleObj = guessObj?.guessedTitleObj;
 
         const guessIcon = guessObj?.isCorrect 
             ? faCheckCircle 
@@ -333,7 +311,6 @@ const GuessingGameBanner = ({
     const Guesser = () => {
         const isSeries = false;
         const correctTitleKey = reelay?.titleKey;
-        console.log('correct title key: ', correctTitleKey);
         const [loading, setLoading] = useState(false);
         const [searchText, setSearchText] = useState('');
         const [searchResults, setSearchResults] = useState([]);
@@ -358,8 +335,6 @@ const GuessingGameBanner = ({
 
         const onGuessTitle = (guessedTitleObj) => {
             const guessedTitleKey = `${guessedTitleObj.titleType}-${guessedTitleObj?.id}`
-            console.log('guessed title: ', guessedTitleKey);
-
             const isCorrect = (guessedTitleKey === correctTitleKey);
             const nextGuess = {
                 clueIndex,
@@ -403,22 +378,49 @@ const GuessingGameBanner = ({
 
     const GuessMarkers = () => {
 
+        const getMarkerColor = (guess) => {
+            if (guess?.isCorrect) return ReelayColors?.reelayGreen;
+            return ReelayColors.reelayRed;
+        } 
+
         const renderGuessMarker = (guess, index) => {
             const isCorrect = guess?.isCorrect;
+            const color = getMarkerColor(guess);
             const reelaySub = guess?.reelaySub;
             const viewable = (reelaySub === reelay?.sub);
-            console.log('viewable?: ', viewable, reelaySub, reelay?.sub);
             return (
-                <GuessMarkerView key={index} isCorrect={isCorrect} isGuessed={true} viewable={viewable} />
+                <GuessMarkerView key={index} 
+                    color={color}
+                    isCorrect={isCorrect} 
+                    isGuessed={true} 
+                    viewable={viewable} 
+                />
             );
         };
-        // if (myGuesses?.length === 0) return <View />;
-        console.log('guesses: ', myGuesses);
+
+        const gameOver = isGameComplete();
+        const unansweredColor = gameOver ? ReelayColors.reelayGreen : 'gray';
+        const guessesLeftKeys = gameOver ? [...Array(guessesLeft).keys()] : [];
+
         return (
             <GuessMarkerRowView>
                 { myGuesses.map(renderGuessMarker) }
-                { guessesLeft > 0 && (
-                    <GuessMarkerView isCorrect={false} isGuessed={false} viewable={true} />
+                { gameOver && guessesLeftKeys.map(key => (
+                    <GuessMarkerView 
+                        key={key} 
+                        color={unansweredColor} 
+                        isCorrect={false} 
+                        isGuessed={false} 
+                        viewable={true} 
+                    />
+                ))}
+                { !gameOver && (
+                    <GuessMarkerView 
+                        color={unansweredColor} 
+                        isCorrect={false} 
+                        isGuessed={false} 
+                        viewable={true} 
+                    />
                 )}
             </GuessMarkerRowView>
         )
@@ -454,7 +456,7 @@ const GuessingGameBanner = ({
     }
         
 
-    const showGuessResult = (clueIndex < myGuesses?.length);
+    const showGuessResult = (clueIndex < myGuesses?.length || isGameComplete());
     return (
         <TopicBannerBackground>
             <BlurView intensity={25} tint='dark' style={{ alignItems: 'center', width: '100%'}}>
