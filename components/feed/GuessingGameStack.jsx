@@ -46,6 +46,7 @@ export const GuessingGameStack = ({
     const gameDetails = getGameDetails(guessingGame);
     const clueOrder = gameDetails?.clueOrder ?? [];
     const correctTitleKey = gameDetails?.correctTitleKey ?? 'film-0';
+    const isMyGame = (guessingGame?.creatorSub === reelayDBUser?.sub);
 
     const initMyGuesses = (isPreview) ? [] : guessingGame?.myGuesses ?? [];
     const [myGuesses, setMyGuesses] = useState(initMyGuesses);
@@ -67,13 +68,13 @@ export const GuessingGameStack = ({
     const displayStack = (gameOver || isUnlocked) ? stack : stack.slice(0, firstLockedIndex);
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
+    const showSidebar = (gameOver || isMyGame);
     const stackRef = useRef(null);
     const viewableReelay = displayStack[stackPosition];
 
     const topOffset = useSafeAreaInsets().top + 26;
 
     const checkAdvanceToNewClue = async () => {
-        const gameOver = isGameComplete();
         if (stackPosition < lastVisibleIndex && !gameOver) {
             setTimeout(() => {
                 stackRef.current.scrollToOffset({ offset: width * lastVisibleIndex });    
@@ -113,7 +114,7 @@ export const GuessingGameStack = ({
                     feedSource={'guessingGame'}
                     navigation={navigation} 
                     reelay={reelay} 
-                    showSidebar={isGameComplete()}
+                    showSidebar={showSidebar}
                     viewable={reelayIsViewable}
                 />
             </ReelayFeedContainer>

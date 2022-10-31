@@ -212,7 +212,7 @@ const GuessingGameBanner = ({
     const [expanded, setExpanded] = useState(false);
 
     const allowExpand = (titleObj?.titleKey !== 'film-0');
-    const gameDetails = guessingGame?.details; // getGameDetails(guessingGame);
+    const gameDetails = guessingGame?.details;
     const isGameCreator = (reelayDBUser?.sub === guessingGame?.creatorSub);
     // figure out how to do ellipses for displayTitle
     const guessesLeft = (gameDetails?.clueOrder?.length - myGuesses?.length);
@@ -265,7 +265,6 @@ const GuessingGameBanner = ({
             return filledGuesses;
         }
         const displayGuesses = gameOver ? fillEmptyGuessesCorrect() : myGuesses;
-        console.log('display guesses: ', displayGuesses);
         const guessObj = displayGuesses[clueIndex];
         const guessedTitleObj = guessObj?.guessedTitleObj;
 

@@ -16,7 +16,7 @@ import { CommentIconSVG } from '../global/SVGs';
 
 import * as Haptics from 'expo-haptics';
 
-export default Sidebar = ({ navigation, reelay }) => {
+export default Sidebar = ({ navigation, reelay, game = null }) => {
 	const ICON_SIZE = 24;
 	const DOT_ICON_SIZE = 18;
 
@@ -213,7 +213,8 @@ export default Sidebar = ({ navigation, reelay }) => {
 
 			<ButtonContainer>
 				<SidebarButton>
-					<ShareOutButton navigation={navigation} reelay={reelay} />
+					{ game && <ShareGameButton navigation={navigation} game={game} reelay={reelay} /> }
+					{ !game && <ShareOutButton navigation={navigation} reelay={reelay} /> }
 				</SidebarButton>
 				<Count>{''}</Count>
 			</ButtonContainer>

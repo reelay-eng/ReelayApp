@@ -255,26 +255,16 @@ export default ShareGuessingGameModal = ({ closeModal, clueOrder, guessingGame, 
     }
 
     const GuessStats = () => {
+        const guessStats = guessingGame?.stats;
 
-        const [guessStats, setGuessStats] = useState([]);
-
-        const getAllGuessStats = async () => {
-            const guessStats = [
-                { numCorrect: 500, numGuesses: 1000, displayGuessers: [] },
-                { numCorrect: 200, numGuesses: 500, displayGuessers: [] },
-                { numCorrect: 100, numGuesses: 200, displayGuessers: [] },
-                { numCorrect: 50, numGuesses: 100, displayGuessers: [] },
-            ];
-
-            setGuessStats(guessStats);
-        }    
-
-        const renderStatRow = (clueStats, index) => {
+        const ClueStatRow = ({ clueStats, index }) => {
+            const guesserSubs = clueStats?.guesserSubs ?? [];
             const numCorrect = clueStats?.numCorrect ?? 0;
             const numGuesses = clueStats?.numGuesses ?? 1;
-            const correctRatio = numCorrect / numGuesses;
+            const correctRatio = (numGuesses === 0) ? 0 : numCorrect / numGuesses;
+
             const correctRatioStr = (100 * correctRatio).toFixed(0);
-            const statBarWidth = correctRatioStr * 1.5;
+            const statBarWidth = (correctRatioStr * 1.5) + 20;
 
             return (
                 <ClueStatRowView key={index}>
@@ -288,21 +278,17 @@ export default ShareGuessingGameModal = ({ closeModal, clueOrder, guessingGame, 
                         </CluePercentView>
                     </ClueCenterView>
                     <GuesserPicsRow>
-                        <ProfilePicture user={reelayDBUser} size={24} />
+                        { guesserSubs.map(sub => <ProfilePicture user={{ sub, username: 'anthman' }} size={24} />)}
                     </GuesserPicsRow>
                 </ClueStatRowView>
             );
         }   
 
-        useEffect(() => {
-            getAllGuessStats();
-        }, []);
-
-        console.log('clue order: ', clueOrder);
-
         return (
             <ClueStatsView>
-                { guessStats.map((stats, index) => renderStatRow(stats, index))}
+                { guessStats.map((clueStats, index) => {
+                    return <ClueStatRow clueStats={clueStats} key={index} index={index} />
+                })}
             </ClueStatsView>
         );
     }
