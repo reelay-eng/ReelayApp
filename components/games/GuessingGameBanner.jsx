@@ -80,8 +80,9 @@ const TitleBannerRow = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
+    margin-top: 6px;
 `
-const TitleInfoPressable = styled(Pressable)`
+const TitleInfoView = styled(View)`
     align-items: flex-start;
     justify-content: center;
     font-size: 18px;
@@ -199,8 +200,8 @@ const GuessingGameBanner = ({
     club = null,
     clueIndex = 0,
     guessingGame,
+    isPreview = false,
     isUnlocked = false,
-    myGuesses,
     setMyGuesses,
     navigation=null, 
     reelay=null, 
@@ -209,11 +210,12 @@ const GuessingGameBanner = ({
 }) => {
     const authSession = useSelector(state => state.authSession);
     const { reelayDBUser } = useContext(AuthContext);
-    const [expanded, setExpanded] = useState(false);
 
     const allowExpand = (titleObj?.titleKey !== 'film-0');
     const gameDetails = guessingGame?.details;
     const isGameCreator = (reelayDBUser?.sub === guessingGame?.creatorSub);
+    const myGuesses = guessingGame?.myGuesses ?? [];
+
     // figure out how to do ellipses for displayTitle
     const guessesLeft = (gameDetails?.clueOrder?.length - myGuesses?.length);
     const guessesPlural = (guessesLeft > 1) ? 'es' : '';
@@ -232,20 +234,7 @@ const GuessingGameBanner = ({
     const onClickExpand = () => {
         if (!gameOver) return;
         animate(200);
-        setExpanded(!expanded);
     }
-
-    // const ExpandedInfo = () => {
-    //     return (
-    //         <Pressable onPress={onClickExpand}>
-    //             <ExpandedInfoView>
-    //                 <Poster />
-    //                 <TitleInfo />
-    //                 { !onCameraScreen && <AddToClubs /> }
-    //             </ExpandedInfoView>
-    //         </Pressable>
-    //     );
-    // }
 
     const GamesIcon = () => {
         return (
@@ -325,20 +314,35 @@ const GuessingGameBanner = ({
                 visibility: 'draft',
             }
 
+            guessingGame.stats[clueIndex].numGuesses += 1;
+            const isLastClue = (clueIndex === guessingGame?.stats?.length - 1);
+
+            if (isCorrect) {
+                guessingGame.stats[clueIndex].guesserSubs?.push(reelayDBUser?.sub);
+                guessingGame.stats[clueIndex].numCorrect += 1;
+                guessingGame.hasWonGame = true;
+            }
+
+            if (isCorrect || isLastClue) {
+                guessingGame.hasCompletedGame = true;
+            }
+
             setMyGuesses([...myGuesses, nextGuess]);
 
-            const postBody = {
-                authSession,
-                reqUserSub: reelayDBUser?.sub,
-                clueIndex,
-                guessedTitleKey,
-                reelaySub: reelay?.sub,
-                topicID: guessingGame?.id,
+            if (!isPreview) {
+                const postBody = {
+                    authSession,
+                    reqUserSub: reelayDBUser?.sub,
+                    clueIndex,
+                    guessedTitleKey,
+                    reelaySub: reelay?.sub,
+                    topicID: guessingGame?.id,
+                }
+                console.log(postBody);
+    
+                const postGuessResult = await postGuessingGameGuess(postBody);
+                console.log('guess result: ', postGuessResult);    
             }
-            console.log(postBody);
-
-            const postGuessResult = await postGuessingGameGuess(postBody);
-            console.log('guess result: ', postGuessResult);
         }
 
         useEffect(() => {
@@ -419,10 +423,10 @@ const GuessingGameBanner = ({
     const TitleInfo = ({ guessedTitleObj }) => {
         const displayTitle = guessedTitleObj?.display;
         const displayYear = (guessedTitleObj?.releaseDate && guessedTitleObj?.releaseDate.length >= 4) 
-            ? titleObj.releaseDate.slice(0,4) : '';
+            ? guessedTitleObj.releaseDate.slice(0,4) : '';
 
         return (
-            <TitleInfoPressable>
+            <TitleInfoView>
                 <TitleTextContainer>
                     <TitleText numberOfLines={2} ellipsizeMode={"tail"}>
                         {displayTitle}
@@ -430,11 +434,10 @@ const GuessingGameBanner = ({
                 </TitleTextContainer>
                 <Underline 
                     displayYear={displayYear} 
-                    expanded={expanded}
                     runtime={guessedTitleObj?.runtime}
                     venue={venue} 
                 />
-            </TitleInfoPressable>
+            </TitleInfoView>
         );
     }
 

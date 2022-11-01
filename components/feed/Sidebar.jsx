@@ -15,6 +15,7 @@ import { faEllipsis, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { CommentIconSVG } from '../global/SVGs';
 
 import * as Haptics from 'expo-haptics';
+import ShareGameButton from '../games/ShareGameButton';
 
 export default Sidebar = ({ navigation, reelay, game = null }) => {
 	const ICON_SIZE = 24;

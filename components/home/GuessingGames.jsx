@@ -18,6 +18,9 @@ import { faCheckCircle, faXmarkCircle } from '@fortawesome/free-regular-svg-icon
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = 192;
 
+const AbovePosterSpacer = styled(View)`
+    margin-top: 10px;
+`
 const BottomButtonRowView = styled(View)`
     align-items: center;
     flex-direction: row;
@@ -34,7 +37,7 @@ const BottomHideRevealPressable = styled(TouchableOpacity)`
     background-color: #d4d4d4;
     justify-content: center;
     height: 30px;
-    width: 72px;
+    width: ${props => props.wide ? 160 : 72}px;
 `
 const BottomReplayPressable = styled(TouchableOpacity)`
     align-items: center;
@@ -49,21 +52,6 @@ const BottomReplayPressable = styled(TouchableOpacity)`
 `
 const CarouselView = styled(View)`
     margin-left: 16px;
-`
-const HeaderView = styled(View)`
-    margin-left: 15px;
-`
-const HeaderSubText = styled(ReelayText.Body2Emphasized)`
-    color: white;
-    line-height: 20px;
-    margin-top: 8px;
-`
-const GuessingGamesView = styled.View`
-    width: 100%;
-    height: auto;
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 24px;
 `
 const GameDescriptionText = styled(ReelayText.H5Bold)`
     color: white;
@@ -88,12 +76,45 @@ const GameElementView = styled(Pressable)`
     margin-top: 10px;
     width: ${CARD_WIDTH}px;
 `
-const AbovePosterSpacer = styled(View)`
-    margin-top: 10px;
+const GuessingGamesView = styled.View`
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 24px;
+`
+const GuessMarkerRowView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: center;
+    height: 30px;
+    width: 100%;
+`
+const GuessMarkerView = styled(View)`
+    background-color: ${props => props.color};
+    border-color: rgba(255,255,255,0.5);
+    border-radius: 12px;
+    border-width: ${props => props.viewable ? 1 : 0}px;
+    height: 12px;
+    margin: 8px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    width: 12px;
+`
+const HeaderSubText = styled(ReelayText.Body2Emphasized)`
+    color: white;
+    line-height: 20px;
+    margin-top: 8px;
+`
+const HeaderView = styled(View)`
+    margin-left: 15px;
 `
 const RevealText = styled(ReelayText.Body1)`
     color: white;
     padding: 8px;
+`
+const TimestampText = styled(ReelayText.Body1)`
+    color: gray;
 `
 const UnrevealedPosterQuestionMark = styled(ReelayText.H5Bold)`
     color: white;
@@ -107,9 +128,6 @@ const UnrevealedPosterView = styled(Pressable)`
     height: 240px;
     justify-content: center;
     width: 160px;
-`
-const TimestampText = styled(ReelayText.Body1)`
-    color: gray;
 `
 
 export default GuessingGames = ({ navigation }) => {
@@ -135,14 +153,16 @@ export default GuessingGames = ({ navigation }) => {
         const hasCompletedGame = game?.hasCompletedGame;
         const hasWonGame = game?.hasWonGame;
         const hasLostGame = (hasCompletedGame && !hasWonGame);
+
         const isGameCreator = (game?.creatorSub === reelayDBUser?.sub);
         const canRevealPoster = (correctTitleObj && (hasCompletedGame || isGameCreator));
 
         const [isUnlocked, setIsUnlocked] = useState(false);
-        const replayGame = () => {
-            if (canRevealPoster) setIsUnlocked(false);
-            advanceToGuessingGame({ game, isPreview: true, isUnlocked: false });
-        }
+        const playGame = () => advanceToGuessingGame({ game, isPreview: false, isUnlocked: false });
+        // const replayGame = () => {
+        //     if (canRevealPoster) setIsUnlocked(false);
+        //     advanceToGuessingGame({ game, isPreview: true, isUnlocked: false });
+        // }
 
         const tapHideReveal = () => {
             if (canRevealPoster) setIsUnlocked(!isUnlocked);
@@ -155,6 +175,78 @@ export default GuessingGames = ({ navigation }) => {
         let timestamp = `${daysAgo} days ago`;
         if (daysAgo < 1) timestamp = 'Today';
         if (daysAgo === 1) timestamp = 'Yesterday'; 
+
+        const GuessMarkers = () => {
+            const myGuesses = game?.myGuesses ?? [];
+            const clueOrder = game?.details?.clueOrder ?? [];
+            const guessesLeft = (clueOrder?.length - myGuesses?.length);
+    
+            console.log('my guesses: ', myGuesses);
+            console.log('my game: ', game);
+    
+            const getMarkerColor = (guess) => {
+                if (guess?.isCorrect) return ReelayColors?.reelayGreen;
+                return ReelayColors.reelayRed;
+            } 
+    
+            const renderGuessMarker = (guess, index) => {
+                const isCorrect = guess?.isCorrect;
+                const color = getMarkerColor(guess);
+                return (
+                    <GuessMarkerView key={index} 
+                        color={color}
+                        isCorrect={isCorrect} 
+                        isGuessed={true} 
+                        viewable={false} 
+                    />
+                );
+            };
+    
+            return (
+                <GuessMarkerRowView>
+                    { myGuesses.map(renderGuessMarker) }
+                    { (guessesLeft > 0 && !hasCompletedGame) && (
+                        <GuessMarkerView 
+                            key={'unanswered'} 
+                            color={'gray'} 
+                            isCorrect={false} 
+                            isGuessed={false} 
+                            viewable={false} 
+                        />
+                    )}
+                </GuessMarkerRowView>
+            )
+        }
+    
+        const UnrevealedPoster = ({ onPress }) => {
+            if (canRevealPoster && !isGameCreator) {
+                const getIcon = () => {
+                    if (hasWonGame) return faCheckCircle;
+                    if (hasCompletedGame) return faXmarkCircle;
+                    return faEye;
+                }
+    
+                const getText = () => {
+                    if (hasWonGame) return 'You won!';
+                    if (hasCompletedGame) return 'You lost :(';
+                    return '';
+                }
+    
+                return (
+                    <UnrevealedPosterView onPress={onPress}>
+                        <FontAwesomeIcon icon={getIcon()} color='white' size={64} />
+                        <RevealText>{getText()}</RevealText>
+                        <GuessMarkers />
+                    </UnrevealedPosterView>
+                );    
+            } else {
+                return (
+                    <UnrevealedPosterView onPress={onPress}>
+                        <UnrevealedPosterQuestionMark>?</UnrevealedPosterQuestionMark>
+                    </UnrevealedPosterView>
+                );    
+            }
+        }    
 
         return (
             <GameElementView onPress={tapOnPoster}>
@@ -169,23 +261,25 @@ export default GuessingGames = ({ navigation }) => {
                 { isUnlocked && <TitlePoster onPress={tapOnPoster} title={correctTitleObj} width={160} /> }
                 { !isUnlocked && <UnrevealedPoster 
                     canRevealPoster={canRevealPoster} 
+                    game={game}
                     hasCompletedGame={hasCompletedGame} 
                     hasWonGame={hasWonGame} 
+                    isGameCreator={isGameCreator}
                     onPress={tapOnPoster} 
                 />}
                 { canRevealPoster && (
                     <BottomButtonRowView>
-                        <BottomHideRevealPressable onPress={tapHideReveal}>
+                        <BottomHideRevealPressable onPress={tapHideReveal} wide={true}>
                             <BottomButtonText color='black'>{(isUnlocked) ? 'Hide' : 'Show'}</BottomButtonText>
                         </BottomHideRevealPressable>
-                        <BottomReplayPressable onPress={replayGame}>
+                        {/* <BottomReplayPressable onPress={replayGame}>
                             <BottomButtonText color='white'>{'Replay'}</BottomButtonText>
-                        </BottomReplayPressable>                    
+                        </BottomReplayPressable>                     */}
                     </BottomButtonRowView>
                 )}
                 { !canRevealPoster && (
                     <BottomButtonRowView>
-                        <BottomReplayPressable onPress={replayGame} wide={true}>
+                        <BottomReplayPressable onPress={playGame} wide={true}>
                             <BottomButtonText color='white'>{'Play now'}</BottomButtonText>
                         </BottomReplayPressable>                    
                     </BottomButtonRowView>
@@ -213,37 +307,6 @@ export default GuessingGames = ({ navigation }) => {
                 />
             </CarouselView>
         );
-    }
-
-    const UnrevealedPoster = ({ canRevealPoster, hasCompletedGame, hasWonGame, onPress }) => {
-        if (canRevealPoster) {
-            const getIcon = () => {
-                if (hasWonGame) return faCheckCircle;
-                if (hasCompletedGame) return faXmarkCircle;
-                return faEye;
-            }
-
-            const getText = () => {
-                if (hasWonGame) return 'You won!';
-                if (hasCompletedGame) return 'You lost :(';
-                return '';
-            }
-
-            const icon = getIcon();
-
-            return (
-                <UnrevealedPosterView onPress={onPress}>
-                    <FontAwesomeIcon icon={getIcon()} color='white' size={64} />
-                    <RevealText>{getText()}</RevealText>
-                </UnrevealedPosterView>
-            );    
-        } else {
-            return (
-                <UnrevealedPosterView onPress={onPress}>
-                    <UnrevealedPosterQuestionMark>?</UnrevealedPosterQuestionMark>
-                </UnrevealedPosterView>
-            );    
-        }
     }
 
     if (displayGames?.length === 0) {

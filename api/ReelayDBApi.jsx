@@ -641,7 +641,6 @@ export const prepareGuessingGame = async (guessingGame) => {
     try {
         guessingGame.details = JSON.parse(guessingGame?.detailsJSON);
         const { tmdbTitleID, isSeries } = parseTitleKey(guessingGame.details?.correctTitleKey);
-        // console.log('tmdb is', tmdbTitleID, isSeries);
 
         if (tmdbTitleID === -1) {
             guessingGame.details = { error: 'Could not parse details JSON'};

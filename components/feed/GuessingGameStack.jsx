@@ -1,10 +1,10 @@
-import React, { useContext, useState, memo, useRef, Fragment, useMemo, useEffect } from 'react';
+import React, { useContext, useState, memo, useRef, useMemo, useEffect } from 'react';
 import { Dimensions, FlatList, View } from 'react-native';
 import Hero from './Hero';
 
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import styled from 'styled-components/native';
 import UploadProgressBar from '../global/UploadProgressBar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -58,10 +58,11 @@ export const GuessingGameStack = ({
         return false;
     }
 
+    const displayGame = { ...guessingGame, myGuesses };
     const gameOver = isGameComplete();
     const [shareOutViewable, setShareOutViewable] = useState(gameOver);
 
-    const stack = guessingGame?.reelays ?? [];
+    const stack = displayGame?.reelays ?? [];
     const lastVisibleIndex = myGuesses?.length;
     const firstLockedIndex = lastVisibleIndex + 1;
 
@@ -112,6 +113,7 @@ export const GuessingGameStack = ({
                     clubStub={clubStub}
                     index={index} 
                     feedSource={'guessingGame'}
+                    game={displayGame}
                     navigation={navigation} 
                     reelay={reelay} 
                     showSidebar={showSidebar}
@@ -147,7 +149,7 @@ export const GuessingGameStack = ({
     }, [myGuesses]);
 
     useEffect(() => {
-        if (gameOver) setShareOutViewable(true);
+        if (gameOver && !isPreview) setShareOutViewable(true);
     }, [gameOver]);
 
     return (
@@ -170,9 +172,9 @@ export const GuessingGameStack = ({
                 <GuessingGameBanner
                     club={getClubStub(viewableReelay)}
                     clueIndex={stackPosition}
-                    guessingGame={guessingGame}
+                    guessingGame={displayGame}
+                    isPreview={isPreview}
                     isUnlocked={isUnlocked}
-                    myGuesses={myGuesses}
                     setMyGuesses={setMyGuesses}
                     navigation={navigation}
                     titleObj={viewableReelay?.title}
@@ -185,10 +187,8 @@ export const GuessingGameStack = ({
             )}
             {shareOutViewable && (
                 <ShareGuessingGameModal
-                    clueOrder={clueOrder}
                     closeModal={() => setShareOutViewable(false)}
-                    guessingGame={guessingGame}
-                    myGuesses={myGuesses}
+                    game={displayGame}
                 />
             )}
             { showProgressBar && <UploadProgressBar mountLocation={'OnProfile'} onRefresh={onRefresh} /> }

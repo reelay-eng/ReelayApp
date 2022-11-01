@@ -83,12 +83,20 @@ const HeroModals = ({ reelay, navigation }) => {
     );
 }
 
-export default Hero = memo(({ clubStub, feedSource, index, navigation, reelay, showSidebar = true, viewable }) => {
+export default Hero = ({ 
+    clubStub, 
+    feedSource, 
+    index, 
+    game=null,
+    navigation, 
+    reelay, 
+    showSidebar = true, 
+    viewable
+}) => {
     const commentsCount = useRef(reelay.comments.length);
     const isWelcomeVideo = (reelay?.sub === Constants.manifest.extra.welcomeReelaySub);
 
     console.log('Hero is rendering: ', reelay.creator.username, reelay.title.display);
-
     return (
         <View key={index} style={{ justifyContent: 'flex-end'}}>
             <FeedVideoPlayer navigation={navigation} reelay={reelay} viewable={viewable} />
@@ -96,10 +104,19 @@ export default Hero = memo(({ clubStub, feedSource, index, navigation, reelay, s
             <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
 
             <ReelayInfo clubStub={clubStub} feedSource={feedSource} navigation={navigation} reelay={reelay} />
-            { !isWelcomeVideo && showSidebar && <Sidebar navigation={navigation} reelay={reelay} commentsCount={commentsCount}/> }
+            { !isWelcomeVideo && showSidebar && (
+                <Sidebar 
+                    commentsCount={commentsCount}
+                    game={game}
+                    navigation={navigation} 
+                    reelay={reelay} 
+                />
+            )}
             { viewable && <HeroModals reelay={reelay} navigation={navigation} /> }
         </View>
     );
-}, (prepProps, nextProps) => {
-    return prepProps.viewable === nextProps.viewable;
-});
+}
+
+// , (prepProps, nextProps) => {
+//     return prepProps.viewable === nextProps.viewable;
+// });
