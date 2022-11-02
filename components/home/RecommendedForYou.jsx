@@ -46,24 +46,6 @@ const ReelayCount = styled(ReelayText.CaptionEmphasized)`
     color: white;
     opacity: 0.5;
 `
-const SeeMoreOpacityView = styled(View)`
-    background-color: #1a1a1a;
-    border-radius: ${POSTER_WIDTH_BORDER_RADIUS}px;
-    height: 100%;
-    opacity: 0.7;
-    position: absolute;
-    width: ${POSTER_WIDTH}px;
-`
-const SeeMoreTextView = styled(View)`
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    position: absolute;
-    width: 100%;
-`
-const SeeMoreText = styled(ReelayText.Body1)`
-    color: white;
-`
 const TitleInfoLine = styled(View)`
     flex-direction: row;
     justify-content: space-between;
@@ -98,24 +80,12 @@ export default RecommendedForYou = ({ navigation }) => {
 	};
 
     const RecTitleElement = ({ index, onPress, stack, length }) => {
-        const asSeeMore = index === length - 1;
         return (
             <RecElementView onPress={onPress}>
                 <TitlePoster title={stack[0]?.title} width={POSTER_WIDTH} />
-                { asSeeMore && <SeeMoreOpacityView /> }
-                { asSeeMore && (
-                    <SeeMoreTextView>
-                        <IconView>
-                            <Icon type='ionicon' name='caret-forward-circle' size={24} color='white' />
-                        </IconView>
-                        <SeeMoreText>{'See More'}</SeeMoreText>
-                    </SeeMoreTextView>
-                )}
-                { !asSeeMore && (
-                    <TitleInfoLine>
-                        <ReelayCount>{`${stack.length} ${(stack.length > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
-                    </TitleInfoLine>
-                )}
+                <TitleInfoLine>
+                    <ReelayCount>{`${stack.length} ${(stack.length > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
+                </TitleInfoLine>
             </RecElementView>
         )
     }
