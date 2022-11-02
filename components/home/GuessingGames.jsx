@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useState } from 'react';
 import { Dimensions, Pressable, TouchableOpacity, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
@@ -12,6 +12,7 @@ import moment from 'moment';
 import ReelayColors from '../../constants/ReelayColors';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCheckCircle, faXmarkCircle } from '@fortawesome/free-solid-svg-icons';
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = 192;
@@ -113,8 +114,11 @@ const UnrevealedPosterView = styled(Pressable)`
 
 export default GuessingGames = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
-    const displayGames = useSelector(state => state.homeGuessingGames?.content ?? []);
-
+    const guessingGamesObj = useSelector(state => state.homeGuessingGames ?? []);
+    const displayGames = guessingGamesObj.content;
+    const [focusCounter, setFocusCounter] = useState(0);
+    
+    console.log('focus counter: ', focusCounter);
     const headerText = 'Guessing Game';
     const headerSubtext = 'Play the official reelay game!'
 
@@ -251,6 +255,10 @@ export default GuessingGames = ({ navigation }) => {
             </CarouselView>
         );
     }
+
+    // useFocusEffect(() => {
+    //     setFocusCounter(focusCounter + 1);
+    // })
 
     if (displayGames?.length === 0) {
         return <View />;

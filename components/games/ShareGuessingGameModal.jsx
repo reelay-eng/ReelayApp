@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Constants from 'expo-constants';
+import * as Clipboard from 'expo-clipboard';
 import { Dimensions, Modal, Pressable, Share, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ReelayText from '../global/Text';
@@ -218,13 +219,15 @@ const YearView = styled(View)`
 export default ShareGuessingGameModal = ({ closeModal, game }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const myGuesses = game?.myGuesses ?? [];
-    const url = `google.com`;
 
     const hasCompletedGame = game?.hasCompletedGame;
     const hasWonGame = game?.hasWonGame;
     const hasLostGame = (hasCompletedGame && !hasWonGame);
     const isGameCreator = (reelayDBUser?.sub === game?.creatorSub);
-    
+
+    const gameHasGuesses = game?.myGuesses?.length > 0;
+    const inviteCode = game?.myGuesses?.[0]?.inviteCode;
+    const url = (gameHasGuesses) ? `https://on.reelay.app/game/${inviteCode}` : 'https://on.reelay.app';
 
     const CloseButton = () => {
         return (
@@ -236,6 +239,7 @@ export default ShareGuessingGameModal = ({ closeModal, game }) => {
 
     const CopyLinkButton = () => {
         const copyLink = () => {
+
             Clipboard.setStringAsync(url).then(onfulfilled => {
                 showMessageToast('Shareable link copied to clipboard');
             });
@@ -255,7 +259,7 @@ export default ShareGuessingGameModal = ({ closeModal, game }) => {
     }
 
     const ShareOutButton = () => {
-        const shareReelay = async () => {
+        const shareGame = async () => {
             const title = `The Reelay guessing game`;
             const content = { title, url };
             const options = {};
@@ -264,7 +268,7 @@ export default ShareGuessingGameModal = ({ closeModal, game }) => {
 
         return (
             <ShareOptionView>
-                <ShareOptionPressable onPress={shareReelay}>
+                <ShareOptionPressable onPress={shareGame}>
                     <ShareOutSVG />
                     <ShareOptionIconPad />
                     <ShareOptionTextView>

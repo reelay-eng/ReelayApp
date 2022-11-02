@@ -120,6 +120,7 @@ export const postGuessingGameGuess = async ({
     guessedTitleKey,
     reelaySub,
     topicID,
+    username,
 }) => {
     const routePost = `${REELAY_API_BASE_URL}/guessingGame/guess`;
     const postBody = { 
@@ -128,6 +129,7 @@ export const postGuessingGameGuess = async ({
         reelaySub,
         topicID,
         visibility: FEED_VISIBILITY,
+        username,
     };
 
     const postGuessingGameGuessResult = await fetchResults(routePost, {

@@ -21,6 +21,10 @@ import ReelayColors from "../../constants/ReelayColors";
 import { getGameDetails, postGuessingGameGuess } from "../../api/GuessingGameApi";
 import { useDispatch, useSelector } from "react-redux";
 
+const getRandomString = (radix=36) => {
+    return Math.random().toString(radix).slice(2,7);
+}
+
 const { width } = Dimensions.get('window');
 
 const ActorText = styled(ReelayText.Subtitle2)`
@@ -303,10 +307,14 @@ const GuessingGameBanner = ({
         const onGuessTitle = async (guessedTitleObj) => {
             const guessedTitleKey = `${guessedTitleObj.titleType}-${guessedTitleObj?.id}`
             const isCorrect = (guessedTitleKey === correctTitleKey);
+            const inviteCode = (clueIndex === 0)
+                ? getRandomString()
+                : guessingGame?.myGuesses?.[0]?.inviteCode;
             const nextGuess = {
                 clueIndex,
                 guessedTitleKey,
                 guessedTitleObj,
+                inviteCode,
                 isCorrect,
                 reelaySub: reelay?.sub,
                 topicID: topic?.id,
@@ -336,13 +344,16 @@ const GuessingGameBanner = ({
                     reqUserSub: reelayDBUser?.sub,
                     clueIndex,
                     guessedTitleKey,
+                    inviteCode: inviteCode,
                     reelaySub: reelay?.sub,
                     topicID: guessingGame?.id,
+                    username: reelayDBUser?.username,
                 }
-                console.log(postBody);
     
                 const postGuessResult = await postGuessingGameGuess(postBody);
-                console.log('guess result: ', postGuessResult);    
+                const inviteCode = postGuessResult?.inviteCode;
+                guessingGame.myGuesses[clueIndex].inviteCode = inviteCode;
+                dispatch({ type: 'updateHomeGuessingGames', payload: guessingGame })
             }
         }
 
