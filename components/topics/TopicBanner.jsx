@@ -22,10 +22,11 @@ import { BlurView } from 'expo-blur'
 const { width } = Dimensions.get('window');
 
 const BannerTopSpacer = styled(View)`
-    height: ${props => props.allowExpand ? 22 : 12}px;
+    height: 22px;
 `
 const ExpandArrowView = styled(Pressable)`
     align-items: center;
+    height: 22px;
     padding-bottom: 6px;
     width: 100%;
 `
@@ -266,7 +267,7 @@ const TopicBanner = ({
     return (
         <TopicBannerBackground>
             <BlurView intensity={25} tint='dark' style={{ alignItems: 'center', width: '100%'}}>
-                <BannerTopSpacer allowExpand={allowExpand} />
+                <BannerTopSpacer />
                 <TopicBannerRow onPress={onClickExpand}>
                     <TopicIcon />
                     <TopicTitle />

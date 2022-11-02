@@ -30,7 +30,7 @@ export default StarRating = ({
     rating=0,
     onStarRatingPress,
     starSize=30,
-    starStyle={ paddingRight: 8 },
+    starStyle={ paddingRight: 8, borderColor: 'green', borderWidth: 1 },
 }) => {
     const renderStar = (index) => {
         const numStars = Math.floor(rating);
@@ -53,7 +53,6 @@ export default StarRating = ({
         }
 
         // two pressables, absolute on top of star
-
         return (
             <View style={starStyle}>
                 { isFullStar && <FontAwesomeIcon icon={faStar} color={starIconColor} size={starSize} /> }

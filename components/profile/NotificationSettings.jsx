@@ -81,6 +81,7 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
         'notifyPostsInMyClubs',
         'notifyPostsInMyFollowing',
         'notifyPostsInMyTopics',
+        'notifyPostsInMyWatchlist',
         'notifyPostsInOtherTopics',
         'notifyTagsInReelays',
         'notifyTagsInComments',
@@ -114,6 +115,7 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
         const oldSetting = getSetting(settingToUpdate);
         const settingsToUpdate = { [settingToUpdate]: !oldSetting }
         const dbResult = await updateMySettings({ mySub, oldSettings: mySettings, settingsToUpdate });
+        console.log('db result: ', dbResult);
         if (dbResult.error) {
             console.log(dbResult.error);
             showErrorToast("Ruh roh! I couldn't update your mySettings. Try again?");
@@ -158,7 +160,7 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
             const areAllNotificationsDisabled = () => {
                 for (const notifySetting of allNotifyTypes) {
                     if (mySettings[notifySetting]) {
-                        console.log('notify setting is true: ', notifySetting);
+                        // console.log('notify setting is true: ', notifySetting);
                         return false;
                     }
                 }
@@ -527,6 +529,24 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
     }
     
     const WatchlistsNotificationCategory = ({ mySettings, toggleSetting }) => {
+        const NewPostsInMyWatchlist = () => {
+            const [notifyPostsInMyWatchlist, setNotifyPostsInMyWatchlist] = useState(
+                getSetting('notifyPostsInMyWatchlist')
+            );
+            const toggleNotifyPostsInMyWatchlist = async () => {
+                setNotifyPostsInMyWatchlist(!notifyPostsInMyWatchlist);
+                toggleSetting("notifyPostsInMyWatchlist");
+            }
+            return (
+                <NotificationSetting
+                    title="On new reelays" 
+                    subtext="Notify me when someone reelays a title in my watchlist I haven't seen"
+                    isToggled={notifyPostsInMyWatchlist}
+                    toggleFunction={toggleNotifyPostsInMyWatchlist}
+                />
+            )
+        }
+
         const WatchlistsCreatorRecommendationTaken = () => {
             const [notifyCreatorRecommendationTaken, setNotifyCreatorRecommendationTaken] = useState(
                 getSetting('notifyCreatorRecommendationTaken')
@@ -602,6 +622,7 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
         return (
             <CategoryContainer>
                 <CategoryHeaderText>Watchlists</CategoryHeaderText>
+                <NewPostsInMyWatchlist />
                 <WatchlistTitleNowAvailable />
                 <WatchlistReminders />
                 <WatchlistsCreatorRecommendationTaken />

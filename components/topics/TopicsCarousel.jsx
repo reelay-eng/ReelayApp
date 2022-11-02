@@ -79,11 +79,11 @@ export default TopicsCarousel = ({ navigation, source = 'discover', creatorOnPro
     }, []);
 
     let displayTopics = [];
-    let headerText = "Social";
+    let headerText = "Topics";
     switch (source) {
         case 'discover':
             displayTopics = discoverTopics ?? [];
-            headerText = 'Social';
+            headerText = 'Topics';
             break;
         case 'profile':
             displayTopics = topicsOnProfile ?? [];

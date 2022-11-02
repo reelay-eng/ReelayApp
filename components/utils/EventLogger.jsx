@@ -1,14 +1,14 @@
 import { Amplitude } from '@amplitude/react-native';
 import Constants from 'expo-constants';
-// import * as Mixpanel from 'mixpanel-react-native';
+// import { Mixpanel } from 'mixpanel-react-native';
 
 const canUseNativeModules = Constants.appOwnership !== 'expo';
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 
-let mixpanel;
+// let mixpanel;
 
 export const initMixpanel = (token) => {
-    // mixpanel = new Mixpanel.Mixpanel(token, trackAutomaticEvents=true);
+    // mixpanel = new Mixpanel(token, trackAutomaticEvents=true);
     // mixpanel.init().then(() => {
     //     console.log("[Mixpanel] Initialized");
     //     // mixpanel.setUseIpAddressForGeolocation(false);

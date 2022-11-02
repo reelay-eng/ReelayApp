@@ -21,6 +21,7 @@ const POSTER_HEIGHT = 1.5 * POSTER_WIDTH;
 const HeaderContainer = styled(View)`
     flex-direction: row;
     margin-left: -${GRID_SIDE_MARGIN / 2}px;
+    margin-bottom: 16px;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
@@ -52,6 +53,7 @@ const StarRatingContainer = styled(View)`
     justify-content: center;
     bottom: 8px;
     position: absolute;
+    z-index: 5;
 `
 export default ProfilePosterGrid = ({ creatorStacks, navigation }) => {
     if (!creatorStacks.length) {
