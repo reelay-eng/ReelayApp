@@ -43,7 +43,6 @@ const PosterContainer = styled(View)`
 const PosterGridContainer = styled(View)`
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: center;
     margin-top: 4px;
     margin-left: ${GRID_SIDE_MARGIN}px;
     margin-right: ${GRID_SIDE_MARGIN}px;

@@ -195,7 +195,7 @@ export default ReelayFeedHeader = ({
             case 'recommendedTitlesNoFollowing': return 'recommended';
             case 'single': return 'reelay';
             case 'streaming': return 'on streaming'; 
-            case 'title': return 'top reelays';
+            case 'title': return 'reelays';
             case 'topics': return 'topics';
             case 'theaters': return 'in theaters';
             case 'trending': return 'top of the week';

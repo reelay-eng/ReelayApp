@@ -162,17 +162,17 @@ export default ReelayFeed = ({ navigation,
             });
 
         // probably don't need to create this every time, but we want to avoid unnecessary state
-        const titleIDEntries = {};
-        const addToTitleEntries = (fetchedThread) => {
+        const threadEntries = {};
+        const addToThreadEntries = (fetchedThread) => {
             const reelay = fetchedThread[0];
-            if (reelay?.topicID) return;
-            titleIDEntries[reelay?.title?.id] = 1;
+            threadEntries[reelay?.sub ?? reelay?.id] = 1;
         }
-        reelayThreads.forEach(addToTitleEntries);
+        reelayThreads.forEach(addToThreadEntries);
 
         const notAlreadyInStack = (fetchedThread) => {
-            const alreadyInStack = titleIDEntries[fetchedThread[0].title.id];
-            if (alreadyInStack) console.log('Filtering stack ', fetchedThread[0].title.id);
+            const reelay = fetchedThread[0];
+            const alreadyInStack = threadEntries[reelay?.sub ?? reelay?.id];
+            if (alreadyInStack) console.log('Filtering stack ', reelay?.sub ?? reelay?.id);
             return !alreadyInStack;
         }
 

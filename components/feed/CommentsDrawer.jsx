@@ -255,30 +255,6 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 				visibility: FEED_VISIBILITY,
 			};
 
-			const postResult = await postCommentToDB(commentBody, reelay.sub);
-			commentBody.id = postResult.id;
-
-			const mentionedUsers = await notifyMentionsOnComment({
-				creator: reelay.creator,
-				author: reelayDBUser,
-				reelay: reelay,
-				commentText: commentText,
-			})
-			await notifyCreatorOnComment({
-				creatorSub: reelay.creator.sub,
-				author: reelayDBUser,
-				reelay: reelay,
-				commentText: commentText,
-				mentionedUsers: mentionedUsers
-			});
-			await notifyThreadOnComment({
-				creator: reelay.creator,
-				author: reelayDBUser,
-				reelay: reelay,
-				commentText: commentText,
-				mentionedUsers: mentionedUsers
-			});
-
 			setCommentText("");
             setCommentPosting(false);
             reelay.comments.push(commentBody);
@@ -287,12 +263,36 @@ export default CommentsDrawer = ({ reelay, navigation }) => {
 				scrollViewRef.current.scrollToEnd({ animated: false });
 			}
 
+			const postResult = await postCommentToDB(commentBody, reelay.sub);
+			commentBody.id = postResult.id;
+
+			const mentionedUsers = await notifyMentionsOnComment({
+				creator: reelay.creator,
+				author: reelayDBUser,
+				reelay: reelay,
+				commentText: commentBody?.content,
+			})
+			await notifyCreatorOnComment({
+				creatorSub: reelay.creator.sub,
+				author: reelayDBUser,
+				reelay: reelay,
+				commentText: commentBody?.content,
+				mentionedUsers: mentionedUsers
+			});
+			await notifyThreadOnComment({
+				creator: reelay.creator,
+				author: reelayDBUser,
+				reelay: reelay,
+				commentText: commentBody?.content,
+				mentionedUsers: mentionedUsers
+			});
+
 			logAmplitudeEventProd("commentedOnReelay", {
 				user: reelayDBUser?.username,
 				creator: reelay.creator.username,
 				title: reelay.title.display,
 				reelayID: reelay.id,
-				commentText: commentText,
+				commentText: commentBody?.content,
 			});
 		};
 

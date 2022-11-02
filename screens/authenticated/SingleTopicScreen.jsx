@@ -24,12 +24,7 @@ export default SingleTopicScreen = ({ navigation, route }) => {
     const [refreshing, setRefreshing] = useState(false);
 
     useFocusEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false });
-        return () => {
-            if (showTabBarOnReturn) {
-                dispatch({ type: 'setTabBarVisible', payload: true });
-            }
-        }
+        dispatch({ type: 'setTabBarVisible', payload: true });
     });
 
     const onRefresh = async () => {

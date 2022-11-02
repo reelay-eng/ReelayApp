@@ -837,7 +837,7 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 console.log(removeResult);
                 const myClubsRemoved = myClubs.filter(nextClub => {
                     if (nextClub.id === club.id) console.log('filtering out club');
-                    return nextClub.id !== club.id
+                    return nextClub.id !== club.id;
                 });
 
                 const filterUserFromClub = nextMember => nextMember?.userSub !== reelayDBUser?.sub;
@@ -846,8 +846,6 @@ export default ClubInfoScreen = ({ navigation, route }) => {
                 dispatch({ type: 'setMyClubs', payload: myClubsRemoved });    
                 navigation.popToTop();
                 showMessageToast(`You've left ${club.name}`);
-                await onRefresh();
-
                 setClubMember(null);
                 setLeaving(false);
             } catch (error) {
