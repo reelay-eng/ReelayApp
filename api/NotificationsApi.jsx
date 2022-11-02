@@ -18,6 +18,13 @@ import { getClubMembers } from './ClubsApi';
 const EXPO_NOTIFICATION_URL = Constants.manifest.extra.expoNotificationUrl;
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 
+const getDisplayTitlePhrase = (title) => {
+    if (title.id === 0 && title.titleType === 'film') {
+        return '';
+    }
+    return `for ${title.display}`;
+}
+
 const getDevicePushToken = async () => {
     const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
@@ -188,7 +195,8 @@ export const notifyCreatorOnComment = async ({ creatorSub, author, reelay, comme
 
     const shouldSendPushNotification = await shouldNotifyUser(creatorSub, "notifyCommentsOnMyReelays");
     const title = `${author?.username}`;
-    const body = `commented on your reelay for ${reelay.title.display}`;
+    const titlePhrase = getDisplayTitlePhrase(reelay?.title);
+    const body = `commented on your reelay ${titlePhrase}`;
     const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
     const data = {        
         notifyType: 'notifyCreatorOnComment', 
@@ -330,7 +338,8 @@ export const notifyThreadOnComment = async ({ creator, author, reelay, commentTe
         if (creator.username === author.username) creatorDirectObject = 'their';
             
         const title = `${author.username}`;
-        const body = `commented on ${creatorDirectObject} reelay for ${reelay.title.display}`;
+        const titlePhrase = getDisplayTitlePhrase(reelay?.title);
+        const body = `commented on ${creatorDirectObject} reelay ${titlePhrase}`;
         const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
         const data = { 
             notifyType: 'notifyThreadOnComment',
@@ -396,7 +405,8 @@ export const notifyCreatorOnLike = async ({ creatorSub, user, reelay }) => {
     const shouldSendPushNotification = await shouldNotifyUser(creatorSub, "notifyLikesOnMyReelays");
 
     const title = `${user?.username}`;
-    const body = `liked your reelay for ${reelay.title.display}`;
+    const titlePhrase = getDisplayTitlePhrase(reelay?.title);
+    const body = `liked your reelay ${titlePhrase}`;
     const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
     const data = { 
         notifyType: 'notifyCreatorOnLike',
@@ -447,7 +457,8 @@ export const notifyMentionsOnReelayPosted = async ({ authSession, clubID = null,
             const shouldSendPushNotification = await shouldNotifyUser(notifyMentionedUserSub, "notifyTagsInReelays");
                         
             const title = `${creator.username}`;
-            const body = `tagged you in their reelay for ${reelay.title.display}`;
+            const titlePhrase = getDisplayTitlePhrase(reelay?.title);
+            const body = `tagged you in their reelay ${titlePhrase}`;
             const action = (reelay.topicID) ? 'openTopicAtReelay' : 'openSingleReelayScreen';
             const data = { 
                 notifyType: 'notifyMentionedUserOnReelayPosted',

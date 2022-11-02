@@ -202,6 +202,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                     // activateKeepAwake();
                     const videoRecording = await cameraRef.current.recordAsync({
                         codec: Camera.Constants.VideoCodec.H264,
+                        mirror: (cameraType === Camera.Constants.Type.front),
                     });
                     // deactivateKeepAwake();
                     console.log('video recording complete');
@@ -343,6 +344,7 @@ export default ReelayCameraScreen = ({ navigation, route }) => {
                     style={cameraStyle} 
                     type={cameraType} 
                     whiteBalance={whiteBalance} 
+                    videoStabilizationMode='cinematic'
                 />
             ); 
         } catch (error) {
