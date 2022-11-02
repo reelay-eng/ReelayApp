@@ -197,6 +197,7 @@ const UnderlineView = styled(View)`
     width: 100%;
 `
 const YouGotItView = styled(View)`
+    align-items: center;
     margin: 16px;
 `
 const YouWinText = styled(ReelayText.H5Bold)`
@@ -353,7 +354,6 @@ export default ShareGuessingGameModal = ({ closeModal, game }) => {
         return (
             <ClueStatsView>
                 { guessStats.map((clueStats, index) => {
-                    console.log('index: ', index);
                     return <ClueStatRow clueStats={clueStats} key={index} index={index} />
                 })}
             </ClueStatsView>
@@ -416,7 +416,7 @@ export default ShareGuessingGameModal = ({ closeModal, game }) => {
 
     const YouGotIt = () => {
         const getText = () => {
-            if (hasWonGame) return 'You got it!';
+            if (hasWonGame) return 'You guessed it!';
             if (hasLostGame) return 'Darn, next time!';
             return game?.title;
         }

@@ -26,6 +26,7 @@ import MyWatchlistGrid from '../watchlist/MyWatchlistGrid';
 import DiscoverSearch from './DiscoverSearch';
 import RecommendedForYou from './RecommendedForYou';
 import GuessingGames from './GuessingGames';
+import { getGuessingGamesPublished } from '../../api/GuessingGameApi';
 
 const BottomBar = styled(LinearGradient)`
     height: 100px;
@@ -95,11 +96,13 @@ const HomeComponent = ({ navigation }) => {
         // deferred load
         const [
             homeFollowingFeed,
+            homeGuessingGames,
             homeInTheatersFeed,
             homeOnStreamingFeed,
             homeTopOfTheWeekFeed,
         ] = await Promise.all([
             getFeed({ authSession, feedSource: 'following', reqUserSub, page: 0 }),
+            getGuessingGamesPublished({ authSession, reqUserSub, page: 0 }),
             getFeed({ authSession, feedSource: 'theaters', reqUserSub, page: 0 }),
             getFeed({ authSession, feedSource: 'streaming', reqUserSub, page: 0 }),
             getFeed({ authSession, feedSource: 'trending', reqUserSub, page: 0 }),
@@ -109,6 +112,10 @@ const HomeComponent = ({ navigation }) => {
             content: homeFollowingFeed,
             nextPage: 1,
         }});
+        dispatch({ type: 'setHomeGuessingGames', payload: {
+            content: homeGuessingGames,
+            nextPage: 1,
+        }})
         dispatch({ type: 'setHomeInTheatersFeed', payload: {
             content: homeInTheatersFeed,
             nextPage: 1,
@@ -138,9 +145,9 @@ const HomeComponent = ({ navigation }) => {
             </SafeAreaView>
             <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 <AnnouncementsAndNotices navigation={navigation} />
-                <GuessingGames navigation={navigation} />
                 <RecommendedForYou navigation={navigation} />
                 <PopularTitles navigation={navigation} />
+                <GuessingGames navigation={navigation} />
                 <TopOfTheWeek navigation={navigation} />
                 <TopicsCarousel navigation={navigation} source='discover' /> 
                 <MyWatchlistGrid navigation={navigation} />

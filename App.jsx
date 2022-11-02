@@ -61,6 +61,7 @@ import moment from 'moment';
 import { getEmptyGlobalTopics } from './api/FeedApi';
 import { getAllClubsFollowing } from './api/ClubsApi';
 import { verifySocialAuthSession } from './api/ReelayUserApi';
+import { getGuessingGamesPublished } from './api/GuessingGameApi';
 
 const LoadingContainer = styled(View)`
     align-items: center;
@@ -367,11 +368,13 @@ function App() {
 
         const [
             homeFollowingFeed,
+            homeGuessingGames,
             homeInTheatersFeed,
             homeOnStreamingFeed,
             homeTopOfTheWeekFeed,
         ] = await Promise.all([
             getFeed({ authSession, reqUserSub, feedSource: 'following', page: 0 }),
+            getGuessingGamesPublished({ authSession, reqUserSub, page: 0 }),
             getFeed({ authSession, reqUserSub, feedSource: 'theaters', page: 0 }),
             getFeed({ authSession, reqUserSub, feedSource: 'streaming', page: 0 }),
             getFeed({ authSession, reqUserSub, feedSource: 'trending', page: 0 }),
@@ -379,6 +382,10 @@ function App() {
 
         dispatch({ type: 'setHomeFollowingFeed', payload: {
             content: homeFollowingFeed,
+            nextPage: 1,
+        }});
+        dispatch({ type: 'setHomeGuessingGames', payload: {
+            content: homeGuessingGames,
             nextPage: 1,
         }});
         dispatch({ type: 'setHomeInTheatersFeed', payload: {

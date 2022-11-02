@@ -19,7 +19,7 @@ import SearchField from "../create-reelay/SearchField";
 import { searchTitles } from "../../api/ReelayDBApi";
 import ReelayColors from "../../constants/ReelayColors";
 import { getGameDetails, postGuessingGameGuess } from "../../api/GuessingGameApi";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const { width } = Dimensions.get('window');
 
@@ -202,7 +202,6 @@ const GuessingGameBanner = ({
     guessingGame,
     isPreview = false,
     isUnlocked = false,
-    setMyGuesses,
     navigation=null, 
     reelay=null, 
     titleObj,
@@ -276,6 +275,7 @@ const GuessingGameBanner = ({
     }
 
     const Guesser = () => {
+        const dispatch = useDispatch();
         const isSeries = false;
         const correctTitleKey = reelay?.titleKey;
         const [loading, setLoading] = useState(false);
@@ -327,7 +327,8 @@ const GuessingGameBanner = ({
                 guessingGame.hasCompletedGame = true;
             }
 
-            setMyGuesses([...myGuesses, nextGuess]);
+            guessingGame.myGuesses = [...myGuesses, nextGuess];
+            dispatch({ type: 'updateHomeGuessingGames', payload: guessingGame });
 
             if (!isPreview) {
                 const postBody = {

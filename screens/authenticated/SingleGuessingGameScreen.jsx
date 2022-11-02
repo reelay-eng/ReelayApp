@@ -8,7 +8,8 @@ import GuessingGameStack from '../../components/feed/GuessingGameStack';
 export default SingleGuessingGameScreen = ({ navigation, route }) => {
 
     const initialStackPos = route?.params?.initialStackPos ?? 0;
-    const guessingGame = route?.params?.guessingGame ?? null;
+    const initialFeedPosition = route?.params?.initialFeedPosition ?? 0;
+    // const guessingGame = route?.params?.guessingGame ?? null;
     const isPreview = route?.params?.isPreview;
     const isUnlocked = route?.params?.isUnlocked;
     const feedSource = (isPreview) ? 'guessingGamePreview' : 'guessingGame';
@@ -18,13 +19,14 @@ export default SingleGuessingGameScreen = ({ navigation, route }) => {
     
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
-    })
+    });
 
     return (
         <Fragment>
             <GuessingGameStack
+                initialFeedPosition={initialFeedPosition}
                 initialStackPos={initialStackPos}
-                guessingGame={guessingGame}
+                // guessingGame={guessingGame}
                 isPreview={isPreview}
                 isUnlocked={isUnlocked}
                 navigation={navigation}
