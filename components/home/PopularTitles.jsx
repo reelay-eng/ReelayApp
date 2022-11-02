@@ -92,24 +92,12 @@ export default PopularTitles = ({ navigation }) => {
 	};
 
     const PopularTitleElement = ({ index, onPress, stack, length }) => {
-        const asSeeMore = index === length - 1;
         return (
             <PopularTitlesElementContainer onPress={onPress}>
                 <TitlePoster title={stack[0]?.title} width={POSTER_WIDTH} />
-                { asSeeMore && <SeeMoreOpacityContainer /> }
-                { asSeeMore && (
-                    <SeeMoreTextContainer>
-                        <IconContainer>
-                            <Icon type='ionicon' name='caret-forward-circle' size={24} color='white' />
-                        </IconContainer>
-                        <SeeMoreText>{'See More'}</SeeMoreText>
-                    </SeeMoreTextContainer>
-                )}
-                { !asSeeMore && (
-                    <TitleInfoLine>
-                        <ReelayCount>{`${stack.length} ${(stack.length > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
-                    </TitleInfoLine>
-                )}
+                <TitleInfoLine>
+                    <ReelayCount>{`${stack.length} ${(stack.length > 1) ? 'reelays' : 'reelay'}`}</ReelayCount>
+                </TitleInfoLine>
             </PopularTitlesElementContainer>
         )
     }

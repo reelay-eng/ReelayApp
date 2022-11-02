@@ -1,5 +1,5 @@
 import React, { memo, useContext, useState, useRef, Fragment } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native'
+import { View, Text, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native'
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
@@ -14,6 +14,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import ReelayColors from '../../constants/ReelayColors';
 import { ScrollView } from 'react-native-gesture-handler';
 
+const { height, width } = Dimensions.get('window');
+const VENUE_BUTTON_WIDTH = (width - 40) / 4;
+
 const BodyText = styled(ReelayText.Body2)`
     color: white;
 `
@@ -22,8 +25,7 @@ const HeaderText = styled(ReelayText.H5Bold)`
     font-size: 18px;
 `
 const HeaderView = styled(View)`
-    padding: 24px;
-    padding-bottom: 12px;
+    padding: 12px;
 `
 const IconOptionsGridContainer = styled(View)`
     align-items: center;
@@ -53,8 +55,8 @@ const SaveButtonPressable = styled(TouchableOpacity)`
     border-width: 1px;
     height: 40px;
     justify-content: center;
-    margin-top: 10px;
-    width: 256px;
+    margin-top: 16px;
+    width: 90%;
 `
 const SaveButtonText = styled(ReelayText.CaptionEmphasized)`
     color: ${ReelayColors.reelayBlue};
@@ -74,7 +76,6 @@ const StreamingServicesContainer = styled(View)`
     height: auto;
     display: flex;
     flex-direction: column;
-    margin-bottom: 20px;
 `
 const TouchableVenue = styled(TouchableOpacity)`
     align-items: center;
@@ -83,7 +84,7 @@ const TouchableVenue = styled(TouchableOpacity)`
     height: 93px;
     justify-content: center;
     margin: 4px;
-    width: 80px;
+    width: ${VENUE_BUTTON_WIDTH}px;
 `
 const VenueGradient = styled(LinearGradient)`
     border-radius: 11px;
@@ -105,7 +106,7 @@ export const StreamingSelectorGrid = ({ venueList = [], setRefreshing }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const hasVenueList = (venueList?.length > 0);
-    const [expanded, setExpanded] = useState(hasVenueList);
+    const [expanded, setExpanded] = useState(true);
 
     const searchVenues = getStreamingVenues(expanded);
     const getVenuesFromList = () => venueList.map(venueStr => {
@@ -181,7 +182,6 @@ export const StreamingSelectorGrid = ({ venueList = [], setRefreshing }) => {
     const scrollStyle = {
         alignItems: 'center', 
         justifyContent: 'center',
-        paddingBottom: hasVenueList ? 0 : 120, 
     }
 
     const SaveButton = memo(() => {
