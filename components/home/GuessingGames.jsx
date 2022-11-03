@@ -125,7 +125,6 @@ export default GuessingGames = ({ navigation }) => {
     const headerSubtext = 'Play the official reelay game!'
 
     const advanceToGuessingGame = ({ game, index, isPreview = false, isUnlocked = false }) => {
-		if (displayGames?.length === 0) return;
         const navOptions = {
             initialFeedPos: index,
             initialStackPos: 0,
@@ -137,22 +136,27 @@ export default GuessingGames = ({ navigation }) => {
 	};
 
     const GamePreviewElement = ({ index, game }) => {
-        const daysAgo = moment().diff(moment(game?.updatedAt), 'days');
+        const getTimestampText = () => {
+            const now = moment();
+            const publishedAt = moment(game?.updatedAt);
+            const daysAgo = now.diff(publishedAt, 'days');
+            if (daysAgo === 0) return 'Today';
+            if (daysAgo === 1) return 'Yesterday';
+            if (daysAgo < 7) return publishedAt.format('dddd');
+            return publishedAt.format('MMMM Do');
+        }
+
         const correctTitleObj = game?.correctTitleObj;
         const hasCompletedGame = game?.hasCompletedGame;
         const hasWonGame = game?.hasWonGame;
         const hasLostGame = (hasCompletedGame && !hasWonGame);
-
         const isGameCreator = (game?.creatorSub === reelayDBUser?.sub);
         const isUnlocked = (correctTitleObj && (hasCompletedGame || isGameCreator));
+        const timestamp = getTimestampText();
 
         const tapOnPoster = () => {
             advanceToGuessingGame({ game, index, isPreview: false, isUnlocked });
         }
-
-        let timestamp = `${daysAgo} days ago`;
-        if (daysAgo < 1) timestamp = 'Today';
-        if (daysAgo === 1) timestamp = 'Yesterday'; 
 
         const GuessMarkers = () => {
             const myGuesses = game?.myGuesses ?? [];

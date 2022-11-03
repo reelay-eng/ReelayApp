@@ -1,15 +1,12 @@
 import { useFocusEffect } from '@react-navigation/native';
 import React, { Fragment } from 'react';
-import { View } from 'react-native';
-import { useDispatch } from 'react-redux';
-import styled from 'styled-components/native';
+import { useDispatch, useSelector } from 'react-redux';
 import GuessingGameStack from '../../components/feed/GuessingGameStack';
 
 export default SingleGuessingGameScreen = ({ navigation, route }) => {
-
+    // const guessingGames = useSelector(state => state.discover?.guessingGames?.current ?? []);
     const initialStackPos = route?.params?.initialStackPos ?? 0;
-    const initialFeedPosition = route?.params?.initialFeedPosition ?? 0;
-    // const guessingGame = route?.params?.guessingGame ?? null;
+    const initialFeedPos = route?.params?.initialFeedPos ?? 0;
     const isPreview = route?.params?.isPreview;
     const isUnlocked = route?.params?.isUnlocked;
     const feedSource = (isPreview) ? 'guessingGamePreview' : 'guessingGame';
@@ -24,9 +21,8 @@ export default SingleGuessingGameScreen = ({ navigation, route }) => {
     return (
         <Fragment>
             <GuessingGameStack
-                initialFeedPosition={initialFeedPosition}
+                initialFeedPos={initialFeedPos}
                 initialStackPos={initialStackPos}
-                // guessingGame={guessingGame}
                 isPreview={isPreview}
                 isUnlocked={isUnlocked}
                 navigation={navigation}

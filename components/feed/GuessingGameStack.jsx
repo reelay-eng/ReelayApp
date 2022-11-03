@@ -32,14 +32,14 @@ const GameBannerView = styled(View)`
 
 export const GuessingGameStack = ({ 
     initialStackPos = 0,
-    initialFeedPosition = 0,
+    initialFeedPos = 0,
     isPreview = false,
     isUnlocked = false,
     navigation,
     onRefresh,
     stackViewable,
 }) => {
-    const guessingGame = useSelector(state => state.homeGuessingGames?.content?.[initialFeedPosition]);
+    const guessingGame = useSelector(state => state.homeGuessingGames?.content?.[initialFeedPos]);
     const [stackPosition, setStackPosition] = useState(initialStackPos);
     const { reelayDBUser } = useContext(AuthContext);
     const uploadStage = useSelector(state => state.uploadStage);
@@ -47,6 +47,7 @@ export const GuessingGameStack = ({
     const gameDetails = getGameDetails(guessingGame);
     const clueOrder = gameDetails?.clueOrder ?? [];
     const correctTitleKey = gameDetails?.correctTitleKey ?? 'film-0';
+    const isFirstRenderRef = useRef(true);
     const isMyGame = (guessingGame?.creatorSub === reelayDBUser?.sub);
     const myGuesses = (isPreview) ? [] : guessingGame?.myGuesses ?? [];
 
@@ -60,7 +61,7 @@ export const GuessingGameStack = ({
 
     const displayGame = { ...guessingGame, myGuesses };
     const gameOver = isGameComplete();
-    const [shareOutViewable, setShareOutViewable] = useState(gameOver);
+    const [shareOutViewable, setShareOutViewable] = useState(false);
 
     const stack = displayGame?.reelays ?? [];
     const lastVisibleIndex = myGuesses?.length;
@@ -149,7 +150,13 @@ export const GuessingGameStack = ({
     }, [myGuesses]);
 
     useEffect(() => {
-        if (gameOver && !isPreview) setShareOutViewable(true);
+        if (isFirstRenderRef.current) {
+            isFirstRenderRef.current = false;
+            return;
+        }
+        if (gameOver && !isPreview) {
+            setShareOutViewable(true);
+        }
     }, [gameOver]);
 
     return (
