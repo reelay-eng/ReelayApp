@@ -10,6 +10,7 @@ export default SingleGuessingGameScreen = ({ navigation, route }) => {
     const isPreview = route?.params?.isPreview;
     const isUnlocked = route?.params?.isUnlocked;
     const feedSource = (isPreview) ? 'guessingGamePreview' : 'guessingGame';
+    const previewGuessingGame = route?.params?.previewGuessingGame ?? null;
     const onRefresh = () => {};
 
     const dispatch = useDispatch();
@@ -27,6 +28,7 @@ export default SingleGuessingGameScreen = ({ navigation, route }) => {
                 isUnlocked={isUnlocked}
                 navigation={navigation}
                 onRefresh={onRefresh}
+                previewGuessingGame={previewGuessingGame}
                 stackViewable={true}
             />
             <ReelayFeedHeader 

@@ -192,6 +192,7 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
     const gameTitle = game?.title;
 
     const uploadStage = useSelector(state => state.uploadStage);
+    const showPreviewButton = (clues.length > 1); // null is an obj in clues
     const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
     const showProgressBar = showProgressBarStages.includes(uploadStage);
 
@@ -209,7 +210,7 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
     const advanceToGamePreview = (index = 0, isUnlocked = false) => {
         navigation.push('SingleGuessingGameScreen', {
             initialStackPos: index,
-            guessingGame: game,
+            previewGuessingGame: game,
             isPreview: true,
             isUnlocked,
         })
@@ -368,10 +369,12 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
                     <HeaderSubText>{'Add reelays to help people guess the title. Players get one guess for each reelay they see.'}</HeaderSubText>
                     <HeaderSubText>{'Press and hold to reorder.'}</HeaderSubText>
                 </CluesHeaderView>
-                <PreviewButtonPressable onPress={() => advanceToGamePreview(0)}>
-                    <PreviewButtonText>{'preview'}</PreviewButtonText>
-                    <FontAwesomeIcon icon={faPlay} color='black' size={12} />
-                </PreviewButtonPressable>
+                { showPreviewButton && (
+                    <PreviewButtonPressable onPress={() => advanceToGamePreview(0)}>
+                        <PreviewButtonText>{'preview'}</PreviewButtonText>
+                        <FontAwesomeIcon icon={faPlay} color='black' size={12} />
+                    </PreviewButtonPressable>
+                )}
             </View>
         );
     }

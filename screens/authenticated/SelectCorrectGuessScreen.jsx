@@ -201,7 +201,7 @@ export default SelectCorrectGuessScreen = ({ navigation, route }) => {
         if (!showDraftGuessingGames) return <View />;
         return (
             <DraftGuessingGamesView>
-                <DraftGuessingGamesAltText>{'or'}</DraftGuessingGamesAltText>
+                <Spacer />
                 <HeaderText>{headerText}</HeaderText>
                 <Spacer />
                 <FlatList
