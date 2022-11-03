@@ -239,7 +239,6 @@ export default ShareGuessingGameModal = ({ closeModal, game }) => {
 
     const CopyLinkButton = () => {
         const copyLink = () => {
-
             Clipboard.setStringAsync(url).then(onfulfilled => {
                 showMessageToast('Shareable link copied to clipboard');
             });

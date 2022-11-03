@@ -256,7 +256,7 @@ const GuessingGameBanner = ({
             }
             return filledGuesses;
         }
-        const displayGuesses = gameOver ? fillEmptyGuessesCorrect() : myGuesses;
+        const displayGuesses = (gameOver) ? fillEmptyGuessesCorrect() : myGuesses;
         const guessObj = displayGuesses[clueIndex];
         const guessedTitleObj = guessObj?.guessedTitleObj;
 
@@ -310,6 +310,10 @@ const GuessingGameBanner = ({
             const inviteCode = (clueIndex === 0)
                 ? getRandomString()
                 : guessingGame?.myGuesses?.[0]?.inviteCode;
+
+            console.log('The invite code is: ', inviteCode);
+            console.log('The guesses are: ', guessingGame?.myGuesses);
+
             const nextGuess = {
                 clueIndex,
                 guessedTitleKey,
@@ -319,6 +323,7 @@ const GuessingGameBanner = ({
                 reelaySub: reelay?.sub,
                 topicID: topic?.id,
                 userSub: reelayDBUser?.sub,
+                username: reelayDBUser?.username,
                 visibility: 'draft',
             }
 
@@ -351,9 +356,7 @@ const GuessingGameBanner = ({
                 }
     
                 const postGuessResult = await postGuessingGameGuess(postBody);
-                const inviteCode = postGuessResult?.inviteCode;
-                guessingGame.myGuesses[clueIndex].inviteCode = inviteCode;
-                dispatch({ type: 'updateHomeGuessingGames', payload: guessingGame })
+                console.log('post guess result: ', postGuessResult);
             }
         }
 

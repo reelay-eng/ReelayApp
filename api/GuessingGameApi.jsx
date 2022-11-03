@@ -118,6 +118,7 @@ export const postGuessingGameGuess = async ({
     reqUserSub,
     clueIndex,
     guessedTitleKey,
+    inviteCode,
     reelaySub,
     topicID,
     username,
@@ -126,6 +127,7 @@ export const postGuessingGameGuess = async ({
     const postBody = { 
         clueIndex, 
         guessedTitleKey,
+        inviteCode,
         reelaySub,
         topicID,
         visibility: FEED_VISIBILITY,
