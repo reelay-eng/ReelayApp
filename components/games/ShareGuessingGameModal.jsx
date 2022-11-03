@@ -12,7 +12,7 @@ import ProfilePicture from '../global/ProfilePicture';
 import { AuthContext } from '../../context/AuthContext';
 import { showMessageToast } from '../utils/toasts';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faChartBar, faLink, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faChartBar, faCheck, faLink, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { faInstagram } from '@fortawesome/free-brands-svg-icons';
 import { getRuntimeString } from '../utils/TitleRuntime';
 import TitlePoster from '../global/TitlePoster';
@@ -30,14 +30,16 @@ const CloseButtonPressable = styled(TouchableOpacity)`
     right: 16px;
 `
 const GuessMarkerView = styled(View)`
+    align-items: center;
     background-color: ${props => props.color};
     border-color: rgba(255,255,255,0.5);
-    border-radius: 12px;
-    height: 12px;
-    margin: 8px;
+    border-radius: 4px;
+    height: 24px;
+    justify-content: center;
+    margin: 4px;
     margin-top: 0px;
     margin-bottom: 0px;
-    width: 12px;
+    width: 24px;
 `
 const GuessMarkerRowView = styled(View)`
     align-items: center;
@@ -71,7 +73,7 @@ const ShareCardWhiteLayer = styled(View)`
 const ShareCardView = styled(View)`
     align-items: center;
     border-radius: 24px;
-    height: 608px;
+    height: 604px;
     opacity: 0.95;
     width: ${width - 32}px;
 `
@@ -221,6 +223,7 @@ const UnderlineView = styled(View)`
 const YouGotItView = styled(View)`
     align-items: center;
     margin: 16px;
+    margin-bottom: 0px;
 `
 const YouWinText = styled(ReelayText.H5Bold)`
     color: white;
@@ -329,12 +332,15 @@ export default ShareGuessingGameModal = ({ closeModal, game }) => {
         const renderGuessMarker = (guess, index) => {
             const isCorrect = guess?.isCorrect;
             const color = getMarkerColor(guess);
+            const icon = isCorrect ? faCheck : faXmark;
             return (
                 <GuessMarkerView key={index} 
                     color={color}
                     isCorrect={isCorrect} 
                     isGuessed={true} 
-                />
+                >
+                    <FontAwesomeIcon icon={icon} color='white' size={16} />
+                </GuessMarkerView>
             );
         };
 
@@ -456,7 +462,7 @@ export default ShareGuessingGameModal = ({ closeModal, game }) => {
     return (
         <Modal style={ModalStyle} animationType='none' transparent={true}>
             <OverlayBox onPress={closeModal}>
-                <BlurView intensity={50} tint='dark' style={{ borderRadius: 24, height: 608, overflow: 'hidden', width: width - 32, position: 'absolute' }} />
+                <BlurView intensity={50} tint='dark' style={{ borderRadius: 24, height: 604, overflow: 'hidden', width: width - 32, position: 'absolute' }} />
                 <ShareCardView>
                     <ShareCardWhiteLayer />
                     <ShareCardGradient colors={[ReelayColors.reelayBlue, '#4C268B']} />

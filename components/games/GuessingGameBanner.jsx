@@ -9,7 +9,7 @@ import TitlePoster from "../global/TitlePoster";
 import VenueIcon from '../utils/VenueIcon';
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faCheckCircle, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCheckCircle, faQuestion, faXmark, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
 import { getRuntimeString } from "../utils/TitleRuntime";
 import { animate } from "../../hooks/animations";
 import { GamesIconSVG } from "../global/SVGs";
@@ -47,15 +47,16 @@ const GuessIconView = styled(View)`
     margin: 10px;
 `
 const GuessMarkerView = styled(View)`
+    align-items: center;
     background-color: ${props => props.color};
     border-color: rgba(255,255,255,0.5);
-    border-radius: 12px;
-    border-width: ${props => props.viewable ? 1 : 0}px;
-    height: 12px;
-    margin: 8px;
+    border-radius: 4px;
+    height: ${props => props.unanswered ? 18 : 24}px;
+    justify-content: center;
+    margin: 4px;
     margin-top: 0px;
     margin-bottom: 0px;
-    width: 12px;
+    width: ${props => props.unanswered ? 18 : 24}px;
 `
 const GuessMarkerRowView = styled(View)`
     align-items: center;
@@ -396,6 +397,7 @@ const GuessingGameBanner = ({
 
         const renderGuessMarker = (guess, index) => {
             const isCorrect = guess?.isCorrect;
+            const icon = isCorrect ? faCheck : faXmark;
             const color = getMarkerColor(guess);
             const reelaySub = guess?.reelaySub;
             const viewable = (reelaySub === reelay?.sub);
@@ -405,11 +407,13 @@ const GuessingGameBanner = ({
                     isCorrect={isCorrect} 
                     isGuessed={true} 
                     viewable={viewable} 
-                />
+                >
+                    <FontAwesomeIcon icon={icon} color='white' size={18} />
+                </GuessMarkerView>
             );
         };
 
-        const unansweredColor = gameOver ? ReelayColors.reelayGreen : 'gray';
+        const unansweredColor = gameOver ? ReelayColors.reelayGreen : '#C8C8C8';
 
         return (
             <GuessMarkerRowView>
@@ -420,8 +424,10 @@ const GuessingGameBanner = ({
                         color={unansweredColor} 
                         isCorrect={false} 
                         isGuessed={false} 
+                        unanswered={true}
                         viewable={true} 
-                    />
+                    >
+                    </GuessMarkerView>
                 )}
             </GuessMarkerRowView>
         )
