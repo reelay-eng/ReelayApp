@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment, useContext } from 'react';
 import { Dimensions, Modal, Pressable, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import ReelayColors from '../../constants/ReelayColors';
@@ -7,11 +7,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GamesIconSVG, ReviewIconSVG, TopicsIconSVG } from '../../components/global/SVGs';
+import { AuthContext } from '../../context/AuthContext';
 
 const { height, width } = Dimensions.get('window');
 
 const BUTTON_MARGIN_WIDTH = 10;
-const BUTTON_WIDTH = (width - (BUTTON_MARGIN_WIDTH * 5)) / 3;
 
 const Backdrop = styled(Pressable)`
     height: 100%;
@@ -24,9 +24,7 @@ const CloseDrawerButton = styled(TouchableOpacity)`
 const CreateOptionPressable = styled(TouchableOpacity)`
     align-items: center;
     border-radius: 12px;
-    height: ${BUTTON_WIDTH}px;
     justify-content: center;
-    width: ${BUTTON_WIDTH}px;
 `
 const CreateOptionText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -37,12 +35,18 @@ const CreateOptionView = styled(View)`
 `
 const CreateGuessingGamePressable = styled(CreateOptionPressable)`
     background-color: ${ReelayColors.reelayRed};
+    height: ${props => props.height}px;
+    width: ${props => props.width}px;
 `
 const CreateReviewPressable = styled(CreateOptionPressable)`
     background-color: ${ReelayColors.reelayBlue};
+    height: ${props => props.height}px;
+    width: ${props => props.width}px;
 `
 const CreateTopicPressable = styled(CreateOptionPressable)`
     background-color: #8348D7;
+    height: ${props => props.height}px;
+    width: ${props => props.width}px;
 `
 const CreateOptionsRowView = styled(View)`
     align-items: center;
@@ -78,7 +82,17 @@ const CenterSpacer = styled(View)`
 `
 
 export default CreateTabDrawer = ({ closeDrawer, navigation }) => {
+    const { reelayDBUser } = useContext(AuthContext);
     const bottomOffset = useSafeAreaInsets().bottom;
+    const canCreateGuessingGame = (reelayDBUser?.role === 'admin');
+
+    const numButtons = canCreateGuessingGame ? 3 : 2;
+    const numSpaces = numButtons + 2;
+    const squishButton = !canCreateGuessingGame;
+
+    const allButtonWidth = width - (numSpaces * BUTTON_MARGIN_WIDTH);
+    const buttonWidth = allButtonWidth / numButtons;
+    const buttonHeight = (squishButton) ? (buttonWidth * 0.67) : buttonWidth;
 
     const DrawerHeader = () => {
         return (
@@ -99,7 +113,11 @@ export default CreateTabDrawer = ({ closeDrawer, navigation }) => {
         }
         return (
             <CreateOptionView>
-                <CreateGuessingGamePressable onPress={advanceToCreateGuessingGame}>
+                <CreateGuessingGamePressable 
+                    onPress={advanceToCreateGuessingGame} 
+                    height={buttonHeight} 
+                    width={buttonWidth}
+                >
                     <GamesIconSVG />
                 </CreateGuessingGamePressable>
                 <CreateOptionText>{'game'}</CreateOptionText>
@@ -114,7 +132,11 @@ export default CreateTabDrawer = ({ closeDrawer, navigation }) => {
         }
         return (
             <CreateOptionView>
-                <CreateReviewPressable onPress={advanceToCreateReview}>
+                <CreateReviewPressable 
+                    onPress={advanceToCreateReview} 
+                    height={buttonHeight} 
+                    width={buttonWidth}
+                >
                     <ReviewIconSVG />
                 </CreateReviewPressable>
                 <CreateOptionText>{'review'}</CreateOptionText>
@@ -129,7 +151,11 @@ export default CreateTabDrawer = ({ closeDrawer, navigation }) => {
         }
         return (
             <CreateOptionView>
-                <CreateTopicPressable onPress={advanceToCreateTopic}>
+                <CreateTopicPressable 
+                    onPress={advanceToCreateTopic} 
+                    height={buttonHeight} 
+                    width={buttonWidth}
+                >
                     <TopicsIconSVG />
                 </CreateTopicPressable>
                 <CreateOptionText>{'topic'}</CreateOptionText>
@@ -146,8 +172,12 @@ export default CreateTabDrawer = ({ closeDrawer, navigation }) => {
                     <CreateReviewButton />
                     <CenterSpacer />
                     <CreateTopicButton />
-                    <CenterSpacer />
-                    <CreateGuessingGameButton />
+                    { canCreateGuessingGame && (
+                        <Fragment>
+                            <CenterSpacer />
+                            <CreateGuessingGameButton />
+                        </Fragment>
+                    )}
                 </CreateOptionsRowView>
             </DrawerView>
         </Modal>

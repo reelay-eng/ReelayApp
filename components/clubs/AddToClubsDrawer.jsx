@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment, useContext } from 'react';
 import { 
     Dimensions,
     KeyboardAvoidingView, 
@@ -14,6 +14,7 @@ import { GamesIconSVG, ReviewIconSVG, TopicsIconSVG } from '../global/SVGs';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AuthContext } from '../../context/AuthContext';
 
 const { height, width } = Dimensions.get('window');
 
@@ -31,9 +32,7 @@ const CloseDrawerButton = styled(TouchableOpacity)`
 const CreateOptionPressable = styled(TouchableOpacity)`
     align-items: center;
     border-radius: 12px;
-    height: ${BUTTON_WIDTH}px;
     justify-content: center;
-    width: ${BUTTON_WIDTH}px;
 `
 const CreateOptionText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -44,12 +43,18 @@ const CreateOptionView = styled(View)`
 `
 const CreateGuessingGamePressable = styled(CreateOptionPressable)`
     background-color: ${ReelayColors.reelayRed};
+    height: ${props => props.height}px;
+    width: ${props => props.width}px;
 `
 const CreateReviewPressable = styled(CreateOptionPressable)`
     background-color: ${ReelayColors.reelayBlue};
+    height: ${props => props.height}px;
+    width: ${props => props.width}px;
 `
 const CreateTopicPressable = styled(CreateOptionPressable)`
     background-color: #8348D7;
+    height: ${props => props.height}px;
+    width: ${props => props.width}px;
 `
 const CreateOptionsRowView = styled(View)`
     align-items: center;
@@ -88,8 +93,19 @@ const OptionsSpacer = styled(View)`
 `
 
 export default AddToClubsDrawer = ({ navigation, club, drawerVisible, setDrawerVisible }) => {
+    const { reelayDBUser } = useContext(AuthContext);
     const bottomOffset = useSafeAreaInsets().bottom;
     const closeDrawer = () => setDrawerVisible(false);
+
+    const canCreateGuessingGame = false; // (reelayDBUser?.role === 'admin');
+
+    const numButtons = canCreateGuessingGame ? 3 : 2;
+    const numSpaces = numButtons + 2;
+    const squishButton = !canCreateGuessingGame;
+
+    const allButtonWidth = width - (numSpaces * BUTTON_MARGIN_WIDTH);
+    const buttonWidth = allButtonWidth / numButtons;
+    const buttonHeight = (squishButton) ? (buttonWidth * 0.67) : buttonWidth;
 
     const CreateGuessingGameButton = () => {
         const advanceToCreateGuessingGame = () => {
@@ -101,7 +117,11 @@ export default AddToClubsDrawer = ({ navigation, club, drawerVisible, setDrawerV
         }
         return (
             <CreateOptionView>
-                <CreateGuessingGamePressable onPress={advanceToCreateGuessingGame}>
+                <CreateGuessingGamePressable 
+                    onPress={advanceToCreateGuessingGame}
+                    height={buttonHeight}
+                    width={buttonWidth}
+                >
                     <GamesIconSVG />
                 </CreateGuessingGamePressable>
                 <CreateOptionText>{'game'}</CreateOptionText>
@@ -116,7 +136,11 @@ export default AddToClubsDrawer = ({ navigation, club, drawerVisible, setDrawerV
         }    
         return (
             <CreateOptionView>
-                <CreateReviewPressable onPress={advanceToAddTitleScreen}>
+                <CreateReviewPressable 
+                    onPress={advanceToAddTitleScreen}
+                    height={buttonHeight}
+                    width={buttonWidth}
+                >
                     <ReviewIconSVG />
                 </CreateReviewPressable>
                 <CreateOptionText>{'review'}</CreateOptionText>
@@ -131,7 +155,11 @@ export default AddToClubsDrawer = ({ navigation, club, drawerVisible, setDrawerV
         }
         return (
             <CreateOptionView>
-                <CreateTopicPressable onPress={advanceToAddTopicScreen}>
+                <CreateTopicPressable 
+                    onPress={advanceToAddTopicScreen}
+                    height={buttonHeight}
+                    width={buttonWidth}
+                >
                     <TopicsIconSVG />
                 </CreateTopicPressable>
                 <CreateOptionText>{'topic'}</CreateOptionText>
@@ -162,8 +190,12 @@ export default AddToClubsDrawer = ({ navigation, club, drawerVisible, setDrawerV
                         <CreateReviewButton />
                         <OptionsSpacer />
                         <CreateTopicButton />
-                        <OptionsSpacer />
-                        <CreateGuessingGameButton />
+                        { canCreateGuessingGame && (
+                            <Fragment>
+                                <OptionsSpacer />
+                                <CreateGuessingGameButton />
+                            </Fragment>
+                        )}
                     </CreateOptionsRowView>
                 </DrawerView>
                 </KeyboardAvoidingView>
