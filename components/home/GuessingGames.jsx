@@ -118,9 +118,7 @@ export default GuessingGames = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const guessingGamesObj = useSelector(state => state.homeGuessingGames ?? []);
     const displayGames = guessingGamesObj.content;
-    const [focusCounter, setFocusCounter] = useState(0);
     
-    console.log('focus counter: ', focusCounter);
     const headerText = 'Guessing Game';
     const headerSubtext = 'Play the official reelay game!'
 
@@ -128,7 +126,6 @@ export default GuessingGames = ({ navigation }) => {
         const navOptions = {
             initialFeedPos: index,
             initialStackPos: 0,
-            guessingGame: game,
             isPreview,
             isUnlocked,
         }
@@ -261,10 +258,6 @@ export default GuessingGames = ({ navigation }) => {
             </CarouselView>
         );
     }
-
-    // useFocusEffect(() => {
-    //     setFocusCounter(focusCounter + 1);
-    // })
 
     if (displayGames?.length === 0) {
         return <View />;

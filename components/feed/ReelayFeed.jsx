@@ -15,6 +15,7 @@ import styled from 'styled-components/native';
 import EmptyTopic from './EmptyTopic';
 import { getDiscoverFeed } from '../../api/FeedApi';
 import { coalesceFiltersForAPI } from '../utils/FilterMappings';
+import GuessingGameStack from './GuessingGameStack';
 
 const { height, width } = Dimensions.get('window');
 const WEAVE_EMPTY_TOPIC_INDEX = 10;
@@ -51,6 +52,9 @@ export default ReelayFeed = ({ navigation,
     const discoverAllTime = useSelector(state => state.discoverAllTime);
     const emptyGlobalTopics = useSelector(state => state.emptyGlobalTopics);
 
+    const guessingGames = useSelector(state => state?.homeGuessingGames);
+    const displayGuessingGames = guessingGames?.content ?? [];
+
     const sortedThreadData = {
         mostRecent: discoverMostRecent,
         thisWeek: discoverThisWeek,
@@ -74,7 +78,19 @@ export default ReelayFeed = ({ navigation,
 
     const [reelayThreads, setReelayThreads] = useState(initReelayThreads);
 
-    const getThreadsWovenWithEmptyTopics = () => {
+    const getCurrentGuessingGame = () => {
+        for (const index in displayGuessingGames) {
+            const guessingGame = displayGuessingGames[index];
+            guessingGame.feedIndex = index;
+            if (!guessingGame?.hasCompletedGame) {
+                return guessingGame;
+            }
+        }
+        return null;
+    }
+
+    const getThreadsWithInterstitials = () => {
+        // add empty topics
         const wovenReelayThreads = reelayThreads.reduce((curWovenThreadsObj, nextThread, index) => {
             const { curWovenThreads } = curWovenThreadsObj;
             curWovenThreads.push(nextThread);
@@ -88,11 +104,17 @@ export default ReelayFeed = ({ navigation,
             }
             return curWovenThreadsObj;
         }, { curWovenThreads: [] }).curWovenThreads;
-        return wovenReelayThreads;    
+
+        const curGuessingGame = getCurrentGuessingGame();
+        if (curGuessingGame) {
+            return [curGuessingGame, ...wovenReelayThreads];
+        } else {
+            return wovenReelayThreads;
+        }
     }
 
     const displayReelayThreads = (feedSource === 'discover') 
-        ? getThreadsWovenWithEmptyTopics() 
+        ? getThreadsWithInterstitials() 
         : reelayThreads;
 
     useEffect(() => {
@@ -280,6 +302,19 @@ export default ReelayFeed = ({ navigation,
 
         if (stack.isEmptyTopic) {
             return <EmptyTopic navigation={navigation} topic={stack} />
+        }
+
+        if (stack?.topicType === 'guessingGame') {
+            const game = stack;
+            return <GuessingGameStack
+                initialStackPos={0}
+                initialFeedPos={game?.feedIndex}
+                isPreview={false}
+                isUnlocked={false}
+                navigation={navigation}
+                onRefresh={() => {}}
+                stackViewable={stackViewable}
+            />;
         }
 
         return (

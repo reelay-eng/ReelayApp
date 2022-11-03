@@ -40,8 +40,10 @@ export const GuessingGameStack = ({
     previewGuessingGame = null,
     stackViewable,
 }) => {
-    const displayGames = useSelector(state => state.homeGuessingGames?.content);
+    const guessingGames = useSelector(state => state.homeGuessingGames);
+    const displayGames = guessingGames?.content ?? [];
     const guessingGame = previewGuessingGame ?? displayGames[initialFeedPos];
+    
     const [stackPosition, setStackPosition] = useState(initialStackPos);
     const { reelayDBUser } = useContext(AuthContext);
     const uploadStage = useSelector(state => state.uploadStage);
