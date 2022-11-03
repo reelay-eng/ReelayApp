@@ -56,7 +56,8 @@ const DraftGuessingGamesView = styled(View)`
 `
 const HeaderSubText = styled(ReelayText.Body1)`
     color: white;
-    line-height: 20px;
+    line-height: 24px;
+    font-size: 16px;
     margin-top: 8px;
     margin-bottom: -12px;
 `

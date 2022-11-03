@@ -11,7 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 const ShareButtonBackground = styled(LinearGradient)`
     border-radius: 50px;
     height: 44px;
-    opacity: 0.8;
+    opacity: 1.0;
     position: absolute;
     width: 44px;
     top: -11px;

@@ -207,7 +207,7 @@ export default CreateGuessingGameScreen = ({ navigation, route }) => {
                         maxLength={GAME_TITLE_MAX_LENGTH}
                         multiline
                         defaultValue={titleTextRef.current}
-                        placeholder={"What terrible netflix movie was like..."}
+                        placeholder={"What netflix TV show was like..."}
                         placeholderTextColor={'rgba(255,255,255,0.6)'}
                         onChangeText={changeTitleText}
                         onSubmitEditing={Keyboard.dismiss}

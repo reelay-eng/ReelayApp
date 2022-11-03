@@ -21,7 +21,7 @@ import { faCheckCircle, faXmarkCircle } from '@fortawesome/free-regular-svg-icon
 const { height, width } = Dimensions.get('window');
 
 const BUTTON_MARGIN_WIDTH = 10;
-const BUTTON_WIDTH = ((0.8 * width) - (BUTTON_MARGIN_WIDTH * 5)) / 3;
+const BUTTON_WIDTH = ((width - 32) - (BUTTON_MARGIN_WIDTH * 5)) / 3;
 const REELAY_WEB_BASE_URL = Constants.manifest.extra.reelayWebBaseUrl;
 
 const CloseButtonPressable = styled(TouchableOpacity)`
@@ -49,21 +49,31 @@ const OverlayBox = styled(Pressable)`
     align-items: center;
     height: ${height}px;
     justify-content: center;
+    overflow: hidden;
     position: absolute;
     width: ${width}px;
 `
 const ShareCardGradient = styled(LinearGradient)`
     border-radius: 24px;
     height: 100%;
+    opacity: 0.6;
+    position: absolute;
+    width: 100%;
+`
+const ShareCardWhiteLayer = styled(View)`
+    background-color: rgba(255,255,255,0.3);
+    border-radius: 24px;
+    height: 100%;
+    opacity: 0.6;
     position: absolute;
     width: 100%;
 `
 const ShareCardView = styled(View)`
     align-items: center;
     border-radius: 24px;
-    height: 560px;
+    height: 608px;
     opacity: 0.95;
-    width: 80%;
+    width: ${width - 32}px;
 `
 const ClueIndexView = styled(View)`
     margin-left: 8px;
@@ -91,14 +101,13 @@ const CluePercentView = styled(View)`
 `;
 const ClueStatRowView = styled(View)`
     align-items: center;
-    background-color: ${props => props.isCorrect? 'green' : 'transparent'};
+    background-color: ${props => props.isCorrect ? ReelayColors.reelayBlue : 'transparent'};
     flex-direction: row;
     width: 100%;
 `
 const ClueStatsView = styled(View)`
-    display: flex;
-    flex: 1;
     margin: 16px;
+    margin-bottom: 8px;
     width: 100%;
 `
 const GuessIconView = styled(View)`
@@ -161,12 +170,24 @@ const ShareOptionsRowView = styled(View)`
 const ShareOptionIconPad = styled(View)`
     height: 25px;
 `
+const ShareOptionsTitleText = styled(ReelayText.CaptionEmphasized)`
+    color: white;
+    font-size: 16px;
+    line-height: 16px;
+`
+const ShareOptionsTitleView = styled(View)`
+    align-items: center;
+    height: 26px;
+    width: 100%;
+`
 const TitleBannerRow = styled(View)`
     align-items: center;
     background-color: rgba(255,255,255,0.1);
     flex-direction: row;
     justify-content: space-between;
     margin-top: 18px;
+    padding-left: 10px;
+    padding-right: 10px;
 `
 const TitleInfoView = styled(View)`
     align-items: flex-start;
@@ -203,7 +224,8 @@ const YouGotItView = styled(View)`
 `
 const YouWinText = styled(ReelayText.H5Bold)`
     color: white;
-    font-size: 16px;
+    line-height: 52px;
+    font-size: 24px;
 `
 const YearText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -434,14 +456,18 @@ export default ShareGuessingGameModal = ({ closeModal, game }) => {
     return (
         <Modal style={ModalStyle} animationType='none' transparent={true}>
             <OverlayBox onPress={closeModal}>
-                <BlurView intensity={25} tint='dark' style={{ height: height, width: width, position: 'absolute' }} />
+                <BlurView intensity={50} tint='dark' style={{ borderRadius: 24, height: 608, overflow: 'hidden', width: width - 32, position: 'absolute' }} />
                 <ShareCardView>
+                    <ShareCardWhiteLayer />
                     <ShareCardGradient colors={[ReelayColors.reelayBlue, '#4C268B']} />
                     <YouGotIt />
                     <CloseButton />
                     <GuessMarkers />
                     <TitleRow />
                     <GuessStats />
+                    <ShareOptionsTitleView>
+                        <ShareOptionsTitleText>{'Share your score'}</ShareOptionsTitleText>
+                    </ShareOptionsTitleView>
                     <ShareOptionsRowView>
                         <CopyLinkButton />
                         <ShareOutButton />

@@ -147,9 +147,9 @@ const HomeComponent = ({ navigation }) => {
                 <AnnouncementsAndNotices navigation={navigation} />
                 <RecommendedForYou navigation={navigation} />
                 <PopularTitles navigation={navigation} />
-                <GuessingGames navigation={navigation} />
                 <TopOfTheWeek navigation={navigation} />
                 <TopicsCarousel navigation={navigation} source='discover' /> 
+                <GuessingGames navigation={navigation} />
                 <MyWatchlistGrid navigation={navigation} />
                 <DiscoverClubs navigation={navigation} />
                 {/* <FriendsAreWatching navigation={navigation} /> */}

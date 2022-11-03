@@ -23,12 +23,13 @@ const AbovePosterSpacer = styled(View)`
 const CarouselView = styled(View)`
     margin-left: 16px;
 `
-const GameDescriptionText = styled(ReelayText.H5Bold)`
+const GameDescriptionText = styled(ReelayText.H6Emphasized)`
     color: white;
     font-size: 14px;
     line-height: 18px;
 `
 const GameDescriptionView = styled(View)`
+    height: 48px;
     padding: 8px;
     padding-top: 0px;
 `
@@ -44,6 +45,7 @@ const GameElementView = styled(Pressable)`
     background-color: rgba(255,255,255,0.15);
     border-radius: 11px;
     margin-top: 10px;
+    margin-right: 12px;
     width: ${CARD_WIDTH}px;
 `
 const GuessingGamesView = styled.View`
@@ -107,7 +109,7 @@ const UnrevealedPosterView = styled(Pressable)`
     border-radius: 12px
     border-color: #3d3d3d;
     border-width: 2px;
-    height: 240px;
+    height: 252px;
     justify-content: center;
     width: 168px;
 `
@@ -225,7 +227,7 @@ export default GuessingGames = ({ navigation }) => {
                     <TimestampText>{timestamp}</TimestampText>
                 </GameElementHeaderView>
                 <GameDescriptionView>
-                    <GameDescriptionText>{game?.title}</GameDescriptionText>
+                    <GameDescriptionText numberOfLines={2}>{game?.title}</GameDescriptionText>
                 </GameDescriptionView>
                 <AbovePosterSpacer />
                 { isUnlocked && <RevealedPoster /> }
@@ -247,9 +249,9 @@ export default GuessingGames = ({ navigation }) => {
                     activeSlideAlignment={'start'}
                     data={displayGames}
                     inactiveSlideScale={1}
-                    itemWidth={CARD_WIDTH}
+                    itemWidth={CARD_WIDTH + 12}
                     renderItem={renderGameElement}
-                    sliderHeight={240}
+                    sliderHeight={252}
                     sliderWidth={width}
                 />
             </CarouselView>
