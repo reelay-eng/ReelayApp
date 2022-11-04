@@ -3,6 +3,7 @@ import { getReelay, getReelaysForTitleKey, getRegisteredUser, prepareReelay } fr
 import { getSingleTopic } from '../api/TopicsApi';
 import { fetchAnnotatedTitle } from '../api/TMDbApi';
 import { showErrorToast, showMessageToast } from '../components/utils/toasts';
+import { getGuessingGamesPublished } from '../api/GuessingGameApi';
 
 export const handlePushNotificationResponse = async ({ 
     authSession,
@@ -53,6 +54,31 @@ export const handlePushNotificationResponse = async ({
             return;
         }
         navigation.navigate('Create');
+    }
+
+    const openGuessingGame = async (topicID) => {
+        if (!navigation) {
+            console.log('No navigation ref');
+            return;
+        }
+
+        const guessingGames = await getGuessingGamesPublished({
+            authSession,
+            reqUserSub: reelayDBUser?.sub,
+        });
+
+        const matchGuessingGame = (game) => game?.id === topicID;
+        const matchedGameIndex = guessingGames.findIndex(matchGuessingGame);
+        const isGameCreator = (game?.creatorSub === reelayDBUser?.sub);
+        const hasCompletedGame = (game?.hasCompletedGame) ?? false;
+        
+        if (matchedGameIndex !== -1) {
+            navigation.push('SingleGuessingGameScreen', {
+                initialFeedPos: matchedGameIndex,
+                isPreview: false,
+                isUnlocked: (isGameCreator || hasCompletedGame),
+            });
+        }
     }
     
     const openSingleReelayScreen = async (reelaySub) => {
@@ -175,6 +201,8 @@ export const handlePushNotificationResponse = async ({
         case 'openCreateScreen':
             await openCreateScreen();
             return;
+        case 'openGuessingGame':
+            await openGuessingGame(data?.topicID);
         case 'openSingleReelayScreen':
             const reelayUserResult = await getRegisteredUser(data?.fromUser?.sub);
             if (reelayUserResult.username === '[deleted]') {

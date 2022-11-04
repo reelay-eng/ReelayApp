@@ -7,7 +7,7 @@ export default SingleGuessingGameScreen = ({ navigation, route }) => {
     // const guessingGames = useSelector(state => state.discover?.guessingGames?.current ?? []);
     const initialStackPos = route?.params?.initialStackPos ?? 0;
     const initialFeedPos = route?.params?.initialFeedPos ?? 0;
-    const isPreview = route?.params?.isPreview;
+    const isPreview = route?.params?.isPreview ?? false;
     const isUnlocked = route?.params?.isUnlocked;
     const feedSource = (isPreview) ? 'guessingGamePreview' : 'guessingGame';
     const previewGuessingGame = route?.params?.previewGuessingGame ?? null;
