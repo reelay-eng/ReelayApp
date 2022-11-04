@@ -290,14 +290,14 @@ export const deleteGuessingGameDraft = async ({
     return deleteGuessingGameDraftResult;
 }
 
-export const deleteGuessingGameGuess = async ({
+export const deleteGuessingGameGuesses = async ({
     authSession,
     reqUserSub,
-    guessID,
+    inviteCode,
     topicID,
 }) => {
-    const routeDelete = `${REELAY_API_BASE_URL}/guessingGame/guess`;
-    const deleteBody = { guessID, topicID };
+    const routeDelete = `${REELAY_API_BASE_URL}/guessingGame/guesses`;
+    const deleteBody = { inviteCode, topicID };
 
     const deleteGuessingGameGuessResult = await fetchResults(routeDelete, {
         method: 'DELETE',

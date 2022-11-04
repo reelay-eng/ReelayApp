@@ -1,10 +1,10 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { Dimensions, Pressable, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Pressable, TouchableOpacity, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger'
 import styled from 'styled-components';
 import * as ReelayText from '../../components/global/Text';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import TitlePoster from '../global/TitlePoster';
 import Carousel from 'react-native-snap-carousel';
 import { GamesIconSmallSVG } from '../global/SVGs';
@@ -13,6 +13,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCheckCircle, faXmarkCircle } from '@fortawesome/free-solid-svg-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import { deleteGuessingGameGuesses, getGuessingGamesPublished } from '../../api/GuessingGameApi';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = 192;
@@ -84,6 +85,18 @@ const HeaderView = styled(View)`
 const TimestampText = styled(ReelayText.Body1)`
     color: gray;
 `
+const ResetGuessesButtonPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: white;
+    border-radius: 30px;
+    height: 30px;
+    justify-content: center;
+    margin-bottom: 12px;
+    width: 90%;
+`
+const ResetGuessesButtonText = styled(ReelayText.Body1)`
+    color: black;
+`
 const RevealedPosterView = styled(View)`
     align-items: center;
     justify-content: center;
@@ -115,6 +128,8 @@ const UnrevealedPosterView = styled(Pressable)`
 `
 
 export default GuessingGames = ({ navigation }) => {
+    const authSession = useSelector(state => state.authSession);
+    const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const guessingGamesObj = useSelector(state => state.homeGuessingGames ?? []);
     const displayGames = guessingGamesObj.content;
@@ -194,6 +209,51 @@ export default GuessingGames = ({ navigation }) => {
             )
         }
 
+        const ResetButton = () => {
+            const [resetting, setResetting] = useState(false); 
+            const myGuesses = game?.myGuesses ?? [];
+            const canResetGuesses = (reelayDBUser?.role === 'admin' && myGuesses.length > 0);
+
+            const resetGuesses = async () => {
+                if (myGuesses?.length === 0) return;
+                const inviteCode = myGuesses[0].inviteCode;
+                const deleteResult = await deleteGuessingGameGuesses({
+                    authSession,
+                    reqUserSub: reelayDBUser?.sub,
+                    inviteCode: inviteCode,
+                    topicID: game?.id,
+                });
+            }
+
+            const refreshGuessingGames = async () => {
+                const nextMyGuessingGames = await getGuessingGamesPublished({
+                    authSession,
+                    reqUserSub: reelayDBUser?.sub,
+                });
+                dispatch({ type: 'setHomeGuessingGames', payload: {
+                    content: nextMyGuessingGames,
+                    nextPage: 1,
+                }});
+            }
+
+            const onPressReset = async () => {
+                if (resetting) return;
+                setResetting(true);
+                await resetGuesses();
+                await refreshGuessingGames();
+                setResetting(false);
+            }
+
+            if (!canResetGuesses) return <View />
+
+            return (
+                <ResetGuessesButtonPressable onPress={onPressReset}>
+                    { resetting && <ActivityIndicator /> }
+                    { !resetting && <ResetGuessesButtonText>{'Reset guesses'}</ResetGuessesButtonText> }
+                </ResetGuessesButtonPressable>
+            );
+        }
+
         const RevealedPoster = () => {
             
             return (
@@ -234,6 +294,7 @@ export default GuessingGames = ({ navigation }) => {
                 { isUnlocked && <RevealedPoster /> }
                 { !isUnlocked && <UnrevealedPoster />}
                 <GuessMarkers />
+                <ResetButton />
             </GameElementView>
         )
     }
