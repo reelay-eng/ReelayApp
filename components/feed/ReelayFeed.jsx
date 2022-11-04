@@ -16,6 +16,7 @@ import EmptyTopic from './EmptyTopic';
 import { getDiscoverFeed } from '../../api/FeedApi';
 import { coalesceFiltersForAPI } from '../utils/FilterMappings';
 import GuessingGameStack from './GuessingGameStack';
+import moment, { min } from 'moment';
 
 const { height, width } = Dimensions.get('window');
 const WEAVE_EMPTY_TOPIC_INDEX = 10;
@@ -78,12 +79,29 @@ export default ReelayFeed = ({ navigation,
 
     const [reelayThreads, setReelayThreads] = useState(initReelayThreads);
 
-    const getCurrentGuessingGame = () => {
+    const getDisplayGuessingGame = () => {
+        // only show a guessing game on default discover 
+        if (selectedFilters?.length > 0 || sortMethod !== 'mostRecent') {
+            return null;
+        }
+
+        const now = moment();
         for (const index in displayGuessingGames) {
             const guessingGame = displayGuessingGames[index];
             guessingGame.feedIndex = index;
             if (!guessingGame?.hasCompletedGame) {
                 return guessingGame;
+            }
+
+            const numGuesses = guessingGame?.myGuesses?.length ?? 0;
+            if (numGuesses > 0) {
+                // do not immediately cease rendering a game as soon
+                // as you've completed it
+                const lastGuess = guessingGame?.myGuesses[numGuesses - 1];
+                const secondsSinceLastGuess = now.diff(moment(lastGuess?.createdAt), 'seconds');                
+                if (secondsSinceLastGuess < 5) {
+                    return guessingGame;
+                }
             }
         }
         return null;
@@ -105,7 +123,8 @@ export default ReelayFeed = ({ navigation,
             return curWovenThreadsObj;
         }, { curWovenThreads: [] }).curWovenThreads;
 
-        const curGuessingGame = getCurrentGuessingGame();
+        // add guessing game
+        const curGuessingGame = getDisplayGuessingGame();
         if (curGuessingGame) {
             return [curGuessingGame, ...wovenReelayThreads];
         } else {

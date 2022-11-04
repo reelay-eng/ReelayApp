@@ -20,6 +20,7 @@ import { searchTitles } from "../../api/ReelayDBApi";
 import ReelayColors from "../../constants/ReelayColors";
 import { getGameDetails, postGuessingGameGuess } from "../../api/GuessingGameApi";
 import { useDispatch, useSelector } from "react-redux";
+import moment from "moment";
 
 const getRandomString = (radix=36) => {
     return Math.random().toString(radix).slice(2,7);
@@ -312,10 +313,8 @@ const GuessingGameBanner = ({
                 ? getRandomString()
                 : guessingGame?.myGuesses?.[0]?.inviteCode;
 
-            console.log('The invite code is: ', inviteCode);
-            console.log('The guesses are: ', guessingGame?.myGuesses);
-
             const nextGuess = {
+                createdAt: moment().toISOString(),
                 clueIndex,
                 guessedTitleKey,
                 guessedTitleObj,
