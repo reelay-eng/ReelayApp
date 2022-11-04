@@ -398,14 +398,11 @@ const GuessingGameBanner = ({
             const isCorrect = guess?.isCorrect;
             const icon = isCorrect ? faCheck : faXmark;
             const color = getMarkerColor(guess);
-            const reelaySub = guess?.reelaySub;
-            const viewable = (reelaySub === reelay?.sub);
             return (
                 <GuessMarkerView key={index} 
                     color={color}
                     isCorrect={isCorrect} 
                     isGuessed={true} 
-                    viewable={viewable} 
                 >
                     <FontAwesomeIcon icon={icon} color='white' size={18} />
                 </GuessMarkerView>
@@ -424,7 +421,6 @@ const GuessingGameBanner = ({
                         isCorrect={false} 
                         isGuessed={false} 
                         unanswered={true}
-                        viewable={true} 
                     >
                     </GuessMarkerView>
                 )}

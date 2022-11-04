@@ -29,6 +29,7 @@ import ReportIssueScreen from '../screens/authenticated/ReportIssueScreen';
 import SearchScreen from '../screens/authenticated/SearchScreen';
 import SelectTitleScreen from '../screens/authenticated/SelectTitleScreen';
 import InstaStoryClubScreen from '../screens/authenticated/InstaStoryClubScreen';
+import InstaStoryGuessingGameScreen from '../screens/authenticated/InstaStoryGuessingGameScreen';
 import InstaStoryReelayScreen from '../screens/authenticated/InstaStoryReelayScreen';
 import SelectCorrectGuessScreen from '../screens/authenticated/SelectCorrectGuessScreen';
 import SingleGuessingGameScreen from '../screens/authenticated/SingleGuessingGameScreen';
@@ -69,6 +70,7 @@ export default AuthenticatedCommonStack = ({ children, initialRouteName }) => {
             <CommonStack.Screen name='EditClubScreen' component={EditClubScreen} options={commonOptions} />
             <CommonStack.Screen name='FeedScreen' component={FeedScreen} options={commonOptions} />
             <CommonStack.Screen name='InstaStoryClubScreen' component={InstaStoryClubScreen} options={commonOptions} />
+            <CommonStack.Screen name='InstaStoryGuessingGameScreen' component={InstaStoryGuessingGameScreen} options={commonOptions} />
             <CommonStack.Screen name='InstaStoryReelayScreen' component={InstaStoryReelayScreen} options={commonOptions} />
             <CommonStack.Screen name="NotificationScreen" component={NotificationScreen} options={commonOptions} />
             <CommonStack.Screen name='PinAnnouncementScreen' component={PinAnnouncementScreen} options={commonOptions} />

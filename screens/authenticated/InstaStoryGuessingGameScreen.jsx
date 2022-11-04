@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import Constants from 'expo-constants';
 import * as Clipboard from 'expo-clipboard';
-import { ActivityIndicator, Dimensions, Image, PixelRatio, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Image, PixelRatio, Pressable, View } from 'react-native';
 import { Video } from 'expo-av';
 import { cacheDirectory, downloadAsync, getInfoAsync, makeDirectoryAsync } from 'expo-file-system';
 import ViewShot, { captureRef } from 'react-native-view-shot';
@@ -22,20 +22,11 @@ import { compositeReviewForInstagramStories } from '../../api/FFmpegApi';
 import { showMessageToast } from '../../components/utils/toasts';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import GuessMarkers from '../../components/games/GuessMarkers';
 
 const { height, width } = Dimensions.get('window');
 
-const CreatorLine = styled(View)`
-    align-items: center;
-    bottom: 12px;
-    flex-direction: row;
-    left: 12px;
-    position: absolute;
-`
-const CreatorText = styled(ReelayText.Body1)`
-    color: white;
-    margin-left: 8px;
-`
 const LoadingView = styled(View)`
     align-items: center;
     height: 100%;
@@ -63,17 +54,18 @@ const ProgressView = styled(View)`
     padding: 12px;
     position: absolute;
 `
-const StarRatingLineView = styled(View)`
-    bottom: 48px;
+const ScorecardText = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 20px;
+    line-height: 24px;
+    margin-bottom: 12px;
+`
+const ScorecardView = styled(View)`
+    align-items: center;
+    bottom: 12px;
     left: 12px;
     position: absolute;
-`
-const StoryVideoOverlayView = styled(ViewShot)`
-    border-radius: 16px;
-    height: ${props => props.height}px;
-    padding: 12px;
-    position: absolute;
-    width: ${props => props.width}px;
+    width: 100%;
 `
 const ScreenView = styled(View)`
     align-items: center;
@@ -99,18 +91,49 @@ const StoryHeaderInfoView = styled(View)`
     position: absolute;
     width: 80%;
 `
+const StoryVideoOverlayView = styled(ViewShot)`
+    border-radius: 16px;
+    height: ${props => props.height}px;
+    padding: 12px;
+    position: absolute;
+    width: ${props => props.width}px;
+`
 const TitleText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
     line-height: 24px;
     text-align: center;
 `
+const UnrevealedPosterQuestionMark = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 36px;
+    line-height: 36px;
+`
+const UnrevealedPosterView = styled(Pressable)`
+    align-items: center;
+    background-color: #080808;
+    border-radius: 12px
+    border-color: #3d3d3d;
+    border-width: 1px;
+    height: 105px;
+    justify-content: center;
+    width: 70px;
+`
+
 const CAN_USE_RN_SHARE = (Constants.appOwnership !== 'expo');
 const INSTA_STORY_HEIGHT = 1920;
 const INSTA_STORY_WIDTH = 1080;
 
 const VIDEO_PLAYER_HEIGHT = 1280;
 const VIDEO_PLAYER_WIDTH = 720;
+
+const EmptyTitlePoster = () => {
+    return (
+        <UnrevealedPosterView>
+            <UnrevealedPosterQuestionMark>?</UnrevealedPosterQuestionMark>
+        </UnrevealedPosterView>
+    );
+}
 
 export default InstaStoryGuessingGameScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
@@ -246,32 +269,14 @@ export default InstaStoryGuessingGameScreen = ({ navigation, route }) => {
     }
 
     const StoryVideoOverlay = () => {
-        // const starRating = reelay.starRating + (reelay.starRatingAddHalf ? 0.5 : 0);
-
-        // const onImageLoad = useCallback(() => {
-        //     console.log('overlay loaded');
-        //     overlayRef.current.capture().then(uri => {
-        //         console.log('overlay ref uri: ', uri);
-        //         capturedOverlayURI.current = uri;
-        //     });
-        // }, []);
-
         const onCapture = useCallback(uri => {
             capturedOverlayURI.current = uri;
         }, []);
 
-        // const StarRatingLine = () => {
-        //     return (
-        //         <StarRatingLineView>
-        //             <StarRating
-        //                 disabled={true}
-        //                 rating={starRating}
-        //                 starSize={20}
-        //                 starStyle={{ paddingRight: 4 }}
-        //             />
-        //         </StarRatingLineView>
-        //     );
-        // }
+        let scorecardText = 'My guesses';
+        if (game?.myGuesses?.length === 1) {
+            scorecardText = 'First try!';
+        };
 
         return (
             <StoryVideoOverlayView 
@@ -280,12 +285,11 @@ export default InstaStoryGuessingGameScreen = ({ navigation, route }) => {
                 height={videoLayoutHeight} 
                 width={videoLayoutWidth}
             >
-                {/* <TitlePoster onLoad={onImageLoad} title={reelay?.title} width={videoLayoutWidth / 4} /> */}
-                {/* <CreatorLine>
-                    <ProfilePicture border user={reelay.creator} size={30} />
-                    <CreatorText>{reelay.creator.username}</CreatorText>
-                </CreatorLine> */}
-                {/* { starRating > 0 && <StarRatingLine /> } */}
+                <EmptyTitlePoster />
+                <ScorecardView>
+                    <ScorecardText>{scorecardText}</ScorecardText>
+                    <GuessMarkers game={game} />
+                </ScorecardView>
             </StoryVideoOverlayView>
         );
     }
@@ -356,22 +360,6 @@ export default InstaStoryGuessingGameScreen = ({ navigation, route }) => {
             <StoryBackplate />
             <StoryVideo />
             <StoryVideoOverlay />
-            {/* { capturedBackplateURI && (
-                <CapturedView>
-                    <Image source={{ uri: capturedBackplateURI }} style={{
-                        height: backplateLayoutHeight,
-                        width: backplateLayoutWidth,
-                    }} />
-                </CapturedView>
-            )} */}
-            {/* { capturedOverlayURI && (
-                <CapturedView>
-                    <Image source={{ uri: capturedOverlayURI }} style={{
-                        height: videoLayoutHeight,
-                        width: videoLayoutWidth,
-                    }} />
-                </CapturedView>
-            )} */}
             <HeaderView topOffset={topOffset}>
                 <BackButton navigation={navigation} text={'insta story'} />
             </HeaderView>

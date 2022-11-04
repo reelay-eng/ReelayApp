@@ -19,7 +19,7 @@ const ShareButtonBackground = styled(LinearGradient)`
 `
 
 
-export default ShareGameButton = ({ game }) => {
+export default ShareGameButton = ({ game, navigation }) => {
     const [shareDrawerOpen, setShareDrawerOpen] = useState(false);
     const closeDrawer = () => setShareDrawerOpen(false);
     // you should already have this reelay in the Seen section of your watchlist,
@@ -34,7 +34,7 @@ export default ShareGameButton = ({ game }) => {
             />
             <FontAwesomeIcon icon={faChartSimple} color='white' size={24} />
             { shareDrawerOpen && (
-                <ShareGuessingGameModal closeModal={closeDrawer} game={game} />
+                <ShareGuessingGameModal closeModal={closeDrawer} game={game} navigation={navigation} />
             )}
         </TouchableOpacity>
     );

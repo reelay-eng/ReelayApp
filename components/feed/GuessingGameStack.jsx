@@ -43,7 +43,7 @@ export const GuessingGameStack = ({
     const guessingGames = useSelector(state => state.homeGuessingGames);
     const displayGames = guessingGames?.content ?? [];
     const guessingGame = previewGuessingGame ?? displayGames[initialFeedPos];
-    
+
     const [stackPosition, setStackPosition] = useState(initialStackPos);
     const { reelayDBUser } = useContext(AuthContext);
     const uploadStage = useSelector(state => state.uploadStage);
@@ -198,6 +198,7 @@ export const GuessingGameStack = ({
             {shareOutViewable && (
                 <ShareGuessingGameModal
                     closeModal={() => setShareOutViewable(false)}
+                    navigation={navigation}
                     game={displayGame}
                 />
             )}

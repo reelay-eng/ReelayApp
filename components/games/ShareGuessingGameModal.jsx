@@ -241,7 +241,7 @@ const YearView = styled(View)`
 `
 
 
-export default ShareGuessingGameModal = ({ closeModal, game }) => {
+export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const myGuesses = game?.myGuesses ?? [];
 
@@ -305,8 +305,8 @@ export default ShareGuessingGameModal = ({ closeModal, game }) => {
 
     const ShareToInstaStoryButton = () => {
         const openShareInstaStoryScreen = () => {
-            // closeDrawer();
-            // navigation.push('InstaStoryReelayScreen', { reelay, url });
+            closeModal();
+            navigation.push('InstaStoryGuessingGameScreen', { game, url });
         }
 
         return (
