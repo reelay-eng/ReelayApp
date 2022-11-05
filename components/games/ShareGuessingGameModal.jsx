@@ -73,7 +73,7 @@ const ShareCardWhiteLayer = styled(View)`
 const ShareCardView = styled(View)`
     align-items: center;
     border-radius: 24px;
-    height: 604px;
+    height: 632px;
     opacity: 0.95;
     width: ${width - 32}px;
 `
@@ -135,6 +135,11 @@ const RuntimeText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
     margin-right: 10px;
+`
+const ShareSectionView = styled(View)`
+    align-items: center;
+    position: absolute;
+    bottom: 0px;
 `
 const ShareOptionPressable = styled(TouchableOpacity)`
     align-items: center;
@@ -365,7 +370,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
             const statBarWidth = (correctRatioStr * 1.5) + 20;
 
             return (
-                <ClueStatRowView key={index} isCorrect={isCorrect}>
+                <ClueStatRowView isCorrect={isCorrect}>
                     <ClueIndexView>
                         <ClueStatText>{index + 1}</ClueStatText>
                     </ClueIndexView>
@@ -385,10 +390,26 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
         return (
             <ClueStatsView>
                 { guessStats.map((clueStats, index) => {
-                    return <ClueStatRow clueStats={clueStats} key={index} index={index} />
+                    const viewKey = `${game?.id}-${index}`;
+                    return <ClueStatRow clueStats={clueStats} key={viewKey} index={index} />
                 })}
             </ClueStatsView>
         );
+    }
+
+    const ShareSection = () => {
+        return (
+            <ShareSectionView>
+                <ShareOptionsTitleView>
+                    <ShareOptionsTitleText>{'Share your score'}</ShareOptionsTitleText>
+                </ShareOptionsTitleView>
+                <ShareOptionsRowView>
+                    <CopyLinkButton />
+                    <ShareOutButton />
+                    <ShareToInstaStoryButton />
+                </ShareOptionsRowView>
+            </ShareSectionView>
+        )
     }
 
     const TitleRow = () => {
@@ -462,7 +483,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
     return (
         <Modal style={ModalStyle} animationType='none' transparent={true}>
             <OverlayBox onPress={closeModal}>
-                <BlurView intensity={50} tint='dark' style={{ borderRadius: 24, height: 604, overflow: 'hidden', width: width - 32, position: 'absolute' }} />
+                <BlurView intensity={50} tint='default' style={{  borderRadius: 24, height: 632, overflow: 'hidden', width: width - 32, position: 'absolute' }} />
                 <ShareCardView>
                     <ShareCardWhiteLayer />
                     <ShareCardGradient colors={[ReelayColors.reelayBlue, '#4C268B']} />
@@ -471,14 +492,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
                     <GuessMarkers />
                     <TitleRow />
                     <GuessStats />
-                    <ShareOptionsTitleView>
-                        <ShareOptionsTitleText>{'Share your score'}</ShareOptionsTitleText>
-                    </ShareOptionsTitleView>
-                    <ShareOptionsRowView>
-                        <CopyLinkButton />
-                        <ShareOutButton />
-                        <ShareToInstaStoryButton />
-                    </ShareOptionsRowView>
+                    <ShareSection />
                 </ShareCardView>
             </OverlayBox>
         </Modal>
