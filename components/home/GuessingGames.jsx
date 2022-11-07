@@ -13,7 +13,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faCheckCircle, faXmarkCircle } from '@fortawesome/free-solid-svg-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import { deleteGuessingGameGuesses, getGuessingGamesPublished } from '../../api/GuessingGameApi';
+import { deleteGuessingGameGuesses, deleteGuessingGamePublished, getGuessingGamesPublished } from '../../api/GuessingGameApi';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = 192;
@@ -87,15 +87,15 @@ const TimestampText = styled(ReelayText.Body1)`
 `
 const ResetGuessesButtonPressable = styled(TouchableOpacity)`
     align-items: center;
-    background-color: white;
+    background-color: ${props => props.color ?? 'white'};
     border-radius: 30px;
-    height: 30px;
+    height: 36px;
     justify-content: center;
     margin-bottom: 12px;
     width: 90%;
 `
 const ResetGuessesButtonText = styled(ReelayText.Body1)`
-    color: black;
+    color: ${props => props.color ?? 'black'};
 `
 const RevealedPosterView = styled(View)`
     align-items: center;
@@ -135,7 +135,7 @@ export default GuessingGames = ({ navigation }) => {
     const displayGames = guessingGamesObj.content;
     
     const headerText = 'Guessing Game';
-    const headerSubtext = 'Play the official reelay game!'
+    const headerSubtext = 'Play the daily guessing game'
 
     const advanceToGuessingGame = ({ game, index, isPreview = false, isUnlocked = false }) => {
         const navOptions = {
@@ -166,9 +166,60 @@ export default GuessingGames = ({ navigation }) => {
         const isUnlocked = (correctTitleObj && (hasCompletedGame || isGameCreator));
         const timestamp = getTimestampText();
 
+        const refreshGuessingGames = async () => {
+            const nextMyGuessingGames = await getGuessingGamesPublished({
+                authSession,
+                reqUserSub: reelayDBUser?.sub,
+            });
+            dispatch({ type: 'setHomeGuessingGames', payload: {
+                content: nextMyGuessingGames,
+                nextPage: 1,
+            }});
+        }
+
         const tapOnPoster = () => {
             advanceToGuessingGame({ game, index, isPreview: false, isUnlocked });
         }
+
+        const DeleteGameButton = () => {
+            const [deleting, setDeleting] = useState(false); 
+            const [confirming, setConfirming] = useState(false);
+            const canDeleteGame = (isGameCreator || reelayDBUser?.role === 'admin');
+    
+            const deleteGame = async () => {
+                const deleteResult = await deleteGuessingGamePublished({
+                    authSession,
+                    reqUserSub: reelayDBUser?.sub,
+                    topicID: game?.id,
+                });
+                console.log(deleteResult);
+                return deleteResult;
+            }
+        
+            const onPressDelete = async () => {
+                if (!confirming) {
+                    setConfirming(true);
+                    return;
+                }
+                if (deleting) return;
+                setConfirming(false);
+                setDeleting(true);
+                await deleteGame();
+                await refreshGuessingGames();
+                setDeleting(false);
+            }
+    
+            if (!canDeleteGame) return <View />
+    
+            return (
+                <ResetGuessesButtonPressable color={ReelayColors.reelayRed} onPress={onPressDelete}>
+                    { deleting && <ActivityIndicator /> }
+                    { confirming && <ResetGuessesButtonText color={'white'}>{'Confirm delete'}</ResetGuessesButtonText> }
+                    { (!confirming && !deleting) && <ResetGuessesButtonText color={'white'}>{'Delete game'}</ResetGuessesButtonText> }
+                </ResetGuessesButtonPressable>
+            );
+        }
+    
 
         const GuessMarkers = () => {
             const myGuesses = game?.myGuesses ?? [];
@@ -223,17 +274,6 @@ export default GuessingGames = ({ navigation }) => {
                     inviteCode: inviteCode,
                     topicID: game?.id,
                 });
-            }
-
-            const refreshGuessingGames = async () => {
-                const nextMyGuessingGames = await getGuessingGamesPublished({
-                    authSession,
-                    reqUserSub: reelayDBUser?.sub,
-                });
-                dispatch({ type: 'setHomeGuessingGames', payload: {
-                    content: nextMyGuessingGames,
-                    nextPage: 1,
-                }});
             }
 
             const onPressReset = async () => {
@@ -295,6 +335,7 @@ export default GuessingGames = ({ navigation }) => {
                 { !isUnlocked && <UnrevealedPoster />}
                 <GuessMarkers />
                 <ResetButton />
+                <DeleteGameButton />
             </GameElementView>
         )
     }

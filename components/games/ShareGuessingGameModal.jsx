@@ -73,7 +73,7 @@ const ShareCardWhiteLayer = styled(View)`
 const ShareCardView = styled(View)`
     align-items: center;
     border-radius: 24px;
-    height: 632px;
+    height: ${props => props?.height}px;
     opacity: 0.95;
     width: ${width - 32}px;
 `
@@ -109,7 +109,6 @@ const ClueStatRowView = styled(View)`
 `
 const ClueStatsView = styled(View)`
     margin: 16px;
-    margin-bottom: 8px;
     width: 100%;
 `
 const GuessIconView = styled(View)`
@@ -138,8 +137,6 @@ const RuntimeText = styled(ReelayText.CaptionEmphasized)`
 `
 const ShareSectionView = styled(View)`
     align-items: center;
-    position: absolute;
-    bottom: 0px;
 `
 const ShareOptionPressable = styled(TouchableOpacity)`
     align-items: center;
@@ -245,7 +242,6 @@ const YearView = styled(View)`
     flex-direction: row;
 `
 
-
 export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const myGuesses = game?.myGuesses ?? [];
@@ -258,6 +254,12 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
     const gameHasGuesses = game?.myGuesses?.length > 0;
     const inviteCode = game?.myGuesses?.[0]?.inviteCode;
     const url = (gameHasGuesses) ? `https://on.reelay.app/game/${inviteCode}` : 'https://on.reelay.app';
+
+    const statCount = game?.stats?.length ?? 0;
+    const statRowCount = statCount + 1; // leave room for losing stats row
+    const rowHeight = 32; // sorry magic numbers
+    const fixedHeight = 460;
+    const modalViewHeight = (rowHeight * statRowCount) + fixedHeight;
 
     const CloseButton = () => {
         return (
@@ -358,11 +360,20 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
 
     const GuessStats = () => {
         const guessStats = game?.stats ?? [];
+        const totalGuesses = guessStats?.[0]?.numGuesses ?? 1;
+        const lastClue = guessStats?.[guessStats?.length - 1] ?? null;
+        const lostGameCount = lastClue?.numGuesses - lastClue?.numCorrect;
+
+        const lostGameStats = {
+            guesserSubs: [],
+            numCorrect: lostGameCount,
+            numGuesses: totalGuesses,
+        }
 
         const ClueStatRow = ({ clueStats, index }) => {
             const guesserSubs = clueStats?.guesserSubs ?? [];
             const numCorrect = clueStats?.numCorrect ?? 0;
-            const numGuesses = guessStats?.[0]?.numGuesses ?? 1; // clueStats?.numGuesses ?? 1;
+            const numGuesses = totalGuesses; // clueStats?.numGuesses ?? 1;
             const isCorrect = (game?.correctGuessIndex === index);
             const correctRatio = (numGuesses === 0) ? 0 : numCorrect / numGuesses;
 
@@ -372,7 +383,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
             return (
                 <ClueStatRowView isCorrect={isCorrect}>
                     <ClueIndexView>
-                        <ClueStatText>{index + 1}</ClueStatText>
+                        <ClueStatText>{index === -1 ? 'X' : index + 1}</ClueStatText>
                     </ClueIndexView>
                     <ClueCenterView>
                         <ClueStatBar width={statBarWidth} />
@@ -393,6 +404,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
                     const viewKey = `${game?.id}-${index}`;
                     return <ClueStatRow clueStats={clueStats} key={viewKey} index={index} />
                 })}
+                <ClueStatRow clueStats={lostGameStats} key={-1} index={-1} />
             </ClueStatsView>
         );
     }
@@ -483,8 +495,8 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
     return (
         <Modal style={ModalStyle} animationType='none' transparent={true}>
             <OverlayBox onPress={closeModal}>
-                <BlurView intensity={50} tint='default' style={{  borderRadius: 24, height: 632, overflow: 'hidden', width: width - 32, position: 'absolute' }} />
-                <ShareCardView>
+                <BlurView intensity={50} tint='default' style={{ borderRadius: 24, height: modalViewHeight, overflow: 'hidden', width: width - 32, position: 'absolute' }} />
+                <ShareCardView height={modalViewHeight}>
                     <ShareCardWhiteLayer />
                     <ShareCardGradient colors={[ReelayColors.reelayBlue, '#4C268B']} />
                     <YouGotIt />

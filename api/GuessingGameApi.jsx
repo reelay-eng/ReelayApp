@@ -316,7 +316,7 @@ export const deleteGuessingGamePublished = async ({
     topicID,
 }) => {
     const routeDelete = `${REELAY_API_BASE_URL}/guessingGame/published`;
-    const deleteBody = { guessID, topicID };
+    const deleteBody = { topicID };
 
     const deleteGuessingGamePublishedResult = await fetchResults(routeDelete, {
         method: 'DELETE',
