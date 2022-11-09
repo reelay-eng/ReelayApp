@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import Constants from 'expo-constants';
 import * as Clipboard from 'expo-clipboard';
 import { Dimensions, Modal, Pressable, Share, TouchableOpacity, View } from 'react-native';
@@ -12,7 +12,7 @@ import ProfilePicture from '../global/ProfilePicture';
 import { AuthContext } from '../../context/AuthContext';
 import { showMessageToast } from '../utils/toasts';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faChartBar, faCheck, faLink, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faLink, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { faInstagram } from '@fortawesome/free-brands-svg-icons';
 import { getRuntimeString } from '../utils/TitleRuntime';
 import TitlePoster from '../global/TitlePoster';

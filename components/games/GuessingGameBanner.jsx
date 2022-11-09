@@ -19,6 +19,7 @@ import { searchTitles } from "../../api/ReelayDBApi";
 import ReelayColors from "../../constants/ReelayColors";
 import { getGameDetails, postGuessingGameGuess } from "../../api/GuessingGameApi";
 import { useDispatch, useSelector } from "react-redux";
+import * as Haptics from 'expo-haptics';
 import moment from "moment";
 
 const getRandomString = (radix=36) => {
@@ -326,6 +327,12 @@ const GuessingGameBanner = ({
 
             guessingGame.myGuesses = [...myGuesses, nextGuess];
             dispatch({ type: 'updateHomeGuessingGames', payload: guessingGame });
+
+            if (isCorrect) {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+            } else {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+            }
 
             if (!isPreview) {
                 const postBody = {

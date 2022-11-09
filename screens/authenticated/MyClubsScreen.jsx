@@ -401,7 +401,7 @@ export default MyClubsScreen = ({ navigation }) => {
     }
 
     const SearchButton = () => {
-        const advanceToSearchScreen = () => navigation.push('SearchScreen', { initialSearchType: 'Clubs' });
+        const advanceToSearchScreen = () => navigation.push('SearchScreen', { initialSearchType: 'Chats' });
         return (
             <TopRightButtonPressable onPress={advanceToSearchScreen}>
                 {/* <Icon type='ionicon' size={27} color={'white'} name='search' /> */}
