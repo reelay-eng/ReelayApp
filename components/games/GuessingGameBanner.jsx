@@ -354,7 +354,7 @@ const GuessingGameBanner = ({
         }, [searchText]);
 
         return (
-            <View style={{ width: '100%'}}>
+            <View style={{ width: '100%', marginBottom: -10 }}>
                 <SearchField
                     backgroundColor="rgba(0,0,0,0.4)"
                     placeholderText={`You have ${guessesLeft} guess${guessesPlural} remaining`}

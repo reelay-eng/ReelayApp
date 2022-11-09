@@ -1,11 +1,11 @@
 import React from 'react';
-import { Dimensions, SafeAreaView } from 'react-native';
+import { Dimensions, SafeAreaView, View } from 'react-native';
 import { Input, Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 const { width } = Dimensions.get('window');
 
-const SearchFieldContainer = styled(SafeAreaView)`
+const SearchFieldContainer = styled(View)`
 	width: 100%;
 `
 
@@ -31,7 +31,8 @@ export default SearchField = ({
 
 	}
 	const SearchInputContainerStyle = {
-		borderBottomWidth: 0,
+		borderColor: 'rgba(255,255,255,0.3)',
+		borderWidth: 1.4,
 		marginTop: 10,
 		paddingLeft: 10,
 		paddingTop: clearIcon ? 2 : 6,
