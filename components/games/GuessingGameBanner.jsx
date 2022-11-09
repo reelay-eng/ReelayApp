@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { Dimensions, FlatList, Pressable, View } from "react-native";
+import React, { Fragment, useContext, useEffect, useRef, useState } from "react";
+import { Dimensions, FlatList, Pressable, TouchableOpacity, View } from "react-native";
 import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
 
@@ -8,7 +8,7 @@ import styled from 'styled-components/native';
 import TitlePoster from "../global/TitlePoster";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faCheck, faCheckCircle, faQuestion, faXmark, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCheckCircle, faForward, faForwardStep, faQuestion, faXmark, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
 import { getRuntimeString } from "../utils/TitleRuntime";
 import { animate } from "../../hooks/animations";
 import { GamesIconSVG } from "../global/SVGs";
@@ -21,6 +21,7 @@ import { getGameDetails, postGuessingGameGuess } from "../../api/GuessingGameApi
 import { useDispatch, useSelector } from "react-redux";
 import * as Haptics from 'expo-haptics';
 import moment from "moment";
+import { EmptyTitleObject } from "../../api/TMDbApi";
 
 const getRandomString = (radix=36) => {
     return Math.random().toString(radix).slice(2,7);
@@ -42,9 +43,10 @@ const GamesIconView = styled(View)`
 `
 const GuessIconView = styled(View)`
     align-items: center;
-    background-color: rgba(255,255,255,0.9);
+    background-color: ${props => props.skipped ? 'transparent' : 'rgba(255,255,255,0.9)'};
     border-radius: 100px;
     justify-content: center;
+    flex-direction: row;
     margin: 10px;
 `
 const GuessMarkerView = styled(View)`
@@ -78,6 +80,36 @@ const RuntimeText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
     margin-right: 10px;
+`
+const SearchRowView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    width: ${width - 90}px;
+`
+const SearchView = styled(View)`
+    margin-bottom: -10px;
+    width: 100%;
+`
+const SkipPressable = styled(TouchableOpacity)`
+    align-items: center;
+    background-color: rgba(212,212,212,0.9);
+    border-radius: 6px;
+    height: 43px;
+    justify-content: center;
+    flex-direction: row;
+    margin-bottom: 10px;
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    width: 52px;
+    shadow-offset: 2px 2px;
+    shadow-color: black;
+    shadow-opacity: 0.5;
+`
+const SkipText = styled(ReelayText.CaptionEmphasized)`
+    color: black;
+    font-size: 14px;
 `
 const Spacer = styled(View)`
     height: 16px;
@@ -149,6 +181,21 @@ const UnderlineContainer = styled(View)`
     margin-top: 5px;
     margin-right: 8px;
     width: 100%;
+`
+const UnrevealedPosterQuestionMark = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 24px;
+    line-height: 24px;
+`
+const UnrevealedPosterView = styled(View)`
+    align-items: center;
+    background-color: #080808;
+    border-radius: 4px
+    border-color: #3d3d3d;
+    border-width: 2px;
+    height: 52px;
+    justify-content: center;
+    width: 36px;
 `
 const YearText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -246,17 +293,19 @@ const GuessingGameBanner = ({
         const displayGuesses = (gameOver) ? fillEmptyGuessesCorrect() : myGuesses;
         const guessObj = displayGuesses[clueIndex];
         const guessedTitleObj = guessObj?.guessedTitleObj;
+        const hasSkippedGuess = (guessedTitleObj?.titleKey === 'film-0');
 
-        const guessIcon = guessObj?.isCorrect 
+        let guessIcon = guessObj?.isCorrect 
             ? faCheckCircle 
             : faXmarkCircle;
-        const guessIconColor = guessObj?.isCorrect 
+        let guessIconColor = guessObj?.isCorrect 
             ? ReelayColors.reelayGreen 
             : ReelayColors.reelayRed;
 
         return (
             <TitleBannerRow>
-                <Poster guessedTitleObj={guessedTitleObj} />
+                { !hasSkippedGuess && <Poster guessedTitleObj={guessedTitleObj} /> }
+                { hasSkippedGuess && <UnrevealedPoster />}
                 <TitleInfo guessedTitleObj={guessedTitleObj} />
                 <GuessIconView>
                     <FontAwesomeIcon icon={guessIcon} color={guessIconColor} size={27} />
@@ -351,6 +400,16 @@ const GuessingGameBanner = ({
             }
         }
 
+        const SkipButton = () => {
+            const onSkipTitle = () => onGuessTitle(EmptyTitleObject);
+            return (
+                <SkipPressable onPress={onSkipTitle}>
+                    <SkipText>{'Skip'}</SkipText>
+                    {/* <FontAwesomeIcon icon={faForward} color='black' size={16} /> */}
+                </SkipPressable>
+            );
+        }
+
         useEffect(() => {
             updateCounter.current += 1;
             const nextUpdateCounter = updateCounter.current;
@@ -361,20 +420,21 @@ const GuessingGameBanner = ({
         }, [searchText]);
 
         return (
-            <View style={{ width: '100%', marginBottom: -10 }}>
+            <SearchView>
                 <SearchField
                     backgroundColor="rgba(0,0,0,0.4)"
                     placeholderText={`You have ${guessesLeft} guess${guessesPlural} remaining`}
                     searchText={searchText}
                     updateSearchText={setSearchText}
                 />
+                { guessesLeft > 1 && <SkipButton /> }
                 { searchResults.length > 1 && (
                     <SearchResults
                         searchResults={searchResults}
                         onGuessTitle={onGuessTitle}
                     />
                 )}
-            </View>
+            </SearchView>
         )
     }
 
@@ -428,9 +488,15 @@ const GuessingGameBanner = ({
     }
 
     const TitleInfo = ({ guessedTitleObj }) => {
-        const displayTitle = guessedTitleObj?.display;
-        const displayYear = (guessedTitleObj?.releaseDate && guessedTitleObj?.releaseDate.length >= 4) 
-            ? guessedTitleObj.releaseDate.slice(0,4) : '';
+        const hasSkippedGuess = (guessedTitleObj?.titleKey === 'film-0');
+        const displayTitle = hasSkippedGuess ? 'Skipped' : guessedTitleObj?.display;
+        const hasDisplayYear = (!hasSkippedGuess 
+            && guessedTitleObj?.releaseDate 
+            && guessedTitleObj?.releaseDate.length >= 4);
+
+        const displayYear = (hasDisplayYear) 
+            ? guessedTitleObj.releaseDate.slice(0,4) 
+            : '';
 
         return (
             <TitleInfoView>
@@ -441,7 +507,7 @@ const GuessingGameBanner = ({
                 </TitleTextContainer>
                 <Underline 
                     displayYear={displayYear} 
-                    runtime={guessedTitleObj?.runtime}
+                    runtime={hasSkippedGuess ? '' : guessedTitleObj?.runtime}
                 />
             </TitleInfoView>
         );
@@ -465,7 +531,18 @@ const GuessingGameBanner = ({
                 </YearVenueContainer>
             </UnderlineContainer>
         );
-    };        
+    };     
+    
+    const UnrevealedPoster = () => {
+        return (
+            <TitlePosterContainer>
+                <UnrevealedPosterView>
+                    <UnrevealedPosterQuestionMark>?</UnrevealedPosterQuestionMark>
+                </UnrevealedPosterView>
+            </TitlePosterContainer>
+        );    
+    }    
+
 
     const showGuessResult = ((clueIndex < myGuesses?.length) || gameOver);
 
