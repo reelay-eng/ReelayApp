@@ -6,12 +6,10 @@ import GuessingGameStack from '../../components/feed/GuessingGameStack';
 export default SingleGuessingGameScreen = ({ navigation, route }) => {
     // const guessingGames = useSelector(state => state.discover?.guessingGames?.current ?? []);
     const initialStackPos = route?.params?.initialStackPos ?? 0;
-    const initialFeedPos = route?.params?.initialFeedPos ?? 0;
+    const feedPosition = route?.params?.feedPosition ?? 0;
     const isPreview = route?.params?.isPreview ?? false;
-    const isUnlocked = route?.params?.isUnlocked;
     const feedSource = (isPreview) ? 'guessingGamePreview' : 'guessingGame';
     const previewGuessingGame = route?.params?.previewGuessingGame ?? null;
-    const onRefresh = () => {};
 
     const dispatch = useDispatch();
     
@@ -22,12 +20,10 @@ export default SingleGuessingGameScreen = ({ navigation, route }) => {
     return (
         <Fragment>
             <GuessingGameStack
-                initialFeedPos={initialFeedPos}
+                feedPosition={feedPosition}
                 initialStackPos={initialStackPos}
                 isPreview={isPreview}
-                isUnlocked={isUnlocked}
                 navigation={navigation}
-                onRefresh={onRefresh}
                 previewGuessingGame={previewGuessingGame}
                 stackViewable={true}
             />

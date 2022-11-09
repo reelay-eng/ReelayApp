@@ -32,17 +32,15 @@ const GameBannerView = styled(View)`
 
 export const GuessingGameStack = ({ 
     initialStackPos = 0,
-    initialFeedPos = 0,
+    feedPosition = 0,
     isPreview = false,
-    isUnlocked = false,
     navigation,
-    onRefresh,
     previewGuessingGame = null,
     stackViewable,
 }) => {
     const guessingGames = useSelector(state => state.homeGuessingGames);
     const displayGames = guessingGames?.content ?? [];
-    const guessingGame = previewGuessingGame ?? displayGames[initialFeedPos];
+    const guessingGame = previewGuessingGame ?? displayGames[feedPosition];
 
     const [stackPosition, setStackPosition] = useState(initialStackPos);
     const { reelayDBUser } = useContext(AuthContext);
@@ -50,9 +48,8 @@ export const GuessingGameStack = ({
 
     const gameDetails = getGameDetails(guessingGame);
     const clueOrder = gameDetails?.clueOrder ?? [];
-    const correctTitleKey = gameDetails?.correctTitleKey ?? 'film-0';
     const isFirstRenderRef = useRef(true);
-    const isMyGame = (guessingGame?.creatorSub === reelayDBUser?.sub);
+    const isGameCreator = (guessingGame?.creatorSub === reelayDBUser?.sub);
     const myGuesses = (isPreview) ? [] : guessingGame?.myGuesses ?? [];
 
     const isGameComplete = () => {
@@ -65,6 +62,7 @@ export const GuessingGameStack = ({
 
     const displayGame = { ...guessingGame, myGuesses };
     const gameOver = isGameComplete();
+    const isUnlocked = (gameOver || isGameCreator);
     const [shareOutViewable, setShareOutViewable] = useState(false);
 
     const stack = displayGame?.reelays ?? [];
@@ -72,9 +70,7 @@ export const GuessingGameStack = ({
     const firstLockedIndex = lastVisibleIndex + 1;
 
     const displayStack = (gameOver || isUnlocked) ? stack : stack.slice(0, firstLockedIndex);
-    const showProgressBarStages = ['uploading', 'upload-complete', 'upload-failed-retry'];
-    const showProgressBar = showProgressBarStages.includes(uploadStage);
-    const showSidebar = (gameOver || isMyGame);
+    const showSidebar = (gameOver || isGameCreator);
     const stackRef = useRef(null);
     const viewableReelay = displayStack[stackPosition];
 
@@ -132,20 +128,6 @@ export const GuessingGameStack = ({
         const { x, y } = e.nativeEvent.contentOffset;
         const nextStackPosition = Math.round(x / width);
         if (stackPosition === nextStackPosition) return;
-
-        const swipeDirection = nextStackPosition < stackPosition ? 'left' : 'right';
-        const nextReelay = displayStack[nextStackPosition];
-        const prevReelay = displayStack[stackPosition];
-        const logProperties = {
-            nextReelayCreator: nextReelay?.creator?.username,
-            nextReelayTitle: nextReelay?.title.display,
-            prevReelayCreator: prevReelay?.creator.username,
-            prevReelayTitle: prevReelay?.title.display,
-            source: 'stack',
-            swipeDirection: swipeDirection,
-            username: reelayDBUser?.username,
-        }
-        logAmplitudeEventProd('swipedFeed', logProperties);
         setStackPosition(nextStackPosition);
     }
 
@@ -202,7 +184,6 @@ export const GuessingGameStack = ({
                     game={displayGame}
                 />
             )}
-            { showProgressBar && <UploadProgressBar mountLocation={'OnProfile'} onRefresh={onRefresh} /> }
         </ReelayFeedContainer>
     );
 }

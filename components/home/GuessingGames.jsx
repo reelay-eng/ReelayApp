@@ -137,14 +137,14 @@ export default GuessingGames = ({ navigation }) => {
     const headerText = 'Guessing Game';
     const headerSubtext = 'Play the daily guessing game'
 
-    const advanceToGuessingGame = ({ game, index, isPreview = false, isUnlocked = false }) => {
+    const advanceToGuessingGame = ({ game, index, isPreview = false }) => {
         const navOptions = {
-            initialFeedPos: index,
+            feedPosition: index,
             initialStackPos: 0,
             isPreview,
-            isUnlocked,
         }
-		navigation.push("SingleGuessingGameScreen", navOptions);
+		// navigation.push("SingleGuessingGameScreen", navOptions);
+		navigation.push("GuessingGameFeedScreen", navOptions);
 	};
 
     const GamePreviewElement = ({ index, game }) => {
@@ -178,7 +178,7 @@ export default GuessingGames = ({ navigation }) => {
         }
 
         const tapOnPoster = () => {
-            advanceToGuessingGame({ game, index, isPreview: false, isUnlocked });
+            advanceToGuessingGame({ game, index, isPreview: false });
         }
 
         const DeleteGameButton = () => {

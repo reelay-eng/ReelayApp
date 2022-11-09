@@ -327,9 +327,8 @@ export default ReelayFeed = ({ navigation,
             const game = stack;
             return <GuessingGameStack
                 initialStackPos={0}
-                initialFeedPos={game?.feedIndex}
+                feedPosition={game?.feedIndex}
                 isPreview={false}
-                isUnlocked={false}
                 navigation={navigation}
                 onRefresh={() => {}}
                 stackViewable={stackViewable}

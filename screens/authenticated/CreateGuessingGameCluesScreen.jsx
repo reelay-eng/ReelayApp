@@ -207,12 +207,11 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
         ? correctTitleObj?.releaseDate.slice(0,4) : '';
     const runtimeString = getRuntimeString(correctTitleObj?.runtime);
 
-    const advanceToGamePreview = (index = 0, isUnlocked = false) => {
+    const advanceToGamePreview = (index = 0) => {
         navigation.push('SingleGuessingGameScreen', {
             initialStackPos: index,
             previewGuessingGame: game,
             isPreview: true,
-            isUnlocked,
         })
     }
 
@@ -324,7 +323,7 @@ export default CreateGuessingGameCluesScreen = ({ navigation, route }) => {
 
         const reelay = item;
         const onPress = (reelay) 
-            ? () => advanceToGamePreview(index, true)
+            ? () => advanceToGamePreview(index)
             : advanceToCreateReelayScreen;
 
         return (

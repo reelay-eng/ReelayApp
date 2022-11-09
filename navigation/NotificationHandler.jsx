@@ -68,15 +68,11 @@ export const handlePushNotificationResponse = async ({
         });
 
         const matchGuessingGame = (game) => game?.id === topicID;
-        const matchedGameIndex = guessingGames.findIndex(matchGuessingGame);
-        const isGameCreator = (game?.creatorSub === reelayDBUser?.sub);
-        const hasCompletedGame = (game?.hasCompletedGame) ?? false;
-        
+        const matchedGameIndex = guessingGames.findIndex(matchGuessingGame);        
         if (matchedGameIndex !== -1) {
             navigation.push('SingleGuessingGameScreen', {
-                initialFeedPos: matchedGameIndex,
+                feedPosition: matchedGameIndex,
                 isPreview: false,
-                isUnlocked: (isGameCreator || hasCompletedGame),
             });
         }
     }

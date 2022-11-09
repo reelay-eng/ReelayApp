@@ -6,7 +6,6 @@ import { AuthContext } from "../../context/AuthContext";
 import { logAmplitudeEventProd } from "../utils/EventLogger";
 import styled from 'styled-components/native';
 import TitlePoster from "../global/TitlePoster";
-import VenueIcon from '../utils/VenueIcon';
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import { faCheck, faCheckCircle, faQuestion, faXmark, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
@@ -150,9 +149,6 @@ const UnderlineContainer = styled(View)`
     margin-right: 8px;
     width: 100%;
 `
-const VenueContainer = styled(View)`
-    margin-right: 5px;
-`
 const YearText = styled(ReelayText.CaptionEmphasized)`
     color: white;
     height: 16px;
@@ -203,12 +199,10 @@ const SearchResults = ({ onGuessTitle, searchResults }) => {
 }
 
 const GuessingGameBanner = ({ 
-    club = null,
     clueIndex = 0,
     guessingGame,
     isPreview = false,
     isUnlocked = false,
-    navigation=null, 
     reelay=null, 
     titleObj,
     topic=null,
@@ -218,23 +212,13 @@ const GuessingGameBanner = ({
 
     const allowExpand = (titleObj?.titleKey !== 'film-0');
     const gameDetails = guessingGame?.details;
+    const gameOver = isUnlocked;
     const isGameCreator = (reelayDBUser?.sub === guessingGame?.creatorSub);
     const myGuesses = guessingGame?.myGuesses ?? [];
 
     // figure out how to do ellipses for displayTitle
     const guessesLeft = (gameDetails?.clueOrder?.length - myGuesses?.length);
     const guessesPlural = (guessesLeft > 1) ? 'es' : '';
-    const venue = reelay?.content?.venue;
-
-    const isGameComplete = () => {
-        if (isUnlocked || guessesLeft === 0) return true;
-        for (const guess of myGuesses) {
-            if (guess.isCorrect) return true;
-        }
-        return false;
-    }
-
-    const gameOver = isGameComplete();
 
     const onClickExpand = () => {
         if (!gameOver) return;
@@ -451,7 +435,6 @@ const GuessingGameBanner = ({
                 <Underline 
                     displayYear={displayYear} 
                     runtime={guessedTitleObj?.runtime}
-                    venue={venue} 
                 />
             </TitleInfoView>
         );
@@ -465,27 +448,17 @@ const GuessingGameBanner = ({
         );
     }
 
-    const Underline = ({ displayYear, runtime, venue }) => {
+    const Underline = ({ displayYear, runtime }) => {
         const runtimeString = runtime ? getRuntimeString(runtime) : '';
         return (
             <UnderlineContainer>
                 <YearVenueContainer>
-                    { venue && <VenueIndicator venue={venue} /> }
                     { displayYear?.length > 0 && <YearText>{displayYear}</YearText> }
                     { runtimeString?.length > 0 && <RuntimeText>{runtimeString}</RuntimeText> }
                 </YearVenueContainer>
             </UnderlineContainer>
         );
-    };
-
-    const VenueIndicator = ({ venue }) => {
-        return (
-            <VenueContainer>
-                <VenueIcon venue={venue} size={20} border={1} />
-            </VenueContainer>
-        )
-    }
-        
+    };        
 
     const showGuessResult = ((clueIndex < myGuesses?.length) || gameOver);
 

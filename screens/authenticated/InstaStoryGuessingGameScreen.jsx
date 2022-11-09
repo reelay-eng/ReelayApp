@@ -8,21 +8,16 @@ import ViewShot, { captureRef } from 'react-native-view-shot';
 import * as ReelayText from '../../components/global/Text';
 import styled from 'styled-components/native';
 
-import InstaStoryBackground from '../../assets/images/shareOut/insta-stories-gradient-background.png';
+import InstaStoryBackground from '../../assets/images/shareOut/insta-stories-game-background.png';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
-import { GamesIconSVG, ReviewIconSVG, TopicsBannerIconSVG } from '../../components/global/SVGs';
+import { GamesIconSVG } from '../../components/global/SVGs';
 import BackButton from '../../components/utils/BackButton';
-import TitlePoster from '../../components/global/TitlePoster';
-import StarRating from '../../components/global/StarRating';
-import ProfilePicture from '../../components/global/ProfilePicture';
-import ReelayColors from '../../constants/ReelayColors';
 import { compositeReviewForInstagramStories } from '../../api/FFmpegApi';
 import { showMessageToast } from '../../components/utils/toasts';
 import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import GuessMarkers from '../../components/games/GuessMarkers';
 
 const { height, width } = Dimensions.get('window');
