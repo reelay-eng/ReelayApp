@@ -1,5 +1,5 @@
-import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { ActivityIndicator, Dimensions, SafeAreaView, TouchableOpacity, View } from 'react-native';
+import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, Dimensions, Pressable, RefreshControl, SafeAreaView, ScrollView, TextInput, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
@@ -9,11 +9,10 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 import styled from 'styled-components/native';
 import * as ReelayText from '../../components/global/Text';
 import { useDispatch, useSelector } from 'react-redux';
-import { ScrollView } from 'react-native-gesture-handler';
 import { useFocusEffect } from '@react-navigation/native';
 import ClubPicture from '../../components/global/ClubPicture';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faChevronRight, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight, faPenToSquare, faUsers } from '@fortawesome/free-solid-svg-icons';
 import { sortByLastActivity } from '../../redux/reducers';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -21,7 +20,9 @@ import ReelayColors from '../../constants/ReelayColors';
 import Constants from 'expo-constants';
 import moment from 'moment';
 import EmptyClubsCard from '../../components/clubs/EmptyClubsCard';
-import { NotificationIconSVG, SearchIconSVG } from '../../components/global/SVGs';
+import DiscoverClubs from '../../components/home/DiscoverClubs';
+import { getAllClubsFollowing, searchPublicClubs } from '../../api/ClubsApi';
+import SearchField from '../../components/create-reelay/SearchField';
 
 const { height, width } = Dimensions.get('window');
 
@@ -33,23 +34,6 @@ const BottomGradient = styled(LinearGradient)`
     bottom: 0px;
     opacity: 0.8;
     height: 40px;
-    width: 100%;
-`
-const AddClubIconView = styled(View)`
-    align-items: center;
-    justify-content: center;
-    height: ${CLUB_PIC_SIZE}px;
-    width: ${CLUB_PIC_SIZE}px;
-`
-const AddClubRowPressable = styled(TouchableOpacity)`
-    align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
-    border-radius: 16px;
-    flex-direction: row;
-    padding-top: 12px;
-    padding-bottom: 12px;
-    margin: 12px;
-    margin-top: 8px;
     width: 100%;
 `
 const ClubNameText = styled(ReelayText.H6Emphasized)`
@@ -141,6 +125,22 @@ const RefreshView = styled(MyClubsScreenView)`
     align-items: center;
     justify-content: center;
 `
+const SearchFieldOverlay = styled(TouchableOpacity)`
+    height: 100%;
+    position: absolute;
+    width: 100%;
+`
+const SectionBodyText = styled(ReelayText.H6)`
+    color: white;
+    font-size: 16px;
+    margin: 12px;
+`
+const SectionHeaderText = styled(ReelayText.H6Emphasized)`
+    color: white;
+    font-size: 24px;
+    margin: 12px;
+    margin-bottom: 0px;
+`
 const TopRightButtonPressable = styled(TouchableOpacity)`
     align-items: center;
     justify-content: center;
@@ -170,12 +170,32 @@ const UnreadIconIndicator = styled(View)`
 `
 
 export default MyClubsScreen = ({ navigation }) => {
-    const { reelayDBUser } = useContext(AuthContext);
-    const myClubs = useSelector(state => state.myClubs);
+    const authSession = useSelector(state => state.authSession);
     const currentAppLoadStage = useSelector(state => state.currentAppLoadStage);
-
     const dispatch = useDispatch();
-    const bottomOffset = useSafeAreaInsets().bottom;
+    const myClubs = useSelector(state => state.myClubs);
+    const { reelayDBUser } = useContext(AuthContext);
+
+    const [refreshCounter, setRefreshCounter] = useState(0);
+    const [refreshing, setRefreshing] = useState(false);
+    const searchResultsRef = useRef([]);
+    const searchUpdateCountRef = useRef(0);
+
+    const refreshDiscoverClubs = useCallback(() => {
+        setRefreshCounter(refreshCounter + 1);
+    }, [refreshCounter]);
+
+    const refreshMyClubs = async () => {
+        const nextMyClubs = await getAllClubsFollowing({ authSession, reqUserSub: reelayDBUser?.sub });
+        dispatch({ type: 'setMyClubs', payload: nextMyClubs ?? [] });
+    }
+
+    const onRefresh = () => {
+        setRefreshing(true);
+        refreshDiscoverClubs();
+        refreshMyClubs();
+        setRefreshing(false);
+    }
     
     useEffect(() => {
         logAmplitudeEventProd('openedMyClubs', {
@@ -265,25 +285,6 @@ export default MyClubsScreen = ({ navigation }) => {
             );
         }
 
-        const AddClubRow = ({ club }) => {
-            const advanceToCreateClubScreen = () => navigation.push('CreateClubScreen');
-            return (
-                <AddClubRowPressable onPress={advanceToCreateClubScreen}>
-                    <AddClubIconView>
-                        <FontAwesomeIcon icon={faUsers} color='white' size={36} />
-                    </AddClubIconView>
-                    <ClubRowInfoView>
-                        <ClubNameText>{'Start a new chat'}</ClubNameText>
-                        <ClubDescriptionText>{'Invite friends. Make group watchlists. Chat in real time.'}</ClubDescriptionText>
-                    </ClubRowInfoView>
-                    <ClubRowArrowView>
-                        <FontAwesomeIcon icon={faChevronRight} color='white' size={18} />
-                        <ClubRowArrowSpacer />
-                    </ClubRowArrowView>
-                </AddClubRowPressable>
-            );
-        }
-
         const ClubRow = ({ club }) => {
             const countableClubMembers = club.members.filter(member => {
                 return (member?.role !== 'banned' && member?.hasAcceptedInvite);
@@ -339,33 +340,15 @@ export default MyClubsScreen = ({ navigation }) => {
             );
         }
 
-        const MyClubsList = () => {
-            const scrollStyle = { 
-                
-                paddingBottom: 120, 
-                width: width - 24,
-            };
-            return (
-                <ScrollView
-                    bottomOffset={bottomOffset} 
-                    contentContainerStyle={scrollStyle}
-                    showsVerticalScrollIndicator={false}
-                >
-                    { selectedFilters.includes('all') && (
-                        <Fragment>
-                            <AddClubRow />
-                        </Fragment>
-                    )}
-                    { displayClubs.map(club => <ClubRow club={club} key={club?.id} />) }
-                </ScrollView>
-            );
-        }
-
         return (
-            <Fragment>
+            <View>
+                <SectionHeaderText>{'Your chats'}</SectionHeaderText>
+                { myClubs.length === 0 && (
+                    <SectionBodyText>{'You have not joined or created any chats yet'}</SectionBodyText>
+                )}
                 <MyClubsFilters />
-                <MyClubsList />
-            </Fragment>
+                { displayClubs.map(club => <ClubRow club={club} key={club?.id} />) }
+            </View>
         );
     }
 
@@ -387,27 +370,71 @@ export default MyClubsScreen = ({ navigation }) => {
         );
     }
 
-    const NotificationButton = () => {
-        const advanceToNotificationScreen = () => navigation.push('NotificationScreen');
-        const myNotifications = useSelector(state => state.myNotifications);
-        const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
-
+    const NewClubButton = () => {
+        const advanceToCreateClubScreen = () => navigation.push('CreateClubScreen');
         return (
-            <TopRightButtonPressable onPress={advanceToNotificationScreen}>
-                <NotificationIconSVG />
-                { hasUnreadNotifications && <UnreadIconIndicator /> }
+            <TopRightButtonPressable onPress={advanceToCreateClubScreen}>
+                <FontAwesomeIcon icon={faPenToSquare} color='white' size={24} />
             </TopRightButtonPressable>
         )
     }
 
-    const SearchButton = () => {
+    const SearchBarViewStyle = {
+        borderColor: 'rgba(255,255,255,0.3)',
+        borderWidth: 1.4,
+        marginTop: 10,
+        paddingLeft: 10,
+        paddingTop: 2,
+        paddingBottom: 2,
+        paddingRight: 4,
+        backgroundColor: '#121212',
+        borderRadius: 6,
+        justifyContent: 'center',
+        width: '100%',    
+    }
+
+    const SearchBar = () => {
+        const [searchText, setSearchText] = useState('');
+        const updateCount = useRef(0);
+
         const advanceToSearchScreen = () => navigation.push('SearchScreen', { initialSearchType: 'Chats' });
+
+        const updateSearchResults = async () => {
+            const annotatedResults = (searchText === '') 
+                ? [] 
+                : await searchPublicClubs({ 
+                    authSession,
+                    page: 0,
+                    reqUserSub: reelayDBUser?.sub, 
+                    searchText: searchText 
+                }
+            );    
+            console.log('annotated results: ', annotatedResults);
+            searchResultsRef.current = annotatedResults ?? [];
+            searchUpdateCountRef.current = searchUpdateCountRef.current + 1;
+        }
+
+        useEffect(() => {
+            const curUpdateCount = updateCount.current;
+            setTimeout(() => {
+                if (curUpdateCount !== updateCount.current) return;
+                updateSearchResults();
+            }, 200);
+        }, [searchText]);
+
         return (
-            <TopRightButtonPressable onPress={advanceToSearchScreen}>
-                {/* <Icon type='ionicon' size={27} color={'white'} name='search' /> */}
-                <SearchIconSVG />
-            </TopRightButtonPressable>
-        )
+            <Pressable onPress={advanceToSearchScreen}>
+                <SearchField 
+                    backgroundColor="#232425"
+                    border={false}
+                    style={SearchBarViewStyle}
+                    updateSearchText={setSearchText}
+                    placeholderText={`Search for chats`}
+                    searchText={searchText}
+                />
+                <SearchFieldOverlay onPress={advanceToSearchScreen} />
+            </Pressable>
+        );
     }
 
     if (currentAppLoadStage < 4) {
@@ -418,18 +445,39 @@ export default MyClubsScreen = ({ navigation }) => {
         );
     }
 
-    return (
-		<MyClubsScreenView>
+    const SearchlessContent = () => {
+        return (
+            <View>
+                <DiscoverClubs navigation={navigation} refreshCounter={refreshCounter} />
+                { (myClubs?.length > 0) && <AllMyClubs /> }
+                { (myClubs?.length === 0) && <EmptyClubs /> }
+                <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
+            </View>
+        )
+    }
+
+    const TopBar = () => {
+        return (
             <TopBarView>
                 <HeaderText>{'chats'}</HeaderText>
                 <TopBarButtonView>
-                    <SearchButton />
-                    <NotificationButton />
+                    <NewClubButton />
                 </TopBarButtonView>
             </TopBarView>
-            { (myClubs?.length > 0) && <AllMyClubs /> }
-            { (myClubs?.length === 0) && <EmptyClubs /> }
-            <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
+        );
+    }
+
+    return (
+		<MyClubsScreenView>
+            <TopBar />
+            <ScrollView 
+                contentContainerStyle={{ paddingBottom: 100 }} 
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+                showsVerticalScrollIndicator={false}
+            >
+                <SearchBar />
+                <SearchlessContent />
+            </ScrollView>
 		</MyClubsScreenView>
 	);
 };

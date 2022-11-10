@@ -45,7 +45,7 @@ const SearchBarView = styled(View)`
 `
 const TopBarView = styled(View)`
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     width: 100%;
 `
 
@@ -221,9 +221,11 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist })
             <TopBar />
             <SearchBarView>
                 <SearchField
+                    backgroundColor="#232425"
+                    border={false}
+                    borderRadius={4}
                     searchText={searchText}
                     updateSearchText={updateSearchText}
-                    borderRadius={4}
                     placeholderText={`Find ${
                         selectedType === "Film"
                             ? "films"

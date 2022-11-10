@@ -151,7 +151,7 @@ const HomeComponent = ({ navigation }) => {
                 <TopicsCarousel navigation={navigation} source='discover' /> 
                 <GuessingGames navigation={navigation} />
                 <MyWatchlistGrid navigation={navigation} />
-                <DiscoverClubs navigation={navigation} />
+                {/* <DiscoverClubs navigation={navigation} /> */}
                 {/* <FriendsAreWatching navigation={navigation} /> */}
                 <OnStreaming navigation={navigation} source='discover' />
                 {/* <InTheaters navigation={navigation} />  */}

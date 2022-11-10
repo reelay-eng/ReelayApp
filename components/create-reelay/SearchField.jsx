@@ -11,6 +11,7 @@ const SearchFieldContainer = styled(View)`
 
 export default SearchField = ({ 
 	backgroundColor = '#121212',
+	border = true,
     searchText, 
     updateSearchText, 
     placeholderText = 'Search',
@@ -31,10 +32,11 @@ export default SearchField = ({
 
 	}
 	const SearchInputContainerStyle = {
-		borderColor: 'rgba(255,255,255,0.3)',
-		borderWidth: 1.4,
+		borderColor: border ?  'rgba(255,255,255,0.3)' : backgroundColor,
+		borderWidth: border ? 1.4 : 0,
 		marginTop: 10,
-		paddingLeft: 10,
+		marginBottom: -10,
+		paddingLeft: 16,
 		paddingTop: clearIcon ? 2 : 6,
 		paddingBottom: clearIcon ? 2 : 6,
 		paddingRight: 4,
@@ -61,6 +63,17 @@ export default SearchField = ({
 		);
 	}
 
+	const getLeftIcon = () => {
+		return (
+			<Icon
+				type="ionicon"
+				name="search"
+				size={24}
+				color="white"
+			/>
+		);
+	}
+
     return (
 		<SearchFieldContainer>
 			<Input
@@ -70,6 +83,7 @@ export default SearchField = ({
 				style={SearchInputFieldStyle}
 				inputContainerStyle={SearchInputContainerStyle}
 				rightIcon={clearIcon ? getRightIcon : null}
+				leftIcon={getLeftIcon}
 			/>
 		</SearchFieldContainer>
 	);
