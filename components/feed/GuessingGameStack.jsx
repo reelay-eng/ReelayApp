@@ -6,7 +6,6 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AuthContext } from '../../context/AuthContext';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components/native';
-import UploadProgressBar from '../global/UploadProgressBar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import StackPositionBar from './StackPositionBar';
 import { getGameDetails } from '../../api/GuessingGameApi';
@@ -189,7 +188,6 @@ export const GuessingGameStack = ({
 }
 
 const areEqual = (prevProps, nextProps) => {
-    console.log('are equal? ', prevProps, nextProps);
     return (
         (prevProps.initialStackPos === nextProps.initialStackPos) &&
         (prevProps.feedPosition === prevProps.feedPosition) &&

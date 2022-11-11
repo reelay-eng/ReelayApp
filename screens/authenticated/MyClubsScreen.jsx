@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Dimensions, Pressable, RefreshControl, SafeAreaView, ScrollView, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, SafeAreaView, ScrollView, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
@@ -12,9 +12,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import ClubPicture from '../../components/global/ClubPicture';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faChevronRight, faPenToSquare, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faChevronRight, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
 import { sortByLastActivity } from '../../redux/reducers';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import ReelayColors from '../../constants/ReelayColors';
 import Constants from 'expo-constants';
@@ -23,8 +22,6 @@ import EmptyClubsCard from '../../components/clubs/EmptyClubsCard';
 import DiscoverClubs from '../../components/home/DiscoverClubs';
 import { getAllClubsFollowing, searchPublicClubs } from '../../api/ClubsApi';
 import SearchField from '../../components/create-reelay/SearchField';
-
-const { height, width } = Dimensions.get('window');
 
 const CLUB_PIC_SIZE = 72;
 const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
@@ -160,15 +157,6 @@ const TopBarButtonView = styled(View)`
     flex-direction: row;
     margin-right: -7px;
     margin-top: 7px;
-`
-const UnreadIconIndicator = styled(View)`
-	background-color: ${ReelayColors.reelayBlue}
-	border-radius: 5px;
-	height: 10px;
-	width: 10px;
-	position: absolute;
-    top: 0px;
-	right: 0px;
 `
 
 export default MyClubsScreen = ({ navigation }) => {
@@ -345,9 +333,6 @@ export default MyClubsScreen = ({ navigation }) => {
         return (
             <View>
                 <SectionHeaderText>{'Your chats'}</SectionHeaderText>
-                { myClubs.length === 0 && (
-                    <SectionBodyText>{'You have not joined or created any chats yet'}</SectionBodyText>
-                )}
                 <MyClubsFilters />
                 { displayClubs.map(club => <ClubRow club={club} key={club?.id} />) }
             </View>

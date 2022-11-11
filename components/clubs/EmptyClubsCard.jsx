@@ -1,11 +1,9 @@
 import React from 'react';
 import { Dimensions, TouchableOpacity, View } from 'react-native';
-import { Icon } from 'react-native-elements';
 
 import * as ReelayText from '../global/Text';
 import { LinearGradient } from 'expo-linear-gradient';
 import styled from 'styled-components/native';
-import { ChatsIconSVG } from '../global/SVGs';
 import ReelayColors from '../../constants/ReelayColors';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faAddressBook, faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -70,9 +68,6 @@ const SectionHeader = styled(ReelayText.H5Bold)`
     line-height: 28px;
     text-align: center;
 `
-const SectionSpacer = styled(View)`
-    height: 0px;
-`
 const SectionView = styled(View)`
     align-items: center;
     padding: 12px;
@@ -114,23 +109,6 @@ export default EmptyClubsCard = ({ navigation }) => {
                     {'Talk to your friends & family in a private space'}
                 </SectionBody>
             </SectionView>
-            {/* <SectionSpacer />
-            <SectionView>
-                <SectionHeader numberOfLines={3}>
-                    {'Invite friends'}
-                </SectionHeader>
-                <SectionBody numberOfLines={3}>
-                    {'Build shared watchlists with a\nsmaller group'}
-                </SectionBody>
-            </SectionView>
-            <SectionView>
-                <SectionHeader numberOfLines={3}>
-                    {'Or keep it solo'}
-                </SectionHeader>
-                <SectionBody numberOfLines={3}>
-                    {'Make a group for your film diary'}
-                </SectionBody>
-            </SectionView> */}
             <CreateClubButton />
             <TopAndBottomSpacer />
         </EmptyClubsView>

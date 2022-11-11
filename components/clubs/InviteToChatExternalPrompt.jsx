@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import { Dimensions, Keyboard, Pressable, Share, TouchableOpacity, View } from 'react-native';
 import * as ReelayText from '../global/Text';
 import Constants from 'expo-constants';
-import * as Clipboard from 'expo-clipboard';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
 import { ShareOutSVG } from '../global/SVGs';
@@ -11,7 +10,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { createDeeplinkPathToClub } from '../../api/ClubsApi';
 import { useSelector } from 'react-redux';
 import { AuthContext } from '../../context/AuthContext';
-import { showErrorToast, showMessageToast } from '../utils/toasts';
+import { showErrorToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 
 const { width } = Dimensions.get('window');
