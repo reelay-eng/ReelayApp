@@ -1,13 +1,13 @@
 import React, { Fragment, useContext, useState } from 'react';
-import { ActivityIndicator, Dimensions, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Pressable, TouchableOpacity, View } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components/native';
-import TitlePoster from '../global/TitlePoster';
 import * as ReelayText from '../global/Text';
 import ReelayColors from '../../constants/ReelayColors';
-import ExpandedTitleDrawer from './ExpandedTitleDrawer';
 import { getWatchlistItems } from '../../api/WatchlistApi';
 import { AuthContext } from '../../context/AuthContext';
+import FanOfPosters from '../watchlist/FanOfPosters';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
@@ -22,10 +22,29 @@ const POSTER_HEIGHT = 1.5 * POSTER_WIDTH;
 const ROW_COUNT = 3;
 const POSTER_INDEX_CUTOFF = ROW_COUNT * POSTER_ROW_LENGTH;
 
+const AddToWatchlistPressable = styled(TouchableOpacity)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: center;
+    padding: 15px;
+    padding-top: 5px;
+    height: 100%;
+`
+const AddText = styled(ReelayText.Caption)`
+    color: ${ReelayColors.reelayBlue};
+    font-size: 16px;
+`
 const HeaderContainer = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
     margin-top: 4px;
     margin-left: 16px;
     margin-bottom: 8px;
+`
+const HeaderContainerLeft = styled(View)`
+    display: flex;
+    flex: 1;
 `
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
@@ -36,17 +55,29 @@ const HeaderSubText = styled(ReelayText.Body2Emphasized)`
     line-height: 20px;
     margin-top: 8px;
 `
-const PosterContainer = styled(View)`
-    align-items: center;
-    margin: ${POSTER_HALF_MARGIN}px;
+const HomeWatchlistCardFill = styled(View)`
+    background-color: #1A8BF2;
+    border-radius: 12px;
+    height: 100%;
+    opacity: 0.2;
+    position: absolute;
+    width: 100%;
 `
-const PosterGridContainer = styled(View)`
-    flex-direction: row;
-    flex-wrap: wrap;
-    margin-top: 4px;
-    margin-left: ${GRID_SIDE_MARGIN}px;
-    margin-right: ${GRID_SIDE_MARGIN}px;
-    width: ${GRID_WIDTH}px;
+const HomeWatchlistCardGradient = styled(LinearGradient)`
+    border-radius: 12px;
+    height: 100%;
+    opacity: 0.2;
+    position: absolute;
+    width: 100%;
+`
+const HomeWatchlistCardView = styled(TouchableOpacity)`
+    align-items: center;
+    border-radius: 12px;
+    height: 240px;
+    justify-content: center;
+    left: 16px;
+    margin-bottom: 16px;
+    width: ${width - 32}px;
 `
 const RefreshView = styled(View)`
     align-items: center;
@@ -54,48 +85,40 @@ const RefreshView = styled(View)`
     justify-content: center;
     width: ${GRID_WIDTH}px;
 `
-const SeeMyWatchlistPressable = styled(TouchableOpacity)`
-    align-items: center;
-    background-color: ${ReelayColors.reelayBlue};
-    border-radius: 20px;
-    height: 40px;
-    justify-content: center;
-    margin: 16px;
-    margin-top: 8px;
-    margin-bottom: 20px;
-    width: ${width - 32}px;
-`
-const SeeMyWatchlistText = styled(ReelayText.Overline)`
+const WatchlistText = styled(ReelayText.H6)`
     color: white;
-`
-const Spacer = styled(View)`
-    height: 12px;
+    font-size: 24px;
 `
 
-export default MyWatchlistGrid = ({ navigation }) => {
+export default HomeWatchlistCard = ({ navigation }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
-    const [expandedTitle, setExpandedTitle] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
 
+    const advanceToAddToWatchlistScreen = () => navigation.push('SearchScreen', { addToWatchlist: true });
     const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen');
     const myCreatorStacks = useSelector(state => state.myCreatorStacks);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
 
-    const SectionHeader = () => {
+    const AddToWatchlistButton = () => {
         return (
-            <HeaderContainer>
-                <HeaderText>{'My watchlist'}</HeaderText>
-                <HeaderSubText>{'It\'s showtime'}</HeaderSubText>
-            </HeaderContainer>
+            <Fragment>
+                <AddToWatchlistPressable onPress={advanceToAddToWatchlistScreen}>
+                    <AddText>{'Add'}</AddText>
+                </AddToWatchlistPressable>
+            </Fragment>
         );
     }
 
-    const SeeMyWatchlistButton = () => {
+    const SectionHeader = () => {
         return (
-            <SeeMyWatchlistPressable onPress={advanceToWatchlistScreen}>
-                <SeeMyWatchlistText>{'See my watchlist'}</SeeMyWatchlistText>
-            </SeeMyWatchlistPressable>
+            <HeaderContainer>
+                <HeaderContainerLeft>
+                    <HeaderText>{'Watchlist'}</HeaderText>
+                    <HeaderSubText>{'"What are we gonna watch tonight?" YOU have the answer'}</HeaderSubText>
+                </HeaderContainerLeft>
+                <AddToWatchlistButton />
+            </HeaderContainer>
         );
     }
 
@@ -128,15 +151,6 @@ export default MyWatchlistGrid = ({ navigation }) => {
         setRefreshing(false);
     }
     
-    const renderTitlePoster = (item, index) => {
-        const title = item?.title;
-        return (
-            <PosterContainer key={title.id}>
-                <TitlePoster title={title} onPress={() => setExpandedTitle(item)} width={POSTER_WIDTH} />
-            </PosterContainer>
-        );
-    }
-
     if (displayWatchlistItems?.length === 0) {
         return <View />
     }
@@ -155,19 +169,12 @@ export default MyWatchlistGrid = ({ navigation }) => {
     return (
         <Fragment>
             <SectionHeader />
-            <PosterGridContainer>
-                { displayWatchlistItems.map(renderTitlePoster) }
-            </PosterGridContainer>
-            <Spacer />
-            <SeeMyWatchlistButton />
-            { expandedTitle && (
-                <ExpandedTitleDrawer 
-                    expandedTitle={expandedTitle} 
-                    navigation={navigation}
-                    onRefresh={onRefresh}
-                    setExpandedTitle={setExpandedTitle} 
-                /> 
-            )}
+            <HomeWatchlistCardView onPress={advanceToWatchlistScreen}>
+                <HomeWatchlistCardFill />
+                <HomeWatchlistCardGradient colors={['rgba(255,255,255,0.65)', 'rgba(255,255,255,0)']} />
+                <FanOfPosters titles={displayWatchlistItems.map(item => item.title)} />
+                <WatchlistText>{'My watchlist'}</WatchlistText>
+            </HomeWatchlistCardView>
         </Fragment>
     );
 }
