@@ -9,6 +9,19 @@ const FEED_VISIBILITY = Constants.manifest.extra.feedVisibility;
 const REELAY_API_BASE_URL = Constants.manifest.extra.reelayApiBaseUrl;
 const WELCOME_REELAY_SUB = Constants.manifest.extra.welcomeReelaySub;
 
+export const parseTitleKey = (titleKey) => {
+    const hyphenIndex = titleKey.indexOf('-');
+    if (hyphenIndex === -1) {
+        return { tmdbTitleID: -1, isSeries: false };
+    }
+    const titleType = titleKey.slice(0, hyphenIndex);
+    const titleIDString = titleKey.slice(hyphenIndex + 1);
+    const tmdbTitleID = Number(titleIDString);
+    const isSeries = (titleType === 'tv');
+    return { tmdbTitleID, isSeries };
+
+}
+
 export const followCreator = async (creatorSub, followerSub) => {
     const routeGet = `${REELAY_API_BASE_URL}/follows?creatorSub=${creatorSub}&followerSub=${followerSub}`;
     console.log(routeGet);
@@ -338,6 +351,11 @@ const prepareFeed = async (fetchedStacks) => {
     return preparedStacks;
 }
 
+const prepareGuessingGames = async (guessingGames) => {
+    if (!guessingGames) return;
+    return await Promise.all(guessingGames.map(prepareGuessingGame));
+}
+
 const prepareTitlesAndTopics = async (titlesAndTopics) => {
     if (!titlesAndTopics) return;
     for (const titleOrTopic of titlesAndTopics) {
@@ -372,6 +390,7 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
     }
 
     const reelayContentTypes = [
+        'guessingGames',
         'mostRecent', 
         'popularTitles',
         'recommendedTitles',
@@ -393,25 +412,26 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
         return null;
     }
 
-    const prepareHomeTabReelays = async (homeTab) => {
-        const contentKeys = Object.keys(homeTab);
+    const prepareHomeReelaysByCategory = async (category) => {
+        const contentKeys = Object.keys(category);
         const prepareHomeContentForKey = async (contentKey) => {
             const mustPrepareReelays = (
-                reelayContentTypes.includes(contentKey) && homeTab[contentKey]
+                reelayContentTypes.includes(contentKey) && category[contentKey]
             );
 
-            if (contentKey === 'topics') {
-                const topics =  homeTab['topics'] ?? homeTab['newTopics'];
-                homeTab['topics'] = await prepareTitlesAndTopics(topics);
+            if (contentKey === 'guessingGames') {
+                category[contentKey] = await prepareGuessingGames(category[contentKey]);
+            } else if (contentKey === 'topics') {
+                category[contentKey] = await prepareTitlesAndTopics(category[contentKey]);
             } else if (mustPrepareReelays) {
-                homeTab[contentKey] = await prepareFeed(homeTab[contentKey]);
+                category[contentKey] = await prepareFeed(category[contentKey]);
             } else {
                 // change nothing
             }
         }
 
         await Promise.all(contentKeys.map(prepareHomeContentForKey));
-        return homeTab;
+        return category;
     }
 
     const [
@@ -419,8 +439,8 @@ export const getHomeContent = async ({ authSession, reqUserSub }) => {
         followingPrepared,
         globalPrepared,
     ] = await Promise.all([
-        prepareHomeTabReelays(discover),
-        prepareHomeTabReelays(following),
+        prepareHomeReelaysByCategory(discover),
+        prepareHomeReelaysByCategory(following),
         prepareFeed(global),
     ]);
     
@@ -615,6 +635,34 @@ export const postStreamingSubscriptionToDB = async (userSub, streamingSubscripti
         headers: ReelayAPIHeaders,
     });
     return resultPost;
+}
+
+export const prepareGuessingGame = async (guessingGame) => {
+    try {
+        guessingGame.details = JSON.parse(guessingGame?.detailsJSON);
+        const { tmdbTitleID, isSeries } = parseTitleKey(guessingGame.details?.correctTitleKey);
+
+        if (tmdbTitleID === -1) {
+            guessingGame.details = { error: 'Could not parse details JSON'};
+            guessingGame.reelays = [];
+            return guessingGame;
+        }
+
+        guessingGame.correctTitleObj = await fetchAnnotatedTitle({ tmdbTitleID, isSeries });
+        guessingGame.reelays = await Promise.all(guessingGame.reelays.map(prepareReelay));
+
+        if (!guessingGame?.myGuesses) guessingGame.myGuesses = [];
+        for (const guess of guessingGame.myGuesses) {
+            const guessedTitleKey = guess?.guessedTitleKey;
+            const { tmdbTitleID, isSeries } = parseTitleKey(guessedTitleKey)
+            guess.guessedTitleObj = await fetchAnnotatedTitle({ tmdbTitleID, isSeries });
+        }
+    } catch (error) {
+        console.log('prepare game error: ', error);
+        guessingGame.details = { error: 'Could not parse details JSON'};
+        guessingGame.reelays = [];
+    }
+    return guessingGame;
 }
 
 export const prepareReelay = async (fetchedReelay) => {

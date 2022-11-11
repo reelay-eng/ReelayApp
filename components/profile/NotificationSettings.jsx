@@ -286,6 +286,33 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
             </CategoryContainer>
         )
     }    
+
+    const GamesNotificationCategory = ({ mySettings, toggleSetting }) => {
+        const OnNewGuessingGame = () => {
+            const [notifyOnNewGuessingGame, setNotifyOnNewGuessingGame] = useState(
+                getSetting('notifyOnNewGuessingGame')
+            );
+            const toggleNotifyOnNewGuessingGame = async () => {
+                setNotifyOnNewGuessingGame(!notifyOnNewGuessingGame);
+                toggleSetting("notifyOnNewGuessingGame");
+            }
+            return (
+                <NotificationSetting
+                    title="On new guessing games" 
+                    subtext="Notify me when new guessing games are available"
+                    isToggled={notifyOnNewGuessingGame}
+                    toggleFunction={toggleNotifyOnNewGuessingGame}
+                />
+            )
+        }
+        
+        return (
+            <CategoryContainer>
+                <CategoryHeaderText>Games</CategoryHeaderText>
+                <OnNewGuessingGame />
+            </CategoryContainer>
+        )
+    }
     
     const LikesNotificationCategory = ({ mySettings, toggleSetting }) => {
         const LikesOnMyReelays = () => {
@@ -640,6 +667,8 @@ const NotificationsSettingsWrapper = ({ mySub, mySettings }) => {
                 <CommentsNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
                 <Divider />
                 <FollowsNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
+                <Divider />
+                <GamesNotificationCategory />
                 <Divider />
                 <InvitesNotificationCategory mySettings={mySettings} toggleSetting={toggleSetting} />
                 <Divider />

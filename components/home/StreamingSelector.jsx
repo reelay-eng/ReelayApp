@@ -7,25 +7,30 @@ import * as ReelayText from '../global/Text';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getStreamingVenues } from '../utils/VenueIcon';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
-import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faXmark } from '@fortawesome/free-solid-svg-icons';
 
 import { getFeed, postStreamingSubscriptionToDB, removeStreamingSubscription } from '../../api/ReelayDBApi';
 import { useDispatch, useSelector } from 'react-redux';
 import ReelayColors from '../../constants/ReelayColors';
 import { ScrollView } from 'react-native-gesture-handler';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { height, width } = Dimensions.get('window');
 const VENUE_BUTTON_WIDTH = (width - 40) / 4;
 
 const BodyText = styled(ReelayText.Body2)`
     color: white;
+    font-size: 13px;
+    line-height: 24px;
 `
-const HeaderText = styled(ReelayText.H5Bold)`
+const HeaderText = styled(ReelayText.Body1)`
     color: white;
-    font-size: 18px;
+    font-size: 16px;
 `
 const HeaderView = styled(View)`
+    align-items: center;
     padding: 12px;
+    width: 100%;
 `
 const IconOptionsGridContainer = styled(View)`
     align-items: center;
@@ -103,6 +108,7 @@ const VenueText = styled(ReelayText.Body2)`
 
 export const StreamingSelectorGrid = ({ venueList = [], setRefreshing }) => {
     const authSession = useSelector(state => state.authSession);
+    const bottomOffset = useSafeAreaInsets().bottom;
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const hasVenueList = (venueList?.length > 0);
@@ -181,7 +187,7 @@ export const StreamingSelectorGrid = ({ venueList = [], setRefreshing }) => {
 
     const scrollStyle = {
         alignItems: 'center', 
-        justifyContent: 'center',
+        height: 750 + bottomOffset,
     }
 
     const SaveButton = memo(() => {
@@ -255,8 +261,8 @@ const VenueBadge = ({ displayName, initSelected, onTapVenue, searchVenues, venue
     });
     
     const onPress = () => {
-        onTapVenue(venue, !selected); 
         setSelected(!selected);
+        onTapVenue(venue); 
     };
 
     const GRADIENT_START_COLOR = "#272525"
@@ -275,8 +281,8 @@ export default StreamingSelector = ({ setRefreshing }) => {
     return (
         <StreamingServicesContainer>
             <HeaderView>
-                <HeaderText>{'Where do you stream?'}</HeaderText>
-                <BodyText numberOfLines={2}>{'Select everywhere you stream for a more personalized feed.'}</BodyText>
+                <HeaderText>{'Select your streaming services'}</HeaderText>
+                <BodyText numberOfLines={2}>{'Curate your feed of subscriptions'}</BodyText>
             </HeaderView>
             <StreamingSelectorGrid setRefreshing={setRefreshing} />
         </StreamingServicesContainer>

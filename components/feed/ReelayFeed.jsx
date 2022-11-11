@@ -15,6 +15,8 @@ import styled from 'styled-components/native';
 import EmptyTopic from './EmptyTopic';
 import { getDiscoverFeed } from '../../api/FeedApi';
 import { coalesceFiltersForAPI } from '../utils/FilterMappings';
+import GuessingGameStack from './GuessingGameStack';
+import moment, { min } from 'moment';
 
 const { height, width } = Dimensions.get('window');
 const WEAVE_EMPTY_TOPIC_INDEX = 10;
@@ -51,6 +53,9 @@ export default ReelayFeed = ({ navigation,
     const discoverAllTime = useSelector(state => state.discoverAllTime);
     const emptyGlobalTopics = useSelector(state => state.emptyGlobalTopics);
 
+    const guessingGames = useSelector(state => state?.homeGuessingGames);
+    const displayGuessingGames = guessingGames?.content ?? [];
+
     const sortedThreadData = {
         mostRecent: discoverMostRecent,
         thisWeek: discoverThisWeek,
@@ -74,7 +79,36 @@ export default ReelayFeed = ({ navigation,
 
     const [reelayThreads, setReelayThreads] = useState(initReelayThreads);
 
-    const getThreadsWovenWithEmptyTopics = () => {
+    const getDisplayGuessingGame = () => {
+        // only show a guessing game on default discover 
+        if (selectedFilters?.length > 0 || sortMethod !== 'mostRecent') {
+            return null;
+        }
+
+        const now = moment();
+        for (const index in displayGuessingGames) {
+            const guessingGame = displayGuessingGames[index];
+            guessingGame.feedIndex = index;
+            if (!guessingGame?.hasCompletedGame) {
+                return guessingGame;
+            }
+
+            const numGuesses = guessingGame?.myGuesses?.length ?? 0;
+            if (numGuesses > 0) {
+                // do not immediately cease rendering a game as soon
+                // as you've completed it
+                const lastGuess = guessingGame?.myGuesses[numGuesses - 1];
+                const secondsSinceLastGuess = now.diff(moment(lastGuess?.createdAt), 'seconds');                
+                if (secondsSinceLastGuess < 5) {
+                    return guessingGame;
+                }
+            }
+        }
+        return null;
+    }
+
+    const getThreadsWithInterstitials = () => {
+        // add empty topics
         const wovenReelayThreads = reelayThreads.reduce((curWovenThreadsObj, nextThread, index) => {
             const { curWovenThreads } = curWovenThreadsObj;
             curWovenThreads.push(nextThread);
@@ -88,11 +122,18 @@ export default ReelayFeed = ({ navigation,
             }
             return curWovenThreadsObj;
         }, { curWovenThreads: [] }).curWovenThreads;
-        return wovenReelayThreads;    
+
+        // add guessing game
+        const curGuessingGame = getDisplayGuessingGame();
+        if (curGuessingGame) {
+            return [curGuessingGame, ...wovenReelayThreads];
+        } else {
+            return wovenReelayThreads;
+        }
     }
 
     const displayReelayThreads = (feedSource === 'discover') 
-        ? getThreadsWovenWithEmptyTopics() 
+        ? getThreadsWithInterstitials() 
         : reelayThreads;
 
     useEffect(() => {
@@ -269,9 +310,9 @@ export default ReelayFeed = ({ navigation,
         setReelayThreads(fetchedThreads);
         setRefreshing(false);
         
-        if (shouldShowMessageToast) {
-            showMessageToast('You\'re at the top', 'top');
-        }
+        // if (shouldShowMessageToast) {
+        //     showMessageToast('You\'re at the top', 'top');
+        // }
     }
 
     const renderStack = ({ item, index }) => {
@@ -280,6 +321,18 @@ export default ReelayFeed = ({ navigation,
 
         if (stack.isEmptyTopic) {
             return <EmptyTopic navigation={navigation} topic={stack} />
+        }
+
+        if (stack?.topicType === 'guessingGame') {
+            const game = stack;
+            return <GuessingGameStack
+                initialStackPos={0}
+                feedPosition={game?.feedIndex}
+                isPreview={false}
+                navigation={navigation}
+                onRefresh={() => {}}
+                stackViewable={stackViewable}
+            />;
         }
 
         return (

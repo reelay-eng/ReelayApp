@@ -20,7 +20,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import ClubPicture from '../../components/global/ClubPicture';
 import { FlashList } from '@shopify/flash-list';
-import { TopicsBannerIconSVG } from '../../components/global/SVGs';
+import { GamesIconSmallSVG, GamesIconSVG, TopicsBannerIconSVG } from '../../components/global/SVGs';
 
 const ACTIVITY_IMAGE_SIZE = 44;
 
@@ -166,6 +166,9 @@ const NotificationItem = ({ navigation, notificationContent, onRefresh }) => {
             return <TopicsBannerIconSVG />;
         }
 
+        if (notifyType === 'notifyOnNewGuessingGame') {
+            return <GamesIconSVG />
+        }
         return <React.Fragment />        
     }
 

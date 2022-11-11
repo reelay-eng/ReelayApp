@@ -1,19 +1,20 @@
 import React from 'react';
-import { Dimensions, SafeAreaView } from 'react-native';
+import { Dimensions, SafeAreaView, View } from 'react-native';
 import { Input, Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 
 const { width } = Dimensions.get('window');
 
-const SearchFieldContainer = styled(SafeAreaView)`
+const SearchFieldContainer = styled(View)`
 	width: 100%;
 `
 
 export default SearchField = ({ 
+	backgroundColor = '#121212',
+	border = true,
     searchText, 
     updateSearchText, 
     placeholderText = 'Search',
-    borderRadius = 36,
     clearIcon = true,
 }) => {
 
@@ -31,13 +32,15 @@ export default SearchField = ({
 
 	}
 	const SearchInputContainerStyle = {
-		borderBottomWidth: 0,
+		borderColor: border ?  'rgba(255,255,255,0.3)' : backgroundColor,
+		borderWidth: border ? 1.4 : 0,
 		marginTop: 10,
-		paddingLeft: 10,
+		marginBottom: -10,
+		paddingLeft: 16,
 		paddingTop: clearIcon ? 2 : 6,
 		paddingBottom: clearIcon ? 2 : 6,
 		paddingRight: 4,
-		backgroundColor: "#121212",
+		backgroundColor,
 		borderRadius: 6,
 		justifyContent: 'center',
 		width: '100%',
@@ -60,6 +63,17 @@ export default SearchField = ({
 		);
 	}
 
+	const getLeftIcon = () => {
+		return (
+			<Icon
+				type="ionicon"
+				name="search"
+				size={24}
+				color="white"
+			/>
+		);
+	}
+
     return (
 		<SearchFieldContainer>
 			<Input
@@ -69,6 +83,7 @@ export default SearchField = ({
 				style={SearchInputFieldStyle}
 				inputContainerStyle={SearchInputContainerStyle}
 				rightIcon={clearIcon ? getRightIcon : null}
+				leftIcon={getLeftIcon}
 			/>
 		</SearchFieldContainer>
 	);

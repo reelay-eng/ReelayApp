@@ -10,7 +10,8 @@ import {
     latestNoticeReducer,
     sortByLastActivity,
     updateClubReducer, 
-    watchlistRecsReducer, 
+    watchlistRecsReducer,
+    updateGuessingGameReducer, 
 } from "./reducers";
 
 import { getNewSettings } from '../api/SettingsApi';
@@ -56,6 +57,10 @@ const initialState = {
     emptyGlobalTopics: [],
 
     homeFollowingFeed: {
+        content: [],
+        nextPage: 0,
+    },
+    homeGuessingGames: {
         content: [],
         nextPage: 0,
     },
@@ -192,13 +197,19 @@ const appReducer = ( state = initialState, action) => {
 
         case 'setHomeFollowingFeed':
             return { ...state, homeFollowingFeed: action.payload };
+        case 'setHomeGuessingGames':
+            return { ...state, homeGuessingGames: action.payload };
         case 'setHomeInTheatersFeed':
             return { ...state, homeInTheatersFeed: action.payload };
         case 'setHomeOnStreamingFeed':
             return { ...state, homeOnStreamingFeed: action.payload };
         case 'setHomeTopOfTheWeekFeed':
             return { ...state, homeTopOfTheWeekFeed: action.payload };
-
+        case 'updateHomeGuessingGames':
+            const guessingGames = state.homeGuessingGames;
+            const updatedGame = action.payload;
+            const nextGuessingGames = updateGuessingGameReducer(guessingGames, updatedGame);
+            return { ...state, homeGuessingGames: nextGuessingGames };
         // GLOBAL
         case 'setAppVersionInfo':
             const { minVersionRequired, recommendedVersion } = action.payload;
@@ -382,6 +393,7 @@ export const mapStateToProps = (state) => ({
     emptyGlobalTopics: state.emptyGlobalTopics,
 
     homeFollowingFeed: state.homeFollowingFeed,
+    homeGuessingGames: state.homeGuessingGames,
     homeInTheatersFeed: state.homeInTheatersFeed,
     homeOnStreamingFeed: state.homeOnStreamingFeed,
     homeTopOfTheWeekFeed: state.homeTopOfTheWeekFeed,

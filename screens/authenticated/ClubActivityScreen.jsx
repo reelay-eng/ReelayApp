@@ -3,7 +3,6 @@ import {
     ActivityIndicator,
     Dimensions, 
     KeyboardAvoidingView, 
-    RefreshControl, 
     TouchableOpacity, 
     View 
 } from 'react-native';
@@ -41,7 +40,6 @@ import {
     getClubSettings, 
 } from '../../api/ClubsApi';
 import { HeaderWithBackButton } from '../../components/global/Headers';
-import InviteToChatExternalPrompt from '../../components/clubs/InviteToChatExternalPrompt';
 
 const { height, width } = Dimensions.get('window');
 const CHAT_BASE_URL = Constants.manifest.extra.reelayChatBaseUrl;
@@ -509,8 +507,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
             </JoinClubOuterView>
         );
     }
-
-    console.log('RERENDERING ACTIVITY SCREEN');
 
     if (refreshing || !chatMessagesLoaded) {
         return (

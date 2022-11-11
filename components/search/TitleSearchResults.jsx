@@ -18,6 +18,7 @@ export default TitleSearchResults = ({
     clubID, 
     isSeries,
     navigation, 
+    onGuessTitle = () => {},
     searchResults,
     searchText, 
     source, 
@@ -39,6 +40,7 @@ export default TitleSearchResults = ({
             <TitleSearchResultItem 
                 key={result?.id}
                 navigation={navigation} 
+                onGuessTitle={onGuessTitle}
                 result={result} 
                 source={source} 
                 clubID={clubID}

@@ -180,6 +180,18 @@ export const getMyStacksFollowingDaily = (myStacksFollowing) => {
     return myStacksFollowingDaily;
 }
 
+export const updateGuessingGameReducer = (homeGuessingGames, updatedGame) => {
+    const matchGuessingGame = (nextGame) => nextGame?.id === updatedGame?.id;
+    const updatedGameIndex = homeGuessingGames.content.findIndex(matchGuessingGame);
+    if (updatedGameIndex === -1) {
+        console.log('Game ID not found');
+        return homeGuessingGames;
+    }
+
+    homeGuessingGames.content[updatedGameIndex] = updatedGame;
+    return { ...homeGuessingGames };
+}
+
 export const sortByLastActivity = (club0, club1) => {
     const lastActivity0 = moment(club0?.lastActivityAt ?? club0?.createdAt);
     const lastActivity1 = moment(club1?.lastActivityAt ?? club1?.createdAt);

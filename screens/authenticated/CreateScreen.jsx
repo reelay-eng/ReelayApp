@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment, useContext } from 'react';
 import { Dimensions, TouchableOpacity, View } from 'react-native';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components/native';
@@ -6,12 +6,12 @@ import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../../components/global/Text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import { ReviewIconSVG, TopicsIconSVG } from '../../components/global/SVGs';
+import { GamesIconSVG, ReviewIconSVG, TopicsIconSVG } from '../../components/global/SVGs';
+import { AuthContext } from '../../context/AuthContext';
 
 const { height, width } = Dimensions.get('window');
 
 const BUTTON_MARGIN_WIDTH = 10;
-const BUTTON_WIDTH = (width - (BUTTON_MARGIN_WIDTH * 4)) / 2;
 
 const CenterSpacer = styled(View)`
     width: ${BUTTON_MARGIN_WIDTH}px;
@@ -19,9 +19,7 @@ const CenterSpacer = styled(View)`
 const CreateOptionPressable = styled(TouchableOpacity)`
     align-items: center;
     border-radius: 12px;
-    height: ${BUTTON_WIDTH * 0.67}px;
     justify-content: center;
-    width: ${BUTTON_WIDTH}px;
 `
 const CreateOptionText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -30,11 +28,20 @@ const CreateOptionText = styled(ReelayText.CaptionEmphasized)`
 const CreateOptionView = styled(View)`
     align-items: center;
 `
+const CreateGuessingGamePressable = styled(CreateOptionPressable)`
+    background-color: ${ReelayColors.reelayRed};
+    height: ${props => props.height}px;
+    width: ${props => props.width}px;
+`
 const CreateReviewPressable = styled(CreateOptionPressable)`
     background-color: ${ReelayColors.reelayBlue};
+    height: ${props => props.height}px;
+    width: ${props => props.width}px;
 `
 const CreateTopicPressable = styled(CreateOptionPressable)`
     background-color: #8348D7;
+    height: ${props => props.height}px;
+    width: ${props => props.width}px;
 `
 const CreateOptionsRowView = styled(View)`
     align-items: center;
@@ -68,8 +75,19 @@ const HeaderSpacer = styled(View)`
 `
 
 export default CreateScreen = ({ navigation }) => {
+    const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
     const topOffset = useSafeAreaInsets().top;
+
+    const canCreateGuessingGame = (reelayDBUser?.role === 'admin');
+
+    const numButtons = canCreateGuessingGame ? 3 : 2;
+    const numSpaces = numButtons + 2;
+    const squishButton = !canCreateGuessingGame;
+
+    const allButtonWidth = width - (numSpaces * BUTTON_MARGIN_WIDTH);
+    const buttonWidth = allButtonWidth / numButtons;
+    const buttonHeight = (squishButton) ? (buttonWidth * 0.67) : buttonWidth;
 
     const Header = () => {
         return (
@@ -79,11 +97,33 @@ export default CreateScreen = ({ navigation }) => {
         )
     }
 
+    const CreateGuessingGameButton = () => {
+        const advanceToCreateGuessingGame = () => {
+            navigation.push('SelectCorrectGuessScreen');
+        }
+        return (
+            <CreateOptionView>
+                <CreateGuessingGamePressable 
+                    onPress={advanceToCreateGuessingGame}
+                    height={buttonHeight}
+                    width={buttonWidth}
+                >
+                    <GamesIconSVG />
+                </CreateGuessingGamePressable>
+                <CreateOptionText>{'game'}</CreateOptionText>
+            </CreateOptionView>
+        )
+    }
+
     const CreateReviewButton = () => {
         const advanceToCreateReview = () => navigation.push('SelectTitleScreen');
         return (
             <CreateOptionView>
-                <CreateReviewPressable onPress={advanceToCreateReview}>
+                <CreateReviewPressable 
+                    onPress={advanceToCreateReview}
+                    height={buttonHeight}
+                    width={buttonWidth}
+                >
                     <ReviewIconSVG />
                 </CreateReviewPressable>
                 <CreateOptionText>{'review'}</CreateOptionText>
@@ -95,7 +135,11 @@ export default CreateScreen = ({ navigation }) => {
         const advanceToCreateTopic = () => navigation.push('CreateTopicScreen');
         return (
             <CreateOptionView>
-                <CreateTopicPressable onPress={advanceToCreateTopic}>
+                <CreateTopicPressable 
+                    onPress={advanceToCreateTopic}
+                    height={buttonHeight}
+                    width={buttonWidth}
+                >
                     <TopicsIconSVG />
                 </CreateTopicPressable>
                 <CreateOptionText>{'topic'}</CreateOptionText>
@@ -115,6 +159,12 @@ export default CreateScreen = ({ navigation }) => {
                 <CreateReviewButton />
                 <CenterSpacer />
                 <CreateTopicButton />
+                { canCreateGuessingGame && (
+                    <Fragment>
+                        <CenterSpacer />
+                        <CreateGuessingGameButton />
+                    </Fragment>
+                )}
             </CreateOptionsRowView>
         </CreateScreenView>
     );

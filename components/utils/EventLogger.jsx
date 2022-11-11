@@ -15,7 +15,6 @@ export const initMixpanel = (token) => {
     // }).catch((e) => {
     //     console.log("[Mixpanel] Initialization Failed: ", e);
     // });
-
 }
 
 export const identifyUser = ({ userSub, username }) => {

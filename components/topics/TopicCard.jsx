@@ -155,7 +155,7 @@ const TopicCardPressable = styled(Pressable)`
     border-color: rgba(255,255,255,0.5);
     border-radius: 11px;
     border-width: 1px;
-    height: ${props => props.horizontal ? '440px' : 'auto'};
+    height: ${props => props.horizontal ? '452px' : 'auto'};
     justify-content: space-between;
     width: ${props => getTopicCardWidth(props)}px;
 `

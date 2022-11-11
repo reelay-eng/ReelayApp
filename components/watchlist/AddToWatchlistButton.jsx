@@ -6,12 +6,12 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AddedToClubsIconSVG, AddToClubsIconSVG } from '../global/SVGs';
 import styled from 'styled-components/native';
 import { useDispatch, useSelector } from 'react-redux';
-import AddToClubsDrawer from './AddToClubsDrawer';
+import AddToWatchlistDrawer from './AddToWatchlistDrawer';
 import { addToMyWatchlist, removeFromMyWatchlist } from '../../api/WatchlistApi';
 import { notifyOnAddedToWatchlist } from '../../api/WatchlistNotifications';
 import { showMessageToast } from '../utils/toasts';
 
-const ClubsButtonCircleContainer = styled(View)`
+const WatchlistButtonCircleContainer = styled(View)`
     align-items: center;
     align-self: center;
     background: ${({ 
@@ -28,13 +28,13 @@ const ClubsButtonCircleContainer = styled(View)`
     justify-content: center;
     width: 45px;
 `
-const ClubsButtonOuterContainer = styled(TouchableOpacity)`
+const WatchlistButtonOuterContainer = styled(TouchableOpacity)`
     align-items: flex-end;
     justify-content: center;
     width: 60px;
 `
 
-export default AddToClubsButton = ({ navigation, showCircle=true, titleObj, reelay }) => {
+export default AddToWatchlistButton = ({ navigation, showCircle=true, titleObj, reelay }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
@@ -127,16 +127,16 @@ export default AddToClubsButton = ({ navigation, showCircle=true, titleObj, reel
     }
 
     return (
-        <ClubsButtonOuterContainer onPress={(onPress)}>
-            <ClubsButtonCircleContainer 
+        <WatchlistButtonOuterContainer onPress={(onPress)}>
+            <WatchlistButtonCircleContainer 
                 isAddedToWatchlist={inWatchlist && !isMyReelay}
                 showCircle={showCircle}
             >
                 { (inWatchlist || markedSeen) && <AddedToClubsIconSVG /> }
                 { (!inWatchlist && !markedSeen) && <AddToClubsIconSVG /> }
-            </ClubsButtonCircleContainer>
+            </WatchlistButtonCircleContainer>
             { drawerVisible && (
-                <AddToClubsDrawer 
+                <AddToWatchlistDrawer 
                     navigation={navigation}
                     titleObj={titleObj}
                     reelay={reelay}
@@ -146,6 +146,6 @@ export default AddToClubsButton = ({ navigation, showCircle=true, titleObj, reel
                     setMarkedSeen={setMarkedSeen}
                 />
             )}
-        </ClubsButtonOuterContainer>
+        </WatchlistButtonOuterContainer>
     );
 }

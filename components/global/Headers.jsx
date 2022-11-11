@@ -25,15 +25,27 @@ const HeaderText = styled(ReelayText.H5Bold)`
 	margin-top: 2px;
 	text-align: left;
 `
+const HeaderTextLight = styled(ReelayText.H5)`
+	color: white;
+	font-size: 24px;
+	line-height: 24px;
+	margin-top: 2px;
+	text-align: left;
+`
 
-export const HeaderWithBackButton = ({ navigation, text = "Settings" }) => {
+export const HeaderWithBackButton = ({ 
+	navigation, 
+	text = "Settings", 
+	light=false 
+}) => {
 	return (
 		<>
 			<HeaderView>
 				<BackButtonPressable onPress={() => navigation.goBack()}>
 					<Icon type="ionicon" name="arrow-back-outline" color="white" size={24} />
 				</BackButtonPressable>
-				<HeaderText>{text}</HeaderText>
+				{ light && <HeaderTextLight>{text}</HeaderTextLight> }
+				{ !light && <HeaderText>{text}</HeaderText> }
 			</HeaderView>
 		</>
 	);

@@ -198,6 +198,8 @@ export default SelectTitleScreen = ({ navigation, route }) => {
             </SelectorBarContainer>
             <SearchBarContainer>
 				<SearchField
+                    backgroundColor="#232425"
+                    border={false}                
 					searchText={searchText}
                     updateSearchText={setSearchText}
                     borderRadius={4}

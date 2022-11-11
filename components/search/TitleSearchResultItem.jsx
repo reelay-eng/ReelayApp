@@ -8,7 +8,7 @@ import { showErrorToast } from '../utils/toasts';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { getRuntimeString } from '../utils/TitleRuntime';
 import TitlePoster from '../global/TitlePoster';
-import AddToClubsButton from '../clubs/AddToClubsButton';
+import AddToWatchlistButton from '../watchlist/AddToWatchlistButton';
 
 const ImageContainer = styled(View)`
     flex-direction: row;
@@ -35,7 +35,7 @@ const YearText = styled(ReelayText.Subtitle2)`
     color: gray
 `
 
-export default TitleSearchResultItem = ({ navigation, result, source, clubID, topicID }) => {
+export default TitleSearchResultItem = ({ navigation, onGuessTitle, result, source, clubID, topicID }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const titleObj = result;
 
@@ -59,7 +59,7 @@ export default TitleSearchResultItem = ({ navigation, result, source, clubID, to
             logAmplitudeEventProd('advanceToCreateReelay', {
                 username: reelayDBUser?.username,
                 title: title,
-                source: 'TitleSearchResult',
+                source: 'createReelay',
             });
         } else if (source && source === 'search') {
             navigation.push('TitleDetailScreen', { 
@@ -71,6 +71,15 @@ export default TitleSearchResultItem = ({ navigation, result, source, clubID, to
                 title: title,
                 source: 'search',
             }); 
+
+        } else if (source && source === 'createGuessingGame') {
+            navigation.push('CreateGuessingGameScreen', { 
+                clubID,
+                correctTitleObj: titleObj,
+            });
+        } else if (source && source === 'guessTitle') {
+            // todo
+            onGuessTitle(titleObj);
         } else {
             showErrorToast('Error selecting result. Please reach out to the Reelay team.');
             logAmplitudeEventProd('selectSearchResultError', {
@@ -95,7 +104,9 @@ export default TitleSearchResultItem = ({ navigation, result, source, clubID, to
                 <YearText>{`${releaseYear}    ${runtimeString}`}</YearText>
                 <ActorText>{actors}</ActorText>
             </TitleLineContainer>
-            <AddToClubsButton navigation={navigation} showCircle={false} titleObj={titleObj} />
+            { source === 'search' && (
+                <AddToWatchlistButton navigation={navigation} showCircle={false} titleObj={titleObj} />
+            )}
         </PressableContainer>
     );
 };

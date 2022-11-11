@@ -1,5 +1,5 @@
 import React, { memo, useContext, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Dimensions, Pressable, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Keyboard, Pressable, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { AuthContext } from '../../context/AuthContext';
 import { Video } from 'expo-av'
@@ -166,6 +166,7 @@ export default FeedVideoPlayer = ({ navigation, reelay, viewable }) => {
 				}
 			}, DOUBLE_TAP_TIMEOUT_MS);
 		}
+		Keyboard.dismiss();
 	}
 
 	const onLongPress = () => {

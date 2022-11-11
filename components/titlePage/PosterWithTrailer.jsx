@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Image, Pressable, SafeAreaView, View } from 'react-native';
+import { Image, SafeAreaView, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 
 // Styling
@@ -9,7 +9,7 @@ import { LinearGradient } from "expo-linear-gradient";
 
 // Components
 import * as ReelayText from "../../components/global/Text";
-import { ActionButton, BWButton } from "../../components/global/Buttons";
+import { ActionButton } from "../../components/global/Buttons";
 import { Icon } from "react-native-elements";
 
 // Logging
@@ -18,13 +18,7 @@ import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
 // Screen Orientation
 import { getRuntimeString } from '../../components/utils/TitleRuntime';
 import { useDispatch } from 'react-redux';
-import AddToClubsButton from '../clubs/AddToClubsButton';
 
-const BackButtonContainer = styled(Pressable)`
-	position: absolute;
-	margin-top: 51px;
-	margin-left: 21px;
-`
 const CreateReelayButtonContainer = styled(View)`
 	width: 100%;
 	height: 40px;
