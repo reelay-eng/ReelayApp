@@ -131,11 +131,13 @@ const SearchFieldOverlay = styled(TouchableOpacity)`
     width: 100%;
 `
 const SectionBodyText = styled(ReelayText.H6)`
+    align-self: flex-start;
     color: white;
     font-size: 16px;
     margin: 12px;
 `
 const SectionHeaderText = styled(ReelayText.H6Emphasized)`
+    align-self: flex-start;
     color: white;
     font-size: 24px;
     margin: 12px;
@@ -355,6 +357,8 @@ export default MyClubsScreen = ({ navigation }) => {
     const EmptyClubs = () => {
         return (
             <EmptyClubsView>
+                <SectionHeaderText>{'Your chats'}</SectionHeaderText>
+                <SectionBodyText>{'You have not joined or created any chats yet'}</SectionBodyText>
                 <EmptyClubsCard navigation={navigation} />
             </EmptyClubsView>
         );

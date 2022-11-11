@@ -82,35 +82,25 @@ const RuntimeText = styled(ReelayText.CaptionEmphasized)`
     height: 16px;
     margin-right: 10px;
 `
-const SearchRowView = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    justify-content: space-between;
-    width: ${width - 90}px;
-`
 const SearchView = styled(View)`
-    margin-bottom: -10px;
+    margin-bottom: -4px;
     width: 100%;
 `
 const SkipPressable = styled(TouchableOpacity)`
     align-items: center;
-    background-color: rgba(212,212,212,0.9);
-    border-radius: 6px;
-    height: 43px;
+    border-radius: 4px;
+    height: 28px;
     justify-content: center;
     flex-direction: row;
     margin-bottom: 10px;
     position: absolute;
-    right: 16px;
-    top: 16px;
+    right: 20px;
+    top: 26px;
     width: 52px;
-    shadow-offset: 2px 2px;
-    shadow-color: black;
-    shadow-opacity: 0.5;
 `
 const SkipText = styled(ReelayText.CaptionEmphasized)`
-    color: black;
-    font-size: 14px;
+    color: ${ReelayColors.reelayBlue};
+    font-size: 16px;
 `
 const Spacer = styled(View)`
     height: 16px;
@@ -412,7 +402,6 @@ const GuessingGameBanner = ({
             return (
                 <SkipPressable onPress={onSkipTitle}>
                     <SkipText>{'Skip'}</SkipText>
-                    {/* <FontAwesomeIcon icon={faForward} color='black' size={16} /> */}
                 </SkipPressable>
             );
         }
