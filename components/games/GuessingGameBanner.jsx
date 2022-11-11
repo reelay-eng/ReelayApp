@@ -22,6 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import * as Haptics from 'expo-haptics';
 import moment from "moment";
 import { EmptyTitleObject } from "../../api/TMDbApi";
+import { ScrollView, TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 const getRandomString = (radix=36) => {
     return Math.random().toString(radix).slice(2,7);
@@ -243,7 +244,13 @@ const SearchResults = ({ onGuessTitle, searchResults }) => {
         return <GuessOption titleObj={item} onGuessTitle={onGuessTitle} />
     }
 
-    return <FlatList data={displayResults} renderItem={renderItem} />;
+    return (
+        <ScrollView onStartShouldSetResponder={() => true} onStartShouldSetResponderCapture={e => true}>
+            { displayResults.map((item, index) => renderItem({ item, index })) }
+        </ScrollView>
+    )
+
+    // return <FlatList data={displayResults} renderItem={renderItem} />;
 }
 
 const GuessingGameBanner = ({ 

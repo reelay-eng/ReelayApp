@@ -188,4 +188,13 @@ export const GuessingGameStack = ({
     );
 }
 
-export default GuessingGameStack;
+const areEqual = (prevProps, nextProps) => {
+    console.log('are equal? ', prevProps, nextProps);
+    return (
+        (prevProps.initialStackPos === nextProps.initialStackPos) &&
+        (prevProps.feedPosition === prevProps.feedPosition) &&
+        (prevProps.stackViewable === nextProps.stackViewable)
+    );
+}
+
+export default memo(GuessingGameStack, areEqual);

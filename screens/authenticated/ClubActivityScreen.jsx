@@ -510,8 +510,6 @@ export default ClubActivityScreen = ({ navigation, route }) => {
         );
     }
 
-    console.log('RERENDERING ACTIVITY SCREEN');
-
     if (refreshing || !chatMessagesLoaded) {
         return (
             <RefreshScreenView>
