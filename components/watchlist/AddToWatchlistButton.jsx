@@ -6,7 +6,6 @@ import { logAmplitudeEventProd } from '../utils/EventLogger';
 import { AddedToClubsIconSVG, AddToClubsIconSVG } from '../global/SVGs';
 import styled from 'styled-components/native';
 import { useDispatch, useSelector } from 'react-redux';
-import AddToWatchlistDrawer from './AddToWatchlistDrawer';
 import { addToMyWatchlist, removeFromMyWatchlist } from '../../api/WatchlistApi';
 import { notifyOnAddedToWatchlist } from '../../api/WatchlistNotifications';
 import { showMessageToast } from '../utils/toasts';
@@ -47,10 +46,9 @@ export default AddToWatchlistButton = ({ navigation, showCircle=true, titleObj, 
             && (isSeries === titleObj.isSeries)
             && (hasAcceptedRec === true);
     });
-    const inWatchlist = inWatchlistIndex !== -1;
 
-    const [markedSeen, setMarkedSeen] = useState(inWatchlist && inWatchlist?.hasSeenTitle);
-    const [drawerVisible, setDrawerVisible] = useState(false);
+    const inWatchlist = inWatchlistIndex !== -1;
+    const markedSeen = (inWatchlist && inWatchlist?.hasSeenTitle);
 
     const showMeSignupIfGuest = () => {
 		if (reelayDBUser?.username === 'be_our_guest') {
@@ -135,17 +133,6 @@ export default AddToWatchlistButton = ({ navigation, showCircle=true, titleObj, 
                 { (inWatchlist || markedSeen) && <AddedToClubsIconSVG /> }
                 { (!inWatchlist && !markedSeen) && <AddToClubsIconSVG /> }
             </WatchlistButtonCircleContainer>
-            { drawerVisible && (
-                <AddToWatchlistDrawer 
-                    navigation={navigation}
-                    titleObj={titleObj}
-                    reelay={reelay}
-                    drawerVisible={drawerVisible}
-                    setDrawerVisible={setDrawerVisible}
-                    markedSeen={markedSeen}
-                    setMarkedSeen={setMarkedSeen}
-                />
-            )}
         </WatchlistButtonOuterContainer>
     );
 }

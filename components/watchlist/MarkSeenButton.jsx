@@ -6,8 +6,6 @@ import * as ReelayText from "../global/Text";
 import styled from 'styled-components/native';
 
 import { useDispatch, useSelector } from 'react-redux';
-import { showMessageToast } from '../utils/toasts';
-
 import { getWatchlistItems, markWatchlistItemSeen, markWatchlistItemUnseen } from '../../api/WatchlistApi';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -19,6 +17,7 @@ const MarkSeenButtonContainer = styled(TouchableOpacity)`
 `
 const MarkSeenText = styled(ReelayText.CaptionEmphasized)`
     color: #86878B;
+    font-size: 16px;
     padding-right: 6px;
 `
 
@@ -29,6 +28,7 @@ export default MarkSeenButton = ({
     size=30,
     titleObj,
 }) => {
+    const markSeenText = (markedSeen) ? 'Seen' : 'Mark seen';
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
 
@@ -42,7 +42,6 @@ export default MarkSeenButton = ({
         setMarkedSeen(true);
         const markSeenResult = await markWatchlistItemSeen(updateWatchlistReqBody);
         console.log('mark seen result: ', markSeenResult);
-        showMessageToast('Title marked as seen', 'bottom');
 
         logAmplitudeEventProd('markWatchlistItemSeen', {
             username: reelayDBUser?.username,
@@ -57,7 +56,6 @@ export default MarkSeenButton = ({
         setMarkedSeen(false);
         const markUnseenResult = await markWatchlistItemUnseen(updateWatchlistReqBody);
         console.log('mark unseen result: ', markUnseenResult);
-        showMessageToast('Title marked unseen', 'bottom');
 
         logAmplitudeEventProd('markWatchlistItemUnseen', {
             username: reelayDBUser?.username,
@@ -70,7 +68,7 @@ export default MarkSeenButton = ({
 
     return (
         <MarkSeenButtonContainer onPress={(markedSeen) ? markUnseen : markSeen}>
-            { showText && <MarkSeenText>{'Seen'}</MarkSeenText> }
+            { showText && <MarkSeenText>{markSeenText}</MarkSeenText> }
             { markedSeen && <Icon type='ionicon' name='checkmark-circle' color={ReelayColors.reelayBlue} size={size} />}
             { !markedSeen && <Icon type='ionicon' name='ellipse-outline' color={'white'} size={size} />}
         </MarkSeenButtonContainer>
