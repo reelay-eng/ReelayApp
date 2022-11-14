@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, FlatList, RefreshControl, TouchableOpacity, View } from 'react-native';
 
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
@@ -98,14 +98,15 @@ export default WatchlistScreen = ({ navigation, route }) => {
     const isSeries = (watchlistItem) => watchlistItem?.titleType === 'tv';
 
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-    const initWatchlistItemsRef = useRef(myWatchlistItems.filter(hasAcceptedRec));
+    const watchlistItemsRef = useRef(myWatchlistItems.filter(hasAcceptedRec));
 
-    const [displayItems, setDisplayItems] = useState(initWatchlistItemsRef.current);
+    const [displayItems, setDisplayItems] = useState(watchlistItemsRef.current);
     const [refreshing, setRefreshing] = useState(false);
     const [selectedFilters, setSelectedFilters] = useState([]);
+    console.log('rerendering watchlist screen');
 
     const getDisplayItems = () => {
-        let nextDisplayItems = [ ...initWatchlistItemsRef.current ];
+        let nextDisplayItems = [ ...watchlistItemsRef.current ];
         console.log('selected filters: ', selectedFilters);
         if (selectedFilters.includes('seen')) nextDisplayItems = nextDisplayItems.filter(hasSeenTitle);
         if (selectedFilters.includes('unseen')) nextDisplayItems = nextDisplayItems.filter(hasNotSeenTitle);
@@ -133,6 +134,11 @@ export default WatchlistScreen = ({ navigation, route }) => {
         const nextDisplayItems = getDisplayItems();
         setDisplayItems(nextDisplayItems);
     }, [refreshing, selectedFilters]);
+
+    useEffect(() => {
+        watchlistItemsRef.current = myWatchlistItems.filter(hasAcceptedRec);
+        setDisplayItems(watchlistItemsRef.current);
+    }, [myWatchlistItems]);
 
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });

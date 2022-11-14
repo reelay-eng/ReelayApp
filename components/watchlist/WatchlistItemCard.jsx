@@ -33,7 +33,7 @@ const WatchlistCardView = styled(Pressable)`
     width: ${WATCHLIST_CARD_WIDTH}px;
 `
 
-export default WatchlistItemCard = ({ onRefresh, navigation, watchlistItem }) => {
+export default WatchlistItemCard = ({ navigation, watchlistItem }) => {
     const advanceToTitleDetailScreen = () => navigation.push('TitleDetailScreen', { titleObj: watchlistItem.title });
     const [markedSeen, setMarkedSeen] = useState(watchlistItem?.hasSeenTitle);
     const [drawerVisible, setDrawerVisible] = useState(false);
@@ -70,7 +70,7 @@ export default WatchlistItemCard = ({ onRefresh, navigation, watchlistItem }) =>
                 <WatchlistItemDotMenu 
                     closeDrawer={closeDrawer} 
                     navigation={navigation} 
-                    watchlistItem={watchlistItem}  
+                    watchlistItem={watchlistItem}
                 />
             )}
         </WatchlistCardView>

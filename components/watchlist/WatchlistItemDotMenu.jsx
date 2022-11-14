@@ -17,6 +17,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faArrowUp, faArrowUpShortWide, faPlay, faPlayCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { moveWatchlistItemToFront, removeFromMyWatchlist } from '../../api/WatchlistApi';
+import moment from 'moment';
 
 const { width } = Dimensions.get('window');
 
@@ -61,6 +63,7 @@ export default WatchlistItemDotMenu = ({
     const authSession = useSelector(state => state.authSession);
     const bottomOffset = useSafeAreaInsets().bottom;
     const dispatch = useDispatch();
+    const titleObj = watchlistItem?.title;
 
     const advanceToWatchTrailer = () => {
         closeDrawer();
@@ -77,10 +80,34 @@ export default WatchlistItemDotMenu = ({
 
     const moveToFront = async () => {
         // todo
+        watchlistItem.lastMovedToFrontAt = moment().toISOString();
+        dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
+        closeDrawer();
+    const dbResult = await moveWatchlistItemToFront({ 
+            authSession, 
+            itemID: watchlistItem?.id, 
+            reqUserSub: reelayDBUser?.sub,
+        });
+        console.log('moved watchlist item to front: ', dbResult);
     }
 
     const removeFromWatchlist = async () => {
-        // todo
+        closeDrawer();
+        showMessageToast(`Removed ${titleObj?.display}`);
+        const removeResult = await removeFromMyWatchlist({ 
+            reqUserSub: reelayDBUser?.sub,
+            tmdbTitleID: titleObj?.id,
+            titleType: titleObj?.titleType,
+        });
+
+        console.log('remove from watchlist result: ', removeResult);
+        logAmplitudeEventProd('removeItemFromWatchlist', {
+            username: reelayDBUser?.username,
+            title: titleObj.display,
+            source: 'watchlist',
+        });    
+        onRefresh();
+
     }
 
     const DotMenuOption = ({ icon, color='white', onPress, text }) => {

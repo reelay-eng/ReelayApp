@@ -11,7 +11,8 @@ import {
     sortByLastActivity,
     updateClubReducer, 
     watchlistRecsReducer,
-    updateGuessingGameReducer, 
+    updateGuessingGameReducer,
+    updateWatchlistReducer, 
 } from "./reducers";
 
 import { getNewSettings } from '../api/SettingsApi';
@@ -181,7 +182,10 @@ const appReducer = ( state = initialState, action) => {
             return { ...state, newTopicCreatedInClub: action.payload }
         case 'setOpenedActivityDotMenu':
             return { ...state, openedActivityDotMenu: action.payload }
-
+        case 'setUpdatedWatchlistItem':
+            const updatedItem = action.payload;
+            const updatedMyWatchlistItems = updateWatchlistReducer(state.myWatchlistItems, updatedItem);
+            return { ...state, myWatchlistItems: updatedMyWatchlistItems };    
 
         // FEEDS (migrating stuff over here in 1.05)
         case 'setDiscoverMostRecent':
