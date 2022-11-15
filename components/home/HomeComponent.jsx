@@ -145,11 +145,11 @@ const HomeComponent = ({ navigation }) => {
             </SafeAreaView>
             <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 <AnnouncementsAndNotices navigation={navigation} />
+                <GuessingGames navigation={navigation} />
                 <RecommendedForYou navigation={navigation} />
                 <PopularTitles navigation={navigation} />
                 <TopOfTheWeek navigation={navigation} />
                 <TopicsCarousel navigation={navigation} source='discover' /> 
-                <GuessingGames navigation={navigation} />
                 <MyWatchlistGrid navigation={navigation} />
                 {/* <DiscoverClubs navigation={navigation} /> */}
                 {/* <FriendsAreWatching navigation={navigation} /> */}

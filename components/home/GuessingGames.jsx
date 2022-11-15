@@ -79,6 +79,10 @@ const HeaderSubText = styled(ReelayText.Body2Emphasized)`
     line-height: 20px;
     margin-top: 8px;
 `
+const HeaderText = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 18px;
+`
 const HeaderView = styled(View)`
     margin-left: 15px;
 `
@@ -110,6 +114,7 @@ const RevealedResultView = styled(View)`
     shadow-offset: 2px 2px;
     shadow-color: black;
     shadow-opacity: 0.5;
+    z-index: 100;
 `
 const UnrevealedPosterQuestionMark = styled(ReelayText.H5Bold)`
     color: white;
@@ -134,8 +139,8 @@ export default GuessingGames = ({ navigation }) => {
     const guessingGamesObj = useSelector(state => state.homeGuessingGames ?? []);
     const displayGames = guessingGamesObj.content;
     
-    const headerText = 'Guessing Game';
-    const headerSubtext = 'Play the daily guessing game'
+    const headerText = 'Guess the Title';
+    const headerSubtext = 'Play the daily game'
 
     const advanceToGuessingGame = ({ game, index, isPreview = false }) => {
         const navOptions = {
@@ -368,7 +373,7 @@ export default GuessingGames = ({ navigation }) => {
     return (
         <GuessingGamesView>
             <HeaderView>
-                {/* <HeaderText>{headerText}</HeaderText> */}
+                <HeaderText>{headerText}</HeaderText>
                 <HeaderSubText>{headerSubtext}</HeaderSubText>
             </HeaderView>
             { displayGames?.length > 0 && <GuessingGamesRow />}
