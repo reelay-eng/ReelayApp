@@ -189,6 +189,7 @@ export default ReelayFeedHeader = ({
             case 'festivals': return 'at festivals';
             case 'following': return 'following';
             case 'discover': return SORT_OPTION_TEXT[sortMethod];
+            case 'guessingGame': return 'guess the title';
             case 'popularTitlesDiscover': return 'popular titles';
             case 'popularTitlesFollowing': return 'popular titles';
             case 'recommendedTitles': return 'recommended';

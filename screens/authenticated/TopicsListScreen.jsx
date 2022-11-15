@@ -10,13 +10,11 @@ import {
 import { Icon } from 'react-native-elements';
 import styled from 'styled-components/native';
 import { FlashList } from "@shopify/flash-list";
-import Constants from 'expo-constants';
 
 import { AuthContext } from '../../context/AuthContext';
 import BackButton from '../../components/utils/BackButton';
 import * as ReelayText from '../../components/global/Text';
 import TopicCard from '../../components/topics/TopicCard';
-import ReelayColors from '../../constants/ReelayColors';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { getTopics, getTopicsByCreator, searchTopics } from '../../api/TopicsApi';
@@ -160,6 +158,7 @@ const TopicScroll = ({
     source = 'discover',
 }) => {
     const authSession = useSelector(state => state.authSession);
+    const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
 
@@ -255,6 +254,10 @@ const TopicScroll = ({
         }
     }
 
+    useEffect(() => {
+        if (source === 'discover') setDisplayTopics(discoverTopics);
+    }, [discoverTopics]);
+
     return (
         <Fragment>
             { searching && <SearchBar 
@@ -277,15 +280,14 @@ const TopicScroll = ({
 }
 
 export default TopicsListScreen = ({ navigation, route }) => {
-    const [searching, setSearching] = useState(false);
     const source = route.params?.source ?? 'discover';
-
     const creatorOnProfile = route.params?.creatorOnProfile ?? null;
     const topicsOnProfile = route.params?.topicsOnProfile ?? null;
     const dispatch = useDispatch();
 
     const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
     const discoverTopicsNextPage = useSelector(state => state.myHomeContent?.discover?.topicsNextPage) ?? 1;
+    const [searching, setSearching] = useState(false);
 
     let headerText, initDisplayTopics, initNextPage;
     switch (source) {

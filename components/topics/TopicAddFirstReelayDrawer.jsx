@@ -118,7 +118,7 @@ const TopicAddFirstReelay = ({ navigation, setDrawerVisible, refreshTopics, topi
     const dispatch = useDispatch();
     const goBack = () => {
         setDrawerVisible(false);
-        navigation.navigate('Home');
+        navigation.popToTop();
         if (refreshTopics) refreshTopics();
     }
 
