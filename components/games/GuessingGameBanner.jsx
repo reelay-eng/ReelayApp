@@ -1,5 +1,5 @@
 import React, { Fragment, useContext, useEffect, useRef, useState } from "react";
-import { Dimensions, FlatList, Pressable, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Dimensions, Pressable, ScrollView, TouchableOpacity, View } from "react-native";
 import * as ReelayText from '../global/Text';
 import { AuthContext } from "../../context/AuthContext";
 
@@ -8,7 +8,7 @@ import styled from 'styled-components/native';
 import TitlePoster from "../global/TitlePoster";
 
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
-import { faCheck, faCheckCircle, faForward, faForwardStep, faQuestion, faXmark, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
+import { faCheck, faCheckCircle, faXmark, faXmarkCircle } from "@fortawesome/free-solid-svg-icons";
 import { getRuntimeString } from "../utils/TitleRuntime";
 import { animate } from "../../hooks/animations";
 import { GamesIconSVG } from "../global/SVGs";
@@ -22,7 +22,8 @@ import { useDispatch, useSelector } from "react-redux";
 import * as Haptics from 'expo-haptics';
 import moment from "moment";
 import { EmptyTitleObject } from "../../api/TMDbApi";
-import { ScrollView, TouchableWithoutFeedback } from "react-native-gesture-handler";
+
+const POSTER_WIDTH = 36;
 
 const getRandomString = (radix=36) => {
     return Math.random().toString(radix).slice(2,7);
@@ -30,9 +31,6 @@ const getRandomString = (radix=36) => {
 
 const { width } = Dimensions.get('window');
 
-const ActorText = styled(ReelayText.Subtitle2)`
-    color: gray
-`
 const BannerTopSpacer = styled(View)`
     height: ${props => props.allowExpand ? 22 : 12}px;
 `
@@ -76,6 +74,9 @@ const PressableContainer = styled(Pressable)`
     flex-direction: row;
     margin: 5px;
     margin-left: 20px;
+`
+const RefreshView = styled(View)`
+    padding: 12px;
 `
 const RuntimeText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -175,7 +176,7 @@ const UnderlineContainer = styled(View)`
 `
 const UnrevealedPosterQuestionMark = styled(ReelayText.H5Bold)`
     color: white;
-    font-size: 24px;
+    font-size: 24px;y
     line-height: 24px;
 `
 const UnrevealedPosterView = styled(View)`
@@ -186,7 +187,7 @@ const UnrevealedPosterView = styled(View)`
     border-width: 2px;
     height: 52px;
     justify-content: center;
-    width: 36px;
+    width: ${POSTER_WIDTH}px;
 `
 const YearText = styled(ReelayText.CaptionEmphasized)`
     color: white;
@@ -202,13 +203,7 @@ const SearchResults = ({ onGuessTitle, searchResults }) => {
     const displayResults = searchResults.slice(0,4);
 
     const GuessOption = ({ titleObj }) => {
-        const title = titleObj?.display;
-        const actors = titleObj?.displayActors?.map(actor => actor.name)
-                .filter((actor) => actor !== undefined)
-                .join(", ") 
-            ?? [];
-    
-    
+        const title = titleObj?.display;    
         const releaseYear = (titleObj?.releaseDate && titleObj?.releaseDate.length >= 4) 
             ? titleObj.releaseDate.slice(0,4) : '';
         const runtimeString = getRuntimeString(titleObj?.runtime);
@@ -217,14 +212,13 @@ const SearchResults = ({ onGuessTitle, searchResults }) => {
             <PressableContainer key={titleObj?.id} onPress={() => onGuessTitle(titleObj)}>
                 <ImageContainer>
                     { titleObj?.posterSource && (
-                        <TitlePoster title={titleObj} width={60} />
+                        <TitlePoster title={titleObj} width={POSTER_WIDTH} />
                     )}
                     { !titleObj.posterSource && <TitleText>{"No Poster Available"}</TitleText>}
                 </ImageContainer>
                 <TitleLineContainer>
                     <TitleText>{title}</TitleText>
-                    <YearText>{`${releaseYear}    ${runtimeString}`}</YearText>
-                    <ActorText>{actors}</ActorText>
+                    {/* <YearText>{`${releaseYear}    ${runtimeString}`}</YearText> */}
                 </TitleLineContainer>
             </PressableContainer>
         );
@@ -289,13 +283,15 @@ const GuessingGameBanner = ({
         }
         const displayGuesses = (gameOver) ? fillEmptyGuessesCorrect() : myGuesses;
         const guessObj = displayGuesses[clueIndex];
-        const guessedTitleObj = guessObj?.guessedTitleObj;
+        const guessedTitleObj = (guessingGame?.hasWonGame) 
+            ? guessingGame?.correctTitleObj
+            : guessObj?.guessedTitleObj;
         const hasSkippedGuess = (guessedTitleObj?.titleKey === 'film-0');
 
-        let guessIcon = guessObj?.isCorrect 
+        let guessIcon = (guessingGame?.hasWonGame)
             ? faCheckCircle 
             : faXmarkCircle;
-        let guessIconColor = guessObj?.isCorrect 
+        let guessIconColor = (guessingGame?.hasWonGame)
             ? ReelayColors.reelayGreen 
             : ReelayColors.reelayRed;
 
@@ -318,19 +314,24 @@ const GuessingGameBanner = ({
         const [loading, setLoading] = useState(false);
         const [searchText, setSearchText] = useState('');
         const [searchResults, setSearchResults] = useState([]);
+
+        const showSearchResults = (!loading && searchResults.length > 0);
+        const showSkipButton = (guessesLeft > 1 && searchText === '');
         const updateCounter = useRef(0);
 
         const updateSearch = async (newSearchText, counter) => {
             if (searchText.length === 0) {            
                 setSearchResults([]);
+                setLoading(false);
                 return;
             }
     
             try {
-                setLoading(true);
+                if (!loading) setLoading(true);
                 const annotatedResults = await searchTitles(newSearchText, isSeries);
                 if (updateCounter.current === counter) {
                     setSearchResults(annotatedResults);
+                    setLoading(false);
                 }
             } catch (error) {
                 console.log(error);
@@ -423,12 +424,17 @@ const GuessingGameBanner = ({
                     searchText={searchText}
                     updateSearchText={setSearchText}
                 />
-                { guessesLeft > 1 && <SkipButton /> }
-                { searchResults.length > 1 && (
+                { showSkipButton && <SkipButton /> }
+                { showSearchResults && (
                     <SearchResults
                         searchResults={searchResults}
                         onGuessTitle={onGuessTitle}
                     />
+                )}
+                { loading && (
+                    <RefreshView>
+                        <ActivityIndicator color={ReelayColors.reelayBlue} /> 
+                    </RefreshView>
                 )}
             </SearchView>
         )
@@ -478,7 +484,7 @@ const GuessingGameBanner = ({
     const Poster = ({ guessedTitleObj }) => {
         return (
             <TitlePosterContainer>
-                <TitlePoster title={guessedTitleObj} width={36} />
+                <TitlePoster title={guessedTitleObj} width={POSTER_WIDTH} />
             </TitlePosterContainer>
         );
     }
