@@ -10,24 +10,26 @@ const PosterPositions = [
     { 
         tilt: -12,
         left: 18,
-        top: 54,
+        top: 38,
     },
     { 
         tilt: -6,
         left: 67,
-        top: 33,
+        top: 17,
     },
     { 
         tilt: 6,
         left: 132,
-        top: 16,
+        top: 0,
     },
     { 
         tilt: 12,
         left: 188,
-        top: 33,
+        top: 17,
     },
 ]
+
+const POSTER_WIDTH = 100;
 
 const PosterFillEmpty = styled(View)`
     background-color: #1B2B3D;
@@ -57,8 +59,8 @@ const PosterTiltViewEmpty = styled(PosterTiltView)`
     border-color: white;
     border-radius: 12px;
     border-width: 1px;
-    height: 120px;
-    width: 80px;
+    height: ${POSTER_WIDTH * 1.5}px;
+    width: ${POSTER_WIDTH}px;
 `
 const PosterRowView = styled(View)`
     flex-direction: row;
@@ -91,7 +93,7 @@ export default FanOfPosters = ({ titles = [] }) => {
 
         return (
             <PosterTiltView {...posterTiltProps} key={title?.id}>
-                <TitlePoster title={title} width={80} />
+                <TitlePoster title={title} width={POSTER_WIDTH} />
             </PosterTiltView>
         )
     }

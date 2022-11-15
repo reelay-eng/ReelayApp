@@ -56,13 +56,24 @@ const FilterRowView = styled(View)`
 const FilterText = styled(ReelayText.CaptionEmphasized)`
     color: white;
 `
+const HeaderCardGradient = styled(LinearGradient)`
+    border-radius: 12px;
+    height: ${props => props.topOffset + 400}px;
+    opacity: 0.3;
+    position: absolute;
+    top: ${props => -1 * props.topOffset}px;
+    width: 100%;
+`
 const TopBarView = styled(View)`
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
     padding-left: 12px;
     padding-right: 12px;
+    position: absolute;
+    top: ${props => props.topOffset}px;
     width: 100%;
+    z-index: 100;
 `
 const WatchlistHeaderSubtext = styled(ReelayText.Caption)`
     color: white;
@@ -76,13 +87,13 @@ const WatchlistHeaderText = styled(ReelayText.H5)`
 `
 const WatchlistHeaderView = styled(View)`
     align-items: center;
+    margin-top: ${props => props.topOffset + 60}px;
     width: 100%;
 `
 const WatchlistScreenContainer = styled(View)`
     align-items: center;
     background-color: black;
     height: ${props => height - props.topOffset}px;
-    top: ${props => props.topOffset}px;
     width: 100%;
 `
 
@@ -106,12 +117,19 @@ export default WatchlistScreen = ({ navigation, route }) => {
     console.log('rerendering watchlist screen');
 
     const getDisplayItems = () => {
-        let nextDisplayItems = [ ...displayItems ];
-        if (selectedFilters.includes('seen')) nextDisplayItems = nextDisplayItems.filter(hasSeenTitle);
-        if (selectedFilters.includes('unseen')) nextDisplayItems = nextDisplayItems.filter(hasNotSeenTitle);
-        if (selectedFilters.includes('movie')) nextDisplayItems = nextDisplayItems.filter(isFilm);
-        if (selectedFilters.includes('TV')) nextDisplayItems = nextDisplayItems.filter(isSeries);
-        return nextDisplayItems;
+        const filterSeen = selectedFilters.includes('seen');
+        const filterUnseen = selectedFilters.includes('unseen');
+        const filterMovies = selectedFilters.includes('movie');
+        const filterTV = selectedFilters.includes('TV');
+
+        const allFilters = (watchlistItem) => {
+            if (filterSeen && hasNotSeenTitle(watchlistItem)) return false;
+            if (filterUnseen && hasSeenTitle(watchlistItem)) return false;
+            if (filterMovies && isSeries(watchlistItem)) return false;
+            if (filterTV && isFilm(watchlistItem)) return false;
+            return true;
+        }
+        return  myWatchlistItems.filter(allFilters);
     }
 
     const onMoveToFront = (watchlistItem) => {
@@ -190,12 +208,15 @@ export default WatchlistScreen = ({ navigation, route }) => {
 
         const onPress = () => {
             if (isSelected) { 
-                setSelectedFilters(selectedFilters.filter(key => key !== filterKey));
+                const nextFilters = selectedFilters.filter(key => key !== filterKey);
+                console.log('next filters: ', nextFilters);
+                setSelectedFilters(nextFilters);
             } else {
                 const oppositeKey = getOppositeKey();
                 console.log('opposite key: ', oppositeKey);
                 const filterOppositeKey = (key) => key !== oppositeKey;
                 const nextFilters = [...selectedFilters, filterKey];
+                console.log('next filters: ', nextFilters);
                 setSelectedFilters(nextFilters.filter(filterOppositeKey));
             }
         }
@@ -205,6 +226,15 @@ export default WatchlistScreen = ({ navigation, route }) => {
                 <FilterText>{filterKey}</FilterText>
             </FilterPressable>
         )
+    }
+
+    const TopBar = () => {
+        return (
+            <TopBarView topOffset={topOffset}>
+                <BackButton navigation={navigation} />
+                <AddToWatchlistButton />
+            </TopBarView>
+        );
     }
 
     const WatchlistFilters = () => {
@@ -217,12 +247,19 @@ export default WatchlistScreen = ({ navigation, route }) => {
     }
 
     const WatchlistHeader = ({ condensed = false }) => {
+        const gradientTopOffset = useSafeAreaInsets().top + 60;
         const titleCount = myWatchlistItems.filter(hasAcceptedRec).length;
         const seenCount = myWatchlistItems.filter(hasSeenTitle).length;
         const watchlistHeaderSubtext = `${titleCount} titles, ${seenCount} seen`;
 
         return (
-            <WatchlistHeaderView>
+            <WatchlistHeaderView topOffset={topOffset}>
+                <HeaderCardGradient 
+                    colors={['#1A8BF2', 'black']} 
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                    topOffset={gradientTopOffset} 
+                />
                 <FanOfPosters titles={myWatchlistItems.map(item => item.title)} />
                 <WatchlistHeaderText>{'My watchlist'}</WatchlistHeaderText>
                 <WatchlistHeaderSubtext>{watchlistHeaderSubtext}</WatchlistHeaderSubtext>
@@ -233,10 +270,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
 
     return (
 		<WatchlistScreenContainer topOffset={topOffset}>
-            <TopBarView>
-                <BackButton navigation={navigation} />
-                <AddToWatchlistButton />
-            </TopBarView>
+            <TopBar />
             <FlatList
                 ListHeaderComponent={(<WatchlistHeader />)}
                 data={displayItems}

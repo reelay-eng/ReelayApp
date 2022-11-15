@@ -97,7 +97,6 @@ export default WatchlistItemDotMenu = ({
     const removeFromWatchlist = async () => {
         onRemoveItem(watchlistItem);
         closeDrawer();
-        showMessageToast(`Removed ${titleObj?.display}`);
         const removeResult = await removeFromMyWatchlist({ 
             reqUserSub: reelayDBUser?.sub,
             tmdbTitleID: titleObj?.id,
