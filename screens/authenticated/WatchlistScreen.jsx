@@ -107,6 +107,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
     const hasSeenTitle = (watchlistItem) => watchlistItem?.hasSeenTitle;
     const isFilm = (watchlistItem) => watchlistItem?.titleType === 'film';
     const isSeries = (watchlistItem) => watchlistItem?.titleType === 'tv';
+    const isUnder90Mins = (watchlistItem) => watchlistItem?.title?.runtime < 90;
 
     // we don't want to use selector here, else it will rerender the whole list whenever we update
     const myWatchlistItems = route?.params?.myWatchlistItems ?? [];
@@ -114,19 +115,20 @@ export default WatchlistScreen = ({ navigation, route }) => {
     const [displayItems, setDisplayItems] = useState(myWatchlistItems.filter(hasAcceptedRec));
     const [refreshing, setRefreshing] = useState(false);
     const [selectedFilters, setSelectedFilters] = useState([]);
-    console.log('rerendering watchlist screen');
 
     const getDisplayItems = () => {
         const filterSeen = selectedFilters.includes('seen');
         const filterUnseen = selectedFilters.includes('unseen');
         const filterMovies = selectedFilters.includes('movie');
         const filterTV = selectedFilters.includes('TV');
+        const filter90 = selectedFilters.includes('<90 min');
 
         const allFilters = (watchlistItem) => {
             if (filterSeen && hasNotSeenTitle(watchlistItem)) return false;
             if (filterUnseen && hasSeenTitle(watchlistItem)) return false;
             if (filterMovies && isSeries(watchlistItem)) return false;
             if (filterTV && isFilm(watchlistItem)) return false;
+            if (filter90 && !isUnder90Mins(watchlistItem)) return false;
             return true;
         }
         return  myWatchlistItems.filter(allFilters);
@@ -209,14 +211,11 @@ export default WatchlistScreen = ({ navigation, route }) => {
         const onPress = () => {
             if (isSelected) { 
                 const nextFilters = selectedFilters.filter(key => key !== filterKey);
-                console.log('next filters: ', nextFilters);
                 setSelectedFilters(nextFilters);
             } else {
                 const oppositeKey = getOppositeKey();
-                console.log('opposite key: ', oppositeKey);
                 const filterOppositeKey = (key) => key !== oppositeKey;
                 const nextFilters = [...selectedFilters, filterKey];
-                console.log('next filters: ', nextFilters);
                 setSelectedFilters(nextFilters.filter(filterOppositeKey));
             }
         }
@@ -238,7 +237,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
     }
 
     const WatchlistFilters = () => {
-        const filterKeys = ['seen', 'unseen', 'movie', 'TV'];        
+        const filterKeys = ['seen', 'unseen', 'movie', 'TV', '<90 min'];        
         return (
             <FilterRowView>
                 { filterKeys.map(key => <FilterButton key={key} filterKey={key} /> ) }
