@@ -26,11 +26,12 @@ export default MarkSeenButton = ({
     setMarkedSeen, 
     showText=true, 
     size=30,
-    titleObj,
+    watchlistItem,
 }) => {
     const markSeenText = (markedSeen) ? 'Seen' : 'Mark seen';
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
+    const titleObj = watchlistItem?.title;
 
     const updateWatchlistReqBody = { 
         reqUserSub: reelayDBUser?.sub, 
@@ -48,8 +49,12 @@ export default MarkSeenButton = ({
             title: titleObj?.display,
         });
 
-        const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
-        dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })    
+        if (watchlistItem?.id) {
+            watchlistItem.hasSeenTitle = true;
+            dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
+        }
+        // const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
+        // dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })    
     }
 
     const markUnseen = async () => {
@@ -62,8 +67,12 @@ export default MarkSeenButton = ({
             title: titleObj?.display,
         });
 
-        const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
-        dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })    
+        if (watchlistItem?.id) {
+            watchlistItem.hasSeenTitle = false;
+            dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
+        }
+        // const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
+        // dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })    
     }
 
     return (

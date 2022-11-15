@@ -186,7 +186,8 @@ export default MyProfileScreen = ({ navigation, route }) => {
     }
 
     const SeeMyWatchlistButton = () => {
-        const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen');
+        const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+        const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen', { myWatchlistItems });
         return (
             <MyWatchlistPressable onPress={advanceToWatchlistScreen}>
                 <MyWatchlistText>{'See my watchlist'}</MyWatchlistText>

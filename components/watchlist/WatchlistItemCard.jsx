@@ -33,7 +33,7 @@ const WatchlistCardView = styled(Pressable)`
     width: ${WATCHLIST_CARD_WIDTH}px;
 `
 
-export default WatchlistItemCard = ({ navigation, watchlistItem }) => {
+export default WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, watchlistItem }) => {
     const advanceToTitleDetailScreen = () => navigation.push('TitleDetailScreen', { titleObj: watchlistItem.title });
     const [markedSeen, setMarkedSeen] = useState(watchlistItem?.hasSeenTitle);
     const [drawerVisible, setDrawerVisible] = useState(false);
@@ -55,7 +55,7 @@ export default WatchlistItemCard = ({ navigation, watchlistItem }) => {
                     setMarkedSeen={setMarkedSeen} 
                     showText={true} 
                     size={36}
-                    titleObj={watchlistItem?.title} 
+                    watchlistItem={watchlistItem} 
                 />
             </MarkSeenRow>
         );
@@ -70,6 +70,8 @@ export default WatchlistItemCard = ({ navigation, watchlistItem }) => {
                 <WatchlistItemDotMenu 
                     closeDrawer={closeDrawer} 
                     navigation={navigation} 
+                    onMoveToFront={onMoveToFront}
+                    onRemoveItem={onRemoveItem}
                     watchlistItem={watchlistItem}
                 />
             )}

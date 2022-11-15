@@ -95,10 +95,11 @@ export default HomeWatchlistCard = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const [refreshing, setRefreshing] = useState(false);
 
-    const advanceToAddToWatchlistScreen = () => navigation.push('SearchScreen', { addToWatchlist: true });
-    const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen');
     const myCreatorStacks = useSelector(state => state.myCreatorStacks);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+
+    const advanceToAddToWatchlistScreen = () => navigation.push('SearchScreen', { addToWatchlist: true });
+    const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen', { myWatchlistItems });
 
     const AddToWatchlistButton = () => {
         return (

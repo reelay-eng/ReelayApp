@@ -57,6 +57,8 @@ const ICON_SIZE = 24;
 export default WatchlistItemDotMenu = ({ 
     closeDrawer, 
     navigation,
+    onMoveToFront,
+    onRemoveItem,
     watchlistItem,
 }) => {
     const { reelayDBUser } = useContext(AuthContext);
@@ -79,11 +81,12 @@ export default WatchlistItemDotMenu = ({
     }    
 
     const moveToFront = async () => {
-        // todo
         watchlistItem.lastMovedToFrontAt = moment().toISOString();
+        onMoveToFront(watchlistItem);
         dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
         closeDrawer();
-    const dbResult = await moveWatchlistItemToFront({ 
+
+        const dbResult = await moveWatchlistItemToFront({ 
             authSession, 
             itemID: watchlistItem?.id, 
             reqUserSub: reelayDBUser?.sub,
@@ -92,6 +95,7 @@ export default WatchlistItemDotMenu = ({
     }
 
     const removeFromWatchlist = async () => {
+        onRemoveItem(watchlistItem);
         closeDrawer();
         showMessageToast(`Removed ${titleObj?.display}`);
         const removeResult = await removeFromMyWatchlist({ 

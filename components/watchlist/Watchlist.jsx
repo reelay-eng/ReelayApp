@@ -35,11 +35,11 @@ const WatchlistCard = ({ watchlistItem, setExpandedTitle }) => {
             <TitlePoster title={watchlistItem.title} width={WATCHLIST_CARD_WIDTH} />
             { markedSeen && (
                 <MarkSeenOnPosterView>
-                    <MarkSeenButton
+                    <MarkSeenButton 
                         markedSeen={markedSeen}
                         setMarkedSeen={setMarkedSeen}
                         showText={false}
-                        titleObj={watchlistItem?.title}
+                        watchlistItem={watchlistItem}
                     />
                 </MarkSeenOnPosterView>
             )}

@@ -400,7 +400,7 @@ export default ExpandedTitleDrawer = ({
                     markedSeen={markedSeen} 
                     setMarkedSeen={setMarkedSeen} 
                     showText={true}
-                    titleObj={expandedTitle.title}
+                    watchlistItem={expandedTitle}
                 />
                 <RuntimeView>
                     <RuntimeText>{runtimeString}</RuntimeText>

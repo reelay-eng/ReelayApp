@@ -97,17 +97,16 @@ export default WatchlistScreen = ({ navigation, route }) => {
     const isFilm = (watchlistItem) => watchlistItem?.titleType === 'film';
     const isSeries = (watchlistItem) => watchlistItem?.titleType === 'tv';
 
-    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-    const watchlistItemsRef = useRef(myWatchlistItems.filter(hasAcceptedRec));
+    // we don't want to use selector here, else it will rerender the whole list whenever we update
+    const myWatchlistItems = route?.params?.myWatchlistItems ?? [];
 
-    const [displayItems, setDisplayItems] = useState(watchlistItemsRef.current);
+    const [displayItems, setDisplayItems] = useState(myWatchlistItems.filter(hasAcceptedRec));
     const [refreshing, setRefreshing] = useState(false);
     const [selectedFilters, setSelectedFilters] = useState([]);
     console.log('rerendering watchlist screen');
 
     const getDisplayItems = () => {
-        let nextDisplayItems = [ ...watchlistItemsRef.current ];
-        console.log('selected filters: ', selectedFilters);
+        let nextDisplayItems = [ ...displayItems ];
         if (selectedFilters.includes('seen')) nextDisplayItems = nextDisplayItems.filter(hasSeenTitle);
         if (selectedFilters.includes('unseen')) nextDisplayItems = nextDisplayItems.filter(hasNotSeenTitle);
         if (selectedFilters.includes('movie')) nextDisplayItems = nextDisplayItems.filter(isFilm);
@@ -115,11 +114,36 @@ export default WatchlistScreen = ({ navigation, route }) => {
         return nextDisplayItems;
     }
 
+    const onMoveToFront = (watchlistItem) => {
+        const filterWatchlistItem = (nextItem) => nextItem?.id !== watchlistItem?.id;
+        const filteredWatchlist = displayItems.filter(filterWatchlistItem);
+        const nextDisplayItems = [ watchlistItem, ...filteredWatchlist];
+        setDisplayItems(nextDisplayItems);
+    }
+
     const onRefresh = async () => {
         setRefreshing(true);
         const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
         dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })
         setRefreshing(false);
+    }
+
+    const onRemoveItem = (watchlistItem) => {
+        const filterWatchlistItem = (nextItem) => nextItem?.id !== watchlistItem?.id;
+        const filteredWatchlist = displayItems.filter(filterWatchlistItem);
+        setDisplayItems(filteredWatchlist);
+    }
+
+    const Refresher = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
+    const renderWatchlistItem = ({ item, index }) => {
+        return (
+            <WatchlistItemCard
+                onMoveToFront={onMoveToFront}
+                onRemoveItem={onRemoveItem}
+                navigation={navigation}
+                watchlistItem={item}
+            />
+        );
     }
 
     useEffect(() => {
@@ -134,11 +158,6 @@ export default WatchlistScreen = ({ navigation, route }) => {
         const nextDisplayItems = getDisplayItems();
         setDisplayItems(nextDisplayItems);
     }, [refreshing, selectedFilters]);
-
-    useEffect(() => {
-        watchlistItemsRef.current = myWatchlistItems.filter(hasAcceptedRec);
-        setDisplayItems(watchlistItemsRef.current);
-    }, [myWatchlistItems]);
 
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
@@ -197,32 +216,6 @@ export default WatchlistScreen = ({ navigation, route }) => {
         )
     }
 
-    const WatchlistGrid = () => {          
-        const Refresher = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
-        const renderWatchlistItem = ({ item, index }) => {
-            return (
-                <WatchlistItemCard
-                    onRefresh={onRefresh}
-                    navigation={navigation}
-                    watchlistItem={item}
-                />
-            );
-        }
-
-        return (
-            <Animated.FlatList
-                ListHeaderComponent={(<WatchlistHeader />)}
-                data={displayItems}
-                numColumns={3}
-                estimatedItemSize={100}
-                keyExtractor={item => item.id}
-                renderItem={renderWatchlistItem}
-                refreshControl={Refresher}
-                showsVerticalScrollIndicator={false}
-            />
-        )
-    }
-
     const WatchlistHeader = ({ condensed = false }) => {
         const titleCount = myWatchlistItems.filter(hasAcceptedRec).length;
         const seenCount = myWatchlistItems.filter(hasSeenTitle).length;
@@ -244,7 +237,16 @@ export default WatchlistScreen = ({ navigation, route }) => {
                 <BackButton navigation={navigation} />
                 <AddToWatchlistButton />
             </TopBarView>
-            <WatchlistGrid />
+            <FlatList
+                ListHeaderComponent={(<WatchlistHeader />)}
+                data={displayItems}
+                numColumns={3}
+                estimatedItemSize={100}
+                keyExtractor={item => item.id}
+                renderItem={renderWatchlistItem}
+                refreshControl={Refresher}
+                showsVerticalScrollIndicator={false}
+            />
             <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
 		</WatchlistScreenContainer>
 	);
