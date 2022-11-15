@@ -35,9 +35,9 @@ const CreateTopicButtonContainer = styled(TouchableOpacity)`
         ? 'white' 
         : ReelayColors.reelayBlue
     };
-    border-radius: 40px;
+    border-radius: 48px;
     justify-content: center;
-    height: 40px;
+    height: 48px;
     width: ${width - 56}px;
 `
 const CreateTopicText = styled(ReelayText.CaptionEmphasized)`
@@ -289,7 +289,7 @@ export default CreateTopicScreen = ({ navigation, route }) => {
     }
 
     return (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}> 
             <CreateScreenContainer>
                 <View style={{ display: 'flex' }}>
                     <Header />

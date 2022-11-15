@@ -283,7 +283,7 @@ const GuessingGameBanner = ({
         }
         const displayGuesses = (gameOver) ? fillEmptyGuessesCorrect() : myGuesses;
         const guessObj = displayGuesses[clueIndex];
-        const guessedTitleObj = (guessingGame?.hasWonGame) 
+        const guessedTitleObj = (gameOver) 
             ? guessingGame?.correctTitleObj
             : guessObj?.guessedTitleObj;
         const hasSkippedGuess = (guessedTitleObj?.titleKey === 'film-0');

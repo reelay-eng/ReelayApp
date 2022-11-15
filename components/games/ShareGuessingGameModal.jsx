@@ -255,6 +255,15 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
     const inviteCode = game?.myGuesses?.[0]?.inviteCode;
     const url = (gameHasGuesses) ? `https://on.reelay.app/game/${inviteCode}` : 'https://on.reelay.app';
 
+    const myGuessEmojis = myGuesses.map(guess => guess?.isCorrect ? '🟢' : '🔴');
+    const shareMessageParts = [
+        `${game?.title}`,
+        `My guesses: ${myGuessEmojis.join('')} 🦮`,
+        url,
+    ];
+    
+    const shareMessage = shareMessageParts.join('\n');
+
     const statCount = game?.stats?.length ?? 0;
     const statRowCount = statCount + 1; // leave room for losing stats row
     const rowHeight = 32; // sorry magic numbers
@@ -271,7 +280,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
 
     const CopyLinkButton = () => {
         const copyLink = () => {
-            Clipboard.setStringAsync(url).then(onfulfilled => {
+            Clipboard.setStringAsync(shareMessage).then(onfulfilled => {
                 showMessageToast('Shareable link copied to clipboard');
             });
         }
@@ -292,7 +301,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
     const ShareOutButton = () => {
         const shareGame = async () => {
             const title = `The Reelay guessing game`;
-            const content = { title, url };
+            const content = { title, message: shareMessage };
             const options = {};
             const sharedAction = await Share.share(content, options);
         }

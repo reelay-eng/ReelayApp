@@ -1,5 +1,5 @@
 import React, { useContext, useState, memo} from 'react';
-import { Modal, View, Text, Pressable, ScrollView, TouchableOpacity } from 'react-native';
+import { Modal, View, Pressable, ScrollView, TouchableOpacity } from 'react-native';
 import { Icon } from 'react-native-elements';
 import { blockCreator, suspendAccount } from '../../api/ReelayDBApi';
 
@@ -7,22 +7,23 @@ import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import styled from 'styled-components/native';
 
-import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../global/Text';
 import { showMessageToast } from '../utils/toasts';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { removeTopic, reportTopic } from '../../api/TopicsApi';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 const ContentPolicy  = require('../../constants/ContentPolicy.json');
 
 const TopicDrawerContents = ({ closeDrawer, navigation, topic }) => {
+    const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const [drawerState, setDrawerState] = useState('options');
     const isMyTopic = (topic.creatorSub === reelayDBUser?.sub);
 
     const [selectedPolicy, setSelectedPolicy] = useState({});
     const bottomOffset = useSafeAreaInsets().bottom + 15;
+    const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
     
     const ContentContainer = styled(View)`
         padding-left: 24px;
@@ -108,14 +109,24 @@ const TopicDrawerContents = ({ closeDrawer, navigation, topic }) => {
         );
     }
 
+    const DotMenuOptions = () => {
+        return (
+            <ContentContainer>
+                { !isMyTopic && <ReportContentOption /> }
+                { !isMyTopic && <BlockCreatorOption /> }
+                { (reelayDBUser?.role === 'admin' || isMyTopic) && <RemoveTopicOption /> }
+                { (reelayDBUser?.role === 'admin') && !isMyTopic && <SuspendAccountOption /> }
+                { (reelayDBUser?.role === 'admin') && <ViewReportedContentFeedOption /> }
+            </ContentContainer>
+        );
+    }
+
     const Header = () => {
         const HeaderContainer = styled(View)`
             justify-content: center;
             margin-left: 12px;
             margin-right: 20px;
             margin-bottom: 5px;
-            border-bottom-color: #2D2D2D;
-            border-bottom-width: 1px;
             padding-top: 8px;
             padding-bottom: 8px;
         `
@@ -151,7 +162,7 @@ const TopicDrawerContents = ({ closeDrawer, navigation, topic }) => {
             setDrawerState('remove-topic-confirm');
         }
         
-        const optionText = (isMyTopic) ? 'Remove Topic' : '(Admin) Remove Topic'
+        const optionText = (isMyTopic) ? 'Delete Topic' : '(Admin) Delete Topic'
 
         return (
             <OptionContainerPressable onPress={onPress}>
@@ -171,8 +182,10 @@ const TopicDrawerContents = ({ closeDrawer, navigation, topic }) => {
             });
             console.log(removeResult);
 
+            const nextTopics = discoverTopics.filter(nextTopic => (nextTopic.id !== topic.id));
+            dispatch({ type: 'setTopics', payload: { discover: nextTopics } });
             // todo: update state to remove topic from global list
-            showMessageToast('This topic has been removed');
+            showMessageToast('This topic has been deleted');
 
             logAmplitudeEventProd('removeTopic', {
                 username: reelayDBUser?.username,
@@ -186,7 +199,7 @@ const TopicDrawerContents = ({ closeDrawer, navigation, topic }) => {
 
         return (
             <ContentContainer>
-                <Prompt text={'Are you sure you want to remove this topic?'} />
+                <Prompt text={'Are you sure you want to delete this topic?'} />
                 <OptionContainerPressable onPress={onPress}>
                     <Icon type='ionicon' name='remove-circle' size={20} color={'white'} />
                     <IconSpacer />
@@ -197,7 +210,7 @@ const TopicDrawerContents = ({ closeDrawer, navigation, topic }) => {
     }
 
     const RemoveTopicComplete = () => {
-        const removeTopicMessage = 'You have removed this topic for everyone';
+        const removeTopicMessage = 'You have deleted this topic for everyone';
         
         return (
             <ContentContainer>
@@ -369,18 +382,6 @@ const TopicDrawerContents = ({ closeDrawer, navigation, topic }) => {
         );
     }
 
-    const DotMenuOptions = () => {
-        return (
-            <ContentContainer>
-                { !isMyTopic && <ReportContentOption /> }
-                { !isMyTopic && <BlockCreatorOption /> }
-                { (reelayDBUser?.role === 'admin' || isMyTopic) && <RemoveTopicOption /> }
-                { (reelayDBUser?.role === 'admin') && !isMyTopic && <SuspendAccountOption /> }
-                { (reelayDBUser?.role === 'admin') && <ViewReportedContentFeedOption /> }
-            </ContentContainer>
-        );
-    }
-
     return (
             <DrawerContainer>
                 <Header />
@@ -395,7 +396,8 @@ const TopicDrawerContents = ({ closeDrawer, navigation, topic }) => {
                 { drawerState === 'suspend-account-confirm' && <SuspendAccountConfirm /> }
                 { drawerState === 'suspend-account-complete' && <SuspendAccountComplete /> }
             </DrawerContainer>
-    );}
+    );
+}
 
 export default TopicDotMenuDrawer = ({ navigation, topic }) => {
     const dispatch = useDispatch();
