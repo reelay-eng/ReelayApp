@@ -1,5 +1,5 @@
 import React, { Fragment, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Animated, Dimensions, FlatList, RefreshControl, TouchableOpacity, View } from 'react-native';
+import { Animated, Dimensions, FlatList, RefreshControl, TouchableHighlight, TouchableOpacity, View } from 'react-native';
 
 import JustShowMeSignupPage from '../../components/global/JustShowMeSignupPage';
 import { AuthContext } from '../../context/AuthContext';
@@ -16,13 +16,19 @@ import FanOfPosters from '../../components/watchlist/FanOfPosters';
 import BackButton from '../../components/utils/BackButton';
 import WatchlistItemCard from '../../components/watchlist/WatchlistItemCard';
 import { getWatchlistItems } from '../../api/WatchlistApi';
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faRefresh, faRepeat, faXmark } from '@fortawesome/free-solid-svg-icons';
+import TitlePoster from '../../components/global/TitlePoster';
+import AddToWatchlistButton from '../../components/watchlist/AddToWatchlistButton';
+import { FlashList } from '@shopify/flash-list';
 
 const { height, width } = Dimensions.get('window');
+const REC_TITLE_CUTOFF_INDEX = 9;
 
 const AddToWatchlistPressable = styled(TouchableOpacity)`
     position: absolute;
     right: 24px;
-    top: 10px;
+    top: ${props => props.topOffset}px;
 `
 const AddToWatchlistText = styled(ReelayText.Body2Bold)`
     color: ${ReelayColors.reelayBlue};
@@ -32,8 +38,13 @@ const BottomGradient = styled(LinearGradient)`
     position: absolute;
     bottom: 0px;
     opacity: 0.8;
-    height: 172px;
+    height: 72px;
     width: 100%;
+`
+const RefreshRecsPressable = styled(TouchableHighlight)`
+    justify-content: center;
+    margin-right: 12px;
+    padding: 6px;
 `
 const FilterPressable = styled(TouchableOpacity)`
     align-items: center;
@@ -58,22 +69,91 @@ const FilterText = styled(ReelayText.CaptionEmphasized)`
 `
 const HeaderCardGradient = styled(LinearGradient)`
     border-radius: 12px;
-    height: ${props => props.topOffset + 400}px;
+    height: ${props => props.topOffset + 800}px;
+    opacity: 0.3;
+    position: absolute;
+    top: ${props => -2 * props.topOffset}px;
+    width: 100%;
+`
+const RecBottomSpacer = styled(View)`
+    height: ${props => props.height ?? 24}px;
+`
+const RecHeaderText = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 18px;
+`
+const RecHeaderSubText = styled(ReelayText.Body2Emphasized)`
+    color: white;
+    line-height: 20px;
+    margin-top: 8px;
+`
+const RecHeaderView = styled(View)`
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 16px;
+    margin-left: 16px;
+    margin-bottom: 8px;
+`
+const RecHeaderViewLeft = styled(View)`
+    display: flex;
+    flex: 1;
+`
+const RecTitleRowView = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 6px;
+    padding-left: 16px;
+    padding-bottom: 8px;
+`
+const RecTitleText = styled(ReelayText.H5Bold)`
+    color: white;
+    font-size: 18px;
+    text-shadow-color: rgba(0, 0, 0, 0.4);
+    text-shadow-offset: 1px 1px;
+    text-shadow-radius: 1px;
+`
+const RecYearText = styled(ReelayText.CaptionEmphasized)`
+    color: white;
+    height: 16px;
+    margin-right: 10px;
+`
+const RecTitleTextView = styled(View)`
+    display: flex;
+    justify-content: center;
+`
+const TitleInfoView = styled(View)`
+    align-items: flex-start;
+    justify-content: center;
+    font-size: 18px;
+    display: flex;
+    flex: 1;
+    padding: 5px;
+`
+const TopBarView = styled(View)`
+    align-items: center;
+    background-color: black;
+    flex-direction: row;
+    justify-content: space-between;
+    position: absolute;
+    padding-top: ${props => props.topOffset}px;
+    width: 100%;
+    z-index: 100;
+`
+const TopGradient = styled(LinearGradient)`
+    height: ${props => props.topOffset + 40}px;
     opacity: 0.3;
     position: absolute;
     top: ${props => -1 * props.topOffset}px;
     width: 100%;
+    height: ${props => props.topOffset + 87}px;
 `
-const TopBarView = styled(View)`
-    align-items: center;
-    flex-direction: row;
-    justify-content: space-between;
-    padding-left: 12px;
-    padding-right: 12px;
-    position: absolute;
-    top: ${props => props.topOffset}px;
+const UnderlineView = styled(View)`
+    margin-top: 5px;
+    margin-right: 8px;
     width: 100%;
-    z-index: 100;
 `
 const WatchlistHeaderSubtext = styled(ReelayText.Caption)`
     color: white;
@@ -93,7 +173,7 @@ const WatchlistHeaderView = styled(View)`
 const WatchlistScreenContainer = styled(View)`
     align-items: center;
     background-color: black;
-    height: ${props => height - props.topOffset}px;
+    height: ${height}px;
     width: 100%;
 `
 
@@ -101,6 +181,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const dispatch = useDispatch();
     const topOffset = useSafeAreaInsets().top;
+    const bottomOffset = useSafeAreaInsets().bottom;
 
     const hasAcceptedRec = (watchlistItem) => watchlistItem?.hasAcceptedRec ?? true;
     const hasNotSeenTitle = (watchlistItem) => !watchlistItem?.hasSeenTitle;
@@ -115,6 +196,9 @@ export default WatchlistScreen = ({ navigation, route }) => {
     const [displayItems, setDisplayItems] = useState(myWatchlistItems.filter(hasAcceptedRec));
     const [refreshing, setRefreshing] = useState(false);
     const [selectedFilters, setSelectedFilters] = useState([]);
+
+    const displayItemsWithCutoff = displayItems.slice(0, REC_TITLE_CUTOFF_INDEX);
+    const displayItemsPostCutoff = displayItems.slice(REC_TITLE_CUTOFF_INDEX);
 
     const getDisplayItems = () => {
         const filterSeen = selectedFilters.includes('seen');
@@ -155,7 +239,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
     }
 
     const Refresher = <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />;
-    const renderWatchlistItem = ({ item, index }) => {
+    const renderWatchlistItem = ({ item }) => {
         return (
             <WatchlistItemCard
                 onMoveToFront={onMoveToFront}
@@ -187,7 +271,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
         return <JustShowMeSignupPage navigation={navigation} headerText='My Watchlist' />
     }
 
-    const AddToWatchlistButton = () => {
+    const AddToWatchlistFromSearchButton = () => {
         const onPress = () => navigation.push('SearchScreen', { addToWatchlist: true });
         const topOffset = useSafeAreaInsets().top + 8;
         return (
@@ -227,11 +311,83 @@ export default WatchlistScreen = ({ navigation, route }) => {
         )
     }
 
+    const RecommendedTitles = () => {
+        const initRecDisplayTitles = myWatchlistItems.slice(0, 3).map(item => item.title);
+        const [recDisplayTitles, setRecDisplayTitles] = useState(initRecDisplayTitles);
+
+        const RefreshRecsButton = () => {
+            return (
+                <RefreshRecsPressable onPress={() => {}}>
+                    <FontAwesomeIcon icon={faRefresh} color='white' size={20} />
+                </RefreshRecsPressable>
+            )
+        }
+
+        const RecommendedHeader = () => {
+            return (
+                <RecHeaderView bottomOffset={bottomOffset}>
+                    <RecHeaderViewLeft>
+                        <RecHeaderText>{'Recommended'}</RecHeaderText>
+                        <RecHeaderSubText>{'People you follow added these titles'}</RecHeaderSubText>
+                    </RecHeaderViewLeft>
+                    <RefreshRecsButton />
+                </RecHeaderView>
+            );    
+        }
+
+        const RecTitleInfo = ({ titleObj }) => {
+            const displayTitle = titleObj?.display;
+            const hasDisplayYear = (titleObj?.releaseDate && titleObj?.releaseDate.length >= 4);
+            const displayYear = (hasDisplayYear) ? titleObj.releaseDate.slice(0,4) : '';
+    
+            return (
+                <TitleInfoView>
+                    <RecTitleTextView>
+                        <RecTitleText numberOfLines={2} ellipsizeMode={"tail"}>
+                            {displayTitle}
+                        </RecTitleText>
+                    </RecTitleTextView>
+                    <UnderlineView>
+                        { displayYear?.length > 0 && <RecYearText>{displayYear}</RecYearText> }
+                    </UnderlineView>
+                </TitleInfoView>
+            );
+        }    
+
+        const renderRecTitleRow = (titleObj) => {
+            return (
+                <RecTitleRowView key={titleObj?.titleKey}>
+                    <TitlePoster title={titleObj} width={45} />
+                    <RecTitleInfo titleObj={titleObj} />
+                    <AddToWatchlistButton 
+                        navigation={navigation}
+                        titleObj={titleObj}
+                        reelay={null}
+                    />
+                </RecTitleRowView>
+            )
+        }
+
+        return (
+            <Fragment>
+                <RecommendedHeader />
+                { recDisplayTitles.map(renderRecTitleRow)}
+                <RecBottomSpacer height={24} />
+            </Fragment>
+        )
+    }
+
     const TopBar = () => {
         return (
             <TopBarView topOffset={topOffset}>
+                <TopGradient 
+                    colors={['transparent', '#1A8BF2']} 
+                    start={{ x: 0, y: -1 }}
+                    end={{ x: 0, y : 1 }}
+                    topOffset={topOffset}
+                /> 
                 <BackButton navigation={navigation} />
-                <AddToWatchlistButton />
+                <AddToWatchlistFromSearchButton />
             </TopBarView>
         );
     }
@@ -255,7 +411,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
             <WatchlistHeaderView topOffset={topOffset}>
                 <HeaderCardGradient 
                     colors={['#1A8BF2', 'black']} 
-                    start={{ x: 0, y: 0 }}
+                    start={{ x: 0, y: 0.2 }}
                     end={{ x: 0, y: 1 }}
                     topOffset={gradientTopOffset} 
                 />
@@ -267,12 +423,31 @@ export default WatchlistScreen = ({ navigation, route }) => {
         );
     }
 
+    const WatchlistFooter = () => {
+        return (
+            <Fragment>
+                <RecommendedTitles />
+                <FlatList
+                    data={displayItemsPostCutoff}
+                    numColumns={3}
+                    estimatedItemSize={100}
+                    keyExtractor={item => item.id}
+                    renderItem={renderWatchlistItem}
+                    refreshControl={Refresher}
+                    showsVerticalScrollIndicator={false}
+                />
+                <RecBottomSpacer height={bottomOffset + 60} />
+            </Fragment>
+        );
+    }
+
     return (
 		<WatchlistScreenContainer topOffset={topOffset}>
             <TopBar />
             <FlatList
                 ListHeaderComponent={(<WatchlistHeader />)}
-                data={displayItems}
+                ListFooterComponent={(<WatchlistFooter />)}
+                data={displayItemsWithCutoff}
                 numColumns={3}
                 estimatedItemSize={100}
                 keyExtractor={item => item.id}
@@ -280,7 +455,11 @@ export default WatchlistScreen = ({ navigation, route }) => {
                 refreshControl={Refresher}
                 showsVerticalScrollIndicator={false}
             />
-            <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
+            <BottomGradient 
+                colors={["transparent", "#0d0d0d"]} 
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y : 0.8 }}
+            /> 
 		</WatchlistScreenContainer>
 	);
 };
