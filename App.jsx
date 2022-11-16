@@ -44,7 +44,7 @@ import {
     getFeed,
 } from './api/ReelayDBApi';
 import { getAllMyNotifications } from './api/NotificationsApi';
-import { getWatchlistItems } from './api/WatchlistApi';
+import { getWatchlistItems, getWatchlistRecs } from './api/WatchlistApi';
 
 import { registerForPushNotificationsAsync } from './api/NotificationsApi';
 import { toastConfig } from './components/utils/ToastConfig';
@@ -409,6 +409,7 @@ function App() {
             myFollowersLoaded,
             myNotificationsLoaded,
             myWatchlistItemsLoaded,
+            myWatchlistRecsLoaded,
             suggestedMovies,
             suggestedSeries,
         ] = await Promise.all([
@@ -417,6 +418,7 @@ function App() {
             getFollowers(userSub),
             getAllMyNotifications(userSub),
             getWatchlistItems(userSub),
+            getWatchlistRecs({ authSession, reqUserSub, category: 'all' }),
             fetchPopularMovies(),
             fetchPopularSeries(),
         ])
@@ -428,6 +430,7 @@ function App() {
         dispatch({ type: 'setMyFollowers', payload: myFollowersLoaded });
         dispatch({ type: 'setMyNotifications', payload: myNotificationsLoaded });
         dispatch({ type: 'setMyWatchlistItems', payload: myWatchlistItemsLoaded });
+        dispatch({ type: 'setMyWatchlistRecs', payload: myWatchlistRecsLoaded });
 
         const suggestedMovieResults = { titles: suggestedMovies, nextPage: 1 };
         const suggestedSeriesResults = { titles: suggestedSeries, nextPage: 1 };

@@ -126,7 +126,7 @@ export const markWatchlistItemSeen = async ({
             },
             body: JSON.stringify(patchBody),
         });
-        return await patchResult;    
+        return patchResult;    
     } catch (error) {
         console.error(error);
         return [];
@@ -154,7 +154,7 @@ export const markWatchlistItemUnseen = async ({
             },
             body: JSON.stringify(patchBody),
         });
-        return await patchResult;    
+        return patchResult;    
     } catch (error) {
         console.error(error);
         return [];
@@ -175,7 +175,7 @@ export const moveWatchlistItemToFront = async ({ authSession, itemID, reqUserSub
             },
             body: JSON.stringify(patchBody),
         });
-        return await sendRecResult;    
+        return sendRecResult;    
     } catch (error) {
         console.log(error);
         return [];
@@ -199,7 +199,7 @@ export const removeFromMyWatchlist = async ({ reqUserSub, tmdbTitleID, titleType
             },
             body: JSON.stringify(patchBody),
         });
-        return await removeResult;    
+        return removeResult;    
     } catch (error) {
         console.error(error);
         return [];
@@ -207,106 +207,26 @@ export const removeFromMyWatchlist = async ({ reqUserSub, tmdbTitleID, titleType
 }
 
 // RECOMMENDATIONS
-
-export const sendRecommendation = async ({
-    recommendedReelaySub, // optional
-    recReelayCreatorName,
-    reqUserSub,
-    reqUsername,
-    sendToUserSub,
-    tmdbTitleID,
-    titleType,
-}) => {
-    const check = checkForErrors({ reqUserSub, tmdbTitleID, titleType });
-    if (check.error) return check.error;
-
-    const routePost = `${REELAY_API_BASE_URL}/watchlists/${sendToUserSub}/recs`;
-    const postBody = { 
-        recommendedBySub: reqUserSub,
-        recommendedByUsername: reqUsername,
-        recommendedReelaySub,
-        recReelayCreatorName,
-        tmdbTitleID,
-        titleType,
-    }
-    console.log(routePost);
-
+export const getWatchlistRecs = async ({ authSession, reqUserSub, category = 'all'}) => {
+    const routeGet = `${REELAY_API_BASE_URL}/watchlists/recs?category=${category}`;
     try {
-        const sendRecResult = await fetchResults(routePost, {
-            method: 'POST',
+        const recommendedTitles = await fetchResults(routeGet, {
+            method: 'GET',
             headers: { 
-                ...ReelayAPIHeaders, 
+                ...getReelayAuthHeaders(authSession), 
                 requsersub: reqUserSub,
             },
-            body: JSON.stringify(postBody),
         });
-        return await sendRecResult;    
-    } catch (error) {
-        console.log(error);
-        return [];
-    }
-}
 
-export const acceptRecommendation = async ({
-    recommendedBySub,
-    reqUserSub,
-    tmdbTitleID,
-    titleType,
-}) => {
-    const check = checkForErrors({ reqUserSub, tmdbTitleID, titleType });
-    if (check.error) return check.error;
+        const prepareRecTitle = async (title) => {
+            const tmdbTitleID = title?.tmdbTitleID ?? 0;
+            const titleType = title?.titleType;
+            const isSeries = (titleType === 'tv');
+            console.log('preparing title: ', title);
+            return await fetchAnnotatedTitle({ tmdbTitleID, isSeries });
+        }
 
-    const routePatch = `${REELAY_API_BASE_URL}/watchlists/${reqUserSub}/acceptRec`;
-    const patchBody = { 
-        recommendedBySub,
-        tmdbTitleID,
-        titleType,
-    }
-    console.log(routePatch);
-
-    try {
-        const sendRecResult = await fetchResults(routePatch, {
-            method: 'PATCH',
-            headers: { 
-                ...ReelayAPIHeaders, 
-                requsersub: reqUserSub,
-            },
-            body: JSON.stringify(patchBody),
-        });
-        return await sendRecResult;    
-    } catch (error) {
-        console.error(error);
-        return [];
-    }
-}
-
-export const ignoreRecommendation = async ({
-    recommendedBySub,
-    reqUserSub,
-    tmdbTitleID,
-    titleType,
-}) => {
-    const check = checkForErrors({ reqUserSub, tmdbTitleID, titleType });
-    if (check.error) return check.error;
-
-    const routePatch = `${REELAY_API_BASE_URL}/watchlists/${reqUserSub}/ignoreRec`;
-    const deleteBody = { 
-        recommendedBySub,
-        tmdbTitleID,
-        titleType,
-    }
-    console.log(routePatch);
-
-    try {
-        const sendRecResult = await fetchResults(routePatch, {
-            method: 'DELETE',
-            headers: { 
-                ...ReelayAPIHeaders, 
-                requsersub: reqUserSub,
-            },
-            body: JSON.stringify(deleteBody),
-        });
-        return await sendRecResult;    
+        return await Promise.all(recommendedTitles.map(prepareRecTitle));
     } catch (error) {
         console.error(error);
         return [];
@@ -319,14 +239,14 @@ export const getPreferredReactEmojis = async ({ authSession, reqUserSub }) => {
     console.log(routePost);
 
     try {
-        const sendRecResult = await fetchResults(routePost, {
+        const resultGet = await fetchResults(routePost, {
             method: 'GET',
             headers: { 
                 ...getReelayAuthHeaders(authSession), 
                 requsersub: reqUserSub,
             },
         });
-        return await sendRecResult;    
+        return resultGet;    
     } catch (error) {
         console.log(error);
         return [];
@@ -339,14 +259,14 @@ export const getTitleReactEmojis = async ({ authSession, tmdbTitleID, titleType,
     console.log(routePost);
 
     try {
-        const sendRecResult = await fetchResults(routePost, {
+        const resultGet = await fetchResults(routePost, {
             method: 'GET',
             headers: { 
                 ...getReelayAuthHeaders(authSession), 
                 requsersub: reqUserSub,
             },
         });
-        return await sendRecResult;    
+        return resultGet;    
     } catch (error) {
         console.log(error);
         return [];
@@ -359,7 +279,7 @@ export const setReactEmojis = async ({ authSession, itemID, reactEmojis, reqUser
     console.log(routePatch);
 
     try {
-        const sendRecResult = await fetchResults(routePatch, {
+        const resultPatch = await fetchResults(routePatch, {
             method: 'PATCH',
             headers: { 
                 ...getReelayAuthHeaders(authSession), 
@@ -367,7 +287,7 @@ export const setReactEmojis = async ({ authSession, itemID, reactEmojis, reqUser
             },
             body: JSON.stringify(patchBody),
         });
-        return await sendRecResult;    
+        return resultPatch;    
     } catch (error) {
         console.log(error);
         return [];

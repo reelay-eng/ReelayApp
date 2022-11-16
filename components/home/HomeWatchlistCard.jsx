@@ -36,11 +36,11 @@ const HeaderContainerLeft = styled(View)`
 const HeaderText = styled(ReelayText.H5Bold)`
     color: white;
     font-size: 18px;
+    margin-bottom: 8px;
 `
 const HeaderSubText = styled(ReelayText.Body2Emphasized)`
     color: white;
     line-height: 20px;
-    margin-top: 8px;
 `
 const HomeWatchlistCardFill = styled(View)`
     background-color: #1A8BF2;
@@ -60,9 +60,10 @@ const HomeWatchlistCardGradient = styled(LinearGradient)`
 const HomeWatchlistCardView = styled(TouchableOpacity)`
     align-items: center;
     border-radius: 12px;
-    height: 244px;
+    height: 256px;
     justify-content: center;
     left: 16px;
+    margin-top: 8px;
     margin-bottom: 16px;
     width: ${width - 32}px;
 `
@@ -74,8 +75,10 @@ const WatchlistText = styled(ReelayText.H6)`
 
 export default HomeWatchlistCard = ({ navigation }) => {
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+    const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
+
     const advanceToAddToWatchlistScreen = () => navigation.push('SearchScreen', { addToWatchlist: true });
-    const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen', { myWatchlistItems });
+    const advanceToWatchlistScreen = () => navigation.push('WatchlistScreen', { myWatchlistItems, myWatchlistRecs });
 
     const AddToWatchlistButton = () => {
         return (
@@ -92,7 +95,8 @@ export default HomeWatchlistCard = ({ navigation }) => {
             <HeaderContainer>
                 <HeaderContainerLeft>
                     <HeaderText>{'Watchlist'}</HeaderText>
-                    <HeaderSubText>{'"What are we gonna watch tonight?" YOU have the answer'}</HeaderSubText>
+                    <HeaderSubText>{'"What are we gonna watch tonight?"'}</HeaderSubText>
+                    <HeaderSubText>{'YOU have the answer'}</HeaderSubText>
                 </HeaderContainerLeft>
                 <AddToWatchlistButton />
             </HeaderContainer>

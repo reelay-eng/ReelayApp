@@ -93,7 +93,7 @@ const RecHeaderView = styled(View)`
     flex-direction: row;
     justify-content: space-between;
     margin-top: 16px;
-    margin-left: 16px;
+    margin-left: 8px;
     margin-bottom: 8px;
 `
 const RecHeaderViewLeft = styled(View)`
@@ -105,7 +105,7 @@ const RecTitleRowView = styled(View)`
     flex-direction: row;
     justify-content: space-between;
     margin-top: 6px;
-    padding-left: 16px;
+    padding-left: 8px;
     padding-bottom: 8px;
 `
 const RecTitleText = styled(ReelayText.H5Bold)`
@@ -130,7 +130,9 @@ const TitleInfoView = styled(View)`
     font-size: 18px;
     display: flex;
     flex: 1;
-    padding: 5px;
+    padding: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 `
 const TopBarView = styled(View)`
     align-items: center;
@@ -192,6 +194,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
 
     // we don't want to use selector here, else it will rerender the whole list whenever we update
     const myWatchlistItems = route?.params?.myWatchlistItems ?? [];
+    const myWatchlistRecs = route?.params?.myWatchlistRecs ?? [];
 
     const [displayItems, setDisplayItems] = useState(myWatchlistItems.filter(hasAcceptedRec));
     const [refreshing, setRefreshing] = useState(false);
@@ -312,7 +315,7 @@ export default WatchlistScreen = ({ navigation, route }) => {
     }
 
     const RecommendedTitles = () => {
-        const initRecDisplayTitles = myWatchlistItems.slice(0, 3).map(item => item.title);
+        const initRecDisplayTitles = myWatchlistRecs;
         const [recDisplayTitles, setRecDisplayTitles] = useState(initRecDisplayTitles);
 
         const RefreshRecsButton = () => {
@@ -355,9 +358,13 @@ export default WatchlistScreen = ({ navigation, route }) => {
         }    
 
         const renderRecTitleRow = (titleObj) => {
+            const advanceToTitleDetailScreen = () => navigation.push('TitleDetailScreen', {
+                titleObj
+            });
+
             return (
                 <RecTitleRowView key={titleObj?.titleKey}>
-                    <TitlePoster title={titleObj} width={45} />
+                    <TitlePoster onPress={advanceToTitleDetailScreen} title={titleObj} width={45} />
                     <RecTitleInfo titleObj={titleObj} />
                     <AddToWatchlistButton 
                         navigation={navigation}

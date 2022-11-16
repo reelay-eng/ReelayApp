@@ -31,6 +31,7 @@ const initialState = {
     myClubs: [],
     myClubActivities: [],
     myWatchlistItems: [],
+    myWatchlistRecs: [],
     newTopicCreatedInClub: null,
     openedActivityDotMenu: null,
 
@@ -178,6 +179,8 @@ const appReducer = ( state = initialState, action) => {
         case 'setMyWatchlistItems':
             const myWatchlistItems = watchlistRecsReducer(action.payload);
             return { ...state, myWatchlistItems };    
+        case 'setMyWatchlistRecs':
+            return { ...state, myWatchlistRecs: action.payload };        
         case 'setNewTopicCreatedInClub':
             return { ...state, newTopicCreatedInClub: action.payload }
         case 'setOpenedActivityDotMenu':
@@ -386,6 +389,7 @@ export const mapStateToProps = (state) => ({
     myClubs: state.myClubs,
     myClubActivities: state.myClubActivities,
     myWatchlistItems: state.myWatchlistItems,
+    myWatchlistRecs: state.myWatchlistRecs,
     newTopicCreatedInClub: state.newTopicCreatedInClub,
     openedActivityDotMenu: state.openedActivityDotMenu,
 
