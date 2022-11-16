@@ -99,7 +99,7 @@ export default Hero = ({
     console.log('Hero is rendering: ', reelay.creator.username, reelay.title.display);
     return (
         <View key={index} style={{ justifyContent: 'flex-end'}}>
-            <FeedVideoPlayer navigation={navigation} reelay={reelay} viewable={viewable} />
+            <FeedVideoPlayer gameID={game?.id ?? null} navigation={navigation} reelay={reelay} viewable={viewable} />
 
             <BottomGradient colors={["transparent", "#0d0d0d"]} locations={[0.08, 1]} />
 

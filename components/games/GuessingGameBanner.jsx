@@ -381,7 +381,7 @@ const GuessingGameBanner = ({
                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
             }
 
-            if (!isPreview) {
+            if (!isPreview && reelayDBUser?.username !== 'be_our_guest') {
                 const postBody = {
                     authSession,
                     reqUserSub: reelayDBUser?.sub,
