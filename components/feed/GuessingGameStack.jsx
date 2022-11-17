@@ -78,6 +78,7 @@ export const GuessingGameStack = ({
     const checkAdvanceToNewClue = async () => {
         if (stackPosition < lastVisibleIndex && !gameOver) {
             setTimeout(() => {
+                if (!stackRef?.current) return;
                 stackRef.current.scrollToOffset({ offset: width * lastVisibleIndex });    
             }, 450);
         }

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { Dimensions, Pressable, SafeAreaView, TouchableOpacity, View } from 'react-native';
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
@@ -11,6 +11,7 @@ import ReelayColors from '../../constants/ReelayColors';
 import { FilterMappings, getTopFilters } from '../utils/FilterMappings';
 import AllFeedFilters from './AllFeedFilters';
 import NoResults from './NoResults';
+import { AuthContext } from '../../context/AuthContext';
 
 const { height, width } = Dimensions.get('window');
 
@@ -160,6 +161,10 @@ export default ReelayFeedHeader = ({
     selectedFilters = [],
     setSelectedFilters = () => {},
 }) => {
+    const { reelayDBUser } = useContext(AuthContext);
+    const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
+    const hideForGuests = ['following', 'on_my_streaming', 'in_my_clubs'];
+
     const canGoBack = navigation.getState().index > 0;
     const topOffset = useSafeAreaInsets().top;
 
@@ -369,7 +374,10 @@ export default ReelayFeedHeader = ({
     }
 
     const FilterBar = () => {
-        const renderFilter = (filter) => <FilterOption key={filter.option} filter={filter} />;
+        const renderFilter = (filter) => {
+            if (isGuestUser && hideForGuests.includes(filter.option)) return <View key={filter.option} />;
+            return <FilterOption key={filter.option} filter={filter} />;
+        }
         return (
             <FilterBarView topOffset={topOffset}>
                 <FilterBarBackdrop onPress={closeAllMenus} />

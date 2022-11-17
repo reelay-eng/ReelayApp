@@ -37,8 +37,8 @@ const YearText = styled(ReelayText.Subtitle2)`
 
 export default TitleSearchResultItem = ({ navigation, onGuessTitle, result, source, clubID, topicID }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
     const titleObj = result;
-
     // for movies and series
     // note that release_date for series has been overwritten with its first air date
     const title = titleObj?.display;
@@ -104,7 +104,7 @@ export default TitleSearchResultItem = ({ navigation, onGuessTitle, result, sour
                 <YearText>{`${releaseYear}    ${runtimeString}`}</YearText>
                 <ActorText>{actors}</ActorText>
             </TitleLineContainer>
-            { source === 'search' && (
+            { source === 'search' && !isGuestUser && (
                 <AddToWatchlistButton navigation={navigation} showCircle={false} titleObj={titleObj} />
             )}
         </PressableContainer>

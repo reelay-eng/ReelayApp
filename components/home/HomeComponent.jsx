@@ -53,6 +53,7 @@ const HomeComponent = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
     const scrollRef = useRef(null);
+    const showWatchlistGrid = (reelayDBUser?.username !== 'be_our_guest');
 
     const [selectedTab, setSelectedTab] = useState('discover');
     const tabOptions = ['discover', 'my stuff'];
@@ -150,11 +151,8 @@ const HomeComponent = ({ navigation }) => {
                 <PopularTitles navigation={navigation} />
                 <TopOfTheWeek navigation={navigation} />
                 <TopicsCarousel navigation={navigation} source='discover' /> 
-                <MyWatchlistGrid navigation={navigation} />
-                {/* <DiscoverClubs navigation={navigation} /> */}
-                {/* <FriendsAreWatching navigation={navigation} /> */}
+                { showWatchlistGrid && <MyWatchlistGrid navigation={navigation} /> }
                 <OnStreaming navigation={navigation} source='discover' />
-                {/* <InTheaters navigation={navigation} />  */}
                 <DiscoverSearch navigation={navigation} />
                 <Spacer />
             </ScrollContainer>
