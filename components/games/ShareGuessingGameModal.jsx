@@ -381,6 +381,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
 
         const ClueStatRow = ({ clueStats, index }) => {
             const guesserSubs = clueStats?.guesserSubs ?? [];
+            const displayGuesserSubs = guesserSubs.slice(0,5);
             const numCorrect = clueStats?.numCorrect ?? 0;
             const numGuesses = totalGuesses; // clueStats?.numGuesses ?? 1;
             const correctGuessIndex = myGuesses.findIndex(guess => guess?.isCorrect);
@@ -388,7 +389,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
             const correctRatio = (numGuesses === 0) ? 0 : numCorrect / numGuesses;
 
             const correctRatioStr = (100 * correctRatio).toFixed(0);
-            const statBarWidth = (correctRatioStr * 1.5) + 20;
+            const statBarWidth = (correctRatioStr * 1.4) + 10;
 
             return (
                 <ClueStatRowView isCorrect={isCorrect}>
@@ -402,7 +403,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
                         </CluePercentView>
                     </ClueCenterView>
                     <GuesserPicsRow>
-                        { guesserSubs.map(sub => <ProfilePicture user={{ sub, username: '' }} size={24} />)}
+                        { displayGuesserSubs.map(sub => <ProfilePicture user={{ sub, username: '' }} size={24} />)}
                     </GuesserPicsRow>
                 </ClueStatRowView>
             );
