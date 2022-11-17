@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
 import WatchlistItemDotMenu from './WatchlistItemDotMenu';
+import MarkedSeenModal from './MarkedSeenModal';
  
 const { height, width } = Dimensions.get('window');
 const CARD_SIDE_MARGIN = 6;
@@ -37,7 +38,13 @@ export default WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, w
     const advanceToTitleDetailScreen = () => navigation.push('TitleDetailScreen', { titleObj: watchlistItem.title });
     const [markedSeen, setMarkedSeen] = useState(watchlistItem?.hasSeenTitle);
     const [drawerVisible, setDrawerVisible] = useState(false);
+    const [showMarkedSeenModal, setShowMarkedSeenModal] = useState(false);
     const closeDrawer = () => setDrawerVisible(false);
+
+    const onMarkedSeen = (nextMarkedSeen) => {
+        setMarkedSeen(nextMarkedSeen);
+        if (nextMarkedSeen) setShowMarkedSeenModal(true);
+    }
 
     const DotMenuButton = () => {
         return (
@@ -52,7 +59,7 @@ export default WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, w
             <MarkSeenRow>
                 <MarkSeenButton 
                     markedSeen={markedSeen} 
-                    setMarkedSeen={setMarkedSeen} 
+                    setMarkedSeen={onMarkedSeen} 
                     showText={true} 
                     size={36}
                     watchlistItem={watchlistItem} 
@@ -73,6 +80,13 @@ export default WatchlistItemCard = ({ navigation, onMoveToFront, onRemoveItem, w
                     onMoveToFront={onMoveToFront}
                     onRemoveItem={onRemoveItem}
                     watchlistItem={watchlistItem}
+                />
+            )}
+            { showMarkedSeenModal && (
+                <MarkedSeenModal 
+                    closeModal={() => setShowMarkedSeenModal(false)} 
+                    navigation={navigation} 
+                    watchlistItem={watchlistItem} 
                 />
             )}
         </WatchlistCardView>

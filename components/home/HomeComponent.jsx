@@ -50,6 +50,7 @@ const HomeComponent = ({ navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
     const authSession = useSelector(state => state.authSession);
     const scrollRef = useRef(null);
+    const showWatchlistCard = (reelayDBUser?.username !== 'be_our_guest');
 
     const [selectedTab, setSelectedTab] = useState('discover');
     const tabOptions = ['discover', 'my stuff'];
@@ -142,8 +143,8 @@ const HomeComponent = ({ navigation }) => {
             </SafeAreaView>
             <ScrollContainer ref={scrollRef} refreshControl={refreshControl} showsVerticalScrollIndicator={false}>
                 <AnnouncementsAndNotices navigation={navigation} />
+                { showWatchlistCard && <HomeWatchlistCard navigation={navigation} /> }
                 <GuessingGames navigation={navigation} />
-                <HomeWatchlistCard navigation={navigation} />
                 <RecommendedForYou navigation={navigation} />
                 <PopularTitles navigation={navigation} />
                 <TopOfTheWeek navigation={navigation} />
