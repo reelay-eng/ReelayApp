@@ -52,6 +52,7 @@ import Toast from "react-native-toast-message";
 
 // other imports
 import * as Font from 'expo-font';
+import * as ReelayText from './components/global/Text';
 import { connect, Provider, useDispatch, useSelector } from 'react-redux';
 import store, { mapStateToProps } from './redux/store';
 import { ensureLocalImageDirExists, maybeFlushTitleImageCache } from './api/ReelayLocalImageCache';
@@ -81,6 +82,43 @@ const SplashImage = styled(Image)`
     width: 100%;
     position: absolute;
 `
+
+const SigningInIndicator = () => {
+    const ButtonText = styled(ReelayText.Body2Emphasized)`
+        color: white;
+        line-height: 24px;
+        font-family: Outfit-Medium;
+        font-size: 20px;
+    `
+    const SigningInOuterView = styled(View)`
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        justify-content: center;
+        align-items: center;
+    `
+    const SigningInView = styled(View)`
+        background-color: #0d0d0d;
+        border-radius: 20px;
+        width: 80%;
+        justify-content: center;
+        align-items: center;
+    `
+    const Spacer = styled(View)`
+        height: 15%;
+    `
+    return (
+        <SigningInOuterView>
+            <SigningInView>
+                <ButtonText>Just a moment</ButtonText>
+                <Spacer />
+                <ActivityIndicator color='white' />
+            </SigningInView>
+        </SigningInOuterView>
+    )
+}
+
 
 const canUseNativeModules = Constants.appOwnership !== 'expo';
 const SPLASH_IMAGE_SOURCE = require('./assets/images/reelay-splash-with-dog-black.png');
@@ -490,7 +528,7 @@ function App() {
         return (
             <SplashContainer>
                 <LoadingContainer>
-                    <ActivityIndicator />
+                    <SigningInIndicator />
                 </LoadingContainer>
                 <AuthContext.Provider value={authState}>
                     <StatusBar style="light" />
