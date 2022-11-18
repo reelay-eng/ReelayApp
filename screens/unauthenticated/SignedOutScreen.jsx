@@ -126,7 +126,7 @@ const SigningInIndicator = () => {
             <SigningInContainer>
                 <ButtonText color='white' style={{fontSize: 20, lineHeight: 24}}>Just a moment</ButtonText>
                 <Spacer height='15%' />
-                <ActivityIndicator size="large" color='white' />
+                <ActivityIndicator color='white' />
             </SigningInContainer>
         </SigningInOuterContainer>
     )

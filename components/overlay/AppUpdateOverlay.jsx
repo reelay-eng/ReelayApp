@@ -51,10 +51,10 @@ const Description = styled(ReelayText.H6)`
 `
 const SubDescription = styled(ReelayText.H6)`
     color: white;
+    line-height: 30px;
     opacity: 0.6;
     text-align: center;
 `
-
 const ButtonsContainer = styled(View)`
     display: flex;
     flex-direction: row;
@@ -97,9 +97,9 @@ export default AppUpdateOverlay = () => {
             </ButtonContainer>
         )
     }
-    const descriptionText = 
-        appUpdateRequired ? "A required update is available." 
-        : "A new version of reelay is available. ";
+    const descriptionText = appUpdateRequired 
+        ? "An update is required" 
+        : "A new version of reelay is available";
     return (
         <Container>
             <Backdrop/>
@@ -107,9 +107,7 @@ export default AppUpdateOverlay = () => {
                 <ReelayLogo source={ReelayLogoText} resizeMode="contain"/>
                 <Description>
                     {descriptionText}{"\n"}
-                    <SubDescription>
-                        Version {appUpdateVersion} has been released.
-                    </SubDescription>
+                    <SubDescription>{`Version ${appUpdateVersion}`}</SubDescription>
                 </Description>
                 <ButtonsContainer>
                     { !appUpdateRequired && <IgnoreButton />}

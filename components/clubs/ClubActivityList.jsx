@@ -23,6 +23,7 @@ import TopicCard from '../topics/TopicCard';
 import ClubAddedMemberCard from './ClubAddedMemberCard';
 import { FlashList } from '@shopify/flash-list';
 import { AuthContext } from '../../context/AuthContext';
+import InviteToChatExternalPrompt from './InviteToChatExternalPrompt';
 
 
 const { height, width } = Dimensions.get('window');

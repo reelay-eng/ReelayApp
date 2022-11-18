@@ -52,32 +52,30 @@ const UnreadIconIndicator = styled(SafeAreaView)`
 `
 
 export default HomeHeader = ({ navigation }) => {
-    const HomeHeaderTop = () => {
-        const myNotifications = useSelector(state => state.myNotifications);
-        const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
-    
-        const advanceToMyNotifications = () => navigation.push('NotificationScreen');
-        const advanceToSearchScreen = () => navigation.push('SearchScreen');
-    
-        return (
-            <HeaderContainer>
-                <HeaderContainerLeft>
-                    <HeaderText>{'reelay'}</HeaderText>
-                </HeaderContainerLeft>
-                <HeaderContainerRight>
-                    <IconContainer onPress={advanceToSearchScreen}>
-                        <SearchIconSVG />
-                    </IconContainer>
+    const { reelayDBUser } = useContext(AuthContext);
+    const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
+    const myNotifications = useSelector(state => state.myNotifications);
+    const hasUnreadNotifications = myNotifications.filter(({ seen }) => !seen).length > 0;
+
+    const advanceToMyNotifications = () => navigation.push('NotificationScreen');
+    const advanceToSearchScreen = () => navigation.push('SearchScreen');
+
+    return (
+        <HeaderContainer>
+            <HeaderContainerLeft>
+                <HeaderText>{'reelay'}</HeaderText>
+            </HeaderContainerLeft>
+            <HeaderContainerRight>
+                <IconContainer onPress={advanceToSearchScreen}>
+                    <SearchIconSVG />
+                </IconContainer>
+                { !isGuestUser && (
                     <IconContainer onPress={advanceToMyNotifications}>
                         <NotificationIconSVG />
                         { hasUnreadNotifications && <UnreadIconIndicator /> }
                     </IconContainer>
-                </HeaderContainerRight>
-            </HeaderContainer>
-        );
-    };
-    
-    return (
-        <HomeHeaderTop navigation={navigation} />
-    )
+                )}
+            </HeaderContainerRight>
+        </HeaderContainer>
+    );
 };

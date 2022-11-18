@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Dimensions, TouchableOpacity, View } from 'react-native';
 import { getHomeFilters } from '../utils/FilterMappings';
 import ReelayColors from '../../constants/ReelayColors';
 import * as ReelayText from '../global/Text';
 import styled from 'styled-components/native';
+import { AuthContext } from '../../context/AuthContext';
 
 const CategoryHeader = styled(ReelayText.H5Bold)`
     color: white;
@@ -75,6 +76,10 @@ const SearchBarText = styled(ReelayText.Overline)`
 `
 
 export default DiscoverSearch = ({ navigation }) => {
+    const { reelayDBUser } = useContext(AuthContext);
+    const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
+    const hideForGuests = ['on_my_streaming', 'in_my_clubs'];
+
     const [selectedFilters, setSelectedFilters] = useState([]);
     const filterOptions = getHomeFilters();
     const renderFilter = (filter) => <FilterOption key={filter.option} filter={filter} />;
@@ -107,6 +112,8 @@ export default DiscoverSearch = ({ navigation }) => {
         const { category, option, display } = filter;
         const isSelected = isFilterSelected(filter);
         const onPress = () => onSelectOrUnselectFilter(filter);
+
+        if (isGuestUser && hideForGuests.includes(option)) return <View />;
 
         return (
             <FilterPressable selected={isSelected} onPress={onPress}>

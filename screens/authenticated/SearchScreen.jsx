@@ -72,7 +72,13 @@ const SearchBarWithResults = ({ navigation, initialSearchType, addToWatchlist })
     const [loading, setLoading] = useState(false);
 
     const myFollowing = useSelector(state => state.myFollowing);
-    const tabOptions = addToWatchlist ? ['Film', 'TV'] : ['Film', 'TV', 'Chats', 'Users'];
+    const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
+    const allSearchOptions = isGuestUser 
+        ? ['Film', 'TV', 'Users'] 
+        : ['Film', 'TV', 'Chats', 'Users']
+    const tabOptions = addToWatchlist 
+        ? ['Film', 'TV'] 
+        : allSearchOptions;
 
     const [searchText, setSearchText] = useState("");
     const [searchResults, setSearchResults] = useState([]);
