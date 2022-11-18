@@ -244,6 +244,7 @@ const YearView = styled(View)`
 
 export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
     const { reelayDBUser } = useContext(AuthContext);
+    const isGuestUser = (reelayDBUser?.username === 'be_our_guest');
     const myGuesses = game?.myGuesses ?? [];
 
     const hasCompletedGame = game?.hasCompletedGame;
@@ -267,7 +268,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
     const statCount = game?.stats?.length ?? 0;
     const statRowCount = statCount + 1; // leave room for losing stats row
     const rowHeight = 32; // sorry magic numbers
-    const fixedHeight = 460;
+    const fixedHeight = isGuestUser ? 316 : 460;
     const modalViewHeight = (rowHeight * statRowCount) + fixedHeight;
 
     const CloseButton = () => {
@@ -515,7 +516,7 @@ export default ShareGuessingGameModal = ({ closeModal, game, navigation }) => {
                     <GuessMarkers />
                     <TitleRow />
                     <GuessStats />
-                    <ShareSection />
+                    { !isGuestUser && <ShareSection /> }
                 </ShareCardView>
             </OverlayBox>
         </Modal>
