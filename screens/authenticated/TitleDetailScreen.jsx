@@ -24,6 +24,8 @@ import BackButton from '../../components/utils/BackButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AddToWatchlistButton from '../../components/watchlist/AddToWatchlistButton';
 import SeenOn from '../../components/titlePage/SeenOn';
+import TitleDetailHeader from '../../components/titlePage/TitleDetailHeader';
+import TitleReactions from '../../components/titlePage/TitleReactions';
 
 const BottomBackButtonContainer = styled(View)`
 	align-items: center;
@@ -48,7 +50,7 @@ const ScrollBox = styled(ScrollView)`
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	background-color: #0d0d0d;
+	background-color: black;
 `
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
@@ -64,11 +66,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 	const director = titleObj?.director?.name;
 	const overview = titleObj?.overview;
 	const tmdbTitleID = titleObj?.id;
-	const trailerURI = titleObj?.trailerURI;
-	const genres = titleObj?.genres;
 	const rating = titleObj?.rating;
-	const releaseYear = titleObj?.releaseYear;
-	const runtime = titleObj?.runtime;
 	const isSeries = titleObj?.isSeries;
 	const titleType = (isSeries) ? "tv" : "film";
 
@@ -81,7 +79,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 		dispatch({ type: 'setTabBarVisible', payload: false });
 	});
 
-	const Header = () => {
+	const NavHeader = () => {
 		return (
 			<HeaderContainer topOffset={headerTopOffset}>
 				<BackButton navigation={navigation} />
@@ -92,24 +90,13 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 
 	return (
 		<ScrollBox showsVerticalScrollIndicator={false}>
-			<PosterWithTrailer
-				navigation={navigation}
-				height={height * 0.6}
-				posterSource={changeSize(titleObj.posterSource, 'w500')}
-				title={titleObj?.display}
-				titleObj={titleObj}
-				tmdbTitleID={tmdbTitleID}
-				trailerURI={trailerURI}
-				genres={genres}
-				releaseYear={releaseYear}
-				runtime={runtime}
-				isSeries={isSeries}
-			/>
-			<Header />
-			<PopularReelaysRow navigation={navigation} titleObj={titleObj} />
-			<SeenOn tmdbTitleID={tmdbTitleID} titleType={titleType} />
+			<TitleDetailHeader navigation={navigation} titleObj={titleObj} />
+			<NavHeader />
+			<TitleReactions navigation={navigation} titleObj={titleObj} />
 			<MovieInformation director={director} actors={actors} description={overview} rating={rating} />
 			<Spacer height={20} />
+			<PopularReelaysRow navigation={navigation} titleObj={titleObj} />
+			<SeenOn tmdbTitleID={tmdbTitleID} titleType={titleType} />
 			<BottomBackButton navigation={navigation} />
 			<Spacer height={100} />
 			{ justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }

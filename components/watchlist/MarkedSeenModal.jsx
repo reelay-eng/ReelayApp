@@ -25,6 +25,7 @@ import { setReactEmojis } from '../../api/WatchlistApi';
 
 const { width } = Dimensions.get('window');
 
+const DEFAULT_REACT_EMOJIS = '🤣😍😴';
 const ICON_SIZE = 24;
 const MODAL_HEIGHT = 383;
 const MODAL_WIDTH = 265;
@@ -131,7 +132,7 @@ export default MarkedSeenModal = ({
     const dispatch = useDispatch();
     const titleObj = watchlistItem?.title;
 
-    const [displayEmojis, setDisplayEmojis] = useState('🤣😍😴');
+    const [displayEmojis, setDisplayEmojis] = useState(DEFAULT_REACT_EMOJIS);
     const [selectedEmojis, setSelectedEmojis] = useState([]);
 
     const CloseButton = () => {

@@ -21,52 +21,97 @@ import PG13Rating from "../../assets/images/MPAA_Ratings/PG13Rating.png";
 import NC17Rating from "../../assets/images/MPAA_Ratings/NC17Rating.png";
 import RRating from "../../assets/images/MPAA_Ratings/RRating.png";
 
+const ActorBadgesView = styled(View)`
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+`
+const BadgeWrapper = styled(View)`
+	align-self: flex-start;
+`
+const DescriptionText = styled(ReelayText.Body1)`
+	color: white;
+	opacity: 1;
+`
+const HeadingText = styled(ReelayText.H5Emphasized)`
+	color: white;
+`
+const MIExternalView = styled(View)`
+	margin-right: 4%;
+	margin-left: 4%;
+	border-radius: 8px;
+	background-color: #191919;
+`
+const MIInternalView = styled(View)`
+	display: flex;
+	flex-direction: column;
+	margin-left: 20px;
+	margin-right: 20px;
+	margin-bottom: 30px;
+	margin-top: 30px;
+`
+const MoreButton = styled(Pressable)`
+	margin-top: -3px;
+`
+const MoreText = styled(ReelayText.Subtitle1Emphasized)`
+	color: ${ReelayColors.reelayBlue};
+`
+const RatingView = styled(View)`
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+`
+const RatingImage = styled(Image)`
+	width: 58px;
+	height: 36px;
+`
+let ratingSources = {
+	"PG-13": PG13Rating,
+	"G": GRating,
+	"PG": PGRating,
+	"R": RRating,
+	"NC-17": NC17Rating
+}
+
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
-`;
+`
+
 
 const tmdbImageApiBaseUrl = `http://image.tmdb.org/t/p/w500/`;
 
-export default MovieInformation = ({description, director, actors, rating}) => {
+export default MovieInformation = ({ description, director, actors, rating }) => {
+	const showRating = rating && Object.keys(ratingSources).includes(rating);
+	const showNoInformation = (
+		!rating && 
+		!(Object.keys(ratingSources).includes(rating)) && 
+		!(actors?.length > 0) && 
+		!director && 
+		!(description?.length > 0)
+	);
 
-    const MIExternalContainer = styled(View)`
-		margin-right: 4%;
-		margin-left: 4%;
-		border-radius: 8px;
-		background-color: #191919;
-	`;
-
-    const MIInternalContainer = styled(View)`
-        display: flex;
-        flex-direction: column;
-        margin-left: 20px;
-		margin-right: 20px;
-		margin-bottom: 30px;
-		margin-top: 30px;
-    `
-
-    const HeadingText = styled(ReelayText.H5Emphasized)`
-        color: white;
-    `
+	const ActorBadgeWrapper = ({ actor }) => {
+		const photoURL = actor?.profile_path 
+			? `${tmdbImageApiBaseUrl}${actor?.profile_path}` 
+			: null;
+		return (
+			<BadgeWrapper>
+				<ActorBadge
+					text={actor.name}
+					photoURL={photoURL}
+				/>
+			</BadgeWrapper>
+		)
+	}
 
     const DescriptionCollapsible = ({description}) => {
         const [descriptionIsCut, setDescriptionIsCut] = useState(true);
 		const [moreShouldBeVisible, setMoreShouldBeVisible] = useState(true);
 		const minCharsToDisplayMore = 215;
+
         useEffect(() => {
             if (description.length < minCharsToDisplayMore) setMoreShouldBeVisible(false);
         }, [])
-
-        const DescriptionText = styled(ReelayText.Body1)`
-            color: white;
-			opacity: 1;
-        `
-        const MoreButton = styled(Pressable)`
-            margin-top: -3px;
-        `
-        const MoreText = styled(ReelayText.Subtitle1Emphasized)`
-            color: ${ReelayColors.reelayBlue};
-        `
 
         return (
 			<Text>
@@ -85,40 +130,12 @@ export default MovieInformation = ({description, director, actors, rating}) => {
 			</Text>
 		);
     }
-
-    const BadgeWrapper = styled(View)`
-        align-self: flex-start;
-    `
-
-    const ActorBadgesContainer = styled(View)`
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-    `
-	const RatingContainer = styled(View)`
-		display: flex;
-		flex-direction: row;
-		align-items: flex-start;
-	`
-
-	const RatingImage = styled(Image)`
-		width: 58px;
-		height: 36px;
-	`
-	let ratingSources = {
-		"PG-13": PG13Rating,
-		"G": GRating,
-		"PG": PGRating,
-		"R": RRating,
-		"NC-17": NC17Rating
-	}
 	
     return (
-		<MIExternalContainer>
-			<MIInternalContainer>
+		<MIExternalView>
+			<MIInternalView>
 				{description?.length > 0 && (
 					<>
-						<HeadingText>Description</HeadingText>
 						<Spacer height={10} />
 						<DescriptionCollapsible description={description} />
 						<Spacer height={30} />
@@ -136,36 +153,25 @@ export default MovieInformation = ({description, director, actors, rating}) => {
 				{actors?.length > 0 && (
 					<>
 						<HeadingText>Cast</HeadingText>
-						<ActorBadgesContainer>
-							{actors.map((e) => (
-								<BadgeWrapper key={e.name}>
-									<ActorBadge
-										text={e.name}
-										photoURL={
-											e.profile_path
-												? `${tmdbImageApiBaseUrl}${e.profile_path}`
-												: null
-										}
-									/>
-								</BadgeWrapper>
-							))}
-						</ActorBadgesContainer>
+						<ActorBadgesView>
+							{ actors.map(actor => <ActorBadgeWrapper actor={actor} key={actor.name} /> )}
+						</ActorBadgesView>
 						<Spacer height={30} />
 					</>
 				)}
-				{rating && Object.keys(ratingSources).includes(rating) && (
+				{showRating && (
 					<>
 						<HeadingText>Rated</HeadingText>
 						<Spacer height={10} />
-						<RatingContainer>
+						<RatingView>
 							<RatingImage source={ratingSources[rating]} />
-						</RatingContainer>
+						</RatingView>
 					</>
 				)}
-				{!rating && !(Object.keys(ratingSources).includes(rating)) && !(actors?.length > 0) && !director && !(description?.length > 0) && (
+				{showNoInformation && (
 					<HeadingText>No Information Found</HeadingText>
 				)}
-			</MIInternalContainer>
-		</MIExternalContainer>
+			</MIInternalView>
+		</MIExternalView>
 	);
 }

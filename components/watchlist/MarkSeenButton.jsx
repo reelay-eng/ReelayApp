@@ -35,8 +35,8 @@ export default MarkSeenButton = ({
 
     const updateWatchlistReqBody = { 
         reqUserSub: reelayDBUser?.sub, 
-        tmdbTitleID: titleObj.id, 
-        titleType: titleObj.titleType,
+        tmdbTitleID: titleObj?.id, 
+        titleType: titleObj?.titleType,
     };
 
     const markSeen = async () => {

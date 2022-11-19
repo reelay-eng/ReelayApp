@@ -255,7 +255,7 @@ export const getPreferredReactEmojis = async ({ authSession, reqUserSub }) => {
 
 export const getTitleReactEmojis = async ({ authSession, tmdbTitleID, titleType, reqUserSub }) => {
     const queryParams = `tmdbTitleID=${tmdbTitleID}&titleType=${titleType}`;
-    const routePost = `${REELAY_API_BASE_URL}/watchlists/preferredReactEmojis?${queryParams}`;
+    const routePost = `${REELAY_API_BASE_URL}/watchlists/titleReactEmojis?${queryParams}`;
     console.log(routePost);
 
     try {
