@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getWatchlistItems, markWatchlistItemSeen, markWatchlistItemUnseen } from '../../api/WatchlistApi';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
+import moment from 'moment';
 
 const MarkSeenButtonContainer = styled(TouchableOpacity)`
     align-items: center;
@@ -22,8 +23,8 @@ const MarkSeenText = styled(ReelayText.CaptionEmphasized)`
 `
 
 export default MarkSeenButton = ({ 
-    markedSeen, 
-    setMarkedSeen, 
+    // markedSeen, 
+    // setMarkedSeen, 
     showText=true, 
     size=30,
     watchlistItem,
@@ -33,6 +34,11 @@ export default MarkSeenButton = ({
     const dispatch = useDispatch();
     const titleObj = watchlistItem?.title;
 
+    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+    const matchWatchlistItem = (nextItem) => nextItem?.id === watchlistItem?.id;
+    const myWatchlistItem = myWatchlistItems?.find(matchWatchlistItem) ?? null;
+    const markedSeen = myWatchlistItem ? myWatchlistItem?.hasSeenTitle : null;
+
     const updateWatchlistReqBody = { 
         reqUserSub: reelayDBUser?.sub, 
         tmdbTitleID: titleObj?.id, 
@@ -40,7 +46,11 @@ export default MarkSeenButton = ({
     };
 
     const markSeen = async () => {
-        setMarkedSeen(true);
+        if (watchlistItem?.id) {
+            watchlistItem.hasSeenTitle = true;
+            watchlistItem.updatedAt = moment().toISOString();
+            dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
+        }
         const markSeenResult = await markWatchlistItemSeen(updateWatchlistReqBody);
         console.log('mark seen result: ', markSeenResult);
 
@@ -48,17 +58,15 @@ export default MarkSeenButton = ({
             username: reelayDBUser?.username,
             title: titleObj?.display,
         });
-
-        if (watchlistItem?.id) {
-            watchlistItem.hasSeenTitle = true;
-            dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
-        }
-        // const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
-        // dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })    
     }
 
     const markUnseen = async () => {
-        setMarkedSeen(false);
+        if (watchlistItem?.id) {
+            watchlistItem.hasSeenTitle = false;
+            watchlistItem.updatedAt = moment().toISOString();
+            dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
+        }
+
         const markUnseenResult = await markWatchlistItemUnseen(updateWatchlistReqBody);
         console.log('mark unseen result: ', markUnseenResult);
 
@@ -66,13 +74,6 @@ export default MarkSeenButton = ({
             username: reelayDBUser?.username,
             title: titleObj?.display,
         });
-
-        if (watchlistItem?.id) {
-            watchlistItem.hasSeenTitle = false;
-            dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItem });
-        }
-        // const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
-        // dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })    
     }
 
     return (

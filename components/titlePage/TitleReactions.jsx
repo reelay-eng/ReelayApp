@@ -118,34 +118,6 @@ export default TitleReactions = ({ navigation, titleObj }) => {
     // changes: remove reaction, add reaction
 
     // takes form of a watchlistItem
-    const newReaction = {
-        recommendedReelaySub: null, 
-        recReelayCreatorName: null,
-        tmdbTitleID: titleObj?.id, 
-        titleType: titleObj?.titleType,     
-        reactEmojis: '',
-    };
-
-    const authSession = useSelector(state => state.authSession);
-    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
-    const dispatch = useDispatch();
-    const { reelayDBUser } = useContext(AuthContext);
-    const [markedSeen, setMarkedSeen] = useState(false);
-    const [myReaction, setMyReaction] = useState(newReaction);
-    const [allReactions, setAllReactions] = useState([]);
-
-    const getReactionsByEmoji = () => allReactions.reduce((emojiCounts, nextReaction) => {
-        const utf16EmojiBuffer = nextReaction?.reactEmojis ?? '';
-        for (let ii = 0; ii < utf16EmojiBuffer?.length; ii += 2) {
-            const emoji = utf16EmojiBuffer.charAt(ii) + utf16EmojiBuffer.charAt(ii + 1);
-            if (emojiCounts[emoji]) {
-                emojiCounts[emoji] += 1;
-            } else {
-                emojiCounts[emoji] = 1;
-            }
-        }
-        return emojiCounts;
-    }, {...DEFAULT_REACTIONS_BY_EMOJI});
 
     const getMyReaction = () => {
         const matchWatchlistItem = ({ tmdbTitleID, titleType }) => {
@@ -166,8 +138,30 @@ export default TitleReactions = ({ navigation, titleObj }) => {
         return myWatchlistItems.find(matchWatchlistItem) ?? newWatchlistItem;
     }
 
-    const reactionsByEmoji = getReactionsByEmoji();
+    const authSession = useSelector(state => state.authSession);
+    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+    const dispatch = useDispatch();
+    const { reelayDBUser } = useContext(AuthContext);
 
+    const [myReaction, setMyReaction] = useState(getMyReaction());
+    const [markedSeen, setMarkedSeen] = useState(myReaction?.hasSeenTitle);
+    const [allReactions, setAllReactions] = useState([]);
+
+    const getReactionsByEmoji = () => allReactions.reduce((emojiCounts, nextReaction) => {
+        const utf16EmojiBuffer = nextReaction?.reactEmojis ?? '';
+        for (let ii = 0; ii < utf16EmojiBuffer?.length; ii += 2) {
+            const emoji = utf16EmojiBuffer.charAt(ii) + utf16EmojiBuffer.charAt(ii + 1);
+            if (emojiCounts[emoji]) {
+                emojiCounts[emoji] += 1;
+            } else {
+                emojiCounts[emoji] = 1;
+            }
+        }
+        return emojiCounts;
+    }, {...DEFAULT_REACTIONS_BY_EMOJI});
+
+    const reactionsByEmoji = getReactionsByEmoji();
+    
     const loadReactions = async () => {
         const loadReactionsObj = await getTitleReactEmojis({ 
             authSession, 
@@ -288,7 +282,7 @@ export default TitleReactions = ({ navigation, titleObj }) => {
                     markedSeen={markedSeen} 
                     setMarkedSeen={setMarkedSeen} 
                     showText={true}
-                    watchlistItem={null}            
+                    watchlistItem={myReaction}            
                 />
             </ReactionHeaderRow>
         );

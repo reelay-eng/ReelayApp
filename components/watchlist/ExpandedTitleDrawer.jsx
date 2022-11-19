@@ -4,7 +4,7 @@ import { ActivityIndicator, Dimensions, Modal, Pressable, TouchableOpacity, View
 import styled from 'styled-components/native';
 import * as ReelayText from '../global/Text';
 import { AuthContext } from '../../context/AuthContext';
-import { addToMyWatchlist, getWatchlistItems, removeFromMyWatchlist } from '../../api/WatchlistApi';
+import { addToMyWatchlist, removeFromMyWatchlist } from '../../api/WatchlistApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faClapperboard, faStar } from '@fortawesome/free-solid-svg-icons';

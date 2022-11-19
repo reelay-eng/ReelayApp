@@ -199,8 +199,8 @@ export const sortByLastActivity = (club0, club1) => {
 }
 
 const sortWatchlistItems = (item0, item1) => {
-    const item0Date = item0.lastMovedToFrontAt ?? item0.addedAt;
-    const item1Date = item1.lastMovedToFrontAt ?? item1.addedAt;
+    const item0Date = item0.lastMovedToFrontAt ?? item0.updatedAt;
+    const item1Date = item1.lastMovedToFrontAt ?? item1.updatedAt;
     return item1Date > item0Date ? 1 : -1;
 }
 

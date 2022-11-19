@@ -2,7 +2,6 @@ import React, { useContext, useEffect } from 'react';
 import { 
     Dimensions, 
     Pressable, 
-    SafeAreaView, 
     ScrollView, 
     TouchableOpacity, 
     View,
@@ -18,7 +17,6 @@ import { Icon } from "react-native-elements";
 import MovieInformation from '../../components/titlePage/MovieInformation';
 import PopularReelaysRow from '../../components/titlePage/PopularReelaysRow';
 import JustShowMeSignupDrawer from '../../components/global/JustShowMeSignupDrawer';
-import { changeSize } from '../../api/TMDbApi';
 
 import BackButton from '../../components/utils/BackButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
