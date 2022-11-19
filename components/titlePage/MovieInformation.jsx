@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { 
     Image,
     Pressable, 
@@ -20,14 +20,26 @@ import PGRating from "../../assets/images/MPAA_Ratings/PGRating.png";
 import PG13Rating from "../../assets/images/MPAA_Ratings/PG13Rating.png";
 import NC17Rating from "../../assets/images/MPAA_Ratings/NC17Rating.png";
 import RRating from "../../assets/images/MPAA_Ratings/RRating.png";
+import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
+import { faClapperboard, faStar } from '@fortawesome/free-solid-svg-icons';
 
-const ActorBadgesView = styled(View)`
-	display: flex;
-	flex-direction: row;
-	flex-wrap: wrap;
+const ArtistBadgeView = styled(View)`
+    align-items: center;
+    border-radius: 8px;
+    justify-content: center;
+    margin-right: 8px;
+    padding: 4px;
+    display: flex;
+    flex-direction: row;
 `
-const BadgeWrapper = styled(View)`
-	align-self: flex-start;
+const ArtistRow = styled(View)`
+    align-items: center;
+    flex-direction: row;
+    padding-top: 12px;
+`
+const ArtistText = styled(ReelayText.CaptionEmphasized)`
+    color: white;
+    height: 16px;
 `
 const DescriptionText = styled(ReelayText.Body1)`
 	color: white;
@@ -77,32 +89,34 @@ const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
 `
 
-
-const tmdbImageApiBaseUrl = `http://image.tmdb.org/t/p/w500/`;
-
-export default MovieInformation = ({ description, director, actors, rating }) => {
+export default MovieInformation = ({ titleObj }) => {
+	const description = titleObj?.overview;	
+	const displayActors = titleObj?.displayActors;
+	const rating = titleObj?.rating;
 	const showRating = rating && Object.keys(ratingSources).includes(rating);
-	const showNoInformation = (
-		!rating && 
-		!(Object.keys(ratingSources).includes(rating)) && 
-		!(actors?.length > 0) && 
-		!director && 
-		!(description?.length > 0)
-	);
 
-	const ActorBadgeWrapper = ({ actor }) => {
-		const photoURL = actor?.profile_path 
-			? `${tmdbImageApiBaseUrl}${actor?.profile_path}` 
-			: null;
-		return (
-			<BadgeWrapper>
-				<ActorBadge
-					text={actor.name}
-					photoURL={photoURL}
-				/>
-			</BadgeWrapper>
-		)
-	}
+	const ActorLine = () => {
+        const actorName0 = displayActors[0]?.name;
+        const actorName1 = displayActors[1]?.name;
+        if (!actorName0) return <View />;
+
+        return (
+            <ArtistRow>
+                <FontAwesomeIcon icon={faStar} color='white' size={18} />
+                <ArtistBadgeView>
+                    <ArtistText>{actorName0}</ArtistText>
+                </ArtistBadgeView>
+                { actorName1 && (
+                    <Fragment>
+                        <FontAwesomeIcon icon={faStar} color='white' size={18} />
+                        <ArtistBadgeView>
+                            <ArtistText>{actorName1}</ArtistText>
+                        </ArtistBadgeView>
+                    </Fragment>
+                )}
+            </ArtistRow>
+        );
+    }
 
     const DescriptionCollapsible = ({description}) => {
         const [descriptionIsCut, setDescriptionIsCut] = useState(true);
@@ -130,46 +144,38 @@ export default MovieInformation = ({ description, director, actors, rating }) =>
 			</Text>
 		);
     }
+
+	const DirectorLine = () => {
+        const directorName = titleObj?.director?.name;
+        if (!directorName) return <View />;
+        return (
+            <ArtistRow>
+                <FontAwesomeIcon icon={faClapperboard} color='white' size={18} />
+                <ArtistBadgeView>
+                    <ArtistText>{directorName}</ArtistText>
+                </ArtistBadgeView>
+            </ArtistRow>
+        );
+    }        
 	
     return (
 		<MIExternalView>
 			<MIInternalView>
 				{description?.length > 0 && (
 					<>
-						<Spacer height={10} />
 						<DescriptionCollapsible description={description} />
-						<Spacer height={30} />
+						<Spacer height={12} />
 					</>
 				)}
-				{director && (
-					<>
-						<HeadingText>Director</HeadingText>
-						<BadgeWrapper>
-							<DirectorBadge text={director} />
-						</BadgeWrapper>
-						<Spacer height={30} />
-					</>
-				)}
-				{actors?.length > 0 && (
-					<>
-						<HeadingText>Cast</HeadingText>
-						<ActorBadgesView>
-							{ actors.map(actor => <ActorBadgeWrapper actor={actor} key={actor.name} /> )}
-						</ActorBadgesView>
-						<Spacer height={30} />
-					</>
-				)}
+				<DirectorLine />
+				<ActorLine />
 				{showRating && (
 					<>
-						<HeadingText>Rated</HeadingText>
-						<Spacer height={10} />
+						<Spacer height={24} />
 						<RatingView>
 							<RatingImage source={ratingSources[rating]} />
 						</RatingView>
 					</>
-				)}
-				{showNoInformation && (
-					<HeadingText>No Information Found</HeadingText>
 				)}
 			</MIInternalView>
 		</MIExternalView>

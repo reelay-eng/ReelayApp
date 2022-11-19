@@ -25,7 +25,7 @@ const SeeAllReviewsPressable = styled(TouchableOpacity)`
 	margin: 24px;
 	width: ${width - 48}px;
 `
-const SeeAllReviewsText = styled(ReelayText.Overline)`
+const SeeAllReviewsText = styled(ReelayText.CaptionEmphasized)`
 	color: white;
 `
 const TopReelaysContainer = styled(View)`

@@ -4,6 +4,7 @@ import {
     Pressable, 
     SafeAreaView, 
     ScrollView, 
+    TouchableOpacity, 
     View,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -16,16 +17,21 @@ import styled from 'styled-components/native';
 import { Icon } from "react-native-elements";
 import MovieInformation from '../../components/titlePage/MovieInformation';
 import PopularReelaysRow from '../../components/titlePage/PopularReelaysRow';
-import PosterWithTrailer from '../../components/titlePage/PosterWithTrailer';
 import JustShowMeSignupDrawer from '../../components/global/JustShowMeSignupDrawer';
 import { changeSize } from '../../api/TMDbApi';
 
 import BackButton from '../../components/utils/BackButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AddToWatchlistButton from '../../components/watchlist/AddToWatchlistButton';
-import SeenOn from '../../components/titlePage/SeenOn';
 import TitleDetailHeader from '../../components/titlePage/TitleDetailHeader';
 import TitleReactions from '../../components/titlePage/TitleReactions';
+import WatchNow from '../../components/titlePage/WatchNow';
+import ReelayColors from '../../constants/ReelayColors';
+import * as ReelayText from '../../components/global/Text';
+import { AuthContext } from '../../context/AuthContext';
+import { logAmplitudeEventProd } from '../../components/utils/EventLogger';
+
+const { width } = Dimensions.get('window');
 
 const BottomBackButtonContainer = styled(View)`
 	align-items: center;
@@ -33,9 +39,22 @@ const BottomBackButtonContainer = styled(View)`
 	border-radius: 24px;
 	justify-content: center;
 	margin-left: 16px;
-	margin-top: 16px;
 	height: 48px;
 	width: 48px;
+`
+const CreateReelayPressable = styled(TouchableOpacity)`
+	align-items: center;
+	background-color: ${ReelayColors.reelayBlue};
+	border-radius: 20px;
+	flex-direction: row;
+	height: 40px;
+	justify-content: center;
+	margin: 16px;
+	margin-top: 0px;
+	width: ${width - 32}px;
+`
+const CreateReelayText = styled(ReelayText.CaptionEmphasized)`
+	color: white;
 `
 const HeaderContainer = styled(View)`
 	align-items: center;
@@ -55,29 +74,51 @@ const ScrollBox = styled(ScrollView)`
 const Spacer = styled(View)`
 	height: ${(props) => props.height}px;
 `
+const WatchTrailerPressable = styled(CreateReelayPressable)`
+	background-color: ${ReelayColors.reelayGreen};
+`
 
 export default TitleDetailScreen = ({ navigation, route }) => {
-	// Screen-wide dimension handling
-	const { height, width } = Dimensions.get("window");
-
 	// Parse Title Object
 	const { titleObj } = route.params;
-	const actors = titleObj?.displayActors;
-	const director = titleObj?.director?.name;
-	const overview = titleObj?.overview;
 	const tmdbTitleID = titleObj?.id;
-	const rating = titleObj?.rating;
 	const isSeries = titleObj?.isSeries;
 	const titleType = (isSeries) ? "tv" : "film";
 
-	// hide tab bar
-	const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
+	const { reelayDBUser } = useContext(AuthContext);
 	const dispatch = useDispatch();
 	const headerTopOffset = useSafeAreaInsets().top - 10;
+	const justShowMeSignupVisible = useSelector(state => state.justShowMeSignupVisible);
+
+	const showMeSignupIfGuest = () => {
+		if (reelayDBUser?.username === 'be_our_guest') {
+			dispatch({ type: 'setJustShowMeSignupVisible', payload: true })
+			return true;
+		}
+		return false;
+	}
 	
 	useFocusEffect(() => {
 		dispatch({ type: 'setTabBarVisible', payload: false });
 	});
+
+	const CreateReelayButton = () => {
+		const advanceToCreateReelay = () => {
+			if (showMeSignupIfGuest()) return;
+			navigation.push('VenueSelectScreen', { titleObj: titleObj });
+			logAmplitudeEventProd('advanceToCreateReelay', {
+				username: reelayDBUser?.username,
+				title: titleObj?.title?.display,
+				source: 'titlePage',
+			});
+		}
+			
+		return (
+			<CreateReelayPressable onPress={advanceToCreateReelay}>
+				<CreateReelayText>{'Create a reelay'}</CreateReelayText>
+			</CreateReelayPressable>
+		)
+	}
 
 	const NavHeader = () => {
 		return (
@@ -88,15 +129,36 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 		);
 	}
 
+	const WatchTrailerButton = () => {
+		const advanceToWatchTrailer = () => {
+			navigation.push("TitleTrailerScreen", {
+				trailerURI: titleObj?.trailerURI,
+			});
+			logAmplitudeEventProd("watchTrailer", {
+				title: titleObj?.display,
+				tmdbTitleID: tmdbTitleID,
+				source: 'titlePage',
+			});
+		}
+	
+		return (
+			<WatchTrailerPressable onPress={advanceToWatchTrailer}>
+				<CreateReelayText>{'Watch trailer'}</CreateReelayText>
+			</WatchTrailerPressable>
+		)
+	}
+
 	return (
 		<ScrollBox showsVerticalScrollIndicator={false}>
 			<TitleDetailHeader navigation={navigation} titleObj={titleObj} />
 			<NavHeader />
 			<TitleReactions navigation={navigation} titleObj={titleObj} />
-			<MovieInformation director={director} actors={actors} description={overview} rating={rating} />
+			<CreateReelayButton />
+			<WatchTrailerButton />
+			<MovieInformation titleObj={titleObj} />
 			<Spacer height={20} />
 			<PopularReelaysRow navigation={navigation} titleObj={titleObj} />
-			<SeenOn tmdbTitleID={tmdbTitleID} titleType={titleType} />
+			<WatchNow tmdbTitleID={tmdbTitleID} titleType={titleType} />
 			<BottomBackButton navigation={navigation} />
 			<Spacer height={100} />
 			{ justShowMeSignupVisible && <JustShowMeSignupDrawer navigation={navigation} /> }
