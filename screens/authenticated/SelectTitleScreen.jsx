@@ -158,9 +158,7 @@ export default SelectTitleScreen = ({ navigation, route }) => {
     }
 
     useFocusEffect(() => {
-        if (!topic) {
-            dispatch({ type: 'setTabBarVisible', payload: true }); 
-        }
+        dispatch({ type: 'setTabBarVisible', payload: true }); 
     })
 
     useEffect(() => {

@@ -122,7 +122,7 @@ export default TitleDetailScreen = ({ navigation, route }) => {
 		return (
 			<HeaderContainer topOffset={headerTopOffset}>
 				<BackButton navigation={navigation} />
-				<AddToWatchlistButton navigation={navigation} titleObj={titleObj} />
+				<AddToWatchlistButton navigation={navigation} shouldGoToWatchlist={true} titleObj={titleObj} />
 			</HeaderContainer>
 		);
 	}

@@ -236,7 +236,8 @@ export default WatchlistScreen = ({ navigation, route }) => {
     const onRefresh = async () => {
         setRefreshing(true);
         const nextWatchlistItems = await getWatchlistItems(reelayDBUser?.sub);
-        dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems })
+        dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
+        setDisplayItems(nextWatchlistItems.filter(hasAcceptedRec));
         setRefreshing(false);
     }
 
@@ -270,6 +271,13 @@ export default WatchlistScreen = ({ navigation, route }) => {
         const nextDisplayItems = getDisplayItems();
         setDisplayItems(nextDisplayItems);
     }, [refreshing, selectedFilters]);
+
+    useEffect(() => {
+        const nextDisplayItems = myWatchlistItems.filter(hasAcceptedRec);
+        if (nextDisplayItems?.length !== displayItems?.length) {
+            setDisplayItems(nextDisplayItems);
+        }
+    }, [myWatchlistItems]);
 
     useFocusEffect(() => {
         dispatch({ type: 'setTabBarVisible', payload: true });
@@ -367,14 +375,16 @@ export default WatchlistScreen = ({ navigation, route }) => {
                 titleObj
             });
 
+            const titleKey = `${titleObj?.titleType}-${titleObj?.id}`;
             return (
-                <RecTitleRowView key={titleObj?.titleKey}>
+                <RecTitleRowView key={titleKey}>
                     <TitlePoster onPress={advanceToTitleDetailScreen} title={titleObj} width={45} />
                     <RecTitleInfo titleObj={titleObj} />
                     <AddToWatchlistButton 
                         navigation={navigation}
-                        titleObj={titleObj}
                         reelay={null}
+                        shouldGoToWatchlist={true}
+                        titleObj={titleObj}
                     />
                 </RecTitleRowView>
             )

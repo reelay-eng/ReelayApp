@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToMyWatchlist, removeFromMyWatchlist } from '../../api/WatchlistApi';
 import { notifyOnAddedToWatchlist } from '../../api/WatchlistNotifications';
 import { showMessageToast } from '../utils/toasts';
+import * as Haptics from 'expo-haptics';
 
 const WatchlistButtonCircleContainer = styled(View)`
     align-items: center;
@@ -33,10 +34,11 @@ const WatchlistButtonOuterContainer = styled(TouchableOpacity)`
     width: 60px;
 `
 
-export default AddToWatchlistButton = ({ navigation, showCircle=true, titleObj, reelay }) => {
+export default AddToWatchlistButton = ({ navigation, shouldGoToWatchlist = false, showCircle=true, titleObj, reelay }) => {
     const dispatch = useDispatch();
     const { reelayDBUser } = useContext(AuthContext);
     const myWatchlistItems = useSelector(state => state.myWatchlistItems);
+    const myWatchlistRecs = useSelector(state => state.myWatchlistRecs);
     const isMyReelay = reelay?.creator?.sub === reelayDBUser?.sub;
 
     const inWatchlistIndex = myWatchlistItems.findIndex((nextItem) => {
@@ -59,6 +61,12 @@ export default AddToWatchlistButton = ({ navigation, showCircle=true, titleObj, 
 	}
 
     const addToWatchlistOnPress = async () => {
+        if (shouldGoToWatchlist) {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        } else {
+            showMessageToast(`Added ${titleObj.display} to your watchlist`);
+        }
+
         const addToWatchlistResult = await addToMyWatchlist({
             reqUserSub: reelayDBUser?.sub,
             reelaySub: reelay?.sub ?? null,
@@ -86,17 +94,16 @@ export default AddToWatchlistButton = ({ navigation, showCircle=true, titleObj, 
         });
 
         dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
-        showMessageToast(`Added ${titleObj.display} to your watchlist`);
+
+        if (shouldGoToWatchlist) {
+            navigation.navigate('WatchlistScreen', {
+                myWatchlistItems: nextWatchlistItems,
+                myWatchlistRecs: myWatchlistRecs,
+            });
+        }
     }
 
     const removeFromWatchlistOnPress = async () => {
-        console.log('remove: ', {
-            reqUserSub: reelayDBUser?.sub,
-            tmdbTitleID: titleObj?.id,
-            titleType: titleObj?.titleType,
-        })
-
-
         logAmplitudeEventProd('removeItemFromWatchlist', {
             username: reelayDBUser?.username,
             title: titleObj?.display,
@@ -110,14 +117,25 @@ export default AddToWatchlistButton = ({ navigation, showCircle=true, titleObj, 
         })
 
         dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
+
+        if (shouldGoToWatchlist) {
+            navigation.navigate('WatchlistScreen', {
+                myWatchlistItems: nextWatchlistItems,
+                myWatchlistRecs: myWatchlistRecs,
+            });
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        } else {
+            showMessageToast(`Removed ${titleObj.display} from your watchlist`);
+        }
+
         const removeFromWatchlistResult = await removeFromMyWatchlist({
             reqUserSub: reelayDBUser?.sub,
             tmdbTitleID: titleObj?.id,
             titleType: titleObj?.titleType,
         });
 
+
         console.log('remove from watchlist result: ', removeFromWatchlistResult);
-        showMessageToast(`Removed ${titleObj.display} from your watchlist`);
     }
     
     const onPress = async () => {

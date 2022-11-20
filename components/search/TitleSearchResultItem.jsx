@@ -105,7 +105,7 @@ export default TitleSearchResultItem = ({ navigation, onGuessTitle, result, sour
                 <ActorText>{actors}</ActorText>
             </TitleLineContainer>
             { source === 'search' && !isGuestUser && (
-                <AddToWatchlistButton navigation={navigation} showCircle={false} titleObj={titleObj} />
+                <AddToWatchlistButton shouldGoToWatchlist={true} navigation={navigation} showCircle={false} titleObj={titleObj} />
             )}
         </PressableContainer>
     );

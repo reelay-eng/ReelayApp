@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import { animate } from '../../hooks/animations';
+import { useFocusEffect } from '@react-navigation/native';
 
 const FlexContainer = styled(View)`
     display: flex;
@@ -257,11 +258,14 @@ export default VenueSelectScreen = ({ navigation, route }) => {
     });
     
     useEffect(() => {
-        dispatch({ type: 'setTabBarVisible', payload: false });
         dispatch({ type: 'setUploadStage', payload: 'none' });
         dispatch({ type: 'setUploadRequest', payload: null });
         dispatch({ type: 'setUploadProgress', payload: 0.0 });
     }, []);
+
+    useFocusEffect(() => {
+        dispatch({ type: 'setTabBarVisible', payload: false });
+    })
 
     return (
 		<ScreenContainer>
