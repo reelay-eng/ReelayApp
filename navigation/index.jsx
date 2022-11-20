@@ -29,6 +29,7 @@ import { markNotificationReceived } from '../api/NotificationsApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { logAmplitudeEventProd } from '../components/utils/EventLogger';
 import { uploadReelay } from '../api/UploadAPI';
+import { getTopics } from '../api/TopicsApi';
 
 const UUID_LENGTH = 36;
 
@@ -49,6 +50,7 @@ export default Navigation = () => {
 
     const dispatch = useDispatch();
     const authSession = useSelector(state => state.authSession);
+    const discoverTopics = useSelector(state => state.myHomeContent?.discover?.topics);
     const emptyGlobalTopics = useSelector(state => state.emptyGlobalTopics);
     const myClubs = useSelector(state => state.myClubs);
 
@@ -191,14 +193,25 @@ export default Navigation = () => {
             uploadRequest.setUploadStage = setUploadStage;
             uploadRequest.clearUploadRequest = clearUploadRequest;
             await uploadReelay(uploadRequest);    
+
             if (uploadRequest.reelayTopic) {
                 const removeTopic = (nextTopic) => (nextTopic.id !== uploadRequest.reelayTopic.id);
                 const nextEmptyGlobalTopics = emptyGlobalTopics.filter(removeTopic);
                 if (nextEmptyGlobalTopics.length !== emptyGlobalTopics.length) {
                     dispatch({ type: 'setEmptyGlobalTopics', payload: nextEmptyGlobalTopics });
                 }
-            }
 
+                const topics = await getTopics({ 
+                    authSession: uploadRequest.authSession,
+                    page: 0,
+                    reqUserSub: reelayDBUser?.sub,
+                    source: 'discover',
+                });
+
+                if (topics?.length > 0) {
+                    dispatch({ type: 'setTopics', payload: { discover: topics }});
+                }
+            }
         } catch (error) {
             return { error };
         }

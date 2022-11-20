@@ -44,28 +44,6 @@ const PlayPauseIcon = ({ onPress, type = 'play' }) => {
     );
 }
 
-const ReelayVideo = ({ 
-	onPlaybackStatusUpdate,
-	shouldPlay,
-	videoURI,
-}) => {
-	return (
-		<Video
-			isLooping={true}
-			isMuted={false}
-			onPlaybackStatusUpdate={onPlaybackStatusUpdate}
-			progressUpdateIntervalMillis={50}
-			rate={1.0}
-			resizeMode='cover'
-			shouldPlay={shouldPlay}
-			source={{ uri: videoURI }}
-			style={{ height, width }}
-			useNativeControls={false}
-			volume={1.0}
-		/>
-	);
-}
-
 export default FeedVideoPlayer = ({ gameID = null, navigation, reelay, viewable }) => {
 	const canOpenTrailer = (!gameID && reelay?.titleKey !== 'film-0');
 	const dispatch = useDispatch();

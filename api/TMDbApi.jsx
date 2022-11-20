@@ -204,7 +204,7 @@ export const fetchAnnotatedTitle = async ({ tmdbTitleID, isSeries, isWelcomeReel
         titleType,
         trailerURI,
         rating,
-        runtime: tmdbTitleObject.runtime,
+        runtime: tmdbTitleObject.runtime ?? tmdbTitleObject.episode_run_time?.[0] ?? 0,
     }
 
     if (isSeries) {

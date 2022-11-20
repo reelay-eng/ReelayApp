@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { TouchableOpacity } from 'react-native';
 import { Icon } from 'react-native-elements';
 import ReelayColors from '../../constants/ReelayColors';
@@ -23,8 +23,6 @@ const MarkSeenText = styled(ReelayText.CaptionEmphasized)`
 `
 
 export default MarkSeenButton = ({ 
-    // markedSeen, 
-    // setMarkedSeen, 
     showText=true, 
     size=30,
     watchlistItem,
@@ -34,10 +32,8 @@ export default MarkSeenButton = ({
     const dispatch = useDispatch();
     const titleObj = watchlistItem?.title;
 
-    const myWatchlistItems = useSelector(state => state.myWatchlistItems);
     const matchWatchlistItem = (nextItem) => nextItem?.id === watchlistItem?.id;
-    const myWatchlistItem = myWatchlistItems?.find(matchWatchlistItem) ?? null;
-    const markedSeen = myWatchlistItem ? myWatchlistItem?.hasSeenTitle : null;
+    const markedSeen = useSelector(state => state.myWatchlistItems.find(matchWatchlistItem)?.hasSeenTitle) ?? false;
 
     const updateWatchlistReqBody = { 
         reqUserSub: reelayDBUser?.sub, 
@@ -46,6 +42,7 @@ export default MarkSeenButton = ({
     };
 
     const markSeen = async () => {
+        if (showMeSignupIfGuest()) return;
         if (watchlistItem?.id) {
             watchlistItem.hasSeenTitle = true;
             watchlistItem.updatedAt = moment().toISOString();
@@ -61,6 +58,7 @@ export default MarkSeenButton = ({
     }
 
     const markUnseen = async () => {
+        if (showMeSignupIfGuest()) return;
         if (watchlistItem?.id) {
             watchlistItem.hasSeenTitle = false;
             watchlistItem.updatedAt = moment().toISOString();
@@ -75,6 +73,14 @@ export default MarkSeenButton = ({
             title: titleObj?.display,
         });
     }
+
+    const showMeSignupIfGuest = () => {
+		if (reelayDBUser?.username === 'be_our_guest') {
+			dispatch({ type: 'setJustShowMeSignupVisible', payload: true })
+			return true;
+		}
+		return false;
+	}
 
     return (
         <MarkSeenButtonContainer onPress={(markedSeen) ? markUnseen : markSeen}>

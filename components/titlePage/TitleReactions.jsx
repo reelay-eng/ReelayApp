@@ -125,12 +125,13 @@ export default TitleReactions = ({ navigation, titleObj }) => {
         }
 
         const newWatchlistItem = {
-            hasSeenTitle: true,
+            hasSeenTitle: false,
             isNewWatchlistItem: true,
             recommendedReelaySub: null, 
             recReelayCreatorName: null,
             tmdbTitleID: titleObj?.id, 
             titleType: titleObj?.titleType,
+            title: titleObj,
             reactEmojis: '',
             userSub: reelayDBUser?.sub,
         };
@@ -144,7 +145,6 @@ export default TitleReactions = ({ navigation, titleObj }) => {
     const { reelayDBUser } = useContext(AuthContext);
 
     const [myReaction, setMyReaction] = useState(getMyReaction());
-    const [markedSeen, setMarkedSeen] = useState(myReaction?.hasSeenTitle);
     const [allReactions, setAllReactions] = useState([]);
 
     const getReactionsByEmoji = () => allReactions.reduce((emojiCounts, nextReaction) => {
@@ -161,7 +161,7 @@ export default TitleReactions = ({ navigation, titleObj }) => {
     }, {...DEFAULT_REACTIONS_BY_EMOJI});
 
     const reactionsByEmoji = getReactionsByEmoji();
-    
+
     const loadReactions = async () => {
         const loadReactionsObj = await getTitleReactEmojis({ 
             authSession, 
@@ -206,9 +206,32 @@ export default TitleReactions = ({ navigation, titleObj }) => {
         const reactionCount = reactionsByEmoji[emoji];
         const showReactionCount = (reactionCount > 0);
 
+        const autoMarkSeen = async () => {
+            if (!myReaction?.hasSeenTitle) {
+                myReaction.hasSeenTitle = true;
+                const watchlistItemMarkedSeen = await markWatchlistItemSeen({
+                    reqUserSub: reelayDBUser?.sub,
+                    tmdbTitleID: myReaction?.tmdbTitleID,
+                    titleType: myReaction?.titleType,
+                });
+
+                console.log('mark seen result: ', watchlistItemMarkedSeen);
+                watchlistItemMarkedSeen.title = titleObj;
+                if (watchlistItemMarkedSeen && !watchlistItemMarkedSeen?.error) {
+                    dispatch({ type: 'setUpdatedWatchlistItem', payload: watchlistItemMarkedSeen });    
+                }
+
+                return watchlistItemMarkedSeen;
+            }
+        }
+
         const selectEmoji = () => {     
             const nextReactEmojis = myReaction?.reactEmojis + emoji;
-            const nextMyReaction = { ...myReaction, reactEmojis: nextReactEmojis };
+            const nextMyReaction = { 
+                ...myReaction, 
+                reactEmojis: nextReactEmojis,
+                hasSeenTitle: true,
+            };
             setMyReaction(nextMyReaction);
 
             const removeMyReaction = (reaction) => reaction?.userSub !== reelayDBUser?.sub
@@ -238,19 +261,29 @@ export default TitleReactions = ({ navigation, titleObj }) => {
 
 
         const onPress = async () => {
+
             const nextReactEmojis = (isSelected) ? unselectEmoji() : selectEmoji();
-            if (myReaction?.isNewWatchlistItem) {
-                const watchlistItem = await markWatchlistItemSeen({
-                    reqUserSub: reelayDBUser?.sub,
-                    titleType: titleObj?.titleType,
-                    tmdbTitleID: titleObj?.id,
-                });
-                myReaction.id = watchlistItem?.id;
-            }
+            // console.log({
+            //     itemID: myReaction?.id, 
+            //     reactEmojis: nextReactEmojis,
+            //     reqUserSub: reelayDBUser?.sub,
+            // });
+            // if (!myReaction?.hasSeenTitle) {
+            //     console.log('auto marking seen');
+            //     const markSeenResult = autoMarkSeen();
+            // } else {
+            //     console.log('not marking seen');
+            // }
+
+            const nextMyReaction = (!myReaction?.hasSeenTitle)
+                ? await autoMarkSeen()
+                : myReaction;
+
+            console.log('my reaction: ', nextMyReaction);
 
             const watchlistItemWithEmojis = await setReactEmojis({
                 authSession, 
-                itemID: myReaction?.id, 
+                itemID: nextMyReaction?.id, 
                 reactEmojis: nextReactEmojis,
                 reqUserSub: reelayDBUser?.sub,
             });
@@ -279,8 +312,6 @@ export default TitleReactions = ({ navigation, titleObj }) => {
             <ReactionHeaderRow>
                 <HeaderText>{'Reactions'}</HeaderText>
                 <MarkSeenButton 
-                    markedSeen={markedSeen} 
-                    setMarkedSeen={setMarkedSeen} 
                     showText={true}
                     watchlistItem={myReaction}            
                 />
@@ -317,7 +348,7 @@ export default TitleReactions = ({ navigation, titleObj }) => {
     useEffect(() => {
         setMyReaction(getMyReaction());
         if (!titleObj?.reactions) loadReactions();
-    }, []);
+    }, [myWatchlistItems])
 
     return (
         <ReactionCardView>

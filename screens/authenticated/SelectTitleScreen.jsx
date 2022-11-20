@@ -73,7 +73,7 @@ const TopicTitleContainer = styled(View)`
     padding-left: 20px;
     padding-right: 20px;
     padding-bottom: 12px;
-    width:100%;
+    width: ${width}px;
 `
 const TopicTitleText = styled(ReelayText.H6)`
     color: white;

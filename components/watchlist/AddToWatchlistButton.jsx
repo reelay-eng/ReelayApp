@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { AuthContext } from '../../context/AuthContext';
 import { logAmplitudeEventProd } from '../utils/EventLogger';
@@ -90,18 +90,10 @@ export default AddToWatchlistButton = ({ navigation, showCircle=true, titleObj, 
     }
 
     const removeFromWatchlistOnPress = async () => {
-        const removeFromWatchlistResult = await removeFromMyWatchlist({
+        console.log('remove: ', {
             reqUserSub: reelayDBUser?.sub,
             tmdbTitleID: titleObj?.id,
             titleType: titleObj?.titleType,
-        });
-
-        console.log('remove from watchlist result: ', removeFromWatchlistResult);
-
-        const nextWatchlistItems = myWatchlistItems.filter(nextItem => {
-            const matchTitleID = (nextItem?.tmdbTitleID === titleObj?.id);
-            const matchTitleType = (nextItem?.titleType === titleObj?.titleType);
-            return !(matchTitleID && matchTitleType);
         })
 
 
@@ -111,7 +103,20 @@ export default AddToWatchlistButton = ({ navigation, showCircle=true, titleObj, 
             source: 'feed',
         });    
 
+        const nextWatchlistItems = myWatchlistItems.filter(nextItem => {
+            const matchTitleID = (nextItem?.tmdbTitleID === titleObj?.id);
+            const matchTitleType = (nextItem?.titleType === titleObj?.titleType);
+            return !(matchTitleID && matchTitleType);
+        })
+
         dispatch({ type: 'setMyWatchlistItems', payload: nextWatchlistItems });
+        const removeFromWatchlistResult = await removeFromMyWatchlist({
+            reqUserSub: reelayDBUser?.sub,
+            tmdbTitleID: titleObj?.id,
+            titleType: titleObj?.titleType,
+        });
+
+        console.log('remove from watchlist result: ', removeFromWatchlistResult);
         showMessageToast(`Removed ${titleObj.display} from your watchlist`);
     }
     

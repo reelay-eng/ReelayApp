@@ -170,7 +170,7 @@ const WatchlistHeaderText = styled(ReelayText.H5)`
 const WatchlistHeaderView = styled(View)`
     align-items: center;
     margin-top: ${props => props.topOffset + 60}px;
-    width: 100%;
+    width: ${width}px;
 `
 const WatchlistScreenContainer = styled(View)`
     align-items: center;
@@ -190,7 +190,12 @@ export default WatchlistScreen = ({ navigation, route }) => {
     const hasSeenTitle = (watchlistItem) => watchlistItem?.hasSeenTitle;
     const isFilm = (watchlistItem) => watchlistItem?.titleType === 'film';
     const isSeries = (watchlistItem) => watchlistItem?.titleType === 'tv';
-    const isUnder90Mins = (watchlistItem) => watchlistItem?.title?.runtime < 90;
+    const isUnder90Mins = (watchlistItem) => {
+        if (watchlistItem?.title?.runtime > 0) {
+            return watchlistItem?.title?.runtime < 90;
+        }
+        return watchlistItem?.title?.titleType === 'tv';
+    }
 
     // we don't want to use selector here, else it will rerender the whole list whenever we update
     const myWatchlistItems = route?.params?.myWatchlistItems ?? [];
